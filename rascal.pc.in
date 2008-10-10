@@ -1,0 +1,10 @@
+prefix=@prefix@
+Maintainers=jurgenv@cwi.nl,storm@cwi.nl,paulk@cwi.nl
+Name: rascal
+Description: 
+Version: 0.1
+EclipseRequires=org.eclipse.imp.pdb
+Requires: 
+JarFile=rascal.jar
+Jars=${prefix}/share/${JarFile}
+Packages=org.meta_environment.rascal,org.meta_environment.rascal.io
