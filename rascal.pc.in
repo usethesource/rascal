@@ -7,4 +7,4 @@ EclipseRequires=org.eclipse.imp.pdb
 Requires: 
 JarFile=rascal.jar
 Jars=${prefix}/share/${JarFile}
-Packages=org.meta_environment.rascal,org.meta_environment.rascal.io
+Packages=
