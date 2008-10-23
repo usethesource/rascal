@@ -28,6 +28,7 @@ import org.eclipse.imp.pdb.facts.type.RelationType;
 import org.eclipse.imp.pdb.facts.type.SetType;
 import org.eclipse.imp.pdb.facts.type.TreeNodeType;
 import org.eclipse.imp.pdb.facts.type.TreeSortType;
+import org.eclipse.imp.pdb.facts.type.TupleType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
@@ -131,6 +132,12 @@ public class ATermReader implements IValueReader {
 			else {
 				throw new FactTypeError("Expected " + expected + " but got a string");
 			}
+			
+			c = reader.readSkippingWS();
+			if (c == -1) {
+				throw new FactTypeError("premature EOF encountered.");
+			}
+			break;
 		case '(':
 			c = reader.readSkippingWS();
 			if (c == -1) {
@@ -150,7 +157,10 @@ public class ATermReader implements IValueReader {
 				}
 				
 			} else {
-				IValue[] list = parseATermsArray(reader, expected);
+				if (!expected.getBaseType().isTupleType()) {
+					throw new FactTypeError("Expected a " + expected + " but got a tuple");
+				}
+				IValue[] list = parseFixedSizeATermsArray(reader, (TupleType) expected.getBaseType());
 
 				if (reader.getLastChar() != ')') {
 					throw new FactTypeError("expected ')' but got '"
@@ -190,6 +200,13 @@ public class ATermReader implements IValueReader {
 			if (Character.isLetter(c)) {
 
 				String funname = parseId(reader);
+				
+				if (!expected.getBaseType().isTreeSortType()) {
+					throw new FactTypeError("Expected a " + expected + " but got a tree node");
+				}
+				
+				TreeNodeType node = tf.signatureGet((TreeSortType) expected.getBaseType(), funname);
+				
 				c = reader.skipWS();
 				if (reader.getLastChar() == '(') {
 					c = reader.readSkippingWS();
@@ -197,25 +214,21 @@ public class ATermReader implements IValueReader {
 						throw new FactTypeError("premature EOF encountered.");
 					}
 					if (reader.getLastChar() == ')') {
-						TreeNodeType node = getTreeNodeType(expected, funname);
 						result = vf
 								.tree(node, new IValue[0]);
 					} else {
-						// TODO : make parseATermsArgArray that uses types of arguments of the treenode type
-						IValue[] list = parseATermsArray(reader, expected);
+						IValue[] list = parseFixedSizeATermsArray(reader, node.getChildrenTypes());
 
 						if (reader.getLastChar() != ')') {
 							throw new FactTypeError("expected ')' but got '"
 									+ (char) reader.getLastChar() + "'");
 						}
 						
-						TreeNodeType node = getTreeNodeType(expected, funname);
 						result = vf.tree(node, list);
 					}
 					c = reader.readSkippingWS();
 				} else {
-					TreeNodeType node = getTreeNodeType(expected, funname);
-					result = vf.tree(node, new IValue[0]);
+				    result = vf.tree(node, new IValue[0]);
 				}
 			} else {
 				throw new FactTypeError("illegal character: "
@@ -570,6 +583,31 @@ public class ATermReader implements IValueReader {
 		}
 		return array;
 	}
+	
+	private IValue[] parseFixedSizeATermsArray(SharingStream reader,
+			TupleType elementTypes) throws IOException {
+		List<IValue> list = new ArrayList<IValue>();
+		int i = 0;
+		Type elementType = elementTypes.getFieldType(i++);
+
+		IValue term = parse(reader, elementType);
+		list.add(term);
+		while (reader.getLastChar() == ',') {
+			elementType = elementTypes.getFieldType(i++);
+			reader.readSkippingWS();
+			term = parse(reader, elementType);
+			list.add(term);
+		}
+
+		IValue[] array = new IValue[list.size()];
+		ListIterator<IValue> iter = list.listIterator();
+		int index = 0;
+		while (iter.hasNext()) {
+			array[index++] = iter.next();
+		}
+		return array;
+	}
+
 
 	class SharingStream {
 		private static final int INITIAL_TABLE_SIZE = 2048;
@@ -724,10 +762,10 @@ public class ATermReader implements IValueReader {
 		};
 		
 		String[] testATerms = {
-//			"true",
-//			"and(true,false)",
-//		    "not(and(true,false))",
-//		    "twotups((true,false),(true,false))",
+			"true",
+			"and(true,false)",
+		    "not(and(true,false))",
+		    "twotups((true,false),(true,false))",
 		    "or([true,false,true])",
 		    "friends([name(\"Hans\"),name(\"Bob\")])",
 		    "or([])",
@@ -739,13 +777,7 @@ public class ATermReader implements IValueReader {
 		try {
 			result = r.read(ValueFactory.getInstance(), Boolean,
 						new ByteArrayInputStream(test.getBytes()));
-				if (!result.toString().equals(test)) {
-					System.err
-							.println("failed test: " + test + " != " + result);
-				}
-				else {
-					System.err.println("test succeeded: " + result);
-				}
+			System.err.println("test: " + test + " == " + result + " ?");
 
 		} catch (FactTypeError e) {
 			e.printStackTrace();
