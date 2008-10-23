@@ -46,7 +46,7 @@ public class TestIO extends TestCase {
 			vf.tree(True),
 			vf.tree(And, vf.tree(True), vf.tree(False)),
 			vf.tree(Not, vf.tree(And, vf.tree(True), vf.tree(False))),
-			vf.tree(And, vf.tree(And, vf.tree(True), vf.tree(False)), vf.tree(And, vf.tree(True), vf.tree(False))),
+			vf.tree(And, vf.tree(And, vf.tree(True), vf.tree(True)), vf.tree(And, vf.tree(True), vf.tree(True))),
 			vf.tree(TwoTups, vf.tuple(vf.tree(True), vf.tree(False)),vf.tuple(vf.tree(True), vf.tree(False))),
 			vf.tree(Or, vf.listWith(vf.tree(True), vf.tree(False), vf.tree(True))),
 			vf.tree(Friends, vf.listWith(name("Hans"), name("Bob"))),

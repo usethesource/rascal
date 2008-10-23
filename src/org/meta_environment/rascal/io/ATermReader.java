@@ -32,12 +32,12 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
 public class ATermReader implements IValueReader {
 	private IValueFactory vf;
-	private TypeFactory tf;
+	private TypeFactory tf = TypeFactory.getInstance();
+	private Type annoT = tf.listType(tf.listType(tf.valueType()));
 
 	public IValue read(IValueFactory factory, Type type, InputStream stream)
 			throws FactTypeError, IOException {
 		this.vf = factory;
-		this.tf = TypeFactory.getInstance();
 
 		int firstToken;
 		do {
@@ -236,24 +236,24 @@ public class ATermReader implements IValueReader {
 
 		
 		// TODO add support for annotations
-//		if (reader.getLastChar() == '{') {
-//
-//			IValue annos;
-//			if (reader.readSkippingWS() == '}') {
-//				reader.readSkippingWS();
-//				annos = vf.list(tf.integerType());
-//			} else {
-//				annos = parseATerms(reader, expected);
-//				if (reader.getLastChar() != '}') {
-//					throw new FactTypeError("'}' expected");
-//				}
-//				reader.readSkippingWS();
-//			}
-//
-//			// TODO: add annotations
-//			// result = result.setAnnotations(annos);
-//
-//		}
+		if (reader.getLastChar() == '{') {
+
+			IValue annos;
+			if (reader.readSkippingWS() == '}') {
+				reader.readSkippingWS();
+				annos = vf.list(tf.integerType());
+			} else {
+				annos = parseATerms(reader, annoT);
+				if (reader.getLastChar() != '}') {
+					throw new FactTypeError("'}' expected");
+				}
+				reader.readSkippingWS();
+			}
+
+			System.err.println(annos);
+//			result = result.setAnnotations(annos);
+
+		}
 
 		end = reader.getPosition();
 		reader.storeNextTerm(result, end - start);
