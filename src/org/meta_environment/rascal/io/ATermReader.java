@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.io;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -19,7 +18,6 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.IValueReader;
-import org.eclipse.imp.pdb.facts.impl.hash.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.type.ListType;
 import org.eclipse.imp.pdb.facts.type.MapType;
@@ -261,18 +259,6 @@ public class ATermReader implements IValueReader {
 		reader.storeNextTerm(result, end - start);
 
 		return result;
-	}
-
-	private TreeNodeType getTreeNodeType(Type expected, String funname) {
-		if (expected.isTreeSortType()) {
-		  return tf.signatureGet((TreeSortType) expected, funname);
-		}
-		else if (expected.isTreeNodeType()) {
-			return (TreeNodeType) expected;
-		}
-		else {
-			throw new FactTypeError("Expected " + expected + " but got a tree leaf node");
-		}
 	}
 
 	static private boolean isBase64(int c) {
@@ -727,64 +713,5 @@ public class ATermReader implements IValueReader {
 		public int getPosition() {
 			return pos;
 		}
-	}
-	
-	private static IValue name(TreeNodeType NamedNode, String n) {
-		ValueFactory vf = ValueFactory.getInstance();
-		return vf.tree(NamedNode, vf.string(n));
-	}
-	
-	public static void main(String[] args) {
-		ATermReader r = new ATermReader();
-		TypeFactory tf = TypeFactory.getInstance();
-		ValueFactory vf = ValueFactory.getInstance();
-		TreeSortType Boolean = tf.treeSortType("Boolean");
-		TreeSortType Name = tf.treeSortType("Name");
-		TreeNodeType True = tf.treeType(Boolean, "true");
-		TreeNodeType False= tf.treeType(Boolean, "false");
-		TreeNodeType And= tf.treeType(Boolean, "and", Boolean, Boolean);
-		TreeNodeType Or= tf.treeType(Boolean, "or", tf.listType(Boolean));
-		TreeNodeType Not= tf.treeType(Boolean, "not", Boolean);
-		TreeNodeType TwoTups = tf.treeType(Boolean, "twotups", tf.tupleTypeOf(Boolean, Boolean), tf.tupleTypeOf(Boolean, Boolean));
-		TreeNodeType NameNode  = tf.treeType(Name, "name", tf.stringType());
-		TreeNodeType Friends = tf.treeType(Boolean, "friends", tf.listType(Name));
-		TreeNodeType Couples = tf.treeType(Boolean, "couples", tf.listType(tf.tupleTypeOf(Name, Name)));
-		
-		IValue[] testValues = {
-				vf.tree(True),
-				vf.tree(And, vf.tree(True), vf.tree(False)),
-				vf.tree(Not, vf.tree(And, vf.tree(True), vf.tree(False))),
-				vf.tree(TwoTups, vf.tuple(vf.tree(True), vf.tree(False)),vf.tuple(vf.tree(True), vf.tree(False))),
-				vf.tree(Or, vf.listWith(vf.tree(True), vf.tree(False), vf.tree(True))),
-				vf.tree(Friends, vf.listWith(name(NameNode,"Hans"), name(NameNode,"Bob"))),
-				vf.tree(Or, vf.list(Boolean)),
-				vf.tree(Couples, vf.listWith(vf.tuple(name(NameNode, "A"), name(NameNode, "B")), vf.tuple(name(NameNode, "C"), name(NameNode, "D"))))
-		};
-		
-		String[] testATerms = {
-			"true",
-			"and(true,false)",
-		    "not(and(true,false))",
-		    "twotups((true,false),(true,false))",
-		    "or([true,false,true])",
-		    "friends([name(\"Hans\"),name(\"Bob\")])",
-		    "or([])",
-		    "couples([(name(\"A\"),name(\"B\")),(name(\"C\"),name(\"D\"))])"
-		    };
-		
-		for (String test : testATerms) {
-		  IValue result;
-		try {
-			result = r.read(ValueFactory.getInstance(), Boolean,
-						new ByteArrayInputStream(test.getBytes()));
-			System.err.println("test: " + test + " == " + result + " ?");
-
-		} catch (FactTypeError e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		  
-		} 
 	}
 }
