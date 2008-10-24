@@ -44,6 +44,9 @@ public class TestIO extends TestCase {
 	
 	private IValue[] testValues = {
 			vf.tree(True),
+			vf.tree(True),
+			vf.tree(True),
+			vf.tree(True),
 			vf.tree(And, vf.tree(True), vf.tree(False)),
 			vf.tree(Not, vf.tree(And, vf.tree(True), vf.tree(False))),
 			vf.tree(And, vf.tree(And, vf.tree(True), vf.tree(True)), vf.tree(And, vf.tree(True), vf.tree(True))),
@@ -55,6 +58,9 @@ public class TestIO extends TestCase {
 	};
 	
 	private String[] testATerm = {
+			"true{[\"anno\",false]}",
+			"true{[\"banno\",false],[\"anno\",false]}",
+			"true{}",
 			"true",
 			"and(true,false)",
 		    "not(and(true,false))",
@@ -72,6 +78,9 @@ public class TestIO extends TestCase {
 	
 	public void testATermReader() {
 		ATermReader testReader = new ATermReader();
+		
+		tf.declareAnnotation(Boolean, "anno", Boolean);
+		tf.declareAnnotation(tf.valueType(), "banno", Boolean);
 		
 		try {
 			for (int i = 0; i < testATerm.length; i++) {

@@ -33,7 +33,6 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 public class ATermReader implements IValueReader {
 	private IValueFactory vf;
 	private TypeFactory tf = TypeFactory.getInstance();
-	private Type annoT = tf.listType(tf.listType(tf.valueType()));
 
 	public IValue read(IValueFactory factory, Type type, InputStream stream)
 			throws FactTypeError, IOException {
@@ -238,26 +237,62 @@ public class ATermReader implements IValueReader {
 		// TODO add support for annotations
 		if (reader.getLastChar() == '{') {
 
-			IValue annos;
 			if (reader.readSkippingWS() == '}') {
 				reader.readSkippingWS();
-				annos = vf.list(tf.integerType());
 			} else {
-				annos = parseATerms(reader, annoT);
+				result = parseAnnos(reader, result);
 				if (reader.getLastChar() != '}') {
 					throw new FactTypeError("'}' expected");
 				}
-				reader.readSkippingWS();
 			}
-
-			System.err.println(annos);
-//			result = result.setAnnotations(annos);
-
 		}
 
 		end = reader.getPosition();
 		reader.storeNextTerm(result, end - start);
 
+		return result;
+	}
+
+	private IValue parseAnnos(SharingStream reader, IValue result) throws IOException {
+		result = parseAnno(reader, result);
+		while (reader.getLastChar() == ',') {
+			reader.readSkippingWS();
+			result = parseAnno(reader, result);
+		}
+		
+		return result;
+	}
+	
+	private IValue parseAnno(SharingStream reader, IValue result) throws IOException {
+		if (reader.getLastChar() == '[') {
+			int c = reader.readSkippingWS();
+			
+			if (c == '"') {
+				String key = parseString(reader);
+				Type annoType = tf.getAnnotationType(result.getType(), key);
+
+				if (reader.readSkippingWS() == ',') {
+					reader.readSkippingWS();
+					IValue value = parse(reader, annoType);
+					result = result.setAnnotation(key, value);
+					
+					if (reader.getLastChar() != ']') {
+						throw new FactTypeError("expected a ] but got a " + reader.getLastChar());
+					}
+					
+					reader.readSkippingWS();
+					return result;
+				}
+				else {
+					throw new FactTypeError("expected a comma before the value of the annotation");
+				}
+			}
+			else {
+				throw new FactTypeError("expected a label for an annotation");
+			}
+		}
+		
+		// no annotations
 		return result;
 	}
 
