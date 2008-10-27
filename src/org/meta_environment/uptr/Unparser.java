@@ -27,7 +27,7 @@ public class Unparser {
 		@Override
 		public ITree visitTreeCharacter(ITree arg) throws VisitorException {
 			try {
-				fStream.write(((IInteger) arg.get(0)).getValue());
+				fStream.write(((IInteger) arg.get("character")).getValue());
 				return arg;
 			} catch (IOException e) {
 				throw new VisitorException(e);

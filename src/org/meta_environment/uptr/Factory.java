@@ -13,6 +13,16 @@ import org.eclipse.imp.pdb.facts.type.TreeSortType;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.io.ATermReader;
 
+/**
+ * UPTR stands for Universal Parse Tree Representation (formerly known as AsFix). It is
+ * an abstract syntax for SDF productions, completed with constructors for parse forests.
+ * <p>
+ * UPTR is produced by the SGLR parser, by the ASF+SDF interpreter and by compiled ASF+SDF
+ * programs. UPTR is consumed by tools that manipulate parse trees in general (such as
+ * automatic syntax high-lighters) or tools that manipulate specific parse trees (such
+ * as the Rascal interpreter).
+ * 
+ */
 public class Factory {
 	private static TypeFactory tf = TypeFactory.getInstance();
 	private static IValueFactory vf = ValueFactory.getInstance();
@@ -86,7 +96,7 @@ public class Factory {
 	private static final class InstanceHolder {
 		public final static Factory factory = new Factory();
 	}
-	
+	  
 	public static Factory getInstance() {
 		return InstanceHolder.factory;
 	}
