@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Alternative extends AbstractAST
 {
   public class NamedType extends Alternative
@@ -13,11 +14,11 @@ public abstract class Alternative extends AbstractAST
       this.name = name;
       this.type = type;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitNamedTypeAlternative (this);
     }
-    private final Name name;
+    private Name name;
     public Name getname ()
     {
       return name;
@@ -32,7 +33,7 @@ public abstract class Alternative extends AbstractAST
       z.privateSetname (x);
       return z;
     }
-    private final Type type;
+    private Type type;
     public Type gettype ()
     {
       return type;

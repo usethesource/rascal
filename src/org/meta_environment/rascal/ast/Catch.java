@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Catch extends AbstractAST
 {
   public class Catch extends Catch
@@ -12,11 +13,11 @@ public abstract class Catch extends AbstractAST
       this.tree = tree;
       this.body = body;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitCatchCatch (this);
     }
-    private final Statement body;
+    private Statement body;
     public Statement getbody ()
     {
       return body;
@@ -46,11 +47,11 @@ public abstract class Catch extends AbstractAST
       this.name = name;
       this.body = body;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitBindingCatchCatch (this);
     }
-    private final Type type;
+    private Type type;
     public Type gettype ()
     {
       return type;
@@ -65,7 +66,7 @@ public abstract class Catch extends AbstractAST
       z.privateSettype (x);
       return z;
     }
-    private final Name name;
+    private Name name;
     public Name getname ()
     {
       return name;
@@ -80,7 +81,7 @@ public abstract class Catch extends AbstractAST
       z.privateSetname (x);
       return z;
     }
-    private final Statement body;
+    private Statement body;
     public Statement getbody ()
     {
       return body;

@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Parameters extends AbstractAST
 {
   public class Default extends Parameters
@@ -12,11 +13,11 @@ public abstract class Parameters extends AbstractAST
       this.tree = tree;
       this.formals = formals;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitDefaultParameters (this);
     }
-    private final Formals formals;
+    private Formals formals;
     public Formals getformals ()
     {
       return formals;
@@ -43,11 +44,11 @@ public abstract class Parameters extends AbstractAST
       this.tree = tree;
       this.formals = formals;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitVarArgsParameters (this);
     }
-    private final Formals formals;
+    private Formals formals;
     public Formals getformals ()
     {
       return formals;

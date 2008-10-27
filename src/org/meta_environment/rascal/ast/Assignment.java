@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Assignment extends AbstractAST
 {
   public class Default extends Assignment
@@ -11,7 +12,7 @@ public abstract class Assignment extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitDefaultAssignment (this);
     }
@@ -26,7 +27,7 @@ public abstract class Assignment extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitAdditionAssignment (this);
     }
@@ -41,7 +42,7 @@ public abstract class Assignment extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitSubstractionAssignment (this);
     }
@@ -56,7 +57,7 @@ public abstract class Assignment extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitProductAssignment (this);
     }
@@ -71,7 +72,7 @@ public abstract class Assignment extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitDivisionAssignment (this);
     }
@@ -86,7 +87,7 @@ public abstract class Assignment extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitInteresectionAssignment (this);
     }

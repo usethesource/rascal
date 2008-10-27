@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class FunctionBody extends AbstractAST
 {
   public class Default extends FunctionBody
@@ -12,11 +13,11 @@ public abstract class FunctionBody extends AbstractAST
       this.tree = tree;
       this.statements = statements;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitDefaultFunctionBody (this);
     }
-    private final List < Statement > statements;
+    private List < Statement > statements;
     public List < Statement > getstatements ()
     {
       return statements;
@@ -27,7 +28,7 @@ public abstract class FunctionBody extends AbstractAST
     }
     public Default setstatements (List < Statement > x)
     {
-      z = new Default ();
+      Default z = new Default ();
       z.privateSetstatements (x);
       return z;
     }

@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class CharRange extends AbstractAST
 {
   public class Character extends CharRange
@@ -12,11 +13,11 @@ public abstract class CharRange extends AbstractAST
       this.tree = tree;
       this.character = character;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitCharacterCharRange (this);
     }
-    private final Character character;
+    private Character character;
     public Character getcharacter ()
     {
       return character;
@@ -44,11 +45,11 @@ public abstract class CharRange extends AbstractAST
       this.start = start;
       this.end = end;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitRangeCharRange (this);
     }
-    private final Character start;
+    private Character start;
     public Character getstart ()
     {
       return start;
@@ -63,7 +64,7 @@ public abstract class CharRange extends AbstractAST
       z.privateSetstart (x);
       return z;
     }
-    private final Character end;
+    private Character end;
     public Character getend ()
     {
       return end;

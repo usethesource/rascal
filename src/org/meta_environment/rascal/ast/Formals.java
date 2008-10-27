@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Formals extends AbstractAST
 {
   public class Formals extends Formals
@@ -12,11 +13,11 @@ public abstract class Formals extends AbstractAST
       this.tree = tree;
       this.formals = formals;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitFormalsFormals (this);
     }
-    private final List < Formal > formals;
+    private List < Formal > formals;
     public List < Formal > getformals ()
     {
       return formals;
@@ -27,7 +28,7 @@ public abstract class Formals extends AbstractAST
     }
     public Formals setformals (List < Formal > x)
     {
-      z = new Formals ();
+      Formals z = new Formals ();
       z.privateSetformals (x);
       return z;
     }

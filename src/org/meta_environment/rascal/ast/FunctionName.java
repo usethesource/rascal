@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class FunctionName extends AbstractAST
 {
   public class Name extends FunctionName
@@ -12,11 +13,11 @@ public abstract class FunctionName extends AbstractAST
       this.tree = tree;
       this.name = name;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitNameFunctionName (this);
     }
-    private final Name name;
+    private Name name;
     public Name getname ()
     {
       return name;
@@ -43,11 +44,11 @@ public abstract class FunctionName extends AbstractAST
       this.tree = tree;
       this.operator = operator;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitOperatorFunctionName (this);
     }
-    private final StandardOperator operator;
+    private StandardOperator operator;
     public StandardOperator getoperator ()
     {
       return operator;

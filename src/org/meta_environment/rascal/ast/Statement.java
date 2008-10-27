@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Statement extends AbstractAST
 {
   public class Solve extends Statement
@@ -11,7 +12,7 @@ public abstract class Statement extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitSolveStatement (this);
     }
@@ -29,11 +30,11 @@ public abstract class Statement extends AbstractAST
       this.generators = generators;
       this.body = body;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitForStatement (this);
     }
-    private final List < Generator > generators;
+    private List < Generator > generators;
     public List < Generator > getgenerators ()
     {
       return generators;
@@ -44,11 +45,11 @@ public abstract class Statement extends AbstractAST
     }
     public For setgenerators (List < Generator > x)
     {
-      z = new For ();
+      For z = new For ();
       z.privateSetgenerators (x);
       return z;
     }
-    private final Statement body;
+    private Statement body;
     public Statement getbody ()
     {
       return body;
@@ -76,11 +77,11 @@ public abstract class Statement extends AbstractAST
       this.condition = condition;
       this.body = body;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitWhileStatement (this);
     }
-    private final Expression condition;
+    private Expression condition;
     public Expression getcondition ()
     {
       return condition;
@@ -95,7 +96,7 @@ public abstract class Statement extends AbstractAST
       z.privateSetcondition (x);
       return z;
     }
-    private final Statement body;
+    private Statement body;
     public Statement getbody ()
     {
       return body;
@@ -125,11 +126,11 @@ public abstract class Statement extends AbstractAST
       this.thenStatement = thenStatement;
       this.elseStatement = elseStatement;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitIfThenElseStatement (this);
     }
-    private final Condition condition;
+    private Condition condition;
     public Condition getcondition ()
     {
       return condition;
@@ -144,7 +145,7 @@ public abstract class Statement extends AbstractAST
       z.privateSetcondition (x);
       return z;
     }
-    private final Statement thenStatement;
+    private Statement thenStatement;
     public Statement getthenStatement ()
     {
       return thenStatement;
@@ -159,7 +160,7 @@ public abstract class Statement extends AbstractAST
       z.privateSetthenStatement (x);
       return z;
     }
-    private final Statement elseStatement;
+    private Statement elseStatement;
     public Statement getelseStatement ()
     {
       return elseStatement;
@@ -188,11 +189,11 @@ public abstract class Statement extends AbstractAST
       this.condition = condition;
       this.thenStatement = thenStatement;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitIfThenStatement (this);
     }
-    private final Condition condition;
+    private Condition condition;
     public Condition getcondition ()
     {
       return condition;
@@ -207,7 +208,7 @@ public abstract class Statement extends AbstractAST
       z.privateSetcondition (x);
       return z;
     }
-    private final Statement thenStatement;
+    private Statement thenStatement;
     public Statement getthenStatement ()
     {
       return thenStatement;
@@ -236,11 +237,11 @@ public abstract class Statement extends AbstractAST
       this.expression = expression;
       this.cases = cases;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitSwitchStatement (this);
     }
-    private final Expression expression;
+    private Expression expression;
     public Expression getexpression ()
     {
       return expression;
@@ -255,7 +256,7 @@ public abstract class Statement extends AbstractAST
       z.privateSetexpression (x);
       return z;
     }
-    private final List < Case > cases;
+    private List < Case > cases;
     public List < Case > getcases ()
     {
       return cases;
@@ -266,7 +267,7 @@ public abstract class Statement extends AbstractAST
     }
     public Switch setcases (List < Case > x)
     {
-      z = new Switch ();
+      Switch z = new Switch ();
       z.privateSetcases (x);
       return z;
     }
@@ -283,11 +284,11 @@ public abstract class Statement extends AbstractAST
       this.tree = tree;
       this.declaration = declaration;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitVariableDeclarationStatement (this);
     }
-    private final LocalVariableDeclaration declaration;
+    private LocalVariableDeclaration declaration;
     public LocalVariableDeclaration getdeclaration ()
     {
       return declaration;
@@ -314,11 +315,11 @@ public abstract class Statement extends AbstractAST
       this.tree = tree;
       this.expression = expression;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitExpressionStatement (this);
     }
-    private final Expression expression;
+    private Expression expression;
     public Expression getexpression ()
     {
       return expression;
@@ -345,11 +346,11 @@ public abstract class Statement extends AbstractAST
       this.tree = tree;
       this.visit = visit;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitVisitStatement (this);
     }
-    private final Visit visit;
+    private Visit visit;
     public Visit getvisit ()
     {
       return visit;
@@ -380,11 +381,11 @@ public abstract class Statement extends AbstractAST
       this.operator = operator;
       this.expressions = expressions;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitAssignmentStatement (this);
     }
-    private final List < Assignable > assignables;
+    private List < Assignable > assignables;
     public List < Assignable > getassignables ()
     {
       return assignables;
@@ -395,11 +396,11 @@ public abstract class Statement extends AbstractAST
     }
     public Assignment setassignables (List < Assignable > x)
     {
-      z = new Assignment ();
+      Assignment z = new Assignment ();
       z.privateSetassignables (x);
       return z;
     }
-    private final Assignment operator;
+    private Assignment operator;
     public Assignment getoperator ()
     {
       return operator;
@@ -414,7 +415,7 @@ public abstract class Statement extends AbstractAST
       z.privateSetoperator (x);
       return z;
     }
-    private final List < Expression > expressions;
+    private List < Expression > expressions;
     public List < Expression > getexpressions ()
     {
       return expressions;
@@ -425,7 +426,7 @@ public abstract class Statement extends AbstractAST
     }
     public Assignment setexpressions (List < Expression > x)
     {
-      z = new Assignment ();
+      Assignment z = new Assignment ();
       z.privateSetexpressions (x);
       return z;
     }
@@ -443,11 +444,11 @@ public abstract class Statement extends AbstractAST
       this.label = label;
       this.expression = expression;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitAssertStatement (this);
     }
-    private final StringLiteral label;
+    private StringLiteral label;
     public StringLiteral getlabel ()
     {
       return label;
@@ -462,7 +463,7 @@ public abstract class Statement extends AbstractAST
       z.privateSetlabel (x);
       return z;
     }
-    private final Expression expression;
+    private Expression expression;
     public Expression getexpression ()
     {
       return expression;
@@ -489,11 +490,11 @@ public abstract class Statement extends AbstractAST
       this.tree = tree;
       this.expression = expression;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitReturnStatement (this);
     }
-    private final Expression expression;
+    private Expression expression;
     public Expression getexpression ()
     {
       return expression;
@@ -520,11 +521,11 @@ public abstract class Statement extends AbstractAST
       this.tree = tree;
       this.expression = expression;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitInsertStatement (this);
     }
-    private final Expression expression;
+    private Expression expression;
     public Expression getexpression ()
     {
       return expression;
@@ -551,11 +552,11 @@ public abstract class Statement extends AbstractAST
       this.tree = tree;
       this.expression = expression;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitThrowStatement (this);
     }
-    private final Expression expression;
+    private Expression expression;
     public Expression getexpression ()
     {
       return expression;
@@ -581,7 +582,7 @@ public abstract class Statement extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitReturnVoidStatement (this);
     }
@@ -596,7 +597,7 @@ public abstract class Statement extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitFailStatement (this);
     }
@@ -613,11 +614,11 @@ public abstract class Statement extends AbstractAST
       this.body = body;
       this.handlers = handlers;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitTryStatement (this);
     }
-    private final Statement body;
+    private Statement body;
     public Statement getbody ()
     {
       return body;
@@ -632,7 +633,7 @@ public abstract class Statement extends AbstractAST
       z.privateSetbody (x);
       return z;
     }
-    private final List < Catch > handlers;
+    private List < Catch > handlers;
     public List < Catch > gethandlers ()
     {
       return handlers;
@@ -643,7 +644,7 @@ public abstract class Statement extends AbstractAST
     }
     public Try sethandlers (List < Catch > x)
     {
-      z = new Try ();
+      Try z = new Try ();
       z.privateSethandlers (x);
       return z;
     }
@@ -662,11 +663,11 @@ public abstract class Statement extends AbstractAST
       this.handlers = handlers;
       this.finallyBody = finallyBody;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitTryFinallyStatement (this);
     }
-    private final Statement body;
+    private Statement body;
     public Statement getbody ()
     {
       return body;
@@ -681,7 +682,7 @@ public abstract class Statement extends AbstractAST
       z.privateSetbody (x);
       return z;
     }
-    private final List < Catch > handlers;
+    private List < Catch > handlers;
     public List < Catch > gethandlers ()
     {
       return handlers;
@@ -692,11 +693,11 @@ public abstract class Statement extends AbstractAST
     }
     public TryFinally sethandlers (List < Catch > x)
     {
-      z = new TryFinally ();
+      TryFinally z = new TryFinally ();
       z.privateSethandlers (x);
       return z;
     }
-    private final Statement finallyBody;
+    private Statement finallyBody;
     public Statement getfinallyBody ()
     {
       return finallyBody;
@@ -723,11 +724,11 @@ public abstract class Statement extends AbstractAST
       this.tree = tree;
       this.statements = statements;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitBlockStatement (this);
     }
-    private final List < Statement > statements;
+    private List < Statement > statements;
     public List < Statement > getstatements ()
     {
       return statements;
@@ -738,7 +739,7 @@ public abstract class Statement extends AbstractAST
     }
     public Block setstatements (List < Statement > x)
     {
-      z = new Block ();
+      Block z = new Block ();
       z.privateSetstatements (x);
       return z;
     }
@@ -755,11 +756,11 @@ public abstract class Statement extends AbstractAST
       this.tree = tree;
       this.functionDeclaration = functionDeclaration;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitFunctionDeclarationStatement (this);
     }
-    private final FunctionDeclaration functionDeclaration;
+    private FunctionDeclaration functionDeclaration;
     public FunctionDeclaration getfunctionDeclaration ()
     {
       return functionDeclaration;

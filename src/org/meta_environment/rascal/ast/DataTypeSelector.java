@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class DataTypeSelector extends AbstractAST
 {
   public class Selector extends DataTypeSelector
@@ -13,11 +14,11 @@ public abstract class DataTypeSelector extends AbstractAST
       this.sort = sort;
       this.production = production;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitSelectorDataTypeSelector (this);
     }
-    private final Name sort;
+    private Name sort;
     public Name getsort ()
     {
       return sort;
@@ -32,7 +33,7 @@ public abstract class DataTypeSelector extends AbstractAST
       z.privateSetsort (x);
       return z;
     }
-    private final Name production;
+    private Name production;
     public Name getproduction ()
     {
       return production;

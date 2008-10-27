@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public interface IASTVisitor
 {
   public Body visitToplevelsBody (Body.Toplevels x);

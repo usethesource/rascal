@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class ModuleActuals extends AbstractAST
 {
   public class Actuals extends ModuleActuals
@@ -12,11 +13,11 @@ public abstract class ModuleActuals extends AbstractAST
       this.tree = tree;
       this.types = types;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitActualsModuleActuals (this);
     }
-    private final List < Type > types;
+    private List < Type > types;
     public List < Type > gettypes ()
     {
       return types;
@@ -27,7 +28,7 @@ public abstract class ModuleActuals extends AbstractAST
     }
     public Actuals settypes (List < Type > x)
     {
-      z = new Actuals ();
+      Actuals z = new Actuals ();
       z.privateSettypes (x);
       return z;
     }

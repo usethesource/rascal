@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Generator extends AbstractAST
 {
   public class Expression extends Generator
@@ -12,11 +13,11 @@ public abstract class Generator extends AbstractAST
       this.tree = tree;
       this.expression = expression;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitExpressionGenerator (this);
     }
-    private final Expression expression;
+    private Expression expression;
     public Expression getexpression ()
     {
       return expression;
@@ -43,11 +44,11 @@ public abstract class Generator extends AbstractAST
       this.tree = tree;
       this.producer = producer;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitProducerGenerator (this);
     }
-    private final ValueProducer producer;
+    private ValueProducer producer;
     public ValueProducer getproducer ()
     {
       return producer;

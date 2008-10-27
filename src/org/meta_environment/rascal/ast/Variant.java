@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Variant extends AbstractAST
 {
   public class Type extends Variant
@@ -13,11 +14,11 @@ public abstract class Variant extends AbstractAST
       this.type = type;
       this.name = name;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitTypeVariant (this);
     }
-    private final Type type;
+    private Type type;
     public Type gettype ()
     {
       return type;
@@ -32,7 +33,7 @@ public abstract class Variant extends AbstractAST
       z.privateSettype (x);
       return z;
     }
-    private final Name name;
+    private Name name;
     public Name getname ()
     {
       return name;
@@ -61,11 +62,11 @@ public abstract class Variant extends AbstractAST
       this.name = name;
       this.arguments = arguments;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitNAryConstructorVariant (this);
     }
-    private final Name name;
+    private Name name;
     public Name getname ()
     {
       return name;
@@ -80,7 +81,7 @@ public abstract class Variant extends AbstractAST
       z.privateSetname (x);
       return z;
     }
-    private final List < TypeArg > arguments;
+    private List < TypeArg > arguments;
     public List < TypeArg > getarguments ()
     {
       return arguments;
@@ -91,7 +92,7 @@ public abstract class Variant extends AbstractAST
     }
     public NAryConstructor setarguments (List < TypeArg > x)
     {
-      z = new NAryConstructor ();
+      NAryConstructor z = new NAryConstructor ();
       z.privateSetarguments (x);
       return z;
     }
@@ -107,11 +108,11 @@ public abstract class Variant extends AbstractAST
       this.tree = tree;
       this.name = name;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitNillaryConstructorVariant (this);
     }
-    private final Name name;
+    private Name name;
     public Name getname ()
     {
       return name;

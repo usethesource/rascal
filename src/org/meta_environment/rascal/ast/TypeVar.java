@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class TypeVar extends AbstractAST
 {
   public class Free extends TypeVar
@@ -12,11 +13,11 @@ public abstract class TypeVar extends AbstractAST
       this.tree = tree;
       this.name = name;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitFreeTypeVar (this);
     }
-    private final Name name;
+    private Name name;
     public Name getname ()
     {
       return name;
@@ -44,11 +45,11 @@ public abstract class TypeVar extends AbstractAST
       this.name = name;
       this.bound = bound;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitBoundedTypeVar (this);
     }
-    private final Name name;
+    private Name name;
     public Name getname ()
     {
       return name;
@@ -63,7 +64,7 @@ public abstract class TypeVar extends AbstractAST
       z.privateSetname (x);
       return z;
     }
-    private final Type bound;
+    private Type bound;
     public Type getbound ()
     {
       return bound;

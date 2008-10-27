@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Case extends AbstractAST
 {
   public class Rule extends Case
@@ -12,11 +13,11 @@ public abstract class Case extends AbstractAST
       this.tree = tree;
       this.rule = rule;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitRuleCase (this);
     }
-    private final Rule rule;
+    private Rule rule;
     public Rule getrule ()
     {
       return rule;
@@ -43,11 +44,11 @@ public abstract class Case extends AbstractAST
       this.tree = tree;
       this.statement = statement;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitDefaultCase (this);
     }
-    private final Statement statement;
+    private Statement statement;
     public Statement getstatement ()
     {
       return statement;

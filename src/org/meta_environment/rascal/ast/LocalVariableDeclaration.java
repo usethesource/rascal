@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class LocalVariableDeclaration extends AbstractAST
 {
   public class DefaultScope extends LocalVariableDeclaration
@@ -14,11 +15,11 @@ public abstract class LocalVariableDeclaration extends AbstractAST
       this.type = type;
       this.variables = variables;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitDefaultScopeLocalVariableDeclaration (this);
     }
-    private final Type type;
+    private Type type;
     public Type gettype ()
     {
       return type;
@@ -33,7 +34,7 @@ public abstract class LocalVariableDeclaration extends AbstractAST
       z.privateSettype (x);
       return z;
     }
-    private final List < Variable > variables;
+    private List < Variable > variables;
     public List < Variable > getvariables ()
     {
       return variables;
@@ -44,7 +45,7 @@ public abstract class LocalVariableDeclaration extends AbstractAST
     }
     public DefaultScope setvariables (List < Variable > x)
     {
-      z = new DefaultScope ();
+      DefaultScope z = new DefaultScope ();
       z.privateSetvariables (x);
       return z;
     }
@@ -63,11 +64,11 @@ public abstract class LocalVariableDeclaration extends AbstractAST
       this.type = type;
       this.variables = variables;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitGivenScopeLocalVariableDeclaration (this);
     }
-    private final Scope scope;
+    private Scope scope;
     public Scope getscope ()
     {
       return scope;
@@ -82,7 +83,7 @@ public abstract class LocalVariableDeclaration extends AbstractAST
       z.privateSetscope (x);
       return z;
     }
-    private final Type type;
+    private Type type;
     public Type gettype ()
     {
       return type;
@@ -97,7 +98,7 @@ public abstract class LocalVariableDeclaration extends AbstractAST
       z.privateSettype (x);
       return z;
     }
-    private final List < Variable > variables;
+    private List < Variable > variables;
     public List < Variable > getvariables ()
     {
       return variables;
@@ -108,7 +109,7 @@ public abstract class LocalVariableDeclaration extends AbstractAST
     }
     public GivenScope setvariables (List < Variable > x)
     {
-      z = new GivenScope ();
+      GivenScope z = new GivenScope ();
       z.privateSetvariables (x);
       return z;
     }

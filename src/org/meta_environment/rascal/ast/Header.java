@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Header extends AbstractAST
 {
   public class Default extends Header
@@ -15,11 +16,11 @@ public abstract class Header extends AbstractAST
       this.tags = tags;
       this.imports = imports;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitDefaultHeader (this);
     }
-    private final ModuleName name;
+    private ModuleName name;
     public ModuleName getname ()
     {
       return name;
@@ -34,7 +35,7 @@ public abstract class Header extends AbstractAST
       z.privateSetname (x);
       return z;
     }
-    private final Tags tags;
+    private Tags tags;
     public Tags gettags ()
     {
       return tags;
@@ -49,7 +50,7 @@ public abstract class Header extends AbstractAST
       z.privateSettags (x);
       return z;
     }
-    private final List < Import > imports;
+    private List < Import > imports;
     public List < Import > getimports ()
     {
       return imports;
@@ -60,7 +61,7 @@ public abstract class Header extends AbstractAST
     }
     public Default setimports (List < Import > x)
     {
-      z = new Default ();
+      Default z = new Default ();
       z.privateSetimports (x);
       return z;
     }
@@ -81,11 +82,11 @@ public abstract class Header extends AbstractAST
       this.tags = tags;
       this.imports = imports;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitParametersHeader (this);
     }
-    private final ModuleName name;
+    private ModuleName name;
     public ModuleName getname ()
     {
       return name;
@@ -100,7 +101,7 @@ public abstract class Header extends AbstractAST
       z.privateSetname (x);
       return z;
     }
-    private final ModuleParameters params;
+    private ModuleParameters params;
     public ModuleParameters getparams ()
     {
       return params;
@@ -115,7 +116,7 @@ public abstract class Header extends AbstractAST
       z.privateSetparams (x);
       return z;
     }
-    private final Tags tags;
+    private Tags tags;
     public Tags gettags ()
     {
       return tags;
@@ -130,7 +131,7 @@ public abstract class Header extends AbstractAST
       z.privateSettags (x);
       return z;
     }
-    private final List < Import > imports;
+    private List < Import > imports;
     public List < Import > getimports ()
     {
       return imports;
@@ -141,7 +142,7 @@ public abstract class Header extends AbstractAST
     }
     public Parameters setimports (List < Import > x)
     {
-      z = new Parameters ();
+      Parameters z = new Parameters ();
       z.privateSetimports (x);
       return z;
     }

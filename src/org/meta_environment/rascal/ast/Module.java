@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Module extends AbstractAST
 {
   public class Module extends Module
@@ -13,11 +14,11 @@ public abstract class Module extends AbstractAST
       this.header = header;
       this.body = body;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitModuleModule (this);
     }
-    private final Header header;
+    private Header header;
     public Header getheader ()
     {
       return header;
@@ -32,7 +33,7 @@ public abstract class Module extends AbstractAST
       z.privateSetheader (x);
       return z;
     }
-    private final Body body;
+    private Body body;
     public Body getbody ()
     {
       return body;

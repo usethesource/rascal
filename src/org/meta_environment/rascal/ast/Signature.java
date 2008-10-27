@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Signature extends AbstractAST
 {
   public class NoThrows extends Signature
@@ -16,11 +17,11 @@ public abstract class Signature extends AbstractAST
       this.name = name;
       this.parameters = parameters;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitNoThrowsSignature (this);
     }
-    private final Type type;
+    private Type type;
     public Type gettype ()
     {
       return type;
@@ -35,7 +36,7 @@ public abstract class Signature extends AbstractAST
       z.privateSettype (x);
       return z;
     }
-    private final FunctionModifiers modifiers;
+    private FunctionModifiers modifiers;
     public FunctionModifiers getmodifiers ()
     {
       return modifiers;
@@ -50,7 +51,7 @@ public abstract class Signature extends AbstractAST
       z.privateSetmodifiers (x);
       return z;
     }
-    private final FunctionName name;
+    private FunctionName name;
     public FunctionName getname ()
     {
       return name;
@@ -65,7 +66,7 @@ public abstract class Signature extends AbstractAST
       z.privateSetname (x);
       return z;
     }
-    private final Parameters parameters;
+    private Parameters parameters;
     public Parameters getparameters ()
     {
       return parameters;
@@ -98,11 +99,11 @@ public abstract class Signature extends AbstractAST
       this.parameters = parameters;
       this.exceptions = exceptions;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitWithThrowsSignature (this);
     }
-    private final Type type;
+    private Type type;
     public Type gettype ()
     {
       return type;
@@ -117,7 +118,7 @@ public abstract class Signature extends AbstractAST
       z.privateSettype (x);
       return z;
     }
-    private final FunctionModifiers modifiers;
+    private FunctionModifiers modifiers;
     public FunctionModifiers getmodifiers ()
     {
       return modifiers;
@@ -132,7 +133,7 @@ public abstract class Signature extends AbstractAST
       z.privateSetmodifiers (x);
       return z;
     }
-    private final FunctionName name;
+    private FunctionName name;
     public FunctionName getname ()
     {
       return name;
@@ -147,7 +148,7 @@ public abstract class Signature extends AbstractAST
       z.privateSetname (x);
       return z;
     }
-    private final Parameters parameters;
+    private Parameters parameters;
     public Parameters getparameters ()
     {
       return parameters;
@@ -162,7 +163,7 @@ public abstract class Signature extends AbstractAST
       z.privateSetparameters (x);
       return z;
     }
-    private final List < Type > exceptions;
+    private List < Type > exceptions;
     public List < Type > getexceptions ()
     {
       return exceptions;
@@ -173,7 +174,7 @@ public abstract class Signature extends AbstractAST
     }
     public WithThrows setexceptions (List < Type > x)
     {
-      z = new WithThrows ();
+      WithThrows z = new WithThrows ();
       z.privateSetexceptions (x);
       return z;
     }

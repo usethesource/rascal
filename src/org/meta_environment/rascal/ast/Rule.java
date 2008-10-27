@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Rule extends AbstractAST
 {
   public class WithGuard extends Rule
@@ -13,11 +14,11 @@ public abstract class Rule extends AbstractAST
       this.type = type;
       this.match = match;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitWithGuardRule (this);
     }
-    private final Type type;
+    private Type type;
     public Type gettype ()
     {
       return type;
@@ -32,7 +33,7 @@ public abstract class Rule extends AbstractAST
       z.privateSettype (x);
       return z;
     }
-    private final Match match;
+    private Match match;
     public Match getmatch ()
     {
       return match;
@@ -59,11 +60,11 @@ public abstract class Rule extends AbstractAST
       this.tree = tree;
       this.match = match;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitNoGuardRule (this);
     }
-    private final Match match;
+    private Match match;
     public Match getmatch ()
     {
       return match;

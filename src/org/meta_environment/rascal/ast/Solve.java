@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Solve extends AbstractAST
 {
   public class NoBound extends Solve
@@ -12,11 +13,11 @@ public abstract class Solve extends AbstractAST
       this.tree = tree;
       this.body = body;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitNoBoundSolve (this);
     }
-    private final Statement body;
+    private Statement body;
     public Statement getbody ()
     {
       return body;
@@ -44,11 +45,11 @@ public abstract class Solve extends AbstractAST
       this.bound = bound;
       this.body = body;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitWithBoundSolve (this);
     }
-    private final Expression bound;
+    private Expression bound;
     public Expression getbound ()
     {
       return bound;
@@ -63,7 +64,7 @@ public abstract class Solve extends AbstractAST
       z.privateSetbound (x);
       return z;
     }
-    private final Statement body;
+    private Statement body;
     public Statement getbody ()
     {
       return body;

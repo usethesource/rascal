@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Expression extends AbstractAST
 {
   public class Closure extends Expression
@@ -14,11 +15,11 @@ public abstract class Expression extends AbstractAST
       this.type = type;
       this.statements = statements;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitClosureExpression (this);
     }
-    private final Type type;
+    private Type type;
     public Type gettype ()
     {
       return type;
@@ -33,7 +34,7 @@ public abstract class Expression extends AbstractAST
       z.privateSettype (x);
       return z;
     }
-    private final List < Statement > statements;
+    private List < Statement > statements;
     public List < Statement > getstatements ()
     {
       return statements;
@@ -44,7 +45,7 @@ public abstract class Expression extends AbstractAST
     }
     public Closure setstatements (List < Statement > x)
     {
-      z = new Closure ();
+      Closure z = new Closure ();
       z.privateSetstatements (x);
       return z;
     }
@@ -65,11 +66,11 @@ public abstract class Expression extends AbstractAST
       this.closure = closure;
       this.arguments = arguments;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitClosureCallExpression (this);
     }
-    private final Expression closure;
+    private Expression closure;
     public Expression getclosure ()
     {
       return closure;
@@ -84,7 +85,7 @@ public abstract class Expression extends AbstractAST
       z.privateSetclosure (x);
       return z;
     }
-    private final List < Expression > arguments;
+    private List < Expression > arguments;
     public List < Expression > getarguments ()
     {
       return arguments;
@@ -95,7 +96,7 @@ public abstract class Expression extends AbstractAST
     }
     public ClosureCall setarguments (List < Expression > x)
     {
-      z = new ClosureCall ();
+      ClosureCall z = new ClosureCall ();
       z.privateSetarguments (x);
       return z;
     }
@@ -112,11 +113,11 @@ public abstract class Expression extends AbstractAST
       this.expression = expression;
       this.field = field;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitFieldAccessExpression (this);
     }
-    private final Expression expression;
+    private Expression expression;
     public Expression getexpression ()
     {
       return expression;
@@ -131,7 +132,7 @@ public abstract class Expression extends AbstractAST
       z.privateSetexpression (x);
       return z;
     }
-    private final Name field;
+    private Name field;
     public Name getfield ()
     {
       return field;
@@ -160,11 +161,11 @@ public abstract class Expression extends AbstractAST
       this.expression = expression;
       this.subscript = subscript;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitSubscriptExpression (this);
     }
-    private final Expression expression;
+    private Expression expression;
     public Expression getexpression ()
     {
       return expression;
@@ -179,7 +180,7 @@ public abstract class Expression extends AbstractAST
       z.privateSetexpression (x);
       return z;
     }
-    private final Expression subscript;
+    private Expression subscript;
     public Expression getsubscript ()
     {
       return subscript;
@@ -206,11 +207,11 @@ public abstract class Expression extends AbstractAST
       this.tree = tree;
       this.argument = argument;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitTransitiveReflexiveClosureExpression (this);
     }
-    private final Expression argument;
+    private Expression argument;
     public Expression getargument ()
     {
       return argument;
@@ -237,11 +238,11 @@ public abstract class Expression extends AbstractAST
       this.tree = tree;
       this.argument = argument;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitTransitiveClosureExpression (this);
     }
-    private final Expression argument;
+    private Expression argument;
     public Expression getargument ()
     {
       return argument;
@@ -269,11 +270,11 @@ public abstract class Expression extends AbstractAST
       this.expression = expression;
       this.name = name;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitAnnotationExpression (this);
     }
-    private final Expression expression;
+    private Expression expression;
     public Expression getexpression ()
     {
       return expression;
@@ -288,7 +289,7 @@ public abstract class Expression extends AbstractAST
       z.privateSetexpression (x);
       return z;
     }
-    private final Name name;
+    private Name name;
     public Name getname ()
     {
       return name;
@@ -315,11 +316,11 @@ public abstract class Expression extends AbstractAST
       this.tree = tree;
       this.argument = argument;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitNegationExpression (this);
     }
-    private final Expression argument;
+    private Expression argument;
     public Expression getargument ()
     {
       return argument;
@@ -347,11 +348,11 @@ public abstract class Expression extends AbstractAST
       this.lhs = lhs;
       this.rhs = rhs;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitProductExpression (this);
     }
-    private final Expression lhs;
+    private Expression lhs;
     public Expression getlhs ()
     {
       return lhs;
@@ -366,7 +367,7 @@ public abstract class Expression extends AbstractAST
       z.privateSetlhs (x);
       return z;
     }
-    private final Expression rhs;
+    private Expression rhs;
     public Expression getrhs ()
     {
       return rhs;
@@ -394,11 +395,11 @@ public abstract class Expression extends AbstractAST
       this.lhs = lhs;
       this.rhs = rhs;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitIntersectionExpression (this);
     }
-    private final Expression lhs;
+    private Expression lhs;
     public Expression getlhs ()
     {
       return lhs;
@@ -413,7 +414,7 @@ public abstract class Expression extends AbstractAST
       z.privateSetlhs (x);
       return z;
     }
-    private final Expression rhs;
+    private Expression rhs;
     public Expression getrhs ()
     {
       return rhs;
@@ -441,11 +442,11 @@ public abstract class Expression extends AbstractAST
       this.lhs = lhs;
       this.rhs = rhs;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitDivisionExpression (this);
     }
-    private final Expression lhs;
+    private Expression lhs;
     public Expression getlhs ()
     {
       return lhs;
@@ -460,7 +461,7 @@ public abstract class Expression extends AbstractAST
       z.privateSetlhs (x);
       return z;
     }
-    private final Expression rhs;
+    private Expression rhs;
     public Expression getrhs ()
     {
       return rhs;
@@ -488,11 +489,11 @@ public abstract class Expression extends AbstractAST
       this.lhs = lhs;
       this.rhs = rhs;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitAdditionExpression (this);
     }
-    private final Expression lhs;
+    private Expression lhs;
     public Expression getlhs ()
     {
       return lhs;
@@ -507,7 +508,7 @@ public abstract class Expression extends AbstractAST
       z.privateSetlhs (x);
       return z;
     }
-    private final Expression rhs;
+    private Expression rhs;
     public Expression getrhs ()
     {
       return rhs;
@@ -535,11 +536,11 @@ public abstract class Expression extends AbstractAST
       this.lhs = lhs;
       this.rhs = rhs;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitSubstractionExpression (this);
     }
-    private final Expression lhs;
+    private Expression lhs;
     public Expression getlhs ()
     {
       return lhs;
@@ -554,7 +555,7 @@ public abstract class Expression extends AbstractAST
       z.privateSetlhs (x);
       return z;
     }
-    private final Expression rhs;
+    private Expression rhs;
     public Expression getrhs ()
     {
       return rhs;
@@ -582,11 +583,11 @@ public abstract class Expression extends AbstractAST
       this.lhs = lhs;
       this.rhs = rhs;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitMatchExpression (this);
     }
-    private final Expression lhs;
+    private Expression lhs;
     public Expression getlhs ()
     {
       return lhs;
@@ -601,7 +602,7 @@ public abstract class Expression extends AbstractAST
       z.privateSetlhs (x);
       return z;
     }
-    private final Expression rhs;
+    private Expression rhs;
     public Expression getrhs ()
     {
       return rhs;
@@ -629,11 +630,11 @@ public abstract class Expression extends AbstractAST
       this.lhs = lhs;
       this.rhs = rhs;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitNoMatchExpression (this);
     }
-    private final Expression lhs;
+    private Expression lhs;
     public Expression getlhs ()
     {
       return lhs;
@@ -648,7 +649,7 @@ public abstract class Expression extends AbstractAST
       z.privateSetlhs (x);
       return z;
     }
-    private final Expression rhs;
+    private Expression rhs;
     public Expression getrhs ()
     {
       return rhs;
@@ -676,11 +677,11 @@ public abstract class Expression extends AbstractAST
       this.lhs = lhs;
       this.rhs = rhs;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitLessThanExpression (this);
     }
-    private final Expression lhs;
+    private Expression lhs;
     public Expression getlhs ()
     {
       return lhs;
@@ -695,7 +696,7 @@ public abstract class Expression extends AbstractAST
       z.privateSetlhs (x);
       return z;
     }
-    private final Expression rhs;
+    private Expression rhs;
     public Expression getrhs ()
     {
       return rhs;
@@ -723,11 +724,11 @@ public abstract class Expression extends AbstractAST
       this.lhs = lhs;
       this.rhs = rhs;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitLessThanOrEqExpression (this);
     }
-    private final Expression lhs;
+    private Expression lhs;
     public Expression getlhs ()
     {
       return lhs;
@@ -742,7 +743,7 @@ public abstract class Expression extends AbstractAST
       z.privateSetlhs (x);
       return z;
     }
-    private final Expression rhs;
+    private Expression rhs;
     public Expression getrhs ()
     {
       return rhs;
@@ -770,11 +771,11 @@ public abstract class Expression extends AbstractAST
       this.lhs = lhs;
       this.rhs = rhs;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitGreaterThanExpression (this);
     }
-    private final Expression lhs;
+    private Expression lhs;
     public Expression getlhs ()
     {
       return lhs;
@@ -789,7 +790,7 @@ public abstract class Expression extends AbstractAST
       z.privateSetlhs (x);
       return z;
     }
-    private final Expression rhs;
+    private Expression rhs;
     public Expression getrhs ()
     {
       return rhs;
@@ -817,11 +818,11 @@ public abstract class Expression extends AbstractAST
       this.lhs = lhs;
       this.rhs = rhs;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitGreaterThanOrEqExpression (this);
     }
-    private final Expression lhs;
+    private Expression lhs;
     public Expression getlhs ()
     {
       return lhs;
@@ -836,7 +837,7 @@ public abstract class Expression extends AbstractAST
       z.privateSetlhs (x);
       return z;
     }
-    private final Expression rhs;
+    private Expression rhs;
     public Expression getrhs ()
     {
       return rhs;
@@ -864,11 +865,11 @@ public abstract class Expression extends AbstractAST
       this.lhs = lhs;
       this.rhs = rhs;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitEqualsExpression (this);
     }
-    private final Expression lhs;
+    private Expression lhs;
     public Expression getlhs ()
     {
       return lhs;
@@ -883,7 +884,7 @@ public abstract class Expression extends AbstractAST
       z.privateSetlhs (x);
       return z;
     }
-    private final Expression rhs;
+    private Expression rhs;
     public Expression getrhs ()
     {
       return rhs;
@@ -911,11 +912,11 @@ public abstract class Expression extends AbstractAST
       this.lhs = lhs;
       this.rhs = rhs;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitNonEqualsExpression (this);
     }
-    private final Expression lhs;
+    private Expression lhs;
     public Expression getlhs ()
     {
       return lhs;
@@ -930,7 +931,7 @@ public abstract class Expression extends AbstractAST
       z.privateSetlhs (x);
       return z;
     }
-    private final Expression rhs;
+    private Expression rhs;
     public Expression getrhs ()
     {
       return rhs;
@@ -958,11 +959,11 @@ public abstract class Expression extends AbstractAST
       this.lhs = lhs;
       this.rhs = rhs;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitNotInExpression (this);
     }
-    private final Expression lhs;
+    private Expression lhs;
     public Expression getlhs ()
     {
       return lhs;
@@ -977,7 +978,7 @@ public abstract class Expression extends AbstractAST
       z.privateSetlhs (x);
       return z;
     }
-    private final Expression rhs;
+    private Expression rhs;
     public Expression getrhs ()
     {
       return rhs;
@@ -1005,11 +1006,11 @@ public abstract class Expression extends AbstractAST
       this.lhs = lhs;
       this.rhs = rhs;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitInExpression (this);
     }
-    private final Expression lhs;
+    private Expression lhs;
     public Expression getlhs ()
     {
       return lhs;
@@ -1024,7 +1025,7 @@ public abstract class Expression extends AbstractAST
       z.privateSetlhs (x);
       return z;
     }
-    private final Expression rhs;
+    private Expression rhs;
     public Expression getrhs ()
     {
       return rhs;
@@ -1052,11 +1053,11 @@ public abstract class Expression extends AbstractAST
       this.lhs = lhs;
       this.rhs = rhs;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitAndExpression (this);
     }
-    private final Expression lhs;
+    private Expression lhs;
     public Expression getlhs ()
     {
       return lhs;
@@ -1071,7 +1072,7 @@ public abstract class Expression extends AbstractAST
       z.privateSetlhs (x);
       return z;
     }
-    private final Expression rhs;
+    private Expression rhs;
     public Expression getrhs ()
     {
       return rhs;
@@ -1099,11 +1100,11 @@ public abstract class Expression extends AbstractAST
       this.lhs = lhs;
       this.rhs = rhs;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitOrExpression (this);
     }
-    private final Expression lhs;
+    private Expression lhs;
     public Expression getlhs ()
     {
       return lhs;
@@ -1118,7 +1119,7 @@ public abstract class Expression extends AbstractAST
       z.privateSetlhs (x);
       return z;
     }
-    private final Expression rhs;
+    private Expression rhs;
     public Expression getrhs ()
     {
       return rhs;
@@ -1146,11 +1147,11 @@ public abstract class Expression extends AbstractAST
       this.lhs = lhs;
       this.rhs = rhs;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitIfDefinedExpression (this);
     }
-    private final Expression lhs;
+    private Expression lhs;
     public Expression getlhs ()
     {
       return lhs;
@@ -1165,7 +1166,7 @@ public abstract class Expression extends AbstractAST
       z.privateSetlhs (x);
       return z;
     }
-    private final Expression rhs;
+    private Expression rhs;
     public Expression getrhs ()
     {
       return rhs;
@@ -1200,11 +1201,11 @@ public abstract class Expression extends AbstractAST
       =
       else;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitIfThenElseExpression (this);
     }
-    private final Expression condition;
+    private Expression condition;
     public Expression getcondition ()
     {
       return condition;
@@ -1219,7 +1220,7 @@ public abstract class Expression extends AbstractAST
       z.privateSetcondition (x);
       return z;
     }
-    private final Expression then;
+    private Expression then;
     public Expression getthen ()
     {
       return then;
@@ -1234,7 +1235,7 @@ public abstract class Expression extends AbstractAST
       z.privateSetthen (x);
       return z;
     }
-    private final Expression
+    private Expression
     else;
     public Expression getelse ()
     {
@@ -1265,11 +1266,11 @@ public abstract class Expression extends AbstractAST
       this.tree = tree;
       this.operator = operator;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitOperatorExpression (this);
     }
-    private final StandardOperator operator;
+    private StandardOperator operator;
     public StandardOperator getoperator ()
     {
       return operator;
@@ -1296,11 +1297,11 @@ public abstract class Expression extends AbstractAST
       this.tree = tree;
       this.literal = literal;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitLiteralExpression (this);
     }
-    private final Literal literal;
+    private Literal literal;
     public Literal getliteral ()
     {
       return literal;
@@ -1329,11 +1330,11 @@ public abstract class Expression extends AbstractAST
       this.name = name;
       this.arguments = arguments;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitCallOrTreeExpression (this);
     }
-    private final Name name;
+    private Name name;
     public Name getname ()
     {
       return name;
@@ -1348,7 +1349,7 @@ public abstract class Expression extends AbstractAST
       z.privateSetname (x);
       return z;
     }
-    private final List < Expression > arguments;
+    private List < Expression > arguments;
     public List < Expression > getarguments ()
     {
       return arguments;
@@ -1359,7 +1360,7 @@ public abstract class Expression extends AbstractAST
     }
     public CallOrTree setarguments (List < Expression > x)
     {
-      z = new CallOrTree ();
+      CallOrTree z = new CallOrTree ();
       z.privateSetarguments (x);
       return z;
     }
@@ -1375,11 +1376,11 @@ public abstract class Expression extends AbstractAST
       this.tree = tree;
       this.elements = elements;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitListExpression (this);
     }
-    private final List < Expression > elements;
+    private List < Expression > elements;
     public List < Expression > getelements ()
     {
       return elements;
@@ -1390,7 +1391,7 @@ public abstract class Expression extends AbstractAST
     }
     public List setelements (List < Expression > x)
     {
-      z = new List ();
+      List z = new List ();
       z.privateSetelements (x);
       return z;
     }
@@ -1407,11 +1408,11 @@ public abstract class Expression extends AbstractAST
       this.from = from;
       this.to = to;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitRangeExpression (this);
     }
-    private final Expression from;
+    private Expression from;
     public Expression getfrom ()
     {
       return from;
@@ -1426,7 +1427,7 @@ public abstract class Expression extends AbstractAST
       z.privateSetfrom (x);
       return z;
     }
-    private final Expression to;
+    private Expression to;
     public Expression getto ()
     {
       return to;
@@ -1456,11 +1457,11 @@ public abstract class Expression extends AbstractAST
       this.by = by;
       this.to = to;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitStepRangeExpression (this);
     }
-    private final Expression from;
+    private Expression from;
     public Expression getfrom ()
     {
       return from;
@@ -1475,7 +1476,7 @@ public abstract class Expression extends AbstractAST
       z.privateSetfrom (x);
       return z;
     }
-    private final Expression by;
+    private Expression by;
     public Expression getby ()
     {
       return by;
@@ -1490,7 +1491,7 @@ public abstract class Expression extends AbstractAST
       z.privateSetby (x);
       return z;
     }
-    private final Expression to;
+    private Expression to;
     public Expression getto ()
     {
       return to;
@@ -1517,11 +1518,11 @@ public abstract class Expression extends AbstractAST
       this.tree = tree;
       this.elements = elements;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitSetExpression (this);
     }
-    private final List < Expression > elements;
+    private List < Expression > elements;
     public List < Expression > getelements ()
     {
       return elements;
@@ -1532,7 +1533,7 @@ public abstract class Expression extends AbstractAST
     }
     public Set setelements (List < Expression > x)
     {
-      z = new Set ();
+      Set z = new Set ();
       z.privateSetelements (x);
       return z;
     }
@@ -1550,11 +1551,11 @@ public abstract class Expression extends AbstractAST
       this.first = first;
       this.rest = rest;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitTupleExpression (this);
     }
-    private final Expression first;
+    private Expression first;
     public Expression getfirst ()
     {
       return first;
@@ -1569,7 +1570,7 @@ public abstract class Expression extends AbstractAST
       z.privateSetfirst (x);
       return z;
     }
-    private final List < Expression > rest;
+    private List < Expression > rest;
     public List < Expression > getrest ()
     {
       return rest;
@@ -1580,7 +1581,7 @@ public abstract class Expression extends AbstractAST
     }
     public Tuple setrest (List < Expression > x)
     {
-      z = new Tuple ();
+      Tuple z = new Tuple ();
       z.privateSetrest (x);
       return z;
     }
@@ -1597,11 +1598,11 @@ public abstract class Expression extends AbstractAST
       this.from = from;
       this.to = to;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitMapTupleExpression (this);
     }
-    private final Expression from;
+    private Expression from;
     public Expression getfrom ()
     {
       return from;
@@ -1616,7 +1617,7 @@ public abstract class Expression extends AbstractAST
       z.privateSetfrom (x);
       return z;
     }
-    private final Expression to;
+    private Expression to;
     public Expression getto ()
     {
       return to;
@@ -1642,7 +1643,7 @@ public abstract class Expression extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitLocationExpression (this);
     }
@@ -1657,7 +1658,7 @@ public abstract class Expression extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitAreaExpression (this);
     }
@@ -1673,11 +1674,11 @@ public abstract class Expression extends AbstractAST
       this.tree = tree;
       this.filename = filename;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitFileLocationExpression (this);
     }
-    private final Expression filename;
+    private Expression filename;
     public Expression getfilename ()
     {
       return filename;
@@ -1704,11 +1705,11 @@ public abstract class Expression extends AbstractAST
       this.tree = tree;
       this.area = area;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitAreaLocationExpression (this);
     }
-    private final Expression area;
+    private Expression area;
     public Expression getarea ()
     {
       return area;
@@ -1737,11 +1738,11 @@ public abstract class Expression extends AbstractAST
       this.filename = filename;
       this.area = area;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitAreaInFileLocationExpression (this);
     }
-    private final Expression filename;
+    private Expression filename;
     public Expression getfilename ()
     {
       return filename;
@@ -1756,7 +1757,7 @@ public abstract class Expression extends AbstractAST
       z.privateSetfilename (x);
       return z;
     }
-    private final Expression area;
+    private Expression area;
     public Expression getarea ()
     {
       return area;
@@ -1783,11 +1784,11 @@ public abstract class Expression extends AbstractAST
       this.tree = tree;
       this.qualifiedName = qualifiedName;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitQualifiedNameExpression (this);
     }
-    private final QualifiedName qualifiedName;
+    private QualifiedName qualifiedName;
     public QualifiedName getqualifiedName ()
     {
       return qualifiedName;
@@ -1814,11 +1815,11 @@ public abstract class Expression extends AbstractAST
       this.tree = tree;
       this.comprehension = comprehension;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitComprehensionExpression (this);
     }
-    private final Comprehension comprehension;
+    private Comprehension comprehension;
     public Comprehension getcomprehension ()
     {
       return comprehension;
@@ -1847,11 +1848,11 @@ public abstract class Expression extends AbstractAST
       this.producer = producer;
       this.expression = expression;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitExistsExpression (this);
     }
-    private final ValueProducer producer;
+    private ValueProducer producer;
     public ValueProducer getproducer ()
     {
       return producer;
@@ -1866,7 +1867,7 @@ public abstract class Expression extends AbstractAST
       z.privateSetproducer (x);
       return z;
     }
-    private final Expression expression;
+    private Expression expression;
     public Expression getexpression ()
     {
       return expression;
@@ -1895,11 +1896,11 @@ public abstract class Expression extends AbstractAST
       this.producers = producers;
       this.expression = expression;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitForallExpression (this);
     }
-    private final ValueProducer producers;
+    private ValueProducer producers;
     public ValueProducer getproducers ()
     {
       return producers;
@@ -1914,7 +1915,7 @@ public abstract class Expression extends AbstractAST
       z.privateSetproducers (x);
       return z;
     }
-    private final Expression expression;
+    private Expression expression;
     public Expression getexpression ()
     {
       return expression;
@@ -1941,11 +1942,11 @@ public abstract class Expression extends AbstractAST
       this.tree = tree;
       this.visit = visit;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitVisitExpression (this);
     }
-    private final Visit visit;
+    private Visit visit;
     public Visit getvisit ()
     {
       return visit;

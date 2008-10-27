@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class FunctionType extends AbstractAST
 {
   public class TypeArguments extends FunctionType
@@ -14,11 +15,11 @@ public abstract class FunctionType extends AbstractAST
       this.type = type;
       this.arguments = arguments;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitTypeArgumentsFunctionType (this);
     }
-    private final Type type;
+    private Type type;
     public Type gettype ()
     {
       return type;
@@ -33,7 +34,7 @@ public abstract class FunctionType extends AbstractAST
       z.privateSettype (x);
       return z;
     }
-    private final List < TypeArg > arguments;
+    private List < TypeArg > arguments;
     public List < TypeArg > getarguments ()
     {
       return arguments;
@@ -44,7 +45,7 @@ public abstract class FunctionType extends AbstractAST
     }
     public TypeArguments setarguments (List < TypeArg > x)
     {
-      z = new TypeArguments ();
+      TypeArguments z = new TypeArguments ();
       z.privateSetarguments (x);
       return z;
     }

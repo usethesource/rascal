@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Body extends AbstractAST
 {
   public class Toplevels extends Body
@@ -12,11 +13,11 @@ public abstract class Body extends AbstractAST
       this.tree = tree;
       this.toplevels = toplevels;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitToplevelsBody (this);
     }
-    private final List < Toplevel > toplevels;
+    private List < Toplevel > toplevels;
     public List < Toplevel > gettoplevels ()
     {
       return toplevels;
@@ -27,7 +28,7 @@ public abstract class Body extends AbstractAST
     }
     public Toplevels settoplevels (List < Toplevel > x)
     {
-      z = new Toplevels ();
+      Toplevels z = new Toplevels ();
       z.privateSettoplevels (x);
       return z;
     }

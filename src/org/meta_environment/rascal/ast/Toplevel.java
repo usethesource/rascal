@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Toplevel extends AbstractAST
 {
   public class GivenVisibility extends Toplevel
@@ -14,11 +15,11 @@ public abstract class Toplevel extends AbstractAST
       this.visibility = visibility;
       this.declaration = declaration;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitGivenVisibilityToplevel (this);
     }
-    private final Visibility visibility;
+    private Visibility visibility;
     public Visibility getvisibility ()
     {
       return visibility;
@@ -33,7 +34,7 @@ public abstract class Toplevel extends AbstractAST
       z.privateSetvisibility (x);
       return z;
     }
-    private final Declaration declaration;
+    private Declaration declaration;
     public Declaration getdeclaration ()
     {
       return declaration;
@@ -60,11 +61,11 @@ public abstract class Toplevel extends AbstractAST
       this.tree = tree;
       this.declaration = declaration;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitDefaultVisibilityToplevel (this);
     }
-    private final Declaration declaration;
+    private Declaration declaration;
     public Declaration getdeclaration ()
     {
       return declaration;

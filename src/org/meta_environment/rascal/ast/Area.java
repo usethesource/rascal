@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Area extends AbstractAST
 {
   public class Area extends Area
@@ -20,11 +21,11 @@ public abstract class Area extends AbstractAST
       this.offset = offset;
       this.length = length;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitAreaArea (this);
     }
-    private final Expression beginLine;
+    private Expression beginLine;
     public Expression getbeginLine ()
     {
       return beginLine;
@@ -39,7 +40,7 @@ public abstract class Area extends AbstractAST
       z.privateSetbeginLine (x);
       return z;
     }
-    private final Expression beginColumn;
+    private Expression beginColumn;
     public Expression getbeginColumn ()
     {
       return beginColumn;
@@ -54,7 +55,7 @@ public abstract class Area extends AbstractAST
       z.privateSetbeginColumn (x);
       return z;
     }
-    private final Expression endLine;
+    private Expression endLine;
     public Expression getendLine ()
     {
       return endLine;
@@ -69,7 +70,7 @@ public abstract class Area extends AbstractAST
       z.privateSetendLine (x);
       return z;
     }
-    private final Expression endColumn;
+    private Expression endColumn;
     public Expression getendColumn ()
     {
       return endColumn;
@@ -84,7 +85,7 @@ public abstract class Area extends AbstractAST
       z.privateSetendColumn (x);
       return z;
     }
-    private final Expression offset;
+    private Expression offset;
     public Expression getoffset ()
     {
       return offset;
@@ -99,7 +100,7 @@ public abstract class Area extends AbstractAST
       z.privateSetoffset (x);
       return z;
     }
-    private final Expression length;
+    private Expression length;
     public Expression getlength ()
     {
       return length;

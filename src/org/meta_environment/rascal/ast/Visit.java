@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Visit extends AbstractAST
 {
   public class DefaultStrategy extends Visit
@@ -14,11 +15,11 @@ public abstract class Visit extends AbstractAST
       this.subject = subject;
       this.cases = cases;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitDefaultStrategyVisit (this);
     }
-    private final Expression subject;
+    private Expression subject;
     public Expression getsubject ()
     {
       return subject;
@@ -33,7 +34,7 @@ public abstract class Visit extends AbstractAST
       z.privateSetsubject (x);
       return z;
     }
-    private final List < Case > cases;
+    private List < Case > cases;
     public List < Case > getcases ()
     {
       return cases;
@@ -44,7 +45,7 @@ public abstract class Visit extends AbstractAST
     }
     public DefaultStrategy setcases (List < Case > x)
     {
-      z = new DefaultStrategy ();
+      DefaultStrategy z = new DefaultStrategy ();
       z.privateSetcases (x);
       return z;
     }
@@ -63,11 +64,11 @@ public abstract class Visit extends AbstractAST
       this.subject = subject;
       this.cases = cases;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitGivenStrategyVisit (this);
     }
-    private final Strategy strategy;
+    private Strategy strategy;
     public Strategy getstrategy ()
     {
       return strategy;
@@ -82,7 +83,7 @@ public abstract class Visit extends AbstractAST
       z.privateSetstrategy (x);
       return z;
     }
-    private final Expression subject;
+    private Expression subject;
     public Expression getsubject ()
     {
       return subject;
@@ -97,7 +98,7 @@ public abstract class Visit extends AbstractAST
       z.privateSetsubject (x);
       return z;
     }
-    private final List < Case > cases;
+    private List < Case > cases;
     public List < Case > getcases ()
     {
       return cases;
@@ -108,7 +109,7 @@ public abstract class Visit extends AbstractAST
     }
     public GivenStrategy setcases (List < Case > x)
     {
-      z = new GivenStrategy ();
+      GivenStrategy z = new GivenStrategy ();
       z.privateSetcases (x);
       return z;
     }

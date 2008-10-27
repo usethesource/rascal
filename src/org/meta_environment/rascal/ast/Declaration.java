@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Declaration extends AbstractAST
 {
   public class View extends Declaration
@@ -16,11 +17,11 @@ public abstract class Declaration extends AbstractAST
       this.tags = tags;
       this.alternatives = alternatives;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitViewDeclaration (this);
     }
-    private final Name view;
+    private Name view;
     public Name getview ()
     {
       return view;
@@ -35,7 +36,7 @@ public abstract class Declaration extends AbstractAST
       z.privateSetview (x);
       return z;
     }
-    private final Name type;
+    private Name type;
     public Name gettype ()
     {
       return type;
@@ -50,7 +51,7 @@ public abstract class Declaration extends AbstractAST
       z.privateSettype (x);
       return z;
     }
-    private final Tags tags;
+    private Tags tags;
     public Tags gettags ()
     {
       return tags;
@@ -65,7 +66,7 @@ public abstract class Declaration extends AbstractAST
       z.privateSettags (x);
       return z;
     }
-    private final List < Alternative > alternatives;
+    private List < Alternative > alternatives;
     public List < Alternative > getalternatives ()
     {
       return alternatives;
@@ -76,7 +77,7 @@ public abstract class Declaration extends AbstractAST
     }
     public View setalternatives (List < Alternative > x)
     {
-      z = new View ();
+      View z = new View ();
       z.privateSetalternatives (x);
       return z;
     }
@@ -94,11 +95,11 @@ public abstract class Declaration extends AbstractAST
       this.user = user;
       this.tags = tags;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitTypeDeclaration (this);
     }
-    private final Type base;
+    private Type base;
     public Type getbase ()
     {
       return base;
@@ -113,7 +114,7 @@ public abstract class Declaration extends AbstractAST
       z.privateSetbase (x);
       return z;
     }
-    private final UserType user;
+    private UserType user;
     public UserType getuser ()
     {
       return user;
@@ -128,7 +129,7 @@ public abstract class Declaration extends AbstractAST
       z.privateSetuser (x);
       return z;
     }
-    private final Tags tags;
+    private Tags tags;
     public Tags gettags ()
     {
       return tags;
@@ -158,11 +159,11 @@ public abstract class Declaration extends AbstractAST
       this.tags = tags;
       this.variants = variants;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitDataDeclaration (this);
     }
-    private final UserType user;
+    private UserType user;
     public UserType getuser ()
     {
       return user;
@@ -177,7 +178,7 @@ public abstract class Declaration extends AbstractAST
       z.privateSetuser (x);
       return z;
     }
-    private final Tags tags;
+    private Tags tags;
     public Tags gettags ()
     {
       return tags;
@@ -192,7 +193,7 @@ public abstract class Declaration extends AbstractAST
       z.privateSettags (x);
       return z;
     }
-    private final List < Variant > variants;
+    private List < Variant > variants;
     public List < Variant > getvariants ()
     {
       return variants;
@@ -203,7 +204,7 @@ public abstract class Declaration extends AbstractAST
     }
     public Data setvariants (List < Variant > x)
     {
-      z = new Data ();
+      Data z = new Data ();
       z.privateSetvariants (x);
       return z;
     }
@@ -220,11 +221,11 @@ public abstract class Declaration extends AbstractAST
       this.tree = tree;
       this.functionDeclaration = functionDeclaration;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitFunctionDeclaration (this);
     }
-    private final FunctionDeclaration functionDeclaration;
+    private FunctionDeclaration functionDeclaration;
     public FunctionDeclaration getfunctionDeclaration ()
     {
       return functionDeclaration;
@@ -252,11 +253,11 @@ public abstract class Declaration extends AbstractAST
       this.type = type;
       this.variables = variables;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitVariableDeclaration (this);
     }
-    private final Type type;
+    private Type type;
     public Type gettype ()
     {
       return type;
@@ -271,7 +272,7 @@ public abstract class Declaration extends AbstractAST
       z.privateSettype (x);
       return z;
     }
-    private final List < Variable > variables;
+    private List < Variable > variables;
     public List < Variable > getvariables ()
     {
       return variables;
@@ -282,7 +283,7 @@ public abstract class Declaration extends AbstractAST
     }
     public Variable setvariables (List < Variable > x)
     {
-      z = new Variable ();
+      Variable z = new Variable ();
       z.privateSetvariables (x);
       return z;
     }
@@ -300,11 +301,11 @@ public abstract class Declaration extends AbstractAST
       this.tags = tags;
       this.rule = rule;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitRuleDeclaration (this);
     }
-    private final Name name;
+    private Name name;
     public Name getname ()
     {
       return name;
@@ -319,7 +320,7 @@ public abstract class Declaration extends AbstractAST
       z.privateSetname (x);
       return z;
     }
-    private final Tags tags;
+    private Tags tags;
     public Tags gettags ()
     {
       return tags;
@@ -334,7 +335,7 @@ public abstract class Declaration extends AbstractAST
       z.privateSettags (x);
       return z;
     }
-    private final Rule rule;
+    private Rule rule;
     public Rule getrule ()
     {
       return rule;
@@ -365,11 +366,11 @@ public abstract class Declaration extends AbstractAST
       this.tags = tags;
       this.types = types;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitAnnotationDeclaration (this);
     }
-    private final Type type;
+    private Type type;
     public Type gettype ()
     {
       return type;
@@ -384,7 +385,7 @@ public abstract class Declaration extends AbstractAST
       z.privateSettype (x);
       return z;
     }
-    private final Name name;
+    private Name name;
     public Name getname ()
     {
       return name;
@@ -399,7 +400,7 @@ public abstract class Declaration extends AbstractAST
       z.privateSetname (x);
       return z;
     }
-    private final Tags tags;
+    private Tags tags;
     public Tags gettags ()
     {
       return tags;
@@ -414,7 +415,7 @@ public abstract class Declaration extends AbstractAST
       z.privateSettags (x);
       return z;
     }
-    private final List < Type > types;
+    private List < Type > types;
     public List < Type > gettypes ()
     {
       return types;
@@ -425,7 +426,7 @@ public abstract class Declaration extends AbstractAST
     }
     public Annotation settypes (List < Type > x)
     {
-      z = new Annotation ();
+      Annotation z = new Annotation ();
       z.privateSettypes (x);
       return z;
     }
@@ -445,11 +446,11 @@ public abstract class Declaration extends AbstractAST
       this.tags = tags;
       this.types = types;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitTagDeclaration (this);
     }
-    private final Kind kind;
+    private Kind kind;
     public Kind getkind ()
     {
       return kind;
@@ -464,7 +465,7 @@ public abstract class Declaration extends AbstractAST
       z.privateSetkind (x);
       return z;
     }
-    private final Name name;
+    private Name name;
     public Name getname ()
     {
       return name;
@@ -479,7 +480,7 @@ public abstract class Declaration extends AbstractAST
       z.privateSetname (x);
       return z;
     }
-    private final Tags tags;
+    private Tags tags;
     public Tags gettags ()
     {
       return tags;
@@ -494,7 +495,7 @@ public abstract class Declaration extends AbstractAST
       z.privateSettags (x);
       return z;
     }
-    private final List < Type > types;
+    private List < Type > types;
     public List < Type > gettypes ()
     {
       return types;
@@ -505,7 +506,7 @@ public abstract class Declaration extends AbstractAST
     }
     public Tag settypes (List < Type > x)
     {
-      z = new Tag ();
+      Tag z = new Tag ();
       z.privateSettypes (x);
       return z;
     }

@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Tags extends AbstractAST
 {
   public class Default extends Tags
@@ -12,11 +13,11 @@ public abstract class Tags extends AbstractAST
       this.tree = tree;
       this.annotations = annotations;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitDefaultTags (this);
     }
-    private final List < Tag > annotations;
+    private List < Tag > annotations;
     public List < Tag > getannotations ()
     {
       return annotations;
@@ -27,7 +28,7 @@ public abstract class Tags extends AbstractAST
     }
     public Default setannotations (List < Tag > x)
     {
-      z = new Default ();
+      Default z = new Default ();
       z.privateSetannotations (x);
       return z;
     }
