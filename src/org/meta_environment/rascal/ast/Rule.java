@@ -29,7 +29,7 @@ public abstract class Rule extends AbstractAST
     }
     public WithGuard settype (Type x)
     {
-      z = new WithGuard ();
+      WithGuard z = new WithGuard ();
       z.privateSettype (x);
       return z;
     }
@@ -44,7 +44,7 @@ public abstract class Rule extends AbstractAST
     }
     public WithGuard setmatch (Match x)
     {
-      z = new WithGuard ();
+      WithGuard z = new WithGuard ();
       z.privateSetmatch (x);
       return z;
     }
@@ -75,7 +75,7 @@ public abstract class Rule extends AbstractAST
     }
     public NoGuard setmatch (Match x)
     {
-      z = new NoGuard ();
+      NoGuard z = new NoGuard ();
       z.privateSetmatch (x);
       return z;
     }

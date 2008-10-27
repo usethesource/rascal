@@ -28,7 +28,7 @@ public abstract class Literal extends AbstractAST
     }
     public RegExp setregExp (RegExpLiteral x)
     {
-      z = new RegExp ();
+      RegExp z = new RegExp ();
       z.privateSetregExp (x);
       return z;
     }
@@ -59,7 +59,7 @@ public abstract class Literal extends AbstractAST
     }
     public Symbol setsymbol (SymbolLiteral x)
     {
-      z = new Symbol ();
+      Symbol z = new Symbol ();
       z.privateSetsymbol (x);
       return z;
     }
@@ -90,7 +90,7 @@ public abstract class Literal extends AbstractAST
     }
     public Boolean setboolean (BooleanLiteral x)
     {
-      z = new Boolean ();
+      Boolean z = new Boolean ();
       z.privateSetboolean (x);
       return z;
     }
@@ -121,7 +121,7 @@ public abstract class Literal extends AbstractAST
     }
     public Integer setinteger (IntegerLiteral x)
     {
-      z = new Integer ();
+      Integer z = new Integer ();
       z.privateSetinteger (x);
       return z;
     }
@@ -152,7 +152,7 @@ public abstract class Literal extends AbstractAST
     }
     public Double setdouble (FloatingPointLiteral x)
     {
-      z = new Double ();
+      Double z = new Double ();
       z.privateSetdouble (x);
       return z;
     }
@@ -183,7 +183,7 @@ public abstract class Literal extends AbstractAST
     }
     public String setstring (StringLiteral x)
     {
-      z = new String ();
+      String z = new String ();
       z.privateSetstring (x);
       return z;
     }

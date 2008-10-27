@@ -28,7 +28,7 @@ public abstract class Import extends AbstractAST
     }
     public Import setmodule (ImportedModule x)
     {
-      z = new Import ();
+      Import z = new Import ();
       z.privateSetmodule (x);
       return z;
     }
@@ -59,7 +59,7 @@ public abstract class Import extends AbstractAST
     }
     public Extend setmodule (ImportedModule x)
     {
-      z = new Extend ();
+      Extend z = new Extend ();
       z.privateSetmodule (x);
       return z;
     }

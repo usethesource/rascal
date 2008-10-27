@@ -29,7 +29,7 @@ public abstract class Variable extends AbstractAST
     }
     public DefaultInitialization setname (Name x)
     {
-      z = new DefaultInitialization ();
+      DefaultInitialization z = new DefaultInitialization ();
       z.privateSetname (x);
       return z;
     }
@@ -44,7 +44,7 @@ public abstract class Variable extends AbstractAST
     }
     public DefaultInitialization settags (Tags x)
     {
-      z = new DefaultInitialization ();
+      DefaultInitialization z = new DefaultInitialization ();
       z.privateSettags (x);
       return z;
     }
@@ -78,7 +78,7 @@ public abstract class Variable extends AbstractAST
     }
     public GivenInitialization setname (Name x)
     {
-      z = new GivenInitialization ();
+      GivenInitialization z = new GivenInitialization ();
       z.privateSetname (x);
       return z;
     }
@@ -93,7 +93,7 @@ public abstract class Variable extends AbstractAST
     }
     public GivenInitialization settags (Tags x)
     {
-      z = new GivenInitialization ();
+      GivenInitialization z = new GivenInitialization ();
       z.privateSettags (x);
       return z;
     }
@@ -108,7 +108,7 @@ public abstract class Variable extends AbstractAST
     }
     public GivenInitialization setinitial (Expression x)
     {
-      z = new GivenInitialization ();
+      GivenInitialization z = new GivenInitialization ();
       z.privateSetinitial (x);
       return z;
     }

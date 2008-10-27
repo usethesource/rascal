@@ -29,7 +29,7 @@ public abstract class DataTypeSelector extends AbstractAST
     }
     public Selector setsort (Name x)
     {
-      z = new Selector ();
+      Selector z = new Selector ();
       z.privateSetsort (x);
       return z;
     }
@@ -44,7 +44,7 @@ public abstract class DataTypeSelector extends AbstractAST
     }
     public Selector setproduction (Name x)
     {
-      z = new Selector ();
+      Selector z = new Selector ();
       z.privateSetproduction (x);
       return z;
     }

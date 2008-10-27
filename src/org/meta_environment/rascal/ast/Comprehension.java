@@ -30,7 +30,7 @@ public abstract class Comprehension extends AbstractAST
     }
     public Set setresult (Expression x)
     {
-      z = new Set ();
+      Set z = new Set ();
       z.privateSetresult (x);
       return z;
     }
@@ -78,7 +78,7 @@ public abstract class Comprehension extends AbstractAST
     }
     public List setresult (Expression x)
     {
-      z = new List ();
+      List z = new List ();
       z.privateSetresult (x);
       return z;
     }

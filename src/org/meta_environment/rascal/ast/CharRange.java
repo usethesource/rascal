@@ -28,7 +28,7 @@ public abstract class CharRange extends AbstractAST
     }
     public Character setcharacter (Character x)
     {
-      z = new Character ();
+      Character z = new Character ();
       z.privateSetcharacter (x);
       return z;
     }
@@ -60,7 +60,7 @@ public abstract class CharRange extends AbstractAST
     }
     public Range setstart (Character x)
     {
-      z = new Range ();
+      Range z = new Range ();
       z.privateSetstart (x);
       return z;
     }
@@ -75,7 +75,7 @@ public abstract class CharRange extends AbstractAST
     }
     public Range setend (Character x)
     {
-      z = new Range ();
+      Range z = new Range ();
       z.privateSetend (x);
       return z;
     }

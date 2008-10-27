@@ -30,7 +30,7 @@ public abstract class Toplevel extends AbstractAST
     }
     public GivenVisibility setvisibility (Visibility x)
     {
-      z = new GivenVisibility ();
+      GivenVisibility z = new GivenVisibility ();
       z.privateSetvisibility (x);
       return z;
     }
@@ -45,7 +45,7 @@ public abstract class Toplevel extends AbstractAST
     }
     public GivenVisibility setdeclaration (Declaration x)
     {
-      z = new GivenVisibility ();
+      GivenVisibility z = new GivenVisibility ();
       z.privateSetdeclaration (x);
       return z;
     }
@@ -76,7 +76,7 @@ public abstract class Toplevel extends AbstractAST
     }
     public DefaultVisibility setdeclaration (Declaration x)
     {
-      z = new DefaultVisibility ();
+      DefaultVisibility z = new DefaultVisibility ();
       z.privateSetdeclaration (x);
       return z;
     }

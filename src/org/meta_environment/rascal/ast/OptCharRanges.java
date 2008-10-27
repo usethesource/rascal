@@ -43,7 +43,7 @@ public abstract class OptCharRanges extends AbstractAST
     }
     public Present setranges (CharRanges x)
     {
-      z = new Present ();
+      Present z = new Present ();
       z.privateSetranges (x);
       return z;
     }

@@ -28,7 +28,7 @@ public abstract class UserType extends AbstractAST
     }
     public Name setname (Name x)
     {
-      z = new Name ();
+      Name z = new Name ();
       z.privateSetname (x);
       return z;
     }
@@ -61,7 +61,7 @@ public abstract class UserType extends AbstractAST
     }
     public Parametric setname (Name x)
     {
-      z = new Parametric ();
+      Parametric z = new Parametric ();
       z.privateSetname (x);
       return z;
     }

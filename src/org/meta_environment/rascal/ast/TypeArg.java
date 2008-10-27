@@ -28,7 +28,7 @@ public abstract class TypeArg extends AbstractAST
     }
     public Default settype (Type x)
     {
-      z = new Default ();
+      Default z = new Default ();
       z.privateSettype (x);
       return z;
     }
@@ -60,7 +60,7 @@ public abstract class TypeArg extends AbstractAST
     }
     public Named settype (Type x)
     {
-      z = new Named ();
+      Named z = new Named ();
       z.privateSettype (x);
       return z;
     }
@@ -75,7 +75,7 @@ public abstract class TypeArg extends AbstractAST
     }
     public Named setname (Name x)
     {
-      z = new Named ();
+      Named z = new Named ();
       z.privateSetname (x);
       return z;
     }

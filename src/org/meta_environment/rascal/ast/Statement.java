@@ -60,7 +60,7 @@ public abstract class Statement extends AbstractAST
     }
     public For setbody (Statement x)
     {
-      z = new For ();
+      For z = new For ();
       z.privateSetbody (x);
       return z;
     }
@@ -92,7 +92,7 @@ public abstract class Statement extends AbstractAST
     }
     public While setcondition (Expression x)
     {
-      z = new While ();
+      While z = new While ();
       z.privateSetcondition (x);
       return z;
     }
@@ -107,7 +107,7 @@ public abstract class Statement extends AbstractAST
     }
     public While setbody (Statement x)
     {
-      z = new While ();
+      While z = new While ();
       z.privateSetbody (x);
       return z;
     }
@@ -141,7 +141,7 @@ public abstract class Statement extends AbstractAST
     }
     public IfThenElse setcondition (Condition x)
     {
-      z = new IfThenElse ();
+      IfThenElse z = new IfThenElse ();
       z.privateSetcondition (x);
       return z;
     }
@@ -156,7 +156,7 @@ public abstract class Statement extends AbstractAST
     }
     public IfThenElse setthenStatement (Statement x)
     {
-      z = new IfThenElse ();
+      IfThenElse z = new IfThenElse ();
       z.privateSetthenStatement (x);
       return z;
     }
@@ -171,7 +171,7 @@ public abstract class Statement extends AbstractAST
     }
     public IfThenElse setelseStatement (Statement x)
     {
-      z = new IfThenElse ();
+      IfThenElse z = new IfThenElse ();
       z.privateSetelseStatement (x);
       return z;
     }
@@ -204,7 +204,7 @@ public abstract class Statement extends AbstractAST
     }
     public IfThen setcondition (Condition x)
     {
-      z = new IfThen ();
+      IfThen z = new IfThen ();
       z.privateSetcondition (x);
       return z;
     }
@@ -219,7 +219,7 @@ public abstract class Statement extends AbstractAST
     }
     public IfThen setthenStatement (Statement x)
     {
-      z = new IfThen ();
+      IfThen z = new IfThen ();
       z.privateSetthenStatement (x);
       return z;
     }
@@ -252,7 +252,7 @@ public abstract class Statement extends AbstractAST
     }
     public Switch setexpression (Expression x)
     {
-      z = new Switch ();
+      Switch z = new Switch ();
       z.privateSetexpression (x);
       return z;
     }
@@ -299,7 +299,7 @@ public abstract class Statement extends AbstractAST
     }
     public VariableDeclaration setdeclaration (LocalVariableDeclaration x)
     {
-      z = new VariableDeclaration ();
+      VariableDeclaration z = new VariableDeclaration ();
       z.privateSetdeclaration (x);
       return z;
     }
@@ -330,7 +330,7 @@ public abstract class Statement extends AbstractAST
     }
     public Expression setexpression (Expression x)
     {
-      z = new Expression ();
+      Expression z = new Expression ();
       z.privateSetexpression (x);
       return z;
     }
@@ -361,7 +361,7 @@ public abstract class Statement extends AbstractAST
     }
     public Visit setvisit (Visit x)
     {
-      z = new Visit ();
+      Visit z = new Visit ();
       z.privateSetvisit (x);
       return z;
     }
@@ -411,7 +411,7 @@ public abstract class Statement extends AbstractAST
     }
     public Assignment setoperator (Assignment x)
     {
-      z = new Assignment ();
+      Assignment z = new Assignment ();
       z.privateSetoperator (x);
       return z;
     }
@@ -459,7 +459,7 @@ public abstract class Statement extends AbstractAST
     }
     public Assert setlabel (StringLiteral x)
     {
-      z = new Assert ();
+      Assert z = new Assert ();
       z.privateSetlabel (x);
       return z;
     }
@@ -474,7 +474,7 @@ public abstract class Statement extends AbstractAST
     }
     public Assert setexpression (Expression x)
     {
-      z = new Assert ();
+      Assert z = new Assert ();
       z.privateSetexpression (x);
       return z;
     }
@@ -505,7 +505,7 @@ public abstract class Statement extends AbstractAST
     }
     public Return setexpression (Expression x)
     {
-      z = new Return ();
+      Return z = new Return ();
       z.privateSetexpression (x);
       return z;
     }
@@ -536,7 +536,7 @@ public abstract class Statement extends AbstractAST
     }
     public Insert setexpression (Expression x)
     {
-      z = new Insert ();
+      Insert z = new Insert ();
       z.privateSetexpression (x);
       return z;
     }
@@ -567,7 +567,7 @@ public abstract class Statement extends AbstractAST
     }
     public Throw setexpression (Expression x)
     {
-      z = new Throw ();
+      Throw z = new Throw ();
       z.privateSetexpression (x);
       return z;
     }
@@ -629,7 +629,7 @@ public abstract class Statement extends AbstractAST
     }
     public Try setbody (Statement x)
     {
-      z = new Try ();
+      Try z = new Try ();
       z.privateSetbody (x);
       return z;
     }
@@ -678,7 +678,7 @@ public abstract class Statement extends AbstractAST
     }
     public TryFinally setbody (Statement x)
     {
-      z = new TryFinally ();
+      TryFinally z = new TryFinally ();
       z.privateSetbody (x);
       return z;
     }
@@ -708,7 +708,7 @@ public abstract class Statement extends AbstractAST
     }
     public TryFinally setfinallyBody (Statement x)
     {
-      z = new TryFinally ();
+      TryFinally z = new TryFinally ();
       z.privateSetfinallyBody (x);
       return z;
     }
@@ -771,7 +771,7 @@ public abstract class Statement extends AbstractAST
     }
     public FunctionDeclaration setfunctionDeclaration (FunctionDeclaration x)
     {
-      z = new FunctionDeclaration ();
+      FunctionDeclaration z = new FunctionDeclaration ();
       z.privateSetfunctionDeclaration (x);
       return z;
     }

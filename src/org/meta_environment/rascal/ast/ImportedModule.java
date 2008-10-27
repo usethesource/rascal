@@ -31,7 +31,7 @@ public abstract class ImportedModule extends AbstractAST
     }
     public ActualsRenaming setname (ModuleName x)
     {
-      z = new ActualsRenaming ();
+      ActualsRenaming z = new ActualsRenaming ();
       z.privateSetname (x);
       return z;
     }
@@ -46,7 +46,7 @@ public abstract class ImportedModule extends AbstractAST
     }
     public ActualsRenaming setactuals (ModuleActuals x)
     {
-      z = new ActualsRenaming ();
+      ActualsRenaming z = new ActualsRenaming ();
       z.privateSetactuals (x);
       return z;
     }
@@ -61,7 +61,7 @@ public abstract class ImportedModule extends AbstractAST
     }
     public ActualsRenaming setrenamings (Renamings x)
     {
-      z = new ActualsRenaming ();
+      ActualsRenaming z = new ActualsRenaming ();
       z.privateSetrenamings (x);
       return z;
     }
@@ -93,7 +93,7 @@ public abstract class ImportedModule extends AbstractAST
     }
     public Actuals setname (ModuleName x)
     {
-      z = new Actuals ();
+      Actuals z = new Actuals ();
       z.privateSetname (x);
       return z;
     }
@@ -108,7 +108,7 @@ public abstract class ImportedModule extends AbstractAST
     }
     public Actuals setactuals (ModuleActuals x)
     {
-      z = new Actuals ();
+      Actuals z = new Actuals ();
       z.privateSetactuals (x);
       return z;
     }
@@ -140,7 +140,7 @@ public abstract class ImportedModule extends AbstractAST
     }
     public Renamings setname (ModuleName x)
     {
-      z = new Renamings ();
+      Renamings z = new Renamings ();
       z.privateSetname (x);
       return z;
     }
@@ -155,7 +155,7 @@ public abstract class ImportedModule extends AbstractAST
     }
     public Renamings setrenamings (Renamings x)
     {
-      z = new Renamings ();
+      Renamings z = new Renamings ();
       z.privateSetrenamings (x);
       return z;
     }
@@ -186,7 +186,7 @@ public abstract class ImportedModule extends AbstractAST
     }
     public Default setname (ModuleName x)
     {
-      z = new Default ();
+      Default z = new Default ();
       z.privateSetname (x);
       return z;
     }

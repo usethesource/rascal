@@ -31,7 +31,7 @@ public abstract class FunctionDeclaration extends AbstractAST
     }
     public Default setsignature (Signature x)
     {
-      z = new Default ();
+      Default z = new Default ();
       z.privateSetsignature (x);
       return z;
     }
@@ -46,7 +46,7 @@ public abstract class FunctionDeclaration extends AbstractAST
     }
     public Default settags (Tags x)
     {
-      z = new Default ();
+      Default z = new Default ();
       z.privateSettags (x);
       return z;
     }
@@ -61,7 +61,7 @@ public abstract class FunctionDeclaration extends AbstractAST
     }
     public Default setbody (FunctionBody x)
     {
-      z = new Default ();
+      Default z = new Default ();
       z.privateSetbody (x);
       return z;
     }
@@ -93,7 +93,7 @@ public abstract class FunctionDeclaration extends AbstractAST
     }
     public Abstract setsignature (Signature x)
     {
-      z = new Abstract ();
+      Abstract z = new Abstract ();
       z.privateSetsignature (x);
       return z;
     }
@@ -108,7 +108,7 @@ public abstract class FunctionDeclaration extends AbstractAST
     }
     public Abstract settags (Tags x)
     {
-      z = new Abstract ();
+      Abstract z = new Abstract ();
       z.privateSettags (x);
       return z;
     }

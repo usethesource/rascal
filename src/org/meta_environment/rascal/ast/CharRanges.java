@@ -28,7 +28,7 @@ public abstract class CharRanges extends AbstractAST
     }
     public Range setrange (CharRange x)
     {
-      z = new Range ();
+      Range z = new Range ();
       z.privateSetrange (x);
       return z;
     }
@@ -60,7 +60,7 @@ public abstract class CharRanges extends AbstractAST
     }
     public Concatenate setlhs (CharRanges x)
     {
-      z = new Concatenate ();
+      Concatenate z = new Concatenate ();
       z.privateSetlhs (x);
       return z;
     }
@@ -75,7 +75,7 @@ public abstract class CharRanges extends AbstractAST
     }
     public Concatenate setrhs (CharRanges x)
     {
-      z = new Concatenate ();
+      Concatenate z = new Concatenate ();
       z.privateSetrhs (x);
       return z;
     }

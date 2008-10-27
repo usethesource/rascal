@@ -28,7 +28,7 @@ public abstract class Parameters extends AbstractAST
     }
     public Default setformals (Formals x)
     {
-      z = new Default ();
+      Default z = new Default ();
       z.privateSetformals (x);
       return z;
     }
@@ -59,7 +59,7 @@ public abstract class Parameters extends AbstractAST
     }
     public VarArgs setformals (Formals x)
     {
-      z = new VarArgs ();
+      VarArgs z = new VarArgs ();
       z.privateSetformals (x);
       return z;
     }

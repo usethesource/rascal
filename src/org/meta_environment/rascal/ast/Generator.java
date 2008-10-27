@@ -28,7 +28,7 @@ public abstract class Generator extends AbstractAST
     }
     public Expression setexpression (Expression x)
     {
-      z = new Expression ();
+      Expression z = new Expression ();
       z.privateSetexpression (x);
       return z;
     }
@@ -59,7 +59,7 @@ public abstract class Generator extends AbstractAST
     }
     public Producer setproducer (ValueProducer x)
     {
-      z = new Producer ();
+      Producer z = new Producer ();
       z.privateSetproducer (x);
       return z;
     }

@@ -32,7 +32,7 @@ public abstract class Signature extends AbstractAST
     }
     public NoThrows settype (Type x)
     {
-      z = new NoThrows ();
+      NoThrows z = new NoThrows ();
       z.privateSettype (x);
       return z;
     }
@@ -47,7 +47,7 @@ public abstract class Signature extends AbstractAST
     }
     public NoThrows setmodifiers (FunctionModifiers x)
     {
-      z = new NoThrows ();
+      NoThrows z = new NoThrows ();
       z.privateSetmodifiers (x);
       return z;
     }
@@ -62,7 +62,7 @@ public abstract class Signature extends AbstractAST
     }
     public NoThrows setname (FunctionName x)
     {
-      z = new NoThrows ();
+      NoThrows z = new NoThrows ();
       z.privateSetname (x);
       return z;
     }
@@ -77,7 +77,7 @@ public abstract class Signature extends AbstractAST
     }
     public NoThrows setparameters (Parameters x)
     {
-      z = new NoThrows ();
+      NoThrows z = new NoThrows ();
       z.privateSetparameters (x);
       return z;
     }
@@ -114,7 +114,7 @@ public abstract class Signature extends AbstractAST
     }
     public WithThrows settype (Type x)
     {
-      z = new WithThrows ();
+      WithThrows z = new WithThrows ();
       z.privateSettype (x);
       return z;
     }
@@ -129,7 +129,7 @@ public abstract class Signature extends AbstractAST
     }
     public WithThrows setmodifiers (FunctionModifiers x)
     {
-      z = new WithThrows ();
+      WithThrows z = new WithThrows ();
       z.privateSetmodifiers (x);
       return z;
     }
@@ -144,7 +144,7 @@ public abstract class Signature extends AbstractAST
     }
     public WithThrows setname (FunctionName x)
     {
-      z = new WithThrows ();
+      WithThrows z = new WithThrows ();
       z.privateSetname (x);
       return z;
     }
@@ -159,7 +159,7 @@ public abstract class Signature extends AbstractAST
     }
     public WithThrows setparameters (Parameters x)
     {
-      z = new WithThrows ();
+      WithThrows z = new WithThrows ();
       z.privateSetparameters (x);
       return z;
     }

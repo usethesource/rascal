@@ -29,7 +29,7 @@ public abstract class Alternative extends AbstractAST
     }
     public NamedType setname (Name x)
     {
-      z = new NamedType ();
+      NamedType z = new NamedType ();
       z.privateSetname (x);
       return z;
     }
@@ -44,7 +44,7 @@ public abstract class Alternative extends AbstractAST
     }
     public NamedType settype (Type x)
     {
-      z = new NamedType ();
+      NamedType z = new NamedType ();
       z.privateSettype (x);
       return z;
     }

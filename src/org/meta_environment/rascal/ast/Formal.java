@@ -29,7 +29,7 @@ public abstract class Formal extends AbstractAST
     }
     public TypeName settype (Type x)
     {
-      z = new TypeName ();
+      TypeName z = new TypeName ();
       z.privateSettype (x);
       return z;
     }
@@ -44,7 +44,7 @@ public abstract class Formal extends AbstractAST
     }
     public TypeName setname (Name x)
     {
-      z = new TypeName ();
+      TypeName z = new TypeName ();
       z.privateSetname (x);
       return z;
     }

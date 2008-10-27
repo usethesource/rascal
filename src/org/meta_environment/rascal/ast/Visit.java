@@ -30,7 +30,7 @@ public abstract class Visit extends AbstractAST
     }
     public DefaultStrategy setsubject (Expression x)
     {
-      z = new DefaultStrategy ();
+      DefaultStrategy z = new DefaultStrategy ();
       z.privateSetsubject (x);
       return z;
     }
@@ -79,7 +79,7 @@ public abstract class Visit extends AbstractAST
     }
     public GivenStrategy setstrategy (Strategy x)
     {
-      z = new GivenStrategy ();
+      GivenStrategy z = new GivenStrategy ();
       z.privateSetstrategy (x);
       return z;
     }
@@ -94,7 +94,7 @@ public abstract class Visit extends AbstractAST
     }
     public GivenStrategy setsubject (Expression x)
     {
-      z = new GivenStrategy ();
+      GivenStrategy z = new GivenStrategy ();
       z.privateSetsubject (x);
       return z;
     }

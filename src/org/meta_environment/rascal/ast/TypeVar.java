@@ -28,7 +28,7 @@ public abstract class TypeVar extends AbstractAST
     }
     public Free setname (Name x)
     {
-      z = new Free ();
+      Free z = new Free ();
       z.privateSetname (x);
       return z;
     }
@@ -60,7 +60,7 @@ public abstract class TypeVar extends AbstractAST
     }
     public Bounded setname (Name x)
     {
-      z = new Bounded ();
+      Bounded z = new Bounded ();
       z.privateSetname (x);
       return z;
     }
@@ -75,7 +75,7 @@ public abstract class TypeVar extends AbstractAST
     }
     public Bounded setbound (Type x)
     {
-      z = new Bounded ();
+      Bounded z = new Bounded ();
       z.privateSetbound (x);
       return z;
     }

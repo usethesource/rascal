@@ -32,7 +32,7 @@ public abstract class Declaration extends AbstractAST
     }
     public View setview (Name x)
     {
-      z = new View ();
+      View z = new View ();
       z.privateSetview (x);
       return z;
     }
@@ -47,7 +47,7 @@ public abstract class Declaration extends AbstractAST
     }
     public View settype (Name x)
     {
-      z = new View ();
+      View z = new View ();
       z.privateSettype (x);
       return z;
     }
@@ -62,7 +62,7 @@ public abstract class Declaration extends AbstractAST
     }
     public View settags (Tags x)
     {
-      z = new View ();
+      View z = new View ();
       z.privateSettags (x);
       return z;
     }
@@ -110,7 +110,7 @@ public abstract class Declaration extends AbstractAST
     }
     public Type setbase (Type x)
     {
-      z = new Type ();
+      Type z = new Type ();
       z.privateSetbase (x);
       return z;
     }
@@ -125,7 +125,7 @@ public abstract class Declaration extends AbstractAST
     }
     public Type setuser (UserType x)
     {
-      z = new Type ();
+      Type z = new Type ();
       z.privateSetuser (x);
       return z;
     }
@@ -140,7 +140,7 @@ public abstract class Declaration extends AbstractAST
     }
     public Type settags (Tags x)
     {
-      z = new Type ();
+      Type z = new Type ();
       z.privateSettags (x);
       return z;
     }
@@ -174,7 +174,7 @@ public abstract class Declaration extends AbstractAST
     }
     public Data setuser (UserType x)
     {
-      z = new Data ();
+      Data z = new Data ();
       z.privateSetuser (x);
       return z;
     }
@@ -189,7 +189,7 @@ public abstract class Declaration extends AbstractAST
     }
     public Data settags (Tags x)
     {
-      z = new Data ();
+      Data z = new Data ();
       z.privateSettags (x);
       return z;
     }
@@ -236,7 +236,7 @@ public abstract class Declaration extends AbstractAST
     }
     public Function setfunctionDeclaration (FunctionDeclaration x)
     {
-      z = new Function ();
+      Function z = new Function ();
       z.privateSetfunctionDeclaration (x);
       return z;
     }
@@ -268,7 +268,7 @@ public abstract class Declaration extends AbstractAST
     }
     public Variable settype (Type x)
     {
-      z = new Variable ();
+      Variable z = new Variable ();
       z.privateSettype (x);
       return z;
     }
@@ -316,7 +316,7 @@ public abstract class Declaration extends AbstractAST
     }
     public Rule setname (Name x)
     {
-      z = new Rule ();
+      Rule z = new Rule ();
       z.privateSetname (x);
       return z;
     }
@@ -331,7 +331,7 @@ public abstract class Declaration extends AbstractAST
     }
     public Rule settags (Tags x)
     {
-      z = new Rule ();
+      Rule z = new Rule ();
       z.privateSettags (x);
       return z;
     }
@@ -346,7 +346,7 @@ public abstract class Declaration extends AbstractAST
     }
     public Rule setrule (Rule x)
     {
-      z = new Rule ();
+      Rule z = new Rule ();
       z.privateSetrule (x);
       return z;
     }
@@ -381,7 +381,7 @@ public abstract class Declaration extends AbstractAST
     }
     public Annotation settype (Type x)
     {
-      z = new Annotation ();
+      Annotation z = new Annotation ();
       z.privateSettype (x);
       return z;
     }
@@ -396,7 +396,7 @@ public abstract class Declaration extends AbstractAST
     }
     public Annotation setname (Name x)
     {
-      z = new Annotation ();
+      Annotation z = new Annotation ();
       z.privateSetname (x);
       return z;
     }
@@ -411,7 +411,7 @@ public abstract class Declaration extends AbstractAST
     }
     public Annotation settags (Tags x)
     {
-      z = new Annotation ();
+      Annotation z = new Annotation ();
       z.privateSettags (x);
       return z;
     }
@@ -461,7 +461,7 @@ public abstract class Declaration extends AbstractAST
     }
     public Tag setkind (Kind x)
     {
-      z = new Tag ();
+      Tag z = new Tag ();
       z.privateSetkind (x);
       return z;
     }
@@ -476,7 +476,7 @@ public abstract class Declaration extends AbstractAST
     }
     public Tag setname (Name x)
     {
-      z = new Tag ();
+      Tag z = new Tag ();
       z.privateSetname (x);
       return z;
     }
@@ -491,7 +491,7 @@ public abstract class Declaration extends AbstractAST
     }
     public Tag settags (Tags x)
     {
-      z = new Tag ();
+      Tag z = new Tag ();
       z.privateSettags (x);
       return z;
     }
