@@ -11,667 +11,232 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public Visibility.Private makePrivateVisibility (ITree tree)
+  public Formal.TypeName makeTypeNameFormal (ITree tree, Type type, Name name)
   {
-    Visibility.Private x = new Visibility.Private (tree);
+    Formal.TypeName x = new Formal.TypeName (tree, type, name);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Visibility.Public makePublicVisibility (ITree tree)
+  public Formals.Formals makeFormalsFormals (ITree tree,
+					     List < Formal > formals)
   {
-    Visibility.Public x = new Visibility.Public (tree);
+    Formals.Formals x = new Formals.Formals (tree, formals);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Toplevel.DefaultVisibility makeDefaultVisibilityToplevel (ITree tree,
-								   Declaration
-								   declaration)
+  public Parameters.VarArgs makeVarArgsParameters (ITree tree,
+						   Formals formals)
   {
-    Toplevel.DefaultVisibility x =
-      new Toplevel.DefaultVisibility (tree, declaration);
+    Parameters.VarArgs x = new Parameters.VarArgs (tree, formals);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Toplevel.GivenVisibility makeGivenVisibilityToplevel (ITree tree,
-							       Visibility
-							       visibility,
-							       Declaration
-							       declaration)
+  public Parameters.Default makeDefaultParameters (ITree tree,
+						   Formals formals)
   {
-    Toplevel.GivenVisibility x =
-      new Toplevel.GivenVisibility (tree, visibility, declaration);
+    Parameters.Default x = new Parameters.Default (tree, formals);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Declaration.Tag makeTagDeclaration (ITree tree, Kind kind, Name name,
-					     Annotations annotations,
-					     List < Type > types)
+  public Expression.Visit makeVisitExpression (ITree tree, Visit visit)
   {
-    Declaration.Tag x =
-      new Declaration.Tag (tree, kind, name, annotations, types);
+    Expression.Visit x = new Expression.Visit (tree, visit);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Declaration.Annotation makeAnnotationDeclaration (ITree tree,
-							   Type type,
-							   Name name,
-							   Annotations
-							   annotations,
-							   List < Type >
-							   types)
+  public Expression.Forall makeForallExpression (ITree tree,
+						 ValueProducer producers,
+						 Expression expression)
   {
-    Declaration.Annotation x =
-      new Declaration.Annotation (tree, type, name, annotations, types);
+    Expression.Forall x = new Expression.Forall (tree, producers, expression);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Declaration.Rule makeRuleDeclaration (ITree tree, Name name,
-					       Annotations annotations,
-					       Rule rule)
+  public Expression.Exists makeExistsExpression (ITree tree,
+						 ValueProducer producer,
+						 Expression expression)
   {
-    Declaration.Rule x = new Declaration.Rule (tree, name, annotations, rule);
+    Expression.Exists x = new Expression.Exists (tree, producer, expression);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Declaration.Variable makeVariableDeclaration (ITree tree, Type type,
-						       List < Variable >
-						       variables)
+  public Expression.Comprehension makeComprehensionExpression (ITree tree,
+							       Comprehension
+							       comprehension)
   {
-    Declaration.Variable x = new Declaration.Variable (tree, type, variables);
+    Expression.Comprehension x =
+      new Expression.Comprehension (tree, comprehension);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Declaration.Function makeFunctionDeclaration (ITree tree,
-						       FunctionDeclaration
-						       functionDeclaration)
+  public Expression.QualifiedName makeQualifiedNameExpression (ITree tree,
+							       QualifiedName
+							       qualifiedName)
   {
-    Declaration.Function x =
-      new Declaration.Function (tree, functionDeclaration);
+    Expression.QualifiedName x =
+      new Expression.QualifiedName (tree, qualifiedName);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Declaration.Data makeDataDeclaration (ITree tree, UserType user,
-					       Annotations annotations,
-					       List < Variant > variants)
+  public Expression.
+    AreaInFileLocation makeAreaInFileLocationExpression (ITree tree,
+							 Expression filename,
+							 Expression area)
   {
-    Declaration.Data x =
-      new Declaration.Data (tree, user, annotations, variants);
+    Expression.AreaInFileLocation x =
+      new Expression.AreaInFileLocation (tree, filename, area);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Declaration.Type makeTypeDeclaration (ITree tree, Type base,
-					       UserType user,
-					       Annotations annotations)
+  public Expression.AreaLocation makeAreaLocationExpression (ITree tree,
+							     Expression area)
   {
-    Declaration.Type x = new Declaration.Type (tree, base, user, annotations);
+    Expression.AreaLocation x = new Expression.AreaLocation (tree, area);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Declaration.View makeViewDeclaration (ITree tree, Name view,
-					       Name type, Annotations annos,
-					       List < Alternative >
-					       alternatives)
+  public Expression.FileLocation makeFileLocationExpression (ITree tree,
+							     Expression
+							     filename)
   {
-    Declaration.View x =
-      new Declaration.View (tree, view, type, annos, alternatives);
+    Expression.FileLocation x = new Expression.FileLocation (tree, filename);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Alternative.NamedType makeNamedTypeAlternative (ITree tree,
-							 Name name, Type type)
+  public Expression.Area makeAreaExpression (ITree tree)
   {
-    Alternative.NamedType x = new Alternative.NamedType (tree, name, type);
+    Expression.Area x = new Expression.Area (tree);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Variant.NillaryConstructor makeNillaryConstructorVariant (ITree tree,
-								   Name name)
+  public Expression.Location makeLocationExpression (ITree tree)
   {
-    Variant.NillaryConstructor x =
-      new Variant.NillaryConstructor (tree, name);
+    Expression.Location x = new Expression.Location (tree);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Variant.NAryConstructor makeNAryConstructorVariant (ITree tree,
-							     Name name,
-							     List < TypeArg >
-							     arguments)
+  public Expression.MapTuple makeMapTupleExpression (ITree tree,
+						     Expression from,
+						     Expression to)
   {
-    Variant.NAryConstructor x =
-      new Variant.NAryConstructor (tree, name, arguments);
+    Expression.MapTuple x = new Expression.MapTuple (tree, from, to);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Variant.Type makeTypeVariant (ITree tree, Type type, Name name)
+  public Expression.Tuple makeTupleExpression (ITree tree, Expression first,
+					       List < Expression > rest)
   {
-    Variant.Type x = new Variant.Type (tree, type, name);
+    Expression.Tuple x = new Expression.Tuple (tree, first, rest);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public StandardOperator.NotIn makeNotInStandardOperator (ITree tree)
+  public Expression.Set makeSetExpression (ITree tree,
+					   List < Expression > elements)
   {
-    StandardOperator.NotIn x = new StandardOperator.NotIn (tree);
+    Expression.Set x = new Expression.Set (tree, elements);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public StandardOperator.In makeInStandardOperator (ITree tree)
+  public Expression.StepRange makeStepRangeExpression (ITree tree,
+						       Expression from,
+						       Expression by,
+						       Expression to)
   {
-    StandardOperator.In x = new StandardOperator.In (tree);
+    Expression.StepRange x = new Expression.StepRange (tree, from, by, to);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public StandardOperator.Not makeNotStandardOperator (ITree tree)
+  public Expression.Range makeRangeExpression (ITree tree, Expression from,
+					       Expression to)
   {
-    StandardOperator.Not x = new StandardOperator.Not (tree);
+    Expression.Range x = new Expression.Range (tree, from, to);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public StandardOperator.Or makeOrStandardOperator (ITree tree)
+  public Expression.List makeListExpression (ITree tree,
+					     List < Expression > elements)
   {
-    StandardOperator.Or x = new StandardOperator.Or (tree);
+    Expression.List x = new Expression.List (tree, elements);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public StandardOperator.And makeAndStandardOperator (ITree tree)
-  {
-    StandardOperator.And x = new StandardOperator.And (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public StandardOperator.
-    GreaterThanOrEq makeGreaterThanOrEqStandardOperator (ITree tree)
-  {
-    StandardOperator.GreaterThanOrEq x =
-      new StandardOperator.GreaterThanOrEq (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public StandardOperator.
-    GreaterThan makeGreaterThanStandardOperator (ITree tree)
-  {
-    StandardOperator.GreaterThan x = new StandardOperator.GreaterThan (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public StandardOperator.
-    LessThanOrEq makeLessThanOrEqStandardOperator (ITree tree)
-  {
-    StandardOperator.LessThanOrEq x =
-      new StandardOperator.LessThanOrEq (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public StandardOperator.LessThan makeLessThanStandardOperator (ITree tree)
-  {
-    StandardOperator.LessThan x = new StandardOperator.LessThan (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public StandardOperator.NotEquals makeNotEqualsStandardOperator (ITree tree)
-  {
-    StandardOperator.NotEquals x = new StandardOperator.NotEquals (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public StandardOperator.Equals makeEqualsStandardOperator (ITree tree)
-  {
-    StandardOperator.Equals x = new StandardOperator.Equals (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public StandardOperator.
-    Intersection makeIntersectionStandardOperator (ITree tree)
-  {
-    StandardOperator.Intersection x =
-      new StandardOperator.Intersection (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public StandardOperator.Division makeDivisionStandardOperator (ITree tree)
-  {
-    StandardOperator.Division x = new StandardOperator.Division (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public StandardOperator.Product makeProductStandardOperator (ITree tree)
-  {
-    StandardOperator.Product x = new StandardOperator.Product (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public StandardOperator.
-    Substraction makeSubstractionStandardOperator (ITree tree)
-  {
-    StandardOperator.Substraction x =
-      new StandardOperator.Substraction (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public StandardOperator.Addition makeAdditionStandardOperator (ITree tree)
-  {
-    StandardOperator.Addition x = new StandardOperator.Addition (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public FunctionName.Operator makeOperatorFunctionName (ITree tree,
-							 StandardOperator
-							 operator)
-  {
-    FunctionName.Operator x = new FunctionName.Operator (tree, operator);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public FunctionName.Name makeNameFunctionName (ITree tree, Name name)
-  {
-    FunctionName.Name x = new FunctionName.Name (tree, name);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public FunctionModifier.Java makeJavaFunctionModifier (ITree tree)
-  {
-    FunctionModifier.Java x = new FunctionModifier.Java (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public FunctionModifiers.List makeListFunctionModifiers (ITree tree,
-							   List <
-							   FunctionModifier >
-							   modifiers)
-  {
-    FunctionModifiers.List x = new FunctionModifiers.List (tree, modifiers);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Signature.WithThrows makeWithThrowsSignature (ITree tree, Type type,
-						       FunctionModifiers
-						       modifiers,
-						       FunctionName name,
-						       Parameters parameters,
-						       List < Type >
-						       exceptions)
-  {
-    Signature.WithThrows x =
-      new Signature.WithThrows (tree, type, modifiers, name, parameters,
-				exceptions);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Signature.NoThrows makeNoThrowsSignature (ITree tree, Type type,
-						   FunctionModifiers
-						   modifiers,
-						   FunctionName name,
-						   Parameters parameters)
-  {
-    Signature.NoThrows x =
-      new Signature.NoThrows (tree, type, modifiers, name, parameters);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public FunctionDeclaration.
-    Abstract makeAbstractFunctionDeclaration (ITree tree, Signature signature,
-					      Annotations annotations)
-  {
-    FunctionDeclaration.Abstract x =
-      new FunctionDeclaration.Abstract (tree, signature, annotations);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public FunctionDeclaration.
-    Default makeDefaultFunctionDeclaration (ITree tree, Signature signature,
-					    Annotations annotations,
-					    FunctionBody body)
-  {
-    FunctionDeclaration.Default x =
-      new FunctionDeclaration.Default (tree, signature, annotations, body);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public FunctionBody.Default makeDefaultFunctionBody (ITree tree,
-						       List < Statement >
-						       statements)
-  {
-    FunctionBody.Default x = new FunctionBody.Default (tree, statements);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Variable.
-    GivenInitialization makeGivenInitializationVariable (ITree tree,
+  public Expression.CallOrTree makeCallOrTreeExpression (ITree tree,
 							 Name name,
-							 Annotations
-							 annotations,
-							 Expression initial)
+							 List < Expression >
+							 arguments)
   {
-    Variable.GivenInitialization x =
-      new Variable.GivenInitialization (tree, name, annotations, initial);
+    Expression.CallOrTree x =
+      new Expression.CallOrTree (tree, name, arguments);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Variable.
-    DefaultInitialization makeDefaultInitializationVariable (ITree tree,
-							     Name name,
-							     Annotations
-							     annotations)
+  public Expression.Literal makeLiteralExpression (ITree tree,
+						   Literal literal)
   {
-    Variable.DefaultInitialization x =
-      new Variable.DefaultInitialization (tree, name, annotations);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Kind.All makeAllKind (ITree tree)
-  {
-    Kind.All x = new Kind.All (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Kind.Tag makeTagKind (ITree tree)
-  {
-    Kind.Tag x = new Kind.Tag (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Kind.Anno makeAnnoKind (ITree tree)
-  {
-    Kind.Anno x = new Kind.Anno (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Kind.Type makeTypeKind (ITree tree)
-  {
-    Kind.Type x = new Kind.Type (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Kind.View makeViewKind (ITree tree)
-  {
-    Kind.View x = new Kind.View (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Kind.Data makeDataKind (ITree tree)
-  {
-    Kind.Data x = new Kind.Data (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Kind.Variable makeVariableKind (ITree tree)
-  {
-    Kind.Variable x = new Kind.Variable (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Kind.Function makeFunctionKind (ITree tree)
-  {
-    Kind.Function x = new Kind.Function (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Kind.Module makeModuleKind (ITree tree)
-  {
-    Kind.Module x = new Kind.Module (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Pattern.TypedVariable makeTypedVariablePattern (ITree tree,
-							 Type type, Name name)
-  {
-    Pattern.TypedVariable x = new Pattern.TypedVariable (tree, type, name);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public ValueProducer.
-    GivenStrategy makeGivenStrategyValueProducer (ITree tree,
-						  Strategy strategy,
-						  Pattern pattern,
-						  Expression expression)
-  {
-    ValueProducer.GivenStrategy x =
-      new ValueProducer.GivenStrategy (tree, strategy, pattern, expression);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public ValueProducer.
-    DefaultStrategy makeDefaultStrategyValueProducer (ITree tree,
-						      Pattern pattern,
-						      Expression expression)
-  {
-    ValueProducer.DefaultStrategy x =
-      new ValueProducer.DefaultStrategy (tree, pattern, expression);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Generator.Producer makeProducerGenerator (ITree tree,
-						   ValueProducer producer)
-  {
-    Generator.Producer x = new Generator.Producer (tree, producer);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Generator.Expression makeExpressionGenerator (ITree tree,
-						       Expression expression)
-  {
-    Generator.Expression x = new Generator.Expression (tree, expression);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Strategy.Innermost makeInnermostStrategy (ITree tree)
-  {
-    Strategy.Innermost x = new Strategy.Innermost (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Strategy.Outermost makeOutermostStrategy (ITree tree)
-  {
-    Strategy.Outermost x = new Strategy.Outermost (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Strategy.BottomUpBreak makeBottomUpBreakStrategy (ITree tree)
-  {
-    Strategy.BottomUpBreak x = new Strategy.BottomUpBreak (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Strategy.BottomUp makeBottomUpStrategy (ITree tree)
-  {
-    Strategy.BottomUp x = new Strategy.BottomUp (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Strategy.TopDownBreak makeTopDownBreakStrategy (ITree tree)
-  {
-    Strategy.TopDownBreak x = new Strategy.TopDownBreak (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Strategy.TopDown makeTopDownStrategy (ITree tree)
-  {
-    Strategy.TopDown x = new Strategy.TopDown (tree);
+    Expression.Literal x = new Expression.Literal (tree, literal);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -997,625 +562,57 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public Expression.QualifiedName makeQualifiedNameExpression (ITree tree,
-							       QualifiedName
-							       qualifiedName)
+  public Literal.String makeStringLiteral (ITree tree, StringLiteral string)
   {
-    Expression.QualifiedName x =
-      new Expression.QualifiedName (tree, qualifiedName);
+    Literal.String x = new Literal.String (tree, string);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Expression.
-    AreaInFileLocation makeAreaInFileLocationExpression (ITree tree,
-							 Expression filename,
-							 Expression area)
+  public Literal.Double makeDoubleLiteral (ITree tree,
+					   FloatingPointLiteral double)
   {
-    Expression.AreaInFileLocation x =
-      new Expression.AreaInFileLocation (tree, filename, area);
+    Literal.Double x = new Literal.Double (tree, double);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Expression.AreaLocation makeAreaLocationExpression (ITree tree,
-							     Expression area)
+  public Literal.Integer makeIntegerLiteral (ITree tree,
+					     IntegerLiteral integer)
   {
-    Expression.AreaLocation x = new Expression.AreaLocation (tree, area);
+    Literal.Integer x = new Literal.Integer (tree, integer);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Expression.FileLocation makeFileLocationExpression (ITree tree,
-							     Expression
-							     filename)
+  public Literal.Boolean makeBooleanLiteral (ITree tree,
+					     BooleanLiteral boolean)
   {
-    Expression.FileLocation x = new Expression.FileLocation (tree, filename);
+    Literal.Boolean x = new Literal.Boolean (tree, boolean);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Expression.Area makeAreaExpression (ITree tree)
+  public Literal.Symbol makeSymbolLiteral (ITree tree, SymbolLiteral symbol)
   {
-    Expression.Area x = new Expression.Area (tree);
+    Literal.Symbol x = new Literal.Symbol (tree, symbol);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Expression.Location makeLocationExpression (ITree tree)
+  public Literal.RegExp makeRegExpLiteral (ITree tree, RegExpLiteral regExp)
   {
-    Expression.Location x = new Expression.Location (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Expression.MapTuple makeMapTupleExpression (ITree tree,
-						     Expression from,
-						     Expression to)
-  {
-    Expression.MapTuple x = new Expression.MapTuple (tree, from, to);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Expression.Tuple makeTupleExpression (ITree tree, Expression first,
-					       List < Expression > rest)
-  {
-    Expression.Tuple x = new Expression.Tuple (tree, first, rest);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Expression.Set makeSetExpression (ITree tree,
-					   List < Expression > elements)
-  {
-    Expression.Set x = new Expression.Set (tree, elements);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Expression.StepRange makeStepRangeExpression (ITree tree,
-						       Expression from,
-						       Expression by,
-						       Expression to)
-  {
-    Expression.StepRange x = new Expression.StepRange (tree, from, by, to);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Expression.Range makeRangeExpression (ITree tree, Expression from,
-					       Expression to)
-  {
-    Expression.Range x = new Expression.Range (tree, from, to);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Expression.List makeListExpression (ITree tree,
-					     List < Expression > elements)
-  {
-    Expression.List x = new Expression.List (tree, elements);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Expression.CallOrTree makeCallOrTreeExpression (ITree tree,
-							 Name name,
-							 List < Expression >
-							 arguments)
-  {
-    Expression.CallOrTree x =
-      new Expression.CallOrTree (tree, name, arguments);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Expression.Literal makeLiteralExpression (ITree tree,
-						   Literal literal)
-  {
-    Expression.Literal x = new Expression.Literal (tree, literal);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Expression.Visit makeVisitExpression (ITree tree, Visit visit)
-  {
-    Expression.Visit x = new Expression.Visit (tree, visit);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Expression.Forall makeForallExpression (ITree tree,
-						 ValueProducer producers,
-						 Expression expression)
-  {
-    Expression.Forall x = new Expression.Forall (tree, producers, expression);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Expression.Exists makeExistsExpression (ITree tree,
-						 ValueProducer producer,
-						 Expression expression)
-  {
-    Expression.Exists x = new Expression.Exists (tree, producer, expression);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Expression.Comprehension makeComprehensionExpression (ITree tree,
-							       Comprehension
-							       comprehension)
-  {
-    Expression.Comprehension x =
-      new Expression.Comprehension (tree, comprehension);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Comprehension.List makeListComprehension (ITree tree,
-						   Expression result,
-						   List < Generator >
-						   generators)
-  {
-    Comprehension.List x = new Comprehension.List (tree, result, generators);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Comprehension.Set makeSetComprehension (ITree tree,
-						 Expression result,
-						 List < Generator >
-						 generators)
-  {
-    Comprehension.Set x = new Comprehension.Set (tree, result, generators);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Match.Arbitrary makeArbitraryMatch (ITree tree, Pattern match,
-					     Statement statement)
-  {
-    Match.Arbitrary x = new Match.Arbitrary (tree, match, statement);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Match.Replacing makeReplacingMatch (ITree tree, Pattern match,
-					     Expression replacement)
-  {
-    Match.Replacing x = new Match.Replacing (tree, match, replacement);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Rule.NoGuard makeNoGuardRule (ITree tree, Match match)
-  {
-    Rule.NoGuard x = new Rule.NoGuard (tree, match);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Rule.WithGuard makeWithGuardRule (ITree tree, Type type, Match match)
-  {
-    Rule.WithGuard x = new Rule.WithGuard (tree, type, match);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Case.Default makeDefaultCase (ITree tree, Statement statement)
-  {
-    Case.Default x = new Case.Default (tree, statement);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Case.Rule makeRuleCase (ITree tree, Rule rule)
-  {
-    Case.Rule x = new Case.Rule (tree, rule);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Visit.GivenStrategy makeGivenStrategyVisit (ITree tree,
-						     Strategy strategy,
-						     Expression subject,
-						     List < Case > cases)
-  {
-    Visit.GivenStrategy x =
-      new Visit.GivenStrategy (tree, strategy, subject, cases);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Visit.DefaultStrategy makeDefaultStrategyVisit (ITree tree,
-							 Expression subject,
-							 List < Case > cases)
-  {
-    Visit.DefaultStrategy x =
-      new Visit.DefaultStrategy (tree, subject, cases);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Symbol.
-    CaseInsensitiveLiteral makeCaseInsensitiveLiteralSymbol (ITree tree,
-							     SingleQuotedStrCon
-							     singelQuotedString)
-  {
-    Symbol.CaseInsensitiveLiteral x =
-      new Symbol.CaseInsensitiveLiteral (tree, singelQuotedString);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Symbol.Literal makeLiteralSymbol (ITree tree, StrCon string)
-  {
-    Symbol.Literal x = new Symbol.Literal (tree, string);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Symbol.LiftedSymbol makeLiftedSymbolSymbol (ITree tree,
-						     Symbol symbol)
-  {
-    Symbol.LiftedSymbol x = new Symbol.LiftedSymbol (tree, symbol);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Symbol.CharacterClass makeCharacterClassSymbol (ITree tree,
-							 CharClass charClass)
-  {
-    Symbol.CharacterClass x = new Symbol.CharacterClass (tree, charClass);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Symbol.Alternative makeAlternativeSymbol (ITree tree, Symbol lhs,
-						   Symbol rhs)
-  {
-    Symbol.Alternative x = new Symbol.Alternative (tree, lhs, rhs);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Symbol.IterStarSep makeIterStarSepSymbol (ITree tree, Symbol symbol,
-						   StrCon sep)
-  {
-    Symbol.IterStarSep x = new Symbol.IterStarSep (tree, symbol, sep);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Symbol.IterSep makeIterSepSymbol (ITree tree, Symbol symbol,
-					   StrCon sep)
-  {
-    Symbol.IterSep x = new Symbol.IterSep (tree, symbol, sep);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Symbol.IterStar makeIterStarSymbol (ITree tree, Symbol symbol)
-  {
-    Symbol.IterStar x = new Symbol.IterStar (tree, symbol);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Symbol.Iter makeIterSymbol (ITree tree, Symbol symbol)
-  {
-    Symbol.Iter x = new Symbol.Iter (tree, symbol);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Symbol.Optional makeOptionalSymbol (ITree tree, Symbol symbol)
-  {
-    Symbol.Optional x = new Symbol.Optional (tree, symbol);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Symbol.Sequence makeSequenceSymbol (ITree tree, Symbol head,
-					     List < Symbol > tail)
-  {
-    Symbol.Sequence x = new Symbol.Sequence (tree, head, tail);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Symbol.Empty makeEmptySymbol (ITree tree)
-  {
-    Symbol.Empty x = new Symbol.Empty (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Symbol.ParameterizedSort makeParameterizedSortSymbol (ITree tree,
-							       Sort sort,
-							       List < Symbol >
-							       parameters)
-  {
-    Symbol.ParameterizedSort x =
-      new Symbol.ParameterizedSort (tree, sort, parameters);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Symbol.Sort makeSortSymbol (ITree tree, Sort sort)
-  {
-    Symbol.Sort x = new Symbol.Sort (tree, sort);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public CharRange.Range makeRangeCharRange (ITree tree, Character start,
-					     Character end)
-  {
-    CharRange.Range x = new CharRange.Range (tree, start, end);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public CharRange.Character makeCharacterCharRange (ITree tree,
-						     Character character)
-  {
-    CharRange.Character x = new CharRange.Character (tree, character);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public CharRanges.Concatenate makeConcatenateCharRanges (ITree tree,
-							   CharRanges lhs,
-							   CharRanges rhs)
-  {
-    CharRanges.Concatenate x = new CharRanges.Concatenate (tree, lhs, rhs);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public CharRanges.Range makeRangeCharRanges (ITree tree, CharRange range)
-  {
-    CharRanges.Range x = new CharRanges.Range (tree, range);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public OptCharRanges.Present makePresentOptCharRanges (ITree tree,
-							 CharRanges ranges)
-  {
-    OptCharRanges.Present x = new OptCharRanges.Present (tree, ranges);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public OptCharRanges.Absent makeAbsentOptCharRanges (ITree tree)
-  {
-    OptCharRanges.Absent x = new OptCharRanges.Absent (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public CharClass.Union makeUnionCharClass (ITree tree, CharClass lhs,
-					     CharClass rhs)
-  {
-    CharClass.Union x = new CharClass.Union (tree, lhs, rhs);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public CharClass.Intersection makeIntersectionCharClass (ITree tree,
-							   CharClass lhs,
-							   CharClass rhs)
-  {
-    CharClass.Intersection x = new CharClass.Intersection (tree, lhs, rhs);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public CharClass.Difference makeDifferenceCharClass (ITree tree,
-						       CharClass lhs,
-						       CharClass rhs)
-  {
-    CharClass.Difference x = new CharClass.Difference (tree, lhs, rhs);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public CharClass.Complement makeComplementCharClass (ITree tree,
-						       CharClass charClass)
-  {
-    CharClass.Complement x = new CharClass.Complement (tree, charClass);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public CharClass.SimpleCharclass makeSimpleCharclassCharClass (ITree tree,
-								 OptCharRanges
-								 optionalCharRanges)
-  {
-    CharClass.SimpleCharclass x =
-      new CharClass.SimpleCharclass (tree, optionalCharRanges);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Character.LabelStart makeLabelStartCharacter (ITree tree)
-  {
-    Character.LabelStart x = new Character.LabelStart (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Character.Bottom makeBottomCharacter (ITree tree)
-  {
-    Character.Bottom x = new Character.Bottom (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Character.EOF makeEOFCharacter (ITree tree)
-  {
-    Character.EOF x = new Character.EOF (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Character.Top makeTopCharacter (ITree tree)
-  {
-    Character.Top x = new Character.Top (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Character.Short makeShortCharacter (ITree tree, ShortChar short)
-  {
-    Character.Short x = new Character.Short (tree, short);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Character.Numeric makeNumericCharacter (ITree tree, NumChar numeric)
-  {
-    Character.Numeric x = new Character.Numeric (tree, numeric);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Annotation.Default makeDefaultAnnotation (ITree tree, Name name)
-  {
-    Annotation.Default x = new Annotation.Default (tree, name);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Annotations.Default makeDefaultAnnotations (ITree tree,
-						     List < Annotation >
-						     annotations)
-  {
-    Annotations.Default x = new Annotations.Default (tree, annotations);
+    Literal.RegExp x = new Literal.RegExp (tree, regExp);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -2084,280 +1081,546 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public Module.Module makeModuleModule (ITree tree, Header header, Body body)
+  public Visibility.Private makePrivateVisibility (ITree tree)
   {
-    Module.Module x = new Module.Module (tree, header, body);
+    Visibility.Private x = new Visibility.Private (tree);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public ModuleActuals.Actuals makeActualsModuleActuals (ITree tree,
-							 List < Type > types)
+  public Visibility.Public makePublicVisibility (ITree tree)
   {
-    ModuleActuals.Actuals x = new ModuleActuals.Actuals (tree, types);
+    Visibility.Public x = new Visibility.Public (tree);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public ImportedModule.Default makeDefaultImportedModule (ITree tree,
-							   ModuleName name)
+  public Toplevel.DefaultVisibility makeDefaultVisibilityToplevel (ITree tree,
+								   Declaration
+								   declaration)
   {
-    ImportedModule.Default x = new ImportedModule.Default (tree, name);
+    Toplevel.DefaultVisibility x =
+      new Toplevel.DefaultVisibility (tree, declaration);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public ImportedModule.Renamings makeRenamingsImportedModule (ITree tree,
-							       ModuleName
-							       name,
-							       Renamings
-							       renamings)
+  public Toplevel.GivenVisibility makeGivenVisibilityToplevel (ITree tree,
+							       Visibility
+							       visibility,
+							       Declaration
+							       declaration)
   {
-    ImportedModule.Renamings x =
-      new ImportedModule.Renamings (tree, name, renamings);
+    Toplevel.GivenVisibility x =
+      new Toplevel.GivenVisibility (tree, visibility, declaration);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public ImportedModule.Actuals makeActualsImportedModule (ITree tree,
-							   ModuleName name,
-							   ModuleActuals
-							   actuals)
+  public Declaration.Tag makeTagDeclaration (ITree tree, Kind kind, Name name,
+					     Tags tags, List < Type > types)
   {
-    ImportedModule.Actuals x =
-      new ImportedModule.Actuals (tree, name, actuals);
+    Declaration.Tag x = new Declaration.Tag (tree, kind, name, tags, types);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public ImportedModule.
-    ActualsRenaming makeActualsRenamingImportedModule (ITree tree,
-						       ModuleName name,
-						       ModuleActuals actuals,
-						       Renamings renamings)
+  public Declaration.Annotation makeAnnotationDeclaration (ITree tree,
+							   Type type,
+							   Name name,
+							   Tags tags,
+							   List < Type >
+							   types)
   {
-    ImportedModule.ActualsRenaming x =
-      new ImportedModule.ActualsRenaming (tree, name, actuals, renamings);
+    Declaration.Annotation x =
+      new Declaration.Annotation (tree, type, name, tags, types);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Renaming.Renaming makeRenamingRenaming (ITree tree, Name from,
-						 Name to)
+  public Declaration.Rule makeRuleDeclaration (ITree tree, Name name,
+					       Tags tags, Rule rule)
   {
-    Renaming.Renaming x = new Renaming.Renaming (tree, from, to);
+    Declaration.Rule x = new Declaration.Rule (tree, name, tags, rule);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Renamings.Renamings makeRenamingsRenamings (ITree tree,
-						     List < Renaming >
-						     renamings)
+  public Declaration.Variable makeVariableDeclaration (ITree tree, Type type,
+						       List < Variable >
+						       variables)
   {
-    Renamings.Renamings x = new Renamings.Renamings (tree, renamings);
+    Declaration.Variable x = new Declaration.Variable (tree, type, variables);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Import.Extend makeExtendImport (ITree tree, ImportedModule module)
+  public Declaration.Function makeFunctionDeclaration (ITree tree,
+						       FunctionDeclaration
+						       functionDeclaration)
   {
-    Import.Extend x = new Import.Extend (tree, module);
+    Declaration.Function x =
+      new Declaration.Function (tree, functionDeclaration);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Import.Import makeImportImport (ITree tree, ImportedModule module)
+  public Declaration.Data makeDataDeclaration (ITree tree, UserType user,
+					       Tags tags,
+					       List < Variant > variants)
   {
-    Import.Import x = new Import.Import (tree, module);
+    Declaration.Data x = new Declaration.Data (tree, user, tags, variants);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public ModuleParameters.
-    ModuleParameters makeModuleParametersModuleParameters (ITree tree,
-							   List < TypeVar >
-							   parameters)
+  public Declaration.Type makeTypeDeclaration (ITree tree, Type base,
+					       UserType user, Tags tags)
   {
-    ModuleParameters.ModuleParameters x =
-      new ModuleParameters.ModuleParameters (tree, parameters);
+    Declaration.Type x = new Declaration.Type (tree, base, user, tags);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Header.Parameters makeParametersHeader (ITree tree, ModuleName name,
-						 ModuleParameters params,
-						 Annotations annos,
-						 List < Import > imports)
+  public Declaration.View makeViewDeclaration (ITree tree, Name view,
+					       Name type, Tags tags,
+					       List < Alternative >
+					       alternatives)
   {
-    Header.Parameters x =
-      new Header.Parameters (tree, name, params, annos, imports);
+    Declaration.View x =
+      new Declaration.View (tree, view, type, tags, alternatives);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Header.Default makeDefaultHeader (ITree tree, ModuleName name,
-					   Annotations annos,
-					   List < Import > imports)
+  public Alternative.NamedType makeNamedTypeAlternative (ITree tree,
+							 Name name, Type type)
   {
-    Header.Default x = new Header.Default (tree, name, annos, imports);
+    Alternative.NamedType x = new Alternative.NamedType (tree, name, type);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public IntegerLiteral.
-    OctalIntegerLiteral makeOctalIntegerLiteralIntegerLiteral (ITree tree)
+  public Variant.NillaryConstructor makeNillaryConstructorVariant (ITree tree,
+								   Name name)
   {
-    IntegerLiteral.OctalIntegerLiteral x =
-      new IntegerLiteral.OctalIntegerLiteral (tree);
+    Variant.NillaryConstructor x =
+      new Variant.NillaryConstructor (tree, name);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public IntegerLiteral.
-    HexIntegerLiteral makeHexIntegerLiteralIntegerLiteral (ITree tree)
+  public Variant.NAryConstructor makeNAryConstructorVariant (ITree tree,
+							     Name name,
+							     List < TypeArg >
+							     arguments)
   {
-    IntegerLiteral.HexIntegerLiteral x =
-      new IntegerLiteral.HexIntegerLiteral (tree);
+    Variant.NAryConstructor x =
+      new Variant.NAryConstructor (tree, name, arguments);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public IntegerLiteral.
-    DecimalIntegerLiteral makeDecimalIntegerLiteralIntegerLiteral (ITree tree)
+  public Variant.Type makeTypeVariant (ITree tree, Type type, Name name)
   {
-    IntegerLiteral.DecimalIntegerLiteral x =
-      new IntegerLiteral.DecimalIntegerLiteral (tree);
+    Variant.Type x = new Variant.Type (tree, type, name);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public LongLiteral.
-    OctalLongLiteral makeOctalLongLiteralLongLiteral (ITree tree)
+  public StandardOperator.NotIn makeNotInStandardOperator (ITree tree)
   {
-    LongLiteral.OctalLongLiteral x = new LongLiteral.OctalLongLiteral (tree);
+    StandardOperator.NotIn x = new StandardOperator.NotIn (tree);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public LongLiteral.HexLongLiteral makeHexLongLiteralLongLiteral (ITree tree)
+  public StandardOperator.In makeInStandardOperator (ITree tree)
   {
-    LongLiteral.HexLongLiteral x = new LongLiteral.HexLongLiteral (tree);
+    StandardOperator.In x = new StandardOperator.In (tree);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public LongLiteral.
-    DecimalLongLiteral makeDecimalLongLiteralLongLiteral (ITree tree)
+  public StandardOperator.Not makeNotStandardOperator (ITree tree)
   {
-    LongLiteral.DecimalLongLiteral x =
-      new LongLiteral.DecimalLongLiteral (tree);
+    StandardOperator.Not x = new StandardOperator.Not (tree);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Area.Area makeAreaArea (ITree tree, Expression beginLine,
-				 Expression beginColumn, Expression endLine,
-				 Expression endColumn, Expression offset,
-				 Expression length)
+  public StandardOperator.Or makeOrStandardOperator (ITree tree)
   {
-    Area.Area x =
-      new Area.Area (tree, beginLine, beginColumn, endLine, endColumn, offset,
-		     length);
+    StandardOperator.Or x = new StandardOperator.Or (tree);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Literal.String makeStringLiteral (ITree tree, StringLiteral string)
+  public StandardOperator.And makeAndStandardOperator (ITree tree)
   {
-    Literal.String x = new Literal.String (tree, string);
+    StandardOperator.And x = new StandardOperator.And (tree);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Literal.Double makeDoubleLiteral (ITree tree,
-					   FloatingPointLiteral double)
+  public StandardOperator.
+    GreaterThanOrEq makeGreaterThanOrEqStandardOperator (ITree tree)
   {
-    Literal.Double x = new Literal.Double (tree, double);
+    StandardOperator.GreaterThanOrEq x =
+      new StandardOperator.GreaterThanOrEq (tree);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Literal.Integer makeIntegerLiteral (ITree tree,
-					     IntegerLiteral integer)
+  public StandardOperator.
+    GreaterThan makeGreaterThanStandardOperator (ITree tree)
   {
-    Literal.Integer x = new Literal.Integer (tree, integer);
+    StandardOperator.GreaterThan x = new StandardOperator.GreaterThan (tree);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Literal.Boolean makeBooleanLiteral (ITree tree,
-					     BooleanLiteral boolean)
+  public StandardOperator.
+    LessThanOrEq makeLessThanOrEqStandardOperator (ITree tree)
   {
-    Literal.Boolean x = new Literal.Boolean (tree, boolean);
+    StandardOperator.LessThanOrEq x =
+      new StandardOperator.LessThanOrEq (tree);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Literal.Symbol makeSymbolLiteral (ITree tree, SymbolLiteral symbol)
+  public StandardOperator.LessThan makeLessThanStandardOperator (ITree tree)
   {
-    Literal.Symbol x = new Literal.Symbol (tree, symbol);
+    StandardOperator.LessThan x = new StandardOperator.LessThan (tree);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Literal.RegExp makeRegExpLiteral (ITree tree, RegExpLiteral regExp)
+  public StandardOperator.NotEquals makeNotEqualsStandardOperator (ITree tree)
   {
-    Literal.RegExp x = new Literal.RegExp (tree, regExp);
+    StandardOperator.NotEquals x = new StandardOperator.NotEquals (tree);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public StandardOperator.Equals makeEqualsStandardOperator (ITree tree)
+  {
+    StandardOperator.Equals x = new StandardOperator.Equals (tree);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public StandardOperator.
+    Intersection makeIntersectionStandardOperator (ITree tree)
+  {
+    StandardOperator.Intersection x =
+      new StandardOperator.Intersection (tree);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public StandardOperator.Division makeDivisionStandardOperator (ITree tree)
+  {
+    StandardOperator.Division x = new StandardOperator.Division (tree);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public StandardOperator.Product makeProductStandardOperator (ITree tree)
+  {
+    StandardOperator.Product x = new StandardOperator.Product (tree);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public StandardOperator.
+    Substraction makeSubstractionStandardOperator (ITree tree)
+  {
+    StandardOperator.Substraction x =
+      new StandardOperator.Substraction (tree);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public StandardOperator.Addition makeAdditionStandardOperator (ITree tree)
+  {
+    StandardOperator.Addition x = new StandardOperator.Addition (tree);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public FunctionName.Operator makeOperatorFunctionName (ITree tree,
+							 StandardOperator
+							 operator)
+  {
+    FunctionName.Operator x = new FunctionName.Operator (tree, operator);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public FunctionName.Name makeNameFunctionName (ITree tree, Name name)
+  {
+    FunctionName.Name x = new FunctionName.Name (tree, name);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public FunctionModifier.Java makeJavaFunctionModifier (ITree tree)
+  {
+    FunctionModifier.Java x = new FunctionModifier.Java (tree);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public FunctionModifiers.List makeListFunctionModifiers (ITree tree,
+							   List <
+							   FunctionModifier >
+							   modifiers)
+  {
+    FunctionModifiers.List x = new FunctionModifiers.List (tree, modifiers);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Signature.WithThrows makeWithThrowsSignature (ITree tree, Type type,
+						       FunctionModifiers
+						       modifiers,
+						       FunctionName name,
+						       Parameters parameters,
+						       List < Type >
+						       exceptions)
+  {
+    Signature.WithThrows x =
+      new Signature.WithThrows (tree, type, modifiers, name, parameters,
+				exceptions);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Signature.NoThrows makeNoThrowsSignature (ITree tree, Type type,
+						   FunctionModifiers
+						   modifiers,
+						   FunctionName name,
+						   Parameters parameters)
+  {
+    Signature.NoThrows x =
+      new Signature.NoThrows (tree, type, modifiers, name, parameters);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public FunctionDeclaration.
+    Abstract makeAbstractFunctionDeclaration (ITree tree, Signature signature,
+					      Tags tags)
+  {
+    FunctionDeclaration.Abstract x =
+      new FunctionDeclaration.Abstract (tree, signature, tags);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public FunctionDeclaration.
+    Default makeDefaultFunctionDeclaration (ITree tree, Signature signature,
+					    Tags tags, FunctionBody body)
+  {
+    FunctionDeclaration.Default x =
+      new FunctionDeclaration.Default (tree, signature, tags, body);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public FunctionBody.Default makeDefaultFunctionBody (ITree tree,
+						       List < Statement >
+						       statements)
+  {
+    FunctionBody.Default x = new FunctionBody.Default (tree, statements);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Variable.
+    GivenInitialization makeGivenInitializationVariable (ITree tree,
+							 Name name, Tags tags,
+							 Expression initial)
+  {
+    Variable.GivenInitialization x =
+      new Variable.GivenInitialization (tree, name, tags, initial);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Variable.
+    DefaultInitialization makeDefaultInitializationVariable (ITree tree,
+							     Name name,
+							     Tags tags)
+  {
+    Variable.DefaultInitialization x =
+      new Variable.DefaultInitialization (tree, name, tags);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Kind.All makeAllKind (ITree tree)
+  {
+    Kind.All x = new Kind.All (tree);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Kind.Tag makeTagKind (ITree tree)
+  {
+    Kind.Tag x = new Kind.Tag (tree);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Kind.Anno makeAnnoKind (ITree tree)
+  {
+    Kind.Anno x = new Kind.Anno (tree);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Kind.Type makeTypeKind (ITree tree)
+  {
+    Kind.Type x = new Kind.Type (tree);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Kind.View makeViewKind (ITree tree)
+  {
+    Kind.View x = new Kind.View (tree);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Kind.Data makeDataKind (ITree tree)
+  {
+    Kind.Data x = new Kind.Data (tree);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Kind.Variable makeVariableKind (ITree tree)
+  {
+    Kind.Variable x = new Kind.Variable (tree);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Kind.Function makeFunctionKind (ITree tree)
+  {
+    Kind.Function x = new Kind.Function (tree);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Kind.Module makeModuleKind (ITree tree)
+  {
+    Kind.Module x = new Kind.Module (tree);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -2639,39 +1902,452 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public Formal.TypeName makeTypeNameFormal (ITree tree, Type type, Name name)
+  public Symbol.
+    CaseInsensitiveLiteral makeCaseInsensitiveLiteralSymbol (ITree tree,
+							     SingleQuotedStrCon
+							     singelQuotedString)
   {
-    Formal.TypeName x = new Formal.TypeName (tree, type, name);
+    Symbol.CaseInsensitiveLiteral x =
+      new Symbol.CaseInsensitiveLiteral (tree, singelQuotedString);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Formals.Formals makeFormalsFormals (ITree tree,
-					     List < Formal > formals)
+  public Symbol.Literal makeLiteralSymbol (ITree tree, StrCon string)
   {
-    Formals.Formals x = new Formals.Formals (tree, formals);
+    Symbol.Literal x = new Symbol.Literal (tree, string);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Parameters.VarArgs makeVarArgsParameters (ITree tree,
-						   Formals formals)
+  public Symbol.LiftedSymbol makeLiftedSymbolSymbol (ITree tree,
+						     Symbol symbol)
   {
-    Parameters.VarArgs x = new Parameters.VarArgs (tree, formals);
+    Symbol.LiftedSymbol x = new Symbol.LiftedSymbol (tree, symbol);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Parameters.Default makeDefaultParameters (ITree tree,
-						   Formals formals)
+  public Symbol.CharacterClass makeCharacterClassSymbol (ITree tree,
+							 CharClass charClass)
   {
-    Parameters.Default x = new Parameters.Default (tree, formals);
+    Symbol.CharacterClass x = new Symbol.CharacterClass (tree, charClass);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Symbol.Alternative makeAlternativeSymbol (ITree tree, Symbol lhs,
+						   Symbol rhs)
+  {
+    Symbol.Alternative x = new Symbol.Alternative (tree, lhs, rhs);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Symbol.IterStarSep makeIterStarSepSymbol (ITree tree, Symbol symbol,
+						   StrCon sep)
+  {
+    Symbol.IterStarSep x = new Symbol.IterStarSep (tree, symbol, sep);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Symbol.IterSep makeIterSepSymbol (ITree tree, Symbol symbol,
+					   StrCon sep)
+  {
+    Symbol.IterSep x = new Symbol.IterSep (tree, symbol, sep);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Symbol.IterStar makeIterStarSymbol (ITree tree, Symbol symbol)
+  {
+    Symbol.IterStar x = new Symbol.IterStar (tree, symbol);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Symbol.Iter makeIterSymbol (ITree tree, Symbol symbol)
+  {
+    Symbol.Iter x = new Symbol.Iter (tree, symbol);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Symbol.Optional makeOptionalSymbol (ITree tree, Symbol symbol)
+  {
+    Symbol.Optional x = new Symbol.Optional (tree, symbol);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Symbol.Sequence makeSequenceSymbol (ITree tree, Symbol head,
+					     List < Symbol > tail)
+  {
+    Symbol.Sequence x = new Symbol.Sequence (tree, head, tail);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Symbol.Empty makeEmptySymbol (ITree tree)
+  {
+    Symbol.Empty x = new Symbol.Empty (tree);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Symbol.ParameterizedSort makeParameterizedSortSymbol (ITree tree,
+							       Sort sort,
+							       List < Symbol >
+							       parameters)
+  {
+    Symbol.ParameterizedSort x =
+      new Symbol.ParameterizedSort (tree, sort, parameters);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Symbol.Sort makeSortSymbol (ITree tree, Sort sort)
+  {
+    Symbol.Sort x = new Symbol.Sort (tree, sort);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public CharRange.Range makeRangeCharRange (ITree tree, Character start,
+					     Character end)
+  {
+    CharRange.Range x = new CharRange.Range (tree, start, end);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public CharRange.Character makeCharacterCharRange (ITree tree,
+						     Character character)
+  {
+    CharRange.Character x = new CharRange.Character (tree, character);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public CharRanges.Concatenate makeConcatenateCharRanges (ITree tree,
+							   CharRanges lhs,
+							   CharRanges rhs)
+  {
+    CharRanges.Concatenate x = new CharRanges.Concatenate (tree, lhs, rhs);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public CharRanges.Range makeRangeCharRanges (ITree tree, CharRange range)
+  {
+    CharRanges.Range x = new CharRanges.Range (tree, range);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public OptCharRanges.Present makePresentOptCharRanges (ITree tree,
+							 CharRanges ranges)
+  {
+    OptCharRanges.Present x = new OptCharRanges.Present (tree, ranges);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public OptCharRanges.Absent makeAbsentOptCharRanges (ITree tree)
+  {
+    OptCharRanges.Absent x = new OptCharRanges.Absent (tree);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public CharClass.Union makeUnionCharClass (ITree tree, CharClass lhs,
+					     CharClass rhs)
+  {
+    CharClass.Union x = new CharClass.Union (tree, lhs, rhs);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public CharClass.Intersection makeIntersectionCharClass (ITree tree,
+							   CharClass lhs,
+							   CharClass rhs)
+  {
+    CharClass.Intersection x = new CharClass.Intersection (tree, lhs, rhs);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public CharClass.Difference makeDifferenceCharClass (ITree tree,
+						       CharClass lhs,
+						       CharClass rhs)
+  {
+    CharClass.Difference x = new CharClass.Difference (tree, lhs, rhs);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public CharClass.Complement makeComplementCharClass (ITree tree,
+						       CharClass charClass)
+  {
+    CharClass.Complement x = new CharClass.Complement (tree, charClass);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public CharClass.SimpleCharclass makeSimpleCharclassCharClass (ITree tree,
+								 OptCharRanges
+								 optionalCharRanges)
+  {
+    CharClass.SimpleCharclass x =
+      new CharClass.SimpleCharclass (tree, optionalCharRanges);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Character.LabelStart makeLabelStartCharacter (ITree tree)
+  {
+    Character.LabelStart x = new Character.LabelStart (tree);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Character.Bottom makeBottomCharacter (ITree tree)
+  {
+    Character.Bottom x = new Character.Bottom (tree);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Character.EOF makeEOFCharacter (ITree tree)
+  {
+    Character.EOF x = new Character.EOF (tree);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Character.Top makeTopCharacter (ITree tree)
+  {
+    Character.Top x = new Character.Top (tree);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Character.Short makeShortCharacter (ITree tree, ShortChar short)
+  {
+    Character.Short x = new Character.Short (tree, short);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Character.Numeric makeNumericCharacter (ITree tree, NumChar numeric)
+  {
+    Character.Numeric x = new Character.Numeric (tree, numeric);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Module.Module makeModuleModule (ITree tree, Header header, Body body)
+  {
+    Module.Module x = new Module.Module (tree, header, body);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public ModuleActuals.Actuals makeActualsModuleActuals (ITree tree,
+							 List < Type > types)
+  {
+    ModuleActuals.Actuals x = new ModuleActuals.Actuals (tree, types);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public ImportedModule.Default makeDefaultImportedModule (ITree tree,
+							   ModuleName name)
+  {
+    ImportedModule.Default x = new ImportedModule.Default (tree, name);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public ImportedModule.Renamings makeRenamingsImportedModule (ITree tree,
+							       ModuleName
+							       name,
+							       Renamings
+							       renamings)
+  {
+    ImportedModule.Renamings x =
+      new ImportedModule.Renamings (tree, name, renamings);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public ImportedModule.Actuals makeActualsImportedModule (ITree tree,
+							   ModuleName name,
+							   ModuleActuals
+							   actuals)
+  {
+    ImportedModule.Actuals x =
+      new ImportedModule.Actuals (tree, name, actuals);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public ImportedModule.
+    ActualsRenaming makeActualsRenamingImportedModule (ITree tree,
+						       ModuleName name,
+						       ModuleActuals actuals,
+						       Renamings renamings)
+  {
+    ImportedModule.ActualsRenaming x =
+      new ImportedModule.ActualsRenaming (tree, name, actuals, renamings);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Renaming.Renaming makeRenamingRenaming (ITree tree, Name from,
+						 Name to)
+  {
+    Renaming.Renaming x = new Renaming.Renaming (tree, from, to);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Renamings.Renamings makeRenamingsRenamings (ITree tree,
+						     List < Renaming >
+						     renamings)
+  {
+    Renamings.Renamings x = new Renamings.Renamings (tree, renamings);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Import.Extend makeExtendImport (ITree tree, ImportedModule module)
+  {
+    Import.Extend x = new Import.Extend (tree, module);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Import.Import makeImportImport (ITree tree, ImportedModule module)
+  {
+    Import.Import x = new Import.Import (tree, module);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public ModuleParameters.
+    ModuleParameters makeModuleParametersModuleParameters (ITree tree,
+							   List < TypeVar >
+							   parameters)
+  {
+    ModuleParameters.ModuleParameters x =
+      new ModuleParameters.ModuleParameters (tree, parameters);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Header.Parameters makeParametersHeader (ITree tree, ModuleName name,
+						 ModuleParameters params,
+						 Tags tags,
+						 List < Import > imports)
+  {
+    Header.Parameters x =
+      new Header.Parameters (tree, name, params, tags, imports);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Header.Default makeDefaultHeader (ITree tree, ModuleName name,
+					   Tags tags, List < Import > imports)
+  {
+    Header.Default x = new Header.Default (tree, name, tags, imports);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -2682,6 +2358,317 @@ public class ASTFactory
 							 List < Name > names)
   {
     QualifiedName.Default x = new QualifiedName.Default (tree, names);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Area.Area makeAreaArea (ITree tree, Expression beginLine,
+				 Expression beginColumn, Expression endLine,
+				 Expression endColumn, Expression offset,
+				 Expression length)
+  {
+    Area.Area x =
+      new Area.Area (tree, beginLine, beginColumn, endLine, endColumn, offset,
+		     length);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Tag.Default makeDefaultTag (ITree tree, Name name)
+  {
+    Tag.Default x = new Tag.Default (tree, name);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Tags.Default makeDefaultTags (ITree tree, List < Tag > annotations)
+  {
+    Tags.Default x = new Tags.Default (tree, annotations);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Pattern.TypedVariable makeTypedVariablePattern (ITree tree,
+							 Type type, Name name)
+  {
+    Pattern.TypedVariable x = new Pattern.TypedVariable (tree, type, name);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public ValueProducer.
+    GivenStrategy makeGivenStrategyValueProducer (ITree tree,
+						  Strategy strategy,
+						  Pattern pattern,
+						  Expression expression)
+  {
+    ValueProducer.GivenStrategy x =
+      new ValueProducer.GivenStrategy (tree, strategy, pattern, expression);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public ValueProducer.
+    DefaultStrategy makeDefaultStrategyValueProducer (ITree tree,
+						      Pattern pattern,
+						      Expression expression)
+  {
+    ValueProducer.DefaultStrategy x =
+      new ValueProducer.DefaultStrategy (tree, pattern, expression);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Generator.Producer makeProducerGenerator (ITree tree,
+						   ValueProducer producer)
+  {
+    Generator.Producer x = new Generator.Producer (tree, producer);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Generator.Expression makeExpressionGenerator (ITree tree,
+						       Expression expression)
+  {
+    Generator.Expression x = new Generator.Expression (tree, expression);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Strategy.Innermost makeInnermostStrategy (ITree tree)
+  {
+    Strategy.Innermost x = new Strategy.Innermost (tree);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Strategy.Outermost makeOutermostStrategy (ITree tree)
+  {
+    Strategy.Outermost x = new Strategy.Outermost (tree);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Strategy.BottomUpBreak makeBottomUpBreakStrategy (ITree tree)
+  {
+    Strategy.BottomUpBreak x = new Strategy.BottomUpBreak (tree);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Strategy.BottomUp makeBottomUpStrategy (ITree tree)
+  {
+    Strategy.BottomUp x = new Strategy.BottomUp (tree);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Strategy.TopDownBreak makeTopDownBreakStrategy (ITree tree)
+  {
+    Strategy.TopDownBreak x = new Strategy.TopDownBreak (tree);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Strategy.TopDown makeTopDownStrategy (ITree tree)
+  {
+    Strategy.TopDown x = new Strategy.TopDown (tree);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Comprehension.List makeListComprehension (ITree tree,
+						   Expression result,
+						   List < Generator >
+						   generators)
+  {
+    Comprehension.List x = new Comprehension.List (tree, result, generators);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Comprehension.Set makeSetComprehension (ITree tree,
+						 Expression result,
+						 List < Generator >
+						 generators)
+  {
+    Comprehension.Set x = new Comprehension.Set (tree, result, generators);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Match.Arbitrary makeArbitraryMatch (ITree tree, Pattern match,
+					     Statement statement)
+  {
+    Match.Arbitrary x = new Match.Arbitrary (tree, match, statement);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Match.Replacing makeReplacingMatch (ITree tree, Pattern match,
+					     Expression replacement)
+  {
+    Match.Replacing x = new Match.Replacing (tree, match, replacement);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Rule.NoGuard makeNoGuardRule (ITree tree, Match match)
+  {
+    Rule.NoGuard x = new Rule.NoGuard (tree, match);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Rule.WithGuard makeWithGuardRule (ITree tree, Type type, Match match)
+  {
+    Rule.WithGuard x = new Rule.WithGuard (tree, type, match);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Case.Default makeDefaultCase (ITree tree, Statement statement)
+  {
+    Case.Default x = new Case.Default (tree, statement);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Case.Rule makeRuleCase (ITree tree, Rule rule)
+  {
+    Case.Rule x = new Case.Rule (tree, rule);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Visit.GivenStrategy makeGivenStrategyVisit (ITree tree,
+						     Strategy strategy,
+						     Expression subject,
+						     List < Case > cases)
+  {
+    Visit.GivenStrategy x =
+      new Visit.GivenStrategy (tree, strategy, subject, cases);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Visit.DefaultStrategy makeDefaultStrategyVisit (ITree tree,
+							 Expression subject,
+							 List < Case > cases)
+  {
+    Visit.DefaultStrategy x =
+      new Visit.DefaultStrategy (tree, subject, cases);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public IntegerLiteral.
+    OctalIntegerLiteral makeOctalIntegerLiteralIntegerLiteral (ITree tree)
+  {
+    IntegerLiteral.OctalIntegerLiteral x =
+      new IntegerLiteral.OctalIntegerLiteral (tree);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public IntegerLiteral.
+    HexIntegerLiteral makeHexIntegerLiteralIntegerLiteral (ITree tree)
+  {
+    IntegerLiteral.HexIntegerLiteral x =
+      new IntegerLiteral.HexIntegerLiteral (tree);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public IntegerLiteral.
+    DecimalIntegerLiteral makeDecimalIntegerLiteralIntegerLiteral (ITree tree)
+  {
+    IntegerLiteral.DecimalIntegerLiteral x =
+      new IntegerLiteral.DecimalIntegerLiteral (tree);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public LongLiteral.
+    OctalLongLiteral makeOctalLongLiteralLongLiteral (ITree tree)
+  {
+    LongLiteral.OctalLongLiteral x = new LongLiteral.OctalLongLiteral (tree);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public LongLiteral.HexLongLiteral makeHexLongLiteralLongLiteral (ITree tree)
+  {
+    LongLiteral.HexLongLiteral x = new LongLiteral.HexLongLiteral (tree);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public LongLiteral.
+    DecimalLongLiteral makeDecimalLongLiteralLongLiteral (ITree tree)
+  {
+    LongLiteral.DecimalLongLiteral x =
+      new LongLiteral.DecimalLongLiteral (tree);
     if (!table.containsKey (x))
       {
 	table.put (x, x);

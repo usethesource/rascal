@@ -4,18 +4,18 @@ public abstract class FunctionDeclaration extends AbstractAST
   public class Default extends FunctionDeclaration
   {
     private Signature signature;
-    private Annotations annotations;
+    private Tags tags;
     private FunctionBody body;
 
     private Default ()
     {
     }
-    /*package */ Default (ITree tree, Signature signature,
-			  Annotations annotations, FunctionBody body)
+    /*package */ Default (ITree tree, Signature signature, Tags tags,
+			  FunctionBody body)
     {
       this.tree = tree;
       this.signature = signature;
-      this.annotations = annotations;
+      this.tags = tags;
       this.body = body;
     }
     public IVisitable accept (IVisitor visitor)
@@ -37,19 +37,19 @@ public abstract class FunctionDeclaration extends AbstractAST
       z.privateSetsignature (x);
       return z;
     }
-    private final Annotations annotations;
-    public Annotations getannotations ()
+    private final Tags tags;
+    public Tags gettags ()
     {
-      return annotations;
+      return tags;
     }
-    private void privateSetannotations (Annotations x)
+    private void privateSettags (Tags x)
     {
-      this.annotations = x;
+      this.tags = x;
     }
-    public Default setannotations (Annotations x)
+    public Default settags (Tags x)
     {
       z = new Default ();
-      z.privateSetannotations (x);
+      z.privateSettags (x);
       return z;
     }
     private final FunctionBody body;
@@ -71,17 +71,16 @@ public abstract class FunctionDeclaration extends AbstractAST
   public class Abstract extends FunctionDeclaration
   {
     private Signature signature;
-    private Annotations annotations;
+    private Tags tags;
 
     private Abstract ()
     {
     }
-    /*package */ Abstract (ITree tree, Signature signature,
-			   Annotations annotations)
+    /*package */ Abstract (ITree tree, Signature signature, Tags tags)
     {
       this.tree = tree;
       this.signature = signature;
-      this.annotations = annotations;
+      this.tags = tags;
     }
     public IVisitable accept (IVisitor visitor)
     {
@@ -102,19 +101,19 @@ public abstract class FunctionDeclaration extends AbstractAST
       z.privateSetsignature (x);
       return z;
     }
-    private final Annotations annotations;
-    public Annotations getannotations ()
+    private final Tags tags;
+    public Tags gettags ()
     {
-      return annotations;
+      return tags;
     }
-    private void privateSetannotations (Annotations x)
+    private void privateSettags (Tags x)
     {
-      this.annotations = x;
+      this.tags = x;
     }
-    public Abstract setannotations (Annotations x)
+    public Abstract settags (Tags x)
     {
       z = new Abstract ();
-      z.privateSetannotations (x);
+      z.privateSettags (x);
       return z;
     }
   }

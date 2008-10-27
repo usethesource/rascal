@@ -1,7 +1,7 @@
 package org.meta_environment.rascal.ast;
-public abstract class Annotation extends AbstractAST
+public abstract class Tag extends AbstractAST
 {
-  public class Default extends Annotation
+  public class Default extends Tag
   {
     private Name name;
 
@@ -15,7 +15,7 @@ public abstract class Annotation extends AbstractAST
     }
     public IVisitable accept (IVisitor visitor)
     {
-      return visitor.visitDefaultAnnotation (this);
+      return visitor.visitDefaultTag (this);
     }
     private final Name name;
     public Name getname ()
