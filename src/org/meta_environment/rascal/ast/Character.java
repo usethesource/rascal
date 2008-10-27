@@ -3,8 +3,7 @@ public abstract class Character extends AbstractAST
 {
   public class Numeric extends Character
   {
-    private NumChar numeric;
-
+/* numeric:NumChar -> Character {cons("Numeric")} */
     private Numeric ()
     {
     }
@@ -35,8 +34,7 @@ public abstract class Character extends AbstractAST
   }
   public class Short extends Character
   {
-    private ShortChar short;
-
+/* short:ShortChar -> Character {cons("Short")} */
     private Short ()
     {
     }
@@ -67,6 +65,7 @@ public abstract class Character extends AbstractAST
   }
   public class Top extends Character
   {
+/* "\\TOP" -> Character {cons("Top")} */
     private Top ()
     {
     }
@@ -81,6 +80,7 @@ public abstract class Character extends AbstractAST
   }
   public class EOF extends Character
   {
+/* "\\EOF" -> Character {cons("EOF")} */
     private EOF ()
     {
     }
@@ -95,6 +95,7 @@ public abstract class Character extends AbstractAST
   }
   public class Bottom extends Character
   {
+/* "\\BOT" -> Character {cons("Bottom")} */
     private Bottom ()
     {
     }
@@ -109,6 +110,7 @@ public abstract class Character extends AbstractAST
   }
   public class LabelStart extends Character
   {
+/* "\\LABEL_START" -> Character {cons("LabelStart")} */
     private LabelStart ()
     {
     }

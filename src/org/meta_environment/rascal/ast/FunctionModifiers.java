@@ -3,8 +3,7 @@ public abstract class FunctionModifiers extends AbstractAST
 {
   public class List extends FunctionModifiers
   {
-    private List < FunctionModifier > modifiers;
-
+/* modifiers:FunctionModifier* -> FunctionModifiers {cons("List")} */
     private List ()
     {
     }

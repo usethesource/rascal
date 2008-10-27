@@ -3,8 +3,7 @@ public abstract class FunctionBody extends AbstractAST
 {
   public class Default extends FunctionBody
   {
-    private List < Statement > statements;
-
+/* "{" statements:Statement* "}" -> FunctionBody {cons("Default")} */
     private Default ()
     {
     }

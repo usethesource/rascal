@@ -3,6 +3,7 @@ public abstract class Scope extends AbstractAST
 {
   public class Global extends Scope
   {
+/* "global" -> Scope {cons("Global")} */
     private Global ()
     {
     }
@@ -17,6 +18,7 @@ public abstract class Scope extends AbstractAST
   }
   public class Dynamic extends Scope
   {
+/* "dynamic" -> Scope {cons("Dynamic")} */
     private Dynamic ()
     {
     }

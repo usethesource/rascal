@@ -3,8 +3,7 @@ public abstract class CharClass extends AbstractAST
 {
   public class SimpleCharclass extends CharClass
   {
-    private OptCharRanges optionalCharRanges;
-
+/* "[" optionalCharRanges:OptCharRanges "]" -> CharClass {cons("SimpleCharclass")} */
     private SimpleCharclass ()
     {
     }
@@ -36,8 +35,7 @@ public abstract class CharClass extends AbstractAST
   }
   public class Complement extends CharClass
   {
-    private CharClass charClass;
-
+/* "~" charClass:CharClass -> CharClass {cons("Complement")} */
     private Complement ()
     {
     }
@@ -68,9 +66,7 @@ public abstract class CharClass extends AbstractAST
   }
   public class Difference extends CharClass
   {
-    private CharClass lhs;
-    private CharClass rhs;
-
+/* lhs:CharClass "/" rhs:CharClass -> CharClass {cons("Difference"), left,memo} */
     private Difference ()
     {
     }
@@ -117,9 +113,7 @@ public abstract class CharClass extends AbstractAST
   }
   public class Intersection extends CharClass
   {
-    private CharClass lhs;
-    private CharClass rhs;
-
+/* lhs:CharClass "/\\" rhs:CharClass -> CharClass {cons("Intersection"), left,memo} */
     private Intersection ()
     {
     }
@@ -166,9 +160,7 @@ public abstract class CharClass extends AbstractAST
   }
   public class Union extends CharClass
   {
-    private CharClass lhs;
-    private CharClass rhs;
-
+/* lhs:CharClass "\\/" rhs:CharClass -> CharClass {cons("Union"), left} */
     private Union ()
     {
     }

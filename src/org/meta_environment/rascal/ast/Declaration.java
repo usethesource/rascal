@@ -3,11 +3,7 @@ public abstract class Declaration extends AbstractAST
 {
   public class View extends Declaration
   {
-    private Name view;
-    private Name type;
-    private Tags tags;
-    private List < Alternative > alternatives;
-
+/* "view" view:Name "<:" type:Name tags:Tags alternatives:{Alternative "|"}+ ";" -> Declaration {cons("View")} */
     private View ()
     {
     }
@@ -87,10 +83,7 @@ public abstract class Declaration extends AbstractAST
   }
   public class Type extends Declaration
   {
-    private Type base;
-    private UserType user;
-    private Tags tags;
-
+/* "type" base:Type user:UserType tags:Tags ";" -> Declaration {cons("Type")} */
     private Type ()
     {
     }
@@ -153,10 +146,7 @@ public abstract class Declaration extends AbstractAST
   }
   public class Data extends Declaration
   {
-    private UserType user;
-    private Tags tags;
-    private List < Variant > variants;
-
+/* "data" user:UserType tags:Tags variants:{Variant "|"}+ ";" -> Declaration {cons("Data")} */
     private Data ()
     {
     }
@@ -220,8 +210,7 @@ public abstract class Declaration extends AbstractAST
   }
   public class Function extends Declaration
   {
-    private FunctionDeclaration functionDeclaration;
-
+/* functionDeclaration:FunctionDeclaration -> Declaration {cons("Function")} */
     private Function ()
     {
     }
@@ -253,9 +242,7 @@ public abstract class Declaration extends AbstractAST
   }
   public class Variable extends Declaration
   {
-    private Type type;
-    private List < Variable > variables;
-
+/* type:Type variables:{Variable ","}+ ";" -> Declaration {cons("Variable")} */
     private Variable ()
     {
     }
@@ -302,10 +289,7 @@ public abstract class Declaration extends AbstractAST
   }
   public class Rule extends Declaration
   {
-    private Name name;
-    private Tags tags;
-    private Rule rule;
-
+/* "rule" name:Name tags:Tags rule:Rule -> Declaration {cons("Rule")} */
     private Rule ()
     {
     }
@@ -368,11 +352,7 @@ public abstract class Declaration extends AbstractAST
   }
   public class Annotation extends Declaration
   {
-    private Type type;
-    private Name name;
-    private Tags tags;
-    private List < Type > types;
-
+/* "anno" type:Type name:Name tags:Tags types:{Type "|"}+ ";" -> Declaration {cons("Annotation")} */
     private Annotation ()
     {
     }
@@ -452,11 +432,7 @@ public abstract class Declaration extends AbstractAST
   }
   public class Tag extends Declaration
   {
-    private Kind kind;
-    private Name name;
-    private Tags tags;
-    private List < Type > types;
-
+/* "tag" kind:Kind name:Name tags:Tags types:{Type "|"}+ ";" -> Declaration {cons("Tag")} */
     private Tag ()
     {
     }

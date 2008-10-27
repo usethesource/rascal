@@ -3,8 +3,7 @@ public abstract class TypeArg extends AbstractAST
 {
   public class Default extends TypeArg
   {
-    private Type type;
-
+/* type:Type -> TypeArg {cons("Default")} */
     private Default ()
     {
     }
@@ -35,9 +34,7 @@ public abstract class TypeArg extends AbstractAST
   }
   public class Named extends TypeArg
   {
-    private Type type;
-    private Name name;
-
+/* type:Type name:Name -> TypeArg {cons("Named")} */
     private Named ()
     {
     }

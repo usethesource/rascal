@@ -3,9 +3,7 @@ public abstract class Alternative extends AbstractAST
 {
   public class NamedType extends Alternative
   {
-    private Name name;
-    private Type type;
-
+/* name:Name type:Type -> Alternative {cons("NamedType")} */
     private NamedType ()
     {
     }

@@ -3,8 +3,7 @@ public abstract class Case extends AbstractAST
 {
   public class Rule extends Case
   {
-    private Rule rule;
-
+/* "case" rule:Rule -> Case {cons("Rule")} */
     private Rule ()
     {
     }
@@ -35,8 +34,7 @@ public abstract class Case extends AbstractAST
   }
   public class Default extends Case
   {
-    private Statement statement;
-
+/* "default" ":" statement:Statement -> Case {cons("Default")} */
     private Default ()
     {
     }

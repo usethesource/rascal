@@ -3,8 +3,7 @@ public abstract class Body extends AbstractAST
 {
   public class Toplevels extends Body
   {
-    private List < Toplevel > toplevels;
-
+/* toplevels:Toplevel* -> Body {cons("Toplevels")} */
     private Toplevels ()
     {
     }

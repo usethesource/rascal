@@ -3,8 +3,7 @@ public abstract class Tag extends AbstractAST
 {
   public class Default extends Tag
   {
-    private Name name;
-
+/* "@" name:Name TagString -> Tag {cons("Default")} */
     private Default ()
     {
     }

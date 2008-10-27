@@ -3,9 +3,7 @@ public abstract class Visit extends AbstractAST
 {
   public class DefaultStrategy extends Visit
   {
-    private Expression subject;
-    private List < Case > cases;
-
+/* "visit" "(" subject:Expression ")" "{" cases:Case+ "}" -> Visit {cons("DefaultStrategy")} */
     private DefaultStrategy ()
     {
     }
@@ -53,10 +51,7 @@ public abstract class Visit extends AbstractAST
   }
   public class GivenStrategy extends Visit
   {
-    private Strategy strategy;
-    private Expression subject;
-    private List < Case > cases;
-
+/* strategy:Strategy "visit" "(" subject:Expression ")" "{" cases:Case+ "}" -> Visit {cons("GivenStrategy")} */
     private GivenStrategy ()
     {
     }

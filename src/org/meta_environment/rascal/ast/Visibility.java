@@ -3,6 +3,7 @@ public abstract class Visibility extends AbstractAST
 {
   public class Public extends Visibility
   {
+/* "public" -> Visibility {cons("Public")} */
     private Public ()
     {
     }
@@ -17,6 +18,7 @@ public abstract class Visibility extends AbstractAST
   }
   public class Private extends Visibility
   {
+/* "private" -> Visibility {cons("Private")} */
     private Private ()
     {
     }

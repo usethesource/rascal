@@ -3,8 +3,7 @@ public abstract class CharRanges extends AbstractAST
 {
   public class Range extends CharRanges
   {
-    private CharRange range;
-
+/* range:CharRange -> CharRanges {cons("Range")} */
     private Range ()
     {
     }
@@ -35,9 +34,7 @@ public abstract class CharRanges extends AbstractAST
   }
   public class Concatenate extends CharRanges
   {
-    private CharRanges lhs;
-    private CharRanges rhs;
-
+/* lhs:CharRanges rhs:CharRanges -> CharRanges {cons("Concatenate"), right,memo} */
     private Concatenate ()
     {
     }

@@ -3,9 +3,7 @@ public abstract class Variant extends AbstractAST
 {
   public class Type extends Variant
   {
-    private Type type;
-    private Name name;
-
+/* type:Type name:Name -> Variant {cons("Type")} */
     private Type ()
     {
     }
@@ -52,9 +50,7 @@ public abstract class Variant extends AbstractAST
   }
   public class NAryConstructor extends Variant
   {
-    private Name name;
-    private List < TypeArg > arguments;
-
+/* name:Name "(" arguments:{TypeArg ","}+ ")" -> Variant {cons("NAryConstructor")} */
     private NAryConstructor ()
     {
     }
@@ -102,8 +98,7 @@ public abstract class Variant extends AbstractAST
   }
   public class NillaryConstructor extends Variant
   {
-    private Name name;
-
+/* name:Name -> Variant {cons("NillaryConstructor")} */
     private NillaryConstructor ()
     {
     }

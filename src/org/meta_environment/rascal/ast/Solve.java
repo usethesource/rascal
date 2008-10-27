@@ -3,8 +3,7 @@ public abstract class Solve extends AbstractAST
 {
   public class NoBound extends Solve
   {
-    private Statement body;
-
+/* "solve" body:Statement -> Solve {cons("NoBound")} */
     private NoBound ()
     {
     }
@@ -35,9 +34,7 @@ public abstract class Solve extends AbstractAST
   }
   public class WithBound extends Solve
   {
-    private Expression bound;
-    private Statement body;
-
+/* "solve" "(" bound:Expression ")" body:Statement -> Solve {cons("WithBound")} */
     private WithBound ()
     {
     }

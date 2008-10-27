@@ -3,9 +3,7 @@ public abstract class Variable extends AbstractAST
 {
   public class DefaultInitialization extends Variable
   {
-    private Name name;
-    private Tags tags;
-
+/* name:Name tags:Tags -> Variable {cons("DefaultInitialization")} */
     private DefaultInitialization ()
     {
     }
@@ -52,10 +50,7 @@ public abstract class Variable extends AbstractAST
   }
   public class GivenInitialization extends Variable
   {
-    private Name name;
-    private Tags tags;
-    private Expression initial;
-
+/* name:Name tags:Tags "=" initial:Expression -> Variable {cons("GivenInitialization")} */
     private GivenInitialization ()
     {
     }

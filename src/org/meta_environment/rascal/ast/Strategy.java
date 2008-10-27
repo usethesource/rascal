@@ -3,6 +3,7 @@ public abstract class Strategy extends AbstractAST
 {
   public class TopDown extends Strategy
   {
+/* "top-down" -> Strategy {cons("TopDown")} */
     private TopDown ()
     {
     }
@@ -17,6 +18,7 @@ public abstract class Strategy extends AbstractAST
   }
   public class TopDownBreak extends Strategy
   {
+/* "top-down-break" -> Strategy {cons("TopDownBreak")} */
     private TopDownBreak ()
     {
     }
@@ -31,6 +33,7 @@ public abstract class Strategy extends AbstractAST
   }
   public class BottomUp extends Strategy
   {
+/* "bottom-up" -> Strategy {cons("BottomUp")} */
     private BottomUp ()
     {
     }
@@ -45,6 +48,7 @@ public abstract class Strategy extends AbstractAST
   }
   public class BottomUpBreak extends Strategy
   {
+/* "bottom-up-break" -> Strategy {cons("BottomUpBreak")} */
     private BottomUpBreak ()
     {
     }
@@ -59,6 +63,7 @@ public abstract class Strategy extends AbstractAST
   }
   public class Outermost extends Strategy
   {
+/* "outermost" -> Strategy {cons("Outermost")} */
     private Outermost ()
     {
     }
@@ -73,6 +78,7 @@ public abstract class Strategy extends AbstractAST
   }
   public class Innermost extends Strategy
   {
+/* "innermost" -> Strategy {cons("Innermost")} */
     private Innermost ()
     {
     }

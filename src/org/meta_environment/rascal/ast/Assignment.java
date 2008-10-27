@@ -3,6 +3,7 @@ public abstract class Assignment extends AbstractAST
 {
   public class Default extends Assignment
   {
+/* "=" -> Assignment {cons("Default")} */
     private Default ()
     {
     }
@@ -17,6 +18,7 @@ public abstract class Assignment extends AbstractAST
   }
   public class Addition extends Assignment
   {
+/* "+=" -> Assignment {cons("Addition")} */
     private Addition ()
     {
     }
@@ -31,6 +33,7 @@ public abstract class Assignment extends AbstractAST
   }
   public class Substraction extends Assignment
   {
+/* "-=" -> Assignment {cons("Substraction")} */
     private Substraction ()
     {
     }
@@ -45,6 +48,7 @@ public abstract class Assignment extends AbstractAST
   }
   public class Product extends Assignment
   {
+/* "*=" -> Assignment {cons("Product")} */
     private Product ()
     {
     }
@@ -59,6 +63,7 @@ public abstract class Assignment extends AbstractAST
   }
   public class Division extends Assignment
   {
+/* "/=" -> Assignment {cons("Division")} */
     private Division ()
     {
     }
@@ -73,6 +78,7 @@ public abstract class Assignment extends AbstractAST
   }
   public class Interesection extends Assignment
   {
+/* "&=" -> Assignment {cons("Interesection")} */
     private Interesection ()
     {
     }

@@ -3,9 +3,7 @@ public abstract class DataTypeSelector extends AbstractAST
 {
   public class Selector extends DataTypeSelector
   {
-    private Name sort;
-    private Name production;
-
+/* sort:Name "." production:Name -> DataTypeSelector {cons("Selector")} */
     private Selector ()
     {
     }

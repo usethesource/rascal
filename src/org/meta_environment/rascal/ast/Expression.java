@@ -3,9 +3,7 @@ public abstract class Expression extends AbstractAST
 {
   public class Closure extends Expression
   {
-    private Type type;
-    private List < Statement > statements;
-
+/* "fun" type:Type Parameters "{" statements:Statement* "}" -> Expression {cons("Closure")} */
     private Closure ()
     {
     }
@@ -56,9 +54,7 @@ public abstract class Expression extends AbstractAST
 	      bracket}
   )public class ClosureCall extends Expression
   {
-    private Expression closure;
-    private List < Expression > arguments;
-
+/* "(" closure:Expression ")" "(" arguments:{Expression ","}* ")" -> Expression {cons("ClosureCall")} */
     private ClosureCall ()
     {
     }
@@ -106,9 +102,7 @@ public abstract class Expression extends AbstractAST
   }
   public class FieldAccess extends Expression
   {
-    private Expression expression;
-    private Name field;
-
+/* expression:Expression "." field:Name -> Expression {cons("FieldAccess")} */
     private FieldAccess ()
     {
     }
@@ -155,9 +149,7 @@ public abstract class Expression extends AbstractAST
   }
   public class Subscript extends Expression
   {
-    private Expression expression;
-    private Expression subscript;
-
+/* expression:Expression "[" subscript:Expression "]" -> Expression {cons("Subscript")} */
     private Subscript ()
     {
     }
@@ -205,8 +197,7 @@ public abstract class Expression extends AbstractAST
   }
   public class TransitiveReflexiveClosure extends Expression
   {
-    private Expression argument;
-
+/* argument:Expression "*" -> Expression {cons("TransitiveReflexiveClosure")} */
     private TransitiveReflexiveClosure ()
     {
     }
@@ -237,8 +228,7 @@ public abstract class Expression extends AbstractAST
   }
   public class TransitiveClosure extends Expression
   {
-    private Expression argument;
-
+/* argument:Expression "+" -> Expression {cons("TransitiveClosure")} */
     private TransitiveClosure ()
     {
     }
@@ -269,9 +259,7 @@ public abstract class Expression extends AbstractAST
   }
   public class Annotation extends Expression
   {
-    private Expression expression;
-    private Name name;
-
+/* expression:Expression "@" name:Name -> Expression {cons("Annotation")} */
     private Annotation ()
     {
     }
@@ -318,8 +306,7 @@ public abstract class Expression extends AbstractAST
   }
   public class Negation extends Expression
   {
-    private Expression argument;
-
+/* "!" argument:Expression -> Expression {cons("Negation")} */
     private Negation ()
     {
     }
@@ -350,9 +337,7 @@ public abstract class Expression extends AbstractAST
   }
   public class Product extends Expression
   {
-    private Expression lhs;
-    private Expression rhs;
-
+/* lhs:Expression "*" rhs:Expression -> Expression {cons("Product"), left} */
     private Product ()
     {
     }
@@ -399,9 +384,7 @@ public abstract class Expression extends AbstractAST
   }
   public class Intersection extends Expression
   {
-    private Expression lhs;
-    private Expression rhs;
-
+/* lhs:Expression "&" rhs:Expression -> Expression {cons("Intersection"), left} */
     private Intersection ()
     {
     }
@@ -448,9 +431,7 @@ public abstract class Expression extends AbstractAST
   }
   public class Division extends Expression
   {
-    private Expression lhs;
-    private Expression rhs;
-
+/* lhs:Expression "/" rhs:Expression -> Expression {cons("Division"), non-assoc} */
     private Division ()
     {
     }
@@ -497,9 +478,7 @@ public abstract class Expression extends AbstractAST
   }
   public class Addition extends Expression
   {
-    private Expression lhs;
-    private Expression rhs;
-
+/* lhs:Expression "+" rhs:Expression -> Expression {cons("Addition"), left} */
     private Addition ()
     {
     }
@@ -546,9 +525,7 @@ public abstract class Expression extends AbstractAST
   }
   public class Substraction extends Expression
   {
-    private Expression lhs;
-    private Expression rhs;
-
+/* lhs:Expression "-" rhs:Expression -> Expression {cons("Substraction"), left} */
     private Substraction ()
     {
     }
@@ -595,9 +572,7 @@ public abstract class Expression extends AbstractAST
   }
   public class Match extends Expression
   {
-    private Expression lhs;
-    private Expression rhs;
-
+/* lhs:Expression "=~" rhs:Expression -> Expression {non-assoc, cons("Match")} */
     private Match ()
     {
     }
@@ -644,9 +619,7 @@ public abstract class Expression extends AbstractAST
   }
   public class NoMatch extends Expression
   {
-    private Expression lhs;
-    private Expression rhs;
-
+/* lhs:Expression "!~" rhs:Expression -> Expression {non-assoc, cons("NoMatch")} */
     private NoMatch ()
     {
     }
@@ -693,9 +666,7 @@ public abstract class Expression extends AbstractAST
   }
   public class LessThan extends Expression
   {
-    private Expression lhs;
-    private Expression rhs;
-
+/* lhs:Expression "<" rhs:Expression -> Expression {non-assoc, cons("LessThan")} */
     private LessThan ()
     {
     }
@@ -742,9 +713,7 @@ public abstract class Expression extends AbstractAST
   }
   public class LessThanOrEq extends Expression
   {
-    private Expression lhs;
-    private Expression rhs;
-
+/* lhs:Expression "<=" rhs:Expression -> Expression {non-assoc, cons("LessThanOrEq")} */
     private LessThanOrEq ()
     {
     }
@@ -791,9 +760,7 @@ public abstract class Expression extends AbstractAST
   }
   public class GreaterThan extends Expression
   {
-    private Expression lhs;
-    private Expression rhs;
-
+/* lhs:Expression ">" rhs:Expression -> Expression {non-assoc, cons("GreaterThan")} */
     private GreaterThan ()
     {
     }
@@ -840,9 +807,7 @@ public abstract class Expression extends AbstractAST
   }
   public class GreaterThanOrEq extends Expression
   {
-    private Expression lhs;
-    private Expression rhs;
-
+/* lhs:Expression ">=" rhs:Expression -> Expression {non-assoc, cons("GreaterThanOrEq")} */
     private GreaterThanOrEq ()
     {
     }
@@ -889,9 +854,7 @@ public abstract class Expression extends AbstractAST
   }
   public class Equals extends Expression
   {
-    private Expression lhs;
-    private Expression rhs;
-
+/* lhs:Expression "==" rhs:Expression -> Expression {left, cons("Equals")} */
     private Equals ()
     {
     }
@@ -938,9 +901,7 @@ public abstract class Expression extends AbstractAST
   }
   public class NonEquals extends Expression
   {
-    private Expression lhs;
-    private Expression rhs;
-
+/* lhs:Expression "!=" rhs:Expression -> Expression {left, cons("NonEquals")} */
     private NonEquals ()
     {
     }
@@ -987,9 +948,7 @@ public abstract class Expression extends AbstractAST
   }
   public class NotIn extends Expression
   {
-    private Expression lhs;
-    private Expression rhs;
-
+/* lhs:Expression "notin" rhs:Expression -> Expression {non-assoc, cons("NotIn")} */
     private NotIn ()
     {
     }
@@ -1036,9 +995,7 @@ public abstract class Expression extends AbstractAST
   }
   public class In extends Expression
   {
-    private Expression lhs;
-    private Expression rhs;
-
+/* lhs:Expression "in" rhs:Expression -> Expression {non-assoc, cons("In")} */
     private In ()
     {
     }
@@ -1085,9 +1042,7 @@ public abstract class Expression extends AbstractAST
   }
   public class And extends Expression
   {
-    private Expression lhs;
-    private Expression rhs;
-
+/* lhs:Expression "&&" rhs:Expression -> Expression {left, cons("And")} */
     private And ()
     {
     }
@@ -1134,9 +1089,7 @@ public abstract class Expression extends AbstractAST
   }
   public class Or extends Expression
   {
-    private Expression lhs;
-    private Expression rhs;
-
+/* lhs:Expression "||" rhs:Expression -> Expression {left, cons("Or")} */
     private Or ()
     {
     }
@@ -1183,9 +1136,7 @@ public abstract class Expression extends AbstractAST
   }
   public class IfDefined extends Expression
   {
-    private Expression lhs;
-    private Expression rhs;
-
+/* lhs:Expression "?" rhs:Expression -> Expression {left, cons("IfDefined")} */
     private IfDefined ()
     {
     }
@@ -1232,11 +1183,7 @@ public abstract class Expression extends AbstractAST
   }
   public class IfThenElse extends Expression
   {
-    private Expression condition;
-    private Expression then;
-    private Expression
-    else;
-
+/* condition:Expression "?" then:Expression ":" else:Expression -> Expression {right, cons("IfThenElse")} */
     private IfThenElse ()
     {
     }
@@ -1309,8 +1256,7 @@ public abstract class Expression extends AbstractAST
   }
   public class Operator extends Expression
   {
-    private StandardOperator operator;
-
+/* operator:StandardOperator -> Expression {cons("Operator")} */
     private Operator ()
     {
     }
@@ -1341,8 +1287,7 @@ public abstract class Expression extends AbstractAST
   }
   public class Literal extends Expression
   {
-    private Literal literal;
-
+/* literal:Literal -> Expression {cons("Literal")} */
     private Literal ()
     {
     }
@@ -1373,9 +1318,7 @@ public abstract class Expression extends AbstractAST
   }
   public class CallOrTree extends Expression
   {
-    private Name name;
-    private List < Expression > arguments;
-
+/* name:Name "(" arguments:{Expression ","}* ")" -> Expression {cons("CallOrTree")} */
     private CallOrTree ()
     {
     }
@@ -1423,8 +1366,7 @@ public abstract class Expression extends AbstractAST
   }
   public class List extends Expression
   {
-    private List < Expression > elements;
-
+/* "[" elements:{Expression ","}* "]" -> Expression {cons("List")} */
     private List ()
     {
     }
@@ -1455,9 +1397,7 @@ public abstract class Expression extends AbstractAST
   }
   public class Range extends Expression
   {
-    private Expression from;
-    private Expression to;
-
+/* "[" from:Expression ".." to:Expression "]" -> Expression {cons("Range")} */
     private Range ()
     {
     }
@@ -1504,10 +1444,7 @@ public abstract class Expression extends AbstractAST
   }
   public class StepRange extends Expression
   {
-    private Expression from;
-    private Expression by;
-    private Expression to;
-
+/* "[" from:Expression "," by:Expression ",.." to:Expression "]" -> Expression {cons("StepRange")} */
     private StepRange ()
     {
     }
@@ -1571,8 +1508,7 @@ public abstract class Expression extends AbstractAST
   }
   public class Set extends Expression
   {
-    private List < Expression > elements;
-
+/* "{" elements:{Expression ","}* "}" -> Expression {cons("Set")} */
     private Set ()
     {
     }
@@ -1603,9 +1539,7 @@ public abstract class Expression extends AbstractAST
   }
   public class Tuple extends Expression
   {
-    private Expression first;
-    private List < Expression > rest;
-
+/* "<" first:Expression "," rest:{Expression ","}+ ">" -> Expression {cons("Tuple")} */
     private Tuple ()
     {
     }
@@ -1653,9 +1587,7 @@ public abstract class Expression extends AbstractAST
   }
   public class MapTuple extends Expression
   {
-    private Expression from;
-    private Expression to;
-
+/* "<" from:Expression "->" to:Expression ">" -> Expression {cons("MapTuple")} */
     private MapTuple ()
     {
     }
@@ -1702,6 +1634,7 @@ public abstract class Expression extends AbstractAST
   }
   public class Location extends Expression
   {
+/* Location -> Expression {cons("Location")} */
     private Location ()
     {
     }
@@ -1716,6 +1649,7 @@ public abstract class Expression extends AbstractAST
   }
   public class Area extends Expression
   {
+/* Area -> Expression {cons("Area")} */
     private Area ()
     {
     }
@@ -1730,8 +1664,7 @@ public abstract class Expression extends AbstractAST
   }
   public class FileLocation extends Expression
   {
-    private Expression filename;
-
+/* "file" "(" filename:Expression ")" -> Expression {cons("FileLocation")} */
     private FileLocation ()
     {
     }
@@ -1762,8 +1695,7 @@ public abstract class Expression extends AbstractAST
   }
   public class AreaLocation extends Expression
   {
-    private Expression area;
-
+/* "area" "(" area:Expression ")" -> Expression {cons("AreaLocation")} */
     private AreaLocation ()
     {
     }
@@ -1794,9 +1726,7 @@ public abstract class Expression extends AbstractAST
   }
   public class AreaInFileLocation extends Expression
   {
-    private Expression filename;
-    private Expression area;
-
+/* "area-in-file" "(" filename:Expression "," area:Expression ")" -> Expression {cons("AreaInFileLocation")} */
     private AreaInFileLocation ()
     {
     }
@@ -1844,8 +1774,7 @@ public abstract class Expression extends AbstractAST
   }
   public class QualifiedName extends Expression
   {
-    private QualifiedName qualifiedName;
-
+/* qualifiedName:QualifiedName -> Expression {cons("QualifiedName")} */
     private QualifiedName ()
     {
     }
@@ -1876,8 +1805,7 @@ public abstract class Expression extends AbstractAST
   }
   public class Comprehension extends Expression
   {
-    private Comprehension comprehension;
-
+/* comprehension:Comprehension -> Expression {cons("Comprehension")} */
     private Comprehension ()
     {
     }
@@ -1908,9 +1836,7 @@ public abstract class Expression extends AbstractAST
   }
   public class Exists extends Expression
   {
-    private ValueProducer producer;
-    private Expression expression;
-
+/* "exists" "(" producer:ValueProducer "|" expression:Expression ")" -> Expression {cons("Exists")} */
     private Exists ()
     {
     }
@@ -1958,9 +1884,7 @@ public abstract class Expression extends AbstractAST
   }
   public class Forall extends Expression
   {
-    private ValueProducer producers;
-    private Expression expression;
-
+/* "forall" "(" producers:ValueProducer "|" expression:Expression ")" -> Expression {cons("Forall")} */
     private Forall ()
     {
     }
@@ -2008,8 +1932,7 @@ public abstract class Expression extends AbstractAST
   }
   public class Visit extends Expression
   {
-    private Visit visit;
-
+/* visit:Visit -> Expression {cons("Visit")} */
     private Visit ()
     {
     }

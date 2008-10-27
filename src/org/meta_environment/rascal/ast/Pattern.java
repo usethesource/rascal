@@ -3,9 +3,7 @@ public abstract class Pattern extends AbstractAST
 {
   public class TypedVariable extends Pattern
   {
-    private Type type;
-    private Name name;
-
+/* type:Type name:Name -> Pattern {cons("TypedVariable")} */
     private TypedVariable ()
     {
     }

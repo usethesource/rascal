@@ -3,8 +3,7 @@ public abstract class StructuredType extends AbstractAST
 {
   public class List extends StructuredType
   {
-    private TypeArg typeArg;
-
+/* "list" "[" typeArg:TypeArg "]" -> StructuredType {cons("List")} */
     private List ()
     {
     }
@@ -35,8 +34,7 @@ public abstract class StructuredType extends AbstractAST
   }
   public class Set extends StructuredType
   {
-    private TypeArg typeArg;
-
+/* "set" "[" typeArg:TypeArg "]" -> StructuredType {cons("Set")} */
     private Set ()
     {
     }
@@ -67,9 +65,7 @@ public abstract class StructuredType extends AbstractAST
   }
   public class Map extends StructuredType
   {
-    private TypeArg first;
-    private TypeArg second;
-
+/* "map" "[" first:TypeArg "," second:TypeArg "]" -> StructuredType {cons("Map")} */
     private Map ()
     {
     }
@@ -116,9 +112,7 @@ public abstract class StructuredType extends AbstractAST
   }
   public class Relation extends StructuredType
   {
-    private TypeArg first;
-    private List < TypeArg > rest;
-
+/* "rel" "[" first:TypeArg "," rest:{TypeArg ","}+ "]" -> StructuredType {cons("Relation")} */
     private Relation ()
     {
     }
@@ -165,9 +159,7 @@ public abstract class StructuredType extends AbstractAST
   }
   public class Tuple extends StructuredType
   {
-    private TypeArg first;
-    private List < TypeArg > rest;
-
+/* "tuple" "[" first:TypeArg "," rest:{TypeArg ","}+ "]" -> StructuredType {cons("Tuple")} */
     private Tuple ()
     {
     }

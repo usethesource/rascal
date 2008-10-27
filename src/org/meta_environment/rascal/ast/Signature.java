@@ -3,11 +3,7 @@ public abstract class Signature extends AbstractAST
 {
   public class NoThrows extends Signature
   {
-    private Type type;
-    private FunctionModifiers modifiers;
-    private FunctionName name;
-    private Parameters parameters;
-
+/* type:Type modifiers:FunctionModifiers name:FunctionName parameters:Parameters -> Signature {cons("NoThrows")} */
     private NoThrows ()
     {
     }
@@ -87,12 +83,7 @@ public abstract class Signature extends AbstractAST
   }
   public class WithThrows extends Signature
   {
-    private Type type;
-    private FunctionModifiers modifiers;
-    private FunctionName name;
-    private Parameters parameters;
-    private List < Type > exceptions;
-
+/* type:Type modifiers:FunctionModifiers name:FunctionName parameters:Parameters "throws" exceptions:{Type ","}+ -> Signature {cons("WithThrows")} */
     private WithThrows ()
     {
     }

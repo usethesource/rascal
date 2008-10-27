@@ -3,8 +3,7 @@ public abstract class Assignable extends AbstractAST
 {
   public class Variable extends Assignable
   {
-    private QualifiedName qualifiedName;
-
+/* qualifiedName:QualifiedName -> Assignable {cons("Variable")} */
     private Variable ()
     {
     }
@@ -35,9 +34,7 @@ public abstract class Assignable extends AbstractAST
   }
   public class Subscript extends Assignable
   {
-    private Assignable receiver;
-    private Expression subscript;
-
+/* receiver:Assignable "[" subscript:Expression "]" -> Assignable {cons("Subscript")} */
     private Subscript ()
     {
     }
@@ -85,9 +82,7 @@ public abstract class Assignable extends AbstractAST
   }
   public class FieldAccess extends Assignable
   {
-    private Assignable receiver;
-    private Name field;
-
+/* receiver:Assignable "." field:Name -> Assignable {cons("FieldAccess")} */
     private FieldAccess ()
     {
     }
@@ -134,9 +129,7 @@ public abstract class Assignable extends AbstractAST
   }
   public class IfDefined extends Assignable
   {
-    private Assignable receiver;
-    private Expression condition;
-
+/* receiver:Assignable "?" condition:Expression -> Assignable {cons("IfDefined")} */
     private IfDefined ()
     {
     }
@@ -184,9 +177,7 @@ public abstract class Assignable extends AbstractAST
   }
   public class Annotation extends Assignable
   {
-    private Assignable receiver;
-    private Expression annotation;
-
+/* receiver:Assignable "@" annotation:Expression -> Assignable {cons("Annotation")} */
     private Annotation ()
     {
     }

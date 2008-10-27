@@ -3,8 +3,7 @@ public abstract class FunctionName extends AbstractAST
 {
   public class Name extends FunctionName
   {
-    private Name name;
-
+/* name:Name -> FunctionName {cons("Name")} */
     private Name ()
     {
     }
@@ -35,8 +34,7 @@ public abstract class FunctionName extends AbstractAST
   }
   public class Operator extends FunctionName
   {
-    private StandardOperator operator;
-
+/* operator:StandardOperator -> FunctionName {cons("Operator")} */
     private Operator ()
     {
     }

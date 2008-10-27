@@ -3,8 +3,7 @@ public abstract class Generator extends AbstractAST
 {
   public class Expression extends Generator
   {
-    private Expression expression;
-
+/* expression:Expression -> Generator {cons("Expression")} */
     private Expression ()
     {
     }
@@ -35,8 +34,7 @@ public abstract class Generator extends AbstractAST
   }
   public class Producer extends Generator
   {
-    private ValueProducer producer;
-
+/* producer:ValueProducer -> Generator {cons("Producer")} */
     private Producer ()
     {
     }

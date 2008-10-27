@@ -3,9 +3,7 @@ public abstract class Comprehension extends AbstractAST
 {
   public class Set extends Comprehension
   {
-    private Expression result;
-    private List < Generator > generators;
-
+/* "{" result:Expression "|" generators:{Generator ","}+ "}" -> Comprehension {cons("Set")} */
     private Set ()
     {
     }
@@ -53,9 +51,7 @@ public abstract class Comprehension extends AbstractAST
   }
   public class List extends Comprehension
   {
-    private Expression result;
-    private List < Generator > generators;
-
+/* "[" result:Expression "|" generators:{Generator ","}+ "]" -> Comprehension {cons("List")} */
     private List ()
     {
     }

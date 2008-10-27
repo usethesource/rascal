@@ -3,8 +3,7 @@ public abstract class CharRange extends AbstractAST
 {
   public class Character extends CharRange
   {
-    private Character character;
-
+/* character:Character -> CharRange {cons("Character")} */
     private Character ()
     {
     }
@@ -35,9 +34,7 @@ public abstract class CharRange extends AbstractAST
   }
   public class Range extends CharRange
   {
-    private Character start;
-    private Character end;
-
+/* start:Character "-" end:Character -> CharRange {cons("Range")} */
     private Range ()
     {
     }

@@ -3,6 +3,7 @@ public abstract class BasicType extends AbstractAST
 {
   public class Bool extends BasicType
   {
+/* "bool" -> BasicType {cons("Bool")} */
     private Bool ()
     {
     }
@@ -17,6 +18,7 @@ public abstract class BasicType extends AbstractAST
   }
   public class Int extends BasicType
   {
+/* "int" -> BasicType {cons("Int")} */
     private Int ()
     {
     }
@@ -31,6 +33,7 @@ public abstract class BasicType extends AbstractAST
   }
   public class Double extends BasicType
   {
+/* "double" -> BasicType {cons("Double")} */
     private Double ()
     {
     }
@@ -45,6 +48,7 @@ public abstract class BasicType extends AbstractAST
   }
   public class String extends BasicType
   {
+/* "str" -> BasicType {cons("String")} */
     private String ()
     {
     }
@@ -59,6 +63,7 @@ public abstract class BasicType extends AbstractAST
   }
   public class Value extends BasicType
   {
+/* "value" -> BasicType {cons("Value")} */
     private Value ()
     {
     }
@@ -73,6 +78,7 @@ public abstract class BasicType extends AbstractAST
   }
   public class Term extends BasicType
   {
+/* "term" -> BasicType {cons("Term")} */
     private Term ()
     {
     }
@@ -87,6 +93,7 @@ public abstract class BasicType extends AbstractAST
   }
   public class Void extends BasicType
   {
+/* "void" -> BasicType {cons("Void")} */
     private Void ()
     {
     }
@@ -101,6 +108,7 @@ public abstract class BasicType extends AbstractAST
   }
   public class Loc extends BasicType
   {
+/* "loc" -> BasicType {cons("Loc")} */
     private Loc ()
     {
     }

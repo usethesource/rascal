@@ -3,8 +3,7 @@ public abstract class Type extends AbstractAST
 {
   public class Basic extends Type
   {
-    private BasicType basic;
-
+/* basic:BasicType -> Type {cons("Basic")} */
     private Basic ()
     {
     }
@@ -35,8 +34,7 @@ public abstract class Type extends AbstractAST
   }
   public class Structured extends Type
   {
-    private StructuredType structured;
-
+/* structured:StructuredType -> Type {cons("Structured")} */
     private Structured ()
     {
     }
@@ -67,8 +65,7 @@ public abstract class Type extends AbstractAST
   }
   public class Function extends Type
   {
-    private FunctionType function;
-
+/* function:FunctionType -> Type {cons("Function")} */
     private Function ()
     {
     }
@@ -99,8 +96,7 @@ public abstract class Type extends AbstractAST
   }
   public class Variable extends Type
   {
-    private TypeVar typeVar;
-
+/* typeVar:TypeVar -> Type {cons("Variable")} */
     private Variable ()
     {
     }
@@ -131,8 +127,7 @@ public abstract class Type extends AbstractAST
   }
   public class User extends Type
   {
-    private UserType user;
-
+/* user:UserType -> Type {cons("User")} */
     private User ()
     {
     }
@@ -163,8 +158,7 @@ public abstract class Type extends AbstractAST
   }
   public class Symbol extends Type
   {
-    private Symbol symbol;
-
+/* symbol:Symbol -> Type {cons("Symbol")} */
     private Symbol ()
     {
     }
@@ -195,8 +189,7 @@ public abstract class Type extends AbstractAST
   }
   public class Selector extends Type
   {
-    private DataTypeSelector selector;
-
+/* selector:DataTypeSelector -> Type {cons("Selector")} */
     private Selector ()
     {
     }

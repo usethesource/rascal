@@ -3,8 +3,7 @@ public abstract class Literal extends AbstractAST
 {
   public class RegExp extends Literal
   {
-    private RegExpLiteral regExp;
-
+/* regExp:RegExpLiteral -> Literal {cons("RegExp")} */
     private RegExp ()
     {
     }
@@ -35,8 +34,7 @@ public abstract class Literal extends AbstractAST
   }
   public class Symbol extends Literal
   {
-    private SymbolLiteral symbol;
-
+/* symbol:SymbolLiteral -> Literal {cons("Symbol")} */
     private Symbol ()
     {
     }
@@ -67,8 +65,7 @@ public abstract class Literal extends AbstractAST
   }
   public class Boolean extends Literal
   {
-    private BooleanLiteral boolean;
-
+/* boolean:BooleanLiteral -> Literal {cons("Boolean")} */
     private Boolean ()
     {
     }
@@ -99,8 +96,7 @@ public abstract class Literal extends AbstractAST
   }
   public class Integer extends Literal
   {
-    private IntegerLiteral integer;
-
+/* integer:IntegerLiteral -> Literal {cons("Integer")} */
     private Integer ()
     {
     }
@@ -131,8 +127,7 @@ public abstract class Literal extends AbstractAST
   }
   public class Double extends Literal
   {
-    private FloatingPointLiteral double;
-
+/* double:FloatingPointLiteral -> Literal {cons("Double")} */
     private Double ()
     {
     }
@@ -163,8 +158,7 @@ public abstract class Literal extends AbstractAST
   }
   public class String extends Literal
   {
-    private StringLiteral string;
-
+/* string:StringLiteral -> Literal {cons("String")} */
     private String ()
     {
     }

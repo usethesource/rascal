@@ -3,10 +3,7 @@ public abstract class FunctionDeclaration extends AbstractAST
 {
   public class Default extends FunctionDeclaration
   {
-    private Signature signature;
-    private Tags tags;
-    private FunctionBody body;
-
+/* signature:Signature tags:Tags body:FunctionBody -> FunctionDeclaration {cons("Default")} */
     private Default ()
     {
     }
@@ -70,9 +67,7 @@ public abstract class FunctionDeclaration extends AbstractAST
   }
   public class Abstract extends FunctionDeclaration
   {
-    private Signature signature;
-    private Tags tags;
-
+/* signature:Signature tags:Tags -> FunctionDeclaration {cons("Abstract")} */
     private Abstract ()
     {
     }

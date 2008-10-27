@@ -3,9 +3,7 @@ public abstract class Condition extends AbstractAST
 {
   public class Match extends Condition
   {
-    private Pattern pattern;
-    private Expression expression;
-
+/* pattern:Pattern ":=" expression:Expression -> Condition {cons("Match")} */
     private Match ()
     {
     }
@@ -52,9 +50,7 @@ public abstract class Condition extends AbstractAST
   }
   public class NoMatch extends Condition
   {
-    private Pattern pattern;
-    private Expression expression;
-
+/* pattern:Pattern "!:=" expression:Expression -> Condition {cons("NoMatch")} */
     private NoMatch ()
     {
     }
@@ -101,8 +97,7 @@ public abstract class Condition extends AbstractAST
   }
   public class Expression extends Condition
   {
-    private Expression expression;
-
+/* expression:Expression -> Condition {cons("Expression")} */
     private Expression ()
     {
     }
@@ -133,9 +128,7 @@ public abstract class Condition extends AbstractAST
   }
   public class Conjunction extends Condition
   {
-    private Condition lhs;
-    private Condition rhs;
-
+/* lhs:Condition "," rhs:Condition -> Condition {left, cons("Conjunction")} */
     private Conjunction ()
     {
     }
