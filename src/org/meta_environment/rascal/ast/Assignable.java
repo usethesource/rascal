@@ -1,0 +1,235 @@
+package org.meta_environment.rascal.ast;
+public abstract class Assignable extends AbstractAST
+{
+  public class Variable extends Assignable
+  {
+    private QualifiedName qualifiedName;
+
+    private Variable ()
+    {
+    }
+    /*package */ Variable (ITree tree, QualifiedName qualifiedName)
+    {
+      this.tree = tree;
+      this.qualifiedName = qualifiedName;
+    }
+    public IVisitable accept (IVisitor visitor)
+    {
+      return visitor.visitVariableAssignable (this);
+    }
+    private final QualifiedName qualifiedName;
+    public QualifiedName getqualifiedName ()
+    {
+      return qualifiedName;
+    }
+    private void privateSetqualifiedName (QualifiedName x)
+    {
+      this.qualifiedName = x;
+    }
+    public Variable setqualifiedName (QualifiedName x)
+    {
+      z = new Variable ();
+      z.privateSetqualifiedName (x);
+      return z;
+    }
+  }
+  public class Subscript extends Assignable
+  {
+    private Assignable receiver;
+    private Expression subscript;
+
+    private Subscript ()
+    {
+    }
+    /*package */ Subscript (ITree tree, Assignable receiver,
+			    Expression subscript)
+    {
+      this.tree = tree;
+      this.receiver = receiver;
+      this.subscript = subscript;
+    }
+    public IVisitable accept (IVisitor visitor)
+    {
+      return visitor.visitSubscriptAssignable (this);
+    }
+    private final Assignable receiver;
+    public Assignable getreceiver ()
+    {
+      return receiver;
+    }
+    private void privateSetreceiver (Assignable x)
+    {
+      this.receiver = x;
+    }
+    public Subscript setreceiver (Assignable x)
+    {
+      z = new Subscript ();
+      z.privateSetreceiver (x);
+      return z;
+    }
+    private final Expression subscript;
+    public Expression getsubscript ()
+    {
+      return subscript;
+    }
+    private void privateSetsubscript (Expression x)
+    {
+      this.subscript = x;
+    }
+    public Subscript setsubscript (Expression x)
+    {
+      z = new Subscript ();
+      z.privateSetsubscript (x);
+      return z;
+    }
+  }
+  public class FieldAccess extends Assignable
+  {
+    private Assignable receiver;
+    private Name field;
+
+    private FieldAccess ()
+    {
+    }
+    /*package */ FieldAccess (ITree tree, Assignable receiver, Name field)
+    {
+      this.tree = tree;
+      this.receiver = receiver;
+      this.field = field;
+    }
+    public IVisitable accept (IVisitor visitor)
+    {
+      return visitor.visitFieldAccessAssignable (this);
+    }
+    private final Assignable receiver;
+    public Assignable getreceiver ()
+    {
+      return receiver;
+    }
+    private void privateSetreceiver (Assignable x)
+    {
+      this.receiver = x;
+    }
+    public FieldAccess setreceiver (Assignable x)
+    {
+      z = new FieldAccess ();
+      z.privateSetreceiver (x);
+      return z;
+    }
+    private final Name field;
+    public Name getfield ()
+    {
+      return field;
+    }
+    private void privateSetfield (Name x)
+    {
+      this.field = x;
+    }
+    public FieldAccess setfield (Name x)
+    {
+      z = new FieldAccess ();
+      z.privateSetfield (x);
+      return z;
+    }
+  }
+  public class IfDefined extends Assignable
+  {
+    private Assignable receiver;
+    private Expression condition;
+
+    private IfDefined ()
+    {
+    }
+    /*package */ IfDefined (ITree tree, Assignable receiver,
+			    Expression condition)
+    {
+      this.tree = tree;
+      this.receiver = receiver;
+      this.condition = condition;
+    }
+    public IVisitable accept (IVisitor visitor)
+    {
+      return visitor.visitIfDefinedAssignable (this);
+    }
+    private final Assignable receiver;
+    public Assignable getreceiver ()
+    {
+      return receiver;
+    }
+    private void privateSetreceiver (Assignable x)
+    {
+      this.receiver = x;
+    }
+    public IfDefined setreceiver (Assignable x)
+    {
+      z = new IfDefined ();
+      z.privateSetreceiver (x);
+      return z;
+    }
+    private final Expression condition;
+    public Expression getcondition ()
+    {
+      return condition;
+    }
+    private void privateSetcondition (Expression x)
+    {
+      this.condition = x;
+    }
+    public IfDefined setcondition (Expression x)
+    {
+      z = new IfDefined ();
+      z.privateSetcondition (x);
+      return z;
+    }
+  }
+  public class Annotation extends Assignable
+  {
+    private Assignable receiver;
+    private Expression annotation;
+
+    private Annotation ()
+    {
+    }
+    /*package */ Annotation (ITree tree, Assignable receiver,
+			     Expression annotation)
+    {
+      this.tree = tree;
+      this.receiver = receiver;
+      this.annotation = annotation;
+    }
+    public IVisitable accept (IVisitor visitor)
+    {
+      return visitor.visitAnnotationAssignable (this);
+    }
+    private final Assignable receiver;
+    public Assignable getreceiver ()
+    {
+      return receiver;
+    }
+    private void privateSetreceiver (Assignable x)
+    {
+      this.receiver = x;
+    }
+    public Annotation setreceiver (Assignable x)
+    {
+      z = new Annotation ();
+      z.privateSetreceiver (x);
+      return z;
+    }
+    private final Expression annotation;
+    public Expression getannotation ()
+    {
+      return annotation;
+    }
+    private void privateSetannotation (Expression x)
+    {
+      this.annotation = x;
+    }
+    public Annotation setannotation (Expression x)
+    {
+      z = new Annotation ();
+      z.privateSetannotation (x);
+      return z;
+    }
+  }
+}
