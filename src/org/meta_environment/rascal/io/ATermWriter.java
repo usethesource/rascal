@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueWriter;
+import org.eclipse.imp.pdb.facts.io.IValueWriter;
 
 public class ATermWriter implements IValueWriter {
 
