@@ -28,7 +28,7 @@ public abstract class StructuredType extends AbstractAST
     }
     public List settypeArg (TypeArg x)
     {
-      z = new List ();
+      List z = new List ();
       z.privateSettypeArg (x);
       return z;
     }
@@ -59,7 +59,7 @@ public abstract class StructuredType extends AbstractAST
     }
     public Set settypeArg (TypeArg x)
     {
-      z = new Set ();
+      Set z = new Set ();
       z.privateSettypeArg (x);
       return z;
     }
@@ -91,7 +91,7 @@ public abstract class StructuredType extends AbstractAST
     }
     public Map setfirst (TypeArg x)
     {
-      z = new Map ();
+      Map z = new Map ();
       z.privateSetfirst (x);
       return z;
     }
@@ -106,7 +106,7 @@ public abstract class StructuredType extends AbstractAST
     }
     public Map setsecond (TypeArg x)
     {
-      z = new Map ();
+      Map z = new Map ();
       z.privateSetsecond (x);
       return z;
     }
@@ -138,7 +138,7 @@ public abstract class StructuredType extends AbstractAST
     }
     public Relation setfirst (TypeArg x)
     {
-      z = new Relation ();
+      Relation z = new Relation ();
       z.privateSetfirst (x);
       return z;
     }
@@ -185,7 +185,7 @@ public abstract class StructuredType extends AbstractAST
     }
     public Tuple setfirst (TypeArg x)
     {
-      z = new Tuple ();
+      Tuple z = new Tuple ();
       z.privateSetfirst (x);
       return z;
     }

@@ -29,7 +29,7 @@ public abstract class Module extends AbstractAST
     }
     public Module setheader (Header x)
     {
-      z = new Module ();
+      Module z = new Module ();
       z.privateSetheader (x);
       return z;
     }
@@ -44,7 +44,7 @@ public abstract class Module extends AbstractAST
     }
     public Module setbody (Body x)
     {
-      z = new Module ();
+      Module z = new Module ();
       z.privateSetbody (x);
       return z;
     }

@@ -28,7 +28,7 @@ public abstract class Catch extends AbstractAST
     }
     public Catch setbody (Statement x)
     {
-      z = new Catch ();
+      Catch z = new Catch ();
       z.privateSetbody (x);
       return z;
     }
@@ -62,7 +62,7 @@ public abstract class Catch extends AbstractAST
     }
     public BindingCatch settype (Type x)
     {
-      z = new BindingCatch ();
+      BindingCatch z = new BindingCatch ();
       z.privateSettype (x);
       return z;
     }
@@ -77,7 +77,7 @@ public abstract class Catch extends AbstractAST
     }
     public BindingCatch setname (Name x)
     {
-      z = new BindingCatch ();
+      BindingCatch z = new BindingCatch ();
       z.privateSetname (x);
       return z;
     }
@@ -92,7 +92,7 @@ public abstract class Catch extends AbstractAST
     }
     public BindingCatch setbody (Statement x)
     {
-      z = new BindingCatch ();
+      BindingCatch z = new BindingCatch ();
       z.privateSetbody (x);
       return z;
     }

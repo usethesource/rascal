@@ -31,7 +31,7 @@ public abstract class Header extends AbstractAST
     }
     public Default setname (ModuleName x)
     {
-      z = new Default ();
+      Default z = new Default ();
       z.privateSetname (x);
       return z;
     }
@@ -46,7 +46,7 @@ public abstract class Header extends AbstractAST
     }
     public Default settags (Tags x)
     {
-      z = new Default ();
+      Default z = new Default ();
       z.privateSettags (x);
       return z;
     }
@@ -97,7 +97,7 @@ public abstract class Header extends AbstractAST
     }
     public Parameters setname (ModuleName x)
     {
-      z = new Parameters ();
+      Parameters z = new Parameters ();
       z.privateSetname (x);
       return z;
     }
@@ -112,7 +112,7 @@ public abstract class Header extends AbstractAST
     }
     public Parameters setparams (ModuleParameters x)
     {
-      z = new Parameters ();
+      Parameters z = new Parameters ();
       z.privateSetparams (x);
       return z;
     }
@@ -127,7 +127,7 @@ public abstract class Header extends AbstractAST
     }
     public Parameters settags (Tags x)
     {
-      z = new Parameters ();
+      Parameters z = new Parameters ();
       z.privateSettags (x);
       return z;
     }

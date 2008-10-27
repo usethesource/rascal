@@ -28,7 +28,7 @@ public abstract class Tag extends AbstractAST
     }
     public Default setname (Name x)
     {
-      z = new Default ();
+      Default z = new Default ();
       z.privateSetname (x);
       return z;
     }

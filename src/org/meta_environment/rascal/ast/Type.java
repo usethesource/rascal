@@ -28,7 +28,7 @@ public abstract class Type extends AbstractAST
     }
     public Basic setbasic (BasicType x)
     {
-      z = new Basic ();
+      Basic z = new Basic ();
       z.privateSetbasic (x);
       return z;
     }
@@ -59,7 +59,7 @@ public abstract class Type extends AbstractAST
     }
     public Structured setstructured (StructuredType x)
     {
-      z = new Structured ();
+      Structured z = new Structured ();
       z.privateSetstructured (x);
       return z;
     }
@@ -90,7 +90,7 @@ public abstract class Type extends AbstractAST
     }
     public Function setfunction (FunctionType x)
     {
-      z = new Function ();
+      Function z = new Function ();
       z.privateSetfunction (x);
       return z;
     }
@@ -121,7 +121,7 @@ public abstract class Type extends AbstractAST
     }
     public Variable settypeVar (TypeVar x)
     {
-      z = new Variable ();
+      Variable z = new Variable ();
       z.privateSettypeVar (x);
       return z;
     }
@@ -152,7 +152,7 @@ public abstract class Type extends AbstractAST
     }
     public User setuser (UserType x)
     {
-      z = new User ();
+      User z = new User ();
       z.privateSetuser (x);
       return z;
     }
@@ -183,7 +183,7 @@ public abstract class Type extends AbstractAST
     }
     public Symbol setsymbol (Symbol x)
     {
-      z = new Symbol ();
+      Symbol z = new Symbol ();
       z.privateSetsymbol (x);
       return z;
     }
@@ -214,7 +214,7 @@ public abstract class Type extends AbstractAST
     }
     public Selector setselector (DataTypeSelector x)
     {
-      z = new Selector ();
+      Selector z = new Selector ();
       z.privateSetselector (x);
       return z;
     }

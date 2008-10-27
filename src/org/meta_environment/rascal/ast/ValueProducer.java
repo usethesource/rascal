@@ -30,7 +30,7 @@ public abstract class ValueProducer extends AbstractAST
     }
     public DefaultStrategy setpattern (Pattern x)
     {
-      z = new DefaultStrategy ();
+      DefaultStrategy z = new DefaultStrategy ();
       z.privateSetpattern (x);
       return z;
     }
@@ -45,7 +45,7 @@ public abstract class ValueProducer extends AbstractAST
     }
     public DefaultStrategy setexpression (Expression x)
     {
-      z = new DefaultStrategy ();
+      DefaultStrategy z = new DefaultStrategy ();
       z.privateSetexpression (x);
       return z;
     }
@@ -79,7 +79,7 @@ public abstract class ValueProducer extends AbstractAST
     }
     public GivenStrategy setstrategy (Strategy x)
     {
-      z = new GivenStrategy ();
+      GivenStrategy z = new GivenStrategy ();
       z.privateSetstrategy (x);
       return z;
     }
@@ -94,7 +94,7 @@ public abstract class ValueProducer extends AbstractAST
     }
     public GivenStrategy setpattern (Pattern x)
     {
-      z = new GivenStrategy ();
+      GivenStrategy z = new GivenStrategy ();
       z.privateSetpattern (x);
       return z;
     }
@@ -109,7 +109,7 @@ public abstract class ValueProducer extends AbstractAST
     }
     public GivenStrategy setexpression (Expression x)
     {
-      z = new GivenStrategy ();
+      GivenStrategy z = new GivenStrategy ();
       z.privateSetexpression (x);
       return z;
     }

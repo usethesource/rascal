@@ -36,7 +36,7 @@ public abstract class Area extends AbstractAST
     }
     public Area setbeginLine (Expression x)
     {
-      z = new Area ();
+      Area z = new Area ();
       z.privateSetbeginLine (x);
       return z;
     }
@@ -51,7 +51,7 @@ public abstract class Area extends AbstractAST
     }
     public Area setbeginColumn (Expression x)
     {
-      z = new Area ();
+      Area z = new Area ();
       z.privateSetbeginColumn (x);
       return z;
     }
@@ -66,7 +66,7 @@ public abstract class Area extends AbstractAST
     }
     public Area setendLine (Expression x)
     {
-      z = new Area ();
+      Area z = new Area ();
       z.privateSetendLine (x);
       return z;
     }
@@ -81,7 +81,7 @@ public abstract class Area extends AbstractAST
     }
     public Area setendColumn (Expression x)
     {
-      z = new Area ();
+      Area z = new Area ();
       z.privateSetendColumn (x);
       return z;
     }
@@ -96,7 +96,7 @@ public abstract class Area extends AbstractAST
     }
     public Area setoffset (Expression x)
     {
-      z = new Area ();
+      Area z = new Area ();
       z.privateSetoffset (x);
       return z;
     }
@@ -111,7 +111,7 @@ public abstract class Area extends AbstractAST
     }
     public Area setlength (Expression x)
     {
-      z = new Area ();
+      Area z = new Area ();
       z.privateSetlength (x);
       return z;
     }

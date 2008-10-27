@@ -28,7 +28,7 @@ public abstract class Solve extends AbstractAST
     }
     public NoBound setbody (Statement x)
     {
-      z = new NoBound ();
+      NoBound z = new NoBound ();
       z.privateSetbody (x);
       return z;
     }
@@ -60,7 +60,7 @@ public abstract class Solve extends AbstractAST
     }
     public WithBound setbound (Expression x)
     {
-      z = new WithBound ();
+      WithBound z = new WithBound ();
       z.privateSetbound (x);
       return z;
     }
@@ -75,7 +75,7 @@ public abstract class Solve extends AbstractAST
     }
     public WithBound setbody (Statement x)
     {
-      z = new WithBound ();
+      WithBound z = new WithBound ();
       z.privateSetbody (x);
       return z;
     }

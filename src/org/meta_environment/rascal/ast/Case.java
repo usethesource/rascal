@@ -28,7 +28,7 @@ public abstract class Case extends AbstractAST
     }
     public Rule setrule (Rule x)
     {
-      z = new Rule ();
+      Rule z = new Rule ();
       z.privateSetrule (x);
       return z;
     }
@@ -59,7 +59,7 @@ public abstract class Case extends AbstractAST
     }
     public Default setstatement (Statement x)
     {
-      z = new Default ();
+      Default z = new Default ();
       z.privateSetstatement (x);
       return z;
     }

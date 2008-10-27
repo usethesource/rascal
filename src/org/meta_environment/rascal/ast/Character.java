@@ -28,7 +28,7 @@ public abstract class Character extends AbstractAST
     }
     public Numeric setnumeric (NumChar x)
     {
-      z = new Numeric ();
+      Numeric z = new Numeric ();
       z.privateSetnumeric (x);
       return z;
     }
@@ -59,7 +59,7 @@ public abstract class Character extends AbstractAST
     }
     public Short setshort (ShortChar x)
     {
-      z = new Short ();
+      Short z = new Short ();
       z.privateSetshort (x);
       return z;
     }

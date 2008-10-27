@@ -28,7 +28,7 @@ public abstract class FunctionName extends AbstractAST
     }
     public Name setname (Name x)
     {
-      z = new Name ();
+      Name z = new Name ();
       z.privateSetname (x);
       return z;
     }
@@ -59,7 +59,7 @@ public abstract class FunctionName extends AbstractAST
     }
     public Operator setoperator (StandardOperator x)
     {
-      z = new Operator ();
+      Operator z = new Operator ();
       z.privateSetoperator (x);
       return z;
     }

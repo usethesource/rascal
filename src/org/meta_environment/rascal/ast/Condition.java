@@ -29,7 +29,7 @@ public abstract class Condition extends AbstractAST
     }
     public Match setpattern (Pattern x)
     {
-      z = new Match ();
+      Match z = new Match ();
       z.privateSetpattern (x);
       return z;
     }
@@ -44,7 +44,7 @@ public abstract class Condition extends AbstractAST
     }
     public Match setexpression (Expression x)
     {
-      z = new Match ();
+      Match z = new Match ();
       z.privateSetexpression (x);
       return z;
     }
@@ -76,7 +76,7 @@ public abstract class Condition extends AbstractAST
     }
     public NoMatch setpattern (Pattern x)
     {
-      z = new NoMatch ();
+      NoMatch z = new NoMatch ();
       z.privateSetpattern (x);
       return z;
     }
@@ -91,7 +91,7 @@ public abstract class Condition extends AbstractAST
     }
     public NoMatch setexpression (Expression x)
     {
-      z = new NoMatch ();
+      NoMatch z = new NoMatch ();
       z.privateSetexpression (x);
       return z;
     }
@@ -122,7 +122,7 @@ public abstract class Condition extends AbstractAST
     }
     public Expression setexpression (Expression x)
     {
-      z = new Expression ();
+      Expression z = new Expression ();
       z.privateSetexpression (x);
       return z;
     }
@@ -154,7 +154,7 @@ public abstract class Condition extends AbstractAST
     }
     public Conjunction setlhs (Condition x)
     {
-      z = new Conjunction ();
+      Conjunction z = new Conjunction ();
       z.privateSetlhs (x);
       return z;
     }
@@ -169,7 +169,7 @@ public abstract class Condition extends AbstractAST
     }
     public Conjunction setrhs (Condition x)
     {
-      z = new Conjunction ();
+      Conjunction z = new Conjunction ();
       z.privateSetrhs (x);
       return z;
     }

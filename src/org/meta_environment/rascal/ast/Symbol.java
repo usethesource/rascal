@@ -28,7 +28,7 @@ public abstract class Symbol extends AbstractAST
     }
     public Sort setsort (Sort x)
     {
-      z = new Sort ();
+      Sort z = new Sort ();
       z.privateSetsort (x);
       return z;
     }
@@ -61,7 +61,7 @@ public abstract class Symbol extends AbstractAST
     }
     public ParameterizedSort setsort (Sort x)
     {
-      z = new ParameterizedSort ();
+      ParameterizedSort z = new ParameterizedSort ();
       z.privateSetsort (x);
       return z;
     }
@@ -123,7 +123,7 @@ public abstract class Symbol extends AbstractAST
     }
     public Sequence sethead (Symbol x)
     {
-      z = new Sequence ();
+      Sequence z = new Sequence ();
       z.privateSethead (x);
       return z;
     }
@@ -169,7 +169,7 @@ public abstract class Symbol extends AbstractAST
     }
     public Optional setsymbol (Symbol x)
     {
-      z = new Optional ();
+      Optional z = new Optional ();
       z.privateSetsymbol (x);
       return z;
     }
@@ -200,7 +200,7 @@ public abstract class Symbol extends AbstractAST
     }
     public Iter setsymbol (Symbol x)
     {
-      z = new Iter ();
+      Iter z = new Iter ();
       z.privateSetsymbol (x);
       return z;
     }
@@ -231,7 +231,7 @@ public abstract class Symbol extends AbstractAST
     }
     public IterStar setsymbol (Symbol x)
     {
-      z = new IterStar ();
+      IterStar z = new IterStar ();
       z.privateSetsymbol (x);
       return z;
     }
@@ -263,7 +263,7 @@ public abstract class Symbol extends AbstractAST
     }
     public IterSep setsymbol (Symbol x)
     {
-      z = new IterSep ();
+      IterSep z = new IterSep ();
       z.privateSetsymbol (x);
       return z;
     }
@@ -278,7 +278,7 @@ public abstract class Symbol extends AbstractAST
     }
     public IterSep setsep (StrCon x)
     {
-      z = new IterSep ();
+      IterSep z = new IterSep ();
       z.privateSetsep (x);
       return z;
     }
@@ -310,7 +310,7 @@ public abstract class Symbol extends AbstractAST
     }
     public IterStarSep setsymbol (Symbol x)
     {
-      z = new IterStarSep ();
+      IterStarSep z = new IterStarSep ();
       z.privateSetsymbol (x);
       return z;
     }
@@ -325,7 +325,7 @@ public abstract class Symbol extends AbstractAST
     }
     public IterStarSep setsep (StrCon x)
     {
-      z = new IterStarSep ();
+      IterStarSep z = new IterStarSep ();
       z.privateSetsep (x);
       return z;
     }
@@ -357,7 +357,7 @@ public abstract class Symbol extends AbstractAST
     }
     public Alternative setlhs (Symbol x)
     {
-      z = new Alternative ();
+      Alternative z = new Alternative ();
       z.privateSetlhs (x);
       return z;
     }
@@ -372,7 +372,7 @@ public abstract class Symbol extends AbstractAST
     }
     public Alternative setrhs (Symbol x)
     {
-      z = new Alternative ();
+      Alternative z = new Alternative ();
       z.privateSetrhs (x);
       return z;
     }
@@ -403,7 +403,7 @@ public abstract class Symbol extends AbstractAST
     }
     public CharacterClass setcharClass (CharClass x)
     {
-      z = new CharacterClass ();
+      CharacterClass z = new CharacterClass ();
       z.privateSetcharClass (x);
       return z;
     }
@@ -434,7 +434,7 @@ public abstract class Symbol extends AbstractAST
     }
     public LiftedSymbol setsymbol (Symbol x)
     {
-      z = new LiftedSymbol ();
+      LiftedSymbol z = new LiftedSymbol ();
       z.privateSetsymbol (x);
       return z;
     }
@@ -465,7 +465,7 @@ public abstract class Symbol extends AbstractAST
     }
     public Literal setstring (StrCon x)
     {
-      z = new Literal ();
+      Literal z = new Literal ();
       z.privateSetstring (x);
       return z;
     }
@@ -498,7 +498,7 @@ public abstract class Symbol extends AbstractAST
     }
     public CaseInsensitiveLiteral setsingelQuotedString (SingleQuotedStrCon x)
     {
-      z = new CaseInsensitiveLiteral ();
+      CaseInsensitiveLiteral z = new CaseInsensitiveLiteral ();
       z.privateSetsingelQuotedString (x);
       return z;
     }

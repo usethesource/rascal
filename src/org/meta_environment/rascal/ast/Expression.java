@@ -30,7 +30,7 @@ public abstract class Expression extends AbstractAST
     }
     public Closure settype (Type x)
     {
-      z = new Closure ();
+      Closure z = new Closure ();
       z.privateSettype (x);
       return z;
     }
@@ -81,7 +81,7 @@ public abstract class Expression extends AbstractAST
     }
     public ClosureCall setclosure (Expression x)
     {
-      z = new ClosureCall ();
+      ClosureCall z = new ClosureCall ();
       z.privateSetclosure (x);
       return z;
     }
@@ -128,7 +128,7 @@ public abstract class Expression extends AbstractAST
     }
     public FieldAccess setexpression (Expression x)
     {
-      z = new FieldAccess ();
+      FieldAccess z = new FieldAccess ();
       z.privateSetexpression (x);
       return z;
     }
@@ -143,7 +143,7 @@ public abstract class Expression extends AbstractAST
     }
     public FieldAccess setfield (Name x)
     {
-      z = new FieldAccess ();
+      FieldAccess z = new FieldAccess ();
       z.privateSetfield (x);
       return z;
     }
@@ -176,7 +176,7 @@ public abstract class Expression extends AbstractAST
     }
     public Subscript setexpression (Expression x)
     {
-      z = new Subscript ();
+      Subscript z = new Subscript ();
       z.privateSetexpression (x);
       return z;
     }
@@ -191,7 +191,7 @@ public abstract class Expression extends AbstractAST
     }
     public Subscript setsubscript (Expression x)
     {
-      z = new Subscript ();
+      Subscript z = new Subscript ();
       z.privateSetsubscript (x);
       return z;
     }
@@ -222,7 +222,7 @@ public abstract class Expression extends AbstractAST
     }
     public TransitiveReflexiveClosure setargument (Expression x)
     {
-      z = new TransitiveReflexiveClosure ();
+      TransitiveReflexiveClosure z = new TransitiveReflexiveClosure ();
       z.privateSetargument (x);
       return z;
     }
@@ -253,7 +253,7 @@ public abstract class Expression extends AbstractAST
     }
     public TransitiveClosure setargument (Expression x)
     {
-      z = new TransitiveClosure ();
+      TransitiveClosure z = new TransitiveClosure ();
       z.privateSetargument (x);
       return z;
     }
@@ -285,7 +285,7 @@ public abstract class Expression extends AbstractAST
     }
     public Annotation setexpression (Expression x)
     {
-      z = new Annotation ();
+      Annotation z = new Annotation ();
       z.privateSetexpression (x);
       return z;
     }
@@ -300,7 +300,7 @@ public abstract class Expression extends AbstractAST
     }
     public Annotation setname (Name x)
     {
-      z = new Annotation ();
+      Annotation z = new Annotation ();
       z.privateSetname (x);
       return z;
     }
@@ -331,7 +331,7 @@ public abstract class Expression extends AbstractAST
     }
     public Negation setargument (Expression x)
     {
-      z = new Negation ();
+      Negation z = new Negation ();
       z.privateSetargument (x);
       return z;
     }
@@ -363,7 +363,7 @@ public abstract class Expression extends AbstractAST
     }
     public Product setlhs (Expression x)
     {
-      z = new Product ();
+      Product z = new Product ();
       z.privateSetlhs (x);
       return z;
     }
@@ -378,7 +378,7 @@ public abstract class Expression extends AbstractAST
     }
     public Product setrhs (Expression x)
     {
-      z = new Product ();
+      Product z = new Product ();
       z.privateSetrhs (x);
       return z;
     }
@@ -410,7 +410,7 @@ public abstract class Expression extends AbstractAST
     }
     public Intersection setlhs (Expression x)
     {
-      z = new Intersection ();
+      Intersection z = new Intersection ();
       z.privateSetlhs (x);
       return z;
     }
@@ -425,7 +425,7 @@ public abstract class Expression extends AbstractAST
     }
     public Intersection setrhs (Expression x)
     {
-      z = new Intersection ();
+      Intersection z = new Intersection ();
       z.privateSetrhs (x);
       return z;
     }
@@ -457,7 +457,7 @@ public abstract class Expression extends AbstractAST
     }
     public Division setlhs (Expression x)
     {
-      z = new Division ();
+      Division z = new Division ();
       z.privateSetlhs (x);
       return z;
     }
@@ -472,7 +472,7 @@ public abstract class Expression extends AbstractAST
     }
     public Division setrhs (Expression x)
     {
-      z = new Division ();
+      Division z = new Division ();
       z.privateSetrhs (x);
       return z;
     }
@@ -504,7 +504,7 @@ public abstract class Expression extends AbstractAST
     }
     public Addition setlhs (Expression x)
     {
-      z = new Addition ();
+      Addition z = new Addition ();
       z.privateSetlhs (x);
       return z;
     }
@@ -519,7 +519,7 @@ public abstract class Expression extends AbstractAST
     }
     public Addition setrhs (Expression x)
     {
-      z = new Addition ();
+      Addition z = new Addition ();
       z.privateSetrhs (x);
       return z;
     }
@@ -551,7 +551,7 @@ public abstract class Expression extends AbstractAST
     }
     public Substraction setlhs (Expression x)
     {
-      z = new Substraction ();
+      Substraction z = new Substraction ();
       z.privateSetlhs (x);
       return z;
     }
@@ -566,7 +566,7 @@ public abstract class Expression extends AbstractAST
     }
     public Substraction setrhs (Expression x)
     {
-      z = new Substraction ();
+      Substraction z = new Substraction ();
       z.privateSetrhs (x);
       return z;
     }
@@ -598,7 +598,7 @@ public abstract class Expression extends AbstractAST
     }
     public Match setlhs (Expression x)
     {
-      z = new Match ();
+      Match z = new Match ();
       z.privateSetlhs (x);
       return z;
     }
@@ -613,7 +613,7 @@ public abstract class Expression extends AbstractAST
     }
     public Match setrhs (Expression x)
     {
-      z = new Match ();
+      Match z = new Match ();
       z.privateSetrhs (x);
       return z;
     }
@@ -645,7 +645,7 @@ public abstract class Expression extends AbstractAST
     }
     public NoMatch setlhs (Expression x)
     {
-      z = new NoMatch ();
+      NoMatch z = new NoMatch ();
       z.privateSetlhs (x);
       return z;
     }
@@ -660,7 +660,7 @@ public abstract class Expression extends AbstractAST
     }
     public NoMatch setrhs (Expression x)
     {
-      z = new NoMatch ();
+      NoMatch z = new NoMatch ();
       z.privateSetrhs (x);
       return z;
     }
@@ -692,7 +692,7 @@ public abstract class Expression extends AbstractAST
     }
     public LessThan setlhs (Expression x)
     {
-      z = new LessThan ();
+      LessThan z = new LessThan ();
       z.privateSetlhs (x);
       return z;
     }
@@ -707,7 +707,7 @@ public abstract class Expression extends AbstractAST
     }
     public LessThan setrhs (Expression x)
     {
-      z = new LessThan ();
+      LessThan z = new LessThan ();
       z.privateSetrhs (x);
       return z;
     }
@@ -739,7 +739,7 @@ public abstract class Expression extends AbstractAST
     }
     public LessThanOrEq setlhs (Expression x)
     {
-      z = new LessThanOrEq ();
+      LessThanOrEq z = new LessThanOrEq ();
       z.privateSetlhs (x);
       return z;
     }
@@ -754,7 +754,7 @@ public abstract class Expression extends AbstractAST
     }
     public LessThanOrEq setrhs (Expression x)
     {
-      z = new LessThanOrEq ();
+      LessThanOrEq z = new LessThanOrEq ();
       z.privateSetrhs (x);
       return z;
     }
@@ -786,7 +786,7 @@ public abstract class Expression extends AbstractAST
     }
     public GreaterThan setlhs (Expression x)
     {
-      z = new GreaterThan ();
+      GreaterThan z = new GreaterThan ();
       z.privateSetlhs (x);
       return z;
     }
@@ -801,7 +801,7 @@ public abstract class Expression extends AbstractAST
     }
     public GreaterThan setrhs (Expression x)
     {
-      z = new GreaterThan ();
+      GreaterThan z = new GreaterThan ();
       z.privateSetrhs (x);
       return z;
     }
@@ -833,7 +833,7 @@ public abstract class Expression extends AbstractAST
     }
     public GreaterThanOrEq setlhs (Expression x)
     {
-      z = new GreaterThanOrEq ();
+      GreaterThanOrEq z = new GreaterThanOrEq ();
       z.privateSetlhs (x);
       return z;
     }
@@ -848,7 +848,7 @@ public abstract class Expression extends AbstractAST
     }
     public GreaterThanOrEq setrhs (Expression x)
     {
-      z = new GreaterThanOrEq ();
+      GreaterThanOrEq z = new GreaterThanOrEq ();
       z.privateSetrhs (x);
       return z;
     }
@@ -880,7 +880,7 @@ public abstract class Expression extends AbstractAST
     }
     public Equals setlhs (Expression x)
     {
-      z = new Equals ();
+      Equals z = new Equals ();
       z.privateSetlhs (x);
       return z;
     }
@@ -895,7 +895,7 @@ public abstract class Expression extends AbstractAST
     }
     public Equals setrhs (Expression x)
     {
-      z = new Equals ();
+      Equals z = new Equals ();
       z.privateSetrhs (x);
       return z;
     }
@@ -927,7 +927,7 @@ public abstract class Expression extends AbstractAST
     }
     public NonEquals setlhs (Expression x)
     {
-      z = new NonEquals ();
+      NonEquals z = new NonEquals ();
       z.privateSetlhs (x);
       return z;
     }
@@ -942,7 +942,7 @@ public abstract class Expression extends AbstractAST
     }
     public NonEquals setrhs (Expression x)
     {
-      z = new NonEquals ();
+      NonEquals z = new NonEquals ();
       z.privateSetrhs (x);
       return z;
     }
@@ -974,7 +974,7 @@ public abstract class Expression extends AbstractAST
     }
     public NotIn setlhs (Expression x)
     {
-      z = new NotIn ();
+      NotIn z = new NotIn ();
       z.privateSetlhs (x);
       return z;
     }
@@ -989,7 +989,7 @@ public abstract class Expression extends AbstractAST
     }
     public NotIn setrhs (Expression x)
     {
-      z = new NotIn ();
+      NotIn z = new NotIn ();
       z.privateSetrhs (x);
       return z;
     }
@@ -1021,7 +1021,7 @@ public abstract class Expression extends AbstractAST
     }
     public In setlhs (Expression x)
     {
-      z = new In ();
+      In z = new In ();
       z.privateSetlhs (x);
       return z;
     }
@@ -1036,7 +1036,7 @@ public abstract class Expression extends AbstractAST
     }
     public In setrhs (Expression x)
     {
-      z = new In ();
+      In z = new In ();
       z.privateSetrhs (x);
       return z;
     }
@@ -1068,7 +1068,7 @@ public abstract class Expression extends AbstractAST
     }
     public And setlhs (Expression x)
     {
-      z = new And ();
+      And z = new And ();
       z.privateSetlhs (x);
       return z;
     }
@@ -1083,7 +1083,7 @@ public abstract class Expression extends AbstractAST
     }
     public And setrhs (Expression x)
     {
-      z = new And ();
+      And z = new And ();
       z.privateSetrhs (x);
       return z;
     }
@@ -1115,7 +1115,7 @@ public abstract class Expression extends AbstractAST
     }
     public Or setlhs (Expression x)
     {
-      z = new Or ();
+      Or z = new Or ();
       z.privateSetlhs (x);
       return z;
     }
@@ -1130,7 +1130,7 @@ public abstract class Expression extends AbstractAST
     }
     public Or setrhs (Expression x)
     {
-      z = new Or ();
+      Or z = new Or ();
       z.privateSetrhs (x);
       return z;
     }
@@ -1162,7 +1162,7 @@ public abstract class Expression extends AbstractAST
     }
     public IfDefined setlhs (Expression x)
     {
-      z = new IfDefined ();
+      IfDefined z = new IfDefined ();
       z.privateSetlhs (x);
       return z;
     }
@@ -1177,7 +1177,7 @@ public abstract class Expression extends AbstractAST
     }
     public IfDefined setrhs (Expression x)
     {
-      z = new IfDefined ();
+      IfDefined z = new IfDefined ();
       z.privateSetrhs (x);
       return z;
     }
@@ -1216,7 +1216,7 @@ public abstract class Expression extends AbstractAST
     }
     public IfThenElse setcondition (Expression x)
     {
-      z = new IfThenElse ();
+      IfThenElse z = new IfThenElse ();
       z.privateSetcondition (x);
       return z;
     }
@@ -1231,7 +1231,7 @@ public abstract class Expression extends AbstractAST
     }
     public IfThenElse setthen (Expression x)
     {
-      z = new IfThenElse ();
+      IfThenElse z = new IfThenElse ();
       z.privateSetthen (x);
       return z;
     }
@@ -1250,7 +1250,7 @@ public abstract class Expression extends AbstractAST
     }
     public IfThenElse setelse (Expression x)
     {
-      z = new IfThenElse ();
+      IfThenElse z = new IfThenElse ();
       z.privateSetelse (x);
       return z;
     }
@@ -1281,7 +1281,7 @@ public abstract class Expression extends AbstractAST
     }
     public Operator setoperator (StandardOperator x)
     {
-      z = new Operator ();
+      Operator z = new Operator ();
       z.privateSetoperator (x);
       return z;
     }
@@ -1312,7 +1312,7 @@ public abstract class Expression extends AbstractAST
     }
     public Literal setliteral (Literal x)
     {
-      z = new Literal ();
+      Literal z = new Literal ();
       z.privateSetliteral (x);
       return z;
     }
@@ -1345,7 +1345,7 @@ public abstract class Expression extends AbstractAST
     }
     public CallOrTree setname (Name x)
     {
-      z = new CallOrTree ();
+      CallOrTree z = new CallOrTree ();
       z.privateSetname (x);
       return z;
     }
@@ -1423,7 +1423,7 @@ public abstract class Expression extends AbstractAST
     }
     public Range setfrom (Expression x)
     {
-      z = new Range ();
+      Range z = new Range ();
       z.privateSetfrom (x);
       return z;
     }
@@ -1438,7 +1438,7 @@ public abstract class Expression extends AbstractAST
     }
     public Range setto (Expression x)
     {
-      z = new Range ();
+      Range z = new Range ();
       z.privateSetto (x);
       return z;
     }
@@ -1472,7 +1472,7 @@ public abstract class Expression extends AbstractAST
     }
     public StepRange setfrom (Expression x)
     {
-      z = new StepRange ();
+      StepRange z = new StepRange ();
       z.privateSetfrom (x);
       return z;
     }
@@ -1487,7 +1487,7 @@ public abstract class Expression extends AbstractAST
     }
     public StepRange setby (Expression x)
     {
-      z = new StepRange ();
+      StepRange z = new StepRange ();
       z.privateSetby (x);
       return z;
     }
@@ -1502,7 +1502,7 @@ public abstract class Expression extends AbstractAST
     }
     public StepRange setto (Expression x)
     {
-      z = new StepRange ();
+      StepRange z = new StepRange ();
       z.privateSetto (x);
       return z;
     }
@@ -1566,7 +1566,7 @@ public abstract class Expression extends AbstractAST
     }
     public Tuple setfirst (Expression x)
     {
-      z = new Tuple ();
+      Tuple z = new Tuple ();
       z.privateSetfirst (x);
       return z;
     }
@@ -1613,7 +1613,7 @@ public abstract class Expression extends AbstractAST
     }
     public MapTuple setfrom (Expression x)
     {
-      z = new MapTuple ();
+      MapTuple z = new MapTuple ();
       z.privateSetfrom (x);
       return z;
     }
@@ -1628,7 +1628,7 @@ public abstract class Expression extends AbstractAST
     }
     public MapTuple setto (Expression x)
     {
-      z = new MapTuple ();
+      MapTuple z = new MapTuple ();
       z.privateSetto (x);
       return z;
     }
@@ -1689,7 +1689,7 @@ public abstract class Expression extends AbstractAST
     }
     public FileLocation setfilename (Expression x)
     {
-      z = new FileLocation ();
+      FileLocation z = new FileLocation ();
       z.privateSetfilename (x);
       return z;
     }
@@ -1720,7 +1720,7 @@ public abstract class Expression extends AbstractAST
     }
     public AreaLocation setarea (Expression x)
     {
-      z = new AreaLocation ();
+      AreaLocation z = new AreaLocation ();
       z.privateSetarea (x);
       return z;
     }
@@ -1753,7 +1753,7 @@ public abstract class Expression extends AbstractAST
     }
     public AreaInFileLocation setfilename (Expression x)
     {
-      z = new AreaInFileLocation ();
+      AreaInFileLocation z = new AreaInFileLocation ();
       z.privateSetfilename (x);
       return z;
     }
@@ -1768,7 +1768,7 @@ public abstract class Expression extends AbstractAST
     }
     public AreaInFileLocation setarea (Expression x)
     {
-      z = new AreaInFileLocation ();
+      AreaInFileLocation z = new AreaInFileLocation ();
       z.privateSetarea (x);
       return z;
     }
@@ -1799,7 +1799,7 @@ public abstract class Expression extends AbstractAST
     }
     public QualifiedName setqualifiedName (QualifiedName x)
     {
-      z = new QualifiedName ();
+      QualifiedName z = new QualifiedName ();
       z.privateSetqualifiedName (x);
       return z;
     }
@@ -1830,7 +1830,7 @@ public abstract class Expression extends AbstractAST
     }
     public Comprehension setcomprehension (Comprehension x)
     {
-      z = new Comprehension ();
+      Comprehension z = new Comprehension ();
       z.privateSetcomprehension (x);
       return z;
     }
@@ -1863,7 +1863,7 @@ public abstract class Expression extends AbstractAST
     }
     public Exists setproducer (ValueProducer x)
     {
-      z = new Exists ();
+      Exists z = new Exists ();
       z.privateSetproducer (x);
       return z;
     }
@@ -1878,7 +1878,7 @@ public abstract class Expression extends AbstractAST
     }
     public Exists setexpression (Expression x)
     {
-      z = new Exists ();
+      Exists z = new Exists ();
       z.privateSetexpression (x);
       return z;
     }
@@ -1911,7 +1911,7 @@ public abstract class Expression extends AbstractAST
     }
     public Forall setproducers (ValueProducer x)
     {
-      z = new Forall ();
+      Forall z = new Forall ();
       z.privateSetproducers (x);
       return z;
     }
@@ -1926,7 +1926,7 @@ public abstract class Expression extends AbstractAST
     }
     public Forall setexpression (Expression x)
     {
-      z = new Forall ();
+      Forall z = new Forall ();
       z.privateSetexpression (x);
       return z;
     }
@@ -1957,7 +1957,7 @@ public abstract class Expression extends AbstractAST
     }
     public Visit setvisit (Visit x)
     {
-      z = new Visit ();
+      Visit z = new Visit ();
       z.privateSetvisit (x);
       return z;
     }

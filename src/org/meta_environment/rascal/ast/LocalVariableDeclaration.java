@@ -30,7 +30,7 @@ public abstract class LocalVariableDeclaration extends AbstractAST
     }
     public DefaultScope settype (Type x)
     {
-      z = new DefaultScope ();
+      DefaultScope z = new DefaultScope ();
       z.privateSettype (x);
       return z;
     }
@@ -79,7 +79,7 @@ public abstract class LocalVariableDeclaration extends AbstractAST
     }
     public GivenScope setscope (Scope x)
     {
-      z = new GivenScope ();
+      GivenScope z = new GivenScope ();
       z.privateSetscope (x);
       return z;
     }
@@ -94,7 +94,7 @@ public abstract class LocalVariableDeclaration extends AbstractAST
     }
     public GivenScope settype (Type x)
     {
-      z = new GivenScope ();
+      GivenScope z = new GivenScope ();
       z.privateSettype (x);
       return z;
     }

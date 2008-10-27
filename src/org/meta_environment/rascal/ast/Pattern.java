@@ -29,7 +29,7 @@ public abstract class Pattern extends AbstractAST
     }
     public TypedVariable settype (Type x)
     {
-      z = new TypedVariable ();
+      TypedVariable z = new TypedVariable ();
       z.privateSettype (x);
       return z;
     }
@@ -44,7 +44,7 @@ public abstract class Pattern extends AbstractAST
     }
     public TypedVariable setname (Name x)
     {
-      z = new TypedVariable ();
+      TypedVariable z = new TypedVariable ();
       z.privateSetname (x);
       return z;
     }

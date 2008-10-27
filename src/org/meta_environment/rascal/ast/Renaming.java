@@ -29,7 +29,7 @@ public abstract class Renaming extends AbstractAST
     }
     public Renaming setfrom (Name x)
     {
-      z = new Renaming ();
+      Renaming z = new Renaming ();
       z.privateSetfrom (x);
       return z;
     }
@@ -44,7 +44,7 @@ public abstract class Renaming extends AbstractAST
     }
     public Renaming setto (Name x)
     {
-      z = new Renaming ();
+      Renaming z = new Renaming ();
       z.privateSetto (x);
       return z;
     }

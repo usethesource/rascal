@@ -28,7 +28,7 @@ public abstract class Assignable extends AbstractAST
     }
     public Variable setqualifiedName (QualifiedName x)
     {
-      z = new Variable ();
+      Variable z = new Variable ();
       z.privateSetqualifiedName (x);
       return z;
     }
@@ -61,7 +61,7 @@ public abstract class Assignable extends AbstractAST
     }
     public Subscript setreceiver (Assignable x)
     {
-      z = new Subscript ();
+      Subscript z = new Subscript ();
       z.privateSetreceiver (x);
       return z;
     }
@@ -76,7 +76,7 @@ public abstract class Assignable extends AbstractAST
     }
     public Subscript setsubscript (Expression x)
     {
-      z = new Subscript ();
+      Subscript z = new Subscript ();
       z.privateSetsubscript (x);
       return z;
     }
@@ -108,7 +108,7 @@ public abstract class Assignable extends AbstractAST
     }
     public FieldAccess setreceiver (Assignable x)
     {
-      z = new FieldAccess ();
+      FieldAccess z = new FieldAccess ();
       z.privateSetreceiver (x);
       return z;
     }
@@ -123,7 +123,7 @@ public abstract class Assignable extends AbstractAST
     }
     public FieldAccess setfield (Name x)
     {
-      z = new FieldAccess ();
+      FieldAccess z = new FieldAccess ();
       z.privateSetfield (x);
       return z;
     }
@@ -156,7 +156,7 @@ public abstract class Assignable extends AbstractAST
     }
     public IfDefined setreceiver (Assignable x)
     {
-      z = new IfDefined ();
+      IfDefined z = new IfDefined ();
       z.privateSetreceiver (x);
       return z;
     }
@@ -171,7 +171,7 @@ public abstract class Assignable extends AbstractAST
     }
     public IfDefined setcondition (Expression x)
     {
-      z = new IfDefined ();
+      IfDefined z = new IfDefined ();
       z.privateSetcondition (x);
       return z;
     }
@@ -204,7 +204,7 @@ public abstract class Assignable extends AbstractAST
     }
     public Annotation setreceiver (Assignable x)
     {
-      z = new Annotation ();
+      Annotation z = new Annotation ();
       z.privateSetreceiver (x);
       return z;
     }
@@ -219,7 +219,7 @@ public abstract class Assignable extends AbstractAST
     }
     public Annotation setannotation (Expression x)
     {
-      z = new Annotation ();
+      Annotation z = new Annotation ();
       z.privateSetannotation (x);
       return z;
     }

@@ -29,7 +29,7 @@ public abstract class Match extends AbstractAST
     }
     public Replacing setmatch (Pattern x)
     {
-      z = new Replacing ();
+      Replacing z = new Replacing ();
       z.privateSetmatch (x);
       return z;
     }
@@ -44,7 +44,7 @@ public abstract class Match extends AbstractAST
     }
     public Replacing setreplacement (Expression x)
     {
-      z = new Replacing ();
+      Replacing z = new Replacing ();
       z.privateSetreplacement (x);
       return z;
     }
@@ -76,7 +76,7 @@ public abstract class Match extends AbstractAST
     }
     public Arbitrary setmatch (Pattern x)
     {
-      z = new Arbitrary ();
+      Arbitrary z = new Arbitrary ();
       z.privateSetmatch (x);
       return z;
     }
@@ -91,7 +91,7 @@ public abstract class Match extends AbstractAST
     }
     public Arbitrary setstatement (Statement x)
     {
-      z = new Arbitrary ();
+      Arbitrary z = new Arbitrary ();
       z.privateSetstatement (x);
       return z;
     }

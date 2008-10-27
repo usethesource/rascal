@@ -29,7 +29,7 @@ public abstract class CharClass extends AbstractAST
     }
     public SimpleCharclass setoptionalCharRanges (OptCharRanges x)
     {
-      z = new SimpleCharclass ();
+      SimpleCharclass z = new SimpleCharclass ();
       z.privateSetoptionalCharRanges (x);
       return z;
     }
@@ -60,7 +60,7 @@ public abstract class CharClass extends AbstractAST
     }
     public Complement setcharClass (CharClass x)
     {
-      z = new Complement ();
+      Complement z = new Complement ();
       z.privateSetcharClass (x);
       return z;
     }
@@ -92,7 +92,7 @@ public abstract class CharClass extends AbstractAST
     }
     public Difference setlhs (CharClass x)
     {
-      z = new Difference ();
+      Difference z = new Difference ();
       z.privateSetlhs (x);
       return z;
     }
@@ -107,7 +107,7 @@ public abstract class CharClass extends AbstractAST
     }
     public Difference setrhs (CharClass x)
     {
-      z = new Difference ();
+      Difference z = new Difference ();
       z.privateSetrhs (x);
       return z;
     }
@@ -139,7 +139,7 @@ public abstract class CharClass extends AbstractAST
     }
     public Intersection setlhs (CharClass x)
     {
-      z = new Intersection ();
+      Intersection z = new Intersection ();
       z.privateSetlhs (x);
       return z;
     }
@@ -154,7 +154,7 @@ public abstract class CharClass extends AbstractAST
     }
     public Intersection setrhs (CharClass x)
     {
-      z = new Intersection ();
+      Intersection z = new Intersection ();
       z.privateSetrhs (x);
       return z;
     }
@@ -186,7 +186,7 @@ public abstract class CharClass extends AbstractAST
     }
     public Union setlhs (CharClass x)
     {
-      z = new Union ();
+      Union z = new Union ();
       z.privateSetlhs (x);
       return z;
     }
@@ -201,7 +201,7 @@ public abstract class CharClass extends AbstractAST
     }
     public Union setrhs (CharClass x)
     {
-      z = new Union ();
+      Union z = new Union ();
       z.privateSetrhs (x);
       return z;
     }

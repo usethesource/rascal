@@ -30,7 +30,7 @@ public abstract class FunctionType extends AbstractAST
     }
     public TypeArguments settype (Type x)
     {
-      z = new TypeArguments ();
+      TypeArguments z = new TypeArguments ();
       z.privateSettype (x);
       return z;
     }

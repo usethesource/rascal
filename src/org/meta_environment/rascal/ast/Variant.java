@@ -29,7 +29,7 @@ public abstract class Variant extends AbstractAST
     }
     public Type settype (Type x)
     {
-      z = new Type ();
+      Type z = new Type ();
       z.privateSettype (x);
       return z;
     }
@@ -44,7 +44,7 @@ public abstract class Variant extends AbstractAST
     }
     public Type setname (Name x)
     {
-      z = new Type ();
+      Type z = new Type ();
       z.privateSetname (x);
       return z;
     }
@@ -77,7 +77,7 @@ public abstract class Variant extends AbstractAST
     }
     public NAryConstructor setname (Name x)
     {
-      z = new NAryConstructor ();
+      NAryConstructor z = new NAryConstructor ();
       z.privateSetname (x);
       return z;
     }
@@ -123,7 +123,7 @@ public abstract class Variant extends AbstractAST
     }
     public NillaryConstructor setname (Name x)
     {
-      z = new NillaryConstructor ();
+      NillaryConstructor z = new NillaryConstructor ();
       z.privateSetname (x);
       return z;
     }
