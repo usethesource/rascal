@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class LongLiteral extends AbstractAST
 {
   public class DecimalLongLiteral extends LongLiteral
@@ -11,7 +12,7 @@ public abstract class LongLiteral extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitDecimalLongLiteralLongLiteral (this);
     }
@@ -26,7 +27,7 @@ public abstract class LongLiteral extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitHexLongLiteralLongLiteral (this);
     }
@@ -41,7 +42,7 @@ public abstract class LongLiteral extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitOctalLongLiteralLongLiteral (this);
     }

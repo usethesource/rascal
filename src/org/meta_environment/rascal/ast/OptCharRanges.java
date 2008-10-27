@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class OptCharRanges extends AbstractAST
 {
   public class Absent extends OptCharRanges
@@ -11,7 +12,7 @@ public abstract class OptCharRanges extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitAbsentOptCharRanges (this);
     }
@@ -27,11 +28,11 @@ public abstract class OptCharRanges extends AbstractAST
       this.tree = tree;
       this.ranges = ranges;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitPresentOptCharRanges (this);
     }
-    private final CharRanges ranges;
+    private CharRanges ranges;
     public CharRanges getranges ()
     {
       return ranges;

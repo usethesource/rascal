@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class ValueProducer extends AbstractAST
 {
   public class DefaultStrategy extends ValueProducer
@@ -14,11 +15,11 @@ public abstract class ValueProducer extends AbstractAST
       this.pattern = pattern;
       this.expression = expression;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitDefaultStrategyValueProducer (this);
     }
-    private final Pattern pattern;
+    private Pattern pattern;
     public Pattern getpattern ()
     {
       return pattern;
@@ -33,7 +34,7 @@ public abstract class ValueProducer extends AbstractAST
       z.privateSetpattern (x);
       return z;
     }
-    private final Expression expression;
+    private Expression expression;
     public Expression getexpression ()
     {
       return expression;
@@ -63,11 +64,11 @@ public abstract class ValueProducer extends AbstractAST
       this.pattern = pattern;
       this.expression = expression;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitGivenStrategyValueProducer (this);
     }
-    private final Strategy strategy;
+    private Strategy strategy;
     public Strategy getstrategy ()
     {
       return strategy;
@@ -82,7 +83,7 @@ public abstract class ValueProducer extends AbstractAST
       z.privateSetstrategy (x);
       return z;
     }
-    private final Pattern pattern;
+    private Pattern pattern;
     public Pattern getpattern ()
     {
       return pattern;
@@ -97,7 +98,7 @@ public abstract class ValueProducer extends AbstractAST
       z.privateSetpattern (x);
       return z;
     }
-    private final Expression expression;
+    private Expression expression;
     public Expression getexpression ()
     {
       return expression;

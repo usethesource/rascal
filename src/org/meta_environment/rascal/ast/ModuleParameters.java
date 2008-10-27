@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class ModuleParameters extends AbstractAST
 {
   public class ModuleParameters extends ModuleParameters
@@ -12,11 +13,11 @@ public abstract class ModuleParameters extends AbstractAST
       this.tree = tree;
       this.parameters = parameters;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitModuleParametersModuleParameters (this);
     }
-    private final List < TypeVar > parameters;
+    private List < TypeVar > parameters;
     public List < TypeVar > getparameters ()
     {
       return parameters;
@@ -27,7 +28,7 @@ public abstract class ModuleParameters extends AbstractAST
     }
     public ModuleParameters setparameters (List < TypeVar > x)
     {
-      z = new ModuleParameters ();
+      ModuleParameters z = new ModuleParameters ();
       z.privateSetparameters (x);
       return z;
     }

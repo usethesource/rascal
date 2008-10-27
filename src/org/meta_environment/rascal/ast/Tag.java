@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Tag extends AbstractAST
 {
   public class Default extends Tag
@@ -12,11 +13,11 @@ public abstract class Tag extends AbstractAST
       this.tree = tree;
       this.name = name;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitDefaultTag (this);
     }
-    private final Name name;
+    private Name name;
     public Name getname ()
     {
       return name;

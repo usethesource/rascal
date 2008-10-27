@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class BasicType extends AbstractAST
 {
   public class Bool extends BasicType
@@ -11,7 +12,7 @@ public abstract class BasicType extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitBoolBasicType (this);
     }
@@ -26,7 +27,7 @@ public abstract class BasicType extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitIntBasicType (this);
     }
@@ -41,7 +42,7 @@ public abstract class BasicType extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitDoubleBasicType (this);
     }
@@ -56,7 +57,7 @@ public abstract class BasicType extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitStringBasicType (this);
     }
@@ -71,7 +72,7 @@ public abstract class BasicType extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitValueBasicType (this);
     }
@@ -86,7 +87,7 @@ public abstract class BasicType extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitTermBasicType (this);
     }
@@ -101,7 +102,7 @@ public abstract class BasicType extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitVoidBasicType (this);
     }
@@ -116,7 +117,7 @@ public abstract class BasicType extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitLocBasicType (this);
     }

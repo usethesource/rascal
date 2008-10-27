@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class CharClass extends AbstractAST
 {
   public class SimpleCharclass extends CharClass
@@ -13,11 +14,11 @@ public abstract class CharClass extends AbstractAST
       this.tree = tree;
       this.optionalCharRanges = optionalCharRanges;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitSimpleCharclassCharClass (this);
     }
-    private final OptCharRanges optionalCharRanges;
+    private OptCharRanges optionalCharRanges;
     public OptCharRanges getoptionalCharRanges ()
     {
       return optionalCharRanges;
@@ -44,11 +45,11 @@ public abstract class CharClass extends AbstractAST
       this.tree = tree;
       this.charClass = charClass;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitComplementCharClass (this);
     }
-    private final CharClass charClass;
+    private CharClass charClass;
     public CharClass getcharClass ()
     {
       return charClass;
@@ -76,11 +77,11 @@ public abstract class CharClass extends AbstractAST
       this.lhs = lhs;
       this.rhs = rhs;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitDifferenceCharClass (this);
     }
-    private final CharClass lhs;
+    private CharClass lhs;
     public CharClass getlhs ()
     {
       return lhs;
@@ -95,7 +96,7 @@ public abstract class CharClass extends AbstractAST
       z.privateSetlhs (x);
       return z;
     }
-    private final CharClass rhs;
+    private CharClass rhs;
     public CharClass getrhs ()
     {
       return rhs;
@@ -123,11 +124,11 @@ public abstract class CharClass extends AbstractAST
       this.lhs = lhs;
       this.rhs = rhs;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitIntersectionCharClass (this);
     }
-    private final CharClass lhs;
+    private CharClass lhs;
     public CharClass getlhs ()
     {
       return lhs;
@@ -142,7 +143,7 @@ public abstract class CharClass extends AbstractAST
       z.privateSetlhs (x);
       return z;
     }
-    private final CharClass rhs;
+    private CharClass rhs;
     public CharClass getrhs ()
     {
       return rhs;
@@ -170,11 +171,11 @@ public abstract class CharClass extends AbstractAST
       this.lhs = lhs;
       this.rhs = rhs;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitUnionCharClass (this);
     }
-    private final CharClass lhs;
+    private CharClass lhs;
     public CharClass getlhs ()
     {
       return lhs;
@@ -189,7 +190,7 @@ public abstract class CharClass extends AbstractAST
       z.privateSetlhs (x);
       return z;
     }
-    private final CharClass rhs;
+    private CharClass rhs;
     public CharClass getrhs ()
     {
       return rhs;

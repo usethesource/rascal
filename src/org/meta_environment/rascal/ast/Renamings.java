@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Renamings extends AbstractAST
 {
   public class Renamings extends Renamings
@@ -12,11 +13,11 @@ public abstract class Renamings extends AbstractAST
       this.tree = tree;
       this.renamings = renamings;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitRenamingsRenamings (this);
     }
-    private final List < Renaming > renamings;
+    private List < Renaming > renamings;
     public List < Renaming > getrenamings ()
     {
       return renamings;
@@ -27,7 +28,7 @@ public abstract class Renamings extends AbstractAST
     }
     public Renamings setrenamings (List < Renaming > x)
     {
-      z = new Renamings ();
+      Renamings z = new Renamings ();
       z.privateSetrenamings (x);
       return z;
     }

@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Assignable extends AbstractAST
 {
   public class Variable extends Assignable
@@ -12,11 +13,11 @@ public abstract class Assignable extends AbstractAST
       this.tree = tree;
       this.qualifiedName = qualifiedName;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitVariableAssignable (this);
     }
-    private final QualifiedName qualifiedName;
+    private QualifiedName qualifiedName;
     public QualifiedName getqualifiedName ()
     {
       return qualifiedName;
@@ -45,11 +46,11 @@ public abstract class Assignable extends AbstractAST
       this.receiver = receiver;
       this.subscript = subscript;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitSubscriptAssignable (this);
     }
-    private final Assignable receiver;
+    private Assignable receiver;
     public Assignable getreceiver ()
     {
       return receiver;
@@ -64,7 +65,7 @@ public abstract class Assignable extends AbstractAST
       z.privateSetreceiver (x);
       return z;
     }
-    private final Expression subscript;
+    private Expression subscript;
     public Expression getsubscript ()
     {
       return subscript;
@@ -92,11 +93,11 @@ public abstract class Assignable extends AbstractAST
       this.receiver = receiver;
       this.field = field;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitFieldAccessAssignable (this);
     }
-    private final Assignable receiver;
+    private Assignable receiver;
     public Assignable getreceiver ()
     {
       return receiver;
@@ -111,7 +112,7 @@ public abstract class Assignable extends AbstractAST
       z.privateSetreceiver (x);
       return z;
     }
-    private final Name field;
+    private Name field;
     public Name getfield ()
     {
       return field;
@@ -140,11 +141,11 @@ public abstract class Assignable extends AbstractAST
       this.receiver = receiver;
       this.condition = condition;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitIfDefinedAssignable (this);
     }
-    private final Assignable receiver;
+    private Assignable receiver;
     public Assignable getreceiver ()
     {
       return receiver;
@@ -159,7 +160,7 @@ public abstract class Assignable extends AbstractAST
       z.privateSetreceiver (x);
       return z;
     }
-    private final Expression condition;
+    private Expression condition;
     public Expression getcondition ()
     {
       return condition;
@@ -188,11 +189,11 @@ public abstract class Assignable extends AbstractAST
       this.receiver = receiver;
       this.annotation = annotation;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitAnnotationAssignable (this);
     }
-    private final Assignable receiver;
+    private Assignable receiver;
     public Assignable getreceiver ()
     {
       return receiver;
@@ -207,7 +208,7 @@ public abstract class Assignable extends AbstractAST
       z.privateSetreceiver (x);
       return z;
     }
-    private final Expression annotation;
+    private Expression annotation;
     public Expression getannotation ()
     {
       return annotation;

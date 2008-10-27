@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Type extends AbstractAST
 {
   public class Basic extends Type
@@ -12,11 +13,11 @@ public abstract class Type extends AbstractAST
       this.tree = tree;
       this.basic = basic;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitBasicType (this);
     }
-    private final BasicType basic;
+    private BasicType basic;
     public BasicType getbasic ()
     {
       return basic;
@@ -43,11 +44,11 @@ public abstract class Type extends AbstractAST
       this.tree = tree;
       this.structured = structured;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitStructuredType (this);
     }
-    private final StructuredType structured;
+    private StructuredType structured;
     public StructuredType getstructured ()
     {
       return structured;
@@ -74,11 +75,11 @@ public abstract class Type extends AbstractAST
       this.tree = tree;
       this.function = function;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitFunctionType (this);
     }
-    private final FunctionType function;
+    private FunctionType function;
     public FunctionType getfunction ()
     {
       return function;
@@ -105,11 +106,11 @@ public abstract class Type extends AbstractAST
       this.tree = tree;
       this.typeVar = typeVar;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitVariableType (this);
     }
-    private final TypeVar typeVar;
+    private TypeVar typeVar;
     public TypeVar gettypeVar ()
     {
       return typeVar;
@@ -136,11 +137,11 @@ public abstract class Type extends AbstractAST
       this.tree = tree;
       this.user = user;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitUserType (this);
     }
-    private final UserType user;
+    private UserType user;
     public UserType getuser ()
     {
       return user;
@@ -167,11 +168,11 @@ public abstract class Type extends AbstractAST
       this.tree = tree;
       this.symbol = symbol;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitSymbolType (this);
     }
-    private final Symbol symbol;
+    private Symbol symbol;
     public Symbol getsymbol ()
     {
       return symbol;
@@ -198,11 +199,11 @@ public abstract class Type extends AbstractAST
       this.tree = tree;
       this.selector = selector;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitSelectorType (this);
     }
-    private final DataTypeSelector selector;
+    private DataTypeSelector selector;
     public DataTypeSelector getselector ()
     {
       return selector;

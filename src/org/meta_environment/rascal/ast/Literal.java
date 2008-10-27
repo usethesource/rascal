@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Literal extends AbstractAST
 {
   public class RegExp extends Literal
@@ -12,11 +13,11 @@ public abstract class Literal extends AbstractAST
       this.tree = tree;
       this.regExp = regExp;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitRegExpLiteral (this);
     }
-    private final RegExpLiteral regExp;
+    private RegExpLiteral regExp;
     public RegExpLiteral getregExp ()
     {
       return regExp;
@@ -43,11 +44,11 @@ public abstract class Literal extends AbstractAST
       this.tree = tree;
       this.symbol = symbol;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitSymbolLiteral (this);
     }
-    private final SymbolLiteral symbol;
+    private SymbolLiteral symbol;
     public SymbolLiteral getsymbol ()
     {
       return symbol;
@@ -74,11 +75,11 @@ public abstract class Literal extends AbstractAST
       this.tree = tree;
       this.boolean = boolean;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitBooleanLiteral (this);
     }
-    private final BooleanLiteral boolean;
+    private BooleanLiteral boolean;
     public BooleanLiteral getboolean ()
     {
       return boolean;
@@ -105,11 +106,11 @@ public abstract class Literal extends AbstractAST
       this.tree = tree;
       this.integer = integer;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitIntegerLiteral (this);
     }
-    private final IntegerLiteral integer;
+    private IntegerLiteral integer;
     public IntegerLiteral getinteger ()
     {
       return integer;
@@ -136,11 +137,11 @@ public abstract class Literal extends AbstractAST
       this.tree = tree;
       this.double = double;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitDoubleLiteral (this);
     }
-    private final FloatingPointLiteral double;
+    private FloatingPointLiteral double;
     public FloatingPointLiteral getdouble ()
     {
       return double;
@@ -167,11 +168,11 @@ public abstract class Literal extends AbstractAST
       this.tree = tree;
       this.string = string;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitStringLiteral (this);
     }
-    private final StringLiteral string;
+    private StringLiteral string;
     public StringLiteral getstring ()
     {
       return string;

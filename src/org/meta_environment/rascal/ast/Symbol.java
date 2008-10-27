@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Symbol extends AbstractAST
 {
   public class Sort extends Symbol
@@ -12,11 +13,11 @@ public abstract class Symbol extends AbstractAST
       this.tree = tree;
       this.sort = sort;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitSortSymbol (this);
     }
-    private final Sort sort;
+    private Sort sort;
     public Sort getsort ()
     {
       return sort;
@@ -45,11 +46,11 @@ public abstract class Symbol extends AbstractAST
       this.sort = sort;
       this.parameters = parameters;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitParameterizedSortSymbol (this);
     }
-    private final Sort sort;
+    private Sort sort;
     public Sort getsort ()
     {
       return sort;
@@ -64,7 +65,7 @@ public abstract class Symbol extends AbstractAST
       z.privateSetsort (x);
       return z;
     }
-    private final List < Symbol > parameters;
+    private List < Symbol > parameters;
     public List < Symbol > getparameters ()
     {
       return parameters;
@@ -75,7 +76,7 @@ public abstract class Symbol extends AbstractAST
     }
     public ParameterizedSort setparameters (List < Symbol > x)
     {
-      z = new ParameterizedSort ();
+      ParameterizedSort z = new ParameterizedSort ();
       z.privateSetparameters (x);
       return z;
     }
@@ -90,7 +91,7 @@ public abstract class Symbol extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitEmptySymbol (this);
     }
@@ -107,11 +108,11 @@ public abstract class Symbol extends AbstractAST
       this.head = head;
       this.tail = tail;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitSequenceSymbol (this);
     }
-    private final Symbol head;
+    private Symbol head;
     public Symbol gethead ()
     {
       return head;
@@ -126,7 +127,7 @@ public abstract class Symbol extends AbstractAST
       z.privateSethead (x);
       return z;
     }
-    private final List < Symbol > tail;
+    private List < Symbol > tail;
     public List < Symbol > gettail ()
     {
       return tail;
@@ -137,7 +138,7 @@ public abstract class Symbol extends AbstractAST
     }
     public Sequence settail (List < Symbol > x)
     {
-      z = new Sequence ();
+      Sequence z = new Sequence ();
       z.privateSettail (x);
       return z;
     }
@@ -153,11 +154,11 @@ public abstract class Symbol extends AbstractAST
       this.tree = tree;
       this.symbol = symbol;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitOptionalSymbol (this);
     }
-    private final Symbol symbol;
+    private Symbol symbol;
     public Symbol getsymbol ()
     {
       return symbol;
@@ -184,11 +185,11 @@ public abstract class Symbol extends AbstractAST
       this.tree = tree;
       this.symbol = symbol;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitIterSymbol (this);
     }
-    private final Symbol symbol;
+    private Symbol symbol;
     public Symbol getsymbol ()
     {
       return symbol;
@@ -215,11 +216,11 @@ public abstract class Symbol extends AbstractAST
       this.tree = tree;
       this.symbol = symbol;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitIterStarSymbol (this);
     }
-    private final Symbol symbol;
+    private Symbol symbol;
     public Symbol getsymbol ()
     {
       return symbol;
@@ -247,11 +248,11 @@ public abstract class Symbol extends AbstractAST
       this.symbol = symbol;
       this.sep = sep;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitIterSepSymbol (this);
     }
-    private final Symbol symbol;
+    private Symbol symbol;
     public Symbol getsymbol ()
     {
       return symbol;
@@ -266,7 +267,7 @@ public abstract class Symbol extends AbstractAST
       z.privateSetsymbol (x);
       return z;
     }
-    private final StrCon sep;
+    private StrCon sep;
     public StrCon getsep ()
     {
       return sep;
@@ -294,11 +295,11 @@ public abstract class Symbol extends AbstractAST
       this.symbol = symbol;
       this.sep = sep;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitIterStarSepSymbol (this);
     }
-    private final Symbol symbol;
+    private Symbol symbol;
     public Symbol getsymbol ()
     {
       return symbol;
@@ -313,7 +314,7 @@ public abstract class Symbol extends AbstractAST
       z.privateSetsymbol (x);
       return z;
     }
-    private final StrCon sep;
+    private StrCon sep;
     public StrCon getsep ()
     {
       return sep;
@@ -341,11 +342,11 @@ public abstract class Symbol extends AbstractAST
       this.lhs = lhs;
       this.rhs = rhs;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitAlternativeSymbol (this);
     }
-    private final Symbol lhs;
+    private Symbol lhs;
     public Symbol getlhs ()
     {
       return lhs;
@@ -360,7 +361,7 @@ public abstract class Symbol extends AbstractAST
       z.privateSetlhs (x);
       return z;
     }
-    private final Symbol rhs;
+    private Symbol rhs;
     public Symbol getrhs ()
     {
       return rhs;
@@ -387,11 +388,11 @@ public abstract class Symbol extends AbstractAST
       this.tree = tree;
       this.charClass = charClass;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitCharacterClassSymbol (this);
     }
-    private final CharClass charClass;
+    private CharClass charClass;
     public CharClass getcharClass ()
     {
       return charClass;
@@ -418,11 +419,11 @@ public abstract class Symbol extends AbstractAST
       this.tree = tree;
       this.symbol = symbol;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitLiftedSymbolSymbol (this);
     }
-    private final Symbol symbol;
+    private Symbol symbol;
     public Symbol getsymbol ()
     {
       return symbol;
@@ -449,11 +450,11 @@ public abstract class Symbol extends AbstractAST
       this.tree = tree;
       this.string = string;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitLiteralSymbol (this);
     }
-    private final StrCon string;
+    private StrCon string;
     public StrCon getstring ()
     {
       return string;
@@ -482,11 +483,11 @@ public abstract class Symbol extends AbstractAST
       this.tree = tree;
       this.singelQuotedString = singelQuotedString;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitCaseInsensitiveLiteralSymbol (this);
     }
-    private final SingleQuotedStrCon singelQuotedString;
+    private SingleQuotedStrCon singelQuotedString;
     public SingleQuotedStrCon getsingelQuotedString ()
     {
       return singelQuotedString;

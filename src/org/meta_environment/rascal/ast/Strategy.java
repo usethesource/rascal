@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Strategy extends AbstractAST
 {
   public class TopDown extends Strategy
@@ -11,7 +12,7 @@ public abstract class Strategy extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitTopDownStrategy (this);
     }
@@ -26,7 +27,7 @@ public abstract class Strategy extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitTopDownBreakStrategy (this);
     }
@@ -41,7 +42,7 @@ public abstract class Strategy extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitBottomUpStrategy (this);
     }
@@ -56,7 +57,7 @@ public abstract class Strategy extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitBottomUpBreakStrategy (this);
     }
@@ -71,7 +72,7 @@ public abstract class Strategy extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitOutermostStrategy (this);
     }
@@ -86,7 +87,7 @@ public abstract class Strategy extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitInnermostStrategy (this);
     }

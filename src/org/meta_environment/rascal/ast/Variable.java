@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Variable extends AbstractAST
 {
   public class DefaultInitialization extends Variable
@@ -13,11 +14,11 @@ public abstract class Variable extends AbstractAST
       this.name = name;
       this.tags = tags;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitDefaultInitializationVariable (this);
     }
-    private final Name name;
+    private Name name;
     public Name getname ()
     {
       return name;
@@ -32,7 +33,7 @@ public abstract class Variable extends AbstractAST
       z.privateSetname (x);
       return z;
     }
-    private final Tags tags;
+    private Tags tags;
     public Tags gettags ()
     {
       return tags;
@@ -62,11 +63,11 @@ public abstract class Variable extends AbstractAST
       this.tags = tags;
       this.initial = initial;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitGivenInitializationVariable (this);
     }
-    private final Name name;
+    private Name name;
     public Name getname ()
     {
       return name;
@@ -81,7 +82,7 @@ public abstract class Variable extends AbstractAST
       z.privateSetname (x);
       return z;
     }
-    private final Tags tags;
+    private Tags tags;
     public Tags gettags ()
     {
       return tags;
@@ -96,7 +97,7 @@ public abstract class Variable extends AbstractAST
       z.privateSettags (x);
       return z;
     }
-    private final Expression initial;
+    private Expression initial;
     public Expression getinitial ()
     {
       return initial;

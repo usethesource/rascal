@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class QualifiedName extends AbstractAST
 {
   public class Default extends QualifiedName
@@ -12,11 +13,11 @@ public abstract class QualifiedName extends AbstractAST
       this.tree = tree;
       this.names = names;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitDefaultQualifiedName (this);
     }
-    private final List < Name > names;
+    private List < Name > names;
     public List < Name > getnames ()
     {
       return names;
@@ -27,7 +28,7 @@ public abstract class QualifiedName extends AbstractAST
     }
     public Default setnames (List < Name > x)
     {
-      z = new Default ();
+      Default z = new Default ();
       z.privateSetnames (x);
       return z;
     }

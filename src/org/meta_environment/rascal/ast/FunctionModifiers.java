@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class FunctionModifiers extends AbstractAST
 {
   public class List extends FunctionModifiers
@@ -12,11 +13,11 @@ public abstract class FunctionModifiers extends AbstractAST
       this.tree = tree;
       this.modifiers = modifiers;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitListFunctionModifiers (this);
     }
-    private final List < FunctionModifier > modifiers;
+    private List < FunctionModifier > modifiers;
     public List < FunctionModifier > getmodifiers ()
     {
       return modifiers;
@@ -27,7 +28,7 @@ public abstract class FunctionModifiers extends AbstractAST
     }
     public List setmodifiers (List < FunctionModifier > x)
     {
-      z = new List ();
+      List z = new List ();
       z.privateSetmodifiers (x);
       return z;
     }

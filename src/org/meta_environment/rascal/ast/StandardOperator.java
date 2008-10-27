@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class StandardOperator extends AbstractAST
 {
   public class Addition extends StandardOperator
@@ -11,7 +12,7 @@ public abstract class StandardOperator extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitAdditionStandardOperator (this);
     }
@@ -26,7 +27,7 @@ public abstract class StandardOperator extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitSubstractionStandardOperator (this);
     }
@@ -41,7 +42,7 @@ public abstract class StandardOperator extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitProductStandardOperator (this);
     }
@@ -56,7 +57,7 @@ public abstract class StandardOperator extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitDivisionStandardOperator (this);
     }
@@ -71,7 +72,7 @@ public abstract class StandardOperator extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitIntersectionStandardOperator (this);
     }
@@ -86,7 +87,7 @@ public abstract class StandardOperator extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitEqualsStandardOperator (this);
     }
@@ -101,7 +102,7 @@ public abstract class StandardOperator extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitNotEqualsStandardOperator (this);
     }
@@ -116,7 +117,7 @@ public abstract class StandardOperator extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitLessThanStandardOperator (this);
     }
@@ -131,7 +132,7 @@ public abstract class StandardOperator extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitLessThanOrEqStandardOperator (this);
     }
@@ -146,7 +147,7 @@ public abstract class StandardOperator extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitGreaterThanStandardOperator (this);
     }
@@ -161,7 +162,7 @@ public abstract class StandardOperator extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitGreaterThanOrEqStandardOperator (this);
     }
@@ -176,7 +177,7 @@ public abstract class StandardOperator extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitAndStandardOperator (this);
     }
@@ -191,7 +192,7 @@ public abstract class StandardOperator extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitOrStandardOperator (this);
     }
@@ -206,7 +207,7 @@ public abstract class StandardOperator extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitNotStandardOperator (this);
     }
@@ -221,7 +222,7 @@ public abstract class StandardOperator extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitInStandardOperator (this);
     }
@@ -236,7 +237,7 @@ public abstract class StandardOperator extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitNotInStandardOperator (this);
     }

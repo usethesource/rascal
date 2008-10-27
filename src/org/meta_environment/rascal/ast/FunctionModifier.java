@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class FunctionModifier extends AbstractAST
 {
   public class Java extends FunctionModifier
@@ -11,7 +12,7 @@ public abstract class FunctionModifier extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitJavaFunctionModifier (this);
     }

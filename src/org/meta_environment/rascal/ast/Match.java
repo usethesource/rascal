@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Match extends AbstractAST
 {
   public class Replacing extends Match
@@ -13,11 +14,11 @@ public abstract class Match extends AbstractAST
       this.match = match;
       this.replacement = replacement;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitReplacingMatch (this);
     }
-    private final Pattern match;
+    private Pattern match;
     public Pattern getmatch ()
     {
       return match;
@@ -32,7 +33,7 @@ public abstract class Match extends AbstractAST
       z.privateSetmatch (x);
       return z;
     }
-    private final Expression replacement;
+    private Expression replacement;
     public Expression getreplacement ()
     {
       return replacement;
@@ -60,11 +61,11 @@ public abstract class Match extends AbstractAST
       this.match = match;
       this.statement = statement;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitArbitraryMatch (this);
     }
-    private final Pattern match;
+    private Pattern match;
     public Pattern getmatch ()
     {
       return match;
@@ -79,7 +80,7 @@ public abstract class Match extends AbstractAST
       z.privateSetmatch (x);
       return z;
     }
-    private final Statement statement;
+    private Statement statement;
     public Statement getstatement ()
     {
       return statement;

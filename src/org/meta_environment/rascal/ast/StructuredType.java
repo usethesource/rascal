@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class StructuredType extends AbstractAST
 {
   public class List extends StructuredType
@@ -12,11 +13,11 @@ public abstract class StructuredType extends AbstractAST
       this.tree = tree;
       this.typeArg = typeArg;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitListStructuredType (this);
     }
-    private final TypeArg typeArg;
+    private TypeArg typeArg;
     public TypeArg gettypeArg ()
     {
       return typeArg;
@@ -43,11 +44,11 @@ public abstract class StructuredType extends AbstractAST
       this.tree = tree;
       this.typeArg = typeArg;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitSetStructuredType (this);
     }
-    private final TypeArg typeArg;
+    private TypeArg typeArg;
     public TypeArg gettypeArg ()
     {
       return typeArg;
@@ -75,11 +76,11 @@ public abstract class StructuredType extends AbstractAST
       this.first = first;
       this.second = second;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitMapStructuredType (this);
     }
-    private final TypeArg first;
+    private TypeArg first;
     public TypeArg getfirst ()
     {
       return first;
@@ -94,7 +95,7 @@ public abstract class StructuredType extends AbstractAST
       z.privateSetfirst (x);
       return z;
     }
-    private final TypeArg second;
+    private TypeArg second;
     public TypeArg getsecond ()
     {
       return second;
@@ -122,11 +123,11 @@ public abstract class StructuredType extends AbstractAST
       this.first = first;
       this.rest = rest;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitRelationStructuredType (this);
     }
-    private final TypeArg first;
+    private TypeArg first;
     public TypeArg getfirst ()
     {
       return first;
@@ -141,7 +142,7 @@ public abstract class StructuredType extends AbstractAST
       z.privateSetfirst (x);
       return z;
     }
-    private final List < TypeArg > rest;
+    private List < TypeArg > rest;
     public List < TypeArg > getrest ()
     {
       return rest;
@@ -152,7 +153,7 @@ public abstract class StructuredType extends AbstractAST
     }
     public Relation setrest (List < TypeArg > x)
     {
-      z = new Relation ();
+      Relation z = new Relation ();
       z.privateSetrest (x);
       return z;
     }
@@ -169,11 +170,11 @@ public abstract class StructuredType extends AbstractAST
       this.first = first;
       this.rest = rest;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitTupleStructuredType (this);
     }
-    private final TypeArg first;
+    private TypeArg first;
     public TypeArg getfirst ()
     {
       return first;
@@ -188,7 +189,7 @@ public abstract class StructuredType extends AbstractAST
       z.privateSetfirst (x);
       return z;
     }
-    private final List < TypeArg > rest;
+    private List < TypeArg > rest;
     public List < TypeArg > getrest ()
     {
       return rest;
@@ -199,7 +200,7 @@ public abstract class StructuredType extends AbstractAST
     }
     public Tuple setrest (List < TypeArg > x)
     {
-      z = new Tuple ();
+      Tuple z = new Tuple ();
       z.privateSetrest (x);
       return z;
     }

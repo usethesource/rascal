@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Import extends AbstractAST
 {
   public class Import extends Import
@@ -12,11 +13,11 @@ public abstract class Import extends AbstractAST
       this.tree = tree;
       this.module = module;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitImportImport (this);
     }
-    private final ImportedModule module;
+    private ImportedModule module;
     public ImportedModule getmodule ()
     {
       return module;
@@ -43,11 +44,11 @@ public abstract class Import extends AbstractAST
       this.tree = tree;
       this.module = module;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitExtendImport (this);
     }
-    private final ImportedModule module;
+    private ImportedModule module;
     public ImportedModule getmodule ()
     {
       return module;

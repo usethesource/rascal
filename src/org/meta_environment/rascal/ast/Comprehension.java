@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Comprehension extends AbstractAST
 {
   public class Set extends Comprehension
@@ -14,11 +15,11 @@ public abstract class Comprehension extends AbstractAST
       this.result = result;
       this.generators = generators;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitSetComprehension (this);
     }
-    private final Expression result;
+    private Expression result;
     public Expression getresult ()
     {
       return result;
@@ -33,7 +34,7 @@ public abstract class Comprehension extends AbstractAST
       z.privateSetresult (x);
       return z;
     }
-    private final List < Generator > generators;
+    private List < Generator > generators;
     public List < Generator > getgenerators ()
     {
       return generators;
@@ -44,7 +45,7 @@ public abstract class Comprehension extends AbstractAST
     }
     public Set setgenerators (List < Generator > x)
     {
-      z = new Set ();
+      Set z = new Set ();
       z.privateSetgenerators (x);
       return z;
     }
@@ -62,11 +63,11 @@ public abstract class Comprehension extends AbstractAST
       this.result = result;
       this.generators = generators;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitListComprehension (this);
     }
-    private final Expression result;
+    private Expression result;
     public Expression getresult ()
     {
       return result;
@@ -81,7 +82,7 @@ public abstract class Comprehension extends AbstractAST
       z.privateSetresult (x);
       return z;
     }
-    private final List < Generator > generators;
+    private List < Generator > generators;
     public List < Generator > getgenerators ()
     {
       return generators;
@@ -92,7 +93,7 @@ public abstract class Comprehension extends AbstractAST
     }
     public List setgenerators (List < Generator > x)
     {
-      z = new List ();
+      List z = new List ();
       z.privateSetgenerators (x);
       return z;
     }

@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Condition extends AbstractAST
 {
   public class Match extends Condition
@@ -13,11 +14,11 @@ public abstract class Condition extends AbstractAST
       this.pattern = pattern;
       this.expression = expression;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitMatchCondition (this);
     }
-    private final Pattern pattern;
+    private Pattern pattern;
     public Pattern getpattern ()
     {
       return pattern;
@@ -32,7 +33,7 @@ public abstract class Condition extends AbstractAST
       z.privateSetpattern (x);
       return z;
     }
-    private final Expression expression;
+    private Expression expression;
     public Expression getexpression ()
     {
       return expression;
@@ -60,11 +61,11 @@ public abstract class Condition extends AbstractAST
       this.pattern = pattern;
       this.expression = expression;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitNoMatchCondition (this);
     }
-    private final Pattern pattern;
+    private Pattern pattern;
     public Pattern getpattern ()
     {
       return pattern;
@@ -79,7 +80,7 @@ public abstract class Condition extends AbstractAST
       z.privateSetpattern (x);
       return z;
     }
-    private final Expression expression;
+    private Expression expression;
     public Expression getexpression ()
     {
       return expression;
@@ -106,11 +107,11 @@ public abstract class Condition extends AbstractAST
       this.tree = tree;
       this.expression = expression;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitExpressionCondition (this);
     }
-    private final Expression expression;
+    private Expression expression;
     public Expression getexpression ()
     {
       return expression;
@@ -138,11 +139,11 @@ public abstract class Condition extends AbstractAST
       this.lhs = lhs;
       this.rhs = rhs;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitConjunctionCondition (this);
     }
-    private final Condition lhs;
+    private Condition lhs;
     public Condition getlhs ()
     {
       return lhs;
@@ -157,7 +158,7 @@ public abstract class Condition extends AbstractAST
       z.privateSetlhs (x);
       return z;
     }
-    private final Condition rhs;
+    private Condition rhs;
     public Condition getrhs ()
     {
       return rhs;

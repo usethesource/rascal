@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class ImportedModule extends AbstractAST
 {
   public class ActualsRenaming extends ImportedModule
@@ -15,11 +16,11 @@ public abstract class ImportedModule extends AbstractAST
       this.actuals = actuals;
       this.renamings = renamings;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitActualsRenamingImportedModule (this);
     }
-    private final ModuleName name;
+    private ModuleName name;
     public ModuleName getname ()
     {
       return name;
@@ -34,7 +35,7 @@ public abstract class ImportedModule extends AbstractAST
       z.privateSetname (x);
       return z;
     }
-    private final ModuleActuals actuals;
+    private ModuleActuals actuals;
     public ModuleActuals getactuals ()
     {
       return actuals;
@@ -49,7 +50,7 @@ public abstract class ImportedModule extends AbstractAST
       z.privateSetactuals (x);
       return z;
     }
-    private final Renamings renamings;
+    private Renamings renamings;
     public Renamings getrenamings ()
     {
       return renamings;
@@ -77,11 +78,11 @@ public abstract class ImportedModule extends AbstractAST
       this.name = name;
       this.actuals = actuals;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitActualsImportedModule (this);
     }
-    private final ModuleName name;
+    private ModuleName name;
     public ModuleName getname ()
     {
       return name;
@@ -96,7 +97,7 @@ public abstract class ImportedModule extends AbstractAST
       z.privateSetname (x);
       return z;
     }
-    private final ModuleActuals actuals;
+    private ModuleActuals actuals;
     public ModuleActuals getactuals ()
     {
       return actuals;
@@ -124,11 +125,11 @@ public abstract class ImportedModule extends AbstractAST
       this.name = name;
       this.renamings = renamings;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitRenamingsImportedModule (this);
     }
-    private final ModuleName name;
+    private ModuleName name;
     public ModuleName getname ()
     {
       return name;
@@ -143,7 +144,7 @@ public abstract class ImportedModule extends AbstractAST
       z.privateSetname (x);
       return z;
     }
-    private final Renamings renamings;
+    private Renamings renamings;
     public Renamings getrenamings ()
     {
       return renamings;
@@ -170,11 +171,11 @@ public abstract class ImportedModule extends AbstractAST
       this.tree = tree;
       this.name = name;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitDefaultImportedModule (this);
     }
-    private final ModuleName name;
+    private ModuleName name;
     public ModuleName getname ()
     {
       return name;

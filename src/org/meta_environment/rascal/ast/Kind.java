@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Kind extends AbstractAST
 {
   public class Module extends Kind
@@ -11,7 +12,7 @@ public abstract class Kind extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitModuleKind (this);
     }
@@ -26,7 +27,7 @@ public abstract class Kind extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitFunctionKind (this);
     }
@@ -41,7 +42,7 @@ public abstract class Kind extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitVariableKind (this);
     }
@@ -56,7 +57,7 @@ public abstract class Kind extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitDataKind (this);
     }
@@ -71,7 +72,7 @@ public abstract class Kind extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitViewKind (this);
     }
@@ -86,7 +87,7 @@ public abstract class Kind extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitTypeKind (this);
     }
@@ -101,7 +102,7 @@ public abstract class Kind extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitAnnoKind (this);
     }
@@ -116,7 +117,7 @@ public abstract class Kind extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitTagKind (this);
     }
@@ -131,7 +132,7 @@ public abstract class Kind extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitAllKind (this);
     }

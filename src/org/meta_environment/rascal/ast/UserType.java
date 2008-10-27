@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class UserType extends AbstractAST
 {
   public class Name extends UserType
@@ -12,11 +13,11 @@ public abstract class UserType extends AbstractAST
       this.tree = tree;
       this.name = name;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitNameUserType (this);
     }
-    private final Name name;
+    private Name name;
     public Name getname ()
     {
       return name;
@@ -45,11 +46,11 @@ public abstract class UserType extends AbstractAST
       this.name = name;
       this.parameters = parameters;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitParametricUserType (this);
     }
-    private final Name name;
+    private Name name;
     public Name getname ()
     {
       return name;
@@ -64,7 +65,7 @@ public abstract class UserType extends AbstractAST
       z.privateSetname (x);
       return z;
     }
-    private final List < TypeVar > parameters;
+    private List < TypeVar > parameters;
     public List < TypeVar > getparameters ()
     {
       return parameters;
@@ -75,7 +76,7 @@ public abstract class UserType extends AbstractAST
     }
     public Parametric setparameters (List < TypeVar > x)
     {
-      z = new Parametric ();
+      Parametric z = new Parametric ();
       z.privateSetparameters (x);
       return z;
     }

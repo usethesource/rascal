@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class FunctionDeclaration extends AbstractAST
 {
   public class Default extends FunctionDeclaration
@@ -15,11 +16,11 @@ public abstract class FunctionDeclaration extends AbstractAST
       this.tags = tags;
       this.body = body;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitDefaultFunctionDeclaration (this);
     }
-    private final Signature signature;
+    private Signature signature;
     public Signature getsignature ()
     {
       return signature;
@@ -34,7 +35,7 @@ public abstract class FunctionDeclaration extends AbstractAST
       z.privateSetsignature (x);
       return z;
     }
-    private final Tags tags;
+    private Tags tags;
     public Tags gettags ()
     {
       return tags;
@@ -49,7 +50,7 @@ public abstract class FunctionDeclaration extends AbstractAST
       z.privateSettags (x);
       return z;
     }
-    private final FunctionBody body;
+    private FunctionBody body;
     public FunctionBody getbody ()
     {
       return body;
@@ -77,11 +78,11 @@ public abstract class FunctionDeclaration extends AbstractAST
       this.signature = signature;
       this.tags = tags;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitAbstractFunctionDeclaration (this);
     }
-    private final Signature signature;
+    private Signature signature;
     public Signature getsignature ()
     {
       return signature;
@@ -96,7 +97,7 @@ public abstract class FunctionDeclaration extends AbstractAST
       z.privateSetsignature (x);
       return z;
     }
-    private final Tags tags;
+    private Tags tags;
     public Tags gettags ()
     {
       return tags;

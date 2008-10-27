@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Visibility extends AbstractAST
 {
   public class Public extends Visibility
@@ -11,7 +12,7 @@ public abstract class Visibility extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitPublicVisibility (this);
     }
@@ -26,7 +27,7 @@ public abstract class Visibility extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitPrivateVisibility (this);
     }

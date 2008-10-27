@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Character extends AbstractAST
 {
   public class Numeric extends Character
@@ -12,11 +13,11 @@ public abstract class Character extends AbstractAST
       this.tree = tree;
       this.numeric = numeric;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitNumericCharacter (this);
     }
-    private final NumChar numeric;
+    private NumChar numeric;
     public NumChar getnumeric ()
     {
       return numeric;
@@ -43,11 +44,11 @@ public abstract class Character extends AbstractAST
       this.tree = tree;
       this.short = short;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitShortCharacter (this);
     }
-    private final ShortChar short;
+    private ShortChar short;
     public ShortChar getshort ()
     {
       return short;
@@ -73,7 +74,7 @@ public abstract class Character extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitTopCharacter (this);
     }
@@ -88,7 +89,7 @@ public abstract class Character extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitEOFCharacter (this);
     }
@@ -103,7 +104,7 @@ public abstract class Character extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitBottomCharacter (this);
     }
@@ -118,7 +119,7 @@ public abstract class Character extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitLabelStartCharacter (this);
     }

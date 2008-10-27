@@ -1,4 +1,5 @@
 package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
 public abstract class TypeArg extends AbstractAST
 {
   public class Default extends TypeArg
@@ -12,11 +13,11 @@ public abstract class TypeArg extends AbstractAST
       this.tree = tree;
       this.type = type;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitDefaultTypeArg (this);
     }
-    private final Type type;
+    private Type type;
     public Type gettype ()
     {
       return type;
@@ -44,11 +45,11 @@ public abstract class TypeArg extends AbstractAST
       this.type = type;
       this.name = name;
     }
-    public IVisitable accept (IVisitor visitor)
+    public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitNamedTypeArg (this);
     }
-    private final Type type;
+    private Type type;
     public Type gettype ()
     {
       return type;
@@ -63,7 +64,7 @@ public abstract class TypeArg extends AbstractAST
       z.privateSettype (x);
       return z;
     }
-    private final Name name;
+    private Name name;
     public Name getname ()
     {
       return name;
