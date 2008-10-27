@@ -3,8 +3,7 @@ public abstract class UserType extends AbstractAST
 {
   public class Name extends UserType
   {
-    private Name name;
-
+/* name:Name -> UserType {prefer, cons("Name")} */
     private Name ()
     {
     }
@@ -35,9 +34,7 @@ public abstract class UserType extends AbstractAST
   }
   public class Parametric extends UserType
   {
-    private Name name;
-    private List < TypeVar > parameters;
-
+/* name:Name "[" parameters:{TypeVar ","}+ "]" -> UserType {cons("Parametric")} */
     private Parametric ()
     {
     }

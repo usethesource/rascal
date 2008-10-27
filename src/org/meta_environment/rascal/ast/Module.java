@@ -3,9 +3,7 @@ public abstract class Module extends AbstractAST
 {
   public class Module extends Module
   {
-    private Header header;
-    private Body body;
-
+/* header:Header body:Body -> Module {cons("Module")} */
     private Module ()
     {
     }

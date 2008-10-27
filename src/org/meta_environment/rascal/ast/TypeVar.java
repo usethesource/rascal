@@ -3,8 +3,7 @@ public abstract class TypeVar extends AbstractAST
 {
   public class Free extends TypeVar
   {
-    private Name name;
-
+/* "&" name:Name -> TypeVar {cons("Free")} */
     private Free ()
     {
     }
@@ -35,9 +34,7 @@ public abstract class TypeVar extends AbstractAST
   }
   public class Bounded extends TypeVar
   {
-    private Name name;
-    private Type bound;
-
+/* "&" name:Name "<:" bound:Type -> TypeVar {cons("Bounded")} */
     private Bounded ()
     {
     }

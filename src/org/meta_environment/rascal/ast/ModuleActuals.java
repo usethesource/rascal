@@ -3,8 +3,7 @@ public abstract class ModuleActuals extends AbstractAST
 {
   public class Actuals extends ModuleActuals
   {
-    private List < Type > types;
-
+/* "[" types:{Type ","}+ "]" -> ModuleActuals {cons("Actuals")} */
     private Actuals ()
     {
     }

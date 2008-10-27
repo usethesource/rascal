@@ -3,9 +3,7 @@ public abstract class LocalVariableDeclaration extends AbstractAST
 {
   public class DefaultScope extends LocalVariableDeclaration
   {
-    private Type type;
-    private List < Variable > variables;
-
+/* type:Type variables:{Variable ","}+ -> LocalVariableDeclaration {cons("DefaultScope")} */
     private DefaultScope ()
     {
     }
@@ -53,10 +51,7 @@ public abstract class LocalVariableDeclaration extends AbstractAST
   }
   public class GivenScope extends LocalVariableDeclaration
   {
-    private Scope scope;
-    private Type type;
-    private List < Variable > variables;
-
+/* scope:Scope type:Type variables:{Variable ","}+ -> LocalVariableDeclaration {cons("GivenScope")} */
     private GivenScope ()
     {
     }

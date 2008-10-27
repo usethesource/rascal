@@ -3,6 +3,7 @@ public abstract class LongLiteral extends AbstractAST
 {
   public class DecimalLongLiteral extends LongLiteral
   {
+/* DecimalLongLiteral -> LongLiteral {prefer, cons("DecimalLongLiteral")} */
     private DecimalLongLiteral ()
     {
     }
@@ -17,6 +18,7 @@ public abstract class LongLiteral extends AbstractAST
   }
   public class HexLongLiteral extends LongLiteral
   {
+/* HexLongLiteral -> LongLiteral {prefer, cons("HexLongLiteral")} */
     private HexLongLiteral ()
     {
     }
@@ -31,6 +33,7 @@ public abstract class LongLiteral extends AbstractAST
   }
   public class OctalLongLiteral extends LongLiteral
   {
+/* OctalLongLiteral -> LongLiteral {prefer, cons("OctalLongLiteral")} */
     private OctalLongLiteral ()
     {
     }

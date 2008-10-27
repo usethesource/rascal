@@ -3,9 +3,7 @@ public abstract class Renaming extends AbstractAST
 {
   public class Renaming extends Renaming
   {
-    private Name from;
-    private Name to;
-
+/* from:Name "=>" to:Name -> Renaming {cons("Renaming")} */
     private Renaming ()
     {
     }

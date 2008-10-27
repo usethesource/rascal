@@ -3,6 +3,7 @@ public abstract class OptCharRanges extends AbstractAST
 {
   public class Absent extends OptCharRanges
   {
+/*  -> OptCharRanges {cons("Absent")} */
     private Absent ()
     {
     }
@@ -17,8 +18,7 @@ public abstract class OptCharRanges extends AbstractAST
   }
   public class Present extends OptCharRanges
   {
-    private CharRanges ranges;
-
+/* ranges:CharRanges -> OptCharRanges {cons("Present")} */
     private Present ()
     {
     }

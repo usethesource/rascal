@@ -3,6 +3,7 @@ public abstract class FunctionModifier extends AbstractAST
 {
   public class Java extends FunctionModifier
   {
+/* "java" -> FunctionModifier {cons("Java")} */
     private Java ()
     {
     }

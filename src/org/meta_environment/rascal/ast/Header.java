@@ -3,10 +3,7 @@ public abstract class Header extends AbstractAST
 {
   public class Default extends Header
   {
-    private ModuleName name;
-    private Tags tags;
-    private List < Import > imports;
-
+/* "module" name:ModuleName tags:Tags  imports:Import* -> Header {cons("Default")} */
     private Default ()
     {
     }
@@ -70,11 +67,7 @@ public abstract class Header extends AbstractAST
   }
   public class Parameters extends Header
   {
-    private ModuleName name;
-    private ModuleParameters params;
-    private Tags tags;
-    private List < Import > imports;
-
+/* "module" name:ModuleName params:ModuleParameters tags:Tags imports:Import* -> Header {cons("Parameters")} */
     private Parameters ()
     {
     }

@@ -3,6 +3,7 @@ public abstract class IntegerLiteral extends AbstractAST
 {
   public class DecimalIntegerLiteral extends IntegerLiteral
   {
+/* DecimalIntegerLiteral -> IntegerLiteral {prefer, cons("DecimalIntegerLiteral")} */
     private DecimalIntegerLiteral ()
     {
     }
@@ -17,6 +18,7 @@ public abstract class IntegerLiteral extends AbstractAST
   }
   public class HexIntegerLiteral extends IntegerLiteral
   {
+/* HexIntegerLiteral -> IntegerLiteral {prefer, cons("HexIntegerLiteral")} */
     private HexIntegerLiteral ()
     {
     }
@@ -31,6 +33,7 @@ public abstract class IntegerLiteral extends AbstractAST
   }
   public class OctalIntegerLiteral extends IntegerLiteral
   {
+/* OctalIntegerLiteral -> IntegerLiteral {prefer, cons("OctalIntegerLiteral")} */
     private OctalIntegerLiteral ()
     {
     }

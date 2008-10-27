@@ -3,10 +3,7 @@ public abstract class ImportedModule extends AbstractAST
 {
   public class ActualsRenaming extends ImportedModule
   {
-    private ModuleName name;
-    private ModuleActuals actuals;
-    private Renamings renamings;
-
+/* name:ModuleName actuals:ModuleActuals renamings:Renamings -> ImportedModule {cons("ActualsRenaming")} */
     private ActualsRenaming ()
     {
     }
@@ -70,9 +67,7 @@ public abstract class ImportedModule extends AbstractAST
   }
   public class Actuals extends ImportedModule
   {
-    private ModuleName name;
-    private ModuleActuals actuals;
-
+/* name:ModuleName actuals:ModuleActuals -> ImportedModule {cons("Actuals")} */
     private Actuals ()
     {
     }
@@ -119,9 +114,7 @@ public abstract class ImportedModule extends AbstractAST
   }
   public class Renamings extends ImportedModule
   {
-    private ModuleName name;
-    private Renamings renamings;
-
+/* name:ModuleName renamings:Renamings -> ImportedModule {cons("Renamings")} */
     private Renamings ()
     {
     }
@@ -168,8 +161,7 @@ public abstract class ImportedModule extends AbstractAST
   }
   public class Default extends ImportedModule
   {
-    private ModuleName name;
-
+/* name:ModuleName -> ImportedModule {cons("Default")} */
     private Default ()
     {
     }

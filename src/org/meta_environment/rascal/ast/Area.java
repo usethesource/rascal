@@ -3,13 +3,7 @@ public abstract class Area extends AbstractAST
 {
   public class Area extends Area
   {
-    private Expression beginLine;
-    private Expression beginColumn;
-    private Expression endLine;
-    private Expression endColumn;
-    private Expression offset;
-    private Expression length;
-
+/* "area" "(" beginLine:Expression "," beginColumn:Expression "," endLine:Expression "," endColumn:Expression "," offset:Expression "," length:Expression ")" -> Area {cons("Area")} */
     private Area ()
     {
     }

@@ -3,6 +3,7 @@ public abstract class Statement extends AbstractAST
 {
   public class Solve extends Statement
   {
+/* Solve -> Statement {cons("Solve")} */
     private Solve ()
     {
     }
@@ -17,9 +18,7 @@ public abstract class Statement extends AbstractAST
   }
   public class For extends Statement
   {
-    private List < Generator > generators;
-    private Statement body;
-
+/* "for" "(" generators:{Generator ","}+ ")" body:Statement -> Statement {cons("For")} */
     private For ()
     {
     }
@@ -67,9 +66,7 @@ public abstract class Statement extends AbstractAST
   }
   public class While extends Statement
   {
-    private Expression condition;
-    private Statement body;
-
+/* "while" "(" condition:Expression ")" body:Statement -> Statement {cons("While")} */
     private While ()
     {
     }
@@ -116,10 +113,7 @@ public abstract class Statement extends AbstractAST
   }
   public class IfThenElse extends Statement
   {
-    private Condition condition;
-    private Statement thenStatement;
-    private Statement elseStatement;
-
+/* "if" "(" condition:Condition ")" thenStatement:Statement "else" elseStatement:Statement -> Statement {cons("IfThenElse")} */
     private IfThenElse ()
     {
     }
@@ -183,9 +177,7 @@ public abstract class Statement extends AbstractAST
   }
   public class IfThen extends Statement
   {
-    private Condition condition;
-    private Statement thenStatement;
-
+/* "if" "(" condition:Condition ")" thenStatement:Statement NoElseMayFollow -> Statement {cons("IfThen")} */
     private IfThen ()
     {
     }
@@ -233,9 +225,7 @@ public abstract class Statement extends AbstractAST
   }
   public class Switch extends Statement
   {
-    private Expression expression;
-    private List < Case > cases;
-
+/* "switch" "(" expression:Expression ")" "{" cases:Case+ "}" -> Statement {cons("Switch")} */
     private Switch ()
     {
     }
@@ -283,8 +273,7 @@ public abstract class Statement extends AbstractAST
   }
   public class VariableDeclaration extends Statement
   {
-    private LocalVariableDeclaration declaration;
-
+/* declaration:LocalVariableDeclaration ";" -> Statement {cons("VariableDeclaration")} */
     private VariableDeclaration ()
     {
     }
@@ -316,8 +305,7 @@ public abstract class Statement extends AbstractAST
   }
   public class Expression extends Statement
   {
-    private Expression expression;
-
+/* expression:Expression ";" -> Statement {cons("Expression")} */
     private Expression ()
     {
     }
@@ -348,8 +336,7 @@ public abstract class Statement extends AbstractAST
   }
   public class Visit extends Statement
   {
-    private Visit visit;
-
+/* visit:Visit -> Statement {cons("Visit")} */
     private Visit ()
     {
     }
@@ -380,10 +367,7 @@ public abstract class Statement extends AbstractAST
   }
   public class Assignment extends Statement
   {
-    private List < Assignable > assignables;
-    private Assignment operator;
-    private List < Expression > expressions;
-
+/* assignables:{Assignable ","}+ operator:Assignment expressions:{Expression ","}+ ";" -> Statement {cons("Assignment")} */
     private Assignment ()
     {
     }
@@ -448,9 +432,7 @@ public abstract class Statement extends AbstractAST
   }
   public class Assert extends Statement
   {
-    private StringLiteral label;
-    private Expression expression;
-
+/* "assert" label:StringLiteral ":" expression:Expression ";" -> Statement {cons("Assert")} */
     private Assert ()
     {
     }
@@ -498,8 +480,7 @@ public abstract class Statement extends AbstractAST
   }
   public class Return extends Statement
   {
-    private Expression expression;
-
+/* "return" expression:Expression ";" -> Statement {cons("Return")} */
     private Return ()
     {
     }
@@ -530,8 +511,7 @@ public abstract class Statement extends AbstractAST
   }
   public class Insert extends Statement
   {
-    private Expression expression;
-
+/* "insert" expression:Expression ";" -> Statement {cons("Insert")} */
     private Insert ()
     {
     }
@@ -562,8 +542,7 @@ public abstract class Statement extends AbstractAST
   }
   public class Throw extends Statement
   {
-    private Expression expression;
-
+/* "throw" expression:Expression ";" -> Statement {cons("Throw")} */
     private Throw ()
     {
     }
@@ -594,6 +573,7 @@ public abstract class Statement extends AbstractAST
   }
   public class ReturnVoid extends Statement
   {
+/* "return" ";" -> Statement {cons("ReturnVoid")} */
     private ReturnVoid ()
     {
     }
@@ -608,6 +588,7 @@ public abstract class Statement extends AbstractAST
   }
   public class Fail extends Statement
   {
+/* "fail" ";" -> Statement {cons("Fail")} */
     private Fail ()
     {
     }
@@ -622,9 +603,7 @@ public abstract class Statement extends AbstractAST
   }
   public class Try extends Statement
   {
-    private Statement body;
-    private List < Catch > handlers;
-
+/* "try" body:Statement handlers:Catch+ -> Statement {non-assoc, cons("Try")} */
     private Try ()
     {
     }
@@ -671,10 +650,7 @@ public abstract class Statement extends AbstractAST
   }
   public class TryFinally extends Statement
   {
-    private Statement body;
-    private List < Catch > handlers;
-    private Statement finallyBody;
-
+/* "try" body:Statement handlers:Catch+ "finally" finallyBody:Statement -> Statement {cons("TryFinally")} */
     private TryFinally ()
     {
     }
@@ -738,8 +714,7 @@ public abstract class Statement extends AbstractAST
   }
   public class Block extends Statement
   {
-    private List < Statement > statements;
-
+/* "{" statements:Statement* "}" -> Statement {cons("Block")} */
     private Block ()
     {
     }
@@ -770,8 +745,7 @@ public abstract class Statement extends AbstractAST
   }
   public class FunctionDeclaration extends Statement
   {
-    private FunctionDeclaration functionDeclaration;
-
+/* functionDeclaration:FunctionDeclaration -> Statement {cons("FunctionDeclaration")} */
     private FunctionDeclaration ()
     {
     }

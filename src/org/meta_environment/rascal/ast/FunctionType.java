@@ -3,9 +3,7 @@ public abstract class FunctionType extends AbstractAST
 {
   public class TypeArguments extends FunctionType
   {
-    private Type type;
-    private List < TypeArg > arguments;
-
+/* type:Type "(" arguments:{TypeArg ","}* ")" -> FunctionType {cons("TypeArguments")} */
     private TypeArguments ()
     {
     }

@@ -3,8 +3,7 @@ public abstract class Parameters extends AbstractAST
 {
   public class Default extends Parameters
   {
-    private Formals formals;
-
+/* "(" formals:Formals ")" -> Parameters {cons("Default")} */
     private Default ()
     {
     }
@@ -35,8 +34,7 @@ public abstract class Parameters extends AbstractAST
   }
   public class VarArgs extends Parameters
   {
-    private Formals formals;
-
+/* "(" formals:Formals "..." ")" -> Parameters {cons("VarArgs")} */
     private VarArgs ()
     {
     }

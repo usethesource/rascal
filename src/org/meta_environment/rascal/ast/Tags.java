@@ -3,8 +3,7 @@ public abstract class Tags extends AbstractAST
 {
   public class Default extends Tags
   {
-    private List < Tag > annotations;
-
+/* annotations:Tag* -> Tags {cons("Default")} */
     private Default ()
     {
     }

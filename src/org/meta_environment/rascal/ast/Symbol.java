@@ -3,8 +3,7 @@ public abstract class Symbol extends AbstractAST
 {
   public class Sort extends Symbol
   {
-    private Sort sort;
-
+/* sort:Sort -> Symbol {cons("Sort")} */
     private Sort ()
     {
     }
@@ -35,9 +34,7 @@ public abstract class Symbol extends AbstractAST
   }
   public class ParameterizedSort extends Symbol
   {
-    private Sort sort;
-    private List < Symbol > parameters;
-
+/* sort:Sort "[[" parameters:{Symbol ","}+ "]]" -> Symbol {cons("ParameterizedSort")} */
     private ParameterizedSort ()
     {
     }
@@ -85,6 +82,7 @@ public abstract class Symbol extends AbstractAST
   }
   public class Empty extends Symbol
   {
+/* "(" ")" -> Symbol {cons("Empty")} */
     private Empty ()
     {
     }
@@ -99,9 +97,7 @@ public abstract class Symbol extends AbstractAST
   }
   public class Sequence extends Symbol
   {
-    private Symbol head;
-    private List < Symbol > tail;
-
+/* "(" head:Symbol tail:Symbol+ ")" -> Symbol {cons("Sequence")} */
     private Sequence ()
     {
     }
@@ -148,8 +144,7 @@ public abstract class Symbol extends AbstractAST
   }
   public class Optional extends Symbol
   {
-    private Symbol symbol;
-
+/* symbol:Symbol "?" -> Symbol {cons("Optional")} */
     private Optional ()
     {
     }
@@ -180,8 +175,7 @@ public abstract class Symbol extends AbstractAST
   }
   public class Iter extends Symbol
   {
-    private Symbol symbol;
-
+/* symbol:Symbol "+" -> Symbol {cons("Iter")} */
     private Iter ()
     {
     }
@@ -212,8 +206,7 @@ public abstract class Symbol extends AbstractAST
   }
   public class IterStar extends Symbol
   {
-    private Symbol symbol;
-
+/* symbol:Symbol "*" -> Symbol {cons("IterStar")} */
     private IterStar ()
     {
     }
@@ -244,9 +237,7 @@ public abstract class Symbol extends AbstractAST
   }
   public class IterSep extends Symbol
   {
-    private Symbol symbol;
-    private StrCon sep;
-
+/* "{" symbol:Symbol sep:StrCon "}" "+" -> Symbol {cons("IterSep")} */
     private IterSep ()
     {
     }
@@ -293,9 +284,7 @@ public abstract class Symbol extends AbstractAST
   }
   public class IterStarSep extends Symbol
   {
-    private Symbol symbol;
-    private StrCon sep;
-
+/* "{" symbol:Symbol sep:StrCon "}" "*" -> Symbol {cons("IterStarSep")} */
     private IterStarSep ()
     {
     }
@@ -342,9 +331,7 @@ public abstract class Symbol extends AbstractAST
   }
   public class Alternative extends Symbol
   {
-    private Symbol lhs;
-    private Symbol rhs;
-
+/* lhs:Symbol "|" rhs:Symbol -> Symbol {right, cons("Alternative")} */
     private Alternative ()
     {
     }
@@ -391,8 +378,7 @@ public abstract class Symbol extends AbstractAST
   }
   public class CharacterClass extends Symbol
   {
-    private CharClass charClass;
-
+/* charClass:CharClass -> Symbol {cons("CharacterClass")} */
     private CharacterClass ()
     {
     }
@@ -423,8 +409,7 @@ public abstract class Symbol extends AbstractAST
   }
   public class LiftedSymbol extends Symbol
   {
-    private Symbol symbol;
-
+/* "`" symbol:Symbol "`" -> Symbol {cons("LiftedSymbol")} */
     private LiftedSymbol ()
     {
     }
@@ -455,8 +440,7 @@ public abstract class Symbol extends AbstractAST
   }
   public class Literal extends Symbol
   {
-    private StrCon string;
-
+/* string:StrCon -> Symbol {cons("Literal")} */
     private Literal ()
     {
     }
@@ -487,8 +471,7 @@ public abstract class Symbol extends AbstractAST
   }
   public class CaseInsensitiveLiteral extends Symbol
   {
-    private SingleQuotedStrCon singelQuotedString;
-
+/* singelQuotedString:SingleQuotedStrCon -> Symbol {cons("CaseInsensitiveLiteral")} */
     private CaseInsensitiveLiteral ()
     {
     }

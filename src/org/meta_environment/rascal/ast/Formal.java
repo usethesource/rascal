@@ -3,9 +3,7 @@ public abstract class Formal extends AbstractAST
 {
   public class TypeName extends Formal
   {
-    private Type type;
-    private Name name;
-
+/* type:Type name:Name -> Formal {cons("TypeName")} */
     private TypeName ()
     {
     }

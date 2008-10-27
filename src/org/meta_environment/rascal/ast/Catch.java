@@ -3,8 +3,7 @@ public abstract class Catch extends AbstractAST
 {
   public class Catch extends Catch
   {
-    private Statement body;
-
+/* "catch" body:Statement -> Catch {cons("Catch")} */
     private Catch ()
     {
     }
@@ -35,10 +34,7 @@ public abstract class Catch extends AbstractAST
   }
   public class BindingCatch extends Catch
   {
-    private Type type;
-    private Name name;
-    private Statement body;
-
+/* "catch" "(" type:Type name:Name ")" body:Statement -> Catch {cons("BindingCatch")} */
     private BindingCatch ()
     {
     }

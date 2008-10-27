@@ -3,8 +3,7 @@ public abstract class ModuleParameters extends AbstractAST
 {
   public class ModuleParameters extends ModuleParameters
   {
-    private List < TypeVar > parameters;
-
+/* "[" parameters:{TypeVar ","}+ "]" -> ModuleParameters {cons("ModuleParameters")} */
     private ModuleParameters ()
     {
     }

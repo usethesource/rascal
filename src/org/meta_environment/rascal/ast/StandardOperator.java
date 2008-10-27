@@ -3,6 +3,7 @@ public abstract class StandardOperator extends AbstractAST
 {
   public class Addition extends StandardOperator
   {
+/* "+" -> StandardOperator {cons("Addition")} */
     private Addition ()
     {
     }
@@ -17,6 +18,7 @@ public abstract class StandardOperator extends AbstractAST
   }
   public class Substraction extends StandardOperator
   {
+/* "-" -> StandardOperator {cons("Substraction")} */
     private Substraction ()
     {
     }
@@ -31,6 +33,7 @@ public abstract class StandardOperator extends AbstractAST
   }
   public class Product extends StandardOperator
   {
+/* "*" -> StandardOperator {cons("Product")} */
     private Product ()
     {
     }
@@ -45,6 +48,7 @@ public abstract class StandardOperator extends AbstractAST
   }
   public class Division extends StandardOperator
   {
+/* "/" -> StandardOperator {cons("Division")} */
     private Division ()
     {
     }
@@ -59,6 +63,7 @@ public abstract class StandardOperator extends AbstractAST
   }
   public class Intersection extends StandardOperator
   {
+/* "&" -> StandardOperator {cons("Intersection")} */
     private Intersection ()
     {
     }
@@ -73,6 +78,7 @@ public abstract class StandardOperator extends AbstractAST
   }
   public class Equals extends StandardOperator
   {
+/* "==" -> StandardOperator {cons("Equals")} */
     private Equals ()
     {
     }
@@ -87,6 +93,7 @@ public abstract class StandardOperator extends AbstractAST
   }
   public class NotEquals extends StandardOperator
   {
+/* "!=" -> StandardOperator {cons("NotEquals")} */
     private NotEquals ()
     {
     }
@@ -101,6 +108,7 @@ public abstract class StandardOperator extends AbstractAST
   }
   public class LessThan extends StandardOperator
   {
+/* "<" -> StandardOperator {cons("LessThan")} */
     private LessThan ()
     {
     }
@@ -115,6 +123,7 @@ public abstract class StandardOperator extends AbstractAST
   }
   public class LessThanOrEq extends StandardOperator
   {
+/* "<=" -> StandardOperator {cons("LessThanOrEq")} */
     private LessThanOrEq ()
     {
     }
@@ -129,6 +138,7 @@ public abstract class StandardOperator extends AbstractAST
   }
   public class GreaterThan extends StandardOperator
   {
+/* ">" -> StandardOperator {cons("GreaterThan")} */
     private GreaterThan ()
     {
     }
@@ -143,6 +153,7 @@ public abstract class StandardOperator extends AbstractAST
   }
   public class GreaterThanOrEq extends StandardOperator
   {
+/* ">=" -> StandardOperator {cons("GreaterThanOrEq")} */
     private GreaterThanOrEq ()
     {
     }
@@ -157,6 +168,7 @@ public abstract class StandardOperator extends AbstractAST
   }
   public class And extends StandardOperator
   {
+/* "&&" -> StandardOperator {cons("And")} */
     private And ()
     {
     }
@@ -171,6 +183,7 @@ public abstract class StandardOperator extends AbstractAST
   }
   public class Or extends StandardOperator
   {
+/* "||" -> StandardOperator {cons("Or")} */
     private Or ()
     {
     }
@@ -185,6 +198,7 @@ public abstract class StandardOperator extends AbstractAST
   }
   public class Not extends StandardOperator
   {
+/* "!" -> StandardOperator {cons("Not")} */
     private Not ()
     {
     }
@@ -199,6 +213,7 @@ public abstract class StandardOperator extends AbstractAST
   }
   public class In extends StandardOperator
   {
+/* "in" -> StandardOperator {cons("In")} */
     private In ()
     {
     }
@@ -213,6 +228,7 @@ public abstract class StandardOperator extends AbstractAST
   }
   public class NotIn extends StandardOperator
   {
+/* "notin" -> StandardOperator {cons("NotIn")} */
     private NotIn ()
     {
     }

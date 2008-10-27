@@ -3,9 +3,7 @@ public abstract class Rule extends AbstractAST
 {
   public class WithGuard extends Rule
   {
-    private Type type;
-    private Match match;
-
+/* "[" type:Type "]" match:Match -> Rule {cons("WithGuard")} */
     private WithGuard ()
     {
     }
@@ -52,8 +50,7 @@ public abstract class Rule extends AbstractAST
   }
   public class NoGuard extends Rule
   {
-    private Match match;
-
+/* match:Match -> Rule {cons("NoGuard")} */
     private NoGuard ()
     {
     }

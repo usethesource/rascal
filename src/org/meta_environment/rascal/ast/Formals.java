@@ -3,8 +3,7 @@ public abstract class Formals extends AbstractAST
 {
   public class Formals extends Formals
   {
-    private List < Formal > formals;
-
+/* formals:{Formal ","}* -> Formals {cons("Formals")} */
     private Formals ()
     {
     }

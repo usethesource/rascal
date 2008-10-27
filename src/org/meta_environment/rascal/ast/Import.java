@@ -3,8 +3,7 @@ public abstract class Import extends AbstractAST
 {
   public class Import extends Import
   {
-    private ImportedModule module;
-
+/* "import" module:ImportedModule ";" -> Import {cons("Import")} */
     private Import ()
     {
     }
@@ -35,8 +34,7 @@ public abstract class Import extends AbstractAST
   }
   public class Extend extends Import
   {
-    private ImportedModule module;
-
+/* "extend" module:ImportedModule ";" -> Import {cons("Extend")} */
     private Extend ()
     {
     }

@@ -3,9 +3,7 @@ public abstract class ValueProducer extends AbstractAST
 {
   public class DefaultStrategy extends ValueProducer
   {
-    private Pattern pattern;
-    private Expression expression;
-
+/* pattern:Pattern ":" expression:Expression -> ValueProducer {cons("DefaultStrategy")} */
     private DefaultStrategy ()
     {
     }
@@ -53,10 +51,7 @@ public abstract class ValueProducer extends AbstractAST
   }
   public class GivenStrategy extends ValueProducer
   {
-    private Strategy strategy;
-    private Pattern pattern;
-    private Expression expression;
-
+/* strategy:Strategy pattern:Pattern ":" expression:Expression -> ValueProducer {cons("GivenStrategy")} */
     private GivenStrategy ()
     {
     }

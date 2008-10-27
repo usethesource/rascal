@@ -3,9 +3,7 @@ public abstract class Match extends AbstractAST
 {
   public class Replacing extends Match
   {
-    private Pattern match;
-    private Expression replacement;
-
+/* match:Pattern "=>" replacement:Expression -> Match {cons("Replacing")} */
     private Replacing ()
     {
     }
@@ -52,9 +50,7 @@ public abstract class Match extends AbstractAST
   }
   public class Arbitrary extends Match
   {
-    private Pattern match;
-    private Statement statement;
-
+/* match:Pattern ":" statement:Statement -> Match {cons("Arbitrary")} */
     private Arbitrary ()
     {
     }

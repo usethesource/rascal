@@ -3,9 +3,7 @@ public abstract class Toplevel extends AbstractAST
 {
   public class GivenVisibility extends Toplevel
   {
-    private Visibility visibility;
-    private Declaration declaration;
-
+/* visibility:Visibility declaration:Declaration -> Toplevel {cons("GivenVisibility")} */
     private GivenVisibility ()
     {
     }
@@ -53,8 +51,7 @@ public abstract class Toplevel extends AbstractAST
   }
   public class DefaultVisibility extends Toplevel
   {
-    private Declaration declaration;
-
+/* declaration:Declaration -> Toplevel {cons("DefaultVisibility")} */
     private DefaultVisibility ()
     {
     }

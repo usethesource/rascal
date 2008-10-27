@@ -3,8 +3,7 @@ public abstract class QualifiedName extends AbstractAST
 {
   public class Default extends QualifiedName
   {
-    private List < Name > names;
-
+/* names:{Name "::"}+ -> QualifiedName {cons("Default")} */
     private Default ()
     {
     }
