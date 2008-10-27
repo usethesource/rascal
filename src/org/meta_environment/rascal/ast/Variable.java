@@ -4,17 +4,16 @@ public abstract class Variable extends AbstractAST
   public class DefaultInitialization extends Variable
   {
     private Name name;
-    private Annotations annotations;
+    private Tags tags;
 
     private DefaultInitialization ()
     {
     }
-    /*package */ DefaultInitialization (ITree tree, Name name,
-					Annotations annotations)
+    /*package */ DefaultInitialization (ITree tree, Name name, Tags tags)
     {
       this.tree = tree;
       this.name = name;
-      this.annotations = annotations;
+      this.tags = tags;
     }
     public IVisitable accept (IVisitor visitor)
     {
@@ -35,38 +34,37 @@ public abstract class Variable extends AbstractAST
       z.privateSetname (x);
       return z;
     }
-    private final Annotations annotations;
-    public Annotations getannotations ()
+    private final Tags tags;
+    public Tags gettags ()
     {
-      return annotations;
+      return tags;
     }
-    private void privateSetannotations (Annotations x)
+    private void privateSettags (Tags x)
     {
-      this.annotations = x;
+      this.tags = x;
     }
-    public DefaultInitialization setannotations (Annotations x)
+    public DefaultInitialization settags (Tags x)
     {
       z = new DefaultInitialization ();
-      z.privateSetannotations (x);
+      z.privateSettags (x);
       return z;
     }
   }
   public class GivenInitialization extends Variable
   {
     private Name name;
-    private Annotations annotations;
+    private Tags tags;
     private Expression initial;
 
     private GivenInitialization ()
     {
     }
-    /*package */ GivenInitialization (ITree tree, Name name,
-				      Annotations annotations,
+    /*package */ GivenInitialization (ITree tree, Name name, Tags tags,
 				      Expression initial)
     {
       this.tree = tree;
       this.name = name;
-      this.annotations = annotations;
+      this.tags = tags;
       this.initial = initial;
     }
     public IVisitable accept (IVisitor visitor)
@@ -88,19 +86,19 @@ public abstract class Variable extends AbstractAST
       z.privateSetname (x);
       return z;
     }
-    private final Annotations annotations;
-    public Annotations getannotations ()
+    private final Tags tags;
+    public Tags gettags ()
     {
-      return annotations;
+      return tags;
     }
-    private void privateSetannotations (Annotations x)
+    private void privateSettags (Tags x)
     {
-      this.annotations = x;
+      this.tags = x;
     }
-    public GivenInitialization setannotations (Annotations x)
+    public GivenInitialization settags (Tags x)
     {
       z = new GivenInitialization ();
-      z.privateSetannotations (x);
+      z.privateSettags (x);
       return z;
     }
     private final Expression initial;

@@ -1,705 +1,6 @@
 package org.meta_environment.rascal.ast;
 public abstract class Expression extends AbstractAST
 {
-  public class Comprehension extends Expression
-  {
-    private Comprehension comprehension;
-
-    private Comprehension ()
-    {
-    }
-    /*package */ Comprehension (ITree tree, Comprehension comprehension)
-    {
-      this.tree = tree;
-      this.comprehension = comprehension;
-    }
-    public IVisitable accept (IVisitor visitor)
-    {
-      return visitor.visitComprehensionExpression (this);
-    }
-    private final Comprehension comprehension;
-    public Comprehension getcomprehension ()
-    {
-      return comprehension;
-    }
-    private void privateSetcomprehension (Comprehension x)
-    {
-      this.comprehension = x;
-    }
-    public Comprehension setcomprehension (Comprehension x)
-    {
-      z = new Comprehension ();
-      z.privateSetcomprehension (x);
-      return z;
-    }
-  }
-  public class Exists extends Expression
-  {
-    private ValueProducer producer;
-    private Expression expression;
-
-    private Exists ()
-    {
-    }
-    /*package */ Exists (ITree tree, ValueProducer producer,
-			 Expression expression)
-    {
-      this.tree = tree;
-      this.producer = producer;
-      this.expression = expression;
-    }
-    public IVisitable accept (IVisitor visitor)
-    {
-      return visitor.visitExistsExpression (this);
-    }
-    private final ValueProducer producer;
-    public ValueProducer getproducer ()
-    {
-      return producer;
-    }
-    private void privateSetproducer (ValueProducer x)
-    {
-      this.producer = x;
-    }
-    public Exists setproducer (ValueProducer x)
-    {
-      z = new Exists ();
-      z.privateSetproducer (x);
-      return z;
-    }
-    private final Expression expression;
-    public Expression getexpression ()
-    {
-      return expression;
-    }
-    private void privateSetexpression (Expression x)
-    {
-      this.expression = x;
-    }
-    public Exists setexpression (Expression x)
-    {
-      z = new Exists ();
-      z.privateSetexpression (x);
-      return z;
-    }
-  }
-  public class Forall extends Expression
-  {
-    private ValueProducer producers;
-    private Expression expression;
-
-    private Forall ()
-    {
-    }
-    /*package */ Forall (ITree tree, ValueProducer producers,
-			 Expression expression)
-    {
-      this.tree = tree;
-      this.producers = producers;
-      this.expression = expression;
-    }
-    public IVisitable accept (IVisitor visitor)
-    {
-      return visitor.visitForallExpression (this);
-    }
-    private final ValueProducer producers;
-    public ValueProducer getproducers ()
-    {
-      return producers;
-    }
-    private void privateSetproducers (ValueProducer x)
-    {
-      this.producers = x;
-    }
-    public Forall setproducers (ValueProducer x)
-    {
-      z = new Forall ();
-      z.privateSetproducers (x);
-      return z;
-    }
-    private final Expression expression;
-    public Expression getexpression ()
-    {
-      return expression;
-    }
-    private void privateSetexpression (Expression x)
-    {
-      this.expression = x;
-    }
-    public Forall setexpression (Expression x)
-    {
-      z = new Forall ();
-      z.privateSetexpression (x);
-      return z;
-    }
-  }
-  public class Visit extends Expression
-  {
-    private Visit visit;
-
-    private Visit ()
-    {
-    }
-    /*package */ Visit (ITree tree, Visit visit)
-    {
-      this.tree = tree;
-      this.visit = visit;
-    }
-    public IVisitable accept (IVisitor visitor)
-    {
-      return visitor.visitVisitExpression (this);
-    }
-    private final Visit visit;
-    public Visit getvisit ()
-    {
-      return visit;
-    }
-    private void privateSetvisit (Visit x)
-    {
-      this.visit = x;
-    }
-    public Visit setvisit (Visit x)
-    {
-      z = new Visit ();
-      z.privateSetvisit (x);
-      return z;
-    }
-  }
-  public class Literal extends Expression
-  {
-    private Literal literal;
-
-    private Literal ()
-    {
-    }
-    /*package */ Literal (ITree tree, Literal literal)
-    {
-      this.tree = tree;
-      this.literal = literal;
-    }
-    public IVisitable accept (IVisitor visitor)
-    {
-      return visitor.visitLiteralExpression (this);
-    }
-    private final Literal literal;
-    public Literal getliteral ()
-    {
-      return literal;
-    }
-    private void privateSetliteral (Literal x)
-    {
-      this.literal = x;
-    }
-    public Literal setliteral (Literal x)
-    {
-      z = new Literal ();
-      z.privateSetliteral (x);
-      return z;
-    }
-  }
-  public class CallOrTree extends Expression
-  {
-    private Name name;
-    private List < Expression > arguments;
-
-    private CallOrTree ()
-    {
-    }
-    /*package */ CallOrTree (ITree tree, Name name,
-			     List < Expression > arguments)
-    {
-      this.tree = tree;
-      this.name = name;
-      this.arguments = arguments;
-    }
-    public IVisitable accept (IVisitor visitor)
-    {
-      return visitor.visitCallOrTreeExpression (this);
-    }
-    private final Name name;
-    public Name getname ()
-    {
-      return name;
-    }
-    private void privateSetname (Name x)
-    {
-      this.name = x;
-    }
-    public CallOrTree setname (Name x)
-    {
-      z = new CallOrTree ();
-      z.privateSetname (x);
-      return z;
-    }
-    private final List < Expression > arguments;
-    public List < Expression > getarguments ()
-    {
-      return arguments;
-    }
-    private void privateSetarguments (List < Expression > x)
-    {
-      this.arguments = x;
-    }
-    public CallOrTree setarguments (List < Expression > x)
-    {
-      z = new CallOrTree ();
-      z.privateSetarguments (x);
-      return z;
-    }
-  }
-  public class List extends Expression
-  {
-    private List < Expression > elements;
-
-    private List ()
-    {
-    }
-    /*package */ List (ITree tree, List < Expression > elements)
-    {
-      this.tree = tree;
-      this.elements = elements;
-    }
-    public IVisitable accept (IVisitor visitor)
-    {
-      return visitor.visitListExpression (this);
-    }
-    private final List < Expression > elements;
-    public List < Expression > getelements ()
-    {
-      return elements;
-    }
-    private void privateSetelements (List < Expression > x)
-    {
-      this.elements = x;
-    }
-    public List setelements (List < Expression > x)
-    {
-      z = new List ();
-      z.privateSetelements (x);
-      return z;
-    }
-  }
-  public class Range extends Expression
-  {
-    private Expression from;
-    private Expression to;
-
-    private Range ()
-    {
-    }
-    /*package */ Range (ITree tree, Expression from, Expression to)
-    {
-      this.tree = tree;
-      this.from = from;
-      this.to = to;
-    }
-    public IVisitable accept (IVisitor visitor)
-    {
-      return visitor.visitRangeExpression (this);
-    }
-    private final Expression from;
-    public Expression getfrom ()
-    {
-      return from;
-    }
-    private void privateSetfrom (Expression x)
-    {
-      this.from = x;
-    }
-    public Range setfrom (Expression x)
-    {
-      z = new Range ();
-      z.privateSetfrom (x);
-      return z;
-    }
-    private final Expression to;
-    public Expression getto ()
-    {
-      return to;
-    }
-    private void privateSetto (Expression x)
-    {
-      this.to = x;
-    }
-    public Range setto (Expression x)
-    {
-      z = new Range ();
-      z.privateSetto (x);
-      return z;
-    }
-  }
-  public class StepRange extends Expression
-  {
-    private Expression from;
-    private Expression by;
-    private Expression to;
-
-    private StepRange ()
-    {
-    }
-    /*package */ StepRange (ITree tree, Expression from, Expression by,
-			    Expression to)
-    {
-      this.tree = tree;
-      this.from = from;
-      this.by = by;
-      this.to = to;
-    }
-    public IVisitable accept (IVisitor visitor)
-    {
-      return visitor.visitStepRangeExpression (this);
-    }
-    private final Expression from;
-    public Expression getfrom ()
-    {
-      return from;
-    }
-    private void privateSetfrom (Expression x)
-    {
-      this.from = x;
-    }
-    public StepRange setfrom (Expression x)
-    {
-      z = new StepRange ();
-      z.privateSetfrom (x);
-      return z;
-    }
-    private final Expression by;
-    public Expression getby ()
-    {
-      return by;
-    }
-    private void privateSetby (Expression x)
-    {
-      this.by = x;
-    }
-    public StepRange setby (Expression x)
-    {
-      z = new StepRange ();
-      z.privateSetby (x);
-      return z;
-    }
-    private final Expression to;
-    public Expression getto ()
-    {
-      return to;
-    }
-    private void privateSetto (Expression x)
-    {
-      this.to = x;
-    }
-    public StepRange setto (Expression x)
-    {
-      z = new StepRange ();
-      z.privateSetto (x);
-      return z;
-    }
-  }
-  public class Set extends Expression
-  {
-    private List < Expression > elements;
-
-    private Set ()
-    {
-    }
-    /*package */ Set (ITree tree, List < Expression > elements)
-    {
-      this.tree = tree;
-      this.elements = elements;
-    }
-    public IVisitable accept (IVisitor visitor)
-    {
-      return visitor.visitSetExpression (this);
-    }
-    private final List < Expression > elements;
-    public List < Expression > getelements ()
-    {
-      return elements;
-    }
-    private void privateSetelements (List < Expression > x)
-    {
-      this.elements = x;
-    }
-    public Set setelements (List < Expression > x)
-    {
-      z = new Set ();
-      z.privateSetelements (x);
-      return z;
-    }
-  }
-  public class Tuple extends Expression
-  {
-    private Expression first;
-    private List < Expression > rest;
-
-    private Tuple ()
-    {
-    }
-    /*package */ Tuple (ITree tree, Expression first,
-			List < Expression > rest)
-    {
-      this.tree = tree;
-      this.first = first;
-      this.rest = rest;
-    }
-    public IVisitable accept (IVisitor visitor)
-    {
-      return visitor.visitTupleExpression (this);
-    }
-    private final Expression first;
-    public Expression getfirst ()
-    {
-      return first;
-    }
-    private void privateSetfirst (Expression x)
-    {
-      this.first = x;
-    }
-    public Tuple setfirst (Expression x)
-    {
-      z = new Tuple ();
-      z.privateSetfirst (x);
-      return z;
-    }
-    private final List < Expression > rest;
-    public List < Expression > getrest ()
-    {
-      return rest;
-    }
-    private void privateSetrest (List < Expression > x)
-    {
-      this.rest = x;
-    }
-    public Tuple setrest (List < Expression > x)
-    {
-      z = new Tuple ();
-      z.privateSetrest (x);
-      return z;
-    }
-  }
-  public class MapTuple extends Expression
-  {
-    private Expression from;
-    private Expression to;
-
-    private MapTuple ()
-    {
-    }
-    /*package */ MapTuple (ITree tree, Expression from, Expression to)
-    {
-      this.tree = tree;
-      this.from = from;
-      this.to = to;
-    }
-    public IVisitable accept (IVisitor visitor)
-    {
-      return visitor.visitMapTupleExpression (this);
-    }
-    private final Expression from;
-    public Expression getfrom ()
-    {
-      return from;
-    }
-    private void privateSetfrom (Expression x)
-    {
-      this.from = x;
-    }
-    public MapTuple setfrom (Expression x)
-    {
-      z = new MapTuple ();
-      z.privateSetfrom (x);
-      return z;
-    }
-    private final Expression to;
-    public Expression getto ()
-    {
-      return to;
-    }
-    private void privateSetto (Expression x)
-    {
-      this.to = x;
-    }
-    public MapTuple setto (Expression x)
-    {
-      z = new MapTuple ();
-      z.privateSetto (x);
-      return z;
-    }
-  }
-  public class Location extends Expression
-  {
-    private Location ()
-    {
-    }
-    /*package */ Location (ITree tree)
-    {
-      this.tree = tree;
-    }
-    public IVisitable accept (IVisitor visitor)
-    {
-      return visitor.visitLocationExpression (this);
-    }
-  }
-  public class Area extends Expression
-  {
-    private Area ()
-    {
-    }
-    /*package */ Area (ITree tree)
-    {
-      this.tree = tree;
-    }
-    public IVisitable accept (IVisitor visitor)
-    {
-      return visitor.visitAreaExpression (this);
-    }
-  }
-  public class FileLocation extends Expression
-  {
-    private Expression filename;
-
-    private FileLocation ()
-    {
-    }
-    /*package */ FileLocation (ITree tree, Expression filename)
-    {
-      this.tree = tree;
-      this.filename = filename;
-    }
-    public IVisitable accept (IVisitor visitor)
-    {
-      return visitor.visitFileLocationExpression (this);
-    }
-    private final Expression filename;
-    public Expression getfilename ()
-    {
-      return filename;
-    }
-    private void privateSetfilename (Expression x)
-    {
-      this.filename = x;
-    }
-    public FileLocation setfilename (Expression x)
-    {
-      z = new FileLocation ();
-      z.privateSetfilename (x);
-      return z;
-    }
-  }
-  public class AreaLocation extends Expression
-  {
-    private Expression area;
-
-    private AreaLocation ()
-    {
-    }
-    /*package */ AreaLocation (ITree tree, Expression area)
-    {
-      this.tree = tree;
-      this.area = area;
-    }
-    public IVisitable accept (IVisitor visitor)
-    {
-      return visitor.visitAreaLocationExpression (this);
-    }
-    private final Expression area;
-    public Expression getarea ()
-    {
-      return area;
-    }
-    private void privateSetarea (Expression x)
-    {
-      this.area = x;
-    }
-    public AreaLocation setarea (Expression x)
-    {
-      z = new AreaLocation ();
-      z.privateSetarea (x);
-      return z;
-    }
-  }
-  public class AreaInFileLocation extends Expression
-  {
-    private Expression filename;
-    private Expression area;
-
-    private AreaInFileLocation ()
-    {
-    }
-    /*package */ AreaInFileLocation (ITree tree, Expression filename,
-				     Expression area)
-    {
-      this.tree = tree;
-      this.filename = filename;
-      this.area = area;
-    }
-    public IVisitable accept (IVisitor visitor)
-    {
-      return visitor.visitAreaInFileLocationExpression (this);
-    }
-    private final Expression filename;
-    public Expression getfilename ()
-    {
-      return filename;
-    }
-    private void privateSetfilename (Expression x)
-    {
-      this.filename = x;
-    }
-    public AreaInFileLocation setfilename (Expression x)
-    {
-      z = new AreaInFileLocation ();
-      z.privateSetfilename (x);
-      return z;
-    }
-    private final Expression area;
-    public Expression getarea ()
-    {
-      return area;
-    }
-    private void privateSetarea (Expression x)
-    {
-      this.area = x;
-    }
-    public AreaInFileLocation setarea (Expression x)
-    {
-      z = new AreaInFileLocation ();
-      z.privateSetarea (x);
-      return z;
-    }
-  }
-  public class QualifiedName extends Expression
-  {
-    private QualifiedName qualifiedName;
-
-    private QualifiedName ()
-    {
-    }
-    /*package */ QualifiedName (ITree tree, QualifiedName qualifiedName)
-    {
-      this.tree = tree;
-      this.qualifiedName = qualifiedName;
-    }
-    public IVisitable accept (IVisitor visitor)
-    {
-      return visitor.visitQualifiedNameExpression (this);
-    }
-    private final QualifiedName qualifiedName;
-    public QualifiedName getqualifiedName ()
-    {
-      return qualifiedName;
-    }
-    private void privateSetqualifiedName (QualifiedName x)
-    {
-      this.qualifiedName = x;
-    }
-    public QualifiedName setqualifiedName (QualifiedName x)
-    {
-      z = new QualifiedName ();
-      z.privateSetqualifiedName (x);
-      return z;
-    }
-  }
   public class Closure extends Expression
   {
     private Type type;
@@ -2035,6 +1336,705 @@ public abstract class Expression extends AbstractAST
     {
       z = new Operator ();
       z.privateSetoperator (x);
+      return z;
+    }
+  }
+  public class Literal extends Expression
+  {
+    private Literal literal;
+
+    private Literal ()
+    {
+    }
+    /*package */ Literal (ITree tree, Literal literal)
+    {
+      this.tree = tree;
+      this.literal = literal;
+    }
+    public IVisitable accept (IVisitor visitor)
+    {
+      return visitor.visitLiteralExpression (this);
+    }
+    private final Literal literal;
+    public Literal getliteral ()
+    {
+      return literal;
+    }
+    private void privateSetliteral (Literal x)
+    {
+      this.literal = x;
+    }
+    public Literal setliteral (Literal x)
+    {
+      z = new Literal ();
+      z.privateSetliteral (x);
+      return z;
+    }
+  }
+  public class CallOrTree extends Expression
+  {
+    private Name name;
+    private List < Expression > arguments;
+
+    private CallOrTree ()
+    {
+    }
+    /*package */ CallOrTree (ITree tree, Name name,
+			     List < Expression > arguments)
+    {
+      this.tree = tree;
+      this.name = name;
+      this.arguments = arguments;
+    }
+    public IVisitable accept (IVisitor visitor)
+    {
+      return visitor.visitCallOrTreeExpression (this);
+    }
+    private final Name name;
+    public Name getname ()
+    {
+      return name;
+    }
+    private void privateSetname (Name x)
+    {
+      this.name = x;
+    }
+    public CallOrTree setname (Name x)
+    {
+      z = new CallOrTree ();
+      z.privateSetname (x);
+      return z;
+    }
+    private final List < Expression > arguments;
+    public List < Expression > getarguments ()
+    {
+      return arguments;
+    }
+    private void privateSetarguments (List < Expression > x)
+    {
+      this.arguments = x;
+    }
+    public CallOrTree setarguments (List < Expression > x)
+    {
+      z = new CallOrTree ();
+      z.privateSetarguments (x);
+      return z;
+    }
+  }
+  public class List extends Expression
+  {
+    private List < Expression > elements;
+
+    private List ()
+    {
+    }
+    /*package */ List (ITree tree, List < Expression > elements)
+    {
+      this.tree = tree;
+      this.elements = elements;
+    }
+    public IVisitable accept (IVisitor visitor)
+    {
+      return visitor.visitListExpression (this);
+    }
+    private final List < Expression > elements;
+    public List < Expression > getelements ()
+    {
+      return elements;
+    }
+    private void privateSetelements (List < Expression > x)
+    {
+      this.elements = x;
+    }
+    public List setelements (List < Expression > x)
+    {
+      z = new List ();
+      z.privateSetelements (x);
+      return z;
+    }
+  }
+  public class Range extends Expression
+  {
+    private Expression from;
+    private Expression to;
+
+    private Range ()
+    {
+    }
+    /*package */ Range (ITree tree, Expression from, Expression to)
+    {
+      this.tree = tree;
+      this.from = from;
+      this.to = to;
+    }
+    public IVisitable accept (IVisitor visitor)
+    {
+      return visitor.visitRangeExpression (this);
+    }
+    private final Expression from;
+    public Expression getfrom ()
+    {
+      return from;
+    }
+    private void privateSetfrom (Expression x)
+    {
+      this.from = x;
+    }
+    public Range setfrom (Expression x)
+    {
+      z = new Range ();
+      z.privateSetfrom (x);
+      return z;
+    }
+    private final Expression to;
+    public Expression getto ()
+    {
+      return to;
+    }
+    private void privateSetto (Expression x)
+    {
+      this.to = x;
+    }
+    public Range setto (Expression x)
+    {
+      z = new Range ();
+      z.privateSetto (x);
+      return z;
+    }
+  }
+  public class StepRange extends Expression
+  {
+    private Expression from;
+    private Expression by;
+    private Expression to;
+
+    private StepRange ()
+    {
+    }
+    /*package */ StepRange (ITree tree, Expression from, Expression by,
+			    Expression to)
+    {
+      this.tree = tree;
+      this.from = from;
+      this.by = by;
+      this.to = to;
+    }
+    public IVisitable accept (IVisitor visitor)
+    {
+      return visitor.visitStepRangeExpression (this);
+    }
+    private final Expression from;
+    public Expression getfrom ()
+    {
+      return from;
+    }
+    private void privateSetfrom (Expression x)
+    {
+      this.from = x;
+    }
+    public StepRange setfrom (Expression x)
+    {
+      z = new StepRange ();
+      z.privateSetfrom (x);
+      return z;
+    }
+    private final Expression by;
+    public Expression getby ()
+    {
+      return by;
+    }
+    private void privateSetby (Expression x)
+    {
+      this.by = x;
+    }
+    public StepRange setby (Expression x)
+    {
+      z = new StepRange ();
+      z.privateSetby (x);
+      return z;
+    }
+    private final Expression to;
+    public Expression getto ()
+    {
+      return to;
+    }
+    private void privateSetto (Expression x)
+    {
+      this.to = x;
+    }
+    public StepRange setto (Expression x)
+    {
+      z = new StepRange ();
+      z.privateSetto (x);
+      return z;
+    }
+  }
+  public class Set extends Expression
+  {
+    private List < Expression > elements;
+
+    private Set ()
+    {
+    }
+    /*package */ Set (ITree tree, List < Expression > elements)
+    {
+      this.tree = tree;
+      this.elements = elements;
+    }
+    public IVisitable accept (IVisitor visitor)
+    {
+      return visitor.visitSetExpression (this);
+    }
+    private final List < Expression > elements;
+    public List < Expression > getelements ()
+    {
+      return elements;
+    }
+    private void privateSetelements (List < Expression > x)
+    {
+      this.elements = x;
+    }
+    public Set setelements (List < Expression > x)
+    {
+      z = new Set ();
+      z.privateSetelements (x);
+      return z;
+    }
+  }
+  public class Tuple extends Expression
+  {
+    private Expression first;
+    private List < Expression > rest;
+
+    private Tuple ()
+    {
+    }
+    /*package */ Tuple (ITree tree, Expression first,
+			List < Expression > rest)
+    {
+      this.tree = tree;
+      this.first = first;
+      this.rest = rest;
+    }
+    public IVisitable accept (IVisitor visitor)
+    {
+      return visitor.visitTupleExpression (this);
+    }
+    private final Expression first;
+    public Expression getfirst ()
+    {
+      return first;
+    }
+    private void privateSetfirst (Expression x)
+    {
+      this.first = x;
+    }
+    public Tuple setfirst (Expression x)
+    {
+      z = new Tuple ();
+      z.privateSetfirst (x);
+      return z;
+    }
+    private final List < Expression > rest;
+    public List < Expression > getrest ()
+    {
+      return rest;
+    }
+    private void privateSetrest (List < Expression > x)
+    {
+      this.rest = x;
+    }
+    public Tuple setrest (List < Expression > x)
+    {
+      z = new Tuple ();
+      z.privateSetrest (x);
+      return z;
+    }
+  }
+  public class MapTuple extends Expression
+  {
+    private Expression from;
+    private Expression to;
+
+    private MapTuple ()
+    {
+    }
+    /*package */ MapTuple (ITree tree, Expression from, Expression to)
+    {
+      this.tree = tree;
+      this.from = from;
+      this.to = to;
+    }
+    public IVisitable accept (IVisitor visitor)
+    {
+      return visitor.visitMapTupleExpression (this);
+    }
+    private final Expression from;
+    public Expression getfrom ()
+    {
+      return from;
+    }
+    private void privateSetfrom (Expression x)
+    {
+      this.from = x;
+    }
+    public MapTuple setfrom (Expression x)
+    {
+      z = new MapTuple ();
+      z.privateSetfrom (x);
+      return z;
+    }
+    private final Expression to;
+    public Expression getto ()
+    {
+      return to;
+    }
+    private void privateSetto (Expression x)
+    {
+      this.to = x;
+    }
+    public MapTuple setto (Expression x)
+    {
+      z = new MapTuple ();
+      z.privateSetto (x);
+      return z;
+    }
+  }
+  public class Location extends Expression
+  {
+    private Location ()
+    {
+    }
+    /*package */ Location (ITree tree)
+    {
+      this.tree = tree;
+    }
+    public IVisitable accept (IVisitor visitor)
+    {
+      return visitor.visitLocationExpression (this);
+    }
+  }
+  public class Area extends Expression
+  {
+    private Area ()
+    {
+    }
+    /*package */ Area (ITree tree)
+    {
+      this.tree = tree;
+    }
+    public IVisitable accept (IVisitor visitor)
+    {
+      return visitor.visitAreaExpression (this);
+    }
+  }
+  public class FileLocation extends Expression
+  {
+    private Expression filename;
+
+    private FileLocation ()
+    {
+    }
+    /*package */ FileLocation (ITree tree, Expression filename)
+    {
+      this.tree = tree;
+      this.filename = filename;
+    }
+    public IVisitable accept (IVisitor visitor)
+    {
+      return visitor.visitFileLocationExpression (this);
+    }
+    private final Expression filename;
+    public Expression getfilename ()
+    {
+      return filename;
+    }
+    private void privateSetfilename (Expression x)
+    {
+      this.filename = x;
+    }
+    public FileLocation setfilename (Expression x)
+    {
+      z = new FileLocation ();
+      z.privateSetfilename (x);
+      return z;
+    }
+  }
+  public class AreaLocation extends Expression
+  {
+    private Expression area;
+
+    private AreaLocation ()
+    {
+    }
+    /*package */ AreaLocation (ITree tree, Expression area)
+    {
+      this.tree = tree;
+      this.area = area;
+    }
+    public IVisitable accept (IVisitor visitor)
+    {
+      return visitor.visitAreaLocationExpression (this);
+    }
+    private final Expression area;
+    public Expression getarea ()
+    {
+      return area;
+    }
+    private void privateSetarea (Expression x)
+    {
+      this.area = x;
+    }
+    public AreaLocation setarea (Expression x)
+    {
+      z = new AreaLocation ();
+      z.privateSetarea (x);
+      return z;
+    }
+  }
+  public class AreaInFileLocation extends Expression
+  {
+    private Expression filename;
+    private Expression area;
+
+    private AreaInFileLocation ()
+    {
+    }
+    /*package */ AreaInFileLocation (ITree tree, Expression filename,
+				     Expression area)
+    {
+      this.tree = tree;
+      this.filename = filename;
+      this.area = area;
+    }
+    public IVisitable accept (IVisitor visitor)
+    {
+      return visitor.visitAreaInFileLocationExpression (this);
+    }
+    private final Expression filename;
+    public Expression getfilename ()
+    {
+      return filename;
+    }
+    private void privateSetfilename (Expression x)
+    {
+      this.filename = x;
+    }
+    public AreaInFileLocation setfilename (Expression x)
+    {
+      z = new AreaInFileLocation ();
+      z.privateSetfilename (x);
+      return z;
+    }
+    private final Expression area;
+    public Expression getarea ()
+    {
+      return area;
+    }
+    private void privateSetarea (Expression x)
+    {
+      this.area = x;
+    }
+    public AreaInFileLocation setarea (Expression x)
+    {
+      z = new AreaInFileLocation ();
+      z.privateSetarea (x);
+      return z;
+    }
+  }
+  public class QualifiedName extends Expression
+  {
+    private QualifiedName qualifiedName;
+
+    private QualifiedName ()
+    {
+    }
+    /*package */ QualifiedName (ITree tree, QualifiedName qualifiedName)
+    {
+      this.tree = tree;
+      this.qualifiedName = qualifiedName;
+    }
+    public IVisitable accept (IVisitor visitor)
+    {
+      return visitor.visitQualifiedNameExpression (this);
+    }
+    private final QualifiedName qualifiedName;
+    public QualifiedName getqualifiedName ()
+    {
+      return qualifiedName;
+    }
+    private void privateSetqualifiedName (QualifiedName x)
+    {
+      this.qualifiedName = x;
+    }
+    public QualifiedName setqualifiedName (QualifiedName x)
+    {
+      z = new QualifiedName ();
+      z.privateSetqualifiedName (x);
+      return z;
+    }
+  }
+  public class Comprehension extends Expression
+  {
+    private Comprehension comprehension;
+
+    private Comprehension ()
+    {
+    }
+    /*package */ Comprehension (ITree tree, Comprehension comprehension)
+    {
+      this.tree = tree;
+      this.comprehension = comprehension;
+    }
+    public IVisitable accept (IVisitor visitor)
+    {
+      return visitor.visitComprehensionExpression (this);
+    }
+    private final Comprehension comprehension;
+    public Comprehension getcomprehension ()
+    {
+      return comprehension;
+    }
+    private void privateSetcomprehension (Comprehension x)
+    {
+      this.comprehension = x;
+    }
+    public Comprehension setcomprehension (Comprehension x)
+    {
+      z = new Comprehension ();
+      z.privateSetcomprehension (x);
+      return z;
+    }
+  }
+  public class Exists extends Expression
+  {
+    private ValueProducer producer;
+    private Expression expression;
+
+    private Exists ()
+    {
+    }
+    /*package */ Exists (ITree tree, ValueProducer producer,
+			 Expression expression)
+    {
+      this.tree = tree;
+      this.producer = producer;
+      this.expression = expression;
+    }
+    public IVisitable accept (IVisitor visitor)
+    {
+      return visitor.visitExistsExpression (this);
+    }
+    private final ValueProducer producer;
+    public ValueProducer getproducer ()
+    {
+      return producer;
+    }
+    private void privateSetproducer (ValueProducer x)
+    {
+      this.producer = x;
+    }
+    public Exists setproducer (ValueProducer x)
+    {
+      z = new Exists ();
+      z.privateSetproducer (x);
+      return z;
+    }
+    private final Expression expression;
+    public Expression getexpression ()
+    {
+      return expression;
+    }
+    private void privateSetexpression (Expression x)
+    {
+      this.expression = x;
+    }
+    public Exists setexpression (Expression x)
+    {
+      z = new Exists ();
+      z.privateSetexpression (x);
+      return z;
+    }
+  }
+  public class Forall extends Expression
+  {
+    private ValueProducer producers;
+    private Expression expression;
+
+    private Forall ()
+    {
+    }
+    /*package */ Forall (ITree tree, ValueProducer producers,
+			 Expression expression)
+    {
+      this.tree = tree;
+      this.producers = producers;
+      this.expression = expression;
+    }
+    public IVisitable accept (IVisitor visitor)
+    {
+      return visitor.visitForallExpression (this);
+    }
+    private final ValueProducer producers;
+    public ValueProducer getproducers ()
+    {
+      return producers;
+    }
+    private void privateSetproducers (ValueProducer x)
+    {
+      this.producers = x;
+    }
+    public Forall setproducers (ValueProducer x)
+    {
+      z = new Forall ();
+      z.privateSetproducers (x);
+      return z;
+    }
+    private final Expression expression;
+    public Expression getexpression ()
+    {
+      return expression;
+    }
+    private void privateSetexpression (Expression x)
+    {
+      this.expression = x;
+    }
+    public Forall setexpression (Expression x)
+    {
+      z = new Forall ();
+      z.privateSetexpression (x);
+      return z;
+    }
+  }
+  public class Visit extends Expression
+  {
+    private Visit visit;
+
+    private Visit ()
+    {
+    }
+    /*package */ Visit (ITree tree, Visit visit)
+    {
+      this.tree = tree;
+      this.visit = visit;
+    }
+    public IVisitable accept (IVisitor visitor)
+    {
+      return visitor.visitVisitExpression (this);
+    }
+    private final Visit visit;
+    public Visit getvisit ()
+    {
+      return visit;
+    }
+    private void privateSetvisit (Visit x)
+    {
+      this.visit = x;
+    }
+    public Visit setvisit (Visit x)
+    {
+      z = new Visit ();
+      z.privateSetvisit (x);
       return z;
     }
   }

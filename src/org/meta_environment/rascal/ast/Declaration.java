@@ -5,19 +5,19 @@ public abstract class Declaration extends AbstractAST
   {
     private Name view;
     private Name type;
-    private Annotations annos;
+    private Tags tags;
     private List < Alternative > alternatives;
 
     private View ()
     {
     }
-    /*package */ View (ITree tree, Name view, Name type, Annotations annos,
+    /*package */ View (ITree tree, Name view, Name type, Tags tags,
 		       List < Alternative > alternatives)
     {
       this.tree = tree;
       this.view = view;
       this.type = type;
-      this.annos = annos;
+      this.tags = tags;
       this.alternatives = alternatives;
     }
     public IVisitable accept (IVisitor visitor)
@@ -54,19 +54,19 @@ public abstract class Declaration extends AbstractAST
       z.privateSettype (x);
       return z;
     }
-    private final Annotations annos;
-    public Annotations getannos ()
+    private final Tags tags;
+    public Tags gettags ()
     {
-      return annos;
+      return tags;
     }
-    private void privateSetannos (Annotations x)
+    private void privateSettags (Tags x)
     {
-      this.annos = x;
+      this.tags = x;
     }
-    public View setannos (Annotations x)
+    public View settags (Tags x)
     {
       z = new View ();
-      z.privateSetannos (x);
+      z.privateSettags (x);
       return z;
     }
     private final List < Alternative > alternatives;
@@ -89,18 +89,17 @@ public abstract class Declaration extends AbstractAST
   {
     private Type base;
     private UserType user;
-    private Annotations annotations;
+    private Tags tags;
 
     private Type ()
     {
     }
-    /*package */ Type (ITree tree, Type base, UserType user,
-		       Annotations annotations)
+    /*package */ Type (ITree tree, Type base, UserType user, Tags tags)
     {
       this.tree = tree;
       this.base = base;
       this.user = user;
-      this.annotations = annotations;
+      this.tags = tags;
     }
     public IVisitable accept (IVisitor visitor)
     {
@@ -136,37 +135,37 @@ public abstract class Declaration extends AbstractAST
       z.privateSetuser (x);
       return z;
     }
-    private final Annotations annotations;
-    public Annotations getannotations ()
+    private final Tags tags;
+    public Tags gettags ()
     {
-      return annotations;
+      return tags;
     }
-    private void privateSetannotations (Annotations x)
+    private void privateSettags (Tags x)
     {
-      this.annotations = x;
+      this.tags = x;
     }
-    public Type setannotations (Annotations x)
+    public Type settags (Tags x)
     {
       z = new Type ();
-      z.privateSetannotations (x);
+      z.privateSettags (x);
       return z;
     }
   }
   public class Data extends Declaration
   {
     private UserType user;
-    private Annotations annotations;
+    private Tags tags;
     private List < Variant > variants;
 
     private Data ()
     {
     }
-    /*package */ Data (ITree tree, UserType user, Annotations annotations,
+    /*package */ Data (ITree tree, UserType user, Tags tags,
 		       List < Variant > variants)
     {
       this.tree = tree;
       this.user = user;
-      this.annotations = annotations;
+      this.tags = tags;
       this.variants = variants;
     }
     public IVisitable accept (IVisitor visitor)
@@ -188,19 +187,19 @@ public abstract class Declaration extends AbstractAST
       z.privateSetuser (x);
       return z;
     }
-    private final Annotations annotations;
-    public Annotations getannotations ()
+    private final Tags tags;
+    public Tags gettags ()
     {
-      return annotations;
+      return tags;
     }
-    private void privateSetannotations (Annotations x)
+    private void privateSettags (Tags x)
     {
-      this.annotations = x;
+      this.tags = x;
     }
-    public Data setannotations (Annotations x)
+    public Data settags (Tags x)
     {
       z = new Data ();
-      z.privateSetannotations (x);
+      z.privateSettags (x);
       return z;
     }
     private final List < Variant > variants;
@@ -304,18 +303,17 @@ public abstract class Declaration extends AbstractAST
   public class Rule extends Declaration
   {
     private Name name;
-    private Annotations annotations;
+    private Tags tags;
     private Rule rule;
 
     private Rule ()
     {
     }
-    /*package */ Rule (ITree tree, Name name, Annotations annotations,
-		       Rule rule)
+    /*package */ Rule (ITree tree, Name name, Tags tags, Rule rule)
     {
       this.tree = tree;
       this.name = name;
-      this.annotations = annotations;
+      this.tags = tags;
       this.rule = rule;
     }
     public IVisitable accept (IVisitor visitor)
@@ -337,19 +335,19 @@ public abstract class Declaration extends AbstractAST
       z.privateSetname (x);
       return z;
     }
-    private final Annotations annotations;
-    public Annotations getannotations ()
+    private final Tags tags;
+    public Tags gettags ()
     {
-      return annotations;
+      return tags;
     }
-    private void privateSetannotations (Annotations x)
+    private void privateSettags (Tags x)
     {
-      this.annotations = x;
+      this.tags = x;
     }
-    public Rule setannotations (Annotations x)
+    public Rule settags (Tags x)
     {
       z = new Rule ();
-      z.privateSetannotations (x);
+      z.privateSettags (x);
       return z;
     }
     private final Rule rule;
@@ -372,19 +370,19 @@ public abstract class Declaration extends AbstractAST
   {
     private Type type;
     private Name name;
-    private Annotations annotations;
+    private Tags tags;
     private List < Type > types;
 
     private Annotation ()
     {
     }
-    /*package */ Annotation (ITree tree, Type type, Name name,
-			     Annotations annotations, List < Type > types)
+    /*package */ Annotation (ITree tree, Type type, Name name, Tags tags,
+			     List < Type > types)
     {
       this.tree = tree;
       this.type = type;
       this.name = name;
-      this.annotations = annotations;
+      this.tags = tags;
       this.types = types;
     }
     public IVisitable accept (IVisitor visitor)
@@ -421,19 +419,19 @@ public abstract class Declaration extends AbstractAST
       z.privateSetname (x);
       return z;
     }
-    private final Annotations annotations;
-    public Annotations getannotations ()
+    private final Tags tags;
+    public Tags gettags ()
     {
-      return annotations;
+      return tags;
     }
-    private void privateSetannotations (Annotations x)
+    private void privateSettags (Tags x)
     {
-      this.annotations = x;
+      this.tags = x;
     }
-    public Annotation setannotations (Annotations x)
+    public Annotation settags (Tags x)
     {
       z = new Annotation ();
-      z.privateSetannotations (x);
+      z.privateSettags (x);
       return z;
     }
     private final List < Type > types;
@@ -456,19 +454,19 @@ public abstract class Declaration extends AbstractAST
   {
     private Kind kind;
     private Name name;
-    private Annotations annotations;
+    private Tags tags;
     private List < Type > types;
 
     private Tag ()
     {
     }
-    /*package */ Tag (ITree tree, Kind kind, Name name,
-		      Annotations annotations, List < Type > types)
+    /*package */ Tag (ITree tree, Kind kind, Name name, Tags tags,
+		      List < Type > types)
     {
       this.tree = tree;
       this.kind = kind;
       this.name = name;
-      this.annotations = annotations;
+      this.tags = tags;
       this.types = types;
     }
     public IVisitable accept (IVisitor visitor)
@@ -505,19 +503,19 @@ public abstract class Declaration extends AbstractAST
       z.privateSetname (x);
       return z;
     }
-    private final Annotations annotations;
-    public Annotations getannotations ()
+    private final Tags tags;
+    public Tags gettags ()
     {
-      return annotations;
+      return tags;
     }
-    private void privateSetannotations (Annotations x)
+    private void privateSettags (Tags x)
     {
-      this.annotations = x;
+      this.tags = x;
     }
-    public Tag setannotations (Annotations x)
+    public Tag settags (Tags x)
     {
       z = new Tag ();
-      z.privateSetannotations (x);
+      z.privateSettags (x);
       return z;
     }
     private final List < Type > types;

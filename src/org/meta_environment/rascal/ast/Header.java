@@ -4,18 +4,18 @@ public abstract class Header extends AbstractAST
   public class Default extends Header
   {
     private ModuleName name;
-    private Annotations annos;
+    private Tags tags;
     private List < Import > imports;
 
     private Default ()
     {
     }
-    /*package */ Default (ITree tree, ModuleName name, Annotations annos,
+    /*package */ Default (ITree tree, ModuleName name, Tags tags,
 			  List < Import > imports)
     {
       this.tree = tree;
       this.name = name;
-      this.annos = annos;
+      this.tags = tags;
       this.imports = imports;
     }
     public IVisitable accept (IVisitor visitor)
@@ -37,19 +37,19 @@ public abstract class Header extends AbstractAST
       z.privateSetname (x);
       return z;
     }
-    private final Annotations annos;
-    public Annotations getannos ()
+    private final Tags tags;
+    public Tags gettags ()
     {
-      return annos;
+      return tags;
     }
-    private void privateSetannos (Annotations x)
+    private void privateSettags (Tags x)
     {
-      this.annos = x;
+      this.tags = x;
     }
-    public Default setannos (Annotations x)
+    public Default settags (Tags x)
     {
       z = new Default ();
-      z.privateSetannos (x);
+      z.privateSettags (x);
       return z;
     }
     private final List < Import > imports;
@@ -72,20 +72,20 @@ public abstract class Header extends AbstractAST
   {
     private ModuleName name;
     private ModuleParameters params;
-    private Annotations annos;
+    private Tags tags;
     private List < Import > imports;
 
     private Parameters ()
     {
     }
     /*package */ Parameters (ITree tree, ModuleName name,
-			     ModuleParameters params, Annotations annos,
+			     ModuleParameters params, Tags tags,
 			     List < Import > imports)
     {
       this.tree = tree;
       this.name = name;
       this.params = params;
-      this.annos = annos;
+      this.tags = tags;
       this.imports = imports;
     }
     public IVisitable accept (IVisitor visitor)
@@ -122,19 +122,19 @@ public abstract class Header extends AbstractAST
       z.privateSetparams (x);
       return z;
     }
-    private final Annotations annos;
-    public Annotations getannos ()
+    private final Tags tags;
+    public Tags gettags ()
     {
-      return annos;
+      return tags;
     }
-    private void privateSetannos (Annotations x)
+    private void privateSettags (Tags x)
     {
-      this.annos = x;
+      this.tags = x;
     }
-    public Parameters setannos (Annotations x)
+    public Parameters settags (Tags x)
     {
       z = new Parameters ();
-      z.privateSetannos (x);
+      z.privateSettags (x);
       return z;
     }
     private final List < Import > imports;
