@@ -29,11 +29,11 @@ public class Parser {
 	
 	private IValue parse(InputStream input) throws IOException, FactTypeError {
 		ATermReader reader = new ATermReader();
-		Process sglr = Runtime.getRuntime().exec("sglr -p resources/rascal.trm.tbl -t");
+		Process sglr = Runtime.getRuntime().exec("sglr -p /ufs/jurgenv/glt/src/rascal/resources/rascal.trm.tbl -t");
 		
 		pipe("sglr", input, sglr.getOutputStream());
 		IValue tmp = reader.read(ValueFactory.getInstance(), Factory.ParseTree, sglr.getInputStream());
-		
+
 		while (true) {
 		  try {
 			  int exitCode = sglr.waitFor();
@@ -51,27 +51,22 @@ public class Parser {
 	
 	static private void pipe(String label, final InputStream in,
 			final OutputStream out) throws IOException {
-		Runnable worker = new Runnable() {
-			public void run() {
-				try {
-					byte[] buffer = new byte[8192];
-					int count;
-					while ((count = in.read(buffer)) >= 0) {
-						out.write(buffer, 0, count);
-					}
-				} catch (IOException e) {
-					e.printStackTrace();
-				} finally {
-					try {
-						out.close();
-					} catch (IOException e) {
-						// do nothing
-					}
-				}
-			}
-		};
 
-		new Thread(worker, "pipe: " + label).start();
+		try {
+			byte[] buffer = new byte[8192];
+			int count;
+			while ((count = in.read(buffer)) >= 0) {
+				out.write(buffer, 0, count);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				out.close();
+			} catch (IOException e) {
+				// do nothing
+			}
+		}
 	}
 	
 	public static void main(String[] args) {
