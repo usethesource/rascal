@@ -14,15 +14,15 @@ public class SymbolWrapper {
 	}
 
 	public boolean isCf() {
-		return tree.is(Factory.Symbol_Cf);
+		return tree.getTreeNodeType() == Factory.Symbol_Cf;
 	}
 
 	public boolean isLex() {
-		return tree.is(Factory.Symbol_Lex);
+		return tree.getTreeNodeType() == Factory.Symbol_Lex;
 	}
 	
 	public boolean isSort() {
-		return tree.is(Factory.Symbol_Sort);
+		return tree.getTreeNodeType() == Factory.Symbol_Sort;
 	}
 
 	public SymbolWrapper getSymbol() {
