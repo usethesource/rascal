@@ -72,7 +72,7 @@ public class ProductionWrapper {
 	public IList getAttributes() {
 		ITree attributes = (ITree) tree.get("attributes");
 		
-		if (attributes.is(Factory.Attributes_Attrs)) {
+		if (attributes.getTreeNodeType() == Factory.Attributes_Attrs) {
 			return (IList) attributes.get("attrs");
 		}
 		else {
