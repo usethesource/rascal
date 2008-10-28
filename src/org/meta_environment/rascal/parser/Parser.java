@@ -33,7 +33,12 @@ public class Parser {
 		
 		pipe("sglr", input, sglr.getOutputStream());
 		IValue tmp = reader.read(ValueFactory.getInstance(), Factory.ParseTree, sglr.getInputStream());
+		waitForSglr(sglr);
+		
+		return tmp;
+	}
 
+	private void waitForSglr(Process sglr) throws IOException {
 		while (true) {
 		  try {
 			  int exitCode = sglr.waitFor();
@@ -45,8 +50,6 @@ public class Parser {
 			  // it happens
 		  }
 		}
-		
-		return tmp;
 	}
 	
 	static private void pipe(String label, final InputStream in,
