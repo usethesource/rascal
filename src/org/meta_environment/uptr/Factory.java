@@ -35,13 +35,16 @@ public class Factory {
 	public static final TreeSortType Associativity = tf.treeSortType("Associativity");
 	public static final TreeSortType Symbol = tf.treeSortType("Symbol");
 	public static final TreeSortType CharRange = tf.treeSortType("CharRange");
+	public static final TreeSortType Constructor = tf.treeSortType("Constructor");
 	public static final NamedType    Args = tf.namedType("Args", tf.listType(Tree));
 	public static final NamedType    Attrs = tf.namedType("Attrs", tf.listType(Attr));
 	public static final NamedType    Symbols = tf.namedType("Symbols", tf.listType(Symbol));
 	public static final NamedType    CharRanges = tf.namedType("CharRanges", tf.listType(CharRange));
 	public static final NamedType    Alternatives = tf.namedType("Alternatives", tf.setTypeOf(Tree));
 	
-	public static final TreeNodeType ParseTree_Top = tf.treeType(ParseTree,"top", Tree, "top", tf.integerType(), "amb-cnt");
+	public static final TreeNodeType ParseTree_Top = tf.treeType(ParseTree,"parsetree", Tree, "top", tf.integerType(), "amb-cnt");
+	
+	public static final TreeNodeType Constructor_Name = tf.treeType(Constructor, "cons", tf.stringType(), "name");
 	
 	public static final TreeNodeType Tree_Appl = tf.treeType(Tree, "appl", Production, "prod", Args, "args");
 	public static final TreeNodeType Tree_Cycle = tf.treeType(Tree, "cycle", Symbol, "symbol", tf.integerType(), "cycle-length");
@@ -55,7 +58,7 @@ public class Factory {
 	public static final TreeNodeType Attributes_Attrs = tf.treeType(Attributes, "attrs", Attrs, "attrs");
 	
 	public static final TreeNodeType Attr_Assoc = tf.treeType(Attr, "assoc", Associativity, "assoc");
-	public static final TreeNodeType Attr_Term = tf.treeType(Attr, "term", tf.valueType(), "value");
+	public static final TreeNodeType Attr_Term = tf.treeType(Attr, "term", Constructor, "value");
 	public static final TreeNodeType Attr_Id = tf.treeType(Attr, "id", tf.stringType(), "module-name");
 	public static final TreeNodeType Attr_Bracket = tf.treeType(Attr, "bracket");
 	public static final TreeNodeType Attr_Reject = tf.treeType(Attr, "reject");
