@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
@@ -20,7 +20,7 @@ public class Unparser {
 
 		@Override
 		public ITree visitTreeAmb(ITree arg) throws VisitorException {
-			((IList) arg.get("alternatives")).get(0).accept(this);
+			((ISet) arg.get("alternatives")).iterator().next().accept(this);
 			return arg;
 		}
 
