@@ -30,6 +30,7 @@ import org.eclipse.imp.pdb.facts.type.TupleType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
+// TODO: add support for values of type Value, for this we need overloading resolving
 public class ATermReader implements IValueReader {
 	private IValueFactory vf;
 	private TypeFactory tf = TypeFactory.getInstance();
@@ -65,118 +66,30 @@ public class ATermReader implements IValueReader {
 		}
 	}
 
+	
+	// TODO add support for anonymous constructors (is already done for the parseNumber case)
 	private IValue parse(SharingStream reader, Type expected)
 			throws IOException {
 		IValue result;
-		int c, start, end;
+		int start, end;
 
 		start = reader.getPosition();
 		switch (reader.getLastChar()) {
 		case -1:
 			throw new FactTypeError("premature EOF encountered.");
-
 		case '#':
 			return parseAbbrev(reader);
-
 		case '[':
-
-			c = reader.readSkippingWS();
-			if (c == -1) {
-				throw new FactTypeError("premature EOF encountered.");
-			}
-
-			if (c == ']') {
-				c = reader.readSkippingWS();
-
-				if (expected.isListType()) {
-					result = vf.list((((ListType) expected).getElementType()));
-					((IList) result).getWriter().done();
-				} else if (expected.isNamedType()
-						&& expected.getBaseType().isListType()) {
-					result = vf.list(expected);
-					((IList) result).getWriter().done();
-				} else {
-					throw new FactTypeError("Did not expect a list, rather a "
-							+ expected);
-				}
-			} else {
-				result = parseATerms(reader, expected);
-				if (reader.getLastChar() != ']') {
-					throw new FactTypeError("expected ']' but got '"
-							+ (char) reader.getLastChar() + "'");
-				}
-				c = reader.readSkippingWS();
-			}
-
+			result = parseList(reader, expected);
 			break;
-
 		case '<':
 			throw new FactTypeError("Placeholders are not supported");
-
 		case '"':
-			// note that we interpret all strings as strings, not possible function names.
-			// this deviates from the ATerm library.
-			String str = parseString(reader);
-			
-			if (expected.getBaseType().isStringType()) {
-				if (expected.isNamedType()) {
-					result = vf.string((NamedType) expected, str);
-				}
-				else {
-					result = vf.string(str);
-				}
-			}
-			else {
-				throw new FactTypeError("Expected " + expected + " but got a string");
-			}
-			
-			c = reader.readSkippingWS();
-			if (c == -1) {
-				throw new FactTypeError("premature EOF encountered.");
-			}
+			result = parseString(reader, expected);
 			break;
 		case '(':
-			c = reader.readSkippingWS();
-			if (c == -1) {
-				throw new FactTypeError("premature EOF encountered.");
-			}
-			if (reader.getLastChar() == ')') {
-				if (expected.getBaseType().isTupleType()) {
-					if (expected.isNamedType()) {
-					  result = vf.tuple((NamedType) expected, new IValue[0], 0);
-					}
-					else {
-						result = vf.tuple(new IValue[0], 0);
-					}
-				}
-				else {
-					throw new FactTypeError("Expected " + expected + " but got an empty tuple");
-				}
-				
-			} else {
-				if (!expected.getBaseType().isTupleType()) {
-					throw new FactTypeError("Expected a " + expected + " but got a tuple");
-				}
-				IValue[] list = parseFixedSizeATermsArray(reader, (TupleType) expected.getBaseType());
-
-				if (reader.getLastChar() != ')') {
-					throw new FactTypeError("expected ')' but got '"
-							+ (char) reader.getLastChar() + "'");
-				}
-
-				if (expected.isNamedType()) {
-					result = vf.tuple((NamedType) expected, list, list.length);
-				} else {
-					result = vf.tuple(list, list.length);
-				}
-			}
-			c = reader.readSkippingWS();
-			if (c == -1) {
-				throw new FactTypeError("premature EOF encountered.");
-			}
-
+			result = parseTuple(reader, expected);
 			break;
-
 		case '-':
 		case '0':
 		case '1':
@@ -189,67 +102,187 @@ public class ATermReader implements IValueReader {
 		case '8':
 		case '9':
 			result = parseNumber(reader, expected);
-			c = reader.skipWS();
 			break;
-
 		default:
-			c = reader.getLastChar();
-			if (Character.isLetter(c)) {
-
-				String funname = parseId(reader);
-				
-				if (!expected.getBaseType().isTreeSortType()) {
-					throw new FactTypeError("Expected a " + expected + " but got a tree node");
-				}
-				
-				TreeNodeType node = tf.signatureGet((TreeSortType) expected.getBaseType(), funname);
-				
-				c = reader.skipWS();
-				if (reader.getLastChar() == '(') {
-					c = reader.readSkippingWS();
-					if (c == -1) {
-						throw new FactTypeError("premature EOF encountered.");
-					}
-					if (reader.getLastChar() == ')') {
-						result = vf
-								.tree(node, new IValue[0]);
-					} else {
-						IValue[] list = parseFixedSizeATermsArray(reader, node.getChildrenTypes());
-
-						if (reader.getLastChar() != ')') {
-							throw new FactTypeError("expected ')' but got '"
-									+ (char) reader.getLastChar() + "'");
-						}
-						
-						result = vf.tree(node, list);
-					}
-					c = reader.readSkippingWS();
-				} else {
-				    result = vf.tree(node, new IValue[0]);
-				}
-			} else {
-				throw new FactTypeError("illegal character: "
-						+ (char) reader.getLastChar());
-			}
+			result = parseAppl(reader, expected);
 		}
 
-		
-		// TODO add support for annotations
 		if (reader.getLastChar() == '{') {
-
-			if (reader.readSkippingWS() == '}') {
-				reader.readSkippingWS();
-			} else {
-				result = parseAnnos(reader, result);
-				if (reader.getLastChar() != '}') {
-					throw new FactTypeError("'}' expected");
-				}
-			}
+			result = parseAnnotations(reader, result);
 		}
 
 		end = reader.getPosition();
 		reader.storeNextTerm(result, end - start);
 
+		return result;
+	}
+
+
+	private IValue parseAnnotations(SharingStream reader, IValue result)
+			throws IOException {
+		if (reader.readSkippingWS() == '}') {
+			reader.readSkippingWS();
+		} else {
+			result = parseAnnos(reader, result);
+			if (reader.getLastChar() != '}') {
+				throw new FactTypeError("'}' expected");
+			}
+		}
+		return result;
+	}
+
+
+	private IValue parseAppl(SharingStream reader, Type expected)
+			throws IOException {
+		int c;
+		IValue result;
+		c = reader.getLastChar();
+		if (Character.isLetter(c)) {
+
+			String funname = parseId(reader);
+			
+			if (!expected.getBaseType().isTreeSortType()) {
+				throw new FactTypeError("Expected a " + expected + " but got a tree node");
+			}
+			
+			TreeNodeType node = tf.signatureGet((TreeSortType) expected.getBaseType(), funname);
+			
+			c = reader.skipWS();
+			if (reader.getLastChar() == '(') {
+				c = reader.readSkippingWS();
+				if (c == -1) {
+					throw new FactTypeError("premature EOF encountered.");
+				}
+				if (reader.getLastChar() == ')') {
+					result = vf
+							.tree(node, new IValue[0]);
+				} else {
+					IValue[] list = parseFixedSizeATermsArray(reader, node.getChildrenTypes());
+
+					if (reader.getLastChar() != ')') {
+						throw new FactTypeError("expected ')' but got '"
+								+ (char) reader.getLastChar() + "'");
+					}
+					
+					result = vf.tree(node, list);
+				}
+				c = reader.readSkippingWS();
+			} else {
+			    result = vf.tree(node, new IValue[0]);
+			}
+		} else {
+			throw new FactTypeError("illegal character: "
+					+ (char) reader.getLastChar());
+		}
+		return result;
+	}
+
+
+	private IValue parseTuple(SharingStream reader, Type expected)
+			throws IOException {
+		int c;
+		IValue result;
+		c = reader.readSkippingWS();
+		if (c == -1) {
+			throw new FactTypeError("premature EOF encountered.");
+		}
+		if (reader.getLastChar() == ')') {
+			if (expected.getBaseType().isTupleType()) {
+				if (expected.isNamedType()) {
+				  result = vf.tuple((NamedType) expected, new IValue[0], 0);
+				}
+				else {
+					result = vf.tuple(new IValue[0], 0);
+				}
+			}
+			else {
+				throw new FactTypeError("Expected " + expected + " but got an empty tuple");
+			}
+			
+		} else {
+			if (!expected.getBaseType().isTupleType()) {
+				throw new FactTypeError("Expected a " + expected + " but got a tuple");
+			}
+			IValue[] list = parseFixedSizeATermsArray(reader, (TupleType) expected.getBaseType());
+
+			if (reader.getLastChar() != ')') {
+				throw new FactTypeError("expected ')' but got '"
+						+ (char) reader.getLastChar() + "'");
+			}
+
+			if (expected.isNamedType()) {
+				result = vf.tuple((NamedType) expected, list, list.length);
+			} else {
+				result = vf.tuple(list, list.length);
+			}
+		}
+		c = reader.readSkippingWS();
+		if (c == -1) {
+			throw new FactTypeError("premature EOF encountered.");
+		}
+		return result;
+	}
+
+
+	private IValue parseString(SharingStream reader, Type expected) throws IOException {
+		int c;
+		IValue result;
+		String str = parseStringLiteral(reader);
+		
+		// note that we interpret all strings as strings, not possible function names.
+		// this deviates from the ATerm library.
+		
+		if (expected.getBaseType().isStringType()) {
+			if (expected.isNamedType()) {
+				result = vf.string((NamedType) expected, str);
+			}
+			else {
+				result = vf.string(str);
+			}
+		}
+		else {
+			throw new FactTypeError("Expected " + expected + " but got a string");
+		}
+		
+		c = reader.readSkippingWS();
+		if (c == -1) {
+			throw new FactTypeError("premature EOF encountered.");
+		}
+		return result;
+	}
+
+
+	private IValue parseList(SharingStream reader, Type expected)
+			throws IOException {
+		IValue result;
+		int c;
+		c = reader.readSkippingWS();
+		if (c == -1) {
+			throw new FactTypeError("premature EOF encountered.");
+		}
+
+		if (c == ']') {
+			c = reader.readSkippingWS();
+
+			if (expected.isListType()) {
+				result = vf.list((((ListType) expected).getElementType()));
+				((IList) result).getWriter().done();
+			} else if (expected.isNamedType()
+					&& expected.getBaseType().isListType()) {
+				result = vf.list(expected);
+				((IList) result).getWriter().done();
+			} else {
+				throw new FactTypeError("Did not expect a list, rather a "
+						+ expected);
+			}
+		} else {
+			result = parseATerms(reader, expected);
+			if (reader.getLastChar() != ']') {
+				throw new FactTypeError("expected ']' but got '"
+						+ (char) reader.getLastChar() + "'");
+			}
+			c = reader.readSkippingWS();
+		}
 		return result;
 	}
 
@@ -268,7 +301,7 @@ public class ATermReader implements IValueReader {
 			int c = reader.readSkippingWS();
 			
 			if (c == '"') {
-				String key = parseString(reader);
+				String key = parseStringLiteral(reader);
 				Type annoType = tf.getAnnotationType(result.getType(), key);
 
 				if (reader.readSkippingWS() == ',') {
@@ -346,7 +379,7 @@ public class ATermReader implements IValueReader {
 			try {
 				val = Integer.parseInt(str.toString());
 			} catch (NumberFormatException e) {
-				throw new FactTypeError("malformed int");
+				throw new FactTypeError("malformed int:" + str);
 			}
 			
 			if (expected.getBaseType().isIntegerType()) {
@@ -355,6 +388,22 @@ public class ATermReader implements IValueReader {
 				}
 				else {
 					result = vf.integer(val);
+				}
+			}
+			else if (expected.getBaseType().isTreeSortType()) {
+				try {
+				  TreeNodeType anonymousNode = tf.signatureGetAnonymous((TreeSortType) expected.getBaseType());
+				  Type argType = anonymousNode.getChildType(0).getBaseType();
+				  
+				  if (argType.equals(tf.integerType())) {
+					  result = vf.tree(anonymousNode, vf.integer(val));
+				  }
+				  else {
+					  throw new FactTypeError();
+				  }
+				}
+				catch (FactTypeError e) {
+					throw new FactTypeError("Expected a " + expected + " but got an integer: " + val);
 				}
 			}
 			else {
@@ -405,6 +454,8 @@ public class ATermReader implements IValueReader {
 				throw new FactTypeError("Expected " + expected + " but got integer");
 			}
 		}
+		
+		reader.skipWS();
 		return result;
 	}
 
@@ -422,7 +473,7 @@ public class ATermReader implements IValueReader {
 		return buf.toString();
 	}
 
-	private String parseString(SharingStream reader) throws IOException {
+	private String parseStringLiteral(SharingStream reader) throws IOException {
 		boolean escaped;
 		StringBuilder str = new StringBuilder();
 
