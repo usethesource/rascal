@@ -1,10 +1,18 @@
 package org.meta_environment.uptr;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+
+import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.impl.hash.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
+import org.eclipse.imp.pdb.facts.visitors.BottomUpVisitor;
+import org.eclipse.imp.pdb.facts.visitors.VisitorException;
+import org.meta_environment.uptr.visitors.IdentityTreeVisitor;
 
 public class TreeAdapter {
 	private ITree tree;
@@ -92,6 +100,63 @@ public class TreeAdapter {
 		}
 		else {
 			throw new FactTypeError("this tree has no alternatives");
+		}
+	}
+	
+	private static class Unparser extends IdentityTreeVisitor {
+		private OutputStream fStream;
+
+		public Unparser(OutputStream stream) {
+			fStream = stream;
+		}
+
+		@Override
+		public ITree visitTreeAmb(ITree arg) throws VisitorException {
+			((ISet) arg.get("alternatives")).iterator().next().accept(this);
+			return arg;
+		}
+
+		@Override
+		public ITree visitTreeCharacter(ITree arg) throws VisitorException {
+			try {
+				fStream.write(((IInteger) arg.get("character")).getValue());
+				return arg;
+			} catch (IOException e) {
+				throw new VisitorException(e);
+			}
+		}
+	}
+	
+	public void unparse(OutputStream stream) throws IOException, FactTypeError {
+		try {
+			if (tree.getTreeNodeType() == Factory.ParseTree_Top) {
+				tree.get("top").accept(new BottomUpVisitor(new Unparser(stream), ValueFactory.getInstance()));
+			} else if (tree.getType() == Factory.Tree) {
+				tree.accept(new Unparser(stream));
+			} else {
+				throw new FactTypeError("Can not unparse this "
+						+ tree.getType());
+			}
+		} catch (VisitorException e) {
+			Throwable cause = e.getCause();
+
+			if (cause instanceof IOException) {
+				throw (IOException) cause;
+			}
+			else {
+				System.err.println("Unexpected error in unparse: " + e.getMessage());
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	public String yield() throws FactTypeError {
+		try {
+			ByteArrayOutputStream stream = new ByteArrayOutputStream();
+			unparse(stream);
+			return stream.toString();
+		} catch (IOException e) {
+			throw new FactTypeError("yield failed", e);
 		}
 	}
 }
