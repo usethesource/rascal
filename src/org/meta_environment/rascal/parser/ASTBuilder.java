@@ -11,7 +11,7 @@ import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.Expression;
 import org.meta_environment.rascal.ast.Module;
 import org.meta_environment.rascal.ast.Statement;
-import org.meta_environment.uptr.TreeWrapper;
+import org.meta_environment.uptr.TreeAdapter;
 
 /**
  * Uses reflection to construct an AST hierarchy from a 
@@ -40,19 +40,10 @@ public class ASTBuilder {
 	public Statement buildStatement(ITree statement) {
 		return null;
 	}
-
-	private <T> T buildValue(IValue in) throws SecurityException, NoSuchMethodException, IllegalArgumentException, IllegalAccessException, InvocationTargetException {
-		if (in.getBaseType().isTreeSortType()) {
-			return buildNode((ITree) in);
-		}
-		// TODO the other types
-		
-		return null;
-	}
 	
 	@SuppressWarnings("unchecked")
-	private <T> T buildNode(ITree in) throws SecurityException, NoSuchMethodException, IllegalArgumentException, IllegalAccessException, InvocationTargetException {
-		TreeWrapper tree = new TreeWrapper(in);
+	private AbstractAST buildNode(ITree in) throws SecurityException, NoSuchMethodException, IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+		TreeAdapter tree = new TreeAdapter(in);
 		
 		String cons = tree.getConstructorName();
 		String sort = tree.getProduction().getSortName();
@@ -76,10 +67,15 @@ public class ASTBuilder {
 		  }
 		  
 		  Method make = clazz.getMethod("make" + Sort + Cons, formals);
-		  return (T) make.invoke(factory, actuals);
+		  return (AbstractAST) make.invoke(factory, actuals);
 		}
 		
 		// TODO implement other cases
+		return null;
+	}
+
+	private AbstractAST buildValue(IValue arg) {
+		// TODO Auto-generated method stub
 		return null;
 	}
 

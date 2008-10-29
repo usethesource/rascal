@@ -7,10 +7,10 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.hash.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 
-public class ProductionWrapper {
+public class ProductionAdapter {
 	private ITree tree;
 
-	public ProductionWrapper(ITree tree) {
+	public ProductionAdapter(ITree tree) {
 		if (tree.getType() != Factory.Production) {
 			throw new FactTypeError("ProductionWrapper only wraps UPTR productions, not " + tree.getType());
 		}
@@ -27,8 +27,8 @@ public class ProductionWrapper {
 		return null;
 	}
 	
-	public SymbolWrapper getRhs() {
-		return new SymbolWrapper((ITree) tree.get("rhs"));
+	public SymbolAdapter getRhs() {
+		return new SymbolAdapter((ITree) tree.get("rhs"));
 	}
 	
 	public IList getLhs() {
@@ -57,7 +57,7 @@ public class ProductionWrapper {
 	}
 	
 	public String getSortName() {
-		SymbolWrapper rhs = getRhs();
+		SymbolAdapter rhs = getRhs();
 		
 		if (rhs.isCf() || rhs.isLex()) {
 			rhs = rhs.getSymbol();
