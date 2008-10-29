@@ -5,11 +5,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.hash.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.meta_environment.rascal.io.ATermReader;
 import org.meta_environment.uptr.Factory;
+import org.meta_environment.uptr.TreeAdapter;
 
 /**
  * Parses a Rascal program and returns an AST hierarchy.
@@ -27,7 +29,7 @@ public class Parser {
 		return InstanceKeeper.sInstance;
 	}
 	
-	private IValue parse(InputStream input) throws IOException, FactTypeError {
+	private ITree parse(InputStream input) throws IOException, FactTypeError {
 		ATermReader reader = new ATermReader();
 		Process sglr = Runtime.getRuntime().exec("sglr -p /ufs/jurgenv/glt/src/rascal/resources/rascal.trm.tbl -t");
 		
@@ -35,7 +37,7 @@ public class Parser {
 		IValue tmp = reader.read(ValueFactory.getInstance(), Factory.ParseTree, sglr.getInputStream());
 		waitForSglr(sglr);
 		
-		return tmp;
+		return (ITree) tmp;
 	}
 
 	private void waitForSglr(Process sglr) throws IOException {
@@ -77,8 +79,9 @@ public class Parser {
 		String test = "module Aap";
 		
 		try {
-			IValue tree = parser.parse(new ByteArrayInputStream(test.getBytes()));
+			ITree tree = parser.parse(new ByteArrayInputStream(test.getBytes()));
 			System.err.println("tree is " + tree);
+			System.err.println("unparsed: " + new TreeAdapter(tree).yield());
 		} catch (FactTypeError e) {
 			e.printStackTrace();
 		} catch (IOException e) {
