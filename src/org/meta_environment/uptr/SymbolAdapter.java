@@ -3,10 +3,10 @@ package org.meta_environment.uptr;
 import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 
-public class SymbolWrapper {
+public class SymbolAdapter {
 	private ITree tree;
 
-	public SymbolWrapper(ITree tree) {
+	public SymbolAdapter(ITree tree) {
 		if (tree.getType() != Factory.Symbol) {
 			throw new FactTypeError("TreeWrapper will only wrap UPTR symbols, not " +  tree.getType());
 		}
@@ -25,9 +25,9 @@ public class SymbolWrapper {
 		return tree.getTreeNodeType() == Factory.Symbol_Sort;
 	}
 
-	public SymbolWrapper getSymbol() {
+	public SymbolAdapter getSymbol() {
 		if (isCf() || isLex()) {
-			return new SymbolWrapper((ITree) tree.get("symbol"));
+			return new SymbolAdapter((ITree) tree.get("symbol"));
 		}
 		else {
 			throw new FactTypeError("Symbol does not have a child named symbol: " + tree);

@@ -1,15 +1,16 @@
 package org.meta_environment.uptr;
 
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.impl.hash.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 
-public class TreeWrapper {
+public class TreeAdapter {
 	private ITree tree;
-	private ProductionWrapper prod;
+	private ProductionAdapter prod;
 	
-	public TreeWrapper(ITree tree) {
+	public TreeAdapter(ITree tree) {
 		if (tree.getType() != Factory.Tree) {
 			throw new FactTypeError("TreeWrapper will only wrap UPTR Trees, not " +  tree.getType());
 		}
@@ -32,9 +33,9 @@ public class TreeWrapper {
 		return tree.getTreeNodeType() == Factory.Tree_Cycle;
 	}
 	
-	public ProductionWrapper getProduction() {
+	public ProductionAdapter getProduction() {
 		if (prod == null) {
-		  prod = new ProductionWrapper((ITree) tree.get("production"));
+		  prod = new ProductionAdapter((ITree) tree.get("production"));
 		}
 		
 		return prod;
@@ -49,7 +50,7 @@ public class TreeWrapper {
 	}
 	
 	public boolean isProduction(String sortName, String consName) {
-		ProductionWrapper prod = getProduction();
+		ProductionAdapter prod = getProduction();
 		return prod.getSortName().equals(sortName) &&
 		prod.getConstructorName().equals(consName);
 	}
@@ -59,7 +60,12 @@ public class TreeWrapper {
 	}
 	
 	public IList getArgs() {
-		return (IList) tree.get("args");
+		if (isAppl()) {
+		  return (IList) tree.get("args");
+		}
+		else {
+			throw new FactTypeError("this tree has no args");
+		}
 	}
 	
 	public IList getContextFreeArgs() {
@@ -78,5 +84,14 @@ public class TreeWrapper {
 		}
 
 		return result;
+	}
+
+	public ISet getAlternatives() {
+		if (isAmb()) {
+		  return (ISet) tree.get("alternatives");
+		}
+		else {
+			throw new FactTypeError("this tree has no alternatives");
+		}
 	}
 }
