@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class Comprehension extends AbstractAST
 {
@@ -11,55 +10,54 @@ public abstract class Comprehension extends AbstractAST
     {
     }
     /*package */ Set (ITree tree, Expression result,
-		      List < Generator > generators)
+		      java.util.List < Generator > generators)
     {
       this.tree = tree;
       this.result = result;
-      this.generators = generators;
-    }
+    params2statements (java.util.List < Generator > generators)}
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitComprehensionSet (this);
     }
     private Expression result;
-    public Expression getresult ()
+    public Expression getResult ()
     {
       return result;
     }
-    private void $setresult (Expression x)
+    private void $setResult (Expression x)
     {
       this.result = x;
     }
-    public Set setresult (Expression x)
+    public Set setResult (Expression x)
     {
       Set z = new Set ();
-      z.$setresult (x);
+      z.$setResult (x);
       return z;
     }
-    private List < Generator > generators;
-    public List < Generator > getgenerators ()
+    private java.util.List < Generator > generators;
+    public java.util.List < Generator > getGenerators ()
     {
       return generators;
     }
-    private void $setgenerators (List < Generator > x)
+    private void $setGenerators (java.util.List < Generator > x)
     {
       this.generators = x;
     }
-    public Set setgenerators (List < Generator > x)
+    public Set setGenerators (java.util.List < Generator > x)
     {
       Set z = new Set ();
-      z.$setgenerators (x);
+      z.$setGenerators (x);
       return z;
     }
   }
   public class Ambiguity extends Comprehension
   {
-    private final List < Comprehension > alternatives;
-    public Ambiguity (List < Comprehension > alternatives)
+    private final java.util.List < Comprehension > alternatives;
+    public Ambiguity (java.util.List < Comprehension > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < Comprehension > getAlternatives ()
+    public java.util.List < Comprehension > getAlternatives ()
     {
       return alternatives;
     }
@@ -71,44 +69,43 @@ public abstract class Comprehension extends AbstractAST
     {
     }
     /*package */ List (ITree tree, Expression result,
-		       List < Generator > generators)
+		       java.util.List < Generator > generators)
     {
       this.tree = tree;
       this.result = result;
-      this.generators = generators;
-    }
+    params2statements (java.util.List < Generator > generators)}
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitComprehensionList (this);
     }
     private Expression result;
-    public Expression getresult ()
+    public Expression getResult ()
     {
       return result;
     }
-    private void $setresult (Expression x)
+    private void $setResult (Expression x)
     {
       this.result = x;
     }
-    public List setresult (Expression x)
+    public List setResult (Expression x)
     {
       List z = new List ();
-      z.$setresult (x);
+      z.$setResult (x);
       return z;
     }
-    private List < Generator > generators;
-    public List < Generator > getgenerators ()
+    private java.util.List < Generator > generators;
+    public java.util.List < Generator > getGenerators ()
     {
       return generators;
     }
-    private void $setgenerators (List < Generator > x)
+    private void $setGenerators (java.util.List < Generator > x)
     {
       this.generators = x;
     }
-    public List setgenerators (List < Generator > x)
+    public List setGenerators (java.util.List < Generator > x)
     {
       List z = new List ();
-      z.$setgenerators (x);
+      z.$setGenerators (x);
       return z;
     }
   }

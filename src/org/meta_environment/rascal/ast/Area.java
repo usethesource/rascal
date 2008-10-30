@@ -1,19 +1,18 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class Area extends AbstractAST
 {
-  public class Area extends Area
+  public class Default extends Area
   {
-/* "area" "(" beginLine:Expression "," beginColumn:Expression "," endLine:Expression "," endColumn:Expression "," offset:Expression "," length:Expression ")" -> Area {cons("Area")} */
-    private Area ()
+/* "area" "(" beginLine:Expression "," beginColumn:Expression "," endLine:Expression "," endColumn:Expression "," offset:Expression "," length:Expression ")" -> Area {cons("Default")} */
+    private Default ()
     {
     }
-    /*package */ Area (ITree tree, Expression beginLine,
-		       Expression beginColumn, Expression endLine,
-		       Expression endColumn, Expression offset,
-		       Expression length)
+    /*package */ Default (ITree tree, Expression beginLine,
+			  Expression beginColumn, Expression endLine,
+			  Expression endColumn, Expression offset,
+			  Expression length)
     {
       this.tree = tree;
       this.beginLine = beginLine;
@@ -25,107 +24,107 @@ public abstract class Area extends AbstractAST
     }
     public IVisitable accept (IASTVisitor visitor)
     {
-      return visitor.visitAreaArea (this);
+      return visitor.visitAreaDefault (this);
     }
     private Expression beginLine;
-    public Expression getbeginLine ()
+    public Expression getBeginLine ()
     {
       return beginLine;
     }
-    private void $setbeginLine (Expression x)
+    private void $setBeginLine (Expression x)
     {
       this.beginLine = x;
     }
-    public Area setbeginLine (Expression x)
+    public Default setBeginLine (Expression x)
     {
-      Area z = new Area ();
-      z.$setbeginLine (x);
+      Default z = new Default ();
+      z.$setBeginLine (x);
       return z;
     }
     private Expression beginColumn;
-    public Expression getbeginColumn ()
+    public Expression getBeginColumn ()
     {
       return beginColumn;
     }
-    private void $setbeginColumn (Expression x)
+    private void $setBeginColumn (Expression x)
     {
       this.beginColumn = x;
     }
-    public Area setbeginColumn (Expression x)
+    public Default setBeginColumn (Expression x)
     {
-      Area z = new Area ();
-      z.$setbeginColumn (x);
+      Default z = new Default ();
+      z.$setBeginColumn (x);
       return z;
     }
     private Expression endLine;
-    public Expression getendLine ()
+    public Expression getEndLine ()
     {
       return endLine;
     }
-    private void $setendLine (Expression x)
+    private void $setEndLine (Expression x)
     {
       this.endLine = x;
     }
-    public Area setendLine (Expression x)
+    public Default setEndLine (Expression x)
     {
-      Area z = new Area ();
-      z.$setendLine (x);
+      Default z = new Default ();
+      z.$setEndLine (x);
       return z;
     }
     private Expression endColumn;
-    public Expression getendColumn ()
+    public Expression getEndColumn ()
     {
       return endColumn;
     }
-    private void $setendColumn (Expression x)
+    private void $setEndColumn (Expression x)
     {
       this.endColumn = x;
     }
-    public Area setendColumn (Expression x)
+    public Default setEndColumn (Expression x)
     {
-      Area z = new Area ();
-      z.$setendColumn (x);
+      Default z = new Default ();
+      z.$setEndColumn (x);
       return z;
     }
     private Expression offset;
-    public Expression getoffset ()
+    public Expression getOffset ()
     {
       return offset;
     }
-    private void $setoffset (Expression x)
+    private void $setOffset (Expression x)
     {
       this.offset = x;
     }
-    public Area setoffset (Expression x)
+    public Default setOffset (Expression x)
     {
-      Area z = new Area ();
-      z.$setoffset (x);
+      Default z = new Default ();
+      z.$setOffset (x);
       return z;
     }
     private Expression length;
-    public Expression getlength ()
+    public Expression getLength ()
     {
       return length;
     }
-    private void $setlength (Expression x)
+    private void $setLength (Expression x)
     {
       this.length = x;
     }
-    public Area setlength (Expression x)
+    public Default setLength (Expression x)
     {
-      Area z = new Area ();
-      z.$setlength (x);
+      Default z = new Default ();
+      z.$setLength (x);
       return z;
     }
   }
   public class Ambiguity extends Area
   {
-    private final List < Area > alternatives;
-    public Ambiguity (List < Area > alternatives)
+    private final java.util.List < Area > alternatives;
+    public Ambiguity (java.util.List < Area > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < Area > getAlternatives ()
+    public java.util.List < Area > getAlternatives ()
     {
       return alternatives;
     }

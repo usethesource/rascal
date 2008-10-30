@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class LocalVariableDeclaration extends AbstractAST
 {
@@ -20,29 +19,30 @@ public abstract class LocalVariableDeclaration extends AbstractAST
       return visitor.visitLocalVariableDeclarationDefault (this);
     }
     private Declarator declarator;
-    public Declarator getdeclarator ()
+    public Declarator getDeclarator ()
     {
       return declarator;
     }
-    private void $setdeclarator (Declarator x)
+    private void $setDeclarator (Declarator x)
     {
       this.declarator = x;
     }
-    public Default setdeclarator (Declarator x)
+    public Default setDeclarator (Declarator x)
     {
       Default z = new Default ();
-      z.$setdeclarator (x);
+      z.$setDeclarator (x);
       return z;
     }
   }
   public class Ambiguity extends LocalVariableDeclaration
   {
-    private final List < LocalVariableDeclaration > alternatives;
-    public Ambiguity (List < LocalVariableDeclaration > alternatives)
+    private final java.util.List < LocalVariableDeclaration > alternatives;
+    public Ambiguity (java.util.List < LocalVariableDeclaration >
+		      alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < LocalVariableDeclaration > getAlternatives ()
+    public java.util.List < LocalVariableDeclaration > getAlternatives ()
     {
       return alternatives;
     }
@@ -63,18 +63,18 @@ public abstract class LocalVariableDeclaration extends AbstractAST
       return visitor.visitLocalVariableDeclarationDynamic (this);
     }
     private Declarator declarator;
-    public Declarator getdeclarator ()
+    public Declarator getDeclarator ()
     {
       return declarator;
     }
-    private void $setdeclarator (Declarator x)
+    private void $setDeclarator (Declarator x)
     {
       this.declarator = x;
     }
-    public Dynamic setdeclarator (Declarator x)
+    public Dynamic setDeclarator (Declarator x)
     {
       Dynamic z = new Dynamic ();
-      z.$setdeclarator (x);
+      z.$setDeclarator (x);
       return z;
     }
   }

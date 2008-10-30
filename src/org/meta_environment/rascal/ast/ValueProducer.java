@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class ValueProducer extends AbstractAST
 {
@@ -22,44 +21,44 @@ public abstract class ValueProducer extends AbstractAST
       return visitor.visitValueProducerDefaultStrategy (this);
     }
     private Pattern pattern;
-    public Pattern getpattern ()
+    public Pattern getPattern ()
     {
       return pattern;
     }
-    private void $setpattern (Pattern x)
+    private void $setPattern (Pattern x)
     {
       this.pattern = x;
     }
-    public DefaultStrategy setpattern (Pattern x)
+    public DefaultStrategy setPattern (Pattern x)
     {
       DefaultStrategy z = new DefaultStrategy ();
-      z.$setpattern (x);
+      z.$setPattern (x);
       return z;
     }
     private Expression expression;
-    public Expression getexpression ()
+    public Expression getExpression ()
     {
       return expression;
     }
-    private void $setexpression (Expression x)
+    private void $setExpression (Expression x)
     {
       this.expression = x;
     }
-    public DefaultStrategy setexpression (Expression x)
+    public DefaultStrategy setExpression (Expression x)
     {
       DefaultStrategy z = new DefaultStrategy ();
-      z.$setexpression (x);
+      z.$setExpression (x);
       return z;
     }
   }
   public class Ambiguity extends ValueProducer
   {
-    private final List < ValueProducer > alternatives;
-    public Ambiguity (List < ValueProducer > alternatives)
+    private final java.util.List < ValueProducer > alternatives;
+    public Ambiguity (java.util.List < ValueProducer > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < ValueProducer > getAlternatives ()
+    public java.util.List < ValueProducer > getAlternatives ()
     {
       return alternatives;
     }
@@ -83,48 +82,48 @@ public abstract class ValueProducer extends AbstractAST
       return visitor.visitValueProducerGivenStrategy (this);
     }
     private Strategy strategy;
-    public Strategy getstrategy ()
+    public Strategy getStrategy ()
     {
       return strategy;
     }
-    private void $setstrategy (Strategy x)
+    private void $setStrategy (Strategy x)
     {
       this.strategy = x;
     }
-    public GivenStrategy setstrategy (Strategy x)
+    public GivenStrategy setStrategy (Strategy x)
     {
       GivenStrategy z = new GivenStrategy ();
-      z.$setstrategy (x);
+      z.$setStrategy (x);
       return z;
     }
     private Pattern pattern;
-    public Pattern getpattern ()
+    public Pattern getPattern ()
     {
       return pattern;
     }
-    private void $setpattern (Pattern x)
+    private void $setPattern (Pattern x)
     {
       this.pattern = x;
     }
-    public GivenStrategy setpattern (Pattern x)
+    public GivenStrategy setPattern (Pattern x)
     {
       GivenStrategy z = new GivenStrategy ();
-      z.$setpattern (x);
+      z.$setPattern (x);
       return z;
     }
     private Expression expression;
-    public Expression getexpression ()
+    public Expression getExpression ()
     {
       return expression;
     }
-    private void $setexpression (Expression x)
+    private void $setExpression (Expression x)
     {
       this.expression = x;
     }
-    public GivenStrategy setexpression (Expression x)
+    public GivenStrategy setExpression (Expression x)
     {
       GivenStrategy z = new GivenStrategy ();
-      z.$setexpression (x);
+      z.$setExpression (x);
       return z;
     }
   }

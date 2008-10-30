@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class Tags extends AbstractAST
 {
@@ -10,39 +9,38 @@ public abstract class Tags extends AbstractAST
     private Default ()
     {
     }
-    /*package */ Default (ITree tree, List < Tag > annotations)
+    /*package */ Default (ITree tree, java.util.List < Tag > annotations)
     {
       this.tree = tree;
-      this.annotations = annotations;
-    }
+    params2statements (java.util.List < Tag > annotations)}
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitTagsDefault (this);
     }
-    private List < Tag > annotations;
-    public List < Tag > getannotations ()
+    private java.util.List < Tag > annotations;
+    public java.util.List < Tag > getAnnotations ()
     {
       return annotations;
     }
-    private void $setannotations (List < Tag > x)
+    private void $setAnnotations (java.util.List < Tag > x)
     {
       this.annotations = x;
     }
-    public Default setannotations (List < Tag > x)
+    public Default setAnnotations (java.util.List < Tag > x)
     {
       Default z = new Default ();
-      z.$setannotations (x);
+      z.$setAnnotations (x);
       return z;
     }
   }
   public class Ambiguity extends Tags
   {
-    private final List < Tags > alternatives;
-    public Ambiguity (List < Tags > alternatives)
+    private final java.util.List < Tags > alternatives;
+    public Ambiguity (java.util.List < Tags > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < Tags > getAlternatives ()
+    public java.util.List < Tags > getAlternatives ()
     {
       return alternatives;
     }

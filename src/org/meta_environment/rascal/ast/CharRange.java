@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class CharRange extends AbstractAST
 {
@@ -20,29 +19,29 @@ public abstract class CharRange extends AbstractAST
       return visitor.visitCharRangeCharacter (this);
     }
     private Character character;
-    public Character getcharacter ()
+    public Character getCharacter ()
     {
       return character;
     }
-    private void $setcharacter (Character x)
+    private void $setCharacter (Character x)
     {
       this.character = x;
     }
-    public Character setcharacter (Character x)
+    public Character setCharacter (Character x)
     {
       Character z = new Character ();
-      z.$setcharacter (x);
+      z.$setCharacter (x);
       return z;
     }
   }
   public class Ambiguity extends CharRange
   {
-    private final List < CharRange > alternatives;
-    public Ambiguity (List < CharRange > alternatives)
+    private final java.util.List < CharRange > alternatives;
+    public Ambiguity (java.util.List < CharRange > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < CharRange > getAlternatives ()
+    public java.util.List < CharRange > getAlternatives ()
     {
       return alternatives;
     }
@@ -64,33 +63,33 @@ public abstract class CharRange extends AbstractAST
       return visitor.visitCharRangeRange (this);
     }
     private Character start;
-    public Character getstart ()
+    public Character getStart ()
     {
       return start;
     }
-    private void $setstart (Character x)
+    private void $setStart (Character x)
     {
       this.start = x;
     }
-    public Range setstart (Character x)
+    public Range setStart (Character x)
     {
       Range z = new Range ();
-      z.$setstart (x);
+      z.$setStart (x);
       return z;
     }
     private Character end;
-    public Character getend ()
+    public Character getEnd ()
     {
       return end;
     }
-    private void $setend (Character x)
+    private void $setEnd (Character x)
     {
       this.end = x;
     }
-    public Range setend (Character x)
+    public Range setEnd (Character x)
     {
       Range z = new Range ();
-      z.$setend (x);
+      z.$setEnd (x);
       return z;
     }
   }

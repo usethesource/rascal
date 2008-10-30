@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class Sort extends AbstractAST
 {
@@ -10,12 +9,12 @@ public abstract class Sort extends AbstractAST
   }
   public class Ambiguity extends Sort
   {
-    private final List < Sort > alternatives;
-    public Ambiguity (List < Sort > alternatives)
+    private final java.util.List < Sort > alternatives;
+    public Ambiguity (java.util.List < Sort > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < Sort > getAlternatives ()
+    public java.util.List < Sort > getAlternatives ()
     {
       return alternatives;
     }

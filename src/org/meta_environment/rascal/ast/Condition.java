@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class Condition extends AbstractAST
 {
@@ -21,44 +20,44 @@ public abstract class Condition extends AbstractAST
       return visitor.visitConditionMatch (this);
     }
     private Pattern pattern;
-    public Pattern getpattern ()
+    public Pattern getPattern ()
     {
       return pattern;
     }
-    private void $setpattern (Pattern x)
+    private void $setPattern (Pattern x)
     {
       this.pattern = x;
     }
-    public Match setpattern (Pattern x)
+    public Match setPattern (Pattern x)
     {
       Match z = new Match ();
-      z.$setpattern (x);
+      z.$setPattern (x);
       return z;
     }
     private Expression expression;
-    public Expression getexpression ()
+    public Expression getExpression ()
     {
       return expression;
     }
-    private void $setexpression (Expression x)
+    private void $setExpression (Expression x)
     {
       this.expression = x;
     }
-    public Match setexpression (Expression x)
+    public Match setExpression (Expression x)
     {
       Match z = new Match ();
-      z.$setexpression (x);
+      z.$setExpression (x);
       return z;
     }
   }
   public class Ambiguity extends Condition
   {
-    private final List < Condition > alternatives;
-    public Ambiguity (List < Condition > alternatives)
+    private final java.util.List < Condition > alternatives;
+    public Ambiguity (java.util.List < Condition > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < Condition > getAlternatives ()
+    public java.util.List < Condition > getAlternatives ()
     {
       return alternatives;
     }
@@ -80,33 +79,33 @@ public abstract class Condition extends AbstractAST
       return visitor.visitConditionNoMatch (this);
     }
     private Pattern pattern;
-    public Pattern getpattern ()
+    public Pattern getPattern ()
     {
       return pattern;
     }
-    private void $setpattern (Pattern x)
+    private void $setPattern (Pattern x)
     {
       this.pattern = x;
     }
-    public NoMatch setpattern (Pattern x)
+    public NoMatch setPattern (Pattern x)
     {
       NoMatch z = new NoMatch ();
-      z.$setpattern (x);
+      z.$setPattern (x);
       return z;
     }
     private Expression expression;
-    public Expression getexpression ()
+    public Expression getExpression ()
     {
       return expression;
     }
-    private void $setexpression (Expression x)
+    private void $setExpression (Expression x)
     {
       this.expression = x;
     }
-    public NoMatch setexpression (Expression x)
+    public NoMatch setExpression (Expression x)
     {
       NoMatch z = new NoMatch ();
-      z.$setexpression (x);
+      z.$setExpression (x);
       return z;
     }
   }
@@ -126,18 +125,18 @@ public abstract class Condition extends AbstractAST
       return visitor.visitConditionExpression (this);
     }
     private Expression expression;
-    public Expression getexpression ()
+    public Expression getExpression ()
     {
       return expression;
     }
-    private void $setexpression (Expression x)
+    private void $setExpression (Expression x)
     {
       this.expression = x;
     }
-    public Expression setexpression (Expression x)
+    public Expression setExpression (Expression x)
     {
       Expression z = new Expression ();
-      z.$setexpression (x);
+      z.$setExpression (x);
       return z;
     }
   }
@@ -158,33 +157,33 @@ public abstract class Condition extends AbstractAST
       return visitor.visitConditionConjunction (this);
     }
     private Condition lhs;
-    public Condition getlhs ()
+    public Condition getLhs ()
     {
       return lhs;
     }
-    private void $setlhs (Condition x)
+    private void $setLhs (Condition x)
     {
       this.lhs = x;
     }
-    public Conjunction setlhs (Condition x)
+    public Conjunction setLhs (Condition x)
     {
       Conjunction z = new Conjunction ();
-      z.$setlhs (x);
+      z.$setLhs (x);
       return z;
     }
     private Condition rhs;
-    public Condition getrhs ()
+    public Condition getRhs ()
     {
       return rhs;
     }
-    private void $setrhs (Condition x)
+    private void $setRhs (Condition x)
     {
       this.rhs = x;
     }
-    public Conjunction setrhs (Condition x)
+    public Conjunction setRhs (Condition x)
     {
       Conjunction z = new Conjunction ();
-      z.$setrhs (x);
+      z.$setRhs (x);
       return z;
     }
   }

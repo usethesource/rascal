@@ -1,48 +1,47 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class Import extends AbstractAST
 {
-  public class Import extends Import
+  public class Default extends Import
   {
-/* "import" module:ImportedModule ";" -> Import {cons("Import")} */
-    private Import ()
+/* "import" module:ImportedModule ";" -> Import {cons("Default")} */
+    private Default ()
     {
     }
-    /*package */ Import (ITree tree, ImportedModule module)
+    /*package */ Default (ITree tree, ImportedModule module)
     {
       this.tree = tree;
       this.module = module;
     }
     public IVisitable accept (IASTVisitor visitor)
     {
-      return visitor.visitImportImport (this);
+      return visitor.visitImportDefault (this);
     }
     private ImportedModule module;
-    public ImportedModule getmodule ()
+    public ImportedModule getModule ()
     {
       return module;
     }
-    private void $setmodule (ImportedModule x)
+    private void $setModule (ImportedModule x)
     {
       this.module = x;
     }
-    public Import setmodule (ImportedModule x)
+    public Default setModule (ImportedModule x)
     {
-      Import z = new Import ();
-      z.$setmodule (x);
+      Default z = new Default ();
+      z.$setModule (x);
       return z;
     }
   }
   public class Ambiguity extends Import
   {
-    private final List < Import > alternatives;
-    public Ambiguity (List < Import > alternatives)
+    private final java.util.List < Import > alternatives;
+    public Ambiguity (java.util.List < Import > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < Import > getAlternatives ()
+    public java.util.List < Import > getAlternatives ()
     {
       return alternatives;
     }
@@ -63,18 +62,18 @@ public abstract class Import extends AbstractAST
       return visitor.visitImportExtend (this);
     }
     private ImportedModule module;
-    public ImportedModule getmodule ()
+    public ImportedModule getModule ()
     {
       return module;
     }
-    private void $setmodule (ImportedModule x)
+    private void $setModule (ImportedModule x)
     {
       this.module = x;
     }
-    public Extend setmodule (ImportedModule x)
+    public Extend setModule (ImportedModule x)
     {
       Extend z = new Extend ();
-      z.$setmodule (x);
+      z.$setModule (x);
       return z;
     }
   }

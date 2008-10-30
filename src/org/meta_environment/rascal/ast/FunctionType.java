@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class FunctionType extends AbstractAST
 {
@@ -11,55 +10,54 @@ public abstract class FunctionType extends AbstractAST
     {
     }
     /*package */ TypeArguments (ITree tree, Type type,
-				List < TypeArg > arguments)
+				java.util.List < TypeArg > arguments)
     {
       this.tree = tree;
       this.type = type;
-      this.arguments = arguments;
-    }
+    params2statements (java.util.List < TypeArg > arguments)}
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitFunctionTypeTypeArguments (this);
     }
     private Type type;
-    public Type gettype ()
+    public Type getType ()
     {
       return type;
     }
-    private void $settype (Type x)
+    private void $setType (Type x)
     {
       this.type = x;
     }
-    public TypeArguments settype (Type x)
+    public TypeArguments setType (Type x)
     {
       TypeArguments z = new TypeArguments ();
-      z.$settype (x);
+      z.$setType (x);
       return z;
     }
-    private List < TypeArg > arguments;
-    public List < TypeArg > getarguments ()
+    private java.util.List < TypeArg > arguments;
+    public java.util.List < TypeArg > getArguments ()
     {
       return arguments;
     }
-    private void $setarguments (List < TypeArg > x)
+    private void $setArguments (java.util.List < TypeArg > x)
     {
       this.arguments = x;
     }
-    public TypeArguments setarguments (List < TypeArg > x)
+    public TypeArguments setArguments (java.util.List < TypeArg > x)
     {
       TypeArguments z = new TypeArguments ();
-      z.$setarguments (x);
+      z.$setArguments (x);
       return z;
     }
   }
   public class Ambiguity extends FunctionType
   {
-    private final List < FunctionType > alternatives;
-    public Ambiguity (List < FunctionType > alternatives)
+    private final java.util.List < FunctionType > alternatives;
+    public Ambiguity (java.util.List < FunctionType > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < FunctionType > getAlternatives ()
+    public java.util.List < FunctionType > getAlternatives ()
     {
       return alternatives;
     }

@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class OptCharRanges extends AbstractAST
 {
@@ -21,12 +20,12 @@ public abstract class OptCharRanges extends AbstractAST
   }
   public class Ambiguity extends OptCharRanges
   {
-    private final List < OptCharRanges > alternatives;
-    public Ambiguity (List < OptCharRanges > alternatives)
+    private final java.util.List < OptCharRanges > alternatives;
+    public Ambiguity (java.util.List < OptCharRanges > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < OptCharRanges > getAlternatives ()
+    public java.util.List < OptCharRanges > getAlternatives ()
     {
       return alternatives;
     }
@@ -47,18 +46,18 @@ public abstract class OptCharRanges extends AbstractAST
       return visitor.visitOptCharRangesPresent (this);
     }
     private CharRanges ranges;
-    public CharRanges getranges ()
+    public CharRanges getRanges ()
     {
       return ranges;
     }
-    private void $setranges (CharRanges x)
+    private void $setRanges (CharRanges x)
     {
       this.ranges = x;
     }
-    public Present setranges (CharRanges x)
+    public Present setRanges (CharRanges x)
     {
       Present z = new Present ();
-      z.$setranges (x);
+      z.$setRanges (x);
       return z;
     }
   }

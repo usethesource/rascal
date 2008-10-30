@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class Assignable extends AbstractAST
 {
@@ -20,29 +19,29 @@ public abstract class Assignable extends AbstractAST
       return visitor.visitAssignableVariable (this);
     }
     private QualifiedName qualifiedName;
-    public QualifiedName getqualifiedName ()
+    public QualifiedName getQualifiedName ()
     {
       return qualifiedName;
     }
-    private void $setqualifiedName (QualifiedName x)
+    private void $setQualifiedName (QualifiedName x)
     {
       this.qualifiedName = x;
     }
-    public Variable setqualifiedName (QualifiedName x)
+    public Variable setQualifiedName (QualifiedName x)
     {
       Variable z = new Variable ();
-      z.$setqualifiedName (x);
+      z.$setQualifiedName (x);
       return z;
     }
   }
   public class Ambiguity extends Assignable
   {
-    private final List < Assignable > alternatives;
-    public Ambiguity (List < Assignable > alternatives)
+    private final java.util.List < Assignable > alternatives;
+    public Ambiguity (java.util.List < Assignable > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < Assignable > getAlternatives ()
+    public java.util.List < Assignable > getAlternatives ()
     {
       return alternatives;
     }
@@ -65,33 +64,33 @@ public abstract class Assignable extends AbstractAST
       return visitor.visitAssignableSubscript (this);
     }
     private Assignable receiver;
-    public Assignable getreceiver ()
+    public Assignable getReceiver ()
     {
       return receiver;
     }
-    private void $setreceiver (Assignable x)
+    private void $setReceiver (Assignable x)
     {
       this.receiver = x;
     }
-    public Subscript setreceiver (Assignable x)
+    public Subscript setReceiver (Assignable x)
     {
       Subscript z = new Subscript ();
-      z.$setreceiver (x);
+      z.$setReceiver (x);
       return z;
     }
     private Expression subscript;
-    public Expression getsubscript ()
+    public Expression getSubscript ()
     {
       return subscript;
     }
-    private void $setsubscript (Expression x)
+    private void $setSubscript (Expression x)
     {
       this.subscript = x;
     }
-    public Subscript setsubscript (Expression x)
+    public Subscript setSubscript (Expression x)
     {
       Subscript z = new Subscript ();
-      z.$setsubscript (x);
+      z.$setSubscript (x);
       return z;
     }
   }
@@ -112,33 +111,33 @@ public abstract class Assignable extends AbstractAST
       return visitor.visitAssignableFieldAccess (this);
     }
     private Assignable receiver;
-    public Assignable getreceiver ()
+    public Assignable getReceiver ()
     {
       return receiver;
     }
-    private void $setreceiver (Assignable x)
+    private void $setReceiver (Assignable x)
     {
       this.receiver = x;
     }
-    public FieldAccess setreceiver (Assignable x)
+    public FieldAccess setReceiver (Assignable x)
     {
       FieldAccess z = new FieldAccess ();
-      z.$setreceiver (x);
+      z.$setReceiver (x);
       return z;
     }
     private Name field;
-    public Name getfield ()
+    public Name getField ()
     {
       return field;
     }
-    private void $setfield (Name x)
+    private void $setField (Name x)
     {
       this.field = x;
     }
-    public FieldAccess setfield (Name x)
+    public FieldAccess setField (Name x)
     {
       FieldAccess z = new FieldAccess ();
-      z.$setfield (x);
+      z.$setField (x);
       return z;
     }
   }
@@ -160,33 +159,33 @@ public abstract class Assignable extends AbstractAST
       return visitor.visitAssignableIfDefined (this);
     }
     private Assignable receiver;
-    public Assignable getreceiver ()
+    public Assignable getReceiver ()
     {
       return receiver;
     }
-    private void $setreceiver (Assignable x)
+    private void $setReceiver (Assignable x)
     {
       this.receiver = x;
     }
-    public IfDefined setreceiver (Assignable x)
+    public IfDefined setReceiver (Assignable x)
     {
       IfDefined z = new IfDefined ();
-      z.$setreceiver (x);
+      z.$setReceiver (x);
       return z;
     }
     private Expression condition;
-    public Expression getcondition ()
+    public Expression getCondition ()
     {
       return condition;
     }
-    private void $setcondition (Expression x)
+    private void $setCondition (Expression x)
     {
       this.condition = x;
     }
-    public IfDefined setcondition (Expression x)
+    public IfDefined setCondition (Expression x)
     {
       IfDefined z = new IfDefined ();
-      z.$setcondition (x);
+      z.$setCondition (x);
       return z;
     }
   }
@@ -208,33 +207,33 @@ public abstract class Assignable extends AbstractAST
       return visitor.visitAssignableAnnotation (this);
     }
     private Assignable receiver;
-    public Assignable getreceiver ()
+    public Assignable getReceiver ()
     {
       return receiver;
     }
-    private void $setreceiver (Assignable x)
+    private void $setReceiver (Assignable x)
     {
       this.receiver = x;
     }
-    public Annotation setreceiver (Assignable x)
+    public Annotation setReceiver (Assignable x)
     {
       Annotation z = new Annotation ();
-      z.$setreceiver (x);
+      z.$setReceiver (x);
       return z;
     }
     private Expression annotation;
-    public Expression getannotation ()
+    public Expression getAnnotation ()
     {
       return annotation;
     }
-    private void $setannotation (Expression x)
+    private void $setAnnotation (Expression x)
     {
       this.annotation = x;
     }
-    public Annotation setannotation (Expression x)
+    public Annotation setAnnotation (Expression x)
     {
       Annotation z = new Annotation ();
-      z.$setannotation (x);
+      z.$setAnnotation (x);
       return z;
     }
   }
@@ -245,44 +244,43 @@ public abstract class Assignable extends AbstractAST
     {
     }
     /*package */ Tuple (ITree tree, Assignable first,
-			List < Assignable > rest)
+			java.util.List < Assignable > rest)
     {
       this.tree = tree;
       this.first = first;
-      this.rest = rest;
-    }
+    params2statements (java.util.List < Assignable > rest)}
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitAssignableTuple (this);
     }
     private Assignable first;
-    public Assignable getfirst ()
+    public Assignable getFirst ()
     {
       return first;
     }
-    private void $setfirst (Assignable x)
+    private void $setFirst (Assignable x)
     {
       this.first = x;
     }
-    public Tuple setfirst (Assignable x)
+    public Tuple setFirst (Assignable x)
     {
       Tuple z = new Tuple ();
-      z.$setfirst (x);
+      z.$setFirst (x);
       return z;
     }
-    private List < Assignable > rest;
-    public List < Assignable > getrest ()
+    private java.util.List < Assignable > rest;
+    public java.util.List < Assignable > getRest ()
     {
       return rest;
     }
-    private void $setrest (List < Assignable > x)
+    private void $setRest (java.util.List < Assignable > x)
     {
       this.rest = x;
     }
-    public Tuple setrest (List < Assignable > x)
+    public Tuple setRest (java.util.List < Assignable > x)
     {
       Tuple z = new Tuple ();
-      z.$setrest (x);
+      z.$setRest (x);
       return z;
     }
   }
@@ -293,44 +291,43 @@ public abstract class Assignable extends AbstractAST
     {
     }
     /*package */ Constructor (ITree tree, Name name,
-			      List < Assignable > arguments)
+			      java.util.List < Assignable > arguments)
     {
       this.tree = tree;
       this.name = name;
-      this.arguments = arguments;
-    }
+    params2statements (java.util.List < Assignable > arguments)}
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitAssignableConstructor (this);
     }
     private Name name;
-    public Name getname ()
+    public Name getName ()
     {
       return name;
     }
-    private void $setname (Name x)
+    private void $setName (Name x)
     {
       this.name = x;
     }
-    public Constructor setname (Name x)
+    public Constructor setName (Name x)
     {
       Constructor z = new Constructor ();
-      z.$setname (x);
+      z.$setName (x);
       return z;
     }
-    private List < Assignable > arguments;
-    public List < Assignable > getarguments ()
+    private java.util.List < Assignable > arguments;
+    public java.util.List < Assignable > getArguments ()
     {
       return arguments;
     }
-    private void $setarguments (List < Assignable > x)
+    private void $setArguments (java.util.List < Assignable > x)
     {
       this.arguments = x;
     }
-    public Constructor setarguments (List < Assignable > x)
+    public Constructor setArguments (java.util.List < Assignable > x)
     {
       Constructor z = new Constructor ();
-      z.$setarguments (x);
+      z.$setArguments (x);
       return z;
     }
   }

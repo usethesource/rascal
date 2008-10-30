@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class StrCon extends AbstractAST
 {
@@ -10,12 +9,12 @@ public abstract class StrCon extends AbstractAST
   }
   public class Ambiguity extends StrCon
   {
-    private final List < StrCon > alternatives;
-    public Ambiguity (List < StrCon > alternatives)
+    private final java.util.List < StrCon > alternatives;
+    public Ambiguity (java.util.List < StrCon > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < StrCon > getAlternatives ()
+    public java.util.List < StrCon > getAlternatives ()
     {
       return alternatives;
     }

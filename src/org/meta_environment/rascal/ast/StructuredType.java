@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class StructuredType extends AbstractAST
 {
@@ -20,29 +19,29 @@ public abstract class StructuredType extends AbstractAST
       return visitor.visitStructuredTypeList (this);
     }
     private TypeArg typeArg;
-    public TypeArg gettypeArg ()
+    public TypeArg getTypeArg ()
     {
       return typeArg;
     }
-    private void $settypeArg (TypeArg x)
+    private void $setTypeArg (TypeArg x)
     {
       this.typeArg = x;
     }
-    public List settypeArg (TypeArg x)
+    public List setTypeArg (TypeArg x)
     {
       List z = new List ();
-      z.$settypeArg (x);
+      z.$setTypeArg (x);
       return z;
     }
   }
   public class Ambiguity extends StructuredType
   {
-    private final List < StructuredType > alternatives;
-    public Ambiguity (List < StructuredType > alternatives)
+    private final java.util.List < StructuredType > alternatives;
+    public Ambiguity (java.util.List < StructuredType > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < StructuredType > getAlternatives ()
+    public java.util.List < StructuredType > getAlternatives ()
     {
       return alternatives;
     }
@@ -63,18 +62,18 @@ public abstract class StructuredType extends AbstractAST
       return visitor.visitStructuredTypeSet (this);
     }
     private TypeArg typeArg;
-    public TypeArg gettypeArg ()
+    public TypeArg getTypeArg ()
     {
       return typeArg;
     }
-    private void $settypeArg (TypeArg x)
+    private void $setTypeArg (TypeArg x)
     {
       this.typeArg = x;
     }
-    public Set settypeArg (TypeArg x)
+    public Set setTypeArg (TypeArg x)
     {
       Set z = new Set ();
-      z.$settypeArg (x);
+      z.$setTypeArg (x);
       return z;
     }
   }
@@ -95,33 +94,33 @@ public abstract class StructuredType extends AbstractAST
       return visitor.visitStructuredTypeMap (this);
     }
     private TypeArg first;
-    public TypeArg getfirst ()
+    public TypeArg getFirst ()
     {
       return first;
     }
-    private void $setfirst (TypeArg x)
+    private void $setFirst (TypeArg x)
     {
       this.first = x;
     }
-    public Map setfirst (TypeArg x)
+    public Map setFirst (TypeArg x)
     {
       Map z = new Map ();
-      z.$setfirst (x);
+      z.$setFirst (x);
       return z;
     }
     private TypeArg second;
-    public TypeArg getsecond ()
+    public TypeArg getSecond ()
     {
       return second;
     }
-    private void $setsecond (TypeArg x)
+    private void $setSecond (TypeArg x)
     {
       this.second = x;
     }
-    public Map setsecond (TypeArg x)
+    public Map setSecond (TypeArg x)
     {
       Map z = new Map ();
-      z.$setsecond (x);
+      z.$setSecond (x);
       return z;
     }
   }
@@ -131,44 +130,44 @@ public abstract class StructuredType extends AbstractAST
     private Relation ()
     {
     }
-    /*package */ Relation (ITree tree, TypeArg first, List < TypeArg > rest)
+    /*package */ Relation (ITree tree, TypeArg first,
+			   java.util.List < TypeArg > rest)
     {
       this.tree = tree;
       this.first = first;
-      this.rest = rest;
-    }
+    params2statements (java.util.List < TypeArg > rest)}
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitStructuredTypeRelation (this);
     }
     private TypeArg first;
-    public TypeArg getfirst ()
+    public TypeArg getFirst ()
     {
       return first;
     }
-    private void $setfirst (TypeArg x)
+    private void $setFirst (TypeArg x)
     {
       this.first = x;
     }
-    public Relation setfirst (TypeArg x)
+    public Relation setFirst (TypeArg x)
     {
       Relation z = new Relation ();
-      z.$setfirst (x);
+      z.$setFirst (x);
       return z;
     }
-    private List < TypeArg > rest;
-    public List < TypeArg > getrest ()
+    private java.util.List < TypeArg > rest;
+    public java.util.List < TypeArg > getRest ()
     {
       return rest;
     }
-    private void $setrest (List < TypeArg > x)
+    private void $setRest (java.util.List < TypeArg > x)
     {
       this.rest = x;
     }
-    public Relation setrest (List < TypeArg > x)
+    public Relation setRest (java.util.List < TypeArg > x)
     {
       Relation z = new Relation ();
-      z.$setrest (x);
+      z.$setRest (x);
       return z;
     }
   }
@@ -178,44 +177,44 @@ public abstract class StructuredType extends AbstractAST
     private Tuple ()
     {
     }
-    /*package */ Tuple (ITree tree, TypeArg first, List < TypeArg > rest)
+    /*package */ Tuple (ITree tree, TypeArg first,
+			java.util.List < TypeArg > rest)
     {
       this.tree = tree;
       this.first = first;
-      this.rest = rest;
-    }
+    params2statements (java.util.List < TypeArg > rest)}
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitStructuredTypeTuple (this);
     }
     private TypeArg first;
-    public TypeArg getfirst ()
+    public TypeArg getFirst ()
     {
       return first;
     }
-    private void $setfirst (TypeArg x)
+    private void $setFirst (TypeArg x)
     {
       this.first = x;
     }
-    public Tuple setfirst (TypeArg x)
+    public Tuple setFirst (TypeArg x)
     {
       Tuple z = new Tuple ();
-      z.$setfirst (x);
+      z.$setFirst (x);
       return z;
     }
-    private List < TypeArg > rest;
-    public List < TypeArg > getrest ()
+    private java.util.List < TypeArg > rest;
+    public java.util.List < TypeArg > getRest ()
     {
       return rest;
     }
-    private void $setrest (List < TypeArg > x)
+    private void $setRest (java.util.List < TypeArg > x)
     {
       this.rest = x;
     }
-    public Tuple setrest (List < TypeArg > x)
+    public Tuple setRest (java.util.List < TypeArg > x)
     {
       Tuple z = new Tuple ();
-      z.$setrest (x);
+      z.$setRest (x);
       return z;
     }
   }

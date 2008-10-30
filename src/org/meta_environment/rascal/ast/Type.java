@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class Type extends AbstractAST
 {
@@ -20,29 +19,29 @@ public abstract class Type extends AbstractAST
       return visitor.visitTypeBasic (this);
     }
     private BasicType basic;
-    public BasicType getbasic ()
+    public BasicType getBasic ()
     {
       return basic;
     }
-    private void $setbasic (BasicType x)
+    private void $setBasic (BasicType x)
     {
       this.basic = x;
     }
-    public Basic setbasic (BasicType x)
+    public Basic setBasic (BasicType x)
     {
       Basic z = new Basic ();
-      z.$setbasic (x);
+      z.$setBasic (x);
       return z;
     }
   }
   public class Ambiguity extends Type
   {
-    private final List < Type > alternatives;
-    public Ambiguity (List < Type > alternatives)
+    private final java.util.List < Type > alternatives;
+    public Ambiguity (java.util.List < Type > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < Type > getAlternatives ()
+    public java.util.List < Type > getAlternatives ()
     {
       return alternatives;
     }
@@ -63,18 +62,18 @@ public abstract class Type extends AbstractAST
       return visitor.visitTypeStructured (this);
     }
     private StructuredType structured;
-    public StructuredType getstructured ()
+    public StructuredType getStructured ()
     {
       return structured;
     }
-    private void $setstructured (StructuredType x)
+    private void $setStructured (StructuredType x)
     {
       this.structured = x;
     }
-    public Structured setstructured (StructuredType x)
+    public Structured setStructured (StructuredType x)
     {
       Structured z = new Structured ();
-      z.$setstructured (x);
+      z.$setStructured (x);
       return z;
     }
   }
@@ -94,18 +93,18 @@ public abstract class Type extends AbstractAST
       return visitor.visitTypeFunction (this);
     }
     private FunctionType function;
-    public FunctionType getfunction ()
+    public FunctionType getFunction ()
     {
       return function;
     }
-    private void $setfunction (FunctionType x)
+    private void $setFunction (FunctionType x)
     {
       this.function = x;
     }
-    public Function setfunction (FunctionType x)
+    public Function setFunction (FunctionType x)
     {
       Function z = new Function ();
-      z.$setfunction (x);
+      z.$setFunction (x);
       return z;
     }
   }
@@ -125,18 +124,18 @@ public abstract class Type extends AbstractAST
       return visitor.visitTypeVariable (this);
     }
     private TypeVar typeVar;
-    public TypeVar gettypeVar ()
+    public TypeVar getTypeVar ()
     {
       return typeVar;
     }
-    private void $settypeVar (TypeVar x)
+    private void $setTypeVar (TypeVar x)
     {
       this.typeVar = x;
     }
-    public Variable settypeVar (TypeVar x)
+    public Variable setTypeVar (TypeVar x)
     {
       Variable z = new Variable ();
-      z.$settypeVar (x);
+      z.$setTypeVar (x);
       return z;
     }
   }
@@ -156,18 +155,18 @@ public abstract class Type extends AbstractAST
       return visitor.visitTypeUser (this);
     }
     private UserType user;
-    public UserType getuser ()
+    public UserType getUser ()
     {
       return user;
     }
-    private void $setuser (UserType x)
+    private void $setUser (UserType x)
     {
       this.user = x;
     }
-    public User setuser (UserType x)
+    public User setUser (UserType x)
     {
       User z = new User ();
-      z.$setuser (x);
+      z.$setUser (x);
       return z;
     }
   }
@@ -187,18 +186,18 @@ public abstract class Type extends AbstractAST
       return visitor.visitTypeSymbol (this);
     }
     private Symbol symbol;
-    public Symbol getsymbol ()
+    public Symbol getSymbol ()
     {
       return symbol;
     }
-    private void $setsymbol (Symbol x)
+    private void $setSymbol (Symbol x)
     {
       this.symbol = x;
     }
-    public Symbol setsymbol (Symbol x)
+    public Symbol setSymbol (Symbol x)
     {
       Symbol z = new Symbol ();
-      z.$setsymbol (x);
+      z.$setSymbol (x);
       return z;
     }
   }
@@ -218,18 +217,18 @@ public abstract class Type extends AbstractAST
       return visitor.visitTypeSelector (this);
     }
     private DataTypeSelector selector;
-    public DataTypeSelector getselector ()
+    public DataTypeSelector getSelector ()
     {
       return selector;
     }
-    private void $setselector (DataTypeSelector x)
+    private void $setSelector (DataTypeSelector x)
     {
       this.selector = x;
     }
-    public Selector setselector (DataTypeSelector x)
+    public Selector setSelector (DataTypeSelector x)
     {
       Selector z = new Selector ();
-      z.$setselector (x);
+      z.$setSelector (x);
       return z;
     }
   }

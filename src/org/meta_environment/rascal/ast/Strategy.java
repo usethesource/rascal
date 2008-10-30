@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class Strategy extends AbstractAST
 {
@@ -21,12 +20,12 @@ public abstract class Strategy extends AbstractAST
   }
   public class Ambiguity extends Strategy
   {
-    private final List < Strategy > alternatives;
-    public Ambiguity (List < Strategy > alternatives)
+    private final java.util.List < Strategy > alternatives;
+    public Ambiguity (java.util.List < Strategy > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < Strategy > getAlternatives ()
+    public java.util.List < Strategy > getAlternatives ()
     {
       return alternatives;
     }

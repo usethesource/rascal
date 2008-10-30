@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class Signature extends AbstractAST
 {
@@ -24,74 +23,74 @@ public abstract class Signature extends AbstractAST
       return visitor.visitSignatureNoThrows (this);
     }
     private Type type;
-    public Type gettype ()
+    public Type getType ()
     {
       return type;
     }
-    private void $settype (Type x)
+    private void $setType (Type x)
     {
       this.type = x;
     }
-    public NoThrows settype (Type x)
+    public NoThrows setType (Type x)
     {
       NoThrows z = new NoThrows ();
-      z.$settype (x);
+      z.$setType (x);
       return z;
     }
     private FunctionModifiers modifiers;
-    public FunctionModifiers getmodifiers ()
+    public FunctionModifiers getModifiers ()
     {
       return modifiers;
     }
-    private void $setmodifiers (FunctionModifiers x)
+    private void $setModifiers (FunctionModifiers x)
     {
       this.modifiers = x;
     }
-    public NoThrows setmodifiers (FunctionModifiers x)
+    public NoThrows setModifiers (FunctionModifiers x)
     {
       NoThrows z = new NoThrows ();
-      z.$setmodifiers (x);
+      z.$setModifiers (x);
       return z;
     }
     private FunctionName name;
-    public FunctionName getname ()
+    public FunctionName getName ()
     {
       return name;
     }
-    private void $setname (FunctionName x)
+    private void $setName (FunctionName x)
     {
       this.name = x;
     }
-    public NoThrows setname (FunctionName x)
+    public NoThrows setName (FunctionName x)
     {
       NoThrows z = new NoThrows ();
-      z.$setname (x);
+      z.$setName (x);
       return z;
     }
     private Parameters parameters;
-    public Parameters getparameters ()
+    public Parameters getParameters ()
     {
       return parameters;
     }
-    private void $setparameters (Parameters x)
+    private void $setParameters (Parameters x)
     {
       this.parameters = x;
     }
-    public NoThrows setparameters (Parameters x)
+    public NoThrows setParameters (Parameters x)
     {
       NoThrows z = new NoThrows ();
-      z.$setparameters (x);
+      z.$setParameters (x);
       return z;
     }
   }
   public class Ambiguity extends Signature
   {
-    private final List < Signature > alternatives;
-    public Ambiguity (List < Signature > alternatives)
+    private final java.util.List < Signature > alternatives;
+    public Ambiguity (java.util.List < Signature > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < Signature > getAlternatives ()
+    public java.util.List < Signature > getAlternatives ()
     {
       return alternatives;
     }
@@ -104,92 +103,92 @@ public abstract class Signature extends AbstractAST
     }
     /*package */ WithThrows (ITree tree, Type type,
 			     FunctionModifiers modifiers, FunctionName name,
-			     Parameters parameters, List < Type > exceptions)
+			     Parameters parameters,
+			     java.util.List < Type > exceptions)
     {
       this.tree = tree;
       this.type = type;
       this.modifiers = modifiers;
       this.name = name;
       this.parameters = parameters;
-      this.exceptions = exceptions;
-    }
+    params2statements (java.util.List < Type > exceptions)}
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitSignatureWithThrows (this);
     }
     private Type type;
-    public Type gettype ()
+    public Type getType ()
     {
       return type;
     }
-    private void $settype (Type x)
+    private void $setType (Type x)
     {
       this.type = x;
     }
-    public WithThrows settype (Type x)
+    public WithThrows setType (Type x)
     {
       WithThrows z = new WithThrows ();
-      z.$settype (x);
+      z.$setType (x);
       return z;
     }
     private FunctionModifiers modifiers;
-    public FunctionModifiers getmodifiers ()
+    public FunctionModifiers getModifiers ()
     {
       return modifiers;
     }
-    private void $setmodifiers (FunctionModifiers x)
+    private void $setModifiers (FunctionModifiers x)
     {
       this.modifiers = x;
     }
-    public WithThrows setmodifiers (FunctionModifiers x)
+    public WithThrows setModifiers (FunctionModifiers x)
     {
       WithThrows z = new WithThrows ();
-      z.$setmodifiers (x);
+      z.$setModifiers (x);
       return z;
     }
     private FunctionName name;
-    public FunctionName getname ()
+    public FunctionName getName ()
     {
       return name;
     }
-    private void $setname (FunctionName x)
+    private void $setName (FunctionName x)
     {
       this.name = x;
     }
-    public WithThrows setname (FunctionName x)
+    public WithThrows setName (FunctionName x)
     {
       WithThrows z = new WithThrows ();
-      z.$setname (x);
+      z.$setName (x);
       return z;
     }
     private Parameters parameters;
-    public Parameters getparameters ()
+    public Parameters getParameters ()
     {
       return parameters;
     }
-    private void $setparameters (Parameters x)
+    private void $setParameters (Parameters x)
     {
       this.parameters = x;
     }
-    public WithThrows setparameters (Parameters x)
+    public WithThrows setParameters (Parameters x)
     {
       WithThrows z = new WithThrows ();
-      z.$setparameters (x);
+      z.$setParameters (x);
       return z;
     }
-    private List < Type > exceptions;
-    public List < Type > getexceptions ()
+    private java.util.List < Type > exceptions;
+    public java.util.List < Type > getExceptions ()
     {
       return exceptions;
     }
-    private void $setexceptions (List < Type > x)
+    private void $setExceptions (java.util.List < Type > x)
     {
       this.exceptions = x;
     }
-    public WithThrows setexceptions (List < Type > x)
+    public WithThrows setExceptions (java.util.List < Type > x)
     {
       WithThrows z = new WithThrows ();
-      z.$setexceptions (x);
+      z.$setExceptions (x);
       return z;
     }
   }

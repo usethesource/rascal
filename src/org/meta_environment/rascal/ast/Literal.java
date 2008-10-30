@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class Literal extends AbstractAST
 {
@@ -20,29 +19,29 @@ public abstract class Literal extends AbstractAST
       return visitor.visitLiteralRegExp (this);
     }
     private RegExpLiteral regExp;
-    public RegExpLiteral getregExp ()
+    public RegExpLiteral getRegExp ()
     {
       return regExp;
     }
-    private void $setregExp (RegExpLiteral x)
+    private void $setRegExp (RegExpLiteral x)
     {
       this.regExp = x;
     }
-    public RegExp setregExp (RegExpLiteral x)
+    public RegExp setRegExp (RegExpLiteral x)
     {
       RegExp z = new RegExp ();
-      z.$setregExp (x);
+      z.$setRegExp (x);
       return z;
     }
   }
   public class Ambiguity extends Literal
   {
-    private final List < Literal > alternatives;
-    public Ambiguity (List < Literal > alternatives)
+    private final java.util.List < Literal > alternatives;
+    public Ambiguity (java.util.List < Literal > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < Literal > getAlternatives ()
+    public java.util.List < Literal > getAlternatives ()
     {
       return alternatives;
     }
@@ -63,18 +62,18 @@ public abstract class Literal extends AbstractAST
       return visitor.visitLiteralSymbol (this);
     }
     private SymbolLiteral symbol;
-    public SymbolLiteral getsymbol ()
+    public SymbolLiteral getSymbol ()
     {
       return symbol;
     }
-    private void $setsymbol (SymbolLiteral x)
+    private void $setSymbol (SymbolLiteral x)
     {
       this.symbol = x;
     }
-    public Symbol setsymbol (SymbolLiteral x)
+    public Symbol setSymbol (SymbolLiteral x)
     {
       Symbol z = new Symbol ();
-      z.$setsymbol (x);
+      z.$setSymbol (x);
       return z;
     }
   }
@@ -94,18 +93,18 @@ public abstract class Literal extends AbstractAST
       return visitor.visitLiteralBoolean (this);
     }
     private BooleanLiteral boolean;
-    public BooleanLiteral getboolean ()
+    public BooleanLiteral getBoolean ()
     {
       return boolean;
     }
-    private void $setboolean (BooleanLiteral x)
+    private void $setBoolean (BooleanLiteral x)
     {
       this.boolean = x;
     }
-    public Boolean setboolean (BooleanLiteral x)
+    public Boolean setBoolean (BooleanLiteral x)
     {
       Boolean z = new Boolean ();
-      z.$setboolean (x);
+      z.$setBoolean (x);
       return z;
     }
   }
@@ -125,18 +124,18 @@ public abstract class Literal extends AbstractAST
       return visitor.visitLiteralInteger (this);
     }
     private IntegerLiteral integer;
-    public IntegerLiteral getinteger ()
+    public IntegerLiteral getInteger ()
     {
       return integer;
     }
-    private void $setinteger (IntegerLiteral x)
+    private void $setInteger (IntegerLiteral x)
     {
       this.integer = x;
     }
-    public Integer setinteger (IntegerLiteral x)
+    public Integer setInteger (IntegerLiteral x)
     {
       Integer z = new Integer ();
-      z.$setinteger (x);
+      z.$setInteger (x);
       return z;
     }
   }
@@ -156,18 +155,18 @@ public abstract class Literal extends AbstractAST
       return visitor.visitLiteralDouble (this);
     }
     private FloatingPointLiteral double;
-    public FloatingPointLiteral getdouble ()
+    public FloatingPointLiteral getDouble ()
     {
       return double;
     }
-    private void $setdouble (FloatingPointLiteral x)
+    private void $setDouble (FloatingPointLiteral x)
     {
       this.double = x;
     }
-    public Double setdouble (FloatingPointLiteral x)
+    public Double setDouble (FloatingPointLiteral x)
     {
       Double z = new Double ();
-      z.$setdouble (x);
+      z.$setDouble (x);
       return z;
     }
   }
@@ -187,18 +186,18 @@ public abstract class Literal extends AbstractAST
       return visitor.visitLiteralString (this);
     }
     private StringLiteral string;
-    public StringLiteral getstring ()
+    public StringLiteral getString ()
     {
       return string;
     }
-    private void $setstring (StringLiteral x)
+    private void $setString (StringLiteral x)
     {
       this.string = x;
     }
-    public String setstring (StringLiteral x)
+    public String setString (StringLiteral x)
     {
       String z = new String ();
-      z.$setstring (x);
+      z.$setString (x);
       return z;
     }
   }

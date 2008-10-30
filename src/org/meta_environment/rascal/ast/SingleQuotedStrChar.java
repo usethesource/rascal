@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class SingleQuotedStrChar extends AbstractAST
 {
@@ -10,12 +9,12 @@ public abstract class SingleQuotedStrChar extends AbstractAST
   }
   public class Ambiguity extends SingleQuotedStrChar
   {
-    private final List < SingleQuotedStrChar > alternatives;
-    public Ambiguity (List < SingleQuotedStrChar > alternatives)
+    private final java.util.List < SingleQuotedStrChar > alternatives;
+    public Ambiguity (java.util.List < SingleQuotedStrChar > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < SingleQuotedStrChar > getAlternatives ()
+    public java.util.List < SingleQuotedStrChar > getAlternatives ()
     {
       return alternatives;
     }

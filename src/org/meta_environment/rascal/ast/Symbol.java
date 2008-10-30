@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class Symbol extends AbstractAST
 {
@@ -20,29 +19,29 @@ public abstract class Symbol extends AbstractAST
       return visitor.visitSymbolSort (this);
     }
     private Sort sort;
-    public Sort getsort ()
+    public Sort getSort ()
     {
       return sort;
     }
-    private void $setsort (Sort x)
+    private void $setSort (Sort x)
     {
       this.sort = x;
     }
-    public Sort setsort (Sort x)
+    public Sort setSort (Sort x)
     {
       Sort z = new Sort ();
-      z.$setsort (x);
+      z.$setSort (x);
       return z;
     }
   }
   public class Ambiguity extends Symbol
   {
-    private final List < Symbol > alternatives;
-    public Ambiguity (List < Symbol > alternatives)
+    private final java.util.List < Symbol > alternatives;
+    public Ambiguity (java.util.List < Symbol > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < Symbol > getAlternatives ()
+    public java.util.List < Symbol > getAlternatives ()
     {
       return alternatives;
     }
@@ -54,44 +53,43 @@ public abstract class Symbol extends AbstractAST
     {
     }
     /*package */ ParameterizedSort (ITree tree, Sort sort,
-				    List < Symbol > parameters)
+				    java.util.List < Symbol > parameters)
     {
       this.tree = tree;
       this.sort = sort;
-      this.parameters = parameters;
-    }
+    params2statements (java.util.List < Symbol > parameters)}
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitSymbolParameterizedSort (this);
     }
     private Sort sort;
-    public Sort getsort ()
+    public Sort getSort ()
     {
       return sort;
     }
-    private void $setsort (Sort x)
+    private void $setSort (Sort x)
     {
       this.sort = x;
     }
-    public ParameterizedSort setsort (Sort x)
+    public ParameterizedSort setSort (Sort x)
     {
       ParameterizedSort z = new ParameterizedSort ();
-      z.$setsort (x);
+      z.$setSort (x);
       return z;
     }
-    private List < Symbol > parameters;
-    public List < Symbol > getparameters ()
+    private java.util.List < Symbol > parameters;
+    public java.util.List < Symbol > getParameters ()
     {
       return parameters;
     }
-    private void $setparameters (List < Symbol > x)
+    private void $setParameters (java.util.List < Symbol > x)
     {
       this.parameters = x;
     }
-    public ParameterizedSort setparameters (List < Symbol > x)
+    public ParameterizedSort setParameters (java.util.List < Symbol > x)
     {
       ParameterizedSort z = new ParameterizedSort ();
-      z.$setparameters (x);
+      z.$setParameters (x);
       return z;
     }
   }
@@ -116,44 +114,44 @@ public abstract class Symbol extends AbstractAST
     private Sequence ()
     {
     }
-    /*package */ Sequence (ITree tree, Symbol head, List < Symbol > tail)
+    /*package */ Sequence (ITree tree, Symbol head,
+			   java.util.List < Symbol > tail)
     {
       this.tree = tree;
       this.head = head;
-      this.tail = tail;
-    }
+    params2statements (java.util.List < Symbol > tail)}
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitSymbolSequence (this);
     }
     private Symbol head;
-    public Symbol gethead ()
+    public Symbol getHead ()
     {
       return head;
     }
-    private void $sethead (Symbol x)
+    private void $setHead (Symbol x)
     {
       this.head = x;
     }
-    public Sequence sethead (Symbol x)
+    public Sequence setHead (Symbol x)
     {
       Sequence z = new Sequence ();
-      z.$sethead (x);
+      z.$setHead (x);
       return z;
     }
-    private List < Symbol > tail;
-    public List < Symbol > gettail ()
+    private java.util.List < Symbol > tail;
+    public java.util.List < Symbol > getTail ()
     {
       return tail;
     }
-    private void $settail (List < Symbol > x)
+    private void $setTail (java.util.List < Symbol > x)
     {
       this.tail = x;
     }
-    public Sequence settail (List < Symbol > x)
+    public Sequence setTail (java.util.List < Symbol > x)
     {
       Sequence z = new Sequence ();
-      z.$settail (x);
+      z.$setTail (x);
       return z;
     }
   }
@@ -173,18 +171,18 @@ public abstract class Symbol extends AbstractAST
       return visitor.visitSymbolOptional (this);
     }
     private Symbol symbol;
-    public Symbol getsymbol ()
+    public Symbol getSymbol ()
     {
       return symbol;
     }
-    private void $setsymbol (Symbol x)
+    private void $setSymbol (Symbol x)
     {
       this.symbol = x;
     }
-    public Optional setsymbol (Symbol x)
+    public Optional setSymbol (Symbol x)
     {
       Optional z = new Optional ();
-      z.$setsymbol (x);
+      z.$setSymbol (x);
       return z;
     }
   }
@@ -204,18 +202,18 @@ public abstract class Symbol extends AbstractAST
       return visitor.visitSymbolIter (this);
     }
     private Symbol symbol;
-    public Symbol getsymbol ()
+    public Symbol getSymbol ()
     {
       return symbol;
     }
-    private void $setsymbol (Symbol x)
+    private void $setSymbol (Symbol x)
     {
       this.symbol = x;
     }
-    public Iter setsymbol (Symbol x)
+    public Iter setSymbol (Symbol x)
     {
       Iter z = new Iter ();
-      z.$setsymbol (x);
+      z.$setSymbol (x);
       return z;
     }
   }
@@ -235,18 +233,18 @@ public abstract class Symbol extends AbstractAST
       return visitor.visitSymbolIterStar (this);
     }
     private Symbol symbol;
-    public Symbol getsymbol ()
+    public Symbol getSymbol ()
     {
       return symbol;
     }
-    private void $setsymbol (Symbol x)
+    private void $setSymbol (Symbol x)
     {
       this.symbol = x;
     }
-    public IterStar setsymbol (Symbol x)
+    public IterStar setSymbol (Symbol x)
     {
       IterStar z = new IterStar ();
-      z.$setsymbol (x);
+      z.$setSymbol (x);
       return z;
     }
   }
@@ -267,33 +265,33 @@ public abstract class Symbol extends AbstractAST
       return visitor.visitSymbolIterSep (this);
     }
     private Symbol symbol;
-    public Symbol getsymbol ()
+    public Symbol getSymbol ()
     {
       return symbol;
     }
-    private void $setsymbol (Symbol x)
+    private void $setSymbol (Symbol x)
     {
       this.symbol = x;
     }
-    public IterSep setsymbol (Symbol x)
+    public IterSep setSymbol (Symbol x)
     {
       IterSep z = new IterSep ();
-      z.$setsymbol (x);
+      z.$setSymbol (x);
       return z;
     }
     private StrCon sep;
-    public StrCon getsep ()
+    public StrCon getSep ()
     {
       return sep;
     }
-    private void $setsep (StrCon x)
+    private void $setSep (StrCon x)
     {
       this.sep = x;
     }
-    public IterSep setsep (StrCon x)
+    public IterSep setSep (StrCon x)
     {
       IterSep z = new IterSep ();
-      z.$setsep (x);
+      z.$setSep (x);
       return z;
     }
   }
@@ -314,33 +312,33 @@ public abstract class Symbol extends AbstractAST
       return visitor.visitSymbolIterStarSep (this);
     }
     private Symbol symbol;
-    public Symbol getsymbol ()
+    public Symbol getSymbol ()
     {
       return symbol;
     }
-    private void $setsymbol (Symbol x)
+    private void $setSymbol (Symbol x)
     {
       this.symbol = x;
     }
-    public IterStarSep setsymbol (Symbol x)
+    public IterStarSep setSymbol (Symbol x)
     {
       IterStarSep z = new IterStarSep ();
-      z.$setsymbol (x);
+      z.$setSymbol (x);
       return z;
     }
     private StrCon sep;
-    public StrCon getsep ()
+    public StrCon getSep ()
     {
       return sep;
     }
-    private void $setsep (StrCon x)
+    private void $setSep (StrCon x)
     {
       this.sep = x;
     }
-    public IterStarSep setsep (StrCon x)
+    public IterStarSep setSep (StrCon x)
     {
       IterStarSep z = new IterStarSep ();
-      z.$setsep (x);
+      z.$setSep (x);
       return z;
     }
   }
@@ -361,33 +359,33 @@ public abstract class Symbol extends AbstractAST
       return visitor.visitSymbolAlternative (this);
     }
     private Symbol lhs;
-    public Symbol getlhs ()
+    public Symbol getLhs ()
     {
       return lhs;
     }
-    private void $setlhs (Symbol x)
+    private void $setLhs (Symbol x)
     {
       this.lhs = x;
     }
-    public Alternative setlhs (Symbol x)
+    public Alternative setLhs (Symbol x)
     {
       Alternative z = new Alternative ();
-      z.$setlhs (x);
+      z.$setLhs (x);
       return z;
     }
     private Symbol rhs;
-    public Symbol getrhs ()
+    public Symbol getRhs ()
     {
       return rhs;
     }
-    private void $setrhs (Symbol x)
+    private void $setRhs (Symbol x)
     {
       this.rhs = x;
     }
-    public Alternative setrhs (Symbol x)
+    public Alternative setRhs (Symbol x)
     {
       Alternative z = new Alternative ();
-      z.$setrhs (x);
+      z.$setRhs (x);
       return z;
     }
   }
@@ -407,18 +405,18 @@ public abstract class Symbol extends AbstractAST
       return visitor.visitSymbolCharacterClass (this);
     }
     private CharClass charClass;
-    public CharClass getcharClass ()
+    public CharClass getCharClass ()
     {
       return charClass;
     }
-    private void $setcharClass (CharClass x)
+    private void $setCharClass (CharClass x)
     {
       this.charClass = x;
     }
-    public CharacterClass setcharClass (CharClass x)
+    public CharacterClass setCharClass (CharClass x)
     {
       CharacterClass z = new CharacterClass ();
-      z.$setcharClass (x);
+      z.$setCharClass (x);
       return z;
     }
   }
@@ -438,18 +436,18 @@ public abstract class Symbol extends AbstractAST
       return visitor.visitSymbolLiftedSymbol (this);
     }
     private Symbol symbol;
-    public Symbol getsymbol ()
+    public Symbol getSymbol ()
     {
       return symbol;
     }
-    private void $setsymbol (Symbol x)
+    private void $setSymbol (Symbol x)
     {
       this.symbol = x;
     }
-    public LiftedSymbol setsymbol (Symbol x)
+    public LiftedSymbol setSymbol (Symbol x)
     {
       LiftedSymbol z = new LiftedSymbol ();
-      z.$setsymbol (x);
+      z.$setSymbol (x);
       return z;
     }
   }
@@ -469,18 +467,18 @@ public abstract class Symbol extends AbstractAST
       return visitor.visitSymbolLiteral (this);
     }
     private StrCon string;
-    public StrCon getstring ()
+    public StrCon getString ()
     {
       return string;
     }
-    private void $setstring (StrCon x)
+    private void $setString (StrCon x)
     {
       this.string = x;
     }
-    public Literal setstring (StrCon x)
+    public Literal setString (StrCon x)
     {
       Literal z = new Literal ();
-      z.$setstring (x);
+      z.$setString (x);
       return z;
     }
   }
@@ -502,18 +500,18 @@ public abstract class Symbol extends AbstractAST
       return visitor.visitSymbolCaseInsensitiveLiteral (this);
     }
     private SingleQuotedStrCon singelQuotedString;
-    public SingleQuotedStrCon getsingelQuotedString ()
+    public SingleQuotedStrCon getSingelQuotedString ()
     {
       return singelQuotedString;
     }
-    private void $setsingelQuotedString (SingleQuotedStrCon x)
+    private void $setSingelQuotedString (SingleQuotedStrCon x)
     {
       this.singelQuotedString = x;
     }
-    public CaseInsensitiveLiteral setsingelQuotedString (SingleQuotedStrCon x)
+    public CaseInsensitiveLiteral setSingelQuotedString (SingleQuotedStrCon x)
     {
       CaseInsensitiveLiteral z = new CaseInsensitiveLiteral ();
-      z.$setsingelQuotedString (x);
+      z.$setSingelQuotedString (x);
       return z;
     }
   }

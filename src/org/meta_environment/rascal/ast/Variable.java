@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class Variable extends AbstractAST
 {
@@ -23,59 +22,59 @@ public abstract class Variable extends AbstractAST
       return visitor.visitVariableGivenInitialization (this);
     }
     private Name name;
-    public Name getname ()
+    public Name getName ()
     {
       return name;
     }
-    private void $setname (Name x)
+    private void $setName (Name x)
     {
       this.name = x;
     }
-    public GivenInitialization setname (Name x)
+    public GivenInitialization setName (Name x)
     {
       GivenInitialization z = new GivenInitialization ();
-      z.$setname (x);
+      z.$setName (x);
       return z;
     }
     private Tags tags;
-    public Tags gettags ()
+    public Tags getTags ()
     {
       return tags;
     }
-    private void $settags (Tags x)
+    private void $setTags (Tags x)
     {
       this.tags = x;
     }
-    public GivenInitialization settags (Tags x)
+    public GivenInitialization setTags (Tags x)
     {
       GivenInitialization z = new GivenInitialization ();
-      z.$settags (x);
+      z.$setTags (x);
       return z;
     }
     private Expression initial;
-    public Expression getinitial ()
+    public Expression getInitial ()
     {
       return initial;
     }
-    private void $setinitial (Expression x)
+    private void $setInitial (Expression x)
     {
       this.initial = x;
     }
-    public GivenInitialization setinitial (Expression x)
+    public GivenInitialization setInitial (Expression x)
     {
       GivenInitialization z = new GivenInitialization ();
-      z.$setinitial (x);
+      z.$setInitial (x);
       return z;
     }
   }
   public class Ambiguity extends Variable
   {
-    private final List < Variable > alternatives;
-    public Ambiguity (List < Variable > alternatives)
+    private final java.util.List < Variable > alternatives;
+    public Ambiguity (java.util.List < Variable > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < Variable > getAlternatives ()
+    public java.util.List < Variable > getAlternatives ()
     {
       return alternatives;
     }

@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class UnicodeEscape extends AbstractAST
 {
@@ -10,12 +9,12 @@ public abstract class UnicodeEscape extends AbstractAST
   }
   public class Ambiguity extends UnicodeEscape
   {
-    private final List < UnicodeEscape > alternatives;
-    public Ambiguity (List < UnicodeEscape > alternatives)
+    private final java.util.List < UnicodeEscape > alternatives;
+    public Ambiguity (java.util.List < UnicodeEscape > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < UnicodeEscape > getAlternatives ()
+    public java.util.List < UnicodeEscape > getAlternatives ()
     {
       return alternatives;
     }

@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class OctalLongLiteral extends AbstractAST
 {
@@ -10,12 +9,12 @@ public abstract class OctalLongLiteral extends AbstractAST
   }
   public class Ambiguity extends OctalLongLiteral
   {
-    private final List < OctalLongLiteral > alternatives;
-    public Ambiguity (List < OctalLongLiteral > alternatives)
+    private final java.util.List < OctalLongLiteral > alternatives;
+    public Ambiguity (java.util.List < OctalLongLiteral > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < OctalLongLiteral > getAlternatives ()
+    public java.util.List < OctalLongLiteral > getAlternatives ()
     {
       return alternatives;
     }

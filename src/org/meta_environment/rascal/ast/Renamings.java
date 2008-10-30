@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class Renamings extends AbstractAST
 {
@@ -10,39 +9,38 @@ public abstract class Renamings extends AbstractAST
     private Default ()
     {
     }
-    /*package */ Default (ITree tree, List < Renaming > renamings)
+    /*package */ Default (ITree tree, java.util.List < Renaming > renamings)
     {
       this.tree = tree;
-      this.renamings = renamings;
-    }
+    params2statements (java.util.List < Renaming > renamings)}
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitRenamingsDefault (this);
     }
-    private List < Renaming > renamings;
-    public List < Renaming > getrenamings ()
+    private java.util.List < Renaming > renamings;
+    public java.util.List < Renaming > getRenamings ()
     {
       return renamings;
     }
-    private void $setrenamings (List < Renaming > x)
+    private void $setRenamings (java.util.List < Renaming > x)
     {
       this.renamings = x;
     }
-    public Default setrenamings (List < Renaming > x)
+    public Default setRenamings (java.util.List < Renaming > x)
     {
       Default z = new Default ();
-      z.$setrenamings (x);
+      z.$setRenamings (x);
       return z;
     }
   }
   public class Ambiguity extends Renamings
   {
-    private final List < Renamings > alternatives;
-    public Ambiguity (List < Renamings > alternatives)
+    private final java.util.List < Renamings > alternatives;
+    public Ambiguity (java.util.List < Renamings > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < Renamings > getAlternatives ()
+    public java.util.List < Renamings > getAlternatives ()
     {
       return alternatives;
     }

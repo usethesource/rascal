@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class QualifiedName extends AbstractAST
 {
@@ -10,39 +9,38 @@ public abstract class QualifiedName extends AbstractAST
     private Default ()
     {
     }
-    /*package */ Default (ITree tree, List < Name > names)
+    /*package */ Default (ITree tree, java.util.List < Name > names)
     {
       this.tree = tree;
-      this.names = names;
-    }
+    params2statements (java.util.List < Name > names)}
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitQualifiedNameDefault (this);
     }
-    private List < Name > names;
-    public List < Name > getnames ()
+    private java.util.List < Name > names;
+    public java.util.List < Name > getNames ()
     {
       return names;
     }
-    private void $setnames (List < Name > x)
+    private void $setNames (java.util.List < Name > x)
     {
       this.names = x;
     }
-    public Default setnames (List < Name > x)
+    public Default setNames (java.util.List < Name > x)
     {
       Default z = new Default ();
-      z.$setnames (x);
+      z.$setNames (x);
       return z;
     }
   }
   public class Ambiguity extends QualifiedName
   {
-    private final List < QualifiedName > alternatives;
-    public Ambiguity (List < QualifiedName > alternatives)
+    private final java.util.List < QualifiedName > alternatives;
+    public Ambiguity (java.util.List < QualifiedName > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < QualifiedName > getAlternatives ()
+    public java.util.List < QualifiedName > getAlternatives ()
     {
       return alternatives;
     }

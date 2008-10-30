@@ -19,7 +19,7 @@ public abstract class Pattern extends AbstractAST
       return visitor.visitPatternTypedVariable (this);
     }
     private Type type;
-    public Type gettype ()
+    public Type getType ()
     {
       return type;
     }
@@ -27,14 +27,14 @@ public abstract class Pattern extends AbstractAST
     {
       this.type = x;
     }
-    public TypedVariable settype (Type x)
+    public TypedVariable setType (Type x)
     {
       TypedVariable z = new TypedVariable ();
       z.privateSettype (x);
       return z;
     }
     private Name name;
-    public Name getname ()
+    public Name getName ()
     {
       return name;
     }
@@ -42,7 +42,7 @@ public abstract class Pattern extends AbstractAST
     {
       this.name = x;
     }
-    public TypedVariable setname (Name x)
+    public TypedVariable setName (Name x)
     {
       TypedVariable z = new TypedVariable ();
       z.privateSetname (x);

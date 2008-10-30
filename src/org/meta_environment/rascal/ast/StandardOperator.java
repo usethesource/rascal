@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class StandardOperator extends AbstractAST
 {
@@ -21,12 +20,12 @@ public abstract class StandardOperator extends AbstractAST
   }
   public class Ambiguity extends StandardOperator
   {
-    private final List < StandardOperator > alternatives;
-    public Ambiguity (List < StandardOperator > alternatives)
+    private final java.util.List < StandardOperator > alternatives;
+    public Ambiguity (java.util.List < StandardOperator > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < StandardOperator > getAlternatives ()
+    public java.util.List < StandardOperator > getAlternatives ()
     {
       return alternatives;
     }

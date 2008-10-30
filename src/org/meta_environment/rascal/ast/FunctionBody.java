@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class FunctionBody extends AbstractAST
 {
@@ -10,39 +9,38 @@ public abstract class FunctionBody extends AbstractAST
     private Default ()
     {
     }
-    /*package */ Default (ITree tree, List < Statement > statements)
+    /*package */ Default (ITree tree, java.util.List < Statement > statements)
     {
       this.tree = tree;
-      this.statements = statements;
-    }
+    params2statements (java.util.List < Statement > statements)}
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitFunctionBodyDefault (this);
     }
-    private List < Statement > statements;
-    public List < Statement > getstatements ()
+    private java.util.List < Statement > statements;
+    public java.util.List < Statement > getStatements ()
     {
       return statements;
     }
-    private void $setstatements (List < Statement > x)
+    private void $setStatements (java.util.List < Statement > x)
     {
       this.statements = x;
     }
-    public Default setstatements (List < Statement > x)
+    public Default setStatements (java.util.List < Statement > x)
     {
       Default z = new Default ();
-      z.$setstatements (x);
+      z.$setStatements (x);
       return z;
     }
   }
   public class Ambiguity extends FunctionBody
   {
-    private final List < FunctionBody > alternatives;
-    public Ambiguity (List < FunctionBody > alternatives)
+    private final java.util.List < FunctionBody > alternatives;
+    public Ambiguity (java.util.List < FunctionBody > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < FunctionBody > getAlternatives ()
+    public java.util.List < FunctionBody > getAlternatives ()
     {
       return alternatives;
     }

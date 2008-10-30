@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class TypeVar extends AbstractAST
 {
@@ -20,29 +19,29 @@ public abstract class TypeVar extends AbstractAST
       return visitor.visitTypeVarFree (this);
     }
     private Name name;
-    public Name getname ()
+    public Name getName ()
     {
       return name;
     }
-    private void $setname (Name x)
+    private void $setName (Name x)
     {
       this.name = x;
     }
-    public Free setname (Name x)
+    public Free setName (Name x)
     {
       Free z = new Free ();
-      z.$setname (x);
+      z.$setName (x);
       return z;
     }
   }
   public class Ambiguity extends TypeVar
   {
-    private final List < TypeVar > alternatives;
-    public Ambiguity (List < TypeVar > alternatives)
+    private final java.util.List < TypeVar > alternatives;
+    public Ambiguity (java.util.List < TypeVar > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < TypeVar > getAlternatives ()
+    public java.util.List < TypeVar > getAlternatives ()
     {
       return alternatives;
     }
@@ -64,33 +63,33 @@ public abstract class TypeVar extends AbstractAST
       return visitor.visitTypeVarBounded (this);
     }
     private Name name;
-    public Name getname ()
+    public Name getName ()
     {
       return name;
     }
-    private void $setname (Name x)
+    private void $setName (Name x)
     {
       this.name = x;
     }
-    public Bounded setname (Name x)
+    public Bounded setName (Name x)
     {
       Bounded z = new Bounded ();
-      z.$setname (x);
+      z.$setName (x);
       return z;
     }
     private Type bound;
-    public Type getbound ()
+    public Type getBound ()
     {
       return bound;
     }
-    private void $setbound (Type x)
+    private void $setBound (Type x)
     {
       this.bound = x;
     }
-    public Bounded setbound (Type x)
+    public Bounded setBound (Type x)
     {
       Bounded z = new Bounded ();
-      z.$setbound (x);
+      z.$setBound (x);
       return z;
     }
   }

@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class BooleanLiteral extends AbstractAST
 {
@@ -10,12 +9,12 @@ public abstract class BooleanLiteral extends AbstractAST
   }
   public class Ambiguity extends BooleanLiteral
   {
-    private final List < BooleanLiteral > alternatives;
-    public Ambiguity (List < BooleanLiteral > alternatives)
+    private final java.util.List < BooleanLiteral > alternatives;
+    public Ambiguity (java.util.List < BooleanLiteral > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < BooleanLiteral > getAlternatives ()
+    public java.util.List < BooleanLiteral > getAlternatives ()
     {
       return alternatives;
     }
