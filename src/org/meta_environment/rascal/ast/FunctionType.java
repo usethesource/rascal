@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public abstract class FunctionType extends AbstractAST
 {
   public class TypeArguments extends FunctionType
@@ -24,14 +26,14 @@ public abstract class FunctionType extends AbstractAST
     {
       return type;
     }
-    private void privateSettype (Type x)
+    private void $settype (Type x)
     {
       this.type = x;
     }
     public TypeArguments settype (Type x)
     {
       TypeArguments z = new TypeArguments ();
-      z.privateSettype (x);
+      z.$settype (x);
       return z;
     }
     private List < TypeArg > arguments;
@@ -39,14 +41,14 @@ public abstract class FunctionType extends AbstractAST
     {
       return arguments;
     }
-    private void privateSetarguments (List < TypeArg > x)
+    private void $setarguments (List < TypeArg > x)
     {
       this.arguments = x;
     }
     public TypeArguments setarguments (List < TypeArg > x)
     {
       TypeArguments z = new TypeArguments ();
-      z.privateSetarguments (x);
+      z.$setarguments (x);
       return z;
     }
   }
@@ -55,7 +57,7 @@ public abstract class FunctionType extends AbstractAST
     private final List < FunctionType > alternatives;
     public Ambiguity (List < FunctionType > alternatives)
     {
-      this.alternatives = Collections.immutableList (alternatives);
+      this.alternatives = Collections.unmodifiableList (alternatives);
     }
     public List < FunctionType > getAlternatives ()
     {

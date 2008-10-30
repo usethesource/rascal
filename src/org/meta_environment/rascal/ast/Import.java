@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public abstract class Import extends AbstractAST
 {
   public class Import extends Import
@@ -22,14 +24,14 @@ public abstract class Import extends AbstractAST
     {
       return module;
     }
-    private void privateSetmodule (ImportedModule x)
+    private void $setmodule (ImportedModule x)
     {
       this.module = x;
     }
     public Import setmodule (ImportedModule x)
     {
       Import z = new Import ();
-      z.privateSetmodule (x);
+      z.$setmodule (x);
       return z;
     }
   }
@@ -38,7 +40,7 @@ public abstract class Import extends AbstractAST
     private final List < Import > alternatives;
     public Ambiguity (List < Import > alternatives)
     {
-      this.alternatives = Collections.immutableList (alternatives);
+      this.alternatives = Collections.unmodifiableList (alternatives);
     }
     public List < Import > getAlternatives ()
     {
@@ -65,14 +67,14 @@ public abstract class Import extends AbstractAST
     {
       return module;
     }
-    private void privateSetmodule (ImportedModule x)
+    private void $setmodule (ImportedModule x)
     {
       this.module = x;
     }
     public Extend setmodule (ImportedModule x)
     {
       Extend z = new Extend ();
-      z.privateSetmodule (x);
+      z.$setmodule (x);
       return z;
     }
   }

@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public abstract class Renaming extends AbstractAST
 {
   public class Renaming extends Renaming
@@ -23,14 +25,14 @@ public abstract class Renaming extends AbstractAST
     {
       return from;
     }
-    private void privateSetfrom (Name x)
+    private void $setfrom (Name x)
     {
       this.from = x;
     }
     public Renaming setfrom (Name x)
     {
       Renaming z = new Renaming ();
-      z.privateSetfrom (x);
+      z.$setfrom (x);
       return z;
     }
     private Name to;
@@ -38,14 +40,14 @@ public abstract class Renaming extends AbstractAST
     {
       return to;
     }
-    private void privateSetto (Name x)
+    private void $setto (Name x)
     {
       this.to = x;
     }
     public Renaming setto (Name x)
     {
       Renaming z = new Renaming ();
-      z.privateSetto (x);
+      z.$setto (x);
       return z;
     }
   }
@@ -54,7 +56,7 @@ public abstract class Renaming extends AbstractAST
     private final List < Renaming > alternatives;
     public Ambiguity (List < Renaming > alternatives)
     {
-      this.alternatives = Collections.immutableList (alternatives);
+      this.alternatives = Collections.unmodifiableList (alternatives);
     }
     public List < Renaming > getAlternatives ()
     {

@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public abstract class Character extends AbstractAST
 {
   public class Numeric extends Character
@@ -22,14 +24,14 @@ public abstract class Character extends AbstractAST
     {
       return numeric;
     }
-    private void privateSetnumeric (NumChar x)
+    private void $setnumeric (NumChar x)
     {
       this.numeric = x;
     }
     public Numeric setnumeric (NumChar x)
     {
       Numeric z = new Numeric ();
-      z.privateSetnumeric (x);
+      z.$setnumeric (x);
       return z;
     }
   }
@@ -38,7 +40,7 @@ public abstract class Character extends AbstractAST
     private final List < Character > alternatives;
     public Ambiguity (List < Character > alternatives)
     {
-      this.alternatives = Collections.immutableList (alternatives);
+      this.alternatives = Collections.unmodifiableList (alternatives);
     }
     public List < Character > getAlternatives ()
     {
@@ -65,14 +67,14 @@ public abstract class Character extends AbstractAST
     {
       return short;
     }
-    private void privateSetshort (ShortChar x)
+    private void $setshort (ShortChar x)
     {
       this.short = x;
     }
     public Short setshort (ShortChar x)
     {
       Short z = new Short ();
-      z.privateSetshort (x);
+      z.$setshort (x);
       return z;
     }
   }

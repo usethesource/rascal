@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public abstract class TypeArg extends AbstractAST
 {
   public class Default extends TypeArg
@@ -22,14 +24,14 @@ public abstract class TypeArg extends AbstractAST
     {
       return type;
     }
-    private void privateSettype (Type x)
+    private void $settype (Type x)
     {
       this.type = x;
     }
     public Default settype (Type x)
     {
       Default z = new Default ();
-      z.privateSettype (x);
+      z.$settype (x);
       return z;
     }
   }
@@ -38,7 +40,7 @@ public abstract class TypeArg extends AbstractAST
     private final List < TypeArg > alternatives;
     public Ambiguity (List < TypeArg > alternatives)
     {
-      this.alternatives = Collections.immutableList (alternatives);
+      this.alternatives = Collections.unmodifiableList (alternatives);
     }
     public List < TypeArg > getAlternatives ()
     {
@@ -66,14 +68,14 @@ public abstract class TypeArg extends AbstractAST
     {
       return type;
     }
-    private void privateSettype (Type x)
+    private void $settype (Type x)
     {
       this.type = x;
     }
     public Named settype (Type x)
     {
       Named z = new Named ();
-      z.privateSettype (x);
+      z.$settype (x);
       return z;
     }
     private Name name;
@@ -81,14 +83,14 @@ public abstract class TypeArg extends AbstractAST
     {
       return name;
     }
-    private void privateSetname (Name x)
+    private void $setname (Name x)
     {
       this.name = x;
     }
     public Named setname (Name x)
     {
       Named z = new Named ();
-      z.privateSetname (x);
+      z.$setname (x);
       return z;
     }
   }

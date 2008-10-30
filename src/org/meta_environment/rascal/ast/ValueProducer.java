@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public abstract class ValueProducer extends AbstractAST
 {
   public class DefaultStrategy extends ValueProducer
@@ -24,14 +26,14 @@ public abstract class ValueProducer extends AbstractAST
     {
       return pattern;
     }
-    private void privateSetpattern (Pattern x)
+    private void $setpattern (Pattern x)
     {
       this.pattern = x;
     }
     public DefaultStrategy setpattern (Pattern x)
     {
       DefaultStrategy z = new DefaultStrategy ();
-      z.privateSetpattern (x);
+      z.$setpattern (x);
       return z;
     }
     private Expression expression;
@@ -39,14 +41,14 @@ public abstract class ValueProducer extends AbstractAST
     {
       return expression;
     }
-    private void privateSetexpression (Expression x)
+    private void $setexpression (Expression x)
     {
       this.expression = x;
     }
     public DefaultStrategy setexpression (Expression x)
     {
       DefaultStrategy z = new DefaultStrategy ();
-      z.privateSetexpression (x);
+      z.$setexpression (x);
       return z;
     }
   }
@@ -55,7 +57,7 @@ public abstract class ValueProducer extends AbstractAST
     private final List < ValueProducer > alternatives;
     public Ambiguity (List < ValueProducer > alternatives)
     {
-      this.alternatives = Collections.immutableList (alternatives);
+      this.alternatives = Collections.unmodifiableList (alternatives);
     }
     public List < ValueProducer > getAlternatives ()
     {
@@ -85,14 +87,14 @@ public abstract class ValueProducer extends AbstractAST
     {
       return strategy;
     }
-    private void privateSetstrategy (Strategy x)
+    private void $setstrategy (Strategy x)
     {
       this.strategy = x;
     }
     public GivenStrategy setstrategy (Strategy x)
     {
       GivenStrategy z = new GivenStrategy ();
-      z.privateSetstrategy (x);
+      z.$setstrategy (x);
       return z;
     }
     private Pattern pattern;
@@ -100,14 +102,14 @@ public abstract class ValueProducer extends AbstractAST
     {
       return pattern;
     }
-    private void privateSetpattern (Pattern x)
+    private void $setpattern (Pattern x)
     {
       this.pattern = x;
     }
     public GivenStrategy setpattern (Pattern x)
     {
       GivenStrategy z = new GivenStrategy ();
-      z.privateSetpattern (x);
+      z.$setpattern (x);
       return z;
     }
     private Expression expression;
@@ -115,14 +117,14 @@ public abstract class ValueProducer extends AbstractAST
     {
       return expression;
     }
-    private void privateSetexpression (Expression x)
+    private void $setexpression (Expression x)
     {
       this.expression = x;
     }
     public GivenStrategy setexpression (Expression x)
     {
       GivenStrategy z = new GivenStrategy ();
-      z.privateSetexpression (x);
+      z.$setexpression (x);
       return z;
     }
   }

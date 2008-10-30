@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public abstract class Variable extends AbstractAST
 {
   public class GivenInitialization extends Variable
@@ -25,14 +27,14 @@ public abstract class Variable extends AbstractAST
     {
       return name;
     }
-    private void privateSetname (Name x)
+    private void $setname (Name x)
     {
       this.name = x;
     }
     public GivenInitialization setname (Name x)
     {
       GivenInitialization z = new GivenInitialization ();
-      z.privateSetname (x);
+      z.$setname (x);
       return z;
     }
     private Tags tags;
@@ -40,14 +42,14 @@ public abstract class Variable extends AbstractAST
     {
       return tags;
     }
-    private void privateSettags (Tags x)
+    private void $settags (Tags x)
     {
       this.tags = x;
     }
     public GivenInitialization settags (Tags x)
     {
       GivenInitialization z = new GivenInitialization ();
-      z.privateSettags (x);
+      z.$settags (x);
       return z;
     }
     private Expression initial;
@@ -55,14 +57,14 @@ public abstract class Variable extends AbstractAST
     {
       return initial;
     }
-    private void privateSetinitial (Expression x)
+    private void $setinitial (Expression x)
     {
       this.initial = x;
     }
     public GivenInitialization setinitial (Expression x)
     {
       GivenInitialization z = new GivenInitialization ();
-      z.privateSetinitial (x);
+      z.$setinitial (x);
       return z;
     }
   }
@@ -71,7 +73,7 @@ public abstract class Variable extends AbstractAST
     private final List < Variable > alternatives;
     public Ambiguity (List < Variable > alternatives)
     {
-      this.alternatives = Collections.immutableList (alternatives);
+      this.alternatives = Collections.unmodifiableList (alternatives);
     }
     public List < Variable > getAlternatives ()
     {

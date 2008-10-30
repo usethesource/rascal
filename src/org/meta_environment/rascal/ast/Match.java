@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public abstract class Match extends AbstractAST
 {
   public class Replacing extends Match
@@ -23,14 +25,14 @@ public abstract class Match extends AbstractAST
     {
       return match;
     }
-    private void privateSetmatch (Pattern x)
+    private void $setmatch (Pattern x)
     {
       this.match = x;
     }
     public Replacing setmatch (Pattern x)
     {
       Replacing z = new Replacing ();
-      z.privateSetmatch (x);
+      z.$setmatch (x);
       return z;
     }
     private Expression replacement;
@@ -38,14 +40,14 @@ public abstract class Match extends AbstractAST
     {
       return replacement;
     }
-    private void privateSetreplacement (Expression x)
+    private void $setreplacement (Expression x)
     {
       this.replacement = x;
     }
     public Replacing setreplacement (Expression x)
     {
       Replacing z = new Replacing ();
-      z.privateSetreplacement (x);
+      z.$setreplacement (x);
       return z;
     }
   }
@@ -54,7 +56,7 @@ public abstract class Match extends AbstractAST
     private final List < Match > alternatives;
     public Ambiguity (List < Match > alternatives)
     {
-      this.alternatives = Collections.immutableList (alternatives);
+      this.alternatives = Collections.unmodifiableList (alternatives);
     }
     public List < Match > getAlternatives ()
     {
@@ -82,14 +84,14 @@ public abstract class Match extends AbstractAST
     {
       return match;
     }
-    private void privateSetmatch (Pattern x)
+    private void $setmatch (Pattern x)
     {
       this.match = x;
     }
     public Arbitrary setmatch (Pattern x)
     {
       Arbitrary z = new Arbitrary ();
-      z.privateSetmatch (x);
+      z.$setmatch (x);
       return z;
     }
     private Statement statement;
@@ -97,14 +99,14 @@ public abstract class Match extends AbstractAST
     {
       return statement;
     }
-    private void privateSetstatement (Statement x)
+    private void $setstatement (Statement x)
     {
       this.statement = x;
     }
     public Arbitrary setstatement (Statement x)
     {
       Arbitrary z = new Arbitrary ();
-      z.privateSetstatement (x);
+      z.$setstatement (x);
       return z;
     }
   }

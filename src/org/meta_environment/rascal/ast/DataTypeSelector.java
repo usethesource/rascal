@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public abstract class DataTypeSelector extends AbstractAST
 {
   public class Selector extends DataTypeSelector
@@ -23,14 +25,14 @@ public abstract class DataTypeSelector extends AbstractAST
     {
       return sort;
     }
-    private void privateSetsort (Name x)
+    private void $setsort (Name x)
     {
       this.sort = x;
     }
     public Selector setsort (Name x)
     {
       Selector z = new Selector ();
-      z.privateSetsort (x);
+      z.$setsort (x);
       return z;
     }
     private Name production;
@@ -38,14 +40,14 @@ public abstract class DataTypeSelector extends AbstractAST
     {
       return production;
     }
-    private void privateSetproduction (Name x)
+    private void $setproduction (Name x)
     {
       this.production = x;
     }
     public Selector setproduction (Name x)
     {
       Selector z = new Selector ();
-      z.privateSetproduction (x);
+      z.$setproduction (x);
       return z;
     }
   }
@@ -54,7 +56,7 @@ public abstract class DataTypeSelector extends AbstractAST
     private final List < DataTypeSelector > alternatives;
     public Ambiguity (List < DataTypeSelector > alternatives)
     {
-      this.alternatives = Collections.immutableList (alternatives);
+      this.alternatives = Collections.unmodifiableList (alternatives);
     }
     public List < DataTypeSelector > getAlternatives ()
     {

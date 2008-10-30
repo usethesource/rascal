@@ -1,9 +1,12 @@
 package org.meta_environment.rascal.ast;
-import java.util.List;
-
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public class ASTFactory
 {
+  java.util.Map < AbstractAST > table =
+    new java.util.HashTable < AbstractAST > ();
+
   public Body.Ambiguity makeBodyAmbiguity (List < Body > alternatives)
   {
     Body.Ambiguity amb = new Body.Ambiguity (alternatives);
@@ -128,6 +131,19 @@ public class ASTFactory
   {
     Expression.Comprehension x =
       new Expression.Comprehension (tree, comprehension);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Expression.
+    TypedVariablePattern makeExpressionTypedVariablePattern (ITree tree,
+							     Type type,
+							     Name name)
+  {
+    Expression.TypedVariablePattern x =
+      new Expression.TypedVariablePattern (tree, type, name);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -297,15 +313,11 @@ public class ASTFactory
   }
   public Expression.IfThenElse makeExpressionIfThenElse (ITree tree,
 							 Expression condition,
-							 Expression then,
-							 Expression
-							 else
-  )
+							 Expression thenExp,
+							 Expression elseExp)
   {
     Expression.IfThenElse x =
-      new Expression.IfThenElse (tree, condition, then,
-				 else
-    );
+      new Expression.IfThenElse (tree, condition, thenExp, elseExp);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -628,24 +640,6 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public NatCon.Ambiguity makeNatConAmbiguity (List < NatCon > alternatives)
-  {
-    NatCon.Ambiguity amb = new NatCon.Ambiguity (alternatives);
-    if (!table.containsKey (amb))
-      {
-	table.put (amb, amb);
-      }
-    return table.get (amb, amb);
-  }
-  public NatCon.digits makeNatCondigits (ITree tree)
-  {
-    NatCon.digits x = new NatCon.digits (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
   public SymbolLiteral.Ambiguity makeSymbolLiteralAmbiguity (List <
 							     SymbolLiteral >
 							     alternatives)
@@ -791,10 +785,10 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public Statement.Block makeStatementBlock (ITree tree,
+  public Statement.Block makeStatementBlock (ITree tree, Label label,
 					     List < Statement > statements)
   {
-    Statement.Block x = new Statement.Block (tree, statements);
+    Statement.Block x = new Statement.Block (tree, label, statements);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -936,23 +930,24 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public Statement.Switch makeStatementSwitch (ITree tree,
+  public Statement.Switch makeStatementSwitch (ITree tree, Label label,
 					       Expression expression,
 					       List < Case > cases)
   {
-    Statement.Switch x = new Statement.Switch (tree, expression, cases);
+    Statement.Switch x =
+      new Statement.Switch (tree, label, expression, cases);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Statement.IfThen makeStatementIfThen (ITree tree,
+  public Statement.IfThen makeStatementIfThen (ITree tree, Label label,
 					       Condition condition,
 					       Statement thenStatement)
   {
     Statement.IfThen x =
-      new Statement.IfThen (tree, condition, thenStatement);
+      new Statement.IfThen (tree, label, condition, thenStatement);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -960,6 +955,7 @@ public class ASTFactory
     return table.get (x);
   }
   public Statement.IfThenElse makeStatementIfThenElse (ITree tree,
+						       Label label,
 						       Condition condition,
 						       Statement
 						       thenStatement,
@@ -967,7 +963,7 @@ public class ASTFactory
 						       elseStatement)
   {
     Statement.IfThenElse x =
-      new Statement.IfThenElse (tree, condition, thenStatement,
+      new Statement.IfThenElse (tree, label, condition, thenStatement,
 				elseStatement);
     if (!table.containsKey (x))
       {
@@ -975,42 +971,34 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public Statement.DoWhile makeStatementDoWhile (ITree tree, Statement body,
+  public Statement.DoWhile makeStatementDoWhile (ITree tree, Label label,
+						 Statement body,
 						 Expression condition)
   {
-    Statement.DoWhile x = new Statement.DoWhile (tree, body, condition);
+    Statement.DoWhile x =
+      new Statement.DoWhile (tree, label, body, condition);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Statement.While makeStatementWhile (ITree tree, Expression condition,
+  public Statement.While makeStatementWhile (ITree tree, Label label,
+					     Expression condition,
 					     Statement body)
   {
-    Statement.While x = new Statement.While (tree, condition, body);
+    Statement.While x = new Statement.While (tree, label, condition, body);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Statement.For makeStatementFor (ITree tree,
+  public Statement.For makeStatementFor (ITree tree, Label label,
 					 List < Generator > generators,
 					 Statement body)
   {
-    Statement.For x = new Statement.For (tree, generators, body);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Statement.Solve makeStatementSolve (ITree tree,
-					     List < Declarator > declarations,
-					     Statement body)
-  {
-    Statement.Solve x = new Statement.Solve (tree, declarations, body);
+    Statement.For x = new Statement.For (tree, label, generators, body);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -1027,10 +1015,11 @@ public class ASTFactory
       }
     return table.get (amb, amb);
   }
-  public Statement.Solve makeStatementSolve (ITree tree, Bound bound,
-					     Statement init, Statement body)
+  public Statement.Solve makeStatementSolve (ITree tree,
+					     List < Declarator > declarations,
+					     Statement body)
   {
-    Statement.Solve x = new Statement.Solve (tree, bound, init, body);
+    Statement.Solve x = new Statement.Solve (tree, declarations, body);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -1259,6 +1248,60 @@ public class ASTFactory
       }
     return table.get (x);
   }
+  public Label.Default makeLabelDefault (ITree tree, Name name)
+  {
+    Label.Default x = new Label.Default (tree, name);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Label.Ambiguity makeLabelAmbiguity (List < Label > alternatives)
+  {
+    Label.Ambiguity amb = new Label.Ambiguity (alternatives);
+    if (!table.containsKey (amb))
+      {
+	table.put (amb, amb);
+      }
+    return table.get (amb, amb);
+  }
+  public Label.Empty makeLabelEmpty (ITree tree)
+  {
+    Label.Empty x = new Label.Empty (tree);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Break.Unlabeled makeBreakUnlabeled (ITree tree)
+  {
+    Break.Unlabeled x = new Break.Unlabeled (tree);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Break.Ambiguity makeBreakAmbiguity (List < Break > alternatives)
+  {
+    Break.Ambiguity amb = new Break.Ambiguity (alternatives);
+    if (!table.containsKey (amb))
+      {
+	table.put (amb, amb);
+      }
+    return table.get (amb, amb);
+  }
+  public Break.Labeled makeBreakLabeled (ITree tree, Name label)
+  {
+    Break.Labeled x = new Break.Labeled (tree, label);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
   public Catch.BindingCatch makeCatchBindingCatch (ITree tree, Type type,
 						   Name name, Statement body)
   {
@@ -1408,97 +1451,6 @@ public class ASTFactory
 	table.put (amb, amb);
       }
     return table.get (amb, amb);
-  }
-  public StrChar.normal makeStrCharnormal (ITree tree)
-  {
-    StrChar.normal x = new StrChar.normal (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public StrChar.decimal makeStrChardecimal (ITree tree,
-					     List <
-					     get - sort - from -
-					     symbol ([0 - 9]) > a,
-					     List <
-					     get - sort - from -
-					     symbol ([0 - 9]) > b,
-					     List <
-					     get - sort - from -
-					     symbol ([0 - 9]) > c)
-  {
-    StrChar.decimal x = new StrChar.decimal (tree, a, b, c);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public StrChar.backslash makeStrCharbackslash (ITree tree)
-  {
-    StrChar.backslash x = new StrChar.backslash (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public StrChar.quote makeStrCharquote (ITree tree)
-  {
-    StrChar.quote x = new StrChar.quote (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public StrChar.tab makeStrChartab (ITree tree)
-  {
-    StrChar.tab x = new StrChar.tab (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public StrChar.Ambiguity makeStrCharAmbiguity (List < StrChar >
-						 alternatives)
-  {
-    StrChar.Ambiguity amb = new StrChar.Ambiguity (alternatives);
-    if (!table.containsKey (amb))
-      {
-	table.put (amb, amb);
-      }
-    return table.get (amb, amb);
-  }
-  public StrChar.newline makeStrCharnewline (ITree tree)
-  {
-    StrChar.newline x = new StrChar.newline (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public StrCon.Ambiguity makeStrConAmbiguity (List < StrCon > alternatives)
-  {
-    StrCon.Ambiguity amb = new StrCon.Ambiguity (alternatives);
-    if (!table.containsKey (amb))
-      {
-	table.put (amb, amb);
-      }
-    return table.get (amb, amb);
-  }
-  public StrCon.default makeStrCondefault (ITree tree, List < StrChar > chars)
-  {
-    StrCon.default x = new StrCon.default (tree, chars);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
   }
   public Visibility.Private makeVisibilityPrivate (ITree tree)
   {
@@ -2575,25 +2527,33 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public Sort.more - chars makeSortmore - chars (ITree tree,
-						 List <
-						 get - sort - from -
-						 symbol ([A - Z]) > head,
-						 List <
-						 get - sort - from -
-						 symbol ([A - Za - z0 -
-							  9 \ -] *) > middle,
-						 List <
-						 get - sort - from -
-						 symbol ([A - Za - z0 - 9]) >
-						 last)
+  public StrChar.Ambiguity makeStrCharAmbiguity (List < StrChar >
+						 alternatives)
   {
-    Sort.more - chars x = new Sort.more - chars (tree, head, middle, last);
+    StrChar.Ambiguity amb = new StrChar.Ambiguity (alternatives);
+    if (!table.containsKey (amb))
+      {
+	table.put (amb, amb);
+      }
+    return table.get (amb, amb);
+  }
+  public StrChar.newline makeStrCharnewline (ITree tree)
+  {
+    StrChar.newline x = new StrChar.newline (tree);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
+  }
+  public StrCon.Ambiguity makeStrConAmbiguity (List < StrCon > alternatives)
+  {
+    StrCon.Ambiguity amb = new StrCon.Ambiguity (alternatives);
+    if (!table.containsKey (amb))
+      {
+	table.put (amb, amb);
+      }
+    return table.get (amb, amb);
   }
   public Sort.Ambiguity makeSortAmbiguity (List < Sort > alternatives)
   {
@@ -2603,18 +2563,6 @@ public class ASTFactory
 	table.put (amb, amb);
       }
     return table.get (amb, amb);
-  }
-  public Sort.one - char makeSortone - char (ITree tree,
-					     List <
-					     get - sort - from -
-					     symbol ([A - Z]) > head)
-  {
-    Sort.one - char x = new Sort.one - char (tree, head);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
   }
   public Symbol.
     CaseInsensitiveLiteral makeSymbolCaseInsensitiveLiteral (ITree tree,
@@ -2765,64 +2713,6 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public SingleQuotedStrChar.normal makeSingleQuotedStrCharnormal (ITree tree)
-  {
-    SingleQuotedStrChar.normal x = new SingleQuotedStrChar.normal (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public SingleQuotedStrChar.
-    decimal makeSingleQuotedStrChardecimal (ITree tree,
-					    List <
-					    get - sort - from -
-					    symbol ([0 - 9]) > a,
-					    List <
-					    get - sort - from -
-					    symbol ([0 - 9]) > b,
-					    List <
-					    get - sort - from -
-					    symbol ([0 - 9]) > c)
-  {
-    SingleQuotedStrChar.decimal x =
-      new SingleQuotedStrChar.decimal (tree, a, b, c);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public SingleQuotedStrChar.
-    backslash makeSingleQuotedStrCharbackslash (ITree tree)
-  {
-    SingleQuotedStrChar.backslash x =
-      new SingleQuotedStrChar.backslash (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public SingleQuotedStrChar.quote makeSingleQuotedStrCharquote (ITree tree)
-  {
-    SingleQuotedStrChar.quote x = new SingleQuotedStrChar.quote (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public SingleQuotedStrChar.tab makeSingleQuotedStrChartab (ITree tree)
-  {
-    SingleQuotedStrChar.tab x = new SingleQuotedStrChar.tab (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
   public SingleQuotedStrChar.
     Ambiguity makeSingleQuotedStrCharAmbiguity (List < SingleQuotedStrChar >
 						alternatives)
@@ -2834,16 +2724,6 @@ public class ASTFactory
 	table.put (amb, amb);
       }
     return table.get (amb, amb);
-  }
-  public SingleQuotedStrChar.
-    newline makeSingleQuotedStrCharnewline (ITree tree)
-  {
-    SingleQuotedStrChar.newline x = new SingleQuotedStrChar.newline (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
   }
   public SingleQuotedStrCon.Ambiguity makeSingleQuotedStrConAmbiguity (List <
 								       SingleQuotedStrCon
@@ -2857,19 +2737,6 @@ public class ASTFactory
 	table.put (amb, amb);
       }
     return table.get (amb, amb);
-  }
-  public SingleQuotedStrCon.default makeSingleQuotedStrCondefault (ITree tree,
-								   List <
-								   SingleQuotedStrChar
-								   > chars)
-  {
-    SingleQuotedStrCon.default x =
-      new SingleQuotedStrCon.default (tree, chars);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
   }
   public CharRange.Range makeCharRangeRange (ITree tree, Character start,
 					     Character end)
@@ -3035,33 +2902,6 @@ public class ASTFactory
       }
     return table.get (amb, amb);
   }
-  public NumChar.Digits makeNumCharDigits (ITree tree,
-					   List <
-					   get - sort - from -
-					   symbol ([0 - 9] +) > number)
-  {
-    NumChar.Digits x = new NumChar.Digits (tree, number);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public ShortChar.Escaped makeShortCharEscaped (ITree tree,
-						 List <
-						 get - sort - from -
-						 symbol (~
-							 [\0 - \31 A - Za -
-							  mo - qsu - z0 -
-							  9]) > escape)
-  {
-    ShortChar.Escaped x = new ShortChar.Escaped (tree, escape);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
   public ShortChar.Ambiguity makeShortCharAmbiguity (List < ShortChar >
 						     alternatives)
   {
@@ -3071,19 +2911,6 @@ public class ASTFactory
 	table.put (amb, amb);
       }
     return table.get (amb, amb);
-  }
-  public ShortChar.Regular makeShortCharRegular (ITree tree,
-						 List <
-						 get - sort - from -
-						 symbol ([a - zA - Z0 - 9]) >
-						 character)
-  {
-    ShortChar.Regular x = new ShortChar.Regular (tree, character);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
   }
   public Character.LabelStart makeCharacterLabelStart (ITree tree)
   {
@@ -3158,9 +2985,10 @@ public class ASTFactory
       }
     return table.get (amb, amb);
   }
-  public Module.Module makeModuleModule (ITree tree, Header header, Body body)
+  public Module.Default makeModuleDefault (ITree tree, Header header,
+					   Body body)
   {
-    Module.Module x = new Module.Module (tree, header, body);
+    Module.Default x = new Module.Default (tree, header, body);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -3177,45 +3005,6 @@ public class ASTFactory
       }
     return table.get (amb, amb);
   }
-  public ModuleWord.Word makeModuleWordWord (ITree tree,
-					     List <
-					     get - sort - from -
-					     symbol ([A - Za - z0 -
-						      9 \ _ \ -] +) > letters)
-  {
-    ModuleWord.Word x = new ModuleWord.Word (tree, letters);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public ModuleName.Path makeModuleNamePath (ITree tree, ModuleWord dirname,
-					     List <
-					     get - sort - from -
-					     symbol ("/") > sep,
-					     ModuleName basename)
-  {
-    ModuleName.Path x = new ModuleName.Path (tree, dirname, sep, basename);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public ModuleName.Root makeModuleNameRoot (ITree tree,
-					     List <
-					     get - sort - from -
-					     symbol ("/") > sep,
-					     ModuleName basename)
-  {
-    ModuleName.Root x = new ModuleName.Root (tree, sep, basename);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
   public ModuleName.Ambiguity makeModuleNameAmbiguity (List < ModuleName >
 						       alternatives)
   {
@@ -3225,15 +3014,6 @@ public class ASTFactory
 	table.put (amb, amb);
       }
     return table.get (amb, amb);
-  }
-  public ModuleName.Leaf makeModuleNameLeaf (ITree tree)
-  {
-    ModuleName.Leaf x = new ModuleName.Leaf (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
   }
   public ModuleActuals.Ambiguity makeModuleActualsAmbiguity (List <
 							     ModuleActuals >
@@ -3246,10 +3026,10 @@ public class ASTFactory
       }
     return table.get (amb, amb);
   }
-  public ModuleActuals.Actuals makeModuleActualsActuals (ITree tree,
+  public ModuleActuals.Default makeModuleActualsDefault (ITree tree,
 							 List < Type > types)
   {
-    ModuleActuals.Actuals x = new ModuleActuals.Actuals (tree, types);
+    ModuleActuals.Default x = new ModuleActuals.Default (tree, types);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -3349,11 +3129,10 @@ public class ASTFactory
       }
     return table.get (amb, amb);
   }
-  public Renamings.Renamings makeRenamingsRenamings (ITree tree,
-						     List < Renaming >
-						     renamings)
+  public Renamings.Default makeRenamingsDefault (ITree tree,
+						 List < Renaming > renamings)
   {
-    Renamings.Renamings x = new Renamings.Renamings (tree, renamings);
+    Renamings.Default x = new Renamings.Default (tree, renamings);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -3548,26 +3327,6 @@ public class ASTFactory
   public Tags.Default makeTagsDefault (ITree tree, List < Tag > annotations)
   {
     Tags.Default x = new Tags.Default (tree, annotations);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Pattern.Ambiguity makePatternAmbiguity (List < Pattern >
-						 alternatives)
-  {
-    Pattern.Ambiguity amb = new Pattern.Ambiguity (alternatives);
-    if (!table.containsKey (amb))
-      {
-	table.put (amb, amb);
-      }
-    return table.get (amb, amb);
-  }
-  public Pattern.TypedVariable makePatternTypedVariable (ITree tree,
-							 Type type, Name name)
-  {
-    Pattern.TypedVariable x = new Pattern.TypedVariable (tree, type, name);
     if (!table.containsKey (x))
       {
 	table.put (x, x);

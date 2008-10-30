@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public abstract class Formals extends AbstractAST
 {
   public class Formals extends Formals
@@ -22,14 +24,14 @@ public abstract class Formals extends AbstractAST
     {
       return formals;
     }
-    private void privateSetformals (List < Formal > x)
+    private void $setformals (List < Formal > x)
     {
       this.formals = x;
     }
     public Formals setformals (List < Formal > x)
     {
       Formals z = new Formals ();
-      z.privateSetformals (x);
+      z.$setformals (x);
       return z;
     }
   }
@@ -38,7 +40,7 @@ public abstract class Formals extends AbstractAST
     private final List < Formals > alternatives;
     public Ambiguity (List < Formals > alternatives)
     {
-      this.alternatives = Collections.immutableList (alternatives);
+      this.alternatives = Collections.unmodifiableList (alternatives);
     }
     public List < Formals > getAlternatives ()
     {

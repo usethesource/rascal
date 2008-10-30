@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public abstract class Declaration extends AbstractAST
 {
   public class View extends Declaration
@@ -26,14 +28,14 @@ public abstract class Declaration extends AbstractAST
     {
       return view;
     }
-    private void privateSetview (Name x)
+    private void $setview (Name x)
     {
       this.view = x;
     }
     public View setview (Name x)
     {
       View z = new View ();
-      z.privateSetview (x);
+      z.$setview (x);
       return z;
     }
     private Name type;
@@ -41,14 +43,14 @@ public abstract class Declaration extends AbstractAST
     {
       return type;
     }
-    private void privateSettype (Name x)
+    private void $settype (Name x)
     {
       this.type = x;
     }
     public View settype (Name x)
     {
       View z = new View ();
-      z.privateSettype (x);
+      z.$settype (x);
       return z;
     }
     private Tags tags;
@@ -56,14 +58,14 @@ public abstract class Declaration extends AbstractAST
     {
       return tags;
     }
-    private void privateSettags (Tags x)
+    private void $settags (Tags x)
     {
       this.tags = x;
     }
     public View settags (Tags x)
     {
       View z = new View ();
-      z.privateSettags (x);
+      z.$settags (x);
       return z;
     }
     private List < Alternative > alternatives;
@@ -71,14 +73,14 @@ public abstract class Declaration extends AbstractAST
     {
       return alternatives;
     }
-    private void privateSetalternatives (List < Alternative > x)
+    private void $setalternatives (List < Alternative > x)
     {
       this.alternatives = x;
     }
     public View setalternatives (List < Alternative > x)
     {
       View z = new View ();
-      z.privateSetalternatives (x);
+      z.$setalternatives (x);
       return z;
     }
   }
@@ -87,7 +89,7 @@ public abstract class Declaration extends AbstractAST
     private final List < Declaration > alternatives;
     public Ambiguity (List < Declaration > alternatives)
     {
-      this.alternatives = Collections.immutableList (alternatives);
+      this.alternatives = Collections.unmodifiableList (alternatives);
     }
     public List < Declaration > getAlternatives ()
     {
@@ -116,14 +118,14 @@ public abstract class Declaration extends AbstractAST
     {
       return base;
     }
-    private void privateSetbase (Type x)
+    private void $setbase (Type x)
     {
       this.base = x;
     }
     public Type setbase (Type x)
     {
       Type z = new Type ();
-      z.privateSetbase (x);
+      z.$setbase (x);
       return z;
     }
     private UserType user;
@@ -131,14 +133,14 @@ public abstract class Declaration extends AbstractAST
     {
       return user;
     }
-    private void privateSetuser (UserType x)
+    private void $setuser (UserType x)
     {
       this.user = x;
     }
     public Type setuser (UserType x)
     {
       Type z = new Type ();
-      z.privateSetuser (x);
+      z.$setuser (x);
       return z;
     }
     private Tags tags;
@@ -146,14 +148,14 @@ public abstract class Declaration extends AbstractAST
     {
       return tags;
     }
-    private void privateSettags (Tags x)
+    private void $settags (Tags x)
     {
       this.tags = x;
     }
     public Type settags (Tags x)
     {
       Type z = new Type ();
-      z.privateSettags (x);
+      z.$settags (x);
       return z;
     }
   }
@@ -180,14 +182,14 @@ public abstract class Declaration extends AbstractAST
     {
       return user;
     }
-    private void privateSetuser (UserType x)
+    private void $setuser (UserType x)
     {
       this.user = x;
     }
     public Data setuser (UserType x)
     {
       Data z = new Data ();
-      z.privateSetuser (x);
+      z.$setuser (x);
       return z;
     }
     private Tags tags;
@@ -195,14 +197,14 @@ public abstract class Declaration extends AbstractAST
     {
       return tags;
     }
-    private void privateSettags (Tags x)
+    private void $settags (Tags x)
     {
       this.tags = x;
     }
     public Data settags (Tags x)
     {
       Data z = new Data ();
-      z.privateSettags (x);
+      z.$settags (x);
       return z;
     }
     private List < Variant > variants;
@@ -210,14 +212,14 @@ public abstract class Declaration extends AbstractAST
     {
       return variants;
     }
-    private void privateSetvariants (List < Variant > x)
+    private void $setvariants (List < Variant > x)
     {
       this.variants = x;
     }
     public Data setvariants (List < Variant > x)
     {
       Data z = new Data ();
-      z.privateSetvariants (x);
+      z.$setvariants (x);
       return z;
     }
   }
@@ -242,14 +244,14 @@ public abstract class Declaration extends AbstractAST
     {
       return functionDeclaration;
     }
-    private void privateSetfunctionDeclaration (FunctionDeclaration x)
+    private void $setfunctionDeclaration (FunctionDeclaration x)
     {
       this.functionDeclaration = x;
     }
     public Function setfunctionDeclaration (FunctionDeclaration x)
     {
       Function z = new Function ();
-      z.privateSetfunctionDeclaration (x);
+      z.$setfunctionDeclaration (x);
       return z;
     }
   }
@@ -274,14 +276,14 @@ public abstract class Declaration extends AbstractAST
     {
       return type;
     }
-    private void privateSettype (Type x)
+    private void $settype (Type x)
     {
       this.type = x;
     }
     public Variable settype (Type x)
     {
       Variable z = new Variable ();
-      z.privateSettype (x);
+      z.$settype (x);
       return z;
     }
     private List < Variable > variables;
@@ -289,14 +291,14 @@ public abstract class Declaration extends AbstractAST
     {
       return variables;
     }
-    private void privateSetvariables (List < Variable > x)
+    private void $setvariables (List < Variable > x)
     {
       this.variables = x;
     }
     public Variable setvariables (List < Variable > x)
     {
       Variable z = new Variable ();
-      z.privateSetvariables (x);
+      z.$setvariables (x);
       return z;
     }
   }
@@ -322,14 +324,14 @@ public abstract class Declaration extends AbstractAST
     {
       return name;
     }
-    private void privateSetname (Name x)
+    private void $setname (Name x)
     {
       this.name = x;
     }
     public Rule setname (Name x)
     {
       Rule z = new Rule ();
-      z.privateSetname (x);
+      z.$setname (x);
       return z;
     }
     private Tags tags;
@@ -337,14 +339,14 @@ public abstract class Declaration extends AbstractAST
     {
       return tags;
     }
-    private void privateSettags (Tags x)
+    private void $settags (Tags x)
     {
       this.tags = x;
     }
     public Rule settags (Tags x)
     {
       Rule z = new Rule ();
-      z.privateSettags (x);
+      z.$settags (x);
       return z;
     }
     private Rule rule;
@@ -352,14 +354,14 @@ public abstract class Declaration extends AbstractAST
     {
       return rule;
     }
-    private void privateSetrule (Rule x)
+    private void $setrule (Rule x)
     {
       this.rule = x;
     }
     public Rule setrule (Rule x)
     {
       Rule z = new Rule ();
-      z.privateSetrule (x);
+      z.$setrule (x);
       return z;
     }
   }
@@ -387,14 +389,14 @@ public abstract class Declaration extends AbstractAST
     {
       return type;
     }
-    private void privateSettype (Type x)
+    private void $settype (Type x)
     {
       this.type = x;
     }
     public Annotation settype (Type x)
     {
       Annotation z = new Annotation ();
-      z.privateSettype (x);
+      z.$settype (x);
       return z;
     }
     private Name name;
@@ -402,14 +404,14 @@ public abstract class Declaration extends AbstractAST
     {
       return name;
     }
-    private void privateSetname (Name x)
+    private void $setname (Name x)
     {
       this.name = x;
     }
     public Annotation setname (Name x)
     {
       Annotation z = new Annotation ();
-      z.privateSetname (x);
+      z.$setname (x);
       return z;
     }
     private Tags tags;
@@ -417,14 +419,14 @@ public abstract class Declaration extends AbstractAST
     {
       return tags;
     }
-    private void privateSettags (Tags x)
+    private void $settags (Tags x)
     {
       this.tags = x;
     }
     public Annotation settags (Tags x)
     {
       Annotation z = new Annotation ();
-      z.privateSettags (x);
+      z.$settags (x);
       return z;
     }
     private List < Type > types;
@@ -432,14 +434,14 @@ public abstract class Declaration extends AbstractAST
     {
       return types;
     }
-    private void privateSettypes (List < Type > x)
+    private void $settypes (List < Type > x)
     {
       this.types = x;
     }
     public Annotation settypes (List < Type > x)
     {
       Annotation z = new Annotation ();
-      z.privateSettypes (x);
+      z.$settypes (x);
       return z;
     }
   }
@@ -467,14 +469,14 @@ public abstract class Declaration extends AbstractAST
     {
       return kind;
     }
-    private void privateSetkind (Kind x)
+    private void $setkind (Kind x)
     {
       this.kind = x;
     }
     public Tag setkind (Kind x)
     {
       Tag z = new Tag ();
-      z.privateSetkind (x);
+      z.$setkind (x);
       return z;
     }
     private Name name;
@@ -482,14 +484,14 @@ public abstract class Declaration extends AbstractAST
     {
       return name;
     }
-    private void privateSetname (Name x)
+    private void $setname (Name x)
     {
       this.name = x;
     }
     public Tag setname (Name x)
     {
       Tag z = new Tag ();
-      z.privateSetname (x);
+      z.$setname (x);
       return z;
     }
     private Tags tags;
@@ -497,14 +499,14 @@ public abstract class Declaration extends AbstractAST
     {
       return tags;
     }
-    private void privateSettags (Tags x)
+    private void $settags (Tags x)
     {
       this.tags = x;
     }
     public Tag settags (Tags x)
     {
       Tag z = new Tag ();
-      z.privateSettags (x);
+      z.$settags (x);
       return z;
     }
     private List < Type > types;
@@ -512,14 +514,14 @@ public abstract class Declaration extends AbstractAST
     {
       return types;
     }
-    private void privateSettypes (List < Type > x)
+    private void $settypes (List < Type > x)
     {
       this.types = x;
     }
     public Tag settypes (List < Type > x)
     {
       Tag z = new Tag ();
-      z.privateSettypes (x);
+      z.$settypes (x);
       return z;
     }
   }

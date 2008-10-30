@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public abstract class Tags extends AbstractAST
 {
   public class Default extends Tags
@@ -22,14 +24,14 @@ public abstract class Tags extends AbstractAST
     {
       return annotations;
     }
-    private void privateSetannotations (List < Tag > x)
+    private void $setannotations (List < Tag > x)
     {
       this.annotations = x;
     }
     public Default setannotations (List < Tag > x)
     {
       Default z = new Default ();
-      z.privateSetannotations (x);
+      z.$setannotations (x);
       return z;
     }
   }
@@ -38,7 +40,7 @@ public abstract class Tags extends AbstractAST
     private final List < Tags > alternatives;
     public Ambiguity (List < Tags > alternatives)
     {
-      this.alternatives = Collections.immutableList (alternatives);
+      this.alternatives = Collections.unmodifiableList (alternatives);
     }
     public List < Tags > getAlternatives ()
     {

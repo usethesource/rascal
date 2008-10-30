@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public abstract class Area extends AbstractAST
 {
   public class Area extends Area
@@ -30,14 +32,14 @@ public abstract class Area extends AbstractAST
     {
       return beginLine;
     }
-    private void privateSetbeginLine (Expression x)
+    private void $setbeginLine (Expression x)
     {
       this.beginLine = x;
     }
     public Area setbeginLine (Expression x)
     {
       Area z = new Area ();
-      z.privateSetbeginLine (x);
+      z.$setbeginLine (x);
       return z;
     }
     private Expression beginColumn;
@@ -45,14 +47,14 @@ public abstract class Area extends AbstractAST
     {
       return beginColumn;
     }
-    private void privateSetbeginColumn (Expression x)
+    private void $setbeginColumn (Expression x)
     {
       this.beginColumn = x;
     }
     public Area setbeginColumn (Expression x)
     {
       Area z = new Area ();
-      z.privateSetbeginColumn (x);
+      z.$setbeginColumn (x);
       return z;
     }
     private Expression endLine;
@@ -60,14 +62,14 @@ public abstract class Area extends AbstractAST
     {
       return endLine;
     }
-    private void privateSetendLine (Expression x)
+    private void $setendLine (Expression x)
     {
       this.endLine = x;
     }
     public Area setendLine (Expression x)
     {
       Area z = new Area ();
-      z.privateSetendLine (x);
+      z.$setendLine (x);
       return z;
     }
     private Expression endColumn;
@@ -75,14 +77,14 @@ public abstract class Area extends AbstractAST
     {
       return endColumn;
     }
-    private void privateSetendColumn (Expression x)
+    private void $setendColumn (Expression x)
     {
       this.endColumn = x;
     }
     public Area setendColumn (Expression x)
     {
       Area z = new Area ();
-      z.privateSetendColumn (x);
+      z.$setendColumn (x);
       return z;
     }
     private Expression offset;
@@ -90,14 +92,14 @@ public abstract class Area extends AbstractAST
     {
       return offset;
     }
-    private void privateSetoffset (Expression x)
+    private void $setoffset (Expression x)
     {
       this.offset = x;
     }
     public Area setoffset (Expression x)
     {
       Area z = new Area ();
-      z.privateSetoffset (x);
+      z.$setoffset (x);
       return z;
     }
     private Expression length;
@@ -105,14 +107,14 @@ public abstract class Area extends AbstractAST
     {
       return length;
     }
-    private void privateSetlength (Expression x)
+    private void $setlength (Expression x)
     {
       this.length = x;
     }
     public Area setlength (Expression x)
     {
       Area z = new Area ();
-      z.privateSetlength (x);
+      z.$setlength (x);
       return z;
     }
   }
@@ -121,7 +123,7 @@ public abstract class Area extends AbstractAST
     private final List < Area > alternatives;
     public Ambiguity (List < Area > alternatives)
     {
-      this.alternatives = Collections.immutableList (alternatives);
+      this.alternatives = Collections.unmodifiableList (alternatives);
     }
     public List < Area > getAlternatives ()
     {

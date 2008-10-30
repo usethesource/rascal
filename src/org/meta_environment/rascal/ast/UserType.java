@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public abstract class UserType extends AbstractAST
 {
   public class Name extends UserType
@@ -22,14 +24,14 @@ public abstract class UserType extends AbstractAST
     {
       return name;
     }
-    private void privateSetname (Name x)
+    private void $setname (Name x)
     {
       this.name = x;
     }
     public Name setname (Name x)
     {
       Name z = new Name ();
-      z.privateSetname (x);
+      z.$setname (x);
       return z;
     }
   }
@@ -38,7 +40,7 @@ public abstract class UserType extends AbstractAST
     private final List < UserType > alternatives;
     public Ambiguity (List < UserType > alternatives)
     {
-      this.alternatives = Collections.immutableList (alternatives);
+      this.alternatives = Collections.unmodifiableList (alternatives);
     }
     public List < UserType > getAlternatives ()
     {
@@ -67,14 +69,14 @@ public abstract class UserType extends AbstractAST
     {
       return name;
     }
-    private void privateSetname (Name x)
+    private void $setname (Name x)
     {
       this.name = x;
     }
     public Parametric setname (Name x)
     {
       Parametric z = new Parametric ();
-      z.privateSetname (x);
+      z.$setname (x);
       return z;
     }
     private List < TypeVar > parameters;
@@ -82,14 +84,14 @@ public abstract class UserType extends AbstractAST
     {
       return parameters;
     }
-    private void privateSetparameters (List < TypeVar > x)
+    private void $setparameters (List < TypeVar > x)
     {
       this.parameters = x;
     }
     public Parametric setparameters (List < TypeVar > x)
     {
       Parametric z = new Parametric ();
-      z.privateSetparameters (x);
+      z.$setparameters (x);
       return z;
     }
   }

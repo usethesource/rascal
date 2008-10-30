@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public abstract class Type extends AbstractAST
 {
   public class Basic extends Type
@@ -22,14 +24,14 @@ public abstract class Type extends AbstractAST
     {
       return basic;
     }
-    private void privateSetbasic (BasicType x)
+    private void $setbasic (BasicType x)
     {
       this.basic = x;
     }
     public Basic setbasic (BasicType x)
     {
       Basic z = new Basic ();
-      z.privateSetbasic (x);
+      z.$setbasic (x);
       return z;
     }
   }
@@ -38,7 +40,7 @@ public abstract class Type extends AbstractAST
     private final List < Type > alternatives;
     public Ambiguity (List < Type > alternatives)
     {
-      this.alternatives = Collections.immutableList (alternatives);
+      this.alternatives = Collections.unmodifiableList (alternatives);
     }
     public List < Type > getAlternatives ()
     {
@@ -65,14 +67,14 @@ public abstract class Type extends AbstractAST
     {
       return structured;
     }
-    private void privateSetstructured (StructuredType x)
+    private void $setstructured (StructuredType x)
     {
       this.structured = x;
     }
     public Structured setstructured (StructuredType x)
     {
       Structured z = new Structured ();
-      z.privateSetstructured (x);
+      z.$setstructured (x);
       return z;
     }
   }
@@ -96,14 +98,14 @@ public abstract class Type extends AbstractAST
     {
       return function;
     }
-    private void privateSetfunction (FunctionType x)
+    private void $setfunction (FunctionType x)
     {
       this.function = x;
     }
     public Function setfunction (FunctionType x)
     {
       Function z = new Function ();
-      z.privateSetfunction (x);
+      z.$setfunction (x);
       return z;
     }
   }
@@ -127,14 +129,14 @@ public abstract class Type extends AbstractAST
     {
       return typeVar;
     }
-    private void privateSettypeVar (TypeVar x)
+    private void $settypeVar (TypeVar x)
     {
       this.typeVar = x;
     }
     public Variable settypeVar (TypeVar x)
     {
       Variable z = new Variable ();
-      z.privateSettypeVar (x);
+      z.$settypeVar (x);
       return z;
     }
   }
@@ -158,14 +160,14 @@ public abstract class Type extends AbstractAST
     {
       return user;
     }
-    private void privateSetuser (UserType x)
+    private void $setuser (UserType x)
     {
       this.user = x;
     }
     public User setuser (UserType x)
     {
       User z = new User ();
-      z.privateSetuser (x);
+      z.$setuser (x);
       return z;
     }
   }
@@ -189,14 +191,14 @@ public abstract class Type extends AbstractAST
     {
       return symbol;
     }
-    private void privateSetsymbol (Symbol x)
+    private void $setsymbol (Symbol x)
     {
       this.symbol = x;
     }
     public Symbol setsymbol (Symbol x)
     {
       Symbol z = new Symbol ();
-      z.privateSetsymbol (x);
+      z.$setsymbol (x);
       return z;
     }
   }
@@ -220,14 +222,14 @@ public abstract class Type extends AbstractAST
     {
       return selector;
     }
-    private void privateSetselector (DataTypeSelector x)
+    private void $setselector (DataTypeSelector x)
     {
       this.selector = x;
     }
     public Selector setselector (DataTypeSelector x)
     {
       Selector z = new Selector ();
-      z.privateSetselector (x);
+      z.$setselector (x);
       return z;
     }
   }

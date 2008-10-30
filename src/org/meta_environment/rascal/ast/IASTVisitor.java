@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public interface IASTVisitor
 {
   public Body visitBodyToplevels (Body.Toplevels x);
@@ -11,6 +13,9 @@ public interface IASTVisitor
   public Expression visitExpressionForall (Expression.Forall x);
   public Expression visitExpressionExists (Expression.Exists x);
   public Expression visitExpressionComprehension (Expression.Comprehension x);
+  public Expression visitExpressionTypedVariablePattern (Expression.
+							 TypedVariablePattern
+							 x);
   public Expression visitExpressionQualifiedName (Expression.QualifiedName x);
   public Expression visitExpressionAreaInFileLocation (Expression.
 						       AreaInFileLocation x);
@@ -59,7 +64,6 @@ public interface IASTVisitor
   public Expression visitExpressionFieldUpdate (Expression.FieldUpdate x);
   public Expression visitExpressionClosureCall (Expression.ClosureCall x);
   public Expression visitExpressionClosure (Expression.Closure x);
-  public NatCon visitNatCondigits (NatCon.digits x);
   public Literal visitLiteralString (Literal.String x);
   public Literal visitLiteralDouble (Literal.Double x);
   public Literal visitLiteralInteger (Literal.Integer x);
@@ -95,7 +99,6 @@ public interface IASTVisitor
   public Statement visitStatementWhile (Statement.While x);
   public Statement visitStatementFor (Statement.For x);
   public Statement visitStatementSolve (Statement.Solve x);
-  public Statement visitStatementSolve (Statement.Solve x);
   public Condition visitConditionConjunction (Condition.Conjunction x);
   public Condition visitConditionExpression (Condition.Expression x);
   public Condition visitConditionNoMatch (Condition.NoMatch x);
@@ -113,6 +116,10 @@ public interface IASTVisitor
   public Assignment visitAssignmentSubstraction (Assignment.Substraction x);
   public Assignment visitAssignmentAddition (Assignment.Addition x);
   public Assignment visitAssignmentDefault (Assignment.Default x);
+  public Label visitLabelDefault (Label.Default x);
+  public Label visitLabelEmpty (Label.Empty x);
+  public Break visitBreakUnlabeled (Break.Unlabeled x);
+  public Break visitBreakLabeled (Break.Labeled x);
   public Catch visitCatchBindingCatch (Catch.BindingCatch x);
   public Catch visitCatchCatch (Catch.Catch x);
   public Declarator visitDeclaratorDefault (Declarator.Default x);
@@ -120,13 +127,6 @@ public interface IASTVisitor
     visitLocalVariableDeclarationDynamic (LocalVariableDeclaration.Dynamic x);
   public LocalVariableDeclaration
     visitLocalVariableDeclarationDefault (LocalVariableDeclaration.Default x);
-  public StrChar visitStrCharnormal (StrChar.normal x);
-  public StrChar visitStrChardecimal (StrChar.decimal x);
-  public StrChar visitStrCharbackslash (StrChar.backslash x);
-  public StrChar visitStrCharquote (StrChar.quote x);
-  public StrChar visitStrChartab (StrChar.tab x);
-  public StrChar visitStrCharnewline (StrChar.newline x);
-  public StrCon visitStrCondefault (StrCon.default x);
   public Visibility visitVisibilityPrivate (Visibility.Private x);
   public Visibility visitVisibilityPublic (Visibility.Public x);
   public Toplevel visitToplevelDefaultVisibility (Toplevel.
@@ -227,8 +227,7 @@ public interface IASTVisitor
   public Type visitTypeFunction (Type.Function x);
   public Type visitTypeStructured (Type.Structured x);
   public Type visitTypeBasic (Type.Basic x);
-  public Sort visitSortmore - chars (Sort.more - chars x);
-  public Sort visitSortone - char (Sort.one - char x);
+  public StrChar visitStrCharnewline (StrChar.newline x);
   public Symbol visitSymbolCaseInsensitiveLiteral (Symbol.
 						   CaseInsensitiveLiteral x);
   public Symbol visitSymbolLiteral (Symbol.Literal x);
@@ -244,20 +243,6 @@ public interface IASTVisitor
   public Symbol visitSymbolEmpty (Symbol.Empty x);
   public Symbol visitSymbolParameterizedSort (Symbol.ParameterizedSort x);
   public Symbol visitSymbolSort (Symbol.Sort x);
-  public SingleQuotedStrChar
-    visitSingleQuotedStrCharnormal (SingleQuotedStrChar.normal x);
-  public SingleQuotedStrChar
-    visitSingleQuotedStrChardecimal (SingleQuotedStrChar.decimal x);
-  public SingleQuotedStrChar
-    visitSingleQuotedStrCharbackslash (SingleQuotedStrChar.backslash x);
-  public SingleQuotedStrChar
-    visitSingleQuotedStrCharquote (SingleQuotedStrChar.quote x);
-  public SingleQuotedStrChar visitSingleQuotedStrChartab (SingleQuotedStrChar.
-							  tab x);
-  public SingleQuotedStrChar
-    visitSingleQuotedStrCharnewline (SingleQuotedStrChar.newline x);
-  public SingleQuotedStrCon
-    visitSingleQuotedStrCondefault (SingleQuotedStrCon.default x);
   public CharRange visitCharRangeRange (CharRange.Range x);
   public CharRange visitCharRangeCharacter (CharRange.Character x);
   public CharRanges visitCharRangesConcatenate (CharRanges.Concatenate x);
@@ -270,9 +255,6 @@ public interface IASTVisitor
   public CharClass visitCharClassComplement (CharClass.Complement x);
   public CharClass visitCharClassSimpleCharclass (CharClass.
 						  SimpleCharclass x);
-  public NumChar visitNumCharDigits (NumChar.Digits x);
-  public ShortChar visitShortCharEscaped (ShortChar.Escaped x);
-  public ShortChar visitShortCharRegular (ShortChar.Regular x);
   public Character visitCharacterLabelStart (Character.LabelStart x);
   public Character visitCharacterBottom (Character.Bottom x);
   public Character visitCharacterEOF (Character.EOF x);
@@ -280,11 +262,7 @@ public interface IASTVisitor
   public Character visitCharacterShort (Character.Short x);
   public Character visitCharacterNumeric (Character.Numeric x);
   public Module visitModuleDefault (Module.Default x);
-  public ModuleWord visitModuleWordWord (ModuleWord.Word x);
-  public ModuleName visitModuleNamePath (ModuleName.Path x);
-  public ModuleName visitModuleNameRoot (ModuleName.Root x);
-  public ModuleName visitModuleNameLeaf (ModuleName.Leaf x);
-  public ModuleActuals visitModuleActualsActuals (ModuleActuals.Actuals x);
+  public ModuleActuals visitModuleActualsDefault (ModuleActuals.Default x);
   public ImportedModule visitImportedModuleDefault (ImportedModule.Default x);
   public ImportedModule visitImportedModuleRenamings (ImportedModule.
 						      Renamings x);
@@ -293,7 +271,7 @@ public interface IASTVisitor
 							    ActualsRenaming
 							    x);
   public Renaming visitRenamingRenaming (Renaming.Renaming x);
-  public Renamings visitRenamingsRenamings (Renamings.Renamings x);
+  public Renamings visitRenamingsDefault (Renamings.Default x);
   public Import visitImportExtend (Import.Extend x);
   public Import visitImportImport (Import.Import x);
   public ModuleParameters
@@ -305,7 +283,6 @@ public interface IASTVisitor
   public Area visitAreaArea (Area.Area x);
   public Tag visitTagDefault (Tag.Default x);
   public Tags visitTagsDefault (Tags.Default x);
-  public Pattern visitPatternTypedVariable (Pattern.TypedVariable x);
   public ValueProducer visitValueProducerGivenStrategy (ValueProducer.
 							GivenStrategy x);
   public ValueProducer visitValueProducerDefaultStrategy (ValueProducer.

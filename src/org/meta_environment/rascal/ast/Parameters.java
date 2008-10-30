@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public abstract class Parameters extends AbstractAST
 {
   public class Default extends Parameters
@@ -22,14 +24,14 @@ public abstract class Parameters extends AbstractAST
     {
       return formals;
     }
-    private void privateSetformals (Formals x)
+    private void $setformals (Formals x)
     {
       this.formals = x;
     }
     public Default setformals (Formals x)
     {
       Default z = new Default ();
-      z.privateSetformals (x);
+      z.$setformals (x);
       return z;
     }
   }
@@ -38,7 +40,7 @@ public abstract class Parameters extends AbstractAST
     private final List < Parameters > alternatives;
     public Ambiguity (List < Parameters > alternatives)
     {
-      this.alternatives = Collections.immutableList (alternatives);
+      this.alternatives = Collections.unmodifiableList (alternatives);
     }
     public List < Parameters > getAlternatives ()
     {
@@ -65,14 +67,14 @@ public abstract class Parameters extends AbstractAST
     {
       return formals;
     }
-    private void privateSetformals (Formals x)
+    private void $setformals (Formals x)
     {
       this.formals = x;
     }
     public VarArgs setformals (Formals x)
     {
       VarArgs z = new VarArgs ();
-      z.privateSetformals (x);
+      z.$setformals (x);
       return z;
     }
   }

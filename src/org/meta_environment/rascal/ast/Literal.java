@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public abstract class Literal extends AbstractAST
 {
   public class RegExp extends Literal
@@ -22,14 +24,14 @@ public abstract class Literal extends AbstractAST
     {
       return regExp;
     }
-    private void privateSetregExp (RegExpLiteral x)
+    private void $setregExp (RegExpLiteral x)
     {
       this.regExp = x;
     }
     public RegExp setregExp (RegExpLiteral x)
     {
       RegExp z = new RegExp ();
-      z.privateSetregExp (x);
+      z.$setregExp (x);
       return z;
     }
   }
@@ -38,7 +40,7 @@ public abstract class Literal extends AbstractAST
     private final List < Literal > alternatives;
     public Ambiguity (List < Literal > alternatives)
     {
-      this.alternatives = Collections.immutableList (alternatives);
+      this.alternatives = Collections.unmodifiableList (alternatives);
     }
     public List < Literal > getAlternatives ()
     {
@@ -65,14 +67,14 @@ public abstract class Literal extends AbstractAST
     {
       return symbol;
     }
-    private void privateSetsymbol (SymbolLiteral x)
+    private void $setsymbol (SymbolLiteral x)
     {
       this.symbol = x;
     }
     public Symbol setsymbol (SymbolLiteral x)
     {
       Symbol z = new Symbol ();
-      z.privateSetsymbol (x);
+      z.$setsymbol (x);
       return z;
     }
   }
@@ -96,14 +98,14 @@ public abstract class Literal extends AbstractAST
     {
       return boolean;
     }
-    private void privateSetboolean (BooleanLiteral x)
+    private void $setboolean (BooleanLiteral x)
     {
       this.boolean = x;
     }
     public Boolean setboolean (BooleanLiteral x)
     {
       Boolean z = new Boolean ();
-      z.privateSetboolean (x);
+      z.$setboolean (x);
       return z;
     }
   }
@@ -127,14 +129,14 @@ public abstract class Literal extends AbstractAST
     {
       return integer;
     }
-    private void privateSetinteger (IntegerLiteral x)
+    private void $setinteger (IntegerLiteral x)
     {
       this.integer = x;
     }
     public Integer setinteger (IntegerLiteral x)
     {
       Integer z = new Integer ();
-      z.privateSetinteger (x);
+      z.$setinteger (x);
       return z;
     }
   }
@@ -158,14 +160,14 @@ public abstract class Literal extends AbstractAST
     {
       return double;
     }
-    private void privateSetdouble (FloatingPointLiteral x)
+    private void $setdouble (FloatingPointLiteral x)
     {
       this.double = x;
     }
     public Double setdouble (FloatingPointLiteral x)
     {
       Double z = new Double ();
-      z.privateSetdouble (x);
+      z.$setdouble (x);
       return z;
     }
   }
@@ -189,14 +191,14 @@ public abstract class Literal extends AbstractAST
     {
       return string;
     }
-    private void privateSetstring (StringLiteral x)
+    private void $setstring (StringLiteral x)
     {
       this.string = x;
     }
     public String setstring (StringLiteral x)
     {
       String z = new String ();
-      z.privateSetstring (x);
+      z.$setstring (x);
       return z;
     }
   }

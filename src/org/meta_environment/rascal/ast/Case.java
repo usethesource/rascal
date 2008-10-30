@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public abstract class Case extends AbstractAST
 {
   public class Rule extends Case
@@ -22,14 +24,14 @@ public abstract class Case extends AbstractAST
     {
       return rule;
     }
-    private void privateSetrule (Rule x)
+    private void $setrule (Rule x)
     {
       this.rule = x;
     }
     public Rule setrule (Rule x)
     {
       Rule z = new Rule ();
-      z.privateSetrule (x);
+      z.$setrule (x);
       return z;
     }
   }
@@ -38,7 +40,7 @@ public abstract class Case extends AbstractAST
     private final List < Case > alternatives;
     public Ambiguity (List < Case > alternatives)
     {
-      this.alternatives = Collections.immutableList (alternatives);
+      this.alternatives = Collections.unmodifiableList (alternatives);
     }
     public List < Case > getAlternatives ()
     {
@@ -65,14 +67,14 @@ public abstract class Case extends AbstractAST
     {
       return statement;
     }
-    private void privateSetstatement (Statement x)
+    private void $setstatement (Statement x)
     {
       this.statement = x;
     }
     public Default setstatement (Statement x)
     {
       Default z = new Default ();
-      z.privateSetstatement (x);
+      z.$setstatement (x);
       return z;
     }
   }

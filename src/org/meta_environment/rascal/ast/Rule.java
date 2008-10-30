@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public abstract class Rule extends AbstractAST
 {
   public class WithGuard extends Rule
@@ -23,14 +25,14 @@ public abstract class Rule extends AbstractAST
     {
       return type;
     }
-    private void privateSettype (Type x)
+    private void $settype (Type x)
     {
       this.type = x;
     }
     public WithGuard settype (Type x)
     {
       WithGuard z = new WithGuard ();
-      z.privateSettype (x);
+      z.$settype (x);
       return z;
     }
     private Match match;
@@ -38,14 +40,14 @@ public abstract class Rule extends AbstractAST
     {
       return match;
     }
-    private void privateSetmatch (Match x)
+    private void $setmatch (Match x)
     {
       this.match = x;
     }
     public WithGuard setmatch (Match x)
     {
       WithGuard z = new WithGuard ();
-      z.privateSetmatch (x);
+      z.$setmatch (x);
       return z;
     }
   }
@@ -54,7 +56,7 @@ public abstract class Rule extends AbstractAST
     private final List < Rule > alternatives;
     public Ambiguity (List < Rule > alternatives)
     {
-      this.alternatives = Collections.immutableList (alternatives);
+      this.alternatives = Collections.unmodifiableList (alternatives);
     }
     public List < Rule > getAlternatives ()
     {
@@ -81,14 +83,14 @@ public abstract class Rule extends AbstractAST
     {
       return match;
     }
-    private void privateSetmatch (Match x)
+    private void $setmatch (Match x)
     {
       this.match = x;
     }
     public NoGuard setmatch (Match x)
     {
       NoGuard z = new NoGuard ();
-      z.privateSetmatch (x);
+      z.$setmatch (x);
       return z;
     }
   }

@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public abstract class Bound extends AbstractAST
 {
   public class Empty extends Bound
@@ -22,7 +24,7 @@ public abstract class Bound extends AbstractAST
     private final List < Bound > alternatives;
     public Ambiguity (List < Bound > alternatives)
     {
-      this.alternatives = Collections.immutableList (alternatives);
+      this.alternatives = Collections.unmodifiableList (alternatives);
     }
     public List < Bound > getAlternatives ()
     {
@@ -49,14 +51,14 @@ public abstract class Bound extends AbstractAST
     {
       return expression;
     }
-    private void privateSetexpression (Expression x)
+    private void $setexpression (Expression x)
     {
       this.expression = x;
     }
     public Default setexpression (Expression x)
     {
       Default z = new Default ();
-      z.privateSetexpression (x);
+      z.$setexpression (x);
       return z;
     }
   }

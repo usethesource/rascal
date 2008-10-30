@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public abstract class StrChar extends AbstractAST
 {
   public class newline extends StrChar
@@ -22,137 +24,31 @@ public abstract class StrChar extends AbstractAST
     private final List < StrChar > alternatives;
     public Ambiguity (List < StrChar > alternatives)
     {
-      this.alternatives = Collections.immutableList (alternatives);
+      this.alternatives = Collections.unmodifiableList (alternatives);
     }
     public List < StrChar > getAlternatives ()
     {
       return alternatives;
     }
   }
-  public class tab extends StrChar
+  public class Lexical extends StrChar
   {
-/* "\\t" -> StrChar {cons("tab")} */
-    private tab ()
-    {
-    }
-    /*package */ tab (ITree tree)
-    {
-      this.tree = tree;
-    }
-    public IVisitable accept (IASTVisitor visitor)
-    {
-      return visitor.visitStrChartab (this);
-    }
+    /* "\\t" -> StrChar  */
   }
-  public class quote extends StrChar
+  public class Lexical extends StrChar
   {
-/* "\\\"" -> StrChar {cons("quote")} */
-    private quote ()
-    {
-    }
-    /*package */ quote (ITree tree)
-    {
-      this.tree = tree;
-    }
-    public IVisitable accept (IASTVisitor visitor)
-    {
-      return visitor.visitStrCharquote (this);
-    }
+    /* "\\\"" -> StrChar  */
   }
-  public class backslash extends StrChar
+  public class Lexical extends StrChar
   {
-/* "\\\\" -> StrChar {cons("backslash")} */
-    private backslash ()
-    {
-    }
-    /*package */ backslash (ITree tree)
-    {
-      this.tree = tree;
-    }
-    public IVisitable accept (IASTVisitor visitor)
-    {
-      return visitor.visitStrCharbackslash (this);
-    }
+    /* "\\\\" -> StrChar  */
   }
-  public class decimal extends StrChar
+  public class Lexical extends StrChar
   {
-/* "\\" a:[0-9]b:[0-9]c:[0-9] -> StrChar {cons("decimal")} */
-    private decimal ()
-    {
-    }
-    /*package */ decimal (ITree tree,
-			  List < get - sort - from - symbol ([0 - 9]) > a,
-			  List < get - sort - from - symbol ([0 - 9]) > b,
-			  List < get - sort - from - symbol ([0 - 9]) > c)
-    {
-      this.tree = tree;
-      this.a = a;
-      this.b = b;
-      this.c = c;
-    }
-    public IVisitable accept (IASTVisitor visitor)
-    {
-      return visitor.visitStrChardecimal (this);
-    }
-    private List < get - sort - from - symbol ([0 - 9]) > a;
-    public List < get - sort - from - symbol ([0 - 9]) > geta ()
-    {
-      return a;
-    }
-    private void privateSeta (List < get - sort - from - symbol ([0 - 9]) > x)
-    {
-      this.a = x;
-    }
-    public decimal seta (List < get - sort - from - symbol ([0 - 9]) > x)
-    {
-      decimal z = new decimal ();
-      z.privateSeta (x);
-      return z;
-    }
-    private List < get - sort - from - symbol ([0 - 9]) > b;
-    public List < get - sort - from - symbol ([0 - 9]) > getb ()
-    {
-      return b;
-    }
-    private void privateSetb (List < get - sort - from - symbol ([0 - 9]) > x)
-    {
-      this.b = x;
-    }
-    public decimal setb (List < get - sort - from - symbol ([0 - 9]) > x)
-    {
-      decimal z = new decimal ();
-      z.privateSetb (x);
-      return z;
-    }
-    private List < get - sort - from - symbol ([0 - 9]) > c;
-    public List < get - sort - from - symbol ([0 - 9]) > getc ()
-    {
-      return c;
-    }
-    private void privateSetc (List < get - sort - from - symbol ([0 - 9]) > x)
-    {
-      this.c = x;
-    }
-    public decimal setc (List < get - sort - from - symbol ([0 - 9]) > x)
-    {
-      decimal z = new decimal ();
-      z.privateSetc (x);
-      return z;
-    }
+    /* "\\" a:[0-9]b:[0-9]c:[0-9] -> StrChar  */
   }
-  public class normal extends StrChar
+  public class Lexical extends StrChar
   {
-/* ~[\0-\31\n\t\"\\] -> StrChar {cons("normal")} */
-    private normal ()
-    {
-    }
-    /*package */ normal (ITree tree)
-    {
-      this.tree = tree;
-    }
-    public IVisitable accept (IASTVisitor visitor)
-    {
-      return visitor.visitStrCharnormal (this);
-    }
+    /* ~[\0-\31\n\t\"\\] -> StrChar  */
   }
 }

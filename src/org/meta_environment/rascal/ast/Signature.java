@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public abstract class Signature extends AbstractAST
 {
   public class NoThrows extends Signature
@@ -26,14 +28,14 @@ public abstract class Signature extends AbstractAST
     {
       return type;
     }
-    private void privateSettype (Type x)
+    private void $settype (Type x)
     {
       this.type = x;
     }
     public NoThrows settype (Type x)
     {
       NoThrows z = new NoThrows ();
-      z.privateSettype (x);
+      z.$settype (x);
       return z;
     }
     private FunctionModifiers modifiers;
@@ -41,14 +43,14 @@ public abstract class Signature extends AbstractAST
     {
       return modifiers;
     }
-    private void privateSetmodifiers (FunctionModifiers x)
+    private void $setmodifiers (FunctionModifiers x)
     {
       this.modifiers = x;
     }
     public NoThrows setmodifiers (FunctionModifiers x)
     {
       NoThrows z = new NoThrows ();
-      z.privateSetmodifiers (x);
+      z.$setmodifiers (x);
       return z;
     }
     private FunctionName name;
@@ -56,14 +58,14 @@ public abstract class Signature extends AbstractAST
     {
       return name;
     }
-    private void privateSetname (FunctionName x)
+    private void $setname (FunctionName x)
     {
       this.name = x;
     }
     public NoThrows setname (FunctionName x)
     {
       NoThrows z = new NoThrows ();
-      z.privateSetname (x);
+      z.$setname (x);
       return z;
     }
     private Parameters parameters;
@@ -71,14 +73,14 @@ public abstract class Signature extends AbstractAST
     {
       return parameters;
     }
-    private void privateSetparameters (Parameters x)
+    private void $setparameters (Parameters x)
     {
       this.parameters = x;
     }
     public NoThrows setparameters (Parameters x)
     {
       NoThrows z = new NoThrows ();
-      z.privateSetparameters (x);
+      z.$setparameters (x);
       return z;
     }
   }
@@ -87,7 +89,7 @@ public abstract class Signature extends AbstractAST
     private final List < Signature > alternatives;
     public Ambiguity (List < Signature > alternatives)
     {
-      this.alternatives = Collections.immutableList (alternatives);
+      this.alternatives = Collections.unmodifiableList (alternatives);
     }
     public List < Signature > getAlternatives ()
     {
@@ -120,14 +122,14 @@ public abstract class Signature extends AbstractAST
     {
       return type;
     }
-    private void privateSettype (Type x)
+    private void $settype (Type x)
     {
       this.type = x;
     }
     public WithThrows settype (Type x)
     {
       WithThrows z = new WithThrows ();
-      z.privateSettype (x);
+      z.$settype (x);
       return z;
     }
     private FunctionModifiers modifiers;
@@ -135,14 +137,14 @@ public abstract class Signature extends AbstractAST
     {
       return modifiers;
     }
-    private void privateSetmodifiers (FunctionModifiers x)
+    private void $setmodifiers (FunctionModifiers x)
     {
       this.modifiers = x;
     }
     public WithThrows setmodifiers (FunctionModifiers x)
     {
       WithThrows z = new WithThrows ();
-      z.privateSetmodifiers (x);
+      z.$setmodifiers (x);
       return z;
     }
     private FunctionName name;
@@ -150,14 +152,14 @@ public abstract class Signature extends AbstractAST
     {
       return name;
     }
-    private void privateSetname (FunctionName x)
+    private void $setname (FunctionName x)
     {
       this.name = x;
     }
     public WithThrows setname (FunctionName x)
     {
       WithThrows z = new WithThrows ();
-      z.privateSetname (x);
+      z.$setname (x);
       return z;
     }
     private Parameters parameters;
@@ -165,14 +167,14 @@ public abstract class Signature extends AbstractAST
     {
       return parameters;
     }
-    private void privateSetparameters (Parameters x)
+    private void $setparameters (Parameters x)
     {
       this.parameters = x;
     }
     public WithThrows setparameters (Parameters x)
     {
       WithThrows z = new WithThrows ();
-      z.privateSetparameters (x);
+      z.$setparameters (x);
       return z;
     }
     private List < Type > exceptions;
@@ -180,14 +182,14 @@ public abstract class Signature extends AbstractAST
     {
       return exceptions;
     }
-    private void privateSetexceptions (List < Type > x)
+    private void $setexceptions (List < Type > x)
     {
       this.exceptions = x;
     }
     public WithThrows setexceptions (List < Type > x)
     {
       WithThrows z = new WithThrows ();
-      z.privateSetexceptions (x);
+      z.$setexceptions (x);
       return z;
     }
   }

@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public abstract class HexLongLiteral extends AbstractAST
 {
   public class Lexical extends HexLongLiteral
@@ -11,7 +13,7 @@ public abstract class HexLongLiteral extends AbstractAST
     private final List < HexLongLiteral > alternatives;
     public Ambiguity (List < HexLongLiteral > alternatives)
     {
-      this.alternatives = Collections.immutableList (alternatives);
+      this.alternatives = Collections.unmodifiableList (alternatives);
     }
     public List < HexLongLiteral > getAlternatives ()
     {

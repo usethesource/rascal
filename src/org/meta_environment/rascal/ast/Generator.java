@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public abstract class Generator extends AbstractAST
 {
   public class Expression extends Generator
@@ -22,14 +24,14 @@ public abstract class Generator extends AbstractAST
     {
       return expression;
     }
-    private void privateSetexpression (Expression x)
+    private void $setexpression (Expression x)
     {
       this.expression = x;
     }
     public Expression setexpression (Expression x)
     {
       Expression z = new Expression ();
-      z.privateSetexpression (x);
+      z.$setexpression (x);
       return z;
     }
   }
@@ -38,7 +40,7 @@ public abstract class Generator extends AbstractAST
     private final List < Generator > alternatives;
     public Ambiguity (List < Generator > alternatives)
     {
-      this.alternatives = Collections.immutableList (alternatives);
+      this.alternatives = Collections.unmodifiableList (alternatives);
     }
     public List < Generator > getAlternatives ()
     {
@@ -65,14 +67,14 @@ public abstract class Generator extends AbstractAST
     {
       return producer;
     }
-    private void privateSetproducer (ValueProducer x)
+    private void $setproducer (ValueProducer x)
     {
       this.producer = x;
     }
     public Producer setproducer (ValueProducer x)
     {
       Producer z = new Producer ();
-      z.privateSetproducer (x);
+      z.$setproducer (x);
       return z;
     }
   }
