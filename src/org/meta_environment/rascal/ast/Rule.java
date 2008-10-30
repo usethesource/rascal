@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class Rule extends AbstractAST
 {
@@ -21,44 +20,44 @@ public abstract class Rule extends AbstractAST
       return visitor.visitRuleWithGuard (this);
     }
     private Type type;
-    public Type gettype ()
+    public Type getType ()
     {
       return type;
     }
-    private void $settype (Type x)
+    private void $setType (Type x)
     {
       this.type = x;
     }
-    public WithGuard settype (Type x)
+    public WithGuard setType (Type x)
     {
       WithGuard z = new WithGuard ();
-      z.$settype (x);
+      z.$setType (x);
       return z;
     }
     private Match match;
-    public Match getmatch ()
+    public Match getMatch ()
     {
       return match;
     }
-    private void $setmatch (Match x)
+    private void $setMatch (Match x)
     {
       this.match = x;
     }
-    public WithGuard setmatch (Match x)
+    public WithGuard setMatch (Match x)
     {
       WithGuard z = new WithGuard ();
-      z.$setmatch (x);
+      z.$setMatch (x);
       return z;
     }
   }
   public class Ambiguity extends Rule
   {
-    private final List < Rule > alternatives;
-    public Ambiguity (List < Rule > alternatives)
+    private final java.util.List < Rule > alternatives;
+    public Ambiguity (java.util.List < Rule > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < Rule > getAlternatives ()
+    public java.util.List < Rule > getAlternatives ()
     {
       return alternatives;
     }
@@ -79,18 +78,18 @@ public abstract class Rule extends AbstractAST
       return visitor.visitRuleNoGuard (this);
     }
     private Match match;
-    public Match getmatch ()
+    public Match getMatch ()
     {
       return match;
     }
-    private void $setmatch (Match x)
+    private void $setMatch (Match x)
     {
       this.match = x;
     }
-    public NoGuard setmatch (Match x)
+    public NoGuard setMatch (Match x)
     {
       NoGuard z = new NoGuard ();
-      z.$setmatch (x);
+      z.$setMatch (x);
       return z;
     }
   }

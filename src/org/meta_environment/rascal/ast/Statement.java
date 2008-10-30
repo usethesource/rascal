@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class Statement extends AbstractAST
 {
@@ -10,56 +9,56 @@ public abstract class Statement extends AbstractAST
     private Solve ()
     {
     }
-    /*package */ Solve (ITree tree, List < Declarator > declarations,
+    /*package */ Solve (ITree tree,
+			java.util.List < Declarator > declarations,
 			Statement body)
     {
       this.tree = tree;
-      this.declarations = declarations;
-      this.body = body;
-    }
+    params2statements (java.util.List < Declarator > declarations,
+			 Statement body)}
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitStatementSolve (this);
     }
-    private List < Declarator > declarations;
-    public List < Declarator > getdeclarations ()
+    private java.util.List < Declarator > declarations;
+    public java.util.List < Declarator > getDeclarations ()
     {
       return declarations;
     }
-    private void $setdeclarations (List < Declarator > x)
+    private void $setDeclarations (java.util.List < Declarator > x)
     {
       this.declarations = x;
     }
-    public Solve setdeclarations (List < Declarator > x)
+    public Solve setDeclarations (java.util.List < Declarator > x)
     {
       Solve z = new Solve ();
-      z.$setdeclarations (x);
+      z.$setDeclarations (x);
       return z;
     }
     private Statement body;
-    public Statement getbody ()
+    public Statement getBody ()
     {
       return body;
     }
-    private void $setbody (Statement x)
+    private void $setBody (Statement x)
     {
       this.body = x;
     }
-    public Solve setbody (Statement x)
+    public Solve setBody (Statement x)
     {
       Solve z = new Solve ();
-      z.$setbody (x);
+      z.$setBody (x);
       return z;
     }
   }
   public class Ambiguity extends Statement
   {
-    private final List < Statement > alternatives;
-    public Ambiguity (List < Statement > alternatives)
+    private final java.util.List < Statement > alternatives;
+    public Ambiguity (java.util.List < Statement > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < Statement > getAlternatives ()
+    public java.util.List < Statement > getAlternatives ()
     {
       return alternatives;
     }
@@ -70,61 +69,60 @@ public abstract class Statement extends AbstractAST
     private For ()
     {
     }
-    /*package */ For (ITree tree, Label label, List < Generator > generators,
-		      Statement body)
+    /*package */ For (ITree tree, Label label,
+		      java.util.List < Generator > generators, Statement body)
     {
       this.tree = tree;
       this.label = label;
-      this.generators = generators;
-      this.body = body;
-    }
+    params2statements (java.util.List < Generator > generators,
+			 Statement body)}
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitStatementFor (this);
     }
     private Label label;
-    public Label getlabel ()
+    public Label getLabel ()
     {
       return label;
     }
-    private void $setlabel (Label x)
+    private void $setLabel (Label x)
     {
       this.label = x;
     }
-    public For setlabel (Label x)
+    public For setLabel (Label x)
     {
       For z = new For ();
-      z.$setlabel (x);
+      z.$setLabel (x);
       return z;
     }
-    private List < Generator > generators;
-    public List < Generator > getgenerators ()
+    private java.util.List < Generator > generators;
+    public java.util.List < Generator > getGenerators ()
     {
       return generators;
     }
-    private void $setgenerators (List < Generator > x)
+    private void $setGenerators (java.util.List < Generator > x)
     {
       this.generators = x;
     }
-    public For setgenerators (List < Generator > x)
+    public For setGenerators (java.util.List < Generator > x)
     {
       For z = new For ();
-      z.$setgenerators (x);
+      z.$setGenerators (x);
       return z;
     }
     private Statement body;
-    public Statement getbody ()
+    public Statement getBody ()
     {
       return body;
     }
-    private void $setbody (Statement x)
+    private void $setBody (Statement x)
     {
       this.body = x;
     }
-    public For setbody (Statement x)
+    public For setBody (Statement x)
     {
       For z = new For ();
-      z.$setbody (x);
+      z.$setBody (x);
       return z;
     }
   }
@@ -147,48 +145,48 @@ public abstract class Statement extends AbstractAST
       return visitor.visitStatementWhile (this);
     }
     private Label label;
-    public Label getlabel ()
+    public Label getLabel ()
     {
       return label;
     }
-    private void $setlabel (Label x)
+    private void $setLabel (Label x)
     {
       this.label = x;
     }
-    public While setlabel (Label x)
+    public While setLabel (Label x)
     {
       While z = new While ();
-      z.$setlabel (x);
+      z.$setLabel (x);
       return z;
     }
     private Expression condition;
-    public Expression getcondition ()
+    public Expression getCondition ()
     {
       return condition;
     }
-    private void $setcondition (Expression x)
+    private void $setCondition (Expression x)
     {
       this.condition = x;
     }
-    public While setcondition (Expression x)
+    public While setCondition (Expression x)
     {
       While z = new While ();
-      z.$setcondition (x);
+      z.$setCondition (x);
       return z;
     }
     private Statement body;
-    public Statement getbody ()
+    public Statement getBody ()
     {
       return body;
     }
-    private void $setbody (Statement x)
+    private void $setBody (Statement x)
     {
       this.body = x;
     }
-    public While setbody (Statement x)
+    public While setBody (Statement x)
     {
       While z = new While ();
-      z.$setbody (x);
+      z.$setBody (x);
       return z;
     }
   }
@@ -211,48 +209,48 @@ public abstract class Statement extends AbstractAST
       return visitor.visitStatementDoWhile (this);
     }
     private Label label;
-    public Label getlabel ()
+    public Label getLabel ()
     {
       return label;
     }
-    private void $setlabel (Label x)
+    private void $setLabel (Label x)
     {
       this.label = x;
     }
-    public DoWhile setlabel (Label x)
+    public DoWhile setLabel (Label x)
     {
       DoWhile z = new DoWhile ();
-      z.$setlabel (x);
+      z.$setLabel (x);
       return z;
     }
     private Statement body;
-    public Statement getbody ()
+    public Statement getBody ()
     {
       return body;
     }
-    private void $setbody (Statement x)
+    private void $setBody (Statement x)
     {
       this.body = x;
     }
-    public DoWhile setbody (Statement x)
+    public DoWhile setBody (Statement x)
     {
       DoWhile z = new DoWhile ();
-      z.$setbody (x);
+      z.$setBody (x);
       return z;
     }
     private Expression condition;
-    public Expression getcondition ()
+    public Expression getCondition ()
     {
       return condition;
     }
-    private void $setcondition (Expression x)
+    private void $setCondition (Expression x)
     {
       this.condition = x;
     }
-    public DoWhile setcondition (Expression x)
+    public DoWhile setCondition (Expression x)
     {
       DoWhile z = new DoWhile ();
-      z.$setcondition (x);
+      z.$setCondition (x);
       return z;
     }
   }
@@ -276,63 +274,63 @@ public abstract class Statement extends AbstractAST
       return visitor.visitStatementIfThenElse (this);
     }
     private Label label;
-    public Label getlabel ()
+    public Label getLabel ()
     {
       return label;
     }
-    private void $setlabel (Label x)
+    private void $setLabel (Label x)
     {
       this.label = x;
     }
-    public IfThenElse setlabel (Label x)
+    public IfThenElse setLabel (Label x)
     {
       IfThenElse z = new IfThenElse ();
-      z.$setlabel (x);
+      z.$setLabel (x);
       return z;
     }
     private Condition condition;
-    public Condition getcondition ()
+    public Condition getCondition ()
     {
       return condition;
     }
-    private void $setcondition (Condition x)
+    private void $setCondition (Condition x)
     {
       this.condition = x;
     }
-    public IfThenElse setcondition (Condition x)
+    public IfThenElse setCondition (Condition x)
     {
       IfThenElse z = new IfThenElse ();
-      z.$setcondition (x);
+      z.$setCondition (x);
       return z;
     }
     private Statement thenStatement;
-    public Statement getthenStatement ()
+    public Statement getThenStatement ()
     {
       return thenStatement;
     }
-    private void $setthenStatement (Statement x)
+    private void $setThenStatement (Statement x)
     {
       this.thenStatement = x;
     }
-    public IfThenElse setthenStatement (Statement x)
+    public IfThenElse setThenStatement (Statement x)
     {
       IfThenElse z = new IfThenElse ();
-      z.$setthenStatement (x);
+      z.$setThenStatement (x);
       return z;
     }
     private Statement elseStatement;
-    public Statement getelseStatement ()
+    public Statement getElseStatement ()
     {
       return elseStatement;
     }
-    private void $setelseStatement (Statement x)
+    private void $setElseStatement (Statement x)
     {
       this.elseStatement = x;
     }
-    public IfThenElse setelseStatement (Statement x)
+    public IfThenElse setElseStatement (Statement x)
     {
       IfThenElse z = new IfThenElse ();
-      z.$setelseStatement (x);
+      z.$setElseStatement (x);
       return z;
     }
   }
@@ -355,48 +353,48 @@ public abstract class Statement extends AbstractAST
       return visitor.visitStatementIfThen (this);
     }
     private Label label;
-    public Label getlabel ()
+    public Label getLabel ()
     {
       return label;
     }
-    private void $setlabel (Label x)
+    private void $setLabel (Label x)
     {
       this.label = x;
     }
-    public IfThen setlabel (Label x)
+    public IfThen setLabel (Label x)
     {
       IfThen z = new IfThen ();
-      z.$setlabel (x);
+      z.$setLabel (x);
       return z;
     }
     private Condition condition;
-    public Condition getcondition ()
+    public Condition getCondition ()
     {
       return condition;
     }
-    private void $setcondition (Condition x)
+    private void $setCondition (Condition x)
     {
       this.condition = x;
     }
-    public IfThen setcondition (Condition x)
+    public IfThen setCondition (Condition x)
     {
       IfThen z = new IfThen ();
-      z.$setcondition (x);
+      z.$setCondition (x);
       return z;
     }
     private Statement thenStatement;
-    public Statement getthenStatement ()
+    public Statement getThenStatement ()
     {
       return thenStatement;
     }
-    private void $setthenStatement (Statement x)
+    private void $setThenStatement (Statement x)
     {
       this.thenStatement = x;
     }
-    public IfThen setthenStatement (Statement x)
+    public IfThen setThenStatement (Statement x)
     {
       IfThen z = new IfThen ();
-      z.$setthenStatement (x);
+      z.$setThenStatement (x);
       return z;
     }
   }
@@ -407,60 +405,59 @@ public abstract class Statement extends AbstractAST
     {
     }
     /*package */ Switch (ITree tree, Label label, Expression expression,
-			 List < Case > cases)
+			 java.util.List < Case > cases)
     {
       this.tree = tree;
       this.label = label;
       this.expression = expression;
-      this.cases = cases;
-    }
+    params2statements (java.util.List < Case > cases)}
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitStatementSwitch (this);
     }
     private Label label;
-    public Label getlabel ()
+    public Label getLabel ()
     {
       return label;
     }
-    private void $setlabel (Label x)
+    private void $setLabel (Label x)
     {
       this.label = x;
     }
-    public Switch setlabel (Label x)
+    public Switch setLabel (Label x)
     {
       Switch z = new Switch ();
-      z.$setlabel (x);
+      z.$setLabel (x);
       return z;
     }
     private Expression expression;
-    public Expression getexpression ()
+    public Expression getExpression ()
     {
       return expression;
     }
-    private void $setexpression (Expression x)
+    private void $setExpression (Expression x)
     {
       this.expression = x;
     }
-    public Switch setexpression (Expression x)
+    public Switch setExpression (Expression x)
     {
       Switch z = new Switch ();
-      z.$setexpression (x);
+      z.$setExpression (x);
       return z;
     }
-    private List < Case > cases;
-    public List < Case > getcases ()
+    private java.util.List < Case > cases;
+    public java.util.List < Case > getCases ()
     {
       return cases;
     }
-    private void $setcases (List < Case > x)
+    private void $setCases (java.util.List < Case > x)
     {
       this.cases = x;
     }
-    public Switch setcases (List < Case > x)
+    public Switch setCases (java.util.List < Case > x)
     {
       Switch z = new Switch ();
-      z.$setcases (x);
+      z.$setCases (x);
       return z;
     }
   }
@@ -480,18 +477,18 @@ public abstract class Statement extends AbstractAST
       return visitor.visitStatementExpression (this);
     }
     private Expression expression;
-    public Expression getexpression ()
+    public Expression getExpression ()
     {
       return expression;
     }
-    private void $setexpression (Expression x)
+    private void $setExpression (Expression x)
     {
       this.expression = x;
     }
-    public Expression setexpression (Expression x)
+    public Expression setExpression (Expression x)
     {
       Expression z = new Expression ();
-      z.$setexpression (x);
+      z.$setExpression (x);
       return z;
     }
   }
@@ -511,18 +508,18 @@ public abstract class Statement extends AbstractAST
       return visitor.visitStatementVisit (this);
     }
     private Visit visit;
-    public Visit getvisit ()
+    public Visit getVisit ()
     {
       return visit;
     }
-    private void $setvisit (Visit x)
+    private void $setVisit (Visit x)
     {
       this.visit = x;
     }
-    public Visit setvisit (Visit x)
+    public Visit setVisit (Visit x)
     {
       Visit z = new Visit ();
-      z.$setvisit (x);
+      z.$setVisit (x);
       return z;
     }
   }
@@ -532,62 +529,62 @@ public abstract class Statement extends AbstractAST
     private Assignment ()
     {
     }
-    /*package */ Assignment (ITree tree, List < Assignable > assignables,
+    /*package */ Assignment (ITree tree,
+			     java.util.List < Assignable > assignables,
 			     Assignment operator,
-			     List < Expression > expressions)
+			     java.util.List < Expression > expressions)
     {
       this.tree = tree;
-      this.assignables = assignables;
-      this.operator = operator;
-      this.expressions = expressions;
-    }
+    params2statements (java.util.List < Assignable > assignables,
+			 Assignment operator,
+			 java.util.List < Expression > expressions)}
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitStatementAssignment (this);
     }
-    private List < Assignable > assignables;
-    public List < Assignable > getassignables ()
+    private java.util.List < Assignable > assignables;
+    public java.util.List < Assignable > getAssignables ()
     {
       return assignables;
     }
-    private void $setassignables (List < Assignable > x)
+    private void $setAssignables (java.util.List < Assignable > x)
     {
       this.assignables = x;
     }
-    public Assignment setassignables (List < Assignable > x)
+    public Assignment setAssignables (java.util.List < Assignable > x)
     {
       Assignment z = new Assignment ();
-      z.$setassignables (x);
+      z.$setAssignables (x);
       return z;
     }
     private Assignment operator;
-    public Assignment getoperator ()
+    public Assignment getOperator ()
     {
       return operator;
     }
-    private void $setoperator (Assignment x)
+    private void $setOperator (Assignment x)
     {
       this.operator = x;
     }
-    public Assignment setoperator (Assignment x)
+    public Assignment setOperator (Assignment x)
     {
       Assignment z = new Assignment ();
-      z.$setoperator (x);
+      z.$setOperator (x);
       return z;
     }
-    private List < Expression > expressions;
-    public List < Expression > getexpressions ()
+    private java.util.List < Expression > expressions;
+    public java.util.List < Expression > getExpressions ()
     {
       return expressions;
     }
-    private void $setexpressions (List < Expression > x)
+    private void $setExpressions (java.util.List < Expression > x)
     {
       this.expressions = x;
     }
-    public Assignment setexpressions (List < Expression > x)
+    public Assignment setExpressions (java.util.List < Expression > x)
     {
       Assignment z = new Assignment ();
-      z.$setexpressions (x);
+      z.$setExpressions (x);
       return z;
     }
   }
@@ -609,33 +606,33 @@ public abstract class Statement extends AbstractAST
       return visitor.visitStatementAssert (this);
     }
     private StringLiteral label;
-    public StringLiteral getlabel ()
+    public StringLiteral getLabel ()
     {
       return label;
     }
-    private void $setlabel (StringLiteral x)
+    private void $setLabel (StringLiteral x)
     {
       this.label = x;
     }
-    public Assert setlabel (StringLiteral x)
+    public Assert setLabel (StringLiteral x)
     {
       Assert z = new Assert ();
-      z.$setlabel (x);
+      z.$setLabel (x);
       return z;
     }
     private Expression expression;
-    public Expression getexpression ()
+    public Expression getExpression ()
     {
       return expression;
     }
-    private void $setexpression (Expression x)
+    private void $setExpression (Expression x)
     {
       this.expression = x;
     }
-    public Assert setexpression (Expression x)
+    public Assert setExpression (Expression x)
     {
       Assert z = new Assert ();
-      z.$setexpression (x);
+      z.$setExpression (x);
       return z;
     }
   }
@@ -655,18 +652,18 @@ public abstract class Statement extends AbstractAST
       return visitor.visitStatementReturn (this);
     }
     private Expression expression;
-    public Expression getexpression ()
+    public Expression getExpression ()
     {
       return expression;
     }
-    private void $setexpression (Expression x)
+    private void $setExpression (Expression x)
     {
       this.expression = x;
     }
-    public Return setexpression (Expression x)
+    public Return setExpression (Expression x)
     {
       Return z = new Return ();
-      z.$setexpression (x);
+      z.$setExpression (x);
       return z;
     }
   }
@@ -686,18 +683,18 @@ public abstract class Statement extends AbstractAST
       return visitor.visitStatementInsert (this);
     }
     private Expression expression;
-    public Expression getexpression ()
+    public Expression getExpression ()
     {
       return expression;
     }
-    private void $setexpression (Expression x)
+    private void $setExpression (Expression x)
     {
       this.expression = x;
     }
-    public Insert setexpression (Expression x)
+    public Insert setExpression (Expression x)
     {
       Insert z = new Insert ();
-      z.$setexpression (x);
+      z.$setExpression (x);
       return z;
     }
   }
@@ -717,18 +714,18 @@ public abstract class Statement extends AbstractAST
       return visitor.visitStatementThrow (this);
     }
     private Expression expression;
-    public Expression getexpression ()
+    public Expression getExpression ()
     {
       return expression;
     }
-    private void $setexpression (Expression x)
+    private void $setExpression (Expression x)
     {
       this.expression = x;
     }
-    public Throw setexpression (Expression x)
+    public Throw setExpression (Expression x)
     {
       Throw z = new Throw ();
-      z.$setexpression (x);
+      z.$setExpression (x);
       return z;
     }
   }
@@ -798,44 +795,44 @@ public abstract class Statement extends AbstractAST
     private Try ()
     {
     }
-    /*package */ Try (ITree tree, Statement body, List < Catch > handlers)
+    /*package */ Try (ITree tree, Statement body,
+		      java.util.List < Catch > handlers)
     {
       this.tree = tree;
       this.body = body;
-      this.handlers = handlers;
-    }
+    params2statements (java.util.List < Catch > handlers)}
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitStatementTry (this);
     }
     private Statement body;
-    public Statement getbody ()
+    public Statement getBody ()
     {
       return body;
     }
-    private void $setbody (Statement x)
+    private void $setBody (Statement x)
     {
       this.body = x;
     }
-    public Try setbody (Statement x)
+    public Try setBody (Statement x)
     {
       Try z = new Try ();
-      z.$setbody (x);
+      z.$setBody (x);
       return z;
     }
-    private List < Catch > handlers;
-    public List < Catch > gethandlers ()
+    private java.util.List < Catch > handlers;
+    public java.util.List < Catch > getHandlers ()
     {
       return handlers;
     }
-    private void $sethandlers (List < Catch > x)
+    private void $setHandlers (java.util.List < Catch > x)
     {
       this.handlers = x;
     }
-    public Try sethandlers (List < Catch > x)
+    public Try setHandlers (java.util.List < Catch > x)
     {
       Try z = new Try ();
-      z.$sethandlers (x);
+      z.$setHandlers (x);
       return z;
     }
   }
@@ -846,60 +843,60 @@ public abstract class Statement extends AbstractAST
     {
     }
     /*package */ TryFinally (ITree tree, Statement body,
-			     List < Catch > handlers, Statement finallyBody)
+			     java.util.List < Catch > handlers,
+			     Statement finallyBody)
     {
       this.tree = tree;
       this.body = body;
-      this.handlers = handlers;
-      this.finallyBody = finallyBody;
-    }
+    params2statements (java.util.List < Catch > handlers,
+			 Statement finallyBody)}
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitStatementTryFinally (this);
     }
     private Statement body;
-    public Statement getbody ()
+    public Statement getBody ()
     {
       return body;
     }
-    private void $setbody (Statement x)
+    private void $setBody (Statement x)
     {
       this.body = x;
     }
-    public TryFinally setbody (Statement x)
+    public TryFinally setBody (Statement x)
     {
       TryFinally z = new TryFinally ();
-      z.$setbody (x);
+      z.$setBody (x);
       return z;
     }
-    private List < Catch > handlers;
-    public List < Catch > gethandlers ()
+    private java.util.List < Catch > handlers;
+    public java.util.List < Catch > getHandlers ()
     {
       return handlers;
     }
-    private void $sethandlers (List < Catch > x)
+    private void $setHandlers (java.util.List < Catch > x)
     {
       this.handlers = x;
     }
-    public TryFinally sethandlers (List < Catch > x)
+    public TryFinally setHandlers (java.util.List < Catch > x)
     {
       TryFinally z = new TryFinally ();
-      z.$sethandlers (x);
+      z.$setHandlers (x);
       return z;
     }
     private Statement finallyBody;
-    public Statement getfinallyBody ()
+    public Statement getFinallyBody ()
     {
       return finallyBody;
     }
-    private void $setfinallyBody (Statement x)
+    private void $setFinallyBody (Statement x)
     {
       this.finallyBody = x;
     }
-    public TryFinally setfinallyBody (Statement x)
+    public TryFinally setFinallyBody (Statement x)
     {
       TryFinally z = new TryFinally ();
-      z.$setfinallyBody (x);
+      z.$setFinallyBody (x);
       return z;
     }
   }
@@ -910,44 +907,43 @@ public abstract class Statement extends AbstractAST
     {
     }
     /*package */ Block (ITree tree, Label label,
-			List < Statement > statements)
+			java.util.List < Statement > statements)
     {
       this.tree = tree;
       this.label = label;
-      this.statements = statements;
-    }
+    params2statements (java.util.List < Statement > statements)}
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitStatementBlock (this);
     }
     private Label label;
-    public Label getlabel ()
+    public Label getLabel ()
     {
       return label;
     }
-    private void $setlabel (Label x)
+    private void $setLabel (Label x)
     {
       this.label = x;
     }
-    public Block setlabel (Label x)
+    public Block setLabel (Label x)
     {
       Block z = new Block ();
-      z.$setlabel (x);
+      z.$setLabel (x);
       return z;
     }
-    private List < Statement > statements;
-    public List < Statement > getstatements ()
+    private java.util.List < Statement > statements;
+    public java.util.List < Statement > getStatements ()
     {
       return statements;
     }
-    private void $setstatements (List < Statement > x)
+    private void $setStatements (java.util.List < Statement > x)
     {
       this.statements = x;
     }
-    public Block setstatements (List < Statement > x)
+    public Block setStatements (java.util.List < Statement > x)
     {
       Block z = new Block ();
-      z.$setstatements (x);
+      z.$setStatements (x);
       return z;
     }
   }
@@ -968,18 +964,18 @@ public abstract class Statement extends AbstractAST
       return visitor.visitStatementFunctionDeclaration (this);
     }
     private FunctionDeclaration functionDeclaration;
-    public FunctionDeclaration getfunctionDeclaration ()
+    public FunctionDeclaration getFunctionDeclaration ()
     {
       return functionDeclaration;
     }
-    private void $setfunctionDeclaration (FunctionDeclaration x)
+    private void $setFunctionDeclaration (FunctionDeclaration x)
     {
       this.functionDeclaration = x;
     }
-    public FunctionDeclaration setfunctionDeclaration (FunctionDeclaration x)
+    public FunctionDeclaration setFunctionDeclaration (FunctionDeclaration x)
     {
       FunctionDeclaration z = new FunctionDeclaration ();
-      z.$setfunctionDeclaration (x);
+      z.$setFunctionDeclaration (x);
       return z;
     }
   }
@@ -1000,18 +996,18 @@ public abstract class Statement extends AbstractAST
       return visitor.visitStatementVariableDeclaration (this);
     }
     private LocalVariableDeclaration declaration;
-    public LocalVariableDeclaration getdeclaration ()
+    public LocalVariableDeclaration getDeclaration ()
     {
       return declaration;
     }
-    private void $setdeclaration (LocalVariableDeclaration x)
+    private void $setDeclaration (LocalVariableDeclaration x)
     {
       this.declaration = x;
     }
-    public VariableDeclaration setdeclaration (LocalVariableDeclaration x)
+    public VariableDeclaration setDeclaration (LocalVariableDeclaration x)
     {
       VariableDeclaration z = new VariableDeclaration ();
-      z.$setdeclaration (x);
+      z.$setDeclaration (x);
       return z;
     }
   }
@@ -1022,44 +1018,43 @@ public abstract class Statement extends AbstractAST
     {
     }
     /*package */ GlobalDirective (ITree tree, Type type,
-				  List < QualifiedName > names)
+				  java.util.List < QualifiedName > names)
     {
       this.tree = tree;
       this.type = type;
-      this.names = names;
-    }
+    params2statements (java.util.List < QualifiedName > names)}
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitStatementGlobalDirective (this);
     }
     private Type type;
-    public Type gettype ()
+    public Type getType ()
     {
       return type;
     }
-    private void $settype (Type x)
+    private void $setType (Type x)
     {
       this.type = x;
     }
-    public GlobalDirective settype (Type x)
+    public GlobalDirective setType (Type x)
     {
       GlobalDirective z = new GlobalDirective ();
-      z.$settype (x);
+      z.$setType (x);
       return z;
     }
-    private List < QualifiedName > names;
-    public List < QualifiedName > getnames ()
+    private java.util.List < QualifiedName > names;
+    public java.util.List < QualifiedName > getNames ()
     {
       return names;
     }
-    private void $setnames (List < QualifiedName > x)
+    private void $setNames (java.util.List < QualifiedName > x)
     {
       this.names = x;
     }
-    public GlobalDirective setnames (List < QualifiedName > x)
+    public GlobalDirective setNames (java.util.List < QualifiedName > x)
     {
       GlobalDirective z = new GlobalDirective ();
-      z.$setnames (x);
+      z.$setNames (x);
       return z;
     }
   }

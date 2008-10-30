@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class FunctionModifier extends AbstractAST
 {
@@ -21,12 +20,12 @@ public abstract class FunctionModifier extends AbstractAST
   }
   public class Ambiguity extends FunctionModifier
   {
-    private final List < FunctionModifier > alternatives;
-    public Ambiguity (List < FunctionModifier > alternatives)
+    private final java.util.List < FunctionModifier > alternatives;
+    public Ambiguity (java.util.List < FunctionModifier > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < FunctionModifier > getAlternatives ()
+    public java.util.List < FunctionModifier > getAlternatives ()
     {
       return alternatives;
     }

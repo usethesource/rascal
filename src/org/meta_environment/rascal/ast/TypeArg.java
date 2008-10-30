@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class TypeArg extends AbstractAST
 {
@@ -20,29 +19,29 @@ public abstract class TypeArg extends AbstractAST
       return visitor.visitTypeArgDefault (this);
     }
     private Type type;
-    public Type gettype ()
+    public Type getType ()
     {
       return type;
     }
-    private void $settype (Type x)
+    private void $setType (Type x)
     {
       this.type = x;
     }
-    public Default settype (Type x)
+    public Default setType (Type x)
     {
       Default z = new Default ();
-      z.$settype (x);
+      z.$setType (x);
       return z;
     }
   }
   public class Ambiguity extends TypeArg
   {
-    private final List < TypeArg > alternatives;
-    public Ambiguity (List < TypeArg > alternatives)
+    private final java.util.List < TypeArg > alternatives;
+    public Ambiguity (java.util.List < TypeArg > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < TypeArg > getAlternatives ()
+    public java.util.List < TypeArg > getAlternatives ()
     {
       return alternatives;
     }
@@ -64,33 +63,33 @@ public abstract class TypeArg extends AbstractAST
       return visitor.visitTypeArgNamed (this);
     }
     private Type type;
-    public Type gettype ()
+    public Type getType ()
     {
       return type;
     }
-    private void $settype (Type x)
+    private void $setType (Type x)
     {
       this.type = x;
     }
-    public Named settype (Type x)
+    public Named setType (Type x)
     {
       Named z = new Named ();
-      z.$settype (x);
+      z.$setType (x);
       return z;
     }
     private Name name;
-    public Name getname ()
+    public Name getName ()
     {
       return name;
     }
-    private void $setname (Name x)
+    private void $setName (Name x)
     {
       this.name = x;
     }
-    public Named setname (Name x)
+    public Named setName (Name x)
     {
       Named z = new Named ();
-      z.$setname (x);
+      z.$setName (x);
       return z;
     }
   }

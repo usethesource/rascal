@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class Module extends AbstractAST
 {
@@ -21,44 +20,44 @@ public abstract class Module extends AbstractAST
       return visitor.visitModuleDefault (this);
     }
     private Header header;
-    public Header getheader ()
+    public Header getHeader ()
     {
       return header;
     }
-    private void $setheader (Header x)
+    private void $setHeader (Header x)
     {
       this.header = x;
     }
-    public Default setheader (Header x)
+    public Default setHeader (Header x)
     {
       Default z = new Default ();
-      z.$setheader (x);
+      z.$setHeader (x);
       return z;
     }
     private Body body;
-    public Body getbody ()
+    public Body getBody ()
     {
       return body;
     }
-    private void $setbody (Body x)
+    private void $setBody (Body x)
     {
       this.body = x;
     }
-    public Default setbody (Body x)
+    public Default setBody (Body x)
     {
       Default z = new Default ();
-      z.$setbody (x);
+      z.$setBody (x);
       return z;
     }
   }
   public class Ambiguity extends Module
   {
-    private final List < Module > alternatives;
-    public Ambiguity (List < Module > alternatives)
+    private final java.util.List < Module > alternatives;
+    public Ambiguity (java.util.List < Module > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < Module > getAlternatives ()
+    public java.util.List < Module > getAlternatives ()
     {
       return alternatives;
     }

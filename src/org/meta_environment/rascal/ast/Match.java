@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class Match extends AbstractAST
 {
@@ -21,44 +20,44 @@ public abstract class Match extends AbstractAST
       return visitor.visitMatchReplacing (this);
     }
     private Pattern match;
-    public Pattern getmatch ()
+    public Pattern getMatch ()
     {
       return match;
     }
-    private void $setmatch (Pattern x)
+    private void $setMatch (Pattern x)
     {
       this.match = x;
     }
-    public Replacing setmatch (Pattern x)
+    public Replacing setMatch (Pattern x)
     {
       Replacing z = new Replacing ();
-      z.$setmatch (x);
+      z.$setMatch (x);
       return z;
     }
     private Expression replacement;
-    public Expression getreplacement ()
+    public Expression getReplacement ()
     {
       return replacement;
     }
-    private void $setreplacement (Expression x)
+    private void $setReplacement (Expression x)
     {
       this.replacement = x;
     }
-    public Replacing setreplacement (Expression x)
+    public Replacing setReplacement (Expression x)
     {
       Replacing z = new Replacing ();
-      z.$setreplacement (x);
+      z.$setReplacement (x);
       return z;
     }
   }
   public class Ambiguity extends Match
   {
-    private final List < Match > alternatives;
-    public Ambiguity (List < Match > alternatives)
+    private final java.util.List < Match > alternatives;
+    public Ambiguity (java.util.List < Match > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < Match > getAlternatives ()
+    public java.util.List < Match > getAlternatives ()
     {
       return alternatives;
     }
@@ -80,33 +79,33 @@ public abstract class Match extends AbstractAST
       return visitor.visitMatchArbitrary (this);
     }
     private Pattern match;
-    public Pattern getmatch ()
+    public Pattern getMatch ()
     {
       return match;
     }
-    private void $setmatch (Pattern x)
+    private void $setMatch (Pattern x)
     {
       this.match = x;
     }
-    public Arbitrary setmatch (Pattern x)
+    public Arbitrary setMatch (Pattern x)
     {
       Arbitrary z = new Arbitrary ();
-      z.$setmatch (x);
+      z.$setMatch (x);
       return z;
     }
     private Statement statement;
-    public Statement getstatement ()
+    public Statement getStatement ()
     {
       return statement;
     }
-    private void $setstatement (Statement x)
+    private void $setStatement (Statement x)
     {
       this.statement = x;
     }
-    public Arbitrary setstatement (Statement x)
+    public Arbitrary setStatement (Statement x)
     {
       Arbitrary z = new Arbitrary ();
-      z.$setstatement (x);
+      z.$setStatement (x);
       return z;
     }
   }

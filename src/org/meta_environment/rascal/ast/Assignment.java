@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class Assignment extends AbstractAST
 {
@@ -21,12 +20,12 @@ public abstract class Assignment extends AbstractAST
   }
   public class Ambiguity extends Assignment
   {
-    private final List < Assignment > alternatives;
-    public Ambiguity (List < Assignment > alternatives)
+    private final java.util.List < Assignment > alternatives;
+    public Ambiguity (java.util.List < Assignment > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < Assignment > getAlternatives ()
+    public java.util.List < Assignment > getAlternatives ()
     {
       return alternatives;
     }

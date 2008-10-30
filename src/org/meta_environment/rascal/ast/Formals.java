@@ -1,48 +1,46 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class Formals extends AbstractAST
 {
-  public class Formals extends Formals
+  public class Default extends Formals
   {
-/* formals:{Formal ","}* -> Formals {cons("Formals")} */
-    private Formals ()
+/* formals:{Formal ","}* -> Formals {cons("Default")} */
+    private Default ()
     {
     }
-    /*package */ Formals (ITree tree, List < Formal > formals)
+    /*package */ Default (ITree tree, java.util.List < Formal > formals)
     {
       this.tree = tree;
-      this.formals = formals;
-    }
+    params2statements (java.util.List < Formal > formals)}
     public IVisitable accept (IASTVisitor visitor)
     {
-      return visitor.visitFormalsFormals (this);
+      return visitor.visitFormalsDefault (this);
     }
-    private List < Formal > formals;
-    public List < Formal > getformals ()
+    private java.util.List < Formal > formals;
+    public java.util.List < Formal > getFormals ()
     {
       return formals;
     }
-    private void $setformals (List < Formal > x)
+    private void $setFormals (java.util.List < Formal > x)
     {
       this.formals = x;
     }
-    public Formals setformals (List < Formal > x)
+    public Default setFormals (java.util.List < Formal > x)
     {
-      Formals z = new Formals ();
-      z.$setformals (x);
+      Default z = new Default ();
+      z.$setFormals (x);
       return z;
     }
   }
   public class Ambiguity extends Formals
   {
-    private final List < Formals > alternatives;
-    public Ambiguity (List < Formals > alternatives)
+    private final java.util.List < Formals > alternatives;
+    public Ambiguity (java.util.List < Formals > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < Formals > getAlternatives ()
+    public java.util.List < Formals > getAlternatives ()
     {
       return alternatives;
     }

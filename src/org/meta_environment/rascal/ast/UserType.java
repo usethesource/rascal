@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class UserType extends AbstractAST
 {
@@ -20,29 +19,29 @@ public abstract class UserType extends AbstractAST
       return visitor.visitUserTypeName (this);
     }
     private Name name;
-    public Name getname ()
+    public Name getName ()
     {
       return name;
     }
-    private void $setname (Name x)
+    private void $setName (Name x)
     {
       this.name = x;
     }
-    public Name setname (Name x)
+    public Name setName (Name x)
     {
       Name z = new Name ();
-      z.$setname (x);
+      z.$setName (x);
       return z;
     }
   }
   public class Ambiguity extends UserType
   {
-    private final List < UserType > alternatives;
-    public Ambiguity (List < UserType > alternatives)
+    private final java.util.List < UserType > alternatives;
+    public Ambiguity (java.util.List < UserType > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < UserType > getAlternatives ()
+    public java.util.List < UserType > getAlternatives ()
     {
       return alternatives;
     }
@@ -54,44 +53,43 @@ public abstract class UserType extends AbstractAST
     {
     }
     /*package */ Parametric (ITree tree, Name name,
-			     List < TypeVar > parameters)
+			     java.util.List < TypeVar > parameters)
     {
       this.tree = tree;
       this.name = name;
-      this.parameters = parameters;
-    }
+    params2statements (java.util.List < TypeVar > parameters)}
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitUserTypeParametric (this);
     }
     private Name name;
-    public Name getname ()
+    public Name getName ()
     {
       return name;
     }
-    private void $setname (Name x)
+    private void $setName (Name x)
     {
       this.name = x;
     }
-    public Parametric setname (Name x)
+    public Parametric setName (Name x)
     {
       Parametric z = new Parametric ();
-      z.$setname (x);
+      z.$setName (x);
       return z;
     }
-    private List < TypeVar > parameters;
-    public List < TypeVar > getparameters ()
+    private java.util.List < TypeVar > parameters;
+    public java.util.List < TypeVar > getParameters ()
     {
       return parameters;
     }
-    private void $setparameters (List < TypeVar > x)
+    private void $setParameters (java.util.List < TypeVar > x)
     {
       this.parameters = x;
     }
-    public Parametric setparameters (List < TypeVar > x)
+    public Parametric setParameters (java.util.List < TypeVar > x)
     {
       Parametric z = new Parametric ();
-      z.$setparameters (x);
+      z.$setParameters (x);
       return z;
     }
   }

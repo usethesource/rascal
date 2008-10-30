@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class Declarator extends AbstractAST
 {
@@ -10,55 +9,55 @@ public abstract class Declarator extends AbstractAST
     private Default ()
     {
     }
-    /*package */ Default (ITree tree, Type type, List < Variable > variables)
+    /*package */ Default (ITree tree, Type type,
+			  java.util.List < Variable > variables)
     {
       this.tree = tree;
       this.type = type;
-      this.variables = variables;
-    }
+    params2statements (java.util.List < Variable > variables)}
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitDeclaratorDefault (this);
     }
     private Type type;
-    public Type gettype ()
+    public Type getType ()
     {
       return type;
     }
-    private void $settype (Type x)
+    private void $setType (Type x)
     {
       this.type = x;
     }
-    public Default settype (Type x)
+    public Default setType (Type x)
     {
       Default z = new Default ();
-      z.$settype (x);
+      z.$setType (x);
       return z;
     }
-    private List < Variable > variables;
-    public List < Variable > getvariables ()
+    private java.util.List < Variable > variables;
+    public java.util.List < Variable > getVariables ()
     {
       return variables;
     }
-    private void $setvariables (List < Variable > x)
+    private void $setVariables (java.util.List < Variable > x)
     {
       this.variables = x;
     }
-    public Default setvariables (List < Variable > x)
+    public Default setVariables (java.util.List < Variable > x)
     {
       Default z = new Default ();
-      z.$setvariables (x);
+      z.$setVariables (x);
       return z;
     }
   }
   public class Ambiguity extends Declarator
   {
-    private final List < Declarator > alternatives;
-    public Ambiguity (List < Declarator > alternatives)
+    private final java.util.List < Declarator > alternatives;
+    public Ambiguity (java.util.List < Declarator > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < Declarator > getAlternatives ()
+    public java.util.List < Declarator > getAlternatives ()
     {
       return alternatives;
     }

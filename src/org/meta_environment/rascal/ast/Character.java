@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class Character extends AbstractAST
 {
@@ -20,29 +19,29 @@ public abstract class Character extends AbstractAST
       return visitor.visitCharacterNumeric (this);
     }
     private NumChar numeric;
-    public NumChar getnumeric ()
+    public NumChar getNumeric ()
     {
       return numeric;
     }
-    private void $setnumeric (NumChar x)
+    private void $setNumeric (NumChar x)
     {
       this.numeric = x;
     }
-    public Numeric setnumeric (NumChar x)
+    public Numeric setNumeric (NumChar x)
     {
       Numeric z = new Numeric ();
-      z.$setnumeric (x);
+      z.$setNumeric (x);
       return z;
     }
   }
   public class Ambiguity extends Character
   {
-    private final List < Character > alternatives;
-    public Ambiguity (List < Character > alternatives)
+    private final java.util.List < Character > alternatives;
+    public Ambiguity (java.util.List < Character > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < Character > getAlternatives ()
+    public java.util.List < Character > getAlternatives ()
     {
       return alternatives;
     }
@@ -63,18 +62,18 @@ public abstract class Character extends AbstractAST
       return visitor.visitCharacterShort (this);
     }
     private ShortChar short;
-    public ShortChar getshort ()
+    public ShortChar getShort ()
     {
       return short;
     }
-    private void $setshort (ShortChar x)
+    private void $setShort (ShortChar x)
     {
       this.short = x;
     }
-    public Short setshort (ShortChar x)
+    public Short setShort (ShortChar x)
     {
       Short z = new Short ();
-      z.$setshort (x);
+      z.$setShort (x);
       return z;
     }
   }

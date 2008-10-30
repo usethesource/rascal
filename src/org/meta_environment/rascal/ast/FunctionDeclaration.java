@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class FunctionDeclaration extends AbstractAST
 {
@@ -23,59 +22,59 @@ public abstract class FunctionDeclaration extends AbstractAST
       return visitor.visitFunctionDeclarationDefault (this);
     }
     private Signature signature;
-    public Signature getsignature ()
+    public Signature getSignature ()
     {
       return signature;
     }
-    private void $setsignature (Signature x)
+    private void $setSignature (Signature x)
     {
       this.signature = x;
     }
-    public Default setsignature (Signature x)
+    public Default setSignature (Signature x)
     {
       Default z = new Default ();
-      z.$setsignature (x);
+      z.$setSignature (x);
       return z;
     }
     private Tags tags;
-    public Tags gettags ()
+    public Tags getTags ()
     {
       return tags;
     }
-    private void $settags (Tags x)
+    private void $setTags (Tags x)
     {
       this.tags = x;
     }
-    public Default settags (Tags x)
+    public Default setTags (Tags x)
     {
       Default z = new Default ();
-      z.$settags (x);
+      z.$setTags (x);
       return z;
     }
     private FunctionBody body;
-    public FunctionBody getbody ()
+    public FunctionBody getBody ()
     {
       return body;
     }
-    private void $setbody (FunctionBody x)
+    private void $setBody (FunctionBody x)
     {
       this.body = x;
     }
-    public Default setbody (FunctionBody x)
+    public Default setBody (FunctionBody x)
     {
       Default z = new Default ();
-      z.$setbody (x);
+      z.$setBody (x);
       return z;
     }
   }
   public class Ambiguity extends FunctionDeclaration
   {
-    private final List < FunctionDeclaration > alternatives;
-    public Ambiguity (List < FunctionDeclaration > alternatives)
+    private final java.util.List < FunctionDeclaration > alternatives;
+    public Ambiguity (java.util.List < FunctionDeclaration > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < FunctionDeclaration > getAlternatives ()
+    public java.util.List < FunctionDeclaration > getAlternatives ()
     {
       return alternatives;
     }
@@ -97,33 +96,33 @@ public abstract class FunctionDeclaration extends AbstractAST
       return visitor.visitFunctionDeclarationAbstract (this);
     }
     private Signature signature;
-    public Signature getsignature ()
+    public Signature getSignature ()
     {
       return signature;
     }
-    private void $setsignature (Signature x)
+    private void $setSignature (Signature x)
     {
       this.signature = x;
     }
-    public Abstract setsignature (Signature x)
+    public Abstract setSignature (Signature x)
     {
       Abstract z = new Abstract ();
-      z.$setsignature (x);
+      z.$setSignature (x);
       return z;
     }
     private Tags tags;
-    public Tags gettags ()
+    public Tags getTags ()
     {
       return tags;
     }
-    private void $settags (Tags x)
+    private void $setTags (Tags x)
     {
       this.tags = x;
     }
-    public Abstract settags (Tags x)
+    public Abstract setTags (Tags x)
     {
       Abstract z = new Abstract ();
-      z.$settags (x);
+      z.$setTags (x);
       return z;
     }
   }

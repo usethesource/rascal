@@ -1,13 +1,13 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public class ASTFactory
 {
-  java.util.Map < AbstractAST > table =
-    new java.util.HashTable < AbstractAST > ();
+  java.util.Map < AbstractAST, AbstractAST > table =
+    new java.util.Hashtable < AbstractAST, AbstractAST > ();
 
-  public Body.Ambiguity makeBodyAmbiguity (List < Body > alternatives)
+  public Body.Ambiguity makeBodyAmbiguity (java.util.List < Body >
+					   alternatives)
   {
     Body.Ambiguity amb = new Body.Ambiguity (alternatives);
     if (!table.containsKey (amb))
@@ -17,16 +17,21 @@ public class ASTFactory
     return table.get (amb, amb);
   }
   public Body.Toplevels makeBodyToplevels (ITree tree,
-					   List < Toplevel > toplevels)
+					   java.util.List < Toplevel >
+					   toplevels)
   {
-    Body.Toplevels x = new Body.Toplevels (tree, toplevels);
+    Body.Toplevels x =
+      new Body.Toplevels (tree,
+			  params2expressions (java.util.List < Toplevel >
+					      toplevels));
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Formal.Ambiguity makeFormalAmbiguity (List < Formal > alternatives)
+  public Formal.Ambiguity makeFormalAmbiguity (java.util.List < Formal >
+					       alternatives)
   {
     Formal.Ambiguity amb = new Formal.Ambiguity (alternatives);
     if (!table.containsKey (amb))
@@ -44,7 +49,7 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public Formals.Ambiguity makeFormalsAmbiguity (List < Formals >
+  public Formals.Ambiguity makeFormalsAmbiguity (java.util.List < Formals >
 						 alternatives)
   {
     Formals.Ambiguity amb = new Formals.Ambiguity (alternatives);
@@ -54,10 +59,14 @@ public class ASTFactory
       }
     return table.get (amb, amb);
   }
-  public Formals.Formals makeFormalsFormals (ITree tree,
-					     List < Formal > formals)
+  public Formals.Default makeFormalsDefault (ITree tree,
+					     java.util.List < Formal >
+					     formals)
   {
-    Formals.Formals x = new Formals.Formals (tree, formals);
+    Formals.Default x =
+      new Formals.Default (tree,
+			   params2expressions (java.util.List < Formal >
+					       formals));
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -74,7 +83,8 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public Parameters.Ambiguity makeParametersAmbiguity (List < Parameters >
+  public Parameters.Ambiguity makeParametersAmbiguity (java.util.List <
+						       Parameters >
 						       alternatives)
   {
     Parameters.Ambiguity amb = new Parameters.Ambiguity (alternatives);
@@ -226,9 +236,13 @@ public class ASTFactory
     return table.get (x);
   }
   public Expression.Tuple makeExpressionTuple (ITree tree, Expression first,
-					       List < Expression > rest)
+					       java.util.List < Expression >
+					       rest)
   {
-    Expression.Tuple x = new Expression.Tuple (tree, first, rest);
+    Expression.Tuple x =
+      new Expression.Tuple (tree, first,
+			    params2expressions (java.util.List < Expression >
+						rest));
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -236,9 +250,13 @@ public class ASTFactory
     return table.get (x);
   }
   public Expression.Set makeExpressionSet (ITree tree,
-					   List < Expression > elements)
+					   java.util.List < Expression >
+					   elements)
   {
-    Expression.Set x = new Expression.Set (tree, elements);
+    Expression.Set x =
+      new Expression.Set (tree,
+			  params2expressions (java.util.List < Expression >
+					      elements));
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -268,9 +286,13 @@ public class ASTFactory
     return table.get (x);
   }
   public Expression.List makeExpressionList (ITree tree,
-					     List < Expression > elements)
+					     java.util.List < Expression >
+					     elements)
   {
-    Expression.List x = new Expression.List (tree, elements);
+    Expression.List x =
+      new Expression.List (tree,
+			   params2expressions (java.util.List < Expression >
+					       elements));
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -279,11 +301,14 @@ public class ASTFactory
   }
   public Expression.CallOrTree makeExpressionCallOrTree (ITree tree,
 							 Name name,
-							 List < Expression >
+							 java.util.List <
+							 Expression >
 							 arguments)
   {
     Expression.CallOrTree x =
-      new Expression.CallOrTree (tree, name, arguments);
+      new Expression.CallOrTree (tree, name,
+				 params2expressions (java.util.List <
+						     Expression > arguments));
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -608,18 +633,23 @@ public class ASTFactory
   }
   public Expression.ClosureCall makeExpressionClosureCall (ITree tree,
 							   Expression closure,
-							   List < Expression >
+							   java.util.List <
+							   Expression >
 							   arguments)
   {
     Expression.ClosureCall x =
-      new Expression.ClosureCall (tree, closure, arguments);
+      new Expression.ClosureCall (tree, closure,
+				  params2expressions (java.util.List <
+						      Expression >
+						      arguments));
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Expression.Ambiguity makeExpressionAmbiguity (List < Expression >
+  public Expression.Ambiguity makeExpressionAmbiguity (java.util.List <
+						       Expression >
 						       alternatives)
   {
     Expression.Ambiguity amb = new Expression.Ambiguity (alternatives);
@@ -630,17 +660,20 @@ public class ASTFactory
     return table.get (amb, amb);
   }
   public Expression.Closure makeExpressionClosure (ITree tree, Type type,
-						   List < Statement >
-						   statements)
+						   java.util.List <
+						   Statement > statements)
   {
-    Expression.Closure x = new Expression.Closure (tree, type, statements);
+    Expression.Closure x =
+      new Expression.Closure (tree, type,
+			      params2expressions (java.util.List < Statement >
+						  statements));
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public SymbolLiteral.Ambiguity makeSymbolLiteralAmbiguity (List <
+  public SymbolLiteral.Ambiguity makeSymbolLiteralAmbiguity (java.util.List <
 							     SymbolLiteral >
 							     alternatives)
   {
@@ -699,7 +732,7 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public Literal.Ambiguity makeLiteralAmbiguity (List < Literal >
+  public Literal.Ambiguity makeLiteralAmbiguity (java.util.List < Literal >
 						 alternatives)
   {
     Literal.Ambiguity amb = new Literal.Ambiguity (alternatives);
@@ -727,7 +760,8 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public Bound.Ambiguity makeBoundAmbiguity (List < Bound > alternatives)
+  public Bound.Ambiguity makeBoundAmbiguity (java.util.List < Bound >
+					     alternatives)
   {
     Bound.Ambiguity amb = new Bound.Ambiguity (alternatives);
     if (!table.containsKey (amb))
@@ -747,12 +781,16 @@ public class ASTFactory
   }
   public Statement.GlobalDirective makeStatementGlobalDirective (ITree tree,
 								 Type type,
+								 java.util.
 								 List <
 								 QualifiedName
 								 > names)
   {
     Statement.GlobalDirective x =
-      new Statement.GlobalDirective (tree, type, names);
+      new Statement.GlobalDirective (tree, type,
+				     params2expressions (java.util.List <
+							 QualifiedName >
+							 names));
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -786,9 +824,13 @@ public class ASTFactory
     return table.get (x);
   }
   public Statement.Block makeStatementBlock (ITree tree, Label label,
-					     List < Statement > statements)
+					     java.util.List < Statement >
+					     statements)
   {
-    Statement.Block x = new Statement.Block (tree, label, statements);
+    Statement.Block x =
+      new Statement.Block (tree, label,
+			   params2expressions (java.util.List < Statement >
+					       statements));
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -797,12 +839,15 @@ public class ASTFactory
   }
   public Statement.TryFinally makeStatementTryFinally (ITree tree,
 						       Statement body,
-						       List < Catch >
-						       handlers,
+						       java.util.List <
+						       Catch > handlers,
 						       Statement finallyBody)
   {
     Statement.TryFinally x =
-      new Statement.TryFinally (tree, body, handlers, finallyBody);
+      new Statement.TryFinally (tree, body,
+				params2expressions (java.util.List < Catch >
+						    handlers,
+						    Statement finallyBody));
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -810,9 +855,12 @@ public class ASTFactory
     return table.get (x);
   }
   public Statement.Try makeStatementTry (ITree tree, Statement body,
-					 List < Catch > handlers)
+					 java.util.List < Catch > handlers)
   {
-    Statement.Try x = new Statement.Try (tree, body, handlers);
+    Statement.Try x =
+      new Statement.Try (tree, body,
+			 params2expressions (java.util.List < Catch >
+					     handlers));
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -897,14 +945,22 @@ public class ASTFactory
     return table.get (x);
   }
   public Statement.Assignment makeStatementAssignment (ITree tree,
-						       List < Assignable >
+						       java.util.List <
+						       Assignable >
 						       assignables,
 						       Assignment operator,
-						       List < Expression >
+						       java.util.List <
+						       Expression >
 						       expressions)
   {
     Statement.Assignment x =
-      new Statement.Assignment (tree, assignables, operator, expressions);
+      new Statement.Assignment (tree,
+				params2expressions (java.util.List <
+						    Assignable > assignables,
+						    Assignment operator,
+						    java.util.List <
+						    Expression >
+						    expressions));
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -932,10 +988,12 @@ public class ASTFactory
   }
   public Statement.Switch makeStatementSwitch (ITree tree, Label label,
 					       Expression expression,
-					       List < Case > cases)
+					       java.util.List < Case > cases)
   {
     Statement.Switch x =
-      new Statement.Switch (tree, label, expression, cases);
+      new Statement.Switch (tree, label, expression,
+			    params2expressions (java.util.List < Case >
+						cases));
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -995,18 +1053,21 @@ public class ASTFactory
     return table.get (x);
   }
   public Statement.For makeStatementFor (ITree tree, Label label,
-					 List < Generator > generators,
-					 Statement body)
+					 java.util.List < Generator >
+					 generators, Statement body)
   {
-    Statement.For x = new Statement.For (tree, label, generators, body);
+    Statement.For x =
+      new Statement.For (tree, label,
+			 params2expressions (java.util.List < Generator >
+					     generators, Statement body));
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Statement.Ambiguity makeStatementAmbiguity (List < Statement >
-						     alternatives)
+  public Statement.Ambiguity makeStatementAmbiguity (java.util.List <
+						     Statement > alternatives)
   {
     Statement.Ambiguity amb = new Statement.Ambiguity (alternatives);
     if (!table.containsKey (amb))
@@ -1016,10 +1077,13 @@ public class ASTFactory
     return table.get (amb, amb);
   }
   public Statement.Solve makeStatementSolve (ITree tree,
-					     List < Declarator > declarations,
-					     Statement body)
+					     java.util.List < Declarator >
+					     declarations, Statement body)
   {
-    Statement.Solve x = new Statement.Solve (tree, declarations, body);
+    Statement.Solve x =
+      new Statement.Solve (tree,
+			   params2expressions (java.util.List < Declarator >
+					       declarations, Statement body));
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -1057,8 +1121,8 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public Condition.Ambiguity makeConditionAmbiguity (List < Condition >
-						     alternatives)
+  public Condition.Ambiguity makeConditionAmbiguity (java.util.List <
+						     Condition > alternatives)
   {
     Condition.Ambiguity amb = new Condition.Ambiguity (alternatives);
     if (!table.containsKey (amb))
@@ -1077,7 +1141,8 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public NoElseMayFollow.Ambiguity makeNoElseMayFollowAmbiguity (List <
+  public NoElseMayFollow.Ambiguity makeNoElseMayFollowAmbiguity (java.util.
+								 List <
 								 NoElseMayFollow
 								 >
 								 alternatives)
@@ -1092,11 +1157,15 @@ public class ASTFactory
   }
   public Assignable.Constructor makeAssignableConstructor (ITree tree,
 							   Name name,
-							   List < Assignable >
+							   java.util.List <
+							   Assignable >
 							   arguments)
   {
     Assignable.Constructor x =
-      new Assignable.Constructor (tree, name, arguments);
+      new Assignable.Constructor (tree, name,
+				  params2expressions (java.util.List <
+						      Assignable >
+						      arguments));
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -1104,9 +1173,13 @@ public class ASTFactory
     return table.get (x);
   }
   public Assignable.Tuple makeAssignableTuple (ITree tree, Assignable first,
-					       List < Assignable > rest)
+					       java.util.List < Assignable >
+					       rest)
   {
-    Assignable.Tuple x = new Assignable.Tuple (tree, first, rest);
+    Assignable.Tuple x =
+      new Assignable.Tuple (tree, first,
+			    params2expressions (java.util.List < Assignable >
+						rest));
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -1163,7 +1236,8 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public Assignable.Ambiguity makeAssignableAmbiguity (List < Assignable >
+  public Assignable.Ambiguity makeAssignableAmbiguity (java.util.List <
+						       Assignable >
 						       alternatives)
   {
     Assignable.Ambiguity amb = new Assignable.Ambiguity (alternatives);
@@ -1229,7 +1303,8 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public Assignment.Ambiguity makeAssignmentAmbiguity (List < Assignment >
+  public Assignment.Ambiguity makeAssignmentAmbiguity (java.util.List <
+						       Assignment >
 						       alternatives)
   {
     Assignment.Ambiguity amb = new Assignment.Ambiguity (alternatives);
@@ -1257,7 +1332,8 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public Label.Ambiguity makeLabelAmbiguity (List < Label > alternatives)
+  public Label.Ambiguity makeLabelAmbiguity (java.util.List < Label >
+					     alternatives)
   {
     Label.Ambiguity amb = new Label.Ambiguity (alternatives);
     if (!table.containsKey (amb))
@@ -1284,7 +1360,8 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public Break.Ambiguity makeBreakAmbiguity (List < Break > alternatives)
+  public Break.Ambiguity makeBreakAmbiguity (java.util.List < Break >
+					     alternatives)
   {
     Break.Ambiguity amb = new Break.Ambiguity (alternatives);
     if (!table.containsKey (amb))
@@ -1302,17 +1379,18 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public Catch.BindingCatch makeCatchBindingCatch (ITree tree, Type type,
-						   Name name, Statement body)
+  public Catch.Binding makeCatchBinding (ITree tree, Type type, Name name,
+					 Statement body)
   {
-    Catch.BindingCatch x = new Catch.BindingCatch (tree, type, name, body);
+    Catch.Binding x = new Catch.Binding (tree, type, name, body);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Catch.Ambiguity makeCatchAmbiguity (List < Catch > alternatives)
+  public Catch.Ambiguity makeCatchAmbiguity (java.util.List < Catch >
+					     alternatives)
   {
     Catch.Ambiguity amb = new Catch.Ambiguity (alternatives);
     if (!table.containsKey (amb))
@@ -1321,16 +1399,17 @@ public class ASTFactory
       }
     return table.get (amb, amb);
   }
-  public Catch.Catch makeCatchCatch (ITree tree, Statement body)
+  public Catch.Default makeCatchDefault (ITree tree, Statement body)
   {
-    Catch.Catch x = new Catch.Catch (tree, body);
+    Catch.Default x = new Catch.Default (tree, body);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Declarator.Ambiguity makeDeclaratorAmbiguity (List < Declarator >
+  public Declarator.Ambiguity makeDeclaratorAmbiguity (java.util.List <
+						       Declarator >
 						       alternatives)
   {
     Declarator.Ambiguity amb = new Declarator.Ambiguity (alternatives);
@@ -1341,10 +1420,13 @@ public class ASTFactory
     return table.get (amb, amb);
   }
   public Declarator.Default makeDeclaratorDefault (ITree tree, Type type,
-						   List < Variable >
+						   java.util.List < Variable >
 						   variables)
   {
-    Declarator.Default x = new Declarator.Default (tree, type, variables);
+    Declarator.Default x =
+      new Declarator.Default (tree, type,
+			      params2expressions (java.util.List < Variable >
+						  variables));
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -1364,7 +1446,7 @@ public class ASTFactory
     return table.get (x);
   }
   public LocalVariableDeclaration.
-    Ambiguity makeLocalVariableDeclarationAmbiguity (List <
+    Ambiguity makeLocalVariableDeclarationAmbiguity (java.util.List <
 						     LocalVariableDeclaration
 						     > alternatives)
   {
@@ -1388,7 +1470,7 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public RegExpLiteral.Ambiguity makeRegExpLiteralAmbiguity (List <
+  public RegExpLiteral.Ambiguity makeRegExpLiteralAmbiguity (java.util.List <
 							     RegExpLiteral >
 							     alternatives)
   {
@@ -1399,7 +1481,8 @@ public class ASTFactory
       }
     return table.get (amb, amb);
   }
-  public RegExpModifier.Ambiguity makeRegExpModifierAmbiguity (List <
+  public RegExpModifier.Ambiguity makeRegExpModifierAmbiguity (java.util.
+							       List <
 							       RegExpModifier
 							       > alternatives)
   {
@@ -1411,8 +1494,8 @@ public class ASTFactory
       }
     return table.get (amb, amb);
   }
-  public Backslash.Ambiguity makeBackslashAmbiguity (List < Backslash >
-						     alternatives)
+  public Backslash.Ambiguity makeBackslashAmbiguity (java.util.List <
+						     Backslash > alternatives)
   {
     Backslash.Ambiguity amb = new Backslash.Ambiguity (alternatives);
     if (!table.containsKey (amb))
@@ -1421,7 +1504,8 @@ public class ASTFactory
       }
     return table.get (amb, amb);
   }
-  public RegExp.Ambiguity makeRegExpAmbiguity (List < RegExp > alternatives)
+  public RegExp.Ambiguity makeRegExpAmbiguity (java.util.List < RegExp >
+					       alternatives)
   {
     RegExp.Ambiguity amb = new RegExp.Ambiguity (alternatives);
     if (!table.containsKey (amb))
@@ -1430,7 +1514,8 @@ public class ASTFactory
       }
     return table.get (amb, amb);
   }
-  public NamedRegExp.Ambiguity makeNamedRegExpAmbiguity (List < NamedRegExp >
+  public NamedRegExp.Ambiguity makeNamedRegExpAmbiguity (java.util.List <
+							 NamedRegExp >
 							 alternatives)
   {
     NamedRegExp.Ambiguity amb = new NamedRegExp.Ambiguity (alternatives);
@@ -1440,7 +1525,8 @@ public class ASTFactory
       }
     return table.get (amb, amb);
   }
-  public NamedBackslash.Ambiguity makeNamedBackslashAmbiguity (List <
+  public NamedBackslash.Ambiguity makeNamedBackslashAmbiguity (java.util.
+							       List <
 							       NamedBackslash
 							       > alternatives)
   {
@@ -1461,7 +1547,8 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public Visibility.Ambiguity makeVisibilityAmbiguity (List < Visibility >
+  public Visibility.Ambiguity makeVisibilityAmbiguity (java.util.List <
+						       Visibility >
 						       alternatives)
   {
     Visibility.Ambiguity amb = new Visibility.Ambiguity (alternatives);
@@ -1492,7 +1579,7 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public Toplevel.Ambiguity makeToplevelAmbiguity (List < Toplevel >
+  public Toplevel.Ambiguity makeToplevelAmbiguity (java.util.List < Toplevel >
 						   alternatives)
   {
     Toplevel.Ambiguity amb = new Toplevel.Ambiguity (alternatives);
@@ -1517,9 +1604,13 @@ public class ASTFactory
     return table.get (x);
   }
   public Declaration.Tag makeDeclarationTag (ITree tree, Kind kind, Name name,
-					     Tags tags, List < Type > types)
+					     Tags tags,
+					     java.util.List < Type > types)
   {
-    Declaration.Tag x = new Declaration.Tag (tree, kind, name, tags, types);
+    Declaration.Tag x =
+      new Declaration.Tag (tree, kind, name, tags,
+			   params2expressions (java.util.List < Type >
+					       types));
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -1530,11 +1621,13 @@ public class ASTFactory
 							   Type type,
 							   Name name,
 							   Tags tags,
-							   List < Type >
-							   types)
+							   java.util.List <
+							   Type > types)
   {
     Declaration.Annotation x =
-      new Declaration.Annotation (tree, type, name, tags, types);
+      new Declaration.Annotation (tree, type, name, tags,
+				  params2expressions (java.util.List < Type >
+						      types));
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -1552,10 +1645,13 @@ public class ASTFactory
     return table.get (x);
   }
   public Declaration.Variable makeDeclarationVariable (ITree tree, Type type,
-						       List < Variable >
-						       variables)
+						       java.util.List <
+						       Variable > variables)
   {
-    Declaration.Variable x = new Declaration.Variable (tree, type, variables);
+    Declaration.Variable x =
+      new Declaration.Variable (tree, type,
+				params2expressions (java.util.List <
+						    Variable > variables));
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -1576,9 +1672,13 @@ public class ASTFactory
   }
   public Declaration.Data makeDeclarationData (ITree tree, UserType user,
 					       Tags tags,
-					       List < Variant > variants)
+					       java.util.List < Variant >
+					       variants)
   {
-    Declaration.Data x = new Declaration.Data (tree, user, tags, variants);
+    Declaration.Data x =
+      new Declaration.Data (tree, user, tags,
+			    params2expressions (java.util.List < Variant >
+						variants));
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -1595,7 +1695,8 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public Declaration.Ambiguity makeDeclarationAmbiguity (List < Declaration >
+  public Declaration.Ambiguity makeDeclarationAmbiguity (java.util.List <
+							 Declaration >
 							 alternatives)
   {
     Declaration.Ambiguity amb = new Declaration.Ambiguity (alternatives);
@@ -1607,18 +1708,21 @@ public class ASTFactory
   }
   public Declaration.View makeDeclarationView (ITree tree, Name view,
 					       Name type, Tags tags,
-					       List < Alternative >
+					       java.util.List < Alternative >
 					       alternatives)
   {
     Declaration.View x =
-      new Declaration.View (tree, view, type, tags, alternatives);
+      new Declaration.View (tree, view, type, tags,
+			    params2expressions (java.util.List < Alternative >
+						alternatives));
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Alternative.Ambiguity makeAlternativeAmbiguity (List < Alternative >
+  public Alternative.Ambiguity makeAlternativeAmbiguity (java.util.List <
+							 Alternative >
 							 alternatives)
   {
     Alternative.Ambiguity amb = new Alternative.Ambiguity (alternatives);
@@ -1651,18 +1755,21 @@ public class ASTFactory
   }
   public Variant.NAryConstructor makeVariantNAryConstructor (ITree tree,
 							     Name name,
-							     List < TypeArg >
+							     java.util.List <
+							     TypeArg >
 							     arguments)
   {
     Variant.NAryConstructor x =
-      new Variant.NAryConstructor (tree, name, arguments);
+      new Variant.NAryConstructor (tree, name,
+				   params2expressions (java.util.List <
+						       TypeArg > arguments));
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Variant.Ambiguity makeVariantAmbiguity (List < Variant >
+  public Variant.Ambiguity makeVariantAmbiguity (java.util.List < Variant >
 						 alternatives)
   {
     Variant.Ambiguity amb = new Variant.Ambiguity (alternatives);
@@ -1825,7 +1932,8 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public StandardOperator.Ambiguity makeStandardOperatorAmbiguity (List <
+  public StandardOperator.Ambiguity makeStandardOperatorAmbiguity (java.util.
+								   List <
 								   StandardOperator
 								   >
 								   alternatives)
@@ -1858,7 +1966,7 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public FunctionName.Ambiguity makeFunctionNameAmbiguity (List <
+  public FunctionName.Ambiguity makeFunctionNameAmbiguity (java.util.List <
 							   FunctionName >
 							   alternatives)
   {
@@ -1878,7 +1986,8 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public FunctionModifier.Ambiguity makeFunctionModifierAmbiguity (List <
+  public FunctionModifier.Ambiguity makeFunctionModifierAmbiguity (java.util.
+								   List <
 								   FunctionModifier
 								   >
 								   alternatives)
@@ -1900,7 +2009,9 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public FunctionModifiers.Ambiguity makeFunctionModifiersAmbiguity (List <
+  public FunctionModifiers.Ambiguity makeFunctionModifiersAmbiguity (java.
+								     util.
+								     List <
 								     FunctionModifiers
 								     >
 								     alternatives)
@@ -1914,11 +2025,15 @@ public class ASTFactory
     return table.get (amb, amb);
   }
   public FunctionModifiers.List makeFunctionModifiersList (ITree tree,
-							   List <
+							   java.util.List <
 							   FunctionModifier >
 							   modifiers)
   {
-    FunctionModifiers.List x = new FunctionModifiers.List (tree, modifiers);
+    FunctionModifiers.List x =
+      new FunctionModifiers.List (tree,
+				  params2expressions (java.util.List <
+						      FunctionModifier >
+						      modifiers));
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -1930,20 +2045,21 @@ public class ASTFactory
 						       modifiers,
 						       FunctionName name,
 						       Parameters parameters,
-						       List < Type >
+						       java.util.List < Type >
 						       exceptions)
   {
     Signature.WithThrows x =
       new Signature.WithThrows (tree, type, modifiers, name, parameters,
-				exceptions);
+				params2expressions (java.util.List < Type >
+						    exceptions));
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Signature.Ambiguity makeSignatureAmbiguity (List < Signature >
-						     alternatives)
+  public Signature.Ambiguity makeSignatureAmbiguity (java.util.List <
+						     Signature > alternatives)
   {
     Signature.Ambiguity amb = new Signature.Ambiguity (alternatives);
     if (!table.containsKey (amb))
@@ -1978,9 +2094,13 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public FunctionDeclaration.
-    Ambiguity makeFunctionDeclarationAmbiguity (List < FunctionDeclaration >
-						alternatives)
+  public FunctionDeclaration.Ambiguity makeFunctionDeclarationAmbiguity (java.
+									 util.
+									 List
+									 <
+									 FunctionDeclaration
+									 >
+									 alternatives)
   {
     FunctionDeclaration.Ambiguity amb =
       new FunctionDeclaration.Ambiguity (alternatives);
@@ -2002,7 +2122,7 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public FunctionBody.Ambiguity makeFunctionBodyAmbiguity (List <
+  public FunctionBody.Ambiguity makeFunctionBodyAmbiguity (java.util.List <
 							   FunctionBody >
 							   alternatives)
   {
@@ -2014,17 +2134,20 @@ public class ASTFactory
     return table.get (amb, amb);
   }
   public FunctionBody.Default makeFunctionBodyDefault (ITree tree,
-						       List < Statement >
-						       statements)
+						       java.util.List <
+						       Statement > statements)
   {
-    FunctionBody.Default x = new FunctionBody.Default (tree, statements);
+    FunctionBody.Default x =
+      new FunctionBody.Default (tree,
+				params2expressions (java.util.List <
+						    Statement > statements));
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Variable.Ambiguity makeVariableAmbiguity (List < Variable >
+  public Variable.Ambiguity makeVariableAmbiguity (java.util.List < Variable >
 						   alternatives)
   {
     Variable.Ambiguity amb = new Variable.Ambiguity (alternatives);
@@ -2119,7 +2242,8 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public Kind.Ambiguity makeKindAmbiguity (List < Kind > alternatives)
+  public Kind.Ambiguity makeKindAmbiguity (java.util.List < Kind >
+					   alternatives)
   {
     Kind.Ambiguity amb = new Kind.Ambiguity (alternatives);
     if (!table.containsKey (amb))
@@ -2137,7 +2261,7 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public Comment.Ambiguity makeCommentAmbiguity (List < Comment >
+  public Comment.Ambiguity makeCommentAmbiguity (java.util.List < Comment >
 						 alternatives)
   {
     Comment.Ambiguity amb = new Comment.Ambiguity (alternatives);
@@ -2147,7 +2271,8 @@ public class ASTFactory
       }
     return table.get (amb, amb);
   }
-  public CommentChar.Ambiguity makeCommentCharAmbiguity (List < CommentChar >
+  public CommentChar.Ambiguity makeCommentCharAmbiguity (java.util.List <
+							 CommentChar >
 							 alternatives)
   {
     CommentChar.Ambiguity amb = new CommentChar.Ambiguity (alternatives);
@@ -2157,7 +2282,7 @@ public class ASTFactory
       }
     return table.get (amb, amb);
   }
-  public Asterisk.Ambiguity makeAsteriskAmbiguity (List < Asterisk >
+  public Asterisk.Ambiguity makeAsteriskAmbiguity (java.util.List < Asterisk >
 						   alternatives)
   {
     Asterisk.Ambiguity amb = new Asterisk.Ambiguity (alternatives);
@@ -2230,8 +2355,8 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public BasicType.Ambiguity makeBasicTypeAmbiguity (List < BasicType >
-						     alternatives)
+  public BasicType.Ambiguity makeBasicTypeAmbiguity (java.util.List <
+						     BasicType > alternatives)
   {
     BasicType.Ambiguity amb = new BasicType.Ambiguity (alternatives);
     if (!table.containsKey (amb))
@@ -2258,7 +2383,7 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public TypeArg.Ambiguity makeTypeArgAmbiguity (List < TypeArg >
+  public TypeArg.Ambiguity makeTypeArgAmbiguity (java.util.List < TypeArg >
 						 alternatives)
   {
     TypeArg.Ambiguity amb = new TypeArg.Ambiguity (alternatives);
@@ -2279,9 +2404,13 @@ public class ASTFactory
   }
   public StructuredType.Tuple makeStructuredTypeTuple (ITree tree,
 						       TypeArg first,
-						       List < TypeArg > rest)
+						       java.util.List <
+						       TypeArg > rest)
   {
-    StructuredType.Tuple x = new StructuredType.Tuple (tree, first, rest);
+    StructuredType.Tuple x =
+      new StructuredType.Tuple (tree, first,
+				params2expressions (java.util.List < TypeArg >
+						    rest));
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -2290,11 +2419,13 @@ public class ASTFactory
   }
   public StructuredType.Relation makeStructuredTypeRelation (ITree tree,
 							     TypeArg first,
-							     List < TypeArg >
-							     rest)
+							     java.util.List <
+							     TypeArg > rest)
   {
     StructuredType.Relation x =
-      new StructuredType.Relation (tree, first, rest);
+      new StructuredType.Relation (tree, first,
+				   params2expressions (java.util.List <
+						       TypeArg > rest));
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -2321,7 +2452,8 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public StructuredType.Ambiguity makeStructuredTypeAmbiguity (List <
+  public StructuredType.Ambiguity makeStructuredTypeAmbiguity (java.util.
+							       List <
 							       StructuredType
 							       > alternatives)
   {
@@ -2343,7 +2475,7 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public FunctionType.Ambiguity makeFunctionTypeAmbiguity (List <
+  public FunctionType.Ambiguity makeFunctionTypeAmbiguity (java.util.List <
 							   FunctionType >
 							   alternatives)
   {
@@ -2356,12 +2488,16 @@ public class ASTFactory
   }
   public FunctionType.TypeArguments makeFunctionTypeTypeArguments (ITree tree,
 								   Type type,
+								   java.util.
 								   List <
 								   TypeArg >
 								   arguments)
   {
     FunctionType.TypeArguments x =
-      new FunctionType.TypeArguments (tree, type, arguments);
+      new FunctionType.TypeArguments (tree, type,
+				      params2expressions (java.util.List <
+							  TypeArg >
+							  arguments));
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -2378,7 +2514,7 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public TypeVar.Ambiguity makeTypeVarAmbiguity (List < TypeVar >
+  public TypeVar.Ambiguity makeTypeVarAmbiguity (java.util.List < TypeVar >
 						 alternatives)
   {
     TypeVar.Ambiguity amb = new TypeVar.Ambiguity (alternatives);
@@ -2398,17 +2534,20 @@ public class ASTFactory
     return table.get (x);
   }
   public UserType.Parametric makeUserTypeParametric (ITree tree, Name name,
-						     List < TypeVar >
-						     parameters)
+						     java.util.List <
+						     TypeVar > parameters)
   {
-    UserType.Parametric x = new UserType.Parametric (tree, name, parameters);
+    UserType.Parametric x =
+      new UserType.Parametric (tree, name,
+			       params2expressions (java.util.List < TypeVar >
+						   parameters));
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public UserType.Ambiguity makeUserTypeAmbiguity (List < UserType >
+  public UserType.Ambiguity makeUserTypeAmbiguity (java.util.List < UserType >
 						   alternatives)
   {
     UserType.Ambiguity amb = new UserType.Ambiguity (alternatives);
@@ -2427,7 +2566,8 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public DataTypeSelector.Ambiguity makeDataTypeSelectorAmbiguity (List <
+  public DataTypeSelector.Ambiguity makeDataTypeSelectorAmbiguity (java.util.
+								   List <
 								   DataTypeSelector
 								   >
 								   alternatives)
@@ -2509,7 +2649,8 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public Type.Ambiguity makeTypeAmbiguity (List < Type > alternatives)
+  public Type.Ambiguity makeTypeAmbiguity (java.util.List < Type >
+					   alternatives)
   {
     Type.Ambiguity amb = new Type.Ambiguity (alternatives);
     if (!table.containsKey (amb))
@@ -2527,7 +2668,7 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public StrChar.Ambiguity makeStrCharAmbiguity (List < StrChar >
+  public StrChar.Ambiguity makeStrCharAmbiguity (java.util.List < StrChar >
 						 alternatives)
   {
     StrChar.Ambiguity amb = new StrChar.Ambiguity (alternatives);
@@ -2546,7 +2687,8 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public StrCon.Ambiguity makeStrConAmbiguity (List < StrCon > alternatives)
+  public StrCon.Ambiguity makeStrConAmbiguity (java.util.List < StrCon >
+					       alternatives)
   {
     StrCon.Ambiguity amb = new StrCon.Ambiguity (alternatives);
     if (!table.containsKey (amb))
@@ -2555,7 +2697,8 @@ public class ASTFactory
       }
     return table.get (amb, amb);
   }
-  public Sort.Ambiguity makeSortAmbiguity (List < Sort > alternatives)
+  public Sort.Ambiguity makeSortAmbiguity (java.util.List < Sort >
+					   alternatives)
   {
     Sort.Ambiguity amb = new Sort.Ambiguity (alternatives);
     if (!table.containsKey (amb))
@@ -2664,9 +2807,12 @@ public class ASTFactory
     return table.get (x);
   }
   public Symbol.Sequence makeSymbolSequence (ITree tree, Symbol head,
-					     List < Symbol > tail)
+					     java.util.List < Symbol > tail)
   {
-    Symbol.Sequence x = new Symbol.Sequence (tree, head, tail);
+    Symbol.Sequence x =
+      new Symbol.Sequence (tree, head,
+			   params2expressions (java.util.List < Symbol >
+					       tail));
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -2684,18 +2830,22 @@ public class ASTFactory
   }
   public Symbol.ParameterizedSort makeSymbolParameterizedSort (ITree tree,
 							       Sort sort,
+							       java.util.
 							       List < Symbol >
 							       parameters)
   {
     Symbol.ParameterizedSort x =
-      new Symbol.ParameterizedSort (tree, sort, parameters);
+      new Symbol.ParameterizedSort (tree, sort,
+				    params2expressions (java.util.List <
+							Symbol > parameters));
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Symbol.Ambiguity makeSymbolAmbiguity (List < Symbol > alternatives)
+  public Symbol.Ambiguity makeSymbolAmbiguity (java.util.List < Symbol >
+					       alternatives)
   {
     Symbol.Ambiguity amb = new Symbol.Ambiguity (alternatives);
     if (!table.containsKey (amb))
@@ -2713,9 +2863,13 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public SingleQuotedStrChar.
-    Ambiguity makeSingleQuotedStrCharAmbiguity (List < SingleQuotedStrChar >
-						alternatives)
+  public SingleQuotedStrChar.Ambiguity makeSingleQuotedStrCharAmbiguity (java.
+									 util.
+									 List
+									 <
+									 SingleQuotedStrChar
+									 >
+									 alternatives)
   {
     SingleQuotedStrChar.Ambiguity amb =
       new SingleQuotedStrChar.Ambiguity (alternatives);
@@ -2725,7 +2879,9 @@ public class ASTFactory
       }
     return table.get (amb, amb);
   }
-  public SingleQuotedStrCon.Ambiguity makeSingleQuotedStrConAmbiguity (List <
+  public SingleQuotedStrCon.Ambiguity makeSingleQuotedStrConAmbiguity (java.
+								       util.
+								       List <
 								       SingleQuotedStrCon
 								       >
 								       alternatives)
@@ -2748,8 +2904,8 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public CharRange.Ambiguity makeCharRangeAmbiguity (List < CharRange >
-						     alternatives)
+  public CharRange.Ambiguity makeCharRangeAmbiguity (java.util.List <
+						     CharRange > alternatives)
   {
     CharRange.Ambiguity amb = new CharRange.Ambiguity (alternatives);
     if (!table.containsKey (amb))
@@ -2779,7 +2935,8 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public CharRanges.Ambiguity makeCharRangesAmbiguity (List < CharRanges >
+  public CharRanges.Ambiguity makeCharRangesAmbiguity (java.util.List <
+						       CharRanges >
 						       alternatives)
   {
     CharRanges.Ambiguity amb = new CharRanges.Ambiguity (alternatives);
@@ -2808,7 +2965,7 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public OptCharRanges.Ambiguity makeOptCharRangesAmbiguity (List <
+  public OptCharRanges.Ambiguity makeOptCharRangesAmbiguity (java.util.List <
 							     OptCharRanges >
 							     alternatives)
   {
@@ -2870,8 +3027,8 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public CharClass.Ambiguity makeCharClassAmbiguity (List < CharClass >
-						     alternatives)
+  public CharClass.Ambiguity makeCharClassAmbiguity (java.util.List <
+						     CharClass > alternatives)
   {
     CharClass.Ambiguity amb = new CharClass.Ambiguity (alternatives);
     if (!table.containsKey (amb))
@@ -2892,7 +3049,7 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public NumChar.Ambiguity makeNumCharAmbiguity (List < NumChar >
+  public NumChar.Ambiguity makeNumCharAmbiguity (java.util.List < NumChar >
 						 alternatives)
   {
     NumChar.Ambiguity amb = new NumChar.Ambiguity (alternatives);
@@ -2902,8 +3059,8 @@ public class ASTFactory
       }
     return table.get (amb, amb);
   }
-  public ShortChar.Ambiguity makeShortCharAmbiguity (List < ShortChar >
-						     alternatives)
+  public ShortChar.Ambiguity makeShortCharAmbiguity (java.util.List <
+						     ShortChar > alternatives)
   {
     ShortChar.Ambiguity amb = new ShortChar.Ambiguity (alternatives);
     if (!table.containsKey (amb))
@@ -2957,8 +3114,8 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public Character.Ambiguity makeCharacterAmbiguity (List < Character >
-						     alternatives)
+  public Character.Ambiguity makeCharacterAmbiguity (java.util.List <
+						     Character > alternatives)
   {
     Character.Ambiguity amb = new Character.Ambiguity (alternatives);
     if (!table.containsKey (amb))
@@ -2976,7 +3133,8 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public Module.Ambiguity makeModuleAmbiguity (List < Module > alternatives)
+  public Module.Ambiguity makeModuleAmbiguity (java.util.List < Module >
+					       alternatives)
   {
     Module.Ambiguity amb = new Module.Ambiguity (alternatives);
     if (!table.containsKey (amb))
@@ -2995,7 +3153,8 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public ModuleWord.Ambiguity makeModuleWordAmbiguity (List < ModuleWord >
+  public ModuleWord.Ambiguity makeModuleWordAmbiguity (java.util.List <
+						       ModuleWord >
 						       alternatives)
   {
     ModuleWord.Ambiguity amb = new ModuleWord.Ambiguity (alternatives);
@@ -3005,7 +3164,8 @@ public class ASTFactory
       }
     return table.get (amb, amb);
   }
-  public ModuleName.Ambiguity makeModuleNameAmbiguity (List < ModuleName >
+  public ModuleName.Ambiguity makeModuleNameAmbiguity (java.util.List <
+						       ModuleName >
 						       alternatives)
   {
     ModuleName.Ambiguity amb = new ModuleName.Ambiguity (alternatives);
@@ -3015,7 +3175,7 @@ public class ASTFactory
       }
     return table.get (amb, amb);
   }
-  public ModuleActuals.Ambiguity makeModuleActualsAmbiguity (List <
+  public ModuleActuals.Ambiguity makeModuleActualsAmbiguity (java.util.List <
 							     ModuleActuals >
 							     alternatives)
   {
@@ -3027,9 +3187,13 @@ public class ASTFactory
     return table.get (amb, amb);
   }
   public ModuleActuals.Default makeModuleActualsDefault (ITree tree,
-							 List < Type > types)
+							 java.util.List <
+							 Type > types)
   {
-    ModuleActuals.Default x = new ModuleActuals.Default (tree, types);
+    ModuleActuals.Default x =
+      new ModuleActuals.Default (tree,
+				 params2expressions (java.util.List < Type >
+						     types));
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -3073,7 +3237,8 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public ImportedModule.Ambiguity makeImportedModuleAmbiguity (List <
+  public ImportedModule.Ambiguity makeImportedModuleAmbiguity (java.util.
+							       List <
 							       ImportedModule
 							       > alternatives)
   {
@@ -3099,7 +3264,7 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public Renaming.Ambiguity makeRenamingAmbiguity (List < Renaming >
+  public Renaming.Ambiguity makeRenamingAmbiguity (java.util.List < Renaming >
 						   alternatives)
   {
     Renaming.Ambiguity amb = new Renaming.Ambiguity (alternatives);
@@ -3109,18 +3274,17 @@ public class ASTFactory
       }
     return table.get (amb, amb);
   }
-  public Renaming.Renaming makeRenamingRenaming (ITree tree, Name from,
-						 Name to)
+  public Renaming.Default makeRenamingDefault (ITree tree, Name from, Name to)
   {
-    Renaming.Renaming x = new Renaming.Renaming (tree, from, to);
+    Renaming.Default x = new Renaming.Default (tree, from, to);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Renamings.Ambiguity makeRenamingsAmbiguity (List < Renamings >
-						     alternatives)
+  public Renamings.Ambiguity makeRenamingsAmbiguity (java.util.List <
+						     Renamings > alternatives)
   {
     Renamings.Ambiguity amb = new Renamings.Ambiguity (alternatives);
     if (!table.containsKey (amb))
@@ -3130,9 +3294,13 @@ public class ASTFactory
     return table.get (amb, amb);
   }
   public Renamings.Default makeRenamingsDefault (ITree tree,
-						 List < Renaming > renamings)
+						 java.util.List < Renaming >
+						 renamings)
   {
-    Renamings.Default x = new Renamings.Default (tree, renamings);
+    Renamings.Default x =
+      new Renamings.Default (tree,
+			     params2expressions (java.util.List < Renaming >
+						 renamings));
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -3148,7 +3316,8 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public Import.Ambiguity makeImportAmbiguity (List < Import > alternatives)
+  public Import.Ambiguity makeImportAmbiguity (java.util.List < Import >
+					       alternatives)
   {
     Import.Ambiguity amb = new Import.Ambiguity (alternatives);
     if (!table.containsKey (amb))
@@ -3157,16 +3326,17 @@ public class ASTFactory
       }
     return table.get (amb, amb);
   }
-  public Import.Import makeImportImport (ITree tree, ImportedModule module)
+  public Import.Default makeImportDefault (ITree tree, ImportedModule module)
   {
-    Import.Import x = new Import.Import (tree, module);
+    Import.Default x = new Import.Default (tree, module);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public ModuleParameters.Ambiguity makeModuleParametersAmbiguity (List <
+  public ModuleParameters.Ambiguity makeModuleParametersAmbiguity (java.util.
+								   List <
 								   ModuleParameters
 								   >
 								   alternatives)
@@ -3179,13 +3349,17 @@ public class ASTFactory
       }
     return table.get (amb, amb);
   }
-  public ModuleParameters.
-    ModuleParameters makeModuleParametersModuleParameters (ITree tree,
-							   List < TypeVar >
-							   parameters)
+  public ModuleParameters.Default makeModuleParametersDefault (ITree tree,
+							       java.util.
+							       List <
+							       TypeVar >
+							       parameters)
   {
-    ModuleParameters.ModuleParameters x =
-      new ModuleParameters.ModuleParameters (tree, parameters);
+    ModuleParameters.Default x =
+      new ModuleParameters.Default (tree,
+				    params2expressions (java.util.List <
+							TypeVar >
+							parameters));
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -3195,17 +3369,21 @@ public class ASTFactory
   public Header.Parameters makeHeaderParameters (ITree tree, ModuleName name,
 						 ModuleParameters params,
 						 Tags tags,
-						 List < Import > imports)
+						 java.util.List < Import >
+						 imports)
   {
     Header.Parameters x =
-      new Header.Parameters (tree, name, params, tags, imports);
+      new Header.Parameters (tree, name, params, tags,
+			     params2expressions (java.util.List < Import >
+						 imports));
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Header.Ambiguity makeHeaderAmbiguity (List < Header > alternatives)
+  public Header.Ambiguity makeHeaderAmbiguity (java.util.List < Header >
+					       alternatives)
   {
     Header.Ambiguity amb = new Header.Ambiguity (alternatives);
     if (!table.containsKey (amb))
@@ -3215,16 +3393,21 @@ public class ASTFactory
     return table.get (amb, amb);
   }
   public Header.Default makeHeaderDefault (ITree tree, ModuleName name,
-					   Tags tags, List < Import > imports)
+					   Tags tags,
+					   java.util.List < Import > imports)
   {
-    Header.Default x = new Header.Default (tree, name, tags, imports);
+    Header.Default x =
+      new Header.Default (tree, name, tags,
+			  params2expressions (java.util.List < Import >
+					      imports));
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Name.Ambiguity makeNameAmbiguity (List < Name > alternatives)
+  public Name.Ambiguity makeNameAmbiguity (java.util.List < Name >
+					   alternatives)
   {
     Name.Ambiguity amb = new Name.Ambiguity (alternatives);
     if (!table.containsKey (amb))
@@ -3233,7 +3416,7 @@ public class ASTFactory
       }
     return table.get (amb, amb);
   }
-  public QualifiedName.Ambiguity makeQualifiedNameAmbiguity (List <
+  public QualifiedName.Ambiguity makeQualifiedNameAmbiguity (java.util.List <
 							     QualifiedName >
 							     alternatives)
   {
@@ -3245,16 +3428,21 @@ public class ASTFactory
     return table.get (amb, amb);
   }
   public QualifiedName.Default makeQualifiedNameDefault (ITree tree,
-							 List < Name > names)
+							 java.util.List <
+							 Name > names)
   {
-    QualifiedName.Default x = new QualifiedName.Default (tree, names);
+    QualifiedName.Default x =
+      new QualifiedName.Default (tree,
+				 params2expressions (java.util.List < Name >
+						     names));
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Area.Ambiguity makeAreaAmbiguity (List < Area > alternatives)
+  public Area.Ambiguity makeAreaAmbiguity (java.util.List < Area >
+					   alternatives)
   {
     Area.Ambiguity amb = new Area.Ambiguity (alternatives);
     if (!table.containsKey (amb))
@@ -3263,22 +3451,23 @@ public class ASTFactory
       }
     return table.get (amb, amb);
   }
-  public Area.Area makeAreaArea (ITree tree, Expression beginLine,
-				 Expression beginColumn, Expression endLine,
-				 Expression endColumn, Expression offset,
-				 Expression length)
+  public Area.Default makeAreaDefault (ITree tree, Expression beginLine,
+				       Expression beginColumn,
+				       Expression endLine,
+				       Expression endColumn,
+				       Expression offset, Expression length)
   {
-    Area.Area x =
-      new Area.Area (tree, beginLine, beginColumn, endLine, endColumn, offset,
-		     length);
+    Area.Default x =
+      new Area.Default (tree, beginLine, beginColumn, endLine, endColumn,
+			offset, length);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public TagString.Ambiguity makeTagStringAmbiguity (List < TagString >
-						     alternatives)
+  public TagString.Ambiguity makeTagStringAmbiguity (java.util.List <
+						     TagString > alternatives)
   {
     TagString.Ambiguity amb = new TagString.Ambiguity (alternatives);
     if (!table.containsKey (amb))
@@ -3287,7 +3476,7 @@ public class ASTFactory
       }
     return table.get (amb, amb);
   }
-  public TagChar.Ambiguity makeTagCharAmbiguity (List < TagChar >
+  public TagChar.Ambiguity makeTagCharAmbiguity (java.util.List < TagChar >
 						 alternatives)
   {
     TagChar.Ambiguity amb = new TagChar.Ambiguity (alternatives);
@@ -3297,7 +3486,7 @@ public class ASTFactory
       }
     return table.get (amb, amb);
   }
-  public Tag.Ambiguity makeTagAmbiguity (List < Tag > alternatives)
+  public Tag.Ambiguity makeTagAmbiguity (java.util.List < Tag > alternatives)
   {
     Tag.Ambiguity amb = new Tag.Ambiguity (alternatives);
     if (!table.containsKey (amb))
@@ -3315,7 +3504,8 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public Tags.Ambiguity makeTagsAmbiguity (List < Tags > alternatives)
+  public Tags.Ambiguity makeTagsAmbiguity (java.util.List < Tags >
+					   alternatives)
   {
     Tags.Ambiguity amb = new Tags.Ambiguity (alternatives);
     if (!table.containsKey (amb))
@@ -3324,9 +3514,13 @@ public class ASTFactory
       }
     return table.get (amb, amb);
   }
-  public Tags.Default makeTagsDefault (ITree tree, List < Tag > annotations)
+  public Tags.Default makeTagsDefault (ITree tree,
+				       java.util.List < Tag > annotations)
   {
-    Tags.Default x = new Tags.Default (tree, annotations);
+    Tags.Default x =
+      new Tags.Default (tree,
+			params2expressions (java.util.List < Tag >
+					    annotations));
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -3347,7 +3541,7 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public ValueProducer.Ambiguity makeValueProducerAmbiguity (List <
+  public ValueProducer.Ambiguity makeValueProducerAmbiguity (java.util.List <
 							     ValueProducer >
 							     alternatives)
   {
@@ -3381,8 +3575,8 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public Generator.Ambiguity makeGeneratorAmbiguity (List < Generator >
-						     alternatives)
+  public Generator.Ambiguity makeGeneratorAmbiguity (java.util.List <
+						     Generator > alternatives)
   {
     Generator.Ambiguity amb = new Generator.Ambiguity (alternatives);
     if (!table.containsKey (amb))
@@ -3446,7 +3640,7 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public Strategy.Ambiguity makeStrategyAmbiguity (List < Strategy >
+  public Strategy.Ambiguity makeStrategyAmbiguity (java.util.List < Strategy >
 						   alternatives)
   {
     Strategy.Ambiguity amb = new Strategy.Ambiguity (alternatives);
@@ -3467,17 +3661,20 @@ public class ASTFactory
   }
   public Comprehension.List makeComprehensionList (ITree tree,
 						   Expression result,
-						   List < Generator >
-						   generators)
+						   java.util.List <
+						   Generator > generators)
   {
-    Comprehension.List x = new Comprehension.List (tree, result, generators);
+    Comprehension.List x =
+      new Comprehension.List (tree, result,
+			      params2expressions (java.util.List < Generator >
+						  generators));
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Comprehension.Ambiguity makeComprehensionAmbiguity (List <
+  public Comprehension.Ambiguity makeComprehensionAmbiguity (java.util.List <
 							     Comprehension >
 							     alternatives)
   {
@@ -3490,10 +3687,13 @@ public class ASTFactory
   }
   public Comprehension.Set makeComprehensionSet (ITree tree,
 						 Expression result,
-						 List < Generator >
+						 java.util.List < Generator >
 						 generators)
   {
-    Comprehension.Set x = new Comprehension.Set (tree, result, generators);
+    Comprehension.Set x =
+      new Comprehension.Set (tree, result,
+			     params2expressions (java.util.List < Generator >
+						 generators));
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -3510,7 +3710,8 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public Match.Ambiguity makeMatchAmbiguity (List < Match > alternatives)
+  public Match.Ambiguity makeMatchAmbiguity (java.util.List < Match >
+					     alternatives)
   {
     Match.Ambiguity amb = new Match.Ambiguity (alternatives);
     if (!table.containsKey (amb))
@@ -3538,7 +3739,8 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public Rule.Ambiguity makeRuleAmbiguity (List < Rule > alternatives)
+  public Rule.Ambiguity makeRuleAmbiguity (java.util.List < Rule >
+					   alternatives)
   {
     Rule.Ambiguity amb = new Rule.Ambiguity (alternatives);
     if (!table.containsKey (amb))
@@ -3565,7 +3767,8 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public Case.Ambiguity makeCaseAmbiguity (List < Case > alternatives)
+  public Case.Ambiguity makeCaseAmbiguity (java.util.List < Case >
+					   alternatives)
   {
     Case.Ambiguity amb = new Case.Ambiguity (alternatives);
     if (!table.containsKey (amb))
@@ -3586,17 +3789,21 @@ public class ASTFactory
   public Visit.GivenStrategy makeVisitGivenStrategy (ITree tree,
 						     Strategy strategy,
 						     Expression subject,
-						     List < Case > cases)
+						     java.util.List < Case >
+						     cases)
   {
     Visit.GivenStrategy x =
-      new Visit.GivenStrategy (tree, strategy, subject, cases);
+      new Visit.GivenStrategy (tree, strategy, subject,
+			       params2expressions (java.util.List < Case >
+						   cases));
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Visit.Ambiguity makeVisitAmbiguity (List < Visit > alternatives)
+  public Visit.Ambiguity makeVisitAmbiguity (java.util.List < Visit >
+					     alternatives)
   {
     Visit.Ambiguity amb = new Visit.Ambiguity (alternatives);
     if (!table.containsKey (amb))
@@ -3607,17 +3814,20 @@ public class ASTFactory
   }
   public Visit.DefaultStrategy makeVisitDefaultStrategy (ITree tree,
 							 Expression subject,
-							 List < Case > cases)
+							 java.util.List <
+							 Case > cases)
   {
     Visit.DefaultStrategy x =
-      new Visit.DefaultStrategy (tree, subject, cases);
+      new Visit.DefaultStrategy (tree, subject,
+				 params2expressions (java.util.List < Case >
+						     cases));
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public UnicodeEscape.Ambiguity makeUnicodeEscapeAmbiguity (List <
+  public UnicodeEscape.Ambiguity makeUnicodeEscapeAmbiguity (java.util.List <
 							     UnicodeEscape >
 							     alternatives)
   {
@@ -3629,7 +3839,7 @@ public class ASTFactory
     return table.get (amb, amb);
   }
   public DecimalIntegerLiteral.
-    Ambiguity makeDecimalIntegerLiteralAmbiguity (List <
+    Ambiguity makeDecimalIntegerLiteralAmbiguity (java.util.List <
 						  DecimalIntegerLiteral >
 						  alternatives)
   {
@@ -3641,7 +3851,9 @@ public class ASTFactory
       }
     return table.get (amb, amb);
   }
-  public HexIntegerLiteral.Ambiguity makeHexIntegerLiteralAmbiguity (List <
+  public HexIntegerLiteral.Ambiguity makeHexIntegerLiteralAmbiguity (java.
+								     util.
+								     List <
 								     HexIntegerLiteral
 								     >
 								     alternatives)
@@ -3654,9 +3866,13 @@ public class ASTFactory
       }
     return table.get (amb, amb);
   }
-  public OctalIntegerLiteral.
-    Ambiguity makeOctalIntegerLiteralAmbiguity (List < OctalIntegerLiteral >
-						alternatives)
+  public OctalIntegerLiteral.Ambiguity makeOctalIntegerLiteralAmbiguity (java.
+									 util.
+									 List
+									 <
+									 OctalIntegerLiteral
+									 >
+									 alternatives)
   {
     OctalIntegerLiteral.Ambiguity amb =
       new OctalIntegerLiteral.Ambiguity (alternatives);
@@ -3666,7 +3882,9 @@ public class ASTFactory
       }
     return table.get (amb, amb);
   }
-  public DecimalLongLiteral.Ambiguity makeDecimalLongLiteralAmbiguity (List <
+  public DecimalLongLiteral.Ambiguity makeDecimalLongLiteralAmbiguity (java.
+								       util.
+								       List <
 								       DecimalLongLiteral
 								       >
 								       alternatives)
@@ -3679,7 +3897,8 @@ public class ASTFactory
       }
     return table.get (amb, amb);
   }
-  public HexLongLiteral.Ambiguity makeHexLongLiteralAmbiguity (List <
+  public HexLongLiteral.Ambiguity makeHexLongLiteralAmbiguity (java.util.
+							       List <
 							       HexLongLiteral
 							       > alternatives)
   {
@@ -3691,7 +3910,8 @@ public class ASTFactory
       }
     return table.get (amb, amb);
   }
-  public OctalLongLiteral.Ambiguity makeOctalLongLiteralAmbiguity (List <
+  public OctalLongLiteral.Ambiguity makeOctalLongLiteralAmbiguity (java.util.
+								   List <
 								   OctalLongLiteral
 								   >
 								   alternatives)
@@ -3705,7 +3925,8 @@ public class ASTFactory
     return table.get (amb, amb);
   }
   public FloatingPointLiteral.
-    Ambiguity makeFloatingPointLiteralAmbiguity (List < FloatingPointLiteral >
+    Ambiguity makeFloatingPointLiteralAmbiguity (java.util.List <
+						 FloatingPointLiteral >
 						 alternatives)
   {
     FloatingPointLiteral.Ambiguity amb =
@@ -3716,7 +3937,7 @@ public class ASTFactory
       }
     return table.get (amb, amb);
   }
-  public DoubleLiteral.Ambiguity makeDoubleLiteralAmbiguity (List <
+  public DoubleLiteral.Ambiguity makeDoubleLiteralAmbiguity (java.util.List <
 							     DoubleLiteral >
 							     alternatives)
   {
@@ -3727,7 +3948,8 @@ public class ASTFactory
       }
     return table.get (amb, amb);
   }
-  public BooleanLiteral.Ambiguity makeBooleanLiteralAmbiguity (List <
+  public BooleanLiteral.Ambiguity makeBooleanLiteralAmbiguity (java.util.
+							       List <
 							       BooleanLiteral
 							       > alternatives)
   {
@@ -3739,7 +3961,8 @@ public class ASTFactory
       }
     return table.get (amb, amb);
   }
-  public SingleCharacter.Ambiguity makeSingleCharacterAmbiguity (List <
+  public SingleCharacter.Ambiguity makeSingleCharacterAmbiguity (java.util.
+								 List <
 								 SingleCharacter
 								 >
 								 alternatives)
@@ -3752,7 +3975,8 @@ public class ASTFactory
       }
     return table.get (amb, amb);
   }
-  public CharacterLiteral.Ambiguity makeCharacterLiteralAmbiguity (List <
+  public CharacterLiteral.Ambiguity makeCharacterLiteralAmbiguity (java.util.
+								   List <
 								   CharacterLiteral
 								   >
 								   alternatives)
@@ -3765,7 +3989,8 @@ public class ASTFactory
       }
     return table.get (amb, amb);
   }
-  public EscapeSequence.Ambiguity makeEscapeSequenceAmbiguity (List <
+  public EscapeSequence.Ambiguity makeEscapeSequenceAmbiguity (java.util.
+							       List <
 							       EscapeSequence
 							       > alternatives)
   {
@@ -3777,7 +4002,8 @@ public class ASTFactory
       }
     return table.get (amb, amb);
   }
-  public StringCharacter.Ambiguity makeStringCharacterAmbiguity (List <
+  public StringCharacter.Ambiguity makeStringCharacterAmbiguity (java.util.
+								 List <
 								 StringCharacter
 								 >
 								 alternatives)
@@ -3790,7 +4016,7 @@ public class ASTFactory
       }
     return table.get (amb, amb);
   }
-  public StringLiteral.Ambiguity makeStringLiteralAmbiguity (List <
+  public StringLiteral.Ambiguity makeStringLiteralAmbiguity (java.util.List <
 							     StringLiteral >
 							     alternatives)
   {
@@ -3823,7 +4049,8 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public IntegerLiteral.Ambiguity makeIntegerLiteralAmbiguity (List <
+  public IntegerLiteral.Ambiguity makeIntegerLiteralAmbiguity (java.util.
+							       List <
 							       IntegerLiteral
 							       > alternatives)
   {
@@ -3865,7 +4092,8 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public LongLiteral.Ambiguity makeLongLiteralAmbiguity (List < LongLiteral >
+  public LongLiteral.Ambiguity makeLongLiteralAmbiguity (java.util.List <
+							 LongLiteral >
 							 alternatives)
   {
     LongLiteral.Ambiguity amb = new LongLiteral.Ambiguity (alternatives);

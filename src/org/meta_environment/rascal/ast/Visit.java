@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class Visit extends AbstractAST
 {
@@ -11,55 +10,54 @@ public abstract class Visit extends AbstractAST
     {
     }
     /*package */ DefaultStrategy (ITree tree, Expression subject,
-				  List < Case > cases)
+				  java.util.List < Case > cases)
     {
       this.tree = tree;
       this.subject = subject;
-      this.cases = cases;
-    }
+    params2statements (java.util.List < Case > cases)}
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitVisitDefaultStrategy (this);
     }
     private Expression subject;
-    public Expression getsubject ()
+    public Expression getSubject ()
     {
       return subject;
     }
-    private void $setsubject (Expression x)
+    private void $setSubject (Expression x)
     {
       this.subject = x;
     }
-    public DefaultStrategy setsubject (Expression x)
+    public DefaultStrategy setSubject (Expression x)
     {
       DefaultStrategy z = new DefaultStrategy ();
-      z.$setsubject (x);
+      z.$setSubject (x);
       return z;
     }
-    private List < Case > cases;
-    public List < Case > getcases ()
+    private java.util.List < Case > cases;
+    public java.util.List < Case > getCases ()
     {
       return cases;
     }
-    private void $setcases (List < Case > x)
+    private void $setCases (java.util.List < Case > x)
     {
       this.cases = x;
     }
-    public DefaultStrategy setcases (List < Case > x)
+    public DefaultStrategy setCases (java.util.List < Case > x)
     {
       DefaultStrategy z = new DefaultStrategy ();
-      z.$setcases (x);
+      z.$setCases (x);
       return z;
     }
   }
   public class Ambiguity extends Visit
   {
-    private final List < Visit > alternatives;
-    public Ambiguity (List < Visit > alternatives)
+    private final java.util.List < Visit > alternatives;
+    public Ambiguity (java.util.List < Visit > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < Visit > getAlternatives ()
+    public java.util.List < Visit > getAlternatives ()
     {
       return alternatives;
     }
@@ -71,60 +69,60 @@ public abstract class Visit extends AbstractAST
     {
     }
     /*package */ GivenStrategy (ITree tree, Strategy strategy,
-				Expression subject, List < Case > cases)
+				Expression subject,
+				java.util.List < Case > cases)
     {
       this.tree = tree;
       this.strategy = strategy;
       this.subject = subject;
-      this.cases = cases;
-    }
+    params2statements (java.util.List < Case > cases)}
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitVisitGivenStrategy (this);
     }
     private Strategy strategy;
-    public Strategy getstrategy ()
+    public Strategy getStrategy ()
     {
       return strategy;
     }
-    private void $setstrategy (Strategy x)
+    private void $setStrategy (Strategy x)
     {
       this.strategy = x;
     }
-    public GivenStrategy setstrategy (Strategy x)
+    public GivenStrategy setStrategy (Strategy x)
     {
       GivenStrategy z = new GivenStrategy ();
-      z.$setstrategy (x);
+      z.$setStrategy (x);
       return z;
     }
     private Expression subject;
-    public Expression getsubject ()
+    public Expression getSubject ()
     {
       return subject;
     }
-    private void $setsubject (Expression x)
+    private void $setSubject (Expression x)
     {
       this.subject = x;
     }
-    public GivenStrategy setsubject (Expression x)
+    public GivenStrategy setSubject (Expression x)
     {
       GivenStrategy z = new GivenStrategy ();
-      z.$setsubject (x);
+      z.$setSubject (x);
       return z;
     }
-    private List < Case > cases;
-    public List < Case > getcases ()
+    private java.util.List < Case > cases;
+    public java.util.List < Case > getCases ()
     {
       return cases;
     }
-    private void $setcases (List < Case > x)
+    private void $setCases (java.util.List < Case > x)
     {
       this.cases = x;
     }
-    public GivenStrategy setcases (List < Case > x)
+    public GivenStrategy setCases (java.util.List < Case > x)
     {
       GivenStrategy z = new GivenStrategy ();
-      z.$setcases (x);
+      z.$setCases (x);
       return z;
     }
   }

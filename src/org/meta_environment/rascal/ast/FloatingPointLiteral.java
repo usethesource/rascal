@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class FloatingPointLiteral extends AbstractAST
 {
@@ -10,12 +9,12 @@ public abstract class FloatingPointLiteral extends AbstractAST
   }
   public class Ambiguity extends FloatingPointLiteral
   {
-    private final List < FloatingPointLiteral > alternatives;
-    public Ambiguity (List < FloatingPointLiteral > alternatives)
+    private final java.util.List < FloatingPointLiteral > alternatives;
+    public Ambiguity (java.util.List < FloatingPointLiteral > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < FloatingPointLiteral > getAlternatives ()
+    public java.util.List < FloatingPointLiteral > getAlternatives ()
     {
       return alternatives;
     }

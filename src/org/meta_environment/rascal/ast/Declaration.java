@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class Declaration extends AbstractAST
 {
@@ -11,87 +10,86 @@ public abstract class Declaration extends AbstractAST
     {
     }
     /*package */ View (ITree tree, Name view, Name type, Tags tags,
-		       List < Alternative > alternatives)
+		       java.util.List < Alternative > alternatives)
     {
       this.tree = tree;
       this.view = view;
       this.type = type;
       this.tags = tags;
-      this.alternatives = alternatives;
-    }
+    params2statements (java.util.List < Alternative > alternatives)}
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitDeclarationView (this);
     }
     private Name view;
-    public Name getview ()
+    public Name getView ()
     {
       return view;
     }
-    private void $setview (Name x)
+    private void $setView (Name x)
     {
       this.view = x;
     }
-    public View setview (Name x)
+    public View setView (Name x)
     {
       View z = new View ();
-      z.$setview (x);
+      z.$setView (x);
       return z;
     }
     private Name type;
-    public Name gettype ()
+    public Name getType ()
     {
       return type;
     }
-    private void $settype (Name x)
+    private void $setType (Name x)
     {
       this.type = x;
     }
-    public View settype (Name x)
+    public View setType (Name x)
     {
       View z = new View ();
-      z.$settype (x);
+      z.$setType (x);
       return z;
     }
     private Tags tags;
-    public Tags gettags ()
+    public Tags getTags ()
     {
       return tags;
     }
-    private void $settags (Tags x)
+    private void $setTags (Tags x)
     {
       this.tags = x;
     }
-    public View settags (Tags x)
+    public View setTags (Tags x)
     {
       View z = new View ();
-      z.$settags (x);
+      z.$setTags (x);
       return z;
     }
-    private List < Alternative > alternatives;
-    public List < Alternative > getalternatives ()
+    private java.util.List < Alternative > alternatives;
+    public java.util.List < Alternative > getAlternatives ()
     {
       return alternatives;
     }
-    private void $setalternatives (List < Alternative > x)
+    private void $setAlternatives (java.util.List < Alternative > x)
     {
       this.alternatives = x;
     }
-    public View setalternatives (List < Alternative > x)
+    public View setAlternatives (java.util.List < Alternative > x)
     {
       View z = new View ();
-      z.$setalternatives (x);
+      z.$setAlternatives (x);
       return z;
     }
   }
   public class Ambiguity extends Declaration
   {
-    private final List < Declaration > alternatives;
-    public Ambiguity (List < Declaration > alternatives)
+    private final java.util.List < Declaration > alternatives;
+    public Ambiguity (java.util.List < Declaration > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < Declaration > getAlternatives ()
+    public java.util.List < Declaration > getAlternatives ()
     {
       return alternatives;
     }
@@ -114,48 +112,48 @@ public abstract class Declaration extends AbstractAST
       return visitor.visitDeclarationType (this);
     }
     private Type base;
-    public Type getbase ()
+    public Type getBase ()
     {
       return base;
     }
-    private void $setbase (Type x)
+    private void $setBase (Type x)
     {
       this.base = x;
     }
-    public Type setbase (Type x)
+    public Type setBase (Type x)
     {
       Type z = new Type ();
-      z.$setbase (x);
+      z.$setBase (x);
       return z;
     }
     private UserType user;
-    public UserType getuser ()
+    public UserType getUser ()
     {
       return user;
     }
-    private void $setuser (UserType x)
+    private void $setUser (UserType x)
     {
       this.user = x;
     }
-    public Type setuser (UserType x)
+    public Type setUser (UserType x)
     {
       Type z = new Type ();
-      z.$setuser (x);
+      z.$setUser (x);
       return z;
     }
     private Tags tags;
-    public Tags gettags ()
+    public Tags getTags ()
     {
       return tags;
     }
-    private void $settags (Tags x)
+    private void $setTags (Tags x)
     {
       this.tags = x;
     }
-    public Type settags (Tags x)
+    public Type setTags (Tags x)
     {
       Type z = new Type ();
-      z.$settags (x);
+      z.$setTags (x);
       return z;
     }
   }
@@ -166,60 +164,59 @@ public abstract class Declaration extends AbstractAST
     {
     }
     /*package */ Data (ITree tree, UserType user, Tags tags,
-		       List < Variant > variants)
+		       java.util.List < Variant > variants)
     {
       this.tree = tree;
       this.user = user;
       this.tags = tags;
-      this.variants = variants;
-    }
+    params2statements (java.util.List < Variant > variants)}
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitDeclarationData (this);
     }
     private UserType user;
-    public UserType getuser ()
+    public UserType getUser ()
     {
       return user;
     }
-    private void $setuser (UserType x)
+    private void $setUser (UserType x)
     {
       this.user = x;
     }
-    public Data setuser (UserType x)
+    public Data setUser (UserType x)
     {
       Data z = new Data ();
-      z.$setuser (x);
+      z.$setUser (x);
       return z;
     }
     private Tags tags;
-    public Tags gettags ()
+    public Tags getTags ()
     {
       return tags;
     }
-    private void $settags (Tags x)
+    private void $setTags (Tags x)
     {
       this.tags = x;
     }
-    public Data settags (Tags x)
+    public Data setTags (Tags x)
     {
       Data z = new Data ();
-      z.$settags (x);
+      z.$setTags (x);
       return z;
     }
-    private List < Variant > variants;
-    public List < Variant > getvariants ()
+    private java.util.List < Variant > variants;
+    public java.util.List < Variant > getVariants ()
     {
       return variants;
     }
-    private void $setvariants (List < Variant > x)
+    private void $setVariants (java.util.List < Variant > x)
     {
       this.variants = x;
     }
-    public Data setvariants (List < Variant > x)
+    public Data setVariants (java.util.List < Variant > x)
     {
       Data z = new Data ();
-      z.$setvariants (x);
+      z.$setVariants (x);
       return z;
     }
   }
@@ -240,18 +237,18 @@ public abstract class Declaration extends AbstractAST
       return visitor.visitDeclarationFunction (this);
     }
     private FunctionDeclaration functionDeclaration;
-    public FunctionDeclaration getfunctionDeclaration ()
+    public FunctionDeclaration getFunctionDeclaration ()
     {
       return functionDeclaration;
     }
-    private void $setfunctionDeclaration (FunctionDeclaration x)
+    private void $setFunctionDeclaration (FunctionDeclaration x)
     {
       this.functionDeclaration = x;
     }
-    public Function setfunctionDeclaration (FunctionDeclaration x)
+    public Function setFunctionDeclaration (FunctionDeclaration x)
     {
       Function z = new Function ();
-      z.$setfunctionDeclaration (x);
+      z.$setFunctionDeclaration (x);
       return z;
     }
   }
@@ -261,44 +258,44 @@ public abstract class Declaration extends AbstractAST
     private Variable ()
     {
     }
-    /*package */ Variable (ITree tree, Type type, List < Variable > variables)
+    /*package */ Variable (ITree tree, Type type,
+			   java.util.List < Variable > variables)
     {
       this.tree = tree;
       this.type = type;
-      this.variables = variables;
-    }
+    params2statements (java.util.List < Variable > variables)}
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitDeclarationVariable (this);
     }
     private Type type;
-    public Type gettype ()
+    public Type getType ()
     {
       return type;
     }
-    private void $settype (Type x)
+    private void $setType (Type x)
     {
       this.type = x;
     }
-    public Variable settype (Type x)
+    public Variable setType (Type x)
     {
       Variable z = new Variable ();
-      z.$settype (x);
+      z.$setType (x);
       return z;
     }
-    private List < Variable > variables;
-    public List < Variable > getvariables ()
+    private java.util.List < Variable > variables;
+    public java.util.List < Variable > getVariables ()
     {
       return variables;
     }
-    private void $setvariables (List < Variable > x)
+    private void $setVariables (java.util.List < Variable > x)
     {
       this.variables = x;
     }
-    public Variable setvariables (List < Variable > x)
+    public Variable setVariables (java.util.List < Variable > x)
     {
       Variable z = new Variable ();
-      z.$setvariables (x);
+      z.$setVariables (x);
       return z;
     }
   }
@@ -320,48 +317,48 @@ public abstract class Declaration extends AbstractAST
       return visitor.visitDeclarationRule (this);
     }
     private Name name;
-    public Name getname ()
+    public Name getName ()
     {
       return name;
     }
-    private void $setname (Name x)
+    private void $setName (Name x)
     {
       this.name = x;
     }
-    public Rule setname (Name x)
+    public Rule setName (Name x)
     {
       Rule z = new Rule ();
-      z.$setname (x);
+      z.$setName (x);
       return z;
     }
     private Tags tags;
-    public Tags gettags ()
+    public Tags getTags ()
     {
       return tags;
     }
-    private void $settags (Tags x)
+    private void $setTags (Tags x)
     {
       this.tags = x;
     }
-    public Rule settags (Tags x)
+    public Rule setTags (Tags x)
     {
       Rule z = new Rule ();
-      z.$settags (x);
+      z.$setTags (x);
       return z;
     }
     private Rule rule;
-    public Rule getrule ()
+    public Rule getRule ()
     {
       return rule;
     }
-    private void $setrule (Rule x)
+    private void $setRule (Rule x)
     {
       this.rule = x;
     }
-    public Rule setrule (Rule x)
+    public Rule setRule (Rule x)
     {
       Rule z = new Rule ();
-      z.$setrule (x);
+      z.$setRule (x);
       return z;
     }
   }
@@ -372,76 +369,75 @@ public abstract class Declaration extends AbstractAST
     {
     }
     /*package */ Annotation (ITree tree, Type type, Name name, Tags tags,
-			     List < Type > types)
+			     java.util.List < Type > types)
     {
       this.tree = tree;
       this.type = type;
       this.name = name;
       this.tags = tags;
-      this.types = types;
-    }
+    params2statements (java.util.List < Type > types)}
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitDeclarationAnnotation (this);
     }
     private Type type;
-    public Type gettype ()
+    public Type getType ()
     {
       return type;
     }
-    private void $settype (Type x)
+    private void $setType (Type x)
     {
       this.type = x;
     }
-    public Annotation settype (Type x)
+    public Annotation setType (Type x)
     {
       Annotation z = new Annotation ();
-      z.$settype (x);
+      z.$setType (x);
       return z;
     }
     private Name name;
-    public Name getname ()
+    public Name getName ()
     {
       return name;
     }
-    private void $setname (Name x)
+    private void $setName (Name x)
     {
       this.name = x;
     }
-    public Annotation setname (Name x)
+    public Annotation setName (Name x)
     {
       Annotation z = new Annotation ();
-      z.$setname (x);
+      z.$setName (x);
       return z;
     }
     private Tags tags;
-    public Tags gettags ()
+    public Tags getTags ()
     {
       return tags;
     }
-    private void $settags (Tags x)
+    private void $setTags (Tags x)
     {
       this.tags = x;
     }
-    public Annotation settags (Tags x)
+    public Annotation setTags (Tags x)
     {
       Annotation z = new Annotation ();
-      z.$settags (x);
+      z.$setTags (x);
       return z;
     }
-    private List < Type > types;
-    public List < Type > gettypes ()
+    private java.util.List < Type > types;
+    public java.util.List < Type > getTypes ()
     {
       return types;
     }
-    private void $settypes (List < Type > x)
+    private void $setTypes (java.util.List < Type > x)
     {
       this.types = x;
     }
-    public Annotation settypes (List < Type > x)
+    public Annotation setTypes (java.util.List < Type > x)
     {
       Annotation z = new Annotation ();
-      z.$settypes (x);
+      z.$setTypes (x);
       return z;
     }
   }
@@ -452,76 +448,75 @@ public abstract class Declaration extends AbstractAST
     {
     }
     /*package */ Tag (ITree tree, Kind kind, Name name, Tags tags,
-		      List < Type > types)
+		      java.util.List < Type > types)
     {
       this.tree = tree;
       this.kind = kind;
       this.name = name;
       this.tags = tags;
-      this.types = types;
-    }
+    params2statements (java.util.List < Type > types)}
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitDeclarationTag (this);
     }
     private Kind kind;
-    public Kind getkind ()
+    public Kind getKind ()
     {
       return kind;
     }
-    private void $setkind (Kind x)
+    private void $setKind (Kind x)
     {
       this.kind = x;
     }
-    public Tag setkind (Kind x)
+    public Tag setKind (Kind x)
     {
       Tag z = new Tag ();
-      z.$setkind (x);
+      z.$setKind (x);
       return z;
     }
     private Name name;
-    public Name getname ()
+    public Name getName ()
     {
       return name;
     }
-    private void $setname (Name x)
+    private void $setName (Name x)
     {
       this.name = x;
     }
-    public Tag setname (Name x)
+    public Tag setName (Name x)
     {
       Tag z = new Tag ();
-      z.$setname (x);
+      z.$setName (x);
       return z;
     }
     private Tags tags;
-    public Tags gettags ()
+    public Tags getTags ()
     {
       return tags;
     }
-    private void $settags (Tags x)
+    private void $setTags (Tags x)
     {
       this.tags = x;
     }
-    public Tag settags (Tags x)
+    public Tag setTags (Tags x)
     {
       Tag z = new Tag ();
-      z.$settags (x);
+      z.$setTags (x);
       return z;
     }
-    private List < Type > types;
-    public List < Type > gettypes ()
+    private java.util.List < Type > types;
+    public java.util.List < Type > getTypes ()
     {
       return types;
     }
-    private void $settypes (List < Type > x)
+    private void $setTypes (java.util.List < Type > x)
     {
       this.types = x;
     }
-    public Tag settypes (List < Type > x)
+    public Tag setTypes (java.util.List < Type > x)
     {
       Tag z = new Tag ();
-      z.$settypes (x);
+      z.$setTypes (x);
       return z;
     }
   }

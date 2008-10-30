@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class EscapeSequence extends AbstractAST
 {
@@ -10,12 +9,12 @@ public abstract class EscapeSequence extends AbstractAST
   }
   public class Ambiguity extends EscapeSequence
   {
-    private final List < EscapeSequence > alternatives;
-    public Ambiguity (List < EscapeSequence > alternatives)
+    private final java.util.List < EscapeSequence > alternatives;
+    public Ambiguity (java.util.List < EscapeSequence > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < EscapeSequence > getAlternatives ()
+    public java.util.List < EscapeSequence > getAlternatives ()
     {
       return alternatives;
     }

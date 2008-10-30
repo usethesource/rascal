@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class NoElseMayFollow extends AbstractAST
 {
@@ -10,12 +9,12 @@ public abstract class NoElseMayFollow extends AbstractAST
   }
   public class Ambiguity extends NoElseMayFollow
   {
-    private final List < NoElseMayFollow > alternatives;
-    public Ambiguity (List < NoElseMayFollow > alternatives)
+    private final java.util.List < NoElseMayFollow > alternatives;
+    public Ambiguity (java.util.List < NoElseMayFollow > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < NoElseMayFollow > getAlternatives ()
+    public java.util.List < NoElseMayFollow > getAlternatives ()
     {
       return alternatives;
     }

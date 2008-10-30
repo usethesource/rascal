@@ -1,16 +1,15 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class Renaming extends AbstractAST
 {
-  public class Renaming extends Renaming
+  public class Default extends Renaming
   {
-/* from:Name "=>" to:Name -> Renaming {cons("Renaming")} */
-    private Renaming ()
+/* from:Name "=>" to:Name -> Renaming {cons("Default")} */
+    private Default ()
     {
     }
-    /*package */ Renaming (ITree tree, Name from, Name to)
+    /*package */ Default (ITree tree, Name from, Name to)
     {
       this.tree = tree;
       this.from = from;
@@ -18,47 +17,47 @@ public abstract class Renaming extends AbstractAST
     }
     public IVisitable accept (IASTVisitor visitor)
     {
-      return visitor.visitRenamingRenaming (this);
+      return visitor.visitRenamingDefault (this);
     }
     private Name from;
-    public Name getfrom ()
+    public Name getFrom ()
     {
       return from;
     }
-    private void $setfrom (Name x)
+    private void $setFrom (Name x)
     {
       this.from = x;
     }
-    public Renaming setfrom (Name x)
+    public Default setFrom (Name x)
     {
-      Renaming z = new Renaming ();
-      z.$setfrom (x);
+      Default z = new Default ();
+      z.$setFrom (x);
       return z;
     }
     private Name to;
-    public Name getto ()
+    public Name getTo ()
     {
       return to;
     }
-    private void $setto (Name x)
+    private void $setTo (Name x)
     {
       this.to = x;
     }
-    public Renaming setto (Name x)
+    public Default setTo (Name x)
     {
-      Renaming z = new Renaming ();
-      z.$setto (x);
+      Default z = new Default ();
+      z.$setTo (x);
       return z;
     }
   }
   public class Ambiguity extends Renaming
   {
-    private final List < Renaming > alternatives;
-    public Ambiguity (List < Renaming > alternatives)
+    private final java.util.List < Renaming > alternatives;
+    public Ambiguity (java.util.List < Renaming > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < Renaming > getAlternatives ()
+    public java.util.List < Renaming > getAlternatives ()
     {
       return alternatives;
     }

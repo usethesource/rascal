@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class Header extends AbstractAST
 {
@@ -11,71 +10,70 @@ public abstract class Header extends AbstractAST
     {
     }
     /*package */ Default (ITree tree, ModuleName name, Tags tags,
-			  List < Import > imports)
+			  java.util.List < Import > imports)
     {
       this.tree = tree;
       this.name = name;
       this.tags = tags;
-      this.imports = imports;
-    }
+    params2statements (java.util.List < Import > imports)}
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitHeaderDefault (this);
     }
     private ModuleName name;
-    public ModuleName getname ()
+    public ModuleName getName ()
     {
       return name;
     }
-    private void $setname (ModuleName x)
+    private void $setName (ModuleName x)
     {
       this.name = x;
     }
-    public Default setname (ModuleName x)
+    public Default setName (ModuleName x)
     {
       Default z = new Default ();
-      z.$setname (x);
+      z.$setName (x);
       return z;
     }
     private Tags tags;
-    public Tags gettags ()
+    public Tags getTags ()
     {
       return tags;
     }
-    private void $settags (Tags x)
+    private void $setTags (Tags x)
     {
       this.tags = x;
     }
-    public Default settags (Tags x)
+    public Default setTags (Tags x)
     {
       Default z = new Default ();
-      z.$settags (x);
+      z.$setTags (x);
       return z;
     }
-    private List < Import > imports;
-    public List < Import > getimports ()
+    private java.util.List < Import > imports;
+    public java.util.List < Import > getImports ()
     {
       return imports;
     }
-    private void $setimports (List < Import > x)
+    private void $setImports (java.util.List < Import > x)
     {
       this.imports = x;
     }
-    public Default setimports (List < Import > x)
+    public Default setImports (java.util.List < Import > x)
     {
       Default z = new Default ();
-      z.$setimports (x);
+      z.$setImports (x);
       return z;
     }
   }
   public class Ambiguity extends Header
   {
-    private final List < Header > alternatives;
-    public Ambiguity (List < Header > alternatives)
+    private final java.util.List < Header > alternatives;
+    public Ambiguity (java.util.List < Header > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < Header > getAlternatives ()
+    public java.util.List < Header > getAlternatives ()
     {
       return alternatives;
     }
@@ -88,76 +86,75 @@ public abstract class Header extends AbstractAST
     }
     /*package */ Parameters (ITree tree, ModuleName name,
 			     ModuleParameters params, Tags tags,
-			     List < Import > imports)
+			     java.util.List < Import > imports)
     {
       this.tree = tree;
       this.name = name;
       this.params = params;
       this.tags = tags;
-      this.imports = imports;
-    }
+    params2statements (java.util.List < Import > imports)}
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitHeaderParameters (this);
     }
     private ModuleName name;
-    public ModuleName getname ()
+    public ModuleName getName ()
     {
       return name;
     }
-    private void $setname (ModuleName x)
+    private void $setName (ModuleName x)
     {
       this.name = x;
     }
-    public Parameters setname (ModuleName x)
+    public Parameters setName (ModuleName x)
     {
       Parameters z = new Parameters ();
-      z.$setname (x);
+      z.$setName (x);
       return z;
     }
     private ModuleParameters params;
-    public ModuleParameters getparams ()
+    public ModuleParameters getParams ()
     {
       return params;
     }
-    private void $setparams (ModuleParameters x)
+    private void $setParams (ModuleParameters x)
     {
       this.params = x;
     }
-    public Parameters setparams (ModuleParameters x)
+    public Parameters setParams (ModuleParameters x)
     {
       Parameters z = new Parameters ();
-      z.$setparams (x);
+      z.$setParams (x);
       return z;
     }
     private Tags tags;
-    public Tags gettags ()
+    public Tags getTags ()
     {
       return tags;
     }
-    private void $settags (Tags x)
+    private void $setTags (Tags x)
     {
       this.tags = x;
     }
-    public Parameters settags (Tags x)
+    public Parameters setTags (Tags x)
     {
       Parameters z = new Parameters ();
-      z.$settags (x);
+      z.$setTags (x);
       return z;
     }
-    private List < Import > imports;
-    public List < Import > getimports ()
+    private java.util.List < Import > imports;
+    public java.util.List < Import > getImports ()
     {
       return imports;
     }
-    private void $setimports (List < Import > x)
+    private void $setImports (java.util.List < Import > x)
     {
       this.imports = x;
     }
-    public Parameters setimports (List < Import > x)
+    public Parameters setImports (java.util.List < Import > x)
     {
       Parameters z = new Parameters ();
-      z.$setimports (x);
+      z.$setImports (x);
       return z;
     }
   }

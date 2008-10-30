@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class Toplevel extends AbstractAST
 {
@@ -22,44 +21,44 @@ public abstract class Toplevel extends AbstractAST
       return visitor.visitToplevelGivenVisibility (this);
     }
     private Visibility visibility;
-    public Visibility getvisibility ()
+    public Visibility getVisibility ()
     {
       return visibility;
     }
-    private void $setvisibility (Visibility x)
+    private void $setVisibility (Visibility x)
     {
       this.visibility = x;
     }
-    public GivenVisibility setvisibility (Visibility x)
+    public GivenVisibility setVisibility (Visibility x)
     {
       GivenVisibility z = new GivenVisibility ();
-      z.$setvisibility (x);
+      z.$setVisibility (x);
       return z;
     }
     private Declaration declaration;
-    public Declaration getdeclaration ()
+    public Declaration getDeclaration ()
     {
       return declaration;
     }
-    private void $setdeclaration (Declaration x)
+    private void $setDeclaration (Declaration x)
     {
       this.declaration = x;
     }
-    public GivenVisibility setdeclaration (Declaration x)
+    public GivenVisibility setDeclaration (Declaration x)
     {
       GivenVisibility z = new GivenVisibility ();
-      z.$setdeclaration (x);
+      z.$setDeclaration (x);
       return z;
     }
   }
   public class Ambiguity extends Toplevel
   {
-    private final List < Toplevel > alternatives;
-    public Ambiguity (List < Toplevel > alternatives)
+    private final java.util.List < Toplevel > alternatives;
+    public Ambiguity (java.util.List < Toplevel > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < Toplevel > getAlternatives ()
+    public java.util.List < Toplevel > getAlternatives ()
     {
       return alternatives;
     }
@@ -80,18 +79,18 @@ public abstract class Toplevel extends AbstractAST
       return visitor.visitToplevelDefaultVisibility (this);
     }
     private Declaration declaration;
-    public Declaration getdeclaration ()
+    public Declaration getDeclaration ()
     {
       return declaration;
     }
-    private void $setdeclaration (Declaration x)
+    private void $setDeclaration (Declaration x)
     {
       this.declaration = x;
     }
-    public DefaultVisibility setdeclaration (Declaration x)
+    public DefaultVisibility setDeclaration (Declaration x)
     {
       DefaultVisibility z = new DefaultVisibility ();
-      z.$setdeclaration (x);
+      z.$setDeclaration (x);
       return z;
     }
   }

@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class CharRanges extends AbstractAST
 {
@@ -20,29 +19,29 @@ public abstract class CharRanges extends AbstractAST
       return visitor.visitCharRangesRange (this);
     }
     private CharRange range;
-    public CharRange getrange ()
+    public CharRange getRange ()
     {
       return range;
     }
-    private void $setrange (CharRange x)
+    private void $setRange (CharRange x)
     {
       this.range = x;
     }
-    public Range setrange (CharRange x)
+    public Range setRange (CharRange x)
     {
       Range z = new Range ();
-      z.$setrange (x);
+      z.$setRange (x);
       return z;
     }
   }
   public class Ambiguity extends CharRanges
   {
-    private final List < CharRanges > alternatives;
-    public Ambiguity (List < CharRanges > alternatives)
+    private final java.util.List < CharRanges > alternatives;
+    public Ambiguity (java.util.List < CharRanges > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < CharRanges > getAlternatives ()
+    public java.util.List < CharRanges > getAlternatives ()
     {
       return alternatives;
     }
@@ -64,33 +63,33 @@ public abstract class CharRanges extends AbstractAST
       return visitor.visitCharRangesConcatenate (this);
     }
     private CharRanges lhs;
-    public CharRanges getlhs ()
+    public CharRanges getLhs ()
     {
       return lhs;
     }
-    private void $setlhs (CharRanges x)
+    private void $setLhs (CharRanges x)
     {
       this.lhs = x;
     }
-    public Concatenate setlhs (CharRanges x)
+    public Concatenate setLhs (CharRanges x)
     {
       Concatenate z = new Concatenate ();
-      z.$setlhs (x);
+      z.$setLhs (x);
       return z;
     }
     private CharRanges rhs;
-    public CharRanges getrhs ()
+    public CharRanges getRhs ()
     {
       return rhs;
     }
-    private void $setrhs (CharRanges x)
+    private void $setRhs (CharRanges x)
     {
       this.rhs = x;
     }
-    public Concatenate setrhs (CharRanges x)
+    public Concatenate setRhs (CharRanges x)
     {
       Concatenate z = new Concatenate ();
-      z.$setrhs (x);
+      z.$setRhs (x);
       return z;
     }
   }

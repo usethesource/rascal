@@ -1,12 +1,11 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public interface IASTVisitor
 {
   public Body visitBodyToplevels (Body.Toplevels x);
   public Formal visitFormalTypeName (Formal.TypeName x);
-  public Formals visitFormalsFormals (Formals.Formals x);
+  public Formals visitFormalsDefault (Formals.Default x);
   public Parameters visitParametersVarArgs (Parameters.VarArgs x);
   public Parameters visitParametersDefault (Parameters.Default x);
   public Expression visitExpressionVisit (Expression.Visit x);
@@ -120,8 +119,8 @@ public interface IASTVisitor
   public Label visitLabelEmpty (Label.Empty x);
   public Break visitBreakUnlabeled (Break.Unlabeled x);
   public Break visitBreakLabeled (Break.Labeled x);
-  public Catch visitCatchBindingCatch (Catch.BindingCatch x);
-  public Catch visitCatchCatch (Catch.Catch x);
+  public Catch visitCatchBinding (Catch.Binding x);
+  public Catch visitCatchDefault (Catch.Default x);
   public Declarator visitDeclaratorDefault (Declarator.Default x);
   public LocalVariableDeclaration
     visitLocalVariableDeclarationDynamic (LocalVariableDeclaration.Dynamic x);
@@ -270,17 +269,16 @@ public interface IASTVisitor
   public ImportedModule visitImportedModuleActualsRenaming (ImportedModule.
 							    ActualsRenaming
 							    x);
-  public Renaming visitRenamingRenaming (Renaming.Renaming x);
+  public Renaming visitRenamingDefault (Renaming.Default x);
   public Renamings visitRenamingsDefault (Renamings.Default x);
   public Import visitImportExtend (Import.Extend x);
-  public Import visitImportImport (Import.Import x);
-  public ModuleParameters
-    visitModuleParametersModuleParameters (ModuleParameters.
-					   ModuleParameters x);
+  public Import visitImportDefault (Import.Default x);
+  public ModuleParameters visitModuleParametersDefault (ModuleParameters.
+							Default x);
   public Header visitHeaderParameters (Header.Parameters x);
   public Header visitHeaderDefault (Header.Default x);
   public QualifiedName visitQualifiedNameDefault (QualifiedName.Default x);
-  public Area visitAreaArea (Area.Area x);
+  public Area visitAreaDefault (Area.Default x);
   public Tag visitTagDefault (Tag.Default x);
   public Tags visitTagsDefault (Tags.Default x);
   public ValueProducer visitValueProducerGivenStrategy (ValueProducer.

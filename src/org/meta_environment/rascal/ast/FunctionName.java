@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class FunctionName extends AbstractAST
 {
@@ -20,29 +19,29 @@ public abstract class FunctionName extends AbstractAST
       return visitor.visitFunctionNameName (this);
     }
     private Name name;
-    public Name getname ()
+    public Name getName ()
     {
       return name;
     }
-    private void $setname (Name x)
+    private void $setName (Name x)
     {
       this.name = x;
     }
-    public Name setname (Name x)
+    public Name setName (Name x)
     {
       Name z = new Name ();
-      z.$setname (x);
+      z.$setName (x);
       return z;
     }
   }
   public class Ambiguity extends FunctionName
   {
-    private final List < FunctionName > alternatives;
-    public Ambiguity (List < FunctionName > alternatives)
+    private final java.util.List < FunctionName > alternatives;
+    public Ambiguity (java.util.List < FunctionName > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < FunctionName > getAlternatives ()
+    public java.util.List < FunctionName > getAlternatives ()
     {
       return alternatives;
     }
@@ -63,18 +62,18 @@ public abstract class FunctionName extends AbstractAST
       return visitor.visitFunctionNameOperator (this);
     }
     private StandardOperator operator;
-    public StandardOperator getoperator ()
+    public StandardOperator getOperator ()
     {
       return operator;
     }
-    private void $setoperator (StandardOperator x)
+    private void $setOperator (StandardOperator x)
     {
       this.operator = x;
     }
-    public Operator setoperator (StandardOperator x)
+    public Operator setOperator (StandardOperator x)
     {
       Operator z = new Operator ();
-      z.$setoperator (x);
+      z.$setOperator (x);
       return z;
     }
   }

@@ -1,60 +1,58 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class Catch extends AbstractAST
 {
-  public class Catch extends Catch
+  public class Default extends Catch
   {
-/* "catch" body:Statement -> Catch {cons("Catch")} */
-    private Catch ()
+/* "catch" body:Statement -> Catch {cons("Default")} */
+    private Default ()
     {
     }
-    /*package */ Catch (ITree tree, Statement body)
+    /*package */ Default (ITree tree, Statement body)
     {
       this.tree = tree;
       this.body = body;
     }
     public IVisitable accept (IASTVisitor visitor)
     {
-      return visitor.visitCatchCatch (this);
+      return visitor.visitCatchDefault (this);
     }
     private Statement body;
-    public Statement getbody ()
+    public Statement getBody ()
     {
       return body;
     }
-    private void $setbody (Statement x)
+    private void $setBody (Statement x)
     {
       this.body = x;
     }
-    public Catch setbody (Statement x)
+    public Default setBody (Statement x)
     {
-      Catch z = new Catch ();
-      z.$setbody (x);
+      Default z = new Default ();
+      z.$setBody (x);
       return z;
     }
   }
   public class Ambiguity extends Catch
   {
-    private final List < Catch > alternatives;
-    public Ambiguity (List < Catch > alternatives)
+    private final java.util.List < Catch > alternatives;
+    public Ambiguity (java.util.List < Catch > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < Catch > getAlternatives ()
+    public java.util.List < Catch > getAlternatives ()
     {
       return alternatives;
     }
   }
-  public class BindingCatch extends Catch
+  public class Binding extends Catch
   {
-/* "catch" "(" type:Type name:Name ")" body:Statement -> Catch {cons("BindingCatch")} */
-    private BindingCatch ()
+/* "catch" "(" type:Type name:Name ")" body:Statement -> Catch {cons("Binding")} */
+    private Binding ()
     {
     }
-    /*package */ BindingCatch (ITree tree, Type type, Name name,
-			       Statement body)
+    /*package */ Binding (ITree tree, Type type, Name name, Statement body)
     {
       this.tree = tree;
       this.type = type;
@@ -63,51 +61,51 @@ public abstract class Catch extends AbstractAST
     }
     public IVisitable accept (IASTVisitor visitor)
     {
-      return visitor.visitCatchBindingCatch (this);
+      return visitor.visitCatchBinding (this);
     }
     private Type type;
-    public Type gettype ()
+    public Type getType ()
     {
       return type;
     }
-    private void $settype (Type x)
+    private void $setType (Type x)
     {
       this.type = x;
     }
-    public BindingCatch settype (Type x)
+    public Binding setType (Type x)
     {
-      BindingCatch z = new BindingCatch ();
-      z.$settype (x);
+      Binding z = new Binding ();
+      z.$setType (x);
       return z;
     }
     private Name name;
-    public Name getname ()
+    public Name getName ()
     {
       return name;
     }
-    private void $setname (Name x)
+    private void $setName (Name x)
     {
       this.name = x;
     }
-    public BindingCatch setname (Name x)
+    public Binding setName (Name x)
     {
-      BindingCatch z = new BindingCatch ();
-      z.$setname (x);
+      Binding z = new Binding ();
+      z.$setName (x);
       return z;
     }
     private Statement body;
-    public Statement getbody ()
+    public Statement getBody ()
     {
       return body;
     }
-    private void $setbody (Statement x)
+    private void $setBody (Statement x)
     {
       this.body = x;
     }
-    public BindingCatch setbody (Statement x)
+    public Binding setBody (Statement x)
     {
-      BindingCatch z = new BindingCatch ();
-      z.$setbody (x);
+      Binding z = new Binding ();
+      z.$setBody (x);
       return z;
     }
   }

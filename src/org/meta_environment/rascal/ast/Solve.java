@@ -18,7 +18,7 @@ public abstract class Solve extends AbstractAST
       return visitor.visitNoBoundSolve (this);
     }
     private Statement body;
-    public Statement getbody ()
+    public Statement getBody ()
     {
       return body;
     }
@@ -26,7 +26,7 @@ public abstract class Solve extends AbstractAST
     {
       this.body = x;
     }
-    public NoBound setbody (Statement x)
+    public NoBound setBody (Statement x)
     {
       NoBound z = new NoBound ();
       z.privateSetbody (x);
@@ -62,7 +62,7 @@ public abstract class Solve extends AbstractAST
       return visitor.visitWithBoundSolve (this);
     }
     private Expression bound;
-    public Expression getbound ()
+    public Expression getBound ()
     {
       return bound;
     }
@@ -70,14 +70,14 @@ public abstract class Solve extends AbstractAST
     {
       this.bound = x;
     }
-    public WithBound setbound (Expression x)
+    public WithBound setBound (Expression x)
     {
       WithBound z = new WithBound ();
       z.privateSetbound (x);
       return z;
     }
     private Statement body;
-    public Statement getbody ()
+    public Statement getBody ()
     {
       return body;
     }
@@ -85,7 +85,7 @@ public abstract class Solve extends AbstractAST
     {
       this.body = x;
     }
-    public WithBound setbody (Statement x)
+    public WithBound setBody (Statement x)
     {
       WithBound z = new WithBound ();
       z.privateSetbody (x);

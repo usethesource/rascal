@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class CharClass extends AbstractAST
 {
@@ -21,29 +20,29 @@ public abstract class CharClass extends AbstractAST
       return visitor.visitCharClassSimpleCharclass (this);
     }
     private OptCharRanges optionalCharRanges;
-    public OptCharRanges getoptionalCharRanges ()
+    public OptCharRanges getOptionalCharRanges ()
     {
       return optionalCharRanges;
     }
-    private void $setoptionalCharRanges (OptCharRanges x)
+    private void $setOptionalCharRanges (OptCharRanges x)
     {
       this.optionalCharRanges = x;
     }
-    public SimpleCharclass setoptionalCharRanges (OptCharRanges x)
+    public SimpleCharclass setOptionalCharRanges (OptCharRanges x)
     {
       SimpleCharclass z = new SimpleCharclass ();
-      z.$setoptionalCharRanges (x);
+      z.$setOptionalCharRanges (x);
       return z;
     }
   }
   public class Ambiguity extends CharClass
   {
-    private final List < CharClass > alternatives;
-    public Ambiguity (List < CharClass > alternatives)
+    private final java.util.List < CharClass > alternatives;
+    public Ambiguity (java.util.List < CharClass > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < CharClass > getAlternatives ()
+    public java.util.List < CharClass > getAlternatives ()
     {
       return alternatives;
     }
@@ -64,18 +63,18 @@ public abstract class CharClass extends AbstractAST
       return visitor.visitCharClassComplement (this);
     }
     private CharClass charClass;
-    public CharClass getcharClass ()
+    public CharClass getCharClass ()
     {
       return charClass;
     }
-    private void $setcharClass (CharClass x)
+    private void $setCharClass (CharClass x)
     {
       this.charClass = x;
     }
-    public Complement setcharClass (CharClass x)
+    public Complement setCharClass (CharClass x)
     {
       Complement z = new Complement ();
-      z.$setcharClass (x);
+      z.$setCharClass (x);
       return z;
     }
   }
@@ -96,33 +95,33 @@ public abstract class CharClass extends AbstractAST
       return visitor.visitCharClassDifference (this);
     }
     private CharClass lhs;
-    public CharClass getlhs ()
+    public CharClass getLhs ()
     {
       return lhs;
     }
-    private void $setlhs (CharClass x)
+    private void $setLhs (CharClass x)
     {
       this.lhs = x;
     }
-    public Difference setlhs (CharClass x)
+    public Difference setLhs (CharClass x)
     {
       Difference z = new Difference ();
-      z.$setlhs (x);
+      z.$setLhs (x);
       return z;
     }
     private CharClass rhs;
-    public CharClass getrhs ()
+    public CharClass getRhs ()
     {
       return rhs;
     }
-    private void $setrhs (CharClass x)
+    private void $setRhs (CharClass x)
     {
       this.rhs = x;
     }
-    public Difference setrhs (CharClass x)
+    public Difference setRhs (CharClass x)
     {
       Difference z = new Difference ();
-      z.$setrhs (x);
+      z.$setRhs (x);
       return z;
     }
   }
@@ -143,33 +142,33 @@ public abstract class CharClass extends AbstractAST
       return visitor.visitCharClassIntersection (this);
     }
     private CharClass lhs;
-    public CharClass getlhs ()
+    public CharClass getLhs ()
     {
       return lhs;
     }
-    private void $setlhs (CharClass x)
+    private void $setLhs (CharClass x)
     {
       this.lhs = x;
     }
-    public Intersection setlhs (CharClass x)
+    public Intersection setLhs (CharClass x)
     {
       Intersection z = new Intersection ();
-      z.$setlhs (x);
+      z.$setLhs (x);
       return z;
     }
     private CharClass rhs;
-    public CharClass getrhs ()
+    public CharClass getRhs ()
     {
       return rhs;
     }
-    private void $setrhs (CharClass x)
+    private void $setRhs (CharClass x)
     {
       this.rhs = x;
     }
-    public Intersection setrhs (CharClass x)
+    public Intersection setRhs (CharClass x)
     {
       Intersection z = new Intersection ();
-      z.$setrhs (x);
+      z.$setRhs (x);
       return z;
     }
   }
@@ -190,33 +189,33 @@ public abstract class CharClass extends AbstractAST
       return visitor.visitCharClassUnion (this);
     }
     private CharClass lhs;
-    public CharClass getlhs ()
+    public CharClass getLhs ()
     {
       return lhs;
     }
-    private void $setlhs (CharClass x)
+    private void $setLhs (CharClass x)
     {
       this.lhs = x;
     }
-    public Union setlhs (CharClass x)
+    public Union setLhs (CharClass x)
     {
       Union z = new Union ();
-      z.$setlhs (x);
+      z.$setLhs (x);
       return z;
     }
     private CharClass rhs;
-    public CharClass getrhs ()
+    public CharClass getRhs ()
     {
       return rhs;
     }
-    private void $setrhs (CharClass x)
+    private void $setRhs (CharClass x)
     {
       this.rhs = x;
     }
-    public Union setrhs (CharClass x)
+    public Union setRhs (CharClass x)
     {
       Union z = new Union ();
-      z.$setrhs (x);
+      z.$setRhs (x);
       return z;
     }
   }

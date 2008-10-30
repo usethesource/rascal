@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class Variant extends AbstractAST
 {
@@ -21,44 +20,44 @@ public abstract class Variant extends AbstractAST
       return visitor.visitVariantType (this);
     }
     private Type type;
-    public Type gettype ()
+    public Type getType ()
     {
       return type;
     }
-    private void $settype (Type x)
+    private void $setType (Type x)
     {
       this.type = x;
     }
-    public Type settype (Type x)
+    public Type setType (Type x)
     {
       Type z = new Type ();
-      z.$settype (x);
+      z.$setType (x);
       return z;
     }
     private Name name;
-    public Name getname ()
+    public Name getName ()
     {
       return name;
     }
-    private void $setname (Name x)
+    private void $setName (Name x)
     {
       this.name = x;
     }
-    public Type setname (Name x)
+    public Type setName (Name x)
     {
       Type z = new Type ();
-      z.$setname (x);
+      z.$setName (x);
       return z;
     }
   }
   public class Ambiguity extends Variant
   {
-    private final List < Variant > alternatives;
-    public Ambiguity (List < Variant > alternatives)
+    private final java.util.List < Variant > alternatives;
+    public Ambiguity (java.util.List < Variant > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < Variant > getAlternatives ()
+    public java.util.List < Variant > getAlternatives ()
     {
       return alternatives;
     }
@@ -70,44 +69,43 @@ public abstract class Variant extends AbstractAST
     {
     }
     /*package */ NAryConstructor (ITree tree, Name name,
-				  List < TypeArg > arguments)
+				  java.util.List < TypeArg > arguments)
     {
       this.tree = tree;
       this.name = name;
-      this.arguments = arguments;
-    }
+    params2statements (java.util.List < TypeArg > arguments)}
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitVariantNAryConstructor (this);
     }
     private Name name;
-    public Name getname ()
+    public Name getName ()
     {
       return name;
     }
-    private void $setname (Name x)
+    private void $setName (Name x)
     {
       this.name = x;
     }
-    public NAryConstructor setname (Name x)
+    public NAryConstructor setName (Name x)
     {
       NAryConstructor z = new NAryConstructor ();
-      z.$setname (x);
+      z.$setName (x);
       return z;
     }
-    private List < TypeArg > arguments;
-    public List < TypeArg > getarguments ()
+    private java.util.List < TypeArg > arguments;
+    public java.util.List < TypeArg > getArguments ()
     {
       return arguments;
     }
-    private void $setarguments (List < TypeArg > x)
+    private void $setArguments (java.util.List < TypeArg > x)
     {
       this.arguments = x;
     }
-    public NAryConstructor setarguments (List < TypeArg > x)
+    public NAryConstructor setArguments (java.util.List < TypeArg > x)
     {
       NAryConstructor z = new NAryConstructor ();
-      z.$setarguments (x);
+      z.$setArguments (x);
       return z;
     }
   }
@@ -127,18 +125,18 @@ public abstract class Variant extends AbstractAST
       return visitor.visitVariantNillaryConstructor (this);
     }
     private Name name;
-    public Name getname ()
+    public Name getName ()
     {
       return name;
     }
-    private void $setname (Name x)
+    private void $setName (Name x)
     {
       this.name = x;
     }
-    public NillaryConstructor setname (Name x)
+    public NillaryConstructor setName (Name x)
     {
       NillaryConstructor z = new NillaryConstructor ();
-      z.$setname (x);
+      z.$setName (x);
       return z;
     }
   }

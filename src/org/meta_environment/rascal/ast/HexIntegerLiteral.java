@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class HexIntegerLiteral extends AbstractAST
 {
@@ -10,12 +9,12 @@ public abstract class HexIntegerLiteral extends AbstractAST
   }
   public class Ambiguity extends HexIntegerLiteral
   {
-    private final List < HexIntegerLiteral > alternatives;
-    public Ambiguity (List < HexIntegerLiteral > alternatives)
+    private final java.util.List < HexIntegerLiteral > alternatives;
+    public Ambiguity (java.util.List < HexIntegerLiteral > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < HexIntegerLiteral > getAlternatives ()
+    public java.util.List < HexIntegerLiteral > getAlternatives ()
     {
       return alternatives;
     }

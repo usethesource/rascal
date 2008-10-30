@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class Generator extends AbstractAST
 {
@@ -20,29 +19,29 @@ public abstract class Generator extends AbstractAST
       return visitor.visitGeneratorExpression (this);
     }
     private Expression expression;
-    public Expression getexpression ()
+    public Expression getExpression ()
     {
       return expression;
     }
-    private void $setexpression (Expression x)
+    private void $setExpression (Expression x)
     {
       this.expression = x;
     }
-    public Expression setexpression (Expression x)
+    public Expression setExpression (Expression x)
     {
       Expression z = new Expression ();
-      z.$setexpression (x);
+      z.$setExpression (x);
       return z;
     }
   }
   public class Ambiguity extends Generator
   {
-    private final List < Generator > alternatives;
-    public Ambiguity (List < Generator > alternatives)
+    private final java.util.List < Generator > alternatives;
+    public Ambiguity (java.util.List < Generator > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < Generator > getAlternatives ()
+    public java.util.List < Generator > getAlternatives ()
     {
       return alternatives;
     }
@@ -63,18 +62,18 @@ public abstract class Generator extends AbstractAST
       return visitor.visitGeneratorProducer (this);
     }
     private ValueProducer producer;
-    public ValueProducer getproducer ()
+    public ValueProducer getProducer ()
     {
       return producer;
     }
-    private void $setproducer (ValueProducer x)
+    private void $setProducer (ValueProducer x)
     {
       this.producer = x;
     }
-    public Producer setproducer (ValueProducer x)
+    public Producer setProducer (ValueProducer x)
     {
       Producer z = new Producer ();
-      z.$setproducer (x);
+      z.$setProducer (x);
       return z;
     }
   }

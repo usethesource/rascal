@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class Parameters extends AbstractAST
 {
@@ -20,29 +19,29 @@ public abstract class Parameters extends AbstractAST
       return visitor.visitParametersDefault (this);
     }
     private Formals formals;
-    public Formals getformals ()
+    public Formals getFormals ()
     {
       return formals;
     }
-    private void $setformals (Formals x)
+    private void $setFormals (Formals x)
     {
       this.formals = x;
     }
-    public Default setformals (Formals x)
+    public Default setFormals (Formals x)
     {
       Default z = new Default ();
-      z.$setformals (x);
+      z.$setFormals (x);
       return z;
     }
   }
   public class Ambiguity extends Parameters
   {
-    private final List < Parameters > alternatives;
-    public Ambiguity (List < Parameters > alternatives)
+    private final java.util.List < Parameters > alternatives;
+    public Ambiguity (java.util.List < Parameters > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < Parameters > getAlternatives ()
+    public java.util.List < Parameters > getAlternatives ()
     {
       return alternatives;
     }
@@ -63,18 +62,18 @@ public abstract class Parameters extends AbstractAST
       return visitor.visitParametersVarArgs (this);
     }
     private Formals formals;
-    public Formals getformals ()
+    public Formals getFormals ()
     {
       return formals;
     }
-    private void $setformals (Formals x)
+    private void $setFormals (Formals x)
     {
       this.formals = x;
     }
-    public VarArgs setformals (Formals x)
+    public VarArgs setFormals (Formals x)
     {
       VarArgs z = new VarArgs ();
-      z.$setformals (x);
+      z.$setFormals (x);
       return z;
     }
   }

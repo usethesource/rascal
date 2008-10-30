@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class RegExp extends AbstractAST
 {
@@ -10,12 +9,12 @@ public abstract class RegExp extends AbstractAST
   }
   public class Ambiguity extends RegExp
   {
-    private final List < RegExp > alternatives;
-    public Ambiguity (List < RegExp > alternatives)
+    private final java.util.List < RegExp > alternatives;
+    public Ambiguity (java.util.List < RegExp > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < RegExp > getAlternatives ()
+    public java.util.List < RegExp > getAlternatives ()
     {
       return alternatives;
     }

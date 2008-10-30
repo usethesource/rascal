@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.List;
 import java.util.Collections;
 public abstract class ImportedModule extends AbstractAST
 {
@@ -23,59 +22,59 @@ public abstract class ImportedModule extends AbstractAST
       return visitor.visitImportedModuleActualsRenaming (this);
     }
     private ModuleName name;
-    public ModuleName getname ()
+    public ModuleName getName ()
     {
       return name;
     }
-    private void $setname (ModuleName x)
+    private void $setName (ModuleName x)
     {
       this.name = x;
     }
-    public ActualsRenaming setname (ModuleName x)
+    public ActualsRenaming setName (ModuleName x)
     {
       ActualsRenaming z = new ActualsRenaming ();
-      z.$setname (x);
+      z.$setName (x);
       return z;
     }
     private ModuleActuals actuals;
-    public ModuleActuals getactuals ()
+    public ModuleActuals getActuals ()
     {
       return actuals;
     }
-    private void $setactuals (ModuleActuals x)
+    private void $setActuals (ModuleActuals x)
     {
       this.actuals = x;
     }
-    public ActualsRenaming setactuals (ModuleActuals x)
+    public ActualsRenaming setActuals (ModuleActuals x)
     {
       ActualsRenaming z = new ActualsRenaming ();
-      z.$setactuals (x);
+      z.$setActuals (x);
       return z;
     }
     private Renamings renamings;
-    public Renamings getrenamings ()
+    public Renamings getRenamings ()
     {
       return renamings;
     }
-    private void $setrenamings (Renamings x)
+    private void $setRenamings (Renamings x)
     {
       this.renamings = x;
     }
-    public ActualsRenaming setrenamings (Renamings x)
+    public ActualsRenaming setRenamings (Renamings x)
     {
       ActualsRenaming z = new ActualsRenaming ();
-      z.$setrenamings (x);
+      z.$setRenamings (x);
       return z;
     }
   }
   public class Ambiguity extends ImportedModule
   {
-    private final List < ImportedModule > alternatives;
-    public Ambiguity (List < ImportedModule > alternatives)
+    private final java.util.List < ImportedModule > alternatives;
+    public Ambiguity (java.util.List < ImportedModule > alternatives)
     {
       this.alternatives = Collections.unmodifiableList (alternatives);
     }
-    public List < ImportedModule > getAlternatives ()
+    public java.util.List < ImportedModule > getAlternatives ()
     {
       return alternatives;
     }
@@ -97,33 +96,33 @@ public abstract class ImportedModule extends AbstractAST
       return visitor.visitImportedModuleActuals (this);
     }
     private ModuleName name;
-    public ModuleName getname ()
+    public ModuleName getName ()
     {
       return name;
     }
-    private void $setname (ModuleName x)
+    private void $setName (ModuleName x)
     {
       this.name = x;
     }
-    public Actuals setname (ModuleName x)
+    public Actuals setName (ModuleName x)
     {
       Actuals z = new Actuals ();
-      z.$setname (x);
+      z.$setName (x);
       return z;
     }
     private ModuleActuals actuals;
-    public ModuleActuals getactuals ()
+    public ModuleActuals getActuals ()
     {
       return actuals;
     }
-    private void $setactuals (ModuleActuals x)
+    private void $setActuals (ModuleActuals x)
     {
       this.actuals = x;
     }
-    public Actuals setactuals (ModuleActuals x)
+    public Actuals setActuals (ModuleActuals x)
     {
       Actuals z = new Actuals ();
-      z.$setactuals (x);
+      z.$setActuals (x);
       return z;
     }
   }
@@ -144,33 +143,33 @@ public abstract class ImportedModule extends AbstractAST
       return visitor.visitImportedModuleRenamings (this);
     }
     private ModuleName name;
-    public ModuleName getname ()
+    public ModuleName getName ()
     {
       return name;
     }
-    private void $setname (ModuleName x)
+    private void $setName (ModuleName x)
     {
       this.name = x;
     }
-    public Renamings setname (ModuleName x)
+    public Renamings setName (ModuleName x)
     {
       Renamings z = new Renamings ();
-      z.$setname (x);
+      z.$setName (x);
       return z;
     }
     private Renamings renamings;
-    public Renamings getrenamings ()
+    public Renamings getRenamings ()
     {
       return renamings;
     }
-    private void $setrenamings (Renamings x)
+    private void $setRenamings (Renamings x)
     {
       this.renamings = x;
     }
-    public Renamings setrenamings (Renamings x)
+    public Renamings setRenamings (Renamings x)
     {
       Renamings z = new Renamings ();
-      z.$setrenamings (x);
+      z.$setRenamings (x);
       return z;
     }
   }
@@ -190,18 +189,18 @@ public abstract class ImportedModule extends AbstractAST
       return visitor.visitImportedModuleDefault (this);
     }
     private ModuleName name;
-    public ModuleName getname ()
+    public ModuleName getName ()
     {
       return name;
     }
-    private void $setname (ModuleName x)
+    private void $setName (ModuleName x)
     {
       this.name = x;
     }
-    public Default setname (ModuleName x)
+    public Default setName (ModuleName x)
     {
       Default z = new Default ();
-      z.$setname (x);
+      z.$setName (x);
       return z;
     }
   }
