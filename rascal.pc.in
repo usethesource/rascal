@@ -3,7 +3,7 @@ Maintainers=jurgenv@cwi.nl,storm@cwi.nl,paulk@cwi.nl
 Name: rascal
 Description: 
 Version: 0.1
-EclipseRequires=org.eclipse.imp.pdb,org.junit
+EclipseRequires=org.eclipse.imp.pdb.values
 Requires: 
 JarFile=rascal.jar
 Jars=${prefix}/share/${JarFile}
