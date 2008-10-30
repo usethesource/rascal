@@ -57,7 +57,8 @@ public abstract class Symbol extends AbstractAST
     {
       this.tree = tree;
       this.sort = sort;
-    params2statements (java.util.List < Symbol > parameters)}
+      this.parameters = parameters;
+    }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitSymbolParameterizedSort (this);
@@ -119,7 +120,8 @@ public abstract class Symbol extends AbstractAST
     {
       this.tree = tree;
       this.head = head;
-    params2statements (java.util.List < Symbol > tail)}
+      this.tail = tail;
+    }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitSymbolSequence (this);

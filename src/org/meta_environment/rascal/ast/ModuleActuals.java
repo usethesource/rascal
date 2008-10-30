@@ -12,7 +12,8 @@ public abstract class ModuleActuals extends AbstractAST
     /*package */ Default (ITree tree, java.util.List < Type > types)
     {
       this.tree = tree;
-    params2statements (java.util.List < Type > types)}
+      this.types = types;
+    }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitModuleActualsDefault (this);

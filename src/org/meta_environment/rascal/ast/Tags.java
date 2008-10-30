@@ -12,7 +12,8 @@ public abstract class Tags extends AbstractAST
     /*package */ Default (ITree tree, java.util.List < Tag > annotations)
     {
       this.tree = tree;
-    params2statements (java.util.List < Tag > annotations)}
+      this.annotations = annotations;
+    }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitTagsDefault (this);

@@ -14,7 +14,8 @@ public abstract class Visit extends AbstractAST
     {
       this.tree = tree;
       this.subject = subject;
-    params2statements (java.util.List < Case > cases)}
+      this.cases = cases;
+    }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitVisitDefaultStrategy (this);
@@ -75,7 +76,8 @@ public abstract class Visit extends AbstractAST
       this.tree = tree;
       this.strategy = strategy;
       this.subject = subject;
-    params2statements (java.util.List < Case > cases)}
+      this.cases = cases;
+    }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitVisitGivenStrategy (this);

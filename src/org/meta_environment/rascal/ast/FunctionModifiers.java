@@ -13,7 +13,8 @@ public abstract class FunctionModifiers extends AbstractAST
 		       java.util.List < FunctionModifier > modifiers)
     {
       this.tree = tree;
-    params2statements (java.util.List < FunctionModifier > modifiers)}
+      this.modifiers = modifiers;
+    }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitFunctionModifiersList (this);

@@ -14,7 +14,8 @@ public abstract class Comprehension extends AbstractAST
     {
       this.tree = tree;
       this.result = result;
-    params2statements (java.util.List < Generator > generators)}
+      this.generators = generators;
+    }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitComprehensionSet (this);
@@ -73,7 +74,8 @@ public abstract class Comprehension extends AbstractAST
     {
       this.tree = tree;
       this.result = result;
-    params2statements (java.util.List < Generator > generators)}
+      this.generators = generators;
+    }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitComprehensionList (this);

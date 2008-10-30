@@ -14,7 +14,8 @@ public abstract class Expression extends AbstractAST
     {
       this.tree = tree;
       this.type = type;
-    params2statements (java.util.List < Statement > statements)}
+      this.statements = statements;
+    }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitExpressionClosure (this);
@@ -77,7 +78,8 @@ public abstract class Expression extends AbstractAST
     {
       this.tree = tree;
       this.closure = closure;
-    params2statements (java.util.List < Expression > arguments)}
+      this.arguments = arguments;
+    }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitExpressionClosureCall (this);
@@ -1395,7 +1397,8 @@ public abstract class Expression extends AbstractAST
     {
       this.tree = tree;
       this.name = name;
-    params2statements (java.util.List < Expression > arguments)}
+      this.arguments = arguments;
+    }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitExpressionCallOrTree (this);
@@ -1440,7 +1443,8 @@ public abstract class Expression extends AbstractAST
     /*package */ List (ITree tree, java.util.List < Expression > elements)
     {
       this.tree = tree;
-    params2statements (java.util.List < Expression > elements)}
+      this.elements = elements;
+    }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitExpressionList (this);
@@ -1581,7 +1585,8 @@ public abstract class Expression extends AbstractAST
     /*package */ Set (ITree tree, java.util.List < Expression > elements)
     {
       this.tree = tree;
-    params2statements (java.util.List < Expression > elements)}
+      this.elements = elements;
+    }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitExpressionSet (this);
@@ -1613,7 +1618,8 @@ public abstract class Expression extends AbstractAST
     {
       this.tree = tree;
       this.first = first;
-    params2statements (java.util.List < Expression > rest)}
+      this.rest = rest;
+    }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitExpressionTuple (this);

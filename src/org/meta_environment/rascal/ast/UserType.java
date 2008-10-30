@@ -57,7 +57,8 @@ public abstract class UserType extends AbstractAST
     {
       this.tree = tree;
       this.name = name;
-    params2statements (java.util.List < TypeVar > parameters)}
+      this.parameters = parameters;
+    }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitUserTypeParametric (this);

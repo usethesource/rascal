@@ -12,7 +12,8 @@ public abstract class Renamings extends AbstractAST
     /*package */ Default (ITree tree, java.util.List < Renaming > renamings)
     {
       this.tree = tree;
-    params2statements (java.util.List < Renaming > renamings)}
+      this.renamings = renamings;
+    }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitRenamingsDefault (this);

@@ -14,8 +14,9 @@ public abstract class Statement extends AbstractAST
 			Statement body)
     {
       this.tree = tree;
-    params2statements (java.util.List < Declarator > declarations,
-			 Statement body)}
+      this.declarations = declarations;
+      this.body = body;
+    }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitStatementSolve (this);
@@ -74,8 +75,9 @@ public abstract class Statement extends AbstractAST
     {
       this.tree = tree;
       this.label = label;
-    params2statements (java.util.List < Generator > generators,
-			 Statement body)}
+      this.generators = generators;
+      this.body = body;
+    }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitStatementFor (this);
@@ -410,7 +412,8 @@ public abstract class Statement extends AbstractAST
       this.tree = tree;
       this.label = label;
       this.expression = expression;
-    params2statements (java.util.List < Case > cases)}
+      this.cases = cases;
+    }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitStatementSwitch (this);
@@ -535,9 +538,10 @@ public abstract class Statement extends AbstractAST
 			     java.util.List < Expression > expressions)
     {
       this.tree = tree;
-    params2statements (java.util.List < Assignable > assignables,
-			 Assignment operator,
-			 java.util.List < Expression > expressions)}
+      this.assignables = assignables;
+      this.operator = operator;
+      this.expressions = expressions;
+    }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitStatementAssignment (this);
@@ -800,7 +804,8 @@ public abstract class Statement extends AbstractAST
     {
       this.tree = tree;
       this.body = body;
-    params2statements (java.util.List < Catch > handlers)}
+      this.handlers = handlers;
+    }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitStatementTry (this);
@@ -848,8 +853,9 @@ public abstract class Statement extends AbstractAST
     {
       this.tree = tree;
       this.body = body;
-    params2statements (java.util.List < Catch > handlers,
-			 Statement finallyBody)}
+      this.handlers = handlers;
+      this.finallyBody = finallyBody;
+    }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitStatementTryFinally (this);
@@ -911,7 +917,8 @@ public abstract class Statement extends AbstractAST
     {
       this.tree = tree;
       this.label = label;
-    params2statements (java.util.List < Statement > statements)}
+      this.statements = statements;
+    }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitStatementBlock (this);
@@ -1022,7 +1029,8 @@ public abstract class Statement extends AbstractAST
     {
       this.tree = tree;
       this.type = type;
-    params2statements (java.util.List < QualifiedName > names)}
+      this.names = names;
+    }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitStatementGlobalDirective (this);

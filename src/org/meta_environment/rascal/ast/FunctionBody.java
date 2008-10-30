@@ -12,7 +12,8 @@ public abstract class FunctionBody extends AbstractAST
     /*package */ Default (ITree tree, java.util.List < Statement > statements)
     {
       this.tree = tree;
-    params2statements (java.util.List < Statement > statements)}
+      this.statements = statements;
+    }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitFunctionBodyDefault (this);

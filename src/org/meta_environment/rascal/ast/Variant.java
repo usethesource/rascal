@@ -73,7 +73,8 @@ public abstract class Variant extends AbstractAST
     {
       this.tree = tree;
       this.name = name;
-    params2statements (java.util.List < TypeArg > arguments)}
+      this.arguments = arguments;
+    }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitVariantNAryConstructor (this);

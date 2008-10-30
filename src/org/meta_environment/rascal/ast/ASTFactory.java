@@ -20,10 +20,7 @@ public class ASTFactory
 					   java.util.List < Toplevel >
 					   toplevels)
   {
-    Body.Toplevels x =
-      new Body.Toplevels (tree,
-			  params2expressions (java.util.List < Toplevel >
-					      toplevels));
+    Body.Toplevels x = new Body.Toplevels (tree, toplevels);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -63,10 +60,7 @@ public class ASTFactory
 					     java.util.List < Formal >
 					     formals)
   {
-    Formals.Default x =
-      new Formals.Default (tree,
-			   params2expressions (java.util.List < Formal >
-					       formals));
+    Formals.Default x = new Formals.Default (tree, formals);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -239,10 +233,7 @@ public class ASTFactory
 					       java.util.List < Expression >
 					       rest)
   {
-    Expression.Tuple x =
-      new Expression.Tuple (tree, first,
-			    params2expressions (java.util.List < Expression >
-						rest));
+    Expression.Tuple x = new Expression.Tuple (tree, first, rest);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -253,10 +244,7 @@ public class ASTFactory
 					   java.util.List < Expression >
 					   elements)
   {
-    Expression.Set x =
-      new Expression.Set (tree,
-			  params2expressions (java.util.List < Expression >
-					      elements));
+    Expression.Set x = new Expression.Set (tree, elements);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -289,10 +277,7 @@ public class ASTFactory
 					     java.util.List < Expression >
 					     elements)
   {
-    Expression.List x =
-      new Expression.List (tree,
-			   params2expressions (java.util.List < Expression >
-					       elements));
+    Expression.List x = new Expression.List (tree, elements);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -306,9 +291,7 @@ public class ASTFactory
 							 arguments)
   {
     Expression.CallOrTree x =
-      new Expression.CallOrTree (tree, name,
-				 params2expressions (java.util.List <
-						     Expression > arguments));
+      new Expression.CallOrTree (tree, name, arguments);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -638,10 +621,7 @@ public class ASTFactory
 							   arguments)
   {
     Expression.ClosureCall x =
-      new Expression.ClosureCall (tree, closure,
-				  params2expressions (java.util.List <
-						      Expression >
-						      arguments));
+      new Expression.ClosureCall (tree, closure, arguments);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -663,10 +643,7 @@ public class ASTFactory
 						   java.util.List <
 						   Statement > statements)
   {
-    Expression.Closure x =
-      new Expression.Closure (tree, type,
-			      params2expressions (java.util.List < Statement >
-						  statements));
+    Expression.Closure x = new Expression.Closure (tree, type, statements);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -787,10 +764,7 @@ public class ASTFactory
 								 > names)
   {
     Statement.GlobalDirective x =
-      new Statement.GlobalDirective (tree, type,
-				     params2expressions (java.util.List <
-							 QualifiedName >
-							 names));
+      new Statement.GlobalDirective (tree, type, names);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -827,10 +801,7 @@ public class ASTFactory
 					     java.util.List < Statement >
 					     statements)
   {
-    Statement.Block x =
-      new Statement.Block (tree, label,
-			   params2expressions (java.util.List < Statement >
-					       statements));
+    Statement.Block x = new Statement.Block (tree, label, statements);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -844,10 +815,7 @@ public class ASTFactory
 						       Statement finallyBody)
   {
     Statement.TryFinally x =
-      new Statement.TryFinally (tree, body,
-				params2expressions (java.util.List < Catch >
-						    handlers,
-						    Statement finallyBody));
+      new Statement.TryFinally (tree, body, handlers, finallyBody);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -857,10 +825,7 @@ public class ASTFactory
   public Statement.Try makeStatementTry (ITree tree, Statement body,
 					 java.util.List < Catch > handlers)
   {
-    Statement.Try x =
-      new Statement.Try (tree, body,
-			 params2expressions (java.util.List < Catch >
-					     handlers));
+    Statement.Try x = new Statement.Try (tree, body, handlers);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -954,13 +919,7 @@ public class ASTFactory
 						       expressions)
   {
     Statement.Assignment x =
-      new Statement.Assignment (tree,
-				params2expressions (java.util.List <
-						    Assignable > assignables,
-						    Assignment operator,
-						    java.util.List <
-						    Expression >
-						    expressions));
+      new Statement.Assignment (tree, assignables, operator, expressions);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -991,9 +950,7 @@ public class ASTFactory
 					       java.util.List < Case > cases)
   {
     Statement.Switch x =
-      new Statement.Switch (tree, label, expression,
-			    params2expressions (java.util.List < Case >
-						cases));
+      new Statement.Switch (tree, label, expression, cases);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -1056,10 +1013,7 @@ public class ASTFactory
 					 java.util.List < Generator >
 					 generators, Statement body)
   {
-    Statement.For x =
-      new Statement.For (tree, label,
-			 params2expressions (java.util.List < Generator >
-					     generators, Statement body));
+    Statement.For x = new Statement.For (tree, label, generators, body);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -1080,10 +1034,7 @@ public class ASTFactory
 					     java.util.List < Declarator >
 					     declarations, Statement body)
   {
-    Statement.Solve x =
-      new Statement.Solve (tree,
-			   params2expressions (java.util.List < Declarator >
-					       declarations, Statement body));
+    Statement.Solve x = new Statement.Solve (tree, declarations, body);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -1162,10 +1113,7 @@ public class ASTFactory
 							   arguments)
   {
     Assignable.Constructor x =
-      new Assignable.Constructor (tree, name,
-				  params2expressions (java.util.List <
-						      Assignable >
-						      arguments));
+      new Assignable.Constructor (tree, name, arguments);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -1176,10 +1124,7 @@ public class ASTFactory
 					       java.util.List < Assignable >
 					       rest)
   {
-    Assignable.Tuple x =
-      new Assignable.Tuple (tree, first,
-			    params2expressions (java.util.List < Assignable >
-						rest));
+    Assignable.Tuple x = new Assignable.Tuple (tree, first, rest);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -1423,10 +1368,7 @@ public class ASTFactory
 						   java.util.List < Variable >
 						   variables)
   {
-    Declarator.Default x =
-      new Declarator.Default (tree, type,
-			      params2expressions (java.util.List < Variable >
-						  variables));
+    Declarator.Default x = new Declarator.Default (tree, type, variables);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -1607,10 +1549,7 @@ public class ASTFactory
 					     Tags tags,
 					     java.util.List < Type > types)
   {
-    Declaration.Tag x =
-      new Declaration.Tag (tree, kind, name, tags,
-			   params2expressions (java.util.List < Type >
-					       types));
+    Declaration.Tag x = new Declaration.Tag (tree, kind, name, tags, types);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -1625,9 +1564,7 @@ public class ASTFactory
 							   Type > types)
   {
     Declaration.Annotation x =
-      new Declaration.Annotation (tree, type, name, tags,
-				  params2expressions (java.util.List < Type >
-						      types));
+      new Declaration.Annotation (tree, type, name, tags, types);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -1648,10 +1585,7 @@ public class ASTFactory
 						       java.util.List <
 						       Variable > variables)
   {
-    Declaration.Variable x =
-      new Declaration.Variable (tree, type,
-				params2expressions (java.util.List <
-						    Variable > variables));
+    Declaration.Variable x = new Declaration.Variable (tree, type, variables);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -1675,10 +1609,7 @@ public class ASTFactory
 					       java.util.List < Variant >
 					       variants)
   {
-    Declaration.Data x =
-      new Declaration.Data (tree, user, tags,
-			    params2expressions (java.util.List < Variant >
-						variants));
+    Declaration.Data x = new Declaration.Data (tree, user, tags, variants);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -1712,9 +1643,7 @@ public class ASTFactory
 					       alternatives)
   {
     Declaration.View x =
-      new Declaration.View (tree, view, type, tags,
-			    params2expressions (java.util.List < Alternative >
-						alternatives));
+      new Declaration.View (tree, view, type, tags, alternatives);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -1760,9 +1689,7 @@ public class ASTFactory
 							     arguments)
   {
     Variant.NAryConstructor x =
-      new Variant.NAryConstructor (tree, name,
-				   params2expressions (java.util.List <
-						       TypeArg > arguments));
+      new Variant.NAryConstructor (tree, name, arguments);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -2029,11 +1956,7 @@ public class ASTFactory
 							   FunctionModifier >
 							   modifiers)
   {
-    FunctionModifiers.List x =
-      new FunctionModifiers.List (tree,
-				  params2expressions (java.util.List <
-						      FunctionModifier >
-						      modifiers));
+    FunctionModifiers.List x = new FunctionModifiers.List (tree, modifiers);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -2050,8 +1973,7 @@ public class ASTFactory
   {
     Signature.WithThrows x =
       new Signature.WithThrows (tree, type, modifiers, name, parameters,
-				params2expressions (java.util.List < Type >
-						    exceptions));
+				exceptions);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -2137,10 +2059,7 @@ public class ASTFactory
 						       java.util.List <
 						       Statement > statements)
   {
-    FunctionBody.Default x =
-      new FunctionBody.Default (tree,
-				params2expressions (java.util.List <
-						    Statement > statements));
+    FunctionBody.Default x = new FunctionBody.Default (tree, statements);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -2407,10 +2326,7 @@ public class ASTFactory
 						       java.util.List <
 						       TypeArg > rest)
   {
-    StructuredType.Tuple x =
-      new StructuredType.Tuple (tree, first,
-				params2expressions (java.util.List < TypeArg >
-						    rest));
+    StructuredType.Tuple x = new StructuredType.Tuple (tree, first, rest);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -2423,9 +2339,7 @@ public class ASTFactory
 							     TypeArg > rest)
   {
     StructuredType.Relation x =
-      new StructuredType.Relation (tree, first,
-				   params2expressions (java.util.List <
-						       TypeArg > rest));
+      new StructuredType.Relation (tree, first, rest);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -2494,10 +2408,7 @@ public class ASTFactory
 								   arguments)
   {
     FunctionType.TypeArguments x =
-      new FunctionType.TypeArguments (tree, type,
-				      params2expressions (java.util.List <
-							  TypeArg >
-							  arguments));
+      new FunctionType.TypeArguments (tree, type, arguments);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -2537,10 +2448,7 @@ public class ASTFactory
 						     java.util.List <
 						     TypeVar > parameters)
   {
-    UserType.Parametric x =
-      new UserType.Parametric (tree, name,
-			       params2expressions (java.util.List < TypeVar >
-						   parameters));
+    UserType.Parametric x = new UserType.Parametric (tree, name, parameters);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -2809,10 +2717,7 @@ public class ASTFactory
   public Symbol.Sequence makeSymbolSequence (ITree tree, Symbol head,
 					     java.util.List < Symbol > tail)
   {
-    Symbol.Sequence x =
-      new Symbol.Sequence (tree, head,
-			   params2expressions (java.util.List < Symbol >
-					       tail));
+    Symbol.Sequence x = new Symbol.Sequence (tree, head, tail);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -2835,9 +2740,7 @@ public class ASTFactory
 							       parameters)
   {
     Symbol.ParameterizedSort x =
-      new Symbol.ParameterizedSort (tree, sort,
-				    params2expressions (java.util.List <
-							Symbol > parameters));
+      new Symbol.ParameterizedSort (tree, sort, parameters);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -3105,9 +3008,9 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public Character.Short makeCharacterShort (ITree tree, ShortChar short)
+  public Character.Short makeCharacterShort (ITree tree, ShortChar shortChar)
   {
-    Character.Short x = new Character.Short (tree, short);
+    Character.Short x = new Character.Short (tree, shortChar);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -3124,9 +3027,10 @@ public class ASTFactory
       }
     return table.get (amb, amb);
   }
-  public Character.Numeric makeCharacterNumeric (ITree tree, NumChar numeric)
+  public Character.Numeric makeCharacterNumeric (ITree tree,
+						 NumChar numericChar)
   {
-    Character.Numeric x = new Character.Numeric (tree, numeric);
+    Character.Numeric x = new Character.Numeric (tree, numericChar);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -3190,10 +3094,7 @@ public class ASTFactory
 							 java.util.List <
 							 Type > types)
   {
-    ModuleActuals.Default x =
-      new ModuleActuals.Default (tree,
-				 params2expressions (java.util.List < Type >
-						     types));
+    ModuleActuals.Default x = new ModuleActuals.Default (tree, types);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -3297,10 +3198,7 @@ public class ASTFactory
 						 java.util.List < Renaming >
 						 renamings)
   {
-    Renamings.Default x =
-      new Renamings.Default (tree,
-			     params2expressions (java.util.List < Renaming >
-						 renamings));
+    Renamings.Default x = new Renamings.Default (tree, renamings);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -3356,10 +3254,7 @@ public class ASTFactory
 							       parameters)
   {
     ModuleParameters.Default x =
-      new ModuleParameters.Default (tree,
-				    params2expressions (java.util.List <
-							TypeVar >
-							parameters));
+      new ModuleParameters.Default (tree, parameters);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -3373,9 +3268,7 @@ public class ASTFactory
 						 imports)
   {
     Header.Parameters x =
-      new Header.Parameters (tree, name, params, tags,
-			     params2expressions (java.util.List < Import >
-						 imports));
+      new Header.Parameters (tree, name, params, tags, imports);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -3396,10 +3289,7 @@ public class ASTFactory
 					   Tags tags,
 					   java.util.List < Import > imports)
   {
-    Header.Default x =
-      new Header.Default (tree, name, tags,
-			  params2expressions (java.util.List < Import >
-					      imports));
+    Header.Default x = new Header.Default (tree, name, tags, imports);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -3431,10 +3321,7 @@ public class ASTFactory
 							 java.util.List <
 							 Name > names)
   {
-    QualifiedName.Default x =
-      new QualifiedName.Default (tree,
-				 params2expressions (java.util.List < Name >
-						     names));
+    QualifiedName.Default x = new QualifiedName.Default (tree, names);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -3517,10 +3404,7 @@ public class ASTFactory
   public Tags.Default makeTagsDefault (ITree tree,
 				       java.util.List < Tag > annotations)
   {
-    Tags.Default x =
-      new Tags.Default (tree,
-			params2expressions (java.util.List < Tag >
-					    annotations));
+    Tags.Default x = new Tags.Default (tree, annotations);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -3664,10 +3548,7 @@ public class ASTFactory
 						   java.util.List <
 						   Generator > generators)
   {
-    Comprehension.List x =
-      new Comprehension.List (tree, result,
-			      params2expressions (java.util.List < Generator >
-						  generators));
+    Comprehension.List x = new Comprehension.List (tree, result, generators);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -3690,10 +3571,7 @@ public class ASTFactory
 						 java.util.List < Generator >
 						 generators)
   {
-    Comprehension.Set x =
-      new Comprehension.Set (tree, result,
-			     params2expressions (java.util.List < Generator >
-						 generators));
+    Comprehension.Set x = new Comprehension.Set (tree, result, generators);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -3793,9 +3671,7 @@ public class ASTFactory
 						     cases)
   {
     Visit.GivenStrategy x =
-      new Visit.GivenStrategy (tree, strategy, subject,
-			       params2expressions (java.util.List < Case >
-						   cases));
+      new Visit.GivenStrategy (tree, strategy, subject, cases);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -3818,9 +3694,7 @@ public class ASTFactory
 							 Case > cases)
   {
     Visit.DefaultStrategy x =
-      new Visit.DefaultStrategy (tree, subject,
-				 params2expressions (java.util.List < Case >
-						     cases));
+      new Visit.DefaultStrategy (tree, subject, cases);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
