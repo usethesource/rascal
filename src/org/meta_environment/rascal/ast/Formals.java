@@ -12,7 +12,8 @@ public abstract class Formals extends AbstractAST
     /*package */ Default (ITree tree, java.util.List < Formal > formals)
     {
       this.tree = tree;
-    params2statements (java.util.List < Formal > formals)}
+      this.formals = formals;
+    }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitFormalsDefault (this);

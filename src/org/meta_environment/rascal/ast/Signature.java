@@ -111,7 +111,8 @@ public abstract class Signature extends AbstractAST
       this.modifiers = modifiers;
       this.name = name;
       this.parameters = parameters;
-    params2statements (java.util.List < Type > exceptions)}
+      this.exceptions = exceptions;
+    }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitSignatureWithThrows (this);

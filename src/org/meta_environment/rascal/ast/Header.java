@@ -15,7 +15,8 @@ public abstract class Header extends AbstractAST
       this.tree = tree;
       this.name = name;
       this.tags = tags;
-    params2statements (java.util.List < Import > imports)}
+      this.imports = imports;
+    }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitHeaderDefault (this);
@@ -92,7 +93,8 @@ public abstract class Header extends AbstractAST
       this.name = name;
       this.params = params;
       this.tags = tags;
-    params2statements (java.util.List < Import > imports)}
+      this.imports = imports;
+    }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitHeaderParameters (this);

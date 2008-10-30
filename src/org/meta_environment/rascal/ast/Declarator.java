@@ -14,7 +14,8 @@ public abstract class Declarator extends AbstractAST
     {
       this.tree = tree;
       this.type = type;
-    params2statements (java.util.List < Variable > variables)}
+      this.variables = variables;
+    }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitDeclaratorDefault (this);

@@ -5,32 +5,32 @@ public abstract class Character extends AbstractAST
 {
   public class Numeric extends Character
   {
-/* numeric:NumChar -> Character {cons("Numeric")} */
+/* numericChar:NumChar -> Character {cons("Numeric")} */
     private Numeric ()
     {
     }
-    /*package */ Numeric (ITree tree, NumChar numeric)
+    /*package */ Numeric (ITree tree, NumChar numericChar)
     {
       this.tree = tree;
-      this.numeric = numeric;
+      this.numericChar = numericChar;
     }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitCharacterNumeric (this);
     }
-    private NumChar numeric;
-    public NumChar getNumeric ()
+    private NumChar numericChar;
+    public NumChar getNumericChar ()
     {
-      return numeric;
+      return numericChar;
     }
-    private void $setNumeric (NumChar x)
+    private void $setNumericChar (NumChar x)
     {
-      this.numeric = x;
+      this.numericChar = x;
     }
-    public Numeric setNumeric (NumChar x)
+    public Numeric setNumericChar (NumChar x)
     {
       Numeric z = new Numeric ();
-      z.$setNumeric (x);
+      z.$setNumericChar (x);
       return z;
     }
   }
@@ -48,32 +48,32 @@ public abstract class Character extends AbstractAST
   }
   public class Short extends Character
   {
-/* short:ShortChar -> Character {cons("Short")} */
+/* shortChar:ShortChar -> Character {cons("Short")} */
     private Short ()
     {
     }
-    /*package */ Short (ITree tree, ShortChar short)
+    /*package */ Short (ITree tree, ShortChar shortChar)
     {
       this.tree = tree;
-      this.short = short;
+      this.shortChar = shortChar;
     }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitCharacterShort (this);
     }
-    private ShortChar short;
-    public ShortChar getShort ()
+    private ShortChar shortChar;
+    public ShortChar getShortChar ()
     {
-      return short;
+      return shortChar;
     }
-    private void $setShort (ShortChar x)
+    private void $setShortChar (ShortChar x)
     {
-      this.short = x;
+      this.shortChar = x;
     }
-    public Short setShort (ShortChar x)
+    public Short setShortChar (ShortChar x)
     {
       Short z = new Short ();
-      z.$setShort (x);
+      z.$setShortChar (x);
       return z;
     }
   }

@@ -14,7 +14,8 @@ public abstract class FunctionType extends AbstractAST
     {
       this.tree = tree;
       this.type = type;
-    params2statements (java.util.List < TypeArg > arguments)}
+      this.arguments = arguments;
+    }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitFunctionTypeTypeArguments (this);

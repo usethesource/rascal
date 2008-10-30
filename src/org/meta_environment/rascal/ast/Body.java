@@ -12,7 +12,8 @@ public abstract class Body extends AbstractAST
     /*package */ Toplevels (ITree tree, java.util.List < Toplevel > toplevels)
     {
       this.tree = tree;
-    params2statements (java.util.List < Toplevel > toplevels)}
+      this.toplevels = toplevels;
+    }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitBodyToplevels (this);

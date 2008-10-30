@@ -12,7 +12,8 @@ public abstract class QualifiedName extends AbstractAST
     /*package */ Default (ITree tree, java.util.List < Name > names)
     {
       this.tree = tree;
-    params2statements (java.util.List < Name > names)}
+      this.names = names;
+    }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitQualifiedNameDefault (this);

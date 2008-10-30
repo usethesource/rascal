@@ -135,7 +135,8 @@ public abstract class StructuredType extends AbstractAST
     {
       this.tree = tree;
       this.first = first;
-    params2statements (java.util.List < TypeArg > rest)}
+      this.rest = rest;
+    }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitStructuredTypeRelation (this);
@@ -182,7 +183,8 @@ public abstract class StructuredType extends AbstractAST
     {
       this.tree = tree;
       this.first = first;
-    params2statements (java.util.List < TypeArg > rest)}
+      this.rest = rest;
+    }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitStructuredTypeTuple (this);

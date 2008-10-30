@@ -16,7 +16,8 @@ public abstract class Declaration extends AbstractAST
       this.view = view;
       this.type = type;
       this.tags = tags;
-    params2statements (java.util.List < Alternative > alternatives)}
+      this.alternatives = alternatives;
+    }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitDeclarationView (this);
@@ -169,7 +170,8 @@ public abstract class Declaration extends AbstractAST
       this.tree = tree;
       this.user = user;
       this.tags = tags;
-    params2statements (java.util.List < Variant > variants)}
+      this.variants = variants;
+    }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitDeclarationData (this);
@@ -263,7 +265,8 @@ public abstract class Declaration extends AbstractAST
     {
       this.tree = tree;
       this.type = type;
-    params2statements (java.util.List < Variable > variables)}
+      this.variables = variables;
+    }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitDeclarationVariable (this);
@@ -375,7 +378,8 @@ public abstract class Declaration extends AbstractAST
       this.type = type;
       this.name = name;
       this.tags = tags;
-    params2statements (java.util.List < Type > types)}
+      this.types = types;
+    }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitDeclarationAnnotation (this);
@@ -454,7 +458,8 @@ public abstract class Declaration extends AbstractAST
       this.kind = kind;
       this.name = name;
       this.tags = tags;
-    params2statements (java.util.List < Type > types)}
+      this.types = types;
+    }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitDeclarationTag (this);

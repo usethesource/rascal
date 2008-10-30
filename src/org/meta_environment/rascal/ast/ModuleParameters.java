@@ -12,7 +12,8 @@ public abstract class ModuleParameters extends AbstractAST
     /*package */ Default (ITree tree, java.util.List < TypeVar > parameters)
     {
       this.tree = tree;
-    params2statements (java.util.List < TypeVar > parameters)}
+      this.parameters = parameters;
+    }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitModuleParametersDefault (this);
