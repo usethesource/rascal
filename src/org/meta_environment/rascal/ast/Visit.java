@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public abstract class Visit extends AbstractAST
 {
   public class DefaultStrategy extends Visit
@@ -24,14 +26,14 @@ public abstract class Visit extends AbstractAST
     {
       return subject;
     }
-    private void privateSetsubject (Expression x)
+    private void $setsubject (Expression x)
     {
       this.subject = x;
     }
     public DefaultStrategy setsubject (Expression x)
     {
       DefaultStrategy z = new DefaultStrategy ();
-      z.privateSetsubject (x);
+      z.$setsubject (x);
       return z;
     }
     private List < Case > cases;
@@ -39,14 +41,14 @@ public abstract class Visit extends AbstractAST
     {
       return cases;
     }
-    private void privateSetcases (List < Case > x)
+    private void $setcases (List < Case > x)
     {
       this.cases = x;
     }
     public DefaultStrategy setcases (List < Case > x)
     {
       DefaultStrategy z = new DefaultStrategy ();
-      z.privateSetcases (x);
+      z.$setcases (x);
       return z;
     }
   }
@@ -55,7 +57,7 @@ public abstract class Visit extends AbstractAST
     private final List < Visit > alternatives;
     public Ambiguity (List < Visit > alternatives)
     {
-      this.alternatives = Collections.immutableList (alternatives);
+      this.alternatives = Collections.unmodifiableList (alternatives);
     }
     public List < Visit > getAlternatives ()
     {
@@ -85,14 +87,14 @@ public abstract class Visit extends AbstractAST
     {
       return strategy;
     }
-    private void privateSetstrategy (Strategy x)
+    private void $setstrategy (Strategy x)
     {
       this.strategy = x;
     }
     public GivenStrategy setstrategy (Strategy x)
     {
       GivenStrategy z = new GivenStrategy ();
-      z.privateSetstrategy (x);
+      z.$setstrategy (x);
       return z;
     }
     private Expression subject;
@@ -100,14 +102,14 @@ public abstract class Visit extends AbstractAST
     {
       return subject;
     }
-    private void privateSetsubject (Expression x)
+    private void $setsubject (Expression x)
     {
       this.subject = x;
     }
     public GivenStrategy setsubject (Expression x)
     {
       GivenStrategy z = new GivenStrategy ();
-      z.privateSetsubject (x);
+      z.$setsubject (x);
       return z;
     }
     private List < Case > cases;
@@ -115,14 +117,14 @@ public abstract class Visit extends AbstractAST
     {
       return cases;
     }
-    private void privateSetcases (List < Case > x)
+    private void $setcases (List < Case > x)
     {
       this.cases = x;
     }
     public GivenStrategy setcases (List < Case > x)
     {
       GivenStrategy z = new GivenStrategy ();
-      z.privateSetcases (x);
+      z.$setcases (x);
       return z;
     }
   }

@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public abstract class Header extends AbstractAST
 {
   public class Default extends Header
@@ -25,14 +27,14 @@ public abstract class Header extends AbstractAST
     {
       return name;
     }
-    private void privateSetname (ModuleName x)
+    private void $setname (ModuleName x)
     {
       this.name = x;
     }
     public Default setname (ModuleName x)
     {
       Default z = new Default ();
-      z.privateSetname (x);
+      z.$setname (x);
       return z;
     }
     private Tags tags;
@@ -40,14 +42,14 @@ public abstract class Header extends AbstractAST
     {
       return tags;
     }
-    private void privateSettags (Tags x)
+    private void $settags (Tags x)
     {
       this.tags = x;
     }
     public Default settags (Tags x)
     {
       Default z = new Default ();
-      z.privateSettags (x);
+      z.$settags (x);
       return z;
     }
     private List < Import > imports;
@@ -55,14 +57,14 @@ public abstract class Header extends AbstractAST
     {
       return imports;
     }
-    private void privateSetimports (List < Import > x)
+    private void $setimports (List < Import > x)
     {
       this.imports = x;
     }
     public Default setimports (List < Import > x)
     {
       Default z = new Default ();
-      z.privateSetimports (x);
+      z.$setimports (x);
       return z;
     }
   }
@@ -71,7 +73,7 @@ public abstract class Header extends AbstractAST
     private final List < Header > alternatives;
     public Ambiguity (List < Header > alternatives)
     {
-      this.alternatives = Collections.immutableList (alternatives);
+      this.alternatives = Collections.unmodifiableList (alternatives);
     }
     public List < Header > getAlternatives ()
     {
@@ -103,14 +105,14 @@ public abstract class Header extends AbstractAST
     {
       return name;
     }
-    private void privateSetname (ModuleName x)
+    private void $setname (ModuleName x)
     {
       this.name = x;
     }
     public Parameters setname (ModuleName x)
     {
       Parameters z = new Parameters ();
-      z.privateSetname (x);
+      z.$setname (x);
       return z;
     }
     private ModuleParameters params;
@@ -118,14 +120,14 @@ public abstract class Header extends AbstractAST
     {
       return params;
     }
-    private void privateSetparams (ModuleParameters x)
+    private void $setparams (ModuleParameters x)
     {
       this.params = x;
     }
     public Parameters setparams (ModuleParameters x)
     {
       Parameters z = new Parameters ();
-      z.privateSetparams (x);
+      z.$setparams (x);
       return z;
     }
     private Tags tags;
@@ -133,14 +135,14 @@ public abstract class Header extends AbstractAST
     {
       return tags;
     }
-    private void privateSettags (Tags x)
+    private void $settags (Tags x)
     {
       this.tags = x;
     }
     public Parameters settags (Tags x)
     {
       Parameters z = new Parameters ();
-      z.privateSettags (x);
+      z.$settags (x);
       return z;
     }
     private List < Import > imports;
@@ -148,14 +150,14 @@ public abstract class Header extends AbstractAST
     {
       return imports;
     }
-    private void privateSetimports (List < Import > x)
+    private void $setimports (List < Import > x)
     {
       this.imports = x;
     }
     public Parameters setimports (List < Import > x)
     {
       Parameters z = new Parameters ();
-      z.privateSetimports (x);
+      z.$setimports (x);
       return z;
     }
   }

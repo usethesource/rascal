@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public abstract class CharClass extends AbstractAST
 {
   public class SimpleCharclass extends CharClass
@@ -23,14 +25,14 @@ public abstract class CharClass extends AbstractAST
     {
       return optionalCharRanges;
     }
-    private void privateSetoptionalCharRanges (OptCharRanges x)
+    private void $setoptionalCharRanges (OptCharRanges x)
     {
       this.optionalCharRanges = x;
     }
     public SimpleCharclass setoptionalCharRanges (OptCharRanges x)
     {
       SimpleCharclass z = new SimpleCharclass ();
-      z.privateSetoptionalCharRanges (x);
+      z.$setoptionalCharRanges (x);
       return z;
     }
   }
@@ -39,7 +41,7 @@ public abstract class CharClass extends AbstractAST
     private final List < CharClass > alternatives;
     public Ambiguity (List < CharClass > alternatives)
     {
-      this.alternatives = Collections.immutableList (alternatives);
+      this.alternatives = Collections.unmodifiableList (alternatives);
     }
     public List < CharClass > getAlternatives ()
     {
@@ -66,14 +68,14 @@ public abstract class CharClass extends AbstractAST
     {
       return charClass;
     }
-    private void privateSetcharClass (CharClass x)
+    private void $setcharClass (CharClass x)
     {
       this.charClass = x;
     }
     public Complement setcharClass (CharClass x)
     {
       Complement z = new Complement ();
-      z.privateSetcharClass (x);
+      z.$setcharClass (x);
       return z;
     }
   }
@@ -98,14 +100,14 @@ public abstract class CharClass extends AbstractAST
     {
       return lhs;
     }
-    private void privateSetlhs (CharClass x)
+    private void $setlhs (CharClass x)
     {
       this.lhs = x;
     }
     public Difference setlhs (CharClass x)
     {
       Difference z = new Difference ();
-      z.privateSetlhs (x);
+      z.$setlhs (x);
       return z;
     }
     private CharClass rhs;
@@ -113,14 +115,14 @@ public abstract class CharClass extends AbstractAST
     {
       return rhs;
     }
-    private void privateSetrhs (CharClass x)
+    private void $setrhs (CharClass x)
     {
       this.rhs = x;
     }
     public Difference setrhs (CharClass x)
     {
       Difference z = new Difference ();
-      z.privateSetrhs (x);
+      z.$setrhs (x);
       return z;
     }
   }
@@ -145,14 +147,14 @@ public abstract class CharClass extends AbstractAST
     {
       return lhs;
     }
-    private void privateSetlhs (CharClass x)
+    private void $setlhs (CharClass x)
     {
       this.lhs = x;
     }
     public Intersection setlhs (CharClass x)
     {
       Intersection z = new Intersection ();
-      z.privateSetlhs (x);
+      z.$setlhs (x);
       return z;
     }
     private CharClass rhs;
@@ -160,14 +162,14 @@ public abstract class CharClass extends AbstractAST
     {
       return rhs;
     }
-    private void privateSetrhs (CharClass x)
+    private void $setrhs (CharClass x)
     {
       this.rhs = x;
     }
     public Intersection setrhs (CharClass x)
     {
       Intersection z = new Intersection ();
-      z.privateSetrhs (x);
+      z.$setrhs (x);
       return z;
     }
   }
@@ -192,14 +194,14 @@ public abstract class CharClass extends AbstractAST
     {
       return lhs;
     }
-    private void privateSetlhs (CharClass x)
+    private void $setlhs (CharClass x)
     {
       this.lhs = x;
     }
     public Union setlhs (CharClass x)
     {
       Union z = new Union ();
-      z.privateSetlhs (x);
+      z.$setlhs (x);
       return z;
     }
     private CharClass rhs;
@@ -207,14 +209,14 @@ public abstract class CharClass extends AbstractAST
     {
       return rhs;
     }
-    private void privateSetrhs (CharClass x)
+    private void $setrhs (CharClass x)
     {
       this.rhs = x;
     }
     public Union setrhs (CharClass x)
     {
       Union z = new Union ();
-      z.privateSetrhs (x);
+      z.$setrhs (x);
       return z;
     }
   }

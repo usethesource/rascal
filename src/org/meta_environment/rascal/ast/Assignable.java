@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public abstract class Assignable extends AbstractAST
 {
   public class Variable extends Assignable
@@ -22,14 +24,14 @@ public abstract class Assignable extends AbstractAST
     {
       return qualifiedName;
     }
-    private void privateSetqualifiedName (QualifiedName x)
+    private void $setqualifiedName (QualifiedName x)
     {
       this.qualifiedName = x;
     }
     public Variable setqualifiedName (QualifiedName x)
     {
       Variable z = new Variable ();
-      z.privateSetqualifiedName (x);
+      z.$setqualifiedName (x);
       return z;
     }
   }
@@ -38,7 +40,7 @@ public abstract class Assignable extends AbstractAST
     private final List < Assignable > alternatives;
     public Ambiguity (List < Assignable > alternatives)
     {
-      this.alternatives = Collections.immutableList (alternatives);
+      this.alternatives = Collections.unmodifiableList (alternatives);
     }
     public List < Assignable > getAlternatives ()
     {
@@ -67,14 +69,14 @@ public abstract class Assignable extends AbstractAST
     {
       return receiver;
     }
-    private void privateSetreceiver (Assignable x)
+    private void $setreceiver (Assignable x)
     {
       this.receiver = x;
     }
     public Subscript setreceiver (Assignable x)
     {
       Subscript z = new Subscript ();
-      z.privateSetreceiver (x);
+      z.$setreceiver (x);
       return z;
     }
     private Expression subscript;
@@ -82,14 +84,14 @@ public abstract class Assignable extends AbstractAST
     {
       return subscript;
     }
-    private void privateSetsubscript (Expression x)
+    private void $setsubscript (Expression x)
     {
       this.subscript = x;
     }
     public Subscript setsubscript (Expression x)
     {
       Subscript z = new Subscript ();
-      z.privateSetsubscript (x);
+      z.$setsubscript (x);
       return z;
     }
   }
@@ -114,14 +116,14 @@ public abstract class Assignable extends AbstractAST
     {
       return receiver;
     }
-    private void privateSetreceiver (Assignable x)
+    private void $setreceiver (Assignable x)
     {
       this.receiver = x;
     }
     public FieldAccess setreceiver (Assignable x)
     {
       FieldAccess z = new FieldAccess ();
-      z.privateSetreceiver (x);
+      z.$setreceiver (x);
       return z;
     }
     private Name field;
@@ -129,14 +131,14 @@ public abstract class Assignable extends AbstractAST
     {
       return field;
     }
-    private void privateSetfield (Name x)
+    private void $setfield (Name x)
     {
       this.field = x;
     }
     public FieldAccess setfield (Name x)
     {
       FieldAccess z = new FieldAccess ();
-      z.privateSetfield (x);
+      z.$setfield (x);
       return z;
     }
   }
@@ -162,14 +164,14 @@ public abstract class Assignable extends AbstractAST
     {
       return receiver;
     }
-    private void privateSetreceiver (Assignable x)
+    private void $setreceiver (Assignable x)
     {
       this.receiver = x;
     }
     public IfDefined setreceiver (Assignable x)
     {
       IfDefined z = new IfDefined ();
-      z.privateSetreceiver (x);
+      z.$setreceiver (x);
       return z;
     }
     private Expression condition;
@@ -177,14 +179,14 @@ public abstract class Assignable extends AbstractAST
     {
       return condition;
     }
-    private void privateSetcondition (Expression x)
+    private void $setcondition (Expression x)
     {
       this.condition = x;
     }
     public IfDefined setcondition (Expression x)
     {
       IfDefined z = new IfDefined ();
-      z.privateSetcondition (x);
+      z.$setcondition (x);
       return z;
     }
   }
@@ -210,14 +212,14 @@ public abstract class Assignable extends AbstractAST
     {
       return receiver;
     }
-    private void privateSetreceiver (Assignable x)
+    private void $setreceiver (Assignable x)
     {
       this.receiver = x;
     }
     public Annotation setreceiver (Assignable x)
     {
       Annotation z = new Annotation ();
-      z.privateSetreceiver (x);
+      z.$setreceiver (x);
       return z;
     }
     private Expression annotation;
@@ -225,14 +227,14 @@ public abstract class Assignable extends AbstractAST
     {
       return annotation;
     }
-    private void privateSetannotation (Expression x)
+    private void $setannotation (Expression x)
     {
       this.annotation = x;
     }
     public Annotation setannotation (Expression x)
     {
       Annotation z = new Annotation ();
-      z.privateSetannotation (x);
+      z.$setannotation (x);
       return z;
     }
   }
@@ -258,14 +260,14 @@ public abstract class Assignable extends AbstractAST
     {
       return first;
     }
-    private void privateSetfirst (Assignable x)
+    private void $setfirst (Assignable x)
     {
       this.first = x;
     }
     public Tuple setfirst (Assignable x)
     {
       Tuple z = new Tuple ();
-      z.privateSetfirst (x);
+      z.$setfirst (x);
       return z;
     }
     private List < Assignable > rest;
@@ -273,14 +275,14 @@ public abstract class Assignable extends AbstractAST
     {
       return rest;
     }
-    private void privateSetrest (List < Assignable > x)
+    private void $setrest (List < Assignable > x)
     {
       this.rest = x;
     }
     public Tuple setrest (List < Assignable > x)
     {
       Tuple z = new Tuple ();
-      z.privateSetrest (x);
+      z.$setrest (x);
       return z;
     }
   }
@@ -306,14 +308,14 @@ public abstract class Assignable extends AbstractAST
     {
       return name;
     }
-    private void privateSetname (Name x)
+    private void $setname (Name x)
     {
       this.name = x;
     }
     public Constructor setname (Name x)
     {
       Constructor z = new Constructor ();
-      z.privateSetname (x);
+      z.$setname (x);
       return z;
     }
     private List < Assignable > arguments;
@@ -321,14 +323,14 @@ public abstract class Assignable extends AbstractAST
     {
       return arguments;
     }
-    private void privateSetarguments (List < Assignable > x)
+    private void $setarguments (List < Assignable > x)
     {
       this.arguments = x;
     }
     public Constructor setarguments (List < Assignable > x)
     {
       Constructor z = new Constructor ();
-      z.privateSetarguments (x);
+      z.$setarguments (x);
       return z;
     }
   }

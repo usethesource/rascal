@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public abstract class LocalVariableDeclaration extends AbstractAST
 {
   public class Default extends LocalVariableDeclaration
@@ -22,14 +24,14 @@ public abstract class LocalVariableDeclaration extends AbstractAST
     {
       return declarator;
     }
-    private void privateSetdeclarator (Declarator x)
+    private void $setdeclarator (Declarator x)
     {
       this.declarator = x;
     }
     public Default setdeclarator (Declarator x)
     {
       Default z = new Default ();
-      z.privateSetdeclarator (x);
+      z.$setdeclarator (x);
       return z;
     }
   }
@@ -38,7 +40,7 @@ public abstract class LocalVariableDeclaration extends AbstractAST
     private final List < LocalVariableDeclaration > alternatives;
     public Ambiguity (List < LocalVariableDeclaration > alternatives)
     {
-      this.alternatives = Collections.immutableList (alternatives);
+      this.alternatives = Collections.unmodifiableList (alternatives);
     }
     public List < LocalVariableDeclaration > getAlternatives ()
     {
@@ -65,14 +67,14 @@ public abstract class LocalVariableDeclaration extends AbstractAST
     {
       return declarator;
     }
-    private void privateSetdeclarator (Declarator x)
+    private void $setdeclarator (Declarator x)
     {
       this.declarator = x;
     }
     public Dynamic setdeclarator (Declarator x)
     {
       Dynamic z = new Dynamic ();
-      z.privateSetdeclarator (x);
+      z.$setdeclarator (x);
       return z;
     }
   }

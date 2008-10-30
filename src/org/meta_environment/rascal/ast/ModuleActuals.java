@@ -1,35 +1,37 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public abstract class ModuleActuals extends AbstractAST
 {
-  public class Actuals extends ModuleActuals
+  public class Default extends ModuleActuals
   {
-/* "[" types:{Type ","}+ "]" -> ModuleActuals {cons("Actuals")} */
-    private Actuals ()
+/* "[" types:{Type ","}+ "]" -> ModuleActuals {cons("Default")} */
+    private Default ()
     {
     }
-    /*package */ Actuals (ITree tree, List < Type > types)
+    /*package */ Default (ITree tree, List < Type > types)
     {
       this.tree = tree;
       this.types = types;
     }
     public IVisitable accept (IASTVisitor visitor)
     {
-      return visitor.visitModuleActualsActuals (this);
+      return visitor.visitModuleActualsDefault (this);
     }
     private List < Type > types;
     public List < Type > gettypes ()
     {
       return types;
     }
-    private void privateSettypes (List < Type > x)
+    private void $settypes (List < Type > x)
     {
       this.types = x;
     }
-    public Actuals settypes (List < Type > x)
+    public Default settypes (List < Type > x)
     {
-      Actuals z = new Actuals ();
-      z.privateSettypes (x);
+      Default z = new Default ();
+      z.$settypes (x);
       return z;
     }
   }
@@ -38,7 +40,7 @@ public abstract class ModuleActuals extends AbstractAST
     private final List < ModuleActuals > alternatives;
     public Ambiguity (List < ModuleActuals > alternatives)
     {
-      this.alternatives = Collections.immutableList (alternatives);
+      this.alternatives = Collections.unmodifiableList (alternatives);
     }
     public List < ModuleActuals > getAlternatives ()
     {

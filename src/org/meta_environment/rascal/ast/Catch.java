@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public abstract class Catch extends AbstractAST
 {
   public class Catch extends Catch
@@ -22,14 +24,14 @@ public abstract class Catch extends AbstractAST
     {
       return body;
     }
-    private void privateSetbody (Statement x)
+    private void $setbody (Statement x)
     {
       this.body = x;
     }
     public Catch setbody (Statement x)
     {
       Catch z = new Catch ();
-      z.privateSetbody (x);
+      z.$setbody (x);
       return z;
     }
   }
@@ -38,7 +40,7 @@ public abstract class Catch extends AbstractAST
     private final List < Catch > alternatives;
     public Ambiguity (List < Catch > alternatives)
     {
-      this.alternatives = Collections.immutableList (alternatives);
+      this.alternatives = Collections.unmodifiableList (alternatives);
     }
     public List < Catch > getAlternatives ()
     {
@@ -68,14 +70,14 @@ public abstract class Catch extends AbstractAST
     {
       return type;
     }
-    private void privateSettype (Type x)
+    private void $settype (Type x)
     {
       this.type = x;
     }
     public BindingCatch settype (Type x)
     {
       BindingCatch z = new BindingCatch ();
-      z.privateSettype (x);
+      z.$settype (x);
       return z;
     }
     private Name name;
@@ -83,14 +85,14 @@ public abstract class Catch extends AbstractAST
     {
       return name;
     }
-    private void privateSetname (Name x)
+    private void $setname (Name x)
     {
       this.name = x;
     }
     public BindingCatch setname (Name x)
     {
       BindingCatch z = new BindingCatch ();
-      z.privateSetname (x);
+      z.$setname (x);
       return z;
     }
     private Statement body;
@@ -98,14 +100,14 @@ public abstract class Catch extends AbstractAST
     {
       return body;
     }
-    private void privateSetbody (Statement x)
+    private void $setbody (Statement x)
     {
       this.body = x;
     }
     public BindingCatch setbody (Statement x)
     {
       BindingCatch z = new BindingCatch ();
-      z.privateSetbody (x);
+      z.$setbody (x);
       return z;
     }
   }

@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public abstract class Variant extends AbstractAST
 {
   public class Type extends Variant
@@ -23,14 +25,14 @@ public abstract class Variant extends AbstractAST
     {
       return type;
     }
-    private void privateSettype (Type x)
+    private void $settype (Type x)
     {
       this.type = x;
     }
     public Type settype (Type x)
     {
       Type z = new Type ();
-      z.privateSettype (x);
+      z.$settype (x);
       return z;
     }
     private Name name;
@@ -38,14 +40,14 @@ public abstract class Variant extends AbstractAST
     {
       return name;
     }
-    private void privateSetname (Name x)
+    private void $setname (Name x)
     {
       this.name = x;
     }
     public Type setname (Name x)
     {
       Type z = new Type ();
-      z.privateSetname (x);
+      z.$setname (x);
       return z;
     }
   }
@@ -54,7 +56,7 @@ public abstract class Variant extends AbstractAST
     private final List < Variant > alternatives;
     public Ambiguity (List < Variant > alternatives)
     {
-      this.alternatives = Collections.immutableList (alternatives);
+      this.alternatives = Collections.unmodifiableList (alternatives);
     }
     public List < Variant > getAlternatives ()
     {
@@ -83,14 +85,14 @@ public abstract class Variant extends AbstractAST
     {
       return name;
     }
-    private void privateSetname (Name x)
+    private void $setname (Name x)
     {
       this.name = x;
     }
     public NAryConstructor setname (Name x)
     {
       NAryConstructor z = new NAryConstructor ();
-      z.privateSetname (x);
+      z.$setname (x);
       return z;
     }
     private List < TypeArg > arguments;
@@ -98,14 +100,14 @@ public abstract class Variant extends AbstractAST
     {
       return arguments;
     }
-    private void privateSetarguments (List < TypeArg > x)
+    private void $setarguments (List < TypeArg > x)
     {
       this.arguments = x;
     }
     public NAryConstructor setarguments (List < TypeArg > x)
     {
       NAryConstructor z = new NAryConstructor ();
-      z.privateSetarguments (x);
+      z.$setarguments (x);
       return z;
     }
   }
@@ -129,14 +131,14 @@ public abstract class Variant extends AbstractAST
     {
       return name;
     }
-    private void privateSetname (Name x)
+    private void $setname (Name x)
     {
       this.name = x;
     }
     public NillaryConstructor setname (Name x)
     {
       NillaryConstructor z = new NillaryConstructor ();
-      z.privateSetname (x);
+      z.$setname (x);
       return z;
     }
   }

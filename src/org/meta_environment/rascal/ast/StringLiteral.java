@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public abstract class StringLiteral extends AbstractAST
 {
   public class Lexical extends StringLiteral
@@ -11,7 +13,7 @@ public abstract class StringLiteral extends AbstractAST
     private final List < StringLiteral > alternatives;
     public Ambiguity (List < StringLiteral > alternatives)
     {
-      this.alternatives = Collections.immutableList (alternatives);
+      this.alternatives = Collections.unmodifiableList (alternatives);
     }
     public List < StringLiteral > getAlternatives ()
     {

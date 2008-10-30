@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public abstract class Toplevel extends AbstractAST
 {
   public class GivenVisibility extends Toplevel
@@ -24,14 +26,14 @@ public abstract class Toplevel extends AbstractAST
     {
       return visibility;
     }
-    private void privateSetvisibility (Visibility x)
+    private void $setvisibility (Visibility x)
     {
       this.visibility = x;
     }
     public GivenVisibility setvisibility (Visibility x)
     {
       GivenVisibility z = new GivenVisibility ();
-      z.privateSetvisibility (x);
+      z.$setvisibility (x);
       return z;
     }
     private Declaration declaration;
@@ -39,14 +41,14 @@ public abstract class Toplevel extends AbstractAST
     {
       return declaration;
     }
-    private void privateSetdeclaration (Declaration x)
+    private void $setdeclaration (Declaration x)
     {
       this.declaration = x;
     }
     public GivenVisibility setdeclaration (Declaration x)
     {
       GivenVisibility z = new GivenVisibility ();
-      z.privateSetdeclaration (x);
+      z.$setdeclaration (x);
       return z;
     }
   }
@@ -55,7 +57,7 @@ public abstract class Toplevel extends AbstractAST
     private final List < Toplevel > alternatives;
     public Ambiguity (List < Toplevel > alternatives)
     {
-      this.alternatives = Collections.immutableList (alternatives);
+      this.alternatives = Collections.unmodifiableList (alternatives);
     }
     public List < Toplevel > getAlternatives ()
     {
@@ -82,14 +84,14 @@ public abstract class Toplevel extends AbstractAST
     {
       return declaration;
     }
-    private void privateSetdeclaration (Declaration x)
+    private void $setdeclaration (Declaration x)
     {
       this.declaration = x;
     }
     public DefaultVisibility setdeclaration (Declaration x)
     {
       DefaultVisibility z = new DefaultVisibility ();
-      z.privateSetdeclaration (x);
+      z.$setdeclaration (x);
       return z;
     }
   }

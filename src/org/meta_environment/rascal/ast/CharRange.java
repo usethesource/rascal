@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public abstract class CharRange extends AbstractAST
 {
   public class Character extends CharRange
@@ -22,14 +24,14 @@ public abstract class CharRange extends AbstractAST
     {
       return character;
     }
-    private void privateSetcharacter (Character x)
+    private void $setcharacter (Character x)
     {
       this.character = x;
     }
     public Character setcharacter (Character x)
     {
       Character z = new Character ();
-      z.privateSetcharacter (x);
+      z.$setcharacter (x);
       return z;
     }
   }
@@ -38,7 +40,7 @@ public abstract class CharRange extends AbstractAST
     private final List < CharRange > alternatives;
     public Ambiguity (List < CharRange > alternatives)
     {
-      this.alternatives = Collections.immutableList (alternatives);
+      this.alternatives = Collections.unmodifiableList (alternatives);
     }
     public List < CharRange > getAlternatives ()
     {
@@ -66,14 +68,14 @@ public abstract class CharRange extends AbstractAST
     {
       return start;
     }
-    private void privateSetstart (Character x)
+    private void $setstart (Character x)
     {
       this.start = x;
     }
     public Range setstart (Character x)
     {
       Range z = new Range ();
-      z.privateSetstart (x);
+      z.$setstart (x);
       return z;
     }
     private Character end;
@@ -81,14 +83,14 @@ public abstract class CharRange extends AbstractAST
     {
       return end;
     }
-    private void privateSetend (Character x)
+    private void $setend (Character x)
     {
       this.end = x;
     }
     public Range setend (Character x)
     {
       Range z = new Range ();
-      z.privateSetend (x);
+      z.$setend (x);
       return z;
     }
   }

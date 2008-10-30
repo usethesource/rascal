@@ -1,13 +1,12 @@
 package org.meta_environment.rascal.ast;
-import java.util.Collections;
-import java.util.List;
-
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public abstract class Module extends AbstractAST
 {
   public class Default extends Module
   {
-/* header:Header body:Body -> Module {cons("Module")} */
+/* header:Header body:Body -> Module {cons("Default")} */
     private Default ()
     {
     }
@@ -26,14 +25,14 @@ public abstract class Module extends AbstractAST
     {
       return header;
     }
-    private void privateSetheader (Header x)
+    private void $setheader (Header x)
     {
       this.header = x;
     }
     public Default setheader (Header x)
     {
       Default z = new Default ();
-      z.privateSetheader (x);
+      z.$setheader (x);
       return z;
     }
     private Body body;
@@ -41,14 +40,14 @@ public abstract class Module extends AbstractAST
     {
       return body;
     }
-    private void privateSetbody (Body x)
+    private void $setbody (Body x)
     {
       this.body = x;
     }
     public Default setbody (Body x)
     {
       Default z = new Default ();
-      z.privateSetbody (x);
+      z.$setbody (x);
       return z;
     }
   }

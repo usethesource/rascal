@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public abstract class Comprehension extends AbstractAST
 {
   public class Set extends Comprehension
@@ -24,14 +26,14 @@ public abstract class Comprehension extends AbstractAST
     {
       return result;
     }
-    private void privateSetresult (Expression x)
+    private void $setresult (Expression x)
     {
       this.result = x;
     }
     public Set setresult (Expression x)
     {
       Set z = new Set ();
-      z.privateSetresult (x);
+      z.$setresult (x);
       return z;
     }
     private List < Generator > generators;
@@ -39,14 +41,14 @@ public abstract class Comprehension extends AbstractAST
     {
       return generators;
     }
-    private void privateSetgenerators (List < Generator > x)
+    private void $setgenerators (List < Generator > x)
     {
       this.generators = x;
     }
     public Set setgenerators (List < Generator > x)
     {
       Set z = new Set ();
-      z.privateSetgenerators (x);
+      z.$setgenerators (x);
       return z;
     }
   }
@@ -55,7 +57,7 @@ public abstract class Comprehension extends AbstractAST
     private final List < Comprehension > alternatives;
     public Ambiguity (List < Comprehension > alternatives)
     {
-      this.alternatives = Collections.immutableList (alternatives);
+      this.alternatives = Collections.unmodifiableList (alternatives);
     }
     public List < Comprehension > getAlternatives ()
     {
@@ -84,14 +86,14 @@ public abstract class Comprehension extends AbstractAST
     {
       return result;
     }
-    private void privateSetresult (Expression x)
+    private void $setresult (Expression x)
     {
       this.result = x;
     }
     public List setresult (Expression x)
     {
       List z = new List ();
-      z.privateSetresult (x);
+      z.$setresult (x);
       return z;
     }
     private List < Generator > generators;
@@ -99,14 +101,14 @@ public abstract class Comprehension extends AbstractAST
     {
       return generators;
     }
-    private void privateSetgenerators (List < Generator > x)
+    private void $setgenerators (List < Generator > x)
     {
       this.generators = x;
     }
     public List setgenerators (List < Generator > x)
     {
       List z = new List ();
-      z.privateSetgenerators (x);
+      z.$setgenerators (x);
       return z;
     }
   }

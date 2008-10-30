@@ -1,83 +1,9 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public abstract class Statement extends AbstractAST
 {
-  public class Solve extends Statement
-  {
-/* "solve" bound:Bound init:Statement "do" body:Statement -> Statement {cons("Solve")} */
-    private Solve ()
-    {
-    }
-    /*package */ Solve (ITree tree, Bound bound, Statement init,
-			Statement body)
-    {
-      this.tree = tree;
-      this.bound = bound;
-      this.init = init;
-      this.body = body;
-    }
-    public IVisitable accept (IASTVisitor visitor)
-    {
-      return visitor.visitStatementSolve (this);
-    }
-    private Bound bound;
-    public Bound getbound ()
-    {
-      return bound;
-    }
-    private void privateSetbound (Bound x)
-    {
-      this.bound = x;
-    }
-    public Solve setbound (Bound x)
-    {
-      Solve z = new Solve ();
-      z.privateSetbound (x);
-      return z;
-    }
-    private Statement init;
-    public Statement getinit ()
-    {
-      return init;
-    }
-    private void privateSetinit (Statement x)
-    {
-      this.init = x;
-    }
-    public Solve setinit (Statement x)
-    {
-      Solve z = new Solve ();
-      z.privateSetinit (x);
-      return z;
-    }
-    private Statement body;
-    public Statement getbody ()
-    {
-      return body;
-    }
-    private void privateSetbody (Statement x)
-    {
-      this.body = x;
-    }
-    public Solve setbody (Statement x)
-    {
-      Solve z = new Solve ();
-      z.privateSetbody (x);
-      return z;
-    }
-  }
-  public class Ambiguity extends Statement
-  {
-    private final List < Statement > alternatives;
-    public Ambiguity (List < Statement > alternatives)
-    {
-      this.alternatives = Collections.immutableList (alternatives);
-    }
-    public List < Statement > getAlternatives ()
-    {
-      return alternatives;
-    }
-  }
   public class Solve extends Statement
   {
 /* "with" declarations:{Declarator ";"}+ ";" "solve" body:Statement -> Statement {cons("Solve")} */
@@ -100,14 +26,14 @@ public abstract class Statement extends AbstractAST
     {
       return declarations;
     }
-    private void privateSetdeclarations (List < Declarator > x)
+    private void $setdeclarations (List < Declarator > x)
     {
       this.declarations = x;
     }
     public Solve setdeclarations (List < Declarator > x)
     {
       Solve z = new Solve ();
-      z.privateSetdeclarations (x);
+      z.$setdeclarations (x);
       return z;
     }
     private Statement body;
@@ -115,27 +41,40 @@ public abstract class Statement extends AbstractAST
     {
       return body;
     }
-    private void privateSetbody (Statement x)
+    private void $setbody (Statement x)
     {
       this.body = x;
     }
     public Solve setbody (Statement x)
     {
       Solve z = new Solve ();
-      z.privateSetbody (x);
+      z.$setbody (x);
       return z;
+    }
+  }
+  public class Ambiguity extends Statement
+  {
+    private final List < Statement > alternatives;
+    public Ambiguity (List < Statement > alternatives)
+    {
+      this.alternatives = Collections.unmodifiableList (alternatives);
+    }
+    public List < Statement > getAlternatives ()
+    {
+      return alternatives;
     }
   }
   public class For extends Statement
   {
-/* "for" "(" generators:{Generator ","}+ ")" body:Statement -> Statement {cons("For")} */
+/* label:Label "for" "(" generators:{Generator ","}+ ")" body:Statement -> Statement {cons("For")} */
     private For ()
     {
     }
-    /*package */ For (ITree tree, List < Generator > generators,
+    /*package */ For (ITree tree, Label label, List < Generator > generators,
 		      Statement body)
     {
       this.tree = tree;
+      this.label = label;
       this.generators = generators;
       this.body = body;
     }
@@ -143,19 +82,34 @@ public abstract class Statement extends AbstractAST
     {
       return visitor.visitStatementFor (this);
     }
+    private Label label;
+    public Label getlabel ()
+    {
+      return label;
+    }
+    private void $setlabel (Label x)
+    {
+      this.label = x;
+    }
+    public For setlabel (Label x)
+    {
+      For z = new For ();
+      z.$setlabel (x);
+      return z;
+    }
     private List < Generator > generators;
     public List < Generator > getgenerators ()
     {
       return generators;
     }
-    private void privateSetgenerators (List < Generator > x)
+    private void $setgenerators (List < Generator > x)
     {
       this.generators = x;
     }
     public For setgenerators (List < Generator > x)
     {
       For z = new For ();
-      z.privateSetgenerators (x);
+      z.$setgenerators (x);
       return z;
     }
     private Statement body;
@@ -163,26 +117,28 @@ public abstract class Statement extends AbstractAST
     {
       return body;
     }
-    private void privateSetbody (Statement x)
+    private void $setbody (Statement x)
     {
       this.body = x;
     }
     public For setbody (Statement x)
     {
       For z = new For ();
-      z.privateSetbody (x);
+      z.$setbody (x);
       return z;
     }
   }
   public class While extends Statement
   {
-/* "while" "(" condition:Expression ")" body:Statement -> Statement {cons("While")} */
+/* label:Label "while" "(" condition:Expression ")" body:Statement -> Statement {cons("While")} */
     private While ()
     {
     }
-    /*package */ While (ITree tree, Expression condition, Statement body)
+    /*package */ While (ITree tree, Label label, Expression condition,
+			Statement body)
     {
       this.tree = tree;
+      this.label = label;
       this.condition = condition;
       this.body = body;
     }
@@ -190,19 +146,34 @@ public abstract class Statement extends AbstractAST
     {
       return visitor.visitStatementWhile (this);
     }
+    private Label label;
+    public Label getlabel ()
+    {
+      return label;
+    }
+    private void $setlabel (Label x)
+    {
+      this.label = x;
+    }
+    public While setlabel (Label x)
+    {
+      While z = new While ();
+      z.$setlabel (x);
+      return z;
+    }
     private Expression condition;
     public Expression getcondition ()
     {
       return condition;
     }
-    private void privateSetcondition (Expression x)
+    private void $setcondition (Expression x)
     {
       this.condition = x;
     }
     public While setcondition (Expression x)
     {
       While z = new While ();
-      z.privateSetcondition (x);
+      z.$setcondition (x);
       return z;
     }
     private Statement body;
@@ -210,26 +181,28 @@ public abstract class Statement extends AbstractAST
     {
       return body;
     }
-    private void privateSetbody (Statement x)
+    private void $setbody (Statement x)
     {
       this.body = x;
     }
     public While setbody (Statement x)
     {
       While z = new While ();
-      z.privateSetbody (x);
+      z.$setbody (x);
       return z;
     }
   }
   public class DoWhile extends Statement
   {
-/* "do" body:Statement "while" "(" condition:Expression ")" ";" -> Statement {cons("DoWhile")} */
+/* label:Label "do" body:Statement "while" "(" condition:Expression ")" ";" -> Statement {cons("DoWhile")} */
     private DoWhile ()
     {
     }
-    /*package */ DoWhile (ITree tree, Statement body, Expression condition)
+    /*package */ DoWhile (ITree tree, Label label, Statement body,
+			  Expression condition)
     {
       this.tree = tree;
+      this.label = label;
       this.body = body;
       this.condition = condition;
     }
@@ -237,19 +210,34 @@ public abstract class Statement extends AbstractAST
     {
       return visitor.visitStatementDoWhile (this);
     }
+    private Label label;
+    public Label getlabel ()
+    {
+      return label;
+    }
+    private void $setlabel (Label x)
+    {
+      this.label = x;
+    }
+    public DoWhile setlabel (Label x)
+    {
+      DoWhile z = new DoWhile ();
+      z.$setlabel (x);
+      return z;
+    }
     private Statement body;
     public Statement getbody ()
     {
       return body;
     }
-    private void privateSetbody (Statement x)
+    private void $setbody (Statement x)
     {
       this.body = x;
     }
     public DoWhile setbody (Statement x)
     {
       DoWhile z = new DoWhile ();
-      z.privateSetbody (x);
+      z.$setbody (x);
       return z;
     }
     private Expression condition;
@@ -257,27 +245,28 @@ public abstract class Statement extends AbstractAST
     {
       return condition;
     }
-    private void privateSetcondition (Expression x)
+    private void $setcondition (Expression x)
     {
       this.condition = x;
     }
     public DoWhile setcondition (Expression x)
     {
       DoWhile z = new DoWhile ();
-      z.privateSetcondition (x);
+      z.$setcondition (x);
       return z;
     }
   }
   public class IfThenElse extends Statement
   {
-/* "if" "(" condition:Condition ")" thenStatement:Statement "else" elseStatement:Statement -> Statement {cons("IfThenElse")} */
+/* label:Label "if" "(" condition:Condition ")" thenStatement:Statement "else" elseStatement:Statement -> Statement {cons("IfThenElse")} */
     private IfThenElse ()
     {
     }
-    /*package */ IfThenElse (ITree tree, Condition condition,
+    /*package */ IfThenElse (ITree tree, Label label, Condition condition,
 			     Statement thenStatement, Statement elseStatement)
     {
       this.tree = tree;
+      this.label = label;
       this.condition = condition;
       this.thenStatement = thenStatement;
       this.elseStatement = elseStatement;
@@ -286,19 +275,34 @@ public abstract class Statement extends AbstractAST
     {
       return visitor.visitStatementIfThenElse (this);
     }
+    private Label label;
+    public Label getlabel ()
+    {
+      return label;
+    }
+    private void $setlabel (Label x)
+    {
+      this.label = x;
+    }
+    public IfThenElse setlabel (Label x)
+    {
+      IfThenElse z = new IfThenElse ();
+      z.$setlabel (x);
+      return z;
+    }
     private Condition condition;
     public Condition getcondition ()
     {
       return condition;
     }
-    private void privateSetcondition (Condition x)
+    private void $setcondition (Condition x)
     {
       this.condition = x;
     }
     public IfThenElse setcondition (Condition x)
     {
       IfThenElse z = new IfThenElse ();
-      z.privateSetcondition (x);
+      z.$setcondition (x);
       return z;
     }
     private Statement thenStatement;
@@ -306,14 +310,14 @@ public abstract class Statement extends AbstractAST
     {
       return thenStatement;
     }
-    private void privateSetthenStatement (Statement x)
+    private void $setthenStatement (Statement x)
     {
       this.thenStatement = x;
     }
     public IfThenElse setthenStatement (Statement x)
     {
       IfThenElse z = new IfThenElse ();
-      z.privateSetthenStatement (x);
+      z.$setthenStatement (x);
       return z;
     }
     private Statement elseStatement;
@@ -321,27 +325,28 @@ public abstract class Statement extends AbstractAST
     {
       return elseStatement;
     }
-    private void privateSetelseStatement (Statement x)
+    private void $setelseStatement (Statement x)
     {
       this.elseStatement = x;
     }
     public IfThenElse setelseStatement (Statement x)
     {
       IfThenElse z = new IfThenElse ();
-      z.privateSetelseStatement (x);
+      z.$setelseStatement (x);
       return z;
     }
   }
   public class IfThen extends Statement
   {
-/* "if" "(" condition:Condition ")" thenStatement:Statement NoElseMayFollow -> Statement {cons("IfThen")} */
+/* label:Label "if" "(" condition:Condition ")" thenStatement:Statement NoElseMayFollow -> Statement {cons("IfThen")} */
     private IfThen ()
     {
     }
-    /*package */ IfThen (ITree tree, Condition condition,
+    /*package */ IfThen (ITree tree, Label label, Condition condition,
 			 Statement thenStatement)
     {
       this.tree = tree;
+      this.label = label;
       this.condition = condition;
       this.thenStatement = thenStatement;
     }
@@ -349,19 +354,34 @@ public abstract class Statement extends AbstractAST
     {
       return visitor.visitStatementIfThen (this);
     }
+    private Label label;
+    public Label getlabel ()
+    {
+      return label;
+    }
+    private void $setlabel (Label x)
+    {
+      this.label = x;
+    }
+    public IfThen setlabel (Label x)
+    {
+      IfThen z = new IfThen ();
+      z.$setlabel (x);
+      return z;
+    }
     private Condition condition;
     public Condition getcondition ()
     {
       return condition;
     }
-    private void privateSetcondition (Condition x)
+    private void $setcondition (Condition x)
     {
       this.condition = x;
     }
     public IfThen setcondition (Condition x)
     {
       IfThen z = new IfThen ();
-      z.privateSetcondition (x);
+      z.$setcondition (x);
       return z;
     }
     private Statement thenStatement;
@@ -369,27 +389,28 @@ public abstract class Statement extends AbstractAST
     {
       return thenStatement;
     }
-    private void privateSetthenStatement (Statement x)
+    private void $setthenStatement (Statement x)
     {
       this.thenStatement = x;
     }
     public IfThen setthenStatement (Statement x)
     {
       IfThen z = new IfThen ();
-      z.privateSetthenStatement (x);
+      z.$setthenStatement (x);
       return z;
     }
   }
   public class Switch extends Statement
   {
-/* "switch" "(" expression:Expression ")" "{" cases:Case+ "}" -> Statement {cons("Switch")} */
+/* label:Label "switch" "(" expression:Expression ")" "{" cases:Case+ "}" -> Statement {cons("Switch")} */
     private Switch ()
     {
     }
-    /*package */ Switch (ITree tree, Expression expression,
+    /*package */ Switch (ITree tree, Label label, Expression expression,
 			 List < Case > cases)
     {
       this.tree = tree;
+      this.label = label;
       this.expression = expression;
       this.cases = cases;
     }
@@ -397,19 +418,34 @@ public abstract class Statement extends AbstractAST
     {
       return visitor.visitStatementSwitch (this);
     }
+    private Label label;
+    public Label getlabel ()
+    {
+      return label;
+    }
+    private void $setlabel (Label x)
+    {
+      this.label = x;
+    }
+    public Switch setlabel (Label x)
+    {
+      Switch z = new Switch ();
+      z.$setlabel (x);
+      return z;
+    }
     private Expression expression;
     public Expression getexpression ()
     {
       return expression;
     }
-    private void privateSetexpression (Expression x)
+    private void $setexpression (Expression x)
     {
       this.expression = x;
     }
     public Switch setexpression (Expression x)
     {
       Switch z = new Switch ();
-      z.privateSetexpression (x);
+      z.$setexpression (x);
       return z;
     }
     private List < Case > cases;
@@ -417,14 +453,14 @@ public abstract class Statement extends AbstractAST
     {
       return cases;
     }
-    private void privateSetcases (List < Case > x)
+    private void $setcases (List < Case > x)
     {
       this.cases = x;
     }
     public Switch setcases (List < Case > x)
     {
       Switch z = new Switch ();
-      z.privateSetcases (x);
+      z.$setcases (x);
       return z;
     }
   }
@@ -448,14 +484,14 @@ public abstract class Statement extends AbstractAST
     {
       return expression;
     }
-    private void privateSetexpression (Expression x)
+    private void $setexpression (Expression x)
     {
       this.expression = x;
     }
     public Expression setexpression (Expression x)
     {
       Expression z = new Expression ();
-      z.privateSetexpression (x);
+      z.$setexpression (x);
       return z;
     }
   }
@@ -479,14 +515,14 @@ public abstract class Statement extends AbstractAST
     {
       return visit;
     }
-    private void privateSetvisit (Visit x)
+    private void $setvisit (Visit x)
     {
       this.visit = x;
     }
     public Visit setvisit (Visit x)
     {
       Visit z = new Visit ();
-      z.privateSetvisit (x);
+      z.$setvisit (x);
       return z;
     }
   }
@@ -514,14 +550,14 @@ public abstract class Statement extends AbstractAST
     {
       return assignables;
     }
-    private void privateSetassignables (List < Assignable > x)
+    private void $setassignables (List < Assignable > x)
     {
       this.assignables = x;
     }
     public Assignment setassignables (List < Assignable > x)
     {
       Assignment z = new Assignment ();
-      z.privateSetassignables (x);
+      z.$setassignables (x);
       return z;
     }
     private Assignment operator;
@@ -529,14 +565,14 @@ public abstract class Statement extends AbstractAST
     {
       return operator;
     }
-    private void privateSetoperator (Assignment x)
+    private void $setoperator (Assignment x)
     {
       this.operator = x;
     }
     public Assignment setoperator (Assignment x)
     {
       Assignment z = new Assignment ();
-      z.privateSetoperator (x);
+      z.$setoperator (x);
       return z;
     }
     private List < Expression > expressions;
@@ -544,14 +580,14 @@ public abstract class Statement extends AbstractAST
     {
       return expressions;
     }
-    private void privateSetexpressions (List < Expression > x)
+    private void $setexpressions (List < Expression > x)
     {
       this.expressions = x;
     }
     public Assignment setexpressions (List < Expression > x)
     {
       Assignment z = new Assignment ();
-      z.privateSetexpressions (x);
+      z.$setexpressions (x);
       return z;
     }
   }
@@ -577,14 +613,14 @@ public abstract class Statement extends AbstractAST
     {
       return label;
     }
-    private void privateSetlabel (StringLiteral x)
+    private void $setlabel (StringLiteral x)
     {
       this.label = x;
     }
     public Assert setlabel (StringLiteral x)
     {
       Assert z = new Assert ();
-      z.privateSetlabel (x);
+      z.$setlabel (x);
       return z;
     }
     private Expression expression;
@@ -592,14 +628,14 @@ public abstract class Statement extends AbstractAST
     {
       return expression;
     }
-    private void privateSetexpression (Expression x)
+    private void $setexpression (Expression x)
     {
       this.expression = x;
     }
     public Assert setexpression (Expression x)
     {
       Assert z = new Assert ();
-      z.privateSetexpression (x);
+      z.$setexpression (x);
       return z;
     }
   }
@@ -623,14 +659,14 @@ public abstract class Statement extends AbstractAST
     {
       return expression;
     }
-    private void privateSetexpression (Expression x)
+    private void $setexpression (Expression x)
     {
       this.expression = x;
     }
     public Return setexpression (Expression x)
     {
       Return z = new Return ();
-      z.privateSetexpression (x);
+      z.$setexpression (x);
       return z;
     }
   }
@@ -654,14 +690,14 @@ public abstract class Statement extends AbstractAST
     {
       return expression;
     }
-    private void privateSetexpression (Expression x)
+    private void $setexpression (Expression x)
     {
       this.expression = x;
     }
     public Insert setexpression (Expression x)
     {
       Insert z = new Insert ();
-      z.privateSetexpression (x);
+      z.$setexpression (x);
       return z;
     }
   }
@@ -685,20 +721,20 @@ public abstract class Statement extends AbstractAST
     {
       return expression;
     }
-    private void privateSetexpression (Expression x)
+    private void $setexpression (Expression x)
     {
       this.expression = x;
     }
     public Throw setexpression (Expression x)
     {
       Throw z = new Throw ();
-      z.privateSetexpression (x);
+      z.$setexpression (x);
       return z;
     }
   }
   public class Break extends Statement
   {
-/* "break" ";" -> Statement {cons("Break")} */
+/* Break -> Statement {cons("Break")} */
     private Break ()
     {
     }
@@ -777,14 +813,14 @@ public abstract class Statement extends AbstractAST
     {
       return body;
     }
-    private void privateSetbody (Statement x)
+    private void $setbody (Statement x)
     {
       this.body = x;
     }
     public Try setbody (Statement x)
     {
       Try z = new Try ();
-      z.privateSetbody (x);
+      z.$setbody (x);
       return z;
     }
     private List < Catch > handlers;
@@ -792,14 +828,14 @@ public abstract class Statement extends AbstractAST
     {
       return handlers;
     }
-    private void privateSethandlers (List < Catch > x)
+    private void $sethandlers (List < Catch > x)
     {
       this.handlers = x;
     }
     public Try sethandlers (List < Catch > x)
     {
       Try z = new Try ();
-      z.privateSethandlers (x);
+      z.$sethandlers (x);
       return z;
     }
   }
@@ -826,14 +862,14 @@ public abstract class Statement extends AbstractAST
     {
       return body;
     }
-    private void privateSetbody (Statement x)
+    private void $setbody (Statement x)
     {
       this.body = x;
     }
     public TryFinally setbody (Statement x)
     {
       TryFinally z = new TryFinally ();
-      z.privateSetbody (x);
+      z.$setbody (x);
       return z;
     }
     private List < Catch > handlers;
@@ -841,14 +877,14 @@ public abstract class Statement extends AbstractAST
     {
       return handlers;
     }
-    private void privateSethandlers (List < Catch > x)
+    private void $sethandlers (List < Catch > x)
     {
       this.handlers = x;
     }
     public TryFinally sethandlers (List < Catch > x)
     {
       TryFinally z = new TryFinally ();
-      z.privateSethandlers (x);
+      z.$sethandlers (x);
       return z;
     }
     private Statement finallyBody;
@@ -856,45 +892,62 @@ public abstract class Statement extends AbstractAST
     {
       return finallyBody;
     }
-    private void privateSetfinallyBody (Statement x)
+    private void $setfinallyBody (Statement x)
     {
       this.finallyBody = x;
     }
     public TryFinally setfinallyBody (Statement x)
     {
       TryFinally z = new TryFinally ();
-      z.privateSetfinallyBody (x);
+      z.$setfinallyBody (x);
       return z;
     }
   }
   public class Block extends Statement
   {
-/* "{" statements:Statement* "}" -> Statement {cons("Block")} */
+/* label:Label "{" statements:Statement* "}" -> Statement {cons("Block")} */
     private Block ()
     {
     }
-    /*package */ Block (ITree tree, List < Statement > statements)
+    /*package */ Block (ITree tree, Label label,
+			List < Statement > statements)
     {
       this.tree = tree;
+      this.label = label;
       this.statements = statements;
     }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitStatementBlock (this);
     }
+    private Label label;
+    public Label getlabel ()
+    {
+      return label;
+    }
+    private void $setlabel (Label x)
+    {
+      this.label = x;
+    }
+    public Block setlabel (Label x)
+    {
+      Block z = new Block ();
+      z.$setlabel (x);
+      return z;
+    }
     private List < Statement > statements;
     public List < Statement > getstatements ()
     {
       return statements;
     }
-    private void privateSetstatements (List < Statement > x)
+    private void $setstatements (List < Statement > x)
     {
       this.statements = x;
     }
     public Block setstatements (List < Statement > x)
     {
       Block z = new Block ();
-      z.privateSetstatements (x);
+      z.$setstatements (x);
       return z;
     }
   }
@@ -919,14 +972,14 @@ public abstract class Statement extends AbstractAST
     {
       return functionDeclaration;
     }
-    private void privateSetfunctionDeclaration (FunctionDeclaration x)
+    private void $setfunctionDeclaration (FunctionDeclaration x)
     {
       this.functionDeclaration = x;
     }
     public FunctionDeclaration setfunctionDeclaration (FunctionDeclaration x)
     {
       FunctionDeclaration z = new FunctionDeclaration ();
-      z.privateSetfunctionDeclaration (x);
+      z.$setfunctionDeclaration (x);
       return z;
     }
   }
@@ -951,14 +1004,14 @@ public abstract class Statement extends AbstractAST
     {
       return declaration;
     }
-    private void privateSetdeclaration (LocalVariableDeclaration x)
+    private void $setdeclaration (LocalVariableDeclaration x)
     {
       this.declaration = x;
     }
     public VariableDeclaration setdeclaration (LocalVariableDeclaration x)
     {
       VariableDeclaration z = new VariableDeclaration ();
-      z.privateSetdeclaration (x);
+      z.$setdeclaration (x);
       return z;
     }
   }
@@ -984,14 +1037,14 @@ public abstract class Statement extends AbstractAST
     {
       return type;
     }
-    private void privateSettype (Type x)
+    private void $settype (Type x)
     {
       this.type = x;
     }
     public GlobalDirective settype (Type x)
     {
       GlobalDirective z = new GlobalDirective ();
-      z.privateSettype (x);
+      z.$settype (x);
       return z;
     }
     private List < QualifiedName > names;
@@ -999,14 +1052,14 @@ public abstract class Statement extends AbstractAST
     {
       return names;
     }
-    private void privateSetnames (List < QualifiedName > x)
+    private void $setnames (List < QualifiedName > x)
     {
       this.names = x;
     }
     public GlobalDirective setnames (List < QualifiedName > x)
     {
       GlobalDirective z = new GlobalDirective ();
-      z.privateSetnames (x);
+      z.$setnames (x);
       return z;
     }
   }

@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public abstract class Formal extends AbstractAST
 {
   public class TypeName extends Formal
@@ -23,14 +25,14 @@ public abstract class Formal extends AbstractAST
     {
       return type;
     }
-    private void privateSettype (Type x)
+    private void $settype (Type x)
     {
       this.type = x;
     }
     public TypeName settype (Type x)
     {
       TypeName z = new TypeName ();
-      z.privateSettype (x);
+      z.$settype (x);
       return z;
     }
     private Name name;
@@ -38,14 +40,14 @@ public abstract class Formal extends AbstractAST
     {
       return name;
     }
-    private void privateSetname (Name x)
+    private void $setname (Name x)
     {
       this.name = x;
     }
     public TypeName setname (Name x)
     {
       TypeName z = new TypeName ();
-      z.privateSetname (x);
+      z.$setname (x);
       return z;
     }
   }
@@ -54,7 +56,7 @@ public abstract class Formal extends AbstractAST
     private final List < Formal > alternatives;
     public Ambiguity (List < Formal > alternatives)
     {
-      this.alternatives = Collections.immutableList (alternatives);
+      this.alternatives = Collections.unmodifiableList (alternatives);
     }
     public List < Formal > getAlternatives ()
     {

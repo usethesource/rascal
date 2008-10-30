@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public abstract class CharRanges extends AbstractAST
 {
   public class Range extends CharRanges
@@ -22,14 +24,14 @@ public abstract class CharRanges extends AbstractAST
     {
       return range;
     }
-    private void privateSetrange (CharRange x)
+    private void $setrange (CharRange x)
     {
       this.range = x;
     }
     public Range setrange (CharRange x)
     {
       Range z = new Range ();
-      z.privateSetrange (x);
+      z.$setrange (x);
       return z;
     }
   }
@@ -38,7 +40,7 @@ public abstract class CharRanges extends AbstractAST
     private final List < CharRanges > alternatives;
     public Ambiguity (List < CharRanges > alternatives)
     {
-      this.alternatives = Collections.immutableList (alternatives);
+      this.alternatives = Collections.unmodifiableList (alternatives);
     }
     public List < CharRanges > getAlternatives ()
     {
@@ -66,14 +68,14 @@ public abstract class CharRanges extends AbstractAST
     {
       return lhs;
     }
-    private void privateSetlhs (CharRanges x)
+    private void $setlhs (CharRanges x)
     {
       this.lhs = x;
     }
     public Concatenate setlhs (CharRanges x)
     {
       Concatenate z = new Concatenate ();
-      z.privateSetlhs (x);
+      z.$setlhs (x);
       return z;
     }
     private CharRanges rhs;
@@ -81,14 +83,14 @@ public abstract class CharRanges extends AbstractAST
     {
       return rhs;
     }
-    private void privateSetrhs (CharRanges x)
+    private void $setrhs (CharRanges x)
     {
       this.rhs = x;
     }
     public Concatenate setrhs (CharRanges x)
     {
       Concatenate z = new Concatenate ();
-      z.privateSetrhs (x);
+      z.$setrhs (x);
       return z;
     }
   }

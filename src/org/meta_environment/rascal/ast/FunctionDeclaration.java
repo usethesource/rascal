@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public abstract class FunctionDeclaration extends AbstractAST
 {
   public class Default extends FunctionDeclaration
@@ -25,14 +27,14 @@ public abstract class FunctionDeclaration extends AbstractAST
     {
       return signature;
     }
-    private void privateSetsignature (Signature x)
+    private void $setsignature (Signature x)
     {
       this.signature = x;
     }
     public Default setsignature (Signature x)
     {
       Default z = new Default ();
-      z.privateSetsignature (x);
+      z.$setsignature (x);
       return z;
     }
     private Tags tags;
@@ -40,14 +42,14 @@ public abstract class FunctionDeclaration extends AbstractAST
     {
       return tags;
     }
-    private void privateSettags (Tags x)
+    private void $settags (Tags x)
     {
       this.tags = x;
     }
     public Default settags (Tags x)
     {
       Default z = new Default ();
-      z.privateSettags (x);
+      z.$settags (x);
       return z;
     }
     private FunctionBody body;
@@ -55,14 +57,14 @@ public abstract class FunctionDeclaration extends AbstractAST
     {
       return body;
     }
-    private void privateSetbody (FunctionBody x)
+    private void $setbody (FunctionBody x)
     {
       this.body = x;
     }
     public Default setbody (FunctionBody x)
     {
       Default z = new Default ();
-      z.privateSetbody (x);
+      z.$setbody (x);
       return z;
     }
   }
@@ -71,7 +73,7 @@ public abstract class FunctionDeclaration extends AbstractAST
     private final List < FunctionDeclaration > alternatives;
     public Ambiguity (List < FunctionDeclaration > alternatives)
     {
-      this.alternatives = Collections.immutableList (alternatives);
+      this.alternatives = Collections.unmodifiableList (alternatives);
     }
     public List < FunctionDeclaration > getAlternatives ()
     {
@@ -99,14 +101,14 @@ public abstract class FunctionDeclaration extends AbstractAST
     {
       return signature;
     }
-    private void privateSetsignature (Signature x)
+    private void $setsignature (Signature x)
     {
       this.signature = x;
     }
     public Abstract setsignature (Signature x)
     {
       Abstract z = new Abstract ();
-      z.privateSetsignature (x);
+      z.$setsignature (x);
       return z;
     }
     private Tags tags;
@@ -114,14 +116,14 @@ public abstract class FunctionDeclaration extends AbstractAST
     {
       return tags;
     }
-    private void privateSettags (Tags x)
+    private void $settags (Tags x)
     {
       this.tags = x;
     }
     public Abstract settags (Tags x)
     {
       Abstract z = new Abstract ();
-      z.privateSettags (x);
+      z.$settags (x);
       return z;
     }
   }

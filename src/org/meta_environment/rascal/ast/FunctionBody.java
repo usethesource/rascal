@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public abstract class FunctionBody extends AbstractAST
 {
   public class Default extends FunctionBody
@@ -22,14 +24,14 @@ public abstract class FunctionBody extends AbstractAST
     {
       return statements;
     }
-    private void privateSetstatements (List < Statement > x)
+    private void $setstatements (List < Statement > x)
     {
       this.statements = x;
     }
     public Default setstatements (List < Statement > x)
     {
       Default z = new Default ();
-      z.privateSetstatements (x);
+      z.$setstatements (x);
       return z;
     }
   }
@@ -38,7 +40,7 @@ public abstract class FunctionBody extends AbstractAST
     private final List < FunctionBody > alternatives;
     public Ambiguity (List < FunctionBody > alternatives)
     {
-      this.alternatives = Collections.immutableList (alternatives);
+      this.alternatives = Collections.unmodifiableList (alternatives);
     }
     public List < FunctionBody > getAlternatives ()
     {

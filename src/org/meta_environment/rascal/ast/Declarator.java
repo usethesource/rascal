@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public abstract class Declarator extends AbstractAST
 {
   public class Default extends Declarator
@@ -23,14 +25,14 @@ public abstract class Declarator extends AbstractAST
     {
       return type;
     }
-    private void privateSettype (Type x)
+    private void $settype (Type x)
     {
       this.type = x;
     }
     public Default settype (Type x)
     {
       Default z = new Default ();
-      z.privateSettype (x);
+      z.$settype (x);
       return z;
     }
     private List < Variable > variables;
@@ -38,14 +40,14 @@ public abstract class Declarator extends AbstractAST
     {
       return variables;
     }
-    private void privateSetvariables (List < Variable > x)
+    private void $setvariables (List < Variable > x)
     {
       this.variables = x;
     }
     public Default setvariables (List < Variable > x)
     {
       Default z = new Default ();
-      z.privateSetvariables (x);
+      z.$setvariables (x);
       return z;
     }
   }
@@ -54,7 +56,7 @@ public abstract class Declarator extends AbstractAST
     private final List < Declarator > alternatives;
     public Ambiguity (List < Declarator > alternatives)
     {
-      this.alternatives = Collections.immutableList (alternatives);
+      this.alternatives = Collections.unmodifiableList (alternatives);
     }
     public List < Declarator > getAlternatives ()
     {

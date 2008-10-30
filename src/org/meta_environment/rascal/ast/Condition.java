@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public abstract class Condition extends AbstractAST
 {
   public class Match extends Condition
@@ -23,14 +25,14 @@ public abstract class Condition extends AbstractAST
     {
       return pattern;
     }
-    private void privateSetpattern (Pattern x)
+    private void $setpattern (Pattern x)
     {
       this.pattern = x;
     }
     public Match setpattern (Pattern x)
     {
       Match z = new Match ();
-      z.privateSetpattern (x);
+      z.$setpattern (x);
       return z;
     }
     private Expression expression;
@@ -38,14 +40,14 @@ public abstract class Condition extends AbstractAST
     {
       return expression;
     }
-    private void privateSetexpression (Expression x)
+    private void $setexpression (Expression x)
     {
       this.expression = x;
     }
     public Match setexpression (Expression x)
     {
       Match z = new Match ();
-      z.privateSetexpression (x);
+      z.$setexpression (x);
       return z;
     }
   }
@@ -54,7 +56,7 @@ public abstract class Condition extends AbstractAST
     private final List < Condition > alternatives;
     public Ambiguity (List < Condition > alternatives)
     {
-      this.alternatives = Collections.immutableList (alternatives);
+      this.alternatives = Collections.unmodifiableList (alternatives);
     }
     public List < Condition > getAlternatives ()
     {
@@ -82,14 +84,14 @@ public abstract class Condition extends AbstractAST
     {
       return pattern;
     }
-    private void privateSetpattern (Pattern x)
+    private void $setpattern (Pattern x)
     {
       this.pattern = x;
     }
     public NoMatch setpattern (Pattern x)
     {
       NoMatch z = new NoMatch ();
-      z.privateSetpattern (x);
+      z.$setpattern (x);
       return z;
     }
     private Expression expression;
@@ -97,14 +99,14 @@ public abstract class Condition extends AbstractAST
     {
       return expression;
     }
-    private void privateSetexpression (Expression x)
+    private void $setexpression (Expression x)
     {
       this.expression = x;
     }
     public NoMatch setexpression (Expression x)
     {
       NoMatch z = new NoMatch ();
-      z.privateSetexpression (x);
+      z.$setexpression (x);
       return z;
     }
   }
@@ -128,14 +130,14 @@ public abstract class Condition extends AbstractAST
     {
       return expression;
     }
-    private void privateSetexpression (Expression x)
+    private void $setexpression (Expression x)
     {
       this.expression = x;
     }
     public Expression setexpression (Expression x)
     {
       Expression z = new Expression ();
-      z.privateSetexpression (x);
+      z.$setexpression (x);
       return z;
     }
   }
@@ -160,14 +162,14 @@ public abstract class Condition extends AbstractAST
     {
       return lhs;
     }
-    private void privateSetlhs (Condition x)
+    private void $setlhs (Condition x)
     {
       this.lhs = x;
     }
     public Conjunction setlhs (Condition x)
     {
       Conjunction z = new Conjunction ();
-      z.privateSetlhs (x);
+      z.$setlhs (x);
       return z;
     }
     private Condition rhs;
@@ -175,14 +177,14 @@ public abstract class Condition extends AbstractAST
     {
       return rhs;
     }
-    private void privateSetrhs (Condition x)
+    private void $setrhs (Condition x)
     {
       this.rhs = x;
     }
     public Conjunction setrhs (Condition x)
     {
       Conjunction z = new Conjunction ();
-      z.privateSetrhs (x);
+      z.$setrhs (x);
       return z;
     }
   }

@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public abstract class TypeVar extends AbstractAST
 {
   public class Free extends TypeVar
@@ -22,14 +24,14 @@ public abstract class TypeVar extends AbstractAST
     {
       return name;
     }
-    private void privateSetname (Name x)
+    private void $setname (Name x)
     {
       this.name = x;
     }
     public Free setname (Name x)
     {
       Free z = new Free ();
-      z.privateSetname (x);
+      z.$setname (x);
       return z;
     }
   }
@@ -38,7 +40,7 @@ public abstract class TypeVar extends AbstractAST
     private final List < TypeVar > alternatives;
     public Ambiguity (List < TypeVar > alternatives)
     {
-      this.alternatives = Collections.immutableList (alternatives);
+      this.alternatives = Collections.unmodifiableList (alternatives);
     }
     public List < TypeVar > getAlternatives ()
     {
@@ -66,14 +68,14 @@ public abstract class TypeVar extends AbstractAST
     {
       return name;
     }
-    private void privateSetname (Name x)
+    private void $setname (Name x)
     {
       this.name = x;
     }
     public Bounded setname (Name x)
     {
       Bounded z = new Bounded ();
-      z.privateSetname (x);
+      z.$setname (x);
       return z;
     }
     private Type bound;
@@ -81,14 +83,14 @@ public abstract class TypeVar extends AbstractAST
     {
       return bound;
     }
-    private void privateSetbound (Type x)
+    private void $setbound (Type x)
     {
       this.bound = x;
     }
     public Bounded setbound (Type x)
     {
       Bounded z = new Bounded ();
-      z.privateSetbound (x);
+      z.$setbound (x);
       return z;
     }
   }

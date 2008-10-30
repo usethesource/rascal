@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public abstract class ImportedModule extends AbstractAST
 {
   public class ActualsRenaming extends ImportedModule
@@ -25,14 +27,14 @@ public abstract class ImportedModule extends AbstractAST
     {
       return name;
     }
-    private void privateSetname (ModuleName x)
+    private void $setname (ModuleName x)
     {
       this.name = x;
     }
     public ActualsRenaming setname (ModuleName x)
     {
       ActualsRenaming z = new ActualsRenaming ();
-      z.privateSetname (x);
+      z.$setname (x);
       return z;
     }
     private ModuleActuals actuals;
@@ -40,14 +42,14 @@ public abstract class ImportedModule extends AbstractAST
     {
       return actuals;
     }
-    private void privateSetactuals (ModuleActuals x)
+    private void $setactuals (ModuleActuals x)
     {
       this.actuals = x;
     }
     public ActualsRenaming setactuals (ModuleActuals x)
     {
       ActualsRenaming z = new ActualsRenaming ();
-      z.privateSetactuals (x);
+      z.$setactuals (x);
       return z;
     }
     private Renamings renamings;
@@ -55,14 +57,14 @@ public abstract class ImportedModule extends AbstractAST
     {
       return renamings;
     }
-    private void privateSetrenamings (Renamings x)
+    private void $setrenamings (Renamings x)
     {
       this.renamings = x;
     }
     public ActualsRenaming setrenamings (Renamings x)
     {
       ActualsRenaming z = new ActualsRenaming ();
-      z.privateSetrenamings (x);
+      z.$setrenamings (x);
       return z;
     }
   }
@@ -71,7 +73,7 @@ public abstract class ImportedModule extends AbstractAST
     private final List < ImportedModule > alternatives;
     public Ambiguity (List < ImportedModule > alternatives)
     {
-      this.alternatives = Collections.immutableList (alternatives);
+      this.alternatives = Collections.unmodifiableList (alternatives);
     }
     public List < ImportedModule > getAlternatives ()
     {
@@ -99,14 +101,14 @@ public abstract class ImportedModule extends AbstractAST
     {
       return name;
     }
-    private void privateSetname (ModuleName x)
+    private void $setname (ModuleName x)
     {
       this.name = x;
     }
     public Actuals setname (ModuleName x)
     {
       Actuals z = new Actuals ();
-      z.privateSetname (x);
+      z.$setname (x);
       return z;
     }
     private ModuleActuals actuals;
@@ -114,14 +116,14 @@ public abstract class ImportedModule extends AbstractAST
     {
       return actuals;
     }
-    private void privateSetactuals (ModuleActuals x)
+    private void $setactuals (ModuleActuals x)
     {
       this.actuals = x;
     }
     public Actuals setactuals (ModuleActuals x)
     {
       Actuals z = new Actuals ();
-      z.privateSetactuals (x);
+      z.$setactuals (x);
       return z;
     }
   }
@@ -146,14 +148,14 @@ public abstract class ImportedModule extends AbstractAST
     {
       return name;
     }
-    private void privateSetname (ModuleName x)
+    private void $setname (ModuleName x)
     {
       this.name = x;
     }
     public Renamings setname (ModuleName x)
     {
       Renamings z = new Renamings ();
-      z.privateSetname (x);
+      z.$setname (x);
       return z;
     }
     private Renamings renamings;
@@ -161,14 +163,14 @@ public abstract class ImportedModule extends AbstractAST
     {
       return renamings;
     }
-    private void privateSetrenamings (Renamings x)
+    private void $setrenamings (Renamings x)
     {
       this.renamings = x;
     }
     public Renamings setrenamings (Renamings x)
     {
       Renamings z = new Renamings ();
-      z.privateSetrenamings (x);
+      z.$setrenamings (x);
       return z;
     }
   }
@@ -192,14 +194,14 @@ public abstract class ImportedModule extends AbstractAST
     {
       return name;
     }
-    private void privateSetname (ModuleName x)
+    private void $setname (ModuleName x)
     {
       this.name = x;
     }
     public Default setname (ModuleName x)
     {
       Default z = new Default ();
-      z.privateSetname (x);
+      z.$setname (x);
       return z;
     }
   }

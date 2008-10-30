@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
+import java.util.List;
+import java.util.Collections;
 public abstract class Expression extends AbstractAST
 {
   public class Closure extends Expression
@@ -24,14 +26,14 @@ public abstract class Expression extends AbstractAST
     {
       return type;
     }
-    private void privateSettype (Type x)
+    private void $settype (Type x)
     {
       this.type = x;
     }
     public Closure settype (Type x)
     {
       Closure z = new Closure ();
-      z.privateSettype (x);
+      z.$settype (x);
       return z;
     }
     private List < Statement > statements;
@@ -39,14 +41,14 @@ public abstract class Expression extends AbstractAST
     {
       return statements;
     }
-    private void privateSetstatements (List < Statement > x)
+    private void $setstatements (List < Statement > x)
     {
       this.statements = x;
     }
     public Closure setstatements (List < Statement > x)
     {
       Closure z = new Closure ();
-      z.privateSetstatements (x);
+      z.$setstatements (x);
       return z;
     }
   }
@@ -55,7 +57,7 @@ public abstract class Expression extends AbstractAST
     private final List < Expression > alternatives;
     public Ambiguity (List < Expression > alternatives)
     {
-      this.alternatives = Collections.immutableList (alternatives);
+      this.alternatives = Collections.unmodifiableList (alternatives);
     }
     public List < Expression > getAlternatives ()
     {
@@ -88,14 +90,14 @@ public abstract class Expression extends AbstractAST
     {
       return closure;
     }
-    private void privateSetclosure (Expression x)
+    private void $setclosure (Expression x)
     {
       this.closure = x;
     }
     public ClosureCall setclosure (Expression x)
     {
       ClosureCall z = new ClosureCall ();
-      z.privateSetclosure (x);
+      z.$setclosure (x);
       return z;
     }
     private List < Expression > arguments;
@@ -103,14 +105,14 @@ public abstract class Expression extends AbstractAST
     {
       return arguments;
     }
-    private void privateSetarguments (List < Expression > x)
+    private void $setarguments (List < Expression > x)
     {
       this.arguments = x;
     }
     public ClosureCall setarguments (List < Expression > x)
     {
       ClosureCall z = new ClosureCall ();
-      z.privateSetarguments (x);
+      z.$setarguments (x);
       return z;
     }
   }
@@ -137,14 +139,14 @@ public abstract class Expression extends AbstractAST
     {
       return expression;
     }
-    private void $Setexpression (Expression x)
+    private void $setexpression (Expression x)
     {
       this.expression = x;
     }
     public FieldUpdate setexpression (Expression x)
     {
       FieldUpdate z = new FieldUpdate ();
-      z.$Setexpression (x);
+      z.$setexpression (x);
       return z;
     }
     private Name key;
@@ -152,14 +154,14 @@ public abstract class Expression extends AbstractAST
     {
       return key;
     }
-    private void privateSetkey (Name x)
+    private void $setkey (Name x)
     {
       this.key = x;
     }
     public FieldUpdate setkey (Name x)
     {
       FieldUpdate z = new FieldUpdate ();
-      z.privateSetkey (x);
+      z.$setkey (x);
       return z;
     }
     private Expression replacement;
@@ -167,14 +169,14 @@ public abstract class Expression extends AbstractAST
     {
       return replacement;
     }
-    private void privateSetreplacement (Expression x)
+    private void $setreplacement (Expression x)
     {
       this.replacement = x;
     }
     public FieldUpdate setreplacement (Expression x)
     {
       FieldUpdate z = new FieldUpdate ();
-      z.privateSetreplacement (x);
+      z.$setreplacement (x);
       return z;
     }
   }
@@ -199,14 +201,14 @@ public abstract class Expression extends AbstractAST
     {
       return expression;
     }
-    private void privateSetexpression (Expression x)
+    private void $setexpression (Expression x)
     {
       this.expression = x;
     }
     public FieldAccess setexpression (Expression x)
     {
       FieldAccess z = new FieldAccess ();
-      z.privateSetexpression (x);
+      z.$setexpression (x);
       return z;
     }
     private Name field;
@@ -214,14 +216,14 @@ public abstract class Expression extends AbstractAST
     {
       return field;
     }
-    private void privateSetfield (Name x)
+    private void $setfield (Name x)
     {
       this.field = x;
     }
     public FieldAccess setfield (Name x)
     {
       FieldAccess z = new FieldAccess ();
-      z.privateSetfield (x);
+      z.$setfield (x);
       return z;
     }
   }
@@ -247,14 +249,14 @@ public abstract class Expression extends AbstractAST
     {
       return expression;
     }
-    private void privateSetexpression (Expression x)
+    private void $setexpression (Expression x)
     {
       this.expression = x;
     }
     public Subscript setexpression (Expression x)
     {
       Subscript z = new Subscript ();
-      z.privateSetexpression (x);
+      z.$setexpression (x);
       return z;
     }
     private Expression subscript;
@@ -262,14 +264,14 @@ public abstract class Expression extends AbstractAST
     {
       return subscript;
     }
-    private void privateSetsubscript (Expression x)
+    private void $setsubscript (Expression x)
     {
       this.subscript = x;
     }
     public Subscript setsubscript (Expression x)
     {
       Subscript z = new Subscript ();
-      z.privateSetsubscript (x);
+      z.$setsubscript (x);
       return z;
     }
   }
@@ -293,14 +295,14 @@ public abstract class Expression extends AbstractAST
     {
       return argument;
     }
-    private void privateSetargument (Expression x)
+    private void $setargument (Expression x)
     {
       this.argument = x;
     }
     public TransitiveReflexiveClosure setargument (Expression x)
     {
       TransitiveReflexiveClosure z = new TransitiveReflexiveClosure ();
-      z.privateSetargument (x);
+      z.$setargument (x);
       return z;
     }
   }
@@ -324,14 +326,14 @@ public abstract class Expression extends AbstractAST
     {
       return argument;
     }
-    private void privateSetargument (Expression x)
+    private void $setargument (Expression x)
     {
       this.argument = x;
     }
     public TransitiveClosure setargument (Expression x)
     {
       TransitiveClosure z = new TransitiveClosure ();
-      z.privateSetargument (x);
+      z.$setargument (x);
       return z;
     }
   }
@@ -356,14 +358,14 @@ public abstract class Expression extends AbstractAST
     {
       return expression;
     }
-    private void privateSetexpression (Expression x)
+    private void $setexpression (Expression x)
     {
       this.expression = x;
     }
     public Annotation setexpression (Expression x)
     {
       Annotation z = new Annotation ();
-      z.privateSetexpression (x);
+      z.$setexpression (x);
       return z;
     }
     private Name name;
@@ -371,14 +373,14 @@ public abstract class Expression extends AbstractAST
     {
       return name;
     }
-    private void privateSetname (Name x)
+    private void $setname (Name x)
     {
       this.name = x;
     }
     public Annotation setname (Name x)
     {
       Annotation z = new Annotation ();
-      z.privateSetname (x);
+      z.$setname (x);
       return z;
     }
   }
@@ -402,14 +404,14 @@ public abstract class Expression extends AbstractAST
     {
       return argument;
     }
-    private void privateSetargument (Expression x)
+    private void $setargument (Expression x)
     {
       this.argument = x;
     }
     public Negation setargument (Expression x)
     {
       Negation z = new Negation ();
-      z.privateSetargument (x);
+      z.$setargument (x);
       return z;
     }
   }
@@ -434,14 +436,14 @@ public abstract class Expression extends AbstractAST
     {
       return lhs;
     }
-    private void privateSetlhs (Expression x)
+    private void $setlhs (Expression x)
     {
       this.lhs = x;
     }
     public Product setlhs (Expression x)
     {
       Product z = new Product ();
-      z.privateSetlhs (x);
+      z.$setlhs (x);
       return z;
     }
     private Expression rhs;
@@ -449,14 +451,14 @@ public abstract class Expression extends AbstractAST
     {
       return rhs;
     }
-    private void privateSetrhs (Expression x)
+    private void $setrhs (Expression x)
     {
       this.rhs = x;
     }
     public Product setrhs (Expression x)
     {
       Product z = new Product ();
-      z.privateSetrhs (x);
+      z.$setrhs (x);
       return z;
     }
   }
@@ -481,14 +483,14 @@ public abstract class Expression extends AbstractAST
     {
       return lhs;
     }
-    private void privateSetlhs (Expression x)
+    private void $setlhs (Expression x)
     {
       this.lhs = x;
     }
     public Intersection setlhs (Expression x)
     {
       Intersection z = new Intersection ();
-      z.privateSetlhs (x);
+      z.$setlhs (x);
       return z;
     }
     private Expression rhs;
@@ -496,14 +498,14 @@ public abstract class Expression extends AbstractAST
     {
       return rhs;
     }
-    private void privateSetrhs (Expression x)
+    private void $setrhs (Expression x)
     {
       this.rhs = x;
     }
     public Intersection setrhs (Expression x)
     {
       Intersection z = new Intersection ();
-      z.privateSetrhs (x);
+      z.$setrhs (x);
       return z;
     }
   }
@@ -528,14 +530,14 @@ public abstract class Expression extends AbstractAST
     {
       return lhs;
     }
-    private void privateSetlhs (Expression x)
+    private void $setlhs (Expression x)
     {
       this.lhs = x;
     }
     public Division setlhs (Expression x)
     {
       Division z = new Division ();
-      z.privateSetlhs (x);
+      z.$setlhs (x);
       return z;
     }
     private Expression rhs;
@@ -543,14 +545,14 @@ public abstract class Expression extends AbstractAST
     {
       return rhs;
     }
-    private void privateSetrhs (Expression x)
+    private void $setrhs (Expression x)
     {
       this.rhs = x;
     }
     public Division setrhs (Expression x)
     {
       Division z = new Division ();
-      z.privateSetrhs (x);
+      z.$setrhs (x);
       return z;
     }
   }
@@ -575,14 +577,14 @@ public abstract class Expression extends AbstractAST
     {
       return lhs;
     }
-    private void privateSetlhs (Expression x)
+    private void $setlhs (Expression x)
     {
       this.lhs = x;
     }
     public Addition setlhs (Expression x)
     {
       Addition z = new Addition ();
-      z.privateSetlhs (x);
+      z.$setlhs (x);
       return z;
     }
     private Expression rhs;
@@ -590,14 +592,14 @@ public abstract class Expression extends AbstractAST
     {
       return rhs;
     }
-    private void privateSetrhs (Expression x)
+    private void $setrhs (Expression x)
     {
       this.rhs = x;
     }
     public Addition setrhs (Expression x)
     {
       Addition z = new Addition ();
-      z.privateSetrhs (x);
+      z.$setrhs (x);
       return z;
     }
   }
@@ -622,14 +624,14 @@ public abstract class Expression extends AbstractAST
     {
       return lhs;
     }
-    private void privateSetlhs (Expression x)
+    private void $setlhs (Expression x)
     {
       this.lhs = x;
     }
     public Substraction setlhs (Expression x)
     {
       Substraction z = new Substraction ();
-      z.privateSetlhs (x);
+      z.$setlhs (x);
       return z;
     }
     private Expression rhs;
@@ -637,14 +639,14 @@ public abstract class Expression extends AbstractAST
     {
       return rhs;
     }
-    private void privateSetrhs (Expression x)
+    private void $setrhs (Expression x)
     {
       this.rhs = x;
     }
     public Substraction setrhs (Expression x)
     {
       Substraction z = new Substraction ();
-      z.privateSetrhs (x);
+      z.$setrhs (x);
       return z;
     }
   }
@@ -669,14 +671,14 @@ public abstract class Expression extends AbstractAST
     {
       return lhs;
     }
-    private void privateSetlhs (Expression x)
+    private void $setlhs (Expression x)
     {
       this.lhs = x;
     }
     public Match setlhs (Expression x)
     {
       Match z = new Match ();
-      z.privateSetlhs (x);
+      z.$setlhs (x);
       return z;
     }
     private Expression rhs;
@@ -684,14 +686,14 @@ public abstract class Expression extends AbstractAST
     {
       return rhs;
     }
-    private void privateSetrhs (Expression x)
+    private void $setrhs (Expression x)
     {
       this.rhs = x;
     }
     public Match setrhs (Expression x)
     {
       Match z = new Match ();
-      z.privateSetrhs (x);
+      z.$setrhs (x);
       return z;
     }
   }
@@ -716,14 +718,14 @@ public abstract class Expression extends AbstractAST
     {
       return lhs;
     }
-    private void privateSetlhs (Expression x)
+    private void $setlhs (Expression x)
     {
       this.lhs = x;
     }
     public NoMatch setlhs (Expression x)
     {
       NoMatch z = new NoMatch ();
-      z.privateSetlhs (x);
+      z.$setlhs (x);
       return z;
     }
     private Expression rhs;
@@ -731,14 +733,14 @@ public abstract class Expression extends AbstractAST
     {
       return rhs;
     }
-    private void privateSetrhs (Expression x)
+    private void $setrhs (Expression x)
     {
       this.rhs = x;
     }
     public NoMatch setrhs (Expression x)
     {
       NoMatch z = new NoMatch ();
-      z.privateSetrhs (x);
+      z.$setrhs (x);
       return z;
     }
   }
@@ -763,14 +765,14 @@ public abstract class Expression extends AbstractAST
     {
       return lhs;
     }
-    private void privateSetlhs (Expression x)
+    private void $setlhs (Expression x)
     {
       this.lhs = x;
     }
     public LessThan setlhs (Expression x)
     {
       LessThan z = new LessThan ();
-      z.privateSetlhs (x);
+      z.$setlhs (x);
       return z;
     }
     private Expression rhs;
@@ -778,14 +780,14 @@ public abstract class Expression extends AbstractAST
     {
       return rhs;
     }
-    private void privateSetrhs (Expression x)
+    private void $setrhs (Expression x)
     {
       this.rhs = x;
     }
     public LessThan setrhs (Expression x)
     {
       LessThan z = new LessThan ();
-      z.privateSetrhs (x);
+      z.$setrhs (x);
       return z;
     }
   }
@@ -810,14 +812,14 @@ public abstract class Expression extends AbstractAST
     {
       return lhs;
     }
-    private void privateSetlhs (Expression x)
+    private void $setlhs (Expression x)
     {
       this.lhs = x;
     }
     public LessThanOrEq setlhs (Expression x)
     {
       LessThanOrEq z = new LessThanOrEq ();
-      z.privateSetlhs (x);
+      z.$setlhs (x);
       return z;
     }
     private Expression rhs;
@@ -825,14 +827,14 @@ public abstract class Expression extends AbstractAST
     {
       return rhs;
     }
-    private void privateSetrhs (Expression x)
+    private void $setrhs (Expression x)
     {
       this.rhs = x;
     }
     public LessThanOrEq setrhs (Expression x)
     {
       LessThanOrEq z = new LessThanOrEq ();
-      z.privateSetrhs (x);
+      z.$setrhs (x);
       return z;
     }
   }
@@ -857,14 +859,14 @@ public abstract class Expression extends AbstractAST
     {
       return lhs;
     }
-    private void privateSetlhs (Expression x)
+    private void $setlhs (Expression x)
     {
       this.lhs = x;
     }
     public GreaterThan setlhs (Expression x)
     {
       GreaterThan z = new GreaterThan ();
-      z.privateSetlhs (x);
+      z.$setlhs (x);
       return z;
     }
     private Expression rhs;
@@ -872,14 +874,14 @@ public abstract class Expression extends AbstractAST
     {
       return rhs;
     }
-    private void privateSetrhs (Expression x)
+    private void $setrhs (Expression x)
     {
       this.rhs = x;
     }
     public GreaterThan setrhs (Expression x)
     {
       GreaterThan z = new GreaterThan ();
-      z.privateSetrhs (x);
+      z.$setrhs (x);
       return z;
     }
   }
@@ -904,14 +906,14 @@ public abstract class Expression extends AbstractAST
     {
       return lhs;
     }
-    private void privateSetlhs (Expression x)
+    private void $setlhs (Expression x)
     {
       this.lhs = x;
     }
     public GreaterThanOrEq setlhs (Expression x)
     {
       GreaterThanOrEq z = new GreaterThanOrEq ();
-      z.privateSetlhs (x);
+      z.$setlhs (x);
       return z;
     }
     private Expression rhs;
@@ -919,14 +921,14 @@ public abstract class Expression extends AbstractAST
     {
       return rhs;
     }
-    private void privateSetrhs (Expression x)
+    private void $setrhs (Expression x)
     {
       this.rhs = x;
     }
     public GreaterThanOrEq setrhs (Expression x)
     {
       GreaterThanOrEq z = new GreaterThanOrEq ();
-      z.privateSetrhs (x);
+      z.$setrhs (x);
       return z;
     }
   }
@@ -951,14 +953,14 @@ public abstract class Expression extends AbstractAST
     {
       return lhs;
     }
-    private void privateSetlhs (Expression x)
+    private void $setlhs (Expression x)
     {
       this.lhs = x;
     }
     public Equals setlhs (Expression x)
     {
       Equals z = new Equals ();
-      z.privateSetlhs (x);
+      z.$setlhs (x);
       return z;
     }
     private Expression rhs;
@@ -966,14 +968,14 @@ public abstract class Expression extends AbstractAST
     {
       return rhs;
     }
-    private void privateSetrhs (Expression x)
+    private void $setrhs (Expression x)
     {
       this.rhs = x;
     }
     public Equals setrhs (Expression x)
     {
       Equals z = new Equals ();
-      z.privateSetrhs (x);
+      z.$setrhs (x);
       return z;
     }
   }
@@ -998,14 +1000,14 @@ public abstract class Expression extends AbstractAST
     {
       return lhs;
     }
-    private void privateSetlhs (Expression x)
+    private void $setlhs (Expression x)
     {
       this.lhs = x;
     }
     public NonEquals setlhs (Expression x)
     {
       NonEquals z = new NonEquals ();
-      z.privateSetlhs (x);
+      z.$setlhs (x);
       return z;
     }
     private Expression rhs;
@@ -1013,14 +1015,14 @@ public abstract class Expression extends AbstractAST
     {
       return rhs;
     }
-    private void privateSetrhs (Expression x)
+    private void $setrhs (Expression x)
     {
       this.rhs = x;
     }
     public NonEquals setrhs (Expression x)
     {
       NonEquals z = new NonEquals ();
-      z.privateSetrhs (x);
+      z.$setrhs (x);
       return z;
     }
   }
@@ -1045,14 +1047,14 @@ public abstract class Expression extends AbstractAST
     {
       return lhs;
     }
-    private void privateSetlhs (Expression x)
+    private void $setlhs (Expression x)
     {
       this.lhs = x;
     }
     public NotIn setlhs (Expression x)
     {
       NotIn z = new NotIn ();
-      z.privateSetlhs (x);
+      z.$setlhs (x);
       return z;
     }
     private Expression rhs;
@@ -1060,14 +1062,14 @@ public abstract class Expression extends AbstractAST
     {
       return rhs;
     }
-    private void privateSetrhs (Expression x)
+    private void $setrhs (Expression x)
     {
       this.rhs = x;
     }
     public NotIn setrhs (Expression x)
     {
       NotIn z = new NotIn ();
-      z.privateSetrhs (x);
+      z.$setrhs (x);
       return z;
     }
   }
@@ -1092,14 +1094,14 @@ public abstract class Expression extends AbstractAST
     {
       return lhs;
     }
-    private void privateSetlhs (Expression x)
+    private void $setlhs (Expression x)
     {
       this.lhs = x;
     }
     public In setlhs (Expression x)
     {
       In z = new In ();
-      z.privateSetlhs (x);
+      z.$setlhs (x);
       return z;
     }
     private Expression rhs;
@@ -1107,14 +1109,14 @@ public abstract class Expression extends AbstractAST
     {
       return rhs;
     }
-    private void privateSetrhs (Expression x)
+    private void $setrhs (Expression x)
     {
       this.rhs = x;
     }
     public In setrhs (Expression x)
     {
       In z = new In ();
-      z.privateSetrhs (x);
+      z.$setrhs (x);
       return z;
     }
   }
@@ -1139,14 +1141,14 @@ public abstract class Expression extends AbstractAST
     {
       return lhs;
     }
-    private void privateSetlhs (Expression x)
+    private void $setlhs (Expression x)
     {
       this.lhs = x;
     }
     public And setlhs (Expression x)
     {
       And z = new And ();
-      z.privateSetlhs (x);
+      z.$setlhs (x);
       return z;
     }
     private Expression rhs;
@@ -1154,14 +1156,14 @@ public abstract class Expression extends AbstractAST
     {
       return rhs;
     }
-    private void privateSetrhs (Expression x)
+    private void $setrhs (Expression x)
     {
       this.rhs = x;
     }
     public And setrhs (Expression x)
     {
       And z = new And ();
-      z.privateSetrhs (x);
+      z.$setrhs (x);
       return z;
     }
   }
@@ -1186,14 +1188,14 @@ public abstract class Expression extends AbstractAST
     {
       return lhs;
     }
-    private void privateSetlhs (Expression x)
+    private void $setlhs (Expression x)
     {
       this.lhs = x;
     }
     public Or setlhs (Expression x)
     {
       Or z = new Or ();
-      z.privateSetlhs (x);
+      z.$setlhs (x);
       return z;
     }
     private Expression rhs;
@@ -1201,14 +1203,14 @@ public abstract class Expression extends AbstractAST
     {
       return rhs;
     }
-    private void privateSetrhs (Expression x)
+    private void $setrhs (Expression x)
     {
       this.rhs = x;
     }
     public Or setrhs (Expression x)
     {
       Or z = new Or ();
-      z.privateSetrhs (x);
+      z.$setrhs (x);
       return z;
     }
   }
@@ -1233,14 +1235,14 @@ public abstract class Expression extends AbstractAST
     {
       return lhs;
     }
-    private void privateSetlhs (Expression x)
+    private void $setlhs (Expression x)
     {
       this.lhs = x;
     }
     public IfDefined setlhs (Expression x)
     {
       IfDefined z = new IfDefined ();
-      z.privateSetlhs (x);
+      z.$setlhs (x);
       return z;
     }
     private Expression rhs;
@@ -1248,35 +1250,30 @@ public abstract class Expression extends AbstractAST
     {
       return rhs;
     }
-    private void privateSetrhs (Expression x)
+    private void $setrhs (Expression x)
     {
       this.rhs = x;
     }
     public IfDefined setrhs (Expression x)
     {
       IfDefined z = new IfDefined ();
-      z.privateSetrhs (x);
+      z.$setrhs (x);
       return z;
     }
   }
   public class IfThenElse extends Expression
   {
-/* condition:Expression "?" then:Expression ":" else:Expression -> Expression {right, cons("IfThenElse")} */
+/* condition:Expression "?" thenExp:Expression ":" elseExp:Expression -> Expression {right, cons("IfThenElse")} */
     private IfThenElse ()
     {
     }
     /*package */ IfThenElse (ITree tree, Expression condition,
-			     Expression then, Expression
-			     else
-    )
+			     Expression thenExp, Expression elseExp)
     {
       this.tree = tree;
       this.condition = condition;
-      this.then = then;
-      this.
-      else
-      =
-      else;
+      this.thenExp = thenExp;
+      this.elseExp = elseExp;
     }
     public IVisitable accept (IASTVisitor visitor)
     {
@@ -1287,48 +1284,44 @@ public abstract class Expression extends AbstractAST
     {
       return condition;
     }
-    private void privateSetcondition (Expression x)
+    private void $setcondition (Expression x)
     {
       this.condition = x;
     }
     public IfThenElse setcondition (Expression x)
     {
       IfThenElse z = new IfThenElse ();
-      z.privateSetcondition (x);
+      z.$setcondition (x);
       return z;
     }
-    private Expression then;
-    public Expression getthen ()
+    private Expression thenExp;
+    public Expression getthenExp ()
     {
-      return then;
+      return thenExp;
     }
-    private void privateSetthen (Expression x)
+    private void $setthenExp (Expression x)
     {
-      this.then = x;
+      this.thenExp = x;
     }
-    public IfThenElse setthen (Expression x)
+    public IfThenElse setthenExp (Expression x)
     {
       IfThenElse z = new IfThenElse ();
-      z.privateSetthen (x);
+      z.$setthenExp (x);
       return z;
     }
-    private Expression
-    else;
-    public Expression getelse ()
+    private Expression elseExp;
+    public Expression getelseExp ()
     {
-      return
-      else;
+      return elseExp;
     }
-    private void privateSetelse (Expression x)
+    private void $setelseExp (Expression x)
     {
-      this.
-      else
-      = x;
+      this.elseExp = x;
     }
-    public IfThenElse setelse (Expression x)
+    public IfThenElse setelseExp (Expression x)
     {
       IfThenElse z = new IfThenElse ();
-      z.privateSetelse (x);
+      z.$setelseExp (x);
       return z;
     }
   }
@@ -1352,14 +1345,14 @@ public abstract class Expression extends AbstractAST
     {
       return operator;
     }
-    private void privateSetoperator (StandardOperator x)
+    private void $setoperator (StandardOperator x)
     {
       this.operator = x;
     }
     public Operator setoperator (StandardOperator x)
     {
       Operator z = new Operator ();
-      z.privateSetoperator (x);
+      z.$setoperator (x);
       return z;
     }
   }
@@ -1383,14 +1376,14 @@ public abstract class Expression extends AbstractAST
     {
       return literal;
     }
-    private void privateSetliteral (Literal x)
+    private void $setliteral (Literal x)
     {
       this.literal = x;
     }
     public Literal setliteral (Literal x)
     {
       Literal z = new Literal ();
-      z.privateSetliteral (x);
+      z.$setliteral (x);
       return z;
     }
   }
@@ -1416,14 +1409,14 @@ public abstract class Expression extends AbstractAST
     {
       return name;
     }
-    private void privateSetname (Name x)
+    private void $setname (Name x)
     {
       this.name = x;
     }
     public CallOrTree setname (Name x)
     {
       CallOrTree z = new CallOrTree ();
-      z.privateSetname (x);
+      z.$setname (x);
       return z;
     }
     private List < Expression > arguments;
@@ -1431,14 +1424,14 @@ public abstract class Expression extends AbstractAST
     {
       return arguments;
     }
-    private void privateSetarguments (List < Expression > x)
+    private void $setarguments (List < Expression > x)
     {
       this.arguments = x;
     }
     public CallOrTree setarguments (List < Expression > x)
     {
       CallOrTree z = new CallOrTree ();
-      z.privateSetarguments (x);
+      z.$setarguments (x);
       return z;
     }
   }
@@ -1462,14 +1455,14 @@ public abstract class Expression extends AbstractAST
     {
       return elements;
     }
-    private void privateSetelements (List < Expression > x)
+    private void $setelements (List < Expression > x)
     {
       this.elements = x;
     }
     public List setelements (List < Expression > x)
     {
       List z = new List ();
-      z.privateSetelements (x);
+      z.$setelements (x);
       return z;
     }
   }
@@ -1494,14 +1487,14 @@ public abstract class Expression extends AbstractAST
     {
       return from;
     }
-    private void privateSetfrom (Expression x)
+    private void $setfrom (Expression x)
     {
       this.from = x;
     }
     public Range setfrom (Expression x)
     {
       Range z = new Range ();
-      z.privateSetfrom (x);
+      z.$setfrom (x);
       return z;
     }
     private Expression to;
@@ -1509,14 +1502,14 @@ public abstract class Expression extends AbstractAST
     {
       return to;
     }
-    private void privateSetto (Expression x)
+    private void $setto (Expression x)
     {
       this.to = x;
     }
     public Range setto (Expression x)
     {
       Range z = new Range ();
-      z.privateSetto (x);
+      z.$setto (x);
       return z;
     }
   }
@@ -1543,14 +1536,14 @@ public abstract class Expression extends AbstractAST
     {
       return from;
     }
-    private void privateSetfrom (Expression x)
+    private void $setfrom (Expression x)
     {
       this.from = x;
     }
     public StepRange setfrom (Expression x)
     {
       StepRange z = new StepRange ();
-      z.privateSetfrom (x);
+      z.$setfrom (x);
       return z;
     }
     private Expression by;
@@ -1558,14 +1551,14 @@ public abstract class Expression extends AbstractAST
     {
       return by;
     }
-    private void privateSetby (Expression x)
+    private void $setby (Expression x)
     {
       this.by = x;
     }
     public StepRange setby (Expression x)
     {
       StepRange z = new StepRange ();
-      z.privateSetby (x);
+      z.$setby (x);
       return z;
     }
     private Expression to;
@@ -1573,14 +1566,14 @@ public abstract class Expression extends AbstractAST
     {
       return to;
     }
-    private void privateSetto (Expression x)
+    private void $setto (Expression x)
     {
       this.to = x;
     }
     public StepRange setto (Expression x)
     {
       StepRange z = new StepRange ();
-      z.privateSetto (x);
+      z.$setto (x);
       return z;
     }
   }
@@ -1604,14 +1597,14 @@ public abstract class Expression extends AbstractAST
     {
       return elements;
     }
-    private void privateSetelements (List < Expression > x)
+    private void $setelements (List < Expression > x)
     {
       this.elements = x;
     }
     public Set setelements (List < Expression > x)
     {
       Set z = new Set ();
-      z.privateSetelements (x);
+      z.$setelements (x);
       return z;
     }
   }
@@ -1637,14 +1630,14 @@ public abstract class Expression extends AbstractAST
     {
       return first;
     }
-    private void privateSetfirst (Expression x)
+    private void $setfirst (Expression x)
     {
       this.first = x;
     }
     public Tuple setfirst (Expression x)
     {
       Tuple z = new Tuple ();
-      z.privateSetfirst (x);
+      z.$setfirst (x);
       return z;
     }
     private List < Expression > rest;
@@ -1652,14 +1645,14 @@ public abstract class Expression extends AbstractAST
     {
       return rest;
     }
-    private void privateSetrest (List < Expression > x)
+    private void $setrest (List < Expression > x)
     {
       this.rest = x;
     }
     public Tuple setrest (List < Expression > x)
     {
       Tuple z = new Tuple ();
-      z.privateSetrest (x);
+      z.$setrest (x);
       return z;
     }
   }
@@ -1684,14 +1677,14 @@ public abstract class Expression extends AbstractAST
     {
       return from;
     }
-    private void privateSetfrom (Expression x)
+    private void $setfrom (Expression x)
     {
       this.from = x;
     }
     public MapTuple setfrom (Expression x)
     {
       MapTuple z = new MapTuple ();
-      z.privateSetfrom (x);
+      z.$setfrom (x);
       return z;
     }
     private Expression to;
@@ -1699,14 +1692,14 @@ public abstract class Expression extends AbstractAST
     {
       return to;
     }
-    private void privateSetto (Expression x)
+    private void $setto (Expression x)
     {
       this.to = x;
     }
     public MapTuple setto (Expression x)
     {
       MapTuple z = new MapTuple ();
-      z.privateSetto (x);
+      z.$setto (x);
       return z;
     }
   }
@@ -1760,14 +1753,14 @@ public abstract class Expression extends AbstractAST
     {
       return filename;
     }
-    private void privateSetfilename (Expression x)
+    private void $setfilename (Expression x)
     {
       this.filename = x;
     }
     public FileLocation setfilename (Expression x)
     {
       FileLocation z = new FileLocation ();
-      z.privateSetfilename (x);
+      z.$setfilename (x);
       return z;
     }
   }
@@ -1791,14 +1784,14 @@ public abstract class Expression extends AbstractAST
     {
       return area;
     }
-    private void privateSetarea (Expression x)
+    private void $setarea (Expression x)
     {
       this.area = x;
     }
     public AreaLocation setarea (Expression x)
     {
       AreaLocation z = new AreaLocation ();
-      z.privateSetarea (x);
+      z.$setarea (x);
       return z;
     }
   }
@@ -1824,14 +1817,14 @@ public abstract class Expression extends AbstractAST
     {
       return filename;
     }
-    private void privateSetfilename (Expression x)
+    private void $setfilename (Expression x)
     {
       this.filename = x;
     }
     public AreaInFileLocation setfilename (Expression x)
     {
       AreaInFileLocation z = new AreaInFileLocation ();
-      z.privateSetfilename (x);
+      z.$setfilename (x);
       return z;
     }
     private Expression area;
@@ -1839,14 +1832,14 @@ public abstract class Expression extends AbstractAST
     {
       return area;
     }
-    private void privateSetarea (Expression x)
+    private void $setarea (Expression x)
     {
       this.area = x;
     }
     public AreaInFileLocation setarea (Expression x)
     {
       AreaInFileLocation z = new AreaInFileLocation ();
-      z.privateSetarea (x);
+      z.$setarea (x);
       return z;
     }
   }
@@ -1870,14 +1863,61 @@ public abstract class Expression extends AbstractAST
     {
       return qualifiedName;
     }
-    private void privateSetqualifiedName (QualifiedName x)
+    private void $setqualifiedName (QualifiedName x)
     {
       this.qualifiedName = x;
     }
     public QualifiedName setqualifiedName (QualifiedName x)
     {
       QualifiedName z = new QualifiedName ();
-      z.privateSetqualifiedName (x);
+      z.$setqualifiedName (x);
+      return z;
+    }
+  }
+  public class TypedVariablePattern extends Expression
+  {
+/* type:Type name:Name -> Expression {cons("TypedVariablePattern")} */
+    private TypedVariablePattern ()
+    {
+    }
+    /*package */ TypedVariablePattern (ITree tree, Type type, Name name)
+    {
+      this.tree = tree;
+      this.type = type;
+      this.name = name;
+    }
+    public IVisitable accept (IASTVisitor visitor)
+    {
+      return visitor.visitExpressionTypedVariablePattern (this);
+    }
+    private Type type;
+    public Type gettype ()
+    {
+      return type;
+    }
+    private void $settype (Type x)
+    {
+      this.type = x;
+    }
+    public TypedVariablePattern settype (Type x)
+    {
+      TypedVariablePattern z = new TypedVariablePattern ();
+      z.$settype (x);
+      return z;
+    }
+    private Name name;
+    public Name getname ()
+    {
+      return name;
+    }
+    private void $setname (Name x)
+    {
+      this.name = x;
+    }
+    public TypedVariablePattern setname (Name x)
+    {
+      TypedVariablePattern z = new TypedVariablePattern ();
+      z.$setname (x);
       return z;
     }
   }
@@ -1901,14 +1941,14 @@ public abstract class Expression extends AbstractAST
     {
       return comprehension;
     }
-    private void privateSetcomprehension (Comprehension x)
+    private void $setcomprehension (Comprehension x)
     {
       this.comprehension = x;
     }
     public Comprehension setcomprehension (Comprehension x)
     {
       Comprehension z = new Comprehension ();
-      z.privateSetcomprehension (x);
+      z.$setcomprehension (x);
       return z;
     }
   }
@@ -1934,14 +1974,14 @@ public abstract class Expression extends AbstractAST
     {
       return producer;
     }
-    private void privateSetproducer (ValueProducer x)
+    private void $setproducer (ValueProducer x)
     {
       this.producer = x;
     }
     public Exists setproducer (ValueProducer x)
     {
       Exists z = new Exists ();
-      z.privateSetproducer (x);
+      z.$setproducer (x);
       return z;
     }
     private Expression expression;
@@ -1949,14 +1989,14 @@ public abstract class Expression extends AbstractAST
     {
       return expression;
     }
-    private void privateSetexpression (Expression x)
+    private void $setexpression (Expression x)
     {
       this.expression = x;
     }
     public Exists setexpression (Expression x)
     {
       Exists z = new Exists ();
-      z.privateSetexpression (x);
+      z.$setexpression (x);
       return z;
     }
   }
@@ -1982,14 +2022,14 @@ public abstract class Expression extends AbstractAST
     {
       return producers;
     }
-    private void privateSetproducers (ValueProducer x)
+    private void $setproducers (ValueProducer x)
     {
       this.producers = x;
     }
     public Forall setproducers (ValueProducer x)
     {
       Forall z = new Forall ();
-      z.privateSetproducers (x);
+      z.$setproducers (x);
       return z;
     }
     private Expression expression;
@@ -1997,14 +2037,14 @@ public abstract class Expression extends AbstractAST
     {
       return expression;
     }
-    private void privateSetexpression (Expression x)
+    private void $setexpression (Expression x)
     {
       this.expression = x;
     }
     public Forall setexpression (Expression x)
     {
       Forall z = new Forall ();
-      z.privateSetexpression (x);
+      z.$setexpression (x);
       return z;
     }
   }
@@ -2028,14 +2068,14 @@ public abstract class Expression extends AbstractAST
     {
       return visit;
     }
-    private void privateSetvisit (Visit x)
+    private void $setvisit (Visit x)
     {
       this.visit = x;
     }
     public Visit setvisit (Visit x)
     {
       Visit z = new Visit ();
-      z.privateSetvisit (x);
+      z.$setvisit (x);
       return z;
     }
   }
