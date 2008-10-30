@@ -1,4 +1,6 @@
 package org.meta_environment.rascal.ast;
+import java.util.List;
+
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Body extends AbstractAST
 {

@@ -279,7 +279,7 @@ public interface IASTVisitor
   public Character visitCharacterTop (Character.Top x);
   public Character visitCharacterShort (Character.Short x);
   public Character visitCharacterNumeric (Character.Numeric x);
-  public Module visitModuleModule (Module.Module x);
+  public Module visitModuleDefault (Module.Default x);
   public ModuleWord visitModuleWordWord (ModuleWord.Word x);
   public ModuleName visitModuleNamePath (ModuleName.Path x);
   public ModuleName visitModuleNameRoot (ModuleName.Root x);

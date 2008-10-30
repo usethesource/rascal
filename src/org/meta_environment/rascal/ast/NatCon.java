@@ -1,13 +1,12 @@
 package org.meta_environment.rascal.ast;
+import java.util.Collections;
+import java.util.List;
+
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class NatCon extends AbstractAST
 {
   public class digits extends NatCon
   {
-/* [0-9]+ -> NatCon {cons("digits")} */
-    private digits ()
-    {
-    }
     /*package */ digits (ITree tree)
     {
       this.tree = tree;
@@ -22,7 +21,7 @@ public abstract class NatCon extends AbstractAST
     private final List < NatCon > alternatives;
     public Ambiguity (List < NatCon > alternatives)
     {
-      this.alternatives = Collections.immutableList (alternatives);
+      this.alternatives = Collections.unmodifiableList (alternatives);
     }
     public List < NatCon > getAlternatives ()
     {

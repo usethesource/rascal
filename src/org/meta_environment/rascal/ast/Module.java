@@ -1,14 +1,17 @@
 package org.meta_environment.rascal.ast;
+import java.util.Collections;
+import java.util.List;
+
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Module extends AbstractAST
 {
-  public class Module extends Module
+  public class Default extends Module
   {
 /* header:Header body:Body -> Module {cons("Module")} */
-    private Module ()
+    private Default ()
     {
     }
-    /*package */ Module (ITree tree, Header header, Body body)
+    /*package */ Default (ITree tree, Header header, Body body)
     {
       this.tree = tree;
       this.header = header;
@@ -16,7 +19,7 @@ public abstract class Module extends AbstractAST
     }
     public IVisitable accept (IASTVisitor visitor)
     {
-      return visitor.visitModuleModule (this);
+      return visitor.visitModuleDefault (this);
     }
     private Header header;
     public Header getheader ()
@@ -27,9 +30,9 @@ public abstract class Module extends AbstractAST
     {
       this.header = x;
     }
-    public Module setheader (Header x)
+    public Default setheader (Header x)
     {
-      Module z = new Module ();
+      Default z = new Default ();
       z.privateSetheader (x);
       return z;
     }
@@ -42,9 +45,9 @@ public abstract class Module extends AbstractAST
     {
       this.body = x;
     }
-    public Module setbody (Body x)
+    public Default setbody (Body x)
     {
-      Module z = new Module ();
+      Default z = new Default ();
       z.privateSetbody (x);
       return z;
     }
@@ -54,7 +57,7 @@ public abstract class Module extends AbstractAST
     private final List < Module > alternatives;
     public Ambiguity (List < Module > alternatives)
     {
-      this.alternatives = Collections.immutableList (alternatives);
+      this.alternatives = Collections.unmodifiableList (alternatives);
     }
     public List < Module > getAlternatives ()
     {

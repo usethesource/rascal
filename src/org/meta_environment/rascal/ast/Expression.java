@@ -137,14 +137,14 @@ public abstract class Expression extends AbstractAST
     {
       return expression;
     }
-    private void privateSetexpression (Expression x)
+    private void $Setexpression (Expression x)
     {
       this.expression = x;
     }
     public FieldUpdate setexpression (Expression x)
     {
       FieldUpdate z = new FieldUpdate ();
-      z.privateSetexpression (x);
+      z.$Setexpression (x);
       return z;
     }
     private Name key;
