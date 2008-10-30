@@ -1,5 +1,347 @@
-package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
-public interface IASTVisitor {
-public Body visitToplevelsBody(Body.Toplevels x); public Formal visitTypeNameFormal(Formal.TypeName x); public Formals visitFormalsFormals(Formals.Formals x); public Parameters visitVarArgsParameters(Parameters.VarArgs x); public Parameters visitDefaultParameters(Parameters.Default x); public Expression visitVisitExpression(Expression.Visit x); public Expression visitForallExpression(Expression.Forall x); public Expression visitExistsExpression(Expression.Exists x); public Expression visitComprehensionExpression(Expression.Comprehension x); public Expression visitQualifiedNameExpression(Expression.QualifiedName x); public Expression visitAreaInFileLocationExpression(Expression.AreaInFileLocation x); public Expression visitAreaLocationExpression(Expression.AreaLocation x); public Expression visitFileLocationExpression(Expression.FileLocation x); public Expression visitAreaExpression(Expression.Area x); public Expression visitLocationExpression(Expression.Location x); public Expression visitMapTupleExpression(Expression.MapTuple x); public Expression visitTupleExpression(Expression.Tuple x); public Expression visitSetExpression(Expression.Set x); public Expression visitStepRangeExpression(Expression.StepRange x); public Expression visitRangeExpression(Expression.Range x); public Expression visitListExpression(Expression.List x); public Expression visitCallOrTreeExpression(Expression.CallOrTree x); public Expression visitLiteralExpression(Expression.Literal x); public Expression visitOperatorExpression(Expression.Operator x); public Expression visitIfThenElseExpression(Expression.IfThenElse x); public Expression visitIfDefinedExpression(Expression.IfDefined x); public Expression visitOrExpression(Expression.Or x); public Expression visitAndExpression(Expression.And x); public Expression visitInExpression(Expression.In x); public Expression visitNotInExpression(Expression.NotIn x); public Expression visitNonEqualsExpression(Expression.NonEquals x); public Expression visitEqualsExpression(Expression.Equals x); public Expression visitGreaterThanOrEqExpression(Expression.GreaterThanOrEq x); public Expression visitGreaterThanExpression(Expression.GreaterThan x); public Expression visitLessThanOrEqExpression(Expression.LessThanOrEq x); public Expression visitLessThanExpression(Expression.LessThan x); public Expression visitNoMatchExpression(Expression.NoMatch x); public Expression visitMatchExpression(Expression.Match x); public Expression visitSubstractionExpression(Expression.Substraction x); public Expression visitAdditionExpression(Expression.Addition x); public Expression visitDivisionExpression(Expression.Division x); public Expression visitIntersectionExpression(Expression.Intersection x); public Expression visitProductExpression(Expression.Product x); public Expression visitNegationExpression(Expression.Negation x); public Expression visitAnnotationExpression(Expression.Annotation x); public Expression visitTransitiveClosureExpression(Expression.TransitiveClosure x); public Expression visitTransitiveReflexiveClosureExpression(Expression.TransitiveReflexiveClosure x); public Expression visitSubscriptExpression(Expression.Subscript x); public Expression visitFieldAccessExpression(Expression.FieldAccess x); public Expression visitFieldUpdateExpression(Expression.FieldUpdate x); public Expression visitClosureCallExpression(Expression.ClosureCall x); public Expression visitClosureExpression(Expression.Closure x); public NatCon visitdigitsNatCon(NatCon.digits x); public Literal visitStringLiteral(Literal.String x); public Literal visitDoubleLiteral(Literal.Double x); public Literal visitIntegerLiteral(Literal.Integer x); public Literal visitBooleanLiteral(Literal.Boolean x); public Literal visitSymbolLiteral(Literal.Symbol x); public Literal visitRegExpLiteral(Literal.RegExp x); public Bound visitDefaultBound(Bound.Default x); public Bound visitEmptyBound(Bound.Empty x); public Statement visitGlobalDirectiveStatement(Statement.GlobalDirective x); public Statement visitVariableDeclarationStatement(Statement.VariableDeclaration x); public Statement visitFunctionDeclarationStatement(Statement.FunctionDeclaration x); public Statement visitBlockStatement(Statement.Block x); public Statement visitTryFinallyStatement(Statement.TryFinally x); public Statement visitTryStatement(Statement.Try x); public Statement visitFailStatement(Statement.Fail x); public Statement visitReturnVoidStatement(Statement.ReturnVoid x); public Statement visitThrowStatement(Statement.Throw x); public Statement visitInsertStatement(Statement.Insert x); public Statement visitReturnStatement(Statement.Return x); public Statement visitAssertStatement(Statement.Assert x); public Statement visitAssignmentStatement(Statement.Assignment x); public Statement visitVisitStatement(Statement.Visit x); public Statement visitExpressionStatement(Statement.Expression x); public Statement visitSwitchStatement(Statement.Switch x); public Statement visitIfThenStatement(Statement.IfThen x); public Statement visitIfThenElseStatement(Statement.IfThenElse x); public Statement visitWhileStatement(Statement.While x); public Statement visitForStatement(Statement.For x); public Statement visitSolveStatement(Statement.Solve x); public Condition visitConjunctionCondition(Condition.Conjunction x); public Condition visitExpressionCondition(Condition.Expression x); public Condition visitNoMatchCondition(Condition.NoMatch x); public Condition visitMatchCondition(Condition.Match x); public Assignable visitConstructorAssignable(Assignable.Constructor x); public Assignable visitTupleAssignable(Assignable.Tuple x); public Assignable visitAnnotationAssignable(Assignable.Annotation x); public Assignable visitIfDefinedAssignable(Assignable.IfDefined x); public Assignable visitFieldAccessAssignable(Assignable.FieldAccess x); public Assignable visitSubscriptAssignable(Assignable.Subscript x); public Assignable visitVariableAssignable(Assignable.Variable x); public Assignment visitInteresectionAssignment(Assignment.Interesection x); public Assignment visitDivisionAssignment(Assignment.Division x); public Assignment visitProductAssignment(Assignment.Product x); public Assignment visitSubstractionAssignment(Assignment.Substraction x); public Assignment visitAdditionAssignment(Assignment.Addition x); public Assignment visitDefaultAssignment(Assignment.Default x); public Catch visitBindingCatchCatch(Catch.BindingCatch x); public Catch visitCatchCatch(Catch.Catch x); public Declarator visitDefaultDeclarator(Declarator.Default x); public LocalVariableDeclaration visitDynamicLocalVariableDeclaration(LocalVariableDeclaration.Dynamic x); public LocalVariableDeclaration visitDefaultLocalVariableDeclaration(LocalVariableDeclaration.Default x); public StrChar visitnormalStrChar(StrChar.normal x); public StrChar visitdecimalStrChar(StrChar.decimal x); public StrChar visitbackslashStrChar(StrChar.backslash x); public StrChar visitquoteStrChar(StrChar.quote x); public StrChar visittabStrChar(StrChar.tab x); public StrChar visitnewlineStrChar(StrChar.newline x); public StrCon visitdefaultStrCon(StrCon.default x); public Visibility visitPrivateVisibility(Visibility.Private x); public Visibility visitPublicVisibility(Visibility.Public x); public Toplevel visitDefaultVisibilityToplevel(Toplevel.DefaultVisibility x); public Toplevel visitGivenVisibilityToplevel(Toplevel.GivenVisibility x); public Declaration visitTagDeclaration(Declaration.Tag x); public Declaration visitAnnotationDeclaration(Declaration.Annotation x); public Declaration visitRuleDeclaration(Declaration.Rule x); public Declaration visitVariableDeclaration(Declaration.Variable x); public Declaration visitFunctionDeclaration(Declaration.Function x); public Declaration visitDataDeclaration(Declaration.Data x); public Declaration visitTypeDeclaration(Declaration.Type x); public Declaration visitViewDeclaration(Declaration.View x); public Alternative visitNamedTypeAlternative(Alternative.NamedType x); public Variant visitNillaryConstructorVariant(Variant.NillaryConstructor x); public Variant visitNAryConstructorVariant(Variant.NAryConstructor x); public Variant visitTypeVariant(Variant.Type x); public StandardOperator visitNotInStandardOperator(StandardOperator.NotIn x); public StandardOperator visitInStandardOperator(StandardOperator.In x); public StandardOperator visitNotStandardOperator(StandardOperator.Not x); public StandardOperator visitOrStandardOperator(StandardOperator.Or x); public StandardOperator visitAndStandardOperator(StandardOperator.And x); public StandardOperator visitGreaterThanOrEqStandardOperator(StandardOperator.GreaterThanOrEq x); public StandardOperator visitGreaterThanStandardOperator(StandardOperator.GreaterThan x); public StandardOperator visitLessThanOrEqStandardOperator(StandardOperator.LessThanOrEq x); public StandardOperator visitLessThanStandardOperator(StandardOperator.LessThan x); public StandardOperator visitNotEqualsStandardOperator(StandardOperator.NotEquals x); public StandardOperator visitEqualsStandardOperator(StandardOperator.Equals x); public StandardOperator visitIntersectionStandardOperator(StandardOperator.Intersection x); public StandardOperator visitDivisionStandardOperator(StandardOperator.Division x); public StandardOperator visitProductStandardOperator(StandardOperator.Product x); public StandardOperator visitSubstractionStandardOperator(StandardOperator.Substraction x); public StandardOperator visitAdditionStandardOperator(StandardOperator.Addition x); public FunctionName visitOperatorFunctionName(FunctionName.Operator x); public FunctionName visitNameFunctionName(FunctionName.Name x); public FunctionModifier visitJavaFunctionModifier(FunctionModifier.Java x); public FunctionModifiers visitListFunctionModifiers(FunctionModifiers.List x); public Signature visitWithThrowsSignature(Signature.WithThrows x); public Signature visitNoThrowsSignature(Signature.NoThrows x); public FunctionDeclaration visitAbstractFunctionDeclaration(FunctionDeclaration.Abstract x); public FunctionDeclaration visitDefaultFunctionDeclaration(FunctionDeclaration.Default x); public FunctionBody visitDefaultFunctionBody(FunctionBody.Default x); public Variable visitGivenInitializationVariable(Variable.GivenInitialization x); public Kind visitAllKind(Kind.All x); public Kind visitTagKind(Kind.Tag x); public Kind visitAnnoKind(Kind.Anno x); public Kind visitTypeKind(Kind.Type x); public Kind visitViewKind(Kind.View x); public Kind visitDataKind(Kind.Data x); public Kind visitVariableKind(Kind.Variable x); public Kind visitFunctionKind(Kind.Function x); public Kind visitModuleKind(Kind.Module x); public BasicType visitLocBasicType(BasicType.Loc x); public BasicType visitVoidBasicType(BasicType.Void x); public BasicType visitTermBasicType(BasicType.Term x); public BasicType visitValueBasicType(BasicType.Value x); public BasicType visitStringBasicType(BasicType.String x); public BasicType visitDoubleBasicType(BasicType.Double x); public BasicType visitIntBasicType(BasicType.Int x); public BasicType visitBoolBasicType(BasicType.Bool x); public TypeArg visitNamedTypeArg(TypeArg.Named x); public TypeArg visitDefaultTypeArg(TypeArg.Default x); public StructuredType visitTupleStructuredType(StructuredType.Tuple x); public StructuredType visitRelationStructuredType(StructuredType.Relation x); public StructuredType visitMapStructuredType(StructuredType.Map x); public StructuredType visitSetStructuredType(StructuredType.Set x); public StructuredType visitListStructuredType(StructuredType.List x); public FunctionType visitTypeArgumentsFunctionType(FunctionType.TypeArguments x); public TypeVar visitBoundedTypeVar(TypeVar.Bounded x); public TypeVar visitFreeTypeVar(TypeVar.Free x); public UserType visitParametricUserType(UserType.Parametric x); public UserType visitNameUserType(UserType.Name x); public DataTypeSelector visitSelectorDataTypeSelector(DataTypeSelector.Selector x); public Type visitSelectorType(Type.Selector x); public Type visitSymbolType(Type.Symbol x); public Type visitUserType(Type.User x); public Type visitVariableType(Type.Variable x); public Type visitFunctionType(Type.Function x); public Type visitStructuredType(Type.Structured x); public Type visitBasicType(Type.Basic x); public Sort visitmore-charsSort(Sort.more-chars x); public Sort visitone-charSort(Sort.one-char x); public Symbol visitCaseInsensitiveLiteralSymbol(Symbol.CaseInsensitiveLiteral x); public Symbol visitLiteralSymbol(Symbol.Literal x); public Symbol visitLiftedSymbolSymbol(Symbol.LiftedSymbol x); public Symbol visitCharacterClassSymbol(Symbol.CharacterClass x); public Symbol visitAlternativeSymbol(Symbol.Alternative x); public Symbol visitIterStarSepSymbol(Symbol.IterStarSep x); public Symbol visitIterSepSymbol(Symbol.IterSep x); public Symbol visitIterStarSymbol(Symbol.IterStar x); public Symbol visitIterSymbol(Symbol.Iter x); public Symbol visitOptionalSymbol(Symbol.Optional x); public Symbol visitSequenceSymbol(Symbol.Sequence x); public Symbol visitEmptySymbol(Symbol.Empty x); public Symbol visitParameterizedSortSymbol(Symbol.ParameterizedSort x); public Symbol visitSortSymbol(Symbol.Sort x); public SingleQuotedStrChar visitnormalSingleQuotedStrChar(SingleQuotedStrChar.normal x); public SingleQuotedStrChar visitdecimalSingleQuotedStrChar(SingleQuotedStrChar.decimal x); public SingleQuotedStrChar visitbackslashSingleQuotedStrChar(SingleQuotedStrChar.backslash x); public SingleQuotedStrChar visitquoteSingleQuotedStrChar(SingleQuotedStrChar.quote x); public SingleQuotedStrChar visittabSingleQuotedStrChar(SingleQuotedStrChar.tab x); public SingleQuotedStrChar visitnewlineSingleQuotedStrChar(SingleQuotedStrChar.newline x); public SingleQuotedStrCon visitdefaultSingleQuotedStrCon(SingleQuotedStrCon.default x); public CharRange visitRangeCharRange(CharRange.Range x); public CharRange visitCharacterCharRange(CharRange.Character x); public CharRanges visitConcatenateCharRanges(CharRanges.Concatenate x); public CharRanges visitRangeCharRanges(CharRanges.Range x); public OptCharRanges visitPresentOptCharRanges(OptCharRanges.Present x); public OptCharRanges visitAbsentOptCharRanges(OptCharRanges.Absent x); public CharClass visitUnionCharClass(CharClass.Union x); public CharClass visitIntersectionCharClass(CharClass.Intersection x); public CharClass visitDifferenceCharClass(CharClass.Difference x); public CharClass visitComplementCharClass(CharClass.Complement x); public CharClass visitSimpleCharclassCharClass(CharClass.SimpleCharclass x); public NumChar visitDigitsNumChar(NumChar.Digits x); public ShortChar visitEscapedShortChar(ShortChar.Escaped x); public ShortChar visitRegularShortChar(ShortChar.Regular x); public Character visitLabelStartCharacter(Character.LabelStart x); public Character visitBottomCharacter(Character.Bottom x); public Character visitEOFCharacter(Character.EOF x); public Character visitTopCharacter(Character.Top x); public Character visitShortCharacter(Character.Short x); public Character visitNumericCharacter(Character.Numeric x); public Module visitModuleModule(Module.Module x); public ModuleWord visitWordModuleWord(ModuleWord.Word x); public ModuleName visitPathModuleName(ModuleName.Path x); public ModuleName visitRootModuleName(ModuleName.Root x); public ModuleName visitLeafModuleName(ModuleName.Leaf x); public ModuleActuals visitActualsModuleActuals(ModuleActuals.Actuals x); public ImportedModule visitDefaultImportedModule(ImportedModule.Default x); public ImportedModule visitRenamingsImportedModule(ImportedModule.Renamings x); public ImportedModule visitActualsImportedModule(ImportedModule.Actuals x); public ImportedModule visitActualsRenamingImportedModule(ImportedModule.ActualsRenaming x); public Renaming visitRenamingRenaming(Renaming.Renaming x); public Renamings visitRenamingsRenamings(Renamings.Renamings x); public Import visitExtendImport(Import.Extend x); public Import visitImportImport(Import.Import x); public ModuleParameters visitModuleParametersModuleParameters(ModuleParameters.ModuleParameters x); public Header visitParametersHeader(Header.Parameters x); public Header visitDefaultHeader(Header.Default x); public QualifiedName visitDefaultQualifiedName(QualifiedName.Default x); public Area visitAreaArea(Area.Area x); public Tag visitDefaultTag(Tag.Default x); public Tags visitDefaultTags(Tags.Default x); public Pattern visitTypedVariablePattern(Pattern.TypedVariable x); public ValueProducer visitGivenStrategyValueProducer(ValueProducer.GivenStrategy x); public ValueProducer visitDefaultStrategyValueProducer(ValueProducer.DefaultStrategy x); public Generator visitProducerGenerator(Generator.Producer x); public Generator visitExpressionGenerator(Generator.Expression x); public Strategy visitInnermostStrategy(Strategy.Innermost x); public Strategy visitOutermostStrategy(Strategy.Outermost x); public Strategy visitBottomUpBreakStrategy(Strategy.BottomUpBreak x); public Strategy visitBottomUpStrategy(Strategy.BottomUp x); public Strategy visitTopDownBreakStrategy(Strategy.TopDownBreak x); public Strategy visitTopDownStrategy(Strategy.TopDown x); public Comprehension visitListComprehension(Comprehension.List x); public Comprehension visitSetComprehension(Comprehension.Set x); public Match visitArbitraryMatch(Match.Arbitrary x); public Match visitReplacingMatch(Match.Replacing x); public Rule visitNoGuardRule(Rule.NoGuard x); public Rule visitWithGuardRule(Rule.WithGuard x); public Case visitDefaultCase(Case.Default x); public Case visitRuleCase(Case.Rule x); public Visit visitGivenStrategyVisit(Visit.GivenStrategy x); public Visit visitDefaultStrategyVisit(Visit.DefaultStrategy x); public IntegerLiteral visitOctalIntegerLiteralIntegerLiteral(IntegerLiteral.OctalIntegerLiteral x); public IntegerLiteral visitHexIntegerLiteralIntegerLiteral(IntegerLiteral.HexIntegerLiteral x); public IntegerLiteral visitDecimalIntegerLiteralIntegerLiteral(IntegerLiteral.DecimalIntegerLiteral x); public LongLiteral visitOctalLongLiteralLongLiteral(LongLiteral.OctalLongLiteral x); public LongLiteral visitHexLongLiteralLongLiteral(LongLiteral.HexLongLiteral x); public LongLiteral visitDecimalLongLiteralLongLiteral(LongLiteral.DecimalLongLiteral x);
+package org.meta_environment.rascal.ast;
+import org.eclipse.imp.pdb.facts.ITree;
+public interface IASTVisitor
+{
+  public Body visitBodyToplevels (Body.Toplevels x);
+  public Formal visitFormalTypeName (Formal.TypeName x);
+  public Formals visitFormalsFormals (Formals.Formals x);
+  public Parameters visitParametersVarArgs (Parameters.VarArgs x);
+  public Parameters visitParametersDefault (Parameters.Default x);
+  public Expression visitExpressionVisit (Expression.Visit x);
+  public Expression visitExpressionForall (Expression.Forall x);
+  public Expression visitExpressionExists (Expression.Exists x);
+  public Expression visitExpressionComprehension (Expression.Comprehension x);
+  public Expression visitExpressionQualifiedName (Expression.QualifiedName x);
+  public Expression visitExpressionAreaInFileLocation (Expression.
+						       AreaInFileLocation x);
+  public Expression visitExpressionAreaLocation (Expression.AreaLocation x);
+  public Expression visitExpressionFileLocation (Expression.FileLocation x);
+  public Expression visitExpressionArea (Expression.Area x);
+  public Expression visitExpressionLocation (Expression.Location x);
+  public Expression visitExpressionMapTuple (Expression.MapTuple x);
+  public Expression visitExpressionTuple (Expression.Tuple x);
+  public Expression visitExpressionSet (Expression.Set x);
+  public Expression visitExpressionStepRange (Expression.StepRange x);
+  public Expression visitExpressionRange (Expression.Range x);
+  public Expression visitExpressionList (Expression.List x);
+  public Expression visitExpressionCallOrTree (Expression.CallOrTree x);
+  public Expression visitExpressionLiteral (Expression.Literal x);
+  public Expression visitExpressionOperator (Expression.Operator x);
+  public Expression visitExpressionIfThenElse (Expression.IfThenElse x);
+  public Expression visitExpressionIfDefined (Expression.IfDefined x);
+  public Expression visitExpressionOr (Expression.Or x);
+  public Expression visitExpressionAnd (Expression.And x);
+  public Expression visitExpressionIn (Expression.In x);
+  public Expression visitExpressionNotIn (Expression.NotIn x);
+  public Expression visitExpressionNonEquals (Expression.NonEquals x);
+  public Expression visitExpressionEquals (Expression.Equals x);
+  public Expression visitExpressionGreaterThanOrEq (Expression.
+						    GreaterThanOrEq x);
+  public Expression visitExpressionGreaterThan (Expression.GreaterThan x);
+  public Expression visitExpressionLessThanOrEq (Expression.LessThanOrEq x);
+  public Expression visitExpressionLessThan (Expression.LessThan x);
+  public Expression visitExpressionNoMatch (Expression.NoMatch x);
+  public Expression visitExpressionMatch (Expression.Match x);
+  public Expression visitExpressionSubstraction (Expression.Substraction x);
+  public Expression visitExpressionAddition (Expression.Addition x);
+  public Expression visitExpressionDivision (Expression.Division x);
+  public Expression visitExpressionIntersection (Expression.Intersection x);
+  public Expression visitExpressionProduct (Expression.Product x);
+  public Expression visitExpressionNegation (Expression.Negation x);
+  public Expression visitExpressionAnnotation (Expression.Annotation x);
+  public Expression visitExpressionTransitiveClosure (Expression.
+						      TransitiveClosure x);
+  public Expression visitExpressionTransitiveReflexiveClosure (Expression.
+							       TransitiveReflexiveClosure
+							       x);
+  public Expression visitExpressionSubscript (Expression.Subscript x);
+  public Expression visitExpressionFieldAccess (Expression.FieldAccess x);
+  public Expression visitExpressionFieldUpdate (Expression.FieldUpdate x);
+  public Expression visitExpressionClosureCall (Expression.ClosureCall x);
+  public Expression visitExpressionClosure (Expression.Closure x);
+  public NatCon visitNatCondigits (NatCon.digits x);
+  public Literal visitLiteralString (Literal.String x);
+  public Literal visitLiteralDouble (Literal.Double x);
+  public Literal visitLiteralInteger (Literal.Integer x);
+  public Literal visitLiteralBoolean (Literal.Boolean x);
+  public Literal visitLiteralSymbol (Literal.Symbol x);
+  public Literal visitLiteralRegExp (Literal.RegExp x);
+  public Bound visitBoundDefault (Bound.Default x);
+  public Bound visitBoundEmpty (Bound.Empty x);
+  public Statement visitStatementGlobalDirective (Statement.
+						  GlobalDirective x);
+  public Statement visitStatementVariableDeclaration (Statement.
+						      VariableDeclaration x);
+  public Statement visitStatementFunctionDeclaration (Statement.
+						      FunctionDeclaration x);
+  public Statement visitStatementBlock (Statement.Block x);
+  public Statement visitStatementTryFinally (Statement.TryFinally x);
+  public Statement visitStatementTry (Statement.Try x);
+  public Statement visitStatementFail (Statement.Fail x);
+  public Statement visitStatementReturnVoid (Statement.ReturnVoid x);
+  public Statement visitStatementContinue (Statement.Continue x);
+  public Statement visitStatementBreak (Statement.Break x);
+  public Statement visitStatementThrow (Statement.Throw x);
+  public Statement visitStatementInsert (Statement.Insert x);
+  public Statement visitStatementReturn (Statement.Return x);
+  public Statement visitStatementAssert (Statement.Assert x);
+  public Statement visitStatementAssignment (Statement.Assignment x);
+  public Statement visitStatementVisit (Statement.Visit x);
+  public Statement visitStatementExpression (Statement.Expression x);
+  public Statement visitStatementSwitch (Statement.Switch x);
+  public Statement visitStatementIfThen (Statement.IfThen x);
+  public Statement visitStatementIfThenElse (Statement.IfThenElse x);
+  public Statement visitStatementDoWhile (Statement.DoWhile x);
+  public Statement visitStatementWhile (Statement.While x);
+  public Statement visitStatementFor (Statement.For x);
+  public Statement visitStatementSolve (Statement.Solve x);
+  public Statement visitStatementSolve (Statement.Solve x);
+  public Condition visitConditionConjunction (Condition.Conjunction x);
+  public Condition visitConditionExpression (Condition.Expression x);
+  public Condition visitConditionNoMatch (Condition.NoMatch x);
+  public Condition visitConditionMatch (Condition.Match x);
+  public Assignable visitAssignableConstructor (Assignable.Constructor x);
+  public Assignable visitAssignableTuple (Assignable.Tuple x);
+  public Assignable visitAssignableAnnotation (Assignable.Annotation x);
+  public Assignable visitAssignableIfDefined (Assignable.IfDefined x);
+  public Assignable visitAssignableFieldAccess (Assignable.FieldAccess x);
+  public Assignable visitAssignableSubscript (Assignable.Subscript x);
+  public Assignable visitAssignableVariable (Assignable.Variable x);
+  public Assignment visitAssignmentInteresection (Assignment.Interesection x);
+  public Assignment visitAssignmentDivision (Assignment.Division x);
+  public Assignment visitAssignmentProduct (Assignment.Product x);
+  public Assignment visitAssignmentSubstraction (Assignment.Substraction x);
+  public Assignment visitAssignmentAddition (Assignment.Addition x);
+  public Assignment visitAssignmentDefault (Assignment.Default x);
+  public Catch visitCatchBindingCatch (Catch.BindingCatch x);
+  public Catch visitCatchCatch (Catch.Catch x);
+  public Declarator visitDeclaratorDefault (Declarator.Default x);
+  public LocalVariableDeclaration
+    visitLocalVariableDeclarationDynamic (LocalVariableDeclaration.Dynamic x);
+  public LocalVariableDeclaration
+    visitLocalVariableDeclarationDefault (LocalVariableDeclaration.Default x);
+  public StrChar visitStrCharnormal (StrChar.normal x);
+  public StrChar visitStrChardecimal (StrChar.decimal x);
+  public StrChar visitStrCharbackslash (StrChar.backslash x);
+  public StrChar visitStrCharquote (StrChar.quote x);
+  public StrChar visitStrChartab (StrChar.tab x);
+  public StrChar visitStrCharnewline (StrChar.newline x);
+  public StrCon visitStrCondefault (StrCon.default x);
+  public Visibility visitVisibilityPrivate (Visibility.Private x);
+  public Visibility visitVisibilityPublic (Visibility.Public x);
+  public Toplevel visitToplevelDefaultVisibility (Toplevel.
+						  DefaultVisibility x);
+  public Toplevel visitToplevelGivenVisibility (Toplevel.GivenVisibility x);
+  public Declaration visitDeclarationTag (Declaration.Tag x);
+  public Declaration visitDeclarationAnnotation (Declaration.Annotation x);
+  public Declaration visitDeclarationRule (Declaration.Rule x);
+  public Declaration visitDeclarationVariable (Declaration.Variable x);
+  public Declaration visitDeclarationFunction (Declaration.Function x);
+  public Declaration visitDeclarationData (Declaration.Data x);
+  public Declaration visitDeclarationType (Declaration.Type x);
+  public Declaration visitDeclarationView (Declaration.View x);
+  public Alternative visitAlternativeNamedType (Alternative.NamedType x);
+  public Variant visitVariantNillaryConstructor (Variant.
+						 NillaryConstructor x);
+  public Variant visitVariantNAryConstructor (Variant.NAryConstructor x);
+  public Variant visitVariantType (Variant.Type x);
+  public StandardOperator visitStandardOperatorNotIn (StandardOperator.
+						      NotIn x);
+  public StandardOperator visitStandardOperatorIn (StandardOperator.In x);
+  public StandardOperator visitStandardOperatorNot (StandardOperator.Not x);
+  public StandardOperator visitStandardOperatorOr (StandardOperator.Or x);
+  public StandardOperator visitStandardOperatorAnd (StandardOperator.And x);
+  public StandardOperator
+    visitStandardOperatorGreaterThanOrEq (StandardOperator.GreaterThanOrEq x);
+  public StandardOperator visitStandardOperatorGreaterThan (StandardOperator.
+							    GreaterThan x);
+  public StandardOperator visitStandardOperatorLessThanOrEq (StandardOperator.
+							     LessThanOrEq x);
+  public StandardOperator visitStandardOperatorLessThan (StandardOperator.
+							 LessThan x);
+  public StandardOperator visitStandardOperatorNotEquals (StandardOperator.
+							  NotEquals x);
+  public StandardOperator visitStandardOperatorEquals (StandardOperator.
+						       Equals x);
+  public StandardOperator visitStandardOperatorIntersection (StandardOperator.
+							     Intersection x);
+  public StandardOperator visitStandardOperatorDivision (StandardOperator.
+							 Division x);
+  public StandardOperator visitStandardOperatorProduct (StandardOperator.
+							Product x);
+  public StandardOperator visitStandardOperatorSubstraction (StandardOperator.
+							     Substraction x);
+  public StandardOperator visitStandardOperatorAddition (StandardOperator.
+							 Addition x);
+  public FunctionName visitFunctionNameOperator (FunctionName.Operator x);
+  public FunctionName visitFunctionNameName (FunctionName.Name x);
+  public FunctionModifier visitFunctionModifierJava (FunctionModifier.Java x);
+  public FunctionModifiers visitFunctionModifiersList (FunctionModifiers.
+						       List x);
+  public Signature visitSignatureWithThrows (Signature.WithThrows x);
+  public Signature visitSignatureNoThrows (Signature.NoThrows x);
+  public FunctionDeclaration
+    visitFunctionDeclarationAbstract (FunctionDeclaration.Abstract x);
+  public FunctionDeclaration
+    visitFunctionDeclarationDefault (FunctionDeclaration.Default x);
+  public FunctionBody visitFunctionBodyDefault (FunctionBody.Default x);
+  public Variable visitVariableGivenInitialization (Variable.
+						    GivenInitialization x);
+  public Kind visitKindAll (Kind.All x);
+  public Kind visitKindTag (Kind.Tag x);
+  public Kind visitKindAnno (Kind.Anno x);
+  public Kind visitKindType (Kind.Type x);
+  public Kind visitKindView (Kind.View x);
+  public Kind visitKindData (Kind.Data x);
+  public Kind visitKindVariable (Kind.Variable x);
+  public Kind visitKindFunction (Kind.Function x);
+  public Kind visitKindModule (Kind.Module x);
+  public BasicType visitBasicTypeLoc (BasicType.Loc x);
+  public BasicType visitBasicTypeVoid (BasicType.Void x);
+  public BasicType visitBasicTypeTerm (BasicType.Term x);
+  public BasicType visitBasicTypeValue (BasicType.Value x);
+  public BasicType visitBasicTypeString (BasicType.String x);
+  public BasicType visitBasicTypeDouble (BasicType.Double x);
+  public BasicType visitBasicTypeInt (BasicType.Int x);
+  public BasicType visitBasicTypeBool (BasicType.Bool x);
+  public TypeArg visitTypeArgNamed (TypeArg.Named x);
+  public TypeArg visitTypeArgDefault (TypeArg.Default x);
+  public StructuredType visitStructuredTypeTuple (StructuredType.Tuple x);
+  public StructuredType visitStructuredTypeRelation (StructuredType.
+						     Relation x);
+  public StructuredType visitStructuredTypeMap (StructuredType.Map x);
+  public StructuredType visitStructuredTypeSet (StructuredType.Set x);
+  public StructuredType visitStructuredTypeList (StructuredType.List x);
+  public FunctionType visitFunctionTypeTypeArguments (FunctionType.
+						      TypeArguments x);
+  public TypeVar visitTypeVarBounded (TypeVar.Bounded x);
+  public TypeVar visitTypeVarFree (TypeVar.Free x);
+  public UserType visitUserTypeParametric (UserType.Parametric x);
+  public UserType visitUserTypeName (UserType.Name x);
+  public DataTypeSelector visitDataTypeSelectorSelector (DataTypeSelector.
+							 Selector x);
+  public Type visitTypeSelector (Type.Selector x);
+  public Type visitTypeSymbol (Type.Symbol x);
+  public Type visitTypeUser (Type.User x);
+  public Type visitTypeVariable (Type.Variable x);
+  public Type visitTypeFunction (Type.Function x);
+  public Type visitTypeStructured (Type.Structured x);
+  public Type visitTypeBasic (Type.Basic x);
+  public Sort visitSortmore - chars (Sort.more - chars x);
+  public Sort visitSortone - char (Sort.one - char x);
+  public Symbol visitSymbolCaseInsensitiveLiteral (Symbol.
+						   CaseInsensitiveLiteral x);
+  public Symbol visitSymbolLiteral (Symbol.Literal x);
+  public Symbol visitSymbolLiftedSymbol (Symbol.LiftedSymbol x);
+  public Symbol visitSymbolCharacterClass (Symbol.CharacterClass x);
+  public Symbol visitSymbolAlternative (Symbol.Alternative x);
+  public Symbol visitSymbolIterStarSep (Symbol.IterStarSep x);
+  public Symbol visitSymbolIterSep (Symbol.IterSep x);
+  public Symbol visitSymbolIterStar (Symbol.IterStar x);
+  public Symbol visitSymbolIter (Symbol.Iter x);
+  public Symbol visitSymbolOptional (Symbol.Optional x);
+  public Symbol visitSymbolSequence (Symbol.Sequence x);
+  public Symbol visitSymbolEmpty (Symbol.Empty x);
+  public Symbol visitSymbolParameterizedSort (Symbol.ParameterizedSort x);
+  public Symbol visitSymbolSort (Symbol.Sort x);
+  public SingleQuotedStrChar
+    visitSingleQuotedStrCharnormal (SingleQuotedStrChar.normal x);
+  public SingleQuotedStrChar
+    visitSingleQuotedStrChardecimal (SingleQuotedStrChar.decimal x);
+  public SingleQuotedStrChar
+    visitSingleQuotedStrCharbackslash (SingleQuotedStrChar.backslash x);
+  public SingleQuotedStrChar
+    visitSingleQuotedStrCharquote (SingleQuotedStrChar.quote x);
+  public SingleQuotedStrChar visitSingleQuotedStrChartab (SingleQuotedStrChar.
+							  tab x);
+  public SingleQuotedStrChar
+    visitSingleQuotedStrCharnewline (SingleQuotedStrChar.newline x);
+  public SingleQuotedStrCon
+    visitSingleQuotedStrCondefault (SingleQuotedStrCon.default x);
+  public CharRange visitCharRangeRange (CharRange.Range x);
+  public CharRange visitCharRangeCharacter (CharRange.Character x);
+  public CharRanges visitCharRangesConcatenate (CharRanges.Concatenate x);
+  public CharRanges visitCharRangesRange (CharRanges.Range x);
+  public OptCharRanges visitOptCharRangesPresent (OptCharRanges.Present x);
+  public OptCharRanges visitOptCharRangesAbsent (OptCharRanges.Absent x);
+  public CharClass visitCharClassUnion (CharClass.Union x);
+  public CharClass visitCharClassIntersection (CharClass.Intersection x);
+  public CharClass visitCharClassDifference (CharClass.Difference x);
+  public CharClass visitCharClassComplement (CharClass.Complement x);
+  public CharClass visitCharClassSimpleCharclass (CharClass.
+						  SimpleCharclass x);
+  public NumChar visitNumCharDigits (NumChar.Digits x);
+  public ShortChar visitShortCharEscaped (ShortChar.Escaped x);
+  public ShortChar visitShortCharRegular (ShortChar.Regular x);
+  public Character visitCharacterLabelStart (Character.LabelStart x);
+  public Character visitCharacterBottom (Character.Bottom x);
+  public Character visitCharacterEOF (Character.EOF x);
+  public Character visitCharacterTop (Character.Top x);
+  public Character visitCharacterShort (Character.Short x);
+  public Character visitCharacterNumeric (Character.Numeric x);
+  public Module visitModuleModule (Module.Module x);
+  public ModuleWord visitModuleWordWord (ModuleWord.Word x);
+  public ModuleName visitModuleNamePath (ModuleName.Path x);
+  public ModuleName visitModuleNameRoot (ModuleName.Root x);
+  public ModuleName visitModuleNameLeaf (ModuleName.Leaf x);
+  public ModuleActuals visitModuleActualsActuals (ModuleActuals.Actuals x);
+  public ImportedModule visitImportedModuleDefault (ImportedModule.Default x);
+  public ImportedModule visitImportedModuleRenamings (ImportedModule.
+						      Renamings x);
+  public ImportedModule visitImportedModuleActuals (ImportedModule.Actuals x);
+  public ImportedModule visitImportedModuleActualsRenaming (ImportedModule.
+							    ActualsRenaming
+							    x);
+  public Renaming visitRenamingRenaming (Renaming.Renaming x);
+  public Renamings visitRenamingsRenamings (Renamings.Renamings x);
+  public Import visitImportExtend (Import.Extend x);
+  public Import visitImportImport (Import.Import x);
+  public ModuleParameters
+    visitModuleParametersModuleParameters (ModuleParameters.
+					   ModuleParameters x);
+  public Header visitHeaderParameters (Header.Parameters x);
+  public Header visitHeaderDefault (Header.Default x);
+  public QualifiedName visitQualifiedNameDefault (QualifiedName.Default x);
+  public Area visitAreaArea (Area.Area x);
+  public Tag visitTagDefault (Tag.Default x);
+  public Tags visitTagsDefault (Tags.Default x);
+  public Pattern visitPatternTypedVariable (Pattern.TypedVariable x);
+  public ValueProducer visitValueProducerGivenStrategy (ValueProducer.
+							GivenStrategy x);
+  public ValueProducer visitValueProducerDefaultStrategy (ValueProducer.
+							  DefaultStrategy x);
+  public Generator visitGeneratorProducer (Generator.Producer x);
+  public Generator visitGeneratorExpression (Generator.Expression x);
+  public Strategy visitStrategyInnermost (Strategy.Innermost x);
+  public Strategy visitStrategyOutermost (Strategy.Outermost x);
+  public Strategy visitStrategyBottomUpBreak (Strategy.BottomUpBreak x);
+  public Strategy visitStrategyBottomUp (Strategy.BottomUp x);
+  public Strategy visitStrategyTopDownBreak (Strategy.TopDownBreak x);
+  public Strategy visitStrategyTopDown (Strategy.TopDown x);
+  public Comprehension visitComprehensionList (Comprehension.List x);
+  public Comprehension visitComprehensionSet (Comprehension.Set x);
+  public Match visitMatchArbitrary (Match.Arbitrary x);
+  public Match visitMatchReplacing (Match.Replacing x);
+  public Rule visitRuleNoGuard (Rule.NoGuard x);
+  public Rule visitRuleWithGuard (Rule.WithGuard x);
+  public Case visitCaseDefault (Case.Default x);
+  public Case visitCaseRule (Case.Rule x);
+  public Visit visitVisitGivenStrategy (Visit.GivenStrategy x);
+  public Visit visitVisitDefaultStrategy (Visit.DefaultStrategy x);
+  public IntegerLiteral
+    visitIntegerLiteralOctalIntegerLiteral (IntegerLiteral.
+					    OctalIntegerLiteral x);
+  public IntegerLiteral visitIntegerLiteralHexIntegerLiteral (IntegerLiteral.
+							      HexIntegerLiteral
+							      x);
+  public IntegerLiteral
+    visitIntegerLiteralDecimalIntegerLiteral (IntegerLiteral.
+					      DecimalIntegerLiteral x);
+  public LongLiteral visitLongLiteralOctalLongLiteral (LongLiteral.
+						       OctalLongLiteral x);
+  public LongLiteral visitLongLiteralHexLongLiteral (LongLiteral.
+						     HexLongLiteral x);
+  public LongLiteral visitLongLiteralDecimalLongLiteral (LongLiteral.
+							 DecimalLongLiteral
+							 x);
 }
