@@ -8,7 +8,9 @@ public abstract class Generator extends AbstractAST
     private Expression ()
     {
     }
-    /*package */ Expression (ITree tree, Expression expression)
+    /*package */ Expression (ITree tree,
+			     org.meta_environment.rascal.ast.
+			     Expression expression)
     {
       this.tree = tree;
       this.expression = expression;
@@ -17,18 +19,23 @@ public abstract class Generator extends AbstractAST
     {
       return visitor.visitGeneratorExpression (this);
     }
-    private Expression expression;
-    public Expression getExpression ()
+    private org.meta_environment.rascal.ast.Expression expression;
+    public org.meta_environment.rascal.ast.Expression getExpression ()
     {
       return expression;
     }
-    private void $setExpression (Expression x)
+    private void $setExpression (org.meta_environment.rascal.ast.Expression x)
     {
       this.expression = x;
     }
-    public Expression setExpression (Expression x)
+    public org.meta_environment.rascal.ast.Expression setExpression (org.
+								     meta_environment.
+								     rascal.
+								     ast.
+								     Expression
+								     x)
     {
-      Expression z = new Expression ();
+      org.meta_environment.rascal.ast.Expression z = new Expression ();
       z.$setExpression (x);
       return z;
     }
@@ -52,7 +59,9 @@ public abstract class Generator extends AbstractAST
     private Producer ()
     {
     }
-    /*package */ Producer (ITree tree, ValueProducer producer)
+    /*package */ Producer (ITree tree,
+			   org.meta_environment.rascal.ast.
+			   ValueProducer producer)
     {
       this.tree = tree;
       this.producer = producer;
@@ -61,18 +70,23 @@ public abstract class Generator extends AbstractAST
     {
       return visitor.visitGeneratorProducer (this);
     }
-    private ValueProducer producer;
-    public ValueProducer getProducer ()
+    private org.meta_environment.rascal.ast.ValueProducer producer;
+    public org.meta_environment.rascal.ast.ValueProducer getProducer ()
     {
       return producer;
     }
-    private void $setProducer (ValueProducer x)
+    private void $setProducer (org.meta_environment.rascal.ast.
+			       ValueProducer x)
     {
       this.producer = x;
     }
-    public Producer setProducer (ValueProducer x)
+    public org.meta_environment.rascal.ast.Producer setProducer (org.
+								 meta_environment.
+								 rascal.ast.
+								 ValueProducer
+								 x)
     {
-      Producer z = new Producer ();
+      org.meta_environment.rascal.ast.Producer z = new Producer ();
       z.$setProducer (x);
       return z;
     }

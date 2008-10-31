@@ -8,7 +8,9 @@ public abstract class CharRange extends AbstractAST
     private Character ()
     {
     }
-    /*package */ Character (ITree tree, Character character)
+    /*package */ Character (ITree tree,
+			    org.meta_environment.rascal.ast.
+			    Character character)
     {
       this.tree = tree;
       this.character = character;
@@ -17,18 +19,22 @@ public abstract class CharRange extends AbstractAST
     {
       return visitor.visitCharRangeCharacter (this);
     }
-    private Character character;
-    public Character getCharacter ()
+    private org.meta_environment.rascal.ast.Character character;
+    public org.meta_environment.rascal.ast.Character getCharacter ()
     {
       return character;
     }
-    private void $setCharacter (Character x)
+    private void $setCharacter (org.meta_environment.rascal.ast.Character x)
     {
       this.character = x;
     }
-    public Character setCharacter (Character x)
+    public org.meta_environment.rascal.ast.Character setCharacter (org.
+								   meta_environment.
+								   rascal.ast.
+								   Character
+								   x)
     {
-      Character z = new Character ();
+      org.meta_environment.rascal.ast.Character z = new Character ();
       z.$setCharacter (x);
       return z;
     }
@@ -52,7 +58,9 @@ public abstract class CharRange extends AbstractAST
     private Range ()
     {
     }
-    /*package */ Range (ITree tree, Character start, Character end)
+    /*package */ Range (ITree tree,
+			org.meta_environment.rascal.ast.Character start,
+			org.meta_environment.rascal.ast.Character end)
     {
       this.tree = tree;
       this.start = start;
@@ -62,33 +70,38 @@ public abstract class CharRange extends AbstractAST
     {
       return visitor.visitCharRangeRange (this);
     }
-    private Character start;
-    public Character getStart ()
+    private org.meta_environment.rascal.ast.Character start;
+    public org.meta_environment.rascal.ast.Character getStart ()
     {
       return start;
     }
-    private void $setStart (Character x)
+    private void $setStart (org.meta_environment.rascal.ast.Character x)
     {
       this.start = x;
     }
-    public Range setStart (Character x)
+    public org.meta_environment.rascal.ast.Range setStart (org.
+							   meta_environment.
+							   rascal.ast.
+							   Character x)
     {
-      Range z = new Range ();
+      org.meta_environment.rascal.ast.Range z = new Range ();
       z.$setStart (x);
       return z;
     }
-    private Character end;
-    public Character getEnd ()
+    private org.meta_environment.rascal.ast.Character end;
+    public org.meta_environment.rascal.ast.Character getEnd ()
     {
       return end;
     }
-    private void $setEnd (Character x)
+    private void $setEnd (org.meta_environment.rascal.ast.Character x)
     {
       this.end = x;
     }
-    public Range setEnd (Character x)
+    public org.meta_environment.rascal.ast.Range setEnd (org.meta_environment.
+							 rascal.ast.
+							 Character x)
     {
-      Range z = new Range ();
+      org.meta_environment.rascal.ast.Range z = new Range ();
       z.$setEnd (x);
       return z;
     }

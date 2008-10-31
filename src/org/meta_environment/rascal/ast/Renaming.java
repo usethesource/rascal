@@ -8,7 +8,9 @@ public abstract class Renaming extends AbstractAST
     private Default ()
     {
     }
-    /*package */ Default (ITree tree, Name from, Name to)
+    /*package */ Default (ITree tree,
+			  org.meta_environment.rascal.ast.Name from,
+			  org.meta_environment.rascal.ast.Name to)
     {
       this.tree = tree;
       this.from = from;
@@ -18,33 +20,37 @@ public abstract class Renaming extends AbstractAST
     {
       return visitor.visitRenamingDefault (this);
     }
-    private Name from;
-    public Name getFrom ()
+    private org.meta_environment.rascal.ast.Name from;
+    public org.meta_environment.rascal.ast.Name getFrom ()
     {
       return from;
     }
-    private void $setFrom (Name x)
+    private void $setFrom (org.meta_environment.rascal.ast.Name x)
     {
       this.from = x;
     }
-    public Default setFrom (Name x)
+    public org.meta_environment.rascal.ast.Default setFrom (org.
+							    meta_environment.
+							    rascal.ast.Name x)
     {
-      Default z = new Default ();
+      org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setFrom (x);
       return z;
     }
-    private Name to;
-    public Name getTo ()
+    private org.meta_environment.rascal.ast.Name to;
+    public org.meta_environment.rascal.ast.Name getTo ()
     {
       return to;
     }
-    private void $setTo (Name x)
+    private void $setTo (org.meta_environment.rascal.ast.Name x)
     {
       this.to = x;
     }
-    public Default setTo (Name x)
+    public org.meta_environment.rascal.ast.Default setTo (org.
+							  meta_environment.
+							  rascal.ast.Name x)
     {
-      Default z = new Default ();
+      org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setTo (x);
       return z;
     }

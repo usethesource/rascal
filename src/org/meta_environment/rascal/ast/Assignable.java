@@ -8,7 +8,9 @@ public abstract class Assignable extends AbstractAST
     private Variable ()
     {
     }
-    /*package */ Variable (ITree tree, QualifiedName qualifiedName)
+    /*package */ Variable (ITree tree,
+			   org.meta_environment.rascal.ast.
+			   QualifiedName qualifiedName)
     {
       this.tree = tree;
       this.qualifiedName = qualifiedName;
@@ -17,18 +19,24 @@ public abstract class Assignable extends AbstractAST
     {
       return visitor.visitAssignableVariable (this);
     }
-    private QualifiedName qualifiedName;
-    public QualifiedName getQualifiedName ()
+    private org.meta_environment.rascal.ast.QualifiedName qualifiedName;
+    public org.meta_environment.rascal.ast.QualifiedName getQualifiedName ()
     {
       return qualifiedName;
     }
-    private void $setQualifiedName (QualifiedName x)
+    private void $setQualifiedName (org.meta_environment.rascal.ast.
+				    QualifiedName x)
     {
       this.qualifiedName = x;
     }
-    public Variable setQualifiedName (QualifiedName x)
+    public org.meta_environment.rascal.ast.Variable setQualifiedName (org.
+								      meta_environment.
+								      rascal.
+								      ast.
+								      QualifiedName
+								      x)
     {
-      Variable z = new Variable ();
+      org.meta_environment.rascal.ast.Variable z = new Variable ();
       z.$setQualifiedName (x);
       return z;
     }
@@ -52,7 +60,10 @@ public abstract class Assignable extends AbstractAST
     private Subscript ()
     {
     }
-    /*package */ Subscript (ITree tree, Assignable receiver,
+    /*package */ Subscript (ITree tree,
+			    org.meta_environment.rascal.ast.
+			    Assignable receiver,
+			    org.meta_environment.rascal.ast.
 			    Expression subscript)
     {
       this.tree = tree;
@@ -63,33 +74,41 @@ public abstract class Assignable extends AbstractAST
     {
       return visitor.visitAssignableSubscript (this);
     }
-    private Assignable receiver;
-    public Assignable getReceiver ()
+    private org.meta_environment.rascal.ast.Assignable receiver;
+    public org.meta_environment.rascal.ast.Assignable getReceiver ()
     {
       return receiver;
     }
-    private void $setReceiver (Assignable x)
+    private void $setReceiver (org.meta_environment.rascal.ast.Assignable x)
     {
       this.receiver = x;
     }
-    public Subscript setReceiver (Assignable x)
+    public org.meta_environment.rascal.ast.Subscript setReceiver (org.
+								  meta_environment.
+								  rascal.ast.
+								  Assignable
+								  x)
     {
-      Subscript z = new Subscript ();
+      org.meta_environment.rascal.ast.Subscript z = new Subscript ();
       z.$setReceiver (x);
       return z;
     }
-    private Expression subscript;
-    public Expression getSubscript ()
+    private org.meta_environment.rascal.ast.Expression subscript;
+    public org.meta_environment.rascal.ast.Expression getSubscript ()
     {
       return subscript;
     }
-    private void $setSubscript (Expression x)
+    private void $setSubscript (org.meta_environment.rascal.ast.Expression x)
     {
       this.subscript = x;
     }
-    public Subscript setSubscript (Expression x)
+    public org.meta_environment.rascal.ast.Subscript setSubscript (org.
+								   meta_environment.
+								   rascal.ast.
+								   Expression
+								   x)
     {
-      Subscript z = new Subscript ();
+      org.meta_environment.rascal.ast.Subscript z = new Subscript ();
       z.$setSubscript (x);
       return z;
     }
@@ -100,7 +119,10 @@ public abstract class Assignable extends AbstractAST
     private FieldAccess ()
     {
     }
-    /*package */ FieldAccess (ITree tree, Assignable receiver, Name field)
+    /*package */ FieldAccess (ITree tree,
+			      org.meta_environment.rascal.ast.
+			      Assignable receiver,
+			      org.meta_environment.rascal.ast.Name field)
     {
       this.tree = tree;
       this.receiver = receiver;
@@ -110,33 +132,41 @@ public abstract class Assignable extends AbstractAST
     {
       return visitor.visitAssignableFieldAccess (this);
     }
-    private Assignable receiver;
-    public Assignable getReceiver ()
+    private org.meta_environment.rascal.ast.Assignable receiver;
+    public org.meta_environment.rascal.ast.Assignable getReceiver ()
     {
       return receiver;
     }
-    private void $setReceiver (Assignable x)
+    private void $setReceiver (org.meta_environment.rascal.ast.Assignable x)
     {
       this.receiver = x;
     }
-    public FieldAccess setReceiver (Assignable x)
+    public org.meta_environment.rascal.ast.FieldAccess setReceiver (org.
+								    meta_environment.
+								    rascal.
+								    ast.
+								    Assignable
+								    x)
     {
-      FieldAccess z = new FieldAccess ();
+      org.meta_environment.rascal.ast.FieldAccess z = new FieldAccess ();
       z.$setReceiver (x);
       return z;
     }
-    private Name field;
-    public Name getField ()
+    private org.meta_environment.rascal.ast.Name field;
+    public org.meta_environment.rascal.ast.Name getField ()
     {
       return field;
     }
-    private void $setField (Name x)
+    private void $setField (org.meta_environment.rascal.ast.Name x)
     {
       this.field = x;
     }
-    public FieldAccess setField (Name x)
+    public org.meta_environment.rascal.ast.FieldAccess setField (org.
+								 meta_environment.
+								 rascal.ast.
+								 Name x)
     {
-      FieldAccess z = new FieldAccess ();
+      org.meta_environment.rascal.ast.FieldAccess z = new FieldAccess ();
       z.$setField (x);
       return z;
     }
@@ -147,7 +177,10 @@ public abstract class Assignable extends AbstractAST
     private IfDefined ()
     {
     }
-    /*package */ IfDefined (ITree tree, Assignable receiver,
+    /*package */ IfDefined (ITree tree,
+			    org.meta_environment.rascal.ast.
+			    Assignable receiver,
+			    org.meta_environment.rascal.ast.
 			    Expression condition)
     {
       this.tree = tree;
@@ -158,33 +191,41 @@ public abstract class Assignable extends AbstractAST
     {
       return visitor.visitAssignableIfDefined (this);
     }
-    private Assignable receiver;
-    public Assignable getReceiver ()
+    private org.meta_environment.rascal.ast.Assignable receiver;
+    public org.meta_environment.rascal.ast.Assignable getReceiver ()
     {
       return receiver;
     }
-    private void $setReceiver (Assignable x)
+    private void $setReceiver (org.meta_environment.rascal.ast.Assignable x)
     {
       this.receiver = x;
     }
-    public IfDefined setReceiver (Assignable x)
+    public org.meta_environment.rascal.ast.IfDefined setReceiver (org.
+								  meta_environment.
+								  rascal.ast.
+								  Assignable
+								  x)
     {
-      IfDefined z = new IfDefined ();
+      org.meta_environment.rascal.ast.IfDefined z = new IfDefined ();
       z.$setReceiver (x);
       return z;
     }
-    private Expression condition;
-    public Expression getCondition ()
+    private org.meta_environment.rascal.ast.Expression condition;
+    public org.meta_environment.rascal.ast.Expression getCondition ()
     {
       return condition;
     }
-    private void $setCondition (Expression x)
+    private void $setCondition (org.meta_environment.rascal.ast.Expression x)
     {
       this.condition = x;
     }
-    public IfDefined setCondition (Expression x)
+    public org.meta_environment.rascal.ast.IfDefined setCondition (org.
+								   meta_environment.
+								   rascal.ast.
+								   Expression
+								   x)
     {
-      IfDefined z = new IfDefined ();
+      org.meta_environment.rascal.ast.IfDefined z = new IfDefined ();
       z.$setCondition (x);
       return z;
     }
@@ -195,7 +236,10 @@ public abstract class Assignable extends AbstractAST
     private Annotation ()
     {
     }
-    /*package */ Annotation (ITree tree, Assignable receiver,
+    /*package */ Annotation (ITree tree,
+			     org.meta_environment.rascal.ast.
+			     Assignable receiver,
+			     org.meta_environment.rascal.ast.
 			     Expression annotation)
     {
       this.tree = tree;
@@ -206,33 +250,42 @@ public abstract class Assignable extends AbstractAST
     {
       return visitor.visitAssignableAnnotation (this);
     }
-    private Assignable receiver;
-    public Assignable getReceiver ()
+    private org.meta_environment.rascal.ast.Assignable receiver;
+    public org.meta_environment.rascal.ast.Assignable getReceiver ()
     {
       return receiver;
     }
-    private void $setReceiver (Assignable x)
+    private void $setReceiver (org.meta_environment.rascal.ast.Assignable x)
     {
       this.receiver = x;
     }
-    public Annotation setReceiver (Assignable x)
+    public org.meta_environment.rascal.ast.Annotation setReceiver (org.
+								   meta_environment.
+								   rascal.ast.
+								   Assignable
+								   x)
     {
-      Annotation z = new Annotation ();
+      org.meta_environment.rascal.ast.Annotation z = new Annotation ();
       z.$setReceiver (x);
       return z;
     }
-    private Expression annotation;
-    public Expression getAnnotation ()
+    private org.meta_environment.rascal.ast.Expression annotation;
+    public org.meta_environment.rascal.ast.Expression getAnnotation ()
     {
       return annotation;
     }
-    private void $setAnnotation (Expression x)
+    private void $setAnnotation (org.meta_environment.rascal.ast.Expression x)
     {
       this.annotation = x;
     }
-    public Annotation setAnnotation (Expression x)
+    public org.meta_environment.rascal.ast.Annotation setAnnotation (org.
+								     meta_environment.
+								     rascal.
+								     ast.
+								     Expression
+								     x)
     {
-      Annotation z = new Annotation ();
+      org.meta_environment.rascal.ast.Annotation z = new Annotation ();
       z.$setAnnotation (x);
       return z;
     }
@@ -243,7 +296,8 @@ public abstract class Assignable extends AbstractAST
     private Tuple ()
     {
     }
-    /*package */ Tuple (ITree tree, Assignable first,
+    /*package */ Tuple (ITree tree,
+			org.meta_environment.rascal.ast.Assignable first,
 			java.util.List < Assignable > rest)
     {
       this.tree = tree;
@@ -254,33 +308,43 @@ public abstract class Assignable extends AbstractAST
     {
       return visitor.visitAssignableTuple (this);
     }
-    private Assignable first;
-    public Assignable getFirst ()
+    private org.meta_environment.rascal.ast.Assignable first;
+    public org.meta_environment.rascal.ast.Assignable getFirst ()
     {
       return first;
     }
-    private void $setFirst (Assignable x)
+    private void $setFirst (org.meta_environment.rascal.ast.Assignable x)
     {
       this.first = x;
     }
-    public Tuple setFirst (Assignable x)
+    public org.meta_environment.rascal.ast.Tuple setFirst (org.
+							   meta_environment.
+							   rascal.ast.
+							   Assignable x)
     {
-      Tuple z = new Tuple ();
+      org.meta_environment.rascal.ast.Tuple z = new Tuple ();
       z.$setFirst (x);
       return z;
     }
-    private java.util.List < Assignable > rest;
-    public java.util.List < Assignable > getRest ()
+    private java.util.List < org.meta_environment.rascal.ast.Assignable >
+      rest;
+    public java.util.List < org.meta_environment.rascal.ast.Assignable >
+      getRest ()
     {
       return rest;
     }
-    private void $setRest (java.util.List < Assignable > x)
+    private void $setRest (java.util.List <
+			   org.meta_environment.rascal.ast.Assignable > x)
     {
       this.rest = x;
     }
-    public Tuple setRest (java.util.List < Assignable > x)
+    public org.meta_environment.rascal.ast.Tuple setRest (java.util.List <
+							  org.
+							  meta_environment.
+							  rascal.ast.
+							  Assignable > x)
     {
-      Tuple z = new Tuple ();
+      org.meta_environment.rascal.ast.Tuple z = new Tuple ();
       z.$setRest (x);
       return z;
     }
@@ -291,7 +355,8 @@ public abstract class Assignable extends AbstractAST
     private Constructor ()
     {
     }
-    /*package */ Constructor (ITree tree, Name name,
+    /*package */ Constructor (ITree tree,
+			      org.meta_environment.rascal.ast.Name name,
 			      java.util.List < Assignable > arguments)
     {
       this.tree = tree;
@@ -302,33 +367,48 @@ public abstract class Assignable extends AbstractAST
     {
       return visitor.visitAssignableConstructor (this);
     }
-    private Name name;
-    public Name getName ()
+    private org.meta_environment.rascal.ast.Name name;
+    public org.meta_environment.rascal.ast.Name getName ()
     {
       return name;
     }
-    private void $setName (Name x)
+    private void $setName (org.meta_environment.rascal.ast.Name x)
     {
       this.name = x;
     }
-    public Constructor setName (Name x)
+    public org.meta_environment.rascal.ast.Constructor setName (org.
+								meta_environment.
+								rascal.ast.
+								Name x)
     {
-      Constructor z = new Constructor ();
+      org.meta_environment.rascal.ast.Constructor z = new Constructor ();
       z.$setName (x);
       return z;
     }
-    private java.util.List < Assignable > arguments;
-    public java.util.List < Assignable > getArguments ()
+    private java.util.List < org.meta_environment.rascal.ast.Assignable >
+      arguments;
+    public java.util.List < org.meta_environment.rascal.ast.Assignable >
+      getArguments ()
     {
       return arguments;
     }
-    private void $setArguments (java.util.List < Assignable > x)
+    private void $setArguments (java.util.List <
+				org.meta_environment.rascal.ast.Assignable >
+				x)
     {
       this.arguments = x;
     }
-    public Constructor setArguments (java.util.List < Assignable > x)
+    public org.meta_environment.rascal.ast.Constructor setArguments (java.
+								     util.
+								     List <
+								     org.
+								     meta_environment.
+								     rascal.
+								     ast.
+								     Assignable
+								     > x)
     {
-      Constructor z = new Constructor ();
+      org.meta_environment.rascal.ast.Constructor z = new Constructor ();
       z.$setArguments (x);
       return z;
     }

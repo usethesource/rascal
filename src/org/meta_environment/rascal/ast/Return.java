@@ -8,7 +8,9 @@ public abstract class Return extends AbstractAST
     private WithExpression ()
     {
     }
-    /*package */ WithExpression (ITree tree, Expression expression)
+    /*package */ WithExpression (ITree tree,
+				 org.meta_environment.rascal.ast.
+				 Expression expression)
     {
       this.tree = tree;
       this.expression = expression;
@@ -17,18 +19,24 @@ public abstract class Return extends AbstractAST
     {
       return visitor.visitReturnWithExpression (this);
     }
-    private Expression expression;
-    public Expression getExpression ()
+    private org.meta_environment.rascal.ast.Expression expression;
+    public org.meta_environment.rascal.ast.Expression getExpression ()
     {
       return expression;
     }
-    private void $setExpression (Expression x)
+    private void $setExpression (org.meta_environment.rascal.ast.Expression x)
     {
       this.expression = x;
     }
-    public WithExpression setExpression (Expression x)
+    public org.meta_environment.rascal.ast.WithExpression setExpression (org.
+									 meta_environment.
+									 rascal.
+									 ast.
+									 Expression
+									 x)
     {
-      WithExpression z = new WithExpression ();
+      org.meta_environment.rascal.ast.WithExpression z =
+	new WithExpression ();
       z.$setExpression (x);
       return z;
     }

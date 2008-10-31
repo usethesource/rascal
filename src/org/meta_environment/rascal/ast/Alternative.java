@@ -8,7 +8,9 @@ public abstract class Alternative extends AbstractAST
     private NamedType ()
     {
     }
-    /*package */ NamedType (ITree tree, Name name, Type type)
+    /*package */ NamedType (ITree tree,
+			    org.meta_environment.rascal.ast.Name name,
+			    org.meta_environment.rascal.ast.Type type)
     {
       this.tree = tree;
       this.name = name;
@@ -18,33 +20,39 @@ public abstract class Alternative extends AbstractAST
     {
       return visitor.visitAlternativeNamedType (this);
     }
-    private Name name;
-    public Name getName ()
+    private org.meta_environment.rascal.ast.Name name;
+    public org.meta_environment.rascal.ast.Name getName ()
     {
       return name;
     }
-    private void $setName (Name x)
+    private void $setName (org.meta_environment.rascal.ast.Name x)
     {
       this.name = x;
     }
-    public NamedType setName (Name x)
+    public org.meta_environment.rascal.ast.NamedType setName (org.
+							      meta_environment.
+							      rascal.ast.
+							      Name x)
     {
-      NamedType z = new NamedType ();
+      org.meta_environment.rascal.ast.NamedType z = new NamedType ();
       z.$setName (x);
       return z;
     }
-    private Type type;
-    public Type getType ()
+    private org.meta_environment.rascal.ast.Type type;
+    public org.meta_environment.rascal.ast.Type getType ()
     {
       return type;
     }
-    private void $setType (Type x)
+    private void $setType (org.meta_environment.rascal.ast.Type x)
     {
       this.type = x;
     }
-    public NamedType setType (Type x)
+    public org.meta_environment.rascal.ast.NamedType setType (org.
+							      meta_environment.
+							      rascal.ast.
+							      Type x)
     {
-      NamedType z = new NamedType ();
+      org.meta_environment.rascal.ast.NamedType z = new NamedType ();
       z.$setType (x);
       return z;
     }

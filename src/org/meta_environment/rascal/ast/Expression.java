@@ -8,7 +8,8 @@ public abstract class Expression extends AbstractAST
     private Closure ()
     {
     }
-    /*package */ Closure (ITree tree, Type type,
+    /*package */ Closure (ITree tree,
+			  org.meta_environment.rascal.ast.Type type,
 			  java.util.List < Statement > statements)
     {
       this.tree = tree;
@@ -19,33 +20,45 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionClosure (this);
     }
-    private Type type;
-    public Type getType ()
+    private org.meta_environment.rascal.ast.Type type;
+    public org.meta_environment.rascal.ast.Type getType ()
     {
       return type;
     }
-    private void $setType (Type x)
+    private void $setType (org.meta_environment.rascal.ast.Type x)
     {
       this.type = x;
     }
-    public Closure setType (Type x)
+    public org.meta_environment.rascal.ast.Closure setType (org.
+							    meta_environment.
+							    rascal.ast.Type x)
     {
-      Closure z = new Closure ();
+      org.meta_environment.rascal.ast.Closure z = new Closure ();
       z.$setType (x);
       return z;
     }
-    private java.util.List < Statement > statements;
-    public java.util.List < Statement > getStatements ()
+    private java.util.List < org.meta_environment.rascal.ast.Statement >
+      statements;
+    public java.util.List < org.meta_environment.rascal.ast.Statement >
+      getStatements ()
     {
       return statements;
     }
-    private void $setStatements (java.util.List < Statement > x)
+    private void $setStatements (java.util.List <
+				 org.meta_environment.rascal.ast.Statement >
+				 x)
     {
       this.statements = x;
     }
-    public Closure setStatements (java.util.List < Statement > x)
+    public org.meta_environment.rascal.ast.Closure setStatements (java.util.
+								  List <
+								  org.
+								  meta_environment.
+								  rascal.ast.
+								  Statement >
+								  x)
     {
-      Closure z = new Closure ();
+      org.meta_environment.rascal.ast.Closure z = new Closure ();
       z.$setStatements (x);
       return z;
     }
@@ -84,7 +97,9 @@ public abstract class Expression extends AbstractAST
     private ClosureCall ()
     {
     }
-    /*package */ ClosureCall (ITree tree, Expression closure,
+    /*package */ ClosureCall (ITree tree,
+			      org.meta_environment.rascal.ast.
+			      Expression closure,
 			      java.util.List < Expression > arguments)
     {
       this.tree = tree;
@@ -95,33 +110,49 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionClosureCall (this);
     }
-    private Expression closure;
-    public Expression getClosure ()
+    private org.meta_environment.rascal.ast.Expression closure;
+    public org.meta_environment.rascal.ast.Expression getClosure ()
     {
       return closure;
     }
-    private void $setClosure (Expression x)
+    private void $setClosure (org.meta_environment.rascal.ast.Expression x)
     {
       this.closure = x;
     }
-    public ClosureCall setClosure (Expression x)
+    public org.meta_environment.rascal.ast.ClosureCall setClosure (org.
+								   meta_environment.
+								   rascal.ast.
+								   Expression
+								   x)
     {
-      ClosureCall z = new ClosureCall ();
+      org.meta_environment.rascal.ast.ClosureCall z = new ClosureCall ();
       z.$setClosure (x);
       return z;
     }
-    private java.util.List < Expression > arguments;
-    public java.util.List < Expression > getArguments ()
+    private java.util.List < org.meta_environment.rascal.ast.Expression >
+      arguments;
+    public java.util.List < org.meta_environment.rascal.ast.Expression >
+      getArguments ()
     {
       return arguments;
     }
-    private void $setArguments (java.util.List < Expression > x)
+    private void $setArguments (java.util.List <
+				org.meta_environment.rascal.ast.Expression >
+				x)
     {
       this.arguments = x;
     }
-    public ClosureCall setArguments (java.util.List < Expression > x)
+    public org.meta_environment.rascal.ast.ClosureCall setArguments (java.
+								     util.
+								     List <
+								     org.
+								     meta_environment.
+								     rascal.
+								     ast.
+								     Expression
+								     > x)
     {
-      ClosureCall z = new ClosureCall ();
+      org.meta_environment.rascal.ast.ClosureCall z = new ClosureCall ();
       z.$setArguments (x);
       return z;
     }
@@ -132,7 +163,9 @@ public abstract class Expression extends AbstractAST
     private Range ()
     {
     }
-    /*package */ Range (ITree tree, Expression from, Expression to)
+    /*package */ Range (ITree tree,
+			org.meta_environment.rascal.ast.Expression from,
+			org.meta_environment.rascal.ast.Expression to)
     {
       this.tree = tree;
       this.from = from;
@@ -142,33 +175,38 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionRange (this);
     }
-    private Expression from;
-    public Expression getFrom ()
+    private org.meta_environment.rascal.ast.Expression from;
+    public org.meta_environment.rascal.ast.Expression getFrom ()
     {
       return from;
     }
-    private void $setFrom (Expression x)
+    private void $setFrom (org.meta_environment.rascal.ast.Expression x)
     {
       this.from = x;
     }
-    public Range setFrom (Expression x)
+    public org.meta_environment.rascal.ast.Range setFrom (org.
+							  meta_environment.
+							  rascal.ast.
+							  Expression x)
     {
-      Range z = new Range ();
+      org.meta_environment.rascal.ast.Range z = new Range ();
       z.$setFrom (x);
       return z;
     }
-    private Expression to;
-    public Expression getTo ()
+    private org.meta_environment.rascal.ast.Expression to;
+    public org.meta_environment.rascal.ast.Expression getTo ()
     {
       return to;
     }
-    private void $setTo (Expression x)
+    private void $setTo (org.meta_environment.rascal.ast.Expression x)
     {
       this.to = x;
     }
-    public Range setTo (Expression x)
+    public org.meta_environment.rascal.ast.Range setTo (org.meta_environment.
+							rascal.ast.
+							Expression x)
     {
-      Range z = new Range ();
+      org.meta_environment.rascal.ast.Range z = new Range ();
       z.$setTo (x);
       return z;
     }
@@ -179,8 +217,10 @@ public abstract class Expression extends AbstractAST
     private StepRange ()
     {
     }
-    /*package */ StepRange (ITree tree, Expression from, Expression by,
-			    Expression to)
+    /*package */ StepRange (ITree tree,
+			    org.meta_environment.rascal.ast.Expression from,
+			    org.meta_environment.rascal.ast.Expression by,
+			    org.meta_environment.rascal.ast.Expression to)
     {
       this.tree = tree;
       this.from = from;
@@ -191,48 +231,57 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionStepRange (this);
     }
-    private Expression from;
-    public Expression getFrom ()
+    private org.meta_environment.rascal.ast.Expression from;
+    public org.meta_environment.rascal.ast.Expression getFrom ()
     {
       return from;
     }
-    private void $setFrom (Expression x)
+    private void $setFrom (org.meta_environment.rascal.ast.Expression x)
     {
       this.from = x;
     }
-    public StepRange setFrom (Expression x)
+    public org.meta_environment.rascal.ast.StepRange setFrom (org.
+							      meta_environment.
+							      rascal.ast.
+							      Expression x)
     {
-      StepRange z = new StepRange ();
+      org.meta_environment.rascal.ast.StepRange z = new StepRange ();
       z.$setFrom (x);
       return z;
     }
-    private Expression by;
-    public Expression getBy ()
+    private org.meta_environment.rascal.ast.Expression by;
+    public org.meta_environment.rascal.ast.Expression getBy ()
     {
       return by;
     }
-    private void $setBy (Expression x)
+    private void $setBy (org.meta_environment.rascal.ast.Expression x)
     {
       this.by = x;
     }
-    public StepRange setBy (Expression x)
+    public org.meta_environment.rascal.ast.StepRange setBy (org.
+							    meta_environment.
+							    rascal.ast.
+							    Expression x)
     {
-      StepRange z = new StepRange ();
+      org.meta_environment.rascal.ast.StepRange z = new StepRange ();
       z.$setBy (x);
       return z;
     }
-    private Expression to;
-    public Expression getTo ()
+    private org.meta_environment.rascal.ast.Expression to;
+    public org.meta_environment.rascal.ast.Expression getTo ()
     {
       return to;
     }
-    private void $setTo (Expression x)
+    private void $setTo (org.meta_environment.rascal.ast.Expression x)
     {
       this.to = x;
     }
-    public StepRange setTo (Expression x)
+    public org.meta_environment.rascal.ast.StepRange setTo (org.
+							    meta_environment.
+							    rascal.ast.
+							    Expression x)
     {
-      StepRange z = new StepRange ();
+      org.meta_environment.rascal.ast.StepRange z = new StepRange ();
       z.$setTo (x);
       return z;
     }
@@ -243,7 +292,11 @@ public abstract class Expression extends AbstractAST
     private FieldUpdate ()
     {
     }
-    /*package */ FieldUpdate (ITree tree, Expression expression, Name key,
+    /*package */ FieldUpdate (ITree tree,
+			      org.meta_environment.rascal.ast.
+			      Expression expression,
+			      org.meta_environment.rascal.ast.Name key,
+			      org.meta_environment.rascal.ast.
 			      Expression replacement)
     {
       this.tree = tree;
@@ -255,48 +308,62 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionFieldUpdate (this);
     }
-    private Expression expression;
-    public Expression getExpression ()
+    private org.meta_environment.rascal.ast.Expression expression;
+    public org.meta_environment.rascal.ast.Expression getExpression ()
     {
       return expression;
     }
-    private void $setExpression (Expression x)
+    private void $setExpression (org.meta_environment.rascal.ast.Expression x)
     {
       this.expression = x;
     }
-    public FieldUpdate setExpression (Expression x)
+    public org.meta_environment.rascal.ast.FieldUpdate setExpression (org.
+								      meta_environment.
+								      rascal.
+								      ast.
+								      Expression
+								      x)
     {
-      FieldUpdate z = new FieldUpdate ();
+      org.meta_environment.rascal.ast.FieldUpdate z = new FieldUpdate ();
       z.$setExpression (x);
       return z;
     }
-    private Name key;
-    public Name getKey ()
+    private org.meta_environment.rascal.ast.Name key;
+    public org.meta_environment.rascal.ast.Name getKey ()
     {
       return key;
     }
-    private void $setKey (Name x)
+    private void $setKey (org.meta_environment.rascal.ast.Name x)
     {
       this.key = x;
     }
-    public FieldUpdate setKey (Name x)
+    public org.meta_environment.rascal.ast.FieldUpdate setKey (org.
+							       meta_environment.
+							       rascal.ast.
+							       Name x)
     {
-      FieldUpdate z = new FieldUpdate ();
+      org.meta_environment.rascal.ast.FieldUpdate z = new FieldUpdate ();
       z.$setKey (x);
       return z;
     }
-    private Expression replacement;
-    public Expression getReplacement ()
+    private org.meta_environment.rascal.ast.Expression replacement;
+    public org.meta_environment.rascal.ast.Expression getReplacement ()
     {
       return replacement;
     }
-    private void $setReplacement (Expression x)
+    private void $setReplacement (org.meta_environment.rascal.ast.
+				  Expression x)
     {
       this.replacement = x;
     }
-    public FieldUpdate setReplacement (Expression x)
+    public org.meta_environment.rascal.ast.FieldUpdate setReplacement (org.
+								       meta_environment.
+								       rascal.
+								       ast.
+								       Expression
+								       x)
     {
-      FieldUpdate z = new FieldUpdate ();
+      org.meta_environment.rascal.ast.FieldUpdate z = new FieldUpdate ();
       z.$setReplacement (x);
       return z;
     }
@@ -307,7 +374,10 @@ public abstract class Expression extends AbstractAST
     private FieldAccess ()
     {
     }
-    /*package */ FieldAccess (ITree tree, Expression expression, Name field)
+    /*package */ FieldAccess (ITree tree,
+			      org.meta_environment.rascal.ast.
+			      Expression expression,
+			      org.meta_environment.rascal.ast.Name field)
     {
       this.tree = tree;
       this.expression = expression;
@@ -317,33 +387,41 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionFieldAccess (this);
     }
-    private Expression expression;
-    public Expression getExpression ()
+    private org.meta_environment.rascal.ast.Expression expression;
+    public org.meta_environment.rascal.ast.Expression getExpression ()
     {
       return expression;
     }
-    private void $setExpression (Expression x)
+    private void $setExpression (org.meta_environment.rascal.ast.Expression x)
     {
       this.expression = x;
     }
-    public FieldAccess setExpression (Expression x)
+    public org.meta_environment.rascal.ast.FieldAccess setExpression (org.
+								      meta_environment.
+								      rascal.
+								      ast.
+								      Expression
+								      x)
     {
-      FieldAccess z = new FieldAccess ();
+      org.meta_environment.rascal.ast.FieldAccess z = new FieldAccess ();
       z.$setExpression (x);
       return z;
     }
-    private Name field;
-    public Name getField ()
+    private org.meta_environment.rascal.ast.Name field;
+    public org.meta_environment.rascal.ast.Name getField ()
     {
       return field;
     }
-    private void $setField (Name x)
+    private void $setField (org.meta_environment.rascal.ast.Name x)
     {
       this.field = x;
     }
-    public FieldAccess setField (Name x)
+    public org.meta_environment.rascal.ast.FieldAccess setField (org.
+								 meta_environment.
+								 rascal.ast.
+								 Name x)
     {
-      FieldAccess z = new FieldAccess ();
+      org.meta_environment.rascal.ast.FieldAccess z = new FieldAccess ();
       z.$setField (x);
       return z;
     }
@@ -354,7 +432,10 @@ public abstract class Expression extends AbstractAST
     private Subscript ()
     {
     }
-    /*package */ Subscript (ITree tree, Expression expression,
+    /*package */ Subscript (ITree tree,
+			    org.meta_environment.rascal.ast.
+			    Expression expression,
+			    org.meta_environment.rascal.ast.
 			    Expression subscript)
     {
       this.tree = tree;
@@ -365,33 +446,42 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionSubscript (this);
     }
-    private Expression expression;
-    public Expression getExpression ()
+    private org.meta_environment.rascal.ast.Expression expression;
+    public org.meta_environment.rascal.ast.Expression getExpression ()
     {
       return expression;
     }
-    private void $setExpression (Expression x)
+    private void $setExpression (org.meta_environment.rascal.ast.Expression x)
     {
       this.expression = x;
     }
-    public Subscript setExpression (Expression x)
+    public org.meta_environment.rascal.ast.Subscript setExpression (org.
+								    meta_environment.
+								    rascal.
+								    ast.
+								    Expression
+								    x)
     {
-      Subscript z = new Subscript ();
+      org.meta_environment.rascal.ast.Subscript z = new Subscript ();
       z.$setExpression (x);
       return z;
     }
-    private Expression subscript;
-    public Expression getSubscript ()
+    private org.meta_environment.rascal.ast.Expression subscript;
+    public org.meta_environment.rascal.ast.Expression getSubscript ()
     {
       return subscript;
     }
-    private void $setSubscript (Expression x)
+    private void $setSubscript (org.meta_environment.rascal.ast.Expression x)
     {
       this.subscript = x;
     }
-    public Subscript setSubscript (Expression x)
+    public org.meta_environment.rascal.ast.Subscript setSubscript (org.
+								   meta_environment.
+								   rascal.ast.
+								   Expression
+								   x)
     {
-      Subscript z = new Subscript ();
+      org.meta_environment.rascal.ast.Subscript z = new Subscript ();
       z.$setSubscript (x);
       return z;
     }
@@ -402,7 +492,9 @@ public abstract class Expression extends AbstractAST
     private TransitiveReflexiveClosure ()
     {
     }
-    /*package */ TransitiveReflexiveClosure (ITree tree, Expression argument)
+    /*package */ TransitiveReflexiveClosure (ITree tree,
+					     org.meta_environment.rascal.ast.
+					     Expression argument)
     {
       this.tree = tree;
       this.argument = argument;
@@ -411,18 +503,21 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionTransitiveReflexiveClosure (this);
     }
-    private Expression argument;
-    public Expression getArgument ()
+    private org.meta_environment.rascal.ast.Expression argument;
+    public org.meta_environment.rascal.ast.Expression getArgument ()
     {
       return argument;
     }
-    private void $setArgument (Expression x)
+    private void $setArgument (org.meta_environment.rascal.ast.Expression x)
     {
       this.argument = x;
     }
-    public TransitiveReflexiveClosure setArgument (Expression x)
+    public org.meta_environment.rascal.ast.
+      TransitiveReflexiveClosure setArgument (org.meta_environment.rascal.ast.
+					      Expression x)
     {
-      TransitiveReflexiveClosure z = new TransitiveReflexiveClosure ();
+      org.meta_environment.rascal.ast.TransitiveReflexiveClosure z =
+	new TransitiveReflexiveClosure ();
       z.$setArgument (x);
       return z;
     }
@@ -433,7 +528,9 @@ public abstract class Expression extends AbstractAST
     private TransitiveClosure ()
     {
     }
-    /*package */ TransitiveClosure (ITree tree, Expression argument)
+    /*package */ TransitiveClosure (ITree tree,
+				    org.meta_environment.rascal.ast.
+				    Expression argument)
     {
       this.tree = tree;
       this.argument = argument;
@@ -442,18 +539,24 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionTransitiveClosure (this);
     }
-    private Expression argument;
-    public Expression getArgument ()
+    private org.meta_environment.rascal.ast.Expression argument;
+    public org.meta_environment.rascal.ast.Expression getArgument ()
     {
       return argument;
     }
-    private void $setArgument (Expression x)
+    private void $setArgument (org.meta_environment.rascal.ast.Expression x)
     {
       this.argument = x;
     }
-    public TransitiveClosure setArgument (Expression x)
+    public org.meta_environment.rascal.ast.TransitiveClosure setArgument (org.
+									  meta_environment.
+									  rascal.
+									  ast.
+									  Expression
+									  x)
     {
-      TransitiveClosure z = new TransitiveClosure ();
+      org.meta_environment.rascal.ast.TransitiveClosure z =
+	new TransitiveClosure ();
       z.$setArgument (x);
       return z;
     }
@@ -464,7 +567,10 @@ public abstract class Expression extends AbstractAST
     private Annotation ()
     {
     }
-    /*package */ Annotation (ITree tree, Expression expression, Name name)
+    /*package */ Annotation (ITree tree,
+			     org.meta_environment.rascal.ast.
+			     Expression expression,
+			     org.meta_environment.rascal.ast.Name name)
     {
       this.tree = tree;
       this.expression = expression;
@@ -474,33 +580,41 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionAnnotation (this);
     }
-    private Expression expression;
-    public Expression getExpression ()
+    private org.meta_environment.rascal.ast.Expression expression;
+    public org.meta_environment.rascal.ast.Expression getExpression ()
     {
       return expression;
     }
-    private void $setExpression (Expression x)
+    private void $setExpression (org.meta_environment.rascal.ast.Expression x)
     {
       this.expression = x;
     }
-    public Annotation setExpression (Expression x)
+    public org.meta_environment.rascal.ast.Annotation setExpression (org.
+								     meta_environment.
+								     rascal.
+								     ast.
+								     Expression
+								     x)
     {
-      Annotation z = new Annotation ();
+      org.meta_environment.rascal.ast.Annotation z = new Annotation ();
       z.$setExpression (x);
       return z;
     }
-    private Name name;
-    public Name getName ()
+    private org.meta_environment.rascal.ast.Name name;
+    public org.meta_environment.rascal.ast.Name getName ()
     {
       return name;
     }
-    private void $setName (Name x)
+    private void $setName (org.meta_environment.rascal.ast.Name x)
     {
       this.name = x;
     }
-    public Annotation setName (Name x)
+    public org.meta_environment.rascal.ast.Annotation setName (org.
+							       meta_environment.
+							       rascal.ast.
+							       Name x)
     {
-      Annotation z = new Annotation ();
+      org.meta_environment.rascal.ast.Annotation z = new Annotation ();
       z.$setName (x);
       return z;
     }
@@ -511,7 +625,9 @@ public abstract class Expression extends AbstractAST
     private Negation ()
     {
     }
-    /*package */ Negation (ITree tree, Expression argument)
+    /*package */ Negation (ITree tree,
+			   org.meta_environment.rascal.ast.
+			   Expression argument)
     {
       this.tree = tree;
       this.argument = argument;
@@ -520,18 +636,21 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionNegation (this);
     }
-    private Expression argument;
-    public Expression getArgument ()
+    private org.meta_environment.rascal.ast.Expression argument;
+    public org.meta_environment.rascal.ast.Expression getArgument ()
     {
       return argument;
     }
-    private void $setArgument (Expression x)
+    private void $setArgument (org.meta_environment.rascal.ast.Expression x)
     {
       this.argument = x;
     }
-    public Negation setArgument (Expression x)
+    public org.meta_environment.rascal.ast.Negation setArgument (org.
+								 meta_environment.
+								 rascal.ast.
+								 Expression x)
     {
-      Negation z = new Negation ();
+      org.meta_environment.rascal.ast.Negation z = new Negation ();
       z.$setArgument (x);
       return z;
     }
@@ -542,7 +661,9 @@ public abstract class Expression extends AbstractAST
     private Product ()
     {
     }
-    /*package */ Product (ITree tree, Expression lhs, Expression rhs)
+    /*package */ Product (ITree tree,
+			  org.meta_environment.rascal.ast.Expression lhs,
+			  org.meta_environment.rascal.ast.Expression rhs)
     {
       this.tree = tree;
       this.lhs = lhs;
@@ -552,33 +673,39 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionProduct (this);
     }
-    private Expression lhs;
-    public Expression getLhs ()
+    private org.meta_environment.rascal.ast.Expression lhs;
+    public org.meta_environment.rascal.ast.Expression getLhs ()
     {
       return lhs;
     }
-    private void $setLhs (Expression x)
+    private void $setLhs (org.meta_environment.rascal.ast.Expression x)
     {
       this.lhs = x;
     }
-    public Product setLhs (Expression x)
+    public org.meta_environment.rascal.ast.Product setLhs (org.
+							   meta_environment.
+							   rascal.ast.
+							   Expression x)
     {
-      Product z = new Product ();
+      org.meta_environment.rascal.ast.Product z = new Product ();
       z.$setLhs (x);
       return z;
     }
-    private Expression rhs;
-    public Expression getRhs ()
+    private org.meta_environment.rascal.ast.Expression rhs;
+    public org.meta_environment.rascal.ast.Expression getRhs ()
     {
       return rhs;
     }
-    private void $setRhs (Expression x)
+    private void $setRhs (org.meta_environment.rascal.ast.Expression x)
     {
       this.rhs = x;
     }
-    public Product setRhs (Expression x)
+    public org.meta_environment.rascal.ast.Product setRhs (org.
+							   meta_environment.
+							   rascal.ast.
+							   Expression x)
     {
-      Product z = new Product ();
+      org.meta_environment.rascal.ast.Product z = new Product ();
       z.$setRhs (x);
       return z;
     }
@@ -589,7 +716,9 @@ public abstract class Expression extends AbstractAST
     private Intersection ()
     {
     }
-    /*package */ Intersection (ITree tree, Expression lhs, Expression rhs)
+    /*package */ Intersection (ITree tree,
+			       org.meta_environment.rascal.ast.Expression lhs,
+			       org.meta_environment.rascal.ast.Expression rhs)
     {
       this.tree = tree;
       this.lhs = lhs;
@@ -599,33 +728,39 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionIntersection (this);
     }
-    private Expression lhs;
-    public Expression getLhs ()
+    private org.meta_environment.rascal.ast.Expression lhs;
+    public org.meta_environment.rascal.ast.Expression getLhs ()
     {
       return lhs;
     }
-    private void $setLhs (Expression x)
+    private void $setLhs (org.meta_environment.rascal.ast.Expression x)
     {
       this.lhs = x;
     }
-    public Intersection setLhs (Expression x)
+    public org.meta_environment.rascal.ast.Intersection setLhs (org.
+								meta_environment.
+								rascal.ast.
+								Expression x)
     {
-      Intersection z = new Intersection ();
+      org.meta_environment.rascal.ast.Intersection z = new Intersection ();
       z.$setLhs (x);
       return z;
     }
-    private Expression rhs;
-    public Expression getRhs ()
+    private org.meta_environment.rascal.ast.Expression rhs;
+    public org.meta_environment.rascal.ast.Expression getRhs ()
     {
       return rhs;
     }
-    private void $setRhs (Expression x)
+    private void $setRhs (org.meta_environment.rascal.ast.Expression x)
     {
       this.rhs = x;
     }
-    public Intersection setRhs (Expression x)
+    public org.meta_environment.rascal.ast.Intersection setRhs (org.
+								meta_environment.
+								rascal.ast.
+								Expression x)
     {
-      Intersection z = new Intersection ();
+      org.meta_environment.rascal.ast.Intersection z = new Intersection ();
       z.$setRhs (x);
       return z;
     }
@@ -636,7 +771,9 @@ public abstract class Expression extends AbstractAST
     private Division ()
     {
     }
-    /*package */ Division (ITree tree, Expression lhs, Expression rhs)
+    /*package */ Division (ITree tree,
+			   org.meta_environment.rascal.ast.Expression lhs,
+			   org.meta_environment.rascal.ast.Expression rhs)
     {
       this.tree = tree;
       this.lhs = lhs;
@@ -646,33 +783,39 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionDivision (this);
     }
-    private Expression lhs;
-    public Expression getLhs ()
+    private org.meta_environment.rascal.ast.Expression lhs;
+    public org.meta_environment.rascal.ast.Expression getLhs ()
     {
       return lhs;
     }
-    private void $setLhs (Expression x)
+    private void $setLhs (org.meta_environment.rascal.ast.Expression x)
     {
       this.lhs = x;
     }
-    public Division setLhs (Expression x)
+    public org.meta_environment.rascal.ast.Division setLhs (org.
+							    meta_environment.
+							    rascal.ast.
+							    Expression x)
     {
-      Division z = new Division ();
+      org.meta_environment.rascal.ast.Division z = new Division ();
       z.$setLhs (x);
       return z;
     }
-    private Expression rhs;
-    public Expression getRhs ()
+    private org.meta_environment.rascal.ast.Expression rhs;
+    public org.meta_environment.rascal.ast.Expression getRhs ()
     {
       return rhs;
     }
-    private void $setRhs (Expression x)
+    private void $setRhs (org.meta_environment.rascal.ast.Expression x)
     {
       this.rhs = x;
     }
-    public Division setRhs (Expression x)
+    public org.meta_environment.rascal.ast.Division setRhs (org.
+							    meta_environment.
+							    rascal.ast.
+							    Expression x)
     {
-      Division z = new Division ();
+      org.meta_environment.rascal.ast.Division z = new Division ();
       z.$setRhs (x);
       return z;
     }
@@ -683,7 +826,9 @@ public abstract class Expression extends AbstractAST
     private Addition ()
     {
     }
-    /*package */ Addition (ITree tree, Expression lhs, Expression rhs)
+    /*package */ Addition (ITree tree,
+			   org.meta_environment.rascal.ast.Expression lhs,
+			   org.meta_environment.rascal.ast.Expression rhs)
     {
       this.tree = tree;
       this.lhs = lhs;
@@ -693,33 +838,39 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionAddition (this);
     }
-    private Expression lhs;
-    public Expression getLhs ()
+    private org.meta_environment.rascal.ast.Expression lhs;
+    public org.meta_environment.rascal.ast.Expression getLhs ()
     {
       return lhs;
     }
-    private void $setLhs (Expression x)
+    private void $setLhs (org.meta_environment.rascal.ast.Expression x)
     {
       this.lhs = x;
     }
-    public Addition setLhs (Expression x)
+    public org.meta_environment.rascal.ast.Addition setLhs (org.
+							    meta_environment.
+							    rascal.ast.
+							    Expression x)
     {
-      Addition z = new Addition ();
+      org.meta_environment.rascal.ast.Addition z = new Addition ();
       z.$setLhs (x);
       return z;
     }
-    private Expression rhs;
-    public Expression getRhs ()
+    private org.meta_environment.rascal.ast.Expression rhs;
+    public org.meta_environment.rascal.ast.Expression getRhs ()
     {
       return rhs;
     }
-    private void $setRhs (Expression x)
+    private void $setRhs (org.meta_environment.rascal.ast.Expression x)
     {
       this.rhs = x;
     }
-    public Addition setRhs (Expression x)
+    public org.meta_environment.rascal.ast.Addition setRhs (org.
+							    meta_environment.
+							    rascal.ast.
+							    Expression x)
     {
-      Addition z = new Addition ();
+      org.meta_environment.rascal.ast.Addition z = new Addition ();
       z.$setRhs (x);
       return z;
     }
@@ -730,7 +881,9 @@ public abstract class Expression extends AbstractAST
     private Substraction ()
     {
     }
-    /*package */ Substraction (ITree tree, Expression lhs, Expression rhs)
+    /*package */ Substraction (ITree tree,
+			       org.meta_environment.rascal.ast.Expression lhs,
+			       org.meta_environment.rascal.ast.Expression rhs)
     {
       this.tree = tree;
       this.lhs = lhs;
@@ -740,33 +893,39 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionSubstraction (this);
     }
-    private Expression lhs;
-    public Expression getLhs ()
+    private org.meta_environment.rascal.ast.Expression lhs;
+    public org.meta_environment.rascal.ast.Expression getLhs ()
     {
       return lhs;
     }
-    private void $setLhs (Expression x)
+    private void $setLhs (org.meta_environment.rascal.ast.Expression x)
     {
       this.lhs = x;
     }
-    public Substraction setLhs (Expression x)
+    public org.meta_environment.rascal.ast.Substraction setLhs (org.
+								meta_environment.
+								rascal.ast.
+								Expression x)
     {
-      Substraction z = new Substraction ();
+      org.meta_environment.rascal.ast.Substraction z = new Substraction ();
       z.$setLhs (x);
       return z;
     }
-    private Expression rhs;
-    public Expression getRhs ()
+    private org.meta_environment.rascal.ast.Expression rhs;
+    public org.meta_environment.rascal.ast.Expression getRhs ()
     {
       return rhs;
     }
-    private void $setRhs (Expression x)
+    private void $setRhs (org.meta_environment.rascal.ast.Expression x)
     {
       this.rhs = x;
     }
-    public Substraction setRhs (Expression x)
+    public org.meta_environment.rascal.ast.Substraction setRhs (org.
+								meta_environment.
+								rascal.ast.
+								Expression x)
     {
-      Substraction z = new Substraction ();
+      org.meta_environment.rascal.ast.Substraction z = new Substraction ();
       z.$setRhs (x);
       return z;
     }
@@ -777,7 +936,9 @@ public abstract class Expression extends AbstractAST
     private RegExpMatch ()
     {
     }
-    /*package */ RegExpMatch (ITree tree, Expression lhs, Expression rhs)
+    /*package */ RegExpMatch (ITree tree,
+			      org.meta_environment.rascal.ast.Expression lhs,
+			      org.meta_environment.rascal.ast.Expression rhs)
     {
       this.tree = tree;
       this.lhs = lhs;
@@ -787,33 +948,39 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionRegExpMatch (this);
     }
-    private Expression lhs;
-    public Expression getLhs ()
+    private org.meta_environment.rascal.ast.Expression lhs;
+    public org.meta_environment.rascal.ast.Expression getLhs ()
     {
       return lhs;
     }
-    private void $setLhs (Expression x)
+    private void $setLhs (org.meta_environment.rascal.ast.Expression x)
     {
       this.lhs = x;
     }
-    public RegExpMatch setLhs (Expression x)
+    public org.meta_environment.rascal.ast.RegExpMatch setLhs (org.
+							       meta_environment.
+							       rascal.ast.
+							       Expression x)
     {
-      RegExpMatch z = new RegExpMatch ();
+      org.meta_environment.rascal.ast.RegExpMatch z = new RegExpMatch ();
       z.$setLhs (x);
       return z;
     }
-    private Expression rhs;
-    public Expression getRhs ()
+    private org.meta_environment.rascal.ast.Expression rhs;
+    public org.meta_environment.rascal.ast.Expression getRhs ()
     {
       return rhs;
     }
-    private void $setRhs (Expression x)
+    private void $setRhs (org.meta_environment.rascal.ast.Expression x)
     {
       this.rhs = x;
     }
-    public RegExpMatch setRhs (Expression x)
+    public org.meta_environment.rascal.ast.RegExpMatch setRhs (org.
+							       meta_environment.
+							       rascal.ast.
+							       Expression x)
     {
-      RegExpMatch z = new RegExpMatch ();
+      org.meta_environment.rascal.ast.RegExpMatch z = new RegExpMatch ();
       z.$setRhs (x);
       return z;
     }
@@ -824,7 +991,11 @@ public abstract class Expression extends AbstractAST
     private RegExpNoMatch ()
     {
     }
-    /*package */ RegExpNoMatch (ITree tree, Expression lhs, Expression rhs)
+    /*package */ RegExpNoMatch (ITree tree,
+				org.meta_environment.rascal.ast.
+				Expression lhs,
+				org.meta_environment.rascal.ast.
+				Expression rhs)
     {
       this.tree = tree;
       this.lhs = lhs;
@@ -834,33 +1005,39 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionRegExpNoMatch (this);
     }
-    private Expression lhs;
-    public Expression getLhs ()
+    private org.meta_environment.rascal.ast.Expression lhs;
+    public org.meta_environment.rascal.ast.Expression getLhs ()
     {
       return lhs;
     }
-    private void $setLhs (Expression x)
+    private void $setLhs (org.meta_environment.rascal.ast.Expression x)
     {
       this.lhs = x;
     }
-    public RegExpNoMatch setLhs (Expression x)
+    public org.meta_environment.rascal.ast.RegExpNoMatch setLhs (org.
+								 meta_environment.
+								 rascal.ast.
+								 Expression x)
     {
-      RegExpNoMatch z = new RegExpNoMatch ();
+      org.meta_environment.rascal.ast.RegExpNoMatch z = new RegExpNoMatch ();
       z.$setLhs (x);
       return z;
     }
-    private Expression rhs;
-    public Expression getRhs ()
+    private org.meta_environment.rascal.ast.Expression rhs;
+    public org.meta_environment.rascal.ast.Expression getRhs ()
     {
       return rhs;
     }
-    private void $setRhs (Expression x)
+    private void $setRhs (org.meta_environment.rascal.ast.Expression x)
     {
       this.rhs = x;
     }
-    public RegExpNoMatch setRhs (Expression x)
+    public org.meta_environment.rascal.ast.RegExpNoMatch setRhs (org.
+								 meta_environment.
+								 rascal.ast.
+								 Expression x)
     {
-      RegExpNoMatch z = new RegExpNoMatch ();
+      org.meta_environment.rascal.ast.RegExpNoMatch z = new RegExpNoMatch ();
       z.$setRhs (x);
       return z;
     }
@@ -871,7 +1048,9 @@ public abstract class Expression extends AbstractAST
     private LessThan ()
     {
     }
-    /*package */ LessThan (ITree tree, Expression lhs, Expression rhs)
+    /*package */ LessThan (ITree tree,
+			   org.meta_environment.rascal.ast.Expression lhs,
+			   org.meta_environment.rascal.ast.Expression rhs)
     {
       this.tree = tree;
       this.lhs = lhs;
@@ -881,33 +1060,39 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionLessThan (this);
     }
-    private Expression lhs;
-    public Expression getLhs ()
+    private org.meta_environment.rascal.ast.Expression lhs;
+    public org.meta_environment.rascal.ast.Expression getLhs ()
     {
       return lhs;
     }
-    private void $setLhs (Expression x)
+    private void $setLhs (org.meta_environment.rascal.ast.Expression x)
     {
       this.lhs = x;
     }
-    public LessThan setLhs (Expression x)
+    public org.meta_environment.rascal.ast.LessThan setLhs (org.
+							    meta_environment.
+							    rascal.ast.
+							    Expression x)
     {
-      LessThan z = new LessThan ();
+      org.meta_environment.rascal.ast.LessThan z = new LessThan ();
       z.$setLhs (x);
       return z;
     }
-    private Expression rhs;
-    public Expression getRhs ()
+    private org.meta_environment.rascal.ast.Expression rhs;
+    public org.meta_environment.rascal.ast.Expression getRhs ()
     {
       return rhs;
     }
-    private void $setRhs (Expression x)
+    private void $setRhs (org.meta_environment.rascal.ast.Expression x)
     {
       this.rhs = x;
     }
-    public LessThan setRhs (Expression x)
+    public org.meta_environment.rascal.ast.LessThan setRhs (org.
+							    meta_environment.
+							    rascal.ast.
+							    Expression x)
     {
-      LessThan z = new LessThan ();
+      org.meta_environment.rascal.ast.LessThan z = new LessThan ();
       z.$setRhs (x);
       return z;
     }
@@ -918,7 +1103,9 @@ public abstract class Expression extends AbstractAST
     private LessThanOrEq ()
     {
     }
-    /*package */ LessThanOrEq (ITree tree, Expression lhs, Expression rhs)
+    /*package */ LessThanOrEq (ITree tree,
+			       org.meta_environment.rascal.ast.Expression lhs,
+			       org.meta_environment.rascal.ast.Expression rhs)
     {
       this.tree = tree;
       this.lhs = lhs;
@@ -928,33 +1115,39 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionLessThanOrEq (this);
     }
-    private Expression lhs;
-    public Expression getLhs ()
+    private org.meta_environment.rascal.ast.Expression lhs;
+    public org.meta_environment.rascal.ast.Expression getLhs ()
     {
       return lhs;
     }
-    private void $setLhs (Expression x)
+    private void $setLhs (org.meta_environment.rascal.ast.Expression x)
     {
       this.lhs = x;
     }
-    public LessThanOrEq setLhs (Expression x)
+    public org.meta_environment.rascal.ast.LessThanOrEq setLhs (org.
+								meta_environment.
+								rascal.ast.
+								Expression x)
     {
-      LessThanOrEq z = new LessThanOrEq ();
+      org.meta_environment.rascal.ast.LessThanOrEq z = new LessThanOrEq ();
       z.$setLhs (x);
       return z;
     }
-    private Expression rhs;
-    public Expression getRhs ()
+    private org.meta_environment.rascal.ast.Expression rhs;
+    public org.meta_environment.rascal.ast.Expression getRhs ()
     {
       return rhs;
     }
-    private void $setRhs (Expression x)
+    private void $setRhs (org.meta_environment.rascal.ast.Expression x)
     {
       this.rhs = x;
     }
-    public LessThanOrEq setRhs (Expression x)
+    public org.meta_environment.rascal.ast.LessThanOrEq setRhs (org.
+								meta_environment.
+								rascal.ast.
+								Expression x)
     {
-      LessThanOrEq z = new LessThanOrEq ();
+      org.meta_environment.rascal.ast.LessThanOrEq z = new LessThanOrEq ();
       z.$setRhs (x);
       return z;
     }
@@ -965,7 +1158,9 @@ public abstract class Expression extends AbstractAST
     private GreaterThan ()
     {
     }
-    /*package */ GreaterThan (ITree tree, Expression lhs, Expression rhs)
+    /*package */ GreaterThan (ITree tree,
+			      org.meta_environment.rascal.ast.Expression lhs,
+			      org.meta_environment.rascal.ast.Expression rhs)
     {
       this.tree = tree;
       this.lhs = lhs;
@@ -975,33 +1170,39 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionGreaterThan (this);
     }
-    private Expression lhs;
-    public Expression getLhs ()
+    private org.meta_environment.rascal.ast.Expression lhs;
+    public org.meta_environment.rascal.ast.Expression getLhs ()
     {
       return lhs;
     }
-    private void $setLhs (Expression x)
+    private void $setLhs (org.meta_environment.rascal.ast.Expression x)
     {
       this.lhs = x;
     }
-    public GreaterThan setLhs (Expression x)
+    public org.meta_environment.rascal.ast.GreaterThan setLhs (org.
+							       meta_environment.
+							       rascal.ast.
+							       Expression x)
     {
-      GreaterThan z = new GreaterThan ();
+      org.meta_environment.rascal.ast.GreaterThan z = new GreaterThan ();
       z.$setLhs (x);
       return z;
     }
-    private Expression rhs;
-    public Expression getRhs ()
+    private org.meta_environment.rascal.ast.Expression rhs;
+    public org.meta_environment.rascal.ast.Expression getRhs ()
     {
       return rhs;
     }
-    private void $setRhs (Expression x)
+    private void $setRhs (org.meta_environment.rascal.ast.Expression x)
     {
       this.rhs = x;
     }
-    public GreaterThan setRhs (Expression x)
+    public org.meta_environment.rascal.ast.GreaterThan setRhs (org.
+							       meta_environment.
+							       rascal.ast.
+							       Expression x)
     {
-      GreaterThan z = new GreaterThan ();
+      org.meta_environment.rascal.ast.GreaterThan z = new GreaterThan ();
       z.$setRhs (x);
       return z;
     }
@@ -1012,7 +1213,11 @@ public abstract class Expression extends AbstractAST
     private GreaterThanOrEq ()
     {
     }
-    /*package */ GreaterThanOrEq (ITree tree, Expression lhs, Expression rhs)
+    /*package */ GreaterThanOrEq (ITree tree,
+				  org.meta_environment.rascal.ast.
+				  Expression lhs,
+				  org.meta_environment.rascal.ast.
+				  Expression rhs)
     {
       this.tree = tree;
       this.lhs = lhs;
@@ -1022,33 +1227,43 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionGreaterThanOrEq (this);
     }
-    private Expression lhs;
-    public Expression getLhs ()
+    private org.meta_environment.rascal.ast.Expression lhs;
+    public org.meta_environment.rascal.ast.Expression getLhs ()
     {
       return lhs;
     }
-    private void $setLhs (Expression x)
+    private void $setLhs (org.meta_environment.rascal.ast.Expression x)
     {
       this.lhs = x;
     }
-    public GreaterThanOrEq setLhs (Expression x)
+    public org.meta_environment.rascal.ast.GreaterThanOrEq setLhs (org.
+								   meta_environment.
+								   rascal.ast.
+								   Expression
+								   x)
     {
-      GreaterThanOrEq z = new GreaterThanOrEq ();
+      org.meta_environment.rascal.ast.GreaterThanOrEq z =
+	new GreaterThanOrEq ();
       z.$setLhs (x);
       return z;
     }
-    private Expression rhs;
-    public Expression getRhs ()
+    private org.meta_environment.rascal.ast.Expression rhs;
+    public org.meta_environment.rascal.ast.Expression getRhs ()
     {
       return rhs;
     }
-    private void $setRhs (Expression x)
+    private void $setRhs (org.meta_environment.rascal.ast.Expression x)
     {
       this.rhs = x;
     }
-    public GreaterThanOrEq setRhs (Expression x)
+    public org.meta_environment.rascal.ast.GreaterThanOrEq setRhs (org.
+								   meta_environment.
+								   rascal.ast.
+								   Expression
+								   x)
     {
-      GreaterThanOrEq z = new GreaterThanOrEq ();
+      org.meta_environment.rascal.ast.GreaterThanOrEq z =
+	new GreaterThanOrEq ();
       z.$setRhs (x);
       return z;
     }
@@ -1059,7 +1274,9 @@ public abstract class Expression extends AbstractAST
     private Equals ()
     {
     }
-    /*package */ Equals (ITree tree, Expression lhs, Expression rhs)
+    /*package */ Equals (ITree tree,
+			 org.meta_environment.rascal.ast.Expression lhs,
+			 org.meta_environment.rascal.ast.Expression rhs)
     {
       this.tree = tree;
       this.lhs = lhs;
@@ -1069,33 +1286,39 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionEquals (this);
     }
-    private Expression lhs;
-    public Expression getLhs ()
+    private org.meta_environment.rascal.ast.Expression lhs;
+    public org.meta_environment.rascal.ast.Expression getLhs ()
     {
       return lhs;
     }
-    private void $setLhs (Expression x)
+    private void $setLhs (org.meta_environment.rascal.ast.Expression x)
     {
       this.lhs = x;
     }
-    public Equals setLhs (Expression x)
+    public org.meta_environment.rascal.ast.Equals setLhs (org.
+							  meta_environment.
+							  rascal.ast.
+							  Expression x)
     {
-      Equals z = new Equals ();
+      org.meta_environment.rascal.ast.Equals z = new Equals ();
       z.$setLhs (x);
       return z;
     }
-    private Expression rhs;
-    public Expression getRhs ()
+    private org.meta_environment.rascal.ast.Expression rhs;
+    public org.meta_environment.rascal.ast.Expression getRhs ()
     {
       return rhs;
     }
-    private void $setRhs (Expression x)
+    private void $setRhs (org.meta_environment.rascal.ast.Expression x)
     {
       this.rhs = x;
     }
-    public Equals setRhs (Expression x)
+    public org.meta_environment.rascal.ast.Equals setRhs (org.
+							  meta_environment.
+							  rascal.ast.
+							  Expression x)
     {
-      Equals z = new Equals ();
+      org.meta_environment.rascal.ast.Equals z = new Equals ();
       z.$setRhs (x);
       return z;
     }
@@ -1106,7 +1329,9 @@ public abstract class Expression extends AbstractAST
     private NonEquals ()
     {
     }
-    /*package */ NonEquals (ITree tree, Expression lhs, Expression rhs)
+    /*package */ NonEquals (ITree tree,
+			    org.meta_environment.rascal.ast.Expression lhs,
+			    org.meta_environment.rascal.ast.Expression rhs)
     {
       this.tree = tree;
       this.lhs = lhs;
@@ -1116,33 +1341,39 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionNonEquals (this);
     }
-    private Expression lhs;
-    public Expression getLhs ()
+    private org.meta_environment.rascal.ast.Expression lhs;
+    public org.meta_environment.rascal.ast.Expression getLhs ()
     {
       return lhs;
     }
-    private void $setLhs (Expression x)
+    private void $setLhs (org.meta_environment.rascal.ast.Expression x)
     {
       this.lhs = x;
     }
-    public NonEquals setLhs (Expression x)
+    public org.meta_environment.rascal.ast.NonEquals setLhs (org.
+							     meta_environment.
+							     rascal.ast.
+							     Expression x)
     {
-      NonEquals z = new NonEquals ();
+      org.meta_environment.rascal.ast.NonEquals z = new NonEquals ();
       z.$setLhs (x);
       return z;
     }
-    private Expression rhs;
-    public Expression getRhs ()
+    private org.meta_environment.rascal.ast.Expression rhs;
+    public org.meta_environment.rascal.ast.Expression getRhs ()
     {
       return rhs;
     }
-    private void $setRhs (Expression x)
+    private void $setRhs (org.meta_environment.rascal.ast.Expression x)
     {
       this.rhs = x;
     }
-    public NonEquals setRhs (Expression x)
+    public org.meta_environment.rascal.ast.NonEquals setRhs (org.
+							     meta_environment.
+							     rascal.ast.
+							     Expression x)
     {
-      NonEquals z = new NonEquals ();
+      org.meta_environment.rascal.ast.NonEquals z = new NonEquals ();
       z.$setRhs (x);
       return z;
     }
@@ -1153,7 +1384,9 @@ public abstract class Expression extends AbstractAST
     private NotIn ()
     {
     }
-    /*package */ NotIn (ITree tree, Expression lhs, Expression rhs)
+    /*package */ NotIn (ITree tree,
+			org.meta_environment.rascal.ast.Expression lhs,
+			org.meta_environment.rascal.ast.Expression rhs)
     {
       this.tree = tree;
       this.lhs = lhs;
@@ -1163,33 +1396,37 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionNotIn (this);
     }
-    private Expression lhs;
-    public Expression getLhs ()
+    private org.meta_environment.rascal.ast.Expression lhs;
+    public org.meta_environment.rascal.ast.Expression getLhs ()
     {
       return lhs;
     }
-    private void $setLhs (Expression x)
+    private void $setLhs (org.meta_environment.rascal.ast.Expression x)
     {
       this.lhs = x;
     }
-    public NotIn setLhs (Expression x)
+    public org.meta_environment.rascal.ast.NotIn setLhs (org.meta_environment.
+							 rascal.ast.
+							 Expression x)
     {
-      NotIn z = new NotIn ();
+      org.meta_environment.rascal.ast.NotIn z = new NotIn ();
       z.$setLhs (x);
       return z;
     }
-    private Expression rhs;
-    public Expression getRhs ()
+    private org.meta_environment.rascal.ast.Expression rhs;
+    public org.meta_environment.rascal.ast.Expression getRhs ()
     {
       return rhs;
     }
-    private void $setRhs (Expression x)
+    private void $setRhs (org.meta_environment.rascal.ast.Expression x)
     {
       this.rhs = x;
     }
-    public NotIn setRhs (Expression x)
+    public org.meta_environment.rascal.ast.NotIn setRhs (org.meta_environment.
+							 rascal.ast.
+							 Expression x)
     {
-      NotIn z = new NotIn ();
+      org.meta_environment.rascal.ast.NotIn z = new NotIn ();
       z.$setRhs (x);
       return z;
     }
@@ -1200,7 +1437,9 @@ public abstract class Expression extends AbstractAST
     private In ()
     {
     }
-    /*package */ In (ITree tree, Expression lhs, Expression rhs)
+    /*package */ In (ITree tree,
+		     org.meta_environment.rascal.ast.Expression lhs,
+		     org.meta_environment.rascal.ast.Expression rhs)
     {
       this.tree = tree;
       this.lhs = lhs;
@@ -1210,33 +1449,35 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionIn (this);
     }
-    private Expression lhs;
-    public Expression getLhs ()
+    private org.meta_environment.rascal.ast.Expression lhs;
+    public org.meta_environment.rascal.ast.Expression getLhs ()
     {
       return lhs;
     }
-    private void $setLhs (Expression x)
+    private void $setLhs (org.meta_environment.rascal.ast.Expression x)
     {
       this.lhs = x;
     }
-    public In setLhs (Expression x)
+    public org.meta_environment.rascal.ast.In setLhs (org.meta_environment.
+						      rascal.ast.Expression x)
     {
-      In z = new In ();
+      org.meta_environment.rascal.ast.In z = new In ();
       z.$setLhs (x);
       return z;
     }
-    private Expression rhs;
-    public Expression getRhs ()
+    private org.meta_environment.rascal.ast.Expression rhs;
+    public org.meta_environment.rascal.ast.Expression getRhs ()
     {
       return rhs;
     }
-    private void $setRhs (Expression x)
+    private void $setRhs (org.meta_environment.rascal.ast.Expression x)
     {
       this.rhs = x;
     }
-    public In setRhs (Expression x)
+    public org.meta_environment.rascal.ast.In setRhs (org.meta_environment.
+						      rascal.ast.Expression x)
     {
-      In z = new In ();
+      org.meta_environment.rascal.ast.In z = new In ();
       z.$setRhs (x);
       return z;
     }
@@ -1247,7 +1488,9 @@ public abstract class Expression extends AbstractAST
     private And ()
     {
     }
-    /*package */ And (ITree tree, Expression lhs, Expression rhs)
+    /*package */ And (ITree tree,
+		      org.meta_environment.rascal.ast.Expression lhs,
+		      org.meta_environment.rascal.ast.Expression rhs)
     {
       this.tree = tree;
       this.lhs = lhs;
@@ -1257,33 +1500,37 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionAnd (this);
     }
-    private Expression lhs;
-    public Expression getLhs ()
+    private org.meta_environment.rascal.ast.Expression lhs;
+    public org.meta_environment.rascal.ast.Expression getLhs ()
     {
       return lhs;
     }
-    private void $setLhs (Expression x)
+    private void $setLhs (org.meta_environment.rascal.ast.Expression x)
     {
       this.lhs = x;
     }
-    public And setLhs (Expression x)
+    public org.meta_environment.rascal.ast.And setLhs (org.meta_environment.
+						       rascal.ast.
+						       Expression x)
     {
-      And z = new And ();
+      org.meta_environment.rascal.ast.And z = new And ();
       z.$setLhs (x);
       return z;
     }
-    private Expression rhs;
-    public Expression getRhs ()
+    private org.meta_environment.rascal.ast.Expression rhs;
+    public org.meta_environment.rascal.ast.Expression getRhs ()
     {
       return rhs;
     }
-    private void $setRhs (Expression x)
+    private void $setRhs (org.meta_environment.rascal.ast.Expression x)
     {
       this.rhs = x;
     }
-    public And setRhs (Expression x)
+    public org.meta_environment.rascal.ast.And setRhs (org.meta_environment.
+						       rascal.ast.
+						       Expression x)
     {
-      And z = new And ();
+      org.meta_environment.rascal.ast.And z = new And ();
       z.$setRhs (x);
       return z;
     }
@@ -1294,7 +1541,9 @@ public abstract class Expression extends AbstractAST
     private Or ()
     {
     }
-    /*package */ Or (ITree tree, Expression lhs, Expression rhs)
+    /*package */ Or (ITree tree,
+		     org.meta_environment.rascal.ast.Expression lhs,
+		     org.meta_environment.rascal.ast.Expression rhs)
     {
       this.tree = tree;
       this.lhs = lhs;
@@ -1304,33 +1553,35 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionOr (this);
     }
-    private Expression lhs;
-    public Expression getLhs ()
+    private org.meta_environment.rascal.ast.Expression lhs;
+    public org.meta_environment.rascal.ast.Expression getLhs ()
     {
       return lhs;
     }
-    private void $setLhs (Expression x)
+    private void $setLhs (org.meta_environment.rascal.ast.Expression x)
     {
       this.lhs = x;
     }
-    public Or setLhs (Expression x)
+    public org.meta_environment.rascal.ast.Or setLhs (org.meta_environment.
+						      rascal.ast.Expression x)
     {
-      Or z = new Or ();
+      org.meta_environment.rascal.ast.Or z = new Or ();
       z.$setLhs (x);
       return z;
     }
-    private Expression rhs;
-    public Expression getRhs ()
+    private org.meta_environment.rascal.ast.Expression rhs;
+    public org.meta_environment.rascal.ast.Expression getRhs ()
     {
       return rhs;
     }
-    private void $setRhs (Expression x)
+    private void $setRhs (org.meta_environment.rascal.ast.Expression x)
     {
       this.rhs = x;
     }
-    public Or setRhs (Expression x)
+    public org.meta_environment.rascal.ast.Or setRhs (org.meta_environment.
+						      rascal.ast.Expression x)
     {
-      Or z = new Or ();
+      org.meta_environment.rascal.ast.Or z = new Or ();
       z.$setRhs (x);
       return z;
     }
@@ -1341,7 +1592,9 @@ public abstract class Expression extends AbstractAST
     private IfDefined ()
     {
     }
-    /*package */ IfDefined (ITree tree, Expression lhs, Expression rhs)
+    /*package */ IfDefined (ITree tree,
+			    org.meta_environment.rascal.ast.Expression lhs,
+			    org.meta_environment.rascal.ast.Expression rhs)
     {
       this.tree = tree;
       this.lhs = lhs;
@@ -1351,33 +1604,39 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionIfDefined (this);
     }
-    private Expression lhs;
-    public Expression getLhs ()
+    private org.meta_environment.rascal.ast.Expression lhs;
+    public org.meta_environment.rascal.ast.Expression getLhs ()
     {
       return lhs;
     }
-    private void $setLhs (Expression x)
+    private void $setLhs (org.meta_environment.rascal.ast.Expression x)
     {
       this.lhs = x;
     }
-    public IfDefined setLhs (Expression x)
+    public org.meta_environment.rascal.ast.IfDefined setLhs (org.
+							     meta_environment.
+							     rascal.ast.
+							     Expression x)
     {
-      IfDefined z = new IfDefined ();
+      org.meta_environment.rascal.ast.IfDefined z = new IfDefined ();
       z.$setLhs (x);
       return z;
     }
-    private Expression rhs;
-    public Expression getRhs ()
+    private org.meta_environment.rascal.ast.Expression rhs;
+    public org.meta_environment.rascal.ast.Expression getRhs ()
     {
       return rhs;
     }
-    private void $setRhs (Expression x)
+    private void $setRhs (org.meta_environment.rascal.ast.Expression x)
     {
       this.rhs = x;
     }
-    public IfDefined setRhs (Expression x)
+    public org.meta_environment.rascal.ast.IfDefined setRhs (org.
+							     meta_environment.
+							     rascal.ast.
+							     Expression x)
     {
-      IfDefined z = new IfDefined ();
+      org.meta_environment.rascal.ast.IfDefined z = new IfDefined ();
       z.$setRhs (x);
       return z;
     }
@@ -1388,8 +1647,13 @@ public abstract class Expression extends AbstractAST
     private IfThenElse ()
     {
     }
-    /*package */ IfThenElse (ITree tree, Expression condition,
-			     Expression thenExp, Expression elseExp)
+    /*package */ IfThenElse (ITree tree,
+			     org.meta_environment.rascal.ast.
+			     Expression condition,
+			     org.meta_environment.rascal.ast.
+			     Expression thenExp,
+			     org.meta_environment.rascal.ast.
+			     Expression elseExp)
     {
       this.tree = tree;
       this.condition = condition;
@@ -1400,48 +1664,61 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionIfThenElse (this);
     }
-    private Expression condition;
-    public Expression getCondition ()
+    private org.meta_environment.rascal.ast.Expression condition;
+    public org.meta_environment.rascal.ast.Expression getCondition ()
     {
       return condition;
     }
-    private void $setCondition (Expression x)
+    private void $setCondition (org.meta_environment.rascal.ast.Expression x)
     {
       this.condition = x;
     }
-    public IfThenElse setCondition (Expression x)
+    public org.meta_environment.rascal.ast.IfThenElse setCondition (org.
+								    meta_environment.
+								    rascal.
+								    ast.
+								    Expression
+								    x)
     {
-      IfThenElse z = new IfThenElse ();
+      org.meta_environment.rascal.ast.IfThenElse z = new IfThenElse ();
       z.$setCondition (x);
       return z;
     }
-    private Expression thenExp;
-    public Expression getThenExp ()
+    private org.meta_environment.rascal.ast.Expression thenExp;
+    public org.meta_environment.rascal.ast.Expression getThenExp ()
     {
       return thenExp;
     }
-    private void $setThenExp (Expression x)
+    private void $setThenExp (org.meta_environment.rascal.ast.Expression x)
     {
       this.thenExp = x;
     }
-    public IfThenElse setThenExp (Expression x)
+    public org.meta_environment.rascal.ast.IfThenElse setThenExp (org.
+								  meta_environment.
+								  rascal.ast.
+								  Expression
+								  x)
     {
-      IfThenElse z = new IfThenElse ();
+      org.meta_environment.rascal.ast.IfThenElse z = new IfThenElse ();
       z.$setThenExp (x);
       return z;
     }
-    private Expression elseExp;
-    public Expression getElseExp ()
+    private org.meta_environment.rascal.ast.Expression elseExp;
+    public org.meta_environment.rascal.ast.Expression getElseExp ()
     {
       return elseExp;
     }
-    private void $setElseExp (Expression x)
+    private void $setElseExp (org.meta_environment.rascal.ast.Expression x)
     {
       this.elseExp = x;
     }
-    public IfThenElse setElseExp (Expression x)
+    public org.meta_environment.rascal.ast.IfThenElse setElseExp (org.
+								  meta_environment.
+								  rascal.ast.
+								  Expression
+								  x)
     {
-      IfThenElse z = new IfThenElse ();
+      org.meta_environment.rascal.ast.IfThenElse z = new IfThenElse ();
       z.$setElseExp (x);
       return z;
     }
@@ -1452,7 +1729,9 @@ public abstract class Expression extends AbstractAST
     private Operator ()
     {
     }
-    /*package */ Operator (ITree tree, StandardOperator operator)
+    /*package */ Operator (ITree tree,
+			   org.meta_environment.rascal.ast.
+			   StandardOperator operator)
     {
       this.tree = tree;
       this.operator = operator;
@@ -1461,18 +1740,23 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionOperator (this);
     }
-    private StandardOperator operator;
-    public StandardOperator getOperator ()
+    private org.meta_environment.rascal.ast.StandardOperator operator;
+    public org.meta_environment.rascal.ast.StandardOperator getOperator ()
     {
       return operator;
     }
-    private void $setOperator (StandardOperator x)
+    private void $setOperator (org.meta_environment.rascal.ast.
+			       StandardOperator x)
     {
       this.operator = x;
     }
-    public Operator setOperator (StandardOperator x)
+    public org.meta_environment.rascal.ast.Operator setOperator (org.
+								 meta_environment.
+								 rascal.ast.
+								 StandardOperator
+								 x)
     {
-      Operator z = new Operator ();
+      org.meta_environment.rascal.ast.Operator z = new Operator ();
       z.$setOperator (x);
       return z;
     }
@@ -1483,7 +1767,8 @@ public abstract class Expression extends AbstractAST
     private Literal ()
     {
     }
-    /*package */ Literal (ITree tree, Literal literal)
+    /*package */ Literal (ITree tree,
+			  org.meta_environment.rascal.ast.Literal literal)
     {
       this.tree = tree;
       this.literal = literal;
@@ -1492,18 +1777,21 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionLiteral (this);
     }
-    private Literal literal;
-    public Literal getLiteral ()
+    private org.meta_environment.rascal.ast.Literal literal;
+    public org.meta_environment.rascal.ast.Literal getLiteral ()
     {
       return literal;
     }
-    private void $setLiteral (Literal x)
+    private void $setLiteral (org.meta_environment.rascal.ast.Literal x)
     {
       this.literal = x;
     }
-    public Literal setLiteral (Literal x)
+    public org.meta_environment.rascal.ast.Literal setLiteral (org.
+							       meta_environment.
+							       rascal.ast.
+							       Literal x)
     {
-      Literal z = new Literal ();
+      org.meta_environment.rascal.ast.Literal z = new Literal ();
       z.$setLiteral (x);
       return z;
     }
@@ -1514,7 +1802,8 @@ public abstract class Expression extends AbstractAST
     private CallOrTree ()
     {
     }
-    /*package */ CallOrTree (ITree tree, Name name,
+    /*package */ CallOrTree (ITree tree,
+			     org.meta_environment.rascal.ast.Name name,
 			     java.util.List < Expression > arguments)
     {
       this.tree = tree;
@@ -1525,33 +1814,47 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionCallOrTree (this);
     }
-    private Name name;
-    public Name getName ()
+    private org.meta_environment.rascal.ast.Name name;
+    public org.meta_environment.rascal.ast.Name getName ()
     {
       return name;
     }
-    private void $setName (Name x)
+    private void $setName (org.meta_environment.rascal.ast.Name x)
     {
       this.name = x;
     }
-    public CallOrTree setName (Name x)
+    public org.meta_environment.rascal.ast.CallOrTree setName (org.
+							       meta_environment.
+							       rascal.ast.
+							       Name x)
     {
-      CallOrTree z = new CallOrTree ();
+      org.meta_environment.rascal.ast.CallOrTree z = new CallOrTree ();
       z.$setName (x);
       return z;
     }
-    private java.util.List < Expression > arguments;
-    public java.util.List < Expression > getArguments ()
+    private java.util.List < org.meta_environment.rascal.ast.Expression >
+      arguments;
+    public java.util.List < org.meta_environment.rascal.ast.Expression >
+      getArguments ()
     {
       return arguments;
     }
-    private void $setArguments (java.util.List < Expression > x)
+    private void $setArguments (java.util.List <
+				org.meta_environment.rascal.ast.Expression >
+				x)
     {
       this.arguments = x;
     }
-    public CallOrTree setArguments (java.util.List < Expression > x)
+    public org.meta_environment.rascal.ast.CallOrTree setArguments (java.util.
+								    List <
+								    org.
+								    meta_environment.
+								    rascal.
+								    ast.
+								    Expression
+								    > x)
     {
-      CallOrTree z = new CallOrTree ();
+      org.meta_environment.rascal.ast.CallOrTree z = new CallOrTree ();
       z.$setArguments (x);
       return z;
     }
@@ -1571,18 +1874,25 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionList (this);
     }
-    private java.util.List < Expression > elements;
-    public java.util.List < Expression > getElements ()
+    private java.util.List < org.meta_environment.rascal.ast.Expression >
+      elements;
+    public java.util.List < org.meta_environment.rascal.ast.Expression >
+      getElements ()
     {
       return elements;
     }
-    private void $setElements (java.util.List < Expression > x)
+    private void $setElements (java.util.List <
+			       org.meta_environment.rascal.ast.Expression > x)
     {
       this.elements = x;
     }
-    public List setElements (java.util.List < Expression > x)
+    public org.meta_environment.rascal.ast.List setElements (java.util.List <
+							     org.
+							     meta_environment.
+							     rascal.ast.
+							     Expression > x)
     {
-      List z = new List ();
+      org.meta_environment.rascal.ast.List z = new List ();
       z.$setElements (x);
       return z;
     }
@@ -1602,18 +1912,25 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionSet (this);
     }
-    private java.util.List < Expression > elements;
-    public java.util.List < Expression > getElements ()
+    private java.util.List < org.meta_environment.rascal.ast.Expression >
+      elements;
+    public java.util.List < org.meta_environment.rascal.ast.Expression >
+      getElements ()
     {
       return elements;
     }
-    private void $setElements (java.util.List < Expression > x)
+    private void $setElements (java.util.List <
+			       org.meta_environment.rascal.ast.Expression > x)
     {
       this.elements = x;
     }
-    public Set setElements (java.util.List < Expression > x)
+    public org.meta_environment.rascal.ast.Set setElements (java.util.List <
+							    org.
+							    meta_environment.
+							    rascal.ast.
+							    Expression > x)
     {
-      Set z = new Set ();
+      org.meta_environment.rascal.ast.Set z = new Set ();
       z.$setElements (x);
       return z;
     }
@@ -1624,7 +1941,8 @@ public abstract class Expression extends AbstractAST
     private Tuple ()
     {
     }
-    /*package */ Tuple (ITree tree, Expression first,
+    /*package */ Tuple (ITree tree,
+			org.meta_environment.rascal.ast.Expression first,
 			java.util.List < Expression > rest)
     {
       this.tree = tree;
@@ -1635,33 +1953,43 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionTuple (this);
     }
-    private Expression first;
-    public Expression getFirst ()
+    private org.meta_environment.rascal.ast.Expression first;
+    public org.meta_environment.rascal.ast.Expression getFirst ()
     {
       return first;
     }
-    private void $setFirst (Expression x)
+    private void $setFirst (org.meta_environment.rascal.ast.Expression x)
     {
       this.first = x;
     }
-    public Tuple setFirst (Expression x)
+    public org.meta_environment.rascal.ast.Tuple setFirst (org.
+							   meta_environment.
+							   rascal.ast.
+							   Expression x)
     {
-      Tuple z = new Tuple ();
+      org.meta_environment.rascal.ast.Tuple z = new Tuple ();
       z.$setFirst (x);
       return z;
     }
-    private java.util.List < Expression > rest;
-    public java.util.List < Expression > getRest ()
+    private java.util.List < org.meta_environment.rascal.ast.Expression >
+      rest;
+    public java.util.List < org.meta_environment.rascal.ast.Expression >
+      getRest ()
     {
       return rest;
     }
-    private void $setRest (java.util.List < Expression > x)
+    private void $setRest (java.util.List <
+			   org.meta_environment.rascal.ast.Expression > x)
     {
       this.rest = x;
     }
-    public Tuple setRest (java.util.List < Expression > x)
+    public org.meta_environment.rascal.ast.Tuple setRest (java.util.List <
+							  org.
+							  meta_environment.
+							  rascal.ast.
+							  Expression > x)
     {
-      Tuple z = new Tuple ();
+      org.meta_environment.rascal.ast.Tuple z = new Tuple ();
       z.$setRest (x);
       return z;
     }
@@ -1672,7 +2000,9 @@ public abstract class Expression extends AbstractAST
     private MapTuple ()
     {
     }
-    /*package */ MapTuple (ITree tree, Expression from, Expression to)
+    /*package */ MapTuple (ITree tree,
+			   org.meta_environment.rascal.ast.Expression from,
+			   org.meta_environment.rascal.ast.Expression to)
     {
       this.tree = tree;
       this.from = from;
@@ -1682,33 +2012,39 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionMapTuple (this);
     }
-    private Expression from;
-    public Expression getFrom ()
+    private org.meta_environment.rascal.ast.Expression from;
+    public org.meta_environment.rascal.ast.Expression getFrom ()
     {
       return from;
     }
-    private void $setFrom (Expression x)
+    private void $setFrom (org.meta_environment.rascal.ast.Expression x)
     {
       this.from = x;
     }
-    public MapTuple setFrom (Expression x)
+    public org.meta_environment.rascal.ast.MapTuple setFrom (org.
+							     meta_environment.
+							     rascal.ast.
+							     Expression x)
     {
-      MapTuple z = new MapTuple ();
+      org.meta_environment.rascal.ast.MapTuple z = new MapTuple ();
       z.$setFrom (x);
       return z;
     }
-    private Expression to;
-    public Expression getTo ()
+    private org.meta_environment.rascal.ast.Expression to;
+    public org.meta_environment.rascal.ast.Expression getTo ()
     {
       return to;
     }
-    private void $setTo (Expression x)
+    private void $setTo (org.meta_environment.rascal.ast.Expression x)
     {
       this.to = x;
     }
-    public MapTuple setTo (Expression x)
+    public org.meta_environment.rascal.ast.MapTuple setTo (org.
+							   meta_environment.
+							   rascal.ast.
+							   Expression x)
     {
-      MapTuple z = new MapTuple ();
+      org.meta_environment.rascal.ast.MapTuple z = new MapTuple ();
       z.$setTo (x);
       return z;
     }
@@ -1749,7 +2085,9 @@ public abstract class Expression extends AbstractAST
     private FileLocation ()
     {
     }
-    /*package */ FileLocation (ITree tree, Expression filename)
+    /*package */ FileLocation (ITree tree,
+			       org.meta_environment.rascal.ast.
+			       Expression filename)
     {
       this.tree = tree;
       this.filename = filename;
@@ -1758,18 +2096,23 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionFileLocation (this);
     }
-    private Expression filename;
-    public Expression getFilename ()
+    private org.meta_environment.rascal.ast.Expression filename;
+    public org.meta_environment.rascal.ast.Expression getFilename ()
     {
       return filename;
     }
-    private void $setFilename (Expression x)
+    private void $setFilename (org.meta_environment.rascal.ast.Expression x)
     {
       this.filename = x;
     }
-    public FileLocation setFilename (Expression x)
+    public org.meta_environment.rascal.ast.FileLocation setFilename (org.
+								     meta_environment.
+								     rascal.
+								     ast.
+								     Expression
+								     x)
     {
-      FileLocation z = new FileLocation ();
+      org.meta_environment.rascal.ast.FileLocation z = new FileLocation ();
       z.$setFilename (x);
       return z;
     }
@@ -1780,7 +2123,9 @@ public abstract class Expression extends AbstractAST
     private AreaLocation ()
     {
     }
-    /*package */ AreaLocation (ITree tree, Expression area)
+    /*package */ AreaLocation (ITree tree,
+			       org.meta_environment.rascal.ast.
+			       Expression area)
     {
       this.tree = tree;
       this.area = area;
@@ -1789,18 +2134,21 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionAreaLocation (this);
     }
-    private Expression area;
-    public Expression getArea ()
+    private org.meta_environment.rascal.ast.Expression area;
+    public org.meta_environment.rascal.ast.Expression getArea ()
     {
       return area;
     }
-    private void $setArea (Expression x)
+    private void $setArea (org.meta_environment.rascal.ast.Expression x)
     {
       this.area = x;
     }
-    public AreaLocation setArea (Expression x)
+    public org.meta_environment.rascal.ast.AreaLocation setArea (org.
+								 meta_environment.
+								 rascal.ast.
+								 Expression x)
     {
-      AreaLocation z = new AreaLocation ();
+      org.meta_environment.rascal.ast.AreaLocation z = new AreaLocation ();
       z.$setArea (x);
       return z;
     }
@@ -1811,7 +2159,10 @@ public abstract class Expression extends AbstractAST
     private AreaInFileLocation ()
     {
     }
-    /*package */ AreaInFileLocation (ITree tree, Expression filename,
+    /*package */ AreaInFileLocation (ITree tree,
+				     org.meta_environment.rascal.ast.
+				     Expression filename,
+				     org.meta_environment.rascal.ast.
 				     Expression area)
     {
       this.tree = tree;
@@ -1822,33 +2173,42 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionAreaInFileLocation (this);
     }
-    private Expression filename;
-    public Expression getFilename ()
+    private org.meta_environment.rascal.ast.Expression filename;
+    public org.meta_environment.rascal.ast.Expression getFilename ()
     {
       return filename;
     }
-    private void $setFilename (Expression x)
+    private void $setFilename (org.meta_environment.rascal.ast.Expression x)
     {
       this.filename = x;
     }
-    public AreaInFileLocation setFilename (Expression x)
+    public org.meta_environment.rascal.ast.
+      AreaInFileLocation setFilename (org.meta_environment.rascal.ast.
+				      Expression x)
     {
-      AreaInFileLocation z = new AreaInFileLocation ();
+      org.meta_environment.rascal.ast.AreaInFileLocation z =
+	new AreaInFileLocation ();
       z.$setFilename (x);
       return z;
     }
-    private Expression area;
-    public Expression getArea ()
+    private org.meta_environment.rascal.ast.Expression area;
+    public org.meta_environment.rascal.ast.Expression getArea ()
     {
       return area;
     }
-    private void $setArea (Expression x)
+    private void $setArea (org.meta_environment.rascal.ast.Expression x)
     {
       this.area = x;
     }
-    public AreaInFileLocation setArea (Expression x)
+    public org.meta_environment.rascal.ast.AreaInFileLocation setArea (org.
+								       meta_environment.
+								       rascal.
+								       ast.
+								       Expression
+								       x)
     {
-      AreaInFileLocation z = new AreaInFileLocation ();
+      org.meta_environment.rascal.ast.AreaInFileLocation z =
+	new AreaInFileLocation ();
       z.$setArea (x);
       return z;
     }
@@ -1859,7 +2219,9 @@ public abstract class Expression extends AbstractAST
     private QualifiedName ()
     {
     }
-    /*package */ QualifiedName (ITree tree, QualifiedName qualifiedName)
+    /*package */ QualifiedName (ITree tree,
+				org.meta_environment.rascal.ast.
+				QualifiedName qualifiedName)
     {
       this.tree = tree;
       this.qualifiedName = qualifiedName;
@@ -1868,18 +2230,21 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionQualifiedName (this);
     }
-    private QualifiedName qualifiedName;
-    public QualifiedName getQualifiedName ()
+    private org.meta_environment.rascal.ast.QualifiedName qualifiedName;
+    public org.meta_environment.rascal.ast.QualifiedName getQualifiedName ()
     {
       return qualifiedName;
     }
-    private void $setQualifiedName (QualifiedName x)
+    private void $setQualifiedName (org.meta_environment.rascal.ast.
+				    QualifiedName x)
     {
       this.qualifiedName = x;
     }
-    public QualifiedName setQualifiedName (QualifiedName x)
+    public org.meta_environment.rascal.ast.
+      QualifiedName setQualifiedName (org.meta_environment.rascal.ast.
+				      QualifiedName x)
     {
-      QualifiedName z = new QualifiedName ();
+      org.meta_environment.rascal.ast.QualifiedName z = new QualifiedName ();
       z.$setQualifiedName (x);
       return z;
     }
@@ -1890,7 +2255,9 @@ public abstract class Expression extends AbstractAST
     private TypedVariable ()
     {
     }
-    /*package */ TypedVariable (ITree tree, Type type, Name name)
+    /*package */ TypedVariable (ITree tree,
+				org.meta_environment.rascal.ast.Type type,
+				org.meta_environment.rascal.ast.Name name)
     {
       this.tree = tree;
       this.type = type;
@@ -1900,33 +2267,39 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionTypedVariable (this);
     }
-    private Type type;
-    public Type getType ()
+    private org.meta_environment.rascal.ast.Type type;
+    public org.meta_environment.rascal.ast.Type getType ()
     {
       return type;
     }
-    private void $setType (Type x)
+    private void $setType (org.meta_environment.rascal.ast.Type x)
     {
       this.type = x;
     }
-    public TypedVariable setType (Type x)
+    public org.meta_environment.rascal.ast.TypedVariable setType (org.
+								  meta_environment.
+								  rascal.ast.
+								  Type x)
     {
-      TypedVariable z = new TypedVariable ();
+      org.meta_environment.rascal.ast.TypedVariable z = new TypedVariable ();
       z.$setType (x);
       return z;
     }
-    private Name name;
-    public Name getName ()
+    private org.meta_environment.rascal.ast.Name name;
+    public org.meta_environment.rascal.ast.Name getName ()
     {
       return name;
     }
-    private void $setName (Name x)
+    private void $setName (org.meta_environment.rascal.ast.Name x)
     {
       this.name = x;
     }
-    public TypedVariable setName (Name x)
+    public org.meta_environment.rascal.ast.TypedVariable setName (org.
+								  meta_environment.
+								  rascal.ast.
+								  Name x)
     {
-      TypedVariable z = new TypedVariable ();
+      org.meta_environment.rascal.ast.TypedVariable z = new TypedVariable ();
       z.$setName (x);
       return z;
     }
@@ -1937,7 +2310,9 @@ public abstract class Expression extends AbstractAST
     private Match ()
     {
     }
-    /*package */ Match (ITree tree, Expression pattern, Expression expression)
+    /*package */ Match (ITree tree,
+			org.meta_environment.rascal.ast.Expression pattern,
+			org.meta_environment.rascal.ast.Expression expression)
     {
       this.tree = tree;
       this.pattern = pattern;
@@ -1947,33 +2322,39 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionMatch (this);
     }
-    private Expression pattern;
-    public Expression getPattern ()
+    private org.meta_environment.rascal.ast.Expression pattern;
+    public org.meta_environment.rascal.ast.Expression getPattern ()
     {
       return pattern;
     }
-    private void $setPattern (Expression x)
+    private void $setPattern (org.meta_environment.rascal.ast.Expression x)
     {
       this.pattern = x;
     }
-    public Match setPattern (Expression x)
+    public org.meta_environment.rascal.ast.Match setPattern (org.
+							     meta_environment.
+							     rascal.ast.
+							     Expression x)
     {
-      Match z = new Match ();
+      org.meta_environment.rascal.ast.Match z = new Match ();
       z.$setPattern (x);
       return z;
     }
-    private Expression expression;
-    public Expression getExpression ()
+    private org.meta_environment.rascal.ast.Expression expression;
+    public org.meta_environment.rascal.ast.Expression getExpression ()
     {
       return expression;
     }
-    private void $setExpression (Expression x)
+    private void $setExpression (org.meta_environment.rascal.ast.Expression x)
     {
       this.expression = x;
     }
-    public Match setExpression (Expression x)
+    public org.meta_environment.rascal.ast.Match setExpression (org.
+								meta_environment.
+								rascal.ast.
+								Expression x)
     {
-      Match z = new Match ();
+      org.meta_environment.rascal.ast.Match z = new Match ();
       z.$setExpression (x);
       return z;
     }
@@ -1984,7 +2365,9 @@ public abstract class Expression extends AbstractAST
     private NoMatch ()
     {
     }
-    /*package */ NoMatch (ITree tree, Expression pattern,
+    /*package */ NoMatch (ITree tree,
+			  org.meta_environment.rascal.ast.Expression pattern,
+			  org.meta_environment.rascal.ast.
 			  Expression expression)
     {
       this.tree = tree;
@@ -1995,33 +2378,40 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionNoMatch (this);
     }
-    private Expression pattern;
-    public Expression getPattern ()
+    private org.meta_environment.rascal.ast.Expression pattern;
+    public org.meta_environment.rascal.ast.Expression getPattern ()
     {
       return pattern;
     }
-    private void $setPattern (Expression x)
+    private void $setPattern (org.meta_environment.rascal.ast.Expression x)
     {
       this.pattern = x;
     }
-    public NoMatch setPattern (Expression x)
+    public org.meta_environment.rascal.ast.NoMatch setPattern (org.
+							       meta_environment.
+							       rascal.ast.
+							       Expression x)
     {
-      NoMatch z = new NoMatch ();
+      org.meta_environment.rascal.ast.NoMatch z = new NoMatch ();
       z.$setPattern (x);
       return z;
     }
-    private Expression expression;
-    public Expression getExpression ()
+    private org.meta_environment.rascal.ast.Expression expression;
+    public org.meta_environment.rascal.ast.Expression getExpression ()
     {
       return expression;
     }
-    private void $setExpression (Expression x)
+    private void $setExpression (org.meta_environment.rascal.ast.Expression x)
     {
       this.expression = x;
     }
-    public NoMatch setExpression (Expression x)
+    public org.meta_environment.rascal.ast.NoMatch setExpression (org.
+								  meta_environment.
+								  rascal.ast.
+								  Expression
+								  x)
     {
-      NoMatch z = new NoMatch ();
+      org.meta_environment.rascal.ast.NoMatch z = new NoMatch ();
       z.$setExpression (x);
       return z;
     }
@@ -2032,7 +2422,9 @@ public abstract class Expression extends AbstractAST
     private Comprehension ()
     {
     }
-    /*package */ Comprehension (ITree tree, Comprehension comprehension)
+    /*package */ Comprehension (ITree tree,
+				org.meta_environment.rascal.ast.
+				Comprehension comprehension)
     {
       this.tree = tree;
       this.comprehension = comprehension;
@@ -2041,18 +2433,21 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionComprehension (this);
     }
-    private Comprehension comprehension;
-    public Comprehension getComprehension ()
+    private org.meta_environment.rascal.ast.Comprehension comprehension;
+    public org.meta_environment.rascal.ast.Comprehension getComprehension ()
     {
       return comprehension;
     }
-    private void $setComprehension (Comprehension x)
+    private void $setComprehension (org.meta_environment.rascal.ast.
+				    Comprehension x)
     {
       this.comprehension = x;
     }
-    public Comprehension setComprehension (Comprehension x)
+    public org.meta_environment.rascal.ast.
+      Comprehension setComprehension (org.meta_environment.rascal.ast.
+				      Comprehension x)
     {
-      Comprehension z = new Comprehension ();
+      org.meta_environment.rascal.ast.Comprehension z = new Comprehension ();
       z.$setComprehension (x);
       return z;
     }
@@ -2063,7 +2458,10 @@ public abstract class Expression extends AbstractAST
     private ForAll ()
     {
     }
-    /*package */ ForAll (ITree tree, ValueProducer producer,
+    /*package */ ForAll (ITree tree,
+			 org.meta_environment.rascal.ast.
+			 ValueProducer producer,
+			 org.meta_environment.rascal.ast.
 			 Expression expression)
     {
       this.tree = tree;
@@ -2074,33 +2472,41 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionForAll (this);
     }
-    private ValueProducer producer;
-    public ValueProducer getProducer ()
+    private org.meta_environment.rascal.ast.ValueProducer producer;
+    public org.meta_environment.rascal.ast.ValueProducer getProducer ()
     {
       return producer;
     }
-    private void $setProducer (ValueProducer x)
+    private void $setProducer (org.meta_environment.rascal.ast.
+			       ValueProducer x)
     {
       this.producer = x;
     }
-    public ForAll setProducer (ValueProducer x)
+    public org.meta_environment.rascal.ast.ForAll setProducer (org.
+							       meta_environment.
+							       rascal.ast.
+							       ValueProducer
+							       x)
     {
-      ForAll z = new ForAll ();
+      org.meta_environment.rascal.ast.ForAll z = new ForAll ();
       z.$setProducer (x);
       return z;
     }
-    private Expression expression;
-    public Expression getExpression ()
+    private org.meta_environment.rascal.ast.Expression expression;
+    public org.meta_environment.rascal.ast.Expression getExpression ()
     {
       return expression;
     }
-    private void $setExpression (Expression x)
+    private void $setExpression (org.meta_environment.rascal.ast.Expression x)
     {
       this.expression = x;
     }
-    public ForAll setExpression (Expression x)
+    public org.meta_environment.rascal.ast.ForAll setExpression (org.
+								 meta_environment.
+								 rascal.ast.
+								 Expression x)
     {
-      ForAll z = new ForAll ();
+      org.meta_environment.rascal.ast.ForAll z = new ForAll ();
       z.$setExpression (x);
       return z;
     }
@@ -2111,7 +2517,10 @@ public abstract class Expression extends AbstractAST
     private Exists ()
     {
     }
-    /*package */ Exists (ITree tree, ValueProducer producer,
+    /*package */ Exists (ITree tree,
+			 org.meta_environment.rascal.ast.
+			 ValueProducer producer,
+			 org.meta_environment.rascal.ast.
 			 Expression expression)
     {
       this.tree = tree;
@@ -2122,33 +2531,41 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionExists (this);
     }
-    private ValueProducer producer;
-    public ValueProducer getProducer ()
+    private org.meta_environment.rascal.ast.ValueProducer producer;
+    public org.meta_environment.rascal.ast.ValueProducer getProducer ()
     {
       return producer;
     }
-    private void $setProducer (ValueProducer x)
+    private void $setProducer (org.meta_environment.rascal.ast.
+			       ValueProducer x)
     {
       this.producer = x;
     }
-    public Exists setProducer (ValueProducer x)
+    public org.meta_environment.rascal.ast.Exists setProducer (org.
+							       meta_environment.
+							       rascal.ast.
+							       ValueProducer
+							       x)
     {
-      Exists z = new Exists ();
+      org.meta_environment.rascal.ast.Exists z = new Exists ();
       z.$setProducer (x);
       return z;
     }
-    private Expression expression;
-    public Expression getExpression ()
+    private org.meta_environment.rascal.ast.Expression expression;
+    public org.meta_environment.rascal.ast.Expression getExpression ()
     {
       return expression;
     }
-    private void $setExpression (Expression x)
+    private void $setExpression (org.meta_environment.rascal.ast.Expression x)
     {
       this.expression = x;
     }
-    public Exists setExpression (Expression x)
+    public org.meta_environment.rascal.ast.Exists setExpression (org.
+								 meta_environment.
+								 rascal.ast.
+								 Expression x)
     {
-      Exists z = new Exists ();
+      org.meta_environment.rascal.ast.Exists z = new Exists ();
       z.$setExpression (x);
       return z;
     }
@@ -2159,7 +2576,8 @@ public abstract class Expression extends AbstractAST
     private Visit ()
     {
     }
-    /*package */ Visit (ITree tree, Visit visit)
+    /*package */ Visit (ITree tree,
+			org.meta_environment.rascal.ast.Visit visit)
     {
       this.tree = tree;
       this.visit = visit;
@@ -2168,18 +2586,20 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionVisit (this);
     }
-    private Visit visit;
-    public Visit getVisit ()
+    private org.meta_environment.rascal.ast.Visit visit;
+    public org.meta_environment.rascal.ast.Visit getVisit ()
     {
       return visit;
     }
-    private void $setVisit (Visit x)
+    private void $setVisit (org.meta_environment.rascal.ast.Visit x)
     {
       this.visit = x;
     }
-    public Visit setVisit (Visit x)
+    public org.meta_environment.rascal.ast.Visit setVisit (org.
+							   meta_environment.
+							   rascal.ast.Visit x)
     {
-      Visit z = new Visit ();
+      org.meta_environment.rascal.ast.Visit z = new Visit ();
       z.$setVisit (x);
       return z;
     }

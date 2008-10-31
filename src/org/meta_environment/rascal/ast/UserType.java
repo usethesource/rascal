@@ -8,7 +8,7 @@ public abstract class UserType extends AbstractAST
     private Name ()
     {
     }
-    /*package */ Name (ITree tree, Name name)
+    /*package */ Name (ITree tree, org.meta_environment.rascal.ast.Name name)
     {
       this.tree = tree;
       this.name = name;
@@ -17,18 +17,19 @@ public abstract class UserType extends AbstractAST
     {
       return visitor.visitUserTypeName (this);
     }
-    private Name name;
-    public Name getName ()
+    private org.meta_environment.rascal.ast.Name name;
+    public org.meta_environment.rascal.ast.Name getName ()
     {
       return name;
     }
-    private void $setName (Name x)
+    private void $setName (org.meta_environment.rascal.ast.Name x)
     {
       this.name = x;
     }
-    public Name setName (Name x)
+    public org.meta_environment.rascal.ast.Name setName (org.meta_environment.
+							 rascal.ast.Name x)
     {
-      Name z = new Name ();
+      org.meta_environment.rascal.ast.Name z = new Name ();
       z.$setName (x);
       return z;
     }
@@ -52,7 +53,8 @@ public abstract class UserType extends AbstractAST
     private Parametric ()
     {
     }
-    /*package */ Parametric (ITree tree, Name name,
+    /*package */ Parametric (ITree tree,
+			     org.meta_environment.rascal.ast.Name name,
 			     java.util.List < TypeVar > parameters)
     {
       this.tree = tree;
@@ -63,33 +65,47 @@ public abstract class UserType extends AbstractAST
     {
       return visitor.visitUserTypeParametric (this);
     }
-    private Name name;
-    public Name getName ()
+    private org.meta_environment.rascal.ast.Name name;
+    public org.meta_environment.rascal.ast.Name getName ()
     {
       return name;
     }
-    private void $setName (Name x)
+    private void $setName (org.meta_environment.rascal.ast.Name x)
     {
       this.name = x;
     }
-    public Parametric setName (Name x)
+    public org.meta_environment.rascal.ast.Parametric setName (org.
+							       meta_environment.
+							       rascal.ast.
+							       Name x)
     {
-      Parametric z = new Parametric ();
+      org.meta_environment.rascal.ast.Parametric z = new Parametric ();
       z.$setName (x);
       return z;
     }
-    private java.util.List < TypeVar > parameters;
-    public java.util.List < TypeVar > getParameters ()
+    private java.util.List < org.meta_environment.rascal.ast.TypeVar >
+      parameters;
+    public java.util.List < org.meta_environment.rascal.ast.TypeVar >
+      getParameters ()
     {
       return parameters;
     }
-    private void $setParameters (java.util.List < TypeVar > x)
+    private void $setParameters (java.util.List <
+				 org.meta_environment.rascal.ast.TypeVar > x)
     {
       this.parameters = x;
     }
-    public Parametric setParameters (java.util.List < TypeVar > x)
+    public org.meta_environment.rascal.ast.Parametric setParameters (java.
+								     util.
+								     List <
+								     org.
+								     meta_environment.
+								     rascal.
+								     ast.
+								     TypeVar >
+								     x)
     {
-      Parametric z = new Parametric ();
+      org.meta_environment.rascal.ast.Parametric z = new Parametric ();
       z.$setParameters (x);
       return z;
     }

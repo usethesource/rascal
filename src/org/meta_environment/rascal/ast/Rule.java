@@ -8,7 +8,9 @@ public abstract class Rule extends AbstractAST
     private WithGuard ()
     {
     }
-    /*package */ WithGuard (ITree tree, Type type, Match match)
+    /*package */ WithGuard (ITree tree,
+			    org.meta_environment.rascal.ast.Type type,
+			    org.meta_environment.rascal.ast.Match match)
     {
       this.tree = tree;
       this.type = type;
@@ -18,33 +20,39 @@ public abstract class Rule extends AbstractAST
     {
       return visitor.visitRuleWithGuard (this);
     }
-    private Type type;
-    public Type getType ()
+    private org.meta_environment.rascal.ast.Type type;
+    public org.meta_environment.rascal.ast.Type getType ()
     {
       return type;
     }
-    private void $setType (Type x)
+    private void $setType (org.meta_environment.rascal.ast.Type x)
     {
       this.type = x;
     }
-    public WithGuard setType (Type x)
+    public org.meta_environment.rascal.ast.WithGuard setType (org.
+							      meta_environment.
+							      rascal.ast.
+							      Type x)
     {
-      WithGuard z = new WithGuard ();
+      org.meta_environment.rascal.ast.WithGuard z = new WithGuard ();
       z.$setType (x);
       return z;
     }
-    private Match match;
-    public Match getMatch ()
+    private org.meta_environment.rascal.ast.Match match;
+    public org.meta_environment.rascal.ast.Match getMatch ()
     {
       return match;
     }
-    private void $setMatch (Match x)
+    private void $setMatch (org.meta_environment.rascal.ast.Match x)
     {
       this.match = x;
     }
-    public WithGuard setMatch (Match x)
+    public org.meta_environment.rascal.ast.WithGuard setMatch (org.
+							       meta_environment.
+							       rascal.ast.
+							       Match x)
     {
-      WithGuard z = new WithGuard ();
+      org.meta_environment.rascal.ast.WithGuard z = new WithGuard ();
       z.$setMatch (x);
       return z;
     }
@@ -68,7 +76,8 @@ public abstract class Rule extends AbstractAST
     private NoGuard ()
     {
     }
-    /*package */ NoGuard (ITree tree, Match match)
+    /*package */ NoGuard (ITree tree,
+			  org.meta_environment.rascal.ast.Match match)
     {
       this.tree = tree;
       this.match = match;
@@ -77,18 +86,21 @@ public abstract class Rule extends AbstractAST
     {
       return visitor.visitRuleNoGuard (this);
     }
-    private Match match;
-    public Match getMatch ()
+    private org.meta_environment.rascal.ast.Match match;
+    public org.meta_environment.rascal.ast.Match getMatch ()
     {
       return match;
     }
-    private void $setMatch (Match x)
+    private void $setMatch (org.meta_environment.rascal.ast.Match x)
     {
       this.match = x;
     }
-    public NoGuard setMatch (Match x)
+    public org.meta_environment.rascal.ast.NoGuard setMatch (org.
+							     meta_environment.
+							     rascal.ast.
+							     Match x)
     {
-      NoGuard z = new NoGuard ();
+      org.meta_environment.rascal.ast.NoGuard z = new NoGuard ();
       z.$setMatch (x);
       return z;
     }

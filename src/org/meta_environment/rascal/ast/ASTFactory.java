@@ -36,7 +36,11 @@ public class ASTFactory
       }
     return (Formal.Ambiguity) table.get (amb);
   }
-  public Formal.TypeName makeFormalTypeName (ITree tree, Type type, Name name)
+  public Formal.TypeName makeFormalTypeName (ITree tree,
+					     org.meta_environment.rascal.ast.
+					     Type type,
+					     org.meta_environment.rascal.ast.
+					     Name name)
   {
     Formal.TypeName x = new Formal.TypeName (tree, type, name);
     if (!table.containsKey (x))
@@ -67,7 +71,8 @@ public class ASTFactory
     return (Formals.Default) table.get (x);
   }
   public Parameters.VarArgs makeParametersVarArgs (ITree tree,
-						   Formals formals)
+						   org.meta_environment.
+						   rascal.ast.Formals formals)
   {
     Parameters.VarArgs x = new Parameters.VarArgs (tree, formals);
     if (!table.containsKey (x))
@@ -88,7 +93,8 @@ public class ASTFactory
     return (Parameters.Ambiguity) table.get (amb);
   }
   public Parameters.Default makeParametersDefault (ITree tree,
-						   Formals formals)
+						   org.meta_environment.
+						   rascal.ast.Formals formals)
   {
     Parameters.Default x = new Parameters.Default (tree, formals);
     if (!table.containsKey (x))
@@ -97,7 +103,9 @@ public class ASTFactory
       }
     return (Parameters.Default) table.get (x);
   }
-  public Expression.Visit makeExpressionVisit (ITree tree, Visit visit)
+  public Expression.Visit makeExpressionVisit (ITree tree,
+					       org.meta_environment.rascal.
+					       ast.Visit visit)
   {
     Expression.Visit x = new Expression.Visit (tree, visit);
     if (!table.containsKey (x))
@@ -107,8 +115,10 @@ public class ASTFactory
     return (Expression.Visit) table.get (x);
   }
   public Expression.Exists makeExpressionExists (ITree tree,
-						 ValueProducer producer,
-						 Expression expression)
+						 org.meta_environment.rascal.
+						 ast.ValueProducer producer,
+						 org.meta_environment.rascal.
+						 ast.Expression expression)
   {
     Expression.Exists x = new Expression.Exists (tree, producer, expression);
     if (!table.containsKey (x))
@@ -118,8 +128,10 @@ public class ASTFactory
     return (Expression.Exists) table.get (x);
   }
   public Expression.ForAll makeExpressionForAll (ITree tree,
-						 ValueProducer producer,
-						 Expression expression)
+						 org.meta_environment.rascal.
+						 ast.ValueProducer producer,
+						 org.meta_environment.rascal.
+						 ast.Expression expression)
   {
     Expression.ForAll x = new Expression.ForAll (tree, producer, expression);
     if (!table.containsKey (x))
@@ -129,6 +141,9 @@ public class ASTFactory
     return (Expression.ForAll) table.get (x);
   }
   public Expression.Comprehension makeExpressionComprehension (ITree tree,
+							       org.
+							       meta_environment.
+							       rascal.ast.
 							       Comprehension
 							       comprehension)
   {
@@ -141,7 +156,11 @@ public class ASTFactory
     return (Expression.Comprehension) table.get (x);
   }
   public Expression.NoMatch makeExpressionNoMatch (ITree tree,
+						   org.meta_environment.
+						   rascal.ast.
 						   Expression pattern,
+						   org.meta_environment.
+						   rascal.ast.
 						   Expression expression)
   {
     Expression.NoMatch x = new Expression.NoMatch (tree, pattern, expression);
@@ -151,8 +170,11 @@ public class ASTFactory
       }
     return (Expression.NoMatch) table.get (x);
   }
-  public Expression.Match makeExpressionMatch (ITree tree, Expression pattern,
-					       Expression expression)
+  public Expression.Match makeExpressionMatch (ITree tree,
+					       org.meta_environment.rascal.
+					       ast.Expression pattern,
+					       org.meta_environment.rascal.
+					       ast.Expression expression)
   {
     Expression.Match x = new Expression.Match (tree, pattern, expression);
     if (!table.containsKey (x))
@@ -162,7 +184,13 @@ public class ASTFactory
     return (Expression.Match) table.get (x);
   }
   public Expression.TypedVariable makeExpressionTypedVariable (ITree tree,
+							       org.
+							       meta_environment.
+							       rascal.ast.
 							       Type type,
+							       org.
+							       meta_environment.
+							       rascal.ast.
 							       Name name)
   {
     Expression.TypedVariable x =
@@ -174,6 +202,9 @@ public class ASTFactory
     return (Expression.TypedVariable) table.get (x);
   }
   public Expression.QualifiedName makeExpressionQualifiedName (ITree tree,
+							       org.
+							       meta_environment.
+							       rascal.ast.
 							       QualifiedName
 							       qualifiedName)
   {
@@ -187,7 +218,11 @@ public class ASTFactory
   }
   public Expression.
     AreaInFileLocation makeExpressionAreaInFileLocation (ITree tree,
+							 org.meta_environment.
+							 rascal.ast.
 							 Expression filename,
+							 org.meta_environment.
+							 rascal.ast.
 							 Expression area)
   {
     Expression.AreaInFileLocation x =
@@ -199,6 +234,9 @@ public class ASTFactory
     return (Expression.AreaInFileLocation) table.get (x);
   }
   public Expression.AreaLocation makeExpressionAreaLocation (ITree tree,
+							     org.
+							     meta_environment.
+							     rascal.ast.
 							     Expression area)
   {
     Expression.AreaLocation x = new Expression.AreaLocation (tree, area);
@@ -209,6 +247,9 @@ public class ASTFactory
     return (Expression.AreaLocation) table.get (x);
   }
   public Expression.FileLocation makeExpressionFileLocation (ITree tree,
+							     org.
+							     meta_environment.
+							     rascal.ast.
 							     Expression
 							     filename)
   {
@@ -238,8 +279,11 @@ public class ASTFactory
     return (Expression.Location) table.get (x);
   }
   public Expression.MapTuple makeExpressionMapTuple (ITree tree,
+						     org.meta_environment.
+						     rascal.ast.
 						     Expression from,
-						     Expression to)
+						     org.meta_environment.
+						     rascal.ast.Expression to)
   {
     Expression.MapTuple x = new Expression.MapTuple (tree, from, to);
     if (!table.containsKey (x))
@@ -248,7 +292,9 @@ public class ASTFactory
       }
     return (Expression.MapTuple) table.get (x);
   }
-  public Expression.Tuple makeExpressionTuple (ITree tree, Expression first,
+  public Expression.Tuple makeExpressionTuple (ITree tree,
+					       org.meta_environment.rascal.
+					       ast.Expression first,
 					       java.util.List < Expression >
 					       rest)
   {
@@ -282,7 +328,8 @@ public class ASTFactory
     return (Expression.List) table.get (x);
   }
   public Expression.CallOrTree makeExpressionCallOrTree (ITree tree,
-							 Name name,
+							 org.meta_environment.
+							 rascal.ast.Name name,
 							 java.util.List <
 							 Expression >
 							 arguments)
@@ -296,7 +343,8 @@ public class ASTFactory
     return (Expression.CallOrTree) table.get (x);
   }
   public Expression.Literal makeExpressionLiteral (ITree tree,
-						   Literal literal)
+						   org.meta_environment.
+						   rascal.ast.Literal literal)
   {
     Expression.Literal x = new Expression.Literal (tree, literal);
     if (!table.containsKey (x))
@@ -306,6 +354,8 @@ public class ASTFactory
     return (Expression.Literal) table.get (x);
   }
   public Expression.Operator makeExpressionOperator (ITree tree,
+						     org.meta_environment.
+						     rascal.ast.
 						     StandardOperator
 						     operator)
   {
@@ -317,8 +367,14 @@ public class ASTFactory
     return (Expression.Operator) table.get (x);
   }
   public Expression.IfThenElse makeExpressionIfThenElse (ITree tree,
+							 org.meta_environment.
+							 rascal.ast.
 							 Expression condition,
+							 org.meta_environment.
+							 rascal.ast.
 							 Expression thenExp,
+							 org.meta_environment.
+							 rascal.ast.
 							 Expression elseExp)
   {
     Expression.IfThenElse x =
@@ -330,7 +386,11 @@ public class ASTFactory
     return (Expression.IfThenElse) table.get (x);
   }
   public Expression.IfDefined makeExpressionIfDefined (ITree tree,
+						       org.meta_environment.
+						       rascal.ast.
 						       Expression lhs,
+						       org.meta_environment.
+						       rascal.ast.
 						       Expression rhs)
   {
     Expression.IfDefined x = new Expression.IfDefined (tree, lhs, rhs);
@@ -340,7 +400,10 @@ public class ASTFactory
       }
     return (Expression.IfDefined) table.get (x);
   }
-  public Expression.Or makeExpressionOr (ITree tree, Expression lhs,
+  public Expression.Or makeExpressionOr (ITree tree,
+					 org.meta_environment.rascal.ast.
+					 Expression lhs,
+					 org.meta_environment.rascal.ast.
 					 Expression rhs)
   {
     Expression.Or x = new Expression.Or (tree, lhs, rhs);
@@ -350,7 +413,10 @@ public class ASTFactory
       }
     return (Expression.Or) table.get (x);
   }
-  public Expression.And makeExpressionAnd (ITree tree, Expression lhs,
+  public Expression.And makeExpressionAnd (ITree tree,
+					   org.meta_environment.rascal.ast.
+					   Expression lhs,
+					   org.meta_environment.rascal.ast.
 					   Expression rhs)
   {
     Expression.And x = new Expression.And (tree, lhs, rhs);
@@ -360,7 +426,10 @@ public class ASTFactory
       }
     return (Expression.And) table.get (x);
   }
-  public Expression.In makeExpressionIn (ITree tree, Expression lhs,
+  public Expression.In makeExpressionIn (ITree tree,
+					 org.meta_environment.rascal.ast.
+					 Expression lhs,
+					 org.meta_environment.rascal.ast.
 					 Expression rhs)
   {
     Expression.In x = new Expression.In (tree, lhs, rhs);
@@ -370,8 +439,11 @@ public class ASTFactory
       }
     return (Expression.In) table.get (x);
   }
-  public Expression.NotIn makeExpressionNotIn (ITree tree, Expression lhs,
-					       Expression rhs)
+  public Expression.NotIn makeExpressionNotIn (ITree tree,
+					       org.meta_environment.rascal.
+					       ast.Expression lhs,
+					       org.meta_environment.rascal.
+					       ast.Expression rhs)
   {
     Expression.NotIn x = new Expression.NotIn (tree, lhs, rhs);
     if (!table.containsKey (x))
@@ -381,7 +453,11 @@ public class ASTFactory
     return (Expression.NotIn) table.get (x);
   }
   public Expression.NonEquals makeExpressionNonEquals (ITree tree,
+						       org.meta_environment.
+						       rascal.ast.
 						       Expression lhs,
+						       org.meta_environment.
+						       rascal.ast.
 						       Expression rhs)
   {
     Expression.NonEquals x = new Expression.NonEquals (tree, lhs, rhs);
@@ -391,8 +467,11 @@ public class ASTFactory
       }
     return (Expression.NonEquals) table.get (x);
   }
-  public Expression.Equals makeExpressionEquals (ITree tree, Expression lhs,
-						 Expression rhs)
+  public Expression.Equals makeExpressionEquals (ITree tree,
+						 org.meta_environment.rascal.
+						 ast.Expression lhs,
+						 org.meta_environment.rascal.
+						 ast.Expression rhs)
   {
     Expression.Equals x = new Expression.Equals (tree, lhs, rhs);
     if (!table.containsKey (x))
@@ -402,8 +481,14 @@ public class ASTFactory
     return (Expression.Equals) table.get (x);
   }
   public Expression.GreaterThanOrEq makeExpressionGreaterThanOrEq (ITree tree,
+								   org.
+								   meta_environment.
+								   rascal.ast.
 								   Expression
 								   lhs,
+								   org.
+								   meta_environment.
+								   rascal.ast.
 								   Expression
 								   rhs)
   {
@@ -416,7 +501,13 @@ public class ASTFactory
     return (Expression.GreaterThanOrEq) table.get (x);
   }
   public Expression.GreaterThan makeExpressionGreaterThan (ITree tree,
+							   org.
+							   meta_environment.
+							   rascal.ast.
 							   Expression lhs,
+							   org.
+							   meta_environment.
+							   rascal.ast.
 							   Expression rhs)
   {
     Expression.GreaterThan x = new Expression.GreaterThan (tree, lhs, rhs);
@@ -427,7 +518,13 @@ public class ASTFactory
     return (Expression.GreaterThan) table.get (x);
   }
   public Expression.LessThanOrEq makeExpressionLessThanOrEq (ITree tree,
+							     org.
+							     meta_environment.
+							     rascal.ast.
 							     Expression lhs,
+							     org.
+							     meta_environment.
+							     rascal.ast.
 							     Expression rhs)
   {
     Expression.LessThanOrEq x = new Expression.LessThanOrEq (tree, lhs, rhs);
@@ -438,7 +535,11 @@ public class ASTFactory
     return (Expression.LessThanOrEq) table.get (x);
   }
   public Expression.LessThan makeExpressionLessThan (ITree tree,
+						     org.meta_environment.
+						     rascal.ast.
 						     Expression lhs,
+						     org.meta_environment.
+						     rascal.ast.
 						     Expression rhs)
   {
     Expression.LessThan x = new Expression.LessThan (tree, lhs, rhs);
@@ -449,7 +550,13 @@ public class ASTFactory
     return (Expression.LessThan) table.get (x);
   }
   public Expression.RegExpNoMatch makeExpressionRegExpNoMatch (ITree tree,
+							       org.
+							       meta_environment.
+							       rascal.ast.
 							       Expression lhs,
+							       org.
+							       meta_environment.
+							       rascal.ast.
 							       Expression rhs)
   {
     Expression.RegExpNoMatch x =
@@ -461,7 +568,13 @@ public class ASTFactory
     return (Expression.RegExpNoMatch) table.get (x);
   }
   public Expression.RegExpMatch makeExpressionRegExpMatch (ITree tree,
+							   org.
+							   meta_environment.
+							   rascal.ast.
 							   Expression lhs,
+							   org.
+							   meta_environment.
+							   rascal.ast.
 							   Expression rhs)
   {
     Expression.RegExpMatch x = new Expression.RegExpMatch (tree, lhs, rhs);
@@ -472,7 +585,13 @@ public class ASTFactory
     return (Expression.RegExpMatch) table.get (x);
   }
   public Expression.Substraction makeExpressionSubstraction (ITree tree,
+							     org.
+							     meta_environment.
+							     rascal.ast.
 							     Expression lhs,
+							     org.
+							     meta_environment.
+							     rascal.ast.
 							     Expression rhs)
   {
     Expression.Substraction x = new Expression.Substraction (tree, lhs, rhs);
@@ -483,7 +602,11 @@ public class ASTFactory
     return (Expression.Substraction) table.get (x);
   }
   public Expression.Addition makeExpressionAddition (ITree tree,
+						     org.meta_environment.
+						     rascal.ast.
 						     Expression lhs,
+						     org.meta_environment.
+						     rascal.ast.
 						     Expression rhs)
   {
     Expression.Addition x = new Expression.Addition (tree, lhs, rhs);
@@ -494,7 +617,11 @@ public class ASTFactory
     return (Expression.Addition) table.get (x);
   }
   public Expression.Division makeExpressionDivision (ITree tree,
+						     org.meta_environment.
+						     rascal.ast.
 						     Expression lhs,
+						     org.meta_environment.
+						     rascal.ast.
 						     Expression rhs)
   {
     Expression.Division x = new Expression.Division (tree, lhs, rhs);
@@ -505,7 +632,13 @@ public class ASTFactory
     return (Expression.Division) table.get (x);
   }
   public Expression.Intersection makeExpressionIntersection (ITree tree,
+							     org.
+							     meta_environment.
+							     rascal.ast.
 							     Expression lhs,
+							     org.
+							     meta_environment.
+							     rascal.ast.
 							     Expression rhs)
   {
     Expression.Intersection x = new Expression.Intersection (tree, lhs, rhs);
@@ -515,8 +648,11 @@ public class ASTFactory
       }
     return (Expression.Intersection) table.get (x);
   }
-  public Expression.Product makeExpressionProduct (ITree tree, Expression lhs,
-						   Expression rhs)
+  public Expression.Product makeExpressionProduct (ITree tree,
+						   org.meta_environment.
+						   rascal.ast.Expression lhs,
+						   org.meta_environment.
+						   rascal.ast.Expression rhs)
   {
     Expression.Product x = new Expression.Product (tree, lhs, rhs);
     if (!table.containsKey (x))
@@ -526,6 +662,8 @@ public class ASTFactory
     return (Expression.Product) table.get (x);
   }
   public Expression.Negation makeExpressionNegation (ITree tree,
+						     org.meta_environment.
+						     rascal.ast.
 						     Expression argument)
   {
     Expression.Negation x = new Expression.Negation (tree, argument);
@@ -536,9 +674,12 @@ public class ASTFactory
     return (Expression.Negation) table.get (x);
   }
   public Expression.Annotation makeExpressionAnnotation (ITree tree,
+							 org.meta_environment.
+							 rascal.ast.
 							 Expression
 							 expression,
-							 Name name)
+							 org.meta_environment.
+							 rascal.ast.Name name)
   {
     Expression.Annotation x =
       new Expression.Annotation (tree, expression, name);
@@ -550,6 +691,8 @@ public class ASTFactory
   }
   public Expression.
     TransitiveClosure makeExpressionTransitiveClosure (ITree tree,
+						       org.meta_environment.
+						       rascal.ast.
 						       Expression argument)
   {
     Expression.TransitiveClosure x =
@@ -563,6 +706,10 @@ public class ASTFactory
   public Expression.
     TransitiveReflexiveClosure makeExpressionTransitiveReflexiveClosure (ITree
 									 tree,
+									 org.
+									 meta_environment.
+									 rascal.
+									 ast.
 									 Expression
 									 argument)
   {
@@ -575,7 +722,11 @@ public class ASTFactory
     return (Expression.TransitiveReflexiveClosure) table.get (x);
   }
   public Expression.Subscript makeExpressionSubscript (ITree tree,
+						       org.meta_environment.
+						       rascal.ast.
 						       Expression expression,
+						       org.meta_environment.
+						       rascal.ast.
 						       Expression subscript)
   {
     Expression.Subscript x =
@@ -587,8 +738,14 @@ public class ASTFactory
     return (Expression.Subscript) table.get (x);
   }
   public Expression.FieldAccess makeExpressionFieldAccess (ITree tree,
+							   org.
+							   meta_environment.
+							   rascal.ast.
 							   Expression
 							   expression,
+							   org.
+							   meta_environment.
+							   rascal.ast.
 							   Name field)
   {
     Expression.FieldAccess x =
@@ -600,9 +757,18 @@ public class ASTFactory
     return (Expression.FieldAccess) table.get (x);
   }
   public Expression.FieldUpdate makeExpressionFieldUpdate (ITree tree,
+							   org.
+							   meta_environment.
+							   rascal.ast.
 							   Expression
 							   expression,
+							   org.
+							   meta_environment.
+							   rascal.ast.
 							   Name key,
+							   org.
+							   meta_environment.
+							   rascal.ast.
 							   Expression
 							   replacement)
   {
@@ -615,8 +781,14 @@ public class ASTFactory
     return (Expression.FieldUpdate) table.get (x);
   }
   public Expression.StepRange makeExpressionStepRange (ITree tree,
+						       org.meta_environment.
+						       rascal.ast.
 						       Expression from,
+						       org.meta_environment.
+						       rascal.ast.
 						       Expression by,
+						       org.meta_environment.
+						       rascal.ast.
 						       Expression to)
   {
     Expression.StepRange x = new Expression.StepRange (tree, from, by, to);
@@ -626,8 +798,11 @@ public class ASTFactory
       }
     return (Expression.StepRange) table.get (x);
   }
-  public Expression.Range makeExpressionRange (ITree tree, Expression from,
-					       Expression to)
+  public Expression.Range makeExpressionRange (ITree tree,
+					       org.meta_environment.rascal.
+					       ast.Expression from,
+					       org.meta_environment.rascal.
+					       ast.Expression to)
   {
     Expression.Range x = new Expression.Range (tree, from, to);
     if (!table.containsKey (x))
@@ -637,6 +812,9 @@ public class ASTFactory
     return (Expression.Range) table.get (x);
   }
   public Expression.ClosureCall makeExpressionClosureCall (ITree tree,
+							   org.
+							   meta_environment.
+							   rascal.ast.
 							   Expression closure,
 							   java.util.List <
 							   Expression >
@@ -670,7 +848,9 @@ public class ASTFactory
       }
     return (Expression.Ambiguity) table.get (amb);
   }
-  public Expression.Closure makeExpressionClosure (ITree tree, Type type,
+  public Expression.Closure makeExpressionClosure (ITree tree,
+						   org.meta_environment.
+						   rascal.ast.Type type,
 						   java.util.List <
 						   Statement > statements)
   {
@@ -693,6 +873,7 @@ public class ASTFactory
     return (SymbolLiteral.Ambiguity) table.get (amb);
   }
   public Literal.String makeLiteralString (ITree tree,
+					   org.meta_environment.rascal.ast.
 					   StringLiteral stringLiteral)
   {
     Literal.String x = new Literal.String (tree, stringLiteral);
@@ -703,6 +884,7 @@ public class ASTFactory
     return (Literal.String) table.get (x);
   }
   public Literal.Double makeLiteralDouble (ITree tree,
+					   org.meta_environment.rascal.ast.
 					   FloatingPointLiteral doubleLiteral)
   {
     Literal.Double x = new Literal.Double (tree, doubleLiteral);
@@ -713,6 +895,7 @@ public class ASTFactory
     return (Literal.Double) table.get (x);
   }
   public Literal.Integer makeLiteralInteger (ITree tree,
+					     org.meta_environment.rascal.ast.
 					     IntegerLiteral integerLiteral)
   {
     Literal.Integer x = new Literal.Integer (tree, integerLiteral);
@@ -723,6 +906,7 @@ public class ASTFactory
     return (Literal.Integer) table.get (x);
   }
   public Literal.Boolean makeLiteralBoolean (ITree tree,
+					     org.meta_environment.rascal.ast.
 					     BooleanLiteral booleanLiteral)
   {
     Literal.Boolean x = new Literal.Boolean (tree, booleanLiteral);
@@ -733,6 +917,7 @@ public class ASTFactory
     return (Literal.Boolean) table.get (x);
   }
   public Literal.Symbol makeLiteralSymbol (ITree tree,
+					   org.meta_environment.rascal.ast.
 					   SymbolLiteral symbolLiteral)
   {
     Literal.Symbol x = new Literal.Symbol (tree, symbolLiteral);
@@ -752,7 +937,9 @@ public class ASTFactory
       }
     return (Literal.Ambiguity) table.get (amb);
   }
-  public Literal.RegExp makeLiteralRegExp (ITree tree, RegExpLiteral regExp)
+  public Literal.RegExp makeLiteralRegExp (ITree tree,
+					   org.meta_environment.rascal.ast.
+					   RegExpLiteral regExp)
   {
     Literal.RegExp x = new Literal.RegExp (tree, regExp);
     if (!table.containsKey (x))
@@ -761,7 +948,9 @@ public class ASTFactory
       }
     return (Literal.RegExp) table.get (x);
   }
-  public Bound.Default makeBoundDefault (ITree tree, Expression expression)
+  public Bound.Default makeBoundDefault (ITree tree,
+					 org.meta_environment.rascal.ast.
+					 Expression expression)
   {
     Bound.Default x = new Bound.Default (tree, expression);
     if (!table.containsKey (x))
@@ -790,6 +979,9 @@ public class ASTFactory
     return (Bound.Empty) table.get (x);
   }
   public Statement.GlobalDirective makeStatementGlobalDirective (ITree tree,
+								 org.
+								 meta_environment.
+								 rascal.ast.
 								 Type type,
 								 java.util.
 								 List <
@@ -806,6 +998,9 @@ public class ASTFactory
   }
   public Statement.
     VariableDeclaration makeStatementVariableDeclaration (ITree tree,
+							  org.
+							  meta_environment.
+							  rascal.ast.
 							  LocalVariableDeclaration
 							  declaration)
   {
@@ -819,6 +1014,9 @@ public class ASTFactory
   }
   public Statement.
     FunctionDeclaration makeStatementFunctionDeclaration (ITree tree,
+							  org.
+							  meta_environment.
+							  rascal.ast.
 							  FunctionDeclaration
 							  functionDeclaration)
   {
@@ -830,7 +1028,9 @@ public class ASTFactory
       }
     return (Statement.FunctionDeclaration) table.get (x);
   }
-  public Statement.Block makeStatementBlock (ITree tree, Label label,
+  public Statement.Block makeStatementBlock (ITree tree,
+					     org.meta_environment.rascal.ast.
+					     Label label,
 					     java.util.List < Statement >
 					     statements)
   {
@@ -842,9 +1042,13 @@ public class ASTFactory
     return (Statement.Block) table.get (x);
   }
   public Statement.TryFinally makeStatementTryFinally (ITree tree,
+						       org.meta_environment.
+						       rascal.ast.
 						       Statement body,
 						       java.util.List <
 						       Catch > handlers,
+						       org.meta_environment.
+						       rascal.ast.
 						       Statement finallyBody)
   {
     Statement.TryFinally x =
@@ -855,7 +1059,9 @@ public class ASTFactory
       }
     return (Statement.TryFinally) table.get (x);
   }
-  public Statement.Try makeStatementTry (ITree tree, Statement body,
+  public Statement.Try makeStatementTry (ITree tree,
+					 org.meta_environment.rascal.ast.
+					 Statement body,
 					 java.util.List < Catch > handlers)
   {
     Statement.Try x = new Statement.Try (tree, body, handlers);
@@ -866,6 +1072,7 @@ public class ASTFactory
     return (Statement.Try) table.get (x);
   }
   public Statement.Throw makeStatementThrow (ITree tree,
+					     org.meta_environment.rascal.ast.
 					     Expression expression)
   {
     Statement.Throw x = new Statement.Throw (tree, expression);
@@ -876,7 +1083,8 @@ public class ASTFactory
     return (Statement.Throw) table.get (x);
   }
   public Statement.Insert makeStatementInsert (ITree tree,
-					       Expression expression)
+					       org.meta_environment.rascal.
+					       ast.Expression expression)
   {
     Statement.Insert x = new Statement.Insert (tree, expression);
     if (!table.containsKey (x))
@@ -886,8 +1094,10 @@ public class ASTFactory
     return (Statement.Insert) table.get (x);
   }
   public Statement.Assert makeStatementAssert (ITree tree,
-					       StringLiteral label,
-					       Expression expression)
+					       org.meta_environment.rascal.
+					       ast.StringLiteral label,
+					       org.meta_environment.rascal.
+					       ast.Expression expression)
   {
     Statement.Assert x = new Statement.Assert (tree, label, expression);
     if (!table.containsKey (x))
@@ -936,6 +1146,8 @@ public class ASTFactory
 						       java.util.List <
 						       Assignable >
 						       assignables,
+						       org.meta_environment.
+						       rascal.ast.
 						       Assignment operator,
 						       java.util.List <
 						       Expression >
@@ -949,7 +1161,9 @@ public class ASTFactory
       }
     return (Statement.Assignment) table.get (x);
   }
-  public Statement.Visit makeStatementVisit (ITree tree, Visit visit)
+  public Statement.Visit makeStatementVisit (ITree tree,
+					     org.meta_environment.rascal.ast.
+					     Visit visit)
   {
     Statement.Visit x = new Statement.Visit (tree, visit);
     if (!table.containsKey (x))
@@ -959,6 +1173,8 @@ public class ASTFactory
     return (Statement.Visit) table.get (x);
   }
   public Statement.Expression makeStatementExpression (ITree tree,
+						       org.meta_environment.
+						       rascal.ast.
 						       Expression expression)
   {
     Statement.Expression x = new Statement.Expression (tree, expression);
@@ -968,9 +1184,13 @@ public class ASTFactory
       }
     return (Statement.Expression) table.get (x);
   }
-  public Statement.First makeStatementFirst (ITree tree, Label label,
+  public Statement.First makeStatementFirst (ITree tree,
+					     org.meta_environment.rascal.ast.
+					     Label label,
 					     java.util.List < Expression >
-					     conditions, Statement body)
+					     conditions,
+					     org.meta_environment.rascal.ast.
+					     Statement body)
   {
     Statement.First x = new Statement.First (tree, label, conditions, body);
     if (!table.containsKey (x))
@@ -979,9 +1199,13 @@ public class ASTFactory
       }
     return (Statement.First) table.get (x);
   }
-  public Statement.All makeStatementAll (ITree tree, Label label,
+  public Statement.All makeStatementAll (ITree tree,
+					 org.meta_environment.rascal.ast.
+					 Label label,
 					 java.util.List < Expression >
-					 conditions, Statement body)
+					 conditions,
+					 org.meta_environment.rascal.ast.
+					 Statement body)
   {
     Statement.All x = new Statement.All (tree, label, conditions, body);
     if (!table.containsKey (x))
@@ -990,8 +1214,11 @@ public class ASTFactory
       }
     return (Statement.All) table.get (x);
   }
-  public Statement.Switch makeStatementSwitch (ITree tree, Label label,
-					       Expression expression,
+  public Statement.Switch makeStatementSwitch (ITree tree,
+					       org.meta_environment.rascal.
+					       ast.Label label,
+					       org.meta_environment.rascal.
+					       ast.Expression expression,
 					       java.util.List < Case > cases)
   {
     Statement.Switch x =
@@ -1002,10 +1229,13 @@ public class ASTFactory
       }
     return (Statement.Switch) table.get (x);
   }
-  public Statement.IfThen makeStatementIfThen (ITree tree, Label label,
+  public Statement.IfThen makeStatementIfThen (ITree tree,
+					       org.meta_environment.rascal.
+					       ast.Label label,
 					       java.util.List < Expression >
 					       conditions,
-					       Statement thenStatement)
+					       org.meta_environment.rascal.
+					       ast.Statement thenStatement)
   {
     Statement.IfThen x =
       new Statement.IfThen (tree, label, conditions, thenStatement);
@@ -1016,12 +1246,17 @@ public class ASTFactory
     return (Statement.IfThen) table.get (x);
   }
   public Statement.IfThenElse makeStatementIfThenElse (ITree tree,
-						       Label label,
+						       org.meta_environment.
+						       rascal.ast.Label label,
 						       java.util.List <
 						       Expression >
 						       conditions,
+						       org.meta_environment.
+						       rascal.ast.
 						       Statement
 						       thenStatement,
+						       org.meta_environment.
+						       rascal.ast.
 						       Statement
 						       elseStatement)
   {
@@ -1034,9 +1269,13 @@ public class ASTFactory
       }
     return (Statement.IfThenElse) table.get (x);
   }
-  public Statement.DoWhile makeStatementDoWhile (ITree tree, Label label,
-						 Statement body,
-						 Expression condition)
+  public Statement.DoWhile makeStatementDoWhile (ITree tree,
+						 org.meta_environment.rascal.
+						 ast.Label label,
+						 org.meta_environment.rascal.
+						 ast.Statement body,
+						 org.meta_environment.rascal.
+						 ast.Expression condition)
   {
     Statement.DoWhile x =
       new Statement.DoWhile (tree, label, body, condition);
@@ -1046,8 +1285,12 @@ public class ASTFactory
       }
     return (Statement.DoWhile) table.get (x);
   }
-  public Statement.While makeStatementWhile (ITree tree, Label label,
+  public Statement.While makeStatementWhile (ITree tree,
+					     org.meta_environment.rascal.ast.
+					     Label label,
+					     org.meta_environment.rascal.ast.
 					     Expression condition,
+					     org.meta_environment.rascal.ast.
 					     Statement body)
   {
     Statement.While x = new Statement.While (tree, label, condition, body);
@@ -1057,9 +1300,13 @@ public class ASTFactory
       }
     return (Statement.While) table.get (x);
   }
-  public Statement.For makeStatementFor (ITree tree, Label label,
+  public Statement.For makeStatementFor (ITree tree,
+					 org.meta_environment.rascal.ast.
+					 Label label,
 					 java.util.List < Generator >
-					 generators, Statement body)
+					 generators,
+					 org.meta_environment.rascal.ast.
+					 Statement body)
   {
     Statement.For x = new Statement.For (tree, label, generators, body);
     if (!table.containsKey (x))
@@ -1080,7 +1327,9 @@ public class ASTFactory
   }
   public Statement.Solve makeStatementSolve (ITree tree,
 					     java.util.List < Declarator >
-					     declarations, Statement body)
+					     declarations,
+					     org.meta_environment.rascal.ast.
+					     Statement body)
   {
     Statement.Solve x = new Statement.Solve (tree, declarations, body);
     if (!table.containsKey (x))
@@ -1104,6 +1353,9 @@ public class ASTFactory
     return (NoElseMayFollow.Ambiguity) table.get (amb);
   }
   public Assignable.Constructor makeAssignableConstructor (ITree tree,
+							   org.
+							   meta_environment.
+							   rascal.ast.
 							   Name name,
 							   java.util.List <
 							   Assignable >
@@ -1117,7 +1369,9 @@ public class ASTFactory
       }
     return (Assignable.Constructor) table.get (x);
   }
-  public Assignable.Tuple makeAssignableTuple (ITree tree, Assignable first,
+  public Assignable.Tuple makeAssignableTuple (ITree tree,
+					       org.meta_environment.rascal.
+					       ast.Assignable first,
 					       java.util.List < Assignable >
 					       rest)
   {
@@ -1129,7 +1383,11 @@ public class ASTFactory
     return (Assignable.Tuple) table.get (x);
   }
   public Assignable.Annotation makeAssignableAnnotation (ITree tree,
+							 org.meta_environment.
+							 rascal.ast.
 							 Assignable receiver,
+							 org.meta_environment.
+							 rascal.ast.
 							 Expression
 							 annotation)
   {
@@ -1142,7 +1400,11 @@ public class ASTFactory
     return (Assignable.Annotation) table.get (x);
   }
   public Assignable.IfDefined makeAssignableIfDefined (ITree tree,
+						       org.meta_environment.
+						       rascal.ast.
 						       Assignable receiver,
+						       org.meta_environment.
+						       rascal.ast.
 						       Expression condition)
   {
     Assignable.IfDefined x =
@@ -1154,8 +1416,14 @@ public class ASTFactory
     return (Assignable.IfDefined) table.get (x);
   }
   public Assignable.FieldAccess makeAssignableFieldAccess (ITree tree,
+							   org.
+							   meta_environment.
+							   rascal.ast.
 							   Assignable
 							   receiver,
+							   org.
+							   meta_environment.
+							   rascal.ast.
 							   Name field)
   {
     Assignable.FieldAccess x =
@@ -1167,7 +1435,11 @@ public class ASTFactory
     return (Assignable.FieldAccess) table.get (x);
   }
   public Assignable.Subscript makeAssignableSubscript (ITree tree,
+						       org.meta_environment.
+						       rascal.ast.
 						       Assignable receiver,
+						       org.meta_environment.
+						       rascal.ast.
 						       Expression subscript)
   {
     Assignable.Subscript x =
@@ -1190,6 +1462,8 @@ public class ASTFactory
     return (Assignable.Ambiguity) table.get (amb);
   }
   public Assignable.Variable makeAssignableVariable (ITree tree,
+						     org.meta_environment.
+						     rascal.ast.
 						     QualifiedName
 						     qualifiedName)
   {
@@ -1265,7 +1539,9 @@ public class ASTFactory
       }
     return (Assignment.Default) table.get (x);
   }
-  public Label.Default makeLabelDefault (ITree tree, Name name)
+  public Label.Default makeLabelDefault (ITree tree,
+					 org.meta_environment.rascal.ast.
+					 Name name)
   {
     Label.Default x = new Label.Default (tree, name);
     if (!table.containsKey (x))
@@ -1312,7 +1588,9 @@ public class ASTFactory
       }
     return (Break.Ambiguity) table.get (amb);
   }
-  public Break.WithLabel makeBreakWithLabel (ITree tree, Name label)
+  public Break.WithLabel makeBreakWithLabel (ITree tree,
+					     org.meta_environment.rascal.ast.
+					     Name label)
   {
     Break.WithLabel x = new Break.WithLabel (tree, label);
     if (!table.containsKey (x))
@@ -1340,7 +1618,9 @@ public class ASTFactory
       }
     return (Fail.Ambiguity) table.get (amb);
   }
-  public Fail.WithLabel makeFailWithLabel (ITree tree, Name label)
+  public Fail.WithLabel makeFailWithLabel (ITree tree,
+					   org.meta_environment.rascal.ast.
+					   Name label)
   {
     Fail.WithLabel x = new Fail.WithLabel (tree, label);
     if (!table.containsKey (x))
@@ -1369,6 +1649,8 @@ public class ASTFactory
     return (Return.Ambiguity) table.get (amb);
   }
   public Return.WithExpression makeReturnWithExpression (ITree tree,
+							 org.meta_environment.
+							 rascal.ast.
 							 Expression
 							 expression)
   {
@@ -1379,7 +1661,12 @@ public class ASTFactory
       }
     return (Return.WithExpression) table.get (x);
   }
-  public Catch.Binding makeCatchBinding (ITree tree, Type type, Name name,
+  public Catch.Binding makeCatchBinding (ITree tree,
+					 org.meta_environment.rascal.ast.
+					 Type type,
+					 org.meta_environment.rascal.ast.
+					 Name name,
+					 org.meta_environment.rascal.ast.
 					 Statement body)
   {
     Catch.Binding x = new Catch.Binding (tree, type, name, body);
@@ -1399,7 +1686,9 @@ public class ASTFactory
       }
     return (Catch.Ambiguity) table.get (amb);
   }
-  public Catch.Default makeCatchDefault (ITree tree, Statement body)
+  public Catch.Default makeCatchDefault (ITree tree,
+					 org.meta_environment.rascal.ast.
+					 Statement body)
   {
     Catch.Default x = new Catch.Default (tree, body);
     if (!table.containsKey (x))
@@ -1419,7 +1708,9 @@ public class ASTFactory
       }
     return (Declarator.Ambiguity) table.get (amb);
   }
-  public Declarator.Default makeDeclaratorDefault (ITree tree, Type type,
+  public Declarator.Default makeDeclaratorDefault (ITree tree,
+						   org.meta_environment.
+						   rascal.ast.Type type,
 						   java.util.List < Variable >
 						   variables)
   {
@@ -1432,7 +1723,8 @@ public class ASTFactory
   }
   public LocalVariableDeclaration.
     Dynamic makeLocalVariableDeclarationDynamic (ITree tree,
-						 Declarator declarator)
+						 org.meta_environment.rascal.
+						 ast.Declarator declarator)
   {
     LocalVariableDeclaration.Dynamic x =
       new LocalVariableDeclaration.Dynamic (tree, declarator);
@@ -1457,7 +1749,8 @@ public class ASTFactory
   }
   public LocalVariableDeclaration.
     Default makeLocalVariableDeclarationDefault (ITree tree,
-						 Declarator declarator)
+						 org.meta_environment.rascal.
+						 ast.Declarator declarator)
   {
     LocalVariableDeclaration.Default x =
       new LocalVariableDeclaration.Default (tree, declarator);
@@ -1565,6 +1858,9 @@ public class ASTFactory
     return (Visibility.Public) table.get (x);
   }
   public Toplevel.DefaultVisibility makeToplevelDefaultVisibility (ITree tree,
+								   org.
+								   meta_environment.
+								   rascal.ast.
 								   Declaration
 								   declaration)
   {
@@ -1587,8 +1883,14 @@ public class ASTFactory
     return (Toplevel.Ambiguity) table.get (amb);
   }
   public Toplevel.GivenVisibility makeToplevelGivenVisibility (ITree tree,
+							       org.
+							       meta_environment.
+							       rascal.ast.
 							       Visibility
 							       visibility,
+							       org.
+							       meta_environment.
+							       rascal.ast.
 							       Declaration
 							       declaration)
   {
@@ -1600,7 +1902,12 @@ public class ASTFactory
       }
     return (Toplevel.GivenVisibility) table.get (x);
   }
-  public Declaration.Tag makeDeclarationTag (ITree tree, Kind kind, Name name,
+  public Declaration.Tag makeDeclarationTag (ITree tree,
+					     org.meta_environment.rascal.ast.
+					     Kind kind,
+					     org.meta_environment.rascal.ast.
+					     Name name,
+					     org.meta_environment.rascal.ast.
 					     Tags tags,
 					     java.util.List < Type > types)
   {
@@ -1612,8 +1919,17 @@ public class ASTFactory
     return (Declaration.Tag) table.get (x);
   }
   public Declaration.Annotation makeDeclarationAnnotation (ITree tree,
+							   org.
+							   meta_environment.
+							   rascal.ast.
 							   Type type,
+							   org.
+							   meta_environment.
+							   rascal.ast.
 							   Name name,
+							   org.
+							   meta_environment.
+							   rascal.ast.
 							   Tags tags,
 							   java.util.List <
 							   Type > types)
@@ -1626,8 +1942,13 @@ public class ASTFactory
       }
     return (Declaration.Annotation) table.get (x);
   }
-  public Declaration.Rule makeDeclarationRule (ITree tree, Name name,
-					       Tags tags, Rule rule)
+  public Declaration.Rule makeDeclarationRule (ITree tree,
+					       org.meta_environment.rascal.
+					       ast.Name name,
+					       org.meta_environment.rascal.
+					       ast.Tags tags,
+					       org.meta_environment.rascal.
+					       ast.Rule rule)
   {
     Declaration.Rule x = new Declaration.Rule (tree, name, tags, rule);
     if (!table.containsKey (x))
@@ -1636,7 +1957,9 @@ public class ASTFactory
       }
     return (Declaration.Rule) table.get (x);
   }
-  public Declaration.Variable makeDeclarationVariable (ITree tree, Type type,
+  public Declaration.Variable makeDeclarationVariable (ITree tree,
+						       org.meta_environment.
+						       rascal.ast.Type type,
 						       java.util.List <
 						       Variable > variables)
   {
@@ -1648,6 +1971,8 @@ public class ASTFactory
     return (Declaration.Variable) table.get (x);
   }
   public Declaration.Function makeDeclarationFunction (ITree tree,
+						       org.meta_environment.
+						       rascal.ast.
 						       FunctionDeclaration
 						       functionDeclaration)
   {
@@ -1659,8 +1984,11 @@ public class ASTFactory
       }
     return (Declaration.Function) table.get (x);
   }
-  public Declaration.Data makeDeclarationData (ITree tree, UserType user,
-					       Tags tags,
+  public Declaration.Data makeDeclarationData (ITree tree,
+					       org.meta_environment.rascal.
+					       ast.UserType user,
+					       org.meta_environment.rascal.
+					       ast.Tags tags,
 					       java.util.List < Variant >
 					       variants)
   {
@@ -1671,8 +1999,13 @@ public class ASTFactory
       }
     return (Declaration.Data) table.get (x);
   }
-  public Declaration.Type makeDeclarationType (ITree tree, Type base,
-					       UserType user, Tags tags)
+  public Declaration.Type makeDeclarationType (ITree tree,
+					       org.meta_environment.rascal.
+					       ast.Type base,
+					       org.meta_environment.rascal.
+					       ast.UserType user,
+					       org.meta_environment.rascal.
+					       ast.Tags tags)
   {
     Declaration.Type x = new Declaration.Type (tree, base, user, tags);
     if (!table.containsKey (x))
@@ -1692,8 +2025,13 @@ public class ASTFactory
       }
     return (Declaration.Ambiguity) table.get (amb);
   }
-  public Declaration.View makeDeclarationView (ITree tree, Name view,
-					       Name type, Tags tags,
+  public Declaration.View makeDeclarationView (ITree tree,
+					       org.meta_environment.rascal.
+					       ast.Name view,
+					       org.meta_environment.rascal.
+					       ast.Name type,
+					       org.meta_environment.rascal.
+					       ast.Tags tags,
 					       java.util.List < Alternative >
 					       alternatives)
   {
@@ -1717,7 +2055,10 @@ public class ASTFactory
     return (Alternative.Ambiguity) table.get (amb);
   }
   public Alternative.NamedType makeAlternativeNamedType (ITree tree,
-							 Name name, Type type)
+							 org.meta_environment.
+							 rascal.ast.Name name,
+							 org.meta_environment.
+							 rascal.ast.Type type)
   {
     Alternative.NamedType x = new Alternative.NamedType (tree, name, type);
     if (!table.containsKey (x))
@@ -1727,6 +2068,9 @@ public class ASTFactory
     return (Alternative.NamedType) table.get (x);
   }
   public Variant.NillaryConstructor makeVariantNillaryConstructor (ITree tree,
+								   org.
+								   meta_environment.
+								   rascal.ast.
 								   Name name)
   {
     Variant.NillaryConstructor x =
@@ -1738,6 +2082,9 @@ public class ASTFactory
     return (Variant.NillaryConstructor) table.get (x);
   }
   public Variant.NAryConstructor makeVariantNAryConstructor (ITree tree,
+							     org.
+							     meta_environment.
+							     rascal.ast.
 							     Name name,
 							     java.util.List <
 							     TypeArg >
@@ -1761,7 +2108,11 @@ public class ASTFactory
       }
     return (Variant.Ambiguity) table.get (amb);
   }
-  public Variant.Type makeVariantType (ITree tree, Type type, Name name)
+  public Variant.Type makeVariantType (ITree tree,
+				       org.meta_environment.rascal.ast.
+				       Type type,
+				       org.meta_environment.rascal.ast.
+				       Name name)
   {
     Variant.Type x = new Variant.Type (tree, type, name);
     if (!table.containsKey (x))
@@ -1938,6 +2289,8 @@ public class ASTFactory
     return (StandardOperator.Addition) table.get (x);
   }
   public FunctionName.Operator makeFunctionNameOperator (ITree tree,
+							 org.meta_environment.
+							 rascal.ast.
 							 StandardOperator
 							 operator)
   {
@@ -1959,7 +2312,9 @@ public class ASTFactory
       }
     return (FunctionName.Ambiguity) table.get (amb);
   }
-  public FunctionName.Name makeFunctionNameName (ITree tree, Name name)
+  public FunctionName.Name makeFunctionNameName (ITree tree,
+						 org.meta_environment.rascal.
+						 ast.Name name)
   {
     FunctionName.Name x = new FunctionName.Name (tree, name);
     if (!table.containsKey (x))
@@ -2018,10 +2373,18 @@ public class ASTFactory
       }
     return (FunctionModifiers.List) table.get (x);
   }
-  public Signature.WithThrows makeSignatureWithThrows (ITree tree, Type type,
+  public Signature.WithThrows makeSignatureWithThrows (ITree tree,
+						       org.meta_environment.
+						       rascal.ast.Type type,
+						       org.meta_environment.
+						       rascal.ast.
 						       FunctionModifiers
 						       modifiers,
+						       org.meta_environment.
+						       rascal.ast.
 						       FunctionName name,
+						       org.meta_environment.
+						       rascal.ast.
 						       Parameters parameters,
 						       java.util.List < Type >
 						       exceptions)
@@ -2045,10 +2408,18 @@ public class ASTFactory
       }
     return (Signature.Ambiguity) table.get (amb);
   }
-  public Signature.NoThrows makeSignatureNoThrows (ITree tree, Type type,
+  public Signature.NoThrows makeSignatureNoThrows (ITree tree,
+						   org.meta_environment.
+						   rascal.ast.Type type,
+						   org.meta_environment.
+						   rascal.ast.
 						   FunctionModifiers
 						   modifiers,
+						   org.meta_environment.
+						   rascal.ast.
 						   FunctionName name,
+						   org.meta_environment.
+						   rascal.ast.
 						   Parameters parameters)
   {
     Signature.NoThrows x =
@@ -2060,7 +2431,10 @@ public class ASTFactory
     return (Signature.NoThrows) table.get (x);
   }
   public FunctionDeclaration.
-    Abstract makeFunctionDeclarationAbstract (ITree tree, Signature signature,
+    Abstract makeFunctionDeclarationAbstract (ITree tree,
+					      org.meta_environment.rascal.ast.
+					      Signature signature,
+					      org.meta_environment.rascal.ast.
 					      Tags tags)
   {
     FunctionDeclaration.Abstract x =
@@ -2088,8 +2462,13 @@ public class ASTFactory
     return (FunctionDeclaration.Ambiguity) table.get (amb);
   }
   public FunctionDeclaration.
-    Default makeFunctionDeclarationDefault (ITree tree, Signature signature,
-					    Tags tags, FunctionBody body)
+    Default makeFunctionDeclarationDefault (ITree tree,
+					    org.meta_environment.rascal.ast.
+					    Signature signature,
+					    org.meta_environment.rascal.ast.
+					    Tags tags,
+					    org.meta_environment.rascal.ast.
+					    FunctionBody body)
   {
     FunctionDeclaration.Default x =
       new FunctionDeclaration.Default (tree, signature, tags, body);
@@ -2133,7 +2512,12 @@ public class ASTFactory
   }
   public Variable.
     GivenInitialization makeVariableGivenInitialization (ITree tree,
-							 Name name, Tags tags,
+							 org.meta_environment.
+							 rascal.ast.Name name,
+							 org.meta_environment.
+							 rascal.ast.Tags tags,
+							 org.meta_environment.
+							 rascal.ast.
 							 Expression initial)
   {
     Variable.GivenInitialization x =
@@ -2348,7 +2732,11 @@ public class ASTFactory
       }
     return (BasicType.Bool) table.get (x);
   }
-  public TypeArg.Named makeTypeArgNamed (ITree tree, Type type, Name name)
+  public TypeArg.Named makeTypeArgNamed (ITree tree,
+					 org.meta_environment.rascal.ast.
+					 Type type,
+					 org.meta_environment.rascal.ast.
+					 Name name)
   {
     TypeArg.Named x = new TypeArg.Named (tree, type, name);
     if (!table.containsKey (x))
@@ -2367,7 +2755,9 @@ public class ASTFactory
       }
     return (TypeArg.Ambiguity) table.get (amb);
   }
-  public TypeArg.Default makeTypeArgDefault (ITree tree, Type type)
+  public TypeArg.Default makeTypeArgDefault (ITree tree,
+					     org.meta_environment.rascal.ast.
+					     Type type)
   {
     TypeArg.Default x = new TypeArg.Default (tree, type);
     if (!table.containsKey (x))
@@ -2377,6 +2767,8 @@ public class ASTFactory
     return (TypeArg.Default) table.get (x);
   }
   public StructuredType.Tuple makeStructuredTypeTuple (ITree tree,
+						       org.meta_environment.
+						       rascal.ast.
 						       TypeArg first,
 						       java.util.List <
 						       TypeArg > rest)
@@ -2389,6 +2781,9 @@ public class ASTFactory
     return (StructuredType.Tuple) table.get (x);
   }
   public StructuredType.Relation makeStructuredTypeRelation (ITree tree,
+							     org.
+							     meta_environment.
+							     rascal.ast.
 							     TypeArg first,
 							     java.util.List <
 							     TypeArg > rest)
@@ -2401,8 +2796,11 @@ public class ASTFactory
       }
     return (StructuredType.Relation) table.get (x);
   }
-  public StructuredType.Map makeStructuredTypeMap (ITree tree, TypeArg first,
-						   TypeArg second)
+  public StructuredType.Map makeStructuredTypeMap (ITree tree,
+						   org.meta_environment.
+						   rascal.ast.TypeArg first,
+						   org.meta_environment.
+						   rascal.ast.TypeArg second)
   {
     StructuredType.Map x = new StructuredType.Map (tree, first, second);
     if (!table.containsKey (x))
@@ -2412,7 +2810,8 @@ public class ASTFactory
     return (StructuredType.Map) table.get (x);
   }
   public StructuredType.Set makeStructuredTypeSet (ITree tree,
-						   TypeArg typeArg)
+						   org.meta_environment.
+						   rascal.ast.TypeArg typeArg)
   {
     StructuredType.Set x = new StructuredType.Set (tree, typeArg);
     if (!table.containsKey (x))
@@ -2435,6 +2834,8 @@ public class ASTFactory
     return (StructuredType.Ambiguity) table.get (amb);
   }
   public StructuredType.List makeStructuredTypeList (ITree tree,
+						     org.meta_environment.
+						     rascal.ast.
 						     TypeArg typeArg)
   {
     StructuredType.List x = new StructuredType.List (tree, typeArg);
@@ -2456,6 +2857,9 @@ public class ASTFactory
     return (FunctionType.Ambiguity) table.get (amb);
   }
   public FunctionType.TypeArguments makeFunctionTypeTypeArguments (ITree tree,
+								   org.
+								   meta_environment.
+								   rascal.ast.
 								   Type type,
 								   java.util.
 								   List <
@@ -2470,7 +2874,10 @@ public class ASTFactory
       }
     return (FunctionType.TypeArguments) table.get (x);
   }
-  public TypeVar.Bounded makeTypeVarBounded (ITree tree, Name name,
+  public TypeVar.Bounded makeTypeVarBounded (ITree tree,
+					     org.meta_environment.rascal.ast.
+					     Name name,
+					     org.meta_environment.rascal.ast.
 					     Type bound)
   {
     TypeVar.Bounded x = new TypeVar.Bounded (tree, name, bound);
@@ -2490,7 +2897,9 @@ public class ASTFactory
       }
     return (TypeVar.Ambiguity) table.get (amb);
   }
-  public TypeVar.Free makeTypeVarFree (ITree tree, Name name)
+  public TypeVar.Free makeTypeVarFree (ITree tree,
+				       org.meta_environment.rascal.ast.
+				       Name name)
   {
     TypeVar.Free x = new TypeVar.Free (tree, name);
     if (!table.containsKey (x))
@@ -2499,7 +2908,9 @@ public class ASTFactory
       }
     return (TypeVar.Free) table.get (x);
   }
-  public UserType.Parametric makeUserTypeParametric (ITree tree, Name name,
+  public UserType.Parametric makeUserTypeParametric (ITree tree,
+						     org.meta_environment.
+						     rascal.ast.Name name,
 						     java.util.List <
 						     TypeVar > parameters)
   {
@@ -2520,7 +2931,9 @@ public class ASTFactory
       }
     return (UserType.Ambiguity) table.get (amb);
   }
-  public UserType.Name makeUserTypeName (ITree tree, Name name)
+  public UserType.Name makeUserTypeName (ITree tree,
+					 org.meta_environment.rascal.ast.
+					 Name name)
   {
     UserType.Name x = new UserType.Name (tree, name);
     if (!table.containsKey (x))
@@ -2544,7 +2957,13 @@ public class ASTFactory
     return (DataTypeSelector.Ambiguity) table.get (amb);
   }
   public DataTypeSelector.Selector makeDataTypeSelectorSelector (ITree tree,
+								 org.
+								 meta_environment.
+								 rascal.ast.
 								 Name sort,
+								 org.
+								 meta_environment.
+								 rascal.ast.
 								 Name
 								 production)
   {
@@ -2557,6 +2976,7 @@ public class ASTFactory
     return (DataTypeSelector.Selector) table.get (x);
   }
   public Type.Selector makeTypeSelector (ITree tree,
+					 org.meta_environment.rascal.ast.
 					 DataTypeSelector selector)
   {
     Type.Selector x = new Type.Selector (tree, selector);
@@ -2566,7 +2986,9 @@ public class ASTFactory
       }
     return (Type.Selector) table.get (x);
   }
-  public Type.Symbol makeTypeSymbol (ITree tree, Symbol symbol)
+  public Type.Symbol makeTypeSymbol (ITree tree,
+				     org.meta_environment.rascal.ast.
+				     Symbol symbol)
   {
     Type.Symbol x = new Type.Symbol (tree, symbol);
     if (!table.containsKey (x))
@@ -2575,7 +2997,9 @@ public class ASTFactory
       }
     return (Type.Symbol) table.get (x);
   }
-  public Type.User makeTypeUser (ITree tree, UserType user)
+  public Type.User makeTypeUser (ITree tree,
+				 org.meta_environment.rascal.ast.
+				 UserType user)
   {
     Type.User x = new Type.User (tree, user);
     if (!table.containsKey (x))
@@ -2584,7 +3008,9 @@ public class ASTFactory
       }
     return (Type.User) table.get (x);
   }
-  public Type.Variable makeTypeVariable (ITree tree, TypeVar typeVar)
+  public Type.Variable makeTypeVariable (ITree tree,
+					 org.meta_environment.rascal.ast.
+					 TypeVar typeVar)
   {
     Type.Variable x = new Type.Variable (tree, typeVar);
     if (!table.containsKey (x))
@@ -2593,7 +3019,9 @@ public class ASTFactory
       }
     return (Type.Variable) table.get (x);
   }
-  public Type.Function makeTypeFunction (ITree tree, FunctionType function)
+  public Type.Function makeTypeFunction (ITree tree,
+					 org.meta_environment.rascal.ast.
+					 FunctionType function)
   {
     Type.Function x = new Type.Function (tree, function);
     if (!table.containsKey (x))
@@ -2603,6 +3031,7 @@ public class ASTFactory
     return (Type.Function) table.get (x);
   }
   public Type.Structured makeTypeStructured (ITree tree,
+					     org.meta_environment.rascal.ast.
 					     StructuredType structured)
   {
     Type.Structured x = new Type.Structured (tree, structured);
@@ -2622,7 +3051,9 @@ public class ASTFactory
       }
     return (Type.Ambiguity) table.get (amb);
   }
-  public Type.Basic makeTypeBasic (ITree tree, BasicType basic)
+  public Type.Basic makeTypeBasic (ITree tree,
+				   org.meta_environment.rascal.ast.
+				   BasicType basic)
   {
     Type.Basic x = new Type.Basic (tree, basic);
     if (!table.containsKey (x))
@@ -2672,6 +3103,9 @@ public class ASTFactory
   }
   public Symbol.
     CaseInsensitiveLiteral makeSymbolCaseInsensitiveLiteral (ITree tree,
+							     org.
+							     meta_environment.
+							     rascal.ast.
 							     SingleQuotedStrCon
 							     singelQuotedString)
   {
@@ -2683,7 +3117,9 @@ public class ASTFactory
       }
     return (Symbol.CaseInsensitiveLiteral) table.get (x);
   }
-  public Symbol.Literal makeSymbolLiteral (ITree tree, StrCon string)
+  public Symbol.Literal makeSymbolLiteral (ITree tree,
+					   org.meta_environment.rascal.ast.
+					   StrCon string)
   {
     Symbol.Literal x = new Symbol.Literal (tree, string);
     if (!table.containsKey (x))
@@ -2693,7 +3129,8 @@ public class ASTFactory
     return (Symbol.Literal) table.get (x);
   }
   public Symbol.LiftedSymbol makeSymbolLiftedSymbol (ITree tree,
-						     Symbol symbol)
+						     org.meta_environment.
+						     rascal.ast.Symbol symbol)
   {
     Symbol.LiftedSymbol x = new Symbol.LiftedSymbol (tree, symbol);
     if (!table.containsKey (x))
@@ -2703,6 +3140,8 @@ public class ASTFactory
     return (Symbol.LiftedSymbol) table.get (x);
   }
   public Symbol.CharacterClass makeSymbolCharacterClass (ITree tree,
+							 org.meta_environment.
+							 rascal.ast.
 							 CharClass charClass)
   {
     Symbol.CharacterClass x = new Symbol.CharacterClass (tree, charClass);
@@ -2712,8 +3151,11 @@ public class ASTFactory
       }
     return (Symbol.CharacterClass) table.get (x);
   }
-  public Symbol.Alternative makeSymbolAlternative (ITree tree, Symbol lhs,
-						   Symbol rhs)
+  public Symbol.Alternative makeSymbolAlternative (ITree tree,
+						   org.meta_environment.
+						   rascal.ast.Symbol lhs,
+						   org.meta_environment.
+						   rascal.ast.Symbol rhs)
   {
     Symbol.Alternative x = new Symbol.Alternative (tree, lhs, rhs);
     if (!table.containsKey (x))
@@ -2722,8 +3164,11 @@ public class ASTFactory
       }
     return (Symbol.Alternative) table.get (x);
   }
-  public Symbol.IterStarSep makeSymbolIterStarSep (ITree tree, Symbol symbol,
-						   StrCon sep)
+  public Symbol.IterStarSep makeSymbolIterStarSep (ITree tree,
+						   org.meta_environment.
+						   rascal.ast.Symbol symbol,
+						   org.meta_environment.
+						   rascal.ast.StrCon sep)
   {
     Symbol.IterStarSep x = new Symbol.IterStarSep (tree, symbol, sep);
     if (!table.containsKey (x))
@@ -2732,7 +3177,10 @@ public class ASTFactory
       }
     return (Symbol.IterStarSep) table.get (x);
   }
-  public Symbol.IterSep makeSymbolIterSep (ITree tree, Symbol symbol,
+  public Symbol.IterSep makeSymbolIterSep (ITree tree,
+					   org.meta_environment.rascal.ast.
+					   Symbol symbol,
+					   org.meta_environment.rascal.ast.
 					   StrCon sep)
   {
     Symbol.IterSep x = new Symbol.IterSep (tree, symbol, sep);
@@ -2742,7 +3190,9 @@ public class ASTFactory
       }
     return (Symbol.IterSep) table.get (x);
   }
-  public Symbol.IterStar makeSymbolIterStar (ITree tree, Symbol symbol)
+  public Symbol.IterStar makeSymbolIterStar (ITree tree,
+					     org.meta_environment.rascal.ast.
+					     Symbol symbol)
   {
     Symbol.IterStar x = new Symbol.IterStar (tree, symbol);
     if (!table.containsKey (x))
@@ -2751,7 +3201,9 @@ public class ASTFactory
       }
     return (Symbol.IterStar) table.get (x);
   }
-  public Symbol.Iter makeSymbolIter (ITree tree, Symbol symbol)
+  public Symbol.Iter makeSymbolIter (ITree tree,
+				     org.meta_environment.rascal.ast.
+				     Symbol symbol)
   {
     Symbol.Iter x = new Symbol.Iter (tree, symbol);
     if (!table.containsKey (x))
@@ -2760,7 +3212,9 @@ public class ASTFactory
       }
     return (Symbol.Iter) table.get (x);
   }
-  public Symbol.Optional makeSymbolOptional (ITree tree, Symbol symbol)
+  public Symbol.Optional makeSymbolOptional (ITree tree,
+					     org.meta_environment.rascal.ast.
+					     Symbol symbol)
   {
     Symbol.Optional x = new Symbol.Optional (tree, symbol);
     if (!table.containsKey (x))
@@ -2769,7 +3223,9 @@ public class ASTFactory
       }
     return (Symbol.Optional) table.get (x);
   }
-  public Symbol.Sequence makeSymbolSequence (ITree tree, Symbol head,
+  public Symbol.Sequence makeSymbolSequence (ITree tree,
+					     org.meta_environment.rascal.ast.
+					     Symbol head,
 					     java.util.List < Symbol > tail)
   {
     Symbol.Sequence x = new Symbol.Sequence (tree, head, tail);
@@ -2789,6 +3245,9 @@ public class ASTFactory
     return (Symbol.Empty) table.get (x);
   }
   public Symbol.ParameterizedSort makeSymbolParameterizedSort (ITree tree,
+							       org.
+							       meta_environment.
+							       rascal.ast.
 							       Sort sort,
 							       java.util.
 							       List < Symbol >
@@ -2812,7 +3271,9 @@ public class ASTFactory
       }
     return (Symbol.Ambiguity) table.get (amb);
   }
-  public Symbol.Sort makeSymbolSort (ITree tree, Sort sort)
+  public Symbol.Sort makeSymbolSort (ITree tree,
+				     org.meta_environment.rascal.ast.
+				     Sort sort)
   {
     Symbol.Sort x = new Symbol.Sort (tree, sort);
     if (!table.containsKey (x))
@@ -2852,7 +3313,10 @@ public class ASTFactory
       }
     return (SingleQuotedStrCon.Ambiguity) table.get (amb);
   }
-  public CharRange.Range makeCharRangeRange (ITree tree, Character start,
+  public CharRange.Range makeCharRangeRange (ITree tree,
+					     org.meta_environment.rascal.ast.
+					     Character start,
+					     org.meta_environment.rascal.ast.
 					     Character end)
   {
     CharRange.Range x = new CharRange.Range (tree, start, end);
@@ -2873,6 +3337,8 @@ public class ASTFactory
     return (CharRange.Ambiguity) table.get (amb);
   }
   public CharRange.Character makeCharRangeCharacter (ITree tree,
+						     org.meta_environment.
+						     rascal.ast.
 						     Character character)
   {
     CharRange.Character x = new CharRange.Character (tree, character);
@@ -2892,7 +3358,13 @@ public class ASTFactory
     return (CharRanges.Bracket) table.get (x);
   }
   public CharRanges.Concatenate makeCharRangesConcatenate (ITree tree,
+							   org.
+							   meta_environment.
+							   rascal.ast.
 							   CharRanges lhs,
+							   org.
+							   meta_environment.
+							   rascal.ast.
 							   CharRanges rhs)
   {
     CharRanges.Concatenate x = new CharRanges.Concatenate (tree, lhs, rhs);
@@ -2913,7 +3385,9 @@ public class ASTFactory
       }
     return (CharRanges.Ambiguity) table.get (amb);
   }
-  public CharRanges.Range makeCharRangesRange (ITree tree, CharRange range)
+  public CharRanges.Range makeCharRangesRange (ITree tree,
+					       org.meta_environment.rascal.
+					       ast.CharRange range)
   {
     CharRanges.Range x = new CharRanges.Range (tree, range);
     if (!table.containsKey (x))
@@ -2923,6 +3397,8 @@ public class ASTFactory
     return (CharRanges.Range) table.get (x);
   }
   public OptCharRanges.Present makeOptCharRangesPresent (ITree tree,
+							 org.meta_environment.
+							 rascal.ast.
 							 CharRanges ranges)
   {
     OptCharRanges.Present x = new OptCharRanges.Present (tree, ranges);
@@ -2952,7 +3428,10 @@ public class ASTFactory
       }
     return (OptCharRanges.Absent) table.get (x);
   }
-  public CharClass.Union makeCharClassUnion (ITree tree, CharClass lhs,
+  public CharClass.Union makeCharClassUnion (ITree tree,
+					     org.meta_environment.rascal.ast.
+					     CharClass lhs,
+					     org.meta_environment.rascal.ast.
 					     CharClass rhs)
   {
     CharClass.Union x = new CharClass.Union (tree, lhs, rhs);
@@ -2963,7 +3442,13 @@ public class ASTFactory
     return (CharClass.Union) table.get (x);
   }
   public CharClass.Intersection makeCharClassIntersection (ITree tree,
+							   org.
+							   meta_environment.
+							   rascal.ast.
 							   CharClass lhs,
+							   org.
+							   meta_environment.
+							   rascal.ast.
 							   CharClass rhs)
   {
     CharClass.Intersection x = new CharClass.Intersection (tree, lhs, rhs);
@@ -2974,7 +3459,11 @@ public class ASTFactory
     return (CharClass.Intersection) table.get (x);
   }
   public CharClass.Difference makeCharClassDifference (ITree tree,
+						       org.meta_environment.
+						       rascal.ast.
 						       CharClass lhs,
+						       org.meta_environment.
+						       rascal.ast.
 						       CharClass rhs)
   {
     CharClass.Difference x = new CharClass.Difference (tree, lhs, rhs);
@@ -2985,6 +3474,8 @@ public class ASTFactory
     return (CharClass.Difference) table.get (x);
   }
   public CharClass.Complement makeCharClassComplement (ITree tree,
+						       org.meta_environment.
+						       rascal.ast.
 						       CharClass charClass)
   {
     CharClass.Complement x = new CharClass.Complement (tree, charClass);
@@ -3014,6 +3505,9 @@ public class ASTFactory
     return (CharClass.Ambiguity) table.get (amb);
   }
   public CharClass.SimpleCharclass makeCharClassSimpleCharclass (ITree tree,
+								 org.
+								 meta_environment.
+								 rascal.ast.
 								 OptCharRanges
 								 optionalCharRanges)
   {
@@ -3081,7 +3575,9 @@ public class ASTFactory
       }
     return (Character.Top) table.get (x);
   }
-  public Character.Short makeCharacterShort (ITree tree, ShortChar shortChar)
+  public Character.Short makeCharacterShort (ITree tree,
+					     org.meta_environment.rascal.ast.
+					     ShortChar shortChar)
   {
     Character.Short x = new Character.Short (tree, shortChar);
     if (!table.containsKey (x))
@@ -3100,7 +3596,9 @@ public class ASTFactory
       }
     return (Character.Ambiguity) table.get (amb);
   }
-  public Character.Numeric makeCharacterNumeric (ITree tree, NumChar numChar)
+  public Character.Numeric makeCharacterNumeric (ITree tree,
+						 org.meta_environment.rascal.
+						 ast.NumChar numChar)
   {
     Character.Numeric x = new Character.Numeric (tree, numChar);
     if (!table.containsKey (x))
@@ -3119,7 +3617,10 @@ public class ASTFactory
       }
     return (Module.Ambiguity) table.get (amb);
   }
-  public Module.Default makeModuleDefault (ITree tree, Header header,
+  public Module.Default makeModuleDefault (ITree tree,
+					   org.meta_environment.rascal.ast.
+					   Header header,
+					   org.meta_environment.rascal.ast.
 					   Body body)
   {
     Module.Default x = new Module.Default (tree, header, body);
@@ -3174,6 +3675,9 @@ public class ASTFactory
     return (ModuleActuals.Default) table.get (x);
   }
   public ImportedModule.Default makeImportedModuleDefault (ITree tree,
+							   org.
+							   meta_environment.
+							   rascal.ast.
 							   ModuleName name)
   {
     ImportedModule.Default x = new ImportedModule.Default (tree, name);
@@ -3184,8 +3688,14 @@ public class ASTFactory
     return (ImportedModule.Default) table.get (x);
   }
   public ImportedModule.Renamings makeImportedModuleRenamings (ITree tree,
+							       org.
+							       meta_environment.
+							       rascal.ast.
 							       ModuleName
 							       name,
+							       org.
+							       meta_environment.
+							       rascal.ast.
 							       Renamings
 							       renamings)
   {
@@ -3198,7 +3708,13 @@ public class ASTFactory
     return (ImportedModule.Renamings) table.get (x);
   }
   public ImportedModule.Actuals makeImportedModuleActuals (ITree tree,
+							   org.
+							   meta_environment.
+							   rascal.ast.
 							   ModuleName name,
+							   org.
+							   meta_environment.
+							   rascal.ast.
 							   ModuleActuals
 							   actuals)
   {
@@ -3225,8 +3741,14 @@ public class ASTFactory
   }
   public ImportedModule.
     ActualsRenaming makeImportedModuleActualsRenaming (ITree tree,
+						       org.meta_environment.
+						       rascal.ast.
 						       ModuleName name,
+						       org.meta_environment.
+						       rascal.ast.
 						       ModuleActuals actuals,
+						       org.meta_environment.
+						       rascal.ast.
 						       Renamings renamings)
   {
     ImportedModule.ActualsRenaming x =
@@ -3247,7 +3769,11 @@ public class ASTFactory
       }
     return (Renaming.Ambiguity) table.get (amb);
   }
-  public Renaming.Default makeRenamingDefault (ITree tree, Name from, Name to)
+  public Renaming.Default makeRenamingDefault (ITree tree,
+					       org.meta_environment.rascal.
+					       ast.Name from,
+					       org.meta_environment.rascal.
+					       ast.Name to)
   {
     Renaming.Default x = new Renaming.Default (tree, from, to);
     if (!table.containsKey (x))
@@ -3277,7 +3803,9 @@ public class ASTFactory
       }
     return (Renamings.Default) table.get (x);
   }
-  public Import.Extend makeImportExtend (ITree tree, ImportedModule module)
+  public Import.Extend makeImportExtend (ITree tree,
+					 org.meta_environment.rascal.ast.
+					 ImportedModule module)
   {
     Import.Extend x = new Import.Extend (tree, module);
     if (!table.containsKey (x))
@@ -3296,7 +3824,9 @@ public class ASTFactory
       }
     return (Import.Ambiguity) table.get (amb);
   }
-  public Import.Default makeImportDefault (ITree tree, ImportedModule module)
+  public Import.Default makeImportDefault (ITree tree,
+					   org.meta_environment.rascal.ast.
+					   ImportedModule module)
   {
     Import.Default x = new Import.Default (tree, module);
     if (!table.containsKey (x))
@@ -3333,9 +3863,13 @@ public class ASTFactory
       }
     return (ModuleParameters.Default) table.get (x);
   }
-  public Header.Parameters makeHeaderParameters (ITree tree, ModuleName name,
-						 ModuleParameters params,
-						 Tags tags,
+  public Header.Parameters makeHeaderParameters (ITree tree,
+						 org.meta_environment.rascal.
+						 ast.ModuleName name,
+						 org.meta_environment.rascal.
+						 ast.ModuleParameters params,
+						 org.meta_environment.rascal.
+						 ast.Tags tags,
 						 java.util.List < Import >
 						 imports)
   {
@@ -3357,7 +3891,10 @@ public class ASTFactory
       }
     return (Header.Ambiguity) table.get (amb);
   }
-  public Header.Default makeHeaderDefault (ITree tree, ModuleName name,
+  public Header.Default makeHeaderDefault (ITree tree,
+					   org.meta_environment.rascal.ast.
+					   ModuleName name,
+					   org.meta_environment.rascal.ast.
 					   Tags tags,
 					   java.util.List < Import > imports)
   {
@@ -3410,11 +3947,19 @@ public class ASTFactory
       }
     return (Area.Ambiguity) table.get (amb);
   }
-  public Area.Default makeAreaDefault (ITree tree, Expression beginLine,
+  public Area.Default makeAreaDefault (ITree tree,
+				       org.meta_environment.rascal.ast.
+				       Expression beginLine,
+				       org.meta_environment.rascal.ast.
 				       Expression beginColumn,
+				       org.meta_environment.rascal.ast.
 				       Expression endLine,
+				       org.meta_environment.rascal.ast.
 				       Expression endColumn,
-				       Expression offset, Expression length)
+				       org.meta_environment.rascal.ast.
+				       Expression offset,
+				       org.meta_environment.rascal.ast.
+				       Expression length)
   {
     Area.Default x =
       new Area.Default (tree, beginLine, beginColumn, endLine, endColumn,
@@ -3454,7 +3999,9 @@ public class ASTFactory
       }
     return (Tag.Ambiguity) table.get (amb);
   }
-  public Tag.Default makeTagDefault (ITree tree, Name name)
+  public Tag.Default makeTagDefault (ITree tree,
+				     org.meta_environment.rascal.ast.
+				     Name name)
   {
     Tag.Default x = new Tag.Default (tree, name);
     if (!table.containsKey (x))
@@ -3485,9 +4032,12 @@ public class ASTFactory
   }
   public ValueProducer.
     GivenStrategy makeValueProducerGivenStrategy (ITree tree,
-						  Strategy strategy,
-						  Expression pattern,
-						  Expression expression)
+						  org.meta_environment.rascal.
+						  ast.Strategy strategy,
+						  org.meta_environment.rascal.
+						  ast.Expression pattern,
+						  org.meta_environment.rascal.
+						  ast.Expression expression)
   {
     ValueProducer.GivenStrategy x =
       new ValueProducer.GivenStrategy (tree, strategy, pattern, expression);
@@ -3510,7 +4060,11 @@ public class ASTFactory
   }
   public ValueProducer.
     DefaultStrategy makeValueProducerDefaultStrategy (ITree tree,
+						      org.meta_environment.
+						      rascal.ast.
 						      Expression pattern,
+						      org.meta_environment.
+						      rascal.ast.
 						      Expression expression)
   {
     ValueProducer.DefaultStrategy x =
@@ -3522,6 +4076,8 @@ public class ASTFactory
     return (ValueProducer.DefaultStrategy) table.get (x);
   }
   public Generator.Producer makeGeneratorProducer (ITree tree,
+						   org.meta_environment.
+						   rascal.ast.
 						   ValueProducer producer)
   {
     Generator.Producer x = new Generator.Producer (tree, producer);
@@ -3542,6 +4098,8 @@ public class ASTFactory
     return (Generator.Ambiguity) table.get (amb);
   }
   public Generator.Expression makeGeneratorExpression (ITree tree,
+						       org.meta_environment.
+						       rascal.ast.
 						       Expression expression)
   {
     Generator.Expression x = new Generator.Expression (tree, expression);
@@ -3616,6 +4174,8 @@ public class ASTFactory
     return (Strategy.TopDown) table.get (x);
   }
   public Comprehension.List makeComprehensionList (ITree tree,
+						   org.meta_environment.
+						   rascal.ast.
 						   Expression result,
 						   java.util.List <
 						   Generator > generators)
@@ -3639,7 +4199,8 @@ public class ASTFactory
     return (Comprehension.Ambiguity) table.get (amb);
   }
   public Comprehension.Set makeComprehensionSet (ITree tree,
-						 Expression result,
+						 org.meta_environment.rascal.
+						 ast.Expression result,
 						 java.util.List < Generator >
 						 generators)
   {
@@ -3650,7 +4211,10 @@ public class ASTFactory
       }
     return (Comprehension.Set) table.get (x);
   }
-  public Match.Arbitrary makeMatchArbitrary (ITree tree, Expression match,
+  public Match.Arbitrary makeMatchArbitrary (ITree tree,
+					     org.meta_environment.rascal.ast.
+					     Expression match,
+					     org.meta_environment.rascal.ast.
 					     Statement statement)
   {
     Match.Arbitrary x = new Match.Arbitrary (tree, match, statement);
@@ -3670,7 +4234,10 @@ public class ASTFactory
       }
     return (Match.Ambiguity) table.get (amb);
   }
-  public Match.Replacing makeMatchReplacing (ITree tree, Expression match,
+  public Match.Replacing makeMatchReplacing (ITree tree,
+					     org.meta_environment.rascal.ast.
+					     Expression match,
+					     org.meta_environment.rascal.ast.
 					     Expression replacement)
   {
     Match.Replacing x = new Match.Replacing (tree, match, replacement);
@@ -3680,7 +4247,9 @@ public class ASTFactory
       }
     return (Match.Replacing) table.get (x);
   }
-  public Rule.NoGuard makeRuleNoGuard (ITree tree, Match match)
+  public Rule.NoGuard makeRuleNoGuard (ITree tree,
+				       org.meta_environment.rascal.ast.
+				       Match match)
   {
     Rule.NoGuard x = new Rule.NoGuard (tree, match);
     if (!table.containsKey (x))
@@ -3699,7 +4268,11 @@ public class ASTFactory
       }
     return (Rule.Ambiguity) table.get (amb);
   }
-  public Rule.WithGuard makeRuleWithGuard (ITree tree, Type type, Match match)
+  public Rule.WithGuard makeRuleWithGuard (ITree tree,
+					   org.meta_environment.rascal.ast.
+					   Type type,
+					   org.meta_environment.rascal.ast.
+					   Match match)
   {
     Rule.WithGuard x = new Rule.WithGuard (tree, type, match);
     if (!table.containsKey (x))
@@ -3708,7 +4281,9 @@ public class ASTFactory
       }
     return (Rule.WithGuard) table.get (x);
   }
-  public Case.Default makeCaseDefault (ITree tree, Statement statement)
+  public Case.Default makeCaseDefault (ITree tree,
+				       org.meta_environment.rascal.ast.
+				       Statement statement)
   {
     Case.Default x = new Case.Default (tree, statement);
     if (!table.containsKey (x))
@@ -3727,7 +4302,8 @@ public class ASTFactory
       }
     return (Case.Ambiguity) table.get (amb);
   }
-  public Case.Rule makeCaseRule (ITree tree, Rule rule)
+  public Case.Rule makeCaseRule (ITree tree,
+				 org.meta_environment.rascal.ast.Rule rule)
   {
     Case.Rule x = new Case.Rule (tree, rule);
     if (!table.containsKey (x))
@@ -3737,7 +4313,11 @@ public class ASTFactory
     return (Case.Rule) table.get (x);
   }
   public Visit.GivenStrategy makeVisitGivenStrategy (ITree tree,
+						     org.meta_environment.
+						     rascal.ast.
 						     Strategy strategy,
+						     org.meta_environment.
+						     rascal.ast.
 						     Expression subject,
 						     java.util.List < Case >
 						     cases)
@@ -3761,6 +4341,8 @@ public class ASTFactory
     return (Visit.Ambiguity) table.get (amb);
   }
   public Visit.DefaultStrategy makeVisitDefaultStrategy (ITree tree,
+							 org.meta_environment.
+							 rascal.ast.
 							 Expression subject,
 							 java.util.List <
 							 Case > cases)

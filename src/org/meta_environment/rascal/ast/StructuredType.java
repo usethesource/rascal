@@ -8,7 +8,8 @@ public abstract class StructuredType extends AbstractAST
     private List ()
     {
     }
-    /*package */ List (ITree tree, TypeArg typeArg)
+    /*package */ List (ITree tree,
+		       org.meta_environment.rascal.ast.TypeArg typeArg)
     {
       this.tree = tree;
       this.typeArg = typeArg;
@@ -17,18 +18,21 @@ public abstract class StructuredType extends AbstractAST
     {
       return visitor.visitStructuredTypeList (this);
     }
-    private TypeArg typeArg;
-    public TypeArg getTypeArg ()
+    private org.meta_environment.rascal.ast.TypeArg typeArg;
+    public org.meta_environment.rascal.ast.TypeArg getTypeArg ()
     {
       return typeArg;
     }
-    private void $setTypeArg (TypeArg x)
+    private void $setTypeArg (org.meta_environment.rascal.ast.TypeArg x)
     {
       this.typeArg = x;
     }
-    public List setTypeArg (TypeArg x)
+    public org.meta_environment.rascal.ast.List setTypeArg (org.
+							    meta_environment.
+							    rascal.ast.
+							    TypeArg x)
     {
-      List z = new List ();
+      org.meta_environment.rascal.ast.List z = new List ();
       z.$setTypeArg (x);
       return z;
     }
@@ -52,7 +56,8 @@ public abstract class StructuredType extends AbstractAST
     private Set ()
     {
     }
-    /*package */ Set (ITree tree, TypeArg typeArg)
+    /*package */ Set (ITree tree,
+		      org.meta_environment.rascal.ast.TypeArg typeArg)
     {
       this.tree = tree;
       this.typeArg = typeArg;
@@ -61,18 +66,21 @@ public abstract class StructuredType extends AbstractAST
     {
       return visitor.visitStructuredTypeSet (this);
     }
-    private TypeArg typeArg;
-    public TypeArg getTypeArg ()
+    private org.meta_environment.rascal.ast.TypeArg typeArg;
+    public org.meta_environment.rascal.ast.TypeArg getTypeArg ()
     {
       return typeArg;
     }
-    private void $setTypeArg (TypeArg x)
+    private void $setTypeArg (org.meta_environment.rascal.ast.TypeArg x)
     {
       this.typeArg = x;
     }
-    public Set setTypeArg (TypeArg x)
+    public org.meta_environment.rascal.ast.Set setTypeArg (org.
+							   meta_environment.
+							   rascal.ast.
+							   TypeArg x)
     {
-      Set z = new Set ();
+      org.meta_environment.rascal.ast.Set z = new Set ();
       z.$setTypeArg (x);
       return z;
     }
@@ -83,7 +91,9 @@ public abstract class StructuredType extends AbstractAST
     private Map ()
     {
     }
-    /*package */ Map (ITree tree, TypeArg first, TypeArg second)
+    /*package */ Map (ITree tree,
+		      org.meta_environment.rascal.ast.TypeArg first,
+		      org.meta_environment.rascal.ast.TypeArg second)
     {
       this.tree = tree;
       this.first = first;
@@ -93,33 +103,37 @@ public abstract class StructuredType extends AbstractAST
     {
       return visitor.visitStructuredTypeMap (this);
     }
-    private TypeArg first;
-    public TypeArg getFirst ()
+    private org.meta_environment.rascal.ast.TypeArg first;
+    public org.meta_environment.rascal.ast.TypeArg getFirst ()
     {
       return first;
     }
-    private void $setFirst (TypeArg x)
+    private void $setFirst (org.meta_environment.rascal.ast.TypeArg x)
     {
       this.first = x;
     }
-    public Map setFirst (TypeArg x)
+    public org.meta_environment.rascal.ast.Map setFirst (org.meta_environment.
+							 rascal.ast.TypeArg x)
     {
-      Map z = new Map ();
+      org.meta_environment.rascal.ast.Map z = new Map ();
       z.$setFirst (x);
       return z;
     }
-    private TypeArg second;
-    public TypeArg getSecond ()
+    private org.meta_environment.rascal.ast.TypeArg second;
+    public org.meta_environment.rascal.ast.TypeArg getSecond ()
     {
       return second;
     }
-    private void $setSecond (TypeArg x)
+    private void $setSecond (org.meta_environment.rascal.ast.TypeArg x)
     {
       this.second = x;
     }
-    public Map setSecond (TypeArg x)
+    public org.meta_environment.rascal.ast.Map setSecond (org.
+							  meta_environment.
+							  rascal.ast.
+							  TypeArg x)
     {
-      Map z = new Map ();
+      org.meta_environment.rascal.ast.Map z = new Map ();
       z.$setSecond (x);
       return z;
     }
@@ -130,7 +144,8 @@ public abstract class StructuredType extends AbstractAST
     private Relation ()
     {
     }
-    /*package */ Relation (ITree tree, TypeArg first,
+    /*package */ Relation (ITree tree,
+			   org.meta_environment.rascal.ast.TypeArg first,
 			   java.util.List < TypeArg > rest)
     {
       this.tree = tree;
@@ -141,33 +156,42 @@ public abstract class StructuredType extends AbstractAST
     {
       return visitor.visitStructuredTypeRelation (this);
     }
-    private TypeArg first;
-    public TypeArg getFirst ()
+    private org.meta_environment.rascal.ast.TypeArg first;
+    public org.meta_environment.rascal.ast.TypeArg getFirst ()
     {
       return first;
     }
-    private void $setFirst (TypeArg x)
+    private void $setFirst (org.meta_environment.rascal.ast.TypeArg x)
     {
       this.first = x;
     }
-    public Relation setFirst (TypeArg x)
+    public org.meta_environment.rascal.ast.Relation setFirst (org.
+							      meta_environment.
+							      rascal.ast.
+							      TypeArg x)
     {
-      Relation z = new Relation ();
+      org.meta_environment.rascal.ast.Relation z = new Relation ();
       z.$setFirst (x);
       return z;
     }
-    private java.util.List < TypeArg > rest;
-    public java.util.List < TypeArg > getRest ()
+    private java.util.List < org.meta_environment.rascal.ast.TypeArg > rest;
+    public java.util.List < org.meta_environment.rascal.ast.TypeArg >
+      getRest ()
     {
       return rest;
     }
-    private void $setRest (java.util.List < TypeArg > x)
+    private void $setRest (java.util.List <
+			   org.meta_environment.rascal.ast.TypeArg > x)
     {
       this.rest = x;
     }
-    public Relation setRest (java.util.List < TypeArg > x)
+    public org.meta_environment.rascal.ast.Relation setRest (java.util.List <
+							     org.
+							     meta_environment.
+							     rascal.ast.
+							     TypeArg > x)
     {
-      Relation z = new Relation ();
+      org.meta_environment.rascal.ast.Relation z = new Relation ();
       z.$setRest (x);
       return z;
     }
@@ -178,7 +202,8 @@ public abstract class StructuredType extends AbstractAST
     private Tuple ()
     {
     }
-    /*package */ Tuple (ITree tree, TypeArg first,
+    /*package */ Tuple (ITree tree,
+			org.meta_environment.rascal.ast.TypeArg first,
 			java.util.List < TypeArg > rest)
     {
       this.tree = tree;
@@ -189,33 +214,42 @@ public abstract class StructuredType extends AbstractAST
     {
       return visitor.visitStructuredTypeTuple (this);
     }
-    private TypeArg first;
-    public TypeArg getFirst ()
+    private org.meta_environment.rascal.ast.TypeArg first;
+    public org.meta_environment.rascal.ast.TypeArg getFirst ()
     {
       return first;
     }
-    private void $setFirst (TypeArg x)
+    private void $setFirst (org.meta_environment.rascal.ast.TypeArg x)
     {
       this.first = x;
     }
-    public Tuple setFirst (TypeArg x)
+    public org.meta_environment.rascal.ast.Tuple setFirst (org.
+							   meta_environment.
+							   rascal.ast.
+							   TypeArg x)
     {
-      Tuple z = new Tuple ();
+      org.meta_environment.rascal.ast.Tuple z = new Tuple ();
       z.$setFirst (x);
       return z;
     }
-    private java.util.List < TypeArg > rest;
-    public java.util.List < TypeArg > getRest ()
+    private java.util.List < org.meta_environment.rascal.ast.TypeArg > rest;
+    public java.util.List < org.meta_environment.rascal.ast.TypeArg >
+      getRest ()
     {
       return rest;
     }
-    private void $setRest (java.util.List < TypeArg > x)
+    private void $setRest (java.util.List <
+			   org.meta_environment.rascal.ast.TypeArg > x)
     {
       this.rest = x;
     }
-    public Tuple setRest (java.util.List < TypeArg > x)
+    public org.meta_environment.rascal.ast.Tuple setRest (java.util.List <
+							  org.
+							  meta_environment.
+							  rascal.ast.TypeArg >
+							  x)
     {
-      Tuple z = new Tuple ();
+      org.meta_environment.rascal.ast.Tuple z = new Tuple ();
       z.$setRest (x);
       return z;
     }

@@ -8,7 +8,9 @@ public abstract class LocalVariableDeclaration extends AbstractAST
     private Default ()
     {
     }
-    /*package */ Default (ITree tree, Declarator declarator)
+    /*package */ Default (ITree tree,
+			  org.meta_environment.rascal.ast.
+			  Declarator declarator)
     {
       this.tree = tree;
       this.declarator = declarator;
@@ -17,18 +19,22 @@ public abstract class LocalVariableDeclaration extends AbstractAST
     {
       return visitor.visitLocalVariableDeclarationDefault (this);
     }
-    private Declarator declarator;
-    public Declarator getDeclarator ()
+    private org.meta_environment.rascal.ast.Declarator declarator;
+    public org.meta_environment.rascal.ast.Declarator getDeclarator ()
     {
       return declarator;
     }
-    private void $setDeclarator (Declarator x)
+    private void $setDeclarator (org.meta_environment.rascal.ast.Declarator x)
     {
       this.declarator = x;
     }
-    public Default setDeclarator (Declarator x)
+    public org.meta_environment.rascal.ast.Default setDeclarator (org.
+								  meta_environment.
+								  rascal.ast.
+								  Declarator
+								  x)
     {
-      Default z = new Default ();
+      org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setDeclarator (x);
       return z;
     }
@@ -53,7 +59,9 @@ public abstract class LocalVariableDeclaration extends AbstractAST
     private Dynamic ()
     {
     }
-    /*package */ Dynamic (ITree tree, Declarator declarator)
+    /*package */ Dynamic (ITree tree,
+			  org.meta_environment.rascal.ast.
+			  Declarator declarator)
     {
       this.tree = tree;
       this.declarator = declarator;
@@ -62,18 +70,22 @@ public abstract class LocalVariableDeclaration extends AbstractAST
     {
       return visitor.visitLocalVariableDeclarationDynamic (this);
     }
-    private Declarator declarator;
-    public Declarator getDeclarator ()
+    private org.meta_environment.rascal.ast.Declarator declarator;
+    public org.meta_environment.rascal.ast.Declarator getDeclarator ()
     {
       return declarator;
     }
-    private void $setDeclarator (Declarator x)
+    private void $setDeclarator (org.meta_environment.rascal.ast.Declarator x)
     {
       this.declarator = x;
     }
-    public Dynamic setDeclarator (Declarator x)
+    public org.meta_environment.rascal.ast.Dynamic setDeclarator (org.
+								  meta_environment.
+								  rascal.ast.
+								  Declarator
+								  x)
     {
-      Dynamic z = new Dynamic ();
+      org.meta_environment.rascal.ast.Dynamic z = new Dynamic ();
       z.$setDeclarator (x);
       return z;
     }

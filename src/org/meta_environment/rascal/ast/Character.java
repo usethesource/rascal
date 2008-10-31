@@ -8,7 +8,8 @@ public abstract class Character extends AbstractAST
     private Numeric ()
     {
     }
-    /*package */ Numeric (ITree tree, NumChar numChar)
+    /*package */ Numeric (ITree tree,
+			  org.meta_environment.rascal.ast.NumChar numChar)
     {
       this.tree = tree;
       this.numChar = numChar;
@@ -17,18 +18,21 @@ public abstract class Character extends AbstractAST
     {
       return visitor.visitCharacterNumeric (this);
     }
-    private NumChar numChar;
-    public NumChar getNumChar ()
+    private org.meta_environment.rascal.ast.NumChar numChar;
+    public org.meta_environment.rascal.ast.NumChar getNumChar ()
     {
       return numChar;
     }
-    private void $setNumChar (NumChar x)
+    private void $setNumChar (org.meta_environment.rascal.ast.NumChar x)
     {
       this.numChar = x;
     }
-    public Numeric setNumChar (NumChar x)
+    public org.meta_environment.rascal.ast.Numeric setNumChar (org.
+							       meta_environment.
+							       rascal.ast.
+							       NumChar x)
     {
-      Numeric z = new Numeric ();
+      org.meta_environment.rascal.ast.Numeric z = new Numeric ();
       z.$setNumChar (x);
       return z;
     }
@@ -52,7 +56,8 @@ public abstract class Character extends AbstractAST
     private Short ()
     {
     }
-    /*package */ Short (ITree tree, ShortChar shortChar)
+    /*package */ Short (ITree tree,
+			org.meta_environment.rascal.ast.ShortChar shortChar)
     {
       this.tree = tree;
       this.shortChar = shortChar;
@@ -61,18 +66,21 @@ public abstract class Character extends AbstractAST
     {
       return visitor.visitCharacterShort (this);
     }
-    private ShortChar shortChar;
-    public ShortChar getShortChar ()
+    private org.meta_environment.rascal.ast.ShortChar shortChar;
+    public org.meta_environment.rascal.ast.ShortChar getShortChar ()
     {
       return shortChar;
     }
-    private void $setShortChar (ShortChar x)
+    private void $setShortChar (org.meta_environment.rascal.ast.ShortChar x)
     {
       this.shortChar = x;
     }
-    public Short setShortChar (ShortChar x)
+    public org.meta_environment.rascal.ast.Short setShortChar (org.
+							       meta_environment.
+							       rascal.ast.
+							       ShortChar x)
     {
-      Short z = new Short ();
+      org.meta_environment.rascal.ast.Short z = new Short ();
       z.$setShortChar (x);
       return z;
     }

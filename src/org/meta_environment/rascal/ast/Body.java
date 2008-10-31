@@ -17,18 +17,27 @@ public abstract class Body extends AbstractAST
     {
       return visitor.visitBodyToplevels (this);
     }
-    private java.util.List < Toplevel > toplevels;
-    public java.util.List < Toplevel > getToplevels ()
+    private java.util.List < org.meta_environment.rascal.ast.Toplevel >
+      toplevels;
+    public java.util.List < org.meta_environment.rascal.ast.Toplevel >
+      getToplevels ()
     {
       return toplevels;
     }
-    private void $setToplevels (java.util.List < Toplevel > x)
+    private void $setToplevels (java.util.List <
+				org.meta_environment.rascal.ast.Toplevel > x)
     {
       this.toplevels = x;
     }
-    public Toplevels setToplevels (java.util.List < Toplevel > x)
+    public org.meta_environment.rascal.ast.Toplevels setToplevels (java.util.
+								   List <
+								   org.
+								   meta_environment.
+								   rascal.ast.
+								   Toplevel >
+								   x)
     {
-      Toplevels z = new Toplevels ();
+      org.meta_environment.rascal.ast.Toplevels z = new Toplevels ();
       z.$setToplevels (x);
       return z;
     }

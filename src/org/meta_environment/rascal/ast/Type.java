@@ -8,7 +8,8 @@ public abstract class Type extends AbstractAST
     private Basic ()
     {
     }
-    /*package */ Basic (ITree tree, BasicType basic)
+    /*package */ Basic (ITree tree,
+			org.meta_environment.rascal.ast.BasicType basic)
     {
       this.tree = tree;
       this.basic = basic;
@@ -17,18 +18,21 @@ public abstract class Type extends AbstractAST
     {
       return visitor.visitTypeBasic (this);
     }
-    private BasicType basic;
-    public BasicType getBasic ()
+    private org.meta_environment.rascal.ast.BasicType basic;
+    public org.meta_environment.rascal.ast.BasicType getBasic ()
     {
       return basic;
     }
-    private void $setBasic (BasicType x)
+    private void $setBasic (org.meta_environment.rascal.ast.BasicType x)
     {
       this.basic = x;
     }
-    public Basic setBasic (BasicType x)
+    public org.meta_environment.rascal.ast.Basic setBasic (org.
+							   meta_environment.
+							   rascal.ast.
+							   BasicType x)
     {
-      Basic z = new Basic ();
+      org.meta_environment.rascal.ast.Basic z = new Basic ();
       z.$setBasic (x);
       return z;
     }
@@ -52,7 +56,9 @@ public abstract class Type extends AbstractAST
     private Structured ()
     {
     }
-    /*package */ Structured (ITree tree, StructuredType structured)
+    /*package */ Structured (ITree tree,
+			     org.meta_environment.rascal.ast.
+			     StructuredType structured)
     {
       this.tree = tree;
       this.structured = structured;
@@ -61,18 +67,24 @@ public abstract class Type extends AbstractAST
     {
       return visitor.visitTypeStructured (this);
     }
-    private StructuredType structured;
-    public StructuredType getStructured ()
+    private org.meta_environment.rascal.ast.StructuredType structured;
+    public org.meta_environment.rascal.ast.StructuredType getStructured ()
     {
       return structured;
     }
-    private void $setStructured (StructuredType x)
+    private void $setStructured (org.meta_environment.rascal.ast.
+				 StructuredType x)
     {
       this.structured = x;
     }
-    public Structured setStructured (StructuredType x)
+    public org.meta_environment.rascal.ast.Structured setStructured (org.
+								     meta_environment.
+								     rascal.
+								     ast.
+								     StructuredType
+								     x)
     {
-      Structured z = new Structured ();
+      org.meta_environment.rascal.ast.Structured z = new Structured ();
       z.$setStructured (x);
       return z;
     }
@@ -83,7 +95,9 @@ public abstract class Type extends AbstractAST
     private Function ()
     {
     }
-    /*package */ Function (ITree tree, FunctionType function)
+    /*package */ Function (ITree tree,
+			   org.meta_environment.rascal.ast.
+			   FunctionType function)
     {
       this.tree = tree;
       this.function = function;
@@ -92,18 +106,22 @@ public abstract class Type extends AbstractAST
     {
       return visitor.visitTypeFunction (this);
     }
-    private FunctionType function;
-    public FunctionType getFunction ()
+    private org.meta_environment.rascal.ast.FunctionType function;
+    public org.meta_environment.rascal.ast.FunctionType getFunction ()
     {
       return function;
     }
-    private void $setFunction (FunctionType x)
+    private void $setFunction (org.meta_environment.rascal.ast.FunctionType x)
     {
       this.function = x;
     }
-    public Function setFunction (FunctionType x)
+    public org.meta_environment.rascal.ast.Function setFunction (org.
+								 meta_environment.
+								 rascal.ast.
+								 FunctionType
+								 x)
     {
-      Function z = new Function ();
+      org.meta_environment.rascal.ast.Function z = new Function ();
       z.$setFunction (x);
       return z;
     }
@@ -114,7 +132,8 @@ public abstract class Type extends AbstractAST
     private Variable ()
     {
     }
-    /*package */ Variable (ITree tree, TypeVar typeVar)
+    /*package */ Variable (ITree tree,
+			   org.meta_environment.rascal.ast.TypeVar typeVar)
     {
       this.tree = tree;
       this.typeVar = typeVar;
@@ -123,18 +142,21 @@ public abstract class Type extends AbstractAST
     {
       return visitor.visitTypeVariable (this);
     }
-    private TypeVar typeVar;
-    public TypeVar getTypeVar ()
+    private org.meta_environment.rascal.ast.TypeVar typeVar;
+    public org.meta_environment.rascal.ast.TypeVar getTypeVar ()
     {
       return typeVar;
     }
-    private void $setTypeVar (TypeVar x)
+    private void $setTypeVar (org.meta_environment.rascal.ast.TypeVar x)
     {
       this.typeVar = x;
     }
-    public Variable setTypeVar (TypeVar x)
+    public org.meta_environment.rascal.ast.Variable setTypeVar (org.
+								meta_environment.
+								rascal.ast.
+								TypeVar x)
     {
-      Variable z = new Variable ();
+      org.meta_environment.rascal.ast.Variable z = new Variable ();
       z.$setTypeVar (x);
       return z;
     }
@@ -145,7 +167,8 @@ public abstract class Type extends AbstractAST
     private User ()
     {
     }
-    /*package */ User (ITree tree, UserType user)
+    /*package */ User (ITree tree,
+		       org.meta_environment.rascal.ast.UserType user)
     {
       this.tree = tree;
       this.user = user;
@@ -154,18 +177,20 @@ public abstract class Type extends AbstractAST
     {
       return visitor.visitTypeUser (this);
     }
-    private UserType user;
-    public UserType getUser ()
+    private org.meta_environment.rascal.ast.UserType user;
+    public org.meta_environment.rascal.ast.UserType getUser ()
     {
       return user;
     }
-    private void $setUser (UserType x)
+    private void $setUser (org.meta_environment.rascal.ast.UserType x)
     {
       this.user = x;
     }
-    public User setUser (UserType x)
+    public org.meta_environment.rascal.ast.User setUser (org.meta_environment.
+							 rascal.ast.
+							 UserType x)
     {
-      User z = new User ();
+      org.meta_environment.rascal.ast.User z = new User ();
       z.$setUser (x);
       return z;
     }
@@ -176,7 +201,8 @@ public abstract class Type extends AbstractAST
     private Symbol ()
     {
     }
-    /*package */ Symbol (ITree tree, Symbol symbol)
+    /*package */ Symbol (ITree tree,
+			 org.meta_environment.rascal.ast.Symbol symbol)
     {
       this.tree = tree;
       this.symbol = symbol;
@@ -185,18 +211,21 @@ public abstract class Type extends AbstractAST
     {
       return visitor.visitTypeSymbol (this);
     }
-    private Symbol symbol;
-    public Symbol getSymbol ()
+    private org.meta_environment.rascal.ast.Symbol symbol;
+    public org.meta_environment.rascal.ast.Symbol getSymbol ()
     {
       return symbol;
     }
-    private void $setSymbol (Symbol x)
+    private void $setSymbol (org.meta_environment.rascal.ast.Symbol x)
     {
       this.symbol = x;
     }
-    public Symbol setSymbol (Symbol x)
+    public org.meta_environment.rascal.ast.Symbol setSymbol (org.
+							     meta_environment.
+							     rascal.ast.
+							     Symbol x)
     {
-      Symbol z = new Symbol ();
+      org.meta_environment.rascal.ast.Symbol z = new Symbol ();
       z.$setSymbol (x);
       return z;
     }
@@ -207,7 +236,9 @@ public abstract class Type extends AbstractAST
     private Selector ()
     {
     }
-    /*package */ Selector (ITree tree, DataTypeSelector selector)
+    /*package */ Selector (ITree tree,
+			   org.meta_environment.rascal.ast.
+			   DataTypeSelector selector)
     {
       this.tree = tree;
       this.selector = selector;
@@ -216,18 +247,23 @@ public abstract class Type extends AbstractAST
     {
       return visitor.visitTypeSelector (this);
     }
-    private DataTypeSelector selector;
-    public DataTypeSelector getSelector ()
+    private org.meta_environment.rascal.ast.DataTypeSelector selector;
+    public org.meta_environment.rascal.ast.DataTypeSelector getSelector ()
     {
       return selector;
     }
-    private void $setSelector (DataTypeSelector x)
+    private void $setSelector (org.meta_environment.rascal.ast.
+			       DataTypeSelector x)
     {
       this.selector = x;
     }
-    public Selector setSelector (DataTypeSelector x)
+    public org.meta_environment.rascal.ast.Selector setSelector (org.
+								 meta_environment.
+								 rascal.ast.
+								 DataTypeSelector
+								 x)
     {
-      Selector z = new Selector ();
+      org.meta_environment.rascal.ast.Selector z = new Selector ();
       z.$setSelector (x);
       return z;
     }

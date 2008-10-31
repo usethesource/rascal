@@ -8,7 +8,9 @@ public abstract class Visit extends AbstractAST
     private DefaultStrategy ()
     {
     }
-    /*package */ DefaultStrategy (ITree tree, Expression subject,
+    /*package */ DefaultStrategy (ITree tree,
+				  org.meta_environment.rascal.ast.
+				  Expression subject,
 				  java.util.List < Case > cases)
     {
       this.tree = tree;
@@ -19,33 +21,48 @@ public abstract class Visit extends AbstractAST
     {
       return visitor.visitVisitDefaultStrategy (this);
     }
-    private Expression subject;
-    public Expression getSubject ()
+    private org.meta_environment.rascal.ast.Expression subject;
+    public org.meta_environment.rascal.ast.Expression getSubject ()
     {
       return subject;
     }
-    private void $setSubject (Expression x)
+    private void $setSubject (org.meta_environment.rascal.ast.Expression x)
     {
       this.subject = x;
     }
-    public DefaultStrategy setSubject (Expression x)
+    public org.meta_environment.rascal.ast.DefaultStrategy setSubject (org.
+								       meta_environment.
+								       rascal.
+								       ast.
+								       Expression
+								       x)
     {
-      DefaultStrategy z = new DefaultStrategy ();
+      org.meta_environment.rascal.ast.DefaultStrategy z =
+	new DefaultStrategy ();
       z.$setSubject (x);
       return z;
     }
-    private java.util.List < Case > cases;
-    public java.util.List < Case > getCases ()
+    private java.util.List < org.meta_environment.rascal.ast.Case > cases;
+    public java.util.List < org.meta_environment.rascal.ast.Case > getCases ()
     {
       return cases;
     }
-    private void $setCases (java.util.List < Case > x)
+    private void $setCases (java.util.List <
+			    org.meta_environment.rascal.ast.Case > x)
     {
       this.cases = x;
     }
-    public DefaultStrategy setCases (java.util.List < Case > x)
+    public org.meta_environment.rascal.ast.DefaultStrategy setCases (java.
+								     util.
+								     List <
+								     org.
+								     meta_environment.
+								     rascal.
+								     ast.
+								     Case > x)
     {
-      DefaultStrategy z = new DefaultStrategy ();
+      org.meta_environment.rascal.ast.DefaultStrategy z =
+	new DefaultStrategy ();
       z.$setCases (x);
       return z;
     }
@@ -69,7 +86,10 @@ public abstract class Visit extends AbstractAST
     private GivenStrategy ()
     {
     }
-    /*package */ GivenStrategy (ITree tree, Strategy strategy,
+    /*package */ GivenStrategy (ITree tree,
+				org.meta_environment.rascal.ast.
+				Strategy strategy,
+				org.meta_environment.rascal.ast.
 				Expression subject,
 				java.util.List < Case > cases)
     {
@@ -82,48 +102,64 @@ public abstract class Visit extends AbstractAST
     {
       return visitor.visitVisitGivenStrategy (this);
     }
-    private Strategy strategy;
-    public Strategy getStrategy ()
+    private org.meta_environment.rascal.ast.Strategy strategy;
+    public org.meta_environment.rascal.ast.Strategy getStrategy ()
     {
       return strategy;
     }
-    private void $setStrategy (Strategy x)
+    private void $setStrategy (org.meta_environment.rascal.ast.Strategy x)
     {
       this.strategy = x;
     }
-    public GivenStrategy setStrategy (Strategy x)
+    public org.meta_environment.rascal.ast.GivenStrategy setStrategy (org.
+								      meta_environment.
+								      rascal.
+								      ast.
+								      Strategy
+								      x)
     {
-      GivenStrategy z = new GivenStrategy ();
+      org.meta_environment.rascal.ast.GivenStrategy z = new GivenStrategy ();
       z.$setStrategy (x);
       return z;
     }
-    private Expression subject;
-    public Expression getSubject ()
+    private org.meta_environment.rascal.ast.Expression subject;
+    public org.meta_environment.rascal.ast.Expression getSubject ()
     {
       return subject;
     }
-    private void $setSubject (Expression x)
+    private void $setSubject (org.meta_environment.rascal.ast.Expression x)
     {
       this.subject = x;
     }
-    public GivenStrategy setSubject (Expression x)
+    public org.meta_environment.rascal.ast.GivenStrategy setSubject (org.
+								     meta_environment.
+								     rascal.
+								     ast.
+								     Expression
+								     x)
     {
-      GivenStrategy z = new GivenStrategy ();
+      org.meta_environment.rascal.ast.GivenStrategy z = new GivenStrategy ();
       z.$setSubject (x);
       return z;
     }
-    private java.util.List < Case > cases;
-    public java.util.List < Case > getCases ()
+    private java.util.List < org.meta_environment.rascal.ast.Case > cases;
+    public java.util.List < org.meta_environment.rascal.ast.Case > getCases ()
     {
       return cases;
     }
-    private void $setCases (java.util.List < Case > x)
+    private void $setCases (java.util.List <
+			    org.meta_environment.rascal.ast.Case > x)
     {
       this.cases = x;
     }
-    public GivenStrategy setCases (java.util.List < Case > x)
+    public org.meta_environment.rascal.ast.GivenStrategy setCases (java.util.
+								   List <
+								   org.
+								   meta_environment.
+								   rascal.ast.
+								   Case > x)
     {
-      GivenStrategy z = new GivenStrategy ();
+      org.meta_environment.rascal.ast.GivenStrategy z = new GivenStrategy ();
       z.$setCases (x);
       return z;
     }

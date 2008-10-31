@@ -8,7 +8,8 @@ public abstract class Parameters extends AbstractAST
     private Default ()
     {
     }
-    /*package */ Default (ITree tree, Formals formals)
+    /*package */ Default (ITree tree,
+			  org.meta_environment.rascal.ast.Formals formals)
     {
       this.tree = tree;
       this.formals = formals;
@@ -17,18 +18,21 @@ public abstract class Parameters extends AbstractAST
     {
       return visitor.visitParametersDefault (this);
     }
-    private Formals formals;
-    public Formals getFormals ()
+    private org.meta_environment.rascal.ast.Formals formals;
+    public org.meta_environment.rascal.ast.Formals getFormals ()
     {
       return formals;
     }
-    private void $setFormals (Formals x)
+    private void $setFormals (org.meta_environment.rascal.ast.Formals x)
     {
       this.formals = x;
     }
-    public Default setFormals (Formals x)
+    public org.meta_environment.rascal.ast.Default setFormals (org.
+							       meta_environment.
+							       rascal.ast.
+							       Formals x)
     {
-      Default z = new Default ();
+      org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setFormals (x);
       return z;
     }
@@ -52,7 +56,8 @@ public abstract class Parameters extends AbstractAST
     private VarArgs ()
     {
     }
-    /*package */ VarArgs (ITree tree, Formals formals)
+    /*package */ VarArgs (ITree tree,
+			  org.meta_environment.rascal.ast.Formals formals)
     {
       this.tree = tree;
       this.formals = formals;
@@ -61,18 +66,21 @@ public abstract class Parameters extends AbstractAST
     {
       return visitor.visitParametersVarArgs (this);
     }
-    private Formals formals;
-    public Formals getFormals ()
+    private org.meta_environment.rascal.ast.Formals formals;
+    public org.meta_environment.rascal.ast.Formals getFormals ()
     {
       return formals;
     }
-    private void $setFormals (Formals x)
+    private void $setFormals (org.meta_environment.rascal.ast.Formals x)
     {
       this.formals = x;
     }
-    public VarArgs setFormals (Formals x)
+    public org.meta_environment.rascal.ast.VarArgs setFormals (org.
+							       meta_environment.
+							       rascal.ast.
+							       Formals x)
     {
-      VarArgs z = new VarArgs ();
+      org.meta_environment.rascal.ast.VarArgs z = new VarArgs ();
       z.$setFormals (x);
       return z;
     }

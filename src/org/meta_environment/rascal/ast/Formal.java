@@ -8,7 +8,9 @@ public abstract class Formal extends AbstractAST
     private TypeName ()
     {
     }
-    /*package */ TypeName (ITree tree, Type type, Name name)
+    /*package */ TypeName (ITree tree,
+			   org.meta_environment.rascal.ast.Type type,
+			   org.meta_environment.rascal.ast.Name name)
     {
       this.tree = tree;
       this.type = type;
@@ -18,33 +20,39 @@ public abstract class Formal extends AbstractAST
     {
       return visitor.visitFormalTypeName (this);
     }
-    private Type type;
-    public Type getType ()
+    private org.meta_environment.rascal.ast.Type type;
+    public org.meta_environment.rascal.ast.Type getType ()
     {
       return type;
     }
-    private void $setType (Type x)
+    private void $setType (org.meta_environment.rascal.ast.Type x)
     {
       this.type = x;
     }
-    public TypeName setType (Type x)
+    public org.meta_environment.rascal.ast.TypeName setType (org.
+							     meta_environment.
+							     rascal.ast.
+							     Type x)
     {
-      TypeName z = new TypeName ();
+      org.meta_environment.rascal.ast.TypeName z = new TypeName ();
       z.$setType (x);
       return z;
     }
-    private Name name;
-    public Name getName ()
+    private org.meta_environment.rascal.ast.Name name;
+    public org.meta_environment.rascal.ast.Name getName ()
     {
       return name;
     }
-    private void $setName (Name x)
+    private void $setName (org.meta_environment.rascal.ast.Name x)
     {
       this.name = x;
     }
-    public TypeName setName (Name x)
+    public org.meta_environment.rascal.ast.TypeName setName (org.
+							     meta_environment.
+							     rascal.ast.
+							     Name x)
     {
-      TypeName z = new TypeName ();
+      org.meta_environment.rascal.ast.TypeName z = new TypeName ();
       z.$setName (x);
       return z;
     }

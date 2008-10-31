@@ -8,7 +8,8 @@ public abstract class CharRanges extends AbstractAST
     private Range ()
     {
     }
-    /*package */ Range (ITree tree, CharRange range)
+    /*package */ Range (ITree tree,
+			org.meta_environment.rascal.ast.CharRange range)
     {
       this.tree = tree;
       this.range = range;
@@ -17,18 +18,21 @@ public abstract class CharRanges extends AbstractAST
     {
       return visitor.visitCharRangesRange (this);
     }
-    private CharRange range;
-    public CharRange getRange ()
+    private org.meta_environment.rascal.ast.CharRange range;
+    public org.meta_environment.rascal.ast.CharRange getRange ()
     {
       return range;
     }
-    private void $setRange (CharRange x)
+    private void $setRange (org.meta_environment.rascal.ast.CharRange x)
     {
       this.range = x;
     }
-    public Range setRange (CharRange x)
+    public org.meta_environment.rascal.ast.Range setRange (org.
+							   meta_environment.
+							   rascal.ast.
+							   CharRange x)
     {
-      Range z = new Range ();
+      org.meta_environment.rascal.ast.Range z = new Range ();
       z.$setRange (x);
       return z;
     }
@@ -52,7 +56,9 @@ public abstract class CharRanges extends AbstractAST
     private Concatenate ()
     {
     }
-    /*package */ Concatenate (ITree tree, CharRanges lhs, CharRanges rhs)
+    /*package */ Concatenate (ITree tree,
+			      org.meta_environment.rascal.ast.CharRanges lhs,
+			      org.meta_environment.rascal.ast.CharRanges rhs)
     {
       this.tree = tree;
       this.lhs = lhs;
@@ -62,33 +68,39 @@ public abstract class CharRanges extends AbstractAST
     {
       return visitor.visitCharRangesConcatenate (this);
     }
-    private CharRanges lhs;
-    public CharRanges getLhs ()
+    private org.meta_environment.rascal.ast.CharRanges lhs;
+    public org.meta_environment.rascal.ast.CharRanges getLhs ()
     {
       return lhs;
     }
-    private void $setLhs (CharRanges x)
+    private void $setLhs (org.meta_environment.rascal.ast.CharRanges x)
     {
       this.lhs = x;
     }
-    public Concatenate setLhs (CharRanges x)
+    public org.meta_environment.rascal.ast.Concatenate setLhs (org.
+							       meta_environment.
+							       rascal.ast.
+							       CharRanges x)
     {
-      Concatenate z = new Concatenate ();
+      org.meta_environment.rascal.ast.Concatenate z = new Concatenate ();
       z.$setLhs (x);
       return z;
     }
-    private CharRanges rhs;
-    public CharRanges getRhs ()
+    private org.meta_environment.rascal.ast.CharRanges rhs;
+    public org.meta_environment.rascal.ast.CharRanges getRhs ()
     {
       return rhs;
     }
-    private void $setRhs (CharRanges x)
+    private void $setRhs (org.meta_environment.rascal.ast.CharRanges x)
     {
       this.rhs = x;
     }
-    public Concatenate setRhs (CharRanges x)
+    public org.meta_environment.rascal.ast.Concatenate setRhs (org.
+							       meta_environment.
+							       rascal.ast.
+							       CharRanges x)
     {
-      Concatenate z = new Concatenate ();
+      org.meta_environment.rascal.ast.Concatenate z = new Concatenate ();
       z.$setRhs (x);
       return z;
     }

@@ -8,7 +8,8 @@ public abstract class TypeArg extends AbstractAST
     private Default ()
     {
     }
-    /*package */ Default (ITree tree, Type type)
+    /*package */ Default (ITree tree,
+			  org.meta_environment.rascal.ast.Type type)
     {
       this.tree = tree;
       this.type = type;
@@ -17,18 +18,20 @@ public abstract class TypeArg extends AbstractAST
     {
       return visitor.visitTypeArgDefault (this);
     }
-    private Type type;
-    public Type getType ()
+    private org.meta_environment.rascal.ast.Type type;
+    public org.meta_environment.rascal.ast.Type getType ()
     {
       return type;
     }
-    private void $setType (Type x)
+    private void $setType (org.meta_environment.rascal.ast.Type x)
     {
       this.type = x;
     }
-    public Default setType (Type x)
+    public org.meta_environment.rascal.ast.Default setType (org.
+							    meta_environment.
+							    rascal.ast.Type x)
     {
-      Default z = new Default ();
+      org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setType (x);
       return z;
     }
@@ -52,7 +55,8 @@ public abstract class TypeArg extends AbstractAST
     private Named ()
     {
     }
-    /*package */ Named (ITree tree, Type type, Name name)
+    /*package */ Named (ITree tree, org.meta_environment.rascal.ast.Type type,
+			org.meta_environment.rascal.ast.Name name)
     {
       this.tree = tree;
       this.type = type;
@@ -62,33 +66,37 @@ public abstract class TypeArg extends AbstractAST
     {
       return visitor.visitTypeArgNamed (this);
     }
-    private Type type;
-    public Type getType ()
+    private org.meta_environment.rascal.ast.Type type;
+    public org.meta_environment.rascal.ast.Type getType ()
     {
       return type;
     }
-    private void $setType (Type x)
+    private void $setType (org.meta_environment.rascal.ast.Type x)
     {
       this.type = x;
     }
-    public Named setType (Type x)
+    public org.meta_environment.rascal.ast.Named setType (org.
+							  meta_environment.
+							  rascal.ast.Type x)
     {
-      Named z = new Named ();
+      org.meta_environment.rascal.ast.Named z = new Named ();
       z.$setType (x);
       return z;
     }
-    private Name name;
-    public Name getName ()
+    private org.meta_environment.rascal.ast.Name name;
+    public org.meta_environment.rascal.ast.Name getName ()
     {
       return name;
     }
-    private void $setName (Name x)
+    private void $setName (org.meta_environment.rascal.ast.Name x)
     {
       this.name = x;
     }
-    public Named setName (Name x)
+    public org.meta_environment.rascal.ast.Named setName (org.
+							  meta_environment.
+							  rascal.ast.Name x)
     {
-      Named z = new Named ();
+      org.meta_environment.rascal.ast.Named z = new Named ();
       z.$setName (x);
       return z;
     }

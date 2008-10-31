@@ -8,8 +8,10 @@ public abstract class FunctionDeclaration extends AbstractAST
     private Default ()
     {
     }
-    /*package */ Default (ITree tree, Signature signature, Tags tags,
-			  FunctionBody body)
+    /*package */ Default (ITree tree,
+			  org.meta_environment.rascal.ast.Signature signature,
+			  org.meta_environment.rascal.ast.Tags tags,
+			  org.meta_environment.rascal.ast.FunctionBody body)
     {
       this.tree = tree;
       this.signature = signature;
@@ -20,48 +22,56 @@ public abstract class FunctionDeclaration extends AbstractAST
     {
       return visitor.visitFunctionDeclarationDefault (this);
     }
-    private Signature signature;
-    public Signature getSignature ()
+    private org.meta_environment.rascal.ast.Signature signature;
+    public org.meta_environment.rascal.ast.Signature getSignature ()
     {
       return signature;
     }
-    private void $setSignature (Signature x)
+    private void $setSignature (org.meta_environment.rascal.ast.Signature x)
     {
       this.signature = x;
     }
-    public Default setSignature (Signature x)
+    public org.meta_environment.rascal.ast.Default setSignature (org.
+								 meta_environment.
+								 rascal.ast.
+								 Signature x)
     {
-      Default z = new Default ();
+      org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setSignature (x);
       return z;
     }
-    private Tags tags;
-    public Tags getTags ()
+    private org.meta_environment.rascal.ast.Tags tags;
+    public org.meta_environment.rascal.ast.Tags getTags ()
     {
       return tags;
     }
-    private void $setTags (Tags x)
+    private void $setTags (org.meta_environment.rascal.ast.Tags x)
     {
       this.tags = x;
     }
-    public Default setTags (Tags x)
+    public org.meta_environment.rascal.ast.Default setTags (org.
+							    meta_environment.
+							    rascal.ast.Tags x)
     {
-      Default z = new Default ();
+      org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setTags (x);
       return z;
     }
-    private FunctionBody body;
-    public FunctionBody getBody ()
+    private org.meta_environment.rascal.ast.FunctionBody body;
+    public org.meta_environment.rascal.ast.FunctionBody getBody ()
     {
       return body;
     }
-    private void $setBody (FunctionBody x)
+    private void $setBody (org.meta_environment.rascal.ast.FunctionBody x)
     {
       this.body = x;
     }
-    public Default setBody (FunctionBody x)
+    public org.meta_environment.rascal.ast.Default setBody (org.
+							    meta_environment.
+							    rascal.ast.
+							    FunctionBody x)
     {
-      Default z = new Default ();
+      org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setBody (x);
       return z;
     }
@@ -85,7 +95,10 @@ public abstract class FunctionDeclaration extends AbstractAST
     private Abstract ()
     {
     }
-    /*package */ Abstract (ITree tree, Signature signature, Tags tags)
+    /*package */ Abstract (ITree tree,
+			   org.meta_environment.rascal.ast.
+			   Signature signature,
+			   org.meta_environment.rascal.ast.Tags tags)
     {
       this.tree = tree;
       this.signature = signature;
@@ -95,33 +108,39 @@ public abstract class FunctionDeclaration extends AbstractAST
     {
       return visitor.visitFunctionDeclarationAbstract (this);
     }
-    private Signature signature;
-    public Signature getSignature ()
+    private org.meta_environment.rascal.ast.Signature signature;
+    public org.meta_environment.rascal.ast.Signature getSignature ()
     {
       return signature;
     }
-    private void $setSignature (Signature x)
+    private void $setSignature (org.meta_environment.rascal.ast.Signature x)
     {
       this.signature = x;
     }
-    public Abstract setSignature (Signature x)
+    public org.meta_environment.rascal.ast.Abstract setSignature (org.
+								  meta_environment.
+								  rascal.ast.
+								  Signature x)
     {
-      Abstract z = new Abstract ();
+      org.meta_environment.rascal.ast.Abstract z = new Abstract ();
       z.$setSignature (x);
       return z;
     }
-    private Tags tags;
-    public Tags getTags ()
+    private org.meta_environment.rascal.ast.Tags tags;
+    public org.meta_environment.rascal.ast.Tags getTags ()
     {
       return tags;
     }
-    private void $setTags (Tags x)
+    private void $setTags (org.meta_environment.rascal.ast.Tags x)
     {
       this.tags = x;
     }
-    public Abstract setTags (Tags x)
+    public org.meta_environment.rascal.ast.Abstract setTags (org.
+							     meta_environment.
+							     rascal.ast.
+							     Tags x)
     {
-      Abstract z = new Abstract ();
+      org.meta_environment.rascal.ast.Abstract z = new Abstract ();
       z.$setTags (x);
       return z;
     }

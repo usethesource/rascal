@@ -8,8 +8,13 @@ public abstract class Signature extends AbstractAST
     private NoThrows ()
     {
     }
-    /*package */ NoThrows (ITree tree, Type type, FunctionModifiers modifiers,
-			   FunctionName name, Parameters parameters)
+    /*package */ NoThrows (ITree tree,
+			   org.meta_environment.rascal.ast.Type type,
+			   org.meta_environment.rascal.ast.
+			   FunctionModifiers modifiers,
+			   org.meta_environment.rascal.ast.FunctionName name,
+			   org.meta_environment.rascal.ast.
+			   Parameters parameters)
     {
       this.tree = tree;
       this.type = type;
@@ -21,63 +26,78 @@ public abstract class Signature extends AbstractAST
     {
       return visitor.visitSignatureNoThrows (this);
     }
-    private Type type;
-    public Type getType ()
+    private org.meta_environment.rascal.ast.Type type;
+    public org.meta_environment.rascal.ast.Type getType ()
     {
       return type;
     }
-    private void $setType (Type x)
+    private void $setType (org.meta_environment.rascal.ast.Type x)
     {
       this.type = x;
     }
-    public NoThrows setType (Type x)
+    public org.meta_environment.rascal.ast.NoThrows setType (org.
+							     meta_environment.
+							     rascal.ast.
+							     Type x)
     {
-      NoThrows z = new NoThrows ();
+      org.meta_environment.rascal.ast.NoThrows z = new NoThrows ();
       z.$setType (x);
       return z;
     }
-    private FunctionModifiers modifiers;
-    public FunctionModifiers getModifiers ()
+    private org.meta_environment.rascal.ast.FunctionModifiers modifiers;
+    public org.meta_environment.rascal.ast.FunctionModifiers getModifiers ()
     {
       return modifiers;
     }
-    private void $setModifiers (FunctionModifiers x)
+    private void $setModifiers (org.meta_environment.rascal.ast.
+				FunctionModifiers x)
     {
       this.modifiers = x;
     }
-    public NoThrows setModifiers (FunctionModifiers x)
+    public org.meta_environment.rascal.ast.NoThrows setModifiers (org.
+								  meta_environment.
+								  rascal.ast.
+								  FunctionModifiers
+								  x)
     {
-      NoThrows z = new NoThrows ();
+      org.meta_environment.rascal.ast.NoThrows z = new NoThrows ();
       z.$setModifiers (x);
       return z;
     }
-    private FunctionName name;
-    public FunctionName getName ()
+    private org.meta_environment.rascal.ast.FunctionName name;
+    public org.meta_environment.rascal.ast.FunctionName getName ()
     {
       return name;
     }
-    private void $setName (FunctionName x)
+    private void $setName (org.meta_environment.rascal.ast.FunctionName x)
     {
       this.name = x;
     }
-    public NoThrows setName (FunctionName x)
+    public org.meta_environment.rascal.ast.NoThrows setName (org.
+							     meta_environment.
+							     rascal.ast.
+							     FunctionName x)
     {
-      NoThrows z = new NoThrows ();
+      org.meta_environment.rascal.ast.NoThrows z = new NoThrows ();
       z.$setName (x);
       return z;
     }
-    private Parameters parameters;
-    public Parameters getParameters ()
+    private org.meta_environment.rascal.ast.Parameters parameters;
+    public org.meta_environment.rascal.ast.Parameters getParameters ()
     {
       return parameters;
     }
-    private void $setParameters (Parameters x)
+    private void $setParameters (org.meta_environment.rascal.ast.Parameters x)
     {
       this.parameters = x;
     }
-    public NoThrows setParameters (Parameters x)
+    public org.meta_environment.rascal.ast.NoThrows setParameters (org.
+								   meta_environment.
+								   rascal.ast.
+								   Parameters
+								   x)
     {
-      NoThrows z = new NoThrows ();
+      org.meta_environment.rascal.ast.NoThrows z = new NoThrows ();
       z.$setParameters (x);
       return z;
     }
@@ -101,8 +121,13 @@ public abstract class Signature extends AbstractAST
     private WithThrows ()
     {
     }
-    /*package */ WithThrows (ITree tree, Type type,
-			     FunctionModifiers modifiers, FunctionName name,
+    /*package */ WithThrows (ITree tree,
+			     org.meta_environment.rascal.ast.Type type,
+			     org.meta_environment.rascal.ast.
+			     FunctionModifiers modifiers,
+			     org.meta_environment.rascal.ast.
+			     FunctionName name,
+			     org.meta_environment.rascal.ast.
 			     Parameters parameters,
 			     java.util.List < Type > exceptions)
     {
@@ -117,78 +142,105 @@ public abstract class Signature extends AbstractAST
     {
       return visitor.visitSignatureWithThrows (this);
     }
-    private Type type;
-    public Type getType ()
+    private org.meta_environment.rascal.ast.Type type;
+    public org.meta_environment.rascal.ast.Type getType ()
     {
       return type;
     }
-    private void $setType (Type x)
+    private void $setType (org.meta_environment.rascal.ast.Type x)
     {
       this.type = x;
     }
-    public WithThrows setType (Type x)
+    public org.meta_environment.rascal.ast.WithThrows setType (org.
+							       meta_environment.
+							       rascal.ast.
+							       Type x)
     {
-      WithThrows z = new WithThrows ();
+      org.meta_environment.rascal.ast.WithThrows z = new WithThrows ();
       z.$setType (x);
       return z;
     }
-    private FunctionModifiers modifiers;
-    public FunctionModifiers getModifiers ()
+    private org.meta_environment.rascal.ast.FunctionModifiers modifiers;
+    public org.meta_environment.rascal.ast.FunctionModifiers getModifiers ()
     {
       return modifiers;
     }
-    private void $setModifiers (FunctionModifiers x)
+    private void $setModifiers (org.meta_environment.rascal.ast.
+				FunctionModifiers x)
     {
       this.modifiers = x;
     }
-    public WithThrows setModifiers (FunctionModifiers x)
+    public org.meta_environment.rascal.ast.WithThrows setModifiers (org.
+								    meta_environment.
+								    rascal.
+								    ast.
+								    FunctionModifiers
+								    x)
     {
-      WithThrows z = new WithThrows ();
+      org.meta_environment.rascal.ast.WithThrows z = new WithThrows ();
       z.$setModifiers (x);
       return z;
     }
-    private FunctionName name;
-    public FunctionName getName ()
+    private org.meta_environment.rascal.ast.FunctionName name;
+    public org.meta_environment.rascal.ast.FunctionName getName ()
     {
       return name;
     }
-    private void $setName (FunctionName x)
+    private void $setName (org.meta_environment.rascal.ast.FunctionName x)
     {
       this.name = x;
     }
-    public WithThrows setName (FunctionName x)
+    public org.meta_environment.rascal.ast.WithThrows setName (org.
+							       meta_environment.
+							       rascal.ast.
+							       FunctionName x)
     {
-      WithThrows z = new WithThrows ();
+      org.meta_environment.rascal.ast.WithThrows z = new WithThrows ();
       z.$setName (x);
       return z;
     }
-    private Parameters parameters;
-    public Parameters getParameters ()
+    private org.meta_environment.rascal.ast.Parameters parameters;
+    public org.meta_environment.rascal.ast.Parameters getParameters ()
     {
       return parameters;
     }
-    private void $setParameters (Parameters x)
+    private void $setParameters (org.meta_environment.rascal.ast.Parameters x)
     {
       this.parameters = x;
     }
-    public WithThrows setParameters (Parameters x)
+    public org.meta_environment.rascal.ast.WithThrows setParameters (org.
+								     meta_environment.
+								     rascal.
+								     ast.
+								     Parameters
+								     x)
     {
-      WithThrows z = new WithThrows ();
+      org.meta_environment.rascal.ast.WithThrows z = new WithThrows ();
       z.$setParameters (x);
       return z;
     }
-    private java.util.List < Type > exceptions;
-    public java.util.List < Type > getExceptions ()
+    private java.util.List < org.meta_environment.rascal.ast.Type >
+      exceptions;
+    public java.util.List < org.meta_environment.rascal.ast.Type >
+      getExceptions ()
     {
       return exceptions;
     }
-    private void $setExceptions (java.util.List < Type > x)
+    private void $setExceptions (java.util.List <
+				 org.meta_environment.rascal.ast.Type > x)
     {
       this.exceptions = x;
     }
-    public WithThrows setExceptions (java.util.List < Type > x)
+    public org.meta_environment.rascal.ast.WithThrows setExceptions (java.
+								     util.
+								     List <
+								     org.
+								     meta_environment.
+								     rascal.
+								     ast.
+								     Type > x)
     {
-      WithThrows z = new WithThrows ();
+      org.meta_environment.rascal.ast.WithThrows z = new WithThrows ();
       z.$setExceptions (x);
       return z;
     }

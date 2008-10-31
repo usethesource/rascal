@@ -17,18 +17,26 @@ public abstract class ModuleParameters extends AbstractAST
     {
       return visitor.visitModuleParametersDefault (this);
     }
-    private java.util.List < TypeVar > parameters;
-    public java.util.List < TypeVar > getParameters ()
+    private java.util.List < org.meta_environment.rascal.ast.TypeVar >
+      parameters;
+    public java.util.List < org.meta_environment.rascal.ast.TypeVar >
+      getParameters ()
     {
       return parameters;
     }
-    private void $setParameters (java.util.List < TypeVar > x)
+    private void $setParameters (java.util.List <
+				 org.meta_environment.rascal.ast.TypeVar > x)
     {
       this.parameters = x;
     }
-    public Default setParameters (java.util.List < TypeVar > x)
+    public org.meta_environment.rascal.ast.Default setParameters (java.util.
+								  List <
+								  org.
+								  meta_environment.
+								  rascal.ast.
+								  TypeVar > x)
     {
-      Default z = new Default ();
+      org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setParameters (x);
       return z;
     }

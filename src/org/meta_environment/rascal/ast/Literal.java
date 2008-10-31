@@ -8,7 +8,8 @@ public abstract class Literal extends AbstractAST
     private RegExp ()
     {
     }
-    /*package */ RegExp (ITree tree, RegExpLiteral regExp)
+    /*package */ RegExp (ITree tree,
+			 org.meta_environment.rascal.ast.RegExpLiteral regExp)
     {
       this.tree = tree;
       this.regExp = regExp;
@@ -17,18 +18,21 @@ public abstract class Literal extends AbstractAST
     {
       return visitor.visitLiteralRegExp (this);
     }
-    private RegExpLiteral regExp;
-    public RegExpLiteral getRegExp ()
+    private org.meta_environment.rascal.ast.RegExpLiteral regExp;
+    public org.meta_environment.rascal.ast.RegExpLiteral getRegExp ()
     {
       return regExp;
     }
-    private void $setRegExp (RegExpLiteral x)
+    private void $setRegExp (org.meta_environment.rascal.ast.RegExpLiteral x)
     {
       this.regExp = x;
     }
-    public RegExp setRegExp (RegExpLiteral x)
+    public org.meta_environment.rascal.ast.RegExp setRegExp (org.
+							     meta_environment.
+							     rascal.ast.
+							     RegExpLiteral x)
     {
-      RegExp z = new RegExp ();
+      org.meta_environment.rascal.ast.RegExp z = new RegExp ();
       z.$setRegExp (x);
       return z;
     }
@@ -52,7 +56,9 @@ public abstract class Literal extends AbstractAST
     private Symbol ()
     {
     }
-    /*package */ Symbol (ITree tree, SymbolLiteral symbolLiteral)
+    /*package */ Symbol (ITree tree,
+			 org.meta_environment.rascal.ast.
+			 SymbolLiteral symbolLiteral)
     {
       this.tree = tree;
       this.symbolLiteral = symbolLiteral;
@@ -61,18 +67,24 @@ public abstract class Literal extends AbstractAST
     {
       return visitor.visitLiteralSymbol (this);
     }
-    private SymbolLiteral symbolLiteral;
-    public SymbolLiteral getSymbolLiteral ()
+    private org.meta_environment.rascal.ast.SymbolLiteral symbolLiteral;
+    public org.meta_environment.rascal.ast.SymbolLiteral getSymbolLiteral ()
     {
       return symbolLiteral;
     }
-    private void $setSymbolLiteral (SymbolLiteral x)
+    private void $setSymbolLiteral (org.meta_environment.rascal.ast.
+				    SymbolLiteral x)
     {
       this.symbolLiteral = x;
     }
-    public Symbol setSymbolLiteral (SymbolLiteral x)
+    public org.meta_environment.rascal.ast.Symbol setSymbolLiteral (org.
+								    meta_environment.
+								    rascal.
+								    ast.
+								    SymbolLiteral
+								    x)
     {
-      Symbol z = new Symbol ();
+      org.meta_environment.rascal.ast.Symbol z = new Symbol ();
       z.$setSymbolLiteral (x);
       return z;
     }
@@ -83,7 +95,9 @@ public abstract class Literal extends AbstractAST
     private Boolean ()
     {
     }
-    /*package */ Boolean (ITree tree, BooleanLiteral booleanLiteral)
+    /*package */ Boolean (ITree tree,
+			  org.meta_environment.rascal.ast.
+			  BooleanLiteral booleanLiteral)
     {
       this.tree = tree;
       this.booleanLiteral = booleanLiteral;
@@ -92,18 +106,24 @@ public abstract class Literal extends AbstractAST
     {
       return visitor.visitLiteralBoolean (this);
     }
-    private BooleanLiteral booleanLiteral;
-    public BooleanLiteral getBooleanLiteral ()
+    private org.meta_environment.rascal.ast.BooleanLiteral booleanLiteral;
+    public org.meta_environment.rascal.ast.BooleanLiteral getBooleanLiteral ()
     {
       return booleanLiteral;
     }
-    private void $setBooleanLiteral (BooleanLiteral x)
+    private void $setBooleanLiteral (org.meta_environment.rascal.ast.
+				     BooleanLiteral x)
     {
       this.booleanLiteral = x;
     }
-    public Boolean setBooleanLiteral (BooleanLiteral x)
+    public org.meta_environment.rascal.ast.Boolean setBooleanLiteral (org.
+								      meta_environment.
+								      rascal.
+								      ast.
+								      BooleanLiteral
+								      x)
     {
-      Boolean z = new Boolean ();
+      org.meta_environment.rascal.ast.Boolean z = new Boolean ();
       z.$setBooleanLiteral (x);
       return z;
     }
@@ -114,7 +134,9 @@ public abstract class Literal extends AbstractAST
     private Integer ()
     {
     }
-    /*package */ Integer (ITree tree, IntegerLiteral integerLiteral)
+    /*package */ Integer (ITree tree,
+			  org.meta_environment.rascal.ast.
+			  IntegerLiteral integerLiteral)
     {
       this.tree = tree;
       this.integerLiteral = integerLiteral;
@@ -123,18 +145,24 @@ public abstract class Literal extends AbstractAST
     {
       return visitor.visitLiteralInteger (this);
     }
-    private IntegerLiteral integerLiteral;
-    public IntegerLiteral getIntegerLiteral ()
+    private org.meta_environment.rascal.ast.IntegerLiteral integerLiteral;
+    public org.meta_environment.rascal.ast.IntegerLiteral getIntegerLiteral ()
     {
       return integerLiteral;
     }
-    private void $setIntegerLiteral (IntegerLiteral x)
+    private void $setIntegerLiteral (org.meta_environment.rascal.ast.
+				     IntegerLiteral x)
     {
       this.integerLiteral = x;
     }
-    public Integer setIntegerLiteral (IntegerLiteral x)
+    public org.meta_environment.rascal.ast.Integer setIntegerLiteral (org.
+								      meta_environment.
+								      rascal.
+								      ast.
+								      IntegerLiteral
+								      x)
     {
-      Integer z = new Integer ();
+      org.meta_environment.rascal.ast.Integer z = new Integer ();
       z.$setIntegerLiteral (x);
       return z;
     }
@@ -145,7 +173,9 @@ public abstract class Literal extends AbstractAST
     private Double ()
     {
     }
-    /*package */ Double (ITree tree, FloatingPointLiteral doubleLiteral)
+    /*package */ Double (ITree tree,
+			 org.meta_environment.rascal.ast.
+			 FloatingPointLiteral doubleLiteral)
     {
       this.tree = tree;
       this.doubleLiteral = doubleLiteral;
@@ -154,18 +184,26 @@ public abstract class Literal extends AbstractAST
     {
       return visitor.visitLiteralDouble (this);
     }
-    private FloatingPointLiteral doubleLiteral;
-    public FloatingPointLiteral getDoubleLiteral ()
+    private org.meta_environment.rascal.ast.
+      FloatingPointLiteral doubleLiteral;
+    public org.meta_environment.rascal.ast.
+      FloatingPointLiteral getDoubleLiteral ()
     {
       return doubleLiteral;
     }
-    private void $setDoubleLiteral (FloatingPointLiteral x)
+    private void $setDoubleLiteral (org.meta_environment.rascal.ast.
+				    FloatingPointLiteral x)
     {
       this.doubleLiteral = x;
     }
-    public Double setDoubleLiteral (FloatingPointLiteral x)
+    public org.meta_environment.rascal.ast.Double setDoubleLiteral (org.
+								    meta_environment.
+								    rascal.
+								    ast.
+								    FloatingPointLiteral
+								    x)
     {
-      Double z = new Double ();
+      org.meta_environment.rascal.ast.Double z = new Double ();
       z.$setDoubleLiteral (x);
       return z;
     }
@@ -176,7 +214,9 @@ public abstract class Literal extends AbstractAST
     private String ()
     {
     }
-    /*package */ String (ITree tree, StringLiteral stringLiteral)
+    /*package */ String (ITree tree,
+			 org.meta_environment.rascal.ast.
+			 StringLiteral stringLiteral)
     {
       this.tree = tree;
       this.stringLiteral = stringLiteral;
@@ -185,18 +225,24 @@ public abstract class Literal extends AbstractAST
     {
       return visitor.visitLiteralString (this);
     }
-    private StringLiteral stringLiteral;
-    public StringLiteral getStringLiteral ()
+    private org.meta_environment.rascal.ast.StringLiteral stringLiteral;
+    public org.meta_environment.rascal.ast.StringLiteral getStringLiteral ()
     {
       return stringLiteral;
     }
-    private void $setStringLiteral (StringLiteral x)
+    private void $setStringLiteral (org.meta_environment.rascal.ast.
+				    StringLiteral x)
     {
       this.stringLiteral = x;
     }
-    public String setStringLiteral (StringLiteral x)
+    public org.meta_environment.rascal.ast.String setStringLiteral (org.
+								    meta_environment.
+								    rascal.
+								    ast.
+								    StringLiteral
+								    x)
     {
-      String z = new String ();
+      org.meta_environment.rascal.ast.String z = new String ();
       z.$setStringLiteral (x);
       return z;
     }

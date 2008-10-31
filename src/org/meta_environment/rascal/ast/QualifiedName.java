@@ -17,18 +17,23 @@ public abstract class QualifiedName extends AbstractAST
     {
       return visitor.visitQualifiedNameDefault (this);
     }
-    private java.util.List < Name > names;
-    public java.util.List < Name > getNames ()
+    private java.util.List < org.meta_environment.rascal.ast.Name > names;
+    public java.util.List < org.meta_environment.rascal.ast.Name > getNames ()
     {
       return names;
     }
-    private void $setNames (java.util.List < Name > x)
+    private void $setNames (java.util.List <
+			    org.meta_environment.rascal.ast.Name > x)
     {
       this.names = x;
     }
-    public Default setNames (java.util.List < Name > x)
+    public org.meta_environment.rascal.ast.Default setNames (java.util.List <
+							     org.
+							     meta_environment.
+							     rascal.ast.Name >
+							     x)
     {
-      Default z = new Default ();
+      org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setNames (x);
       return z;
     }

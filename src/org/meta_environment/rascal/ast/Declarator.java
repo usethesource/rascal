@@ -8,7 +8,8 @@ public abstract class Declarator extends AbstractAST
     private Default ()
     {
     }
-    /*package */ Default (ITree tree, Type type,
+    /*package */ Default (ITree tree,
+			  org.meta_environment.rascal.ast.Type type,
 			  java.util.List < Variable > variables)
     {
       this.tree = tree;
@@ -19,33 +20,43 @@ public abstract class Declarator extends AbstractAST
     {
       return visitor.visitDeclaratorDefault (this);
     }
-    private Type type;
-    public Type getType ()
+    private org.meta_environment.rascal.ast.Type type;
+    public org.meta_environment.rascal.ast.Type getType ()
     {
       return type;
     }
-    private void $setType (Type x)
+    private void $setType (org.meta_environment.rascal.ast.Type x)
     {
       this.type = x;
     }
-    public Default setType (Type x)
+    public org.meta_environment.rascal.ast.Default setType (org.
+							    meta_environment.
+							    rascal.ast.Type x)
     {
-      Default z = new Default ();
+      org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setType (x);
       return z;
     }
-    private java.util.List < Variable > variables;
-    public java.util.List < Variable > getVariables ()
+    private java.util.List < org.meta_environment.rascal.ast.Variable >
+      variables;
+    public java.util.List < org.meta_environment.rascal.ast.Variable >
+      getVariables ()
     {
       return variables;
     }
-    private void $setVariables (java.util.List < Variable > x)
+    private void $setVariables (java.util.List <
+				org.meta_environment.rascal.ast.Variable > x)
     {
       this.variables = x;
     }
-    public Default setVariables (java.util.List < Variable > x)
+    public org.meta_environment.rascal.ast.Default setVariables (java.util.
+								 List <
+								 org.
+								 meta_environment.
+								 rascal.ast.
+								 Variable > x)
     {
-      Default z = new Default ();
+      org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setVariables (x);
       return z;
     }

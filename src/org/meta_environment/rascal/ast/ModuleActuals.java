@@ -17,18 +17,23 @@ public abstract class ModuleActuals extends AbstractAST
     {
       return visitor.visitModuleActualsDefault (this);
     }
-    private java.util.List < Type > types;
-    public java.util.List < Type > getTypes ()
+    private java.util.List < org.meta_environment.rascal.ast.Type > types;
+    public java.util.List < org.meta_environment.rascal.ast.Type > getTypes ()
     {
       return types;
     }
-    private void $setTypes (java.util.List < Type > x)
+    private void $setTypes (java.util.List <
+			    org.meta_environment.rascal.ast.Type > x)
     {
       this.types = x;
     }
-    public Default setTypes (java.util.List < Type > x)
+    public org.meta_environment.rascal.ast.Default setTypes (java.util.List <
+							     org.
+							     meta_environment.
+							     rascal.ast.Type >
+							     x)
     {
-      Default z = new Default ();
+      org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setTypes (x);
       return z;
     }

@@ -8,7 +8,10 @@ public abstract class ValueProducer extends AbstractAST
     private DefaultStrategy ()
     {
     }
-    /*package */ DefaultStrategy (ITree tree, Expression pattern,
+    /*package */ DefaultStrategy (ITree tree,
+				  org.meta_environment.rascal.ast.
+				  Expression pattern,
+				  org.meta_environment.rascal.ast.
 				  Expression expression)
     {
       this.tree = tree;
@@ -19,33 +22,45 @@ public abstract class ValueProducer extends AbstractAST
     {
       return visitor.visitValueProducerDefaultStrategy (this);
     }
-    private Expression pattern;
-    public Expression getPattern ()
+    private org.meta_environment.rascal.ast.Expression pattern;
+    public org.meta_environment.rascal.ast.Expression getPattern ()
     {
       return pattern;
     }
-    private void $setPattern (Expression x)
+    private void $setPattern (org.meta_environment.rascal.ast.Expression x)
     {
       this.pattern = x;
     }
-    public DefaultStrategy setPattern (Expression x)
+    public org.meta_environment.rascal.ast.DefaultStrategy setPattern (org.
+								       meta_environment.
+								       rascal.
+								       ast.
+								       Expression
+								       x)
     {
-      DefaultStrategy z = new DefaultStrategy ();
+      org.meta_environment.rascal.ast.DefaultStrategy z =
+	new DefaultStrategy ();
       z.$setPattern (x);
       return z;
     }
-    private Expression expression;
-    public Expression getExpression ()
+    private org.meta_environment.rascal.ast.Expression expression;
+    public org.meta_environment.rascal.ast.Expression getExpression ()
     {
       return expression;
     }
-    private void $setExpression (Expression x)
+    private void $setExpression (org.meta_environment.rascal.ast.Expression x)
     {
       this.expression = x;
     }
-    public DefaultStrategy setExpression (Expression x)
+    public org.meta_environment.rascal.ast.DefaultStrategy setExpression (org.
+									  meta_environment.
+									  rascal.
+									  ast.
+									  Expression
+									  x)
     {
-      DefaultStrategy z = new DefaultStrategy ();
+      org.meta_environment.rascal.ast.DefaultStrategy z =
+	new DefaultStrategy ();
       z.$setExpression (x);
       return z;
     }
@@ -69,8 +84,13 @@ public abstract class ValueProducer extends AbstractAST
     private GivenStrategy ()
     {
     }
-    /*package */ GivenStrategy (ITree tree, Strategy strategy,
-				Expression pattern, Expression expression)
+    /*package */ GivenStrategy (ITree tree,
+				org.meta_environment.rascal.ast.
+				Strategy strategy,
+				org.meta_environment.rascal.ast.
+				Expression pattern,
+				org.meta_environment.rascal.ast.
+				Expression expression)
     {
       this.tree = tree;
       this.strategy = strategy;
@@ -81,48 +101,63 @@ public abstract class ValueProducer extends AbstractAST
     {
       return visitor.visitValueProducerGivenStrategy (this);
     }
-    private Strategy strategy;
-    public Strategy getStrategy ()
+    private org.meta_environment.rascal.ast.Strategy strategy;
+    public org.meta_environment.rascal.ast.Strategy getStrategy ()
     {
       return strategy;
     }
-    private void $setStrategy (Strategy x)
+    private void $setStrategy (org.meta_environment.rascal.ast.Strategy x)
     {
       this.strategy = x;
     }
-    public GivenStrategy setStrategy (Strategy x)
+    public org.meta_environment.rascal.ast.GivenStrategy setStrategy (org.
+								      meta_environment.
+								      rascal.
+								      ast.
+								      Strategy
+								      x)
     {
-      GivenStrategy z = new GivenStrategy ();
+      org.meta_environment.rascal.ast.GivenStrategy z = new GivenStrategy ();
       z.$setStrategy (x);
       return z;
     }
-    private Expression pattern;
-    public Expression getPattern ()
+    private org.meta_environment.rascal.ast.Expression pattern;
+    public org.meta_environment.rascal.ast.Expression getPattern ()
     {
       return pattern;
     }
-    private void $setPattern (Expression x)
+    private void $setPattern (org.meta_environment.rascal.ast.Expression x)
     {
       this.pattern = x;
     }
-    public GivenStrategy setPattern (Expression x)
+    public org.meta_environment.rascal.ast.GivenStrategy setPattern (org.
+								     meta_environment.
+								     rascal.
+								     ast.
+								     Expression
+								     x)
     {
-      GivenStrategy z = new GivenStrategy ();
+      org.meta_environment.rascal.ast.GivenStrategy z = new GivenStrategy ();
       z.$setPattern (x);
       return z;
     }
-    private Expression expression;
-    public Expression getExpression ()
+    private org.meta_environment.rascal.ast.Expression expression;
+    public org.meta_environment.rascal.ast.Expression getExpression ()
     {
       return expression;
     }
-    private void $setExpression (Expression x)
+    private void $setExpression (org.meta_environment.rascal.ast.Expression x)
     {
       this.expression = x;
     }
-    public GivenStrategy setExpression (Expression x)
+    public org.meta_environment.rascal.ast.GivenStrategy setExpression (org.
+									meta_environment.
+									rascal.
+									ast.
+									Expression
+									x)
     {
-      GivenStrategy z = new GivenStrategy ();
+      org.meta_environment.rascal.ast.GivenStrategy z = new GivenStrategy ();
       z.$setExpression (x);
       return z;
     }

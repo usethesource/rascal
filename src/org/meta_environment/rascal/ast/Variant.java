@@ -8,7 +8,8 @@ public abstract class Variant extends AbstractAST
     private Type ()
     {
     }
-    /*package */ Type (ITree tree, Type type, Name name)
+    /*package */ Type (ITree tree, org.meta_environment.rascal.ast.Type type,
+		       org.meta_environment.rascal.ast.Name name)
     {
       this.tree = tree;
       this.type = type;
@@ -18,33 +19,35 @@ public abstract class Variant extends AbstractAST
     {
       return visitor.visitVariantType (this);
     }
-    private Type type;
-    public Type getType ()
+    private org.meta_environment.rascal.ast.Type type;
+    public org.meta_environment.rascal.ast.Type getType ()
     {
       return type;
     }
-    private void $setType (Type x)
+    private void $setType (org.meta_environment.rascal.ast.Type x)
     {
       this.type = x;
     }
-    public Type setType (Type x)
+    public org.meta_environment.rascal.ast.Type setType (org.meta_environment.
+							 rascal.ast.Type x)
     {
-      Type z = new Type ();
+      org.meta_environment.rascal.ast.Type z = new Type ();
       z.$setType (x);
       return z;
     }
-    private Name name;
-    public Name getName ()
+    private org.meta_environment.rascal.ast.Name name;
+    public org.meta_environment.rascal.ast.Name getName ()
     {
       return name;
     }
-    private void $setName (Name x)
+    private void $setName (org.meta_environment.rascal.ast.Name x)
     {
       this.name = x;
     }
-    public Type setName (Name x)
+    public org.meta_environment.rascal.ast.Type setName (org.meta_environment.
+							 rascal.ast.Name x)
     {
-      Type z = new Type ();
+      org.meta_environment.rascal.ast.Type z = new Type ();
       z.$setName (x);
       return z;
     }
@@ -68,7 +71,8 @@ public abstract class Variant extends AbstractAST
     private NAryConstructor ()
     {
     }
-    /*package */ NAryConstructor (ITree tree, Name name,
+    /*package */ NAryConstructor (ITree tree,
+				  org.meta_environment.rascal.ast.Name name,
 				  java.util.List < TypeArg > arguments)
     {
       this.tree = tree;
@@ -79,33 +83,51 @@ public abstract class Variant extends AbstractAST
     {
       return visitor.visitVariantNAryConstructor (this);
     }
-    private Name name;
-    public Name getName ()
+    private org.meta_environment.rascal.ast.Name name;
+    public org.meta_environment.rascal.ast.Name getName ()
     {
       return name;
     }
-    private void $setName (Name x)
+    private void $setName (org.meta_environment.rascal.ast.Name x)
     {
       this.name = x;
     }
-    public NAryConstructor setName (Name x)
+    public org.meta_environment.rascal.ast.NAryConstructor setName (org.
+								    meta_environment.
+								    rascal.
+								    ast.
+								    Name x)
     {
-      NAryConstructor z = new NAryConstructor ();
+      org.meta_environment.rascal.ast.NAryConstructor z =
+	new NAryConstructor ();
       z.$setName (x);
       return z;
     }
-    private java.util.List < TypeArg > arguments;
-    public java.util.List < TypeArg > getArguments ()
+    private java.util.List < org.meta_environment.rascal.ast.TypeArg >
+      arguments;
+    public java.util.List < org.meta_environment.rascal.ast.TypeArg >
+      getArguments ()
     {
       return arguments;
     }
-    private void $setArguments (java.util.List < TypeArg > x)
+    private void $setArguments (java.util.List <
+				org.meta_environment.rascal.ast.TypeArg > x)
     {
       this.arguments = x;
     }
-    public NAryConstructor setArguments (java.util.List < TypeArg > x)
+    public org.meta_environment.rascal.ast.NAryConstructor setArguments (java.
+									 util.
+									 List
+									 <
+									 org.
+									 meta_environment.
+									 rascal.
+									 ast.
+									 TypeArg
+									 > x)
     {
-      NAryConstructor z = new NAryConstructor ();
+      org.meta_environment.rascal.ast.NAryConstructor z =
+	new NAryConstructor ();
       z.$setArguments (x);
       return z;
     }
@@ -116,7 +138,9 @@ public abstract class Variant extends AbstractAST
     private NillaryConstructor ()
     {
     }
-    /*package */ NillaryConstructor (ITree tree, Name name)
+    /*package */ NillaryConstructor (ITree tree,
+				     org.meta_environment.rascal.ast.
+				     Name name)
     {
       this.tree = tree;
       this.name = name;
@@ -125,18 +149,23 @@ public abstract class Variant extends AbstractAST
     {
       return visitor.visitVariantNillaryConstructor (this);
     }
-    private Name name;
-    public Name getName ()
+    private org.meta_environment.rascal.ast.Name name;
+    public org.meta_environment.rascal.ast.Name getName ()
     {
       return name;
     }
-    private void $setName (Name x)
+    private void $setName (org.meta_environment.rascal.ast.Name x)
     {
       this.name = x;
     }
-    public NillaryConstructor setName (Name x)
+    public org.meta_environment.rascal.ast.NillaryConstructor setName (org.
+								       meta_environment.
+								       rascal.
+								       ast.
+								       Name x)
     {
-      NillaryConstructor z = new NillaryConstructor ();
+      org.meta_environment.rascal.ast.NillaryConstructor z =
+	new NillaryConstructor ();
       z.$setName (x);
       return z;
     }

@@ -17,18 +17,25 @@ public abstract class Formals extends AbstractAST
     {
       return visitor.visitFormalsDefault (this);
     }
-    private java.util.List < Formal > formals;
-    public java.util.List < Formal > getFormals ()
+    private java.util.List < org.meta_environment.rascal.ast.Formal > formals;
+    public java.util.List < org.meta_environment.rascal.ast.Formal >
+      getFormals ()
     {
       return formals;
     }
-    private void $setFormals (java.util.List < Formal > x)
+    private void $setFormals (java.util.List <
+			      org.meta_environment.rascal.ast.Formal > x)
     {
       this.formals = x;
     }
-    public Default setFormals (java.util.List < Formal > x)
+    public org.meta_environment.rascal.ast.Default setFormals (java.util.
+							       List <
+							       org.
+							       meta_environment.
+							       rascal.ast.
+							       Formal > x)
     {
-      Default z = new Default ();
+      org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setFormals (x);
       return z;
     }

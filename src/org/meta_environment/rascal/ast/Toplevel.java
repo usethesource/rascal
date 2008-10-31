@@ -8,7 +8,10 @@ public abstract class Toplevel extends AbstractAST
     private GivenVisibility ()
     {
     }
-    /*package */ GivenVisibility (ITree tree, Visibility visibility,
+    /*package */ GivenVisibility (ITree tree,
+				  org.meta_environment.rascal.ast.
+				  Visibility visibility,
+				  org.meta_environment.rascal.ast.
 				  Declaration declaration)
     {
       this.tree = tree;
@@ -19,33 +22,43 @@ public abstract class Toplevel extends AbstractAST
     {
       return visitor.visitToplevelGivenVisibility (this);
     }
-    private Visibility visibility;
-    public Visibility getVisibility ()
+    private org.meta_environment.rascal.ast.Visibility visibility;
+    public org.meta_environment.rascal.ast.Visibility getVisibility ()
     {
       return visibility;
     }
-    private void $setVisibility (Visibility x)
+    private void $setVisibility (org.meta_environment.rascal.ast.Visibility x)
     {
       this.visibility = x;
     }
-    public GivenVisibility setVisibility (Visibility x)
+    public org.meta_environment.rascal.ast.GivenVisibility setVisibility (org.
+									  meta_environment.
+									  rascal.
+									  ast.
+									  Visibility
+									  x)
     {
-      GivenVisibility z = new GivenVisibility ();
+      org.meta_environment.rascal.ast.GivenVisibility z =
+	new GivenVisibility ();
       z.$setVisibility (x);
       return z;
     }
-    private Declaration declaration;
-    public Declaration getDeclaration ()
+    private org.meta_environment.rascal.ast.Declaration declaration;
+    public org.meta_environment.rascal.ast.Declaration getDeclaration ()
     {
       return declaration;
     }
-    private void $setDeclaration (Declaration x)
+    private void $setDeclaration (org.meta_environment.rascal.ast.
+				  Declaration x)
     {
       this.declaration = x;
     }
-    public GivenVisibility setDeclaration (Declaration x)
+    public org.meta_environment.rascal.ast.
+      GivenVisibility setDeclaration (org.meta_environment.rascal.ast.
+				      Declaration x)
     {
-      GivenVisibility z = new GivenVisibility ();
+      org.meta_environment.rascal.ast.GivenVisibility z =
+	new GivenVisibility ();
       z.$setDeclaration (x);
       return z;
     }
@@ -69,7 +82,9 @@ public abstract class Toplevel extends AbstractAST
     private DefaultVisibility ()
     {
     }
-    /*package */ DefaultVisibility (ITree tree, Declaration declaration)
+    /*package */ DefaultVisibility (ITree tree,
+				    org.meta_environment.rascal.ast.
+				    Declaration declaration)
     {
       this.tree = tree;
       this.declaration = declaration;
@@ -78,18 +93,22 @@ public abstract class Toplevel extends AbstractAST
     {
       return visitor.visitToplevelDefaultVisibility (this);
     }
-    private Declaration declaration;
-    public Declaration getDeclaration ()
+    private org.meta_environment.rascal.ast.Declaration declaration;
+    public org.meta_environment.rascal.ast.Declaration getDeclaration ()
     {
       return declaration;
     }
-    private void $setDeclaration (Declaration x)
+    private void $setDeclaration (org.meta_environment.rascal.ast.
+				  Declaration x)
     {
       this.declaration = x;
     }
-    public DefaultVisibility setDeclaration (Declaration x)
+    public org.meta_environment.rascal.ast.
+      DefaultVisibility setDeclaration (org.meta_environment.rascal.ast.
+					Declaration x)
     {
-      DefaultVisibility z = new DefaultVisibility ();
+      org.meta_environment.rascal.ast.DefaultVisibility z =
+	new DefaultVisibility ();
       z.$setDeclaration (x);
       return z;
     }

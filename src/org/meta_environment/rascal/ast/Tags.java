@@ -17,18 +17,26 @@ public abstract class Tags extends AbstractAST
     {
       return visitor.visitTagsDefault (this);
     }
-    private java.util.List < Tag > annotations;
-    public java.util.List < Tag > getAnnotations ()
+    private java.util.List < org.meta_environment.rascal.ast.Tag >
+      annotations;
+    public java.util.List < org.meta_environment.rascal.ast.Tag >
+      getAnnotations ()
     {
       return annotations;
     }
-    private void $setAnnotations (java.util.List < Tag > x)
+    private void $setAnnotations (java.util.List <
+				  org.meta_environment.rascal.ast.Tag > x)
     {
       this.annotations = x;
     }
-    public Default setAnnotations (java.util.List < Tag > x)
+    public org.meta_environment.rascal.ast.Default setAnnotations (java.util.
+								   List <
+								   org.
+								   meta_environment.
+								   rascal.ast.
+								   Tag > x)
     {
-      Default z = new Default ();
+      org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setAnnotations (x);
       return z;
     }

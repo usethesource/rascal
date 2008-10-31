@@ -10,7 +10,7 @@ public abstract class Statement extends AbstractAST
     }
     /*package */ Solve (ITree tree,
 			java.util.List < Declarator > declarations,
-			Statement body)
+			org.meta_environment.rascal.ast.Statement body)
     {
       this.tree = tree;
       this.declarations = declarations;
@@ -20,33 +20,46 @@ public abstract class Statement extends AbstractAST
     {
       return visitor.visitStatementSolve (this);
     }
-    private java.util.List < Declarator > declarations;
-    public java.util.List < Declarator > getDeclarations ()
+    private java.util.List < org.meta_environment.rascal.ast.Declarator >
+      declarations;
+    public java.util.List < org.meta_environment.rascal.ast.Declarator >
+      getDeclarations ()
     {
       return declarations;
     }
-    private void $setDeclarations (java.util.List < Declarator > x)
+    private void $setDeclarations (java.util.List <
+				   org.meta_environment.rascal.ast.
+				   Declarator > x)
     {
       this.declarations = x;
     }
-    public Solve setDeclarations (java.util.List < Declarator > x)
+    public org.meta_environment.rascal.ast.Solve setDeclarations (java.util.
+								  List <
+								  org.
+								  meta_environment.
+								  rascal.ast.
+								  Declarator >
+								  x)
     {
-      Solve z = new Solve ();
+      org.meta_environment.rascal.ast.Solve z = new Solve ();
       z.$setDeclarations (x);
       return z;
     }
-    private Statement body;
-    public Statement getBody ()
+    private org.meta_environment.rascal.ast.Statement body;
+    public org.meta_environment.rascal.ast.Statement getBody ()
     {
       return body;
     }
-    private void $setBody (Statement x)
+    private void $setBody (org.meta_environment.rascal.ast.Statement x)
     {
       this.body = x;
     }
-    public Solve setBody (Statement x)
+    public org.meta_environment.rascal.ast.Solve setBody (org.
+							  meta_environment.
+							  rascal.ast.
+							  Statement x)
     {
-      Solve z = new Solve ();
+      org.meta_environment.rascal.ast.Solve z = new Solve ();
       z.$setBody (x);
       return z;
     }
@@ -70,8 +83,9 @@ public abstract class Statement extends AbstractAST
     private For ()
     {
     }
-    /*package */ For (ITree tree, Label label,
-		      java.util.List < Generator > generators, Statement body)
+    /*package */ For (ITree tree, org.meta_environment.rascal.ast.Label label,
+		      java.util.List < Generator > generators,
+		      org.meta_environment.rascal.ast.Statement body)
     {
       this.tree = tree;
       this.label = label;
@@ -82,48 +96,59 @@ public abstract class Statement extends AbstractAST
     {
       return visitor.visitStatementFor (this);
     }
-    private Label label;
-    public Label getLabel ()
+    private org.meta_environment.rascal.ast.Label label;
+    public org.meta_environment.rascal.ast.Label getLabel ()
     {
       return label;
     }
-    private void $setLabel (Label x)
+    private void $setLabel (org.meta_environment.rascal.ast.Label x)
     {
       this.label = x;
     }
-    public For setLabel (Label x)
+    public org.meta_environment.rascal.ast.For setLabel (org.meta_environment.
+							 rascal.ast.Label x)
     {
-      For z = new For ();
+      org.meta_environment.rascal.ast.For z = new For ();
       z.$setLabel (x);
       return z;
     }
-    private java.util.List < Generator > generators;
-    public java.util.List < Generator > getGenerators ()
+    private java.util.List < org.meta_environment.rascal.ast.Generator >
+      generators;
+    public java.util.List < org.meta_environment.rascal.ast.Generator >
+      getGenerators ()
     {
       return generators;
     }
-    private void $setGenerators (java.util.List < Generator > x)
+    private void $setGenerators (java.util.List <
+				 org.meta_environment.rascal.ast.Generator >
+				 x)
     {
       this.generators = x;
     }
-    public For setGenerators (java.util.List < Generator > x)
+    public org.meta_environment.rascal.ast.For setGenerators (java.util.List <
+							      org.
+							      meta_environment.
+							      rascal.ast.
+							      Generator > x)
     {
-      For z = new For ();
+      org.meta_environment.rascal.ast.For z = new For ();
       z.$setGenerators (x);
       return z;
     }
-    private Statement body;
-    public Statement getBody ()
+    private org.meta_environment.rascal.ast.Statement body;
+    public org.meta_environment.rascal.ast.Statement getBody ()
     {
       return body;
     }
-    private void $setBody (Statement x)
+    private void $setBody (org.meta_environment.rascal.ast.Statement x)
     {
       this.body = x;
     }
-    public For setBody (Statement x)
+    public org.meta_environment.rascal.ast.For setBody (org.meta_environment.
+							rascal.ast.
+							Statement x)
     {
-      For z = new For ();
+      org.meta_environment.rascal.ast.For z = new For ();
       z.$setBody (x);
       return z;
     }
@@ -134,8 +159,10 @@ public abstract class Statement extends AbstractAST
     private While ()
     {
     }
-    /*package */ While (ITree tree, Label label, Expression condition,
-			Statement body)
+    /*package */ While (ITree tree,
+			org.meta_environment.rascal.ast.Label label,
+			org.meta_environment.rascal.ast.Expression condition,
+			org.meta_environment.rascal.ast.Statement body)
     {
       this.tree = tree;
       this.label = label;
@@ -146,48 +173,56 @@ public abstract class Statement extends AbstractAST
     {
       return visitor.visitStatementWhile (this);
     }
-    private Label label;
-    public Label getLabel ()
+    private org.meta_environment.rascal.ast.Label label;
+    public org.meta_environment.rascal.ast.Label getLabel ()
     {
       return label;
     }
-    private void $setLabel (Label x)
+    private void $setLabel (org.meta_environment.rascal.ast.Label x)
     {
       this.label = x;
     }
-    public While setLabel (Label x)
+    public org.meta_environment.rascal.ast.While setLabel (org.
+							   meta_environment.
+							   rascal.ast.Label x)
     {
-      While z = new While ();
+      org.meta_environment.rascal.ast.While z = new While ();
       z.$setLabel (x);
       return z;
     }
-    private Expression condition;
-    public Expression getCondition ()
+    private org.meta_environment.rascal.ast.Expression condition;
+    public org.meta_environment.rascal.ast.Expression getCondition ()
     {
       return condition;
     }
-    private void $setCondition (Expression x)
+    private void $setCondition (org.meta_environment.rascal.ast.Expression x)
     {
       this.condition = x;
     }
-    public While setCondition (Expression x)
+    public org.meta_environment.rascal.ast.While setCondition (org.
+							       meta_environment.
+							       rascal.ast.
+							       Expression x)
     {
-      While z = new While ();
+      org.meta_environment.rascal.ast.While z = new While ();
       z.$setCondition (x);
       return z;
     }
-    private Statement body;
-    public Statement getBody ()
+    private org.meta_environment.rascal.ast.Statement body;
+    public org.meta_environment.rascal.ast.Statement getBody ()
     {
       return body;
     }
-    private void $setBody (Statement x)
+    private void $setBody (org.meta_environment.rascal.ast.Statement x)
     {
       this.body = x;
     }
-    public While setBody (Statement x)
+    public org.meta_environment.rascal.ast.While setBody (org.
+							  meta_environment.
+							  rascal.ast.
+							  Statement x)
     {
-      While z = new While ();
+      org.meta_environment.rascal.ast.While z = new While ();
       z.$setBody (x);
       return z;
     }
@@ -198,7 +233,10 @@ public abstract class Statement extends AbstractAST
     private DoWhile ()
     {
     }
-    /*package */ DoWhile (ITree tree, Label label, Statement body,
+    /*package */ DoWhile (ITree tree,
+			  org.meta_environment.rascal.ast.Label label,
+			  org.meta_environment.rascal.ast.Statement body,
+			  org.meta_environment.rascal.ast.
 			  Expression condition)
     {
       this.tree = tree;
@@ -210,48 +248,57 @@ public abstract class Statement extends AbstractAST
     {
       return visitor.visitStatementDoWhile (this);
     }
-    private Label label;
-    public Label getLabel ()
+    private org.meta_environment.rascal.ast.Label label;
+    public org.meta_environment.rascal.ast.Label getLabel ()
     {
       return label;
     }
-    private void $setLabel (Label x)
+    private void $setLabel (org.meta_environment.rascal.ast.Label x)
     {
       this.label = x;
     }
-    public DoWhile setLabel (Label x)
+    public org.meta_environment.rascal.ast.DoWhile setLabel (org.
+							     meta_environment.
+							     rascal.ast.
+							     Label x)
     {
-      DoWhile z = new DoWhile ();
+      org.meta_environment.rascal.ast.DoWhile z = new DoWhile ();
       z.$setLabel (x);
       return z;
     }
-    private Statement body;
-    public Statement getBody ()
+    private org.meta_environment.rascal.ast.Statement body;
+    public org.meta_environment.rascal.ast.Statement getBody ()
     {
       return body;
     }
-    private void $setBody (Statement x)
+    private void $setBody (org.meta_environment.rascal.ast.Statement x)
     {
       this.body = x;
     }
-    public DoWhile setBody (Statement x)
+    public org.meta_environment.rascal.ast.DoWhile setBody (org.
+							    meta_environment.
+							    rascal.ast.
+							    Statement x)
     {
-      DoWhile z = new DoWhile ();
+      org.meta_environment.rascal.ast.DoWhile z = new DoWhile ();
       z.$setBody (x);
       return z;
     }
-    private Expression condition;
-    public Expression getCondition ()
+    private org.meta_environment.rascal.ast.Expression condition;
+    public org.meta_environment.rascal.ast.Expression getCondition ()
     {
       return condition;
     }
-    private void $setCondition (Expression x)
+    private void $setCondition (org.meta_environment.rascal.ast.Expression x)
     {
       this.condition = x;
     }
-    public DoWhile setCondition (Expression x)
+    public org.meta_environment.rascal.ast.DoWhile setCondition (org.
+								 meta_environment.
+								 rascal.ast.
+								 Expression x)
     {
-      DoWhile z = new DoWhile ();
+      org.meta_environment.rascal.ast.DoWhile z = new DoWhile ();
       z.$setCondition (x);
       return z;
     }
@@ -262,9 +309,13 @@ public abstract class Statement extends AbstractAST
     private IfThenElse ()
     {
     }
-    /*package */ IfThenElse (ITree tree, Label label,
+    /*package */ IfThenElse (ITree tree,
+			     org.meta_environment.rascal.ast.Label label,
 			     java.util.List < Expression > conditions,
-			     Statement thenStatement, Statement elseStatement)
+			     org.meta_environment.rascal.ast.
+			     Statement thenStatement,
+			     org.meta_environment.rascal.ast.
+			     Statement elseStatement)
     {
       this.tree = tree;
       this.label = label;
@@ -276,63 +327,90 @@ public abstract class Statement extends AbstractAST
     {
       return visitor.visitStatementIfThenElse (this);
     }
-    private Label label;
-    public Label getLabel ()
+    private org.meta_environment.rascal.ast.Label label;
+    public org.meta_environment.rascal.ast.Label getLabel ()
     {
       return label;
     }
-    private void $setLabel (Label x)
+    private void $setLabel (org.meta_environment.rascal.ast.Label x)
     {
       this.label = x;
     }
-    public IfThenElse setLabel (Label x)
+    public org.meta_environment.rascal.ast.IfThenElse setLabel (org.
+								meta_environment.
+								rascal.ast.
+								Label x)
     {
-      IfThenElse z = new IfThenElse ();
+      org.meta_environment.rascal.ast.IfThenElse z = new IfThenElse ();
       z.$setLabel (x);
       return z;
     }
-    private java.util.List < Expression > conditions;
-    public java.util.List < Expression > getConditions ()
+    private java.util.List < org.meta_environment.rascal.ast.Expression >
+      conditions;
+    public java.util.List < org.meta_environment.rascal.ast.Expression >
+      getConditions ()
     {
       return conditions;
     }
-    private void $setConditions (java.util.List < Expression > x)
+    private void $setConditions (java.util.List <
+				 org.meta_environment.rascal.ast.Expression >
+				 x)
     {
       this.conditions = x;
     }
-    public IfThenElse setConditions (java.util.List < Expression > x)
+    public org.meta_environment.rascal.ast.IfThenElse setConditions (java.
+								     util.
+								     List <
+								     org.
+								     meta_environment.
+								     rascal.
+								     ast.
+								     Expression
+								     > x)
     {
-      IfThenElse z = new IfThenElse ();
+      org.meta_environment.rascal.ast.IfThenElse z = new IfThenElse ();
       z.$setConditions (x);
       return z;
     }
-    private Statement thenStatement;
-    public Statement getThenStatement ()
+    private org.meta_environment.rascal.ast.Statement thenStatement;
+    public org.meta_environment.rascal.ast.Statement getThenStatement ()
     {
       return thenStatement;
     }
-    private void $setThenStatement (Statement x)
+    private void $setThenStatement (org.meta_environment.rascal.ast.
+				    Statement x)
     {
       this.thenStatement = x;
     }
-    public IfThenElse setThenStatement (Statement x)
+    public org.meta_environment.rascal.ast.IfThenElse setThenStatement (org.
+									meta_environment.
+									rascal.
+									ast.
+									Statement
+									x)
     {
-      IfThenElse z = new IfThenElse ();
+      org.meta_environment.rascal.ast.IfThenElse z = new IfThenElse ();
       z.$setThenStatement (x);
       return z;
     }
-    private Statement elseStatement;
-    public Statement getElseStatement ()
+    private org.meta_environment.rascal.ast.Statement elseStatement;
+    public org.meta_environment.rascal.ast.Statement getElseStatement ()
     {
       return elseStatement;
     }
-    private void $setElseStatement (Statement x)
+    private void $setElseStatement (org.meta_environment.rascal.ast.
+				    Statement x)
     {
       this.elseStatement = x;
     }
-    public IfThenElse setElseStatement (Statement x)
+    public org.meta_environment.rascal.ast.IfThenElse setElseStatement (org.
+									meta_environment.
+									rascal.
+									ast.
+									Statement
+									x)
     {
-      IfThenElse z = new IfThenElse ();
+      org.meta_environment.rascal.ast.IfThenElse z = new IfThenElse ();
       z.$setElseStatement (x);
       return z;
     }
@@ -343,8 +421,10 @@ public abstract class Statement extends AbstractAST
     private IfThen ()
     {
     }
-    /*package */ IfThen (ITree tree, Label label,
+    /*package */ IfThen (ITree tree,
+			 org.meta_environment.rascal.ast.Label label,
 			 java.util.List < Expression > conditions,
+			 org.meta_environment.rascal.ast.
 			 Statement thenStatement)
     {
       this.tree = tree;
@@ -356,48 +436,67 @@ public abstract class Statement extends AbstractAST
     {
       return visitor.visitStatementIfThen (this);
     }
-    private Label label;
-    public Label getLabel ()
+    private org.meta_environment.rascal.ast.Label label;
+    public org.meta_environment.rascal.ast.Label getLabel ()
     {
       return label;
     }
-    private void $setLabel (Label x)
+    private void $setLabel (org.meta_environment.rascal.ast.Label x)
     {
       this.label = x;
     }
-    public IfThen setLabel (Label x)
+    public org.meta_environment.rascal.ast.IfThen setLabel (org.
+							    meta_environment.
+							    rascal.ast.
+							    Label x)
     {
-      IfThen z = new IfThen ();
+      org.meta_environment.rascal.ast.IfThen z = new IfThen ();
       z.$setLabel (x);
       return z;
     }
-    private java.util.List < Expression > conditions;
-    public java.util.List < Expression > getConditions ()
+    private java.util.List < org.meta_environment.rascal.ast.Expression >
+      conditions;
+    public java.util.List < org.meta_environment.rascal.ast.Expression >
+      getConditions ()
     {
       return conditions;
     }
-    private void $setConditions (java.util.List < Expression > x)
+    private void $setConditions (java.util.List <
+				 org.meta_environment.rascal.ast.Expression >
+				 x)
     {
       this.conditions = x;
     }
-    public IfThen setConditions (java.util.List < Expression > x)
+    public org.meta_environment.rascal.ast.IfThen setConditions (java.util.
+								 List <
+								 org.
+								 meta_environment.
+								 rascal.ast.
+								 Expression >
+								 x)
     {
-      IfThen z = new IfThen ();
+      org.meta_environment.rascal.ast.IfThen z = new IfThen ();
       z.$setConditions (x);
       return z;
     }
-    private Statement thenStatement;
-    public Statement getThenStatement ()
+    private org.meta_environment.rascal.ast.Statement thenStatement;
+    public org.meta_environment.rascal.ast.Statement getThenStatement ()
     {
       return thenStatement;
     }
-    private void $setThenStatement (Statement x)
+    private void $setThenStatement (org.meta_environment.rascal.ast.
+				    Statement x)
     {
       this.thenStatement = x;
     }
-    public IfThen setThenStatement (Statement x)
+    public org.meta_environment.rascal.ast.IfThen setThenStatement (org.
+								    meta_environment.
+								    rascal.
+								    ast.
+								    Statement
+								    x)
     {
-      IfThen z = new IfThen ();
+      org.meta_environment.rascal.ast.IfThen z = new IfThen ();
       z.$setThenStatement (x);
       return z;
     }
@@ -408,8 +507,10 @@ public abstract class Statement extends AbstractAST
     private Switch ()
     {
     }
-    /*package */ Switch (ITree tree, Label label, Expression expression,
-			 java.util.List < Case > cases)
+    /*package */ Switch (ITree tree,
+			 org.meta_environment.rascal.ast.Label label,
+			 org.meta_environment.rascal.ast.
+			 Expression expression, java.util.List < Case > cases)
     {
       this.tree = tree;
       this.label = label;
@@ -420,48 +521,59 @@ public abstract class Statement extends AbstractAST
     {
       return visitor.visitStatementSwitch (this);
     }
-    private Label label;
-    public Label getLabel ()
+    private org.meta_environment.rascal.ast.Label label;
+    public org.meta_environment.rascal.ast.Label getLabel ()
     {
       return label;
     }
-    private void $setLabel (Label x)
+    private void $setLabel (org.meta_environment.rascal.ast.Label x)
     {
       this.label = x;
     }
-    public Switch setLabel (Label x)
+    public org.meta_environment.rascal.ast.Switch setLabel (org.
+							    meta_environment.
+							    rascal.ast.
+							    Label x)
     {
-      Switch z = new Switch ();
+      org.meta_environment.rascal.ast.Switch z = new Switch ();
       z.$setLabel (x);
       return z;
     }
-    private Expression expression;
-    public Expression getExpression ()
+    private org.meta_environment.rascal.ast.Expression expression;
+    public org.meta_environment.rascal.ast.Expression getExpression ()
     {
       return expression;
     }
-    private void $setExpression (Expression x)
+    private void $setExpression (org.meta_environment.rascal.ast.Expression x)
     {
       this.expression = x;
     }
-    public Switch setExpression (Expression x)
+    public org.meta_environment.rascal.ast.Switch setExpression (org.
+								 meta_environment.
+								 rascal.ast.
+								 Expression x)
     {
-      Switch z = new Switch ();
+      org.meta_environment.rascal.ast.Switch z = new Switch ();
       z.$setExpression (x);
       return z;
     }
-    private java.util.List < Case > cases;
-    public java.util.List < Case > getCases ()
+    private java.util.List < org.meta_environment.rascal.ast.Case > cases;
+    public java.util.List < org.meta_environment.rascal.ast.Case > getCases ()
     {
       return cases;
     }
-    private void $setCases (java.util.List < Case > x)
+    private void $setCases (java.util.List <
+			    org.meta_environment.rascal.ast.Case > x)
     {
       this.cases = x;
     }
-    public Switch setCases (java.util.List < Case > x)
+    public org.meta_environment.rascal.ast.Switch setCases (java.util.List <
+							    org.
+							    meta_environment.
+							    rascal.ast.Case >
+							    x)
     {
-      Switch z = new Switch ();
+      org.meta_environment.rascal.ast.Switch z = new Switch ();
       z.$setCases (x);
       return z;
     }
@@ -472,9 +584,9 @@ public abstract class Statement extends AbstractAST
     private All ()
     {
     }
-    /*package */ All (ITree tree, Label label,
+    /*package */ All (ITree tree, org.meta_environment.rascal.ast.Label label,
 		      java.util.List < Expression > conditions,
-		      Statement body)
+		      org.meta_environment.rascal.ast.Statement body)
     {
       this.tree = tree;
       this.label = label;
@@ -485,48 +597,59 @@ public abstract class Statement extends AbstractAST
     {
       return visitor.visitStatementAll (this);
     }
-    private Label label;
-    public Label getLabel ()
+    private org.meta_environment.rascal.ast.Label label;
+    public org.meta_environment.rascal.ast.Label getLabel ()
     {
       return label;
     }
-    private void $setLabel (Label x)
+    private void $setLabel (org.meta_environment.rascal.ast.Label x)
     {
       this.label = x;
     }
-    public All setLabel (Label x)
+    public org.meta_environment.rascal.ast.All setLabel (org.meta_environment.
+							 rascal.ast.Label x)
     {
-      All z = new All ();
+      org.meta_environment.rascal.ast.All z = new All ();
       z.$setLabel (x);
       return z;
     }
-    private java.util.List < Expression > conditions;
-    public java.util.List < Expression > getConditions ()
+    private java.util.List < org.meta_environment.rascal.ast.Expression >
+      conditions;
+    public java.util.List < org.meta_environment.rascal.ast.Expression >
+      getConditions ()
     {
       return conditions;
     }
-    private void $setConditions (java.util.List < Expression > x)
+    private void $setConditions (java.util.List <
+				 org.meta_environment.rascal.ast.Expression >
+				 x)
     {
       this.conditions = x;
     }
-    public All setConditions (java.util.List < Expression > x)
+    public org.meta_environment.rascal.ast.All setConditions (java.util.List <
+							      org.
+							      meta_environment.
+							      rascal.ast.
+							      Expression > x)
     {
-      All z = new All ();
+      org.meta_environment.rascal.ast.All z = new All ();
       z.$setConditions (x);
       return z;
     }
-    private Statement body;
-    public Statement getBody ()
+    private org.meta_environment.rascal.ast.Statement body;
+    public org.meta_environment.rascal.ast.Statement getBody ()
     {
       return body;
     }
-    private void $setBody (Statement x)
+    private void $setBody (org.meta_environment.rascal.ast.Statement x)
     {
       this.body = x;
     }
-    public All setBody (Statement x)
+    public org.meta_environment.rascal.ast.All setBody (org.meta_environment.
+							rascal.ast.
+							Statement x)
     {
-      All z = new All ();
+      org.meta_environment.rascal.ast.All z = new All ();
       z.$setBody (x);
       return z;
     }
@@ -537,9 +660,10 @@ public abstract class Statement extends AbstractAST
     private First ()
     {
     }
-    /*package */ First (ITree tree, Label label,
+    /*package */ First (ITree tree,
+			org.meta_environment.rascal.ast.Label label,
 			java.util.List < Expression > conditions,
-			Statement body)
+			org.meta_environment.rascal.ast.Statement body)
     {
       this.tree = tree;
       this.label = label;
@@ -550,48 +674,63 @@ public abstract class Statement extends AbstractAST
     {
       return visitor.visitStatementFirst (this);
     }
-    private Label label;
-    public Label getLabel ()
+    private org.meta_environment.rascal.ast.Label label;
+    public org.meta_environment.rascal.ast.Label getLabel ()
     {
       return label;
     }
-    private void $setLabel (Label x)
+    private void $setLabel (org.meta_environment.rascal.ast.Label x)
     {
       this.label = x;
     }
-    public First setLabel (Label x)
+    public org.meta_environment.rascal.ast.First setLabel (org.
+							   meta_environment.
+							   rascal.ast.Label x)
     {
-      First z = new First ();
+      org.meta_environment.rascal.ast.First z = new First ();
       z.$setLabel (x);
       return z;
     }
-    private java.util.List < Expression > conditions;
-    public java.util.List < Expression > getConditions ()
+    private java.util.List < org.meta_environment.rascal.ast.Expression >
+      conditions;
+    public java.util.List < org.meta_environment.rascal.ast.Expression >
+      getConditions ()
     {
       return conditions;
     }
-    private void $setConditions (java.util.List < Expression > x)
+    private void $setConditions (java.util.List <
+				 org.meta_environment.rascal.ast.Expression >
+				 x)
     {
       this.conditions = x;
     }
-    public First setConditions (java.util.List < Expression > x)
+    public org.meta_environment.rascal.ast.First setConditions (java.util.
+								List <
+								org.
+								meta_environment.
+								rascal.ast.
+								Expression >
+								x)
     {
-      First z = new First ();
+      org.meta_environment.rascal.ast.First z = new First ();
       z.$setConditions (x);
       return z;
     }
-    private Statement body;
-    public Statement getBody ()
+    private org.meta_environment.rascal.ast.Statement body;
+    public org.meta_environment.rascal.ast.Statement getBody ()
     {
       return body;
     }
-    private void $setBody (Statement x)
+    private void $setBody (org.meta_environment.rascal.ast.Statement x)
     {
       this.body = x;
     }
-    public First setBody (Statement x)
+    public org.meta_environment.rascal.ast.First setBody (org.
+							  meta_environment.
+							  rascal.ast.
+							  Statement x)
     {
-      First z = new First ();
+      org.meta_environment.rascal.ast.First z = new First ();
       z.$setBody (x);
       return z;
     }
@@ -602,7 +741,9 @@ public abstract class Statement extends AbstractAST
     private Expression ()
     {
     }
-    /*package */ Expression (ITree tree, Expression expression)
+    /*package */ Expression (ITree tree,
+			     org.meta_environment.rascal.ast.
+			     Expression expression)
     {
       this.tree = tree;
       this.expression = expression;
@@ -611,18 +752,23 @@ public abstract class Statement extends AbstractAST
     {
       return visitor.visitStatementExpression (this);
     }
-    private Expression expression;
-    public Expression getExpression ()
+    private org.meta_environment.rascal.ast.Expression expression;
+    public org.meta_environment.rascal.ast.Expression getExpression ()
     {
       return expression;
     }
-    private void $setExpression (Expression x)
+    private void $setExpression (org.meta_environment.rascal.ast.Expression x)
     {
       this.expression = x;
     }
-    public Expression setExpression (Expression x)
+    public org.meta_environment.rascal.ast.Expression setExpression (org.
+								     meta_environment.
+								     rascal.
+								     ast.
+								     Expression
+								     x)
     {
-      Expression z = new Expression ();
+      org.meta_environment.rascal.ast.Expression z = new Expression ();
       z.$setExpression (x);
       return z;
     }
@@ -633,7 +779,8 @@ public abstract class Statement extends AbstractAST
     private Visit ()
     {
     }
-    /*package */ Visit (ITree tree, Visit visit)
+    /*package */ Visit (ITree tree,
+			org.meta_environment.rascal.ast.Visit visit)
     {
       this.tree = tree;
       this.visit = visit;
@@ -642,18 +789,20 @@ public abstract class Statement extends AbstractAST
     {
       return visitor.visitStatementVisit (this);
     }
-    private Visit visit;
-    public Visit getVisit ()
+    private org.meta_environment.rascal.ast.Visit visit;
+    public org.meta_environment.rascal.ast.Visit getVisit ()
     {
       return visit;
     }
-    private void $setVisit (Visit x)
+    private void $setVisit (org.meta_environment.rascal.ast.Visit x)
     {
       this.visit = x;
     }
-    public Visit setVisit (Visit x)
+    public org.meta_environment.rascal.ast.Visit setVisit (org.
+							   meta_environment.
+							   rascal.ast.Visit x)
     {
-      Visit z = new Visit ();
+      org.meta_environment.rascal.ast.Visit z = new Visit ();
       z.$setVisit (x);
       return z;
     }
@@ -666,6 +815,7 @@ public abstract class Statement extends AbstractAST
     }
     /*package */ Assignment (ITree tree,
 			     java.util.List < Assignable > assignables,
+			     org.meta_environment.rascal.ast.
 			     Assignment operator,
 			     java.util.List < Expression > expressions)
     {
@@ -678,48 +828,76 @@ public abstract class Statement extends AbstractAST
     {
       return visitor.visitStatementAssignment (this);
     }
-    private java.util.List < Assignable > assignables;
-    public java.util.List < Assignable > getAssignables ()
+    private java.util.List < org.meta_environment.rascal.ast.Assignable >
+      assignables;
+    public java.util.List < org.meta_environment.rascal.ast.Assignable >
+      getAssignables ()
     {
       return assignables;
     }
-    private void $setAssignables (java.util.List < Assignable > x)
+    private void $setAssignables (java.util.List <
+				  org.meta_environment.rascal.ast.Assignable >
+				  x)
     {
       this.assignables = x;
     }
-    public Assignment setAssignables (java.util.List < Assignable > x)
+    public org.meta_environment.rascal.ast.Assignment setAssignables (java.
+								      util.
+								      List <
+								      org.
+								      meta_environment.
+								      rascal.
+								      ast.
+								      Assignable
+								      > x)
     {
-      Assignment z = new Assignment ();
+      org.meta_environment.rascal.ast.Assignment z = new Assignment ();
       z.$setAssignables (x);
       return z;
     }
-    private Assignment operator;
-    public Assignment getOperator ()
+    private org.meta_environment.rascal.ast.Assignment operator;
+    public org.meta_environment.rascal.ast.Assignment getOperator ()
     {
       return operator;
     }
-    private void $setOperator (Assignment x)
+    private void $setOperator (org.meta_environment.rascal.ast.Assignment x)
     {
       this.operator = x;
     }
-    public Assignment setOperator (Assignment x)
+    public org.meta_environment.rascal.ast.Assignment setOperator (org.
+								   meta_environment.
+								   rascal.ast.
+								   Assignment
+								   x)
     {
-      Assignment z = new Assignment ();
+      org.meta_environment.rascal.ast.Assignment z = new Assignment ();
       z.$setOperator (x);
       return z;
     }
-    private java.util.List < Expression > expressions;
-    public java.util.List < Expression > getExpressions ()
+    private java.util.List < org.meta_environment.rascal.ast.Expression >
+      expressions;
+    public java.util.List < org.meta_environment.rascal.ast.Expression >
+      getExpressions ()
     {
       return expressions;
     }
-    private void $setExpressions (java.util.List < Expression > x)
+    private void $setExpressions (java.util.List <
+				  org.meta_environment.rascal.ast.Expression >
+				  x)
     {
       this.expressions = x;
     }
-    public Assignment setExpressions (java.util.List < Expression > x)
+    public org.meta_environment.rascal.ast.Assignment setExpressions (java.
+								      util.
+								      List <
+								      org.
+								      meta_environment.
+								      rascal.
+								      ast.
+								      Expression
+								      > x)
     {
-      Assignment z = new Assignment ();
+      org.meta_environment.rascal.ast.Assignment z = new Assignment ();
       z.$setExpressions (x);
       return z;
     }
@@ -790,7 +968,9 @@ public abstract class Statement extends AbstractAST
     private Assert ()
     {
     }
-    /*package */ Assert (ITree tree, StringLiteral label,
+    /*package */ Assert (ITree tree,
+			 org.meta_environment.rascal.ast.StringLiteral label,
+			 org.meta_environment.rascal.ast.
 			 Expression expression)
     {
       this.tree = tree;
@@ -801,33 +981,39 @@ public abstract class Statement extends AbstractAST
     {
       return visitor.visitStatementAssert (this);
     }
-    private StringLiteral label;
-    public StringLiteral getLabel ()
+    private org.meta_environment.rascal.ast.StringLiteral label;
+    public org.meta_environment.rascal.ast.StringLiteral getLabel ()
     {
       return label;
     }
-    private void $setLabel (StringLiteral x)
+    private void $setLabel (org.meta_environment.rascal.ast.StringLiteral x)
     {
       this.label = x;
     }
-    public Assert setLabel (StringLiteral x)
+    public org.meta_environment.rascal.ast.Assert setLabel (org.
+							    meta_environment.
+							    rascal.ast.
+							    StringLiteral x)
     {
-      Assert z = new Assert ();
+      org.meta_environment.rascal.ast.Assert z = new Assert ();
       z.$setLabel (x);
       return z;
     }
-    private Expression expression;
-    public Expression getExpression ()
+    private org.meta_environment.rascal.ast.Expression expression;
+    public org.meta_environment.rascal.ast.Expression getExpression ()
     {
       return expression;
     }
-    private void $setExpression (Expression x)
+    private void $setExpression (org.meta_environment.rascal.ast.Expression x)
     {
       this.expression = x;
     }
-    public Assert setExpression (Expression x)
+    public org.meta_environment.rascal.ast.Assert setExpression (org.
+								 meta_environment.
+								 rascal.ast.
+								 Expression x)
     {
-      Assert z = new Assert ();
+      org.meta_environment.rascal.ast.Assert z = new Assert ();
       z.$setExpression (x);
       return z;
     }
@@ -838,7 +1024,9 @@ public abstract class Statement extends AbstractAST
     private Insert ()
     {
     }
-    /*package */ Insert (ITree tree, Expression expression)
+    /*package */ Insert (ITree tree,
+			 org.meta_environment.rascal.ast.
+			 Expression expression)
     {
       this.tree = tree;
       this.expression = expression;
@@ -847,18 +1035,21 @@ public abstract class Statement extends AbstractAST
     {
       return visitor.visitStatementInsert (this);
     }
-    private Expression expression;
-    public Expression getExpression ()
+    private org.meta_environment.rascal.ast.Expression expression;
+    public org.meta_environment.rascal.ast.Expression getExpression ()
     {
       return expression;
     }
-    private void $setExpression (Expression x)
+    private void $setExpression (org.meta_environment.rascal.ast.Expression x)
     {
       this.expression = x;
     }
-    public Insert setExpression (Expression x)
+    public org.meta_environment.rascal.ast.Insert setExpression (org.
+								 meta_environment.
+								 rascal.ast.
+								 Expression x)
     {
-      Insert z = new Insert ();
+      org.meta_environment.rascal.ast.Insert z = new Insert ();
       z.$setExpression (x);
       return z;
     }
@@ -869,7 +1060,8 @@ public abstract class Statement extends AbstractAST
     private Throw ()
     {
     }
-    /*package */ Throw (ITree tree, Expression expression)
+    /*package */ Throw (ITree tree,
+			org.meta_environment.rascal.ast.Expression expression)
     {
       this.tree = tree;
       this.expression = expression;
@@ -878,18 +1070,21 @@ public abstract class Statement extends AbstractAST
     {
       return visitor.visitStatementThrow (this);
     }
-    private Expression expression;
-    public Expression getExpression ()
+    private org.meta_environment.rascal.ast.Expression expression;
+    public org.meta_environment.rascal.ast.Expression getExpression ()
     {
       return expression;
     }
-    private void $setExpression (Expression x)
+    private void $setExpression (org.meta_environment.rascal.ast.Expression x)
     {
       this.expression = x;
     }
-    public Throw setExpression (Expression x)
+    public org.meta_environment.rascal.ast.Throw setExpression (org.
+								meta_environment.
+								rascal.ast.
+								Expression x)
     {
-      Throw z = new Throw ();
+      org.meta_environment.rascal.ast.Throw z = new Throw ();
       z.$setExpression (x);
       return z;
     }
@@ -900,7 +1095,8 @@ public abstract class Statement extends AbstractAST
     private Try ()
     {
     }
-    /*package */ Try (ITree tree, Statement body,
+    /*package */ Try (ITree tree,
+		      org.meta_environment.rascal.ast.Statement body,
 		      java.util.List < Catch > handlers)
     {
       this.tree = tree;
@@ -911,33 +1107,41 @@ public abstract class Statement extends AbstractAST
     {
       return visitor.visitStatementTry (this);
     }
-    private Statement body;
-    public Statement getBody ()
+    private org.meta_environment.rascal.ast.Statement body;
+    public org.meta_environment.rascal.ast.Statement getBody ()
     {
       return body;
     }
-    private void $setBody (Statement x)
+    private void $setBody (org.meta_environment.rascal.ast.Statement x)
     {
       this.body = x;
     }
-    public Try setBody (Statement x)
+    public org.meta_environment.rascal.ast.Try setBody (org.meta_environment.
+							rascal.ast.
+							Statement x)
     {
-      Try z = new Try ();
+      org.meta_environment.rascal.ast.Try z = new Try ();
       z.$setBody (x);
       return z;
     }
-    private java.util.List < Catch > handlers;
-    public java.util.List < Catch > getHandlers ()
+    private java.util.List < org.meta_environment.rascal.ast.Catch > handlers;
+    public java.util.List < org.meta_environment.rascal.ast.Catch >
+      getHandlers ()
     {
       return handlers;
     }
-    private void $setHandlers (java.util.List < Catch > x)
+    private void $setHandlers (java.util.List <
+			       org.meta_environment.rascal.ast.Catch > x)
     {
       this.handlers = x;
     }
-    public Try setHandlers (java.util.List < Catch > x)
+    public org.meta_environment.rascal.ast.Try setHandlers (java.util.List <
+							    org.
+							    meta_environment.
+							    rascal.ast.Catch >
+							    x)
     {
-      Try z = new Try ();
+      org.meta_environment.rascal.ast.Try z = new Try ();
       z.$setHandlers (x);
       return z;
     }
@@ -948,8 +1152,10 @@ public abstract class Statement extends AbstractAST
     private TryFinally ()
     {
     }
-    /*package */ TryFinally (ITree tree, Statement body,
+    /*package */ TryFinally (ITree tree,
+			     org.meta_environment.rascal.ast.Statement body,
 			     java.util.List < Catch > handlers,
+			     org.meta_environment.rascal.ast.
 			     Statement finallyBody)
     {
       this.tree = tree;
@@ -961,48 +1167,63 @@ public abstract class Statement extends AbstractAST
     {
       return visitor.visitStatementTryFinally (this);
     }
-    private Statement body;
-    public Statement getBody ()
+    private org.meta_environment.rascal.ast.Statement body;
+    public org.meta_environment.rascal.ast.Statement getBody ()
     {
       return body;
     }
-    private void $setBody (Statement x)
+    private void $setBody (org.meta_environment.rascal.ast.Statement x)
     {
       this.body = x;
     }
-    public TryFinally setBody (Statement x)
+    public org.meta_environment.rascal.ast.TryFinally setBody (org.
+							       meta_environment.
+							       rascal.ast.
+							       Statement x)
     {
-      TryFinally z = new TryFinally ();
+      org.meta_environment.rascal.ast.TryFinally z = new TryFinally ();
       z.$setBody (x);
       return z;
     }
-    private java.util.List < Catch > handlers;
-    public java.util.List < Catch > getHandlers ()
+    private java.util.List < org.meta_environment.rascal.ast.Catch > handlers;
+    public java.util.List < org.meta_environment.rascal.ast.Catch >
+      getHandlers ()
     {
       return handlers;
     }
-    private void $setHandlers (java.util.List < Catch > x)
+    private void $setHandlers (java.util.List <
+			       org.meta_environment.rascal.ast.Catch > x)
     {
       this.handlers = x;
     }
-    public TryFinally setHandlers (java.util.List < Catch > x)
+    public org.meta_environment.rascal.ast.TryFinally setHandlers (java.util.
+								   List <
+								   org.
+								   meta_environment.
+								   rascal.ast.
+								   Catch > x)
     {
-      TryFinally z = new TryFinally ();
+      org.meta_environment.rascal.ast.TryFinally z = new TryFinally ();
       z.$setHandlers (x);
       return z;
     }
-    private Statement finallyBody;
-    public Statement getFinallyBody ()
+    private org.meta_environment.rascal.ast.Statement finallyBody;
+    public org.meta_environment.rascal.ast.Statement getFinallyBody ()
     {
       return finallyBody;
     }
-    private void $setFinallyBody (Statement x)
+    private void $setFinallyBody (org.meta_environment.rascal.ast.Statement x)
     {
       this.finallyBody = x;
     }
-    public TryFinally setFinallyBody (Statement x)
+    public org.meta_environment.rascal.ast.TryFinally setFinallyBody (org.
+								      meta_environment.
+								      rascal.
+								      ast.
+								      Statement
+								      x)
     {
-      TryFinally z = new TryFinally ();
+      org.meta_environment.rascal.ast.TryFinally z = new TryFinally ();
       z.$setFinallyBody (x);
       return z;
     }
@@ -1013,7 +1234,8 @@ public abstract class Statement extends AbstractAST
     private Block ()
     {
     }
-    /*package */ Block (ITree tree, Label label,
+    /*package */ Block (ITree tree,
+			org.meta_environment.rascal.ast.Label label,
 			java.util.List < Statement > statements)
     {
       this.tree = tree;
@@ -1024,33 +1246,44 @@ public abstract class Statement extends AbstractAST
     {
       return visitor.visitStatementBlock (this);
     }
-    private Label label;
-    public Label getLabel ()
+    private org.meta_environment.rascal.ast.Label label;
+    public org.meta_environment.rascal.ast.Label getLabel ()
     {
       return label;
     }
-    private void $setLabel (Label x)
+    private void $setLabel (org.meta_environment.rascal.ast.Label x)
     {
       this.label = x;
     }
-    public Block setLabel (Label x)
+    public org.meta_environment.rascal.ast.Block setLabel (org.
+							   meta_environment.
+							   rascal.ast.Label x)
     {
-      Block z = new Block ();
+      org.meta_environment.rascal.ast.Block z = new Block ();
       z.$setLabel (x);
       return z;
     }
-    private java.util.List < Statement > statements;
-    public java.util.List < Statement > getStatements ()
+    private java.util.List < org.meta_environment.rascal.ast.Statement >
+      statements;
+    public java.util.List < org.meta_environment.rascal.ast.Statement >
+      getStatements ()
     {
       return statements;
     }
-    private void $setStatements (java.util.List < Statement > x)
+    private void $setStatements (java.util.List <
+				 org.meta_environment.rascal.ast.Statement >
+				 x)
     {
       this.statements = x;
     }
-    public Block setStatements (java.util.List < Statement > x)
+    public org.meta_environment.rascal.ast.Block setStatements (java.util.
+								List <
+								org.
+								meta_environment.
+								rascal.ast.
+								Statement > x)
     {
-      Block z = new Block ();
+      org.meta_environment.rascal.ast.Block z = new Block ();
       z.$setStatements (x);
       return z;
     }
@@ -1062,6 +1295,7 @@ public abstract class Statement extends AbstractAST
     {
     }
     /*package */ FunctionDeclaration (ITree tree,
+				      org.meta_environment.rascal.ast.
 				      FunctionDeclaration functionDeclaration)
     {
       this.tree = tree;
@@ -1071,18 +1305,24 @@ public abstract class Statement extends AbstractAST
     {
       return visitor.visitStatementFunctionDeclaration (this);
     }
-    private FunctionDeclaration functionDeclaration;
-    public FunctionDeclaration getFunctionDeclaration ()
+    private org.meta_environment.rascal.ast.
+      FunctionDeclaration functionDeclaration;
+    public org.meta_environment.rascal.ast.
+      FunctionDeclaration getFunctionDeclaration ()
     {
       return functionDeclaration;
     }
-    private void $setFunctionDeclaration (FunctionDeclaration x)
+    private void $setFunctionDeclaration (org.meta_environment.rascal.ast.
+					  FunctionDeclaration x)
     {
       this.functionDeclaration = x;
     }
-    public FunctionDeclaration setFunctionDeclaration (FunctionDeclaration x)
+    public org.meta_environment.rascal.ast.
+      FunctionDeclaration setFunctionDeclaration (org.meta_environment.rascal.
+						  ast.FunctionDeclaration x)
     {
-      FunctionDeclaration z = new FunctionDeclaration ();
+      org.meta_environment.rascal.ast.FunctionDeclaration z =
+	new FunctionDeclaration ();
       z.$setFunctionDeclaration (x);
       return z;
     }
@@ -1094,6 +1334,7 @@ public abstract class Statement extends AbstractAST
     {
     }
     /*package */ VariableDeclaration (ITree tree,
+				      org.meta_environment.rascal.ast.
 				      LocalVariableDeclaration declaration)
     {
       this.tree = tree;
@@ -1103,18 +1344,24 @@ public abstract class Statement extends AbstractAST
     {
       return visitor.visitStatementVariableDeclaration (this);
     }
-    private LocalVariableDeclaration declaration;
-    public LocalVariableDeclaration getDeclaration ()
+    private org.meta_environment.rascal.ast.
+      LocalVariableDeclaration declaration;
+    public org.meta_environment.rascal.ast.
+      LocalVariableDeclaration getDeclaration ()
     {
       return declaration;
     }
-    private void $setDeclaration (LocalVariableDeclaration x)
+    private void $setDeclaration (org.meta_environment.rascal.ast.
+				  LocalVariableDeclaration x)
     {
       this.declaration = x;
     }
-    public VariableDeclaration setDeclaration (LocalVariableDeclaration x)
+    public org.meta_environment.rascal.ast.
+      VariableDeclaration setDeclaration (org.meta_environment.rascal.ast.
+					  LocalVariableDeclaration x)
     {
-      VariableDeclaration z = new VariableDeclaration ();
+      org.meta_environment.rascal.ast.VariableDeclaration z =
+	new VariableDeclaration ();
       z.$setDeclaration (x);
       return z;
     }
@@ -1125,7 +1372,8 @@ public abstract class Statement extends AbstractAST
     private GlobalDirective ()
     {
     }
-    /*package */ GlobalDirective (ITree tree, Type type,
+    /*package */ GlobalDirective (ITree tree,
+				  org.meta_environment.rascal.ast.Type type,
 				  java.util.List < QualifiedName > names)
     {
       this.tree = tree;
@@ -1136,33 +1384,50 @@ public abstract class Statement extends AbstractAST
     {
       return visitor.visitStatementGlobalDirective (this);
     }
-    private Type type;
-    public Type getType ()
+    private org.meta_environment.rascal.ast.Type type;
+    public org.meta_environment.rascal.ast.Type getType ()
     {
       return type;
     }
-    private void $setType (Type x)
+    private void $setType (org.meta_environment.rascal.ast.Type x)
     {
       this.type = x;
     }
-    public GlobalDirective setType (Type x)
+    public org.meta_environment.rascal.ast.GlobalDirective setType (org.
+								    meta_environment.
+								    rascal.
+								    ast.
+								    Type x)
     {
-      GlobalDirective z = new GlobalDirective ();
+      org.meta_environment.rascal.ast.GlobalDirective z =
+	new GlobalDirective ();
       z.$setType (x);
       return z;
     }
-    private java.util.List < QualifiedName > names;
-    public java.util.List < QualifiedName > getNames ()
+    private java.util.List < org.meta_environment.rascal.ast.QualifiedName >
+      names;
+    public java.util.List < org.meta_environment.rascal.ast.QualifiedName >
+      getNames ()
     {
       return names;
     }
-    private void $setNames (java.util.List < QualifiedName > x)
+    private void $setNames (java.util.List <
+			    org.meta_environment.rascal.ast.QualifiedName > x)
     {
       this.names = x;
     }
-    public GlobalDirective setNames (java.util.List < QualifiedName > x)
+    public org.meta_environment.rascal.ast.GlobalDirective setNames (java.
+								     util.
+								     List <
+								     org.
+								     meta_environment.
+								     rascal.
+								     ast.
+								     QualifiedName
+								     > x)
     {
-      GlobalDirective z = new GlobalDirective ();
+      org.meta_environment.rascal.ast.GlobalDirective z =
+	new GlobalDirective ();
       z.$setNames (x);
       return z;
     }

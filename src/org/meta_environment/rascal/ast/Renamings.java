@@ -17,18 +17,26 @@ public abstract class Renamings extends AbstractAST
     {
       return visitor.visitRenamingsDefault (this);
     }
-    private java.util.List < Renaming > renamings;
-    public java.util.List < Renaming > getRenamings ()
+    private java.util.List < org.meta_environment.rascal.ast.Renaming >
+      renamings;
+    public java.util.List < org.meta_environment.rascal.ast.Renaming >
+      getRenamings ()
     {
       return renamings;
     }
-    private void $setRenamings (java.util.List < Renaming > x)
+    private void $setRenamings (java.util.List <
+				org.meta_environment.rascal.ast.Renaming > x)
     {
       this.renamings = x;
     }
-    public Default setRenamings (java.util.List < Renaming > x)
+    public org.meta_environment.rascal.ast.Default setRenamings (java.util.
+								 List <
+								 org.
+								 meta_environment.
+								 rascal.ast.
+								 Renaming > x)
     {
-      Default z = new Default ();
+      org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setRenamings (x);
       return z;
     }
