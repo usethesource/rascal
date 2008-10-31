@@ -66,7 +66,7 @@ public abstract class FunctionDeclaration extends AbstractAST
       return z;
     }
   }
-  public class Ambiguity extends FunctionDeclaration
+  static public class Ambiguity extends FunctionDeclaration
   {
     private final java.util.List < FunctionDeclaration > alternatives;
     public Ambiguity (java.util.List < FunctionDeclaration > alternatives)

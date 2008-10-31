@@ -82,7 +82,7 @@ public abstract class Declaration extends AbstractAST
       return z;
     }
   }
-  public class Ambiguity extends Declaration
+  static public class Ambiguity extends Declaration
   {
     private final java.util.List < Declaration > alternatives;
     public Ambiguity (java.util.List < Declaration > alternatives)

@@ -33,7 +33,7 @@ public abstract class FunctionBody extends AbstractAST
       return z;
     }
   }
-  public class Ambiguity extends FunctionBody
+  static public class Ambiguity extends FunctionBody
   {
     private final java.util.List < FunctionBody > alternatives;
     public Ambiguity (java.util.List < FunctionBody > alternatives)

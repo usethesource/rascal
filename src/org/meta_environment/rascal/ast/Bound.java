@@ -17,7 +17,7 @@ public abstract class Bound extends AbstractAST
       return visitor.visitBoundEmpty (this);
     }
   }
-  public class Ambiguity extends Bound
+  static public class Ambiguity extends Bound
   {
     private final java.util.List < Bound > alternatives;
     public Ambiguity (java.util.List < Bound > alternatives)

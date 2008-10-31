@@ -6,7 +6,7 @@ public abstract class RegExpModifier extends AbstractAST
   {
     /* [imsd] -> RegExpModifier  */
   }
-  public class Ambiguity extends RegExpModifier
+  static public class Ambiguity extends RegExpModifier
   {
     private final java.util.List < RegExpModifier > alternatives;
     public Ambiguity (java.util.List < RegExpModifier > alternatives)

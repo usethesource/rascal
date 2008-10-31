@@ -33,7 +33,7 @@ public abstract class Literal extends AbstractAST
       return z;
     }
   }
-  public class Ambiguity extends Literal
+  static public class Ambiguity extends Literal
   {
     private final java.util.List < Literal > alternatives;
     public Ambiguity (java.util.List < Literal > alternatives)

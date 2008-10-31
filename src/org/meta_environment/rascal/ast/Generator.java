@@ -33,7 +33,7 @@ public abstract class Generator extends AbstractAST
       return z;
     }
   }
-  public class Ambiguity extends Generator
+  static public class Ambiguity extends Generator
   {
     private final java.util.List < Generator > alternatives;
     public Ambiguity (java.util.List < Generator > alternatives)

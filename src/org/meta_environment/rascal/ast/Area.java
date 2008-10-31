@@ -116,7 +116,7 @@ public abstract class Area extends AbstractAST
       return z;
     }
   }
-  public class Ambiguity extends Area
+  static public class Ambiguity extends Area
   {
     private final java.util.List < Area > alternatives;
     public Ambiguity (java.util.List < Area > alternatives)

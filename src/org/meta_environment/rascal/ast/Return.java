@@ -33,7 +33,7 @@ public abstract class Return extends AbstractAST
       return z;
     }
   }
-  public class Ambiguity extends Return
+  static public class Ambiguity extends Return
   {
     private final java.util.List < Return > alternatives;
     public Ambiguity (java.util.List < Return > alternatives)

@@ -33,7 +33,7 @@ public abstract class Tag extends AbstractAST
       return z;
     }
   }
-  public class Ambiguity extends Tag
+  static public class Ambiguity extends Tag
   {
     private final java.util.List < Tag > alternatives;
     public Ambiguity (java.util.List < Tag > alternatives)

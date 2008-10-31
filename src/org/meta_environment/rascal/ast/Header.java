@@ -66,7 +66,7 @@ public abstract class Header extends AbstractAST
       return z;
     }
   }
-  public class Ambiguity extends Header
+  static public class Ambiguity extends Header
   {
     private final java.util.List < Header > alternatives;
     public Ambiguity (java.util.List < Header > alternatives)

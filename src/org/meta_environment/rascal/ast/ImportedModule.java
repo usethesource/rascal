@@ -66,7 +66,7 @@ public abstract class ImportedModule extends AbstractAST
       return z;
     }
   }
-  public class Ambiguity extends ImportedModule
+  static public class Ambiguity extends ImportedModule
   {
     private final java.util.List < ImportedModule > alternatives;
     public Ambiguity (java.util.List < ImportedModule > alternatives)

@@ -5,7 +5,7 @@ public abstract class BooleanLiteral extends AbstractAST
   static public class Lexical extends BooleanLiteral
   {
     /* "true" -> BooleanLiteral  */
-  } public class Ambiguity extends BooleanLiteral
+  } static public class Ambiguity extends BooleanLiteral
   {
     private final java.util.List < BooleanLiteral > alternatives;
     public Ambiguity (java.util.List < BooleanLiteral > alternatives)

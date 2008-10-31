@@ -34,7 +34,7 @@ public abstract class CharClass extends AbstractAST
       return z;
     }
   }
-  public class Ambiguity extends CharClass
+  static public class Ambiguity extends CharClass
   {
     private final java.util.List < CharClass > alternatives;
     public Ambiguity (java.util.List < CharClass > alternatives)

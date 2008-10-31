@@ -66,7 +66,7 @@ public abstract class Variable extends AbstractAST
       return z;
     }
   }
-  public class Ambiguity extends Variable
+  static public class Ambiguity extends Variable
   {
     private final java.util.List < Variable > alternatives;
     public Ambiguity (java.util.List < Variable > alternatives)

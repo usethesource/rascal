@@ -6,7 +6,7 @@ public abstract class Asterisk extends AbstractAST
   {
     /* [\*] -> Asterisk  */
   }
-  public class Ambiguity extends Asterisk
+  static public class Ambiguity extends Asterisk
   {
     private final java.util.List < Asterisk > alternatives;
     public Ambiguity (java.util.List < Asterisk > alternatives)

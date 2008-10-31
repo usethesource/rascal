@@ -6,7 +6,7 @@ public abstract class OctalIntegerLiteral extends AbstractAST
   {
     /* [0] [0-7]+ -> OctalIntegerLiteral  */
   }
-  public class Ambiguity extends OctalIntegerLiteral
+  static public class Ambiguity extends OctalIntegerLiteral
   {
     private final java.util.List < OctalIntegerLiteral > alternatives;
     public Ambiguity (java.util.List < OctalIntegerLiteral > alternatives)

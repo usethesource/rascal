@@ -5,7 +5,7 @@ public abstract class NamedRegExp extends AbstractAST
   static public class Lexical extends NamedRegExp
   {
     /* ~[\>\\] -> NamedRegExp  */
-  } public class Ambiguity extends NamedRegExp
+  } static public class Ambiguity extends NamedRegExp
   {
     private final java.util.List < NamedRegExp > alternatives;
     public Ambiguity (java.util.List < NamedRegExp > alternatives)

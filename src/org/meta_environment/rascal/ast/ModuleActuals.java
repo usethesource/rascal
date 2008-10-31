@@ -33,7 +33,7 @@ public abstract class ModuleActuals extends AbstractAST
       return z;
     }
   }
-  public class Ambiguity extends ModuleActuals
+  static public class Ambiguity extends ModuleActuals
   {
     private final java.util.List < ModuleActuals > alternatives;
     public Ambiguity (java.util.List < ModuleActuals > alternatives)

@@ -6,7 +6,7 @@ public abstract class Backslash extends AbstractAST
   {
     /* [\\] -> Backslash  */
   }
-  public class Ambiguity extends Backslash
+  static public class Ambiguity extends Backslash
   {
     private final java.util.List < Backslash > alternatives;
     public Ambiguity (java.util.List < Backslash > alternatives)

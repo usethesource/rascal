@@ -17,7 +17,7 @@ public abstract class OptCharRanges extends AbstractAST
       return visitor.visitOptCharRangesAbsent (this);
     }
   }
-  public class Ambiguity extends OptCharRanges
+  static public class Ambiguity extends OptCharRanges
   {
     private final java.util.List < OptCharRanges > alternatives;
     public Ambiguity (java.util.List < OptCharRanges > alternatives)

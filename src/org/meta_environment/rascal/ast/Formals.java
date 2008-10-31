@@ -33,7 +33,7 @@ public abstract class Formals extends AbstractAST
       return z;
     }
   }
-  public class Ambiguity extends Formals
+  static public class Ambiguity extends Formals
   {
     private final java.util.List < Formals > alternatives;
     public Ambiguity (java.util.List < Formals > alternatives)

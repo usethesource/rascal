@@ -33,7 +33,7 @@ public abstract class Case extends AbstractAST
       return z;
     }
   }
-  public class Ambiguity extends Case
+  static public class Ambiguity extends Case
   {
     private final java.util.List < Case > alternatives;
     public Ambiguity (java.util.List < Case > alternatives)

@@ -17,7 +17,7 @@ public abstract class BasicType extends AbstractAST
       return visitor.visitBasicTypeBool (this);
     }
   }
-  public class Ambiguity extends BasicType
+  static public class Ambiguity extends BasicType
   {
     private final java.util.List < BasicType > alternatives;
     public Ambiguity (java.util.List < BasicType > alternatives)

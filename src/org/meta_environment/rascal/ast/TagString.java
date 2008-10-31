@@ -6,7 +6,7 @@ public abstract class TagString extends AbstractAST
   {
     /* "{" TagChar* "}" -> TagString  */
   }
-  public class Ambiguity extends TagString
+  static public class Ambiguity extends TagString
   {
     private final java.util.List < TagString > alternatives;
     public Ambiguity (java.util.List < TagString > alternatives)

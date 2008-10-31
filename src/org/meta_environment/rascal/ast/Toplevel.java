@@ -50,7 +50,7 @@ public abstract class Toplevel extends AbstractAST
       return z;
     }
   }
-  public class Ambiguity extends Toplevel
+  static public class Ambiguity extends Toplevel
   {
     private final java.util.List < Toplevel > alternatives;
     public Ambiguity (java.util.List < Toplevel > alternatives)

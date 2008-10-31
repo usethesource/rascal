@@ -33,7 +33,7 @@ public abstract class StructuredType extends AbstractAST
       return z;
     }
   }
-  public class Ambiguity extends StructuredType
+  static public class Ambiguity extends StructuredType
   {
     private final java.util.List < StructuredType > alternatives;
     public Ambiguity (java.util.List < StructuredType > alternatives)

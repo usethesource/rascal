@@ -33,7 +33,7 @@ public abstract class Import extends AbstractAST
       return z;
     }
   }
-  public class Ambiguity extends Import
+  static public class Ambiguity extends Import
   {
     private final java.util.List < Import > alternatives;
     public Ambiguity (java.util.List < Import > alternatives)

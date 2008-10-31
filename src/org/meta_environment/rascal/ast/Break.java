@@ -33,7 +33,7 @@ public abstract class Break extends AbstractAST
       return z;
     }
   }
-  public class Ambiguity extends Break
+  static public class Ambiguity extends Break
   {
     private final java.util.List < Break > alternatives;
     public Ambiguity (java.util.List < Break > alternatives)

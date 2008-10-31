@@ -6,7 +6,7 @@ public abstract class StrCon extends AbstractAST
   {
     /* [\"] chars:StrChar* [\"] -> StrCon  */
   }
-  public class Ambiguity extends StrCon
+  static public class Ambiguity extends StrCon
   {
     private final java.util.List < StrCon > alternatives;
     public Ambiguity (java.util.List < StrCon > alternatives)

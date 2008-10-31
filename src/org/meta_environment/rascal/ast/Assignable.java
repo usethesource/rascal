@@ -33,7 +33,7 @@ public abstract class Assignable extends AbstractAST
       return z;
     }
   }
-  public class Ambiguity extends Assignable
+  static public class Ambiguity extends Assignable
   {
     private final java.util.List < Assignable > alternatives;
     public Ambiguity (java.util.List < Assignable > alternatives)

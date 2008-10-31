@@ -33,7 +33,7 @@ public abstract class Parameters extends AbstractAST
       return z;
     }
   }
-  public class Ambiguity extends Parameters
+  static public class Ambiguity extends Parameters
   {
     private final java.util.List < Parameters > alternatives;
     public Ambiguity (java.util.List < Parameters > alternatives)

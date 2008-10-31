@@ -34,7 +34,7 @@ public abstract class FunctionModifiers extends AbstractAST
       return z;
     }
   }
-  public class Ambiguity extends FunctionModifiers
+  static public class Ambiguity extends FunctionModifiers
   {
     private final java.util.List < FunctionModifiers > alternatives;
     public Ambiguity (java.util.List < FunctionModifiers > alternatives)

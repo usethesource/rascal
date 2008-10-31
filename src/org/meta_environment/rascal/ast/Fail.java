@@ -33,7 +33,7 @@ public abstract class Fail extends AbstractAST
       return z;
     }
   }
-  public class Ambiguity extends Fail
+  static public class Ambiguity extends Fail
   {
     private final java.util.List < Fail > alternatives;
     public Ambiguity (java.util.List < Fail > alternatives)

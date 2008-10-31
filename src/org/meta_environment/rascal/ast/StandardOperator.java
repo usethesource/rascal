@@ -17,7 +17,7 @@ public abstract class StandardOperator extends AbstractAST
       return visitor.visitStandardOperatorAddition (this);
     }
   }
-  public class Ambiguity extends StandardOperator
+  static public class Ambiguity extends StandardOperator
   {
     private final java.util.List < StandardOperator > alternatives;
     public Ambiguity (java.util.List < StandardOperator > alternatives)

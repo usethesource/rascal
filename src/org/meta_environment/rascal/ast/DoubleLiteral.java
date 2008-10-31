@@ -5,7 +5,7 @@ public abstract class DoubleLiteral extends AbstractAST
   static public class Lexical extends DoubleLiteral
   {
     /* [0-9]+ "." [0-9]* ( [eE] [\+\-]? [0-9]+ )? [dD]? -> DoubleLiteral  */
-  } public class Ambiguity extends DoubleLiteral
+  } static public class Ambiguity extends DoubleLiteral
   {
     private final java.util.List < DoubleLiteral > alternatives;
     public Ambiguity (java.util.List < DoubleLiteral > alternatives)

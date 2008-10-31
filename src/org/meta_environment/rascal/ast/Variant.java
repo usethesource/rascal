@@ -49,7 +49,7 @@ public abstract class Variant extends AbstractAST
       return z;
     }
   }
-  public class Ambiguity extends Variant
+  static public class Ambiguity extends Variant
   {
     private final java.util.List < Variant > alternatives;
     public Ambiguity (java.util.List < Variant > alternatives)

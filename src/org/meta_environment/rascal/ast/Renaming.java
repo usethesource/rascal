@@ -49,7 +49,7 @@ public abstract class Renaming extends AbstractAST
       return z;
     }
   }
-  public class Ambiguity extends Renaming
+  static public class Ambiguity extends Renaming
   {
     private final java.util.List < Renaming > alternatives;
     public Ambiguity (java.util.List < Renaming > alternatives)

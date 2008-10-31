@@ -33,7 +33,7 @@ public abstract class TypeVar extends AbstractAST
       return z;
     }
   }
-  public class Ambiguity extends TypeVar
+  static public class Ambiguity extends TypeVar
   {
     private final java.util.List < TypeVar > alternatives;
     public Ambiguity (java.util.List < TypeVar > alternatives)

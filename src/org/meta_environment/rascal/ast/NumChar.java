@@ -6,7 +6,7 @@ public abstract class NumChar extends AbstractAST
   {
     /* [\\] number:[0-9]+ -> NumChar  */
   }
-  public class Ambiguity extends NumChar
+  static public class Ambiguity extends NumChar
   {
     private final java.util.List < NumChar > alternatives;
     public Ambiguity (java.util.List < NumChar > alternatives)

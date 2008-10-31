@@ -50,7 +50,7 @@ public abstract class Visit extends AbstractAST
       return z;
     }
   }
-  public class Ambiguity extends Visit
+  static public class Ambiguity extends Visit
   {
     private final java.util.List < Visit > alternatives;
     public Ambiguity (java.util.List < Visit > alternatives)

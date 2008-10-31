@@ -50,7 +50,7 @@ public abstract class Match extends AbstractAST
       return z;
     }
   }
-  public class Ambiguity extends Match
+  static public class Ambiguity extends Match
   {
     private final java.util.List < Match > alternatives;
     public Ambiguity (java.util.List < Match > alternatives)

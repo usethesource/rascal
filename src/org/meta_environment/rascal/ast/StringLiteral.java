@@ -6,7 +6,7 @@ public abstract class StringLiteral extends AbstractAST
   {
     /* "\"" StringCharacter* "\"" -> StringLiteral  */
   }
-  public class Ambiguity extends StringLiteral
+  static public class Ambiguity extends StringLiteral
   {
     private final java.util.List < StringLiteral > alternatives;
     public Ambiguity (java.util.List < StringLiteral > alternatives)

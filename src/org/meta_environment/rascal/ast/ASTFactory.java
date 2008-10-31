@@ -13,7 +13,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (Body.Ambiguity) table.get (amb, amb);
+    return (Body.Ambiguity) table.get (amb);
   }
   public Body.Toplevels makeBodyToplevels (ITree tree,
 					   java.util.List < Toplevel >
@@ -34,7 +34,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (Formal.Ambiguity) table.get (amb, amb);
+    return (Formal.Ambiguity) table.get (amb);
   }
   public Formal.TypeName makeFormalTypeName (ITree tree, Type type, Name name)
   {
@@ -53,7 +53,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (Formals.Ambiguity) table.get (amb, amb);
+    return (Formals.Ambiguity) table.get (amb);
   }
   public Formals.Default makeFormalsDefault (ITree tree,
 					     java.util.List < Formal >
@@ -85,7 +85,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (Parameters.Ambiguity) table.get (amb, amb);
+    return (Parameters.Ambiguity) table.get (amb);
   }
   public Parameters.Default makeParametersDefault (ITree tree,
 						   Formals formals)
@@ -668,7 +668,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (Expression.Ambiguity) table.get (amb, amb);
+    return (Expression.Ambiguity) table.get (amb);
   }
   public Expression.Closure makeExpressionClosure (ITree tree, Type type,
 						   java.util.List <
@@ -690,7 +690,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (SymbolLiteral.Ambiguity) table.get (amb, amb);
+    return (SymbolLiteral.Ambiguity) table.get (amb);
   }
   public Literal.String makeLiteralString (ITree tree,
 					   StringLiteral stringLiteral)
@@ -750,7 +750,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (Literal.Ambiguity) table.get (amb, amb);
+    return (Literal.Ambiguity) table.get (amb);
   }
   public Literal.RegExp makeLiteralRegExp (ITree tree, RegExpLiteral regExp)
   {
@@ -778,7 +778,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (Bound.Ambiguity) table.get (amb, amb);
+    return (Bound.Ambiguity) table.get (amb);
   }
   public Bound.Empty makeBoundEmpty (ITree tree)
   {
@@ -1076,7 +1076,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (Statement.Ambiguity) table.get (amb, amb);
+    return (Statement.Ambiguity) table.get (amb);
   }
   public Statement.Solve makeStatementSolve (ITree tree,
 					     java.util.List < Declarator >
@@ -1101,7 +1101,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (NoElseMayFollow.Ambiguity) table.get (amb, amb);
+    return (NoElseMayFollow.Ambiguity) table.get (amb);
   }
   public Assignable.Constructor makeAssignableConstructor (ITree tree,
 							   Name name,
@@ -1187,7 +1187,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (Assignable.Ambiguity) table.get (amb, amb);
+    return (Assignable.Ambiguity) table.get (amb);
   }
   public Assignable.Variable makeAssignableVariable (ITree tree,
 						     QualifiedName
@@ -1254,7 +1254,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (Assignment.Ambiguity) table.get (amb, amb);
+    return (Assignment.Ambiguity) table.get (amb);
   }
   public Assignment.Default makeAssignmentDefault (ITree tree)
   {
@@ -1282,7 +1282,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (Label.Ambiguity) table.get (amb, amb);
+    return (Label.Ambiguity) table.get (amb);
   }
   public Label.Empty makeLabelEmpty (ITree tree)
   {
@@ -1310,7 +1310,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (Break.Ambiguity) table.get (amb, amb);
+    return (Break.Ambiguity) table.get (amb);
   }
   public Break.WithLabel makeBreakWithLabel (ITree tree, Name label)
   {
@@ -1338,7 +1338,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (Fail.Ambiguity) table.get (amb, amb);
+    return (Fail.Ambiguity) table.get (amb);
   }
   public Fail.WithLabel makeFailWithLabel (ITree tree, Name label)
   {
@@ -1366,7 +1366,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (Return.Ambiguity) table.get (amb, amb);
+    return (Return.Ambiguity) table.get (amb);
   }
   public Return.WithExpression makeReturnWithExpression (ITree tree,
 							 Expression
@@ -1397,7 +1397,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (Catch.Ambiguity) table.get (amb, amb);
+    return (Catch.Ambiguity) table.get (amb);
   }
   public Catch.Default makeCatchDefault (ITree tree, Statement body)
   {
@@ -1417,7 +1417,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (Declarator.Ambiguity) table.get (amb, amb);
+    return (Declarator.Ambiguity) table.get (amb);
   }
   public Declarator.Default makeDeclaratorDefault (ITree tree, Type type,
 						   java.util.List < Variable >
@@ -1453,7 +1453,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (LocalVariableDeclaration.Ambiguity) table.get (amb, amb);
+    return (LocalVariableDeclaration.Ambiguity) table.get (amb);
   }
   public LocalVariableDeclaration.
     Default makeLocalVariableDeclarationDefault (ITree tree,
@@ -1476,7 +1476,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (RegExpLiteral.Ambiguity) table.get (amb, amb);
+    return (RegExpLiteral.Ambiguity) table.get (amb);
   }
   public RegExpModifier.Ambiguity makeRegExpModifierAmbiguity (java.util.
 							       List <
@@ -1489,7 +1489,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (RegExpModifier.Ambiguity) table.get (amb, amb);
+    return (RegExpModifier.Ambiguity) table.get (amb);
   }
   public Backslash.Ambiguity makeBackslashAmbiguity (java.util.List <
 						     Backslash > alternatives)
@@ -1499,7 +1499,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (Backslash.Ambiguity) table.get (amb, amb);
+    return (Backslash.Ambiguity) table.get (amb);
   }
   public RegExp.Ambiguity makeRegExpAmbiguity (java.util.List < RegExp >
 					       alternatives)
@@ -1509,7 +1509,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (RegExp.Ambiguity) table.get (amb, amb);
+    return (RegExp.Ambiguity) table.get (amb);
   }
   public NamedRegExp.Ambiguity makeNamedRegExpAmbiguity (java.util.List <
 							 NamedRegExp >
@@ -1520,7 +1520,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (NamedRegExp.Ambiguity) table.get (amb, amb);
+    return (NamedRegExp.Ambiguity) table.get (amb);
   }
   public NamedBackslash.Ambiguity makeNamedBackslashAmbiguity (java.util.
 							       List <
@@ -1533,7 +1533,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (NamedBackslash.Ambiguity) table.get (amb, amb);
+    return (NamedBackslash.Ambiguity) table.get (amb);
   }
   public Visibility.Private makeVisibilityPrivate (ITree tree)
   {
@@ -1553,7 +1553,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (Visibility.Ambiguity) table.get (amb, amb);
+    return (Visibility.Ambiguity) table.get (amb);
   }
   public Visibility.Public makeVisibilityPublic (ITree tree)
   {
@@ -1584,7 +1584,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (Toplevel.Ambiguity) table.get (amb, amb);
+    return (Toplevel.Ambiguity) table.get (amb);
   }
   public Toplevel.GivenVisibility makeToplevelGivenVisibility (ITree tree,
 							       Visibility
@@ -1690,7 +1690,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (Declaration.Ambiguity) table.get (amb, amb);
+    return (Declaration.Ambiguity) table.get (amb);
   }
   public Declaration.View makeDeclarationView (ITree tree, Name view,
 					       Name type, Tags tags,
@@ -1714,7 +1714,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (Alternative.Ambiguity) table.get (amb, amb);
+    return (Alternative.Ambiguity) table.get (amb);
   }
   public Alternative.NamedType makeAlternativeNamedType (ITree tree,
 							 Name name, Type type)
@@ -1759,7 +1759,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (Variant.Ambiguity) table.get (amb, amb);
+    return (Variant.Ambiguity) table.get (amb);
   }
   public Variant.Type makeVariantType (ITree tree, Type type, Name name)
   {
@@ -1926,7 +1926,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (StandardOperator.Ambiguity) table.get (amb, amb);
+    return (StandardOperator.Ambiguity) table.get (amb);
   }
   public StandardOperator.Addition makeStandardOperatorAddition (ITree tree)
   {
@@ -1957,7 +1957,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (FunctionName.Ambiguity) table.get (amb, amb);
+    return (FunctionName.Ambiguity) table.get (amb);
   }
   public FunctionName.Name makeFunctionNameName (ITree tree, Name name)
   {
@@ -1980,7 +1980,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (FunctionModifier.Ambiguity) table.get (amb, amb);
+    return (FunctionModifier.Ambiguity) table.get (amb);
   }
   public FunctionModifier.Java makeFunctionModifierJava (ITree tree)
   {
@@ -2004,7 +2004,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (FunctionModifiers.Ambiguity) table.get (amb, amb);
+    return (FunctionModifiers.Ambiguity) table.get (amb);
   }
   public FunctionModifiers.List makeFunctionModifiersList (ITree tree,
 							   java.util.List <
@@ -2043,7 +2043,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (Signature.Ambiguity) table.get (amb, amb);
+    return (Signature.Ambiguity) table.get (amb);
   }
   public Signature.NoThrows makeSignatureNoThrows (ITree tree, Type type,
 						   FunctionModifiers
@@ -2085,7 +2085,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (FunctionDeclaration.Ambiguity) table.get (amb, amb);
+    return (FunctionDeclaration.Ambiguity) table.get (amb);
   }
   public FunctionDeclaration.
     Default makeFunctionDeclarationDefault (ITree tree, Signature signature,
@@ -2108,7 +2108,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (FunctionBody.Ambiguity) table.get (amb, amb);
+    return (FunctionBody.Ambiguity) table.get (amb);
   }
   public FunctionBody.Default makeFunctionBodyDefault (ITree tree,
 						       java.util.List <
@@ -2129,7 +2129,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (Variable.Ambiguity) table.get (amb, amb);
+    return (Variable.Ambiguity) table.get (amb);
   }
   public Variable.
     GivenInitialization makeVariableGivenInitialization (ITree tree,
@@ -2224,7 +2224,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (Kind.Ambiguity) table.get (amb, amb);
+    return (Kind.Ambiguity) table.get (amb);
   }
   public Kind.Module makeKindModule (ITree tree)
   {
@@ -2243,7 +2243,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (Comment.Ambiguity) table.get (amb, amb);
+    return (Comment.Ambiguity) table.get (amb);
   }
   public CommentChar.Ambiguity makeCommentCharAmbiguity (java.util.List <
 							 CommentChar >
@@ -2254,7 +2254,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (CommentChar.Ambiguity) table.get (amb, amb);
+    return (CommentChar.Ambiguity) table.get (amb);
   }
   public Asterisk.Ambiguity makeAsteriskAmbiguity (java.util.List < Asterisk >
 						   alternatives)
@@ -2264,7 +2264,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (Asterisk.Ambiguity) table.get (amb, amb);
+    return (Asterisk.Ambiguity) table.get (amb);
   }
   public BasicType.Loc makeBasicTypeLoc (ITree tree)
   {
@@ -2337,7 +2337,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (BasicType.Ambiguity) table.get (amb, amb);
+    return (BasicType.Ambiguity) table.get (amb);
   }
   public BasicType.Bool makeBasicTypeBool (ITree tree)
   {
@@ -2365,7 +2365,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (TypeArg.Ambiguity) table.get (amb, amb);
+    return (TypeArg.Ambiguity) table.get (amb);
   }
   public TypeArg.Default makeTypeArgDefault (ITree tree, Type type)
   {
@@ -2432,7 +2432,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (StructuredType.Ambiguity) table.get (amb, amb);
+    return (StructuredType.Ambiguity) table.get (amb);
   }
   public StructuredType.List makeStructuredTypeList (ITree tree,
 						     TypeArg typeArg)
@@ -2453,7 +2453,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (FunctionType.Ambiguity) table.get (amb, amb);
+    return (FunctionType.Ambiguity) table.get (amb);
   }
   public FunctionType.TypeArguments makeFunctionTypeTypeArguments (ITree tree,
 								   Type type,
@@ -2488,7 +2488,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (TypeVar.Ambiguity) table.get (amb, amb);
+    return (TypeVar.Ambiguity) table.get (amb);
   }
   public TypeVar.Free makeTypeVarFree (ITree tree, Name name)
   {
@@ -2518,7 +2518,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (UserType.Ambiguity) table.get (amb, amb);
+    return (UserType.Ambiguity) table.get (amb);
   }
   public UserType.Name makeUserTypeName (ITree tree, Name name)
   {
@@ -2541,7 +2541,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (DataTypeSelector.Ambiguity) table.get (amb, amb);
+    return (DataTypeSelector.Ambiguity) table.get (amb);
   }
   public DataTypeSelector.Selector makeDataTypeSelectorSelector (ITree tree,
 								 Name sort,
@@ -2620,7 +2620,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (Type.Ambiguity) table.get (amb, amb);
+    return (Type.Ambiguity) table.get (amb);
   }
   public Type.Basic makeTypeBasic (ITree tree, BasicType basic)
   {
@@ -2639,7 +2639,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (StrChar.Ambiguity) table.get (amb, amb);
+    return (StrChar.Ambiguity) table.get (amb);
   }
   public StrChar.newline makeStrCharnewline (ITree tree)
   {
@@ -2658,7 +2658,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (StrCon.Ambiguity) table.get (amb, amb);
+    return (StrCon.Ambiguity) table.get (amb);
   }
   public Sort.Ambiguity makeSortAmbiguity (java.util.List < Sort >
 					   alternatives)
@@ -2668,7 +2668,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (Sort.Ambiguity) table.get (amb, amb);
+    return (Sort.Ambiguity) table.get (amb);
   }
   public Symbol.
     CaseInsensitiveLiteral makeSymbolCaseInsensitiveLiteral (ITree tree,
@@ -2810,7 +2810,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (Symbol.Ambiguity) table.get (amb, amb);
+    return (Symbol.Ambiguity) table.get (amb);
   }
   public Symbol.Sort makeSymbolSort (ITree tree, Sort sort)
   {
@@ -2835,7 +2835,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (SingleQuotedStrChar.Ambiguity) table.get (amb, amb);
+    return (SingleQuotedStrChar.Ambiguity) table.get (amb);
   }
   public SingleQuotedStrCon.Ambiguity makeSingleQuotedStrConAmbiguity (java.
 								       util.
@@ -2850,7 +2850,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (SingleQuotedStrCon.Ambiguity) table.get (amb, amb);
+    return (SingleQuotedStrCon.Ambiguity) table.get (amb);
   }
   public CharRange.Range makeCharRangeRange (ITree tree, Character start,
 					     Character end)
@@ -2870,7 +2870,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (CharRange.Ambiguity) table.get (amb, amb);
+    return (CharRange.Ambiguity) table.get (amb);
   }
   public CharRange.Character makeCharRangeCharacter (ITree tree,
 						     Character character)
@@ -2911,7 +2911,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (CharRanges.Ambiguity) table.get (amb, amb);
+    return (CharRanges.Ambiguity) table.get (amb);
   }
   public CharRanges.Range makeCharRangesRange (ITree tree, CharRange range)
   {
@@ -2941,7 +2941,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (OptCharRanges.Ambiguity) table.get (amb, amb);
+    return (OptCharRanges.Ambiguity) table.get (amb);
   }
   public OptCharRanges.Absent makeOptCharRangesAbsent (ITree tree)
   {
@@ -3011,7 +3011,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (CharClass.Ambiguity) table.get (amb, amb);
+    return (CharClass.Ambiguity) table.get (amb);
   }
   public CharClass.SimpleCharclass makeCharClassSimpleCharclass (ITree tree,
 								 OptCharRanges
@@ -3033,7 +3033,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (NumChar.Ambiguity) table.get (amb, amb);
+    return (NumChar.Ambiguity) table.get (amb);
   }
   public ShortChar.Ambiguity makeShortCharAmbiguity (java.util.List <
 						     ShortChar > alternatives)
@@ -3043,7 +3043,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (ShortChar.Ambiguity) table.get (amb, amb);
+    return (ShortChar.Ambiguity) table.get (amb);
   }
   public Character.LabelStart makeCharacterLabelStart (ITree tree)
   {
@@ -3098,7 +3098,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (Character.Ambiguity) table.get (amb, amb);
+    return (Character.Ambiguity) table.get (amb);
   }
   public Character.Numeric makeCharacterNumeric (ITree tree, NumChar numChar)
   {
@@ -3117,7 +3117,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (Module.Ambiguity) table.get (amb, amb);
+    return (Module.Ambiguity) table.get (amb);
   }
   public Module.Default makeModuleDefault (ITree tree, Header header,
 					   Body body)
@@ -3138,7 +3138,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (ModuleWord.Ambiguity) table.get (amb, amb);
+    return (ModuleWord.Ambiguity) table.get (amb);
   }
   public ModuleName.Ambiguity makeModuleNameAmbiguity (java.util.List <
 						       ModuleName >
@@ -3149,7 +3149,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (ModuleName.Ambiguity) table.get (amb, amb);
+    return (ModuleName.Ambiguity) table.get (amb);
   }
   public ModuleActuals.Ambiguity makeModuleActualsAmbiguity (java.util.List <
 							     ModuleActuals >
@@ -3160,7 +3160,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (ModuleActuals.Ambiguity) table.get (amb, amb);
+    return (ModuleActuals.Ambiguity) table.get (amb);
   }
   public ModuleActuals.Default makeModuleActualsDefault (ITree tree,
 							 java.util.List <
@@ -3221,7 +3221,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (ImportedModule.Ambiguity) table.get (amb, amb);
+    return (ImportedModule.Ambiguity) table.get (amb);
   }
   public ImportedModule.
     ActualsRenaming makeImportedModuleActualsRenaming (ITree tree,
@@ -3245,7 +3245,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (Renaming.Ambiguity) table.get (amb, amb);
+    return (Renaming.Ambiguity) table.get (amb);
   }
   public Renaming.Default makeRenamingDefault (ITree tree, Name from, Name to)
   {
@@ -3264,7 +3264,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (Renamings.Ambiguity) table.get (amb, amb);
+    return (Renamings.Ambiguity) table.get (amb);
   }
   public Renamings.Default makeRenamingsDefault (ITree tree,
 						 java.util.List < Renaming >
@@ -3294,7 +3294,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (Import.Ambiguity) table.get (amb, amb);
+    return (Import.Ambiguity) table.get (amb);
   }
   public Import.Default makeImportDefault (ITree tree, ImportedModule module)
   {
@@ -3317,7 +3317,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (ModuleParameters.Ambiguity) table.get (amb, amb);
+    return (ModuleParameters.Ambiguity) table.get (amb);
   }
   public ModuleParameters.Default makeModuleParametersDefault (ITree tree,
 							       java.util.
@@ -3355,7 +3355,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (Header.Ambiguity) table.get (amb, amb);
+    return (Header.Ambiguity) table.get (amb);
   }
   public Header.Default makeHeaderDefault (ITree tree, ModuleName name,
 					   Tags tags,
@@ -3376,7 +3376,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (Name.Ambiguity) table.get (amb, amb);
+    return (Name.Ambiguity) table.get (amb);
   }
   public QualifiedName.Ambiguity makeQualifiedNameAmbiguity (java.util.List <
 							     QualifiedName >
@@ -3387,7 +3387,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (QualifiedName.Ambiguity) table.get (amb, amb);
+    return (QualifiedName.Ambiguity) table.get (amb);
   }
   public QualifiedName.Default makeQualifiedNameDefault (ITree tree,
 							 java.util.List <
@@ -3408,7 +3408,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (Area.Ambiguity) table.get (amb, amb);
+    return (Area.Ambiguity) table.get (amb);
   }
   public Area.Default makeAreaDefault (ITree tree, Expression beginLine,
 				       Expression beginColumn,
@@ -3433,7 +3433,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (TagString.Ambiguity) table.get (amb, amb);
+    return (TagString.Ambiguity) table.get (amb);
   }
   public TagChar.Ambiguity makeTagCharAmbiguity (java.util.List < TagChar >
 						 alternatives)
@@ -3443,7 +3443,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (TagChar.Ambiguity) table.get (amb, amb);
+    return (TagChar.Ambiguity) table.get (amb);
   }
   public Tag.Ambiguity makeTagAmbiguity (java.util.List < Tag > alternatives)
   {
@@ -3452,7 +3452,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (Tag.Ambiguity) table.get (amb, amb);
+    return (Tag.Ambiguity) table.get (amb);
   }
   public Tag.Default makeTagDefault (ITree tree, Name name)
   {
@@ -3471,7 +3471,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (Tags.Ambiguity) table.get (amb, amb);
+    return (Tags.Ambiguity) table.get (amb);
   }
   public Tags.Default makeTagsDefault (ITree tree,
 				       java.util.List < Tag > annotations)
@@ -3506,7 +3506,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (ValueProducer.Ambiguity) table.get (amb, amb);
+    return (ValueProducer.Ambiguity) table.get (amb);
   }
   public ValueProducer.
     DefaultStrategy makeValueProducerDefaultStrategy (ITree tree,
@@ -3539,7 +3539,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (Generator.Ambiguity) table.get (amb, amb);
+    return (Generator.Ambiguity) table.get (amb);
   }
   public Generator.Expression makeGeneratorExpression (ITree tree,
 						       Expression expression)
@@ -3604,7 +3604,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (Strategy.Ambiguity) table.get (amb, amb);
+    return (Strategy.Ambiguity) table.get (amb);
   }
   public Strategy.TopDown makeStrategyTopDown (ITree tree)
   {
@@ -3636,7 +3636,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (Comprehension.Ambiguity) table.get (amb, amb);
+    return (Comprehension.Ambiguity) table.get (amb);
   }
   public Comprehension.Set makeComprehensionSet (ITree tree,
 						 Expression result,
@@ -3668,7 +3668,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (Match.Ambiguity) table.get (amb, amb);
+    return (Match.Ambiguity) table.get (amb);
   }
   public Match.Replacing makeMatchReplacing (ITree tree, Expression match,
 					     Expression replacement)
@@ -3697,7 +3697,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (Rule.Ambiguity) table.get (amb, amb);
+    return (Rule.Ambiguity) table.get (amb);
   }
   public Rule.WithGuard makeRuleWithGuard (ITree tree, Type type, Match match)
   {
@@ -3725,7 +3725,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (Case.Ambiguity) table.get (amb, amb);
+    return (Case.Ambiguity) table.get (amb);
   }
   public Case.Rule makeCaseRule (ITree tree, Rule rule)
   {
@@ -3758,7 +3758,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (Visit.Ambiguity) table.get (amb, amb);
+    return (Visit.Ambiguity) table.get (amb);
   }
   public Visit.DefaultStrategy makeVisitDefaultStrategy (ITree tree,
 							 Expression subject,
@@ -3782,7 +3782,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (UnicodeEscape.Ambiguity) table.get (amb, amb);
+    return (UnicodeEscape.Ambiguity) table.get (amb);
   }
   public DecimalIntegerLiteral.
     Ambiguity makeDecimalIntegerLiteralAmbiguity (java.util.List <
@@ -3795,7 +3795,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (DecimalIntegerLiteral.Ambiguity) table.get (amb, amb);
+    return (DecimalIntegerLiteral.Ambiguity) table.get (amb);
   }
   public HexIntegerLiteral.Ambiguity makeHexIntegerLiteralAmbiguity (java.
 								     util.
@@ -3810,7 +3810,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (HexIntegerLiteral.Ambiguity) table.get (amb, amb);
+    return (HexIntegerLiteral.Ambiguity) table.get (amb);
   }
   public OctalIntegerLiteral.Ambiguity makeOctalIntegerLiteralAmbiguity (java.
 									 util.
@@ -3826,7 +3826,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (OctalIntegerLiteral.Ambiguity) table.get (amb, amb);
+    return (OctalIntegerLiteral.Ambiguity) table.get (amb);
   }
   public DecimalLongLiteral.Ambiguity makeDecimalLongLiteralAmbiguity (java.
 								       util.
@@ -3841,7 +3841,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (DecimalLongLiteral.Ambiguity) table.get (amb, amb);
+    return (DecimalLongLiteral.Ambiguity) table.get (amb);
   }
   public HexLongLiteral.Ambiguity makeHexLongLiteralAmbiguity (java.util.
 							       List <
@@ -3854,7 +3854,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (HexLongLiteral.Ambiguity) table.get (amb, amb);
+    return (HexLongLiteral.Ambiguity) table.get (amb);
   }
   public OctalLongLiteral.Ambiguity makeOctalLongLiteralAmbiguity (java.util.
 								   List <
@@ -3868,7 +3868,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (OctalLongLiteral.Ambiguity) table.get (amb, amb);
+    return (OctalLongLiteral.Ambiguity) table.get (amb);
   }
   public FloatingPointLiteral.
     Ambiguity makeFloatingPointLiteralAmbiguity (java.util.List <
@@ -3881,7 +3881,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (FloatingPointLiteral.Ambiguity) table.get (amb, amb);
+    return (FloatingPointLiteral.Ambiguity) table.get (amb);
   }
   public DoubleLiteral.Ambiguity makeDoubleLiteralAmbiguity (java.util.List <
 							     DoubleLiteral >
@@ -3892,7 +3892,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (DoubleLiteral.Ambiguity) table.get (amb, amb);
+    return (DoubleLiteral.Ambiguity) table.get (amb);
   }
   public BooleanLiteral.Ambiguity makeBooleanLiteralAmbiguity (java.util.
 							       List <
@@ -3905,7 +3905,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (BooleanLiteral.Ambiguity) table.get (amb, amb);
+    return (BooleanLiteral.Ambiguity) table.get (amb);
   }
   public SingleCharacter.Ambiguity makeSingleCharacterAmbiguity (java.util.
 								 List <
@@ -3919,7 +3919,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (SingleCharacter.Ambiguity) table.get (amb, amb);
+    return (SingleCharacter.Ambiguity) table.get (amb);
   }
   public CharacterLiteral.Ambiguity makeCharacterLiteralAmbiguity (java.util.
 								   List <
@@ -3933,7 +3933,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (CharacterLiteral.Ambiguity) table.get (amb, amb);
+    return (CharacterLiteral.Ambiguity) table.get (amb);
   }
   public EscapeSequence.Ambiguity makeEscapeSequenceAmbiguity (java.util.
 							       List <
@@ -3946,7 +3946,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (EscapeSequence.Ambiguity) table.get (amb, amb);
+    return (EscapeSequence.Ambiguity) table.get (amb);
   }
   public StringCharacter.Ambiguity makeStringCharacterAmbiguity (java.util.
 								 List <
@@ -3960,7 +3960,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (StringCharacter.Ambiguity) table.get (amb, amb);
+    return (StringCharacter.Ambiguity) table.get (amb);
   }
   public StringLiteral.Ambiguity makeStringLiteralAmbiguity (java.util.List <
 							     StringLiteral >
@@ -3971,7 +3971,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (StringLiteral.Ambiguity) table.get (amb, amb);
+    return (StringLiteral.Ambiguity) table.get (amb);
   }
   public IntegerLiteral.
     OctalIntegerLiteral makeIntegerLiteralOctalIntegerLiteral (ITree tree)
@@ -4006,7 +4006,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (IntegerLiteral.Ambiguity) table.get (amb, amb);
+    return (IntegerLiteral.Ambiguity) table.get (amb);
   }
   public IntegerLiteral.
     DecimalIntegerLiteral makeIntegerLiteralDecimalIntegerLiteral (ITree tree)
@@ -4047,7 +4047,7 @@ public class ASTFactory
       {
 	table.put (amb, amb);
       }
-    return (LongLiteral.Ambiguity) table.get (amb, amb);
+    return (LongLiteral.Ambiguity) table.get (amb);
   }
   public LongLiteral.
     DecimalLongLiteral makeLongLiteralDecimalLongLiteral (ITree tree)

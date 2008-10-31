@@ -50,7 +50,7 @@ public abstract class FunctionType extends AbstractAST
       return z;
     }
   }
-  public class Ambiguity extends FunctionType
+  static public class Ambiguity extends FunctionType
   {
     private final java.util.List < FunctionType > alternatives;
     public Ambiguity (java.util.List < FunctionType > alternatives)

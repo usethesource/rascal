@@ -33,7 +33,7 @@ public abstract class CharRange extends AbstractAST
       return z;
     }
   }
-  public class Ambiguity extends CharRange
+  static public class Ambiguity extends CharRange
   {
     private final java.util.List < CharRange > alternatives;
     public Ambiguity (java.util.List < CharRange > alternatives)
