@@ -33,7 +33,7 @@ public abstract class Formals extends AbstractAST
     public Default setFormals (java.util.List <
 			       org.meta_environment.rascal.ast.Formal > x)
     {
-      org.meta_environment.rascal.ast.Default z = new Default ();
+      Default z = new Default ();
       z.$setFormals (x);
       return z;
     }

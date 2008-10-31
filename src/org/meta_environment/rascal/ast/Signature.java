@@ -37,7 +37,7 @@ public abstract class Signature extends AbstractAST
     }
     public NoThrows setType (org.meta_environment.rascal.ast.Type x)
     {
-      org.meta_environment.rascal.ast.NoThrows z = new NoThrows ();
+      NoThrows z = new NoThrows ();
       z.$setType (x);
       return z;
     }
@@ -54,7 +54,7 @@ public abstract class Signature extends AbstractAST
     public NoThrows setModifiers (org.meta_environment.rascal.ast.
 				  FunctionModifiers x)
     {
-      org.meta_environment.rascal.ast.NoThrows z = new NoThrows ();
+      NoThrows z = new NoThrows ();
       z.$setModifiers (x);
       return z;
     }
@@ -69,7 +69,7 @@ public abstract class Signature extends AbstractAST
     }
     public NoThrows setName (org.meta_environment.rascal.ast.FunctionName x)
     {
-      org.meta_environment.rascal.ast.NoThrows z = new NoThrows ();
+      NoThrows z = new NoThrows ();
       z.$setName (x);
       return z;
     }
@@ -85,7 +85,7 @@ public abstract class Signature extends AbstractAST
     public NoThrows setParameters (org.meta_environment.rascal.ast.
 				   Parameters x)
     {
-      org.meta_environment.rascal.ast.NoThrows z = new NoThrows ();
+      NoThrows z = new NoThrows ();
       z.$setParameters (x);
       return z;
     }
@@ -147,7 +147,7 @@ public abstract class Signature extends AbstractAST
     }
     public WithThrows setType (org.meta_environment.rascal.ast.Type x)
     {
-      org.meta_environment.rascal.ast.WithThrows z = new WithThrows ();
+      WithThrows z = new WithThrows ();
       z.$setType (x);
       return z;
     }
@@ -164,7 +164,7 @@ public abstract class Signature extends AbstractAST
     public WithThrows setModifiers (org.meta_environment.rascal.ast.
 				    FunctionModifiers x)
     {
-      org.meta_environment.rascal.ast.WithThrows z = new WithThrows ();
+      WithThrows z = new WithThrows ();
       z.$setModifiers (x);
       return z;
     }
@@ -179,7 +179,7 @@ public abstract class Signature extends AbstractAST
     }
     public WithThrows setName (org.meta_environment.rascal.ast.FunctionName x)
     {
-      org.meta_environment.rascal.ast.WithThrows z = new WithThrows ();
+      WithThrows z = new WithThrows ();
       z.$setName (x);
       return z;
     }
@@ -195,7 +195,7 @@ public abstract class Signature extends AbstractAST
     public WithThrows setParameters (org.meta_environment.rascal.ast.
 				     Parameters x)
     {
-      org.meta_environment.rascal.ast.WithThrows z = new WithThrows ();
+      WithThrows z = new WithThrows ();
       z.$setParameters (x);
       return z;
     }
@@ -214,7 +214,7 @@ public abstract class Signature extends AbstractAST
     public WithThrows setExceptions (java.util.List <
 				     org.meta_environment.rascal.ast.Type > x)
     {
-      org.meta_environment.rascal.ast.WithThrows z = new WithThrows ();
+      WithThrows z = new WithThrows ();
       z.$setExceptions (x);
       return z;
     }

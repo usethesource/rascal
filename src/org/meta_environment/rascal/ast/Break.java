@@ -29,7 +29,7 @@ public abstract class Break extends AbstractAST
     }
     public WithLabel setLabel (org.meta_environment.rascal.ast.Name x)
     {
-      org.meta_environment.rascal.ast.WithLabel z = new WithLabel ();
+      WithLabel z = new WithLabel ();
       z.$setLabel (x);
       return z;
     }

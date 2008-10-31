@@ -29,7 +29,7 @@ public abstract class Catch extends AbstractAST
     }
     public Default setBody (org.meta_environment.rascal.ast.Statement x)
     {
-      org.meta_environment.rascal.ast.Default z = new Default ();
+      Default z = new Default ();
       z.$setBody (x);
       return z;
     }
@@ -81,7 +81,7 @@ public abstract class Catch extends AbstractAST
     }
     public Binding setType (org.meta_environment.rascal.ast.Type x)
     {
-      org.meta_environment.rascal.ast.Binding z = new Binding ();
+      Binding z = new Binding ();
       z.$setType (x);
       return z;
     }
@@ -96,7 +96,7 @@ public abstract class Catch extends AbstractAST
     }
     public Binding setName (org.meta_environment.rascal.ast.Name x)
     {
-      org.meta_environment.rascal.ast.Binding z = new Binding ();
+      Binding z = new Binding ();
       z.$setName (x);
       return z;
     }
@@ -111,7 +111,7 @@ public abstract class Catch extends AbstractAST
     }
     public Binding setBody (org.meta_environment.rascal.ast.Statement x)
     {
-      org.meta_environment.rascal.ast.Binding z = new Binding ();
+      Binding z = new Binding ();
       z.$setBody (x);
       return z;
     }

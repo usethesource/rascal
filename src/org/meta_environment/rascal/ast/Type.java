@@ -29,7 +29,7 @@ public abstract class Type extends AbstractAST
     }
     public Basic setBasic (org.meta_environment.rascal.ast.BasicType x)
     {
-      org.meta_environment.rascal.ast.Basic z = new Basic ();
+      Basic z = new Basic ();
       z.$setBasic (x);
       return z;
     }
@@ -80,7 +80,7 @@ public abstract class Type extends AbstractAST
     public Structured setStructured (org.meta_environment.rascal.ast.
 				     StructuredType x)
     {
-      org.meta_environment.rascal.ast.Structured z = new Structured ();
+      Structured z = new Structured ();
       z.$setStructured (x);
       return z;
     }
@@ -114,7 +114,7 @@ public abstract class Type extends AbstractAST
     public Function setFunction (org.meta_environment.rascal.ast.
 				 FunctionType x)
     {
-      org.meta_environment.rascal.ast.Function z = new Function ();
+      Function z = new Function ();
       z.$setFunction (x);
       return z;
     }
@@ -146,7 +146,7 @@ public abstract class Type extends AbstractAST
     }
     public Variable setTypeVar (org.meta_environment.rascal.ast.TypeVar x)
     {
-      org.meta_environment.rascal.ast.Variable z = new Variable ();
+      Variable z = new Variable ();
       z.$setTypeVar (x);
       return z;
     }
@@ -178,7 +178,7 @@ public abstract class Type extends AbstractAST
     }
     public User setUser (org.meta_environment.rascal.ast.UserType x)
     {
-      org.meta_environment.rascal.ast.User z = new User ();
+      User z = new User ();
       z.$setUser (x);
       return z;
     }
@@ -210,7 +210,7 @@ public abstract class Type extends AbstractAST
     }
     public Symbol setSymbol (org.meta_environment.rascal.ast.Symbol x)
     {
-      org.meta_environment.rascal.ast.Symbol z = new Symbol ();
+      Symbol z = new Symbol ();
       z.$setSymbol (x);
       return z;
     }
@@ -245,7 +245,7 @@ public abstract class Type extends AbstractAST
     public Selector setSelector (org.meta_environment.rascal.ast.
 				 DataTypeSelector x)
     {
-      org.meta_environment.rascal.ast.Selector z = new Selector ();
+      Selector z = new Selector ();
       z.$setSelector (x);
       return z;
     }

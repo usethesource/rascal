@@ -34,8 +34,7 @@ public abstract class ValueProducer extends AbstractAST
     public DefaultStrategy setPattern (org.meta_environment.rascal.ast.
 				       Expression x)
     {
-      org.meta_environment.rascal.ast.DefaultStrategy z =
-	new DefaultStrategy ();
+      DefaultStrategy z = new DefaultStrategy ();
       z.$setPattern (x);
       return z;
     }
@@ -51,8 +50,7 @@ public abstract class ValueProducer extends AbstractAST
     public DefaultStrategy setExpression (org.meta_environment.rascal.ast.
 					  Expression x)
     {
-      org.meta_environment.rascal.ast.DefaultStrategy z =
-	new DefaultStrategy ();
+      DefaultStrategy z = new DefaultStrategy ();
       z.$setExpression (x);
       return z;
     }
@@ -109,7 +107,7 @@ public abstract class ValueProducer extends AbstractAST
     public GivenStrategy setStrategy (org.meta_environment.rascal.ast.
 				      Strategy x)
     {
-      org.meta_environment.rascal.ast.GivenStrategy z = new GivenStrategy ();
+      GivenStrategy z = new GivenStrategy ();
       z.$setStrategy (x);
       return z;
     }
@@ -125,7 +123,7 @@ public abstract class ValueProducer extends AbstractAST
     public GivenStrategy setPattern (org.meta_environment.rascal.ast.
 				     Expression x)
     {
-      org.meta_environment.rascal.ast.GivenStrategy z = new GivenStrategy ();
+      GivenStrategy z = new GivenStrategy ();
       z.$setPattern (x);
       return z;
     }
@@ -141,7 +139,7 @@ public abstract class ValueProducer extends AbstractAST
     public GivenStrategy setExpression (org.meta_environment.rascal.ast.
 					Expression x)
     {
-      org.meta_environment.rascal.ast.GivenStrategy z = new GivenStrategy ();
+      GivenStrategy z = new GivenStrategy ();
       z.$setExpression (x);
       return z;
     }

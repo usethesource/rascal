@@ -31,7 +31,7 @@ public abstract class Import extends AbstractAST
     public Default setModule (org.meta_environment.rascal.ast.
 			      ImportedModule x)
     {
-      org.meta_environment.rascal.ast.Default z = new Default ();
+      Default z = new Default ();
       z.$setModule (x);
       return z;
     }
@@ -80,7 +80,7 @@ public abstract class Import extends AbstractAST
     }
     public Extend setModule (org.meta_environment.rascal.ast.ImportedModule x)
     {
-      org.meta_environment.rascal.ast.Extend z = new Extend ();
+      Extend z = new Extend ();
       z.$setModule (x);
       return z;
     }

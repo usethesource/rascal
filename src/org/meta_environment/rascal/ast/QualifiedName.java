@@ -32,7 +32,7 @@ public abstract class QualifiedName extends AbstractAST
     public Default setNames (java.util.List <
 			     org.meta_environment.rascal.ast.Name > x)
     {
-      org.meta_environment.rascal.ast.Default z = new Default ();
+      Default z = new Default ();
       z.$setNames (x);
       return z;
     }

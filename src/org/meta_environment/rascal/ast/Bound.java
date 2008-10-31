@@ -62,7 +62,7 @@ public abstract class Bound extends AbstractAST
     public Default setExpression (org.meta_environment.rascal.ast.
 				  Expression x)
     {
-      org.meta_environment.rascal.ast.Default z = new Default ();
+      Default z = new Default ();
       z.$setExpression (x);
       return z;
     }

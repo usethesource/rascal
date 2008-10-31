@@ -37,8 +37,7 @@ public abstract class ImportedModule extends AbstractAST
     public ActualsRenaming setName (org.meta_environment.rascal.ast.
 				    ModuleName x)
     {
-      org.meta_environment.rascal.ast.ActualsRenaming z =
-	new ActualsRenaming ();
+      ActualsRenaming z = new ActualsRenaming ();
       z.$setName (x);
       return z;
     }
@@ -54,8 +53,7 @@ public abstract class ImportedModule extends AbstractAST
     public ActualsRenaming setActuals (org.meta_environment.rascal.ast.
 				       ModuleActuals x)
     {
-      org.meta_environment.rascal.ast.ActualsRenaming z =
-	new ActualsRenaming ();
+      ActualsRenaming z = new ActualsRenaming ();
       z.$setActuals (x);
       return z;
     }
@@ -71,8 +69,7 @@ public abstract class ImportedModule extends AbstractAST
     public ActualsRenaming setRenamings (org.meta_environment.rascal.ast.
 					 Renamings x)
     {
-      org.meta_environment.rascal.ast.ActualsRenaming z =
-	new ActualsRenaming ();
+      ActualsRenaming z = new ActualsRenaming ();
       z.$setRenamings (x);
       return z;
     }
@@ -124,7 +121,7 @@ public abstract class ImportedModule extends AbstractAST
     }
     public Actuals setName (org.meta_environment.rascal.ast.ModuleName x)
     {
-      org.meta_environment.rascal.ast.Actuals z = new Actuals ();
+      Actuals z = new Actuals ();
       z.$setName (x);
       return z;
     }
@@ -140,7 +137,7 @@ public abstract class ImportedModule extends AbstractAST
     public Actuals setActuals (org.meta_environment.rascal.ast.
 			       ModuleActuals x)
     {
-      org.meta_environment.rascal.ast.Actuals z = new Actuals ();
+      Actuals z = new Actuals ();
       z.$setActuals (x);
       return z;
     }
@@ -175,7 +172,7 @@ public abstract class ImportedModule extends AbstractAST
     }
     public Renamings setName (org.meta_environment.rascal.ast.ModuleName x)
     {
-      org.meta_environment.rascal.ast.Renamings z = new Renamings ();
+      Renamings z = new Renamings ();
       z.$setName (x);
       return z;
     }
@@ -191,7 +188,7 @@ public abstract class ImportedModule extends AbstractAST
     public Renamings setRenamings (org.meta_environment.rascal.ast.
 				   Renamings x)
     {
-      org.meta_environment.rascal.ast.Renamings z = new Renamings ();
+      Renamings z = new Renamings ();
       z.$setRenamings (x);
       return z;
     }
@@ -223,7 +220,7 @@ public abstract class ImportedModule extends AbstractAST
     }
     public Default setName (org.meta_environment.rascal.ast.ModuleName x)
     {
-      org.meta_environment.rascal.ast.Default z = new Default ();
+      Default z = new Default ();
       z.$setName (x);
       return z;
     }

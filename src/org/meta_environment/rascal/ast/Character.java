@@ -29,7 +29,7 @@ public abstract class Character extends AbstractAST
     }
     public Numeric setNumChar (org.meta_environment.rascal.ast.NumChar x)
     {
-      org.meta_environment.rascal.ast.Numeric z = new Numeric ();
+      Numeric z = new Numeric ();
       z.$setNumChar (x);
       return z;
     }
@@ -78,7 +78,7 @@ public abstract class Character extends AbstractAST
     }
     public Short setShortChar (org.meta_environment.rascal.ast.ShortChar x)
     {
-      org.meta_environment.rascal.ast.Short z = new Short ();
+      Short z = new Short ();
       z.$setShortChar (x);
       return z;
     }

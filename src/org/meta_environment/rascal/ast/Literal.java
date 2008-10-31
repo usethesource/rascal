@@ -29,7 +29,7 @@ public abstract class Literal extends AbstractAST
     }
     public RegExp setRegExp (org.meta_environment.rascal.ast.RegExpLiteral x)
     {
-      org.meta_environment.rascal.ast.RegExp z = new RegExp ();
+      RegExp z = new RegExp ();
       z.$setRegExp (x);
       return z;
     }
@@ -80,7 +80,7 @@ public abstract class Literal extends AbstractAST
     public Symbol setSymbolLiteral (org.meta_environment.rascal.ast.
 				    SymbolLiteral x)
     {
-      org.meta_environment.rascal.ast.Symbol z = new Symbol ();
+      Symbol z = new Symbol ();
       z.$setSymbolLiteral (x);
       return z;
     }
@@ -115,7 +115,7 @@ public abstract class Literal extends AbstractAST
     public Boolean setBooleanLiteral (org.meta_environment.rascal.ast.
 				      BooleanLiteral x)
     {
-      org.meta_environment.rascal.ast.Boolean z = new Boolean ();
+      Boolean z = new Boolean ();
       z.$setBooleanLiteral (x);
       return z;
     }
@@ -150,7 +150,7 @@ public abstract class Literal extends AbstractAST
     public Integer setIntegerLiteral (org.meta_environment.rascal.ast.
 				      IntegerLiteral x)
     {
-      org.meta_environment.rascal.ast.Integer z = new Integer ();
+      Integer z = new Integer ();
       z.$setIntegerLiteral (x);
       return z;
     }
@@ -187,7 +187,7 @@ public abstract class Literal extends AbstractAST
     public Double setDoubleLiteral (org.meta_environment.rascal.ast.
 				    FloatingPointLiteral x)
     {
-      org.meta_environment.rascal.ast.Double z = new Double ();
+      Double z = new Double ();
       z.$setDoubleLiteral (x);
       return z;
     }
@@ -222,7 +222,7 @@ public abstract class Literal extends AbstractAST
     public String setStringLiteral (org.meta_environment.rascal.ast.
 				    StringLiteral x)
     {
-      org.meta_environment.rascal.ast.String z = new String ();
+      String z = new String ();
       z.$setStringLiteral (x);
       return z;
     }

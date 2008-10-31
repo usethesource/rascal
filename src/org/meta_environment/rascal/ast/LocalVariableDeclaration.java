@@ -31,7 +31,7 @@ public abstract class LocalVariableDeclaration extends AbstractAST
     public Default setDeclarator (org.meta_environment.rascal.ast.
 				  Declarator x)
     {
-      org.meta_environment.rascal.ast.Default z = new Default ();
+      Default z = new Default ();
       z.$setDeclarator (x);
       return z;
     }
@@ -83,7 +83,7 @@ public abstract class LocalVariableDeclaration extends AbstractAST
     public Dynamic setDeclarator (org.meta_environment.rascal.ast.
 				  Declarator x)
     {
-      org.meta_environment.rascal.ast.Dynamic z = new Dynamic ();
+      Dynamic z = new Dynamic ();
       z.$setDeclarator (x);
       return z;
     }

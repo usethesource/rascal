@@ -33,7 +33,7 @@ public abstract class Declarator extends AbstractAST
     }
     public Default setType (org.meta_environment.rascal.ast.Type x)
     {
-      org.meta_environment.rascal.ast.Default z = new Default ();
+      Default z = new Default ();
       z.$setType (x);
       return z;
     }
@@ -52,7 +52,7 @@ public abstract class Declarator extends AbstractAST
     public Default setVariables (java.util.List <
 				 org.meta_environment.rascal.ast.Variable > x)
     {
-      org.meta_environment.rascal.ast.Default z = new Default ();
+      Default z = new Default ();
       z.$setVariables (x);
       return z;
     }

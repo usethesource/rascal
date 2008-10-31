@@ -34,7 +34,7 @@ public abstract class Header extends AbstractAST
     }
     public Default setName (org.meta_environment.rascal.ast.ModuleName x)
     {
-      org.meta_environment.rascal.ast.Default z = new Default ();
+      Default z = new Default ();
       z.$setName (x);
       return z;
     }
@@ -49,7 +49,7 @@ public abstract class Header extends AbstractAST
     }
     public Default setTags (org.meta_environment.rascal.ast.Tags x)
     {
-      org.meta_environment.rascal.ast.Default z = new Default ();
+      Default z = new Default ();
       z.$setTags (x);
       return z;
     }
@@ -67,7 +67,7 @@ public abstract class Header extends AbstractAST
     public Default setImports (java.util.List <
 			       org.meta_environment.rascal.ast.Import > x)
     {
-      org.meta_environment.rascal.ast.Default z = new Default ();
+      Default z = new Default ();
       z.$setImports (x);
       return z;
     }
@@ -123,7 +123,7 @@ public abstract class Header extends AbstractAST
     }
     public Parameters setName (org.meta_environment.rascal.ast.ModuleName x)
     {
-      org.meta_environment.rascal.ast.Parameters z = new Parameters ();
+      Parameters z = new Parameters ();
       z.$setName (x);
       return z;
     }
@@ -140,7 +140,7 @@ public abstract class Header extends AbstractAST
     public Parameters setParams (org.meta_environment.rascal.ast.
 				 ModuleParameters x)
     {
-      org.meta_environment.rascal.ast.Parameters z = new Parameters ();
+      Parameters z = new Parameters ();
       z.$setParams (x);
       return z;
     }
@@ -155,7 +155,7 @@ public abstract class Header extends AbstractAST
     }
     public Parameters setTags (org.meta_environment.rascal.ast.Tags x)
     {
-      org.meta_environment.rascal.ast.Parameters z = new Parameters ();
+      Parameters z = new Parameters ();
       z.$setTags (x);
       return z;
     }
@@ -173,7 +173,7 @@ public abstract class Header extends AbstractAST
     public Parameters setImports (java.util.List <
 				  org.meta_environment.rascal.ast.Import > x)
     {
-      org.meta_environment.rascal.ast.Parameters z = new Parameters ();
+      Parameters z = new Parameters ();
       z.$setImports (x);
       return z;
     }

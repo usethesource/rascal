@@ -28,7 +28,7 @@ public abstract class UserType extends AbstractAST
     }
     public Name setName (org.meta_environment.rascal.ast.Name x)
     {
-      org.meta_environment.rascal.ast.Name z = new Name ();
+      Name z = new Name ();
       z.$setName (x);
       return z;
     }
@@ -80,7 +80,7 @@ public abstract class UserType extends AbstractAST
     }
     public Parametric setName (org.meta_environment.rascal.ast.Name x)
     {
-      org.meta_environment.rascal.ast.Parametric z = new Parametric ();
+      Parametric z = new Parametric ();
       z.$setName (x);
       return z;
     }
@@ -100,7 +100,7 @@ public abstract class UserType extends AbstractAST
 				     org.meta_environment.rascal.ast.TypeVar >
 				     x)
     {
-      org.meta_environment.rascal.ast.Parametric z = new Parametric ();
+      Parametric z = new Parametric ();
       z.$setParameters (x);
       return z;
     }

@@ -32,7 +32,7 @@ public abstract class Comprehension extends AbstractAST
     }
     public Set setResult (org.meta_environment.rascal.ast.Expression x)
     {
-      org.meta_environment.rascal.ast.Set z = new Set ();
+      Set z = new Set ();
       z.$setResult (x);
       return z;
     }
@@ -52,7 +52,7 @@ public abstract class Comprehension extends AbstractAST
     public Set setGenerators (java.util.List <
 			      org.meta_environment.rascal.ast.Generator > x)
     {
-      org.meta_environment.rascal.ast.Set z = new Set ();
+      Set z = new Set ();
       z.$setGenerators (x);
       return z;
     }
@@ -104,7 +104,7 @@ public abstract class Comprehension extends AbstractAST
     }
     public List setResult (org.meta_environment.rascal.ast.Expression x)
     {
-      org.meta_environment.rascal.ast.List z = new List ();
+      List z = new List ();
       z.$setResult (x);
       return z;
     }
@@ -124,7 +124,7 @@ public abstract class Comprehension extends AbstractAST
     public List setGenerators (java.util.List <
 			       org.meta_environment.rascal.ast.Generator > x)
     {
-      org.meta_environment.rascal.ast.List z = new List ();
+      List z = new List ();
       z.$setGenerators (x);
       return z;
     }

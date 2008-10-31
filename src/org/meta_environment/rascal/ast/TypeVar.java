@@ -28,7 +28,7 @@ public abstract class TypeVar extends AbstractAST
     }
     public Free setName (org.meta_environment.rascal.ast.Name x)
     {
-      org.meta_environment.rascal.ast.Free z = new Free ();
+      Free z = new Free ();
       z.$setName (x);
       return z;
     }
@@ -78,7 +78,7 @@ public abstract class TypeVar extends AbstractAST
     }
     public Bounded setName (org.meta_environment.rascal.ast.Name x)
     {
-      org.meta_environment.rascal.ast.Bounded z = new Bounded ();
+      Bounded z = new Bounded ();
       z.$setName (x);
       return z;
     }
@@ -93,7 +93,7 @@ public abstract class TypeVar extends AbstractAST
     }
     public Bounded setBound (org.meta_environment.rascal.ast.Type x)
     {
-      org.meta_environment.rascal.ast.Bounded z = new Bounded ();
+      Bounded z = new Bounded ();
       z.$setBound (x);
       return z;
     }

@@ -37,7 +37,7 @@ public abstract class FunctionBody extends AbstractAST
 				  org.meta_environment.rascal.ast.Statement >
 				  x)
     {
-      org.meta_environment.rascal.ast.Default z = new Default ();
+      Default z = new Default ();
       z.$setStatements (x);
       return z;
     }

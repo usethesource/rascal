@@ -30,7 +30,7 @@ public abstract class Variant extends AbstractAST
     }
     public Type setType (org.meta_environment.rascal.ast.Type x)
     {
-      org.meta_environment.rascal.ast.Type z = new Type ();
+      Type z = new Type ();
       z.$setType (x);
       return z;
     }
@@ -45,7 +45,7 @@ public abstract class Variant extends AbstractAST
     }
     public Type setName (org.meta_environment.rascal.ast.Name x)
     {
-      org.meta_environment.rascal.ast.Type z = new Type ();
+      Type z = new Type ();
       z.$setName (x);
       return z;
     }
@@ -97,8 +97,7 @@ public abstract class Variant extends AbstractAST
     }
     public NAryConstructor setName (org.meta_environment.rascal.ast.Name x)
     {
-      org.meta_environment.rascal.ast.NAryConstructor z =
-	new NAryConstructor ();
+      NAryConstructor z = new NAryConstructor ();
       z.$setName (x);
       return z;
     }
@@ -118,8 +117,7 @@ public abstract class Variant extends AbstractAST
 					 org.meta_environment.rascal.ast.
 					 TypeArg > x)
     {
-      org.meta_environment.rascal.ast.NAryConstructor z =
-	new NAryConstructor ();
+      NAryConstructor z = new NAryConstructor ();
       z.$setArguments (x);
       return z;
     }
@@ -152,8 +150,7 @@ public abstract class Variant extends AbstractAST
     }
     public NillaryConstructor setName (org.meta_environment.rascal.ast.Name x)
     {
-      org.meta_environment.rascal.ast.NillaryConstructor z =
-	new NillaryConstructor ();
+      NillaryConstructor z = new NillaryConstructor ();
       z.$setName (x);
       return z;
     }

@@ -31,7 +31,7 @@ public abstract class Rule extends AbstractAST
     }
     public WithGuard setType (org.meta_environment.rascal.ast.Type x)
     {
-      org.meta_environment.rascal.ast.WithGuard z = new WithGuard ();
+      WithGuard z = new WithGuard ();
       z.$setType (x);
       return z;
     }
@@ -46,7 +46,7 @@ public abstract class Rule extends AbstractAST
     }
     public WithGuard setMatch (org.meta_environment.rascal.ast.Match x)
     {
-      org.meta_environment.rascal.ast.WithGuard z = new WithGuard ();
+      WithGuard z = new WithGuard ();
       z.$setMatch (x);
       return z;
     }
@@ -94,7 +94,7 @@ public abstract class Rule extends AbstractAST
     }
     public NoGuard setMatch (org.meta_environment.rascal.ast.Match x)
     {
-      org.meta_environment.rascal.ast.NoGuard z = new NoGuard ();
+      NoGuard z = new NoGuard ();
       z.$setMatch (x);
       return z;
     }

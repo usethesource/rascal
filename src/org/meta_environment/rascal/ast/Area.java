@@ -42,7 +42,7 @@ public abstract class Area extends AbstractAST
     }
     public Default setBeginLine (org.meta_environment.rascal.ast.Expression x)
     {
-      org.meta_environment.rascal.ast.Default z = new Default ();
+      Default z = new Default ();
       z.$setBeginLine (x);
       return z;
     }
@@ -59,7 +59,7 @@ public abstract class Area extends AbstractAST
     public Default setBeginColumn (org.meta_environment.rascal.ast.
 				   Expression x)
     {
-      org.meta_environment.rascal.ast.Default z = new Default ();
+      Default z = new Default ();
       z.$setBeginColumn (x);
       return z;
     }
@@ -74,7 +74,7 @@ public abstract class Area extends AbstractAST
     }
     public Default setEndLine (org.meta_environment.rascal.ast.Expression x)
     {
-      org.meta_environment.rascal.ast.Default z = new Default ();
+      Default z = new Default ();
       z.$setEndLine (x);
       return z;
     }
@@ -89,7 +89,7 @@ public abstract class Area extends AbstractAST
     }
     public Default setEndColumn (org.meta_environment.rascal.ast.Expression x)
     {
-      org.meta_environment.rascal.ast.Default z = new Default ();
+      Default z = new Default ();
       z.$setEndColumn (x);
       return z;
     }
@@ -104,7 +104,7 @@ public abstract class Area extends AbstractAST
     }
     public Default setOffset (org.meta_environment.rascal.ast.Expression x)
     {
-      org.meta_environment.rascal.ast.Default z = new Default ();
+      Default z = new Default ();
       z.$setOffset (x);
       return z;
     }
@@ -119,7 +119,7 @@ public abstract class Area extends AbstractAST
     }
     public Default setLength (org.meta_environment.rascal.ast.Expression x)
     {
-      org.meta_environment.rascal.ast.Default z = new Default ();
+      Default z = new Default ();
       z.$setLength (x);
       return z;
     }

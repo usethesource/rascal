@@ -31,7 +31,7 @@ public abstract class Alternative extends AbstractAST
     }
     public NamedType setName (org.meta_environment.rascal.ast.Name x)
     {
-      org.meta_environment.rascal.ast.NamedType z = new NamedType ();
+      NamedType z = new NamedType ();
       z.$setName (x);
       return z;
     }
@@ -46,7 +46,7 @@ public abstract class Alternative extends AbstractAST
     }
     public NamedType setType (org.meta_environment.rascal.ast.Type x)
     {
-      org.meta_environment.rascal.ast.NamedType z = new NamedType ();
+      NamedType z = new NamedType ();
       z.$setType (x);
       return z;
     }
