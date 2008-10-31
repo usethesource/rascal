@@ -7,6 +7,19 @@ public abstract class FloatingPointLiteral extends AbstractAST
     /* [0-9]+ "." [0-9]* ( [eE] [\+\-]? [0-9]+ )? [fF] -> FloatingPointLiteral  */
   } static public class Ambiguity extends FloatingPointLiteral
   {
+    public FloatingPointLiteral.
+      Ambiguity makeFloatingPointLiteralAmbiguity (java.util.List <
+						   FloatingPointLiteral >
+						   alternatives)
+    {
+      FloatingPointLiteral.Ambiguity amb =
+	new FloatingPointLiteral.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (FloatingPointLiteral.Ambiguity) table.get (amb);
+    }
     private final java.util.List < FloatingPointLiteral > alternatives;
     public Ambiguity (java.util.List < FloatingPointLiteral > alternatives)
     {

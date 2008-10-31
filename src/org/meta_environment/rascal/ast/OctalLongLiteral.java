@@ -8,6 +8,21 @@ public abstract class OctalLongLiteral extends AbstractAST
   }
   static public class Ambiguity extends OctalLongLiteral
   {
+    public OctalLongLiteral.Ambiguity makeOctalLongLiteralAmbiguity (java.
+								     util.
+								     List <
+								     OctalLongLiteral
+								     >
+								     alternatives)
+    {
+      OctalLongLiteral.Ambiguity amb =
+	new OctalLongLiteral.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (OctalLongLiteral.Ambiguity) table.get (amb);
+    }
     private final java.util.List < OctalLongLiteral > alternatives;
     public Ambiguity (java.util.List < OctalLongLiteral > alternatives)
     {

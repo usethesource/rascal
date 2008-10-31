@@ -27,10 +27,7 @@ public abstract class Catch extends AbstractAST
     {
       this.body = x;
     }
-    public org.meta_environment.rascal.ast.Default setBody (org.
-							    meta_environment.
-							    rascal.ast.
-							    Statement x)
+    public Default setBody (org.meta_environment.rascal.ast.Statement x)
     {
       org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setBody (x);
@@ -39,6 +36,16 @@ public abstract class Catch extends AbstractAST
   }
   static public class Ambiguity extends Catch
   {
+    public Catch.Ambiguity makeCatchAmbiguity (java.util.List < Catch >
+					       alternatives)
+    {
+      Catch.Ambiguity amb = new Catch.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (Catch.Ambiguity) table.get (amb);
+    }
     private final java.util.List < Catch > alternatives;
     public Ambiguity (java.util.List < Catch > alternatives)
     {
@@ -79,9 +86,7 @@ public abstract class Catch extends AbstractAST
     {
       this.type = x;
     }
-    public org.meta_environment.rascal.ast.Binding setType (org.
-							    meta_environment.
-							    rascal.ast.Type x)
+    public Binding setType (org.meta_environment.rascal.ast.Type x)
     {
       org.meta_environment.rascal.ast.Binding z = new Binding ();
       z.$setType (x);
@@ -96,9 +101,7 @@ public abstract class Catch extends AbstractAST
     {
       this.name = x;
     }
-    public org.meta_environment.rascal.ast.Binding setName (org.
-							    meta_environment.
-							    rascal.ast.Name x)
+    public Binding setName (org.meta_environment.rascal.ast.Name x)
     {
       org.meta_environment.rascal.ast.Binding z = new Binding ();
       z.$setName (x);
@@ -113,10 +116,7 @@ public abstract class Catch extends AbstractAST
     {
       this.body = x;
     }
-    public org.meta_environment.rascal.ast.Binding setBody (org.
-							    meta_environment.
-							    rascal.ast.
-							    Statement x)
+    public Binding setBody (org.meta_environment.rascal.ast.Statement x)
     {
       org.meta_environment.rascal.ast.Binding z = new Binding ();
       z.$setBody (x);

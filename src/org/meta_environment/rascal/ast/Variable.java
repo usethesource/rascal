@@ -34,12 +34,8 @@ public abstract class Variable extends AbstractAST
     {
       this.name = x;
     }
-    public org.meta_environment.rascal.ast.GivenInitialization setName (org.
-									meta_environment.
-									rascal.
-									ast.
-									Name
-									x)
+    public GivenInitialization setName (org.meta_environment.rascal.ast.
+					Name x)
     {
       org.meta_environment.rascal.ast.GivenInitialization z =
 	new GivenInitialization ();
@@ -55,12 +51,8 @@ public abstract class Variable extends AbstractAST
     {
       this.tags = x;
     }
-    public org.meta_environment.rascal.ast.GivenInitialization setTags (org.
-									meta_environment.
-									rascal.
-									ast.
-									Tags
-									x)
+    public GivenInitialization setTags (org.meta_environment.rascal.ast.
+					Tags x)
     {
       org.meta_environment.rascal.ast.GivenInitialization z =
 	new GivenInitialization ();
@@ -76,9 +68,8 @@ public abstract class Variable extends AbstractAST
     {
       this.initial = x;
     }
-    public org.meta_environment.rascal.ast.
-      GivenInitialization setInitial (org.meta_environment.rascal.ast.
-				      Expression x)
+    public GivenInitialization setInitial (org.meta_environment.rascal.ast.
+					   Expression x)
     {
       org.meta_environment.rascal.ast.GivenInitialization z =
 	new GivenInitialization ();
@@ -88,6 +79,16 @@ public abstract class Variable extends AbstractAST
   }
   static public class Ambiguity extends Variable
   {
+    public Variable.Ambiguity makeVariableAmbiguity (java.util.List <
+						     Variable > alternatives)
+    {
+      Variable.Ambiguity amb = new Variable.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (Variable.Ambiguity) table.get (amb);
+    }
     private final java.util.List < Variable > alternatives;
     public Ambiguity (java.util.List < Variable > alternatives)
     {

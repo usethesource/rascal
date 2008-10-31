@@ -31,12 +31,8 @@ public abstract class ValueProducer extends AbstractAST
     {
       this.pattern = x;
     }
-    public org.meta_environment.rascal.ast.DefaultStrategy setPattern (org.
-								       meta_environment.
-								       rascal.
-								       ast.
-								       Expression
-								       x)
+    public DefaultStrategy setPattern (org.meta_environment.rascal.ast.
+				       Expression x)
     {
       org.meta_environment.rascal.ast.DefaultStrategy z =
 	new DefaultStrategy ();
@@ -52,12 +48,8 @@ public abstract class ValueProducer extends AbstractAST
     {
       this.expression = x;
     }
-    public org.meta_environment.rascal.ast.DefaultStrategy setExpression (org.
-									  meta_environment.
-									  rascal.
-									  ast.
-									  Expression
-									  x)
+    public DefaultStrategy setExpression (org.meta_environment.rascal.ast.
+					  Expression x)
     {
       org.meta_environment.rascal.ast.DefaultStrategy z =
 	new DefaultStrategy ();
@@ -67,6 +59,19 @@ public abstract class ValueProducer extends AbstractAST
   }
   static public class Ambiguity extends ValueProducer
   {
+    public ValueProducer.Ambiguity makeValueProducerAmbiguity (java.util.
+							       List <
+							       ValueProducer >
+							       alternatives)
+    {
+      ValueProducer.Ambiguity amb =
+	new ValueProducer.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (ValueProducer.Ambiguity) table.get (amb);
+    }
     private final java.util.List < ValueProducer > alternatives;
     public Ambiguity (java.util.List < ValueProducer > alternatives)
     {
@@ -110,12 +115,8 @@ public abstract class ValueProducer extends AbstractAST
     {
       this.strategy = x;
     }
-    public org.meta_environment.rascal.ast.GivenStrategy setStrategy (org.
-								      meta_environment.
-								      rascal.
-								      ast.
-								      Strategy
-								      x)
+    public GivenStrategy setStrategy (org.meta_environment.rascal.ast.
+				      Strategy x)
     {
       org.meta_environment.rascal.ast.GivenStrategy z = new GivenStrategy ();
       z.$setStrategy (x);
@@ -130,12 +131,8 @@ public abstract class ValueProducer extends AbstractAST
     {
       this.pattern = x;
     }
-    public org.meta_environment.rascal.ast.GivenStrategy setPattern (org.
-								     meta_environment.
-								     rascal.
-								     ast.
-								     Expression
-								     x)
+    public GivenStrategy setPattern (org.meta_environment.rascal.ast.
+				     Expression x)
     {
       org.meta_environment.rascal.ast.GivenStrategy z = new GivenStrategy ();
       z.$setPattern (x);
@@ -150,12 +147,8 @@ public abstract class ValueProducer extends AbstractAST
     {
       this.expression = x;
     }
-    public org.meta_environment.rascal.ast.GivenStrategy setExpression (org.
-									meta_environment.
-									rascal.
-									ast.
-									Expression
-									x)
+    public GivenStrategy setExpression (org.meta_environment.rascal.ast.
+					Expression x)
     {
       org.meta_environment.rascal.ast.GivenStrategy z = new GivenStrategy ();
       z.$setExpression (x);

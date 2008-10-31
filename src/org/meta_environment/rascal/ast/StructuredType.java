@@ -27,10 +27,7 @@ public abstract class StructuredType extends AbstractAST
     {
       this.typeArg = x;
     }
-    public org.meta_environment.rascal.ast.List setTypeArg (org.
-							    meta_environment.
-							    rascal.ast.
-							    TypeArg x)
+    public List setTypeArg (org.meta_environment.rascal.ast.TypeArg x)
     {
       org.meta_environment.rascal.ast.List z = new List ();
       z.$setTypeArg (x);
@@ -39,6 +36,20 @@ public abstract class StructuredType extends AbstractAST
   }
   static public class Ambiguity extends StructuredType
   {
+    public StructuredType.Ambiguity makeStructuredTypeAmbiguity (java.util.
+								 List <
+								 StructuredType
+								 >
+								 alternatives)
+    {
+      StructuredType.Ambiguity amb =
+	new StructuredType.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (StructuredType.Ambiguity) table.get (amb);
+    }
     private final java.util.List < StructuredType > alternatives;
     public Ambiguity (java.util.List < StructuredType > alternatives)
     {
@@ -75,10 +86,7 @@ public abstract class StructuredType extends AbstractAST
     {
       this.typeArg = x;
     }
-    public org.meta_environment.rascal.ast.Set setTypeArg (org.
-							   meta_environment.
-							   rascal.ast.
-							   TypeArg x)
+    public Set setTypeArg (org.meta_environment.rascal.ast.TypeArg x)
     {
       org.meta_environment.rascal.ast.Set z = new Set ();
       z.$setTypeArg (x);
@@ -112,8 +120,7 @@ public abstract class StructuredType extends AbstractAST
     {
       this.first = x;
     }
-    public org.meta_environment.rascal.ast.Map setFirst (org.meta_environment.
-							 rascal.ast.TypeArg x)
+    public Map setFirst (org.meta_environment.rascal.ast.TypeArg x)
     {
       org.meta_environment.rascal.ast.Map z = new Map ();
       z.$setFirst (x);
@@ -128,10 +135,7 @@ public abstract class StructuredType extends AbstractAST
     {
       this.second = x;
     }
-    public org.meta_environment.rascal.ast.Map setSecond (org.
-							  meta_environment.
-							  rascal.ast.
-							  TypeArg x)
+    public Map setSecond (org.meta_environment.rascal.ast.TypeArg x)
     {
       org.meta_environment.rascal.ast.Map z = new Map ();
       z.$setSecond (x);
@@ -165,10 +169,7 @@ public abstract class StructuredType extends AbstractAST
     {
       this.first = x;
     }
-    public org.meta_environment.rascal.ast.Relation setFirst (org.
-							      meta_environment.
-							      rascal.ast.
-							      TypeArg x)
+    public Relation setFirst (org.meta_environment.rascal.ast.TypeArg x)
     {
       org.meta_environment.rascal.ast.Relation z = new Relation ();
       z.$setFirst (x);
@@ -185,11 +186,8 @@ public abstract class StructuredType extends AbstractAST
     {
       this.rest = x;
     }
-    public org.meta_environment.rascal.ast.Relation setRest (java.util.List <
-							     org.
-							     meta_environment.
-							     rascal.ast.
-							     TypeArg > x)
+    public Relation setRest (java.util.List <
+			     org.meta_environment.rascal.ast.TypeArg > x)
     {
       org.meta_environment.rascal.ast.Relation z = new Relation ();
       z.$setRest (x);
@@ -223,10 +221,7 @@ public abstract class StructuredType extends AbstractAST
     {
       this.first = x;
     }
-    public org.meta_environment.rascal.ast.Tuple setFirst (org.
-							   meta_environment.
-							   rascal.ast.
-							   TypeArg x)
+    public Tuple setFirst (org.meta_environment.rascal.ast.TypeArg x)
     {
       org.meta_environment.rascal.ast.Tuple z = new Tuple ();
       z.$setFirst (x);
@@ -243,11 +238,8 @@ public abstract class StructuredType extends AbstractAST
     {
       this.rest = x;
     }
-    public org.meta_environment.rascal.ast.Tuple setRest (java.util.List <
-							  org.
-							  meta_environment.
-							  rascal.ast.TypeArg >
-							  x)
+    public Tuple setRest (java.util.List <
+			  org.meta_environment.rascal.ast.TypeArg > x)
     {
       org.meta_environment.rascal.ast.Tuple z = new Tuple ();
       z.$setRest (x);

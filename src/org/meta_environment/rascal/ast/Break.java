@@ -27,10 +27,7 @@ public abstract class Break extends AbstractAST
     {
       this.label = x;
     }
-    public org.meta_environment.rascal.ast.WithLabel setLabel (org.
-							       meta_environment.
-							       rascal.ast.
-							       Name x)
+    public WithLabel setLabel (org.meta_environment.rascal.ast.Name x)
     {
       org.meta_environment.rascal.ast.WithLabel z = new WithLabel ();
       z.$setLabel (x);
@@ -39,6 +36,16 @@ public abstract class Break extends AbstractAST
   }
   static public class Ambiguity extends Break
   {
+    public Break.Ambiguity makeBreakAmbiguity (java.util.List < Break >
+					       alternatives)
+    {
+      Break.Ambiguity amb = new Break.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (Break.Ambiguity) table.get (amb);
+    }
     private final java.util.List < Break > alternatives;
     public Ambiguity (java.util.List < Break > alternatives)
     {

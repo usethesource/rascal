@@ -27,10 +27,7 @@ public abstract class Parameters extends AbstractAST
     {
       this.formals = x;
     }
-    public org.meta_environment.rascal.ast.Default setFormals (org.
-							       meta_environment.
-							       rascal.ast.
-							       Formals x)
+    public Default setFormals (org.meta_environment.rascal.ast.Formals x)
     {
       org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setFormals (x);
@@ -39,6 +36,17 @@ public abstract class Parameters extends AbstractAST
   }
   static public class Ambiguity extends Parameters
   {
+    public Parameters.Ambiguity makeParametersAmbiguity (java.util.List <
+							 Parameters >
+							 alternatives)
+    {
+      Parameters.Ambiguity amb = new Parameters.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (Parameters.Ambiguity) table.get (amb);
+    }
     private final java.util.List < Parameters > alternatives;
     public Ambiguity (java.util.List < Parameters > alternatives)
     {
@@ -75,10 +83,7 @@ public abstract class Parameters extends AbstractAST
     {
       this.formals = x;
     }
-    public org.meta_environment.rascal.ast.VarArgs setFormals (org.
-							       meta_environment.
-							       rascal.ast.
-							       Formals x)
+    public VarArgs setFormals (org.meta_environment.rascal.ast.Formals x)
     {
       org.meta_environment.rascal.ast.VarArgs z = new VarArgs ();
       z.$setFormals (x);

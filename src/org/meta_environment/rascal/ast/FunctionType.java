@@ -29,10 +29,7 @@ public abstract class FunctionType extends AbstractAST
     {
       this.type = x;
     }
-    public org.meta_environment.rascal.ast.TypeArguments setType (org.
-								  meta_environment.
-								  rascal.ast.
-								  Type x)
+    public TypeArguments setType (org.meta_environment.rascal.ast.Type x)
     {
       org.meta_environment.rascal.ast.TypeArguments z = new TypeArguments ();
       z.$setType (x);
@@ -50,15 +47,9 @@ public abstract class FunctionType extends AbstractAST
     {
       this.arguments = x;
     }
-    public org.meta_environment.rascal.ast.TypeArguments setArguments (java.
-								       util.
-								       List <
-								       org.
-								       meta_environment.
-								       rascal.
-								       ast.
-								       TypeArg
-								       > x)
+    public TypeArguments setArguments (java.util.List <
+				       org.meta_environment.rascal.ast.
+				       TypeArg > x)
     {
       org.meta_environment.rascal.ast.TypeArguments z = new TypeArguments ();
       z.$setArguments (x);
@@ -67,6 +58,17 @@ public abstract class FunctionType extends AbstractAST
   }
   static public class Ambiguity extends FunctionType
   {
+    public FunctionType.Ambiguity makeFunctionTypeAmbiguity (java.util.List <
+							     FunctionType >
+							     alternatives)
+    {
+      FunctionType.Ambiguity amb = new FunctionType.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (FunctionType.Ambiguity) table.get (amb);
+    }
     private final java.util.List < FunctionType > alternatives;
     public Ambiguity (java.util.List < FunctionType > alternatives)
     {

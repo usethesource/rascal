@@ -19,6 +19,17 @@ public abstract class LongLiteral extends AbstractAST
   }
   static public class Ambiguity extends LongLiteral
   {
+    public LongLiteral.Ambiguity makeLongLiteralAmbiguity (java.util.List <
+							   LongLiteral >
+							   alternatives)
+    {
+      LongLiteral.Ambiguity amb = new LongLiteral.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (LongLiteral.Ambiguity) table.get (amb);
+    }
     private final java.util.List < LongLiteral > alternatives;
     public Ambiguity (java.util.List < LongLiteral > alternatives)
     {

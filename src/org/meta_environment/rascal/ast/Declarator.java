@@ -29,9 +29,7 @@ public abstract class Declarator extends AbstractAST
     {
       this.type = x;
     }
-    public org.meta_environment.rascal.ast.Default setType (org.
-							    meta_environment.
-							    rascal.ast.Type x)
+    public Default setType (org.meta_environment.rascal.ast.Type x)
     {
       org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setType (x);
@@ -49,12 +47,8 @@ public abstract class Declarator extends AbstractAST
     {
       this.variables = x;
     }
-    public org.meta_environment.rascal.ast.Default setVariables (java.util.
-								 List <
-								 org.
-								 meta_environment.
-								 rascal.ast.
-								 Variable > x)
+    public Default setVariables (java.util.List <
+				 org.meta_environment.rascal.ast.Variable > x)
     {
       org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setVariables (x);
@@ -63,6 +57,17 @@ public abstract class Declarator extends AbstractAST
   }
   static public class Ambiguity extends Declarator
   {
+    public Declarator.Ambiguity makeDeclaratorAmbiguity (java.util.List <
+							 Declarator >
+							 alternatives)
+    {
+      Declarator.Ambiguity amb = new Declarator.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (Declarator.Ambiguity) table.get (amb);
+    }
     private final java.util.List < Declarator > alternatives;
     public Ambiguity (java.util.List < Declarator > alternatives)
     {

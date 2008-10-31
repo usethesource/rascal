@@ -27,11 +27,8 @@ public abstract class ModuleActuals extends AbstractAST
     {
       this.types = x;
     }
-    public org.meta_environment.rascal.ast.Default setTypes (java.util.List <
-							     org.
-							     meta_environment.
-							     rascal.ast.Type >
-							     x)
+    public Default setTypes (java.util.List <
+			     org.meta_environment.rascal.ast.Type > x)
     {
       org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setTypes (x);
@@ -40,6 +37,19 @@ public abstract class ModuleActuals extends AbstractAST
   }
   static public class Ambiguity extends ModuleActuals
   {
+    public ModuleActuals.Ambiguity makeModuleActualsAmbiguity (java.util.
+							       List <
+							       ModuleActuals >
+							       alternatives)
+    {
+      ModuleActuals.Ambiguity amb =
+	new ModuleActuals.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (ModuleActuals.Ambiguity) table.get (amb);
+    }
     private final java.util.List < ModuleActuals > alternatives;
     public Ambiguity (java.util.List < ModuleActuals > alternatives)
     {

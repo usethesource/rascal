@@ -7,6 +7,20 @@ public abstract class BooleanLiteral extends AbstractAST
     /* "true" -> BooleanLiteral  */
   } static public class Ambiguity extends BooleanLiteral
   {
+    public BooleanLiteral.Ambiguity makeBooleanLiteralAmbiguity (java.util.
+								 List <
+								 BooleanLiteral
+								 >
+								 alternatives)
+    {
+      BooleanLiteral.Ambiguity amb =
+	new BooleanLiteral.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (BooleanLiteral.Ambiguity) table.get (amb);
+    }
     private final java.util.List < BooleanLiteral > alternatives;
     public Ambiguity (java.util.List < BooleanLiteral > alternatives)
     {

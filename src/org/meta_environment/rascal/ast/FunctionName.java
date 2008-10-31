@@ -26,8 +26,7 @@ public abstract class FunctionName extends AbstractAST
     {
       this.name = x;
     }
-    public org.meta_environment.rascal.ast.Name setName (org.meta_environment.
-							 rascal.ast.Name x)
+    public Name setName (org.meta_environment.rascal.ast.Name x)
     {
       org.meta_environment.rascal.ast.Name z = new Name ();
       z.$setName (x);
@@ -36,6 +35,17 @@ public abstract class FunctionName extends AbstractAST
   }
   static public class Ambiguity extends FunctionName
   {
+    public FunctionName.Ambiguity makeFunctionNameAmbiguity (java.util.List <
+							     FunctionName >
+							     alternatives)
+    {
+      FunctionName.Ambiguity amb = new FunctionName.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (FunctionName.Ambiguity) table.get (amb);
+    }
     private final java.util.List < FunctionName > alternatives;
     public Ambiguity (java.util.List < FunctionName > alternatives)
     {
@@ -74,11 +84,8 @@ public abstract class FunctionName extends AbstractAST
     {
       this.operator = x;
     }
-    public org.meta_environment.rascal.ast.Operator setOperator (org.
-								 meta_environment.
-								 rascal.ast.
-								 StandardOperator
-								 x)
+    public Operator setOperator (org.meta_environment.rascal.ast.
+				 StandardOperator x)
     {
       org.meta_environment.rascal.ast.Operator z = new Operator ();
       z.$setOperator (x);

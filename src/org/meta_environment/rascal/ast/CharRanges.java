@@ -27,10 +27,7 @@ public abstract class CharRanges extends AbstractAST
     {
       this.range = x;
     }
-    public org.meta_environment.rascal.ast.Range setRange (org.
-							   meta_environment.
-							   rascal.ast.
-							   CharRange x)
+    public Range setRange (org.meta_environment.rascal.ast.CharRange x)
     {
       org.meta_environment.rascal.ast.Range z = new Range ();
       z.$setRange (x);
@@ -39,6 +36,17 @@ public abstract class CharRanges extends AbstractAST
   }
   static public class Ambiguity extends CharRanges
   {
+    public CharRanges.Ambiguity makeCharRangesAmbiguity (java.util.List <
+							 CharRanges >
+							 alternatives)
+    {
+      CharRanges.Ambiguity amb = new CharRanges.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (CharRanges.Ambiguity) table.get (amb);
+    }
     private final java.util.List < CharRanges > alternatives;
     public Ambiguity (java.util.List < CharRanges > alternatives)
     {
@@ -77,10 +85,7 @@ public abstract class CharRanges extends AbstractAST
     {
       this.lhs = x;
     }
-    public org.meta_environment.rascal.ast.Concatenate setLhs (org.
-							       meta_environment.
-							       rascal.ast.
-							       CharRanges x)
+    public Concatenate setLhs (org.meta_environment.rascal.ast.CharRanges x)
     {
       org.meta_environment.rascal.ast.Concatenate z = new Concatenate ();
       z.$setLhs (x);
@@ -95,10 +100,7 @@ public abstract class CharRanges extends AbstractAST
     {
       this.rhs = x;
     }
-    public org.meta_environment.rascal.ast.Concatenate setRhs (org.
-							       meta_environment.
-							       rascal.ast.
-							       CharRanges x)
+    public Concatenate setRhs (org.meta_environment.rascal.ast.CharRanges x)
     {
       org.meta_environment.rascal.ast.Concatenate z = new Concatenate ();
       z.$setRhs (x);
@@ -108,6 +110,22 @@ public abstract class CharRanges extends AbstractAST
   static public class Bracket extends CharRanges
   {
 /* "(" CharRanges ")" -> CharRanges {bracket} */
+    public CharRanges.Bracket makeCharRangesBracket (ITree tree)
+    {
+      CharRanges.Bracket x = new CharRanges.Bracket (tree);
+      if (!table.containsKey (x))
+	{
+	  table.put (x, x);
+	}
+      return (CharRanges.Bracket) table.get (x);
+    }
+
+    public CharRanges visitCharRangesBracket (CharRanges.Bracket x);
+    public CharRanges visitCharRangesBracket (CharRanges.Bracket x)
+    {
+      return x;
+    }
+
     private Bracket ()
     {
     }

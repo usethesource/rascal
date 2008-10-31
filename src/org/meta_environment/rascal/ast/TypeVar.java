@@ -26,8 +26,7 @@ public abstract class TypeVar extends AbstractAST
     {
       this.name = x;
     }
-    public org.meta_environment.rascal.ast.Free setName (org.meta_environment.
-							 rascal.ast.Name x)
+    public Free setName (org.meta_environment.rascal.ast.Name x)
     {
       org.meta_environment.rascal.ast.Free z = new Free ();
       z.$setName (x);
@@ -36,6 +35,16 @@ public abstract class TypeVar extends AbstractAST
   }
   static public class Ambiguity extends TypeVar
   {
+    public TypeVar.Ambiguity makeTypeVarAmbiguity (java.util.List < TypeVar >
+						   alternatives)
+    {
+      TypeVar.Ambiguity amb = new TypeVar.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (TypeVar.Ambiguity) table.get (amb);
+    }
     private final java.util.List < TypeVar > alternatives;
     public Ambiguity (java.util.List < TypeVar > alternatives)
     {
@@ -74,9 +83,7 @@ public abstract class TypeVar extends AbstractAST
     {
       this.name = x;
     }
-    public org.meta_environment.rascal.ast.Bounded setName (org.
-							    meta_environment.
-							    rascal.ast.Name x)
+    public Bounded setName (org.meta_environment.rascal.ast.Name x)
     {
       org.meta_environment.rascal.ast.Bounded z = new Bounded ();
       z.$setName (x);
@@ -91,10 +98,7 @@ public abstract class TypeVar extends AbstractAST
     {
       this.bound = x;
     }
-    public org.meta_environment.rascal.ast.Bounded setBound (org.
-							     meta_environment.
-							     rascal.ast.
-							     Type x)
+    public Bounded setBound (org.meta_environment.rascal.ast.Type x)
     {
       org.meta_environment.rascal.ast.Bounded z = new Bounded ();
       z.$setBound (x);

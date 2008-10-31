@@ -29,10 +29,7 @@ public abstract class Formal extends AbstractAST
     {
       this.type = x;
     }
-    public org.meta_environment.rascal.ast.TypeName setType (org.
-							     meta_environment.
-							     rascal.ast.
-							     Type x)
+    public TypeName setType (org.meta_environment.rascal.ast.Type x)
     {
       org.meta_environment.rascal.ast.TypeName z = new TypeName ();
       z.$setType (x);
@@ -47,10 +44,7 @@ public abstract class Formal extends AbstractAST
     {
       this.name = x;
     }
-    public org.meta_environment.rascal.ast.TypeName setName (org.
-							     meta_environment.
-							     rascal.ast.
-							     Name x)
+    public TypeName setName (org.meta_environment.rascal.ast.Name x)
     {
       org.meta_environment.rascal.ast.TypeName z = new TypeName ();
       z.$setName (x);
@@ -59,6 +53,16 @@ public abstract class Formal extends AbstractAST
   }
   static public class Ambiguity extends Formal
   {
+    public Formal.Ambiguity makeFormalAmbiguity (java.util.List < Formal >
+						 alternatives)
+    {
+      Formal.Ambiguity amb = new Formal.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (Formal.Ambiguity) table.get (amb);
+    }
     private final java.util.List < Formal > alternatives;
     public Ambiguity (java.util.List < Formal > alternatives)
     {

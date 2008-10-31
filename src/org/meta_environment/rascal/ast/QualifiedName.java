@@ -27,11 +27,8 @@ public abstract class QualifiedName extends AbstractAST
     {
       this.names = x;
     }
-    public org.meta_environment.rascal.ast.Default setNames (java.util.List <
-							     org.
-							     meta_environment.
-							     rascal.ast.Name >
-							     x)
+    public Default setNames (java.util.List <
+			     org.meta_environment.rascal.ast.Name > x)
     {
       org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setNames (x);
@@ -40,6 +37,19 @@ public abstract class QualifiedName extends AbstractAST
   }
   static public class Ambiguity extends QualifiedName
   {
+    public QualifiedName.Ambiguity makeQualifiedNameAmbiguity (java.util.
+							       List <
+							       QualifiedName >
+							       alternatives)
+    {
+      QualifiedName.Ambiguity amb =
+	new QualifiedName.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (QualifiedName.Ambiguity) table.get (amb);
+    }
     private final java.util.List < QualifiedName > alternatives;
     public Ambiguity (java.util.List < QualifiedName > alternatives)
     {

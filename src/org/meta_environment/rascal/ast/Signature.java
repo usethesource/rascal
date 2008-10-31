@@ -35,10 +35,7 @@ public abstract class Signature extends AbstractAST
     {
       this.type = x;
     }
-    public org.meta_environment.rascal.ast.NoThrows setType (org.
-							     meta_environment.
-							     rascal.ast.
-							     Type x)
+    public NoThrows setType (org.meta_environment.rascal.ast.Type x)
     {
       org.meta_environment.rascal.ast.NoThrows z = new NoThrows ();
       z.$setType (x);
@@ -54,11 +51,8 @@ public abstract class Signature extends AbstractAST
     {
       this.modifiers = x;
     }
-    public org.meta_environment.rascal.ast.NoThrows setModifiers (org.
-								  meta_environment.
-								  rascal.ast.
-								  FunctionModifiers
-								  x)
+    public NoThrows setModifiers (org.meta_environment.rascal.ast.
+				  FunctionModifiers x)
     {
       org.meta_environment.rascal.ast.NoThrows z = new NoThrows ();
       z.$setModifiers (x);
@@ -73,10 +67,7 @@ public abstract class Signature extends AbstractAST
     {
       this.name = x;
     }
-    public org.meta_environment.rascal.ast.NoThrows setName (org.
-							     meta_environment.
-							     rascal.ast.
-							     FunctionName x)
+    public NoThrows setName (org.meta_environment.rascal.ast.FunctionName x)
     {
       org.meta_environment.rascal.ast.NoThrows z = new NoThrows ();
       z.$setName (x);
@@ -91,11 +82,8 @@ public abstract class Signature extends AbstractAST
     {
       this.parameters = x;
     }
-    public org.meta_environment.rascal.ast.NoThrows setParameters (org.
-								   meta_environment.
-								   rascal.ast.
-								   Parameters
-								   x)
+    public NoThrows setParameters (org.meta_environment.rascal.ast.
+				   Parameters x)
     {
       org.meta_environment.rascal.ast.NoThrows z = new NoThrows ();
       z.$setParameters (x);
@@ -104,6 +92,17 @@ public abstract class Signature extends AbstractAST
   }
   static public class Ambiguity extends Signature
   {
+    public Signature.Ambiguity makeSignatureAmbiguity (java.util.List <
+						       Signature >
+						       alternatives)
+    {
+      Signature.Ambiguity amb = new Signature.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (Signature.Ambiguity) table.get (amb);
+    }
     private final java.util.List < Signature > alternatives;
     public Ambiguity (java.util.List < Signature > alternatives)
     {
@@ -151,10 +150,7 @@ public abstract class Signature extends AbstractAST
     {
       this.type = x;
     }
-    public org.meta_environment.rascal.ast.WithThrows setType (org.
-							       meta_environment.
-							       rascal.ast.
-							       Type x)
+    public WithThrows setType (org.meta_environment.rascal.ast.Type x)
     {
       org.meta_environment.rascal.ast.WithThrows z = new WithThrows ();
       z.$setType (x);
@@ -170,12 +166,8 @@ public abstract class Signature extends AbstractAST
     {
       this.modifiers = x;
     }
-    public org.meta_environment.rascal.ast.WithThrows setModifiers (org.
-								    meta_environment.
-								    rascal.
-								    ast.
-								    FunctionModifiers
-								    x)
+    public WithThrows setModifiers (org.meta_environment.rascal.ast.
+				    FunctionModifiers x)
     {
       org.meta_environment.rascal.ast.WithThrows z = new WithThrows ();
       z.$setModifiers (x);
@@ -190,10 +182,7 @@ public abstract class Signature extends AbstractAST
     {
       this.name = x;
     }
-    public org.meta_environment.rascal.ast.WithThrows setName (org.
-							       meta_environment.
-							       rascal.ast.
-							       FunctionName x)
+    public WithThrows setName (org.meta_environment.rascal.ast.FunctionName x)
     {
       org.meta_environment.rascal.ast.WithThrows z = new WithThrows ();
       z.$setName (x);
@@ -208,12 +197,8 @@ public abstract class Signature extends AbstractAST
     {
       this.parameters = x;
     }
-    public org.meta_environment.rascal.ast.WithThrows setParameters (org.
-								     meta_environment.
-								     rascal.
-								     ast.
-								     Parameters
-								     x)
+    public WithThrows setParameters (org.meta_environment.rascal.ast.
+				     Parameters x)
     {
       org.meta_environment.rascal.ast.WithThrows z = new WithThrows ();
       z.$setParameters (x);
@@ -231,14 +216,8 @@ public abstract class Signature extends AbstractAST
     {
       this.exceptions = x;
     }
-    public org.meta_environment.rascal.ast.WithThrows setExceptions (java.
-								     util.
-								     List <
-								     org.
-								     meta_environment.
-								     rascal.
-								     ast.
-								     Type > x)
+    public WithThrows setExceptions (java.util.List <
+				     org.meta_environment.rascal.ast.Type > x)
     {
       org.meta_environment.rascal.ast.WithThrows z = new WithThrows ();
       z.$setExceptions (x);

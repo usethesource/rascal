@@ -28,12 +28,8 @@ public abstract class Formals extends AbstractAST
     {
       this.formals = x;
     }
-    public org.meta_environment.rascal.ast.Default setFormals (java.util.
-							       List <
-							       org.
-							       meta_environment.
-							       rascal.ast.
-							       Formal > x)
+    public Default setFormals (java.util.List <
+			       org.meta_environment.rascal.ast.Formal > x)
     {
       org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setFormals (x);
@@ -42,6 +38,16 @@ public abstract class Formals extends AbstractAST
   }
   static public class Ambiguity extends Formals
   {
+    public Formals.Ambiguity makeFormalsAmbiguity (java.util.List < Formals >
+						   alternatives)
+    {
+      Formals.Ambiguity amb = new Formals.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (Formals.Ambiguity) table.get (amb);
+    }
     private final java.util.List < Formals > alternatives;
     public Ambiguity (java.util.List < Formals > alternatives)
     {

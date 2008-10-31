@@ -19,6 +19,16 @@ public abstract class StrChar extends AbstractAST
   }
   static public class Ambiguity extends StrChar
   {
+    public StrChar.Ambiguity makeStrCharAmbiguity (java.util.List < StrChar >
+						   alternatives)
+    {
+      StrChar.Ambiguity amb = new StrChar.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (StrChar.Ambiguity) table.get (amb);
+    }
     private final java.util.List < StrChar > alternatives;
     public Ambiguity (java.util.List < StrChar > alternatives)
     {

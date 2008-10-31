@@ -30,9 +30,8 @@ public abstract class CharClass extends AbstractAST
     {
       this.optionalCharRanges = x;
     }
-    public org.meta_environment.rascal.ast.
-      SimpleCharclass setOptionalCharRanges (org.meta_environment.rascal.ast.
-					     OptCharRanges x)
+    public SimpleCharclass setOptionalCharRanges (org.meta_environment.rascal.
+						  ast.OptCharRanges x)
     {
       org.meta_environment.rascal.ast.SimpleCharclass z =
 	new SimpleCharclass ();
@@ -42,6 +41,17 @@ public abstract class CharClass extends AbstractAST
   }
   static public class Ambiguity extends CharClass
   {
+    public CharClass.Ambiguity makeCharClassAmbiguity (java.util.List <
+						       CharClass >
+						       alternatives)
+    {
+      CharClass.Ambiguity amb = new CharClass.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (CharClass.Ambiguity) table.get (amb);
+    }
     private final java.util.List < CharClass > alternatives;
     public Ambiguity (java.util.List < CharClass > alternatives)
     {
@@ -56,6 +66,22 @@ public abstract class CharClass extends AbstractAST
   static public class Bracket extends CharClass
   {
 /* "(" CharClass ")" -> CharClass {bracket, avoid} */
+    public CharClass.Bracket makeCharClassBracket (ITree tree)
+    {
+      CharClass.Bracket x = new CharClass.Bracket (tree);
+      if (!table.containsKey (x))
+	{
+	  table.put (x, x);
+	}
+      return (CharClass.Bracket) table.get (x);
+    }
+
+    public CharClass visitCharClassBracket (CharClass.Bracket x);
+    public CharClass visitCharClassBracket (CharClass.Bracket x)
+    {
+      return x;
+    }
+
     private Bracket ()
     {
     }
@@ -94,12 +120,8 @@ public abstract class CharClass extends AbstractAST
     {
       this.charClass = x;
     }
-    public org.meta_environment.rascal.ast.Complement setCharClass (org.
-								    meta_environment.
-								    rascal.
-								    ast.
-								    CharClass
-								    x)
+    public Complement setCharClass (org.meta_environment.rascal.ast.
+				    CharClass x)
     {
       org.meta_environment.rascal.ast.Complement z = new Complement ();
       z.$setCharClass (x);
@@ -133,10 +155,7 @@ public abstract class CharClass extends AbstractAST
     {
       this.lhs = x;
     }
-    public org.meta_environment.rascal.ast.Difference setLhs (org.
-							      meta_environment.
-							      rascal.ast.
-							      CharClass x)
+    public Difference setLhs (org.meta_environment.rascal.ast.CharClass x)
     {
       org.meta_environment.rascal.ast.Difference z = new Difference ();
       z.$setLhs (x);
@@ -151,10 +170,7 @@ public abstract class CharClass extends AbstractAST
     {
       this.rhs = x;
     }
-    public org.meta_environment.rascal.ast.Difference setRhs (org.
-							      meta_environment.
-							      rascal.ast.
-							      CharClass x)
+    public Difference setRhs (org.meta_environment.rascal.ast.CharClass x)
     {
       org.meta_environment.rascal.ast.Difference z = new Difference ();
       z.$setRhs (x);
@@ -188,10 +204,7 @@ public abstract class CharClass extends AbstractAST
     {
       this.lhs = x;
     }
-    public org.meta_environment.rascal.ast.Intersection setLhs (org.
-								meta_environment.
-								rascal.ast.
-								CharClass x)
+    public Intersection setLhs (org.meta_environment.rascal.ast.CharClass x)
     {
       org.meta_environment.rascal.ast.Intersection z = new Intersection ();
       z.$setLhs (x);
@@ -206,10 +219,7 @@ public abstract class CharClass extends AbstractAST
     {
       this.rhs = x;
     }
-    public org.meta_environment.rascal.ast.Intersection setRhs (org.
-								meta_environment.
-								rascal.ast.
-								CharClass x)
+    public Intersection setRhs (org.meta_environment.rascal.ast.CharClass x)
     {
       org.meta_environment.rascal.ast.Intersection z = new Intersection ();
       z.$setRhs (x);
@@ -243,9 +253,7 @@ public abstract class CharClass extends AbstractAST
     {
       this.lhs = x;
     }
-    public org.meta_environment.rascal.ast.Union setLhs (org.meta_environment.
-							 rascal.ast.
-							 CharClass x)
+    public Union setLhs (org.meta_environment.rascal.ast.CharClass x)
     {
       org.meta_environment.rascal.ast.Union z = new Union ();
       z.$setLhs (x);
@@ -260,9 +268,7 @@ public abstract class CharClass extends AbstractAST
     {
       this.rhs = x;
     }
-    public org.meta_environment.rascal.ast.Union setRhs (org.meta_environment.
-							 rascal.ast.
-							 CharClass x)
+    public Union setRhs (org.meta_environment.rascal.ast.CharClass x)
     {
       org.meta_environment.rascal.ast.Union z = new Union ();
       z.$setRhs (x);

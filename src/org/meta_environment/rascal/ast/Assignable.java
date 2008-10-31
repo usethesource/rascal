@@ -29,12 +29,8 @@ public abstract class Assignable extends AbstractAST
     {
       this.qualifiedName = x;
     }
-    public org.meta_environment.rascal.ast.Variable setQualifiedName (org.
-								      meta_environment.
-								      rascal.
-								      ast.
-								      QualifiedName
-								      x)
+    public Variable setQualifiedName (org.meta_environment.rascal.ast.
+				      QualifiedName x)
     {
       org.meta_environment.rascal.ast.Variable z = new Variable ();
       z.$setQualifiedName (x);
@@ -43,6 +39,17 @@ public abstract class Assignable extends AbstractAST
   }
   static public class Ambiguity extends Assignable
   {
+    public Assignable.Ambiguity makeAssignableAmbiguity (java.util.List <
+							 Assignable >
+							 alternatives)
+    {
+      Assignable.Ambiguity amb = new Assignable.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (Assignable.Ambiguity) table.get (amb);
+    }
     private final java.util.List < Assignable > alternatives;
     public Ambiguity (java.util.List < Assignable > alternatives)
     {
@@ -83,11 +90,8 @@ public abstract class Assignable extends AbstractAST
     {
       this.receiver = x;
     }
-    public org.meta_environment.rascal.ast.Subscript setReceiver (org.
-								  meta_environment.
-								  rascal.ast.
-								  Assignable
-								  x)
+    public Subscript setReceiver (org.meta_environment.rascal.ast.
+				  Assignable x)
     {
       org.meta_environment.rascal.ast.Subscript z = new Subscript ();
       z.$setReceiver (x);
@@ -102,11 +106,8 @@ public abstract class Assignable extends AbstractAST
     {
       this.subscript = x;
     }
-    public org.meta_environment.rascal.ast.Subscript setSubscript (org.
-								   meta_environment.
-								   rascal.ast.
-								   Expression
-								   x)
+    public Subscript setSubscript (org.meta_environment.rascal.ast.
+				   Expression x)
     {
       org.meta_environment.rascal.ast.Subscript z = new Subscript ();
       z.$setSubscript (x);
@@ -141,12 +142,8 @@ public abstract class Assignable extends AbstractAST
     {
       this.receiver = x;
     }
-    public org.meta_environment.rascal.ast.FieldAccess setReceiver (org.
-								    meta_environment.
-								    rascal.
-								    ast.
-								    Assignable
-								    x)
+    public FieldAccess setReceiver (org.meta_environment.rascal.ast.
+				    Assignable x)
     {
       org.meta_environment.rascal.ast.FieldAccess z = new FieldAccess ();
       z.$setReceiver (x);
@@ -161,10 +158,7 @@ public abstract class Assignable extends AbstractAST
     {
       this.field = x;
     }
-    public org.meta_environment.rascal.ast.FieldAccess setField (org.
-								 meta_environment.
-								 rascal.ast.
-								 Name x)
+    public FieldAccess setField (org.meta_environment.rascal.ast.Name x)
     {
       org.meta_environment.rascal.ast.FieldAccess z = new FieldAccess ();
       z.$setField (x);
@@ -200,11 +194,8 @@ public abstract class Assignable extends AbstractAST
     {
       this.receiver = x;
     }
-    public org.meta_environment.rascal.ast.IfDefined setReceiver (org.
-								  meta_environment.
-								  rascal.ast.
-								  Assignable
-								  x)
+    public IfDefined setReceiver (org.meta_environment.rascal.ast.
+				  Assignable x)
     {
       org.meta_environment.rascal.ast.IfDefined z = new IfDefined ();
       z.$setReceiver (x);
@@ -219,11 +210,8 @@ public abstract class Assignable extends AbstractAST
     {
       this.condition = x;
     }
-    public org.meta_environment.rascal.ast.IfDefined setCondition (org.
-								   meta_environment.
-								   rascal.ast.
-								   Expression
-								   x)
+    public IfDefined setCondition (org.meta_environment.rascal.ast.
+				   Expression x)
     {
       org.meta_environment.rascal.ast.IfDefined z = new IfDefined ();
       z.$setCondition (x);
@@ -259,11 +247,8 @@ public abstract class Assignable extends AbstractAST
     {
       this.receiver = x;
     }
-    public org.meta_environment.rascal.ast.Annotation setReceiver (org.
-								   meta_environment.
-								   rascal.ast.
-								   Assignable
-								   x)
+    public Annotation setReceiver (org.meta_environment.rascal.ast.
+				   Assignable x)
     {
       org.meta_environment.rascal.ast.Annotation z = new Annotation ();
       z.$setReceiver (x);
@@ -278,12 +263,8 @@ public abstract class Assignable extends AbstractAST
     {
       this.annotation = x;
     }
-    public org.meta_environment.rascal.ast.Annotation setAnnotation (org.
-								     meta_environment.
-								     rascal.
-								     ast.
-								     Expression
-								     x)
+    public Annotation setAnnotation (org.meta_environment.rascal.ast.
+				     Expression x)
     {
       org.meta_environment.rascal.ast.Annotation z = new Annotation ();
       z.$setAnnotation (x);
@@ -317,10 +298,7 @@ public abstract class Assignable extends AbstractAST
     {
       this.first = x;
     }
-    public org.meta_environment.rascal.ast.Tuple setFirst (org.
-							   meta_environment.
-							   rascal.ast.
-							   Assignable x)
+    public Tuple setFirst (org.meta_environment.rascal.ast.Assignable x)
     {
       org.meta_environment.rascal.ast.Tuple z = new Tuple ();
       z.$setFirst (x);
@@ -338,11 +316,8 @@ public abstract class Assignable extends AbstractAST
     {
       this.rest = x;
     }
-    public org.meta_environment.rascal.ast.Tuple setRest (java.util.List <
-							  org.
-							  meta_environment.
-							  rascal.ast.
-							  Assignable > x)
+    public Tuple setRest (java.util.List <
+			  org.meta_environment.rascal.ast.Assignable > x)
     {
       org.meta_environment.rascal.ast.Tuple z = new Tuple ();
       z.$setRest (x);
@@ -376,10 +351,7 @@ public abstract class Assignable extends AbstractAST
     {
       this.name = x;
     }
-    public org.meta_environment.rascal.ast.Constructor setName (org.
-								meta_environment.
-								rascal.ast.
-								Name x)
+    public Constructor setName (org.meta_environment.rascal.ast.Name x)
     {
       org.meta_environment.rascal.ast.Constructor z = new Constructor ();
       z.$setName (x);
@@ -398,15 +370,9 @@ public abstract class Assignable extends AbstractAST
     {
       this.arguments = x;
     }
-    public org.meta_environment.rascal.ast.Constructor setArguments (java.
-								     util.
-								     List <
-								     org.
-								     meta_environment.
-								     rascal.
-								     ast.
-								     Assignable
-								     > x)
+    public Constructor setArguments (java.util.List <
+				     org.meta_environment.rascal.ast.
+				     Assignable > x)
     {
       org.meta_environment.rascal.ast.Constructor z = new Constructor ();
       z.$setArguments (x);

@@ -28,11 +28,8 @@ public abstract class LocalVariableDeclaration extends AbstractAST
     {
       this.declarator = x;
     }
-    public org.meta_environment.rascal.ast.Default setDeclarator (org.
-								  meta_environment.
-								  rascal.ast.
-								  Declarator
-								  x)
+    public Default setDeclarator (org.meta_environment.rascal.ast.
+				  Declarator x)
     {
       org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setDeclarator (x);
@@ -41,6 +38,19 @@ public abstract class LocalVariableDeclaration extends AbstractAST
   }
   static public class Ambiguity extends LocalVariableDeclaration
   {
+    public LocalVariableDeclaration.
+      Ambiguity makeLocalVariableDeclarationAmbiguity (java.util.List <
+						       LocalVariableDeclaration
+						       > alternatives)
+    {
+      LocalVariableDeclaration.Ambiguity amb =
+	new LocalVariableDeclaration.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (LocalVariableDeclaration.Ambiguity) table.get (amb);
+    }
     private final java.util.List < LocalVariableDeclaration > alternatives;
     public Ambiguity (java.util.List < LocalVariableDeclaration >
 		      alternatives)
@@ -79,11 +89,8 @@ public abstract class LocalVariableDeclaration extends AbstractAST
     {
       this.declarator = x;
     }
-    public org.meta_environment.rascal.ast.Dynamic setDeclarator (org.
-								  meta_environment.
-								  rascal.ast.
-								  Declarator
-								  x)
+    public Dynamic setDeclarator (org.meta_environment.rascal.ast.
+				  Declarator x)
     {
       org.meta_environment.rascal.ast.Dynamic z = new Dynamic ();
       z.$setDeclarator (x);

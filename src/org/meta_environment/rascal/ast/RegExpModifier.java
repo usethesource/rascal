@@ -8,6 +8,20 @@ public abstract class RegExpModifier extends AbstractAST
   }
   static public class Ambiguity extends RegExpModifier
   {
+    public RegExpModifier.Ambiguity makeRegExpModifierAmbiguity (java.util.
+								 List <
+								 RegExpModifier
+								 >
+								 alternatives)
+    {
+      RegExpModifier.Ambiguity amb =
+	new RegExpModifier.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (RegExpModifier.Ambiguity) table.get (amb);
+    }
     private final java.util.List < RegExpModifier > alternatives;
     public Ambiguity (java.util.List < RegExpModifier > alternatives)
     {

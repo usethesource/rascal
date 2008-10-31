@@ -29,10 +29,7 @@ public abstract class Module extends AbstractAST
     {
       this.header = x;
     }
-    public org.meta_environment.rascal.ast.Default setHeader (org.
-							      meta_environment.
-							      rascal.ast.
-							      Header x)
+    public Default setHeader (org.meta_environment.rascal.ast.Header x)
     {
       org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setHeader (x);
@@ -47,9 +44,7 @@ public abstract class Module extends AbstractAST
     {
       this.body = x;
     }
-    public org.meta_environment.rascal.ast.Default setBody (org.
-							    meta_environment.
-							    rascal.ast.Body x)
+    public Default setBody (org.meta_environment.rascal.ast.Body x)
     {
       org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setBody (x);
@@ -58,6 +53,16 @@ public abstract class Module extends AbstractAST
   }
   static public class Ambiguity extends Module
   {
+    public Module.Ambiguity makeModuleAmbiguity (java.util.List < Module >
+						 alternatives)
+    {
+      Module.Ambiguity amb = new Module.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (Module.Ambiguity) table.get (amb);
+    }
     private final java.util.List < Module > alternatives;
     public Ambiguity (java.util.List < Module > alternatives)
     {

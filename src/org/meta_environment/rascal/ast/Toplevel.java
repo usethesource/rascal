@@ -31,12 +31,8 @@ public abstract class Toplevel extends AbstractAST
     {
       this.visibility = x;
     }
-    public org.meta_environment.rascal.ast.GivenVisibility setVisibility (org.
-									  meta_environment.
-									  rascal.
-									  ast.
-									  Visibility
-									  x)
+    public GivenVisibility setVisibility (org.meta_environment.rascal.ast.
+					  Visibility x)
     {
       org.meta_environment.rascal.ast.GivenVisibility z =
 	new GivenVisibility ();
@@ -53,9 +49,8 @@ public abstract class Toplevel extends AbstractAST
     {
       this.declaration = x;
     }
-    public org.meta_environment.rascal.ast.
-      GivenVisibility setDeclaration (org.meta_environment.rascal.ast.
-				      Declaration x)
+    public GivenVisibility setDeclaration (org.meta_environment.rascal.ast.
+					   Declaration x)
     {
       org.meta_environment.rascal.ast.GivenVisibility z =
 	new GivenVisibility ();
@@ -65,6 +60,16 @@ public abstract class Toplevel extends AbstractAST
   }
   static public class Ambiguity extends Toplevel
   {
+    public Toplevel.Ambiguity makeToplevelAmbiguity (java.util.List <
+						     Toplevel > alternatives)
+    {
+      Toplevel.Ambiguity amb = new Toplevel.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (Toplevel.Ambiguity) table.get (amb);
+    }
     private final java.util.List < Toplevel > alternatives;
     public Ambiguity (java.util.List < Toplevel > alternatives)
     {
@@ -103,9 +108,8 @@ public abstract class Toplevel extends AbstractAST
     {
       this.declaration = x;
     }
-    public org.meta_environment.rascal.ast.
-      DefaultVisibility setDeclaration (org.meta_environment.rascal.ast.
-					Declaration x)
+    public DefaultVisibility setDeclaration (org.meta_environment.rascal.ast.
+					     Declaration x)
     {
       org.meta_environment.rascal.ast.DefaultVisibility z =
 	new DefaultVisibility ();

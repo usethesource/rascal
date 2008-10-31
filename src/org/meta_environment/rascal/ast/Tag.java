@@ -27,9 +27,7 @@ public abstract class Tag extends AbstractAST
     {
       this.name = x;
     }
-    public org.meta_environment.rascal.ast.Default setName (org.
-							    meta_environment.
-							    rascal.ast.Name x)
+    public Default setName (org.meta_environment.rascal.ast.Name x)
     {
       org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setName (x);
@@ -38,6 +36,16 @@ public abstract class Tag extends AbstractAST
   }
   static public class Ambiguity extends Tag
   {
+    public Tag.Ambiguity makeTagAmbiguity (java.util.List < Tag >
+					   alternatives)
+    {
+      Tag.Ambiguity amb = new Tag.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (Tag.Ambiguity) table.get (amb);
+    }
     private final java.util.List < Tag > alternatives;
     public Ambiguity (java.util.List < Tag > alternatives)
     {

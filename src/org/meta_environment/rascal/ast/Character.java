@@ -27,10 +27,7 @@ public abstract class Character extends AbstractAST
     {
       this.numChar = x;
     }
-    public org.meta_environment.rascal.ast.Numeric setNumChar (org.
-							       meta_environment.
-							       rascal.ast.
-							       NumChar x)
+    public Numeric setNumChar (org.meta_environment.rascal.ast.NumChar x)
     {
       org.meta_environment.rascal.ast.Numeric z = new Numeric ();
       z.$setNumChar (x);
@@ -39,6 +36,17 @@ public abstract class Character extends AbstractAST
   }
   static public class Ambiguity extends Character
   {
+    public Character.Ambiguity makeCharacterAmbiguity (java.util.List <
+						       Character >
+						       alternatives)
+    {
+      Character.Ambiguity amb = new Character.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (Character.Ambiguity) table.get (amb);
+    }
     private final java.util.List < Character > alternatives;
     public Ambiguity (java.util.List < Character > alternatives)
     {
@@ -75,10 +83,7 @@ public abstract class Character extends AbstractAST
     {
       this.shortChar = x;
     }
-    public org.meta_environment.rascal.ast.Short setShortChar (org.
-							       meta_environment.
-							       rascal.ast.
-							       ShortChar x)
+    public Short setShortChar (org.meta_environment.rascal.ast.ShortChar x)
     {
       org.meta_environment.rascal.ast.Short z = new Short ();
       z.$setShortChar (x);

@@ -7,6 +7,20 @@ public abstract class SingleCharacter extends AbstractAST
     /* UnicodeEscape -> SingleCharacter  */
   } static public class Ambiguity extends SingleCharacter
   {
+    public SingleCharacter.Ambiguity makeSingleCharacterAmbiguity (java.util.
+								   List <
+								   SingleCharacter
+								   >
+								   alternatives)
+    {
+      SingleCharacter.Ambiguity amb =
+	new SingleCharacter.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (SingleCharacter.Ambiguity) table.get (amb);
+    }
     private final java.util.List < SingleCharacter > alternatives;
     public Ambiguity (java.util.List < SingleCharacter > alternatives)
     {

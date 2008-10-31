@@ -8,6 +8,17 @@ public abstract class Backslash extends AbstractAST
   }
   static public class Ambiguity extends Backslash
   {
+    public Backslash.Ambiguity makeBackslashAmbiguity (java.util.List <
+						       Backslash >
+						       alternatives)
+    {
+      Backslash.Ambiguity amb = new Backslash.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (Backslash.Ambiguity) table.get (amb);
+    }
     private final java.util.List < Backslash > alternatives;
     public Ambiguity (java.util.List < Backslash > alternatives)
     {
