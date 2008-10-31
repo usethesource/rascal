@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.Collections;
 public abstract class CharRange extends AbstractAST
 {
   public class Character extends CharRange
@@ -39,7 +38,8 @@ public abstract class CharRange extends AbstractAST
     private final java.util.List < CharRange > alternatives;
     public Ambiguity (java.util.List < CharRange > alternatives)
     {
-      this.alternatives = Collections.unmodifiableList (alternatives);
+      this.alternatives =
+	java.util.Collections.unmodifiableList (alternatives);
     }
     public java.util.List < CharRange > getAlternatives ()
     {

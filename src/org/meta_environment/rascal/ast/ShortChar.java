@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.Collections;
 public abstract class ShortChar extends AbstractAST
 {
   public class Lexical extends ShortChar
@@ -12,7 +11,8 @@ public abstract class ShortChar extends AbstractAST
     private final java.util.List < ShortChar > alternatives;
     public Ambiguity (java.util.List < ShortChar > alternatives)
     {
-      this.alternatives = Collections.unmodifiableList (alternatives);
+      this.alternatives =
+	java.util.Collections.unmodifiableList (alternatives);
     }
     public java.util.List < ShortChar > getAlternatives ()
     {

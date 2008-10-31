@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.Collections;
 public abstract class NumChar extends AbstractAST
 {
   public class Lexical extends NumChar
@@ -12,7 +11,8 @@ public abstract class NumChar extends AbstractAST
     private final java.util.List < NumChar > alternatives;
     public Ambiguity (java.util.List < NumChar > alternatives)
     {
-      this.alternatives = Collections.unmodifiableList (alternatives);
+      this.alternatives =
+	java.util.Collections.unmodifiableList (alternatives);
     }
     public java.util.List < NumChar > getAlternatives ()
     {

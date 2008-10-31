@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.Collections;
 public abstract class TypeVar extends AbstractAST
 {
   public class Free extends TypeVar
@@ -39,7 +38,8 @@ public abstract class TypeVar extends AbstractAST
     private final java.util.List < TypeVar > alternatives;
     public Ambiguity (java.util.List < TypeVar > alternatives)
     {
-      this.alternatives = Collections.unmodifiableList (alternatives);
+      this.alternatives =
+	java.util.Collections.unmodifiableList (alternatives);
     }
     public java.util.List < TypeVar > getAlternatives ()
     {

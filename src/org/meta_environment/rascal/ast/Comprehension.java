@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.Collections;
 public abstract class Comprehension extends AbstractAST
 {
   public class Set extends Comprehension
@@ -56,7 +55,8 @@ public abstract class Comprehension extends AbstractAST
     private final java.util.List < Comprehension > alternatives;
     public Ambiguity (java.util.List < Comprehension > alternatives)
     {
-      this.alternatives = Collections.unmodifiableList (alternatives);
+      this.alternatives =
+	java.util.Collections.unmodifiableList (alternatives);
     }
     public java.util.List < Comprehension > getAlternatives ()
     {

@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.Collections;
 public abstract class Body extends AbstractAST
 {
   public class Toplevels extends Body
@@ -39,7 +38,8 @@ public abstract class Body extends AbstractAST
     private final java.util.List < Body > alternatives;
     public Ambiguity (java.util.List < Body > alternatives)
     {
-      this.alternatives = Collections.unmodifiableList (alternatives);
+      this.alternatives =
+	java.util.Collections.unmodifiableList (alternatives);
     }
     public java.util.List < Body > getAlternatives ()
     {

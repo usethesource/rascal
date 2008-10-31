@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.Collections;
 public abstract class Toplevel extends AbstractAST
 {
   public class GivenVisibility extends Toplevel
@@ -56,7 +55,8 @@ public abstract class Toplevel extends AbstractAST
     private final java.util.List < Toplevel > alternatives;
     public Ambiguity (java.util.List < Toplevel > alternatives)
     {
-      this.alternatives = Collections.unmodifiableList (alternatives);
+      this.alternatives =
+	java.util.Collections.unmodifiableList (alternatives);
     }
     public java.util.List < Toplevel > getAlternatives ()
     {

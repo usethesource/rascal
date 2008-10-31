@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.Collections;
 public abstract class ModuleParameters extends AbstractAST
 {
   public class Default extends ModuleParameters
@@ -39,7 +38,8 @@ public abstract class ModuleParameters extends AbstractAST
     private final java.util.List < ModuleParameters > alternatives;
     public Ambiguity (java.util.List < ModuleParameters > alternatives)
     {
-      this.alternatives = Collections.unmodifiableList (alternatives);
+      this.alternatives =
+	java.util.Collections.unmodifiableList (alternatives);
     }
     public java.util.List < ModuleParameters > getAlternatives ()
     {

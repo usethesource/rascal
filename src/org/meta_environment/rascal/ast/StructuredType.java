@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.Collections;
 public abstract class StructuredType extends AbstractAST
 {
   public class List extends StructuredType
@@ -39,7 +38,8 @@ public abstract class StructuredType extends AbstractAST
     private final java.util.List < StructuredType > alternatives;
     public Ambiguity (java.util.List < StructuredType > alternatives)
     {
-      this.alternatives = Collections.unmodifiableList (alternatives);
+      this.alternatives =
+	java.util.Collections.unmodifiableList (alternatives);
     }
     public java.util.List < StructuredType > getAlternatives ()
     {

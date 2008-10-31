@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.Collections;
 public abstract class Expression extends AbstractAST
 {
   public class Closure extends Expression
@@ -56,7 +55,8 @@ public abstract class Expression extends AbstractAST
     private final java.util.List < Expression > alternatives;
     public Ambiguity (java.util.List < Expression > alternatives)
     {
-      this.alternatives = Collections.unmodifiableList (alternatives);
+      this.alternatives =
+	java.util.Collections.unmodifiableList (alternatives);
     }
     public java.util.List < Expression > getAlternatives ()
     {
@@ -123,6 +123,117 @@ public abstract class Expression extends AbstractAST
     {
       ClosureCall z = new ClosureCall ();
       z.$setArguments (x);
+      return z;
+    }
+  }
+  public class Range extends Expression
+  {
+/* "[" from:Expression ".." to:Expression "]" -> Expression {cons("Range")} */
+    private Range ()
+    {
+    }
+    /*package */ Range (ITree tree, Expression from, Expression to)
+    {
+      this.tree = tree;
+      this.from = from;
+      this.to = to;
+    }
+    public IVisitable accept (IASTVisitor visitor)
+    {
+      return visitor.visitExpressionRange (this);
+    }
+    private Expression from;
+    public Expression getFrom ()
+    {
+      return from;
+    }
+    private void $setFrom (Expression x)
+    {
+      this.from = x;
+    }
+    public Range setFrom (Expression x)
+    {
+      Range z = new Range ();
+      z.$setFrom (x);
+      return z;
+    }
+    private Expression to;
+    public Expression getTo ()
+    {
+      return to;
+    }
+    private void $setTo (Expression x)
+    {
+      this.to = x;
+    }
+    public Range setTo (Expression x)
+    {
+      Range z = new Range ();
+      z.$setTo (x);
+      return z;
+    }
+  }
+  public class StepRange extends Expression
+  {
+/* "[" from:Expression "," by:Expression ",.." to:Expression "]" -> Expression {cons("StepRange")} */
+    private StepRange ()
+    {
+    }
+    /*package */ StepRange (ITree tree, Expression from, Expression by,
+			    Expression to)
+    {
+      this.tree = tree;
+      this.from = from;
+      this.by = by;
+      this.to = to;
+    }
+    public IVisitable accept (IASTVisitor visitor)
+    {
+      return visitor.visitExpressionStepRange (this);
+    }
+    private Expression from;
+    public Expression getFrom ()
+    {
+      return from;
+    }
+    private void $setFrom (Expression x)
+    {
+      this.from = x;
+    }
+    public StepRange setFrom (Expression x)
+    {
+      StepRange z = new StepRange ();
+      z.$setFrom (x);
+      return z;
+    }
+    private Expression by;
+    public Expression getBy ()
+    {
+      return by;
+    }
+    private void $setBy (Expression x)
+    {
+      this.by = x;
+    }
+    public StepRange setBy (Expression x)
+    {
+      StepRange z = new StepRange ();
+      z.$setBy (x);
+      return z;
+    }
+    private Expression to;
+    public Expression getTo ()
+    {
+      return to;
+    }
+    private void $setTo (Expression x)
+    {
+      this.to = x;
+    }
+    public StepRange setTo (Expression x)
+    {
+      StepRange z = new StepRange ();
+      z.$setTo (x);
       return z;
     }
   }
@@ -660,13 +771,13 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class Match extends Expression
+  public class RegExpMatch extends Expression
   {
-/* lhs:Expression "=~" rhs:Expression -> Expression {non-assoc, cons("Match")} */
-    private Match ()
+/* lhs:Expression "=~" rhs:Expression -> Expression {non-assoc, cons("RegExpMatch")} */
+    private RegExpMatch ()
     {
     }
-    /*package */ Match (ITree tree, Expression lhs, Expression rhs)
+    /*package */ RegExpMatch (ITree tree, Expression lhs, Expression rhs)
     {
       this.tree = tree;
       this.lhs = lhs;
@@ -674,7 +785,7 @@ public abstract class Expression extends AbstractAST
     }
     public IVisitable accept (IASTVisitor visitor)
     {
-      return visitor.visitExpressionMatch (this);
+      return visitor.visitExpressionRegExpMatch (this);
     }
     private Expression lhs;
     public Expression getLhs ()
@@ -685,9 +796,9 @@ public abstract class Expression extends AbstractAST
     {
       this.lhs = x;
     }
-    public Match setLhs (Expression x)
+    public RegExpMatch setLhs (Expression x)
     {
-      Match z = new Match ();
+      RegExpMatch z = new RegExpMatch ();
       z.$setLhs (x);
       return z;
     }
@@ -700,20 +811,20 @@ public abstract class Expression extends AbstractAST
     {
       this.rhs = x;
     }
-    public Match setRhs (Expression x)
+    public RegExpMatch setRhs (Expression x)
     {
-      Match z = new Match ();
+      RegExpMatch z = new RegExpMatch ();
       z.$setRhs (x);
       return z;
     }
   }
-  public class NoMatch extends Expression
+  public class RegExpNoMatch extends Expression
   {
-/* lhs:Expression "!~" rhs:Expression -> Expression {non-assoc, cons("NoMatch")} */
-    private NoMatch ()
+/* lhs:Expression "!~" rhs:Expression -> Expression {non-assoc, cons("RegExpNoMatch")} */
+    private RegExpNoMatch ()
     {
     }
-    /*package */ NoMatch (ITree tree, Expression lhs, Expression rhs)
+    /*package */ RegExpNoMatch (ITree tree, Expression lhs, Expression rhs)
     {
       this.tree = tree;
       this.lhs = lhs;
@@ -721,7 +832,7 @@ public abstract class Expression extends AbstractAST
     }
     public IVisitable accept (IASTVisitor visitor)
     {
-      return visitor.visitExpressionNoMatch (this);
+      return visitor.visitExpressionRegExpNoMatch (this);
     }
     private Expression lhs;
     public Expression getLhs ()
@@ -732,9 +843,9 @@ public abstract class Expression extends AbstractAST
     {
       this.lhs = x;
     }
-    public NoMatch setLhs (Expression x)
+    public RegExpNoMatch setLhs (Expression x)
     {
-      NoMatch z = new NoMatch ();
+      RegExpNoMatch z = new RegExpNoMatch ();
       z.$setLhs (x);
       return z;
     }
@@ -747,9 +858,9 @@ public abstract class Expression extends AbstractAST
     {
       this.rhs = x;
     }
-    public NoMatch setRhs (Expression x)
+    public RegExpNoMatch setRhs (Expression x)
     {
-      NoMatch z = new NoMatch ();
+      RegExpNoMatch z = new RegExpNoMatch ();
       z.$setRhs (x);
       return z;
     }
@@ -1476,117 +1587,6 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class Range extends Expression
-  {
-/* "[" from:Expression ".." to:Expression "]" -> Expression {cons("Range")} */
-    private Range ()
-    {
-    }
-    /*package */ Range (ITree tree, Expression from, Expression to)
-    {
-      this.tree = tree;
-      this.from = from;
-      this.to = to;
-    }
-    public IVisitable accept (IASTVisitor visitor)
-    {
-      return visitor.visitExpressionRange (this);
-    }
-    private Expression from;
-    public Expression getFrom ()
-    {
-      return from;
-    }
-    private void $setFrom (Expression x)
-    {
-      this.from = x;
-    }
-    public Range setFrom (Expression x)
-    {
-      Range z = new Range ();
-      z.$setFrom (x);
-      return z;
-    }
-    private Expression to;
-    public Expression getTo ()
-    {
-      return to;
-    }
-    private void $setTo (Expression x)
-    {
-      this.to = x;
-    }
-    public Range setTo (Expression x)
-    {
-      Range z = new Range ();
-      z.$setTo (x);
-      return z;
-    }
-  }
-  public class StepRange extends Expression
-  {
-/* "[" from:Expression "," by:Expression ",.." to:Expression "]" -> Expression {cons("StepRange")} */
-    private StepRange ()
-    {
-    }
-    /*package */ StepRange (ITree tree, Expression from, Expression by,
-			    Expression to)
-    {
-      this.tree = tree;
-      this.from = from;
-      this.by = by;
-      this.to = to;
-    }
-    public IVisitable accept (IASTVisitor visitor)
-    {
-      return visitor.visitExpressionStepRange (this);
-    }
-    private Expression from;
-    public Expression getFrom ()
-    {
-      return from;
-    }
-    private void $setFrom (Expression x)
-    {
-      this.from = x;
-    }
-    public StepRange setFrom (Expression x)
-    {
-      StepRange z = new StepRange ();
-      z.$setFrom (x);
-      return z;
-    }
-    private Expression by;
-    public Expression getBy ()
-    {
-      return by;
-    }
-    private void $setBy (Expression x)
-    {
-      this.by = x;
-    }
-    public StepRange setBy (Expression x)
-    {
-      StepRange z = new StepRange ();
-      z.$setBy (x);
-      return z;
-    }
-    private Expression to;
-    public Expression getTo ()
-    {
-      return to;
-    }
-    private void $setTo (Expression x)
-    {
-      this.to = x;
-    }
-    public StepRange setTo (Expression x)
-    {
-      StepRange z = new StepRange ();
-      z.$setTo (x);
-      return z;
-    }
-  }
   public class Set extends Expression
   {
 /* "{" elements:{Expression ","}* "}" -> Expression {cons("Set")} */
@@ -1884,13 +1884,13 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class TypedVariablePattern extends Expression
+  public class TypedVariable extends Expression
   {
-/* type:Type name:Name -> Expression {cons("TypedVariablePattern")} */
-    private TypedVariablePattern ()
+/* type:Type name:Name -> Expression {cons("TypedVariable")} */
+    private TypedVariable ()
     {
     }
-    /*package */ TypedVariablePattern (ITree tree, Type type, Name name)
+    /*package */ TypedVariable (ITree tree, Type type, Name name)
     {
       this.tree = tree;
       this.type = type;
@@ -1898,7 +1898,7 @@ public abstract class Expression extends AbstractAST
     }
     public IVisitable accept (IASTVisitor visitor)
     {
-      return visitor.visitExpressionTypedVariablePattern (this);
+      return visitor.visitExpressionTypedVariable (this);
     }
     private Type type;
     public Type getType ()
@@ -1909,9 +1909,9 @@ public abstract class Expression extends AbstractAST
     {
       this.type = x;
     }
-    public TypedVariablePattern setType (Type x)
+    public TypedVariable setType (Type x)
     {
-      TypedVariablePattern z = new TypedVariablePattern ();
+      TypedVariable z = new TypedVariable ();
       z.$setType (x);
       return z;
     }
@@ -1924,20 +1924,20 @@ public abstract class Expression extends AbstractAST
     {
       this.name = x;
     }
-    public TypedVariablePattern setName (Name x)
+    public TypedVariable setName (Name x)
     {
-      TypedVariablePattern z = new TypedVariablePattern ();
+      TypedVariable z = new TypedVariable ();
       z.$setName (x);
       return z;
     }
   }
   public class Match extends Expression
   {
-/* pattern:Pattern ":=" expression:Expression -> Expression {cons("Match")} */
+/* pattern:Expression ":=" expression:Expression -> Expression {cons("Match")} */
     private Match ()
     {
     }
-    /*package */ Match (ITree tree, Pattern pattern, Expression expression)
+    /*package */ Match (ITree tree, Expression pattern, Expression expression)
     {
       this.tree = tree;
       this.pattern = pattern;
@@ -1947,16 +1947,16 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionMatch (this);
     }
-    private Pattern pattern;
-    public Pattern getPattern ()
+    private Expression pattern;
+    public Expression getPattern ()
     {
       return pattern;
     }
-    private void $setPattern (Pattern x)
+    private void $setPattern (Expression x)
     {
       this.pattern = x;
     }
-    public Match setPattern (Pattern x)
+    public Match setPattern (Expression x)
     {
       Match z = new Match ();
       z.$setPattern (x);
@@ -1980,11 +1980,12 @@ public abstract class Expression extends AbstractAST
   }
   public class NoMatch extends Expression
   {
-/* pattern:Pattern "!:=" expression:Expression -> Expression {cons("NoMatch")} */
+/* pattern:Expression "!:=" expression:Expression -> Expression {cons("NoMatch")} */
     private NoMatch ()
     {
     }
-    /*package */ NoMatch (ITree tree, Pattern pattern, Expression expression)
+    /*package */ NoMatch (ITree tree, Expression pattern,
+			  Expression expression)
     {
       this.tree = tree;
       this.pattern = pattern;
@@ -1994,16 +1995,16 @@ public abstract class Expression extends AbstractAST
     {
       return visitor.visitExpressionNoMatch (this);
     }
-    private Pattern pattern;
-    public Pattern getPattern ()
+    private Expression pattern;
+    public Expression getPattern ()
     {
       return pattern;
     }
-    private void $setPattern (Pattern x)
+    private void $setPattern (Expression x)
     {
       this.pattern = x;
     }
-    public NoMatch setPattern (Pattern x)
+    public NoMatch setPattern (Expression x)
     {
       NoMatch z = new NoMatch ();
       z.$setPattern (x);

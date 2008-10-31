@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.Collections;
 public abstract class Signature extends AbstractAST
 {
   public class NoThrows extends Signature
@@ -88,7 +87,8 @@ public abstract class Signature extends AbstractAST
     private final java.util.List < Signature > alternatives;
     public Ambiguity (java.util.List < Signature > alternatives)
     {
-      this.alternatives = Collections.unmodifiableList (alternatives);
+      this.alternatives =
+	java.util.Collections.unmodifiableList (alternatives);
     }
     public java.util.List < Signature > getAlternatives ()
     {

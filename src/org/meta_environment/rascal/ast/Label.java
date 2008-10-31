@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.Collections;
 public abstract class Label extends AbstractAST
 {
   public class Empty extends Label
@@ -23,7 +22,8 @@ public abstract class Label extends AbstractAST
     private final java.util.List < Label > alternatives;
     public Ambiguity (java.util.List < Label > alternatives)
     {
-      this.alternatives = Collections.unmodifiableList (alternatives);
+      this.alternatives =
+	java.util.Collections.unmodifiableList (alternatives);
     }
     public java.util.List < Label > getAlternatives ()
     {

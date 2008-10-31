@@ -1,15 +1,15 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.Collections;
 public abstract class Match extends AbstractAST
 {
   public class Replacing extends Match
   {
-/* match:Pattern "=>" replacement:Expression -> Match {cons("Replacing")} */
+/* match:Expression "=>" replacement:Expression -> Match {cons("Replacing")} */
     private Replacing ()
     {
     }
-    /*package */ Replacing (ITree tree, Pattern match, Expression replacement)
+    /*package */ Replacing (ITree tree, Expression match,
+			    Expression replacement)
     {
       this.tree = tree;
       this.match = match;
@@ -19,16 +19,16 @@ public abstract class Match extends AbstractAST
     {
       return visitor.visitMatchReplacing (this);
     }
-    private Pattern match;
-    public Pattern getMatch ()
+    private Expression match;
+    public Expression getMatch ()
     {
       return match;
     }
-    private void $setMatch (Pattern x)
+    private void $setMatch (Expression x)
     {
       this.match = x;
     }
-    public Replacing setMatch (Pattern x)
+    public Replacing setMatch (Expression x)
     {
       Replacing z = new Replacing ();
       z.$setMatch (x);
@@ -55,7 +55,8 @@ public abstract class Match extends AbstractAST
     private final java.util.List < Match > alternatives;
     public Ambiguity (java.util.List < Match > alternatives)
     {
-      this.alternatives = Collections.unmodifiableList (alternatives);
+      this.alternatives =
+	java.util.Collections.unmodifiableList (alternatives);
     }
     public java.util.List < Match > getAlternatives ()
     {
@@ -64,11 +65,11 @@ public abstract class Match extends AbstractAST
   }
   public class Arbitrary extends Match
   {
-/* match:Pattern ":" statement:Statement -> Match {cons("Arbitrary")} */
+/* match:Expression ":" statement:Statement -> Match {cons("Arbitrary")} */
     private Arbitrary ()
     {
     }
-    /*package */ Arbitrary (ITree tree, Pattern match, Statement statement)
+    /*package */ Arbitrary (ITree tree, Expression match, Statement statement)
     {
       this.tree = tree;
       this.match = match;
@@ -78,16 +79,16 @@ public abstract class Match extends AbstractAST
     {
       return visitor.visitMatchArbitrary (this);
     }
-    private Pattern match;
-    public Pattern getMatch ()
+    private Expression match;
+    public Expression getMatch ()
     {
       return match;
     }
-    private void $setMatch (Pattern x)
+    private void $setMatch (Expression x)
     {
       this.match = x;
     }
-    public Arbitrary setMatch (Pattern x)
+    public Arbitrary setMatch (Expression x)
     {
       Arbitrary z = new Arbitrary ();
       z.$setMatch (x);

@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.Collections;
 public abstract class Bound extends AbstractAST
 {
   public class Empty extends Bound
@@ -23,7 +22,8 @@ public abstract class Bound extends AbstractAST
     private final java.util.List < Bound > alternatives;
     public Ambiguity (java.util.List < Bound > alternatives)
     {
-      this.alternatives = Collections.unmodifiableList (alternatives);
+      this.alternatives =
+	java.util.Collections.unmodifiableList (alternatives);
     }
     public java.util.List < Bound > getAlternatives ()
     {

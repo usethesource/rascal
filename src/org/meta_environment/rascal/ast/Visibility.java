@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.Collections;
 public abstract class Visibility extends AbstractAST
 {
   public class Public extends Visibility
@@ -23,7 +22,8 @@ public abstract class Visibility extends AbstractAST
     private final java.util.List < Visibility > alternatives;
     public Ambiguity (java.util.List < Visibility > alternatives)
     {
-      this.alternatives = Collections.unmodifiableList (alternatives);
+      this.alternatives =
+	java.util.Collections.unmodifiableList (alternatives);
     }
     public java.util.List < Visibility > getAlternatives ()
     {
