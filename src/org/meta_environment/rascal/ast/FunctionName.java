@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class FunctionName extends AbstractAST
 {
-  public class Name extends FunctionName
+  static public class Name extends FunctionName
   {
 /* name:Name -> FunctionName {cons("Name")} */
     private Name ()
@@ -46,7 +46,7 @@ public abstract class FunctionName extends AbstractAST
       return alternatives;
     }
   }
-  public class Operator extends FunctionName
+  static public class Operator extends FunctionName
   {
 /* operator:StandardOperator -> FunctionName {cons("Operator")} */
     private Operator ()

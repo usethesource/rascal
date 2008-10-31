@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Import extends AbstractAST
 {
-  public class Default extends Import
+  static public class Default extends Import
   {
 /* "import" module:ImportedModule ";" -> Import {cons("Default")} */
     private Default ()
@@ -46,7 +46,7 @@ public abstract class Import extends AbstractAST
       return alternatives;
     }
   }
-  public class Extend extends Import
+  static public class Extend extends Import
   {
 /* "extend" module:ImportedModule ";" -> Import {cons("Extend")} */
     private Extend ()

@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Strategy extends AbstractAST
 {
-  public class TopDown extends Strategy
+  static public class TopDown extends Strategy
   {
 /* "top-down" -> Strategy {cons("TopDown")} */
     private TopDown ()
@@ -30,7 +30,7 @@ public abstract class Strategy extends AbstractAST
       return alternatives;
     }
   }
-  public class TopDownBreak extends Strategy
+  static public class TopDownBreak extends Strategy
   {
 /* "top-down-break" -> Strategy {cons("TopDownBreak")} */
     private TopDownBreak ()
@@ -45,7 +45,7 @@ public abstract class Strategy extends AbstractAST
       return visitor.visitStrategyTopDownBreak (this);
     }
   }
-  public class BottomUp extends Strategy
+  static public class BottomUp extends Strategy
   {
 /* "bottom-up" -> Strategy {cons("BottomUp")} */
     private BottomUp ()
@@ -60,7 +60,7 @@ public abstract class Strategy extends AbstractAST
       return visitor.visitStrategyBottomUp (this);
     }
   }
-  public class BottomUpBreak extends Strategy
+  static public class BottomUpBreak extends Strategy
   {
 /* "bottom-up-break" -> Strategy {cons("BottomUpBreak")} */
     private BottomUpBreak ()
@@ -75,7 +75,7 @@ public abstract class Strategy extends AbstractAST
       return visitor.visitStrategyBottomUpBreak (this);
     }
   }
-  public class Outermost extends Strategy
+  static public class Outermost extends Strategy
   {
 /* "outermost" -> Strategy {cons("Outermost")} */
     private Outermost ()
@@ -90,7 +90,7 @@ public abstract class Strategy extends AbstractAST
       return visitor.visitStrategyOutermost (this);
     }
   }
-  public class Innermost extends Strategy
+  static public class Innermost extends Strategy
   {
 /* "innermost" -> Strategy {cons("Innermost")} */
     private Innermost ()

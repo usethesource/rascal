@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class LocalVariableDeclaration extends AbstractAST
 {
-  public class Default extends LocalVariableDeclaration
+  static public class Default extends LocalVariableDeclaration
   {
 /* declarator:Declarator -> LocalVariableDeclaration {cons("Default")} */
     private Default ()
@@ -47,7 +47,7 @@ public abstract class LocalVariableDeclaration extends AbstractAST
       return alternatives;
     }
   }
-  public class Dynamic extends LocalVariableDeclaration
+  static public class Dynamic extends LocalVariableDeclaration
   {
 /* "dynamic" declarator:Declarator -> LocalVariableDeclaration {cons("Dynamic")} */
     private Dynamic ()

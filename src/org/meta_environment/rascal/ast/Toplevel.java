@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Toplevel extends AbstractAST
 {
-  public class GivenVisibility extends Toplevel
+  static public class GivenVisibility extends Toplevel
   {
 /* visibility:Visibility declaration:Declaration -> Toplevel {cons("GivenVisibility")} */
     private GivenVisibility ()
@@ -63,7 +63,7 @@ public abstract class Toplevel extends AbstractAST
       return alternatives;
     }
   }
-  public class DefaultVisibility extends Toplevel
+  static public class DefaultVisibility extends Toplevel
   {
 /* declaration:Declaration -> Toplevel {cons("DefaultVisibility")} */
     private DefaultVisibility ()

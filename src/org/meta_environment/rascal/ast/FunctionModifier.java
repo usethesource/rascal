@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class FunctionModifier extends AbstractAST
 {
-  public class Java extends FunctionModifier
+  static public class Java extends FunctionModifier
   {
 /* "java" -> FunctionModifier {cons("Java")} */
     private Java ()

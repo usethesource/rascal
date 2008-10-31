@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Comprehension extends AbstractAST
 {
-  public class Set extends Comprehension
+  static public class Set extends Comprehension
   {
 /* "{" result:Expression "|" generators:{Generator ","}+ "}" -> Comprehension {cons("Set")} */
     private Set ()
@@ -63,7 +63,7 @@ public abstract class Comprehension extends AbstractAST
       return alternatives;
     }
   }
-  public class List extends Comprehension
+  static public class List extends Comprehension
   {
 /* "[" result:Expression "|" generators:{Generator ","}+ "]" -> Comprehension {cons("List")} */
     private List ()

@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Variant extends AbstractAST
 {
-  public class Type extends Variant
+  static public class Type extends Variant
   {
 /* type:Type name:Name -> Variant {cons("Type")} */
     private Type ()
@@ -62,7 +62,7 @@ public abstract class Variant extends AbstractAST
       return alternatives;
     }
   }
-  public class NAryConstructor extends Variant
+  static public class NAryConstructor extends Variant
   {
 /* name:Name "(" arguments:{TypeArg ","}+ ")" -> Variant {cons("NAryConstructor")} */
     private NAryConstructor ()
@@ -110,7 +110,7 @@ public abstract class Variant extends AbstractAST
       return z;
     }
   }
-  public class NillaryConstructor extends Variant
+  static public class NillaryConstructor extends Variant
   {
 /* name:Name -> Variant {cons("NillaryConstructor")} */
     private NillaryConstructor ()

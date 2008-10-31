@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Parameters extends AbstractAST
 {
-  public class Default extends Parameters
+  static public class Default extends Parameters
   {
 /* "(" formals:Formals ")" -> Parameters {cons("Default")} */
     private Default ()
@@ -46,7 +46,7 @@ public abstract class Parameters extends AbstractAST
       return alternatives;
     }
   }
-  public class VarArgs extends Parameters
+  static public class VarArgs extends Parameters
   {
 /* "(" formals:Formals "..." ")" -> Parameters {cons("VarArgs")} */
     private VarArgs ()

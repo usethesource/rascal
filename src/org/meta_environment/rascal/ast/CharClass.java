@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class CharClass extends AbstractAST
 {
-  public class SimpleCharclass extends CharClass
+  static public class SimpleCharclass extends CharClass
   {
 /* "[" optionalCharRanges:OptCharRanges "]" -> CharClass {cons("SimpleCharclass")} */
     private SimpleCharclass ()
@@ -47,7 +47,7 @@ public abstract class CharClass extends AbstractAST
       return alternatives;
     }
   }
-  public class Bracket extends CharClass
+  static public class Bracket extends CharClass
   {
 /* "(" CharClass ")" -> CharClass {bracket, avoid} */
     private Bracket ()
@@ -62,7 +62,7 @@ public abstract class CharClass extends AbstractAST
       return visitor.visitCharClassBracket (this);
     }
   }
-  public class Complement extends CharClass
+  static public class Complement extends CharClass
   {
 /* "~" charClass:CharClass -> CharClass {cons("Complement")} */
     private Complement ()
@@ -93,7 +93,7 @@ public abstract class CharClass extends AbstractAST
       return z;
     }
   }
-  public class Difference extends CharClass
+  static public class Difference extends CharClass
   {
 /* lhs:CharClass "/" rhs:CharClass -> CharClass {cons("Difference"), left, memo} */
     private Difference ()
@@ -140,7 +140,7 @@ public abstract class CharClass extends AbstractAST
       return z;
     }
   }
-  public class Intersection extends CharClass
+  static public class Intersection extends CharClass
   {
 /* lhs:CharClass "/\\" rhs:CharClass -> CharClass {cons("Intersection"), left, memo} */
     private Intersection ()
@@ -187,7 +187,7 @@ public abstract class CharClass extends AbstractAST
       return z;
     }
   }
-  public class Union extends CharClass
+  static public class Union extends CharClass
   {
 /* lhs:CharClass "\\/" rhs:CharClass -> CharClass {cons("Union"), left} */
     private Union ()

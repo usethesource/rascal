@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Match extends AbstractAST
 {
-  public class Replacing extends Match
+  static public class Replacing extends Match
   {
 /* match:Expression "=>" replacement:Expression -> Match {cons("Replacing")} */
     private Replacing ()
@@ -63,7 +63,7 @@ public abstract class Match extends AbstractAST
       return alternatives;
     }
   }
-  public class Arbitrary extends Match
+  static public class Arbitrary extends Match
   {
 /* match:Expression ":" statement:Statement -> Match {cons("Arbitrary")} */
     private Arbitrary ()

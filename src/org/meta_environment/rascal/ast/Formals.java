@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Formals extends AbstractAST
 {
-  public class Default extends Formals
+  static public class Default extends Formals
   {
 /* formals:{Formal ","}* -> Formals {cons("Default")} */
     private Default ()

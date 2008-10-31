@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Symbol extends AbstractAST
 {
-  public class Sort extends Symbol
+  static public class Sort extends Symbol
   {
 /* sort:Sort -> Symbol {cons("Sort")} */
     private Sort ()
@@ -46,7 +46,7 @@ public abstract class Symbol extends AbstractAST
       return alternatives;
     }
   }
-  public class ParameterizedSort extends Symbol
+  static public class ParameterizedSort extends Symbol
   {
 /* sort:Sort "[[" parameters:{Symbol ","}+ "]]" -> Symbol {cons("ParameterizedSort")} */
     private ParameterizedSort ()
@@ -94,7 +94,7 @@ public abstract class Symbol extends AbstractAST
       return z;
     }
   }
-  public class Empty extends Symbol
+  static public class Empty extends Symbol
   {
 /* "(" ")" -> Symbol {cons("Empty")} */
     private Empty ()
@@ -109,7 +109,7 @@ public abstract class Symbol extends AbstractAST
       return visitor.visitSymbolEmpty (this);
     }
   }
-  public class Sequence extends Symbol
+  static public class Sequence extends Symbol
   {
 /* "(" head:Symbol tail:Symbol+ ")" -> Symbol {cons("Sequence")} */
     private Sequence ()
@@ -157,7 +157,7 @@ public abstract class Symbol extends AbstractAST
       return z;
     }
   }
-  public class Optional extends Symbol
+  static public class Optional extends Symbol
   {
 /* symbol:Symbol "?" -> Symbol {cons("Optional")} */
     private Optional ()
@@ -188,7 +188,7 @@ public abstract class Symbol extends AbstractAST
       return z;
     }
   }
-  public class Iter extends Symbol
+  static public class Iter extends Symbol
   {
 /* symbol:Symbol "+" -> Symbol {cons("Iter")} */
     private Iter ()
@@ -219,7 +219,7 @@ public abstract class Symbol extends AbstractAST
       return z;
     }
   }
-  public class IterStar extends Symbol
+  static public class IterStar extends Symbol
   {
 /* symbol:Symbol "*" -> Symbol {cons("IterStar")} */
     private IterStar ()
@@ -250,7 +250,7 @@ public abstract class Symbol extends AbstractAST
       return z;
     }
   }
-  public class IterSep extends Symbol
+  static public class IterSep extends Symbol
   {
 /* "{" symbol:Symbol sep:StrCon "}" "+" -> Symbol {cons("IterSep")} */
     private IterSep ()
@@ -297,7 +297,7 @@ public abstract class Symbol extends AbstractAST
       return z;
     }
   }
-  public class IterStarSep extends Symbol
+  static public class IterStarSep extends Symbol
   {
 /* "{" symbol:Symbol sep:StrCon "}" "*" -> Symbol {cons("IterStarSep")} */
     private IterStarSep ()
@@ -344,7 +344,7 @@ public abstract class Symbol extends AbstractAST
       return z;
     }
   }
-  public class Alternative extends Symbol
+  static public class Alternative extends Symbol
   {
 /* lhs:Symbol "|" rhs:Symbol -> Symbol {right, cons("Alternative")} */
     private Alternative ()
@@ -391,7 +391,7 @@ public abstract class Symbol extends AbstractAST
       return z;
     }
   }
-  public class CharacterClass extends Symbol
+  static public class CharacterClass extends Symbol
   {
 /* charClass:CharClass -> Symbol {cons("CharacterClass")} */
     private CharacterClass ()
@@ -422,7 +422,7 @@ public abstract class Symbol extends AbstractAST
       return z;
     }
   }
-  public class LiftedSymbol extends Symbol
+  static public class LiftedSymbol extends Symbol
   {
 /* "`" symbol:Symbol "`" -> Symbol {cons("LiftedSymbol")} */
     private LiftedSymbol ()
@@ -453,7 +453,7 @@ public abstract class Symbol extends AbstractAST
       return z;
     }
   }
-  public class Literal extends Symbol
+  static public class Literal extends Symbol
   {
 /* string:StrCon -> Symbol {cons("Literal")} */
     private Literal ()
@@ -484,7 +484,7 @@ public abstract class Symbol extends AbstractAST
       return z;
     }
   }
-  public class CaseInsensitiveLiteral extends Symbol
+  static public class CaseInsensitiveLiteral extends Symbol
   {
 /* singelQuotedString:SingleQuotedStrCon -> Symbol {cons("CaseInsensitiveLiteral")} */
     private CaseInsensitiveLiteral ()
@@ -517,7 +517,7 @@ public abstract class Symbol extends AbstractAST
       return z;
     }
   }
-  public class Lexical extends Symbol
+  static public class Lexical extends Symbol
   {
     /* Symbol "?" -> Symbol  */
   }

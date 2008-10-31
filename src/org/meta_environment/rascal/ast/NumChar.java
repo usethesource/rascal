@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class NumChar extends AbstractAST
 {
-  public class Lexical extends NumChar
+  static public class Lexical extends NumChar
   {
     /* [\\] number:[0-9]+ -> NumChar  */
   }

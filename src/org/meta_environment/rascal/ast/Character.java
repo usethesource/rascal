@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Character extends AbstractAST
 {
-  public class Numeric extends Character
+  static public class Numeric extends Character
   {
 /* numChar:NumChar -> Character {cons("Numeric")} */
     private Numeric ()
@@ -46,7 +46,7 @@ public abstract class Character extends AbstractAST
       return alternatives;
     }
   }
-  public class Short extends Character
+  static public class Short extends Character
   {
 /* shortChar:ShortChar -> Character {cons("Short")} */
     private Short ()
@@ -77,7 +77,7 @@ public abstract class Character extends AbstractAST
       return z;
     }
   }
-  public class Top extends Character
+  static public class Top extends Character
   {
 /* "\\TOP" -> Character {cons("Top")} */
     private Top ()
@@ -92,7 +92,7 @@ public abstract class Character extends AbstractAST
       return visitor.visitCharacterTop (this);
     }
   }
-  public class EOF extends Character
+  static public class EOF extends Character
   {
 /* "\\EOF" -> Character {cons("EOF")} */
     private EOF ()
@@ -107,7 +107,7 @@ public abstract class Character extends AbstractAST
       return visitor.visitCharacterEOF (this);
     }
   }
-  public class Bottom extends Character
+  static public class Bottom extends Character
   {
 /* "\\BOT" -> Character {cons("Bottom")} */
     private Bottom ()
@@ -122,7 +122,7 @@ public abstract class Character extends AbstractAST
       return visitor.visitCharacterBottom (this);
     }
   }
-  public class LabelStart extends Character
+  static public class LabelStart extends Character
   {
 /* "\\LABEL_START" -> Character {cons("LabelStart")} */
     private LabelStart ()

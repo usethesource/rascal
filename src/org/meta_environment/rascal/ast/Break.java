@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Break extends AbstractAST
 {
-  public class WithLabel extends Break
+  static public class WithLabel extends Break
   {
 /* "break" label:Name ";" -> Break {cons("WithLabel")} */
     private WithLabel ()
@@ -46,7 +46,7 @@ public abstract class Break extends AbstractAST
       return alternatives;
     }
   }
-  public class NoLabel extends Break
+  static public class NoLabel extends Break
   {
 /* "break" ";" -> Break {cons("NoLabel")} */
     private NoLabel ()

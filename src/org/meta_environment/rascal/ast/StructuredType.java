@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class StructuredType extends AbstractAST
 {
-  public class List extends StructuredType
+  static public class List extends StructuredType
   {
 /* "list" "[" typeArg:TypeArg "]" -> StructuredType {cons("List")} */
     private List ()
@@ -46,7 +46,7 @@ public abstract class StructuredType extends AbstractAST
       return alternatives;
     }
   }
-  public class Set extends StructuredType
+  static public class Set extends StructuredType
   {
 /* "set" "[" typeArg:TypeArg "]" -> StructuredType {cons("Set")} */
     private Set ()
@@ -77,7 +77,7 @@ public abstract class StructuredType extends AbstractAST
       return z;
     }
   }
-  public class Map extends StructuredType
+  static public class Map extends StructuredType
   {
 /* "map" "[" first:TypeArg "," second:TypeArg "]" -> StructuredType {cons("Map")} */
     private Map ()
@@ -124,7 +124,7 @@ public abstract class StructuredType extends AbstractAST
       return z;
     }
   }
-  public class Relation extends StructuredType
+  static public class Relation extends StructuredType
   {
 /* "rel" "[" first:TypeArg "," rest:{TypeArg ","}+ "]" -> StructuredType {cons("Relation")} */
     private Relation ()
@@ -172,7 +172,7 @@ public abstract class StructuredType extends AbstractAST
       return z;
     }
   }
-  public class Tuple extends StructuredType
+  static public class Tuple extends StructuredType
   {
 /* "tuple" "[" first:TypeArg "," rest:{TypeArg ","}+ "]" -> StructuredType {cons("Tuple")} */
     private Tuple ()

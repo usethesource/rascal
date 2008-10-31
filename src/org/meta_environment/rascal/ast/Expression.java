@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Expression extends AbstractAST
 {
-  public class Closure extends Expression
+  static public class Closure extends Expression
   {
 /* "fun" type:Type Parameters "{" statements:Statement* "}" -> Expression {cons("Closure")} */
     private Closure ()
@@ -63,7 +63,7 @@ public abstract class Expression extends AbstractAST
       return alternatives;
     }
   }
-  public class Bracket extends Expression
+  static public class Bracket extends Expression
   {
 /* "(" Expression ")" -> Expression {bracket} */
     private Bracket ()
@@ -78,7 +78,7 @@ public abstract class Expression extends AbstractAST
       return visitor.visitExpressionBracket (this);
     }
   }
-  public class ClosureCall extends Expression
+  static public class ClosureCall extends Expression
   {
 /* "(" closure:Expression ")" "(" arguments:{Expression ","}* ")" -> Expression {cons("ClosureCall")} */
     private ClosureCall ()
@@ -126,7 +126,7 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class Range extends Expression
+  static public class Range extends Expression
   {
 /* "[" from:Expression ".." to:Expression "]" -> Expression {cons("Range")} */
     private Range ()
@@ -173,7 +173,7 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class StepRange extends Expression
+  static public class StepRange extends Expression
   {
 /* "[" from:Expression "," by:Expression ",.." to:Expression "]" -> Expression {cons("StepRange")} */
     private StepRange ()
@@ -237,7 +237,7 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class FieldUpdate extends Expression
+  static public class FieldUpdate extends Expression
   {
 /* expression:Expression "[" key:Name "->" replacement:Expression "]" -> Expression {cons("FieldUpdate")} */
     private FieldUpdate ()
@@ -301,7 +301,7 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class FieldAccess extends Expression
+  static public class FieldAccess extends Expression
   {
 /* expression:Expression "." field:Name -> Expression {cons("FieldAccess")} */
     private FieldAccess ()
@@ -348,7 +348,7 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class Subscript extends Expression
+  static public class Subscript extends Expression
   {
 /* expression:Expression "[" subscript:Expression "]" -> Expression {cons("Subscript")} */
     private Subscript ()
@@ -396,7 +396,7 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class TransitiveReflexiveClosure extends Expression
+  static public class TransitiveReflexiveClosure extends Expression
   {
 /* argument:Expression "*" -> Expression {cons("TransitiveReflexiveClosure")} */
     private TransitiveReflexiveClosure ()
@@ -427,7 +427,7 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class TransitiveClosure extends Expression
+  static public class TransitiveClosure extends Expression
   {
 /* argument:Expression "+" -> Expression {cons("TransitiveClosure")} */
     private TransitiveClosure ()
@@ -458,7 +458,7 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class Annotation extends Expression
+  static public class Annotation extends Expression
   {
 /* expression:Expression "@" name:Name -> Expression {cons("Annotation")} */
     private Annotation ()
@@ -505,7 +505,7 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class Negation extends Expression
+  static public class Negation extends Expression
   {
 /* "!" argument:Expression -> Expression {cons("Negation")} */
     private Negation ()
@@ -536,7 +536,7 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class Product extends Expression
+  static public class Product extends Expression
   {
 /* lhs:Expression "*" rhs:Expression -> Expression {cons("Product"), left} */
     private Product ()
@@ -583,7 +583,7 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class Intersection extends Expression
+  static public class Intersection extends Expression
   {
 /* lhs:Expression "&" rhs:Expression -> Expression {cons("Intersection"), left} */
     private Intersection ()
@@ -630,7 +630,7 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class Division extends Expression
+  static public class Division extends Expression
   {
 /* lhs:Expression "/" rhs:Expression -> Expression {cons("Division"), non-assoc} */
     private Division ()
@@ -677,7 +677,7 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class Addition extends Expression
+  static public class Addition extends Expression
   {
 /* lhs:Expression "+" rhs:Expression -> Expression {cons("Addition"), left} */
     private Addition ()
@@ -724,7 +724,7 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class Substraction extends Expression
+  static public class Substraction extends Expression
   {
 /* lhs:Expression "-" rhs:Expression -> Expression {cons("Substraction"), left} */
     private Substraction ()
@@ -771,7 +771,7 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class RegExpMatch extends Expression
+  static public class RegExpMatch extends Expression
   {
 /* lhs:Expression "=~" rhs:Expression -> Expression {non-assoc, cons("RegExpMatch")} */
     private RegExpMatch ()
@@ -818,7 +818,7 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class RegExpNoMatch extends Expression
+  static public class RegExpNoMatch extends Expression
   {
 /* lhs:Expression "!~" rhs:Expression -> Expression {non-assoc, cons("RegExpNoMatch")} */
     private RegExpNoMatch ()
@@ -865,7 +865,7 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class LessThan extends Expression
+  static public class LessThan extends Expression
   {
 /* lhs:Expression "<" rhs:Expression -> Expression {non-assoc, cons("LessThan")} */
     private LessThan ()
@@ -912,7 +912,7 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class LessThanOrEq extends Expression
+  static public class LessThanOrEq extends Expression
   {
 /* lhs:Expression "<=" rhs:Expression -> Expression {non-assoc, cons("LessThanOrEq")} */
     private LessThanOrEq ()
@@ -959,7 +959,7 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class GreaterThan extends Expression
+  static public class GreaterThan extends Expression
   {
 /* lhs:Expression ">" rhs:Expression -> Expression {non-assoc, cons("GreaterThan")} */
     private GreaterThan ()
@@ -1006,7 +1006,7 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class GreaterThanOrEq extends Expression
+  static public class GreaterThanOrEq extends Expression
   {
 /* lhs:Expression ">=" rhs:Expression -> Expression {non-assoc, cons("GreaterThanOrEq")} */
     private GreaterThanOrEq ()
@@ -1053,7 +1053,7 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class Equals extends Expression
+  static public class Equals extends Expression
   {
 /* lhs:Expression "==" rhs:Expression -> Expression {left, cons("Equals")} */
     private Equals ()
@@ -1100,7 +1100,7 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class NonEquals extends Expression
+  static public class NonEquals extends Expression
   {
 /* lhs:Expression "!=" rhs:Expression -> Expression {left, cons("NonEquals")} */
     private NonEquals ()
@@ -1147,7 +1147,7 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class NotIn extends Expression
+  static public class NotIn extends Expression
   {
 /* lhs:Expression "notin" rhs:Expression -> Expression {non-assoc, cons("NotIn")} */
     private NotIn ()
@@ -1194,7 +1194,7 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class In extends Expression
+  static public class In extends Expression
   {
 /* lhs:Expression "in" rhs:Expression -> Expression {non-assoc, cons("In")} */
     private In ()
@@ -1241,7 +1241,7 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class And extends Expression
+  static public class And extends Expression
   {
 /* lhs:Expression "&&" rhs:Expression -> Expression {left, cons("And")} */
     private And ()
@@ -1288,7 +1288,7 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class Or extends Expression
+  static public class Or extends Expression
   {
 /* lhs:Expression "||" rhs:Expression -> Expression {left, cons("Or")} */
     private Or ()
@@ -1335,7 +1335,7 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class IfDefined extends Expression
+  static public class IfDefined extends Expression
   {
 /* lhs:Expression "?" rhs:Expression -> Expression {left, cons("IfDefined")} */
     private IfDefined ()
@@ -1382,7 +1382,7 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class IfThenElse extends Expression
+  static public class IfThenElse extends Expression
   {
 /* condition:Expression "?" thenExp:Expression ":" elseExp:Expression -> Expression {right, cons("IfThenElse")} */
     private IfThenElse ()
@@ -1446,7 +1446,7 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class Operator extends Expression
+  static public class Operator extends Expression
   {
 /* operator:StandardOperator -> Expression {cons("Operator")} */
     private Operator ()
@@ -1477,7 +1477,7 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class Literal extends Expression
+  static public class Literal extends Expression
   {
 /* literal:Literal -> Expression {cons("Literal")} */
     private Literal ()
@@ -1508,7 +1508,7 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class CallOrTree extends Expression
+  static public class CallOrTree extends Expression
   {
 /* name:Name "(" arguments:{Expression ","}* ")" -> Expression {cons("CallOrTree")} */
     private CallOrTree ()
@@ -1556,7 +1556,7 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class List extends Expression
+  static public class List extends Expression
   {
 /* "[" elements:{Expression ","}* "]" -> Expression {cons("List")} */
     private List ()
@@ -1587,7 +1587,7 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class Set extends Expression
+  static public class Set extends Expression
   {
 /* "{" elements:{Expression ","}* "}" -> Expression {cons("Set")} */
     private Set ()
@@ -1618,7 +1618,7 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class Tuple extends Expression
+  static public class Tuple extends Expression
   {
 /* "<" first:Expression "," rest:{Expression ","}+ ">" -> Expression {cons("Tuple")} */
     private Tuple ()
@@ -1666,7 +1666,7 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class MapTuple extends Expression
+  static public class MapTuple extends Expression
   {
 /* "<" from:Expression "->" to:Expression ">" -> Expression {cons("MapTuple")} */
     private MapTuple ()
@@ -1713,7 +1713,7 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class Location extends Expression
+  static public class Location extends Expression
   {
 /* Location -> Expression {cons("Location")} */
     private Location ()
@@ -1728,7 +1728,7 @@ public abstract class Expression extends AbstractAST
       return visitor.visitExpressionLocation (this);
     }
   }
-  public class Area extends Expression
+  static public class Area extends Expression
   {
 /* Area -> Expression {cons("Area")} */
     private Area ()
@@ -1743,7 +1743,7 @@ public abstract class Expression extends AbstractAST
       return visitor.visitExpressionArea (this);
     }
   }
-  public class FileLocation extends Expression
+  static public class FileLocation extends Expression
   {
 /* "file" "(" filename:Expression ")" -> Expression {cons("FileLocation")} */
     private FileLocation ()
@@ -1774,7 +1774,7 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class AreaLocation extends Expression
+  static public class AreaLocation extends Expression
   {
 /* "area" "(" area:Expression ")" -> Expression {cons("AreaLocation")} */
     private AreaLocation ()
@@ -1805,7 +1805,7 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class AreaInFileLocation extends Expression
+  static public class AreaInFileLocation extends Expression
   {
 /* "area-in-file" "(" filename:Expression "," area:Expression ")" -> Expression {cons("AreaInFileLocation")} */
     private AreaInFileLocation ()
@@ -1853,7 +1853,7 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class QualifiedName extends Expression
+  static public class QualifiedName extends Expression
   {
 /* qualifiedName:QualifiedName -> Expression {cons("QualifiedName")} */
     private QualifiedName ()
@@ -1884,7 +1884,7 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class TypedVariable extends Expression
+  static public class TypedVariable extends Expression
   {
 /* type:Type name:Name -> Expression {cons("TypedVariable")} */
     private TypedVariable ()
@@ -1931,7 +1931,7 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class Match extends Expression
+  static public class Match extends Expression
   {
 /* pattern:Expression ":=" expression:Expression -> Expression {cons("Match")} */
     private Match ()
@@ -1978,7 +1978,7 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class NoMatch extends Expression
+  static public class NoMatch extends Expression
   {
 /* pattern:Expression "!:=" expression:Expression -> Expression {cons("NoMatch")} */
     private NoMatch ()
@@ -2026,7 +2026,7 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class Comprehension extends Expression
+  static public class Comprehension extends Expression
   {
 /* comprehension:Comprehension -> Expression {cons("Comprehension")} */
     private Comprehension ()
@@ -2057,7 +2057,7 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class ForAll extends Expression
+  static public class ForAll extends Expression
   {
 /* "forall" "(" producer:ValueProducer "|" expression:Expression ")" -> Expression {cons("ForAll")} */
     private ForAll ()
@@ -2105,7 +2105,7 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class Exists extends Expression
+  static public class Exists extends Expression
   {
 /* "exists" "(" producer:ValueProducer "|" expression:Expression ")" -> Expression {cons("Exists")} */
     private Exists ()
@@ -2153,7 +2153,7 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class Visit extends Expression
+  static public class Visit extends Expression
   {
 /* visit:Visit -> Expression {cons("Visit")} */
     private Visit ()

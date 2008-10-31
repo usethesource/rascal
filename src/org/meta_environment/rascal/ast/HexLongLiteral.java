@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class HexLongLiteral extends AbstractAST
 {
-  public class Lexical extends HexLongLiteral
+  static public class Lexical extends HexLongLiteral
   {
     /* [0] [xX] [0-9a-fA-F]+ [lL] -> HexLongLiteral  */
   }

@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class BasicType extends AbstractAST
 {
-  public class Bool extends BasicType
+  static public class Bool extends BasicType
   {
 /* "bool" -> BasicType {cons("Bool")} */
     private Bool ()
@@ -30,7 +30,7 @@ public abstract class BasicType extends AbstractAST
       return alternatives;
     }
   }
-  public class Int extends BasicType
+  static public class Int extends BasicType
   {
 /* "int" -> BasicType {cons("Int")} */
     private Int ()
@@ -45,7 +45,7 @@ public abstract class BasicType extends AbstractAST
       return visitor.visitBasicTypeInt (this);
     }
   }
-  public class Double extends BasicType
+  static public class Double extends BasicType
   {
 /* "double" -> BasicType {cons("Double")} */
     private Double ()
@@ -60,7 +60,7 @@ public abstract class BasicType extends AbstractAST
       return visitor.visitBasicTypeDouble (this);
     }
   }
-  public class String extends BasicType
+  static public class String extends BasicType
   {
 /* "str" -> BasicType {cons("String")} */
     private String ()
@@ -75,7 +75,7 @@ public abstract class BasicType extends AbstractAST
       return visitor.visitBasicTypeString (this);
     }
   }
-  public class Value extends BasicType
+  static public class Value extends BasicType
   {
 /* "value" -> BasicType {cons("Value")} */
     private Value ()
@@ -90,7 +90,7 @@ public abstract class BasicType extends AbstractAST
       return visitor.visitBasicTypeValue (this);
     }
   }
-  public class Term extends BasicType
+  static public class Term extends BasicType
   {
 /* "term" -> BasicType {cons("Term")} */
     private Term ()
@@ -105,7 +105,7 @@ public abstract class BasicType extends AbstractAST
       return visitor.visitBasicTypeTerm (this);
     }
   }
-  public class Void extends BasicType
+  static public class Void extends BasicType
   {
 /* "void" -> BasicType {cons("Void")} */
     private Void ()
@@ -120,7 +120,7 @@ public abstract class BasicType extends AbstractAST
       return visitor.visitBasicTypeVoid (this);
     }
   }
-  public class Loc extends BasicType
+  static public class Loc extends BasicType
   {
 /* "loc" -> BasicType {cons("Loc")} */
     private Loc ()

@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Literal extends AbstractAST
 {
-  public class RegExp extends Literal
+  static public class RegExp extends Literal
   {
 /* regExp:RegExpLiteral -> Literal {cons("RegExp")} */
     private RegExp ()
@@ -46,7 +46,7 @@ public abstract class Literal extends AbstractAST
       return alternatives;
     }
   }
-  public class Symbol extends Literal
+  static public class Symbol extends Literal
   {
 /* symbolLiteral:SymbolLiteral -> Literal {cons("Symbol")} */
     private Symbol ()
@@ -77,7 +77,7 @@ public abstract class Literal extends AbstractAST
       return z;
     }
   }
-  public class Boolean extends Literal
+  static public class Boolean extends Literal
   {
 /* booleanLiteral:BooleanLiteral -> Literal {cons("Boolean")} */
     private Boolean ()
@@ -108,7 +108,7 @@ public abstract class Literal extends AbstractAST
       return z;
     }
   }
-  public class Integer extends Literal
+  static public class Integer extends Literal
   {
 /* integerLiteral:IntegerLiteral -> Literal {cons("Integer")} */
     private Integer ()
@@ -139,7 +139,7 @@ public abstract class Literal extends AbstractAST
       return z;
     }
   }
-  public class Double extends Literal
+  static public class Double extends Literal
   {
 /* doubleLiteral:FloatingPointLiteral -> Literal {cons("Double")} */
     private Double ()
@@ -170,7 +170,7 @@ public abstract class Literal extends AbstractAST
       return z;
     }
   }
-  public class String extends Literal
+  static public class String extends Literal
   {
 /* stringLiteral:StringLiteral -> Literal {cons("String")} */
     private String ()

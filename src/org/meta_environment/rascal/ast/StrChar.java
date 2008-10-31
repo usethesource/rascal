@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class StrChar extends AbstractAST
 {
-  public class newline extends StrChar
+  static public class newline extends StrChar
   {
 /* "\\n" -> StrChar {cons("newline")} */
     private newline ()
@@ -30,7 +30,7 @@ public abstract class StrChar extends AbstractAST
       return alternatives;
     }
   }
-  public class Lexical extends StrChar
+  static public class Lexical extends StrChar
   {
     /* "\\t" -> StrChar  */
   }

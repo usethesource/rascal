@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class FunctionModifiers extends AbstractAST
 {
-  public class List extends FunctionModifiers
+  static public class List extends FunctionModifiers
   {
 /* modifiers:FunctionModifier* -> FunctionModifiers {cons("List")} */
     private List ()

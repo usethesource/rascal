@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Module extends AbstractAST
 {
-  public class Default extends Module
+  static public class Default extends Module
   {
 /* header:Header body:Body -> Module {cons("Default")} */
     private Default ()

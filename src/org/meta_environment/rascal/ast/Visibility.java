@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Visibility extends AbstractAST
 {
-  public class Public extends Visibility
+  static public class Public extends Visibility
   {
 /* "public" -> Visibility {cons("Public")} */
     private Public ()
@@ -30,7 +30,7 @@ public abstract class Visibility extends AbstractAST
       return alternatives;
     }
   }
-  public class Private extends Visibility
+  static public class Private extends Visibility
   {
 /* "private" -> Visibility {cons("Private")} */
     private Private ()

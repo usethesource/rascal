@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Body extends AbstractAST
 {
-  public class Toplevels extends Body
+  static public class Toplevels extends Body
   {
 /* toplevels:Toplevel* -> Body {cons("Toplevels")} */
     private Toplevels ()

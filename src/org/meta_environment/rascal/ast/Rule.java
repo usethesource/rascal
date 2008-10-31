@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Rule extends AbstractAST
 {
-  public class WithGuard extends Rule
+  static public class WithGuard extends Rule
   {
 /* "[" type:Type "]" match:Match -> Rule {cons("WithGuard")} */
     private WithGuard ()
@@ -62,7 +62,7 @@ public abstract class Rule extends AbstractAST
       return alternatives;
     }
   }
-  public class NoGuard extends Rule
+  static public class NoGuard extends Rule
   {
 /* match:Match -> Rule {cons("NoGuard")} */
     private NoGuard ()

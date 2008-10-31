@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class TagString extends AbstractAST
 {
-  public class Lexical extends TagString
+  static public class Lexical extends TagString
   {
     /* "{" TagChar* "}" -> TagString  */
   }

@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Variable extends AbstractAST
 {
-  public class GivenInitialization extends Variable
+  static public class GivenInitialization extends Variable
   {
 /* name:Name tags:Tags "=" initial:Expression -> Variable {cons("GivenInitialization")} */
     private GivenInitialization ()

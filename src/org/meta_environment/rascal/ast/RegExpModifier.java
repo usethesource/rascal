@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class RegExpModifier extends AbstractAST
 {
-  public class Lexical extends RegExpModifier
+  static public class Lexical extends RegExpModifier
   {
     /* [imsd] -> RegExpModifier  */
   }

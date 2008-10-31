@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Bound extends AbstractAST
 {
-  public class Empty extends Bound
+  static public class Empty extends Bound
   {
 /*  -> Bound {cons("Empty")} */
     private Empty ()
@@ -30,7 +30,7 @@ public abstract class Bound extends AbstractAST
       return alternatives;
     }
   }
-  public class Default extends Bound
+  static public class Default extends Bound
   {
 /* "(" expression:Expression ")" -> Bound {cons("Default")} */
     private Default ()

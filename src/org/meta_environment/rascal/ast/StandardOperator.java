@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class StandardOperator extends AbstractAST
 {
-  public class Addition extends StandardOperator
+  static public class Addition extends StandardOperator
   {
 /* "+" -> StandardOperator {cons("Addition")} */
     private Addition ()
@@ -30,7 +30,7 @@ public abstract class StandardOperator extends AbstractAST
       return alternatives;
     }
   }
-  public class Substraction extends StandardOperator
+  static public class Substraction extends StandardOperator
   {
 /* "-" -> StandardOperator {cons("Substraction")} */
     private Substraction ()
@@ -45,7 +45,7 @@ public abstract class StandardOperator extends AbstractAST
       return visitor.visitStandardOperatorSubstraction (this);
     }
   }
-  public class Product extends StandardOperator
+  static public class Product extends StandardOperator
   {
 /* "*" -> StandardOperator {cons("Product")} */
     private Product ()
@@ -60,7 +60,7 @@ public abstract class StandardOperator extends AbstractAST
       return visitor.visitStandardOperatorProduct (this);
     }
   }
-  public class Division extends StandardOperator
+  static public class Division extends StandardOperator
   {
 /* "/" -> StandardOperator {cons("Division")} */
     private Division ()
@@ -75,7 +75,7 @@ public abstract class StandardOperator extends AbstractAST
       return visitor.visitStandardOperatorDivision (this);
     }
   }
-  public class Intersection extends StandardOperator
+  static public class Intersection extends StandardOperator
   {
 /* "&" -> StandardOperator {cons("Intersection")} */
     private Intersection ()
@@ -90,7 +90,7 @@ public abstract class StandardOperator extends AbstractAST
       return visitor.visitStandardOperatorIntersection (this);
     }
   }
-  public class Equals extends StandardOperator
+  static public class Equals extends StandardOperator
   {
 /* "==" -> StandardOperator {cons("Equals")} */
     private Equals ()
@@ -105,7 +105,7 @@ public abstract class StandardOperator extends AbstractAST
       return visitor.visitStandardOperatorEquals (this);
     }
   }
-  public class NotEquals extends StandardOperator
+  static public class NotEquals extends StandardOperator
   {
 /* "!=" -> StandardOperator {cons("NotEquals")} */
     private NotEquals ()
@@ -120,7 +120,7 @@ public abstract class StandardOperator extends AbstractAST
       return visitor.visitStandardOperatorNotEquals (this);
     }
   }
-  public class LessThan extends StandardOperator
+  static public class LessThan extends StandardOperator
   {
 /* "<" -> StandardOperator {cons("LessThan")} */
     private LessThan ()
@@ -135,7 +135,7 @@ public abstract class StandardOperator extends AbstractAST
       return visitor.visitStandardOperatorLessThan (this);
     }
   }
-  public class LessThanOrEq extends StandardOperator
+  static public class LessThanOrEq extends StandardOperator
   {
 /* "<=" -> StandardOperator {cons("LessThanOrEq")} */
     private LessThanOrEq ()
@@ -150,7 +150,7 @@ public abstract class StandardOperator extends AbstractAST
       return visitor.visitStandardOperatorLessThanOrEq (this);
     }
   }
-  public class GreaterThan extends StandardOperator
+  static public class GreaterThan extends StandardOperator
   {
 /* ">" -> StandardOperator {cons("GreaterThan")} */
     private GreaterThan ()
@@ -165,7 +165,7 @@ public abstract class StandardOperator extends AbstractAST
       return visitor.visitStandardOperatorGreaterThan (this);
     }
   }
-  public class GreaterThanOrEq extends StandardOperator
+  static public class GreaterThanOrEq extends StandardOperator
   {
 /* ">=" -> StandardOperator {cons("GreaterThanOrEq")} */
     private GreaterThanOrEq ()
@@ -180,7 +180,7 @@ public abstract class StandardOperator extends AbstractAST
       return visitor.visitStandardOperatorGreaterThanOrEq (this);
     }
   }
-  public class And extends StandardOperator
+  static public class And extends StandardOperator
   {
 /* "&&" -> StandardOperator {cons("And")} */
     private And ()
@@ -195,7 +195,7 @@ public abstract class StandardOperator extends AbstractAST
       return visitor.visitStandardOperatorAnd (this);
     }
   }
-  public class Or extends StandardOperator
+  static public class Or extends StandardOperator
   {
 /* "||" -> StandardOperator {cons("Or")} */
     private Or ()
@@ -210,7 +210,7 @@ public abstract class StandardOperator extends AbstractAST
       return visitor.visitStandardOperatorOr (this);
     }
   }
-  public class Not extends StandardOperator
+  static public class Not extends StandardOperator
   {
 /* "!" -> StandardOperator {cons("Not")} */
     private Not ()
@@ -225,7 +225,7 @@ public abstract class StandardOperator extends AbstractAST
       return visitor.visitStandardOperatorNot (this);
     }
   }
-  public class In extends StandardOperator
+  static public class In extends StandardOperator
   {
 /* "in" -> StandardOperator {cons("In")} */
     private In ()
@@ -240,7 +240,7 @@ public abstract class StandardOperator extends AbstractAST
       return visitor.visitStandardOperatorIn (this);
     }
   }
-  public class NotIn extends StandardOperator
+  static public class NotIn extends StandardOperator
   {
 /* "notin" -> StandardOperator {cons("NotIn")} */
     private NotIn ()

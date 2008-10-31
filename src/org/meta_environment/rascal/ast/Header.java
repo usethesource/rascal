@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Header extends AbstractAST
 {
-  public class Default extends Header
+  static public class Default extends Header
   {
 /* "module" name:ModuleName tags:Tags imports:Import* -> Header {cons("Default")} */
     private Default ()
@@ -79,7 +79,7 @@ public abstract class Header extends AbstractAST
       return alternatives;
     }
   }
-  public class Parameters extends Header
+  static public class Parameters extends Header
   {
 /* "module" name:ModuleName params:ModuleParameters tags:Tags imports:Import* -> Header {cons("Parameters")} */
     private Parameters ()

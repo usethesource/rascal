@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Declaration extends AbstractAST
 {
-  public class View extends Declaration
+  static public class View extends Declaration
   {
 /* "view" view:Name "<:" type:Name tags:Tags alternatives:{Alternative "|"}+ ";" -> Declaration {cons("View")} */
     private View ()
@@ -95,7 +95,7 @@ public abstract class Declaration extends AbstractAST
       return alternatives;
     }
   }
-  public class Type extends Declaration
+  static public class Type extends Declaration
   {
 /* "type" base:Type user:UserType tags:Tags ";" -> Declaration {cons("Type")} */
     private Type ()
@@ -158,7 +158,7 @@ public abstract class Declaration extends AbstractAST
       return z;
     }
   }
-  public class Data extends Declaration
+  static public class Data extends Declaration
   {
 /* "data" user:UserType tags:Tags variants:{Variant "|"}+ ";" -> Declaration {cons("Data")} */
     private Data ()
@@ -222,7 +222,7 @@ public abstract class Declaration extends AbstractAST
       return z;
     }
   }
-  public class Function extends Declaration
+  static public class Function extends Declaration
   {
 /* functionDeclaration:FunctionDeclaration -> Declaration {cons("Function")} */
     private Function ()
@@ -254,7 +254,7 @@ public abstract class Declaration extends AbstractAST
       return z;
     }
   }
-  public class Variable extends Declaration
+  static public class Variable extends Declaration
   {
 /* type:Type variables:{Variable ","}+ ";" -> Declaration {cons("Variable")} */
     private Variable ()
@@ -302,7 +302,7 @@ public abstract class Declaration extends AbstractAST
       return z;
     }
   }
-  public class Rule extends Declaration
+  static public class Rule extends Declaration
   {
 /* "rule" name:Name tags:Tags rule:Rule -> Declaration {cons("Rule")} */
     private Rule ()
@@ -365,7 +365,7 @@ public abstract class Declaration extends AbstractAST
       return z;
     }
   }
-  public class Annotation extends Declaration
+  static public class Annotation extends Declaration
   {
 /* "anno" type:Type name:Name tags:Tags types:{Type "|"}+ ";" -> Declaration {cons("Annotation")} */
     private Annotation ()
@@ -445,7 +445,7 @@ public abstract class Declaration extends AbstractAST
       return z;
     }
   }
-  public class Tag extends Declaration
+  static public class Tag extends Declaration
   {
 /* "tag" kind:Kind name:Name tags:Tags types:{Type "|"}+ ";" -> Declaration {cons("Tag")} */
     private Tag ()

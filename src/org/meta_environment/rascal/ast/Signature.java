@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Signature extends AbstractAST
 {
-  public class NoThrows extends Signature
+  static public class NoThrows extends Signature
   {
 /* type:Type modifiers:FunctionModifiers name:FunctionName parameters:Parameters -> Signature {cons("NoThrows")} */
     private NoThrows ()
@@ -95,7 +95,7 @@ public abstract class Signature extends AbstractAST
       return alternatives;
     }
   }
-  public class WithThrows extends Signature
+  static public class WithThrows extends Signature
   {
 /* type:Type modifiers:FunctionModifiers name:FunctionName parameters:Parameters "throws" exceptions:{Type ","}+ -> Signature {cons("WithThrows")} */
     private WithThrows ()

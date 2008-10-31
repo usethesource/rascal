@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Generator extends AbstractAST
 {
-  public class Expression extends Generator
+  static public class Expression extends Generator
   {
 /* expression:Expression -> Generator {cons("Expression")} */
     private Expression ()
@@ -46,7 +46,7 @@ public abstract class Generator extends AbstractAST
       return alternatives;
     }
   }
-  public class Producer extends Generator
+  static public class Producer extends Generator
   {
 /* producer:ValueProducer -> Generator {cons("Producer")} */
     private Producer ()

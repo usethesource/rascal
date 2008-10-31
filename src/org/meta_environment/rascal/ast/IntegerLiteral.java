@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class IntegerLiteral extends AbstractAST
 {
-  public class DecimalIntegerLiteral extends IntegerLiteral
+  static public class DecimalIntegerLiteral extends IntegerLiteral
   {
 /* DecimalIntegerLiteral -> IntegerLiteral {prefer, cons("DecimalIntegerLiteral")} */
     private DecimalIntegerLiteral ()
@@ -30,7 +30,7 @@ public abstract class IntegerLiteral extends AbstractAST
       return alternatives;
     }
   }
-  public class HexIntegerLiteral extends IntegerLiteral
+  static public class HexIntegerLiteral extends IntegerLiteral
   {
 /* HexIntegerLiteral -> IntegerLiteral {prefer, cons("HexIntegerLiteral")} */
     private HexIntegerLiteral ()
@@ -45,7 +45,7 @@ public abstract class IntegerLiteral extends AbstractAST
       return visitor.visitIntegerLiteralHexIntegerLiteral (this);
     }
   }
-  public class OctalIntegerLiteral extends IntegerLiteral
+  static public class OctalIntegerLiteral extends IntegerLiteral
   {
 /* OctalIntegerLiteral -> IntegerLiteral {prefer, cons("OctalIntegerLiteral")} */
     private OctalIntegerLiteral ()

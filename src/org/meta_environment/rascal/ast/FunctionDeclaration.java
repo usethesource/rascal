@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class FunctionDeclaration extends AbstractAST
 {
-  public class Default extends FunctionDeclaration
+  static public class Default extends FunctionDeclaration
   {
 /* signature:Signature tags:Tags body:FunctionBody -> FunctionDeclaration {cons("Default")} */
     private Default ()
@@ -79,7 +79,7 @@ public abstract class FunctionDeclaration extends AbstractAST
       return alternatives;
     }
   }
-  public class Abstract extends FunctionDeclaration
+  static public class Abstract extends FunctionDeclaration
   {
 /* signature:Signature tags:Tags -> FunctionDeclaration {cons("Abstract")} */
     private Abstract ()

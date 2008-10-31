@@ -2,11 +2,10 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class CommentChar extends AbstractAST
 {
-  public class Lexical extends CommentChar
+  static public class Lexical extends CommentChar
   {
     /* ~[\*] -> CommentChar  */
-  }
-  public class Ambiguity extends CommentChar
+  } public class Ambiguity extends CommentChar
   {
     private final java.util.List < CommentChar > alternatives;
     public Ambiguity (java.util.List < CommentChar > alternatives)

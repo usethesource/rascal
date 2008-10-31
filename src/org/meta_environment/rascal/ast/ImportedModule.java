@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class ImportedModule extends AbstractAST
 {
-  public class ActualsRenaming extends ImportedModule
+  static public class ActualsRenaming extends ImportedModule
   {
 /* name:ModuleName actuals:ModuleActuals renamings:Renamings -> ImportedModule {cons("ActualsRenaming")} */
     private ActualsRenaming ()
@@ -79,7 +79,7 @@ public abstract class ImportedModule extends AbstractAST
       return alternatives;
     }
   }
-  public class Actuals extends ImportedModule
+  static public class Actuals extends ImportedModule
   {
 /* name:ModuleName actuals:ModuleActuals -> ImportedModule {cons("Actuals")} */
     private Actuals ()
@@ -126,7 +126,7 @@ public abstract class ImportedModule extends AbstractAST
       return z;
     }
   }
-  public class Renamings extends ImportedModule
+  static public class Renamings extends ImportedModule
   {
 /* name:ModuleName renamings:Renamings -> ImportedModule {cons("Renamings")} */
     private Renamings ()
@@ -173,7 +173,7 @@ public abstract class ImportedModule extends AbstractAST
       return z;
     }
   }
-  public class Default extends ImportedModule
+  static public class Default extends ImportedModule
   {
 /* name:ModuleName -> ImportedModule {cons("Default")} */
     private Default ()

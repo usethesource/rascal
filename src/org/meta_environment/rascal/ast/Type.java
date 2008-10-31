@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Type extends AbstractAST
 {
-  public class Basic extends Type
+  static public class Basic extends Type
   {
 /* basic:BasicType -> Type {cons("Basic")} */
     private Basic ()
@@ -46,7 +46,7 @@ public abstract class Type extends AbstractAST
       return alternatives;
     }
   }
-  public class Structured extends Type
+  static public class Structured extends Type
   {
 /* structured:StructuredType -> Type {cons("Structured")} */
     private Structured ()
@@ -77,7 +77,7 @@ public abstract class Type extends AbstractAST
       return z;
     }
   }
-  public class Function extends Type
+  static public class Function extends Type
   {
 /* function:FunctionType -> Type {cons("Function")} */
     private Function ()
@@ -108,7 +108,7 @@ public abstract class Type extends AbstractAST
       return z;
     }
   }
-  public class Variable extends Type
+  static public class Variable extends Type
   {
 /* typeVar:TypeVar -> Type {cons("Variable")} */
     private Variable ()
@@ -139,7 +139,7 @@ public abstract class Type extends AbstractAST
       return z;
     }
   }
-  public class User extends Type
+  static public class User extends Type
   {
 /* user:UserType -> Type {cons("User")} */
     private User ()
@@ -170,7 +170,7 @@ public abstract class Type extends AbstractAST
       return z;
     }
   }
-  public class Symbol extends Type
+  static public class Symbol extends Type
   {
 /* symbol:Symbol -> Type {cons("Symbol")} */
     private Symbol ()
@@ -201,7 +201,7 @@ public abstract class Type extends AbstractAST
       return z;
     }
   }
-  public class Selector extends Type
+  static public class Selector extends Type
   {
 /* selector:DataTypeSelector -> Type {cons("Selector")} */
     private Selector ()

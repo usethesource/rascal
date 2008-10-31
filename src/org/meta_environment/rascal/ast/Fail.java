@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Fail extends AbstractAST
 {
-  public class WithLabel extends Fail
+  static public class WithLabel extends Fail
   {
 /* "fail" label:Name ";" -> Fail {cons("WithLabel")} */
     private WithLabel ()
@@ -46,7 +46,7 @@ public abstract class Fail extends AbstractAST
       return alternatives;
     }
   }
-  public class NoLabel extends Fail
+  static public class NoLabel extends Fail
   {
 /* "fail" ";" -> Fail {cons("NoLabel")} */
     private NoLabel ()
