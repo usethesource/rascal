@@ -33,7 +33,7 @@ public abstract class Character extends AbstractAST
       return z;
     }
   }
-  public class Ambiguity extends Character
+  static public class Ambiguity extends Character
   {
     private final java.util.List < Character > alternatives;
     public Ambiguity (java.util.List < Character > alternatives)

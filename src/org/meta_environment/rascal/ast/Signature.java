@@ -82,7 +82,7 @@ public abstract class Signature extends AbstractAST
       return z;
     }
   }
-  public class Ambiguity extends Signature
+  static public class Ambiguity extends Signature
   {
     private final java.util.List < Signature > alternatives;
     public Ambiguity (java.util.List < Signature > alternatives)

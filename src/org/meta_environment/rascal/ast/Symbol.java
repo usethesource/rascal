@@ -33,7 +33,7 @@ public abstract class Symbol extends AbstractAST
       return z;
     }
   }
-  public class Ambiguity extends Symbol
+  static public class Ambiguity extends Symbol
   {
     private final java.util.List < Symbol > alternatives;
     public Ambiguity (java.util.List < Symbol > alternatives)

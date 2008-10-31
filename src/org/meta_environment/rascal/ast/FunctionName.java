@@ -33,7 +33,7 @@ public abstract class FunctionName extends AbstractAST
       return z;
     }
   }
-  public class Ambiguity extends FunctionName
+  static public class Ambiguity extends FunctionName
   {
     private final java.util.List < FunctionName > alternatives;
     public Ambiguity (java.util.List < FunctionName > alternatives)

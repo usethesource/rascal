@@ -6,7 +6,7 @@ public abstract class HexIntegerLiteral extends AbstractAST
   {
     /* [0] [xX] [0-9a-fA-F]+ -> HexIntegerLiteral  */
   }
-  public class Ambiguity extends HexIntegerLiteral
+  static public class Ambiguity extends HexIntegerLiteral
   {
     private final java.util.List < HexIntegerLiteral > alternatives;
     public Ambiguity (java.util.List < HexIntegerLiteral > alternatives)

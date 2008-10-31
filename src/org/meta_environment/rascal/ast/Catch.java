@@ -33,7 +33,7 @@ public abstract class Catch extends AbstractAST
       return z;
     }
   }
-  public class Ambiguity extends Catch
+  static public class Ambiguity extends Catch
   {
     private final java.util.List < Catch > alternatives;
     public Ambiguity (java.util.List < Catch > alternatives)

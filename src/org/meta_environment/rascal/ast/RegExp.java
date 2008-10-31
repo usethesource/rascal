@@ -5,7 +5,7 @@ public abstract class RegExp extends AbstractAST
   static public class Lexical extends RegExp
   {
     /* Backslash -> RegExp  */
-  } public class Ambiguity extends RegExp
+  } static public class Ambiguity extends RegExp
   {
     private final java.util.List < RegExp > alternatives;
     public Ambiguity (java.util.List < RegExp > alternatives)

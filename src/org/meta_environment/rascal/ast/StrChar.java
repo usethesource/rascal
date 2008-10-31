@@ -17,7 +17,7 @@ public abstract class StrChar extends AbstractAST
       return visitor.visitStrCharnewline (this);
     }
   }
-  public class Ambiguity extends StrChar
+  static public class Ambiguity extends StrChar
   {
     private final java.util.List < StrChar > alternatives;
     public Ambiguity (java.util.List < StrChar > alternatives)

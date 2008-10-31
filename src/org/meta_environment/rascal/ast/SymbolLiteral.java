@@ -6,7 +6,7 @@ public abstract class SymbolLiteral extends AbstractAST
   {
     /* "#" Name -> SymbolLiteral  */
   }
-  public class Ambiguity extends SymbolLiteral
+  static public class Ambiguity extends SymbolLiteral
   {
     private final java.util.List < SymbolLiteral > alternatives;
     public Ambiguity (java.util.List < SymbolLiteral > alternatives)

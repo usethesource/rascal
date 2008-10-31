@@ -17,7 +17,7 @@ public abstract class Label extends AbstractAST
       return visitor.visitLabelEmpty (this);
     }
   }
-  public class Ambiguity extends Label
+  static public class Ambiguity extends Label
   {
     private final java.util.List < Label > alternatives;
     public Ambiguity (java.util.List < Label > alternatives)

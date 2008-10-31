@@ -5,7 +5,7 @@ public abstract class Sort extends AbstractAST
   static public class Lexical extends Sort
   {
     /* head:[A-Z] -> Sort  */
-  } public class Ambiguity extends Sort
+  } static public class Ambiguity extends Sort
   {
     private final java.util.List < Sort > alternatives;
     public Ambiguity (java.util.List < Sort > alternatives)

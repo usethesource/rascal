@@ -6,7 +6,7 @@ public abstract class Name extends AbstractAST
   {
     /* [\\]? [A-Za-z\_] [A-Za-z0-9\_\-]* -> Name  */
   }
-  public class Ambiguity extends Name
+  static public class Ambiguity extends Name
   {
     private final java.util.List < Name > alternatives;
     public Ambiguity (java.util.List < Name > alternatives)

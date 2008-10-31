@@ -6,7 +6,7 @@ public abstract class NamedBackslash extends AbstractAST
   {
     /* [\\] -> NamedBackslash  */
   }
-  public class Ambiguity extends NamedBackslash
+  static public class Ambiguity extends NamedBackslash
   {
     private final java.util.List < NamedBackslash > alternatives;
     public Ambiguity (java.util.List < NamedBackslash > alternatives)

@@ -17,7 +17,7 @@ public abstract class FunctionModifier extends AbstractAST
       return visitor.visitFunctionModifierJava (this);
     }
   }
-  public class Ambiguity extends FunctionModifier
+  static public class Ambiguity extends FunctionModifier
   {
     private final java.util.List < FunctionModifier > alternatives;
     public Ambiguity (java.util.List < FunctionModifier > alternatives)

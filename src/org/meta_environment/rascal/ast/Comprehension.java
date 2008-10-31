@@ -50,7 +50,7 @@ public abstract class Comprehension extends AbstractAST
       return z;
     }
   }
-  public class Ambiguity extends Comprehension
+  static public class Ambiguity extends Comprehension
   {
     private final java.util.List < Comprehension > alternatives;
     public Ambiguity (java.util.List < Comprehension > alternatives)

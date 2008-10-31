@@ -17,7 +17,7 @@ public abstract class IntegerLiteral extends AbstractAST
       return visitor.visitIntegerLiteralDecimalIntegerLiteral (this);
     }
   }
-  public class Ambiguity extends IntegerLiteral
+  static public class Ambiguity extends IntegerLiteral
   {
     private final java.util.List < IntegerLiteral > alternatives;
     public Ambiguity (java.util.List < IntegerLiteral > alternatives)

@@ -6,7 +6,7 @@ public abstract class UnicodeEscape extends AbstractAST
   {
     /* "\\" [u]+ [0-9a-fA-F] [0-9a-fA-F] [0-9a-fA-F] [0-9a-fA-F] -> UnicodeEscape  */
   }
-  public class Ambiguity extends UnicodeEscape
+  static public class Ambiguity extends UnicodeEscape
   {
     private final java.util.List < UnicodeEscape > alternatives;
     public Ambiguity (java.util.List < UnicodeEscape > alternatives)

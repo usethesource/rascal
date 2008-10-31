@@ -33,7 +33,7 @@ public abstract class QualifiedName extends AbstractAST
       return z;
     }
   }
-  public class Ambiguity extends QualifiedName
+  static public class Ambiguity extends QualifiedName
   {
     private final java.util.List < QualifiedName > alternatives;
     public Ambiguity (java.util.List < QualifiedName > alternatives)

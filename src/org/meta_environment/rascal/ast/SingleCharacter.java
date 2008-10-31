@@ -5,7 +5,7 @@ public abstract class SingleCharacter extends AbstractAST
   static public class Lexical extends SingleCharacter
   {
     /* UnicodeEscape -> SingleCharacter  */
-  } public class Ambiguity extends SingleCharacter
+  } static public class Ambiguity extends SingleCharacter
   {
     private final java.util.List < SingleCharacter > alternatives;
     public Ambiguity (java.util.List < SingleCharacter > alternatives)

@@ -49,7 +49,7 @@ public abstract class Rule extends AbstractAST
       return z;
     }
   }
-  public class Ambiguity extends Rule
+  static public class Ambiguity extends Rule
   {
     private final java.util.List < Rule > alternatives;
     public Ambiguity (java.util.List < Rule > alternatives)

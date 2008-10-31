@@ -50,7 +50,7 @@ public abstract class ValueProducer extends AbstractAST
       return z;
     }
   }
-  public class Ambiguity extends ValueProducer
+  static public class Ambiguity extends ValueProducer
   {
     private final java.util.List < ValueProducer > alternatives;
     public Ambiguity (java.util.List < ValueProducer > alternatives)

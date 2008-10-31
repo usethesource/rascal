@@ -5,7 +5,7 @@ public abstract class EscapeSequence extends AbstractAST
   static public class Lexical extends EscapeSequence
   {
     /* "\\" [0-7] -> EscapeSequence  */
-  } public class Ambiguity extends EscapeSequence
+  } static public class Ambiguity extends EscapeSequence
   {
     private final java.util.List < EscapeSequence > alternatives;
     public Ambiguity (java.util.List < EscapeSequence > alternatives)

@@ -17,7 +17,7 @@ public abstract class LongLiteral extends AbstractAST
       return visitor.visitLongLiteralDecimalLongLiteral (this);
     }
   }
-  public class Ambiguity extends LongLiteral
+  static public class Ambiguity extends LongLiteral
   {
     private final java.util.List < LongLiteral > alternatives;
     public Ambiguity (java.util.List < LongLiteral > alternatives)

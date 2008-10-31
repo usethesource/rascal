@@ -17,7 +17,7 @@ public abstract class Assignment extends AbstractAST
       return visitor.visitAssignmentDefault (this);
     }
   }
-  public class Ambiguity extends Assignment
+  static public class Ambiguity extends Assignment
   {
     private final java.util.List < Assignment > alternatives;
     public Ambiguity (java.util.List < Assignment > alternatives)

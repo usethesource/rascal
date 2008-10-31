@@ -17,7 +17,7 @@ public abstract class Visibility extends AbstractAST
       return visitor.visitVisibilityPublic (this);
     }
   }
-  public class Ambiguity extends Visibility
+  static public class Ambiguity extends Visibility
   {
     private final java.util.List < Visibility > alternatives;
     public Ambiguity (java.util.List < Visibility > alternatives)

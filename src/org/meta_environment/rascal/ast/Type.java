@@ -33,7 +33,7 @@ public abstract class Type extends AbstractAST
       return z;
     }
   }
-  public class Ambiguity extends Type
+  static public class Ambiguity extends Type
   {
     private final java.util.List < Type > alternatives;
     public Ambiguity (java.util.List < Type > alternatives)

@@ -33,7 +33,7 @@ public abstract class Body extends AbstractAST
       return z;
     }
   }
-  public class Ambiguity extends Body
+  static public class Ambiguity extends Body
   {
     private final java.util.List < Body > alternatives;
     public Ambiguity (java.util.List < Body > alternatives)

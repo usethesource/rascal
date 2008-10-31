@@ -33,7 +33,7 @@ public abstract class ModuleParameters extends AbstractAST
       return z;
     }
   }
-  public class Ambiguity extends ModuleParameters
+  static public class Ambiguity extends ModuleParameters
   {
     private final java.util.List < ModuleParameters > alternatives;
     public Ambiguity (java.util.List < ModuleParameters > alternatives)

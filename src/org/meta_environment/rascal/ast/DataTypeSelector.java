@@ -49,7 +49,7 @@ public abstract class DataTypeSelector extends AbstractAST
       return z;
     }
   }
-  public class Ambiguity extends DataTypeSelector
+  static public class Ambiguity extends DataTypeSelector
   {
     private final java.util.List < DataTypeSelector > alternatives;
     public Ambiguity (java.util.List < DataTypeSelector > alternatives)

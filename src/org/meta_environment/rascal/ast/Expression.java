@@ -50,7 +50,7 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public class Ambiguity extends Expression
+  static public class Ambiguity extends Expression
   {
     private final java.util.List < Expression > alternatives;
     public Ambiguity (java.util.List < Expression > alternatives)

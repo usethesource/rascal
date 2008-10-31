@@ -6,7 +6,7 @@ public abstract class NoElseMayFollow extends AbstractAST
   {
     /*  -> NoElseMayFollow  */
   }
-  public class Ambiguity extends NoElseMayFollow
+  static public class Ambiguity extends NoElseMayFollow
   {
     private final java.util.List < NoElseMayFollow > alternatives;
     public Ambiguity (java.util.List < NoElseMayFollow > alternatives)

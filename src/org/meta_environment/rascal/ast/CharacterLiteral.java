@@ -5,7 +5,7 @@ public abstract class CharacterLiteral extends AbstractAST
   static public class Lexical extends CharacterLiteral
   {
     /* "'" SingleCharacter "'" -> CharacterLiteral  */
-  } public class Ambiguity extends CharacterLiteral
+  } static public class Ambiguity extends CharacterLiteral
   {
     private final java.util.List < CharacterLiteral > alternatives;
     public Ambiguity (java.util.List < CharacterLiteral > alternatives)

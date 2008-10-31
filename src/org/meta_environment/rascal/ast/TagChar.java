@@ -5,7 +5,7 @@ public abstract class TagChar extends AbstractAST
   static public class Lexical extends TagChar
   {
     /* ~[\}] -> TagChar  */
-  } public class Ambiguity extends TagChar
+  } static public class Ambiguity extends TagChar
   {
     private final java.util.List < TagChar > alternatives;
     public Ambiguity (java.util.List < TagChar > alternatives)

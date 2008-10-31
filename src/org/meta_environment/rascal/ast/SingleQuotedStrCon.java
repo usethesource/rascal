@@ -6,7 +6,7 @@ public abstract class SingleQuotedStrCon extends AbstractAST
   {
     /* [\'] chars:SingleQuotedStrChar* [\'] -> SingleQuotedStrCon  */
   }
-  public class Ambiguity extends SingleQuotedStrCon
+  static public class Ambiguity extends SingleQuotedStrCon
   {
     private final java.util.List < SingleQuotedStrCon > alternatives;
     public Ambiguity (java.util.List < SingleQuotedStrCon > alternatives)

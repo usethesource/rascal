@@ -6,7 +6,7 @@ public abstract class ModuleWord extends AbstractAST
   {
     /* letters:[A-Za-z0-9\_\-]+ -> ModuleWord  */
   }
-  public class Ambiguity extends ModuleWord
+  static public class Ambiguity extends ModuleWord
   {
     private final java.util.List < ModuleWord > alternatives;
     public Ambiguity (java.util.List < ModuleWord > alternatives)

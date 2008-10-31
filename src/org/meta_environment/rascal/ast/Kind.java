@@ -17,7 +17,7 @@ public abstract class Kind extends AbstractAST
       return visitor.visitKindModule (this);
     }
   }
-  public class Ambiguity extends Kind
+  static public class Ambiguity extends Kind
   {
     private final java.util.List < Kind > alternatives;
     public Ambiguity (java.util.List < Kind > alternatives)

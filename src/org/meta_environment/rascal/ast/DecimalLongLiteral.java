@@ -5,7 +5,7 @@ public abstract class DecimalLongLiteral extends AbstractAST
   static public class Lexical extends DecimalLongLiteral
   {
     /* "0" [lL] -> DecimalLongLiteral  */
-  } public class Ambiguity extends DecimalLongLiteral
+  } static public class Ambiguity extends DecimalLongLiteral
   {
     private final java.util.List < DecimalLongLiteral > alternatives;
     public Ambiguity (java.util.List < DecimalLongLiteral > alternatives)

@@ -33,7 +33,7 @@ public abstract class LocalVariableDeclaration extends AbstractAST
       return z;
     }
   }
-  public class Ambiguity extends LocalVariableDeclaration
+  static public class Ambiguity extends LocalVariableDeclaration
   {
     private final java.util.List < LocalVariableDeclaration > alternatives;
     public Ambiguity (java.util.List < LocalVariableDeclaration >

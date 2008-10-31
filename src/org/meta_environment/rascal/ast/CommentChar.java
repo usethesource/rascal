@@ -5,7 +5,7 @@ public abstract class CommentChar extends AbstractAST
   static public class Lexical extends CommentChar
   {
     /* ~[\*] -> CommentChar  */
-  } public class Ambiguity extends CommentChar
+  } static public class Ambiguity extends CommentChar
   {
     private final java.util.List < CommentChar > alternatives;
     public Ambiguity (java.util.List < CommentChar > alternatives)

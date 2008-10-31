@@ -6,7 +6,7 @@ public abstract class RegExpLiteral extends AbstractAST
   {
     /* "/" RegExp* "/" RegExpModifier? -> RegExpLiteral  */
   }
-  public class Ambiguity extends RegExpLiteral
+  static public class Ambiguity extends RegExpLiteral
   {
     private final java.util.List < RegExpLiteral > alternatives;
     public Ambiguity (java.util.List < RegExpLiteral > alternatives)

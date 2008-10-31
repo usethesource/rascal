@@ -17,7 +17,7 @@ public abstract class Strategy extends AbstractAST
       return visitor.visitStrategyTopDown (this);
     }
   }
-  public class Ambiguity extends Strategy
+  static public class Ambiguity extends Strategy
   {
     private final java.util.List < Strategy > alternatives;
     public Ambiguity (java.util.List < Strategy > alternatives)
