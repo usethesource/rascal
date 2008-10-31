@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Declarator extends AbstractAST
 {
-  public class Default extends Declarator
+  static public class Default extends Declarator
   {
 /* type:Type variables:{Variable ","}+ -> Declarator {cons("Default")} */
     private Default ()

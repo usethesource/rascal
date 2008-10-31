@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Tags extends AbstractAST
 {
-  public class Default extends Tags
+  static public class Default extends Tags
   {
 /* annotations:Tag* -> Tags {cons("Default")} */
     private Default ()

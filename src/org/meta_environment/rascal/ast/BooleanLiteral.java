@@ -2,11 +2,10 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class BooleanLiteral extends AbstractAST
 {
-  public class Lexical extends BooleanLiteral
+  static public class Lexical extends BooleanLiteral
   {
     /* "true" -> BooleanLiteral  */
-  }
-  public class Ambiguity extends BooleanLiteral
+  } public class Ambiguity extends BooleanLiteral
   {
     private final java.util.List < BooleanLiteral > alternatives;
     public Ambiguity (java.util.List < BooleanLiteral > alternatives)

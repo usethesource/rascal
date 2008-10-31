@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class CharRange extends AbstractAST
 {
-  public class Character extends CharRange
+  static public class Character extends CharRange
   {
 /* character:Character -> CharRange {cons("Character")} */
     private Character ()
@@ -46,7 +46,7 @@ public abstract class CharRange extends AbstractAST
       return alternatives;
     }
   }
-  public class Range extends CharRange
+  static public class Range extends CharRange
   {
 /* start:Character "-" end:Character -> CharRange {cons("Range")} */
     private Range ()

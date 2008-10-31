@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Alternative extends AbstractAST
 {
-  public class NamedType extends Alternative
+  static public class NamedType extends Alternative
   {
 /* name:Name type:Type -> Alternative {cons("NamedType")} */
     private NamedType ()

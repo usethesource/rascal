@@ -2,11 +2,10 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class StringCharacter extends AbstractAST
 {
-  public class Lexical extends StringCharacter
+  static public class Lexical extends StringCharacter
   {
     /* UnicodeEscape -> StringCharacter  */
-  }
-  public class Ambiguity extends StringCharacter
+  } public class Ambiguity extends StringCharacter
   {
     private final java.util.List < StringCharacter > alternatives;
     public Ambiguity (java.util.List < StringCharacter > alternatives)

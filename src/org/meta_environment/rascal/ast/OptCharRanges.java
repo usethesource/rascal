@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class OptCharRanges extends AbstractAST
 {
-  public class Absent extends OptCharRanges
+  static public class Absent extends OptCharRanges
   {
 /*  -> OptCharRanges {cons("Absent")} */
     private Absent ()
@@ -30,7 +30,7 @@ public abstract class OptCharRanges extends AbstractAST
       return alternatives;
     }
   }
-  public class Present extends OptCharRanges
+  static public class Present extends OptCharRanges
   {
 /* ranges:CharRanges -> OptCharRanges {cons("Present")} */
     private Present ()

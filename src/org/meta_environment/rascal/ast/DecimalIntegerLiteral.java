@@ -2,11 +2,10 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class DecimalIntegerLiteral extends AbstractAST
 {
-  public class Lexical extends DecimalIntegerLiteral
+  static public class Lexical extends DecimalIntegerLiteral
   {
     /* "0" -> DecimalIntegerLiteral  */
-  }
-  public class Ambiguity extends DecimalIntegerLiteral
+  } public class Ambiguity extends DecimalIntegerLiteral
   {
     private final java.util.List < DecimalIntegerLiteral > alternatives;
     public Ambiguity (java.util.List < DecimalIntegerLiteral > alternatives)

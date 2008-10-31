@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class StrCon extends AbstractAST
 {
-  public class Lexical extends StrCon
+  static public class Lexical extends StrCon
   {
     /* [\"] chars:StrChar* [\"] -> StrCon  */
   }

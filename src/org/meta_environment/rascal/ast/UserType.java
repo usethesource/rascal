@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class UserType extends AbstractAST
 {
-  public class Name extends UserType
+  static public class Name extends UserType
   {
 /* name:Name -> UserType {prefer, cons("Name")} */
     private Name ()
@@ -46,7 +46,7 @@ public abstract class UserType extends AbstractAST
       return alternatives;
     }
   }
-  public class Parametric extends UserType
+  static public class Parametric extends UserType
   {
 /* name:Name "[" parameters:{TypeVar ","}+ "]" -> UserType {cons("Parametric")} */
     private Parametric ()

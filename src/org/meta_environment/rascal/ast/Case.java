@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Case extends AbstractAST
 {
-  public class Rule extends Case
+  static public class Rule extends Case
   {
 /* "case" rule:Rule -> Case {cons("Rule")} */
     private Rule ()
@@ -46,7 +46,7 @@ public abstract class Case extends AbstractAST
       return alternatives;
     }
   }
-  public class Default extends Case
+  static public class Default extends Case
   {
 /* "default" ":" statement:Statement -> Case {cons("Default")} */
     private Default ()

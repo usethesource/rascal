@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class ModuleWord extends AbstractAST
 {
-  public class Lexical extends ModuleWord
+  static public class Lexical extends ModuleWord
   {
     /* letters:[A-Za-z0-9\_\-]+ -> ModuleWord  */
   }

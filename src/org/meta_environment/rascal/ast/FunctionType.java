@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class FunctionType extends AbstractAST
 {
-  public class TypeArguments extends FunctionType
+  static public class TypeArguments extends FunctionType
   {
 /* type:Type "(" arguments:{TypeArg ","}* ")" -> FunctionType {cons("TypeArguments")} */
     private TypeArguments ()

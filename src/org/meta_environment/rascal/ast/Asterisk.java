@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Asterisk extends AbstractAST
 {
-  public class Lexical extends Asterisk
+  static public class Lexical extends Asterisk
   {
     /* [\*] -> Asterisk  */
   }

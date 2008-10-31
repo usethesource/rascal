@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Catch extends AbstractAST
 {
-  public class Default extends Catch
+  static public class Default extends Catch
   {
 /* "catch" body:Statement -> Catch {cons("Default")} */
     private Default ()
@@ -46,7 +46,7 @@ public abstract class Catch extends AbstractAST
       return alternatives;
     }
   }
-  public class Binding extends Catch
+  static public class Binding extends Catch
   {
 /* "catch" "(" type:Type name:Name ")" body:Statement -> Catch {cons("Binding")} */
     private Binding ()

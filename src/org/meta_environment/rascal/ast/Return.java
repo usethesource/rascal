@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Return extends AbstractAST
 {
-  public class WithExpression extends Return
+  static public class WithExpression extends Return
   {
 /* "return" expression:Expression ";" -> Return {cons("WithExpression")} */
     private WithExpression ()
@@ -46,7 +46,7 @@ public abstract class Return extends AbstractAST
       return alternatives;
     }
   }
-  public class NoExpression extends Return
+  static public class NoExpression extends Return
   {
 /* "return" ";" -> Return {cons("NoExpression")} */
     private NoExpression ()

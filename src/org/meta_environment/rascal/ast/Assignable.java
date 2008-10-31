@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Assignable extends AbstractAST
 {
-  public class Variable extends Assignable
+  static public class Variable extends Assignable
   {
 /* qualifiedName:QualifiedName -> Assignable {cons("Variable")} */
     private Variable ()
@@ -46,7 +46,7 @@ public abstract class Assignable extends AbstractAST
       return alternatives;
     }
   }
-  public class Subscript extends Assignable
+  static public class Subscript extends Assignable
   {
 /* receiver:Assignable "[" subscript:Expression "]" -> Assignable {cons("Subscript")} */
     private Subscript ()
@@ -94,7 +94,7 @@ public abstract class Assignable extends AbstractAST
       return z;
     }
   }
-  public class FieldAccess extends Assignable
+  static public class FieldAccess extends Assignable
   {
 /* receiver:Assignable "." field:Name -> Assignable {cons("FieldAccess")} */
     private FieldAccess ()
@@ -141,7 +141,7 @@ public abstract class Assignable extends AbstractAST
       return z;
     }
   }
-  public class IfDefined extends Assignable
+  static public class IfDefined extends Assignable
   {
 /* receiver:Assignable "?" condition:Expression -> Assignable {cons("IfDefined")} */
     private IfDefined ()
@@ -189,7 +189,7 @@ public abstract class Assignable extends AbstractAST
       return z;
     }
   }
-  public class Annotation extends Assignable
+  static public class Annotation extends Assignable
   {
 /* receiver:Assignable "@" annotation:Expression -> Assignable {cons("Annotation")} */
     private Annotation ()
@@ -237,7 +237,7 @@ public abstract class Assignable extends AbstractAST
       return z;
     }
   }
-  public class Tuple extends Assignable
+  static public class Tuple extends Assignable
   {
 /* "<" first:Assignable "," rest:{Assignable ","}+ ">" -> Assignable {cons("Tuple")} */
     private Tuple ()
@@ -285,7 +285,7 @@ public abstract class Assignable extends AbstractAST
       return z;
     }
   }
-  public class Constructor extends Assignable
+  static public class Constructor extends Assignable
   {
 /* name:Name "(" arguments:{Assignable ","}+ ")" -> Assignable {cons("Constructor")} */
     private Constructor ()

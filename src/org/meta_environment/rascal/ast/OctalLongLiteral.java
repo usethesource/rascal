@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class OctalLongLiteral extends AbstractAST
 {
-  public class Lexical extends OctalLongLiteral
+  static public class Lexical extends OctalLongLiteral
   {
     /* [0] [0-7]+ [lL] -> OctalLongLiteral  */
   }

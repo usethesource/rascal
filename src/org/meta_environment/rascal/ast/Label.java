@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Label extends AbstractAST
 {
-  public class Empty extends Label
+  static public class Empty extends Label
   {
 /*  -> Label {cons("Empty")} */
     private Empty ()
@@ -30,7 +30,7 @@ public abstract class Label extends AbstractAST
       return alternatives;
     }
   }
-  public class Default extends Label
+  static public class Default extends Label
   {
 /* name:Name ":" -> Label {cons("Default")} */
     private Default ()

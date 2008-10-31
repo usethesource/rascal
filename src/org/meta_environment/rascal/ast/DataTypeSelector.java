@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class DataTypeSelector extends AbstractAST
 {
-  public class Selector extends DataTypeSelector
+  static public class Selector extends DataTypeSelector
   {
 /* sort:Name "." production:Name -> DataTypeSelector {cons("Selector")} */
     private Selector ()

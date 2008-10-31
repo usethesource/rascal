@@ -2,11 +2,10 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class RegExp extends AbstractAST
 {
-  public class Lexical extends RegExp
+  static public class Lexical extends RegExp
   {
     /* Backslash -> RegExp  */
-  }
-  public class Ambiguity extends RegExp
+  } public class Ambiguity extends RegExp
   {
     private final java.util.List < RegExp > alternatives;
     public Ambiguity (java.util.List < RegExp > alternatives)

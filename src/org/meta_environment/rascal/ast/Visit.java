@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Visit extends AbstractAST
 {
-  public class DefaultStrategy extends Visit
+  static public class DefaultStrategy extends Visit
   {
 /* "visit" "(" subject:Expression ")" "{" cases:Case+ "}" -> Visit {cons("DefaultStrategy")} */
     private DefaultStrategy ()
@@ -63,7 +63,7 @@ public abstract class Visit extends AbstractAST
       return alternatives;
     }
   }
-  public class GivenStrategy extends Visit
+  static public class GivenStrategy extends Visit
   {
 /* strategy:Strategy "visit" "(" subject:Expression ")" "{" cases:Case+ "}" -> Visit {cons("GivenStrategy")} */
     private GivenStrategy ()

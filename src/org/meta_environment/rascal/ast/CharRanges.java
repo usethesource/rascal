@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class CharRanges extends AbstractAST
 {
-  public class Range extends CharRanges
+  static public class Range extends CharRanges
   {
 /* range:CharRange -> CharRanges {cons("Range")} */
     private Range ()
@@ -46,7 +46,7 @@ public abstract class CharRanges extends AbstractAST
       return alternatives;
     }
   }
-  public class Concatenate extends CharRanges
+  static public class Concatenate extends CharRanges
   {
 /* lhs:CharRanges rhs:CharRanges -> CharRanges {cons("Concatenate"), right, memo} */
     private Concatenate ()
@@ -93,7 +93,7 @@ public abstract class CharRanges extends AbstractAST
       return z;
     }
   }
-  public class Bracket extends CharRanges
+  static public class Bracket extends CharRanges
   {
 /* "(" CharRanges ")" -> CharRanges {bracket} */
     private Bracket ()

@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Assignment extends AbstractAST
 {
-  public class Default extends Assignment
+  static public class Default extends Assignment
   {
 /* "=" -> Assignment {cons("Default")} */
     private Default ()
@@ -30,7 +30,7 @@ public abstract class Assignment extends AbstractAST
       return alternatives;
     }
   }
-  public class Addition extends Assignment
+  static public class Addition extends Assignment
   {
 /* "+=" -> Assignment {cons("Addition")} */
     private Addition ()
@@ -45,7 +45,7 @@ public abstract class Assignment extends AbstractAST
       return visitor.visitAssignmentAddition (this);
     }
   }
-  public class Substraction extends Assignment
+  static public class Substraction extends Assignment
   {
 /* "-=" -> Assignment {cons("Substraction")} */
     private Substraction ()
@@ -60,7 +60,7 @@ public abstract class Assignment extends AbstractAST
       return visitor.visitAssignmentSubstraction (this);
     }
   }
-  public class Product extends Assignment
+  static public class Product extends Assignment
   {
 /* "*=" -> Assignment {cons("Product")} */
     private Product ()
@@ -75,7 +75,7 @@ public abstract class Assignment extends AbstractAST
       return visitor.visitAssignmentProduct (this);
     }
   }
-  public class Division extends Assignment
+  static public class Division extends Assignment
   {
 /* "/=" -> Assignment {cons("Division")} */
     private Division ()
@@ -90,7 +90,7 @@ public abstract class Assignment extends AbstractAST
       return visitor.visitAssignmentDivision (this);
     }
   }
-  public class Interesection extends Assignment
+  static public class Interesection extends Assignment
   {
 /* "&=" -> Assignment {cons("Interesection")} */
     private Interesection ()

@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class TypeArg extends AbstractAST
 {
-  public class Default extends TypeArg
+  static public class Default extends TypeArg
   {
 /* type:Type -> TypeArg {cons("Default")} */
     private Default ()
@@ -46,7 +46,7 @@ public abstract class TypeArg extends AbstractAST
       return alternatives;
     }
   }
-  public class Named extends TypeArg
+  static public class Named extends TypeArg
   {
 /* type:Type name:Name -> TypeArg {cons("Named")} */
     private Named ()

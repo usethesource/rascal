@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Kind extends AbstractAST
 {
-  public class Module extends Kind
+  static public class Module extends Kind
   {
 /* "module" -> Kind {cons("Module")} */
     private Module ()
@@ -30,7 +30,7 @@ public abstract class Kind extends AbstractAST
       return alternatives;
     }
   }
-  public class Function extends Kind
+  static public class Function extends Kind
   {
 /* "function" -> Kind {cons("Function")} */
     private Function ()
@@ -45,7 +45,7 @@ public abstract class Kind extends AbstractAST
       return visitor.visitKindFunction (this);
     }
   }
-  public class Variable extends Kind
+  static public class Variable extends Kind
   {
 /* "variable" -> Kind {cons("Variable")} */
     private Variable ()
@@ -60,7 +60,7 @@ public abstract class Kind extends AbstractAST
       return visitor.visitKindVariable (this);
     }
   }
-  public class Data extends Kind
+  static public class Data extends Kind
   {
 /* "data" -> Kind {cons("Data")} */
     private Data ()
@@ -75,7 +75,7 @@ public abstract class Kind extends AbstractAST
       return visitor.visitKindData (this);
     }
   }
-  public class View extends Kind
+  static public class View extends Kind
   {
 /* "view" -> Kind {cons("View")} */
     private View ()
@@ -90,7 +90,7 @@ public abstract class Kind extends AbstractAST
       return visitor.visitKindView (this);
     }
   }
-  public class Type extends Kind
+  static public class Type extends Kind
   {
 /* "type" -> Kind {cons("Type")} */
     private Type ()
@@ -105,7 +105,7 @@ public abstract class Kind extends AbstractAST
       return visitor.visitKindType (this);
     }
   }
-  public class Anno extends Kind
+  static public class Anno extends Kind
   {
 /* "anno" -> Kind {cons("Anno")} */
     private Anno ()
@@ -120,7 +120,7 @@ public abstract class Kind extends AbstractAST
       return visitor.visitKindAnno (this);
     }
   }
-  public class Tag extends Kind
+  static public class Tag extends Kind
   {
 /* "tag" -> Kind {cons("Tag")} */
     private Tag ()
@@ -135,7 +135,7 @@ public abstract class Kind extends AbstractAST
       return visitor.visitKindTag (this);
     }
   }
-  public class All extends Kind
+  static public class All extends Kind
   {
 /* "all" -> Kind {cons("All")} */
     private All ()

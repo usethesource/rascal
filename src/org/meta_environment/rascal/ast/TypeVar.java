@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class TypeVar extends AbstractAST
 {
-  public class Free extends TypeVar
+  static public class Free extends TypeVar
   {
 /* "&" name:Name -> TypeVar {cons("Free")} */
     private Free ()
@@ -46,7 +46,7 @@ public abstract class TypeVar extends AbstractAST
       return alternatives;
     }
   }
-  public class Bounded extends TypeVar
+  static public class Bounded extends TypeVar
   {
 /* "&" name:Name "<:" bound:Type -> TypeVar {cons("Bounded")} */
     private Bounded ()

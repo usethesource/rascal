@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class FunctionBody extends AbstractAST
 {
-  public class Default extends FunctionBody
+  static public class Default extends FunctionBody
   {
 /* "{" statements:Statement* "}" -> FunctionBody {cons("Default")} */
     private Default ()

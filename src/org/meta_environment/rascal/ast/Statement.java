@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Statement extends AbstractAST
 {
-  public class Solve extends Statement
+  static public class Solve extends Statement
   {
 /* "with" declarations:{Declarator ";"}+ ";" "solve" body:Statement -> Statement {cons("Solve")} */
     private Solve ()
@@ -64,7 +64,7 @@ public abstract class Statement extends AbstractAST
       return alternatives;
     }
   }
-  public class For extends Statement
+  static public class For extends Statement
   {
 /* label:Label "for" "(" generators:{Generator ","}+ ")" body:Statement -> Statement {cons("For")} */
     private For ()
@@ -128,7 +128,7 @@ public abstract class Statement extends AbstractAST
       return z;
     }
   }
-  public class While extends Statement
+  static public class While extends Statement
   {
 /* label:Label "while" "(" condition:Expression ")" body:Statement -> Statement {cons("While")} */
     private While ()
@@ -192,7 +192,7 @@ public abstract class Statement extends AbstractAST
       return z;
     }
   }
-  public class DoWhile extends Statement
+  static public class DoWhile extends Statement
   {
 /* label:Label "do" body:Statement "while" "(" condition:Expression ")" ";" -> Statement {cons("DoWhile")} */
     private DoWhile ()
@@ -256,7 +256,7 @@ public abstract class Statement extends AbstractAST
       return z;
     }
   }
-  public class IfThenElse extends Statement
+  static public class IfThenElse extends Statement
   {
 /* label:Label "if" "(" conditions:{Expression ","}+ ")" thenStatement:Statement "else" elseStatement:Statement -> Statement {cons("IfThenElse")} */
     private IfThenElse ()
@@ -337,7 +337,7 @@ public abstract class Statement extends AbstractAST
       return z;
     }
   }
-  public class IfThen extends Statement
+  static public class IfThen extends Statement
   {
 /* label:Label "if" "(" conditions:{Expression ","}+ ")" thenStatement:Statement NoElseMayFollow -> Statement {cons("IfThen")} */
     private IfThen ()
@@ -402,7 +402,7 @@ public abstract class Statement extends AbstractAST
       return z;
     }
   }
-  public class Switch extends Statement
+  static public class Switch extends Statement
   {
 /* label:Label "switch" "(" expression:Expression ")" "{" cases:Case+ "}" -> Statement {cons("Switch")} */
     private Switch ()
@@ -466,7 +466,7 @@ public abstract class Statement extends AbstractAST
       return z;
     }
   }
-  public class All extends Statement
+  static public class All extends Statement
   {
 /* label:Label "all" "(" conditions:{Expression ","}+ ")" body:Statement -> Statement {cons("All")} */
     private All ()
@@ -531,7 +531,7 @@ public abstract class Statement extends AbstractAST
       return z;
     }
   }
-  public class First extends Statement
+  static public class First extends Statement
   {
 /* label:Label "first" "(" conditions:{Expression ","}+ ")" body:Statement -> Statement {cons("First")} */
     private First ()
@@ -596,7 +596,7 @@ public abstract class Statement extends AbstractAST
       return z;
     }
   }
-  public class Expression extends Statement
+  static public class Expression extends Statement
   {
 /* expression:Expression ";" -> Statement {cons("Expression")} */
     private Expression ()
@@ -627,7 +627,7 @@ public abstract class Statement extends AbstractAST
       return z;
     }
   }
-  public class Visit extends Statement
+  static public class Visit extends Statement
   {
 /* visit:Visit -> Statement {cons("Visit")} */
     private Visit ()
@@ -658,7 +658,7 @@ public abstract class Statement extends AbstractAST
       return z;
     }
   }
-  public class Assignment extends Statement
+  static public class Assignment extends Statement
   {
 /* assignables:{Assignable ","}+ operator:Assignment expressions:{Expression ","}+ ";" -> Statement {cons("Assignment")} */
     private Assignment ()
@@ -724,7 +724,7 @@ public abstract class Statement extends AbstractAST
       return z;
     }
   }
-  public class Break extends Statement
+  static public class Break extends Statement
   {
 /* Break -> Statement {cons("Break")} */
     private Break ()
@@ -739,7 +739,7 @@ public abstract class Statement extends AbstractAST
       return visitor.visitStatementBreak (this);
     }
   }
-  public class Fail extends Statement
+  static public class Fail extends Statement
   {
 /* Fail -> Statement {cons("Fail")} */
     private Fail ()
@@ -754,7 +754,7 @@ public abstract class Statement extends AbstractAST
       return visitor.visitStatementFail (this);
     }
   }
-  public class Return extends Statement
+  static public class Return extends Statement
   {
 /* Return -> Statement {cons("Return")} */
     private Return ()
@@ -769,7 +769,7 @@ public abstract class Statement extends AbstractAST
       return visitor.visitStatementReturn (this);
     }
   }
-  public class Continue extends Statement
+  static public class Continue extends Statement
   {
 /* "continue" ";" -> Statement {cons("Continue")} */
     private Continue ()
@@ -784,7 +784,7 @@ public abstract class Statement extends AbstractAST
       return visitor.visitStatementContinue (this);
     }
   }
-  public class Assert extends Statement
+  static public class Assert extends Statement
   {
 /* "assert" label:StringLiteral ":" expression:Expression ";" -> Statement {cons("Assert")} */
     private Assert ()
@@ -832,7 +832,7 @@ public abstract class Statement extends AbstractAST
       return z;
     }
   }
-  public class Insert extends Statement
+  static public class Insert extends Statement
   {
 /* "insert" expression:Expression ";" -> Statement {cons("Insert")} */
     private Insert ()
@@ -863,7 +863,7 @@ public abstract class Statement extends AbstractAST
       return z;
     }
   }
-  public class Throw extends Statement
+  static public class Throw extends Statement
   {
 /* "throw" expression:Expression ";" -> Statement {cons("Throw")} */
     private Throw ()
@@ -894,7 +894,7 @@ public abstract class Statement extends AbstractAST
       return z;
     }
   }
-  public class Try extends Statement
+  static public class Try extends Statement
   {
 /* "try" body:Statement handlers:Catch+ -> Statement {non-assoc, cons("Try")} */
     private Try ()
@@ -942,7 +942,7 @@ public abstract class Statement extends AbstractAST
       return z;
     }
   }
-  public class TryFinally extends Statement
+  static public class TryFinally extends Statement
   {
 /* "try" body:Statement handlers:Catch+ "finally" finallyBody:Statement -> Statement {cons("TryFinally")} */
     private TryFinally ()
@@ -1007,7 +1007,7 @@ public abstract class Statement extends AbstractAST
       return z;
     }
   }
-  public class Block extends Statement
+  static public class Block extends Statement
   {
 /* label:Label "{" statements:Statement* "}" -> Statement {cons("Block")} */
     private Block ()
@@ -1055,7 +1055,7 @@ public abstract class Statement extends AbstractAST
       return z;
     }
   }
-  public class FunctionDeclaration extends Statement
+  static public class FunctionDeclaration extends Statement
   {
 /* functionDeclaration:FunctionDeclaration -> Statement {cons("FunctionDeclaration")} */
     private FunctionDeclaration ()
@@ -1087,7 +1087,7 @@ public abstract class Statement extends AbstractAST
       return z;
     }
   }
-  public class VariableDeclaration extends Statement
+  static public class VariableDeclaration extends Statement
   {
 /* declaration:LocalVariableDeclaration ";" -> Statement {cons("VariableDeclaration")} */
     private VariableDeclaration ()
@@ -1119,7 +1119,7 @@ public abstract class Statement extends AbstractAST
       return z;
     }
   }
-  public class GlobalDirective extends Statement
+  static public class GlobalDirective extends Statement
   {
 /* "global" type:Type names:{QualifiedName ","}+ ";" -> Statement {cons("GlobalDirective")} */
     private GlobalDirective ()

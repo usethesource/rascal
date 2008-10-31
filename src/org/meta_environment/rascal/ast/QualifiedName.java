@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class QualifiedName extends AbstractAST
 {
-  public class Default extends QualifiedName
+  static public class Default extends QualifiedName
   {
 /* names:{Name "::"}+ -> QualifiedName {cons("Default")} */
     private Default ()
