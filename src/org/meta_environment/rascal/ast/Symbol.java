@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.Collections;
 public abstract class Symbol extends AbstractAST
 {
   public class Sort extends Symbol
@@ -39,7 +38,8 @@ public abstract class Symbol extends AbstractAST
     private final java.util.List < Symbol > alternatives;
     public Ambiguity (java.util.List < Symbol > alternatives)
     {
-      this.alternatives = Collections.unmodifiableList (alternatives);
+      this.alternatives =
+	java.util.Collections.unmodifiableList (alternatives);
     }
     public java.util.List < Symbol > getAlternatives ()
     {

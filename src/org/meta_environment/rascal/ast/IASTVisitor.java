@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.Collections;
 public interface IASTVisitor
 {
   public Body visitBodyToplevels (Body.Toplevels x);
@@ -14,9 +13,7 @@ public interface IASTVisitor
   public Expression visitExpressionComprehension (Expression.Comprehension x);
   public Expression visitExpressionNoMatch (Expression.NoMatch x);
   public Expression visitExpressionMatch (Expression.Match x);
-  public Expression visitExpressionTypedVariablePattern (Expression.
-							 TypedVariablePattern
-							 x);
+  public Expression visitExpressionTypedVariable (Expression.TypedVariable x);
   public Expression visitExpressionQualifiedName (Expression.QualifiedName x);
   public Expression visitExpressionAreaInFileLocation (Expression.
 						       AreaInFileLocation x);
@@ -27,8 +24,6 @@ public interface IASTVisitor
   public Expression visitExpressionMapTuple (Expression.MapTuple x);
   public Expression visitExpressionTuple (Expression.Tuple x);
   public Expression visitExpressionSet (Expression.Set x);
-  public Expression visitExpressionStepRange (Expression.StepRange x);
-  public Expression visitExpressionRange (Expression.Range x);
   public Expression visitExpressionList (Expression.List x);
   public Expression visitExpressionCallOrTree (Expression.CallOrTree x);
   public Expression visitExpressionLiteral (Expression.Literal x);
@@ -46,8 +41,8 @@ public interface IASTVisitor
   public Expression visitExpressionGreaterThan (Expression.GreaterThan x);
   public Expression visitExpressionLessThanOrEq (Expression.LessThanOrEq x);
   public Expression visitExpressionLessThan (Expression.LessThan x);
-  public Expression visitExpressionNoMatch (Expression.NoMatch x);
-  public Expression visitExpressionMatch (Expression.Match x);
+  public Expression visitExpressionRegExpNoMatch (Expression.RegExpNoMatch x);
+  public Expression visitExpressionRegExpMatch (Expression.RegExpMatch x);
   public Expression visitExpressionSubstraction (Expression.Substraction x);
   public Expression visitExpressionAddition (Expression.Addition x);
   public Expression visitExpressionDivision (Expression.Division x);
@@ -63,6 +58,8 @@ public interface IASTVisitor
   public Expression visitExpressionSubscript (Expression.Subscript x);
   public Expression visitExpressionFieldAccess (Expression.FieldAccess x);
   public Expression visitExpressionFieldUpdate (Expression.FieldUpdate x);
+  public Expression visitExpressionStepRange (Expression.StepRange x);
+  public Expression visitExpressionRange (Expression.Range x);
   public Expression visitExpressionClosureCall (Expression.ClosureCall x);
   public Expression visitExpressionBracket (Expression.Bracket x);
   public Expression visitExpressionClosure (Expression.Closure x);

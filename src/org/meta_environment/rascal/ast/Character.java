@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.Collections;
 public abstract class Character extends AbstractAST
 {
   public class Numeric extends Character
@@ -39,7 +38,8 @@ public abstract class Character extends AbstractAST
     private final java.util.List < Character > alternatives;
     public Ambiguity (java.util.List < Character > alternatives)
     {
-      this.alternatives = Collections.unmodifiableList (alternatives);
+      this.alternatives =
+	java.util.Collections.unmodifiableList (alternatives);
     }
     public java.util.List < Character > getAlternatives ()
     {

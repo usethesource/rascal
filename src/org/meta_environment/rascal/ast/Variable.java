@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.Collections;
 public abstract class Variable extends AbstractAST
 {
   public class GivenInitialization extends Variable
@@ -72,7 +71,8 @@ public abstract class Variable extends AbstractAST
     private final java.util.List < Variable > alternatives;
     public Ambiguity (java.util.List < Variable > alternatives)
     {
-      this.alternatives = Collections.unmodifiableList (alternatives);
+      this.alternatives =
+	java.util.Collections.unmodifiableList (alternatives);
     }
     public java.util.List < Variable > getAlternatives ()
     {

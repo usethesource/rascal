@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.Collections;
 public abstract class FunctionDeclaration extends AbstractAST
 {
   public class Default extends FunctionDeclaration
@@ -72,7 +71,8 @@ public abstract class FunctionDeclaration extends AbstractAST
     private final java.util.List < FunctionDeclaration > alternatives;
     public Ambiguity (java.util.List < FunctionDeclaration > alternatives)
     {
-      this.alternatives = Collections.unmodifiableList (alternatives);
+      this.alternatives =
+	java.util.Collections.unmodifiableList (alternatives);
     }
     public java.util.List < FunctionDeclaration > getAlternatives ()
     {

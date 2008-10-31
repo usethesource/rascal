@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.Collections;
 public abstract class ImportedModule extends AbstractAST
 {
   public class ActualsRenaming extends ImportedModule
@@ -72,7 +71,8 @@ public abstract class ImportedModule extends AbstractAST
     private final java.util.List < ImportedModule > alternatives;
     public Ambiguity (java.util.List < ImportedModule > alternatives)
     {
-      this.alternatives = Collections.unmodifiableList (alternatives);
+      this.alternatives =
+	java.util.Collections.unmodifiableList (alternatives);
     }
     public java.util.List < ImportedModule > getAlternatives ()
     {

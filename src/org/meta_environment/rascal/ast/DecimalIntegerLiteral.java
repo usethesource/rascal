@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.Collections;
 public abstract class DecimalIntegerLiteral extends AbstractAST
 {
   public class Lexical extends DecimalIntegerLiteral
@@ -12,7 +11,8 @@ public abstract class DecimalIntegerLiteral extends AbstractAST
     private final java.util.List < DecimalIntegerLiteral > alternatives;
     public Ambiguity (java.util.List < DecimalIntegerLiteral > alternatives)
     {
-      this.alternatives = Collections.unmodifiableList (alternatives);
+      this.alternatives =
+	java.util.Collections.unmodifiableList (alternatives);
     }
     public java.util.List < DecimalIntegerLiteral > getAlternatives ()
     {

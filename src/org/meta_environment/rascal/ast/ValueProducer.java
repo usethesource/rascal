@@ -1,15 +1,14 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.Collections;
 public abstract class ValueProducer extends AbstractAST
 {
   public class DefaultStrategy extends ValueProducer
   {
-/* pattern:Pattern ":" expression:Expression -> ValueProducer {cons("DefaultStrategy")} */
+/* pattern:Expression ":" expression:Expression -> ValueProducer {cons("DefaultStrategy")} */
     private DefaultStrategy ()
     {
     }
-    /*package */ DefaultStrategy (ITree tree, Pattern pattern,
+    /*package */ DefaultStrategy (ITree tree, Expression pattern,
 				  Expression expression)
     {
       this.tree = tree;
@@ -20,16 +19,16 @@ public abstract class ValueProducer extends AbstractAST
     {
       return visitor.visitValueProducerDefaultStrategy (this);
     }
-    private Pattern pattern;
-    public Pattern getPattern ()
+    private Expression pattern;
+    public Expression getPattern ()
     {
       return pattern;
     }
-    private void $setPattern (Pattern x)
+    private void $setPattern (Expression x)
     {
       this.pattern = x;
     }
-    public DefaultStrategy setPattern (Pattern x)
+    public DefaultStrategy setPattern (Expression x)
     {
       DefaultStrategy z = new DefaultStrategy ();
       z.$setPattern (x);
@@ -56,7 +55,8 @@ public abstract class ValueProducer extends AbstractAST
     private final java.util.List < ValueProducer > alternatives;
     public Ambiguity (java.util.List < ValueProducer > alternatives)
     {
-      this.alternatives = Collections.unmodifiableList (alternatives);
+      this.alternatives =
+	java.util.Collections.unmodifiableList (alternatives);
     }
     public java.util.List < ValueProducer > getAlternatives ()
     {
@@ -65,12 +65,12 @@ public abstract class ValueProducer extends AbstractAST
   }
   public class GivenStrategy extends ValueProducer
   {
-/* strategy:Strategy pattern:Pattern ":" expression:Expression -> ValueProducer {cons("GivenStrategy")} */
+/* strategy:Strategy pattern:Expression ":" expression:Expression -> ValueProducer {cons("GivenStrategy")} */
     private GivenStrategy ()
     {
     }
     /*package */ GivenStrategy (ITree tree, Strategy strategy,
-				Pattern pattern, Expression expression)
+				Expression pattern, Expression expression)
     {
       this.tree = tree;
       this.strategy = strategy;
@@ -96,16 +96,16 @@ public abstract class ValueProducer extends AbstractAST
       z.$setStrategy (x);
       return z;
     }
-    private Pattern pattern;
-    public Pattern getPattern ()
+    private Expression pattern;
+    public Expression getPattern ()
     {
       return pattern;
     }
-    private void $setPattern (Pattern x)
+    private void $setPattern (Expression x)
     {
       this.pattern = x;
     }
-    public GivenStrategy setPattern (Pattern x)
+    public GivenStrategy setPattern (Expression x)
     {
       GivenStrategy z = new GivenStrategy ();
       z.$setPattern (x);

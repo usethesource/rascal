@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.Collections;
 public abstract class Formal extends AbstractAST
 {
   public class TypeName extends Formal
@@ -55,7 +54,8 @@ public abstract class Formal extends AbstractAST
     private final java.util.List < Formal > alternatives;
     public Ambiguity (java.util.List < Formal > alternatives)
     {
-      this.alternatives = Collections.unmodifiableList (alternatives);
+      this.alternatives =
+	java.util.Collections.unmodifiableList (alternatives);
     }
     public java.util.List < Formal > getAlternatives ()
     {

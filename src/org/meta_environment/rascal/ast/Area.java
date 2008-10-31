@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-import java.util.Collections;
 public abstract class Area extends AbstractAST
 {
   public class Default extends Area
@@ -122,7 +121,8 @@ public abstract class Area extends AbstractAST
     private final java.util.List < Area > alternatives;
     public Ambiguity (java.util.List < Area > alternatives)
     {
-      this.alternatives = Collections.unmodifiableList (alternatives);
+      this.alternatives =
+	java.util.Collections.unmodifiableList (alternatives);
     }
     public java.util.List < Area > getAlternatives ()
     {
