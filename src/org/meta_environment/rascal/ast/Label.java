@@ -36,7 +36,8 @@ public abstract class Label extends AbstractAST
     private Default ()
     {
     }
-    /*package */ Default (ITree tree, Name name)
+    /*package */ Default (ITree tree,
+			  org.meta_environment.rascal.ast.Name name)
     {
       this.tree = tree;
       this.name = name;
@@ -45,18 +46,20 @@ public abstract class Label extends AbstractAST
     {
       return visitor.visitLabelDefault (this);
     }
-    private Name name;
-    public Name getName ()
+    private org.meta_environment.rascal.ast.Name name;
+    public org.meta_environment.rascal.ast.Name getName ()
     {
       return name;
     }
-    private void $setName (Name x)
+    private void $setName (org.meta_environment.rascal.ast.Name x)
     {
       this.name = x;
     }
-    public Default setName (Name x)
+    public org.meta_environment.rascal.ast.Default setName (org.
+							    meta_environment.
+							    rascal.ast.Name x)
     {
-      Default z = new Default ();
+      org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setName (x);
       return z;
     }

@@ -8,7 +8,9 @@ public abstract class Module extends AbstractAST
     private Default ()
     {
     }
-    /*package */ Default (ITree tree, Header header, Body body)
+    /*package */ Default (ITree tree,
+			  org.meta_environment.rascal.ast.Header header,
+			  org.meta_environment.rascal.ast.Body body)
     {
       this.tree = tree;
       this.header = header;
@@ -18,33 +20,38 @@ public abstract class Module extends AbstractAST
     {
       return visitor.visitModuleDefault (this);
     }
-    private Header header;
-    public Header getHeader ()
+    private org.meta_environment.rascal.ast.Header header;
+    public org.meta_environment.rascal.ast.Header getHeader ()
     {
       return header;
     }
-    private void $setHeader (Header x)
+    private void $setHeader (org.meta_environment.rascal.ast.Header x)
     {
       this.header = x;
     }
-    public Default setHeader (Header x)
+    public org.meta_environment.rascal.ast.Default setHeader (org.
+							      meta_environment.
+							      rascal.ast.
+							      Header x)
     {
-      Default z = new Default ();
+      org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setHeader (x);
       return z;
     }
-    private Body body;
-    public Body getBody ()
+    private org.meta_environment.rascal.ast.Body body;
+    public org.meta_environment.rascal.ast.Body getBody ()
     {
       return body;
     }
-    private void $setBody (Body x)
+    private void $setBody (org.meta_environment.rascal.ast.Body x)
     {
       this.body = x;
     }
-    public Default setBody (Body x)
+    public org.meta_environment.rascal.ast.Default setBody (org.
+							    meta_environment.
+							    rascal.ast.Body x)
     {
-      Default z = new Default ();
+      org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setBody (x);
       return z;
     }

@@ -8,7 +8,7 @@ public abstract class FunctionName extends AbstractAST
     private Name ()
     {
     }
-    /*package */ Name (ITree tree, Name name)
+    /*package */ Name (ITree tree, org.meta_environment.rascal.ast.Name name)
     {
       this.tree = tree;
       this.name = name;
@@ -17,18 +17,19 @@ public abstract class FunctionName extends AbstractAST
     {
       return visitor.visitFunctionNameName (this);
     }
-    private Name name;
-    public Name getName ()
+    private org.meta_environment.rascal.ast.Name name;
+    public org.meta_environment.rascal.ast.Name getName ()
     {
       return name;
     }
-    private void $setName (Name x)
+    private void $setName (org.meta_environment.rascal.ast.Name x)
     {
       this.name = x;
     }
-    public Name setName (Name x)
+    public org.meta_environment.rascal.ast.Name setName (org.meta_environment.
+							 rascal.ast.Name x)
     {
-      Name z = new Name ();
+      org.meta_environment.rascal.ast.Name z = new Name ();
       z.$setName (x);
       return z;
     }
@@ -52,7 +53,9 @@ public abstract class FunctionName extends AbstractAST
     private Operator ()
     {
     }
-    /*package */ Operator (ITree tree, StandardOperator operator)
+    /*package */ Operator (ITree tree,
+			   org.meta_environment.rascal.ast.
+			   StandardOperator operator)
     {
       this.tree = tree;
       this.operator = operator;
@@ -61,18 +64,23 @@ public abstract class FunctionName extends AbstractAST
     {
       return visitor.visitFunctionNameOperator (this);
     }
-    private StandardOperator operator;
-    public StandardOperator getOperator ()
+    private org.meta_environment.rascal.ast.StandardOperator operator;
+    public org.meta_environment.rascal.ast.StandardOperator getOperator ()
     {
       return operator;
     }
-    private void $setOperator (StandardOperator x)
+    private void $setOperator (org.meta_environment.rascal.ast.
+			       StandardOperator x)
     {
       this.operator = x;
     }
-    public Operator setOperator (StandardOperator x)
+    public org.meta_environment.rascal.ast.Operator setOperator (org.
+								 meta_environment.
+								 rascal.ast.
+								 StandardOperator
+								 x)
     {
-      Operator z = new Operator ();
+      org.meta_environment.rascal.ast.Operator z = new Operator ();
       z.$setOperator (x);
       return z;
     }

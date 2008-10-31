@@ -8,7 +8,9 @@ public abstract class Match extends AbstractAST
     private Replacing ()
     {
     }
-    /*package */ Replacing (ITree tree, Expression match,
+    /*package */ Replacing (ITree tree,
+			    org.meta_environment.rascal.ast.Expression match,
+			    org.meta_environment.rascal.ast.
 			    Expression replacement)
     {
       this.tree = tree;
@@ -19,33 +21,42 @@ public abstract class Match extends AbstractAST
     {
       return visitor.visitMatchReplacing (this);
     }
-    private Expression match;
-    public Expression getMatch ()
+    private org.meta_environment.rascal.ast.Expression match;
+    public org.meta_environment.rascal.ast.Expression getMatch ()
     {
       return match;
     }
-    private void $setMatch (Expression x)
+    private void $setMatch (org.meta_environment.rascal.ast.Expression x)
     {
       this.match = x;
     }
-    public Replacing setMatch (Expression x)
+    public org.meta_environment.rascal.ast.Replacing setMatch (org.
+							       meta_environment.
+							       rascal.ast.
+							       Expression x)
     {
-      Replacing z = new Replacing ();
+      org.meta_environment.rascal.ast.Replacing z = new Replacing ();
       z.$setMatch (x);
       return z;
     }
-    private Expression replacement;
-    public Expression getReplacement ()
+    private org.meta_environment.rascal.ast.Expression replacement;
+    public org.meta_environment.rascal.ast.Expression getReplacement ()
     {
       return replacement;
     }
-    private void $setReplacement (Expression x)
+    private void $setReplacement (org.meta_environment.rascal.ast.
+				  Expression x)
     {
       this.replacement = x;
     }
-    public Replacing setReplacement (Expression x)
+    public org.meta_environment.rascal.ast.Replacing setReplacement (org.
+								     meta_environment.
+								     rascal.
+								     ast.
+								     Expression
+								     x)
     {
-      Replacing z = new Replacing ();
+      org.meta_environment.rascal.ast.Replacing z = new Replacing ();
       z.$setReplacement (x);
       return z;
     }
@@ -69,7 +80,10 @@ public abstract class Match extends AbstractAST
     private Arbitrary ()
     {
     }
-    /*package */ Arbitrary (ITree tree, Expression match, Statement statement)
+    /*package */ Arbitrary (ITree tree,
+			    org.meta_environment.rascal.ast.Expression match,
+			    org.meta_environment.rascal.ast.
+			    Statement statement)
     {
       this.tree = tree;
       this.match = match;
@@ -79,33 +93,40 @@ public abstract class Match extends AbstractAST
     {
       return visitor.visitMatchArbitrary (this);
     }
-    private Expression match;
-    public Expression getMatch ()
+    private org.meta_environment.rascal.ast.Expression match;
+    public org.meta_environment.rascal.ast.Expression getMatch ()
     {
       return match;
     }
-    private void $setMatch (Expression x)
+    private void $setMatch (org.meta_environment.rascal.ast.Expression x)
     {
       this.match = x;
     }
-    public Arbitrary setMatch (Expression x)
+    public org.meta_environment.rascal.ast.Arbitrary setMatch (org.
+							       meta_environment.
+							       rascal.ast.
+							       Expression x)
     {
-      Arbitrary z = new Arbitrary ();
+      org.meta_environment.rascal.ast.Arbitrary z = new Arbitrary ();
       z.$setMatch (x);
       return z;
     }
-    private Statement statement;
-    public Statement getStatement ()
+    private org.meta_environment.rascal.ast.Statement statement;
+    public org.meta_environment.rascal.ast.Statement getStatement ()
     {
       return statement;
     }
-    private void $setStatement (Statement x)
+    private void $setStatement (org.meta_environment.rascal.ast.Statement x)
     {
       this.statement = x;
     }
-    public Arbitrary setStatement (Statement x)
+    public org.meta_environment.rascal.ast.Arbitrary setStatement (org.
+								   meta_environment.
+								   rascal.ast.
+								   Statement
+								   x)
     {
-      Arbitrary z = new Arbitrary ();
+      org.meta_environment.rascal.ast.Arbitrary z = new Arbitrary ();
       z.$setStatement (x);
       return z;
     }

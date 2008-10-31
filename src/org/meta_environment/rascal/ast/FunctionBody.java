@@ -17,18 +17,28 @@ public abstract class FunctionBody extends AbstractAST
     {
       return visitor.visitFunctionBodyDefault (this);
     }
-    private java.util.List < Statement > statements;
-    public java.util.List < Statement > getStatements ()
+    private java.util.List < org.meta_environment.rascal.ast.Statement >
+      statements;
+    public java.util.List < org.meta_environment.rascal.ast.Statement >
+      getStatements ()
     {
       return statements;
     }
-    private void $setStatements (java.util.List < Statement > x)
+    private void $setStatements (java.util.List <
+				 org.meta_environment.rascal.ast.Statement >
+				 x)
     {
       this.statements = x;
     }
-    public Default setStatements (java.util.List < Statement > x)
+    public org.meta_environment.rascal.ast.Default setStatements (java.util.
+								  List <
+								  org.
+								  meta_environment.
+								  rascal.ast.
+								  Statement >
+								  x)
     {
-      Default z = new Default ();
+      org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setStatements (x);
       return z;
     }

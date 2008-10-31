@@ -8,7 +8,8 @@ public abstract class Comprehension extends AbstractAST
     private Set ()
     {
     }
-    /*package */ Set (ITree tree, Expression result,
+    /*package */ Set (ITree tree,
+		      org.meta_environment.rascal.ast.Expression result,
 		      java.util.List < Generator > generators)
     {
       this.tree = tree;
@@ -19,33 +20,44 @@ public abstract class Comprehension extends AbstractAST
     {
       return visitor.visitComprehensionSet (this);
     }
-    private Expression result;
-    public Expression getResult ()
+    private org.meta_environment.rascal.ast.Expression result;
+    public org.meta_environment.rascal.ast.Expression getResult ()
     {
       return result;
     }
-    private void $setResult (Expression x)
+    private void $setResult (org.meta_environment.rascal.ast.Expression x)
     {
       this.result = x;
     }
-    public Set setResult (Expression x)
+    public org.meta_environment.rascal.ast.Set setResult (org.
+							  meta_environment.
+							  rascal.ast.
+							  Expression x)
     {
-      Set z = new Set ();
+      org.meta_environment.rascal.ast.Set z = new Set ();
       z.$setResult (x);
       return z;
     }
-    private java.util.List < Generator > generators;
-    public java.util.List < Generator > getGenerators ()
+    private java.util.List < org.meta_environment.rascal.ast.Generator >
+      generators;
+    public java.util.List < org.meta_environment.rascal.ast.Generator >
+      getGenerators ()
     {
       return generators;
     }
-    private void $setGenerators (java.util.List < Generator > x)
+    private void $setGenerators (java.util.List <
+				 org.meta_environment.rascal.ast.Generator >
+				 x)
     {
       this.generators = x;
     }
-    public Set setGenerators (java.util.List < Generator > x)
+    public org.meta_environment.rascal.ast.Set setGenerators (java.util.List <
+							      org.
+							      meta_environment.
+							      rascal.ast.
+							      Generator > x)
     {
-      Set z = new Set ();
+      org.meta_environment.rascal.ast.Set z = new Set ();
       z.$setGenerators (x);
       return z;
     }
@@ -69,7 +81,8 @@ public abstract class Comprehension extends AbstractAST
     private List ()
     {
     }
-    /*package */ List (ITree tree, Expression result,
+    /*package */ List (ITree tree,
+		       org.meta_environment.rascal.ast.Expression result,
 		       java.util.List < Generator > generators)
     {
       this.tree = tree;
@@ -80,33 +93,45 @@ public abstract class Comprehension extends AbstractAST
     {
       return visitor.visitComprehensionList (this);
     }
-    private Expression result;
-    public Expression getResult ()
+    private org.meta_environment.rascal.ast.Expression result;
+    public org.meta_environment.rascal.ast.Expression getResult ()
     {
       return result;
     }
-    private void $setResult (Expression x)
+    private void $setResult (org.meta_environment.rascal.ast.Expression x)
     {
       this.result = x;
     }
-    public List setResult (Expression x)
+    public org.meta_environment.rascal.ast.List setResult (org.
+							   meta_environment.
+							   rascal.ast.
+							   Expression x)
     {
-      List z = new List ();
+      org.meta_environment.rascal.ast.List z = new List ();
       z.$setResult (x);
       return z;
     }
-    private java.util.List < Generator > generators;
-    public java.util.List < Generator > getGenerators ()
+    private java.util.List < org.meta_environment.rascal.ast.Generator >
+      generators;
+    public java.util.List < org.meta_environment.rascal.ast.Generator >
+      getGenerators ()
     {
       return generators;
     }
-    private void $setGenerators (java.util.List < Generator > x)
+    private void $setGenerators (java.util.List <
+				 org.meta_environment.rascal.ast.Generator >
+				 x)
     {
       this.generators = x;
     }
-    public List setGenerators (java.util.List < Generator > x)
+    public org.meta_environment.rascal.ast.List setGenerators (java.util.
+							       List <
+							       org.
+							       meta_environment.
+							       rascal.ast.
+							       Generator > x)
     {
-      List z = new List ();
+      org.meta_environment.rascal.ast.List z = new List ();
       z.$setGenerators (x);
       return z;
     }

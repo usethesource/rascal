@@ -8,7 +8,9 @@ public abstract class Import extends AbstractAST
     private Default ()
     {
     }
-    /*package */ Default (ITree tree, ImportedModule module)
+    /*package */ Default (ITree tree,
+			  org.meta_environment.rascal.ast.
+			  ImportedModule module)
     {
       this.tree = tree;
       this.module = module;
@@ -17,18 +19,22 @@ public abstract class Import extends AbstractAST
     {
       return visitor.visitImportDefault (this);
     }
-    private ImportedModule module;
-    public ImportedModule getModule ()
+    private org.meta_environment.rascal.ast.ImportedModule module;
+    public org.meta_environment.rascal.ast.ImportedModule getModule ()
     {
       return module;
     }
-    private void $setModule (ImportedModule x)
+    private void $setModule (org.meta_environment.rascal.ast.ImportedModule x)
     {
       this.module = x;
     }
-    public Default setModule (ImportedModule x)
+    public org.meta_environment.rascal.ast.Default setModule (org.
+							      meta_environment.
+							      rascal.ast.
+							      ImportedModule
+							      x)
     {
-      Default z = new Default ();
+      org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setModule (x);
       return z;
     }
@@ -52,7 +58,9 @@ public abstract class Import extends AbstractAST
     private Extend ()
     {
     }
-    /*package */ Extend (ITree tree, ImportedModule module)
+    /*package */ Extend (ITree tree,
+			 org.meta_environment.rascal.ast.
+			 ImportedModule module)
     {
       this.tree = tree;
       this.module = module;
@@ -61,18 +69,21 @@ public abstract class Import extends AbstractAST
     {
       return visitor.visitImportExtend (this);
     }
-    private ImportedModule module;
-    public ImportedModule getModule ()
+    private org.meta_environment.rascal.ast.ImportedModule module;
+    public org.meta_environment.rascal.ast.ImportedModule getModule ()
     {
       return module;
     }
-    private void $setModule (ImportedModule x)
+    private void $setModule (org.meta_environment.rascal.ast.ImportedModule x)
     {
       this.module = x;
     }
-    public Extend setModule (ImportedModule x)
+    public org.meta_environment.rascal.ast.Extend setModule (org.
+							     meta_environment.
+							     rascal.ast.
+							     ImportedModule x)
     {
-      Extend z = new Extend ();
+      org.meta_environment.rascal.ast.Extend z = new Extend ();
       z.$setModule (x);
       return z;
     }

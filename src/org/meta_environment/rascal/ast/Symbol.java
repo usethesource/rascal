@@ -8,7 +8,7 @@ public abstract class Symbol extends AbstractAST
     private Sort ()
     {
     }
-    /*package */ Sort (ITree tree, Sort sort)
+    /*package */ Sort (ITree tree, org.meta_environment.rascal.ast.Sort sort)
     {
       this.tree = tree;
       this.sort = sort;
@@ -17,18 +17,19 @@ public abstract class Symbol extends AbstractAST
     {
       return visitor.visitSymbolSort (this);
     }
-    private Sort sort;
-    public Sort getSort ()
+    private org.meta_environment.rascal.ast.Sort sort;
+    public org.meta_environment.rascal.ast.Sort getSort ()
     {
       return sort;
     }
-    private void $setSort (Sort x)
+    private void $setSort (org.meta_environment.rascal.ast.Sort x)
     {
       this.sort = x;
     }
-    public Sort setSort (Sort x)
+    public org.meta_environment.rascal.ast.Sort setSort (org.meta_environment.
+							 rascal.ast.Sort x)
     {
-      Sort z = new Sort ();
+      org.meta_environment.rascal.ast.Sort z = new Sort ();
       z.$setSort (x);
       return z;
     }
@@ -52,7 +53,8 @@ public abstract class Symbol extends AbstractAST
     private ParameterizedSort ()
     {
     }
-    /*package */ ParameterizedSort (ITree tree, Sort sort,
+    /*package */ ParameterizedSort (ITree tree,
+				    org.meta_environment.rascal.ast.Sort sort,
 				    java.util.List < Symbol > parameters)
     {
       this.tree = tree;
@@ -63,33 +65,45 @@ public abstract class Symbol extends AbstractAST
     {
       return visitor.visitSymbolParameterizedSort (this);
     }
-    private Sort sort;
-    public Sort getSort ()
+    private org.meta_environment.rascal.ast.Sort sort;
+    public org.meta_environment.rascal.ast.Sort getSort ()
     {
       return sort;
     }
-    private void $setSort (Sort x)
+    private void $setSort (org.meta_environment.rascal.ast.Sort x)
     {
       this.sort = x;
     }
-    public ParameterizedSort setSort (Sort x)
+    public org.meta_environment.rascal.ast.ParameterizedSort setSort (org.
+								      meta_environment.
+								      rascal.
+								      ast.
+								      Sort x)
     {
-      ParameterizedSort z = new ParameterizedSort ();
+      org.meta_environment.rascal.ast.ParameterizedSort z =
+	new ParameterizedSort ();
       z.$setSort (x);
       return z;
     }
-    private java.util.List < Symbol > parameters;
-    public java.util.List < Symbol > getParameters ()
+    private java.util.List < org.meta_environment.rascal.ast.Symbol >
+      parameters;
+    public java.util.List < org.meta_environment.rascal.ast.Symbol >
+      getParameters ()
     {
       return parameters;
     }
-    private void $setParameters (java.util.List < Symbol > x)
+    private void $setParameters (java.util.List <
+				 org.meta_environment.rascal.ast.Symbol > x)
     {
       this.parameters = x;
     }
-    public ParameterizedSort setParameters (java.util.List < Symbol > x)
+    public org.meta_environment.rascal.ast.
+      ParameterizedSort setParameters (java.util.List <
+				       org.meta_environment.rascal.ast.
+				       Symbol > x)
     {
-      ParameterizedSort z = new ParameterizedSort ();
+      org.meta_environment.rascal.ast.ParameterizedSort z =
+	new ParameterizedSort ();
       z.$setParameters (x);
       return z;
     }
@@ -115,7 +129,8 @@ public abstract class Symbol extends AbstractAST
     private Sequence ()
     {
     }
-    /*package */ Sequence (ITree tree, Symbol head,
+    /*package */ Sequence (ITree tree,
+			   org.meta_environment.rascal.ast.Symbol head,
 			   java.util.List < Symbol > tail)
     {
       this.tree = tree;
@@ -126,33 +141,42 @@ public abstract class Symbol extends AbstractAST
     {
       return visitor.visitSymbolSequence (this);
     }
-    private Symbol head;
-    public Symbol getHead ()
+    private org.meta_environment.rascal.ast.Symbol head;
+    public org.meta_environment.rascal.ast.Symbol getHead ()
     {
       return head;
     }
-    private void $setHead (Symbol x)
+    private void $setHead (org.meta_environment.rascal.ast.Symbol x)
     {
       this.head = x;
     }
-    public Sequence setHead (Symbol x)
+    public org.meta_environment.rascal.ast.Sequence setHead (org.
+							     meta_environment.
+							     rascal.ast.
+							     Symbol x)
     {
-      Sequence z = new Sequence ();
+      org.meta_environment.rascal.ast.Sequence z = new Sequence ();
       z.$setHead (x);
       return z;
     }
-    private java.util.List < Symbol > tail;
-    public java.util.List < Symbol > getTail ()
+    private java.util.List < org.meta_environment.rascal.ast.Symbol > tail;
+    public java.util.List < org.meta_environment.rascal.ast.Symbol >
+      getTail ()
     {
       return tail;
     }
-    private void $setTail (java.util.List < Symbol > x)
+    private void $setTail (java.util.List <
+			   org.meta_environment.rascal.ast.Symbol > x)
     {
       this.tail = x;
     }
-    public Sequence setTail (java.util.List < Symbol > x)
+    public org.meta_environment.rascal.ast.Sequence setTail (java.util.List <
+							     org.
+							     meta_environment.
+							     rascal.ast.
+							     Symbol > x)
     {
-      Sequence z = new Sequence ();
+      org.meta_environment.rascal.ast.Sequence z = new Sequence ();
       z.$setTail (x);
       return z;
     }
@@ -163,7 +187,8 @@ public abstract class Symbol extends AbstractAST
     private Optional ()
     {
     }
-    /*package */ Optional (ITree tree, Symbol symbol)
+    /*package */ Optional (ITree tree,
+			   org.meta_environment.rascal.ast.Symbol symbol)
     {
       this.tree = tree;
       this.symbol = symbol;
@@ -172,18 +197,21 @@ public abstract class Symbol extends AbstractAST
     {
       return visitor.visitSymbolOptional (this);
     }
-    private Symbol symbol;
-    public Symbol getSymbol ()
+    private org.meta_environment.rascal.ast.Symbol symbol;
+    public org.meta_environment.rascal.ast.Symbol getSymbol ()
     {
       return symbol;
     }
-    private void $setSymbol (Symbol x)
+    private void $setSymbol (org.meta_environment.rascal.ast.Symbol x)
     {
       this.symbol = x;
     }
-    public Optional setSymbol (Symbol x)
+    public org.meta_environment.rascal.ast.Optional setSymbol (org.
+							       meta_environment.
+							       rascal.ast.
+							       Symbol x)
     {
-      Optional z = new Optional ();
+      org.meta_environment.rascal.ast.Optional z = new Optional ();
       z.$setSymbol (x);
       return z;
     }
@@ -194,7 +222,8 @@ public abstract class Symbol extends AbstractAST
     private Iter ()
     {
     }
-    /*package */ Iter (ITree tree, Symbol symbol)
+    /*package */ Iter (ITree tree,
+		       org.meta_environment.rascal.ast.Symbol symbol)
     {
       this.tree = tree;
       this.symbol = symbol;
@@ -203,18 +232,21 @@ public abstract class Symbol extends AbstractAST
     {
       return visitor.visitSymbolIter (this);
     }
-    private Symbol symbol;
-    public Symbol getSymbol ()
+    private org.meta_environment.rascal.ast.Symbol symbol;
+    public org.meta_environment.rascal.ast.Symbol getSymbol ()
     {
       return symbol;
     }
-    private void $setSymbol (Symbol x)
+    private void $setSymbol (org.meta_environment.rascal.ast.Symbol x)
     {
       this.symbol = x;
     }
-    public Iter setSymbol (Symbol x)
+    public org.meta_environment.rascal.ast.Iter setSymbol (org.
+							   meta_environment.
+							   rascal.ast.
+							   Symbol x)
     {
-      Iter z = new Iter ();
+      org.meta_environment.rascal.ast.Iter z = new Iter ();
       z.$setSymbol (x);
       return z;
     }
@@ -225,7 +257,8 @@ public abstract class Symbol extends AbstractAST
     private IterStar ()
     {
     }
-    /*package */ IterStar (ITree tree, Symbol symbol)
+    /*package */ IterStar (ITree tree,
+			   org.meta_environment.rascal.ast.Symbol symbol)
     {
       this.tree = tree;
       this.symbol = symbol;
@@ -234,18 +267,21 @@ public abstract class Symbol extends AbstractAST
     {
       return visitor.visitSymbolIterStar (this);
     }
-    private Symbol symbol;
-    public Symbol getSymbol ()
+    private org.meta_environment.rascal.ast.Symbol symbol;
+    public org.meta_environment.rascal.ast.Symbol getSymbol ()
     {
       return symbol;
     }
-    private void $setSymbol (Symbol x)
+    private void $setSymbol (org.meta_environment.rascal.ast.Symbol x)
     {
       this.symbol = x;
     }
-    public IterStar setSymbol (Symbol x)
+    public org.meta_environment.rascal.ast.IterStar setSymbol (org.
+							       meta_environment.
+							       rascal.ast.
+							       Symbol x)
     {
-      IterStar z = new IterStar ();
+      org.meta_environment.rascal.ast.IterStar z = new IterStar ();
       z.$setSymbol (x);
       return z;
     }
@@ -256,7 +292,9 @@ public abstract class Symbol extends AbstractAST
     private IterSep ()
     {
     }
-    /*package */ IterSep (ITree tree, Symbol symbol, StrCon sep)
+    /*package */ IterSep (ITree tree,
+			  org.meta_environment.rascal.ast.Symbol symbol,
+			  org.meta_environment.rascal.ast.StrCon sep)
     {
       this.tree = tree;
       this.symbol = symbol;
@@ -266,33 +304,39 @@ public abstract class Symbol extends AbstractAST
     {
       return visitor.visitSymbolIterSep (this);
     }
-    private Symbol symbol;
-    public Symbol getSymbol ()
+    private org.meta_environment.rascal.ast.Symbol symbol;
+    public org.meta_environment.rascal.ast.Symbol getSymbol ()
     {
       return symbol;
     }
-    private void $setSymbol (Symbol x)
+    private void $setSymbol (org.meta_environment.rascal.ast.Symbol x)
     {
       this.symbol = x;
     }
-    public IterSep setSymbol (Symbol x)
+    public org.meta_environment.rascal.ast.IterSep setSymbol (org.
+							      meta_environment.
+							      rascal.ast.
+							      Symbol x)
     {
-      IterSep z = new IterSep ();
+      org.meta_environment.rascal.ast.IterSep z = new IterSep ();
       z.$setSymbol (x);
       return z;
     }
-    private StrCon sep;
-    public StrCon getSep ()
+    private org.meta_environment.rascal.ast.StrCon sep;
+    public org.meta_environment.rascal.ast.StrCon getSep ()
     {
       return sep;
     }
-    private void $setSep (StrCon x)
+    private void $setSep (org.meta_environment.rascal.ast.StrCon x)
     {
       this.sep = x;
     }
-    public IterSep setSep (StrCon x)
+    public org.meta_environment.rascal.ast.IterSep setSep (org.
+							   meta_environment.
+							   rascal.ast.
+							   StrCon x)
     {
-      IterSep z = new IterSep ();
+      org.meta_environment.rascal.ast.IterSep z = new IterSep ();
       z.$setSep (x);
       return z;
     }
@@ -303,7 +347,9 @@ public abstract class Symbol extends AbstractAST
     private IterStarSep ()
     {
     }
-    /*package */ IterStarSep (ITree tree, Symbol symbol, StrCon sep)
+    /*package */ IterStarSep (ITree tree,
+			      org.meta_environment.rascal.ast.Symbol symbol,
+			      org.meta_environment.rascal.ast.StrCon sep)
     {
       this.tree = tree;
       this.symbol = symbol;
@@ -313,33 +359,39 @@ public abstract class Symbol extends AbstractAST
     {
       return visitor.visitSymbolIterStarSep (this);
     }
-    private Symbol symbol;
-    public Symbol getSymbol ()
+    private org.meta_environment.rascal.ast.Symbol symbol;
+    public org.meta_environment.rascal.ast.Symbol getSymbol ()
     {
       return symbol;
     }
-    private void $setSymbol (Symbol x)
+    private void $setSymbol (org.meta_environment.rascal.ast.Symbol x)
     {
       this.symbol = x;
     }
-    public IterStarSep setSymbol (Symbol x)
+    public org.meta_environment.rascal.ast.IterStarSep setSymbol (org.
+								  meta_environment.
+								  rascal.ast.
+								  Symbol x)
     {
-      IterStarSep z = new IterStarSep ();
+      org.meta_environment.rascal.ast.IterStarSep z = new IterStarSep ();
       z.$setSymbol (x);
       return z;
     }
-    private StrCon sep;
-    public StrCon getSep ()
+    private org.meta_environment.rascal.ast.StrCon sep;
+    public org.meta_environment.rascal.ast.StrCon getSep ()
     {
       return sep;
     }
-    private void $setSep (StrCon x)
+    private void $setSep (org.meta_environment.rascal.ast.StrCon x)
     {
       this.sep = x;
     }
-    public IterStarSep setSep (StrCon x)
+    public org.meta_environment.rascal.ast.IterStarSep setSep (org.
+							       meta_environment.
+							       rascal.ast.
+							       StrCon x)
     {
-      IterStarSep z = new IterStarSep ();
+      org.meta_environment.rascal.ast.IterStarSep z = new IterStarSep ();
       z.$setSep (x);
       return z;
     }
@@ -350,7 +402,9 @@ public abstract class Symbol extends AbstractAST
     private Alternative ()
     {
     }
-    /*package */ Alternative (ITree tree, Symbol lhs, Symbol rhs)
+    /*package */ Alternative (ITree tree,
+			      org.meta_environment.rascal.ast.Symbol lhs,
+			      org.meta_environment.rascal.ast.Symbol rhs)
     {
       this.tree = tree;
       this.lhs = lhs;
@@ -360,33 +414,39 @@ public abstract class Symbol extends AbstractAST
     {
       return visitor.visitSymbolAlternative (this);
     }
-    private Symbol lhs;
-    public Symbol getLhs ()
+    private org.meta_environment.rascal.ast.Symbol lhs;
+    public org.meta_environment.rascal.ast.Symbol getLhs ()
     {
       return lhs;
     }
-    private void $setLhs (Symbol x)
+    private void $setLhs (org.meta_environment.rascal.ast.Symbol x)
     {
       this.lhs = x;
     }
-    public Alternative setLhs (Symbol x)
+    public org.meta_environment.rascal.ast.Alternative setLhs (org.
+							       meta_environment.
+							       rascal.ast.
+							       Symbol x)
     {
-      Alternative z = new Alternative ();
+      org.meta_environment.rascal.ast.Alternative z = new Alternative ();
       z.$setLhs (x);
       return z;
     }
-    private Symbol rhs;
-    public Symbol getRhs ()
+    private org.meta_environment.rascal.ast.Symbol rhs;
+    public org.meta_environment.rascal.ast.Symbol getRhs ()
     {
       return rhs;
     }
-    private void $setRhs (Symbol x)
+    private void $setRhs (org.meta_environment.rascal.ast.Symbol x)
     {
       this.rhs = x;
     }
-    public Alternative setRhs (Symbol x)
+    public org.meta_environment.rascal.ast.Alternative setRhs (org.
+							       meta_environment.
+							       rascal.ast.
+							       Symbol x)
     {
-      Alternative z = new Alternative ();
+      org.meta_environment.rascal.ast.Alternative z = new Alternative ();
       z.$setRhs (x);
       return z;
     }
@@ -397,7 +457,9 @@ public abstract class Symbol extends AbstractAST
     private CharacterClass ()
     {
     }
-    /*package */ CharacterClass (ITree tree, CharClass charClass)
+    /*package */ CharacterClass (ITree tree,
+				 org.meta_environment.rascal.ast.
+				 CharClass charClass)
     {
       this.tree = tree;
       this.charClass = charClass;
@@ -406,18 +468,24 @@ public abstract class Symbol extends AbstractAST
     {
       return visitor.visitSymbolCharacterClass (this);
     }
-    private CharClass charClass;
-    public CharClass getCharClass ()
+    private org.meta_environment.rascal.ast.CharClass charClass;
+    public org.meta_environment.rascal.ast.CharClass getCharClass ()
     {
       return charClass;
     }
-    private void $setCharClass (CharClass x)
+    private void $setCharClass (org.meta_environment.rascal.ast.CharClass x)
     {
       this.charClass = x;
     }
-    public CharacterClass setCharClass (CharClass x)
+    public org.meta_environment.rascal.ast.CharacterClass setCharClass (org.
+									meta_environment.
+									rascal.
+									ast.
+									CharClass
+									x)
     {
-      CharacterClass z = new CharacterClass ();
+      org.meta_environment.rascal.ast.CharacterClass z =
+	new CharacterClass ();
       z.$setCharClass (x);
       return z;
     }
@@ -428,7 +496,8 @@ public abstract class Symbol extends AbstractAST
     private LiftedSymbol ()
     {
     }
-    /*package */ LiftedSymbol (ITree tree, Symbol symbol)
+    /*package */ LiftedSymbol (ITree tree,
+			       org.meta_environment.rascal.ast.Symbol symbol)
     {
       this.tree = tree;
       this.symbol = symbol;
@@ -437,18 +506,21 @@ public abstract class Symbol extends AbstractAST
     {
       return visitor.visitSymbolLiftedSymbol (this);
     }
-    private Symbol symbol;
-    public Symbol getSymbol ()
+    private org.meta_environment.rascal.ast.Symbol symbol;
+    public org.meta_environment.rascal.ast.Symbol getSymbol ()
     {
       return symbol;
     }
-    private void $setSymbol (Symbol x)
+    private void $setSymbol (org.meta_environment.rascal.ast.Symbol x)
     {
       this.symbol = x;
     }
-    public LiftedSymbol setSymbol (Symbol x)
+    public org.meta_environment.rascal.ast.LiftedSymbol setSymbol (org.
+								   meta_environment.
+								   rascal.ast.
+								   Symbol x)
     {
-      LiftedSymbol z = new LiftedSymbol ();
+      org.meta_environment.rascal.ast.LiftedSymbol z = new LiftedSymbol ();
       z.$setSymbol (x);
       return z;
     }
@@ -459,7 +531,8 @@ public abstract class Symbol extends AbstractAST
     private Literal ()
     {
     }
-    /*package */ Literal (ITree tree, StrCon string)
+    /*package */ Literal (ITree tree,
+			  org.meta_environment.rascal.ast.StrCon string)
     {
       this.tree = tree;
       this.string = string;
@@ -468,18 +541,21 @@ public abstract class Symbol extends AbstractAST
     {
       return visitor.visitSymbolLiteral (this);
     }
-    private StrCon string;
-    public StrCon getString ()
+    private org.meta_environment.rascal.ast.StrCon string;
+    public org.meta_environment.rascal.ast.StrCon getString ()
     {
       return string;
     }
-    private void $setString (StrCon x)
+    private void $setString (org.meta_environment.rascal.ast.StrCon x)
     {
       this.string = x;
     }
-    public Literal setString (StrCon x)
+    public org.meta_environment.rascal.ast.Literal setString (org.
+							      meta_environment.
+							      rascal.ast.
+							      StrCon x)
     {
-      Literal z = new Literal ();
+      org.meta_environment.rascal.ast.Literal z = new Literal ();
       z.$setString (x);
       return z;
     }
@@ -491,6 +567,7 @@ public abstract class Symbol extends AbstractAST
     {
     }
     /*package */ CaseInsensitiveLiteral (ITree tree,
+					 org.meta_environment.rascal.ast.
 					 SingleQuotedStrCon
 					 singelQuotedString)
     {
@@ -501,18 +578,25 @@ public abstract class Symbol extends AbstractAST
     {
       return visitor.visitSymbolCaseInsensitiveLiteral (this);
     }
-    private SingleQuotedStrCon singelQuotedString;
-    public SingleQuotedStrCon getSingelQuotedString ()
+    private org.meta_environment.rascal.ast.
+      SingleQuotedStrCon singelQuotedString;
+    public org.meta_environment.rascal.ast.
+      SingleQuotedStrCon getSingelQuotedString ()
     {
       return singelQuotedString;
     }
-    private void $setSingelQuotedString (SingleQuotedStrCon x)
+    private void $setSingelQuotedString (org.meta_environment.rascal.ast.
+					 SingleQuotedStrCon x)
     {
       this.singelQuotedString = x;
     }
-    public CaseInsensitiveLiteral setSingelQuotedString (SingleQuotedStrCon x)
+    public org.meta_environment.rascal.ast.
+      CaseInsensitiveLiteral setSingelQuotedString (org.meta_environment.
+						    rascal.ast.
+						    SingleQuotedStrCon x)
     {
-      CaseInsensitiveLiteral z = new CaseInsensitiveLiteral ();
+      org.meta_environment.rascal.ast.CaseInsensitiveLiteral z =
+	new CaseInsensitiveLiteral ();
       z.$setSingelQuotedString (x);
       return z;
     }

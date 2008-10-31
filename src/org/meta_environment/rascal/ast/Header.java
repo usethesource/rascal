@@ -8,7 +8,9 @@ public abstract class Header extends AbstractAST
     private Default ()
     {
     }
-    /*package */ Default (ITree tree, ModuleName name, Tags tags,
+    /*package */ Default (ITree tree,
+			  org.meta_environment.rascal.ast.ModuleName name,
+			  org.meta_environment.rascal.ast.Tags tags,
 			  java.util.List < Import > imports)
     {
       this.tree = tree;
@@ -20,48 +22,60 @@ public abstract class Header extends AbstractAST
     {
       return visitor.visitHeaderDefault (this);
     }
-    private ModuleName name;
-    public ModuleName getName ()
+    private org.meta_environment.rascal.ast.ModuleName name;
+    public org.meta_environment.rascal.ast.ModuleName getName ()
     {
       return name;
     }
-    private void $setName (ModuleName x)
+    private void $setName (org.meta_environment.rascal.ast.ModuleName x)
     {
       this.name = x;
     }
-    public Default setName (ModuleName x)
+    public org.meta_environment.rascal.ast.Default setName (org.
+							    meta_environment.
+							    rascal.ast.
+							    ModuleName x)
     {
-      Default z = new Default ();
+      org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setName (x);
       return z;
     }
-    private Tags tags;
-    public Tags getTags ()
+    private org.meta_environment.rascal.ast.Tags tags;
+    public org.meta_environment.rascal.ast.Tags getTags ()
     {
       return tags;
     }
-    private void $setTags (Tags x)
+    private void $setTags (org.meta_environment.rascal.ast.Tags x)
     {
       this.tags = x;
     }
-    public Default setTags (Tags x)
+    public org.meta_environment.rascal.ast.Default setTags (org.
+							    meta_environment.
+							    rascal.ast.Tags x)
     {
-      Default z = new Default ();
+      org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setTags (x);
       return z;
     }
-    private java.util.List < Import > imports;
-    public java.util.List < Import > getImports ()
+    private java.util.List < org.meta_environment.rascal.ast.Import > imports;
+    public java.util.List < org.meta_environment.rascal.ast.Import >
+      getImports ()
     {
       return imports;
     }
-    private void $setImports (java.util.List < Import > x)
+    private void $setImports (java.util.List <
+			      org.meta_environment.rascal.ast.Import > x)
     {
       this.imports = x;
     }
-    public Default setImports (java.util.List < Import > x)
+    public org.meta_environment.rascal.ast.Default setImports (java.util.
+							       List <
+							       org.
+							       meta_environment.
+							       rascal.ast.
+							       Import > x)
     {
-      Default z = new Default ();
+      org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setImports (x);
       return z;
     }
@@ -85,8 +99,11 @@ public abstract class Header extends AbstractAST
     private Parameters ()
     {
     }
-    /*package */ Parameters (ITree tree, ModuleName name,
-			     ModuleParameters params, Tags tags,
+    /*package */ Parameters (ITree tree,
+			     org.meta_environment.rascal.ast.ModuleName name,
+			     org.meta_environment.rascal.ast.
+			     ModuleParameters params,
+			     org.meta_environment.rascal.ast.Tags tags,
 			     java.util.List < Import > imports)
     {
       this.tree = tree;
@@ -99,63 +116,81 @@ public abstract class Header extends AbstractAST
     {
       return visitor.visitHeaderParameters (this);
     }
-    private ModuleName name;
-    public ModuleName getName ()
+    private org.meta_environment.rascal.ast.ModuleName name;
+    public org.meta_environment.rascal.ast.ModuleName getName ()
     {
       return name;
     }
-    private void $setName (ModuleName x)
+    private void $setName (org.meta_environment.rascal.ast.ModuleName x)
     {
       this.name = x;
     }
-    public Parameters setName (ModuleName x)
+    public org.meta_environment.rascal.ast.Parameters setName (org.
+							       meta_environment.
+							       rascal.ast.
+							       ModuleName x)
     {
-      Parameters z = new Parameters ();
+      org.meta_environment.rascal.ast.Parameters z = new Parameters ();
       z.$setName (x);
       return z;
     }
-    private ModuleParameters params;
-    public ModuleParameters getParams ()
+    private org.meta_environment.rascal.ast.ModuleParameters params;
+    public org.meta_environment.rascal.ast.ModuleParameters getParams ()
     {
       return params;
     }
-    private void $setParams (ModuleParameters x)
+    private void $setParams (org.meta_environment.rascal.ast.
+			     ModuleParameters x)
     {
       this.params = x;
     }
-    public Parameters setParams (ModuleParameters x)
+    public org.meta_environment.rascal.ast.Parameters setParams (org.
+								 meta_environment.
+								 rascal.ast.
+								 ModuleParameters
+								 x)
     {
-      Parameters z = new Parameters ();
+      org.meta_environment.rascal.ast.Parameters z = new Parameters ();
       z.$setParams (x);
       return z;
     }
-    private Tags tags;
-    public Tags getTags ()
+    private org.meta_environment.rascal.ast.Tags tags;
+    public org.meta_environment.rascal.ast.Tags getTags ()
     {
       return tags;
     }
-    private void $setTags (Tags x)
+    private void $setTags (org.meta_environment.rascal.ast.Tags x)
     {
       this.tags = x;
     }
-    public Parameters setTags (Tags x)
+    public org.meta_environment.rascal.ast.Parameters setTags (org.
+							       meta_environment.
+							       rascal.ast.
+							       Tags x)
     {
-      Parameters z = new Parameters ();
+      org.meta_environment.rascal.ast.Parameters z = new Parameters ();
       z.$setTags (x);
       return z;
     }
-    private java.util.List < Import > imports;
-    public java.util.List < Import > getImports ()
+    private java.util.List < org.meta_environment.rascal.ast.Import > imports;
+    public java.util.List < org.meta_environment.rascal.ast.Import >
+      getImports ()
     {
       return imports;
     }
-    private void $setImports (java.util.List < Import > x)
+    private void $setImports (java.util.List <
+			      org.meta_environment.rascal.ast.Import > x)
     {
       this.imports = x;
     }
-    public Parameters setImports (java.util.List < Import > x)
+    public org.meta_environment.rascal.ast.Parameters setImports (java.util.
+								  List <
+								  org.
+								  meta_environment.
+								  rascal.ast.
+								  Import > x)
     {
-      Parameters z = new Parameters ();
+      org.meta_environment.rascal.ast.Parameters z = new Parameters ();
       z.$setImports (x);
       return z;
     }

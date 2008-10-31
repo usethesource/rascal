@@ -8,10 +8,16 @@ public abstract class Area extends AbstractAST
     private Default ()
     {
     }
-    /*package */ Default (ITree tree, Expression beginLine,
-			  Expression beginColumn, Expression endLine,
-			  Expression endColumn, Expression offset,
-			  Expression length)
+    /*package */ Default (ITree tree,
+			  org.meta_environment.rascal.ast.
+			  Expression beginLine,
+			  org.meta_environment.rascal.ast.
+			  Expression beginColumn,
+			  org.meta_environment.rascal.ast.Expression endLine,
+			  org.meta_environment.rascal.ast.
+			  Expression endColumn,
+			  org.meta_environment.rascal.ast.Expression offset,
+			  org.meta_environment.rascal.ast.Expression length)
     {
       this.tree = tree;
       this.beginLine = beginLine;
@@ -25,93 +31,113 @@ public abstract class Area extends AbstractAST
     {
       return visitor.visitAreaDefault (this);
     }
-    private Expression beginLine;
-    public Expression getBeginLine ()
+    private org.meta_environment.rascal.ast.Expression beginLine;
+    public org.meta_environment.rascal.ast.Expression getBeginLine ()
     {
       return beginLine;
     }
-    private void $setBeginLine (Expression x)
+    private void $setBeginLine (org.meta_environment.rascal.ast.Expression x)
     {
       this.beginLine = x;
     }
-    public Default setBeginLine (Expression x)
+    public org.meta_environment.rascal.ast.Default setBeginLine (org.
+								 meta_environment.
+								 rascal.ast.
+								 Expression x)
     {
-      Default z = new Default ();
+      org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setBeginLine (x);
       return z;
     }
-    private Expression beginColumn;
-    public Expression getBeginColumn ()
+    private org.meta_environment.rascal.ast.Expression beginColumn;
+    public org.meta_environment.rascal.ast.Expression getBeginColumn ()
     {
       return beginColumn;
     }
-    private void $setBeginColumn (Expression x)
+    private void $setBeginColumn (org.meta_environment.rascal.ast.
+				  Expression x)
     {
       this.beginColumn = x;
     }
-    public Default setBeginColumn (Expression x)
+    public org.meta_environment.rascal.ast.Default setBeginColumn (org.
+								   meta_environment.
+								   rascal.ast.
+								   Expression
+								   x)
     {
-      Default z = new Default ();
+      org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setBeginColumn (x);
       return z;
     }
-    private Expression endLine;
-    public Expression getEndLine ()
+    private org.meta_environment.rascal.ast.Expression endLine;
+    public org.meta_environment.rascal.ast.Expression getEndLine ()
     {
       return endLine;
     }
-    private void $setEndLine (Expression x)
+    private void $setEndLine (org.meta_environment.rascal.ast.Expression x)
     {
       this.endLine = x;
     }
-    public Default setEndLine (Expression x)
+    public org.meta_environment.rascal.ast.Default setEndLine (org.
+							       meta_environment.
+							       rascal.ast.
+							       Expression x)
     {
-      Default z = new Default ();
+      org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setEndLine (x);
       return z;
     }
-    private Expression endColumn;
-    public Expression getEndColumn ()
+    private org.meta_environment.rascal.ast.Expression endColumn;
+    public org.meta_environment.rascal.ast.Expression getEndColumn ()
     {
       return endColumn;
     }
-    private void $setEndColumn (Expression x)
+    private void $setEndColumn (org.meta_environment.rascal.ast.Expression x)
     {
       this.endColumn = x;
     }
-    public Default setEndColumn (Expression x)
+    public org.meta_environment.rascal.ast.Default setEndColumn (org.
+								 meta_environment.
+								 rascal.ast.
+								 Expression x)
     {
-      Default z = new Default ();
+      org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setEndColumn (x);
       return z;
     }
-    private Expression offset;
-    public Expression getOffset ()
+    private org.meta_environment.rascal.ast.Expression offset;
+    public org.meta_environment.rascal.ast.Expression getOffset ()
     {
       return offset;
     }
-    private void $setOffset (Expression x)
+    private void $setOffset (org.meta_environment.rascal.ast.Expression x)
     {
       this.offset = x;
     }
-    public Default setOffset (Expression x)
+    public org.meta_environment.rascal.ast.Default setOffset (org.
+							      meta_environment.
+							      rascal.ast.
+							      Expression x)
     {
-      Default z = new Default ();
+      org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setOffset (x);
       return z;
     }
-    private Expression length;
-    public Expression getLength ()
+    private org.meta_environment.rascal.ast.Expression length;
+    public org.meta_environment.rascal.ast.Expression getLength ()
     {
       return length;
     }
-    private void $setLength (Expression x)
+    private void $setLength (org.meta_environment.rascal.ast.Expression x)
     {
       this.length = x;
     }
-    public Default setLength (Expression x)
+    public org.meta_environment.rascal.ast.Default setLength (org.
+							      meta_environment.
+							      rascal.ast.
+							      Expression x)
     {
-      Default z = new Default ();
+      org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setLength (x);
       return z;
     }

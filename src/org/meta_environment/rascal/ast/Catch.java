@@ -8,7 +8,8 @@ public abstract class Catch extends AbstractAST
     private Default ()
     {
     }
-    /*package */ Default (ITree tree, Statement body)
+    /*package */ Default (ITree tree,
+			  org.meta_environment.rascal.ast.Statement body)
     {
       this.tree = tree;
       this.body = body;
@@ -17,18 +18,21 @@ public abstract class Catch extends AbstractAST
     {
       return visitor.visitCatchDefault (this);
     }
-    private Statement body;
-    public Statement getBody ()
+    private org.meta_environment.rascal.ast.Statement body;
+    public org.meta_environment.rascal.ast.Statement getBody ()
     {
       return body;
     }
-    private void $setBody (Statement x)
+    private void $setBody (org.meta_environment.rascal.ast.Statement x)
     {
       this.body = x;
     }
-    public Default setBody (Statement x)
+    public org.meta_environment.rascal.ast.Default setBody (org.
+							    meta_environment.
+							    rascal.ast.
+							    Statement x)
     {
-      Default z = new Default ();
+      org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setBody (x);
       return z;
     }
@@ -52,7 +56,10 @@ public abstract class Catch extends AbstractAST
     private Binding ()
     {
     }
-    /*package */ Binding (ITree tree, Type type, Name name, Statement body)
+    /*package */ Binding (ITree tree,
+			  org.meta_environment.rascal.ast.Type type,
+			  org.meta_environment.rascal.ast.Name name,
+			  org.meta_environment.rascal.ast.Statement body)
     {
       this.tree = tree;
       this.type = type;
@@ -63,48 +70,55 @@ public abstract class Catch extends AbstractAST
     {
       return visitor.visitCatchBinding (this);
     }
-    private Type type;
-    public Type getType ()
+    private org.meta_environment.rascal.ast.Type type;
+    public org.meta_environment.rascal.ast.Type getType ()
     {
       return type;
     }
-    private void $setType (Type x)
+    private void $setType (org.meta_environment.rascal.ast.Type x)
     {
       this.type = x;
     }
-    public Binding setType (Type x)
+    public org.meta_environment.rascal.ast.Binding setType (org.
+							    meta_environment.
+							    rascal.ast.Type x)
     {
-      Binding z = new Binding ();
+      org.meta_environment.rascal.ast.Binding z = new Binding ();
       z.$setType (x);
       return z;
     }
-    private Name name;
-    public Name getName ()
+    private org.meta_environment.rascal.ast.Name name;
+    public org.meta_environment.rascal.ast.Name getName ()
     {
       return name;
     }
-    private void $setName (Name x)
+    private void $setName (org.meta_environment.rascal.ast.Name x)
     {
       this.name = x;
     }
-    public Binding setName (Name x)
+    public org.meta_environment.rascal.ast.Binding setName (org.
+							    meta_environment.
+							    rascal.ast.Name x)
     {
-      Binding z = new Binding ();
+      org.meta_environment.rascal.ast.Binding z = new Binding ();
       z.$setName (x);
       return z;
     }
-    private Statement body;
-    public Statement getBody ()
+    private org.meta_environment.rascal.ast.Statement body;
+    public org.meta_environment.rascal.ast.Statement getBody ()
     {
       return body;
     }
-    private void $setBody (Statement x)
+    private void $setBody (org.meta_environment.rascal.ast.Statement x)
     {
       this.body = x;
     }
-    public Binding setBody (Statement x)
+    public org.meta_environment.rascal.ast.Binding setBody (org.
+							    meta_environment.
+							    rascal.ast.
+							    Statement x)
     {
-      Binding z = new Binding ();
+      org.meta_environment.rascal.ast.Binding z = new Binding ();
       z.$setBody (x);
       return z;
     }

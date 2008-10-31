@@ -36,7 +36,9 @@ public abstract class Bound extends AbstractAST
     private Default ()
     {
     }
-    /*package */ Default (ITree tree, Expression expression)
+    /*package */ Default (ITree tree,
+			  org.meta_environment.rascal.ast.
+			  Expression expression)
     {
       this.tree = tree;
       this.expression = expression;
@@ -45,18 +47,22 @@ public abstract class Bound extends AbstractAST
     {
       return visitor.visitBoundDefault (this);
     }
-    private Expression expression;
-    public Expression getExpression ()
+    private org.meta_environment.rascal.ast.Expression expression;
+    public org.meta_environment.rascal.ast.Expression getExpression ()
     {
       return expression;
     }
-    private void $setExpression (Expression x)
+    private void $setExpression (org.meta_environment.rascal.ast.Expression x)
     {
       this.expression = x;
     }
-    public Default setExpression (Expression x)
+    public org.meta_environment.rascal.ast.Default setExpression (org.
+								  meta_environment.
+								  rascal.ast.
+								  Expression
+								  x)
     {
-      Default z = new Default ();
+      org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setExpression (x);
       return z;
     }

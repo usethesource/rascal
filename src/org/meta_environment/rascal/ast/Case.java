@@ -8,7 +8,7 @@ public abstract class Case extends AbstractAST
     private Rule ()
     {
     }
-    /*package */ Rule (ITree tree, Rule rule)
+    /*package */ Rule (ITree tree, org.meta_environment.rascal.ast.Rule rule)
     {
       this.tree = tree;
       this.rule = rule;
@@ -17,18 +17,19 @@ public abstract class Case extends AbstractAST
     {
       return visitor.visitCaseRule (this);
     }
-    private Rule rule;
-    public Rule getRule ()
+    private org.meta_environment.rascal.ast.Rule rule;
+    public org.meta_environment.rascal.ast.Rule getRule ()
     {
       return rule;
     }
-    private void $setRule (Rule x)
+    private void $setRule (org.meta_environment.rascal.ast.Rule x)
     {
       this.rule = x;
     }
-    public Rule setRule (Rule x)
+    public org.meta_environment.rascal.ast.Rule setRule (org.meta_environment.
+							 rascal.ast.Rule x)
     {
-      Rule z = new Rule ();
+      org.meta_environment.rascal.ast.Rule z = new Rule ();
       z.$setRule (x);
       return z;
     }
@@ -52,7 +53,8 @@ public abstract class Case extends AbstractAST
     private Default ()
     {
     }
-    /*package */ Default (ITree tree, Statement statement)
+    /*package */ Default (ITree tree,
+			  org.meta_environment.rascal.ast.Statement statement)
     {
       this.tree = tree;
       this.statement = statement;
@@ -61,18 +63,21 @@ public abstract class Case extends AbstractAST
     {
       return visitor.visitCaseDefault (this);
     }
-    private Statement statement;
-    public Statement getStatement ()
+    private org.meta_environment.rascal.ast.Statement statement;
+    public org.meta_environment.rascal.ast.Statement getStatement ()
     {
       return statement;
     }
-    private void $setStatement (Statement x)
+    private void $setStatement (org.meta_environment.rascal.ast.Statement x)
     {
       this.statement = x;
     }
-    public Default setStatement (Statement x)
+    public org.meta_environment.rascal.ast.Default setStatement (org.
+								 meta_environment.
+								 rascal.ast.
+								 Statement x)
     {
-      Default z = new Default ();
+      org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setStatement (x);
       return z;
     }

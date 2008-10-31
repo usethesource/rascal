@@ -18,18 +18,27 @@ public abstract class FunctionModifiers extends AbstractAST
     {
       return visitor.visitFunctionModifiersList (this);
     }
-    private java.util.List < FunctionModifier > modifiers;
-    public java.util.List < FunctionModifier > getModifiers ()
+    private java.util.List <
+      org.meta_environment.rascal.ast.FunctionModifier > modifiers;
+    public java.util.List < org.meta_environment.rascal.ast.FunctionModifier >
+      getModifiers ()
     {
       return modifiers;
     }
-    private void $setModifiers (java.util.List < FunctionModifier > x)
+    private void $setModifiers (java.util.List <
+				org.meta_environment.rascal.ast.
+				FunctionModifier > x)
     {
       this.modifiers = x;
     }
-    public List setModifiers (java.util.List < FunctionModifier > x)
+    public org.meta_environment.rascal.ast.List setModifiers (java.util.List <
+							      org.
+							      meta_environment.
+							      rascal.ast.
+							      FunctionModifier
+							      > x)
     {
-      List z = new List ();
+      org.meta_environment.rascal.ast.List z = new List ();
       z.$setModifiers (x);
       return z;
     }

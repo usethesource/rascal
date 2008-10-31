@@ -8,7 +8,8 @@ public abstract class FunctionType extends AbstractAST
     private TypeArguments ()
     {
     }
-    /*package */ TypeArguments (ITree tree, Type type,
+    /*package */ TypeArguments (ITree tree,
+				org.meta_environment.rascal.ast.Type type,
 				java.util.List < TypeArg > arguments)
     {
       this.tree = tree;
@@ -19,33 +20,47 @@ public abstract class FunctionType extends AbstractAST
     {
       return visitor.visitFunctionTypeTypeArguments (this);
     }
-    private Type type;
-    public Type getType ()
+    private org.meta_environment.rascal.ast.Type type;
+    public org.meta_environment.rascal.ast.Type getType ()
     {
       return type;
     }
-    private void $setType (Type x)
+    private void $setType (org.meta_environment.rascal.ast.Type x)
     {
       this.type = x;
     }
-    public TypeArguments setType (Type x)
+    public org.meta_environment.rascal.ast.TypeArguments setType (org.
+								  meta_environment.
+								  rascal.ast.
+								  Type x)
     {
-      TypeArguments z = new TypeArguments ();
+      org.meta_environment.rascal.ast.TypeArguments z = new TypeArguments ();
       z.$setType (x);
       return z;
     }
-    private java.util.List < TypeArg > arguments;
-    public java.util.List < TypeArg > getArguments ()
+    private java.util.List < org.meta_environment.rascal.ast.TypeArg >
+      arguments;
+    public java.util.List < org.meta_environment.rascal.ast.TypeArg >
+      getArguments ()
     {
       return arguments;
     }
-    private void $setArguments (java.util.List < TypeArg > x)
+    private void $setArguments (java.util.List <
+				org.meta_environment.rascal.ast.TypeArg > x)
     {
       this.arguments = x;
     }
-    public TypeArguments setArguments (java.util.List < TypeArg > x)
+    public org.meta_environment.rascal.ast.TypeArguments setArguments (java.
+								       util.
+								       List <
+								       org.
+								       meta_environment.
+								       rascal.
+								       ast.
+								       TypeArg
+								       > x)
     {
-      TypeArguments z = new TypeArguments ();
+      org.meta_environment.rascal.ast.TypeArguments z = new TypeArguments ();
       z.$setArguments (x);
       return z;
     }

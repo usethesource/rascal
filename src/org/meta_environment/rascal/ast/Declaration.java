@@ -8,7 +8,9 @@ public abstract class Declaration extends AbstractAST
     private View ()
     {
     }
-    /*package */ View (ITree tree, Name view, Name type, Tags tags,
+    /*package */ View (ITree tree, org.meta_environment.rascal.ast.Name view,
+		       org.meta_environment.rascal.ast.Name type,
+		       org.meta_environment.rascal.ast.Tags tags,
 		       java.util.List < Alternative > alternatives)
     {
       this.tree = tree;
@@ -21,63 +23,76 @@ public abstract class Declaration extends AbstractAST
     {
       return visitor.visitDeclarationView (this);
     }
-    private Name view;
-    public Name getView ()
+    private org.meta_environment.rascal.ast.Name view;
+    public org.meta_environment.rascal.ast.Name getView ()
     {
       return view;
     }
-    private void $setView (Name x)
+    private void $setView (org.meta_environment.rascal.ast.Name x)
     {
       this.view = x;
     }
-    public View setView (Name x)
+    public org.meta_environment.rascal.ast.View setView (org.meta_environment.
+							 rascal.ast.Name x)
     {
-      View z = new View ();
+      org.meta_environment.rascal.ast.View z = new View ();
       z.$setView (x);
       return z;
     }
-    private Name type;
-    public Name getType ()
+    private org.meta_environment.rascal.ast.Name type;
+    public org.meta_environment.rascal.ast.Name getType ()
     {
       return type;
     }
-    private void $setType (Name x)
+    private void $setType (org.meta_environment.rascal.ast.Name x)
     {
       this.type = x;
     }
-    public View setType (Name x)
+    public org.meta_environment.rascal.ast.View setType (org.meta_environment.
+							 rascal.ast.Name x)
     {
-      View z = new View ();
+      org.meta_environment.rascal.ast.View z = new View ();
       z.$setType (x);
       return z;
     }
-    private Tags tags;
-    public Tags getTags ()
+    private org.meta_environment.rascal.ast.Tags tags;
+    public org.meta_environment.rascal.ast.Tags getTags ()
     {
       return tags;
     }
-    private void $setTags (Tags x)
+    private void $setTags (org.meta_environment.rascal.ast.Tags x)
     {
       this.tags = x;
     }
-    public View setTags (Tags x)
+    public org.meta_environment.rascal.ast.View setTags (org.meta_environment.
+							 rascal.ast.Tags x)
     {
-      View z = new View ();
+      org.meta_environment.rascal.ast.View z = new View ();
       z.$setTags (x);
       return z;
     }
-    private java.util.List < Alternative > alternatives;
-    public java.util.List < Alternative > getAlternatives ()
+    private java.util.List < org.meta_environment.rascal.ast.Alternative >
+      alternatives;
+    public java.util.List < org.meta_environment.rascal.ast.Alternative >
+      getAlternatives ()
     {
       return alternatives;
     }
-    private void $setAlternatives (java.util.List < Alternative > x)
+    private void $setAlternatives (java.util.List <
+				   org.meta_environment.rascal.ast.
+				   Alternative > x)
     {
       this.alternatives = x;
     }
-    public View setAlternatives (java.util.List < Alternative > x)
+    public org.meta_environment.rascal.ast.View setAlternatives (java.util.
+								 List <
+								 org.
+								 meta_environment.
+								 rascal.ast.
+								 Alternative >
+								 x)
     {
-      View z = new View ();
+      org.meta_environment.rascal.ast.View z = new View ();
       z.$setAlternatives (x);
       return z;
     }
@@ -101,7 +116,9 @@ public abstract class Declaration extends AbstractAST
     private Type ()
     {
     }
-    /*package */ Type (ITree tree, Type base, UserType user, Tags tags)
+    /*package */ Type (ITree tree, org.meta_environment.rascal.ast.Type base,
+		       org.meta_environment.rascal.ast.UserType user,
+		       org.meta_environment.rascal.ast.Tags tags)
     {
       this.tree = tree;
       this.base = base;
@@ -112,48 +129,52 @@ public abstract class Declaration extends AbstractAST
     {
       return visitor.visitDeclarationType (this);
     }
-    private Type base;
-    public Type getBase ()
+    private org.meta_environment.rascal.ast.Type base;
+    public org.meta_environment.rascal.ast.Type getBase ()
     {
       return base;
     }
-    private void $setBase (Type x)
+    private void $setBase (org.meta_environment.rascal.ast.Type x)
     {
       this.base = x;
     }
-    public Type setBase (Type x)
+    public org.meta_environment.rascal.ast.Type setBase (org.meta_environment.
+							 rascal.ast.Type x)
     {
-      Type z = new Type ();
+      org.meta_environment.rascal.ast.Type z = new Type ();
       z.$setBase (x);
       return z;
     }
-    private UserType user;
-    public UserType getUser ()
+    private org.meta_environment.rascal.ast.UserType user;
+    public org.meta_environment.rascal.ast.UserType getUser ()
     {
       return user;
     }
-    private void $setUser (UserType x)
+    private void $setUser (org.meta_environment.rascal.ast.UserType x)
     {
       this.user = x;
     }
-    public Type setUser (UserType x)
+    public org.meta_environment.rascal.ast.Type setUser (org.meta_environment.
+							 rascal.ast.
+							 UserType x)
     {
-      Type z = new Type ();
+      org.meta_environment.rascal.ast.Type z = new Type ();
       z.$setUser (x);
       return z;
     }
-    private Tags tags;
-    public Tags getTags ()
+    private org.meta_environment.rascal.ast.Tags tags;
+    public org.meta_environment.rascal.ast.Tags getTags ()
     {
       return tags;
     }
-    private void $setTags (Tags x)
+    private void $setTags (org.meta_environment.rascal.ast.Tags x)
     {
       this.tags = x;
     }
-    public Type setTags (Tags x)
+    public org.meta_environment.rascal.ast.Type setTags (org.meta_environment.
+							 rascal.ast.Tags x)
     {
-      Type z = new Type ();
+      org.meta_environment.rascal.ast.Type z = new Type ();
       z.$setTags (x);
       return z;
     }
@@ -164,7 +185,9 @@ public abstract class Declaration extends AbstractAST
     private Data ()
     {
     }
-    /*package */ Data (ITree tree, UserType user, Tags tags,
+    /*package */ Data (ITree tree,
+		       org.meta_environment.rascal.ast.UserType user,
+		       org.meta_environment.rascal.ast.Tags tags,
 		       java.util.List < Variant > variants)
     {
       this.tree = tree;
@@ -176,48 +199,58 @@ public abstract class Declaration extends AbstractAST
     {
       return visitor.visitDeclarationData (this);
     }
-    private UserType user;
-    public UserType getUser ()
+    private org.meta_environment.rascal.ast.UserType user;
+    public org.meta_environment.rascal.ast.UserType getUser ()
     {
       return user;
     }
-    private void $setUser (UserType x)
+    private void $setUser (org.meta_environment.rascal.ast.UserType x)
     {
       this.user = x;
     }
-    public Data setUser (UserType x)
+    public org.meta_environment.rascal.ast.Data setUser (org.meta_environment.
+							 rascal.ast.
+							 UserType x)
     {
-      Data z = new Data ();
+      org.meta_environment.rascal.ast.Data z = new Data ();
       z.$setUser (x);
       return z;
     }
-    private Tags tags;
-    public Tags getTags ()
+    private org.meta_environment.rascal.ast.Tags tags;
+    public org.meta_environment.rascal.ast.Tags getTags ()
     {
       return tags;
     }
-    private void $setTags (Tags x)
+    private void $setTags (org.meta_environment.rascal.ast.Tags x)
     {
       this.tags = x;
     }
-    public Data setTags (Tags x)
+    public org.meta_environment.rascal.ast.Data setTags (org.meta_environment.
+							 rascal.ast.Tags x)
     {
-      Data z = new Data ();
+      org.meta_environment.rascal.ast.Data z = new Data ();
       z.$setTags (x);
       return z;
     }
-    private java.util.List < Variant > variants;
-    public java.util.List < Variant > getVariants ()
+    private java.util.List < org.meta_environment.rascal.ast.Variant >
+      variants;
+    public java.util.List < org.meta_environment.rascal.ast.Variant >
+      getVariants ()
     {
       return variants;
     }
-    private void $setVariants (java.util.List < Variant > x)
+    private void $setVariants (java.util.List <
+			       org.meta_environment.rascal.ast.Variant > x)
     {
       this.variants = x;
     }
-    public Data setVariants (java.util.List < Variant > x)
+    public org.meta_environment.rascal.ast.Data setVariants (java.util.List <
+							     org.
+							     meta_environment.
+							     rascal.ast.
+							     Variant > x)
     {
-      Data z = new Data ();
+      org.meta_environment.rascal.ast.Data z = new Data ();
       z.$setVariants (x);
       return z;
     }
@@ -229,6 +262,7 @@ public abstract class Declaration extends AbstractAST
     {
     }
     /*package */ Function (ITree tree,
+			   org.meta_environment.rascal.ast.
 			   FunctionDeclaration functionDeclaration)
     {
       this.tree = tree;
@@ -238,18 +272,23 @@ public abstract class Declaration extends AbstractAST
     {
       return visitor.visitDeclarationFunction (this);
     }
-    private FunctionDeclaration functionDeclaration;
-    public FunctionDeclaration getFunctionDeclaration ()
+    private org.meta_environment.rascal.ast.
+      FunctionDeclaration functionDeclaration;
+    public org.meta_environment.rascal.ast.
+      FunctionDeclaration getFunctionDeclaration ()
     {
       return functionDeclaration;
     }
-    private void $setFunctionDeclaration (FunctionDeclaration x)
+    private void $setFunctionDeclaration (org.meta_environment.rascal.ast.
+					  FunctionDeclaration x)
     {
       this.functionDeclaration = x;
     }
-    public Function setFunctionDeclaration (FunctionDeclaration x)
+    public org.meta_environment.rascal.ast.
+      Function setFunctionDeclaration (org.meta_environment.rascal.ast.
+				       FunctionDeclaration x)
     {
-      Function z = new Function ();
+      org.meta_environment.rascal.ast.Function z = new Function ();
       z.$setFunctionDeclaration (x);
       return z;
     }
@@ -260,7 +299,8 @@ public abstract class Declaration extends AbstractAST
     private Variable ()
     {
     }
-    /*package */ Variable (ITree tree, Type type,
+    /*package */ Variable (ITree tree,
+			   org.meta_environment.rascal.ast.Type type,
 			   java.util.List < Variable > variables)
     {
       this.tree = tree;
@@ -271,33 +311,45 @@ public abstract class Declaration extends AbstractAST
     {
       return visitor.visitDeclarationVariable (this);
     }
-    private Type type;
-    public Type getType ()
+    private org.meta_environment.rascal.ast.Type type;
+    public org.meta_environment.rascal.ast.Type getType ()
     {
       return type;
     }
-    private void $setType (Type x)
+    private void $setType (org.meta_environment.rascal.ast.Type x)
     {
       this.type = x;
     }
-    public Variable setType (Type x)
+    public org.meta_environment.rascal.ast.Variable setType (org.
+							     meta_environment.
+							     rascal.ast.
+							     Type x)
     {
-      Variable z = new Variable ();
+      org.meta_environment.rascal.ast.Variable z = new Variable ();
       z.$setType (x);
       return z;
     }
-    private java.util.List < Variable > variables;
-    public java.util.List < Variable > getVariables ()
+    private java.util.List < org.meta_environment.rascal.ast.Variable >
+      variables;
+    public java.util.List < org.meta_environment.rascal.ast.Variable >
+      getVariables ()
     {
       return variables;
     }
-    private void $setVariables (java.util.List < Variable > x)
+    private void $setVariables (java.util.List <
+				org.meta_environment.rascal.ast.Variable > x)
     {
       this.variables = x;
     }
-    public Variable setVariables (java.util.List < Variable > x)
+    public org.meta_environment.rascal.ast.Variable setVariables (java.util.
+								  List <
+								  org.
+								  meta_environment.
+								  rascal.ast.
+								  Variable >
+								  x)
     {
-      Variable z = new Variable ();
+      org.meta_environment.rascal.ast.Variable z = new Variable ();
       z.$setVariables (x);
       return z;
     }
@@ -308,7 +360,9 @@ public abstract class Declaration extends AbstractAST
     private Rule ()
     {
     }
-    /*package */ Rule (ITree tree, Name name, Tags tags, Rule rule)
+    /*package */ Rule (ITree tree, org.meta_environment.rascal.ast.Name name,
+		       org.meta_environment.rascal.ast.Tags tags,
+		       org.meta_environment.rascal.ast.Rule rule)
     {
       this.tree = tree;
       this.name = name;
@@ -319,48 +373,51 @@ public abstract class Declaration extends AbstractAST
     {
       return visitor.visitDeclarationRule (this);
     }
-    private Name name;
-    public Name getName ()
+    private org.meta_environment.rascal.ast.Name name;
+    public org.meta_environment.rascal.ast.Name getName ()
     {
       return name;
     }
-    private void $setName (Name x)
+    private void $setName (org.meta_environment.rascal.ast.Name x)
     {
       this.name = x;
     }
-    public Rule setName (Name x)
+    public org.meta_environment.rascal.ast.Rule setName (org.meta_environment.
+							 rascal.ast.Name x)
     {
-      Rule z = new Rule ();
+      org.meta_environment.rascal.ast.Rule z = new Rule ();
       z.$setName (x);
       return z;
     }
-    private Tags tags;
-    public Tags getTags ()
+    private org.meta_environment.rascal.ast.Tags tags;
+    public org.meta_environment.rascal.ast.Tags getTags ()
     {
       return tags;
     }
-    private void $setTags (Tags x)
+    private void $setTags (org.meta_environment.rascal.ast.Tags x)
     {
       this.tags = x;
     }
-    public Rule setTags (Tags x)
+    public org.meta_environment.rascal.ast.Rule setTags (org.meta_environment.
+							 rascal.ast.Tags x)
     {
-      Rule z = new Rule ();
+      org.meta_environment.rascal.ast.Rule z = new Rule ();
       z.$setTags (x);
       return z;
     }
-    private Rule rule;
-    public Rule getRule ()
+    private org.meta_environment.rascal.ast.Rule rule;
+    public org.meta_environment.rascal.ast.Rule getRule ()
     {
       return rule;
     }
-    private void $setRule (Rule x)
+    private void $setRule (org.meta_environment.rascal.ast.Rule x)
     {
       this.rule = x;
     }
-    public Rule setRule (Rule x)
+    public org.meta_environment.rascal.ast.Rule setRule (org.meta_environment.
+							 rascal.ast.Rule x)
     {
-      Rule z = new Rule ();
+      org.meta_environment.rascal.ast.Rule z = new Rule ();
       z.$setRule (x);
       return z;
     }
@@ -371,7 +428,10 @@ public abstract class Declaration extends AbstractAST
     private Annotation ()
     {
     }
-    /*package */ Annotation (ITree tree, Type type, Name name, Tags tags,
+    /*package */ Annotation (ITree tree,
+			     org.meta_environment.rascal.ast.Type type,
+			     org.meta_environment.rascal.ast.Name name,
+			     org.meta_environment.rascal.ast.Tags tags,
 			     java.util.List < Type > types)
     {
       this.tree = tree;
@@ -384,63 +444,78 @@ public abstract class Declaration extends AbstractAST
     {
       return visitor.visitDeclarationAnnotation (this);
     }
-    private Type type;
-    public Type getType ()
+    private org.meta_environment.rascal.ast.Type type;
+    public org.meta_environment.rascal.ast.Type getType ()
     {
       return type;
     }
-    private void $setType (Type x)
+    private void $setType (org.meta_environment.rascal.ast.Type x)
     {
       this.type = x;
     }
-    public Annotation setType (Type x)
+    public org.meta_environment.rascal.ast.Annotation setType (org.
+							       meta_environment.
+							       rascal.ast.
+							       Type x)
     {
-      Annotation z = new Annotation ();
+      org.meta_environment.rascal.ast.Annotation z = new Annotation ();
       z.$setType (x);
       return z;
     }
-    private Name name;
-    public Name getName ()
+    private org.meta_environment.rascal.ast.Name name;
+    public org.meta_environment.rascal.ast.Name getName ()
     {
       return name;
     }
-    private void $setName (Name x)
+    private void $setName (org.meta_environment.rascal.ast.Name x)
     {
       this.name = x;
     }
-    public Annotation setName (Name x)
+    public org.meta_environment.rascal.ast.Annotation setName (org.
+							       meta_environment.
+							       rascal.ast.
+							       Name x)
     {
-      Annotation z = new Annotation ();
+      org.meta_environment.rascal.ast.Annotation z = new Annotation ();
       z.$setName (x);
       return z;
     }
-    private Tags tags;
-    public Tags getTags ()
+    private org.meta_environment.rascal.ast.Tags tags;
+    public org.meta_environment.rascal.ast.Tags getTags ()
     {
       return tags;
     }
-    private void $setTags (Tags x)
+    private void $setTags (org.meta_environment.rascal.ast.Tags x)
     {
       this.tags = x;
     }
-    public Annotation setTags (Tags x)
+    public org.meta_environment.rascal.ast.Annotation setTags (org.
+							       meta_environment.
+							       rascal.ast.
+							       Tags x)
     {
-      Annotation z = new Annotation ();
+      org.meta_environment.rascal.ast.Annotation z = new Annotation ();
       z.$setTags (x);
       return z;
     }
-    private java.util.List < Type > types;
-    public java.util.List < Type > getTypes ()
+    private java.util.List < org.meta_environment.rascal.ast.Type > types;
+    public java.util.List < org.meta_environment.rascal.ast.Type > getTypes ()
     {
       return types;
     }
-    private void $setTypes (java.util.List < Type > x)
+    private void $setTypes (java.util.List <
+			    org.meta_environment.rascal.ast.Type > x)
     {
       this.types = x;
     }
-    public Annotation setTypes (java.util.List < Type > x)
+    public org.meta_environment.rascal.ast.Annotation setTypes (java.util.
+								List <
+								org.
+								meta_environment.
+								rascal.ast.
+								Type > x)
     {
-      Annotation z = new Annotation ();
+      org.meta_environment.rascal.ast.Annotation z = new Annotation ();
       z.$setTypes (x);
       return z;
     }
@@ -451,7 +526,9 @@ public abstract class Declaration extends AbstractAST
     private Tag ()
     {
     }
-    /*package */ Tag (ITree tree, Kind kind, Name name, Tags tags,
+    /*package */ Tag (ITree tree, org.meta_environment.rascal.ast.Kind kind,
+		      org.meta_environment.rascal.ast.Name name,
+		      org.meta_environment.rascal.ast.Tags tags,
 		      java.util.List < Type > types)
     {
       this.tree = tree;
@@ -464,63 +541,69 @@ public abstract class Declaration extends AbstractAST
     {
       return visitor.visitDeclarationTag (this);
     }
-    private Kind kind;
-    public Kind getKind ()
+    private org.meta_environment.rascal.ast.Kind kind;
+    public org.meta_environment.rascal.ast.Kind getKind ()
     {
       return kind;
     }
-    private void $setKind (Kind x)
+    private void $setKind (org.meta_environment.rascal.ast.Kind x)
     {
       this.kind = x;
     }
-    public Tag setKind (Kind x)
+    public org.meta_environment.rascal.ast.Tag setKind (org.meta_environment.
+							rascal.ast.Kind x)
     {
-      Tag z = new Tag ();
+      org.meta_environment.rascal.ast.Tag z = new Tag ();
       z.$setKind (x);
       return z;
     }
-    private Name name;
-    public Name getName ()
+    private org.meta_environment.rascal.ast.Name name;
+    public org.meta_environment.rascal.ast.Name getName ()
     {
       return name;
     }
-    private void $setName (Name x)
+    private void $setName (org.meta_environment.rascal.ast.Name x)
     {
       this.name = x;
     }
-    public Tag setName (Name x)
+    public org.meta_environment.rascal.ast.Tag setName (org.meta_environment.
+							rascal.ast.Name x)
     {
-      Tag z = new Tag ();
+      org.meta_environment.rascal.ast.Tag z = new Tag ();
       z.$setName (x);
       return z;
     }
-    private Tags tags;
-    public Tags getTags ()
+    private org.meta_environment.rascal.ast.Tags tags;
+    public org.meta_environment.rascal.ast.Tags getTags ()
     {
       return tags;
     }
-    private void $setTags (Tags x)
+    private void $setTags (org.meta_environment.rascal.ast.Tags x)
     {
       this.tags = x;
     }
-    public Tag setTags (Tags x)
+    public org.meta_environment.rascal.ast.Tag setTags (org.meta_environment.
+							rascal.ast.Tags x)
     {
-      Tag z = new Tag ();
+      org.meta_environment.rascal.ast.Tag z = new Tag ();
       z.$setTags (x);
       return z;
     }
-    private java.util.List < Type > types;
-    public java.util.List < Type > getTypes ()
+    private java.util.List < org.meta_environment.rascal.ast.Type > types;
+    public java.util.List < org.meta_environment.rascal.ast.Type > getTypes ()
     {
       return types;
     }
-    private void $setTypes (java.util.List < Type > x)
+    private void $setTypes (java.util.List <
+			    org.meta_environment.rascal.ast.Type > x)
     {
       this.types = x;
     }
-    public Tag setTypes (java.util.List < Type > x)
+    public org.meta_environment.rascal.ast.Tag setTypes (java.util.List <
+							 org.meta_environment.
+							 rascal.ast.Type > x)
     {
-      Tag z = new Tag ();
+      org.meta_environment.rascal.ast.Tag z = new Tag ();
       z.$setTypes (x);
       return z;
     }

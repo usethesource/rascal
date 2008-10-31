@@ -8,7 +8,12 @@ public abstract class Variable extends AbstractAST
     private GivenInitialization ()
     {
     }
-    /*package */ GivenInitialization (ITree tree, Name name, Tags tags,
+    /*package */ GivenInitialization (ITree tree,
+				      org.meta_environment.rascal.ast.
+				      Name name,
+				      org.meta_environment.rascal.ast.
+				      Tags tags,
+				      org.meta_environment.rascal.ast.
 				      Expression initial)
     {
       this.tree = tree;
@@ -20,48 +25,63 @@ public abstract class Variable extends AbstractAST
     {
       return visitor.visitVariableGivenInitialization (this);
     }
-    private Name name;
-    public Name getName ()
+    private org.meta_environment.rascal.ast.Name name;
+    public org.meta_environment.rascal.ast.Name getName ()
     {
       return name;
     }
-    private void $setName (Name x)
+    private void $setName (org.meta_environment.rascal.ast.Name x)
     {
       this.name = x;
     }
-    public GivenInitialization setName (Name x)
+    public org.meta_environment.rascal.ast.GivenInitialization setName (org.
+									meta_environment.
+									rascal.
+									ast.
+									Name
+									x)
     {
-      GivenInitialization z = new GivenInitialization ();
+      org.meta_environment.rascal.ast.GivenInitialization z =
+	new GivenInitialization ();
       z.$setName (x);
       return z;
     }
-    private Tags tags;
-    public Tags getTags ()
+    private org.meta_environment.rascal.ast.Tags tags;
+    public org.meta_environment.rascal.ast.Tags getTags ()
     {
       return tags;
     }
-    private void $setTags (Tags x)
+    private void $setTags (org.meta_environment.rascal.ast.Tags x)
     {
       this.tags = x;
     }
-    public GivenInitialization setTags (Tags x)
+    public org.meta_environment.rascal.ast.GivenInitialization setTags (org.
+									meta_environment.
+									rascal.
+									ast.
+									Tags
+									x)
     {
-      GivenInitialization z = new GivenInitialization ();
+      org.meta_environment.rascal.ast.GivenInitialization z =
+	new GivenInitialization ();
       z.$setTags (x);
       return z;
     }
-    private Expression initial;
-    public Expression getInitial ()
+    private org.meta_environment.rascal.ast.Expression initial;
+    public org.meta_environment.rascal.ast.Expression getInitial ()
     {
       return initial;
     }
-    private void $setInitial (Expression x)
+    private void $setInitial (org.meta_environment.rascal.ast.Expression x)
     {
       this.initial = x;
     }
-    public GivenInitialization setInitial (Expression x)
+    public org.meta_environment.rascal.ast.
+      GivenInitialization setInitial (org.meta_environment.rascal.ast.
+				      Expression x)
     {
-      GivenInitialization z = new GivenInitialization ();
+      org.meta_environment.rascal.ast.GivenInitialization z =
+	new GivenInitialization ();
       z.$setInitial (x);
       return z;
     }

@@ -8,8 +8,13 @@ public abstract class ImportedModule extends AbstractAST
     private ActualsRenaming ()
     {
     }
-    /*package */ ActualsRenaming (ITree tree, ModuleName name,
-				  ModuleActuals actuals, Renamings renamings)
+    /*package */ ActualsRenaming (ITree tree,
+				  org.meta_environment.rascal.ast.
+				  ModuleName name,
+				  org.meta_environment.rascal.ast.
+				  ModuleActuals actuals,
+				  org.meta_environment.rascal.ast.
+				  Renamings renamings)
     {
       this.tree = tree;
       this.name = name;
@@ -20,48 +25,66 @@ public abstract class ImportedModule extends AbstractAST
     {
       return visitor.visitImportedModuleActualsRenaming (this);
     }
-    private ModuleName name;
-    public ModuleName getName ()
+    private org.meta_environment.rascal.ast.ModuleName name;
+    public org.meta_environment.rascal.ast.ModuleName getName ()
     {
       return name;
     }
-    private void $setName (ModuleName x)
+    private void $setName (org.meta_environment.rascal.ast.ModuleName x)
     {
       this.name = x;
     }
-    public ActualsRenaming setName (ModuleName x)
+    public org.meta_environment.rascal.ast.ActualsRenaming setName (org.
+								    meta_environment.
+								    rascal.
+								    ast.
+								    ModuleName
+								    x)
     {
-      ActualsRenaming z = new ActualsRenaming ();
+      org.meta_environment.rascal.ast.ActualsRenaming z =
+	new ActualsRenaming ();
       z.$setName (x);
       return z;
     }
-    private ModuleActuals actuals;
-    public ModuleActuals getActuals ()
+    private org.meta_environment.rascal.ast.ModuleActuals actuals;
+    public org.meta_environment.rascal.ast.ModuleActuals getActuals ()
     {
       return actuals;
     }
-    private void $setActuals (ModuleActuals x)
+    private void $setActuals (org.meta_environment.rascal.ast.ModuleActuals x)
     {
       this.actuals = x;
     }
-    public ActualsRenaming setActuals (ModuleActuals x)
+    public org.meta_environment.rascal.ast.ActualsRenaming setActuals (org.
+								       meta_environment.
+								       rascal.
+								       ast.
+								       ModuleActuals
+								       x)
     {
-      ActualsRenaming z = new ActualsRenaming ();
+      org.meta_environment.rascal.ast.ActualsRenaming z =
+	new ActualsRenaming ();
       z.$setActuals (x);
       return z;
     }
-    private Renamings renamings;
-    public Renamings getRenamings ()
+    private org.meta_environment.rascal.ast.Renamings renamings;
+    public org.meta_environment.rascal.ast.Renamings getRenamings ()
     {
       return renamings;
     }
-    private void $setRenamings (Renamings x)
+    private void $setRenamings (org.meta_environment.rascal.ast.Renamings x)
     {
       this.renamings = x;
     }
-    public ActualsRenaming setRenamings (Renamings x)
+    public org.meta_environment.rascal.ast.ActualsRenaming setRenamings (org.
+									 meta_environment.
+									 rascal.
+									 ast.
+									 Renamings
+									 x)
     {
-      ActualsRenaming z = new ActualsRenaming ();
+      org.meta_environment.rascal.ast.ActualsRenaming z =
+	new ActualsRenaming ();
       z.$setRenamings (x);
       return z;
     }
@@ -85,7 +108,10 @@ public abstract class ImportedModule extends AbstractAST
     private Actuals ()
     {
     }
-    /*package */ Actuals (ITree tree, ModuleName name, ModuleActuals actuals)
+    /*package */ Actuals (ITree tree,
+			  org.meta_environment.rascal.ast.ModuleName name,
+			  org.meta_environment.rascal.ast.
+			  ModuleActuals actuals)
     {
       this.tree = tree;
       this.name = name;
@@ -95,33 +121,40 @@ public abstract class ImportedModule extends AbstractAST
     {
       return visitor.visitImportedModuleActuals (this);
     }
-    private ModuleName name;
-    public ModuleName getName ()
+    private org.meta_environment.rascal.ast.ModuleName name;
+    public org.meta_environment.rascal.ast.ModuleName getName ()
     {
       return name;
     }
-    private void $setName (ModuleName x)
+    private void $setName (org.meta_environment.rascal.ast.ModuleName x)
     {
       this.name = x;
     }
-    public Actuals setName (ModuleName x)
+    public org.meta_environment.rascal.ast.Actuals setName (org.
+							    meta_environment.
+							    rascal.ast.
+							    ModuleName x)
     {
-      Actuals z = new Actuals ();
+      org.meta_environment.rascal.ast.Actuals z = new Actuals ();
       z.$setName (x);
       return z;
     }
-    private ModuleActuals actuals;
-    public ModuleActuals getActuals ()
+    private org.meta_environment.rascal.ast.ModuleActuals actuals;
+    public org.meta_environment.rascal.ast.ModuleActuals getActuals ()
     {
       return actuals;
     }
-    private void $setActuals (ModuleActuals x)
+    private void $setActuals (org.meta_environment.rascal.ast.ModuleActuals x)
     {
       this.actuals = x;
     }
-    public Actuals setActuals (ModuleActuals x)
+    public org.meta_environment.rascal.ast.Actuals setActuals (org.
+							       meta_environment.
+							       rascal.ast.
+							       ModuleActuals
+							       x)
     {
-      Actuals z = new Actuals ();
+      org.meta_environment.rascal.ast.Actuals z = new Actuals ();
       z.$setActuals (x);
       return z;
     }
@@ -132,7 +165,10 @@ public abstract class ImportedModule extends AbstractAST
     private Renamings ()
     {
     }
-    /*package */ Renamings (ITree tree, ModuleName name, Renamings renamings)
+    /*package */ Renamings (ITree tree,
+			    org.meta_environment.rascal.ast.ModuleName name,
+			    org.meta_environment.rascal.ast.
+			    Renamings renamings)
     {
       this.tree = tree;
       this.name = name;
@@ -142,33 +178,40 @@ public abstract class ImportedModule extends AbstractAST
     {
       return visitor.visitImportedModuleRenamings (this);
     }
-    private ModuleName name;
-    public ModuleName getName ()
+    private org.meta_environment.rascal.ast.ModuleName name;
+    public org.meta_environment.rascal.ast.ModuleName getName ()
     {
       return name;
     }
-    private void $setName (ModuleName x)
+    private void $setName (org.meta_environment.rascal.ast.ModuleName x)
     {
       this.name = x;
     }
-    public Renamings setName (ModuleName x)
+    public org.meta_environment.rascal.ast.Renamings setName (org.
+							      meta_environment.
+							      rascal.ast.
+							      ModuleName x)
     {
-      Renamings z = new Renamings ();
+      org.meta_environment.rascal.ast.Renamings z = new Renamings ();
       z.$setName (x);
       return z;
     }
-    private Renamings renamings;
-    public Renamings getRenamings ()
+    private org.meta_environment.rascal.ast.Renamings renamings;
+    public org.meta_environment.rascal.ast.Renamings getRenamings ()
     {
       return renamings;
     }
-    private void $setRenamings (Renamings x)
+    private void $setRenamings (org.meta_environment.rascal.ast.Renamings x)
     {
       this.renamings = x;
     }
-    public Renamings setRenamings (Renamings x)
+    public org.meta_environment.rascal.ast.Renamings setRenamings (org.
+								   meta_environment.
+								   rascal.ast.
+								   Renamings
+								   x)
     {
-      Renamings z = new Renamings ();
+      org.meta_environment.rascal.ast.Renamings z = new Renamings ();
       z.$setRenamings (x);
       return z;
     }
@@ -179,7 +222,8 @@ public abstract class ImportedModule extends AbstractAST
     private Default ()
     {
     }
-    /*package */ Default (ITree tree, ModuleName name)
+    /*package */ Default (ITree tree,
+			  org.meta_environment.rascal.ast.ModuleName name)
     {
       this.tree = tree;
       this.name = name;
@@ -188,18 +232,21 @@ public abstract class ImportedModule extends AbstractAST
     {
       return visitor.visitImportedModuleDefault (this);
     }
-    private ModuleName name;
-    public ModuleName getName ()
+    private org.meta_environment.rascal.ast.ModuleName name;
+    public org.meta_environment.rascal.ast.ModuleName getName ()
     {
       return name;
     }
-    private void $setName (ModuleName x)
+    private void $setName (org.meta_environment.rascal.ast.ModuleName x)
     {
       this.name = x;
     }
-    public Default setName (ModuleName x)
+    public org.meta_environment.rascal.ast.Default setName (org.
+							    meta_environment.
+							    rascal.ast.
+							    ModuleName x)
     {
-      Default z = new Default ();
+      org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setName (x);
       return z;
     }

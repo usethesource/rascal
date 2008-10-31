@@ -8,7 +8,8 @@ public abstract class Break extends AbstractAST
     private WithLabel ()
     {
     }
-    /*package */ WithLabel (ITree tree, Name label)
+    /*package */ WithLabel (ITree tree,
+			    org.meta_environment.rascal.ast.Name label)
     {
       this.tree = tree;
       this.label = label;
@@ -17,18 +18,21 @@ public abstract class Break extends AbstractAST
     {
       return visitor.visitBreakWithLabel (this);
     }
-    private Name label;
-    public Name getLabel ()
+    private org.meta_environment.rascal.ast.Name label;
+    public org.meta_environment.rascal.ast.Name getLabel ()
     {
       return label;
     }
-    private void $setLabel (Name x)
+    private void $setLabel (org.meta_environment.rascal.ast.Name x)
     {
       this.label = x;
     }
-    public WithLabel setLabel (Name x)
+    public org.meta_environment.rascal.ast.WithLabel setLabel (org.
+							       meta_environment.
+							       rascal.ast.
+							       Name x)
     {
-      WithLabel z = new WithLabel ();
+      org.meta_environment.rascal.ast.WithLabel z = new WithLabel ();
       z.$setLabel (x);
       return z;
     }

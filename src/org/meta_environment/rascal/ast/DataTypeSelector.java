@@ -8,7 +8,9 @@ public abstract class DataTypeSelector extends AbstractAST
     private Selector ()
     {
     }
-    /*package */ Selector (ITree tree, Name sort, Name production)
+    /*package */ Selector (ITree tree,
+			   org.meta_environment.rascal.ast.Name sort,
+			   org.meta_environment.rascal.ast.Name production)
     {
       this.tree = tree;
       this.sort = sort;
@@ -18,33 +20,39 @@ public abstract class DataTypeSelector extends AbstractAST
     {
       return visitor.visitDataTypeSelectorSelector (this);
     }
-    private Name sort;
-    public Name getSort ()
+    private org.meta_environment.rascal.ast.Name sort;
+    public org.meta_environment.rascal.ast.Name getSort ()
     {
       return sort;
     }
-    private void $setSort (Name x)
+    private void $setSort (org.meta_environment.rascal.ast.Name x)
     {
       this.sort = x;
     }
-    public Selector setSort (Name x)
+    public org.meta_environment.rascal.ast.Selector setSort (org.
+							     meta_environment.
+							     rascal.ast.
+							     Name x)
     {
-      Selector z = new Selector ();
+      org.meta_environment.rascal.ast.Selector z = new Selector ();
       z.$setSort (x);
       return z;
     }
-    private Name production;
-    public Name getProduction ()
+    private org.meta_environment.rascal.ast.Name production;
+    public org.meta_environment.rascal.ast.Name getProduction ()
     {
       return production;
     }
-    private void $setProduction (Name x)
+    private void $setProduction (org.meta_environment.rascal.ast.Name x)
     {
       this.production = x;
     }
-    public Selector setProduction (Name x)
+    public org.meta_environment.rascal.ast.Selector setProduction (org.
+								   meta_environment.
+								   rascal.ast.
+								   Name x)
     {
-      Selector z = new Selector ();
+      org.meta_environment.rascal.ast.Selector z = new Selector ();
       z.$setProduction (x);
       return z;
     }

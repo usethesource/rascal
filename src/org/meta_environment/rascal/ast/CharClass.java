@@ -9,6 +9,7 @@ public abstract class CharClass extends AbstractAST
     {
     }
     /*package */ SimpleCharclass (ITree tree,
+				  org.meta_environment.rascal.ast.
 				  OptCharRanges optionalCharRanges)
     {
       this.tree = tree;
@@ -18,18 +19,23 @@ public abstract class CharClass extends AbstractAST
     {
       return visitor.visitCharClassSimpleCharclass (this);
     }
-    private OptCharRanges optionalCharRanges;
-    public OptCharRanges getOptionalCharRanges ()
+    private org.meta_environment.rascal.ast.OptCharRanges optionalCharRanges;
+    public org.meta_environment.rascal.ast.
+      OptCharRanges getOptionalCharRanges ()
     {
       return optionalCharRanges;
     }
-    private void $setOptionalCharRanges (OptCharRanges x)
+    private void $setOptionalCharRanges (org.meta_environment.rascal.ast.
+					 OptCharRanges x)
     {
       this.optionalCharRanges = x;
     }
-    public SimpleCharclass setOptionalCharRanges (OptCharRanges x)
+    public org.meta_environment.rascal.ast.
+      SimpleCharclass setOptionalCharRanges (org.meta_environment.rascal.ast.
+					     OptCharRanges x)
     {
-      SimpleCharclass z = new SimpleCharclass ();
+      org.meta_environment.rascal.ast.SimpleCharclass z =
+	new SimpleCharclass ();
       z.$setOptionalCharRanges (x);
       return z;
     }
@@ -68,7 +74,9 @@ public abstract class CharClass extends AbstractAST
     private Complement ()
     {
     }
-    /*package */ Complement (ITree tree, CharClass charClass)
+    /*package */ Complement (ITree tree,
+			     org.meta_environment.rascal.ast.
+			     CharClass charClass)
     {
       this.tree = tree;
       this.charClass = charClass;
@@ -77,18 +85,23 @@ public abstract class CharClass extends AbstractAST
     {
       return visitor.visitCharClassComplement (this);
     }
-    private CharClass charClass;
-    public CharClass getCharClass ()
+    private org.meta_environment.rascal.ast.CharClass charClass;
+    public org.meta_environment.rascal.ast.CharClass getCharClass ()
     {
       return charClass;
     }
-    private void $setCharClass (CharClass x)
+    private void $setCharClass (org.meta_environment.rascal.ast.CharClass x)
     {
       this.charClass = x;
     }
-    public Complement setCharClass (CharClass x)
+    public org.meta_environment.rascal.ast.Complement setCharClass (org.
+								    meta_environment.
+								    rascal.
+								    ast.
+								    CharClass
+								    x)
     {
-      Complement z = new Complement ();
+      org.meta_environment.rascal.ast.Complement z = new Complement ();
       z.$setCharClass (x);
       return z;
     }
@@ -99,7 +112,9 @@ public abstract class CharClass extends AbstractAST
     private Difference ()
     {
     }
-    /*package */ Difference (ITree tree, CharClass lhs, CharClass rhs)
+    /*package */ Difference (ITree tree,
+			     org.meta_environment.rascal.ast.CharClass lhs,
+			     org.meta_environment.rascal.ast.CharClass rhs)
     {
       this.tree = tree;
       this.lhs = lhs;
@@ -109,33 +124,39 @@ public abstract class CharClass extends AbstractAST
     {
       return visitor.visitCharClassDifference (this);
     }
-    private CharClass lhs;
-    public CharClass getLhs ()
+    private org.meta_environment.rascal.ast.CharClass lhs;
+    public org.meta_environment.rascal.ast.CharClass getLhs ()
     {
       return lhs;
     }
-    private void $setLhs (CharClass x)
+    private void $setLhs (org.meta_environment.rascal.ast.CharClass x)
     {
       this.lhs = x;
     }
-    public Difference setLhs (CharClass x)
+    public org.meta_environment.rascal.ast.Difference setLhs (org.
+							      meta_environment.
+							      rascal.ast.
+							      CharClass x)
     {
-      Difference z = new Difference ();
+      org.meta_environment.rascal.ast.Difference z = new Difference ();
       z.$setLhs (x);
       return z;
     }
-    private CharClass rhs;
-    public CharClass getRhs ()
+    private org.meta_environment.rascal.ast.CharClass rhs;
+    public org.meta_environment.rascal.ast.CharClass getRhs ()
     {
       return rhs;
     }
-    private void $setRhs (CharClass x)
+    private void $setRhs (org.meta_environment.rascal.ast.CharClass x)
     {
       this.rhs = x;
     }
-    public Difference setRhs (CharClass x)
+    public org.meta_environment.rascal.ast.Difference setRhs (org.
+							      meta_environment.
+							      rascal.ast.
+							      CharClass x)
     {
-      Difference z = new Difference ();
+      org.meta_environment.rascal.ast.Difference z = new Difference ();
       z.$setRhs (x);
       return z;
     }
@@ -146,7 +167,9 @@ public abstract class CharClass extends AbstractAST
     private Intersection ()
     {
     }
-    /*package */ Intersection (ITree tree, CharClass lhs, CharClass rhs)
+    /*package */ Intersection (ITree tree,
+			       org.meta_environment.rascal.ast.CharClass lhs,
+			       org.meta_environment.rascal.ast.CharClass rhs)
     {
       this.tree = tree;
       this.lhs = lhs;
@@ -156,33 +179,39 @@ public abstract class CharClass extends AbstractAST
     {
       return visitor.visitCharClassIntersection (this);
     }
-    private CharClass lhs;
-    public CharClass getLhs ()
+    private org.meta_environment.rascal.ast.CharClass lhs;
+    public org.meta_environment.rascal.ast.CharClass getLhs ()
     {
       return lhs;
     }
-    private void $setLhs (CharClass x)
+    private void $setLhs (org.meta_environment.rascal.ast.CharClass x)
     {
       this.lhs = x;
     }
-    public Intersection setLhs (CharClass x)
+    public org.meta_environment.rascal.ast.Intersection setLhs (org.
+								meta_environment.
+								rascal.ast.
+								CharClass x)
     {
-      Intersection z = new Intersection ();
+      org.meta_environment.rascal.ast.Intersection z = new Intersection ();
       z.$setLhs (x);
       return z;
     }
-    private CharClass rhs;
-    public CharClass getRhs ()
+    private org.meta_environment.rascal.ast.CharClass rhs;
+    public org.meta_environment.rascal.ast.CharClass getRhs ()
     {
       return rhs;
     }
-    private void $setRhs (CharClass x)
+    private void $setRhs (org.meta_environment.rascal.ast.CharClass x)
     {
       this.rhs = x;
     }
-    public Intersection setRhs (CharClass x)
+    public org.meta_environment.rascal.ast.Intersection setRhs (org.
+								meta_environment.
+								rascal.ast.
+								CharClass x)
     {
-      Intersection z = new Intersection ();
+      org.meta_environment.rascal.ast.Intersection z = new Intersection ();
       z.$setRhs (x);
       return z;
     }
@@ -193,7 +222,9 @@ public abstract class CharClass extends AbstractAST
     private Union ()
     {
     }
-    /*package */ Union (ITree tree, CharClass lhs, CharClass rhs)
+    /*package */ Union (ITree tree,
+			org.meta_environment.rascal.ast.CharClass lhs,
+			org.meta_environment.rascal.ast.CharClass rhs)
     {
       this.tree = tree;
       this.lhs = lhs;
@@ -203,33 +234,37 @@ public abstract class CharClass extends AbstractAST
     {
       return visitor.visitCharClassUnion (this);
     }
-    private CharClass lhs;
-    public CharClass getLhs ()
+    private org.meta_environment.rascal.ast.CharClass lhs;
+    public org.meta_environment.rascal.ast.CharClass getLhs ()
     {
       return lhs;
     }
-    private void $setLhs (CharClass x)
+    private void $setLhs (org.meta_environment.rascal.ast.CharClass x)
     {
       this.lhs = x;
     }
-    public Union setLhs (CharClass x)
+    public org.meta_environment.rascal.ast.Union setLhs (org.meta_environment.
+							 rascal.ast.
+							 CharClass x)
     {
-      Union z = new Union ();
+      org.meta_environment.rascal.ast.Union z = new Union ();
       z.$setLhs (x);
       return z;
     }
-    private CharClass rhs;
-    public CharClass getRhs ()
+    private org.meta_environment.rascal.ast.CharClass rhs;
+    public org.meta_environment.rascal.ast.CharClass getRhs ()
     {
       return rhs;
     }
-    private void $setRhs (CharClass x)
+    private void $setRhs (org.meta_environment.rascal.ast.CharClass x)
     {
       this.rhs = x;
     }
-    public Union setRhs (CharClass x)
+    public org.meta_environment.rascal.ast.Union setRhs (org.meta_environment.
+							 rascal.ast.
+							 CharClass x)
     {
-      Union z = new Union ();
+      org.meta_environment.rascal.ast.Union z = new Union ();
       z.$setRhs (x);
       return z;
     }

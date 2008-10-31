@@ -36,7 +36,8 @@ public abstract class OptCharRanges extends AbstractAST
     private Present ()
     {
     }
-    /*package */ Present (ITree tree, CharRanges ranges)
+    /*package */ Present (ITree tree,
+			  org.meta_environment.rascal.ast.CharRanges ranges)
     {
       this.tree = tree;
       this.ranges = ranges;
@@ -45,18 +46,21 @@ public abstract class OptCharRanges extends AbstractAST
     {
       return visitor.visitOptCharRangesPresent (this);
     }
-    private CharRanges ranges;
-    public CharRanges getRanges ()
+    private org.meta_environment.rascal.ast.CharRanges ranges;
+    public org.meta_environment.rascal.ast.CharRanges getRanges ()
     {
       return ranges;
     }
-    private void $setRanges (CharRanges x)
+    private void $setRanges (org.meta_environment.rascal.ast.CharRanges x)
     {
       this.ranges = x;
     }
-    public Present setRanges (CharRanges x)
+    public org.meta_environment.rascal.ast.Present setRanges (org.
+							      meta_environment.
+							      rascal.ast.
+							      CharRanges x)
     {
-      Present z = new Present ();
+      org.meta_environment.rascal.ast.Present z = new Present ();
       z.$setRanges (x);
       return z;
     }
