@@ -19,26 +19,17 @@ public abstract class OptCharRanges extends AbstractAST
   }
   static public class Ambiguity extends OptCharRanges
   {
-    public OptCharRanges.Ambiguity makeOptCharRangesAmbiguity (java.util.
-							       List <
-							       OptCharRanges >
-							       alternatives)
-    {
-      OptCharRanges.Ambiguity amb =
-	new OptCharRanges.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (OptCharRanges.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < OptCharRanges > alternatives;
-    public Ambiguity (java.util.List < OptCharRanges > alternatives)
+    private final java.util.List <
+      org.meta_environment.rascal.ast.OptCharRanges > alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.OptCharRanges >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < OptCharRanges > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.OptCharRanges >
+      getAlternatives ()
     {
       return alternatives;
     }

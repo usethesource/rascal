@@ -36,23 +36,16 @@ public abstract class Tag extends AbstractAST
   }
   static public class Ambiguity extends Tag
   {
-    public Tag.Ambiguity makeTagAmbiguity (java.util.List < Tag >
-					   alternatives)
-    {
-      Tag.Ambiguity amb = new Tag.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (Tag.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < Tag > alternatives;
-    public Ambiguity (java.util.List < Tag > alternatives)
+    private final java.util.List < org.meta_environment.rascal.ast.Tag >
+      alternatives;
+    public Ambiguity (java.util.List < org.meta_environment.rascal.ast.Tag >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < Tag > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.Tag >
+      getAlternatives ()
     {
       return alternatives;
     }

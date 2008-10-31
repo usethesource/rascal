@@ -38,23 +38,16 @@ public abstract class Import extends AbstractAST
   }
   static public class Ambiguity extends Import
   {
-    public Import.Ambiguity makeImportAmbiguity (java.util.List < Import >
-						 alternatives)
-    {
-      Import.Ambiguity amb = new Import.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (Import.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < Import > alternatives;
-    public Ambiguity (java.util.List < Import > alternatives)
+    private final java.util.List < org.meta_environment.rascal.ast.Import >
+      alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.Import > alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < Import > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.Import >
+      getAlternatives ()
     {
       return alternatives;
     }

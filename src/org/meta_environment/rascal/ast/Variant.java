@@ -52,23 +52,16 @@ public abstract class Variant extends AbstractAST
   }
   static public class Ambiguity extends Variant
   {
-    public Variant.Ambiguity makeVariantAmbiguity (java.util.List < Variant >
-						   alternatives)
-    {
-      Variant.Ambiguity amb = new Variant.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (Variant.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < Variant > alternatives;
-    public Ambiguity (java.util.List < Variant > alternatives)
+    private final java.util.List < org.meta_environment.rascal.ast.Variant >
+      alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.Variant > alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < Variant > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.Variant >
+      getAlternatives ()
     {
       return alternatives;
     }
@@ -81,7 +74,9 @@ public abstract class Variant extends AbstractAST
     }
     /*package */ NAryConstructor (ITree tree,
 				  org.meta_environment.rascal.ast.Name name,
-				  java.util.List < TypeArg > arguments)
+				  java.util.List <
+				  org.meta_environment.rascal.ast.TypeArg >
+				  arguments)
     {
       this.tree = tree;
       this.name = name;

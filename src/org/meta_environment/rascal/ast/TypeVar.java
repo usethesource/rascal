@@ -35,23 +35,16 @@ public abstract class TypeVar extends AbstractAST
   }
   static public class Ambiguity extends TypeVar
   {
-    public TypeVar.Ambiguity makeTypeVarAmbiguity (java.util.List < TypeVar >
-						   alternatives)
-    {
-      TypeVar.Ambiguity amb = new TypeVar.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (TypeVar.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < TypeVar > alternatives;
-    public Ambiguity (java.util.List < TypeVar > alternatives)
+    private final java.util.List < org.meta_environment.rascal.ast.TypeVar >
+      alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.TypeVar > alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < TypeVar > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.TypeVar >
+      getAlternatives ()
     {
       return alternatives;
     }

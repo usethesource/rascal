@@ -7,23 +7,16 @@ public abstract class Comment extends AbstractAST
     /* "//" ~[\n]* [\n] -> Comment {category("Comment")} */
   } static public class Ambiguity extends Comment
   {
-    public Comment.Ambiguity makeCommentAmbiguity (java.util.List < Comment >
-						   alternatives)
-    {
-      Comment.Ambiguity amb = new Comment.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (Comment.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < Comment > alternatives;
-    public Ambiguity (java.util.List < Comment > alternatives)
+    private final java.util.List < org.meta_environment.rascal.ast.Comment >
+      alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.Comment > alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < Comment > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.Comment >
+      getAlternatives ()
     {
       return alternatives;
     }

@@ -7,27 +7,17 @@ public abstract class StringCharacter extends AbstractAST
     /* UnicodeEscape -> StringCharacter  */
   } static public class Ambiguity extends StringCharacter
   {
-    public StringCharacter.Ambiguity makeStringCharacterAmbiguity (java.util.
-								   List <
-								   StringCharacter
-								   >
-								   alternatives)
-    {
-      StringCharacter.Ambiguity amb =
-	new StringCharacter.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (StringCharacter.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < StringCharacter > alternatives;
-    public Ambiguity (java.util.List < StringCharacter > alternatives)
+    private final java.util.List <
+      org.meta_environment.rascal.ast.StringCharacter > alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.StringCharacter >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < StringCharacter > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.StringCharacter >
+      getAlternatives ()
     {
       return alternatives;
     }

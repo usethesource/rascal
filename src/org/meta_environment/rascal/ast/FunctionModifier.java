@@ -19,28 +19,17 @@ public abstract class FunctionModifier extends AbstractAST
   }
   static public class Ambiguity extends FunctionModifier
   {
-    public FunctionModifier.Ambiguity makeFunctionModifierAmbiguity (java.
-								     util.
-								     List <
-								     FunctionModifier
-								     >
-								     alternatives)
-    {
-      FunctionModifier.Ambiguity amb =
-	new FunctionModifier.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (FunctionModifier.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < FunctionModifier > alternatives;
-    public Ambiguity (java.util.List < FunctionModifier > alternatives)
+    private final java.util.List <
+      org.meta_environment.rascal.ast.FunctionModifier > alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.FunctionModifier >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < FunctionModifier > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.FunctionModifier >
+      getAlternatives ()
     {
       return alternatives;
     }

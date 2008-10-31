@@ -61,6 +61,7 @@ public interface IASTVisitor
   public Expression visitExpressionStepRange (Expression.StepRange x);
   public Expression visitExpressionRange (Expression.Range x);
   public Expression visitExpressionClosureCall (Expression.ClosureCall x);
+  public Expression visitExpressionBracket (Expression.Bracket x);
   public Expression visitExpressionClosure (Expression.Closure x);
   public Literal visitLiteralString (Literal.String x);
   public Literal visitLiteralDouble (Literal.Double x);
@@ -244,6 +245,7 @@ public interface IASTVisitor
   public Symbol visitSymbolSort (Symbol.Sort x);
   public CharRange visitCharRangeRange (CharRange.Range x);
   public CharRange visitCharRangeCharacter (CharRange.Character x);
+  public CharRanges visitCharRangesBracket (CharRanges.Bracket x);
   public CharRanges visitCharRangesConcatenate (CharRanges.Concatenate x);
   public CharRanges visitCharRangesRange (CharRanges.Range x);
   public OptCharRanges visitOptCharRangesPresent (OptCharRanges.Present x);
@@ -252,6 +254,7 @@ public interface IASTVisitor
   public CharClass visitCharClassIntersection (CharClass.Intersection x);
   public CharClass visitCharClassDifference (CharClass.Difference x);
   public CharClass visitCharClassComplement (CharClass.Complement x);
+  public CharClass visitCharClassBracket (CharClass.Bracket x);
   public CharClass visitCharClassSimpleCharclass (CharClass.
 						  SimpleCharclass x);
   public Character visitCharacterLabelStart (Character.LabelStart x);

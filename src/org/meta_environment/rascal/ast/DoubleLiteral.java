@@ -7,26 +7,17 @@ public abstract class DoubleLiteral extends AbstractAST
     /* [0-9]+ "." [0-9]* ( [eE] [\+\-]? [0-9]+ )? [dD]? -> DoubleLiteral  */
   } static public class Ambiguity extends DoubleLiteral
   {
-    public DoubleLiteral.Ambiguity makeDoubleLiteralAmbiguity (java.util.
-							       List <
-							       DoubleLiteral >
-							       alternatives)
-    {
-      DoubleLiteral.Ambiguity amb =
-	new DoubleLiteral.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (DoubleLiteral.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < DoubleLiteral > alternatives;
-    public Ambiguity (java.util.List < DoubleLiteral > alternatives)
+    private final java.util.List <
+      org.meta_environment.rascal.ast.DoubleLiteral > alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.DoubleLiteral >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < DoubleLiteral > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.DoubleLiteral >
+      getAlternatives ()
     {
       return alternatives;
     }

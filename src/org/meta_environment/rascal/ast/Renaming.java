@@ -53,23 +53,16 @@ public abstract class Renaming extends AbstractAST
   }
   static public class Ambiguity extends Renaming
   {
-    public Renaming.Ambiguity makeRenamingAmbiguity (java.util.List <
-						     Renaming > alternatives)
-    {
-      Renaming.Ambiguity amb = new Renaming.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (Renaming.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < Renaming > alternatives;
-    public Ambiguity (java.util.List < Renaming > alternatives)
+    private final java.util.List < org.meta_environment.rascal.ast.Renaming >
+      alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.Renaming > alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < Renaming > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.Renaming >
+      getAlternatives ()
     {
       return alternatives;
     }

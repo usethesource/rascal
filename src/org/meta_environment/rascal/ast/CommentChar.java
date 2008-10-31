@@ -7,24 +7,17 @@ public abstract class CommentChar extends AbstractAST
     /* ~[\*] -> CommentChar  */
   } static public class Ambiguity extends CommentChar
   {
-    public CommentChar.Ambiguity makeCommentCharAmbiguity (java.util.List <
-							   CommentChar >
-							   alternatives)
-    {
-      CommentChar.Ambiguity amb = new CommentChar.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (CommentChar.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < CommentChar > alternatives;
-    public Ambiguity (java.util.List < CommentChar > alternatives)
+    private final java.util.List <
+      org.meta_environment.rascal.ast.CommentChar > alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.CommentChar >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < CommentChar > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.CommentChar >
+      getAlternatives ()
     {
       return alternatives;
     }

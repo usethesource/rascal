@@ -126,23 +126,16 @@ public abstract class Area extends AbstractAST
   }
   static public class Ambiguity extends Area
   {
-    public Area.Ambiguity makeAreaAmbiguity (java.util.List < Area >
-					     alternatives)
-    {
-      Area.Ambiguity amb = new Area.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (Area.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < Area > alternatives;
-    public Ambiguity (java.util.List < Area > alternatives)
+    private final java.util.List < org.meta_environment.rascal.ast.Area >
+      alternatives;
+    public Ambiguity (java.util.List < org.meta_environment.rascal.ast.Area >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < Area > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.Area >
+      getAlternatives ()
     {
       return alternatives;
     }

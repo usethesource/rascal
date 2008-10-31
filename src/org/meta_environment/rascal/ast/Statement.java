@@ -9,7 +9,9 @@ public abstract class Statement extends AbstractAST
     {
     }
     /*package */ Solve (ITree tree,
-			java.util.List < Declarator > declarations,
+			java.util.List <
+			org.meta_environment.rascal.ast.Declarator >
+			declarations,
 			org.meta_environment.rascal.ast.Statement body)
     {
       this.tree = tree;
@@ -59,24 +61,17 @@ public abstract class Statement extends AbstractAST
   }
   static public class Ambiguity extends Statement
   {
-    public Statement.Ambiguity makeStatementAmbiguity (java.util.List <
-						       Statement >
-						       alternatives)
-    {
-      Statement.Ambiguity amb = new Statement.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (Statement.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < Statement > alternatives;
-    public Ambiguity (java.util.List < Statement > alternatives)
+    private final java.util.List < org.meta_environment.rascal.ast.Statement >
+      alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.Statement >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < Statement > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.Statement >
+      getAlternatives ()
     {
       return alternatives;
     }
@@ -88,7 +83,8 @@ public abstract class Statement extends AbstractAST
     {
     }
     /*package */ For (ITree tree, org.meta_environment.rascal.ast.Label label,
-		      java.util.List < Generator > generators,
+		      java.util.List <
+		      org.meta_environment.rascal.ast.Generator > generators,
 		      org.meta_environment.rascal.ast.Statement body)
     {
       this.tree = tree;
@@ -292,7 +288,9 @@ public abstract class Statement extends AbstractAST
     }
     /*package */ IfThenElse (ITree tree,
 			     org.meta_environment.rascal.ast.Label label,
-			     java.util.List < Expression > conditions,
+			     java.util.List <
+			     org.meta_environment.rascal.ast.Expression >
+			     conditions,
 			     org.meta_environment.rascal.ast.
 			     Statement thenStatement,
 			     org.meta_environment.rascal.ast.
@@ -387,7 +385,9 @@ public abstract class Statement extends AbstractAST
     }
     /*package */ IfThen (ITree tree,
 			 org.meta_environment.rascal.ast.Label label,
-			 java.util.List < Expression > conditions,
+			 java.util.List <
+			 org.meta_environment.rascal.ast.Expression >
+			 conditions,
 			 org.meta_environment.rascal.ast.
 			 Statement thenStatement)
     {
@@ -463,7 +463,9 @@ public abstract class Statement extends AbstractAST
     /*package */ Switch (ITree tree,
 			 org.meta_environment.rascal.ast.Label label,
 			 org.meta_environment.rascal.ast.
-			 Expression expression, java.util.List < Case > cases)
+			 Expression expression,
+			 java.util.List <
+			 org.meta_environment.rascal.ast.Case > cases)
     {
       this.tree = tree;
       this.label = label;
@@ -529,7 +531,8 @@ public abstract class Statement extends AbstractAST
     {
     }
     /*package */ All (ITree tree, org.meta_environment.rascal.ast.Label label,
-		      java.util.List < Expression > conditions,
+		      java.util.List <
+		      org.meta_environment.rascal.ast.Expression > conditions,
 		      org.meta_environment.rascal.ast.Statement body)
     {
       this.tree = tree;
@@ -600,7 +603,9 @@ public abstract class Statement extends AbstractAST
     }
     /*package */ First (ITree tree,
 			org.meta_environment.rascal.ast.Label label,
-			java.util.List < Expression > conditions,
+			java.util.List <
+			org.meta_environment.rascal.ast.Expression >
+			conditions,
 			org.meta_environment.rascal.ast.Statement body)
     {
       this.tree = tree;
@@ -737,10 +742,14 @@ public abstract class Statement extends AbstractAST
     {
     }
     /*package */ Assignment (ITree tree,
-			     java.util.List < Assignable > assignables,
+			     java.util.List <
+			     org.meta_environment.rascal.ast.Assignable >
+			     assignables,
 			     org.meta_environment.rascal.ast.
 			     Assignment operator,
-			     java.util.List < Expression > expressions)
+			     java.util.List <
+			     org.meta_environment.rascal.ast.Expression >
+			     expressions)
     {
       this.tree = tree;
       this.assignables = assignables;
@@ -993,7 +1002,8 @@ public abstract class Statement extends AbstractAST
     }
     /*package */ Try (ITree tree,
 		      org.meta_environment.rascal.ast.Statement body,
-		      java.util.List < Catch > handlers)
+		      java.util.List < org.meta_environment.rascal.ast.Catch >
+		      handlers)
     {
       this.tree = tree;
       this.body = body;
@@ -1045,7 +1055,8 @@ public abstract class Statement extends AbstractAST
     }
     /*package */ TryFinally (ITree tree,
 			     org.meta_environment.rascal.ast.Statement body,
-			     java.util.List < Catch > handlers,
+			     java.util.List <
+			     org.meta_environment.rascal.ast.Catch > handlers,
 			     org.meta_environment.rascal.ast.
 			     Statement finallyBody)
     {
@@ -1116,7 +1127,9 @@ public abstract class Statement extends AbstractAST
     }
     /*package */ Block (ITree tree,
 			org.meta_environment.rascal.ast.Label label,
-			java.util.List < Statement > statements)
+			java.util.List <
+			org.meta_environment.rascal.ast.Statement >
+			statements)
     {
       this.tree = tree;
       this.label = label;
@@ -1247,7 +1260,9 @@ public abstract class Statement extends AbstractAST
     }
     /*package */ GlobalDirective (ITree tree,
 				  org.meta_environment.rascal.ast.Type type,
-				  java.util.List < QualifiedName > names)
+				  java.util.List <
+				  org.meta_environment.rascal.ast.
+				  QualifiedName > names)
     {
       this.tree = tree;
       this.type = type;

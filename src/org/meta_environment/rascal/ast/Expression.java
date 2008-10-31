@@ -10,7 +10,9 @@ public abstract class Expression extends AbstractAST
     }
     /*package */ Closure (ITree tree,
 			  org.meta_environment.rascal.ast.Type type,
-			  java.util.List < Statement > statements)
+			  java.util.List <
+			  org.meta_environment.rascal.ast.Statement >
+			  statements)
     {
       this.tree = tree;
       this.type = type;
@@ -59,24 +61,17 @@ public abstract class Expression extends AbstractAST
   }
   static public class Ambiguity extends Expression
   {
-    public Expression.Ambiguity makeExpressionAmbiguity (java.util.List <
-							 Expression >
-							 alternatives)
-    {
-      Expression.Ambiguity amb = new Expression.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (Expression.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < Expression > alternatives;
-    public Ambiguity (java.util.List < Expression > alternatives)
+    private final java.util.List <
+      org.meta_environment.rascal.ast.Expression > alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.Expression >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < Expression > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.Expression >
+      getAlternatives ()
     {
       return alternatives;
     }
@@ -84,22 +79,6 @@ public abstract class Expression extends AbstractAST
   static public class Bracket extends Expression
   {
 /* "(" Expression ")" -> Expression {bracket} */
-    public Expression.Bracket makeExpressionBracket (ITree tree)
-    {
-      Expression.Bracket x = new Expression.Bracket (tree);
-      if (!table.containsKey (x))
-	{
-	  table.put (x, x);
-	}
-      return (Expression.Bracket) table.get (x);
-    }
-
-    public Expression visitExpressionBracket (Expression.Bracket x);
-    public Expression visitExpressionBracket (Expression.Bracket x)
-    {
-      return x;
-    }
-
     private Bracket ()
     {
     }
@@ -121,7 +100,9 @@ public abstract class Expression extends AbstractAST
     /*package */ ClosureCall (ITree tree,
 			      org.meta_environment.rascal.ast.
 			      Expression closure,
-			      java.util.List < Expression > arguments)
+			      java.util.List <
+			      org.meta_environment.rascal.ast.Expression >
+			      arguments)
     {
       this.tree = tree;
       this.closure = closure;
@@ -1650,7 +1631,9 @@ public abstract class Expression extends AbstractAST
     }
     /*package */ CallOrTree (ITree tree,
 			     org.meta_environment.rascal.ast.Name name,
-			     java.util.List < Expression > arguments)
+			     java.util.List <
+			     org.meta_environment.rascal.ast.Expression >
+			     arguments)
     {
       this.tree = tree;
       this.name = name;
@@ -1703,7 +1686,9 @@ public abstract class Expression extends AbstractAST
     private List ()
     {
     }
-    /*package */ List (ITree tree, java.util.List < Expression > elements)
+    /*package */ List (ITree tree,
+		       java.util.List <
+		       org.meta_environment.rascal.ast.Expression > elements)
     {
       this.tree = tree;
       this.elements = elements;
@@ -1738,7 +1723,9 @@ public abstract class Expression extends AbstractAST
     private Set ()
     {
     }
-    /*package */ Set (ITree tree, java.util.List < Expression > elements)
+    /*package */ Set (ITree tree,
+		      java.util.List <
+		      org.meta_environment.rascal.ast.Expression > elements)
     {
       this.tree = tree;
       this.elements = elements;
@@ -1775,7 +1762,8 @@ public abstract class Expression extends AbstractAST
     }
     /*package */ Tuple (ITree tree,
 			org.meta_environment.rascal.ast.Expression first,
-			java.util.List < Expression > rest)
+			java.util.List <
+			org.meta_environment.rascal.ast.Expression > rest)
     {
       this.tree = tree;
       this.first = first;

@@ -8,7 +8,10 @@ public abstract class Renamings extends AbstractAST
     private Default ()
     {
     }
-    /*package */ Default (ITree tree, java.util.List < Renaming > renamings)
+    /*package */ Default (ITree tree,
+			  java.util.List <
+			  org.meta_environment.rascal.ast.Renaming >
+			  renamings)
     {
       this.tree = tree;
       this.renamings = renamings;
@@ -39,24 +42,17 @@ public abstract class Renamings extends AbstractAST
   }
   static public class Ambiguity extends Renamings
   {
-    public Renamings.Ambiguity makeRenamingsAmbiguity (java.util.List <
-						       Renamings >
-						       alternatives)
-    {
-      Renamings.Ambiguity amb = new Renamings.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (Renamings.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < Renamings > alternatives;
-    public Ambiguity (java.util.List < Renamings > alternatives)
+    private final java.util.List < org.meta_environment.rascal.ast.Renamings >
+      alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.Renamings >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < Renamings > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.Renamings >
+      getAlternatives ()
     {
       return alternatives;
     }

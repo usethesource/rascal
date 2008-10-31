@@ -39,24 +39,17 @@ public abstract class Assignable extends AbstractAST
   }
   static public class Ambiguity extends Assignable
   {
-    public Assignable.Ambiguity makeAssignableAmbiguity (java.util.List <
-							 Assignable >
-							 alternatives)
-    {
-      Assignable.Ambiguity amb = new Assignable.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (Assignable.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < Assignable > alternatives;
-    public Ambiguity (java.util.List < Assignable > alternatives)
+    private final java.util.List <
+      org.meta_environment.rascal.ast.Assignable > alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.Assignable >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < Assignable > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.Assignable >
+      getAlternatives ()
     {
       return alternatives;
     }
@@ -279,7 +272,8 @@ public abstract class Assignable extends AbstractAST
     }
     /*package */ Tuple (ITree tree,
 			org.meta_environment.rascal.ast.Assignable first,
-			java.util.List < Assignable > rest)
+			java.util.List <
+			org.meta_environment.rascal.ast.Assignable > rest)
     {
       this.tree = tree;
       this.first = first;
@@ -332,7 +326,9 @@ public abstract class Assignable extends AbstractAST
     }
     /*package */ Constructor (ITree tree,
 			      org.meta_environment.rascal.ast.Name name,
-			      java.util.List < Assignable > arguments)
+			      java.util.List <
+			      org.meta_environment.rascal.ast.Assignable >
+			      arguments)
     {
       this.tree = tree;
       this.name = name;

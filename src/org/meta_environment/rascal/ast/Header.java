@@ -11,7 +11,8 @@ public abstract class Header extends AbstractAST
     /*package */ Default (ITree tree,
 			  org.meta_environment.rascal.ast.ModuleName name,
 			  org.meta_environment.rascal.ast.Tags tags,
-			  java.util.List < Import > imports)
+			  java.util.List <
+			  org.meta_environment.rascal.ast.Import > imports)
     {
       this.tree = tree;
       this.name = name;
@@ -73,23 +74,16 @@ public abstract class Header extends AbstractAST
   }
   static public class Ambiguity extends Header
   {
-    public Header.Ambiguity makeHeaderAmbiguity (java.util.List < Header >
-						 alternatives)
-    {
-      Header.Ambiguity amb = new Header.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (Header.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < Header > alternatives;
-    public Ambiguity (java.util.List < Header > alternatives)
+    private final java.util.List < org.meta_environment.rascal.ast.Header >
+      alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.Header > alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < Header > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.Header >
+      getAlternatives ()
     {
       return alternatives;
     }
@@ -105,7 +99,8 @@ public abstract class Header extends AbstractAST
 			     org.meta_environment.rascal.ast.
 			     ModuleParameters params,
 			     org.meta_environment.rascal.ast.Tags tags,
-			     java.util.List < Import > imports)
+			     java.util.List <
+			     org.meta_environment.rascal.ast.Import > imports)
     {
       this.tree = tree;
       this.name = name;

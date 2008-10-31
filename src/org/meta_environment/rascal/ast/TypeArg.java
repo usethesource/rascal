@@ -36,23 +36,16 @@ public abstract class TypeArg extends AbstractAST
   }
   static public class Ambiguity extends TypeArg
   {
-    public TypeArg.Ambiguity makeTypeArgAmbiguity (java.util.List < TypeArg >
-						   alternatives)
-    {
-      TypeArg.Ambiguity amb = new TypeArg.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (TypeArg.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < TypeArg > alternatives;
-    public Ambiguity (java.util.List < TypeArg > alternatives)
+    private final java.util.List < org.meta_environment.rascal.ast.TypeArg >
+      alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.TypeArg > alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < TypeArg > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.TypeArg >
+      getAlternatives ()
     {
       return alternatives;
     }

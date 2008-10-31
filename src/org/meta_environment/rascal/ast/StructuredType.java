@@ -36,27 +36,17 @@ public abstract class StructuredType extends AbstractAST
   }
   static public class Ambiguity extends StructuredType
   {
-    public StructuredType.Ambiguity makeStructuredTypeAmbiguity (java.util.
-								 List <
-								 StructuredType
-								 >
-								 alternatives)
-    {
-      StructuredType.Ambiguity amb =
-	new StructuredType.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (StructuredType.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < StructuredType > alternatives;
-    public Ambiguity (java.util.List < StructuredType > alternatives)
+    private final java.util.List <
+      org.meta_environment.rascal.ast.StructuredType > alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.StructuredType >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < StructuredType > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.StructuredType >
+      getAlternatives ()
     {
       return alternatives;
     }
@@ -150,7 +140,8 @@ public abstract class StructuredType extends AbstractAST
     }
     /*package */ Relation (ITree tree,
 			   org.meta_environment.rascal.ast.TypeArg first,
-			   java.util.List < TypeArg > rest)
+			   java.util.List <
+			   org.meta_environment.rascal.ast.TypeArg > rest)
     {
       this.tree = tree;
       this.first = first;
@@ -202,7 +193,8 @@ public abstract class StructuredType extends AbstractAST
     }
     /*package */ Tuple (ITree tree,
 			org.meta_environment.rascal.ast.TypeArg first,
-			java.util.List < TypeArg > rest)
+			java.util.List <
+			org.meta_environment.rascal.ast.TypeArg > rest)
     {
       this.tree = tree;
       this.first = first;

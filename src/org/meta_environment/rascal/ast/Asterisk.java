@@ -8,23 +8,16 @@ public abstract class Asterisk extends AbstractAST
   }
   static public class Ambiguity extends Asterisk
   {
-    public Asterisk.Ambiguity makeAsteriskAmbiguity (java.util.List <
-						     Asterisk > alternatives)
-    {
-      Asterisk.Ambiguity amb = new Asterisk.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (Asterisk.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < Asterisk > alternatives;
-    public Ambiguity (java.util.List < Asterisk > alternatives)
+    private final java.util.List < org.meta_environment.rascal.ast.Asterisk >
+      alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.Asterisk > alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < Asterisk > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.Asterisk >
+      getAlternatives ()
     {
       return alternatives;
     }

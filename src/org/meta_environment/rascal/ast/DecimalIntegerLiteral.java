@@ -7,26 +7,18 @@ public abstract class DecimalIntegerLiteral extends AbstractAST
     /* "0" -> DecimalIntegerLiteral  */
   } static public class Ambiguity extends DecimalIntegerLiteral
   {
-    public DecimalIntegerLiteral.
-      Ambiguity makeDecimalIntegerLiteralAmbiguity (java.util.List <
-						    DecimalIntegerLiteral >
-						    alternatives)
-    {
-      DecimalIntegerLiteral.Ambiguity amb =
-	new DecimalIntegerLiteral.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (DecimalIntegerLiteral.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < DecimalIntegerLiteral > alternatives;
-    public Ambiguity (java.util.List < DecimalIntegerLiteral > alternatives)
+    private final java.util.List <
+      org.meta_environment.rascal.ast.DecimalIntegerLiteral > alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.DecimalIntegerLiteral >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < DecimalIntegerLiteral > getAlternatives ()
+    public java.util.List <
+      org.meta_environment.rascal.ast.DecimalIntegerLiteral >
+      getAlternatives ()
     {
       return alternatives;
     }

@@ -8,7 +8,10 @@ public abstract class ModuleParameters extends AbstractAST
     private Default ()
     {
     }
-    /*package */ Default (ITree tree, java.util.List < TypeVar > parameters)
+    /*package */ Default (ITree tree,
+			  java.util.List <
+			  org.meta_environment.rascal.ast.TypeVar >
+			  parameters)
     {
       this.tree = tree;
       this.parameters = parameters;
@@ -39,28 +42,17 @@ public abstract class ModuleParameters extends AbstractAST
   }
   static public class Ambiguity extends ModuleParameters
   {
-    public ModuleParameters.Ambiguity makeModuleParametersAmbiguity (java.
-								     util.
-								     List <
-								     ModuleParameters
-								     >
-								     alternatives)
-    {
-      ModuleParameters.Ambiguity amb =
-	new ModuleParameters.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (ModuleParameters.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < ModuleParameters > alternatives;
-    public Ambiguity (java.util.List < ModuleParameters > alternatives)
+    private final java.util.List <
+      org.meta_environment.rascal.ast.ModuleParameters > alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.ModuleParameters >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < ModuleParameters > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.ModuleParameters >
+      getAlternatives ()
     {
       return alternatives;
     }

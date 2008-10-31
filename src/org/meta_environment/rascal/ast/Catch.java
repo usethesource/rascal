@@ -36,23 +36,16 @@ public abstract class Catch extends AbstractAST
   }
   static public class Ambiguity extends Catch
   {
-    public Catch.Ambiguity makeCatchAmbiguity (java.util.List < Catch >
-					       alternatives)
-    {
-      Catch.Ambiguity amb = new Catch.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (Catch.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < Catch > alternatives;
-    public Ambiguity (java.util.List < Catch > alternatives)
+    private final java.util.List < org.meta_environment.rascal.ast.Catch >
+      alternatives;
+    public Ambiguity (java.util.List < org.meta_environment.rascal.ast.Catch >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < Catch > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.Catch >
+      getAlternatives ()
     {
       return alternatives;
     }

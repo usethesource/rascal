@@ -92,24 +92,17 @@ public abstract class Signature extends AbstractAST
   }
   static public class Ambiguity extends Signature
   {
-    public Signature.Ambiguity makeSignatureAmbiguity (java.util.List <
-						       Signature >
-						       alternatives)
-    {
-      Signature.Ambiguity amb = new Signature.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (Signature.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < Signature > alternatives;
-    public Ambiguity (java.util.List < Signature > alternatives)
+    private final java.util.List < org.meta_environment.rascal.ast.Signature >
+      alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.Signature >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < Signature > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.Signature >
+      getAlternatives ()
     {
       return alternatives;
     }
@@ -128,7 +121,9 @@ public abstract class Signature extends AbstractAST
 			     FunctionName name,
 			     org.meta_environment.rascal.ast.
 			     Parameters parameters,
-			     java.util.List < Type > exceptions)
+			     java.util.List <
+			     org.meta_environment.rascal.ast.Type >
+			     exceptions)
     {
       this.tree = tree;
       this.type = type;

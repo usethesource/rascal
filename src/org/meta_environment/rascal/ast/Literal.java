@@ -36,23 +36,16 @@ public abstract class Literal extends AbstractAST
   }
   static public class Ambiguity extends Literal
   {
-    public Literal.Ambiguity makeLiteralAmbiguity (java.util.List < Literal >
-						   alternatives)
-    {
-      Literal.Ambiguity amb = new Literal.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (Literal.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < Literal > alternatives;
-    public Ambiguity (java.util.List < Literal > alternatives)
+    private final java.util.List < org.meta_environment.rascal.ast.Literal >
+      alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.Literal > alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < Literal > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.Literal >
+      getAlternatives ()
     {
       return alternatives;
     }

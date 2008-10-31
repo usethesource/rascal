@@ -36,24 +36,17 @@ public abstract class Character extends AbstractAST
   }
   static public class Ambiguity extends Character
   {
-    public Character.Ambiguity makeCharacterAmbiguity (java.util.List <
-						       Character >
-						       alternatives)
-    {
-      Character.Ambiguity amb = new Character.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (Character.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < Character > alternatives;
-    public Ambiguity (java.util.List < Character > alternatives)
+    private final java.util.List < org.meta_environment.rascal.ast.Character >
+      alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.Character >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < Character > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.Character >
+      getAlternatives ()
     {
       return alternatives;
     }

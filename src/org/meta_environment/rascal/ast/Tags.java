@@ -8,7 +8,9 @@ public abstract class Tags extends AbstractAST
     private Default ()
     {
     }
-    /*package */ Default (ITree tree, java.util.List < Tag > annotations)
+    /*package */ Default (ITree tree,
+			  java.util.List <
+			  org.meta_environment.rascal.ast.Tag > annotations)
     {
       this.tree = tree;
       this.annotations = annotations;
@@ -39,23 +41,16 @@ public abstract class Tags extends AbstractAST
   }
   static public class Ambiguity extends Tags
   {
-    public Tags.Ambiguity makeTagsAmbiguity (java.util.List < Tags >
-					     alternatives)
-    {
-      Tags.Ambiguity amb = new Tags.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (Tags.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < Tags > alternatives;
-    public Ambiguity (java.util.List < Tags > alternatives)
+    private final java.util.List < org.meta_environment.rascal.ast.Tags >
+      alternatives;
+    public Ambiguity (java.util.List < org.meta_environment.rascal.ast.Tags >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < Tags > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.Tags >
+      getAlternatives ()
     {
       return alternatives;
     }

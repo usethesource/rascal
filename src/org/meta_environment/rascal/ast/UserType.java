@@ -35,23 +35,16 @@ public abstract class UserType extends AbstractAST
   }
   static public class Ambiguity extends UserType
   {
-    public UserType.Ambiguity makeUserTypeAmbiguity (java.util.List <
-						     UserType > alternatives)
-    {
-      UserType.Ambiguity amb = new UserType.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (UserType.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < UserType > alternatives;
-    public Ambiguity (java.util.List < UserType > alternatives)
+    private final java.util.List < org.meta_environment.rascal.ast.UserType >
+      alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.UserType > alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < UserType > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.UserType >
+      getAlternatives ()
     {
       return alternatives;
     }
@@ -64,7 +57,9 @@ public abstract class UserType extends AbstractAST
     }
     /*package */ Parametric (ITree tree,
 			     org.meta_environment.rascal.ast.Name name,
-			     java.util.List < TypeVar > parameters)
+			     java.util.List <
+			     org.meta_environment.rascal.ast.TypeVar >
+			     parameters)
     {
       this.tree = tree;
       this.name = name;

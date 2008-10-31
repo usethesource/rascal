@@ -35,23 +35,16 @@ public abstract class Case extends AbstractAST
   }
   static public class Ambiguity extends Case
   {
-    public Case.Ambiguity makeCaseAmbiguity (java.util.List < Case >
-					     alternatives)
-    {
-      Case.Ambiguity amb = new Case.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (Case.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < Case > alternatives;
-    public Ambiguity (java.util.List < Case > alternatives)
+    private final java.util.List < org.meta_environment.rascal.ast.Case >
+      alternatives;
+    public Ambiguity (java.util.List < org.meta_environment.rascal.ast.Case >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < Case > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.Case >
+      getAlternatives ()
     {
       return alternatives;
     }

@@ -38,24 +38,17 @@ public abstract class CharRange extends AbstractAST
   }
   static public class Ambiguity extends CharRange
   {
-    public CharRange.Ambiguity makeCharRangeAmbiguity (java.util.List <
-						       CharRange >
-						       alternatives)
-    {
-      CharRange.Ambiguity amb = new CharRange.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (CharRange.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < CharRange > alternatives;
-    public Ambiguity (java.util.List < CharRange > alternatives)
+    private final java.util.List < org.meta_environment.rascal.ast.CharRange >
+      alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.CharRange >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < CharRange > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.CharRange >
+      getAlternatives ()
     {
       return alternatives;
     }

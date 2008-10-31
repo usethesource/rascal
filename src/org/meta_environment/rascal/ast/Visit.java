@@ -11,7 +11,9 @@ public abstract class Visit extends AbstractAST
     /*package */ DefaultStrategy (ITree tree,
 				  org.meta_environment.rascal.ast.
 				  Expression subject,
-				  java.util.List < Case > cases)
+				  java.util.List <
+				  org.meta_environment.rascal.ast.Case >
+				  cases)
     {
       this.tree = tree;
       this.subject = subject;
@@ -59,23 +61,16 @@ public abstract class Visit extends AbstractAST
   }
   static public class Ambiguity extends Visit
   {
-    public Visit.Ambiguity makeVisitAmbiguity (java.util.List < Visit >
-					       alternatives)
-    {
-      Visit.Ambiguity amb = new Visit.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (Visit.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < Visit > alternatives;
-    public Ambiguity (java.util.List < Visit > alternatives)
+    private final java.util.List < org.meta_environment.rascal.ast.Visit >
+      alternatives;
+    public Ambiguity (java.util.List < org.meta_environment.rascal.ast.Visit >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < Visit > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.Visit >
+      getAlternatives ()
     {
       return alternatives;
     }
@@ -91,7 +86,8 @@ public abstract class Visit extends AbstractAST
 				Strategy strategy,
 				org.meta_environment.rascal.ast.
 				Expression subject,
-				java.util.List < Case > cases)
+				java.util.List <
+				org.meta_environment.rascal.ast.Case > cases)
     {
       this.tree = tree;
       this.strategy = strategy;

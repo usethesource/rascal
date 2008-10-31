@@ -36,23 +36,16 @@ public abstract class Type extends AbstractAST
   }
   static public class Ambiguity extends Type
   {
-    public Type.Ambiguity makeTypeAmbiguity (java.util.List < Type >
-					     alternatives)
-    {
-      Type.Ambiguity amb = new Type.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (Type.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < Type > alternatives;
-    public Ambiguity (java.util.List < Type > alternatives)
+    private final java.util.List < org.meta_environment.rascal.ast.Type >
+      alternatives;
+    public Ambiguity (java.util.List < org.meta_environment.rascal.ast.Type >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < Type > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.Type >
+      getAlternatives ()
     {
       return alternatives;
     }

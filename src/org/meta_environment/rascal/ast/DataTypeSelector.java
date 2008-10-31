@@ -53,28 +53,17 @@ public abstract class DataTypeSelector extends AbstractAST
   }
   static public class Ambiguity extends DataTypeSelector
   {
-    public DataTypeSelector.Ambiguity makeDataTypeSelectorAmbiguity (java.
-								     util.
-								     List <
-								     DataTypeSelector
-								     >
-								     alternatives)
-    {
-      DataTypeSelector.Ambiguity amb =
-	new DataTypeSelector.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (DataTypeSelector.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < DataTypeSelector > alternatives;
-    public Ambiguity (java.util.List < DataTypeSelector > alternatives)
+    private final java.util.List <
+      org.meta_environment.rascal.ast.DataTypeSelector > alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.DataTypeSelector >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < DataTypeSelector > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.DataTypeSelector >
+      getAlternatives ()
     {
       return alternatives;
     }

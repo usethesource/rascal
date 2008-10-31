@@ -70,26 +70,17 @@ public abstract class FunctionDeclaration extends AbstractAST
   }
   static public class Ambiguity extends FunctionDeclaration
   {
-    public FunctionDeclaration.
-      Ambiguity makeFunctionDeclarationAmbiguity (java.util.List <
-						  FunctionDeclaration >
-						  alternatives)
-    {
-      FunctionDeclaration.Ambiguity amb =
-	new FunctionDeclaration.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (FunctionDeclaration.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < FunctionDeclaration > alternatives;
-    public Ambiguity (java.util.List < FunctionDeclaration > alternatives)
+    private final java.util.List <
+      org.meta_environment.rascal.ast.FunctionDeclaration > alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.FunctionDeclaration >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < FunctionDeclaration > getAlternatives ()
+    public java.util.List <
+      org.meta_environment.rascal.ast.FunctionDeclaration > getAlternatives ()
     {
       return alternatives;
     }

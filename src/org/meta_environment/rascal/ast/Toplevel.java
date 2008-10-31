@@ -60,23 +60,16 @@ public abstract class Toplevel extends AbstractAST
   }
   static public class Ambiguity extends Toplevel
   {
-    public Toplevel.Ambiguity makeToplevelAmbiguity (java.util.List <
-						     Toplevel > alternatives)
-    {
-      Toplevel.Ambiguity amb = new Toplevel.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (Toplevel.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < Toplevel > alternatives;
-    public Ambiguity (java.util.List < Toplevel > alternatives)
+    private final java.util.List < org.meta_environment.rascal.ast.Toplevel >
+      alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.Toplevel > alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < Toplevel > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.Toplevel >
+      getAlternatives ()
     {
       return alternatives;
     }

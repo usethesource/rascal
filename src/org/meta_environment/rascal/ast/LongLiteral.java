@@ -19,24 +19,17 @@ public abstract class LongLiteral extends AbstractAST
   }
   static public class Ambiguity extends LongLiteral
   {
-    public LongLiteral.Ambiguity makeLongLiteralAmbiguity (java.util.List <
-							   LongLiteral >
-							   alternatives)
-    {
-      LongLiteral.Ambiguity amb = new LongLiteral.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (LongLiteral.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < LongLiteral > alternatives;
-    public Ambiguity (java.util.List < LongLiteral > alternatives)
+    private final java.util.List <
+      org.meta_environment.rascal.ast.LongLiteral > alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.LongLiteral >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < LongLiteral > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.LongLiteral >
+      getAlternatives ()
     {
       return alternatives;
     }

@@ -79,23 +79,16 @@ public abstract class Variable extends AbstractAST
   }
   static public class Ambiguity extends Variable
   {
-    public Variable.Ambiguity makeVariableAmbiguity (java.util.List <
-						     Variable > alternatives)
-    {
-      Variable.Ambiguity amb = new Variable.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (Variable.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < Variable > alternatives;
-    public Ambiguity (java.util.List < Variable > alternatives)
+    private final java.util.List < org.meta_environment.rascal.ast.Variable >
+      alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.Variable > alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < Variable > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.Variable >
+      getAlternatives ()
     {
       return alternatives;
     }

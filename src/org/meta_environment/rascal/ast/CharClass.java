@@ -41,24 +41,17 @@ public abstract class CharClass extends AbstractAST
   }
   static public class Ambiguity extends CharClass
   {
-    public CharClass.Ambiguity makeCharClassAmbiguity (java.util.List <
-						       CharClass >
-						       alternatives)
-    {
-      CharClass.Ambiguity amb = new CharClass.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (CharClass.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < CharClass > alternatives;
-    public Ambiguity (java.util.List < CharClass > alternatives)
+    private final java.util.List < org.meta_environment.rascal.ast.CharClass >
+      alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.CharClass >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < CharClass > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.CharClass >
+      getAlternatives ()
     {
       return alternatives;
     }
@@ -66,22 +59,6 @@ public abstract class CharClass extends AbstractAST
   static public class Bracket extends CharClass
   {
 /* "(" CharClass ")" -> CharClass {bracket, avoid} */
-    public CharClass.Bracket makeCharClassBracket (ITree tree)
-    {
-      CharClass.Bracket x = new CharClass.Bracket (tree);
-      if (!table.containsKey (x))
-	{
-	  table.put (x, x);
-	}
-      return (CharClass.Bracket) table.get (x);
-    }
-
-    public CharClass visitCharClassBracket (CharClass.Bracket x);
-    public CharClass visitCharClassBracket (CharClass.Bracket x)
-    {
-      return x;
-    }
-
     private Bracket ()
     {
     }

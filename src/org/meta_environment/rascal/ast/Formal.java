@@ -53,23 +53,16 @@ public abstract class Formal extends AbstractAST
   }
   static public class Ambiguity extends Formal
   {
-    public Formal.Ambiguity makeFormalAmbiguity (java.util.List < Formal >
-						 alternatives)
-    {
-      Formal.Ambiguity amb = new Formal.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (Formal.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < Formal > alternatives;
-    public Ambiguity (java.util.List < Formal > alternatives)
+    private final java.util.List < org.meta_environment.rascal.ast.Formal >
+      alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.Formal > alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < Formal > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.Formal >
+      getAlternatives ()
     {
       return alternatives;
     }

@@ -38,27 +38,18 @@ public abstract class LocalVariableDeclaration extends AbstractAST
   }
   static public class Ambiguity extends LocalVariableDeclaration
   {
-    public LocalVariableDeclaration.
-      Ambiguity makeLocalVariableDeclarationAmbiguity (java.util.List <
-						       LocalVariableDeclaration
-						       > alternatives)
-    {
-      LocalVariableDeclaration.Ambiguity amb =
-	new LocalVariableDeclaration.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (LocalVariableDeclaration.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < LocalVariableDeclaration > alternatives;
-    public Ambiguity (java.util.List < LocalVariableDeclaration >
-		      alternatives)
+    private final java.util.List <
+      org.meta_environment.rascal.ast.LocalVariableDeclaration > alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.
+		      LocalVariableDeclaration > alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < LocalVariableDeclaration > getAlternatives ()
+    public java.util.List <
+      org.meta_environment.rascal.ast.LocalVariableDeclaration >
+      getAlternatives ()
     {
       return alternatives;
     }
