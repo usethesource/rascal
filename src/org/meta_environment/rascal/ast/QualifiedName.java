@@ -8,7 +8,9 @@ public abstract class QualifiedName extends AbstractAST
     private Default ()
     {
     }
-    /*package */ Default (ITree tree, java.util.List < Name > names)
+    /*package */ Default (ITree tree,
+			  java.util.List <
+			  org.meta_environment.rascal.ast.Name > names)
     {
       this.tree = tree;
       this.names = names;
@@ -37,26 +39,17 @@ public abstract class QualifiedName extends AbstractAST
   }
   static public class Ambiguity extends QualifiedName
   {
-    public QualifiedName.Ambiguity makeQualifiedNameAmbiguity (java.util.
-							       List <
-							       QualifiedName >
-							       alternatives)
-    {
-      QualifiedName.Ambiguity amb =
-	new QualifiedName.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (QualifiedName.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < QualifiedName > alternatives;
-    public Ambiguity (java.util.List < QualifiedName > alternatives)
+    private final java.util.List <
+      org.meta_environment.rascal.ast.QualifiedName > alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.QualifiedName >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < QualifiedName > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.QualifiedName >
+      getAlternatives ()
     {
       return alternatives;
     }

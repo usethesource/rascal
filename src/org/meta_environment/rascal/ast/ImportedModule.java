@@ -79,27 +79,17 @@ public abstract class ImportedModule extends AbstractAST
   }
   static public class Ambiguity extends ImportedModule
   {
-    public ImportedModule.Ambiguity makeImportedModuleAmbiguity (java.util.
-								 List <
-								 ImportedModule
-								 >
-								 alternatives)
-    {
-      ImportedModule.Ambiguity amb =
-	new ImportedModule.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (ImportedModule.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < ImportedModule > alternatives;
-    public Ambiguity (java.util.List < ImportedModule > alternatives)
+    private final java.util.List <
+      org.meta_environment.rascal.ast.ImportedModule > alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.ImportedModule >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < ImportedModule > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.ImportedModule >
+      getAlternatives ()
     {
       return alternatives;
     }

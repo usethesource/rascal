@@ -7,27 +7,17 @@ public abstract class BooleanLiteral extends AbstractAST
     /* "true" -> BooleanLiteral  */
   } static public class Ambiguity extends BooleanLiteral
   {
-    public BooleanLiteral.Ambiguity makeBooleanLiteralAmbiguity (java.util.
-								 List <
-								 BooleanLiteral
-								 >
-								 alternatives)
-    {
-      BooleanLiteral.Ambiguity amb =
-	new BooleanLiteral.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (BooleanLiteral.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < BooleanLiteral > alternatives;
-    public Ambiguity (java.util.List < BooleanLiteral > alternatives)
+    private final java.util.List <
+      org.meta_environment.rascal.ast.BooleanLiteral > alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.BooleanLiteral >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < BooleanLiteral > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.BooleanLiteral >
+      getAlternatives ()
     {
       return alternatives;
     }

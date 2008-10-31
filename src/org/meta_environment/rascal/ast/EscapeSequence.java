@@ -7,27 +7,17 @@ public abstract class EscapeSequence extends AbstractAST
     /* "\\" [0-7] -> EscapeSequence  */
   } static public class Ambiguity extends EscapeSequence
   {
-    public EscapeSequence.Ambiguity makeEscapeSequenceAmbiguity (java.util.
-								 List <
-								 EscapeSequence
-								 >
-								 alternatives)
-    {
-      EscapeSequence.Ambiguity amb =
-	new EscapeSequence.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (EscapeSequence.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < EscapeSequence > alternatives;
-    public Ambiguity (java.util.List < EscapeSequence > alternatives)
+    private final java.util.List <
+      org.meta_environment.rascal.ast.EscapeSequence > alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.EscapeSequence >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < EscapeSequence > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.EscapeSequence >
+      getAlternatives ()
     {
       return alternatives;
     }

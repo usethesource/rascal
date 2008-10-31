@@ -10,7 +10,8 @@ public abstract class Comprehension extends AbstractAST
     }
     /*package */ Set (ITree tree,
 		      org.meta_environment.rascal.ast.Expression result,
-		      java.util.List < Generator > generators)
+		      java.util.List <
+		      org.meta_environment.rascal.ast.Generator > generators)
     {
       this.tree = tree;
       this.result = result;
@@ -58,26 +59,17 @@ public abstract class Comprehension extends AbstractAST
   }
   static public class Ambiguity extends Comprehension
   {
-    public Comprehension.Ambiguity makeComprehensionAmbiguity (java.util.
-							       List <
-							       Comprehension >
-							       alternatives)
-    {
-      Comprehension.Ambiguity amb =
-	new Comprehension.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (Comprehension.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < Comprehension > alternatives;
-    public Ambiguity (java.util.List < Comprehension > alternatives)
+    private final java.util.List <
+      org.meta_environment.rascal.ast.Comprehension > alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.Comprehension >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < Comprehension > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.Comprehension >
+      getAlternatives ()
     {
       return alternatives;
     }
@@ -90,7 +82,8 @@ public abstract class Comprehension extends AbstractAST
     }
     /*package */ List (ITree tree,
 		       org.meta_environment.rascal.ast.Expression result,
-		       java.util.List < Generator > generators)
+		       java.util.List <
+		       org.meta_environment.rascal.ast.Generator > generators)
     {
       this.tree = tree;
       this.result = result;

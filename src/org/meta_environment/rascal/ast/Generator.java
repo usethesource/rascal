@@ -38,24 +38,17 @@ public abstract class Generator extends AbstractAST
   }
   static public class Ambiguity extends Generator
   {
-    public Generator.Ambiguity makeGeneratorAmbiguity (java.util.List <
-						       Generator >
-						       alternatives)
-    {
-      Generator.Ambiguity amb = new Generator.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (Generator.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < Generator > alternatives;
-    public Ambiguity (java.util.List < Generator > alternatives)
+    private final java.util.List < org.meta_environment.rascal.ast.Generator >
+      alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.Generator >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < Generator > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.Generator >
+      getAlternatives ()
     {
       return alternatives;
     }

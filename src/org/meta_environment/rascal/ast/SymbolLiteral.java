@@ -8,26 +8,17 @@ public abstract class SymbolLiteral extends AbstractAST
   }
   static public class Ambiguity extends SymbolLiteral
   {
-    public SymbolLiteral.Ambiguity makeSymbolLiteralAmbiguity (java.util.
-							       List <
-							       SymbolLiteral >
-							       alternatives)
-    {
-      SymbolLiteral.Ambiguity amb =
-	new SymbolLiteral.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (SymbolLiteral.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < SymbolLiteral > alternatives;
-    public Ambiguity (java.util.List < SymbolLiteral > alternatives)
+    private final java.util.List <
+      org.meta_environment.rascal.ast.SymbolLiteral > alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.SymbolLiteral >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < SymbolLiteral > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.SymbolLiteral >
+      getAlternatives ()
     {
       return alternatives;
     }

@@ -8,23 +8,16 @@ public abstract class NumChar extends AbstractAST
   }
   static public class Ambiguity extends NumChar
   {
-    public NumChar.Ambiguity makeNumCharAmbiguity (java.util.List < NumChar >
-						   alternatives)
-    {
-      NumChar.Ambiguity amb = new NumChar.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (NumChar.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < NumChar > alternatives;
-    public Ambiguity (java.util.List < NumChar > alternatives)
+    private final java.util.List < org.meta_environment.rascal.ast.NumChar >
+      alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.NumChar > alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < NumChar > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.NumChar >
+      getAlternatives ()
     {
       return alternatives;
     }

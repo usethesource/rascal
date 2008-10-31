@@ -35,23 +35,16 @@ public abstract class Symbol extends AbstractAST
   }
   static public class Ambiguity extends Symbol
   {
-    public Symbol.Ambiguity makeSymbolAmbiguity (java.util.List < Symbol >
-						 alternatives)
-    {
-      Symbol.Ambiguity amb = new Symbol.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (Symbol.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < Symbol > alternatives;
-    public Ambiguity (java.util.List < Symbol > alternatives)
+    private final java.util.List < org.meta_environment.rascal.ast.Symbol >
+      alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.Symbol > alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < Symbol > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.Symbol >
+      getAlternatives ()
     {
       return alternatives;
     }
@@ -64,7 +57,9 @@ public abstract class Symbol extends AbstractAST
     }
     /*package */ ParameterizedSort (ITree tree,
 				    org.meta_environment.rascal.ast.Sort sort,
-				    java.util.List < Symbol > parameters)
+				    java.util.List <
+				    org.meta_environment.rascal.ast.Symbol >
+				    parameters)
     {
       this.tree = tree;
       this.sort = sort;
@@ -135,7 +130,8 @@ public abstract class Symbol extends AbstractAST
     }
     /*package */ Sequence (ITree tree,
 			   org.meta_environment.rascal.ast.Symbol head,
-			   java.util.List < Symbol > tail)
+			   java.util.List <
+			   org.meta_environment.rascal.ast.Symbol > tail)
     {
       this.tree = tree;
       this.head = head;

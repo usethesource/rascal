@@ -8,27 +8,17 @@ public abstract class HexLongLiteral extends AbstractAST
   }
   static public class Ambiguity extends HexLongLiteral
   {
-    public HexLongLiteral.Ambiguity makeHexLongLiteralAmbiguity (java.util.
-								 List <
-								 HexLongLiteral
-								 >
-								 alternatives)
-    {
-      HexLongLiteral.Ambiguity amb =
-	new HexLongLiteral.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (HexLongLiteral.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < HexLongLiteral > alternatives;
-    public Ambiguity (java.util.List < HexLongLiteral > alternatives)
+    private final java.util.List <
+      org.meta_environment.rascal.ast.HexLongLiteral > alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.HexLongLiteral >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < HexLongLiteral > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.HexLongLiteral >
+      getAlternatives ()
     {
       return alternatives;
     }

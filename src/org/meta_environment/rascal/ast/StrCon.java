@@ -8,23 +8,16 @@ public abstract class StrCon extends AbstractAST
   }
   static public class Ambiguity extends StrCon
   {
-    public StrCon.Ambiguity makeStrConAmbiguity (java.util.List < StrCon >
-						 alternatives)
-    {
-      StrCon.Ambiguity amb = new StrCon.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (StrCon.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < StrCon > alternatives;
-    public Ambiguity (java.util.List < StrCon > alternatives)
+    private final java.util.List < org.meta_environment.rascal.ast.StrCon >
+      alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.StrCon > alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < StrCon > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.StrCon >
+      getAlternatives ()
     {
       return alternatives;
     }

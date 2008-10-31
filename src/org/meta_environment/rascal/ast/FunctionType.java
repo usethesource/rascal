@@ -10,7 +10,9 @@ public abstract class FunctionType extends AbstractAST
     }
     /*package */ TypeArguments (ITree tree,
 				org.meta_environment.rascal.ast.Type type,
-				java.util.List < TypeArg > arguments)
+				java.util.List <
+				org.meta_environment.rascal.ast.TypeArg >
+				arguments)
     {
       this.tree = tree;
       this.type = type;
@@ -58,24 +60,17 @@ public abstract class FunctionType extends AbstractAST
   }
   static public class Ambiguity extends FunctionType
   {
-    public FunctionType.Ambiguity makeFunctionTypeAmbiguity (java.util.List <
-							     FunctionType >
-							     alternatives)
-    {
-      FunctionType.Ambiguity amb = new FunctionType.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (FunctionType.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < FunctionType > alternatives;
-    public Ambiguity (java.util.List < FunctionType > alternatives)
+    private final java.util.List <
+      org.meta_environment.rascal.ast.FunctionType > alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.FunctionType >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < FunctionType > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.FunctionType >
+      getAlternatives ()
     {
       return alternatives;
     }

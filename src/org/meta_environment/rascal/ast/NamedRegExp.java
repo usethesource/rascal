@@ -7,24 +7,17 @@ public abstract class NamedRegExp extends AbstractAST
     /* ~[\>\\] -> NamedRegExp  */
   } static public class Ambiguity extends NamedRegExp
   {
-    public NamedRegExp.Ambiguity makeNamedRegExpAmbiguity (java.util.List <
-							   NamedRegExp >
-							   alternatives)
-    {
-      NamedRegExp.Ambiguity amb = new NamedRegExp.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (NamedRegExp.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < NamedRegExp > alternatives;
-    public Ambiguity (java.util.List < NamedRegExp > alternatives)
+    private final java.util.List <
+      org.meta_environment.rascal.ast.NamedRegExp > alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.NamedRegExp >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < NamedRegExp > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.NamedRegExp >
+      getAlternatives ()
     {
       return alternatives;
     }

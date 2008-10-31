@@ -39,23 +39,16 @@ public abstract class Return extends AbstractAST
   }
   static public class Ambiguity extends Return
   {
-    public Return.Ambiguity makeReturnAmbiguity (java.util.List < Return >
-						 alternatives)
-    {
-      Return.Ambiguity amb = new Return.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (Return.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < Return > alternatives;
-    public Ambiguity (java.util.List < Return > alternatives)
+    private final java.util.List < org.meta_environment.rascal.ast.Return >
+      alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.Return > alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < Return > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.Return >
+      getAlternatives ()
     {
       return alternatives;
     }

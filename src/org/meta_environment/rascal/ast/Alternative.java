@@ -53,24 +53,17 @@ public abstract class Alternative extends AbstractAST
   }
   static public class Ambiguity extends Alternative
   {
-    public Alternative.Ambiguity makeAlternativeAmbiguity (java.util.List <
-							   Alternative >
-							   alternatives)
-    {
-      Alternative.Ambiguity amb = new Alternative.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (Alternative.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < Alternative > alternatives;
-    public Ambiguity (java.util.List < Alternative > alternatives)
+    private final java.util.List <
+      org.meta_environment.rascal.ast.Alternative > alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.Alternative >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < Alternative > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.Alternative >
+      getAlternatives ()
     {
       return alternatives;
     }

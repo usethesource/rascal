@@ -19,23 +19,16 @@ public abstract class Label extends AbstractAST
   }
   static public class Ambiguity extends Label
   {
-    public Label.Ambiguity makeLabelAmbiguity (java.util.List < Label >
-					       alternatives)
-    {
-      Label.Ambiguity amb = new Label.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (Label.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < Label > alternatives;
-    public Ambiguity (java.util.List < Label > alternatives)
+    private final java.util.List < org.meta_environment.rascal.ast.Label >
+      alternatives;
+    public Ambiguity (java.util.List < org.meta_environment.rascal.ast.Label >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < Label > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.Label >
+      getAlternatives ()
     {
       return alternatives;
     }

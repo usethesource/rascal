@@ -56,23 +56,16 @@ public abstract class Match extends AbstractAST
   }
   static public class Ambiguity extends Match
   {
-    public Match.Ambiguity makeMatchAmbiguity (java.util.List < Match >
-					       alternatives)
-    {
-      Match.Ambiguity amb = new Match.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (Match.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < Match > alternatives;
-    public Ambiguity (java.util.List < Match > alternatives)
+    private final java.util.List < org.meta_environment.rascal.ast.Match >
+      alternatives;
+    public Ambiguity (java.util.List < org.meta_environment.rascal.ast.Match >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < Match > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.Match >
+      getAlternatives ()
     {
       return alternatives;
     }

@@ -36,23 +36,16 @@ public abstract class Break extends AbstractAST
   }
   static public class Ambiguity extends Break
   {
-    public Break.Ambiguity makeBreakAmbiguity (java.util.List < Break >
-					       alternatives)
-    {
-      Break.Ambiguity amb = new Break.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (Break.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < Break > alternatives;
-    public Ambiguity (java.util.List < Break > alternatives)
+    private final java.util.List < org.meta_environment.rascal.ast.Break >
+      alternatives;
+    public Ambiguity (java.util.List < org.meta_environment.rascal.ast.Break >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < Break > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.Break >
+      getAlternatives ()
     {
       return alternatives;
     }

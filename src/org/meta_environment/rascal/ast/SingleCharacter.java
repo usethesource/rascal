@@ -7,27 +7,17 @@ public abstract class SingleCharacter extends AbstractAST
     /* UnicodeEscape -> SingleCharacter  */
   } static public class Ambiguity extends SingleCharacter
   {
-    public SingleCharacter.Ambiguity makeSingleCharacterAmbiguity (java.util.
-								   List <
-								   SingleCharacter
-								   >
-								   alternatives)
-    {
-      SingleCharacter.Ambiguity amb =
-	new SingleCharacter.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (SingleCharacter.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < SingleCharacter > alternatives;
-    public Ambiguity (java.util.List < SingleCharacter > alternatives)
+    private final java.util.List <
+      org.meta_environment.rascal.ast.SingleCharacter > alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.SingleCharacter >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < SingleCharacter > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.SingleCharacter >
+      getAlternatives ()
     {
       return alternatives;
     }

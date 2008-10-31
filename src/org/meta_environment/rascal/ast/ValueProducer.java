@@ -59,26 +59,17 @@ public abstract class ValueProducer extends AbstractAST
   }
   static public class Ambiguity extends ValueProducer
   {
-    public ValueProducer.Ambiguity makeValueProducerAmbiguity (java.util.
-							       List <
-							       ValueProducer >
-							       alternatives)
-    {
-      ValueProducer.Ambiguity amb =
-	new ValueProducer.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (ValueProducer.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < ValueProducer > alternatives;
-    public Ambiguity (java.util.List < ValueProducer > alternatives)
+    private final java.util.List <
+      org.meta_environment.rascal.ast.ValueProducer > alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.ValueProducer >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < ValueProducer > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.ValueProducer >
+      getAlternatives ()
     {
       return alternatives;
     }

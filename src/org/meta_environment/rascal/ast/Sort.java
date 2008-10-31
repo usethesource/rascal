@@ -7,23 +7,16 @@ public abstract class Sort extends AbstractAST
     /* head:[A-Z] -> Sort  */
   } static public class Ambiguity extends Sort
   {
-    public Sort.Ambiguity makeSortAmbiguity (java.util.List < Sort >
-					     alternatives)
-    {
-      Sort.Ambiguity amb = new Sort.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (Sort.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < Sort > alternatives;
-    public Ambiguity (java.util.List < Sort > alternatives)
+    private final java.util.List < org.meta_environment.rascal.ast.Sort >
+      alternatives;
+    public Ambiguity (java.util.List < org.meta_environment.rascal.ast.Sort >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < Sort > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.Sort >
+      getAlternatives ()
     {
       return alternatives;
     }

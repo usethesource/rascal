@@ -36,23 +36,16 @@ public abstract class Fail extends AbstractAST
   }
   static public class Ambiguity extends Fail
   {
-    public Fail.Ambiguity makeFailAmbiguity (java.util.List < Fail >
-					     alternatives)
-    {
-      Fail.Ambiguity amb = new Fail.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (Fail.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < Fail > alternatives;
-    public Ambiguity (java.util.List < Fail > alternatives)
+    private final java.util.List < org.meta_environment.rascal.ast.Fail >
+      alternatives;
+    public Ambiguity (java.util.List < org.meta_environment.rascal.ast.Fail >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < Fail > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.Fail >
+      getAlternatives ()
     {
       return alternatives;
     }

@@ -35,24 +35,17 @@ public abstract class FunctionName extends AbstractAST
   }
   static public class Ambiguity extends FunctionName
   {
-    public FunctionName.Ambiguity makeFunctionNameAmbiguity (java.util.List <
-							     FunctionName >
-							     alternatives)
-    {
-      FunctionName.Ambiguity amb = new FunctionName.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (FunctionName.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < FunctionName > alternatives;
-    public Ambiguity (java.util.List < FunctionName > alternatives)
+    private final java.util.List <
+      org.meta_environment.rascal.ast.FunctionName > alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.FunctionName >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < FunctionName > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.FunctionName >
+      getAlternatives ()
     {
       return alternatives;
     }

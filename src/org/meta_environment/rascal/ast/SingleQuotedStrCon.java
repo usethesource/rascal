@@ -8,29 +8,17 @@ public abstract class SingleQuotedStrCon extends AbstractAST
   }
   static public class Ambiguity extends SingleQuotedStrCon
   {
-    public SingleQuotedStrCon.Ambiguity makeSingleQuotedStrConAmbiguity (java.
-									 util.
-									 List
-									 <
-									 SingleQuotedStrCon
-									 >
-									 alternatives)
-    {
-      SingleQuotedStrCon.Ambiguity amb =
-	new SingleQuotedStrCon.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (SingleQuotedStrCon.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < SingleQuotedStrCon > alternatives;
-    public Ambiguity (java.util.List < SingleQuotedStrCon > alternatives)
+    private final java.util.List <
+      org.meta_environment.rascal.ast.SingleQuotedStrCon > alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.SingleQuotedStrCon >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < SingleQuotedStrCon > getAlternatives ()
+    public java.util.List <
+      org.meta_environment.rascal.ast.SingleQuotedStrCon > getAlternatives ()
     {
       return alternatives;
     }

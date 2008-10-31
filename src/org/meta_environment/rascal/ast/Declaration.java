@@ -11,7 +11,9 @@ public abstract class Declaration extends AbstractAST
     /*package */ View (ITree tree, org.meta_environment.rascal.ast.Name view,
 		       org.meta_environment.rascal.ast.Name type,
 		       org.meta_environment.rascal.ast.Tags tags,
-		       java.util.List < Alternative > alternatives)
+		       java.util.List <
+		       org.meta_environment.rascal.ast.Alternative >
+		       alternatives)
     {
       this.tree = tree;
       this.view = view;
@@ -92,24 +94,17 @@ public abstract class Declaration extends AbstractAST
   }
   static public class Ambiguity extends Declaration
   {
-    public Declaration.Ambiguity makeDeclarationAmbiguity (java.util.List <
-							   Declaration >
-							   alternatives)
-    {
-      Declaration.Ambiguity amb = new Declaration.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (Declaration.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < Declaration > alternatives;
-    public Ambiguity (java.util.List < Declaration > alternatives)
+    private final java.util.List <
+      org.meta_environment.rascal.ast.Declaration > alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.Declaration >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < Declaration > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.Declaration >
+      getAlternatives ()
     {
       return alternatives;
     }
@@ -188,7 +183,8 @@ public abstract class Declaration extends AbstractAST
     /*package */ Data (ITree tree,
 		       org.meta_environment.rascal.ast.UserType user,
 		       org.meta_environment.rascal.ast.Tags tags,
-		       java.util.List < Variant > variants)
+		       java.util.List <
+		       org.meta_environment.rascal.ast.Variant > variants)
     {
       this.tree = tree;
       this.user = user;
@@ -294,7 +290,9 @@ public abstract class Declaration extends AbstractAST
     }
     /*package */ Variable (ITree tree,
 			   org.meta_environment.rascal.ast.Type type,
-			   java.util.List < Variable > variables)
+			   java.util.List <
+			   org.meta_environment.rascal.ast.Variable >
+			   variables)
     {
       this.tree = tree;
       this.type = type;
@@ -415,7 +413,8 @@ public abstract class Declaration extends AbstractAST
 			     org.meta_environment.rascal.ast.Type type,
 			     org.meta_environment.rascal.ast.Name name,
 			     org.meta_environment.rascal.ast.Tags tags,
-			     java.util.List < Type > types)
+			     java.util.List <
+			     org.meta_environment.rascal.ast.Type > types)
     {
       this.tree = tree;
       this.type = type;
@@ -499,7 +498,8 @@ public abstract class Declaration extends AbstractAST
     /*package */ Tag (ITree tree, org.meta_environment.rascal.ast.Kind kind,
 		      org.meta_environment.rascal.ast.Name name,
 		      org.meta_environment.rascal.ast.Tags tags,
-		      java.util.List < Type > types)
+		      java.util.List < org.meta_environment.rascal.ast.Type >
+		      types)
     {
       this.tree = tree;
       this.kind = kind;

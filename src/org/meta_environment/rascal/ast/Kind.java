@@ -19,23 +19,16 @@ public abstract class Kind extends AbstractAST
   }
   static public class Ambiguity extends Kind
   {
-    public Kind.Ambiguity makeKindAmbiguity (java.util.List < Kind >
-					     alternatives)
-    {
-      Kind.Ambiguity amb = new Kind.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (Kind.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < Kind > alternatives;
-    public Ambiguity (java.util.List < Kind > alternatives)
+    private final java.util.List < org.meta_environment.rascal.ast.Kind >
+      alternatives;
+    public Ambiguity (java.util.List < org.meta_environment.rascal.ast.Kind >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < Kind > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.Kind >
+      getAlternatives ()
     {
       return alternatives;
     }

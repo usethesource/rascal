@@ -19,23 +19,16 @@ public abstract class Bound extends AbstractAST
   }
   static public class Ambiguity extends Bound
   {
-    public Bound.Ambiguity makeBoundAmbiguity (java.util.List < Bound >
-					       alternatives)
-    {
-      Bound.Ambiguity amb = new Bound.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (Bound.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < Bound > alternatives;
-    public Ambiguity (java.util.List < Bound > alternatives)
+    private final java.util.List < org.meta_environment.rascal.ast.Bound >
+      alternatives;
+    public Ambiguity (java.util.List < org.meta_environment.rascal.ast.Bound >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < Bound > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.Bound >
+      getAlternatives ()
     {
       return alternatives;
     }

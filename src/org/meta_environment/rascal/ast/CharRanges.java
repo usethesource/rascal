@@ -36,24 +36,17 @@ public abstract class CharRanges extends AbstractAST
   }
   static public class Ambiguity extends CharRanges
   {
-    public CharRanges.Ambiguity makeCharRangesAmbiguity (java.util.List <
-							 CharRanges >
-							 alternatives)
-    {
-      CharRanges.Ambiguity amb = new CharRanges.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (CharRanges.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < CharRanges > alternatives;
-    public Ambiguity (java.util.List < CharRanges > alternatives)
+    private final java.util.List <
+      org.meta_environment.rascal.ast.CharRanges > alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.CharRanges >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < CharRanges > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.CharRanges >
+      getAlternatives ()
     {
       return alternatives;
     }
@@ -110,22 +103,6 @@ public abstract class CharRanges extends AbstractAST
   static public class Bracket extends CharRanges
   {
 /* "(" CharRanges ")" -> CharRanges {bracket} */
-    public CharRanges.Bracket makeCharRangesBracket (ITree tree)
-    {
-      CharRanges.Bracket x = new CharRanges.Bracket (tree);
-      if (!table.containsKey (x))
-	{
-	  table.put (x, x);
-	}
-      return (CharRanges.Bracket) table.get (x);
-    }
-
-    public CharRanges visitCharRangesBracket (CharRanges.Bracket x);
-    public CharRanges visitCharRangesBracket (CharRanges.Bracket x)
-    {
-      return x;
-    }
-
     private Bracket ()
     {
     }

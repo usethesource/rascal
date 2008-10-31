@@ -53,23 +53,16 @@ public abstract class Rule extends AbstractAST
   }
   static public class Ambiguity extends Rule
   {
-    public Rule.Ambiguity makeRuleAmbiguity (java.util.List < Rule >
-					     alternatives)
-    {
-      Rule.Ambiguity amb = new Rule.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (Rule.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < Rule > alternatives;
-    public Ambiguity (java.util.List < Rule > alternatives)
+    private final java.util.List < org.meta_environment.rascal.ast.Rule >
+      alternatives;
+    public Ambiguity (java.util.List < org.meta_environment.rascal.ast.Rule >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < Rule > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.Rule >
+      getAlternatives ()
     {
       return alternatives;
     }

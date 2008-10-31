@@ -36,24 +36,17 @@ public abstract class Parameters extends AbstractAST
   }
   static public class Ambiguity extends Parameters
   {
-    public Parameters.Ambiguity makeParametersAmbiguity (java.util.List <
-							 Parameters >
-							 alternatives)
-    {
-      Parameters.Ambiguity amb = new Parameters.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (Parameters.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < Parameters > alternatives;
-    public Ambiguity (java.util.List < Parameters > alternatives)
+    private final java.util.List <
+      org.meta_environment.rascal.ast.Parameters > alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.Parameters >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < Parameters > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.Parameters >
+      getAlternatives ()
     {
       return alternatives;
     }

@@ -8,7 +8,10 @@ public abstract class FunctionBody extends AbstractAST
     private Default ()
     {
     }
-    /*package */ Default (ITree tree, java.util.List < Statement > statements)
+    /*package */ Default (ITree tree,
+			  java.util.List <
+			  org.meta_environment.rascal.ast.Statement >
+			  statements)
     {
       this.tree = tree;
       this.statements = statements;
@@ -41,24 +44,17 @@ public abstract class FunctionBody extends AbstractAST
   }
   static public class Ambiguity extends FunctionBody
   {
-    public FunctionBody.Ambiguity makeFunctionBodyAmbiguity (java.util.List <
-							     FunctionBody >
-							     alternatives)
-    {
-      FunctionBody.Ambiguity amb = new FunctionBody.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (FunctionBody.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < FunctionBody > alternatives;
-    public Ambiguity (java.util.List < FunctionBody > alternatives)
+    private final java.util.List <
+      org.meta_environment.rascal.ast.FunctionBody > alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.FunctionBody >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < FunctionBody > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.FunctionBody >
+      getAlternatives ()
     {
       return alternatives;
     }

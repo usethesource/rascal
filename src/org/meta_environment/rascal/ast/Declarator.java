@@ -10,7 +10,9 @@ public abstract class Declarator extends AbstractAST
     }
     /*package */ Default (ITree tree,
 			  org.meta_environment.rascal.ast.Type type,
-			  java.util.List < Variable > variables)
+			  java.util.List <
+			  org.meta_environment.rascal.ast.Variable >
+			  variables)
     {
       this.tree = tree;
       this.type = type;
@@ -57,24 +59,17 @@ public abstract class Declarator extends AbstractAST
   }
   static public class Ambiguity extends Declarator
   {
-    public Declarator.Ambiguity makeDeclaratorAmbiguity (java.util.List <
-							 Declarator >
-							 alternatives)
-    {
-      Declarator.Ambiguity amb = new Declarator.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (Declarator.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < Declarator > alternatives;
-    public Ambiguity (java.util.List < Declarator > alternatives)
+    private final java.util.List <
+      org.meta_environment.rascal.ast.Declarator > alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.Declarator >
+		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < Declarator > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.Declarator >
+      getAlternatives ()
     {
       return alternatives;
     }

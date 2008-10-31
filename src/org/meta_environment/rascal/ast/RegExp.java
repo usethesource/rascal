@@ -7,23 +7,16 @@ public abstract class RegExp extends AbstractAST
     /* Backslash -> RegExp  */
   } static public class Ambiguity extends RegExp
   {
-    public RegExp.Ambiguity makeRegExpAmbiguity (java.util.List < RegExp >
-						 alternatives)
-    {
-      RegExp.Ambiguity amb = new RegExp.Ambiguity (alternatives);
-      if (!table.containsKey (amb))
-	{
-	  table.put (amb, amb);
-	}
-      return (RegExp.Ambiguity) table.get (amb);
-    }
-    private final java.util.List < RegExp > alternatives;
-    public Ambiguity (java.util.List < RegExp > alternatives)
+    private final java.util.List < org.meta_environment.rascal.ast.RegExp >
+      alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.RegExp > alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < RegExp > getAlternatives ()
+    public java.util.List < org.meta_environment.rascal.ast.RegExp >
+      getAlternatives ()
     {
       return alternatives;
     }
