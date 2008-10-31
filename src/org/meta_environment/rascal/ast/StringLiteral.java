@@ -8,6 +8,19 @@ public abstract class StringLiteral extends AbstractAST
   }
   static public class Ambiguity extends StringLiteral
   {
+    public StringLiteral.Ambiguity makeStringLiteralAmbiguity (java.util.
+							       List <
+							       StringLiteral >
+							       alternatives)
+    {
+      StringLiteral.Ambiguity amb =
+	new StringLiteral.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (StringLiteral.Ambiguity) table.get (amb);
+    }
     private final java.util.List < StringLiteral > alternatives;
     public Ambiguity (java.util.List < StringLiteral > alternatives)
     {

@@ -29,10 +29,7 @@ public abstract class Rule extends AbstractAST
     {
       this.type = x;
     }
-    public org.meta_environment.rascal.ast.WithGuard setType (org.
-							      meta_environment.
-							      rascal.ast.
-							      Type x)
+    public WithGuard setType (org.meta_environment.rascal.ast.Type x)
     {
       org.meta_environment.rascal.ast.WithGuard z = new WithGuard ();
       z.$setType (x);
@@ -47,10 +44,7 @@ public abstract class Rule extends AbstractAST
     {
       this.match = x;
     }
-    public org.meta_environment.rascal.ast.WithGuard setMatch (org.
-							       meta_environment.
-							       rascal.ast.
-							       Match x)
+    public WithGuard setMatch (org.meta_environment.rascal.ast.Match x)
     {
       org.meta_environment.rascal.ast.WithGuard z = new WithGuard ();
       z.$setMatch (x);
@@ -59,6 +53,16 @@ public abstract class Rule extends AbstractAST
   }
   static public class Ambiguity extends Rule
   {
+    public Rule.Ambiguity makeRuleAmbiguity (java.util.List < Rule >
+					     alternatives)
+    {
+      Rule.Ambiguity amb = new Rule.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (Rule.Ambiguity) table.get (amb);
+    }
     private final java.util.List < Rule > alternatives;
     public Ambiguity (java.util.List < Rule > alternatives)
     {
@@ -95,10 +99,7 @@ public abstract class Rule extends AbstractAST
     {
       this.match = x;
     }
-    public org.meta_environment.rascal.ast.NoGuard setMatch (org.
-							     meta_environment.
-							     rascal.ast.
-							     Match x)
+    public NoGuard setMatch (org.meta_environment.rascal.ast.Match x)
     {
       org.meta_environment.rascal.ast.NoGuard z = new NoGuard ();
       z.$setMatch (x);

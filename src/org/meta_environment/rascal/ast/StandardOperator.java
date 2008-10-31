@@ -19,6 +19,21 @@ public abstract class StandardOperator extends AbstractAST
   }
   static public class Ambiguity extends StandardOperator
   {
+    public StandardOperator.Ambiguity makeStandardOperatorAmbiguity (java.
+								     util.
+								     List <
+								     StandardOperator
+								     >
+								     alternatives)
+    {
+      StandardOperator.Ambiguity amb =
+	new StandardOperator.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (StandardOperator.Ambiguity) table.get (amb);
+    }
     private final java.util.List < StandardOperator > alternatives;
     public Ambiguity (java.util.List < StandardOperator > alternatives)
     {

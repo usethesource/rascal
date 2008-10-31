@@ -31,10 +31,7 @@ public abstract class Header extends AbstractAST
     {
       this.name = x;
     }
-    public org.meta_environment.rascal.ast.Default setName (org.
-							    meta_environment.
-							    rascal.ast.
-							    ModuleName x)
+    public Default setName (org.meta_environment.rascal.ast.ModuleName x)
     {
       org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setName (x);
@@ -49,9 +46,7 @@ public abstract class Header extends AbstractAST
     {
       this.tags = x;
     }
-    public org.meta_environment.rascal.ast.Default setTags (org.
-							    meta_environment.
-							    rascal.ast.Tags x)
+    public Default setTags (org.meta_environment.rascal.ast.Tags x)
     {
       org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setTags (x);
@@ -68,12 +63,8 @@ public abstract class Header extends AbstractAST
     {
       this.imports = x;
     }
-    public org.meta_environment.rascal.ast.Default setImports (java.util.
-							       List <
-							       org.
-							       meta_environment.
-							       rascal.ast.
-							       Import > x)
+    public Default setImports (java.util.List <
+			       org.meta_environment.rascal.ast.Import > x)
     {
       org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setImports (x);
@@ -82,6 +73,16 @@ public abstract class Header extends AbstractAST
   }
   static public class Ambiguity extends Header
   {
+    public Header.Ambiguity makeHeaderAmbiguity (java.util.List < Header >
+						 alternatives)
+    {
+      Header.Ambiguity amb = new Header.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (Header.Ambiguity) table.get (amb);
+    }
     private final java.util.List < Header > alternatives;
     public Ambiguity (java.util.List < Header > alternatives)
     {
@@ -125,10 +126,7 @@ public abstract class Header extends AbstractAST
     {
       this.name = x;
     }
-    public org.meta_environment.rascal.ast.Parameters setName (org.
-							       meta_environment.
-							       rascal.ast.
-							       ModuleName x)
+    public Parameters setName (org.meta_environment.rascal.ast.ModuleName x)
     {
       org.meta_environment.rascal.ast.Parameters z = new Parameters ();
       z.$setName (x);
@@ -144,11 +142,8 @@ public abstract class Header extends AbstractAST
     {
       this.params = x;
     }
-    public org.meta_environment.rascal.ast.Parameters setParams (org.
-								 meta_environment.
-								 rascal.ast.
-								 ModuleParameters
-								 x)
+    public Parameters setParams (org.meta_environment.rascal.ast.
+				 ModuleParameters x)
     {
       org.meta_environment.rascal.ast.Parameters z = new Parameters ();
       z.$setParams (x);
@@ -163,10 +158,7 @@ public abstract class Header extends AbstractAST
     {
       this.tags = x;
     }
-    public org.meta_environment.rascal.ast.Parameters setTags (org.
-							       meta_environment.
-							       rascal.ast.
-							       Tags x)
+    public Parameters setTags (org.meta_environment.rascal.ast.Tags x)
     {
       org.meta_environment.rascal.ast.Parameters z = new Parameters ();
       z.$setTags (x);
@@ -183,12 +175,8 @@ public abstract class Header extends AbstractAST
     {
       this.imports = x;
     }
-    public org.meta_environment.rascal.ast.Parameters setImports (java.util.
-								  List <
-								  org.
-								  meta_environment.
-								  rascal.ast.
-								  Import > x)
+    public Parameters setImports (java.util.List <
+				  org.meta_environment.rascal.ast.Import > x)
     {
       org.meta_environment.rascal.ast.Parameters z = new Parameters ();
       z.$setImports (x);

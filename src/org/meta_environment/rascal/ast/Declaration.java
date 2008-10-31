@@ -32,8 +32,7 @@ public abstract class Declaration extends AbstractAST
     {
       this.view = x;
     }
-    public org.meta_environment.rascal.ast.View setView (org.meta_environment.
-							 rascal.ast.Name x)
+    public View setView (org.meta_environment.rascal.ast.Name x)
     {
       org.meta_environment.rascal.ast.View z = new View ();
       z.$setView (x);
@@ -48,8 +47,7 @@ public abstract class Declaration extends AbstractAST
     {
       this.type = x;
     }
-    public org.meta_environment.rascal.ast.View setType (org.meta_environment.
-							 rascal.ast.Name x)
+    public View setType (org.meta_environment.rascal.ast.Name x)
     {
       org.meta_environment.rascal.ast.View z = new View ();
       z.$setType (x);
@@ -64,8 +62,7 @@ public abstract class Declaration extends AbstractAST
     {
       this.tags = x;
     }
-    public org.meta_environment.rascal.ast.View setTags (org.meta_environment.
-							 rascal.ast.Tags x)
+    public View setTags (org.meta_environment.rascal.ast.Tags x)
     {
       org.meta_environment.rascal.ast.View z = new View ();
       z.$setTags (x);
@@ -84,13 +81,9 @@ public abstract class Declaration extends AbstractAST
     {
       this.alternatives = x;
     }
-    public org.meta_environment.rascal.ast.View setAlternatives (java.util.
-								 List <
-								 org.
-								 meta_environment.
-								 rascal.ast.
-								 Alternative >
-								 x)
+    public View setAlternatives (java.util.List <
+				 org.meta_environment.rascal.ast.Alternative >
+				 x)
     {
       org.meta_environment.rascal.ast.View z = new View ();
       z.$setAlternatives (x);
@@ -99,6 +92,17 @@ public abstract class Declaration extends AbstractAST
   }
   static public class Ambiguity extends Declaration
   {
+    public Declaration.Ambiguity makeDeclarationAmbiguity (java.util.List <
+							   Declaration >
+							   alternatives)
+    {
+      Declaration.Ambiguity amb = new Declaration.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (Declaration.Ambiguity) table.get (amb);
+    }
     private final java.util.List < Declaration > alternatives;
     public Ambiguity (java.util.List < Declaration > alternatives)
     {
@@ -138,8 +142,7 @@ public abstract class Declaration extends AbstractAST
     {
       this.base = x;
     }
-    public org.meta_environment.rascal.ast.Type setBase (org.meta_environment.
-							 rascal.ast.Type x)
+    public Type setBase (org.meta_environment.rascal.ast.Type x)
     {
       org.meta_environment.rascal.ast.Type z = new Type ();
       z.$setBase (x);
@@ -154,9 +157,7 @@ public abstract class Declaration extends AbstractAST
     {
       this.user = x;
     }
-    public org.meta_environment.rascal.ast.Type setUser (org.meta_environment.
-							 rascal.ast.
-							 UserType x)
+    public Type setUser (org.meta_environment.rascal.ast.UserType x)
     {
       org.meta_environment.rascal.ast.Type z = new Type ();
       z.$setUser (x);
@@ -171,8 +172,7 @@ public abstract class Declaration extends AbstractAST
     {
       this.tags = x;
     }
-    public org.meta_environment.rascal.ast.Type setTags (org.meta_environment.
-							 rascal.ast.Tags x)
+    public Type setTags (org.meta_environment.rascal.ast.Tags x)
     {
       org.meta_environment.rascal.ast.Type z = new Type ();
       z.$setTags (x);
@@ -208,9 +208,7 @@ public abstract class Declaration extends AbstractAST
     {
       this.user = x;
     }
-    public org.meta_environment.rascal.ast.Data setUser (org.meta_environment.
-							 rascal.ast.
-							 UserType x)
+    public Data setUser (org.meta_environment.rascal.ast.UserType x)
     {
       org.meta_environment.rascal.ast.Data z = new Data ();
       z.$setUser (x);
@@ -225,8 +223,7 @@ public abstract class Declaration extends AbstractAST
     {
       this.tags = x;
     }
-    public org.meta_environment.rascal.ast.Data setTags (org.meta_environment.
-							 rascal.ast.Tags x)
+    public Data setTags (org.meta_environment.rascal.ast.Tags x)
     {
       org.meta_environment.rascal.ast.Data z = new Data ();
       z.$setTags (x);
@@ -244,11 +241,8 @@ public abstract class Declaration extends AbstractAST
     {
       this.variants = x;
     }
-    public org.meta_environment.rascal.ast.Data setVariants (java.util.List <
-							     org.
-							     meta_environment.
-							     rascal.ast.
-							     Variant > x)
+    public Data setVariants (java.util.List <
+			     org.meta_environment.rascal.ast.Variant > x)
     {
       org.meta_environment.rascal.ast.Data z = new Data ();
       z.$setVariants (x);
@@ -284,9 +278,8 @@ public abstract class Declaration extends AbstractAST
     {
       this.functionDeclaration = x;
     }
-    public org.meta_environment.rascal.ast.
-      Function setFunctionDeclaration (org.meta_environment.rascal.ast.
-				       FunctionDeclaration x)
+    public Function setFunctionDeclaration (org.meta_environment.rascal.ast.
+					    FunctionDeclaration x)
     {
       org.meta_environment.rascal.ast.Function z = new Function ();
       z.$setFunctionDeclaration (x);
@@ -320,10 +313,7 @@ public abstract class Declaration extends AbstractAST
     {
       this.type = x;
     }
-    public org.meta_environment.rascal.ast.Variable setType (org.
-							     meta_environment.
-							     rascal.ast.
-							     Type x)
+    public Variable setType (org.meta_environment.rascal.ast.Type x)
     {
       org.meta_environment.rascal.ast.Variable z = new Variable ();
       z.$setType (x);
@@ -341,13 +331,9 @@ public abstract class Declaration extends AbstractAST
     {
       this.variables = x;
     }
-    public org.meta_environment.rascal.ast.Variable setVariables (java.util.
-								  List <
-								  org.
-								  meta_environment.
-								  rascal.ast.
-								  Variable >
-								  x)
+    public Variable setVariables (java.util.List <
+				  org.meta_environment.rascal.ast.Variable >
+				  x)
     {
       org.meta_environment.rascal.ast.Variable z = new Variable ();
       z.$setVariables (x);
@@ -382,8 +368,7 @@ public abstract class Declaration extends AbstractAST
     {
       this.name = x;
     }
-    public org.meta_environment.rascal.ast.Rule setName (org.meta_environment.
-							 rascal.ast.Name x)
+    public Rule setName (org.meta_environment.rascal.ast.Name x)
     {
       org.meta_environment.rascal.ast.Rule z = new Rule ();
       z.$setName (x);
@@ -398,8 +383,7 @@ public abstract class Declaration extends AbstractAST
     {
       this.tags = x;
     }
-    public org.meta_environment.rascal.ast.Rule setTags (org.meta_environment.
-							 rascal.ast.Tags x)
+    public Rule setTags (org.meta_environment.rascal.ast.Tags x)
     {
       org.meta_environment.rascal.ast.Rule z = new Rule ();
       z.$setTags (x);
@@ -414,8 +398,7 @@ public abstract class Declaration extends AbstractAST
     {
       this.rule = x;
     }
-    public org.meta_environment.rascal.ast.Rule setRule (org.meta_environment.
-							 rascal.ast.Rule x)
+    public Rule setRule (org.meta_environment.rascal.ast.Rule x)
     {
       org.meta_environment.rascal.ast.Rule z = new Rule ();
       z.$setRule (x);
@@ -453,10 +436,7 @@ public abstract class Declaration extends AbstractAST
     {
       this.type = x;
     }
-    public org.meta_environment.rascal.ast.Annotation setType (org.
-							       meta_environment.
-							       rascal.ast.
-							       Type x)
+    public Annotation setType (org.meta_environment.rascal.ast.Type x)
     {
       org.meta_environment.rascal.ast.Annotation z = new Annotation ();
       z.$setType (x);
@@ -471,10 +451,7 @@ public abstract class Declaration extends AbstractAST
     {
       this.name = x;
     }
-    public org.meta_environment.rascal.ast.Annotation setName (org.
-							       meta_environment.
-							       rascal.ast.
-							       Name x)
+    public Annotation setName (org.meta_environment.rascal.ast.Name x)
     {
       org.meta_environment.rascal.ast.Annotation z = new Annotation ();
       z.$setName (x);
@@ -489,10 +466,7 @@ public abstract class Declaration extends AbstractAST
     {
       this.tags = x;
     }
-    public org.meta_environment.rascal.ast.Annotation setTags (org.
-							       meta_environment.
-							       rascal.ast.
-							       Tags x)
+    public Annotation setTags (org.meta_environment.rascal.ast.Tags x)
     {
       org.meta_environment.rascal.ast.Annotation z = new Annotation ();
       z.$setTags (x);
@@ -508,12 +482,8 @@ public abstract class Declaration extends AbstractAST
     {
       this.types = x;
     }
-    public org.meta_environment.rascal.ast.Annotation setTypes (java.util.
-								List <
-								org.
-								meta_environment.
-								rascal.ast.
-								Type > x)
+    public Annotation setTypes (java.util.List <
+				org.meta_environment.rascal.ast.Type > x)
     {
       org.meta_environment.rascal.ast.Annotation z = new Annotation ();
       z.$setTypes (x);
@@ -550,8 +520,7 @@ public abstract class Declaration extends AbstractAST
     {
       this.kind = x;
     }
-    public org.meta_environment.rascal.ast.Tag setKind (org.meta_environment.
-							rascal.ast.Kind x)
+    public Tag setKind (org.meta_environment.rascal.ast.Kind x)
     {
       org.meta_environment.rascal.ast.Tag z = new Tag ();
       z.$setKind (x);
@@ -566,8 +535,7 @@ public abstract class Declaration extends AbstractAST
     {
       this.name = x;
     }
-    public org.meta_environment.rascal.ast.Tag setName (org.meta_environment.
-							rascal.ast.Name x)
+    public Tag setName (org.meta_environment.rascal.ast.Name x)
     {
       org.meta_environment.rascal.ast.Tag z = new Tag ();
       z.$setName (x);
@@ -582,8 +550,7 @@ public abstract class Declaration extends AbstractAST
     {
       this.tags = x;
     }
-    public org.meta_environment.rascal.ast.Tag setTags (org.meta_environment.
-							rascal.ast.Tags x)
+    public Tag setTags (org.meta_environment.rascal.ast.Tags x)
     {
       org.meta_environment.rascal.ast.Tag z = new Tag ();
       z.$setTags (x);
@@ -599,9 +566,8 @@ public abstract class Declaration extends AbstractAST
     {
       this.types = x;
     }
-    public org.meta_environment.rascal.ast.Tag setTypes (java.util.List <
-							 org.meta_environment.
-							 rascal.ast.Type > x)
+    public Tag setTypes (java.util.List <
+			 org.meta_environment.rascal.ast.Type > x)
     {
       org.meta_environment.rascal.ast.Tag z = new Tag ();
       z.$setTypes (x);

@@ -29,10 +29,7 @@ public abstract class Alternative extends AbstractAST
     {
       this.name = x;
     }
-    public org.meta_environment.rascal.ast.NamedType setName (org.
-							      meta_environment.
-							      rascal.ast.
-							      Name x)
+    public NamedType setName (org.meta_environment.rascal.ast.Name x)
     {
       org.meta_environment.rascal.ast.NamedType z = new NamedType ();
       z.$setName (x);
@@ -47,10 +44,7 @@ public abstract class Alternative extends AbstractAST
     {
       this.type = x;
     }
-    public org.meta_environment.rascal.ast.NamedType setType (org.
-							      meta_environment.
-							      rascal.ast.
-							      Type x)
+    public NamedType setType (org.meta_environment.rascal.ast.Type x)
     {
       org.meta_environment.rascal.ast.NamedType z = new NamedType ();
       z.$setType (x);
@@ -59,6 +53,17 @@ public abstract class Alternative extends AbstractAST
   }
   static public class Ambiguity extends Alternative
   {
+    public Alternative.Ambiguity makeAlternativeAmbiguity (java.util.List <
+							   Alternative >
+							   alternatives)
+    {
+      Alternative.Ambiguity amb = new Alternative.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (Alternative.Ambiguity) table.get (amb);
+    }
     private final java.util.List < Alternative > alternatives;
     public Ambiguity (java.util.List < Alternative > alternatives)
     {

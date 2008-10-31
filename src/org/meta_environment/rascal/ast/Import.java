@@ -28,11 +28,8 @@ public abstract class Import extends AbstractAST
     {
       this.module = x;
     }
-    public org.meta_environment.rascal.ast.Default setModule (org.
-							      meta_environment.
-							      rascal.ast.
-							      ImportedModule
-							      x)
+    public Default setModule (org.meta_environment.rascal.ast.
+			      ImportedModule x)
     {
       org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setModule (x);
@@ -41,6 +38,16 @@ public abstract class Import extends AbstractAST
   }
   static public class Ambiguity extends Import
   {
+    public Import.Ambiguity makeImportAmbiguity (java.util.List < Import >
+						 alternatives)
+    {
+      Import.Ambiguity amb = new Import.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (Import.Ambiguity) table.get (amb);
+    }
     private final java.util.List < Import > alternatives;
     public Ambiguity (java.util.List < Import > alternatives)
     {
@@ -78,10 +85,7 @@ public abstract class Import extends AbstractAST
     {
       this.module = x;
     }
-    public org.meta_environment.rascal.ast.Extend setModule (org.
-							     meta_environment.
-							     rascal.ast.
-							     ImportedModule x)
+    public Extend setModule (org.meta_environment.rascal.ast.ImportedModule x)
     {
       org.meta_environment.rascal.ast.Extend z = new Extend ();
       z.$setModule (x);

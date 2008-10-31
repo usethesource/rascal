@@ -19,6 +19,16 @@ public abstract class Label extends AbstractAST
   }
   static public class Ambiguity extends Label
   {
+    public Label.Ambiguity makeLabelAmbiguity (java.util.List < Label >
+					       alternatives)
+    {
+      Label.Ambiguity amb = new Label.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (Label.Ambiguity) table.get (amb);
+    }
     private final java.util.List < Label > alternatives;
     public Ambiguity (java.util.List < Label > alternatives)
     {
@@ -55,9 +65,7 @@ public abstract class Label extends AbstractAST
     {
       this.name = x;
     }
-    public org.meta_environment.rascal.ast.Default setName (org.
-							    meta_environment.
-							    rascal.ast.Name x)
+    public Default setName (org.meta_environment.rascal.ast.Name x)
     {
       org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setName (x);

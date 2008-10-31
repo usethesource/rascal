@@ -8,6 +8,20 @@ public abstract class NamedBackslash extends AbstractAST
   }
   static public class Ambiguity extends NamedBackslash
   {
+    public NamedBackslash.Ambiguity makeNamedBackslashAmbiguity (java.util.
+								 List <
+								 NamedBackslash
+								 >
+								 alternatives)
+    {
+      NamedBackslash.Ambiguity amb =
+	new NamedBackslash.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (NamedBackslash.Ambiguity) table.get (amb);
+    }
     private final java.util.List < NamedBackslash > alternatives;
     public Ambiguity (java.util.List < NamedBackslash > alternatives)
     {

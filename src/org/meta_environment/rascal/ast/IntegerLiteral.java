@@ -19,6 +19,20 @@ public abstract class IntegerLiteral extends AbstractAST
   }
   static public class Ambiguity extends IntegerLiteral
   {
+    public IntegerLiteral.Ambiguity makeIntegerLiteralAmbiguity (java.util.
+								 List <
+								 IntegerLiteral
+								 >
+								 alternatives)
+    {
+      IntegerLiteral.Ambiguity amb =
+	new IntegerLiteral.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (IntegerLiteral.Ambiguity) table.get (amb);
+    }
     private final java.util.List < IntegerLiteral > alternatives;
     public Ambiguity (java.util.List < IntegerLiteral > alternatives)
     {

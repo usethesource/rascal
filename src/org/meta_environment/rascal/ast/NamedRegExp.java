@@ -7,6 +7,17 @@ public abstract class NamedRegExp extends AbstractAST
     /* ~[\>\\] -> NamedRegExp  */
   } static public class Ambiguity extends NamedRegExp
   {
+    public NamedRegExp.Ambiguity makeNamedRegExpAmbiguity (java.util.List <
+							   NamedRegExp >
+							   alternatives)
+    {
+      NamedRegExp.Ambiguity amb = new NamedRegExp.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (NamedRegExp.Ambiguity) table.get (amb);
+    }
     private final java.util.List < NamedRegExp > alternatives;
     public Ambiguity (java.util.List < NamedRegExp > alternatives)
     {

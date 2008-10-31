@@ -27,10 +27,7 @@ public abstract class Literal extends AbstractAST
     {
       this.regExp = x;
     }
-    public org.meta_environment.rascal.ast.RegExp setRegExp (org.
-							     meta_environment.
-							     rascal.ast.
-							     RegExpLiteral x)
+    public RegExp setRegExp (org.meta_environment.rascal.ast.RegExpLiteral x)
     {
       org.meta_environment.rascal.ast.RegExp z = new RegExp ();
       z.$setRegExp (x);
@@ -39,6 +36,16 @@ public abstract class Literal extends AbstractAST
   }
   static public class Ambiguity extends Literal
   {
+    public Literal.Ambiguity makeLiteralAmbiguity (java.util.List < Literal >
+						   alternatives)
+    {
+      Literal.Ambiguity amb = new Literal.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (Literal.Ambiguity) table.get (amb);
+    }
     private final java.util.List < Literal > alternatives;
     public Ambiguity (java.util.List < Literal > alternatives)
     {
@@ -77,12 +84,8 @@ public abstract class Literal extends AbstractAST
     {
       this.symbolLiteral = x;
     }
-    public org.meta_environment.rascal.ast.Symbol setSymbolLiteral (org.
-								    meta_environment.
-								    rascal.
-								    ast.
-								    SymbolLiteral
-								    x)
+    public Symbol setSymbolLiteral (org.meta_environment.rascal.ast.
+				    SymbolLiteral x)
     {
       org.meta_environment.rascal.ast.Symbol z = new Symbol ();
       z.$setSymbolLiteral (x);
@@ -116,12 +119,8 @@ public abstract class Literal extends AbstractAST
     {
       this.booleanLiteral = x;
     }
-    public org.meta_environment.rascal.ast.Boolean setBooleanLiteral (org.
-								      meta_environment.
-								      rascal.
-								      ast.
-								      BooleanLiteral
-								      x)
+    public Boolean setBooleanLiteral (org.meta_environment.rascal.ast.
+				      BooleanLiteral x)
     {
       org.meta_environment.rascal.ast.Boolean z = new Boolean ();
       z.$setBooleanLiteral (x);
@@ -155,12 +154,8 @@ public abstract class Literal extends AbstractAST
     {
       this.integerLiteral = x;
     }
-    public org.meta_environment.rascal.ast.Integer setIntegerLiteral (org.
-								      meta_environment.
-								      rascal.
-								      ast.
-								      IntegerLiteral
-								      x)
+    public Integer setIntegerLiteral (org.meta_environment.rascal.ast.
+				      IntegerLiteral x)
     {
       org.meta_environment.rascal.ast.Integer z = new Integer ();
       z.$setIntegerLiteral (x);
@@ -196,12 +191,8 @@ public abstract class Literal extends AbstractAST
     {
       this.doubleLiteral = x;
     }
-    public org.meta_environment.rascal.ast.Double setDoubleLiteral (org.
-								    meta_environment.
-								    rascal.
-								    ast.
-								    FloatingPointLiteral
-								    x)
+    public Double setDoubleLiteral (org.meta_environment.rascal.ast.
+				    FloatingPointLiteral x)
     {
       org.meta_environment.rascal.ast.Double z = new Double ();
       z.$setDoubleLiteral (x);
@@ -235,12 +226,8 @@ public abstract class Literal extends AbstractAST
     {
       this.stringLiteral = x;
     }
-    public org.meta_environment.rascal.ast.String setStringLiteral (org.
-								    meta_environment.
-								    rascal.
-								    ast.
-								    StringLiteral
-								    x)
+    public String setStringLiteral (org.meta_environment.rascal.ast.
+				    StringLiteral x)
     {
       org.meta_environment.rascal.ast.String z = new String ();
       z.$setStringLiteral (x);

@@ -28,8 +28,7 @@ public abstract class Variant extends AbstractAST
     {
       this.type = x;
     }
-    public org.meta_environment.rascal.ast.Type setType (org.meta_environment.
-							 rascal.ast.Type x)
+    public Type setType (org.meta_environment.rascal.ast.Type x)
     {
       org.meta_environment.rascal.ast.Type z = new Type ();
       z.$setType (x);
@@ -44,8 +43,7 @@ public abstract class Variant extends AbstractAST
     {
       this.name = x;
     }
-    public org.meta_environment.rascal.ast.Type setName (org.meta_environment.
-							 rascal.ast.Name x)
+    public Type setName (org.meta_environment.rascal.ast.Name x)
     {
       org.meta_environment.rascal.ast.Type z = new Type ();
       z.$setName (x);
@@ -54,6 +52,16 @@ public abstract class Variant extends AbstractAST
   }
   static public class Ambiguity extends Variant
   {
+    public Variant.Ambiguity makeVariantAmbiguity (java.util.List < Variant >
+						   alternatives)
+    {
+      Variant.Ambiguity amb = new Variant.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (Variant.Ambiguity) table.get (amb);
+    }
     private final java.util.List < Variant > alternatives;
     public Ambiguity (java.util.List < Variant > alternatives)
     {
@@ -92,11 +100,7 @@ public abstract class Variant extends AbstractAST
     {
       this.name = x;
     }
-    public org.meta_environment.rascal.ast.NAryConstructor setName (org.
-								    meta_environment.
-								    rascal.
-								    ast.
-								    Name x)
+    public NAryConstructor setName (org.meta_environment.rascal.ast.Name x)
     {
       org.meta_environment.rascal.ast.NAryConstructor z =
 	new NAryConstructor ();
@@ -115,16 +119,9 @@ public abstract class Variant extends AbstractAST
     {
       this.arguments = x;
     }
-    public org.meta_environment.rascal.ast.NAryConstructor setArguments (java.
-									 util.
-									 List
-									 <
-									 org.
-									 meta_environment.
-									 rascal.
-									 ast.
-									 TypeArg
-									 > x)
+    public NAryConstructor setArguments (java.util.List <
+					 org.meta_environment.rascal.ast.
+					 TypeArg > x)
     {
       org.meta_environment.rascal.ast.NAryConstructor z =
 	new NAryConstructor ();
@@ -158,11 +155,7 @@ public abstract class Variant extends AbstractAST
     {
       this.name = x;
     }
-    public org.meta_environment.rascal.ast.NillaryConstructor setName (org.
-								       meta_environment.
-								       rascal.
-								       ast.
-								       Name x)
+    public NillaryConstructor setName (org.meta_environment.rascal.ast.Name x)
     {
       org.meta_environment.rascal.ast.NillaryConstructor z =
 	new NillaryConstructor ();

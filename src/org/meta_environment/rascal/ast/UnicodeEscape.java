@@ -8,6 +8,19 @@ public abstract class UnicodeEscape extends AbstractAST
   }
   static public class Ambiguity extends UnicodeEscape
   {
+    public UnicodeEscape.Ambiguity makeUnicodeEscapeAmbiguity (java.util.
+							       List <
+							       UnicodeEscape >
+							       alternatives)
+    {
+      UnicodeEscape.Ambiguity amb =
+	new UnicodeEscape.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (UnicodeEscape.Ambiguity) table.get (amb);
+    }
     private final java.util.List < UnicodeEscape > alternatives;
     public Ambiguity (java.util.List < UnicodeEscape > alternatives)
     {

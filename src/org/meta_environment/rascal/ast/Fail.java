@@ -27,10 +27,7 @@ public abstract class Fail extends AbstractAST
     {
       this.label = x;
     }
-    public org.meta_environment.rascal.ast.WithLabel setLabel (org.
-							       meta_environment.
-							       rascal.ast.
-							       Name x)
+    public WithLabel setLabel (org.meta_environment.rascal.ast.Name x)
     {
       org.meta_environment.rascal.ast.WithLabel z = new WithLabel ();
       z.$setLabel (x);
@@ -39,6 +36,16 @@ public abstract class Fail extends AbstractAST
   }
   static public class Ambiguity extends Fail
   {
+    public Fail.Ambiguity makeFailAmbiguity (java.util.List < Fail >
+					     alternatives)
+    {
+      Fail.Ambiguity amb = new Fail.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (Fail.Ambiguity) table.get (amb);
+    }
     private final java.util.List < Fail > alternatives;
     public Ambiguity (java.util.List < Fail > alternatives)
     {

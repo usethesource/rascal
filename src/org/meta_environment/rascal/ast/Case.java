@@ -26,8 +26,7 @@ public abstract class Case extends AbstractAST
     {
       this.rule = x;
     }
-    public org.meta_environment.rascal.ast.Rule setRule (org.meta_environment.
-							 rascal.ast.Rule x)
+    public Rule setRule (org.meta_environment.rascal.ast.Rule x)
     {
       org.meta_environment.rascal.ast.Rule z = new Rule ();
       z.$setRule (x);
@@ -36,6 +35,16 @@ public abstract class Case extends AbstractAST
   }
   static public class Ambiguity extends Case
   {
+    public Case.Ambiguity makeCaseAmbiguity (java.util.List < Case >
+					     alternatives)
+    {
+      Case.Ambiguity amb = new Case.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (Case.Ambiguity) table.get (amb);
+    }
     private final java.util.List < Case > alternatives;
     public Ambiguity (java.util.List < Case > alternatives)
     {
@@ -72,10 +81,7 @@ public abstract class Case extends AbstractAST
     {
       this.statement = x;
     }
-    public org.meta_environment.rascal.ast.Default setStatement (org.
-								 meta_environment.
-								 rascal.ast.
-								 Statement x)
+    public Default setStatement (org.meta_environment.rascal.ast.Statement x)
     {
       org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setStatement (x);

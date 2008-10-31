@@ -7,6 +7,16 @@ public abstract class TagChar extends AbstractAST
     /* ~[\}] -> TagChar  */
   } static public class Ambiguity extends TagChar
   {
+    public TagChar.Ambiguity makeTagCharAmbiguity (java.util.List < TagChar >
+						   alternatives)
+    {
+      TagChar.Ambiguity amb = new TagChar.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (TagChar.Ambiguity) table.get (amb);
+    }
     private final java.util.List < TagChar > alternatives;
     public Ambiguity (java.util.List < TagChar > alternatives)
     {

@@ -29,12 +29,8 @@ public abstract class ModuleParameters extends AbstractAST
     {
       this.parameters = x;
     }
-    public org.meta_environment.rascal.ast.Default setParameters (java.util.
-								  List <
-								  org.
-								  meta_environment.
-								  rascal.ast.
-								  TypeVar > x)
+    public Default setParameters (java.util.List <
+				  org.meta_environment.rascal.ast.TypeVar > x)
     {
       org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setParameters (x);
@@ -43,6 +39,21 @@ public abstract class ModuleParameters extends AbstractAST
   }
   static public class Ambiguity extends ModuleParameters
   {
+    public ModuleParameters.Ambiguity makeModuleParametersAmbiguity (java.
+								     util.
+								     List <
+								     ModuleParameters
+								     >
+								     alternatives)
+    {
+      ModuleParameters.Ambiguity amb =
+	new ModuleParameters.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (ModuleParameters.Ambiguity) table.get (amb);
+    }
     private final java.util.List < ModuleParameters > alternatives;
     public Ambiguity (java.util.List < ModuleParameters > alternatives)
     {

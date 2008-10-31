@@ -19,6 +19,17 @@ public abstract class Assignment extends AbstractAST
   }
   static public class Ambiguity extends Assignment
   {
+    public Assignment.Ambiguity makeAssignmentAmbiguity (java.util.List <
+							 Assignment >
+							 alternatives)
+    {
+      Assignment.Ambiguity amb = new Assignment.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (Assignment.Ambiguity) table.get (amb);
+    }
     private final java.util.List < Assignment > alternatives;
     public Ambiguity (java.util.List < Assignment > alternatives)
     {

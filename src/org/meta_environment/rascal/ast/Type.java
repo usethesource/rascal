@@ -27,10 +27,7 @@ public abstract class Type extends AbstractAST
     {
       this.basic = x;
     }
-    public org.meta_environment.rascal.ast.Basic setBasic (org.
-							   meta_environment.
-							   rascal.ast.
-							   BasicType x)
+    public Basic setBasic (org.meta_environment.rascal.ast.BasicType x)
     {
       org.meta_environment.rascal.ast.Basic z = new Basic ();
       z.$setBasic (x);
@@ -39,6 +36,16 @@ public abstract class Type extends AbstractAST
   }
   static public class Ambiguity extends Type
   {
+    public Type.Ambiguity makeTypeAmbiguity (java.util.List < Type >
+					     alternatives)
+    {
+      Type.Ambiguity amb = new Type.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (Type.Ambiguity) table.get (amb);
+    }
     private final java.util.List < Type > alternatives;
     public Ambiguity (java.util.List < Type > alternatives)
     {
@@ -77,12 +84,8 @@ public abstract class Type extends AbstractAST
     {
       this.structured = x;
     }
-    public org.meta_environment.rascal.ast.Structured setStructured (org.
-								     meta_environment.
-								     rascal.
-								     ast.
-								     StructuredType
-								     x)
+    public Structured setStructured (org.meta_environment.rascal.ast.
+				     StructuredType x)
     {
       org.meta_environment.rascal.ast.Structured z = new Structured ();
       z.$setStructured (x);
@@ -115,11 +118,8 @@ public abstract class Type extends AbstractAST
     {
       this.function = x;
     }
-    public org.meta_environment.rascal.ast.Function setFunction (org.
-								 meta_environment.
-								 rascal.ast.
-								 FunctionType
-								 x)
+    public Function setFunction (org.meta_environment.rascal.ast.
+				 FunctionType x)
     {
       org.meta_environment.rascal.ast.Function z = new Function ();
       z.$setFunction (x);
@@ -151,10 +151,7 @@ public abstract class Type extends AbstractAST
     {
       this.typeVar = x;
     }
-    public org.meta_environment.rascal.ast.Variable setTypeVar (org.
-								meta_environment.
-								rascal.ast.
-								TypeVar x)
+    public Variable setTypeVar (org.meta_environment.rascal.ast.TypeVar x)
     {
       org.meta_environment.rascal.ast.Variable z = new Variable ();
       z.$setTypeVar (x);
@@ -186,9 +183,7 @@ public abstract class Type extends AbstractAST
     {
       this.user = x;
     }
-    public org.meta_environment.rascal.ast.User setUser (org.meta_environment.
-							 rascal.ast.
-							 UserType x)
+    public User setUser (org.meta_environment.rascal.ast.UserType x)
     {
       org.meta_environment.rascal.ast.User z = new User ();
       z.$setUser (x);
@@ -220,10 +215,7 @@ public abstract class Type extends AbstractAST
     {
       this.symbol = x;
     }
-    public org.meta_environment.rascal.ast.Symbol setSymbol (org.
-							     meta_environment.
-							     rascal.ast.
-							     Symbol x)
+    public Symbol setSymbol (org.meta_environment.rascal.ast.Symbol x)
     {
       org.meta_environment.rascal.ast.Symbol z = new Symbol ();
       z.$setSymbol (x);
@@ -257,11 +249,8 @@ public abstract class Type extends AbstractAST
     {
       this.selector = x;
     }
-    public org.meta_environment.rascal.ast.Selector setSelector (org.
-								 meta_environment.
-								 rascal.ast.
-								 DataTypeSelector
-								 x)
+    public Selector setSelector (org.meta_environment.rascal.ast.
+				 DataTypeSelector x)
     {
       org.meta_environment.rascal.ast.Selector z = new Selector ();
       z.$setSelector (x);

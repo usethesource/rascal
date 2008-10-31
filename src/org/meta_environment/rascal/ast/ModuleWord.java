@@ -8,6 +8,17 @@ public abstract class ModuleWord extends AbstractAST
   }
   static public class Ambiguity extends ModuleWord
   {
+    public ModuleWord.Ambiguity makeModuleWordAmbiguity (java.util.List <
+							 ModuleWord >
+							 alternatives)
+    {
+      ModuleWord.Ambiguity amb = new ModuleWord.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (ModuleWord.Ambiguity) table.get (amb);
+    }
     private final java.util.List < ModuleWord > alternatives;
     public Ambiguity (java.util.List < ModuleWord > alternatives)
     {

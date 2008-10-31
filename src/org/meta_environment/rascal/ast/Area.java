@@ -40,10 +40,7 @@ public abstract class Area extends AbstractAST
     {
       this.beginLine = x;
     }
-    public org.meta_environment.rascal.ast.Default setBeginLine (org.
-								 meta_environment.
-								 rascal.ast.
-								 Expression x)
+    public Default setBeginLine (org.meta_environment.rascal.ast.Expression x)
     {
       org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setBeginLine (x);
@@ -59,11 +56,8 @@ public abstract class Area extends AbstractAST
     {
       this.beginColumn = x;
     }
-    public org.meta_environment.rascal.ast.Default setBeginColumn (org.
-								   meta_environment.
-								   rascal.ast.
-								   Expression
-								   x)
+    public Default setBeginColumn (org.meta_environment.rascal.ast.
+				   Expression x)
     {
       org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setBeginColumn (x);
@@ -78,10 +72,7 @@ public abstract class Area extends AbstractAST
     {
       this.endLine = x;
     }
-    public org.meta_environment.rascal.ast.Default setEndLine (org.
-							       meta_environment.
-							       rascal.ast.
-							       Expression x)
+    public Default setEndLine (org.meta_environment.rascal.ast.Expression x)
     {
       org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setEndLine (x);
@@ -96,10 +87,7 @@ public abstract class Area extends AbstractAST
     {
       this.endColumn = x;
     }
-    public org.meta_environment.rascal.ast.Default setEndColumn (org.
-								 meta_environment.
-								 rascal.ast.
-								 Expression x)
+    public Default setEndColumn (org.meta_environment.rascal.ast.Expression x)
     {
       org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setEndColumn (x);
@@ -114,10 +102,7 @@ public abstract class Area extends AbstractAST
     {
       this.offset = x;
     }
-    public org.meta_environment.rascal.ast.Default setOffset (org.
-							      meta_environment.
-							      rascal.ast.
-							      Expression x)
+    public Default setOffset (org.meta_environment.rascal.ast.Expression x)
     {
       org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setOffset (x);
@@ -132,10 +117,7 @@ public abstract class Area extends AbstractAST
     {
       this.length = x;
     }
-    public org.meta_environment.rascal.ast.Default setLength (org.
-							      meta_environment.
-							      rascal.ast.
-							      Expression x)
+    public Default setLength (org.meta_environment.rascal.ast.Expression x)
     {
       org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setLength (x);
@@ -144,6 +126,16 @@ public abstract class Area extends AbstractAST
   }
   static public class Ambiguity extends Area
   {
+    public Area.Ambiguity makeAreaAmbiguity (java.util.List < Area >
+					     alternatives)
+    {
+      Area.Ambiguity amb = new Area.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (Area.Ambiguity) table.get (amb);
+    }
     private final java.util.List < Area > alternatives;
     public Ambiguity (java.util.List < Area > alternatives)
     {

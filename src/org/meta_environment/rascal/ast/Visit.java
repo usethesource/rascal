@@ -30,12 +30,8 @@ public abstract class Visit extends AbstractAST
     {
       this.subject = x;
     }
-    public org.meta_environment.rascal.ast.DefaultStrategy setSubject (org.
-								       meta_environment.
-								       rascal.
-								       ast.
-								       Expression
-								       x)
+    public DefaultStrategy setSubject (org.meta_environment.rascal.ast.
+				       Expression x)
     {
       org.meta_environment.rascal.ast.DefaultStrategy z =
 	new DefaultStrategy ();
@@ -52,14 +48,8 @@ public abstract class Visit extends AbstractAST
     {
       this.cases = x;
     }
-    public org.meta_environment.rascal.ast.DefaultStrategy setCases (java.
-								     util.
-								     List <
-								     org.
-								     meta_environment.
-								     rascal.
-								     ast.
-								     Case > x)
+    public DefaultStrategy setCases (java.util.List <
+				     org.meta_environment.rascal.ast.Case > x)
     {
       org.meta_environment.rascal.ast.DefaultStrategy z =
 	new DefaultStrategy ();
@@ -69,6 +59,16 @@ public abstract class Visit extends AbstractAST
   }
   static public class Ambiguity extends Visit
   {
+    public Visit.Ambiguity makeVisitAmbiguity (java.util.List < Visit >
+					       alternatives)
+    {
+      Visit.Ambiguity amb = new Visit.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (Visit.Ambiguity) table.get (amb);
+    }
     private final java.util.List < Visit > alternatives;
     public Ambiguity (java.util.List < Visit > alternatives)
     {
@@ -111,12 +111,8 @@ public abstract class Visit extends AbstractAST
     {
       this.strategy = x;
     }
-    public org.meta_environment.rascal.ast.GivenStrategy setStrategy (org.
-								      meta_environment.
-								      rascal.
-								      ast.
-								      Strategy
-								      x)
+    public GivenStrategy setStrategy (org.meta_environment.rascal.ast.
+				      Strategy x)
     {
       org.meta_environment.rascal.ast.GivenStrategy z = new GivenStrategy ();
       z.$setStrategy (x);
@@ -131,12 +127,8 @@ public abstract class Visit extends AbstractAST
     {
       this.subject = x;
     }
-    public org.meta_environment.rascal.ast.GivenStrategy setSubject (org.
-								     meta_environment.
-								     rascal.
-								     ast.
-								     Expression
-								     x)
+    public GivenStrategy setSubject (org.meta_environment.rascal.ast.
+				     Expression x)
     {
       org.meta_environment.rascal.ast.GivenStrategy z = new GivenStrategy ();
       z.$setSubject (x);
@@ -152,12 +144,8 @@ public abstract class Visit extends AbstractAST
     {
       this.cases = x;
     }
-    public org.meta_environment.rascal.ast.GivenStrategy setCases (java.util.
-								   List <
-								   org.
-								   meta_environment.
-								   rascal.ast.
-								   Case > x)
+    public GivenStrategy setCases (java.util.List <
+				   org.meta_environment.rascal.ast.Case > x)
     {
       org.meta_environment.rascal.ast.GivenStrategy z = new GivenStrategy ();
       z.$setCases (x);

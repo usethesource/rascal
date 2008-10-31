@@ -26,8 +26,7 @@ public abstract class UserType extends AbstractAST
     {
       this.name = x;
     }
-    public org.meta_environment.rascal.ast.Name setName (org.meta_environment.
-							 rascal.ast.Name x)
+    public Name setName (org.meta_environment.rascal.ast.Name x)
     {
       org.meta_environment.rascal.ast.Name z = new Name ();
       z.$setName (x);
@@ -36,6 +35,16 @@ public abstract class UserType extends AbstractAST
   }
   static public class Ambiguity extends UserType
   {
+    public UserType.Ambiguity makeUserTypeAmbiguity (java.util.List <
+						     UserType > alternatives)
+    {
+      UserType.Ambiguity amb = new UserType.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (UserType.Ambiguity) table.get (amb);
+    }
     private final java.util.List < UserType > alternatives;
     public Ambiguity (java.util.List < UserType > alternatives)
     {
@@ -74,10 +83,7 @@ public abstract class UserType extends AbstractAST
     {
       this.name = x;
     }
-    public org.meta_environment.rascal.ast.Parametric setName (org.
-							       meta_environment.
-							       rascal.ast.
-							       Name x)
+    public Parametric setName (org.meta_environment.rascal.ast.Name x)
     {
       org.meta_environment.rascal.ast.Parametric z = new Parametric ();
       z.$setName (x);
@@ -95,15 +101,9 @@ public abstract class UserType extends AbstractAST
     {
       this.parameters = x;
     }
-    public org.meta_environment.rascal.ast.Parametric setParameters (java.
-								     util.
-								     List <
-								     org.
-								     meta_environment.
-								     rascal.
-								     ast.
-								     TypeVar >
-								     x)
+    public Parametric setParameters (java.util.List <
+				     org.meta_environment.rascal.ast.TypeVar >
+				     x)
     {
       org.meta_environment.rascal.ast.Parametric z = new Parametric ();
       z.$setParameters (x);

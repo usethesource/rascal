@@ -30,10 +30,7 @@ public abstract class Match extends AbstractAST
     {
       this.match = x;
     }
-    public org.meta_environment.rascal.ast.Replacing setMatch (org.
-							       meta_environment.
-							       rascal.ast.
-							       Expression x)
+    public Replacing setMatch (org.meta_environment.rascal.ast.Expression x)
     {
       org.meta_environment.rascal.ast.Replacing z = new Replacing ();
       z.$setMatch (x);
@@ -49,12 +46,8 @@ public abstract class Match extends AbstractAST
     {
       this.replacement = x;
     }
-    public org.meta_environment.rascal.ast.Replacing setReplacement (org.
-								     meta_environment.
-								     rascal.
-								     ast.
-								     Expression
-								     x)
+    public Replacing setReplacement (org.meta_environment.rascal.ast.
+				     Expression x)
     {
       org.meta_environment.rascal.ast.Replacing z = new Replacing ();
       z.$setReplacement (x);
@@ -63,6 +56,16 @@ public abstract class Match extends AbstractAST
   }
   static public class Ambiguity extends Match
   {
+    public Match.Ambiguity makeMatchAmbiguity (java.util.List < Match >
+					       alternatives)
+    {
+      Match.Ambiguity amb = new Match.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (Match.Ambiguity) table.get (amb);
+    }
     private final java.util.List < Match > alternatives;
     public Ambiguity (java.util.List < Match > alternatives)
     {
@@ -102,10 +105,7 @@ public abstract class Match extends AbstractAST
     {
       this.match = x;
     }
-    public org.meta_environment.rascal.ast.Arbitrary setMatch (org.
-							       meta_environment.
-							       rascal.ast.
-							       Expression x)
+    public Arbitrary setMatch (org.meta_environment.rascal.ast.Expression x)
     {
       org.meta_environment.rascal.ast.Arbitrary z = new Arbitrary ();
       z.$setMatch (x);
@@ -120,11 +120,8 @@ public abstract class Match extends AbstractAST
     {
       this.statement = x;
     }
-    public org.meta_environment.rascal.ast.Arbitrary setStatement (org.
-								   meta_environment.
-								   rascal.ast.
-								   Statement
-								   x)
+    public Arbitrary setStatement (org.meta_environment.rascal.ast.
+				   Statement x)
     {
       org.meta_environment.rascal.ast.Arbitrary z = new Arbitrary ();
       z.$setStatement (x);

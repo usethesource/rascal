@@ -29,10 +29,7 @@ public abstract class Comprehension extends AbstractAST
     {
       this.result = x;
     }
-    public org.meta_environment.rascal.ast.Set setResult (org.
-							  meta_environment.
-							  rascal.ast.
-							  Expression x)
+    public Set setResult (org.meta_environment.rascal.ast.Expression x)
     {
       org.meta_environment.rascal.ast.Set z = new Set ();
       z.$setResult (x);
@@ -51,11 +48,8 @@ public abstract class Comprehension extends AbstractAST
     {
       this.generators = x;
     }
-    public org.meta_environment.rascal.ast.Set setGenerators (java.util.List <
-							      org.
-							      meta_environment.
-							      rascal.ast.
-							      Generator > x)
+    public Set setGenerators (java.util.List <
+			      org.meta_environment.rascal.ast.Generator > x)
     {
       org.meta_environment.rascal.ast.Set z = new Set ();
       z.$setGenerators (x);
@@ -64,6 +58,19 @@ public abstract class Comprehension extends AbstractAST
   }
   static public class Ambiguity extends Comprehension
   {
+    public Comprehension.Ambiguity makeComprehensionAmbiguity (java.util.
+							       List <
+							       Comprehension >
+							       alternatives)
+    {
+      Comprehension.Ambiguity amb =
+	new Comprehension.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (Comprehension.Ambiguity) table.get (amb);
+    }
     private final java.util.List < Comprehension > alternatives;
     public Ambiguity (java.util.List < Comprehension > alternatives)
     {
@@ -102,10 +109,7 @@ public abstract class Comprehension extends AbstractAST
     {
       this.result = x;
     }
-    public org.meta_environment.rascal.ast.List setResult (org.
-							   meta_environment.
-							   rascal.ast.
-							   Expression x)
+    public List setResult (org.meta_environment.rascal.ast.Expression x)
     {
       org.meta_environment.rascal.ast.List z = new List ();
       z.$setResult (x);
@@ -124,12 +128,8 @@ public abstract class Comprehension extends AbstractAST
     {
       this.generators = x;
     }
-    public org.meta_environment.rascal.ast.List setGenerators (java.util.
-							       List <
-							       org.
-							       meta_environment.
-							       rascal.ast.
-							       Generator > x)
+    public List setGenerators (java.util.List <
+			       org.meta_environment.rascal.ast.Generator > x)
     {
       org.meta_environment.rascal.ast.List z = new List ();
       z.$setGenerators (x);

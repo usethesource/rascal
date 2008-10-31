@@ -19,6 +19,16 @@ public abstract class Strategy extends AbstractAST
   }
   static public class Ambiguity extends Strategy
   {
+    public Strategy.Ambiguity makeStrategyAmbiguity (java.util.List <
+						     Strategy > alternatives)
+    {
+      Strategy.Ambiguity amb = new Strategy.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (Strategy.Ambiguity) table.get (amb);
+    }
     private final java.util.List < Strategy > alternatives;
     public Ambiguity (java.util.List < Strategy > alternatives)
     {

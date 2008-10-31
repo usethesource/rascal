@@ -8,6 +8,17 @@ public abstract class TagString extends AbstractAST
   }
   static public class Ambiguity extends TagString
   {
+    public TagString.Ambiguity makeTagStringAmbiguity (java.util.List <
+						       TagString >
+						       alternatives)
+    {
+      TagString.Ambiguity amb = new TagString.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (TagString.Ambiguity) table.get (amb);
+    }
     private final java.util.List < TagString > alternatives;
     public Ambiguity (java.util.List < TagString > alternatives)
     {

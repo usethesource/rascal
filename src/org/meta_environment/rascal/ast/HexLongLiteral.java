@@ -8,6 +8,20 @@ public abstract class HexLongLiteral extends AbstractAST
   }
   static public class Ambiguity extends HexLongLiteral
   {
+    public HexLongLiteral.Ambiguity makeHexLongLiteralAmbiguity (java.util.
+								 List <
+								 HexLongLiteral
+								 >
+								 alternatives)
+    {
+      HexLongLiteral.Ambiguity amb =
+	new HexLongLiteral.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (HexLongLiteral.Ambiguity) table.get (amb);
+    }
     private final java.util.List < HexLongLiteral > alternatives;
     public Ambiguity (java.util.List < HexLongLiteral > alternatives)
     {

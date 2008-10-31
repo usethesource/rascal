@@ -31,10 +31,7 @@ public abstract class FunctionDeclaration extends AbstractAST
     {
       this.signature = x;
     }
-    public org.meta_environment.rascal.ast.Default setSignature (org.
-								 meta_environment.
-								 rascal.ast.
-								 Signature x)
+    public Default setSignature (org.meta_environment.rascal.ast.Signature x)
     {
       org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setSignature (x);
@@ -49,9 +46,7 @@ public abstract class FunctionDeclaration extends AbstractAST
     {
       this.tags = x;
     }
-    public org.meta_environment.rascal.ast.Default setTags (org.
-							    meta_environment.
-							    rascal.ast.Tags x)
+    public Default setTags (org.meta_environment.rascal.ast.Tags x)
     {
       org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setTags (x);
@@ -66,10 +61,7 @@ public abstract class FunctionDeclaration extends AbstractAST
     {
       this.body = x;
     }
-    public org.meta_environment.rascal.ast.Default setBody (org.
-							    meta_environment.
-							    rascal.ast.
-							    FunctionBody x)
+    public Default setBody (org.meta_environment.rascal.ast.FunctionBody x)
     {
       org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setBody (x);
@@ -78,6 +70,19 @@ public abstract class FunctionDeclaration extends AbstractAST
   }
   static public class Ambiguity extends FunctionDeclaration
   {
+    public FunctionDeclaration.
+      Ambiguity makeFunctionDeclarationAmbiguity (java.util.List <
+						  FunctionDeclaration >
+						  alternatives)
+    {
+      FunctionDeclaration.Ambiguity amb =
+	new FunctionDeclaration.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (FunctionDeclaration.Ambiguity) table.get (amb);
+    }
     private final java.util.List < FunctionDeclaration > alternatives;
     public Ambiguity (java.util.List < FunctionDeclaration > alternatives)
     {
@@ -117,10 +122,7 @@ public abstract class FunctionDeclaration extends AbstractAST
     {
       this.signature = x;
     }
-    public org.meta_environment.rascal.ast.Abstract setSignature (org.
-								  meta_environment.
-								  rascal.ast.
-								  Signature x)
+    public Abstract setSignature (org.meta_environment.rascal.ast.Signature x)
     {
       org.meta_environment.rascal.ast.Abstract z = new Abstract ();
       z.$setSignature (x);
@@ -135,10 +137,7 @@ public abstract class FunctionDeclaration extends AbstractAST
     {
       this.tags = x;
     }
-    public org.meta_environment.rascal.ast.Abstract setTags (org.
-							     meta_environment.
-							     rascal.ast.
-							     Tags x)
+    public Abstract setTags (org.meta_environment.rascal.ast.Tags x)
     {
       org.meta_environment.rascal.ast.Abstract z = new Abstract ();
       z.$setTags (x);

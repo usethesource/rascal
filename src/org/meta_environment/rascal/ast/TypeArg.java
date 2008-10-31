@@ -27,9 +27,7 @@ public abstract class TypeArg extends AbstractAST
     {
       this.type = x;
     }
-    public org.meta_environment.rascal.ast.Default setType (org.
-							    meta_environment.
-							    rascal.ast.Type x)
+    public Default setType (org.meta_environment.rascal.ast.Type x)
     {
       org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setType (x);
@@ -38,6 +36,16 @@ public abstract class TypeArg extends AbstractAST
   }
   static public class Ambiguity extends TypeArg
   {
+    public TypeArg.Ambiguity makeTypeArgAmbiguity (java.util.List < TypeArg >
+						   alternatives)
+    {
+      TypeArg.Ambiguity amb = new TypeArg.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (TypeArg.Ambiguity) table.get (amb);
+    }
     private final java.util.List < TypeArg > alternatives;
     public Ambiguity (java.util.List < TypeArg > alternatives)
     {
@@ -75,9 +83,7 @@ public abstract class TypeArg extends AbstractAST
     {
       this.type = x;
     }
-    public org.meta_environment.rascal.ast.Named setType (org.
-							  meta_environment.
-							  rascal.ast.Type x)
+    public Named setType (org.meta_environment.rascal.ast.Type x)
     {
       org.meta_environment.rascal.ast.Named z = new Named ();
       z.$setType (x);
@@ -92,9 +98,7 @@ public abstract class TypeArg extends AbstractAST
     {
       this.name = x;
     }
-    public org.meta_environment.rascal.ast.Named setName (org.
-							  meta_environment.
-							  rascal.ast.Name x)
+    public Named setName (org.meta_environment.rascal.ast.Name x)
     {
       org.meta_environment.rascal.ast.Named z = new Named ();
       z.$setName (x);

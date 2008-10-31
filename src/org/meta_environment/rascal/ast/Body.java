@@ -29,13 +29,9 @@ public abstract class Body extends AbstractAST
     {
       this.toplevels = x;
     }
-    public org.meta_environment.rascal.ast.Toplevels setToplevels (java.util.
-								   List <
-								   org.
-								   meta_environment.
-								   rascal.ast.
-								   Toplevel >
-								   x)
+    public Toplevels setToplevels (java.util.List <
+				   org.meta_environment.rascal.ast.Toplevel >
+				   x)
     {
       org.meta_environment.rascal.ast.Toplevels z = new Toplevels ();
       z.$setToplevels (x);
@@ -44,6 +40,16 @@ public abstract class Body extends AbstractAST
   }
   static public class Ambiguity extends Body
   {
+    public Body.Ambiguity makeBodyAmbiguity (java.util.List < Body >
+					     alternatives)
+    {
+      Body.Ambiguity amb = new Body.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (Body.Ambiguity) table.get (amb);
+    }
     private final java.util.List < Body > alternatives;
     public Ambiguity (java.util.List < Body > alternatives)
     {

@@ -19,6 +19,17 @@ public abstract class Visibility extends AbstractAST
   }
   static public class Ambiguity extends Visibility
   {
+    public Visibility.Ambiguity makeVisibilityAmbiguity (java.util.List <
+							 Visibility >
+							 alternatives)
+    {
+      Visibility.Ambiguity amb = new Visibility.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (Visibility.Ambiguity) table.get (amb);
+    }
     private final java.util.List < Visibility > alternatives;
     public Ambiguity (java.util.List < Visibility > alternatives)
     {

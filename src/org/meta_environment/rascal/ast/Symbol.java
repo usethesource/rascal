@@ -26,8 +26,7 @@ public abstract class Symbol extends AbstractAST
     {
       this.sort = x;
     }
-    public org.meta_environment.rascal.ast.Sort setSort (org.meta_environment.
-							 rascal.ast.Sort x)
+    public Sort setSort (org.meta_environment.rascal.ast.Sort x)
     {
       org.meta_environment.rascal.ast.Sort z = new Sort ();
       z.$setSort (x);
@@ -36,6 +35,16 @@ public abstract class Symbol extends AbstractAST
   }
   static public class Ambiguity extends Symbol
   {
+    public Symbol.Ambiguity makeSymbolAmbiguity (java.util.List < Symbol >
+						 alternatives)
+    {
+      Symbol.Ambiguity amb = new Symbol.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (Symbol.Ambiguity) table.get (amb);
+    }
     private final java.util.List < Symbol > alternatives;
     public Ambiguity (java.util.List < Symbol > alternatives)
     {
@@ -74,11 +83,7 @@ public abstract class Symbol extends AbstractAST
     {
       this.sort = x;
     }
-    public org.meta_environment.rascal.ast.ParameterizedSort setSort (org.
-								      meta_environment.
-								      rascal.
-								      ast.
-								      Sort x)
+    public ParameterizedSort setSort (org.meta_environment.rascal.ast.Sort x)
     {
       org.meta_environment.rascal.ast.ParameterizedSort z =
 	new ParameterizedSort ();
@@ -97,10 +102,9 @@ public abstract class Symbol extends AbstractAST
     {
       this.parameters = x;
     }
-    public org.meta_environment.rascal.ast.
-      ParameterizedSort setParameters (java.util.List <
-				       org.meta_environment.rascal.ast.
-				       Symbol > x)
+    public ParameterizedSort setParameters (java.util.List <
+					    org.meta_environment.rascal.ast.
+					    Symbol > x)
     {
       org.meta_environment.rascal.ast.ParameterizedSort z =
 	new ParameterizedSort ();
@@ -150,10 +154,7 @@ public abstract class Symbol extends AbstractAST
     {
       this.head = x;
     }
-    public org.meta_environment.rascal.ast.Sequence setHead (org.
-							     meta_environment.
-							     rascal.ast.
-							     Symbol x)
+    public Sequence setHead (org.meta_environment.rascal.ast.Symbol x)
     {
       org.meta_environment.rascal.ast.Sequence z = new Sequence ();
       z.$setHead (x);
@@ -170,11 +171,8 @@ public abstract class Symbol extends AbstractAST
     {
       this.tail = x;
     }
-    public org.meta_environment.rascal.ast.Sequence setTail (java.util.List <
-							     org.
-							     meta_environment.
-							     rascal.ast.
-							     Symbol > x)
+    public Sequence setTail (java.util.List <
+			     org.meta_environment.rascal.ast.Symbol > x)
     {
       org.meta_environment.rascal.ast.Sequence z = new Sequence ();
       z.$setTail (x);
@@ -206,10 +204,7 @@ public abstract class Symbol extends AbstractAST
     {
       this.symbol = x;
     }
-    public org.meta_environment.rascal.ast.Optional setSymbol (org.
-							       meta_environment.
-							       rascal.ast.
-							       Symbol x)
+    public Optional setSymbol (org.meta_environment.rascal.ast.Symbol x)
     {
       org.meta_environment.rascal.ast.Optional z = new Optional ();
       z.$setSymbol (x);
@@ -241,10 +236,7 @@ public abstract class Symbol extends AbstractAST
     {
       this.symbol = x;
     }
-    public org.meta_environment.rascal.ast.Iter setSymbol (org.
-							   meta_environment.
-							   rascal.ast.
-							   Symbol x)
+    public Iter setSymbol (org.meta_environment.rascal.ast.Symbol x)
     {
       org.meta_environment.rascal.ast.Iter z = new Iter ();
       z.$setSymbol (x);
@@ -276,10 +268,7 @@ public abstract class Symbol extends AbstractAST
     {
       this.symbol = x;
     }
-    public org.meta_environment.rascal.ast.IterStar setSymbol (org.
-							       meta_environment.
-							       rascal.ast.
-							       Symbol x)
+    public IterStar setSymbol (org.meta_environment.rascal.ast.Symbol x)
     {
       org.meta_environment.rascal.ast.IterStar z = new IterStar ();
       z.$setSymbol (x);
@@ -313,10 +302,7 @@ public abstract class Symbol extends AbstractAST
     {
       this.symbol = x;
     }
-    public org.meta_environment.rascal.ast.IterSep setSymbol (org.
-							      meta_environment.
-							      rascal.ast.
-							      Symbol x)
+    public IterSep setSymbol (org.meta_environment.rascal.ast.Symbol x)
     {
       org.meta_environment.rascal.ast.IterSep z = new IterSep ();
       z.$setSymbol (x);
@@ -331,10 +317,7 @@ public abstract class Symbol extends AbstractAST
     {
       this.sep = x;
     }
-    public org.meta_environment.rascal.ast.IterSep setSep (org.
-							   meta_environment.
-							   rascal.ast.
-							   StrCon x)
+    public IterSep setSep (org.meta_environment.rascal.ast.StrCon x)
     {
       org.meta_environment.rascal.ast.IterSep z = new IterSep ();
       z.$setSep (x);
@@ -368,10 +351,7 @@ public abstract class Symbol extends AbstractAST
     {
       this.symbol = x;
     }
-    public org.meta_environment.rascal.ast.IterStarSep setSymbol (org.
-								  meta_environment.
-								  rascal.ast.
-								  Symbol x)
+    public IterStarSep setSymbol (org.meta_environment.rascal.ast.Symbol x)
     {
       org.meta_environment.rascal.ast.IterStarSep z = new IterStarSep ();
       z.$setSymbol (x);
@@ -386,10 +366,7 @@ public abstract class Symbol extends AbstractAST
     {
       this.sep = x;
     }
-    public org.meta_environment.rascal.ast.IterStarSep setSep (org.
-							       meta_environment.
-							       rascal.ast.
-							       StrCon x)
+    public IterStarSep setSep (org.meta_environment.rascal.ast.StrCon x)
     {
       org.meta_environment.rascal.ast.IterStarSep z = new IterStarSep ();
       z.$setSep (x);
@@ -423,10 +400,7 @@ public abstract class Symbol extends AbstractAST
     {
       this.lhs = x;
     }
-    public org.meta_environment.rascal.ast.Alternative setLhs (org.
-							       meta_environment.
-							       rascal.ast.
-							       Symbol x)
+    public Alternative setLhs (org.meta_environment.rascal.ast.Symbol x)
     {
       org.meta_environment.rascal.ast.Alternative z = new Alternative ();
       z.$setLhs (x);
@@ -441,10 +415,7 @@ public abstract class Symbol extends AbstractAST
     {
       this.rhs = x;
     }
-    public org.meta_environment.rascal.ast.Alternative setRhs (org.
-							       meta_environment.
-							       rascal.ast.
-							       Symbol x)
+    public Alternative setRhs (org.meta_environment.rascal.ast.Symbol x)
     {
       org.meta_environment.rascal.ast.Alternative z = new Alternative ();
       z.$setRhs (x);
@@ -477,12 +448,8 @@ public abstract class Symbol extends AbstractAST
     {
       this.charClass = x;
     }
-    public org.meta_environment.rascal.ast.CharacterClass setCharClass (org.
-									meta_environment.
-									rascal.
-									ast.
-									CharClass
-									x)
+    public CharacterClass setCharClass (org.meta_environment.rascal.ast.
+					CharClass x)
     {
       org.meta_environment.rascal.ast.CharacterClass z =
 	new CharacterClass ();
@@ -515,10 +482,7 @@ public abstract class Symbol extends AbstractAST
     {
       this.symbol = x;
     }
-    public org.meta_environment.rascal.ast.LiftedSymbol setSymbol (org.
-								   meta_environment.
-								   rascal.ast.
-								   Symbol x)
+    public LiftedSymbol setSymbol (org.meta_environment.rascal.ast.Symbol x)
     {
       org.meta_environment.rascal.ast.LiftedSymbol z = new LiftedSymbol ();
       z.$setSymbol (x);
@@ -550,10 +514,7 @@ public abstract class Symbol extends AbstractAST
     {
       this.string = x;
     }
-    public org.meta_environment.rascal.ast.Literal setString (org.
-							      meta_environment.
-							      rascal.ast.
-							      StrCon x)
+    public Literal setString (org.meta_environment.rascal.ast.StrCon x)
     {
       org.meta_environment.rascal.ast.Literal z = new Literal ();
       z.$setString (x);
@@ -590,10 +551,9 @@ public abstract class Symbol extends AbstractAST
     {
       this.singelQuotedString = x;
     }
-    public org.meta_environment.rascal.ast.
-      CaseInsensitiveLiteral setSingelQuotedString (org.meta_environment.
-						    rascal.ast.
-						    SingleQuotedStrCon x)
+    public CaseInsensitiveLiteral setSingelQuotedString (org.meta_environment.
+							 rascal.ast.
+							 SingleQuotedStrCon x)
     {
       org.meta_environment.rascal.ast.CaseInsensitiveLiteral z =
 	new CaseInsensitiveLiteral ();

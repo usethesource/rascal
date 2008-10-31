@@ -28,12 +28,8 @@ public abstract class Generator extends AbstractAST
     {
       this.expression = x;
     }
-    public org.meta_environment.rascal.ast.Expression setExpression (org.
-								     meta_environment.
-								     rascal.
-								     ast.
-								     Expression
-								     x)
+    public Expression setExpression (org.meta_environment.rascal.ast.
+				     Expression x)
     {
       org.meta_environment.rascal.ast.Expression z = new Expression ();
       z.$setExpression (x);
@@ -42,6 +38,17 @@ public abstract class Generator extends AbstractAST
   }
   static public class Ambiguity extends Generator
   {
+    public Generator.Ambiguity makeGeneratorAmbiguity (java.util.List <
+						       Generator >
+						       alternatives)
+    {
+      Generator.Ambiguity amb = new Generator.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (Generator.Ambiguity) table.get (amb);
+    }
     private final java.util.List < Generator > alternatives;
     public Ambiguity (java.util.List < Generator > alternatives)
     {
@@ -80,11 +87,8 @@ public abstract class Generator extends AbstractAST
     {
       this.producer = x;
     }
-    public org.meta_environment.rascal.ast.Producer setProducer (org.
-								 meta_environment.
-								 rascal.ast.
-								 ValueProducer
-								 x)
+    public Producer setProducer (org.meta_environment.rascal.ast.
+				 ValueProducer x)
     {
       org.meta_environment.rascal.ast.Producer z = new Producer ();
       z.$setProducer (x);

@@ -34,12 +34,8 @@ public abstract class ImportedModule extends AbstractAST
     {
       this.name = x;
     }
-    public org.meta_environment.rascal.ast.ActualsRenaming setName (org.
-								    meta_environment.
-								    rascal.
-								    ast.
-								    ModuleName
-								    x)
+    public ActualsRenaming setName (org.meta_environment.rascal.ast.
+				    ModuleName x)
     {
       org.meta_environment.rascal.ast.ActualsRenaming z =
 	new ActualsRenaming ();
@@ -55,12 +51,8 @@ public abstract class ImportedModule extends AbstractAST
     {
       this.actuals = x;
     }
-    public org.meta_environment.rascal.ast.ActualsRenaming setActuals (org.
-								       meta_environment.
-								       rascal.
-								       ast.
-								       ModuleActuals
-								       x)
+    public ActualsRenaming setActuals (org.meta_environment.rascal.ast.
+				       ModuleActuals x)
     {
       org.meta_environment.rascal.ast.ActualsRenaming z =
 	new ActualsRenaming ();
@@ -76,12 +68,8 @@ public abstract class ImportedModule extends AbstractAST
     {
       this.renamings = x;
     }
-    public org.meta_environment.rascal.ast.ActualsRenaming setRenamings (org.
-									 meta_environment.
-									 rascal.
-									 ast.
-									 Renamings
-									 x)
+    public ActualsRenaming setRenamings (org.meta_environment.rascal.ast.
+					 Renamings x)
     {
       org.meta_environment.rascal.ast.ActualsRenaming z =
 	new ActualsRenaming ();
@@ -91,6 +79,20 @@ public abstract class ImportedModule extends AbstractAST
   }
   static public class Ambiguity extends ImportedModule
   {
+    public ImportedModule.Ambiguity makeImportedModuleAmbiguity (java.util.
+								 List <
+								 ImportedModule
+								 >
+								 alternatives)
+    {
+      ImportedModule.Ambiguity amb =
+	new ImportedModule.Ambiguity (alternatives);
+      if (!table.containsKey (amb))
+	{
+	  table.put (amb, amb);
+	}
+      return (ImportedModule.Ambiguity) table.get (amb);
+    }
     private final java.util.List < ImportedModule > alternatives;
     public Ambiguity (java.util.List < ImportedModule > alternatives)
     {
@@ -130,10 +132,7 @@ public abstract class ImportedModule extends AbstractAST
     {
       this.name = x;
     }
-    public org.meta_environment.rascal.ast.Actuals setName (org.
-							    meta_environment.
-							    rascal.ast.
-							    ModuleName x)
+    public Actuals setName (org.meta_environment.rascal.ast.ModuleName x)
     {
       org.meta_environment.rascal.ast.Actuals z = new Actuals ();
       z.$setName (x);
@@ -148,11 +147,8 @@ public abstract class ImportedModule extends AbstractAST
     {
       this.actuals = x;
     }
-    public org.meta_environment.rascal.ast.Actuals setActuals (org.
-							       meta_environment.
-							       rascal.ast.
-							       ModuleActuals
-							       x)
+    public Actuals setActuals (org.meta_environment.rascal.ast.
+			       ModuleActuals x)
     {
       org.meta_environment.rascal.ast.Actuals z = new Actuals ();
       z.$setActuals (x);
@@ -187,10 +183,7 @@ public abstract class ImportedModule extends AbstractAST
     {
       this.name = x;
     }
-    public org.meta_environment.rascal.ast.Renamings setName (org.
-							      meta_environment.
-							      rascal.ast.
-							      ModuleName x)
+    public Renamings setName (org.meta_environment.rascal.ast.ModuleName x)
     {
       org.meta_environment.rascal.ast.Renamings z = new Renamings ();
       z.$setName (x);
@@ -205,11 +198,8 @@ public abstract class ImportedModule extends AbstractAST
     {
       this.renamings = x;
     }
-    public org.meta_environment.rascal.ast.Renamings setRenamings (org.
-								   meta_environment.
-								   rascal.ast.
-								   Renamings
-								   x)
+    public Renamings setRenamings (org.meta_environment.rascal.ast.
+				   Renamings x)
     {
       org.meta_environment.rascal.ast.Renamings z = new Renamings ();
       z.$setRenamings (x);
@@ -241,10 +231,7 @@ public abstract class ImportedModule extends AbstractAST
     {
       this.name = x;
     }
-    public org.meta_environment.rascal.ast.Default setName (org.
-							    meta_environment.
-							    rascal.ast.
-							    ModuleName x)
+    public Default setName (org.meta_environment.rascal.ast.ModuleName x)
     {
       org.meta_environment.rascal.ast.Default z = new Default ();
       z.$setName (x);
