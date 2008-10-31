@@ -19,12 +19,4 @@ public abstract class ModuleName extends AbstractAST
       return alternatives;
     }
   }
-  public class Lexical extends ModuleName
-  {
-    /* sep:"/" basename:ModuleName -> ModuleName  */
-  }
-  public class Lexical extends ModuleName
-  {
-    /* dirname:ModuleWord sep:"/" basename:ModuleName -> ModuleName  */
-  }
 }

@@ -19,8 +19,4 @@ public abstract class SingleCharacter extends AbstractAST
       return alternatives;
     }
   }
-  public class Lexical extends SingleCharacter
-  {
-    /* ~[\'\\] -> SingleCharacter  */
-  }
 }

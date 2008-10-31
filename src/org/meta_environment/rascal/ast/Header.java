@@ -5,7 +5,7 @@ public abstract class Header extends AbstractAST
 {
   public class Default extends Header
   {
-/* "module" name:ModuleName tags:Tags  imports:Import* -> Header {cons("Default")} */
+/* "module" name:ModuleName tags:Tags imports:Import* -> Header {cons("Default")} */
     private Default ()
     {
     }

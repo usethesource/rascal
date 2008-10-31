@@ -19,24 +19,4 @@ public abstract class SingleQuotedStrChar extends AbstractAST
       return alternatives;
     }
   }
-  public class Lexical extends SingleQuotedStrChar
-  {
-    /* "\\t" -> SingleQuotedStrChar  */
-  }
-  public class Lexical extends SingleQuotedStrChar
-  {
-    /* "\\'" -> SingleQuotedStrChar  */
-  }
-  public class Lexical extends SingleQuotedStrChar
-  {
-    /* "\\\\" -> SingleQuotedStrChar  */
-  }
-  public class Lexical extends SingleQuotedStrChar
-  {
-    /* "\\" a:[0-9]b:[0-9]c:[0-9] -> SingleQuotedStrChar  */
-  }
-  public class Lexical extends SingleQuotedStrChar
-  {
-    /* ~[\0-\31\n\t\'\\] -> SingleQuotedStrChar  */
-  }
 }

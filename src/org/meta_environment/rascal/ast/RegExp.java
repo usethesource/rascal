@@ -19,16 +19,4 @@ public abstract class RegExp extends AbstractAST
       return alternatives;
     }
   }
-  public class Lexical extends RegExp
-  {
-    /* [\\][\/\<\\] -> RegExp  */
-  }
-  public class Lexical extends RegExp
-  {
-    /* ~[\/\<\\] -> RegExp  */
-  }
-  public class Lexical extends RegExp
-  {
-    /* "<" Name ":" NamedRegExp* ">" -> RegExp  */
-  }
 }

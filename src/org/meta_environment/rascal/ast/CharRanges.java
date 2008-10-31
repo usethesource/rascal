@@ -48,7 +48,7 @@ public abstract class CharRanges extends AbstractAST
   }
   public class Concatenate extends CharRanges
   {
-/* lhs:CharRanges rhs:CharRanges -> CharRanges {cons("Concatenate"), right,memo} */
+/* lhs:CharRanges rhs:CharRanges -> CharRanges {cons("Concatenate"), right, memo} */
     private Concatenate ()
     {
     }
@@ -93,8 +93,19 @@ public abstract class CharRanges extends AbstractAST
       return z;
     }
   }
-  public class Lexical extends CharRanges
+  public class Bracket extends CharRanges
   {
-    /* "(" CharRanges ")" -> CharRanges {bracket} */
+/* "(" CharRanges ")" -> CharRanges {bracket} */
+    private Bracket ()
+    {
+    }
+    /*package */ Bracket (ITree tree)
+    {
+      this.tree = tree;
+    }
+    public IVisitable accept (IASTVisitor visitor)
+    {
+      return visitor.visitCharRangesBracket (this);
+    }
   }
 }

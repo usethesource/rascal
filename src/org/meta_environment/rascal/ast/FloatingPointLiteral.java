@@ -19,16 +19,4 @@ public abstract class FloatingPointLiteral extends AbstractAST
       return alternatives;
     }
   }
-  public class Lexical extends FloatingPointLiteral
-  {
-    /* "." [0-9]+ ( [eE] [\+\-]? [0-9]+ )? [fF] -> FloatingPointLiteral  */
-  }
-  public class Lexical extends FloatingPointLiteral
-  {
-    /* [0-9]+ [eE] [\+\-]? [0-9]+ [fF] -> FloatingPointLiteral  */
-  }
-  public class Lexical extends FloatingPointLiteral
-  {
-    /* [0-9]+ ( [eE] [\+\-]? [0-9]+ )? [fF] -> FloatingPointLiteral  */
-  }
 }

@@ -19,16 +19,4 @@ public abstract class DoubleLiteral extends AbstractAST
       return alternatives;
     }
   }
-  public class Lexical extends DoubleLiteral
-  {
-    /* "." [0-9]+ ( [eE] [\+\-]? [0-9]+ )? [dD]? -> DoubleLiteral  */
-  }
-  public class Lexical extends DoubleLiteral
-  {
-    /* [0-9]+ [eE] [\+\-]? [0-9]+ [dD]? -> DoubleLiteral  */
-  }
-  public class Lexical extends DoubleLiteral
-  {
-    /* [0-9]+ ( [eE] [\+\-]? [0-9]+ )? [dD] -> DoubleLiteral  */
-  }
 }

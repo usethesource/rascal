@@ -5,32 +5,32 @@ public abstract class Character extends AbstractAST
 {
   public class Numeric extends Character
   {
-/* numericChar:NumChar -> Character {cons("Numeric")} */
+/* numChar:NumChar -> Character {cons("Numeric")} */
     private Numeric ()
     {
     }
-    /*package */ Numeric (ITree tree, NumChar numericChar)
+    /*package */ Numeric (ITree tree, NumChar numChar)
     {
       this.tree = tree;
-      this.numericChar = numericChar;
+      this.numChar = numChar;
     }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitCharacterNumeric (this);
     }
-    private NumChar numericChar;
-    public NumChar getNumericChar ()
+    private NumChar numChar;
+    public NumChar getNumChar ()
     {
-      return numericChar;
+      return numChar;
     }
-    private void $setNumericChar (NumChar x)
+    private void $setNumChar (NumChar x)
     {
-      this.numericChar = x;
+      this.numChar = x;
     }
-    public Numeric setNumericChar (NumChar x)
+    public Numeric setNumChar (NumChar x)
     {
       Numeric z = new Numeric ();
-      z.$setNumericChar (x);
+      z.$setNumChar (x);
       return z;
     }
   }

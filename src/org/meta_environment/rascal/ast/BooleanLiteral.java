@@ -19,8 +19,4 @@ public abstract class BooleanLiteral extends AbstractAST
       return alternatives;
     }
   }
-  public class Lexical extends BooleanLiteral
-  {
-    /* "false" -> BooleanLiteral  */
-  }
 }

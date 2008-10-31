@@ -521,16 +521,4 @@ public abstract class Symbol extends AbstractAST
   {
     /* Symbol "?" -> Symbol  */
   }
-  public class Lexical extends Symbol
-  {
-    /* Symbol "*" -> Symbol  */
-  }
-  public class Lexical extends Symbol
-  {
-    /* Symbol "+" -> Symbol  */
-  }
-  public class Lexical extends Symbol
-  {
-    /* Symbol "|" Symbol -> Symbol  */
-  }
 }

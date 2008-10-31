@@ -19,12 +19,4 @@ public abstract class StringCharacter extends AbstractAST
       return alternatives;
     }
   }
-  public class Lexical extends StringCharacter
-  {
-    /* ~[\"\\\<] -> StringCharacter  */
-  }
-  public class Lexical extends StringCharacter
-  {
-    /* EscapeSequence -> StringCharacter  */
-  }
 }

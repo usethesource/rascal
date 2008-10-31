@@ -19,9 +19,4 @@ public abstract class Comment extends AbstractAST
       return alternatives;
     }
   }
-  public class Lexical extends Comment
-  {
-    /* "/*" CommentChar* " */ " -> Comment {category(" Comment ")} */
 }
-}
-

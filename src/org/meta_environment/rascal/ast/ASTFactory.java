@@ -107,22 +107,22 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public Expression.Forall makeExpressionForall (ITree tree,
-						 ValueProducer producers,
+  public Expression.Exists makeExpressionExists (ITree tree,
+						 ValueProducer producer,
 						 Expression expression)
   {
-    Expression.Forall x = new Expression.Forall (tree, producers, expression);
+    Expression.Exists x = new Expression.Exists (tree, producer, expression);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Expression.Exists makeExpressionExists (ITree tree,
+  public Expression.ForAll makeExpressionForAll (ITree tree,
 						 ValueProducer producer,
 						 Expression expression)
   {
-    Expression.Exists x = new Expression.Exists (tree, producer, expression);
+    Expression.ForAll x = new Expression.ForAll (tree, producer, expression);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -135,6 +135,27 @@ public class ASTFactory
   {
     Expression.Comprehension x =
       new Expression.Comprehension (tree, comprehension);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Expression.NoMatch makeExpressionNoMatch (ITree tree,
+						   Pattern pattern,
+						   Expression expression)
+  {
+    Expression.NoMatch x = new Expression.NoMatch (tree, pattern, expression);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Expression.Match makeExpressionMatch (ITree tree, Pattern pattern,
+					       Expression expression)
+  {
+    Expression.Match x = new Expression.Match (tree, pattern, expression);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -628,6 +649,15 @@ public class ASTFactory
       }
     return table.get (x);
   }
+  public Expression.Bracket makeExpressionBracket (ITree tree)
+  {
+    Expression.Bracket x = new Expression.Bracket (tree);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
   public Expression.Ambiguity makeExpressionAmbiguity (java.util.List <
 						       Expression >
 						       alternatives)
@@ -832,42 +862,6 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public Statement.Fail makeStatementFail (ITree tree)
-  {
-    Statement.Fail x = new Statement.Fail (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Statement.ReturnVoid makeStatementReturnVoid (ITree tree)
-  {
-    Statement.ReturnVoid x = new Statement.ReturnVoid (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Statement.Continue makeStatementContinue (ITree tree)
-  {
-    Statement.Continue x = new Statement.Continue (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Statement.Break makeStatementBreak (ITree tree)
-  {
-    Statement.Break x = new Statement.Break (tree);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
   public Statement.Throw makeStatementThrow (ITree tree,
 					     Expression expression)
   {
@@ -888,21 +882,47 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public Statement.Return makeStatementReturn (ITree tree,
+  public Statement.Assert makeStatementAssert (ITree tree,
+					       StringLiteral label,
 					       Expression expression)
   {
-    Statement.Return x = new Statement.Return (tree, expression);
+    Statement.Assert x = new Statement.Assert (tree, label, expression);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
     return table.get (x);
   }
-  public Statement.Assert makeStatementAssert (ITree tree,
-					       StringLiteral label,
-					       Expression expression)
+  public Statement.Continue makeStatementContinue (ITree tree)
   {
-    Statement.Assert x = new Statement.Assert (tree, label, expression);
+    Statement.Continue x = new Statement.Continue (tree);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Statement.Return makeStatementReturn (ITree tree)
+  {
+    Statement.Return x = new Statement.Return (tree);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Statement.Fail makeStatementFail (ITree tree)
+  {
+    Statement.Fail x = new Statement.Fail (tree);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Statement.Break makeStatementBreak (ITree tree)
+  {
+    Statement.Break x = new Statement.Break (tree);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -945,6 +965,28 @@ public class ASTFactory
       }
     return table.get (x);
   }
+  public Statement.First makeStatementFirst (ITree tree, Label label,
+					     java.util.List < Expression >
+					     conditions, Statement body)
+  {
+    Statement.First x = new Statement.First (tree, label, conditions, body);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Statement.All makeStatementAll (ITree tree, Label label,
+					 java.util.List < Expression >
+					 conditions, Statement body)
+  {
+    Statement.All x = new Statement.All (tree, label, conditions, body);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
   public Statement.Switch makeStatementSwitch (ITree tree, Label label,
 					       Expression expression,
 					       java.util.List < Case > cases)
@@ -958,11 +1000,12 @@ public class ASTFactory
     return table.get (x);
   }
   public Statement.IfThen makeStatementIfThen (ITree tree, Label label,
-					       Condition condition,
+					       java.util.List < Expression >
+					       conditions,
 					       Statement thenStatement)
   {
     Statement.IfThen x =
-      new Statement.IfThen (tree, label, condition, thenStatement);
+      new Statement.IfThen (tree, label, conditions, thenStatement);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -971,14 +1014,16 @@ public class ASTFactory
   }
   public Statement.IfThenElse makeStatementIfThenElse (ITree tree,
 						       Label label,
-						       Condition condition,
+						       java.util.List <
+						       Expression >
+						       conditions,
 						       Statement
 						       thenStatement,
 						       Statement
 						       elseStatement)
   {
     Statement.IfThenElse x =
-      new Statement.IfThenElse (tree, label, condition, thenStatement,
+      new Statement.IfThenElse (tree, label, conditions, thenStatement,
 				elseStatement);
     if (!table.containsKey (x))
       {
@@ -1035,57 +1080,6 @@ public class ASTFactory
 					     declarations, Statement body)
   {
     Statement.Solve x = new Statement.Solve (tree, declarations, body);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Condition.Conjunction makeConditionConjunction (ITree tree,
-							 Condition lhs,
-							 Condition rhs)
-  {
-    Condition.Conjunction x = new Condition.Conjunction (tree, lhs, rhs);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Condition.Expression makeConditionExpression (ITree tree,
-						       Expression expression)
-  {
-    Condition.Expression x = new Condition.Expression (tree, expression);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Condition.NoMatch makeConditionNoMatch (ITree tree, Pattern pattern,
-						 Expression expression)
-  {
-    Condition.NoMatch x = new Condition.NoMatch (tree, pattern, expression);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return table.get (x);
-  }
-  public Condition.Ambiguity makeConditionAmbiguity (java.util.List <
-						     Condition > alternatives)
-  {
-    Condition.Ambiguity amb = new Condition.Ambiguity (alternatives);
-    if (!table.containsKey (amb))
-      {
-	table.put (amb, amb);
-      }
-    return table.get (amb, amb);
-  }
-  public Condition.Match makeConditionMatch (ITree tree, Pattern pattern,
-					     Expression expression)
-  {
-    Condition.Match x = new Condition.Match (tree, pattern, expression);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -1296,9 +1290,9 @@ public class ASTFactory
       }
     return table.get (x);
   }
-  public Break.Unlabeled makeBreakUnlabeled (ITree tree)
+  public Break.NoLabel makeBreakNoLabel (ITree tree)
   {
-    Break.Unlabeled x = new Break.Unlabeled (tree);
+    Break.NoLabel x = new Break.NoLabel (tree);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -1315,9 +1309,67 @@ public class ASTFactory
       }
     return table.get (amb, amb);
   }
-  public Break.Labeled makeBreakLabeled (ITree tree, Name label)
+  public Break.WithLabel makeBreakWithLabel (ITree tree, Name label)
   {
-    Break.Labeled x = new Break.Labeled (tree, label);
+    Break.WithLabel x = new Break.WithLabel (tree, label);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Fail.NoLabel makeFailNoLabel (ITree tree)
+  {
+    Fail.NoLabel x = new Fail.NoLabel (tree);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Fail.Ambiguity makeFailAmbiguity (java.util.List < Fail >
+					   alternatives)
+  {
+    Fail.Ambiguity amb = new Fail.Ambiguity (alternatives);
+    if (!table.containsKey (amb))
+      {
+	table.put (amb, amb);
+      }
+    return table.get (amb, amb);
+  }
+  public Fail.WithLabel makeFailWithLabel (ITree tree, Name label)
+  {
+    Fail.WithLabel x = new Fail.WithLabel (tree, label);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Return.NoExpression makeReturnNoExpression (ITree tree)
+  {
+    Return.NoExpression x = new Return.NoExpression (tree);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
+  public Return.Ambiguity makeReturnAmbiguity (java.util.List < Return >
+					       alternatives)
+  {
+    Return.Ambiguity amb = new Return.Ambiguity (alternatives);
+    if (!table.containsKey (amb))
+      {
+	table.put (amb, amb);
+      }
+    return table.get (amb, amb);
+  }
+  public Return.WithExpression makeReturnWithExpression (ITree tree,
+							 Expression
+							 expression)
+  {
+    Return.WithExpression x = new Return.WithExpression (tree, expression);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -2827,6 +2879,15 @@ public class ASTFactory
       }
     return table.get (x);
   }
+  public CharRanges.Bracket makeCharRangesBracket (ITree tree)
+  {
+    CharRanges.Bracket x = new CharRanges.Bracket (tree);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
   public CharRanges.Concatenate makeCharRangesConcatenate (ITree tree,
 							   CharRanges lhs,
 							   CharRanges rhs)
@@ -2930,6 +2991,15 @@ public class ASTFactory
       }
     return table.get (x);
   }
+  public CharClass.Bracket makeCharClassBracket (ITree tree)
+  {
+    CharClass.Bracket x = new CharClass.Bracket (tree);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return table.get (x);
+  }
   public CharClass.Ambiguity makeCharClassAmbiguity (java.util.List <
 						     CharClass > alternatives)
   {
@@ -3027,10 +3097,9 @@ public class ASTFactory
       }
     return table.get (amb, amb);
   }
-  public Character.Numeric makeCharacterNumeric (ITree tree,
-						 NumChar numericChar)
+  public Character.Numeric makeCharacterNumeric (ITree tree, NumChar numChar)
   {
-    Character.Numeric x = new Character.Numeric (tree, numericChar);
+    Character.Numeric x = new Character.Numeric (tree, numChar);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
