@@ -19,8 +19,4 @@ public abstract class CharacterLiteral extends AbstractAST
       return alternatives;
     }
   }
-  public class Lexical extends CharacterLiteral
-  {
-    /* "'" EscapeSequence "'" -> CharacterLiteral  */
-  }
 }

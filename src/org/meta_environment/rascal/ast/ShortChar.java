@@ -19,8 +19,4 @@ public abstract class ShortChar extends AbstractAST
       return alternatives;
     }
   }
-  public class Lexical extends ShortChar
-  {
-    /* [\\] escape:~[\0-\31A-Za-mo-qsu-z0-9] -> ShortChar  */
-  }
 }

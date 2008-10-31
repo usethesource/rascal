@@ -63,9 +63,20 @@ public abstract class Expression extends AbstractAST
       return alternatives;
     }
   }
-  public class Lexical extends Expression
+  public class Bracket extends Expression
   {
-    /* "(" Expression ")" -> Expression {bracket} */
+/* "(" Expression ")" -> Expression {bracket} */
+    private Bracket ()
+    {
+    }
+    /*package */ Bracket (ITree tree)
+    {
+      this.tree = tree;
+    }
+    public IVisitable accept (IASTVisitor visitor)
+    {
+      return visitor.visitExpressionBracket (this);
+    }
   }
   public class ClosureCall extends Expression
   {
@@ -1920,6 +1931,100 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
+  public class Match extends Expression
+  {
+/* pattern:Pattern ":=" expression:Expression -> Expression {cons("Match")} */
+    private Match ()
+    {
+    }
+    /*package */ Match (ITree tree, Pattern pattern, Expression expression)
+    {
+      this.tree = tree;
+      this.pattern = pattern;
+      this.expression = expression;
+    }
+    public IVisitable accept (IASTVisitor visitor)
+    {
+      return visitor.visitExpressionMatch (this);
+    }
+    private Pattern pattern;
+    public Pattern getPattern ()
+    {
+      return pattern;
+    }
+    private void $setPattern (Pattern x)
+    {
+      this.pattern = x;
+    }
+    public Match setPattern (Pattern x)
+    {
+      Match z = new Match ();
+      z.$setPattern (x);
+      return z;
+    }
+    private Expression expression;
+    public Expression getExpression ()
+    {
+      return expression;
+    }
+    private void $setExpression (Expression x)
+    {
+      this.expression = x;
+    }
+    public Match setExpression (Expression x)
+    {
+      Match z = new Match ();
+      z.$setExpression (x);
+      return z;
+    }
+  }
+  public class NoMatch extends Expression
+  {
+/* pattern:Pattern "!:=" expression:Expression -> Expression {cons("NoMatch")} */
+    private NoMatch ()
+    {
+    }
+    /*package */ NoMatch (ITree tree, Pattern pattern, Expression expression)
+    {
+      this.tree = tree;
+      this.pattern = pattern;
+      this.expression = expression;
+    }
+    public IVisitable accept (IASTVisitor visitor)
+    {
+      return visitor.visitExpressionNoMatch (this);
+    }
+    private Pattern pattern;
+    public Pattern getPattern ()
+    {
+      return pattern;
+    }
+    private void $setPattern (Pattern x)
+    {
+      this.pattern = x;
+    }
+    public NoMatch setPattern (Pattern x)
+    {
+      NoMatch z = new NoMatch ();
+      z.$setPattern (x);
+      return z;
+    }
+    private Expression expression;
+    public Expression getExpression ()
+    {
+      return expression;
+    }
+    private void $setExpression (Expression x)
+    {
+      this.expression = x;
+    }
+    public NoMatch setExpression (Expression x)
+    {
+      NoMatch z = new NoMatch ();
+      z.$setExpression (x);
+      return z;
+    }
+  }
   public class Comprehension extends Expression
   {
 /* comprehension:Comprehension -> Expression {cons("Comprehension")} */
@@ -1948,6 +2053,54 @@ public abstract class Expression extends AbstractAST
     {
       Comprehension z = new Comprehension ();
       z.$setComprehension (x);
+      return z;
+    }
+  }
+  public class ForAll extends Expression
+  {
+/* "forall" "(" producer:ValueProducer "|" expression:Expression ")" -> Expression {cons("ForAll")} */
+    private ForAll ()
+    {
+    }
+    /*package */ ForAll (ITree tree, ValueProducer producer,
+			 Expression expression)
+    {
+      this.tree = tree;
+      this.producer = producer;
+      this.expression = expression;
+    }
+    public IVisitable accept (IASTVisitor visitor)
+    {
+      return visitor.visitExpressionForAll (this);
+    }
+    private ValueProducer producer;
+    public ValueProducer getProducer ()
+    {
+      return producer;
+    }
+    private void $setProducer (ValueProducer x)
+    {
+      this.producer = x;
+    }
+    public ForAll setProducer (ValueProducer x)
+    {
+      ForAll z = new ForAll ();
+      z.$setProducer (x);
+      return z;
+    }
+    private Expression expression;
+    public Expression getExpression ()
+    {
+      return expression;
+    }
+    private void $setExpression (Expression x)
+    {
+      this.expression = x;
+    }
+    public ForAll setExpression (Expression x)
+    {
+      ForAll z = new ForAll ();
+      z.$setExpression (x);
       return z;
     }
   }
@@ -1995,54 +2148,6 @@ public abstract class Expression extends AbstractAST
     public Exists setExpression (Expression x)
     {
       Exists z = new Exists ();
-      z.$setExpression (x);
-      return z;
-    }
-  }
-  public class Forall extends Expression
-  {
-/* "forall" "(" producers:ValueProducer "|" expression:Expression ")" -> Expression {cons("Forall")} */
-    private Forall ()
-    {
-    }
-    /*package */ Forall (ITree tree, ValueProducer producers,
-			 Expression expression)
-    {
-      this.tree = tree;
-      this.producers = producers;
-      this.expression = expression;
-    }
-    public IVisitable accept (IASTVisitor visitor)
-    {
-      return visitor.visitExpressionForall (this);
-    }
-    private ValueProducer producers;
-    public ValueProducer getProducers ()
-    {
-      return producers;
-    }
-    private void $setProducers (ValueProducer x)
-    {
-      this.producers = x;
-    }
-    public Forall setProducers (ValueProducer x)
-    {
-      Forall z = new Forall ();
-      z.$setProducers (x);
-      return z;
-    }
-    private Expression expression;
-    public Expression getExpression ()
-    {
-      return expression;
-    }
-    private void $setExpression (Expression x)
-    {
-      this.expression = x;
-    }
-    public Forall setExpression (Expression x)
-    {
-      Forall z = new Forall ();
       z.$setExpression (x);
       return z;
     }

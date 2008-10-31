@@ -47,6 +47,21 @@ public abstract class CharClass extends AbstractAST
       return alternatives;
     }
   }
+  public class Bracket extends CharClass
+  {
+/* "(" CharClass ")" -> CharClass {bracket, avoid} */
+    private Bracket ()
+    {
+    }
+    /*package */ Bracket (ITree tree)
+    {
+      this.tree = tree;
+    }
+    public IVisitable accept (IASTVisitor visitor)
+    {
+      return visitor.visitCharClassBracket (this);
+    }
+  }
   public class Complement extends CharClass
   {
 /* "~" charClass:CharClass -> CharClass {cons("Complement")} */
@@ -80,7 +95,7 @@ public abstract class CharClass extends AbstractAST
   }
   public class Difference extends CharClass
   {
-/* lhs:CharClass "/" rhs:CharClass -> CharClass {cons("Difference"), left,memo} */
+/* lhs:CharClass "/" rhs:CharClass -> CharClass {cons("Difference"), left, memo} */
     private Difference ()
     {
     }
@@ -127,7 +142,7 @@ public abstract class CharClass extends AbstractAST
   }
   public class Intersection extends CharClass
   {
-/* lhs:CharClass "/\\" rhs:CharClass -> CharClass {cons("Intersection"), left,memo} */
+/* lhs:CharClass "/\\" rhs:CharClass -> CharClass {cons("Intersection"), left, memo} */
     private Intersection ()
     {
     }
@@ -218,25 +233,5 @@ public abstract class CharClass extends AbstractAST
       z.$setRhs (x);
       return z;
     }
-  }
-  public class Lexical extends CharClass
-  {
-    /* "(" CharClass ")" -> CharClass {bracket, avoid} */
-  }
-  public class Lexical extends CharClass
-  {
-    /* "~" CharClass -> CharClass  */
-  }
-  public class Lexical extends CharClass
-  {
-    /* CharClass "/" CharClass -> CharClass  */
-  }
-  public class Lexical extends CharClass
-  {
-    /* CharClass "/\\" CharClass -> CharClass  */
-  }
-  public class Lexical extends CharClass
-  {
-    /* CharClass "\\/" CharClass -> CharClass  */
   }
 }

@@ -34,20 +34,4 @@ public abstract class StrChar extends AbstractAST
   {
     /* "\\t" -> StrChar  */
   }
-  public class Lexical extends StrChar
-  {
-    /* "\\\"" -> StrChar  */
-  }
-  public class Lexical extends StrChar
-  {
-    /* "\\\\" -> StrChar  */
-  }
-  public class Lexical extends StrChar
-  {
-    /* "\\" a:[0-9]b:[0-9]c:[0-9] -> StrChar  */
-  }
-  public class Lexical extends StrChar
-  {
-    /* ~[\0-\31\n\t\"\\] -> StrChar  */
-  }
 }

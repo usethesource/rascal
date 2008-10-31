@@ -3,20 +3,20 @@ import org.eclipse.imp.pdb.facts.ITree;
 import java.util.Collections;
 public abstract class Break extends AbstractAST
 {
-  public class Labeled extends Break
+  public class WithLabel extends Break
   {
-/* "break" label:Name ";" -> Break {cons("Labeled")} */
-    private Labeled ()
+/* "break" label:Name ";" -> Break {cons("WithLabel")} */
+    private WithLabel ()
     {
     }
-    /*package */ Labeled (ITree tree, Name label)
+    /*package */ WithLabel (ITree tree, Name label)
     {
       this.tree = tree;
       this.label = label;
     }
     public IVisitable accept (IASTVisitor visitor)
     {
-      return visitor.visitBreakLabeled (this);
+      return visitor.visitBreakWithLabel (this);
     }
     private Name label;
     public Name getLabel ()
@@ -27,9 +27,9 @@ public abstract class Break extends AbstractAST
     {
       this.label = x;
     }
-    public Labeled setLabel (Name x)
+    public WithLabel setLabel (Name x)
     {
-      Labeled z = new Labeled ();
+      WithLabel z = new WithLabel ();
       z.$setLabel (x);
       return z;
     }
@@ -46,19 +46,19 @@ public abstract class Break extends AbstractAST
       return alternatives;
     }
   }
-  public class Unlabeled extends Break
+  public class NoLabel extends Break
   {
-/* "break" ";" -> Break {cons("Unlabeled")} */
-    private Unlabeled ()
+/* "break" ";" -> Break {cons("NoLabel")} */
+    private NoLabel ()
     {
     }
-    /*package */ Unlabeled (ITree tree)
+    /*package */ NoLabel (ITree tree)
     {
       this.tree = tree;
     }
     public IVisitable accept (IASTVisitor visitor)
     {
-      return visitor.visitBreakUnlabeled (this);
+      return visitor.visitBreakNoLabel (this);
     }
   }
 }

@@ -19,8 +19,4 @@ public abstract class CommentChar extends AbstractAST
       return alternatives;
     }
   }
-  public class Lexical extends CommentChar
-  {
-    /* Asterisk -> CommentChar  */
-  }
 }

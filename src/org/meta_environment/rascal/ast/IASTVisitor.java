@@ -9,9 +9,11 @@ public interface IASTVisitor
   public Parameters visitParametersVarArgs (Parameters.VarArgs x);
   public Parameters visitParametersDefault (Parameters.Default x);
   public Expression visitExpressionVisit (Expression.Visit x);
-  public Expression visitExpressionForall (Expression.Forall x);
   public Expression visitExpressionExists (Expression.Exists x);
+  public Expression visitExpressionForAll (Expression.ForAll x);
   public Expression visitExpressionComprehension (Expression.Comprehension x);
+  public Expression visitExpressionNoMatch (Expression.NoMatch x);
+  public Expression visitExpressionMatch (Expression.Match x);
   public Expression visitExpressionTypedVariablePattern (Expression.
 							 TypedVariablePattern
 							 x);
@@ -62,6 +64,7 @@ public interface IASTVisitor
   public Expression visitExpressionFieldAccess (Expression.FieldAccess x);
   public Expression visitExpressionFieldUpdate (Expression.FieldUpdate x);
   public Expression visitExpressionClosureCall (Expression.ClosureCall x);
+  public Expression visitExpressionBracket (Expression.Bracket x);
   public Expression visitExpressionClosure (Expression.Closure x);
   public Literal visitLiteralString (Literal.String x);
   public Literal visitLiteralDouble (Literal.Double x);
@@ -80,17 +83,18 @@ public interface IASTVisitor
   public Statement visitStatementBlock (Statement.Block x);
   public Statement visitStatementTryFinally (Statement.TryFinally x);
   public Statement visitStatementTry (Statement.Try x);
-  public Statement visitStatementFail (Statement.Fail x);
-  public Statement visitStatementReturnVoid (Statement.ReturnVoid x);
-  public Statement visitStatementContinue (Statement.Continue x);
-  public Statement visitStatementBreak (Statement.Break x);
   public Statement visitStatementThrow (Statement.Throw x);
   public Statement visitStatementInsert (Statement.Insert x);
-  public Statement visitStatementReturn (Statement.Return x);
   public Statement visitStatementAssert (Statement.Assert x);
+  public Statement visitStatementContinue (Statement.Continue x);
+  public Statement visitStatementReturn (Statement.Return x);
+  public Statement visitStatementFail (Statement.Fail x);
+  public Statement visitStatementBreak (Statement.Break x);
   public Statement visitStatementAssignment (Statement.Assignment x);
   public Statement visitStatementVisit (Statement.Visit x);
   public Statement visitStatementExpression (Statement.Expression x);
+  public Statement visitStatementFirst (Statement.First x);
+  public Statement visitStatementAll (Statement.All x);
   public Statement visitStatementSwitch (Statement.Switch x);
   public Statement visitStatementIfThen (Statement.IfThen x);
   public Statement visitStatementIfThenElse (Statement.IfThenElse x);
@@ -98,10 +102,6 @@ public interface IASTVisitor
   public Statement visitStatementWhile (Statement.While x);
   public Statement visitStatementFor (Statement.For x);
   public Statement visitStatementSolve (Statement.Solve x);
-  public Condition visitConditionConjunction (Condition.Conjunction x);
-  public Condition visitConditionExpression (Condition.Expression x);
-  public Condition visitConditionNoMatch (Condition.NoMatch x);
-  public Condition visitConditionMatch (Condition.Match x);
   public Assignable visitAssignableConstructor (Assignable.Constructor x);
   public Assignable visitAssignableTuple (Assignable.Tuple x);
   public Assignable visitAssignableAnnotation (Assignable.Annotation x);
@@ -117,8 +117,12 @@ public interface IASTVisitor
   public Assignment visitAssignmentDefault (Assignment.Default x);
   public Label visitLabelDefault (Label.Default x);
   public Label visitLabelEmpty (Label.Empty x);
-  public Break visitBreakUnlabeled (Break.Unlabeled x);
-  public Break visitBreakLabeled (Break.Labeled x);
+  public Break visitBreakNoLabel (Break.NoLabel x);
+  public Break visitBreakWithLabel (Break.WithLabel x);
+  public Fail visitFailNoLabel (Fail.NoLabel x);
+  public Fail visitFailWithLabel (Fail.WithLabel x);
+  public Return visitReturnNoExpression (Return.NoExpression x);
+  public Return visitReturnWithExpression (Return.WithExpression x);
   public Catch visitCatchBinding (Catch.Binding x);
   public Catch visitCatchDefault (Catch.Default x);
   public Declarator visitDeclaratorDefault (Declarator.Default x);
@@ -244,6 +248,7 @@ public interface IASTVisitor
   public Symbol visitSymbolSort (Symbol.Sort x);
   public CharRange visitCharRangeRange (CharRange.Range x);
   public CharRange visitCharRangeCharacter (CharRange.Character x);
+  public CharRanges visitCharRangesBracket (CharRanges.Bracket x);
   public CharRanges visitCharRangesConcatenate (CharRanges.Concatenate x);
   public CharRanges visitCharRangesRange (CharRanges.Range x);
   public OptCharRanges visitOptCharRangesPresent (OptCharRanges.Present x);
@@ -252,6 +257,7 @@ public interface IASTVisitor
   public CharClass visitCharClassIntersection (CharClass.Intersection x);
   public CharClass visitCharClassDifference (CharClass.Difference x);
   public CharClass visitCharClassComplement (CharClass.Complement x);
+  public CharClass visitCharClassBracket (CharClass.Bracket x);
   public CharClass visitCharClassSimpleCharclass (CharClass.
 						  SimpleCharclass x);
   public Character visitCharacterLabelStart (Character.LabelStart x);

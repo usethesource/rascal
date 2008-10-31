@@ -19,8 +19,4 @@ public abstract class Sort extends AbstractAST
       return alternatives;
     }
   }
-  public class Lexical extends Sort
-  {
-    /* head:[A-Z] middle:[A-Za-z0-9\-]* last:[A-Za-z0-9] -> Sort  */
-  }
 }

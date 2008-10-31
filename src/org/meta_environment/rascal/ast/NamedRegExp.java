@@ -19,12 +19,4 @@ public abstract class NamedRegExp extends AbstractAST
       return alternatives;
     }
   }
-  public class Lexical extends NamedRegExp
-  {
-    /* [\\][\>\\] -> NamedRegExp  */
-  }
-  public class Lexical extends NamedRegExp
-  {
-    /* NamedBackslash -> NamedRegExp  */
-  }
 }

@@ -19,8 +19,4 @@ public abstract class DecimalIntegerLiteral extends AbstractAST
       return alternatives;
     }
   }
-  public class Lexical extends DecimalIntegerLiteral
-  {
-    /* [1-9] [0-9]* -> DecimalIntegerLiteral  */
-  }
 }

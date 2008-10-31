@@ -19,8 +19,4 @@ public abstract class TagChar extends AbstractAST
       return alternatives;
     }
   }
-  public class Lexical extends TagChar
-  {
-    /* [\\] [\\\}] -> TagChar  */
-  }
 }

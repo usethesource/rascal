@@ -19,16 +19,4 @@ public abstract class EscapeSequence extends AbstractAST
       return alternatives;
     }
   }
-  public class Lexical extends EscapeSequence
-  {
-    /* "\\" [0-7] [0-7] -> EscapeSequence  */
-  }
-  public class Lexical extends EscapeSequence
-  {
-    /* "\\" [0-3] [0-7] [0-7] -> EscapeSequence  */
-  }
-  public class Lexical extends EscapeSequence
-  {
-    /* "\\" [btnfr\"\'\\\<] -> EscapeSequence  */
-  }
 }

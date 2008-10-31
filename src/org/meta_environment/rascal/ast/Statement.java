@@ -258,16 +258,17 @@ public abstract class Statement extends AbstractAST
   }
   public class IfThenElse extends Statement
   {
-/* label:Label "if" "(" condition:Condition ")" thenStatement:Statement "else" elseStatement:Statement -> Statement {cons("IfThenElse")} */
+/* label:Label "if" "(" conditions:{Expression ","}+ ")" thenStatement:Statement "else" elseStatement:Statement -> Statement {cons("IfThenElse")} */
     private IfThenElse ()
     {
     }
-    /*package */ IfThenElse (ITree tree, Label label, Condition condition,
+    /*package */ IfThenElse (ITree tree, Label label,
+			     java.util.List < Expression > conditions,
 			     Statement thenStatement, Statement elseStatement)
     {
       this.tree = tree;
       this.label = label;
-      this.condition = condition;
+      this.conditions = conditions;
       this.thenStatement = thenStatement;
       this.elseStatement = elseStatement;
     }
@@ -290,19 +291,19 @@ public abstract class Statement extends AbstractAST
       z.$setLabel (x);
       return z;
     }
-    private Condition condition;
-    public Condition getCondition ()
+    private java.util.List < Expression > conditions;
+    public java.util.List < Expression > getConditions ()
     {
-      return condition;
+      return conditions;
     }
-    private void $setCondition (Condition x)
+    private void $setConditions (java.util.List < Expression > x)
     {
-      this.condition = x;
+      this.conditions = x;
     }
-    public IfThenElse setCondition (Condition x)
+    public IfThenElse setConditions (java.util.List < Expression > x)
     {
       IfThenElse z = new IfThenElse ();
-      z.$setCondition (x);
+      z.$setConditions (x);
       return z;
     }
     private Statement thenStatement;
@@ -338,16 +339,17 @@ public abstract class Statement extends AbstractAST
   }
   public class IfThen extends Statement
   {
-/* label:Label "if" "(" condition:Condition ")" thenStatement:Statement NoElseMayFollow -> Statement {cons("IfThen")} */
+/* label:Label "if" "(" conditions:{Expression ","}+ ")" thenStatement:Statement NoElseMayFollow -> Statement {cons("IfThen")} */
     private IfThen ()
     {
     }
-    /*package */ IfThen (ITree tree, Label label, Condition condition,
+    /*package */ IfThen (ITree tree, Label label,
+			 java.util.List < Expression > conditions,
 			 Statement thenStatement)
     {
       this.tree = tree;
       this.label = label;
-      this.condition = condition;
+      this.conditions = conditions;
       this.thenStatement = thenStatement;
     }
     public IVisitable accept (IASTVisitor visitor)
@@ -369,19 +371,19 @@ public abstract class Statement extends AbstractAST
       z.$setLabel (x);
       return z;
     }
-    private Condition condition;
-    public Condition getCondition ()
+    private java.util.List < Expression > conditions;
+    public java.util.List < Expression > getConditions ()
     {
-      return condition;
+      return conditions;
     }
-    private void $setCondition (Condition x)
+    private void $setConditions (java.util.List < Expression > x)
     {
-      this.condition = x;
+      this.conditions = x;
     }
-    public IfThen setCondition (Condition x)
+    public IfThen setConditions (java.util.List < Expression > x)
     {
       IfThen z = new IfThen ();
-      z.$setCondition (x);
+      z.$setConditions (x);
       return z;
     }
     private Statement thenStatement;
@@ -461,6 +463,136 @@ public abstract class Statement extends AbstractAST
     {
       Switch z = new Switch ();
       z.$setCases (x);
+      return z;
+    }
+  }
+  public class All extends Statement
+  {
+/* label:Label "all" "(" conditions:{Expression ","}+ ")" body:Statement -> Statement {cons("All")} */
+    private All ()
+    {
+    }
+    /*package */ All (ITree tree, Label label,
+		      java.util.List < Expression > conditions,
+		      Statement body)
+    {
+      this.tree = tree;
+      this.label = label;
+      this.conditions = conditions;
+      this.body = body;
+    }
+    public IVisitable accept (IASTVisitor visitor)
+    {
+      return visitor.visitStatementAll (this);
+    }
+    private Label label;
+    public Label getLabel ()
+    {
+      return label;
+    }
+    private void $setLabel (Label x)
+    {
+      this.label = x;
+    }
+    public All setLabel (Label x)
+    {
+      All z = new All ();
+      z.$setLabel (x);
+      return z;
+    }
+    private java.util.List < Expression > conditions;
+    public java.util.List < Expression > getConditions ()
+    {
+      return conditions;
+    }
+    private void $setConditions (java.util.List < Expression > x)
+    {
+      this.conditions = x;
+    }
+    public All setConditions (java.util.List < Expression > x)
+    {
+      All z = new All ();
+      z.$setConditions (x);
+      return z;
+    }
+    private Statement body;
+    public Statement getBody ()
+    {
+      return body;
+    }
+    private void $setBody (Statement x)
+    {
+      this.body = x;
+    }
+    public All setBody (Statement x)
+    {
+      All z = new All ();
+      z.$setBody (x);
+      return z;
+    }
+  }
+  public class First extends Statement
+  {
+/* label:Label "first" "(" conditions:{Expression ","}+ ")" body:Statement -> Statement {cons("First")} */
+    private First ()
+    {
+    }
+    /*package */ First (ITree tree, Label label,
+			java.util.List < Expression > conditions,
+			Statement body)
+    {
+      this.tree = tree;
+      this.label = label;
+      this.conditions = conditions;
+      this.body = body;
+    }
+    public IVisitable accept (IASTVisitor visitor)
+    {
+      return visitor.visitStatementFirst (this);
+    }
+    private Label label;
+    public Label getLabel ()
+    {
+      return label;
+    }
+    private void $setLabel (Label x)
+    {
+      this.label = x;
+    }
+    public First setLabel (Label x)
+    {
+      First z = new First ();
+      z.$setLabel (x);
+      return z;
+    }
+    private java.util.List < Expression > conditions;
+    public java.util.List < Expression > getConditions ()
+    {
+      return conditions;
+    }
+    private void $setConditions (java.util.List < Expression > x)
+    {
+      this.conditions = x;
+    }
+    public First setConditions (java.util.List < Expression > x)
+    {
+      First z = new First ();
+      z.$setConditions (x);
+      return z;
+    }
+    private Statement body;
+    public Statement getBody ()
+    {
+      return body;
+    }
+    private void $setBody (Statement x)
+    {
+      this.body = x;
+    }
+    public First setBody (Statement x)
+    {
+      First z = new First ();
+      z.$setBody (x);
       return z;
     }
   }
@@ -592,6 +724,66 @@ public abstract class Statement extends AbstractAST
       return z;
     }
   }
+  public class Break extends Statement
+  {
+/* Break -> Statement {cons("Break")} */
+    private Break ()
+    {
+    }
+    /*package */ Break (ITree tree)
+    {
+      this.tree = tree;
+    }
+    public IVisitable accept (IASTVisitor visitor)
+    {
+      return visitor.visitStatementBreak (this);
+    }
+  }
+  public class Fail extends Statement
+  {
+/* Fail -> Statement {cons("Fail")} */
+    private Fail ()
+    {
+    }
+    /*package */ Fail (ITree tree)
+    {
+      this.tree = tree;
+    }
+    public IVisitable accept (IASTVisitor visitor)
+    {
+      return visitor.visitStatementFail (this);
+    }
+  }
+  public class Return extends Statement
+  {
+/* Return -> Statement {cons("Return")} */
+    private Return ()
+    {
+    }
+    /*package */ Return (ITree tree)
+    {
+      this.tree = tree;
+    }
+    public IVisitable accept (IASTVisitor visitor)
+    {
+      return visitor.visitStatementReturn (this);
+    }
+  }
+  public class Continue extends Statement
+  {
+/* "continue" ";" -> Statement {cons("Continue")} */
+    private Continue ()
+    {
+    }
+    /*package */ Continue (ITree tree)
+    {
+      this.tree = tree;
+    }
+    public IVisitable accept (IASTVisitor visitor)
+    {
+      return visitor.visitStatementContinue (this);
+    }
+  }
   public class Assert extends Statement
   {
 /* "assert" label:StringLiteral ":" expression:Expression ";" -> Statement {cons("Assert")} */
@@ -636,37 +828,6 @@ public abstract class Statement extends AbstractAST
     public Assert setExpression (Expression x)
     {
       Assert z = new Assert ();
-      z.$setExpression (x);
-      return z;
-    }
-  }
-  public class Return extends Statement
-  {
-/* "return" expression:Expression ";" -> Statement {cons("Return")} */
-    private Return ()
-    {
-    }
-    /*package */ Return (ITree tree, Expression expression)
-    {
-      this.tree = tree;
-      this.expression = expression;
-    }
-    public IVisitable accept (IASTVisitor visitor)
-    {
-      return visitor.visitStatementReturn (this);
-    }
-    private Expression expression;
-    public Expression getExpression ()
-    {
-      return expression;
-    }
-    private void $setExpression (Expression x)
-    {
-      this.expression = x;
-    }
-    public Return setExpression (Expression x)
-    {
-      Return z = new Return ();
       z.$setExpression (x);
       return z;
     }
@@ -731,66 +892,6 @@ public abstract class Statement extends AbstractAST
       Throw z = new Throw ();
       z.$setExpression (x);
       return z;
-    }
-  }
-  public class Break extends Statement
-  {
-/* Break -> Statement {cons("Break")} */
-    private Break ()
-    {
-    }
-    /*package */ Break (ITree tree)
-    {
-      this.tree = tree;
-    }
-    public IVisitable accept (IASTVisitor visitor)
-    {
-      return visitor.visitStatementBreak (this);
-    }
-  }
-  public class Continue extends Statement
-  {
-/* "continue" ";" -> Statement {cons("Continue")} */
-    private Continue ()
-    {
-    }
-    /*package */ Continue (ITree tree)
-    {
-      this.tree = tree;
-    }
-    public IVisitable accept (IASTVisitor visitor)
-    {
-      return visitor.visitStatementContinue (this);
-    }
-  }
-  public class ReturnVoid extends Statement
-  {
-/* "return" ";" -> Statement {cons("ReturnVoid")} */
-    private ReturnVoid ()
-    {
-    }
-    /*package */ ReturnVoid (ITree tree)
-    {
-      this.tree = tree;
-    }
-    public IVisitable accept (IASTVisitor visitor)
-    {
-      return visitor.visitStatementReturnVoid (this);
-    }
-  }
-  public class Fail extends Statement
-  {
-/* "fail" ";" -> Statement {cons("Fail")} */
-    private Fail ()
-    {
-    }
-    /*package */ Fail (ITree tree)
-    {
-      this.tree = tree;
-    }
-    public IVisitable accept (IASTVisitor visitor)
-    {
-      return visitor.visitStatementFail (this);
     }
   }
   public class Try extends Statement
