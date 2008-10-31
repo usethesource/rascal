@@ -28,7 +28,7 @@ public abstract class FunctionName extends AbstractAST
     }
     public Name setName (org.meta_environment.rascal.ast.Name x)
     {
-      org.meta_environment.rascal.ast.Name z = new Name ();
+      Name z = new Name ();
       z.$setName (x);
       return z;
     }
@@ -80,7 +80,7 @@ public abstract class FunctionName extends AbstractAST
     public Operator setOperator (org.meta_environment.rascal.ast.
 				 StandardOperator x)
     {
-      org.meta_environment.rascal.ast.Operator z = new Operator ();
+      Operator z = new Operator ();
       z.$setOperator (x);
       return z;
     }

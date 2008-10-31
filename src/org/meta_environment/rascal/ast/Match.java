@@ -32,7 +32,7 @@ public abstract class Match extends AbstractAST
     }
     public Replacing setMatch (org.meta_environment.rascal.ast.Expression x)
     {
-      org.meta_environment.rascal.ast.Replacing z = new Replacing ();
+      Replacing z = new Replacing ();
       z.$setMatch (x);
       return z;
     }
@@ -49,7 +49,7 @@ public abstract class Match extends AbstractAST
     public Replacing setReplacement (org.meta_environment.rascal.ast.
 				     Expression x)
     {
-      org.meta_environment.rascal.ast.Replacing z = new Replacing ();
+      Replacing z = new Replacing ();
       z.$setReplacement (x);
       return z;
     }
@@ -100,7 +100,7 @@ public abstract class Match extends AbstractAST
     }
     public Arbitrary setMatch (org.meta_environment.rascal.ast.Expression x)
     {
-      org.meta_environment.rascal.ast.Arbitrary z = new Arbitrary ();
+      Arbitrary z = new Arbitrary ();
       z.$setMatch (x);
       return z;
     }
@@ -116,7 +116,7 @@ public abstract class Match extends AbstractAST
     public Arbitrary setStatement (org.meta_environment.rascal.ast.
 				   Statement x)
     {
-      org.meta_environment.rascal.ast.Arbitrary z = new Arbitrary ();
+      Arbitrary z = new Arbitrary ();
       z.$setStatement (x);
       return z;
     }

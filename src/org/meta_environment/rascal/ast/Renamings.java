@@ -35,7 +35,7 @@ public abstract class Renamings extends AbstractAST
     public Default setRenamings (java.util.List <
 				 org.meta_environment.rascal.ast.Renaming > x)
     {
-      org.meta_environment.rascal.ast.Default z = new Default ();
+      Default z = new Default ();
       z.$setRenamings (x);
       return z;
     }

@@ -60,7 +60,7 @@ public abstract class Label extends AbstractAST
     }
     public Default setName (org.meta_environment.rascal.ast.Name x)
     {
-      org.meta_environment.rascal.ast.Default z = new Default ();
+      Default z = new Default ();
       z.$setName (x);
       return z;
     }

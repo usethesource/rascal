@@ -31,7 +31,7 @@ public abstract class CharRange extends AbstractAST
     public Character setCharacter (org.meta_environment.rascal.ast.
 				   Character x)
     {
-      org.meta_environment.rascal.ast.Character z = new Character ();
+      Character z = new Character ();
       z.$setCharacter (x);
       return z;
     }
@@ -82,7 +82,7 @@ public abstract class CharRange extends AbstractAST
     }
     public Range setStart (org.meta_environment.rascal.ast.Character x)
     {
-      org.meta_environment.rascal.ast.Range z = new Range ();
+      Range z = new Range ();
       z.$setStart (x);
       return z;
     }
@@ -97,7 +97,7 @@ public abstract class CharRange extends AbstractAST
     }
     public Range setEnd (org.meta_environment.rascal.ast.Character x)
     {
-      org.meta_environment.rascal.ast.Range z = new Range ();
+      Range z = new Range ();
       z.$setEnd (x);
       return z;
     }

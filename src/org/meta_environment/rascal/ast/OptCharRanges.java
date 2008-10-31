@@ -61,7 +61,7 @@ public abstract class OptCharRanges extends AbstractAST
     }
     public Present setRanges (org.meta_environment.rascal.ast.CharRanges x)
     {
-      org.meta_environment.rascal.ast.Present z = new Present ();
+      Present z = new Present ();
       z.$setRanges (x);
       return z;
     }

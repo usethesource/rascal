@@ -34,8 +34,7 @@ public abstract class Toplevel extends AbstractAST
     public GivenVisibility setVisibility (org.meta_environment.rascal.ast.
 					  Visibility x)
     {
-      org.meta_environment.rascal.ast.GivenVisibility z =
-	new GivenVisibility ();
+      GivenVisibility z = new GivenVisibility ();
       z.$setVisibility (x);
       return z;
     }
@@ -52,8 +51,7 @@ public abstract class Toplevel extends AbstractAST
     public GivenVisibility setDeclaration (org.meta_environment.rascal.ast.
 					   Declaration x)
     {
-      org.meta_environment.rascal.ast.GivenVisibility z =
-	new GivenVisibility ();
+      GivenVisibility z = new GivenVisibility ();
       z.$setDeclaration (x);
       return z;
     }
@@ -104,8 +102,7 @@ public abstract class Toplevel extends AbstractAST
     public DefaultVisibility setDeclaration (org.meta_environment.rascal.ast.
 					     Declaration x)
     {
-      org.meta_environment.rascal.ast.DefaultVisibility z =
-	new DefaultVisibility ();
+      DefaultVisibility z = new DefaultVisibility ();
       z.$setDeclaration (x);
       return z;
     }

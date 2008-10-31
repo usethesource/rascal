@@ -31,7 +31,7 @@ public abstract class Generator extends AbstractAST
     public Expression setExpression (org.meta_environment.rascal.ast.
 				     Expression x)
     {
-      org.meta_environment.rascal.ast.Expression z = new Expression ();
+      Expression z = new Expression ();
       z.$setExpression (x);
       return z;
     }
@@ -83,7 +83,7 @@ public abstract class Generator extends AbstractAST
     public Producer setProducer (org.meta_environment.rascal.ast.
 				 ValueProducer x)
     {
-      org.meta_environment.rascal.ast.Producer z = new Producer ();
+      Producer z = new Producer ();
       z.$setProducer (x);
       return z;
     }

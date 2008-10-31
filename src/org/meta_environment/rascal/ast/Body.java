@@ -36,7 +36,7 @@ public abstract class Body extends AbstractAST
 				   org.meta_environment.rascal.ast.Toplevel >
 				   x)
     {
-      org.meta_environment.rascal.ast.Toplevels z = new Toplevels ();
+      Toplevels z = new Toplevels ();
       z.$setToplevels (x);
       return z;
     }

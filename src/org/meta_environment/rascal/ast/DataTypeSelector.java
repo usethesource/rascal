@@ -31,7 +31,7 @@ public abstract class DataTypeSelector extends AbstractAST
     }
     public Selector setSort (org.meta_environment.rascal.ast.Name x)
     {
-      org.meta_environment.rascal.ast.Selector z = new Selector ();
+      Selector z = new Selector ();
       z.$setSort (x);
       return z;
     }
@@ -46,7 +46,7 @@ public abstract class DataTypeSelector extends AbstractAST
     }
     public Selector setProduction (org.meta_environment.rascal.ast.Name x)
     {
-      org.meta_environment.rascal.ast.Selector z = new Selector ();
+      Selector z = new Selector ();
       z.$setProduction (x);
       return z;
     }

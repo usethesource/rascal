@@ -31,7 +31,7 @@ public abstract class Module extends AbstractAST
     }
     public Default setHeader (org.meta_environment.rascal.ast.Header x)
     {
-      org.meta_environment.rascal.ast.Default z = new Default ();
+      Default z = new Default ();
       z.$setHeader (x);
       return z;
     }
@@ -46,7 +46,7 @@ public abstract class Module extends AbstractAST
     }
     public Default setBody (org.meta_environment.rascal.ast.Body x)
     {
-      org.meta_environment.rascal.ast.Default z = new Default ();
+      Default z = new Default ();
       z.$setBody (x);
       return z;
     }

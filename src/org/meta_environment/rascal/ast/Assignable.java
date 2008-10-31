@@ -32,7 +32,7 @@ public abstract class Assignable extends AbstractAST
     public Variable setQualifiedName (org.meta_environment.rascal.ast.
 				      QualifiedName x)
     {
-      org.meta_environment.rascal.ast.Variable z = new Variable ();
+      Variable z = new Variable ();
       z.$setQualifiedName (x);
       return z;
     }
@@ -86,7 +86,7 @@ public abstract class Assignable extends AbstractAST
     public Subscript setReceiver (org.meta_environment.rascal.ast.
 				  Assignable x)
     {
-      org.meta_environment.rascal.ast.Subscript z = new Subscript ();
+      Subscript z = new Subscript ();
       z.$setReceiver (x);
       return z;
     }
@@ -102,7 +102,7 @@ public abstract class Assignable extends AbstractAST
     public Subscript setSubscript (org.meta_environment.rascal.ast.
 				   Expression x)
     {
-      org.meta_environment.rascal.ast.Subscript z = new Subscript ();
+      Subscript z = new Subscript ();
       z.$setSubscript (x);
       return z;
     }
@@ -138,7 +138,7 @@ public abstract class Assignable extends AbstractAST
     public FieldAccess setReceiver (org.meta_environment.rascal.ast.
 				    Assignable x)
     {
-      org.meta_environment.rascal.ast.FieldAccess z = new FieldAccess ();
+      FieldAccess z = new FieldAccess ();
       z.$setReceiver (x);
       return z;
     }
@@ -153,7 +153,7 @@ public abstract class Assignable extends AbstractAST
     }
     public FieldAccess setField (org.meta_environment.rascal.ast.Name x)
     {
-      org.meta_environment.rascal.ast.FieldAccess z = new FieldAccess ();
+      FieldAccess z = new FieldAccess ();
       z.$setField (x);
       return z;
     }
@@ -190,7 +190,7 @@ public abstract class Assignable extends AbstractAST
     public IfDefined setReceiver (org.meta_environment.rascal.ast.
 				  Assignable x)
     {
-      org.meta_environment.rascal.ast.IfDefined z = new IfDefined ();
+      IfDefined z = new IfDefined ();
       z.$setReceiver (x);
       return z;
     }
@@ -206,7 +206,7 @@ public abstract class Assignable extends AbstractAST
     public IfDefined setCondition (org.meta_environment.rascal.ast.
 				   Expression x)
     {
-      org.meta_environment.rascal.ast.IfDefined z = new IfDefined ();
+      IfDefined z = new IfDefined ();
       z.$setCondition (x);
       return z;
     }
@@ -243,7 +243,7 @@ public abstract class Assignable extends AbstractAST
     public Annotation setReceiver (org.meta_environment.rascal.ast.
 				   Assignable x)
     {
-      org.meta_environment.rascal.ast.Annotation z = new Annotation ();
+      Annotation z = new Annotation ();
       z.$setReceiver (x);
       return z;
     }
@@ -259,7 +259,7 @@ public abstract class Assignable extends AbstractAST
     public Annotation setAnnotation (org.meta_environment.rascal.ast.
 				     Expression x)
     {
-      org.meta_environment.rascal.ast.Annotation z = new Annotation ();
+      Annotation z = new Annotation ();
       z.$setAnnotation (x);
       return z;
     }
@@ -294,7 +294,7 @@ public abstract class Assignable extends AbstractAST
     }
     public Tuple setFirst (org.meta_environment.rascal.ast.Assignable x)
     {
-      org.meta_environment.rascal.ast.Tuple z = new Tuple ();
+      Tuple z = new Tuple ();
       z.$setFirst (x);
       return z;
     }
@@ -313,7 +313,7 @@ public abstract class Assignable extends AbstractAST
     public Tuple setRest (java.util.List <
 			  org.meta_environment.rascal.ast.Assignable > x)
     {
-      org.meta_environment.rascal.ast.Tuple z = new Tuple ();
+      Tuple z = new Tuple ();
       z.$setRest (x);
       return z;
     }
@@ -349,7 +349,7 @@ public abstract class Assignable extends AbstractAST
     }
     public Constructor setName (org.meta_environment.rascal.ast.Name x)
     {
-      org.meta_environment.rascal.ast.Constructor z = new Constructor ();
+      Constructor z = new Constructor ();
       z.$setName (x);
       return z;
     }
@@ -370,7 +370,7 @@ public abstract class Assignable extends AbstractAST
 				     org.meta_environment.rascal.ast.
 				     Assignable > x)
     {
-      org.meta_environment.rascal.ast.Constructor z = new Constructor ();
+      Constructor z = new Constructor ();
       z.$setArguments (x);
       return z;
     }

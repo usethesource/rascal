@@ -34,7 +34,7 @@ public abstract class Tags extends AbstractAST
     public Default setAnnotations (java.util.List <
 				   org.meta_environment.rascal.ast.Tag > x)
     {
-      org.meta_environment.rascal.ast.Default z = new Default ();
+      Default z = new Default ();
       z.$setAnnotations (x);
       return z;
     }

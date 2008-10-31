@@ -28,7 +28,7 @@ public abstract class Case extends AbstractAST
     }
     public Rule setRule (org.meta_environment.rascal.ast.Rule x)
     {
-      org.meta_environment.rascal.ast.Rule z = new Rule ();
+      Rule z = new Rule ();
       z.$setRule (x);
       return z;
     }
@@ -76,7 +76,7 @@ public abstract class Case extends AbstractAST
     }
     public Default setStatement (org.meta_environment.rascal.ast.Statement x)
     {
-      org.meta_environment.rascal.ast.Default z = new Default ();
+      Default z = new Default ();
       z.$setStatement (x);
       return z;
     }

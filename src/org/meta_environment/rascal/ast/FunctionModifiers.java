@@ -37,7 +37,7 @@ public abstract class FunctionModifiers extends AbstractAST
 			      org.meta_environment.rascal.ast.
 			      FunctionModifier > x)
     {
-      org.meta_environment.rascal.ast.List z = new List ();
+      List z = new List ();
       z.$setModifiers (x);
       return z;
     }

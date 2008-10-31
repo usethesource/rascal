@@ -29,7 +29,7 @@ public abstract class Parameters extends AbstractAST
     }
     public Default setFormals (org.meta_environment.rascal.ast.Formals x)
     {
-      org.meta_environment.rascal.ast.Default z = new Default ();
+      Default z = new Default ();
       z.$setFormals (x);
       return z;
     }
@@ -78,7 +78,7 @@ public abstract class Parameters extends AbstractAST
     }
     public VarArgs setFormals (org.meta_environment.rascal.ast.Formals x)
     {
-      org.meta_environment.rascal.ast.VarArgs z = new VarArgs ();
+      VarArgs z = new VarArgs ();
       z.$setFormals (x);
       return z;
     }

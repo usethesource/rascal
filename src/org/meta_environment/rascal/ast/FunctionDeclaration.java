@@ -33,7 +33,7 @@ public abstract class FunctionDeclaration extends AbstractAST
     }
     public Default setSignature (org.meta_environment.rascal.ast.Signature x)
     {
-      org.meta_environment.rascal.ast.Default z = new Default ();
+      Default z = new Default ();
       z.$setSignature (x);
       return z;
     }
@@ -48,7 +48,7 @@ public abstract class FunctionDeclaration extends AbstractAST
     }
     public Default setTags (org.meta_environment.rascal.ast.Tags x)
     {
-      org.meta_environment.rascal.ast.Default z = new Default ();
+      Default z = new Default ();
       z.$setTags (x);
       return z;
     }
@@ -63,7 +63,7 @@ public abstract class FunctionDeclaration extends AbstractAST
     }
     public Default setBody (org.meta_environment.rascal.ast.FunctionBody x)
     {
-      org.meta_environment.rascal.ast.Default z = new Default ();
+      Default z = new Default ();
       z.$setBody (x);
       return z;
     }
@@ -115,7 +115,7 @@ public abstract class FunctionDeclaration extends AbstractAST
     }
     public Abstract setSignature (org.meta_environment.rascal.ast.Signature x)
     {
-      org.meta_environment.rascal.ast.Abstract z = new Abstract ();
+      Abstract z = new Abstract ();
       z.$setSignature (x);
       return z;
     }
@@ -130,7 +130,7 @@ public abstract class FunctionDeclaration extends AbstractAST
     }
     public Abstract setTags (org.meta_environment.rascal.ast.Tags x)
     {
-      org.meta_environment.rascal.ast.Abstract z = new Abstract ();
+      Abstract z = new Abstract ();
       z.$setTags (x);
       return z;
     }

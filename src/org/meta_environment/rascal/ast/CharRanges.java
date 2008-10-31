@@ -29,7 +29,7 @@ public abstract class CharRanges extends AbstractAST
     }
     public Range setRange (org.meta_environment.rascal.ast.CharRange x)
     {
-      org.meta_environment.rascal.ast.Range z = new Range ();
+      Range z = new Range ();
       z.$setRange (x);
       return z;
     }
@@ -80,7 +80,7 @@ public abstract class CharRanges extends AbstractAST
     }
     public Concatenate setLhs (org.meta_environment.rascal.ast.CharRanges x)
     {
-      org.meta_environment.rascal.ast.Concatenate z = new Concatenate ();
+      Concatenate z = new Concatenate ();
       z.$setLhs (x);
       return z;
     }
@@ -95,7 +95,7 @@ public abstract class CharRanges extends AbstractAST
     }
     public Concatenate setRhs (org.meta_environment.rascal.ast.CharRanges x)
     {
-      org.meta_environment.rascal.ast.Concatenate z = new Concatenate ();
+      Concatenate z = new Concatenate ();
       z.$setRhs (x);
       return z;
     }

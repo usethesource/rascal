@@ -29,7 +29,7 @@ public abstract class TypeArg extends AbstractAST
     }
     public Default setType (org.meta_environment.rascal.ast.Type x)
     {
-      org.meta_environment.rascal.ast.Default z = new Default ();
+      Default z = new Default ();
       z.$setType (x);
       return z;
     }
@@ -78,7 +78,7 @@ public abstract class TypeArg extends AbstractAST
     }
     public Named setType (org.meta_environment.rascal.ast.Type x)
     {
-      org.meta_environment.rascal.ast.Named z = new Named ();
+      Named z = new Named ();
       z.$setType (x);
       return z;
     }
@@ -93,7 +93,7 @@ public abstract class TypeArg extends AbstractAST
     }
     public Named setName (org.meta_environment.rascal.ast.Name x)
     {
-      org.meta_environment.rascal.ast.Named z = new Named ();
+      Named z = new Named ();
       z.$setName (x);
       return z;
     }

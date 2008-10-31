@@ -29,7 +29,7 @@ public abstract class StructuredType extends AbstractAST
     }
     public List setTypeArg (org.meta_environment.rascal.ast.TypeArg x)
     {
-      org.meta_environment.rascal.ast.List z = new List ();
+      List z = new List ();
       z.$setTypeArg (x);
       return z;
     }
@@ -78,7 +78,7 @@ public abstract class StructuredType extends AbstractAST
     }
     public Set setTypeArg (org.meta_environment.rascal.ast.TypeArg x)
     {
-      org.meta_environment.rascal.ast.Set z = new Set ();
+      Set z = new Set ();
       z.$setTypeArg (x);
       return z;
     }
@@ -112,7 +112,7 @@ public abstract class StructuredType extends AbstractAST
     }
     public Map setFirst (org.meta_environment.rascal.ast.TypeArg x)
     {
-      org.meta_environment.rascal.ast.Map z = new Map ();
+      Map z = new Map ();
       z.$setFirst (x);
       return z;
     }
@@ -127,7 +127,7 @@ public abstract class StructuredType extends AbstractAST
     }
     public Map setSecond (org.meta_environment.rascal.ast.TypeArg x)
     {
-      org.meta_environment.rascal.ast.Map z = new Map ();
+      Map z = new Map ();
       z.$setSecond (x);
       return z;
     }
@@ -162,7 +162,7 @@ public abstract class StructuredType extends AbstractAST
     }
     public Relation setFirst (org.meta_environment.rascal.ast.TypeArg x)
     {
-      org.meta_environment.rascal.ast.Relation z = new Relation ();
+      Relation z = new Relation ();
       z.$setFirst (x);
       return z;
     }
@@ -180,7 +180,7 @@ public abstract class StructuredType extends AbstractAST
     public Relation setRest (java.util.List <
 			     org.meta_environment.rascal.ast.TypeArg > x)
     {
-      org.meta_environment.rascal.ast.Relation z = new Relation ();
+      Relation z = new Relation ();
       z.$setRest (x);
       return z;
     }
@@ -215,7 +215,7 @@ public abstract class StructuredType extends AbstractAST
     }
     public Tuple setFirst (org.meta_environment.rascal.ast.TypeArg x)
     {
-      org.meta_environment.rascal.ast.Tuple z = new Tuple ();
+      Tuple z = new Tuple ();
       z.$setFirst (x);
       return z;
     }
@@ -233,7 +233,7 @@ public abstract class StructuredType extends AbstractAST
     public Tuple setRest (java.util.List <
 			  org.meta_environment.rascal.ast.TypeArg > x)
     {
-      org.meta_environment.rascal.ast.Tuple z = new Tuple ();
+      Tuple z = new Tuple ();
       z.$setRest (x);
       return z;
     }

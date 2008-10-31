@@ -31,7 +31,7 @@ public abstract class Formal extends AbstractAST
     }
     public TypeName setType (org.meta_environment.rascal.ast.Type x)
     {
-      org.meta_environment.rascal.ast.TypeName z = new TypeName ();
+      TypeName z = new TypeName ();
       z.$setType (x);
       return z;
     }
@@ -46,7 +46,7 @@ public abstract class Formal extends AbstractAST
     }
     public TypeName setName (org.meta_environment.rascal.ast.Name x)
     {
-      org.meta_environment.rascal.ast.TypeName z = new TypeName ();
+      TypeName z = new TypeName ();
       z.$setName (x);
       return z;
     }

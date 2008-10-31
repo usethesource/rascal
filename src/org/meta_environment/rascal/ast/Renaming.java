@@ -31,7 +31,7 @@ public abstract class Renaming extends AbstractAST
     }
     public Default setFrom (org.meta_environment.rascal.ast.Name x)
     {
-      org.meta_environment.rascal.ast.Default z = new Default ();
+      Default z = new Default ();
       z.$setFrom (x);
       return z;
     }
@@ -46,7 +46,7 @@ public abstract class Renaming extends AbstractAST
     }
     public Default setTo (org.meta_environment.rascal.ast.Name x)
     {
-      org.meta_environment.rascal.ast.Default z = new Default ();
+      Default z = new Default ();
       z.$setTo (x);
       return z;
     }

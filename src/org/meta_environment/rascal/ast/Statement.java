@@ -39,7 +39,7 @@ public abstract class Statement extends AbstractAST
 				  org.meta_environment.rascal.ast.Declarator >
 				  x)
     {
-      org.meta_environment.rascal.ast.Solve z = new Solve ();
+      Solve z = new Solve ();
       z.$setDeclarations (x);
       return z;
     }
@@ -54,7 +54,7 @@ public abstract class Statement extends AbstractAST
     }
     public Solve setBody (org.meta_environment.rascal.ast.Statement x)
     {
-      org.meta_environment.rascal.ast.Solve z = new Solve ();
+      Solve z = new Solve ();
       z.$setBody (x);
       return z;
     }
@@ -107,7 +107,7 @@ public abstract class Statement extends AbstractAST
     }
     public For setLabel (org.meta_environment.rascal.ast.Label x)
     {
-      org.meta_environment.rascal.ast.For z = new For ();
+      For z = new For ();
       z.$setLabel (x);
       return z;
     }
@@ -127,7 +127,7 @@ public abstract class Statement extends AbstractAST
     public For setGenerators (java.util.List <
 			      org.meta_environment.rascal.ast.Generator > x)
     {
-      org.meta_environment.rascal.ast.For z = new For ();
+      For z = new For ();
       z.$setGenerators (x);
       return z;
     }
@@ -142,7 +142,7 @@ public abstract class Statement extends AbstractAST
     }
     public For setBody (org.meta_environment.rascal.ast.Statement x)
     {
-      org.meta_environment.rascal.ast.For z = new For ();
+      For z = new For ();
       z.$setBody (x);
       return z;
     }
@@ -178,7 +178,7 @@ public abstract class Statement extends AbstractAST
     }
     public While setLabel (org.meta_environment.rascal.ast.Label x)
     {
-      org.meta_environment.rascal.ast.While z = new While ();
+      While z = new While ();
       z.$setLabel (x);
       return z;
     }
@@ -193,7 +193,7 @@ public abstract class Statement extends AbstractAST
     }
     public While setCondition (org.meta_environment.rascal.ast.Expression x)
     {
-      org.meta_environment.rascal.ast.While z = new While ();
+      While z = new While ();
       z.$setCondition (x);
       return z;
     }
@@ -208,7 +208,7 @@ public abstract class Statement extends AbstractAST
     }
     public While setBody (org.meta_environment.rascal.ast.Statement x)
     {
-      org.meta_environment.rascal.ast.While z = new While ();
+      While z = new While ();
       z.$setBody (x);
       return z;
     }
@@ -245,7 +245,7 @@ public abstract class Statement extends AbstractAST
     }
     public DoWhile setLabel (org.meta_environment.rascal.ast.Label x)
     {
-      org.meta_environment.rascal.ast.DoWhile z = new DoWhile ();
+      DoWhile z = new DoWhile ();
       z.$setLabel (x);
       return z;
     }
@@ -260,7 +260,7 @@ public abstract class Statement extends AbstractAST
     }
     public DoWhile setBody (org.meta_environment.rascal.ast.Statement x)
     {
-      org.meta_environment.rascal.ast.DoWhile z = new DoWhile ();
+      DoWhile z = new DoWhile ();
       z.$setBody (x);
       return z;
     }
@@ -275,7 +275,7 @@ public abstract class Statement extends AbstractAST
     }
     public DoWhile setCondition (org.meta_environment.rascal.ast.Expression x)
     {
-      org.meta_environment.rascal.ast.DoWhile z = new DoWhile ();
+      DoWhile z = new DoWhile ();
       z.$setCondition (x);
       return z;
     }
@@ -317,7 +317,7 @@ public abstract class Statement extends AbstractAST
     }
     public IfThenElse setLabel (org.meta_environment.rascal.ast.Label x)
     {
-      org.meta_environment.rascal.ast.IfThenElse z = new IfThenElse ();
+      IfThenElse z = new IfThenElse ();
       z.$setLabel (x);
       return z;
     }
@@ -338,7 +338,7 @@ public abstract class Statement extends AbstractAST
 				     org.meta_environment.rascal.ast.
 				     Expression > x)
     {
-      org.meta_environment.rascal.ast.IfThenElse z = new IfThenElse ();
+      IfThenElse z = new IfThenElse ();
       z.$setConditions (x);
       return z;
     }
@@ -355,7 +355,7 @@ public abstract class Statement extends AbstractAST
     public IfThenElse setThenStatement (org.meta_environment.rascal.ast.
 					Statement x)
     {
-      org.meta_environment.rascal.ast.IfThenElse z = new IfThenElse ();
+      IfThenElse z = new IfThenElse ();
       z.$setThenStatement (x);
       return z;
     }
@@ -372,7 +372,7 @@ public abstract class Statement extends AbstractAST
     public IfThenElse setElseStatement (org.meta_environment.rascal.ast.
 					Statement x)
     {
-      org.meta_environment.rascal.ast.IfThenElse z = new IfThenElse ();
+      IfThenElse z = new IfThenElse ();
       z.$setElseStatement (x);
       return z;
     }
@@ -411,7 +411,7 @@ public abstract class Statement extends AbstractAST
     }
     public IfThen setLabel (org.meta_environment.rascal.ast.Label x)
     {
-      org.meta_environment.rascal.ast.IfThen z = new IfThen ();
+      IfThen z = new IfThen ();
       z.$setLabel (x);
       return z;
     }
@@ -432,7 +432,7 @@ public abstract class Statement extends AbstractAST
 				 org.meta_environment.rascal.ast.Expression >
 				 x)
     {
-      org.meta_environment.rascal.ast.IfThen z = new IfThen ();
+      IfThen z = new IfThen ();
       z.$setConditions (x);
       return z;
     }
@@ -449,7 +449,7 @@ public abstract class Statement extends AbstractAST
     public IfThen setThenStatement (org.meta_environment.rascal.ast.
 				    Statement x)
     {
-      org.meta_environment.rascal.ast.IfThen z = new IfThen ();
+      IfThen z = new IfThen ();
       z.$setThenStatement (x);
       return z;
     }
@@ -487,7 +487,7 @@ public abstract class Statement extends AbstractAST
     }
     public Switch setLabel (org.meta_environment.rascal.ast.Label x)
     {
-      org.meta_environment.rascal.ast.Switch z = new Switch ();
+      Switch z = new Switch ();
       z.$setLabel (x);
       return z;
     }
@@ -502,7 +502,7 @@ public abstract class Statement extends AbstractAST
     }
     public Switch setExpression (org.meta_environment.rascal.ast.Expression x)
     {
-      org.meta_environment.rascal.ast.Switch z = new Switch ();
+      Switch z = new Switch ();
       z.$setExpression (x);
       return z;
     }
@@ -519,7 +519,7 @@ public abstract class Statement extends AbstractAST
     public Switch setCases (java.util.List <
 			    org.meta_environment.rascal.ast.Case > x)
     {
-      org.meta_environment.rascal.ast.Switch z = new Switch ();
+      Switch z = new Switch ();
       z.$setCases (x);
       return z;
     }
@@ -555,7 +555,7 @@ public abstract class Statement extends AbstractAST
     }
     public All setLabel (org.meta_environment.rascal.ast.Label x)
     {
-      org.meta_environment.rascal.ast.All z = new All ();
+      All z = new All ();
       z.$setLabel (x);
       return z;
     }
@@ -575,7 +575,7 @@ public abstract class Statement extends AbstractAST
     public All setConditions (java.util.List <
 			      org.meta_environment.rascal.ast.Expression > x)
     {
-      org.meta_environment.rascal.ast.All z = new All ();
+      All z = new All ();
       z.$setConditions (x);
       return z;
     }
@@ -590,7 +590,7 @@ public abstract class Statement extends AbstractAST
     }
     public All setBody (org.meta_environment.rascal.ast.Statement x)
     {
-      org.meta_environment.rascal.ast.All z = new All ();
+      All z = new All ();
       z.$setBody (x);
       return z;
     }
@@ -628,7 +628,7 @@ public abstract class Statement extends AbstractAST
     }
     public First setLabel (org.meta_environment.rascal.ast.Label x)
     {
-      org.meta_environment.rascal.ast.First z = new First ();
+      First z = new First ();
       z.$setLabel (x);
       return z;
     }
@@ -649,7 +649,7 @@ public abstract class Statement extends AbstractAST
 				org.meta_environment.rascal.ast.Expression >
 				x)
     {
-      org.meta_environment.rascal.ast.First z = new First ();
+      First z = new First ();
       z.$setConditions (x);
       return z;
     }
@@ -664,7 +664,7 @@ public abstract class Statement extends AbstractAST
     }
     public First setBody (org.meta_environment.rascal.ast.Statement x)
     {
-      org.meta_environment.rascal.ast.First z = new First ();
+      First z = new First ();
       z.$setBody (x);
       return z;
     }
@@ -698,7 +698,7 @@ public abstract class Statement extends AbstractAST
     public Expression setExpression (org.meta_environment.rascal.ast.
 				     Expression x)
     {
-      org.meta_environment.rascal.ast.Expression z = new Expression ();
+      Expression z = new Expression ();
       z.$setExpression (x);
       return z;
     }
@@ -730,7 +730,7 @@ public abstract class Statement extends AbstractAST
     }
     public Visit setVisit (org.meta_environment.rascal.ast.Visit x)
     {
-      org.meta_environment.rascal.ast.Visit z = new Visit ();
+      Visit z = new Visit ();
       z.$setVisit (x);
       return z;
     }
@@ -777,7 +777,7 @@ public abstract class Statement extends AbstractAST
 				      org.meta_environment.rascal.ast.
 				      Assignable > x)
     {
-      org.meta_environment.rascal.ast.Assignment z = new Assignment ();
+      Assignment z = new Assignment ();
       z.$setAssignables (x);
       return z;
     }
@@ -793,7 +793,7 @@ public abstract class Statement extends AbstractAST
     public Assignment setOperator (org.meta_environment.rascal.ast.
 				   Assignment x)
     {
-      org.meta_environment.rascal.ast.Assignment z = new Assignment ();
+      Assignment z = new Assignment ();
       z.$setOperator (x);
       return z;
     }
@@ -814,7 +814,7 @@ public abstract class Statement extends AbstractAST
 				      org.meta_environment.rascal.ast.
 				      Expression > x)
     {
-      org.meta_environment.rascal.ast.Assignment z = new Assignment ();
+      Assignment z = new Assignment ();
       z.$setExpressions (x);
       return z;
     }
@@ -909,7 +909,7 @@ public abstract class Statement extends AbstractAST
     }
     public Assert setLabel (org.meta_environment.rascal.ast.StringLiteral x)
     {
-      org.meta_environment.rascal.ast.Assert z = new Assert ();
+      Assert z = new Assert ();
       z.$setLabel (x);
       return z;
     }
@@ -924,7 +924,7 @@ public abstract class Statement extends AbstractAST
     }
     public Assert setExpression (org.meta_environment.rascal.ast.Expression x)
     {
-      org.meta_environment.rascal.ast.Assert z = new Assert ();
+      Assert z = new Assert ();
       z.$setExpression (x);
       return z;
     }
@@ -957,7 +957,7 @@ public abstract class Statement extends AbstractAST
     }
     public Insert setExpression (org.meta_environment.rascal.ast.Expression x)
     {
-      org.meta_environment.rascal.ast.Insert z = new Insert ();
+      Insert z = new Insert ();
       z.$setExpression (x);
       return z;
     }
@@ -989,7 +989,7 @@ public abstract class Statement extends AbstractAST
     }
     public Throw setExpression (org.meta_environment.rascal.ast.Expression x)
     {
-      org.meta_environment.rascal.ast.Throw z = new Throw ();
+      Throw z = new Throw ();
       z.$setExpression (x);
       return z;
     }
@@ -1024,7 +1024,7 @@ public abstract class Statement extends AbstractAST
     }
     public Try setBody (org.meta_environment.rascal.ast.Statement x)
     {
-      org.meta_environment.rascal.ast.Try z = new Try ();
+      Try z = new Try ();
       z.$setBody (x);
       return z;
     }
@@ -1042,7 +1042,7 @@ public abstract class Statement extends AbstractAST
     public Try setHandlers (java.util.List <
 			    org.meta_environment.rascal.ast.Catch > x)
     {
-      org.meta_environment.rascal.ast.Try z = new Try ();
+      Try z = new Try ();
       z.$setHandlers (x);
       return z;
     }
@@ -1080,7 +1080,7 @@ public abstract class Statement extends AbstractAST
     }
     public TryFinally setBody (org.meta_environment.rascal.ast.Statement x)
     {
-      org.meta_environment.rascal.ast.TryFinally z = new TryFinally ();
+      TryFinally z = new TryFinally ();
       z.$setBody (x);
       return z;
     }
@@ -1098,7 +1098,7 @@ public abstract class Statement extends AbstractAST
     public TryFinally setHandlers (java.util.List <
 				   org.meta_environment.rascal.ast.Catch > x)
     {
-      org.meta_environment.rascal.ast.TryFinally z = new TryFinally ();
+      TryFinally z = new TryFinally ();
       z.$setHandlers (x);
       return z;
     }
@@ -1114,7 +1114,7 @@ public abstract class Statement extends AbstractAST
     public TryFinally setFinallyBody (org.meta_environment.rascal.ast.
 				      Statement x)
     {
-      org.meta_environment.rascal.ast.TryFinally z = new TryFinally ();
+      TryFinally z = new TryFinally ();
       z.$setFinallyBody (x);
       return z;
     }
@@ -1150,7 +1150,7 @@ public abstract class Statement extends AbstractAST
     }
     public Block setLabel (org.meta_environment.rascal.ast.Label x)
     {
-      org.meta_environment.rascal.ast.Block z = new Block ();
+      Block z = new Block ();
       z.$setLabel (x);
       return z;
     }
@@ -1170,7 +1170,7 @@ public abstract class Statement extends AbstractAST
     public Block setStatements (java.util.List <
 				org.meta_environment.rascal.ast.Statement > x)
     {
-      org.meta_environment.rascal.ast.Block z = new Block ();
+      Block z = new Block ();
       z.$setStatements (x);
       return z;
     }
@@ -1208,8 +1208,7 @@ public abstract class Statement extends AbstractAST
 						       rascal.ast.
 						       FunctionDeclaration x)
     {
-      org.meta_environment.rascal.ast.FunctionDeclaration z =
-	new FunctionDeclaration ();
+      FunctionDeclaration z = new FunctionDeclaration ();
       z.$setFunctionDeclaration (x);
       return z;
     }
@@ -1246,8 +1245,7 @@ public abstract class Statement extends AbstractAST
     public VariableDeclaration setDeclaration (org.meta_environment.rascal.
 					       ast.LocalVariableDeclaration x)
     {
-      org.meta_environment.rascal.ast.VariableDeclaration z =
-	new VariableDeclaration ();
+      VariableDeclaration z = new VariableDeclaration ();
       z.$setDeclaration (x);
       return z;
     }
@@ -1283,8 +1281,7 @@ public abstract class Statement extends AbstractAST
     }
     public GlobalDirective setType (org.meta_environment.rascal.ast.Type x)
     {
-      org.meta_environment.rascal.ast.GlobalDirective z =
-	new GlobalDirective ();
+      GlobalDirective z = new GlobalDirective ();
       z.$setType (x);
       return z;
     }
@@ -1304,8 +1301,7 @@ public abstract class Statement extends AbstractAST
 				     org.meta_environment.rascal.ast.
 				     QualifiedName > x)
     {
-      org.meta_environment.rascal.ast.GlobalDirective z =
-	new GlobalDirective ();
+      GlobalDirective z = new GlobalDirective ();
       z.$setNames (x);
       return z;
     }

@@ -33,7 +33,7 @@ public abstract class FunctionType extends AbstractAST
     }
     public TypeArguments setType (org.meta_environment.rascal.ast.Type x)
     {
-      org.meta_environment.rascal.ast.TypeArguments z = new TypeArguments ();
+      TypeArguments z = new TypeArguments ();
       z.$setType (x);
       return z;
     }
@@ -53,7 +53,7 @@ public abstract class FunctionType extends AbstractAST
 				       org.meta_environment.rascal.ast.
 				       TypeArg > x)
     {
-      org.meta_environment.rascal.ast.TypeArguments z = new TypeArguments ();
+      TypeArguments z = new TypeArguments ();
       z.$setArguments (x);
       return z;
     }

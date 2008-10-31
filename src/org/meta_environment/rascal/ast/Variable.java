@@ -37,8 +37,7 @@ public abstract class Variable extends AbstractAST
     public GivenInitialization setName (org.meta_environment.rascal.ast.
 					Name x)
     {
-      org.meta_environment.rascal.ast.GivenInitialization z =
-	new GivenInitialization ();
+      GivenInitialization z = new GivenInitialization ();
       z.$setName (x);
       return z;
     }
@@ -54,8 +53,7 @@ public abstract class Variable extends AbstractAST
     public GivenInitialization setTags (org.meta_environment.rascal.ast.
 					Tags x)
     {
-      org.meta_environment.rascal.ast.GivenInitialization z =
-	new GivenInitialization ();
+      GivenInitialization z = new GivenInitialization ();
       z.$setTags (x);
       return z;
     }
@@ -71,8 +69,7 @@ public abstract class Variable extends AbstractAST
     public GivenInitialization setInitial (org.meta_environment.rascal.ast.
 					   Expression x)
     {
-      org.meta_environment.rascal.ast.GivenInitialization z =
-	new GivenInitialization ();
+      GivenInitialization z = new GivenInitialization ();
       z.$setInitial (x);
       return z;
     }

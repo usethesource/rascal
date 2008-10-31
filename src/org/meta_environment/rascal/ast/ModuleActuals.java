@@ -32,7 +32,7 @@ public abstract class ModuleActuals extends AbstractAST
     public Default setTypes (java.util.List <
 			     org.meta_environment.rascal.ast.Type > x)
     {
-      org.meta_environment.rascal.ast.Default z = new Default ();
+      Default z = new Default ();
       z.$setTypes (x);
       return z;
     }

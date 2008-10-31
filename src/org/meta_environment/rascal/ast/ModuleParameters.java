@@ -35,7 +35,7 @@ public abstract class ModuleParameters extends AbstractAST
     public Default setParameters (java.util.List <
 				  org.meta_environment.rascal.ast.TypeVar > x)
     {
-      org.meta_environment.rascal.ast.Default z = new Default ();
+      Default z = new Default ();
       z.$setParameters (x);
       return z;
     }

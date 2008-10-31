@@ -31,8 +31,7 @@ public abstract class Return extends AbstractAST
     public WithExpression setExpression (org.meta_environment.rascal.ast.
 					 Expression x)
     {
-      org.meta_environment.rascal.ast.WithExpression z =
-	new WithExpression ();
+      WithExpression z = new WithExpression ();
       z.$setExpression (x);
       return z;
     }
