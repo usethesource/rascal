@@ -6,8 +6,10 @@ import java.io.OutputStream;
 
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ITree;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.hash.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.visitors.BottomUpVisitor;
@@ -43,7 +45,7 @@ public class TreeAdapter {
 	
 	public ProductionAdapter getProduction() {
 		if (prod == null) {
-		  prod = new ProductionAdapter((ITree) tree.get("production"));
+		  prod = new ProductionAdapter((ITree) tree.get("prod"));
 		}
 		
 		return prod;
@@ -62,9 +64,17 @@ public class TreeAdapter {
 		return prod.getSortName().equals(sortName) &&
 		prod.getConstructorName().equals(consName);
 	}
+
+	public boolean isLexToCf() {
+		return getProduction().isLexToCf();
+	}
 	
 	public boolean isContextFree() {
 		return getProduction().isContextFree();
+	}
+	
+	public boolean isList() {
+		return isAppl() ? getProduction().isList() : false;
 	}
 	
 	public IList getArgs() {
@@ -76,22 +86,63 @@ public class TreeAdapter {
 		}
 	}
 	
-	public IList getContextFreeArgs() {
+	public boolean isLiteral() {
+		return getProduction().isLiteral();
+	}
+	
+	
+	public IList getListASTArgs() {
+		if (!isContextFree() || !isList()) {
+			throw new FactTypeError("This is not a context-free list production: "
+					+ tree);
+		}
+		IList children = getArgs();
+		IList result = (IList) Factory.Args.make(ValueFactory.getInstance());
+		IListWriter writer = result.getWriter();
+		
+		for (int i = 0; i < children.length(); i++) {
+			IValue kid = children.get(i);
+			writer.append(kid);	
+			// skip layout and/or separators
+			i += (isSeparatedList() ? 3 : 1);
+		}
+		writer.done();
+		return result;
+	}
+	
+	public boolean isLexical() {
+		return getProduction().isLexical();
+	}
+
+	private boolean isSeparatedList() {
+		return isList() && getProduction().isSeparatedList();
+	}
+
+	public IList getASTArgs() {
 		if (!isContextFree()) {
 			throw new FactTypeError("This is not a context-free production: "
 					+ tree);
 		}
 
 		IList children = getArgs();
-		IList result = ValueFactory.getInstance().list(Factory.Args);
+		IList result = (IList)Factory.Args.make(ValueFactory.getInstance());
+		IListWriter writer = result.getWriter();
 
 		for (int i = 0; i < children.length(); i++) {
-			result.append(children.get(i));
+			IValue kid = children.get(i);
+			TreeAdapter treeAdapter = new TreeAdapter((ITree) kid);
+			if (!treeAdapter.isLiteral() && !treeAdapter.isCILiteral()) {
+				writer.append(kid);	
+			} 
 			// skip layout
 			i++;
 		}
-
+		writer.done();
 		return result;
+	}
+
+	private boolean isCILiteral() {
+		return getProduction().isCILiteral();
 	}
 
 	public ISet getAlternatives() {
@@ -132,7 +183,7 @@ public class TreeAdapter {
 			if (tree.getTreeNodeType() == Factory.ParseTree_Top) {
 				tree.get("top").accept(new BottomUpVisitor(new Unparser(stream), ValueFactory.getInstance()));
 			} else if (tree.getType() == Factory.Tree) {
-				tree.accept(new Unparser(stream));
+				tree.accept(new BottomUpVisitor(new Unparser(stream), ValueFactory.getInstance()));
 			} else {
 				throw new FactTypeError("Can not unparse this "
 						+ tree.getType());
@@ -159,4 +210,6 @@ public class TreeAdapter {
 			throw new FactTypeError("yield failed", e);
 		}
 	}
+
+
 }

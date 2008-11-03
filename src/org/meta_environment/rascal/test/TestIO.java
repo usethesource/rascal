@@ -32,15 +32,15 @@ public class TestIO extends TestCase {
 	private static TreeSortType Boolean = tf.treeSortType("Boolean");
 	
 	private static TreeSortType Name = tf.treeSortType("Name");
-	private static TreeNodeType True = tf.treeType(Boolean, "true");
-	private static TreeNodeType False= tf.treeType(Boolean, "false");
-	private static TreeNodeType And= tf.treeType(Boolean, "and", Boolean, Boolean);
-	private static TreeNodeType Or= tf.treeType(Boolean, "or", tf.listType(Boolean));
-	private static TreeNodeType Not= tf.treeType(Boolean, "not", Boolean);
-	private static TreeNodeType TwoTups = tf.treeType(Boolean, "twotups", tf.tupleTypeOf(Boolean, Boolean), tf.tupleTypeOf(Boolean, Boolean));
-	private static TreeNodeType NameNode  = tf.treeType(Name, "name", tf.stringType());
-	private static TreeNodeType Friends = tf.treeType(Boolean, "friends", tf.listType(Name));
-	private static TreeNodeType Couples = tf.treeType(Boolean, "couples", tf.listType(tf.tupleTypeOf(Name, Name)));
+	private static TreeNodeType True = tf.treeNodeType(Boolean, "true");
+	private static TreeNodeType False= tf.treeNodeType(Boolean, "false");
+	private static TreeNodeType And= tf.treeNodeType(Boolean, "and", Boolean, Boolean);
+	private static TreeNodeType Or= tf.treeNodeType(Boolean, "or", tf.listType(Boolean));
+	private static TreeNodeType Not= tf.treeNodeType(Boolean, "not", Boolean);
+	private static TreeNodeType TwoTups = tf.treeNodeType(Boolean, "twotups", tf.tupleType(Boolean, Boolean), tf.tupleType(Boolean, Boolean));
+	private static TreeNodeType NameNode  = tf.treeNodeType(Name, "name", tf.stringType());
+	private static TreeNodeType Friends = tf.treeNodeType(Boolean, "friends", tf.listType(Name));
+	private static TreeNodeType Couples = tf.treeNodeType(Boolean, "couples", tf.listType(tf.tupleType(Name, Name)));
 	
 	private IValue[] testValues = {
 			vf.tree(True),
@@ -51,10 +51,10 @@ public class TestIO extends TestCase {
 			vf.tree(Not, vf.tree(And, vf.tree(True), vf.tree(False))),
 			vf.tree(And, vf.tree(And, vf.tree(True), vf.tree(True)), vf.tree(And, vf.tree(True), vf.tree(True))),
 			vf.tree(TwoTups, vf.tuple(vf.tree(True), vf.tree(False)),vf.tuple(vf.tree(True), vf.tree(False))),
-			vf.tree(Or, vf.listWith(vf.tree(True), vf.tree(False), vf.tree(True))),
-			vf.tree(Friends, vf.listWith(name("Hans"), name("Bob"))),
+			vf.tree(Or, vf.list(vf.tree(True), vf.tree(False), vf.tree(True))),
+			vf.tree(Friends, vf.list(name("Hans"), name("Bob"))),
 			vf.tree(Or, vf.list(Boolean)),
-			vf.tree(Couples, vf.listWith(vf.tuple(name("A"), name("B")), vf.tuple(name("C"), name("D"))))
+			vf.tree(Couples, vf.list(vf.tuple(name("A"), name("B")), vf.tuple(name("C"), name("D"))))
 	};
 	
 	private String[] testATerm = {
