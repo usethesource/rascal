@@ -2,6 +2,10 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Import extends AbstractAST
 {
+  public org.meta_environment.rascal.ast.ImportedModule getModule ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Default extends Import
   {
 /* "import" module:ImportedModule ";" -> Import {cons("Default")} */

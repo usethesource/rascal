@@ -2,6 +2,10 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class IntegerLiteral extends AbstractAST
 {
+  public org.meta_environment.rascal.ast.DecimalIntegerLiteral getDecimal ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class DecimalIntegerLiteral extends IntegerLiteral
   {
 /* decimal:DecimalIntegerLiteral -> IntegerLiteral {prefer, cons("DecimalIntegerLiteral")} */
@@ -54,6 +58,10 @@ public abstract class IntegerLiteral extends AbstractAST
       return alternatives;
     }
   }
+  public org.meta_environment.rascal.ast.HexIntegerLiteral getHex ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class HexIntegerLiteral extends IntegerLiteral
   {
 /* hex:HexIntegerLiteral -> IntegerLiteral {prefer, cons("HexIntegerLiteral")} */
@@ -87,6 +95,10 @@ public abstract class IntegerLiteral extends AbstractAST
       z.$setHex (x);
       return z;
     }
+  }
+  public org.meta_environment.rascal.ast.OctalIntegerLiteral getOctal ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class OctalIntegerLiteral extends IntegerLiteral
   {

@@ -2,6 +2,18 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class ImportedModule extends AbstractAST
 {
+  public org.meta_environment.rascal.ast.ModuleName getName ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public org.meta_environment.rascal.ast.ModuleActuals getActuals ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public org.meta_environment.rascal.ast.Renamings getRenamings ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class ActualsRenaming extends ImportedModule
   {
 /* name:ModuleName actuals:ModuleActuals renamings:Renamings -> ImportedModule {cons("ActualsRenaming")} */

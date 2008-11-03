@@ -2,6 +2,10 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Character extends AbstractAST
 {
+  public org.meta_environment.rascal.ast.NumChar getNumChar ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Numeric extends Character
   {
 /* numChar:NumChar -> Character {cons("Numeric")} */
@@ -50,6 +54,10 @@ public abstract class Character extends AbstractAST
     {
       return alternatives;
     }
+  }
+  public org.meta_environment.rascal.ast.ShortChar getShortChar ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class Short extends Character
   {

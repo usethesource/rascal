@@ -2,6 +2,11 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class FunctionModifiers extends AbstractAST
 {
+  public java.util.List < org.meta_environment.rascal.ast.FunctionModifier >
+    getModifiers ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class List extends FunctionModifiers
   {
 /* modifiers:FunctionModifier* -> FunctionModifiers {cons("List")} */

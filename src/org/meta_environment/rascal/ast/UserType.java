@@ -2,6 +2,10 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class UserType extends AbstractAST
 {
+  public org.meta_environment.rascal.ast.Name getName ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Name extends UserType
   {
 /* name:Name -> UserType {prefer, cons("Name")} */
@@ -48,6 +52,11 @@ public abstract class UserType extends AbstractAST
     {
       return alternatives;
     }
+  }
+  public java.util.List < org.meta_environment.rascal.ast.TypeVar >
+    getParameters ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class Parametric extends UserType
   {

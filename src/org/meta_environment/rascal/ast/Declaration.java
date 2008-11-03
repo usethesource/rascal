@@ -2,6 +2,23 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Declaration extends AbstractAST
 {
+  public org.meta_environment.rascal.ast.Name getView ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public org.meta_environment.rascal.ast.Name getType ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public org.meta_environment.rascal.ast.Tags getTags ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public java.util.List < org.meta_environment.rascal.ast.Alternative >
+    getAlternatives ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class View extends Declaration
   {
 /* "view" view:Name "<:" type:Name tags:Tags alternatives:{Alternative "|"}+ ";" -> Declaration {cons("View")} */
@@ -109,6 +126,14 @@ public abstract class Declaration extends AbstractAST
       return alternatives;
     }
   }
+  public org.meta_environment.rascal.ast.Type getBase ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public org.meta_environment.rascal.ast.UserType getUser ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Type extends Declaration
   {
 /* "type" base:Type user:UserType tags:Tags ";" -> Declaration {cons("Type")} */
@@ -173,6 +198,11 @@ public abstract class Declaration extends AbstractAST
       z.$setTags (x);
       return z;
     }
+  }
+  public java.util.List < org.meta_environment.rascal.ast.Variant >
+    getVariants ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class Data extends Declaration
   {
@@ -245,6 +275,11 @@ public abstract class Declaration extends AbstractAST
       return z;
     }
   }
+  public org.meta_environment.rascal.ast.
+    FunctionDeclaration getFunctionDeclaration ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Function extends Declaration
   {
 /* functionDeclaration:FunctionDeclaration -> Declaration {cons("Function")} */
@@ -281,6 +316,15 @@ public abstract class Declaration extends AbstractAST
       z.$setFunctionDeclaration (x);
       return z;
     }
+  }
+  public org.meta_environment.rascal.ast.Type getType ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public java.util.List < org.meta_environment.rascal.ast.Variable >
+    getVariables ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class Variable extends Declaration
   {
@@ -337,6 +381,14 @@ public abstract class Declaration extends AbstractAST
       z.$setVariables (x);
       return z;
     }
+  }
+  public org.meta_environment.rascal.ast.Name getName ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public org.meta_environment.rascal.ast.Rule getRule ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class Rule extends Declaration
   {
@@ -402,6 +454,10 @@ public abstract class Declaration extends AbstractAST
       z.$setRule (x);
       return z;
     }
+  }
+  public java.util.List < org.meta_environment.rascal.ast.Type > getTypes ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class Annotation extends Declaration
   {
@@ -488,6 +544,10 @@ public abstract class Declaration extends AbstractAST
       z.$setTypes (x);
       return z;
     }
+  }
+  public org.meta_environment.rascal.ast.Kind getKind ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class Tag extends Declaration
   {

@@ -2,6 +2,11 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Body extends AbstractAST
 {
+  public java.util.List < org.meta_environment.rascal.ast.Toplevel >
+    getToplevels ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Toplevels extends Body
   {
 /* toplevels:Toplevel* -> Body {cons("Toplevels")} */

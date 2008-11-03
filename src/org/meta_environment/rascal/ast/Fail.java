@@ -2,6 +2,10 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Fail extends AbstractAST
 {
+  public org.meta_environment.rascal.ast.Name getLabel ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class WithLabel extends Fail
   {
 /* "fail" label:Name ";" -> Fail {cons("WithLabel")} */

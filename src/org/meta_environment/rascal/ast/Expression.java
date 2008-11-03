@@ -2,20 +2,551 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Expression extends AbstractAST
 {
+  public org.meta_environment.rascal.ast.Literal getLiteral ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  static public class Literal extends Expression
+  {
+/* literal:Literal -> Expression {cons("Literal")} */
+    private Literal ()
+    {
+    }
+    /*package */ Literal (ITree tree,
+			  org.meta_environment.rascal.ast.Literal literal)
+    {
+      this.tree = tree;
+      this.literal = literal;
+    }
+    public IVisitable accept (IASTVisitor visitor)
+    {
+      return visitor.visitExpressionLiteral (this);
+    }
+    private org.meta_environment.rascal.ast.Literal literal;
+    public org.meta_environment.rascal.ast.Literal getLiteral ()
+    {
+      return literal;
+    }
+    private void $setLiteral (org.meta_environment.rascal.ast.Literal x)
+    {
+      this.literal = x;
+    }
+    public Literal setLiteral (org.meta_environment.rascal.ast.Literal x)
+    {
+      Literal z = new Literal ();
+      z.$setLiteral (x);
+      return z;
+    }
+  }
+  static public class Ambiguity extends Expression
+  {
+    private final java.util.List <
+      org.meta_environment.rascal.ast.Expression > alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.Expression >
+		      alternatives)
+    {
+      this.alternatives =
+	java.util.Collections.unmodifiableList (alternatives);
+    }
+    public java.util.List < org.meta_environment.rascal.ast.Expression >
+      getAlternatives ()
+    {
+      return alternatives;
+    }
+  }
+  public org.meta_environment.rascal.ast.Name getName ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public java.util.List < org.meta_environment.rascal.ast.Expression >
+    getArguments ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  static public class CallOrTree extends Expression
+  {
+/* name:Name "(" arguments:{Expression ","}* ")" -> Expression {cons("CallOrTree")} */
+    private CallOrTree ()
+    {
+    }
+    /*package */ CallOrTree (ITree tree,
+			     org.meta_environment.rascal.ast.Name name,
+			     java.util.List <
+			     org.meta_environment.rascal.ast.Expression >
+			     arguments)
+    {
+      this.tree = tree;
+      this.name = name;
+      this.arguments = arguments;
+    }
+    public IVisitable accept (IASTVisitor visitor)
+    {
+      return visitor.visitExpressionCallOrTree (this);
+    }
+    private org.meta_environment.rascal.ast.Name name;
+    public org.meta_environment.rascal.ast.Name getName ()
+    {
+      return name;
+    }
+    private void $setName (org.meta_environment.rascal.ast.Name x)
+    {
+      this.name = x;
+    }
+    public CallOrTree setName (org.meta_environment.rascal.ast.Name x)
+    {
+      CallOrTree z = new CallOrTree ();
+      z.$setName (x);
+      return z;
+    }
+    private java.util.List < org.meta_environment.rascal.ast.Expression >
+      arguments;
+    public java.util.List < org.meta_environment.rascal.ast.Expression >
+      getArguments ()
+    {
+      return arguments;
+    }
+    private void $setArguments (java.util.List <
+				org.meta_environment.rascal.ast.Expression >
+				x)
+    {
+      this.arguments = x;
+    }
+    public CallOrTree setArguments (java.util.List <
+				    org.meta_environment.rascal.ast.
+				    Expression > x)
+    {
+      CallOrTree z = new CallOrTree ();
+      z.$setArguments (x);
+      return z;
+    }
+  }
+  public java.util.List < org.meta_environment.rascal.ast.Expression >
+    getElements ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  static public class List extends Expression
+  {
+/* "[" elements:{Expression ","}* "]" -> Expression {cons("List")} */
+    private List ()
+    {
+    }
+    /*package */ List (ITree tree,
+		       java.util.List <
+		       org.meta_environment.rascal.ast.Expression > elements)
+    {
+      this.tree = tree;
+      this.elements = elements;
+    }
+    public IVisitable accept (IASTVisitor visitor)
+    {
+      return visitor.visitExpressionList (this);
+    }
+    private java.util.List < org.meta_environment.rascal.ast.Expression >
+      elements;
+    public java.util.List < org.meta_environment.rascal.ast.Expression >
+      getElements ()
+    {
+      return elements;
+    }
+    private void $setElements (java.util.List <
+			       org.meta_environment.rascal.ast.Expression > x)
+    {
+      this.elements = x;
+    }
+    public List setElements (java.util.List <
+			     org.meta_environment.rascal.ast.Expression > x)
+    {
+      List z = new List ();
+      z.$setElements (x);
+      return z;
+    }
+  }
+  static public class Set extends Expression
+  {
+/* "{" elements:{Expression ","}* "}" -> Expression {cons("Set")} */
+    private Set ()
+    {
+    }
+    /*package */ Set (ITree tree,
+		      java.util.List <
+		      org.meta_environment.rascal.ast.Expression > elements)
+    {
+      this.tree = tree;
+      this.elements = elements;
+    }
+    public IVisitable accept (IASTVisitor visitor)
+    {
+      return visitor.visitExpressionSet (this);
+    }
+    private java.util.List < org.meta_environment.rascal.ast.Expression >
+      elements;
+    public java.util.List < org.meta_environment.rascal.ast.Expression >
+      getElements ()
+    {
+      return elements;
+    }
+    private void $setElements (java.util.List <
+			       org.meta_environment.rascal.ast.Expression > x)
+    {
+      this.elements = x;
+    }
+    public Set setElements (java.util.List <
+			    org.meta_environment.rascal.ast.Expression > x)
+    {
+      Set z = new Set ();
+      z.$setElements (x);
+      return z;
+    }
+  }
+  public org.meta_environment.rascal.ast.Expression getFirst ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public java.util.List < org.meta_environment.rascal.ast.Expression >
+    getRest ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  static public class Tuple extends Expression
+  {
+/* "<" first:Expression "," rest:{Expression ","}+ ">" -> Expression {cons("Tuple")} */
+    private Tuple ()
+    {
+    }
+    /*package */ Tuple (ITree tree,
+			org.meta_environment.rascal.ast.Expression first,
+			java.util.List <
+			org.meta_environment.rascal.ast.Expression > rest)
+    {
+      this.tree = tree;
+      this.first = first;
+      this.rest = rest;
+    }
+    public IVisitable accept (IASTVisitor visitor)
+    {
+      return visitor.visitExpressionTuple (this);
+    }
+    private org.meta_environment.rascal.ast.Expression first;
+    public org.meta_environment.rascal.ast.Expression getFirst ()
+    {
+      return first;
+    }
+    private void $setFirst (org.meta_environment.rascal.ast.Expression x)
+    {
+      this.first = x;
+    }
+    public Tuple setFirst (org.meta_environment.rascal.ast.Expression x)
+    {
+      Tuple z = new Tuple ();
+      z.$setFirst (x);
+      return z;
+    }
+    private java.util.List < org.meta_environment.rascal.ast.Expression >
+      rest;
+    public java.util.List < org.meta_environment.rascal.ast.Expression >
+      getRest ()
+    {
+      return rest;
+    }
+    private void $setRest (java.util.List <
+			   org.meta_environment.rascal.ast.Expression > x)
+    {
+      this.rest = x;
+    }
+    public Tuple setRest (java.util.List <
+			  org.meta_environment.rascal.ast.Expression > x)
+    {
+      Tuple z = new Tuple ();
+      z.$setRest (x);
+      return z;
+    }
+  }
+  public org.meta_environment.rascal.ast.Expression getFrom ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public org.meta_environment.rascal.ast.Expression getTo ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  static public class MapTuple extends Expression
+  {
+/* "<" from:Expression "->" to:Expression ">" -> Expression {cons("MapTuple")} */
+    private MapTuple ()
+    {
+    }
+    /*package */ MapTuple (ITree tree,
+			   org.meta_environment.rascal.ast.Expression from,
+			   org.meta_environment.rascal.ast.Expression to)
+    {
+      this.tree = tree;
+      this.from = from;
+      this.to = to;
+    }
+    public IVisitable accept (IASTVisitor visitor)
+    {
+      return visitor.visitExpressionMapTuple (this);
+    }
+    private org.meta_environment.rascal.ast.Expression from;
+    public org.meta_environment.rascal.ast.Expression getFrom ()
+    {
+      return from;
+    }
+    private void $setFrom (org.meta_environment.rascal.ast.Expression x)
+    {
+      this.from = x;
+    }
+    public MapTuple setFrom (org.meta_environment.rascal.ast.Expression x)
+    {
+      MapTuple z = new MapTuple ();
+      z.$setFrom (x);
+      return z;
+    }
+    private org.meta_environment.rascal.ast.Expression to;
+    public org.meta_environment.rascal.ast.Expression getTo ()
+    {
+      return to;
+    }
+    private void $setTo (org.meta_environment.rascal.ast.Expression x)
+    {
+      this.to = x;
+    }
+    public MapTuple setTo (org.meta_environment.rascal.ast.Expression x)
+    {
+      MapTuple z = new MapTuple ();
+      z.$setTo (x);
+      return z;
+    }
+  }
+  static public class Location extends Expression
+  {
+/* Location -> Expression {cons("Location")} */
+    private Location ()
+    {
+    }
+    /*package */ Location (ITree tree)
+    {
+      this.tree = tree;
+    }
+    public IVisitable accept (IASTVisitor visitor)
+    {
+      return visitor.visitExpressionLocation (this);
+    }
+  }
+  static public class Area extends Expression
+  {
+/* Area -> Expression {cons("Area")} */
+    private Area ()
+    {
+    }
+    /*package */ Area (ITree tree)
+    {
+      this.tree = tree;
+    }
+    public IVisitable accept (IASTVisitor visitor)
+    {
+      return visitor.visitExpressionArea (this);
+    }
+  }
+  public org.meta_environment.rascal.ast.Expression getFilename ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  static public class FileLocation extends Expression
+  {
+/* "file" "(" filename:Expression ")" -> Expression {cons("FileLocation")} */
+    private FileLocation ()
+    {
+    }
+    /*package */ FileLocation (ITree tree,
+			       org.meta_environment.rascal.ast.
+			       Expression filename)
+    {
+      this.tree = tree;
+      this.filename = filename;
+    }
+    public IVisitable accept (IASTVisitor visitor)
+    {
+      return visitor.visitExpressionFileLocation (this);
+    }
+    private org.meta_environment.rascal.ast.Expression filename;
+    public org.meta_environment.rascal.ast.Expression getFilename ()
+    {
+      return filename;
+    }
+    private void $setFilename (org.meta_environment.rascal.ast.Expression x)
+    {
+      this.filename = x;
+    }
+    public FileLocation setFilename (org.meta_environment.rascal.ast.
+				     Expression x)
+    {
+      FileLocation z = new FileLocation ();
+      z.$setFilename (x);
+      return z;
+    }
+  }
+  public org.meta_environment.rascal.ast.Expression getArea ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  static public class AreaLocation extends Expression
+  {
+/* "area" "(" area:Expression ")" -> Expression {cons("AreaLocation")} */
+    private AreaLocation ()
+    {
+    }
+    /*package */ AreaLocation (ITree tree,
+			       org.meta_environment.rascal.ast.
+			       Expression area)
+    {
+      this.tree = tree;
+      this.area = area;
+    }
+    public IVisitable accept (IASTVisitor visitor)
+    {
+      return visitor.visitExpressionAreaLocation (this);
+    }
+    private org.meta_environment.rascal.ast.Expression area;
+    public org.meta_environment.rascal.ast.Expression getArea ()
+    {
+      return area;
+    }
+    private void $setArea (org.meta_environment.rascal.ast.Expression x)
+    {
+      this.area = x;
+    }
+    public AreaLocation setArea (org.meta_environment.rascal.ast.Expression x)
+    {
+      AreaLocation z = new AreaLocation ();
+      z.$setArea (x);
+      return z;
+    }
+  }
+  static public class AreaInFileLocation extends Expression
+  {
+/* "area-in-file" "(" filename:Expression "," area:Expression ")" -> Expression {cons("AreaInFileLocation")} */
+    private AreaInFileLocation ()
+    {
+    }
+    /*package */ AreaInFileLocation (ITree tree,
+				     org.meta_environment.rascal.ast.
+				     Expression filename,
+				     org.meta_environment.rascal.ast.
+				     Expression area)
+    {
+      this.tree = tree;
+      this.filename = filename;
+      this.area = area;
+    }
+    public IVisitable accept (IASTVisitor visitor)
+    {
+      return visitor.visitExpressionAreaInFileLocation (this);
+    }
+    private org.meta_environment.rascal.ast.Expression filename;
+    public org.meta_environment.rascal.ast.Expression getFilename ()
+    {
+      return filename;
+    }
+    private void $setFilename (org.meta_environment.rascal.ast.Expression x)
+    {
+      this.filename = x;
+    }
+    public AreaInFileLocation setFilename (org.meta_environment.rascal.ast.
+					   Expression x)
+    {
+      AreaInFileLocation z = new AreaInFileLocation ();
+      z.$setFilename (x);
+      return z;
+    }
+    private org.meta_environment.rascal.ast.Expression area;
+    public org.meta_environment.rascal.ast.Expression getArea ()
+    {
+      return area;
+    }
+    private void $setArea (org.meta_environment.rascal.ast.Expression x)
+    {
+      this.area = x;
+    }
+    public AreaInFileLocation setArea (org.meta_environment.rascal.ast.
+				       Expression x)
+    {
+      AreaInFileLocation z = new AreaInFileLocation ();
+      z.$setArea (x);
+      return z;
+    }
+  }
+  public org.meta_environment.rascal.ast.QualifiedName getQualifiedName ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  static public class QualifiedName extends Expression
+  {
+/* qualifiedName:QualifiedName -> Expression {cons("QualifiedName")} */
+    private QualifiedName ()
+    {
+    }
+    /*package */ QualifiedName (ITree tree,
+				org.meta_environment.rascal.ast.
+				QualifiedName qualifiedName)
+    {
+      this.tree = tree;
+      this.qualifiedName = qualifiedName;
+    }
+    public IVisitable accept (IASTVisitor visitor)
+    {
+      return visitor.visitExpressionQualifiedName (this);
+    }
+    private org.meta_environment.rascal.ast.QualifiedName qualifiedName;
+    public org.meta_environment.rascal.ast.QualifiedName getQualifiedName ()
+    {
+      return qualifiedName;
+    }
+    private void $setQualifiedName (org.meta_environment.rascal.ast.
+				    QualifiedName x)
+    {
+      this.qualifiedName = x;
+    }
+    public QualifiedName setQualifiedName (org.meta_environment.rascal.ast.
+					   QualifiedName x)
+    {
+      QualifiedName z = new QualifiedName ();
+      z.$setQualifiedName (x);
+      return z;
+    }
+  }
+  public org.meta_environment.rascal.ast.Type getType ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public org.meta_environment.rascal.ast.Parameters getParameters ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public java.util.List < org.meta_environment.rascal.ast.Statement >
+    getStatements ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Closure extends Expression
   {
-/* "fun" type:Type Parameters "{" statements:Statement* "}" -> Expression {cons("Closure")} */
+/* "fun" type:Type parameters:Parameters "{" statements:Statement* "}" -> Expression {cons("Closure")} */
     private Closure ()
     {
     }
     /*package */ Closure (ITree tree,
 			  org.meta_environment.rascal.ast.Type type,
+			  org.meta_environment.rascal.ast.
+			  Parameters parameters,
 			  java.util.List <
 			  org.meta_environment.rascal.ast.Statement >
 			  statements)
     {
       this.tree = tree;
       this.type = type;
+      this.parameters = parameters;
       this.statements = statements;
     }
     public IVisitable accept (IASTVisitor visitor)
@@ -35,6 +566,22 @@ public abstract class Expression extends AbstractAST
     {
       Closure z = new Closure ();
       z.$setType (x);
+      return z;
+    }
+    private org.meta_environment.rascal.ast.Parameters parameters;
+    public org.meta_environment.rascal.ast.Parameters getParameters ()
+    {
+      return parameters;
+    }
+    private void $setParameters (org.meta_environment.rascal.ast.Parameters x)
+    {
+      this.parameters = x;
+    }
+    public Closure setParameters (org.meta_environment.rascal.ast.
+				  Parameters x)
+    {
+      Closure z = new Closure ();
+      z.$setParameters (x);
       return z;
     }
     private java.util.List < org.meta_environment.rascal.ast.Statement >
@@ -57,23 +604,6 @@ public abstract class Expression extends AbstractAST
       Closure z = new Closure ();
       z.$setStatements (x);
       return z;
-    }
-  }
-  static public class Ambiguity extends Expression
-  {
-    private final java.util.List <
-      org.meta_environment.rascal.ast.Expression > alternatives;
-    public Ambiguity (java.util.List <
-		      org.meta_environment.rascal.ast.Expression >
-		      alternatives)
-    {
-      this.alternatives =
-	java.util.Collections.unmodifiableList (alternatives);
-    }
-    public java.util.List < org.meta_environment.rascal.ast.Expression >
-      getAlternatives ()
-    {
-      return alternatives;
     }
   }
   static public class Bracket extends Expression
@@ -109,6 +639,10 @@ public abstract class Expression extends AbstractAST
       z.$setExpression (x);
       return z;
     }
+  }
+  public org.meta_environment.rascal.ast.Expression getClosure ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class ClosureCall extends Expression
   {
@@ -218,6 +752,10 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
+  public org.meta_environment.rascal.ast.Expression getBy ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class StepRange extends Expression
   {
 /* "[" from:Expression "," by:Expression ",.." to:Expression "]" -> Expression {cons("StepRange")} */
@@ -283,6 +821,18 @@ public abstract class Expression extends AbstractAST
       z.$setTo (x);
       return z;
     }
+  }
+  public org.meta_environment.rascal.ast.Expression getExpression ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public org.meta_environment.rascal.ast.Name getKey ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public org.meta_environment.rascal.ast.Expression getReplacement ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class FieldUpdate extends Expression
   {
@@ -355,6 +905,10 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
+  public org.meta_environment.rascal.ast.Name getField ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class FieldAccess extends Expression
   {
 /* expression:Expression "." field:Name -> Expression {cons("FieldAccess")} */
@@ -405,6 +959,10 @@ public abstract class Expression extends AbstractAST
       z.$setField (x);
       return z;
     }
+  }
+  public org.meta_environment.rascal.ast.Expression getSubscript ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class Subscript extends Expression
   {
@@ -458,6 +1016,10 @@ public abstract class Expression extends AbstractAST
       z.$setSubscript (x);
       return z;
     }
+  }
+  public org.meta_environment.rascal.ast.Expression getArgument ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class TransitiveReflexiveClosure extends Expression
   {
@@ -610,6 +1172,14 @@ public abstract class Expression extends AbstractAST
       z.$setArgument (x);
       return z;
     }
+  }
+  public org.meta_environment.rascal.ast.Expression getLhs ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public org.meta_environment.rascal.ast.Expression getRhs ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class Product extends Expression
   {
@@ -1499,6 +2069,18 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
+  public org.meta_environment.rascal.ast.Expression getCondition ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public org.meta_environment.rascal.ast.Expression getThenExp ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public org.meta_environment.rascal.ast.Expression getElseExp ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class IfThenElse extends Expression
   {
 /* condition:Expression "?" thenExp:Expression ":" elseExp:Expression -> Expression {right, cons("IfThenElse")} */
@@ -1571,6 +2153,10 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
+  public org.meta_environment.rascal.ast.StandardOperator getOperator ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Operator extends Expression
   {
 /* operator:StandardOperator -> Expression {cons("Operator")} */
@@ -1603,457 +2189,6 @@ public abstract class Expression extends AbstractAST
     {
       Operator z = new Operator ();
       z.$setOperator (x);
-      return z;
-    }
-  }
-  static public class Literal extends Expression
-  {
-/* literal:Literal -> Expression {cons("Literal")} */
-    private Literal ()
-    {
-    }
-    /*package */ Literal (ITree tree,
-			  org.meta_environment.rascal.ast.Literal literal)
-    {
-      this.tree = tree;
-      this.literal = literal;
-    }
-    public IVisitable accept (IASTVisitor visitor)
-    {
-      return visitor.visitExpressionLiteral (this);
-    }
-    private org.meta_environment.rascal.ast.Literal literal;
-    public org.meta_environment.rascal.ast.Literal getLiteral ()
-    {
-      return literal;
-    }
-    private void $setLiteral (org.meta_environment.rascal.ast.Literal x)
-    {
-      this.literal = x;
-    }
-    public Literal setLiteral (org.meta_environment.rascal.ast.Literal x)
-    {
-      Literal z = new Literal ();
-      z.$setLiteral (x);
-      return z;
-    }
-  }
-  static public class CallOrTree extends Expression
-  {
-/* name:Name "(" arguments:{Expression ","}* ")" -> Expression {cons("CallOrTree")} */
-    private CallOrTree ()
-    {
-    }
-    /*package */ CallOrTree (ITree tree,
-			     org.meta_environment.rascal.ast.Name name,
-			     java.util.List <
-			     org.meta_environment.rascal.ast.Expression >
-			     arguments)
-    {
-      this.tree = tree;
-      this.name = name;
-      this.arguments = arguments;
-    }
-    public IVisitable accept (IASTVisitor visitor)
-    {
-      return visitor.visitExpressionCallOrTree (this);
-    }
-    private org.meta_environment.rascal.ast.Name name;
-    public org.meta_environment.rascal.ast.Name getName ()
-    {
-      return name;
-    }
-    private void $setName (org.meta_environment.rascal.ast.Name x)
-    {
-      this.name = x;
-    }
-    public CallOrTree setName (org.meta_environment.rascal.ast.Name x)
-    {
-      CallOrTree z = new CallOrTree ();
-      z.$setName (x);
-      return z;
-    }
-    private java.util.List < org.meta_environment.rascal.ast.Expression >
-      arguments;
-    public java.util.List < org.meta_environment.rascal.ast.Expression >
-      getArguments ()
-    {
-      return arguments;
-    }
-    private void $setArguments (java.util.List <
-				org.meta_environment.rascal.ast.Expression >
-				x)
-    {
-      this.arguments = x;
-    }
-    public CallOrTree setArguments (java.util.List <
-				    org.meta_environment.rascal.ast.
-				    Expression > x)
-    {
-      CallOrTree z = new CallOrTree ();
-      z.$setArguments (x);
-      return z;
-    }
-  }
-  static public class List extends Expression
-  {
-/* "[" elements:{Expression ","}* "]" -> Expression {cons("List")} */
-    private List ()
-    {
-    }
-    /*package */ List (ITree tree,
-		       java.util.List <
-		       org.meta_environment.rascal.ast.Expression > elements)
-    {
-      this.tree = tree;
-      this.elements = elements;
-    }
-    public IVisitable accept (IASTVisitor visitor)
-    {
-      return visitor.visitExpressionList (this);
-    }
-    private java.util.List < org.meta_environment.rascal.ast.Expression >
-      elements;
-    public java.util.List < org.meta_environment.rascal.ast.Expression >
-      getElements ()
-    {
-      return elements;
-    }
-    private void $setElements (java.util.List <
-			       org.meta_environment.rascal.ast.Expression > x)
-    {
-      this.elements = x;
-    }
-    public List setElements (java.util.List <
-			     org.meta_environment.rascal.ast.Expression > x)
-    {
-      List z = new List ();
-      z.$setElements (x);
-      return z;
-    }
-  }
-  static public class Set extends Expression
-  {
-/* "{" elements:{Expression ","}* "}" -> Expression {cons("Set")} */
-    private Set ()
-    {
-    }
-    /*package */ Set (ITree tree,
-		      java.util.List <
-		      org.meta_environment.rascal.ast.Expression > elements)
-    {
-      this.tree = tree;
-      this.elements = elements;
-    }
-    public IVisitable accept (IASTVisitor visitor)
-    {
-      return visitor.visitExpressionSet (this);
-    }
-    private java.util.List < org.meta_environment.rascal.ast.Expression >
-      elements;
-    public java.util.List < org.meta_environment.rascal.ast.Expression >
-      getElements ()
-    {
-      return elements;
-    }
-    private void $setElements (java.util.List <
-			       org.meta_environment.rascal.ast.Expression > x)
-    {
-      this.elements = x;
-    }
-    public Set setElements (java.util.List <
-			    org.meta_environment.rascal.ast.Expression > x)
-    {
-      Set z = new Set ();
-      z.$setElements (x);
-      return z;
-    }
-  }
-  static public class Tuple extends Expression
-  {
-/* "<" first:Expression "," rest:{Expression ","}+ ">" -> Expression {cons("Tuple")} */
-    private Tuple ()
-    {
-    }
-    /*package */ Tuple (ITree tree,
-			org.meta_environment.rascal.ast.Expression first,
-			java.util.List <
-			org.meta_environment.rascal.ast.Expression > rest)
-    {
-      this.tree = tree;
-      this.first = first;
-      this.rest = rest;
-    }
-    public IVisitable accept (IASTVisitor visitor)
-    {
-      return visitor.visitExpressionTuple (this);
-    }
-    private org.meta_environment.rascal.ast.Expression first;
-    public org.meta_environment.rascal.ast.Expression getFirst ()
-    {
-      return first;
-    }
-    private void $setFirst (org.meta_environment.rascal.ast.Expression x)
-    {
-      this.first = x;
-    }
-    public Tuple setFirst (org.meta_environment.rascal.ast.Expression x)
-    {
-      Tuple z = new Tuple ();
-      z.$setFirst (x);
-      return z;
-    }
-    private java.util.List < org.meta_environment.rascal.ast.Expression >
-      rest;
-    public java.util.List < org.meta_environment.rascal.ast.Expression >
-      getRest ()
-    {
-      return rest;
-    }
-    private void $setRest (java.util.List <
-			   org.meta_environment.rascal.ast.Expression > x)
-    {
-      this.rest = x;
-    }
-    public Tuple setRest (java.util.List <
-			  org.meta_environment.rascal.ast.Expression > x)
-    {
-      Tuple z = new Tuple ();
-      z.$setRest (x);
-      return z;
-    }
-  }
-  static public class MapTuple extends Expression
-  {
-/* "<" from:Expression "->" to:Expression ">" -> Expression {cons("MapTuple")} */
-    private MapTuple ()
-    {
-    }
-    /*package */ MapTuple (ITree tree,
-			   org.meta_environment.rascal.ast.Expression from,
-			   org.meta_environment.rascal.ast.Expression to)
-    {
-      this.tree = tree;
-      this.from = from;
-      this.to = to;
-    }
-    public IVisitable accept (IASTVisitor visitor)
-    {
-      return visitor.visitExpressionMapTuple (this);
-    }
-    private org.meta_environment.rascal.ast.Expression from;
-    public org.meta_environment.rascal.ast.Expression getFrom ()
-    {
-      return from;
-    }
-    private void $setFrom (org.meta_environment.rascal.ast.Expression x)
-    {
-      this.from = x;
-    }
-    public MapTuple setFrom (org.meta_environment.rascal.ast.Expression x)
-    {
-      MapTuple z = new MapTuple ();
-      z.$setFrom (x);
-      return z;
-    }
-    private org.meta_environment.rascal.ast.Expression to;
-    public org.meta_environment.rascal.ast.Expression getTo ()
-    {
-      return to;
-    }
-    private void $setTo (org.meta_environment.rascal.ast.Expression x)
-    {
-      this.to = x;
-    }
-    public MapTuple setTo (org.meta_environment.rascal.ast.Expression x)
-    {
-      MapTuple z = new MapTuple ();
-      z.$setTo (x);
-      return z;
-    }
-  }
-  static public class Location extends Expression
-  {
-/* Location -> Expression {cons("Location")} */
-    private Location ()
-    {
-    }
-    /*package */ Location (ITree tree)
-    {
-      this.tree = tree;
-    }
-    public IVisitable accept (IASTVisitor visitor)
-    {
-      return visitor.visitExpressionLocation (this);
-    }
-  }
-  static public class Area extends Expression
-  {
-/* Area -> Expression {cons("Area")} */
-    private Area ()
-    {
-    }
-    /*package */ Area (ITree tree)
-    {
-      this.tree = tree;
-    }
-    public IVisitable accept (IASTVisitor visitor)
-    {
-      return visitor.visitExpressionArea (this);
-    }
-  }
-  static public class FileLocation extends Expression
-  {
-/* "file" "(" filename:Expression ")" -> Expression {cons("FileLocation")} */
-    private FileLocation ()
-    {
-    }
-    /*package */ FileLocation (ITree tree,
-			       org.meta_environment.rascal.ast.
-			       Expression filename)
-    {
-      this.tree = tree;
-      this.filename = filename;
-    }
-    public IVisitable accept (IASTVisitor visitor)
-    {
-      return visitor.visitExpressionFileLocation (this);
-    }
-    private org.meta_environment.rascal.ast.Expression filename;
-    public org.meta_environment.rascal.ast.Expression getFilename ()
-    {
-      return filename;
-    }
-    private void $setFilename (org.meta_environment.rascal.ast.Expression x)
-    {
-      this.filename = x;
-    }
-    public FileLocation setFilename (org.meta_environment.rascal.ast.
-				     Expression x)
-    {
-      FileLocation z = new FileLocation ();
-      z.$setFilename (x);
-      return z;
-    }
-  }
-  static public class AreaLocation extends Expression
-  {
-/* "area" "(" area:Expression ")" -> Expression {cons("AreaLocation")} */
-    private AreaLocation ()
-    {
-    }
-    /*package */ AreaLocation (ITree tree,
-			       org.meta_environment.rascal.ast.
-			       Expression area)
-    {
-      this.tree = tree;
-      this.area = area;
-    }
-    public IVisitable accept (IASTVisitor visitor)
-    {
-      return visitor.visitExpressionAreaLocation (this);
-    }
-    private org.meta_environment.rascal.ast.Expression area;
-    public org.meta_environment.rascal.ast.Expression getArea ()
-    {
-      return area;
-    }
-    private void $setArea (org.meta_environment.rascal.ast.Expression x)
-    {
-      this.area = x;
-    }
-    public AreaLocation setArea (org.meta_environment.rascal.ast.Expression x)
-    {
-      AreaLocation z = new AreaLocation ();
-      z.$setArea (x);
-      return z;
-    }
-  }
-  static public class AreaInFileLocation extends Expression
-  {
-/* "area-in-file" "(" filename:Expression "," area:Expression ")" -> Expression {cons("AreaInFileLocation")} */
-    private AreaInFileLocation ()
-    {
-    }
-    /*package */ AreaInFileLocation (ITree tree,
-				     org.meta_environment.rascal.ast.
-				     Expression filename,
-				     org.meta_environment.rascal.ast.
-				     Expression area)
-    {
-      this.tree = tree;
-      this.filename = filename;
-      this.area = area;
-    }
-    public IVisitable accept (IASTVisitor visitor)
-    {
-      return visitor.visitExpressionAreaInFileLocation (this);
-    }
-    private org.meta_environment.rascal.ast.Expression filename;
-    public org.meta_environment.rascal.ast.Expression getFilename ()
-    {
-      return filename;
-    }
-    private void $setFilename (org.meta_environment.rascal.ast.Expression x)
-    {
-      this.filename = x;
-    }
-    public AreaInFileLocation setFilename (org.meta_environment.rascal.ast.
-					   Expression x)
-    {
-      AreaInFileLocation z = new AreaInFileLocation ();
-      z.$setFilename (x);
-      return z;
-    }
-    private org.meta_environment.rascal.ast.Expression area;
-    public org.meta_environment.rascal.ast.Expression getArea ()
-    {
-      return area;
-    }
-    private void $setArea (org.meta_environment.rascal.ast.Expression x)
-    {
-      this.area = x;
-    }
-    public AreaInFileLocation setArea (org.meta_environment.rascal.ast.
-				       Expression x)
-    {
-      AreaInFileLocation z = new AreaInFileLocation ();
-      z.$setArea (x);
-      return z;
-    }
-  }
-  static public class QualifiedName extends Expression
-  {
-/* qualifiedName:QualifiedName -> Expression {cons("QualifiedName")} */
-    private QualifiedName ()
-    {
-    }
-    /*package */ QualifiedName (ITree tree,
-				org.meta_environment.rascal.ast.
-				QualifiedName qualifiedName)
-    {
-      this.tree = tree;
-      this.qualifiedName = qualifiedName;
-    }
-    public IVisitable accept (IASTVisitor visitor)
-    {
-      return visitor.visitExpressionQualifiedName (this);
-    }
-    private org.meta_environment.rascal.ast.QualifiedName qualifiedName;
-    public org.meta_environment.rascal.ast.QualifiedName getQualifiedName ()
-    {
-      return qualifiedName;
-    }
-    private void $setQualifiedName (org.meta_environment.rascal.ast.
-				    QualifiedName x)
-    {
-      this.qualifiedName = x;
-    }
-    public QualifiedName setQualifiedName (org.meta_environment.rascal.ast.
-					   QualifiedName x)
-    {
-      QualifiedName z = new QualifiedName ();
-      z.$setQualifiedName (x);
       return z;
     }
   }
@@ -2105,6 +2240,10 @@ public abstract class Expression extends AbstractAST
       z.$setName (x);
       return z;
     }
+  }
+  public org.meta_environment.rascal.ast.Expression getPattern ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class Match extends Expression
   {
@@ -2206,6 +2345,10 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
+  public org.meta_environment.rascal.ast.Comprehension getComprehension ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Comprehension extends Expression
   {
 /* comprehension:Comprehension -> Expression {cons("Comprehension")} */
@@ -2240,6 +2383,10 @@ public abstract class Expression extends AbstractAST
       z.$setComprehension (x);
       return z;
     }
+  }
+  public org.meta_environment.rascal.ast.ValueProducer getProducer ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class ForAll extends Expression
   {
@@ -2346,6 +2493,10 @@ public abstract class Expression extends AbstractAST
       z.$setExpression (x);
       return z;
     }
+  }
+  public org.meta_environment.rascal.ast.Visit getVisit ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class Visit extends Expression
   {

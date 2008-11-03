@@ -34,6 +34,10 @@ public abstract class OptCharRanges extends AbstractAST
       return alternatives;
     }
   }
+  public org.meta_environment.rascal.ast.CharRanges getRanges ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Present extends OptCharRanges
   {
 /* ranges:CharRanges -> OptCharRanges {cons("Present")} */

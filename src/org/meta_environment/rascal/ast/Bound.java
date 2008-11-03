@@ -33,6 +33,10 @@ public abstract class Bound extends AbstractAST
       return alternatives;
     }
   }
+  public org.meta_environment.rascal.ast.Expression getExpression ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Default extends Bound
   {
 /* "(" expression:Expression ")" -> Bound {cons("Default")} */

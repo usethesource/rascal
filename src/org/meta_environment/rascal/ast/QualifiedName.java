@@ -2,6 +2,10 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class QualifiedName extends AbstractAST
 {
+  public java.util.List < org.meta_environment.rascal.ast.Name > getNames ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Default extends QualifiedName
   {
 /* names:{Name "::"}+ -> QualifiedName {cons("Default")} */

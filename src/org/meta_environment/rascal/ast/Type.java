@@ -2,6 +2,10 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Type extends AbstractAST
 {
+  public org.meta_environment.rascal.ast.BasicType getBasic ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Basic extends Type
   {
 /* basic:BasicType -> Type {cons("Basic")} */
@@ -50,6 +54,10 @@ public abstract class Type extends AbstractAST
       return alternatives;
     }
   }
+  public org.meta_environment.rascal.ast.StructuredType getStructured ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Structured extends Type
   {
 /* structured:StructuredType -> Type {cons("Structured")} */
@@ -85,6 +93,10 @@ public abstract class Type extends AbstractAST
       return z;
     }
   }
+  public org.meta_environment.rascal.ast.FunctionType getFunction ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Function extends Type
   {
 /* function:FunctionType -> Type {cons("Function")} */
@@ -119,6 +131,10 @@ public abstract class Type extends AbstractAST
       return z;
     }
   }
+  public org.meta_environment.rascal.ast.TypeVar getTypeVar ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Variable extends Type
   {
 /* typeVar:TypeVar -> Type {cons("Variable")} */
@@ -150,6 +166,10 @@ public abstract class Type extends AbstractAST
       z.$setTypeVar (x);
       return z;
     }
+  }
+  public org.meta_environment.rascal.ast.UserType getUser ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class User extends Type
   {
@@ -183,6 +203,10 @@ public abstract class Type extends AbstractAST
       return z;
     }
   }
+  public org.meta_environment.rascal.ast.Symbol getSymbol ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Symbol extends Type
   {
 /* symbol:Symbol -> Type {cons("Symbol")} */
@@ -214,6 +238,10 @@ public abstract class Type extends AbstractAST
       z.$setSymbol (x);
       return z;
     }
+  }
+  public org.meta_environment.rascal.ast.DataTypeSelector getSelector ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class Selector extends Type
   {

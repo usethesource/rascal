@@ -2,6 +2,14 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Variant extends AbstractAST
 {
+  public org.meta_environment.rascal.ast.Type getType ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public org.meta_environment.rascal.ast.Name getName ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class AnonymousConstructor extends Variant
   {
 /* type:Type name:Name -> Variant {cons("AnonymousConstructor")} */
@@ -70,6 +78,11 @@ public abstract class Variant extends AbstractAST
     {
       return alternatives;
     }
+  }
+  public java.util.List < org.meta_environment.rascal.ast.TypeArg >
+    getArguments ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class NAryConstructor extends Variant
   {

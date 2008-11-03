@@ -2,6 +2,10 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class TypeArg extends AbstractAST
 {
+  public org.meta_environment.rascal.ast.Type getType ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Default extends TypeArg
   {
 /* type:Type -> TypeArg {cons("Default")} */
@@ -49,6 +53,10 @@ public abstract class TypeArg extends AbstractAST
     {
       return alternatives;
     }
+  }
+  public org.meta_environment.rascal.ast.Name getName ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class Named extends TypeArg
   {

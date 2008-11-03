@@ -2,6 +2,10 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Literal extends AbstractAST
 {
+  public org.meta_environment.rascal.ast.RegExpLiteral getRegExpLiteral ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class RegExp extends Literal
   {
 /* regExpLiteral:RegExpLiteral -> Literal {cons("RegExp")} */
@@ -53,6 +57,10 @@ public abstract class Literal extends AbstractAST
       return alternatives;
     }
   }
+  public org.meta_environment.rascal.ast.SymbolLiteral getSymbolLiteral ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Symbol extends Literal
   {
 /* symbolLiteral:SymbolLiteral -> Literal {cons("Symbol")} */
@@ -87,6 +95,10 @@ public abstract class Literal extends AbstractAST
       z.$setSymbolLiteral (x);
       return z;
     }
+  }
+  public org.meta_environment.rascal.ast.BooleanLiteral getBooleanLiteral ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class Boolean extends Literal
   {
@@ -123,6 +135,10 @@ public abstract class Literal extends AbstractAST
       return z;
     }
   }
+  public org.meta_environment.rascal.ast.IntegerLiteral getIntegerLiteral ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Integer extends Literal
   {
 /* integerLiteral:IntegerLiteral -> Literal {cons("Integer")} */
@@ -157,6 +173,11 @@ public abstract class Literal extends AbstractAST
       z.$setIntegerLiteral (x);
       return z;
     }
+  }
+  public org.meta_environment.rascal.ast.
+    FloatingPointLiteral getDoubleLiteral ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class Double extends Literal
   {
@@ -194,6 +215,10 @@ public abstract class Literal extends AbstractAST
       z.$setDoubleLiteral (x);
       return z;
     }
+  }
+  public org.meta_environment.rascal.ast.StringLiteral getStringLiteral ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class String extends Literal
   {

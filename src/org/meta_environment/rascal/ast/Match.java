@@ -2,6 +2,14 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Match extends AbstractAST
 {
+  public org.meta_environment.rascal.ast.Expression getMatch ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public org.meta_environment.rascal.ast.Expression getReplacement ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Replacing extends Match
   {
 /* match:Expression "=>" replacement:Expression -> Match {cons("Replacing")} */
@@ -69,6 +77,10 @@ public abstract class Match extends AbstractAST
     {
       return alternatives;
     }
+  }
+  public org.meta_environment.rascal.ast.Statement getStatement ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class Arbitrary extends Match
   {

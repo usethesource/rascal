@@ -2,6 +2,18 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class FunctionDeclaration extends AbstractAST
 {
+  public org.meta_environment.rascal.ast.Signature getSignature ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public org.meta_environment.rascal.ast.Tags getTags ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public org.meta_environment.rascal.ast.FunctionBody getBody ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Default extends FunctionDeclaration
   {
 /* signature:Signature tags:Tags body:FunctionBody -> FunctionDeclaration {cons("Default")} */

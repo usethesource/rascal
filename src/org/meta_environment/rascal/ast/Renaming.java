@@ -2,6 +2,14 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Renaming extends AbstractAST
 {
+  public org.meta_environment.rascal.ast.Name getFrom ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public org.meta_environment.rascal.ast.Name getTo ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Default extends Renaming
   {
 /* from:Name "=>" to:Name -> Renaming {cons("Default")} */

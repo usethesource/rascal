@@ -2,6 +2,10 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class LongLiteral extends AbstractAST
 {
+  public org.meta_environment.rascal.ast.DecimalLongLiteral getDecimalLong ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class DecimalLongLiteral extends LongLiteral
   {
 /* decimalLong:DecimalLongLiteral -> LongLiteral {prefer, cons("DecimalLongLiteral")} */
@@ -55,6 +59,10 @@ public abstract class LongLiteral extends AbstractAST
       return alternatives;
     }
   }
+  public org.meta_environment.rascal.ast.HexLongLiteral getHexLong ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class HexLongLiteral extends LongLiteral
   {
 /* hexLong:HexLongLiteral -> LongLiteral {prefer, cons("HexLongLiteral")} */
@@ -89,6 +97,10 @@ public abstract class LongLiteral extends AbstractAST
       z.$setHexLong (x);
       return z;
     }
+  }
+  public org.meta_environment.rascal.ast.OctalLongLiteral getOctalLong ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class OctalLongLiteral extends LongLiteral
   {

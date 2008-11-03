@@ -2,6 +2,19 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Header extends AbstractAST
 {
+  public org.meta_environment.rascal.ast.ModuleName getName ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public org.meta_environment.rascal.ast.Tags getTags ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public java.util.List < org.meta_environment.rascal.ast.Import >
+    getImports ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Default extends Header
   {
 /* "module" name:ModuleName tags:Tags imports:Import* -> Header {cons("Default")} */
@@ -87,6 +100,10 @@ public abstract class Header extends AbstractAST
     {
       return alternatives;
     }
+  }
+  public org.meta_environment.rascal.ast.ModuleParameters getParams ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class Parameters extends Header
   {

@@ -2,6 +2,10 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Tag extends AbstractAST
 {
+  public org.meta_environment.rascal.ast.Name getName ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Default extends Tag
   {
 /* "@" name:Name TagString -> Tag {cons("Default")} */

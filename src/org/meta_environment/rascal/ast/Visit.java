@@ -2,6 +2,14 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Visit extends AbstractAST
 {
+  public org.meta_environment.rascal.ast.Expression getSubject ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public java.util.List < org.meta_environment.rascal.ast.Case > getCases ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class DefaultStrategy extends Visit
   {
 /* "visit" "(" subject:Expression ")" "{" cases:Case+ "}" -> Visit {cons("DefaultStrategy")} */
@@ -72,6 +80,10 @@ public abstract class Visit extends AbstractAST
     {
       return alternatives;
     }
+  }
+  public org.meta_environment.rascal.ast.Strategy getStrategy ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class GivenStrategy extends Visit
   {

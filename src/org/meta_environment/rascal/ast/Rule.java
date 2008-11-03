@@ -2,6 +2,14 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Rule extends AbstractAST
 {
+  public org.meta_environment.rascal.ast.Type getType ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public org.meta_environment.rascal.ast.Match getMatch ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class WithGuard extends Rule
   {
 /* "[" type:Type "]" match:Match -> Rule {cons("WithGuard")} */

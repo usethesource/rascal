@@ -2,6 +2,11 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Tags extends AbstractAST
 {
+  public java.util.List < org.meta_environment.rascal.ast.Tag >
+    getAnnotations ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Default extends Tags
   {
 /* annotations:Tag* -> Tags {cons("Default")} */

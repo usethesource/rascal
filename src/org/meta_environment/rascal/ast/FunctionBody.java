@@ -2,6 +2,11 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class FunctionBody extends AbstractAST
 {
+  public java.util.List < org.meta_environment.rascal.ast.Statement >
+    getStatements ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Default extends FunctionBody
   {
 /* "{" statements:Statement* "}" -> FunctionBody {cons("Default")} */

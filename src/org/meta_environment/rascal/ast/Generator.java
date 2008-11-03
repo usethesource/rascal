@@ -2,6 +2,10 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Generator extends AbstractAST
 {
+  public org.meta_environment.rascal.ast.Expression getExpression ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Expression extends Generator
   {
 /* expression:Expression -> Generator {cons("Expression")} */
@@ -52,6 +56,10 @@ public abstract class Generator extends AbstractAST
     {
       return alternatives;
     }
+  }
+  public org.meta_environment.rascal.ast.ValueProducer getProducer ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class Producer extends Generator
   {

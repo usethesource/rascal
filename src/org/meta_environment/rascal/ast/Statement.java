@@ -2,6 +2,15 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Statement extends AbstractAST
 {
+  public java.util.List < org.meta_environment.rascal.ast.Declarator >
+    getDeclarations ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public org.meta_environment.rascal.ast.Statement getBody ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Solve extends Statement
   {
 /* "with" declarations:{Declarator ";"}+ ";" "solve" body:Statement -> Statement {cons("Solve")} */
@@ -75,6 +84,15 @@ public abstract class Statement extends AbstractAST
     {
       return alternatives;
     }
+  }
+  public org.meta_environment.rascal.ast.Label getLabel ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public java.util.List < org.meta_environment.rascal.ast.Generator >
+    getGenerators ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class For extends Statement
   {
@@ -291,6 +309,10 @@ public abstract class Statement extends AbstractAST
       return z;
     }
   }
+  public org.meta_environment.rascal.ast.Expression getCondition ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class While extends Statement
   {
 /* label:Label "while" "(" condition:Expression ")" body:Statement -> Statement {cons("While")} */
@@ -423,6 +445,19 @@ public abstract class Statement extends AbstractAST
       z.$setCondition (x);
       return z;
     }
+  }
+  public java.util.List < org.meta_environment.rascal.ast.Expression >
+    getConditions ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public org.meta_environment.rascal.ast.Statement getThenStatement ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public org.meta_environment.rascal.ast.Statement getElseStatement ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class IfThenElse extends Statement
   {
@@ -598,6 +633,14 @@ public abstract class Statement extends AbstractAST
       return z;
     }
   }
+  public org.meta_environment.rascal.ast.Expression getExpression ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public java.util.List < org.meta_environment.rascal.ast.Case > getCases ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Switch extends Statement
   {
 /* label:Label "switch" "(" expression:Expression ")" "{" cases:Case+ "}" -> Statement {cons("Switch")} */
@@ -702,6 +745,10 @@ public abstract class Statement extends AbstractAST
       return z;
     }
   }
+  public org.meta_environment.rascal.ast.Visit getVisit ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Visit extends Statement
   {
 /* visit:Visit -> Statement {cons("Visit")} */
@@ -733,6 +780,20 @@ public abstract class Statement extends AbstractAST
       z.$setVisit (x);
       return z;
     }
+  }
+  public java.util.List < org.meta_environment.rascal.ast.Assignable >
+    getAssignables ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public org.meta_environment.rascal.ast.Assignment getOperator ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public java.util.List < org.meta_environment.rascal.ast.Expression >
+    getExpressions ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class Assignment extends Statement
   {
@@ -818,6 +879,10 @@ public abstract class Statement extends AbstractAST
       return z;
     }
   }
+  public org.meta_environment.rascal.ast.Break getBrk ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Break extends Statement
   {
 /* brk:Break -> Statement {cons("Break")} */
@@ -849,6 +914,10 @@ public abstract class Statement extends AbstractAST
       return z;
     }
   }
+  public org.meta_environment.rascal.ast.Fail getFail ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Fail extends Statement
   {
 /* fail:Fail -> Statement {cons("Fail")} */
@@ -879,6 +948,10 @@ public abstract class Statement extends AbstractAST
       z.$setFail (x);
       return z;
     }
+  }
+  public org.meta_environment.rascal.ast.Return getRet ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class Return extends Statement
   {
@@ -926,6 +999,10 @@ public abstract class Statement extends AbstractAST
     {
       return visitor.visitStatementContinue (this);
     }
+  }
+  public org.meta_environment.rascal.ast.StringLiteral getLabel ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class Assert extends Statement
   {
@@ -1042,6 +1119,11 @@ public abstract class Statement extends AbstractAST
       return z;
     }
   }
+  public java.util.List < org.meta_environment.rascal.ast.Catch >
+    getHandlers ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Try extends Statement
   {
 /* "try" body:Statement handlers:Catch+ -> Statement {non-assoc, cons("Try")} */
@@ -1094,6 +1176,10 @@ public abstract class Statement extends AbstractAST
       z.$setHandlers (x);
       return z;
     }
+  }
+  public org.meta_environment.rascal.ast.Statement getFinallyBody ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class TryFinally extends Statement
   {
@@ -1167,6 +1253,11 @@ public abstract class Statement extends AbstractAST
       return z;
     }
   }
+  public java.util.List < org.meta_environment.rascal.ast.Statement >
+    getStatements ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Block extends Statement
   {
 /* label:Label "{" statements:Statement* "}" -> Statement {cons("Block")} */
@@ -1223,6 +1314,11 @@ public abstract class Statement extends AbstractAST
       return z;
     }
   }
+  public org.meta_environment.rascal.ast.
+    FunctionDeclaration getFunctionDeclaration ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class FunctionDeclaration extends Statement
   {
 /* functionDeclaration:FunctionDeclaration -> Statement {cons("FunctionDeclaration")} */
@@ -1261,6 +1357,11 @@ public abstract class Statement extends AbstractAST
       return z;
     }
   }
+  public org.meta_environment.rascal.ast.
+    LocalVariableDeclaration getDeclaration ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class VariableDeclaration extends Statement
   {
 /* declaration:LocalVariableDeclaration ";" -> Statement {cons("VariableDeclaration")} */
@@ -1297,6 +1398,15 @@ public abstract class Statement extends AbstractAST
       z.$setDeclaration (x);
       return z;
     }
+  }
+  public org.meta_environment.rascal.ast.Type getType ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public java.util.List < org.meta_environment.rascal.ast.QualifiedName >
+    getNames ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class GlobalDirective extends Statement
   {

@@ -2,6 +2,10 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class CharRanges extends AbstractAST
 {
+  public org.meta_environment.rascal.ast.CharRange getRange ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Range extends CharRanges
   {
 /* range:CharRange -> CharRanges {cons("Range")} */
@@ -50,6 +54,14 @@ public abstract class CharRanges extends AbstractAST
     {
       return alternatives;
     }
+  }
+  public org.meta_environment.rascal.ast.CharRanges getLhs ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public org.meta_environment.rascal.ast.CharRanges getRhs ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class Concatenate extends CharRanges
   {
@@ -102,17 +114,34 @@ public abstract class CharRanges extends AbstractAST
   }
   static public class Bracket extends CharRanges
   {
-/* "(" CharRanges ")" -> CharRanges {bracket} */
+/* "(" ranges:CharRanges ")" -> CharRanges {bracket, cons("Bracket")} */
     private Bracket ()
     {
     }
-    /*package */ Bracket (ITree tree)
+    /*package */ Bracket (ITree tree,
+			  org.meta_environment.rascal.ast.CharRanges ranges)
     {
       this.tree = tree;
+      this.ranges = ranges;
     }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitCharRangesBracket (this);
+    }
+    private org.meta_environment.rascal.ast.CharRanges ranges;
+    public org.meta_environment.rascal.ast.CharRanges getRanges ()
+    {
+      return ranges;
+    }
+    private void $setRanges (org.meta_environment.rascal.ast.CharRanges x)
+    {
+      this.ranges = x;
+    }
+    public Bracket setRanges (org.meta_environment.rascal.ast.CharRanges x)
+    {
+      Bracket z = new Bracket ();
+      z.$setRanges (x);
+      return z;
     }
   }
 }

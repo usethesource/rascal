@@ -2,6 +2,22 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Signature extends AbstractAST
 {
+  public org.meta_environment.rascal.ast.Type getType ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public org.meta_environment.rascal.ast.FunctionModifiers getModifiers ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public org.meta_environment.rascal.ast.FunctionName getName ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public org.meta_environment.rascal.ast.Parameters getParameters ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class NoThrows extends Signature
   {
 /* type:Type modifiers:FunctionModifiers name:FunctionName parameters:Parameters -> Signature {cons("NoThrows")} */
@@ -106,6 +122,11 @@ public abstract class Signature extends AbstractAST
     {
       return alternatives;
     }
+  }
+  public java.util.List < org.meta_environment.rascal.ast.Type >
+    getExceptions ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class WithThrows extends Signature
   {

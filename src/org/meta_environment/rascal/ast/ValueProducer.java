@@ -2,6 +2,14 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class ValueProducer extends AbstractAST
 {
+  public org.meta_environment.rascal.ast.Expression getPattern ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public org.meta_environment.rascal.ast.Expression getExpression ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class DefaultStrategy extends ValueProducer
   {
 /* pattern:Expression ":" expression:Expression -> ValueProducer {cons("DefaultStrategy")} */
@@ -71,6 +79,10 @@ public abstract class ValueProducer extends AbstractAST
     {
       return alternatives;
     }
+  }
+  public org.meta_environment.rascal.ast.Strategy getStrategy ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class GivenStrategy extends ValueProducer
   {

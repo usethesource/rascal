@@ -2,6 +2,14 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Toplevel extends AbstractAST
 {
+  public org.meta_environment.rascal.ast.Visibility getVisibility ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public org.meta_environment.rascal.ast.Declaration getDeclaration ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class GivenVisibility extends Toplevel
   {
 /* visibility:Visibility declaration:Declaration -> Toplevel {cons("GivenVisibility")} */

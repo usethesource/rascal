@@ -2,6 +2,10 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class TypeVar extends AbstractAST
 {
+  public org.meta_environment.rascal.ast.Name getName ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Free extends TypeVar
   {
 /* "&" name:Name -> TypeVar {cons("Free")} */
@@ -48,6 +52,10 @@ public abstract class TypeVar extends AbstractAST
     {
       return alternatives;
     }
+  }
+  public org.meta_environment.rascal.ast.Type getBound ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class Bounded extends TypeVar
   {
