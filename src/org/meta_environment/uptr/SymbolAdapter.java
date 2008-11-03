@@ -1,5 +1,6 @@
 package org.meta_environment.uptr;
 
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 
@@ -32,5 +33,38 @@ public class SymbolAdapter {
 		else {
 			throw new FactTypeError("Symbol does not have a child named symbol: " + tree);
 		}
+	}
+	
+	public String getName() {
+		if (isSort()) {
+			return ((IString) tree.get("string")).getValue();
+		}
+		else {
+			throw new FactTypeError("Symbol does not have a child named \"name\": " + tree);
+		}
+	}
+
+	public boolean isLiteral() {
+		return tree.getTreeNodeType() == Factory.Symbol_Lit;
+	}
+
+	public boolean isCILiteral() {
+		return tree.getTreeNodeType() == Factory.Symbol_CiLit;
+	}
+
+	public boolean isIterPlusSep() {
+		return tree.getTreeNodeType() == Factory.Symbol_IterPlusSep;
+	}
+	
+	public boolean isIterStarSep() {
+		return tree.getTreeNodeType() == Factory.Symbol_IterStarSep;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (!(obj instanceof SymbolAdapter)) {
+			return false;
+		}
+		return tree.equals(((SymbolAdapter)obj).tree);
 	}
 }

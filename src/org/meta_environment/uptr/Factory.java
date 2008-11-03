@@ -40,61 +40,62 @@ public class Factory {
 	public static final NamedType    Attrs = tf.namedType("Attrs", tf.listType(Attr));
 	public static final NamedType    Symbols = tf.namedType("Symbols", tf.listType(Symbol));
 	public static final NamedType    CharRanges = tf.namedType("CharRanges", tf.listType(CharRange));
-	public static final NamedType    Alternatives = tf.namedType("Alternatives", tf.setTypeOf(Tree));
+	public static final NamedType    Alternatives = tf.namedType("Alternatives", tf.setType(Tree));
 	
-	public static final TreeNodeType ParseTree_Top = tf.treeType(ParseTree,"parsetree", Tree, "top", tf.integerType(), "amb-cnt");
+	public static final TreeNodeType ParseTree_Top = tf.treeNodeType(ParseTree,"parsetree", Tree, "top", tf.integerType(), "amb-cnt");
 	
-	public static final TreeNodeType Constructor_Name = tf.treeType(Constructor, "cons", tf.stringType(), "name");
+	public static final TreeNodeType Constructor_Name = tf.treeNodeType(Constructor, "cons", tf.stringType(), "name");
+	public static final TreeNodeType Constructor_Category = tf.treeNodeType(Constructor, "category", tf.stringType(), "name");
 	
-	public static final TreeNodeType Tree_Appl = tf.treeType(Tree, "appl", Production, "prod", Args, "args");
-	public static final TreeNodeType Tree_Cycle = tf.treeType(Tree, "cycle", Symbol, "symbol", tf.integerType(), "cycle-length");
-	public static final TreeNodeType Tree_Amb = tf.treeType(Tree, "amb", Alternatives, "alternatives");
+	public static final TreeNodeType Tree_Appl = tf.treeNodeType(Tree, "appl", Production, "prod", Args, "args");
+	public static final TreeNodeType Tree_Cycle = tf.treeNodeType(Tree, "cycle", Symbol, "symbol", tf.integerType(), "cycle-length");
+	public static final TreeNodeType Tree_Amb = tf.treeNodeType(Tree, "amb", Alternatives, "alternatives");
 	public static final TreeNodeType Tree_Char = tf.anonymousTreeType(Tree, "char", tf.integerType(), "character");
 	
-	public static final TreeNodeType Production_Default = tf.treeType(Production, "prod", Symbols, "lhs", Symbol, "rhs", Attributes, "attributes");
-	public static final TreeNodeType Production_List = tf.treeType(Production, "list", Symbol, "rhs");
+	public static final TreeNodeType Production_Default = tf.treeNodeType(Production, "prod", Symbols, "lhs", Symbol, "rhs", Attributes, "attributes");
+	public static final TreeNodeType Production_List = tf.treeNodeType(Production, "list", Symbol, "rhs");
 	
-	public static final TreeNodeType Attributes_NoAttrs = tf.treeType(Attributes, "no-attrs");
-	public static final TreeNodeType Attributes_Attrs = tf.treeType(Attributes, "attrs", Attrs, "attrs");
+	public static final TreeNodeType Attributes_NoAttrs = tf.treeNodeType(Attributes, "no-attrs");
+	public static final TreeNodeType Attributes_Attrs = tf.treeNodeType(Attributes, "attrs", Attrs, "attrs");
 	
-	public static final TreeNodeType Attr_Assoc = tf.treeType(Attr, "assoc", Associativity, "assoc");
-	public static final TreeNodeType Attr_Term = tf.treeType(Attr, "term", Constructor, "value");
-	public static final TreeNodeType Attr_Id = tf.treeType(Attr, "id", tf.stringType(), "module-name");
-	public static final TreeNodeType Attr_Bracket = tf.treeType(Attr, "bracket");
-	public static final TreeNodeType Attr_Reject = tf.treeType(Attr, "reject");
-	public static final TreeNodeType Attr_Prefer = tf.treeType(Attr, "prefer");
-	public static final TreeNodeType Attr_Avoid = tf.treeType(Attr, "avoid");
+	public static final TreeNodeType Attr_Assoc = tf.treeNodeType(Attr, "assoc", Associativity, "assoc");
+	public static final TreeNodeType Attr_Term = tf.treeNodeType(Attr, "term", Constructor, "value");
+	public static final TreeNodeType Attr_Id = tf.treeNodeType(Attr, "id", tf.stringType(), "module-name");
+	public static final TreeNodeType Attr_Bracket = tf.treeNodeType(Attr, "bracket");
+	public static final TreeNodeType Attr_Reject = tf.treeNodeType(Attr, "reject");
+	public static final TreeNodeType Attr_Prefer = tf.treeNodeType(Attr, "prefer");
+	public static final TreeNodeType Attr_Avoid = tf.treeNodeType(Attr, "avoid");
 	
-	public static final TreeNodeType Associativity_Left = tf.treeType(Associativity, "left");
-	public static final TreeNodeType Associativity_Right = tf.treeType(Associativity, "right");
-	public static final TreeNodeType Associativity_Assoc = tf.treeType(Associativity, "assoc");
-	public static final TreeNodeType Associativity_NonAssoc = tf.treeType(Associativity, "non-assoc");
+	public static final TreeNodeType Associativity_Left = tf.treeNodeType(Associativity, "left");
+	public static final TreeNodeType Associativity_Right = tf.treeNodeType(Associativity, "right");
+	public static final TreeNodeType Associativity_Assoc = tf.treeNodeType(Associativity, "assoc");
+	public static final TreeNodeType Associativity_NonAssoc = tf.treeNodeType(Associativity, "non-assoc");
 	
-	public static final TreeNodeType Symbol_Lit = tf.treeType(Symbol, "lit", tf.stringType(), "string");
-	public static final TreeNodeType Symbol_CiLit = tf.treeType(Symbol, "cilit", tf.stringType(), "string");
-	public static final TreeNodeType Symbol_Cf = tf.treeType(Symbol, "cf", Symbol, "symbol");
-	public static final TreeNodeType Symbol_Lex = tf.treeType(Symbol, "lex", Symbol, "symbol");
-	public static final TreeNodeType Symbol_Empty = tf.treeType(Symbol, "empty");
-	public static final TreeNodeType Symbol_Seq = tf.treeType(Symbol, "seq", Symbols, "symbols");
-	public static final TreeNodeType Symbol_Opt = tf.treeType(Symbol, "opt", Symbol, "symbol");
-	public static final TreeNodeType Symbol_Alt = tf.treeType(Symbol, "alt", Symbol, "lhs", Symbol, "rhs");
-	public static final TreeNodeType Symbol_Tuple = tf.treeType(Symbol, "tuple", Symbol, "head", Symbols, "rest");
-	public static final TreeNodeType Symbol_Sort = tf.treeType(Symbol, "sort", tf.stringType(), "string");
-	public static final TreeNodeType Symbol_IterPlus = tf.treeType(Symbol, "iter", Symbol, "symbol");
-	public static final TreeNodeType Symbol_IterStar = tf.treeType(Symbol, "iter-star", Symbol, "symbol");
-	public static final TreeNodeType Symbol_IterPlusSep = tf.treeType(Symbol, "iter-sep", Symbol, "symbol", Symbol, "separator");
-	public static final TreeNodeType Symbol_IterStarSep = tf.treeType(Symbol, "iter-star-sep", Symbol, "symbol", Symbol, "separator");
-	public static final TreeNodeType Symbol_IterN = tf.treeType(Symbol, "iter-n", Symbol, "symbol", tf.integerType(), "number");
-	public static final TreeNodeType Symbol_IterSepN = tf.treeType(Symbol, "iter-sep-n", Symbol, "symbol", Symbol, "separator", tf.integerType(), "number");
-	public static final TreeNodeType Symbol_Func = tf.treeType(Symbol, "func", Symbols, "symbols", Symbol, "symbol");
-	public static final TreeNodeType Symbol_ParameterizedSort = tf.treeType(Symbol, "parameterized-sort", tf.stringType(), "sort", Symbols, "parameters");
-	public static final TreeNodeType Symbol_Strategy = tf.treeType(Symbol, "strategy", Symbol, "lhs", Symbol, "rhs");
-	public static final TreeNodeType Symbol_VarSym = tf.treeType(Symbol, "lit", tf.stringType(), "string");
-	public static final TreeNodeType Symbol_Layout = tf.treeType(Symbol, "layout");
-	public static final TreeNodeType Symbol_CharClass = tf.treeType(Symbol, "char-class", CharRanges, "ranges");
+	public static final TreeNodeType Symbol_Lit = tf.treeNodeType(Symbol, "lit", tf.stringType(), "string");
+	public static final TreeNodeType Symbol_CiLit = tf.treeNodeType(Symbol, "cilit", tf.stringType(), "string");
+	public static final TreeNodeType Symbol_Cf = tf.treeNodeType(Symbol, "cf", Symbol, "symbol");
+	public static final TreeNodeType Symbol_Lex = tf.treeNodeType(Symbol, "lex", Symbol, "symbol");
+	public static final TreeNodeType Symbol_Empty = tf.treeNodeType(Symbol, "empty");
+	public static final TreeNodeType Symbol_Seq = tf.treeNodeType(Symbol, "seq", Symbols, "symbols");
+	public static final TreeNodeType Symbol_Opt = tf.treeNodeType(Symbol, "opt", Symbol, "symbol");
+	public static final TreeNodeType Symbol_Alt = tf.treeNodeType(Symbol, "alt", Symbol, "lhs", Symbol, "rhs");
+	public static final TreeNodeType Symbol_Tuple = tf.treeNodeType(Symbol, "tuple", Symbol, "head", Symbols, "rest");
+	public static final TreeNodeType Symbol_Sort = tf.treeNodeType(Symbol, "sort", tf.stringType(), "string");
+	public static final TreeNodeType Symbol_IterPlus = tf.treeNodeType(Symbol, "iter", Symbol, "symbol");
+	public static final TreeNodeType Symbol_IterStar = tf.treeNodeType(Symbol, "iter-star", Symbol, "symbol");
+	public static final TreeNodeType Symbol_IterPlusSep = tf.treeNodeType(Symbol, "iter-sep", Symbol, "symbol", Symbol, "separator");
+	public static final TreeNodeType Symbol_IterStarSep = tf.treeNodeType(Symbol, "iter-star-sep", Symbol, "symbol", Symbol, "separator");
+	public static final TreeNodeType Symbol_IterN = tf.treeNodeType(Symbol, "iter-n", Symbol, "symbol", tf.integerType(), "number");
+	public static final TreeNodeType Symbol_IterSepN = tf.treeNodeType(Symbol, "iter-sep-n", Symbol, "symbol", Symbol, "separator", tf.integerType(), "number");
+	public static final TreeNodeType Symbol_Func = tf.treeNodeType(Symbol, "func", Symbols, "symbols", Symbol, "symbol");
+	public static final TreeNodeType Symbol_ParameterizedSort = tf.treeNodeType(Symbol, "parameterized-sort", tf.stringType(), "sort", Symbols, "parameters");
+	public static final TreeNodeType Symbol_Strategy = tf.treeNodeType(Symbol, "strategy", Symbol, "lhs", Symbol, "rhs");
+	public static final TreeNodeType Symbol_VarSym = tf.treeNodeType(Symbol, "lit", tf.stringType(), "string");
+	public static final TreeNodeType Symbol_Layout = tf.treeNodeType(Symbol, "layout");
+	public static final TreeNodeType Symbol_CharClass = tf.treeNodeType(Symbol, "char-class", CharRanges, "ranges");
 		
 	public static final TreeNodeType CharRange_Character = tf.anonymousTreeType(CharRange, "character", tf.integerType(), "start");
-	public static final TreeNodeType CharRange_Range = tf.treeType(CharRange, "range", tf.integerType(), "start", tf.integerType(), "end");
+	public static final TreeNodeType CharRange_Range = tf.treeNodeType(CharRange, "range", tf.integerType(), "start", tf.integerType(), "end");
 	
 	private static final class InstanceHolder {
 		public final static Factory factory = new Factory();

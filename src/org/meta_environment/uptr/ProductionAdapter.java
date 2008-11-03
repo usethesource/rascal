@@ -19,12 +19,14 @@ public class ProductionAdapter {
 	
 	public String getConstructorName() {
 		for (IValue attr : getAttributes()) {
-			if (attr.getType() == Factory.Attr_Term) {
-				return ((IString) ((ITree) ((ITree) attr).get("value")).get("name")).getValue();
+			if (attr.getType().isTreeSortType() && ((ITree) attr).getTreeNodeType() == Factory.Attr_Term) {
+				IValue value = ((ITree)attr).get("value");
+				if (value.getType().isTreeSortType() && ((ITree) value).getTreeNodeType() == Factory.Constructor_Name) {
+					return ((IString) ((ITree) value).get("name")).getValue();
+				}
 			}
 		}
-		
-		return null;
+		throw new FactTypeError("Production does not have constructor name: " + this.tree);
 	}
 	
 	public SymbolAdapter getRhs() {
@@ -39,22 +41,7 @@ public class ProductionAdapter {
 		return getRhs().isCf();
 	}
 	
-	public IList getContextFreeLhs() {
-		if (!isContextFree()) {
-			throw new FactTypeError("This is not a context-free production: " + tree);
-		}
-		
-		IList children = getLhs();
-		IList result = ValueFactory.getInstance().list(Factory.Args);
-		
-		for (int i = 0; i < children.length(); i++) {
-			result.append(children.get(i));
-			// skip layout
-			i++;
-		}
-		
-		return result;
-	}
+	
 	
 	public String getSortName() {
 		SymbolAdapter rhs = getRhs();
@@ -62,7 +49,7 @@ public class ProductionAdapter {
 		if (rhs.isCf() || rhs.isLex()) {
 			rhs = rhs.getSymbol();
 			if (rhs.isSort()) {
-				return ((IString) ((ITree) rhs).get("name")).getValue();
+				return rhs.getName();
 			}
 		}
 			
@@ -76,8 +63,48 @@ public class ProductionAdapter {
 			return (IList) attributes.get("attrs");
 		}
 		else {
-			return null;
+			return (IList) Factory.Attrs.make(ValueFactory.getInstance());
 		}
+	}
+
+	public boolean isLiteral() {
+		return getRhs().isLiteral();
+	}
+
+	public boolean isCILiteral() {
+		return getRhs().isCILiteral();
+	}
+
+	public boolean isList() {
+		return tree.getTreeNodeType() == Factory.Production_List;
+	}
+
+	public boolean isSeparatedList() {
+		SymbolAdapter rhsSym = getRhs();
+		if (rhsSym.isLex() || rhsSym.isCf()) {
+			rhsSym = rhsSym.getSymbol();
+		}
+		return rhsSym.isIterPlusSep() || rhsSym.isIterStarSep();
+	}
+
+	public boolean isLexical() {
+		return getRhs().isLex();
+	}
+
+	public boolean isLexToCf() {
+		if (!isContextFree()) {
+			return false;
+		}
+		IList lhs = getLhs();
+		if (lhs.length() != 1) {
+			return false;
+		}
+		SymbolAdapter lhsSym = new SymbolAdapter((ITree)lhs.get(0));
+		if (!lhsSym.isLex()) {
+			return false;
+		}
+		SymbolAdapter rhsSym = getRhs();
+		return lhsSym.getSymbol().equals(rhsSym.getSymbol());
 	}
 
 }
