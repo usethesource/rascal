@@ -920,10 +920,13 @@ public class ASTFactory
       get (x);
   }
   public org.meta_environment.rascal.ast.Expression.
-    Bracket makeExpressionBracket (ITree tree)
+    Bracket makeExpressionBracket (ITree tree,
+				   org.meta_environment.rascal.ast.
+				   Expression expression)
   {
     org.meta_environment.rascal.ast.Expression.Bracket x =
-      new org.meta_environment.rascal.ast.Expression.Bracket (tree);
+      new org.meta_environment.rascal.ast.Expression.Bracket (tree,
+							      expression);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -1319,10 +1322,10 @@ public class ASTFactory
   }
   public org.meta_environment.rascal.ast.Statement.
     Return makeStatementReturn (ITree tree,
-				org.meta_environment.rascal.ast.Return return)
+				org.meta_environment.rascal.ast.Return ret)
   {
     org.meta_environment.rascal.ast.Statement.Return x =
-      new org.meta_environment.rascal.ast.Statement.Return (tree, return);
+      new org.meta_environment.rascal.ast.Statement.Return (tree, ret);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
@@ -1343,10 +1346,10 @@ public class ASTFactory
   }
   public org.meta_environment.rascal.ast.Statement.
     Break makeStatementBreak (ITree tree,
-			      org.meta_environment.rascal.ast.Break break)
+			      org.meta_environment.rascal.ast.Break brk)
   {
     org.meta_environment.rascal.ast.Statement.Break x =
-      new org.meta_environment.rascal.ast.Statement.Break (tree, break);
+      new org.meta_environment.rascal.ast.Statement.Break (tree, brk);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
