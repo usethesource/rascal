@@ -21,7 +21,6 @@ import org.eclipse.imp.pdb.facts.io.IValueReader;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.type.ListType;
 import org.eclipse.imp.pdb.facts.type.MapType;
-import org.eclipse.imp.pdb.facts.type.NamedType;
 import org.eclipse.imp.pdb.facts.type.RelationType;
 import org.eclipse.imp.pdb.facts.type.SetType;
 import org.eclipse.imp.pdb.facts.type.TreeNodeType;
@@ -168,7 +167,7 @@ public class ATermReader implements IValueReader {
 				}
 				c = reader.readSkippingWS();
 			} else {
-			    result = vf.tree(node, new IValue[0]);
+			    result = node.make(vf);
 			}
 		} else {
 			throw new FactTypeError("illegal character: "
@@ -187,22 +186,8 @@ public class ATermReader implements IValueReader {
 			throw new FactTypeError("premature EOF encountered.");
 		}
 		if (reader.getLastChar() == ')') {
-			if (expected.getBaseType().isTupleType()) {
-				if (expected.isNamedType()) {
-				  result = vf.tuple((NamedType) expected, new IValue[0], 0);
-				}
-				else {
-					result = vf.tuple(new IValue[0], 0);
-				}
-			}
-			else {
-				throw new FactTypeError("Expected " + expected + " but got an empty tuple");
-			}
-			
+			result = expected.make(vf);
 		} else {
-			if (!expected.getBaseType().isTupleType()) {
-				throw new FactTypeError("Expected a " + expected + " but got a tuple");
-			}
 			IValue[] list = parseFixedSizeATermsArray(reader, (TupleType) expected.getBaseType());
 
 			if (reader.getLastChar() != ')') {
@@ -210,11 +195,7 @@ public class ATermReader implements IValueReader {
 						+ (char) reader.getLastChar() + "'");
 			}
 
-			if (expected.isNamedType()) {
-				result = vf.tuple((NamedType) expected, list, list.length);
-			} else {
-				result = vf.tuple(list, list.length);
-			}
+			result = expected.make(vf, list);
 		}
 		c = reader.readSkippingWS();
 		if (c == -1) {
@@ -232,17 +213,7 @@ public class ATermReader implements IValueReader {
 		// note that we interpret all strings as strings, not possible function names.
 		// this deviates from the ATerm library.
 		
-		if (expected.getBaseType().isStringType()) {
-			if (expected.isNamedType()) {
-				result = vf.string((NamedType) expected, str);
-			}
-			else {
-				result = vf.string(str);
-			}
-		}
-		else {
-			throw new FactTypeError("Expected " + expected + " but got a string");
-		}
+		result = expected.make(vf, str);
 		
 		c = reader.readSkippingWS();
 		if (c == -1) {
@@ -264,13 +235,8 @@ public class ATermReader implements IValueReader {
 		if (c == ']') {
 			c = reader.readSkippingWS();
 
-			if (expected.isListType()) {
-				result = vf.list((((ListType) expected).getElementType()));
-				((IList) result).getWriter().done();
-			} else if (expected.isNamedType()
-					&& expected.getBaseType().isListType()) {
-				result = vf.list(expected);
-				((IList) result).getWriter().done();
+			if (expected.getBaseType().isListType()) {
+				result = expected.make(vf);
 			} else {
 				throw new FactTypeError("Did not expect a list, rather a "
 						+ expected);
@@ -382,33 +348,7 @@ public class ATermReader implements IValueReader {
 				throw new FactTypeError("malformed int:" + str);
 			}
 			
-			if (expected.getBaseType().isIntegerType()) {
-				if (expected.isNamedType()) {
-					result = vf.integer((NamedType) expected, val);
-				}
-				else {
-					result = vf.integer(val);
-				}
-			}
-			else if (expected.getBaseType().isTreeSortType()) {
-				try {
-				  TreeNodeType anonymousNode = tf.signatureGetAnonymous((TreeSortType) expected.getBaseType());
-				  Type argType = anonymousNode.getChildType(0).getBaseType();
-				  
-				  if (argType.equals(tf.integerType())) {
-					  result = vf.tree(anonymousNode, vf.integer(val));
-				  }
-				  else {
-					  throw new FactTypeError();
-				  }
-				}
-				catch (FactTypeError e) {
-					throw new FactTypeError("Expected a " + expected + " but got an integer: " + val);
-				}
-			}
-			else {
-				throw new FactTypeError("Expected " + expected + " but got integer");
-			}
+			result = expected.make(vf, val);
 		} else if (reader.getLastChar() == 'l' || reader.getLastChar() == 'L') {
 			reader.read();
 			throw new FactTypeError("No support for longs");
@@ -438,20 +378,9 @@ public class ATermReader implements IValueReader {
 			double val;
 			try {
 				val = Double.valueOf(str.toString()).doubleValue();
+				result = expected.make(vf, val);
 			} catch (NumberFormatException e) {
 				throw new FactTypeError("malformed real");
-			}
-			
-			if (expected.getBaseType().isDoubleType()) {
-				if (expected.isNamedType()) {
-					result = vf.dubble((NamedType) expected, val);
-				}
-				else {
-					result = vf.dubble(val);
-				}
-			}
-			else {
-				throw new FactTypeError("Expected " + expected + " but got integer");
 			}
 		}
 		
@@ -537,14 +466,7 @@ public class ATermReader implements IValueReader {
 		IValue[] terms = parseATermsArray(reader, elementType);
 
 		if (base.isListType()) {
-			IList result;
-
-			if (expected.isNamedType()) {
-				result = vf.list((NamedType) expected);
-			} else {
-				result = vf.list(elementType);
-			}
-
+			IList result = (IList) expected.make(vf);
 			IListWriter w = result.getWriter();
 
 			for (int i = terms.length - 1; i >= 0; i--) {
@@ -554,14 +476,7 @@ public class ATermReader implements IValueReader {
 
 			return result;
 		} else if (base.isSetType()) {
-			ISet result;
-
-			if (expected.isNamedType()) {
-				result = vf.set((NamedType) expected);
-			} else {
-				result = vf.set(elementType);
-			}
-
+			ISet result = (ISet) expected.make(vf);
 			ISetWriter w = result.getWriter();
 
 			for (IValue elem : terms) {
@@ -571,16 +486,7 @@ public class ATermReader implements IValueReader {
 
 			return result;
 		} else if (base.isMapType()) {
-			IMap result;
-			
-			if (expected.isNamedType()) {
-				result = vf.map((NamedType) expected);
-			}
-			else {
-				MapType mapType = (MapType) expected;
-				result = vf.map(mapType.getKeyType(), mapType.getValueType());
-			}
-			
+			IMap result = (IMap) expected.make(vf);
 			IMapWriter w = result.getWriter();
 			
 			for (IValue elem : terms) {
@@ -591,16 +497,7 @@ public class ATermReader implements IValueReader {
 			w.done();
 			return result;
 		} else if (base.isRelationType()) {
-			IRelation result;
-			
-			if (expected.isNamedType()) {
-				result = vf.relation((NamedType) expected);
-			}
-			else {
-				RelationType relType = (RelationType) expected;
-				result = vf.relation(relType.getFieldTypes());
-			}
-			
+			IRelation result = (IRelation) expected.make(vf);
 			IRelationWriter w = result.getWriter();
 			
 			for (IValue elem : terms) {
@@ -625,7 +522,7 @@ public class ATermReader implements IValueReader {
 			return ((SetType) expected.getBaseType()).getElementType();
 		} else if (base.isMapType()) {
 			MapType map = (MapType) base;
-			return tf.tupleTypeOf(map.getKeyType(), map.getValueType());
+			return tf.tupleType(map.getKeyType(), map.getValueType());
 		} else if (base.isRelationType()) {
 			RelationType rel = (RelationType) base;
 			return rel.getFieldTypes();
