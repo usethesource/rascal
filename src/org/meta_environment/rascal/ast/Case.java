@@ -2,6 +2,10 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Case extends AbstractAST
 {
+  public org.meta_environment.rascal.ast.Rule getRule ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Rule extends Case
   {
 /* "case" rule:Rule -> Case {cons("Rule")} */
@@ -48,6 +52,10 @@ public abstract class Case extends AbstractAST
     {
       return alternatives;
     }
+  }
+  public org.meta_environment.rascal.ast.Statement getStatement ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class Default extends Case
   {

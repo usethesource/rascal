@@ -2,6 +2,10 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class FunctionName extends AbstractAST
 {
+  public org.meta_environment.rascal.ast.Name getName ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Name extends FunctionName
   {
 /* name:Name -> FunctionName {cons("Name")} */
@@ -49,6 +53,10 @@ public abstract class FunctionName extends AbstractAST
     {
       return alternatives;
     }
+  }
+  public org.meta_environment.rascal.ast.StandardOperator getOperator ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class Operator extends FunctionName
   {

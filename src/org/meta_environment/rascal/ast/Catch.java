@@ -2,6 +2,10 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Catch extends AbstractAST
 {
+  public org.meta_environment.rascal.ast.Statement getBody ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Default extends Catch
   {
 /* "catch" body:Statement -> Catch {cons("Default")} */
@@ -49,6 +53,14 @@ public abstract class Catch extends AbstractAST
     {
       return alternatives;
     }
+  }
+  public org.meta_environment.rascal.ast.Type getType ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public org.meta_environment.rascal.ast.Name getName ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class Binding extends Catch
   {

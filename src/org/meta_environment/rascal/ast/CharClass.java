@@ -2,6 +2,11 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class CharClass extends AbstractAST
 {
+  public org.meta_environment.rascal.ast.
+    OptCharRanges getOptionalCharRanges ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class SimpleCharclass extends CharClass
   {
 /* "[" optionalCharRanges:OptCharRanges "]" -> CharClass {cons("SimpleCharclass")} */
@@ -57,18 +62,39 @@ public abstract class CharClass extends AbstractAST
   }
   static public class Bracket extends CharClass
   {
-/* "(" CharClass ")" -> CharClass {bracket, avoid} */
+/* "(" charClass:CharClass ")" -> CharClass {bracket, cons("Bracket"), avoid} */
     private Bracket ()
     {
     }
-    /*package */ Bracket (ITree tree)
+    /*package */ Bracket (ITree tree,
+			  org.meta_environment.rascal.ast.CharClass charClass)
     {
       this.tree = tree;
+      this.charClass = charClass;
     }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitCharClassBracket (this);
     }
+    private org.meta_environment.rascal.ast.CharClass charClass;
+    public org.meta_environment.rascal.ast.CharClass getCharClass ()
+    {
+      return charClass;
+    }
+    private void $setCharClass (org.meta_environment.rascal.ast.CharClass x)
+    {
+      this.charClass = x;
+    }
+    public Bracket setCharClass (org.meta_environment.rascal.ast.CharClass x)
+    {
+      Bracket z = new Bracket ();
+      z.$setCharClass (x);
+      return z;
+    }
+  }
+  public org.meta_environment.rascal.ast.CharClass getCharClass ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class Complement extends CharClass
   {
@@ -103,6 +129,14 @@ public abstract class CharClass extends AbstractAST
       z.$setCharClass (x);
       return z;
     }
+  }
+  public org.meta_environment.rascal.ast.CharClass getLhs ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public org.meta_environment.rascal.ast.CharClass getRhs ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class Difference extends CharClass
   {

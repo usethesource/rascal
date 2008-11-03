@@ -2,6 +2,14 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class DataTypeSelector extends AbstractAST
 {
+  public org.meta_environment.rascal.ast.Name getSort ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public org.meta_environment.rascal.ast.Name getProduction ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Selector extends DataTypeSelector
   {
 /* sort:Name "." production:Name -> DataTypeSelector {cons("Selector")} */

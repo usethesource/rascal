@@ -2,6 +2,10 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class CharRange extends AbstractAST
 {
+  public org.meta_environment.rascal.ast.Character getCharacter ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Character extends CharRange
   {
 /* character:Character -> CharRange {cons("Character")} */
@@ -52,6 +56,14 @@ public abstract class CharRange extends AbstractAST
     {
       return alternatives;
     }
+  }
+  public org.meta_environment.rascal.ast.Character getStart ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public org.meta_environment.rascal.ast.Character getEnd ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class Range extends CharRange
   {

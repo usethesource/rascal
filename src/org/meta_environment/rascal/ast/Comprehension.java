@@ -2,6 +2,15 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Comprehension extends AbstractAST
 {
+  public org.meta_environment.rascal.ast.Expression getResult ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public java.util.List < org.meta_environment.rascal.ast.Generator >
+    getGenerators ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Set extends Comprehension
   {
 /* "{" result:Expression "|" generators:{Generator ","}+ "}" -> Comprehension {cons("Set")} */

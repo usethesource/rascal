@@ -33,6 +33,10 @@ public abstract class Label extends AbstractAST
       return alternatives;
     }
   }
+  public org.meta_environment.rascal.ast.Name getName ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Default extends Label
   {
 /* name:Name ":" -> Label {cons("Default")} */

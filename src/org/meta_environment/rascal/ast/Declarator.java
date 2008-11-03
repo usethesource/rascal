@@ -2,6 +2,15 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Declarator extends AbstractAST
 {
+  public org.meta_environment.rascal.ast.Type getType ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public java.util.List < org.meta_environment.rascal.ast.Variable >
+    getVariables ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Default extends Declarator
   {
 /* type:Type variables:{Variable ","}+ -> Declarator {cons("Default")} */

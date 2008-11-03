@@ -2,6 +2,10 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class StructuredType extends AbstractAST
 {
+  public org.meta_environment.rascal.ast.TypeArg getTypeArg ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class List extends StructuredType
   {
 /* "list" "[" typeArg:TypeArg "]" -> StructuredType {cons("List")} */
@@ -83,6 +87,14 @@ public abstract class StructuredType extends AbstractAST
       return z;
     }
   }
+  public org.meta_environment.rascal.ast.TypeArg getFirst ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public org.meta_environment.rascal.ast.TypeArg getSecond ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Map extends StructuredType
   {
 /* "map" "[" first:TypeArg "," second:TypeArg "]" -> StructuredType {cons("Map")} */
@@ -131,6 +143,10 @@ public abstract class StructuredType extends AbstractAST
       z.$setSecond (x);
       return z;
     }
+  }
+  public java.util.List < org.meta_environment.rascal.ast.TypeArg > getRest ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class Relation extends StructuredType
   {

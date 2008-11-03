@@ -2,6 +2,18 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Variable extends AbstractAST
 {
+  public org.meta_environment.rascal.ast.Name getName ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public org.meta_environment.rascal.ast.Tags getTags ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public org.meta_environment.rascal.ast.Expression getInitial ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class GivenInitialization extends Variable
   {
 /* name:Name tags:Tags "=" initial:Expression -> Variable {cons("GivenInitialization")} */

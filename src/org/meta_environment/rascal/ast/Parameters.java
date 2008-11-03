@@ -2,6 +2,10 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Parameters extends AbstractAST
 {
+  public org.meta_environment.rascal.ast.Formals getFormals ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Default extends Parameters
   {
 /* "(" formals:Formals ")" -> Parameters {cons("Default")} */

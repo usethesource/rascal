@@ -2,6 +2,14 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Module extends AbstractAST
 {
+  public org.meta_environment.rascal.ast.Header getHeader ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public org.meta_environment.rascal.ast.Body getBody ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Default extends Module
   {
 /* header:Header body:Body -> Module {cons("Default")} */

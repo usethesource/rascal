@@ -2,6 +2,11 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Renamings extends AbstractAST
 {
+  public java.util.List < org.meta_environment.rascal.ast.Renaming >
+    getRenamings ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Default extends Renamings
   {
 /* "renaming" renamings:{Renaming ","}+ -> Renamings {cons("Default")} */

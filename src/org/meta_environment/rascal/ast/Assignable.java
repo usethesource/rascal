@@ -2,6 +2,10 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Assignable extends AbstractAST
 {
+  public org.meta_environment.rascal.ast.QualifiedName getQualifiedName ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Variable extends Assignable
   {
 /* qualifiedName:QualifiedName -> Assignable {cons("Variable")} */
@@ -53,6 +57,14 @@ public abstract class Assignable extends AbstractAST
     {
       return alternatives;
     }
+  }
+  public org.meta_environment.rascal.ast.Assignable getReceiver ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public org.meta_environment.rascal.ast.Expression getSubscript ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class Subscript extends Assignable
   {
@@ -107,6 +119,10 @@ public abstract class Assignable extends AbstractAST
       return z;
     }
   }
+  public org.meta_environment.rascal.ast.Name getField ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class FieldAccess extends Assignable
   {
 /* receiver:Assignable "." field:Name -> Assignable {cons("FieldAccess")} */
@@ -157,6 +173,10 @@ public abstract class Assignable extends AbstractAST
       z.$setField (x);
       return z;
     }
+  }
+  public org.meta_environment.rascal.ast.Expression getCondition ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class IfDefined extends Assignable
   {
@@ -211,6 +231,10 @@ public abstract class Assignable extends AbstractAST
       return z;
     }
   }
+  public org.meta_environment.rascal.ast.Expression getAnnotation ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Annotation extends Assignable
   {
 /* receiver:Assignable "@" annotation:Expression -> Assignable {cons("Annotation")} */
@@ -263,6 +287,15 @@ public abstract class Assignable extends AbstractAST
       z.$setAnnotation (x);
       return z;
     }
+  }
+  public org.meta_environment.rascal.ast.Assignable getFirst ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public java.util.List < org.meta_environment.rascal.ast.Assignable >
+    getRest ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class Tuple extends Assignable
   {
@@ -317,6 +350,15 @@ public abstract class Assignable extends AbstractAST
       z.$setRest (x);
       return z;
     }
+  }
+  public org.meta_environment.rascal.ast.Name getName ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public java.util.List < org.meta_environment.rascal.ast.Assignable >
+    getArguments ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class Constructor extends Assignable
   {

@@ -2,6 +2,10 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Symbol extends AbstractAST
 {
+  public org.meta_environment.rascal.ast.Sort getSort ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Sort extends Symbol
   {
 /* sort:Sort -> Symbol {cons("Sort")} */
@@ -48,6 +52,11 @@ public abstract class Symbol extends AbstractAST
     {
       return alternatives;
     }
+  }
+  public java.util.List < org.meta_environment.rascal.ast.Symbol >
+    getParameters ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class ParameterizedSort extends Symbol
   {
@@ -120,6 +129,14 @@ public abstract class Symbol extends AbstractAST
       return visitor.visitSymbolEmpty (this);
     }
   }
+  public org.meta_environment.rascal.ast.Symbol getHead ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public java.util.List < org.meta_environment.rascal.ast.Symbol > getTail ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Sequence extends Symbol
   {
 /* "(" head:Symbol tail:Symbol+ ")" -> Symbol {cons("Sequence")} */
@@ -172,6 +189,10 @@ public abstract class Symbol extends AbstractAST
       z.$setTail (x);
       return z;
     }
+  }
+  public org.meta_environment.rascal.ast.Symbol getSymbol ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class Optional extends Symbol
   {
@@ -268,6 +289,10 @@ public abstract class Symbol extends AbstractAST
       z.$setSymbol (x);
       return z;
     }
+  }
+  public org.meta_environment.rascal.ast.StrCon getSep ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class IterSep extends Symbol
   {
@@ -367,6 +392,14 @@ public abstract class Symbol extends AbstractAST
       return z;
     }
   }
+  public org.meta_environment.rascal.ast.Symbol getLhs ()
+  {
+    throw new UnsupportedOperationException ();
+  }
+  public org.meta_environment.rascal.ast.Symbol getRhs ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Alternative extends Symbol
   {
 /* lhs:Symbol "|" rhs:Symbol -> Symbol {right, cons("Alternative")} */
@@ -415,6 +448,10 @@ public abstract class Symbol extends AbstractAST
       z.$setRhs (x);
       return z;
     }
+  }
+  public org.meta_environment.rascal.ast.CharClass getCharClass ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class CharacterClass extends Symbol
   {
@@ -482,6 +519,10 @@ public abstract class Symbol extends AbstractAST
       return z;
     }
   }
+  public org.meta_environment.rascal.ast.StrCon getString ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Literal extends Symbol
   {
 /* string:StrCon -> Symbol {cons("Literal")} */
@@ -513,6 +554,11 @@ public abstract class Symbol extends AbstractAST
       z.$setString (x);
       return z;
     }
+  }
+  public org.meta_environment.rascal.ast.
+    SingleQuotedStrCon getSingelQuotedString ()
+  {
+    throw new UnsupportedOperationException ();
   }
   static public class CaseInsensitiveLiteral extends Symbol
   {
@@ -551,19 +597,6 @@ public abstract class Symbol extends AbstractAST
       CaseInsensitiveLiteral z = new CaseInsensitiveLiteral ();
       z.$setSingelQuotedString (x);
       return z;
-    }
-  }
-  static public class Lexical extends Symbol
-  {
-    private String string;
-    /*package */ Lexical (ITree tree, String string)
-    {
-      this.tree = tree;
-      this.string = string;
-    }
-    public String getString ()
-    {
-      return string;
     }
   }
 }

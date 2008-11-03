@@ -2,6 +2,10 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class Return extends AbstractAST
 {
+  public org.meta_environment.rascal.ast.Expression getExpression ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class WithExpression extends Return
   {
 /* "return" expression:Expression ";" -> Return {cons("WithExpression")} */
