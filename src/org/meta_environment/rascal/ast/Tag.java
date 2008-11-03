@@ -6,17 +6,23 @@ public abstract class Tag extends AbstractAST
   {
     throw new UnsupportedOperationException ();
   }
+  public org.meta_environment.rascal.ast.TagString getContents ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class Default extends Tag
   {
-/* "@" name:Name TagString -> Tag {cons("Default")} */
+/* "@" name:Name contents:TagString -> Tag {cons("Default")} */
     private Default ()
     {
     }
     /*package */ Default (ITree tree,
-			  org.meta_environment.rascal.ast.Name name)
+			  org.meta_environment.rascal.ast.Name name,
+			  org.meta_environment.rascal.ast.TagString contents)
     {
       this.tree = tree;
       this.name = name;
+      this.contents = contents;
     }
     public IVisitable accept (IASTVisitor visitor)
     {
@@ -35,6 +41,21 @@ public abstract class Tag extends AbstractAST
     {
       Default z = new Default ();
       z.$setName (x);
+      return z;
+    }
+    private org.meta_environment.rascal.ast.TagString contents;
+    public org.meta_environment.rascal.ast.TagString getContents ()
+    {
+      return contents;
+    }
+    private void $setContents (org.meta_environment.rascal.ast.TagString x)
+    {
+      this.contents = x;
+    }
+    public Default setContents (org.meta_environment.rascal.ast.TagString x)
+    {
+      Default z = new Default ();
+      z.$setContents (x);
       return z;
     }
   }
