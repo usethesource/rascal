@@ -78,17 +78,36 @@ public abstract class Expression extends AbstractAST
   }
   static public class Bracket extends Expression
   {
-/* "(" Expression ")" -> Expression {bracket} */
+/* "(" expression:Expression ")" -> Expression {bracket, cons("Bracket")} */
     private Bracket ()
     {
     }
-    /*package */ Bracket (ITree tree)
+    /*package */ Bracket (ITree tree,
+			  org.meta_environment.rascal.ast.
+			  Expression expression)
     {
       this.tree = tree;
+      this.expression = expression;
     }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitExpressionBracket (this);
+    }
+    private org.meta_environment.rascal.ast.Expression expression;
+    public org.meta_environment.rascal.ast.Expression getExpression ()
+    {
+      return expression;
+    }
+    private void $setExpression (org.meta_environment.rascal.ast.Expression x)
+    {
+      this.expression = x;
+    }
+    public Bracket setExpression (org.meta_environment.rascal.ast.
+				  Expression x)
+    {
+      Bracket z = new Bracket ();
+      z.$setExpression (x);
+      return z;
     }
   }
   static public class ClosureCall extends Expression

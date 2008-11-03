@@ -820,33 +820,32 @@ public abstract class Statement extends AbstractAST
   }
   static public class Break extends Statement
   {
-/* break:Break -> Statement {cons("Break")} */
+/* brk:Break -> Statement {cons("Break")} */
     private Break ()
     {
     }
-    /*package */ Break (ITree tree,
-			org.meta_environment.rascal.ast.Break break)
+    /*package */ Break (ITree tree, org.meta_environment.rascal.ast.Break brk)
     {
       this.tree = tree;
-      this.break = break;
+      this.brk = brk;
     }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitStatementBreak (this);
     }
-    private org.meta_environment.rascal.ast.Break break;
-    public org.meta_environment.rascal.ast.Break getBreak ()
+    private org.meta_environment.rascal.ast.Break brk;
+    public org.meta_environment.rascal.ast.Break getBrk ()
     {
-      return break;
+      return brk;
     }
-    private void $setBreak (org.meta_environment.rascal.ast.Break x)
+    private void $setBrk (org.meta_environment.rascal.ast.Break x)
     {
-      this.break = x;
+      this.brk = x;
     }
-    public Break setBreak (org.meta_environment.rascal.ast.Break x)
+    public Break setBrk (org.meta_environment.rascal.ast.Break x)
     {
       Break z = new Break ();
-      z.$setBreak (x);
+      z.$setBrk (x);
       return z;
     }
   }
@@ -883,33 +882,33 @@ public abstract class Statement extends AbstractAST
   }
   static public class Return extends Statement
   {
-/* return:Return -> Statement {cons("Return")} */
+/* ret:Return -> Statement {cons("Return")} */
     private Return ()
     {
     }
     /*package */ Return (ITree tree,
-			 org.meta_environment.rascal.ast.Return return)
+			 org.meta_environment.rascal.ast.Return ret)
     {
       this.tree = tree;
-      this.return = return;
+      this.ret = ret;
     }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitStatementReturn (this);
     }
-    private org.meta_environment.rascal.ast.Return return;
-    public org.meta_environment.rascal.ast.Return getReturn ()
+    private org.meta_environment.rascal.ast.Return ret;
+    public org.meta_environment.rascal.ast.Return getRet ()
     {
-      return return;
+      return ret;
     }
-    private void $setReturn (org.meta_environment.rascal.ast.Return x)
+    private void $setRet (org.meta_environment.rascal.ast.Return x)
     {
-      this.return = x;
+      this.ret = x;
     }
-    public Return setReturn (org.meta_environment.rascal.ast.Return x)
+    public Return setRet (org.meta_environment.rascal.ast.Return x)
     {
       Return z = new Return ();
-      z.$setReturn (x);
+      z.$setRet (x);
       return z;
     }
   }
