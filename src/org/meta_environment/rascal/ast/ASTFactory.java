@@ -2845,10 +2845,12 @@ public class ASTFactory
   }
   public org.meta_environment.rascal.ast.Tag.
     Default makeTagDefault (ITree tree,
-			    org.meta_environment.rascal.ast.Name name)
+			    org.meta_environment.rascal.ast.Name name,
+			    org.meta_environment.rascal.ast.
+			    TagString contents)
   {
     org.meta_environment.rascal.ast.Tag.Default x =
-      new org.meta_environment.rascal.ast.Tag.Default (tree, name);
+      new org.meta_environment.rascal.ast.Tag.Default (tree, name, contents);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
