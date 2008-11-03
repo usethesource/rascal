@@ -3644,16 +3644,15 @@ public class ASTFactory
       get (amb);
   }
   public org.meta_environment.rascal.ast.NoElseMayFollow.
-    Lexical makeNoElseMayFollowLexical (ITree tree, String string)
+    Default makeNoElseMayFollowDefault (ITree tree)
   {
-    org.meta_environment.rascal.ast.NoElseMayFollow.Lexical x =
-      new org.meta_environment.rascal.ast.NoElseMayFollow.Lexical (tree,
-								   string);
+    org.meta_environment.rascal.ast.NoElseMayFollow.Default x =
+      new org.meta_environment.rascal.ast.NoElseMayFollow.Default (tree);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
-    return (org.meta_environment.rascal.ast.NoElseMayFollow.Lexical) table.
+    return (org.meta_environment.rascal.ast.NoElseMayFollow.Default) table.
       get (x);
   }
   public org.meta_environment.rascal.ast.Assignable.
