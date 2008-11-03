@@ -1000,42 +1000,43 @@ public abstract class Statement extends AbstractAST
       return visitor.visitStatementContinue (this);
     }
   }
-  public org.meta_environment.rascal.ast.StringLiteral getLabel ()
+  public org.meta_environment.rascal.ast.StringLiteral getMessage ()
   {
     throw new UnsupportedOperationException ();
   }
   static public class Assert extends Statement
   {
-/* "assert" label:StringLiteral ":" expression:Expression ";" -> Statement {cons("Assert")} */
+/* "assert" message:StringLiteral ":" expression:Expression ";" -> Statement {cons("Assert")} */
     private Assert ()
     {
     }
     /*package */ Assert (ITree tree,
-			 org.meta_environment.rascal.ast.StringLiteral label,
+			 org.meta_environment.rascal.ast.
+			 StringLiteral message,
 			 org.meta_environment.rascal.ast.
 			 Expression expression)
     {
       this.tree = tree;
-      this.label = label;
+      this.message = message;
       this.expression = expression;
     }
     public IVisitable accept (IASTVisitor visitor)
     {
       return visitor.visitStatementAssert (this);
     }
-    private org.meta_environment.rascal.ast.StringLiteral label;
-    public org.meta_environment.rascal.ast.StringLiteral getLabel ()
+    private org.meta_environment.rascal.ast.StringLiteral message;
+    public org.meta_environment.rascal.ast.StringLiteral getMessage ()
     {
-      return label;
+      return message;
     }
-    private void $setLabel (org.meta_environment.rascal.ast.StringLiteral x)
+    private void $setMessage (org.meta_environment.rascal.ast.StringLiteral x)
     {
-      this.label = x;
+      this.message = x;
     }
-    public Assert setLabel (org.meta_environment.rascal.ast.StringLiteral x)
+    public Assert setMessage (org.meta_environment.rascal.ast.StringLiteral x)
     {
       Assert z = new Assert ();
-      z.$setLabel (x);
+      z.$setMessage (x);
       return z;
     }
     private org.meta_environment.rascal.ast.Expression expression;

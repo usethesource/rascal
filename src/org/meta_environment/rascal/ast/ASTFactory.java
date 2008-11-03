@@ -3341,12 +3341,12 @@ public class ASTFactory
   public org.meta_environment.rascal.ast.Statement.
     Assert makeStatementAssert (ITree tree,
 				org.meta_environment.rascal.ast.
-				StringLiteral label,
+				StringLiteral message,
 				org.meta_environment.rascal.ast.
 				Expression expression)
   {
     org.meta_environment.rascal.ast.Statement.Assert x =
-      new org.meta_environment.rascal.ast.Statement.Assert (tree, label,
+      new org.meta_environment.rascal.ast.Statement.Assert (tree, message,
 							    expression);
     if (!table.containsKey (x))
       {
