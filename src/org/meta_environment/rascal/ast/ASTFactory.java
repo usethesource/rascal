@@ -4883,12 +4883,11 @@ public class ASTFactory
 			      org.meta_environment.rascal.ast.Tags tags,
 			      java.util.List <
 			      org.meta_environment.rascal.ast.Alternative >
-			      alternatives)
+			      alts)
   {
     org.meta_environment.rascal.ast.Declaration.View x =
       new org.meta_environment.rascal.ast.Declaration.View (tree, view, type,
-							    tags,
-							    alternatives);
+							    tags, alts);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
