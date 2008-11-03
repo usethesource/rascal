@@ -15,13 +15,13 @@ public abstract class Declaration extends AbstractAST
     throw new UnsupportedOperationException ();
   }
   public java.util.List < org.meta_environment.rascal.ast.Alternative >
-    getAlternatives ()
+    getAlts ()
   {
     throw new UnsupportedOperationException ();
   }
   static public class View extends Declaration
   {
-/* "view" view:Name "<:" type:Name tags:Tags alternatives:{Alternative "|"}+ ";" -> Declaration {cons("View")} */
+/* "view" view:Name "<:" type:Name tags:Tags alts:{Alternative "|"}+ ";" -> Declaration {cons("View")} */
     private View ()
     {
     }
@@ -29,14 +29,13 @@ public abstract class Declaration extends AbstractAST
 		       org.meta_environment.rascal.ast.Name type,
 		       org.meta_environment.rascal.ast.Tags tags,
 		       java.util.List <
-		       org.meta_environment.rascal.ast.Alternative >
-		       alternatives)
+		       org.meta_environment.rascal.ast.Alternative > alts)
     {
       this.tree = tree;
       this.view = view;
       this.type = type;
       this.tags = tags;
-      this.alternatives = alternatives;
+      this.alts = alts;
     }
     public IVisitable accept (IASTVisitor visitor)
     {
@@ -88,24 +87,22 @@ public abstract class Declaration extends AbstractAST
       return z;
     }
     private java.util.List < org.meta_environment.rascal.ast.Alternative >
-      alternatives;
+      alts;
     public java.util.List < org.meta_environment.rascal.ast.Alternative >
-      getAlternatives ()
+      getAlts ()
     {
-      return alternatives;
+      return alts;
     }
-    private void $setAlternatives (java.util.List <
-				   org.meta_environment.rascal.ast.
-				   Alternative > x)
+    private void $setAlts (java.util.List <
+			   org.meta_environment.rascal.ast.Alternative > x)
     {
-      this.alternatives = x;
+      this.alts = x;
     }
-    public View setAlternatives (java.util.List <
-				 org.meta_environment.rascal.ast.Alternative >
-				 x)
+    public View setAlts (java.util.List <
+			 org.meta_environment.rascal.ast.Alternative > x)
     {
       View z = new View ();
-      z.$setAlternatives (x);
+      z.$setAlts (x);
       return z;
     }
   }
