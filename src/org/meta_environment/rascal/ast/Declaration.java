@@ -6,7 +6,7 @@ public abstract class Declaration extends AbstractAST
   {
     throw new UnsupportedOperationException ();
   }
-  public org.meta_environment.rascal.ast.Name getType ()
+  public org.meta_environment.rascal.ast.Name getSuperType ()
   {
     throw new UnsupportedOperationException ();
   }
@@ -21,19 +21,19 @@ public abstract class Declaration extends AbstractAST
   }
   static public class View extends Declaration
   {
-/* "view" view:Name "<:" type:Name tags:Tags alts:{Alternative "|"}+ ";" -> Declaration {cons("View")} */
+/* "view" view:Name "<:" superType:Name tags:Tags alts:{Alternative "|"}+ ";" -> Declaration {cons("View")} */
     private View ()
     {
     }
     /*package */ View (ITree tree, org.meta_environment.rascal.ast.Name view,
-		       org.meta_environment.rascal.ast.Name type,
+		       org.meta_environment.rascal.ast.Name superType,
 		       org.meta_environment.rascal.ast.Tags tags,
 		       java.util.List <
 		       org.meta_environment.rascal.ast.Alternative > alts)
     {
       this.tree = tree;
       this.view = view;
-      this.type = type;
+      this.superType = superType;
       this.tags = tags;
       this.alts = alts;
     }
@@ -56,19 +56,19 @@ public abstract class Declaration extends AbstractAST
       z.$setView (x);
       return z;
     }
-    private org.meta_environment.rascal.ast.Name type;
-    public org.meta_environment.rascal.ast.Name getType ()
+    private org.meta_environment.rascal.ast.Name superType;
+    public org.meta_environment.rascal.ast.Name getSuperType ()
     {
-      return type;
+      return superType;
     }
-    private void $setType (org.meta_environment.rascal.ast.Name x)
+    private void $setSuperType (org.meta_environment.rascal.ast.Name x)
     {
-      this.type = x;
+      this.superType = x;
     }
-    public View setType (org.meta_environment.rascal.ast.Name x)
+    public View setSuperType (org.meta_environment.rascal.ast.Name x)
     {
       View z = new View ();
-      z.$setType (x);
+      z.$setSuperType (x);
       return z;
     }
     private org.meta_environment.rascal.ast.Tags tags;
