@@ -1,6 +1,9 @@
 package org.meta_environment.rascal.parser;
 
-import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -9,6 +12,9 @@ import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.hash.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
+import org.meta_environment.rascal.ast.ASTFactory;
+import org.meta_environment.rascal.ast.Module;
+import org.meta_environment.rascal.ast.Module.Default;
 import org.meta_environment.rascal.io.ATermReader;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.TreeAdapter;
@@ -74,19 +80,33 @@ public class Parser {
 		}
 	}
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws FileNotFoundException {
 		Parser parser = Parser.getInstance();
-		String test = "module Aap";
+		File directory = new File("/ufs/jurgenv/glt/src/rascal-grammar/spec/tests/terms");
 		
-		try {
-			ITree tree = parser.parse(new ByteArrayInputStream(test.getBytes()));
-			System.err.println("tree is " + tree);
-			System.err.println("unparsed: " + new TreeAdapter(tree).yield());
-		} catch (FactTypeError e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+			File[] tests = directory.listFiles(new FilenameFilter() {
+				public boolean accept(File dir, String name) {
+					return name.endsWith(".trm");
+				}
+			});
+			
+			ASTBuilder b = new ASTBuilder(new ASTFactory());
+			
+			for (File file : tests) {
+				try {
+					FileInputStream s = new FileInputStream(file);
+					ITree tree = parser.parse(s);
+					Module.Default module = (Default) b.buildModule(tree);
+					System.err.println("SUCCEEDED: " + module.getHeader());
+				} catch (FactTypeError e) {
+					System.err.println("FAILED: " + file);
+					e.printStackTrace();
+				} catch (IOException e) {
+					System.err.println("FAILED: " + file);
+					e.printStackTrace();
+				}
+			}
+		
 		
 	}
 }
