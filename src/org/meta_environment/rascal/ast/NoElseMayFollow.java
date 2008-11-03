@@ -2,17 +2,19 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
 public abstract class NoElseMayFollow extends AbstractAST
 {
-  static public class Lexical extends NoElseMayFollow
+  static public class Default extends NoElseMayFollow
   {
-    private String string;
-    /*package */ Lexical (ITree tree, String string)
+/*  -> NoElseMayFollow {cons("Default")} */
+    private Default ()
+    {
+    }
+    /*package */ Default (ITree tree)
     {
       this.tree = tree;
-      this.string = string;
     }
-    public String getString ()
+    public IVisitable accept (IASTVisitor visitor)
     {
-      return string;
+      return visitor.visitNoElseMayFollowDefault (this);
     }
   }
   static public class Ambiguity extends NoElseMayFollow

@@ -181,6 +181,8 @@ public interface IASTVisitor
   public Statement visitStatementAll (Statement.All x);
   public Statement visitStatementFor (Statement.For x);
   public Statement visitStatementSolve (Statement.Solve x);
+  public NoElseMayFollow visitNoElseMayFollowDefault (NoElseMayFollow.
+						      Default x);
   public Assignable visitAssignableConstructor (Assignable.Constructor x);
   public Assignable visitAssignableTuple (Assignable.Tuple x);
   public Assignable visitAssignableAnnotation (Assignable.Annotation x);
