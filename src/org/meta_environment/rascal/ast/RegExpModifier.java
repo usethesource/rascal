@@ -1,21 +1,36 @@
 package org.meta_environment.rascal.ast;
-
-public abstract class RegExpModifier extends AbstractAST {
-	static public class Ambiguity extends RegExpModifier {
-		private final java.util.List<org.meta_environment.rascal.ast.RegExpModifier> alternatives;
-
-		public Ambiguity(
-				java.util.List<org.meta_environment.rascal.ast.RegExpModifier> alternatives) {
-			this.alternatives = java.util.Collections
-					.unmodifiableList(alternatives);
-		}
-
-		public java.util.List<org.meta_environment.rascal.ast.RegExpModifier> getAlternatives() {
-			return alternatives;
-		}
-	}
-
-	static public class Lexical extends RegExpModifier {
-		/* [imsd] -> RegExpModifier */
-	}
+import org.eclipse.imp.pdb.facts.ITree;
+public abstract class RegExpModifier extends AbstractAST
+{
+  static public class Lexical extends RegExpModifier
+  {
+    /* [imsd] -> RegExpModifier  */
+    private String string;
+    /*package */ Lexical (ITree tree, String string)
+    {
+      this.tree = tree;
+      this.string = arg;
+    }
+    public String getString ()
+    {
+      return string;
+    }
+  }
+  static public class Ambiguity extends RegExpModifier
+  {
+    private final java.util.List <
+      org.meta_environment.rascal.ast.RegExpModifier > alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.RegExpModifier >
+		      alternatives)
+    {
+      this.alternatives =
+	java.util.Collections.unmodifiableList (alternatives);
+    }
+    public java.util.List < org.meta_environment.rascal.ast.RegExpModifier >
+      getAlternatives ()
+    {
+      return alternatives;
+    }
+  }
 }
