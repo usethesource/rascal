@@ -3478,12 +3478,15 @@ public class ASTFactory
 				org.meta_environment.rascal.ast.Expression >
 				conditions,
 				org.meta_environment.rascal.ast.
-				Statement thenStatement)
+				Statement thenStatement,
+				org.meta_environment.rascal.ast.
+				NoElseMayFollow noElseMayFollow)
   {
     org.meta_environment.rascal.ast.Statement.IfThen x =
       new org.meta_environment.rascal.ast.Statement.IfThen (tree, label,
 							    conditions,
-							    thenStatement);
+							    thenStatement,
+							    noElseMayFollow);
     if (!table.containsKey (x))
       {
 	table.put (x, x);

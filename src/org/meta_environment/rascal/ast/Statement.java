@@ -556,9 +556,13 @@ public abstract class Statement extends AbstractAST
       return z;
     }
   }
+  public org.meta_environment.rascal.ast.NoElseMayFollow getNoElseMayFollow ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   static public class IfThen extends Statement
   {
-/* label:Label "if" "(" conditions:{Expression ","}+ ")" thenStatement:Statement NoElseMayFollow -> Statement {cons("IfThen")} */
+/* label:Label "if" "(" conditions:{Expression ","}+ ")" thenStatement:Statement noElseMayFollow:NoElseMayFollow -> Statement {cons("IfThen")} */
     private IfThen ()
     {
     }
@@ -568,12 +572,15 @@ public abstract class Statement extends AbstractAST
 			 org.meta_environment.rascal.ast.Expression >
 			 conditions,
 			 org.meta_environment.rascal.ast.
-			 Statement thenStatement)
+			 Statement thenStatement,
+			 org.meta_environment.rascal.ast.
+			 NoElseMayFollow noElseMayFollow)
     {
       this.tree = tree;
       this.label = label;
       this.conditions = conditions;
       this.thenStatement = thenStatement;
+      this.noElseMayFollow = noElseMayFollow;
     }
     public IVisitable accept (IASTVisitor visitor)
     {
@@ -630,6 +637,24 @@ public abstract class Statement extends AbstractAST
     {
       IfThen z = new IfThen ();
       z.$setThenStatement (x);
+      return z;
+    }
+    private org.meta_environment.rascal.ast.NoElseMayFollow noElseMayFollow;
+    public org.meta_environment.rascal.ast.
+      NoElseMayFollow getNoElseMayFollow ()
+    {
+      return noElseMayFollow;
+    }
+    private void $setNoElseMayFollow (org.meta_environment.rascal.ast.
+				      NoElseMayFollow x)
+    {
+      this.noElseMayFollow = x;
+    }
+    public IfThen setNoElseMayFollow (org.meta_environment.rascal.ast.
+				      NoElseMayFollow x)
+    {
+      IfThen z = new IfThen ();
+      z.$setNoElseMayFollow (x);
       return z;
     }
   }
