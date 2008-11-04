@@ -1,124 +1,62 @@
-package org.meta_environment.rascal.ast;
-import org.eclipse.imp.pdb.facts.ITree;
-public abstract class Parameters extends AbstractAST
-{
-  public org.meta_environment.rascal.ast.Formals getFormals ()
-  {
-    throw new UnsupportedOperationException ();
-  }
-  public boolean hasFormals ()
-  {
-    return false;
-  }
-  public boolean isDefault ()
-  {
-    return false;
-  }
-  static public class Default extends Parameters
-  {
+package org.meta_environment.rascal.ast; 
+import org.eclipse.imp.pdb.facts.ITree; 
+public abstract class Parameters extends AbstractAST { 
+public org.meta_environment.rascal.ast.Formals getFormals() { throw new UnsupportedOperationException(); } public boolean hasFormals() { return false; } public boolean isDefault() { return false; }
+static public class Default extends Parameters {
 /* "(" formals:Formals ")" -> Parameters {cons("Default")} */
-    private Default ()
-    {
-    }
-    /*package */ Default (ITree tree,
-			  org.meta_environment.rascal.ast.Formals formals)
-    {
-      this.tree = tree;
-      this.formals = formals;
-    }
-    public IVisItable accept (IASTVisItor visItor)
-    {
-      return visItor.visItParametersDefault (this);
-    }
+	private Default() { }
+	/*package*/ Default(ITree tree, org.meta_environment.rascal.ast.Formals formals) {
+		this.tree = tree;
+		this.formals = formals;
+	}
+	public IVisitable accept(IASTVisitor visitor) {
+		return visitor.visitParametersDefault(this);
+	}
 
-    public boolean isDefault ()
-    {
-      return true;
-    }
+	public boolean isDefault() { return true; }
 
-    public boolean hasFormals ()
-    {
-      return true;
-    }
+	public boolean hasFormals() { return true; }
 
-    private org.meta_environment.rascal.ast.Formals formals;
-    public org.meta_environment.rascal.ast.Formals getFormals ()
-    {
-      return formals;
-    }
-    private void $setFormals (org.meta_environment.rascal.ast.Formals x)
-    {
-      this.formals = x;
-    }
-    public Default setFormals (org.meta_environment.rascal.ast.Formals x)
-    {
-      Default z = new Default ();
-      z.$setFormals (x);
-      return z;
-    }
+private org.meta_environment.rascal.ast.Formals formals;
+	public org.meta_environment.rascal.ast.Formals getFormals() { return formals; }
+	private void $setFormals(org.meta_environment.rascal.ast.Formals x) { this.formals = x; }
+	public Default setFormals(org.meta_environment.rascal.ast.Formals x) { 
+		Default z = new Default();
+ 		z.$setFormals(x);
+		return z;
+	}	
+}
+static public class Ambiguity extends Parameters {
+  private final java.util.List<org.meta_environment.rascal.ast.Parameters> alternatives;
+  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.Parameters> alternatives) {
+	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
-  static public class Ambiguity extends Parameters
-  {
-    private final java.util.LisT <
-      org.meta_environment.rascal.ast.Parameters > alternatives;
-    public Ambiguity (java.util.LisT <
-		      org.meta_environment.rascal.ast.Parameters >
-		      alternatives)
-    {
-      this.alternatives =
-	java.util.Collections.unmodifiableLisT (alternatives);
-    }
-    public java.util.LisT < org.meta_environment.rascal.ast.Parameters >
-      getAlternatives ()
-    {
-      return alternatives;
-    }
+  public java.util.List<org.meta_environment.rascal.ast.Parameters> getAlternatives() {
+	return alternatives;
   }
-  public boolean isVarArgs ()
-  {
-    return false;
-  }
-  static public class VarArgs extends Parameters
-  {
+} public boolean isVarArgs() { return false; }
+static public class VarArgs extends Parameters {
 /* "(" formals:Formals "..." ")" -> Parameters {cons("VarArgs")} */
-    private VarArgs ()
-    {
-    }
-    /*package */ VarArgs (ITree tree,
-			  org.meta_environment.rascal.ast.Formals formals)
-    {
-      this.tree = tree;
-      this.formals = formals;
-    }
-    public IVisItable accept (IASTVisItor visItor)
-    {
-      return visItor.visItParametersVarArgs (this);
-    }
+	private VarArgs() { }
+	/*package*/ VarArgs(ITree tree, org.meta_environment.rascal.ast.Formals formals) {
+		this.tree = tree;
+		this.formals = formals;
+	}
+	public IVisitable accept(IASTVisitor visitor) {
+		return visitor.visitParametersVarArgs(this);
+	}
 
-    public boolean isVarArgs ()
-    {
-      return true;
-    }
+	public boolean isVarArgs() { return true; }
 
-    public boolean hasFormals ()
-    {
-      return true;
-    }
+	public boolean hasFormals() { return true; }
 
-    private org.meta_environment.rascal.ast.Formals formals;
-    public org.meta_environment.rascal.ast.Formals getFormals ()
-    {
-      return formals;
-    }
-    private void $setFormals (org.meta_environment.rascal.ast.Formals x)
-    {
-      this.formals = x;
-    }
-    public VarArgs setFormals (org.meta_environment.rascal.ast.Formals x)
-    {
-      VarArgs z = new VarArgs ();
-      z.$setFormals (x);
-      return z;
-    }
-  }
+private org.meta_environment.rascal.ast.Formals formals;
+	public org.meta_environment.rascal.ast.Formals getFormals() { return formals; }
+	private void $setFormals(org.meta_environment.rascal.ast.Formals x) { this.formals = x; }
+	public VarArgs setFormals(org.meta_environment.rascal.ast.Formals x) { 
+		VarArgs z = new VarArgs();
+ 		z.$setFormals(x);
+		return z;
+	}	
+}
 }

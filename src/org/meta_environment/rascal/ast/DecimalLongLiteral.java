@@ -1,35 +1,22 @@
-package org.meta_environment.rascal.ast;
-import org.eclipse.imp.pdb.facts.ITree;
-public abstract class DecimalLongLiteral extends AbstractAST
-{
-  static public class Lexical extends DecimalLongLiteral
-  {
-    private String string;
-    /*package */ Lexical (ITree tree, String string)
-    {
-      this.tree = tree;
-      this.string = string;
-    }
-    public String getString ()
-    {
-      return string;
-    }
+package org.meta_environment.rascal.ast; 
+import org.eclipse.imp.pdb.facts.ITree; 
+public abstract class DecimalLongLiteral extends AbstractAST { 
+static public class Lexical extends DecimalLongLiteral {
+	private String string;
+	/*package*/ Lexical(ITree tree, String string) {
+		this.tree = tree;
+		this.string = string;
+	}
+	public String getString() {
+		return string;
+	}
+} static public class Ambiguity extends DecimalLongLiteral {
+  private final java.util.List<org.meta_environment.rascal.ast.DecimalLongLiteral> alternatives;
+  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.DecimalLongLiteral> alternatives) {
+	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
   }
-  static public class Ambiguity extends DecimalLongLiteral
-  {
-    private final java.util.LisT <
-      org.meta_environment.rascal.ast.DecimalLongLiteral > alternatives;
-    public Ambiguity (java.util.LisT <
-		      org.meta_environment.rascal.ast.DecimalLongLiteral >
-		      alternatives)
-    {
-      this.alternatives =
-	java.util.Collections.unmodifiableLisT (alternatives);
-    }
-    public java.util.LisT <
-      org.meta_environment.rascal.ast.DecimalLongLiteral > getAlternatives ()
-    {
-      return alternatives;
-    }
+  public java.util.List<org.meta_environment.rascal.ast.DecimalLongLiteral> getAlternatives() {
+	return alternatives;
   }
+}
 }
