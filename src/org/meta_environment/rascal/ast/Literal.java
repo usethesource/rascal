@@ -250,8 +250,7 @@ public abstract class Literal extends AbstractAST
       return z;
     }
   }
-  public org.meta_environment.rascal.ast.
-    FloatingPointLiteral getDoubleLiteral ()
+  public org.meta_environment.rascal.ast.DoubleLiteral getDoubleLiteral ()
   {
     throw new UnsupportedOperationException ();
   }
@@ -265,13 +264,13 @@ public abstract class Literal extends AbstractAST
   }
   static public class Double extends Literal
   {
-/* doubleLiteral:FloatingPointLiteral -> Literal {cons("Double")} */
+/* doubleLiteral:DoubleLiteral -> Literal {cons("Double")} */
     private Double ()
     {
     }
     /*package */ Double (ITree tree,
 			 org.meta_environment.rascal.ast.
-			 FloatingPointLiteral doubleLiteral)
+			 DoubleLiteral doubleLiteral)
     {
       this.tree = tree;
       this.doubleLiteral = doubleLiteral;
@@ -291,20 +290,18 @@ public abstract class Literal extends AbstractAST
       return true;
     }
 
-    private org.meta_environment.rascal.ast.
-      FloatingPointLiteral doubleLiteral;
-    public org.meta_environment.rascal.ast.
-      FloatingPointLiteral getDoubleLiteral ()
+    private org.meta_environment.rascal.ast.DoubleLiteral doubleLiteral;
+    public org.meta_environment.rascal.ast.DoubleLiteral getDoubleLiteral ()
     {
       return doubleLiteral;
     }
     private void $setDoubleLiteral (org.meta_environment.rascal.ast.
-				    FloatingPointLiteral x)
+				    DoubleLiteral x)
     {
       this.doubleLiteral = x;
     }
     public Double setDoubleLiteral (org.meta_environment.rascal.ast.
-				    FloatingPointLiteral x)
+				    DoubleLiteral x)
     {
       Double z = new Double ();
       z.$setDoubleLiteral (x);

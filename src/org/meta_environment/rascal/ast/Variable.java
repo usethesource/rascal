@@ -10,10 +10,6 @@ public abstract class Variable extends AbstractAST
   {
     throw new UnsupportedOperationException ();
   }
-  public org.meta_environment.rascal.ast.Expression getInitial ()
-  {
-    throw new UnsupportedOperationException ();
-  }
   public boolean hasName ()
   {
     return false;
@@ -22,27 +18,113 @@ public abstract class Variable extends AbstractAST
   {
     return false;
   }
+  public boolean isUnInitialized ()
+  {
+    return false;
+  }
+  static public class UnInitialized extends Variable
+  {
+/* name:Name tags:Tags -> Variable {cons("UnInitialized")} */
+    private UnInitialized ()
+    {
+    }
+    /*package */ UnInitialized (ITree tree,
+				org.meta_environment.rascal.ast.Name name,
+				org.meta_environment.rascal.ast.Tags tags)
+    {
+      this.tree = tree;
+      this.name = name;
+      this.tags = tags;
+    }
+    public IVisItable accept (IASTVisItor visItor)
+    {
+      return visItor.visItVariableUnInitialized (this);
+    }
+
+    public boolean isUnInitialized ()
+    {
+      return true;
+    }
+
+    public boolean hasName ()
+    {
+      return true;
+    }
+    public boolean hasTags ()
+    {
+      return true;
+    }
+
+    private org.meta_environment.rascal.ast.Name name;
+    public org.meta_environment.rascal.ast.Name getName ()
+    {
+      return name;
+    }
+    private void $setName (org.meta_environment.rascal.ast.Name x)
+    {
+      this.name = x;
+    }
+    public UnInitialized setName (org.meta_environment.rascal.ast.Name x)
+    {
+      UnInitialized z = new UnInitialized ();
+      z.$setName (x);
+      return z;
+    }
+    private org.meta_environment.rascal.ast.Tags tags;
+    public org.meta_environment.rascal.ast.Tags getTags ()
+    {
+      return tags;
+    }
+    private void $setTags (org.meta_environment.rascal.ast.Tags x)
+    {
+      this.tags = x;
+    }
+    public UnInitialized setTags (org.meta_environment.rascal.ast.Tags x)
+    {
+      UnInitialized z = new UnInitialized ();
+      z.$setTags (x);
+      return z;
+    }
+  }
+  static public class Ambiguity extends Variable
+  {
+    private final java.util.LisT < org.meta_environment.rascal.ast.Variable >
+      alternatives;
+    public Ambiguity (java.util.LisT <
+		      org.meta_environment.rascal.ast.Variable > alternatives)
+    {
+      this.alternatives =
+	java.util.Collections.unmodifiableLisT (alternatives);
+    }
+    public java.util.LisT < org.meta_environment.rascal.ast.Variable >
+      getAlternatives ()
+    {
+      return alternatives;
+    }
+  }
+  public org.meta_environment.rascal.ast.Expression getInitial ()
+  {
+    throw new UnsupportedOperationException ();
+  }
   public boolean hasInitial ()
   {
     return false;
   }
-  public boolean isGivenInitialization ()
+  public boolean isInitialized ()
   {
     return false;
   }
-  static public class GivenInitialization extends Variable
+  static public class Initialized extends Variable
   {
-/* name:Name tags:Tags "=" initial:Expression -> Variable {cons("GivenInitialization")} */
-    private GivenInitialization ()
+/* name:Name tags:Tags "=" initial:Expression -> Variable {cons("Initialized")} */
+    private Initialized ()
     {
     }
-    /*package */ GivenInitialization (ITree tree,
-				      org.meta_environment.rascal.ast.
-				      Name name,
-				      org.meta_environment.rascal.ast.
-				      Tags tags,
-				      org.meta_environment.rascal.ast.
-				      Expression initial)
+    /*package */ Initialized (ITree tree,
+			      org.meta_environment.rascal.ast.Name name,
+			      org.meta_environment.rascal.ast.Tags tags,
+			      org.meta_environment.rascal.ast.
+			      Expression initial)
     {
       this.tree = tree;
       this.name = name;
@@ -51,10 +133,10 @@ public abstract class Variable extends AbstractAST
     }
     public IVisItable accept (IASTVisItor visItor)
     {
-      return visItor.visItVariableGivenInitialization (this);
+      return visItor.visItVariableInitialized (this);
     }
 
-    public boolean isGivenInitialization ()
+    public boolean isInitialized ()
     {
       return true;
     }
@@ -81,10 +163,9 @@ public abstract class Variable extends AbstractAST
     {
       this.name = x;
     }
-    public GivenInitialization setName (org.meta_environment.rascal.ast.
-					Name x)
+    public Initialized setName (org.meta_environment.rascal.ast.Name x)
     {
-      GivenInitialization z = new GivenInitialization ();
+      Initialized z = new Initialized ();
       z.$setName (x);
       return z;
     }
@@ -97,10 +178,9 @@ public abstract class Variable extends AbstractAST
     {
       this.tags = x;
     }
-    public GivenInitialization setTags (org.meta_environment.rascal.ast.
-					Tags x)
+    public Initialized setTags (org.meta_environment.rascal.ast.Tags x)
     {
-      GivenInitialization z = new GivenInitialization ();
+      Initialized z = new Initialized ();
       z.$setTags (x);
       return z;
     }
@@ -113,28 +193,12 @@ public abstract class Variable extends AbstractAST
     {
       this.initial = x;
     }
-    public GivenInitialization setInitial (org.meta_environment.rascal.ast.
-					   Expression x)
+    public Initialized setInitial (org.meta_environment.rascal.ast.
+				   Expression x)
     {
-      GivenInitialization z = new GivenInitialization ();
+      Initialized z = new Initialized ();
       z.$setInitial (x);
       return z;
-    }
-  }
-  static public class Ambiguity extends Variable
-  {
-    private final java.util.LisT < org.meta_environment.rascal.ast.Variable >
-      alternatives;
-    public Ambiguity (java.util.LisT <
-		      org.meta_environment.rascal.ast.Variable > alternatives)
-    {
-      this.alternatives =
-	java.util.Collections.unmodifiableLisT (alternatives);
-    }
-    public java.util.LisT < org.meta_environment.rascal.ast.Variable >
-      getAlternatives ()
-    {
-      return alternatives;
     }
   }
 }
