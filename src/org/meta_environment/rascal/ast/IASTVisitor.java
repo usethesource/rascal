@@ -1,584 +1,328 @@
 package org.meta_environment.rascal.ast;
-
-public interface IASTVisitor {
-	public Alternative visitAlternativeNamedType(Alternative.NamedType x);
-
-	public Area visitAreaDefault(Area.Default x);
-
-	public Assignable visitAssignableAnnotation(Assignable.Annotation x);
-
-	public Assignable visitAssignableConstructor(Assignable.Constructor x);
-
-	public Assignable visitAssignableFieldAccess(Assignable.FieldAccess x);
-
-	public Assignable visitAssignableIfDefined(Assignable.IfDefined x);
-
-	public Assignable visitAssignableSubscript(Assignable.Subscript x);
-
-	public Assignable visitAssignableTuple(Assignable.Tuple x);
-
-	public Assignable visitAssignableVariable(Assignable.Variable x);
-
-	public Assignment visitAssignmentAddition(Assignment.Addition x);
-
-	public Assignment visitAssignmentDefault(Assignment.Default x);
-
-	public Assignment visitAssignmentDivision(Assignment.Division x);
-
-	public Assignment visitAssignmentInteresection(Assignment.Interesection x);
-
-	public Assignment visitAssignmentProduct(Assignment.Product x);
-
-	public Assignment visitAssignmentSubstraction(Assignment.Substraction x);
-
-	public BasicType visitBasicTypeBool(BasicType.Bool x);
-
-	public BasicType visitBasicTypeDouble(BasicType.Double x);
-
-	public BasicType visitBasicTypeInt(BasicType.Int x);
-
-	public BasicType visitBasicTypeLoc(BasicType.Loc x);
-
-	public BasicType visitBasicTypeString(BasicType.String x);
-
-	public BasicType visitBasicTypeTerm(BasicType.Term x);
-
-	public BasicType visitBasicTypeValue(BasicType.Value x);
-
-	public BasicType visitBasicTypeVoid(BasicType.Void x);
-
-	public Body visitBodyToplevels(Body.Toplevels x);
-
-	public Bound visitBoundDefault(Bound.Default x);
-
-	public Bound visitBoundEmpty(Bound.Empty x);
-
-	public Break visitBreakNoLabel(Break.NoLabel x);
-
-	public Break visitBreakWithLabel(Break.WithLabel x);
-
-	public Case visitCaseDefault(Case.Default x);
-
-	public Case visitCaseRule(Case.Rule x);
-
-	public Catch visitCatchBinding(Catch.Binding x);
-
-	public Catch visitCatchDefault(Catch.Default x);
-
-	public Character visitCharacterBottom(Character.Bottom x);
-
-	public Character visitCharacterEOF(Character.EOF x);
-
-	public Character visitCharacterLabelStart(Character.LabelStart x);
-
-	public Character visitCharacterNumeric(Character.Numeric x);
-
-	public Character visitCharacterShort(Character.Short x);
-
-	public Character visitCharacterTop(Character.Top x);
-
-	public CharClass visitCharClassBracket(CharClass.Bracket x);
-
-	public CharClass visitCharClassComplement(CharClass.Complement x);
-
-	public CharClass visitCharClassDifference(CharClass.Difference x);
-
-	public CharClass visitCharClassIntersection(CharClass.Intersection x);
-
-	public CharClass visitCharClassSimpleCharclass(CharClass.SimpleCharclass x);
-
-	public CharClass visitCharClassUnion(CharClass.Union x);
-
-	public CharRange visitCharRangeCharacter(CharRange.Character x);
-
-	public CharRange visitCharRangeRange(CharRange.Range x);
-
-	public CharRanges visitCharRangesBracket(CharRanges.Bracket x);
-
-	public CharRanges visitCharRangesConcatenate(CharRanges.Concatenate x);
-
-	public CharRanges visitCharRangesRange(CharRanges.Range x);
-
-	public Comprehension visitComprehensionList(Comprehension.List x);
-
-	public Comprehension visitComprehensionSet(Comprehension.Set x);
-
-	public DataTypeSelector visitDataTypeSelectorSelector(
-			DataTypeSelector.Selector x);
-
-	public Declaration visitDeclarationAnnotation(Declaration.Annotation x);
-
-	public Declaration visitDeclarationData(Declaration.Data x);
-
-	public Declaration visitDeclarationFunction(Declaration.Function x);
-
-	public Declaration visitDeclarationRule(Declaration.Rule x);
-
-	public Declaration visitDeclarationTag(Declaration.Tag x);
-
-	public Declaration visitDeclarationType(Declaration.Type x);
-
-	public Declaration visitDeclarationVariable(Declaration.Variable x);
-
-	public Declaration visitDeclarationView(Declaration.View x);
-
-	public Declarator visitDeclaratorDefault(Declarator.Default x);
-
-	public Expression visitExpressionAddition(Expression.Addition x);
-
-	public Expression visitExpressionAnd(Expression.And x);
-
-	public Expression visitExpressionAnnotation(Expression.Annotation x);
-
-	public Expression visitExpressionArea(Expression.Area x);
-
-	public Expression visitExpressionAreaInFileLocation(
-			Expression.AreaInFileLocation x);
-
-	public Expression visitExpressionAreaLocation(Expression.AreaLocation x);
-
-	public Expression visitExpressionBracket(Expression.Bracket x);
-
-	public Expression visitExpressionCallOrTree(Expression.CallOrTree x);
-
-	public Expression visitExpressionClosure(Expression.Closure x);
-
-	public Expression visitExpressionClosureCall(Expression.ClosureCall x);
-
-	public Expression visitExpressionComprehension(Expression.Comprehension x);
-
-	public Expression visitExpressionDivision(Expression.Division x);
-
-	public Expression visitExpressionEquals(Expression.Equals x);
-
-	public Expression visitExpressionExists(Expression.Exists x);
-
-	public Expression visitExpressionFieldAccess(Expression.FieldAccess x);
-
-	public Expression visitExpressionFieldUpdate(Expression.FieldUpdate x);
-
-	public Expression visitExpressionFileLocation(Expression.FileLocation x);
-
-	public Expression visitExpressionForAll(Expression.ForAll x);
-
-	public Expression visitExpressionGreaterThan(Expression.GreaterThan x);
-
-	public Expression visitExpressionGreaterThanOrEq(
-			Expression.GreaterThanOrEq x);
-
-	public Expression visitExpressionIfDefined(Expression.IfDefined x);
-
-	public Expression visitExpressionIfThenElse(Expression.IfThenElse x);
-
-	public Expression visitExpressionIn(Expression.In x);
-
-	public Expression visitExpressionIntersection(Expression.Intersection x);
-
-	public Expression visitExpressionLessThan(Expression.LessThan x);
-
-	public Expression visitExpressionLessThanOrEq(Expression.LessThanOrEq x);
-
-	public Expression visitExpressionList(Expression.List x);
-
-	public Expression visitExpressionLiteral(Expression.Literal x);
-
-	public Expression visitExpressionLocation(Expression.Location x);
-
-	public Expression visitExpressionMapTuple(Expression.MapTuple x);
-
-	public Expression visitExpressionMatch(Expression.Match x);
-
-	public Expression visitExpressionNegation(Expression.Negation x);
-
-	public Expression visitExpressionNoMatch(Expression.NoMatch x);
-
-	public Expression visitExpressionNonEquals(Expression.NonEquals x);
-
-	public Expression visitExpressionNotIn(Expression.NotIn x);
-
-	public Expression visitExpressionOperator(Expression.Operator x);
-
-	public Expression visitExpressionOr(Expression.Or x);
-
-	public Expression visitExpressionProduct(Expression.Product x);
-
-	public Expression visitExpressionQualifiedName(Expression.QualifiedName x);
-
-	public Expression visitExpressionRange(Expression.Range x);
-
-	public Expression visitExpressionRegExpMatch(Expression.RegExpMatch x);
-
-	public Expression visitExpressionRegExpNoMatch(Expression.RegExpNoMatch x);
-
-	public Expression visitExpressionSet(Expression.Set x);
-
-	public Expression visitExpressionStepRange(Expression.StepRange x);
-
-	public Expression visitExpressionSubscript(Expression.Subscript x);
-
-	public Expression visitExpressionSubstraction(Expression.Substraction x);
-
-	public Expression visitExpressionTransitiveClosure(
-			Expression.TransitiveClosure x);
-
-	public Expression visitExpressionTransitiveReflexiveClosure(
-			Expression.TransitiveReflexiveClosure x);
-
-	public Expression visitExpressionTuple(Expression.Tuple x);
-
-	public Expression visitExpressionTypedVariable(Expression.TypedVariable x);
-
-	public Expression visitExpressionVisit(Expression.Visit x);
-
-	public Fail visitFailNoLabel(Fail.NoLabel x);
-
-	public Fail visitFailWithLabel(Fail.WithLabel x);
-
-	public Formals visitFormalsDefault(Formals.Default x);
-
-	public Formal visitFormalTypeName(Formal.TypeName x);
-
-	public FunctionBody visitFunctionBodyDefault(FunctionBody.Default x);
-
-	public FunctionDeclaration visitFunctionDeclarationAbstract(
-			FunctionDeclaration.Abstract x);
-
-	public FunctionDeclaration visitFunctionDeclarationDefault(
-			FunctionDeclaration.Default x);
-
-	public FunctionModifier visitFunctionModifierJava(FunctionModifier.Java x);
-
-	public FunctionModifiers visitFunctionModifiersList(FunctionModifiers.List x);
-
-	public FunctionName visitFunctionNameName(FunctionName.Name x);
-
-	public FunctionName visitFunctionNameOperator(FunctionName.Operator x);
-
-	public FunctionType visitFunctionTypeTypeArguments(
-			FunctionType.TypeArguments x);
-
-	public Generator visitGeneratorExpression(Generator.Expression x);
-
-	public Generator visitGeneratorProducer(Generator.Producer x);
-
-	public Header visitHeaderDefault(Header.Default x);
-
-	public Header visitHeaderParameters(Header.Parameters x);
-
-	public Import visitImportDefault(Import.Default x);
-
-	public ImportedModule visitImportedModuleActuals(ImportedModule.Actuals x);
-
-	public ImportedModule visitImportedModuleActualsRenaming(
-			ImportedModule.ActualsRenaming x);
-
-	public ImportedModule visitImportedModuleDefault(ImportedModule.Default x);
-
-	public ImportedModule visitImportedModuleRenamings(
-			ImportedModule.Renamings x);
-
-	public Import visitImportExtend(Import.Extend x);
-
-	public IntegerLiteral visitIntegerLiteralDecimalIntegerLiteral(
-			IntegerLiteral.DecimalIntegerLiteral x);
-
-	public IntegerLiteral visitIntegerLiteralHexIntegerLiteral(
-			IntegerLiteral.HexIntegerLiteral x);
-
-	public IntegerLiteral visitIntegerLiteralOctalIntegerLiteral(
-			IntegerLiteral.OctalIntegerLiteral x);
-
-	public Kind visitKindAll(Kind.All x);
-
-	public Kind visitKindAnno(Kind.Anno x);
-
-	public Kind visitKindData(Kind.Data x);
-
-	public Kind visitKindFunction(Kind.Function x);
-
-	public Kind visitKindModule(Kind.Module x);
-
-	public Kind visitKindTag(Kind.Tag x);
-
-	public Kind visitKindType(Kind.Type x);
-
-	public Kind visitKindVariable(Kind.Variable x);
-
-	public Kind visitKindView(Kind.View x);
-
-	public Label visitLabelDefault(Label.Default x);
-
-	public Label visitLabelEmpty(Label.Empty x);
-
-	public Literal visitLiteralBoolean(Literal.Boolean x);
-
-	public Literal visitLiteralDouble(Literal.Double x);
-
-	public Literal visitLiteralInteger(Literal.Integer x);
-
-	public Literal visitLiteralRegExp(Literal.RegExp x);
-
-	public Literal visitLiteralString(Literal.String x);
-
-	public Literal visitLiteralSymbol(Literal.Symbol x);
-
-	public LocalVariableDeclaration visitLocalVariableDeclarationDefault(
-			LocalVariableDeclaration.Default x);
-
-	public LocalVariableDeclaration visitLocalVariableDeclarationDynamic(
-			LocalVariableDeclaration.Dynamic x);
-
-	public LongLiteral visitLongLiteralDecimalLongLiteral(
-			LongLiteral.DecimalLongLiteral x);
-
-	public LongLiteral visitLongLiteralHexLongLiteral(
-			LongLiteral.HexLongLiteral x);
-
-	public LongLiteral visitLongLiteralOctalLongLiteral(
-			LongLiteral.OctalLongLiteral x);
-
-	public Match visitMatchArbitrary(Match.Arbitrary x);
-
-	public Match visitMatchReplacing(Match.Replacing x);
-
-	public ModuleActuals visitModuleActualsDefault(ModuleActuals.Default x);
-
-	public Module visitModuleDefault(Module.Default x);
-
-	public ModuleParameters visitModuleParametersDefault(
-			ModuleParameters.Default x);
-
-	public NoElseMayFollow visitNoElseMayFollowDefault(NoElseMayFollow.Default x);
-
-	public OptCharRanges visitOptCharRangesAbsent(OptCharRanges.Absent x);
-
-	public OptCharRanges visitOptCharRangesPresent(OptCharRanges.Present x);
-
-	public Parameters visitParametersDefault(Parameters.Default x);
-
-	public Parameters visitParametersVarArgs(Parameters.VarArgs x);
-
-	public QualifiedName visitQualifiedNameDefault(QualifiedName.Default x);
-
-	public Renaming visitRenamingDefault(Renaming.Default x);
-
-	public Renamings visitRenamingsDefault(Renamings.Default x);
-
-	public Return visitReturnNoExpression(Return.NoExpression x);
-
-	public Return visitReturnWithExpression(Return.WithExpression x);
-
-	public Rule visitRuleNoGuard(Rule.NoGuard x);
-
-	public Rule visitRuleWithGuard(Rule.WithGuard x);
-
-	public Signature visitSignatureNoThrows(Signature.NoThrows x);
-
-	public Signature visitSignatureWithThrows(Signature.WithThrows x);
-
-	public StandardOperator visitStandardOperatorAddition(
-			StandardOperator.Addition x);
-
-	public StandardOperator visitStandardOperatorAnd(StandardOperator.And x);
-
-	public StandardOperator visitStandardOperatorDivision(
-			StandardOperator.Division x);
-
-	public StandardOperator visitStandardOperatorEquals(
-			StandardOperator.Equals x);
-
-	public StandardOperator visitStandardOperatorGreaterThan(
-			StandardOperator.GreaterThan x);
-
-	public StandardOperator visitStandardOperatorGreaterThanOrEq(
-			StandardOperator.GreaterThanOrEq x);
-
-	public StandardOperator visitStandardOperatorIn(StandardOperator.In x);
-
-	public StandardOperator visitStandardOperatorIntersection(
-			StandardOperator.Intersection x);
-
-	public StandardOperator visitStandardOperatorLessThan(
-			StandardOperator.LessThan x);
-
-	public StandardOperator visitStandardOperatorLessThanOrEq(
-			StandardOperator.LessThanOrEq x);
-
-	public StandardOperator visitStandardOperatorNot(StandardOperator.Not x);
-
-	public StandardOperator visitStandardOperatorNotEquals(
-			StandardOperator.NotEquals x);
-
-	public StandardOperator visitStandardOperatorNotIn(StandardOperator.NotIn x);
-
-	public StandardOperator visitStandardOperatorOr(StandardOperator.Or x);
-
-	public StandardOperator visitStandardOperatorProduct(
-			StandardOperator.Product x);
-
-	public StandardOperator visitStandardOperatorSubstraction(
-			StandardOperator.Substraction x);
-
-	public Statement visitStatementAll(Statement.All x);
-
-	public Statement visitStatementAssert(Statement.Assert x);
-
-	public Statement visitStatementAssignment(Statement.Assignment x);
-
-	public Statement visitStatementBlock(Statement.Block x);
-
-	public Statement visitStatementBreak(Statement.Break x);
-
-	public Statement visitStatementContinue(Statement.Continue x);
-
-	public Statement visitStatementDoWhile(Statement.DoWhile x);
-
-	public Statement visitStatementExpression(Statement.Expression x);
-
-	public Statement visitStatementFail(Statement.Fail x);
-
-	public Statement visitStatementFirst(Statement.First x);
-
-	public Statement visitStatementFor(Statement.For x);
-
-	public Statement visitStatementFunctionDeclaration(
-			Statement.FunctionDeclaration x);
-
-	public Statement visitStatementGlobalDirective(Statement.GlobalDirective x);
-
-	public Statement visitStatementIfThen(Statement.IfThen x);
-
-	public Statement visitStatementIfThenElse(Statement.IfThenElse x);
-
-	public Statement visitStatementInsert(Statement.Insert x);
-
-	public Statement visitStatementReturn(Statement.Return x);
-
-	public Statement visitStatementSolve(Statement.Solve x);
-
-	public Statement visitStatementSwitch(Statement.Switch x);
-
-	public Statement visitStatementThrow(Statement.Throw x);
-
-	public Statement visitStatementTry(Statement.Try x);
-
-	public Statement visitStatementTryFinally(Statement.TryFinally x);
-
-	public Statement visitStatementVariableDeclaration(
-			Statement.VariableDeclaration x);
-
-	public Statement visitStatementVisit(Statement.Visit x);
-
-	public Statement visitStatementWhile(Statement.While x);
-
-	public Strategy visitStrategyBottomUp(Strategy.BottomUp x);
-
-	public Strategy visitStrategyBottomUpBreak(Strategy.BottomUpBreak x);
-
-	public Strategy visitStrategyInnermost(Strategy.Innermost x);
-
-	public Strategy visitStrategyOutermost(Strategy.Outermost x);
-
-	public Strategy visitStrategyTopDown(Strategy.TopDown x);
-
-	public Strategy visitStrategyTopDownBreak(Strategy.TopDownBreak x);
-
-	public StrChar visitStrCharnewline(StrChar.newline x);
-
-	public StructuredType visitStructuredTypeList(StructuredType.List x);
-
-	public StructuredType visitStructuredTypeMap(StructuredType.Map x);
-
-	public StructuredType visitStructuredTypeRelation(StructuredType.Relation x);
-
-	public StructuredType visitStructuredTypeSet(StructuredType.Set x);
-
-	public StructuredType visitStructuredTypeTuple(StructuredType.Tuple x);
-
-	public Symbol visitSymbolAlternative(Symbol.Alternative x);
-
-	public Symbol visitSymbolCaseInsensitiveLiteral(
-			Symbol.CaseInsensitiveLiteral x);
-
-	public Symbol visitSymbolCharacterClass(Symbol.CharacterClass x);
-
-	public Symbol visitSymbolEmpty(Symbol.Empty x);
-
-	public Symbol visitSymbolIter(Symbol.Iter x);
-
-	public Symbol visitSymbolIterSep(Symbol.IterSep x);
-
-	public Symbol visitSymbolIterStar(Symbol.IterStar x);
-
-	public Symbol visitSymbolIterStarSep(Symbol.IterStarSep x);
-
-	public Symbol visitSymbolLiftedSymbol(Symbol.LiftedSymbol x);
-
-	public Symbol visitSymbolLiteral(Symbol.Literal x);
-
-	public Symbol visitSymbolOptional(Symbol.Optional x);
-
-	public Symbol visitSymbolParameterizedSort(Symbol.ParameterizedSort x);
-
-	public Symbol visitSymbolSequence(Symbol.Sequence x);
-
-	public Symbol visitSymbolSort(Symbol.Sort x);
-
-	public Tag visitTagDefault(Tag.Default x);
-
-	public Tags visitTagsDefault(Tags.Default x);
-
-	public Toplevel visitToplevelDefaultVisibility(Toplevel.DefaultVisibility x);
-
-	public Toplevel visitToplevelGivenVisibility(Toplevel.GivenVisibility x);
-
-	public TypeArg visitTypeArgDefault(TypeArg.Default x);
-
-	public TypeArg visitTypeArgNamed(TypeArg.Named x);
-
-	public Type visitTypeBasic(Type.Basic x);
-
-	public Type visitTypeFunction(Type.Function x);
-
-	public Type visitTypeSelector(Type.Selector x);
-
-	public Type visitTypeStructured(Type.Structured x);
-
-	public Type visitTypeSymbol(Type.Symbol x);
-
-	public Type visitTypeUser(Type.User x);
-
-	public TypeVar visitTypeVarBounded(TypeVar.Bounded x);
-
-	public TypeVar visitTypeVarFree(TypeVar.Free x);
-
-	public Type visitTypeVariable(Type.Variable x);
-
-	public UserType visitUserTypeName(UserType.Name x);
-
-	public UserType visitUserTypeParametric(UserType.Parametric x);
-
-	public ValueProducer visitValueProducerDefaultStrategy(
-			ValueProducer.DefaultStrategy x);
-
-	public ValueProducer visitValueProducerGivenStrategy(
-			ValueProducer.GivenStrategy x);
-
-	public Variable visitVariableGivenInitialization(
-			Variable.GivenInitialization x);
-
-	public Variant visitVariantAnonymousConstructor(
-			Variant.AnonymousConstructor x);
-
-	public Variant visitVariantNAryConstructor(Variant.NAryConstructor x);
-
-	public Variant visitVariantNillaryConstructor(Variant.NillaryConstructor x);
-
-	public Visibility visitVisibilityPrivate(Visibility.Private x);
-
-	public Visibility visitVisibilityPublic(Visibility.Public x);
-
-	public Visit visitVisitDefaultStrategy(Visit.DefaultStrategy x);
-
-	public Visit visitVisitGivenStrategy(Visit.GivenStrategy x);
+import org.eclipse.imp.pdb.facts.ITree;
+public interface IASTVisItor
+{
+  public Body visItBodyToplevels (Body.Toplevels x);
+  public StrChar visItStrCharnewline (StrChar.newline x);
+  public Symbol visItSymbolCaseInsensitiveLiteral (Symbol.
+						   CaseInsensitiveLiteral x);
+  public Symbol visItSymbolLiteral (Symbol.Literal x);
+  public Symbol visItSymbolLiftedSymbol (Symbol.LiftedSymbol x);
+  public Symbol visItSymbolCharacterClass (Symbol.CharacterClass x);
+  public Symbol visItSymbolAlternative (Symbol.Alternative x);
+  public Symbol visItSymbolIterStarSep (Symbol.IterStarSep x);
+  public Symbol visItSymbolIterSep (Symbol.IterSep x);
+  public Symbol visItSymbolIterStar (Symbol.IterStar x);
+  public Symbol visItSymbolIter (Symbol.Iter x);
+  public Symbol visItSymbolOptional (Symbol.Optional x);
+  public Symbol visItSymbolSequence (Symbol.Sequence x);
+  public Symbol visItSymbolEmpty (Symbol.Empty x);
+  public Symbol visItSymbolParameterizedSort (Symbol.ParameterizedSort x);
+  public Symbol visItSymbolSort (Symbol.Sort x);
+  public CharRange visItCharRangeRange (CharRange.Range x);
+  public CharRange visItCharRangeCharacter (CharRange.Character x);
+  public CharRanges visItCharRangesBracket (CharRanges.Bracket x);
+  public CharRanges visItCharRangesConcatenate (CharRanges.Concatenate x);
+  public CharRanges visItCharRangesRange (CharRanges.Range x);
+  public OptCharRanges visItOptCharRangesPresent (OptCharRanges.Present x);
+  public OptCharRanges visItOptCharRangesAbsent (OptCharRanges.Absent x);
+  public CharClass visItCharClassUnion (CharClass.Union x);
+  public CharClass visItCharClassIntersection (CharClass.Intersection x);
+  public CharClass visItCharClassDifference (CharClass.Difference x);
+  public CharClass visItCharClassComplement (CharClass.Complement x);
+  public CharClass visItCharClassBracket (CharClass.Bracket x);
+  public CharClass visItCharClassSimpleCharclass (CharClass.
+						  SimpleCharclass x);
+  public Character visItCharacterLabelStart (Character.LabelStart x);
+  public Character visItCharacterBottom (Character.Bottom x);
+  public Character visItCharacterEOF (Character.EOF x);
+  public Character visItCharacterTop (Character.Top x);
+  public Character visItCharacterShort (Character.Short x);
+  public Character visItCharacterNumeric (Character.Numeric x);
+  public BasicType visItBasicTypeLoc (BasicType.Loc x);
+  public BasicType visItBasicTypeVoid (BasicType.Void x);
+  public BasicType visItBasicTypeTerm (BasicType.Term x);
+  public BasicType visItBasicTypeValue (BasicType.Value x);
+  public BasicType visItBasicTypeString (BasicType.String x);
+  public BasicType visItBasicTypeDouble (BasicType.Double x);
+  public BasicType visItBasicTypeInt (BasicType.Int x);
+  public BasicType visItBasicTypeBool (BasicType.Bool x);
+  public TypeArg visItTypeArgNamed (TypeArg.Named x);
+  public TypeArg visItTypeArgDefault (TypeArg.Default x);
+  public StructuredType visItStructuredTypeTuple (StructuredType.Tuple x);
+  public StructuredType visItStructuredTypeRelation (StructuredType.
+						     Relation x);
+  public StructuredType visItStructuredTypeMap (StructuredType.Map x);
+  public StructuredType visItStructuredTypeSet (StructuredType.Set x);
+  public StructuredType visItStructuredTypeLisT (StructuredType.LisT x);
+  public FunctionType visItFunctionTypeTypeArguments (FunctionType.
+						      TypeArguments x);
+  public TypeVar visItTypeVarBounded (TypeVar.Bounded x);
+  public TypeVar visItTypeVarFree (TypeVar.Free x);
+  public UserType visItUserTypeParametric (UserType.Parametric x);
+  public UserType visItUserTypeName (UserType.Name x);
+  public DataTypeSelector visItDataTypeSelectorSelector (DataTypeSelector.
+							 Selector x);
+  public Type visItTypeSelector (Type.Selector x);
+  public Type visItTypeSymbol (Type.Symbol x);
+  public Type visItTypeUser (Type.User x);
+  public Type visItTypeVariable (Type.Variable x);
+  public Type visItTypeFunction (Type.Function x);
+  public Type visItTypeStructured (Type.Structured x);
+  public Type visItTypeBasic (Type.Basic x);
+  public IntegerLiteral
+    visItIntegerLiteralOctalIntegerLiteral (IntegerLiteral.
+					    OctalIntegerLiteral x);
+  public IntegerLiteral visItIntegerLiteralHexIntegerLiteral (IntegerLiteral.
+							      HexIntegerLiteral
+							      x);
+  public IntegerLiteral
+    visItIntegerLiteralDecimalIntegerLiteral (IntegerLiteral.
+					      DecimalIntegerLiteral x);
+  public LongLiteral visItLongLiteralOctalLongLiteral (LongLiteral.
+						       OctalLongLiteral x);
+  public LongLiteral visItLongLiteralHexLongLiteral (LongLiteral.
+						     HexLongLiteral x);
+  public LongLiteral visItLongLiteralDecimalLongLiteral (LongLiteral.
+							 DecimalLongLiteral
+							 x);
+  public Expression visItExpressionVisIt (Expression.VisIt x);
+  public Expression visItExpressionExisTs (Expression.ExisTs x);
+  public Expression visItExpressionForAll (Expression.ForAll x);
+  public Expression visItExpressionComprehension (Expression.Comprehension x);
+  public Expression visItExpressionNoMatch (Expression.NoMatch x);
+  public Expression visItExpressionMatch (Expression.Match x);
+  public Expression visItExpressionTypedVariable (Expression.TypedVariable x);
+  public Expression visItExpressionOperator (Expression.Operator x);
+  public Expression visItExpressionIfThenElse (Expression.IfThenElse x);
+  public Expression visItExpressionIfDefined (Expression.IfDefined x);
+  public Expression visItExpressionOr (Expression.Or x);
+  public Expression visItExpressionAnd (Expression.And x);
+  public Expression visItExpressionIn (Expression.In x);
+  public Expression visItExpressionNotIn (Expression.NotIn x);
+  public Expression visItExpressionNonEquals (Expression.NonEquals x);
+  public Expression visItExpressionEquals (Expression.Equals x);
+  public Expression visItExpressionGreaterThanOrEq (Expression.
+						    GreaterThanOrEq x);
+  public Expression visItExpressionGreaterThan (Expression.GreaterThan x);
+  public Expression visItExpressionLessThanOrEq (Expression.LessThanOrEq x);
+  public Expression visItExpressionLessThan (Expression.LessThan x);
+  public Expression visItExpressionRegExpNoMatch (Expression.RegExpNoMatch x);
+  public Expression visItExpressionRegExpMatch (Expression.RegExpMatch x);
+  public Expression visItExpressionSubstraction (Expression.Substraction x);
+  public Expression visItExpressionAddition (Expression.Addition x);
+  public Expression visItExpressionDivisIon (Expression.DivisIon x);
+  public Expression visItExpressionIntersection (Expression.Intersection x);
+  public Expression visItExpressionProduct (Expression.Product x);
+  public Expression visItExpressionNegation (Expression.Negation x);
+  public Expression visItExpressionAnnotation (Expression.Annotation x);
+  public Expression visItExpressionTransitiveClosure (Expression.
+						      TransitiveClosure x);
+  public Expression visItExpressionTransitiveReflexiveClosure (Expression.
+							       TransitiveReflexiveClosure
+							       x);
+  public Expression visItExpressionSubscript (Expression.Subscript x);
+  public Expression visItExpressionFieldAccess (Expression.FieldAccess x);
+  public Expression visItExpressionFieldUpdate (Expression.FieldUpdate x);
+  public Expression visItExpressionStepRange (Expression.StepRange x);
+  public Expression visItExpressionRange (Expression.Range x);
+  public Expression visItExpressionClosureCall (Expression.ClosureCall x);
+  public Expression visItExpressionBracket (Expression.Bracket x);
+  public Expression visItExpressionClosure (Expression.Closure x);
+  public Expression visItExpressionQualifiedName (Expression.QualifiedName x);
+  public Expression visItExpressionAreaInFileLocation (Expression.
+						       AreaInFileLocation x);
+  public Expression visItExpressionAreaLocation (Expression.AreaLocation x);
+  public Expression visItExpressionFileLocation (Expression.FileLocation x);
+  public Expression visItExpressionArea (Expression.Area x);
+  public Expression visItExpressionLocation (Expression.Location x);
+  public Expression visItExpressionMapTuple (Expression.MapTuple x);
+  public Expression visItExpressionTuple (Expression.Tuple x);
+  public Expression visItExpressionSet (Expression.Set x);
+  public Expression visItExpressionLisT (Expression.LisT x);
+  public Expression visItExpressionCallOrTree (Expression.CallOrTree x);
+  public Expression visItExpressionLiteral (Expression.Literal x);
+  public Area visItAreaDefault (Area.Default x);
+  public Tag visItTagDefault (Tag.Default x);
+  public Tags visItTagsDefault (Tags.Default x);
+  public Literal visItLiteralString (Literal.String x);
+  public Literal visItLiteralDouble (Literal.Double x);
+  public Literal visItLiteralInteger (Literal.Integer x);
+  public Literal visItLiteralBoolean (Literal.Boolean x);
+  public Literal visItLiteralSymbol (Literal.Symbol x);
+  public Literal visItLiteralRegExp (Literal.RegExp x);
+  public Bound visItBoundDefault (Bound.Default x);
+  public Bound visItBoundEmpty (Bound.Empty x);
+  public Statement visItStatementGlobalDirective (Statement.
+						  GlobalDirective x);
+  public Statement visItStatementVariableDeclaration (Statement.
+						      VariableDeclaration x);
+  public Statement visItStatementFunctionDeclaration (Statement.
+						      FunctionDeclaration x);
+  public Statement visItStatementBlock (Statement.Block x);
+  public Statement visItStatementTryFinally (Statement.TryFinally x);
+  public Statement visItStatementTry (Statement.Try x);
+  public Statement visItStatementThrow (Statement.Throw x);
+  public Statement visItStatementInsert (Statement.Insert x);
+  public Statement visItStatementAssert (Statement.Assert x);
+  public Statement visItStatementContinue (Statement.Continue x);
+  public Statement visItStatementReturn (Statement.Return x);
+  public Statement visItStatementFail (Statement.Fail x);
+  public Statement visItStatementBreak (Statement.Break x);
+  public Statement visItStatementAssignment (Statement.Assignment x);
+  public Statement visItStatementVisIt (Statement.VisIt x);
+  public Statement visItStatementExpression (Statement.Expression x);
+  public Statement visItStatementSwitch (Statement.Switch x);
+  public Statement visItStatementIfThen (Statement.IfThen x);
+  public Statement visItStatementIfThenElse (Statement.IfThenElse x);
+  public Statement visItStatementDoWhile (Statement.DoWhile x);
+  public Statement visItStatementWhile (Statement.While x);
+  public Statement visItStatementFirst (Statement.First x);
+  public Statement visItStatementAll (Statement.All x);
+  public Statement visItStatementFor (Statement.For x);
+  public Statement visItStatementSolve (Statement.Solve x);
+  public NoElseMayFollow visItNoElseMayFollowDefault (NoElseMayFollow.
+						      Default x);
+  public Assignable visItAssignableConstructor (Assignable.Constructor x);
+  public Assignable visItAssignableTuple (Assignable.Tuple x);
+  public Assignable visItAssignableAnnotation (Assignable.Annotation x);
+  public Assignable visItAssignableIfDefined (Assignable.IfDefined x);
+  public Assignable visItAssignableFieldAccess (Assignable.FieldAccess x);
+  public Assignable visItAssignableSubscript (Assignable.Subscript x);
+  public Assignable visItAssignableVariable (Assignable.Variable x);
+  public Assignment visItAssignmentInteresection (Assignment.Interesection x);
+  public Assignment visItAssignmentDivisIon (Assignment.DivisIon x);
+  public Assignment visItAssignmentProduct (Assignment.Product x);
+  public Assignment visItAssignmentSubstraction (Assignment.Substraction x);
+  public Assignment visItAssignmentAddition (Assignment.Addition x);
+  public Assignment visItAssignmentDefault (Assignment.Default x);
+  public Label visItLabelDefault (Label.Default x);
+  public Label visItLabelEmpty (Label.Empty x);
+  public Break visItBreakNoLabel (Break.NoLabel x);
+  public Break visItBreakWithLabel (Break.WithLabel x);
+  public Fail visItFailNoLabel (Fail.NoLabel x);
+  public Fail visItFailWithLabel (Fail.WithLabel x);
+  public Return visItReturnNoExpression (Return.NoExpression x);
+  public Return visItReturnWithExpression (Return.WithExpression x);
+  public Catch visItCatchBinding (Catch.Binding x);
+  public Catch visItCatchDefault (Catch.Default x);
+  public Declarator visItDeclaratorDefault (Declarator.Default x);
+  public LocalVariableDeclaration
+    visItLocalVariableDeclarationDynamic (LocalVariableDeclaration.Dynamic x);
+  public LocalVariableDeclaration
+    visItLocalVariableDeclarationDefault (LocalVariableDeclaration.Default x);
+  public Formal visItFormalTypeName (Formal.TypeName x);
+  public Formals visItFormalsDefault (Formals.Default x);
+  public Parameters visItParametersVarArgs (Parameters.VarArgs x);
+  public Parameters visItParametersDefault (Parameters.Default x);
+  public QualifiedName visItQualifiedNameDefault (QualifiedName.Default x);
+  public Module visItModuleDefault (Module.Default x);
+  public ModuleActuals visItModuleActualsDefault (ModuleActuals.Default x);
+  public ImportedModule visItImportedModuleDefault (ImportedModule.Default x);
+  public ImportedModule visItImportedModuleRenamings (ImportedModule.
+						      Renamings x);
+  public ImportedModule visItImportedModuleActuals (ImportedModule.Actuals x);
+  public ImportedModule visItImportedModuleActualsRenaming (ImportedModule.
+							    ActualsRenaming
+							    x);
+  public Renaming visItRenamingDefault (Renaming.Default x);
+  public Renamings visItRenamingsDefault (Renamings.Default x);
+  public Import visItImportExtend (Import.Extend x);
+  public Import visItImportDefault (Import.Default x);
+  public ModuleParameters visItModuleParametersDefault (ModuleParameters.
+							Default x);
+  public Header visItHeaderParameters (Header.Parameters x);
+  public Header visItHeaderDefault (Header.Default x);
+  public VisIbility visItVisIbilityPrivate (VisIbility.Private x);
+  public VisIbility visItVisIbilityPublic (VisIbility.Public x);
+  public Toplevel visItToplevelDefaultVisIbility (Toplevel.
+						  DefaultVisIbility x);
+  public Toplevel visItToplevelGivenVisIbility (Toplevel.GivenVisIbility x);
+  public Declaration visItDeclarationTag (Declaration.Tag x);
+  public Declaration visItDeclarationAnnotation (Declaration.Annotation x);
+  public Declaration visItDeclarationRule (Declaration.Rule x);
+  public Declaration visItDeclarationVariable (Declaration.Variable x);
+  public Declaration visItDeclarationFunction (Declaration.Function x);
+  public Declaration visItDeclarationData (Declaration.Data x);
+  public Declaration visItDeclarationType (Declaration.Type x);
+  public Declaration visItDeclarationView (Declaration.View x);
+  public Alternative visItAlternativeNamedType (Alternative.NamedType x);
+  public Variant visItVariantNillaryConstructor (Variant.
+						 NillaryConstructor x);
+  public Variant visItVariantNAryConstructor (Variant.NAryConstructor x);
+  public Variant visItVariantAnonymousConstructor (Variant.
+						   AnonymousConstructor x);
+  public StandardOperator visItStandardOperatorNotIn (StandardOperator.
+						      NotIn x);
+  public StandardOperator visItStandardOperatorIn (StandardOperator.In x);
+  public StandardOperator visItStandardOperatorNot (StandardOperator.Not x);
+  public StandardOperator visItStandardOperatorOr (StandardOperator.Or x);
+  public StandardOperator visItStandardOperatorAnd (StandardOperator.And x);
+  public StandardOperator
+    visItStandardOperatorGreaterThanOrEq (StandardOperator.GreaterThanOrEq x);
+  public StandardOperator visItStandardOperatorGreaterThan (StandardOperator.
+							    GreaterThan x);
+  public StandardOperator visItStandardOperatorLessThanOrEq (StandardOperator.
+							     LessThanOrEq x);
+  public StandardOperator visItStandardOperatorLessThan (StandardOperator.
+							 LessThan x);
+  public StandardOperator visItStandardOperatorNotEquals (StandardOperator.
+							  NotEquals x);
+  public StandardOperator visItStandardOperatorEquals (StandardOperator.
+						       Equals x);
+  public StandardOperator visItStandardOperatorIntersection (StandardOperator.
+							     Intersection x);
+  public StandardOperator visItStandardOperatorDivisIon (StandardOperator.
+							 DivisIon x);
+  public StandardOperator visItStandardOperatorProduct (StandardOperator.
+							Product x);
+  public StandardOperator visItStandardOperatorSubstraction (StandardOperator.
+							     Substraction x);
+  public StandardOperator visItStandardOperatorAddition (StandardOperator.
+							 Addition x);
+  public FunctionName visItFunctionNameOperator (FunctionName.Operator x);
+  public FunctionName visItFunctionNameName (FunctionName.Name x);
+  public FunctionModifier visItFunctionModifierJava (FunctionModifier.Java x);
+  public FunctionModifiers visItFunctionModifiersLisT (FunctionModifiers.
+						       LisT x);
+  public Signature visItSignatureWithThrows (Signature.WithThrows x);
+  public Signature visItSignatureNoThrows (Signature.NoThrows x);
+  public FunctionDeclaration
+    visItFunctionDeclarationAbstract (FunctionDeclaration.Abstract x);
+  public FunctionDeclaration
+    visItFunctionDeclarationDefault (FunctionDeclaration.Default x);
+  public FunctionBody visItFunctionBodyDefault (FunctionBody.Default x);
+  public Variable visItVariableGivenInitialization (Variable.
+						    GivenInitialization x);
+  public Kind visItKindAll (Kind.All x);
+  public Kind visItKindTag (Kind.Tag x);
+  public Kind visItKindAnno (Kind.Anno x);
+  public Kind visItKindType (Kind.Type x);
+  public Kind visItKindView (Kind.View x);
+  public Kind visItKindData (Kind.Data x);
+  public Kind visItKindVariable (Kind.Variable x);
+  public Kind visItKindFunction (Kind.Function x);
+  public Kind visItKindModule (Kind.Module x);
+  public ValueProducer visItValueProducerGivenStrategy (ValueProducer.
+							GivenStrategy x);
+  public ValueProducer visItValueProducerDefaultStrategy (ValueProducer.
+							  DefaultStrategy x);
+  public Generator visItGeneratorProducer (Generator.Producer x);
+  public Generator visItGeneratorExpression (Generator.Expression x);
+  public Strategy visItStrategyInnermost (Strategy.Innermost x);
+  public Strategy visItStrategyOutermost (Strategy.Outermost x);
+  public Strategy visItStrategyBottomUpBreak (Strategy.BottomUpBreak x);
+  public Strategy visItStrategyBottomUp (Strategy.BottomUp x);
+  public Strategy visItStrategyTopDownBreak (Strategy.TopDownBreak x);
+  public Strategy visItStrategyTopDown (Strategy.TopDown x);
+  public Comprehension visItComprehensionLisT (Comprehension.LisT x);
+  public Comprehension visItComprehensionSet (Comprehension.Set x);
+  public Match visItMatchArbitrary (Match.Arbitrary x);
+  public Match visItMatchReplacing (Match.Replacing x);
+  public Rule visItRuleNoGuard (Rule.NoGuard x);
+  public Rule visItRuleWithGuard (Rule.WithGuard x);
+  public Case visItCaseDefault (Case.Default x);
+  public Case visItCaseRule (Case.Rule x);
+  public VisIt visItVisItGivenStrategy (VisIt.GivenStrategy x);
+  public VisIt visItVisItDefaultStrategy (VisIt.DefaultStrategy x);
 }
