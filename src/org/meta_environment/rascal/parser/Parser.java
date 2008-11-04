@@ -12,7 +12,7 @@ import org.meta_environment.rascal.io.ATermReader;
 import org.meta_environment.uptr.Factory;
 
 /**
- * Parses a Rascal program and returns an AST hierarchy.
+ * Parses a Rascal program and a UPTR tree.
  *
  */
 public class Parser {
