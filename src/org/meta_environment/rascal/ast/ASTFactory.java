@@ -1459,35 +1459,6 @@ public class ASTFactory
     return (org.meta_environment.rascal.ast.OctalLongLiteral.Lexical) table.
       get (x);
   }
-  public org.meta_environment.rascal.ast.FloatingPointLiteral.
-    Ambiguity makeFloatingPointLiteralAmbiguity (java.util.LisT <
-						 org.meta_environment.rascal.
-						 ast.FloatingPointLiteral >
-						 alternatives)
-  {
-    org.meta_environment.rascal.ast.FloatingPointLiteral.Ambiguity amb =
-      new org.meta_environment.rascal.ast.FloatingPointLiteral.
-      Ambiguity (alternatives);
-    if (!table.containsKey (amb))
-      {
-	table.put (amb, amb);
-      }
-    return (org.meta_environment.rascal.ast.FloatingPointLiteral.
-	    Ambiguity) table.get (amb);
-  }
-  public org.meta_environment.rascal.ast.FloatingPointLiteral.
-    Lexical makeFloatingPointLiteralLexical (ITree tree, String string)
-  {
-    org.meta_environment.rascal.ast.FloatingPointLiteral.Lexical x =
-      new org.meta_environment.rascal.ast.FloatingPointLiteral.Lexical (tree,
-									string);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return (org.meta_environment.rascal.ast.FloatingPointLiteral.
-	    Lexical) table.get (x);
-  }
   public org.meta_environment.rascal.ast.DoubleLiteral.
     Ambiguity makeDoubleLiteralAmbiguity (java.util.LisT <
 					  org.meta_environment.rascal.ast.
@@ -2929,7 +2900,7 @@ public class ASTFactory
   public org.meta_environment.rascal.ast.Literal.
     Double makeLiteralDouble (ITree tree,
 			      org.meta_environment.rascal.ast.
-			      FloatingPointLiteral doubleLiteral)
+			      DoubleLiteral doubleLiteral)
   {
     org.meta_environment.rascal.ast.Literal.Double x =
       new org.meta_environment.rascal.ast.Literal.Double (tree,
@@ -5460,6 +5431,26 @@ public class ASTFactory
       get (x);
   }
   public org.meta_environment.rascal.ast.Variable.
+    Initialized makeVariableInitialized (ITree tree,
+					 org.meta_environment.rascal.ast.
+					 Name name,
+					 org.meta_environment.rascal.ast.
+					 Tags tags,
+					 org.meta_environment.rascal.ast.
+					 Expression initial)
+  {
+    org.meta_environment.rascal.ast.Variable.Initialized x =
+      new org.meta_environment.rascal.ast.Variable.Initialized (tree, name,
+								tags,
+								initial);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return (org.meta_environment.rascal.ast.Variable.Initialized) table.
+      get (x);
+  }
+  public org.meta_environment.rascal.ast.Variable.
     Ambiguity makeVariableAmbiguity (java.util.LisT <
 				     org.meta_environment.rascal.ast.
 				     Variable > alternatives)
@@ -5474,26 +5465,21 @@ public class ASTFactory
       get (amb);
   }
   public org.meta_environment.rascal.ast.Variable.
-    GivenInitialization makeVariableGivenInitialization (ITree tree,
-							 org.meta_environment.
-							 rascal.ast.Name name,
-							 org.meta_environment.
-							 rascal.ast.Tags tags,
-							 org.meta_environment.
-							 rascal.ast.
-							 Expression initial)
+    UnInitialized makeVariableUnInitialized (ITree tree,
+					     org.meta_environment.rascal.ast.
+					     Name name,
+					     org.meta_environment.rascal.ast.
+					     Tags tags)
   {
-    org.meta_environment.rascal.ast.Variable.GivenInitialization x =
-      new org.meta_environment.rascal.ast.Variable.GivenInitialization (tree,
-									name,
-									tags,
-									initial);
+    org.meta_environment.rascal.ast.Variable.UnInitialized x =
+      new org.meta_environment.rascal.ast.Variable.UnInitialized (tree, name,
+								  tags);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
-    return (org.meta_environment.rascal.ast.Variable.
-	    GivenInitialization) table.get (x);
+    return (org.meta_environment.rascal.ast.Variable.UnInitialized) table.
+      get (x);
   }
   public org.meta_environment.rascal.ast.Kind.All makeKindAll (ITree tree)
   {

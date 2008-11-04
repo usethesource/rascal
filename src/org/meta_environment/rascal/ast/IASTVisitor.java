@@ -292,8 +292,8 @@ public interface IASTVisItor
   public FunctionDeclaration
     visItFunctionDeclarationDefault (FunctionDeclaration.Default x);
   public FunctionBody visItFunctionBodyDefault (FunctionBody.Default x);
-  public Variable visItVariableGivenInitialization (Variable.
-						    GivenInitialization x);
+  public Variable visItVariableInitialized (Variable.Initialized x);
+  public Variable visItVariableUnInitialized (Variable.UnInitialized x);
   public Kind visItKindAll (Kind.All x);
   public Kind visItKindTag (Kind.Tag x);
   public Kind visItKindAnno (Kind.Anno x);
