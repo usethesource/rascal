@@ -17,7 +17,6 @@ import org.meta_environment.rascal.ast.Module;
 import org.meta_environment.rascal.ast.Module.Default;
 import org.meta_environment.rascal.io.ATermReader;
 import org.meta_environment.uptr.Factory;
-import org.meta_environment.uptr.TreeAdapter;
 
 /**
  * Parses a Rascal program and returns an AST hierarchy.
@@ -37,7 +36,7 @@ public class Parser {
 	
 	private ITree parse(InputStream input) throws IOException, FactTypeError {
 		ATermReader reader = new ATermReader();
-		Process sglr = Runtime.getRuntime().exec("sglr -p /ufs/jurgenv/glt/src/rascal/resources/rascal.trm.tbl -t");
+		Process sglr = Runtime.getRuntime().exec("sglr -p resources/rascal.trm.tbl -t");
 		
 		pipe("sglr", input, sglr.getOutputStream());
 		IValue tmp = reader.read(ValueFactory.getInstance(), Factory.ParseTree, sglr.getInputStream());
@@ -49,10 +48,7 @@ public class Parser {
 	private void waitForSglr(Process sglr) throws IOException {
 		while (true) {
 		  try {
-			  int exitCode = sglr.waitFor();
-			  if (exitCode != 0) {
-				  throw new IOException("SGLR failed with exit code " + exitCode);
-			  }
+			  sglr.waitFor();
 			  break;
 		  } catch (InterruptedException e) {
 			  // it happens
@@ -82,7 +78,7 @@ public class Parser {
 	
 	public static void main(String[] args) throws FileNotFoundException {
 		Parser parser = Parser.getInstance();
-		File directory = new File("/ufs/jurgenv/glt/src/rascal-grammar/spec/tests/terms");
+		File directory = new File("../rascal-grammar/spec/tests/terms");
 		
 			File[] tests = directory.listFiles(new FilenameFilter() {
 				public boolean accept(File dir, String name) {
@@ -96,8 +92,14 @@ public class Parser {
 				try {
 					FileInputStream s = new FileInputStream(file);
 					ITree tree = parser.parse(s);
-					Module.Default module = (Default) b.buildModule(tree);
-					System.err.println("SUCCEEDED: " + module.getHeader());
+					
+					if (tree.getTreeNodeType() == Factory.ParseTree_Top) {
+					  Module.Default module = (Default) b.buildModule(tree);
+					  System.err.println("SUCCEEDED: " + module.getHeader());
+					}
+					else {
+						System.err.println("FAILED: " + file + "\n\t" + tree);
+					}
 				} catch (FactTypeError e) {
 					System.err.println("FAILED: " + file);
 					e.printStackTrace();

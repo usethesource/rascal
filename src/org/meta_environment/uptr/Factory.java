@@ -43,6 +43,7 @@ public class Factory {
 	public static final NamedType    Alternatives = tf.namedType("Alternatives", tf.setType(Tree));
 	
 	public static final TreeNodeType ParseTree_Top = tf.treeNodeType(ParseTree,"parsetree", Tree, "top", tf.integerType(), "amb-cnt");
+	public static final TreeNodeType ParseTree_Summary = tf.treeNodeType(ParseTree, "summary", tf.stringType(), "producer", tf.stringType(), "id", tf.listType(org.meta_environment.rascal.errors.Factory.Error), "errors");
 	
 	public static final TreeNodeType Constructor_Name = tf.treeNodeType(Constructor, "cons", tf.stringType(), "name");
 	public static final TreeNodeType Constructor_Category = tf.treeNodeType(Constructor, "category", tf.stringType(), "name");
