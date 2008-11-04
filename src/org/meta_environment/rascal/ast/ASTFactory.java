@@ -297,8 +297,8 @@ org.meta_environment.rascal.ast.Expression.QualifiedName x = new org.meta_enviro
 		}
 		return (org.meta_environment.rascal.ast.Expression.QualifiedName)table.get(x); 
 }
-public org.meta_environment.rascal.ast.Expression.AreaInFileLocation makeExpressionAreaInFileLocation(ITree tree, org.meta_environment.rascal.ast.Expression filename, org.meta_environment.rascal.ast.Expression area) { 
-org.meta_environment.rascal.ast.Expression.AreaInFileLocation x = new org.meta_environment.rascal.ast.Expression.AreaInFileLocation(tree, filename, area);
+public org.meta_environment.rascal.ast.Expression.AreaInFileLocation makeExpressionAreaInFileLocation(ITree tree, org.meta_environment.rascal.ast.Expression filename, org.meta_environment.rascal.ast.Expression areaExpression) { 
+org.meta_environment.rascal.ast.Expression.AreaInFileLocation x = new org.meta_environment.rascal.ast.Expression.AreaInFileLocation(tree, filename, areaExpression);
 		if (!table.containsKey(x)) { 
 			table.put(x, x);
 		}
