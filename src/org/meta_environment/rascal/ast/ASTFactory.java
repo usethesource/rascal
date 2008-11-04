@@ -304,8 +304,8 @@ org.meta_environment.rascal.ast.Expression.AreaInFileLocation x = new org.meta_e
 		}
 		return (org.meta_environment.rascal.ast.Expression.AreaInFileLocation)table.get(x); 
 }
-public org.meta_environment.rascal.ast.Expression.AreaLocation makeExpressionAreaLocation(ITree tree, org.meta_environment.rascal.ast.Expression area) { 
-org.meta_environment.rascal.ast.Expression.AreaLocation x = new org.meta_environment.rascal.ast.Expression.AreaLocation(tree, area);
+public org.meta_environment.rascal.ast.Expression.AreaLocation makeExpressionAreaLocation(ITree tree, org.meta_environment.rascal.ast.Expression areaExpression) { 
+org.meta_environment.rascal.ast.Expression.AreaLocation x = new org.meta_environment.rascal.ast.Expression.AreaLocation(tree, areaExpression);
 		if (!table.containsKey(x)) { 
 			table.put(x, x);
 		}
@@ -324,13 +324,6 @@ org.meta_environment.rascal.ast.Expression.Area x = new org.meta_environment.ras
 			table.put(x, x);
 		}
 		return (org.meta_environment.rascal.ast.Expression.Area)table.get(x); 
-}
-public org.meta_environment.rascal.ast.Expression.Location makeExpressionLocation(ITree tree, org.meta_environment.rascal.ast.Location location) { 
-org.meta_environment.rascal.ast.Expression.Location x = new org.meta_environment.rascal.ast.Expression.Location(tree, location);
-		if (!table.containsKey(x)) { 
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.Location)table.get(x); 
 }
 public org.meta_environment.rascal.ast.Expression.MapTuple makeExpressionMapTuple(ITree tree, org.meta_environment.rascal.ast.Expression from, org.meta_environment.rascal.ast.Expression to) { 
 org.meta_environment.rascal.ast.Expression.MapTuple x = new org.meta_environment.rascal.ast.Expression.MapTuple(tree, from, to);
