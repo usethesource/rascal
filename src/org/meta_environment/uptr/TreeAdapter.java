@@ -97,8 +97,7 @@ public class TreeAdapter {
 					+ tree);
 		}
 		IList children = getArgs();
-		IList result = (IList) Factory.Args.make(ValueFactory.getInstance());
-		IListWriter writer = result.getWriter();
+		IListWriter writer = Factory.Args.writer(ValueFactory.getInstance());
 		
 		for (int i = 0; i < children.length(); i++) {
 			IValue kid = children.get(i);
@@ -106,8 +105,7 @@ public class TreeAdapter {
 			// skip layout and/or separators
 			i += (isSeparatedList() ? 3 : 1);
 		}
-		writer.done();
-		return result;
+		return writer.done();
 	}
 	
 	public boolean isLexical() {
@@ -125,8 +123,7 @@ public class TreeAdapter {
 		}
 
 		IList children = getArgs();
-		IList result = (IList)Factory.Args.make(ValueFactory.getInstance());
-		IListWriter writer = result.getWriter();
+		IListWriter writer = Factory.Args.writer(ValueFactory.getInstance());
 
 		for (int i = 0; i < children.length(); i++) {
 			IValue kid = children.get(i);
@@ -137,8 +134,7 @@ public class TreeAdapter {
 			// skip layout
 			i++;
 		}
-		writer.done();
-		return result;
+		return writer.done();
 	}
 
 	private boolean isCILiteral() {
