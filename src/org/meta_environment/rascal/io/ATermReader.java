@@ -164,7 +164,7 @@ public class ATermReader implements IValueReader {
 								+ (char) reader.getLastChar() + "'");
 					}
 					
-					result = vf.tree(node, list);
+					result = node.make(vf, list);
 				}
 				c = reader.readSkippingWS();
 			} else {
