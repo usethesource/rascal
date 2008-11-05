@@ -6,13 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 
-import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
-import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
-import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.IRelationWriter;
-import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -467,48 +463,30 @@ public class ATermReader implements IValueReader {
 		IValue[] terms = parseATermsArray(reader, elementType);
 
 		if (base.isListType()) {
-			IList result = (IList) expected.make(vf);
-			IListWriter w = result.getWriter();
+			IListWriter w = expected.writer(vf);
 
 			for (int i = terms.length - 1; i >= 0; i--) {
 				w.insert(terms[i]);
 			}
-			w.done();
 
-			return result;
+			return w.done();
 		} else if (base.isSetType()) {
-			ISet result = (ISet) expected.make(vf);
-			ISetWriter w = result.getWriter();
-
-			for (IValue elem : terms) {
-				w.insert(elem);
-			}
-			w.done();
-
-			return result;
+			ISetWriter w = expected.writer(vf);
+			w.insert(terms);
+			return w.done();
 		} else if (base.isMapType()) {
-			IMap result = (IMap) expected.make(vf);
-			IMapWriter w = result.getWriter();
+			IMapWriter w = expected.writer(vf);
 			
 			for (IValue elem : terms) {
 				ITuple tuple = (ITuple) elem;
 				w.put(tuple.get(0), tuple.get(1));
 			}
 			
-			w.done();
-			return result;
+			return w.done();
 		} else if (base.isRelationType()) {
-			IRelation result = (IRelation) expected.make(vf);
-			IRelationWriter w = result.getWriter();
-			
-			for (IValue elem : terms) {
-				ITuple tuple = (ITuple) elem;
-				w.insert(tuple);
-			}
-			
-			w.done();
-			
-			return result;
+			IRelationWriter w = expected.writer(vf);
+			w.insert(terms);
+			return w.done();
 		}
 
 		throw new FactTypeError("Unexpected type " + expected);
