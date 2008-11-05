@@ -144,7 +144,8 @@ public class ATermReader implements IValueReader {
 				throw new FactTypeError("Expected a " + expected + " but got a tree node");
 			}
 			
-			TreeNodeType node = tf.signatureGet((TreeSortType) expected.getBaseType(), funname);
+			List<TreeNodeType> nodes = tf.lookupTreeNodeType((TreeSortType) expected.getBaseType(), funname);
+			TreeNodeType node = nodes.get(0); // TODO deal with overloading
 			
 			c = reader.skipWS();
 			if (reader.getLastChar() == '(') {
