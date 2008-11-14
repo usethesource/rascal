@@ -1,47 +1,7 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-public abstract class Label extends AbstractAST
+public abstract class FunctionAsValue extends AbstractAST
 {
-  public boolean isEmpty ()
-  {
-    return false;
-  }
-  static public class Empty extends Label
-  {
-/*  -> Label {cons("Empty")} */
-    private Empty ()
-    {
-    }
-    /*package */ Empty (ITree tree)
-    {
-      this.tree = tree;
-    }
-    public < T > T accept (IASTVisitor < T > visitor)
-    {
-      return visitor.visitLabelEmpty (this);
-    }
-
-    public boolean isEmpty ()
-    {
-      return true;
-    }
-  }
-  static public class Ambiguity extends Label
-  {
-    private final java.util.List < org.meta_environment.rascal.ast.Label >
-      alternatives;
-    public Ambiguity (java.util.List < org.meta_environment.rascal.ast.Label >
-		      alternatives)
-    {
-      this.alternatives =
-	java.util.Collections.unmodifiableList (alternatives);
-    }
-    public java.util.List < org.meta_environment.rascal.ast.Label >
-      getAlternatives ()
-    {
-      return alternatives;
-    }
-  }
   public org.meta_environment.rascal.ast.Name getName ()
   {
     throw new UnsupportedOperationException ();
@@ -54,9 +14,9 @@ public abstract class Label extends AbstractAST
   {
     return false;
   }
-  static public class Default extends Label
+  static public class Default extends FunctionAsValue
   {
-/* name:Name ":" -> Label {cons("Default")} */
+/* "#" name:Name -> FunctionAsValue {cons("Default")} */
     private Default ()
     {
     }
@@ -68,7 +28,7 @@ public abstract class Label extends AbstractAST
     }
     public < T > T accept (IASTVisitor < T > visitor)
     {
-      return visitor.visitLabelDefault (this);
+      return visitor.visitFunctionAsValueDefault (this);
     }
 
     public boolean isDefault ()
@@ -95,6 +55,23 @@ public abstract class Label extends AbstractAST
       Default z = new Default ();
       z.$setName (x);
       return z;
+    }
+  }
+  static public class Ambiguity extends FunctionAsValue
+  {
+    private final java.util.List <
+      org.meta_environment.rascal.ast.FunctionAsValue > alternatives;
+    public Ambiguity (java.util.List <
+		      org.meta_environment.rascal.ast.FunctionAsValue >
+		      alternatives)
+    {
+      this.alternatives =
+	java.util.Collections.unmodifiableList (alternatives);
+    }
+    public java.util.List < org.meta_environment.rascal.ast.FunctionAsValue >
+      getAlternatives ()
+    {
+      return alternatives;
     }
   }
 }
