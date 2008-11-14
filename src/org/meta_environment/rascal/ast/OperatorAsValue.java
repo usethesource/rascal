@@ -1,14 +1,14 @@
 package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.ITree;
-public abstract class StandardOperator extends AbstractAST
+public abstract class OperatorAsValue extends AbstractAST
 {
   public boolean isAddition ()
   {
     return false;
   }
-  static public class Addition extends StandardOperator
+  static public class Addition extends OperatorAsValue
   {
-/* "+" -> StandardOperator {cons("Addition")} */
+/* "#+" -> OperatorAsValue {cons("Addition")} */
     private Addition ()
     {
     }
@@ -16,9 +16,9 @@ public abstract class StandardOperator extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IASTVisitor visitor)
+    public < T > T accept (IASTVisitor < T > visitor)
     {
-      return visitor.visitStandardOperatorAddition (this);
+      return visitor.visitOperatorAsValueAddition (this);
     }
 
     public boolean isAddition ()
@@ -26,18 +26,18 @@ public abstract class StandardOperator extends AbstractAST
       return true;
     }
   }
-  static public class Ambiguity extends StandardOperator
+  static public class Ambiguity extends OperatorAsValue
   {
     private final java.util.List <
-      org.meta_environment.rascal.ast.StandardOperator > alternatives;
+      org.meta_environment.rascal.ast.OperatorAsValue > alternatives;
     public Ambiguity (java.util.List <
-		      org.meta_environment.rascal.ast.StandardOperator >
+		      org.meta_environment.rascal.ast.OperatorAsValue >
 		      alternatives)
     {
       this.alternatives =
 	java.util.Collections.unmodifiableList (alternatives);
     }
-    public java.util.List < org.meta_environment.rascal.ast.StandardOperator >
+    public java.util.List < org.meta_environment.rascal.ast.OperatorAsValue >
       getAlternatives ()
     {
       return alternatives;
@@ -47,9 +47,9 @@ public abstract class StandardOperator extends AbstractAST
   {
     return false;
   }
-  static public class Substraction extends StandardOperator
+  static public class Substraction extends OperatorAsValue
   {
-/* "-" -> StandardOperator {cons("Substraction")} */
+/* "#-" -> OperatorAsValue {cons("Substraction")} */
     private Substraction ()
     {
     }
@@ -57,9 +57,9 @@ public abstract class StandardOperator extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IASTVisitor visitor)
+    public < T > T accept (IASTVisitor < T > visitor)
     {
-      return visitor.visitStandardOperatorSubstraction (this);
+      return visitor.visitOperatorAsValueSubstraction (this);
     }
 
     public boolean isSubstraction ()
@@ -71,9 +71,9 @@ public abstract class StandardOperator extends AbstractAST
   {
     return false;
   }
-  static public class Product extends StandardOperator
+  static public class Product extends OperatorAsValue
   {
-/* "*" -> StandardOperator {cons("Product")} */
+/* "#*" -> OperatorAsValue {cons("Product")} */
     private Product ()
     {
     }
@@ -81,9 +81,9 @@ public abstract class StandardOperator extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IASTVisitor visitor)
+    public < T > T accept (IASTVisitor < T > visitor)
     {
-      return visitor.visitStandardOperatorProduct (this);
+      return visitor.visitOperatorAsValueProduct (this);
     }
 
     public boolean isProduct ()
@@ -95,9 +95,9 @@ public abstract class StandardOperator extends AbstractAST
   {
     return false;
   }
-  static public class Division extends StandardOperator
+  static public class Division extends OperatorAsValue
   {
-/* "/" -> StandardOperator {cons("Division")} */
+/* "#/" -> OperatorAsValue {cons("Division")} */
     private Division ()
     {
     }
@@ -105,9 +105,9 @@ public abstract class StandardOperator extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IASTVisitor visitor)
+    public < T > T accept (IASTVisitor < T > visitor)
     {
-      return visitor.visitStandardOperatorDivision (this);
+      return visitor.visitOperatorAsValueDivision (this);
     }
 
     public boolean isDivision ()
@@ -119,9 +119,9 @@ public abstract class StandardOperator extends AbstractAST
   {
     return false;
   }
-  static public class Intersection extends StandardOperator
+  static public class Intersection extends OperatorAsValue
   {
-/* "&" -> StandardOperator {cons("Intersection")} */
+/* "#&" -> OperatorAsValue {cons("Intersection")} */
     private Intersection ()
     {
     }
@@ -129,9 +129,9 @@ public abstract class StandardOperator extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IASTVisitor visitor)
+    public < T > T accept (IASTVisitor < T > visitor)
     {
-      return visitor.visitStandardOperatorIntersection (this);
+      return visitor.visitOperatorAsValueIntersection (this);
     }
 
     public boolean isIntersection ()
@@ -143,9 +143,9 @@ public abstract class StandardOperator extends AbstractAST
   {
     return false;
   }
-  static public class Equals extends StandardOperator
+  static public class Equals extends OperatorAsValue
   {
-/* "==" -> StandardOperator {cons("Equals")} */
+/* "#==" -> OperatorAsValue {cons("Equals")} */
     private Equals ()
     {
     }
@@ -153,9 +153,9 @@ public abstract class StandardOperator extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IASTVisitor visitor)
+    public < T > T accept (IASTVisitor < T > visitor)
     {
-      return visitor.visitStandardOperatorEquals (this);
+      return visitor.visitOperatorAsValueEquals (this);
     }
 
     public boolean isEquals ()
@@ -167,9 +167,9 @@ public abstract class StandardOperator extends AbstractAST
   {
     return false;
   }
-  static public class NotEquals extends StandardOperator
+  static public class NotEquals extends OperatorAsValue
   {
-/* "!=" -> StandardOperator {cons("NotEquals")} */
+/* "#!=" -> OperatorAsValue {cons("NotEquals")} */
     private NotEquals ()
     {
     }
@@ -177,9 +177,9 @@ public abstract class StandardOperator extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IASTVisitor visitor)
+    public < T > T accept (IASTVisitor < T > visitor)
     {
-      return visitor.visitStandardOperatorNotEquals (this);
+      return visitor.visitOperatorAsValueNotEquals (this);
     }
 
     public boolean isNotEquals ()
@@ -191,9 +191,9 @@ public abstract class StandardOperator extends AbstractAST
   {
     return false;
   }
-  static public class LessThan extends StandardOperator
+  static public class LessThan extends OperatorAsValue
   {
-/* "<" -> StandardOperator {cons("LessThan")} */
+/* "#<" -> OperatorAsValue {cons("LessThan")} */
     private LessThan ()
     {
     }
@@ -201,9 +201,9 @@ public abstract class StandardOperator extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IASTVisitor visitor)
+    public < T > T accept (IASTVisitor < T > visitor)
     {
-      return visitor.visitStandardOperatorLessThan (this);
+      return visitor.visitOperatorAsValueLessThan (this);
     }
 
     public boolean isLessThan ()
@@ -215,9 +215,9 @@ public abstract class StandardOperator extends AbstractAST
   {
     return false;
   }
-  static public class LessThanOrEq extends StandardOperator
+  static public class LessThanOrEq extends OperatorAsValue
   {
-/* "<=" -> StandardOperator {cons("LessThanOrEq")} */
+/* "#<=" -> OperatorAsValue {cons("LessThanOrEq")} */
     private LessThanOrEq ()
     {
     }
@@ -225,9 +225,9 @@ public abstract class StandardOperator extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IASTVisitor visitor)
+    public < T > T accept (IASTVisitor < T > visitor)
     {
-      return visitor.visitStandardOperatorLessThanOrEq (this);
+      return visitor.visitOperatorAsValueLessThanOrEq (this);
     }
 
     public boolean isLessThanOrEq ()
@@ -239,9 +239,9 @@ public abstract class StandardOperator extends AbstractAST
   {
     return false;
   }
-  static public class GreaterThan extends StandardOperator
+  static public class GreaterThan extends OperatorAsValue
   {
-/* ">" -> StandardOperator {cons("GreaterThan")} */
+/* "#>" -> OperatorAsValue {cons("GreaterThan")} */
     private GreaterThan ()
     {
     }
@@ -249,9 +249,9 @@ public abstract class StandardOperator extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IASTVisitor visitor)
+    public < T > T accept (IASTVisitor < T > visitor)
     {
-      return visitor.visitStandardOperatorGreaterThan (this);
+      return visitor.visitOperatorAsValueGreaterThan (this);
     }
 
     public boolean isGreaterThan ()
@@ -263,9 +263,9 @@ public abstract class StandardOperator extends AbstractAST
   {
     return false;
   }
-  static public class GreaterThanOrEq extends StandardOperator
+  static public class GreaterThanOrEq extends OperatorAsValue
   {
-/* ">=" -> StandardOperator {cons("GreaterThanOrEq")} */
+/* "#>=" -> OperatorAsValue {cons("GreaterThanOrEq")} */
     private GreaterThanOrEq ()
     {
     }
@@ -273,9 +273,9 @@ public abstract class StandardOperator extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IASTVisitor visitor)
+    public < T > T accept (IASTVisitor < T > visitor)
     {
-      return visitor.visitStandardOperatorGreaterThanOrEq (this);
+      return visitor.visitOperatorAsValueGreaterThanOrEq (this);
     }
 
     public boolean isGreaterThanOrEq ()
@@ -287,9 +287,9 @@ public abstract class StandardOperator extends AbstractAST
   {
     return false;
   }
-  static public class And extends StandardOperator
+  static public class And extends OperatorAsValue
   {
-/* "&&" -> StandardOperator {cons("And")} */
+/* "#&&" -> OperatorAsValue {cons("And")} */
     private And ()
     {
     }
@@ -297,9 +297,9 @@ public abstract class StandardOperator extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IASTVisitor visitor)
+    public < T > T accept (IASTVisitor < T > visitor)
     {
-      return visitor.visitStandardOperatorAnd (this);
+      return visitor.visitOperatorAsValueAnd (this);
     }
 
     public boolean isAnd ()
@@ -311,9 +311,9 @@ public abstract class StandardOperator extends AbstractAST
   {
     return false;
   }
-  static public class Or extends StandardOperator
+  static public class Or extends OperatorAsValue
   {
-/* "||" -> StandardOperator {cons("Or")} */
+/* "#||" -> OperatorAsValue {cons("Or")} */
     private Or ()
     {
     }
@@ -321,9 +321,9 @@ public abstract class StandardOperator extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IASTVisitor visitor)
+    public < T > T accept (IASTVisitor < T > visitor)
     {
-      return visitor.visitStandardOperatorOr (this);
+      return visitor.visitOperatorAsValueOr (this);
     }
 
     public boolean isOr ()
@@ -335,9 +335,9 @@ public abstract class StandardOperator extends AbstractAST
   {
     return false;
   }
-  static public class Not extends StandardOperator
+  static public class Not extends OperatorAsValue
   {
-/* "!" -> StandardOperator {cons("Not")} */
+/* "#!" -> OperatorAsValue {cons("Not")} */
     private Not ()
     {
     }
@@ -345,9 +345,9 @@ public abstract class StandardOperator extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IASTVisitor visitor)
+    public < T > T accept (IASTVisitor < T > visitor)
     {
-      return visitor.visitStandardOperatorNot (this);
+      return visitor.visitOperatorAsValueNot (this);
     }
 
     public boolean isNot ()
@@ -359,9 +359,9 @@ public abstract class StandardOperator extends AbstractAST
   {
     return false;
   }
-  static public class In extends StandardOperator
+  static public class In extends OperatorAsValue
   {
-/* "in" -> StandardOperator {cons("In")} */
+/* "#in" -> OperatorAsValue {cons("In")} */
     private In ()
     {
     }
@@ -369,9 +369,9 @@ public abstract class StandardOperator extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IASTVisitor visitor)
+    public < T > T accept (IASTVisitor < T > visitor)
     {
-      return visitor.visitStandardOperatorIn (this);
+      return visitor.visitOperatorAsValueIn (this);
     }
 
     public boolean isIn ()
@@ -383,9 +383,9 @@ public abstract class StandardOperator extends AbstractAST
   {
     return false;
   }
-  static public class NotIn extends StandardOperator
+  static public class NotIn extends OperatorAsValue
   {
-/* "notin" -> StandardOperator {cons("NotIn")} */
+/* "#notin" -> OperatorAsValue {cons("NotIn")} */
     private NotIn ()
     {
     }
@@ -393,9 +393,9 @@ public abstract class StandardOperator extends AbstractAST
     {
       this.tree = tree;
     }
-    public IVisitable accept (IASTVisitor visitor)
+    public < T > T accept (IASTVisitor < T > visitor)
     {
-      return visitor.visitStandardOperatorNotIn (this);
+      return visitor.visitOperatorAsValueNotIn (this);
     }
 
     public boolean isNotIn ()
