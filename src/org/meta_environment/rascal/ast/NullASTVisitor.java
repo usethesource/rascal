@@ -106,6 +106,14 @@ public class NullASTVisitor < T > implements IASTVisitor < T >
   {
     return null;
   }
+  public T visitExpressionEquivalence (Expression.Equivalence x)
+  {
+    return null;
+  }
+  public T visitExpressionImplication (Expression.Implication x)
+  {
+    return null;
+  }
   public T visitExpressionOr (Expression.Or x)
   {
     return null;
@@ -162,11 +170,15 @@ public class NullASTVisitor < T > implements IASTVisitor < T >
   {
     return null;
   }
-  public T visitExpressionDivision (Expression.Division x)
+  public T visitExpressionIntersection (Expression.Intersection x)
   {
     return null;
   }
-  public T visitExpressionIntersection (Expression.Intersection x)
+  public T visitExpressionModulo (Expression.Modulo x)
+  {
+    return null;
+  }
+  public T visitExpressionDivision (Expression.Division x)
   {
     return null;
   }
@@ -174,7 +186,7 @@ public class NullASTVisitor < T > implements IASTVisitor < T >
   {
     return null;
   }
-  public T visitExpressionNegation (Expression.Negation x)
+  public T visitExpressionComposition (Expression.Composition x)
   {
     return null;
   }
@@ -189,6 +201,18 @@ public class NullASTVisitor < T > implements IASTVisitor < T >
   public T visitExpressionTransitiveReflexiveClosure (Expression.
 						      TransitiveReflexiveClosure
 						      x)
+  {
+    return null;
+  }
+  public T visitExpressionInverse (Expression.Inverse x)
+  {
+    return null;
+  }
+  public T visitExpressionNegative (Expression.Negative x)
+  {
+    return null;
+  }
+  public T visitExpressionNegation (Expression.Negation x)
   {
     return null;
   }

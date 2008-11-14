@@ -455,6 +455,40 @@ public class ASTFactory
       get (x);
   }
   public org.meta_environment.rascal.ast.Expression.
+    Equivalence makeExpressionEquivalence (ITree tree,
+					   org.meta_environment.rascal.ast.
+					   Expression lhs,
+					   org.meta_environment.rascal.ast.
+					   Expression rhs)
+  {
+    org.meta_environment.rascal.ast.Expression.Equivalence x =
+      new org.meta_environment.rascal.ast.Expression.Equivalence (tree, lhs,
+								  rhs);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return (org.meta_environment.rascal.ast.Expression.Equivalence) table.
+      get (x);
+  }
+  public org.meta_environment.rascal.ast.Expression.
+    Implication makeExpressionImplication (ITree tree,
+					   org.meta_environment.rascal.ast.
+					   Expression lhs,
+					   org.meta_environment.rascal.ast.
+					   Expression rhs)
+  {
+    org.meta_environment.rascal.ast.Expression.Implication x =
+      new org.meta_environment.rascal.ast.Expression.Implication (tree, lhs,
+								  rhs);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return (org.meta_environment.rascal.ast.Expression.Implication) table.
+      get (x);
+  }
+  public org.meta_environment.rascal.ast.Expression.
     Or makeExpressionOr (ITree tree,
 			 org.meta_environment.rascal.ast.Expression lhs,
 			 org.meta_environment.rascal.ast.Expression rhs)
@@ -676,23 +710,6 @@ public class ASTFactory
       get (x);
   }
   public org.meta_environment.rascal.ast.Expression.
-    Division makeExpressionDivision (ITree tree,
-				     org.meta_environment.rascal.ast.
-				     Expression lhs,
-				     org.meta_environment.rascal.ast.
-				     Expression rhs)
-  {
-    org.meta_environment.rascal.ast.Expression.Division x =
-      new org.meta_environment.rascal.ast.Expression.Division (tree, lhs,
-							       rhs);
-    if (!table.containsKey (x))
-      {
-	table.put (x, x);
-      }
-    return (org.meta_environment.rascal.ast.Expression.Division) table.
-      get (x);
-  }
-  public org.meta_environment.rascal.ast.Expression.
     Intersection makeExpressionIntersection (ITree tree,
 					     org.meta_environment.rascal.ast.
 					     Expression lhs,
@@ -707,6 +724,38 @@ public class ASTFactory
 	table.put (x, x);
       }
     return (org.meta_environment.rascal.ast.Expression.Intersection) table.
+      get (x);
+  }
+  public org.meta_environment.rascal.ast.Expression.
+    Modulo makeExpressionModulo (ITree tree,
+				 org.meta_environment.rascal.ast.
+				 Expression lhs,
+				 org.meta_environment.rascal.ast.
+				 Expression rhs)
+  {
+    org.meta_environment.rascal.ast.Expression.Modulo x =
+      new org.meta_environment.rascal.ast.Expression.Modulo (tree, lhs, rhs);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return (org.meta_environment.rascal.ast.Expression.Modulo) table.get (x);
+  }
+  public org.meta_environment.rascal.ast.Expression.
+    Division makeExpressionDivision (ITree tree,
+				     org.meta_environment.rascal.ast.
+				     Expression lhs,
+				     org.meta_environment.rascal.ast.
+				     Expression rhs)
+  {
+    org.meta_environment.rascal.ast.Expression.Division x =
+      new org.meta_environment.rascal.ast.Expression.Division (tree, lhs,
+							       rhs);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return (org.meta_environment.rascal.ast.Expression.Division) table.
       get (x);
   }
   public org.meta_environment.rascal.ast.Expression.
@@ -725,18 +774,20 @@ public class ASTFactory
     return (org.meta_environment.rascal.ast.Expression.Product) table.get (x);
   }
   public org.meta_environment.rascal.ast.Expression.
-    Negation makeExpressionNegation (ITree tree,
-				     org.meta_environment.rascal.ast.
-				     Expression argument)
+    Composition makeExpressionComposition (ITree tree,
+					   org.meta_environment.rascal.ast.
+					   Expression lhs,
+					   org.meta_environment.rascal.ast.
+					   Expression rhs)
   {
-    org.meta_environment.rascal.ast.Expression.Negation x =
-      new org.meta_environment.rascal.ast.Expression.Negation (tree,
-							       argument);
+    org.meta_environment.rascal.ast.Expression.Composition x =
+      new org.meta_environment.rascal.ast.Expression.Composition (tree, lhs,
+								  rhs);
     if (!table.containsKey (x))
       {
 	table.put (x, x);
       }
-    return (org.meta_environment.rascal.ast.Expression.Negation) table.
+    return (org.meta_environment.rascal.ast.Expression.Composition) table.
       get (x);
   }
   public org.meta_environment.rascal.ast.Expression.
@@ -792,6 +843,49 @@ public class ASTFactory
       }
     return (org.meta_environment.rascal.ast.Expression.
 	    TransitiveReflexiveClosure) table.get (x);
+  }
+  public org.meta_environment.rascal.ast.Expression.
+    Inverse makeExpressionInverse (ITree tree,
+				   org.meta_environment.rascal.ast.
+				   Expression argument)
+  {
+    org.meta_environment.rascal.ast.Expression.Inverse x =
+      new org.meta_environment.rascal.ast.Expression.Inverse (tree, argument);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return (org.meta_environment.rascal.ast.Expression.Inverse) table.get (x);
+  }
+  public org.meta_environment.rascal.ast.Expression.
+    Negative makeExpressionNegative (ITree tree,
+				     org.meta_environment.rascal.ast.
+				     Expression argument)
+  {
+    org.meta_environment.rascal.ast.Expression.Negative x =
+      new org.meta_environment.rascal.ast.Expression.Negative (tree,
+							       argument);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return (org.meta_environment.rascal.ast.Expression.Negative) table.
+      get (x);
+  }
+  public org.meta_environment.rascal.ast.Expression.
+    Negation makeExpressionNegation (ITree tree,
+				     org.meta_environment.rascal.ast.
+				     Expression argument)
+  {
+    org.meta_environment.rascal.ast.Expression.Negation x =
+      new org.meta_environment.rascal.ast.Expression.Negation (tree,
+							       argument);
+    if (!table.containsKey (x))
+      {
+	table.put (x, x);
+      }
+    return (org.meta_environment.rascal.ast.Expression.Negation) table.
+      get (x);
   }
   public org.meta_environment.rascal.ast.Expression.
     Subscript makeExpressionSubscript (ITree tree,

@@ -29,6 +29,8 @@ public interface IASTVisitor < T >
   public T visitExpressionLiteral (Expression.Literal x);
   public T visitExpressionIfThenElse (Expression.IfThenElse x);
   public T visitExpressionIfDefined (Expression.IfDefined x);
+  public T visitExpressionEquivalence (Expression.Equivalence x);
+  public T visitExpressionImplication (Expression.Implication x);
   public T visitExpressionOr (Expression.Or x);
   public T visitExpressionAnd (Expression.And x);
   public T visitExpressionIn (Expression.In x);
@@ -43,15 +45,19 @@ public interface IASTVisitor < T >
   public T visitExpressionRegExpMatch (Expression.RegExpMatch x);
   public T visitExpressionSubstraction (Expression.Substraction x);
   public T visitExpressionAddition (Expression.Addition x);
-  public T visitExpressionDivision (Expression.Division x);
   public T visitExpressionIntersection (Expression.Intersection x);
+  public T visitExpressionModulo (Expression.Modulo x);
+  public T visitExpressionDivision (Expression.Division x);
   public T visitExpressionProduct (Expression.Product x);
-  public T visitExpressionNegation (Expression.Negation x);
+  public T visitExpressionComposition (Expression.Composition x);
   public T visitExpressionAnnotation (Expression.Annotation x);
   public T visitExpressionTransitiveClosure (Expression.TransitiveClosure x);
   public T visitExpressionTransitiveReflexiveClosure (Expression.
 						      TransitiveReflexiveClosure
 						      x);
+  public T visitExpressionInverse (Expression.Inverse x);
+  public T visitExpressionNegative (Expression.Negative x);
+  public T visitExpressionNegation (Expression.Negation x);
   public T visitExpressionSubscript (Expression.Subscript x);
   public T visitExpressionFieldAccess (Expression.FieldAccess x);
   public T visitExpressionFieldUpdate (Expression.FieldUpdate x);

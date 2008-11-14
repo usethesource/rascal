@@ -1002,6 +1002,149 @@ public abstract class Expression extends AbstractAST
   {
     return false;
   }
+  public boolean isNegation ()
+  {
+    return false;
+  }
+  static public class Negation extends Expression
+  {
+/* "!" argument:Expression -> Expression {cons("Negation")} */
+    private Negation ()
+    {
+    }
+    /*package */ Negation (ITree tree,
+			   org.meta_environment.rascal.ast.
+			   Expression argument)
+    {
+      this.tree = tree;
+      this.argument = argument;
+    }
+    public < T > T accept (IASTVisitor < T > visitor)
+    {
+      return visitor.visitExpressionNegation (this);
+    }
+
+    public boolean isNegation ()
+    {
+      return true;
+    }
+
+    public boolean hasArgument ()
+    {
+      return true;
+    }
+
+    private org.meta_environment.rascal.ast.Expression argument;
+    public org.meta_environment.rascal.ast.Expression getArgument ()
+    {
+      return argument;
+    }
+    private void $setArgument (org.meta_environment.rascal.ast.Expression x)
+    {
+      this.argument = x;
+    }
+    public Negation setArgument (org.meta_environment.rascal.ast.Expression x)
+    {
+      Negation z = new Negation ();
+      z.$setArgument (x);
+      return z;
+    }
+  }
+  public boolean isNegative ()
+  {
+    return false;
+  }
+  static public class Negative extends Expression
+  {
+/* "-" argument:Expression -> Expression {cons("Negative")} */
+    private Negative ()
+    {
+    }
+    /*package */ Negative (ITree tree,
+			   org.meta_environment.rascal.ast.
+			   Expression argument)
+    {
+      this.tree = tree;
+      this.argument = argument;
+    }
+    public < T > T accept (IASTVisitor < T > visitor)
+    {
+      return visitor.visitExpressionNegative (this);
+    }
+
+    public boolean isNegative ()
+    {
+      return true;
+    }
+
+    public boolean hasArgument ()
+    {
+      return true;
+    }
+
+    private org.meta_environment.rascal.ast.Expression argument;
+    public org.meta_environment.rascal.ast.Expression getArgument ()
+    {
+      return argument;
+    }
+    private void $setArgument (org.meta_environment.rascal.ast.Expression x)
+    {
+      this.argument = x;
+    }
+    public Negative setArgument (org.meta_environment.rascal.ast.Expression x)
+    {
+      Negative z = new Negative ();
+      z.$setArgument (x);
+      return z;
+    }
+  }
+  public boolean isInverse ()
+  {
+    return false;
+  }
+  static public class Inverse extends Expression
+  {
+/* "~" argument:Expression -> Expression {cons("Inverse")} */
+    private Inverse ()
+    {
+    }
+    /*package */ Inverse (ITree tree,
+			  org.meta_environment.rascal.ast.Expression argument)
+    {
+      this.tree = tree;
+      this.argument = argument;
+    }
+    public < T > T accept (IASTVisitor < T > visitor)
+    {
+      return visitor.visitExpressionInverse (this);
+    }
+
+    public boolean isInverse ()
+    {
+      return true;
+    }
+
+    public boolean hasArgument ()
+    {
+      return true;
+    }
+
+    private org.meta_environment.rascal.ast.Expression argument;
+    public org.meta_environment.rascal.ast.Expression getArgument ()
+    {
+      return argument;
+    }
+    private void $setArgument (org.meta_environment.rascal.ast.Expression x)
+    {
+      this.argument = x;
+    }
+    public Inverse setArgument (org.meta_environment.rascal.ast.Expression x)
+    {
+      Inverse z = new Inverse ();
+      z.$setArgument (x);
+      return z;
+    }
+  }
   public boolean isTransitiveReflexiveClosure ()
   {
     return false;
@@ -1178,54 +1321,6 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
-  public boolean isNegation ()
-  {
-    return false;
-  }
-  static public class Negation extends Expression
-  {
-/* "!" argument:Expression -> Expression {cons("Negation")} */
-    private Negation ()
-    {
-    }
-    /*package */ Negation (ITree tree,
-			   org.meta_environment.rascal.ast.
-			   Expression argument)
-    {
-      this.tree = tree;
-      this.argument = argument;
-    }
-    public < T > T accept (IASTVisitor < T > visitor)
-    {
-      return visitor.visitExpressionNegation (this);
-    }
-
-    public boolean isNegation ()
-    {
-      return true;
-    }
-
-    public boolean hasArgument ()
-    {
-      return true;
-    }
-
-    private org.meta_environment.rascal.ast.Expression argument;
-    public org.meta_environment.rascal.ast.Expression getArgument ()
-    {
-      return argument;
-    }
-    private void $setArgument (org.meta_environment.rascal.ast.Expression x)
-    {
-      this.argument = x;
-    }
-    public Negation setArgument (org.meta_environment.rascal.ast.Expression x)
-    {
-      Negation z = new Negation ();
-      z.$setArgument (x);
-      return z;
-    }
-  }
   public org.meta_environment.rascal.ast.Expression getLhs ()
   {
     throw new UnsupportedOperationException ();
@@ -1241,6 +1336,74 @@ public abstract class Expression extends AbstractAST
   public boolean hasRhs ()
   {
     return false;
+  }
+  public boolean isComposition ()
+  {
+    return false;
+  }
+  static public class Composition extends Expression
+  {
+/* lhs:Expression "o" rhs:Expression -> Expression {cons("Composition"), left} */
+    private Composition ()
+    {
+    }
+    /*package */ Composition (ITree tree,
+			      org.meta_environment.rascal.ast.Expression lhs,
+			      org.meta_environment.rascal.ast.Expression rhs)
+    {
+      this.tree = tree;
+      this.lhs = lhs;
+      this.rhs = rhs;
+    }
+    public < T > T accept (IASTVisitor < T > visitor)
+    {
+      return visitor.visitExpressionComposition (this);
+    }
+
+    public boolean isComposition ()
+    {
+      return true;
+    }
+
+    public boolean hasLhs ()
+    {
+      return true;
+    }
+    public boolean hasRhs ()
+    {
+      return true;
+    }
+
+    private org.meta_environment.rascal.ast.Expression lhs;
+    public org.meta_environment.rascal.ast.Expression getLhs ()
+    {
+      return lhs;
+    }
+    private void $setLhs (org.meta_environment.rascal.ast.Expression x)
+    {
+      this.lhs = x;
+    }
+    public Composition setLhs (org.meta_environment.rascal.ast.Expression x)
+    {
+      Composition z = new Composition ();
+      z.$setLhs (x);
+      return z;
+    }
+    private org.meta_environment.rascal.ast.Expression rhs;
+    public org.meta_environment.rascal.ast.Expression getRhs ()
+    {
+      return rhs;
+    }
+    private void $setRhs (org.meta_environment.rascal.ast.Expression x)
+    {
+      this.rhs = x;
+    }
+    public Composition setRhs (org.meta_environment.rascal.ast.Expression x)
+    {
+      Composition z = new Composition ();
+      z.$setRhs (x);
+      return z;
+    }
   }
   public boolean isProduct ()
   {
@@ -1310,6 +1473,142 @@ public abstract class Expression extends AbstractAST
       return z;
     }
   }
+  public boolean isDivision ()
+  {
+    return false;
+  }
+  static public class Division extends Expression
+  {
+/* lhs:Expression "/" rhs:Expression -> Expression {cons("Division"), left} */
+    private Division ()
+    {
+    }
+    /*package */ Division (ITree tree,
+			   org.meta_environment.rascal.ast.Expression lhs,
+			   org.meta_environment.rascal.ast.Expression rhs)
+    {
+      this.tree = tree;
+      this.lhs = lhs;
+      this.rhs = rhs;
+    }
+    public < T > T accept (IASTVisitor < T > visitor)
+    {
+      return visitor.visitExpressionDivision (this);
+    }
+
+    public boolean isDivision ()
+    {
+      return true;
+    }
+
+    public boolean hasLhs ()
+    {
+      return true;
+    }
+    public boolean hasRhs ()
+    {
+      return true;
+    }
+
+    private org.meta_environment.rascal.ast.Expression lhs;
+    public org.meta_environment.rascal.ast.Expression getLhs ()
+    {
+      return lhs;
+    }
+    private void $setLhs (org.meta_environment.rascal.ast.Expression x)
+    {
+      this.lhs = x;
+    }
+    public Division setLhs (org.meta_environment.rascal.ast.Expression x)
+    {
+      Division z = new Division ();
+      z.$setLhs (x);
+      return z;
+    }
+    private org.meta_environment.rascal.ast.Expression rhs;
+    public org.meta_environment.rascal.ast.Expression getRhs ()
+    {
+      return rhs;
+    }
+    private void $setRhs (org.meta_environment.rascal.ast.Expression x)
+    {
+      this.rhs = x;
+    }
+    public Division setRhs (org.meta_environment.rascal.ast.Expression x)
+    {
+      Division z = new Division ();
+      z.$setRhs (x);
+      return z;
+    }
+  }
+  public boolean isModulo ()
+  {
+    return false;
+  }
+  static public class Modulo extends Expression
+  {
+/* lhs:Expression "%" rhs:Expression -> Expression {cons("Modulo"), left} */
+    private Modulo ()
+    {
+    }
+    /*package */ Modulo (ITree tree,
+			 org.meta_environment.rascal.ast.Expression lhs,
+			 org.meta_environment.rascal.ast.Expression rhs)
+    {
+      this.tree = tree;
+      this.lhs = lhs;
+      this.rhs = rhs;
+    }
+    public < T > T accept (IASTVisitor < T > visitor)
+    {
+      return visitor.visitExpressionModulo (this);
+    }
+
+    public boolean isModulo ()
+    {
+      return true;
+    }
+
+    public boolean hasLhs ()
+    {
+      return true;
+    }
+    public boolean hasRhs ()
+    {
+      return true;
+    }
+
+    private org.meta_environment.rascal.ast.Expression lhs;
+    public org.meta_environment.rascal.ast.Expression getLhs ()
+    {
+      return lhs;
+    }
+    private void $setLhs (org.meta_environment.rascal.ast.Expression x)
+    {
+      this.lhs = x;
+    }
+    public Modulo setLhs (org.meta_environment.rascal.ast.Expression x)
+    {
+      Modulo z = new Modulo ();
+      z.$setLhs (x);
+      return z;
+    }
+    private org.meta_environment.rascal.ast.Expression rhs;
+    public org.meta_environment.rascal.ast.Expression getRhs ()
+    {
+      return rhs;
+    }
+    private void $setRhs (org.meta_environment.rascal.ast.Expression x)
+    {
+      this.rhs = x;
+    }
+    public Modulo setRhs (org.meta_environment.rascal.ast.Expression x)
+    {
+      Modulo z = new Modulo ();
+      z.$setRhs (x);
+      return z;
+    }
+  }
   public boolean isIntersection ()
   {
     return false;
@@ -1374,74 +1673,6 @@ public abstract class Expression extends AbstractAST
     public Intersection setRhs (org.meta_environment.rascal.ast.Expression x)
     {
       Intersection z = new Intersection ();
-      z.$setRhs (x);
-      return z;
-    }
-  }
-  public boolean isDivision ()
-  {
-    return false;
-  }
-  static public class Division extends Expression
-  {
-/* lhs:Expression "/" rhs:Expression -> Expression {cons("Division"), non-assoc} */
-    private Division ()
-    {
-    }
-    /*package */ Division (ITree tree,
-			   org.meta_environment.rascal.ast.Expression lhs,
-			   org.meta_environment.rascal.ast.Expression rhs)
-    {
-      this.tree = tree;
-      this.lhs = lhs;
-      this.rhs = rhs;
-    }
-    public < T > T accept (IASTVisitor < T > visitor)
-    {
-      return visitor.visitExpressionDivision (this);
-    }
-
-    public boolean isDivision ()
-    {
-      return true;
-    }
-
-    public boolean hasLhs ()
-    {
-      return true;
-    }
-    public boolean hasRhs ()
-    {
-      return true;
-    }
-
-    private org.meta_environment.rascal.ast.Expression lhs;
-    public org.meta_environment.rascal.ast.Expression getLhs ()
-    {
-      return lhs;
-    }
-    private void $setLhs (org.meta_environment.rascal.ast.Expression x)
-    {
-      this.lhs = x;
-    }
-    public Division setLhs (org.meta_environment.rascal.ast.Expression x)
-    {
-      Division z = new Division ();
-      z.$setLhs (x);
-      return z;
-    }
-    private org.meta_environment.rascal.ast.Expression rhs;
-    public org.meta_environment.rascal.ast.Expression getRhs ()
-    {
-      return rhs;
-    }
-    private void $setRhs (org.meta_environment.rascal.ast.Expression x)
-    {
-      this.rhs = x;
-    }
-    public Division setRhs (org.meta_environment.rascal.ast.Expression x)
-    {
-      Division z = new Division ();
       z.$setRhs (x);
       return z;
     }
@@ -2400,6 +2631,142 @@ public abstract class Expression extends AbstractAST
     public Or setRhs (org.meta_environment.rascal.ast.Expression x)
     {
       Or z = new Or ();
+      z.$setRhs (x);
+      return z;
+    }
+  }
+  public boolean isImplication ()
+  {
+    return false;
+  }
+  static public class Implication extends Expression
+  {
+/* lhs:Expression "==>" rhs:Expression -> Expression {right, cons("Implication")} */
+    private Implication ()
+    {
+    }
+    /*package */ Implication (ITree tree,
+			      org.meta_environment.rascal.ast.Expression lhs,
+			      org.meta_environment.rascal.ast.Expression rhs)
+    {
+      this.tree = tree;
+      this.lhs = lhs;
+      this.rhs = rhs;
+    }
+    public < T > T accept (IASTVisitor < T > visitor)
+    {
+      return visitor.visitExpressionImplication (this);
+    }
+
+    public boolean isImplication ()
+    {
+      return true;
+    }
+
+    public boolean hasLhs ()
+    {
+      return true;
+    }
+    public boolean hasRhs ()
+    {
+      return true;
+    }
+
+    private org.meta_environment.rascal.ast.Expression lhs;
+    public org.meta_environment.rascal.ast.Expression getLhs ()
+    {
+      return lhs;
+    }
+    private void $setLhs (org.meta_environment.rascal.ast.Expression x)
+    {
+      this.lhs = x;
+    }
+    public Implication setLhs (org.meta_environment.rascal.ast.Expression x)
+    {
+      Implication z = new Implication ();
+      z.$setLhs (x);
+      return z;
+    }
+    private org.meta_environment.rascal.ast.Expression rhs;
+    public org.meta_environment.rascal.ast.Expression getRhs ()
+    {
+      return rhs;
+    }
+    private void $setRhs (org.meta_environment.rascal.ast.Expression x)
+    {
+      this.rhs = x;
+    }
+    public Implication setRhs (org.meta_environment.rascal.ast.Expression x)
+    {
+      Implication z = new Implication ();
+      z.$setRhs (x);
+      return z;
+    }
+  }
+  public boolean isEquivalence ()
+  {
+    return false;
+  }
+  static public class Equivalence extends Expression
+  {
+/* lhs:Expression "<==>" rhs:Expression -> Expression {right, cons("Equivalence")} */
+    private Equivalence ()
+    {
+    }
+    /*package */ Equivalence (ITree tree,
+			      org.meta_environment.rascal.ast.Expression lhs,
+			      org.meta_environment.rascal.ast.Expression rhs)
+    {
+      this.tree = tree;
+      this.lhs = lhs;
+      this.rhs = rhs;
+    }
+    public < T > T accept (IASTVisitor < T > visitor)
+    {
+      return visitor.visitExpressionEquivalence (this);
+    }
+
+    public boolean isEquivalence ()
+    {
+      return true;
+    }
+
+    public boolean hasLhs ()
+    {
+      return true;
+    }
+    public boolean hasRhs ()
+    {
+      return true;
+    }
+
+    private org.meta_environment.rascal.ast.Expression lhs;
+    public org.meta_environment.rascal.ast.Expression getLhs ()
+    {
+      return lhs;
+    }
+    private void $setLhs (org.meta_environment.rascal.ast.Expression x)
+    {
+      this.lhs = x;
+    }
+    public Equivalence setLhs (org.meta_environment.rascal.ast.Expression x)
+    {
+      Equivalence z = new Equivalence ();
+      z.$setLhs (x);
+      return z;
+    }
+    private org.meta_environment.rascal.ast.Expression rhs;
+    public org.meta_environment.rascal.ast.Expression getRhs ()
+    {
+      return rhs;
+    }
+    private void $setRhs (org.meta_environment.rascal.ast.Expression x)
+    {
+      this.rhs = x;
+    }
+    public Equivalence setRhs (org.meta_environment.rascal.ast.Expression x)
+    {
+      Equivalence z = new Equivalence ();
       z.$setRhs (x);
       return z;
     }
