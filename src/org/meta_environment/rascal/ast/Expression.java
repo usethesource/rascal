@@ -829,8 +829,6 @@ public abstract class Expression extends AbstractAST {
 
 	static public class EmptySetOrBlock extends Expression {
 		/* "{" "}" -> Expression {cons("EmptySetOrBlock")} */
-		private EmptySetOrBlock() {
-		}
 
 		/* package */EmptySetOrBlock(ITree tree) {
 			this.tree = tree;
@@ -849,7 +847,7 @@ public abstract class Expression extends AbstractAST {
 		private org.meta_environment.rascal.ast.Expression lhs;
 		private org.meta_environment.rascal.ast.Expression rhs;
 
-		/*
+		/**
 		 * lhs:Expression "==" rhs:Expression -> Expression {left,
 		 * cons("Equals")}
 		 */
@@ -2091,8 +2089,6 @@ public abstract class Expression extends AbstractAST {
 
 	static public class Map extends Expression {
 		/* "(" {Mapping[[Expression]] ","} ")" -> Expression {cons("Map")} */
-		private Map() {
-		}
 
 		/* package */Map(ITree tree) {
 			this.tree = tree;
