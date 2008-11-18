@@ -2,15 +2,15 @@ package org.meta_environment.uptr;
 
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.ITree;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.hash.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 
 public class ProductionAdapter {
-	private ITree tree;
+	private INode tree;
 
-	public ProductionAdapter(ITree tree) {
+	public ProductionAdapter(INode tree) {
 		if (tree.getType() != Factory.Production) {
 			throw new FactTypeError("ProductionWrapper only wraps UPTR productions, not " + tree.getType());
 		}
@@ -19,10 +19,10 @@ public class ProductionAdapter {
 	
 	public String getConstructorName() {
 		for (IValue attr : getAttributes()) {
-			if (attr.getType().isTreeSortType() && ((ITree) attr).getTreeNodeType() == Factory.Attr_Term) {
-				IValue value = ((ITree)attr).get("value");
-				if (value.getType().isTreeSortType() && ((ITree) value).getTreeNodeType() == Factory.Constructor_Name) {
-					return ((IString) ((ITree) value).get("name")).getValue();
+			if (attr.getType().isNamedTreeType() && ((INode) attr).getTreeNodeType() == Factory.Attr_Term) {
+				IValue value = ((INode)attr).get("value");
+				if (value.getType().isNamedTreeType() && ((INode) value).getTreeNodeType() == Factory.Constructor_Name) {
+					return ((IString) ((INode) value).get("name")).getValue();
 				}
 			}
 		}
@@ -30,7 +30,7 @@ public class ProductionAdapter {
 	}
 	
 	public SymbolAdapter getRhs() {
-		return new SymbolAdapter((ITree) tree.get("rhs"));
+		return new SymbolAdapter((INode) tree.get("rhs"));
 	}
 	
 	public IList getLhs() {
@@ -57,7 +57,7 @@ public class ProductionAdapter {
 	}
 	
 	public IList getAttributes() {
-		ITree attributes = (ITree) tree.get("attributes");
+		INode attributes = (INode) tree.get("attributes");
 		
 		if (attributes.getTreeNodeType() == Factory.Attributes_Attrs) {
 			return (IList) attributes.get("attrs");
@@ -99,7 +99,7 @@ public class ProductionAdapter {
 		if (lhs.length() != 1) {
 			return false;
 		}
-		SymbolAdapter lhsSym = new SymbolAdapter((ITree)lhs.get(0));
+		SymbolAdapter lhsSym = new SymbolAdapter((INode)lhs.get(0));
 		if (!lhsSym.isLex()) {
 			return false;
 		}

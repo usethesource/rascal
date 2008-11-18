@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.ITree;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.meta_environment.rascal.ast.ASTFactory;
@@ -31,23 +31,23 @@ public class ASTBuilder {
 		this.clazz = factory.getClass();
 	}
 	
-	public Module buildModule(ITree parseTree) throws FactTypeError {
+	public Module buildModule(INode parseTree) throws FactTypeError {
 		return buildSort(parseTree, "Module");
 	}
 	
-	public Expression buildExpression(ITree parseTree) {
+	public Expression buildExpression(INode parseTree) {
 		return buildSort(parseTree, "Expression");
 	}
 	
-	public Statement buildStatement(ITree parseTree) {
+	public Statement buildStatement(INode parseTree) {
 		return buildSort(parseTree, "Statement");
 	}
 	
 	@SuppressWarnings("unchecked")
-	private <T extends AbstractAST> T buildSort(ITree parseTree, String sort) {
-		ITree top = (ITree) parseTree.get("top");
+	private <T extends AbstractAST> T buildSort(INode parseTree, String sort) {
+		INode top = (INode) parseTree.get("top");
 		TreeAdapter start = new TreeAdapter(top);
-		ITree tree = (ITree) start.getArgs().get(1);
+		INode tree = (INode) start.getArgs().get(1);
 		TreeAdapter treeAdapter = new TreeAdapter(tree); 
 
 		if (treeAdapter.getSortName().equals(sort)) {
@@ -58,7 +58,7 @@ public class ASTBuilder {
 		}
 	}
 	
-	private List<AbstractAST> buildList(ITree in)  {
+	private List<AbstractAST> buildList(INode in)  {
 		IList args = new TreeAdapter(in).getListASTArgs();
 		List<AbstractAST> result = new LinkedList<AbstractAST>();
 		for (IValue arg: args) {
@@ -67,7 +67,7 @@ public class ASTBuilder {
 		return result;
 	}
 
-	private AbstractAST buildContextFreeNode(ITree in)  {
+	private AbstractAST buildContextFreeNode(INode in)  {
 		try {
 			TreeAdapter tree = new TreeAdapter(in);
 
@@ -81,14 +81,14 @@ public class ASTBuilder {
 			Class<?> formals[] = new Class<?>[arity];
 			Object actuals[] = new Object[arity];
 
-			formals[0] = ITree.class;
+			formals[0] = INode.class;
 			actuals[0] = in;
 
 			int i = 1;
 			for (IValue arg : args) {
-				TreeAdapter argTree = new TreeAdapter((ITree) arg);
+				TreeAdapter argTree = new TreeAdapter((INode) arg);
 				if (argTree.isList()) {
-					actuals[i] = buildList((ITree) arg);
+					actuals[i] = buildList((INode) arg);
 					formals[i] = List.class;
 				}
 				else {
@@ -120,7 +120,7 @@ public class ASTBuilder {
 
 			for (IValue elem : alternatives) {
 				if (sort == null) {
-					sort = new TreeAdapter((ITree) elem).getSortName();
+					sort = new TreeAdapter((INode) elem).getSortName();
 				}
 				
 				alts.add(buildValue(elem));
@@ -145,14 +145,14 @@ public class ASTBuilder {
 		}
 	}
 	
-	private AbstractAST buildLexicalNode(ITree in) {
+	private AbstractAST buildLexicalNode(INode in) {
 		try {
 			TreeAdapter tree = new TreeAdapter(in);
 
 			String sort = tree.getProduction().getSortName();
 			String Sort = capitalize(sort);
 
-			Class<?> formals[] = new Class<?>[] { ITree.class, String.class };
+			Class<?> formals[] = new Class<?>[] { INode.class, String.class };
 			Object actuals[] = new Object[] { in, new String(new TreeAdapter(in).yield()) };
 
 			Method make = clazz.getMethod("make" + Sort + "Lexical", formals);
@@ -175,7 +175,7 @@ public class ASTBuilder {
 	}
 
 	private AbstractAST buildValue(IValue arg)  {
-		TreeAdapter tree = new TreeAdapter((ITree) arg);
+		TreeAdapter tree = new TreeAdapter((INode) arg);
 		
 		if (tree.isAmb()) {
 			return buildAmbNode(tree.getAlternatives());
@@ -184,9 +184,9 @@ public class ASTBuilder {
 			throw new UnsupportedOperationException();
 		}	
 		if (tree.isLexToCf()) {
-			return buildLexicalNode((ITree) ((IList) ((ITree) arg).get("args")).get(0));
+			return buildLexicalNode((INode) ((IList) ((INode) arg).get("args")).get(0));
 		}	
-		return buildContextFreeNode((ITree) arg);
+		return buildContextFreeNode((INode) arg);
 	}
 
 

@@ -1,21 +1,21 @@
 package org.meta_environment.rascal.locations;
 
 import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
+import org.eclipse.imp.pdb.facts.type.NamedTreeType;
 import org.eclipse.imp.pdb.facts.type.TreeNodeType;
-import org.eclipse.imp.pdb.facts.type.TreeSortType;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
 public class Factory {
 	private static TypeFactory tf = TypeFactory.getInstance();
 
-	public static final TreeSortType Location = tf.treeSortType("Location");
-	public static final TreeSortType Area = tf.treeSortType("Area");
+	public static final NamedTreeType Location = tf.namedTreeType("Location");
+	public static final NamedTreeType Area = tf.namedTreeType("Area");
 
 	public static final TreeNodeType Location_File = tf.treeNodeType(Location, "file", tf.stringType(), "filename");
 	public static final TreeNodeType Location_Area = tf.treeNodeType(Location, "area", Area, "area");
@@ -33,7 +33,7 @@ public class Factory {
 	
 	private Factory() {}
 	
-	public ISourceLocation toSourceLocation(IValueFactory factory, ITree loc) {
+	public ISourceLocation toSourceLocation(IValueFactory factory, INode loc) {
 		TreeNodeType type = loc.getTreeNodeType();
 		
 		if (type == Location_File) {
@@ -43,19 +43,19 @@ public class Factory {
 		}
 		else if (type == Location_Area) {
 		   String filename = "/";
-		   ISourceRange range = toSourceRange(factory, (ITree) loc.get("area"));
+		   ISourceRange range = toSourceRange(factory, (INode) loc.get("area"));
 		   return factory.sourceLocation(filename, range);
 		}
 		else if (type == Location_AreaInFile) {
 			String filename = ((IString) loc.get("filename")).getValue();
-			ISourceRange range = toSourceRange(factory, (ITree) loc.get("area"));
+			ISourceRange range = toSourceRange(factory, (INode) loc.get("area"));
 			return factory.sourceLocation(filename, range);
 		}
 		
 		throw new FactTypeError("This is not a Location: " + loc);
 	}
 	
-	public ISourceRange toSourceRange(IValueFactory factory, ITree area) {
+	public ISourceRange toSourceRange(IValueFactory factory, INode area) {
 		if (area.getTreeNodeType() == Area_Area) {
 		   int offset = ((IInteger) area.get("offset")).getValue();
 		   int startLine = ((IInteger) area.get("begin-line")).getValue();
