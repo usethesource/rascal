@@ -8,7 +8,7 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.ITree;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.hash.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
@@ -17,10 +17,10 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.meta_environment.uptr.visitors.IdentityTreeVisitor;
 
 public class TreeAdapter {
-	private ITree tree;
+	private INode tree;
 	private ProductionAdapter prod;
 	
-	public TreeAdapter(ITree tree) {
+	public TreeAdapter(INode tree) {
 		if (tree.getType() != Factory.Tree) {
 			throw new FactTypeError("TreeWrapper will only wrap UPTR Trees, not " +  tree.getType());
 		}
@@ -45,7 +45,7 @@ public class TreeAdapter {
 	
 	public ProductionAdapter getProduction() {
 		if (prod == null) {
-		  prod = new ProductionAdapter((ITree) tree.get("prod"));
+		  prod = new ProductionAdapter((INode) tree.get("prod"));
 		}
 		
 		return prod;
@@ -127,7 +127,7 @@ public class TreeAdapter {
 
 		for (int i = 0; i < children.length(); i++) {
 			IValue kid = children.get(i);
-			TreeAdapter treeAdapter = new TreeAdapter((ITree) kid);
+			TreeAdapter treeAdapter = new TreeAdapter((INode) kid);
 			if (!treeAdapter.isLiteral() && !treeAdapter.isCILiteral()) {
 				writer.append(kid);	
 			} 
@@ -158,13 +158,13 @@ public class TreeAdapter {
 		}
 
 		@Override
-		public ITree visitTreeAmb(ITree arg) throws VisitorException {
+		public INode visitTreeAmb(INode arg) throws VisitorException {
 			((ISet) arg.get("alternatives")).iterator().next().accept(this);
 			return arg;
 		}
 
 		@Override
-		public ITree visitTreeCharacter(ITree arg) throws VisitorException {
+		public INode visitTreeCharacter(INode arg) throws VisitorException {
 			try {
 				fStream.write(((IInteger) arg.get("character")).getValue());
 				return arg;

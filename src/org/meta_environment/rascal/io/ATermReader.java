@@ -8,7 +8,6 @@ import java.util.ListIterator;
 
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMapWriter;
-import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -20,7 +19,7 @@ import org.eclipse.imp.pdb.facts.type.MapType;
 import org.eclipse.imp.pdb.facts.type.RelationType;
 import org.eclipse.imp.pdb.facts.type.SetType;
 import org.eclipse.imp.pdb.facts.type.TreeNodeType;
-import org.eclipse.imp.pdb.facts.type.TreeSortType;
+import org.eclipse.imp.pdb.facts.type.NamedTreeType;
 import org.eclipse.imp.pdb.facts.type.TupleType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -136,11 +135,11 @@ public class ATermReader implements IValueReader {
 
 			String funname = parseId(reader);
 			
-			if (!expected.getBaseType().isTreeSortType()) {
+			if (!expected.getBaseType().isNamedTreeType()) {
 				throw new FactTypeError("Expected a " + expected + " but got a tree node");
 			}
 			
-			List<TreeNodeType> nodes = tf.lookupTreeNodeType((TreeSortType) expected.getBaseType(), funname);
+			List<TreeNodeType> nodes = tf.lookupTreeNodeType((NamedTreeType) expected.getBaseType(), funname);
 			TreeNodeType node = nodes.get(0); // TODO deal with overloading
 			
 			c = reader.skipWS();
@@ -484,7 +483,7 @@ public class ATermReader implements IValueReader {
 			
 			return w.done();
 		} else if (base.isRelationType()) {
-			IRelationWriter w = expected.writer(vf);
+			ISetWriter w = expected.writer(vf);
 			w.insert(terms);
 			return w.done();
 		}

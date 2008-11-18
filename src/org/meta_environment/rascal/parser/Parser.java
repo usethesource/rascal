@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import org.eclipse.imp.pdb.facts.ITree;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.hash.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
@@ -27,7 +27,7 @@ public class Parser {
 		return InstanceKeeper.sInstance;
 	}
 	
-	public ITree parse(InputStream input) throws IOException, FactTypeError {
+	public INode parse(InputStream input) throws IOException, FactTypeError {
 		ATermReader reader = new ATermReader();
 		Process sglr = Runtime.getRuntime().exec("sglr -p resources/rascal.trm.tbl -t");
 		
@@ -35,7 +35,7 @@ public class Parser {
 		IValue tmp = reader.read(ValueFactory.getInstance(), Factory.ParseTree, sglr.getInputStream());
 		waitForSglr(sglr);
 		
-		return (ITree) tmp;
+		return (INode) tmp;
 	}
 
 	private void waitForSglr(Process sglr) throws IOException {

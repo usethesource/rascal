@@ -22,16 +22,16 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.impl.hash.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.type.TreeNodeType;
-import org.eclipse.imp.pdb.facts.type.TreeSortType;
+import org.eclipse.imp.pdb.facts.type.NamedTreeType;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.io.ATermReader;
 
 public class TestIO extends TestCase {
 	private static TypeFactory tf = TypeFactory.getInstance();
 	private static IValueFactory vf = ValueFactory.getInstance();
-	private static TreeSortType Boolean = tf.treeSortType("Boolean");
+	private static NamedTreeType Boolean = tf.namedTreeType("Boolean");
 	
-	private static TreeSortType Name = tf.treeSortType("Name");
+	private static NamedTreeType Name = tf.namedTreeType("Name");
 	private static TreeNodeType True = tf.treeNodeType(Boolean, "true");
 	private static TreeNodeType False= tf.treeNodeType(Boolean, "false");
 	private static TreeNodeType And= tf.treeNodeType(Boolean, "and", Boolean, Boolean);

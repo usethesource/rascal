@@ -8,7 +8,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.impl.hash.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.type.TreeNodeType;
-import org.eclipse.imp.pdb.facts.type.TreeSortType;
+import org.eclipse.imp.pdb.facts.type.NamedTreeType;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.io.ATermReader;
 
@@ -16,9 +16,9 @@ public class Factory {
 	private static TypeFactory tf = TypeFactory.getInstance();
 	private static IValueFactory vf = ValueFactory.getInstance();
 
-	public static final TreeSortType Summary = tf.treeSortType("Summary");
-	public static final TreeSortType Error = tf.treeSortType("Error");
-	public static final TreeSortType Subject = tf.treeSortType("Subject");
+	public static final NamedTreeType Summary = tf.namedTreeType("Summary");
+	public static final NamedTreeType Error = tf.namedTreeType("Error");
+	public static final NamedTreeType Subject = tf.namedTreeType("Subject");
 
 	public static final TreeNodeType Summary_Summary = tf.treeNodeType(Summary, "summary", tf.stringType(), "producer", tf.stringType(), "id", tf.listType(Error), "errors");
 	public static final TreeNodeType Error_Info = tf.treeNodeType(Error, "info", tf.stringType(), "description", tf.listType(Subject), "subjects");

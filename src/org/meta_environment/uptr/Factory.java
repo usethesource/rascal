@@ -9,7 +9,7 @@ import org.eclipse.imp.pdb.facts.impl.hash.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.type.NamedType;
 import org.eclipse.imp.pdb.facts.type.TreeNodeType;
-import org.eclipse.imp.pdb.facts.type.TreeSortType;
+import org.eclipse.imp.pdb.facts.type.NamedTreeType;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.io.ATermReader;
 
@@ -27,15 +27,15 @@ public class Factory {
 	private static TypeFactory tf = TypeFactory.getInstance();
 	private static IValueFactory vf = ValueFactory.getInstance();
 
-	public static final TreeSortType ParseTree = tf.treeSortType("ParseTree");
-	public static final TreeSortType Tree = tf.treeSortType("Tree");
-	public static final TreeSortType Production = tf.treeSortType("Production");
-	public static final TreeSortType Attributes = tf.treeSortType("Attributes");
-	public static final TreeSortType Attr = tf.treeSortType("Attr");
-	public static final TreeSortType Associativity = tf.treeSortType("Associativity");
-	public static final TreeSortType Symbol = tf.treeSortType("Symbol");
-	public static final TreeSortType CharRange = tf.treeSortType("CharRange");
-	public static final TreeSortType Constructor = tf.treeSortType("Constructor");
+	public static final NamedTreeType ParseTree = tf.namedTreeType("ParseTree");
+	public static final NamedTreeType Tree = tf.namedTreeType("Tree");
+	public static final NamedTreeType Production = tf.namedTreeType("Production");
+	public static final NamedTreeType Attributes = tf.namedTreeType("Attributes");
+	public static final NamedTreeType Attr = tf.namedTreeType("Attr");
+	public static final NamedTreeType Associativity = tf.namedTreeType("Associativity");
+	public static final NamedTreeType Symbol = tf.namedTreeType("Symbol");
+	public static final NamedTreeType CharRange = tf.namedTreeType("CharRange");
+	public static final NamedTreeType Constructor = tf.namedTreeType("Constructor");
 	public static final NamedType    Args = tf.namedType("Args", tf.listType(Tree));
 	public static final NamedType    Attrs = tf.namedType("Attrs", tf.listType(Attr));
 	public static final NamedType    Symbols = tf.namedType("Symbols", tf.listType(Symbol));

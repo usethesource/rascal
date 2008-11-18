@@ -1,13 +1,13 @@
 package org.meta_environment.uptr;
 
 import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.ITree;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 
 public class SymbolAdapter {
-	private ITree tree;
+	private INode tree;
 
-	public SymbolAdapter(ITree tree) {
+	public SymbolAdapter(INode tree) {
 		if (tree.getType() != Factory.Symbol) {
 			throw new FactTypeError("TreeWrapper will only wrap UPTR symbols, not " +  tree.getType());
 		}
@@ -28,7 +28,7 @@ public class SymbolAdapter {
 
 	public SymbolAdapter getSymbol() {
 		if (isCf() || isLex()) {
-			return new SymbolAdapter((ITree) tree.get("symbol"));
+			return new SymbolAdapter((INode) tree.get("symbol"));
 		}
 		else {
 			throw new FactTypeError("Symbol does not have a child named symbol: " + tree);
