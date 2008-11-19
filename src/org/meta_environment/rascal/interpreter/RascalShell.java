@@ -22,45 +22,51 @@ public class RascalShell {
 
 	private void run() throws IOException, FactTypeError {
 		ConsoleReader console = new ConsoleReader();
-		Parser parser = Parser.getInstance();
-		ASTBuilder builder = new ASTBuilder(new ASTFactory());
-		StringBuffer statement = new StringBuffer();
+		
+		StringBuffer input = new StringBuffer();
 		String line;
 		
 		quit: while (true) {
 			try {
-				statement.delete(0, statement.length());
+				input.delete(0, input.length());
 
 				do {
-					line = prompt(console, statement);
+					line = prompt(console, input);
 					
 					if (line == null || line.equals(QUIT)) {
 						break quit;
 					}
 					else {
-						statement.append(line);
+						input.append(line);
 					}
-				} while (!completeStatement(statement));
+				} while (!completeStatement(input));
 
-				INode tree = parser.parse(new ByteArrayInputStream(statement.toString().getBytes()));
-
-				if (tree.getTreeNodeType() == Factory.ParseTree_Summary) {
-					System.err.println(tree.get("errors"));
-				}
-				else {
-					console.printString("parse: " + tree.toString());
-					console.printNewline();
-					Statement stat = builder.buildStatement(tree);
-					console.printString("stat: " + stat.toString());
-					console.printNewline();
-					console.flushConsole();
-				}
+				String output = handleInput(input);
+				console.printString(output);
 			} 
 			catch (FactTypeError e) {
 				System.err.println("bug: " + e.getMessage());
 				e.printStackTrace();
 			}
 		}
+	}
+
+	private String handleInput(StringBuffer statement) throws IOException {
+		Parser parser = Parser.getInstance();
+		ASTBuilder builder = new ASTBuilder(new ASTFactory());
+		StringBuilder result = new StringBuilder();
+		INode tree = parser.parse(new ByteArrayInputStream(statement.toString().getBytes()));
+
+		if (tree.getTreeNodeType() == Factory.ParseTree_Summary) {
+			result.append(tree + "\n");
+		}
+		else {
+			result.append("parse: " + tree + "\n");
+			Statement stat = builder.buildStatement(tree);
+			result.append("stat: " + stat + "\n");
+		}
+		
+		return result.toString();
 	}
 
 	private String prompt(ConsoleReader console, StringBuffer statement) throws IOException {
