@@ -1,8 +1,11 @@
 package org.meta_environment.rascal.parser;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.URL;
 
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -19,6 +22,29 @@ public class Parser {
 	
 	private static class InstanceKeeper {
 		public static Parser sInstance = new Parser();
+		public static String parseTable = extractParsetable();
+		
+		private static String extractParsetable() {
+			try {
+				URL url = sInstance.getClass().getResource("/resources/rascal.trm.tbl");
+				InputStream contents = url.openStream();
+				File tmp = File.createTempFile("rascal.trm.tbl", "");
+				FileOutputStream s = new FileOutputStream(tmp);
+				int ch;
+
+				while ((ch = contents.read()) != -1) {
+					s.write(ch);
+				}
+				s.close();
+				contents.close();
+				return tmp.getPath();
+			} catch (IOException e) {
+				e.printStackTrace();
+				return "error-during-static-init";
+			} catch (NullPointerException e) {
+				return "error-during-static-init";
+			}
+		}
 	}
 	
 	private Parser() { }
@@ -29,7 +55,9 @@ public class Parser {
 	
 	public INode parse(InputStream input) throws IOException, FactTypeError {
 		ATermReader reader = new ATermReader();
-		Process sglr = Runtime.getRuntime().exec("sglr -p resources/rascal.trm.tbl -t");
+		String tableFilename = getTableFile();
+		Process sglr = Runtime.getRuntime().exec("sglr -p " + tableFilename + " -t");
+		
 		
 		pipe("sglr", input, sglr.getOutputStream());
 		IValue tmp = reader.read(ValueFactory.getInstance(), Factory.ParseTree, sglr.getInputStream());
@@ -37,6 +65,18 @@ public class Parser {
 		
 		return (INode) tmp;
 	}
+
+	private String getTableFile() throws IOException {
+		File table = new File("resources/rascal.trm.tbl");
+		if (table.exists()) {
+			return table.getPath();
+		}
+		else {
+			return InstanceKeeper.parseTable;
+		}
+	}
+
+	
 
 	private void waitForSglr(Process sglr) throws IOException {
 		while (true) {
