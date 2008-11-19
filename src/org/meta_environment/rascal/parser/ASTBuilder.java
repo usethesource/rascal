@@ -8,6 +8,7 @@ import java.util.List;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.meta_environment.rascal.ast.ASTFactory;
@@ -81,7 +82,7 @@ public class ASTBuilder {
 			Class<?> formals[] = new Class<?>[arity];
 			Object actuals[] = new Object[arity];
 
-			formals[0] = INode.class;
+			formals[0] = ITree.class;
 			actuals[0] = in;
 
 			int i = 1;
@@ -152,7 +153,7 @@ public class ASTBuilder {
 			String sort = tree.getProduction().getSortName();
 			String Sort = capitalize(sort);
 
-			Class<?> formals[] = new Class<?>[] { INode.class, String.class };
+			Class<?> formals[] = new Class<?>[] { ITree.class, String.class };
 			Object actuals[] = new Object[] { in, new String(new TreeAdapter(in).yield()) };
 
 			Method make = clazz.getMethod("make" + Sort + "Lexical", formals);
