@@ -19,32 +19,10 @@ import org.meta_environment.uptr.Factory;
  *
  */
 public class Parser {
+	private static String parseTable;
 	
 	private static class InstanceKeeper {
 		public static Parser sInstance = new Parser();
-		public static String parseTable = extractParsetable();
-		
-		private static String extractParsetable() {
-			try {
-				URL url = sInstance.getClass().getResource("/resources/rascal.trm.tbl");
-				InputStream contents = url.openStream();
-				File tmp = File.createTempFile("rascal.trm.tbl", "");
-				FileOutputStream s = new FileOutputStream(tmp);
-				int ch;
-
-				while ((ch = contents.read()) != -1) {
-					s.write(ch);
-				}
-				s.close();
-				contents.close();
-				return tmp.getPath();
-			} catch (IOException e) {
-				e.printStackTrace();
-				return "error-during-static-init";
-			} catch (NullPointerException e) {
-				return "error-during-static-init";
-			}
-		}
 	}
 	
 	private Parser() { }
@@ -72,11 +50,27 @@ public class Parser {
 			return table.getPath();
 		}
 		else {
-			return InstanceKeeper.parseTable;
+		   if (parseTable == null) {
+			   parseTable = extractParsetable();
+		   }
+		   return parseTable;
 		}
 	}
 
-	
+	private String extractParsetable() throws IOException {
+		URL url = getClass().getResource("/resources/rascal.trm.tbl");
+		InputStream contents = url.openStream();
+		File tmp = File.createTempFile("rascal.trm.tbl", "");
+		FileOutputStream s = new FileOutputStream(tmp);
+		int ch;
+
+		while ((ch = contents.read()) != -1) {
+			s.write(ch);
+		}
+		s.close();
+		contents.close();
+		return tmp.getPath();
+	}
 
 	private void waitForSglr(Process sglr) throws IOException {
 		while (true) {
