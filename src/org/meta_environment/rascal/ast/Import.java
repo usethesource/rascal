@@ -9,19 +9,15 @@ static public class Default extends Import {
 		this.tree = tree;
 		this.module = module;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitImportDefault(this);
 	}
 
-	@Override
 	public boolean isDefault() { return true; }
 
-	@Override
 	public boolean hasModule() { return true; }
 
 private org.meta_environment.rascal.ast.ImportedModule module;
-	@Override
 	public org.meta_environment.rascal.ast.ImportedModule getModule() { return module; }
 	private void $setModule(org.meta_environment.rascal.ast.ImportedModule x) { this.module = x; }
 	public Default setModule(org.meta_environment.rascal.ast.ImportedModule x) { 
@@ -39,8 +35,7 @@ static public class Ambiguity extends Import {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitImportAmbiguity(this);
   }
 } public boolean isExtend() { return false; }
@@ -51,19 +46,15 @@ static public class Extend extends Import {
 		this.tree = tree;
 		this.module = module;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitImportExtend(this);
 	}
 
-	@Override
 	public boolean isExtend() { return true; }
 
-	@Override
 	public boolean hasModule() { return true; }
 
 private org.meta_environment.rascal.ast.ImportedModule module;
-	@Override
 	public org.meta_environment.rascal.ast.ImportedModule getModule() { return module; }
 	private void $setModule(org.meta_environment.rascal.ast.ImportedModule x) { this.module = x; }
 	public Extend setModule(org.meta_environment.rascal.ast.ImportedModule x) { 
@@ -72,6 +63,5 @@ private org.meta_environment.rascal.ast.ImportedModule module;
 		return z;
 	}	
 }
- @Override
-public abstract <T> T accept(IASTVisitor<T> visitor);
+ public abstract <T> T accept(IASTVisitor<T> visitor);
 }

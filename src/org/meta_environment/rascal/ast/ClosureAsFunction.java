@@ -11,19 +11,15 @@ static public class Evaluated extends ClosureAsFunction {
 		this.tree = tree;
 		this.expression = expression;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitClosureAsFunctionEvaluated(this);
 	}
 
-	@Override
 	public boolean isEvaluated() { return true; }
 
-	@Override
 	public boolean hasExpression() { return true; }
 
 private org.meta_environment.rascal.ast.Expression expression;
-	@Override
 	public org.meta_environment.rascal.ast.Expression getExpression() { return expression; }
 	private void $setExpression(org.meta_environment.rascal.ast.Expression x) { this.expression = x; }
 	public Evaluated setExpression(org.meta_environment.rascal.ast.Expression x) { 
@@ -41,8 +37,7 @@ static public class Ambiguity extends ClosureAsFunction {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitClosureAsFunctionAmbiguity(this);
   }
 }

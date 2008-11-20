@@ -11,19 +11,15 @@ static public class Rule extends Case {
 		this.tree = tree;
 		this.rule = rule;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitCaseRule(this);
 	}
 
-	@Override
 	public boolean isRule() { return true; }
 
-	@Override
 	public boolean hasRule() { return true; }
 
 private org.meta_environment.rascal.ast.Rule rule;
-	@Override
 	public org.meta_environment.rascal.ast.Rule getRule() { return rule; }
 	private void $setRule(org.meta_environment.rascal.ast.Rule x) { this.rule = x; }
 	public Rule setRule(org.meta_environment.rascal.ast.Rule x) { 
@@ -41,8 +37,7 @@ static public class Ambiguity extends Case {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitCaseAmbiguity(this);
   }
 } 
@@ -56,19 +51,15 @@ static public class Default extends Case {
 		this.tree = tree;
 		this.statement = statement;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitCaseDefault(this);
 	}
 
-	@Override
 	public boolean isDefault() { return true; }
 
-	@Override
 	public boolean hasStatement() { return true; }
 
 private org.meta_environment.rascal.ast.Statement statement;
-	@Override
 	public org.meta_environment.rascal.ast.Statement getStatement() { return statement; }
 	private void $setStatement(org.meta_environment.rascal.ast.Statement x) { this.statement = x; }
 	public Default setStatement(org.meta_environment.rascal.ast.Statement x) { 
@@ -77,6 +68,5 @@ private org.meta_environment.rascal.ast.Statement statement;
 		return z;
 	}	
 }
- @Override
-public abstract <T> T accept(IASTVisitor<T> visitor);
+ public abstract <T> T accept(IASTVisitor<T> visitor);
 }

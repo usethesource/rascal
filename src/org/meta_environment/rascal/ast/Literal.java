@@ -11,19 +11,15 @@ static public class RegExp extends Literal {
 		this.tree = tree;
 		this.regExpLiteral = regExpLiteral;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitLiteralRegExp(this);
 	}
 
-	@Override
 	public boolean isRegExp() { return true; }
 
-	@Override
 	public boolean hasRegExpLiteral() { return true; }
 
 private org.meta_environment.rascal.ast.RegExpLiteral regExpLiteral;
-	@Override
 	public org.meta_environment.rascal.ast.RegExpLiteral getRegExpLiteral() { return regExpLiteral; }
 	private void $setRegExpLiteral(org.meta_environment.rascal.ast.RegExpLiteral x) { this.regExpLiteral = x; }
 	public RegExp setRegExpLiteral(org.meta_environment.rascal.ast.RegExpLiteral x) { 
@@ -41,8 +37,7 @@ static public class Ambiguity extends Literal {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitLiteralAmbiguity(this);
   }
 } 
@@ -56,19 +51,15 @@ static public class Boolean extends Literal {
 		this.tree = tree;
 		this.booleanLiteral = booleanLiteral;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitLiteralBoolean(this);
 	}
 
-	@Override
 	public boolean isBoolean() { return true; }
 
-	@Override
 	public boolean hasBooleanLiteral() { return true; }
 
 private org.meta_environment.rascal.ast.BooleanLiteral booleanLiteral;
-	@Override
 	public org.meta_environment.rascal.ast.BooleanLiteral getBooleanLiteral() { return booleanLiteral; }
 	private void $setBooleanLiteral(org.meta_environment.rascal.ast.BooleanLiteral x) { this.booleanLiteral = x; }
 	public Boolean setBooleanLiteral(org.meta_environment.rascal.ast.BooleanLiteral x) { 
@@ -76,8 +67,7 @@ private org.meta_environment.rascal.ast.BooleanLiteral booleanLiteral;
  		z.$setBooleanLiteral(x);
 		return z;
 	}	
-} @Override
-public abstract <T> T accept(IASTVisitor<T> visitor); public org.meta_environment.rascal.ast.IntegerLiteral getIntegerLiteral() { throw new UnsupportedOperationException(); }
+} public abstract <T> T accept(IASTVisitor<T> visitor); public org.meta_environment.rascal.ast.IntegerLiteral getIntegerLiteral() { throw new UnsupportedOperationException(); }
 public boolean hasIntegerLiteral() { return false; }
 public boolean isInteger() { return false; }
 static public class Integer extends Literal {
@@ -87,19 +77,15 @@ static public class Integer extends Literal {
 		this.tree = tree;
 		this.integerLiteral = integerLiteral;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitLiteralInteger(this);
 	}
 
-	@Override
 	public boolean isInteger() { return true; }
 
-	@Override
 	public boolean hasIntegerLiteral() { return true; }
 
 private org.meta_environment.rascal.ast.IntegerLiteral integerLiteral;
-	@Override
 	public org.meta_environment.rascal.ast.IntegerLiteral getIntegerLiteral() { return integerLiteral; }
 	private void $setIntegerLiteral(org.meta_environment.rascal.ast.IntegerLiteral x) { this.integerLiteral = x; }
 	public Integer setIntegerLiteral(org.meta_environment.rascal.ast.IntegerLiteral x) { 
@@ -118,19 +104,15 @@ static public class Double extends Literal {
 		this.tree = tree;
 		this.doubleLiteral = doubleLiteral;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitLiteralDouble(this);
 	}
 
-	@Override
 	public boolean isDouble() { return true; }
 
-	@Override
 	public boolean hasDoubleLiteral() { return true; }
 
 private org.meta_environment.rascal.ast.DoubleLiteral doubleLiteral;
-	@Override
 	public org.meta_environment.rascal.ast.DoubleLiteral getDoubleLiteral() { return doubleLiteral; }
 	private void $setDoubleLiteral(org.meta_environment.rascal.ast.DoubleLiteral x) { this.doubleLiteral = x; }
 	public Double setDoubleLiteral(org.meta_environment.rascal.ast.DoubleLiteral x) { 
@@ -149,19 +131,15 @@ static public class String extends Literal {
 		this.tree = tree;
 		this.stringLiteral = stringLiteral;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitLiteralString(this);
 	}
 
-	@Override
 	public boolean isString() { return true; }
 
-	@Override
 	public boolean hasStringLiteral() { return true; }
 
 private org.meta_environment.rascal.ast.StringLiteral stringLiteral;
-	@Override
 	public org.meta_environment.rascal.ast.StringLiteral getStringLiteral() { return stringLiteral; }
 	private void $setStringLiteral(org.meta_environment.rascal.ast.StringLiteral x) { this.stringLiteral = x; }
 	public String setStringLiteral(org.meta_environment.rascal.ast.StringLiteral x) { 

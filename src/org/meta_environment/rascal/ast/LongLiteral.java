@@ -11,19 +11,15 @@ static public class DecimalLongLiteral extends LongLiteral {
 		this.tree = tree;
 		this.decimalLong = decimalLong;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitLongLiteralDecimalLongLiteral(this);
 	}
 
-	@Override
 	public boolean isDecimalLongLiteral() { return true; }
 
-	@Override
 	public boolean hasDecimalLong() { return true; }
 
 private org.meta_environment.rascal.ast.DecimalLongLiteral decimalLong;
-	@Override
 	public org.meta_environment.rascal.ast.DecimalLongLiteral getDecimalLong() { return decimalLong; }
 	private void $setDecimalLong(org.meta_environment.rascal.ast.DecimalLongLiteral x) { this.decimalLong = x; }
 	public DecimalLongLiteral setDecimalLong(org.meta_environment.rascal.ast.DecimalLongLiteral x) { 
@@ -41,8 +37,7 @@ static public class Ambiguity extends LongLiteral {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitLongLiteralAmbiguity(this);
   }
 } 
@@ -56,19 +51,15 @@ static public class HexLongLiteral extends LongLiteral {
 		this.tree = tree;
 		this.hexLong = hexLong;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitLongLiteralHexLongLiteral(this);
 	}
 
-	@Override
 	public boolean isHexLongLiteral() { return true; }
 
-	@Override
 	public boolean hasHexLong() { return true; }
 
 private org.meta_environment.rascal.ast.HexLongLiteral hexLong;
-	@Override
 	public org.meta_environment.rascal.ast.HexLongLiteral getHexLong() { return hexLong; }
 	private void $setHexLong(org.meta_environment.rascal.ast.HexLongLiteral x) { this.hexLong = x; }
 	public HexLongLiteral setHexLong(org.meta_environment.rascal.ast.HexLongLiteral x) { 
@@ -76,8 +67,7 @@ private org.meta_environment.rascal.ast.HexLongLiteral hexLong;
  		z.$setHexLong(x);
 		return z;
 	}	
-} @Override
-public abstract <T> T accept(IASTVisitor<T> visitor); public org.meta_environment.rascal.ast.OctalLongLiteral getOctalLong() { throw new UnsupportedOperationException(); }
+} public abstract <T> T accept(IASTVisitor<T> visitor); public org.meta_environment.rascal.ast.OctalLongLiteral getOctalLong() { throw new UnsupportedOperationException(); }
 public boolean hasOctalLong() { return false; }
 public boolean isOctalLongLiteral() { return false; }
 static public class OctalLongLiteral extends LongLiteral {
@@ -87,19 +77,15 @@ static public class OctalLongLiteral extends LongLiteral {
 		this.tree = tree;
 		this.octalLong = octalLong;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitLongLiteralOctalLongLiteral(this);
 	}
 
-	@Override
 	public boolean isOctalLongLiteral() { return true; }
 
-	@Override
 	public boolean hasOctalLong() { return true; }
 
 private org.meta_environment.rascal.ast.OctalLongLiteral octalLong;
-	@Override
 	public org.meta_environment.rascal.ast.OctalLongLiteral getOctalLong() { return octalLong; }
 	private void $setOctalLong(org.meta_environment.rascal.ast.OctalLongLiteral x) { this.octalLong = x; }
 	public OctalLongLiteral setOctalLong(org.meta_environment.rascal.ast.OctalLongLiteral x) { 

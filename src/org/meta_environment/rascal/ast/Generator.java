@@ -11,19 +11,15 @@ static public class Expression extends Generator {
 		this.tree = tree;
 		this.expression = expression;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitGeneratorExpression(this);
 	}
 
-	@Override
 	public boolean isExpression() { return true; }
 
-	@Override
 	public boolean hasExpression() { return true; }
 
 private org.meta_environment.rascal.ast.Expression expression;
-	@Override
 	public org.meta_environment.rascal.ast.Expression getExpression() { return expression; }
 	private void $setExpression(org.meta_environment.rascal.ast.Expression x) { this.expression = x; }
 	public Expression setExpression(org.meta_environment.rascal.ast.Expression x) { 
@@ -41,8 +37,7 @@ static public class Ambiguity extends Generator {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitGeneratorAmbiguity(this);
   }
 } 
@@ -56,19 +51,15 @@ static public class Producer extends Generator {
 		this.tree = tree;
 		this.producer = producer;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitGeneratorProducer(this);
 	}
 
-	@Override
 	public boolean isProducer() { return true; }
 
-	@Override
 	public boolean hasProducer() { return true; }
 
 private org.meta_environment.rascal.ast.ValueProducer producer;
-	@Override
 	public org.meta_environment.rascal.ast.ValueProducer getProducer() { return producer; }
 	private void $setProducer(org.meta_environment.rascal.ast.ValueProducer x) { this.producer = x; }
 	public Producer setProducer(org.meta_environment.rascal.ast.ValueProducer x) { 
@@ -77,6 +68,5 @@ private org.meta_environment.rascal.ast.ValueProducer producer;
 		return z;
 	}	
 }
- @Override
-public abstract <T> T accept(IASTVisitor<T> visitor);
+ public abstract <T> T accept(IASTVisitor<T> visitor);
 }

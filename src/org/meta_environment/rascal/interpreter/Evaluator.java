@@ -1,7 +1,9 @@
 package org.meta_environment.rascal.interpreter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IDouble;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -15,6 +17,7 @@ import org.eclipse.imp.pdb.facts.type.ListType;
 import org.eclipse.imp.pdb.facts.type.SetType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.meta_environment.rascal.ast.Assignable;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.Expression.Addition;
 import org.meta_environment.rascal.ast.Expression.EmptySetOrBlock;
@@ -23,19 +26,50 @@ import org.meta_environment.rascal.ast.Expression.Literal;
 import org.meta_environment.rascal.ast.Expression.NonEmptySet;
 import org.meta_environment.rascal.ast.Expression.Tuple;
 import org.meta_environment.rascal.ast.IntegerLiteral.DecimalIntegerLiteral;
+import org.meta_environment.rascal.ast.Literal.Boolean;
 import org.meta_environment.rascal.ast.Literal.Double;
 import org.meta_environment.rascal.ast.Literal.Integer;
+import org.meta_environment.rascal.ast.Statement.Assignment;
 import org.meta_environment.rascal.ast.Statement.Expression;
 
 public class Evaluator extends NullASTVisitor<IValue> {
 	private IValueFactory vf;
 	private final TypeFactory tf;
+	private final Map<String,IValue> environment = new HashMap<String,IValue>();
 
 	public Evaluator(IValueFactory f) {
 		this.vf = f;
 		tf = TypeFactory.getInstance();
 	}
 
+	@Override
+	public IValue visitStatementAssignment(Assignment x) {
+		Assignable a = x.getAssignable();
+		org.meta_environment.rascal.ast.Assignment op = x.getOperator();
+		IValue expr = x.getExpression().accept(this);
+		
+		if (op.isDefault()) {
+			if (a.isVariable()) {
+				environment.put(a.getQualifiedName().toString(), expr);
+				return expr;
+			}
+		}
+		
+		return null;
+	}
+	
+	@Override
+	public IValue visitExpressionQualifiedName(
+			org.meta_environment.rascal.ast.Expression.QualifiedName x) {
+		IValue result = environment.get(x.getQualifiedName().toString());
+		if (result != null) {
+			return result;
+		}
+		else {
+			throw new RascalTypeError("Uninitialized variable: " + x);
+		}
+	}
+	
 	@Override
 	public IValue visitStatementExpression(Expression x) {
 		return x.getExpression().accept(this);
@@ -58,6 +92,30 @@ public class Evaluator extends NullASTVisitor<IValue> {
 	}
 	
 	@Override
+	public IValue visitLiteralBoolean(Boolean x) {
+		String str = x.getBooleanLiteral().toString();
+		
+		if (str.equals("true")) {
+			return vf.True();
+		}
+		else {
+			return vf.False();
+		}
+	}
+	
+	@Override
+	public IValue visitLiteralString(
+			org.meta_environment.rascal.ast.Literal.String x) {
+		String str = x.getStringLiteral().toString();
+		return vf.string(deescape(str));
+	}
+	
+	private String deescape(String str) {
+		// TODO implement this
+		return str;
+	}
+
+	@Override
 	public IValue visitIntegerLiteralDecimalIntegerLiteral(
 			DecimalIntegerLiteral x) {
 		String str = x.getDecimal().toString();
@@ -75,7 +133,7 @@ public class Evaluator extends NullASTVisitor<IValue> {
 		w.insertAll(results);
 		return w.done();
 	}
-
+	
 	@Override
 	public IValue visitExpressionNonEmptySet(NonEmptySet x) {
 		java.util.List<org.meta_environment.rascal.ast.Expression> elements = x.getElements();

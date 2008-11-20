@@ -26,29 +26,20 @@ static public class Default extends Area {
 		this.offset = offset;
 		this.length = length;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitAreaDefault(this);
 	}
 
-	@Override
 	public boolean isDefault() { return true; }
 
-	@Override
 	public boolean hasBeginLine() { return true; }
-	@Override
 	public boolean hasBeginColumn() { return true; }
-	@Override
 	public boolean hasEndLine() { return true; }
-	@Override
 	public boolean hasEndColumn() { return true; }
-	@Override
 	public boolean hasOffset() { return true; }
-	@Override
 	public boolean hasLength() { return true; }
 
 private org.meta_environment.rascal.ast.Expression beginLine;
-	@Override
 	public org.meta_environment.rascal.ast.Expression getBeginLine() { return beginLine; }
 	private void $setBeginLine(org.meta_environment.rascal.ast.Expression x) { this.beginLine = x; }
 	public Default setBeginLine(org.meta_environment.rascal.ast.Expression x) { 
@@ -57,7 +48,6 @@ private org.meta_environment.rascal.ast.Expression beginLine;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Expression beginColumn;
-	@Override
 	public org.meta_environment.rascal.ast.Expression getBeginColumn() { return beginColumn; }
 	private void $setBeginColumn(org.meta_environment.rascal.ast.Expression x) { this.beginColumn = x; }
 	public Default setBeginColumn(org.meta_environment.rascal.ast.Expression x) { 
@@ -66,7 +56,6 @@ private org.meta_environment.rascal.ast.Expression beginLine;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Expression endLine;
-	@Override
 	public org.meta_environment.rascal.ast.Expression getEndLine() { return endLine; }
 	private void $setEndLine(org.meta_environment.rascal.ast.Expression x) { this.endLine = x; }
 	public Default setEndLine(org.meta_environment.rascal.ast.Expression x) { 
@@ -75,7 +64,6 @@ private org.meta_environment.rascal.ast.Expression beginLine;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Expression endColumn;
-	@Override
 	public org.meta_environment.rascal.ast.Expression getEndColumn() { return endColumn; }
 	private void $setEndColumn(org.meta_environment.rascal.ast.Expression x) { this.endColumn = x; }
 	public Default setEndColumn(org.meta_environment.rascal.ast.Expression x) { 
@@ -84,7 +72,6 @@ private org.meta_environment.rascal.ast.Expression beginLine;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Expression offset;
-	@Override
 	public org.meta_environment.rascal.ast.Expression getOffset() { return offset; }
 	private void $setOffset(org.meta_environment.rascal.ast.Expression x) { this.offset = x; }
 	public Default setOffset(org.meta_environment.rascal.ast.Expression x) { 
@@ -93,7 +80,6 @@ private org.meta_environment.rascal.ast.Expression beginLine;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Expression length;
-	@Override
 	public org.meta_environment.rascal.ast.Expression getLength() { return length; }
 	private void $setLength(org.meta_environment.rascal.ast.Expression x) { this.length = x; }
 	public Default setLength(org.meta_environment.rascal.ast.Expression x) { 
@@ -111,8 +97,7 @@ static public class Ambiguity extends Area {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitAreaAmbiguity(this);
   }
 }

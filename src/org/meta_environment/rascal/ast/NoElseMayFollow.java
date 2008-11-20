@@ -8,12 +8,10 @@ static public class Default extends NoElseMayFollow {
 	/*package*/ Default(ITree tree) {
 		this.tree = tree;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitNoElseMayFollowDefault(this);
 	}
 
-	@Override
 	public boolean isDefault() { return true; }	
 }
 static public class Ambiguity extends NoElseMayFollow {
@@ -25,8 +23,7 @@ static public class Ambiguity extends NoElseMayFollow {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitNoElseMayFollowAmbiguity(this);
   }
 }

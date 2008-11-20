@@ -10,21 +10,16 @@ static public class GivenVisibility extends Toplevel {
 		this.visibility = visibility;
 		this.declaration = declaration;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitToplevelGivenVisibility(this);
 	}
 
-	@Override
 	public boolean isGivenVisibility() { return true; }
 
-	@Override
 	public boolean hasVisibility() { return true; }
-	@Override
 	public boolean hasDeclaration() { return true; }
 
 private org.meta_environment.rascal.ast.Visibility visibility;
-	@Override
 	public org.meta_environment.rascal.ast.Visibility getVisibility() { return visibility; }
 	private void $setVisibility(org.meta_environment.rascal.ast.Visibility x) { this.visibility = x; }
 	public GivenVisibility setVisibility(org.meta_environment.rascal.ast.Visibility x) { 
@@ -33,7 +28,6 @@ private org.meta_environment.rascal.ast.Visibility visibility;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Declaration declaration;
-	@Override
 	public org.meta_environment.rascal.ast.Declaration getDeclaration() { return declaration; }
 	private void $setDeclaration(org.meta_environment.rascal.ast.Declaration x) { this.declaration = x; }
 	public GivenVisibility setDeclaration(org.meta_environment.rascal.ast.Declaration x) { 
@@ -51,8 +45,7 @@ static public class Ambiguity extends Toplevel {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitToplevelAmbiguity(this);
   }
 } public boolean isDefaultVisibility() { return false; }
@@ -63,19 +56,15 @@ static public class DefaultVisibility extends Toplevel {
 		this.tree = tree;
 		this.declaration = declaration;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitToplevelDefaultVisibility(this);
 	}
 
-	@Override
 	public boolean isDefaultVisibility() { return true; }
 
-	@Override
 	public boolean hasDeclaration() { return true; }
 
 private org.meta_environment.rascal.ast.Declaration declaration;
-	@Override
 	public org.meta_environment.rascal.ast.Declaration getDeclaration() { return declaration; }
 	private void $setDeclaration(org.meta_environment.rascal.ast.Declaration x) { this.declaration = x; }
 	public DefaultVisibility setDeclaration(org.meta_environment.rascal.ast.Declaration x) { 
@@ -84,6 +73,5 @@ private org.meta_environment.rascal.ast.Declaration declaration;
 		return z;
 	}	
 }
- @Override
-public abstract <T> T accept(IASTVisitor<T> visitor);
+ public abstract <T> T accept(IASTVisitor<T> visitor);
 }

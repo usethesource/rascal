@@ -11,8 +11,7 @@ static public class Lexical extends TagString {
 		return string;
 	}
 
- 	@Override
-	public <T> T accept(IASTVisitor<T> v) {
+ 	public <T> T accept(IASTVisitor<T> v) {
      		return v.visitTagStringLexical(this);
   	}
 }
@@ -25,8 +24,7 @@ static public class Ambiguity extends TagString {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitTagStringAmbiguity(this);
   }
 }

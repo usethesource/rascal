@@ -11,8 +11,7 @@ static public class Lexical extends RegExpLiteral {
 		return string;
 	}
 
- 	@Override
-	public <T> T accept(IASTVisitor<T> v) {
+ 	public <T> T accept(IASTVisitor<T> v) {
      		return v.visitRegExpLiteralLexical(this);
   	}
 }
@@ -25,8 +24,7 @@ static public class Ambiguity extends RegExpLiteral {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitRegExpLiteralAmbiguity(this);
   }
 }

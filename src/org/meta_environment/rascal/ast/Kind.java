@@ -8,12 +8,10 @@ static public class Module extends Kind {
 	/*package*/ Module(ITree tree) {
 		this.tree = tree;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitKindModule(this);
 	}
 
-	@Override
 	public boolean isModule() { return true; }	
 }
 static public class Ambiguity extends Kind {
@@ -25,8 +23,7 @@ static public class Ambiguity extends Kind {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitKindAmbiguity(this);
   }
 } 
@@ -37,27 +34,22 @@ static public class Function extends Kind {
 	/*package*/ Function(ITree tree) {
 		this.tree = tree;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitKindFunction(this);
 	}
 
-	@Override
 	public boolean isFunction() { return true; }	
-} @Override
-public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isVariable() { return false; }
+} public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isVariable() { return false; }
 static public class Variable extends Kind {
 /* "variable" -> Kind {cons("Variable")} */
 	private Variable() { }
 	/*package*/ Variable(ITree tree) {
 		this.tree = tree;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitKindVariable(this);
 	}
 
-	@Override
 	public boolean isVariable() { return true; }	
 } 
 public boolean isData() { return false; }
@@ -67,12 +59,10 @@ static public class Data extends Kind {
 	/*package*/ Data(ITree tree) {
 		this.tree = tree;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitKindData(this);
 	}
 
-	@Override
 	public boolean isData() { return true; }	
 } 
 public boolean isView() { return false; }
@@ -82,12 +72,10 @@ static public class View extends Kind {
 	/*package*/ View(ITree tree) {
 		this.tree = tree;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitKindView(this);
 	}
 
-	@Override
 	public boolean isView() { return true; }	
 } 
 public boolean isType() { return false; }
@@ -97,12 +85,10 @@ static public class Type extends Kind {
 	/*package*/ Type(ITree tree) {
 		this.tree = tree;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitKindType(this);
 	}
 
-	@Override
 	public boolean isType() { return true; }	
 } 
 public boolean isAnno() { return false; }
@@ -112,12 +98,10 @@ static public class Anno extends Kind {
 	/*package*/ Anno(ITree tree) {
 		this.tree = tree;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitKindAnno(this);
 	}
 
-	@Override
 	public boolean isAnno() { return true; }	
 } 
 public boolean isTag() { return false; }
@@ -127,12 +111,10 @@ static public class Tag extends Kind {
 	/*package*/ Tag(ITree tree) {
 		this.tree = tree;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitKindTag(this);
 	}
 
-	@Override
 	public boolean isTag() { return true; }	
 } 
 public boolean isAll() { return false; }
@@ -142,12 +124,10 @@ static public class All extends Kind {
 	/*package*/ All(ITree tree) {
 		this.tree = tree;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitKindAll(this);
 	}
 
-	@Override
 	public boolean isAll() { return true; }	
 }
 }

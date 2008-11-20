@@ -11,19 +11,15 @@ static public class Range extends CharRanges {
 		this.tree = tree;
 		this.range = range;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitCharRangesRange(this);
 	}
 
-	@Override
 	public boolean isRange() { return true; }
 
-	@Override
 	public boolean hasRange() { return true; }
 
 private org.meta_environment.rascal.ast.CharRange range;
-	@Override
 	public org.meta_environment.rascal.ast.CharRange getRange() { return range; }
 	private void $setRange(org.meta_environment.rascal.ast.CharRange x) { this.range = x; }
 	public Range setRange(org.meta_environment.rascal.ast.CharRange x) { 
@@ -41,8 +37,7 @@ static public class Ambiguity extends CharRanges {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitCharRangesAmbiguity(this);
   }
 } 
@@ -59,21 +54,16 @@ static public class Concatenate extends CharRanges {
 		this.lhs = lhs;
 		this.rhs = rhs;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitCharRangesConcatenate(this);
 	}
 
-	@Override
 	public boolean isConcatenate() { return true; }
 
-	@Override
 	public boolean hasLhs() { return true; }
-	@Override
 	public boolean hasRhs() { return true; }
 
 private org.meta_environment.rascal.ast.CharRanges lhs;
-	@Override
 	public org.meta_environment.rascal.ast.CharRanges getLhs() { return lhs; }
 	private void $setLhs(org.meta_environment.rascal.ast.CharRanges x) { this.lhs = x; }
 	public Concatenate setLhs(org.meta_environment.rascal.ast.CharRanges x) { 
@@ -82,7 +72,6 @@ private org.meta_environment.rascal.ast.CharRanges lhs;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.CharRanges rhs;
-	@Override
 	public org.meta_environment.rascal.ast.CharRanges getRhs() { return rhs; }
 	private void $setRhs(org.meta_environment.rascal.ast.CharRanges x) { this.rhs = x; }
 	public Concatenate setRhs(org.meta_environment.rascal.ast.CharRanges x) { 
@@ -90,8 +79,7 @@ private org.meta_environment.rascal.ast.CharRanges lhs;
  		z.$setRhs(x);
 		return z;
 	}	
-} @Override
-public abstract <T> T accept(IASTVisitor<T> visitor); public org.meta_environment.rascal.ast.CharRanges getRanges() { throw new UnsupportedOperationException(); }
+} public abstract <T> T accept(IASTVisitor<T> visitor); public org.meta_environment.rascal.ast.CharRanges getRanges() { throw new UnsupportedOperationException(); }
 public boolean hasRanges() { return false; }
 public boolean isBracket() { return false; }
 static public class Bracket extends CharRanges {
@@ -101,19 +89,15 @@ static public class Bracket extends CharRanges {
 		this.tree = tree;
 		this.ranges = ranges;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitCharRangesBracket(this);
 	}
 
-	@Override
 	public boolean isBracket() { return true; }
 
-	@Override
 	public boolean hasRanges() { return true; }
 
 private org.meta_environment.rascal.ast.CharRanges ranges;
-	@Override
 	public org.meta_environment.rascal.ast.CharRanges getRanges() { return ranges; }
 	private void $setRanges(org.meta_environment.rascal.ast.CharRanges x) { this.ranges = x; }
 	public Bracket setRanges(org.meta_environment.rascal.ast.CharRanges x) { 

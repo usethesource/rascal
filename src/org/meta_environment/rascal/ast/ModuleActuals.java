@@ -11,19 +11,15 @@ static public class Default extends ModuleActuals {
 		this.tree = tree;
 		this.types = types;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitModuleActualsDefault(this);
 	}
 
-	@Override
 	public boolean isDefault() { return true; }
 
-	@Override
 	public boolean hasTypes() { return true; }
 
 private java.util.List<org.meta_environment.rascal.ast.Type> types;
-	@Override
 	public java.util.List<org.meta_environment.rascal.ast.Type> getTypes() { return types; }
 	private void $setTypes(java.util.List<org.meta_environment.rascal.ast.Type> x) { this.types = x; }
 	public Default setTypes(java.util.List<org.meta_environment.rascal.ast.Type> x) { 
@@ -41,8 +37,7 @@ static public class Ambiguity extends ModuleActuals {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitModuleActualsAmbiguity(this);
   }
 }

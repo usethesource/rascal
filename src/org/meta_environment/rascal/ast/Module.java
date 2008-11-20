@@ -14,21 +14,16 @@ static public class Default extends Module {
 		this.header = header;
 		this.body = body;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitModuleDefault(this);
 	}
 
-	@Override
 	public boolean isDefault() { return true; }
 
-	@Override
 	public boolean hasHeader() { return true; }
-	@Override
 	public boolean hasBody() { return true; }
 
 private org.meta_environment.rascal.ast.Header header;
-	@Override
 	public org.meta_environment.rascal.ast.Header getHeader() { return header; }
 	private void $setHeader(org.meta_environment.rascal.ast.Header x) { this.header = x; }
 	public Default setHeader(org.meta_environment.rascal.ast.Header x) { 
@@ -37,7 +32,6 @@ private org.meta_environment.rascal.ast.Header header;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Body body;
-	@Override
 	public org.meta_environment.rascal.ast.Body getBody() { return body; }
 	private void $setBody(org.meta_environment.rascal.ast.Body x) { this.body = x; }
 	public Default setBody(org.meta_environment.rascal.ast.Body x) { 
@@ -55,8 +49,7 @@ static public class Ambiguity extends Module {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitModuleAmbiguity(this);
   }
 }

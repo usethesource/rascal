@@ -11,8 +11,7 @@ static public class Lexical extends StringLiteral {
 		return string;
 	}
 
- 	@Override
-	public <T> T accept(IASTVisitor<T> v) {
+ 	public <T> T accept(IASTVisitor<T> v) {
      		return v.visitStringLiteralLexical(this);
   	}
 }
@@ -25,8 +24,7 @@ static public class Ambiguity extends StringLiteral {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitStringLiteralAmbiguity(this);
   }
 }

@@ -12,23 +12,17 @@ static public class Default extends FunctionDeclaration {
 		this.tags = tags;
 		this.body = body;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitFunctionDeclarationDefault(this);
 	}
 
-	@Override
 	public boolean isDefault() { return true; }
 
-	@Override
 	public boolean hasSignature() { return true; }
-	@Override
 	public boolean hasTags() { return true; }
-	@Override
 	public boolean hasBody() { return true; }
 
 private org.meta_environment.rascal.ast.Signature signature;
-	@Override
 	public org.meta_environment.rascal.ast.Signature getSignature() { return signature; }
 	private void $setSignature(org.meta_environment.rascal.ast.Signature x) { this.signature = x; }
 	public Default setSignature(org.meta_environment.rascal.ast.Signature x) { 
@@ -37,7 +31,6 @@ private org.meta_environment.rascal.ast.Signature signature;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Tags tags;
-	@Override
 	public org.meta_environment.rascal.ast.Tags getTags() { return tags; }
 	private void $setTags(org.meta_environment.rascal.ast.Tags x) { this.tags = x; }
 	public Default setTags(org.meta_environment.rascal.ast.Tags x) { 
@@ -46,7 +39,6 @@ private org.meta_environment.rascal.ast.Signature signature;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.FunctionBody body;
-	@Override
 	public org.meta_environment.rascal.ast.FunctionBody getBody() { return body; }
 	private void $setBody(org.meta_environment.rascal.ast.FunctionBody x) { this.body = x; }
 	public Default setBody(org.meta_environment.rascal.ast.FunctionBody x) { 
@@ -64,8 +56,7 @@ static public class Ambiguity extends FunctionDeclaration {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitFunctionDeclarationAmbiguity(this);
   }
 } public boolean isAbstract() { return false; }
@@ -77,21 +68,16 @@ static public class Abstract extends FunctionDeclaration {
 		this.signature = signature;
 		this.tags = tags;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitFunctionDeclarationAbstract(this);
 	}
 
-	@Override
 	public boolean isAbstract() { return true; }
 
-	@Override
 	public boolean hasSignature() { return true; }
-	@Override
 	public boolean hasTags() { return true; }
 
 private org.meta_environment.rascal.ast.Signature signature;
-	@Override
 	public org.meta_environment.rascal.ast.Signature getSignature() { return signature; }
 	private void $setSignature(org.meta_environment.rascal.ast.Signature x) { this.signature = x; }
 	public Abstract setSignature(org.meta_environment.rascal.ast.Signature x) { 
@@ -100,7 +86,6 @@ private org.meta_environment.rascal.ast.Signature signature;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Tags tags;
-	@Override
 	public org.meta_environment.rascal.ast.Tags getTags() { return tags; }
 	private void $setTags(org.meta_environment.rascal.ast.Tags x) { this.tags = x; }
 	public Abstract setTags(org.meta_environment.rascal.ast.Tags x) { 
@@ -109,6 +94,5 @@ private org.meta_environment.rascal.ast.Signature signature;
 		return z;
 	}	
 }
- @Override
-public abstract <T> T accept(IASTVisitor<T> visitor);
+ public abstract <T> T accept(IASTVisitor<T> visitor);
 }

@@ -11,21 +11,16 @@ static public class Replacing extends Match {
 		this.match = match;
 		this.replacement = replacement;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitMatchReplacing(this);
 	}
 
-	@Override
 	public boolean isReplacing() { return true; }
 
-	@Override
 	public boolean hasMatch() { return true; }
-	@Override
 	public boolean hasReplacement() { return true; }
 
 private org.meta_environment.rascal.ast.Expression match;
-	@Override
 	public org.meta_environment.rascal.ast.Expression getMatch() { return match; }
 	private void $setMatch(org.meta_environment.rascal.ast.Expression x) { this.match = x; }
 	public Replacing setMatch(org.meta_environment.rascal.ast.Expression x) { 
@@ -34,7 +29,6 @@ private org.meta_environment.rascal.ast.Expression match;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Expression replacement;
-	@Override
 	public org.meta_environment.rascal.ast.Expression getReplacement() { return replacement; }
 	private void $setReplacement(org.meta_environment.rascal.ast.Expression x) { this.replacement = x; }
 	public Replacing setReplacement(org.meta_environment.rascal.ast.Expression x) { 
@@ -52,8 +46,7 @@ static public class Ambiguity extends Match {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitMatchAmbiguity(this);
   }
 } public org.meta_environment.rascal.ast.Statement getStatement() { throw new UnsupportedOperationException(); } public boolean hasStatement() { return false; }
@@ -66,21 +59,16 @@ static public class Arbitrary extends Match {
 		this.match = match;
 		this.statement = statement;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitMatchArbitrary(this);
 	}
 
-	@Override
 	public boolean isArbitrary() { return true; }
 
-	@Override
 	public boolean hasMatch() { return true; }
-	@Override
 	public boolean hasStatement() { return true; }
 
 private org.meta_environment.rascal.ast.Expression match;
-	@Override
 	public org.meta_environment.rascal.ast.Expression getMatch() { return match; }
 	private void $setMatch(org.meta_environment.rascal.ast.Expression x) { this.match = x; }
 	public Arbitrary setMatch(org.meta_environment.rascal.ast.Expression x) { 
@@ -89,7 +77,6 @@ private org.meta_environment.rascal.ast.Expression match;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Statement statement;
-	@Override
 	public org.meta_environment.rascal.ast.Statement getStatement() { return statement; }
 	private void $setStatement(org.meta_environment.rascal.ast.Statement x) { this.statement = x; }
 	public Arbitrary setStatement(org.meta_environment.rascal.ast.Statement x) { 
@@ -98,6 +85,5 @@ private org.meta_environment.rascal.ast.Expression match;
 		return z;
 	}	
 }
- @Override
-public abstract <T> T accept(IASTVisitor<T> visitor);
+ public abstract <T> T accept(IASTVisitor<T> visitor);
 }

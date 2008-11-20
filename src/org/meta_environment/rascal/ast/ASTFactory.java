@@ -556,12 +556,12 @@ org.meta_environment.rascal.ast.Expression.RegExpMatch x = new org.meta_environm
 		}
 		return (org.meta_environment.rascal.ast.Expression.RegExpMatch)table.get(x); 
 }
-public org.meta_environment.rascal.ast.Expression.Subtraction makeExpressionSubtraction(ITree tree, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) { 
-org.meta_environment.rascal.ast.Expression.Subtraction x = new org.meta_environment.rascal.ast.Expression.Subtraction(tree, lhs, rhs);
+public org.meta_environment.rascal.ast.Expression.Substraction makeExpressionSubstraction(ITree tree, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) { 
+org.meta_environment.rascal.ast.Expression.Substraction x = new org.meta_environment.rascal.ast.Expression.Substraction(tree, lhs, rhs);
 		if (!table.containsKey(x)) { 
 			table.put(x, x);
 		}
-		return (org.meta_environment.rascal.ast.Expression.Subtraction)table.get(x); 
+		return (org.meta_environment.rascal.ast.Expression.Substraction)table.get(x); 
 }
 public org.meta_environment.rascal.ast.Expression.Addition makeExpressionAddition(ITree tree, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) { 
 org.meta_environment.rascal.ast.Expression.Addition x = new org.meta_environment.rascal.ast.Expression.Addition(tree, lhs, rhs);
@@ -1221,8 +1221,8 @@ org.meta_environment.rascal.ast.Statement.Break x = new org.meta_environment.ras
 		}
 		return (org.meta_environment.rascal.ast.Statement.Break)table.get(x); 
 }
-public org.meta_environment.rascal.ast.Statement.Assignment makeStatementAssignment(ITree tree, java.util.List<org.meta_environment.rascal.ast.Assignable> assignables, org.meta_environment.rascal.ast.Assignment operator, java.util.List<org.meta_environment.rascal.ast.Expression> expressions) { 
-org.meta_environment.rascal.ast.Statement.Assignment x = new org.meta_environment.rascal.ast.Statement.Assignment(tree, assignables, operator, expressions);
+public org.meta_environment.rascal.ast.Statement.Assignment makeStatementAssignment(ITree tree, org.meta_environment.rascal.ast.Assignable assignable, org.meta_environment.rascal.ast.Assignment operator, org.meta_environment.rascal.ast.Expression expression) { 
+org.meta_environment.rascal.ast.Statement.Assignment x = new org.meta_environment.rascal.ast.Statement.Assignment(tree, assignable, operator, expression);
 		if (!table.containsKey(x)) { 
 			table.put(x, x);
 		}
@@ -1612,6 +1612,20 @@ org.meta_environment.rascal.ast.Asterisk.Lexical x = new org.meta_environment.ra
 			table.put(x, x);
 		}
 		return (org.meta_environment.rascal.ast.Asterisk.Lexical)table.get(x); 
+}
+public org.meta_environment.rascal.ast.Mapping.Ambiguity makeMappingAmbiguity(java.util.List<org.meta_environment.rascal.ast.Mapping> alternatives) { 
+org.meta_environment.rascal.ast.Mapping.Ambiguity amb = new org.meta_environment.rascal.ast.Mapping.Ambiguity(alternatives);
+     if (!table.containsKey(amb)) {
+        table.put(amb, amb);
+     }
+     return (org.meta_environment.rascal.ast.Mapping.Ambiguity)table.get(amb); 
+}
+public org.meta_environment.rascal.ast.Mapping.Default makeMappingDefault(ITree tree, org.meta_environment.rascal.ast.Expression from, org.meta_environment.rascal.ast.Expression to) { 
+org.meta_environment.rascal.ast.Mapping.Default x = new org.meta_environment.rascal.ast.Mapping.Default(tree, from, to);
+		if (!table.containsKey(x)) { 
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Mapping.Default)table.get(x); 
 }
 public org.meta_environment.rascal.ast.Area.Ambiguity makeAreaAmbiguity(java.util.List<org.meta_environment.rascal.ast.Area> alternatives) { 
 org.meta_environment.rascal.ast.Area.Ambiguity amb = new org.meta_environment.rascal.ast.Area.Ambiguity(alternatives);
@@ -2901,12 +2915,12 @@ org.meta_environment.rascal.ast.OperatorAsValue.Product x = new org.meta_environ
 		}
 		return (org.meta_environment.rascal.ast.OperatorAsValue.Product)table.get(x); 
 }
-public org.meta_environment.rascal.ast.OperatorAsValue.Subtraction makeOperatorAsValueSubtraction(ITree tree) { 
-org.meta_environment.rascal.ast.OperatorAsValue.Subtraction x = new org.meta_environment.rascal.ast.OperatorAsValue.Subtraction(tree);
+public org.meta_environment.rascal.ast.OperatorAsValue.Substraction makeOperatorAsValueSubstraction(ITree tree) { 
+org.meta_environment.rascal.ast.OperatorAsValue.Substraction x = new org.meta_environment.rascal.ast.OperatorAsValue.Substraction(tree);
 		if (!table.containsKey(x)) { 
 			table.put(x, x);
 		}
-		return (org.meta_environment.rascal.ast.OperatorAsValue.Subtraction)table.get(x); 
+		return (org.meta_environment.rascal.ast.OperatorAsValue.Substraction)table.get(x); 
 }
 public org.meta_environment.rascal.ast.OperatorAsValue.Ambiguity makeOperatorAsValueAmbiguity(java.util.List<org.meta_environment.rascal.ast.OperatorAsValue> alternatives) { 
 org.meta_environment.rascal.ast.OperatorAsValue.Ambiguity amb = new org.meta_environment.rascal.ast.OperatorAsValue.Ambiguity(alternatives);

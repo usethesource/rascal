@@ -10,21 +10,16 @@ static public class Solve extends Statement {
 		this.declarations = declarations;
 		this.body = body;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStatementSolve(this);
 	}
 
-	@Override
 	public boolean isSolve() { return true; }
 
-	@Override
 	public boolean hasDeclarations() { return true; }
-	@Override
 	public boolean hasBody() { return true; }
 
 private java.util.List<org.meta_environment.rascal.ast.Declarator> declarations;
-	@Override
 	public java.util.List<org.meta_environment.rascal.ast.Declarator> getDeclarations() { return declarations; }
 	private void $setDeclarations(java.util.List<org.meta_environment.rascal.ast.Declarator> x) { this.declarations = x; }
 	public Solve setDeclarations(java.util.List<org.meta_environment.rascal.ast.Declarator> x) { 
@@ -33,7 +28,6 @@ private java.util.List<org.meta_environment.rascal.ast.Declarator> declarations;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Statement body;
-	@Override
 	public org.meta_environment.rascal.ast.Statement getBody() { return body; }
 	private void $setBody(org.meta_environment.rascal.ast.Statement x) { this.body = x; }
 	public Solve setBody(org.meta_environment.rascal.ast.Statement x) { 
@@ -51,8 +45,7 @@ static public class Ambiguity extends Statement {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitStatementAmbiguity(this);
   }
 } public org.meta_environment.rascal.ast.Label getLabel() { throw new UnsupportedOperationException(); } public java.util.List<org.meta_environment.rascal.ast.Generator> getGenerators() { throw new UnsupportedOperationException(); } public boolean hasLabel() { return false; } public boolean hasGenerators() { return false; } public boolean isFor() { return false; }
@@ -65,23 +58,17 @@ static public class For extends Statement {
 		this.generators = generators;
 		this.body = body;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStatementFor(this);
 	}
 
-	@Override
 	public boolean isFor() { return true; }
 
-	@Override
 	public boolean hasLabel() { return true; }
-	@Override
 	public boolean hasGenerators() { return true; }
-	@Override
 	public boolean hasBody() { return true; }
 
 private org.meta_environment.rascal.ast.Label label;
-	@Override
 	public org.meta_environment.rascal.ast.Label getLabel() { return label; }
 	private void $setLabel(org.meta_environment.rascal.ast.Label x) { this.label = x; }
 	public For setLabel(org.meta_environment.rascal.ast.Label x) { 
@@ -90,7 +77,6 @@ private org.meta_environment.rascal.ast.Label label;
 		return z;
 	}
 	private java.util.List<org.meta_environment.rascal.ast.Generator> generators;
-	@Override
 	public java.util.List<org.meta_environment.rascal.ast.Generator> getGenerators() { return generators; }
 	private void $setGenerators(java.util.List<org.meta_environment.rascal.ast.Generator> x) { this.generators = x; }
 	public For setGenerators(java.util.List<org.meta_environment.rascal.ast.Generator> x) { 
@@ -99,7 +85,6 @@ private org.meta_environment.rascal.ast.Label label;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Statement body;
-	@Override
 	public org.meta_environment.rascal.ast.Statement getBody() { return body; }
 	private void $setBody(org.meta_environment.rascal.ast.Statement x) { this.body = x; }
 	public For setBody(org.meta_environment.rascal.ast.Statement x) { 
@@ -107,8 +92,7 @@ private org.meta_environment.rascal.ast.Label label;
  		z.$setBody(x);
 		return z;
 	}	
-} @Override
-public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isAll() { return false; }
+} public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isAll() { return false; }
 static public class All extends Statement {
 /* label:Label "all" "(" generators:{Generator ","}+ ")" body:Statement -> Statement {cons("All")} */
 	private All() { }
@@ -118,23 +102,17 @@ static public class All extends Statement {
 		this.generators = generators;
 		this.body = body;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStatementAll(this);
 	}
 
-	@Override
 	public boolean isAll() { return true; }
 
-	@Override
 	public boolean hasLabel() { return true; }
-	@Override
 	public boolean hasGenerators() { return true; }
-	@Override
 	public boolean hasBody() { return true; }
 
 private org.meta_environment.rascal.ast.Label label;
-	@Override
 	public org.meta_environment.rascal.ast.Label getLabel() { return label; }
 	private void $setLabel(org.meta_environment.rascal.ast.Label x) { this.label = x; }
 	public All setLabel(org.meta_environment.rascal.ast.Label x) { 
@@ -143,7 +121,6 @@ private org.meta_environment.rascal.ast.Label label;
 		return z;
 	}
 	private java.util.List<org.meta_environment.rascal.ast.Generator> generators;
-	@Override
 	public java.util.List<org.meta_environment.rascal.ast.Generator> getGenerators() { return generators; }
 	private void $setGenerators(java.util.List<org.meta_environment.rascal.ast.Generator> x) { this.generators = x; }
 	public All setGenerators(java.util.List<org.meta_environment.rascal.ast.Generator> x) { 
@@ -152,7 +129,6 @@ private org.meta_environment.rascal.ast.Label label;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Statement body;
-	@Override
 	public org.meta_environment.rascal.ast.Statement getBody() { return body; }
 	private void $setBody(org.meta_environment.rascal.ast.Statement x) { this.body = x; }
 	public All setBody(org.meta_environment.rascal.ast.Statement x) { 
@@ -170,23 +146,17 @@ static public class First extends Statement {
 		this.generators = generators;
 		this.body = body;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStatementFirst(this);
 	}
 
-	@Override
 	public boolean isFirst() { return true; }
 
-	@Override
 	public boolean hasLabel() { return true; }
-	@Override
 	public boolean hasGenerators() { return true; }
-	@Override
 	public boolean hasBody() { return true; }
 
 private org.meta_environment.rascal.ast.Label label;
-	@Override
 	public org.meta_environment.rascal.ast.Label getLabel() { return label; }
 	private void $setLabel(org.meta_environment.rascal.ast.Label x) { this.label = x; }
 	public First setLabel(org.meta_environment.rascal.ast.Label x) { 
@@ -195,7 +165,6 @@ private org.meta_environment.rascal.ast.Label label;
 		return z;
 	}
 	private java.util.List<org.meta_environment.rascal.ast.Generator> generators;
-	@Override
 	public java.util.List<org.meta_environment.rascal.ast.Generator> getGenerators() { return generators; }
 	private void $setGenerators(java.util.List<org.meta_environment.rascal.ast.Generator> x) { this.generators = x; }
 	public First setGenerators(java.util.List<org.meta_environment.rascal.ast.Generator> x) { 
@@ -204,7 +173,6 @@ private org.meta_environment.rascal.ast.Label label;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Statement body;
-	@Override
 	public org.meta_environment.rascal.ast.Statement getBody() { return body; }
 	private void $setBody(org.meta_environment.rascal.ast.Statement x) { this.body = x; }
 	public First setBody(org.meta_environment.rascal.ast.Statement x) { 
@@ -222,23 +190,17 @@ static public class While extends Statement {
 		this.condition = condition;
 		this.body = body;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStatementWhile(this);
 	}
 
-	@Override
 	public boolean isWhile() { return true; }
 
-	@Override
 	public boolean hasLabel() { return true; }
-	@Override
 	public boolean hasCondition() { return true; }
-	@Override
 	public boolean hasBody() { return true; }
 
 private org.meta_environment.rascal.ast.Label label;
-	@Override
 	public org.meta_environment.rascal.ast.Label getLabel() { return label; }
 	private void $setLabel(org.meta_environment.rascal.ast.Label x) { this.label = x; }
 	public While setLabel(org.meta_environment.rascal.ast.Label x) { 
@@ -247,7 +209,6 @@ private org.meta_environment.rascal.ast.Label label;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Expression condition;
-	@Override
 	public org.meta_environment.rascal.ast.Expression getCondition() { return condition; }
 	private void $setCondition(org.meta_environment.rascal.ast.Expression x) { this.condition = x; }
 	public While setCondition(org.meta_environment.rascal.ast.Expression x) { 
@@ -256,7 +217,6 @@ private org.meta_environment.rascal.ast.Label label;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Statement body;
-	@Override
 	public org.meta_environment.rascal.ast.Statement getBody() { return body; }
 	private void $setBody(org.meta_environment.rascal.ast.Statement x) { this.body = x; }
 	public While setBody(org.meta_environment.rascal.ast.Statement x) { 
@@ -274,23 +234,17 @@ static public class DoWhile extends Statement {
 		this.body = body;
 		this.condition = condition;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStatementDoWhile(this);
 	}
 
-	@Override
 	public boolean isDoWhile() { return true; }
 
-	@Override
 	public boolean hasLabel() { return true; }
-	@Override
 	public boolean hasBody() { return true; }
-	@Override
 	public boolean hasCondition() { return true; }
 
 private org.meta_environment.rascal.ast.Label label;
-	@Override
 	public org.meta_environment.rascal.ast.Label getLabel() { return label; }
 	private void $setLabel(org.meta_environment.rascal.ast.Label x) { this.label = x; }
 	public DoWhile setLabel(org.meta_environment.rascal.ast.Label x) { 
@@ -299,7 +253,6 @@ private org.meta_environment.rascal.ast.Label label;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Statement body;
-	@Override
 	public org.meta_environment.rascal.ast.Statement getBody() { return body; }
 	private void $setBody(org.meta_environment.rascal.ast.Statement x) { this.body = x; }
 	public DoWhile setBody(org.meta_environment.rascal.ast.Statement x) { 
@@ -308,7 +261,6 @@ private org.meta_environment.rascal.ast.Label label;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Expression condition;
-	@Override
 	public org.meta_environment.rascal.ast.Expression getCondition() { return condition; }
 	private void $setCondition(org.meta_environment.rascal.ast.Expression x) { this.condition = x; }
 	public DoWhile setCondition(org.meta_environment.rascal.ast.Expression x) { 
@@ -328,25 +280,18 @@ static public class IfThenElse extends Statement {
 		this.thenStatement = thenStatement;
 		this.elseStatement = elseStatement;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStatementIfThenElse(this);
 	}
 
-	@Override
 	public boolean isIfThenElse() { return true; }
 
-	@Override
 	public boolean hasLabel() { return true; }
-	@Override
 	public boolean hasConditions() { return true; }
-	@Override
 	public boolean hasThenStatement() { return true; }
-	@Override
 	public boolean hasElseStatement() { return true; }
 
 private org.meta_environment.rascal.ast.Label label;
-	@Override
 	public org.meta_environment.rascal.ast.Label getLabel() { return label; }
 	private void $setLabel(org.meta_environment.rascal.ast.Label x) { this.label = x; }
 	public IfThenElse setLabel(org.meta_environment.rascal.ast.Label x) { 
@@ -355,7 +300,6 @@ private org.meta_environment.rascal.ast.Label label;
 		return z;
 	}
 	private java.util.List<org.meta_environment.rascal.ast.Expression> conditions;
-	@Override
 	public java.util.List<org.meta_environment.rascal.ast.Expression> getConditions() { return conditions; }
 	private void $setConditions(java.util.List<org.meta_environment.rascal.ast.Expression> x) { this.conditions = x; }
 	public IfThenElse setConditions(java.util.List<org.meta_environment.rascal.ast.Expression> x) { 
@@ -364,7 +308,6 @@ private org.meta_environment.rascal.ast.Label label;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Statement thenStatement;
-	@Override
 	public org.meta_environment.rascal.ast.Statement getThenStatement() { return thenStatement; }
 	private void $setThenStatement(org.meta_environment.rascal.ast.Statement x) { this.thenStatement = x; }
 	public IfThenElse setThenStatement(org.meta_environment.rascal.ast.Statement x) { 
@@ -373,7 +316,6 @@ private org.meta_environment.rascal.ast.Label label;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Statement elseStatement;
-	@Override
 	public org.meta_environment.rascal.ast.Statement getElseStatement() { return elseStatement; }
 	private void $setElseStatement(org.meta_environment.rascal.ast.Statement x) { this.elseStatement = x; }
 	public IfThenElse setElseStatement(org.meta_environment.rascal.ast.Statement x) { 
@@ -393,25 +335,18 @@ static public class IfThen extends Statement {
 		this.thenStatement = thenStatement;
 		this.noElseMayFollow = noElseMayFollow;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStatementIfThen(this);
 	}
 
-	@Override
 	public boolean isIfThen() { return true; }
 
-	@Override
 	public boolean hasLabel() { return true; }
-	@Override
 	public boolean hasConditions() { return true; }
-	@Override
 	public boolean hasThenStatement() { return true; }
-	@Override
 	public boolean hasNoElseMayFollow() { return true; }
 
 private org.meta_environment.rascal.ast.Label label;
-	@Override
 	public org.meta_environment.rascal.ast.Label getLabel() { return label; }
 	private void $setLabel(org.meta_environment.rascal.ast.Label x) { this.label = x; }
 	public IfThen setLabel(org.meta_environment.rascal.ast.Label x) { 
@@ -420,7 +355,6 @@ private org.meta_environment.rascal.ast.Label label;
 		return z;
 	}
 	private java.util.List<org.meta_environment.rascal.ast.Expression> conditions;
-	@Override
 	public java.util.List<org.meta_environment.rascal.ast.Expression> getConditions() { return conditions; }
 	private void $setConditions(java.util.List<org.meta_environment.rascal.ast.Expression> x) { this.conditions = x; }
 	public IfThen setConditions(java.util.List<org.meta_environment.rascal.ast.Expression> x) { 
@@ -429,7 +363,6 @@ private org.meta_environment.rascal.ast.Label label;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Statement thenStatement;
-	@Override
 	public org.meta_environment.rascal.ast.Statement getThenStatement() { return thenStatement; }
 	private void $setThenStatement(org.meta_environment.rascal.ast.Statement x) { this.thenStatement = x; }
 	public IfThen setThenStatement(org.meta_environment.rascal.ast.Statement x) { 
@@ -438,7 +371,6 @@ private org.meta_environment.rascal.ast.Label label;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.NoElseMayFollow noElseMayFollow;
-	@Override
 	public org.meta_environment.rascal.ast.NoElseMayFollow getNoElseMayFollow() { return noElseMayFollow; }
 	private void $setNoElseMayFollow(org.meta_environment.rascal.ast.NoElseMayFollow x) { this.noElseMayFollow = x; }
 	public IfThen setNoElseMayFollow(org.meta_environment.rascal.ast.NoElseMayFollow x) { 
@@ -457,23 +389,17 @@ static public class Switch extends Statement {
 		this.expression = expression;
 		this.cases = cases;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStatementSwitch(this);
 	}
 
-	@Override
 	public boolean isSwitch() { return true; }
 
-	@Override
 	public boolean hasLabel() { return true; }
-	@Override
 	public boolean hasExpression() { return true; }
-	@Override
 	public boolean hasCases() { return true; }
 
 private org.meta_environment.rascal.ast.Label label;
-	@Override
 	public org.meta_environment.rascal.ast.Label getLabel() { return label; }
 	private void $setLabel(org.meta_environment.rascal.ast.Label x) { this.label = x; }
 	public Switch setLabel(org.meta_environment.rascal.ast.Label x) { 
@@ -482,7 +408,6 @@ private org.meta_environment.rascal.ast.Label label;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Expression expression;
-	@Override
 	public org.meta_environment.rascal.ast.Expression getExpression() { return expression; }
 	private void $setExpression(org.meta_environment.rascal.ast.Expression x) { this.expression = x; }
 	public Switch setExpression(org.meta_environment.rascal.ast.Expression x) { 
@@ -491,7 +416,6 @@ private org.meta_environment.rascal.ast.Label label;
 		return z;
 	}
 	private java.util.List<org.meta_environment.rascal.ast.Case> cases;
-	@Override
 	public java.util.List<org.meta_environment.rascal.ast.Case> getCases() { return cases; }
 	private void $setCases(java.util.List<org.meta_environment.rascal.ast.Case> x) { this.cases = x; }
 	public Switch setCases(java.util.List<org.meta_environment.rascal.ast.Case> x) { 
@@ -507,19 +431,15 @@ static public class Expression extends Statement {
 		this.tree = tree;
 		this.expression = expression;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStatementExpression(this);
 	}
 
-	@Override
 	public boolean isExpression() { return true; }
 
-	@Override
 	public boolean hasExpression() { return true; }
 
 private org.meta_environment.rascal.ast.Expression expression;
-	@Override
 	public org.meta_environment.rascal.ast.Expression getExpression() { return expression; }
 	private void $setExpression(org.meta_environment.rascal.ast.Expression x) { this.expression = x; }
 	public Expression setExpression(org.meta_environment.rascal.ast.Expression x) { 
@@ -538,19 +458,15 @@ static public class Visit extends Statement {
 		this.tree = tree;
 		this.visit = visit;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStatementVisit(this);
 	}
 
-	@Override
 	public boolean isVisit() { return true; }
 
-	@Override
 	public boolean hasVisit() { return true; }
 
 private org.meta_environment.rascal.ast.Visit visit;
-	@Override
 	public org.meta_environment.rascal.ast.Visit getVisit() { return visit; }
 	private void $setVisit(org.meta_environment.rascal.ast.Visit x) { this.visit = x; }
 	public Visit setVisit(org.meta_environment.rascal.ast.Visit x) { 
@@ -559,48 +475,37 @@ private org.meta_environment.rascal.ast.Visit visit;
 		return z;
 	}	
 } 
-public java.util.List<org.meta_environment.rascal.ast.Assignable> getAssignables() { throw new UnsupportedOperationException(); }
-	public org.meta_environment.rascal.ast.Assignment getOperator() { throw new UnsupportedOperationException(); }
-	public java.util.List<org.meta_environment.rascal.ast.Expression> getExpressions() { throw new UnsupportedOperationException(); }
-public boolean hasAssignables() { return false; }
-	public boolean hasOperator() { return false; }
-	public boolean hasExpressions() { return false; }
-public boolean isAssignment() { return false; }
+public org.meta_environment.rascal.ast.Assignable getAssignable() { throw new UnsupportedOperationException(); }
+	public org.meta_environment.rascal.ast.Assignment getOperator() { throw new UnsupportedOperationException(); } public boolean hasAssignable() { return false; }
+	public boolean hasOperator() { return false; } public boolean isAssignment() { return false; }
 static public class Assignment extends Statement {
-/* assignables:{Assignable ","}+ operator:Assignment expressions:{Expression ","}+ ";" -> Statement {cons("Assignment")} */
+/* assignable:Assignable operator:Assignment expression:Expression ";" -> Statement {cons("Assignment")} */
 	private Assignment() { }
-	/*package*/ Assignment(ITree tree, java.util.List<org.meta_environment.rascal.ast.Assignable> assignables, org.meta_environment.rascal.ast.Assignment operator, java.util.List<org.meta_environment.rascal.ast.Expression> expressions) {
+	/*package*/ Assignment(ITree tree, org.meta_environment.rascal.ast.Assignable assignable, org.meta_environment.rascal.ast.Assignment operator, org.meta_environment.rascal.ast.Expression expression) {
 		this.tree = tree;
-		this.assignables = assignables;
+		this.assignable = assignable;
 		this.operator = operator;
-		this.expressions = expressions;
+		this.expression = expression;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStatementAssignment(this);
 	}
 
-	@Override
 	public boolean isAssignment() { return true; }
 
-	@Override
-	public boolean hasAssignables() { return true; }
-	@Override
+	public boolean hasAssignable() { return true; }
 	public boolean hasOperator() { return true; }
-	@Override
-	public boolean hasExpressions() { return true; }
+	public boolean hasExpression() { return true; }
 
-private java.util.List<org.meta_environment.rascal.ast.Assignable> assignables;
-	@Override
-	public java.util.List<org.meta_environment.rascal.ast.Assignable> getAssignables() { return assignables; }
-	private void $setAssignables(java.util.List<org.meta_environment.rascal.ast.Assignable> x) { this.assignables = x; }
-	public Assignment setAssignables(java.util.List<org.meta_environment.rascal.ast.Assignable> x) { 
+private org.meta_environment.rascal.ast.Assignable assignable;
+	public org.meta_environment.rascal.ast.Assignable getAssignable() { return assignable; }
+	private void $setAssignable(org.meta_environment.rascal.ast.Assignable x) { this.assignable = x; }
+	public Assignment setAssignable(org.meta_environment.rascal.ast.Assignable x) { 
 		Assignment z = new Assignment();
- 		z.$setAssignables(x);
+ 		z.$setAssignable(x);
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Assignment operator;
-	@Override
 	public org.meta_environment.rascal.ast.Assignment getOperator() { return operator; }
 	private void $setOperator(org.meta_environment.rascal.ast.Assignment x) { this.operator = x; }
 	public Assignment setOperator(org.meta_environment.rascal.ast.Assignment x) { 
@@ -608,13 +513,12 @@ private java.util.List<org.meta_environment.rascal.ast.Assignable> assignables;
  		z.$setOperator(x);
 		return z;
 	}
-	private java.util.List<org.meta_environment.rascal.ast.Expression> expressions;
-	@Override
-	public java.util.List<org.meta_environment.rascal.ast.Expression> getExpressions() { return expressions; }
-	private void $setExpressions(java.util.List<org.meta_environment.rascal.ast.Expression> x) { this.expressions = x; }
-	public Assignment setExpressions(java.util.List<org.meta_environment.rascal.ast.Expression> x) { 
+	private org.meta_environment.rascal.ast.Expression expression;
+	public org.meta_environment.rascal.ast.Expression getExpression() { return expression; }
+	private void $setExpression(org.meta_environment.rascal.ast.Expression x) { this.expression = x; }
+	public Assignment setExpression(org.meta_environment.rascal.ast.Expression x) { 
 		Assignment z = new Assignment();
- 		z.$setExpressions(x);
+ 		z.$setExpression(x);
 		return z;
 	}	
 } 
@@ -628,19 +532,15 @@ static public class Break extends Statement {
 		this.tree = tree;
 		this.brk = brk;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStatementBreak(this);
 	}
 
-	@Override
 	public boolean isBreak() { return true; }
 
-	@Override
 	public boolean hasBrk() { return true; }
 
 private org.meta_environment.rascal.ast.Break brk;
-	@Override
 	public org.meta_environment.rascal.ast.Break getBrk() { return brk; }
 	private void $setBrk(org.meta_environment.rascal.ast.Break x) { this.brk = x; }
 	public Break setBrk(org.meta_environment.rascal.ast.Break x) { 
@@ -659,19 +559,15 @@ static public class Fail extends Statement {
 		this.tree = tree;
 		this.fail = fail;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStatementFail(this);
 	}
 
-	@Override
 	public boolean isFail() { return true; }
 
-	@Override
 	public boolean hasFail() { return true; }
 
 private org.meta_environment.rascal.ast.Fail fail;
-	@Override
 	public org.meta_environment.rascal.ast.Fail getFail() { return fail; }
 	private void $setFail(org.meta_environment.rascal.ast.Fail x) { this.fail = x; }
 	public Fail setFail(org.meta_environment.rascal.ast.Fail x) { 

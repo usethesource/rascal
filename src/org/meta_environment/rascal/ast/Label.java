@@ -8,12 +8,10 @@ static public class Empty extends Label {
 	/*package*/ Empty(ITree tree) {
 		this.tree = tree;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitLabelEmpty(this);
 	}
 
-	@Override
 	public boolean isEmpty() { return true; }	
 }
 static public class Ambiguity extends Label {
@@ -25,8 +23,7 @@ static public class Ambiguity extends Label {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitLabelAmbiguity(this);
   }
 } 
@@ -40,19 +37,15 @@ static public class Default extends Label {
 		this.tree = tree;
 		this.name = name;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitLabelDefault(this);
 	}
 
-	@Override
 	public boolean isDefault() { return true; }
 
-	@Override
 	public boolean hasName() { return true; }
 
 private org.meta_environment.rascal.ast.Name name;
-	@Override
 	public org.meta_environment.rascal.ast.Name getName() { return name; }
 	private void $setName(org.meta_environment.rascal.ast.Name x) { this.name = x; }
 	public Default setName(org.meta_environment.rascal.ast.Name x) { 
@@ -61,6 +54,5 @@ private org.meta_environment.rascal.ast.Name name;
 		return z;
 	}	
 }
- @Override
-public abstract <T> T accept(IASTVisitor<T> visitor);
+ public abstract <T> T accept(IASTVisitor<T> visitor);
 }

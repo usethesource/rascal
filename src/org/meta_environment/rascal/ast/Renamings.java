@@ -11,19 +11,15 @@ static public class Default extends Renamings {
 		this.tree = tree;
 		this.renamings = renamings;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitRenamingsDefault(this);
 	}
 
-	@Override
 	public boolean isDefault() { return true; }
 
-	@Override
 	public boolean hasRenamings() { return true; }
 
 private java.util.List<org.meta_environment.rascal.ast.Renaming> renamings;
-	@Override
 	public java.util.List<org.meta_environment.rascal.ast.Renaming> getRenamings() { return renamings; }
 	private void $setRenamings(java.util.List<org.meta_environment.rascal.ast.Renaming> x) { this.renamings = x; }
 	public Default setRenamings(java.util.List<org.meta_environment.rascal.ast.Renaming> x) { 
@@ -41,8 +37,7 @@ static public class Ambiguity extends Renamings {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitRenamingsAmbiguity(this);
   }
 }

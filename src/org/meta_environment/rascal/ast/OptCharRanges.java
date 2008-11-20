@@ -8,12 +8,10 @@ static public class Absent extends OptCharRanges {
 	/*package*/ Absent(ITree tree) {
 		this.tree = tree;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitOptCharRangesAbsent(this);
 	}
 
-	@Override
 	public boolean isAbsent() { return true; }	
 }
 static public class Ambiguity extends OptCharRanges {
@@ -25,8 +23,7 @@ static public class Ambiguity extends OptCharRanges {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitOptCharRangesAmbiguity(this);
   }
 } 
@@ -40,19 +37,15 @@ static public class Present extends OptCharRanges {
 		this.tree = tree;
 		this.ranges = ranges;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitOptCharRangesPresent(this);
 	}
 
-	@Override
 	public boolean isPresent() { return true; }
 
-	@Override
 	public boolean hasRanges() { return true; }
 
 private org.meta_environment.rascal.ast.CharRanges ranges;
-	@Override
 	public org.meta_environment.rascal.ast.CharRanges getRanges() { return ranges; }
 	private void $setRanges(org.meta_environment.rascal.ast.CharRanges x) { this.ranges = x; }
 	public Present setRanges(org.meta_environment.rascal.ast.CharRanges x) { 
@@ -61,6 +54,5 @@ private org.meta_environment.rascal.ast.CharRanges ranges;
 		return z;
 	}	
 }
- @Override
-public abstract <T> T accept(IASTVisitor<T> visitor);
+ public abstract <T> T accept(IASTVisitor<T> visitor);
 }

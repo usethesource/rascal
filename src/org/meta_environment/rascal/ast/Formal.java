@@ -14,21 +14,16 @@ static public class TypeName extends Formal {
 		this.type = type;
 		this.name = name;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitFormalTypeName(this);
 	}
 
-	@Override
 	public boolean isTypeName() { return true; }
 
-	@Override
 	public boolean hasType() { return true; }
-	@Override
 	public boolean hasName() { return true; }
 
 private org.meta_environment.rascal.ast.Type type;
-	@Override
 	public org.meta_environment.rascal.ast.Type getType() { return type; }
 	private void $setType(org.meta_environment.rascal.ast.Type x) { this.type = x; }
 	public TypeName setType(org.meta_environment.rascal.ast.Type x) { 
@@ -37,7 +32,6 @@ private org.meta_environment.rascal.ast.Type type;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Name name;
-	@Override
 	public org.meta_environment.rascal.ast.Name getName() { return name; }
 	private void $setName(org.meta_environment.rascal.ast.Name x) { this.name = x; }
 	public TypeName setName(org.meta_environment.rascal.ast.Name x) { 
@@ -55,8 +49,7 @@ static public class Ambiguity extends Formal {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitFormalAmbiguity(this);
   }
 }

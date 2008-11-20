@@ -16,25 +16,18 @@ static public class View extends Declaration {
 		this.tags = tags;
 		this.alts = alts;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitDeclarationView(this);
 	}
 
-	@Override
 	public boolean isView() { return true; }
 
-	@Override
 	public boolean hasView() { return true; }
-	@Override
 	public boolean hasSuperType() { return true; }
-	@Override
 	public boolean hasTags() { return true; }
-	@Override
 	public boolean hasAlts() { return true; }
 
 private org.meta_environment.rascal.ast.Name view;
-	@Override
 	public org.meta_environment.rascal.ast.Name getView() { return view; }
 	private void $setView(org.meta_environment.rascal.ast.Name x) { this.view = x; }
 	public View setView(org.meta_environment.rascal.ast.Name x) { 
@@ -43,7 +36,6 @@ private org.meta_environment.rascal.ast.Name view;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Name superType;
-	@Override
 	public org.meta_environment.rascal.ast.Name getSuperType() { return superType; }
 	private void $setSuperType(org.meta_environment.rascal.ast.Name x) { this.superType = x; }
 	public View setSuperType(org.meta_environment.rascal.ast.Name x) { 
@@ -52,7 +44,6 @@ private org.meta_environment.rascal.ast.Name view;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Tags tags;
-	@Override
 	public org.meta_environment.rascal.ast.Tags getTags() { return tags; }
 	private void $setTags(org.meta_environment.rascal.ast.Tags x) { this.tags = x; }
 	public View setTags(org.meta_environment.rascal.ast.Tags x) { 
@@ -61,7 +52,6 @@ private org.meta_environment.rascal.ast.Name view;
 		return z;
 	}
 	private java.util.List<org.meta_environment.rascal.ast.Alternative> alts;
-	@Override
 	public java.util.List<org.meta_environment.rascal.ast.Alternative> getAlts() { return alts; }
 	private void $setAlts(java.util.List<org.meta_environment.rascal.ast.Alternative> x) { this.alts = x; }
 	public View setAlts(java.util.List<org.meta_environment.rascal.ast.Alternative> x) { 
@@ -79,8 +69,7 @@ static public class Ambiguity extends Declaration {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitDeclarationAmbiguity(this);
   }
 } 
@@ -94,23 +83,17 @@ static public class Type extends Declaration {
 		this.user = user;
 		this.tags = tags;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitDeclarationType(this);
 	}
 
-	@Override
 	public boolean isType() { return true; }
 
-	@Override
 	public boolean hasBase() { return true; }
-	@Override
 	public boolean hasUser() { return true; }
-	@Override
 	public boolean hasTags() { return true; }
 
 private org.meta_environment.rascal.ast.Type base;
-	@Override
 	public org.meta_environment.rascal.ast.Type getBase() { return base; }
 	private void $setBase(org.meta_environment.rascal.ast.Type x) { this.base = x; }
 	public Type setBase(org.meta_environment.rascal.ast.Type x) { 
@@ -119,7 +102,6 @@ private org.meta_environment.rascal.ast.Type base;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.UserType user;
-	@Override
 	public org.meta_environment.rascal.ast.UserType getUser() { return user; }
 	private void $setUser(org.meta_environment.rascal.ast.UserType x) { this.user = x; }
 	public Type setUser(org.meta_environment.rascal.ast.UserType x) { 
@@ -128,7 +110,6 @@ private org.meta_environment.rascal.ast.Type base;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Tags tags;
-	@Override
 	public org.meta_environment.rascal.ast.Tags getTags() { return tags; }
 	private void $setTags(org.meta_environment.rascal.ast.Tags x) { this.tags = x; }
 	public Type setTags(org.meta_environment.rascal.ast.Tags x) { 
@@ -136,8 +117,7 @@ private org.meta_environment.rascal.ast.Type base;
  		z.$setTags(x);
 		return z;
 	}	
-} @Override
-public abstract <T> T accept(IASTVisitor<T> visitor); public java.util.List<org.meta_environment.rascal.ast.Variant> getVariants() { throw new UnsupportedOperationException(); } public boolean hasVariants() { return false; }
+} public abstract <T> T accept(IASTVisitor<T> visitor); public java.util.List<org.meta_environment.rascal.ast.Variant> getVariants() { throw new UnsupportedOperationException(); } public boolean hasVariants() { return false; }
 public boolean isData() { return false; }
 static public class Data extends Declaration {
 /* "data" user:UserType tags:Tags variants:{Variant "|"}+ ";" -> Declaration {cons("Data")} */
@@ -148,23 +128,17 @@ static public class Data extends Declaration {
 		this.tags = tags;
 		this.variants = variants;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitDeclarationData(this);
 	}
 
-	@Override
 	public boolean isData() { return true; }
 
-	@Override
 	public boolean hasUser() { return true; }
-	@Override
 	public boolean hasTags() { return true; }
-	@Override
 	public boolean hasVariants() { return true; }
 
 private org.meta_environment.rascal.ast.UserType user;
-	@Override
 	public org.meta_environment.rascal.ast.UserType getUser() { return user; }
 	private void $setUser(org.meta_environment.rascal.ast.UserType x) { this.user = x; }
 	public Data setUser(org.meta_environment.rascal.ast.UserType x) { 
@@ -173,7 +147,6 @@ private org.meta_environment.rascal.ast.UserType user;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Tags tags;
-	@Override
 	public org.meta_environment.rascal.ast.Tags getTags() { return tags; }
 	private void $setTags(org.meta_environment.rascal.ast.Tags x) { this.tags = x; }
 	public Data setTags(org.meta_environment.rascal.ast.Tags x) { 
@@ -182,7 +155,6 @@ private org.meta_environment.rascal.ast.UserType user;
 		return z;
 	}
 	private java.util.List<org.meta_environment.rascal.ast.Variant> variants;
-	@Override
 	public java.util.List<org.meta_environment.rascal.ast.Variant> getVariants() { return variants; }
 	private void $setVariants(java.util.List<org.meta_environment.rascal.ast.Variant> x) { this.variants = x; }
 	public Data setVariants(java.util.List<org.meta_environment.rascal.ast.Variant> x) { 
@@ -201,19 +173,15 @@ static public class Function extends Declaration {
 		this.tree = tree;
 		this.functionDeclaration = functionDeclaration;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitDeclarationFunction(this);
 	}
 
-	@Override
 	public boolean isFunction() { return true; }
 
-	@Override
 	public boolean hasFunctionDeclaration() { return true; }
 
 private org.meta_environment.rascal.ast.FunctionDeclaration functionDeclaration;
-	@Override
 	public org.meta_environment.rascal.ast.FunctionDeclaration getFunctionDeclaration() { return functionDeclaration; }
 	private void $setFunctionDeclaration(org.meta_environment.rascal.ast.FunctionDeclaration x) { this.functionDeclaration = x; }
 	public Function setFunctionDeclaration(org.meta_environment.rascal.ast.FunctionDeclaration x) { 
@@ -231,21 +199,16 @@ static public class Variable extends Declaration {
 		this.type = type;
 		this.variables = variables;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitDeclarationVariable(this);
 	}
 
-	@Override
 	public boolean isVariable() { return true; }
 
-	@Override
 	public boolean hasType() { return true; }
-	@Override
 	public boolean hasVariables() { return true; }
 
 private org.meta_environment.rascal.ast.Type type;
-	@Override
 	public org.meta_environment.rascal.ast.Type getType() { return type; }
 	private void $setType(org.meta_environment.rascal.ast.Type x) { this.type = x; }
 	public Variable setType(org.meta_environment.rascal.ast.Type x) { 
@@ -254,7 +217,6 @@ private org.meta_environment.rascal.ast.Type type;
 		return z;
 	}
 	private java.util.List<org.meta_environment.rascal.ast.Variable> variables;
-	@Override
 	public java.util.List<org.meta_environment.rascal.ast.Variable> getVariables() { return variables; }
 	private void $setVariables(java.util.List<org.meta_environment.rascal.ast.Variable> x) { this.variables = x; }
 	public Variable setVariables(java.util.List<org.meta_environment.rascal.ast.Variable> x) { 
@@ -273,23 +235,17 @@ static public class Rule extends Declaration {
 		this.tags = tags;
 		this.rule = rule;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitDeclarationRule(this);
 	}
 
-	@Override
 	public boolean isRule() { return true; }
 
-	@Override
 	public boolean hasName() { return true; }
-	@Override
 	public boolean hasTags() { return true; }
-	@Override
 	public boolean hasRule() { return true; }
 
 private org.meta_environment.rascal.ast.Name name;
-	@Override
 	public org.meta_environment.rascal.ast.Name getName() { return name; }
 	private void $setName(org.meta_environment.rascal.ast.Name x) { this.name = x; }
 	public Rule setName(org.meta_environment.rascal.ast.Name x) { 
@@ -298,7 +254,6 @@ private org.meta_environment.rascal.ast.Name name;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Tags tags;
-	@Override
 	public org.meta_environment.rascal.ast.Tags getTags() { return tags; }
 	private void $setTags(org.meta_environment.rascal.ast.Tags x) { this.tags = x; }
 	public Rule setTags(org.meta_environment.rascal.ast.Tags x) { 
@@ -307,7 +262,6 @@ private org.meta_environment.rascal.ast.Name name;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Rule rule;
-	@Override
 	public org.meta_environment.rascal.ast.Rule getRule() { return rule; }
 	private void $setRule(org.meta_environment.rascal.ast.Rule x) { this.rule = x; }
 	public Rule setRule(org.meta_environment.rascal.ast.Rule x) { 
@@ -326,25 +280,18 @@ static public class Annotation extends Declaration {
 		this.tags = tags;
 		this.types = types;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitDeclarationAnnotation(this);
 	}
 
-	@Override
 	public boolean isAnnotation() { return true; }
 
-	@Override
 	public boolean hasType() { return true; }
-	@Override
 	public boolean hasName() { return true; }
-	@Override
 	public boolean hasTags() { return true; }
-	@Override
 	public boolean hasTypes() { return true; }
 
 private org.meta_environment.rascal.ast.Type type;
-	@Override
 	public org.meta_environment.rascal.ast.Type getType() { return type; }
 	private void $setType(org.meta_environment.rascal.ast.Type x) { this.type = x; }
 	public Annotation setType(org.meta_environment.rascal.ast.Type x) { 
@@ -353,7 +300,6 @@ private org.meta_environment.rascal.ast.Type type;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Name name;
-	@Override
 	public org.meta_environment.rascal.ast.Name getName() { return name; }
 	private void $setName(org.meta_environment.rascal.ast.Name x) { this.name = x; }
 	public Annotation setName(org.meta_environment.rascal.ast.Name x) { 
@@ -362,7 +308,6 @@ private org.meta_environment.rascal.ast.Type type;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Tags tags;
-	@Override
 	public org.meta_environment.rascal.ast.Tags getTags() { return tags; }
 	private void $setTags(org.meta_environment.rascal.ast.Tags x) { this.tags = x; }
 	public Annotation setTags(org.meta_environment.rascal.ast.Tags x) { 
@@ -371,7 +316,6 @@ private org.meta_environment.rascal.ast.Type type;
 		return z;
 	}
 	private java.util.List<org.meta_environment.rascal.ast.Type> types;
-	@Override
 	public java.util.List<org.meta_environment.rascal.ast.Type> getTypes() { return types; }
 	private void $setTypes(java.util.List<org.meta_environment.rascal.ast.Type> x) { this.types = x; }
 	public Annotation setTypes(java.util.List<org.meta_environment.rascal.ast.Type> x) { 
@@ -391,25 +335,18 @@ static public class Tag extends Declaration {
 		this.tags = tags;
 		this.types = types;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitDeclarationTag(this);
 	}
 
-	@Override
 	public boolean isTag() { return true; }
 
-	@Override
 	public boolean hasKind() { return true; }
-	@Override
 	public boolean hasName() { return true; }
-	@Override
 	public boolean hasTags() { return true; }
-	@Override
 	public boolean hasTypes() { return true; }
 
 private org.meta_environment.rascal.ast.Kind kind;
-	@Override
 	public org.meta_environment.rascal.ast.Kind getKind() { return kind; }
 	private void $setKind(org.meta_environment.rascal.ast.Kind x) { this.kind = x; }
 	public Tag setKind(org.meta_environment.rascal.ast.Kind x) { 
@@ -418,7 +355,6 @@ private org.meta_environment.rascal.ast.Kind kind;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Name name;
-	@Override
 	public org.meta_environment.rascal.ast.Name getName() { return name; }
 	private void $setName(org.meta_environment.rascal.ast.Name x) { this.name = x; }
 	public Tag setName(org.meta_environment.rascal.ast.Name x) { 
@@ -427,7 +363,6 @@ private org.meta_environment.rascal.ast.Kind kind;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Tags tags;
-	@Override
 	public org.meta_environment.rascal.ast.Tags getTags() { return tags; }
 	private void $setTags(org.meta_environment.rascal.ast.Tags x) { this.tags = x; }
 	public Tag setTags(org.meta_environment.rascal.ast.Tags x) { 
@@ -436,7 +371,6 @@ private org.meta_environment.rascal.ast.Kind kind;
 		return z;
 	}
 	private java.util.List<org.meta_environment.rascal.ast.Type> types;
-	@Override
 	public java.util.List<org.meta_environment.rascal.ast.Type> getTypes() { return types; }
 	private void $setTypes(java.util.List<org.meta_environment.rascal.ast.Type> x) { this.types = x; }
 	public Tag setTypes(java.util.List<org.meta_environment.rascal.ast.Type> x) { 

@@ -10,21 +10,16 @@ static public class AnonymousConstructor extends Variant {
 		this.type = type;
 		this.name = name;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitVariantAnonymousConstructor(this);
 	}
 
-	@Override
 	public boolean isAnonymousConstructor() { return true; }
 
-	@Override
 	public boolean hasType() { return true; }
-	@Override
 	public boolean hasName() { return true; }
 
 private org.meta_environment.rascal.ast.Type type;
-	@Override
 	public org.meta_environment.rascal.ast.Type getType() { return type; }
 	private void $setType(org.meta_environment.rascal.ast.Type x) { this.type = x; }
 	public AnonymousConstructor setType(org.meta_environment.rascal.ast.Type x) { 
@@ -33,7 +28,6 @@ private org.meta_environment.rascal.ast.Type type;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Name name;
-	@Override
 	public org.meta_environment.rascal.ast.Name getName() { return name; }
 	private void $setName(org.meta_environment.rascal.ast.Name x) { this.name = x; }
 	public AnonymousConstructor setName(org.meta_environment.rascal.ast.Name x) { 
@@ -51,8 +45,7 @@ static public class Ambiguity extends Variant {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitVariantAmbiguity(this);
   }
 } public java.util.List<org.meta_environment.rascal.ast.TypeArg> getArguments() { throw new UnsupportedOperationException(); } public boolean hasArguments() { return false; }
@@ -65,21 +58,16 @@ static public class NAryConstructor extends Variant {
 		this.name = name;
 		this.arguments = arguments;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitVariantNAryConstructor(this);
 	}
 
-	@Override
 	public boolean isNAryConstructor() { return true; }
 
-	@Override
 	public boolean hasName() { return true; }
-	@Override
 	public boolean hasArguments() { return true; }
 
 private org.meta_environment.rascal.ast.Name name;
-	@Override
 	public org.meta_environment.rascal.ast.Name getName() { return name; }
 	private void $setName(org.meta_environment.rascal.ast.Name x) { this.name = x; }
 	public NAryConstructor setName(org.meta_environment.rascal.ast.Name x) { 
@@ -88,7 +76,6 @@ private org.meta_environment.rascal.ast.Name name;
 		return z;
 	}
 	private java.util.List<org.meta_environment.rascal.ast.TypeArg> arguments;
-	@Override
 	public java.util.List<org.meta_environment.rascal.ast.TypeArg> getArguments() { return arguments; }
 	private void $setArguments(java.util.List<org.meta_environment.rascal.ast.TypeArg> x) { this.arguments = x; }
 	public NAryConstructor setArguments(java.util.List<org.meta_environment.rascal.ast.TypeArg> x) { 
@@ -96,8 +83,7 @@ private org.meta_environment.rascal.ast.Name name;
  		z.$setArguments(x);
 		return z;
 	}	
-} @Override
-public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isNillaryConstructor() { return false; }
+} public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isNillaryConstructor() { return false; }
 static public class NillaryConstructor extends Variant {
 /* name:Name -> Variant {cons("NillaryConstructor")} */
 	private NillaryConstructor() { }
@@ -105,19 +91,15 @@ static public class NillaryConstructor extends Variant {
 		this.tree = tree;
 		this.name = name;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitVariantNillaryConstructor(this);
 	}
 
-	@Override
 	public boolean isNillaryConstructor() { return true; }
 
-	@Override
 	public boolean hasName() { return true; }
 
 private org.meta_environment.rascal.ast.Name name;
-	@Override
 	public org.meta_environment.rascal.ast.Name getName() { return name; }
 	private void $setName(org.meta_environment.rascal.ast.Name x) { this.name = x; }
 	public NillaryConstructor setName(org.meta_environment.rascal.ast.Name x) { 

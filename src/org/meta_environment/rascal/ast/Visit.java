@@ -10,21 +10,16 @@ static public class DefaultStrategy extends Visit {
 		this.subject = subject;
 		this.cases = cases;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitVisitDefaultStrategy(this);
 	}
 
-	@Override
 	public boolean isDefaultStrategy() { return true; }
 
-	@Override
 	public boolean hasSubject() { return true; }
-	@Override
 	public boolean hasCases() { return true; }
 
 private org.meta_environment.rascal.ast.Expression subject;
-	@Override
 	public org.meta_environment.rascal.ast.Expression getSubject() { return subject; }
 	private void $setSubject(org.meta_environment.rascal.ast.Expression x) { this.subject = x; }
 	public DefaultStrategy setSubject(org.meta_environment.rascal.ast.Expression x) { 
@@ -33,7 +28,6 @@ private org.meta_environment.rascal.ast.Expression subject;
 		return z;
 	}
 	private java.util.List<org.meta_environment.rascal.ast.Case> cases;
-	@Override
 	public java.util.List<org.meta_environment.rascal.ast.Case> getCases() { return cases; }
 	private void $setCases(java.util.List<org.meta_environment.rascal.ast.Case> x) { this.cases = x; }
 	public DefaultStrategy setCases(java.util.List<org.meta_environment.rascal.ast.Case> x) { 
@@ -51,8 +45,7 @@ static public class Ambiguity extends Visit {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitVisitAmbiguity(this);
   }
 } 
@@ -66,23 +59,17 @@ static public class GivenStrategy extends Visit {
 		this.subject = subject;
 		this.cases = cases;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitVisitGivenStrategy(this);
 	}
 
-	@Override
 	public boolean isGivenStrategy() { return true; }
 
-	@Override
 	public boolean hasStrategy() { return true; }
-	@Override
 	public boolean hasSubject() { return true; }
-	@Override
 	public boolean hasCases() { return true; }
 
 private org.meta_environment.rascal.ast.Strategy strategy;
-	@Override
 	public org.meta_environment.rascal.ast.Strategy getStrategy() { return strategy; }
 	private void $setStrategy(org.meta_environment.rascal.ast.Strategy x) { this.strategy = x; }
 	public GivenStrategy setStrategy(org.meta_environment.rascal.ast.Strategy x) { 
@@ -91,7 +78,6 @@ private org.meta_environment.rascal.ast.Strategy strategy;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Expression subject;
-	@Override
 	public org.meta_environment.rascal.ast.Expression getSubject() { return subject; }
 	private void $setSubject(org.meta_environment.rascal.ast.Expression x) { this.subject = x; }
 	public GivenStrategy setSubject(org.meta_environment.rascal.ast.Expression x) { 
@@ -100,7 +86,6 @@ private org.meta_environment.rascal.ast.Strategy strategy;
 		return z;
 	}
 	private java.util.List<org.meta_environment.rascal.ast.Case> cases;
-	@Override
 	public java.util.List<org.meta_environment.rascal.ast.Case> getCases() { return cases; }
 	private void $setCases(java.util.List<org.meta_environment.rascal.ast.Case> x) { this.cases = x; }
 	public GivenStrategy setCases(java.util.List<org.meta_environment.rascal.ast.Case> x) { 
@@ -109,6 +94,5 @@ private org.meta_environment.rascal.ast.Strategy strategy;
 		return z;
 	}	
 }
- @Override
-public abstract <T> T accept(IASTVisitor<T> visitor);
+ public abstract <T> T accept(IASTVisitor<T> visitor);
 }

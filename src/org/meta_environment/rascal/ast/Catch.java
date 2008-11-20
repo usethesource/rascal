@@ -9,19 +9,15 @@ static public class Default extends Catch {
 		this.tree = tree;
 		this.body = body;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitCatchDefault(this);
 	}
 
-	@Override
 	public boolean isDefault() { return true; }
 
-	@Override
 	public boolean hasBody() { return true; }
 
 private org.meta_environment.rascal.ast.Statement body;
-	@Override
 	public org.meta_environment.rascal.ast.Statement getBody() { return body; }
 	private void $setBody(org.meta_environment.rascal.ast.Statement x) { this.body = x; }
 	public Default setBody(org.meta_environment.rascal.ast.Statement x) { 
@@ -39,8 +35,7 @@ static public class Ambiguity extends Catch {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitCatchAmbiguity(this);
   }
 } 
@@ -56,23 +51,17 @@ static public class Binding extends Catch {
 		this.name = name;
 		this.body = body;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitCatchBinding(this);
 	}
 
-	@Override
 	public boolean isBinding() { return true; }
 
-	@Override
 	public boolean hasType() { return true; }
-	@Override
 	public boolean hasName() { return true; }
-	@Override
 	public boolean hasBody() { return true; }
 
 private org.meta_environment.rascal.ast.Type type;
-	@Override
 	public org.meta_environment.rascal.ast.Type getType() { return type; }
 	private void $setType(org.meta_environment.rascal.ast.Type x) { this.type = x; }
 	public Binding setType(org.meta_environment.rascal.ast.Type x) { 
@@ -81,7 +70,6 @@ private org.meta_environment.rascal.ast.Type type;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Name name;
-	@Override
 	public org.meta_environment.rascal.ast.Name getName() { return name; }
 	private void $setName(org.meta_environment.rascal.ast.Name x) { this.name = x; }
 	public Binding setName(org.meta_environment.rascal.ast.Name x) { 
@@ -90,7 +78,6 @@ private org.meta_environment.rascal.ast.Type type;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Statement body;
-	@Override
 	public org.meta_environment.rascal.ast.Statement getBody() { return body; }
 	private void $setBody(org.meta_environment.rascal.ast.Statement x) { this.body = x; }
 	public Binding setBody(org.meta_environment.rascal.ast.Statement x) { 
@@ -99,6 +86,5 @@ private org.meta_environment.rascal.ast.Type type;
 		return z;
 	}	
 }
- @Override
-public abstract <T> T accept(IASTVisitor<T> visitor);
+ public abstract <T> T accept(IASTVisitor<T> visitor);
 }

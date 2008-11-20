@@ -9,19 +9,15 @@ static public class Sort extends Symbol {
 		this.tree = tree;
 		this.sort = sort;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitSymbolSort(this);
 	}
 
-	@Override
 	public boolean isSort() { return true; }
 
-	@Override
 	public boolean hasSort() { return true; }
 
 private org.meta_environment.rascal.ast.Sort sort;
-	@Override
 	public org.meta_environment.rascal.ast.Sort getSort() { return sort; }
 	private void $setSort(org.meta_environment.rascal.ast.Sort x) { this.sort = x; }
 	public Sort setSort(org.meta_environment.rascal.ast.Sort x) { 
@@ -39,8 +35,7 @@ static public class Ambiguity extends Symbol {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitSymbolAmbiguity(this);
   }
 } public java.util.List<org.meta_environment.rascal.ast.Symbol> getParameters() { throw new UnsupportedOperationException(); } public boolean hasParameters() { return false; }
@@ -53,21 +48,16 @@ static public class ParameterizedSort extends Symbol {
 		this.sort = sort;
 		this.parameters = parameters;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitSymbolParameterizedSort(this);
 	}
 
-	@Override
 	public boolean isParameterizedSort() { return true; }
 
-	@Override
 	public boolean hasSort() { return true; }
-	@Override
 	public boolean hasParameters() { return true; }
 
 private org.meta_environment.rascal.ast.Sort sort;
-	@Override
 	public org.meta_environment.rascal.ast.Sort getSort() { return sort; }
 	private void $setSort(org.meta_environment.rascal.ast.Sort x) { this.sort = x; }
 	public ParameterizedSort setSort(org.meta_environment.rascal.ast.Sort x) { 
@@ -76,7 +66,6 @@ private org.meta_environment.rascal.ast.Sort sort;
 		return z;
 	}
 	private java.util.List<org.meta_environment.rascal.ast.Symbol> parameters;
-	@Override
 	public java.util.List<org.meta_environment.rascal.ast.Symbol> getParameters() { return parameters; }
 	private void $setParameters(java.util.List<org.meta_environment.rascal.ast.Symbol> x) { this.parameters = x; }
 	public ParameterizedSort setParameters(java.util.List<org.meta_environment.rascal.ast.Symbol> x) { 
@@ -84,20 +73,17 @@ private org.meta_environment.rascal.ast.Sort sort;
  		z.$setParameters(x);
 		return z;
 	}	
-} @Override
-public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isEmpty() { return false; }
+} public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isEmpty() { return false; }
 static public class Empty extends Symbol {
 /* "(" ")" -> Symbol {cons("Empty")} */
 	private Empty() { }
 	/*package*/ Empty(ITree tree) {
 		this.tree = tree;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitSymbolEmpty(this);
 	}
 
-	@Override
 	public boolean isEmpty() { return true; }	
 } 
 public org.meta_environment.rascal.ast.Symbol getHead() { throw new UnsupportedOperationException(); }
@@ -113,21 +99,16 @@ static public class Sequence extends Symbol {
 		this.head = head;
 		this.tail = tail;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitSymbolSequence(this);
 	}
 
-	@Override
 	public boolean isSequence() { return true; }
 
-	@Override
 	public boolean hasHead() { return true; }
-	@Override
 	public boolean hasTail() { return true; }
 
 private org.meta_environment.rascal.ast.Symbol head;
-	@Override
 	public org.meta_environment.rascal.ast.Symbol getHead() { return head; }
 	private void $setHead(org.meta_environment.rascal.ast.Symbol x) { this.head = x; }
 	public Sequence setHead(org.meta_environment.rascal.ast.Symbol x) { 
@@ -136,7 +117,6 @@ private org.meta_environment.rascal.ast.Symbol head;
 		return z;
 	}
 	private java.util.List<org.meta_environment.rascal.ast.Symbol> tail;
-	@Override
 	public java.util.List<org.meta_environment.rascal.ast.Symbol> getTail() { return tail; }
 	private void $setTail(java.util.List<org.meta_environment.rascal.ast.Symbol> x) { this.tail = x; }
 	public Sequence setTail(java.util.List<org.meta_environment.rascal.ast.Symbol> x) { 
@@ -151,19 +131,15 @@ private org.meta_environment.rascal.ast.Symbol head;
 		this.tree = tree;
 		this.symbol = symbol;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitSymbolOptional(this);
 	}
 
-	@Override
 	public boolean isOptional() { return true; }
 
-	@Override
 	public boolean hasSymbol() { return true; }
 
 private org.meta_environment.rascal.ast.Symbol symbol;
-	@Override
 	public org.meta_environment.rascal.ast.Symbol getSymbol() { return symbol; }
 	private void $setSymbol(org.meta_environment.rascal.ast.Symbol x) { this.symbol = x; }
 	public Optional setSymbol(org.meta_environment.rascal.ast.Symbol x) { 
@@ -178,19 +154,15 @@ private org.meta_environment.rascal.ast.Symbol symbol;
 		this.tree = tree;
 		this.symbol = symbol;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitSymbolIter(this);
 	}
 
-	@Override
 	public boolean isIter() { return true; }
 
-	@Override
 	public boolean hasSymbol() { return true; }
 
 private org.meta_environment.rascal.ast.Symbol symbol;
-	@Override
 	public org.meta_environment.rascal.ast.Symbol getSymbol() { return symbol; }
 	private void $setSymbol(org.meta_environment.rascal.ast.Symbol x) { this.symbol = x; }
 	public Iter setSymbol(org.meta_environment.rascal.ast.Symbol x) { 
@@ -205,19 +177,15 @@ private org.meta_environment.rascal.ast.Symbol symbol;
 		this.tree = tree;
 		this.symbol = symbol;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitSymbolIterStar(this);
 	}
 
-	@Override
 	public boolean isIterStar() { return true; }
 
-	@Override
 	public boolean hasSymbol() { return true; }
 
 private org.meta_environment.rascal.ast.Symbol symbol;
-	@Override
 	public org.meta_environment.rascal.ast.Symbol getSymbol() { return symbol; }
 	private void $setSymbol(org.meta_environment.rascal.ast.Symbol x) { this.symbol = x; }
 	public IterStar setSymbol(org.meta_environment.rascal.ast.Symbol x) { 
@@ -234,21 +202,16 @@ static public class IterSep extends Symbol {
 		this.symbol = symbol;
 		this.sep = sep;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitSymbolIterSep(this);
 	}
 
-	@Override
 	public boolean isIterSep() { return true; }
 
-	@Override
 	public boolean hasSymbol() { return true; }
-	@Override
 	public boolean hasSep() { return true; }
 
 private org.meta_environment.rascal.ast.Symbol symbol;
-	@Override
 	public org.meta_environment.rascal.ast.Symbol getSymbol() { return symbol; }
 	private void $setSymbol(org.meta_environment.rascal.ast.Symbol x) { this.symbol = x; }
 	public IterSep setSymbol(org.meta_environment.rascal.ast.Symbol x) { 
@@ -257,7 +220,6 @@ private org.meta_environment.rascal.ast.Symbol symbol;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.StrCon sep;
-	@Override
 	public org.meta_environment.rascal.ast.StrCon getSep() { return sep; }
 	private void $setSep(org.meta_environment.rascal.ast.StrCon x) { this.sep = x; }
 	public IterSep setSep(org.meta_environment.rascal.ast.StrCon x) { 
@@ -274,21 +236,16 @@ static public class IterStarSep extends Symbol {
 		this.symbol = symbol;
 		this.sep = sep;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitSymbolIterStarSep(this);
 	}
 
-	@Override
 	public boolean isIterStarSep() { return true; }
 
-	@Override
 	public boolean hasSymbol() { return true; }
-	@Override
 	public boolean hasSep() { return true; }
 
 private org.meta_environment.rascal.ast.Symbol symbol;
-	@Override
 	public org.meta_environment.rascal.ast.Symbol getSymbol() { return symbol; }
 	private void $setSymbol(org.meta_environment.rascal.ast.Symbol x) { this.symbol = x; }
 	public IterStarSep setSymbol(org.meta_environment.rascal.ast.Symbol x) { 
@@ -297,7 +254,6 @@ private org.meta_environment.rascal.ast.Symbol symbol;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.StrCon sep;
-	@Override
 	public org.meta_environment.rascal.ast.StrCon getSep() { return sep; }
 	private void $setSep(org.meta_environment.rascal.ast.StrCon x) { this.sep = x; }
 	public IterStarSep setSep(org.meta_environment.rascal.ast.StrCon x) { 
@@ -313,21 +269,16 @@ private org.meta_environment.rascal.ast.Symbol symbol;
 		this.lhs = lhs;
 		this.rhs = rhs;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitSymbolAlternative(this);
 	}
 
-	@Override
 	public boolean isAlternative() { return true; }
 
-	@Override
 	public boolean hasLhs() { return true; }
-	@Override
 	public boolean hasRhs() { return true; }
 
 private org.meta_environment.rascal.ast.Symbol lhs;
-	@Override
 	public org.meta_environment.rascal.ast.Symbol getLhs() { return lhs; }
 	private void $setLhs(org.meta_environment.rascal.ast.Symbol x) { this.lhs = x; }
 	public Alternative setLhs(org.meta_environment.rascal.ast.Symbol x) { 
@@ -336,7 +287,6 @@ private org.meta_environment.rascal.ast.Symbol lhs;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Symbol rhs;
-	@Override
 	public org.meta_environment.rascal.ast.Symbol getRhs() { return rhs; }
 	private void $setRhs(org.meta_environment.rascal.ast.Symbol x) { this.rhs = x; }
 	public Alternative setRhs(org.meta_environment.rascal.ast.Symbol x) { 
@@ -354,19 +304,15 @@ static public class CharacterClass extends Symbol {
 		this.tree = tree;
 		this.charClass = charClass;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitSymbolCharacterClass(this);
 	}
 
-	@Override
 	public boolean isCharacterClass() { return true; }
 
-	@Override
 	public boolean hasCharClass() { return true; }
 
 private org.meta_environment.rascal.ast.CharClass charClass;
-	@Override
 	public org.meta_environment.rascal.ast.CharClass getCharClass() { return charClass; }
 	private void $setCharClass(org.meta_environment.rascal.ast.CharClass x) { this.charClass = x; }
 	public CharacterClass setCharClass(org.meta_environment.rascal.ast.CharClass x) { 
@@ -382,19 +328,15 @@ static public class LiftedSymbol extends Symbol {
 		this.tree = tree;
 		this.symbol = symbol;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitSymbolLiftedSymbol(this);
 	}
 
-	@Override
 	public boolean isLiftedSymbol() { return true; }
 
-	@Override
 	public boolean hasSymbol() { return true; }
 
 private org.meta_environment.rascal.ast.Symbol symbol;
-	@Override
 	public org.meta_environment.rascal.ast.Symbol getSymbol() { return symbol; }
 	private void $setSymbol(org.meta_environment.rascal.ast.Symbol x) { this.symbol = x; }
 	public LiftedSymbol setSymbol(org.meta_environment.rascal.ast.Symbol x) { 
@@ -413,19 +355,15 @@ static public class Literal extends Symbol {
 		this.tree = tree;
 		this.string = string;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitSymbolLiteral(this);
 	}
 
-	@Override
 	public boolean isLiteral() { return true; }
 
-	@Override
 	public boolean hasString() { return true; }
 
 private org.meta_environment.rascal.ast.StrCon string;
-	@Override
 	public org.meta_environment.rascal.ast.StrCon getString() { return string; }
 	private void $setString(org.meta_environment.rascal.ast.StrCon x) { this.string = x; }
 	public Literal setString(org.meta_environment.rascal.ast.StrCon x) { 
@@ -444,19 +382,15 @@ static public class CaseInsensitiveLiteral extends Symbol {
 		this.tree = tree;
 		this.singelQuotedString = singelQuotedString;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitSymbolCaseInsensitiveLiteral(this);
 	}
 
-	@Override
 	public boolean isCaseInsensitiveLiteral() { return true; }
 
-	@Override
 	public boolean hasSingelQuotedString() { return true; }
 
 private org.meta_environment.rascal.ast.SingleQuotedStrCon singelQuotedString;
-	@Override
 	public org.meta_environment.rascal.ast.SingleQuotedStrCon getSingelQuotedString() { return singelQuotedString; }
 	private void $setSingelQuotedString(org.meta_environment.rascal.ast.SingleQuotedStrCon x) { this.singelQuotedString = x; }
 	public CaseInsensitiveLiteral setSingelQuotedString(org.meta_environment.rascal.ast.SingleQuotedStrCon x) { 

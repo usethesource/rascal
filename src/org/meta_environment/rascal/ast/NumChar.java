@@ -11,8 +11,7 @@ static public class Lexical extends NumChar {
 		return string;
 	}
 
- 	@Override
-	public <T> T accept(IASTVisitor<T> v) {
+ 	public <T> T accept(IASTVisitor<T> v) {
      		return v.visitNumCharLexical(this);
   	}
 }
@@ -25,8 +24,7 @@ static public class Ambiguity extends NumChar {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitNumCharAmbiguity(this);
   }
 }

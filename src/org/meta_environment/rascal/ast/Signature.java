@@ -12,25 +12,18 @@ static public class NoThrows extends Signature {
 		this.name = name;
 		this.parameters = parameters;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitSignatureNoThrows(this);
 	}
 
-	@Override
 	public boolean isNoThrows() { return true; }
 
-	@Override
 	public boolean hasType() { return true; }
-	@Override
 	public boolean hasModifiers() { return true; }
-	@Override
 	public boolean hasName() { return true; }
-	@Override
 	public boolean hasParameters() { return true; }
 
 private org.meta_environment.rascal.ast.Type type;
-	@Override
 	public org.meta_environment.rascal.ast.Type getType() { return type; }
 	private void $setType(org.meta_environment.rascal.ast.Type x) { this.type = x; }
 	public NoThrows setType(org.meta_environment.rascal.ast.Type x) { 
@@ -39,7 +32,6 @@ private org.meta_environment.rascal.ast.Type type;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.FunctionModifiers modifiers;
-	@Override
 	public org.meta_environment.rascal.ast.FunctionModifiers getModifiers() { return modifiers; }
 	private void $setModifiers(org.meta_environment.rascal.ast.FunctionModifiers x) { this.modifiers = x; }
 	public NoThrows setModifiers(org.meta_environment.rascal.ast.FunctionModifiers x) { 
@@ -48,7 +40,6 @@ private org.meta_environment.rascal.ast.Type type;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Name name;
-	@Override
 	public org.meta_environment.rascal.ast.Name getName() { return name; }
 	private void $setName(org.meta_environment.rascal.ast.Name x) { this.name = x; }
 	public NoThrows setName(org.meta_environment.rascal.ast.Name x) { 
@@ -57,7 +48,6 @@ private org.meta_environment.rascal.ast.Type type;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Parameters parameters;
-	@Override
 	public org.meta_environment.rascal.ast.Parameters getParameters() { return parameters; }
 	private void $setParameters(org.meta_environment.rascal.ast.Parameters x) { this.parameters = x; }
 	public NoThrows setParameters(org.meta_environment.rascal.ast.Parameters x) { 
@@ -75,8 +65,7 @@ static public class Ambiguity extends Signature {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitSignatureAmbiguity(this);
   }
 } public java.util.List<org.meta_environment.rascal.ast.Type> getExceptions() { throw new UnsupportedOperationException(); } public boolean hasExceptions() { return false; }
@@ -92,27 +81,19 @@ static public class WithThrows extends Signature {
 		this.parameters = parameters;
 		this.exceptions = exceptions;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitSignatureWithThrows(this);
 	}
 
-	@Override
 	public boolean isWithThrows() { return true; }
 
-	@Override
 	public boolean hasType() { return true; }
-	@Override
 	public boolean hasModifiers() { return true; }
-	@Override
 	public boolean hasName() { return true; }
-	@Override
 	public boolean hasParameters() { return true; }
-	@Override
 	public boolean hasExceptions() { return true; }
 
 private org.meta_environment.rascal.ast.Type type;
-	@Override
 	public org.meta_environment.rascal.ast.Type getType() { return type; }
 	private void $setType(org.meta_environment.rascal.ast.Type x) { this.type = x; }
 	public WithThrows setType(org.meta_environment.rascal.ast.Type x) { 
@@ -121,7 +102,6 @@ private org.meta_environment.rascal.ast.Type type;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.FunctionModifiers modifiers;
-	@Override
 	public org.meta_environment.rascal.ast.FunctionModifiers getModifiers() { return modifiers; }
 	private void $setModifiers(org.meta_environment.rascal.ast.FunctionModifiers x) { this.modifiers = x; }
 	public WithThrows setModifiers(org.meta_environment.rascal.ast.FunctionModifiers x) { 
@@ -130,7 +110,6 @@ private org.meta_environment.rascal.ast.Type type;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Name name;
-	@Override
 	public org.meta_environment.rascal.ast.Name getName() { return name; }
 	private void $setName(org.meta_environment.rascal.ast.Name x) { this.name = x; }
 	public WithThrows setName(org.meta_environment.rascal.ast.Name x) { 
@@ -139,7 +118,6 @@ private org.meta_environment.rascal.ast.Type type;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Parameters parameters;
-	@Override
 	public org.meta_environment.rascal.ast.Parameters getParameters() { return parameters; }
 	private void $setParameters(org.meta_environment.rascal.ast.Parameters x) { this.parameters = x; }
 	public WithThrows setParameters(org.meta_environment.rascal.ast.Parameters x) { 
@@ -148,7 +126,6 @@ private org.meta_environment.rascal.ast.Type type;
 		return z;
 	}
 	private java.util.List<org.meta_environment.rascal.ast.Type> exceptions;
-	@Override
 	public java.util.List<org.meta_environment.rascal.ast.Type> getExceptions() { return exceptions; }
 	private void $setExceptions(java.util.List<org.meta_environment.rascal.ast.Type> x) { this.exceptions = x; }
 	public WithThrows setExceptions(java.util.List<org.meta_environment.rascal.ast.Type> x) { 
@@ -157,6 +134,5 @@ private org.meta_environment.rascal.ast.Type type;
 		return z;
 	}	
 }
- @Override
-public abstract <T> T accept(IASTVisitor<T> visitor);
+ public abstract <T> T accept(IASTVisitor<T> visitor);
 }

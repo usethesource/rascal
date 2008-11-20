@@ -9,19 +9,15 @@ static public class Default extends LocalVariableDeclaration {
 		this.tree = tree;
 		this.declarator = declarator;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitLocalVariableDeclarationDefault(this);
 	}
 
-	@Override
 	public boolean isDefault() { return true; }
 
-	@Override
 	public boolean hasDeclarator() { return true; }
 
 private org.meta_environment.rascal.ast.Declarator declarator;
-	@Override
 	public org.meta_environment.rascal.ast.Declarator getDeclarator() { return declarator; }
 	private void $setDeclarator(org.meta_environment.rascal.ast.Declarator x) { this.declarator = x; }
 	public Default setDeclarator(org.meta_environment.rascal.ast.Declarator x) { 
@@ -39,8 +35,7 @@ static public class Ambiguity extends LocalVariableDeclaration {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitLocalVariableDeclarationAmbiguity(this);
   }
 } public boolean isDynamic() { return false; }
@@ -51,19 +46,15 @@ static public class Dynamic extends LocalVariableDeclaration {
 		this.tree = tree;
 		this.declarator = declarator;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitLocalVariableDeclarationDynamic(this);
 	}
 
-	@Override
 	public boolean isDynamic() { return true; }
 
-	@Override
 	public boolean hasDeclarator() { return true; }
 
 private org.meta_environment.rascal.ast.Declarator declarator;
-	@Override
 	public org.meta_environment.rascal.ast.Declarator getDeclarator() { return declarator; }
 	private void $setDeclarator(org.meta_environment.rascal.ast.Declarator x) { this.declarator = x; }
 	public Dynamic setDeclarator(org.meta_environment.rascal.ast.Declarator x) { 
@@ -72,6 +63,5 @@ private org.meta_environment.rascal.ast.Declarator declarator;
 		return z;
 	}	
 }
- @Override
-public abstract <T> T accept(IASTVisitor<T> visitor);
+ public abstract <T> T accept(IASTVisitor<T> visitor);
 }

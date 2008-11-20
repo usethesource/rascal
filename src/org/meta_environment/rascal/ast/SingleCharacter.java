@@ -11,8 +11,7 @@ public abstract class SingleCharacter extends AbstractAST {
 		return string;
 	}
 
- 	@Override
-	public <T> T accept(IASTVisitor<T> v) {
+ 	public <T> T accept(IASTVisitor<T> v) {
      		return v.visitSingleCharacterLexical(this);
   	}
 } static public class Ambiguity extends SingleCharacter {
@@ -24,10 +23,8 @@ public abstract class SingleCharacter extends AbstractAST {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitSingleCharacterAmbiguity(this);
   }
-} @Override
-public abstract <T> T accept(IASTVisitor<T> visitor);
+} public abstract <T> T accept(IASTVisitor<T> visitor);
 }

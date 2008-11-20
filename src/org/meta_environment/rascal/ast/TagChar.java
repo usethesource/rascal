@@ -11,8 +11,7 @@ public abstract class TagChar extends AbstractAST {
 		return string;
 	}
 
- 	@Override
-	public <T> T accept(IASTVisitor<T> v) {
+ 	public <T> T accept(IASTVisitor<T> v) {
      		return v.visitTagCharLexical(this);
   	}
 } static public class Ambiguity extends TagChar {
@@ -24,10 +23,8 @@ public abstract class TagChar extends AbstractAST {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitTagCharAmbiguity(this);
   }
-} @Override
-public abstract <T> T accept(IASTVisitor<T> visitor);
+} public abstract <T> T accept(IASTVisitor<T> visitor);
 }

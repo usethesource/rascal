@@ -14,21 +14,16 @@ static public class Selector extends DataTypeSelector {
 		this.sort = sort;
 		this.production = production;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitDataTypeSelectorSelector(this);
 	}
 
-	@Override
 	public boolean isSelector() { return true; }
 
-	@Override
 	public boolean hasSort() { return true; }
-	@Override
 	public boolean hasProduction() { return true; }
 
 private org.meta_environment.rascal.ast.Name sort;
-	@Override
 	public org.meta_environment.rascal.ast.Name getSort() { return sort; }
 	private void $setSort(org.meta_environment.rascal.ast.Name x) { this.sort = x; }
 	public Selector setSort(org.meta_environment.rascal.ast.Name x) { 
@@ -37,7 +32,6 @@ private org.meta_environment.rascal.ast.Name sort;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Name production;
-	@Override
 	public org.meta_environment.rascal.ast.Name getProduction() { return production; }
 	private void $setProduction(org.meta_environment.rascal.ast.Name x) { this.production = x; }
 	public Selector setProduction(org.meta_environment.rascal.ast.Name x) { 
@@ -55,8 +49,7 @@ static public class Ambiguity extends DataTypeSelector {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitDataTypeSelectorAmbiguity(this);
   }
 }

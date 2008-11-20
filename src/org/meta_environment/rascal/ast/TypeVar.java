@@ -9,19 +9,15 @@ static public class Free extends TypeVar {
 		this.tree = tree;
 		this.name = name;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitTypeVarFree(this);
 	}
 
-	@Override
 	public boolean isFree() { return true; }
 
-	@Override
 	public boolean hasName() { return true; }
 
 private org.meta_environment.rascal.ast.Name name;
-	@Override
 	public org.meta_environment.rascal.ast.Name getName() { return name; }
 	private void $setName(org.meta_environment.rascal.ast.Name x) { this.name = x; }
 	public Free setName(org.meta_environment.rascal.ast.Name x) { 
@@ -39,8 +35,7 @@ static public class Ambiguity extends TypeVar {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitTypeVarAmbiguity(this);
   }
 } public org.meta_environment.rascal.ast.Type getBound() { throw new UnsupportedOperationException(); } public boolean hasBound() { return false; }
@@ -53,21 +48,16 @@ static public class Bounded extends TypeVar {
 		this.name = name;
 		this.bound = bound;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitTypeVarBounded(this);
 	}
 
-	@Override
 	public boolean isBounded() { return true; }
 
-	@Override
 	public boolean hasName() { return true; }
-	@Override
 	public boolean hasBound() { return true; }
 
 private org.meta_environment.rascal.ast.Name name;
-	@Override
 	public org.meta_environment.rascal.ast.Name getName() { return name; }
 	private void $setName(org.meta_environment.rascal.ast.Name x) { this.name = x; }
 	public Bounded setName(org.meta_environment.rascal.ast.Name x) { 
@@ -76,7 +66,6 @@ private org.meta_environment.rascal.ast.Name name;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Type bound;
-	@Override
 	public org.meta_environment.rascal.ast.Type getBound() { return bound; }
 	private void $setBound(org.meta_environment.rascal.ast.Type x) { this.bound = x; }
 	public Bounded setBound(org.meta_environment.rascal.ast.Type x) { 
@@ -85,6 +74,5 @@ private org.meta_environment.rascal.ast.Name name;
 		return z;
 	}	
 }
- @Override
-public abstract <T> T accept(IASTVisitor<T> visitor);
+ public abstract <T> T accept(IASTVisitor<T> visitor);
 }
