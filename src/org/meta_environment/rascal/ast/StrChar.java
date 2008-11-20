@@ -1,51 +1,48 @@
-package org.meta_environment.rascal.ast;
-
-import org.eclipse.imp.pdb.facts.ITree;
-
-public abstract class StrChar extends AbstractAST {
-	static public class Ambiguity extends StrChar {
-		private final java.util.List<org.meta_environment.rascal.ast.StrChar> alternatives;
-
-		public Ambiguity(
-				java.util.List<org.meta_environment.rascal.ast.StrChar> alternatives) {
-			this.alternatives = java.util.Collections
-					.unmodifiableList(alternatives);
-		}
-
-		public java.util.List<org.meta_environment.rascal.ast.StrChar> getAlternatives() {
-			return alternatives;
-		}
+package org.meta_environment.rascal.ast; 
+import org.eclipse.imp.pdb.facts.ITree; 
+public abstract class StrChar extends AbstractAST { 
+  public boolean isnewline() { return false; }
+static public class newline extends StrChar {
+/* "\\n" -> StrChar {cons("newline")} */
+	private newline() { }
+	/*package*/ newline(ITree tree) {
+		this.tree = tree;
+	}
+	@Override
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitStrCharnewline(this);
 	}
 
-	static public class Lexical extends StrChar {
-		private final String string;
-
-		/* package */Lexical(ITree tree, String string) {
-			this.tree = tree;
-			this.string = string;
-		}
-
-		public String getString() {
-			return string;
-		}
+	@Override
+	public boolean isnewline() { return true; }	
+}
+static public class Ambiguity extends StrChar {
+  private final java.util.List<org.meta_environment.rascal.ast.StrChar> alternatives;
+  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.StrChar> alternatives) {
+	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+  }
+  public java.util.List<org.meta_environment.rascal.ast.StrChar> getAlternatives() {
+	return alternatives;
+  }
+  
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
+     return v.visitStrCharAmbiguity(this);
+  }
+} static public class Lexical extends StrChar {
+	private String string;
+	/*package*/ Lexical(ITree tree, String string) {
+		this.tree = tree;
+		this.string = string;
+	}
+	public String getString() {
+		return string;
 	}
 
-	static public class newline extends StrChar {
-		/* package */newline(ITree tree) {
-			this.tree = tree;
-		}
-
-		public <T> T accept(IASTVisitor<T> visitor) {
-			return visitor.visitStrCharnewline(this);
-		}
-
-		@Override
-		public boolean isNewline() {
-			return true;
-		}
-	}
-
-	public boolean isNewline() {
-		return false;
-	}
+ 	@Override
+	public <T> T accept(IASTVisitor<T> v) {
+     		return v.visitStrCharLexical(this);
+  	}
+} @Override
+public abstract <T> T accept(IASTVisitor<T> visitor);
 }

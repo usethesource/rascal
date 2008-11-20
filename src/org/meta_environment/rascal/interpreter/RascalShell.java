@@ -6,6 +6,8 @@ import java.io.IOException;
 import jline.ConsoleReader;
 
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.impl.hash.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.Statement;
@@ -43,10 +45,14 @@ public class RascalShell {
 
 				String output = handleInput(input);
 				console.printString(output);
+				console.printNewline();
 			} 
 			catch (FactTypeError e) {
 				System.err.println("bug: " + e.getMessage());
 				e.printStackTrace();
+			}
+			catch (RascalTypeError e) {
+				System.err.println("error: " + e.getMessage());
 			}
 		}
 	}
@@ -56,14 +62,15 @@ public class RascalShell {
 		ASTBuilder builder = new ASTBuilder(new ASTFactory());
 		StringBuilder result = new StringBuilder();
 		INode tree = parser.parse(new ByteArrayInputStream(statement.toString().getBytes()));
+		Evaluator eval = new Evaluator(ValueFactory.getInstance());
 
 		if (tree.getTreeNodeType() == Factory.ParseTree_Summary) {
 			result.append(tree + "\n");
 		}
 		else {
-			result.append("parse: " + tree + "\n");
 			Statement stat = builder.buildStatement(tree);
-			result.append("stat: " + stat + "\n");
+			IValue value = stat.accept(eval);
+			return value.getType() + ": " + value.toString();
 		}
 		
 		return result.toString();
