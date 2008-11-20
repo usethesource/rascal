@@ -5,7 +5,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.ITree;
 import org.meta_environment.uptr.TreeAdapter;
 
-public class AbstractAST implements IVisitable {
+public abstract class AbstractAST implements IVisitable {
 	protected ISourceLocation location;
 	protected ITree tree;
 
@@ -14,4 +14,5 @@ public class AbstractAST implements IVisitable {
 		return new TreeAdapter((INode) tree).yield();
 	}
 
+	abstract public <T> T accept(IASTVisitor<T> v);
 }

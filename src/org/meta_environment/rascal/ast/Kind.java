@@ -1,190 +1,153 @@
-package org.meta_environment.rascal.ast;
-
-import org.eclipse.imp.pdb.facts.ITree;
-
-public abstract class Kind extends AbstractAST {
-	static public class All extends Kind {
-		/* package */All(ITree tree) {
-			this.tree = tree;
-		}
-
-		public <T> T accept(IASTVisitor<T> visitor) {
-			return visitor.visitKindAll(this);
-		}
-
-		@Override
-		public boolean isAll() {
-			return true;
-		}
+package org.meta_environment.rascal.ast; 
+import org.eclipse.imp.pdb.facts.ITree; 
+public abstract class Kind extends AbstractAST { 
+  public boolean isModule() { return false; }
+static public class Module extends Kind {
+/* "module" -> Kind {cons("Module")} */
+	private Module() { }
+	/*package*/ Module(ITree tree) {
+		this.tree = tree;
+	}
+	@Override
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitKindModule(this);
 	}
 
-	static public class Ambiguity extends Kind {
-		private final java.util.List<org.meta_environment.rascal.ast.Kind> alternatives;
-
-		public Ambiguity(
-				java.util.List<org.meta_environment.rascal.ast.Kind> alternatives) {
-			this.alternatives = java.util.Collections
-					.unmodifiableList(alternatives);
-		}
-
-		public java.util.List<org.meta_environment.rascal.ast.Kind> getAlternatives() {
-			return alternatives;
-		}
+	@Override
+	public boolean isModule() { return true; }	
+}
+static public class Ambiguity extends Kind {
+  private final java.util.List<org.meta_environment.rascal.ast.Kind> alternatives;
+  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.Kind> alternatives) {
+	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+  }
+  public java.util.List<org.meta_environment.rascal.ast.Kind> getAlternatives() {
+	return alternatives;
+  }
+  
+  @Override
+public <T> T accept(IASTVisitor<T> v) {
+     return v.visitKindAmbiguity(this);
+  }
+} 
+public boolean isFunction() { return false; }
+static public class Function extends Kind {
+/* "function" -> Kind {cons("Function")} */
+	private Function() { }
+	/*package*/ Function(ITree tree) {
+		this.tree = tree;
+	}
+	@Override
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitKindFunction(this);
 	}
 
-	static public class Anno extends Kind {
-		/* package */Anno(ITree tree) {
-			this.tree = tree;
-		}
-
-		public <T> T accept(IASTVisitor<T> visitor) {
-			return visitor.visitKindAnno(this);
-		}
-
-		@Override
-		public boolean isAnno() {
-			return true;
-		}
+	@Override
+	public boolean isFunction() { return true; }	
+} @Override
+public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isVariable() { return false; }
+static public class Variable extends Kind {
+/* "variable" -> Kind {cons("Variable")} */
+	private Variable() { }
+	/*package*/ Variable(ITree tree) {
+		this.tree = tree;
+	}
+	@Override
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitKindVariable(this);
 	}
 
-	static public class Data extends Kind {
-		/* package */Data(ITree tree) {
-			this.tree = tree;
-		}
-
-		public <T> T accept(IASTVisitor<T> visitor) {
-			return visitor.visitKindData(this);
-		}
-
-		@Override
-		public boolean isData() {
-			return true;
-		}
+	@Override
+	public boolean isVariable() { return true; }	
+} 
+public boolean isData() { return false; }
+static public class Data extends Kind {
+/* "data" -> Kind {cons("Data")} */
+	private Data() { }
+	/*package*/ Data(ITree tree) {
+		this.tree = tree;
+	}
+	@Override
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitKindData(this);
 	}
 
-	static public class Function extends Kind {
-		/* package */Function(ITree tree) {
-			this.tree = tree;
-		}
-
-		public <T> T accept(IASTVisitor<T> visitor) {
-			return visitor.visitKindFunction(this);
-		}
-
-		@Override
-		public boolean isFunction() {
-			return true;
-		}
+	@Override
+	public boolean isData() { return true; }	
+} 
+public boolean isView() { return false; }
+static public class View extends Kind {
+/* "view" -> Kind {cons("View")} */
+	private View() { }
+	/*package*/ View(ITree tree) {
+		this.tree = tree;
+	}
+	@Override
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitKindView(this);
 	}
 
-	static public class Module extends Kind {
-		/* package */Module(ITree tree) {
-			this.tree = tree;
-		}
-
-		public <T> T accept(IASTVisitor<T> visitor) {
-			return visitor.visitKindModule(this);
-		}
-
-		@Override
-		public boolean isModule() {
-			return true;
-		}
+	@Override
+	public boolean isView() { return true; }	
+} 
+public boolean isType() { return false; }
+static public class Type extends Kind {
+/* "type" -> Kind {cons("Type")} */
+	private Type() { }
+	/*package*/ Type(ITree tree) {
+		this.tree = tree;
+	}
+	@Override
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitKindType(this);
 	}
 
-	static public class Tag extends Kind {
-		/* package */Tag(ITree tree) {
-			this.tree = tree;
-		}
-
-		public <T> T accept(IASTVisitor<T> visitor) {
-			return visitor.visitKindTag(this);
-		}
-
-		@Override
-		public boolean isTag() {
-			return true;
-		}
+	@Override
+	public boolean isType() { return true; }	
+} 
+public boolean isAnno() { return false; }
+static public class Anno extends Kind {
+/* "anno" -> Kind {cons("Anno")} */
+	private Anno() { }
+	/*package*/ Anno(ITree tree) {
+		this.tree = tree;
+	}
+	@Override
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitKindAnno(this);
 	}
 
-	static public class Type extends Kind {
-		/* package */Type(ITree tree) {
-			this.tree = tree;
-		}
-
-		public <T> T accept(IASTVisitor<T> visitor) {
-			return visitor.visitKindType(this);
-		}
-
-		@Override
-		public boolean isType() {
-			return true;
-		}
+	@Override
+	public boolean isAnno() { return true; }	
+} 
+public boolean isTag() { return false; }
+static public class Tag extends Kind {
+/* "tag" -> Kind {cons("Tag")} */
+	private Tag() { }
+	/*package*/ Tag(ITree tree) {
+		this.tree = tree;
+	}
+	@Override
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitKindTag(this);
 	}
 
-	static public class Variable extends Kind {
-		/* package */Variable(ITree tree) {
-			this.tree = tree;
-		}
-
-		public <T> T accept(IASTVisitor<T> visitor) {
-			return visitor.visitKindVariable(this);
-		}
-
-		@Override
-		public boolean isVariable() {
-			return true;
-		}
+	@Override
+	public boolean isTag() { return true; }	
+} 
+public boolean isAll() { return false; }
+static public class All extends Kind {
+/* "all" -> Kind {cons("All")} */
+	private All() { }
+	/*package*/ All(ITree tree) {
+		this.tree = tree;
+	}
+	@Override
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitKindAll(this);
 	}
 
-	static public class View extends Kind {
-		/* package */View(ITree tree) {
-			this.tree = tree;
-		}
-
-		public <T> T accept(IASTVisitor<T> visitor) {
-			return visitor.visitKindView(this);
-		}
-
-		@Override
-		public boolean isView() {
-			return true;
-		}
-	}
-
-	public boolean isAll() {
-		return false;
-	}
-
-	public boolean isAnno() {
-		return false;
-	}
-
-	public boolean isData() {
-		return false;
-	}
-
-	public boolean isFunction() {
-		return false;
-	}
-
-	public boolean isModule() {
-		return false;
-	}
-
-	public boolean isTag() {
-		return false;
-	}
-
-	public boolean isType() {
-		return false;
-	}
-
-	public boolean isVariable() {
-		return false;
-	}
-
-	public boolean isView() {
-		return false;
-	}
+	@Override
+	public boolean isAll() { return true; }	
+}
 }
