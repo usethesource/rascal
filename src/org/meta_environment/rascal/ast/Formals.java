@@ -11,19 +11,15 @@ static public class Default extends Formals {
 		this.tree = tree;
 		this.formals = formals;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitFormalsDefault(this);
 	}
 
-	@Override
 	public boolean isDefault() { return true; }
 
-	@Override
 	public boolean hasFormals() { return true; }
 
 private java.util.List<org.meta_environment.rascal.ast.Formal> formals;
-	@Override
 	public java.util.List<org.meta_environment.rascal.ast.Formal> getFormals() { return formals; }
 	private void $setFormals(java.util.List<org.meta_environment.rascal.ast.Formal> x) { this.formals = x; }
 	public Default setFormals(java.util.List<org.meta_environment.rascal.ast.Formal> x) { 
@@ -41,8 +37,7 @@ static public class Ambiguity extends Formals {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitFormalsAmbiguity(this);
   }
 }

@@ -10,21 +10,16 @@ static public class UnInitialized extends Variable {
 		this.name = name;
 		this.tags = tags;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitVariableUnInitialized(this);
 	}
 
-	@Override
 	public boolean isUnInitialized() { return true; }
 
-	@Override
 	public boolean hasName() { return true; }
-	@Override
 	public boolean hasTags() { return true; }
 
 private org.meta_environment.rascal.ast.Name name;
-	@Override
 	public org.meta_environment.rascal.ast.Name getName() { return name; }
 	private void $setName(org.meta_environment.rascal.ast.Name x) { this.name = x; }
 	public UnInitialized setName(org.meta_environment.rascal.ast.Name x) { 
@@ -33,7 +28,6 @@ private org.meta_environment.rascal.ast.Name name;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Tags tags;
-	@Override
 	public org.meta_environment.rascal.ast.Tags getTags() { return tags; }
 	private void $setTags(org.meta_environment.rascal.ast.Tags x) { this.tags = x; }
 	public UnInitialized setTags(org.meta_environment.rascal.ast.Tags x) { 
@@ -51,8 +45,7 @@ static public class Ambiguity extends Variable {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitVariableAmbiguity(this);
   }
 } public org.meta_environment.rascal.ast.Expression getInitial() { throw new UnsupportedOperationException(); } public boolean hasInitial() { return false; }
@@ -66,23 +59,17 @@ static public class Initialized extends Variable {
 		this.tags = tags;
 		this.initial = initial;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitVariableInitialized(this);
 	}
 
-	@Override
 	public boolean isInitialized() { return true; }
 
-	@Override
 	public boolean hasName() { return true; }
-	@Override
 	public boolean hasTags() { return true; }
-	@Override
 	public boolean hasInitial() { return true; }
 
 private org.meta_environment.rascal.ast.Name name;
-	@Override
 	public org.meta_environment.rascal.ast.Name getName() { return name; }
 	private void $setName(org.meta_environment.rascal.ast.Name x) { this.name = x; }
 	public Initialized setName(org.meta_environment.rascal.ast.Name x) { 
@@ -91,7 +78,6 @@ private org.meta_environment.rascal.ast.Name name;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Tags tags;
-	@Override
 	public org.meta_environment.rascal.ast.Tags getTags() { return tags; }
 	private void $setTags(org.meta_environment.rascal.ast.Tags x) { this.tags = x; }
 	public Initialized setTags(org.meta_environment.rascal.ast.Tags x) { 
@@ -100,7 +86,6 @@ private org.meta_environment.rascal.ast.Name name;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Expression initial;
-	@Override
 	public org.meta_environment.rascal.ast.Expression getInitial() { return initial; }
 	private void $setInitial(org.meta_environment.rascal.ast.Expression x) { this.initial = x; }
 	public Initialized setInitial(org.meta_environment.rascal.ast.Expression x) { 
@@ -109,6 +94,5 @@ private org.meta_environment.rascal.ast.Name name;
 		return z;
 	}	
 }
- @Override
-public abstract <T> T accept(IASTVisitor<T> visitor);
+ public abstract <T> T accept(IASTVisitor<T> visitor);
 }

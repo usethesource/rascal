@@ -11,23 +11,17 @@ static public class Default extends Header {
 		this.tags = tags;
 		this.imports = imports;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitHeaderDefault(this);
 	}
 
-	@Override
 	public boolean isDefault() { return true; }
 
-	@Override
 	public boolean hasName() { return true; }
-	@Override
 	public boolean hasTags() { return true; }
-	@Override
 	public boolean hasImports() { return true; }
 
 private org.meta_environment.rascal.ast.ModuleName name;
-	@Override
 	public org.meta_environment.rascal.ast.ModuleName getName() { return name; }
 	private void $setName(org.meta_environment.rascal.ast.ModuleName x) { this.name = x; }
 	public Default setName(org.meta_environment.rascal.ast.ModuleName x) { 
@@ -36,7 +30,6 @@ private org.meta_environment.rascal.ast.ModuleName name;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Tags tags;
-	@Override
 	public org.meta_environment.rascal.ast.Tags getTags() { return tags; }
 	private void $setTags(org.meta_environment.rascal.ast.Tags x) { this.tags = x; }
 	public Default setTags(org.meta_environment.rascal.ast.Tags x) { 
@@ -45,7 +38,6 @@ private org.meta_environment.rascal.ast.ModuleName name;
 		return z;
 	}
 	private java.util.List<org.meta_environment.rascal.ast.Import> imports;
-	@Override
 	public java.util.List<org.meta_environment.rascal.ast.Import> getImports() { return imports; }
 	private void $setImports(java.util.List<org.meta_environment.rascal.ast.Import> x) { this.imports = x; }
 	public Default setImports(java.util.List<org.meta_environment.rascal.ast.Import> x) { 
@@ -63,8 +55,7 @@ static public class Ambiguity extends Header {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitHeaderAmbiguity(this);
   }
 } public org.meta_environment.rascal.ast.ModuleParameters getParams() { throw new UnsupportedOperationException(); } public boolean hasParams() { return false; } public boolean isParameters() { return false; }
@@ -78,25 +69,18 @@ static public class Parameters extends Header {
 		this.tags = tags;
 		this.imports = imports;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitHeaderParameters(this);
 	}
 
-	@Override
 	public boolean isParameters() { return true; }
 
-	@Override
 	public boolean hasName() { return true; }
-	@Override
 	public boolean hasParams() { return true; }
-	@Override
 	public boolean hasTags() { return true; }
-	@Override
 	public boolean hasImports() { return true; }
 
 private org.meta_environment.rascal.ast.ModuleName name;
-	@Override
 	public org.meta_environment.rascal.ast.ModuleName getName() { return name; }
 	private void $setName(org.meta_environment.rascal.ast.ModuleName x) { this.name = x; }
 	public Parameters setName(org.meta_environment.rascal.ast.ModuleName x) { 
@@ -105,7 +89,6 @@ private org.meta_environment.rascal.ast.ModuleName name;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.ModuleParameters params;
-	@Override
 	public org.meta_environment.rascal.ast.ModuleParameters getParams() { return params; }
 	private void $setParams(org.meta_environment.rascal.ast.ModuleParameters x) { this.params = x; }
 	public Parameters setParams(org.meta_environment.rascal.ast.ModuleParameters x) { 
@@ -114,7 +97,6 @@ private org.meta_environment.rascal.ast.ModuleName name;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Tags tags;
-	@Override
 	public org.meta_environment.rascal.ast.Tags getTags() { return tags; }
 	private void $setTags(org.meta_environment.rascal.ast.Tags x) { this.tags = x; }
 	public Parameters setTags(org.meta_environment.rascal.ast.Tags x) { 
@@ -123,7 +105,6 @@ private org.meta_environment.rascal.ast.ModuleName name;
 		return z;
 	}
 	private java.util.List<org.meta_environment.rascal.ast.Import> imports;
-	@Override
 	public java.util.List<org.meta_environment.rascal.ast.Import> getImports() { return imports; }
 	private void $setImports(java.util.List<org.meta_environment.rascal.ast.Import> x) { this.imports = x; }
 	public Parameters setImports(java.util.List<org.meta_environment.rascal.ast.Import> x) { 
@@ -132,6 +113,5 @@ private org.meta_environment.rascal.ast.ModuleName name;
 		return z;
 	}	
 }
- @Override
-public abstract <T> T accept(IASTVisitor<T> visitor);
+ public abstract <T> T accept(IASTVisitor<T> visitor);
 }

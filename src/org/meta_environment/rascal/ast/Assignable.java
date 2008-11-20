@@ -11,19 +11,15 @@ static public class Variable extends Assignable {
 		this.tree = tree;
 		this.qualifiedName = qualifiedName;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitAssignableVariable(this);
 	}
 
-	@Override
 	public boolean isVariable() { return true; }
 
-	@Override
 	public boolean hasQualifiedName() { return true; }
 
 private org.meta_environment.rascal.ast.QualifiedName qualifiedName;
-	@Override
 	public org.meta_environment.rascal.ast.QualifiedName getQualifiedName() { return qualifiedName; }
 	private void $setQualifiedName(org.meta_environment.rascal.ast.QualifiedName x) { this.qualifiedName = x; }
 	public Variable setQualifiedName(org.meta_environment.rascal.ast.QualifiedName x) { 
@@ -41,8 +37,7 @@ static public class Ambiguity extends Assignable {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitAssignableAmbiguity(this);
   }
 } public org.meta_environment.rascal.ast.Assignable getReceiver() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Expression getSubscript() { throw new UnsupportedOperationException(); } public boolean hasReceiver() { return false; } public boolean hasSubscript() { return false; }
@@ -55,21 +50,16 @@ static public class Subscript extends Assignable {
 		this.receiver = receiver;
 		this.subscript = subscript;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitAssignableSubscript(this);
 	}
 
-	@Override
 	public boolean isSubscript() { return true; }
 
-	@Override
 	public boolean hasReceiver() { return true; }
-	@Override
 	public boolean hasSubscript() { return true; }
 
 private org.meta_environment.rascal.ast.Assignable receiver;
-	@Override
 	public org.meta_environment.rascal.ast.Assignable getReceiver() { return receiver; }
 	private void $setReceiver(org.meta_environment.rascal.ast.Assignable x) { this.receiver = x; }
 	public Subscript setReceiver(org.meta_environment.rascal.ast.Assignable x) { 
@@ -78,7 +68,6 @@ private org.meta_environment.rascal.ast.Assignable receiver;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Expression subscript;
-	@Override
 	public org.meta_environment.rascal.ast.Expression getSubscript() { return subscript; }
 	private void $setSubscript(org.meta_environment.rascal.ast.Expression x) { this.subscript = x; }
 	public Subscript setSubscript(org.meta_environment.rascal.ast.Expression x) { 
@@ -86,8 +75,7 @@ private org.meta_environment.rascal.ast.Assignable receiver;
  		z.$setSubscript(x);
 		return z;
 	}	
-} @Override
-public abstract <T> T accept(IASTVisitor<T> visitor); public org.meta_environment.rascal.ast.Name getField() { throw new UnsupportedOperationException(); } public boolean hasField() { return false; }
+} public abstract <T> T accept(IASTVisitor<T> visitor); public org.meta_environment.rascal.ast.Name getField() { throw new UnsupportedOperationException(); } public boolean hasField() { return false; }
 public boolean isFieldAccess() { return false; }
 static public class FieldAccess extends Assignable {
 /* receiver:Assignable "." field:Name -> Assignable {cons("FieldAccess")} */
@@ -97,21 +85,16 @@ static public class FieldAccess extends Assignable {
 		this.receiver = receiver;
 		this.field = field;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitAssignableFieldAccess(this);
 	}
 
-	@Override
 	public boolean isFieldAccess() { return true; }
 
-	@Override
 	public boolean hasReceiver() { return true; }
-	@Override
 	public boolean hasField() { return true; }
 
 private org.meta_environment.rascal.ast.Assignable receiver;
-	@Override
 	public org.meta_environment.rascal.ast.Assignable getReceiver() { return receiver; }
 	private void $setReceiver(org.meta_environment.rascal.ast.Assignable x) { this.receiver = x; }
 	public FieldAccess setReceiver(org.meta_environment.rascal.ast.Assignable x) { 
@@ -120,7 +103,6 @@ private org.meta_environment.rascal.ast.Assignable receiver;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Name field;
-	@Override
 	public org.meta_environment.rascal.ast.Name getField() { return field; }
 	private void $setField(org.meta_environment.rascal.ast.Name x) { this.field = x; }
 	public FieldAccess setField(org.meta_environment.rascal.ast.Name x) { 
@@ -138,21 +120,16 @@ static public class IfDefined extends Assignable {
 		this.receiver = receiver;
 		this.condition = condition;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitAssignableIfDefined(this);
 	}
 
-	@Override
 	public boolean isIfDefined() { return true; }
 
-	@Override
 	public boolean hasReceiver() { return true; }
-	@Override
 	public boolean hasCondition() { return true; }
 
 private org.meta_environment.rascal.ast.Assignable receiver;
-	@Override
 	public org.meta_environment.rascal.ast.Assignable getReceiver() { return receiver; }
 	private void $setReceiver(org.meta_environment.rascal.ast.Assignable x) { this.receiver = x; }
 	public IfDefined setReceiver(org.meta_environment.rascal.ast.Assignable x) { 
@@ -161,7 +138,6 @@ private org.meta_environment.rascal.ast.Assignable receiver;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Expression condition;
-	@Override
 	public org.meta_environment.rascal.ast.Expression getCondition() { return condition; }
 	private void $setCondition(org.meta_environment.rascal.ast.Expression x) { this.condition = x; }
 	public IfDefined setCondition(org.meta_environment.rascal.ast.Expression x) { 
@@ -179,21 +155,16 @@ static public class Annotation extends Assignable {
 		this.receiver = receiver;
 		this.annotation = annotation;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitAssignableAnnotation(this);
 	}
 
-	@Override
 	public boolean isAnnotation() { return true; }
 
-	@Override
 	public boolean hasReceiver() { return true; }
-	@Override
 	public boolean hasAnnotation() { return true; }
 
 private org.meta_environment.rascal.ast.Assignable receiver;
-	@Override
 	public org.meta_environment.rascal.ast.Assignable getReceiver() { return receiver; }
 	private void $setReceiver(org.meta_environment.rascal.ast.Assignable x) { this.receiver = x; }
 	public Annotation setReceiver(org.meta_environment.rascal.ast.Assignable x) { 
@@ -202,7 +173,6 @@ private org.meta_environment.rascal.ast.Assignable receiver;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Expression annotation;
-	@Override
 	public org.meta_environment.rascal.ast.Expression getAnnotation() { return annotation; }
 	private void $setAnnotation(org.meta_environment.rascal.ast.Expression x) { this.annotation = x; }
 	public Annotation setAnnotation(org.meta_environment.rascal.ast.Expression x) { 
@@ -221,19 +191,15 @@ static public class Tuple extends Assignable {
 		this.tree = tree;
 		this.elements = elements;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitAssignableTuple(this);
 	}
 
-	@Override
 	public boolean isTuple() { return true; }
 
-	@Override
 	public boolean hasElements() { return true; }
 
 private java.util.List<org.meta_environment.rascal.ast.Assignable> elements;
-	@Override
 	public java.util.List<org.meta_environment.rascal.ast.Assignable> getElements() { return elements; }
 	private void $setElements(java.util.List<org.meta_environment.rascal.ast.Assignable> x) { this.elements = x; }
 	public Tuple setElements(java.util.List<org.meta_environment.rascal.ast.Assignable> x) { 
@@ -255,21 +221,16 @@ static public class Constructor extends Assignable {
 		this.name = name;
 		this.arguments = arguments;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitAssignableConstructor(this);
 	}
 
-	@Override
 	public boolean isConstructor() { return true; }
 
-	@Override
 	public boolean hasName() { return true; }
-	@Override
 	public boolean hasArguments() { return true; }
 
 private org.meta_environment.rascal.ast.Name name;
-	@Override
 	public org.meta_environment.rascal.ast.Name getName() { return name; }
 	private void $setName(org.meta_environment.rascal.ast.Name x) { this.name = x; }
 	public Constructor setName(org.meta_environment.rascal.ast.Name x) { 
@@ -278,7 +239,6 @@ private org.meta_environment.rascal.ast.Name name;
 		return z;
 	}
 	private java.util.List<org.meta_environment.rascal.ast.Assignable> arguments;
-	@Override
 	public java.util.List<org.meta_environment.rascal.ast.Assignable> getArguments() { return arguments; }
 	private void $setArguments(java.util.List<org.meta_environment.rascal.ast.Assignable> x) { this.arguments = x; }
 	public Constructor setArguments(java.util.List<org.meta_environment.rascal.ast.Assignable> x) { 

@@ -11,19 +11,15 @@ static public class Character extends CharRange {
 		this.tree = tree;
 		this.character = character;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitCharRangeCharacter(this);
 	}
 
-	@Override
 	public boolean isCharacter() { return true; }
 
-	@Override
 	public boolean hasCharacter() { return true; }
 
 private org.meta_environment.rascal.ast.Character character;
-	@Override
 	public org.meta_environment.rascal.ast.Character getCharacter() { return character; }
 	private void $setCharacter(org.meta_environment.rascal.ast.Character x) { this.character = x; }
 	public Character setCharacter(org.meta_environment.rascal.ast.Character x) { 
@@ -41,8 +37,7 @@ static public class Ambiguity extends CharRange {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitCharRangeAmbiguity(this);
   }
 } 
@@ -59,21 +54,16 @@ static public class Range extends CharRange {
 		this.start = start;
 		this.end = end;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitCharRangeRange(this);
 	}
 
-	@Override
 	public boolean isRange() { return true; }
 
-	@Override
 	public boolean hasStart() { return true; }
-	@Override
 	public boolean hasEnd() { return true; }
 
 private org.meta_environment.rascal.ast.Character start;
-	@Override
 	public org.meta_environment.rascal.ast.Character getStart() { return start; }
 	private void $setStart(org.meta_environment.rascal.ast.Character x) { this.start = x; }
 	public Range setStart(org.meta_environment.rascal.ast.Character x) { 
@@ -82,7 +72,6 @@ private org.meta_environment.rascal.ast.Character start;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Character end;
-	@Override
 	public org.meta_environment.rascal.ast.Character getEnd() { return end; }
 	private void $setEnd(org.meta_environment.rascal.ast.Character x) { this.end = x; }
 	public Range setEnd(org.meta_environment.rascal.ast.Character x) { 
@@ -91,6 +80,5 @@ private org.meta_environment.rascal.ast.Character start;
 		return z;
 	}	
 }
- @Override
-public abstract <T> T accept(IASTVisitor<T> visitor);
+ public abstract <T> T accept(IASTVisitor<T> visitor);
 }

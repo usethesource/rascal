@@ -11,19 +11,15 @@ static public class Default extends ModuleParameters {
 		this.tree = tree;
 		this.parameters = parameters;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitModuleParametersDefault(this);
 	}
 
-	@Override
 	public boolean isDefault() { return true; }
 
-	@Override
 	public boolean hasParameters() { return true; }
 
 private java.util.List<org.meta_environment.rascal.ast.TypeVar> parameters;
-	@Override
 	public java.util.List<org.meta_environment.rascal.ast.TypeVar> getParameters() { return parameters; }
 	private void $setParameters(java.util.List<org.meta_environment.rascal.ast.TypeVar> x) { this.parameters = x; }
 	public Default setParameters(java.util.List<org.meta_environment.rascal.ast.TypeVar> x) { 
@@ -41,8 +37,7 @@ static public class Ambiguity extends ModuleParameters {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitModuleParametersAmbiguity(this);
   }
 }

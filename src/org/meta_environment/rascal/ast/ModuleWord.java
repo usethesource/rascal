@@ -11,8 +11,7 @@ static public class Lexical extends ModuleWord {
 		return string;
 	}
 
- 	@Override
-	public <T> T accept(IASTVisitor<T> v) {
+ 	public <T> T accept(IASTVisitor<T> v) {
      		return v.visitModuleWordLexical(this);
   	}
 }
@@ -25,8 +24,7 @@ static public class Ambiguity extends ModuleWord {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitModuleWordAmbiguity(this);
   }
 }

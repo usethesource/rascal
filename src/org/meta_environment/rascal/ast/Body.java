@@ -11,19 +11,15 @@ static public class Toplevels extends Body {
 		this.tree = tree;
 		this.toplevels = toplevels;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitBodyToplevels(this);
 	}
 
-	@Override
 	public boolean isToplevels() { return true; }
 
-	@Override
 	public boolean hasToplevels() { return true; }
 
 private java.util.List<org.meta_environment.rascal.ast.Toplevel> toplevels;
-	@Override
 	public java.util.List<org.meta_environment.rascal.ast.Toplevel> getToplevels() { return toplevels; }
 	private void $setToplevels(java.util.List<org.meta_environment.rascal.ast.Toplevel> x) { this.toplevels = x; }
 	public Toplevels setToplevels(java.util.List<org.meta_environment.rascal.ast.Toplevel> x) { 
@@ -41,8 +37,7 @@ static public class Ambiguity extends Body {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitBodyAmbiguity(this);
   }
 }

@@ -20,8 +20,13 @@ public class RascalShell {
 	private final static String PROMPT = ">";
 	private final static String CONTINUE_PROMPT = "?";
 	private final static String TERMINATOR = ";";
+	private final static String ENDBLOCK = "}";
 	private final static String QUIT = "quit";
-
+	
+	private Parser parser = Parser.getInstance();
+	private ASTBuilder builder = new ASTBuilder(new ASTFactory());
+	private Evaluator evaluator = new Evaluator(ValueFactory.getInstance());
+	
 	private void run() throws IOException, FactTypeError {
 		ConsoleReader console = new ConsoleReader();
 		
@@ -54,23 +59,27 @@ public class RascalShell {
 			catch (RascalTypeError e) {
 				System.err.println("error: " + e.getMessage());
 			}
+			
 		}
 	}
 
 	private String handleInput(StringBuffer statement) throws IOException {
-		Parser parser = Parser.getInstance();
-		ASTBuilder builder = new ASTBuilder(new ASTFactory());
 		StringBuilder result = new StringBuilder();
 		INode tree = parser.parse(new ByteArrayInputStream(statement.toString().getBytes()));
-		Evaluator eval = new Evaluator(ValueFactory.getInstance());
 
 		if (tree.getTreeNodeType() == Factory.ParseTree_Summary) {
 			result.append(tree + "\n");
 		}
 		else {
 			Statement stat = builder.buildStatement(tree);
-			IValue value = stat.accept(eval);
-			return value.getType() + ": " + value.toString();
+			IValue value = stat.accept(evaluator);
+			
+			if (value == null) {
+				throw new RascalTypeError("Not yet implemented: " + tree);
+			}
+			else {
+			  return value.getType() + ": " + value.toString();
+			}
 		}
 		
 		return result.toString();
@@ -91,7 +100,9 @@ public class RascalShell {
 		}
 		else {
 		  int lastTerminator = statement.lastIndexOf(TERMINATOR);
-		  return lastTerminator != -1 && statement.substring(lastTerminator).trim().equals(TERMINATOR);
+		  int lastCloseBracket = statement.lastIndexOf(ENDBLOCK);
+		  return (lastTerminator != -1 && statement.substring(lastTerminator).trim().equals(TERMINATOR))
+		  || (lastCloseBracket != -1 && statement.substring(lastTerminator).trim().equals(ENDBLOCK));
 		}
 	}
 	

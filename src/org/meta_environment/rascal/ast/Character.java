@@ -11,19 +11,15 @@ static public class Numeric extends Character {
 		this.tree = tree;
 		this.numChar = numChar;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitCharacterNumeric(this);
 	}
 
-	@Override
 	public boolean isNumeric() { return true; }
 
-	@Override
 	public boolean hasNumChar() { return true; }
 
 private org.meta_environment.rascal.ast.NumChar numChar;
-	@Override
 	public org.meta_environment.rascal.ast.NumChar getNumChar() { return numChar; }
 	private void $setNumChar(org.meta_environment.rascal.ast.NumChar x) { this.numChar = x; }
 	public Numeric setNumChar(org.meta_environment.rascal.ast.NumChar x) { 
@@ -41,8 +37,7 @@ static public class Ambiguity extends Character {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitCharacterAmbiguity(this);
   }
 } 
@@ -56,19 +51,15 @@ static public class Short extends Character {
 		this.tree = tree;
 		this.shortChar = shortChar;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitCharacterShort(this);
 	}
 
-	@Override
 	public boolean isShort() { return true; }
 
-	@Override
 	public boolean hasShortChar() { return true; }
 
 private org.meta_environment.rascal.ast.ShortChar shortChar;
-	@Override
 	public org.meta_environment.rascal.ast.ShortChar getShortChar() { return shortChar; }
 	private void $setShortChar(org.meta_environment.rascal.ast.ShortChar x) { this.shortChar = x; }
 	public Short setShortChar(org.meta_environment.rascal.ast.ShortChar x) { 
@@ -76,20 +67,17 @@ private org.meta_environment.rascal.ast.ShortChar shortChar;
  		z.$setShortChar(x);
 		return z;
 	}	
-} @Override
-public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isTop() { return false; }
+} public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isTop() { return false; }
 static public class Top extends Character {
 /* "\\TOP" -> Character {cons("Top")} */
 	private Top() { }
 	/*package*/ Top(ITree tree) {
 		this.tree = tree;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitCharacterTop(this);
 	}
 
-	@Override
 	public boolean isTop() { return true; }	
 } 
 public boolean isEOF() { return false; }
@@ -99,12 +87,10 @@ static public class EOF extends Character {
 	/*package*/ EOF(ITree tree) {
 		this.tree = tree;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitCharacterEOF(this);
 	}
 
-	@Override
 	public boolean isEOF() { return true; }	
 } 
 public boolean isBottom() { return false; }
@@ -114,12 +100,10 @@ static public class Bottom extends Character {
 	/*package*/ Bottom(ITree tree) {
 		this.tree = tree;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitCharacterBottom(this);
 	}
 
-	@Override
 	public boolean isBottom() { return true; }	
 } 
 public boolean isLabelStart() { return false; }
@@ -129,12 +113,10 @@ static public class LabelStart extends Character {
 	/*package*/ LabelStart(ITree tree) {
 		this.tree = tree;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitCharacterLabelStart(this);
 	}
 
-	@Override
 	public boolean isLabelStart() { return true; }	
 }
 }

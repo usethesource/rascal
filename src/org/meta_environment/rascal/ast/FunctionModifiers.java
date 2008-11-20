@@ -11,19 +11,15 @@ static public class List extends FunctionModifiers {
 		this.tree = tree;
 		this.modifiers = modifiers;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitFunctionModifiersList(this);
 	}
 
-	@Override
 	public boolean isList() { return true; }
 
-	@Override
 	public boolean hasModifiers() { return true; }
 
 private java.util.List<org.meta_environment.rascal.ast.FunctionModifier> modifiers;
-	@Override
 	public java.util.List<org.meta_environment.rascal.ast.FunctionModifier> getModifiers() { return modifiers; }
 	private void $setModifiers(java.util.List<org.meta_environment.rascal.ast.FunctionModifier> x) { this.modifiers = x; }
 	public List setModifiers(java.util.List<org.meta_environment.rascal.ast.FunctionModifier> x) { 
@@ -41,8 +37,7 @@ static public class Ambiguity extends FunctionModifiers {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitFunctionModifiersAmbiguity(this);
   }
 }

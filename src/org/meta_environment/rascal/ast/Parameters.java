@@ -9,19 +9,15 @@ static public class Default extends Parameters {
 		this.tree = tree;
 		this.formals = formals;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitParametersDefault(this);
 	}
 
-	@Override
 	public boolean isDefault() { return true; }
 
-	@Override
 	public boolean hasFormals() { return true; }
 
 private org.meta_environment.rascal.ast.Formals formals;
-	@Override
 	public org.meta_environment.rascal.ast.Formals getFormals() { return formals; }
 	private void $setFormals(org.meta_environment.rascal.ast.Formals x) { this.formals = x; }
 	public Default setFormals(org.meta_environment.rascal.ast.Formals x) { 
@@ -39,8 +35,7 @@ static public class Ambiguity extends Parameters {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitParametersAmbiguity(this);
   }
 } public boolean isVarArgs() { return false; }
@@ -51,19 +46,15 @@ static public class VarArgs extends Parameters {
 		this.tree = tree;
 		this.formals = formals;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitParametersVarArgs(this);
 	}
 
-	@Override
 	public boolean isVarArgs() { return true; }
 
-	@Override
 	public boolean hasFormals() { return true; }
 
 private org.meta_environment.rascal.ast.Formals formals;
-	@Override
 	public org.meta_environment.rascal.ast.Formals getFormals() { return formals; }
 	private void $setFormals(org.meta_environment.rascal.ast.Formals x) { this.formals = x; }
 	public VarArgs setFormals(org.meta_environment.rascal.ast.Formals x) { 
@@ -72,6 +63,5 @@ private org.meta_environment.rascal.ast.Formals formals;
 		return z;
 	}	
 }
- @Override
-public abstract <T> T accept(IASTVisitor<T> visitor);
+ public abstract <T> T accept(IASTVisitor<T> visitor);
 }

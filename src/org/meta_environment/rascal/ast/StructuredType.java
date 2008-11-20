@@ -9,19 +9,15 @@ static public class List extends StructuredType {
 		this.tree = tree;
 		this.typeArg = typeArg;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStructuredTypeList(this);
 	}
 
-	@Override
 	public boolean isList() { return true; }
 
-	@Override
 	public boolean hasTypeArg() { return true; }
 
 private org.meta_environment.rascal.ast.TypeArg typeArg;
-	@Override
 	public org.meta_environment.rascal.ast.TypeArg getTypeArg() { return typeArg; }
 	private void $setTypeArg(org.meta_environment.rascal.ast.TypeArg x) { this.typeArg = x; }
 	public List setTypeArg(org.meta_environment.rascal.ast.TypeArg x) { 
@@ -39,8 +35,7 @@ static public class Ambiguity extends StructuredType {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitStructuredTypeAmbiguity(this);
   }
 } public boolean isSet() { return false; }
@@ -51,19 +46,15 @@ static public class Set extends StructuredType {
 		this.tree = tree;
 		this.typeArg = typeArg;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStructuredTypeSet(this);
 	}
 
-	@Override
 	public boolean isSet() { return true; }
 
-	@Override
 	public boolean hasTypeArg() { return true; }
 
 private org.meta_environment.rascal.ast.TypeArg typeArg;
-	@Override
 	public org.meta_environment.rascal.ast.TypeArg getTypeArg() { return typeArg; }
 	private void $setTypeArg(org.meta_environment.rascal.ast.TypeArg x) { this.typeArg = x; }
 	public Set setTypeArg(org.meta_environment.rascal.ast.TypeArg x) { 
@@ -71,8 +62,7 @@ private org.meta_environment.rascal.ast.TypeArg typeArg;
  		z.$setTypeArg(x);
 		return z;
 	}	
-} @Override
-public abstract <T> T accept(IASTVisitor<T> visitor); public org.meta_environment.rascal.ast.TypeArg getFirst() { throw new UnsupportedOperationException(); }
+} public abstract <T> T accept(IASTVisitor<T> visitor); public org.meta_environment.rascal.ast.TypeArg getFirst() { throw new UnsupportedOperationException(); }
 	public org.meta_environment.rascal.ast.TypeArg getSecond() { throw new UnsupportedOperationException(); }
 public boolean hasFirst() { return false; }
 	public boolean hasSecond() { return false; }
@@ -85,21 +75,16 @@ static public class Map extends StructuredType {
 		this.first = first;
 		this.second = second;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStructuredTypeMap(this);
 	}
 
-	@Override
 	public boolean isMap() { return true; }
 
-	@Override
 	public boolean hasFirst() { return true; }
-	@Override
 	public boolean hasSecond() { return true; }
 
 private org.meta_environment.rascal.ast.TypeArg first;
-	@Override
 	public org.meta_environment.rascal.ast.TypeArg getFirst() { return first; }
 	private void $setFirst(org.meta_environment.rascal.ast.TypeArg x) { this.first = x; }
 	public Map setFirst(org.meta_environment.rascal.ast.TypeArg x) { 
@@ -108,7 +93,6 @@ private org.meta_environment.rascal.ast.TypeArg first;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.TypeArg second;
-	@Override
 	public org.meta_environment.rascal.ast.TypeArg getSecond() { return second; }
 	private void $setSecond(org.meta_environment.rascal.ast.TypeArg x) { this.second = x; }
 	public Map setSecond(org.meta_environment.rascal.ast.TypeArg x) { 
@@ -124,19 +108,15 @@ static public class Relation extends StructuredType {
 		this.tree = tree;
 		this.arguments = arguments;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStructuredTypeRelation(this);
 	}
 
-	@Override
 	public boolean isRelation() { return true; }
 
-	@Override
 	public boolean hasArguments() { return true; }
 
 private java.util.List<org.meta_environment.rascal.ast.TypeArg> arguments;
-	@Override
 	public java.util.List<org.meta_environment.rascal.ast.TypeArg> getArguments() { return arguments; }
 	private void $setArguments(java.util.List<org.meta_environment.rascal.ast.TypeArg> x) { this.arguments = x; }
 	public Relation setArguments(java.util.List<org.meta_environment.rascal.ast.TypeArg> x) { 
@@ -152,19 +132,15 @@ static public class Tuple extends StructuredType {
 		this.tree = tree;
 		this.arguments = arguments;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStructuredTypeTuple(this);
 	}
 
-	@Override
 	public boolean isTuple() { return true; }
 
-	@Override
 	public boolean hasArguments() { return true; }
 
 private java.util.List<org.meta_environment.rascal.ast.TypeArg> arguments;
-	@Override
 	public java.util.List<org.meta_environment.rascal.ast.TypeArg> getArguments() { return arguments; }
 	private void $setArguments(java.util.List<org.meta_environment.rascal.ast.TypeArg> x) { this.arguments = x; }
 	public Tuple setArguments(java.util.List<org.meta_environment.rascal.ast.TypeArg> x) { 

@@ -11,8 +11,7 @@ public abstract class DoubleLiteral extends AbstractAST {
 		return string;
 	}
 
- 	@Override
-	public <T> T accept(IASTVisitor<T> v) {
+ 	public <T> T accept(IASTVisitor<T> v) {
      		return v.visitDoubleLiteralLexical(this);
   	}
 } static public class Ambiguity extends DoubleLiteral {
@@ -24,10 +23,8 @@ public abstract class DoubleLiteral extends AbstractAST {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitDoubleLiteralAmbiguity(this);
   }
-} @Override
-public abstract <T> T accept(IASTVisitor<T> visitor);
+} public abstract <T> T accept(IASTVisitor<T> visitor);
 }

@@ -11,19 +11,15 @@ static public class Default extends QualifiedName {
 		this.tree = tree;
 		this.names = names;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitQualifiedNameDefault(this);
 	}
 
-	@Override
 	public boolean isDefault() { return true; }
 
-	@Override
 	public boolean hasNames() { return true; }
 
 private java.util.List<org.meta_environment.rascal.ast.Name> names;
-	@Override
 	public java.util.List<org.meta_environment.rascal.ast.Name> getNames() { return names; }
 	private void $setNames(java.util.List<org.meta_environment.rascal.ast.Name> x) { this.names = x; }
 	public Default setNames(java.util.List<org.meta_environment.rascal.ast.Name> x) { 
@@ -41,8 +37,7 @@ static public class Ambiguity extends QualifiedName {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitQualifiedNameAmbiguity(this);
   }
 }

@@ -14,21 +14,16 @@ static public class Default extends Tag {
 		this.name = name;
 		this.contents = contents;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitTagDefault(this);
 	}
 
-	@Override
 	public boolean isDefault() { return true; }
 
-	@Override
 	public boolean hasName() { return true; }
-	@Override
 	public boolean hasContents() { return true; }
 
 private org.meta_environment.rascal.ast.Name name;
-	@Override
 	public org.meta_environment.rascal.ast.Name getName() { return name; }
 	private void $setName(org.meta_environment.rascal.ast.Name x) { this.name = x; }
 	public Default setName(org.meta_environment.rascal.ast.Name x) { 
@@ -37,7 +32,6 @@ private org.meta_environment.rascal.ast.Name name;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.TagString contents;
-	@Override
 	public org.meta_environment.rascal.ast.TagString getContents() { return contents; }
 	private void $setContents(org.meta_environment.rascal.ast.TagString x) { this.contents = x; }
 	public Default setContents(org.meta_environment.rascal.ast.TagString x) { 
@@ -55,8 +49,7 @@ static public class Ambiguity extends Tag {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitTagAmbiguity(this);
   }
 }

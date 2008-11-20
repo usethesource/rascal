@@ -8,12 +8,10 @@ static public class Empty extends Bound {
 	/*package*/ Empty(ITree tree) {
 		this.tree = tree;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitBoundEmpty(this);
 	}
 
-	@Override
 	public boolean isEmpty() { return true; }	
 }
 static public class Ambiguity extends Bound {
@@ -25,8 +23,7 @@ static public class Ambiguity extends Bound {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitBoundAmbiguity(this);
   }
 } 
@@ -40,19 +37,15 @@ static public class Default extends Bound {
 		this.tree = tree;
 		this.expression = expression;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitBoundDefault(this);
 	}
 
-	@Override
 	public boolean isDefault() { return true; }
 
-	@Override
 	public boolean hasExpression() { return true; }
 
 private org.meta_environment.rascal.ast.Expression expression;
-	@Override
 	public org.meta_environment.rascal.ast.Expression getExpression() { return expression; }
 	private void $setExpression(org.meta_environment.rascal.ast.Expression x) { this.expression = x; }
 	public Default setExpression(org.meta_environment.rascal.ast.Expression x) { 
@@ -61,6 +54,5 @@ private org.meta_environment.rascal.ast.Expression expression;
 		return z;
 	}	
 }
- @Override
-public abstract <T> T accept(IASTVisitor<T> visitor);
+ public abstract <T> T accept(IASTVisitor<T> visitor);
 }

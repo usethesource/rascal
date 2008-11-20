@@ -11,23 +11,17 @@ static public class ActualsRenaming extends ImportedModule {
 		this.actuals = actuals;
 		this.renamings = renamings;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitImportedModuleActualsRenaming(this);
 	}
 
-	@Override
 	public boolean isActualsRenaming() { return true; }
 
-	@Override
 	public boolean hasName() { return true; }
-	@Override
 	public boolean hasActuals() { return true; }
-	@Override
 	public boolean hasRenamings() { return true; }
 
 private org.meta_environment.rascal.ast.ModuleName name;
-	@Override
 	public org.meta_environment.rascal.ast.ModuleName getName() { return name; }
 	private void $setName(org.meta_environment.rascal.ast.ModuleName x) { this.name = x; }
 	public ActualsRenaming setName(org.meta_environment.rascal.ast.ModuleName x) { 
@@ -36,7 +30,6 @@ private org.meta_environment.rascal.ast.ModuleName name;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.ModuleActuals actuals;
-	@Override
 	public org.meta_environment.rascal.ast.ModuleActuals getActuals() { return actuals; }
 	private void $setActuals(org.meta_environment.rascal.ast.ModuleActuals x) { this.actuals = x; }
 	public ActualsRenaming setActuals(org.meta_environment.rascal.ast.ModuleActuals x) { 
@@ -45,7 +38,6 @@ private org.meta_environment.rascal.ast.ModuleName name;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Renamings renamings;
-	@Override
 	public org.meta_environment.rascal.ast.Renamings getRenamings() { return renamings; }
 	private void $setRenamings(org.meta_environment.rascal.ast.Renamings x) { this.renamings = x; }
 	public ActualsRenaming setRenamings(org.meta_environment.rascal.ast.Renamings x) { 
@@ -63,8 +55,7 @@ static public class Ambiguity extends ImportedModule {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitImportedModuleAmbiguity(this);
   }
 } public boolean isActuals() { return false; }
@@ -76,21 +67,16 @@ static public class Actuals extends ImportedModule {
 		this.name = name;
 		this.actuals = actuals;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitImportedModuleActuals(this);
 	}
 
-	@Override
 	public boolean isActuals() { return true; }
 
-	@Override
 	public boolean hasName() { return true; }
-	@Override
 	public boolean hasActuals() { return true; }
 
 private org.meta_environment.rascal.ast.ModuleName name;
-	@Override
 	public org.meta_environment.rascal.ast.ModuleName getName() { return name; }
 	private void $setName(org.meta_environment.rascal.ast.ModuleName x) { this.name = x; }
 	public Actuals setName(org.meta_environment.rascal.ast.ModuleName x) { 
@@ -99,7 +85,6 @@ private org.meta_environment.rascal.ast.ModuleName name;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.ModuleActuals actuals;
-	@Override
 	public org.meta_environment.rascal.ast.ModuleActuals getActuals() { return actuals; }
 	private void $setActuals(org.meta_environment.rascal.ast.ModuleActuals x) { this.actuals = x; }
 	public Actuals setActuals(org.meta_environment.rascal.ast.ModuleActuals x) { 
@@ -107,8 +92,7 @@ private org.meta_environment.rascal.ast.ModuleName name;
  		z.$setActuals(x);
 		return z;
 	}	
-} @Override
-public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isRenamings() { return false; }
+} public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isRenamings() { return false; }
 static public class Renamings extends ImportedModule {
 /* name:ModuleName renamings:Renamings -> ImportedModule {cons("Renamings")} */
 	private Renamings() { }
@@ -117,21 +101,16 @@ static public class Renamings extends ImportedModule {
 		this.name = name;
 		this.renamings = renamings;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitImportedModuleRenamings(this);
 	}
 
-	@Override
 	public boolean isRenamings() { return true; }
 
-	@Override
 	public boolean hasName() { return true; }
-	@Override
 	public boolean hasRenamings() { return true; }
 
 private org.meta_environment.rascal.ast.ModuleName name;
-	@Override
 	public org.meta_environment.rascal.ast.ModuleName getName() { return name; }
 	private void $setName(org.meta_environment.rascal.ast.ModuleName x) { this.name = x; }
 	public Renamings setName(org.meta_environment.rascal.ast.ModuleName x) { 
@@ -140,7 +119,6 @@ private org.meta_environment.rascal.ast.ModuleName name;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Renamings renamings;
-	@Override
 	public org.meta_environment.rascal.ast.Renamings getRenamings() { return renamings; }
 	private void $setRenamings(org.meta_environment.rascal.ast.Renamings x) { this.renamings = x; }
 	public Renamings setRenamings(org.meta_environment.rascal.ast.Renamings x) { 
@@ -156,19 +134,15 @@ static public class Default extends ImportedModule {
 		this.tree = tree;
 		this.name = name;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitImportedModuleDefault(this);
 	}
 
-	@Override
 	public boolean isDefault() { return true; }
 
-	@Override
 	public boolean hasName() { return true; }
 
 private org.meta_environment.rascal.ast.ModuleName name;
-	@Override
 	public org.meta_environment.rascal.ast.ModuleName getName() { return name; }
 	private void $setName(org.meta_environment.rascal.ast.ModuleName x) { this.name = x; }
 	public Default setName(org.meta_environment.rascal.ast.ModuleName x) { 

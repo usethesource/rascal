@@ -14,21 +14,16 @@ static public class Default extends Renaming {
 		this.from = from;
 		this.to = to;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitRenamingDefault(this);
 	}
 
-	@Override
 	public boolean isDefault() { return true; }
 
-	@Override
 	public boolean hasFrom() { return true; }
-	@Override
 	public boolean hasTo() { return true; }
 
 private org.meta_environment.rascal.ast.Name from;
-	@Override
 	public org.meta_environment.rascal.ast.Name getFrom() { return from; }
 	private void $setFrom(org.meta_environment.rascal.ast.Name x) { this.from = x; }
 	public Default setFrom(org.meta_environment.rascal.ast.Name x) { 
@@ -37,7 +32,6 @@ private org.meta_environment.rascal.ast.Name from;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Name to;
-	@Override
 	public org.meta_environment.rascal.ast.Name getTo() { return to; }
 	private void $setTo(org.meta_environment.rascal.ast.Name x) { this.to = x; }
 	public Default setTo(org.meta_environment.rascal.ast.Name x) { 
@@ -55,8 +49,7 @@ static public class Ambiguity extends Renaming {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitRenamingAmbiguity(this);
   }
 }

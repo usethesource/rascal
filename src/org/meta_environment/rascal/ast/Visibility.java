@@ -8,12 +8,10 @@ static public class Public extends Visibility {
 	/*package*/ Public(ITree tree) {
 		this.tree = tree;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitVisibilityPublic(this);
 	}
 
-	@Override
 	public boolean isPublic() { return true; }	
 }
 static public class Ambiguity extends Visibility {
@@ -25,8 +23,7 @@ static public class Ambiguity extends Visibility {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitVisibilityAmbiguity(this);
   }
 } 
@@ -37,14 +34,11 @@ static public class Private extends Visibility {
 	/*package*/ Private(ITree tree) {
 		this.tree = tree;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitVisibilityPrivate(this);
 	}
 
-	@Override
 	public boolean isPrivate() { return true; }	
 }
- @Override
-public abstract <T> T accept(IASTVisitor<T> visitor);
+ public abstract <T> T accept(IASTVisitor<T> visitor);
 }

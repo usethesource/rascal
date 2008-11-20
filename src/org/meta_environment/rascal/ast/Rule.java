@@ -10,21 +10,16 @@ static public class WithGuard extends Rule {
 		this.type = type;
 		this.match = match;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitRuleWithGuard(this);
 	}
 
-	@Override
 	public boolean isWithGuard() { return true; }
 
-	@Override
 	public boolean hasType() { return true; }
-	@Override
 	public boolean hasMatch() { return true; }
 
 private org.meta_environment.rascal.ast.Type type;
-	@Override
 	public org.meta_environment.rascal.ast.Type getType() { return type; }
 	private void $setType(org.meta_environment.rascal.ast.Type x) { this.type = x; }
 	public WithGuard setType(org.meta_environment.rascal.ast.Type x) { 
@@ -33,7 +28,6 @@ private org.meta_environment.rascal.ast.Type type;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Match match;
-	@Override
 	public org.meta_environment.rascal.ast.Match getMatch() { return match; }
 	private void $setMatch(org.meta_environment.rascal.ast.Match x) { this.match = x; }
 	public WithGuard setMatch(org.meta_environment.rascal.ast.Match x) { 
@@ -51,8 +45,7 @@ static public class Ambiguity extends Rule {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitRuleAmbiguity(this);
   }
 } public boolean isNoGuard() { return false; }
@@ -63,19 +56,15 @@ static public class NoGuard extends Rule {
 		this.tree = tree;
 		this.match = match;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitRuleNoGuard(this);
 	}
 
-	@Override
 	public boolean isNoGuard() { return true; }
 
-	@Override
 	public boolean hasMatch() { return true; }
 
 private org.meta_environment.rascal.ast.Match match;
-	@Override
 	public org.meta_environment.rascal.ast.Match getMatch() { return match; }
 	private void $setMatch(org.meta_environment.rascal.ast.Match x) { this.match = x; }
 	public NoGuard setMatch(org.meta_environment.rascal.ast.Match x) { 
@@ -84,6 +73,5 @@ private org.meta_environment.rascal.ast.Match match;
 		return z;
 	}	
 }
- @Override
-public abstract <T> T accept(IASTVisitor<T> visitor);
+ public abstract <T> T accept(IASTVisitor<T> visitor);
 }

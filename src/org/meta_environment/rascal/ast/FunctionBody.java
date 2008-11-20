@@ -11,19 +11,15 @@ static public class Default extends FunctionBody {
 		this.tree = tree;
 		this.statements = statements;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitFunctionBodyDefault(this);
 	}
 
-	@Override
 	public boolean isDefault() { return true; }
 
-	@Override
 	public boolean hasStatements() { return true; }
 
 private java.util.List<org.meta_environment.rascal.ast.Statement> statements;
-	@Override
 	public java.util.List<org.meta_environment.rascal.ast.Statement> getStatements() { return statements; }
 	private void $setStatements(java.util.List<org.meta_environment.rascal.ast.Statement> x) { this.statements = x; }
 	public Default setStatements(java.util.List<org.meta_environment.rascal.ast.Statement> x) { 
@@ -41,8 +37,7 @@ static public class Ambiguity extends FunctionBody {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitFunctionBodyAmbiguity(this);
   }
 }

@@ -11,19 +11,15 @@ static public class WithExpression extends Return {
 		this.tree = tree;
 		this.expression = expression;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitReturnWithExpression(this);
 	}
 
-	@Override
 	public boolean isWithExpression() { return true; }
 
-	@Override
 	public boolean hasExpression() { return true; }
 
 private org.meta_environment.rascal.ast.Expression expression;
-	@Override
 	public org.meta_environment.rascal.ast.Expression getExpression() { return expression; }
 	private void $setExpression(org.meta_environment.rascal.ast.Expression x) { this.expression = x; }
 	public WithExpression setExpression(org.meta_environment.rascal.ast.Expression x) { 
@@ -41,8 +37,7 @@ static public class Ambiguity extends Return {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitReturnAmbiguity(this);
   }
 } 
@@ -53,14 +48,11 @@ static public class NoExpression extends Return {
 	/*package*/ NoExpression(ITree tree) {
 		this.tree = tree;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitReturnNoExpression(this);
 	}
 
-	@Override
 	public boolean isNoExpression() { return true; }	
 }
- @Override
-public abstract <T> T accept(IASTVisitor<T> visitor);
+ public abstract <T> T accept(IASTVisitor<T> visitor);
 }

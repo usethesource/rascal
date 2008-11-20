@@ -10,21 +10,16 @@ static public class DefaultStrategy extends ValueProducer {
 		this.pattern = pattern;
 		this.expression = expression;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitValueProducerDefaultStrategy(this);
 	}
 
-	@Override
 	public boolean isDefaultStrategy() { return true; }
 
-	@Override
 	public boolean hasPattern() { return true; }
-	@Override
 	public boolean hasExpression() { return true; }
 
 private org.meta_environment.rascal.ast.Expression pattern;
-	@Override
 	public org.meta_environment.rascal.ast.Expression getPattern() { return pattern; }
 	private void $setPattern(org.meta_environment.rascal.ast.Expression x) { this.pattern = x; }
 	public DefaultStrategy setPattern(org.meta_environment.rascal.ast.Expression x) { 
@@ -33,7 +28,6 @@ private org.meta_environment.rascal.ast.Expression pattern;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Expression expression;
-	@Override
 	public org.meta_environment.rascal.ast.Expression getExpression() { return expression; }
 	private void $setExpression(org.meta_environment.rascal.ast.Expression x) { this.expression = x; }
 	public DefaultStrategy setExpression(org.meta_environment.rascal.ast.Expression x) { 
@@ -51,8 +45,7 @@ static public class Ambiguity extends ValueProducer {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitValueProducerAmbiguity(this);
   }
 } 
@@ -66,23 +59,17 @@ static public class GivenStrategy extends ValueProducer {
 		this.pattern = pattern;
 		this.expression = expression;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitValueProducerGivenStrategy(this);
 	}
 
-	@Override
 	public boolean isGivenStrategy() { return true; }
 
-	@Override
 	public boolean hasStrategy() { return true; }
-	@Override
 	public boolean hasPattern() { return true; }
-	@Override
 	public boolean hasExpression() { return true; }
 
 private org.meta_environment.rascal.ast.Strategy strategy;
-	@Override
 	public org.meta_environment.rascal.ast.Strategy getStrategy() { return strategy; }
 	private void $setStrategy(org.meta_environment.rascal.ast.Strategy x) { this.strategy = x; }
 	public GivenStrategy setStrategy(org.meta_environment.rascal.ast.Strategy x) { 
@@ -91,7 +78,6 @@ private org.meta_environment.rascal.ast.Strategy strategy;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Expression pattern;
-	@Override
 	public org.meta_environment.rascal.ast.Expression getPattern() { return pattern; }
 	private void $setPattern(org.meta_environment.rascal.ast.Expression x) { this.pattern = x; }
 	public GivenStrategy setPattern(org.meta_environment.rascal.ast.Expression x) { 
@@ -100,7 +86,6 @@ private org.meta_environment.rascal.ast.Strategy strategy;
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Expression expression;
-	@Override
 	public org.meta_environment.rascal.ast.Expression getExpression() { return expression; }
 	private void $setExpression(org.meta_environment.rascal.ast.Expression x) { this.expression = x; }
 	public GivenStrategy setExpression(org.meta_environment.rascal.ast.Expression x) { 
@@ -109,6 +94,5 @@ private org.meta_environment.rascal.ast.Strategy strategy;
 		return z;
 	}	
 }
- @Override
-public abstract <T> T accept(IASTVisitor<T> visitor);
+ public abstract <T> T accept(IASTVisitor<T> visitor);
 }

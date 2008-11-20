@@ -8,12 +8,10 @@ static public class Default extends Assignment {
 	/*package*/ Default(ITree tree) {
 		this.tree = tree;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitAssignmentDefault(this);
 	}
 
-	@Override
 	public boolean isDefault() { return true; }	
 }
 static public class Ambiguity extends Assignment {
@@ -25,8 +23,7 @@ static public class Ambiguity extends Assignment {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitAssignmentAmbiguity(this);
   }
 } 
@@ -37,27 +34,22 @@ static public class Addition extends Assignment {
 	/*package*/ Addition(ITree tree) {
 		this.tree = tree;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitAssignmentAddition(this);
 	}
 
-	@Override
 	public boolean isAddition() { return true; }	
-} @Override
-public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isSubtraction() { return false; }
+} public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isSubtraction() { return false; }
 static public class Subtraction extends Assignment {
 /* "-=" -> Assignment {cons("Subtraction")} */
 	private Subtraction() { }
 	/*package*/ Subtraction(ITree tree) {
 		this.tree = tree;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitAssignmentSubtraction(this);
 	}
 
-	@Override
 	public boolean isSubtraction() { return true; }	
 } 
 public boolean isProduct() { return false; }
@@ -67,12 +59,10 @@ static public class Product extends Assignment {
 	/*package*/ Product(ITree tree) {
 		this.tree = tree;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitAssignmentProduct(this);
 	}
 
-	@Override
 	public boolean isProduct() { return true; }	
 } 
 public boolean isDivision() { return false; }
@@ -82,12 +72,10 @@ static public class Division extends Assignment {
 	/*package*/ Division(ITree tree) {
 		this.tree = tree;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitAssignmentDivision(this);
 	}
 
-	@Override
 	public boolean isDivision() { return true; }	
 } 
 public boolean isIntersection() { return false; }
@@ -97,12 +85,10 @@ static public class Intersection extends Assignment {
 	/*package*/ Intersection(ITree tree) {
 		this.tree = tree;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitAssignmentIntersection(this);
 	}
 
-	@Override
 	public boolean isIntersection() { return true; }	
 }
 }

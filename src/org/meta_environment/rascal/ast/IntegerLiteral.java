@@ -11,19 +11,15 @@ static public class DecimalIntegerLiteral extends IntegerLiteral {
 		this.tree = tree;
 		this.decimal = decimal;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitIntegerLiteralDecimalIntegerLiteral(this);
 	}
 
-	@Override
 	public boolean isDecimalIntegerLiteral() { return true; }
 
-	@Override
 	public boolean hasDecimal() { return true; }
 
 private org.meta_environment.rascal.ast.DecimalIntegerLiteral decimal;
-	@Override
 	public org.meta_environment.rascal.ast.DecimalIntegerLiteral getDecimal() { return decimal; }
 	private void $setDecimal(org.meta_environment.rascal.ast.DecimalIntegerLiteral x) { this.decimal = x; }
 	public DecimalIntegerLiteral setDecimal(org.meta_environment.rascal.ast.DecimalIntegerLiteral x) { 
@@ -41,8 +37,7 @@ static public class Ambiguity extends IntegerLiteral {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitIntegerLiteralAmbiguity(this);
   }
 } 
@@ -56,19 +51,15 @@ static public class HexIntegerLiteral extends IntegerLiteral {
 		this.tree = tree;
 		this.hex = hex;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitIntegerLiteralHexIntegerLiteral(this);
 	}
 
-	@Override
 	public boolean isHexIntegerLiteral() { return true; }
 
-	@Override
 	public boolean hasHex() { return true; }
 
 private org.meta_environment.rascal.ast.HexIntegerLiteral hex;
-	@Override
 	public org.meta_environment.rascal.ast.HexIntegerLiteral getHex() { return hex; }
 	private void $setHex(org.meta_environment.rascal.ast.HexIntegerLiteral x) { this.hex = x; }
 	public HexIntegerLiteral setHex(org.meta_environment.rascal.ast.HexIntegerLiteral x) { 
@@ -76,8 +67,7 @@ private org.meta_environment.rascal.ast.HexIntegerLiteral hex;
  		z.$setHex(x);
 		return z;
 	}	
-} @Override
-public abstract <T> T accept(IASTVisitor<T> visitor); public org.meta_environment.rascal.ast.OctalIntegerLiteral getOctal() { throw new UnsupportedOperationException(); }
+} public abstract <T> T accept(IASTVisitor<T> visitor); public org.meta_environment.rascal.ast.OctalIntegerLiteral getOctal() { throw new UnsupportedOperationException(); }
 public boolean hasOctal() { return false; }
 public boolean isOctalIntegerLiteral() { return false; }
 static public class OctalIntegerLiteral extends IntegerLiteral {
@@ -87,19 +77,15 @@ static public class OctalIntegerLiteral extends IntegerLiteral {
 		this.tree = tree;
 		this.octal = octal;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitIntegerLiteralOctalIntegerLiteral(this);
 	}
 
-	@Override
 	public boolean isOctalIntegerLiteral() { return true; }
 
-	@Override
 	public boolean hasOctal() { return true; }
 
 private org.meta_environment.rascal.ast.OctalIntegerLiteral octal;
-	@Override
 	public org.meta_environment.rascal.ast.OctalIntegerLiteral getOctal() { return octal; }
 	private void $setOctal(org.meta_environment.rascal.ast.OctalIntegerLiteral x) { this.octal = x; }
 	public OctalIntegerLiteral setOctal(org.meta_environment.rascal.ast.OctalIntegerLiteral x) { 

@@ -8,12 +8,10 @@ static public class TopDown extends Strategy {
 	/*package*/ TopDown(ITree tree) {
 		this.tree = tree;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStrategyTopDown(this);
 	}
 
-	@Override
 	public boolean isTopDown() { return true; }	
 }
 static public class Ambiguity extends Strategy {
@@ -25,8 +23,7 @@ static public class Ambiguity extends Strategy {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitStrategyAmbiguity(this);
   }
 } 
@@ -37,27 +34,22 @@ static public class TopDownBreak extends Strategy {
 	/*package*/ TopDownBreak(ITree tree) {
 		this.tree = tree;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStrategyTopDownBreak(this);
 	}
 
-	@Override
 	public boolean isTopDownBreak() { return true; }	
-} @Override
-public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isBottomUp() { return false; }
+} public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isBottomUp() { return false; }
 static public class BottomUp extends Strategy {
 /* "bottom-up" -> Strategy {cons("BottomUp")} */
 	private BottomUp() { }
 	/*package*/ BottomUp(ITree tree) {
 		this.tree = tree;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStrategyBottomUp(this);
 	}
 
-	@Override
 	public boolean isBottomUp() { return true; }	
 } 
 public boolean isBottomUpBreak() { return false; }
@@ -67,12 +59,10 @@ static public class BottomUpBreak extends Strategy {
 	/*package*/ BottomUpBreak(ITree tree) {
 		this.tree = tree;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStrategyBottomUpBreak(this);
 	}
 
-	@Override
 	public boolean isBottomUpBreak() { return true; }	
 } 
 public boolean isOutermost() { return false; }
@@ -82,12 +72,10 @@ static public class Outermost extends Strategy {
 	/*package*/ Outermost(ITree tree) {
 		this.tree = tree;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStrategyOutermost(this);
 	}
 
-	@Override
 	public boolean isOutermost() { return true; }	
 } 
 public boolean isInnermost() { return false; }
@@ -97,12 +85,10 @@ static public class Innermost extends Strategy {
 	/*package*/ Innermost(ITree tree) {
 		this.tree = tree;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStrategyInnermost(this);
 	}
 
-	@Override
 	public boolean isInnermost() { return true; }	
 }
 }

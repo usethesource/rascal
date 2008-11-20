@@ -14,21 +14,16 @@ static public class TypeArguments extends FunctionType {
 		this.type = type;
 		this.arguments = arguments;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitFunctionTypeTypeArguments(this);
 	}
 
-	@Override
 	public boolean isTypeArguments() { return true; }
 
-	@Override
 	public boolean hasType() { return true; }
-	@Override
 	public boolean hasArguments() { return true; }
 
 private org.meta_environment.rascal.ast.Type type;
-	@Override
 	public org.meta_environment.rascal.ast.Type getType() { return type; }
 	private void $setType(org.meta_environment.rascal.ast.Type x) { this.type = x; }
 	public TypeArguments setType(org.meta_environment.rascal.ast.Type x) { 
@@ -37,7 +32,6 @@ private org.meta_environment.rascal.ast.Type type;
 		return z;
 	}
 	private java.util.List<org.meta_environment.rascal.ast.TypeArg> arguments;
-	@Override
 	public java.util.List<org.meta_environment.rascal.ast.TypeArg> getArguments() { return arguments; }
 	private void $setArguments(java.util.List<org.meta_environment.rascal.ast.TypeArg> x) { this.arguments = x; }
 	public TypeArguments setArguments(java.util.List<org.meta_environment.rascal.ast.TypeArg> x) { 
@@ -55,8 +49,7 @@ static public class Ambiguity extends FunctionType {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitFunctionTypeAmbiguity(this);
   }
 }

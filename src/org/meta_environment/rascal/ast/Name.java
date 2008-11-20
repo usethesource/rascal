@@ -11,8 +11,7 @@ static public class Lexical extends Name {
 		return string;
 	}
 
- 	@Override
-	public <T> T accept(IASTVisitor<T> v) {
+ 	public <T> T accept(IASTVisitor<T> v) {
      		return v.visitNameLexical(this);
   	}
 }
@@ -25,8 +24,7 @@ static public class Ambiguity extends Name {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitNameAmbiguity(this);
   }
 }

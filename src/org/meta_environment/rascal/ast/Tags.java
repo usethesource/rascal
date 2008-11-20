@@ -11,19 +11,15 @@ static public class Default extends Tags {
 		this.tree = tree;
 		this.annotations = annotations;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitTagsDefault(this);
 	}
 
-	@Override
 	public boolean isDefault() { return true; }
 
-	@Override
 	public boolean hasAnnotations() { return true; }
 
 private java.util.List<org.meta_environment.rascal.ast.Tag> annotations;
-	@Override
 	public java.util.List<org.meta_environment.rascal.ast.Tag> getAnnotations() { return annotations; }
 	private void $setAnnotations(java.util.List<org.meta_environment.rascal.ast.Tag> x) { this.annotations = x; }
 	public Default setAnnotations(java.util.List<org.meta_environment.rascal.ast.Tag> x) { 
@@ -41,8 +37,7 @@ static public class Ambiguity extends Tags {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitTagsAmbiguity(this);
   }
 }

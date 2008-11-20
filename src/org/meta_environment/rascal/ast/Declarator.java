@@ -14,21 +14,16 @@ static public class Default extends Declarator {
 		this.type = type;
 		this.variables = variables;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitDeclaratorDefault(this);
 	}
 
-	@Override
 	public boolean isDefault() { return true; }
 
-	@Override
 	public boolean hasType() { return true; }
-	@Override
 	public boolean hasVariables() { return true; }
 
 private org.meta_environment.rascal.ast.Type type;
-	@Override
 	public org.meta_environment.rascal.ast.Type getType() { return type; }
 	private void $setType(org.meta_environment.rascal.ast.Type x) { this.type = x; }
 	public Default setType(org.meta_environment.rascal.ast.Type x) { 
@@ -37,7 +32,6 @@ private org.meta_environment.rascal.ast.Type type;
 		return z;
 	}
 	private java.util.List<org.meta_environment.rascal.ast.Variable> variables;
-	@Override
 	public java.util.List<org.meta_environment.rascal.ast.Variable> getVariables() { return variables; }
 	private void $setVariables(java.util.List<org.meta_environment.rascal.ast.Variable> x) { this.variables = x; }
 	public Default setVariables(java.util.List<org.meta_environment.rascal.ast.Variable> x) { 
@@ -55,8 +49,7 @@ static public class Ambiguity extends Declarator {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitDeclaratorAmbiguity(this);
   }
 }

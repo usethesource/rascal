@@ -11,8 +11,7 @@ static public class Lexical extends OctalIntegerLiteral {
 		return string;
 	}
 
- 	@Override
-	public <T> T accept(IASTVisitor<T> v) {
+ 	public <T> T accept(IASTVisitor<T> v) {
      		return v.visitOctalIntegerLiteralLexical(this);
   	}
 }
@@ -25,8 +24,7 @@ static public class Ambiguity extends OctalIntegerLiteral {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitOctalIntegerLiteralAmbiguity(this);
   }
 }

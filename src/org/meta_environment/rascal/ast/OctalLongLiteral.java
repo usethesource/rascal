@@ -11,8 +11,7 @@ static public class Lexical extends OctalLongLiteral {
 		return string;
 	}
 
- 	@Override
-	public <T> T accept(IASTVisitor<T> v) {
+ 	public <T> T accept(IASTVisitor<T> v) {
      		return v.visitOctalLongLiteralLexical(this);
   	}
 }
@@ -25,8 +24,7 @@ static public class Ambiguity extends OctalLongLiteral {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitOctalLongLiteralAmbiguity(this);
   }
 }

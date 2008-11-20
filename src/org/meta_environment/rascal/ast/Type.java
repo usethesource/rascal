@@ -11,19 +11,15 @@ static public class Basic extends Type {
 		this.tree = tree;
 		this.basic = basic;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitTypeBasic(this);
 	}
 
-	@Override
 	public boolean isBasic() { return true; }
 
-	@Override
 	public boolean hasBasic() { return true; }
 
 private org.meta_environment.rascal.ast.BasicType basic;
-	@Override
 	public org.meta_environment.rascal.ast.BasicType getBasic() { return basic; }
 	private void $setBasic(org.meta_environment.rascal.ast.BasicType x) { this.basic = x; }
 	public Basic setBasic(org.meta_environment.rascal.ast.BasicType x) { 
@@ -41,8 +37,7 @@ static public class Ambiguity extends Type {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitTypeAmbiguity(this);
   }
 } 
@@ -56,19 +51,15 @@ static public class Structured extends Type {
 		this.tree = tree;
 		this.structured = structured;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitTypeStructured(this);
 	}
 
-	@Override
 	public boolean isStructured() { return true; }
 
-	@Override
 	public boolean hasStructured() { return true; }
 
 private org.meta_environment.rascal.ast.StructuredType structured;
-	@Override
 	public org.meta_environment.rascal.ast.StructuredType getStructured() { return structured; }
 	private void $setStructured(org.meta_environment.rascal.ast.StructuredType x) { this.structured = x; }
 	public Structured setStructured(org.meta_environment.rascal.ast.StructuredType x) { 
@@ -76,8 +67,7 @@ private org.meta_environment.rascal.ast.StructuredType structured;
  		z.$setStructured(x);
 		return z;
 	}	
-} @Override
-public abstract <T> T accept(IASTVisitor<T> visitor); public org.meta_environment.rascal.ast.FunctionType getFunction() { throw new UnsupportedOperationException(); }
+} public abstract <T> T accept(IASTVisitor<T> visitor); public org.meta_environment.rascal.ast.FunctionType getFunction() { throw new UnsupportedOperationException(); }
 public boolean hasFunction() { return false; }
 public boolean isFunction() { return false; }
 static public class Function extends Type {
@@ -87,19 +77,15 @@ static public class Function extends Type {
 		this.tree = tree;
 		this.function = function;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitTypeFunction(this);
 	}
 
-	@Override
 	public boolean isFunction() { return true; }
 
-	@Override
 	public boolean hasFunction() { return true; }
 
 private org.meta_environment.rascal.ast.FunctionType function;
-	@Override
 	public org.meta_environment.rascal.ast.FunctionType getFunction() { return function; }
 	private void $setFunction(org.meta_environment.rascal.ast.FunctionType x) { this.function = x; }
 	public Function setFunction(org.meta_environment.rascal.ast.FunctionType x) { 
@@ -118,19 +104,15 @@ static public class Variable extends Type {
 		this.tree = tree;
 		this.typeVar = typeVar;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitTypeVariable(this);
 	}
 
-	@Override
 	public boolean isVariable() { return true; }
 
-	@Override
 	public boolean hasTypeVar() { return true; }
 
 private org.meta_environment.rascal.ast.TypeVar typeVar;
-	@Override
 	public org.meta_environment.rascal.ast.TypeVar getTypeVar() { return typeVar; }
 	private void $setTypeVar(org.meta_environment.rascal.ast.TypeVar x) { this.typeVar = x; }
 	public Variable setTypeVar(org.meta_environment.rascal.ast.TypeVar x) { 
@@ -149,19 +131,15 @@ static public class User extends Type {
 		this.tree = tree;
 		this.user = user;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitTypeUser(this);
 	}
 
-	@Override
 	public boolean isUser() { return true; }
 
-	@Override
 	public boolean hasUser() { return true; }
 
 private org.meta_environment.rascal.ast.UserType user;
-	@Override
 	public org.meta_environment.rascal.ast.UserType getUser() { return user; }
 	private void $setUser(org.meta_environment.rascal.ast.UserType x) { this.user = x; }
 	public User setUser(org.meta_environment.rascal.ast.UserType x) { 
@@ -180,19 +158,15 @@ static public class Symbol extends Type {
 		this.tree = tree;
 		this.symbol = symbol;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitTypeSymbol(this);
 	}
 
-	@Override
 	public boolean isSymbol() { return true; }
 
-	@Override
 	public boolean hasSymbol() { return true; }
 
 private org.meta_environment.rascal.ast.Symbol symbol;
-	@Override
 	public org.meta_environment.rascal.ast.Symbol getSymbol() { return symbol; }
 	private void $setSymbol(org.meta_environment.rascal.ast.Symbol x) { this.symbol = x; }
 	public Symbol setSymbol(org.meta_environment.rascal.ast.Symbol x) { 
@@ -211,19 +185,15 @@ static public class Selector extends Type {
 		this.tree = tree;
 		this.selector = selector;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitTypeSelector(this);
 	}
 
-	@Override
 	public boolean isSelector() { return true; }
 
-	@Override
 	public boolean hasSelector() { return true; }
 
 private org.meta_environment.rascal.ast.DataTypeSelector selector;
-	@Override
 	public org.meta_environment.rascal.ast.DataTypeSelector getSelector() { return selector; }
 	private void $setSelector(org.meta_environment.rascal.ast.DataTypeSelector x) { this.selector = x; }
 	public Selector setSelector(org.meta_environment.rascal.ast.DataTypeSelector x) { 

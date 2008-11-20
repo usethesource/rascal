@@ -8,12 +8,10 @@ static public class Java extends FunctionModifier {
 	/*package*/ Java(ITree tree) {
 		this.tree = tree;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitFunctionModifierJava(this);
 	}
 
-	@Override
 	public boolean isJava() { return true; }	
 }
 static public class Ambiguity extends FunctionModifier {
@@ -25,8 +23,7 @@ static public class Ambiguity extends FunctionModifier {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitFunctionModifierAmbiguity(this);
   }
 }

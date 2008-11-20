@@ -8,12 +8,10 @@ static public class Bool extends BasicType {
 	/*package*/ Bool(ITree tree) {
 		this.tree = tree;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitBasicTypeBool(this);
 	}
 
-	@Override
 	public boolean isBool() { return true; }	
 }
 static public class Ambiguity extends BasicType {
@@ -25,8 +23,7 @@ static public class Ambiguity extends BasicType {
 	return alternatives;
   }
   
-  @Override
-public <T> T accept(IASTVisitor<T> v) {
+  public <T> T accept(IASTVisitor<T> v) {
      return v.visitBasicTypeAmbiguity(this);
   }
 } 
@@ -37,27 +34,22 @@ static public class Int extends BasicType {
 	/*package*/ Int(ITree tree) {
 		this.tree = tree;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitBasicTypeInt(this);
 	}
 
-	@Override
 	public boolean isInt() { return true; }	
-} @Override
-public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isDouble() { return false; }
+} public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isDouble() { return false; }
 static public class Double extends BasicType {
 /* "double" -> BasicType {cons("Double")} */
 	private Double() { }
 	/*package*/ Double(ITree tree) {
 		this.tree = tree;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitBasicTypeDouble(this);
 	}
 
-	@Override
 	public boolean isDouble() { return true; }	
 } 
 public boolean isString() { return false; }
@@ -67,12 +59,10 @@ static public class String extends BasicType {
 	/*package*/ String(ITree tree) {
 		this.tree = tree;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitBasicTypeString(this);
 	}
 
-	@Override
 	public boolean isString() { return true; }	
 } 
 public boolean isValue() { return false; }
@@ -82,12 +72,10 @@ static public class Value extends BasicType {
 	/*package*/ Value(ITree tree) {
 		this.tree = tree;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitBasicTypeValue(this);
 	}
 
-	@Override
 	public boolean isValue() { return true; }	
 } 
 public boolean isTree() { return false; }
@@ -97,12 +85,10 @@ static public class Tree extends BasicType {
 	/*package*/ Tree(ITree tree) {
 		this.tree = tree;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitBasicTypeTree(this);
 	}
 
-	@Override
 	public boolean isTree() { return true; }	
 } 
 public boolean isVoid() { return false; }
@@ -112,12 +98,10 @@ static public class Void extends BasicType {
 	/*package*/ Void(ITree tree) {
 		this.tree = tree;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitBasicTypeVoid(this);
 	}
 
-	@Override
 	public boolean isVoid() { return true; }	
 } 
 public boolean isLoc() { return false; }
@@ -127,12 +111,10 @@ static public class Loc extends BasicType {
 	/*package*/ Loc(ITree tree) {
 		this.tree = tree;
 	}
-	@Override
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitBasicTypeLoc(this);
 	}
 
-	@Override
 	public boolean isLoc() { return true; }	
 }
 }
