@@ -55,11 +55,12 @@ public class RascalShell {
 			catch (FactTypeError e) {
 				System.err.println("bug: " + e.getMessage());
 				e.printStackTrace();
+				console.printNewline();
 			}
 			catch (RascalTypeError e) {
 				System.err.println("error: " + e.getMessage());
+				console.printNewline();
 			}
-			
 		}
 	}
 

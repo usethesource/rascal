@@ -130,7 +130,7 @@ public class Evaluator extends NullASTVisitor<IValue> {
 		
 		ListType resultType = tf.listType(elementType);
 		IListWriter w = resultType.writer(vf);
-		w.insertAll(results);
+		w.appendAll(results);
 		return w.done();
 	}
 	
