@@ -17,6 +17,7 @@ import org.meta_environment.rascal.parser.Parser;
 import org.meta_environment.uptr.Factory;
 
 public class TestParsing extends TestCase {
+
 	public void testParser() {
 		Parser parser = Parser.getInstance();
 		File directory = new File("../rascal-grammar/spec/tests/terms");

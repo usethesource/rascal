@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IDouble;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
@@ -20,10 +21,13 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.Assignable;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.Expression.Addition;
+import org.meta_environment.rascal.ast.Expression.And;
 import org.meta_environment.rascal.ast.Expression.EmptySetOrBlock;
 import org.meta_environment.rascal.ast.Expression.List;
 import org.meta_environment.rascal.ast.Expression.Literal;
+import org.meta_environment.rascal.ast.Expression.Negation;
 import org.meta_environment.rascal.ast.Expression.NonEmptySet;
+import org.meta_environment.rascal.ast.Expression.Or;
 import org.meta_environment.rascal.ast.Expression.Tuple;
 import org.meta_environment.rascal.ast.IntegerLiteral.DecimalIntegerLiteral;
 import org.meta_environment.rascal.ast.Literal.Boolean;
@@ -96,10 +100,10 @@ public class Evaluator extends NullASTVisitor<IValue> {
 		String str = x.getBooleanLiteral().toString();
 		
 		if (str.equals("true")) {
-			return vf.True();
+			return vf.bool(true);
 		}
 		else {
-			return vf.False();
+			return vf.bool(false);
 		}
 	}
 	
@@ -175,7 +179,7 @@ public class Evaluator extends NullASTVisitor<IValue> {
 		return vf.tuple(resultArray);
 	}
 	
-	@Override
+	
 	public IValue visitExpressionAddition(Addition x) {
 		IValue leftValue = x.getLhs().accept(this);
 		IValue rightValue = x.getRhs().accept(this);
@@ -198,6 +202,43 @@ public class Evaluator extends NullASTVisitor<IValue> {
 		}
 		else {
 			throw new RascalTypeError("Operands of + have different types: " + leftType + ", " + rightType);
+		}
+	}
+	@Override
+	public IValue visitExpressionAnd(And x){
+		IValue leftValue = x.getLhs().accept(this);
+		IValue rightValue = x.getRhs().accept(this);
+		Type leftType = leftValue.getType();
+		Type rightType = rightValue.getType();
+		if (leftType.isBoolType() &&
+				rightType.isBoolType()) {
+		  return vf.bool(((IBool) leftValue).getValue() && ((IBool) rightValue).getValue());
+		} else {
+			throw new RascalTypeError("Operands of && should be boolean instead of: " + leftType + ", " + rightType); 
+		}
+	}
+	@Override
+	public IValue visitExpressionOr(Or x){
+		IValue leftValue = x.getLhs().accept(this);
+		IValue rightValue = x.getRhs().accept(this);
+		Type leftType = leftValue.getType();
+		Type rightType = rightValue.getType();
+		if (leftType.isBoolType() &&
+				rightType.isBoolType()) {
+		  return vf.bool(((IBool) leftValue).getValue() || ((IBool) rightValue).getValue());
+		} else {
+			throw new RascalTypeError("Operands of && should be boolean instead of: " + leftType + ", " + rightType); 
+		}
+	}
+	
+	@Override
+	public IValue visitExpressionNegation(Negation x){
+		IValue argValue = x.getArgument().accept(this);
+		Type argType = argValue.getType();
+		if (argType.isBoolType()) {
+		  return vf.bool(!((IBool) argValue).getValue());
+		} else {
+			throw new RascalTypeError("Operand of ! should be boolean instead of: " + argType); 
 		}
 	}
 }
