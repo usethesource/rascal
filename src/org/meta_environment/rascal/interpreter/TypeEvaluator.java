@@ -14,6 +14,14 @@ import org.meta_environment.rascal.ast.BasicType.Value;
 import org.meta_environment.rascal.ast.BasicType.Void;
 import org.meta_environment.rascal.ast.BooleanLiteral.Lexical;
 import org.meta_environment.rascal.ast.Expression.And;
+import org.meta_environment.rascal.ast.Expression.EmptySetOrBlock;
+import org.meta_environment.rascal.ast.Expression.Equals;
+import org.meta_environment.rascal.ast.Expression.Equivalence;
+import org.meta_environment.rascal.ast.Expression.Exists;
+import org.meta_environment.rascal.ast.Expression.GreaterThan;
+import org.meta_environment.rascal.ast.Expression.In;
+import org.meta_environment.rascal.ast.Expression.LessThan;
+import org.meta_environment.rascal.ast.Expression.LessThanOrEq;
 import org.meta_environment.rascal.ast.Expression.List;
 import org.meta_environment.rascal.ast.Expression.NonEmptySet;
 import org.meta_environment.rascal.ast.IntegerLiteral.DecimalIntegerLiteral;
@@ -72,6 +80,46 @@ public class TypeEvaluator extends NullASTVisitor<Type> {
 	@Override
 	public Type visitExpressionNonEmptySet(NonEmptySet x) {
 		return elementType(x.getElements());
+	}
+	
+	@Override
+	public Type visitExpressionEmptySetOrBlock(EmptySetOrBlock x) {
+		return tf.setType(tf.voidType());
+	}
+	
+	@Override
+	public Type visitExpressionEquals(Equals x) {
+		return tf.boolType();
+	}
+	
+	@Override
+	public Type visitExpressionExists(Exists x) {
+		return tf.boolType();
+	}
+	
+	@Override
+	public Type visitExpressionGreaterThan(GreaterThan x) {
+		return tf.boolType();
+	}
+	
+	@Override
+	public Type visitExpressionLessThan(LessThan x) {
+		return tf.boolType();
+	}
+	
+	@Override
+	public Type visitExpressionLessThanOrEq(LessThanOrEq x) {
+		return tf.boolType();
+	}
+	
+	@Override
+	public Type visitExpressionEquivalence(Equivalence x) {
+		return tf.boolType();
+	}
+	
+	@Override
+	public Type visitExpressionIn(In x) {
+		return tf.boolType();
 	}
 	
 	@Override
