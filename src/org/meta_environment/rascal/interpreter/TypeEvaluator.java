@@ -2,8 +2,8 @@ package org.meta_environment.rascal.interpreter;
 
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.meta_environment.rascal.ast.Expression;
 import org.meta_environment.rascal.ast.NullASTVisitor;
+import org.meta_environment.rascal.ast.TypeArg;
 import org.meta_environment.rascal.ast.BasicType.Bool;
 import org.meta_environment.rascal.ast.BasicType.Double;
 import org.meta_environment.rascal.ast.BasicType.Int;
@@ -12,116 +12,18 @@ import org.meta_environment.rascal.ast.BasicType.String;
 import org.meta_environment.rascal.ast.BasicType.Tree;
 import org.meta_environment.rascal.ast.BasicType.Value;
 import org.meta_environment.rascal.ast.BasicType.Void;
-import org.meta_environment.rascal.ast.BooleanLiteral.Lexical;
-import org.meta_environment.rascal.ast.Expression.And;
-import org.meta_environment.rascal.ast.Expression.EmptySetOrBlock;
-import org.meta_environment.rascal.ast.Expression.Equals;
-import org.meta_environment.rascal.ast.Expression.Equivalence;
-import org.meta_environment.rascal.ast.Expression.Exists;
-import org.meta_environment.rascal.ast.Expression.GreaterThan;
-import org.meta_environment.rascal.ast.Expression.In;
-import org.meta_environment.rascal.ast.Expression.LessThan;
-import org.meta_environment.rascal.ast.Expression.LessThanOrEq;
-import org.meta_environment.rascal.ast.Expression.List;
-import org.meta_environment.rascal.ast.Expression.NonEmptySet;
-import org.meta_environment.rascal.ast.IntegerLiteral.DecimalIntegerLiteral;
-import org.meta_environment.rascal.ast.IntegerLiteral.HexIntegerLiteral;
-import org.meta_environment.rascal.ast.IntegerLiteral.OctalIntegerLiteral;
+import org.meta_environment.rascal.ast.StructuredType.List;
+import org.meta_environment.rascal.ast.StructuredType.Map;
+import org.meta_environment.rascal.ast.StructuredType.Relation;
+import org.meta_environment.rascal.ast.StructuredType.Set;
+import org.meta_environment.rascal.ast.StructuredType.Tuple;
 import org.meta_environment.rascal.ast.Type.Basic;
 import org.meta_environment.rascal.ast.Type.Function;
+import org.meta_environment.rascal.ast.Type.Structured;
 
 public class TypeEvaluator extends NullASTVisitor<Type> {
 	private TypeFactory tf = TypeFactory.getInstance();
 
-	@Override
-	public Type visitIntegerLiteralDecimalIntegerLiteral(DecimalIntegerLiteral x) {
-		return tf.integerType();
-	}
-	
-	@Override
-	public Type visitIntegerLiteralHexIntegerLiteral(HexIntegerLiteral x) {
-		return tf.integerType();
-	}
-	
-	@Override
-	public Type visitIntegerLiteralOctalIntegerLiteral(OctalIntegerLiteral x) {
-		return tf.integerType();
-	}
-
-	@Override
-	public Type visitBooleanLiteralLexical(Lexical x) {
-		return tf.boolType();
-	}
-
-	@Override
-	public Type visitDoubleLiteralLexical(
-			org.meta_environment.rascal.ast.DoubleLiteral.Lexical x) {
-		return tf.doubleType();
-	}
-
-	@Override
-	public Type visitExpressionAnd(And x) {
-		return tf.boolType();
-	}
-	
-	@Override
-	public Type visitExpressionList(List x) {
-		return elementType(x.getElements());
-	}
-
-	private Type elementType(java.util.List<Expression> elements) {
-		Type elementType = tf.voidType();
-		for (org.meta_environment.rascal.ast.Expression e : elements) {
-			elementType = elementType.lub(e.accept(this));
-		}
-		return tf.listType(elementType);
-	}
-	
-	@Override
-	public Type visitExpressionNonEmptySet(NonEmptySet x) {
-		return elementType(x.getElements());
-	}
-	
-	@Override
-	public Type visitExpressionEmptySetOrBlock(EmptySetOrBlock x) {
-		return tf.setType(tf.voidType());
-	}
-	
-	@Override
-	public Type visitExpressionEquals(Equals x) {
-		return tf.boolType();
-	}
-	
-	@Override
-	public Type visitExpressionExists(Exists x) {
-		return tf.boolType();
-	}
-	
-	@Override
-	public Type visitExpressionGreaterThan(GreaterThan x) {
-		return tf.boolType();
-	}
-	
-	@Override
-	public Type visitExpressionLessThan(LessThan x) {
-		return tf.boolType();
-	}
-	
-	@Override
-	public Type visitExpressionLessThanOrEq(LessThanOrEq x) {
-		return tf.boolType();
-	}
-	
-	@Override
-	public Type visitExpressionEquivalence(Equivalence x) {
-		return tf.boolType();
-	}
-	
-	@Override
-	public Type visitExpressionIn(In x) {
-		return tf.boolType();
-	}
-	
 	@Override
 	public Type visitTypeBasic(Basic x) {
 		return x.getBasic().accept(this);
@@ -170,5 +72,51 @@ public class TypeEvaluator extends NullASTVisitor<Type> {
 	@Override
 	public Type visitBasicTypeVoid(Void x) {
 		return tf.voidType();
+	}
+	
+	@Override
+	public Type visitTypeStructured(Structured x) {
+		return x.getStructured().accept(this);
+	}
+	
+	@Override
+	public Type visitStructuredTypeList(List x) {
+		return tf.listType(x.getTypeArg().accept(this));
+	}
+	
+	@Override
+	public Type visitStructuredTypeMap(Map x) {
+		return tf.mapType(x.getFirst().accept(this), x.getSecond().accept(this));
+	}
+	
+	@Override
+	public Type visitStructuredTypeRelation(Relation x) {
+		java.util.List<TypeArg> args = x.getArguments();
+		Type[] fieldTypes = new Type[args.size()];
+		
+		int i = 0;
+		for (TypeArg arg : args) {
+			fieldTypes[i++] = arg.getType().accept(this);
+		}
+		
+		return tf.relType(fieldTypes);
+	}
+	
+	@Override
+	public Type visitStructuredTypeSet(Set x) {
+		return tf.setType(x.getTypeArg().accept(this));
+	}
+	
+	@Override
+	public Type visitStructuredTypeTuple(Tuple x) {
+		java.util.List<TypeArg> args = x.getArguments();
+		Type[] fieldTypes = new Type[args.size()];
+		
+		int i = 0;
+		for (TypeArg arg : args) {
+			fieldTypes[i++] = arg.getType().accept(this);
+		}
+		
+		return tf.tupleType(fieldTypes);
 	}
 }
