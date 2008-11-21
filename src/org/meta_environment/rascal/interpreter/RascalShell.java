@@ -73,7 +73,7 @@ public class RascalShell {
 		}
 		else {
 			Statement stat = builder.buildStatement(tree);
-			IValue value = stat.accept(evaluator);
+			IValue value = evaluator.eval(stat);
 			
 			if (value == null) {
 				throw new RascalTypeError("Not yet implemented: " + tree);

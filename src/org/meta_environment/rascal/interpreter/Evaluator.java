@@ -20,6 +20,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.Assignable;
 import org.meta_environment.rascal.ast.NullASTVisitor;
+import org.meta_environment.rascal.ast.Statement;
 import org.meta_environment.rascal.ast.Expression.Addition;
 import org.meta_environment.rascal.ast.Expression.And;
 import org.meta_environment.rascal.ast.Expression.EmptySetOrBlock;
@@ -36,21 +37,48 @@ import org.meta_environment.rascal.ast.Literal.Integer;
 import org.meta_environment.rascal.ast.Statement.Assignment;
 import org.meta_environment.rascal.ast.Statement.Expression;
 
-public class Evaluator extends NullASTVisitor<IValue> {
+class EResult {
+	protected Type type;
+	protected IValue value;
+    public EResult(Type t, IValue v) {
+		type = t;
+		value = v;
+		if(!value.getType().isSubtypeOf(t)){
+			throw new RascalTypeError("Value " + v + " is not a subtype of " + t);
+		}
+	}
+}
+
+
+public class Evaluator extends NullASTVisitor<EResult> {
 	private IValueFactory vf;
 	private final TypeFactory tf;
-	private final Map<String,IValue> environment = new HashMap<String,IValue>();
+	private final TypeEvaluator te = new TypeEvaluator();
+	private final Map<String,EResult> environment = new HashMap<String,EResult>();
 
 	public Evaluator(IValueFactory f) {
 		this.vf = f;
 		tf = TypeFactory.getInstance();
 	}
+	
+	private EResult result(Type t, IValue v){
+		return new EResult(t, v);
+	}
+	
+	private EResult result(IValue v){
+		return new EResult(v.getType(), v);
+	}
+	
+	
+	 public IValue eval(Statement S){
+		 return S.accept(this).value;
+	 }
 
 	@Override
-	public IValue visitStatementAssignment(Assignment x) {
+	public EResult visitStatementAssignment(Assignment x) {
 		Assignable a = x.getAssignable();
 		org.meta_environment.rascal.ast.Assignment op = x.getOperator();
-		IValue expr = x.getExpression().accept(this);
+		EResult expr = x.getExpression().accept(this);
 		
 		if (op.isDefault()) {
 			if (a.isVariable()) {
@@ -58,14 +86,13 @@ public class Evaluator extends NullASTVisitor<IValue> {
 				return expr;
 			}
 		}
-		
 		return null;
 	}
 	
 	@Override
-	public IValue visitExpressionQualifiedName(
+	public EResult visitExpressionQualifiedName(
 			org.meta_environment.rascal.ast.Expression.QualifiedName x) {
-		IValue result = environment.get(x.getQualifiedName().toString());
+		EResult result = environment.get(x.getQualifiedName().toString());
 		if (result != null) {
 			return result;
 		}
@@ -75,43 +102,37 @@ public class Evaluator extends NullASTVisitor<IValue> {
 	}
 	
 	@Override
-	public IValue visitStatementExpression(Expression x) {
+	public EResult visitStatementExpression(Expression x) {
 		return x.getExpression().accept(this);
 	}
 	
 	@Override
-	public IValue visitExpressionLiteral(Literal x) {
+	public EResult visitExpressionLiteral(Literal x) {
 		return x.getLiteral().accept(this);
 	}
 	
 	@Override
-	public IValue visitLiteralInteger(Integer x) {
+	public EResult visitLiteralInteger(Integer x) {
 		return x.getIntegerLiteral().accept(this);
 	}
 	
 	@Override
-	public IValue visitLiteralDouble(Double x) {
+	public EResult visitLiteralDouble(Double x) {
 		String str = x.getDoubleLiteral().toString();
-		return vf.dubble(java.lang.Double.parseDouble(str));
+		return result(vf.dubble(java.lang.Double.parseDouble(str)));
 	}
 	
 	@Override
-	public IValue visitLiteralBoolean(Boolean x) {
+	public EResult visitLiteralBoolean(Boolean x) {
 		String str = x.getBooleanLiteral().toString();
-		
-		if (str.equals("true")) {
-			return vf.bool(true);
-		}
-		else {
-			return vf.bool(false);
-		}
+		return result(vf.bool(str.equals("true")));
 	}
 	
 	@Override
-	public IValue visitLiteralString(
+	public EResult visitLiteralString(
 			org.meta_environment.rascal.ast.Literal.String x) {
 		String str = x.getStringLiteral().toString();
-		return vf.string(deescape(str));
+		return result(vf.string(deescape(str)));
 	}
 	
 	private String deescape(String str) {
@@ -120,14 +141,14 @@ public class Evaluator extends NullASTVisitor<IValue> {
 	}
 
 	@Override
-	public IValue visitIntegerLiteralDecimalIntegerLiteral(
+	public EResult visitIntegerLiteralDecimalIntegerLiteral(
 			DecimalIntegerLiteral x) {
 		String str = x.getDecimal().toString();
-		return vf.integer(java.lang.Integer.parseInt(str));
+		return result(vf.integer(java.lang.Integer.parseInt(str)));
 	}
 	
 	@Override
-	public IValue visitExpressionList(List x) {
+	public EResult visitExpressionList(List x) {
 		java.util.List<org.meta_environment.rascal.ast.Expression> elements = x.getElements();
 		java.util.List<IValue> results = new LinkedList<IValue>();
 		Type elementType = evaluateElements(elements, results);
@@ -135,11 +156,11 @@ public class Evaluator extends NullASTVisitor<IValue> {
 		ListType resultType = tf.listType(elementType);
 		IListWriter w = resultType.writer(vf);
 		w.appendAll(results);
-		return w.done();
+		return result(resultType, w.done());
 	}
 	
 	@Override
-	public IValue visitExpressionNonEmptySet(NonEmptySet x) {
+	public EResult visitExpressionNonEmptySet(NonEmptySet x) {
 		java.util.List<org.meta_environment.rascal.ast.Expression> elements = x.getElements();
 		java.util.List<IValue> results = new LinkedList<IValue>();
 		Type elementType = evaluateElements(elements, results);
@@ -147,7 +168,7 @@ public class Evaluator extends NullASTVisitor<IValue> {
 		SetType resultType = tf.setType(elementType);
 		ISetWriter w = resultType.writer(vf);
 		w.insertAll(results);
-		return w.done();
+		return result(resultType, w.done());
 	}
 
 	private Type evaluateElements(
@@ -155,90 +176,105 @@ public class Evaluator extends NullASTVisitor<IValue> {
 			java.util.List<IValue> results) {
 		Type elementType = tf.voidType();
 		
-		
 		for (org.meta_environment.rascal.ast.Expression expr : elements) {
-			IValue resultElem = expr.accept(this);
-			elementType = elementType.lub(resultElem.getType());
-			results.add(results.size(), resultElem);
+			EResult resultElem = expr.accept(this);
+			elementType = elementType.lub(resultElem.type);
+			results.add(results.size(), resultElem.value);
 		}
 		return elementType;
 	}
 	
 	@Override
-	public IValue visitExpressionEmptySetOrBlock(EmptySetOrBlock x) {
-		return vf.set(tf.voidType());
+	public EResult visitExpressionEmptySetOrBlock(EmptySetOrBlock x) {
+		return  result(vf.set(tf.voidType()));
 	}
 	
 	@Override
-	public IValue visitExpressionTuple(Tuple x) {
+	public EResult visitExpressionTuple(Tuple x) {
 		java.util.List<org.meta_environment.rascal.ast.Expression> elements = x.getElements();
-		java.util.List<IValue> results = new ArrayList<IValue>();
-		evaluateElements(elements, results);
-		IValue[] resultArray = new IValue[results.size()];
-		results.toArray(resultArray);
-		return vf.tuple(resultArray);
+
+		IValue[] values = new IValue[elements.size()];
+		Type[] types = new Type[elements.size()];
+		
+		for(int i = 0; i < elements.size(); i++){
+			EResult resultElem = elements.get(i).accept(this);
+			types[i] = resultElem.type;
+			values[i] = resultElem.value;
+		}
+		
+		return result(tf.tupleType(types), vf.tuple(values));
 	}
 	
 	
-	public IValue visitExpressionAddition(Addition x) {
-		IValue leftValue = x.getLhs().accept(this);
-		IValue rightValue = x.getRhs().accept(this);
-		Type leftType = leftValue.getType();
-		Type rightType = rightValue.getType();
+	public EResult visitExpressionAddition(Addition x) {
+		EResult left = x.getLhs().accept(this);
+		EResult right = x.getRhs().accept(this);
 		
-		if (leftType.isIntegerType() &&
-				rightType.isIntegerType()) {
-		  return vf.integer(((IInteger) leftValue).getValue() + ((IInteger) rightValue).getValue());
+		if (left.type.isIntegerType() &&
+				right.type.isIntegerType()) {
+		  return result( vf.integer(((IInteger) left.value).getValue() + ((IInteger) right.value).getValue()));
 		}
-		else if (leftType.isDoubleType() &&
-				rightType.isDoubleType()) {
-			return vf.dubble(((IDouble) leftValue).getValue() + ((IDouble) rightValue).getValue());
+		else if (left.type.isDoubleType() &&
+				right.type.isDoubleType()) {
+			return result(vf.dubble(((IDouble) left.value).getValue() + ((IDouble) right.value).getValue()));
 		}
-		else if (leftType.isListType() && rightType.isListType()) {
-			return ((IList) leftValue).concat((IList) rightValue);
+		else if (left.type.isListType() && right.type.isListType()) {
+			Type resultType = left.type.lub(right.type);
+			return result(resultType, ((IList) left.value).concat((IList) right.value));
 		}
-		else if (leftType.isSetType() && rightType.isSetType()) {
-			return ((ISet) leftValue).union((ISet) rightValue);
+		else if (left.type.isSetType() && right.type.isSetType()) {
+			Type resultType = left.type.lub(right.type);
+			return result(resultType, ((ISet) left.value).union((ISet) right.value));
 		}
 		else {
-			throw new RascalTypeError("Operands of + have different types: " + leftType + ", " + rightType);
+			throw new RascalTypeError("Operands of + have different types: " + left.type + ", " + right.type);
 		}
 	}
+
+
 	@Override
-	public IValue visitExpressionAnd(And x){
-		IValue leftValue = x.getLhs().accept(this);
-		IValue rightValue = x.getRhs().accept(this);
-		Type leftType = leftValue.getType();
-		Type rightType = rightValue.getType();
-		if (leftType.isBoolType() &&
-				rightType.isBoolType()) {
-		  return vf.bool(((IBool) leftValue).getValue() && ((IBool) rightValue).getValue());
+	public EResult visitExpressionOr(Or x){
+		EResult left = x.getLhs().accept(this);
+		EResult right = x.getRhs().accept(this);
+		if (left.type.isBoolType() &&
+				right.type.isBoolType()) {
+		  return result(vf.bool(((IBool) left.value).getValue() || ((IBool) right.value).getValue()));
 		} else {
-			throw new RascalTypeError("Operands of && should be boolean instead of: " + leftType + ", " + rightType); 
-		}
-	}
-	@Override
-	public IValue visitExpressionOr(Or x){
-		IValue leftValue = x.getLhs().accept(this);
-		IValue rightValue = x.getRhs().accept(this);
-		Type leftType = leftValue.getType();
-		Type rightType = rightValue.getType();
-		if (leftType.isBoolType() &&
-				rightType.isBoolType()) {
-		  return vf.bool(((IBool) leftValue).getValue() || ((IBool) rightValue).getValue());
-		} else {
-			throw new RascalTypeError("Operands of && should be boolean instead of: " + leftType + ", " + rightType); 
+			throw new RascalTypeError("Operands of || should be boolean instead of: " + left.type + ", " + right.type); 
 		}
 	}
 	
 	@Override
-	public IValue visitExpressionNegation(Negation x){
-		IValue argValue = x.getArgument().accept(this);
-		Type argType = argValue.getType();
-		if (argType.isBoolType()) {
-		  return vf.bool(!((IBool) argValue).getValue());
+	public EResult visitExpressionNegation(Negation x){
+		EResult arg = x.getArgument().accept(this);
+		if (arg.type.isBoolType()) {
+		  return result(vf.bool(!((IBool) arg.value).getValue()));
 		} else {
-			throw new RascalTypeError("Operand of ! should be boolean instead of: " + argType); 
+			throw new RascalTypeError("Operand of ! should be boolean instead of: " + arg.type); 
 		}
 	}
+	@Override
+	public EResult visitExpressionEquals(org.meta_environment.rascal.ast.Expression.Equals x){
+		EResult left = x.getLhs().accept(this);
+		EResult right = x.getRhs().accept(this);
+	
+		if (left.type.isSubtypeOf(right.type) || right.type.isSubtypeOf(left.type)){
+		  return result(vf.bool(left.value.equals(right.value)));
+		} else {
+			throw new RascalTypeError("Operands of == should have equal types instead of: " + left.type + ", " + right.type); 
+		}
+	}
+	@Override
+	public EResult visitExpressionNonEquals(org.meta_environment.rascal.ast.Expression.NonEquals x){
+		EResult left = x.getLhs().accept(this);
+		EResult right = x.getRhs().accept(this);
+	
+		if (left.type.isSubtypeOf(right.type) || right.type.isSubtypeOf(left.type)){
+		  return result(vf.bool(!left.value.equals(right.value)));
+		} else {
+			throw new RascalTypeError("Operands of != should have equal types instead of: " + left.type + ", " + right.type); 
+		}
+	}
+	
+	
 }
