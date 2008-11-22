@@ -11,6 +11,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.ListType;
@@ -27,6 +28,10 @@ import org.meta_environment.rascal.ast.Declaration.Variable;
 import org.meta_environment.rascal.ast.Expression.Addition;
 import org.meta_environment.rascal.ast.Expression.And;
 import org.meta_environment.rascal.ast.Expression.EmptySetOrBlock;
+import org.meta_environment.rascal.ast.Expression.GreaterThan;
+import org.meta_environment.rascal.ast.Expression.GreaterThanOrEq;
+import org.meta_environment.rascal.ast.Expression.LessThan;
+import org.meta_environment.rascal.ast.Expression.LessThanOrEq;
 import org.meta_environment.rascal.ast.Expression.List;
 import org.meta_environment.rascal.ast.Expression.Literal;
 import org.meta_environment.rascal.ast.Expression.Negation;
@@ -345,6 +350,9 @@ public class Evaluator extends NullASTVisitor<EResult> {
 		} else if (left.type.isDoubleType() && right.type.isDoubleType()) {
 			return result(vf.dubble(((IDouble) left.value).getValue()
 					+ ((IDouble) right.value).getValue()));
+		} else if (left.type.isStringType() && right.type.isStringType()) {
+			return result(vf.string(((IString) left.value).getValue()
+					+ ((IString) right.value).getValue()));
 		} else if (left.type.isListType() && right.type.isListType()) {
 			Type resultType = left.type.lub(right.type);
 			return result(resultType, ((IList) left.value)
@@ -399,16 +407,11 @@ public class Evaluator extends NullASTVisitor<EResult> {
 					"Operand of ! should be boolean instead of: " + arg.type);
 		}
 	}
-
-	@Override
-	public EResult visitExpressionEquals(
-			org.meta_environment.rascal.ast.Expression.Equals x) {
-		EResult left = x.getLhs().accept(this);
-		EResult right = x.getRhs().accept(this);
-
+	
+	private boolean equals(EResult left, EResult right){
 		if (left.type.isSubtypeOf(right.type)
 				|| right.type.isSubtypeOf(left.type)) {
-			return result(vf.bool(left.value.equals(right.value)));
+			return left.value.equals(right.value);
 		} else {
 			throw new RascalTypeError(
 					"Operands of == should have equal types instead of: "
@@ -417,18 +420,77 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	}
 
 	@Override
+	public EResult visitExpressionEquals(
+			org.meta_environment.rascal.ast.Expression.Equals x) {
+		EResult left = x.getLhs().accept(this);
+		EResult right = x.getRhs().accept(this);
+		
+		return result(vf.bool(equals(left, right)));
+	}
+
+	@Override
 	public EResult visitExpressionNonEquals(
 			org.meta_environment.rascal.ast.Expression.NonEquals x) {
 		EResult left = x.getLhs().accept(this);
 		EResult right = x.getRhs().accept(this);
-
-		if (left.type.isSubtypeOf(right.type)
-				|| right.type.isSubtypeOf(left.type)) {
-			return result(vf.bool(!left.value.equals(right.value)));
+		
+		return result(vf.bool(!equals(left, right)));
+	}
+	
+	private int compare(EResult left, EResult right){
+		if (left.type.isIntegerType() && right.type.isIntegerType()) {
+			int l = ((IInteger) left.value).getValue();
+			int r = ((IInteger) right.value).getValue();
+			return l < r ? -1 : (l == r ? 0 : 1);
+		} else if (left.type.isDoubleType() && right.type.isDoubleType()) {
+			double l = ((IDouble) left.value).getValue();
+			double r = ((IDouble) right.value).getValue();
+			return l < r ? -1 : (l == r ? 0 : 1);
+		} else if (left.type.isStringType() && right.type.isStringType()) {
+			return ((IString) left.value).getValue().compareTo(
+					((IString) right.value).getValue());
+		} else if (left.type.isListType() && right.type.isListType()) {
+			throw new RascalTypeError("Not implemented: < on list");
+		} else if (left.type.isSetType() && right.type.isSetType()) {
+			throw new RascalTypeError("Not implemented: < on set");
+		} else if (left.type.isMapType() && right.type.isMapType()) {
+			throw new RascalTypeError("Not implemented: < on map");
+		} else if (left.type.isRelationType() && right.type.isRelationType()) {
+			throw new RascalTypeError("Not implemented: < on relation");
 		} else {
-			throw new RascalTypeError(
-					"Operands of != should have equal types instead of: "
-							+ left.type + ", " + right.type);
+			throw new RascalTypeError("Operands of comparison have different types: "
+					+ left.type + ", " + right.type);
 		}
+	}
+	
+	@Override
+	public EResult visitExpressionLessThan(LessThan x) {
+		EResult left = x.getLhs().accept(this);
+		EResult right = x.getRhs().accept(this);
+		
+		return result(vf.bool(compare(left, right) < 0));
+	}
+	
+	@Override
+	public EResult visitExpressionLessThanOrEq(LessThanOrEq x) {
+		EResult left = x.getLhs().accept(this);
+		EResult right = x.getRhs().accept(this);
+		
+		return result(vf.bool(compare(left, right) <= 0));
+	}
+	@Override
+	public EResult visitExpressionGreaterThan(GreaterThan x) {
+		EResult left = x.getLhs().accept(this);
+		EResult right = x.getRhs().accept(this);
+		
+		return result(vf.bool(compare(left, right) > 0));
+	}
+	
+	@Override
+	public EResult visitExpressionGreaterThanOrEq(GreaterThanOrEq x) {
+		EResult left = x.getLhs().accept(this);
+		EResult right = x.getRhs().accept(this);
+		
+		return result(vf.bool(compare(left, right) >= 0));
 	}
 }
