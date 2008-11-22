@@ -556,12 +556,12 @@ org.meta_environment.rascal.ast.Expression.RegExpMatch x = new org.meta_environm
 		}
 		return (org.meta_environment.rascal.ast.Expression.RegExpMatch)table.get(x); 
 }
-public org.meta_environment.rascal.ast.Expression.Substraction makeExpressionSubstraction(ITree tree, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) { 
-org.meta_environment.rascal.ast.Expression.Substraction x = new org.meta_environment.rascal.ast.Expression.Substraction(tree, lhs, rhs);
+public org.meta_environment.rascal.ast.Expression.Subtraction makeExpressionSubtraction(ITree tree, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) { 
+org.meta_environment.rascal.ast.Expression.Subtraction x = new org.meta_environment.rascal.ast.Expression.Subtraction(tree, lhs, rhs);
 		if (!table.containsKey(x)) { 
 			table.put(x, x);
 		}
-		return (org.meta_environment.rascal.ast.Expression.Substraction)table.get(x); 
+		return (org.meta_environment.rascal.ast.Expression.Subtraction)table.get(x); 
 }
 public org.meta_environment.rascal.ast.Expression.Addition makeExpressionAddition(ITree tree, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) { 
 org.meta_environment.rascal.ast.Expression.Addition x = new org.meta_environment.rascal.ast.Expression.Addition(tree, lhs, rhs);

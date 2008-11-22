@@ -2905,19 +2905,19 @@ public abstract class Expression extends AbstractAST {
 		}
 	}
 
-	public boolean isSubstraction() {
+	public boolean isSubtraction() {
 		return false;
 	}
 
-	static public class Substraction extends Expression {
+	static public class Subtraction extends Expression {
 		/*
 		 * lhs:Expression "-" rhs:Expression -> Expression
-		 * {cons("Substraction"), left}
+		 * {cons("Subtraction"), left}
 		 */
-		private Substraction() {
+		private Subtraction() {
 		}
 
-		/* package */Substraction(ITree tree,
+		/* package */Subtraction(ITree tree,
 				org.meta_environment.rascal.ast.Expression lhs,
 				org.meta_environment.rascal.ast.Expression rhs) {
 			this.tree = tree;
@@ -2926,10 +2926,10 @@ public abstract class Expression extends AbstractAST {
 		}
 
 		public <T> T accept(IASTVisitor<T> visitor) {
-			return visitor.visitExpressionSubstraction(this);
+			return visitor.visitExpressionSubtraction(this);
 		}
 
-		public boolean isSubstraction() {
+		public boolean isSubtraction() {
 			return true;
 		}
 
@@ -2951,8 +2951,8 @@ public abstract class Expression extends AbstractAST {
 			this.lhs = x;
 		}
 
-		public Substraction setLhs(org.meta_environment.rascal.ast.Expression x) {
-			Substraction z = new Substraction();
+		public Subtraction setLhs(org.meta_environment.rascal.ast.Expression x) {
+			Subtraction z = new Subtraction();
 			z.$setLhs(x);
 			return z;
 		}
@@ -2967,8 +2967,8 @@ public abstract class Expression extends AbstractAST {
 			this.rhs = x;
 		}
 
-		public Substraction setRhs(org.meta_environment.rascal.ast.Expression x) {
-			Substraction z = new Substraction();
+		public Subtraction setRhs(org.meta_environment.rascal.ast.Expression x) {
+			Subtraction z = new Subtraction();
 			z.$setRhs(x);
 			return z;
 		}
