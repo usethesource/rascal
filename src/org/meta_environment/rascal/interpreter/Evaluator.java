@@ -39,6 +39,8 @@ import org.meta_environment.rascal.ast.Literal.Integer;
 import org.meta_environment.rascal.ast.LocalVariableDeclaration.Default;
 import org.meta_environment.rascal.ast.Statement.Assignment;
 import org.meta_environment.rascal.ast.Statement.Expression;
+import org.meta_environment.rascal.ast.Statement.IfThen;
+import org.meta_environment.rascal.ast.Statement.IfThenElse;
 import org.meta_environment.rascal.ast.Statement.VariableDeclaration;
 import org.meta_environment.rascal.ast.Variable.Initialized;
 
@@ -141,6 +143,37 @@ public class Evaluator extends NullASTVisitor<EResult> {
 			}
 		}
 		return null;
+	}
+	
+	@Override
+	public EResult visitStatementIfThenElse(IfThenElse x) {
+		for( org.meta_environment.rascal.ast.Expression expr : x.getConditions()){
+	      EResult cval = expr.accept(this);
+	      if(cval.type.isBoolType()){
+	    	  if(cval.value.equals(vf.bool(false))){
+	    		  return x.getElseStatement().accept(this);
+	    	  }
+	      } else {
+	    	  throw new RascalTypeError("Condition " + expr + " has type " + cval.type + " but should be bool");
+	      }
+		}
+
+		return x.getThenStatement().accept(this);
+	}
+	
+    @Override
+	public EResult visitStatementIfThen(IfThen x) {
+		for( org.meta_environment.rascal.ast.Expression expr : x.getConditions()){
+	      EResult cval = expr.accept(this);
+	      if(cval.type.isBoolType()){
+	    	  if(cval.value.equals(vf.bool(false))){
+	    		  return result(vf.bool(false)); //TODO arbitrary
+	    	  }
+	      } else {
+	    	  throw new RascalTypeError("Condition " + expr + " has type " + cval.type + " but should be bool");
+	      }
+		}
+		return x.getThenStatement().accept(this);
 	}
 
 	@Override
