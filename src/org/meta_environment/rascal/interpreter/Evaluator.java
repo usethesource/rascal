@@ -87,6 +87,11 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	private EResult result(IValue v) {
 		return new EResult(v.getType(), v);
 	}
+	
+	private EResult notImplemented(String s){
+		throw new RascalTypeError(s + " not yet implemented");
+		//return result(vf.bool(false));
+	}
 
 	public IValue eval(Statement S) {
 		EResult r = S.accept(this);
@@ -361,12 +366,17 @@ public class Evaluator extends NullASTVisitor<EResult> {
 			Type resultType = left.type.lub(right.type);
 			return result(resultType, ((ISet) left.value)
 					.union((ISet) right.value));
-			// TODO map
-			// TODO relation
+		} else if (left.type.isMapType() && right.type.isMapType()) {
+			notImplemented("+ on map");
+		} else if (left.type.isRelationType() && right.type.isRelationType()) {
+			Type resultType = left.type.lub(right.type);
+			return result(resultType, ((ISet) left.value)
+					.union((ISet) right.value));
 		} else {
 			throw new RascalTypeError("Operands of + have different types: "
 					+ left.type + ", " + right.type);
 		}
+		return result(vf.bool(false));
 	}
 
 	@Override
@@ -450,17 +460,18 @@ public class Evaluator extends NullASTVisitor<EResult> {
 			return ((IString) left.value).getValue().compareTo(
 					((IString) right.value).getValue());
 		} else if (left.type.isListType() && right.type.isListType()) {
-			throw new RascalTypeError("Not implemented: < on list");
+			notImplemented("< on list");
 		} else if (left.type.isSetType() && right.type.isSetType()) {
-			throw new RascalTypeError("Not implemented: < on set");
+			notImplemented("< on set");
 		} else if (left.type.isMapType() && right.type.isMapType()) {
-			throw new RascalTypeError("Not implemented: < on map");
+			notImplemented("< on map");
 		} else if (left.type.isRelationType() && right.type.isRelationType()) {
-			throw new RascalTypeError("Not implemented: < on relation");
+			notImplemented("< on relation");
 		} else {
 			throw new RascalTypeError("Operands of comparison have different types: "
 					+ left.type + ", " + right.type);
 		}
+		return 0;
 	}
 	
 	@Override
