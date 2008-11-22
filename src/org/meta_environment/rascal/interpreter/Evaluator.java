@@ -17,6 +17,7 @@ import org.eclipse.imp.pdb.facts.type.ListType;
 import org.eclipse.imp.pdb.facts.type.SetType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.Assignable;
 import org.meta_environment.rascal.ast.Declaration;
 import org.meta_environment.rascal.ast.Declarator;
@@ -42,6 +43,7 @@ import org.meta_environment.rascal.ast.Statement.Expression;
 import org.meta_environment.rascal.ast.Statement.IfThen;
 import org.meta_environment.rascal.ast.Statement.IfThenElse;
 import org.meta_environment.rascal.ast.Statement.VariableDeclaration;
+import org.meta_environment.rascal.ast.Statement.While;
 import org.meta_environment.rascal.ast.Variable.Initialized;
 
 class EResult {
@@ -144,36 +146,75 @@ public class Evaluator extends NullASTVisitor<EResult> {
 		}
 		return null;
 	}
-	
+
 	@Override
 	public EResult visitStatementIfThenElse(IfThenElse x) {
-		for( org.meta_environment.rascal.ast.Expression expr : x.getConditions()){
-	      EResult cval = expr.accept(this);
-	      if(cval.type.isBoolType()){
-	    	  if(cval.value.equals(vf.bool(false))){
-	    		  return x.getElseStatement().accept(this);
-	    	  }
-	      } else {
-	    	  throw new RascalTypeError("Condition " + expr + " has type " + cval.type + " but should be bool");
-	      }
+		for (org.meta_environment.rascal.ast.Expression expr : x
+				.getConditions()) {
+			EResult cval = expr.accept(this);
+			if (cval.type.isBoolType()) {
+				if (cval.value.equals(vf.bool(false))) {
+					return x.getElseStatement().accept(this);
+				}
+			} else {
+				throw new RascalTypeError("Condition " + expr + " has type "
+						+ cval.type + " but should be bool");
+			}
 		}
 
 		return x.getThenStatement().accept(this);
 	}
-	
-    @Override
+
+	@Override
 	public EResult visitStatementIfThen(IfThen x) {
-		for( org.meta_environment.rascal.ast.Expression expr : x.getConditions()){
-	      EResult cval = expr.accept(this);
-	      if(cval.type.isBoolType()){
-	    	  if(cval.value.equals(vf.bool(false))){
-	    		  return result(vf.bool(false)); //TODO arbitrary
-	    	  }
-	      } else {
-	    	  throw new RascalTypeError("Condition " + expr + " has type " + cval.type + " but should be bool");
-	      }
+		for (org.meta_environment.rascal.ast.Expression expr : x
+				.getConditions()) {
+			EResult cval = expr.accept(this);
+			if (cval.type.isBoolType()) {
+				if (cval.value.equals(vf.bool(false))) {
+					return result(vf.bool(false)); // TODO arbitrary
+				}
+			} else {
+				throw new RascalTypeError("Condition " + expr + " has type "
+						+ cval.type + " but should be bool");
+			}
 		}
 		return x.getThenStatement().accept(this);
+	}
+
+	@Override
+	public EResult visitStatementWhile(While x) {
+		org.meta_environment.rascal.ast.Expression expr = x.getCondition();
+		do {
+			EResult cval = expr.accept(this);
+			if (cval.type.isBoolType()) {
+				if (cval.value.equals(vf.bool(false))) {
+					return result(vf.bool(false)); // TODO arbitrary
+				} else {
+					x.getBody().accept(this);
+				}
+			} else {
+				throw new RascalTypeError("Condition " + expr + " has type "
+						+ cval.type + " but should be bool");
+			}
+		} while (true);
+	}
+	
+	//@Override
+	public EResult visitStatementDoWhile(While x) {
+		org.meta_environment.rascal.ast.Expression expr = x.getCondition();
+		do {
+			x.getBody().accept(this);
+			EResult cval = expr.accept(this);
+			if (cval.type.isBoolType()) {
+				if (cval.value.equals(vf.bool(false))) {
+					return result(vf.bool(false)); // TODO arbitrary
+				}
+			} else {
+				throw new RascalTypeError("Condition " + expr + " has type "
+						+ cval.type + " but should be bool");
+			}
+		} while (true);
 	}
 
 	@Override
@@ -312,8 +353,8 @@ public class Evaluator extends NullASTVisitor<EResult> {
 			Type resultType = left.type.lub(right.type);
 			return result(resultType, ((ISet) left.value)
 					.union((ISet) right.value));
-			//TODO map
-			//TODO relation
+			// TODO map
+			// TODO relation
 		} else {
 			throw new RascalTypeError("Operands of + have different types: "
 					+ left.type + ", " + right.type);
