@@ -22,6 +22,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.Assignable;
+import org.meta_environment.rascal.ast.Body;
 import org.meta_environment.rascal.ast.Declaration;
 import org.meta_environment.rascal.ast.Declarator;
 import org.meta_environment.rascal.ast.Generator;
@@ -52,9 +53,11 @@ import org.meta_environment.rascal.ast.Literal.Boolean;
 import org.meta_environment.rascal.ast.Literal.Double;
 import org.meta_environment.rascal.ast.Literal.Integer;
 import org.meta_environment.rascal.ast.LocalVariableDeclaration.Default;
+import org.meta_environment.rascal.ast.Statement.Assert;
 import org.meta_environment.rascal.ast.Statement.Assignment;
 import org.meta_environment.rascal.ast.Statement.Block;
 import org.meta_environment.rascal.ast.Statement.Expression;
+import org.meta_environment.rascal.ast.Statement.For;
 import org.meta_environment.rascal.ast.Statement.IfThen;
 import org.meta_environment.rascal.ast.Statement.IfThenElse;
 import org.meta_environment.rascal.ast.Statement.VariableDeclaration;
@@ -84,10 +87,13 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	private final TypeFactory tf;
 	private final TypeEvaluator te = new TypeEvaluator();
 	private final Map<String, EResult> environment = new HashMap<String, EResult>();
+	
+	private final EResult voidResult;
 
 	public Evaluator(IValueFactory f) {
 		this.vf = f;
 		tf = TypeFactory.getInstance();
+		voidResult = result(vf.bool(false));
 	}
 
 	private EResult result(Type t, IValue v) {
@@ -107,7 +113,7 @@ public class Evaluator extends NullASTVisitor<EResult> {
         if(r != null){
         	return r.value;
         } else {
-        	return vf.bool(false);  //TODO: void
+        	return voidResult.value;
         }
 	}
 	
@@ -122,7 +128,7 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	public EResult visitDeclaratorDefault(
 			org.meta_environment.rascal.ast.Declarator.Default x) {
 		Type declaredType = x.getType().accept(te);
-		EResult r = result(vf.bool(false)); // TODO: void
+		EResult r = voidResult;
 
 		for (org.meta_environment.rascal.ast.Variable var : x.getVariables()) {
 			String name = var.getName().toString();
@@ -146,6 +152,20 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	
 	
    // Statements ---------------------------------------------------------
+	
+	@Override
+	public EResult visitStatementAssert(Assert x) {
+		String msg = x.getMessage().toString();
+		EResult r = x.getExpression().accept(this);
+		if(r.type.equals(tf.boolType())){
+			if(r.value.equals(vf.bool(false))){
+				System.err.println("Assertion failed: " + msg + "\n");
+			}
+		} else {
+			throw new RascalTypeError("expression in assertion should be bool instead of " + r.type);
+		}
+		return r;	
+	}
 	
 	@Override
 	public EResult visitStatementVariableDeclaration(VariableDeclaration x) {
@@ -254,7 +274,7 @@ public class Evaluator extends NullASTVisitor<EResult> {
 			EResult subs = a.getSubscript().accept(this);
 			return assignSubscriptedVariable(a.getReceiver().getQualifiedName().toString(), subs, right);
 		}
-		return result(vf.bool(false)); //TODO void
+		return voidResult;
 	}
 	
 	@Override
@@ -283,7 +303,16 @@ public class Evaluator extends NullASTVisitor<EResult> {
 		if (op.isDefault()) {
 			return assign(a, right);
 		}
-		return result(vf.bool(false)); //TODO void
+		return voidResult;
+	}
+	
+	@Override
+	public EResult visitStatementBlock(Block x) {
+		EResult r = voidResult;
+		for(Statement stat : x.getStatements()){
+			r = stat.accept(this);
+		}
+		return r;
 	}
 
 	@Override
@@ -310,7 +339,7 @@ public class Evaluator extends NullASTVisitor<EResult> {
 			EResult cval = expr.accept(this);
 			if (cval.type.isBoolType()) {
 				if (cval.value.equals(vf.bool(false))) {
-					return result(vf.bool(false)); // TODO arbitrary
+					return voidResult;
 				}
 			} else {
 				throw new RascalTypeError("Condition " + expr + " has type "
@@ -328,7 +357,7 @@ public class Evaluator extends NullASTVisitor<EResult> {
 
 			if (cval.type.isBoolType()) {
 				if (cval.value.equals(vf.bool(false))) {
-					return result(vf.bool(false)); // TODO arbitrary
+					return voidResult;
 				} else {
 					x.getBody().accept(this);
 				}
@@ -347,7 +376,7 @@ public class Evaluator extends NullASTVisitor<EResult> {
 			EResult cval = expr.accept(this);
 			if (cval.type.isBoolType()) {
 				if (cval.value.equals(vf.bool(false))) {
-					return result(vf.bool(false)); // TODO arbitrary
+					return voidResult;
 				}
 			} else {
 				throw new RascalTypeError("Condition " + expr + " has type "
@@ -458,7 +487,7 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	
 	@Override
 	public EResult visitExpressionNonEmptyBlock(NonEmptyBlock x) {
-		EResult r = result(vf.bool(false)); //TODO void
+		EResult r = voidResult;
 		for(Statement stat : x.getStatements()){
 			r = stat.accept(this);
 		}
@@ -783,4 +812,28 @@ public class Evaluator extends NullASTVisitor<EResult> {
 		return result((res == null) ? vf.list() : res);
 	}
 	
+	@Override
+	public EResult visitStatementFor(For x) {
+		Statement body = x.getBody();
+		java.util.List<Generator> generators = x.getGenerators();
+		int size = generators.size();
+		GeneratorEvaluator[] gens = new GeneratorEvaluator[size];
+		EResult result = voidResult;
+		
+		int i = 0;
+		gens[0] = new GeneratorEvaluator(generators.get(0), this);
+		while(i >= 0 && i < size){		
+			if(gens[i].getNext()){
+				if(i == size - 1){
+					result = body.accept(this);
+				} else {
+					i++;
+					gens[i] = new GeneratorEvaluator(generators.get(i), this);
+				}
+			} else {
+				i--;
+			}
+		}
+		return result;
+	}
 }
