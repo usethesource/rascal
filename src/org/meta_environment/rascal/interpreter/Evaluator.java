@@ -25,8 +25,10 @@ import org.meta_environment.rascal.ast.Assignable;
 import org.meta_environment.rascal.ast.Body;
 import org.meta_environment.rascal.ast.Declaration;
 import org.meta_environment.rascal.ast.Declarator;
+import org.meta_environment.rascal.ast.FunctionBody;
 import org.meta_environment.rascal.ast.Generator;
 import org.meta_environment.rascal.ast.NullASTVisitor;
+import org.meta_environment.rascal.ast.Signature;
 import org.meta_environment.rascal.ast.Statement;
 import org.meta_environment.rascal.ast.ValueProducer;
 import org.meta_environment.rascal.ast.Declaration.Variable;
@@ -58,6 +60,7 @@ import org.meta_environment.rascal.ast.Statement.Assignment;
 import org.meta_environment.rascal.ast.Statement.Block;
 import org.meta_environment.rascal.ast.Statement.Expression;
 import org.meta_environment.rascal.ast.Statement.For;
+import org.meta_environment.rascal.ast.Statement.FunctionDeclaration;
 import org.meta_environment.rascal.ast.Statement.IfThen;
 import org.meta_environment.rascal.ast.Statement.IfThenElse;
 import org.meta_environment.rascal.ast.Statement.VariableDeclaration;
@@ -86,7 +89,9 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	private IValueFactory vf;
 	private final TypeFactory tf;
 	private final TypeEvaluator te = new TypeEvaluator();
-	private final Map<String, EResult> environment = new HashMap<String, EResult>();
+	private final Map<String, EResult> variableEnvironment = new HashMap<String, EResult>();
+	private final Map<String, org.meta_environment.rascal.ast.FunctionDeclaration> functionEnvironment = 
+		                       new HashMap<String, org.meta_environment.rascal.ast.FunctionDeclaration>();
 	
 	private final EResult voidResult;
 
@@ -134,13 +139,13 @@ public class Evaluator extends NullASTVisitor<EResult> {
 			String name = var.getName().toString();
 			if (var.isUnInitialized()) {  // variable declaration without initialization
 				r = result(declaredType, null);
-				environment.put(name, r);
+				variableEnvironment.put(name, r);
 				System.err.println("put(" + name + ", " + r + ")");
 			} else {                     // variable declaration with initialization
 				EResult v = var.getInitial().accept(this);
 				if(v.type.isSubtypeOf(declaredType)){
 					r = result(declaredType, v.value);
-					environment.put(name, r);
+					variableEnvironment.put(name, r);
 					System.err.println("put(" + name + ", " + r + ")");
 				} else {
 					throw new RascalTypeError("variable " + name + ", declared type " + declaredType + " incompatible with initial type " + v.type);
@@ -178,7 +183,7 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	}
 	
 	private EResult assignVariable(String name, EResult right){
-		EResult previous = environment.get(name);
+		EResult previous = variableEnvironment.get(name);
 		if (previous != null) {
 			if (right.type.isSubtypeOf(previous.type)) {
 				right.type = previous.type;
@@ -188,7 +193,7 @@ public class Evaluator extends NullASTVisitor<EResult> {
 						+ "; cannot assign value of type " + right.type);
 			}
 		}
-		environment.put(name, right);
+		variableEnvironment.put(name, right);
 		System.err.println("put(" + name + ", " + right + ")");
 		return right;
 	}
@@ -231,7 +236,7 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	}
 	
 	private Type checkValidListSubscription(String name, EResult subs, int index){
-		EResult previous = environment.get(name);
+		EResult previous = variableEnvironment.get(name);
 		return checkValidListSubscription(previous, subs, index);
 	}
 	
@@ -239,7 +244,7 @@ public class Evaluator extends NullASTVisitor<EResult> {
 			String name, EResult subs, EResult right) {
 		
 		int index = getValidIndex(subs);
-		EResult previous = environment.get(name);
+		EResult previous = variableEnvironment.get(name);
 		
 		if (previous != null) {
 			if(previous.type.isListType()){
@@ -253,7 +258,7 @@ public class Evaluator extends NullASTVisitor<EResult> {
 				}
 				IValue newValue = putList(((IList) previous.value), index, right.value);
 				EResult nw = result(elementType, newValue);
-				environment.put(name, nw);
+				variableEnvironment.put(name, nw);
 				System.err.println("put(" + name + ", " + nw + ")");
 				return nw;
 			} else {
@@ -284,11 +289,11 @@ public class Evaluator extends NullASTVisitor<EResult> {
 		int index = getValidIndex(subs);
 		if(expr.isQualifiedName()){
 			String name = expr.getQualifiedName().toString();
-			Type elementType = checkValidListSubscription(name, subs, index);
-			return result(((IList)environment.get(name).value).get(index));
+			checkValidListSubscription(name, subs, index);
+			return result(((IList)variableEnvironment.get(name).value).get(index));
 		} else if(expr.isSubscript()){
 			EResult r = expr.accept(this);
-			Type elemenType = checkValidListSubscription(r, subs, index);
+			checkValidListSubscription(r, subs, index);
 			return result(((IList) r.value).get(index));
 		}
 		return null;
@@ -314,7 +319,33 @@ public class Evaluator extends NullASTVisitor<EResult> {
 		}
 		return r;
 	}
-
+    // Function declarations -----------------------------------------
+	
+	//@Override
+	public EResult visitStatementFunctionDeclaration(org.meta_environment.rascal.ast.FunctionDeclaration x) {
+		return x.accept(this);
+	}
+	
+	class FunctionDeclaration {
+		Signature signature;
+		FunctionBody body;
+		
+		FunctionDeclaration(Signature s, FunctionBody b){
+			signature = s;
+			body = b;
+		}
+	}
+	
+	@Override
+	public EResult visitFunctionDeclarationDefault(
+			org.meta_environment.rascal.ast.FunctionDeclaration.Default x) {
+		Signature sig = x.getSignature();
+		String name = sig.getName().toString();
+		// TODO: check overloading, double declarations, etc.
+		functionEnvironment.put(name,(org.meta_environment.rascal.ast.FunctionDeclaration)x);
+		return voidResult;
+	}
+	
 	@Override
 	public EResult visitStatementIfThenElse(IfThenElse x) {
 		for (org.meta_environment.rascal.ast.Expression expr : x
@@ -431,7 +462,7 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	@Override
 	public EResult visitExpressionQualifiedName(
 			org.meta_environment.rascal.ast.Expression.QualifiedName x) {
-		EResult result = environment.get(x.getQualifiedName().toString());
+		EResult result = variableEnvironment.get(x.getQualifiedName().toString());
 		if (result != null && result.value != null) {
 			return result;
 		} else {
@@ -710,6 +741,8 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	public EResult visitExpressionComprehension(Comprehension x) {
 		return x.getComprehension().accept(this);
 	}
+
+	//TODO: parameterize with an indicator for list/set/map generators;
 	
 	private class GeneratorEvaluator {
 		private boolean isValueProducer;
@@ -811,6 +844,8 @@ public class Evaluator extends NullASTVisitor<EResult> {
 		}
 		return result((res == null) ? vf.list() : res);
 	}
+	
+	
 	
 	@Override
 	public EResult visitStatementFor(For x) {
