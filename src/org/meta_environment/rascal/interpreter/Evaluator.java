@@ -44,6 +44,7 @@ import org.meta_environment.rascal.ast.Expression.NonEmptyBlock;
 import org.meta_environment.rascal.ast.Expression.NonEmptySet;
 import org.meta_environment.rascal.ast.Expression.Or;
 import org.meta_environment.rascal.ast.Expression.QualifiedName;
+import org.meta_environment.rascal.ast.Expression.Subscript;
 import org.meta_environment.rascal.ast.Expression.Subtraction;
 import org.meta_environment.rascal.ast.Expression.Tuple;
 import org.meta_environment.rascal.ast.IntegerLiteral.DecimalIntegerLiteral;
@@ -125,11 +126,11 @@ public class Evaluator extends NullASTVisitor<EResult> {
 
 		for (org.meta_environment.rascal.ast.Variable var : x.getVariables()) {
 			String name = var.getName().toString();
-			if (var.isUnInitialized()) {
+			if (var.isUnInitialized()) {  // variable declaration without initialization
 				r = result(declaredType, null);
 				environment.put(name, r);
 				System.err.println("put(" + name + ", " + r + ")");
-			} else {
+			} else {                     // variable declaration with initialization
 				EResult v = var.getInitial().accept(this);
 				if(v.type.isSubtypeOf(declaredType)){
 					r = result(declaredType, v.value);
@@ -156,8 +157,7 @@ public class Evaluator extends NullASTVisitor<EResult> {
 		return x.getExpression().accept(this);
 	}
 	
-	private EResult assignVariable(org.meta_environment.rascal.ast.QualifiedName qualifiedName, EResult right){
-		String name = qualifiedName.toString();
+	private EResult assignVariable(String name, EResult right){
 		EResult previous = environment.get(name);
 		if (previous != null) {
 			if (right.type.isSubtypeOf(previous.type)) {
@@ -173,15 +173,105 @@ public class Evaluator extends NullASTVisitor<EResult> {
 		return right;
 	}
 	
+	//TODO Missing function in PDB
+	private IList putList(IList L, int i, IValue v){
+		IList res = vf.list(L.get(0).getType());
+		for(int k = 0; k < L.length(); k++){
+			if(k == i){
+				res = res.append(v);
+			} else {
+				res = res.append(L.get(k));
+			}
+		}
+		return res;
+	}
+	
+	private int getValidIndex(EResult subs){
+		if(!subs.type.isSubtypeOf(tf.integerType())){
+			throw new RascalTypeError("subscript should have type int instead of " + subs.type);
+		}
+		return ((IInteger) subs.value).getValue();
+	}
+	
+	private Type checkValidListSubscription(EResult previous, EResult subs, int index){
+		if (previous != null) {
+			if(previous.type.isListType()){
+				Type elementType = ((ListType) previous.type).getElementType();
+				if((index < 0) || index >= ((IList) previous.value).length()){
+					throw new RascalTypeError("subscript " + index + " out of bounds");
+				}
+				return elementType;
+			} else {
+				notImplemented("index in assignment");
+			}
+		} else {
+			throw new RascalTypeError("subscription for unnitialized variable ");
+		}
+		return null;
+	}
+	
+	private Type checkValidListSubscription(String name, EResult subs, int index){
+		EResult previous = environment.get(name);
+		return checkValidListSubscription(previous, subs, index);
+	}
+	
+	private EResult assignSubscriptedVariable(
+			String name, EResult subs, EResult right) {
+		
+		int index = getValidIndex(subs);
+		EResult previous = environment.get(name);
+		
+		if (previous != null) {
+			if(previous.type.isListType()){
+				Type elementType = checkValidListSubscription(name, subs, index);
+				if (right.type.isSubtypeOf(elementType)) {
+					right.type = elementType;
+				} else {
+					throw new RascalTypeError("subscripted variable " + name
+							+ " has element type " + elementType
+							+ "; cannot assign value of type " + right.type);
+				}
+				IValue newValue = putList(((IList) previous.value), index, right.value);
+				EResult nw = result(elementType, newValue);
+				environment.put(name, nw);
+				System.err.println("put(" + name + ", " + nw + ")");
+				return nw;
+			} else {
+				notImplemented("index in assignment");
+			}
+	} else {
+			throw new RascalTypeError("cannot assign to unnitialized subscripted variable " + name);
+		}
+		return null;
+	}
+	
 	private EResult assign(Assignable a, EResult right){
 
 		if (a.isVariable()) {
-			return assignVariable(a.getQualifiedName(), right);		
+			return assignVariable(a.getQualifiedName().toString(), right);		
 		}
 		else if(a.isSubscript()){
-			notImplemented("subscript");
+			EResult subs = a.getSubscript().accept(this);
+			return assignSubscriptedVariable(a.getReceiver().getQualifiedName().toString(), subs, right);
 		}
 		return result(vf.bool(false)); //TODO void
+	}
+	
+	@Override
+	public EResult visitExpressionSubscript(Subscript x) {
+		EResult subs = x.getSubscript().accept(this);
+		org.meta_environment.rascal.ast.Expression expr = x.getExpression();
+		int index = getValidIndex(subs);
+		if(expr.isQualifiedName()){
+			String name = expr.getQualifiedName().toString();
+			Type elementType = checkValidListSubscription(name, subs, index);
+			return result(((IList)environment.get(name).value).get(index));
+		} else if(expr.isSubscript()){
+			EResult r = expr.accept(this);
+			Type elemenType = checkValidListSubscription(r, subs, index);
+			return result(((IList) r.value).get(index));
+		}
+		return null;
 	}
 
 	@Override
@@ -319,6 +409,8 @@ public class Evaluator extends NullASTVisitor<EResult> {
 			throw new RascalTypeError("Uninitialized variable: " + x);
 		}
 	}
+	
+	
 
 	@Override
 	public EResult visitExpressionList(List x) {
@@ -621,7 +713,7 @@ public class Evaluator extends NullASTVisitor<EResult> {
 		
 		public boolean match(org.meta_environment.rascal.ast.Expression p, IValue v){
 			if(p.isQualifiedName()){
-				evaluator.assignVariable(p.getQualifiedName(), result(v));
+				evaluator.assignVariable(p.getQualifiedName().toString(), result(v));
 				return true;
 			}
 			throw new RascalTypeError("unimplemented pattern in match");
