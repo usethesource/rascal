@@ -41,6 +41,8 @@ import org.meta_environment.rascal.ast.Expression.Comprehension;
 import org.meta_environment.rascal.ast.Expression.EmptySetOrBlock;
 import org.meta_environment.rascal.ast.Expression.GreaterThan;
 import org.meta_environment.rascal.ast.Expression.GreaterThanOrEq;
+import org.meta_environment.rascal.ast.Expression.In;
+import org.meta_environment.rascal.ast.Expression.Intersection;
 import org.meta_environment.rascal.ast.Expression.LessThan;
 import org.meta_environment.rascal.ast.Expression.LessThanOrEq;
 import org.meta_environment.rascal.ast.Expression.List;
@@ -48,7 +50,9 @@ import org.meta_environment.rascal.ast.Expression.Literal;
 import org.meta_environment.rascal.ast.Expression.Negation;
 import org.meta_environment.rascal.ast.Expression.NonEmptyBlock;
 import org.meta_environment.rascal.ast.Expression.NonEmptySet;
+import org.meta_environment.rascal.ast.Expression.NotIn;
 import org.meta_environment.rascal.ast.Expression.Or;
+import org.meta_environment.rascal.ast.Expression.Product;
 import org.meta_environment.rascal.ast.Expression.QualifiedName;
 import org.meta_environment.rascal.ast.Expression.Subscript;
 import org.meta_environment.rascal.ast.Expression.Subtraction;
@@ -593,13 +597,15 @@ public class Evaluator extends NullASTVisitor<EResult> {
 			return result(resultType, ((ISet) left.value)
 					.union((ISet) right.value));
 		} else if (left.type.isMapType() && right.type.isMapType()) {
-			notImplemented("+ on map");
+			Type resultType = left.type.lub(right.type);
+			result(resultType, ((IMap) left.value)              //TODO: is this the right operation?
+					.join((IMap) right.value));
 		} else if (left.type.isRelationType() && right.type.isRelationType()) {
 			Type resultType = left.type.lub(right.type);
 			return result(resultType, ((ISet) left.value)
 					.union((ISet) right.value));
 		} else {
-			throw new RascalTypeError("Operands of + have different types: "
+			throw new RascalTypeError("Operands of + have illegal types: "
 					+ left.type + ", " + right.type);
 		}
 		return result(vf.bool(false));
@@ -615,9 +621,6 @@ public class Evaluator extends NullASTVisitor<EResult> {
 		} else if (left.type.isDoubleType() && right.type.isDoubleType()) {
 			return result(vf.dubble(((IDouble) left.value).getValue()
 					- ((IDouble) right.value).getValue()));
-		//} else if (left.type.isStringType() && right.type.isStringType()) {
-		//	return result(vf.string(((IString) left.value).getValue()
-		//			+ ((IString) right.value).getValue()));
 		} else if (left.type.isListType() && right.type.isListType()) {
 			notImplemented("- on list");
 		} else if (left.type.isSetType() && right.type.isSetType()) {
@@ -625,16 +628,59 @@ public class Evaluator extends NullASTVisitor<EResult> {
 			return result(resultType, ((ISet) left.value)
 					.subtract((ISet) right.value));
 		} else if (left.type.isMapType() && right.type.isMapType()) {
-			notImplemented("- on map");
+			Type resultType = left.type.lub(right.type);
+			return result(resultType, ((IMap) left.value)
+					.remove((IMap) right.value));
 		} else if (left.type.isRelationType() && right.type.isRelationType()) {
 			Type resultType = left.type.lub(right.type);
 			return result(resultType, ((ISet) left.value)
 					.subtract((ISet) right.value));
 		} else {
-			throw new RascalTypeError("Operands of - have different types: "
+			throw new RascalTypeError("Operands of - have illegal types: "
 					+ left.type + ", " + right.type);
 		}
-		return result(vf.bool(false));
+		return voidResult;
+	}
+	
+	@Override
+	public EResult visitExpressionProduct(Product x) {
+		EResult left = x.getLhs().accept(this);
+		EResult right = x.getRhs().accept(this);
+
+		if (left.type.isIntegerType() && right.type.isIntegerType()) {
+			return result(vf.integer(((IInteger) left.value).getValue()
+					* ((IInteger) right.value).getValue()));
+		} else if (left.type.isDoubleType() && right.type.isDoubleType()) {
+			return result(vf.dubble(((IDouble) left.value).getValue()
+					* ((IDouble) right.value).getValue()));
+		} else {
+			throw new RascalTypeError("Operands of * have illegal types: "
+					+ left.type + ", " + right.type);
+		}
+	}
+	
+	@Override
+	public EResult visitExpressionIntersection(Intersection x) {
+		EResult left = x.getLhs().accept(this);
+		EResult right = x.getRhs().accept(this);
+
+		if (left.type.isSetType() && right.type.isSetType()) {
+		Type resultType = left.type.lub(right.type);
+		return result(resultType, ((ISet) left.value)
+				.intersect((ISet) right.value));
+		} else if (left.type.isMapType() && right.type.isMapType()) {
+			Type resultType = left.type.lub(right.type);
+			return result(resultType, ((IMap) left.value)
+					.common((IMap) right.value));
+
+		} else if (left.type.isRelationType() && right.type.isRelationType()) {
+			Type resultType = left.type.lub(right.type);
+			return result(resultType, ((ISet) left.value)
+				.intersect((ISet) right.value));
+		} else {
+			throw new RascalTypeError("Operands of & have illegal types: "
+					+ left.type + ", " + right.type);
+		}
 	}
 
 	@Override
@@ -720,11 +766,11 @@ public class Evaluator extends NullASTVisitor<EResult> {
 		} else if (left.type.isListType() && right.type.isListType()) {
 			notImplemented("< on list");
 		} else if (left.type.isSetType() && right.type.isSetType()) {
-			notImplemented("< on set");
+			((ISet) left.value).isSubSet((ISet) right.value);
 		} else if (left.type.isMapType() && right.type.isMapType()) {
-			notImplemented("< on map");
+			((IMap) left.value).isSubMap((IMap) right.value);
 		} else if (left.type.isRelationType() && right.type.isRelationType()) {
-			notImplemented("< on relation");
+			((ISet) left.value).isSubSet((ISet) right.value);
 		} else {
 			throw new RascalTypeError("Operands of comparison have different types: "
 					+ left.type + ", " + right.type);
@@ -761,6 +807,38 @@ public class Evaluator extends NullASTVisitor<EResult> {
 		EResult right = x.getRhs().accept(this);
 		
 		return result(vf.bool(compare(left, right) >= 0));
+	}
+	
+	private boolean in(org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.Expression expression2){
+		EResult left = expression.accept(this);
+		EResult right = expression2.accept(this);
+		
+		if(right.type.isListType()){
+			notImplemented("in on list");
+		} else if(right.type.isSetType() && left.type.isSubtypeOf(((ISet) right.type).getElementType())){
+			return ((ISet) right.value).contains(left.value);
+			
+		} else if(right.type.isMapType() && left.type.isSubtypeOf(((IMap) right.type).getValueType())){
+			return ((IMap) right.value).containsValue(left.value);
+		} else if(right.type.isRelationType() && left.type.isSubtypeOf(((ISet) right.type).getElementType())){
+			return ((ISet) right.value).contains(left.value);
+		} else {
+			throw new RascalTypeError("Operands of in have wrong types: "
+					+ left.type + ", " + right.type);
+		}
+		return false;
+	}
+	
+	@Override
+	public EResult visitExpressionIn(In x) {
+		return result(vf.bool(in(x.getLhs(), x.getRhs())));
+
+	}
+	
+	@Override
+	public EResult visitExpressionNotIn(NotIn x) {
+		return result(vf.bool(!in(x.getLhs(), x.getRhs())));
+
 	}
 	
 	// Comprehensions ----------------------------------------------------
