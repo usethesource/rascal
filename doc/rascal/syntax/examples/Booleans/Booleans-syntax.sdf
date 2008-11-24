@@ -1,0 +1,18 @@
+module examples/Booleans/Booleans-syntax
+exports 
+  sorts Bool
+
+  context-free syntax
+    "true"        -> Bool
+    "false"       -> Bool
+    Bool "&" Bool -> Bool {left}
+    Bool "|" Bool -> Bool {right}
+
+%% Generated syntax
+hiddens
+   imports
+        Modules
+   context-free start-symbols
+        Module 
+   imports EmbedSortAsPatternAndVar[Bool]
+

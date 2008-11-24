@@ -1,0 +1,8 @@
+module EmbedSortAsPatternAndVar[SORT]
+exports
+imports Patterns Names Expressions
+context-free syntax
+        SORT                               -> SyntaxPattern
+        "<" `SORT`? Name  ">"              -> SORT
+        "<" Call ">"                       -> SORT
+

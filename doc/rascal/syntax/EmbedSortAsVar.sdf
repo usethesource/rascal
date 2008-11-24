@@ -1,0 +1,5 @@
+module EmbedSortAsVar[SORT]
+exports
+imports Patterns
+context-free syntax
+        "<" `SORT`? Name  ">"  -> SORT
