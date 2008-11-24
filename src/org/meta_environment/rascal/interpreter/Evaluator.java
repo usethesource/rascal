@@ -27,6 +27,7 @@ import org.meta_environment.rascal.ast.Declaration;
 import org.meta_environment.rascal.ast.Declarator;
 import org.meta_environment.rascal.ast.FunctionBody;
 import org.meta_environment.rascal.ast.Generator;
+import org.meta_environment.rascal.ast.Mapping;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.Signature;
 import org.meta_environment.rascal.ast.Statement;
@@ -198,19 +199,6 @@ public class Evaluator extends NullASTVisitor<EResult> {
 		return right;
 	}
 	
-	//TODO Missing function in PDB
-	private IList putList(IList L, int i, IValue v){
-		IList res = vf.list(L.get(0).getType());
-		for(int k = 0; k < L.length(); k++){
-			if(k == i){
-				res = res.append(v);
-			} else {
-				res = res.append(L.get(k));
-			}
-		}
-		return res;
-	}
-	
 	private int getValidIndex(EResult subs){
 		if(!subs.type.isSubtypeOf(tf.integerType())){
 			throw new RascalTypeError("subscript should have type int instead of " + subs.type);
@@ -256,7 +244,7 @@ public class Evaluator extends NullASTVisitor<EResult> {
 							+ " has element type " + elementType
 							+ "; cannot assign value of type " + right.type);
 				}
-				IValue newValue = putList(((IList) previous.value), index, right.value);
+				IValue newValue = ((IList) previous.value).put(index, right.value);
 				EResult nw = result(elementType, newValue);
 				variableEnvironment.put(name, nw);
 				System.err.println("put(" + name + ", " + nw + ")");
@@ -541,6 +529,14 @@ public class Evaluator extends NullASTVisitor<EResult> {
 
 		return result(tf.tupleType(types), vf.tuple(values));
 	}
+	
+	/*
+	@Override
+	public EResult visitExpressionMap(
+			org.meta_environment.rascal.ast.Expression.Map x) {
+		java.util.List<Mapping> elements = x.
+	}
+	*/
 	
     @Override
 	public EResult visitExpressionAddition(Addition x) {
