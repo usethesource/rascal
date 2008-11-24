@@ -11,6 +11,8 @@ import org.eclipse.imp.pdb.facts.IDouble;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
+import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IString;
@@ -505,6 +507,40 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	}
 	
 	@Override
+	public EResult visitExpressionMap(
+			org.meta_environment.rascal.ast.Expression.Map x) {
+
+		java.util.List<org.meta_environment.rascal.ast.Mapping> mappings = x
+				.getMappings();
+		int size = mappings.size();
+		IValue[] keys = new IValue[size];
+		IValue[] values = new IValue[size];
+		
+		Type keyType = tf.voidType();
+		Type valueType = tf.voidType();
+
+		int i = 0;
+		for (org.meta_environment.rascal.ast.Mapping mapping : mappings) {
+			EResult keyResult = mapping.getFrom().accept(this);
+			EResult valueResult = mapping.getTo().accept(this);
+			
+			keyType = keyType.lub(keyResult.type);
+			valueType = valueType.lub(valueResult.type);
+			
+			keys[i] = keyResult.value;
+			values[i] = valueResult.value;
+			i++;
+		}
+		
+		IMap result = vf.map(keyType, valueType);
+		for(int k = 0; k < size; k++){
+			result.put(keys[k], values[k]);
+		}
+		return result(result);
+	}
+
+	
+	@Override
 	public EResult visitExpressionNonEmptyBlock(NonEmptyBlock x) {
 		EResult r = voidResult;
 		for(Statement stat : x.getStatements()){
@@ -530,13 +566,9 @@ public class Evaluator extends NullASTVisitor<EResult> {
 		return result(tf.tupleType(types), vf.tuple(values));
 	}
 	
-	/*
-	@Override
-	public EResult visitExpressionMap(
-			org.meta_environment.rascal.ast.Expression.Map x) {
-		java.util.List<Mapping> elements = x.
-	}
-	*/
+	
+	
+	
 	
     @Override
 	public EResult visitExpressionAddition(Addition x) {
