@@ -15,7 +15,12 @@ public boolean hasBeginLine() { return false; }
 	public boolean hasLength() { return false; }
 public boolean isDefault() { return false; }
 static public class Default extends Area {
-/* "area" "(" beginLine:Expression "," beginColumn:Expression "," endLine:Expression "," endColumn:Expression "," offset:Expression "," length:Expression ")" -> Area {cons("Default")} */
+/* "area" "(" beginLine:Expression "," 
+             beginColumn:Expression "," 
+             endLine:Expression "," 
+             endColumn:Expression "," 
+             offset:Expression "," 
+             length:Expression ")" -> Area {cons("Default")} */
 	private Default() { }
 	/*package*/ Default(ITree tree, org.meta_environment.rascal.ast.Expression beginLine, org.meta_environment.rascal.ast.Expression beginColumn, org.meta_environment.rascal.ast.Expression endLine, org.meta_environment.rascal.ast.Expression endColumn, org.meta_environment.rascal.ast.Expression offset, org.meta_environment.rascal.ast.Expression length) {
 		this.tree = tree;

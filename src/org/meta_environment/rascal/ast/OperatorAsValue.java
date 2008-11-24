@@ -27,18 +27,18 @@ static public class Ambiguity extends OperatorAsValue {
      return v.visitOperatorAsValueAmbiguity(this);
   }
 } 
-public boolean isSubstraction() { return false; }
-static public class Substraction extends OperatorAsValue {
-/* "#-" -> OperatorAsValue {cons("Substraction")} */
-	private Substraction() { }
-	/*package*/ Substraction(ITree tree) {
+public boolean isSubtraction() { return false; }
+static public class Subtraction extends OperatorAsValue {
+/* "#-" -> OperatorAsValue {cons("Subtraction")} */
+	private Subtraction() { }
+	/*package*/ Subtraction(ITree tree) {
 		this.tree = tree;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitOperatorAsValueSubstraction(this);
+		return visitor.visitOperatorAsValueSubtraction(this);
 	}
 
-	public boolean isSubstraction() { return true; }	
+	public boolean isSubtraction() { return true; }	
 } public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isProduct() { return false; }
 static public class Product extends OperatorAsValue {
 /* "#*" -> OperatorAsValue {cons("Product")} */
