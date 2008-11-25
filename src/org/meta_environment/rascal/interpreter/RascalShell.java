@@ -44,7 +44,7 @@ public class RascalShell {
 						break quit;
 					}
 					else {
-						input.append(line);
+						input.append(line + "\n");
 					}
 				} while (!completeStatement(input));
 
@@ -100,10 +100,31 @@ public class RascalShell {
 			return true;
 		}
 		else {
-		  int lastTerminator = statement.lastIndexOf(TERMINATOR);
-		  int lastCloseBracket = statement.lastIndexOf(ENDBLOCK);
-		  return (lastTerminator != -1 && statement.substring(lastTerminator).trim().equals(TERMINATOR))
-		  || (lastCloseBracket != -1 && statement.substring(lastTerminator).trim().equals(ENDBLOCK));
+			int brackets = 0, curlies = 0, angular = 0, braces = 0, semies = 0;
+			boolean multiline = false;
+			
+			for (byte ch : statement.toString().getBytes()) {
+				switch (ch) {
+				case '(': brackets++; break;
+				case ')': brackets--; break;
+				case '{': curlies++; break;
+				case '}': curlies--; break;
+				case '<': angular++; break;
+				case '>': angular--; break;
+				case '[': braces++; break;
+				case ']': braces--; break;
+				case ';': semies++; break;
+				case '\n': multiline = true; break;
+				}
+			}
+			
+			if (multiline) {
+			  return brackets == 0 && curlies == 0 && angular == 0 && braces == 0;
+			}
+			else {
+				int lastTerminator = statement.lastIndexOf(TERMINATOR);
+				  return (lastTerminator != -1 && statement.substring(lastTerminator).trim().equals(TERMINATOR));	
+			}
 		}
 	}
 	
