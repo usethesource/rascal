@@ -20,7 +20,6 @@ public class RascalShell {
 	private final static String PROMPT = ">";
 	private final static String CONTINUE_PROMPT = "?";
 	private final static String TERMINATOR = ";";
-	private final static String ENDBLOCK = "}";
 	private final static String QUIT = "quit";
 	
 	private Parser parser = Parser.getInstance();
