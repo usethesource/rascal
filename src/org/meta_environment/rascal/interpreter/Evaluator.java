@@ -236,14 +236,12 @@ public class Evaluator extends NullASTVisitor<EResult> {
 			String name = var.getName().toString();
 			if (var.isUnInitialized()) {  // variable declaration without initialization
 				r = result(declaredType, null);
-				variableEnvironment.put(name, r);
-				System.err.println("put(" + name + ", " + r + ")");
+				storeVariable(name, r);
 			} else {                     // variable declaration with initialization
 				EResult v = var.getInitial().accept(this);
 				if(v.type.isSubtypeOf(declaredType)){
 					r = result(declaredType, v.value);
-					variableEnvironment.put(name, r);
-					System.err.println("put(" + name + ", " + r + ")");
+					storeVariable(name, r);
 				} else {
 					throw new RascalTypeError("variable " + name + ", declared type " + declaredType + " incompatible with initial type " + v.type);
 				}
@@ -301,7 +299,7 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	}
 	
 	private EResult assignVariable(String name, EResult right){
-		EResult previous = variableEnvironment.get(name);
+		EResult previous = getVariable(name);
 		if (previous != null) {
 			if (right.type.isSubtypeOf(previous.type)) {
 				right.type = previous.type;
@@ -311,9 +309,13 @@ public class Evaluator extends NullASTVisitor<EResult> {
 						+ "; cannot assign value of type " + right.type);
 			}
 		}
-		variableEnvironment.put(name, right);
-		System.err.println("put(" + name + ", " + right + ")");
+		storeVariable(name, right);
 		return right;
+	}
+
+	private void storeVariable(String name, EResult value) {
+		variableEnvironment.put(name, value);
+		System.err.println("put(" + name + ", " + value + ")");
 	}
 	
 	private int getValidIndex(EResult subs){
@@ -341,7 +343,7 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	}
 	
 	private Type checkValidListSubscription(String name, EResult subs, int index){
-		EResult previous = variableEnvironment.get(name);
+		EResult previous = getVariable(name);
 		return checkValidListSubscription(previous, subs, index);
 	}
 	
@@ -349,7 +351,7 @@ public class Evaluator extends NullASTVisitor<EResult> {
 			String name, EResult subs, EResult right) {
 		
 		int index = getValidIndex(subs);
-		EResult previous = variableEnvironment.get(name);
+		EResult previous = getVariable(name);
 		
 		if (previous != null) {
 			if(previous.type.isListType()){
@@ -363,8 +365,7 @@ public class Evaluator extends NullASTVisitor<EResult> {
 				}
 				IValue newValue = ((IList) previous.value).put(index, right.value);
 				EResult nw = result(elementType, newValue);
-				variableEnvironment.put(name, nw);
-				System.err.println("put(" + name + ", " + nw + ")");
+				storeVariable(name, nw);
 				return nw;
 			} else {
 				notImplemented("index in assignment");
@@ -373,6 +374,10 @@ public class Evaluator extends NullASTVisitor<EResult> {
 			throw new RascalTypeError("cannot assign to unnitialized subscripted variable " + name);
 		}
 		return null;
+	}
+
+	private EResult getVariable(String name) {
+		return variableEnvironment.get(name);
 	}
 	
 	private EResult assign(Assignable a, EResult right){
@@ -395,7 +400,7 @@ public class Evaluator extends NullASTVisitor<EResult> {
 		if(expr.isQualifiedName()){
 			String name = expr.getQualifiedName().toString();
 			checkValidListSubscription(name, subs, index);
-			return result(((IList)variableEnvironment.get(name).value).get(index));
+			return result(((IList)getVariable(name).value).get(index));
 		} else if(expr.isSubscript()){
 			EResult r = expr.accept(this);
 			checkValidListSubscription(r, subs, index);
@@ -590,7 +595,7 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	@Override
 	public EResult visitExpressionQualifiedName(
 			org.meta_environment.rascal.ast.Expression.QualifiedName x) {
-		EResult result = variableEnvironment.get(x.getQualifiedName().toString());
+		EResult result = getVariable(x.getQualifiedName().toString());
 		if (result != null && result.value != null) {
 			return result;
 		} else {
