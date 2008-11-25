@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-import javax.swing.text.html.ListView;
-
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IDouble;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -23,19 +21,13 @@ import org.eclipse.imp.pdb.facts.type.MapType;
 import org.eclipse.imp.pdb.facts.type.SetType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.Assignable;
-import org.meta_environment.rascal.ast.Body;
-import org.meta_environment.rascal.ast.Declaration;
-import org.meta_environment.rascal.ast.Declarator;
 import org.meta_environment.rascal.ast.FunctionBody;
 import org.meta_environment.rascal.ast.Generator;
-import org.meta_environment.rascal.ast.Mapping;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.Signature;
 import org.meta_environment.rascal.ast.Statement;
 import org.meta_environment.rascal.ast.ValueProducer;
-import org.meta_environment.rascal.ast.Declaration.Variable;
 import org.meta_environment.rascal.ast.Expression.Addition;
 import org.meta_environment.rascal.ast.Expression.And;
 import org.meta_environment.rascal.ast.Expression.Comprehension;
@@ -54,7 +46,6 @@ import org.meta_environment.rascal.ast.Expression.NonEmptySet;
 import org.meta_environment.rascal.ast.Expression.NotIn;
 import org.meta_environment.rascal.ast.Expression.Or;
 import org.meta_environment.rascal.ast.Expression.Product;
-import org.meta_environment.rascal.ast.Expression.QualifiedName;
 import org.meta_environment.rascal.ast.Expression.Subscript;
 import org.meta_environment.rascal.ast.Expression.Subtraction;
 import org.meta_environment.rascal.ast.Expression.Tuple;
@@ -68,12 +59,10 @@ import org.meta_environment.rascal.ast.Statement.Assignment;
 import org.meta_environment.rascal.ast.Statement.Block;
 import org.meta_environment.rascal.ast.Statement.Expression;
 import org.meta_environment.rascal.ast.Statement.For;
-import org.meta_environment.rascal.ast.Statement.FunctionDeclaration;
 import org.meta_environment.rascal.ast.Statement.IfThen;
 import org.meta_environment.rascal.ast.Statement.IfThenElse;
 import org.meta_environment.rascal.ast.Statement.VariableDeclaration;
 import org.meta_environment.rascal.ast.Statement.While;
-import org.meta_environment.rascal.ast.Variable.Initialized;
 
 class EResult {
 	protected Type type;
@@ -593,7 +582,7 @@ public class Evaluator extends NullASTVisitor<EResult> {
 					.union((ISet) right.value));
 		} else if (left.type.isMapType() && right.type.isMapType()) {
 			Type resultType = left.type.lub(right.type);
-			result(resultType, ((IMap) left.value)              //TODO: is this the right operation?
+			return result(resultType, ((IMap) left.value)              //TODO: is this the right operation?
 					.join((IMap) right.value));
 		} else if (left.type.isRelationType() && right.type.isRelationType()) {
 			Type resultType = left.type.lub(right.type);
@@ -603,7 +592,6 @@ public class Evaluator extends NullASTVisitor<EResult> {
 			throw new RascalTypeError("Operands of + have illegal types: "
 					+ left.type + ", " + right.type);
 		}
-		return result(vf.bool(false));
 	}
     
 	public EResult visitExpressionSubtraction(Subtraction x) {
