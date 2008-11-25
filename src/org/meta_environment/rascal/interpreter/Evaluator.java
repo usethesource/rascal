@@ -19,6 +19,7 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.ListType;
+import org.eclipse.imp.pdb.facts.type.MapType;
 import org.eclipse.imp.pdb.facts.type.SetType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -516,14 +517,10 @@ public class Evaluator extends NullASTVisitor<EResult> {
 
 		java.util.List<org.meta_environment.rascal.ast.Mapping> mappings = x
 				.getMappings();
-		int size = mappings.size();
-		IValue[] keys = new IValue[size];
-		IValue[] values = new IValue[size];
-		
+		Map<IValue,IValue> result = new HashMap<IValue,IValue>();
 		Type keyType = tf.voidType();
 		Type valueType = tf.voidType();
 
-		int i = 0;
 		for (org.meta_environment.rascal.ast.Mapping mapping : mappings) {
 			EResult keyResult = mapping.getFrom().accept(this);
 			EResult valueResult = mapping.getTo().accept(this);
@@ -531,16 +528,14 @@ public class Evaluator extends NullASTVisitor<EResult> {
 			keyType = keyType.lub(keyResult.type);
 			valueType = valueType.lub(valueResult.type);
 			
-			keys[i] = keyResult.value;
-			values[i] = valueResult.value;
-			i++;
+			result.put(keyResult.value, valueResult.value);
 		}
 		
-		IMap result = vf.map(keyType, valueType);
-		for(int k = 0; k < size; k++){
-			result.put(keys[k], values[k]);
-		}
-		return result(result);
+		MapType type = tf.mapType(keyType, valueType);
+		IMapWriter w = type.writer(vf);
+		w.putAll(result);
+		
+		return result(type, w.done());
 	}
 
 	
