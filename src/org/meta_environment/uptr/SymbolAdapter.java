@@ -39,11 +39,18 @@ public class SymbolAdapter {
 		if (isSort()) {
 			return ((IString) tree.get("string")).getValue();
 		}
+		else if (isParameterizedSort()) {
+			return ((IString) tree.get("sort")).getValue();
+		}
 		else {
 			throw new FactTypeError("Symbol does not have a child named \"name\": " + tree);
 		}
 	}
 
+	public boolean isParameterizedSort() {
+		return tree.getTreeNodeType() == Factory.Symbol_ParameterizedSort;
+	}
+	
 	public boolean isLiteral() {
 		return tree.getTreeNodeType() == Factory.Symbol_Lit;
 	}

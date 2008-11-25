@@ -48,7 +48,7 @@ public class ProductionAdapter {
 		
 		if (rhs.isCf() || rhs.isLex()) {
 			rhs = rhs.getSymbol();
-			if (rhs.isSort()) {
+			if (rhs.isSort() || rhs.isParameterizedSort()) {
 				return rhs.getName();
 			}
 		}
