@@ -23,13 +23,16 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.Assignable;
 import org.meta_environment.rascal.ast.FunctionBody;
+import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.Generator;
 import org.meta_environment.rascal.ast.NullASTVisitor;
+import org.meta_environment.rascal.ast.Return;
 import org.meta_environment.rascal.ast.Signature;
 import org.meta_environment.rascal.ast.Statement;
 import org.meta_environment.rascal.ast.ValueProducer;
 import org.meta_environment.rascal.ast.Expression.Addition;
 import org.meta_environment.rascal.ast.Expression.And;
+import org.meta_environment.rascal.ast.Expression.CallOrTree;
 import org.meta_environment.rascal.ast.Expression.Comprehension;
 import org.meta_environment.rascal.ast.Expression.EmptySetOrBlock;
 import org.meta_environment.rascal.ast.Expression.GreaterThan;
@@ -58,9 +61,11 @@ import org.meta_environment.rascal.ast.Statement.Assert;
 import org.meta_environment.rascal.ast.Statement.Assignment;
 import org.meta_environment.rascal.ast.Statement.Block;
 import org.meta_environment.rascal.ast.Statement.Expression;
+import org.meta_environment.rascal.ast.Statement.Fail;
 import org.meta_environment.rascal.ast.Statement.For;
 import org.meta_environment.rascal.ast.Statement.IfThen;
 import org.meta_environment.rascal.ast.Statement.IfThenElse;
+import org.meta_environment.rascal.ast.Statement.Insert;
 import org.meta_environment.rascal.ast.Statement.VariableDeclaration;
 import org.meta_environment.rascal.ast.Statement.While;
 
@@ -79,6 +84,97 @@ class EResult {
 
 	public String toString() {
 		return "EResult(" + type + ", " + value + ")";
+	}
+}
+
+class FailureException extends RuntimeException {
+	private static final long serialVersionUID = 2774285953244945424L;
+	private String fLabel;
+	private FailureException() { };
+	
+	private static class InstanceHolder {
+		public static FailureException sInstance = new FailureException();
+	}
+	
+	public static synchronized FailureException getInstance(String label) {
+		return InstanceHolder.sInstance.setLabel(label);
+	}
+	
+	public static synchronized FailureException getInstance() {
+		return InstanceHolder.sInstance.setLabel(null);
+	}
+	
+	private synchronized FailureException setLabel(String label) {
+		fLabel = label;
+		return this;
+	}
+	
+	public String getLabel() {
+		return fLabel;
+	}
+	
+	public boolean hasLabel() {
+		return fLabel != null;
+	}
+}
+
+/**
+ * Warning: this is not a thread safe implementation. The idea however is
+ * to not create a stack trace every time a Return exception is needed.
+ * @author jurgenv
+ *
+ */
+class ReturnException extends RuntimeException {
+	private static final long serialVersionUID = -6601026099925601817L;
+    private EResult fValue;
+	
+    private ReturnException() { };
+	
+	private static class InstanceHolder {
+		public static ReturnException sInstance = new ReturnException();
+	}
+	
+	public static synchronized ReturnException getInstance(EResult value) {
+		return InstanceHolder.sInstance.setValue(value);
+	}
+	
+	private synchronized ReturnException setValue(EResult value) {
+		fValue = value;
+		return this;
+	}
+	
+	public EResult getValue() {
+		return fValue;
+	}
+}
+
+/**
+ * Warning: this is not a thread safe implementation. The idea however is
+ * to not create a stack trace every time a Return exception is needed.
+ * @author jurgenv
+ *
+ */
+class InsertException extends RuntimeException {
+	private static final long serialVersionUID = -6601026099925601817L;
+    private EResult fValue;
+	
+    private InsertException() { };
+	
+	private static class InstanceHolder {
+		public static InsertException sInstance = new InsertException();
+	}
+	
+	public static synchronized InsertException getInstance(EResult value) {
+		return InstanceHolder.sInstance.setValue(value);
+	}
+	
+	private synchronized InsertException setValue(EResult value) {
+		fValue = value;
+		return this;
+	}
+	
+	public EResult getValue() {
+		return fValue;
 	}
 }
 
@@ -103,7 +199,11 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	}
 
 	private EResult result(IValue v) {
-		return new EResult(v.getType(), v);
+		return new EResult(v != null ? v.getType() : null, v);
+	}
+	
+	private EResult result() {
+		return new EResult(null, null);
 	}
 	
 	private EResult notImplemented(String s){
@@ -151,6 +251,27 @@ public class Evaluator extends NullASTVisitor<EResult> {
 		}
 		return r;
 	}
+	
+	@Override
+	
+	public EResult visitExpressionCallOrTree(CallOrTree x) {
+		 org.meta_environment.rascal.ast.FunctionDeclaration functionDeclaration = functionEnvironment.get(x.getName().toString());
+		 
+		 if (functionDeclaration == null) {
+			 throw new RascalTypeError("Call to undefined function:" + x.getName());
+		 }
+		 
+		 try {
+		   // TODO: finish this by binding formal to actual parameters
+		   x.accept(this);
+		 }
+		 catch (ReturnException e) {
+			 return e.getValue();
+		 }
+		 
+		 throw new RascalTypeError("Function " + x.getName() + " does not have a return statement.");
+	}
+
 	
 	
    // Statements ---------------------------------------------------------
@@ -284,6 +405,34 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	}
 
 	@Override
+	public EResult visitStatementFail(Fail x) {
+		if (x.getFail().isWithLabel()) {
+			throw FailureException.getInstance(x.getFail().getLabel().toString());
+		}
+		else {
+		  throw FailureException.getInstance();
+		}
+	}
+	
+	@Override
+	public EResult visitStatementReturn(
+			org.meta_environment.rascal.ast.Statement.Return x) {
+		org.meta_environment.rascal.ast.Return r = x.getRet();
+		
+		if (r.isWithExpression()) {
+		  throw ReturnException.getInstance(x.getRet().getExpression().accept(this));
+		}
+		else {
+			throw ReturnException.getInstance(result());
+		}
+	}
+	
+	@Override
+	public EResult visitStatementInsert(Insert x) {
+		throw InsertException.getInstance(x.getExpression().accept(this));
+	}
+	
+	@Override
 	public EResult visitStatementAssignment(Assignment x) {
 		Assignable a = x.getAssignable();
 		org.meta_environment.rascal.ast.Assignment op = x.getOperator();
@@ -304,11 +453,6 @@ public class Evaluator extends NullASTVisitor<EResult> {
 		return r;
 	}
     // Function declarations -----------------------------------------
-	
-	//@Override
-	public EResult visitStatementFunctionDeclaration(org.meta_environment.rascal.ast.FunctionDeclaration x) {
-		return x.accept(this);
-	}
 	
 	class FunctionDeclaration {
 		Signature signature;
@@ -455,7 +599,6 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	}
 	
 	
-
 	@Override
 	public EResult visitExpressionList(List x) {
 		java.util.List<org.meta_environment.rascal.ast.Expression> elements = x
