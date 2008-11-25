@@ -564,11 +564,9 @@ public class Evaluator extends NullASTVisitor<EResult> {
 		EResult right = x.getRhs().accept(this);
 
 		if (left.type.isIntegerType() && right.type.isIntegerType()) {
-			return result(vf.integer(((IInteger) left.value).getValue()
-					+ ((IInteger) right.value).getValue()));
+			return result(((IInteger) left.value).add((IInteger) right.value));
 		} else if (left.type.isDoubleType() && right.type.isDoubleType()) {
-			return result(vf.dubble(((IDouble) left.value).getValue()
-					+ ((IDouble) right.value).getValue()));
+			return result(((IDouble) left.value).add((IDouble) right.value));
 		} else if (left.type.isStringType() && right.type.isStringType()) {
 			return result(vf.string(((IString) left.value).getValue()
 					+ ((IString) right.value).getValue()));
@@ -599,11 +597,9 @@ public class Evaluator extends NullASTVisitor<EResult> {
 		EResult right = x.getRhs().accept(this);
 
 		if (left.type.isIntegerType() && right.type.isIntegerType()) {
-			return result(vf.integer(((IInteger) left.value).getValue()
-					- ((IInteger) right.value).getValue()));
+			return result(((IInteger) left.value).subtract((IInteger) right.value));
 		} else if (left.type.isDoubleType() && right.type.isDoubleType()) {
-			return result(vf.dubble(((IDouble) left.value).getValue()
-					- ((IDouble) right.value).getValue()));
+			return result(((IDouble) left.value).subtract((IDouble) right.value));
 		} else if (left.type.isListType() && right.type.isListType()) {
 			notImplemented("- on list");
 		} else if (left.type.isSetType() && right.type.isSetType()) {
@@ -631,11 +627,9 @@ public class Evaluator extends NullASTVisitor<EResult> {
 		EResult right = x.getRhs().accept(this);
 
 		if (left.type.isIntegerType() && right.type.isIntegerType()) {
-			return result(vf.integer(((IInteger) left.value).getValue()
-					* ((IInteger) right.value).getValue()));
+			return result(((IInteger) left.value).multiply((IInteger) right.value));
 		} else if (left.type.isDoubleType() && right.type.isDoubleType()) {
-			return result(vf.dubble(((IDouble) left.value).getValue()
-					* ((IDouble) right.value).getValue()));
+			return result(((IDouble) left.value).multiply((IDouble) right.value));
 		} else {
 			throw new RascalTypeError("Operands of * have illegal types: "
 					+ left.type + ", " + right.type);
@@ -671,8 +665,7 @@ public class Evaluator extends NullASTVisitor<EResult> {
 		EResult left = x.getLhs().accept(this);
 		EResult right = x.getRhs().accept(this);
 		if (left.type.isBoolType() && right.type.isBoolType()) {
-			return result(vf.bool(((IBool) left.value).getValue()
-					|| ((IBool) right.value).getValue()));
+			return result(((IBool) left.value).or((IBool) right.value));
 		} else {
 			throw new RascalTypeError(
 					"Operands of || should be boolean instead of: " + left.type
@@ -685,8 +678,7 @@ public class Evaluator extends NullASTVisitor<EResult> {
 		EResult left = x.getLhs().accept(this);
 		EResult right = x.getRhs().accept(this);
 		if (left.type.isBoolType() && right.type.isBoolType()) {
-			return result(vf.bool(((IBool) left.value).getValue()
-					&& ((IBool) right.value).getValue()));
+			return result(((IBool) left.value).and((IBool) right.value));
 		} else {
 			throw new RascalTypeError(
 					"Operands of && should be boolean instead of: " + left.type
@@ -698,7 +690,7 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	public EResult visitExpressionNegation(Negation x) {
 		EResult arg = x.getArgument().accept(this);
 		if (arg.type.isBoolType()) {
-			return result(vf.bool(!((IBool) arg.value).getValue()));
+			return result(((IBool) arg.value).not());
 		} else {
 			throw new RascalTypeError(
 					"Operand of ! should be boolean instead of: " + arg.type);
@@ -736,16 +728,11 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	
 	private int compare(EResult left, EResult right){
 		if (left.type.isIntegerType() && right.type.isIntegerType()) {
-			int l = ((IInteger) left.value).getValue();
-			int r = ((IInteger) right.value).getValue();
-			return l < r ? -1 : (l == r ? 0 : 1);
+			return ((IInteger) left.value).compare((IInteger) right.value);
 		} else if (left.type.isDoubleType() && right.type.isDoubleType()) {
-			double l = ((IDouble) left.value).getValue();
-			double r = ((IDouble) right.value).getValue();
-			return l < r ? -1 : (l == r ? 0 : 1);
+			return ((IDouble) left.value).compare((IDouble) right.value);
 		} else if (left.type.isStringType() && right.type.isStringType()) {
-			return ((IString) left.value).getValue().compareTo(
-					((IString) right.value).getValue());
+			return ((IString) left.value).compare((IString) right.value);
 		} else if (left.type.isListType() && right.type.isListType()) {
 			notImplemented("< on list");
 		} else if (left.type.isSetType() && right.type.isSetType()) {
