@@ -33,6 +33,7 @@ import org.meta_environment.rascal.ast.Expression.Addition;
 import org.meta_environment.rascal.ast.Expression.And;
 import org.meta_environment.rascal.ast.Expression.CallOrTree;
 import org.meta_environment.rascal.ast.Expression.Comprehension;
+import org.meta_environment.rascal.ast.Expression.Division;
 import org.meta_environment.rascal.ast.Expression.EmptySetOrBlock;
 import org.meta_environment.rascal.ast.Expression.GreaterThan;
 import org.meta_environment.rascal.ast.Expression.GreaterThanOrEq;
@@ -702,6 +703,29 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		} 
 		else {
 			throw new RascalTypeError("Operands of * have illegal types: "
+					+ left.type + ", " + right.type);
+		}
+	}
+	
+	@Override
+	public EvalResult visitExpressionDivision(Division x) {
+		EvalResult left = x.getLhs().accept(this);
+		EvalResult right = x.getRhs().accept(this);
+
+		if (left.type.isIntegerType() && right.type.isIntegerType()) {
+			return result(((IInteger) left.value).divide((IInteger) right.value));
+		} 
+		else if (left.type.isDoubleType() && right.type.isDoubleType()) {
+			return result(((IDouble) left.value).divide((IDouble) right.value));
+		}
+		else if (left.type.isDoubleType() && right.type.isIntegerType()) {
+			return result(((IDouble) left.value).divide(((IInteger) right.value).toDouble()));
+		}
+		else if (left.type.isIntegerType() && right.type.isDoubleType()) {
+			return result(((IInteger) left.value).toDouble().divide((IDouble) right.value));
+		} 
+		else {
+			throw new RascalTypeError("Operands of / have illegal types: "
 					+ left.type + ", " + right.type);
 		}
 	}
