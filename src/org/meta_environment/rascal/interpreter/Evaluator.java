@@ -22,11 +22,9 @@ import org.eclipse.imp.pdb.facts.type.SetType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.Assignable;
-import org.meta_environment.rascal.ast.FunctionBody;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.Generator;
 import org.meta_environment.rascal.ast.NullASTVisitor;
-import org.meta_environment.rascal.ast.Return;
 import org.meta_environment.rascal.ast.Signature;
 import org.meta_environment.rascal.ast.Statement;
 import org.meta_environment.rascal.ast.ValueProducer;
@@ -69,124 +67,12 @@ import org.meta_environment.rascal.ast.Statement.Insert;
 import org.meta_environment.rascal.ast.Statement.VariableDeclaration;
 import org.meta_environment.rascal.ast.Statement.While;
 
-class EResult {
-	protected Type type;
-	protected IValue value;
-
-	public EResult(Type t, IValue v) {
-		type = t;
-		value = v;
-		if (value != null && !value.getType().isSubtypeOf(t)) {
-			throw new RascalTypeError("Value " + v + " is not a subtype of "
-					+ t);
-		}
-	}
-
-	public String toString() {
-		return "EResult(" + type + ", " + value + ")";
-	}
-}
-
-class FailureException extends RuntimeException {
-	private static final long serialVersionUID = 2774285953244945424L;
-	private String fLabel;
-	private FailureException() { };
-	
-	private static class InstanceHolder {
-		public static FailureException sInstance = new FailureException();
-	}
-	
-	public static synchronized FailureException getInstance(String label) {
-		return InstanceHolder.sInstance.setLabel(label);
-	}
-	
-	public static synchronized FailureException getInstance() {
-		return InstanceHolder.sInstance.setLabel(null);
-	}
-	
-	private synchronized FailureException setLabel(String label) {
-		fLabel = label;
-		return this;
-	}
-	
-	public String getLabel() {
-		return fLabel;
-	}
-	
-	public boolean hasLabel() {
-		return fLabel != null;
-	}
-}
-
-/**
- * Warning: this is not a thread safe implementation. The idea however is
- * to not create a stack trace every time a Return exception is needed.
- * @author jurgenv
- *
- */
-class ReturnException extends RuntimeException {
-	private static final long serialVersionUID = -6601026099925601817L;
-    private EResult fValue;
-	
-    private ReturnException() { };
-	
-	private static class InstanceHolder {
-		public static ReturnException sInstance = new ReturnException();
-	}
-	
-	public static synchronized ReturnException getInstance(EResult value) {
-		return InstanceHolder.sInstance.setValue(value);
-	}
-	
-	private synchronized ReturnException setValue(EResult value) {
-		fValue = value;
-		return this;
-	}
-	
-	public EResult getValue() {
-		return fValue;
-	}
-}
-
-/**
- * Warning: this is not a thread safe implementation. The idea however is
- * to not create a stack trace every time a Return exception is needed.
- * @author jurgenv
- *
- */
-class InsertException extends RuntimeException {
-	private static final long serialVersionUID = -6601026099925601817L;
-    private EResult fValue;
-	
-    private InsertException() { };
-	
-	private static class InstanceHolder {
-		public static InsertException sInstance = new InsertException();
-	}
-	
-	public static synchronized InsertException getInstance(EResult value) {
-		return InstanceHolder.sInstance.setValue(value);
-	}
-	
-	private synchronized InsertException setValue(EResult value) {
-		fValue = value;
-		return this;
-	}
-	
-	public EResult getValue() {
-		return fValue;
-	}
-}
-
-public class Evaluator extends NullASTVisitor<EResult> {
+public class Evaluator extends NullASTVisitor<EvalResult> {
 	private IValueFactory vf;
 	private final TypeFactory tf;
 	private final TypeEvaluator te = new TypeEvaluator();
-	private final Map<String, EResult> variableEnvironment = new HashMap<String, EResult>();
-	private final Map<String, org.meta_environment.rascal.ast.FunctionDeclaration> functionEnvironment = 
-		                       new HashMap<String, org.meta_environment.rascal.ast.FunctionDeclaration>();
-	
-	private final EResult voidResult;
+	private Environment env = new Environment();
+	private final EvalResult voidResult;
 
 	public Evaluator(IValueFactory f) {
 		this.vf = f;
@@ -194,24 +80,24 @@ public class Evaluator extends NullASTVisitor<EResult> {
 		voidResult = result(vf.bool(false));
 	}
 
-	private EResult result(Type t, IValue v) {
-		return new EResult(t, v);
+	private EvalResult result(Type t, IValue v) {
+		return new EvalResult(t, v);
 	}
 
-	private EResult result(IValue v) {
-		return new EResult(v != null ? v.getType() : null, v);
+	private EvalResult result(IValue v) {
+		return new EvalResult(v != null ? v.getType() : null, v);
 	}
 	
-	private EResult result() {
-		return new EResult(null, null);
+	private EvalResult result() {
+		return new EvalResult(null, null);
 	}
 	
-	private EResult notImplemented(String s){
+	private EvalResult notImplemented(String s){
 		throw new RascalTypeError(s + " not yet implemented");
 	}
 
 	public IValue eval(Statement S) {
-		EResult r = S.accept(this);
+		EvalResult r = S.accept(this);
         if(r != null){
         	return r.value;
         } else {
@@ -222,15 +108,15 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	// Variable Declarations -----------------------------------------------
 
 	@Override
-	public EResult visitLocalVariableDeclarationDefault(Default x) {
+	public EvalResult visitLocalVariableDeclarationDefault(Default x) {
 		return x.getDeclarator().accept(this);
 	}
 
 	@Override
-	public EResult visitDeclaratorDefault(
+	public EvalResult visitDeclaratorDefault(
 			org.meta_environment.rascal.ast.Declarator.Default x) {
 		Type declaredType = x.getType().accept(te);
-		EResult r = voidResult;
+		EvalResult r = voidResult;
 
 		for (org.meta_environment.rascal.ast.Variable var : x.getVariables()) {
 			String name = var.getName().toString();
@@ -238,7 +124,7 @@ public class Evaluator extends NullASTVisitor<EResult> {
 				r = result(declaredType, null);
 				storeVariable(name, r);
 			} else {                     // variable declaration with initialization
-				EResult v = var.getInitial().accept(this);
+				EvalResult v = var.getInitial().accept(this);
 				if(v.type.isSubtypeOf(declaredType)){
 					r = result(declaredType, v.value);
 					storeVariable(name, r);
@@ -252,8 +138,8 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	
 	@Override
 	
-	public EResult visitExpressionCallOrTree(CallOrTree x) {
-		 org.meta_environment.rascal.ast.FunctionDeclaration functionDeclaration = functionEnvironment.get(x.getName().toString());
+	public EvalResult visitExpressionCallOrTree(CallOrTree x) {
+		 FunctionDeclaration functionDeclaration = env.getFunction(x.getName().toString());
 		 
 		 if (functionDeclaration == null) {
 			 throw new RascalTypeError("Call to undefined function:" + x.getName());
@@ -275,9 +161,9 @@ public class Evaluator extends NullASTVisitor<EResult> {
    // Statements ---------------------------------------------------------
 	
 	@Override
-	public EResult visitStatementAssert(Assert x) {
+	public EvalResult visitStatementAssert(Assert x) {
 		String msg = x.getMessage().toString();
-		EResult r = x.getExpression().accept(this);
+		EvalResult r = x.getExpression().accept(this);
 		if(r.type.equals(tf.boolType())){
 			if(r.value.equals(vf.bool(false))){
 				System.err.println("Assertion failed: " + msg + "\n");
@@ -289,17 +175,17 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	}
 	
 	@Override
-	public EResult visitStatementVariableDeclaration(VariableDeclaration x) {
+	public EvalResult visitStatementVariableDeclaration(VariableDeclaration x) {
 		return x.getDeclaration().accept(this);
 	}
 	
 	@Override
-	public EResult visitStatementExpression(Expression x) {
+	public EvalResult visitStatementExpression(Expression x) {
 		return x.getExpression().accept(this);
 	}
 	
-	private EResult assignVariable(String name, EResult right){
-		EResult previous = getVariable(name);
+	private EvalResult assignVariable(String name, EvalResult right){
+		EvalResult previous = getVariable(name);
 		if (previous != null) {
 			if (right.type.isSubtypeOf(previous.type)) {
 				right.type = previous.type;
@@ -313,19 +199,18 @@ public class Evaluator extends NullASTVisitor<EResult> {
 		return right;
 	}
 
-	private void storeVariable(String name, EResult value) {
-		variableEnvironment.put(name, value);
-		System.err.println("put(" + name + ", " + value + ")");
+	private void storeVariable(String name, EvalResult value) {
+		env.storeVariable(name, value);
 	}
 	
-	private int getValidIndex(EResult subs){
+	private int getValidIndex(EvalResult subs){
 		if(!subs.type.isSubtypeOf(tf.integerType())){
 			throw new RascalTypeError("subscript should have type int instead of " + subs.type);
 		}
 		return ((IInteger) subs.value).getValue();
 	}
 	
-	private Type checkValidListSubscription(EResult previous, EResult subs, int index){
+	private Type checkValidListSubscription(EvalResult previous, EvalResult subs, int index){
 		if (previous != null) {
 			if(previous.type.isListType()){
 				Type elementType = ((ListType) previous.type).getElementType();
@@ -342,16 +227,16 @@ public class Evaluator extends NullASTVisitor<EResult> {
 		return null;
 	}
 	
-	private Type checkValidListSubscription(String name, EResult subs, int index){
-		EResult previous = getVariable(name);
+	private Type checkValidListSubscription(String name, EvalResult subs, int index){
+		EvalResult previous = getVariable(name);
 		return checkValidListSubscription(previous, subs, index);
 	}
 	
-	private EResult assignSubscriptedVariable(
-			String name, EResult subs, EResult right) {
+	private EvalResult assignSubscriptedVariable(
+			String name, EvalResult subs, EvalResult right) {
 		
 		int index = getValidIndex(subs);
-		EResult previous = getVariable(name);
+		EvalResult previous = getVariable(name);
 		
 		if (previous != null) {
 			if(previous.type.isListType()){
@@ -364,7 +249,7 @@ public class Evaluator extends NullASTVisitor<EResult> {
 							+ "; cannot assign value of type " + right.type);
 				}
 				IValue newValue = ((IList) previous.value).put(index, right.value);
-				EResult nw = result(elementType, newValue);
+				EvalResult nw = result(elementType, newValue);
 				storeVariable(name, nw);
 				return nw;
 			} else {
@@ -376,25 +261,25 @@ public class Evaluator extends NullASTVisitor<EResult> {
 		return null;
 	}
 
-	private EResult getVariable(String name) {
-		return variableEnvironment.get(name);
+	private EvalResult getVariable(String name) {
+		return env.getVariable(name);
 	}
 	
-	private EResult assign(Assignable a, EResult right){
+	private EvalResult assign(Assignable a, EvalResult right){
 
 		if (a.isVariable()) {
 			return assignVariable(a.getQualifiedName().toString(), right);		
 		}
 		else if(a.isSubscript()){
-			EResult subs = a.getSubscript().accept(this);
+			EvalResult subs = a.getSubscript().accept(this);
 			return assignSubscriptedVariable(a.getReceiver().getQualifiedName().toString(), subs, right);
 		}
 		return voidResult;
 	}
 	
 	@Override
-	public EResult visitExpressionSubscript(Subscript x) {
-		EResult subs = x.getSubscript().accept(this);
+	public EvalResult visitExpressionSubscript(Subscript x) {
+		EvalResult subs = x.getSubscript().accept(this);
 		org.meta_environment.rascal.ast.Expression expr = x.getExpression();
 		int index = getValidIndex(subs);
 		if(expr.isQualifiedName()){
@@ -402,7 +287,7 @@ public class Evaluator extends NullASTVisitor<EResult> {
 			checkValidListSubscription(name, subs, index);
 			return result(((IList)getVariable(name).value).get(index));
 		} else if(expr.isSubscript()){
-			EResult r = expr.accept(this);
+			EvalResult r = expr.accept(this);
 			checkValidListSubscription(r, subs, index);
 			return result(((IList) r.value).get(index));
 		}
@@ -410,7 +295,7 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	}
 
 	@Override
-	public EResult visitStatementFail(Fail x) {
+	public EvalResult visitStatementFail(Fail x) {
 		if (x.getFail().isWithLabel()) {
 			throw FailureException.getInstance(x.getFail().getLabel().toString());
 		}
@@ -420,7 +305,7 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	}
 	
 	@Override
-	public EResult visitStatementReturn(
+	public EvalResult visitStatementReturn(
 			org.meta_environment.rascal.ast.Statement.Return x) {
 		org.meta_environment.rascal.ast.Return r = x.getRet();
 		
@@ -433,15 +318,15 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	}
 	
 	@Override
-	public EResult visitStatementInsert(Insert x) {
+	public EvalResult visitStatementInsert(Insert x) {
 		throw InsertException.getInstance(x.getExpression().accept(this));
 	}
 	
 	@Override
-	public EResult visitStatementAssignment(Assignment x) {
+	public EvalResult visitStatementAssignment(Assignment x) {
 		Assignable a = x.getAssignable();
 		org.meta_environment.rascal.ast.Assignment op = x.getOperator();
-		EResult right = x.getExpression().accept(this);
+		EvalResult right = x.getExpression().accept(this);
 
 		if (op.isDefault()) {
 			return assign(a, right);
@@ -450,40 +335,30 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	}
 	
 	@Override
-	public EResult visitStatementBlock(Block x) {
-		EResult r = voidResult;
+	public EvalResult visitStatementBlock(Block x) {
+		EvalResult r = voidResult;
 		for(Statement stat : x.getStatements()){
 			r = stat.accept(this);
 		}
 		return r;
 	}
-    // Function declarations -----------------------------------------
-	
-	class FunctionDeclaration {
-		Signature signature;
-		FunctionBody body;
-		
-		FunctionDeclaration(Signature s, FunctionBody b){
-			signature = s;
-			body = b;
-		}
-	}
+   
 	
 	@Override
-	public EResult visitFunctionDeclarationDefault(
+	public EvalResult visitFunctionDeclarationDefault(
 			org.meta_environment.rascal.ast.FunctionDeclaration.Default x) {
 		Signature sig = x.getSignature();
 		String name = sig.getName().toString();
 		// TODO: check overloading, double declarations, etc.
-		functionEnvironment.put(name,(org.meta_environment.rascal.ast.FunctionDeclaration)x);
+		env.storeFunction(name,(org.meta_environment.rascal.ast.FunctionDeclaration)x);
 		return voidResult;
 	}
 	
 	@Override
-	public EResult visitStatementIfThenElse(IfThenElse x) {
+	public EvalResult visitStatementIfThenElse(IfThenElse x) {
 		for (org.meta_environment.rascal.ast.Expression expr : x
 				.getConditions()) {
-			EResult cval = expr.accept(this);
+			EvalResult cval = expr.accept(this);
 			if (cval.type.isBoolType()) {
 				if (cval.value.equals(vf.bool(false))) {
 					return x.getElseStatement().accept(this);
@@ -497,10 +372,10 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	}
 
 	@Override
-	public EResult visitStatementIfThen(IfThen x) {
+	public EvalResult visitStatementIfThen(IfThen x) {
 		for (org.meta_environment.rascal.ast.Expression expr : x
 				.getConditions()) {
-			EResult cval = expr.accept(this);
+			EvalResult cval = expr.accept(this);
 			if (cval.type.isBoolType()) {
 				if (cval.value.equals(vf.bool(false))) {
 					return voidResult;
@@ -514,10 +389,10 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	}
 
 	@Override
-	public EResult visitStatementWhile(While x) {
+	public EvalResult visitStatementWhile(While x) {
 		org.meta_environment.rascal.ast.Expression expr = x.getCondition();
 		do {
-			EResult cval = expr.accept(this);
+			EvalResult cval = expr.accept(this);
 
 			if (cval.type.isBoolType()) {
 				if (cval.value.equals(vf.bool(false))) {
@@ -533,11 +408,11 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	}
 	
 	//@Override
-	public EResult visitStatementDoWhile(While x) {
+	public EvalResult visitStatementDoWhile(While x) {
 		org.meta_environment.rascal.ast.Expression expr = x.getCondition();
 		do {
 			x.getBody().accept(this);
-			EResult cval = expr.accept(this);
+			EvalResult cval = expr.accept(this);
 			if (cval.type.isBoolType()) {
 				if (cval.value.equals(vf.bool(false))) {
 					return voidResult;
@@ -552,29 +427,29 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	// Expressions -----------------------------------------------------------
 
 	@Override
-	public EResult visitExpressionLiteral(Literal x) {
+	public EvalResult visitExpressionLiteral(Literal x) {
 		return x.getLiteral().accept(this);
 	}
 
 	@Override
-	public EResult visitLiteralInteger(Integer x) {
+	public EvalResult visitLiteralInteger(Integer x) {
 		return x.getIntegerLiteral().accept(this);
 	}
 
 	@Override
-	public EResult visitLiteralDouble(Double x) {
+	public EvalResult visitLiteralDouble(Double x) {
 		String str = x.getDoubleLiteral().toString();
 		return result(vf.dubble(java.lang.Double.parseDouble(str)));
 	}
 
 	@Override
-	public EResult visitLiteralBoolean(Boolean x) {
+	public EvalResult visitLiteralBoolean(Boolean x) {
 		String str = x.getBooleanLiteral().toString();
 		return result(vf.bool(str.equals("true")));
 	}
 
 	@Override
-	public EResult visitLiteralString(
+	public EvalResult visitLiteralString(
 			org.meta_environment.rascal.ast.Literal.String x) {
 		String str = x.getStringLiteral().toString();
 		return result(vf.string(deescape(str)));
@@ -586,16 +461,16 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	}
 
 	@Override
-	public EResult visitIntegerLiteralDecimalIntegerLiteral(
+	public EvalResult visitIntegerLiteralDecimalIntegerLiteral(
 			DecimalIntegerLiteral x) {
 		String str = x.getDecimal().toString();
 		return result(vf.integer(java.lang.Integer.parseInt(str)));
 	}
 	
 	@Override
-	public EResult visitExpressionQualifiedName(
+	public EvalResult visitExpressionQualifiedName(
 			org.meta_environment.rascal.ast.Expression.QualifiedName x) {
-		EResult result = getVariable(x.getQualifiedName().toString());
+		EvalResult result = getVariable(x.getQualifiedName().toString());
 		if (result != null && result.value != null) {
 			return result;
 		} else {
@@ -605,7 +480,7 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	
 	
 	@Override
-	public EResult visitExpressionList(List x) {
+	public EvalResult visitExpressionList(List x) {
 		java.util.List<org.meta_environment.rascal.ast.Expression> elements = x
 				.getElements();
 		java.util.List<IValue> results = new LinkedList<IValue>();
@@ -618,7 +493,7 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	}
 
 	@Override
-	public EResult visitExpressionNonEmptySet(NonEmptySet x) {
+	public EvalResult visitExpressionNonEmptySet(NonEmptySet x) {
 		java.util.List<org.meta_environment.rascal.ast.Expression> elements = x
 				.getElements();
 		java.util.List<IValue> results = new LinkedList<IValue>();
@@ -636,7 +511,7 @@ public class Evaluator extends NullASTVisitor<EResult> {
 		Type elementType = tf.voidType();
 
 		for (org.meta_environment.rascal.ast.Expression expr : elements) {
-			EResult resultElem = expr.accept(this);
+			EvalResult resultElem = expr.accept(this);
 			elementType = elementType.lub(resultElem.type);
 			results.add(results.size(), resultElem.value);
 		}
@@ -644,12 +519,12 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	}
 
 	@Override
-	public EResult visitExpressionEmptySetOrBlock(EmptySetOrBlock x) {
+	public EvalResult visitExpressionEmptySetOrBlock(EmptySetOrBlock x) {
 		return result(vf.set(tf.voidType()));
 	}
 	
 	@Override
-	public EResult visitExpressionMap(
+	public EvalResult visitExpressionMap(
 			org.meta_environment.rascal.ast.Expression.Map x) {
 
 		java.util.List<org.meta_environment.rascal.ast.Mapping> mappings = x
@@ -659,8 +534,8 @@ public class Evaluator extends NullASTVisitor<EResult> {
 		Type valueType = tf.voidType();
 
 		for (org.meta_environment.rascal.ast.Mapping mapping : mappings) {
-			EResult keyResult = mapping.getFrom().accept(this);
-			EResult valueResult = mapping.getTo().accept(this);
+			EvalResult keyResult = mapping.getFrom().accept(this);
+			EvalResult valueResult = mapping.getTo().accept(this);
 			
 			keyType = keyType.lub(keyResult.type);
 			valueType = valueType.lub(valueResult.type);
@@ -677,8 +552,8 @@ public class Evaluator extends NullASTVisitor<EResult> {
 
 	
 	@Override
-	public EResult visitExpressionNonEmptyBlock(NonEmptyBlock x) {
-		EResult r = voidResult;
+	public EvalResult visitExpressionNonEmptyBlock(NonEmptyBlock x) {
+		EvalResult r = voidResult;
 		for(Statement stat : x.getStatements()){
 			r = stat.accept(this);
 		}
@@ -686,7 +561,7 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	}
 
 	@Override
-	public EResult visitExpressionTuple(Tuple x) {
+	public EvalResult visitExpressionTuple(Tuple x) {
 		java.util.List<org.meta_environment.rascal.ast.Expression> elements = x
 				.getElements();
 
@@ -694,7 +569,7 @@ public class Evaluator extends NullASTVisitor<EResult> {
 		Type[] types = new Type[elements.size()];
 
 		for (int i = 0; i < elements.size(); i++) {
-			EResult resultElem = elements.get(i).accept(this);
+			EvalResult resultElem = elements.get(i).accept(this);
 			types[i] = resultElem.type;
 			values[i] = resultElem.value;
 		}
@@ -707,9 +582,9 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	
 	
     @Override
-	public EResult visitExpressionAddition(Addition x) {
-		EResult left = x.getLhs().accept(this);
-		EResult right = x.getRhs().accept(this);
+	public EvalResult visitExpressionAddition(Addition x) {
+		EvalResult left = x.getLhs().accept(this);
+		EvalResult right = x.getRhs().accept(this);
 
 		if (left.type.isIntegerType() && right.type.isIntegerType()) {
 			return result(((IInteger) left.value).add((IInteger) right.value));
@@ -740,9 +615,9 @@ public class Evaluator extends NullASTVisitor<EResult> {
 		}
 	}
     
-	public EResult visitExpressionSubtraction(Subtraction x) {
-		EResult left = x.getLhs().accept(this);
-		EResult right = x.getRhs().accept(this);
+	public EvalResult visitExpressionSubtraction(Subtraction x) {
+		EvalResult left = x.getLhs().accept(this);
+		EvalResult right = x.getRhs().accept(this);
 
 		if (left.type.isIntegerType() && right.type.isIntegerType()) {
 			return result(((IInteger) left.value).subtract((IInteger) right.value));
@@ -770,9 +645,9 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	}
 	
 	@Override
-	public EResult visitExpressionProduct(Product x) {
-		EResult left = x.getLhs().accept(this);
-		EResult right = x.getRhs().accept(this);
+	public EvalResult visitExpressionProduct(Product x) {
+		EvalResult left = x.getLhs().accept(this);
+		EvalResult right = x.getRhs().accept(this);
 
 		if (left.type.isIntegerType() && right.type.isIntegerType()) {
 			return result(((IInteger) left.value).multiply((IInteger) right.value));
@@ -785,9 +660,9 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	}
 	
 	@Override
-	public EResult visitExpressionIntersection(Intersection x) {
-		EResult left = x.getLhs().accept(this);
-		EResult right = x.getRhs().accept(this);
+	public EvalResult visitExpressionIntersection(Intersection x) {
+		EvalResult left = x.getLhs().accept(this);
+		EvalResult right = x.getRhs().accept(this);
 
 		if (left.type.isSetType() && right.type.isSetType()) {
 		Type resultType = left.type.lub(right.type);
@@ -809,9 +684,9 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	}
 
 	@Override
-	public EResult visitExpressionOr(Or x) {
-		EResult left = x.getLhs().accept(this);
-		EResult right = x.getRhs().accept(this);
+	public EvalResult visitExpressionOr(Or x) {
+		EvalResult left = x.getLhs().accept(this);
+		EvalResult right = x.getRhs().accept(this);
 		if (left.type.isBoolType() && right.type.isBoolType()) {
 			return result(((IBool) left.value).or((IBool) right.value));
 		} else {
@@ -822,9 +697,9 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	}
 
 	@Override
-	public EResult visitExpressionAnd(And x) {
-		EResult left = x.getLhs().accept(this);
-		EResult right = x.getRhs().accept(this);
+	public EvalResult visitExpressionAnd(And x) {
+		EvalResult left = x.getLhs().accept(this);
+		EvalResult right = x.getRhs().accept(this);
 		if (left.type.isBoolType() && right.type.isBoolType()) {
 			return result(((IBool) left.value).and((IBool) right.value));
 		} else {
@@ -835,8 +710,8 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	}
 
 	@Override
-	public EResult visitExpressionNegation(Negation x) {
-		EResult arg = x.getArgument().accept(this);
+	public EvalResult visitExpressionNegation(Negation x) {
+		EvalResult arg = x.getArgument().accept(this);
 		if (arg.type.isBoolType()) {
 			return result(((IBool) arg.value).not());
 		} else {
@@ -845,7 +720,7 @@ public class Evaluator extends NullASTVisitor<EResult> {
 		}
 	}
 	
-	private boolean equals(EResult left, EResult right){
+	private boolean equals(EvalResult left, EvalResult right){
 		if (left.type.isSubtypeOf(right.type)
 				|| right.type.isSubtypeOf(left.type)) {
 			return left.value.equals(right.value);
@@ -857,24 +732,24 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	}
 
 	@Override
-	public EResult visitExpressionEquals(
+	public EvalResult visitExpressionEquals(
 			org.meta_environment.rascal.ast.Expression.Equals x) {
-		EResult left = x.getLhs().accept(this);
-		EResult right = x.getRhs().accept(this);
+		EvalResult left = x.getLhs().accept(this);
+		EvalResult right = x.getRhs().accept(this);
 		
 		return result(vf.bool(equals(left, right)));
 	}
 
 	@Override
-	public EResult visitExpressionNonEquals(
+	public EvalResult visitExpressionNonEquals(
 			org.meta_environment.rascal.ast.Expression.NonEquals x) {
-		EResult left = x.getLhs().accept(this);
-		EResult right = x.getRhs().accept(this);
+		EvalResult left = x.getLhs().accept(this);
+		EvalResult right = x.getRhs().accept(this);
 		
 		return result(vf.bool(!equals(left, right)));
 	}
 	
-	private int compare(EResult left, EResult right){
+	private int compare(EvalResult left, EvalResult right){
 		if (left.type.isIntegerType() && right.type.isIntegerType()) {
 			return ((IInteger) left.value).compare((IInteger) right.value);
 		} else if (left.type.isDoubleType() && right.type.isDoubleType()) {
@@ -897,39 +772,39 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	}
 	
 	@Override
-	public EResult visitExpressionLessThan(LessThan x) {
-		EResult left = x.getLhs().accept(this);
-		EResult right = x.getRhs().accept(this);
+	public EvalResult visitExpressionLessThan(LessThan x) {
+		EvalResult left = x.getLhs().accept(this);
+		EvalResult right = x.getRhs().accept(this);
 		
 		return result(vf.bool(compare(left, right) < 0));
 	}
 	
 	@Override
-	public EResult visitExpressionLessThanOrEq(LessThanOrEq x) {
-		EResult left = x.getLhs().accept(this);
-		EResult right = x.getRhs().accept(this);
+	public EvalResult visitExpressionLessThanOrEq(LessThanOrEq x) {
+		EvalResult left = x.getLhs().accept(this);
+		EvalResult right = x.getRhs().accept(this);
 		
 		return result(vf.bool(compare(left, right) <= 0));
 	}
 	@Override
-	public EResult visitExpressionGreaterThan(GreaterThan x) {
-		EResult left = x.getLhs().accept(this);
-		EResult right = x.getRhs().accept(this);
+	public EvalResult visitExpressionGreaterThan(GreaterThan x) {
+		EvalResult left = x.getLhs().accept(this);
+		EvalResult right = x.getRhs().accept(this);
 		
 		return result(vf.bool(compare(left, right) > 0));
 	}
 	
 	@Override
-	public EResult visitExpressionGreaterThanOrEq(GreaterThanOrEq x) {
-		EResult left = x.getLhs().accept(this);
-		EResult right = x.getRhs().accept(this);
+	public EvalResult visitExpressionGreaterThanOrEq(GreaterThanOrEq x) {
+		EvalResult left = x.getLhs().accept(this);
+		EvalResult right = x.getRhs().accept(this);
 		
 		return result(vf.bool(compare(left, right) >= 0));
 	}
 	
 	private boolean in(org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.Expression expression2){
-		EResult left = expression.accept(this);
-		EResult right = expression2.accept(this);
+		EvalResult left = expression.accept(this);
+		EvalResult right = expression2.accept(this);
 		
 		if(right.type.isListType()){
 			notImplemented("in on list");
@@ -948,13 +823,13 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	}
 	
 	@Override
-	public EResult visitExpressionIn(In x) {
+	public EvalResult visitExpressionIn(In x) {
 		return result(vf.bool(in(x.getLhs(), x.getRhs())));
 
 	}
 	
 	@Override
-	public EResult visitExpressionNotIn(NotIn x) {
+	public EvalResult visitExpressionNotIn(NotIn x) {
 		return result(vf.bool(!in(x.getLhs(), x.getRhs())));
 
 	}
@@ -962,7 +837,7 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	// Comprehensions ----------------------------------------------------
 	
 	@Override
-	public EResult visitExpressionComprehension(Comprehension x) {
+	public EvalResult visitExpressionComprehension(Comprehension x) {
 		return x.getComprehension().accept(this);
 	}
 
@@ -985,7 +860,7 @@ public class Evaluator extends NullASTVisitor<EResult> {
 				ValueProducer vp = g.getProducer();
 				pat = vp.getPattern();
 				patexpr = vp.getExpression();
-				EResult r = patexpr.accept(ev);
+				EvalResult r = patexpr.accept(ev);
 				if(r.type.isListType()){
 					listvalue = (IList) r.value;
 				} else {
@@ -1019,7 +894,7 @@ public class Evaluator extends NullASTVisitor<EResult> {
 				if(firstTime){
 					/* Evaluate expression only once */
 					firstTime = false;
-					EResult v = expr.accept(evaluator);
+					EvalResult v = expr.accept(evaluator);
 					if(v.type.isBoolType()){
 						return v.value.equals(vf.bool(true));
 					} else {
@@ -1033,7 +908,7 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	}
 	
 	@Override
-	public EResult visitComprehensionList(
+	public EvalResult visitComprehensionList(
 			org.meta_environment.rascal.ast.Comprehension.List x) {
 		org.meta_environment.rascal.ast.Expression resultExpr = x.getResult();
 		java.util.List<Generator> generators = x.getGenerators();
@@ -1047,7 +922,7 @@ public class Evaluator extends NullASTVisitor<EResult> {
 		while(i >= 0 && i < size){		
 			if(gens[i].getNext()){
 				if(i == size - 1){
-					EResult r = resultExpr.accept(this);
+					EvalResult r = resultExpr.accept(this);
 					if(res == null){
 						res = vf.list(r.value);
 						elementType = r.type;
@@ -1072,12 +947,12 @@ public class Evaluator extends NullASTVisitor<EResult> {
 	
 	
 	@Override
-	public EResult visitStatementFor(For x) {
+	public EvalResult visitStatementFor(For x) {
 		Statement body = x.getBody();
 		java.util.List<Generator> generators = x.getGenerators();
 		int size = generators.size();
 		GeneratorEvaluator[] gens = new GeneratorEvaluator[size];
-		EResult result = voidResult;
+		EvalResult result = voidResult;
 		
 		int i = 0;
 		gens[0] = new GeneratorEvaluator(generators.get(0), this);
