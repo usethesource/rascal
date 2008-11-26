@@ -690,9 +690,17 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 
 		if (left.type.isIntegerType() && right.type.isIntegerType()) {
 			return result(((IInteger) left.value).multiply((IInteger) right.value));
-		} else if (left.type.isDoubleType() && right.type.isDoubleType()) {
+		} 
+		else if (left.type.isDoubleType() && right.type.isDoubleType()) {
 			return result(((IDouble) left.value).multiply((IDouble) right.value));
-		} else {
+		}
+		else if (left.type.isDoubleType() && right.type.isIntegerType()) {
+			return result(((IDouble) left.value).multiply(((IInteger) right.value).toDouble()));
+		}
+		else if (left.type.isIntegerType() && right.type.isDoubleType()) {
+			return result(((IInteger) left.value).toDouble().multiply((IDouble) right.value));
+		} 
+		else {
 			throw new RascalTypeError("Operands of * have illegal types: "
 					+ left.type + ", " + right.type);
 		}
