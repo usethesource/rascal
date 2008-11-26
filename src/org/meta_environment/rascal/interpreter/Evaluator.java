@@ -31,6 +31,7 @@ import org.meta_environment.rascal.ast.Statement;
 import org.meta_environment.rascal.ast.ValueProducer;
 import org.meta_environment.rascal.ast.Expression.Addition;
 import org.meta_environment.rascal.ast.Expression.And;
+import org.meta_environment.rascal.ast.Expression.Bracket;
 import org.meta_environment.rascal.ast.Expression.CallOrTree;
 import org.meta_environment.rascal.ast.Expression.Comprehension;
 import org.meta_environment.rascal.ast.Expression.Division;
@@ -43,6 +44,7 @@ import org.meta_environment.rascal.ast.Expression.LessThan;
 import org.meta_environment.rascal.ast.Expression.LessThanOrEq;
 import org.meta_environment.rascal.ast.Expression.List;
 import org.meta_environment.rascal.ast.Expression.Literal;
+import org.meta_environment.rascal.ast.Expression.Modulo;
 import org.meta_environment.rascal.ast.Expression.Negation;
 import org.meta_environment.rascal.ast.Expression.NonEmptyBlock;
 import org.meta_environment.rascal.ast.Expression.NonEmptySet;
@@ -728,6 +730,25 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			throw new RascalTypeError("Operands of / have illegal types: "
 					+ left.type + ", " + right.type);
 		}
+	}
+	
+	@Override
+	public EvalResult visitExpressionModulo(Modulo x) {
+		EvalResult left = x.getLhs().accept(this);
+		EvalResult right = x.getRhs().accept(this);
+
+		if (left.type.isIntegerType() && right.type.isIntegerType()) {
+			return result(((IInteger) left.value).remainder((IInteger) right.value));
+		} 
+		else {
+			throw new RascalTypeError("Operands of % have illegal types: "
+					+ left.type + ", " + right.type);
+		}
+	}
+	
+	@Override
+	public EvalResult visitExpressionBracket(Bracket x) {
+		return x.getExpression().accept(this);
 	}
 	
 	@Override
