@@ -59,6 +59,7 @@ public class RascalShell {
 			catch (RascalTypeError e) {
 				System.err.println("error: " + e.getMessage());
 				console.printNewline();
+				e.printStackTrace();
 			}
 		}
 	}
