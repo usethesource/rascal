@@ -19,6 +19,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.ListType;
 import org.eclipse.imp.pdb.facts.type.MapType;
 import org.eclipse.imp.pdb.facts.type.SetType;
+import org.eclipse.imp.pdb.facts.type.TupleType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.Assignable;
@@ -27,7 +28,9 @@ import org.meta_environment.rascal.ast.Generator;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.Signature;
 import org.meta_environment.rascal.ast.Statement;
+import org.meta_environment.rascal.ast.Toplevel;
 import org.meta_environment.rascal.ast.ValueProducer;
+import org.meta_environment.rascal.ast.Body.Toplevels;
 import org.meta_environment.rascal.ast.Expression.Addition;
 import org.meta_environment.rascal.ast.Expression.And;
 import org.meta_environment.rascal.ast.Expression.CallOrTree;
@@ -71,7 +74,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	private IValueFactory vf;
 	private final TypeFactory tf;
 	private final TypeEvaluator te = new TypeEvaluator();
-	private Environment env = new Environment();
+	private EnvironmentStack env = new EnvironmentStack();
 	private final EvalResult voidResult;
 
 	public Evaluator(IValueFactory f) {
@@ -139,24 +142,57 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	@Override
 	
 	public EvalResult visitExpressionCallOrTree(CallOrTree x) {
-		 FunctionDeclaration functionDeclaration = env.getFunction(x.getName().toString());
+		 java.util.List<org.meta_environment.rascal.ast.Expression> args = x.getArguments();
 		 
-		 if (functionDeclaration == null) {
-			 throw new RascalTypeError("Call to undefined function:" + x.getName());
+		 IValue[] actuals = new IValue[args.size()];
+		 Type[] types = new Type[args.size()];
+
+		 for (int i = 0; i < args.size(); i++) {
+			 EvalResult resultElem = args.get(i).accept(this);
+			 types[i] = resultElem.type;
+			 actuals[i] = resultElem.value;
 		 }
 		 
-		 try {
-		   // TODO: finish this by binding formal to actual parameters
-		   x.accept(this);
-		 }
-		 catch (ReturnException e) {
-			 return e.getValue();
-		 }
+		 TupleType actualTypes = tf.tupleType(types);
+		 String name = x.getName().toString();
+	
+		 // TODO add support for trees
+		 FunctionDeclaration functionDeclaration = env.getFunction(name, actualTypes);
 		 
-		 throw new RascalTypeError("Function " + x.getName() + " does not have a return statement.");
+		 return call(functionDeclaration, actuals);
 	}
 
-	
+	public EvalResult call(FunctionDeclaration func, IValue[] actuals) {
+		try {
+			env.push();
+			TupleType formals = (TupleType) func.getSignature().accept(te);
+			
+			for (int i = 0; i < formals.getArity(); i++) {
+				EvalResult actual = result(formals.getFieldType(i), actuals[i]);
+				env.storeVariable(formals.getFieldName(i), actual);
+			}
+			
+			func.getBody().accept(this);
+			
+			throw new RascalTypeError("Function definition:" + func + "\n does not have a return statement.");
+		}
+		catch (ReturnException e) {
+			env.pop();
+			return e.getValue();
+		}
+	}
+
+	@Override
+	public EvalResult visitFunctionBodyDefault(
+			org.meta_environment.rascal.ast.FunctionBody.Default x) {
+		EvalResult result = result();
+		
+		for (Statement statement : x.getStatements()) {
+			result = statement.accept(this);
+		}
+		
+		return result;
+	}
 	
    // Statements ---------------------------------------------------------
 	
