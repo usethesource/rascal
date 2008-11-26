@@ -162,7 +162,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		 return call(functionDeclaration, actuals);
 	}
 
-	public EvalResult call(FunctionDeclaration func, IValue[] actuals) {
+	private EvalResult call(FunctionDeclaration func, IValue[] actuals) {
 		try {
 			env.push();
 			TupleType formals = (TupleType) func.getSignature().accept(te);
