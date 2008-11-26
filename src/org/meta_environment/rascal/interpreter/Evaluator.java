@@ -119,7 +119,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		Module module = new Module(name);
 		env.addModule(module);
 		
-		// todo, somehow evaluate this in the module's environment, not here:
+		// TODO, somehow evaluate this in the module's environment, not here:
 		java.util.List<Toplevel> decls = x.getBody().getToplevels();
 		for (Toplevel l : decls) {
 			l.accept(this);
