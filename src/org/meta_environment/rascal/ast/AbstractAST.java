@@ -13,6 +13,10 @@ public abstract class AbstractAST implements IVisitable {
 	public String toString() {
 		return new TreeAdapter((INode) tree).yield();
 	}
+	
+	public ITree getTree() {
+		return tree;
+	}
 
 	abstract public <T> T accept(IASTVisitor<T> v);
 }
