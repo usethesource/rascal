@@ -2,6 +2,7 @@ package org.meta_environment.rascal.interpreter;
 
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.meta_environment.rascal.ast.Formal;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.TypeArg;
 import org.meta_environment.rascal.ast.BasicType.Bool;
@@ -12,6 +13,9 @@ import org.meta_environment.rascal.ast.BasicType.String;
 import org.meta_environment.rascal.ast.BasicType.Tree;
 import org.meta_environment.rascal.ast.BasicType.Value;
 import org.meta_environment.rascal.ast.BasicType.Void;
+import org.meta_environment.rascal.ast.Formal.TypeName;
+import org.meta_environment.rascal.ast.Signature.NoThrows;
+import org.meta_environment.rascal.ast.Signature.WithThrows;
 import org.meta_environment.rascal.ast.StructuredType.List;
 import org.meta_environment.rascal.ast.StructuredType.Map;
 import org.meta_environment.rascal.ast.StructuredType.Relation;
@@ -29,6 +33,41 @@ public class TypeEvaluator extends NullASTVisitor<Type> {
 	@Override
 	public Type visitTypeBasic(Basic x) {
 		return x.getBasic().accept(this);
+	}
+	
+	@Override
+	public Type visitFormalTypeName(TypeName x) {
+		return x.getType().accept(this);
+	}
+	
+	@Override
+	public Type visitParametersDefault(
+			org.meta_environment.rascal.ast.Parameters.Default x) {
+		return x.getFormals().accept(this);
+	}
+	
+	@Override
+	public Type visitSignatureNoThrows(NoThrows x) {
+		return x.getParameters().accept(this);
+	}
+	
+	@Override
+	public Type visitSignatureWithThrows(WithThrows x) {
+		return x.getParameters().accept(this);
+	}
+	
+	@Override
+	public Type visitFormalsDefault(
+			org.meta_environment.rascal.ast.Formals.Default x) {
+		java.util.List<Formal> list = x.getFormals();
+		Object[] typesAndNames = new Type[list.size() * 2];
+		
+		for (int i = 0; i < typesAndNames.length; i++) {
+			typesAndNames[i] = list.get(i).accept(this);
+			typesAndNames[i+1] = list.get(i).getName().toString();
+		}
+		
+		return tf.tupleType(typesAndNames);
 	}
 	
 	@Override
