@@ -28,9 +28,7 @@ import org.meta_environment.rascal.ast.Generator;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.Signature;
 import org.meta_environment.rascal.ast.Statement;
-import org.meta_environment.rascal.ast.Toplevel;
 import org.meta_environment.rascal.ast.ValueProducer;
-import org.meta_environment.rascal.ast.Body.Toplevels;
 import org.meta_environment.rascal.ast.Expression.Addition;
 import org.meta_environment.rascal.ast.Expression.And;
 import org.meta_environment.rascal.ast.Expression.CallOrTree;
@@ -75,12 +73,10 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	private final TypeFactory tf;
 	private final TypeEvaluator te = new TypeEvaluator();
 	private EnvironmentStack env = new EnvironmentStack();
-	private final EvalResult voidResult;
 
 	public Evaluator(IValueFactory f) {
 		this.vf = f;
 		tf = TypeFactory.getInstance();
-		voidResult = result(vf.bool(false));
 	}
 
 	private EvalResult result(Type t, IValue v) {
@@ -104,7 +100,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
         if(r != null){
         	return r.value;
         } else {
-        	return voidResult.value;
+        	return null;
         }
 	}
 	
@@ -119,7 +115,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	public EvalResult visitDeclaratorDefault(
 			org.meta_environment.rascal.ast.Declarator.Default x) {
 		Type declaredType = x.getType().accept(te);
-		EvalResult r = voidResult;
+		EvalResult r = result();
 
 		for (org.meta_environment.rascal.ast.Variable var : x.getVariables()) {
 			String name = var.getName().toString();
@@ -139,8 +135,9 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		return r;
 	}
 	
-	@Override
+	// Function calls and tree constructors
 	
+	@Override
 	public EvalResult visitExpressionCallOrTree(CallOrTree x) {
 		 java.util.List<org.meta_environment.rascal.ast.Expression> args = x.getArguments();
 		 
@@ -310,7 +307,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			EvalResult subs = a.getSubscript().accept(this);
 			return assignSubscriptedVariable(a.getReceiver().getQualifiedName().toString(), subs, right);
 		}
-		return voidResult;
+		return result();
 	}
 	
 	@Override
@@ -367,12 +364,12 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		if (op.isDefault()) {
 			return assign(a, right);
 		}
-		return voidResult;
+		return result();
 	}
 	
 	@Override
 	public EvalResult visitStatementBlock(Block x) {
-		EvalResult r = voidResult;
+		EvalResult r = result();
 		for(Statement stat : x.getStatements()){
 			r = stat.accept(this);
 		}
@@ -385,9 +382,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			org.meta_environment.rascal.ast.FunctionDeclaration.Default x) {
 		Signature sig = x.getSignature();
 		String name = sig.getName().toString();
-		// TODO: check overloading, double declarations, etc.
 		env.storeFunction(name,(org.meta_environment.rascal.ast.FunctionDeclaration)x);
-		return voidResult;
+		return result();
 	}
 	
 	@Override
@@ -414,7 +410,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			EvalResult cval = expr.accept(this);
 			if (cval.type.isBoolType()) {
 				if (cval.value.equals(vf.bool(false))) {
-					return voidResult;
+					return result();
 				}
 			} else {
 				throw new RascalTypeError("Condition " + expr + " has type "
@@ -432,7 +428,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 
 			if (cval.type.isBoolType()) {
 				if (cval.value.equals(vf.bool(false))) {
-					return voidResult;
+					return result();
 				} else {
 					x.getBody().accept(this);
 				}
@@ -451,7 +447,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			EvalResult cval = expr.accept(this);
 			if (cval.type.isBoolType()) {
 				if (cval.value.equals(vf.bool(false))) {
-					return voidResult;
+					return result();
 				}
 			} else {
 				throw new RascalTypeError("Condition " + expr + " has type "
@@ -589,7 +585,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 	@Override
 	public EvalResult visitExpressionNonEmptyBlock(NonEmptyBlock x) {
-		EvalResult r = voidResult;
+		// TODO: shouldn't this be a closure?
+		EvalResult r = result();
 		for(Statement stat : x.getStatements()){
 			r = stat.accept(this);
 		}
@@ -677,7 +674,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			throw new RascalTypeError("Operands of - have illegal types: "
 					+ left.type + ", " + right.type);
 		}
-		return voidResult;
+		return result();
 	}
 	
 	@Override
@@ -988,7 +985,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		java.util.List<Generator> generators = x.getGenerators();
 		int size = generators.size();
 		GeneratorEvaluator[] gens = new GeneratorEvaluator[size];
-		EvalResult result = voidResult;
+		EvalResult result = result();
 		
 		int i = 0;
 		gens[0] = new GeneratorEvaluator(generators.get(0), this);
