@@ -87,4 +87,13 @@ public class EnvironmentStack extends Environment {
   }
 
 
+    @Override
+	public void addModule(Module m) {
+	   stack.get(0).addModule(m);
+	}
+  
+    @Override
+    public Module getModule(String name) {
+      return stack.get(0).getModule(name);
+    }
 }
