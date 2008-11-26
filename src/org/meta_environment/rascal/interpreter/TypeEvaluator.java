@@ -60,11 +60,11 @@ public class TypeEvaluator extends NullASTVisitor<Type> {
 	public Type visitFormalsDefault(
 			org.meta_environment.rascal.ast.Formals.Default x) {
 		java.util.List<Formal> list = x.getFormals();
-		Object[] typesAndNames = new Type[list.size() * 2];
+		Object[] typesAndNames = new Object[list.size() * 2];
 		
-		for (int i = 0; i < typesAndNames.length; i++) {
-			typesAndNames[i] = list.get(i).accept(this);
-			typesAndNames[i+1] = list.get(i).getName().toString();
+		for (int formal = 0, index = 0; formal < list.size(); formal++, index++) {
+			typesAndNames[index++] = list.get(formal).accept(this);
+			typesAndNames[index] = list.get(formal).getName().toString();
 		}
 		
 		return tf.tupleType(typesAndNames);

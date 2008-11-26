@@ -23,7 +23,7 @@ public class EnvironmentStack extends Environment {
   
   @Override
   public FunctionDeclaration getFunction(String name, TupleType actuals) {
-	  for (int i = stack.size(); i >= 0; i--) {
+	  for (int i = stack.size() - 1; i >= 0; i--) {
 		  FunctionDeclaration result = stack.get(i).getFunction(name, actuals);
 		  
 		  if (result != null) {
@@ -36,7 +36,7 @@ public class EnvironmentStack extends Environment {
 
   @Override
   public EvalResult getVariable(String name) {
-	  for (int i = stack.size(); i >= 0; i--) {
+	  for (int i = stack.size() - 1; i >= 0; i--) {
 		  EvalResult result = stack.get(i).getVariable(name);
 		  
 		  if (result != null) {
@@ -51,7 +51,7 @@ public class EnvironmentStack extends Environment {
   public void storeFunction(String name, FunctionDeclaration function) {
 	  TupleType formals = (TupleType) function.getSignature().accept(types);
 	  int i;
-	  for (i = stack.size(); i >= 0; i--) {
+	  for (i = stack.size() - 1; i >= 0; i--) {
 		  FunctionDeclaration result = stack.get(i).getFunction(name, formals);
 		  
 		  if (result != null) {
@@ -70,7 +70,7 @@ public class EnvironmentStack extends Environment {
   @Override
   public void storeVariable(String name, EvalResult value) {
 	  int i;
-	  for (i = stack.size(); i >= 0; i--) {
+	  for (i = stack.size() - 1; i >= 0; i--) {
 		  EvalResult result = stack.get(i).getVariable(name);
 		  
 		  if (result != null) {

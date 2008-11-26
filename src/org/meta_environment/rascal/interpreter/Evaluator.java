@@ -100,7 +100,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
         if(r != null){
         	return r.value;
         } else {
-        	throw new RascalTypeError("Not yet implemented: " + S);
+        	throw new RascalTypeError("Not yet implemented: " + S.getTree());
         }
 	}
 	
@@ -215,6 +215,12 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	@Override
 	public EvalResult visitStatementExpression(Expression x) {
 		return x.getExpression().accept(this);
+	}
+	
+	@Override
+	public EvalResult visitStatementFunctionDeclaration(
+			org.meta_environment.rascal.ast.Statement.FunctionDeclaration x) {
+		return x.getFunctionDeclaration().accept(this);
 	}
 	
 	private EvalResult assignVariable(String name, EvalResult right){
