@@ -13,11 +13,13 @@ import org.meta_environment.rascal.ast.Signature;
 public class Environment {
 	protected final Map<String, EvalResult> variableEnvironment;
 	protected final Map<String, List<FunctionDeclaration>> functionEnvironment;
+	protected final Map<String, Module> moduleEnvironment;
 	protected final TypeEvaluator types = new TypeEvaluator();
 
 	public Environment() {
 		this.variableEnvironment = new HashMap<String, EvalResult>();
 		this.functionEnvironment = new HashMap<String, List<FunctionDeclaration>>();
+		this.moduleEnvironment = new HashMap<String, Module>();
 	}
 	
 	public FunctionDeclaration getFunction(String name, TupleType actuals) {
@@ -36,8 +38,28 @@ public class Environment {
 		return null;
 	}
 	
+	public void addModule(Module m) {
+		moduleEnvironment.put(m.getName(), m);
+	}
+	
+	public Module getModule(String name) {
+		return moduleEnvironment.get(name);
+	}
+	
 	public EvalResult getVariable(String name) {
 		return variableEnvironment.get(name);
+	}
+	
+	public EvalResult getModuleVariable(String module, String variable) {
+		return getModule(module).getVariable(variable);
+	}
+	
+	public void storeModuleVariable(String module, String variable, EvalResult value) {
+		getModule(module).storeVariable(variable, value);
+	}
+	
+	public void storeModuleFunction(String module, String name, FunctionDeclaration function) {
+		getModule(module).storeFunction(name, function);
 	}
 	
 	public void storeVariable(String name, EvalResult value) {

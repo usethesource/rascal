@@ -28,7 +28,9 @@ import org.meta_environment.rascal.ast.Generator;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.Signature;
 import org.meta_environment.rascal.ast.Statement;
+import org.meta_environment.rascal.ast.Toplevel;
 import org.meta_environment.rascal.ast.ValueProducer;
+import org.meta_environment.rascal.ast.Declaration.Function;
 import org.meta_environment.rascal.ast.Expression.Addition;
 import org.meta_environment.rascal.ast.Expression.And;
 import org.meta_environment.rascal.ast.Expression.Bracket;
@@ -70,6 +72,7 @@ import org.meta_environment.rascal.ast.Statement.IfThenElse;
 import org.meta_environment.rascal.ast.Statement.Insert;
 import org.meta_environment.rascal.ast.Statement.VariableDeclaration;
 import org.meta_environment.rascal.ast.Statement.While;
+import org.meta_environment.rascal.ast.Toplevel.DefaultVisibility;
 
 public class Evaluator extends NullASTVisitor<EvalResult> {
 	private IValueFactory vf;
@@ -105,6 +108,33 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
         } else {
         	throw new RascalTypeError("Not yet implemented: " + S.getTree());
         }
+	}
+	
+	// Modules -------------------------------------------------------------
+	
+	@Override
+	public EvalResult visitModuleDefault(
+			org.meta_environment.rascal.ast.Module.Default x) {
+		String name = x.getHeader().getName().toString();
+		Module module = new Module(name);
+		env.addModule(module);
+		
+		// todo, somehow evaluate this in the module's environment, not here:
+		java.util.List<Toplevel> decls = x.getBody().getToplevels();
+		for (Toplevel l : decls) {
+			l.accept(this);
+		}
+		return result();
+	}
+	
+	@Override
+	public EvalResult visitToplevelDefaultVisibility(DefaultVisibility x) {
+		return x.getDeclaration().accept(this);
+	}
+	
+	@Override
+	public EvalResult visitDeclarationFunction(Function x) {
+		return x.getFunctionDeclaration().accept(this);
 	}
 	
 	// Variable Declarations -----------------------------------------------
