@@ -100,7 +100,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
         if(r != null){
         	return r.value;
         } else {
-        	return null;
+        	throw new RascalTypeError("Not yet implemented: " + S);
         }
 	}
 	
