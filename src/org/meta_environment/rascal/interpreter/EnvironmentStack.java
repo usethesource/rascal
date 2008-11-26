@@ -44,7 +44,7 @@ public class EnvironmentStack extends Environment {
 		  }
 	  }
 	  
-	  throw new RascalTypeError("Reference to undefined variable " + name);
+	  return null;
   }
 
   @Override
