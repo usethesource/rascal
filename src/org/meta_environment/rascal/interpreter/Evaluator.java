@@ -434,12 +434,13 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		org.meta_environment.rascal.ast.Expression expr = x.getCondition();
 		do {
 			EvalResult cval = expr.accept(this);
+			EvalResult statVal = result();
 
 			if (cval.type.isBoolType()) {
 				if (cval.value.equals(vf.bool(false))) {
-					return result();
+					return statVal;
 				} else {
-					x.getBody().accept(this);
+					statVal = x.getBody().accept(this);
 				}
 			} else {
 				throw new RascalTypeError("Condition " + expr + " has type "
@@ -452,11 +453,11 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	public EvalResult visitStatementDoWhile(While x) {
 		org.meta_environment.rascal.ast.Expression expr = x.getCondition();
 		do {
-			x.getBody().accept(this);
+			EvalResult result = x.getBody().accept(this);
 			EvalResult cval = expr.accept(this);
 			if (cval.type.isBoolType()) {
 				if (cval.value.equals(vf.bool(false))) {
-					return result();
+					return result;
 				}
 			} else {
 				throw new RascalTypeError("Condition " + expr + " has type "
@@ -548,6 +549,9 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 					break;
 				case 'u':
 					// TODO unicode escape
+					break;
+				default:
+				    b = '\\';	
 				}
 			}
 			
