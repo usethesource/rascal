@@ -75,7 +75,7 @@ public class RascalShell {
 			IValue value = evaluator.eval(stat);
 			
 			if (value == null) {
-				throw new RascalTypeError("Not yet implemented: " + tree);
+				return "no result.";
 			}
 			else {
 			  return value.getType() + ": " + value.toString();
