@@ -1,0 +1,12 @@
+
+
+rel[int,int] M =  {<1,2>, <2,3>, <3,4>}
+
+equations
+  initial
+     rel[int,int] T init M
+  satisfy
+	T = T union (T o M)
+end equations
+
+
