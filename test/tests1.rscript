@@ -1,0 +1,550 @@
+%% Test suite for built-in operators
+
+int ONE = 1
+int TWO = 2
+int THREE = 3
+
+<int,int> ONE-TWO = <1,2>
+
+yield set[set[int]] EMPTYSETSET = {}
+
+set[int] Set1 = {1,2,3}
+set[int] Set2 = {3, 4, 5}
+
+ 
+rel[int,int] Rel1 = {<1,10>, <2,20>, <3,30>}
+rel[int,int] Rel2 = {<3,30>, <4,40>, <5,50>}
+
+%% --- Set and relation expressions
+
+assert "set 1": {1} == {1}
+assert "set 2": {1,2} == {1,2}
+assert "set 3": {1,2,3} == {1,2,3}
+assert "set 4": {1,2,3} == Set1
+assert "set 5": Set1 == Set1
+assert "set 6": {ONE,2,3} == Set1
+assert "set 7": {1,TWO,3} == Set1
+assert "set 7": {ONE,TWO,THREE} == Set1
+
+
+assert "rel 1": {<1,10>} == {<1,10>}
+assert "rel 2": {<1,10>, <2,20>} == {<1,10>, <2,20>}
+assert "rel 3": {<1,10>, <2,20>, <3,30>} == {<1,10>, <2,20>, <3,30>}
+assert "rel 4": {<1,10>, <2,20>, <3,30>} == Rel1
+assert "rel 5": Rel1 == Rel1
+assert "rel 6": {<ONE,2>} == {<1,2>}
+assert "rel 7": {<ONE,TWO>} == {<1,2>}
+assert "rel 8": {ONE-TWO} == {<1,2>}
+assert "rel 9": {ONE-TWO, <3,4>} == {<1,2>,<3,4>}
+assert "rel 10": {<0,1>, ONE-TWO, <3,4>} == {<0,1>, <1,2>,<3,4>}
+assert "rel 11": {<1,2,3>, <4,5,6>} == {<4,5,6>, <1,2,3>}
+
+%% --- Boolean operators
+
+assert "true 1"  : true == true
+assert "false 1" : false == false
+
+assert "not 1" : (not true) == false
+assert "not 2" : (not false) == true
+
+assert "!= 1" : (true != false) == true
+
+assert "not 3" : not(true == false)
+assert "and 1" : (true and true) == true
+assert "and 2" : (true and false) == false
+assert "and 3" : (false and true) == false
+assert "and 4" : (false and false) == false
+
+assert "or 1" : (true or true) == true
+assert "or 2" : (true or false) == true
+assert "or 3" :  (false or true) == true
+assert "or 4" : (false and false) == false
+
+assert "implies 1" : (true implies true) == true
+assert "implies 2" : (true implies false) == false
+assert "implies 3" : (false implies true) == true
+assert "implies 4" : (false implies false) == true
+
+%% --- in/notin
+
+assert "in 1" : 2 in Set1
+assert "in 2" : not (7 in Set1)
+assert "in 3" : {2,3} in {{1,2}, {2,3}, {3,4}}
+assert "in 4" : {3,2} in {{1,2}, {2,3}, {3,4}}
+assert "in 5" : {{3,4},{2,1}} in {{{6,5}}, {{1,2},{3,4}}}
+assert "in 6" : <2,20> in Rel1
+assert "in 7" :  not (<7,70> in Rel1)
+assert "in 8" : <1,2,3> in  {<4,5,6>, <1,2,3>}
+
+assert "notin 1" : not (2 notin Set1)
+assert "notin 2": (7 notin Set1)
+assert "notin 3" : <7,70> notin Rel1
+assert "notin 4" : not(<2,20> notin Rel1)
+assert "notin 5" : <1,2,4> notin  {<4,5,6>, <1,2,3>}
+
+%% --- ==
+
+assert "== 1"  : 1 == 1
+assert "== 2"  : -1 == -1
+assert "== 3"  : not(1 == 2)
+assert "== 4"  : not(1 == -1)
+assert "== 5"  : "a" == "a"
+assert "== 6"  : not("a" == "b")
+
+assert "== 7"  : {} == {}
+assert "== 8"  : not({} == {1})
+assert "== 9"  : not({1} == {})
+assert "== 10" : {1} == {1}
+assert "== 11" : {1, 2} == {1, 2}
+assert "== 12" : {1, 2} == {2, 1}
+assert "== 13" : {1, 2, 3, 4, 5, 6, 7, 8, 9, 10} == {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+assert "== 14" : {1, 2, 3, 4, 5, 6, 7, 8, 9, 10} == {10, 2, 3, 4, 5, 6, 7, 8, 9, 1}
+assert "== 15" : {1, 2, 3, 4, 5, 6, 7, 8, 9, 10} == {10, 9, 3, 4, 5, 6, 7, 8, 2, 1}
+assert "== 16" : {1, 2, 3, 4, 5, 6, 7, 8, 9, 10} == {10, 9, 7, 4, 5, 6, 3, 8, 2, 1}
+assert "== 17" : {1, 2, 3, 4, 5, 6, 7, 8, 9, 10} == {10, 9, 7, 6, 5, 4, 3, 8, 2, 1}
+assert "== 18" : <1,2> == <1,2>
+assert "== 19" : <1,2,3> == <1,2,3>
+
+assert "== 20" : {<1,2>} == {<1,2>}
+assert "== 21" : {<1,2,3>} == {<1,2,3>}
+assert "== 22" : {<1,2>, <3,4>} ==  {<1,2>, <3,4>}
+assert "== 23" :{<1,2>, <3,4>} == {<3,4>, <1,2>}
+assert "== 24" : {<1,2,3>, <4,5,6>} == {<4,5,6>, <1,2,3>}
+assert "== 25" : {<1,2,3,4>, <4,5,6,7>} == {<4,5,6,7>, <1,2,3,4>}
+assert "== 26" : <{1,2}, 3> == <{2,1}, 3>
+assert "== 27" : <1, {2,3}> == <1, {3,2}>
+assert "== 28" : <{1,2}, {3,4}> == <{2,1},{4,3}>
+assert "== 29" : not(<1,2> == <2,1>)
+
+assert "== 30" : {} == {}
+assert "== 31" : not({} ==  {<1,2>, <3,4>})
+assert "== 32" : not({<1,2>, <3,4>} == {})
+assert "== 33" : {<1, {1,2,3}>, <2, {2,3,4}>} ==  {<1, {1,2,3}>, <2, {2,3,4}>}
+assert "== 34" : {<1, {1,2,3}>, <2, {2,3,4}>} ==  {<2, {2,3,4}>, <1, {1,2,3}>}
+assert "== 35" : {<1, {1,2,3}>, <2, {2,3,4}>} ==  {<2, {4,3,2}>, <1, {2,1,3}>}
+assert "== 36" : {{1}, {2}} == {{2}, {1}}
+assert "== 37" : {{}} == {{}}
+assert "== 38" : {{}, {}} == {{}, {}}
+%%>>assert "== 39" : not({{}, {}} == {{}, {}, {}})
+assert "== 39" : {{}, {}} == {{}, {}, {}}
+
+%% --- !=
+
+loc A1  = area-in-file("f", area(10, 3, 11, 7, 0, 0))
+loc A2  = area-in-file("f", area(10, 2, 11, 8, 0, 0))
+loc A30 = area-in-file("f", area(10, 5, 10, 7, 0, 0))
+loc A31 = area-in-file("f", area(10, 4, 10, 6, 0, 0))
+loc A3  = area-in-file("f", area(10, 4, 10, 7, 0, 0))
+loc A4  = area-in-file("f", area(10, 3, 10, 8, 0, 0))
+
+assert "!= 1" : 1 != 2
+assert "!= 2" : not(1 != 1)
+assert "!= 3" : "a" != "b"
+assert "!= 4" : not("a" != "a")
+assert "!= 5" :  A1 != A2
+
+assert "!= 6": not({} != {})
+assert "!= 7": {} != {1}
+assert "!= 8": {1} != {}
+
+assert "!= 9" : not({1} != {1})
+assert "!= 10" : {1, 2} != {1, 3}
+assert "!= 11" : {1, 2} != {3, 1}
+assert "!= 12" : {<1,2>} != {<1,3>}
+assert "!= 13" : {<1,2>, <3,4>} !=  {<1,2>, <3,5>}
+assert "!= 14" :{<1,2>, <3,4>} != {<3,5>, <1,2>}
+
+assert "!= 15" : {<1, {1,2,3}>, <2, {2,3,5}>} !=  {<1, {1,2,3}>, <2, {2,3,4}>}
+assert "!= 16" : {<1, {1,2,3}>, <2, {2,3,4}>} !=  {<2, {2,3,5}>, <1, {1,2,3}>}
+
+set[int] SmallSet = {1, 2, 3, 2, 4}
+set[int] BigSet   = {5, 4, 3, 2, 1, 2}
+
+%% --- <=
+
+assert "<= 1" : 1 <= 2
+assert "<= 2" : 2 <= 2
+assert "<= 2a" : "a" <= "b"
+assert "<= 2b" : "b" <= "b"
+
+assert "<= 3" : A1 <= A1
+assert "<= 4" : A1 <= A2
+assert "<= 5" : A3 <= A4
+assert "<= 5a": A30 <= A3
+assert "<= 5b": A31 <= A3
+
+assert "<= 6": {} <= {}
+assert "<= 7": {} <= BigSet
+assert "<= 8": not(BigSet <= {})
+assert "<= 9": SmallSet <= BigSet
+assert "<= 10": not(BigSet <= SmallSet)
+
+%% --- <
+
+assert "< 1" : 1 < 2
+assert "< 2" : not 2 < 2
+assert "< 2a" : "a" < "b"
+assert "< 2b" : not "b" < "b"
+assert "< 3" : not(A1 < A1)
+assert "< 4" : A1 < A2
+assert "< 5" : A3 < A4
+assert "< 5a": A30 < A3
+assert "< 5b": A31 < A3
+
+assert "< 6": not({} < {})
+assert "< 7": {} < BigSet
+assert "< 8": not(BigSet < {})
+assert "< 9": SmallSet < BigSet
+assert "< 10": not(BigSet < SmallSet)
+
+%% --- >=
+
+assert ">= 1" : not(1 >= 2)
+assert ">= 2" : 2 >= 2
+assert ">= 2a" : not ("a" >= "b")
+assert ">= 2b" : "b" >= "b"
+assert ">= 3" : A1 >= A1
+assert ">= 4" : not(A1 >= A2)
+assert ">= 5" : not(A3 >= A4)
+assert ">= 5a": not(A30 >= A3)
+assert ">= 5b": not(A31 >= A3)
+
+assert ">= 6": {} >= {}
+assert ">= 7": not({} >= BigSet)
+assert ">= 8": BigSet >= {}
+assert ">= 9": BigSet >= SmallSet
+assert ">= 10": not(SmallSet >= BigSet)
+
+%% --- >
+
+assert "> 1" : not(1 > 2)
+assert "> 2" : not(2 > 2)
+assert "> 2a" : not ("a" > "b")
+assert "> 2b" : not("b" > "b")
+
+assert "> 3" : not(A1 > A1)
+assert "> 4" : not(A1 > A2)
+assert "> 5" : not(A3 > A4)
+assert "> 5a": not(A30 > A3)
+assert "> 5b": not(A31 > A3)
+
+assert "> 6": not({} > {})
+assert "> 7": not {} > BigSet
+assert "> 8": BigSet > {}
+assert "> 9": BigSet > SmallSet
+assert "> 10": not(SmallSet >= BigSet)
+
+%% --- union
+
+assert "union 1" : {7} union Set1 == {7,1,2,3}
+assert "union 2" : Set1 union {7} == {1,2,3,7}
+assert "union 3" : {} union Set1 == Set1
+assert "union 4" : Set1 union {} == Set1
+assert "union 5" : {} union {} == {}
+assert "union 6" : Set1 union Set2 == {1,2,3,4,5}
+
+assert "union 7" : {<7,70>} union Rel1 == {<7,70>,<1,10>, <2,20>, <3,30>}
+assert "union 8" : Rel1 union {<7,70>} == {<1,10>, <2,20>, <3,30>,<7,70>}
+assert "union 9" : {<1,2,3,4>, <2,3,4,5>} union {<2,3,4,5>,<3,4,5,6>} == {<1,2,3,4>,<2,3,4,5>,<3,4,5,6>}
+
+assert "union 10": {} union Rel2 == Rel2
+assert "union 11": Rel1 union {} == Rel1
+assert "union 12": {} union {} == {}
+assert "union 13": {1,2,3,2,1,4} union {1,2,2,3,3,3} == {1,1,2,2,3,3,3,4}
+assert "union 14": {{1,2},{3,4},{5,6}} union {{2,1}, {8,7}} == {{1,2},{3,4},{5,6},{7,8}}
+
+%% --- inter
+
+assert "inter 1" : {} inter {} == {}
+assert "inter 2" : {} inter {7} == {}
+assert "inter 3" : Set1 inter {7} == {}
+assert "inter 4" : {7} inter Set1 == {}
+assert "inter 5" : Set1 inter {2} == {2}
+assert "inter 6" : {2} inter Set1 == {2}
+assert "inter 7" : {} inter {} == {}
+assert "inter 8" : Set1 inter {} == {}
+assert "inter 9" : {} inter Set1 == {}
+assert "inter 10": Set1 inter Set2 == {3}
+assert "inter 11": Set2 inter Set1 == {3}
+
+assert "inter 12": {<7,70>} inter {} == {}
+assert "inter 13":  {} inter {<7,70>} == {}
+assert "inter 14": {<2,20>} inter {} =={}
+assert "inter 15":  Rel1 inter {<7,70>} == {}
+assert "inter 16": {<2,20>} inter Rel1 == {<2,20>}
+assert "inter 17" : {<1,2,3,4>, <2,3,4,5>} inter {<2,3,4,5>,<3,4,5,6>} == {<2,3,4,5>}
+
+assert "inter 18": {} inter {} == {}
+assert "inter 19": Rel1 inter {} == {}
+assert "inter 20": {} inter Rel1 == {}
+assert "inter 21": Rel1 inter Rel2 == {<3,30>}
+assert "inter 22": Rel2 inter Rel1 == {<3,30>}
+assert "inter 23": {1,2,3,2,1} inter {1,2,2,3,3,3} == {1,2,2,3}
+assert "inter 24": {1,2,3,2,1,4} inter {1,2,2,3,3,3} == {1,2,2,3}
+assert "inter 25": {{1,2},{3,4},{5,6}} inter {{2,1}, {8,7}, {6,5}} == {{1,2},{5,6}}
+
+%% --- \
+
+assert "diff 1": Set1 \ {} == Set1
+assert "diff 2": {} \ Set1 == {}
+assert "diff 3": Set1 \ Set2 == {1,2}
+assert "diff 4": Set2 \ Set1 == {4,5}
+
+assert "diff 5": Rel1 \ {} == Rel1
+assert "diff 6":  {} \ Rel1 == {}
+assert "diff 7": Rel1 \ Rel2 == {<1,10>, <2,20>}
+assert "diff 8": Rel2 \ Rel1 == {<4,40>, <5,50>}
+
+%%>>assert "diff 9": {1,2,3,2,1} \  {1,2,2,3,3,3} == {1}
+assert "diff 9": {1,2,3,2,1} \  {1,2,2,3,3,3} == {}
+
+%%>>assert "diff 10": {1,2,3,2,1,4} \  {1,2,2,3,3,3} == {1,4}
+assert "diff 10": {1,2,3,2,1,4} \  {1,2,2,3,3,3} == {4}
+set[int] D10 = {1,2,3,2,1,4} \  {1,2,2,3,3,3}
+
+
+%% --- o
+
+assert "comp 1": {} o {} == {}
+assert "comp 2":  {<1,10>,<2,20>} o {} == {}
+assert "comp 3":  {} o {<10,100>, <20,200>} == {}
+assert "comp 4":  {<1,10>,<2,20>} o {<10,100>, <20,200>} == {<1,100>, <2,200>}
+
+%% n-ary?
+
+%% --- x
+
+assert "product 1": {} x Set1 == {}
+assert "product 2": Set1 x {} == {}
+assert "product 3": {9} x Set1 == {<9, 1>, <9, 2>, <9, 3>}
+assert "product 4": Set1 x {9} == {<1, 9>, <2, 9>, <3, 9>}
+assert "product 5": Set1 x Set2  == {<1, 3>, <1, 4>, <1, 5>, <2, 3>, <2, 4>, <2, 5>, <3, 3>, <3, 4>, <3, 5>}
+
+%% --- [ ]
+
+rel[int,int] Rel3 = {<1,10>, <2,20>, <1,11>, <3,30>, <2,21>}
+
+assert  "image 1": Rel3 [{}]== {}
+assert  "image 2": Rel3 [-, {}] == {}
+assert  "image 3": Rel3[1] == {10, 11}
+assert  "image 4": Rel3[1,-] == {10, 11}
+assert  "image 5": Rel3[{1}] == {10, 11}
+assert  "image 6": Rel3[{1,2}]  == {10, 11, 20, 21}
+assert  "image 7": Rel3[-,10] == {1}
+assert  "image 8": Rel3[-,{10}] == {1}
+assert  "image 9": Rel3[-,{10, 20}] == {1, 2}
+
+%% --- +/*
+
+assert "trans 1": 	{<1,2>, <2,3>, <3,4>} + == 
+			{<1,2>, <2,3>, <3,4>, <1, 3>, <2, 4>, <1, 4>}
+
+assert "trans 2": 	{<1,2>, <2,3>, <3,4>} * == 
+			{<1,2>, <2,3>, <3,4>, <1, 3>, <2, 4>, <1, 4>, <1, 1>, <2, 2>, <3, 3>, <4, 4>}
+
+assert "trans 3":	{<1,2>, <2,3>, <3,4>, <4,2>, <4,5>}+ ==
+			{<1,2>, <2,3>, <3,4>, <4,2>, <4,5>, <1, 3>, <2, 4>, <3, 2>, <3, 5>, <4, 3>, 
+			<1, 4>, <2, 2>, <2, 5>, <3, 3>, <4, 4>, <1, 5>}
+		
+		
+assert "trans 4":	{<1,2>, <2,3>, <3,4>, <4,2>, <4,5>}* ==
+			{<1,2>, <2,3>, <3,4>, <4,2>, <4,5>, <1, 3>, <2, 4>, <3, 2>, <3, 5>, <4, 3>, 
+			<1, 4>, <2, 2>, <2, 5>, <3, 3>, <4, 4>, <1, 5>, <1, 1>, <5, 5>}
+
+%% --- #
+
+assert "size 1": # {} == 0
+assert "size 2": # {} == 0
+assert "size 3": # Set1 == 3
+assert "size 4": # Rel1 == 3
+
+%% --- Set former
+
+assert "Set former 1": { X | int X : {} }		== {}
+assert "Set former 2": { X | int X : {1}} 		== {1}
+assert "Set former 3": { X | int X : {1, 2}} 		== {1,2}
+assert "Set former 4": { X | int X : {1, 1, 1}} 		== {1}
+
+assert "Set former 5": {  1 | int X : {1,2,3}} 		== {1}
+assert "Set former 6": {  1 | int X : {1,2,3}, true } 	== {1}
+assert "Set former 7": {  1 | int X : {1,2,3}, false} 	== {}
+
+assert "Set former 8": {  X | int X : {1,2,3}} 		== {1,2,3}
+assert "Set former 9": {  X | int X : {1,2,3}, true} 	== {1,2,3}
+assert "Set former 10": {  X | int X : {1,2,3}, false} 	== {}
+assert "Set former 10a": {  X | int X : {1,2,3}, X >= 2, X < 3} 	== {2}
+
+assert "Set former 11": {  {} | int X : {1,2,3}} 	== {{}}
+assert "Set former 12": {  {} | int X : {1,2,3}, true} == {{}}
+assert "Set former 13": {  {} | int X : {1,2,3}, false} == {}
+
+assert "Set former 14": {  1,2,3 | int X : {1,2,3}} 	== {1,2,3}
+assert "Set former 15": {  1,2,3 | int X : {1,2,3}, true} 	== {1,2,3}
+assert "Set former 16": {  1,2,3 | int X : {1,2,3}, true, true} 	== {1,2,3}
+assert "Set former 17": {  1,2,3 | int X : {1,2,3}, false}	== {} 
+
+assert "Set former 18": { X | set[int] X : {{1,2,3},{10,20,30},{100,200,300}} } ==
+	{ {1,2,3},{10,20,30},{100,200,300}}
+
+assert "Set former 19": {1 | 3 > 2} == {1}
+assert "Set former 20": {1 | 2 > 3} == {}
+assert "Set former 21": {X | int X <- 3} == {3}
+
+%% --- Relation former
+
+assert "Rel former 1":  { {} | int X : {1,2,3}} == {{}}
+%%assert "Rel former 2a":  { <X,Y> | <int X, int Y> : {}} == {}
+assert "Rel former 2b":  { <X,Y> | int X : {}, int Y : {}} == {}
+
+assert "Rel former 3":  { Rel1 | int X : {1,2,3}} == {Rel1}
+
+assert "Rel former 4": 	{<X,Y> | int X : {1,1,1}, int Y : {2,2,2}} == {<1,2>}
+
+assert "Rel former 5": 	{<1,2> | int X : {1,2,3}} == 
+			{<1,2>}
+assert "Rel former 6": 	{<X,Y> | int X : {1,2,3}, int Y : {2,3,4}} == 
+			{<1, 2>, <1, 3>, <1, 4>, <2, 2>, <2, 3>, <2, 4>, <3, 2>, <3, 3>, <3, 4>}
+assert "Rel former 7": 	{<X,Y> | int X : {1,2,3}, int Y : {2,3,4}, true} ==
+			{<1, 2>, <1, 3>, <1, 4>, <2, 2>, <2, 3>, <2, 4>, <3, 2>, <3, 3>, <3, 4>}
+assert "Rel former 8": 	{<X,Y> | int X : {1,2,3}, int Y : {2,3,4}, false} ==
+			{}
+assert "Rel former 9": 	{<X,Y> | int X : {1,2,3}, int Y : {2,3,4}, X >= Y} ==
+			{<2, 2>, <3, 2>, <3, 3>}
+
+assert "Rel former 10": {<X,Y> | int X : {1,2,3}, <X, int Y> : {<1,10>, <7,70>, <3,30>,<5,50>}} ==
+			{<1, 10>, <3, 30>}
+
+assert "Rel former 11": {<X,Y> | int X : {1,2,3}, <X, str Y> : {<1,"a">, <7,"b">, <3,"c">,<5,"d">}} ==
+			{<1, "a">, <3, "c">}
+
+assert "Rel former 12": {<X, Y> | int X <- 3, int Y <- 4} == {<3,4>}
+assert "Rel former 12": {<X, Y> | <int X, int Y> <- <3, 4>} == {<3,4>}
+
+
+%% Nested set/relation formers
+
+assert "Compr nest 1":  { X | int X : {Y | int Y : {1,2,3}}} == {1, 2, 3}
+assert "Compr nest 2":  { X | set[int] X <- {Y | int Y : {1,2,3}}} == {{3,2,1}}
+
+
+%% --- n-ary tuples
+
+rel[int,int,int] R3 = {<1,2,3>, <10,20,30>}
+
+set[int] RR = {X, Y, Z | <int X, int Y, int Z> : R3 }
+
+assert "Advanced value former 1":
+	{<X, Z> | <int X, int Y, int Z> : R3} == {<1,3>, <10,30>}
+
+assert "Advanced value former 2":
+	{<S,Q,P> | <int P, int Q, int R, int S> : {<1,2,3,4>, <10,20,30,40>}} == {<4,2,1>, <40,20,10>}
+
+assert "Advanced value former 3":
+	{<X,S> | int X : {10,20}, <int P, int Q, int R, int S> <- <1,2,3,4>}
+	== {<10,4>, <20,4>}
+
+assert "Advanced value former 4":
+	{<X, Y> | int X : {1,2}, <int,int,int> Y <- <1,2,3>} == {<1,<1,2,3>>, <2,<1,2,3>>}
+
+%% ---- Exists
+
+assert "exists, 1": exists(int X : {1,2,3} | X > 2) == true
+assert "exists, 2": exists(int X : {1,2,3} | X > 10) == false
+assert "exists, 3": exists(<int X, int Y> : {<1,10>,<30,3>,<2,20>} | X > Y) == true
+assert "exists, 4": exists(<int X, int Y> : {<1,10>,<30,3>,<2,20>} | X > 100*Y) == false
+
+%% ---- Forall
+
+assert "forall, 1": forall(int X : {1,2,3} | X >= 1) == true
+assert "forall, 2": forall(int X : {1,2,3} | X >= 2) == false
+assert "forall, 3": forall(<int X, int Y> : {<1,10>,<3,30>,<2,20>} | X < Y) == true
+assert "forall, 4": forall(<int X, int Y> : {<1,10>,<30,3>,<2,20>} | X < Y) == false
+ 
+%% ---- Arithmetic expressions
+
+assert "+, 1":  1 + 1 == 2
+assert "+, 2":  {X + 1 | int X : {1,2,3}} == {2,3,4}
+assert "+, 3":  {X | int X : {1,2,3}, X + 1 < 3} == {1}
+
+assert "-, 1":  2 - 3 == -1
+assert "-, 2":  {X - 1 | int X : {1,2,3}} == {0,1,2}
+assert "-, 3":  {X | int X : {1,2,3}, X - 1 < 3} == {1,2,3}
+
+assert "*, 1":  3 * 4 == 12
+%%assert "*, 2":  3 * (-4) == -12
+%%assert "*, 3":  (-3) * (-4) == 12
+assert "*, 4":  {X * 2 | int X : {1,2,3}} == {2,4,6}
+
+assert "/, 1":  8 / 2 == 4
+assert "/, 2":  7 / 2 == 3
+assert "/, 3":  0 / 5 == 0
+assert "/, 4":  7 / 5 == 1
+assert "/, 5":  -8 / 2 == -4
+assert "/, 6":  -8 / -2 == 4
+assert "/, 7":  4 / 5 == 0
+assert "/, 8":  {X * 2 | int X : {1,2,3}} == {2,4,6}
+
+%% ---- Type related checks
+
+rel[str,set[int]] SBI = {<"a", {1,2}>, <"b", {}>, <"c", {4,5,6}>}
+
+set[set[int]] BI = {{}, {1,2}, {}, {3,4}}
+
+%% ---- Type definitions
+
+type pair = <int theInt, str theStr>
+
+type triple = <int theInt, str theStr, bool theBool>
+
+pair P = <1, "a">
+
+triple T = <2, "b", true>
+
+type double-pair = <pair pair1, pair pair2>
+
+double-pair DP = <<1, "a">, <2, "b">>
+
+assert "type, 1": P.theInt == 1
+assert "type, 2": P.theStr == "a"
+assert "type, 3": DP.pair1 == P
+assert "type, 4": DP.pair1.theStr == P.theStr
+assert "type, 5": DP.pair1.theInt == P.theInt
+assert "type, 6": DP.pair2 == <2,"b">
+assert "type, 7": DP.pair2.theInt == 2
+assert "type, 8": DP.pair2.theStr == "b"
+
+assert "type, 9": T.theInt == 2
+assert "type, 10": T.theStr == "b"
+assert "type, 11": T.theBool == true
+
+type pair-triple = <pair thePair, triple theTriple>
+
+pair-triple PT = <P, T>
+
+assert "type, 12": PT.thePair == P
+assert "type, 13": PT.theTriple == T
+assert "type, 14": PT.theTriple.theInt == T.theInt
+assert "type, 15": PT.theTriple.theStr == T.theStr
+assert "type, 16": PT.theTriple.theBool == T.theBool
+
+type myStr = str
+
+type myPair = <int theInt, myStr theStr>
+
+myPair MP = P
+
+myStr MS = "abc"
+
+assert "type, 17": MS == "abc"
+assert "type, 18": MP.theInt == P.theInt
+assert "type, 19": MP.theStr == P.theStr
+
+assert "type, 20": first(P) == 1
+assert "type, 21": second(P) == "a"
+
+type SetType = set[int]
+
+SetType BT1 = {1,2,3}
+
+assert "type, 22": BT1 == {1,2,3}
+

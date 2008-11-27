@@ -1,0 +1,55 @@
+%%         1-------+   +---->4
+%%         ^       |  /      |
+%%         |       v /       v
+%%         3<----- 2<--------5
+%%                 |
+%%                 v
+%%                 6<--+
+%%                 |   |
+%%                 v   |
+%%                 7---+   
+
+rel[int, int] Graph = {<1,2>,<2,3>,<3,1>,<2,4>,<4,5>,<5,2>,<2,6>,<6,7>,<7,6>}
+
+rel[int,int] Closure = Graph+
+
+assert "Closure": Closure == {
+   <1, 1>, <1, 2>, <1, 3>, <1, 4>, <1, 5>, <1, 6>, <1, 7>,
+   <2, 1>, <2, 2>, <2, 3>, <2, 4>, <2, 5>, <2, 6>, <2, 7>,
+   <3, 1>, <3, 2>, <3, 3>, <3, 4>, <3, 5>, <3, 6>, <3, 7>,
+   <4, 1>, <4, 2>, <4, 3>, <4, 4>, <4, 5>, <4, 6>, <4, 7>,
+   <5, 1>, <5, 2>, <5, 3>, <5, 4>, <5, 5>, <5, 6>, <5, 7>,
+   <6, 6>, <6, 7>,
+   <7, 6>, <7, 7>}
+
+rel[int, bag[int]] Cycles = 
+  { <N, Closure[N]> | int N : carrier(Graph), <N, N> in Closure}
+
+assert "Cycles": Cycles == {
+  < 1, {1, 2, 3, 4, 5, 6, 7}>,
+  < 2, {1, 2, 3, 4, 5, 6, 7}>,
+  < 3,  {1, 2, 3, 4, 5, 6, 7}>,
+  < 4,  {1, 2, 3, 4, 5, 6, 7}>,
+  < 5,  {1, 2, 3, 4, 5, 6, 7}>,
+  < 6,  {6, 7}>,
+  < 7,  {6, 7}> }
+
+bool isProperCycle(int N, bag[int] C) = 
+     forall(int M : C | <N, M> in RC and <M, N> in RC)
+where  rel[int,int] RC  = carrierR(Graph, C)+
+end where
+
+bag[bag[int]] SubCycles (int N, bag[int] Cycle) =
+ { B | bag[int] B : power1(Cycle), N in B, isProperCycle(N, B) }
+
+rel[int, bag[bag[int]]] AllSubCycles =
+{ <N, SubCycles(N, B)> | <int N, bag[int] B> : Cycles}
+
+assert "AllSubCycles": AllSubCycles == {
+  < 1, { {1, 2, 3, 4, 5}, {1, 2, 3}} >,
+  < 2, { {1, 2, 3, 4, 5}, {1, 2, 3}, {2, 4, 5}} >,
+  < 3, { {1, 2, 3, 4, 5}, {1, 2, 3}} >,
+  < 4, { {1, 2, 3, 4, 5}, {2, 4, 5}} >,
+  < 5, { {1, 2, 3, 4, 5}, {2, 4, 5}} >,
+  < 6, { {6, 7} } >,
+  < 7, { {6, 7} } >}
