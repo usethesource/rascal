@@ -136,4 +136,9 @@ import org.meta_environment.rascal.ast.Rule;
 	public ModuleEnvironment getModule(String name) {
 		return stack.get(0).getModule(name);
 	}
+	
+	@Override
+	public EvalResult getModuleVariable(String module, String variable) {
+		return stack.get(0).getModule(module).getVariable(variable);
+	}
 }

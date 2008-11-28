@@ -380,14 +380,18 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		 TupleType actualTypes = tf.tupleType(types);
 		 java.util.List<Name> names = x.getQualifiedName().getNames();
 		 
-		 FunctionDeclaration functionDeclaration;
 		 if (names.size() == 1) {
-			functionDeclaration = env.getFunction(names.get(0).toString(), actualTypes); 
+			FunctionDeclaration functionDeclaration = env.getFunction(names.get(0).toString(), actualTypes);
+			return call(functionDeclaration, actuals);
 		 }
 		 else if (names.size() == 2) {
 			 String modulename = names.get(0).toString();
 			 String name = names.get(1).toString();
-			 functionDeclaration = env.getModule(modulename).getFunction(name, actualTypes);
+			 FunctionDeclaration functionDeclaration = env.getModule(modulename).getFunction(name, actualTypes);
+			 env.pushModule(modulename);
+			 EvalResult result = call(functionDeclaration, actuals);
+			 env.pop();
+			 return result;
 		 }
 		 else {
 			 throw new RascalTypeError("Unknown qualified name: " + x.getQualifiedName());
@@ -396,7 +400,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		 // TODO add support for trees
 		 
 		 
-		 return call(functionDeclaration, actuals);
+		 
 	}
 
 	private EvalResult call(FunctionDeclaration func, IValue[] actuals) {
@@ -808,7 +812,21 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	@Override
 	public EvalResult visitExpressionQualifiedName(
 			org.meta_environment.rascal.ast.Expression.QualifiedName x) {
-		EvalResult result = getVariable(x.getQualifiedName().toString());
+		java.util.List<Name> names = x.getQualifiedName().getNames();
+		EvalResult result; 
+		
+		if (names.size() == 1) {
+		   result = getVariable(names.get(0).toString());
+		}
+		else if (names.size() == 2) {
+		   String modulename = names.get(0).toString();
+		   String name = names.get(1).toString();
+		   result = env.getModuleVariable(modulename, name);
+		}
+		else {
+			throw new RascalTypeError("Unknown qualified name: " + x);
+		}
+		
 		if (result != null && result.value != null) {
 			return result;
 		} else {
