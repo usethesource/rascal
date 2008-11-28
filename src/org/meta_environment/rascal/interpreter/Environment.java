@@ -6,20 +6,50 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.type.TupleType;
-import org.meta_environment.rascal.ast.FunctionBody;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
-import org.meta_environment.rascal.ast.Signature;
+import org.meta_environment.rascal.ast.Rule;
 
-public class Environment {
+/*package*/ class Environment {
 	protected final Map<String, EvalResult> variableEnvironment;
 	protected final Map<String, List<FunctionDeclaration>> functionEnvironment;
-	protected final Map<String, Module> moduleEnvironment;
+	protected final Map<String, ModuleEnvironment> moduleEnvironment;
+	protected final Map<String, ModuleVisibility> nameVisibility;
+	protected final Map<Type, List<Rule>> ruleEnvironment;
 	protected final TypeEvaluator types = new TypeEvaluator();
 
 	public Environment() {
 		this.variableEnvironment = new HashMap<String, EvalResult>();
 		this.functionEnvironment = new HashMap<String, List<FunctionDeclaration>>();
-		this.moduleEnvironment = new HashMap<String, Module>();
+		this.moduleEnvironment = new HashMap<String, ModuleEnvironment>();
+		this.nameVisibility = new HashMap<String, ModuleVisibility>();
+		this.ruleEnvironment = new HashMap<Type, List<Rule>>();
+	}
+	
+	public void setVisibility(String name, ModuleVisibility v) {
+		nameVisibility.put(name, v);
+	}
+	
+	public ModuleVisibility getVisibility(String name) {
+		ModuleVisibility v = nameVisibility.get(name);
+		
+		return v == null ? ModuleVisibility.PRIVATE : v;
+	}
+	
+	public void storeRule(Type forType, Rule rule) {
+		List<Rule> rules = ruleEnvironment.get(forType);
+		
+		if (rules == null) {
+			rules = new LinkedList<Rule>();
+			ruleEnvironment.put(forType, rules);
+		}
+		
+		rules.add(rule);
+	}
+	
+	public List<Rule> getRules(Type forType) {
+		List<Rule> rules = ruleEnvironment.get(forType);
+		return rules != null ? rules : new LinkedList<Rule>();
 	}
 	
 	public FunctionDeclaration getFunction(String name, TupleType actuals) {
@@ -38,11 +68,11 @@ public class Environment {
 		return null;
 	}
 	
-	public void addModule(Module m) {
+	public void addModule(ModuleEnvironment m) {
 		moduleEnvironment.put(m.getName(), m);
 	}
 	
-	public Module getModule(String name) {
+	public ModuleEnvironment getModule(String name) {
 		return moduleEnvironment.get(name);
 	}
 	
@@ -77,15 +107,7 @@ public class Environment {
 		list.add(function);
 	}
 	
- // Function declarations -----------------------------------------
-	
-	class FunctionDeclarationX {
-		Signature signature;
-		FunctionBody body;
-		
-		FunctionDeclarationX(Signature s, FunctionBody b){
-			signature = s;
-			body = b;
-		}
+	public boolean isRootEnvironment() {
+		return false;
 	}
 }

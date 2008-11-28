@@ -23,8 +23,9 @@ public class RascalShell {
 	private final static String QUIT = "quit";
 	
 	private Parser parser = Parser.getInstance();
-	private ASTBuilder builder = new ASTBuilder(new ASTFactory());
-	private Evaluator evaluator = new Evaluator(ValueFactory.getInstance());
+	private ASTFactory factory = new ASTFactory();
+	private ASTBuilder builder = new ASTBuilder(factory);
+	private Evaluator evaluator = new Evaluator(ValueFactory.getInstance(), factory);
 	
 	private void run() throws IOException, FactTypeError {
 		ConsoleReader console = new ConsoleReader();

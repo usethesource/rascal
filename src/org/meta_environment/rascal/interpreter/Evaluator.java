@@ -1,5 +1,8 @@
 package org.meta_environment.rascal.interpreter;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -11,26 +14,40 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.type.ListType;
 import org.eclipse.imp.pdb.facts.type.MapType;
+import org.eclipse.imp.pdb.facts.type.NamedTreeType;
 import org.eclipse.imp.pdb.facts.type.SetType;
 import org.eclipse.imp.pdb.facts.type.TupleType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.Assignable;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.Generator;
+import org.meta_environment.rascal.ast.Module;
+import org.meta_environment.rascal.ast.ModuleName;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.Signature;
 import org.meta_environment.rascal.ast.Statement;
 import org.meta_environment.rascal.ast.Toplevel;
+import org.meta_environment.rascal.ast.TypeArg;
 import org.meta_environment.rascal.ast.ValueProducer;
+import org.meta_environment.rascal.ast.Variant;
+import org.meta_environment.rascal.ast.Declaration.Annotation;
+import org.meta_environment.rascal.ast.Declaration.Data;
 import org.meta_environment.rascal.ast.Declaration.Function;
+import org.meta_environment.rascal.ast.Declaration.Rule;
+import org.meta_environment.rascal.ast.Declaration.Tag;
+import org.meta_environment.rascal.ast.Declaration.Variable;
+import org.meta_environment.rascal.ast.Declaration.View;
 import org.meta_environment.rascal.ast.Expression.Addition;
 import org.meta_environment.rascal.ast.Expression.And;
 import org.meta_environment.rascal.ast.Expression.Bracket;
@@ -74,15 +91,21 @@ import org.meta_environment.rascal.ast.Statement.Insert;
 import org.meta_environment.rascal.ast.Statement.VariableDeclaration;
 import org.meta_environment.rascal.ast.Statement.While;
 import org.meta_environment.rascal.ast.Toplevel.DefaultVisibility;
+import org.meta_environment.rascal.ast.Toplevel.GivenVisibility;
+import org.meta_environment.rascal.parser.ASTBuilder;
+import org.meta_environment.rascal.parser.Parser;
 
 public class Evaluator extends NullASTVisitor<EvalResult> {
-	private IValueFactory vf;
+	private static final String RASCAL_FILE_EXT = ".rsc";
+	private final IValueFactory vf;
 	private final TypeFactory tf;
 	private final TypeEvaluator te = new TypeEvaluator();
-	private EnvironmentStack env = new EnvironmentStack();
+	private final EnvironmentStack env = new EnvironmentStack();
+	private final ASTFactory af;
 
-	public Evaluator(IValueFactory f) {
+	public Evaluator(IValueFactory f, ASTFactory astFactory) {
 		this.vf = f;
+		this.af = astFactory;
 		tf = TypeFactory.getInstance();
 	}
 
@@ -114,17 +137,47 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	// Modules -------------------------------------------------------------
 	
 	@Override
+	public EvalResult visitImportDefault(
+			org.meta_environment.rascal.ast.Import.Default x) {
+		// TODO support for full complexity of import declarations
+		String name = x.getModule().getName().toString();
+		
+		Parser p = Parser.getInstance();
+		ASTBuilder b = new ASTBuilder(af);
+		
+		try {
+			INode tree = p.parse(new FileInputStream(name + RASCAL_FILE_EXT));
+			Module m = b.buildModule(tree);
+			
+			ModuleName declaredNamed = m.getHeader().getName();
+			if (!declaredNamed.toString().equals(name)) {
+				throw new RascalTypeError("Module " + declaredNamed + " should be in a file called " + declaredNamed + RASCAL_FILE_EXT + ", not " + name);
+			}
+			return m.accept(this);
+		} catch (FactTypeError e) {
+			throw new RascalTypeError("Something went wrong during parsing:", e);
+		} catch (FileNotFoundException e) {
+			throw new RascalTypeError("Could not import module", e);
+		} catch (IOException e) {
+			throw new RascalTypeError("Could not import module", e);
+		}
+	}
+	
+	@Override
 	public EvalResult visitModuleDefault(
 			org.meta_environment.rascal.ast.Module.Default x) {
 		String name = x.getHeader().getName().toString();
-		Module module = new Module(name);
-		env.addModule(module);
+		ModuleEnvironment module = new ModuleEnvironment(name);
 		
-		// TODO, somehow evaluate this in the module's environment, not here:
+		env.addModule(module);
+		env.pushModule(name);
+		
 		java.util.List<Toplevel> decls = x.getBody().getToplevels();
 		for (Toplevel l : decls) {
 			l.accept(this);
 		}
+		
+		env.pop();
 		return result();
 	}
 	
@@ -132,10 +185,139 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	public EvalResult visitToplevelDefaultVisibility(DefaultVisibility x) {
 		return x.getDeclaration().accept(this);
 	}
+
+	@Override
+	public EvalResult visitToplevelGivenVisibility(GivenVisibility x) {
+		// order dependent code here:
+		x.getDeclaration().accept(this);
+		String name = x.getDeclaration().getName().toString();
+		ModuleVisibility visibility = getVisibility(x.getVisibility());
+		env.setVisibility(name, visibility);
+		return result();
+	}
+	
+	private ModuleVisibility getVisibility(org.meta_environment.rascal.ast.Visibility v) {
+		if (v.isPublic()) {
+			return ModuleVisibility.PUBLIC;
+		}
+		else {
+			return ModuleVisibility.PRIVATE;
+		}
+	}
 	
 	@Override
 	public EvalResult visitDeclarationFunction(Function x) {
 		return x.getFunctionDeclaration().accept(this);
+	}
+	
+	@Override
+	public EvalResult visitDeclarationVariable(Variable x) {
+		Type declaredType = x.getType().accept(te);
+		EvalResult r = result();
+
+		for (org.meta_environment.rascal.ast.Variable var : x.getVariables()) {
+			String name = var.getName().toString();
+			if (var.isUnInitialized()) {  
+				throw new RascalTypeError("Module variable is not initialized: " + x);
+			} else {
+				EvalResult v = var.getInitial().accept(this);
+				if(v.type.isSubtypeOf(declaredType)){
+					r = result(declaredType, v.value);
+					storeVariable(name, r);
+				} else {
+					throw new RascalTypeError("variable " + name + ", declared type " + declaredType + " incompatible with initial type " + v.type);
+				}
+			}
+		}
+		
+		return r;
+	}
+	
+	@Override
+	public EvalResult visitDeclarationAnnotation(Annotation x) {
+		Type annoType = x.getType().accept(te);
+		String name = x.getName().toString();
+		
+		for (org.meta_environment.rascal.ast.Type type : x.getTypes()) {
+		  tf.declareAnnotation(type.accept(te), name, annoType);	
+		}
+		
+		return result();
+	}
+	
+	@Override
+	public EvalResult visitDeclarationData(Data x) {
+		String name = x.getUser().getName().toString();
+		NamedTreeType sort = tf.namedTreeType(name);
+		
+		for (Variant var : x.getVariants()) {
+			String altName = var.getName().toString();
+			
+		    if (var.isNAryConstructor()) {
+		    	java.util.List<TypeArg> args = var.getArguments();
+		    	Object[] fieldsAndLabels = new Type[args.size() * 2];
+
+		    	for (int i = 0, j = 0; i < args.size(); i++, j++) {
+		    		fieldsAndLabels[j++] = args.get(i).getType().accept(te);
+		    		fieldsAndLabels[j] = args.get(i).getName().toString();
+		    	}
+
+		    	TupleType children = tf.tupleType(fieldsAndLabels);
+		    	tf.treeNodeType(sort, altName, children);
+		    }
+		    else if (var.isNillaryConstructor()) {
+		    	tf.treeNodeType(sort, altName, new Object[] { });
+		    }
+		    else if (var.isAnonymousConstructor()) {
+		    	Type argType = var.getType().accept(te);
+		    	String label = var.getName().toString();
+		    	tf.anonymousTreeType(sort, altName, argType, label);
+		    }
+		}
+		
+		return result();
+	}
+	
+	@Override
+	public EvalResult visitDeclarationType(
+			org.meta_environment.rascal.ast.Declaration.Type x) {
+		// TODO add support for parameterized types
+		String user = x.getUser().getName().toString();
+		Type base = x.getBase().accept(te);
+		tf.namedType(user, base);
+		return result();
+	}
+	
+	@Override
+	public EvalResult visitDeclarationView(View x) {
+		// TODO implement
+		throw new RascalTypeError("views are not yet implemented");
+	}
+	
+	@Override
+	public EvalResult visitDeclarationRule(Rule x) {
+		Type outer;
+	
+		if (x.getRule().isNoGuard()) {
+		   EvalResult result = x.getRule().getMatch().getMatch().accept(this);
+		   outer = result.type;
+		}
+		else {
+			outer = x.getRule().getType().accept(te);
+			EvalResult result = x.getRule().getMatch().getMatch().accept(this);
+			
+			if (!result.type.isSubtypeOf(outer)) {
+				throw new RascalTypeError("Declared type of rule does not match type of left-hand side: " + x);
+			}
+		}
+		
+		env.storeRule(outer, x.getRule());
+		return result();
+	}
+	
+	@Override
+	public EvalResult visitDeclarationTag(Tag x) {
+		throw new RascalTypeError("tags are not yet implemented");
 	}
 	
 	// Variable Declarations -----------------------------------------------
