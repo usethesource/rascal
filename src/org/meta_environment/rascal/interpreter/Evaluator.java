@@ -48,6 +48,7 @@ import org.meta_environment.rascal.ast.Expression.List;
 import org.meta_environment.rascal.ast.Expression.Literal;
 import org.meta_environment.rascal.ast.Expression.Modulo;
 import org.meta_environment.rascal.ast.Expression.Negation;
+import org.meta_environment.rascal.ast.Expression.Negative;
 import org.meta_environment.rascal.ast.Expression.NonEmptyBlock;
 import org.meta_environment.rascal.ast.Expression.NonEmptySet;
 import org.meta_environment.rascal.ast.Expression.NotIn;
@@ -774,6 +775,20 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 					+ left.type + ", " + right.type);
 		}
 		return result();
+	}
+	
+	@Override
+	public EvalResult visitExpressionNegative(Negative x) {
+		EvalResult arg = x.getArgument().accept(this);
+		if (arg.type.isIntegerType()) {
+			return result(vf.integer(- ((IInteger) arg.value).getValue()));
+		}
+			else	if (arg.type.isDoubleType()) {
+				return result(vf.dubble(- ((IDouble) arg.value).getValue()));
+		} else {
+			throw new RascalTypeError(
+					"Operand of unary - should be integer or double instead of: " + arg.type);
+		}
 	}
 	
 	@Override
