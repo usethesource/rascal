@@ -10,6 +10,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.hash.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.meta_environment.rascal.ast.ASTFactory;
+import org.meta_environment.rascal.ast.Command;
 import org.meta_environment.rascal.ast.Statement;
 import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.parser.ASTBuilder;
@@ -28,8 +29,8 @@ public class RascalTests extends TestCase{
 	//		return false;
 	//	}
 	//	else {
-			Statement stat = builder.buildStatement(tree);
-			IValue value = evaluator.eval(stat);
+			Command stat = builder.buildCommand(tree);
+			IValue value = evaluator.eval(stat.getStatement());
 			
 			if (value == null || ! value.getType().isBoolType())
 				return false;
