@@ -91,7 +91,7 @@ public class RascalShell {
 			IValue value = command.eval(stat);
 			
 			if (value == null) {
-				return "no result.";
+				return "done.";
 			}
 			else {
 			  return value.getType() + ": " + value.toString();

@@ -32,7 +32,7 @@ import org.meta_environment.rascal.ast.Rule;
 	}
 	
 	public void pushModule(String name) {
-		stack.push(moduleEnvironment.get(name));
+		stack.push(stack.get(0).moduleEnvironment.get(name));
 	}
 
 	@Override
