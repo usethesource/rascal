@@ -49,19 +49,32 @@ public class RascalShell {
 					console.printNewline();
 				}
 				catch (FactTypeError e) {
-					System.err.println("bug: " + e.getMessage());
-					e.printStackTrace();
-					console.printNewline();
+					console.printString("bug: " + e.getMessage() + "\n");
+				    printStacktrace(console, e);
 				}
 				catch (RascalTypeError e) {
-					System.err.println("error: " + e.getMessage());
-					console.printNewline();
-					e.printStackTrace();
+					console.printString("error: " + e.getMessage() + "\n");
+					if (e.hasCause()) {
+						console.printString("caused by: " + e.getCause().getMessage() + "\n");
+					}
+					printStacktrace(console, e);
 				}
 			}
 		}
 		catch (FailureException e) {
 			return;
+		}
+	}
+	
+	private void printStacktrace(ConsoleReader console, Throwable e) throws IOException {
+		console.printString("stacktrace: " + e.getMessage() + "\n");
+		for (StackTraceElement elem : e.getStackTrace()) {
+			console.printString("\t" + elem.getClassName() + "." + elem.getMethodName() + ":" + elem.getLineNumber() + "\n");
+		}
+		Throwable cause = e.getCause();
+		if (cause != null) {
+			console.printString("caused by:\n");
+			printStacktrace(console, cause);
 		}
 	}
 

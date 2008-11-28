@@ -10,4 +10,8 @@ public class RascalTypeError extends RuntimeException {
 	public RascalTypeError(String message, Throwable cause) {
 		super(message, cause);
 	}
+	
+	public boolean hasCause() {
+		return getCause() != null;
+	}
 }

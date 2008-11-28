@@ -11,6 +11,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.meta_environment.rascal.ast.Command;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.Command.Declaration;
+import org.meta_environment.rascal.ast.Command.Import;
 import org.meta_environment.rascal.ast.Command.Shell;
 import org.meta_environment.rascal.ast.ShellCommand.Edit;
 import org.meta_environment.rascal.ast.ShellCommand.History;
@@ -43,6 +44,12 @@ import org.meta_environment.rascal.ast.ShellCommand.Quit;
 	public IValue visitCommandStatement(
 			org.meta_environment.rascal.ast.Command.Statement x) {
 		return evaluator.eval(x.getStatement());
+	}
+	
+	@Override
+	public IValue visitCommandImport(Import x) {
+		EvalResult r = x.getImported().accept(evaluator);
+		return r.value;
 	}
 
 	@Override
