@@ -35,6 +35,7 @@ import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.Generator;
 import org.meta_environment.rascal.ast.Module;
 import org.meta_environment.rascal.ast.ModuleName;
+import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.Signature;
 import org.meta_environment.rascal.ast.Statement;
@@ -173,7 +174,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		}
 	}
 	
-	@Override
+	@Override 
 	public EvalResult visitModuleDefault(
 			org.meta_environment.rascal.ast.Module.Default x) {
 		String name = x.getHeader().getName().toString();
@@ -377,10 +378,23 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		 }
 		 
 		 TupleType actualTypes = tf.tupleType(types);
-		 String name = x.getName().toString();
+		 java.util.List<Name> names = x.getQualifiedName().getNames();
+		 
+		 FunctionDeclaration functionDeclaration;
+		 if (names.size() == 1) {
+			functionDeclaration = env.getFunction(names.get(0).toString(), actualTypes); 
+		 }
+		 else if (names.size() == 2) {
+			 String modulename = names.get(0).toString();
+			 String name = names.get(1).toString();
+			 functionDeclaration = env.getModule(modulename).getFunction(name, actualTypes);
+		 }
+		 else {
+			 throw new RascalTypeError("Unknown qualified name: " + x.getQualifiedName());
+		 }
 	
 		 // TODO add support for trees
-		 FunctionDeclaration functionDeclaration = env.getFunction(name, actualTypes);
+		 
 		 
 		 return call(functionDeclaration, actuals);
 	}

@@ -1395,13 +1395,13 @@ private org.meta_environment.rascal.ast.Literal literal;
  		z.$setLiteral(x);
 		return z;
 	}	
-} public boolean isCallOrTree() { return false; }
+} public org.meta_environment.rascal.ast.QualifiedName getQualifiedName() { throw new UnsupportedOperationException(); } public boolean hasQualifiedName() { return false; } public boolean isCallOrTree() { return false; }
 static public class CallOrTree extends Expression {
-/* name:Name "(" arguments:{Expression ","}* ")" -> Expression {cons("CallOrTree")} */
+/* qualifiedName:QualifiedName "(" arguments:{Expression ","}* ")" -> Expression {cons("CallOrTree")} */
 	private CallOrTree() { }
-	/*package*/ CallOrTree(ITree tree, org.meta_environment.rascal.ast.Name name, java.util.List<org.meta_environment.rascal.ast.Expression> arguments) {
+	/*package*/ CallOrTree(ITree tree, org.meta_environment.rascal.ast.QualifiedName qualifiedName, java.util.List<org.meta_environment.rascal.ast.Expression> arguments) {
 		this.tree = tree;
-		this.name = name;
+		this.qualifiedName = qualifiedName;
 		this.arguments = arguments;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -1410,15 +1410,15 @@ static public class CallOrTree extends Expression {
 
 	public boolean isCallOrTree() { return true; }
 
-	public boolean hasName() { return true; }
+	public boolean hasQualifiedName() { return true; }
 	public boolean hasArguments() { return true; }
 
-private org.meta_environment.rascal.ast.Name name;
-	public org.meta_environment.rascal.ast.Name getName() { return name; }
-	private void $setName(org.meta_environment.rascal.ast.Name x) { this.name = x; }
-	public CallOrTree setName(org.meta_environment.rascal.ast.Name x) { 
+private org.meta_environment.rascal.ast.QualifiedName qualifiedName;
+	public org.meta_environment.rascal.ast.QualifiedName getQualifiedName() { return qualifiedName; }
+	private void $setQualifiedName(org.meta_environment.rascal.ast.QualifiedName x) { this.qualifiedName = x; }
+	public CallOrTree setQualifiedName(org.meta_environment.rascal.ast.QualifiedName x) { 
 		CallOrTree z = new CallOrTree();
- 		z.$setName(x);
+ 		z.$setQualifiedName(x);
 		return z;
 	}
 	private java.util.List<org.meta_environment.rascal.ast.Expression> arguments;
@@ -1651,10 +1651,7 @@ private org.meta_environment.rascal.ast.Expression filename;
  		z.$setAreaExpression(x);
 		return z;
 	}	
-} 
-public org.meta_environment.rascal.ast.QualifiedName getQualifiedName() { throw new UnsupportedOperationException(); }
-public boolean hasQualifiedName() { return false; }
-public boolean isQualifiedName() { return false; }
+} public boolean isQualifiedName() { return false; }
 static public class QualifiedName extends Expression {
 /* qualifiedName:QualifiedName -> Expression {cons("QualifiedName")} */
 	private QualifiedName() { }

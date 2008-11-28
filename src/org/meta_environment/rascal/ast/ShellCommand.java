@@ -1,18 +1,18 @@
 package org.meta_environment.rascal.ast; 
 import org.eclipse.imp.pdb.facts.ITree; 
 public abstract class ShellCommand extends AbstractAST { 
-  public boolean isQuit() { return false; }
-static public class Quit extends ShellCommand {
-/* "quit" -> ShellCommand {cons("Quit")} */
-	private Quit() { }
-	/*package*/ Quit(ITree tree) {
+  public boolean isHelp() { return false; }
+static public class Help extends ShellCommand {
+/* "help" -> ShellCommand {cons("Help")} */
+	private Help() { }
+	/*package*/ Help(ITree tree) {
 		this.tree = tree;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitShellCommandQuit(this);
+		return visitor.visitShellCommandHelp(this);
 	}
 
-	public boolean isQuit() { return true; }	
+	public boolean isHelp() { return true; }	
 }
 static public class Ambiguity extends ShellCommand {
   private final java.util.List<org.meta_environment.rascal.ast.ShellCommand> alternatives;
@@ -27,7 +27,19 @@ static public class Ambiguity extends ShellCommand {
      return v.visitShellCommandAmbiguity(this);
   }
 } 
-public org.meta_environment.rascal.ast.Name getName() { throw new UnsupportedOperationException(); }
+public boolean isQuit() { return false; }
+static public class Quit extends ShellCommand {
+/* "quit" -> ShellCommand {cons("Quit")} */
+	private Quit() { }
+	/*package*/ Quit(ITree tree) {
+		this.tree = tree;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitShellCommandQuit(this);
+	}
+
+	public boolean isQuit() { return true; }	
+} public abstract <T> T accept(IASTVisitor<T> visitor); public org.meta_environment.rascal.ast.Name getName() { throw new UnsupportedOperationException(); }
 public boolean hasName() { return false; }
 public boolean isEdit() { return false; }
 static public class Edit extends ShellCommand {
@@ -53,7 +65,8 @@ private org.meta_environment.rascal.ast.Name name;
  		z.$setName(x);
 		return z;
 	}	
-} public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isHistory() { return false; }
+} 
+public boolean isHistory() { return false; }
 static public class History extends ShellCommand {
 /* "history" -> ShellCommand {cons("History")} */
 	private History() { }

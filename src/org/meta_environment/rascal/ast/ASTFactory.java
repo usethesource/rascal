@@ -185,8 +185,8 @@ org.meta_environment.rascal.ast.Expression.List x = new org.meta_environment.ras
 		}
 		return (org.meta_environment.rascal.ast.Expression.List)table.get(x); 
 }
-public org.meta_environment.rascal.ast.Expression.CallOrTree makeExpressionCallOrTree(ITree tree, org.meta_environment.rascal.ast.Name name, java.util.List<org.meta_environment.rascal.ast.Expression> arguments) { 
-org.meta_environment.rascal.ast.Expression.CallOrTree x = new org.meta_environment.rascal.ast.Expression.CallOrTree(tree, name, arguments);
+public org.meta_environment.rascal.ast.Expression.CallOrTree makeExpressionCallOrTree(ITree tree, org.meta_environment.rascal.ast.QualifiedName qualifiedName, java.util.List<org.meta_environment.rascal.ast.Expression> arguments) { 
+org.meta_environment.rascal.ast.Expression.CallOrTree x = new org.meta_environment.rascal.ast.Expression.CallOrTree(tree, qualifiedName, arguments);
 		if (!table.containsKey(x)) { 
 			table.put(x, x);
 		}
@@ -2810,6 +2810,13 @@ org.meta_environment.rascal.ast.ShellCommand.Edit x = new org.meta_environment.r
 		}
 		return (org.meta_environment.rascal.ast.ShellCommand.Edit)table.get(x); 
 }
+public org.meta_environment.rascal.ast.ShellCommand.Quit makeShellCommandQuit(ITree tree) { 
+org.meta_environment.rascal.ast.ShellCommand.Quit x = new org.meta_environment.rascal.ast.ShellCommand.Quit(tree);
+		if (!table.containsKey(x)) { 
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.ShellCommand.Quit)table.get(x); 
+}
 public org.meta_environment.rascal.ast.ShellCommand.Ambiguity makeShellCommandAmbiguity(java.util.List<org.meta_environment.rascal.ast.ShellCommand> alternatives) { 
 org.meta_environment.rascal.ast.ShellCommand.Ambiguity amb = new org.meta_environment.rascal.ast.ShellCommand.Ambiguity(alternatives);
      if (!table.containsKey(amb)) {
@@ -2817,12 +2824,12 @@ org.meta_environment.rascal.ast.ShellCommand.Ambiguity amb = new org.meta_enviro
      }
      return (org.meta_environment.rascal.ast.ShellCommand.Ambiguity)table.get(amb); 
 }
-public org.meta_environment.rascal.ast.ShellCommand.Quit makeShellCommandQuit(ITree tree) { 
-org.meta_environment.rascal.ast.ShellCommand.Quit x = new org.meta_environment.rascal.ast.ShellCommand.Quit(tree);
+public org.meta_environment.rascal.ast.ShellCommand.Help makeShellCommandHelp(ITree tree) { 
+org.meta_environment.rascal.ast.ShellCommand.Help x = new org.meta_environment.rascal.ast.ShellCommand.Help(tree);
 		if (!table.containsKey(x)) { 
 			table.put(x, x);
 		}
-		return (org.meta_environment.rascal.ast.ShellCommand.Quit)table.get(x); 
+		return (org.meta_environment.rascal.ast.ShellCommand.Help)table.get(x); 
 }
 public org.meta_environment.rascal.ast.ValueProducer.GivenStrategy makeValueProducerGivenStrategy(ITree tree, org.meta_environment.rascal.ast.Strategy strategy, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Expression expression) { 
 org.meta_environment.rascal.ast.ValueProducer.GivenStrategy x = new org.meta_environment.rascal.ast.ValueProducer.GivenStrategy(tree, strategy, pattern, expression);
