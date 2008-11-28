@@ -16,11 +16,12 @@ import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
 
 public class RascalTests extends TestCase{
+	private Parser parser = Parser.getInstance();
+	private ASTFactory Factory = new ASTFactory();
+    private ASTBuilder builder = new ASTBuilder(Factory);
+	private Evaluator evaluator = new Evaluator(ValueFactory.getInstance(), Factory);
 	
 	private boolean runTest(String statement) throws IOException {
-		Parser parser = Parser.getInstance();
-	    ASTBuilder builder = new ASTBuilder(new ASTFactory());
-		Evaluator evaluator = new Evaluator(ValueFactory.getInstance());
 		INode tree = parser.parse(new ByteArrayInputStream(statement.getBytes()));
 
 	//	if (tree.getTreeNodeType() == builder.ParseTree_Summary) {
@@ -54,7 +55,6 @@ public class RascalTests extends TestCase{
 		assertTrue(runTest("true || false == true;"));	
 		assertTrue(runTest("false || true == true;"));	
 		assertTrue(runTest("false || false == false;"));	
-		
 
 	}
 	
@@ -67,8 +67,31 @@ public class RascalTests extends TestCase{
 		assertTrue(runTest("-1 != 1;"));
 		
 		assertTrue(runTest("1 + 1 == 2;"));
-//		assertTrue(runTest("-1 + 2 == 1;"));
-		assertTrue(runTest("1 + -12 == -1;"));
+		assertTrue(runTest("-1 + 2 == 1;"));
+		assertTrue(runTest("1 + -2 == -1;"));
+		
+		assertTrue(runTest("2 - 1 == 1;"));	
+		assertTrue(runTest("2 - 3 == -1;"));	
+		assertTrue(runTest("2 - -1 == 3;"));	
+		assertTrue(runTest("-2 - 1 == -3;"));	
+		
+		assertTrue(runTest("2 * 3 == 6;"));	
+		assertTrue(runTest("-2 * 3 == -6;"));	
+		assertTrue(runTest("2 * -3 == -6;"));
+		assertTrue(runTest("-2 * -3 == 6;"));	
+		
+		assertTrue(runTest("8 / 4 == 2;"));	
+		assertTrue(runTest("-8 / 4 == -2;"));
+		assertTrue(runTest("8 / -4 == -2;"));	
+		assertTrue(runTest("-8 / -4 == 2;"));
+		
+		assertTrue(runTest("7 / 2 == 3;"));	
+		assertTrue(runTest("-7 / 2 == -3;"));
+		assertTrue(runTest("7 / -2 == -3;"));	
+		assertTrue(runTest("-7 / -2 == 3;"));	
+		
+		assertTrue(runTest("0 / 5 == 0;"));	
+		assertTrue(runTest("5 / 1 == 5;"));	
 		
 		assertTrue(runTest("1 <= 2;"));
 		assertTrue(runTest("2 <= 2;"));
