@@ -227,7 +227,7 @@ private org.meta_environment.rascal.ast.Type type;
 } public org.meta_environment.rascal.ast.Name getName() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Rule getRule() { throw new UnsupportedOperationException(); } public boolean hasName() { return false; } public boolean hasRule() { return false; }
 public boolean isRule() { return false; }
 static public class Rule extends Declaration {
-/* "rule" name:Name tags:Tags rule:Rule -> Declaration {cons("Rule")} */
+/* "rule" name:Name tags:Tags rule:Rule ";" -> Declaration {cons("Rule")} */
 	private Rule() { }
 	/*package*/ Rule(ITree tree, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.Tags tags, org.meta_environment.rascal.ast.Rule rule) {
 		this.tree = tree;
