@@ -30,6 +30,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.Assignable;
+import org.meta_environment.rascal.ast.Declaration;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.Generator;
 import org.meta_environment.rascal.ast.Module;
@@ -96,7 +97,7 @@ import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
 
 public class Evaluator extends NullASTVisitor<EvalResult> {
-	private static final String RASCAL_FILE_EXT = ".rsc";
+	static final String RASCAL_FILE_EXT = ".rsc";
 	private final IValueFactory vf;
 	private final TypeFactory tf;
 	private final TypeEvaluator te = new TypeEvaluator();
@@ -131,6 +132,15 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
         	return r.value;
         } else {
         	throw new RascalTypeError("Not yet implemented: " + S.getTree());
+        }
+	}
+	
+	public IValue eval(Declaration declaration) {
+		EvalResult r = declaration.accept(this);
+        if(r != null){
+        	return r.value;
+        } else {
+        	throw new RascalTypeError("Not yet implemented: " + declaration.getTree());
         }
 	}
 	
@@ -1349,4 +1359,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		}
 		return result;
 	}
+
+	
 }

@@ -13,6 +13,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
+import org.meta_environment.rascal.ast.Command;
 import org.meta_environment.rascal.ast.Expression;
 import org.meta_environment.rascal.ast.Module;
 import org.meta_environment.rascal.ast.Statement;
@@ -42,6 +43,10 @@ public class ASTBuilder {
 	
 	public Statement buildStatement(INode parseTree) {
 		return buildSort(parseTree, "Statement");
+	}
+	
+	public Command buildCommand(INode parseTree) {
+		return buildSort(parseTree, "Command");
 	}
 	
 	@SuppressWarnings("unchecked")

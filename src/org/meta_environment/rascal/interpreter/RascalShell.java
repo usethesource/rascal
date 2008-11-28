@@ -10,7 +10,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.hash.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.meta_environment.rascal.ast.ASTFactory;
-import org.meta_environment.rascal.ast.Statement;
+import org.meta_environment.rascal.ast.Command;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
 import org.meta_environment.uptr.Factory;
@@ -20,52 +20,52 @@ public class RascalShell {
 	private final static String PROMPT = ">";
 	private final static String CONTINUE_PROMPT = "?";
 	private final static String TERMINATOR = ";";
-	private final static String QUIT = "quit";
 	
 	private Parser parser = Parser.getInstance();
 	private ASTFactory factory = new ASTFactory();
 	private ASTBuilder builder = new ASTBuilder(factory);
-	private Evaluator evaluator = new Evaluator(ValueFactory.getInstance(), factory);
+	Evaluator evaluator = new Evaluator(ValueFactory.getInstance(), factory);
 	
-	private void run() throws IOException, FactTypeError {
+	
+	private void run() throws IOException {
 		ConsoleReader console = new ConsoleReader();
+		CommandEvaluator commander = new CommandEvaluator(evaluator, console);
 		
 		StringBuffer input = new StringBuffer();
 		String line;
 		
-		quit: while (true) {
-			try {
-				input.delete(0, input.length());
+		try {
+			while (true) {
+				try {
+					input.delete(0, input.length());
 
-				do {
-					line = prompt(console, input);
-					
-					if (line == null || line.equals(QUIT)) {
-						break quit;
-					}
-					else {
+					do {
+						line = prompt(console, input);
 						input.append(line + "\n");
-					}
-				} while (!completeStatement(input));
+					} while (!completeStatement(input));
 
-				String output = handleInput(input);
-				console.printString(output);
-				console.printNewline();
-			} 
-			catch (FactTypeError e) {
-				System.err.println("bug: " + e.getMessage());
-				e.printStackTrace();
-				console.printNewline();
+					String output = handleInput(commander, input);
+					console.printString(output);
+					console.printNewline();
+				}
+				catch (FactTypeError e) {
+					System.err.println("bug: " + e.getMessage());
+					e.printStackTrace();
+					console.printNewline();
+				}
+				catch (RascalTypeError e) {
+					System.err.println("error: " + e.getMessage());
+					console.printNewline();
+					e.printStackTrace();
+				}
 			}
-			catch (RascalTypeError e) {
-				System.err.println("error: " + e.getMessage());
-				console.printNewline();
-				e.printStackTrace();
-			}
+		}
+		catch (FailureException e) {
+			return;
 		}
 	}
 
-	private String handleInput(StringBuffer statement) throws IOException {
+	private String handleInput(final CommandEvaluator command, StringBuffer statement) throws IOException {
 		StringBuilder result = new StringBuilder();
 		INode tree = parser.parse(new ByteArrayInputStream(statement.toString().getBytes()));
 
@@ -73,8 +73,9 @@ public class RascalShell {
 			result.append(tree + "\n");
 		}
 		else {
-			Statement stat = builder.buildStatement(tree);
-			IValue value = evaluator.eval(stat);
+			Command stat = builder.buildCommand(tree);
+			
+			IValue value = command.eval(stat);
 			
 			if (value == null) {
 				return "no result.";
@@ -97,7 +98,7 @@ public class RascalShell {
 	}
 	
 	private boolean completeStatement(StringBuffer statement) {
-		if (statement.toString().trim().equals(QUIT)) {
+		if (statement.toString().trim().startsWith(":")) {
 			return true;
 		}
 		else {
@@ -110,8 +111,6 @@ public class RascalShell {
 				case ')': brackets--; break;
 				case '{': curlies++; break;
 				case '}': curlies--; break;
-				case '<': angular++; break;
-				case '>': angular--; break;
 				case '[': braces++; break;
 				case ']': braces--; break;
 				case ';': semies++; break;
