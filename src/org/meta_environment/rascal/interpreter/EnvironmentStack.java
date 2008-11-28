@@ -139,6 +139,10 @@ import org.meta_environment.rascal.ast.Rule;
 	
 	@Override
 	public EvalResult getModuleVariable(String module, String variable) {
+		ModuleEnvironment env = stack.get(0).getModule(module);
+		if (env.getVisibility(variable) == ModuleVisibility.PRIVATE) {
+			throw new RascalTypeError("Visibility of " + variable + " in " + module + " is private");
+		}
 		return stack.get(0).getModule(module).getVariable(variable);
 	}
 }
