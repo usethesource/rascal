@@ -41,24 +41,24 @@ assert "rel 11": {<1,2,3>, <4,5,6>} == {<4,5,6>, <1,2,3>}
 
 %% --- Boolean operators
 
-assert "true 1"  : true == true
-assert "false 1" : false == false
+y assert "true 1"  : true == true
+y assert "false 1" : false == false
 
-assert "not 1" : (not true) == false
-assert "not 2" : (not false) == true
+y assert "not 1" : (not true) == false
+ y ssert "not 2" : (not false) == true
 
-assert "!= 1" : (true != false) == true
+y assert "!= 1" : (true != false) == true
 
-assert "not 3" : not(true == false)
-assert "and 1" : (true and true) == true
-assert "and 2" : (true and false) == false
-assert "and 3" : (false and true) == false
-assert "and 4" : (false and false) == false
+y assert "not 3" : not(true == false)
+y assert "and 1" : (true and true) == true
+y assert "and 2" : (true and false) == false
+y assert "and 3" : (false and true) == false
+y assert "and 4" : (false and false) == false
 
-assert "or 1" : (true or true) == true
-assert "or 2" : (true or false) == true
-assert "or 3" :  (false or true) == true
-assert "or 4" : (false and false) == false
+y assert "or 1" : (true or true) == true
+y assert "or 2" : (true or false) == true
+y assert "or 3" :  (false or true) == true
+y assert "or 4" : (false and false) == false
 
 assert "implies 1" : (true implies true) == true
 assert "implies 2" : (true implies false) == false
@@ -84,10 +84,10 @@ assert "notin 5" : <1,2,4> notin  {<4,5,6>, <1,2,3>}
 
 %% --- ==
 
-assert "== 1"  : 1 == 1
-assert "== 2"  : -1 == -1
-assert "== 3"  : not(1 == 2)
-assert "== 4"  : not(1 == -1)
+y assert "== 1"  : 1 == 1
+y assert "== 2"  : -1 == -1
+y assert "== 3"  : not(1 == 2)
+y assert "== 4"  : not(1 == -1)
 assert "== 5"  : "a" == "a"
 assert "== 6"  : not("a" == "b")
 
@@ -137,8 +137,8 @@ loc A31 = area-in-file("f", area(10, 4, 10, 6, 0, 0))
 loc A3  = area-in-file("f", area(10, 4, 10, 7, 0, 0))
 loc A4  = area-in-file("f", area(10, 3, 10, 8, 0, 0))
 
-assert "!= 1" : 1 != 2
-assert "!= 2" : not(1 != 1)
+y assert "!= 1" : 1 != 2
+y assert "!= 2" : not(1 != 1)
 assert "!= 3" : "a" != "b"
 assert "!= 4" : not("a" != "a")
 assert "!= 5" :  A1 != A2
@@ -162,8 +162,8 @@ set[int] BigSet   = {5, 4, 3, 2, 1, 2}
 
 %% --- <=
 
-assert "<= 1" : 1 <= 2
-assert "<= 2" : 2 <= 2
+y assert "<= 1" : 1 <= 2
+y assert "<= 2" : 2 <= 2
 assert "<= 2a" : "a" <= "b"
 assert "<= 2b" : "b" <= "b"
 
@@ -181,8 +181,8 @@ assert "<= 10": not(BigSet <= SmallSet)
 
 %% --- <
 
-assert "< 1" : 1 < 2
-assert "< 2" : not 2 < 2
+y assert "< 1" : 1 < 2
+y assert "< 2" : not 2 < 2
 assert "< 2a" : "a" < "b"
 assert "< 2b" : not "b" < "b"
 assert "< 3" : not(A1 < A1)
@@ -199,8 +199,8 @@ assert "< 10": not(BigSet < SmallSet)
 
 %% --- >=
 
-assert ">= 1" : not(1 >= 2)
-assert ">= 2" : 2 >= 2
+y assert ">= 1" : not(1 >= 2)
+y assert ">= 2" : 2 >= 2
 assert ">= 2a" : not ("a" >= "b")
 assert ">= 2b" : "b" >= "b"
 assert ">= 3" : A1 >= A1
@@ -217,8 +217,8 @@ assert ">= 10": not(SmallSet >= BigSet)
 
 %% --- >
 
-assert "> 1" : not(1 > 2)
-assert "> 2" : not(2 > 2)
+y assert "> 1" : not(1 > 2)
+y assert "> 2" : not(2 > 2)
 assert "> 2a" : not ("a" > "b")
 assert "> 2b" : not("b" > "b")
 
@@ -462,7 +462,7 @@ assert "forall, 4": forall(<int X, int Y> : {<1,10>,<30,3>,<2,20>} | X < Y) == f
  
 %% ---- Arithmetic expressions
 
-assert "+, 1":  1 + 1 == 2
+y assert "+, 1":  1 + 1 == 2
 assert "+, 2":  {X + 1 | int X : {1,2,3}} == {2,3,4}
 assert "+, 3":  {X | int X : {1,2,3}, X + 1 < 3} == {1}
 
