@@ -57,8 +57,10 @@ import org.meta_environment.rascal.ast.Expression.CallOrTree;
 import org.meta_environment.rascal.ast.Expression.Comprehension;
 import org.meta_environment.rascal.ast.Expression.Division;
 import org.meta_environment.rascal.ast.Expression.EmptySetOrBlock;
+import org.meta_environment.rascal.ast.Expression.Equivalence;
 import org.meta_environment.rascal.ast.Expression.GreaterThan;
 import org.meta_environment.rascal.ast.Expression.GreaterThanOrEq;
+import org.meta_environment.rascal.ast.Expression.Implication;
 import org.meta_environment.rascal.ast.Expression.In;
 import org.meta_environment.rascal.ast.Expression.Intersection;
 import org.meta_environment.rascal.ast.Expression.LessThan;
@@ -951,13 +953,21 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			return result(vf.string(((IString) left.value).getValue()
 					+ ((IString) right.value).getValue()));
 		} else if (left.type.isListType() && right.type.isListType()) {
-			Type resultType = left.type.lub(right.type);
-			return result(resultType, ((IList) left.value)
+			if(left.value.equals(vf.list())){  /// TODO temp code to fix PDB bug
+				return right;
+			} else if(right.value.equals(vf.set())){
+				return left;
+			} else
+			return result(((IList) left.value)
 					.concat((IList) right.value));
 		} else if (left.type.isSetType() && right.type.isSetType()) {
-			Type resultType = left.type.lub(right.type);
-			return result(resultType, ((ISet) left.value)
-					.union((ISet) right.value));
+			if(left.value.equals(vf.set())){  /// TODO temp code to fix PDB bug
+				return right;
+			} else if(right.value.equals(vf.set())){
+				return left;
+			} else 
+				return result(((ISet) left.value)
+						.union((ISet) right.value));
 		} else if (left.type.isMapType() && right.type.isMapType()) {
 			Type resultType = left.type.lub(right.type);
 			return result(resultType, ((IMap) left.value)              //TODO: is this the right operation?
@@ -983,8 +993,12 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		} else if (left.type.isListType() && right.type.isListType()) {
 			notImplemented("- on list");
 		} else if (left.type.isSetType() && right.type.isSetType()) {
-			Type resultType = left.type.lub(right.type);
-			return result(resultType, ((ISet) left.value)
+			if(left.value.equals(vf.set())){  /// TODO temp code to fix PDB bug
+				return left;
+			} else if(right.value.equals(vf.set())){
+				return left;
+			} else 
+				return result(((ISet) left.value)
 					.subtract((ISet) right.value));
 		} else if (left.type.isMapType() && right.type.isMapType()) {
 			Type resultType = left.type.lub(right.type);
@@ -1086,8 +1100,13 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		EvalResult right = x.getRhs().accept(this);
 
 		if (left.type.isSetType() && right.type.isSetType()) {
-		Type resultType = left.type.lub(right.type);
-		return result(resultType, ((ISet) left.value)
+			
+			if(left.value.equals(vf.set())){  /// TODO temp code to fix PDB bug
+				return left;
+			} else if(right.value.equals(vf.set())){
+				return left;
+			} else 
+				return result(((ISet) left.value)
 				.intersect((ISet) right.value));
 		} else if (left.type.isMapType() && right.type.isMapType()) {
 			Type resultType = left.type.lub(right.type);
@@ -1138,6 +1157,39 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		} else {
 			throw new RascalTypeError(
 					"Operand of ! should be boolean instead of: " + arg.type);
+		}
+	}
+	
+	@Override
+	public EvalResult visitExpressionImplication(Implication x) {
+		EvalResult left = x.getLhs().accept(this);
+		EvalResult right = x.getRhs().accept(this);
+		if(left.type.isBoolType() && right.type.isBoolType()){
+			if(left.value.equals(vf.bool(true)) &&
+			   right.value.equals(vf.bool(false))){
+				return result(vf.bool(false));
+			} else {
+				return result(vf.bool(true));
+			}
+		} else {
+			throw new RascalTypeError(
+					"Operands of ==> should be boolean instead of: " + left.type + ", " + right.type);
+		}
+	}
+	
+	@Override
+	public EvalResult visitExpressionEquivalence(Equivalence x) {
+		EvalResult left = x.getLhs().accept(this);
+		EvalResult right = x.getRhs().accept(this);
+		if(left.type.isBoolType() && right.type.isBoolType()){
+			if(left.value.equals(right.value)) {
+				return result(vf.bool(true));
+			} else {
+				return result(vf.bool(false));
+			}
+		} else {
+			throw new RascalTypeError(
+					"Operands of <==> should be boolean instead of: " + left.type + ", " + right.type);
 		}
 	}
 	
@@ -1195,6 +1247,13 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	private int compareList(IList l, IList r){
 		int ll = l.length();
 		int rl = r.length();
+		
+		if(ll == 0){
+			return rl == 0 ? 0 : -1;
+		}
+		if(rl == 0){
+			return 1;
+		}
 		int m = (ll > rl) ? rl : ll;  
 		int compare = 0;
 		
@@ -1202,21 +1261,23 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			EvalResult vl = result(l.get(i));
 			EvalResult vr = result(r.get(i));
 			int c = compare(vl, vr);
-			
+
 			if(compare == c){
 				continue;
 			} else
 				if(i == 0){
 					compare = c;
 				} else {
-					return compare;
-			}
-			
+						return c;
+				}
 		}
+		
+		if(compare == 0 && ll != rl){
+			compare = ll < rl ? -1 : 1;
+		}
+			
 		return compare;
 	}
-	
-	
 	
 	@Override
 	public EvalResult visitExpressionLessThan(LessThan x) {
@@ -1253,20 +1314,27 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		EvalResult left = expression.accept(this);
 		EvalResult right = expression2.accept(this);
 		
-		if(right.type.isListType()){
-			notImplemented("in on list");
-		} else if(right.type.isSetType() && left.type.isSubtypeOf(((ISet) right.type).getElementType())){
+		if(right.type.isListType() &&
+		    left.type.isSubtypeOf(((ListType) right.type).getElementType())){
+			IList lst = (IList) right.value;
+			IValue val = left.value;
+			for(int i = 0; i < lst.length(); i++){
+				if(lst.get(i).equals(val))
+					return true;
+			}
+			return false;
+		} else if(right.type.isSetType() && 
+				   left.type.isSubtypeOf(((SetType) right.type).getElementType())){
 			return ((ISet) right.value).contains(left.value);
 			
-		} else if(right.type.isMapType() && left.type.isSubtypeOf(((IMap) right.type).getValueType())){
+		} else if(right.type.isMapType() && left.type.isSubtypeOf(((MapType) right.type).getValueType())){
 			return ((IMap) right.value).containsValue(left.value);
-		} else if(right.type.isRelationType() && left.type.isSubtypeOf(((ISet) right.type).getElementType())){
+		} else if(right.type.isRelationType() && left.type.isSubtypeOf(((SetType) right.type).getElementType())){
 			return ((ISet) right.value).contains(left.value);
 		} else {
 			throw new RascalTypeError("Operands of in have wrong types: "
 					+ left.type + ", " + right.type);
 		}
-		return false;
 	}
 	
 	@Override

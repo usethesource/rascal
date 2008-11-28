@@ -11,7 +11,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 		type = t;
 		value = v;
 		if (value != null && !value.getType().isSubtypeOf(t)) {
-			throw new RascalTypeError("Value " + v + " is not a subtype of "
+			throw new RascalTypeError("Type " + v.getType() + " is not a subtype of expected type "
 					+ t);
 		}
 	}
