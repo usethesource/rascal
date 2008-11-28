@@ -1146,7 +1146,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		} else if (left.type.isStringType() && right.type.isStringType()) {
 			return ((IString) left.value).compare((IString) right.value);
 		} else if (left.type.isListType() && right.type.isListType()) {
-			notImplemented("< on list");
+			return compareList((IList) left.value, (IList) right.value);
 		} else if (left.type.isSetType() && right.type.isSetType()) {
 			((ISet) left.value).isSubSet((ISet) right.value);
 		} else if (left.type.isMapType() && right.type.isMapType()) {
@@ -1159,6 +1159,32 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		}
 		return 0;
 	}
+	
+	private int compareList(IList l, IList r){
+		int ll = l.length();
+		int rl = r.length();
+		int m = (ll > rl) ? rl : ll;  
+		int compare = 0;
+		
+		for(int i = 0; i < m; i++){
+			EvalResult vl = result(l.get(i));
+			EvalResult vr = result(r.get(i));
+			int c = compare(vl, vr);
+			
+			if(compare == c){
+				continue;
+			} else
+				if(i == 0){
+					compare = c;
+				} else {
+					return compare;
+			}
+			
+		}
+		return compare;
+	}
+	
+	
 	
 	@Override
 	public EvalResult visitExpressionLessThan(LessThan x) {
