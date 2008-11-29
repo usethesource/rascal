@@ -15,6 +15,7 @@ import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IString;
@@ -24,6 +25,7 @@ import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.type.ListType;
 import org.eclipse.imp.pdb.facts.type.MapType;
 import org.eclipse.imp.pdb.facts.type.NamedTreeType;
+import org.eclipse.imp.pdb.facts.type.RelationType;
 import org.eclipse.imp.pdb.facts.type.SetType;
 import org.eclipse.imp.pdb.facts.type.TupleType;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -54,6 +56,7 @@ import org.meta_environment.rascal.ast.Expression.Addition;
 import org.meta_environment.rascal.ast.Expression.And;
 import org.meta_environment.rascal.ast.Expression.Bracket;
 import org.meta_environment.rascal.ast.Expression.CallOrTree;
+import org.meta_environment.rascal.ast.Expression.Composition;
 import org.meta_environment.rascal.ast.Expression.Comprehension;
 import org.meta_environment.rascal.ast.Expression.Division;
 import org.meta_environment.rascal.ast.Expression.EmptySetOrBlock;
@@ -937,9 +940,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	}
 	
 	
-	
-	
-	
     @Override
 	public EvalResult visitExpressionAddition(Addition x) {
 		EvalResult left = x.getLhs().accept(this);
@@ -973,9 +973,13 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			return result(resultType, ((IMap) left.value)              //TODO: is this the right operation?
 					.join((IMap) right.value));
 		} else if (left.type.isRelationType() && right.type.isRelationType()) {
-			Type resultType = left.type.lub(right.type);
-			return result(resultType, ((ISet) left.value)
-					.union((ISet) right.value));
+			if(left.value.equals(vf.set())){  /// TODO temp code to fix PDB bug
+				return right;
+			} else if(right.value.equals(vf.set())){
+				return left;
+			} else 
+				return result(((ISet) left.value)
+						.union((ISet) right.value));
 		} else {
 			throw new RascalTypeError("Operands of + have illegal types: "
 					+ left.type + ", " + right.type);
@@ -1235,6 +1239,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			((ISet) left.value).isSubSet((ISet) right.value);
 		} else if (left.type.isMapType() && right.type.isMapType()) {
 			((IMap) left.value).isSubMap((IMap) right.value);
+		} else if (left.type.isTupleType() && right.type.isTupleType()) {
+			notImplemented("compare for tuples");
 		} else if (left.type.isRelationType() && right.type.isRelationType()) {
 			((ISet) left.value).isSubSet((ISet) right.value);
 		} else {
@@ -1347,6 +1353,30 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	public EvalResult visitExpressionNotIn(NotIn x) {
 		return result(vf.bool(!in(x.getLhs(), x.getRhs())));
 
+	}
+	
+	@Override
+	public EvalResult visitExpressionComposition(Composition x) {
+		EvalResult left = x.getLhs().accept(this);
+		EvalResult right = x.getRhs().accept(this);
+		if(left.type.isRelationType() && 
+			right.type.isRelationType()){
+			RelationType leftrelType = (RelationType) left.type; 
+			RelationType rightrelType = (RelationType) right.type;
+			
+			if(leftrelType.getArity() == 2 && 
+					rightrelType.getArity() == 2 &&
+					leftrelType.getFieldType(1).equals(rightrelType.getFieldType(0))
+					){
+				return result(((IRelation) left.value).compose((IRelation)right.value));
+			}
+			if(((IRelation)left.value).size() == 0)
+				return left;
+			if(((IRelation)right.value).size() == 0)
+				return right;
+		}
+		throw new RascalTypeError("Operands of o have wrong types: "
+				+ left.type + ", " + right.type);
 	}
 	
 	// Comprehensions ----------------------------------------------------
