@@ -63,6 +63,7 @@ import org.meta_environment.rascal.ast.Expression.EmptySetOrBlock;
 import org.meta_environment.rascal.ast.Expression.Equivalence;
 import org.meta_environment.rascal.ast.Expression.GreaterThan;
 import org.meta_environment.rascal.ast.Expression.GreaterThanOrEq;
+import org.meta_environment.rascal.ast.Expression.IfDefined;
 import org.meta_environment.rascal.ast.Expression.Implication;
 import org.meta_environment.rascal.ast.Expression.In;
 import org.meta_environment.rascal.ast.Expression.Intersection;
@@ -1332,6 +1333,17 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 					+ cval.type + " but should be bool");
 		}
 		return x.getElseExp().accept(this);
+	}
+	
+	@Override
+	public EvalResult visitExpressionIfDefined(IfDefined x) {
+		try {
+			EvalResult res = x.getLhs().accept(this);
+			return res;
+		} catch (Exception e) {   //TODO: make this more restrictive
+			EvalResult res = x.getRhs().accept(this);
+			return res;
+		}
 	}
 	
 	private boolean in(org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.Expression expression2){

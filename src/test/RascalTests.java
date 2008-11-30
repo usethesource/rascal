@@ -452,5 +452,10 @@ public class RascalTests extends TestCase{
 		
 		assertTrue(runTest("{<1,2>, <2,3>, <3,4>, <4,2>, <4,5>}* == {<1,2>, <2,3>, <3,4>, <4,2>, <4,5>, <1, 3>, <2, 4>, <3, 2>, <3, 5>, <4, 3>, <1, 4>, <2, 2>, <2, 5>, <3, 3>, <4, 4>, <1, 5>, <1, 1>, <5, 5>};"));
 	}
-
+	
+	public void testOther() throws IOException {
+		assertTrue(runTest("1 ? 13 == 1;"));
+		assertTrue(runTest("x ? 13 == 13;"));
+		assertTrue(runTest("x = 3; x ? 13 == 13;"));
+	}
 }
