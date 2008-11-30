@@ -79,6 +79,7 @@ import org.meta_environment.rascal.ast.Expression.NonEmptySet;
 import org.meta_environment.rascal.ast.Expression.NotIn;
 import org.meta_environment.rascal.ast.Expression.Or;
 import org.meta_environment.rascal.ast.Expression.Product;
+import org.meta_environment.rascal.ast.Expression.RegExpMatch;
 import org.meta_environment.rascal.ast.Expression.Subscript;
 import org.meta_environment.rascal.ast.Expression.Subtraction;
 import org.meta_environment.rascal.ast.Expression.TransitiveClosure;
@@ -88,7 +89,9 @@ import org.meta_environment.rascal.ast.IntegerLiteral.DecimalIntegerLiteral;
 import org.meta_environment.rascal.ast.Literal.Boolean;
 import org.meta_environment.rascal.ast.Literal.Double;
 import org.meta_environment.rascal.ast.Literal.Integer;
+import org.meta_environment.rascal.ast.Literal.RegExp;
 import org.meta_environment.rascal.ast.LocalVariableDeclaration.Default;
+import org.meta_environment.rascal.ast.RegExp.Lexical;
 import org.meta_environment.rascal.ast.Statement.Assert;
 import org.meta_environment.rascal.ast.Statement.Assignment;
 import org.meta_environment.rascal.ast.Statement.Block;
@@ -1567,6 +1570,35 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		}
 		return result;
 	}
-
 	
+	 //TODO: work in progress ...
+	@Override
+	public EvalResult visitLiteralRegExp(RegExp x) {
+		EvalResult val = x.getRegExpLiteral().accept(this);
+		return val;
+	}
+	@Override
+	public EvalResult visitRegExpLexical(Lexical x) {
+		return result(vf.string(x.getString()));
+	}
+	
+	@Override
+	public EvalResult visitRegExpLiteralLexical(
+			org.meta_environment.rascal.ast.RegExpLiteral.Lexical x) {
+		return result(vf.string(x.getString()));
+	}
+	
+	@Override
+	public EvalResult visitRegExpModifierLexical(
+			org.meta_environment.rascal.ast.RegExpModifier.Lexical x) {
+		return result(vf.string(x.getString()));
+	}
+	
+
+	@Override
+	public EvalResult visitExpressionRegExpMatch(RegExpMatch x) { // TODO: working on this
+		EvalResult left = x.getLhs().accept(this);
+		EvalResult right = x.getRhs().accept(this);
+		return result(vf.bool(true));
+	}
 }
