@@ -80,6 +80,8 @@ import org.meta_environment.rascal.ast.Expression.Or;
 import org.meta_environment.rascal.ast.Expression.Product;
 import org.meta_environment.rascal.ast.Expression.Subscript;
 import org.meta_environment.rascal.ast.Expression.Subtraction;
+import org.meta_environment.rascal.ast.Expression.TransitiveClosure;
+import org.meta_environment.rascal.ast.Expression.TransitiveReflexiveClosure;
 import org.meta_environment.rascal.ast.Expression.Tuple;
 import org.meta_environment.rascal.ast.IntegerLiteral.DecimalIntegerLiteral;
 import org.meta_environment.rascal.ast.Literal.Boolean;
@@ -1316,6 +1318,22 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		return result(vf.bool(compare(left, right) >= 0));
 	}
 	
+	@Override
+	public EvalResult visitExpressionIfThenElse(
+			org.meta_environment.rascal.ast.Expression.IfThenElse x) {
+		EvalResult cval = x.getCondition().accept(this);
+	
+		if (cval.type.isBoolType()) {
+			if (cval.value.equals(vf.bool(true))) {
+				return x.getThenExp().accept(this);
+			}
+		} else {
+			throw new RascalTypeError("Condition has type "
+					+ cval.type + " but should be bool");
+		}
+		return x.getElseExp().accept(this);
+	}
+	
 	private boolean in(org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.Expression expression2){
 		EvalResult left = expression.accept(this);
 		EvalResult right = expression2.accept(this);
@@ -1377,6 +1395,29 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		}
 		throw new RascalTypeError("Operands of o have wrong types: "
 				+ left.type + ", " + right.type);
+	}
+	
+	private EvalResult closure(EvalResult arg, boolean reflexive){
+		
+		if(arg.type.isRelationType()){
+			RelationType relType = (RelationType) arg.type; 
+			if(relType.getArity() == 2 && relType.getFieldType(0).equals(relType.getFieldType(1))){
+				return result(reflexive ? ((IRelation) arg.value).closure() 
+						                 : ((IRelation) arg.value).closureStar());
+			}
+		}
+		throw new RascalTypeError("Operand of + or * closure has wrong type: " + arg.type);
+	}
+	
+	@Override
+	public EvalResult visitExpressionTransitiveClosure(TransitiveClosure x) {
+		return closure(x.getArgument().accept(this), false);
+	}
+	
+	@Override
+	public EvalResult visitExpressionTransitiveReflexiveClosure(
+			TransitiveReflexiveClosure x) {
+		return closure(x.getArgument().accept(this), true);
 	}
 	
 	// Comprehensions ----------------------------------------------------
@@ -1488,7 +1529,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		}
 		return result((res == null) ? vf.list() : res);
 	}
-	
 	
 	
 	@Override
