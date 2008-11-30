@@ -546,7 +546,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				notImplemented("index in assignment");
 			}
 	} else {
-			throw new RascalTypeError("cannot assign to unnitialized subscripted variable " + name);
+			throw new RascalTypeError("cannot assign to uninitialized subscripted variable " + name);
 		}
 		return null;
 	}
