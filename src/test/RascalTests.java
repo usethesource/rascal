@@ -66,6 +66,8 @@ public class RascalTests extends TestCase{
 		assertTrue(runTest("true <==> false == false;"));	
 		assertTrue(runTest("false <==> true == false;"));	
 		assertTrue(runTest("false <==> false == true;"));
+		
+		
 
 	}
 	
@@ -131,6 +133,8 @@ public class RascalTests extends TestCase{
 		assertFalse(runTest("2 > 2;"));
 		assertFalse(runTest("1 > 2;"));
 		
+//		assertTrue(runTest("(3 > 2 ? 3 : 2) == 3;"));
+		
 	}
 	
 	public void testDouble() throws IOException 
@@ -190,6 +194,8 @@ public class RascalTests extends TestCase{
 		assertTrue(runTest("2.0 > 1.0;"));
 		assertFalse(runTest("2.0 > 2.0;"));
 		assertFalse(runTest("1.0 > 2.0;"));
+		
+//		assertTrue(runTest("3.5 > 2.5 ? 3.5 : 2.5 == 3.5;"));
 	}
 	
 	public void testString() throws IOException {
@@ -267,6 +273,7 @@ public class RascalTests extends TestCase{
 		assertTrue(runTest("2 in [1, 2, 3];"));
 		assertTrue(runTest("3 notin [2, 4, 6];"));
 		
+//		assertTrue(runTest("2 > 3 ? [1,2] : [1,2,3] == [1,2,3];"));
 	}
 	
 	public void testSet() throws IOException {
@@ -333,7 +340,8 @@ public class RascalTests extends TestCase{
 		
 		assertTrue(runTest("5 notin {1, 2, 3};"));
 //		assertTrue(runTest("{7,8} notin {{1, 2}, {3,4}, {5,6}};"));
-	
+		
+//		assertTrue(runTest("3 > 2 ? {1,2} : {1,2,3} == {1,2,3};"));
 	}
 	
 	public void testMap() throws IOException {
