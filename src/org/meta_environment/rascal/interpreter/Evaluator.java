@@ -32,6 +32,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.Assignable;
+import org.meta_environment.rascal.ast.Case;
 import org.meta_environment.rascal.ast.Declaration;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.Generator;
@@ -102,6 +103,7 @@ import org.meta_environment.rascal.ast.Statement.For;
 import org.meta_environment.rascal.ast.Statement.IfThen;
 import org.meta_environment.rascal.ast.Statement.IfThenElse;
 import org.meta_environment.rascal.ast.Statement.Insert;
+import org.meta_environment.rascal.ast.Statement.Switch;
 import org.meta_environment.rascal.ast.Statement.VariableDeclaration;
 import org.meta_environment.rascal.ast.Statement.While;
 import org.meta_environment.rascal.ast.Toplevel.DefaultVisibility;
@@ -740,6 +742,37 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 						+ cval.type + " but should be bool");
 			}
 		} while (true);
+	}
+	
+	// TODO: in progress ...
+	
+	@Override
+	public EvalResult visitStatementSwitch(Switch x) {
+		EvalResult subject = x.getExpression().accept(this);
+
+		for(Case cs : x.getCases()){
+			if(cs.isDefault()){
+				return cs.getStatement().accept(this);
+			}
+			org.meta_environment.rascal.ast.Rule rl = cs.getRule();
+			org.meta_environment.rascal.ast.Expression pat = rl.getMatch().getMatch();
+			if(match(subject, pat)){
+				return rl.getMatch().getStatement().accept(this);
+			}
+		}
+		return null;
+	}
+	
+	private boolean isRegExpPattern(org.meta_environment.rascal.ast.Expression pat){
+		return true;
+	}
+	
+	private boolean match(EvalResult subj, org.meta_environment.rascal.ast.Expression pat){
+		System.err.println("pat : " + pat);
+		if(isRegExpPattern(pat)){
+			return regExpMatch(subj, pat);
+		}
+		return true;
 	}
 	
 	// Expressions -----------------------------------------------------------
@@ -1516,11 +1549,12 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			}
 		}
 		
-		public boolean match(org.meta_environment.rascal.ast.Expression p, IValue v){
+		public boolean match(org.meta_environment.rascal.ast.Expression p, IValue v){ //TODO: merge with match in Evaluator
 			if(p.isQualifiedName()){
 				evaluator.assignVariable(p.getQualifiedName().toString(), result(v));
 				return true;
 			}
+			
 			throw new RascalTypeError("unimplemented pattern in match");
 		}
 
@@ -1614,9 +1648,9 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		return result;
 	}
 
-	private boolean regExpMatch(org.meta_environment.rascal.ast.Expression expr, 
+	private boolean regExpMatch(EvalResult subject, 
 			org.meta_environment.rascal.ast.Expression pat){
-		EvalResult subject = expr.accept(this);
+		
 		RegExpResult regExpResult = pat.accept(re);
 		
 		if(!subject.type.isStringType()){
@@ -1624,7 +1658,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		}
 		
 		if(regExpResult.matches(((IString) subject.value).getValue())){
-			System.err.println("a match!");
 			Map<String,String> map = regExpResult.getBindings();
 			for(String name : map.keySet()){
 				assignVariable(name, result(vf.string(map.get(name))));
@@ -1636,11 +1669,11 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 
 	@Override
 	public EvalResult visitExpressionRegExpMatch(RegExpMatch x) {
-		return result(vf.bool(regExpMatch(x.getLhs(), x.getRhs())));
+		return result(vf.bool(regExpMatch(x.getLhs().accept(this), x.getRhs())));
 	}
 	
 	@Override
 	public EvalResult visitExpressionRegExpNoMatch(RegExpNoMatch x) {
-		return result(vf.bool(!regExpMatch(x.getLhs(), x.getRhs())));
+		return result(vf.bool(!regExpMatch(x.getLhs().accept(this), x.getRhs())));
 	}
 }
