@@ -1246,19 +1246,43 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		} else if (left.type.isListType() && right.type.isListType()) {
 			return compareList((IList) left.value, (IList) right.value);
 		} else if (left.type.isSetType() && right.type.isSetType()) {
-			((ISet) left.value).isSubSet((ISet) right.value);
+			return compareSet((ISet) left.value, (ISet) right.value);
 		} else if (left.type.isMapType() && right.type.isMapType()) {
-			((IMap) left.value).isSubMap((IMap) right.value);
+			return compareMap((IMap) left.value, (IMap) right.value);
 		} else if (left.type.isTupleType() && right.type.isTupleType()) {
 			notImplemented("compare for tuples");
+			return 0;
 		} else if (left.type.isRelationType() && right.type.isRelationType()) {
-			((ISet) left.value).isSubSet((ISet) right.value);
+			return compareSet((ISet) left.value, (ISet) right.value);
 		} else {
 			throw new RascalTypeError(
 					"Operands of comparison have different types: " + left.type
 							+ ", " + right.type);
 		}
-		return 0;
+	}
+
+	private int compareMap(IMap left, IMap right) {
+		if (left.equals(right)) {
+			return 0;
+		}
+		else if (left.isSubMap(right)) {
+			return -1;
+		}
+		else {
+			return 1;
+		}
+	}
+
+	private int compareSet(ISet left, ISet right) {
+		if (left.equals(right)) {
+			return 0;
+		}
+		else if (left.isSubSet(right)) {
+			return -1;
+		}
+		else {
+			return 1;
+		}
 	}
 
 	private int compareList(IList l, IList r) {
