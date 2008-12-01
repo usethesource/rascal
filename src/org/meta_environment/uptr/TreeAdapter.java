@@ -66,11 +66,11 @@ public class TreeAdapter {
 	}
 
 	public boolean isLexToCf() {
-		return getProduction().isLexToCf();
+		return isAppl() ? getProduction().isLexToCf() : false;
 	}
 	
 	public boolean isContextFree() {
-		return getProduction().isContextFree();
+		return isAppl() ? getProduction().isContextFree() : false;
 	}
 	
 	public boolean isList() {
@@ -87,7 +87,7 @@ public class TreeAdapter {
 	}
 	
 	public boolean isLiteral() {
-		return getProduction().isLiteral();
+		return isAppl() ? getProduction().isLiteral() : false;
 	}
 	
 	
@@ -138,7 +138,7 @@ public class TreeAdapter {
 	}
 
 	private boolean isCILiteral() {
-		return getProduction().isCILiteral();
+		return isAppl() ? getProduction().isCILiteral() : false;
 	}
 
 	public ISet getAlternatives() {
