@@ -781,7 +781,7 @@ private org.meta_environment.rascal.ast.Statement body;
 } public java.util.List<org.meta_environment.rascal.ast.Statement> getStatements() { throw new UnsupportedOperationException(); } public boolean hasStatements() { return false; }
 public boolean isBlock() { return false; }
 static public class Block extends Statement {
-/* label:Label "{" statements:Statement* "}" -> Statement {cons("Block")} */
+/* label:Label "{" statements:Statement+ "}" -> Statement {cons("Block")} */
 	private Block() { }
 	/*package*/ Block(ITree tree, org.meta_environment.rascal.ast.Label label, java.util.List<org.meta_environment.rascal.ast.Statement> statements) {
 		this.tree = tree;
