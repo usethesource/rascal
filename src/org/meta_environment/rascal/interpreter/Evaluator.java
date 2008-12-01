@@ -1407,31 +1407,54 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			RelationType leftrelType = (RelationType) left.type; 
 			RelationType rightrelType = (RelationType) right.type;
 			
-			if(leftrelType.getArity() == 2 && 
-					rightrelType.getArity() == 2 &&
-					leftrelType.getFieldType(1).equals(rightrelType.getFieldType(0))
-					){
-				return result(((IRelation) left.value).compose((IRelation)right.value));
+			if (leftrelType.getArity() == 2
+					&& rightrelType.getArity() == 2
+					&& leftrelType.getFieldType(1).equals(
+							rightrelType.getFieldType(0))) {
+				RelationType resultType = leftrelType.compose(rightrelType);
+				return result(resultType, ((IRelation) left.value)
+						.compose((IRelation) right.value));
 			}
 			if(((IRelation)left.value).size() == 0)
 				return left;
 			if(((IRelation)right.value).size() == 0)
 				return right;
 		}
+		else if (left.type.isSetType() && ((SetType) left.type).getElementType().isVoidType()) {
+			return left;
+		}
+		else if (right.type.isSetType() && ((SetType) right.type).getElementType().isVoidType()) {
+			return right;
+		}
+		
 		throw new RascalTypeError("Operands of o have wrong types: "
 				+ left.type + ", " + right.type);
 	}
-	
-	private EvalResult closure(EvalResult arg, boolean reflexive){
-		
-		if(arg.type.isRelationType()){
-			RelationType relType = (RelationType) arg.type; 
-			if(relType.getArity() == 2 && relType.getFieldType(0).equals(relType.getFieldType(1))){
-				return result(reflexive ? ((IRelation) arg.value).closure() 
-						                 : ((IRelation) arg.value).closureStar());
+
+	private EvalResult closure(EvalResult arg, boolean reflexive) {
+
+		if (arg.type.isRelationType()) {
+			RelationType relType = (RelationType) arg.type;
+			Type fieldType1 = relType.getFieldType(0);
+			Type fieldType2 = relType.getFieldType(1);
+			String fieldName1 = relType.getFieldName(0);
+			String fieldName2 = relType.getFieldName(1);
+			
+			if (relType.getArity() == 2
+					&& (fieldType1.isSubtypeOf(fieldType2)
+							|| fieldType2.isSubtypeOf(fieldType1))) {
+				Type lub = fieldType1.lub(fieldType2);
+				
+				RelationType resultType = fieldName1 != null ? tf.relType(lub, fieldName1, lub, fieldName2) : tf.relType(lub,lub);
+				return result(resultType, reflexive ? ((IRelation) arg.value).closureStar()
+						: ((IRelation) arg.value).closure());
 			}
 		}
-		throw new RascalTypeError("Operand of + or * closure has wrong type: " + arg.type);
+		else if (arg.type.isSetType() && ((SetType) arg.type).getElementType().isVoidType()) {
+			return arg;
+		}
+		throw new RascalTypeError("Operand of + or * closure has wrong type: "
+				+ arg.type);
 	}
 	
 	@Override
