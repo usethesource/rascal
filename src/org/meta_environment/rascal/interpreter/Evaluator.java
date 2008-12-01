@@ -53,6 +53,7 @@ import org.meta_environment.rascal.ast.Declaration.Tag;
 import org.meta_environment.rascal.ast.Declaration.Variable;
 import org.meta_environment.rascal.ast.Declaration.View;
 import org.meta_environment.rascal.ast.Expression.Addition;
+import org.meta_environment.rascal.ast.Expression.Ambiguity;
 import org.meta_environment.rascal.ast.Expression.And;
 import org.meta_environment.rascal.ast.Expression.Bracket;
 import org.meta_environment.rascal.ast.Expression.CallOrTree;
@@ -154,6 +155,19 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
         } else {
         	throw new RascalTypeError("Not yet implemented: " + declaration.getTree());
         }
+	}
+	
+	// Ambiguity ...................................................
+	
+	@Override
+	public EvalResult visitExpressionAmbiguity(Ambiguity x) {
+		throw new RascalTypeError("Ambiguous expression: " + x);
+	}
+	
+	@Override
+	public EvalResult visitStatementAmbiguity(
+			org.meta_environment.rascal.ast.Statement.Ambiguity x) {
+		throw new RascalTypeError("Ambiguous statement: " + x);
 	}
 	
 	// Modules -------------------------------------------------------------
@@ -1601,4 +1615,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		EvalResult right = x.getRhs().accept(this);
 		return result(vf.bool(true));
 	}
+	
+	
 }
