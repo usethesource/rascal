@@ -453,6 +453,6 @@ public class RascalTests extends TestCase{
 	public void testOther() throws IOException {
 		assertTrue(runTest("1 =? 13 == 1;"));
 		assertTrue(runTest("x =? 13 == 13;"));
-		assertTrue(runTest("x = 3; x =? 13 == 13;"));
+		assertTrue(runTest("x = 3; x =? 13 == 3;"));
 	}
 }
