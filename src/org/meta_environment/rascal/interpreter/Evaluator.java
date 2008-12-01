@@ -127,7 +127,16 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	}
 
 	private EvalResult result(IValue v) {
-		return new EvalResult(v != null ? v.getType() : null, v);
+		Type type = v.getType();
+		
+		if (type.isRelationType() 
+				|| type.isSetType() 
+				|| type.isMapType()
+				|| type.isListType()) {
+			throw new RascalTypeError("bug: Should not used run-time type for type checking!!!!");
+		}
+				
+		return new EvalResult(v != null ? type : null, v);
 	}
 
 	private EvalResult result() {
@@ -1427,15 +1436,19 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	public EvalResult visitExpressionComposition(Composition x) {
 		EvalResult left = x.getLhs().accept(this);
 		EvalResult right = x.getRhs().accept(this);
+		
 		if (left.type.isRelationType() && right.type.isRelationType()) {
 			RelationType leftrelType = (RelationType) left.type;
 			RelationType rightrelType = (RelationType) right.type;
+			
 
+			// ALARM: not using declared types
 			if (leftrelType.getArity() == 2
 					&& rightrelType.getArity() == 2
 					&& leftrelType.getFieldType(1).equals(
 							rightrelType.getFieldType(0))) {
-				return result(((IRelation) left.value)
+				RelationType resultType = leftrelType.compose(rightrelType);
+				return result(resultType, ((IRelation) left.value)
 						.compose((IRelation) right.value));
 			}
 			if (((IRelation) left.value).size() == 0)
@@ -1443,6 +1456,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			if (((IRelation) right.value).size() == 0)
 				return right;
 		}
+		
 		throw new RascalTypeError("Operands of o have wrong types: "
 				+ left.type + ", " + right.type);
 	}
