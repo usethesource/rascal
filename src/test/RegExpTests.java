@@ -40,6 +40,10 @@ public class RegExpTests extends TestCase {
 		assertTrue(runTest("\"abc\" =~ /abc/;"));
 		assertFalse(runTest("\"abc\" =~ /def/;"));
 		assertTrue(runTest("\"abc\" =~ /[a-z]+/;"));
+		assertTrue(runTest("\"Rascal is marvelous\" =~ /.*is.*/;"));
+		
+		assertTrue(runTest("\"abc\" =~ /<x:[a-z]+>/ && (x == \"abc\";"));
+		
 		
 
 	}
