@@ -147,7 +147,7 @@ public class RascalTests extends TestCase{
 		assertTrue(runTest("1.0 + -2.0 == -1.0;"));
 		
 		assertTrue(runTest("2.0 - 1.0 == 1.0;"));	
-		assertTrue(runTest("2.0 - 3 == -1.0;"));	
+		assertTrue(runTest("2.0 - 3.0 == -1.0;"));	
 		assertTrue(runTest("2.0 - -1.0 == 3.0;"));	
 		assertTrue(runTest("-2.0 - 1.0 == -3.0;"));	
 		
@@ -453,6 +453,6 @@ public class RascalTests extends TestCase{
 	public void testOther() throws IOException {
 		assertTrue(runTest("1 =? 13 == 1;"));
 		assertTrue(runTest("x =? 13 == 13;"));
-		assertTrue(runTest("x = 3; x =? 13 == 3;"));
+		assertTrue(runTest("{ x = 3; x =? 13 == 3; }"));
 	}
 }
