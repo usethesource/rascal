@@ -17,8 +17,9 @@ static public class Lexical extends Asterisk {
 }
 static public class Ambiguity extends Asterisk {
   private final java.util.List<org.meta_environment.rascal.ast.Asterisk> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.Asterisk> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Asterisk> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.Asterisk> getAlternatives() {
 	return alternatives;

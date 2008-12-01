@@ -30,8 +30,9 @@ private java.util.List<org.meta_environment.rascal.ast.FunctionModifier> modifie
 }
 static public class Ambiguity extends FunctionModifiers {
   private final java.util.List<org.meta_environment.rascal.ast.FunctionModifiers> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.FunctionModifiers> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.FunctionModifiers> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.FunctionModifiers> getAlternatives() {
 	return alternatives;

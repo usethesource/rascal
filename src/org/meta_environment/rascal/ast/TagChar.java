@@ -16,8 +16,9 @@ public abstract class TagChar extends AbstractAST {
   	}
 } static public class Ambiguity extends TagChar {
   private final java.util.List<org.meta_environment.rascal.ast.TagChar> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.TagChar> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.TagChar> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.TagChar> getAlternatives() {
 	return alternatives;

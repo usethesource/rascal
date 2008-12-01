@@ -28,8 +28,9 @@ private org.meta_environment.rascal.ast.Declarator declarator;
 }
 static public class Ambiguity extends LocalVariableDeclaration {
   private final java.util.List<org.meta_environment.rascal.ast.LocalVariableDeclaration> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.LocalVariableDeclaration> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.LocalVariableDeclaration> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.LocalVariableDeclaration> getAlternatives() {
 	return alternatives;

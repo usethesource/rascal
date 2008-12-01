@@ -16,8 +16,9 @@ static public class Addition extends OperatorAsValue {
 }
 static public class Ambiguity extends OperatorAsValue {
   private final java.util.List<org.meta_environment.rascal.ast.OperatorAsValue> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.OperatorAsValue> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.OperatorAsValue> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.OperatorAsValue> getAlternatives() {
 	return alternatives;

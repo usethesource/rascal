@@ -49,8 +49,9 @@ private org.meta_environment.rascal.ast.Signature signature;
 }
 static public class Ambiguity extends FunctionDeclaration {
   private final java.util.List<org.meta_environment.rascal.ast.FunctionDeclaration> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.FunctionDeclaration> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.FunctionDeclaration> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.FunctionDeclaration> getAlternatives() {
 	return alternatives;

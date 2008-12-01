@@ -16,8 +16,9 @@ static public class TopDown extends Strategy {
 }
 static public class Ambiguity extends Strategy {
   private final java.util.List<org.meta_environment.rascal.ast.Strategy> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.Strategy> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Strategy> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.Strategy> getAlternatives() {
 	return alternatives;

@@ -42,8 +42,9 @@ private org.meta_environment.rascal.ast.Name sort;
 }
 static public class Ambiguity extends DataTypeSelector {
   private final java.util.List<org.meta_environment.rascal.ast.DataTypeSelector> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.DataTypeSelector> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.DataTypeSelector> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.DataTypeSelector> getAlternatives() {
 	return alternatives;

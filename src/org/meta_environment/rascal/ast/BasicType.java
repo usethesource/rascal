@@ -16,8 +16,9 @@ static public class Bool extends BasicType {
 }
 static public class Ambiguity extends BasicType {
   private final java.util.List<org.meta_environment.rascal.ast.BasicType> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.BasicType> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.BasicType> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.BasicType> getAlternatives() {
 	return alternatives;

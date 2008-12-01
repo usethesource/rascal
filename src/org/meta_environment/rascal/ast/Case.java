@@ -30,8 +30,9 @@ private org.meta_environment.rascal.ast.Rule rule;
 }
 static public class Ambiguity extends Case {
   private final java.util.List<org.meta_environment.rascal.ast.Case> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.Case> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Case> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.Case> getAlternatives() {
 	return alternatives;

@@ -30,8 +30,9 @@ private java.util.List<org.meta_environment.rascal.ast.Name> names;
 }
 static public class Ambiguity extends QualifiedName {
   private final java.util.List<org.meta_environment.rascal.ast.QualifiedName> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.QualifiedName> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.QualifiedName> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.QualifiedName> getAlternatives() {
 	return alternatives;

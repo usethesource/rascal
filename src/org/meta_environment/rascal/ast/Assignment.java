@@ -16,8 +16,9 @@ static public class Default extends Assignment {
 }
 static public class Ambiguity extends Assignment {
   private final java.util.List<org.meta_environment.rascal.ast.Assignment> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.Assignment> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Assignment> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.Assignment> getAlternatives() {
 	return alternatives;

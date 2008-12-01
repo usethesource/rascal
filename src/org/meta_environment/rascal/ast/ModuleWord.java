@@ -17,8 +17,9 @@ static public class Lexical extends ModuleWord {
 }
 static public class Ambiguity extends ModuleWord {
   private final java.util.List<org.meta_environment.rascal.ast.ModuleWord> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.ModuleWord> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.ModuleWord> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.ModuleWord> getAlternatives() {
 	return alternatives;

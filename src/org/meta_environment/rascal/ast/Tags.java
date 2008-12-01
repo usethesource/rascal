@@ -30,8 +30,9 @@ private java.util.List<org.meta_environment.rascal.ast.Tag> annotations;
 }
 static public class Ambiguity extends Tags {
   private final java.util.List<org.meta_environment.rascal.ast.Tags> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.Tags> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Tags> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.Tags> getAlternatives() {
 	return alternatives;

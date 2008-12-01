@@ -30,8 +30,9 @@ private java.util.List<org.meta_environment.rascal.ast.Statement> statements;
 }
 static public class Ambiguity extends FunctionBody {
   private final java.util.List<org.meta_environment.rascal.ast.FunctionBody> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.FunctionBody> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.FunctionBody> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.FunctionBody> getAlternatives() {
 	return alternatives;

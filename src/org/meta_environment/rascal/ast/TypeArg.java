@@ -28,8 +28,9 @@ private org.meta_environment.rascal.ast.Type type;
 }
 static public class Ambiguity extends TypeArg {
   private final java.util.List<org.meta_environment.rascal.ast.TypeArg> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.TypeArg> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.TypeArg> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.TypeArg> getAlternatives() {
 	return alternatives;

@@ -16,8 +16,9 @@ public abstract class CharacterLiteral extends AbstractAST {
   	}
 } static public class Ambiguity extends CharacterLiteral {
   private final java.util.List<org.meta_environment.rascal.ast.CharacterLiteral> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.CharacterLiteral> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.CharacterLiteral> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.CharacterLiteral> getAlternatives() {
 	return alternatives;

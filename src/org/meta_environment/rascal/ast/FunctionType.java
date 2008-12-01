@@ -42,8 +42,9 @@ private org.meta_environment.rascal.ast.Type type;
 }
 static public class Ambiguity extends FunctionType {
   private final java.util.List<org.meta_environment.rascal.ast.FunctionType> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.FunctionType> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.FunctionType> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.FunctionType> getAlternatives() {
 	return alternatives;

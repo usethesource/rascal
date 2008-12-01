@@ -38,8 +38,9 @@ private org.meta_environment.rascal.ast.Expression pattern;
 }
 static public class Ambiguity extends ValueProducer {
   private final java.util.List<org.meta_environment.rascal.ast.ValueProducer> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.ValueProducer> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.ValueProducer> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.ValueProducer> getAlternatives() {
 	return alternatives;

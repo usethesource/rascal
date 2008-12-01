@@ -28,8 +28,9 @@ private org.meta_environment.rascal.ast.Name name;
 }
 static public class Ambiguity extends TypeVar {
   private final java.util.List<org.meta_environment.rascal.ast.TypeVar> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.TypeVar> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.TypeVar> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.TypeVar> getAlternatives() {
 	return alternatives;

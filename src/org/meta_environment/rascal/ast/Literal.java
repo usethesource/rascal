@@ -30,8 +30,9 @@ private org.meta_environment.rascal.ast.RegExpLiteral regExpLiteral;
 }
 static public class Ambiguity extends Literal {
   private final java.util.List<org.meta_environment.rascal.ast.Literal> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.Literal> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Literal> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.Literal> getAlternatives() {
 	return alternatives;

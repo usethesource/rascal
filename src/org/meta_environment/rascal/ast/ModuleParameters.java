@@ -30,8 +30,9 @@ private java.util.List<org.meta_environment.rascal.ast.TypeVar> parameters;
 }
 static public class Ambiguity extends ModuleParameters {
   private final java.util.List<org.meta_environment.rascal.ast.ModuleParameters> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.ModuleParameters> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.ModuleParameters> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.ModuleParameters> getAlternatives() {
 	return alternatives;

@@ -42,8 +42,9 @@ private org.meta_environment.rascal.ast.Expression from;
 }
 static public class Ambiguity extends Mapping {
   private final java.util.List<org.meta_environment.rascal.ast.Mapping> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.Mapping> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Mapping> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.Mapping> getAlternatives() {
 	return alternatives;

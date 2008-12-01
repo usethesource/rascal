@@ -17,8 +17,9 @@ static public class Lexical extends Backslash {
 }
 static public class Ambiguity extends Backslash {
   private final java.util.List<org.meta_environment.rascal.ast.Backslash> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.Backslash> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Backslash> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.Backslash> getAlternatives() {
 	return alternatives;

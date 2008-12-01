@@ -28,8 +28,9 @@ private org.meta_environment.rascal.ast.Sort sort;
 }
 static public class Ambiguity extends Symbol {
   private final java.util.List<org.meta_environment.rascal.ast.Symbol> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.Symbol> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Symbol> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.Symbol> getAlternatives() {
 	return alternatives;

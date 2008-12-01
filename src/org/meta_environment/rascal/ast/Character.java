@@ -30,8 +30,9 @@ private org.meta_environment.rascal.ast.NumChar numChar;
 }
 static public class Ambiguity extends Character {
   private final java.util.List<org.meta_environment.rascal.ast.Character> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.Character> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Character> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.Character> getAlternatives() {
 	return alternatives;

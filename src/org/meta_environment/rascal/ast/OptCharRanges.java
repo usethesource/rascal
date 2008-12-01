@@ -16,8 +16,9 @@ static public class Absent extends OptCharRanges {
 }
 static public class Ambiguity extends OptCharRanges {
   private final java.util.List<org.meta_environment.rascal.ast.OptCharRanges> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.OptCharRanges> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.OptCharRanges> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.OptCharRanges> getAlternatives() {
 	return alternatives;

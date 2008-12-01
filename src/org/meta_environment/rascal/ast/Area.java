@@ -95,8 +95,9 @@ private org.meta_environment.rascal.ast.Expression beginLine;
 }
 static public class Ambiguity extends Area {
   private final java.util.List<org.meta_environment.rascal.ast.Area> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.Area> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Area> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.Area> getAlternatives() {
 	return alternatives;
