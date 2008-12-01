@@ -119,7 +119,7 @@ public class ASTBuilder {
 		}
 	}
 	
-	private AbstractAST buildAmbNode(ISet alternatives) {
+	private AbstractAST buildAmbNode(ITree tree, ISet alternatives) {
 		try {
 			String sort = null;
 			List<AbstractAST> alts = new LinkedList<AbstractAST>();
@@ -131,10 +131,14 @@ public class ASTBuilder {
 				
 				alts.add(buildValue(elem));
 			}
+			
+			if (alts.size() == 0) {
+				throw new FactTypeError("bug: Ambiguity without children!?! " + tree);
+			}
 
 			sort = capitalize(sort);
-			Class<?> formals[] = new Class<?>[]  { List.class };
-			Object actuals[] = new Object[] { alts };
+			Class<?> formals[] = new Class<?>[]  { ITree.class, List.class };
+			Object actuals[] = new Object[] { tree, alts };
 
 			Method make = clazz.getMethod("make" + sort + "Ambiguity", formals);
 			return (AbstractAST) make.invoke(factory, actuals);
@@ -184,7 +188,7 @@ public class ASTBuilder {
 		TreeAdapter tree = new TreeAdapter((INode) arg);
 		
 		if (tree.isAmb()) {
-			return buildAmbNode(tree.getAlternatives());
+			return buildAmbNode((ITree) arg, tree.getAlternatives());
 		}
 		if (!tree.isAppl()) {
 			throw new UnsupportedOperationException();
