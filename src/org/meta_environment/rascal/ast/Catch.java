@@ -28,8 +28,9 @@ private org.meta_environment.rascal.ast.Statement body;
 }
 static public class Ambiguity extends Catch {
   private final java.util.List<org.meta_environment.rascal.ast.Catch> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.Catch> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Catch> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.Catch> getAlternatives() {
 	return alternatives;

@@ -16,8 +16,9 @@ static public class newline extends StrChar {
 }
 static public class Ambiguity extends StrChar {
   private final java.util.List<org.meta_environment.rascal.ast.StrChar> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.StrChar> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.StrChar> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.StrChar> getAlternatives() {
 	return alternatives;

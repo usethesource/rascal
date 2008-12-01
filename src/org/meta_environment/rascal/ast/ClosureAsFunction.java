@@ -30,8 +30,9 @@ private org.meta_environment.rascal.ast.Expression expression;
 }
 static public class Ambiguity extends ClosureAsFunction {
   private final java.util.List<org.meta_environment.rascal.ast.ClosureAsFunction> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.ClosureAsFunction> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.ClosureAsFunction> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.ClosureAsFunction> getAlternatives() {
 	return alternatives;

@@ -16,8 +16,9 @@ static public class Help extends ShellCommand {
 }
 static public class Ambiguity extends ShellCommand {
   private final java.util.List<org.meta_environment.rascal.ast.ShellCommand> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.ShellCommand> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.ShellCommand> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.ShellCommand> getAlternatives() {
 	return alternatives;

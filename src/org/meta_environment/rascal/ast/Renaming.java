@@ -42,8 +42,9 @@ private org.meta_environment.rascal.ast.Name from;
 }
 static public class Ambiguity extends Renaming {
   private final java.util.List<org.meta_environment.rascal.ast.Renaming> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.Renaming> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Renaming> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.Renaming> getAlternatives() {
 	return alternatives;

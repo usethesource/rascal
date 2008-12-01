@@ -30,8 +30,9 @@ private java.util.List<org.meta_environment.rascal.ast.Toplevel> toplevels;
 }
 static public class Ambiguity extends Body {
   private final java.util.List<org.meta_environment.rascal.ast.Body> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.Body> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Body> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.Body> getAlternatives() {
 	return alternatives;

@@ -30,8 +30,9 @@ private org.meta_environment.rascal.ast.Character character;
 }
 static public class Ambiguity extends CharRange {
   private final java.util.List<org.meta_environment.rascal.ast.CharRange> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.CharRange> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.CharRange> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.CharRange> getAlternatives() {
 	return alternatives;

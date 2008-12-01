@@ -30,8 +30,9 @@ private org.meta_environment.rascal.ast.ShellCommand command;
 }
 static public class Ambiguity extends Command {
   private final java.util.List<org.meta_environment.rascal.ast.Command> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.Command> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Command> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.Command> getAlternatives() {
 	return alternatives;

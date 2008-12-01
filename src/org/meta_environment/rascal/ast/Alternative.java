@@ -42,8 +42,9 @@ private org.meta_environment.rascal.ast.Name name;
 }
 static public class Ambiguity extends Alternative {
   private final java.util.List<org.meta_environment.rascal.ast.Alternative> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.Alternative> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Alternative> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.Alternative> getAlternatives() {
 	return alternatives;

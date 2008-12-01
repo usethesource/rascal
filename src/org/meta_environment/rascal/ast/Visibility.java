@@ -16,8 +16,9 @@ static public class Public extends Visibility {
 }
 static public class Ambiguity extends Visibility {
   private final java.util.List<org.meta_environment.rascal.ast.Visibility> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.Visibility> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Visibility> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.Visibility> getAlternatives() {
 	return alternatives;

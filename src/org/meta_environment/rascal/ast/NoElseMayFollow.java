@@ -16,8 +16,9 @@ static public class Default extends NoElseMayFollow {
 }
 static public class Ambiguity extends NoElseMayFollow {
   private final java.util.List<org.meta_environment.rascal.ast.NoElseMayFollow> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.NoElseMayFollow> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.NoElseMayFollow> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.NoElseMayFollow> getAlternatives() {
 	return alternatives;

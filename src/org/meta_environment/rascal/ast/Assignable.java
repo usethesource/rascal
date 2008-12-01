@@ -30,8 +30,9 @@ private org.meta_environment.rascal.ast.QualifiedName qualifiedName;
 }
 static public class Ambiguity extends Assignable {
   private final java.util.List<org.meta_environment.rascal.ast.Assignable> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.Assignable> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Assignable> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.Assignable> getAlternatives() {
 	return alternatives;

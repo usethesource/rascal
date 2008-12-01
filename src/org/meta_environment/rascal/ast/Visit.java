@@ -38,8 +38,9 @@ private org.meta_environment.rascal.ast.Expression subject;
 }
 static public class Ambiguity extends Visit {
   private final java.util.List<org.meta_environment.rascal.ast.Visit> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.Visit> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Visit> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.Visit> getAlternatives() {
 	return alternatives;

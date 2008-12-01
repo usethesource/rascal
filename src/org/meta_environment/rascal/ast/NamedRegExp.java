@@ -16,8 +16,9 @@ public abstract class NamedRegExp extends AbstractAST {
   	}
 } static public class Ambiguity extends NamedRegExp {
   private final java.util.List<org.meta_environment.rascal.ast.NamedRegExp> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.NamedRegExp> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.NamedRegExp> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.NamedRegExp> getAlternatives() {
 	return alternatives;

@@ -16,8 +16,9 @@ public abstract class SingleQuotedStrChar extends AbstractAST {
   	}
 } static public class Ambiguity extends SingleQuotedStrChar {
   private final java.util.List<org.meta_environment.rascal.ast.SingleQuotedStrChar> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.SingleQuotedStrChar> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.SingleQuotedStrChar> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.SingleQuotedStrChar> getAlternatives() {
 	return alternatives;

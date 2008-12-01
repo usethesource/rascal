@@ -38,8 +38,9 @@ private java.util.List<org.meta_environment.rascal.ast.Declarator> declarations;
 }
 static public class Ambiguity extends Statement {
   private final java.util.List<org.meta_environment.rascal.ast.Statement> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.Statement> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Statement> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.Statement> getAlternatives() {
 	return alternatives;

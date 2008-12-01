@@ -28,8 +28,9 @@ private org.meta_environment.rascal.ast.TypeArg typeArg;
 }
 static public class Ambiguity extends StructuredType {
   private final java.util.List<org.meta_environment.rascal.ast.StructuredType> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.StructuredType> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.StructuredType> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.StructuredType> getAlternatives() {
 	return alternatives;

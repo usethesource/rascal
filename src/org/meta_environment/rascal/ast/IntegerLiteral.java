@@ -30,8 +30,9 @@ private org.meta_environment.rascal.ast.DecimalIntegerLiteral decimal;
 }
 static public class Ambiguity extends IntegerLiteral {
   private final java.util.List<org.meta_environment.rascal.ast.IntegerLiteral> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.IntegerLiteral> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.IntegerLiteral> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.IntegerLiteral> getAlternatives() {
 	return alternatives;

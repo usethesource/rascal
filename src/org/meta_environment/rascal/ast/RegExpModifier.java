@@ -17,8 +17,9 @@ static public class Lexical extends RegExpModifier {
 }
 static public class Ambiguity extends RegExpModifier {
   private final java.util.List<org.meta_environment.rascal.ast.RegExpModifier> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.RegExpModifier> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.RegExpModifier> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.RegExpModifier> getAlternatives() {
 	return alternatives;

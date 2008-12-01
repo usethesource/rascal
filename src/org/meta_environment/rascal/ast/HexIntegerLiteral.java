@@ -17,8 +17,9 @@ static public class Lexical extends HexIntegerLiteral {
 }
 static public class Ambiguity extends HexIntegerLiteral {
   private final java.util.List<org.meta_environment.rascal.ast.HexIntegerLiteral> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.HexIntegerLiteral> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.HexIntegerLiteral> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.HexIntegerLiteral> getAlternatives() {
 	return alternatives;

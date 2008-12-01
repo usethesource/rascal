@@ -17,8 +17,9 @@ static public class Lexical extends StringLiteral {
 }
 static public class Ambiguity extends StringLiteral {
   private final java.util.List<org.meta_environment.rascal.ast.StringLiteral> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.StringLiteral> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.StringLiteral> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.StringLiteral> getAlternatives() {
 	return alternatives;

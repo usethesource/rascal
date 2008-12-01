@@ -16,8 +16,9 @@ static public class Module extends Kind {
 }
 static public class Ambiguity extends Kind {
   private final java.util.List<org.meta_environment.rascal.ast.Kind> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.Kind> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Kind> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.Kind> getAlternatives() {
 	return alternatives;

@@ -30,8 +30,9 @@ private org.meta_environment.rascal.ast.DecimalLongLiteral decimalLong;
 }
 static public class Ambiguity extends LongLiteral {
   private final java.util.List<org.meta_environment.rascal.ast.LongLiteral> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.LongLiteral> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.LongLiteral> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.LongLiteral> getAlternatives() {
 	return alternatives;

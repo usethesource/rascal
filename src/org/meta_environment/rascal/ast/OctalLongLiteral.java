@@ -17,8 +17,9 @@ static public class Lexical extends OctalLongLiteral {
 }
 static public class Ambiguity extends OctalLongLiteral {
   private final java.util.List<org.meta_environment.rascal.ast.OctalLongLiteral> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.OctalLongLiteral> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.OctalLongLiteral> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.OctalLongLiteral> getAlternatives() {
 	return alternatives;

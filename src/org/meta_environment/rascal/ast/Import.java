@@ -28,8 +28,9 @@ private org.meta_environment.rascal.ast.ImportedModule module;
 }
 static public class Ambiguity extends Import {
   private final java.util.List<org.meta_environment.rascal.ast.Import> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.Import> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Import> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.Import> getAlternatives() {
 	return alternatives;

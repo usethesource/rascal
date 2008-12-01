@@ -17,8 +17,9 @@ static public class Lexical extends UnicodeEscape {
 }
 static public class Ambiguity extends UnicodeEscape {
   private final java.util.List<org.meta_environment.rascal.ast.UnicodeEscape> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.UnicodeEscape> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.UnicodeEscape> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.UnicodeEscape> getAlternatives() {
 	return alternatives;

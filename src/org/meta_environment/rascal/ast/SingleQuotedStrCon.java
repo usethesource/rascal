@@ -17,8 +17,9 @@ static public class Lexical extends SingleQuotedStrCon {
 }
 static public class Ambiguity extends SingleQuotedStrCon {
   private final java.util.List<org.meta_environment.rascal.ast.SingleQuotedStrCon> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.SingleQuotedStrCon> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.SingleQuotedStrCon> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.SingleQuotedStrCon> getAlternatives() {
 	return alternatives;

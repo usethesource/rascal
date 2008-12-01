@@ -16,8 +16,9 @@ static public class Empty extends Label {
 }
 static public class Ambiguity extends Label {
   private final java.util.List<org.meta_environment.rascal.ast.Label> alternatives;
-  public Ambiguity(java.util.List<org.meta_environment.rascal.ast.Label> alternatives) {
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Label> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
   }
   public java.util.List<org.meta_environment.rascal.ast.Label> getAlternatives() {
 	return alternatives;
