@@ -1118,29 +1118,21 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	public EvalResult visitExpressionIntersection(Intersection x) {
 		EvalResult left = x.getLhs().accept(this);
 		EvalResult right = x.getRhs().accept(this);
+		Type resultType = left.type.lub(right.type);
+		IValue result;
 
 		if (left.type.isSetType() && right.type.isSetType()) {
-
-			if (left.value.equals(vf.set())) { // / TODO temp code to fix PDB
-				// bug
-				return left;
-			} else if (right.value.equals(vf.set())) {
-				return left;
-			} else
-				return result(((ISet) left.value).intersect((ISet) right.value));
+			result = ((ISet) left.value).intersect((ISet) right.value);
 		} else if (left.type.isMapType() && right.type.isMapType()) {
-			Type resultType = left.type.lub(right.type);
-			return result(resultType, ((IMap) left.value)
-					.common((IMap) right.value));
-
+			result = ((IMap) left.value).common((IMap) right.value);
 		} else if (left.type.isRelationType() && right.type.isRelationType()) {
-			Type resultType = left.type.lub(right.type);
-			return result(resultType, ((ISet) left.value)
-					.intersect((ISet) right.value));
+			result = ((ISet) left.value).intersect((ISet) right.value);
 		} else {
 			throw new RascalTypeError("Operands of & have illegal types: "
 					+ left.type + ", " + right.type);
 		}
+		
+		return result(resultType, result);
 	}
 
 	@Override
