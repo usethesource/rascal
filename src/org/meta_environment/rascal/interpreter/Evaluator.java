@@ -60,7 +60,6 @@ import org.meta_environment.rascal.ast.Expression.CallOrTree;
 import org.meta_environment.rascal.ast.Expression.Composition;
 import org.meta_environment.rascal.ast.Expression.Comprehension;
 import org.meta_environment.rascal.ast.Expression.Division;
-import org.meta_environment.rascal.ast.Expression.EmptySetOrBlock;
 import org.meta_environment.rascal.ast.Expression.Equivalence;
 import org.meta_environment.rascal.ast.Expression.GreaterThan;
 import org.meta_environment.rascal.ast.Expression.GreaterThanOrEq;
@@ -76,11 +75,11 @@ import org.meta_environment.rascal.ast.Expression.Modulo;
 import org.meta_environment.rascal.ast.Expression.Negation;
 import org.meta_environment.rascal.ast.Expression.Negative;
 import org.meta_environment.rascal.ast.Expression.NonEmptyBlock;
-import org.meta_environment.rascal.ast.Expression.NonEmptySet;
 import org.meta_environment.rascal.ast.Expression.NotIn;
 import org.meta_environment.rascal.ast.Expression.Or;
 import org.meta_environment.rascal.ast.Expression.Product;
 import org.meta_environment.rascal.ast.Expression.RegExpMatch;
+import org.meta_environment.rascal.ast.Expression.Set;
 import org.meta_environment.rascal.ast.Expression.Subscript;
 import org.meta_environment.rascal.ast.Expression.Subtraction;
 import org.meta_environment.rascal.ast.Expression.TransitiveClosure;
@@ -874,7 +873,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	}
 
 	@Override
-	public EvalResult visitExpressionNonEmptySet(NonEmptySet x) {
+	public EvalResult visitExpressionSet(Set x) {
 		java.util.List<org.meta_environment.rascal.ast.Expression> elements = x
 				.getElements();
 		java.util.List<IValue> results = new LinkedList<IValue>();
@@ -899,11 +898,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		return elementType;
 	}
 
-	@Override
-	public EvalResult visitExpressionEmptySetOrBlock(EmptySetOrBlock x) {
-		return result(vf.set(tf.voidType()));
-	}
-	
 	@Override
 	public EvalResult visitExpressionMap(
 			org.meta_environment.rascal.ast.Expression.Map x) {
