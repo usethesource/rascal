@@ -129,7 +129,16 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	}
 
 	private EvalResult result(IValue v) {
-		return new EvalResult(v != null ? v.getType() : null, v);
+		Type type = v.getType();
+		
+		if (type.isRelationType() 
+				|| type.isSetType() 
+				|| type.isMapType()
+				|| type.isListType()) {
+			throw new RascalTypeError("bug: Should not used run-time type for type checking!!!!");
+		}
+				
+		return new EvalResult(v != null ? type : null, v);
 	}
 	
 	private EvalResult result() {
@@ -960,6 +969,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	public EvalResult visitExpressionAddition(Addition x) {
 		EvalResult left = x.getLhs().accept(this);
 		EvalResult right = x.getRhs().accept(this);
+		Type resultType = left.type.lub(right.type);
 
 		if (left.type.isIntegerType() && right.type.isIntegerType()) {
 			return result(((IInteger) left.value).add((IInteger) right.value));
@@ -969,32 +979,17 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			return result(vf.string(((IString) left.value).getValue()
 					+ ((IString) right.value).getValue()));
 		} else if (left.type.isListType() && right.type.isListType()) {
-			if(left.value.equals(vf.list())){  /// TODO temp code to fix PDB bug
-				return right;
-			} else if(right.value.equals(vf.set())){
-				return left;
-			} else
-			return result(((IList) left.value)
+			
+			return result(resultType, ((IList) left.value)
 					.concat((IList) right.value));
 		} else if (left.type.isSetType() && right.type.isSetType()) {
-			if(left.value.equals(vf.set())){  /// TODO temp code to fix PDB bug
-				return right;
-			} else if(right.value.equals(vf.set())){
-				return left;
-			} else 
-				return result(((ISet) left.value)
+				return result(resultType, ((ISet) left.value)
 						.union((ISet) right.value));
 		} else if (left.type.isMapType() && right.type.isMapType()) {
-			Type resultType = left.type.lub(right.type);
 			return result(resultType, ((IMap) left.value)              //TODO: is this the right operation?
 					.join((IMap) right.value));
 		} else if (left.type.isRelationType() && right.type.isRelationType()) {
-			if(left.value.equals(vf.set())){  /// TODO temp code to fix PDB bug
-				return right;
-			} else if(right.value.equals(vf.set())){
-				return left;
-			} else 
-				return result(((ISet) left.value)
+				return result(resultType, ((ISet) left.value)
 						.union((ISet) right.value));
 		} else {
 			throw new RascalTypeError("Operands of + have illegal types: "
@@ -1005,6 +1000,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	public EvalResult visitExpressionSubtraction(Subtraction x) {
 		EvalResult left = x.getLhs().accept(this);
 		EvalResult right = x.getRhs().accept(this);
+		Type resultType = left.type.lub(right.type);
 
 		if (left.type.isIntegerType() && right.type.isIntegerType()) {
 			return result(((IInteger) left.value).subtract((IInteger) right.value));
@@ -1013,19 +1009,12 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		} else if (left.type.isListType() && right.type.isListType()) {
 			notImplemented("- on list");
 		} else if (left.type.isSetType() && right.type.isSetType()) {
-			if(left.value.equals(vf.set())){  /// TODO temp code to fix PDB bug
-				return left;
-			} else if(right.value.equals(vf.set())){
-				return left;
-			} else 
-				return result(((ISet) left.value)
+				return result(resultType, ((ISet) left.value)
 					.subtract((ISet) right.value));
 		} else if (left.type.isMapType() && right.type.isMapType()) {
-			Type resultType = left.type.lub(right.type);
 			return result(resultType, ((IMap) left.value)
 					.remove((IMap) right.value));
 		} else if (left.type.isRelationType() && right.type.isRelationType()) {
-			Type resultType = left.type.lub(right.type);
 			return result(resultType, ((ISet) left.value)
 					.subtract((ISet) right.value));
 		} else {
@@ -1118,23 +1107,16 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	public EvalResult visitExpressionIntersection(Intersection x) {
 		EvalResult left = x.getLhs().accept(this);
 		EvalResult right = x.getRhs().accept(this);
+		Type resultType = left.type.lub(right.type);
 
 		if (left.type.isSetType() && right.type.isSetType()) {
-			
-			if(left.value.equals(vf.set())){  /// TODO temp code to fix PDB bug
-				return left;
-			} else if(right.value.equals(vf.set())){
-				return left;
-			} else 
-				return result(((ISet) left.value)
+				return result(resultType, ((ISet) left.value)
 				.intersect((ISet) right.value));
 		} else if (left.type.isMapType() && right.type.isMapType()) {
-			Type resultType = left.type.lub(right.type);
 			return result(resultType, ((IMap) left.value)
 					.common((IMap) right.value));
 
 		} else if (left.type.isRelationType() && right.type.isRelationType()) {
-			Type resultType = left.type.lub(right.type);
 			return result(resultType, ((ISet) left.value)
 				.intersect((ISet) right.value));
 		} else {
@@ -1252,20 +1234,44 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		} else if (left.type.isListType() && right.type.isListType()) {
 			return compareList((IList) left.value, (IList) right.value);
 		} else if (left.type.isSetType() && right.type.isSetType()) {
-			((ISet) left.value).isSubSet((ISet) right.value);
+			return compareSet((ISet) left.value, (ISet) right.value);
 		} else if (left.type.isMapType() && right.type.isMapType()) {
-			((IMap) left.value).isSubMap((IMap) right.value);
+			return compareMap((IMap) left.value, (IMap) right.value);
 		} else if (left.type.isTupleType() && right.type.isTupleType()) {
 			notImplemented("compare for tuples");
+			return 0;
 		} else if (left.type.isRelationType() && right.type.isRelationType()) {
-			((ISet) left.value).isSubSet((ISet) right.value);
+			return compareSet((ISet) left.value, (ISet) right.value);
 		} else {
 			throw new RascalTypeError("Operands of comparison have different types: "
 					+ left.type + ", " + right.type);
 		}
-		return 0;
 	}
 	
+	private int compareSet(ISet value, ISet value2) {
+		if (value.equals(value2)) {
+			return 0;
+		}
+		else if (value.isSubSet(value2)) {
+			return -1;
+		}
+		else {
+			return 1;
+		}
+	}
+	
+	private int compareMap(IMap value, IMap value2) {
+		if (value.equals(value2)) {
+			return 0;
+		}
+		else if (value.isSubMap(value2)) {
+			return -1;
+		}
+		else {
+			return 1;
+		}
+	}
+
 	private int compareList(IList l, IList r){
 		int ll = l.length();
 		int rl = r.length();
@@ -1402,11 +1408,15 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	public EvalResult visitExpressionComposition(Composition x) {
 		EvalResult left = x.getLhs().accept(this);
 		EvalResult right = x.getRhs().accept(this);
+	
 		if(left.type.isRelationType() && 
 			right.type.isRelationType()){
 			RelationType leftrelType = (RelationType) left.type; 
+
 			RelationType rightrelType = (RelationType) right.type;
 			
+
+			// ALARM: not using declared types
 			if (leftrelType.getArity() == 2
 					&& rightrelType.getArity() == 2
 					&& leftrelType.getFieldType(1).equals(
