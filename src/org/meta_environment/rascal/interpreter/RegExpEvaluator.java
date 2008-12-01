@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.meta_environment.rascal.ast.NullASTVisitor;
@@ -37,9 +38,13 @@ class RegExpResult {
 	}
 	
 	public boolean matches(String s){
-		Pattern pat = Pattern.compile(RegExpAsString);
-		matcher = pat.matcher(s);
-		return matcher.matches();
+		try {
+			Pattern pat = Pattern.compile(RegExpAsString);
+			matcher = pat.matcher(s);
+			return matcher.matches();
+		} catch (PatternSyntaxException e){
+			throw new RascalTypeError(e.getMessage());
+		}
 	}
 	public Map<String,String> getBindings(){
 		Map<String,String> map = new HashMap<String,String>();
@@ -54,41 +59,46 @@ class RegExpResult {
 
 public class RegExpEvaluator extends NullASTVisitor<RegExpResult> {
 	
-	
 	public RegExpResult visitExpressionLiteral(Literal x) {
-		System.err.println("visitExpressionLiteral: " + x.getLiteral());
+		//System.err.println("visitExpressionLiteral: " + x.getLiteral());
 		return x.getLiteral().accept(this);
 	}
 	
 	public RegExpResult visitLiteralRegExp(RegExp x) {
-		System.err.println("visitLiteralRegExp: " + x.getRegExpLiteral());
+		//System.err.println("visitLiteralRegExp: " + x.getRegExpLiteral());
 		return x.getRegExpLiteral().accept(this);
 	}
 	
 	@Override
 	public RegExpResult visitRegExpLexical(Lexical x) {
-		System.err.println("visitRegExpLexical: " + x.getString());
+		//System.err.println("visitRegExpLexical: " + x.getString());
 		return new RegExpResult(x.getString());
 	}
 	
 	@Override
 	public RegExpResult visitRegExpLiteralLexical(
 			org.meta_environment.rascal.ast.RegExpLiteral.Lexical x) {
-		System.err.println("visitRegExpLiteralLexical: " + x.getString()
-				);
+		//System.err.println("visitRegExpLiteralLexical: " + x.getString());
 
-		String subject = x.getString();
+		String subjectPat = x.getString();
 		Character modifier = null;
 		
+		if(subjectPat.charAt(0) != '/'){
+			throw new RascalTypeError("Malformed Regular expression: " + subjectPat);
+		}
+		
 		int start = 1;
-		int end = subject.length()-1;
-		if(subject.charAt(end) != '/'){
-			modifier = subject.charAt(end);
+		int end = subjectPat.length()-1;
+		if(subjectPat.charAt(end) != '/'){
+			modifier = subjectPat.charAt(end);
 			end--;
+		}
+		if(subjectPat.charAt(end) != '/'){
+			throw new RascalTypeError("Regular expression does not end with /");
 		}
 		
 		Pattern replacePat = Pattern.compile("<([a-zA-Z0-9]+):([^>]*)>");
-		Matcher m = replacePat.matcher(subject);
+		Matcher m = replacePat.matcher(subjectPat);
 		
 		String resultRegExp = "";
 		List<String> names = new ArrayList<String>();
@@ -96,12 +106,15 @@ public class RegExpEvaluator extends NullASTVisitor<RegExpResult> {
 		while(m.find()){
 			String varName = m.group(1);
 			names.add(varName);
-			resultRegExp += subject.substring(start, m.start(0)) + "(" + m.group(2) + ")";
+			resultRegExp += subjectPat.substring(start, m.start(0)) + "(" + m.group(2) + ")";
 			start = m.end(0);
 		}
-		resultRegExp += subject.substring(start, end);
+		resultRegExp += subjectPat.substring(start, end);
+		System.err.println("resultRegExp: " + resultRegExp);
 		return new RegExpResult(resultRegExp, modifier, names);
 	}
+	
+	// Following methods are never used.
 	
 	@Override
 	public RegExpResult visitRegExpModifierLexical(

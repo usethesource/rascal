@@ -15,6 +15,7 @@ import org.meta_environment.rascal.ast.Statement;
 import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
+import org.meta_environment.uptr.Factory;
 
 public class RascalTests extends TestCase{
 	private Parser parser = Parser.getInstance();
@@ -25,17 +26,17 @@ public class RascalTests extends TestCase{
 	private boolean runTest(String statement) throws IOException {
 		INode tree = parser.parse(new ByteArrayInputStream(statement.getBytes()));
 
-	//	if (tree.getTreeNodeType() == builder.ParseTree_Summary) {
-	//		return false;
-	//	}
-	//	else {
+		if (tree.getTreeNodeType() ==  Factory.ParseTree_Summary) {
+			System.err.println(tree);
+			return false;
+		} else {
 			Command stat = builder.buildCommand(tree);
 			IValue value = evaluator.eval(stat.getStatement());
 			
 			if (value == null || ! value.getType().isBoolType())
 				return false;
 			return value.equals(ValueFactory.getInstance().bool(true)) ? true : false;
-	//	}
+		}
 	}
 	
 	public void testBool() throws IOException
