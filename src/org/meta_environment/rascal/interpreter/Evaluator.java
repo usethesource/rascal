@@ -804,9 +804,9 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			}
 			ITuple tsubj = (ITuple) subj.value;
 			for(int i = 0; i < tup.arity(); i++){
-				if(!match(result(tsubj.get(i)), tup.get(i))){
-					return false;
-				}
+			//	if(!match(result(tsubj.get(i)), tup.get(i))){
+			//		return false;
+			//	}
 			}
 		
 		}
