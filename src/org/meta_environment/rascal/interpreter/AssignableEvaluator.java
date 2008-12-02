@@ -125,14 +125,14 @@ public class AssignableEvaluator extends NullASTVisitor<EvalResult> {
 		
 		TupleType tupleType = (TupleType) value.type;
 		ITuple tuple = (ITuple) value.value;
-		EvalResult[] results = new EvalResult[arguments.size()];
+		IValue[] results = new IValue[arguments.size()];
 		
 		for (int i = 0; i < arguments.size(); i++) {
 			Type argType = tupleType.getFieldType(i);
 			IValue arg = tuple.get(i);
 			EvalResult result = eval.result(argType, arg);
 			AssignableEvaluator ae = new AssignableEvaluator(env,result, eval);
-			results[i] = arguments.get(i).accept(ae);
+			results[i] = arguments.get(i).accept(ae).value;
 		}
 		
 		return eval.result(tupleType, tupleType.make(eval.vf, results));
