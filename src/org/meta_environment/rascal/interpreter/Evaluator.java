@@ -29,11 +29,11 @@ import org.eclipse.imp.pdb.facts.type.MapType;
 import org.eclipse.imp.pdb.facts.type.NamedTreeType;
 import org.eclipse.imp.pdb.facts.type.RelationType;
 import org.eclipse.imp.pdb.facts.type.SetType;
+import org.eclipse.imp.pdb.facts.type.TreeNodeType;
 import org.eclipse.imp.pdb.facts.type.TupleType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.ASTFactory;
-import org.meta_environment.rascal.ast.Assignable;
 import org.meta_environment.rascal.ast.Case;
 import org.meta_environment.rascal.ast.Declaration;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
@@ -48,6 +48,8 @@ import org.meta_environment.rascal.ast.Toplevel;
 import org.meta_environment.rascal.ast.TypeArg;
 import org.meta_environment.rascal.ast.ValueProducer;
 import org.meta_environment.rascal.ast.Variant;
+import org.meta_environment.rascal.ast.Assignable.Constructor;
+import org.meta_environment.rascal.ast.Assignable.FieldAccess;
 import org.meta_environment.rascal.ast.Declaration.Annotation;
 import org.meta_environment.rascal.ast.Declaration.Data;
 import org.meta_environment.rascal.ast.Declaration.Function;
@@ -81,7 +83,6 @@ import org.meta_environment.rascal.ast.Expression.NonEmptyBlock;
 import org.meta_environment.rascal.ast.Expression.NotIn;
 import org.meta_environment.rascal.ast.Expression.Or;
 import org.meta_environment.rascal.ast.Expression.Product;
-import org.meta_environment.rascal.ast.Expression.QualifiedName;
 import org.meta_environment.rascal.ast.Expression.RegExpMatch;
 import org.meta_environment.rascal.ast.Expression.RegExpNoMatch;
 import org.meta_environment.rascal.ast.Expression.Set;
@@ -95,9 +96,7 @@ import org.meta_environment.rascal.ast.IntegerLiteral.DecimalIntegerLiteral;
 import org.meta_environment.rascal.ast.Literal.Boolean;
 import org.meta_environment.rascal.ast.Literal.Double;
 import org.meta_environment.rascal.ast.Literal.Integer;
-import org.meta_environment.rascal.ast.Literal.RegExp;
 import org.meta_environment.rascal.ast.LocalVariableDeclaration.Default;
-import org.meta_environment.rascal.ast.RegExp.Lexical;
 import org.meta_environment.rascal.ast.Statement.Assert;
 import org.meta_environment.rascal.ast.Statement.Assignment;
 import org.meta_environment.rascal.ast.Statement.Block;
@@ -116,8 +115,8 @@ import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
 
 public class Evaluator extends NullASTVisitor<EvalResult> {
-	static final String RASCAL_FILE_EXT = ".rsc";
-	private final IValueFactory vf;
+	public static final String RASCAL_FILE_EXT = ".rsc";
+	final IValueFactory vf;
 	private final TypeFactory tf;
 	private final TypeEvaluator te = new TypeEvaluator();
 	private final RegExpEvaluator re = new RegExpEvaluator();
@@ -130,7 +129,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		tf = TypeFactory.getInstance();
 	}
 
-	private EvalResult result(Type t, IValue v) {
+	EvalResult result(Type t, IValue v) {
 		return new EvalResult(t, v);
 	}
 
@@ -141,7 +140,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				|| type.isSetType() 
 				|| type.isMapType()
 				|| type.isListType()) {
-			throw new RascalTypeError("bug: Do not use run-time type for type checking!!!!");
+			throw new RascalBug("Should not used run-time type for type checking!!!!");
 		}
 				
 		return new EvalResult(v != null ? type : null, v);
@@ -169,7 +168,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
         if(r != null){
         	return r.value;
         } else {
-        	throw new RascalTypeError("Not yet implemented: " + declaration.getTree());
+        	throw new RascalBug("Not yet implemented: " + declaration.getTree());
         }
 	}
 	
@@ -177,13 +176,13 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 	@Override
 	public EvalResult visitExpressionAmbiguity(Ambiguity x) {
-		throw new RascalTypeError("Ambiguous expression: " + x);
+		throw new RascalBug("Ambiguous expression: " + x);
 	}
 	
 	@Override
 	public EvalResult visitStatementAmbiguity(
 			org.meta_environment.rascal.ast.Statement.Ambiguity x) {
-		throw new RascalTypeError("Ambiguous statement: " + x);
+		throw new RascalBug("Ambiguous statement: " + x);
 	}
 	
 	// Modules -------------------------------------------------------------
@@ -556,49 +555,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		return checkValidListSubscription(previous, subs, index);
 	}
 	
-	private EvalResult assignSubscriptedVariable(
-			String name, EvalResult subs, EvalResult right) {
-		
-		int index = getValidIndex(subs);
-		EvalResult previous = getVariable(name);
-		
-		if (previous != null) {
-			if(previous.type.isListType()){
-				Type elementType = checkValidListSubscription(name, subs, index);
-				if (right.type.isSubtypeOf(elementType)) {
-					right.type = elementType;
-				} else {
-					throw new RascalTypeError("subscripted variable " + name
-							+ " has element type " + elementType
-							+ "; cannot assign value of type " + right.type);
-				}
-				IValue newValue = ((IList) previous.value).put(index, right.value);
-				EvalResult nw = result(elementType, newValue);
-				storeVariable(name, nw);
-				return nw;
-			} else {
-				notImplemented("index in assignment");
-			}
-	} else {
-			throw new RascalTypeError("cannot assign to uninitialized subscripted variable " + name);
-		}
-		return null;
-	}
-
 	private EvalResult getVariable(String name) {
 		return env.getVariable(name);
-	}
-	
-	private EvalResult assign(Assignable a, EvalResult right){
-
-		if (a.isVariable()) {
-			return assignVariable(a.getQualifiedName().toString(), right);		
-		}
-		else if(a.isSubscript()){
-			EvalResult subs = a.getSubscript().accept(this);
-			return assignSubscriptedVariable(a.getReceiver().getQualifiedName().toString(), subs, right);
-		}
-		return result();
 	}
 	
 	@Override
@@ -615,6 +573,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			checkValidListSubscription(r, subs, index);
 			return result(((IList) r.value).get(index));
 		}
+		
+		// TODO implement other subscripts
 		return null;
 	}
 
@@ -648,14 +608,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 	@Override
 	public EvalResult visitStatementAssignment(Assignment x) {
-		Assignable a = x.getAssignable();
-		org.meta_environment.rascal.ast.Assignment op = x.getOperator();
 		EvalResult right = x.getExpression().accept(this);
-
-		if (op.isDefault()) {
-			return assign(a, right);
-		}
-		return result();
+		return x.getAssignable().accept(new AssignableEvaluator(env, right, this));
 	}
 	
 	@Override
@@ -666,7 +620,93 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		}
 		return r;
 	}
-   
+  
+	@Override
+	public EvalResult visitAssignableVariable(
+			org.meta_environment.rascal.ast.Assignable.Variable x) {
+		return env.getVariable(x.getQualifiedName().toString());
+	}
+	
+	@Override
+	public EvalResult visitAssignableFieldAccess(FieldAccess x) {
+		EvalResult receiver = x.getReceiver().accept(this);
+		String label = x.getField().toString();
+	
+		if (receiver.type.isTupleType()) {
+			IValue result = ((ITuple) receiver.value).get(label);
+			Type type = ((TupleType) ((ITuple) receiver.value).getType()).getFieldType(label);
+			return result(type, result);
+		}
+		else if (receiver.type.isTreeNodeType() || receiver.type.isNamedTreeType()) {
+			IValue result = ((INode) receiver.value).get(label);
+			TreeNodeType treeNodeType = ((INode) receiver.value).getTreeNodeType();
+			Type type = treeNodeType.getChildType(treeNodeType.getChildIndex(label));
+			return result(type, result);
+		}
+		else {
+			throw new RascalTypeError(x.getReceiver() + " has no field named " + label);
+		}
+	}
+	
+	@Override
+	public EvalResult visitAssignableAnnotation(
+			org.meta_environment.rascal.ast.Assignable.Annotation x) {
+		EvalResult receiver = x.getReceiver().accept(this);
+		String label = x.getAnnotation().toString();
+		Type type = tf.getAnnotationType(receiver.type, label);
+		IValue value = receiver.value.getAnnotation(label);
+		return result(type, value);
+	}
+	
+	@Override
+	public EvalResult visitAssignableConstructor(Constructor x) {
+		throw new RascalBug("constructor assignable does not represent a value:" + x);
+	}
+	
+	@Override
+	public EvalResult visitAssignableIfDefined(
+			org.meta_environment.rascal.ast.Assignable.IfDefined x) {
+		throw new RascalBug("ifdefined assignable does not represent a value");
+	}
+	
+	@Override
+	public EvalResult visitAssignableSubscript(
+			org.meta_environment.rascal.ast.Assignable.Subscript x) {
+		EvalResult receiver = x.getReceiver().accept(this);
+		EvalResult subscript = x.getSubscript().accept(this);
+		
+		if (receiver.type.getBaseType().isListType() && subscript.type.getBaseType().isIntegerType()) {
+			IList list = (IList) receiver.value;
+			IValue result = list.get(((IInteger) subscript.value).getValue());
+			Type type = ((ListType) receiver.type).getElementType();
+			return result(type, result);
+		}
+		else if (receiver.type.getBaseType().isMapType()) {
+			Type keyType = ((MapType) receiver.type).getKeyType();
+			
+			if (subscript.type.isSubtypeOf(keyType)) {
+				IValue result = ((IMap) receiver.value).get(subscript.value);
+				Type type = ((MapType) receiver.type).getValueType();
+				return result(type, result);
+			}
+		}
+		
+		// TODO implement other subscripts
+
+		throw new RascalTypeError("Illegal subscript " + x.getSubscript() + " for receiver " + x.getReceiver());
+	}
+	
+	@Override
+	public EvalResult visitAssignableTuple(
+			org.meta_environment.rascal.ast.Assignable.Tuple x) {
+		throw new RascalBug("tuple in assignable does not represent a value:" + x);
+	}
+	
+	@Override
+	public EvalResult visitAssignableAmbiguity(
+			org.meta_environment.rascal.ast.Assignable.Ambiguity x) {
+		throw new RascalBug("ambiguous Assignable: " + x);
+	}
 	
 	@Override
 	public EvalResult visitFunctionDeclarationDefault(
@@ -1035,6 +1075,27 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		return result(tf.tupleType(types), vf.tuple(values));
 	}
 	
+	@Override
+	public EvalResult visitExpressionAnnotation(
+			org.meta_environment.rascal.ast.Expression.Annotation x) {
+		  EvalResult expr = x.getExpression().accept(this);
+		String name = x.getName().toString();
+
+		Type annoType = tf.getAnnotationType(expr.type, name);
+
+		if (annoType == null) {
+			throw new RascalTypeError("No annotation " + x.getName()
+					+ " declared on " + expr.type);
+		}
+
+		IValue annoValue = expr.value.getAnnotation(name);
+		
+		if (annoValue == null) {
+			// TODO: make this a Rascal exception that can be caught by the programmer
+			throw new RascalTypeError("This " + expr.type + " does not have a " + name + " annotation set");
+		}
+		return result(annoType, annoValue);
+	}
 	
     @Override
 	public EvalResult visitExpressionAddition(Addition x) {
