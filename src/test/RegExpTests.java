@@ -19,10 +19,10 @@ public class RegExpTests extends TestCase {
 	private Parser parser = Parser.getInstance();
 	private ASTFactory factory = new ASTFactory();
     private ASTBuilder builder = new ASTBuilder(factory);
-	private Evaluator evaluator = new Evaluator(ValueFactory.getInstance(), factory);
 	
 	private boolean runTest(String statement) throws IOException {
 		INode tree = parser.parse(new ByteArrayInputStream(statement.getBytes()));
+		Evaluator evaluator = new Evaluator(ValueFactory.getInstance(), factory);
 
 		if (tree.getTreeNodeType() ==  Factory.ParseTree_Summary) {
 			System.err.println(tree);
