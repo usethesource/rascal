@@ -137,7 +137,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				|| type.isSetType() 
 				|| type.isMapType()
 				|| type.isListType()) {
-			throw new RascalTypeError("bug: Should not used run-time type for type checking!!!!");
+			throw new RascalTypeError("bug: Do not use run-time type for type checking!!!!");
 		}
 				
 		return new EvalResult(v != null ? type : null, v);
@@ -764,15 +764,27 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	}
 	
 	private boolean isRegExpPattern(org.meta_environment.rascal.ast.Expression pat){
-		return true;
+		
+		
+		if(pat.isLiteral()){
+			org.meta_environment.rascal.ast.Literal lit = ((Literal) pat).getLiteral();
+			if(lit.isRegExp()){
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	private boolean match(EvalResult subj, org.meta_environment.rascal.ast.Expression pat){
 		System.err.println("pat : " + pat);
+		if(pat.isQualifiedName()){
+			assignVariable(pat.getQualifiedName().toString(), subj);
+			return true;
+		}
 		if(isRegExpPattern(pat)){
 			return regExpMatch(subj, pat);
 		}
-		return true;
+		return false;
 	}
 	
 	// Expressions -----------------------------------------------------------
@@ -1548,7 +1560,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				expr = g.getExpression();
 			}
 		}
-		
+		/*
 		public boolean match(org.meta_environment.rascal.ast.Expression p, IValue v){ //TODO: merge with match in Evaluator
 			if(p.isQualifiedName()){
 				evaluator.assignVariable(p.getQualifiedName().toString(), result(v));
@@ -1557,11 +1569,12 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			
 			throw new RascalTypeError("unimplemented pattern in match");
 		}
+		*/
 
 		public boolean getNext(){
 			if(isValueProducer){
 				 while(current < listvalue.length()) {
-					if(match(pat, listvalue.get(current))){
+					if(evaluator.match(result(listvalue.get(current)), pat)){
 						current++;
 						return true;
 					}
@@ -1619,7 +1632,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				i--;
 			}
 		}
-		return result((res == null) ? vf.list() : res);
+		return (res == null) ? result(tf.listType(tf.voidType()), vf.list()) : result(res.getType(), res);
 	}
 	
 	
@@ -1659,6 +1672,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		
 		if(regExpResult.matches(((IString) subject.value).getValue())){
 			Map<String,String> map = regExpResult.getBindings();
+			//TODO: check that the names we are going to bind are uninitialized
 			for(String name : map.keySet()){
 				assignVariable(name, result(vf.string(map.get(name))));
 			}
