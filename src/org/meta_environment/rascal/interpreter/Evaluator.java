@@ -819,36 +819,47 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		return false;
 	}
 	
+	// ----- General method for matching --------------------------------------------------
+	
 	private boolean match(EvalResult subj, org.meta_environment.rascal.ast.Expression pat){
 		System.err.println("match: pat : " + pat);
-		if(pat.isQualifiedName()){
-			//TODO typecheck
-			assignVariable(pat.getQualifiedName().toString(), subj);
+		if(pat.isQualifiedName()){        
+			String name = pat.getQualifiedName().toString();
+			EvalResult val = getVariable(name);
+			if(val.value != null){
+				if(subj.type.isSubtypeOf(val.type) && subj.value.equals(val))
+					return true;
+				} else
+						return false;
+			assignVariable(name, subj);
 			return true;
 		}
-		if(isRegExpPattern(pat)){
+		if(isRegExpPattern(pat)){           
 			return regExpMatch(subj, pat);
 		}
 		if(pat.isTypedVariable()){
 			TypedVariable tv = (TypedVariable) pat;
-			org.meta_environment.rascal.ast.Type tp = tv.getType();
+			Type tp = tv.getType().accept(te);
 			org.meta_environment.rascal.ast.Name nm = tv.getName();
-			//TODO typecheck
+			if(!subj.type.isSubtypeOf(tp)){
+				throw new RascalTypeError("incompatible types in match: " + tp + " and " + subj.type);
+			}
 			assignVariable(nm.toString(), subj);
 			return true;
 		}
 		if(pat.isTuple()){
-			ITuple tup = (ITuple) pat;
-			if(!tup.getType().isSubtypeOf(subj.type)){
+			Tuple tup = (Tuple) pat;
+			java.util.List<org.meta_environment.rascal.ast.Expression> elements = tup.getElements();
+			if(!subj.type.isTupleType() || elements.size() != ((TupleType) subj.type).getArity()){
 				throw new RascalTypeError("incompatible types in match: " + tup.getType() + " and " + subj.type);
 			}
 			ITuple tsubj = (ITuple) subj.value;
-			for(int i = 0; i < tup.arity(); i++){
-			//	if(!match(result(tsubj.get(i)), tup.get(i))){
-			//		return false;
-			//	}
+			for(int i = 0; i < elements.size(); i++){
+				if(!match(result(tsubj.get(i)), elements.get(i))){
+					return false;
+				}
 			}
-		
+			return true;
 		}
 		return false;
 	}
@@ -1756,6 +1767,52 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		}
 		return (res == null) ? result(tf.setType(tf.voidType()), vf.set()) : 
 			                     result(tf.setType(elementType), res.done());
+	}
+	
+	@Override
+	public EvalResult visitComprehensionMap(
+			org.meta_environment.rascal.ast.Comprehension.Map x) {
+		org.meta_environment.rascal.ast.Expression fromExpr = x.getFrom();
+		org.meta_environment.rascal.ast.Expression toExpr = x.getTo();
+		java.util.List<Generator> generators = x.getGenerators();
+		int size = generators.size();
+		GeneratorEvaluator[] gens = new GeneratorEvaluator[size];
+		Type elementFromType = tf.voidType();
+		Type elementToType =tf.voidType();
+		Type resultType = tf.mapType(elementFromType, elementToType);
+		IMapWriter res = null;
+		
+		int i = 0;
+		gens[0] = new GeneratorEvaluator(generators.get(0), this);
+		while(i >= 0 && i < size){		
+			if(gens[i].getNext()){
+				if(i == size - 1){
+					EvalResult rfrom = fromExpr.accept(this);
+					EvalResult rto = toExpr.accept(this);
+					if(res == null){
+						elementFromType = rfrom.type.lub(elementFromType);
+						elementToType = rto.type.lub(elementToType);
+						resultType = tf.mapType(elementFromType, elementToType);
+						res = resultType.writer(vf);
+					}
+					if(rfrom.type.isSubtypeOf(elementFromType) && rto.type.isSubtypeOf(elementToType)){
+						elementFromType = elementFromType.lub(rfrom.type);	
+						elementFromType = elementToType.lub(rfrom.type);	
+						res.put(rfrom.value, rto.value);
+					}  else {
+							throw new RascalTypeError("Cannot add par of type (" + rfrom.type + ":" + rto.type  + 
+									") to map comprehension with element type (" + elementFromType + ":"+ elementToType + ")");
+						}
+				} else {
+					i++;
+					gens[i] = new GeneratorEvaluator(generators.get(i), this);
+				}
+			} else {
+				i--;
+			}
+		}
+		return (res == null) ? result(tf.mapType(tf.voidType(), tf.voidType()), vf.map(tf.voidType(),tf.voidType())) : 
+			                     result(tf.mapType(elementFromType, elementToType), res.done());
 	}
 	
 	

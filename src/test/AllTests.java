@@ -5,7 +5,9 @@ import junit.framework.TestSuite;
 public class AllTests {
 	public static Test suite() {
 		TestSuite suite = new TestSuite();
-		suite.addTestSuite(RascalTests.class);
+		suite.addTestSuite(DataTypeTests.class);
+		suite.addTestSuite(RegExpTests.class);
+		suite.addTestSuite(ComprehensionTests.class);
 		return suite;
 	  }
 
