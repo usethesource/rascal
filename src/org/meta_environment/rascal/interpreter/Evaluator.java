@@ -66,6 +66,8 @@ import org.meta_environment.rascal.ast.Expression.Composition;
 import org.meta_environment.rascal.ast.Expression.Comprehension;
 import org.meta_environment.rascal.ast.Expression.Division;
 import org.meta_environment.rascal.ast.Expression.Equivalence;
+import org.meta_environment.rascal.ast.Expression.Exists;
+import org.meta_environment.rascal.ast.Expression.ForAll;
 import org.meta_environment.rascal.ast.Expression.GreaterThan;
 import org.meta_environment.rascal.ast.Expression.GreaterThanOrEq;
 import org.meta_environment.rascal.ast.Expression.IfDefined;
@@ -113,6 +115,8 @@ import org.meta_environment.rascal.ast.Toplevel.DefaultVisibility;
 import org.meta_environment.rascal.ast.Toplevel.GivenVisibility;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
+
+import com.sun.corba.se.spi.ior.MakeImmutable;
 
 public class Evaluator extends NullASTVisitor<EvalResult> {
 	public static final String RASCAL_FILE_EXT = ".rsc";
@@ -1547,6 +1551,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 
 	}
 	
+	
+	
 	@Override
 	public EvalResult visitExpressionComposition(Composition x) {
 		EvalResult left = x.getLhs().accept(this);
@@ -1639,26 +1645,35 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		private Evaluator evaluator;
 		private Iterator iter;
 		private Type elementType;
+		
+		void make(ValueProducer vp, Evaluator ev){
+			evaluator = ev;
+			isValueProducer = true;
+			
+			pat = vp.getPattern();
+			patexpr = vp.getExpression();
+			EvalResult r = patexpr.accept(ev);
+			if(r.type.isListType()){
+				elementType = ((ListType) r.type).getElementType();
+				iter = ((IList) r.value).iterator();
+			} else 	if(r.type.isSetType()){
+				elementType = ((SetType) r.type).getElementType();
+				iter = ((ISet) r.value).iterator();
+			// TODO: add more generator types here	in the future
+			} else {
+				throw new RascalTypeError("expression in generator should be of type list/set");
+			}
+		}
+		
+		GeneratorEvaluator(ValueProducer vp, Evaluator ev){
+			make(vp, ev);
+		}
 
 		GeneratorEvaluator(Generator g, Evaluator ev){
-			evaluator = ev;
 			if(g.isProducer()){
-				isValueProducer = true;
-				ValueProducer vp = g.getProducer();
-				pat = vp.getPattern();
-				patexpr = vp.getExpression();
-				EvalResult r = patexpr.accept(ev);
-				if(r.type.isListType()){
-					elementType = ((ListType) r.type).getElementType();
-					iter = ((IList) r.value).iterator();
-				} else 	if(r.type.isSetType()){
-					elementType = ((SetType) r.type).getElementType();
-					iter = ((ISet) r.value).iterator();
-				// TODO: add more generator types here	in the future
-				} else {
-					throw new RascalTypeError("expression in generator should be of type list/set");
-				}
+				make(g.getProducer(), ev);
 			} else {
+				evaluator = ev;
 				isValueProducer = false;
 				expr = g.getExpression();
 			}
@@ -1839,6 +1854,40 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			}
 		}
 		return result;
+	}
+	
+	@Override
+	public EvalResult visitExpressionExists(Exists x) {
+		ValueProducer vp = x.getProducer();
+		org.meta_environment.rascal.ast.Expression exp = x .getExpression();
+		GeneratorEvaluator ge = new GeneratorEvaluator(vp, this);
+		while(ge.getNext()){
+			EvalResult r = exp.accept(this);
+			if(!r.type.isSubtypeOf(tf.boolType())){
+				throw new RascalTypeError("expression in exists should yield bool instead of " + r.type);
+			}
+			if(r.value.equals(vf.bool(true))){
+				return result(vf.bool(true));
+			}
+		}
+		return result(vf.bool(false));
+	}
+	
+	@Override
+	public EvalResult visitExpressionForAll(ForAll x) {
+		ValueProducer vp = x.getProducer();
+		org.meta_environment.rascal.ast.Expression exp = x .getExpression();
+		GeneratorEvaluator ge = new GeneratorEvaluator(vp, this);
+		while(ge.getNext()){
+			EvalResult r = exp.accept(this);
+			if(!r.type.isSubtypeOf(tf.boolType())){
+				throw new RascalTypeError("expression in forall should yield bool instead of " + r.type);
+			}
+			if(r.value.equals(vf.bool(false))){
+				return result(vf.bool(false));
+			}
+		}
+		return result(vf.bool(true));
 	}
 
 	private boolean regExpMatch(EvalResult subject, 
