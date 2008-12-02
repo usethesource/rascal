@@ -59,6 +59,13 @@ public class RascalShell {
 					}
 					printStacktrace(console, e);
 				}
+				catch (RascalBug e) {
+					console.printString("bug: " + e.getMessage() + "\n");
+					if (e.hasCause()) {
+						console.printString("caused by: " + e.getCause().getMessage() + "\n");
+					}
+					printStacktrace(console, e);
+				}
 			}
 		}
 		catch (FailureException e) {
