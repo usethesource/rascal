@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 
@@ -19,6 +20,7 @@ import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IString;
+import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
@@ -79,6 +81,7 @@ import org.meta_environment.rascal.ast.Expression.NonEmptyBlock;
 import org.meta_environment.rascal.ast.Expression.NotIn;
 import org.meta_environment.rascal.ast.Expression.Or;
 import org.meta_environment.rascal.ast.Expression.Product;
+import org.meta_environment.rascal.ast.Expression.QualifiedName;
 import org.meta_environment.rascal.ast.Expression.RegExpMatch;
 import org.meta_environment.rascal.ast.Expression.RegExpNoMatch;
 import org.meta_environment.rascal.ast.Expression.Set;
@@ -87,6 +90,7 @@ import org.meta_environment.rascal.ast.Expression.Subtraction;
 import org.meta_environment.rascal.ast.Expression.TransitiveClosure;
 import org.meta_environment.rascal.ast.Expression.TransitiveReflexiveClosure;
 import org.meta_environment.rascal.ast.Expression.Tuple;
+import org.meta_environment.rascal.ast.Expression.TypedVariable;
 import org.meta_environment.rascal.ast.IntegerLiteral.DecimalIntegerLiteral;
 import org.meta_environment.rascal.ast.Literal.Boolean;
 import org.meta_environment.rascal.ast.Literal.Double;
@@ -776,13 +780,35 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	}
 	
 	private boolean match(EvalResult subj, org.meta_environment.rascal.ast.Expression pat){
-		System.err.println("pat : " + pat);
+		System.err.println("match: pat : " + pat);
 		if(pat.isQualifiedName()){
+			//TODO typecheck
 			assignVariable(pat.getQualifiedName().toString(), subj);
 			return true;
 		}
 		if(isRegExpPattern(pat)){
 			return regExpMatch(subj, pat);
+		}
+		if(pat.isTypedVariable()){
+			TypedVariable tv = (TypedVariable) pat;
+			org.meta_environment.rascal.ast.Type tp = tv.getType();
+			org.meta_environment.rascal.ast.Name nm = tv.getName();
+			//TODO typecheck
+			assignVariable(nm.toString(), subj);
+			return true;
+		}
+		if(pat.isTuple()){
+			ITuple tup = (ITuple) pat;
+			if(!tup.getType().isSubtypeOf(subj.type)){
+				throw new RascalTypeError("incompatible types in match: " + tup.getType() + " and " + subj.type);
+			}
+			ITuple tsubj = (ITuple) subj.value;
+			for(int i = 0; i < tup.arity(); i++){
+				if(!match(result(tsubj.get(i)), tup.get(i))){
+					return false;
+				}
+			}
+		
 		}
 		return false;
 	}
@@ -1539,8 +1565,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		private org.meta_environment.rascal.ast.Expression pat;
 		private org.meta_environment.rascal.ast.Expression patexpr;
 		private Evaluator evaluator;
-		private IList listvalue;
-		private int current = 0;
+		private Iterator iter;
+		private Type elementType;
 
 		GeneratorEvaluator(Generator g, Evaluator ev){
 			evaluator = ev;
@@ -1551,34 +1577,27 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				patexpr = vp.getExpression();
 				EvalResult r = patexpr.accept(ev);
 				if(r.type.isListType()){
-					listvalue = (IList) r.value;
+					elementType = ((ListType) r.type).getElementType();
+					iter = ((IList) r.value).iterator();
+				} else 	if(r.type.isSetType()){
+					elementType = ((SetType) r.type).getElementType();
+					iter = ((ISet) r.value).iterator();
+				// TODO: add more generator types here	in the future
 				} else {
-					throw new RascalTypeError("expression in generator should be of type list");
+					throw new RascalTypeError("expression in generator should be of type list/set");
 				}
 			} else {
 				isValueProducer = false;
 				expr = g.getExpression();
 			}
 		}
-		/*
-		public boolean match(org.meta_environment.rascal.ast.Expression p, IValue v){ //TODO: merge with match in Evaluator
-			if(p.isQualifiedName()){
-				evaluator.assignVariable(p.getQualifiedName().toString(), result(v));
-				return true;
-			}
-			
-			throw new RascalTypeError("unimplemented pattern in match");
-		}
-		*/
 
 		public boolean getNext(){
 			if(isValueProducer){
-				 while(current < listvalue.length()) {
-					if(evaluator.match(result(listvalue.get(current)), pat)){
-						current++;
+				while(iter.hasNext()){
+					if(evaluator.match(result(elementType, (IValue)iter.next()), pat)){
 						return true;
 					}
-					current++;
 				}
 				return false;
 			} else {
@@ -1605,8 +1624,9 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		java.util.List<Generator> generators = x.getGenerators();
 		int size = generators.size();
 		GeneratorEvaluator[] gens = new GeneratorEvaluator[size];
-		IList res = null;
-		Type elementType = tf.valueType();
+		Type elementType = tf.voidType();
+		Type resultType = tf.setType(elementType);
+		IListWriter res = null;
 		
 		int i = 0;
 		gens[0] = new GeneratorEvaluator(generators.get(0), this);
@@ -1615,15 +1635,16 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				if(i == size - 1){
 					EvalResult r = resultExpr.accept(this);
 					if(res == null){
-						res = vf.list(r.value);
-						elementType = r.type;
-					} else {
-						if(r.type.isSubtypeOf(elementType)){
-							res = res.append(r.value);
-						} else {
-							throw new RascalTypeError("Cannot add value of type " + r.type + " to comprehension with element type " + elementType);
-						}
+						elementType = r.type.lub(elementType);
+						resultType = tf.listType(elementType);
+						res = resultType.writer(vf);
 					}
+					if(r.type.isSubtypeOf(elementType)){
+						elementType = elementType.lub(r.type);	
+						res.append(r.value);
+					}  else {
+							throw new RascalTypeError("Cannot add value of type " + r.type + " to list comprehension with element type " + elementType);
+						}
 				} else {
 					i++;
 					gens[i] = new GeneratorEvaluator(generators.get(i), this);
@@ -1632,7 +1653,48 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				i--;
 			}
 		}
-		return (res == null) ? result(tf.listType(tf.voidType()), vf.list()) : result(res.getType(), res);
+		return (res == null) ? result(tf.listType(tf.voidType()), vf.list()) : 
+			                     result(tf.listType(elementType), res.done());
+	}
+	
+	@Override
+	public EvalResult visitComprehensionSet(
+			org.meta_environment.rascal.ast.Comprehension.Set x) {
+		org.meta_environment.rascal.ast.Expression resultExpr = x.getResult();
+		java.util.List<Generator> generators = x.getGenerators();
+		int size = generators.size();
+		GeneratorEvaluator[] gens = new GeneratorEvaluator[size];
+		Type elementType = tf.voidType();
+		Type resultType = tf.setType(elementType);
+		ISetWriter res = null;
+		
+		int i = 0;
+		gens[0] = new GeneratorEvaluator(generators.get(0), this);
+		while(i >= 0 && i < size){		
+			if(gens[i].getNext()){
+				if(i == size - 1){
+					EvalResult r = resultExpr.accept(this);
+					if(res == null){
+						elementType = r.type.lub(elementType);
+						resultType = tf.setType(elementType);
+						res = resultType.writer(vf);
+					}
+					if(r.type.isSubtypeOf(elementType)){
+						elementType = elementType.lub(r.type);	
+						res.insert(r.value);
+					}  else {
+							throw new RascalTypeError("Cannot add value of type " + r.type + " to set comprehension with element type " + elementType);
+						}
+				} else {
+					i++;
+					gens[i] = new GeneratorEvaluator(generators.get(i), this);
+				}
+			} else {
+				i--;
+			}
+		}
+		return (res == null) ? result(tf.setType(tf.voidType()), vf.set()) : 
+			                     result(tf.setType(elementType), res.done());
 	}
 	
 	
