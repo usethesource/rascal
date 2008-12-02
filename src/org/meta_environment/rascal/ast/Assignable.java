@@ -146,12 +146,12 @@ private org.meta_environment.rascal.ast.Assignable receiver;
  		z.$setCondition(x);
 		return z;
 	}	
-} public org.meta_environment.rascal.ast.Expression getAnnotation() { throw new UnsupportedOperationException(); } public boolean hasAnnotation() { return false; }
+} public org.meta_environment.rascal.ast.Name getAnnotation() { throw new UnsupportedOperationException(); } public boolean hasAnnotation() { return false; }
 public boolean isAnnotation() { return false; }
 static public class Annotation extends Assignable {
-/* receiver:Assignable "@" annotation:Expression -> Assignable {cons("Annotation")} */
+/* receiver:Assignable "@" annotation:Name -> Assignable {non-assoc, cons("Annotation")} */
 	private Annotation() { }
-	/*package*/ Annotation(ITree tree, org.meta_environment.rascal.ast.Assignable receiver, org.meta_environment.rascal.ast.Expression annotation) {
+	/*package*/ Annotation(ITree tree, org.meta_environment.rascal.ast.Assignable receiver, org.meta_environment.rascal.ast.Name annotation) {
 		this.tree = tree;
 		this.receiver = receiver;
 		this.annotation = annotation;
@@ -173,10 +173,10 @@ private org.meta_environment.rascal.ast.Assignable receiver;
  		z.$setReceiver(x);
 		return z;
 	}
-	private org.meta_environment.rascal.ast.Expression annotation;
-	public org.meta_environment.rascal.ast.Expression getAnnotation() { return annotation; }
-	private void $setAnnotation(org.meta_environment.rascal.ast.Expression x) { this.annotation = x; }
-	public Annotation setAnnotation(org.meta_environment.rascal.ast.Expression x) { 
+	private org.meta_environment.rascal.ast.Name annotation;
+	public org.meta_environment.rascal.ast.Name getAnnotation() { return annotation; }
+	private void $setAnnotation(org.meta_environment.rascal.ast.Name x) { this.annotation = x; }
+	public Annotation setAnnotation(org.meta_environment.rascal.ast.Name x) { 
 		Annotation z = new Annotation();
  		z.$setAnnotation(x);
 		return z;
@@ -215,7 +215,7 @@ public boolean hasName() { return false; }
 	public boolean hasArguments() { return false; }
 public boolean isConstructor() { return false; }
 static public class Constructor extends Assignable {
-/* name:Name "(" arguments:{Assignable ","}+ ")" -> Assignable {cons("Constructor")} */
+/* name:Name "(" arguments:{Assignable ","}+ ")" -> Assignable {non-assoc, cons("Constructor")} */
 	private Constructor() { }
 	/*package*/ Constructor(ITree tree, org.meta_environment.rascal.ast.Name name, java.util.List<org.meta_environment.rascal.ast.Assignable> arguments) {
 		this.tree = tree;

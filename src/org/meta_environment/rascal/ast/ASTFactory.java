@@ -423,6 +423,20 @@ org.meta_environment.rascal.ast.Expression.Comprehension x = new org.meta_enviro
 		}
 		return (org.meta_environment.rascal.ast.Expression.Comprehension)table.get(x); 
 }
+public org.meta_environment.rascal.ast.Expression.RegExpNoMatch makeExpressionRegExpNoMatch(ITree tree, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.Expression pattern) { 
+org.meta_environment.rascal.ast.Expression.RegExpNoMatch x = new org.meta_environment.rascal.ast.Expression.RegExpNoMatch(tree, expression, pattern);
+		if (!table.containsKey(x)) { 
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.RegExpNoMatch)table.get(x); 
+}
+public org.meta_environment.rascal.ast.Expression.RegExpMatch makeExpressionRegExpMatch(ITree tree, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.Expression pattern) { 
+org.meta_environment.rascal.ast.Expression.RegExpMatch x = new org.meta_environment.rascal.ast.Expression.RegExpMatch(tree, expression, pattern);
+		if (!table.containsKey(x)) { 
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.RegExpMatch)table.get(x); 
+}
 public org.meta_environment.rascal.ast.Expression.NoMatch makeExpressionNoMatch(ITree tree, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Expression expression) { 
 org.meta_environment.rascal.ast.Expression.NoMatch x = new org.meta_environment.rascal.ast.Expression.NoMatch(tree, pattern, expression);
 		if (!table.containsKey(x)) { 
@@ -443,6 +457,20 @@ org.meta_environment.rascal.ast.Expression.TypedVariable x = new org.meta_enviro
 			table.put(x, x);
 		}
 		return (org.meta_environment.rascal.ast.Expression.TypedVariable)table.get(x); 
+}
+public org.meta_environment.rascal.ast.Expression.Lexical makeExpressionLexical(ITree tree, String string) { 
+org.meta_environment.rascal.ast.Expression.Lexical x = new org.meta_environment.rascal.ast.Expression.Lexical(tree, string);
+		if (!table.containsKey(x)) { 
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.Lexical)table.get(x); 
+}
+public org.meta_environment.rascal.ast.Expression.IfThenElse makeExpressionIfThenElse(ITree tree, org.meta_environment.rascal.ast.Expression condition, org.meta_environment.rascal.ast.Expression thenExp, org.meta_environment.rascal.ast.Expression elseExp) { 
+org.meta_environment.rascal.ast.Expression.IfThenElse x = new org.meta_environment.rascal.ast.Expression.IfThenElse(tree, condition, thenExp, elseExp);
+		if (!table.containsKey(x)) { 
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.IfThenElse)table.get(x); 
 }
 public org.meta_environment.rascal.ast.Expression.NonEquals makeExpressionNonEquals(ITree tree, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) { 
 org.meta_environment.rascal.ast.Expression.NonEquals x = new org.meta_environment.rascal.ast.Expression.NonEquals(tree, lhs, rhs);
@@ -485,27 +513,6 @@ org.meta_environment.rascal.ast.Expression.LessThan x = new org.meta_environment
 			table.put(x, x);
 		}
 		return (org.meta_environment.rascal.ast.Expression.LessThan)table.get(x); 
-}
-public org.meta_environment.rascal.ast.Expression.RegExpNoMatch makeExpressionRegExpNoMatch(ITree tree, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) { 
-org.meta_environment.rascal.ast.Expression.RegExpNoMatch x = new org.meta_environment.rascal.ast.Expression.RegExpNoMatch(tree, lhs, rhs);
-		if (!table.containsKey(x)) { 
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.RegExpNoMatch)table.get(x); 
-}
-public org.meta_environment.rascal.ast.Expression.RegExpMatch makeExpressionRegExpMatch(ITree tree, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) { 
-org.meta_environment.rascal.ast.Expression.RegExpMatch x = new org.meta_environment.rascal.ast.Expression.RegExpMatch(tree, lhs, rhs);
-		if (!table.containsKey(x)) { 
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.RegExpMatch)table.get(x); 
-}
-public org.meta_environment.rascal.ast.Expression.IfThenElse makeExpressionIfThenElse(ITree tree, org.meta_environment.rascal.ast.Expression condition, org.meta_environment.rascal.ast.Expression thenExp, org.meta_environment.rascal.ast.Expression elseExp) { 
-org.meta_environment.rascal.ast.Expression.IfThenElse x = new org.meta_environment.rascal.ast.Expression.IfThenElse(tree, condition, thenExp, elseExp);
-		if (!table.containsKey(x)) { 
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.IfThenElse)table.get(x); 
 }
 public org.meta_environment.rascal.ast.Expression.IfDefined makeExpressionIfDefined(ITree tree, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) { 
 org.meta_environment.rascal.ast.Expression.IfDefined x = new org.meta_environment.rascal.ast.Expression.IfDefined(tree, lhs, rhs);
@@ -625,13 +632,6 @@ org.meta_environment.rascal.ast.Expression.TransitiveReflexiveClosure x = new or
 			table.put(x, x);
 		}
 		return (org.meta_environment.rascal.ast.Expression.TransitiveReflexiveClosure)table.get(x); 
-}
-public org.meta_environment.rascal.ast.Expression.Inverse makeExpressionInverse(ITree tree, org.meta_environment.rascal.ast.Expression argument) { 
-org.meta_environment.rascal.ast.Expression.Inverse x = new org.meta_environment.rascal.ast.Expression.Inverse(tree, argument);
-		if (!table.containsKey(x)) { 
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.Inverse)table.get(x); 
 }
 public org.meta_environment.rascal.ast.Expression.Negative makeExpressionNegative(ITree tree, org.meta_environment.rascal.ast.Expression argument) { 
 org.meta_environment.rascal.ast.Expression.Negative x = new org.meta_environment.rascal.ast.Expression.Negative(tree, argument);
@@ -2544,7 +2544,7 @@ org.meta_environment.rascal.ast.Assignable.Tuple x = new org.meta_environment.ra
 		}
 		return (org.meta_environment.rascal.ast.Assignable.Tuple)table.get(x); 
 }
-public org.meta_environment.rascal.ast.Assignable.Annotation makeAssignableAnnotation(ITree tree, org.meta_environment.rascal.ast.Assignable receiver, org.meta_environment.rascal.ast.Expression annotation) { 
+public org.meta_environment.rascal.ast.Assignable.Annotation makeAssignableAnnotation(ITree tree, org.meta_environment.rascal.ast.Assignable receiver, org.meta_environment.rascal.ast.Name annotation) { 
 org.meta_environment.rascal.ast.Assignable.Annotation x = new org.meta_environment.rascal.ast.Assignable.Annotation(tree, receiver, annotation);
 		if (!table.containsKey(x)) { 
 			table.put(x, x);

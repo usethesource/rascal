@@ -766,30 +766,6 @@ private org.meta_environment.rascal.ast.Expression argument;
  		z.$setArgument(x);
 		return z;
 	}	
-} public boolean isInverse() { return false; }
-static public class Inverse extends Expression {
-/* "~" argument:Expression -> Expression {cons("Inverse")} */
-	private Inverse() { }
-	/*package*/ Inverse(ITree tree, org.meta_environment.rascal.ast.Expression argument) {
-		this.tree = tree;
-		this.argument = argument;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitExpressionInverse(this);
-	}
-
-	public boolean isInverse() { return true; }
-
-	public boolean hasArgument() { return true; }
-
-private org.meta_environment.rascal.ast.Expression argument;
-	public org.meta_environment.rascal.ast.Expression getArgument() { return argument; }
-	private void $setArgument(org.meta_environment.rascal.ast.Expression x) { this.argument = x; }
-	public Inverse setArgument(org.meta_environment.rascal.ast.Expression x) { 
-		Inverse z = new Inverse();
- 		z.$setArgument(x);
-		return z;
-	}	
 } public boolean isTransitiveReflexiveClosure() { return false; }
 static public class TransitiveReflexiveClosure extends Expression {
 /* argument:Expression "*" -> Expression {cons("TransitiveReflexiveClosure")} */
@@ -1316,7 +1292,7 @@ private org.meta_environment.rascal.ast.Expression lhs;
 	}	
 } public boolean isIfDefined() { return false; }
 static public class IfDefined extends Expression {
-/* lhs:Expression "?" rhs:Expression -> Expression {left, cons("IfDefined")} */
+/* lhs:Expression "=?" rhs:Expression -> Expression {left, cons("IfDefined")} */
 	private IfDefined() { }
 	/*package*/ IfDefined(ITree tree, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
 		this.tree = tree;
@@ -1345,117 +1321,6 @@ private org.meta_environment.rascal.ast.Expression lhs;
 	private void $setRhs(org.meta_environment.rascal.ast.Expression x) { this.rhs = x; }
 	public IfDefined setRhs(org.meta_environment.rascal.ast.Expression x) { 
 		IfDefined z = new IfDefined();
- 		z.$setRhs(x);
-		return z;
-	}	
-} public org.meta_environment.rascal.ast.Expression getCondition() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Expression getThenExp() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Expression getElseExp() { throw new UnsupportedOperationException(); } public boolean hasCondition() { return false; } public boolean hasThenExp() { return false; } public boolean hasElseExp() { return false; } public boolean isIfThenElse() { return false; } static public class IfThenElse extends Expression {
-/* condition:Expression "?" thenExp:Expression ":" elseExp:Expression -> Expression {right, cons("IfThenElse")} */
-	private IfThenElse() { }
-	/*package*/ IfThenElse(ITree tree, org.meta_environment.rascal.ast.Expression condition, org.meta_environment.rascal.ast.Expression thenExp, org.meta_environment.rascal.ast.Expression elseExp) {
-		this.tree = tree;
-		this.condition = condition;
-		this.thenExp = thenExp;
-		this.elseExp = elseExp;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitExpressionIfThenElse(this);
-	}
-
-	public boolean isIfThenElse() { return true; }
-
-	public boolean hasCondition() { return true; }
-	public boolean hasThenExp() { return true; }
-	public boolean hasElseExp() { return true; }
-
-private org.meta_environment.rascal.ast.Expression condition;
-	public org.meta_environment.rascal.ast.Expression getCondition() { return condition; }
-	private void $setCondition(org.meta_environment.rascal.ast.Expression x) { this.condition = x; }
-	public IfThenElse setCondition(org.meta_environment.rascal.ast.Expression x) { 
-		IfThenElse z = new IfThenElse();
- 		z.$setCondition(x);
-		return z;
-	}
-	private org.meta_environment.rascal.ast.Expression thenExp;
-	public org.meta_environment.rascal.ast.Expression getThenExp() { return thenExp; }
-	private void $setThenExp(org.meta_environment.rascal.ast.Expression x) { this.thenExp = x; }
-	public IfThenElse setThenExp(org.meta_environment.rascal.ast.Expression x) { 
-		IfThenElse z = new IfThenElse();
- 		z.$setThenExp(x);
-		return z;
-	}
-	private org.meta_environment.rascal.ast.Expression elseExp;
-	public org.meta_environment.rascal.ast.Expression getElseExp() { return elseExp; }
-	private void $setElseExp(org.meta_environment.rascal.ast.Expression x) { this.elseExp = x; }
-	public IfThenElse setElseExp(org.meta_environment.rascal.ast.Expression x) { 
-		IfThenElse z = new IfThenElse();
- 		z.$setElseExp(x);
-		return z;
-	}	
-} public boolean isRegExpMatch() { return false; }
-static public class RegExpMatch extends Expression {
-/* lhs:Expression "=~" rhs:Expression -> Expression {non-assoc, cons("RegExpMatch")} */
-	private RegExpMatch() { }
-	/*package*/ RegExpMatch(ITree tree, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
-		this.tree = tree;
-		this.lhs = lhs;
-		this.rhs = rhs;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitExpressionRegExpMatch(this);
-	}
-
-	public boolean isRegExpMatch() { return true; }
-
-	public boolean hasLhs() { return true; }
-	public boolean hasRhs() { return true; }
-
-private org.meta_environment.rascal.ast.Expression lhs;
-	public org.meta_environment.rascal.ast.Expression getLhs() { return lhs; }
-	private void $setLhs(org.meta_environment.rascal.ast.Expression x) { this.lhs = x; }
-	public RegExpMatch setLhs(org.meta_environment.rascal.ast.Expression x) { 
-		RegExpMatch z = new RegExpMatch();
- 		z.$setLhs(x);
-		return z;
-	}
-	private org.meta_environment.rascal.ast.Expression rhs;
-	public org.meta_environment.rascal.ast.Expression getRhs() { return rhs; }
-	private void $setRhs(org.meta_environment.rascal.ast.Expression x) { this.rhs = x; }
-	public RegExpMatch setRhs(org.meta_environment.rascal.ast.Expression x) { 
-		RegExpMatch z = new RegExpMatch();
- 		z.$setRhs(x);
-		return z;
-	}	
-} public boolean isRegExpNoMatch() { return false; }
-static public class RegExpNoMatch extends Expression {
-/* lhs:Expression "!~" rhs:Expression -> Expression {non-assoc, cons("RegExpNoMatch")} */
-	private RegExpNoMatch() { }
-	/*package*/ RegExpNoMatch(ITree tree, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
-		this.tree = tree;
-		this.lhs = lhs;
-		this.rhs = rhs;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitExpressionRegExpNoMatch(this);
-	}
-
-	public boolean isRegExpNoMatch() { return true; }
-
-	public boolean hasLhs() { return true; }
-	public boolean hasRhs() { return true; }
-
-private org.meta_environment.rascal.ast.Expression lhs;
-	public org.meta_environment.rascal.ast.Expression getLhs() { return lhs; }
-	private void $setLhs(org.meta_environment.rascal.ast.Expression x) { this.lhs = x; }
-	public RegExpNoMatch setLhs(org.meta_environment.rascal.ast.Expression x) { 
-		RegExpNoMatch z = new RegExpNoMatch();
- 		z.$setLhs(x);
-		return z;
-	}
-	private org.meta_environment.rascal.ast.Expression rhs;
-	public org.meta_environment.rascal.ast.Expression getRhs() { return rhs; }
-	private void $setRhs(org.meta_environment.rascal.ast.Expression x) { this.rhs = x; }
-	public RegExpNoMatch setRhs(org.meta_environment.rascal.ast.Expression x) { 
-		RegExpNoMatch z = new RegExpNoMatch();
  		z.$setRhs(x);
 		return z;
 	}	
@@ -1663,6 +1528,62 @@ private org.meta_environment.rascal.ast.Expression lhs;
  		z.$setRhs(x);
 		return z;
 	}	
+} public org.meta_environment.rascal.ast.Expression getCondition() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Expression getThenExp() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Expression getElseExp() { throw new UnsupportedOperationException(); } public boolean hasCondition() { return false; } public boolean hasThenExp() { return false; } public boolean hasElseExp() { return false; } public boolean isIfThenElse() { return false; } static public class IfThenElse extends Expression {
+/* condition:Expression "?" thenExp:Expression ":" elseExp:Expression -> Expression {right, cons("IfThenElse")} */
+	private IfThenElse() { }
+	/*package*/ IfThenElse(ITree tree, org.meta_environment.rascal.ast.Expression condition, org.meta_environment.rascal.ast.Expression thenExp, org.meta_environment.rascal.ast.Expression elseExp) {
+		this.tree = tree;
+		this.condition = condition;
+		this.thenExp = thenExp;
+		this.elseExp = elseExp;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitExpressionIfThenElse(this);
+	}
+
+	public boolean isIfThenElse() { return true; }
+
+	public boolean hasCondition() { return true; }
+	public boolean hasThenExp() { return true; }
+	public boolean hasElseExp() { return true; }
+
+private org.meta_environment.rascal.ast.Expression condition;
+	public org.meta_environment.rascal.ast.Expression getCondition() { return condition; }
+	private void $setCondition(org.meta_environment.rascal.ast.Expression x) { this.condition = x; }
+	public IfThenElse setCondition(org.meta_environment.rascal.ast.Expression x) { 
+		IfThenElse z = new IfThenElse();
+ 		z.$setCondition(x);
+		return z;
+	}
+	private org.meta_environment.rascal.ast.Expression thenExp;
+	public org.meta_environment.rascal.ast.Expression getThenExp() { return thenExp; }
+	private void $setThenExp(org.meta_environment.rascal.ast.Expression x) { this.thenExp = x; }
+	public IfThenElse setThenExp(org.meta_environment.rascal.ast.Expression x) { 
+		IfThenElse z = new IfThenElse();
+ 		z.$setThenExp(x);
+		return z;
+	}
+	private org.meta_environment.rascal.ast.Expression elseExp;
+	public org.meta_environment.rascal.ast.Expression getElseExp() { return elseExp; }
+	private void $setElseExp(org.meta_environment.rascal.ast.Expression x) { this.elseExp = x; }
+	public IfThenElse setElseExp(org.meta_environment.rascal.ast.Expression x) { 
+		IfThenElse z = new IfThenElse();
+ 		z.$setElseExp(x);
+		return z;
+	}	
+} static public class Lexical extends Expression {
+	private String string;
+	/*package*/ Lexical(ITree tree, String string) {
+		this.tree = tree;
+		this.string = string;
+	}
+	public String getString() {
+		return string;
+	}
+
+ 	public <T> T accept(IASTVisitor<T> v) {
+     		return v.visitExpressionLexical(this);
+  	}
 } public boolean isTypedVariable() { return false; }
 static public class TypedVariable extends Expression {
 /* type:Type name:Name -> Expression {cons("TypedVariable")} */
@@ -1699,7 +1620,7 @@ private org.meta_environment.rascal.ast.Type type;
 	}	
 } public org.meta_environment.rascal.ast.Expression getPattern() { throw new UnsupportedOperationException(); } public boolean hasPattern() { return false; } public boolean isMatch() { return false; }
 static public class Match extends Expression {
-/* pattern:Expression ":=" expression:Expression -> Expression {cons("Match")} */
+/* pattern:Expression ":=" expression:Expression -> Expression {non-assoc, cons("Match")} */
 	private Match() { }
 	/*package*/ Match(ITree tree, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Expression expression) {
 		this.tree = tree;
@@ -1733,7 +1654,7 @@ private org.meta_environment.rascal.ast.Expression pattern;
 	}	
 } public boolean isNoMatch() { return false; }
 static public class NoMatch extends Expression {
-/* pattern:Expression "!:=" expression:Expression -> Expression {cons("NoMatch")} */
+/* pattern:Expression "!:=" expression:Expression -> Expression {non-assoc, cons("NoMatch")} */
 	private NoMatch() { }
 	/*package*/ NoMatch(ITree tree, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Expression expression) {
 		this.tree = tree;
@@ -1763,6 +1684,74 @@ private org.meta_environment.rascal.ast.Expression pattern;
 	public NoMatch setExpression(org.meta_environment.rascal.ast.Expression x) { 
 		NoMatch z = new NoMatch();
  		z.$setExpression(x);
+		return z;
+	}	
+} public boolean isRegExpMatch() { return false; }
+static public class RegExpMatch extends Expression {
+/* expression:Expression "=~" pattern:Expression -> Expression {non-assoc, cons("RegExpMatch")} */
+	private RegExpMatch() { }
+	/*package*/ RegExpMatch(ITree tree, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.Expression pattern) {
+		this.tree = tree;
+		this.expression = expression;
+		this.pattern = pattern;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitExpressionRegExpMatch(this);
+	}
+
+	public boolean isRegExpMatch() { return true; }
+
+	public boolean hasExpression() { return true; }
+	public boolean hasPattern() { return true; }
+
+private org.meta_environment.rascal.ast.Expression expression;
+	public org.meta_environment.rascal.ast.Expression getExpression() { return expression; }
+	private void $setExpression(org.meta_environment.rascal.ast.Expression x) { this.expression = x; }
+	public RegExpMatch setExpression(org.meta_environment.rascal.ast.Expression x) { 
+		RegExpMatch z = new RegExpMatch();
+ 		z.$setExpression(x);
+		return z;
+	}
+	private org.meta_environment.rascal.ast.Expression pattern;
+	public org.meta_environment.rascal.ast.Expression getPattern() { return pattern; }
+	private void $setPattern(org.meta_environment.rascal.ast.Expression x) { this.pattern = x; }
+	public RegExpMatch setPattern(org.meta_environment.rascal.ast.Expression x) { 
+		RegExpMatch z = new RegExpMatch();
+ 		z.$setPattern(x);
+		return z;
+	}	
+} public boolean isRegExpNoMatch() { return false; }
+static public class RegExpNoMatch extends Expression {
+/* expression:Expression "!~" pattern:Expression -> Expression {non-assoc, cons("RegExpNoMatch")} */
+	private RegExpNoMatch() { }
+	/*package*/ RegExpNoMatch(ITree tree, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.Expression pattern) {
+		this.tree = tree;
+		this.expression = expression;
+		this.pattern = pattern;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitExpressionRegExpNoMatch(this);
+	}
+
+	public boolean isRegExpNoMatch() { return true; }
+
+	public boolean hasExpression() { return true; }
+	public boolean hasPattern() { return true; }
+
+private org.meta_environment.rascal.ast.Expression expression;
+	public org.meta_environment.rascal.ast.Expression getExpression() { return expression; }
+	private void $setExpression(org.meta_environment.rascal.ast.Expression x) { this.expression = x; }
+	public RegExpNoMatch setExpression(org.meta_environment.rascal.ast.Expression x) { 
+		RegExpNoMatch z = new RegExpNoMatch();
+ 		z.$setExpression(x);
+		return z;
+	}
+	private org.meta_environment.rascal.ast.Expression pattern;
+	public org.meta_environment.rascal.ast.Expression getPattern() { return pattern; }
+	private void $setPattern(org.meta_environment.rascal.ast.Expression x) { this.pattern = x; }
+	public RegExpNoMatch setPattern(org.meta_environment.rascal.ast.Expression x) { 
+		RegExpNoMatch z = new RegExpNoMatch();
+ 		z.$setPattern(x);
 		return z;
 	}	
 } 
