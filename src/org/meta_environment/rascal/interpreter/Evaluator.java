@@ -99,6 +99,7 @@ import org.meta_environment.rascal.ast.Literal.Boolean;
 import org.meta_environment.rascal.ast.Literal.Double;
 import org.meta_environment.rascal.ast.Literal.Integer;
 import org.meta_environment.rascal.ast.LocalVariableDeclaration.Default;
+import org.meta_environment.rascal.ast.Statement.All;
 import org.meta_environment.rascal.ast.Statement.Assert;
 import org.meta_environment.rascal.ast.Statement.Assignment;
 import org.meta_environment.rascal.ast.Statement.Block;
