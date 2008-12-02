@@ -47,10 +47,9 @@ public class AssignableEvaluator extends NullASTVisitor<EvalResult> {
 		String label = x.getAnnotation().toString();
 		EvalResult result = x.getReceiver().accept(eval);
 		
-		result.value = result.value.setAnnotation(label, result.value);
+		result.value = result.value.setAnnotation(label, value.value);
 		
-		this.value = result;
-		return x.getReceiver().accept(this);
+		return recur(x, result);
 	}
 	
 	@Override
@@ -80,8 +79,11 @@ public class AssignableEvaluator extends NullASTVisitor<EvalResult> {
 			// TODO implement other subscripts
 		}
 		
+		return recur(x, result);
+	}
+
+	private EvalResult recur(Assignable x, EvalResult result) {
 		return x.getReceiver().accept(new AssignableEvaluator(env, result, eval));
-		
 	}
 	
 	@Override
@@ -103,11 +105,11 @@ public class AssignableEvaluator extends NullASTVisitor<EvalResult> {
 		
 		if (receiver.type.isTupleType()) {
 			IValue result = ((ITuple) receiver.value).set(label, value.value);
-			return eval.result(receiver.type, result);
+			return recur(x, eval.result(receiver.type, result));
 		}
 		else if (receiver.type.isTreeNodeType() || receiver.type.isNamedTreeType()) {
 			IValue result = ((INode) receiver.value).set(label, value.value);
-			return eval.result(receiver.type, result);
+			return recur(x, eval.result(receiver.type, result));
 		}
 		else {
 			throw new RascalTypeError(x.getReceiver() + " has no field named " + label);
@@ -126,16 +128,19 @@ public class AssignableEvaluator extends NullASTVisitor<EvalResult> {
 		TupleType tupleType = (TupleType) value.type;
 		ITuple tuple = (ITuple) value.value;
 		IValue[] results = new IValue[arguments.size()];
+		Type [] resultTypes = new Type[arguments.size()];
 		
 		for (int i = 0; i < arguments.size(); i++) {
 			Type argType = tupleType.getFieldType(i);
 			IValue arg = tuple.get(i);
 			EvalResult result = eval.result(argType, arg);
 			AssignableEvaluator ae = new AssignableEvaluator(env,result, eval);
-			results[i] = arguments.get(i).accept(ae).value;
+			EvalResult argResult = arguments.get(i).accept(ae);
+			results[i] = argResult.value;
+			resultTypes[i] = argResult.type;
 		}
 		
-		return eval.result(tupleType, tupleType.make(eval.vf, results));
+		return eval.result(eval.tf.tupleType(resultTypes), tupleType.make(eval.vf, results));
 	}
 	
 	@Override

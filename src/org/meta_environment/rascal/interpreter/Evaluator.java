@@ -117,7 +117,7 @@ import org.meta_environment.rascal.parser.Parser;
 public class Evaluator extends NullASTVisitor<EvalResult> {
 	public static final String RASCAL_FILE_EXT = ".rsc";
 	final IValueFactory vf;
-	private final TypeFactory tf;
+	final TypeFactory tf;
 	private final TypeEvaluator te = new TypeEvaluator();
 	private final RegExpEvaluator re = new RegExpEvaluator();
 	private final EnvironmentStack env = new EnvironmentStack();
