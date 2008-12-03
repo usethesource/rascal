@@ -49,6 +49,8 @@ import org.meta_environment.rascal.ast.Formal;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.Parameters;
 import org.meta_environment.rascal.ast.Signature;
+import org.meta_environment.rascal.ast.Tag;
+import org.meta_environment.rascal.ast.Tags;
 import org.meta_environment.rascal.ast.Type;
 
 public class JavaFunctionCaller {
@@ -116,6 +118,7 @@ public class JavaFunctionCaller {
 
 	private Class<?> buildJavaClass(FunctionDeclaration declaration) throws ClassNotFoundException {
 		Signature signature = declaration.getSignature();
+		String imports = getImports(declaration);
 		String name = signature.getName().toString();
 		String fullClassName = "org.meta_environment.rascal.java." + name;
 		String params = getJavaFormals(signature
@@ -130,6 +133,7 @@ public class JavaFunctionCaller {
 				addLine("import " + VALUE_FACTORY + ";").
 				addLine("import org.eclipse.imp.pdb.facts.io.*;").
 				addLine("import org.eclipse.imp.pdb.facts.visitors.*;").
+				addLine(imports).
 				addLine("public class " + name + "{").
 				addLine("  private static final IValueFactory values = ValueFactory.getInstance();").
 				addLine("  private static final TypeFactory types = TypeFactory.getInstance();").
@@ -151,6 +155,25 @@ public class JavaFunctionCaller {
 		}
 
 		return compilation.getOutputClass(fullClassName);
+	}
+
+	private String getImports(FunctionDeclaration declaration) {
+		Tags tags = declaration.getTags();
+		
+		if (tags.hasAnnotations()) {
+			for (Tag tag : tags.getAnnotations()) {
+				if (tag.getName().toString().equals("JavaImports")) {
+					String contents = tag.getContents().toString();
+					
+					if (contents.length() > 2 && contents.startsWith("{")) {
+						contents = contents.substring(1, contents.length() - 1);
+					}
+					return contents;
+				}
+			}
+		}
+		
+		return "";
 	}
 
 	private String getJavaFormals(Parameters parameters) {
