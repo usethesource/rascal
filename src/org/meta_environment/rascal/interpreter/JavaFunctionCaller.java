@@ -48,6 +48,7 @@ import org.eclipse.imp.pdb.facts.type.VoidType;
 import org.meta_environment.rascal.ast.Formal;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.Parameters;
+import org.meta_environment.rascal.ast.Signature;
 import org.meta_environment.rascal.ast.Type;
 
 public class JavaFunctionCaller {
@@ -110,10 +111,12 @@ public class JavaFunctionCaller {
 	}
 
 	private Class<?> buildJavaClass(FunctionDeclaration declaration) throws ClassNotFoundException {
-		String name = declaration.getSignature().getName().toString();
+		Signature signature = declaration.getSignature();
+		String name = signature.getName().toString();
 		String fullClassName = "org.meta_environment.rascal.java." + name;
-		String params = getJavaFormals(declaration.getSignature()
+		String params = getJavaFormals(signature
 				.getParameters());
+		String result = signature.getType().accept(typeEvaluator).isVoidType() ? "void" : "IValue";
 		Compilation compilation = new Compilation();
 
 		compilation.addSource(fullClassName).addLine(
@@ -126,7 +129,7 @@ public class JavaFunctionCaller {
 				addLine("public class " + name + "{").
 				addLine("  private static final IValueFactory values = ValueFactory.getInstance();").
 				addLine("  private static final TypeFactory types = TypeFactory.getInstance();").
-				addLine("  public static IValue " + METHOD_NAME + "(" + params + ") {").
+				addLine("  public static " + result + " " + METHOD_NAME + "(" + params + ") {").
 				addLine(declaration.getBody().toString()).
 				addLine("  }").
 				addLine("}");
