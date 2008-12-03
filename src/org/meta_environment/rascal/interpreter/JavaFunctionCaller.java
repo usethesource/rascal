@@ -53,6 +53,8 @@ import org.meta_environment.rascal.ast.Type;
 
 public class JavaFunctionCaller {
 	private static final String METHOD_NAME = "call";
+	private static final String VALUE_FACTORY = "org.eclipse.imp.pdb.facts.impl.hash.ValueFactory";
+	
 	private final Writer out;
 	private final Map<FunctionDeclaration,Class<?>> cache = new WeakHashMap<FunctionDeclaration, Class<?>>();
 	private final TypeEvaluator typeEvaluator = new TypeEvaluator();
@@ -123,7 +125,7 @@ public class JavaFunctionCaller {
 				"package org.meta_environment.rascal.java;").
 				addLine("import org.eclipse.imp.pdb.facts.type.*;").
 				addLine("import org.eclipse.imp.pdb.facts.*;").
-				addLine("import org.eclipse.imp.pdb.facts.impl.hash.ValueFactory;").
+				addLine("import " + VALUE_FACTORY + ";").
 				addLine("import org.eclipse.imp.pdb.facts.io.*;").
 				addLine("import org.eclipse.imp.pdb.facts.visitors.*;").
 				addLine("public class " + name + "{").
