@@ -46,7 +46,7 @@ public class StatementTests extends TestCase {
     	assertTrue(runTest("assert \"1\": 3 > 2;"));
 	}
 	
-	public void testAssignmnment() throws IOException {
+	public void testAssignment() throws IOException {
 		assertTrue(runTest("{int x = 3; assert \"a\": x == 3;};"));
 		assertTrue(runTest("{int x = 3; x = 4; assert \"a\": x == 4;};"));
 		assertTrue(runTest("{<x, y> = <3, 4>; assert \"a\": (x == 3) && (y == 4);};"));
@@ -70,6 +70,9 @@ public class StatementTests extends TestCase {
 		
 		assertTrue(runTest("{set[int] x = {0,1,2}; assert \"a\": x == {0,1,2};};"));
 		assertTrue(runTest("{set[int] x = {0,1,2}; x = x + {3,4}; assert \"a\": x == {0,1,2, 3,4};};"));
+		
+		assertTrue(runTest("{rel[str,list[int]] s = {<\"a\", [1,2]>, <\"b\", []>, <\"c\", [4,5,6]>}; assert \"a\": s != {};};"));
+		assertTrue(runTest("{rel[str,list[int]] s = {<\"a\", [1,2]>, <\"b\", []>, <\"c\", [4,5,6]>}; assert \"a\": s != {};};"));
 	}
 	
 	public void testBlock() throws IOException {
@@ -82,8 +85,8 @@ public class StatementTests extends TestCase {
 	}
 	
 	public void testDoWhile()throws IOException {
-		assertTrue(runTest("{int n = 0; m = 2; do {m = m * m; n = n + 1;} while (n < 1); assert \"a\": m == 4;};"));
-		assertTrue(runTest("{int n = 0; m = 2; do {m = m * m; n = n + 1;} while (n < 3); assert \"a\": m == 16;};"));
+		assertTrue(runTest("{int n = 0; m = 2; do {m = m * m; n = n + 1;} while (n < 1); assert \"a\": (n == 1) && (m == 4);};"));
+		assertTrue(runTest("{int n = 0; m = 2; do {m = m * m; n = n + 1;} while (n < 3); assert \"a\": m == 256;};"));
 	}
 	
 	public void testFail() throws IOException {
@@ -92,16 +95,17 @@ public class StatementTests extends TestCase {
 	public void testFirst() throws IOException {
 	}
 	public void testFor() throws IOException {
-		assertTrue(runTest("int n == 0; for(int i:[1,2,3,4]){ n = n + i;}; assert \"a\": n == 10;};"));
-		assertTrue(runTest("int n == 0; for(int i:[1,2,3,4], n <= 3){ n = n + i;}; assert \"a\": n == 6;};"));
+		assertTrue(runTest("{int n = 0; for(int i:[1,2,3,4]){ n = n + i;}; assert \"a\": n == 10;};"));
+		assertTrue(runTest("{int n = 0; for(int i:[1,2,3,4], n <= 3){ n = n + i;}; assert \"a\": n == 6;};"));
 	}
 	public void testIfThen() throws IOException {
-		assertTrue(runTest("int n == 10; if(n < 10){n = n - 4;}; assert \"a\": n == 6;};"));
+		assertTrue(runTest("{int n = 10; if(n < 10){n = n - 4;}; assert \"a\": n == 10;};"));
+		assertTrue(runTest("{int n = 10; if(n < 15){n = n - 4;}; assert \"a\": n == 6;};"));
 	}
 	
 	public void testIfThenElse() throws IOException {
-		assertTrue(runTest("int n == 10; if(n < 10){n = n - 4;} else { n = n + 4};; assert \"a\": n == 6;};"));
-		assertTrue(runTest("int n == 12; if(n < 10){n = n - 4;} else { n = n + 4};; assert \"a\": n == 16;};"));
+		assertTrue(runTest("{int n = 10; if(n < 10){n = n - 4;} else { n = n + 4;}; assert \"a\": n == 14;};"));
+		assertTrue(runTest("{int n = 12; if(n < 10){n = n - 4;} else { n = n + 4;}; assert \"a\": n == 16;};"));
 	}
 	public void testInsert() throws IOException {
 	}
@@ -123,7 +127,8 @@ public class StatementTests extends TestCase {
 	public void testVisit() throws IOException {
 	}
 	public void testWhile() throws IOException {
-		assertTrue(runTest("int n = 0; m = 2; while(n < 3){ m = m * m;}; assert \"a\": m == 8;};"));
+		assertTrue(runTest("{int n = 0; int m = 2; while(n != 0){ m = m * m;}; assert \"a\": (n == 0)&& (m == 2);};"));
+		assertTrue(runTest("{int n = 0; int m = 2; while(n < 3){ m = m * m; n = n + 1;}; assert \"a\": (n ==3) && (m == 256);};"));
 	}
 	
 	public void testTry() throws IOException {

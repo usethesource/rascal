@@ -106,6 +106,7 @@ import org.meta_environment.rascal.ast.Statement.All;
 import org.meta_environment.rascal.ast.Statement.Assert;
 import org.meta_environment.rascal.ast.Statement.Assignment;
 import org.meta_environment.rascal.ast.Statement.Block;
+import org.meta_environment.rascal.ast.Statement.DoWhile;
 import org.meta_environment.rascal.ast.Statement.Expression;
 import org.meta_environment.rascal.ast.Statement.Fail;
 import org.meta_environment.rascal.ast.Statement.For;
@@ -803,10 +804,9 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	@Override
 	public EvalResult visitStatementWhile(While x) {
 		org.meta_environment.rascal.ast.Expression expr = x.getCondition();
+		EvalResult statVal = result();
 		do {
 			EvalResult cval = expr.accept(this);
-			EvalResult statVal = result();
-
 			if (cval.type.isBoolType()) {
 				if (cval.value.equals(vf.bool(false))) {
 					return statVal;
@@ -820,8 +820,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		} while (true);
 	}
 	
-	//@Override
-	public EvalResult visitStatementDoWhile(While x) {
+	@Override
+	public EvalResult visitStatementDoWhile(DoWhile x) {
 		org.meta_environment.rascal.ast.Expression expr = x.getCondition();
 		do {
 			EvalResult result = x.getBody().accept(this);
@@ -872,19 +872,30 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 	private boolean match(EvalResult subj, org.meta_environment.rascal.ast.Expression pat){
 		System.err.println("match: pat : " + pat);
+
 		if(pat.isQualifiedName()){        
 			String name = pat.getQualifiedName().toString();
 			EvalResult val = getVariable(name);
 			if(val.value != null){
-				if(subj.type.isSubtypeOf(val.type) && subj.value.equals(val))
+				if(subj.type.isSubtypeOf(val.type) && subj.value.equals(val.value)){
 					return true;
-				} else
+				} else {
 						return false;
+				}
+			}
 			assignVariable(name, subj);
 			return true;
 		}
 		if(isRegExpPattern(pat)){           
 			return regExpMatch(subj, pat);
+		}
+		if(pat.isLiteral()){
+			EvalResult val = pat.accept(this);
+			if(subj.type.isSubtypeOf(val.type) && subj.value.equals(val.value)){
+				return true;
+			} else {
+					return false;
+			}
 		}
 		if(pat.isTypedVariable()){
 			TypedVariable tv = (TypedVariable) pat;

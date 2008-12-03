@@ -342,6 +342,9 @@ public class DataTypeTests extends TestCase{
 		assertTrue(runTest("{7,8} notin {{1, 2}, {3,4}, {5,6}};"));
 		
 		assertTrue(runTest("3 > 2 ? {1,2} : {1,2,3} == {1,2};"));
+		
+		assertTrue(runTest("{<\"a\", [1,2]>, <\"b\", []>, <\"c\", [4,5,6]>} != {};"));
+		
 	}
 	
 	public void testMap() throws IOException {
@@ -391,6 +394,8 @@ public class DataTypeTests extends TestCase{
 		
 		assertTrue(runTest("15 notin (1:10, 2:20);"));
 		assertFalse(runTest("20 notin (1:10, 2:20);"));
+		
+		assertFalse(runTest("map[str,list[int] m = (\"a\": [1,2], \"b\": [], \"c\": [4,5,6]); (assert \"a\": m[\"a\"] == [1,2])"));
 	}
 	
 	public void testTuple() throws IOException {

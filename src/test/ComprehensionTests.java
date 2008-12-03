@@ -186,8 +186,8 @@ public class ComprehensionTests extends TestCase {
 		assertTrue(runTest("{<X,Y> | int X : {1,2,3}, int Y : {2,3,4}, X >= Y} =={<2, 2>, <3, 2>, <3, 3>};"));
 		assertTrue(runTest("{<X,Y> | int X : [1,2,3], int Y : [2,3,4], X >= Y} =={<2, 2>, <3, 2>, <3, 3>};"));
 		
-		assertTrue(runTest("{<X,Y> | int X : {1,2,3}, <X, int Y> : {<1,10>, <7,70>, <3,30>,<5,50>}} =={<1, 10>, <3, 30>};"));
-		assertTrue(runTest("{<X,Y> | int X : [1,2,3], <X, int Y> : [<1,10>, <7,70>, <3,30>,<5,50>}] =={<1, 10>, <3, 30>};"));
+		assertTrue(runTest("{<X,Y> | int X : {1,2,3}, <X, int Y> : {<1,10>, <7,70>, <3,30>,<5,50>}} == {<1, 10>, <3, 30>};"));
+		assertTrue(runTest("{<X,Y> | int X : [1,2,3], <X, int Y> : [<1,10>, <7,70>, <3,30>,<5,50>]} == {<1, 10>, <3, 30>};"));
 		
 		assertTrue(runTest("{<X,Y> | int X : {1,2,3}, <X, str Y> : {<1,\"a\">, <7,\"b\">, <3,\"c\">,<5,\"d\">}} == {<1, \"a\">, <3, \"c\">};"));
 		assertTrue(runTest("{<X,Y> | int X : [1,2,3], <X, str Y> : [<1,\"a\">, <7,\"b\">, <3,\"c\">,<5,\"d\">]} == {<1, \"a\">, <3, \"c\">};"));
