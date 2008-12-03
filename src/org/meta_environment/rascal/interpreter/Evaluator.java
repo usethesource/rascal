@@ -3,6 +3,7 @@ package org.meta_environment.rascal.interpreter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -37,6 +38,7 @@ import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.Case;
 import org.meta_environment.rascal.ast.Declaration;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
+import org.meta_environment.rascal.ast.FunctionModifier;
 import org.meta_environment.rascal.ast.Generator;
 import org.meta_environment.rascal.ast.Module;
 import org.meta_environment.rascal.ast.ModuleName;
@@ -449,6 +451,35 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	}
 
 	private EvalResult call(FunctionDeclaration func, IValue[] actuals) {
+		if (isJavaFunction(func)) {
+			return callJavaFunction(func, actuals);
+		}
+		else {
+			return callRascalFunction(func, actuals);
+		}
+	}
+
+	private boolean isJavaFunction(FunctionDeclaration func) {
+		java.util.List<FunctionModifier> mods = func.getSignature().getModifiers().getModifiers();
+		for (FunctionModifier m : mods) {
+			if (m.isJava()) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+
+	private EvalResult callJavaFunction(FunctionDeclaration func,
+			IValue[] actuals) {
+		JavaFunctionCaller caller = new JavaFunctionCaller(new PrintWriter(System.err));
+		Type type = func.getSignature().getType().accept(te);
+		
+		return result(type, caller.callJavaMethod(func, actuals));
+	}
+
+	private EvalResult callRascalFunction(FunctionDeclaration func,
+			IValue[] actuals) {
 		try {
 			env.push();
 			TupleType formals = (TupleType) func.getSignature().accept(te);
@@ -458,7 +489,12 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				env.storeVariable(formals.getFieldName(i), actual);
 			}
 			
-			func.getBody().accept(this);
+			if (func.getBody().isDefault()) {
+			  func.getBody().accept(this);
+			}
+			else {
+				throw new RascalTypeError("Java method body without a java function modifier in:\n" + func);
+			}
 			
 			throw new RascalTypeError("Function definition:" + func + "\n does not have a return statement.");
 		}
