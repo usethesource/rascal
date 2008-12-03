@@ -53,6 +53,7 @@ public class StatementTests extends TestCase {
 		assertTrue(runTest("{<x, y, z> = <3, 4, 5>; assert \"a\": (x == 3) && (y == 4) && (z == 5);};"));
 		assertTrue(runTest("{<x, y> = <3, 4>; x = 5; assert \"a\": (x == 5) && (y == 4);};"));
 		
+		
 //		assertTrue(runTest("{int x = 3; x += 2; assert \"a\": x == 5;};"));	
 //		assertTrue(runTest("{int x = 3; x -= 2; assert \"a\": x == 1;};"));	
 //		assertTrue(runTest("{int x = 3; x *= 2; assert \"a\": x == 6;};"));	
@@ -79,6 +80,7 @@ public class StatementTests extends TestCase {
 	}
 	
 	public void testBreak() throws IOException {
+//		assertTrue(runTest("{int n = 0; while(n < 10){ n = n + 1; break;}; assert \"a\": n == 1;};"));
 	}
 	
 	public void testContinue() throws IOException {
