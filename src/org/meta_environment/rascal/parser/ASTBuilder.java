@@ -15,6 +15,7 @@ import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.Command;
 import org.meta_environment.rascal.ast.Expression;
+import org.meta_environment.rascal.ast.JavaFunctionBody;
 import org.meta_environment.rascal.ast.Module;
 import org.meta_environment.rascal.ast.Statement;
 import org.meta_environment.uptr.TreeAdapter;
@@ -81,7 +82,7 @@ public class ASTBuilder {
 			String sort = tree.getProduction().getSortName();
 			sort = sort.equalsIgnoreCase("pattern") ? "Expression" : capitalize(sort); 
 			cons = capitalize(cons);
-
+			
 			IList args = tree.getASTArgs();
 			int arity = args.length() + 1;
 			Class<?> formals[] = new Class<?>[arity];
@@ -193,9 +194,14 @@ public class ASTBuilder {
 		if (!tree.isAppl()) {
 			throw new UnsupportedOperationException();
 		}	
+		
 		if (tree.isLexToCf()) {
 			return buildLexicalNode((INode) ((IList) ((INode) arg).get("args")).get(0));
-		}	
+		}
+		else if (tree.getConstructorName().equals("Java")) {
+			return new JavaFunctionBody((ITree) arg, tree.yield());
+		}
+			
 		return buildContextFreeNode((INode) arg);
 	}
 
