@@ -96,7 +96,45 @@ public class ComprehensionTests extends TestCase {
 		assertTrue(runTest("{ Y | list[int] Y : [[1,2,3],[10,20,30],[100,200,300]] } == { [1,2,3],[10,20,30],[100,200,300]};"));
 		assertTrue(runTest("{1 | 3 > 2} == {1} ;"));
 		assertTrue(runTest("{1 | 2 > 3} == {} ;"));
-
+		
+		assertTrue(runTest("exists(int X : {1,2,3} | X > 2);"));
+		assertTrue(runTest("exists(int X : [1,2,3] | X > 2);"));
+		
+		assertFalse(runTest("exists(int X : {1,2,3} | X > 10);"));
+		assertFalse(runTest("exists(int X : [1,2,3] | X > 10);"));
+		
+		assertTrue(runTest("exists(<int X, int Y> : {<1,10>,<30,3>,<2,20>} | X > Y);"));
+		assertTrue(runTest("exists(<int X, int Y> : [<1,10>,<30,3>,<2,20>] | X > Y);"));
+		
+		assertFalse(runTest("exists(<int X, int Y> : {<1,10>,<30,3>,<2,20>} | X > 100*Y);"));
+		assertFalse(runTest("exists(<int X, int Y> : [<1,10>,<30,3>,<2,20>] | X > 100*Y);"));
+		
+		assertTrue(runTest("forall(int X : {1,2,3} | X >= 1);"));
+		assertTrue(runTest("forall(int X : [1,2,3] | X >= 1);"));
+		
+		assertFalse(runTest("forall(int X : {1,2,3} | X >= 2);"));
+		assertFalse(runTest("forall(int X : [1,2,3] | X >= 2);"));
+		
+		assertTrue(runTest("forall(<int X, int Y> : {<1,10>,<3,30>,<2,20>} | X < Y);"));
+		assertTrue(runTest("forall(<int X, int Y> : [<1,10>,<3,30>,<2,20>] | X < Y);"));
+		
+		assertFalse(runTest("forall(<int X, int Y> : {<1,10>,<30,3>,<2,20>} | X < Y);"));
+		assertFalse(runTest("forall(<int X, int Y> : [<1,10>,<30,3>,<2,20>] | X < Y);"));
+		
+		assertTrue(runTest("{X + 1 | int X : {1,2,3}} == {2,3,4};"));
+		assertTrue(runTest("{X + 1 | int X : [1,2,3]} == {2,3,4};"));
+		
+		assertTrue(runTest("{X | int X : {1,2,3}, X + 1 < 3} == {1};"));
+		assertTrue(runTest("{X | int X : [1,2,3], X + 1 < 3} == {1};"));
+		
+		assertTrue(runTest("{X - 1 | int X : {1,2,3}} == {0,1,2};"));
+		assertTrue(runTest("{X - 1 | int X : [1,2,3]} == {0,1,2};"));
+		
+		assertTrue(runTest("{X | int X : {1,2,3}, X - 1 < 3} == {1,2,3};"));
+		assertTrue(runTest("{X | int X : [1,2,3], X - 1 < 3} == {1,2,3};"));
+		
+		assertTrue(runTest("{X * 2 | int X : {1,2,3}} == {2,4,6};"));
+		assertTrue(runTest("{X * 2 | int X : [1,2,3]} == {2,4,6};"));
 	}
 	
 	public void testListComprehension() throws IOException {
@@ -157,6 +195,21 @@ public class ComprehensionTests extends TestCase {
 		assertTrue(runTest("[ Y | list[int] Y : [[1,2,3],[10,20,30],[100,200,300]] ] == [ [1,2,3], [10,20,30],[100,200,300]];"));
 		assertTrue(runTest("[1 | 3 > 2] == [1] ;"));
 		assertTrue(runTest("[1 | 2 > 3] == [] ;"));
+		
+		assertTrue(runTest("[X + 1 | int X : {1,2,3}] == [2,3,4];"));
+		assertTrue(runTest("[X + 1 | int X : [1,2,3]] == [2,3,4];"));
+		
+		assertTrue(runTest("[X | int X : {1,2,3}, X + 1 < 3] == [1];"));
+		assertTrue(runTest("[X | int X : [1,2,3], X + 1 < 3] == [1];"));
+		
+		assertTrue(runTest("[X - 1 | int X : {1,2,3}] == [0,1,2];"));
+		assertTrue(runTest("[X - 1 | int X : [1,2,3]] == [0,1,2];"));
+		
+		assertTrue(runTest("[X | int X : {1,2,3}, X - 1 < 3] == [1,2,3];"));
+		assertTrue(runTest("[X | int X : [1,2,3], X - 1 < 3] == [1,2,3];"));
+		
+		assertTrue(runTest("[X * 2 | int X : {1,2,3}] == [2,4,6];"));
+		assertTrue(runTest("[X * 2 | int X : [1,2,3]] == [2,4,6];"));
 
 	}
 	
