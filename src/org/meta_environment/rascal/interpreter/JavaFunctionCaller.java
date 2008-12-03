@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import javax.tools.Diagnostic;
+import javax.tools.JavaFileObject;
+
 import net.java.dev.hickory.testing.Compilation;
 
 import org.eclipse.imp.pdb.facts.IBool;
@@ -59,6 +62,14 @@ public class JavaFunctionCaller {
 		this.out = outputWriter;
 	}
 
+	public void compileJavaMethod(FunctionDeclaration declaration) {
+		try {
+			getJavaClass(declaration);
+		} catch (ClassNotFoundException e) {
+			throw new RascalBug("unexpected error in Java compilation", e);
+		}
+	}
+	
 	public IValue callJavaMethod(FunctionDeclaration declaration, IValue[] actuals) {
 		try {
 			Class<?> clazz = getJavaClass(declaration);
@@ -109,10 +120,12 @@ public class JavaFunctionCaller {
 				"package org.meta_environment.rascal.java;").
 				addLine("import org.eclipse.imp.pdb.facts.type.*;").
 				addLine("import org.eclipse.imp.pdb.facts.*;").
-				addLine("import org.eclipse.imp.pdb.facts.impl.hash.ValueFactory").
-				addLine("import org.eclipse.imp.pdb.facts.io.*").
-				addLine("import org.eclipse.imp.pdb.facts.visitors.*").
+				addLine("import org.eclipse.imp.pdb.facts.impl.hash.ValueFactory;").
+				addLine("import org.eclipse.imp.pdb.facts.io.*;").
+				addLine("import org.eclipse.imp.pdb.facts.visitors.*;").
 				addLine("public class " + name + "{").
+				addLine("  private static final IValueFactory values = ValueFactory.getInstance();").
+				addLine("  private static final TypeFactory types = TypeFactory.getInstance();").
 				addLine("  public static IValue " + METHOD_NAME + "(" + params + ") {").
 				addLine(declaration.getBody().toString()).
 				addLine("  }").
@@ -121,6 +134,9 @@ public class JavaFunctionCaller {
 		compilation.doCompile(out);
 
 		if (compilation.getDiagnostics().size() != 0) {
+			for (Diagnostic<? extends JavaFileObject> d : compilation.getDiagnostics()) {
+				System.err.println(d.getMessage(null) + ":" + d.getLineNumber());
+			}
 			throw new RascalTypeError("Compilation of Java method failed.");
 		}
 
