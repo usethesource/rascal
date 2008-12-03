@@ -451,7 +451,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	}
 
 	private EvalResult call(FunctionDeclaration func, IValue[] actuals) {
-		if (isJavaFunction(func)) {
+		if (isJavaFunction(func)) { 
 			return callJavaFunction(func, actuals);
 		}
 		else {
