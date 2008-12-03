@@ -2,6 +2,7 @@ package test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 import junit.framework.TestCase;
 
@@ -25,7 +26,7 @@ public class DataTypeTests extends TestCase{
 	
 	private boolean runTest(String statement) throws IOException {
 		INode tree = parser.parse(new ByteArrayInputStream(statement.getBytes()));
-		Evaluator evaluator = new Evaluator(ValueFactory.getInstance(), factory);
+		Evaluator evaluator = new Evaluator(ValueFactory.getInstance(), factory, new PrintWriter(System.err));
 
 		if (tree.getTreeNodeType() ==  Factory.ParseTree_Summary) {
 			System.err.println(tree);
