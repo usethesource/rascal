@@ -52,6 +52,8 @@ public class JavaFunctionCaller {
 	private final Writer out;
 	private final Map<FunctionDeclaration,Class<?>> cache = new WeakHashMap<FunctionDeclaration, Class<?>>();
 	private final TypeEvaluator typeEvaluator = new TypeEvaluator();
+	private final JavaTypes javaTypes = new JavaTypes();
+	private final JavaClasses javaClasses = new JavaClasses();
 
 	public JavaFunctionCaller(Writer outputWriter) {
 		this.out = outputWriter;
@@ -149,11 +151,8 @@ public class JavaFunctionCaller {
 	private Class<?>[] getJavaTypes(Parameters parameters) {
 		List<Formal> formals = parameters.getFormals().getFormals();
 		Class<?>[] classes = new Class<?>[formals.size()];
-		JavaClasses converter = new JavaClasses();
-		
 		for (int i = 0; i < classes.length;) {
-			org.eclipse.imp.pdb.facts.type.Type type = formals.get(i).accept(typeEvaluator);
-			Class<?> clazz = type.accept(converter);
+			Class<?> clazz = toJavaClass(formals.get(i));
 			
 			if (clazz != null) {
 			  classes[i++] = clazz;
@@ -163,8 +162,24 @@ public class JavaFunctionCaller {
 		return classes;
 	}
 
+	private org.eclipse.imp.pdb.facts.type.Type toValueType(Formal formal) {
+		return formal.accept(typeEvaluator);
+	}
+	
+	private org.eclipse.imp.pdb.facts.type.Type toValueType(Type type) {
+		return type.accept(typeEvaluator);
+	}
+	
+	private Class<?> toJavaClass(Formal formal) {
+		return toJavaClass(toValueType(formal));
+	}
+
+	private Class<?> toJavaClass(org.eclipse.imp.pdb.facts.type.Type type) {
+		return type.accept(javaClasses);
+	}
+
 	private String toJavaType(Type type) {
-		return type.accept(typeEvaluator).accept(new JavaTypes());
+		return toValueType(type).accept(javaTypes);
 	}
 	
 	private static class JavaClasses implements ITypeVisitor<Class<?>> {
