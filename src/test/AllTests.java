@@ -8,6 +8,7 @@ public class AllTests {
 		suite.addTestSuite(DataTypeTests.class);
 		suite.addTestSuite(RegExpTests.class);
 		suite.addTestSuite(ComprehensionTests.class);
+		suite.addTestSuite(StatementTests.class);
 		return suite;
 	  }
 
