@@ -119,8 +119,6 @@ import org.meta_environment.rascal.ast.Toplevel.GivenVisibility;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
 
-import com.sun.corba.se.spi.ior.MakeImmutable;
-
 public class Evaluator extends NullASTVisitor<EvalResult> {
 	public static final String RASCAL_FILE_EXT = ".rsc";
 	final IValueFactory vf;
@@ -129,6 +127,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	private final RegExpEvaluator re = new RegExpEvaluator();
 	private final EnvironmentStack env = new EnvironmentStack();
 	private final ASTFactory af;
+	private final JavaFunctionCaller javaFunctionCaller = new JavaFunctionCaller(new PrintWriter(System.err));
 
 	public Evaluator(IValueFactory f, ASTFactory astFactory) {
 		this.vf = f;
@@ -472,10 +471,9 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 
 	private EvalResult callJavaFunction(FunctionDeclaration func,
 			IValue[] actuals) {
-		JavaFunctionCaller caller = new JavaFunctionCaller(new PrintWriter(System.err));
 		Type type = func.getSignature().getType().accept(te);
 		
-		return result(type, caller.callJavaMethod(func, actuals));
+		return result(type, javaFunctionCaller.callJavaMethod(func, actuals));
 	}
 
 	private EvalResult callRascalFunction(FunctionDeclaration func,
@@ -754,6 +752,11 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			org.meta_environment.rascal.ast.FunctionDeclaration.Default x) {
 		Signature sig = x.getSignature();
 		String name = sig.getName().toString();
+		
+		if (isJavaFunction(x)) {
+			javaFunctionCaller.compileJavaMethod(x);
+		}
+		
 		env.storeFunction(name,(org.meta_environment.rascal.ast.FunctionDeclaration)x);
 		return result();
 	}
