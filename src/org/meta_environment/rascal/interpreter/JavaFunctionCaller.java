@@ -78,7 +78,7 @@ public class JavaFunctionCaller {
 			Class<?>[] javaTypes = getJavaTypes(parameters);
 			if (javaTypes.length > 0) { // non-void
 			  Method method = clazz.getDeclaredMethod(METHOD_NAME, javaTypes);
-			  return (IValue) method.invoke(actuals);
+			  return (IValue) method.invoke(null, (Object[]) actuals);
 			}
 			else {
 				Method method = clazz.getDeclaredMethod(METHOD_NAME);
