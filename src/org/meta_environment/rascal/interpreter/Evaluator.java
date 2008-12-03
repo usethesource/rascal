@@ -756,6 +756,9 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		if (isJavaFunction(x)) {
 			javaFunctionCaller.compileJavaMethod(x);
 		}
+		else if (!x.getBody().isDefault()) {
+			throw new RascalTypeError("Java function body without java function modifier in: " + x);
+		}
 		
 		env.storeFunction(name,(org.meta_environment.rascal.ast.FunctionDeclaration)x);
 		return result();
