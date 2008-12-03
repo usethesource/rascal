@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Writer;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -127,12 +128,13 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	private final RegExpEvaluator re = new RegExpEvaluator();
 	private final EnvironmentStack env = new EnvironmentStack();
 	private final ASTFactory af;
-	private final JavaFunctionCaller javaFunctionCaller = new JavaFunctionCaller(new PrintWriter(System.err));
+	private final JavaFunctionCaller javaFunctionCaller;
 
-	public Evaluator(IValueFactory f, ASTFactory astFactory) {
+	public Evaluator(IValueFactory f, ASTFactory astFactory, Writer errorWriter) {
 		this.vf = f;
 		this.af = astFactory;
 		tf = TypeFactory.getInstance();
+		javaFunctionCaller = new JavaFunctionCaller(errorWriter);
 	}
 
 	EvalResult result(Type t, IValue v) {

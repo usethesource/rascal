@@ -3,6 +3,7 @@ package test;
 import junit.framework.TestCase;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -22,7 +23,7 @@ public class StatementTests extends TestCase {
 	
 	private boolean runTest(String statement) throws IOException {
 		INode tree = parser.parse(new ByteArrayInputStream(statement.getBytes()));
-		Evaluator evaluator = new Evaluator(ValueFactory.getInstance(), factory);
+		Evaluator evaluator = new Evaluator(ValueFactory.getInstance(), factory, new PrintWriter(System.err));
 
 		if (tree.getTreeNodeType() ==  Factory.ParseTree_Summary) {
 			System.err.println(tree);

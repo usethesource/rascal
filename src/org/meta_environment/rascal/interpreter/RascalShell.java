@@ -2,6 +2,7 @@ package org.meta_environment.rascal.interpreter;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 import jline.ConsoleReader;
 
@@ -21,14 +22,18 @@ public class RascalShell {
 	private final static String CONTINUE_PROMPT = "?";
 	private final static String TERMINATOR = ";";
 	
-	private Parser parser = Parser.getInstance();
-	private ASTFactory factory = new ASTFactory();
-	private ASTBuilder builder = new ASTBuilder(factory);
-	Evaluator evaluator = new Evaluator(ValueFactory.getInstance(), factory);
+	private final Parser parser = Parser.getInstance();
+	private final ASTFactory factory = new ASTFactory();
+	private final ASTBuilder builder = new ASTBuilder(factory);
+	private final ConsoleReader console;
+	private final Evaluator evaluator;
 	
+	public RascalShell() throws IOException {
+		console = new ConsoleReader();
+		evaluator = new Evaluator(ValueFactory.getInstance(), factory, new PrintWriter(System.err));
+	}
 	
 	private void run() throws IOException {
-		ConsoleReader console = new ConsoleReader();
 		CommandEvaluator commander = new CommandEvaluator(evaluator, console);
 		
 		StringBuffer input = new StringBuffer();
@@ -149,9 +154,8 @@ public class RascalShell {
 	}
 	
 	public static void main(String[] args) {
-		RascalShell r = new RascalShell();
 		try {
-			r.run();
+			new RascalShell().run();
 			System.err.println("Que le Rascal soit avec vous!");
 		} catch (IOException e) {
 			System.err.println("unexpected error: " + e.getMessage());
