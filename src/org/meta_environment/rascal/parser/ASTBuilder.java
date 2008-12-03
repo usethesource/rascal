@@ -198,7 +198,7 @@ public class ASTBuilder {
 		if (tree.isLexToCf()) {
 			return buildLexicalNode((INode) ((IList) ((INode) arg).get("args")).get(0));
 		}
-		else if (tree.getConstructorName().equals("Java")) {
+		else if (tree.getSortName().equals("FunctionBody") && tree.getConstructorName().equals("Java")) {
 			return new JavaFunctionBody((ITree) arg, tree.yield());
 		}
 			
