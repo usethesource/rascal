@@ -25,7 +25,7 @@ import org.meta_environment.rascal.ast.Assignable.Variable;
  * implemented by Evaluator.
  * TODO: does not implement type checking completely
  */
-public class AssignableEvaluator extends NullASTVisitor<EvalResult> {
+/*package*/ class AssignableEvaluator extends NullASTVisitor<EvalResult> {
     private EvalResult value;
     private final EnvironmentStack env;
     private final Evaluator eval;
