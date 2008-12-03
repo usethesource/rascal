@@ -52,6 +52,7 @@ import org.meta_environment.rascal.ast.Signature;
 import org.meta_environment.rascal.ast.Type;
 
 public class JavaFunctionCaller {
+	private static final String UNWANTED_MESSAGE_POSTFIX = "\\.java:";
 	private static final String METHOD_NAME = "call";
 	private static final String VALUE_FACTORY = "org.eclipse.imp.pdb.facts.impl.hash.ValueFactory";
 	
@@ -60,6 +61,7 @@ public class JavaFunctionCaller {
 	private final TypeEvaluator typeEvaluator = new TypeEvaluator();
 	private final JavaTypes javaTypes = new JavaTypes();
 	private final JavaClasses javaClasses = new JavaClasses();
+	private static final String UNWANTED_MESSAGE_PREFIX = "org/meta_environment/rascal/java/";
 
 	public JavaFunctionCaller(Writer outputWriter) {
 		this.out = outputWriter;
@@ -139,10 +141,13 @@ public class JavaFunctionCaller {
 		compilation.doCompile(out);
 
 		if (compilation.getDiagnostics().size() != 0) {
+			StringBuilder messages = new StringBuilder();
 			for (Diagnostic<? extends JavaFileObject> d : compilation.getDiagnostics()) {
-				System.err.println(d.getMessage(null) + ":" + d.getLineNumber());
+				String message = d.getMessage(null);
+				message = message.replaceAll(UNWANTED_MESSAGE_PREFIX, "").replaceAll(UNWANTED_MESSAGE_POSTFIX, ",");
+				messages.append(message + "\n");
 			}
-			throw new RascalTypeError("Compilation of Java method failed.");
+			throw new RascalTypeError("Compilation of Java method failed due to the following error(s): \n" + messages.toString());
 		}
 
 		return compilation.getOutputClass(fullClassName);
