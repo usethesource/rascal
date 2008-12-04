@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -43,7 +42,6 @@ import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.FunctionModifier;
 import org.meta_environment.rascal.ast.Generator;
 import org.meta_environment.rascal.ast.Module;
-import org.meta_environment.rascal.ast.ModuleName;
 import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.Signature;
@@ -66,6 +64,7 @@ import org.meta_environment.rascal.ast.Expression.Ambiguity;
 import org.meta_environment.rascal.ast.Expression.And;
 import org.meta_environment.rascal.ast.Expression.Bracket;
 import org.meta_environment.rascal.ast.Expression.CallOrTree;
+import org.meta_environment.rascal.ast.Expression.ClosureCall;
 import org.meta_environment.rascal.ast.Expression.Composition;
 import org.meta_environment.rascal.ast.Expression.Comprehension;
 import org.meta_environment.rascal.ast.Expression.Division;
@@ -104,7 +103,6 @@ import org.meta_environment.rascal.ast.Literal.Boolean;
 import org.meta_environment.rascal.ast.Literal.Double;
 import org.meta_environment.rascal.ast.Literal.Integer;
 import org.meta_environment.rascal.ast.LocalVariableDeclaration.Default;
-import org.meta_environment.rascal.ast.Statement.All;
 import org.meta_environment.rascal.ast.Statement.Assert;
 import org.meta_environment.rascal.ast.Statement.Assignment;
 import org.meta_environment.rascal.ast.Statement.Block;
@@ -127,7 +125,7 @@ import org.meta_environment.uptr.Factory;
 public class Evaluator extends NullASTVisitor<EvalResult> {
 	public static final String RASCAL_FILE_EXT = ".rsc";
 	final IValueFactory vf;
-	final TypeFactory tf;
+	final TypeFactory tf = TypeFactory.getInstance();
 	private final TypeEvaluator te = new TypeEvaluator();
 	private final RegExpEvaluator re = new RegExpEvaluator();
 	private final EnvironmentStack env = new EnvironmentStack();
@@ -137,7 +135,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	public Evaluator(IValueFactory f, ASTFactory astFactory, Writer errorWriter) {
 		this.vf = f;
 		this.af = astFactory;
-		tf = TypeFactory.getInstance();
 		javaFunctionCaller = new JavaFunctionCaller(errorWriter);
 	}
 
@@ -435,6 +432,31 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	// Function calls and tree constructors
 	
 	@Override
+	public EvalResult visitExpressionClosureCall(ClosureCall x) {
+		EvalResult func = x.getClosure().getExpression().accept(this);
+		java.util.List<org.meta_environment.rascal.ast.Expression> args = x.getArguments();
+			
+		 IValue[] actuals = new IValue[args.size()];
+		 Type[] types = new Type[args.size()];
+
+		 for (int i = 0; i < args.size(); i++) {
+			 EvalResult resultElem = args.get(i).accept(this);
+			 types[i] = resultElem.type;
+			 actuals[i] = resultElem.value;
+		 }
+		 
+		 TupleType actualTypes = tf.tupleType(types);
+		
+		if (te.isFunctionType(func.type)) {
+			FunctionDeclaration decl = env.getFunction(func.value.toString(), actualTypes);
+			return call(decl, actuals);
+		}
+		else {
+			throw new RascalBug("Closures are not implemented yet");
+		}
+	}
+	
+	@Override
 	public EvalResult visitExpressionCallOrTree(CallOrTree x) {
 		 java.util.List<org.meta_environment.rascal.ast.Expression> args = x.getArguments();
 		 
@@ -481,9 +503,10 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 	@Override
 	public EvalResult visitExpressionFunctionAsValue(FunctionAsValue x) {
-		throw new RascalBug("functions as values not yet implemented");
+		Type functionType = te.getFunctionType();
+		return result(functionType, functionType.make(vf, x.getFunction().getName().toString()));
 	}
-
+	
 	private EvalResult call(FunctionDeclaration func, IValue[] actuals) {
 		if (isJavaFunction(func)) { 
 			return callJavaFunction(func, actuals);
