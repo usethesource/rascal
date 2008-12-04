@@ -1,6 +1,7 @@
 package org.meta_environment.rascal.interpreter;
 
 /**
+ * 
  * Warning: this is not a thread safe implementation. The idea however is
  * to not create a stack trace every time a Return exception is needed.
  *
