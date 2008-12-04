@@ -4,6 +4,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import javax.tools.ToolProvider;
+
 import jline.ConsoleReader;
 
 import org.eclipse.imp.pdb.facts.INode;
@@ -154,6 +156,8 @@ public class RascalShell {
 	}
 	
 	public static void main(String[] args) {
+		System.err.println(ToolProvider.getSystemToolClassLoader());
+		System.err.println(ToolProvider.getSystemJavaCompiler());
 		try {
 			new RascalShell().run();
 			System.err.println("Que le Rascal soit avec vous!");
