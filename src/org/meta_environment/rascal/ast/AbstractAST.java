@@ -17,6 +17,19 @@ public abstract class AbstractAST implements IVisitable {
 	public ITree getTree() {
 		return tree;
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof AbstractAST) {
+			return ((AbstractAST) obj).tree.equals(tree);
+		}
+		return false;
+	}
+	
+	@Override
+	public int hashCode() {
+		return tree.hashCode();
+	}
 
 	abstract public <T> T accept(IASTVisitor<T> v);
 }
