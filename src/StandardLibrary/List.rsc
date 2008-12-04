@@ -25,7 +25,7 @@ public value java first(list[value] l)
 }
 
 public list[value] mapper(list[value] L, value (value x,value y) F) {
-  return [F(E) | value E : L];
+  return [#F(E) | value E : L];
 }
 
 public value max(list[value] l)
