@@ -1,51 +1,49 @@
 module List
 
-public &T java arb(list[&T] l)
-JavaImports{java.util.Random;}
+public value java arb(list[value] l)
+@java-imports{import java.lang.Math;}
 {
-  java.util.Random generator = new java.util.Random(System.currentTimeMillis());
-  return l.get(generator.nextInteger(l.size()));
+   double rnd = l.length() * Math.random();
+   return l.get(values.dubble(rnd).floor().getValue());
 }
 
-public &T average(list[&T] l, &T zero)
+public value average(list[value] l, value zero)
 @doc{Average of elements of a list: average}
 {
   return sum(l, zero)/size(l);
 }
 
-public &T java first(list[&T] l)
+public value java first(list[value] l)
   throws empty_list()
   @doc{First element of list: first}
- {
+{
    if(l.length() > 0){
       return l.get(0);
    } else {
-      throw new RascalException("empty_list");
+      throw new RascalException(values, "empty_list");
    }
- }
-
-
-
-public list[&T] mapper(list[&T] L, &T F (&T,&T)){
-  return [F(E) | &T E : L];
 }
 
-public &T max(list[&T] l)
+public list[value] mapper(list[value] L, value (value x,value y) F) {
+  return [F(E) | value E : L];
+}
+
+public value max(list[value] l)
 @doc{Maximum element of a list: max}
 {
-  &T result = arb(l);
-  for(&T e : l){
-   if(result < e)){
+  value result = arb(l);
+  for(value e : l) {
+   if(result < e) {
       result = max(result, e);
    }
   }
   return result;
 }
 
-public &T min(&list[&T] l)
+public value min(list[value] l)
 {
-  &T result = arb(l);
-  for(&T e : l){
+  value result = arb(l);
+  for(value e : l){
    if(less(e, result)){
       result = min(result, e);
    }
@@ -53,80 +51,89 @@ public &T min(&list[&T] l)
   return result;
 }
 
-public &T multiply(list[&T] l, &T unity)
+public value multiply(list[value] l, value unity)
 @doc{Multiply elements of a list: multiply}
 {
   return reducer(l, #*, unity);
 }
 
-public &T reducer(list[&T] l, &T F(&T, &T), &T unit)
+public value reducer(list[value] l, value (value, value) F, value unit)
 {
-  &T result = unit;
-  for(&T e : l){
+  value result = unit;
+  for(value e : l){
      result = F(result, e);
   }
   return result;
 }
 
-public &T java rest(list[&T] l)
+public value java rest(list[value] l)
   throws empty_list()
  @doc{First element of list: first}
- { ILiostWriter w = l.getType().writer(values);
+ { IListWriter w = l.getType().writer(values);
  
    if(l.length() > 0){
-      for(int i : 1; i < l.length(); i++){
-      w.put(l.get(i);
+      for(int i = 1; i < l.length(); i++) {
+        w.insert(l.get(i));
       }
       return w.done();
    } else {
-      throw new RascalException("empty_list");
+      throw new RascalException(values, "empty_list");
    }
  }
 
-public list[&T] java reverse(list[&T] l)
+public list[value] java reverse(list[value] l)
 {
 	return l.reverse();
 }
 
-public int java size(list[&T] l)
+public int java size(list[value] l)
 {
-   return l.size();
+   return values.integer(l.length());
 }
 
-public list[&T] sort(list[&T] L, bool #<(&T, &T))
+public list[value] sort(list[value] L, bool (value, value) compare)
   @doc{Sort elements of list: sort}
 {
  // To be done.
 }
 
-public &T sum(list[&T] l, &T zero)
+public value sum(list[value] l, value zero)
 @doc{Add elements of a List: sum}
 {
   return reducer(l, #+, zero);
 }
 
-public set[&T] java toSet(list[&T] l)
+public set[value] java toSet(list[value] l)
+@java-imports{import java.util.Iterator;}
 {
-   Type resultType = types.set(l.getElementType());
-   ISetWriter w = resultType.writer(values);
-   for(value v : l){
-   w.insert(v);
-   }
+  Type resultType = types.setType(l.getElementType());
+  ISetWriter w = resultType.writer(values);
+  Iterator iter = l.iterator();
+  while (iter.hasNext()) {
+    w.insert((IValue) iter.next());
+  }
 	
+  return w.done();
+}
+
+public map[value,value] java toMap(list[tuple[value, value]] l)
+@java-imports{import java.util.Iterator;}
+{
+   TupleType tuple = (TupleType) l.getElementType();
+   Type resultType = types.mapType(tuple.getFieldType(0), tuple.getFieldType(1));
+  
+   IMapWriter w = resultType.writer(values);
+   Iterator iter = l.iterator();
+   while (iter.hasNext()) {
+     ITuple t = (ITuple) iter.next();
+     w.put(t.get(0), t.get(1));
+   }
+  
+   
    return w.done();
 }
 
-//public set[&T] java toMap(list[tuple[&K, &V]] l)
-//{
-//  Type resultType = types.set(l.getElementType());
-//  ISetWriter w = resultType.writer(values);
-//   for(value v : l){
-//   		w.insert(v);
-//   }
-//  return w.done();
-//}
-
-public str java toString(list[&T] l)
+public str java toString(list[value] l)
 {
-	return l.toString();
+	return values.string(l.toString());
 }
