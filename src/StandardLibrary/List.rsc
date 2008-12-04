@@ -70,7 +70,7 @@ public &T reducer(list[&T] l, &T F(&T, &T), &T unit)
 
 public &T java rest(list[&T] l)
   throws empty_list()
-  @doc{First element of list: first}
+ @doc{First element of list: first}
  { ILiostWriter w = l.getType().writer(values);
  
    if(l.length() > 0){
