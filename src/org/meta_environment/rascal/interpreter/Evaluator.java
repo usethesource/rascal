@@ -72,6 +72,7 @@ import org.meta_environment.rascal.ast.Expression.Division;
 import org.meta_environment.rascal.ast.Expression.Equivalence;
 import org.meta_environment.rascal.ast.Expression.Exists;
 import org.meta_environment.rascal.ast.Expression.ForAll;
+import org.meta_environment.rascal.ast.Expression.FunctionAsValue;
 import org.meta_environment.rascal.ast.Expression.GreaterThan;
 import org.meta_environment.rascal.ast.Expression.GreaterThanOrEq;
 import org.meta_environment.rascal.ast.Expression.IfDefined;
@@ -476,6 +477,11 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		 
 		 
 		 
+	}
+	
+	@Override
+	public EvalResult visitExpressionFunctionAsValue(FunctionAsValue x) {
+		throw new RascalBug("functions as values not yet implemented");
 	}
 
 	private EvalResult call(FunctionDeclaration func, IValue[] actuals) {
