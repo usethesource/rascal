@@ -1,4 +1,4 @@
-module Booleans
+module Boolean
 
 public bool java arb()
 @java-imports{import java.lang.Math;}

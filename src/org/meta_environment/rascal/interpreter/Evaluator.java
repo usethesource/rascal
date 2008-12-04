@@ -1,5 +1,6 @@
 package org.meta_environment.rascal.interpreter;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -207,15 +208,27 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		ASTBuilder b = new ASTBuilder(af);
 		
 		try {
-			INode tree = p.parse(new FileInputStream(name + RASCAL_FILE_EXT));
+			String fileName = name.replaceAll("::","/") + RASCAL_FILE_EXT;
+			File file = new File(fileName);
+			
+			if (!file.exists()) {
+				fileName = "src/StandardLibrary/" + fileName;
+				file = new File(fileName);
+				if (!file.exists()) {
+					throw new RascalTypeError("Can not find file for module " + name);
+				}
+			}
+			
+			INode tree = p.parse(new FileInputStream(file));
 			
 			if (tree.getTreeNodeType() == Factory.ParseTree_Summary) {
 				throw new RascalTypeError("Parse error in module " + name + ":\n" + tree);
 			}
 			
 			Module m = b.buildModule(tree);
-			
-			ModuleName declaredNamed = m.getHeader().getName();
+		
+			// TODO reactivate checking module name
+//			ModuleName declaredNamed = m.getHeader().getName();
 //			if (!declaredNamed.toString().equals(name)) {
 //				throw new RascalTypeError("Module " + declaredNamed + " should be in a file called " + declaredNamed + RASCAL_FILE_EXT + ", not " + name + RASCAL_FILE_EXT);
 //			}
@@ -256,9 +269,10 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	public EvalResult visitToplevelGivenVisibility(GivenVisibility x) {
 		// order dependent code here:
 		x.getDeclaration().accept(this);
-		String name = x.getDeclaration().getName().toString();
-		ModuleVisibility visibility = getVisibility(x.getVisibility());
-		env.setVisibility(name, visibility);
+		// TODO implement visibility stuff
+//		String name = x.getDeclaration().getSignature().getName().toString();
+//		ModuleVisibility visibility = getVisibility(x.getVisibility());
+//		env.setVisibility(name, visibility);
 		return result();
 	}
 	
@@ -442,7 +456,13 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		 else if (names.size() == 2) {
 			 String modulename = names.get(0).toString();
 			 String name = names.get(1).toString();
-			 FunctionDeclaration functionDeclaration = env.getModule(modulename).getFunction(name, actualTypes);
+			 ModuleEnvironment module = env.getModule(modulename);
+			 
+			 if (module == null) {
+				 throw new RascalTypeError("Unknown module " + modulename);
+			 }
+			 
+			 FunctionDeclaration functionDeclaration = module.getFunction(name, actualTypes);
 			 env.pushModule(modulename);
 			 EvalResult result = call(functionDeclaration, actuals);
 			 env.pop();
