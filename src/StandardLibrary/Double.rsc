@@ -1,21 +1,20 @@
 module Double
 
 public double java arb()
+@java-imports{import java.lang.Math;}
 @doc{arb returns an arbitrary double value in the interval [0.0,1.0).}
-JavaImports{java.util.Random;}
 {
-  java.util.Random generator = new java.util.Random(System.currentTimeMillis());
-  return generator.nextDouble();
+  return values.dubble(Math.random());
 }
 
 public double java toInteger(double d)
 @doc{toInteger a double value integer.}
 {
-  return Math.round(d);
+  return d.floor();
 }
 
 public str java toString(double d)
 @doc{toString converts a double value to a string.}
 {
-  return d.toString();
+  return values.string(d.toString());
 }
