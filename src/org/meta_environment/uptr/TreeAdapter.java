@@ -177,9 +177,9 @@ public class TreeAdapter {
 	public void unparse(OutputStream stream) throws IOException, FactTypeError {
 		try {
 			if (tree.getTreeNodeType() == Factory.ParseTree_Top) {
-				tree.get("top").accept(new BottomUpVisitor(new Unparser(stream), ValueFactory.getInstance()));
+				tree.get("top").accept(new BottomUpVisitor<IValue>(new Unparser(stream), ValueFactory.getInstance()));
 			} else if (tree.getType() == Factory.Tree) {
-				tree.accept(new BottomUpVisitor(new Unparser(stream), ValueFactory.getInstance()));
+				tree.accept(new BottomUpVisitor<IValue>(new Unparser(stream), ValueFactory.getInstance()));
 			} else {
 				throw new FactTypeError("Can not unparse this "
 						+ tree.getType());
