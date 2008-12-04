@@ -29,7 +29,16 @@ import org.meta_environment.rascal.ast.TypeArg.Named;
 
 public class TypeEvaluator extends NullASTVisitor<Type> {
 	private TypeFactory tf = TypeFactory.getInstance();
+	private final Type functionType = tf.namedType("rascal.functionType", tf.stringType());
 
+	public boolean isFunctionType(Type type) {
+		return type == functionType;
+	}
+	
+	public Type getFunctionType() {
+		return functionType;
+	}
+	
 	@Override
 	public Type visitTypeBasic(Basic x) {
 		return x.getBasic().accept(this);
@@ -72,7 +81,7 @@ public class TypeEvaluator extends NullASTVisitor<Type> {
 	
 	@Override
 	public Type visitTypeFunction(Function x) {
-		return x.getFunction().getType().accept(this);
+		return functionType;
 	}
 	
 	@Override
@@ -170,4 +179,6 @@ public class TypeEvaluator extends NullASTVisitor<Type> {
 	public Type visitTypeArgNamed(Named x) {
 		return x.getType().accept(this);
 	}
+
+	
 }
