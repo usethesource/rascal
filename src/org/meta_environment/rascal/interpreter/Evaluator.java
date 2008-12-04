@@ -22,6 +22,7 @@ import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IString;
+import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -32,6 +33,7 @@ import org.eclipse.imp.pdb.facts.type.NamedTreeType;
 import org.eclipse.imp.pdb.facts.type.RelationType;
 import org.eclipse.imp.pdb.facts.type.SetType;
 import org.eclipse.imp.pdb.facts.type.TreeNodeType;
+import org.eclipse.imp.pdb.facts.type.TreeType;
 import org.eclipse.imp.pdb.facts.type.TupleType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -481,7 +483,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			  return call(functionDeclaration, actuals);
 			}
 			else {
-				return result(tf.treeType(), vf.tree(functionName, actuals));
+				return constructTree(functionName, actuals);
 			}
 		 }
 		 else if (names.size() == 2) {
@@ -507,6 +509,13 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		 
 		 
 		 
+	}
+
+	private EvalResult constructTree(String functionName, IValue[] actuals) {
+		if (functionName.startsWith("\\")) {
+			functionName = functionName.substring(1);
+		}
+		return result(tf.treeType(), vf.tree(functionName, actuals));
 	}
 	
 	@Override
@@ -667,20 +676,36 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	@Override
 	public EvalResult visitExpressionSubscript(Subscript x) {
 		EvalResult subs = x.getSubscript().accept(this);
-		org.meta_environment.rascal.ast.Expression expr = x.getExpression();
-		int index = getValidIndex(subs);
-		if(expr.isQualifiedName()){
-			String name = expr.getQualifiedName().toString();
-			checkValidListSubscription(name, subs, index);
-			return result(((IList)getVariable(name).value).get(index));
-		} else if(expr.isSubscript()){
-			EvalResult r = expr.accept(this);
-			checkValidListSubscription(r, subs, index);
-			return result(((IList) r.value).get(index));
+		EvalResult expr = x.getExpression().accept(this);
+		
+		Type exprBase = expr.type.getBaseType();
+		Type subsBase = subs.type.getBaseType();
+		
+		
+		if (exprBase.isListType() && subsBase.isIntegerType()) {
+			int index = ((IInteger) subs.value).getValue();
+			Type elementType = ((ListType) exprBase).getElementType();
+			IValue element = ((IList) expr.value).get(index);
+			return result(elementType, element);
+		}
+		else if (exprBase.isTreeNodeType() && subsBase.isIntegerType()) {
+			int index = ((IInteger) subs.value).getValue();
+			Type elementType = ((TreeNodeType) exprBase).getChildType(index);
+			IValue element = ((ITree) expr.value).get(index);
+			return result(elementType, element);
+		}
+		else if (exprBase.isTreeType() && subsBase.isIntegerType()) {
+			int index = ((IInteger) subs.value).getValue();
+			Type elementType = tf.valueType();
+			IValue element = ((ITree) expr.value).get(index);
+			return result(elementType, element);
+		}
+		else if (exprBase.isMapType() && subsBase.isSubtypeOf(((MapType) exprBase).getKeyType())) {
+			Type valueType = ((MapType) exprBase).getValueType();
+			return result(valueType, ((IMap) expr.value).get(subs.value));
 		}
 		
-		// TODO implement other subscripts
-		return null;
+		throw new RascalBug("Not yet implemented subscript: " + x);
 	}
 
 	@Override
