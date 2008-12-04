@@ -10,6 +10,7 @@ import java.util.WeakHashMap;
 
 import javax.tools.Diagnostic;
 import javax.tools.JavaFileObject;
+import javax.tools.ToolProvider;
 
 import net.java.dev.hickory.testing.Compilation;
 
@@ -67,6 +68,13 @@ public class JavaFunctionCaller {
 
 	public JavaFunctionCaller(Writer outputWriter) {
 		this.out = outputWriter;
+		
+		if (ToolProvider.getSystemJavaCompiler() == null) {
+			throw new RascalBug("Could not find an installed Java compiler, please provide a Java Runtime that includes the Java Development Tools.");
+		}
+		else {
+			System.err.println("Found a Java compiler");
+		}
 	}
 
 	public void compileJavaMethod(FunctionDeclaration declaration) {
