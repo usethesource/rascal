@@ -10,6 +10,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 
+import javax.tools.ToolProvider;
+
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IDouble;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -40,6 +42,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.Case;
 import org.meta_environment.rascal.ast.Declaration;
+import org.meta_environment.rascal.ast.Declarator;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.FunctionModifier;
 import org.meta_environment.rascal.ast.Generator;
@@ -115,6 +118,7 @@ import org.meta_environment.rascal.ast.Statement.For;
 import org.meta_environment.rascal.ast.Statement.IfThen;
 import org.meta_environment.rascal.ast.Statement.IfThenElse;
 import org.meta_environment.rascal.ast.Statement.Insert;
+import org.meta_environment.rascal.ast.Statement.Solve;
 import org.meta_environment.rascal.ast.Statement.Switch;
 import org.meta_environment.rascal.ast.Statement.VariableDeclaration;
 import org.meta_environment.rascal.ast.Statement.While;
@@ -2032,6 +2036,41 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			}
 		}
 		return result(vf.bool(true));
+	}
+	
+	// ------------ solve -----------------------------------------
+	
+	@Override
+	public EvalResult visitStatementSolve(Solve x) {
+		java.util.ArrayList<String> vars = new java.util.ArrayList<String>();
+		
+		for(Declarator d : x.getDeclarations()){
+			for(org.meta_environment.rascal.ast.Variable v : d.getVariables()){
+				vars.add(v.getName().toString());
+			}
+			d.accept(this);
+		}
+		IValue currentValue[] = new IValue[vars.size()];
+		for(int i = 0; i < vars.size(); i++){
+			currentValue[i] = null;
+		}
+		
+		Statement body = x.getBody();
+		EvalResult bodyResult = null;
+		
+		boolean change = true;
+		while (change){
+			change = false;
+			bodyResult = body.accept(this);
+			for(int i = 0; i < vars.size(); i++){
+				EvalResult v = getVariable(vars.get(i));
+				if(!v.value.equals(currentValue[i])){
+					change = true;
+					currentValue[i] = v.value;
+				}
+			}
+		}
+		return bodyResult;
 	}
 
 	private boolean regExpMatch(EvalResult subject, 
