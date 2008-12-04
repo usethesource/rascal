@@ -71,7 +71,7 @@ public class JavaFunctionCaller {
 		this.out = outputWriter;
 		
 		if (ToolProvider.getSystemJavaCompiler() == null) {
-			throw new RascalBug("Could not find an installed Java compiler, please provide a Java Runtime that includes the Java Development Tools.");
+			throw new RascalBug("Could not find an installed Java compiler, please provide a Java Runtime that includes the Java Development Tools (JDK 1.6 or higher).");
 		}
 	}
 

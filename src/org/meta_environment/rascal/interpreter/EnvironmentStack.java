@@ -50,8 +50,7 @@ import org.meta_environment.rascal.ast.Rule;
 			}
 		}
 
-		throw new RascalTypeError("Call to undefined function " + name
-				+ " with argument types " + actuals);
+		return null;
 	}
 
 	@Override

@@ -472,12 +472,20 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		 TupleType actualTypes = tf.tupleType(types);
 		 java.util.List<Name> names = x.getQualifiedName().getNames();
 		 
-		 if (names.size() == 1) {
-			FunctionDeclaration functionDeclaration = env.getFunction(names.get(0).toString(), actualTypes);
-			return call(functionDeclaration, actuals);
+		 String functionName = names.get(0).toString();
+		 
+		if (names.size() == 1) {
+			FunctionDeclaration functionDeclaration = env.getFunction(functionName, actualTypes);
+			
+			if (functionDeclaration != null) {
+			  return call(functionDeclaration, actuals);
+			}
+			else {
+				return result(tf.treeType(), vf.tree(functionName, actuals));
+			}
 		 }
 		 else if (names.size() == 2) {
-			 String modulename = names.get(0).toString();
+			 String modulename = functionName;
 			 String name = names.get(1).toString();
 			 ModuleEnvironment module = env.getModule(modulename);
 			 
