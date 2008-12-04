@@ -120,6 +120,7 @@ import org.meta_environment.rascal.ast.Toplevel.DefaultVisibility;
 import org.meta_environment.rascal.ast.Toplevel.GivenVisibility;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
+import org.meta_environment.uptr.Factory;
 
 public class Evaluator extends NullASTVisitor<EvalResult> {
 	public static final String RASCAL_FILE_EXT = ".rsc";
@@ -207,6 +208,11 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		
 		try {
 			INode tree = p.parse(new FileInputStream(name + RASCAL_FILE_EXT));
+			
+			if (tree.getTreeNodeType() == Factory.ParseTree_Summary) {
+				throw new RascalTypeError("Parse error in module " + name + ":\n" + tree);
+			}
+			
 			Module m = b.buildModule(tree);
 			
 			ModuleName declaredNamed = m.getHeader().getName();
@@ -215,7 +221,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			}
 			return m.accept(this);
 		} catch (FactTypeError e) {
-			throw new RascalTypeError("Something went wrong during parsing:", e);
+			throw new RascalTypeError("Something went wrong during parsing of " + name + ": ", e);
 		} catch (FileNotFoundException e) {
 			throw new RascalTypeError("Could not import module", e);
 		} catch (IOException e) {
