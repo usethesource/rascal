@@ -216,9 +216,9 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			Module m = b.buildModule(tree);
 			
 			ModuleName declaredNamed = m.getHeader().getName();
-			if (!declaredNamed.toString().equals(name)) {
-				throw new RascalTypeError("Module " + declaredNamed + " should be in a file called " + declaredNamed + RASCAL_FILE_EXT + ", not " + name);
-			}
+//			if (!declaredNamed.toString().equals(name)) {
+//				throw new RascalTypeError("Module " + declaredNamed + " should be in a file called " + declaredNamed + RASCAL_FILE_EXT + ", not " + name + RASCAL_FILE_EXT);
+//			}
 			return m.accept(this);
 		} catch (FactTypeError e) {
 			throw new RascalTypeError("Something went wrong during parsing of " + name + ": ", e);

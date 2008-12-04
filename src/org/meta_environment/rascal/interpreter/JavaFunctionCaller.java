@@ -55,6 +55,8 @@ import org.meta_environment.rascal.ast.Tags;
 import org.meta_environment.rascal.ast.Type;
 
 public class JavaFunctionCaller {
+	private static final String JAVA_IMPORTS_TAG = "java-imports";
+	private static final String UNWANTED_MESSAGE_PREFIX = "org/meta_environment/rascal/java/";
 	private static final String UNWANTED_MESSAGE_POSTFIX = "\\.java:";
 	private static final String METHOD_NAME = "call";
 	private static final String VALUE_FACTORY = "org.eclipse.imp.pdb.facts.impl.hash.ValueFactory";
@@ -64,16 +66,12 @@ public class JavaFunctionCaller {
 	private final TypeEvaluator typeEvaluator = new TypeEvaluator();
 	private final JavaTypes javaTypes = new JavaTypes();
 	private final JavaClasses javaClasses = new JavaClasses();
-	private static final String UNWANTED_MESSAGE_PREFIX = "org/meta_environment/rascal/java/";
-
+	
 	public JavaFunctionCaller(Writer outputWriter) {
 		this.out = outputWriter;
 		
 		if (ToolProvider.getSystemJavaCompiler() == null) {
 			throw new RascalBug("Could not find an installed Java compiler, please provide a Java Runtime that includes the Java Development Tools.");
-		}
-		else {
-			System.err.println("Found a Java compiler");
 		}
 	}
 
@@ -170,7 +168,7 @@ public class JavaFunctionCaller {
 		
 		if (tags.hasAnnotations()) {
 			for (Tag tag : tags.getAnnotations()) {
-				if (tag.getName().toString().equals("JavaImports")) {
+				if (tag.getName().toString().equals(JAVA_IMPORTS_TAG)) {
 					String contents = tag.getContents().toString();
 					
 					if (contents.length() > 2 && contents.startsWith("{")) {
