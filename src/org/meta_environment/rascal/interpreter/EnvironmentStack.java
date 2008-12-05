@@ -37,24 +37,24 @@ import org.meta_environment.rascal.ast.Rule;
 	}
 
 	@Override
-	public FunctionDeclaration getFunction(String name, TupleType actuals) {
+	protected FunctionDeclaration getFunction(String name, TupleType actuals) {
 		return getFunctionDefiningEnvironment(name, actuals).getFunction(name, actuals);
 	}
 
 	@Override
-	public EvalResult getVariable(String name) {
+	protected EvalResult getVariable(String name) {
 		return getVariableDefiningEnvironment(name).getVariable(name);
 	}
-
+	
 	@Override
-	public void storeFunction(String name, FunctionDeclaration function) {
+	protected void storeFunction(String name, FunctionDeclaration function) {
 		TupleType formals = (TupleType) function.getSignature().accept(types);
 		
 		getFunctionDefiningEnvironment(name, formals).storeFunction(name, function);
 	}
 
 	@Override
-	public void storeVariable(String name, EvalResult value) {
+	protected void storeVariable(String name, EvalResult value) {
 		getVariableDefiningEnvironment(name).storeVariable(name, value);
 	}
 	
@@ -141,12 +141,12 @@ import org.meta_environment.rascal.ast.Rule;
 	}
 
 	@Override
-	public ModuleEnvironment getModule(String name) {
+	protected ModuleEnvironment getModule(String name) {
 		return stack.get(0).getModule(name);
 	}
 	
 	@Override
-	public EvalResult getModuleVariable(String module, String variable) {
+	protected EvalResult getModuleVariable(String module, String variable) {
 		ModuleEnvironment env = stack.get(0).getModule(module);
 		if (env.getVisibility(variable) == ModuleVisibility.PRIVATE) {
 			throw new RascalTypeError("Visibility of " + variable + " in " + module + " is private");

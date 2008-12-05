@@ -11,8 +11,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 
-import javax.tools.ToolProvider;
-
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IDouble;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -36,7 +34,6 @@ import org.eclipse.imp.pdb.facts.type.NamedTreeType;
 import org.eclipse.imp.pdb.facts.type.RelationType;
 import org.eclipse.imp.pdb.facts.type.SetType;
 import org.eclipse.imp.pdb.facts.type.TreeNodeType;
-import org.eclipse.imp.pdb.facts.type.TreeType;
 import org.eclipse.imp.pdb.facts.type.TupleType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -50,6 +47,7 @@ import org.meta_environment.rascal.ast.Generator;
 import org.meta_environment.rascal.ast.Module;
 import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.NullASTVisitor;
+import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.ast.Signature;
 import org.meta_environment.rascal.ast.Statement;
 import org.meta_environment.rascal.ast.Toplevel;
@@ -58,7 +56,6 @@ import org.meta_environment.rascal.ast.ValueProducer;
 import org.meta_environment.rascal.ast.Variant;
 import org.meta_environment.rascal.ast.Assignable.Constructor;
 import org.meta_environment.rascal.ast.Assignable.FieldAccess;
-import org.meta_environment.rascal.ast.Command.Import;
 import org.meta_environment.rascal.ast.Declaration.Annotation;
 import org.meta_environment.rascal.ast.Declaration.Data;
 import org.meta_environment.rascal.ast.Declaration.Function;
@@ -286,19 +283,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		// order dependent code here:
 		x.getDeclaration().accept(this);
 		// TODO implement visibility stuff
-//		String name = x.getDeclaration().getSignature().getName().toString();
-//		ModuleVisibility visibility = getVisibility(x.getVisibility());
-//		env.setVisibility(name, visibility);
 		return result();
-	}
-	
-	private ModuleVisibility getVisibility(org.meta_environment.rascal.ast.Visibility v) {
-		if (v.isPublic()) {
-			return ModuleVisibility.PUBLIC;
-		}
-		else {
-			return ModuleVisibility.PRIVATE;
-		}
 	}
 	
 	@Override
@@ -312,16 +297,15 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		EvalResult r = result();
 
 		for (org.meta_environment.rascal.ast.Variable var : x.getVariables()) {
-			String name = var.getName().toString();
 			if (var.isUnInitialized()) {  
 				throw new RascalTypeError("Module variable is not initialized: " + x);
 			} else {
 				EvalResult v = var.getInitial().accept(this);
 				if(v.type.isSubtypeOf(declaredType)){
 					r = result(declaredType, v.value);
-					storeVariable(name, r);
+					env.storeVariable(var.getName(), r);
 				} else {
-					throw new RascalTypeError("variable " + name + ", declared type " + declaredType + " incompatible with initial type " + v.type);
+					throw new RascalTypeError("variable " + var + ", declared type " + declaredType + " incompatible with initial type " + v.type);
 				}
 			}
 		}
@@ -430,17 +414,16 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		EvalResult r = result();
 
 		for (org.meta_environment.rascal.ast.Variable var : x.getVariables()) {
-			String name = var.getName().toString();
 			if (var.isUnInitialized()) {  // variable declaration without initialization
 				r = result(declaredType, null);
-				storeVariable(name, r);
+				env.storeVariable(var.getName(), r);
 			} else {                     // variable declaration with initialization
 				EvalResult v = var.getInitial().accept(this);
 				if(v.type.isSubtypeOf(declaredType)){
 					r = result(declaredType, v.value);
-					storeVariable(name, r);
+					env.storeVariable(var.getName(), r);
 				} else {
-					throw new RascalTypeError("variable " + name + ", declared type " + declaredType + " incompatible with initial type " + v.type);
+					throw new RascalTypeError("variable " + var + ", declared type " + declaredType + " incompatible with initial type " + v.type);
 				}
 			}
 		}
@@ -642,8 +625,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		return x.getFunctionDeclaration().accept(this);
 	}
 	
-	private EvalResult assignVariable(String name, EvalResult right){
-		EvalResult previous = getVariable(name);
+	private EvalResult assignVariable(QualifiedName name, EvalResult right){
+		EvalResult previous = env.getVariable(name);
 		if (previous != null) {
 			if (right.type.isSubtypeOf(previous.type)) {
 				right.type = previous.type;
@@ -653,45 +636,23 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 						+ "; cannot assign value of type " + right.type);
 			}
 		}
-		storeVariable(name, right);
+		env.storeVariable(name, right);
 		return right;
 	}
-
-	private void storeVariable(String name, EvalResult value) {
-		env.storeVariable(name, value);
-	}
 	
-	private int getValidIndex(EvalResult subs){
-		if(!subs.type.isSubtypeOf(tf.integerType())){
-			throw new RascalTypeError("subscript should have type int instead of " + subs.type);
-		}
-		return ((IInteger) subs.value).getValue();
-	}
-	
-	private Type checkValidListSubscription(EvalResult previous, EvalResult subs, int index){
+	private EvalResult assignVariable(Name name, EvalResult right){
+		EvalResult previous = env.getVariable(name);
 		if (previous != null) {
-			if(previous.type.isListType()){
-				Type elementType = ((ListType) previous.type).getElementType();
-				if((index < 0) || index >= ((IList) previous.value).length()){
-					throw new RascalTypeError("subscript " + index + " out of bounds");
-				}
-				return elementType;
+			if (right.type.isSubtypeOf(previous.type)) {
+				right.type = previous.type;
 			} else {
-				notImplemented("index in assignment");
+				throw new RascalTypeError("Variable " + name
+						+ " has type " + previous.type
+						+ "; cannot assign value of type " + right.type);
 			}
-		} else {
-			throw new RascalTypeError("subscription for unnitialized variable ");
 		}
-		return null;
-	}
-	
-	private Type checkValidListSubscription(String name, EvalResult subs, int index){
-		EvalResult previous = getVariable(name);
-		return checkValidListSubscription(previous, subs, index);
-	}
-	
-	private EvalResult getVariable(String name) {
-		return env.getVariable(name);
+		env.storeVariable(name, right);
+		return right;
 	}
 	
 	@Override
@@ -706,8 +667,13 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		if (exprBase.isListType() && subsBase.isIntegerType()) {
 			int index = ((IInteger) subs.value).getValue();
 			Type elementType = ((ListType) exprBase).getElementType();
-			IValue element = ((IList) expr.value).get(index);
-			return result(elementType, element);
+			try {
+				IValue element = ((IList) expr.value).get(index);
+				return result(elementType, element);
+			}
+			catch (IndexOutOfBoundsException e) {
+				throw new RascalTypeError("Subscript out of bounds", e);
+			}
 		}
 		else if (exprBase.isTreeNodeType() && subsBase.isIntegerType()) {
 			int index = ((IInteger) subs.value).getValue();
@@ -718,8 +684,13 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		else if (exprBase.isTreeType() && subsBase.isIntegerType()) {
 			int index = ((IInteger) subs.value).getValue();
 			Type elementType = tf.valueType();
-			IValue element = ((ITree) expr.value).get(index);
-			return result(elementType, element);
+			try {
+			  IValue element = ((ITree) expr.value).get(index);
+			  return result(elementType, element);
+			}
+			catch (IndexOutOfBoundsException e) {
+				throw new RascalTypeError("Subscript out of bounds");
+			}
 		}
 		else if (exprBase.isMapType() && subsBase.isSubtypeOf(((MapType) exprBase).getKeyType())) {
 			Type valueType = ((MapType) exprBase).getValueType();
@@ -983,8 +954,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		System.err.println("match: pat : " + pat);
 
 		if(pat.isQualifiedName()){        
-			String name = pat.getQualifiedName().toString();
-			EvalResult val = getVariable(name);
+			QualifiedName name = pat.getQualifiedName();
+			EvalResult val = env.getVariable(name);
 			if(val.value != null){
 				if(subj.type.isSubtypeOf(val.type) && subj.value.equals(val.value)){
 					return true;
@@ -1006,14 +977,15 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 					return false;
 			}
 		}
+		
 		if(pat.isTypedVariable()){
 			TypedVariable tv = (TypedVariable) pat;
 			Type tp = tv.getType().accept(te);
-			org.meta_environment.rascal.ast.Name nm = tv.getName();
 			if(!subj.type.isSubtypeOf(tp)){
 				throw new RascalTypeError("incompatible types in match: " + tp + " and " + subj.type);
 			}
-			assignVariable(nm.toString(), subj);
+			
+			assignVariable(tv.getName(), subj);
 			return true;
 		}
 		if(pat.isTuple()){
@@ -1138,20 +1110,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	@Override
 	public EvalResult visitExpressionQualifiedName(
 			org.meta_environment.rascal.ast.Expression.QualifiedName x) {
-		java.util.List<Name> names = x.getQualifiedName().getNames();
-		EvalResult result; 
-		
-		if (names.size() == 1) {
-		   result = getVariable(names.get(0).toString());
-		}
-		else if (names.size() == 2) {
-		   String modulename = names.get(0).toString();
-		   String name = names.get(1).toString();
-		   result = env.getModuleVariable(modulename, name);
-		}
-		else {
-			throw new RascalTypeError("Unknown qualified name: " + x);
-		}
+		EvalResult result = env.getVariable(x.getQualifiedName());
 		
 		if (result != null && result.value != null) {
 			return result;
@@ -1808,7 +1767,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		private org.meta_environment.rascal.ast.Expression pat;
 		private org.meta_environment.rascal.ast.Expression patexpr;
 		private Evaluator evaluator;
-		private Iterator iter;
+		private Iterator<?> iter;
 		private Type elementType;
 		
 		void make(ValueProducer vp, Evaluator ev){
@@ -2059,11 +2018,11 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 	@Override
 	public EvalResult visitStatementSolve(Solve x) {
-		java.util.ArrayList<String> vars = new java.util.ArrayList<String>();
+		java.util.ArrayList<Name> vars = new java.util.ArrayList<Name>();
 		
 		for(Declarator d : x.getDeclarations()){
 			for(org.meta_environment.rascal.ast.Variable v : d.getVariables()){
-				vars.add(v.getName().toString());
+				vars.add(v.getName());
 			}
 			d.accept(this);
 		}
@@ -2080,7 +2039,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			change = false;
 			bodyResult = body.accept(this);
 			for(int i = 0; i < vars.size(); i++){
-				EvalResult v = getVariable(vars.get(i));
+				EvalResult v = env.getVariable(vars.get(i));
 				if(!v.value.equals(currentValue[i])){
 					change = true;
 					currentValue[i] = v.value;
@@ -2100,9 +2059,9 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		}
 		
 		if(regExpResult.matches(((IString) subject.value).getValue())){
-			Map<String,String> map = regExpResult.getBindings();
+			Map<Name,String> map = regExpResult.getBindings();
 			//TODO: check that the names we are going to bind are uninitialized
-			for(String name : map.keySet()){
+			for(Name name : map.keySet()){
 				assignVariable(name, result(vf.string(map.get(name))));
 			}
 			return true;

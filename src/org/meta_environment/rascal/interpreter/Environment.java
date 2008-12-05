@@ -2,6 +2,7 @@ package org.meta_environment.rascal.interpreter;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +11,8 @@ import java.util.Set;
 import org.eclipse.imp.pdb.facts.type.TupleType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
+import org.meta_environment.rascal.ast.Name;
+import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.ast.Rule;
 
 /*package*/ class Environment {
@@ -34,7 +37,7 @@ import org.meta_environment.rascal.ast.Rule;
 		nameVisibility.put(name, v);
 	}
 	
-	public ModuleVisibility getVisibility(String name) {
+	protected ModuleVisibility getVisibility(String name) {
 		ModuleVisibility v = nameVisibility.get(name);
 		
 		return v == null ? ModuleVisibility.PRIVATE : v;
@@ -56,7 +59,7 @@ import org.meta_environment.rascal.ast.Rule;
 		return rules != null ? rules : new LinkedList<Rule>();
 	}
 	
-	public FunctionDeclaration getFunction(String name, TupleType actuals) {
+	protected FunctionDeclaration getFunction(String name, TupleType actuals) {
 		List<FunctionDeclaration> candidates = functionEnvironment.get(name);
 		
 		if (candidates != null) {
@@ -72,6 +75,18 @@ import org.meta_environment.rascal.ast.Rule;
 		return null;
 	}
 	
+	public FunctionDeclaration getFunction(QualifiedName name, TupleType actuals) {
+		String module = getModuleName(name);
+		String function = getName(name);
+		
+		if (module.equals("")) {
+			return getFunction(function, actuals);
+		}
+		else {
+			return getModuleFunction(module, function, actuals);
+		}
+	}
+	
 	public Set<String> getImportedModules() {
 		return importedModules;
 	}
@@ -81,16 +96,58 @@ import org.meta_environment.rascal.ast.Rule;
 		importedModules.add(m.getName());
 	}
 	
-	public ModuleEnvironment getModule(String name) {
+	protected ModuleEnvironment getModule(String name) {
 		return moduleEnvironment.get(name);
 	}
 	
-	public EvalResult getVariable(String name) {
+	protected EvalResult getVariable(String name) {
 		return variableEnvironment.get(name);
 	}
 	
-	public EvalResult getModuleVariable(String module, String variable) {
+	private String getModuleName(QualifiedName name) {
+		List<Name> names = name.getNames();
+		java.util.List<Name> prefix = names.subList(0, names.size() - 1);
+		
+		StringBuilder tmp = new StringBuilder();
+		Iterator<Name> iter = prefix.iterator();
+		
+		while (iter.hasNext()) {
+			Name part = iter.next();
+			tmp.append(part.toString());
+			if (iter.hasNext()) {
+				tmp.append("::");
+			}
+		}
+		
+		return tmp.toString();
+	}
+	
+	public EvalResult getVariable(QualifiedName name) {
+		String module = getModuleName(name);
+		String variable = getName(name);
+		
+		if (module.equals("")) {
+			return getVariable(variable);
+		}
+		else {
+			return getModuleVariable(module, variable);
+		}
+	}
+	
+	public EvalResult getVariable(Name name) {
+		return getVariable(name.toString());
+	}
+
+	private String getName(QualifiedName name) {
+		return name.getNames().get(0).toString();
+	}
+	
+	protected EvalResult getModuleVariable(String module, String variable) {
 		return getModule(module).getVariable(variable);
+	}
+	
+	protected FunctionDeclaration getModuleFunction(String module, String function, TupleType actuals) {
+		return getModule(module).getFunction(function, actuals);
 	}
 	
 	public void storeModuleVariable(String module, String variable, EvalResult value) {
@@ -101,11 +158,27 @@ import org.meta_environment.rascal.ast.Rule;
 		getModule(module).storeFunction(name, function);
 	}
 	
-	public void storeVariable(String name, EvalResult value) {
+	protected void storeVariable(String name, EvalResult value) {
 		variableEnvironment.put(name, value);
 	}
 	
-	public void storeFunction(String name, FunctionDeclaration function) {
+	public void storeVariable(QualifiedName name, EvalResult value) {
+		String module = getModuleName(name);
+		String var = getName(name);
+		
+		if (module.equals("")) {
+			storeVariable(var, value);
+		}
+		else {
+			storeModuleVariable(module, var, value);
+		}
+	}
+	
+	public void storeVariable(Name name, EvalResult value) {
+		storeVariable(name.toString(), value);
+	}
+	
+	protected void storeFunction(String name, FunctionDeclaration function) {
 		TupleType formals = (TupleType) function.getSignature().getParameters().accept(types);
 		FunctionDeclaration definedEarlier = getFunction(name, formals);
 		
@@ -120,6 +193,18 @@ import org.meta_environment.rascal.ast.Rule;
 		}
 		
 		list.add(function);
+	}
+	
+	public void storeFunction(QualifiedName name, FunctionDeclaration function) {
+		String module = getModuleName(name);
+		String func = getName(name);
+		
+		if (module.equals("")) {
+			storeFunction(func, function);
+		}
+		else {
+			storeModuleFunction(module, func, function);
+		}
 	}
 	
 	public boolean isRootEnvironment() {

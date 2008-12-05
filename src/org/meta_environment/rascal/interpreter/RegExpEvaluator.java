@@ -10,6 +10,8 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.meta_environment.rascal.ast.ASTFactory;
+import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.Expression.Literal;
 import org.meta_environment.rascal.ast.Literal.RegExp;
@@ -18,7 +20,7 @@ import org.meta_environment.rascal.ast.RegExp.Lexical;
 class RegExpResult {
 	String RegExpAsString;
 	Character modifier = null;
-	List<String> patternVars;
+	List<Name> patternVars;
 	Matcher matcher = null;
 	
 	RegExpResult(String s){
@@ -27,7 +29,7 @@ class RegExpResult {
 		patternVars = null;
 	}
 	
-	RegExpResult(String s, Character mod, List<String> names){
+	RegExpResult(String s, Character mod, List<Name> names){
 		RegExpAsString = s;
 		modifier = mod;
 		patternVars = names;
@@ -46,10 +48,10 @@ class RegExpResult {
 			throw new RascalTypeError(e.getMessage());
 		}
 	}
-	public Map<String,String> getBindings(){
-		Map<String,String> map = new HashMap<String,String>();
+	public Map<Name,String> getBindings(){
+		Map<Name,String> map = new HashMap<Name,String>();
 		int k = 1;
-		for(String nm : patternVars){
+		for(Name nm : patternVars){
 			map.put(nm, matcher.group(k));
 			k++;
 		}
@@ -101,11 +103,13 @@ public class RegExpEvaluator extends NullASTVisitor<RegExpResult> {
 		Matcher m = replacePat.matcher(subjectPat);
 		
 		String resultRegExp = "";
-		List<String> names = new ArrayList<String>();
+		List<Name> names = new ArrayList<Name>();
 
 		while(m.find()){
 			String varName = m.group(1);
-			names.add(varName);
+			// TODO empty parse tree is dangerous
+			Name name = new ASTFactory().makeNameLexical(null, varName);
+			names.add(name);
 			resultRegExp += subjectPat.substring(start, m.start(0)) + "(" + m.group(2) + ")";
 			start = m.end(0);
 		}
