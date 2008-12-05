@@ -1,7 +1,7 @@
 module List
 
 // TODO: public &T java arb(list[&T] l)
-public value java arb(list[value] l)
+public int java arb(list[int] l)
 {
    return l.get(random.nextInt(l.length()));
 }
@@ -32,11 +32,11 @@ public list[value] mapper(list[value] L, value (value x,value y) F) {
 }
 
 // TODO: public &T max(list[&T] l)
-public value max(list[value] l)
+public int max(list[int] l)
 @doc{Maximum element of a list: max}
 {
-  value result = arb(l);
-  for(value e : l) {
+  int result = List::arb(l);
+  for(int e : l) {
    if(result < e) {
       result = max(result, e);
    }
@@ -45,11 +45,11 @@ public value max(list[value] l)
 }
 
 // TODO: public &T min(list[&T] l)
-public value min(list[value] l)
+public int min(list[int] l)
 {
-  value result = arb(l);
-  for(value e : l){
-   if(less(e, result)){
+  int result = List::arb(l);
+  for(int e : l){
+   if(e < result){
       result = min(result, e);
    }
   }

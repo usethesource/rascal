@@ -6,6 +6,16 @@ public int java arb(int limit)
    return values.integer(random.nextInt(limit.getValue()));
 }
 
+public int max(int n, int m)
+{
+	return n > m ? n : m;
+}
+
+public int min(int n, int m)
+{
+	return n < m ? n : m;
+}
+
 public double java toDouble(int n)
 @doc{toDouble converts an integer value to a double value.}
 {
