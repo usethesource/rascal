@@ -16,6 +16,12 @@ import org.meta_environment.rascal.ast.FunctionDeclaration;
 	}
 	
 	@Override
+	public void addModule(ModuleEnvironment m) {
+		importedModules.add(m.getName());
+		super.addModule(m);
+	}
+	
+	@Override
 	public FunctionDeclaration getFunction(String name, TupleType actuals) {
 		return env.getFunction(name, actuals);
 	}

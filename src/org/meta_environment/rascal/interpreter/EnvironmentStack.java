@@ -1,6 +1,7 @@
 package org.meta_environment.rascal.interpreter;
 
 import java.util.List;
+import java.util.Set;
 import java.util.Stack;
 
 import org.eclipse.imp.pdb.facts.type.TupleType;
@@ -37,85 +38,91 @@ import org.meta_environment.rascal.ast.Rule;
 
 	@Override
 	public FunctionDeclaration getFunction(String name, TupleType actuals) {
-		for (int i = stack.size() - 1; i >= 0; i--) {
-			FunctionDeclaration result = stack.get(i)
-					.getFunction(name, actuals);
-
-			if (result != null) {
-				return result;
-			}
-			
-			if (stack.get(i).isRootEnvironment()) {
-				break;
-			}
-		}
-
-		return null;
+		return getFunctionDefiningEnvironment(name, actuals).getFunction(name, actuals);
 	}
 
 	@Override
 	public EvalResult getVariable(String name) {
-		for (int i = stack.size() - 1; i >= 0; i--) {
-			EvalResult result = stack.get(i).getVariable(name);
-
-			if (result != null) {
-				return result;
-			}
-			
-			if (stack.get(i).isRootEnvironment()) {
-				break;
-			}
-		}
-
-		return null;
+		return getVariableDefiningEnvironment(name).getVariable(name);
 	}
 
 	@Override
 	public void storeFunction(String name, FunctionDeclaration function) {
 		TupleType formals = (TupleType) function.getSignature().accept(types);
-		int i;
-		for (i = stack.size() - 1; i >= 0; i--) {
-			FunctionDeclaration result = stack.get(i)
-					.getFunction(name, formals);
-
-			if (result != null) {
-				break;
-			}
-			
-			if (stack.get(i).isRootEnvironment()) {
-				break;
-			}
-		}
-
-		if (i == -1) {
-			stack.peek().storeFunction(name, function);
-		} else {
-			stack.get(i).storeFunction(name, function);
-		}
+		
+		getFunctionDefiningEnvironment(name, formals).storeFunction(name, function);
 	}
 
 	@Override
 	public void storeVariable(String name, EvalResult value) {
+		getVariableDefiningEnvironment(name).storeVariable(name, value);
+	}
+	
+	private Environment getFunctionDefiningEnvironment(String name, TupleType formals) {
 		int i;
+		
+		// first look on the scope stack
 		for (i = stack.size() - 1; i >= 0; i--) {
-			EvalResult result = stack.get(i).getVariable(name);
-
-			if (result != null) {
-				break;
-			}
+			Environment environment = stack.get(i);
 			
-			if (stack.get(i).isRootEnvironment()) {
-				break;
+			if (environment.getFunction(name, formals) != null) {
+				return environment;
 			}
 		}
-
-		if (i == -1) {
-			stack.peek().storeVariable(name, value);
-		} else {
-			stack.get(i).storeVariable(name, value);
+		
+		// then look through the imported modules
+		for (String module : getImportedModules()) {
+			Environment env = getModule(module);
+			
+			if (env.getFunction(name, formals) != null) {
+				return env;
+			}
 		}
+		
+		return getRootEnvironment();
+	}
+	
+	private Environment getVariableDefiningEnvironment(String name) {
+		int i;
+		
+		// first look on the scope stack
+		for (i = stack.size() - 1; i >= 0; i--) {
+			Environment environment = stack.get(i);
+			
+            if (environment.getVariable(name) != null) {
+            	return environment;
+            }
+		}
+		
+		// then look through the imported modules
+		for (String module : getImportedModules()) {
+			Environment env = getModule(module);
+			
+			if (env.getVariable(name) != null) {
+				return env;
+			}
+		}
+		
+		return getRootEnvironment();
 	}
 
+	private Environment getRootEnvironment() {
+		int i;
+		for (i = stack.size() - 1; i >= 0 && !stack.get(i).isRootEnvironment(); i--);
+		
+		if (i == -1) {
+			return stack.get(0);
+		}
+		else {
+			return stack.get(i);
+		}
+	}
+	
+	@Override
+	public Set<String> getImportedModules() {
+		return getRootEnvironment().getImportedModules();
+	}
+	
 	@Override
 	public void storeRule(Type forType, Rule rule) {
 		stack.get(0).storeRule(forType, rule);
@@ -128,6 +135,8 @@ import org.meta_environment.rascal.ast.Rule;
 	
 	@Override
 	public void addModule(ModuleEnvironment m) {
+		Environment env = getRootEnvironment();
+		env.addModule(m);
 		stack.get(0).addModule(m);
 	}
 

@@ -1,9 +1,11 @@
 package org.meta_environment.rascal.interpreter;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.type.TupleType;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -14,6 +16,7 @@ import org.meta_environment.rascal.ast.Rule;
 	protected final Map<String, EvalResult> variableEnvironment;
 	protected final Map<String, List<FunctionDeclaration>> functionEnvironment;
 	protected final Map<String, ModuleEnvironment> moduleEnvironment;
+	protected final Set<String> importedModules;
 	protected final Map<String, ModuleVisibility> nameVisibility;
 	protected final Map<Type, List<Rule>> ruleEnvironment;
 	protected final TypeEvaluator types = new TypeEvaluator();
@@ -24,6 +27,7 @@ import org.meta_environment.rascal.ast.Rule;
 		this.moduleEnvironment = new HashMap<String, ModuleEnvironment>();
 		this.nameVisibility = new HashMap<String, ModuleVisibility>();
 		this.ruleEnvironment = new HashMap<Type, List<Rule>>();
+		this.importedModules = new HashSet<String>();
 	}
 	
 	public void setVisibility(String name, ModuleVisibility v) {
@@ -68,8 +72,13 @@ import org.meta_environment.rascal.ast.Rule;
 		return null;
 	}
 	
+	public Set<String> getImportedModules() {
+		return importedModules;
+	}
+	
 	public void addModule(ModuleEnvironment m) {
 		moduleEnvironment.put(m.getName(), m);
+		importedModules.add(m.getName());
 	}
 	
 	public ModuleEnvironment getModule(String name) {
@@ -94,10 +103,16 @@ import org.meta_environment.rascal.ast.Rule;
 	
 	public void storeVariable(String name, EvalResult value) {
 		variableEnvironment.put(name, value);
-		System.err.println("put(" + name + ", " + value + ")");
 	}
 	
 	public void storeFunction(String name, FunctionDeclaration function) {
+		TupleType formals = (TupleType) function.getSignature().getParameters().accept(types);
+		FunctionDeclaration definedEarlier = getFunction(name, formals);
+		
+		if (definedEarlier != null) {
+			throw new RascalTypeError("Illegal redeclaration of function: " + definedEarlier + "\n overlaps with new function: " + function);
+		}
+		
 		List<FunctionDeclaration> list = functionEnvironment.get(name);
 		if (list == null) {
 			list = new LinkedList<FunctionDeclaration>();
