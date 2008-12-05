@@ -7,7 +7,7 @@ public double java arb()
   return values.dubble(Math.random());
 }
 
-public double java toInteger(double d)
+public int java toInteger(double d)
 @doc{toInteger a double value integer.}
 {
   return d.floor();

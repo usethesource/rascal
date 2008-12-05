@@ -57,6 +57,7 @@ import org.meta_environment.rascal.ast.ValueProducer;
 import org.meta_environment.rascal.ast.Variant;
 import org.meta_environment.rascal.ast.Assignable.Constructor;
 import org.meta_environment.rascal.ast.Assignable.FieldAccess;
+import org.meta_environment.rascal.ast.Command.Import;
 import org.meta_environment.rascal.ast.Declaration.Annotation;
 import org.meta_environment.rascal.ast.Declaration.Data;
 import org.meta_environment.rascal.ast.Declaration.Function;
@@ -169,12 +170,12 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		throw new RascalTypeError(s + " not yet implemented");
 	}
 
-	public IValue eval(Statement S) {
-		EvalResult r = S.accept(this);
+	public IValue eval(Statement stat) {
+		EvalResult r = stat.accept(this);
         if(r != null){
         	return r.value;
         } else {
-        	throw new RascalTypeError("Not yet implemented: " + S.getTree());
+        	throw new RascalTypeError("Not yet implemented: " + stat.getTree());
         }
 	}
 	
@@ -186,6 +187,16 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
         	throw new RascalBug("Not yet implemented: " + declaration.getTree());
         }
 	}
+	
+	public IValue eval(org.meta_environment.rascal.ast.Import imp) {
+		EvalResult r = imp.accept(this);
+        if(r != null){
+        	return r.value;
+        } else {
+        	throw new RascalBug("Not yet implemented: " + imp.getTree());
+        }
+	}
+	
 	
 	// Ambiguity ...................................................
 	
@@ -2102,4 +2113,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	public EvalResult visitExpressionRegExpNoMatch(RegExpNoMatch x) {
 		return result(vf.bool(!regExpMatch(x.getLhs().accept(this), x.getRhs())));
 	}
+
+	
 }
