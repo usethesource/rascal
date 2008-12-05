@@ -20,12 +20,19 @@ public bool java endsWith(str s, str suffix)
   return values.bool(s.getValue().endsWith(suffix.getValue()));
 }
 
-// public str java reverse(str s)
-// @doc{reverse returns string with all characters in s in reverse order.}
-// @java-imports{import java.lang.String;}
-// {
-//  return values.string(s.getValue().reverse());
-//}
+public str java reverse(str s)
+@doc{reverse returns string with all characters in s in reverse order.}
+@java-imports{import java.lang.String;}
+{
+   String sval = s.getValue();
+   char [] chars = new char[sval.length()];
+   int n = sval.length();
+
+   for(int i = 0; i < n; i++){
+     chars[n - i  - 1] = sval.charAt(i);
+   }
+   return values.string(new String(chars));
+}
 
 public int java size(str s)
 @doc{size returns the length of string s.}
@@ -47,7 +54,7 @@ public str java toLowerCase(str s)
   return values.string(s.getValue().toLowerCase());
 }
 
-public int java toUpperCase(str s)
+public str java toUpperCase(str s)
 @java-imports{import java.lang.String;}
 {
   return values.string(s.getValue().toUpperCase());

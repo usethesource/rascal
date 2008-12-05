@@ -92,6 +92,7 @@ public class StandardLibraryTests extends TestCase {
 		//assertTrue(runTest("Integer", "toString(314) == \"314\";"));
 		
 	}
+	
 	public void testDouble() throws IOException {
 		assertTrue(runTest("Double", "{double D = Double::arb(); (D >= 0.0) && (D <= 1.0);};"));
 		//assertTrue(runTest("Double", "{double D = arb(10); (D >= 0.0) && (D <= 1.0);};"));
@@ -104,4 +105,42 @@ public class StandardLibraryTests extends TestCase {
 		//assertTrue(runTest("Double", "toString(3.14) == \"3.14\";"));
 		
 	}
+	
+	public void testString() throws IOException {
+		assertTrue(runTest("String", "String::charAt(\"abc\", 0) == 97;"));
+		assertTrue(runTest("String", "String::charAt(\"abc\", 1) == 98;"));
+		assertTrue(runTest("String", "String::charAt(\"abc\", 2) == 99;"));
+		//assertTrue(runTest("String", "charAt(\"abc\", 0) == 97;"));
+		
+		assertTrue(runTest("String", "String::endsWith(\"abc\", \"abc\");"));
+		//assertTrue(runTest("String", "endsWith(\"abc\", \"abc\");"));
+		assertTrue(runTest("String", "String::endsWith(\"abcdef\", \"def\");"));
+		assertFalse(runTest("String", "String::endsWith(\"abcdef\", \"abc\");"));
+		
+		assertTrue(runTest("String", "String::reverse(\"\") == \"\";"));
+		//assertTrue(runTest("String", "reverse(\"\") == \"\";"));
+		assertTrue(runTest("String", "String::reverse(\"abc\") == \"cba\";"));
+		
+		assertTrue(runTest("String", "String::size(\"\") == 0;"));
+		//assertTrue(runTest("String", "size(\"\") == 0;"));
+		assertTrue(runTest("String", "String::size(\"abc\") == 3;"));
+		
+		assertTrue(runTest("String", "String::startsWith(\"abc\", \"abc\");"));
+		//assertTrue(runTest("String", "startsWith(\"abc\", \"abc\");"));
+		assertTrue(runTest("String", "String::startsWith(\"abcdef\", \"abc\");"));
+		assertFalse(runTest("String", "String::startsWith(\"abcdef\", \"def\");"));
+		
+		assertTrue(runTest("String", "String::toLowerCase(\"\") == \"\";"));
+		//assertTrue(runTest("String", "toLowerCase(\"\") ==  \"\";"));
+		assertTrue(runTest("String", "String::toLowerCase(\"ABC\") == \"abc\";"));
+		assertTrue(runTest("String", "String::toLowerCase(\"ABC123\") == \"abc123\";"));
+		
+		assertTrue(runTest("String", "String::toUpperCase(\"\") == \"\";"));
+		//assertTrue(runTest("String", "toUpperCase(\"\") == \"\";"));
+		assertTrue(runTest("String", "String::toUpperCase(\"abc\") == \"ABC\";"));
+		assertTrue(runTest("String", "String::toUpperCase(\"abc123\") == \"ABC123\";"));
+		
+	}
+	
+	
 }
