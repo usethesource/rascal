@@ -2,10 +2,9 @@ module List
 
 // TODO: public &T java arb(list[&T] l)
 public value java arb(list[value] l)
-@java-imports{import java.lang.Math;}
+@java-imports{import java.util.Random;}
 {
-   double rnd = l.length() * Math.random();
-   return l.get(values.dubble(rnd).floor().getValue());
+   return l.get(new Random().nextInt(l.length()));
 }
 
 // TODO: public &T average(list[&T] l, &T zero)
