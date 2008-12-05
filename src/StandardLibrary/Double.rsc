@@ -7,6 +7,16 @@ public double java arb()
   return values.dubble(new Random().nextDouble());
 }
 
+public double max(double n, double m)
+{
+	return n > m ? n : m;
+}
+
+public double min(double n, double m)
+{
+	return n < m ? n : m;
+}
+
 public int java toInteger(double d)
 @doc{toInteger a double value integer.}
 {

@@ -29,32 +29,24 @@ public value java arb(set[value] s)
 //  return {F(E) | &T E : S};
 //}
 
-//public &T min(set[&T] S)
-//  @doc{Minimum of a set}
-//{
-//  &T result = arb(S);
-//  for(&T E : S){
-//    result = min(result, E);
- // }
- // return result;
-//}
 
-//public &T max(set[&T] R)
-//  @doc{Maximum of a set}
-//{
-//  &T result = arb(R);
-//  for(&T E : R){
-//    result = max(result, E);
-//  }
-//  return result;
-//}
+//TODO: public &T max(set[&T] R)
+public value max(set[value] R)
+  @doc{Maximum of a set}
+{
+  value result = arb(R);
+  for(value E : R){
+    result = max(result, E);
+  }
+  return result;
+}
 
 // TODO: public &T min(set[&T] S)
 public value min(set[value] S)
 {
   value result = arb(S);
   for(value e : S){
-   if(less(e, result)){
+   if(e < result)){
       result = min(result, e);
    }
   }

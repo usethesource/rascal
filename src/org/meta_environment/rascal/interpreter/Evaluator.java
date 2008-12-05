@@ -1438,7 +1438,10 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 	private boolean equals(EvalResult left, EvalResult right){
 		if (left.type.isSubtypeOf(right.type)
-				|| right.type.isSubtypeOf(left.type)) {
+				|| right.type.isSubtypeOf(left.type)
+				|| left.type.isValueType()                   //TODO: is this necessary?
+				|| right.type.isValueType()
+		) {
 			return left.value.equals(right.value);
 		} else {
 			throw new RascalTypeError(
@@ -1466,6 +1469,9 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	}
 	
 	private int compare(EvalResult left, EvalResult right){
+		if(left.type.isValueType()){
+			
+		}
 		if (left.type.isIntegerType() && right.type.isIntegerType()) {
 			return ((IInteger) left.value).compare((IInteger) right.value);
 		} else if (left.type.isDoubleType() && right.type.isDoubleType()) {

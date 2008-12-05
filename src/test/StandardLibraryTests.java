@@ -95,6 +95,18 @@ public class StandardLibraryTests extends TestCase {
 		assertTrue(runTest("Integer", "{int N = Integer::arb(10); (N >= 0) && (N < 10);};"));
 		assertTrue(runTest("Integer", "{int N = arb(10); (N >= 0) && (N < 10);};"));
 		
+		// max
+		
+		assertTrue(runTest("Integer", "Integer::max(3, 10) == 10;"));
+		assertTrue(runTest("Integer", "max(3, 10) == 10;"));
+		assertTrue(runTest("Integer", "Integer::max(10, 10) == 10;"));
+		
+		// min
+		
+		assertTrue(runTest("Integer", "Integer::min(3, 10) == 1;"));
+		assertTrue(runTest("Integer", "min(3, 10) == 13;"));
+		assertTrue(runTest("Integer", "Integer::min(10, 10) == 10;"));
+		
 		//toDouble
 		
 		assertTrue(runTest("Integer", "Integer::toDouble(3) == 3.0;"));
@@ -113,6 +125,18 @@ public class StandardLibraryTests extends TestCase {
 		
 		assertTrue(runTest("Double", "{double D = Double::arb(); (D >= 0.0) && (D <= 1.0);};"));
 		//assertTrue(runTest("Double", "{double D = arb(10); (D >= 0.0) && (D <= 1.0);};"));
+		
+		// max
+		
+		assertTrue(runTest("Double", "Double::max(3.0, 10.0) == 10.0;"));
+		assertTrue(runTest("Double", "max(3.0, 10.0) == 10.0;"));
+		assertTrue(runTest("Double", "Double::max(10.0, 10.0) == 10.0;"));
+		
+		// min
+		
+		assertTrue(runTest("Double", "Double::min(3.0, 10.0) == 3.0;"));
+		assertTrue(runTest("Double", "min(3.0, 10.0) == 3.0;"));
+		assertTrue(runTest("Double", "Double::min(10.0, 10.0) == 10.0;"));
 		
 		//toInteger
 		
@@ -177,13 +201,18 @@ public class StandardLibraryTests extends TestCase {
 	}
 	
 	public void testList() throws IOException {
+		
 		// TODO: Replace value N by int N;
+		
+		//arb
+		
 		assertTrue(runTest("List", "{value N = List::arb([1]); N == 1;};"));
-		//assertTrue(runTest("List", "{value N = arb([1]); N == 1;};"));
+		assertTrue(runTest("List", "{value N = arb([1]); N == 1;};"));
 		assertTrue(runTest("List", "{value N = List::arb([1,2]); (N == 1) || (N == 2);};"));
 		assertTrue(runTest("List", "{value N = List::arb([1,2,3]); (N == 1) || (N == 2) || (N == 3);};"));
 		
 		//average
+		
 		//assertTrue(runTest("List", "{value N = List::average([]); N == 0;};"));
 		//assertTrue(runTest("List", "{value N = average([]); N == 0;};"));
 		//assertTrue(runTest("List", "{value N = List::average([1]); N == 1;};"));
@@ -191,7 +220,7 @@ public class StandardLibraryTests extends TestCase {
 		//first
 		
 		assertTrue(runTest("List", "{List::first([1]) == 1;};"));
-		//assertTrue(runTest("List", "{first([1]) == 1;};"));
+		assertTrue(runTest("List", "{first([1]) == 1;};"));
 		assertTrue(runTest("List", "{List::first([1, 2]) == 1;};"));
 		
 		//mapper
@@ -213,25 +242,26 @@ public class StandardLibraryTests extends TestCase {
 		//rest
 		
 		assertTrue(runTest("List", "{List::rest([1]) == [];};"));
-		//assertTrue(runTest("List", "{rest([1]) == [];};"));
+		assertTrue(runTest("List", "{rest([1]) == [];};"));
 		assertTrue(runTest("List", "{List::rest([1, 2]) == [2];};"));
 		
 		//reverse
 		assertTrue(runTest("List", "{List::reverse([]) == [];};"));
-		//assertTrue(runTest("List", "{reverse([]) == [];};"));
+		assertTrue(runTest("List", "{reverse([]) == [];};"));
 		assertTrue(runTest("List", "{List::reverse([1]) == [1];};"));
 		assertTrue(runTest("List", "{List::reverse([1,2,3]) == [3,2,1];};"));
 		
 		//size
 		
 		assertTrue(runTest("List", "{List::size([]) == 0;};"));
-		//assertTrue(runTest("List", "{size([]) == 0;};"));
+		assertTrue(runTest("List", "{size([]) == 0;};"));
 		assertTrue(runTest("List", "{List::size([1]) == 1;};"));
 		assertTrue(runTest("List", "{List::size([1,2,3]) == 3;};"));
 		
 		//sort
 		
 		//sum
+		
 		//assertTrue(runTest("List", "{List::sum([], 0) == 0;};"));
 		//assertTrue(runTest("List", "{List::sum([], 0) == 0;};"));
 		//assertTrue(runTest("List", "{List::sum([1], 0) == 1;};"));
@@ -243,18 +273,20 @@ public class StandardLibraryTests extends TestCase {
 		//toSet
 		
 		assertTrue(runTest("List", "{List::toSet([]) == {};};"));
-		//assertTrue(runTest("List", "{toSet([]) == {};};"));
+		assertTrue(runTest("List", "{toSet([]) == {};};"));
 		assertTrue(runTest("List", "{List::toSet([1]) == {1};};"));
 		assertTrue(runTest("List", "{List::toSet([1, 2, 1]) == {1, 2};};"));
 		
 		//toMap
+		
 		//assertTrue(runTest("List", "{List::toMap([]) == ();};"));
 		//assertTrue(runTest("List", "{toMap([]) == ();};"));
 		assertTrue(runTest("List", "{List::toMap([<1,10>, <2,20>]) == (1:10, 2:20);};"));
 		
 		//toString
+		
 		assertTrue(runTest("List", "{List::toString([]) == \"[]\";};"));
-		//assertTrue(runTest("List", "{toString([]) == \"[]\";};"));
+		assertTrue(runTest("List", "{toString([]) == \"[]\";};"));
 		assertTrue(runTest("List", "{List::toString([1]) == \"[1]\";};"));
 		assertTrue(runTest("List", "{List::toString([1, 2]) == \"[1,2]\";};"));
 		
@@ -275,7 +307,7 @@ public class StandardLibraryTests extends TestCase {
 		
 		//min
 		
-		//assertTrue(runTest("Set", "{Set::min({1, 2, 3, 2, 1}) == 1;};"));
+		assertTrue(runTest("Set", "{Set::min({1, 2, 3, 2, 1}) == 1;};"));
 		//assertTrue(runTest("Set", "{min({1, 2, 3, 2, 1}) == 1;};"));
 
 		
@@ -288,7 +320,7 @@ public class StandardLibraryTests extends TestCase {
 		//size
 		
 		assertTrue(runTest("Set", "Set::size({}) == 0;"));
-		//assertTrue(runTest("Set", "size({}) == 0;"));
+		assertTrue(runTest("Set", "size({}) == 0;"));
 		assertTrue(runTest("Set", "Set::size({1}) == 1;"));
 		assertTrue(runTest("Set", "Set::size({1,2,3}) == 3;"));
 		
@@ -296,10 +328,10 @@ public class StandardLibraryTests extends TestCase {
 		
 		//toList
 		
-		//assertTrue(runTest("Set", "{Set::toList({}) == [];};"));
-		//assertTrue(runTest("Set", "{toList({}) == [];};"));
-		//assertTrue(runTest("Set", "{Set::toList({1}) == [1];};"));
-		//assertTrue(runTest("Set", "{Set::toList({1, 2, 1}) == [1, 2];};"));
+		assertTrue(runTest("Set", "{Set::toList({}) == [];};"));
+		assertTrue(runTest("Set", "{toList({}) == [];};"));
+		assertTrue(runTest("Set", "{Set::toList({1}) == [1];};"));
+		assertTrue(runTest("Set", "{Set::toList({1, 2, 1}) == [1, 2];};"));
 		
 		
 		//toMap
@@ -312,13 +344,6 @@ public class StandardLibraryTests extends TestCase {
 		assertTrue(runTest("Set", "toString({}) == \"{}\";"));
 		assertTrue(runTest("Set", "Set::toString({1}) == \"{1}\";"));
 		assertTrue(runTest("Set", "Set::toString({1, 2, 3}) == \"{1,2,3}\";"));
-		
-		
-		
-		
-		
-		
-		
 		
 	}
 }
