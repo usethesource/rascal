@@ -1,10 +1,10 @@
 module Double
 
 public double java arb()
-@java-imports{import java.lang.Math;}
+@java-imports{import java.util.Random;}
 @doc{arb returns an arbitrary double value in the interval [0.0,1.0).}
 {
-  return values.dubble(Math.random());
+  return values.dubble(new Random().nextDouble());
 }
 
 public int java toInteger(double d)

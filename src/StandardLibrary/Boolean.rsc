@@ -1,11 +1,9 @@
-
 module Boolean
 
 public bool java arb()
-@java-imports{import java.lang.Math;}
 @doc{arb returns an arbitrary boolean value.}
 {
-  return values.bool(Math.random() > 0.5);
+  return values.bool(random.nextInt(2) == 1);
 }
 
 public int java toInt(bool b)

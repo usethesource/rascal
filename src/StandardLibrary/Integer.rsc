@@ -2,10 +2,8 @@ module Integer
 
 public int java arb(int limit)
 @doc{arb returns an arbitrary integer value in the interval [0, limit).}
-@java-imports{import java.lang.Math;}
 {
-   IDouble rnd = values.dubble(Math.random() * limit.getValue());
-   return rnd.floor();
+   return values.integer(random.nextInt(limit.getValue()));
 }
 
 public double java toDouble(int n)
