@@ -133,7 +133,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	final TypeFactory tf = TypeFactory.getInstance();
 	private final TypeEvaluator te = new TypeEvaluator();
 	private final RegExpEvaluator re = new RegExpEvaluator();
-	private final EnvironmentStack env = new EnvironmentStack();
+	private final GlobalEnvironment env = new GlobalEnvironment();
 	private final ASTFactory af;
 	private final JavaFunctionCaller javaFunctionCaller;
 
@@ -259,9 +259,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	public EvalResult visitModuleDefault(
 			org.meta_environment.rascal.ast.Module.Default x) {
 		String name = x.getHeader().getName().toString();
-		ModuleEnvironment module = new ModuleEnvironment(name);
 		
-		env.addModule(module);
+		env.addModule(name);
 		env.pushModule(name);
 		
 		java.util.List<Toplevel> decls = x.getBody().getToplevels();
