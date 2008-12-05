@@ -20,6 +20,10 @@ public class EnvironmentStack extends Environment {
 	public void push() {
 		stack.push(new Environment());
 	}
+	
+	public void push(Environment e) {
+		stack.push(e);
+	}
 
 	protected ModuleEnvironment getGlobalEnvironment() {
 		return (ModuleEnvironment) stack.get(0);
@@ -32,7 +36,7 @@ public class EnvironmentStack extends Environment {
 	public void pushModule(String name) {
 		stack.push(getGlobalEnvironment().getModule(name));
 	}
-
+	
 	@Override
 	protected FunctionDeclaration getFunction(String name, TupleType actuals) {
 		Environment env =  getFunctionDefiningEnvironment(name, actuals);

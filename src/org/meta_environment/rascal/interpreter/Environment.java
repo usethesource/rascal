@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.type.TupleType;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.Name;
 
@@ -17,6 +18,7 @@ import org.meta_environment.rascal.ast.Name;
 public class Environment {
 	protected final Map<String, EvalResult> variableEnvironment;
 	protected final Map<String, List<FunctionDeclaration>> functionEnvironment;
+	protected final Map<String, Type> typeEnvironment;
 	
 	
 	protected final TypeEvaluator types = new TypeEvaluator();
@@ -24,6 +26,7 @@ public class Environment {
 	public Environment() {
 		this.variableEnvironment = new HashMap<String, EvalResult>();
 		this.functionEnvironment = new HashMap<String, List<FunctionDeclaration>>();
+		this.typeEnvironment = new HashMap<String, Type>();
 	}
 	
 	protected FunctionDeclaration getFunction(String name, TupleType actuals) {
@@ -48,6 +51,14 @@ public class Environment {
 	
 	public EvalResult getVariable(Name name) {
 		return getVariable(name.toString());
+	}
+	
+	protected void storeType(String name, Type type) {
+		typeEnvironment.put(name, type);
+	}
+	
+	protected Type getType(String name) {
+		return typeEnvironment.get(name);
 	}
 	
 	protected void storeVariable(String name, EvalResult value) {

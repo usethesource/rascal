@@ -28,6 +28,12 @@ import org.eclipse.imp.pdb.facts.type.TupleType;
 		return true;
 	}
 	
+	@Override
+	public void addModule(String name) {
+		importedModules.add(name);
+		super.addModule(name);
+	}
+	
 	public void setVisibility(String name, ModuleVisibility v) {
 		nameVisibility.put(name, v);
 	}
@@ -47,15 +53,18 @@ import org.eclipse.imp.pdb.facts.type.TupleType;
 		
 		if (env.isGlobalEnvironment()) {
 			for (String module : getImportedModules()) {
-				env = getModule(module);
+				Environment mod = getModule(module);
 
-				if (env.getFunction(name, formals) != null) {
-					return env;
+				if (mod.getFunction(name, formals) != null) {
+					return mod;
 				}
 			}
+			
+			return getGlobalEnvironment();
 		}
-		
-		return getGlobalEnvironment();
+		else {
+			return env;
+		}
 	}
 	
 	protected Environment getVariableDefiningEnvironment(String name) {
@@ -66,11 +75,14 @@ import org.eclipse.imp.pdb.facts.type.TupleType;
 				ModuleEnvironment mod = getModule(module);
 
 				if (mod.getVariable(name) != null) {
-					return env;
+					return mod;
 				}
 			}
+			
+			return getGlobalEnvironment();
 		}
-		
-		return getGlobalEnvironment();
+		else {
+			return env;
+		}
 	}
 }

@@ -44,6 +44,7 @@ public class GlobalEnvironment extends ModuleEnvironment {
 	
 	public void addModule(String name) {
 		moduleEnvironment.put(name, new ModuleEnvironment(name));
+		importedModules.add(name);
 	}
 	
 	public ModuleEnvironment getModule(String name) {
@@ -84,13 +85,14 @@ public class GlobalEnvironment extends ModuleEnvironment {
 		return tmp.toString();
 	}
 	
-	private String getName(QualifiedName name) {
-		return name.getNames().get(0).toString();
+	public String getLocalName(QualifiedName name) {
+		List<Name> names = name.getNames();
+		return names.get(names.size() - 1).toString();
 	}
 	
 	public EvalResult getVariable(QualifiedName name) {
 		String module = getModuleName(name);
-		String variable = getName(name);
+		String variable = getLocalName(name);
 		
 		if (module.equals("")) {
 			return getVariable(variable);
@@ -102,7 +104,7 @@ public class GlobalEnvironment extends ModuleEnvironment {
 	
 	public FunctionDeclaration getFunction(QualifiedName name, TupleType actuals) {
 		String module = getModuleName(name);
-		String function = getName(name);
+		String function = getLocalName(name);
 		
 		if (module.equals("")) {
 			return getFunction(function, actuals);
@@ -112,9 +114,14 @@ public class GlobalEnvironment extends ModuleEnvironment {
 		}
 	}
 	
+	public ModuleEnvironment getModuleFor(QualifiedName name) {
+		ModuleEnvironment mod = getModule(getModuleName(name));
+		return mod != null ? mod : this;
+	}
+	
 	public void storeVariable(QualifiedName name, EvalResult value) {
 		String module = getModuleName(name);
-		String var = getName(name);
+		String var = getLocalName(name);
 		
 		if (module.equals("")) {
 			storeVariable(var, value);
@@ -130,7 +137,7 @@ public class GlobalEnvironment extends ModuleEnvironment {
 	
 	public void storeFunction(QualifiedName name, FunctionDeclaration function) {
 		String module = getModuleName(name);
-		String func = getName(name);
+		String func = getLocalName(name);
 		
 		if (module.equals("")) {
 			storeFunction(func, function);
