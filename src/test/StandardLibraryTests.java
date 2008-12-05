@@ -61,31 +61,31 @@ public class StandardLibraryTests extends TestCase {
 		//arb
 		
 		assertTrue(runTest("Boolean", "{bool B = Boolean::arb(); (B == true) || (B == false);};"));
-		//assertTrue(runTest("Boolean", "{bool B = arb(); (B == true) || (B == false);};"));
+		assertTrue(runTest("Boolean", "{bool B = arb(); (B == true) || (B == false);};"));
 		
 		//toInt
 		
 		assertTrue(runTest("Boolean", "Boolean::toInt(false) == 0;"));
 		assertTrue(runTest("Boolean", "Boolean::toInt(true) == 1;"));
 		
-		//assertTrue(runTest("Boolean", "toInt(false) == 0;"));
-		//assertTrue(runTest("Boolean", "toInt(true) == 1;"));
+		assertTrue(runTest("Boolean", "toInt(false) == 0;"));
+		assertTrue(runTest("Boolean", "toInt(true) == 1;"));
 		
 		//toDouble
 		
 		assertTrue(runTest("Boolean", "Boolean::toDouble(false) == 0.0;"));
 		assertTrue(runTest("Boolean", "Boolean::toDouble(true) == 1.0;"));
 		
-		//assertTrue(runTest("Boolean", "toDouble(false) == 0.0;"));
-		//assertTrue(runTest("Boolean", "toDouble(true) == 1.0;"));
+		assertTrue(runTest("Boolean", "toDouble(false) == 0.0;"));
+		assertTrue(runTest("Boolean", "toDouble(true) == 1.0;"));
 		
 		//toString
 		
 		assertTrue(runTest("Boolean", "Boolean::toString(false) == \"false\";"));
 		assertTrue(runTest("Boolean", "Boolean::toString(true) == \"true\";"));
 		
-		//assertTrue(runTest("Boolean", "toString(false) == \"false\";"));
-		//assertTrue(runTest("Boolean", "toString(true) == \"true\";"));
+		assertTrue(runTest("Boolean", "toString(false) == \"false\";"));
+		assertTrue(runTest("Boolean", "toString(true) == \"true\";"));
 	}
 	
 	public void testInteger() throws IOException {
@@ -93,17 +93,17 @@ public class StandardLibraryTests extends TestCase {
 		//arb
 		
 		assertTrue(runTest("Integer", "{int N = Integer::arb(10); (N >= 0) && (N < 10);};"));
-		//assertTrue(runTest("Integer", "{int N = arb(10); (N >= 0) && (N < 10);};"));
+		assertTrue(runTest("Integer", "{int N = arb(10); (N >= 0) && (N < 10);};"));
 		
 		//toDouble
 		
 		assertTrue(runTest("Integer", "Integer::toDouble(3) == 3.0;"));
-		//assertTrue(runTest("Integer", "toDouble(3) == 3.0;"));
+		assertTrue(runTest("Integer", "toDouble(3) == 3.0;"));
 		
 		//toString
 		
 		assertTrue(runTest("Integer", "Integer::toString(314) == \"314\";"));
-		//assertTrue(runTest("Integer", "toString(314) == \"314\";"));
+		assertTrue(runTest("Integer", "toString(314) == \"314\";"));
 		
 	}
 	
@@ -117,12 +117,12 @@ public class StandardLibraryTests extends TestCase {
 		//toInteger
 		
 		assertTrue(runTest("Double", "Double::toInteger(3.14) == 3;"));
-		//assertTrue(runTest("Double", "toInteger(3.14) == 3;"));
+		assertTrue(runTest("Double", "toInteger(3.14) == 3;"));
 		
 		//toString
 		
 		assertTrue(runTest("Double", "Double::toString(3.14) == \"3.14\";"));
-		//assertTrue(runTest("Double", "toString(3.14) == \"3.14\";"));
+		assertTrue(runTest("Double", "toString(3.14) == \"3.14\";"));
 		
 	}
 	
@@ -133,45 +133,45 @@ public class StandardLibraryTests extends TestCase {
 		assertTrue(runTest("String", "String::charAt(\"abc\", 0) == 97;"));
 		assertTrue(runTest("String", "String::charAt(\"abc\", 1) == 98;"));
 		assertTrue(runTest("String", "String::charAt(\"abc\", 2) == 99;"));
-		//assertTrue(runTest("String", "charAt(\"abc\", 0) == 97;"));
+		assertTrue(runTest("String", "charAt(\"abc\", 0) == 97;"));
 		
 		//endsWith
 		
 		assertTrue(runTest("String", "String::endsWith(\"abc\", \"abc\");"));
-		//assertTrue(runTest("String", "endsWith(\"abc\", \"abc\");"));
+		assertTrue(runTest("String", "endsWith(\"abc\", \"abc\");"));
 		assertTrue(runTest("String", "String::endsWith(\"abcdef\", \"def\");"));
 		assertFalse(runTest("String", "String::endsWith(\"abcdef\", \"abc\");"));
 		
 		//reverse
 		
 		assertTrue(runTest("String", "String::reverse(\"\") == \"\";"));
-		//assertTrue(runTest("String", "reverse(\"\") == \"\";"));
+		assertTrue(runTest("String", "reverse(\"\") == \"\";"));
 		assertTrue(runTest("String", "String::reverse(\"abc\") == \"cba\";"));
 		
 		//size
 		
 		assertTrue(runTest("String", "String::size(\"\") == 0;"));
-		//assertTrue(runTest("String", "size(\"\") == 0;"));
+		assertTrue(runTest("String", "size(\"\") == 0;"));
 		assertTrue(runTest("String", "String::size(\"abc\") == 3;"));
 		
 		//startsWith
 		
 		assertTrue(runTest("String", "String::startsWith(\"abc\", \"abc\");"));
-		//assertTrue(runTest("String", "startsWith(\"abc\", \"abc\");"));
+		assertTrue(runTest("String", "startsWith(\"abc\", \"abc\");"));
 		assertTrue(runTest("String", "String::startsWith(\"abcdef\", \"abc\");"));
 		assertFalse(runTest("String", "String::startsWith(\"abcdef\", \"def\");"));
 		
 		//toLowerCase
 		
 		assertTrue(runTest("String", "String::toLowerCase(\"\") == \"\";"));
-		//assertTrue(runTest("String", "toLowerCase(\"\") ==  \"\";"));
+		assertTrue(runTest("String", "toLowerCase(\"\") ==  \"\";"));
 		assertTrue(runTest("String", "String::toLowerCase(\"ABC\") == \"abc\";"));
 		assertTrue(runTest("String", "String::toLowerCase(\"ABC123\") == \"abc123\";"));
 		
 		//toUpperCase
 		
 		assertTrue(runTest("String", "String::toUpperCase(\"\") == \"\";"));
-		//assertTrue(runTest("String", "toUpperCase(\"\") == \"\";"));
+		assertTrue(runTest("String", "toUpperCase(\"\") == \"\";"));
 		assertTrue(runTest("String", "String::toUpperCase(\"abc\") == \"ABC\";"));
 		assertTrue(runTest("String", "String::toUpperCase(\"abc123\") == \"ABC123\";"));
 	}
@@ -265,7 +265,7 @@ public class StandardLibraryTests extends TestCase {
 		//arb
 		
 		assertTrue(runTest("Set", "{value N = Set::arb({1}); N == 1;};"));
-		//assertTrue(runTest("Set", "{value N = arb({1}); N == 1;};"));
+		assertTrue(runTest("Set", "{value N = arb({1}); N == 1;};"));
 		assertTrue(runTest("Set", "{value N = Set::arb({1, 2}); (N == 1) || (N == 2);};"));
 		assertTrue(runTest("Set", "{value N = Set::arb({1, 2, 3}); (N == 1) || (N == 2) || (N == 3);};"));
 		
@@ -298,8 +298,8 @@ public class StandardLibraryTests extends TestCase {
 		
 		//assertTrue(runTest("Set", "{Set::toList({}) == [];};"));
 		//assertTrue(runTest("Set", "{toList({}) == [];};"));
-		assertTrue(runTest("Set", "{Set::toList({1}) == [1];};"));
-		assertTrue(runTest("Set", "{Set::toList({1, 2, 1}) == [1, 2];};"));
+		//assertTrue(runTest("Set", "{Set::toList({1}) == [1];};"));
+		//assertTrue(runTest("Set", "{Set::toList({1, 2, 1}) == [1, 2];};"));
 		
 		
 		//toMap
@@ -309,7 +309,7 @@ public class StandardLibraryTests extends TestCase {
 		//toString
 		
 		assertTrue(runTest("Set", "Set::toString({}) == \"{}\";"));
-		//assertTrue(runTest("Set", "toString({}) == \"{}\";"));
+		assertTrue(runTest("Set", "toString({}) == \"{}\";"));
 		assertTrue(runTest("Set", "Set::toString({1}) == \"{1}\";"));
 		assertTrue(runTest("Set", "Set::toString({1, 2, 3}) == \"{1,2,3}\";"));
 		

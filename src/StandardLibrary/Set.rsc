@@ -2,10 +2,10 @@ module Set
 
 //TODO: public &T arb(set[&T] S)
 public value java arb(set[value] s)
-@java-imports{import java.util.Random; import java.util.Iterator;}
+@java-imports{import java.util.Iterator;}
 {
    int i = 0;
-   int k = new Random().nextInt(s.size());
+   int k = random.nextInt(s.size());
    Iterator iter = s.iterator();
   
    while(iter.hasNext()){
