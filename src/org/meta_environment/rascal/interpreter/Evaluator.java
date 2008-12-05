@@ -470,48 +470,19 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		 }
 		 
 		 TupleType actualTypes = tf.tupleType(types);
-		 java.util.List<Name> names = x.getQualifiedName().getNames();
 		 
-		 String functionName = names.get(0).toString();
+		 QualifiedName name = x.getQualifiedName();
+		 FunctionDeclaration func = env.getFunction(name, actualTypes);
 		 
-		if (names.size() == 1) {
-			FunctionDeclaration functionDeclaration = env.getFunction(functionName, actualTypes);
-			
-			if (functionDeclaration != null) {
-			  return call(functionDeclaration, actuals);
-			}
-			else {
-				return constructTree(functionName, actuals);
-			}
-		 }
-		 else if (names.size() == 2) {
-			 String modulename = functionName;
-			 String name = names.get(1).toString();
-			 ModuleEnvironment module = env.getModule(modulename);
-			 
-			 if (module == null) {
-				 throw new RascalTypeError("Unknown module " + modulename);
-			 }
-			 
-			 FunctionDeclaration functionDeclaration = module.getFunction(name, actualTypes);
-			 
-			 if (functionDeclaration == null) {
-				 // TODO: add support for qualified trees
-				 throw new RascalTypeError("Function " + name + " not found in module " + modulename);
-			 }
-			 env.pushModule(modulename);
-			 EvalResult result = call(functionDeclaration, actuals);
-			 env.pop();
-			 return result;
+		 if (func != null) {
+		   env.push(env.getModuleFor(name));
+		   EvalResult res = call(func, actuals);
+		   env.pop();
+		   return res;
 		 }
 		 else {
-			 throw new RascalTypeError("Unknown qualified name: " + x.getQualifiedName());
+			 return constructTree(env.getLocalName(name), actuals);
 		 }
-	
-		 // TODO add support for trees
-		 
-		 
-		 
 	}
 
 	private EvalResult constructTree(String functionName, IValue[] actuals) {
