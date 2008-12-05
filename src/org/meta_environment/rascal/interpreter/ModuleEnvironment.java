@@ -7,7 +7,13 @@ import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.type.TupleType;
 
-/*package*/ class ModuleEnvironment extends EnvironmentStack {
+/**
+ * A module environment represents a module object (i.e. a running module).
+ * It has it's own stack  and manages imported modules and visibility of the
+ * functions and variables it declares.
+ * 
+ */
+public class ModuleEnvironment extends EnvironmentStack {
 	private final String name;
 	protected final Set<String> importedModules;
 	protected final Map<String, ModuleVisibility> nameVisibility;
