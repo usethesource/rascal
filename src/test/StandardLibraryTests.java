@@ -259,4 +259,66 @@ public class StandardLibraryTests extends TestCase {
 		assertTrue(runTest("List", "{List::toString([1, 2]) == \"[1,2]\";};"));
 		
 	}
+	
+	public void testSet() throws IOException {
+		
+		//arb
+		
+		assertTrue(runTest("Set", "{value N = Set::arb({1}); N == 1;};"));
+		//assertTrue(runTest("Set", "{value N = arb({1}); N == 1;};"));
+		assertTrue(runTest("Set", "{value N = Set::arb({1, 2}); (N == 1) || (N == 2);};"));
+		assertTrue(runTest("Set", "{value N = Set::arb({1, 2, 3}); (N == 1) || (N == 2) || (N == 3);};"));
+		
+		//average
+		
+		//mapper
+		
+		//min
+		
+		//assertTrue(runTest("Set", "{Set::min({1, 2, 3, 2, 1}) == 1;};"));
+		//assertTrue(runTest("Set", "{min({1, 2, 3, 2, 1}) == 1;};"));
+
+		
+		//max
+		
+		//multiply
+		
+		//reducer
+		
+		//size
+		
+		assertTrue(runTest("Set", "Set::size({}) == 0;"));
+		//assertTrue(runTest("Set", "size({}) == 0;"));
+		assertTrue(runTest("Set", "Set::size({1}) == 1;"));
+		assertTrue(runTest("Set", "Set::size({1,2,3}) == 3;"));
+		
+		//sum
+		
+		//toList
+		
+		//assertTrue(runTest("Set", "{Set::toList({}) == [];};"));
+		//assertTrue(runTest("Set", "{toList({}) == [];};"));
+		assertTrue(runTest("Set", "{Set::toList({1}) == [1];};"));
+		assertTrue(runTest("Set", "{Set::toList({1, 2, 1}) == [1, 2];};"));
+		
+		
+		//toMap
+		
+		//toRel
+		
+		//toString
+		
+		assertTrue(runTest("Set", "Set::toString({}) == \"{}\";"));
+		//assertTrue(runTest("Set", "toString({}) == \"{}\";"));
+		assertTrue(runTest("Set", "Set::toString({1}) == \"{1}\";"));
+		assertTrue(runTest("Set", "Set::toString({1, 2, 3}) == \"{1,2,3}\";"));
+		
+		
+		
+		
+		
+		
+		
+		
+	}
 }
