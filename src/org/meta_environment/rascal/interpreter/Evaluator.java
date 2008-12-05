@@ -1,3 +1,4 @@
+
 package org.meta_environment.rascal.interpreter;
 
 import java.io.File;
@@ -511,6 +512,11 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			 }
 			 
 			 FunctionDeclaration functionDeclaration = module.getFunction(name, actualTypes);
+			 
+			 if (functionDeclaration == null) {
+				 // TODO: add support for qualified trees
+				 throw new RascalTypeError("Function " + name + " not found in module " + modulename);
+			 }
 			 env.pushModule(modulename);
 			 EvalResult result = call(functionDeclaration, actuals);
 			 env.pop();
