@@ -965,9 +965,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				IValue patArg = patLiteral.getLiteral();
 				if (subj.getType().isSubtypeOf(patArg.getType())) {
 					return equals(result(subj), result(patArg));
-				} else {
-					return false;
 				}
+				return false;
 				
 		case QUALIFIEDNAME:
 				
@@ -994,9 +993,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
                 if(subj.getType().isSubtypeOf(varType)){
                 	env.storeVariable(varName1, result(varType, subj));
                 	return true;
-                } else { 
-                		return false;
                 }
+                return false;
                 
 		case TUPLE:
                 PatternTuple patTuple = (PatternTuple) pat;
@@ -1004,11 +1002,21 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				if(subj.getType().isTupleType() && 
 				   ((ITuple) subj).arity() == patTuple.getChildren().size()){		
 				return matchChildren(((ITuple) subj).iterator(), patTuple.getChildren().iterator());
-				} else {
-					return false;
 				}
+				return false;
 				
 		case LIST:
+			PatternList patList = (PatternList) pat;
+			
+			if (!subj.getType().isListType()) {
+				return false;
+			}
+			
+			IList subjList = (IList) subj;
+			if ( patList.getChildren().size() == subjList.length()){
+					return matchChildren(subjList.iterator(), patList.getChildren().iterator());
+				}
+			return false;
 			
 		case SET:
 			
@@ -1017,7 +1025,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			return false;
 
 		case TREE:
-			// match two trees
 			
 			PatternTree patTree = (PatternTree) pat;
 			
@@ -1030,9 +1037,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			if (patTree.getQualifiedName().toString().equals(subjTree.getName().toString()) && 
 				patTree.getChildren().size() == subjTree.arity()){
 				return matchChildren(subjTree.getChildren().iterator(), patTree.getChildren().iterator());
-			} else {
-				return false;
 			}
+			return false;
 		}
 		return false;
 	}

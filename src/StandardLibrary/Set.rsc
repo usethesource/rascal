@@ -46,7 +46,7 @@ public value min(set[value] S)
 {
   value result = arb(S);
   for(value e : S){
-   if(e < result)){
+   if(e < result){
       result = min(result, e);
    }
   }
