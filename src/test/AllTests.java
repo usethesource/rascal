@@ -9,6 +9,9 @@ public class AllTests {
 		suite.addTestSuite(RegExpTests.class);
 		suite.addTestSuite(ComprehensionTests.class);
 		suite.addTestSuite(StatementTests.class);
+		suite.addTestSuite(PatternTests.class);
+		//suite.addTestSuite(StandardLibraryTests.class);
+		
 		return suite;
 	  }
 

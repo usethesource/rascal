@@ -17,26 +17,26 @@ import org.meta_environment.rascal.ast.Expression.Literal;
 import org.meta_environment.rascal.ast.Literal.RegExp;
 import org.meta_environment.rascal.ast.RegExp.Lexical;
 
-class RegExpResult {
+class RegExpValue {
 	String RegExpAsString;
 	Character modifier = null;
 	List<Name> patternVars;
 	Matcher matcher = null;
 	
-	RegExpResult(String s){
+	RegExpValue(String s){
 		RegExpAsString = s;
 		modifier = null;
 		patternVars = null;
 	}
 	
-	RegExpResult(String s, Character mod, List<Name> names){
+	RegExpValue(String s, Character mod, List<Name> names){
 		RegExpAsString = s;
 		modifier = mod;
 		patternVars = names;
 	}
 	
 	public String toString(){
-		return "RegExpResult(" + RegExpAsString + ", " + modifier + ", " + patternVars + ")";
+		return "RegExpValue(" + RegExpAsString + ", " + modifier + ", " + patternVars + ")";
 	}
 	
 	public boolean matches(String s){
@@ -59,26 +59,26 @@ class RegExpResult {
 	}
 }
 
-public class RegExpEvaluator extends NullASTVisitor<RegExpResult> {
+public class RegExpEvaluator extends NullASTVisitor<RegExpValue> {
 	
-	public RegExpResult visitExpressionLiteral(Literal x) {
+	public RegExpValue visitExpressionLiteral(Literal x) {
 		//System.err.println("visitExpressionLiteral: " + x.getLiteral());
 		return x.getLiteral().accept(this);
 	}
 	
-	public RegExpResult visitLiteralRegExp(RegExp x) {
+	public RegExpValue visitLiteralRegExp(RegExp x) {
 		//System.err.println("visitLiteralRegExp: " + x.getRegExpLiteral());
 		return x.getRegExpLiteral().accept(this);
 	}
 	
 	@Override
-	public RegExpResult visitRegExpLexical(Lexical x) {
+	public RegExpValue visitRegExpLexical(Lexical x) {
 		//System.err.println("visitRegExpLexical: " + x.getString());
-		return new RegExpResult(x.getString());
+		return new RegExpValue(x.getString());
 	}
 	
 	@Override
-	public RegExpResult visitRegExpLiteralLexical(
+	public RegExpValue visitRegExpLiteralLexical(
 			org.meta_environment.rascal.ast.RegExpLiteral.Lexical x) {
 		//System.err.println("visitRegExpLiteralLexical: " + x.getString());
 
@@ -115,30 +115,30 @@ public class RegExpEvaluator extends NullASTVisitor<RegExpResult> {
 		}
 		resultRegExp += subjectPat.substring(start, end);
 		System.err.println("resultRegExp: " + resultRegExp);
-		return new RegExpResult(resultRegExp, modifier, names);
+		return new RegExpValue(resultRegExp, modifier, names);
 	}
 	
 	// Following methods are never used.
 	
 	@Override
-	public RegExpResult visitRegExpModifierLexical(
+	public RegExpValue visitRegExpModifierLexical(
 			org.meta_environment.rascal.ast.RegExpModifier.Lexical x) {
 		System.err.println("visitRegExpModifierLexical: " + x.getString());
-		return new RegExpResult(x.getString());
+		return new RegExpValue(x.getString());
 	}
 	
 	@Override
-	public RegExpResult visitNamedRegExpLexical(
+	public RegExpValue visitNamedRegExpLexical(
 			org.meta_environment.rascal.ast.NamedRegExp.Lexical x) {
 		System.err.println("visitNamedRegExpLexical: " + x.getString());
-		return new RegExpResult(x.getString());
+		return new RegExpValue(x.getString());
 	}
 	
 	@Override
-	public RegExpResult visitNamedBackslashLexical(
+	public RegExpValue visitNamedBackslashLexical(
 			org.meta_environment.rascal.ast.NamedBackslash.Lexical x) {
 		System.err.println("visitNamedBackslashLexical: " + x.getString());
-		return new RegExpResult(x.getString());
+		return new RegExpValue(x.getString());
 	}
 	
 }
