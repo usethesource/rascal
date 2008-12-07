@@ -86,9 +86,11 @@ import org.meta_environment.rascal.ast.Expression.LessThan;
 import org.meta_environment.rascal.ast.Expression.LessThanOrEq;
 import org.meta_environment.rascal.ast.Expression.List;
 import org.meta_environment.rascal.ast.Expression.Literal;
+import org.meta_environment.rascal.ast.Expression.Match;
 import org.meta_environment.rascal.ast.Expression.Modulo;
 import org.meta_environment.rascal.ast.Expression.Negation;
 import org.meta_environment.rascal.ast.Expression.Negative;
+import org.meta_environment.rascal.ast.Expression.NoMatch;
 import org.meta_environment.rascal.ast.Expression.NonEmptyBlock;
 import org.meta_environment.rascal.ast.Expression.NotIn;
 import org.meta_environment.rascal.ast.Expression.Or;
@@ -131,8 +133,9 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	public static final String RASCAL_FILE_EXT = ".rsc";
 	final IValueFactory vf;
 	final TypeFactory tf = TypeFactory.getInstance();
-	private final TypeEvaluator te = new TypeEvaluator();
+	final TypeEvaluator te = new TypeEvaluator();
 	private final RegExpEvaluator re = new RegExpEvaluator();
+	private final PatternEvaluator pe;
 	private final GlobalEnvironment env = new GlobalEnvironment();
 	private final ASTFactory af;
 	private final JavaFunctionCaller javaFunctionCaller;
@@ -141,6 +144,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		this.vf = f;
 		this.af = astFactory;
 		javaFunctionCaller = new JavaFunctionCaller(errorWriter);
+		this.pe = new PatternEvaluator(this);
 	}
 
 	EvalResult result(Type t, IValue v) {
@@ -899,7 +903,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			}
 			org.meta_environment.rascal.ast.Rule rl = cs.getRule();
 			org.meta_environment.rascal.ast.Expression pat = rl.getMatch().getMatch();
-			if(match(subject, pat)){
+			if(match(subject.value, pat)){
 				return rl.getMatch().getStatement().accept(this);
 			}
 		}
@@ -918,62 +922,152 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		return false;
 	}
 	
+    @Override
+    public EvalResult visitExpressionMatch(Match x) {
+    	org.meta_environment.rascal.ast.Expression pat = x.getPattern();
+    	EvalResult subj = x.getExpression().accept(this);
+    	return result(vf.bool(match(subj.value, pat)));
+    }
+    
+    @Override
+    public EvalResult visitExpressionNoMatch(NoMatch x) {
+    	org.meta_environment.rascal.ast.Expression pat = x.getPattern();
+    	EvalResult subj = x.getExpression().accept(this);
+    	return result(vf.bool(!match(subj.value, pat)));
+    }
+	
 	// ----- General method for matching --------------------------------------------------
 	
-	private boolean match(EvalResult subj, org.meta_environment.rascal.ast.Expression pat){
+	private boolean match(IValue subj, org.meta_environment.rascal.ast.Expression pat){
 		System.err.println("match: pat : " + pat);
 
-		if(pat.isQualifiedName()){        
-			QualifiedName name = pat.getQualifiedName();
-			EvalResult val = env.getVariable(name);
-			if(val.value != null){
-				if(subj.type.isSubtypeOf(val.type) && subj.value.equals(val.value)){
-					return true;
-				} else {
-						return false;
-				}
-			}
-			assignVariable(name, subj);
-			return true;
-		}
 		if(isRegExpPattern(pat)){           
-			return regExpMatch(subj, pat);
+			return regExpMatch(subj, pat.accept(re));
 		}
-		if(pat.isLiteral()){
-			EvalResult val = pat.accept(this);
-			if(subj.type.isSubtypeOf(val.type) && subj.value.equals(val.value)){
-				return true;
-			} else {
-					return false;
+		return patternMatch(subj, pat.accept(pe));
+	}
+	
+	private boolean matchChildren(Iterator<IValue> subjChildren, Iterator<PatternValue> patChildren){
+		while (patChildren.hasNext()) {
+			if (!patternMatch(subjChildren.next(), patChildren.next())){
+				return false;
 			}
+		}
+		return true;
+	}
+	
+	private boolean patternMatch(IValue subj, PatternValue pat) {
+		
+		switch(pat.getKind()){
+		
+		case LITERAL:
+			    PatternLiteral patLiteral = (PatternLiteral) pat;
+				IValue patArg = patLiteral.getLiteral();
+				if (subj.getType().isSubtypeOf(patArg.getType())) {
+					return equals(result(subj), result(patArg));
+				} else {
+					return false;
+				}
+				
+		case QUALIFIEDNAME:
+				
+				PatternQualifiedName patQualifiedName = (PatternQualifiedName) pat;
+				QualifiedName varName =  patQualifiedName.getQualifiedName();
+                EvalResult patRes = env.getVariable(varName);
+                 
+                if((patRes != null) && (patRes.value != null)){
+                	 IValue patVal = patRes.value;
+                	 if (subj.getType().isSubtypeOf(patVal.getType())) {
+                		 return equals(result(subj), result(patVal));
+                	 } else {
+                		 return false;
+                	 }
+                 } else {
+                	 env.storeVariable(varName,result(subj.getType(), subj));
+                	 return true;
+                 }
+                 
+		case TYPEDVARIABLE:
+			    PatternTypedVariable patTypedVariable = (PatternTypedVariable) pat;
+				Type varType = patTypedVariable.type;
+				Name varName1 = patTypedVariable.getName();
+                if(subj.getType().isSubtypeOf(varType)){
+                	env.storeVariable(varName1, result(varType, subj));
+                	return true;
+                } else { 
+                		return false;
+                }
+                
+		case TUPLE:
+                PatternTuple patTuple = (PatternTuple) pat;
+                
+				if(subj.getType().isTupleType() && 
+				   ((ITuple) subj).arity() == patTuple.getChildren().size()){		
+				return matchChildren(((ITuple) subj).iterator(), patTuple.getChildren().iterator());
+				} else {
+					return false;
+				}
+				
+		case LIST:
+			
+		case SET:
+			
+		case MAP:
+				
+			return false;
+
+		case TREE:
+			// match two trees
+			
+			PatternTree patTree = (PatternTree) pat;
+			
+			if (!subj.getType().isTreeType()) {
+				return false;
+			}
+
+			ITree subjTree = (ITree) subj;
+			
+			if (patTree.getQualifiedName().toString().equals(subjTree.getName().toString()) && 
+				patTree.getChildren().size() == subjTree.arity()){
+				return matchChildren(subjTree.getChildren().iterator(), patTree.getChildren().iterator());
+			} else {
+				return false;
+			}
+		}
+		return false;
+	}
+	
+	private boolean regExpMatch(IValue subject, 
+			RegExpValue pat){
+		
+		if(!subject.getType().isStringType()){
+			throw new RascalTypeError("Subject of =~ should have type string and not " + subject.getType());
 		}
 		
-		if(pat.isTypedVariable()){
-			TypedVariable tv = (TypedVariable) pat;
-			Type tp = tv.getType().accept(te);
-			if(!subj.type.isSubtypeOf(tp)){
-				throw new RascalTypeError("incompatible types in match: " + tp + " and " + subj.type);
-			}
-			
-			assignVariable(tv.getName(), subj);
-			return true;
-		}
-		if(pat.isTuple()){
-			Tuple tup = (Tuple) pat;
-			java.util.List<org.meta_environment.rascal.ast.Expression> elements = tup.getElements();
-			if(!subj.type.isTupleType() || elements.size() != ((TupleType) subj.type).getArity()){
-				throw new RascalTypeError("incompatible types in match: " + tup.getType() + " and " + subj.type);
-			}
-			ITuple tsubj = (ITuple) subj.value;
-			for(int i = 0; i < elements.size(); i++){
-				if(!match(result(tsubj.get(i)), elements.get(i))){
-					return false;
+		if(pat.matches(((IString) subject).getValue())){
+			Map<Name,String> map = pat.getBindings();
+			for(Name name : map.keySet()){
+				EvalResult res = env.getVariable(name);
+				if((res != null) && (res.value != null)){
+					throw new RascalException(vf, "variable " + name + " in regular expression has already a value (" + res.value + ")");
 				}
+				assignVariable(name, result(vf.string(map.get(name))));
 			}
 			return true;
 		}
 		return false;
 	}
+
+	@Override
+	public EvalResult visitExpressionRegExpMatch(RegExpMatch x) {
+		return result(vf.bool(regExpMatch(x.getLhs().accept(this).value, x.getRhs().accept(re))));
+	}
+	
+	@Override
+	public EvalResult visitExpressionRegExpNoMatch(RegExpNoMatch x) {
+		return result(vf.bool(!regExpMatch(x.getLhs().accept(this).value, x.getRhs().accept(re))));
+	}
+
 	
 	// Expressions -----------------------------------------------------------
 
@@ -1740,7 +1834,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		private boolean isValueProducer;
 		private boolean firstTime = true;
 		private org.meta_environment.rascal.ast.Expression expr;
-		private org.meta_environment.rascal.ast.Expression pat;
+		private PatternValue pat;
 		private org.meta_environment.rascal.ast.Expression patexpr;
 		private Evaluator evaluator;
 		private Iterator<?> iter;
@@ -1750,7 +1844,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			evaluator = ev;
 			isValueProducer = true;
 			
-			pat = vp.getPattern();
+			pat = vp.getPattern().accept(pe);
 			patexpr = vp.getExpression();
 			EvalResult r = patexpr.accept(ev);
 			if(r.type.isListType()){
@@ -1782,7 +1876,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		public boolean getNext(){
 			if(isValueProducer){
 				while(iter.hasNext()){
-					if(evaluator.match(result(elementType, (IValue)iter.next()), pat)){
+					if(evaluator. patternMatch((IValue)iter.next(), pat)){
 						return true;
 					}
 				}
@@ -2023,36 +2117,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			}
 		}
 		return bodyResult;
-	}
-
-	private boolean regExpMatch(EvalResult subject, 
-			org.meta_environment.rascal.ast.Expression pat){
-		
-		RegExpResult regExpResult = pat.accept(re);
-		
-		if(!subject.type.isStringType()){
-			throw new RascalTypeError("Subject of =~ should have type string and not " + subject.type);
-		}
-		
-		if(regExpResult.matches(((IString) subject.value).getValue())){
-			Map<Name,String> map = regExpResult.getBindings();
-			//TODO: check that the names we are going to bind are uninitialized
-			for(Name name : map.keySet()){
-				assignVariable(name, result(vf.string(map.get(name))));
-			}
-			return true;
-		}
-		return false;
-	}
-
-	@Override
-	public EvalResult visitExpressionRegExpMatch(RegExpMatch x) {
-		return result(vf.bool(regExpMatch(x.getLhs().accept(this), x.getRhs())));
-	}
-	
-	@Override
-	public EvalResult visitExpressionRegExpNoMatch(RegExpNoMatch x) {
-		return result(vf.bool(!regExpMatch(x.getLhs().accept(this), x.getRhs())));
 	}
 
 	

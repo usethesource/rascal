@@ -46,6 +46,7 @@ public class Environment {
 	}
 	
 	protected EvalResult getVariable(String name) {
+		//System.err.println("getVariable " + name + " => " + variableEnvironment.get(name));
 		return variableEnvironment.get(name);
 	}
 	
@@ -62,6 +63,7 @@ public class Environment {
 	}
 	
 	protected void storeVariable(String name, EvalResult value) {
+		//System.err.println("storeVariable " + name + " => " + value);
 		variableEnvironment.put(name, value);
 	}
 	
