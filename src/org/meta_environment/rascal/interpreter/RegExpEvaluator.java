@@ -1,5 +1,6 @@
 package org.meta_environment.rascal.interpreter;
 
+import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -9,18 +10,24 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.meta_environment.rascal.ast.ASTFactory;
+import org.meta_environment.rascal.ast.Command;
+import org.meta_environment.rascal.ast.Expression;
 import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.Expression.Literal;
+import org.meta_environment.rascal.ast.Expression.QualifiedName;
 import org.meta_environment.rascal.ast.Literal.RegExp;
 import org.meta_environment.rascal.ast.RegExp.Lexical;
+import org.meta_environment.rascal.parser.ASTBuilder;
+import org.meta_environment.rascal.parser.Parser;
 
 class RegExpValue {
 	String RegExpAsString;
 	Character modifier = null;
-	List<Name> patternVars;
+	List<org.meta_environment.rascal.ast.QualifiedName> patternVars;
 	Matcher matcher = null;
 	
 	RegExpValue(String s){
@@ -29,7 +36,7 @@ class RegExpValue {
 		patternVars = null;
 	}
 	
-	RegExpValue(String s, Character mod, List<Name> names){
+	RegExpValue(String s, Character mod, List<org.meta_environment.rascal.ast.QualifiedName> names){
 		RegExpAsString = s;
 		modifier = mod;
 		patternVars = names;
@@ -48,10 +55,10 @@ class RegExpValue {
 			throw new RascalTypeError(e.getMessage());
 		}
 	}
-	public Map<Name,String> getBindings(){
-		Map<Name,String> map = new HashMap<Name,String>();
+	public Map<org.meta_environment.rascal.ast.QualifiedName,String> getBindings(){
+		Map<org.meta_environment.rascal.ast.QualifiedName,String> map = new HashMap<org.meta_environment.rascal.ast.QualifiedName,String>();
 		int k = 1;
-		for(Name nm : patternVars){
+		for(org.meta_environment.rascal.ast.QualifiedName nm : patternVars){
 			map.put(nm, matcher.group(k));
 			k++;
 		}
@@ -103,13 +110,31 @@ public class RegExpEvaluator extends NullASTVisitor<RegExpValue> {
 		Matcher m = replacePat.matcher(subjectPat);
 		
 		String resultRegExp = "";
-		List<Name> names = new ArrayList<Name>();
+		List<org.meta_environment.rascal.ast.QualifiedName> names = new ArrayList<org.meta_environment.rascal.ast.QualifiedName>();
 
 		while(m.find()){
 			String varName = m.group(1);
-			// TODO empty parse tree is dangerous
-			Name name = new ASTFactory().makeNameLexical(null, varName);
-			names.add(name);
+			System.err.println("varName = " + varName);
+			//TODO: below is a correct but very expensive way of building a Qualified name:
+			// a complete parse and tree construction of the text of the variable as it appears in the
+			// regular expression.
+			Parser parser = Parser.getInstance();
+			ASTFactory factory = new ASTFactory();
+			ASTBuilder builder = new ASTBuilder(factory);
+			try {
+				INode tree = parser.parse(new ByteArrayInputStream((varName + ";").getBytes()));
+				System.err.println("tree = " + tree);
+				Command cmd = builder.buildCommand(tree);
+				System.err.println("cmd = " + cmd);
+				System.err.println("cmd.getStatement() = " + cmd.getStatement());
+				System.err.println("cmd.getStatement().getExpression() = " + cmd.getStatement().getExpression());
+				
+				org.meta_environment.rascal.ast.QualifiedName name = cmd.getStatement().getExpression().getQualifiedName();
+				System.err.println("name = " + name);
+				names.add(name);
+			} catch (Exception e) {
+				throw new RascalBug("Cannot convert string " + varName + " to a name");
+			}
 			resultRegExp += subjectPat.substring(start, m.start(0)) + "(" + m.group(2) + ")";
 			start = m.end(0);
 		}

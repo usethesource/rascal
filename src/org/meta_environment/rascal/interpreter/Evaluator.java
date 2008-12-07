@@ -1045,8 +1045,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		}
 		
 		if(pat.matches(((IString) subject).getValue())){
-			Map<Name,String> map = pat.getBindings();
-			for(Name name : map.keySet()){
+			Map<org.meta_environment.rascal.ast.QualifiedName,String> map = pat.getBindings();
+			for(org.meta_environment.rascal.ast.QualifiedName name : map.keySet()){
 				EvalResult res = env.getVariable(name);
 				if((res != null) && (res.value != null)){
 					throw new RascalException(vf, "variable " + name + " in regular expression has already a value (" + res.value + ")");
@@ -1060,12 +1060,12 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 
 	@Override
 	public EvalResult visitExpressionRegExpMatch(RegExpMatch x) {
-		return result(vf.bool(regExpMatch(x.getLhs().accept(this).value, x.getRhs().accept(re))));
+		return result(vf.bool(regExpMatch(x.getExpression().accept(this).value, x.getPattern().accept(re))));
 	}
 	
 	@Override
 	public EvalResult visitExpressionRegExpNoMatch(RegExpNoMatch x) {
-		return result(vf.bool(!regExpMatch(x.getLhs().accept(this).value, x.getRhs().accept(re))));
+		return result(vf.bool(!regExpMatch(x.getExpression().accept(this).value, x.getPattern().accept(re))));
 	}
 
 	
