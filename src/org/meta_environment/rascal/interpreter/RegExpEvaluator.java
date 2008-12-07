@@ -106,6 +106,7 @@ public class RegExpEvaluator extends NullASTVisitor<RegExpValue> {
 			throw new RascalTypeError("Regular expression does not end with /");
 		}
 		
+		//TODO take escaped \< characters into account.
 		Pattern replacePat = Pattern.compile("<([a-zA-Z0-9]+):([^>]*)>");
 		Matcher m = replacePat.matcher(subjectPat);
 		
@@ -116,21 +117,18 @@ public class RegExpEvaluator extends NullASTVisitor<RegExpValue> {
 			String varName = m.group(1);
 			System.err.println("varName = " + varName);
 			//TODO: below is a correct but very expensive way of building a Qualified name:
-			// a complete parse and tree construction of the text of the variable as it appears in the
+			// a complete parse and tree construction are done for the text of the variable as it appears in the
 			// regular expression.
+			// A better way would be to build a template for the resulting parse tree and to insert the text
+			// of the variable name in it.
 			Parser parser = Parser.getInstance();
 			ASTFactory factory = new ASTFactory();
 			ASTBuilder builder = new ASTBuilder(factory);
 			try {
 				INode tree = parser.parse(new ByteArrayInputStream((varName + ";").getBytes()));
-				System.err.println("tree = " + tree);
 				Command cmd = builder.buildCommand(tree);
-				System.err.println("cmd = " + cmd);
-				System.err.println("cmd.getStatement() = " + cmd.getStatement());
-				System.err.println("cmd.getStatement().getExpression() = " + cmd.getStatement().getExpression());
-				
 				org.meta_environment.rascal.ast.QualifiedName name = cmd.getStatement().getExpression().getQualifiedName();
-				System.err.println("name = " + name);
+				System.err.println("regexp name = " + name);
 				names.add(name);
 			} catch (Exception e) {
 				throw new RascalBug("Cannot convert string " + varName + " to a name");

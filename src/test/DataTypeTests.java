@@ -395,7 +395,7 @@ public class DataTypeTests extends TestCase{
 		assertTrue(runTest("15 notin (1:10, 2:20);"));
 		assertFalse(runTest("20 notin (1:10, 2:20);"));
 		
-		assertFalse(runTest("map[str,list[int] m = (\"a\": [1,2], \"b\": [], \"c\": [4,5,6]); (assert \"a\": m[\"a\"] == [1,2])"));
+		assertFalse(runTest("{map[str,list[int]] m = (\"a\": [1,2], \"b\": [], \"c\": [4,5,6]); assert \"a\": m[\"a\"] == [1,2];};"));
 	}
 	
 	public void testTuple() throws IOException {
