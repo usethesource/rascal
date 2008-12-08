@@ -210,6 +210,8 @@ public class ComprehensionTests extends TestCase {
 		
 		assertTrue(runTest("[X * 2 | int X : {1,2,3}] == [2,4,6];"));
 		assertTrue(runTest("[X * 2 | int X : [1,2,3]] == [2,4,6];"));
+		
+		assertTrue(runTest("[S | /@<S:[a-z]+>@/ : [\"@abc@\", \"@def@\"]] == [\"abc\",\"def\"]"));
 
 	}
 	
