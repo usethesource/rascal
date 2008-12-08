@@ -1743,8 +1743,11 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			} else 	if(r.type.isSetType()){
 				elementType = ((SetType) r.type).getElementType();
 				iter = ((ISet) r.value).iterator();
-			// TODO: add more generator types here	in the future
+			
+			} else if(r.type.isTreeType()){
+				iter = new ITreeIterator((ITree) r.value, false);
 			} else {
+				// TODO: add more generator types here	in the future
 				throw new RascalTypeError("expression in generator should be of type list/set");
 			}
 		}
