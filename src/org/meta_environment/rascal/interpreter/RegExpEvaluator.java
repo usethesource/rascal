@@ -11,6 +11,8 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IString;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.Command;
@@ -46,16 +48,32 @@ class RegExpValue {
 		return "RegExpValue(" + RegExpAsString + ", " + modifier + ", " + patternVars + ")";
 	}
 	
-	public boolean matches(String s){
+	public boolean match(IValue subj, Evaluator ev){
+		if(!subj.getType().isStringType()){
+			throw new RascalTypeError("Subject in regular expression match should have type string and not " + subj.getType());
+		}
+		String s = ((IString) subj).getValue();
 		try {
 			Pattern pat = Pattern.compile(RegExpAsString);
 			matcher = pat.matcher(s);
-			return matcher.matches();
+			if(matcher.matches()){
+				Map<org.meta_environment.rascal.ast.QualifiedName,String> map = getBindings();
+				for(org.meta_environment.rascal.ast.QualifiedName name : map.keySet()){
+					EvalResult res = ev.env.getVariable(name);
+					if((res != null) && (res.value != null)){
+						throw new RascalException(ev.vf, "variable " + name + " in regular expression has already a value (" + res.value + ")");
+					}
+					ev.assignVariable(name, ev.result(ev.vf.string(map.get(name))));
+				}
+				return true;
+			}
+			return false;
 		} catch (PatternSyntaxException e){
 			throw new RascalTypeError(e.getMessage());
 		}
 	}
-	public Map<org.meta_environment.rascal.ast.QualifiedName,String> getBindings(){
+	
+	private Map<org.meta_environment.rascal.ast.QualifiedName,String> getBindings(){
 		Map<org.meta_environment.rascal.ast.QualifiedName,String> map = new HashMap<org.meta_environment.rascal.ast.QualifiedName,String>();
 		int k = 1;
 		for(org.meta_environment.rascal.ast.QualifiedName nm : patternVars){
