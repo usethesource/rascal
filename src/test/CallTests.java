@@ -61,6 +61,12 @@ public class CallTests extends TestCase{
 		assertTrue(runTest("{" + add + " " + sub + " " + doSomething + " " + "doSomething(#sub) == -1;}"));
 	}
 	
+	public void testSideEffect() throws IOException {
+		String one = "void One() { called = called + 1; return; }";
+		
+		assertTrue(runTest("{ int called = 0; " + one + " One(); One(); One(); called == 3;}"));
+	}
+	
 	public void testMax() throws IOException {
 		String maxInt = "int max(int a, int b) { return a > b ? a : b; }";
 		String maxDouble = "double max(double a, double b) { return a > b ? a : b; }";
