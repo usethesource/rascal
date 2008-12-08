@@ -1,15 +1,14 @@
 package org.meta_environment.rascal.interpreter;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
+import java.util.Iterator;
 
-import org.eclipse.imp.pdb.facts.IListWriter;
+import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.ITree;
+import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.ListType;
 import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.NullASTVisitor;
-import org.meta_environment.rascal.ast.Type;
 import org.meta_environment.rascal.ast.Expression.CallOrTree;
 import org.meta_environment.rascal.ast.Expression.List;
 import org.meta_environment.rascal.ast.Expression.Literal;
@@ -18,34 +17,38 @@ import org.meta_environment.rascal.ast.Expression.QualifiedName;
 import org.meta_environment.rascal.ast.Expression.Set;
 import org.meta_environment.rascal.ast.Expression.Tuple;
 import org.meta_environment.rascal.ast.Expression.TypedVariable;
-import org.meta_environment.rascal.ast.Generator.Expression;
-
-/* package */enum PatternKind {UNDEFINED, LITERAL, TREE, LIST, SET, TUPLE, MAP, QUALIFIEDNAME, TYPEDVARIABLE}
 
 /* package */ interface PatternValue {
-	
-	public PatternKind getKind();
+	public boolean match(IValue subj, Evaluator ev);
 }
 
-/* package */ class PatternLiteral implements PatternValue {
-	private final PatternKind kind = PatternKind.LITERAL;
+/* package */ class BasicPattern {
+	
+	boolean matchChildren(Iterator<IValue> subjChildren, Iterator<PatternValue> patChildren, Evaluator ev){
+		while (patChildren.hasNext()) {
+			if (!patChildren.next().match(subjChildren.next(), ev)){
+				return false;
+			}
+		}
+		return true;
+	}
+}
+/* package */ class PatternLiteral extends BasicPattern implements PatternValue {
 	private IValue literal;
 	
 	PatternLiteral(IValue literal){
 		this.literal = literal;
 	}
 	
-	public PatternKind getKind(){
-		return kind;
-	}
-	
-	public IValue getLiteral(){
-		return literal;
+	public boolean match(IValue subj, Evaluator ev){
+			if (subj.getType().isSubtypeOf(literal.getType())) {
+				return ev.equals(ev.result(subj), ev.result(literal));
+			}
+			return false;
 	}
 }
 
-/* package */ class PatternTree implements PatternValue {
-	private final PatternKind kind = PatternKind.TREE;
+/* package */ class PatternTree extends BasicPattern implements PatternValue {
 	private org.meta_environment.rascal.ast.QualifiedName name;
 	private java.util.List<PatternValue> children;
 	
@@ -54,131 +57,131 @@ import org.meta_environment.rascal.ast.Generator.Expression;
 		this.children = children;
 	}
 	
-	public PatternKind getKind(){
-		return kind;
-	}
-	
-	public org.meta_environment.rascal.ast.QualifiedName getQualifiedName(){
-		return name;
-	}
-	
-	public java.util.List<PatternValue> getChildren(){
-		return children;
+	public boolean match(IValue subj, Evaluator ev){
+		if (!subj.getType().isTreeType()) {
+			return false;
+		}
+
+		ITree subjTree = (ITree) subj;
+		
+		if (name.toString().equals(subjTree.getName().toString()) && 
+			children.size() == subjTree.arity()){
+			return matchChildren(subjTree.getChildren().iterator(), children.iterator(), ev);
+		}
+		return false;
 	}
 }
 
-/* package */ class PatternList implements PatternValue {
-	private final PatternKind kind = PatternKind.LIST;
-	private org.meta_environment.rascal.ast.QualifiedName name;
+/* package */ class PatternList extends BasicPattern implements PatternValue {
 	private java.util.List<PatternValue> children;
 	
 	PatternList(java.util.List<PatternValue> children){
 		this.children = children;
 	}
 	
-	public PatternKind getKind(){
-		return kind;
-	}
-	
-	public java.util.List<PatternValue> getChildren(){
-		return children;
+	public boolean match(IValue subj, Evaluator ev){
+		
+		if (!subj.getType().isListType()) {
+			return false;
+		}
+		
+		IList subjList = (IList) subj;
+		if ( children.size() == subjList.length()){
+				return matchChildren(subjList.iterator(), children.iterator(), ev);
+			}
+		return false;
 	}
 }
 
-/* package */ class PatternSet implements PatternValue {
-	private final PatternKind kind = PatternKind.SET;
+/* package */ class PatternSet extends BasicPattern implements PatternValue {
 	private java.util.List<PatternValue> children;
 	
 	PatternSet(java.util.List<PatternValue> children){
 		this.children = children;
 	}
 	
-	public PatternKind getKind(){
-		return kind;
-	}
-	
-	public java.util.List<PatternValue> getChildren(){
-		return children;
+	public boolean match(IValue subj, Evaluator ev){
+		throw new RascalBug("PatternSet.match not implemented");
 	}
 }
 
-/* package */ class PatternTuple implements PatternValue {
-	private final PatternKind kind = PatternKind.TUPLE;
+/* package */ class PatternTuple extends BasicPattern implements PatternValue {
 	private java.util.List<PatternValue> children;
 	
 	PatternTuple(java.util.List<PatternValue> children){
 		this.children = children;
 	}
 	
-	public PatternKind getKind(){
-		return kind;
-	}
-	
-	public java.util.List<PatternValue> getChildren(){
-		return children;
+	public boolean match(IValue subj, Evaluator ev) {
+
+		if (subj.getType().isTupleType()
+				&& ((ITuple) subj).arity() == children.size()) {
+			return matchChildren(((ITuple) subj).iterator(), children.iterator(), ev);
+		}
+		return false;
 	}
 }
 
-/* package */ class PatternMap implements PatternValue {
-	private final PatternKind kind = PatternKind.MAP;
+/* package */ class PatternMap extends BasicPattern implements PatternValue {
 	private java.util.List<PatternValue> children;
 	
 	PatternMap(java.util.List<PatternValue> children){
 		this.children = children;
 	}
 	
-	public PatternKind getKind(){
-		return kind;
-	}
-	
-	public java.util.List<PatternValue> getChildren(){
-		return children;
+	public boolean match(IValue subj, Evaluator ev){
+		throw new RascalBug("PatternMap.match not implemented");
 	}
 }
 
-/* package */ class PatternQualifiedName implements PatternValue {
-	private final PatternKind kind = PatternKind.QUALIFIEDNAME;
+/* package */ class PatternQualifiedName extends BasicPattern implements PatternValue {
 	private org.meta_environment.rascal.ast.QualifiedName name;
 	
 	PatternQualifiedName(org.meta_environment.rascal.ast.QualifiedName qualifiedName){
 		this.name = qualifiedName;
 	}
-	public PatternKind getKind(){
-		return kind;
-	}
 	
-	public org.meta_environment.rascal.ast.QualifiedName getQualifiedName(){
-		return name;
+	public boolean match(IValue subj, Evaluator ev){
+        EvalResult patRes = ev.env.getVariable(name);
+         
+        if((patRes != null) && (patRes.value != null)){
+        	 IValue patVal = patRes.value;
+        	 if (subj.getType().isSubtypeOf(patVal.getType())) {
+        		 return ev.equals(ev.result(subj), ev.result(patVal));
+        	 } else {
+        		 return false;
+        	 }
+         } else {
+        	 ev.env.storeVariable(name,ev.result(subj.getType(), subj));
+        	 return true;
+         }
 	}
 }
 
-/* package */ class PatternTypedVariable implements PatternValue {
-	private final PatternKind kind = PatternKind.TYPEDVARIABLE;
+/* package */class PatternTypedVariable extends BasicPattern implements PatternValue {
 	private Name name;
 	org.eclipse.imp.pdb.facts.type.Type type;
-	
-	PatternTypedVariable(org.eclipse.imp.pdb.facts.type.Type type2, Name name){
+
+	PatternTypedVariable(org.eclipse.imp.pdb.facts.type.Type type2, Name name) {
 		this.type = type2;
 		this.name = name;
 	}
-	
-	public PatternKind getKind(){
-		return kind;
-	}
-	
-	public Name getName(){
-		return name;
+
+	public boolean match(IValue subj, Evaluator ev) {
+		if (subj.getType().isSubtypeOf(type)) {
+			ev.env.storeVariable(name, ev.result(type, subj));
+			return true;
+		}
+		return false;
 	}
 }
 
-public class PatternEvaluator	extends NullASTVisitor<PatternValue> {
+public class PatternEvaluator extends NullASTVisitor<PatternValue> {
 
 	private Evaluator ev;
-	private IValueFactory vf;
 	
 	PatternEvaluator(Evaluator evaluator){
 		ev = evaluator;
-		vf = evaluator.vf;
 	}
 	
 	@Override

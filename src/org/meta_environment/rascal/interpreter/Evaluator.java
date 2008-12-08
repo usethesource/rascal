@@ -136,7 +136,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	final TypeEvaluator te = new TypeEvaluator();
 	private final RegExpEvaluator re = new RegExpEvaluator();
 	private final PatternEvaluator pe;
-	private final GlobalEnvironment env = new GlobalEnvironment();
+	final GlobalEnvironment env = new GlobalEnvironment();
 	private final ASTFactory af;
 	private final JavaFunctionCaller javaFunctionCaller;
 
@@ -151,7 +151,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		return new EvalResult(t, v);
 	}
 
-	private EvalResult result(IValue v) {
+	EvalResult result(IValue v) {
 		Type type = v.getType();
 		
 		if (type.isRelationType() 
@@ -599,7 +599,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		return x.getFunctionDeclaration().accept(this);
 	}
 	
-	private EvalResult assignVariable(QualifiedName name, EvalResult right){
+	EvalResult assignVariable(QualifiedName name, EvalResult right){
 		EvalResult previous = env.getVariable(name);
 		if (previous != null) {
 			if (right.type.isSubtypeOf(previous.type)) {
@@ -911,8 +911,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	}
 	
 	private boolean isRegExpPattern(org.meta_environment.rascal.ast.Expression pat){
-		
-		
 		if(pat.isLiteral()){
 			org.meta_environment.rascal.ast.Literal lit = ((Literal) pat).getLiteral();
 			if(lit.isRegExp()){
@@ -942,107 +940,11 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		System.err.println("match: pat : " + pat);
 
 		if(isRegExpPattern(pat)){           
-			return regExpMatch(subj, pat.accept(re));
-		}
-		return patternMatch(subj, pat.accept(pe));
+			return pat.accept(re).match(subj, this);
+		} else
+			return pat.accept(pe).match(subj, this);
 	}
-	
-	private boolean matchChildren(Iterator<IValue> subjChildren, Iterator<PatternValue> patChildren){
-		while (patChildren.hasNext()) {
-			if (!patternMatch(subjChildren.next(), patChildren.next())){
-				return false;
-			}
-		}
-		return true;
-	}
-	
-	private boolean patternMatch(IValue subj, PatternValue pat) {
-		
-		switch(pat.getKind()){
-		
-		case LITERAL:
-			    PatternLiteral patLiteral = (PatternLiteral) pat;
-				IValue patArg = patLiteral.getLiteral();
-				if (subj.getType().isSubtypeOf(patArg.getType())) {
-					return equals(result(subj), result(patArg));
-				}
-				return false;
-				
-		case QUALIFIEDNAME:
-				
-				PatternQualifiedName patQualifiedName = (PatternQualifiedName) pat;
-				QualifiedName varName =  patQualifiedName.getQualifiedName();
-                EvalResult patRes = env.getVariable(varName);
-                 
-                if((patRes != null) && (patRes.value != null)){
-                	 IValue patVal = patRes.value;
-                	 if (subj.getType().isSubtypeOf(patVal.getType())) {
-                		 return equals(result(subj), result(patVal));
-                	 } else {
-                		 return false;
-                	 }
-                 } else {
-                	 env.storeVariable(varName,result(subj.getType(), subj));
-                	 return true;
-                 }
-                 
-		case TYPEDVARIABLE:
-			    PatternTypedVariable patTypedVariable = (PatternTypedVariable) pat;
-				Type varType = patTypedVariable.type;
-				Name varName1 = patTypedVariable.getName();
-                if(subj.getType().isSubtypeOf(varType)){
-                	env.storeVariable(varName1, result(varType, subj));
-                	return true;
-                }
-                return false;
-                
-		case TUPLE:
-                PatternTuple patTuple = (PatternTuple) pat;
-                
-				if(subj.getType().isTupleType() && 
-				   ((ITuple) subj).arity() == patTuple.getChildren().size()){		
-				return matchChildren(((ITuple) subj).iterator(), patTuple.getChildren().iterator());
-				}
-				return false;
-				
-		case LIST:
-			PatternList patList = (PatternList) pat;
-			
-			if (!subj.getType().isListType()) {
-				return false;
-			}
-			
-			IList subjList = (IList) subj;
-			if ( patList.getChildren().size() == subjList.length()){
-					return matchChildren(subjList.iterator(), patList.getChildren().iterator());
-				}
-			return false;
-			
-		case SET:
-			
-		case MAP:
-				
-			return false;
-
-		case TREE:
-			
-			PatternTree patTree = (PatternTree) pat;
-			
-			if (!subj.getType().isTreeType()) {
-				return false;
-			}
-
-			ITree subjTree = (ITree) subj;
-			
-			if (patTree.getQualifiedName().toString().equals(subjTree.getName().toString()) && 
-				patTree.getChildren().size() == subjTree.arity()){
-				return matchChildren(subjTree.getChildren().iterator(), patTree.getChildren().iterator());
-			}
-			return false;
-		}
-		return false;
-	}
-	
+	/*
 	private boolean regExpMatch(IValue subject, 
 			RegExpValue pat){
 		
@@ -1063,15 +965,16 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		}
 		return false;
 	}
+	*/
 
 	@Override
 	public EvalResult visitExpressionRegExpMatch(RegExpMatch x) {
-		return result(vf.bool(regExpMatch(x.getExpression().accept(this).value, x.getPattern().accept(re))));
+		return result(vf.bool(x.getPattern().accept(re).match(x.getExpression().accept(this).value, this)));
 	}
 	
 	@Override
 	public EvalResult visitExpressionRegExpNoMatch(RegExpNoMatch x) {
-		return result(vf.bool(!regExpMatch(x.getExpression().accept(this).value, x.getPattern().accept(re))));
+		return result(vf.bool(!x.getPattern().accept(re).match(x.getExpression().accept(this).value, this)));
 	}
 
 	
@@ -1536,7 +1439,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		}
 	}
 	
-	private boolean equals(EvalResult left, EvalResult right){
+	boolean equals(EvalResult left, EvalResult right){
 		if (left.type.isSubtypeOf(right.type)
 				|| right.type.isSubtypeOf(left.type)
 				|| left.type.isValueType()                   //TODO: is this necessary?
@@ -1882,7 +1785,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		public boolean getNext(){
 			if(isValueProducer){
 				while(iter.hasNext()){
-					if(evaluator. patternMatch((IValue)iter.next(), pat)){
+					if(pat.match((IValue)iter.next(), evaluator)){
 						return true;
 					}
 				}
