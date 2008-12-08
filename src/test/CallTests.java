@@ -45,17 +45,17 @@ public class CallTests extends TestCase{
 	public void testFac() throws IOException {
 		String fac = "int fac(int n){ return (n <= 0) ? 1 : (n * fac(n - 1));}";
 		
-		assertTrue(runTest("{" + fac + "; fac(0) == 1;}"));
-		assertTrue(runTest("{" +  fac + "; fac(1) == 1;}"));
-		assertTrue(runTest("{" + fac + "; fac(2) == 2;}"));
-		assertTrue(runTest("{" + fac + "; fac(3) == 6;}"));
-		assertTrue(runTest("{" + fac + "; fac(4) == 24;}"));
+		assertTrue(runTest("{" + fac + " fac(0) == 1;}"));
+		assertTrue(runTest("{" +  fac + " fac(1) == 1;}"));
+		assertTrue(runTest("{" + fac + " fac(2) == 2;}"));
+		assertTrue(runTest("{" + fac + " fac(3) == 6;}"));
+		assertTrue(runTest("{" + fac + " fac(4) == 24;}"));
 	}
 	
 	public void testMax() throws IOException {
 		String maxInt = "int max(int a, int b) { return a > b ? a : b; }";
 		String maxDouble = "double max(double a, double b) { return a > b ? a : b; }";
-		assertTrue(runTest("{" + maxInt + "; max(3,4) == 4;}"));
+		assertTrue(runTest("{" + maxInt + " max(3,4) == 4;}"));
 	}
 	
 	
