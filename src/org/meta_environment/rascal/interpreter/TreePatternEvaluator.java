@@ -22,7 +22,7 @@ import org.meta_environment.rascal.ast.Expression.TypedVariable;
 	public boolean match(IValue subj, Evaluator ev);
 }
 
-/* package */ class BasicPattern {
+/* package */ class BasicTreePattern {
 	
 	boolean matchChildren(Iterator<IValue> subjChildren, Iterator<PatternValue> patChildren, Evaluator ev){
 		while (patChildren.hasNext()) {
@@ -33,10 +33,10 @@ import org.meta_environment.rascal.ast.Expression.TypedVariable;
 		return true;
 	}
 }
-/* package */ class PatternLiteral extends BasicPattern implements PatternValue {
+/* package */ class TreePatternLiteral extends BasicTreePattern implements PatternValue {
 	private IValue literal;
 	
-	PatternLiteral(IValue literal){
+	TreePatternLiteral(IValue literal){
 		this.literal = literal;
 	}
 	
@@ -48,11 +48,11 @@ import org.meta_environment.rascal.ast.Expression.TypedVariable;
 	}
 }
 
-/* package */ class PatternTree extends BasicPattern implements PatternValue {
+/* package */ class TreePatternTree extends BasicTreePattern implements PatternValue {
 	private org.meta_environment.rascal.ast.QualifiedName name;
 	private java.util.List<PatternValue> children;
 	
-	PatternTree(org.meta_environment.rascal.ast.QualifiedName qualifiedName, java.util.List<PatternValue> children){
+	TreePatternTree(org.meta_environment.rascal.ast.QualifiedName qualifiedName, java.util.List<PatternValue> children){
 		this.name = qualifiedName;
 		this.children = children;
 	}
@@ -72,10 +72,10 @@ import org.meta_environment.rascal.ast.Expression.TypedVariable;
 	}
 }
 
-/* package */ class PatternList extends BasicPattern implements PatternValue {
+/* package */ class TreePatternList extends BasicTreePattern implements PatternValue {
 	private java.util.List<PatternValue> children;
 	
-	PatternList(java.util.List<PatternValue> children){
+	TreePatternList(java.util.List<PatternValue> children){
 		this.children = children;
 	}
 	
@@ -93,10 +93,10 @@ import org.meta_environment.rascal.ast.Expression.TypedVariable;
 	}
 }
 
-/* package */ class PatternSet extends BasicPattern implements PatternValue {
+/* package */ class TreePatternSet extends BasicTreePattern implements PatternValue {
 	private java.util.List<PatternValue> children;
 	
-	PatternSet(java.util.List<PatternValue> children){
+	TreePatternSet(java.util.List<PatternValue> children){
 		this.children = children;
 	}
 	
@@ -105,10 +105,10 @@ import org.meta_environment.rascal.ast.Expression.TypedVariable;
 	}
 }
 
-/* package */ class PatternTuple extends BasicPattern implements PatternValue {
+/* package */ class TreePatternTuple extends BasicTreePattern implements PatternValue {
 	private java.util.List<PatternValue> children;
 	
-	PatternTuple(java.util.List<PatternValue> children){
+	TreePatternTuple(java.util.List<PatternValue> children){
 		this.children = children;
 	}
 	
@@ -122,10 +122,10 @@ import org.meta_environment.rascal.ast.Expression.TypedVariable;
 	}
 }
 
-/* package */ class PatternMap extends BasicPattern implements PatternValue {
+/* package */ class TreePatternMap extends BasicTreePattern implements PatternValue {
 	private java.util.List<PatternValue> children;
 	
-	PatternMap(java.util.List<PatternValue> children){
+	TreePatternMap(java.util.List<PatternValue> children){
 		this.children = children;
 	}
 	
@@ -134,10 +134,10 @@ import org.meta_environment.rascal.ast.Expression.TypedVariable;
 	}
 }
 
-/* package */ class PatternQualifiedName extends BasicPattern implements PatternValue {
+/* package */ class TreePatternQualifiedName extends BasicTreePattern implements PatternValue {
 	private org.meta_environment.rascal.ast.QualifiedName name;
 	
-	PatternQualifiedName(org.meta_environment.rascal.ast.QualifiedName qualifiedName){
+	TreePatternQualifiedName(org.meta_environment.rascal.ast.QualifiedName qualifiedName){
 		this.name = qualifiedName;
 	}
 	
@@ -158,11 +158,11 @@ import org.meta_environment.rascal.ast.Expression.TypedVariable;
 	}
 }
 
-/* package */class PatternTypedVariable extends BasicPattern implements PatternValue {
+/* package */class TreePatternTypedVariable extends BasicTreePattern implements PatternValue {
 	private Name name;
 	org.eclipse.imp.pdb.facts.type.Type type;
 
-	PatternTypedVariable(org.eclipse.imp.pdb.facts.type.Type type2, Name name) {
+	TreePatternTypedVariable(org.eclipse.imp.pdb.facts.type.Type type2, Name name) {
 		this.type = type2;
 		this.name = name;
 	}
@@ -176,23 +176,23 @@ import org.meta_environment.rascal.ast.Expression.TypedVariable;
 	}
 }
 
-public class PatternEvaluator extends NullASTVisitor<PatternValue> {
+public class TreePatternEvaluator extends NullASTVisitor<PatternValue> {
 
 	private Evaluator ev;
 	
-	PatternEvaluator(Evaluator evaluator){
+	TreePatternEvaluator(Evaluator evaluator){
 		ev = evaluator;
 	}
 	
 	@Override
 	public PatternValue visitExpressionLiteral(Literal x) {
-		return new PatternLiteral(x.getLiteral().accept(ev).value);
+		return new TreePatternLiteral(x.getLiteral().accept(ev).value);
 	}
 	
 	
 	@Override
 	public PatternValue visitExpressionCallOrTree(CallOrTree x) {
-		return new PatternTree(x.getQualifiedName(), visitElements(x.getArguments()));
+		return new TreePatternTree(x.getQualifiedName(), visitElements(x.getArguments()));
 	}
 	
 	private java.util.List<PatternValue> visitElements(java.util.List<org.meta_environment.rascal.ast.Expression> elements){
@@ -207,17 +207,17 @@ public class PatternEvaluator extends NullASTVisitor<PatternValue> {
 	
 	@Override
 	public PatternValue visitExpressionList(List x) {
-		return new PatternList(visitElements(x.getElements()));
+		return new TreePatternList(visitElements(x.getElements()));
 	}
 	
 	@Override
 	public PatternValue visitExpressionSet(Set x) {
-		return new PatternSet(visitElements(x.getElements()));
+		return new TreePatternSet(visitElements(x.getElements()));
 	}
 	
 	@Override
 	public PatternValue visitExpressionTuple(Tuple x) {
-		return new PatternTuple(visitElements(x.getElements()));
+		return new TreePatternTuple(visitElements(x.getElements()));
 	}
 	
 	@Override
@@ -227,11 +227,11 @@ public class PatternEvaluator extends NullASTVisitor<PatternValue> {
 	
 	@Override
 	public PatternValue visitExpressionQualifiedName(QualifiedName x) {
-		return new PatternQualifiedName(x.getQualifiedName());
+		return new TreePatternQualifiedName(x.getQualifiedName());
 	}
 	
 	@Override
 	public PatternValue visitExpressionTypedVariable(TypedVariable x) {
-		return new PatternTypedVariable(x.getType().accept(ev.te), x.getName());
+		return new TreePatternTypedVariable(x.getType().accept(ev.te), x.getName());
 	}
 }
