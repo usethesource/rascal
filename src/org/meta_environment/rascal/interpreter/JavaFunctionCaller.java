@@ -36,6 +36,7 @@ import org.eclipse.imp.pdb.facts.type.ListType;
 import org.eclipse.imp.pdb.facts.type.MapType;
 import org.eclipse.imp.pdb.facts.type.NamedTreeType;
 import org.eclipse.imp.pdb.facts.type.NamedType;
+import org.eclipse.imp.pdb.facts.type.ParameterType;
 import org.eclipse.imp.pdb.facts.type.RelationType;
 import org.eclipse.imp.pdb.facts.type.SetType;
 import org.eclipse.imp.pdb.facts.type.SourceLocationType;
@@ -309,6 +310,10 @@ public class JavaFunctionCaller {
 		public Class<?> visitVoid(VoidType type) {
 			return null;
 		}
+
+		public Class<?> visitParameter(ParameterType parameterType) {
+			return parameterType.getBound().accept(this);
+		}
 	}
 	
 	private static class JavaTypes implements ITypeVisitor<String> {
@@ -378,6 +383,10 @@ public class JavaFunctionCaller {
 
 		public String visitVoid(VoidType type) {
 			return null;
+		}
+
+		public String visitParameter(ParameterType parameterType) {
+			return parameterType.getBound().accept(this);
 		}
 	}
 }
