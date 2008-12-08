@@ -18,6 +18,7 @@ import org.meta_environment.rascal.ast.Expression;
 import org.meta_environment.rascal.ast.JavaFunctionBody;
 import org.meta_environment.rascal.ast.Module;
 import org.meta_environment.rascal.ast.Statement;
+import org.meta_environment.rascal.interpreter.RascalBug;
 import org.meta_environment.uptr.TreeAdapter;
 
 /**
@@ -126,8 +127,14 @@ public class ASTBuilder {
 			List<AbstractAST> alts = new LinkedList<AbstractAST>();
 
 			for (IValue elem : alternatives) {
-				if (sort == null) {
-					sort = new TreeAdapter((INode) elem).getSortName();
+				TreeAdapter alt = new TreeAdapter((INode) elem);
+
+				if (alt.isList()) {
+					// TODO add support for ambiguous lists
+					throw new RascalBug("Can not deal with ambiguous list: " + tree);
+				}
+				else if (sort == null) {
+					sort = alt.getSortName();
 				}
 				
 				alts.add(buildValue(elem));
