@@ -6,9 +6,7 @@ type str proc;
 type str comp;
 
 
-rel[proc,proc] Calls = {<"main", "a">, <"main", "b">, <"a", "b">, <"a", "c">, <"a", "d">, <"b", "d">};
-		         
-/*
+rel[proc,proc] Calls = {<"main", "a">, <"main", "b">, <"a", "b">, <"a", "c">, <"a", "d">, <"b", "d">};        
 
 set[comp] Components = {"Appl", "DB", "Lib"};
 
@@ -30,6 +28,6 @@ void assertResult(){
 			 { < "DB" , "Lib" > , < "Appl" , "Lib" > , 
 			   < "Appl" , "DB" > , < "Appl" , "Appl" > };
 }
-*/
+
 
 
