@@ -7,6 +7,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.Expression.CallOrTree;
@@ -165,6 +166,7 @@ import org.meta_environment.rascal.ast.Expression.TypedVariable;
 	TreePatternTypedVariable(org.eclipse.imp.pdb.facts.type.Type type2, Name name) {
 		this.type = type2;
 		this.name = name;
+		System.err.println("TypedVar: " + type2 + ", " + name);
 	}
 
 	public boolean match(IValue subj, Evaluator ev) {
@@ -232,6 +234,10 @@ public class TreePatternEvaluator extends NullASTVisitor<PatternValue> {
 	
 	@Override
 	public PatternValue visitExpressionTypedVariable(TypedVariable x) {
+		System.err.println("x = " + x);
+		System.err.println("type = " + x.getType());
+		System.err.println("treeType = " + ev.tf.treeType());
+		System.err.println("ev.te = " + ev.te);
 		return new TreePatternTypedVariable(x.getType().accept(ev.te), x.getName());
 	}
 }
