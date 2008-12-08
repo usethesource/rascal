@@ -451,7 +451,11 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		 TupleType actualTypes = tf.tupleType(types);
 		
 		if (te.isFunctionType(func.type)) {
-			FunctionDeclaration decl = env.getFunction(func.value.toString(), actualTypes);
+			String name = ((IString) func.value).getValue();
+			FunctionDeclaration decl = env.getFunction(name, actualTypes);
+			if (decl == null) {
+				throw new RascalTypeError("Call to undefined function: " + name);
+			}
 			return call(decl, actuals);
 		}
 		else {
