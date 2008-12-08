@@ -60,9 +60,12 @@ class RegExpPatternValue implements PatternValue {
 				Map<org.meta_environment.rascal.ast.QualifiedName,String> map = getBindings();
 				for(org.meta_environment.rascal.ast.QualifiedName name : map.keySet()){
 					EvalResult res = ev.env.getVariable(name);
+					/* TODO: This cannot be satisfied in a generator since there are repated assignments
+					 * to the variables in the regexp.
 					if((res != null) && (res.value != null)){
 						throw new RascalException(ev.vf, "variable " + name + " in regular expression has already a value (" + res.value + ")");
 					}
+					*/
 					ev.assignVariable(name, ev.result(ev.vf.string(map.get(name))));
 				}
 				return true;
