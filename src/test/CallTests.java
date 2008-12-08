@@ -71,6 +71,7 @@ public class CallTests extends TestCase{
 		String maxInt = "int max(int a, int b) { return a > b ? a : b; }";
 		String maxDouble = "double max(double a, double b) { return a > b ? a : b; }";
 		assertTrue(runTest("{" + maxInt + " max(3,4) == 4;}"));
+		assertTrue(runTest("{" + maxInt + maxDouble + " (max(3,4) == 4) && (max(3.0,4.0) == 4.0);}"));
 	}
 	
 	
