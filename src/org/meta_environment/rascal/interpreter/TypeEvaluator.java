@@ -112,6 +112,7 @@ public class TypeEvaluator extends NullASTVisitor<Type> {
 	
 	@Override
 	public Type visitBasicTypeTree(Tree x) {
+		System.err.println("visitBasicTypeTree: " + x + ", " + tf.treeType());
 		return tf.treeType();
 	}
 	
@@ -186,5 +187,4 @@ public class TypeEvaluator extends NullASTVisitor<Type> {
 		// TODO add support for parametric types
 		return tf.lookupNamedType(x.getUser().getName().toString());
 	}
-	
 }

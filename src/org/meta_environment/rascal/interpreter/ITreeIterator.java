@@ -1,59 +1,72 @@
 package org.meta_environment.rascal.interpreter;
 
-import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.IValue;
 
 public class ITreeIterator implements Iterator<IValue> {
-	private ITree tree;
-	List<IValue> subtrees = new ArrayList<IValue>();
-	ITree current;
-	
-	Iterator<IValue> iter;
+
+	List<Object> spine = new LinkedList<Object>();
+	private boolean topdown;
 	
 	ITreeIterator(ITree tree, boolean topdown){
-		this.tree = tree;
-		addSubTrees(tree, topdown);
-		for(int i = 0; i < subtrees.size(); i++){
-			System.err.println("subtree " + i + ": " + subtrees.get(i));
-		}
-		iter = subtrees.iterator();
+		this.topdown = topdown;
+		initSpine(tree);
 	}
 	
-	private void addSubTrees(IValue t, boolean topdown){
-		//TODO need a better implementation that does not generate a list
-		if(topdown){
-			subtrees.add(t);
-			if(t.getType().isTreeType()){
-				for(IValue c : ((ITree) t).getChildren()){
-					subtrees.add(c);
-					addSubTrees(c, topdown);
-				}
-			}
-		} else {
-			if(t.getType().isTreeType()){
-				for(IValue c : ((ITree) t).getChildren()){
-					System.err.println("add child: " + c);
-					addSubTrees(c, topdown);
-					subtrees.add(c);
-				}
-			}
-			subtrees.add(t);
+	private void initSpine(IValue t){
+		if(!topdown) {
+			spine.add(0,t);
+		}
+		if(t.getType().isTreeType()){
+			Iterator<IValue> children = ((ITree) t).getChildren().iterator();
+			spine.add(0, children);
+		}
+		if(topdown) {
+			spine.add(0,t);
 		}
 	}
 
 	public boolean hasNext() {
-		return iter.hasNext();
+		while((spine.size() > 0) && 
+			   (spine.get(0) instanceof Iterator && !((Iterator<Object>) spine.get(0)).hasNext())){
+			spine.remove(0);
+		}		
+		return spine.size() > 0;
 	}
 
 	public IValue next() {
-		return iter.next();
+		if(spine.get(0) instanceof Iterator){
+			Iterator<Object> iter = (Iterator<Object>) spine.get(0);
+			if(!iter.hasNext()){
+				spine.remove(0);
+				return next();
+			}
+			IValue res = (IValue) iter.next();
+			if(res instanceof ITree){
+				Iterator<IValue> children = ((ITree) res).getChildren().iterator();
+				if(topdown){
+					spine.add(0, children);
+					spine.add(0, res);
+				} else {
+					spine.add(0, res);
+					spine.add(0, children);
+				}
+				res = next();
+			}
+			return res;
+			
+		} else {
+			IValue res = (IValue) spine.get(0);
+			spine.remove(0);
+			return res;
+		}
 	}
 
 	public void remove() {
-		iter.remove();
+		return;
 	}
 }
