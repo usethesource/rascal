@@ -426,7 +426,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 					r = result(declaredType, v.value);
 					env.storeVariable(var.getName(), r);
 				} else {
-					throw new RascalTypeError("variable " + var + ", declared type " + declaredType + " incompatible with initial type " + v.type);
+					throw new RascalTypeError("variable " + var.getName() + ": declared type " + declaredType + " incompatible with initialization type " + v.type);
 				}
 			}
 		}
@@ -944,28 +944,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		} else
 			return pat.accept(pe).match(subj, this);
 	}
-	/*
-	private boolean regExpMatch(IValue subject, 
-			RegExpValue pat){
-		
-		if(!subject.getType().isStringType()){
-			throw new RascalTypeError("Subject of =~ should have type string and not " + subject.getType());
-		}
-		
-		if(pat.matches(((IString) subject).getValue())){
-			Map<org.meta_environment.rascal.ast.QualifiedName,String> map = pat.getBindings();
-			for(org.meta_environment.rascal.ast.QualifiedName name : map.keySet()){
-				EvalResult res = env.getVariable(name);
-				if((res != null) && (res.value != null)){
-					throw new RascalException(vf, "variable " + name + " in regular expression has already a value (" + res.value + ")");
-				}
-				assignVariable(name, result(vf.string(map.get(name))));
-			}
-			return true;
-		}
-		return false;
-	}
-	*/
 
 	@Override
 	public EvalResult visitExpressionRegExpMatch(RegExpMatch x) {
@@ -1918,7 +1896,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 						elementFromType = elementToType.lub(rfrom.type);	
 						res.put(rfrom.value, rto.value);
 					}  else {
-							throw new RascalTypeError("Cannot add par of type (" + rfrom.type + ":" + rto.type  + 
+							throw new RascalTypeError("Cannot add pair of type (" + rfrom.type + ":" + rto.type  + 
 									") to map comprehension with element type (" + elementFromType + ":"+ elementToType + ")");
 						}
 				} else {

@@ -10,6 +10,9 @@ public class AllTests {
 		suite.addTestSuite(ComprehensionTests.class);
 		suite.addTestSuite(StatementTests.class);
 		suite.addTestSuite(PatternTests.class);
+		suite.addTestSuite(CallTests.class);
+		suite.addTestSuite(ErrorTests.class);
+		
 		//suite.addTestSuite(StandardLibraryTests.class);
 		
 		return suite;
