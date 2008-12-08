@@ -52,6 +52,15 @@ public class CallTests extends TestCase{
 		assertTrue(runTest("{" + fac + " fac(4) == 24;}"));
 	}
 	
+	public void testHigherOrder() throws IOException  {
+		String add = "int add(int a, int b) { return a + b; }";
+		String sub = "int sub(int a, int b) { return a - b; }";
+		String doSomething = "int doSomething(int (int a, int b) F) { return #F(1,2); }";
+
+		assertTrue(runTest("{" + add + " " + doSomething + " " + "doSomething(#add) == 3;}"));
+		assertTrue(runTest("{" + add + " " + sub + " " + doSomething + " " + "doSomething(#sub) == -1;}"));
+	}
+	
 	public void testMax() throws IOException {
 		String maxInt = "int max(int a, int b) { return a > b ? a : b; }";
 		String maxDouble = "double max(double a, double b) { return a > b ? a : b; }";
