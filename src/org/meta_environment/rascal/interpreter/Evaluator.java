@@ -133,8 +133,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	final IValueFactory vf;
 	final TypeFactory tf = TypeFactory.getInstance();
 	final TypeEvaluator te = new TypeEvaluator();
-	private final RegExpEvaluator re = new RegExpEvaluator();
-	private final PatternEvaluator pe;
+	private final RegExpPatternEvaluator re = new RegExpPatternEvaluator();
+	private final TreePatternEvaluator pe;
 	final GlobalEnvironment env = new GlobalEnvironment();
 	private final ASTFactory af;
 	private final JavaFunctionCaller javaFunctionCaller;
@@ -143,7 +143,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		this.vf = f;
 		this.af = astFactory;
 		javaFunctionCaller = new JavaFunctionCaller(errorWriter);
-		this.pe = new PatternEvaluator(this);
+		this.pe = new TreePatternEvaluator(this);
 	}
 
 	EvalResult result(Type t, IValue v) {
@@ -934,14 +934,18 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
     }
 	
 	// ----- General method for matching --------------------------------------------------
+    
+    private PatternValue evalPattern(org.meta_environment.rascal.ast.Expression pat){
+    	if(isRegExpPattern(pat)){           
+			return pat.accept(re);
+		} else
+			return pat.accept(pe);
+    }
 	
 	private boolean match(IValue subj, org.meta_environment.rascal.ast.Expression pat){
 		System.err.println("match: pat : " + pat);
-
-		if(isRegExpPattern(pat)){           
-			return pat.accept(re).match(subj, this);
-		} else
-			return pat.accept(pe).match(subj, this);
+		
+		return evalPattern(pat).match(subj, this);
 	}
 
 	@Override
@@ -1730,7 +1734,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			evaluator = ev;
 			isValueProducer = true;
 			
-			pat = vp.getPattern().accept(pe);
+			pat = evalPattern(vp.getPattern());
 			patexpr = vp.getExpression();
 			EvalResult r = patexpr.accept(ev);
 			if(r.type.isListType()){
