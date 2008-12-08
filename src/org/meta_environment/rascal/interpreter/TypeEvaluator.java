@@ -24,6 +24,7 @@ import org.meta_environment.rascal.ast.StructuredType.Tuple;
 import org.meta_environment.rascal.ast.Type.Basic;
 import org.meta_environment.rascal.ast.Type.Function;
 import org.meta_environment.rascal.ast.Type.Structured;
+import org.meta_environment.rascal.ast.Type.User;
 import org.meta_environment.rascal.ast.TypeArg.Default;
 import org.meta_environment.rascal.ast.TypeArg.Named;
 
@@ -180,5 +181,10 @@ public class TypeEvaluator extends NullASTVisitor<Type> {
 		return x.getType().accept(this);
 	}
 
+	@Override
+	public Type visitTypeUser(User x) {
+		// TODO add support for parametric types
+		return tf.lookupNamedType(x.getUser().getName().toString());
+	}
 	
 }
