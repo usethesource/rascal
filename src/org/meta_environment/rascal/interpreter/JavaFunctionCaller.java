@@ -63,7 +63,7 @@ public class JavaFunctionCaller {
 	private static final String VALUE_FACTORY = "org.eclipse.imp.pdb.facts.impl.hash.ValueFactory";
 	
 	private final Writer out;
-	private final Map<FunctionDeclaration,Class<?>> cache = new WeakHashMap<FunctionDeclaration, Class<?>>();
+	private final static Map<FunctionDeclaration,Class<?>> cache = new WeakHashMap<FunctionDeclaration, Class<?>>();
 	private final TypeEvaluator typeEvaluator;
 	private final JavaTypes javaTypes = new JavaTypes();
 	private final JavaClasses javaClasses = new JavaClasses();
