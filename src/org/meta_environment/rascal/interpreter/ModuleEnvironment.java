@@ -1,11 +1,13 @@
 package org.meta_environment.rascal.interpreter;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.type.TupleType;
+import org.eclipse.imp.pdb.facts.type.Type;
 
 /**
  * A module environment represents a module object (i.e. a running module).
@@ -18,7 +20,8 @@ public class ModuleEnvironment extends EnvironmentStack {
 	protected final Set<String> importedModules;
 	protected final Map<String, ModuleVisibility> nameVisibility;
 	
-	public ModuleEnvironment(String name) {
+	public ModuleEnvironment(String name, TypeEvaluator te) {
+		super(te);
 		this.name = name;
 		this.importedModules = new HashSet<String>();
 		this.nameVisibility = new HashMap<String, ModuleVisibility>();
@@ -90,5 +93,15 @@ public class ModuleEnvironment extends EnvironmentStack {
 		else {
 			return env;
 		}
+	}
+
+	@Override
+	public Map<String, Type> getTypes() {
+		return Collections.unmodifiableMap(typeEnvironment);
+	}
+	
+	@Override
+	protected void storeType(String name, Type type) {
+		typeEnvironment.put(name, type);
 	}
 }

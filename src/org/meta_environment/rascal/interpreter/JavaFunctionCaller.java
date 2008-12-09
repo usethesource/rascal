@@ -64,12 +64,13 @@ public class JavaFunctionCaller {
 	
 	private final Writer out;
 	private final Map<FunctionDeclaration,Class<?>> cache = new WeakHashMap<FunctionDeclaration, Class<?>>();
-	private final TypeEvaluator typeEvaluator = new TypeEvaluator();
+	private final TypeEvaluator typeEvaluator;
 	private final JavaTypes javaTypes = new JavaTypes();
 	private final JavaClasses javaClasses = new JavaClasses();
 	
-	public JavaFunctionCaller(Writer outputWriter) {
+	public JavaFunctionCaller(Writer outputWriter, TypeEvaluator te) {
 		this.out = outputWriter;
+		this.typeEvaluator = te;
 		
 		if (ToolProvider.getSystemJavaCompiler() == null) {
 			throw new RascalBug("Could not find an installed Java compiler, please provide a Java Runtime that includes the Java Development Tools (JDK 1.6 or higher).");

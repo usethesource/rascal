@@ -31,6 +31,7 @@ import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.type.ListType;
 import org.eclipse.imp.pdb.facts.type.MapType;
 import org.eclipse.imp.pdb.facts.type.NamedTreeType;
+import org.eclipse.imp.pdb.facts.type.ParameterType;
 import org.eclipse.imp.pdb.facts.type.RelationType;
 import org.eclipse.imp.pdb.facts.type.SetType;
 import org.eclipse.imp.pdb.facts.type.TreeNodeType;
@@ -132,22 +133,23 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	public static final String RASCAL_FILE_EXT = ".rsc";
 	final IValueFactory vf;
 	final TypeFactory tf = TypeFactory.getInstance();
-	final TypeEvaluator te = new TypeEvaluator();
+	final TypeEvaluator te = new TypeEvaluator(this);
 	private final RegExpPatternEvaluator re = new RegExpPatternEvaluator();
 	private final TreePatternEvaluator pe;
-	final GlobalEnvironment env = new GlobalEnvironment();
+	final GlobalEnvironment env = new GlobalEnvironment(te);
 	private final ASTFactory af;
 	private final JavaFunctionCaller javaFunctionCaller;
 
 	public Evaluator(IValueFactory f, ASTFactory astFactory, Writer errorWriter) {
 		this.vf = f;
 		this.af = astFactory;
-		javaFunctionCaller = new JavaFunctionCaller(errorWriter);
+		javaFunctionCaller = new JavaFunctionCaller(errorWriter, te);
 		this.pe = new TreePatternEvaluator(this);
 	}
 
 	EvalResult result(Type t, IValue v) {
-		return new EvalResult(t, v);
+		Type instance = t.instantiate(env.getTypes());
+		return new EvalResult(instance, v);
 	}
 
 	EvalResult result(IValue v) {
@@ -406,6 +408,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 
 	@Override
 	public EvalResult visitLocalVariableDeclarationDefault(Default x) {
+		// TODO deal with dynamic variables
 		return x.getDeclarator().accept(this);
 	}
 
@@ -456,7 +459,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			if (decl == null) {
 				throw new RascalTypeError("Call to undefined function: " + name);
 			}
-			return call(decl, actuals);
+			return call(decl, actuals, actualTypes);
 		}
 		else {
 			throw new RascalBug("Closures are not implemented yet");
@@ -483,7 +486,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		 
 		 if (func != null) {
 		   env.push(env.getModuleFor(name));
-		   EvalResult res = call(func, actuals);
+		   EvalResult res = call(func, actuals, actualTypes);
 		   env.pop();
 		   return res;
 		 }
@@ -505,12 +508,12 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		return result(functionType, functionType.make(vf, x.getFunction().getName().toString()));
 	}
 	
-	private EvalResult call(FunctionDeclaration func, IValue[] actuals) {
+	private EvalResult call(FunctionDeclaration func, IValue[] actuals, TupleType actualTypes) {
 		if (isJavaFunction(func)) { 
 			return callJavaFunction(func, actuals);
 		}
 		else {
-			return callRascalFunction(func, actuals);
+			return callRascalFunction(func, actuals, actualTypes);
 		}
 	}
 
@@ -533,14 +536,26 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	}
 
 	private EvalResult callRascalFunction(FunctionDeclaration func,
-			IValue[] actuals) {
+			IValue[] actuals, TupleType actualTypes) {
 		try {
 			env.push();
 			TupleType formals = (TupleType) func.getSignature().accept(te);
 			
 			for (int i = 0; i < formals.getArity(); i++) {
-				EvalResult actual = result(formals.getFieldType(i), actuals[i]);
-				env.storeVariable(formals.getFieldName(i), actual);
+				Type formal = formals.getFieldType(i);
+				Type actual = actualTypes.getFieldType(i);
+				
+				if (formal.isParameterType()) {
+					ParameterType param = (ParameterType) formal;
+					Type bound = param.getBound();
+					if (!actual.isSubtypeOf(bound)) {
+						throw new RascalTypeError("Type of actual parameter " + i + " does not fit bound of formal parameter type: " + bound);
+					}
+					env.storeType(param.getName(), actual);
+				}
+				
+				EvalResult result = result(formal, actuals[i]);
+				env.storeVariable(formals.getFieldName(i), result);
 			}
 			
 			if (func.getBody().isDefault()) {
@@ -553,8 +568,10 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			throw new RascalTypeError("Function definition:" + func + "\n does not have a return statement.");
 		}
 		catch (ReturnException e) {
+			EvalResult result = e.getValue();
+			result.type = result.type.instantiate(env.getTypes());
 			env.pop();
-			return e.getValue();
+			return result;
 		}
 	}
 
@@ -603,21 +620,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	}
 	
 	EvalResult assignVariable(QualifiedName name, EvalResult right){
-		EvalResult previous = env.getVariable(name);
-		if (previous != null) {
-			if (right.type.isSubtypeOf(previous.type)) {
-				right.type = previous.type;
-			} else {
-				throw new RascalTypeError("Variable " + name
-						+ " has type " + previous.type
-						+ "; cannot assign value of type " + right.type);
-			}
-		}
-		env.storeVariable(name, right);
-		return right;
-	}
-	
-	private EvalResult assignVariable(Name name, EvalResult right){
 		EvalResult previous = env.getVariable(name);
 		if (previous != null) {
 			if (right.type.isSubtypeOf(previous.type)) {
