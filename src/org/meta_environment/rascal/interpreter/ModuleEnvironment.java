@@ -95,9 +95,4 @@ public class ModuleEnvironment extends EnvironmentStack {
 			return env;
 		}
 	}
-
-	@Override
-	public Map<ParameterType, Type> getTypes() {
-		return Collections.unmodifiableMap(typeEnvironment);
-	}
 }
