@@ -24,6 +24,7 @@ public class StandardLibraryTests extends TestCase {
 	private Parser parser = Parser.getInstance();
 	private ASTFactory factory = new ASTFactory();
     private ASTBuilder builder = new ASTBuilder(factory);
+	private Evaluator evaluator = new Evaluator(ValueFactory.getInstance(), factory, new PrintWriter(System.err));
 	
 	private boolean eval(Evaluator evaluator, INode tree){
 		if (tree.getTreeNodeType() ==  Factory.ParseTree_Summary) {
@@ -51,8 +52,8 @@ public class StandardLibraryTests extends TestCase {
 	private boolean runTest(String module, String command) throws IOException {
 		INode tree1 = parser.parse(new ByteArrayInputStream(("import " + module + ";").getBytes()));
 		INode tree2 = parser.parse(new ByteArrayInputStream(command.getBytes()));
-		Evaluator evaluator = new Evaluator(ValueFactory.getInstance(), factory, new PrintWriter(System.err));
 
+		evaluator.clean();
 		eval(evaluator, tree1);
 		return eval(evaluator,tree2);
 	}
@@ -103,8 +104,8 @@ public class StandardLibraryTests extends TestCase {
 		
 		// min
 		
-		assertTrue(runTest("Integer", "Integer::min(3, 10) == 1;"));
-		assertTrue(runTest("Integer", "min(3, 10) == 13;"));
+		assertTrue(runTest("Integer", "Integer::min(3, 10) == 3;"));
+		assertTrue(runTest("Integer", "min(3, 10) == 3;"));
 		assertTrue(runTest("Integer", "Integer::min(10, 10) == 10;"));
 		
 		//toDouble
@@ -124,7 +125,7 @@ public class StandardLibraryTests extends TestCase {
 		// arb
 		
 		assertTrue(runTest("Double", "{double D = Double::arb(); (D >= 0.0) && (D <= 1.0);};"));
-		//assertTrue(runTest("Double", "{double D = arb(10); (D >= 0.0) && (D <= 1.0);};"));
+		assertTrue(runTest("Double", "{double D = arb(10); (D >= 0.0) && (D <= 1.0);};"));
 		
 		// max
 		
