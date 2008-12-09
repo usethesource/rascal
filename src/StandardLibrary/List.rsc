@@ -1,7 +1,7 @@
 module List
 
 public &T java arb(list[&T] l)
-@doc(arb -- arbitrary element from list}
+@doc{arb -- arbitrary element from list}
 {
    int n = l.length();
    if(n > 0){
