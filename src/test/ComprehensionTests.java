@@ -25,6 +25,7 @@ public class ComprehensionTests extends TestCase {
 	private boolean runTest(String statement) throws IOException {
 		INode tree = parser.parse(new ByteArrayInputStream(statement.getBytes()));
 		evaluator.clean();
+	
 		
 		if (tree.getTreeNodeType() ==  Factory.ParseTree_Summary) {
 			System.err.println(tree);
@@ -212,7 +213,10 @@ public class ComprehensionTests extends TestCase {
 		assertTrue(runTest("[X * 2 | int X : {1,2,3}] == [2,4,6];"));
 		assertTrue(runTest("[X * 2 | int X : [1,2,3]] == [2,4,6];"));
 		
-		assertTrue(runTest("[S | /@<S:[a-z]+>@/ : [\"@abc@\", \"@def@\"]] == [\"abc\",\"def\"]"));
+		assertTrue(runTest("[S | /@<S:[a-z]+>@/ : [\"@abc@\", \"@def@\"]] == [\"abc\",\"def\"];"));
+		
+		assertTrue(runTest("[ X | int X : f(1,g(2,3)) ] == [1,2,3];"));
+		assertTrue(runTest("[ X | value X : f(1,g(2,3)) ] == [1,2,3, g(2,3),f(1,g(2,3))];"));
 
 	}
 	
@@ -248,6 +252,8 @@ public class ComprehensionTests extends TestCase {
 		assertTrue(runTest("{<X,Y> | int X : {1,2,3}, <X, str Y> : {<1,\"a\">, <7,\"b\">, <3,\"c\">,<5,\"d\">}} == {<1, \"a\">, <3, \"c\">};"));
 		assertTrue(runTest("{<X,Y> | int X : [1,2,3], <X, str Y> : [<1,\"a\">, <7,\"b\">, <3,\"c\">,<5,\"d\">]} == {<1, \"a\">, <3, \"c\">};"));
 		
+		assertTrue(runTest("{S | /@<S:[a-z]+>@/ : [\"@abc@\", \"@def@\"]} == {\"abc\", \"def\"};"));
+		assertTrue(runTest("{S | /@<S:[a-z]+>@/ : {\"@abc@\", \"@def@\"}} == {\"abc\", \"def\"};"));
 	}
 	
 	public void testMapComprehension() throws IOException {
