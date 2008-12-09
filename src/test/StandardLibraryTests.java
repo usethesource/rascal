@@ -202,8 +202,6 @@ public class StandardLibraryTests extends TestCase {
 	
 	public void testList() throws IOException {
 		
-		// TODO: Replace value N by int N;
-		
 		//arb
 		
 		assertTrue(runTest("List", "{int N = List::arb([1]); N == 1;};"));
@@ -225,6 +223,8 @@ public class StandardLibraryTests extends TestCase {
 		assertTrue(runTest("List", "{List::first([1, 2]) == 1;};"));
 		
 		//mapper
+		assertTrue(runTest("List", "{int inc(int n) {return n + 1;} mapper([1, 2, 3], #inc) == [2, 4, 6];};"));
+		assertTrue(runTest("List", "{int inc(int n) {return n + 1;} List::mapper([1, 2, 3], #inc) == [2, 4, 6];};"));
 		
 		//max
 		
@@ -237,8 +237,13 @@ public class StandardLibraryTests extends TestCase {
 		assertTrue(runTest("List", "{min([1, 2, 3, 2, 1]) == 1;};"));
 		
 		//multiply
+		assertTrue(runTest("List", "{multiply([1, 2, 3, 4]) == 24;};"));
+		assertTrue(runTest("List", "{List::multiply([1, 2, 3, 4]) == 24;};"));
 		
 		//reducer
+		
+		assertTrue(runTest("List", "{reducer([1, 2, 3, 4], #1, 0) == 10;};"));
+		assertTrue(runTest("List", "{List::reducer([1, 2, 3, 4], #1, 0) == 10;};"));
 		
 		//rest
 		
@@ -262,6 +267,8 @@ public class StandardLibraryTests extends TestCase {
 		//sort
 		
 		//sum
+		assertTrue(runTest("List", "{sum([1,2,3]) == 6;};"));
+		assertTrue(runTest("List", "{List::sum([1,2,3]) == 6;};"));
 		
 		assertTrue(runTest("List", "{List::sum([], 0) == 0;};"));
 		assertTrue(runTest("List", "{List::sum([], 0) == 0;};"));
