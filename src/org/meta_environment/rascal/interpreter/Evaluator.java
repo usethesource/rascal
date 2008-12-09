@@ -571,6 +571,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			EvalResult result = e.getValue();
 			result.type = result.type.instantiate(env.getTypes());
 			env.pop();
+			System.err.println("return: " + result);
 			return result;
 		}
 	}
