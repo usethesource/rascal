@@ -100,14 +100,4 @@ public class ModuleEnvironment extends EnvironmentStack {
 	public Map<ParameterType, Type> getTypes() {
 		return Collections.unmodifiableMap(typeEnvironment);
 	}
-	
-	@Override
-	protected void storeType(ParameterType par, Type type) {
-		typeEnvironment.put(par, type);
-	}
-	
-	@Override
-	public void storeTypes(Map<ParameterType, Type> bindings) {
-		typeEnvironment.putAll(bindings);
-	}
 }
