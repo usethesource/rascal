@@ -510,7 +510,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 	private EvalResult call(FunctionDeclaration func, IValue[] actuals, TupleType actualTypes) {
 		if (isJavaFunction(func)) { 
-			return callJavaFunction(func, actuals);
+			return callJavaFunction(func, actuals, actualTypes);
 		}
 		else {
 			return callRascalFunction(func, actuals, actualTypes);
@@ -529,10 +529,14 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	}
 
 	private EvalResult callJavaFunction(FunctionDeclaration func,
-			IValue[] actuals) {
+			IValue[] actuals, TupleType actualTypes) {
 		Type type = func.getSignature().getType().accept(te);
-		
-		return result(type, javaFunctionCaller.callJavaMethod(func, actuals));
+		TupleType formals = (TupleType) func.getSignature().getParameters().accept(te);
+		env.push();
+		bindTypeParameters(actualTypes, formals);
+		IValue result = javaFunctionCaller.callJavaMethod(func, actuals);
+		Type resultType = type.instantiate(env.getTypes());
+		return result(resultType, result);
 	}
 
 	private EvalResult callRascalFunction(FunctionDeclaration func,
