@@ -536,6 +536,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		bindTypeParameters(actualTypes, formals);
 		IValue result = javaFunctionCaller.callJavaMethod(func, actuals);
 		Type resultType = type.instantiate(env.getTypes());
+		env.pop();
 		return result(resultType, result);
 	}
 

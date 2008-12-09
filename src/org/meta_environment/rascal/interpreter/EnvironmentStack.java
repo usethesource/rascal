@@ -162,7 +162,13 @@ public class EnvironmentStack extends Environment {
 		Map<ParameterType,Type> types = new HashMap<ParameterType,Type>();
 		
 		for (int i = 0; i < stack.size(); i++) {
-			types.putAll(stack.get(i).getTypes());
+			Environment environment = stack.get(i);
+			if (environment == this) {
+				types.putAll(super.getTypes());
+			}
+			else {
+			  types.putAll(environment.getTypes());
+			}
 		}
 		
 		// result can not be given to a match
