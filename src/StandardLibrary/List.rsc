@@ -1,12 +1,13 @@
 module List
 
 public &T java arb(list[&T] l)
+@doc(arb -- arbitrary element from list}
 {
    return l.get(random.nextInt(l.length()));
 }
 
 public &T average(list[&T] l, &T zero)
-@doc{Average of elements of a list: average}
+@doc{average -- average of elements of a list}
 {
   return sum(l, zero)/size(l);
 }
