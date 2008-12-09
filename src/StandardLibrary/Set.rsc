@@ -1,7 +1,6 @@
 module Set
 
-//TODO: public &T arb(set[&T] S)
-public value java arb(set[value] s)
+public &T java arb(set[&T] s)
 @java-imports{import java.util.Iterator;}
 {
    int i = 0;
@@ -18,34 +17,30 @@ public value java arb(set[value] s)
    return null;
 }
   
-//public &T average(set[&T] S, &T zero)
- //@doc{Average of elements of a set}
-//{
-//  return sum(S, zero)/size(R);
-//
-//
-
-//public set[&T] mapper(set[&T] S, &T F (&T,&T)){
-//  return {F(E) | &T E : S};
-//}
-
-
-//TODO: public &T max(set[&T] R)
-public value max(set[value] R)
-  @doc{Maximum of a set}
+public &T average(set[&T] S, &T zero)
+@doc{Average of elements of a set}
 {
-  value result = arb(R);
-  for(value E : R){
+  return sum(S, zero)/size(R);
+}
+
+public set[&T] mapper(set[&T] S, &T (&T,&T) F){
+  return {#F(E) | &T E : S};
+}
+
+public &T max(set[&T] R)
+@doc{Maximum of a set}
+{
+  &T result = arb(R);
+  for(&T E : R){
     result = max(result, E);
   }
   return result;
 }
 
-// TODO: public &T min(set[&T] S)
-public value min(set[value] S)
+public &T min(set[&T] S)
 {
-  value result = arb(S);
-  for(value e : S){
+  &T result = arb(S);
+  for(&T e : S){
    if(e < result){
       result = min(result, e);
    }
@@ -53,35 +48,33 @@ public value min(set[value] S)
   return result;
 }
 
-//public &T multiply(set[&T] S, &T unity)
-//  @doc{Multiply elements of a Set}
-//{
-//  return reducer(S, *, unity);
-//}
+public &T multiply(set[&T] S, &T unity)
+@doc{Multiply elements of a Set}
+{
+  return reducer(S, #*, unity);
+}
 
-//public &T reducer(set[&T] S, &T F (&T,&T), &T unit){
- // &T result = unit;
- // for(&T E : S){
- //   result = F(result, E);
-//  }
-//  return result;
-//}
+public &T reducer(set[&T] S, &T (&T,&T) F, &T unit)
+{
+  &T result = unit;
+  for(&T E : S){
+    result = F(result, E);
+  }
+  return result;
+}
 
-
-//TODO: public int java size(set[&T] S)
-public int java size(set[value] S)
+public int java size(set[&T] S)
 {
    return values.integer(S.size());
 }
  
- //public &T sum(set[&T] S, &T zero)
- // @doc{Sum elements of a Set: sum}
-//{
-//  return reducer(S, +, zero);
-//}
+public &T sum(set[&T] S, &T zero)
+@doc{Sum elements of a Set: sum}
+{
+  return reducer(S, #+, zero);
+}
   
-//TODO: public list[&T] java toList(set[&T] S)
-public list[value] java toList(set[value] S)
+public list[&T] java toList(set[&T] S)
 @java-imports{import java.util.Iterator;}
 {
   Type resultType = types.setType(S.getElementType());
@@ -94,16 +87,15 @@ public list[value] java toList(set[value] S)
   return w.done();
 }
 
- // public map[&T, &U] toMap(set[tuple[&T, &U]] S)
- // throws non_unique_domain(str msg)
+// public map[&T, &U] toMap(set[tuple[&T, &U]] S)
+// throws non_unique_domain(str msg)
 //  @primitive{"Set.toMap"}
   
 
 //public rel[&T] toRel(set[&T] S)
 //   @primitive{"Set.toRel"}
 
-//TODO: public str toString(set[&T] S)
-public str java toString(set[value] S)
+public str java toString(set[&T] S)
 {
 	return values.string(S.toString());
 }

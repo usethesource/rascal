@@ -1,21 +1,17 @@
 module List
 
-// TODO: public &T java arb(list[&T] l)
-public int java arb(list[int] l)
+public &T java arb(list[&T] l)
 {
    return l.get(random.nextInt(l.length()));
 }
 
-// TODO: public &T average(list[&T] l, &T zero)
-public value average(list[value] l, value zero)
+public &T average(list[&T] l, &T zero)
 @doc{Average of elements of a list: average}
 {
   return sum(l, zero)/size(l);
 }
 
-//TODO: public &T java first(list[&T] l)
-
-public value java first(list[value] l)
+public &T java first(list[&T] l)
   throws empty_list()
   @doc{First element of list: first}
 {
@@ -25,18 +21,16 @@ public value java first(list[value] l)
       throw new RascalException(values, "empty_list");
    }
 }
-// TODO: list[&T] mapper(list[&T] L, &T (&T x,&T y) F) {
 
-public list[value] mapper(list[value] L, value (value x,value y) F) {
+list[&T] mapper(list[&T] L, &T (&T x,&T y) F) {
   return [#F(E) | value E : L];
 }
 
-// TODO: public &T max(list[&T] l)
-public int max(list[int] l)
+public &T max(list[&T] l)
 @doc{Maximum element of a list: max}
 {
-  int result = List::arb(l);
-  for(int e : l) {
+  &T result = List::arb(l);
+  for(&T e : l) {
    if(result < e) {
       result = max(result, e);
    }
@@ -44,11 +38,10 @@ public int max(list[int] l)
   return result;
 }
 
-// TODO: public &T min(list[&T] l)
-public int min(list[int] l)
+public &T min(list[&T] l)
 {
-  int result = List::arb(l);
-  for(int e : l){
+  &T result = List::arb(l);
+  for(&T e : l){
    if(e < result){
       result = min(result, e);
    }
@@ -56,24 +49,22 @@ public int min(list[int] l)
   return result;
 }
 
-//TODO: public &T multiply(list[&T] l, &T unity)
-public value multiply(list[value] l, value unity)
+public &T multiply(list[&T] l, &T unity)
 @doc{Multiply elements of a list: multiply}
 {
   return reducer(l, #*, unity);
 }
 
-public value reducer(list[value] l, value (value, value) F, value unit)
+public &T reducer(list[&T] l, &T (&T, &T) F, &T unit)
 {
-  value result = unit;
-  for(value e : l){
-     result = F(result, e);
+  &T result = unit;
+  for(&T e : l){
+     result = #F(result, e);
   }
   return result;
 }
 
-//TODO: public &T java rest(list[&T] l)
-public value java rest(list[value] l)
+public &T java rest(list[&T] l)
   throws empty_list()
  @doc{First element of list: first}
  { IListWriter w = l.getType().writer(values);
@@ -88,34 +79,29 @@ public value java rest(list[value] l)
    }
  }
 
-//TODO: public list[&T] java reverse(list[&T] l)
-public list[value] java reverse(list[value] l)
+public list[&T] java reverse(list[&T] l)
 {
 	return l.reverse();
 }
 
-//TODO: public int java size(list[&T] l)
-public int java size(list[value] l)
+public int java size(list[&T] l)
 {
    return values.integer(l.length());
 }
 
-//TODO: public list[&T] java sort(list[&T] l)
-public list[value] sort(list[value] L, bool (value, value) compare)
+public list[&T] sort(list[&T] L, bool (&T, &T) compare)
   @doc{Sort elements of list: sort}
 {
  // To be done.
 }
 
-//TODO: public &T sum(list[&T] l, &T zero)
-public value sum(list[value] l, value zero)
+public &T sum(list[&T] l, &T zero)
 @doc{Add elements of a List: sum}
 {
   return reducer(l, #+, zero);
 }
 
-//TODO: public map[&A,&B] java toMap(list[tuple[&A, &B]] l)
-public map[value,value] java toMap(list[tuple[value, value]] l)
+public map[&A,&B] java toMap(list[tuple[&A, &B]] l)
 @java-imports{import java.util.Iterator;}
 {
    TupleType tuple = (TupleType) l.getElementType();
@@ -130,8 +116,7 @@ public map[value,value] java toMap(list[tuple[value, value]] l)
    return w.done();
 }
 
-//TODO: public set[&T] java toSet(list[&T] l)
-public set[value] java toSet(list[value] l)
+public set[&T] java toSet(list[&T] l)
 @java-imports{import java.util.Iterator;}
 {
   Type resultType = types.setType(l.getElementType());
@@ -144,8 +129,7 @@ public set[value] java toSet(list[value] l)
   return w.done();
 }
 
-// TODO: public str java toString(list[&T] l)
-public str java toString(list[value] l)
+public str java toString(list[&T] l)
 {
 	return values.string(l.toString());
 }
