@@ -67,13 +67,30 @@ public class CallTests extends TestCase{
 		assertTrue(runTest("{ int called = 0; " + one + " One(); One(); One(); called == 3;}"));
 	}
 	
-	public void testMax() throws IOException {
+	public void testMax1() throws IOException {
 		String maxInt = "int max(int a, int b) { return a > b ? a : b; }";
 		String maxDouble = "double max(double a, double b) { return a > b ? a : b; }";
 		assertTrue(runTest("{" + maxInt + " max(3,4) == 4;}"));
 		assertTrue(runTest("{" + maxInt + maxDouble + " (max(3,4) == 4) && (max(3.0,4.0) == 4.0);}"));
 	}
 	
+	public void testMax2() throws IOException {
+		String max = "&T max(&T a, &T b) { return a > b ? a : b; }";
+		assertTrue(runTest("{" + max + " max(3,4) == 4;}"));
+		assertTrue(runTest("{" + max + " max(3.0,4.0) == 4.0;}"));
+		assertTrue(runTest("{" + max + " max(\"abc\",\"def\") == \"def\";}"));
+	}
 	
+	public void testId() throws IOException {
+		String Id = "&T id(&T x){ return x; }";
+		assertTrue(runTest("{" + Id + " id(true) == true;}"));
+		assertTrue(runTest("{" + Id + " id(4) == 4;}"));
+		assertTrue(runTest("{" + Id + " id(4.5) == 4.5;}"));
+		assertTrue(runTest("{" + Id + " id(\"abc\") == \"abc\";}"));
+		assertTrue(runTest("{" + Id + " id(f(1)) == f(1);}"));
+		assertTrue(runTest("{" + Id + " id([1,2,3]) == [1,2,3];}"));
+		assertTrue(runTest("{" + Id + " id({1,2,3}) == {1,2,3};}"));
+		assertTrue(runTest("{" + Id + " id((1:10,2:20,3:30)) == (1:10,2:20,3:30);}"));
+	}
 }
 
