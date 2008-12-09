@@ -136,7 +136,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	final TypeEvaluator te = new TypeEvaluator(this);
 	private final RegExpPatternEvaluator re = new RegExpPatternEvaluator();
 	private final TreePatternEvaluator pe;
-	final GlobalEnvironment env = new GlobalEnvironment(te);
+	GlobalEnvironment env = new GlobalEnvironment(te);
 	private final ASTFactory af;
 	private final JavaFunctionCaller javaFunctionCaller;
 
@@ -145,6 +145,12 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		this.af = astFactory;
 		javaFunctionCaller = new JavaFunctionCaller(errorWriter, te);
 		this.pe = new TreePatternEvaluator(this);
+	}
+	/*
+	 * Clean the global environment for the benefit of repeated testing.
+	 */
+	public void clean(){
+		env = new GlobalEnvironment(te);
 	}
 
 	EvalResult result(Type t, IValue v) {

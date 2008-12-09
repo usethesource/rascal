@@ -3,7 +3,12 @@ module List
 public &T java arb(list[&T] l)
 @doc(arb -- arbitrary element from list}
 {
-   return l.get(random.nextInt(l.length()));
+   int n = l.length();
+   if(n > 0){
+   	return l.get(random.nextInt(n));
+   	} else {
+   		throw new RascalException(values, "empty_list");
+   	}
 }
 
 public &T average(list[&T] l, &T zero)
