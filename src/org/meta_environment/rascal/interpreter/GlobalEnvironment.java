@@ -1,5 +1,6 @@
 package org.meta_environment.rascal.interpreter;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -24,8 +25,8 @@ public class GlobalEnvironment extends ModuleEnvironment {
 	private final Map<String, ModuleEnvironment> moduleEnvironment;
 	private final Map<Type, List<Rule>> ruleEnvironment;
 
-	public GlobalEnvironment() {
-		super("***global***");
+	public GlobalEnvironment(TypeEvaluator te) {
+		super("***global***", te);
 		stack.pop();
 		stack.push(this);
 		moduleEnvironment = new HashMap<String, ModuleEnvironment>();
@@ -43,7 +44,7 @@ public class GlobalEnvironment extends ModuleEnvironment {
 	}
 	
 	public void addModule(String name) {
-		moduleEnvironment.put(name, new ModuleEnvironment(name));
+		moduleEnvironment.put(name, new ModuleEnvironment(name, types));
 		importedModules.add(name);
 	}
 	
@@ -163,5 +164,7 @@ public class GlobalEnvironment extends ModuleEnvironment {
 		List<Rule> rules = ruleEnvironment.get(forType);
 		return rules != null ? rules : new LinkedList<Rule>();
 	}
+
+	
 	
 }

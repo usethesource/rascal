@@ -1,5 +1,6 @@
 package org.meta_environment.rascal.interpreter;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -19,14 +20,13 @@ public class Environment {
 	protected final Map<String, EvalResult> variableEnvironment;
 	protected final Map<String, List<FunctionDeclaration>> functionEnvironment;
 	protected final Map<String, Type> typeEnvironment;
-	
-	
-	protected final TypeEvaluator types = new TypeEvaluator();
+	protected final TypeEvaluator types;
 
-	public Environment() {
+	public Environment(TypeEvaluator te) {
 		this.variableEnvironment = new HashMap<String, EvalResult>();
 		this.functionEnvironment = new HashMap<String, List<FunctionDeclaration>>();
 		this.typeEnvironment = new HashMap<String, Type>();
+		this.types = te;
 	}
 	
 	protected FunctionDeclaration getFunction(String name, TupleType actuals) {
@@ -90,5 +90,9 @@ public class Environment {
 	
 	public boolean isGlobalEnvironment() {
 		return false;
+	}
+	
+	public Map<String, Type> getTypes() {
+		return Collections.unmodifiableMap(typeEnvironment);
 	}
 }

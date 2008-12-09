@@ -1,10 +1,12 @@
 package org.meta_environment.rascal.interpreter;
 
+import org.eclipse.imp.pdb.facts.type.ParameterType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.Formal;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.TypeArg;
+import org.meta_environment.rascal.ast.TypeVar;
 import org.meta_environment.rascal.ast.BasicType.Bool;
 import org.meta_environment.rascal.ast.BasicType.Double;
 import org.meta_environment.rascal.ast.BasicType.Int;
@@ -25,13 +27,19 @@ import org.meta_environment.rascal.ast.Type.Basic;
 import org.meta_environment.rascal.ast.Type.Function;
 import org.meta_environment.rascal.ast.Type.Structured;
 import org.meta_environment.rascal.ast.Type.User;
+import org.meta_environment.rascal.ast.Type.Variable;
 import org.meta_environment.rascal.ast.TypeArg.Default;
 import org.meta_environment.rascal.ast.TypeArg.Named;
 
 public class TypeEvaluator extends NullASTVisitor<Type> {
 	private TypeFactory tf = TypeFactory.getInstance();
 	private final Type functionType = tf.namedType("rascal.functionType", tf.stringType());
-
+	private final Evaluator ev;
+	
+	public TypeEvaluator(Evaluator eval) {
+		this.ev = eval;
+	}
+	
 	public boolean isFunctionType(Type type) {
 		return type == functionType;
 	}
@@ -180,6 +188,21 @@ public class TypeEvaluator extends NullASTVisitor<Type> {
 	@Override
 	public Type visitTypeArgNamed(Named x) {
 		return x.getType().accept(this);
+	}
+	
+	@Override
+	public Type visitTypeVariable(Variable x) {
+		TypeVar var = x.getTypeVar();
+		ParameterType param;
+		
+		if (var.isBounded()) {
+		  param = tf.parameterType(var.getName().toString(), var.getBound().accept(this));
+		}
+		else {
+		  param = tf.parameterType(var.getName().toString());
+		}
+		
+		return param.instantiate(ev.env.getTypes());
 	}
 
 	@Override

@@ -1,6 +1,8 @@
 package org.meta_environment.rascal.interpreter;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 import org.eclipse.imp.pdb.facts.type.TupleType;
@@ -16,9 +18,13 @@ import org.meta_environment.rascal.ast.Rule;
  */
 public class EnvironmentStack extends Environment {
 	protected final Stack<Environment> stack = new Stack<Environment>();
-
+    
+	public EnvironmentStack(TypeEvaluator te) {
+		super(te);
+	}
+	
 	public void push() {
-		stack.push(new Environment());
+		stack.push(new Environment(types));
 	}
 	
 	public void push(Environment e) {
@@ -147,5 +153,21 @@ public class EnvironmentStack extends Environment {
 	protected EvalResult getModuleVariable(String module, String variable) {
 		ModuleEnvironment env = getGlobalEnvironment().getModule(module);
 		return env.getVariable(variable);
+	}
+	
+	@Override
+	public Map<String, Type> getTypes() {
+		Map<String,Type> types = new HashMap<String,Type>();
+		
+		for (int i = 0; i < stack.size(); i++) {
+			types.putAll(stack.get(i).getTypes());
+		}
+		
+		return types;
+	}
+
+	@Override
+	protected void storeType(String name, Type type) {
+		stack.peek().storeType(name, type);
 	}
 }
