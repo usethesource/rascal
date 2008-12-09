@@ -92,5 +92,11 @@ public class CallTests extends TestCase{
 		assertTrue(runTest("{" + Id + " id({1,2,3}) == {1,2,3};}"));
 		assertTrue(runTest("{" + Id + " id((1:10,2:20,3:30)) == (1:10,2:20,3:30);}"));
 	}
+	
+	public void testMap() throws IOException {
+		String put = "map[&K,&V] put(map[&K,&V] m, &K k, &V v) { m[k] = v; return m; }";
+		
+		assertTrue(runTest("{" + put + " put((),1,\"1\") == (1:\"1\"); }"));
+	}
 }
 
