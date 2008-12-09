@@ -50,7 +50,10 @@ class RegExpPatternValue implements PatternValue {
 	
 	public boolean match(IValue subj, Evaluator ev){
 		if(!subj.getType().isStringType()){
-			throw new RascalTypeError("Subject in regular expression match should have type string and not " + subj.getType());
+			return false;
+			/* TODO: this constraint is too harsh in matching context.
+			 * throw new RascalTypeError("Subject in regular expression match should have type string and not " + subj.getType());
+			 */
 		}
 		String s = ((IString) subj).getValue();
 		try {
