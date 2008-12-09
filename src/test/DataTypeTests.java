@@ -456,6 +456,23 @@ public class DataTypeTests extends TestCase{
 		assertTrue(runTest("{<1,2>, <2,3>, <3,4>, <4,2>, <4,5>}* == {<1,2>, <2,3>, <3,4>, <4,2>, <4,5>, <1, 3>, <2, 4>, <3, 2>, <3, 5>, <4, 3>, <1, 4>, <2, 2>, <2, 5>, <3, 3>, <4, 4>, <1, 5>, <1, 1>, <5, 5>};"));
 	}
 	
+	public void testTree() throws IOException {
+		assertTrue(runTest("f() == f();"));
+		assertTrue(runTest("f() != g();"));
+		assertTrue(runTest("f(1) == f(1);"));
+		assertTrue(runTest("f(1) != g(1);"));
+		assertTrue(runTest("f(1,2) == f(1,2);"));
+		assertTrue(runTest("f(1,2) != f(1,3);"));
+		assertTrue(runTest("f(1,g(2,3)) == f(1,g(2,3));"));
+		assertTrue(runTest("f(1,g(2,3)) != f(1,g(2,4));"));
+		assertTrue(runTest("f(1,g(2,{3,4,5})) == f(1,g(2,{3,4,5}));"));
+		assertTrue(runTest("f(1,g(2,{3,4,5})) != f(1,g(2,{3,4,5,6}));"));
+		assertTrue(runTest("f(1,g(2,[3,4,5])) == f(1,g(2,[3,4,5]));"));
+		assertTrue(runTest("f(1,g(2,[3,4,5])) != f(1,g(2,[3,4,5,6]));"));
+		assertTrue(runTest("f(1,g(2,(3:30,4:40,5:50))) == f(1,g(2,(3:30,4:40,5:50)));"));
+		assertTrue(runTest("f(1,g(2,(3:30,4:40,5:50))) != f(1,g(2,(3:30,4:40,5:55)));"));
+	}
+	
 	public void testOther() throws IOException {
 		assertTrue(runTest("1 =? 13 == 1;"));
 		assertTrue(runTest("x =? 13 == 13;"));
