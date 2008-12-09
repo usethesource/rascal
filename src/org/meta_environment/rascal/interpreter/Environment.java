@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.imp.pdb.facts.type.ParameterType;
 import org.eclipse.imp.pdb.facts.type.TupleType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
@@ -19,13 +20,13 @@ import org.meta_environment.rascal.ast.Name;
 public class Environment {
 	protected final Map<String, EvalResult> variableEnvironment;
 	protected final Map<String, List<FunctionDeclaration>> functionEnvironment;
-	protected final Map<String, Type> typeEnvironment;
+	protected final Map<ParameterType, Type> typeEnvironment;
 	protected final TypeEvaluator types;
 
 	public Environment(TypeEvaluator te) {
 		this.variableEnvironment = new HashMap<String, EvalResult>();
 		this.functionEnvironment = new HashMap<String, List<FunctionDeclaration>>();
-		this.typeEnvironment = new HashMap<String, Type>();
+		this.typeEnvironment = new HashMap<ParameterType, Type>();
 		this.types = te;
 	}
 	
@@ -54,12 +55,12 @@ public class Environment {
 		return getVariable(name.toString());
 	}
 	
-	protected void storeType(String name, Type type) {
-		typeEnvironment.put(name, type);
+	protected void storeType(ParameterType par, Type type) {
+		typeEnvironment.put(par, type);
 	}
 	
-	protected Type getType(String name) {
-		return typeEnvironment.get(name);
+	protected Type getType(ParameterType par) {
+		return typeEnvironment.get(par);
 	}
 	
 	protected void storeVariable(String name, EvalResult value) {
@@ -92,7 +93,12 @@ public class Environment {
 		return false;
 	}
 	
-	public Map<String, Type> getTypes() {
+	public Map<ParameterType, Type> getTypes() {
 		return Collections.unmodifiableMap(typeEnvironment);
 	}
+	
+	public void storeTypes(Map<ParameterType, Type> bindings) {
+		typeEnvironment.putAll(bindings);
+	}
+
 }
