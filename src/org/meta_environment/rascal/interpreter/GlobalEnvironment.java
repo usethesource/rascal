@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.imp.pdb.facts.type.ParameterType;
 import org.eclipse.imp.pdb.facts.type.TupleType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
@@ -165,6 +166,7 @@ public class GlobalEnvironment extends ModuleEnvironment {
 		return rules != null ? rules : new LinkedList<Rule>();
 	}
 
+	
 	
 	
 }

@@ -1,10 +1,12 @@
 package org.meta_environment.rascal.interpreter;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+import org.eclipse.imp.pdb.facts.type.ParameterType;
 import org.eclipse.imp.pdb.facts.type.TupleType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
@@ -156,18 +158,24 @@ public class EnvironmentStack extends Environment {
 	}
 	
 	@Override
-	public Map<String, Type> getTypes() {
-		Map<String,Type> types = new HashMap<String,Type>();
+	public Map<ParameterType, Type> getTypes() {
+		Map<ParameterType,Type> types = new HashMap<ParameterType,Type>();
 		
 		for (int i = 0; i < stack.size(); i++) {
 			types.putAll(stack.get(i).getTypes());
 		}
 		
-		return types;
+		// result can not be given to a match
+		return Collections.unmodifiableMap(types);
 	}
 
 	@Override
-	protected void storeType(String name, Type type) {
-		stack.peek().storeType(name, type);
+	protected void storeType(ParameterType par, Type type) {
+		stack.peek().storeType(par, type);
+	}
+	
+	@Override
+	public void storeTypes(Map<ParameterType, Type> bindings) {
+		stack.peek().storeTypes(bindings);
 	}
 }

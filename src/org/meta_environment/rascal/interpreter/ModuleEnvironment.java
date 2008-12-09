@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.imp.pdb.facts.type.ParameterType;
 import org.eclipse.imp.pdb.facts.type.TupleType;
 import org.eclipse.imp.pdb.facts.type.Type;
 
@@ -96,12 +97,17 @@ public class ModuleEnvironment extends EnvironmentStack {
 	}
 
 	@Override
-	public Map<String, Type> getTypes() {
+	public Map<ParameterType, Type> getTypes() {
 		return Collections.unmodifiableMap(typeEnvironment);
 	}
 	
 	@Override
-	protected void storeType(String name, Type type) {
-		typeEnvironment.put(name, type);
+	protected void storeType(ParameterType par, Type type) {
+		typeEnvironment.put(par, type);
+	}
+	
+	@Override
+	public void storeTypes(Map<ParameterType, Type> bindings) {
+		typeEnvironment.putAll(bindings);
 	}
 }

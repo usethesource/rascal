@@ -540,20 +540,10 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		try {
 			env.push();
 			TupleType formals = (TupleType) func.getSignature().accept(te);
+			bindTypeParameters(actualTypes, formals);
 			
 			for (int i = 0; i < formals.getArity(); i++) {
 				Type formal = formals.getFieldType(i);
-				Type actual = actualTypes.getFieldType(i);
-				
-				if (formal.isParameterType()) {
-					ParameterType param = (ParameterType) formal;
-					Type bound = param.getBound();
-					if (!actual.isSubtypeOf(bound)) {
-						throw new RascalTypeError("Type of actual parameter " + i + " does not fit bound of formal parameter type: " + bound);
-					}
-					env.storeType(param.getName(), actual);
-				}
-				
 				EvalResult result = result(formal, actuals[i]);
 				env.storeVariable(formals.getFieldName(i), result);
 			}
@@ -573,6 +563,17 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			env.pop();
 			System.err.println("return: " + result);
 			return result;
+		}
+	}
+
+	private void bindTypeParameters(TupleType actualTypes, TupleType formals) {
+		try {
+			Map<ParameterType, Type> bindings = new HashMap<ParameterType, Type>();
+			formals.match(actualTypes, bindings);
+			env.storeTypes(bindings);
+		}
+		catch (FactTypeError e) {
+			throw new RascalTypeError("Could not bind type parameters in " + formals + " to " + actualTypes, e);
 		}
 	}
 
@@ -699,7 +700,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		  throw ReturnException.getInstance(x.getRet().getExpression().accept(this));
 		}
 		else {
-			throw ReturnException.getInstance(result());
+			throw ReturnException.getInstance(result(tf.voidType(), null));
 		}
 	}
 	
