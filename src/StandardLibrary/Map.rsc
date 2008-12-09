@@ -1,21 +1,21 @@
 module Map
 
-//public &K java arb(map[&K, &V] m)  
-//@java-imports{import java.util.Iterator;import java.util.Map.Entry; }
-//{
-//   int i = 0;
-//   int k = random.nextInt(m.size());
-//   Iterator iter = m.entryIterator();
-//  
-//   while(iter.hasNext()){
-//      if(i == k){
-//      	return ((Entry) iter.next()).getKey();
-//      }
-//      iter.next();
-//      i++;
-//   }
-//   return null;
-//} 
+public &K java arb(map[&K, &V] m)  
+@java-imports{import java.util.Iterator;import java.util.Map.Entry; }
+{
+   int i = 0;
+   int k = random.nextInt(m.size());
+   Iterator iter = m.entryIterator();
+  
+   while(iter.hasNext()){
+      if(i == k){
+      	return (IValue) ((Entry) iter.next()).getKey();
+      }
+      iter.next();
+      i++;
+   }
+   return null;
+} 
 
 public map[&K, &V] mapper(map[&K, &V] M, &T (&T,&T) F){
   return {#F(E) | &T E : M};
