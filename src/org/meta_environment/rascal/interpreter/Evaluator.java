@@ -96,8 +96,6 @@ import org.meta_environment.rascal.ast.Expression.NonEmptyBlock;
 import org.meta_environment.rascal.ast.Expression.NotIn;
 import org.meta_environment.rascal.ast.Expression.Or;
 import org.meta_environment.rascal.ast.Expression.Product;
-import org.meta_environment.rascal.ast.Expression.RegExpMatch;
-import org.meta_environment.rascal.ast.Expression.RegExpNoMatch;
 import org.meta_environment.rascal.ast.Expression.Set;
 import org.meta_environment.rascal.ast.Expression.Subscript;
 import org.meta_environment.rascal.ast.Expression.Subtraction;
@@ -109,6 +107,9 @@ import org.meta_environment.rascal.ast.Literal.Boolean;
 import org.meta_environment.rascal.ast.Literal.Double;
 import org.meta_environment.rascal.ast.Literal.Integer;
 import org.meta_environment.rascal.ast.LocalVariableDeclaration.Default;
+import org.meta_environment.rascal.ast.Rule.Arbitrary;
+import org.meta_environment.rascal.ast.Rule.Guarded;
+import org.meta_environment.rascal.ast.Rule.Replacing;
 import org.meta_environment.rascal.ast.Statement.Assert;
 import org.meta_environment.rascal.ast.Statement.Assignment;
 import org.meta_environment.rascal.ast.Statement.Block;
@@ -386,23 +387,28 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 	@Override
 	public EvalResult visitDeclarationRule(Rule x) {
-		Type outer;
+		return x.getRule().accept(this);
+	}
 	
-		if (x.getRule().isNoGuard()) {
-		   EvalResult result = x.getRule().getMatch().getMatch().accept(this);
-		   outer = result.type;
-		}
-		else {
-			outer = x.getRule().getType().accept(te);
-			EvalResult result = x.getRule().getMatch().getMatch().accept(this);
-			
-			if (!result.type.isSubtypeOf(outer)) {
-				throw new RascalTypeError("Declared type of rule does not match type of left-hand side: " + x);
-			}
-		}
-		
-		env.storeRule(outer, x.getRule());
+	@Override
+	public EvalResult visitRuleArbitrary(Arbitrary x) {
+		env.storeRule(x.getPattern().accept(this).type, x);
 		return result();
+	}
+	
+	@Override
+	public EvalResult visitRuleReplacing(Replacing x) {
+		env.storeRule(x.getPattern().accept(this).type, x);
+		return result();
+	}
+	
+	@Override
+	public EvalResult visitRuleGuarded(Guarded x) {
+		EvalResult result = x.getRule().getPattern().getPattern().accept(this);
+		if (!result.type.isSubtypeOf(x.getType().accept(te))) {
+			throw new RascalTypeError("Declared type of rule does not match type of left-hand side: " + x);
+		}
+		return x.getRule().accept(this);
 	}
 	
 	@Override
@@ -920,9 +926,9 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				return cs.getStatement().accept(this);
 			}
 			org.meta_environment.rascal.ast.Rule rl = cs.getRule();
-			org.meta_environment.rascal.ast.Expression pat = rl.getMatch().getMatch();
+			org.meta_environment.rascal.ast.Expression pat = rl.getPattern().getPattern();
 			if(match(subject.value, pat)){
-				return rl.getMatch().getStatement().accept(this);
+				return rl.getStatement().accept(this);
 			}
 		}
 		return null;
@@ -967,17 +973,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		return evalPattern(pat).match(subj, this);
 	}
 
-	@Override
-	public EvalResult visitExpressionRegExpMatch(RegExpMatch x) {
-		return result(vf.bool(x.getPattern().accept(re).match(x.getExpression().accept(this).value, this)));
-	}
-	
-	@Override
-	public EvalResult visitExpressionRegExpNoMatch(RegExpNoMatch x) {
-		return result(vf.bool(!x.getPattern().accept(re).match(x.getExpression().accept(this).value, this)));
-	}
-
-	
 	// Expressions -----------------------------------------------------------
 
 	@Override
