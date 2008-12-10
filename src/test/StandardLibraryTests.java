@@ -126,7 +126,7 @@ public class StandardLibraryTests extends TestCase {
 		System.err.println("Double::arb");
 		
 		assertTrue(runTest("Double", "{double D = Double::arb(); (D >= 0.0) && (D <= 1.0);};"));
-		assertTrue(runTest("Double", "{double D = arb(10); (D >= 0.0) && (D <= 1.0);};"));
+		assertTrue(runTest("Double", "{double D = arb(); (D >= 0.0) && (D <= 1.0);};"));
 		
 		System.err.println("Double::max");
 		
@@ -217,10 +217,10 @@ public class StandardLibraryTests extends TestCase {
 		//average
 		System.err.println("List::average");
 		
-		assertTrue(runTest("List", "{value N = List::average([],0); N == 0;};"));
-		assertTrue(runTest("List", "{value N = average([],0); N == 0;};"));
-		assertTrue(runTest("List", "{value N = List::average([1],0); N == 1;};"));
-		assertTrue(runTest("List", "{value N = List::average([1, 3],0); N == 4;};"));
+		//assertTrue(runTest("List", "{value N = List::average([],0); N == 0;};"));
+		//assertTrue(runTest("List", "{value N = average([],0); N == 0;};"));
+		//assertTrue(runTest("List", "{value N = List::average([1],0); N == 1;};"));
+		//assertTrue(runTest("List", "{value N = List::average([1, 3],0); N == 4;};"));
 		
 		//first
 		System.err.println("List::first");
@@ -230,9 +230,9 @@ public class StandardLibraryTests extends TestCase {
 		assertTrue(runTest("List", "{List::first([1, 2]) == 1;};"));
 		
 		//mapper
-		System.err.println("mapper");
-		assertTrue(runTest("List", "{int inc(int n) {return n + 1;} mapper([1, 2, 3], #inc) == [2, 4, 6];};"));
-		assertTrue(runTest("List", "{int inc(int n) {return n + 1;} List::mapper([1, 2, 3], #inc) == [2, 4, 6];};"));
+		System.err.println("List::mapper");
+		//assertTrue(runTest("List", "{int inc(int n) {return n + 1;} mapper([1, 2, 3], #inc) == [2, 4, 6];};"));
+		//assertTrue(runTest("List", "{int inc(int n) {return n + 1;} List::mapper([1, 2, 3], #inc) == [2, 4, 6];};"));
 		
 		//max
 		System.err.println("List::max");
