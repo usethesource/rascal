@@ -1,6 +1,7 @@
 module Set
 
 public &T java arb(set[&T] s)
+@doc{arb -- pick a random element from a set}
 @java-imports{import java.util.Iterator;}
 {
    int i = 0;
@@ -18,17 +19,19 @@ public &T java arb(set[&T] s)
 }
   
 public &T average(set[&T] S, &T zero)
-@doc{Average of elements of a set}
+@doc{average -- compute the average of the elements of a set}
 {
-  return sum(S, zero)/size(R);
+  return sum(S, zero)/size(S);
 }
 
-public set[&T] mapper(set[&T] S, &T (&T,&T) F){
+public set[&T] mapper(set[&T] S, &T (&T,&T) F)
+@doc{mapper -- apply a function to each element of a set}
+{
   return {#F(E) | &T E : S};
 }
 
 public &T max(set[&T] R)
-@doc{Maximum of a set}
+@doc{max -- largest element of a set}
 {
   &T result = arb(R);
   for(&T e : R){
@@ -40,6 +43,7 @@ public &T max(set[&T] R)
 }
 
 public &T min(set[&T] S)
+@doc{min -- smallest element of a set}
 {
   &T result = arb(S);
   for(&T e : S){
@@ -51,12 +55,13 @@ public &T min(set[&T] S)
 }
 
 public &T multiply(set[&T] S, &T unity)
-@doc{Multiply elements of a Set}
+@doc{multiply -- multiply the elements of a set}
 {
   return reducer(S, #*, unity);
 }
 
 public &T reducer(set[&T] S, &T (&T,&T) F, &T unit)
+@doc{reducer -- apply function F to successive elements of a set}
 {
   &T result = unit;
   for(&T E : S){
@@ -66,17 +71,19 @@ public &T reducer(set[&T] S, &T (&T,&T) F, &T unit)
 }
 
 public int java size(set[&T] S)
+@doc{size -- number of elements in a set}
 {
    return values.integer(S.size());
 }
  
 public &T sum(set[&T] S, &T zero)
-@doc{Sum elements of a Set: sum}
+@doc{sum -- add the elements of a set}
 {
   return reducer(S, #+, zero);
 }
   
 public list[&T] java toList(set[&T] S)
+@doc{toList -- convert a set to a list}
 @java-imports{import java.util.Iterator;}
 {
   Type resultType = types.listType(S.getElementType());
@@ -91,6 +98,7 @@ public list[&T] java toList(set[&T] S)
 
 // TODO: multiple elements in map?
 public map[&A,&B] java toMap(set[tuple[&A, &B]] l)
+@doc{toMap -- convert a set of tuples to a map}
 @java-imports{import java.util.Iterator;}
 {
    TupleType tuple = (TupleType) l.getElementType();
@@ -106,6 +114,7 @@ public map[&A,&B] java toMap(set[tuple[&A, &B]] l)
 }
 
 public str java toString(set[&T] S)
+@doc{toString -- convert a set to a string}
 {
 	return values.string(S.toString());
 }
