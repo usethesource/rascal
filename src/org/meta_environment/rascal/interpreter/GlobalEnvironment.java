@@ -58,7 +58,12 @@ public class GlobalEnvironment extends ModuleEnvironment {
 	}
 	
 	public FunctionDeclaration getModuleFunction(String module, String function, TupleType actuals) {
-		return getModule(module).getFunction(function, actuals);
+		ModuleEnvironment mod = getModule(module);
+		
+		if (mod == null) {
+			return null;
+		}
+		return mod.getFunction(function, actuals);
 	}
 	
 	public void storeModuleVariable(String module, String variable, EvalResult value) {
