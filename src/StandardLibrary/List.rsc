@@ -38,7 +38,7 @@ public &T max(list[&T] l)
   &T result = List::arb(l);
   for(&T e : l) {
    if(result < e) {
-      result = max(result, e);
+      result = e;
    }
   }
   return result;
@@ -49,7 +49,7 @@ public &T min(list[&T] l)
   &T result = List::arb(l);
   for(&T e : l){
    if(e < result){
-      result = min(result, e);
+      result = e;
    }
   }
   return result;
