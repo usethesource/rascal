@@ -94,7 +94,11 @@ public class GlobalEnvironment extends ModuleEnvironment {
 	
 	public String getLocalName(QualifiedName name) {
 		List<Name> names = name.getNames();
-		return names.get(names.size() - 1).toString();
+		String str = names.get(names.size() - 1).toString();
+		if (str.startsWith("\\")) {
+			str = str.substring(1);
+		}
+		return str;
 	}
 	
 	public EvalResult getVariable(QualifiedName name) {

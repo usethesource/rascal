@@ -356,6 +356,10 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		for (Variant var : x.getVariants()) {
 			String altName = var.getName().toString();
 			
+			if (altName.startsWith("\\")) {
+				altName = altName.substring(1);
+			}
+			
 		    if (var.isNAryConstructor()) {
 		    	java.util.List<TypeArg> args = var.getArguments();
 		    	Type[] fields = new Type[args.size()];
@@ -534,11 +538,10 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		
 		if (names.size() > 1) {
 			String sort = names.get(names.size() - 2).toString();
-			
 			NamedTreeType sortType = tf.lookupNamedTreeType(sort);
 			
 			if (sortType != null) {
-				String cons = names.get(names.size() - 1).toString();
+				String cons = env.getLocalName(name);
 				
 				if (tf.lookupTreeNodeType(sortType, cons).size() > 0) {
 					return true;
@@ -554,7 +557,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			}
 		}
 		
-		String cons = names.get(names.size() - 1).toString();
+		String cons = env.getLocalName(name);
 			
 		if (tf.lookupTreeNodeType(cons).size() > 0) {
 			return true;
@@ -1238,12 +1241,17 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	@Override
 	public EvalResult visitExpressionQualifiedName(
 			org.meta_environment.rascal.ast.Expression.QualifiedName x) {
-		EvalResult result = env.getVariable(x.getQualifiedName());
-		
-		if (result != null && result.value != null) {
-			return result;
-		} else {
-			throw new RascalTypeError("Uninitialized variable: " + x);
+		if (isTreeConstructorName(x.getQualifiedName())) {
+			return constructTree(x.getQualifiedName(), new IValue[0], tf.tupleType(new Type[0]));
+		}
+		else {
+			EvalResult result = env.getVariable(x.getQualifiedName());
+
+			if (result != null && result.value != null) {
+				return result;
+			} else {
+				throw new RascalTypeError("Uninitialized variable: " + x);
+			}
 		}
 	}
 	
