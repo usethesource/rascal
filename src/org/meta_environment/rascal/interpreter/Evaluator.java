@@ -154,7 +154,19 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	}
 
 	EvalResult result(Type t, IValue v) {
-		Type instance = t.instantiate(env.getTypes());
+		Map<ParameterType, Type> bindings = env.getTypes();
+		Type instance;
+		
+		if (bindings.size() > 0) {
+		    instance = t.instantiate(bindings);
+		}
+		else {
+			instance = t;
+		}
+		
+		if (!v.getType().isSubtypeOf(instance)) {
+			throw new RascalTypeError(v.getType() + " is not a subtype of " + instance);
+		}
 		return new EvalResult(instance, v);
 	}
 
@@ -596,7 +608,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			if (matches.size() > 1) {
 				StringBuffer buf = new StringBuffer();
 				for (TreeNodeType m : matches) {
-					buf.append(m + " ");
+					buf.append(m.getSuperType() + "::" + cons);
 				}
 
 				throw new RascalTypeError(cons + " is ambiguous, could be one of " + buf);
@@ -767,9 +779,9 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				throw new RascalTypeError("Subscript out of bounds", e);
 			}
 		}
-		else if (exprBase.isTreeNodeType() && subsBase.isIntegerType()) {
+		else if ((exprBase.isNamedTreeType() || exprBase.isTreeNodeType()) && subsBase.isIntegerType()) {
 			int index = ((IInteger) subs.value).getValue();
-			Type elementType = ((TreeNodeType) exprBase).getChildType(index);
+			Type elementType = ((INode) expr.value).getTreeNodeType().getChildType(index);
 			IValue element = ((ITree) expr.value).get(index);
 			return result(elementType, element);
 		}
