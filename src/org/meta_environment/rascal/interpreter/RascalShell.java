@@ -135,11 +135,11 @@ public class RascalShell {
 			for (byte ch : statement.toString().getBytes()) {
 				switch (ch) {
 				case '(': brackets++; break;
-				case ')': brackets--; break;
+				case ')': if (brackets > 0) brackets--; break;
 				case '{': curlies++; break;
-				case '}': curlies--; break;
+				case '}': if(curlies > 0) curlies--; break;
 				case '[': braces++; break;
-				case ']': braces--; break;
+				case ']': if (braces > 0) braces--; break;
 				case ';': semies++; break;
 				case '\n': multiline = true; break;
 				}
