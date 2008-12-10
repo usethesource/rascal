@@ -92,6 +92,16 @@ class RegExpPatternValue implements PatternValue {
 
 public class RegExpPatternEvaluator extends NullASTVisitor<PatternValue> {
 	
+	public boolean isRegExpPattern(org.meta_environment.rascal.ast.Expression pat){
+		if(pat.isLiteral() && pat.getLiteral().isRegExp()){
+			org.meta_environment.rascal.ast.Literal lit = ((Literal) pat).getLiteral();
+			if(lit.isRegExp()){
+				return true;
+			}
+		}
+		return false;
+	}	
+	
 	public PatternValue visitExpressionLiteral(Literal x) {
 		//System.err.println("visitExpressionLiteral: " + x.getLiteral());
 		return x.getLiteral().accept(this);
@@ -139,7 +149,7 @@ public class RegExpPatternEvaluator extends NullASTVisitor<PatternValue> {
 
 		while(m.find()){
 			String varName = m.group(1);
-			System.err.println("varName = " + varName);
+			//System.err.println("varName = " + varName);
 			//TODO: below is a correct but very expensive way of building a Qualified name:
 			// a complete parse and tree construction are done for the text of the variable as it appears in the
 			// regular expression.
@@ -152,7 +162,7 @@ public class RegExpPatternEvaluator extends NullASTVisitor<PatternValue> {
 				INode tree = parser.parse(new ByteArrayInputStream((varName + ";").getBytes()));
 				Command cmd = builder.buildCommand(tree);
 				org.meta_environment.rascal.ast.QualifiedName name = cmd.getStatement().getExpression().getQualifiedName();
-				System.err.println("regexp name = " + name);
+				//System.err.println("regexp name = " + name);
 				names.add(name);
 			} catch (Exception e) {
 				throw new RascalBug("Cannot convert string " + varName + " to a name");
@@ -161,7 +171,7 @@ public class RegExpPatternEvaluator extends NullASTVisitor<PatternValue> {
 			start = m.end(0);
 		}
 		resultRegExp += subjectPat.substring(start, end);
-		System.err.println("resultRegExp: " + resultRegExp);
+		//System.err.println("resultRegExp: " + resultRegExp);
 		return new RegExpPatternValue(resultRegExp, modifier, names);
 	}
 }

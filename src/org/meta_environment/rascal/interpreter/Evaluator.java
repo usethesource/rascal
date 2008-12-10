@@ -713,7 +713,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			EvalResult result = e.getValue();
 			result.type = result.type.instantiate(env.getTypes());
 			env.pop();
-			System.err.println("return: " + result);
 			return result;
 		}
 	}
@@ -1069,16 +1068,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		return null;
 	}
 	
-	private boolean isRegExpPattern(org.meta_environment.rascal.ast.Expression pat){
-		if(pat.isLiteral()){
-			org.meta_environment.rascal.ast.Literal lit = ((Literal) pat).getLiteral();
-			if(lit.isRegExp()){
-				return true;
-			}
-		}
-		return false;
-	}
-	
     @Override
     public EvalResult visitExpressionMatch(Match x) {
     	org.meta_environment.rascal.ast.Expression pat = x.getPattern();
@@ -1096,10 +1085,15 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	// ----- General method for matching --------------------------------------------------
     
     private PatternValue evalPattern(org.meta_environment.rascal.ast.Expression pat){
-    	if(isRegExpPattern(pat)){           
+    	if(pe.isPattern(pat)){
+    		//System.err.println("tree pattern: " + pat);
+    		return pat.accept(pe);
+    	} else if(re.isRegExpPattern(pat)){ 
+    		//System.err.println("regexp: " + pat);
 			return pat.accept(re);
-		} else
-			return pat.accept(pe);
+		} else {
+			throw new RascalTypeError("pattern expected instead of " + pat);
+		}
     }
 	
 	private boolean match(IValue subj, org.meta_environment.rascal.ast.Expression pat){

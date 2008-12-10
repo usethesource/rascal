@@ -46,59 +46,81 @@ public class PatternTests extends TestCase {
 	
 	public void testMatchLiteral() throws IOException {
 
-		assertTrue(runTest("true := true;"));
-		assertFalse(runTest("true := false;"));
-		assertFalse(runTest("true := 1;"));
-		assertFalse(runTest("true := \"abc\";"));
+		assertTrue(runTest("true     ~= true;"));
+		assertFalse(runTest("true    ~= false;"));
+		assertTrue(runTest("true     ~! false;"));
+		assertFalse(runTest("true    ~= 1;"));
+		assertTrue(runTest("true     ~! 1;"));
+		assertFalse(runTest("\"abc\" ~= true;"));
+		assertTrue(runTest("\"abc\"  ~! true;"));
 		
-		assertTrue(runTest("1 := 1;"));
-		assertFalse(runTest("1 := 2;"));
-		assertFalse(runTest("1 := true;"));
-		assertFalse(runTest("1 := 2;"));
-		assertFalse(runTest("1 := 1.0;"));
-		assertFalse(runTest("1 := \"abc\";"));
+		assertTrue(runTest("1        ~= 1;"));
+		assertFalse(runTest("2       ~= 1;"));
+		assertTrue(runTest("2        ~! 1;"));
+		assertFalse(runTest("true    ~= 1;"));
+		assertTrue(runTest("true     ~! 1;"));
+		assertFalse(runTest("1.0     ~= 1;"));
+		assertTrue(runTest("1.0      ~! 1;"));
+		assertFalse(runTest("\"abc\" ~= 1;"));
+		assertTrue(runTest("\"abc\"  ~! 1;"));
 		
-		assertTrue(runTest("1.5 := 1.5;"));
-		assertFalse(runTest("1.5 := 2.5;"));
-		assertFalse(runTest("1.5 := true;"));
-		assertFalse(runTest("1.5 := 2;"));
-		assertFalse(runTest("1.5 := 1.0;"));
-		assertFalse(runTest("1.5 := \"abc\";"));
+		assertTrue(runTest("1.5      ~= 1.5;"));
+		assertFalse(runTest("2.5     ~= 1.5;"));
+		assertTrue(runTest("2.5      ~! 1.5;"));
+		assertFalse(runTest("true    ~= 1.5;"));
+		assertTrue(runTest("true     ~! 1.5;"));
+		assertFalse(runTest("2       ~= 1.5;"));
+		assertTrue(runTest("2        ~! 1.5;"));
+		assertFalse(runTest("1.0     ~= 1.5;"));
+		assertTrue(runTest("1.0      ~! 1.5;"));
+		assertFalse(runTest("\"abc\" ~= 1.5;"));
+		assertTrue(runTest("\"abc\"  ~! 1.5;"));
 		
-		assertTrue(runTest("\"abc\" := \"abc\";"));
-		assertFalse(runTest("\"abc\" := \"def\";"));
-		assertFalse(runTest("\"abc\" := true;"));
-		assertFalse(runTest("\"abc\" := 1;"));
-		assertFalse(runTest("\"abc\" := 1.5;"));
-		assertFalse(runTest("\"abc\" := 1.5;"));
+		assertTrue(runTest("\"abc\"  ~= \"abc\";"));
+		assertFalse(runTest("\"def\" ~= \"abc\";"));
+		assertTrue(runTest("\"def\"  ~! \"abc\";"));
+		assertFalse(runTest("true    ~= \"abc\";"));
+		assertTrue(runTest("true     ~! \"abc\";"));
+		assertFalse(runTest("1       ~= \"abc\";"));
+		assertTrue(runTest("1        ~! \"abc\";"));
+		assertFalse(runTest("1.5     ~= \"abc\";"));
+		assertTrue(runTest("1.5      ~! \"abc\";"));
 	}
 	
 	public void testMatchTuple() throws IOException {
-		assertTrue(runTest("<1> := <1>;"));
-		assertTrue(runTest("<1, \"abc\"> := <1, \"abc\">;"));
-		assertFalse(runTest("<1> := <2>;"));
-		assertFalse(runTest("<1> := <1, 2>;"));
-		assertFalse(runTest("<1, \"abc\"> := <1, \"def\">;"));
+		assertTrue(runTest("<1>           ~= <1>;"));
+		assertTrue(runTest("<1, \"abc\">  ~= <1, \"abc\">;"));
+		assertFalse(runTest("<2>          ~= <1>;"));
+		assertTrue(runTest("<2>           ~! <1>;"));
+		assertFalse(runTest("<1,2>        ~= <1>;"));
+		assertTrue(runTest("<1,2>         ~! <1>;"));
+		assertFalse(runTest("<1, \"abc\"> ~= <1, \"def\">;"));
+		assertTrue(runTest("<1, \"abc\">  ~! <1, \"def\">;"));
 	}
 	
 	public void testMatchTree() throws IOException {
-		assertTrue(runTest("f(1) := f(1);"));
-		assertTrue(runTest("f(1, g(\"abc\"), true) := f(1, g(\"abc\"), true);"));
-		assertFalse(runTest("f(1) := 1;"));
-		assertFalse(runTest("f(1) := 1.5;"));
-		assertFalse(runTest("f(1) := \"abc\";"));
-		assertFalse(runTest("f(1) := g(1);"));
-		assertFalse(runTest("f(1) := f(1, 2);"));
+		assertTrue(runTest("f(1)                   ~= f(1);"));
+		assertTrue(runTest("f(1, g(\"abc\"), true) ~= f(1, g(\"abc\"), true);"));
+		assertFalse(runTest("1                     ~= f(1);"));
+		assertTrue(runTest("1                      ~! f(1);"));
+		assertFalse(runTest("1.5                   ~= f(1);"));
+		assertTrue(runTest("1.5                    ~! f(1);"));
+		assertFalse(runTest("\"abc\"               ~= f(1);"));
+		assertTrue(runTest("\"abc\"                ~! f(1);"));
+		assertFalse(runTest("g(1)                  ~= f(1);"));
+		assertTrue(runTest("g(1)                   ~! f(1);"));
+		assertFalse(runTest("f(1, 2)               ~= f(1);"));
+		assertTrue(runTest("f(1, 2)                ~! f(1);"));
 	}
 	
 	public void testMatchVariable() throws IOException {
-		assertTrue(runTest("(n := 1) && (n == 1);"));
-		assertTrue(runTest("{int n = 1; (n := 1) && (n == 1);};"));
-		assertTrue(runTest("{int n = 1; (n !:= 2) && (n == 1);};"));
-		assertTrue(runTest("{int n = 1; (n !:= \"abc\") && (n == 1);};"));
+		assertTrue(runTest("(n ~= 1) && (n == 1);"));
+		assertTrue(runTest("{int n = 1; (n ~= 1) && (n == 1);};"));
+		assertTrue(runTest("{int n = 1; (n ~! 2) && (n == 1);};"));
+		assertTrue(runTest("{int n = 1; (n ~! \"abc\") && (n == 1);};"));
 		
-		assertTrue(runTest("(f(n) := f(1)) && (n == 1);"));
-		assertTrue(runTest("{int n = 1; (f(n) := f(1)) && (n == 1);};"));
+		assertTrue(runTest("(f(n) ~= f(1)) && (n == 1);"));
+		assertTrue(runTest("{int n = 1; (f(n) ~= f(1)) && (n == 1);};"));
 	}
 	
 }
