@@ -31,8 +31,10 @@ public &T max(set[&T] R)
 @doc{Maximum of a set}
 {
   &T result = arb(R);
-  for(&T E : R){
-    result = max(result, E);
+  for(&T e : R){
+  	if(e > result){
+    	result = e;
+    }
   }
   return result;
 }
@@ -42,7 +44,7 @@ public &T min(set[&T] S)
   &T result = arb(S);
   for(&T e : S){
    if(e < result){
-      result = min(result, e);
+      result = e;
    }
   }
   return result;

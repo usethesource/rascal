@@ -471,6 +471,46 @@ public class DataTypeTests extends TestCase{
 		assertTrue(runTest("f(1,g(2,[3,4,5])) != f(1,g(2,[3,4,5,6]));"));
 		assertTrue(runTest("f(1,g(2,(3:30,4:40,5:50))) == f(1,g(2,(3:30,4:40,5:50)));"));
 		assertTrue(runTest("f(1,g(2,(3:30,4:40,5:50))) != f(1,g(2,(3:30,4:40,5:55)));"));
+		
+		assertTrue(runTest("f()           <= f();"));
+		assertTrue(runTest("f()           <= g();"));
+		assertTrue(runTest("f()           <= f(1);"));
+		assertTrue(runTest("f(1)          <= f(1);"));
+		assertTrue(runTest("f(1, 2)       <= f(1, 3);"));
+		assertTrue(runTest("f(1, 2)       <= g(1, 3);"));
+		assertTrue(runTest("f(1, \"abc\") <= f(1, \"def\");"));
+		assertTrue(runTest("f(1, [2, 3])  <= f(1, [2,3,4]);"));
+		assertTrue(runTest("f(1, [2, 3])  <= f(1, [2,3]);"));
+		
+		assertFalse(runTest("f()          < f();"));
+		assertTrue(runTest("f()           < g();"));
+		assertTrue(runTest("f()           < f(1);"));
+		assertFalse(runTest("f(1)         < f(1);"));
+		assertTrue(runTest("f(1, 2)       < f(1, 3);"));
+		assertTrue(runTest("f(1, 2)       < g(1, 3);"));
+		assertTrue(runTest("f(1, \"abc\") < f(1, \"def\");"));
+		assertTrue(runTest("f(1, [2, 3])  < f(1, [2,3,4]);"));
+		assertFalse(runTest("f(1, [2, 3]) < f(1, [2,3]);"));
+		
+		assertTrue(runTest("f()           >= f();"));
+		assertTrue(runTest("g()           >= f();"));
+		assertTrue(runTest("f(1)          >= f();"));
+		assertTrue(runTest("f(1)          >= f(1);"));
+		assertTrue(runTest("f(1, 3)       >= f(1, 2);"));
+		assertTrue(runTest("g(1, 2)       >= f(1, 3);"));
+		assertTrue(runTest("f(1, \"def\") >= f(1, \"abc\");"));
+		assertTrue(runTest("f(1, [2,3,4]) >= f(1, [2,3]);"));
+		assertTrue(runTest("f(1, [2, 3])  >= f(1, [2,3]);"));
+		
+		assertFalse(runTest("f()          > f();"));
+		assertTrue(runTest("g()           > f();"));
+		assertTrue(runTest("f(1)          > f();"));
+		assertFalse(runTest("f(1)         > f(1);"));
+		assertTrue(runTest("f(1, 3)       > f(1, 2);"));
+		assertTrue(runTest("g(1, 2)       > f(1, 3);"));
+		assertTrue(runTest("f(1, \"def\") > f(1, \"abc\");"));
+		assertTrue(runTest("f(1, [2,3,4]) > f(1, [2,3]);"));
+		assertFalse(runTest("f(1, [2, 3]) > f(1, [2,3]);"));
 	}
 	
 	public void testOther() throws IOException {
