@@ -41,18 +41,18 @@ public class RegExpTests extends TestCase {
 	}
 	
 	public void testMatch() throws IOException {
-		assertTrue(runTest("\"abc\" =~ /abc/;"));
-		assertFalse(runTest("\"abc\" =~ /def/;"));
-		assertTrue(runTest("\"abc\" !~ /def/;"));
-		assertTrue(runTest("\"abc\" =~ /[a-z]+/;"));
-		assertTrue(runTest("\"Rascal is marvelous\" =~ /.*is.*/;"));
-		assertTrue(runTest("\"@ abc @\" =~ /@.*@/;"));
+		assertTrue(runTest("/abc/ ~= \"abc\";"));
+		assertFalse(runTest("/def/ ~= \"abc\";"));
+		assertTrue(runTest("/def/ ~! \"abc\";"));
+		assertTrue(runTest("/[a-z]+/ ~= \"abc\";"));
+		assertTrue(runTest("/.*is.*/ ~= \"Rascal is marvelous\";"));
+		assertTrue(runTest("/@.*@/ ~= \"@ abc @\";"));
 		
-		assertTrue(runTest("(\"abc\" =~ /<x:[a-z]+>/) && (x == \"abc\");"));
-		assertTrue(runTest("(\"if a > b then c fi\" =~ /if<tst:.*>then<th:.*>fi/) " +
+		assertTrue(runTest("(/<x:[a-z]+>/ ~= \"abc\") && (x == \"abc\");"));
+		assertTrue(runTest("(/if<tst:.*>then<th:.*>fi/ ~= \"if a > b then c fi\") " +
 				           "&& (tst == \" a > b \") && (th == \" c \");"));
 
-		assertTrue(runTest("(\"RASCAL is marvelous\" =~ /<l:.*>[Rr][Aa][Ss][Cc][Aa][Ll]<r:.*>/)" +
+		assertTrue(runTest("(/<l:.*>[Rr][Aa][Ss][Cc][Aa][Ll]<r:.*>/ ~= \"RASCAL is marvelous\")" +
 				            "&& (l == \"\") && (r == \" is marvelous\");"));
 
 	}

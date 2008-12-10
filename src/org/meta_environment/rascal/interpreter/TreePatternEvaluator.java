@@ -58,6 +58,8 @@ import org.meta_environment.rascal.ast.Expression.TypedVariable;
 		this.children = children;
 	}
 	
+	
+	
 	public boolean match(IValue subj, Evaluator ev){
 		if (!subj.getType().isTreeType()) {
 			return false;
@@ -166,7 +168,6 @@ import org.meta_environment.rascal.ast.Expression.TypedVariable;
 	TreePatternTypedVariable(org.eclipse.imp.pdb.facts.type.Type type2, Name name) {
 		this.type = type2;
 		this.name = name;
-		System.err.println("TypedVar: " + type2 + ", " + name);
 	}
 
 	public boolean match(IValue subj, Evaluator ev) {
@@ -184,6 +185,13 @@ public class TreePatternEvaluator extends NullASTVisitor<PatternValue> {
 	
 	TreePatternEvaluator(Evaluator evaluator){
 		ev = evaluator;
+	}
+	
+	public boolean isPattern(org.meta_environment.rascal.ast.Expression pat){
+		return (pat.isLiteral() && ! pat.getLiteral().isRegExp()) || 
+		       pat.isCallOrTree() || pat.isList() || 
+		       pat.isSet() || pat.isMap() || pat.isTuple() ||
+		       pat.isQualifiedName() || pat.isTypedVariable();
 	}
 	
 	@Override
@@ -234,10 +242,6 @@ public class TreePatternEvaluator extends NullASTVisitor<PatternValue> {
 	
 	@Override
 	public PatternValue visitExpressionTypedVariable(TypedVariable x) {
-		System.err.println("x = " + x);
-		System.err.println("type = " + x.getType());
-		System.err.println("treeType = " + ev.tf.treeType());
-		System.err.println("ev.te = " + ev.te);
 		return new TreePatternTypedVariable(x.getType().accept(ev.te), x.getName());
 	}
 }
