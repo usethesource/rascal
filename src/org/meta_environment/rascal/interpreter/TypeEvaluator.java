@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.interpreter;
 
+import org.eclipse.imp.pdb.facts.type.NamedTreeType;
+import org.eclipse.imp.pdb.facts.type.NamedType;
 import org.eclipse.imp.pdb.facts.type.ParameterType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -208,6 +210,20 @@ public class TypeEvaluator extends NullASTVisitor<Type> {
 	@Override
 	public Type visitTypeUser(User x) {
 		// TODO add support for parametric types
-		return tf.lookupNamedType(x.getUser().getName().toString());
+		java.lang.String name = x.getUser().getName().toString();
+		NamedType type = tf.lookupNamedType(name);
+		
+		if (type == null) {
+			NamedTreeType tree = tf.lookupNamedTreeType(name);
+			
+			if (tree == null) {
+				throw new RascalTypeError("Use of undeclared type " + x);
+			}
+			else {
+				return tree;
+			}
+		}
+	
+		return type;
 	}
 }
