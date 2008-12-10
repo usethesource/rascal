@@ -1060,9 +1060,21 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				return cs.getStatement().accept(this);
 			}
 			org.meta_environment.rascal.ast.Rule rl = cs.getRule();
-			org.meta_environment.rascal.ast.Expression pat = rl.getPattern().getPattern();
-			if(match(subject.value, pat)){
-				return rl.getStatement().accept(this);
+			if(rl.isArbitrary()){
+				org.meta_environment.rascal.ast.Expression pat = rl.getPattern();
+				if(match(subject.value, pat)){
+					return rl.getStatement().accept(this);
+				}
+			} else if(rl.isGuarded())	{
+				org.meta_environment.rascal.ast.Type tp = rl.getType();
+				Type t = tp.accept(te);
+				rl = rl.getRule();
+				org.meta_environment.rascal.ast.Expression pat = rl.getPattern();
+				if(subject.type.isSubtypeOf(t) && match(subject.value, pat)){
+					return rl.getStatement().accept(this);
+				}
+			} else if(rl.isReplacing()){
+				throw new RascalBug("Replacing Rule not yet implemented: " + rl);
 			}
 		}
 		return null;
