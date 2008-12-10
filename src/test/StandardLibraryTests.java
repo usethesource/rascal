@@ -217,10 +217,10 @@ public class StandardLibraryTests extends TestCase {
 		//average
 		System.err.println("List::average");
 		
-		//assertTrue(runTest("List", "{value N = List::average([],0); N == 0;};"));
-		//assertTrue(runTest("List", "{value N = average([],0); N == 0;};"));
-		//assertTrue(runTest("List", "{value N = List::average([1],0); N == 1;};"));
-		//assertTrue(runTest("List", "{value N = List::average([1, 3],0); N == 4;};"));
+		assertTrue(runTest("List", "{value N = List::average([],0); N == 0;};"));
+		assertTrue(runTest("List", "{value N = average([],0); N == 0;};"));
+		assertTrue(runTest("List", "{value N = List::average([1],0); N == 1;};"));
+		assertTrue(runTest("List", "{value N = List::average([1, 3],0); N == 4;};"));
 		
 		//first
 		System.err.println("List::first");
@@ -247,8 +247,8 @@ public class StandardLibraryTests extends TestCase {
 		
 		//multiply
 		System.err.println("List::multiply");
-		assertTrue(runTest("List", "{multiply([1, 2, 3, 4]) == 24;};"));
-		assertTrue(runTest("List", "{List::multiply([1, 2, 3, 4]) == 24;};"));
+		assertTrue(runTest("List", "{multiply([1, 2, 3, 4], 1) == 24;};"));
+		assertTrue(runTest("List", "{List::multiply([1, 2, 3, 4], 1) == 24;};"));
 		
 		//reducer
 		System.err.println("List::reducer");
@@ -279,8 +279,8 @@ public class StandardLibraryTests extends TestCase {
 		
 		//sum
 		System.err.println("List::sum");
-		assertTrue(runTest("List", "{sum([1,2,3]) == 6;};"));
-		assertTrue(runTest("List", "{List::sum([1,2,3]) == 6;};"));
+		assertTrue(runTest("List", "{sum([1,2,3],0) == 6;};"));
+		assertTrue(runTest("List", "{List::sum([1,2,3], 0) == 6;};"));
 		
 		assertTrue(runTest("List", "{List::sum([], 0) == 0;};"));
 		assertTrue(runTest("List", "{List::sum([], 0) == 0;};"));

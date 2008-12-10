@@ -1605,12 +1605,13 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	boolean equals(EvalResult left, EvalResult right){
 		if (left.type.isSubtypeOf(right.type)
 				|| right.type.isSubtypeOf(left.type)
-				|| left.type.isValueType()                   //TODO: is this necessary?
-				|| right.type.isValueType()
+				//|| left.type.isValueType()                   //TODO: is this necessary?
+				//|| right.type.isValueType()
 		) {
 			return left.value.equals(right.value);
 		} else {
-			return false;
+			throw new RascalTypeError(
+					"Operands of == have incompatible types: " + left.type + ", " + right.type);
 		}
 	}
 
@@ -1639,7 +1640,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		if (left.type.isBoolType() && right.type.isBoolType()) {
 			boolean lb = ((IBool) left.value).getValue();
 			boolean rb = ((IBool) right.value).getValue();
-			return (lb && rb) ? 0 : (lb ? 1 : -1);
+			return (lb == rb) ? 0 : ((!lb && rb) ? -1 : 1);
 		}
 		if (left.type.isIntegerType() && right.type.isIntegerType()) {
 			return ((IInteger) left.value).compare((IInteger) right.value);
@@ -1668,7 +1669,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			return compareSet((ISet) left.value, (ISet) right.value);
 		}
 		
-		if (left.type.isTreeType() && right.type.isTreeType()) {
+		if (left.type.isSubtypeOf(tf.treeType()) && right.type.isSubtypeOf(tf.treeType())){
 			String leftName = ((ITree) left.value).getName().toString();
 			String rightName = ((ITree) right.value).getName().toString();
 			int compare = leftName.compareTo(rightName);
