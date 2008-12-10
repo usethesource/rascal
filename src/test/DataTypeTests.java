@@ -67,6 +67,26 @@ public class DataTypeTests extends TestCase{
 		assertTrue(runTest("true <==> false == false;"));	
 		assertTrue(runTest("false <==> true == false;"));	
 		assertTrue(runTest("false <==> false == true;"));
+		
+		assertTrue(runTest("false  <= false;"));
+		assertTrue(runTest("false  <= true;"));
+		assertFalse(runTest("true  <= false;"));
+		assertTrue(runTest("true   <= true;"));
+		
+		assertFalse(runTest("false < false;"));
+		assertTrue(runTest("false  < true;"));
+		assertFalse(runTest("true  < false;"));
+		assertFalse(runTest("true  < true;"));
+		
+		assertTrue(runTest("false  >= false;"));
+		assertTrue(runTest("true   >= false;"));
+		assertFalse(runTest("false >= true;"));
+		assertTrue(runTest("true   >= true;"));
+		
+		assertFalse(runTest("false > false;"));
+		assertTrue(runTest("true   > false;"));
+		assertFalse(runTest("false > true;"));
+		assertFalse(runTest("true   > true;"));
 	}
 	
 	public void testInt() throws IOException 
