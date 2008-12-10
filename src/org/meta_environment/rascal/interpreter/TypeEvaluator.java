@@ -155,13 +155,23 @@ public class TypeEvaluator extends NullASTVisitor<Type> {
 	public Type visitStructuredTypeRelation(Relation x) {
 		java.util.List<TypeArg> args = x.getArguments();
 		Type[] fieldTypes = new Type[args.size()];
+		java.lang.String[] fieldLabels = new java.lang.String[args.size()];
 		
 		int i = 0;
 		for (TypeArg arg : args) {
-			fieldTypes[i++] = arg.getType().accept(this);
+			fieldTypes[i] = arg.getType().accept(this);
+			
+			if (arg.isNamed()) {
+				fieldLabels[i] = arg.getName().toString();
+			}
+			else {
+				fieldLabels[i] = Integer.toString(i);
+			}
+			i++;
 		}
 		
-		return tf.relType(fieldTypes);
+		
+		return tf.relType(tf.tupleType(fieldTypes, fieldLabels));
 	}
 	
 	@Override
@@ -173,13 +183,23 @@ public class TypeEvaluator extends NullASTVisitor<Type> {
 	public Type visitStructuredTypeTuple(Tuple x) {
 		java.util.List<TypeArg> args = x.getArguments();
 		Type[] fieldTypes = new Type[args.size()];
+		java.lang.String[] fieldLabels = new java.lang.String[args.size()];
 		
 		int i = 0;
 		for (TypeArg arg : args) {
-			fieldTypes[i++] = arg.getType().accept(this);
+			fieldTypes[i] = arg.getType().accept(this);
+			
+
+			if (arg.isNamed()) {
+				fieldLabels[i] = arg.getName().toString();
+			}
+			else {
+				fieldLabels[i] = Integer.toString(i);
+			}
+			i++;
 		}
 		
-		return tf.tupleType(fieldTypes);
+		return tf.tupleType(fieldTypes, fieldLabels);
 	}
 	
 	@Override

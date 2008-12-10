@@ -800,10 +800,57 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			Type valueType = ((MapType) exprBase).getValueType();
 			return result(valueType, ((IMap) expr.value).get(subs.value));
 		}
+		else if (exprBase.isTupleType() && subsBase.isIntegerType()) {
+			int index = ((IInteger) subs.value).getValue();
+			Type elementType = ((TupleType) exprBase).getFieldType(index);
+			IValue element = ((ITuple) expr.value).get(index);
+			return result(elementType, element);
+		}
 		
 		throw new RascalBug("Not yet implemented subscript: " + x);
 	}
 
+	@Override
+	public EvalResult visitExpressionFieldAccess(
+			org.meta_environment.rascal.ast.Expression.FieldAccess x) {
+		EvalResult expr = x.getExpression().accept(this);
+		String field = x.getField().toString();
+		
+		if (expr.type.isTupleType()) {
+			TupleType tuple = (TupleType) expr.type;
+			if (!tuple.hasFieldNames()) {
+				throw new RascalTypeError("Tuple does not have field names: " + tuple);
+			}
+			
+			return result(tuple.getFieldType(field), ((ITuple) expr.value).get(field));
+		}
+		else if (expr.type.isRelationType()) {
+			TupleType tuple = ((RelationType) expr.type).getFieldTypes();
+			
+			try {
+				ISetWriter w = vf.setWriter(tuple.getFieldType(field));
+				for (IValue e : (ISet) expr.value) {
+					w.insert(((ITuple) e).get(field));
+				}
+				return result(tf.setType(tuple.getFieldType(field)), w.done());
+			}
+			catch (FactTypeError e) {
+				throw new RascalTypeError(e.getMessage(), e);
+			}
+		}
+		else if (expr.type.isNamedTreeType() || expr.type.isTreeNodeType()) {
+			TreeNodeType node = ((INode) expr.value).getTreeNodeType();
+			
+			try {
+				return result(node.getChildType(node.getChildIndex(field)),((INode) expr.value).get(field));
+			}
+			catch (FactTypeError e) {
+				throw new RascalTypeError(e.getMessage(), e);
+			}
+		}
+		
+		throw new RascalTypeError("Field selection is not allowed on " + expr.type);
+	}
 	@Override
 	public EvalResult visitStatementFail(Fail x) {
 		if (x.getFail().isWithLabel()) {
