@@ -79,7 +79,7 @@ public &T sum(set[&T] S, &T zero)
 public list[&T] java toList(set[&T] S)
 @java-imports{import java.util.Iterator;}
 {
-  Type resultType = types.setType(S.getElementType());
+  Type resultType = types.listType(S.getElementType());
   IListWriter w = resultType.writer(values);
   Iterator iter = S.iterator();
   while (iter.hasNext()) {
