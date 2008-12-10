@@ -89,13 +89,21 @@ public list[&T] java toList(set[&T] S)
   return w.done();
 }
 
-// public map[&T, &U] toMap(set[tuple[&T, &U]] S)
-// throws non_unique_domain(str msg)
-//  @primitive{"Set.toMap"}
+// TODO: multiple elements in map?
+public map[&A,&B] java toMap(set[tuple[&A, &B]] l)
+@java-imports{import java.util.Iterator;}
+{
+   TupleType tuple = (TupleType) l.getElementType();
+   Type resultType = types.mapType(tuple.getFieldType(0), tuple.getFieldType(1));
   
-
-//public rel[&T] toRel(set[&T] S)
-//   @primitive{"Set.toRel"}
+   IMapWriter w = resultType.writer(values);
+   Iterator iter = l.iterator();
+   while (iter.hasNext()) {
+     ITuple t = (ITuple) iter.next();
+     w.put(t.get(0), t.get(1));
+   }
+   return w.done();
+}
 
 public str java toString(set[&T] S)
 {
