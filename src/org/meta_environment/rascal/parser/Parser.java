@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
+import java.security.AccessController;
 
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -13,6 +14,8 @@ import org.eclipse.imp.pdb.facts.impl.hash.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.meta_environment.rascal.io.ATermReader;
 import org.meta_environment.uptr.Factory;
+
+import sun.security.action.GetPropertyAction;
 
 /**
  * Parses a Rascal program and a UPTR tree.
@@ -60,15 +63,27 @@ public class Parser {
 	private String extractParsetable() throws IOException {
 		URL url = getClass().getResource("/resources/rascal.trm.tbl");
 		InputStream contents = url.openStream();
-		File tmp = File.createTempFile("rascal.trm.tbl", "");
-		FileOutputStream s = new FileOutputStream(tmp);
-		int ch;
+		
+		GetPropertyAction a = new GetPropertyAction("java.io.tmpdir");
+		String tmpdir = ((String) AccessController.doPrivileged(a));
+		File tmp = new File(tmpdir + File.pathSeparator + "rascal.trm.tbl");
+		
+		if (!tmp.exists()) {
+			tmp.createNewFile();
 
-		while ((ch = contents.read()) != -1) {
-			s.write(ch);
+			FileOutputStream s = new FileOutputStream(tmp);
+			byte[] buf = new byte[1024];
+			int count = 0;
+
+			while ((count = contents.read(buf)) >= 0) {
+				s.write(buf, 0, count);
+			}
+			
+			s.flush();
+			s.close();
+			contents.close();
 		}
-		s.close();
-		contents.close();
+		
 		return tmp.getPath();
 	}
 
