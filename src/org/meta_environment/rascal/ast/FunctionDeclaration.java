@@ -62,7 +62,7 @@ static public class Ambiguity extends FunctionDeclaration {
   }
 } public boolean isAbstract() { return false; }
 static public class Abstract extends FunctionDeclaration {
-/* signature:Signature tags:Tags -> FunctionDeclaration {cons("Abstract")} */
+/* signature:Signature tags:Tags ";" -> FunctionDeclaration {cons("Abstract")} */
 	private Abstract() { }
 	/*package*/ Abstract(ITree tree, org.meta_environment.rascal.ast.Signature signature, org.meta_environment.rascal.ast.Tags tags) {
 		this.tree = tree;

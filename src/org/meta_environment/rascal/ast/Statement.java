@@ -1,13 +1,16 @@
 package org.meta_environment.rascal.ast; 
 import org.eclipse.imp.pdb.facts.ITree; 
 public abstract class Statement extends AbstractAST { 
-  public java.util.List<org.meta_environment.rascal.ast.Declarator> getDeclarations() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Statement getBody() { throw new UnsupportedOperationException(); } public boolean hasDeclarations() { return false; } public boolean hasBody() { return false; } public boolean isSolve() { return false; }
+  public java.util.List<org.meta_environment.rascal.ast.Declarator> getDeclarations() { throw new UnsupportedOperationException(); }
+	public org.meta_environment.rascal.ast.Bound getBound() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Statement getBody() { throw new UnsupportedOperationException(); } public boolean hasDeclarations() { return false; }
+	public boolean hasBound() { return false; } public boolean hasBody() { return false; } public boolean isSolve() { return false; }
 static public class Solve extends Statement {
-/* "with" declarations:{Declarator ";"}+ ";" "solve" body:Statement -> Statement {cons("Solve")} */
+/* "with" declarations:{Declarator ";"}+ ";" "solve" bound:Bound body:Statement -> Statement {cons("Solve")} */
 	private Solve() { }
-	/*package*/ Solve(ITree tree, java.util.List<org.meta_environment.rascal.ast.Declarator> declarations, org.meta_environment.rascal.ast.Statement body) {
+	/*package*/ Solve(ITree tree, java.util.List<org.meta_environment.rascal.ast.Declarator> declarations, org.meta_environment.rascal.ast.Bound bound, org.meta_environment.rascal.ast.Statement body) {
 		this.tree = tree;
 		this.declarations = declarations;
+		this.bound = bound;
 		this.body = body;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -17,6 +20,7 @@ static public class Solve extends Statement {
 	public boolean isSolve() { return true; }
 
 	public boolean hasDeclarations() { return true; }
+	public boolean hasBound() { return true; }
 	public boolean hasBody() { return true; }
 
 private java.util.List<org.meta_environment.rascal.ast.Declarator> declarations;
@@ -25,6 +29,14 @@ private java.util.List<org.meta_environment.rascal.ast.Declarator> declarations;
 	public Solve setDeclarations(java.util.List<org.meta_environment.rascal.ast.Declarator> x) { 
 		Solve z = new Solve();
  		z.$setDeclarations(x);
+		return z;
+	}
+	private org.meta_environment.rascal.ast.Bound bound;
+	public org.meta_environment.rascal.ast.Bound getBound() { return bound; }
+	private void $setBound(org.meta_environment.rascal.ast.Bound x) { this.bound = x; }
+	public Solve setBound(org.meta_environment.rascal.ast.Bound x) { 
+		Solve z = new Solve();
+ 		z.$setBound(x);
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Statement body;

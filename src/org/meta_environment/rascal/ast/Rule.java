@@ -1,38 +1,39 @@
 package org.meta_environment.rascal.ast; 
 import org.eclipse.imp.pdb.facts.ITree; 
 public abstract class Rule extends AbstractAST { 
-  public org.meta_environment.rascal.ast.Type getType() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Match getMatch() { throw new UnsupportedOperationException(); } public boolean hasType() { return false; } public boolean hasMatch() { return false; } public boolean isWithGuard() { return false; }
-static public class WithGuard extends Rule {
-/* "[" type:Type "]" match:Match -> Rule {cons("WithGuard")} */
-	private WithGuard() { }
-	/*package*/ WithGuard(ITree tree, org.meta_environment.rascal.ast.Type type, org.meta_environment.rascal.ast.Match match) {
+  public org.meta_environment.rascal.ast.Expression getPattern() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Expression getReplacement() { throw new UnsupportedOperationException(); } public boolean hasPattern() { return false; } public boolean hasReplacement() { return false; }
+public boolean isReplacing() { return false; }
+static public class Replacing extends Rule {
+/* pattern:Expression "=>" replacement:Expression -> Rule {cons("Replacing")} */
+	private Replacing() { }
+	/*package*/ Replacing(ITree tree, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Expression replacement) {
 		this.tree = tree;
-		this.type = type;
-		this.match = match;
+		this.pattern = pattern;
+		this.replacement = replacement;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitRuleWithGuard(this);
+		return visitor.visitRuleReplacing(this);
 	}
 
-	public boolean isWithGuard() { return true; }
+	public boolean isReplacing() { return true; }
 
-	public boolean hasType() { return true; }
-	public boolean hasMatch() { return true; }
+	public boolean hasPattern() { return true; }
+	public boolean hasReplacement() { return true; }
 
-private org.meta_environment.rascal.ast.Type type;
-	public org.meta_environment.rascal.ast.Type getType() { return type; }
-	private void $setType(org.meta_environment.rascal.ast.Type x) { this.type = x; }
-	public WithGuard setType(org.meta_environment.rascal.ast.Type x) { 
-		WithGuard z = new WithGuard();
- 		z.$setType(x);
+private org.meta_environment.rascal.ast.Expression pattern;
+	public org.meta_environment.rascal.ast.Expression getPattern() { return pattern; }
+	private void $setPattern(org.meta_environment.rascal.ast.Expression x) { this.pattern = x; }
+	public Replacing setPattern(org.meta_environment.rascal.ast.Expression x) { 
+		Replacing z = new Replacing();
+ 		z.$setPattern(x);
 		return z;
 	}
-	private org.meta_environment.rascal.ast.Match match;
-	public org.meta_environment.rascal.ast.Match getMatch() { return match; }
-	private void $setMatch(org.meta_environment.rascal.ast.Match x) { this.match = x; }
-	public WithGuard setMatch(org.meta_environment.rascal.ast.Match x) { 
-		WithGuard z = new WithGuard();
- 		z.$setMatch(x);
+	private org.meta_environment.rascal.ast.Expression replacement;
+	public org.meta_environment.rascal.ast.Expression getReplacement() { return replacement; }
+	private void $setReplacement(org.meta_environment.rascal.ast.Expression x) { this.replacement = x; }
+	public Replacing setReplacement(org.meta_environment.rascal.ast.Expression x) { 
+		Replacing z = new Replacing();
+ 		z.$setReplacement(x);
 		return z;
 	}	
 }
@@ -49,30 +50,78 @@ static public class Ambiguity extends Rule {
   public <T> T accept(IASTVisitor<T> v) {
      return v.visitRuleAmbiguity(this);
   }
-} public boolean isNoGuard() { return false; }
-static public class NoGuard extends Rule {
-/* match:Match -> Rule {cons("NoGuard")} */
-	private NoGuard() { }
-	/*package*/ NoGuard(ITree tree, org.meta_environment.rascal.ast.Match match) {
+} public org.meta_environment.rascal.ast.Statement getStatement() { throw new UnsupportedOperationException(); } public boolean hasStatement() { return false; }
+public boolean isArbitrary() { return false; }
+static public class Arbitrary extends Rule {
+/* pattern:Expression ":" statement:Statement -> Rule {cons("Arbitrary")} */
+	private Arbitrary() { }
+	/*package*/ Arbitrary(ITree tree, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Statement statement) {
 		this.tree = tree;
-		this.match = match;
+		this.pattern = pattern;
+		this.statement = statement;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitRuleNoGuard(this);
+		return visitor.visitRuleArbitrary(this);
 	}
 
-	public boolean isNoGuard() { return true; }
+	public boolean isArbitrary() { return true; }
 
-	public boolean hasMatch() { return true; }
+	public boolean hasPattern() { return true; }
+	public boolean hasStatement() { return true; }
 
-private org.meta_environment.rascal.ast.Match match;
-	public org.meta_environment.rascal.ast.Match getMatch() { return match; }
-	private void $setMatch(org.meta_environment.rascal.ast.Match x) { this.match = x; }
-	public NoGuard setMatch(org.meta_environment.rascal.ast.Match x) { 
-		NoGuard z = new NoGuard();
- 		z.$setMatch(x);
+private org.meta_environment.rascal.ast.Expression pattern;
+	public org.meta_environment.rascal.ast.Expression getPattern() { return pattern; }
+	private void $setPattern(org.meta_environment.rascal.ast.Expression x) { this.pattern = x; }
+	public Arbitrary setPattern(org.meta_environment.rascal.ast.Expression x) { 
+		Arbitrary z = new Arbitrary();
+ 		z.$setPattern(x);
+		return z;
+	}
+	private org.meta_environment.rascal.ast.Statement statement;
+	public org.meta_environment.rascal.ast.Statement getStatement() { return statement; }
+	private void $setStatement(org.meta_environment.rascal.ast.Statement x) { this.statement = x; }
+	public Arbitrary setStatement(org.meta_environment.rascal.ast.Statement x) { 
+		Arbitrary z = new Arbitrary();
+ 		z.$setStatement(x);
+		return z;
+	}	
+} public abstract <T> T accept(IASTVisitor<T> visitor); public org.meta_environment.rascal.ast.Type getType() { throw new UnsupportedOperationException(); }
+	public org.meta_environment.rascal.ast.Rule getRule() { throw new UnsupportedOperationException(); }
+public boolean hasType() { return false; }
+	public boolean hasRule() { return false; }
+public boolean isGuarded() { return false; }
+static public class Guarded extends Rule {
+/* "[" type:Type "]" rule:Rule -> Rule {non-assoc, cons("Guarded")} */
+	private Guarded() { }
+	/*package*/ Guarded(ITree tree, org.meta_environment.rascal.ast.Type type, org.meta_environment.rascal.ast.Rule rule) {
+		this.tree = tree;
+		this.type = type;
+		this.rule = rule;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitRuleGuarded(this);
+	}
+
+	public boolean isGuarded() { return true; }
+
+	public boolean hasType() { return true; }
+	public boolean hasRule() { return true; }
+
+private org.meta_environment.rascal.ast.Type type;
+	public org.meta_environment.rascal.ast.Type getType() { return type; }
+	private void $setType(org.meta_environment.rascal.ast.Type x) { this.type = x; }
+	public Guarded setType(org.meta_environment.rascal.ast.Type x) { 
+		Guarded z = new Guarded();
+ 		z.$setType(x);
+		return z;
+	}
+	private org.meta_environment.rascal.ast.Rule rule;
+	public org.meta_environment.rascal.ast.Rule getRule() { return rule; }
+	private void $setRule(org.meta_environment.rascal.ast.Rule x) { this.rule = x; }
+	public Guarded setRule(org.meta_environment.rascal.ast.Rule x) { 
+		Guarded z = new Guarded();
+ 		z.$setRule(x);
 		return z;
 	}	
 }
- public abstract <T> T accept(IASTVisitor<T> visitor);
 }
