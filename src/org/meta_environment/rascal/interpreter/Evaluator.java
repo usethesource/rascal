@@ -42,7 +42,6 @@ import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.Case;
 import org.meta_environment.rascal.ast.Declaration;
 import org.meta_environment.rascal.ast.Declarator;
-import org.meta_environment.rascal.ast.Expression;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.FunctionModifier;
 import org.meta_environment.rascal.ast.Generator;
@@ -486,16 +485,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		 java.util.List<org.meta_environment.rascal.ast.Expression> args = x.getArguments();
 		 QualifiedName name = x.getQualifiedName();
 		 
-		 if (isTreeConstructorName(name)) {
-			 return constructTree(tf.treeType(), name, args);
-		 }
-		 else {
-			 return call(name, args);
-		 }
-	}
-	private EvalResult call(QualifiedName name,
-			java.util.List<org.meta_environment.rascal.ast.Expression> args) {
-		IValue[] actuals = new IValue[args.size()];
+		 IValue[] actuals = new IValue[args.size()];
 		 Type[] types = new Type[args.size()];
 
 		 for (int i = 0; i < args.size(); i++) {
@@ -503,9 +493,17 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			 types[i] = resultElem.type;
 			 actuals[i] = resultElem.value;
 		 }
-
-		 TupleType actualTypes = tf.tupleType(types);
-
+		 
+		 TupleType signature = tf.tupleType(types);
+		 
+		 if (isTreeConstructorName(name)) {
+			 return constructTree(name, actuals, signature);
+		 }
+		 else {
+			 return call(name, actuals, signature);
+		 }
+	}
+	private EvalResult call(QualifiedName name, IValue[] actuals, TupleType actualTypes) {
 		 FunctionDeclaration func = env.getFunction(name, actualTypes);
 
 		 if (func != null) {
@@ -515,7 +513,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			 return res;
 		 }
 		 else {
-			 return constructTree(tf.treeType(), name, args);
+			 return constructTree(name, actuals, actualTypes);
 		 }
 	}
 
@@ -561,8 +559,10 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	 * @param functionName
 	 * @param args
 	 * @return
+	 * 
+	 * TODO: code does not deal with import structure, rather data def's are global.
 	 */
-	private EvalResult constructTree(Type expected, QualifiedName functionName, java.util.List<org.meta_environment.rascal.ast.Expression> args) {
+	private EvalResult constructTree(QualifiedName functionName, IValue[] actuals, TupleType signature) {
 		java.util.List<Name> parts = functionName.getNames();
 		String sort;
 		String cons;
@@ -577,76 +577,36 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		java.util.List<TreeNodeType> candidates;
 	
 		if (sort != null) {
-			// TODO: code does not deal with import structure, rather data def's are global.
 			NamedTreeType sortType = tf.lookupNamedTreeType(sort);
 			candidates = tf.lookupTreeNodeType(sortType, cons);
 		}
-		else if (expected.isNamedTreeType()) {
-			candidates = tf.lookupTreeNodeType((NamedTreeType) expected, cons);
-		}
 		else {
 		    candidates = tf.lookupTreeNodeType(cons);
-		    
-			Iterator<TreeNodeType> iter = candidates.iterator();
-			
-			if (iter.hasNext()) {
-				NamedTreeType sortType = iter.next().getSuperType();
-				while (iter.hasNext()) {
-					NamedTreeType next = iter.next().getSuperType();
-					if (sortType != next) {
-						throw new FactTypeError(functionName + " is ambiguous, could be either a " + next + " or a " + sortType);
-					}
-				}
-			}
 		}
-		
-		IValue[] results = new IValue[args.size()];
-		Type[] types = new Type[args.size()];
 		
 		if (candidates.size() != 0) {
-		// we know now the sort name and the constructor name, but still the 
-		// constructor could be overloaded. So now, we try for each alternative. Only
-		// one is allowed to succeed.
-		
-		// TODO: add backtracking here, such that environment is not messed up when
-		// trying multiple alternatives.
-		
-		for (TreeNodeType candidate : candidates) {
-			if (args.size() == candidate.getArity()) {
-				for (int i = 0; i < candidate.getArity(); i++) {
-					Expression arg = args.get(i);
-					types[i] = candidate.getChildType(i);
-					
-					if (arg.isCallOrTree()) {
-						QualifiedName name = arg.getQualifiedName();
-						if (isTreeConstructorName(name)) {
-							results[i] = constructTree(types[i], name, arg.getArguments()).value;
-							continue;
-						}
-					}
-					
-					// it's a function call or another kind of expression
-					EvalResult eval = arg.accept(this); // TODO could introduce side-effect
-					results[i] = eval.value;
-					types[i] = eval.type;
+			java.util.List<TreeNodeType> matches = new LinkedList<TreeNodeType>();
+
+			for (TreeNodeType candidate : candidates) {
+				if (signature.isSubtypeOf(candidate.getChildrenTypes())) {
+					matches.add(candidate);
 				}
-				
-				if (tf.tupleType(types).isSubtypeOf(candidate.getChildrenTypes())) {
-					return result(candidate.getSuperType(), vf.tree(candidate, results));
+			}
+
+			if (matches.size() > 1) {
+				StringBuffer buf = new StringBuffer();
+				for (TreeNodeType m : matches) {
+					buf.append(m + " ");
 				}
-				
-				// TODO: failed, so roll back environment in case of side-effects
+
+				throw new RascalTypeError(cons + " is ambiguous, could be one of " + buf);
+			}
+			else if (matches.size() == 1) {
+				return result(matches.get(0).make(vf, actuals));
 			}
 		}
-		}
 		
-		// when all else fails, we just construct a tree
-		for (int i = 0; i < args.size(); i++) {
-			EvalResult eval = args.get(i).accept(this);
-			results[i] = eval.value;
-		}
-		
-		return result(tf.treeType(), vf.tree(cons, results));
+		return result(tf.treeType(), vf.tree(cons, actuals));
 	}
 	
 	@Override
