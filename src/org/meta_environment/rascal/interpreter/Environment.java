@@ -2,11 +2,16 @@ package org.meta_environment.rascal.interpreter;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.eclipse.imp.pdb.facts.type.NamedTreeType;
+import org.eclipse.imp.pdb.facts.type.NamedType;
 import org.eclipse.imp.pdb.facts.type.ParameterType;
+import org.eclipse.imp.pdb.facts.type.TreeNodeType;
 import org.eclipse.imp.pdb.facts.type.TupleType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
@@ -20,13 +25,17 @@ import org.meta_environment.rascal.ast.Name;
 public class Environment {
 	protected final Map<String, EvalResult> variableEnvironment;
 	protected final Map<String, List<FunctionDeclaration>> functionEnvironment;
-	protected final Map<ParameterType, Type> typeEnvironment;
+	protected final Map<ParameterType, Type> typeParameters;
 	protected final TypeEvaluator types;
+	protected final Set<Type> namedTypes;
+	protected final Map<NamedTreeType, List<TreeNodeType>> signature;
 
 	public Environment(TypeEvaluator te) {
 		this.variableEnvironment = new HashMap<String, EvalResult>();
 		this.functionEnvironment = new HashMap<String, List<FunctionDeclaration>>();
-		this.typeEnvironment = new HashMap<ParameterType, Type>();
+		this.typeParameters = new HashMap<ParameterType, Type>();
+		this.namedTypes = new HashSet<Type>();
+		this.signature = new HashMap<NamedTreeType, List<TreeNodeType>>();
 		this.types = te;
 	}
 	
@@ -56,11 +65,36 @@ public class Environment {
 	}
 	
 	protected void storeType(ParameterType par, Type type) {
-		typeEnvironment.put(par, type);
+		typeParameters.put(par, type);
 	}
 	
 	protected Type getType(ParameterType par) {
-		return typeEnvironment.get(par);
+		return typeParameters.get(par);
+	}
+	
+	protected void storeType(NamedType decl) {
+		namedTypes.add(decl);
+	}
+	
+	protected void storeType(NamedTreeType decl) {
+		List<TreeNodeType> tmp = signature.get(decl);
+		
+		if (tmp == null) {
+			tmp = new LinkedList<TreeNodeType>();
+			signature.put(decl, tmp);
+		}
+	}
+	
+	protected void storeType(TreeNodeType decl) {
+		NamedTreeType sort = decl.getSuperType();
+		List<TreeNodeType> tmp = signature.get(sort);
+		
+		if (tmp == null) {
+			tmp = new LinkedList<TreeNodeType>();
+			signature.put(sort, tmp);
+		}
+		
+		tmp.add(decl);
 	}
 	
 	protected void storeVariable(String name, EvalResult value) {
@@ -94,11 +128,11 @@ public class Environment {
 	}
 	
 	public Map<ParameterType, Type> getTypes() {
-		return Collections.unmodifiableMap(typeEnvironment);
+		return Collections.unmodifiableMap(typeParameters);
 	}
 	
 	public void storeTypes(Map<ParameterType, Type> bindings) {
-		typeEnvironment.putAll(bindings);
+		typeParameters.putAll(bindings);
 	}
 
 }
