@@ -403,6 +403,41 @@ public class DataTypeTests extends TestCase{
 		assertTrue(runTest("<1, {2,3}> == <1, {3,2}>;"));
 		assertTrue(runTest("<{1,2}, {3,4}> == <{2,1},{4,3}>;"));
 		
+		assertTrue(runTest("<1>           >= <1>;"));
+		assertTrue(runTest("<2>           >= <1>;"));
+		assertTrue(runTest("<1,2>         >= <1>;"));
+		assertTrue(runTest("<1,2>         >= <1,2>;"));
+		assertTrue(runTest("<1,2>         >= <1, 1>;"));
+		assertTrue(runTest("<1,\"def\">   >= <1, \"abc\">;"));
+		assertTrue(runTest("<1, [2,3,4]>  >= <1, [2,3]>;"));
+		assertTrue(runTest("<1, [2,3]>    >= <1, [2,3]>;"));
+		
+		assertFalse(runTest("<1>          > <1>;"));
+		assertTrue(runTest("<2>           > <1>;"));
+		assertTrue(runTest("<1,2>         > <1>;"));
+		assertFalse(runTest("<1,2>        > <1,2>;"));
+		assertTrue(runTest("<1,2>         > <1, 1>;"));
+		assertTrue(runTest("<1,\"def\">   > <1, \"abc\">;"));
+		assertTrue(runTest("<1, [2,3,4]>  > <1, [2,3]>;"));
+		assertFalse(runTest("<1, [2,3]>   > <1, [2,3]>;"));
+		
+		assertTrue(runTest("<1>           <= <1>;"));
+		assertTrue(runTest("<1>           <= <2>;"));
+		assertTrue(runTest("<1>           <= <1,2>;"));
+		assertTrue(runTest("<1,2>         <= <1,2>;"));
+		assertTrue(runTest("<1,1>         <= <1, 2>;"));
+		assertTrue(runTest("<1,\"abc\">   <= <1, \"def\">;"));
+		assertTrue(runTest("<1, [2,3]>    <= <1, [2,3,4]>;"));
+		assertTrue(runTest("<1, [2,3]>    <= <1, [2,3]>;"));
+		
+		assertFalse(runTest("<1>          < <1>;"));
+		assertTrue(runTest("<1>           < <2>;"));
+		assertTrue(runTest("<1>           < <1,2>;"));
+		assertFalse(runTest("<1,2>        < <1,2>;"));
+		assertTrue(runTest("<1,1>         < <1, 2>;"));
+		assertTrue(runTest("<1,\"abc\">   < <1, \"def\">;"));
+		assertTrue(runTest("<1, [2,3]>    < <1, [2,3,4]>;"));
+		assertFalse(runTest("<1, [2,3]>   < <1, [2,3]>;"));
 	}
 	
 	public void testRelation() throws IOException {
