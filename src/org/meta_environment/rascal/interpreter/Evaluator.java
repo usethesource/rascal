@@ -67,14 +67,20 @@ import org.meta_environment.rascal.ast.Declaration.View;
 import org.meta_environment.rascal.ast.Expression.Addition;
 import org.meta_environment.rascal.ast.Expression.Ambiguity;
 import org.meta_environment.rascal.ast.Expression.And;
+import org.meta_environment.rascal.ast.Expression.Area;
+import org.meta_environment.rascal.ast.Expression.AreaInFileLocation;
+import org.meta_environment.rascal.ast.Expression.AreaLocation;
 import org.meta_environment.rascal.ast.Expression.Bracket;
 import org.meta_environment.rascal.ast.Expression.CallOrTree;
+import org.meta_environment.rascal.ast.Expression.Closure;
 import org.meta_environment.rascal.ast.Expression.ClosureCall;
 import org.meta_environment.rascal.ast.Expression.Composition;
 import org.meta_environment.rascal.ast.Expression.Comprehension;
 import org.meta_environment.rascal.ast.Expression.Division;
 import org.meta_environment.rascal.ast.Expression.Equivalence;
 import org.meta_environment.rascal.ast.Expression.Exists;
+import org.meta_environment.rascal.ast.Expression.FieldUpdate;
+import org.meta_environment.rascal.ast.Expression.FileLocation;
 import org.meta_environment.rascal.ast.Expression.ForAll;
 import org.meta_environment.rascal.ast.Expression.FunctionAsValue;
 import org.meta_environment.rascal.ast.Expression.GreaterThan;
@@ -85,6 +91,7 @@ import org.meta_environment.rascal.ast.Expression.In;
 import org.meta_environment.rascal.ast.Expression.Intersection;
 import org.meta_environment.rascal.ast.Expression.LessThan;
 import org.meta_environment.rascal.ast.Expression.LessThanOrEq;
+import org.meta_environment.rascal.ast.Expression.Lexical;
 import org.meta_environment.rascal.ast.Expression.List;
 import org.meta_environment.rascal.ast.Expression.Literal;
 import org.meta_environment.rascal.ast.Expression.Match;
@@ -94,14 +101,20 @@ import org.meta_environment.rascal.ast.Expression.Negative;
 import org.meta_environment.rascal.ast.Expression.NoMatch;
 import org.meta_environment.rascal.ast.Expression.NonEmptyBlock;
 import org.meta_environment.rascal.ast.Expression.NotIn;
+import org.meta_environment.rascal.ast.Expression.OperatorAsValue;
 import org.meta_environment.rascal.ast.Expression.Or;
 import org.meta_environment.rascal.ast.Expression.Product;
+import org.meta_environment.rascal.ast.Expression.Range;
 import org.meta_environment.rascal.ast.Expression.Set;
+import org.meta_environment.rascal.ast.Expression.StepRange;
 import org.meta_environment.rascal.ast.Expression.Subscript;
 import org.meta_environment.rascal.ast.Expression.Subtraction;
 import org.meta_environment.rascal.ast.Expression.TransitiveClosure;
 import org.meta_environment.rascal.ast.Expression.TransitiveReflexiveClosure;
 import org.meta_environment.rascal.ast.Expression.Tuple;
+import org.meta_environment.rascal.ast.Expression.TypedVariable;
+import org.meta_environment.rascal.ast.Expression.Visit;
+import org.meta_environment.rascal.ast.Expression.VoidClosure;
 import org.meta_environment.rascal.ast.IntegerLiteral.DecimalIntegerLiteral;
 import org.meta_environment.rascal.ast.Literal.Boolean;
 import org.meta_environment.rascal.ast.Literal.Double;
@@ -1623,7 +1636,80 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		
 		return result(vf.bool(equals(left, right)));
 	}
-
+	
+	@Override
+	public EvalResult visitExpressionOperatorAsValue(OperatorAsValue x) {
+		// TODO
+		throw new RascalBug("Operator as value not yet implemented:" + x);
+	}
+	
+	@Override
+	public EvalResult visitExpressionArea(Area x) {
+		// TODO
+		throw new RascalBug("Area construct nyi: " + x);
+	}
+	
+	@Override
+	public EvalResult visitExpressionAreaInFileLocation(AreaInFileLocation x) {
+		// TODO
+		throw new RascalBug("Area in file nyi:" + x);
+	}
+	
+	@Override
+	public EvalResult visitExpressionAreaLocation(AreaLocation x) {
+		// TODO
+		throw new RascalBug("Area in file nyi:" + x);
+	}
+	
+	@Override
+	public EvalResult visitExpressionClosure(Closure x) {
+		// TODO
+		throw new RascalBug("Closures NYI " + x);
+	}
+	
+	@Override
+	public EvalResult visitExpressionFieldUpdate(FieldUpdate x) {
+		throw new RascalBug("FieldUpdate NYI: " + x);// TODO
+	}
+	
+	@Override
+	public EvalResult visitExpressionFileLocation(FileLocation x) {
+		throw new RascalBug("Fileloc NYI: " + x);// TODO
+	}
+	
+	@Override
+	public EvalResult visitExpressionLexical(Lexical x) {
+		throw new RascalBug("Lexical NYI: " + x);// TODO
+	}
+	
+	@Override
+	public EvalResult visitExpressionRange(Range x) {
+		throw new RascalBug("Range NYI: " + x);// TODO
+	}
+	
+	@Override
+	public EvalResult visitExpressionStepRange(StepRange x) {
+		throw new RascalBug("StepRange NYI" + x);// TODO
+	}
+	
+	@Override
+	public EvalResult visitExpressionTypedVariable(TypedVariable x) {
+		// TODO
+		throw new RascalBug("Typed var NYI");
+	}
+	
+	@Override
+	public EvalResult visitExpressionVisit(Visit x) {
+		// TODO
+		throw new RascalBug("Visit var NYI");
+	}
+	
+	@Override
+	public EvalResult visitExpressionVoidClosure(VoidClosure x) {
+		// TODO
+		throw new RascalBug("void closure NYI");
+	}
+	
 	@Override
 	public EvalResult visitExpressionNonEquals(
 			org.meta_environment.rascal.ast.Expression.NonEquals x) {
