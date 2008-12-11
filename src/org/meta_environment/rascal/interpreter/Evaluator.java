@@ -1670,8 +1670,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	}
 	
 	boolean equals(EvalResult left, EvalResult right){
-		if (left.type.isSubtypeOf(right.type)
-				|| right.type.isSubtypeOf(left.type)
+		if (left.type.comparable(right.type)
 				//|| left.type.isValueType()                   //TODO: is this necessary?
 				//|| right.type.isValueType()
 		) {
