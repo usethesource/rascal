@@ -637,7 +637,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		 FunctionDeclaration func = env.getFunction(name, actualTypes);
 
 		 if (func != null) {
-			 Environment mod = env.getFunctionDefiningEnvironment(name, actualTypes);
+			 Environment mod = env.getModuleFor(name);
 			 env.push(mod);
 			 EvalResult res = call(func, actuals, actualTypes);
 			 env.pop();
