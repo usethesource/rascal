@@ -123,17 +123,25 @@ import org.meta_environment.rascal.ast.LocalVariableDeclaration.Default;
 import org.meta_environment.rascal.ast.Rule.Arbitrary;
 import org.meta_environment.rascal.ast.Rule.Guarded;
 import org.meta_environment.rascal.ast.Rule.Replacing;
+import org.meta_environment.rascal.ast.Statement.All;
 import org.meta_environment.rascal.ast.Statement.Assert;
 import org.meta_environment.rascal.ast.Statement.Assignment;
 import org.meta_environment.rascal.ast.Statement.Block;
+import org.meta_environment.rascal.ast.Statement.Break;
+import org.meta_environment.rascal.ast.Statement.Continue;
 import org.meta_environment.rascal.ast.Statement.DoWhile;
 import org.meta_environment.rascal.ast.Statement.Fail;
+import org.meta_environment.rascal.ast.Statement.First;
 import org.meta_environment.rascal.ast.Statement.For;
+import org.meta_environment.rascal.ast.Statement.GlobalDirective;
 import org.meta_environment.rascal.ast.Statement.IfThen;
 import org.meta_environment.rascal.ast.Statement.IfThenElse;
 import org.meta_environment.rascal.ast.Statement.Insert;
 import org.meta_environment.rascal.ast.Statement.Solve;
 import org.meta_environment.rascal.ast.Statement.Switch;
+import org.meta_environment.rascal.ast.Statement.Throw;
+import org.meta_environment.rascal.ast.Statement.Try;
+import org.meta_environment.rascal.ast.Statement.TryFinally;
 import org.meta_environment.rascal.ast.Statement.VariableDeclaration;
 import org.meta_environment.rascal.ast.Statement.While;
 import org.meta_environment.rascal.ast.Toplevel.DefaultVisibility;
@@ -888,6 +896,52 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		else {
 			throw ReturnException.getInstance(result(tf.voidType(), null));
 		}
+	}
+	
+	@Override
+	public EvalResult visitStatementAll(All x) {
+		throw new RascalBug("NYI all" + x); // TODO
+	}
+	
+	@Override
+	public EvalResult visitStatementBreak(Break x) {
+		throw new RascalBug("NYI break" + x); // TODO
+	}
+	
+	@Override
+	public EvalResult visitStatementContinue(Continue x) {
+		throw new RascalBug("NYI" + x); // TODO
+	}
+	
+	@Override
+	public EvalResult visitStatementFirst(First x) {
+		throw new RascalBug("NYI" + x); // TODO
+	}
+	
+	@Override
+	public EvalResult visitStatementGlobalDirective(GlobalDirective x) {
+		throw new RascalBug("NYI" + x); // TODO
+	}
+	
+	@Override
+	public EvalResult visitStatementThrow(Throw x) {
+		throw new RascalBug("NYI" + x); // TODO
+	}
+	
+	@Override
+	public EvalResult visitStatementTry(Try x) {
+		throw new RascalBug("NYI" + x); // TODO
+	}
+	
+	@Override
+	public EvalResult visitStatementTryFinally(TryFinally x) {
+		throw new RascalBug("NYI" + x); // TODO
+	}
+	
+	@Override
+	public EvalResult visitStatementVisit(
+			org.meta_environment.rascal.ast.Statement.Visit x) {
+		throw new RascalBug("NYI" + x); // TODO
 	}
 	
 	@Override
