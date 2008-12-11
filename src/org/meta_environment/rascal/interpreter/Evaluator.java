@@ -159,10 +159,11 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	public static final String RASCAL_FILE_EXT = ".rsc";
 	final IValueFactory vf;
 	final TypeFactory tf = TypeFactory.getInstance();
-	final TypeEvaluator te = new TypeEvaluator(this);
+	final TypeEvaluator te = TypeEvaluator.getInstance();
 	private final RegExpPatternEvaluator re = new RegExpPatternEvaluator();
 	private final TreePatternEvaluator pe;
-	GlobalEnvironment env = new GlobalEnvironment(te);
+	GlobalEnvironment env = GlobalEnvironment.getInstance();
+	
 	private final ASTFactory af;
 	private final JavaFunctionCaller javaFunctionCaller;
 
@@ -177,7 +178,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	 * Clean the global environment for the benefit of repeated testing.
 	 */
 	public void clean(){
-		env = new GlobalEnvironment(te);
+		GlobalEnvironment.clean();
 	}
 	
 	/**
@@ -330,7 +331,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			org.meta_environment.rascal.ast.Import.Default x) {
 		// TODO support for full complexity of import declarations
 		String name = x.getModule().getName().toString();
-		
+		env.addImport(name);
 		Parser p = Parser.getInstance();
 		ASTBuilder b = new ASTBuilder(af);
 		
@@ -374,19 +375,17 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			org.meta_environment.rascal.ast.Module.Default x) {
 		String name = x.getHeader().getName().toString();
 
-		if (env.getModule(name) == null) {
-			env.addModule(name);
-			env.pushModule(name);
+		env.addModule(name);
+		env.pushModule(name);
 
-			x.getHeader().accept(this);
+		x.getHeader().accept(this);
 
-			java.util.List<Toplevel> decls = x.getBody().getToplevels();
-			for (Toplevel l : decls) {
-				l.accept(this);
-			}
-
-			env.pop();
+		java.util.List<Toplevel> decls = x.getBody().getToplevels();
+		for (Toplevel l : decls) {
+			l.accept(this);
 		}
+
+		env.popModule();
 		return result();
 	}
 	
@@ -637,10 +636,9 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		 FunctionDeclaration func = env.getFunction(name, actualTypes);
 
 		 if (func != null) {
-			 Environment mod = env.getModuleFor(name);
-			 env.push(mod);
+			 env.pushModuleForFunction(name, actualTypes);
 			 EvalResult res = call(func, actuals, actualTypes);
-			 env.pop();
+			 env.popModule();
 			 return res;
 		 }
 		 else {
@@ -652,11 +650,11 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		java.util.List<Name> names = name.getNames();
 		
 		if (names.size() > 1) {
-			String sort = names.get(names.size() - 2).toString();
+			String sort = Names.sortName(name);
 			NamedTreeType sortType = tf.lookupNamedTreeType(sort);
 			
 			if (sortType != null) {
-				String cons = env.getLocalName(name);
+				String cons = Names.consName(name);
 				
 				if (tf.lookupTreeNodeType(sortType, cons).size() > 0) {
 					return true;
@@ -672,7 +670,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			}
 		}
 		
-		String cons = env.getLocalName(name);
+		String cons = Names.consName(name);
 			
 		if (tf.lookupTreeNodeType(cons).size() > 0) {
 			return true;
@@ -775,18 +773,18 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			IValue[] actuals, TupleType actualTypes) {
 		Type type = func.getSignature().getType().accept(te);
 		TupleType formals = (TupleType) func.getSignature().getParameters().accept(te);
-		env.push();
+		env.pushFrame();
 		bindTypeParameters(actualTypes, formals);
 		IValue result = javaFunctionCaller.callJavaMethod(func, actuals);
 		Type resultType = type.instantiate(env.getTypes());
-		env.pop();
+		env.popFrame();
 		return result(resultType, result);
 	}
 
 	private EvalResult callRascalFunction(FunctionDeclaration func,
 			IValue[] actuals, TupleType actualTypes) {
 		try {
-			env.push();
+			env.pushFrame();
 			TupleType formals = (TupleType) func.getSignature().accept(te);
 			bindTypeParameters(actualTypes, formals);
 			
@@ -808,7 +806,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		catch (ReturnException e) {
 			EvalResult result = e.getValue();
 			result.type = result.type.instantiate(env.getTypes());
-			env.pop();
+			env.popFrame();
 			return result;
 		}
 	}

@@ -34,12 +34,16 @@ import org.meta_environment.rascal.ast.TypeArg.Default;
 import org.meta_environment.rascal.ast.TypeArg.Named;
 
 public class TypeEvaluator extends NullASTVisitor<Type> {
-	private TypeFactory tf = TypeFactory.getInstance();
-	private final Type functionType = tf.namedType("rascal.functionType", tf.stringType());
-	private final Evaluator ev;
+	private static TypeFactory tf = TypeFactory.getInstance();
+	private static final Type functionType = tf.namedType("rascal.functionType", tf.stringType());
+	private static final GlobalEnvironment env = GlobalEnvironment.getInstance();
+	private static final TypeEvaluator sInstance = new TypeEvaluator();
 	
-	public TypeEvaluator(Evaluator eval) {
-		this.ev = eval;
+	private TypeEvaluator() {
+	}
+	
+	public static TypeEvaluator getInstance() {
+		return sInstance;
 	}
 	
 	public boolean isFunctionType(Type type) {
@@ -224,7 +228,7 @@ public class TypeEvaluator extends NullASTVisitor<Type> {
 		  param = tf.parameterType(var.getName().toString());
 		}
 		
-		return param.instantiate(ev.env.getTypes());
+		return param.instantiate(env.getTypes());
 	}
 
 	@Override

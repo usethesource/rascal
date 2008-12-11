@@ -1,13 +1,10 @@
 package org.meta_environment.rascal.interpreter;
 
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.imp.pdb.facts.type.ParameterType;
 import org.eclipse.imp.pdb.facts.type.TupleType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
@@ -25,39 +22,56 @@ import org.meta_environment.rascal.ast.Rule;
 public class GlobalEnvironment extends ModuleEnvironment {
 	private final Map<String, ModuleEnvironment> moduleEnvironment;
 	private final Map<Type, List<Rule>> ruleEnvironment;
-
-	public GlobalEnvironment(TypeEvaluator te) {
-		super("***global***", te);
-		stack.pop();
-		stack.push(this);
+	private static GlobalEnvironment sInstance = new GlobalEnvironment();
+    
+	private GlobalEnvironment() {
+		super("***global***");
 		moduleEnvironment = new HashMap<String, ModuleEnvironment>();
 		ruleEnvironment = new HashMap<Type, List<Rule>>();
 	}
+
+	public static GlobalEnvironment getInstance() {
+		return sInstance;
+	}
 	
-	@Override
-	public boolean isModuleEnvironment() {
-		return true;
+	public static void clean() {
+		sInstance = new GlobalEnvironment();
 	}
 	
 	@Override
-	public boolean isGlobalEnvironment() {
-		return true;
+	public void addImport(String name) {
+		addModule(name);
+		super.addImport(name);
 	}
 	
 	public void addModule(String name) {
-		moduleEnvironment.put(name, new ModuleEnvironment(name, types));
-		importedModules.add(name);
+		ModuleEnvironment env = moduleEnvironment.get(name);
+		if (env == null) {
+			moduleEnvironment.put(name, new ModuleEnvironment(name));
+		}
+	}
+
+	public void pushModule(QualifiedName name) {
+		pushModule(Names.moduleName(name));
+	}
+	
+	public void pushModule(String name) {
+		stack.push(getModule(name));
+	}
+	
+	public void popModule() {
+		stack.pop();
 	}
 	
 	public ModuleEnvironment getModule(String name) {
 		return moduleEnvironment.get(name);
 	}
 	
-	public EvalResult getModuleVariable(String module, String variable) {
+	public EvalResult getModuleVariable(String module, Name variable) {
 		return getModule(module).getVariable(variable);
 	}
 	
-	public FunctionDeclaration getModuleFunction(String module, String function, TupleType actuals) {
+	private FunctionDeclaration getModuleFunction(String module, Name function, TupleType actuals) {
 		ModuleEnvironment mod = getModule(module);
 		
 		if (mod == null) {
@@ -66,46 +80,23 @@ public class GlobalEnvironment extends ModuleEnvironment {
 		return mod.getFunction(function, actuals);
 	}
 	
-	public void storeModuleVariable(String module, String variable, EvalResult value) {
+	private void storeModuleVariable(String module, Name variable, EvalResult value) {
 		getModule(module).storeVariable(variable, value);
 	}
 	
-	public void storeModuleFunction(String module, String name, FunctionDeclaration function) {
+	private void storeModuleFunction(String module, Name name, FunctionDeclaration function) {
 		getModule(module).storeFunction(name, function);
 	}
 	
-	private String getModuleName(QualifiedName name) {
-		List<Name> names = name.getNames();
-		java.util.List<Name> prefix = names.subList(0, names.size() - 1);
-		
-		StringBuilder tmp = new StringBuilder();
-		Iterator<Name> iter = prefix.iterator();
-		
-		while (iter.hasNext()) {
-			Name part = iter.next();
-			tmp.append(part.toString());
-			if (iter.hasNext()) {
-				tmp.append("::");
-			}
-		}
-		
-		return tmp.toString();
-	}
-	
-	public String getLocalName(QualifiedName name) {
-		List<Name> names = name.getNames();
-		String str = names.get(names.size() - 1).toString();
-		if (str.startsWith("\\")) {
-			str = str.substring(1);
-		}
-		return str;
+	public Name getLocalName(QualifiedName name) {
+		return Names.lastName(name);
 	}
 	
 	public EvalResult getVariable(QualifiedName name) {
-		String module = getModuleName(name);
-		String variable = getLocalName(name);
+		String module = Names.moduleName(name);
+		Name variable = Names.lastName(name);
 		
-		if (module.equals("")) {
+		if (module == null) {
 			return getVariable(variable);
 		}
 		else {
@@ -114,10 +105,10 @@ public class GlobalEnvironment extends ModuleEnvironment {
 	}
 	
 	public FunctionDeclaration getFunction(QualifiedName name, TupleType actuals) {
-		String module = getModuleName(name);
-		String function = getLocalName(name);
+		String module = Names.moduleName(name);
+		Name function = Names.lastName(name);
 		
-		if (module.equals("")) {
+		if (module == null) {
 			return getFunction(function, actuals);
 		}
 		else {
@@ -125,16 +116,11 @@ public class GlobalEnvironment extends ModuleEnvironment {
 		}
 	}
 	
-	public ModuleEnvironment getModuleFor(QualifiedName name) {
-		ModuleEnvironment mod = getModule(getModuleName(name));
-		return mod != null ? mod : this;
-	}
-	
 	public void storeVariable(QualifiedName name, EvalResult value) {
-		String module = getModuleName(name);
-		String var = getLocalName(name);
+		String module = Names.moduleName(name);
+		Name var = Names.lastName(name);
 		
-		if (module.equals("")) {
+		if (module == null) {
 			storeVariable(var, value);
 		}
 		else {
@@ -142,22 +128,17 @@ public class GlobalEnvironment extends ModuleEnvironment {
 		}
 	}
 	
-	public void storeVariable(Name name, EvalResult value) {
-		storeVariable(name.toString(), value);
-	}
-	
 	public void storeFunction(QualifiedName name, FunctionDeclaration function) {
-		String module = getModuleName(name);
-		String func = getLocalName(name);
+		String module = Names.moduleName(name);
+		Name func = Names.lastName(name);
 		
-		if (module.equals("")) {
+		if (module == null) {
 			storeFunction(func, function);
 		}
 		else {
 			storeModuleFunction(module, func, function);
 		}
 	}
-	
 	
 	public void storeRule(Type forType, Rule rule) {
 		List<Rule> rules = ruleEnvironment.get(forType);
@@ -175,7 +156,14 @@ public class GlobalEnvironment extends ModuleEnvironment {
 		return rules != null ? rules : new LinkedList<Rule>();
 	}
 
-	
-	
-	
+	public void pushModuleForFunction(QualifiedName name, TupleType formals) {
+		String module = Names.moduleName(name);
+		
+		if (module != null) {
+           pushModule(name);
+		}
+		else {
+		   pushFrame(getFunctionDefiningEnvironment(Names.lastName(name), formals));
+		}
+	}
 }
