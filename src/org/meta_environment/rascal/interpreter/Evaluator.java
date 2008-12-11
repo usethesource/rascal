@@ -234,7 +234,9 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			instance = t;
 		}
 		
-		checkType(instance, v.getType());
+		if (v != null) {
+			checkType(instance, v.getType());
+		}
 
 		return new EvalResult(instance, v);
 	}
@@ -635,7 +637,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		 FunctionDeclaration func = env.getFunction(name, actualTypes);
 
 		 if (func != null) {
-			 env.push(env.getModuleFor(name));
+			 Environment mod = env.getFunctionDefiningEnvironment(name, actualTypes);
+			 env.push(mod);
 			 EvalResult res = call(func, actuals, actualTypes);
 			 env.pop();
 			 return res;
