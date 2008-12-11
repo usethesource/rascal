@@ -2,186 +2,195 @@ package org.meta_environment.rascal.interpreter;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+import org.eclipse.imp.pdb.facts.type.NamedTreeType;
+import org.eclipse.imp.pdb.facts.type.NamedType;
 import org.eclipse.imp.pdb.facts.type.ParameterType;
+import org.eclipse.imp.pdb.facts.type.TreeNodeType;
 import org.eclipse.imp.pdb.facts.type.TupleType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
-import org.meta_environment.rascal.ast.Rule;
+import org.meta_environment.rascal.ast.Name;
+import org.meta_environment.rascal.ast.QualifiedName;
 
 /**
  * An environment that implements the scoping rules of Rascal.
  * 
- * @author jurgenv
- *
  */
-public class EnvironmentStack extends Environment {
-	protected final Stack<Environment> stack = new Stack<Environment>();
+public class EnvironmentStack implements IEnvironment {
+	protected final Stack<IEnvironment> stack = new Stack<IEnvironment>();
     
-	public EnvironmentStack(TypeEvaluator te) {
-		super(te);
+	public EnvironmentStack(IEnvironment bottom) {
+		stack.push(bottom);
 	}
 	
-	public void push() {
-		stack.push(new Environment(types));
+	public boolean isRootEnvironment() {
+		return false;
 	}
 	
-	public void push(Environment e) {
+	public void pushFrame() {
+		stack.push(new Environment());
+	}
+	
+	public void push(IEnvironment e) {
+		if (e == null) { 
+			throw new RascalBug("Empty environment");
+		}
 		stack.push(e);
 	}
 
-	protected ModuleEnvironment getGlobalEnvironment() {
-		return (ModuleEnvironment) stack.get(0);
+	public void popFrame() {
+		stack.pop();
 	}
 	
 	public void pop() {
 		stack.pop();
 	}
-	
-	public void pushModule(String name) {
-		stack.push(getGlobalEnvironment().getModule(name));
+
+	protected IEnvironment bottom() {
+		return stack.get(0);
 	}
 	
-	@Override
-	protected FunctionDeclaration getFunction(String name, TupleType actuals) {
-		Environment env =  getFunctionDefiningEnvironment(name, actuals);
+	protected IEnvironment top() {
+		return stack.peek();
+	}
+	
+	public void storeFunction(String name, FunctionDeclaration function) {
+		TupleType formals = (TupleType) function.getSignature().accept(TypeEvaluator.getInstance());
 		
-		if (env == this) {
-			return super.getFunction(name, actuals);
-		}
-		else {
-			return env.getFunction(name, actuals);
-		}
+		getFunctionDefiningEnvironment(name, formals).storeFunction(name, function);
 	}
 
-	@Override
-	protected EvalResult getVariable(String name) {
-		Environment env = getVariableDefiningEnvironment(name);
-		
-		if (env == this) {
-			return super.getVariable(name);
-		}
-		else {
-			return env.getVariable(name);
-		}
+	public void storeVariable(String name, EvalResult value) {
+		getVariableDefiningEnvironment(name).storeVariable(name, value);
 	}
 	
-	@Override
-	protected void storeFunction(String name, FunctionDeclaration function) {
-		TupleType formals = (TupleType) function.getSignature().accept(types);
-		
-		Environment env = getFunctionDefiningEnvironment(name, formals);
-		
-		if (env == this) {
-			super.storeFunction(name, function);
-		}
-		else {
-			env.storeFunction(name, function);
-		}
-	}
-
-	@Override
-	protected void storeVariable(String name, EvalResult value) {
-		Environment env = getVariableDefiningEnvironment(name);
-		
-		if (env == this) {
-			super.storeVariable(name, value);
-		}
-		else {
-			env.storeVariable(name, value);
-		}
-	}
-	
-	protected Environment getFunctionDefiningEnvironment(String name, TupleType formals) {
-		int i;
-		
-		for (i = stack.size() - 1; i >= 0; i--) {
-			Environment environment = stack.get(i);
-			
-			if (environment.isModuleEnvironment()
-					|| environment.getFunction(name, formals) != null) {
-				return environment;
+	public IEnvironment getRootEnvironment() {
+		for (int i = stack.size() - 1; i >= 0; i--) {
+			IEnvironment env = stack.get(i);
+			if (env.isRootEnvironment()) {
+				return env;
 			}
 		}
 		
-		return getGlobalEnvironment();
+		return bottom();
+	}
+
+	public IEnvironment getFunctionDefiningEnvironment(Name name, TupleType formals) {
+		return getFunctionDefiningEnvironment(Names.name(name), formals);
 	}
 	
-	protected Environment getVariableDefiningEnvironment(String name) {
+	public IEnvironment getFunctionDefiningEnvironment(String name, TupleType formals) {
 		int i;
 		
 		for (i = stack.size() - 1; i >= 0; i--) {
-			Environment environment = stack.get(i);
+			IEnvironment env = stack.get(i);
 			
-            if (environment.isModuleEnvironment() || environment.getVariable(name) != null) {
-            	return environment;
+			if (env.isRootEnvironment()
+					|| env.getFunction(name, formals) != null) {
+				return env;
+			}
+		}
+		
+		return top();
+	}
+	
+	public IEnvironment getVariableDefiningEnvironment(String name) {
+		int i;
+		
+		for (i = stack.size() - 1; i >= 0; i--) {
+			IEnvironment env = stack.get(i);
+			
+            if (env.isRootEnvironment() || env.getVariable(name) != null) {
+            	return env;
             }
 		}
 		
-		return getGlobalEnvironment();
+		return top();
 	}
 
-	protected Environment getModuleEnvironment() {
-		int i;
-		for (i = stack.size() - 1; i >= 0; i--) {
-			Environment environment = stack.get(i);
-			if (environment.isModuleEnvironment()) {
-				return environment;
-			}
-		}
-		
-		throw new RascalBug("There should be a module environment");
-	}
-	
-	public void storeRule(Type forType, Rule rule) {
-		getGlobalEnvironment().storeRule(forType, rule);
-	}
-	
-    public List<Rule> getRules(Type forType) {
-    	return getGlobalEnvironment().getRules(forType);
-    } 
-	
-	public void addModule(String name) {
-		getGlobalEnvironment().addModule(name);
-	}
-
-	protected ModuleEnvironment getModule(String name) {
-		return getGlobalEnvironment().getModule(name);
-	}
-	
-	protected EvalResult getModuleVariable(String module, String variable) {
-		ModuleEnvironment env = getGlobalEnvironment().getModule(module);
-		return env.getVariable(variable);
-	}
-	
-	@Override
 	public Map<ParameterType, Type> getTypes() {
 		Map<ParameterType,Type> types = new HashMap<ParameterType,Type>();
 		
 		for (int i = 0; i < stack.size(); i++) {
-			Environment environment = stack.get(i);
-			if (environment == this) {
-				types.putAll(super.getTypes());
-			}
-			else {
-			  types.putAll(environment.getTypes());
-			}
+			IEnvironment environment = stack.get(i);
+			types.putAll(environment.getTypes());
 		}
 		
 		// result can not be given to a match
 		return Collections.unmodifiableMap(types);
 	}
 
-	@Override
-	protected void storeType(ParameterType par, Type type) {
-		stack.peek().storeType(par, type);
+	public void storeType(ParameterType par, Type type) {
+		// types have module scope
+		bottom().storeType(par, type);
 	}
 	
-	@Override
 	public void storeTypes(Map<ParameterType, Type> bindings) {
-		stack.peek().storeTypes(bindings);
+		// types have module scope
+		bottom().storeTypes(bindings);
+	}
+
+	public FunctionDeclaration getFunction(Name name, TupleType actuals) {
+		return getFunction(Names.name(name), actuals);
+	}
+	
+	public FunctionDeclaration getFunction(String name, TupleType actuals) {
+		IEnvironment env = getFunctionDefiningEnvironment(name, actuals);
+		return env.getFunction(name, actuals);
+	}
+
+	public Type getType(ParameterType par) {
+		return bottom().getType(par);
+	}
+
+	public EvalResult getVariable(String name) {
+		IEnvironment env = getVariableDefiningEnvironment(name);
+		return env.getVariable(name);
+	}
+
+	public void storeType(NamedType decl) {
+		bottom().storeType(decl);
+	}
+
+	public void storeType(NamedTreeType decl) {
+		bottom().storeType(decl);
+	}
+
+	public void storeType(TreeNodeType decl) {
+		bottom().storeType(decl);
+	}
+
+	public FunctionDeclaration getFunction(QualifiedName name, TupleType actuals) {
+		return getFunction(Names.lastName(name), actuals);
+	}
+
+	public EvalResult getVariable(QualifiedName name) {
+		return getVariable(Names.lastName(name));
+	}
+
+	public void storeFunction(QualifiedName name, FunctionDeclaration function) {
+		storeFunction(Names.lastName(name), function);
+		
+	}
+
+	public void storeVariable(QualifiedName name, EvalResult value) {
+		storeVariable(Names.lastName(name), value);
+	}
+
+	public EvalResult getVariable(Name name) {
+		return getVariable(Names.name(name));
+	}
+
+	public void storeFunction(Name name, FunctionDeclaration function) {
+		storeFunction(Names.name(name), function);
+		
+	}
+
+	public void storeVariable(Name name, EvalResult value) {
+		storeVariable(Names.name(name), value);
+		
 	}
 }

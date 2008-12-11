@@ -27,10 +27,10 @@ import org.meta_environment.rascal.ast.Assignable.Variable;
  */
 /*package*/ class AssignableEvaluator extends NullASTVisitor<EvalResult> {
     private EvalResult value;
-    private final EnvironmentStack env;
+    private final GlobalEnvironment env;
     private final Evaluator eval;
     
-	public AssignableEvaluator(EnvironmentStack env, EvalResult value, Evaluator eval) {
+	public AssignableEvaluator(GlobalEnvironment env, EvalResult value, Evaluator eval) {
 		this.value = value;
 		this.env = env;
 		this.eval = eval;
