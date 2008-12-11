@@ -46,6 +46,7 @@ import org.meta_environment.rascal.ast.Declarator;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.FunctionModifier;
 import org.meta_environment.rascal.ast.Generator;
+import org.meta_environment.rascal.ast.Import;
 import org.meta_environment.rascal.ast.Module;
 import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.NullASTVisitor;
@@ -116,6 +117,7 @@ import org.meta_environment.rascal.ast.Expression.Tuple;
 import org.meta_environment.rascal.ast.Expression.TypedVariable;
 import org.meta_environment.rascal.ast.Expression.Visit;
 import org.meta_environment.rascal.ast.Expression.VoidClosure;
+import org.meta_environment.rascal.ast.Header.Parameters;
 import org.meta_environment.rascal.ast.IntegerLiteral.DecimalIntegerLiteral;
 import org.meta_environment.rascal.ast.Literal.Boolean;
 import org.meta_environment.rascal.ast.Literal.Double;
@@ -369,16 +371,39 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	public EvalResult visitModuleDefault(
 			org.meta_environment.rascal.ast.Module.Default x) {
 		String name = x.getHeader().getName().toString();
-		
-		env.addModule(name);
-		env.pushModule(name);
-		
-		java.util.List<Toplevel> decls = x.getBody().getToplevels();
-		for (Toplevel l : decls) {
-			l.accept(this);
+
+		if (env.getModule(name) == null) {
+			env.addModule(name);
+			env.pushModule(name);
+
+			x.getHeader().accept(this);
+
+			java.util.List<Toplevel> decls = x.getBody().getToplevels();
+			for (Toplevel l : decls) {
+				l.accept(this);
+			}
+
+			env.pop();
 		}
-		
-		env.pop();
+		return result();
+	}
+	
+	@Override
+	public EvalResult visitHeaderDefault(
+			org.meta_environment.rascal.ast.Header.Default x) {
+		visitImports(x.getImports());
+		return result();
+	}
+	
+	private void visitImports(java.util.List<Import> imports) {
+		for (Import i : imports) {
+			i.accept(this);
+		}
+	}
+	
+	@Override
+	public EvalResult visitHeaderParameters(Parameters x) {
+		visitImports(x.getImports());
 		return result();
 	}
 	
@@ -680,7 +705,13 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 		if (sort != null) {
 			NamedTreeType sortType = tf.lookupNamedTreeType(sort);
-			candidates = tf.lookupTreeNodeType(sortType, cons);
+			
+			if (sortType != null) {
+			  candidates = tf.lookupTreeNodeType(sortType, cons);
+			}
+			else {
+			  return result(tf.treeType(), vf.tree(cons, actuals));
+			}
 		}
 		else {
 		    candidates = tf.lookupTreeNodeType(cons);
