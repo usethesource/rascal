@@ -20,8 +20,10 @@ import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IRelation;
+import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
+import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.ITuple;
@@ -167,13 +169,57 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		javaFunctionCaller = new JavaFunctionCaller(errorWriter, te);
 		this.pe = new TreePatternEvaluator(this);
 	}
-	/*
+	
+	/**
 	 * Clean the global environment for the benefit of repeated testing.
 	 */
 	public void clean(){
 		env = new GlobalEnvironment(te);
 	}
+	
+	/**
+	 * Evaluate a statement
+	 * @param stat
+	 * @return
+	 */
+	public IValue eval(Statement stat) {
+		EvalResult r = stat.accept(this);
+        if(r != null){
+        	return r.value;
+        } else {
+        	throw new RascalTypeError("Not yet implemented: " + stat.getTree());
+        }
+	}
+	
+	/**
+	 * Evaluate a declaration
+	 * @param declaration
+	 * @return
+	 */
+	public IValue eval(Declaration declaration) {
+		EvalResult r = declaration.accept(this);
+        if(r != null){
+        	return r.value;
+        } else {
+        	throw new RascalBug("Not yet implemented: " + declaration.getTree());
+        }
+	}
+	
+	/**
+	 * Evaluate an import
+	 * @param imp
+	 * @return
+	 */
+	public IValue eval(org.meta_environment.rascal.ast.Import imp) {
+		EvalResult r = imp.accept(this);
+        if(r != null){
+        	return r.value;
+        } else {
+        	throw new RascalBug("Not yet implemented: " + imp.getTree());
+        }
+	}
 
+	/* First a number of general utility methods */
 	EvalResult result(Type t, IValue v) {
 		Map<ParameterType, Type> bindings = env.getTypes();
 		Type instance;
@@ -185,9 +231,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			instance = t;
 		}
 		
-		if (!v.getType().isSubtypeOf(instance)) {
-			throw new RascalTypeError(v.getType() + " is not a subtype of " + instance);
-		}
+		checkType(instance, v.getType());
+
 		return new EvalResult(instance, v);
 	}
 
@@ -209,37 +254,57 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	}
 	
 	private EvalResult notImplemented(String s){
-		throw new RascalTypeError(s + " not yet implemented");
+		throw new RascalBug(s + " not yet implemented");
+	}
+	
+	private void checkInteger(EvalResult val) {
+		checkType(val, tf.integerType());
+	}
+	
+	private void checkDouble(EvalResult val) {
+		checkType(val, tf.doubleType());
+	}
+	
+	private void checkString(EvalResult val) {
+		checkType(val, tf.stringType());
+	}
+	
+	private void checkType(EvalResult val, Type expected) {
+		checkType(val.type, expected);
+	}
+	
+	private void checkType(Type type, Type expected) {
+		if (!type.isSubtypeOf(expected)) {
+			throw new RascalTypeError("Expected " + expected + ", got " + type);
+		}
+	}
+	
+	private int intValue(EvalResult val) {
+		checkInteger(val);
+		return ((IInteger) val.value).getValue();
+	}
+	
+	private double doubleValue(EvalResult val) {
+		checkDouble(val);
+		return ((IDouble) val.value).getValue();
+	}
+	
+	private String stringValue(EvalResult val) {
+		checkString(val);
+		return ((IString) val.value).getValue();
+	}
+	
+	private void bindTypeParameters(TupleType actualTypes, TupleType formals) {
+		try {
+			Map<ParameterType, Type> bindings = new HashMap<ParameterType, Type>();
+			formals.match(actualTypes, bindings);
+			env.storeTypes(bindings);
+		}
+		catch (FactTypeError e) {
+			throw new RascalTypeError("Could not bind type parameters in " + formals + " to " + actualTypes, e);
+		}
 	}
 
-	public IValue eval(Statement stat) {
-		EvalResult r = stat.accept(this);
-        if(r != null){
-        	return r.value;
-        } else {
-        	throw new RascalTypeError("Not yet implemented: " + stat.getTree());
-        }
-	}
-	
-	public IValue eval(Declaration declaration) {
-		EvalResult r = declaration.accept(this);
-        if(r != null){
-        	return r.value;
-        } else {
-        	throw new RascalBug("Not yet implemented: " + declaration.getTree());
-        }
-	}
-	
-	public IValue eval(org.meta_environment.rascal.ast.Import imp) {
-		EvalResult r = imp.accept(this);
-        if(r != null){
-        	return r.value;
-        } else {
-        	throw new RascalBug("Not yet implemented: " + imp.getTree());
-        }
-	}
-	
-	
 	// Ambiguity ...................................................
 	
 	@Override
@@ -713,16 +778,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		}
 	}
 
-	private void bindTypeParameters(TupleType actualTypes, TupleType formals) {
-		try {
-			Map<ParameterType, Type> bindings = new HashMap<ParameterType, Type>();
-			formals.match(actualTypes, bindings);
-			env.storeTypes(bindings);
-		}
-		catch (FactTypeError e) {
-			throw new RascalTypeError("Could not bind type parameters in " + formals + " to " + actualTypes, e);
-		}
-	}
+
 
 	@Override
 	public EvalResult visitFunctionBodyDefault(
@@ -793,7 +849,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		
 		
 		if (exprBase.isListType() && subsBase.isIntegerType()) {
-			int index = ((IInteger) subs.value).getValue();
+			int index = intValue(subs);
 			Type elementType = ((ListType) exprBase).getElementType();
 			try {
 				IValue element = ((IList) expr.value).get(index);
@@ -804,13 +860,13 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			}
 		}
 		else if ((exprBase.isNamedTreeType() || exprBase.isTreeNodeType()) && subsBase.isIntegerType()) {
-			int index = ((IInteger) subs.value).getValue();
+			int index = intValue(subs);
 			Type elementType = ((INode) expr.value).getTreeNodeType().getChildType(index);
 			IValue element = ((ITree) expr.value).get(index);
 			return result(elementType, element);
 		}
 		else if (exprBase.isTreeType() && subsBase.isIntegerType()) {
-			int index = ((IInteger) subs.value).getValue();
+			int index = intValue(subs);
 			Type elementType = tf.valueType();
 			try {
 			  IValue element = ((ITree) expr.value).get(index);
@@ -825,7 +881,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			return result(valueType, ((IMap) expr.value).get(subs.value));
 		}
 		else if (exprBase.isTupleType() && subsBase.isIntegerType()) {
-			int index = ((IInteger) subs.value).getValue();
+			int index = intValue(subs);
 			Type elementType = ((TupleType) exprBase).getFieldType(index);
 			IValue element = ((ITuple) expr.value).get(index);
 			return result(elementType, element);
@@ -1020,7 +1076,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		
 		if (receiver.type.getBaseType().isListType() && subscript.type.getBaseType().isIntegerType()) {
 			IList list = (IList) receiver.value;
-			IValue result = list.get(((IInteger) subscript.value).getValue());
+			IValue result = list.get(intValue(subscript));
 			Type type = ((ListType) receiver.type).getElementType();
 			return result(type, result);
 		}
@@ -1502,10 +1558,10 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	public EvalResult visitExpressionNegative(Negative x) {
 		EvalResult arg = x.getArgument().accept(this);
 		if (arg.type.isIntegerType()) {
-			return result(vf.integer(- ((IInteger) arg.value).getValue()));
+			return result(vf.integer(- intValue(arg)));
 		}
-			else	if (arg.type.isDoubleType()) {
-				return result(vf.dubble(- ((IDouble) arg.value).getValue()));
+		else if (arg.type.isDoubleType()) {
+				return result(vf.dubble(- doubleValue(arg)));
 		} else {
 			throw new RascalTypeError(
 					"Operand of unary - should be integer or double instead of: " + arg.type);
@@ -1698,19 +1754,46 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 	@Override
 	public EvalResult visitExpressionArea(Area x) {
-		// TODO
-		throw new RascalBug("Area construct nyi: " + x);
+		return x.getArea().accept(this);
+	}
+	
+	@Override
+	public EvalResult visitAreaDefault(
+			org.meta_environment.rascal.ast.Area.Default x) {
+		EvalResult beginLine = x.getBeginLine().accept(this);
+		EvalResult endLine = x.getEndLine().accept(this);
+		EvalResult beginColumn = x.getBeginColumn().accept(this);
+		EvalResult endColumn = x.getEndColumn().accept(this);
+		EvalResult length = x.getLength().accept(this);
+		EvalResult offset = x.getOffset().accept(this);
+		
+		int iOffset = intValue(offset);
+		int iLength = intValue(length);
+		int iEndColumn = intValue(endColumn);
+		int iBeginColumn = intValue(beginColumn);
+		int iEndLine = intValue(endLine);
+		int iBeginLine = intValue(beginLine);
+	
+		ISourceRange r = vf.sourceRange(iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn);
+		return result(tf.sourceRangeType(), r);
 	}
 	
 	@Override
 	public EvalResult visitExpressionAreaInFileLocation(AreaInFileLocation x) {
-		// TODO
-		throw new RascalBug("Area in file nyi:" + x);
+	   EvalResult area = x.getAreaExpression().accept(this);
+	   EvalResult file = x.getFilename().accept(this);
+	   
+	   checkType(area, tf.sourceRangeType());
+	   checkType(file, tf.stringType());
+	   
+	   ISourceRange range = (ISourceRange) area.value;
+	   
+	   return result(tf.sourceLocationType(), vf.sourceLocation(stringValue(file), range));
 	}
 	
 	@Override
 	public EvalResult visitExpressionAreaLocation(AreaLocation x) {
-		// TODO
+		// TODO I think this is a bug in the grammar (double area(area(...)))
 		throw new RascalBug("Area in file nyi:" + x);
 	}
 	
@@ -1722,7 +1805,35 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 	@Override
 	public EvalResult visitExpressionFieldUpdate(FieldUpdate x) {
-		throw new RascalBug("FieldUpdate NYI: " + x);// TODO
+		EvalResult expr = x.getExpression().accept(this);
+		EvalResult repl = x.getReplacement().accept(this);
+		String name = x.getKey().toString();
+		
+		try {
+			if (expr.type.getBaseType().isTupleType()) {
+				TupleType tuple = (TupleType) expr.type.getBaseType();
+				Type argType = tuple.getFieldType(name);
+				ITuple value = (ITuple) expr.value;
+				
+				checkType(repl.type, argType);
+				
+				return result(expr.type, value.set(name, repl.value));
+			}
+			else if (expr.type.isNamedTreeType() || expr.type.isTreeNodeType()) {
+				TupleType tuple = (TupleType) ((INode) expr.type.getBaseType()).getChildrenTypes();
+				Type argType = tuple.getFieldType(name);
+				INode value = (INode) expr.value;
+				
+				checkType(repl.type, argType);
+				
+				return result(expr.type, value.set(name, repl.value));
+			}
+			else {
+				throw new RascalTypeError("Field updates only work on tuples with labeled fields, relations with labeled fields and data constructors");
+			}
+		} catch (FactTypeError e) {
+			throw new RascalTypeError(e.getMessage(), e);
+		}
 	}
 	
 	@Override
