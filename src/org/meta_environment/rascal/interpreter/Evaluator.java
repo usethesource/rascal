@@ -1848,18 +1848,58 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 	@Override
 	public EvalResult visitExpressionRange(Range x) {
-		throw new RascalBug("Range NYI: " + x);// TODO
+		IListWriter w = vf.listWriter(tf.integerType());
+		EvalResult from = x.getFirst().accept(this);
+		EvalResult to = x.getLast().accept(this);
+
+		int iFrom = intValue(from);
+		int iTo = intValue(to);
+		
+		if (iTo < iFrom) {
+			for (int i = iFrom; i >= iTo; i--) {
+				w.append(vf.integer(i));
+			}	
+		}
+		else {
+			for (int i = iFrom; i <= iTo; i++) {
+				w.append(vf.integer(i));
+			}
+		}
+		
+		return result(tf.listType(tf.integerType()), w.done());
 	}
 	
 	@Override
 	public EvalResult visitExpressionStepRange(StepRange x) {
-		throw new RascalBug("StepRange NYI" + x);// TODO
+		IListWriter w = vf.listWriter(tf.integerType());
+		EvalResult from = x.getFirst().accept(this);
+		EvalResult to = x.getLast().accept(this);
+		EvalResult second = x.getSecond().accept(this);
+
+		int iFrom = intValue(from);
+		int iSecond = intValue(second);
+		int iTo = intValue(to);
+		
+		int diff = Math.abs(iFrom - iSecond);
+		
+		if (iTo < iFrom) {
+			for (int i = iFrom; i >= iTo; i -= diff) {
+				w.append(vf.integer(i));
+			}	
+		}
+		else {
+			for (int i = iFrom; i <= iTo; i += diff) {
+				w.append(vf.integer(i));
+			}
+		}
+		
+		return result(tf.listType(tf.integerType()), w.done());
+		
 	}
 	
 	@Override
 	public EvalResult visitExpressionTypedVariable(TypedVariable x) {
-		// TODO
-		throw new RascalBug("Typed var NYI");
+		throw new RascalTypeError("Use of typed variable outside matching context");
 	}
 	
 	@Override
