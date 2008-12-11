@@ -148,6 +148,8 @@ import org.meta_environment.rascal.ast.Statement.VariableDeclaration;
 import org.meta_environment.rascal.ast.Statement.While;
 import org.meta_environment.rascal.ast.Toplevel.DefaultVisibility;
 import org.meta_environment.rascal.ast.Toplevel.GivenVisibility;
+import org.meta_environment.rascal.ast.Visit.DefaultStrategy;
+import org.meta_environment.rascal.ast.Visit.GivenStrategy;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
 import org.meta_environment.uptr.Factory;
@@ -1904,8 +1906,17 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 	@Override
 	public EvalResult visitExpressionVisit(Visit x) {
-		// TODO
-		throw new RascalBug("Visit var NYI");
+		return x.getVisit().accept(this);
+	}
+	
+	@Override
+	public EvalResult visitVisitDefaultStrategy(DefaultStrategy x) {
+		throw new RascalBug("NYI"); // TODO
+	}
+	
+	@Override
+	public EvalResult visitVisitGivenStrategy(GivenStrategy x) {
+		throw new RascalBug("NYI"); // TODO
 	}
 	
 	@Override
