@@ -236,7 +236,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		}
 		
 		if (v != null) {
-			checkType(instance, v.getType());
+			checkType(v.getType(), instance);
 		}
 
 		return new EvalResult(instance, v);
@@ -279,9 +279,9 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		checkType(val.type, expected);
 	}
 	
-	private void checkType(Type type, Type expected) {
-		if (!type.isSubtypeOf(expected)) {
-			throw new RascalTypeError("Expected " + expected + ", got " + type);
+	private void checkType(Type given, Type expected) {
+		if (!given.isSubtypeOf(expected)) {
+			throw new RascalTypeError("Expected " + expected + ", got " + given);
 		}
 	}
 	
