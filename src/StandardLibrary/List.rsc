@@ -74,13 +74,13 @@ public &T reducer(list[&T] l, &T (&T, &T) F, &T unit)
   return result;
 }
 
-public &T java rest(list[&T] l)
+public list[&T] java rest(list[&T] l)
   throws empty_list()
  @doc{rest -- all but the first element of a list}
  { IListWriter w = l.getType().writer(values);
  
    if(l.length() > 0){
-      for(int i = 1; i < l.length(); i++) {
+      for(int i = l.length()-1; i > 0; i--) {
         w.insert(l.get(i));
       }
       return w.done();
