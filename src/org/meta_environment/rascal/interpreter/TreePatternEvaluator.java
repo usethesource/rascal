@@ -163,16 +163,16 @@ import org.meta_environment.rascal.ast.Expression.TypedVariable;
 
 /* package */class TreePatternTypedVariable extends BasicTreePattern implements PatternValue {
 	private Name name;
-	org.eclipse.imp.pdb.facts.type.Type type;
+	org.eclipse.imp.pdb.facts.type.Type declaredType;
 
 	TreePatternTypedVariable(org.eclipse.imp.pdb.facts.type.Type type2, Name name) {
-		this.type = type2;
+		this.declaredType = type2;
 		this.name = name;
 	}
 
 	public boolean match(IValue subj, Evaluator ev) {
-		if (subj.getType().isSubtypeOf(type)) {
-			ev.env.storeVariable(name, ev.result(type, subj));
+		if (subj.getType().isSubtypeOf(declaredType)) {
+			ev.env.storeVariable(name, ev.result(declaredType, subj));
 			return true;
 		}
 		return false;

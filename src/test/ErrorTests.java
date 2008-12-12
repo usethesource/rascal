@@ -49,9 +49,9 @@ public class ErrorTests extends TestCase{
 	public void testErrors() throws IOException{
 		assertTrue(runTest("int i = true;", "declared type integer incompatible with initialization type bool"));
 		assertTrue(runTest("assert \"a\": 3.5;", "expression in assertion should be bool instead of double"));
-		//assertTrue(runTest("{int n = 3; n = true;}", "cannot assign value of type bool"));
+		assertTrue(runTest("{int n = 3; n = true;}", "cannot assign value of type bool"));
 		assertTrue(runTest("[1,2][5];", "Subscript out of bounds"));
-		//assertTrue(runTest("x.a;", "has no field named a"));
+		assertTrue(runTest("x.a;", "has no field named a"));
 		assertTrue(runTest("if(3){n = 4;}", "has type integer but should be bool"));
 		assertTrue(runTest("while(3){n = 4;}", "has type integer but should be bool"));
 		assertTrue(runTest("do {n = 4;} while(3);", "has type integer but should be bool"));
@@ -66,10 +66,10 @@ public class ErrorTests extends TestCase{
 		assertTrue(runTest("3 && true;", "Operands of && should be boolean instead of"));
 		assertTrue(runTest("3 ==> true;", "Operands of ==> should be boolean instead of"));
 		assertTrue(runTest("3 == true;", "Operands of == should have equal types instead of"));
-		assertTrue(runTest("3 < true;", "Operands of comparison have different types"));
-		assertTrue(runTest("3 <= true;", "Operands of comparison have different types"));
-		assertTrue(runTest("3 > true;", "Operands of comparison have different types"));
-		assertTrue(runTest("3 >= true;", "Operands of comparison have different types"));
+		assertTrue(runTest("3 < true;", "Operands of comparison have unequal types"));
+		assertTrue(runTest("3 <= true;", "Operands of comparison have unequal types"));
+		assertTrue(runTest("3 > true;", "Operands of comparison have unequal types"));
+		assertTrue(runTest("3 >= true;", "Operands of comparison have unequal types"));
 		assertTrue(runTest("1 ? 2 : 3;", "but should be bool"));
 		assertTrue(runTest("1 in 3;", "Operands of in have wrong types"));
 		assertTrue(runTest("1 o 3;", "Operands of o have wrong types"));

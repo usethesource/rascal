@@ -85,6 +85,6 @@ public class DataDeclarationTests extends TestCase{
 		assertTrue(runTest(boolDecl, "band(btrue,bfalse).right == bfalse;"));
 		assertTrue(runTest(boolDecl, "bor(btrue,bfalse).left == btrue;"));
 		assertTrue(runTest(boolDecl, "bor(btrue,bfalse).right == bfalse;"));
-		assertTrue(runTest(boolDecl, "Bool b = band(btrue,bfalse).left; b.left == btrue;"));
+		assertTrue(runTest(boolDecl, "{Bool b = band(btrue,bfalse).left; b.left == btrue;}"));
 	}
 }
