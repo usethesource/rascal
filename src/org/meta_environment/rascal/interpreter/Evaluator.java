@@ -1986,17 +1986,16 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		int iSecond = intValue(second);
 		int iTo = intValue(to);
 		
-		int diff = Math.abs(iFrom - iSecond);
+		int diff = iSecond - iFrom;
 		
-		if (iTo < iFrom) {
-			for (int i = iFrom; i >= iTo; i -= diff) {
-				w.append(vf.integer(i));
-			}	
-		}
-		else {
-			for (int i = iFrom; i <= iTo; i += diff) {
+		if(iFrom < iTo){
+			for (int i = iFrom; i >= iFrom && i <= iTo; i += diff) {
 				w.append(vf.integer(i));
 			}
+		} else {
+			for (int i = iFrom; i <= iFrom && i >= iTo; i += diff) {
+				w.append(vf.integer(i));
+			}	
 		}
 		
 		return result(tf.listType(tf.integerType()), w.done());
