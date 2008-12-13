@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -20,6 +21,7 @@ import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IRelation;
+import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceRange;
@@ -858,6 +860,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	}
 	
 	EvalResult assignVariable(QualifiedName name, EvalResult right){
+		System.err.println("assignVariable: " + name + ", " + right);
 		EvalResult previous = env.getVariable(name);
 		if (previous != null) {
 			if (right.type.isSubtypeOf(previous.type)) {
@@ -906,7 +909,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			  return result(elementType, element);
 			}
 			catch (IndexOutOfBoundsException e) {
-				throw new RascalTypeError("Subscript out of bounds");
+				throw new RascalTypeError("Subscript out of bounds", e);
 			}
 		}
 		else if (exprBase.isMapType() && subsBase.isSubtypeOf(((MapType) exprBase).getKeyType())) {
@@ -920,6 +923,33 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			return result(elementType, element);
 		}
 		
+		else if (exprBase.isRelationType()){
+			Type elementType = ((RelationType) exprBase).getFieldType(0);
+			
+			if(subsBase.isSubtypeOf(elementType)){
+				int arity = ((RelationType) exprBase).getArity();
+				Type resultType;
+				
+				if(arity == 2){
+					resultType =tf.setType(((RelationType) exprBase).getFieldType(1));
+				} else {
+					Type fieldTypes[] = new Type[arity-1];
+					for(int i = 1; i < arity; i++){
+						fieldTypes[i-1] = ((RelationType) exprBase).getFieldType(i);
+					}
+					resultType = tf.relType(fieldTypes);
+				}
+				
+				int fields[] = new int[arity-1];
+				
+				for(int i = 1; i < arity; i++){
+					fields[i-1] = i;
+				}
+				return result(resultType, ((IRelation) expr.value).select(fields));
+			} else {
+				throw new RascalTypeError("Type of subscript " + subsBase + "  incompatible with relation element type " + elementType);
+			}
+		}
 		throw new RascalBug("Not yet implemented subscript: " + x);
 	}
 
