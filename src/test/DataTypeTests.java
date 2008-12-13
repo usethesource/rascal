@@ -215,7 +215,9 @@ public class DataTypeTests extends TestCase{
 	}
 	
 	public void testLocation() throws IOException {
-		
+		//assertTrue(tf.runTest("{area(5,2,6,8,0,0); true;}"));
+		//assertTrue(tf.runTest("{file(\"pico1.trm\"); true;}"));
+		assertTrue(tf.runTest("{area-in-file(file(\"pico1.trm\"),area(5,2,6,8,0,0)); true;}"));
 	}
 	
 	public void testList() throws IOException 
