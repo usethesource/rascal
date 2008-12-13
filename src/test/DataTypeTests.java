@@ -440,6 +440,13 @@ public class DataTypeTests extends TestCase{
 		assertFalse(tf.runTest("<1, [2,3]>   < <1, [2,3]>;"));
 	}
 	
+	public void testNamedTuple()  throws IOException {
+		assertTrue(tf.runTest("{tuple[int key, str val] T = <1, \"abc\">; T.key == 1;}"));
+		assertTrue(tf.runTest("{tuple[int key, str val] T = <1, \"abc\">; T.val == \"abc\";}"));
+		
+		assertTrue(tf.runWithError("{tuple[int key, str val] T = <1, \"abc\">; T.zip == \"abc\";}", "no field exists"));
+	}
+	
 	public void testRelation() throws IOException {
 		assertTrue(tf.runTest("{} == {};"));
 		assertTrue(tf.runTest("{<1,10>} == {<1,10>};"));
@@ -489,6 +496,12 @@ public class DataTypeTests extends TestCase{
 		assertTrue(tf.runTest("{<1,2>, <2,3>, <3,4>, <4,2>, <4,5>}+ ==	{<1,2>, <2,3>, <3,4>, <4,2>, <4,5>, <1, 3>, <2, 4>, <3, 2>, <3, 5>, <4, 3>, <1, 4>, <2, 2>, <2, 5>, <3, 3>, <4, 4>, <1, 5>};"));
 		
 		assertTrue(tf.runTest("{<1,2>, <2,3>, <3,4>, <4,2>, <4,5>}* == {<1,2>, <2,3>, <3,4>, <4,2>, <4,5>, <1, 3>, <2, 4>, <3, 2>, <3, 5>, <4, 3>, <1, 4>, <2, 2>, <2, 5>, <3, 3>, <4, 4>, <1, 5>, <1, 1>, <5, 5>};"));
+	}
+	
+	public void testNamedRelation() throws IOException {
+		assertTrue(tf.runTest("{rel[int from, int to] R = {<1,10>, <2,20>}; R.from == {1,2};}"));
+		assertTrue(tf.runTest("{rel[int from, int to] R = {<1,10>, <2,20>}; R.to == {10,20};}"));
+		assertTrue(tf.runWithError("{rel[int from, int to] R = {<1,10>, <2,20>}; R.zip == {10,20};}", "no field exists"));
 	}
 	
 	public void testTree() throws IOException {
