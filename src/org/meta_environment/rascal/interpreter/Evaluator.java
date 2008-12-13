@@ -879,75 +879,91 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	public EvalResult visitExpressionSubscript(Subscript x) {
 		EvalResult subs = x.getSubscript().accept(this);
 		EvalResult expr = x.getExpression().accept(this);
-		
+
 		Type exprBase = expr.type.getBaseType();
 		Type subsBase = subs.type.getBaseType();
-		
-		
+
 		if (exprBase.isListType() && subsBase.isIntegerType()) {
 			int index = intValue(subs);
 			Type elementType = ((ListType) exprBase).getElementType();
 			try {
 				IValue element = ((IList) expr.value).get(index);
 				return result(elementType, element);
-			}
-			catch (IndexOutOfBoundsException e) {
+			} catch (IndexOutOfBoundsException e) {
 				throw new RascalTypeError("Subscript out of bounds", e);
 			}
-		}
-		else if ((exprBase.isNamedTreeType() || exprBase.isTreeNodeType()) && subsBase.isIntegerType()) {
+		} else if ((exprBase.isNamedTreeType() || exprBase.isTreeNodeType())
+				&& subsBase.isIntegerType()) {
 			int index = intValue(subs);
-			Type elementType = ((INode) expr.value).getTreeNodeType().getChildType(index);
+			Type elementType = ((INode) expr.value).getTreeNodeType()
+					.getChildType(index);
 			IValue element = ((ITree) expr.value).get(index);
 			return result(elementType, element);
-		}
-		else if (exprBase.isTreeType() && subsBase.isIntegerType()) {
+		} else if (exprBase.isTreeType() && subsBase.isIntegerType()) {
 			int index = intValue(subs);
 			Type elementType = tf.valueType();
 			try {
-			  IValue element = ((ITree) expr.value).get(index);
-			  return result(elementType, element);
-			}
-			catch (IndexOutOfBoundsException e) {
+				IValue element = ((ITree) expr.value).get(index);
+				return result(elementType, element);
+			} catch (IndexOutOfBoundsException e) {
 				throw new RascalTypeError("Subscript out of bounds", e);
 			}
-		}
-		else if (exprBase.isMapType() && subsBase.isSubtypeOf(((MapType) exprBase).getKeyType())) {
+		} else if (exprBase.isMapType()
+				&& subsBase.isSubtypeOf(((MapType) exprBase).getKeyType())) {
 			Type valueType = ((MapType) exprBase).getValueType();
 			return result(valueType, ((IMap) expr.value).get(subs.value));
-		}
-		else if (exprBase.isTupleType() && subsBase.isIntegerType()) {
+		} else if (exprBase.isTupleType() && subsBase.isIntegerType()) {
 			int index = intValue(subs);
 			Type elementType = ((TupleType) exprBase).getFieldType(index);
 			IValue element = ((ITuple) expr.value).get(index);
 			return result(elementType, element);
 		}
-		
-		else if (exprBase.isRelationType()){
+
+		else if (exprBase.isRelationType()) {
 			Type elementType = ((RelationType) exprBase).getFieldType(0);
-			
-			if(subsBase.isSubtypeOf(elementType)){
+
+			if (subsBase.isSubtypeOf(elementType)) {
 				int arity = ((RelationType) exprBase).getArity();
-				Type resultType;
-				
-				if(arity == 2){
-					resultType =tf.setType(((RelationType) exprBase).getFieldType(1));
-				} else {
-					Type fieldTypes[] = new Type[arity-1];
-					for(int i = 1; i < arity; i++){
-						fieldTypes[i-1] = ((RelationType) exprBase).getFieldType(i);
+
+				if (arity == 2) {
+					Type resultType = tf.setType(((RelationType) exprBase)
+							.getFieldType(1));
+					ISetWriter w = resultType.writer(vf);
+					for (IValue v : ((IRelation) expr.value)) {
+						ITuple tup = (ITuple) v;
+						if (tup.get(0).equals(subs.value)) {
+							w.insert(tup.get(1));
+						}
 					}
-					resultType = tf.relType(fieldTypes);
+					return result(resultType, w.done());
+
+				} else {
+					Type fieldTypes[] = new Type[arity - 1];
+					for (int i = 1; i < arity; i++) {
+						fieldTypes[i - 1] = ((RelationType) exprBase)
+								.getFieldType(i);
+					}
+					Type resultType = tf.relType(fieldTypes);
+
+					IRelationWriter w = resultType.writer(vf);
+
+					for (IValue v : ((IRelation) expr.value)) {
+						ITuple tup = (ITuple) v;
+						if (tup.get(0).equals(subs.value)) {
+							IValue args[] = new IValue[arity - 1];
+							for (int i = 1; i < arity; i++) {
+								args[i - 1] = tup.get(i);
+							}
+							ITuple res = vf.tuple(args);
+							w.insert(res);
+						}
+					}
+					return result(resultType, w.done());
 				}
-				
-				int fields[] = new int[arity-1];
-				
-				for(int i = 1; i < arity; i++){
-					fields[i-1] = i;
-				}
-				return result(resultType, ((IRelation) expr.value).select(fields));
 			} else {
-				throw new RascalTypeError("Type of subscript " + subsBase + "  incompatible with relation element type " + elementType);
+				throw new RascalTypeError("Type of subscript " + subsBase
+						+ "  incompatible with relation element type "
+						+ elementType);
 			}
 		}
 		throw new RascalBug("Not yet implemented subscript: " + x);

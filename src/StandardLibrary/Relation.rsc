@@ -2,28 +2,24 @@ module Relation
 
 import Set;
 
-//public &T arb(rel[&T] R)
-//throws empty_relation(str msg)
-//  @primitive{"Rel.arb"}
-/*  
-public &T java arb(set[&T] s)
-@doc{arb -- pick a random element from a relation}
-@java-imports{import java.util.Iterator;}
-{
-   int i = 0;
-   int k = random.nextInt(s.size());
-   Iterator iter = s.iterator();
-  
-   while(iter.hasNext()){
-      if(i == k){
-      	return (IValue) iter.next();
-      }
-      iter.next();
-      i++;
-   }
-   return null;
-}
-*/
+//public &T java arb(set[&T] s)
+//@doc{arb -- pick a random element from a relation}
+//@java-imports{import java.util.Iterator;}
+//{
+//   int i = 0;
+//   int k = random.nextInt(s.size());
+//   Iterator iter = s.iterator();
+//  
+//   while(iter.hasNext()){
+//      if(i == k){
+//      	return (IValue) iter.next();
+ //     }
+ //     iter.next();
+ //     i++;
+ //  }
+//   return null;
+//}
+
 
 public rel[&T] mapper(rel[&T] R, &T (&T,&T) F){
   return {F(E) | &T E : R};
@@ -113,14 +109,7 @@ public rel[&T1,&T2] rangeX (rel[&T1,&T2] R, set[&T2] S)
 //public int size(rel[&T] R)
 //  @primitive{"Rel.size"}
 
-//public str toString(rel[&T] R)
-//  @primitive{"Rel.toString"}
 
-public str java toString(rel[&T] R)
-@doc{toString -- convert a relation to a string}
-{
-	return values.string(R.toString());
-}
 
 //%% Note: in rel[&T], the type variable &T refers 
 ///%% to the tuple type of the relation.
@@ -134,4 +123,10 @@ public str java toString(rel[&T] R)
 
 //public set[&T] toSet(rel[&T] R)
 //  @primitive{"Rel.toSet"}
+
+public str java toString(rel[&T] R)
+@doc{toString -- convert a relation to a string}
+{
+	return values.string(R.toString());
+}
 
