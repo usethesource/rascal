@@ -268,6 +268,17 @@ public class DataTypeTests extends TestCase{
 		assertTrue(tf.runTest("2 > 3 ? [1,2] : [1,2,3] == [1,2,3];"));
 	}
 	
+	public void testRange() throws IOException {
+		assertTrue(tf.runTest("[1 .. 1] == [1];"));
+		assertTrue(tf.runTest("[1 .. 2] == [1, 2];"));
+		assertTrue(tf.runTest("[1 .. -1] == [1, 0, -1];"));
+		
+		assertTrue(tf.runTest("[1, 2, .. 10] == [1,2,3,4,5,6,7,8,9,10];"));
+		assertTrue(tf.runTest("[1, 3, .. 10] == [1,3,5,7,9];"));
+		assertTrue(tf.runTest("[1, -2, .. 10] == [1];"));
+		assertTrue(tf.runTest("[1, -3, .. -10] == [1,-3,-7];"));
+	}
+	
 	public void testSet() throws IOException {
 		assertTrue(tf.runTest("{} == {};"));
 		assertTrue(tf.runTest("{} != {1};"));
