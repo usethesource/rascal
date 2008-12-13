@@ -22,11 +22,9 @@ rel[comp,comp] lift(rel[proc,proc] aCalls, rel[proc,comp] aPartOf){
 rel[comp,comp] ComponentCalls = lift(Calls, PartOf);
 
 
-void assertResult(){
-
-	assert "ComponentCalls": ComponentCalls == 
-			 { < "DB" , "Lib" > , < "Appl" , "Lib" > , 
-			   < "Appl" , "DB" > , < "Appl" , "Appl" > };
+bool checkResult(){
+	return ComponentCalls == { < "DB" , "Lib" > , < "Appl" , "Lib" > , 
+			                   < "Appl" , "DB" > , < "Appl" , "Appl" > };
 }
 
 
