@@ -1665,6 +1665,19 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			return result(((IInteger) left.value).toDouble().multiply((IDouble) right.value));
 		} 
 		
+		else if (left.type.isListType() && right.type.isListType()){
+			Type leftElementType = ((ListType) left.type).getElementType();
+			Type rightElementType = ((ListType) right.type).getElementType();
+			Type resultType = tf.listType(tf.tupleType(leftElementType, rightElementType));
+			IListWriter w = resultType.writer(vf);
+			
+			for(IValue v1 : (IList) left.value){
+				for(IValue v2 : (IList) right.value){
+					w.append(vf.tuple(v1, v2));	
+				}
+			}
+			return result(resultType, w.done());	
+		}
 		else if (left.type.isSetType() && right.type.isSetType()){
 			Type leftElementType = ((SetType) left.type).getElementType();
 			Type rightElementType = ((SetType) right.type).getElementType();

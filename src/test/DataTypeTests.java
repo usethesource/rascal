@@ -256,6 +256,12 @@ public class DataTypeTests extends TestCase{
 		assertTrue(tf.runTest("[2, 3, 0] > [2, 1];"));
 		assertTrue(tf.runTest("[2, 1, 0] > [2, 1];"));
 		
+		assertTrue(tf.runTest("[] * [] == [];"));
+		assertTrue(tf.runTest("[1] * [9] == [<1,9>];"));
+		assertTrue(tf.runTest("[1, 2] * [9] == [<1,9>, <2,9>];"));
+		assertTrue(tf.runTest("[1, 2, 3] * [9] == [<1,9>, <2,9>, <3,9>];"));
+		assertTrue(tf.runTest("[1, 2, 3] * [9, 10] == [<1,9>, <1,10>, <2,9>, <2,10>, <3,9>, <3,10>];"));
+		
 		assertTrue(tf.runTest("2 in [1, 2, 3];"));
 		assertTrue(tf.runTest("3 notin [2, 4, 6];"));
 		
