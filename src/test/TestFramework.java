@@ -9,6 +9,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.hash.ValueFactory;
 import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.Command;
+import org.meta_environment.rascal.ast.Module;
 import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.RascalBug;
 import org.meta_environment.rascal.parser.ASTBuilder;
@@ -53,6 +54,20 @@ public class TestFramework {
 		evaluator = new Evaluator(ValueFactory.getInstance(), factory,
 				new PrintWriter(System.err));
 		execute(command);
+	}
+	
+	boolean prepareModule(String module) throws IOException {
+		INode tree = parser.parse(new ByteArrayInputStream(module.getBytes()));
+		if (tree.getTreeNodeType() == Factory.ParseTree_Summary) {
+			System.err.println(tree);
+			return false;
+		} else {
+			evaluator = new Evaluator(ValueFactory.getInstance(), factory,
+					new PrintWriter(System.err));
+			Module mod = builder.buildModule(tree);
+			mod.accept(evaluator);
+			return true;
+		}
 	}
 
 	private boolean execute(String command) throws IOException {

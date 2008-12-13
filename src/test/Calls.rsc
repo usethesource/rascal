@@ -1,12 +1,14 @@
 module Calls
 
+import Relation;
+
 type str Proc;
 
 int main() {
 
 rel[Proc, Proc] Calls = {<"a", "b">, <"b", "c">, <"b", "d">, <"d", "c">, <"d", "e">, <"f", "e">, <"f", "g">, <"g", "e">};
 
-int nCalls = arity(Calls);
+int nCalls = size(Calls);
 
 assert "nCalls":nCalls == 8;
 
