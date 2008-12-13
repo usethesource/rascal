@@ -1664,6 +1664,20 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		else if (left.type.isIntegerType() && right.type.isDoubleType()) {
 			return result(((IInteger) left.value).toDouble().multiply((IDouble) right.value));
 		} 
+		
+		else if (left.type.isSetType() && right.type.isSetType()){
+			Type leftElementType = ((SetType) left.type).getElementType();
+			Type rightElementType = ((SetType) right.type).getElementType();
+			Type resultType = tf.relType(leftElementType, rightElementType);
+			IRelationWriter w = resultType.writer(vf);
+			
+			for(IValue v1 : (ISet) left.value){
+				for(IValue v2 : (ISet) right.value){
+					w.insert(vf.tuple(v1, v2));	
+				}
+			}
+			return result(resultType, w.done());	
+		}
 		else {
 			throw new RascalTypeError("Operands of * have illegal types: "
 					+ left.type + ", " + right.type);
