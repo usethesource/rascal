@@ -13,6 +13,7 @@ public class AllTests {
 		suite.addTestSuite(CallTests.class);
 		suite.addTestSuite(ErrorTests.class);
 		suite.addTestSuite(DataDeclarationTests.class);
+		suite.addTestSuite(ImportTests.class);
 		suite.addTestSuite(StandardLibraryTests.class);
 		
 		return suite;
