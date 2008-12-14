@@ -119,12 +119,17 @@ public str java toString(set[&T] S)
 	return values.string(S.toString());
 }
 
-// TODO
+public set[set[&T]] power(set[&T] S)
+@doc{power -- return all subsets of S}
+{
+  set[set[&T]] result = {S};
+  for(&T e : S){
+  	set[set[&T]] pw = power(S - {e});
+  	result = result + pw;
+  	for(set[&T] sub : pw){
+  		result = result + {sub + {e}};
+  	}
+  }
+  return result;
+}
 
-// Powerset: power0
-//%%public set[set[&T]] power0(set[&T] R)
-//%% throw unimplemented("power0")
-
-//%% Powerset: power1
-//%%public set[set[&T]] power1(set[&T] R)
-//%%  throw unimplemented("power0")
