@@ -451,6 +451,8 @@ public class DataTypeTests extends TestCase{
 		assertTrue(tf.runTest("<1,\"abc\">   < <1, \"def\">;"));
 		assertTrue(tf.runTest("<1, [2,3]>    < <1, [2,3,4]>;"));
 		assertFalse(tf.runTest("<1, [2,3]>   < <1, [2,3]>;"));
+		
+		assertTrue(tf.runTest("<1, \"a\", true> + <1.5, \"def\"> == <1, \"a\", true> + <1.5, \"def\">;"));
 	}
 	
 	public void testNamedTuple()  throws IOException {
@@ -501,6 +503,8 @@ public class DataTypeTests extends TestCase{
 		assertTrue(tf.runTest("{<1,10>,<2,20>} o {} == {};"));
 		assertTrue(tf.runTest("{} o {<10,100>, <20,200>} == {};"));
 		assertTrue(tf.runTest("{<1,10>,<2,20>} o {<10,100>, <20,200>} == {<1,100>, <2,200>};"));
+		
+		assertTrue(tf.runTest("{<1, \"a\">, <2, \"b\">} * {<false, 0>, <true, 1>} == {<1,\"a\",false,0>,<2,\"b\",false,0>,<1,\"a\",true,1>,<2,\"b\",true,1>};"));
 		
 		assertTrue(tf.runTest("{<1,2>, <2,3>, <3,4>} + == {<1,2>, <2,3>, <3,4>, <1, 3>, <2, 4>, <1, 4>};"));
 		
