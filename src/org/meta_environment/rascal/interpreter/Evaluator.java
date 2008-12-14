@@ -24,6 +24,7 @@ import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITree;
@@ -193,7 +194,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
         if(r != null){
         	return r.value;
         } else {
-        	throw new RascalTypeError("Not yet implemented: " + stat.getTree());
+        	throw new RascalBug("Not yet implemented: " + stat.getTree());
         }
 	}
 	
@@ -515,7 +516,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	@Override
 	public EvalResult visitDeclarationView(View x) {
 		// TODO implement
-		throw new RascalTypeError("views are not yet implemented");
+		throw new RascalBug("views are not yet implemented");
 	}
 	
 	@Override
@@ -546,7 +547,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 	@Override
 	public EvalResult visitDeclarationTag(Tag x) {
-		throw new RascalTypeError("tags are not yet implemented");
+		throw new RascalBug("tags are not yet implemented");
 	}
 	
 	// Variable Declarations -----------------------------------------------
@@ -860,7 +861,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	}
 	
 	EvalResult assignVariable(QualifiedName name, EvalResult right){
-		System.err.println("assignVariable: " + name + ", " + right);
 		EvalResult previous = env.getVariable(name);
 		if (previous != null) {
 			if (right.type.isSubtypeOf(previous.type)) {
@@ -890,33 +890,39 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				IValue element = ((IList) expr.value).get(index);
 				return result(elementType, element);
 			} catch (IndexOutOfBoundsException e) {
-				throw new RascalTypeError("Subscript out of bounds", e);
+				throw new RascalRunTimeError("Subscript out of bounds", e);
 			}
 		} else if ((exprBase.isNamedTreeType() || exprBase.isTreeNodeType())
 				&& subsBase.isIntegerType()) {
 			int index = intValue(subs);
+			if(index >= ((INode) expr.value).arity()){
+				throw new RascalRunTimeError("Subscript out of bounds");
+			}
 			Type elementType = ((INode) expr.value).getTreeNodeType()
 					.getChildType(index);
 			IValue element = ((ITree) expr.value).get(index);
 			return result(elementType, element);
 		} else if (exprBase.isTreeType() && subsBase.isIntegerType()) {
 			int index = intValue(subs);
-			Type elementType = tf.valueType();
-			try {
-				IValue element = ((ITree) expr.value).get(index);
-				return result(elementType, element);
-			} catch (IndexOutOfBoundsException e) {
-				throw new RascalTypeError("Subscript out of bounds", e);
+			if(index >= ((ITree) expr.value).arity()){
+				throw new RascalRunTimeError("Subscript out of bounds");
 			}
+			Type elementType = tf.valueType();
+			IValue element = ((ITree) expr.value).get(index);
+			return result(elementType, element);
 		} else if (exprBase.isMapType()
 				&& subsBase.isSubtypeOf(((MapType) exprBase).getKeyType())) {
 			Type valueType = ((MapType) exprBase).getValueType();
 			return result(valueType, ((IMap) expr.value).get(subs.value));
 		} else if (exprBase.isTupleType() && subsBase.isIntegerType()) {
-			int index = intValue(subs);
-			Type elementType = ((TupleType) exprBase).getFieldType(index);
-			IValue element = ((ITuple) expr.value).get(index);
-			return result(elementType, element);
+			try {
+				int index = intValue(subs);
+				Type elementType = ((TupleType) exprBase).getFieldType(index);
+				IValue element = ((ITuple) expr.value).get(index);
+				return result(elementType, element);
+			} catch (IndexOutOfBoundsException e){
+				throw new RascalRunTimeError("Subscript out of bounds", e);
+			}
 		}
 
 		else if (exprBase.isRelationType()) {
@@ -1873,6 +1879,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		EvalResult length = x.getLength().accept(this);
 		EvalResult offset = x.getOffset().accept(this);
 		
+		System.err.println("AreaDefault: " + x );
+		
 		int iOffset = intValue(offset);
 		int iLength = intValue(length);
 		int iEndColumn = intValue(endColumn);
@@ -1886,8 +1894,13 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 	@Override
 	public EvalResult visitExpressionAreaInFileLocation(AreaInFileLocation x) {
+		
+	   System.err.println("AreaExpression: " + x.getAreaExpression());
 	   EvalResult area = x.getAreaExpression().accept(this);
 	   EvalResult file = x.getFilename().accept(this);
+	   
+	   System.err.println("area = " + area);
+	   System.err.println("file = " + file);
 	   
 	   checkType(area, tf.sourceRangeType());
 	   checkType(file, tf.stringType());
@@ -1935,7 +1948,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				return result(expr.type, value.set(name, repl.value));
 			}
 			else {
-				throw new RascalTypeError("Field updates only work on tuples with labeled fields, relations with labeled fields and data constructors");
+				throw new RascalTypeError("Field updates only possible on tuples with labeled fields, relations with labeled fields and data constructors");
 			}
 		} catch (FactTypeError e) {
 			throw new RascalTypeError(e.getMessage(), e);
@@ -1944,7 +1957,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 	@Override
 	public EvalResult visitExpressionFileLocation(FileLocation x) {
-		throw new RascalBug("Fileloc NYI: " + x);// TODO
+		return x.getFilename().accept(this);
 	}
 	
 	@Override
@@ -2040,7 +2053,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 	private int compare(EvalResult left, EvalResult right){
 		
-		
 		if (left.type.isBoolType() && right.type.isBoolType()) {
 			boolean lb = ((IBool) left.value).getValue();
 			boolean rb = ((IBool) right.value).getValue();
@@ -2085,7 +2097,41 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		            ((ITree) right.value).iterator(), ((ITree) right.value).arity());
 		}
 		
-		// SourceLocation
+		if(left.type.isSourceLocationType() && right.type.isSourceLocationType()){
+			ISourceLocation leftSL = (ISourceLocation) left.value;
+			ISourceLocation rightSL = (ISourceLocation) right.value;
+			
+			if(leftSL.getPath().equals(rightSL.getPath())){
+				ISourceRange leftSR = leftSL.getRange();
+				ISourceRange rightSR = rightSL.getRange();
+				
+				if(leftSR.equals(rightSR)){
+					return 0;
+				}
+				
+				int lStartLine = leftSR.getStartLine();
+				int rStartLine = rightSR.getStartLine();
+				
+				int lEndLine = leftSR.getEndLine();
+				int rEndLine = rightSR.getEndLine();
+				
+				int lStartColumn = leftSR.getStartColumn();
+				int rStartColumn = rightSR.getStartColumn();
+				
+				int lEndColumn = leftSR.getEndColumn();
+				int rEndColumn = rightSR.getEndColumn();
+				
+				if((lStartLine > rStartLine ||
+					(lStartLine == rStartLine && lStartColumn > rStartColumn)) &&
+					(lEndLine < rEndLine ||
+							((lEndLine == rEndLine) && lEndColumn < rEndColumn))){
+					return -1;	
+				} else {
+					return 1;
+				}
+			}
+		}
+			
 		// NamedType
 		// NamedTreeType
 		// NamedTreeType
@@ -2093,47 +2139,10 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		// VoidType
 		// ValueType
 	
-		//return compareDifferentlyTypedValues(left.type, right.type);
 		throw new RascalTypeError("Operands of comparison have unequal types: "
 					+ left.type + ", " + right.type);
 	}
 	
-	private Type typeOrder[] = {
-			tf.voidType(),
-			tf.boolType(),
-			tf.integerType(),
-			tf.doubleType(),
-			tf.stringType(),
-			tf.sourceLocationType(),
-			tf.voidType(),  // tupleType
-			tf.listType(tf.valueType()),
-			tf.setType(tf.valueType()),
-			tf.mapType(tf.valueType(), tf.valueType()),
-			tf.treeType(),
-			tf.valueType()
-			};
-	
-	private int typeIndex(Type type){
-		if(type.isTupleType()){
-			return 6;
-		}
-		for(int i = 0; i < typeOrder.length; i++){
-			if(type.isSubtypeOf(typeOrder[i])){
-				return i;
-			}
-		}
-		throw new RascalBug("Cannot determine type index of " + type);
-	}
-	
-	private int compareDifferentlyTypedValues(Type type1, Type type2) {
-		int i1 = typeIndex(type1);
-		int i2 = typeIndex(type2);
-		
-		if(i1 == i2){
-			throw new RascalBug("unequal types " + type1 + " and " + type2 + " have equal index " + i1);
-		}
-		return i1 < i2 ? -1 : 1;
-	}
 	private int compareSet(ISet value1, ISet value2) {
 		if (value1.equals(value2)) {
 			return 0;
@@ -2244,6 +2253,9 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	public EvalResult visitExpressionIfDefined(IfDefined x) {
 		try {
 			EvalResult res = x.getLhs().accept(this);
+			if(res.value == null){
+				res = x.getRhs().accept(this);
+			}
 			return res;
 		} catch (Exception e) {   //TODO: make this more restrictive
 			EvalResult res = x.getRhs().accept(this);
@@ -2403,7 +2415,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				iter = new ITreeIterator((ITree) r.value, false);
 			} else {
 				// TODO: add more generator types here	in the future
-				throw new RascalTypeError("expression in generator should be of type list/set");
+				throw new RascalTypeError("expression in generator should be of type list/set/tree");
 			}
 		}
 		

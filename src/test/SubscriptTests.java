@@ -14,15 +14,14 @@ public class SubscriptTests extends TestCase {
 		assertTrue(tf.runTest("[0,1,2,3][2] == 2;"));
 		assertTrue(tf.runTest("[0,1,2,3][3] == 3;"));
 		
-		//assertTrue(tf.runWithError("[0,1,2,3][4] == 3;", "Subscript out of bounds"));
+		assertTrue(tf.runWithError("[0,1,2,3][4] == 3;", "Subscript out of bounds"));
 		
 		assertTrue(tf.runTest("{list[int] L = [0,1,2,3]; L[0] = 10; L == [10,1,2,3];}"));
 		assertTrue(tf.runTest("{list[int] L = [0,1,2,3]; L[1] = 11; L == [0,11,2,3];}"));
 		assertTrue(tf.runTest("{list[int] L = [0,1,2,3]; L[2] = 22; L == [0,1,22,3];}"));
 		assertTrue(tf.runTest("{list[int] L = [0,1,2,3]; L[3] = 33; L == [0,1,2,33];}"));
 		
-		//assertTrue(tf.runWithError("{list[int] L = [0,1,2,3]; L[4] = 44; L == [0,1,2,3,44];}", "Subscript out of bounds"));
-		
+		assertTrue(tf.runWithError("{list[int] L = [0,1,2,3]; L[4] = 44; L == [0,1,2,3,44];}", "out of bounds"));
 	}
 	
 	public void testMap() throws IOException{
@@ -43,7 +42,7 @@ public class SubscriptTests extends TestCase {
 		assertTrue(tf.runTest("<0, \"a\", 3.5>[1] == \"a\";"));
 		assertTrue(tf.runTest("<0, \"a\", 3.5>[2] == 3.5;"));
 		
-		//assertTrue(tf.runWithError("<0, \"a\", 3.5>[3] == 3.5;", "Subscript out of bounds"));
+		assertTrue(tf.runWithError("<0, \"a\", 3.5>[3] == 3.5;", "Subscript out of bounds"));
 	}
 	
 	public void testRelation() throws IOException{
@@ -63,9 +62,9 @@ public class SubscriptTests extends TestCase {
 		assertTrue(tf.runTest("f(0, \"a\", 3.5)[1] == \"a\";"));
 		assertTrue(tf.runTest("f(0, \"a\", 3.5)[2] == 3.5;"));
 		
-		//assertTrue(tf.runWithError("f(0, \"a\", 3.5)[3] == 3.5;", "Subscript out of bounds"));
+		assertTrue(tf.runWithError("f(0, \"a\", 3.5)[3] == 3.5;", "Subscript out of bounds"));
 		
-		assertTrue(tf.runTest("{tree T = f(0, \"a\", 3.5); T[0] = 10; L == f(10, \"a\", 3.5);}"));
+		assertTrue(tf.runTest("{tree T = f(0, \"a\", 3.5); T[0] = 10; T == f(10, \"a\", 3.5);}"));
 		
 	}
 }
