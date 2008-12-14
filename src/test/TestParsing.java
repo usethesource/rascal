@@ -18,13 +18,13 @@ import org.meta_environment.uptr.Factory;
 
 public class TestParsing extends TestCase {
 
-	public void testParser() {
+	public void doParse(String dir) {
 		Parser parser = Parser.getInstance();
-		File directory = new File("../rascal-grammar/spec/tests/terms");
+		File directory = new File("../rascal-grammar/spec/languages/rascal/examples/" + dir);
 
 		File[] tests = directory.listFiles(new FilenameFilter() {
 			public boolean accept(File dir, String name) {
-				return name.endsWith(".trm");
+				return name.endsWith(".rsc");
 			}
 		});
 
@@ -57,5 +57,57 @@ public class TestParsing extends TestCase {
 			}
 		}
 		if (failed) fail();
+	}
+	
+	public void testAsFix(){
+		doParse("AsFix");
+	}
+	
+	public void testBooleans(){
+		doParse("Booleans");
+	}
+	
+	public void testBTree(){
+		doParse("BTree");
+	}
+	
+	public void testGraph(){
+		doParse("Graph");
+	}
+	
+	public void testJavaFun(){
+		doParse("JavaFun");
+	}
+	
+	public void testLambda(){
+		doParse("Lambda");
+	}
+	
+	public void testLet(){
+		doParse("Let");
+	}
+	
+	public void testLexicals(){
+		doParse("Lexicals");
+	}
+	
+	public void testMisc(){
+		doParse("Misc");
+	}
+	
+	public void testPico(){
+		doParse("Pico");
+	}
+	
+	public void testRascal(){
+		doParse("Rascal");
+	}
+	
+	public void testSymTable(){
+		doParse("SymTable");
+	}
+	
+	public void testVectors(){
+		doParse("Vectors");
 	}
 }
