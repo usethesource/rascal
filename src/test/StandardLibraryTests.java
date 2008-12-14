@@ -322,6 +322,14 @@ public class StandardLibraryTests extends TestCase {
 		
 		//multiply
 		
+		System.err.println("Set::power");
+		
+		assertTrue(tf.runTestInSameEvaluator("{Set::power({})) == {{}};};"));
+		assertTrue(tf.runTestInSameEvaluator("{Set::power({1})) == {{}, {1}};};"));
+		assertTrue(tf.runTestInSameEvaluator("{Set::power({1, 2})) == {{}, {1}, {2}, {1,2}};};"));
+		assertTrue(tf.runTestInSameEvaluator("{Set::power({1, 2, 3})) == {{}, {1}, {2}, {3}, {1,2}, {1,3}, {2,3}, {1,2,3}};};"));
+		assertTrue(tf.runTestInSameEvaluator("{Set::power({1, 2, 3, 4})) == { {}, {1}, {2}, {3}, {4}, {1,2}, {1,3}, {1,4}, {2,3}, {2,4}, {3,4}, {1,2,3}, {1,2,4}, {1,3,4}, {2,3,4}, {1,2,3,4}};};"));
+		
 		//reducer
 		
 		System.err.println("Set::size");
