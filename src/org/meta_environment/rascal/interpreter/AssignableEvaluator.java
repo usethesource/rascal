@@ -38,7 +38,18 @@ import org.meta_environment.rascal.ast.Assignable.Variable;
 	
 	@Override
 	public EvalResult visitAssignableVariable(Variable x) {
-		env.storeVariable(x.getQualifiedName().toString(), value);
+		String name = x.getQualifiedName().toString();
+		EvalResult previous = env.getVariable(name);
+		if (previous != null) {
+			if (value.type.isSubtypeOf(previous.type)) {
+				value.type = previous.type;
+			} else {
+				throw new RascalTypeError("Variable " + name
+						+ " has type " + previous.type
+						+ "; cannot assign value of type " + value.type);
+			}
+		}	
+		env.storeVariable(name, value);
 		return value;
 	}
 	
