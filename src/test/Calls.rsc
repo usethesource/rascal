@@ -16,7 +16,7 @@ set[Proc] Procs = carrier(Calls);
 
 assert "Procs": Procs == {"a", "b", "c", "d", "e", "f", "g"};
 
-int nProcs = arity(carrier(Calls));
+int nProcs = size(carrier(Calls));
 
 assert "nProcs": nProcs == 7;
 
