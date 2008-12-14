@@ -5,7 +5,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 
 /**
  * This class is for representing user exceptions in Rascal. I.e. not to be
- * throw by the implementation of Rascal, but by Rascal code. Embedded Java
+ * thrown by the implementation of Rascal, but by Rascal code. Embedded Java
  * code that throws exceptions can also use this exception class.
  * 
  * Warning: this is not a thread safe implementation. The idea however is
