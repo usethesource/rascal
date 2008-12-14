@@ -99,7 +99,7 @@ import org.meta_environment.rascal.ast.Assignable.Variable;
 				throw new RascalRunTimeError("Subscript out of bounds");
 			}
 			tree = tree.set(index, value.value);
-			result = eval.result(rec.type, tree);			
+			result = eval.result(rec.type, tree);
 		} else {
 			throw new RascalTypeError("Receiver " + rec.type + " is incompatible with subscript " + subscript.type);
 			// TODO implement other subscripts
