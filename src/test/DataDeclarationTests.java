@@ -19,5 +19,6 @@ public class DataDeclarationTests extends TestCase{
 		assertTrue(tf.runTestInSameEvaluator("bor(btrue,bfalse).left == btrue;"));
 		assertTrue(tf.runTestInSameEvaluator("bor(btrue,bfalse).right == bfalse;"));
 		assertTrue(tf.runTestInSameEvaluator("{Bool b = band(btrue,bfalse).left; b.left == btrue;}"));
+		assertTrue(tf.runTestInSameEvaluator("{Bool b = band(btrue,bfalse).right; b.left == bfalse;}"));
 	}
 }

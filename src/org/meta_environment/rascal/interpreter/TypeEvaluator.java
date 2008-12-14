@@ -126,7 +126,6 @@ public class TypeEvaluator extends NullASTVisitor<Type> {
 	
 	@Override
 	public Type visitBasicTypeTree(Tree x) {
-		System.err.println("visitBasicTypeTree: " + x + ", " + tf.treeType());
 		return tf.treeType();
 	}
 	
