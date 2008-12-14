@@ -1603,6 +1603,39 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		} else if (left.type.isMapType() && right.type.isMapType()) {
 			return result(resultType, ((IMap) left.value)              //TODO: is this the right operation?
 					.join((IMap) right.value));
+		} else if(left.type.isTupleType() && right.type.isTupleType()) {
+			TupleType leftType = (TupleType) left.type;
+			TupleType rightType = (TupleType) right.type;
+			
+			int leftArity = leftType.getArity();
+			int rightArity = rightType.getArity();
+			int newArity = leftArity + rightArity;
+			
+			Type fieldTypes[] = new Type[newArity];
+			String fieldNames[] = new String[newArity];
+			IValue fieldValues[] = new IValue[newArity];
+			
+			for(int i = 0; i < leftArity; i++){
+				fieldTypes[i] = leftType.getFieldType(i);
+				fieldNames[i] = leftType.getFieldName(i);
+				fieldValues[i] = ((ITuple) left.value).get(i);
+			}
+			
+			for(int i = 0; i < rightArity; i++){
+				fieldTypes[leftArity + i] = rightType.getFieldType(i);
+				fieldNames[leftArity + i] = rightType.getFieldName(i);
+				fieldValues[leftArity + i] = ((ITuple) right.value).get(i);
+			}
+			
+			//TODO: avoid null fieldnames
+			for(int i = 0; i < newArity; i++){
+				if(fieldNames[i] == null){
+					fieldNames[i] = "f" + new String().valueOf(i);
+				}
+			}
+			Type newTupleType = tf.tupleType(fieldTypes, fieldNames);
+			return result(newTupleType, vf.tuple(fieldValues));
+			
 		} else if (left.type.isRelationType() && right.type.isRelationType()) {
 				return result(resultType, ((ISet) left.value)
 						.union((ISet) right.value));
@@ -1683,6 +1716,53 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				}
 			}
 			return result(resultType, w.done());	
+		}
+		else if(left.type.isRelationType() && right.type.isRelationType()){
+			TupleType leftElementType = (TupleType) ((RelationType) left.type).getElementType();
+			TupleType rightElementType = (TupleType) ((RelationType) right.type).getElementType();
+			
+			int leftArity = leftElementType.getArity();
+			int rightArity = rightElementType.getArity();
+			int newArity = leftArity + rightArity;
+			
+			Type fieldTypes[] = new Type[newArity];
+			String fieldNames[] = new String[newArity];
+			
+			for(int i = 0; i < leftArity; i++){
+				fieldTypes[i] = leftElementType.getFieldType(i);
+				fieldNames[i] = leftElementType.getFieldName(i);
+			}
+			for(int i = 0; i < rightArity; i++){
+				fieldTypes[leftArity + i] = rightElementType.getFieldType(i);
+				fieldNames[leftArity + i] = rightElementType.getFieldName(i);
+			}
+			
+			// TODO: avoid empty field names
+			for(int i = 0; i < newArity; i++){
+				if(fieldNames[i] == null){
+					fieldNames[i] = "f" + String.valueOf(i);
+				}
+			}
+			
+			TupleType resElementType = tf.tupleType(fieldTypes, fieldNames);
+			Type resultType = tf.relType(resElementType);
+			IRelationWriter w = resultType.writer(vf);
+			
+			for(IValue v1 : (IRelation) left.value){
+				IValue elementValues[] = new IValue[newArity];
+				
+				for(int i = 0; i < leftArity; i++){
+					elementValues[i] = ((ITuple) v1).get(i);
+				}
+				for(IValue v2 : (IRelation) right.value){
+					for(int i = 0; i <rightArity; i++){
+						elementValues[leftArity + i] = ((ITuple) v2).get(i);
+					}
+					w.insert(vf.tuple(elementValues));	
+				}
+			}
+			
+			return result(resultType, w.done());
 		}
 		else if (left.type.isSetType() && right.type.isSetType()){
 			Type leftElementType = ((SetType) left.type).getElementType();
