@@ -5,6 +5,7 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.MapType;
@@ -70,10 +71,14 @@ import org.meta_environment.rascal.ast.Assignable.Variable;
 		EvalResult result;
 		
 		if (rec.type.getBaseType().isListType() && subscript.type.getBaseType().isIntegerType()) {
+			try {
 			IList list = (IList) rec.value;
 			int index = ((IInteger) subscript.value).getValue();
 			list = list.put(index, value.value);
 			result = eval.result(rec.type, list);
+			} catch (Exception e){
+				throw new RascalRunTimeError("Index " + ((IInteger) subscript.value).getValue() + " out of bounds", e);
+			}
 		}
 		else if (rec.type.getBaseType().isMapType()) {
 			Type keyType = ((MapType) rec.type).getKeyType();
@@ -85,6 +90,16 @@ import org.meta_environment.rascal.ast.Assignable.Variable;
 			else {
 				throw new RascalTypeError("Key type " + keyType + " of map is not compatible with " + subscript.type);
 			}
+			
+		} else if (rec.type.isTreeType() && subscript.type.isIntegerType()) {
+			int index = ((IInteger) subscript.value).getValue();
+			ITree tree = (ITree) rec.value;
+			
+			if(index >= tree.arity()){
+				throw new RascalRunTimeError("Subscript out of bounds");
+			}
+			tree = tree.set(index, value.value);
+			result = eval.result(rec.type, tree);			
 		} else {
 			throw new RascalTypeError("Receiver " + rec.type + " is incompatible with subscript " + subscript.type);
 			// TODO implement other subscripts
