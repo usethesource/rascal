@@ -101,10 +101,40 @@ public int java size(list[&T] l)
    return values.integer(l.length());
 }
 
-public list[&T] sort(list[&T] L, bool (&T, &T) compare)
-  @doc{Sort elements of list: sort}
+public list[&T] sort(list[&T] L)
+  @doc{sort -- sort elements of list: sort}
 {
- // To be done.
+  for(int I : [0 .. size(L) - 2 ]){
+     if(L[I] > L[I+1]){
+       <L[I], L[I+1]> = <L[I+1], L[I]>;
+       return List::sort(L);
+     }
+  }
+  return L;
+}
+
+public list[&T] sort2(list[&T] L)
+@doc{sort2 -- sort elements of list: sort}
+{
+  if(size(L) <= 1){
+  	return L;
+  }
+  
+  list[&T] less = [];
+  list[&T] greater = [];
+  
+  &T pivot = arb(L);
+  
+  //L = L - [pivot];
+  
+  for(&T e : L){
+     if(e <= pivot){
+       less = [e] + less;
+     } else {
+        right = [e] + right;
+     }
+  }
+  return List::sort2(less) + [pivot] + List::sort2(right);
 }
 
 public &T sum(list[&T] l, &T zero)
