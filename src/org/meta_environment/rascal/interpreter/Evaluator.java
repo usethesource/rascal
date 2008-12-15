@@ -1580,11 +1580,23 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		return result(annoType, annoValue);
 	}
 	
+	private void widenIntToDouble(EvalResult left, EvalResult right){
+		if (left.type.isIntegerType() && right.type.isDoubleType()) {
+			left.type = tf.doubleType();
+			left.value = vf.dubble(1.0 * ((IInteger) left.value).getValue());
+		} else if (left.type.isDoubleType() && right.type.isIntegerType()) {
+			right.type = tf.doubleType();
+			right.value = vf.dubble(1.0 * ((IInteger) right.value).getValue());
+		}
+	}
+	
     @Override
 	public EvalResult visitExpressionAddition(Addition x) {
 		EvalResult left = x.getLhs().accept(this);
 		EvalResult right = x.getRhs().accept(this);
 		Type resultType = left.type.lub(right.type);
+		
+		widenIntToDouble(left, right);
 
 		if (left.type.isIntegerType() && right.type.isIntegerType()) {
 			return result(((IInteger) left.value).add((IInteger) right.value));
@@ -1655,6 +1667,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		EvalResult left = x.getLhs().accept(this);
 		EvalResult right = x.getRhs().accept(this);
 		Type resultType = left.type.lub(right.type);
+		
+		widenIntToDouble(left, right);
 
 		if (left.type.isIntegerType() && right.type.isIntegerType()) {
 			return result(((IInteger) left.value).subtract((IInteger) right.value));
@@ -1696,6 +1710,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	public EvalResult visitExpressionProduct(Product x) {
 		EvalResult left = x.getLhs().accept(this);
 		EvalResult right = x.getRhs().accept(this);
+		
+		widenIntToDouble(left, right);
 
 		if (left.type.isIntegerType() && right.type.isIntegerType()) {
 			return result(((IInteger) left.value).multiply((IInteger) right.value));
@@ -1793,6 +1809,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	public EvalResult visitExpressionDivision(Division x) {
 		EvalResult left = x.getLhs().accept(this);
 		EvalResult right = x.getRhs().accept(this);
+		
+		widenIntToDouble(left, right);
 
 		if (left.type.isIntegerType() && right.type.isIntegerType()) {
 			return result(((IInteger) left.value).divide((IInteger) right.value));
@@ -1924,6 +1942,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	}
 	
 	boolean equals(EvalResult left, EvalResult right){
+		
+		widenIntToDouble(left, right);
 		if (left.type.comparable(right.type)
 				//|| left.type.isValueType()                   //TODO: is this necessary?
 				//|| right.type.isValueType()
@@ -2138,6 +2158,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 	
 	private int compare(EvalResult left, EvalResult right){
+		
+		widenIntToDouble(left, right);
 		
 		if (left.type.isBoolType() && right.type.isBoolType()) {
 			boolean lb = ((IBool) left.value).getValue();
