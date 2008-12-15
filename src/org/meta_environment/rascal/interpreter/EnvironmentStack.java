@@ -19,24 +19,25 @@ import org.meta_environment.rascal.ast.QualifiedName;
  * An environment that implements the scoping rules of Rascal.
  * 
  */
-public class EnvironmentStack implements IEnvironment {
-	protected final Stack<IEnvironment> stack = new Stack<IEnvironment>();
+public class  EnvironmentStack {
+	protected final Stack<Environment> stack = new Stack<Environment>();
     
-	public EnvironmentStack(IEnvironment bottom) {
+	public void clean(ModuleEnvironment bottom) {
+		stack.clear();
 		stack.push(bottom);
 	}
 	
-	public boolean isRootEnvironment() {
-		return false;
+	public EnvironmentStack(ModuleEnvironment bottom) {
+		stack.push(bottom);
 	}
 	
 	public void pushFrame() {
 		stack.push(new Environment());
 	}
 	
-	public void push(IEnvironment e) {
+	public void pushModule(ModuleEnvironment e) {
 		if (e == null) { 
-			throw new RascalBug("Empty environment");
+			throw new RascalBug("null environment");
 		}
 		stack.push(e);
 	}
@@ -45,15 +46,15 @@ public class EnvironmentStack implements IEnvironment {
 		stack.pop();
 	}
 	
-	public void pop() {
+	public void popModule() {
 		stack.pop();
 	}
 
-	protected IEnvironment bottom() {
+	protected Environment bottom() {
 		return stack.get(0);
 	}
 	
-	protected IEnvironment top() {
+	protected Environment top() {
 		return stack.peek();
 	}
 	
@@ -67,28 +68,28 @@ public class EnvironmentStack implements IEnvironment {
 		getVariableDefiningEnvironment(name).storeVariable(name, value);
 	}
 	
-	public IEnvironment getRootEnvironment() {
+	public ModuleEnvironment getModuleEnvironment() {
 		for (int i = stack.size() - 1; i >= 0; i--) {
-			IEnvironment env = stack.get(i);
-			if (env.isRootEnvironment()) {
-				return env;
+			Environment env = stack.get(i);
+			if (env.isModuleEnvironment()) {
+				return (ModuleEnvironment) env;
 			}
 		}
 		
-		return bottom();
+		return (ModuleEnvironment) bottom();
 	}
 
-	public IEnvironment getFunctionDefiningEnvironment(Name name, TupleType formals) {
+	public Environment getFunctionDefiningEnvironment(Name name, TupleType formals) {
 		return getFunctionDefiningEnvironment(Names.name(name), formals);
 	}
 	
-	public IEnvironment getFunctionDefiningEnvironment(String name, TupleType formals) {
+	public Environment getFunctionDefiningEnvironment(String name, TupleType formals) {
 		int i;
 		
 		for (i = stack.size() - 1; i >= 0; i--) {
-			IEnvironment env = stack.get(i);
+			Environment env = stack.get(i);
 			
-			if (env.isRootEnvironment()
+			if (env.isModuleEnvironment()
 					|| env.getFunction(name, formals) != null) {
 				return env;
 			}
@@ -97,13 +98,13 @@ public class EnvironmentStack implements IEnvironment {
 		return top();
 	}
 	
-	public IEnvironment getVariableDefiningEnvironment(String name) {
+	public Environment getVariableDefiningEnvironment(String name) {
 		int i;
 		
 		for (i = stack.size() - 1; i >= 0; i--) {
-			IEnvironment env = stack.get(i);
+			Environment env = stack.get(i);
 			
-            if (env.isRootEnvironment() || env.getVariable(name) != null) {
+            if (env.isModuleEnvironment() || env.getVariable(name) != null) {
             	return env;
             }
 		}
@@ -115,7 +116,7 @@ public class EnvironmentStack implements IEnvironment {
 		Map<ParameterType,Type> types = new HashMap<ParameterType,Type>();
 		
 		for (int i = 0; i < stack.size(); i++) {
-			IEnvironment environment = stack.get(i);
+			Environment environment = stack.get(i);
 			types.putAll(environment.getTypes());
 		}
 		
@@ -138,7 +139,7 @@ public class EnvironmentStack implements IEnvironment {
 	}
 	
 	public FunctionDeclaration getFunction(String name, TupleType actuals) {
-		IEnvironment env = getFunctionDefiningEnvironment(name, actuals);
+		Environment env = getFunctionDefiningEnvironment(name, actuals);
 		return env.getFunction(name, actuals);
 	}
 
@@ -147,7 +148,7 @@ public class EnvironmentStack implements IEnvironment {
 	}
 
 	public EvalResult getVariable(String name) {
-		IEnvironment env = getVariableDefiningEnvironment(name);
+		Environment env = getVariableDefiningEnvironment(name);
 		return env.getVariable(name);
 	}
 

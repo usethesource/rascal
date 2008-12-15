@@ -1,59 +1,31 @@
 package org.meta_environment.rascal.interpreter;
 
 import java.util.HashSet;
-import java.util.Map;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
-import org.eclipse.imp.pdb.facts.type.NamedTreeType;
-import org.eclipse.imp.pdb.facts.type.NamedType;
-import org.eclipse.imp.pdb.facts.type.ParameterType;
-import org.eclipse.imp.pdb.facts.type.TreeNodeType;
 import org.eclipse.imp.pdb.facts.type.TupleType;
-import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
-import org.meta_environment.rascal.ast.Name;
-import org.meta_environment.rascal.ast.QualifiedName;
 
 /**
  * A module environment represents a module object (i.e. a running module).
- * It has it's own stack  and manages imported modules and visibility of the
- * functions and variables it declares.
+ * It manages imported modules and visibility of the
+ * functions and variables it declares. 
+ * 
+ * TODO: add management of locally declared types and constructors
  * 
  */
-public class ModuleEnvironment implements IEnvironment {
+public class ModuleEnvironment extends Environment {
 	private final String name;
-	protected final EnvironmentStack stack;
 	protected final Set<String> importedModules;
 	
 	public ModuleEnvironment(String name) {
 		this.name = name;
 		this.importedModules = new HashSet<String>();
-		
-		this.stack = new EnvironmentStack(new Environment() {
-			@Override
-			public boolean isRootEnvironment() {
-				return true;
-			}
-		});
 	}
 	
-	public void pushFrame(IEnvironment env) {
-		stack.push(env);
-	}
-	
-	public void pushFrame() {
-		stack.pushFrame();
-	}
-	
-	public void popFrame() {
-		stack.popFrame();
-	}
-	
-	public String getModuleName() {
-		return name;
-	}
-	
-	public boolean isRootEnvironment() {
+	public boolean isModuleEnvironment() {
 		return true;
 	}
 	
@@ -65,111 +37,73 @@ public class ModuleEnvironment implements IEnvironment {
 		return importedModules;
 	}
 
-	public FunctionDeclaration getFunction(String name, TupleType actuals) {
-		FunctionDeclaration decl = stack.getFunction(name, actuals);
-		if (decl == null) {
-			for (String mod : getImports()) {
-				IEnvironment mEnv = GlobalEnvironment.getInstance().getModule(mod);
-				if (mEnv != null) {
-					if ((decl = mEnv.getFunction(name, actuals)) != null) {
-						return decl;
-					}
-				}
-			}
-		}
-		
-		return decl;
+	public String getName() {
+		return name;
 	}
 	
-	IEnvironment getFunctionDefiningEnvironment(Name name, TupleType formals) {
-		FunctionDeclaration decl = stack.getFunction(name, formals);
-		if (decl == null) {
-			for (String mod : getImports()) {
-				IEnvironment mEnv = GlobalEnvironment.getInstance().getModule(mod);
-				if (mEnv != null) {
-					if (mEnv.getFunction(name, formals) != null) {
-						return mEnv;
-					}
-				}
-			}
-		}
-		
-		return stack.bottom();
-	}
-
-	
-	
-	public FunctionDeclaration getFunction(Name name, TupleType actuals) {
-		return getFunction(Names.name(name), actuals);
-	}
-
-	public Type getType(ParameterType par) {
-		return stack.getType(par);
-	}
-
-	public Map<ParameterType, Type> getTypes() {
-		return stack.getTypes();
-	}
-
-	public EvalResult getVariable(Name name) {
-		return stack.getVariable(name);
-	}
-
-	public void storeFunction(Name name, FunctionDeclaration function) {
-		stack.storeFunction(name, function);
-	}
-
-	public void storeType(ParameterType par, Type type) {
-		stack.storeType(par, type);
-	}
-
-	public void storeType(NamedType decl) {
-		stack.storeType(decl);
-	}
-
-	public void storeType(NamedTreeType decl) {
-		stack.storeType(decl);
-	}
-
-	public void storeType(TreeNodeType decl) {
-		stack.storeType(decl);
-	}
-
-	public void storeTypes(Map<ParameterType, Type> bindings) {
-		stack.storeTypes(bindings);
-		
-	}
-
-	public void storeVariable(Name name, EvalResult value) {
-		stack.storeVariable(name, value);
-	}
-
-	public FunctionDeclaration getFunction(QualifiedName name, TupleType actuals) {
-		return stack.getFunction(name, actuals);
-	}
-
-	public EvalResult getVariable(QualifiedName name) {
-		return stack.getVariable(name);
-	}
-
-	public void storeFunction(QualifiedName name, FunctionDeclaration function) {
-		stack.storeFunction(name, function);
-		
-	}
-
-	public void storeVariable(QualifiedName name, EvalResult value) {
-		stack.storeVariable(name, value);
-	}
-
+	@Override
 	public EvalResult getVariable(String name) {
-		return stack.getVariable(name);
+		EvalResult result = super.getVariable(name);
+		
+		if (result == null) {
+			List<EvalResult> results = new LinkedList<EvalResult>();
+			for (String i : getImports()) {
+				// imports are not transitive!
+				result = GlobalEnvironment.getInstance().getModule(i).getLocalVariable(name);
+				
+				if (result != null) {
+					results.add(result);
+				}
+			}
+			
+			if (results.size() == 1) {
+				return results.get(0);
+			}
+			else if (results.size() == 0) {
+				throw new RascalTypeError("No such variable " + name);
+			}
+			else {
+				throw new RascalTypeError("Variable " + name + " is ambiguous, please qualify");
+			}
+		}
+		
+		return result;
 	}
-
-	public void storeFunction(String name, FunctionDeclaration function) {
-		stack.storeFunction(name, function);
+	
+	@Override
+	public FunctionDeclaration getFunction(String name, TupleType types) {
+		FunctionDeclaration result = super.getFunction(name, types);
+		
+		if (result == null) {
+			List<FunctionDeclaration> results = new LinkedList<FunctionDeclaration>();
+			for (String i : getImports()) {
+				// imports are not transitive!
+				result = GlobalEnvironment.getInstance().getModule(i).getLocalFunction(name, types);
+				
+				if (result != null) {
+					results.add(result);
+				}
+			}
+			
+			if (results.size() == 1) {
+				return results.get(0);
+			}
+			else if (results.size() == 0) {
+				return null;
+			}
+			else {
+				throw new RascalTypeError("Function " + name + " is ambiguous, please qualify");
+			}
+		}
+		
+		return result;
 	}
-
-	public void storeVariable(String name, EvalResult value) {
-		stack.storeVariable(name, value);
+	
+	public FunctionDeclaration getLocalFunction(String name, TupleType types) {
+		return super.getFunction(name, types);
+	}
+	
+	public EvalResult getLocalVariable(String name) {
+		return super.getVariable(name);
 	}
 }

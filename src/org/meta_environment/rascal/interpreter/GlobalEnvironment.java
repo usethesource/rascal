@@ -5,6 +5,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.imp.pdb.facts.type.NamedTreeType;
+import org.eclipse.imp.pdb.facts.type.NamedType;
+import org.eclipse.imp.pdb.facts.type.ParameterType;
+import org.eclipse.imp.pdb.facts.type.TreeNodeType;
 import org.eclipse.imp.pdb.facts.type.TupleType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
@@ -13,107 +17,123 @@ import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.ast.Rule;
 
 /**
- * A global environment is an environment that can also store modules
- * and rules, since these are both globally scoped. It behaves as an
- * anonymous module environment.
+ * The global environment represents the stack and the heap of Rascal.
+ * The stack is initialized with a bottom frame, which represent the shell
+ * environment.
  * 
- * It is the ``heap'' of the Rascal interpreter.
  */
-public class GlobalEnvironment extends ModuleEnvironment {
-	private final Map<String, ModuleEnvironment> moduleEnvironment;
-	private final Map<Type, List<Rule>> ruleEnvironment;
-	private static GlobalEnvironment sInstance = new GlobalEnvironment();
-    
-	private GlobalEnvironment() {
-		super("***global***");
-		moduleEnvironment = new HashMap<String, ModuleEnvironment>();
-		ruleEnvironment = new HashMap<Type, List<Rule>>();
-	}
+public class GlobalEnvironment {
+	private static final String SHELL = "***root***";
+
+	/** The heap of Rascal */
+	private final Map<String, ModuleEnvironment> moduleEnvironment = new HashMap<String, ModuleEnvironment>();
+	
+	/** The stack of Rascal */
+	private final EnvironmentStack stack  = new EnvironmentStack(new ModuleEnvironment(SHELL));
+	
+	/** Normalizing rules are a global feature */
+	private final Map<Type, List<Rule>> ruleEnvironment = new HashMap<Type, List<Rule>>();
+	
+	/** There is only one global environment */
+	private static final GlobalEnvironment sInstance = new GlobalEnvironment();
+	
+	private GlobalEnvironment() { }
 
 	public static GlobalEnvironment getInstance() {
 		return sInstance;
 	}
 	
 	public static void clean() {
-		sInstance = new GlobalEnvironment();
+		GlobalEnvironment instance = getInstance();
+		instance.moduleEnvironment.clear();
+		instance.stack.clean(new ModuleEnvironment(SHELL));
+		instance.ruleEnvironment.clear();
 	}
 	
-	@Override
+	/**
+	 * Adds an import to the module that is currently on the stack.
+	 * @param name
+	 */
 	public void addImport(String name) {
-		addModule(name);
-		super.addImport(name);
+		stack.getModuleEnvironment().addImport(name);
 	}
 	
+	/**
+	 * Allocate a new module on the heap
+	 * @param name
+	 */
 	public void addModule(String name) {
 		ModuleEnvironment env = moduleEnvironment.get(name);
 		if (env == null) {
 			moduleEnvironment.put(name, new ModuleEnvironment(name));
 		}
 	}
-
+	
+	/**
+	 * Push a previously allocated module on the stack
+	 * @param module
+	 */
+	public void pushModule(String module) {
+		stack.pushModule(getModule(module));
+	}
+	
+	/**
+	 * Push a previously allocated module on the stack
+	 * @param module
+	 */
 	public void pushModule(QualifiedName name) {
 		pushModule(Names.moduleName(name));
 	}
 	
-	public void pushModule(String name) {
-		stack.push(getModule(name));
+	
+	/**
+	 * Push a local scope on the stack
+	 */
+	public void pushFrame() {
+		stack.pushFrame();
+	}
+	
+	/**
+	 * Pop the stack
+	 */
+	public void popFrame() {
+		stack.popFrame();
 	}
 	
 	public void popModule() {
-		stack.pop();
+		if (!stack.top().isModuleEnvironment()) {
+			throw new RascalBug("Popping a local scope instead of a module scope?!");
+		}
+		stack.popModule();
 	}
 	
+	/**
+	 * Retrieve a module from the heap
+	 */
 	public ModuleEnvironment getModule(String name) {
-		return moduleEnvironment.get(name);
+		ModuleEnvironment result = moduleEnvironment.get(name);
+		
+		if (result == null) {
+			throw new RascalTypeError("No such module " + name);
+		}
+		
+		return result;
+	}
+
+	public ModuleEnvironment getModule(QualifiedName name) {
+		return getModule(Names.moduleName(name));
 	}
 	
 	public EvalResult getModuleVariable(String module, Name variable) {
-		return getModule(module).getVariable(variable);
+		return getModule(module).getVariable(Names.name(variable));
 	}
 	
-	private FunctionDeclaration getModuleFunction(String module, Name function, TupleType actuals) {
-		ModuleEnvironment mod = getModule(module);
-		
-		if (mod == null) {
-			return null;
-		}
-		return mod.getFunction(function, actuals);
-	}
-	
-	private void storeModuleVariable(String module, Name variable, EvalResult value) {
-		getModule(module).storeVariable(variable, value);
+	public FunctionDeclaration getModuleFunction(String module, Name function, TupleType actuals) {
+		return getModule(module).getFunction(Names.name(function), actuals);
 	}
 	
 	private void storeModuleFunction(String module, Name name, FunctionDeclaration function) {
-		getModule(module).storeFunction(name, function);
-	}
-	
-	public Name getLocalName(QualifiedName name) {
-		return Names.lastName(name);
-	}
-	
-	public EvalResult getVariable(QualifiedName name) {
-		String module = Names.moduleName(name);
-		Name variable = Names.lastName(name);
-		
-		if (module == null) {
-			return getVariable(variable);
-		}
-		else {
-			return getModuleVariable(module, variable);
-		}
-	}
-	
-	public FunctionDeclaration getFunction(QualifiedName name, TupleType actuals) {
-		String module = Names.moduleName(name);
-		Name function = Names.lastName(name);
-		
-		if (module == null) {
-			return getFunction(function, actuals);
-		}
-		else {
-			return getModuleFunction(module, function, actuals);
-		}
+		getModule(module).storeFunction(Names.name(name), function);
 	}
 	
 	public void storeVariable(QualifiedName name, EvalResult value) {
@@ -121,11 +141,43 @@ public class GlobalEnvironment extends ModuleEnvironment {
 		Name var = Names.lastName(name);
 		
 		if (module == null) {
-			storeVariable(var, value);
+			stack.storeVariable(var, value);
 		}
 		else {
-			storeModuleVariable(module, var, value);
+			getModule(module).storeVariable(Names.name(var), value);
 		}
+	}
+	
+	public void storeVariable(Name name, EvalResult value) {
+		storeVariable(Names.name(name), value);
+	}
+	
+	public void storeFunction(Name name, FunctionDeclaration function) {
+		storeFunction(Names.name(name), function);
+	}
+	
+	public EvalResult getVariable(QualifiedName name) {
+		String module = Names.moduleName(name);
+		Name var = Names.lastName(name);
+		
+		if (module != null) {
+			return getModuleVariable(module, var);
+		}
+		else {
+			return getVariable(var);
+		}
+	}
+	
+	public EvalResult getVariable(Name name) {
+		return getVariable(Names.name(name));
+	}
+	
+	public EvalResult getVariable(String name) {
+		return stack.getVariable(name);
+	}
+	
+	public void storeVariable(String name, EvalResult value) {
+		stack.storeVariable(name, value);
 	}
 	
 	public void storeFunction(QualifiedName name, FunctionDeclaration function) {
@@ -138,6 +190,24 @@ public class GlobalEnvironment extends ModuleEnvironment {
 		else {
 			storeModuleFunction(module, func, function);
 		}
+	}
+	
+	public void storeFunction(String name, FunctionDeclaration function) {
+		stack.storeFunction(name, function);
+	}
+	
+	public FunctionDeclaration getFunction(String name, TupleType actuals) {
+		return stack.getFunction(name, actuals);
+	}
+	
+	public FunctionDeclaration getFunction(QualifiedName name, TupleType actuals) {
+		String module = Names.moduleName(name);
+		Name function = Names.lastName(name);
+		
+		if (module != null) {
+			return getModuleFunction(module, function, actuals);
+		}
+		return stack.getFunction(name, actuals);
 	}
 	
 	public void storeRule(Type forType, Rule rule) {
@@ -156,14 +226,33 @@ public class GlobalEnvironment extends ModuleEnvironment {
 		return rules != null ? rules : new LinkedList<Rule>();
 	}
 
-	public void pushModuleForFunction(QualifiedName name, TupleType formals) {
-		String module = Names.moduleName(name);
-		
-		if (module != null) {
-           pushModule(name);
-		}
-		else {
-		   pushFrame(getFunctionDefiningEnvironment(Names.lastName(name), formals));
-		}
+	public Type getType(ParameterType par) {
+		return stack.getType(par);
 	}
+
+	public Map<ParameterType, Type> getTypes() {
+		return stack.getTypes();
+	}
+
+	public void storeType(ParameterType par, Type type) {
+		stack.storeType(par, type);
+	}
+
+	public void storeType(NamedType decl) {
+		stack.storeType(decl);
+	}
+
+	public void storeType(NamedTreeType decl) {
+		stack.storeType(decl);
+	}
+
+	public void storeType(TreeNodeType decl) {
+		stack.storeType(decl);
+	}
+
+	public void storeTypes(Map<ParameterType, Type> bindings) {
+		stack.storeTypes(bindings);
+		
+	}
+
 }

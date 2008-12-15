@@ -175,6 +175,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		this.af = astFactory;
 		javaFunctionCaller = new JavaFunctionCaller(errorWriter, te);
 		this.pe = new TreePatternEvaluator(this);
+		GlobalEnvironment.clean();
 	}
 	
 	/**
@@ -635,13 +636,20 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			 return call(name, actuals, signature);
 		 }
 	}
+	
 	private EvalResult call(QualifiedName name, IValue[] actuals, TupleType actualTypes) {
 		 FunctionDeclaration func = env.getFunction(name, actualTypes);
 
 		 if (func != null) {
-			 env.pushModuleForFunction(name, actualTypes);
+			 String module = Names.moduleName(name);
+			 if (module != null) {
+				 env.pushModule(module);
+			 }
 			 EvalResult res = call(func, actuals, actualTypes);
-			 env.popModule();
+			 
+			 if (module != null) {
+				 env.popModule();
+			 }
 			 return res;
 		 }
 		 else {
@@ -1648,7 +1656,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			//TODO: avoid null fieldnames
 			for(int i = 0; i < newArity; i++){
 				if(fieldNames[i] == null){
-					fieldNames[i] = "f" + new String().valueOf(i);
+					fieldNames[i] = "f" + String.valueOf(i);
 				}
 			}
 			Type newTupleType = tf.tupleType(fieldTypes, fieldNames);
