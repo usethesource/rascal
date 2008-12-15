@@ -800,7 +800,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			bindTypeParameters(actualTypes, formals);
 			
 			for (int i = 0; i < formals.getArity(); i++) {
-				Type formal = formals.getFieldType(i);
+				Type formal = formals.getFieldType(i).instantiate(env.getTypes());
 				EvalResult result = result(formal, actuals[i]);
 				env.storeVariable(formals.getFieldName(i), result);
 			}

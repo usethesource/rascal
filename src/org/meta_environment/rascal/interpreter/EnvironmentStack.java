@@ -130,8 +130,7 @@ public class  EnvironmentStack {
 	}
 	
 	public void storeTypes(Map<ParameterType, Type> bindings) {
-		// types have module scope
-		bottom().storeTypes(bindings);
+		top().storeTypes(bindings);
 	}
 
 	public FunctionDeclaration getFunction(Name name, TupleType actuals) {
@@ -153,15 +152,15 @@ public class  EnvironmentStack {
 	}
 
 	public void storeType(NamedType decl) {
-		bottom().storeType(decl);
+		top().storeType(decl);
 	}
 
 	public void storeType(NamedTreeType decl) {
-		bottom().storeType(decl);
+		top().storeType(decl);
 	}
 
 	public void storeType(TreeNodeType decl) {
-		bottom().storeType(decl);
+		top().storeType(decl);
 	}
 
 	public FunctionDeclaration getFunction(QualifiedName name, TupleType actuals) {
@@ -192,6 +191,5 @@ public class  EnvironmentStack {
 
 	public void storeVariable(Name name, EvalResult value) {
 		storeVariable(Names.name(name), value);
-		
 	}
 }
