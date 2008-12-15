@@ -15,19 +15,14 @@ import org.eclipse.imp.pdb.facts.type.TreeNodeType;
 import org.eclipse.imp.pdb.facts.type.TupleType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
-import org.meta_environment.rascal.ast.Name;
-import org.meta_environment.rascal.ast.QualifiedName;
 
 /**
- * A simple environment for variables and functions. Does not have support
- * for scopes or modules, which are a features of EnvironmentStack, 
- * GlobalEnvironment and ModuleEnvironment.
+ * A simple environment for variables and functions and types.
  */
-public class Environment implements IEnvironment {
+public class Environment {
 	protected final Map<String, EvalResult> variableEnvironment;
 	protected final Map<String, List<FunctionDeclaration>> functionEnvironment;
 	protected final Map<ParameterType, Type> typeParameters;
-	protected final TypeEvaluator types = TypeEvaluator.getInstance();
 	protected final Set<Type> namedTypes;
 	protected final Map<NamedTreeType, List<TreeNodeType>> signature;
 
@@ -39,18 +34,11 @@ public class Environment implements IEnvironment {
 		this.signature = new HashMap<NamedTreeType, List<TreeNodeType>>();
 	}
 	
-	public boolean isRootEnvironment() {
+	/**
+	 * Used in EnvironmentStack to see if this environment is a root scope.
+	 */
+	public boolean isModuleEnvironment() {
 		return false;
-	}
-	
-	
-	
-	public FunctionDeclaration getFunction(QualifiedName name, TupleType actuals) {
-		return getFunction(Names.lastName(name), actuals);
-	}
-	
-	public FunctionDeclaration getFunction(Name name, TupleType actuals) {
-		return getFunction(Names.name(name), actuals);
 	}
 	
 	public FunctionDeclaration getFunction(String name, TupleType actuals) {
@@ -58,7 +46,7 @@ public class Environment implements IEnvironment {
 		
 		if (candidates != null) {
 			for (FunctionDeclaration candidate : candidates) {
-				TupleType formals = (TupleType) candidate.getSignature().accept(types);
+				TupleType formals = (TupleType) candidate.getSignature().accept(TypeEvaluator.getInstance());
 			
 				if (actuals.isSubtypeOf(formals)) {
 					return candidate;
@@ -69,13 +57,6 @@ public class Environment implements IEnvironment {
 		return null;
 	}
 	
-	public EvalResult getVariable(QualifiedName name) {
-		return getVariable(Names.lastName(name));
-	}
-	
-	public EvalResult getVariable(Name name) {
-		return getVariable(Names.name(name));
-	}
 	
 	public EvalResult getVariable(String name) {
 		return variableEnvironment.get(name);
@@ -114,29 +95,14 @@ public class Environment implements IEnvironment {
 		tmp.add(decl);
 	}
 
-	public void storeVariable(QualifiedName name, EvalResult value) {
-		storeVariable(Names.lastName(name), value);
-		
-	}
-	
-	public void storeVariable(Name name, EvalResult value) {
-		storeVariable(Names.name(name), value);
-	}
-	
+
 	public void storeVariable(String name, EvalResult value) {
 		variableEnvironment.put(name, value);
 	}
 	
-	public void storeFunction(QualifiedName name, FunctionDeclaration function) {
-		storeFunction(Names.lastName(name), function);
-	}
-	
-	public void storeFunction(Name name, FunctionDeclaration function) {
-		storeFunction(Names.name(name), function);
-	}
 	
 	public void storeFunction(String name, FunctionDeclaration function) {
-		TupleType formals = (TupleType) function.getSignature().getParameters().accept(types);
+		TupleType formals = (TupleType) function.getSignature().getParameters().accept(TypeEvaluator.getInstance());
 		FunctionDeclaration definedEarlier = getFunction(name, formals);
 		
 		if (definedEarlier != null) {
