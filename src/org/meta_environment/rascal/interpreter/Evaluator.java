@@ -1588,21 +1588,27 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 
 		if (left.type.isIntegerType() && right.type.isIntegerType()) {
 			return result(((IInteger) left.value).add((IInteger) right.value));
+			
 		} else if (left.type.isDoubleType() && right.type.isDoubleType()) {
 			return result(((IDouble) left.value).add((IDouble) right.value));
+			
 		} else if (left.type.isStringType() && right.type.isStringType()) {
 			return result(vf.string(((IString) left.value).getValue()
 					+ ((IString) right.value).getValue()));
+			
 		} else if (left.type.isListType() && right.type.isListType()) {
 			
 			return result(resultType, ((IList) left.value)
 					.concat((IList) right.value));
+			
 		} else if (left.type.isSetType() && right.type.isSetType()) {
 				return result(resultType, ((ISet) left.value)
 						.union((ISet) right.value));
+				
 		} else if (left.type.isMapType() && right.type.isMapType()) {
 			return result(resultType, ((IMap) left.value)              //TODO: is this the right operation?
 					.join((IMap) right.value));
+			
 		} else if(left.type.isTupleType() && right.type.isTupleType()) {
 			TupleType leftType = (TupleType) left.type;
 			TupleType rightType = (TupleType) right.type;
@@ -2166,50 +2172,11 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		}
 		
 		if (left.type.isSubtypeOf(tf.treeType()) && right.type.isSubtypeOf(tf.treeType())){
-			String leftName = ((ITree) left.value).getName().toString();
-			String rightName = ((ITree) right.value).getName().toString();
-			int compare = leftName.compareTo(rightName);
-			
-			if(compare != 0){
-				return compare;
-			}
-			return compareList(((ITree) left.value).iterator(), ((ITree) left.value).arity(),
-		            ((ITree) right.value).iterator(), ((ITree) right.value).arity());
+			return compareTree((ITree) left.value, (ITree) right.value);
 		}
 		
-		if(left.type.isSourceLocationType() && right.type.isSourceLocationType()){
-			ISourceLocation leftSL = (ISourceLocation) left.value;
-			ISourceLocation rightSL = (ISourceLocation) right.value;
-			
-			if(leftSL.getPath().equals(rightSL.getPath())){
-				ISourceRange leftSR = leftSL.getRange();
-				ISourceRange rightSR = rightSL.getRange();
-				
-				if(leftSR.equals(rightSR)){
-					return 0;
-				}
-				
-				int lStartLine = leftSR.getStartLine();
-				int rStartLine = rightSR.getStartLine();
-				
-				int lEndLine = leftSR.getEndLine();
-				int rEndLine = rightSR.getEndLine();
-				
-				int lStartColumn = leftSR.getStartColumn();
-				int rStartColumn = rightSR.getStartColumn();
-				
-				int lEndColumn = leftSR.getEndColumn();
-				int rEndColumn = rightSR.getEndColumn();
-				
-				if((lStartLine > rStartLine ||
-					(lStartLine == rStartLine && lStartColumn > rStartColumn)) &&
-					(lEndLine < rEndLine ||
-							((lEndLine == rEndLine) && lEndColumn < rEndColumn))){
-					return -1;	
-				} else {
-					return 1;
-				}
-			}
+		if(left.type.isSourceLocationType() && right.type.isSourceLocationType()){	
+			return compareSourceLocation((ISourceLocation) left.value, (ISourceLocation) right.value);
 		}
 			
 		// NamedType
@@ -2218,9 +2185,56 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		// TreeNodeType
 		// VoidType
 		// ValueType
+		
+		return left.type.toString().compareTo(right.type.toString());
 	
-		throw new RascalTypeError("Operands of comparison have unequal types: "
-					+ left.type + ", " + right.type);
+		//throw new RascalTypeError("Operands of comparison have unequal types: "
+		//			+ left.type + ", " + right.type);
+	}
+	
+	private int compareTree(ITree left, ITree right){
+		String leftName = left.getName().toString();
+		String rightName = right.getName().toString();
+		int compare = leftName.compareTo(rightName);
+		
+		if(compare != 0){
+			return compare;
+		}
+		return compareList(left.iterator(), left.arity(), right.iterator(), right.arity());
+	}
+	
+	private int compareSourceLocation(ISourceLocation leftSL, ISourceLocation rightSL){
+		if(leftSL.getPath().equals(rightSL.getPath())){
+			ISourceRange leftSR = leftSL.getRange();
+			ISourceRange rightSR = rightSL.getRange();
+			
+			if(leftSR.equals(rightSR)){
+				return 0;
+			}
+			
+			int lStartLine = leftSR.getStartLine();
+			int rStartLine = rightSR.getStartLine();
+			
+			int lEndLine = leftSR.getEndLine();
+			int rEndLine = rightSR.getEndLine();
+			
+			int lStartColumn = leftSR.getStartColumn();
+			int rStartColumn = rightSR.getStartColumn();
+			
+			int lEndColumn = leftSR.getEndColumn();
+			int rEndColumn = rightSR.getEndColumn();
+			
+			if((lStartLine > rStartLine ||
+				(lStartLine == rStartLine && lStartColumn > rStartColumn)) &&
+				(lEndLine < rEndLine ||
+						((lEndLine == rEndLine) && lEndColumn < rEndColumn))){
+				return -1;	
+			} else {
+				return 1;
+			}
+		} else {
+			return leftSL.getPath().compareTo(rightSL.getPath());
+		}
 	}
 	
 	private int compareSet(ISet value1, ISet value2) {
