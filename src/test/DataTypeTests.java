@@ -131,19 +131,36 @@ public class DataTypeTests extends TestCase{
 		assertTrue(tf.runTest("-1.0 == -1.0;"));
 		assertTrue(tf.runTest("-1.0 != 1.0;"));
 		
+		assertTrue(tf.runTest("1.0 == 1;"));
+		assertTrue(tf.runTest("1.0 != 2;"));
+		
 		assertTrue(tf.runTest("1.0 + 1.0 == 2.0;"));
 		assertTrue(tf.runTest("-1.0 + 2.0 == 1.0;"));
 		assertTrue(tf.runTest("1.0 + -2.0 == -1.0;"));
 		
+		assertTrue(tf.runTest("1.0 + 1 == 2.0;"));
+		assertTrue(tf.runTest("-1 + 2.0 == 1.0;"));
+		assertTrue(tf.runTest("1.0 + -2 == -1.0;"));
+		
 		assertTrue(tf.runTest("2.0 - 1.0 == 1.0;"));	
 		assertTrue(tf.runTest("2.0 - 3.0 == -1.0;"));	
 		assertTrue(tf.runTest("2.0 - -1.0 == 3.0;"));	
-		assertTrue(tf.runTest("-2.0 - 1.0 == -3.0;"));	
+		assertTrue(tf.runTest("-2.0 - 1.0 == -3.0;"));
+		
+		assertTrue(tf.runTest("2.0 - 1 == 1.0;"));	
+		assertTrue(tf.runTest("2 - 3.0 == -1.0;"));	
+		assertTrue(tf.runTest("2.0 - -1 == 3.0;"));	
+		assertTrue(tf.runTest("-2 - 1.0 == -3.0;"));
 		
 		assertTrue(tf.runTest("2.0 * 3.0 == 6.0;"));	
 		assertTrue(tf.runTest("-2.0 * 3.0 == -6.0;"));	
 		assertTrue(tf.runTest("2.0 * -3.0 == -6.0;"));
 		assertTrue(tf.runTest("-2.0 * -3.0 == 6.0;"));	
+		
+		assertTrue(tf.runTest("2.0 * 3 == 6.0;"));	
+		assertTrue(tf.runTest("-2 * 3.0 == -6.0;"));	
+		assertTrue(tf.runTest("2.0 * -3 == -6.0;"));
+		assertTrue(tf.runTest("-2 * -3.0 == 6.0;"));	
 		
 		assertTrue(tf.runTest("8.0 / 4.0 == 2.0;"));	
 		assertTrue(tf.runTest("-8.0 / 4.0 == -2.0;"));
@@ -158,16 +175,32 @@ public class DataTypeTests extends TestCase{
 		assertTrue(tf.runTest("0.0 / 5.0 == 0.0;"));	
 		assertTrue(tf.runTest("5.0 / 1.0 == 5.0;"));	
 		
+		assertTrue(tf.runTest("7 / 2.0 == 3.5;"));	
+		assertTrue(tf.runTest("-7.0 / 2 == -3.5;"));
+		assertTrue(tf.runTest("7 / -2.0 == -3.5;"));	
+		assertTrue(tf.runTest("-7.0 / -2 == 3.5;"));	
+		
 		assertTrue(tf.runTest("-2.0 <= -1.0;"));
 		assertTrue(tf.runTest("-2.0 <= 1.0;"));
 		assertTrue(tf.runTest("1.0 <= 2.0;"));
 		assertTrue(tf.runTest("2.0 <= 2.0;"));
 		assertFalse(tf.runTest("2.0 <= 1.0;"));
 		
+		assertTrue(tf.runTest("-2 <= -1.0;"));
+		assertTrue(tf.runTest("-2.0 <= 1;"));
+		assertTrue(tf.runTest("1 <= 2.0;"));
+		assertTrue(tf.runTest("2.0 <= 2;"));
+		assertFalse(tf.runTest("2 <= 1.0;"));
+		
 		assertTrue(tf.runTest("-2.0 < -1.0;"));
 		assertTrue(tf.runTest("-2.0 < 1.0;"));
 		assertTrue(tf.runTest("1.0 < 2.0;"));
 		assertFalse(tf.runTest("2.0 < 2.0;"));
+		
+		assertTrue(tf.runTest("-2 < -1.0;"));
+		assertTrue(tf.runTest("-2.0 < 1;"));
+		assertTrue(tf.runTest("1 < 2.0;"));
+		assertFalse(tf.runTest("2.0 < 2;"));
 		
 		assertTrue(tf.runTest("-1.0 >= -2.0;"));
 		assertTrue(tf.runTest("1.0 >= -1.0;"));
@@ -175,13 +208,28 @@ public class DataTypeTests extends TestCase{
 		assertTrue(tf.runTest("2.0 >= 2.0;"));
 		assertFalse(tf.runTest("1.0 >= 2.0;"));
 		
+		assertTrue(tf.runTest("-1 >= -2.0;"));
+		assertTrue(tf.runTest("1.0 >= -1;"));
+		assertTrue(tf.runTest("2 >= 1.0;"));
+		assertTrue(tf.runTest("2.0 >= 2;"));
+		assertFalse(tf.runTest("1 >= 2.0;"));
+		
 		assertTrue(tf.runTest("-1.0 > -2.0;"));
 		assertTrue(tf.runTest("1.0 > -1.0;"));
 		assertTrue(tf.runTest("2.0 > 1.0;"));
 		assertFalse(tf.runTest("2.0 > 2.0;"));
 		assertFalse(tf.runTest("1.0 > 2.0;"));
 		
+		assertTrue(tf.runTest("-1 > -2.0;"));
+		assertTrue(tf.runTest("1.0 > -1;"));
+		assertTrue(tf.runTest("2 > 1.0;"));
+		assertFalse(tf.runTest("2.0 > 2;"));
+		assertFalse(tf.runTest("1 > 2.0;"));
+		
 		assertTrue(tf.runTest("3.5 > 2.5 ? 3.5 : 2.5 == 3.5;"));
+		
+		assertTrue(tf.runTest("3.5 > 2 ? 3.5 : 2 == 3.5;"));
+		assertTrue(tf.runTest("3.5 > 4 ? 3.5 : 2 == 2;"));
 	}
 	
 	public void testString() throws IOException {
