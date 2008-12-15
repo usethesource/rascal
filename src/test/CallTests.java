@@ -46,16 +46,16 @@ public class CallTests extends TestCase{
 		assertTrue(tf.runTest("{" + max + " max(\"abc\",\"def\") == \"def\";}"));
 	}
 	
-	public void testId() throws IOException {
-		String Id = "&T id(&T x){ return x; }";
-		assertTrue(tf.runTest("{" + Id + " id(true) == true;}"));
-		assertTrue(tf.runTest("{" + Id + " id(4) == 4;}"));
-		assertTrue(tf.runTest("{" + Id + " id(4.5) == 4.5;}"));
-		assertTrue(tf.runTest("{" + Id + " id(\"abc\") == \"abc\";}"));
-		assertTrue(tf.runTest("{" + Id + " id(f(1)) == f(1);}"));
-		assertTrue(tf.runTest("{" + Id + " id([1,2,3]) == [1,2,3];}"));
-		assertTrue(tf.runTest("{" + Id + " id({1,2,3}) == {1,2,3};}"));
-		assertTrue(tf.runTest("{" + Id + " id((1:10,2:20,3:30)) == (1:10,2:20,3:30);}"));
+	public void testIdent() throws IOException {
+		String ident = "&T ident(&T x){ return x; }";
+		assertTrue(tf.runTest("{" + ident + " ident(true) == true;}"));
+		assertTrue(tf.runTest("{" + ident + " ident(4) == 4;}"));
+		assertTrue(tf.runTest("{" + ident + " ident(4.5) == 4.5;}"));
+		assertTrue(tf.runTest("{" + ident + " ident(\"abc\") == \"abc\";}"));
+		assertTrue(tf.runTest("{" + ident + " ident(f(1)) == f(1);}"));
+		assertTrue(tf.runTest("{" + ident + " ident([1,2,3]) == [1,2,3];}"));
+		assertTrue(tf.runTest("{" + ident + " ident({1,2,3}) == {1,2,3};}"));
+		assertTrue(tf.runTest("{" + ident + " ident((1:10,2:20,3:30)) == (1:10,2:20,3:30);}"));
 	}
 	
 	public void testMap() throws IOException {
