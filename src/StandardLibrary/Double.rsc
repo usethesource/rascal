@@ -20,7 +20,7 @@ public double min(double n, double m)
 public int java toInteger(double d)
 @doc{toInteger a double value integer.}
 {
-  return d.floor();
+  return d.toInteger();
 }
 
 public str java toString(double d)
