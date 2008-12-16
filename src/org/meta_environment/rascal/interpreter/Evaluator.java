@@ -34,6 +34,7 @@ import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.type.ListType;
 import org.eclipse.imp.pdb.facts.type.MapType;
 import org.eclipse.imp.pdb.facts.type.NamedTreeType;
+import org.eclipse.imp.pdb.facts.type.NamedType;
 import org.eclipse.imp.pdb.facts.type.ParameterType;
 import org.eclipse.imp.pdb.facts.type.RelationType;
 import org.eclipse.imp.pdb.facts.type.SetType;
@@ -461,7 +462,9 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		String name = x.getName().toString();
 		
 		for (org.meta_environment.rascal.ast.Type type : x.getTypes()) {
-		  tf.declareAnnotation(type.accept(te), name, annoType);	
+		  Type onType = type.accept(te);
+		  tf.declareAnnotation(onType, name, annoType);	
+		  env.storeAnnotation(onType, name, annoType);
 		}
 		
 		return result();
@@ -513,7 +516,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		// TODO add support for parameterized types
 		String user = x.getUser().getName().toString();
 		Type base = x.getBase().accept(te);
-		tf.namedType(user, base);
+		NamedType decl = tf.namedType(user, base);
+		env.storeType(decl);
 		return result();
 	}
 	
@@ -1118,6 +1122,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			org.meta_environment.rascal.ast.Assignable.Annotation x) {
 		EvalResult receiver = x.getReceiver().accept(this);
 		String label = x.getAnnotation().toString();
+		
+		// TODO get annotation from local and imported environments
 		Type type = tf.getAnnotationType(receiver.type, label);
 		IValue value = receiver.value.getAnnotation(label);
 		return result(type, value);
@@ -1545,6 +1551,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		  EvalResult expr = x.getExpression().accept(this);
 		String name = x.getName().toString();
 
+		// TODO: get annotations from local and imported environments
 		Type annoType = tf.getAnnotationType(expr.type, name);
 
 		if (annoType == null) {
