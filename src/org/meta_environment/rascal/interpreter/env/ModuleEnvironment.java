@@ -89,7 +89,7 @@ public class ModuleEnvironment extends Environment {
 				return results.get(0);
 			}
 			else if (results.size() == 0) {
-				throw new RascalTypeError("No such variable " + name);
+				return null;
 			}
 			else {
 				throw new RascalTypeError("Variable " + name + " is ambiguous, please qualify");
