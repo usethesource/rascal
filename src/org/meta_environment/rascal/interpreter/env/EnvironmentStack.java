@@ -209,4 +209,8 @@ public class  EnvironmentStack {
 	public void storeAnnotation(Type onType, String name, Type annoType) {
 		getModuleEnvironment().storeAnnotation(onType, name, annoType);
 	}
+
+	public TreeNodeType getTreeNodeType(String cons, TupleType args) {
+		return getModuleEnvironment().getTreeNodeType(cons, args);
+	}
 }
