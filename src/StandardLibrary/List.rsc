@@ -1,10 +1,12 @@
 module List
 
+/*
 public list[&T] java add(&T elm, list[&T] lst)
 @doc{add -- add an element at the beginning of a list}
  {
     return lst.insert(elm);
  }
+ */
  
  public list[&T] java addAt(&T elm, int n, list[&T] lst)
   throws list_index()
@@ -24,12 +26,14 @@ public list[&T] java add(&T elm, list[&T] lst)
     	throw new RascalException(values, "list_index");
     }
  }
-
+ 
+ /*
 public list[&T] java addAfter(&T elm, list[&T] lst)
 @doc{addAfter -- add an element at at the end of a list}
 {
     return lst.append(elm);
 }
+*/
 
 public &T average(list[&T] lst, &T zero)
 @doc{average -- average of elements of a list}
@@ -142,19 +146,18 @@ public list[&T] sort(list[&T] lst)
   
   list[&T] less = [];
   list[&T] greater = [];
-  list[&T] lst1;
   &T pivot;
   
-  <pivot, lst1> = takeOneFrom(lst);
+  <pivot, lst> = takeOneFrom(lst);
   
-  for(&T elm : lst1){
+  for(&T elm : lst){
      if(elm <= pivot){
-       less = add(elm, less);
+       less = elm + less;
      } else {
-       greater = add(elm, greater);
+       greater = elm + greater;
      }
   }
-  return (sort(less) + [pivot]) + sort(right);
+  return (sort(less) + pivot) + sort(right);
 }
 
 public &T sum(list[&T] lst, &T zero)
