@@ -63,9 +63,7 @@ public class  EnvironmentStack {
 	}
 	
 	public void storeFunction(String name, FunctionDeclaration function) {
-		TupleType formals = (TupleType) function.getSignature().accept(TypeEvaluator.getInstance());
-		
-		getFunctionDefiningEnvironment(name, formals).storeFunction(name, function);
+		top().storeFunction(name, function);
 	}
 
 	public void storeVariable(String name, EvalResult value) {
