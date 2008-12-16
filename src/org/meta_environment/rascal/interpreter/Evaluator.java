@@ -1932,9 +1932,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	boolean equals(EvalResult left, EvalResult right){
 		
 		widenIntToDouble(left, right);
-		if (left.type.comparable(right.type)) {
-			return left.value.equals(right.value);
-		} else if (left.type.isListType() && right.type.isListType() && 
+	
+		if (left.type.isListType() && right.type.isListType() && 
 		          ((IList) left.value).isEmpty() && ((IList) right.value).isEmpty()){
 		       	  return true;
 		} else if (left.type.isMapType() && right.type.isMapType() && 
@@ -1952,7 +1951,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		} else if (left.type.isRelationType() && right.type.isRelationType() && 
 	          ((IRelation) left.value).isEmpty() && ((IRelation) right.value).isEmpty()){
 	        	  return true;
-		
+		} else if (left.type.comparable(right.type)) {
+	        			return left.value.equals(right.value);
 		} else {
 			return false;
 		}
