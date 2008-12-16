@@ -10,12 +10,12 @@ import org.meta_environment.rascal.ast.QualifiedName;
 
 public class Names {
 
-	static Name lastName(QualifiedName qname) {
+	static public Name lastName(QualifiedName qname) {
 		List<Name> names = qname.getNames();
 		return names.get(names.size() - 1);
 	}
 	
-	static String moduleName(QualifiedName qname) {
+	static public String moduleName(QualifiedName qname) {
 		List<Name> names = qname.getNames();
 		java.util.List<Name> prefix = names.subList(0, names.size() - 1);
 
@@ -37,7 +37,7 @@ public class Names {
 		return tmp.toString();
 	}
 	
-	static String name(Name name) {
+	static public String name(Name name) {
 		String s = name.toString();
 		if (s.startsWith("\\")) {
 			s = s.substring(1);
@@ -46,11 +46,11 @@ public class Names {
 		return s;
 	}
 	
-	static String consName(QualifiedName qname) {
+	static public String consName(QualifiedName qname) {
 		return name(lastName(qname));
 	}
 	
-	static String sortName(QualifiedName qname) {
+	static public String sortName(QualifiedName qname) {
 		List<Name> names = qname.getNames();
 		if (names.size() >= 2) {
 			return name(names.get(names.size() - 2));
@@ -58,7 +58,7 @@ public class Names {
 		return null;
 	}
 	
-	static Name toName(String name) {
+	static public Name toName(String name) {
 		return new InventedName(name);
 	}
 	

@@ -1,4 +1,4 @@
-package org.meta_environment.rascal.interpreter;
+package org.meta_environment.rascal.interpreter.env;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -15,6 +15,10 @@ import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.ast.Rule;
+import org.meta_environment.rascal.interpreter.EvalResult;
+import org.meta_environment.rascal.interpreter.Names;
+import org.meta_environment.rascal.interpreter.RascalBug;
+import org.meta_environment.rascal.interpreter.RascalTypeError;
 
 /**
  * The global environment represents the stack and the heap of Rascal.

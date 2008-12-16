@@ -3,7 +3,7 @@ package org.meta_environment.rascal.interpreter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 
-/*package*/ class EvalResult {
+public class EvalResult {
 	protected Type type;
 	protected IValue value;
 
