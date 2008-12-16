@@ -11,19 +11,25 @@ public class ImportTests extends TestCase {
 	public void testFun() throws IOException{
 		
 		tf.prepareModule("module M" +
-				         " int f(int n) {return 2 * n;}");
+				         " public int f(int n) {return 2 * n;}" +
+				         " private int g(int n) { return 2 * n;}");
 		
+		assertTrue(tf.runTestInSameEvaluator("import M;"));
 		assertTrue(tf.runTestInSameEvaluator("M::f(3) == 6;"));
 		assertTrue(tf.runTestInSameEvaluator("f(3) == 6;"));
+		assertFalse(tf.runTestInSameEvaluator("g(3) == 6"));
 		assertTrue(tf.runTestInSameEvaluator("{ int f(int n) {return 3 * n;} f(3) == 9;}"));
 	}
 	
 	public void testVar() throws IOException{
 		
-		tf.prepareModule("module M" +
-				         " int n = 3;");
+		tf.prepareModule("module M\n" +
+				         "public int n = 3;\n" +
+				         "private int m = 3;");
+		assertTrue(tf.runTestInSameEvaluator("import M;"));
 		assertTrue(tf.runTestInSameEvaluator("M::n == 3;"));
 		assertTrue(tf.runTestInSameEvaluator("n == 3;"));
+		assertTrue(tf.runTestInSameEvaluator("m != 3;"));
 		assertTrue(tf.runTestInSameEvaluator("{ int n = 4; n == 4;}"));
 	}
 	
