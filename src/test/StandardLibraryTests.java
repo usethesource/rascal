@@ -296,8 +296,9 @@ public class StandardLibraryTests extends TestCase {
 		
 		System.err.println("List::takeOneFrom");
 		
+		assertTrue(tf.runTestInSameEvaluator("{<E, L> = List::takeOneFrom([1]}; (E == 1) && (L == []);}"));
 		assertTrue(tf.runTestInSameEvaluator("{<E, L> = List::takeOneFrom([1,2]}; ((E == 1) && (L == [2])) || ((E == 2) && (L == [1]);}"));
-		
+	
 		System.err.println("List::toMap");
 		
 		assertTrue(tf.runTestInSameEvaluator("{List::toMap([]) == ();};"));
@@ -324,15 +325,12 @@ public class StandardLibraryTests extends TestCase {
 		
 		tf.prepare("import Set;");
 		
-		System.err.println("Set::arb");
+		System.err.println("Set::add");
 		
-		assertTrue(tf.runTestInSameEvaluator("{int N = Set::arb({1}); N == 1;}"));
-		assertTrue(tf.runTestInSameEvaluator("{int N = Set::arb({1}); N == 1;}"));
-		assertTrue(tf.runTestInSameEvaluator("{int N = arb({1}); N == 1;}"));
-		assertTrue(tf.runTestInSameEvaluator("{int N = Set::arb({1, 2}); (N == 1) || (N == 2);}"));
-		assertTrue(tf.runTestInSameEvaluator("{int N = Set::arb({1, 2, 3}); (N == 1) || (N == 2) || (N == 3);}"));
-		//assertTrue(tf.runTestInSameEvaluator("{double D = Set::arb({1.0,2.0}); (D == 1.0) || (D == 2.0);}"));
-		//assertTrue(tf.runTestInSameEvaluator("{str S = Set::arb({\"abc\",\"def\"}); (S == \"abc\") || (S == \"def\");}"));
+		assertTrue(tf.runTestInSameEvaluator("Set::add(1, {}) == {1};"));
+		assertTrue(tf.runTestInSameEvaluator("add(1, {}) == {1};"));
+		assertTrue(tf.runTestInSameEvaluator("Set::add(1, {2,3}) == {1,2,3};"));
+		assertTrue(tf.runTestInSameEvaluator("add(1, {2,3}) == {1,2,3};"));
 		
 		System.err.println("Set::average");
 		
@@ -340,21 +338,29 @@ public class StandardLibraryTests extends TestCase {
 		//assertTrue(tf.runTestInSameEvaluator("{int N = average({},0); N == 0;};"));
 		//assertTrue(tf.runTestInSameEvaluator("{int N = Set::average({1},0); N == 1;};"));
 		//assertTrue(tf.runTestInSameEvaluator("{int N = Set::average({1, 3},0); N == 4;};"));
+	
+		System.err.println("Set::getOneFrom");
+		
+		assertTrue(tf.runTestInSameEvaluator("{int N = Set::getOneFrom({1}); N == 1;}"));
+		assertTrue(tf.runTestInSameEvaluator("{int N = Set::getOneFrom({1}); N == 1;}"));
+		assertTrue(tf.runTestInSameEvaluator("{int N = getOneFrom({1}); N == 1;}"));
+		assertTrue(tf.runTestInSameEvaluator("{int N = Set::getOneFrom({1, 2}); (N == 1) || (N == 2);}"));
+		assertTrue(tf.runTestInSameEvaluator("{int N = Set::getOneFrom({1, 2, 3}); (N == 1) || (N == 2) || (N == 3);}"));
+		assertTrue(tf.runTestInSameEvaluator("{double D = Set::arb({1.0,2.0}); (D == 1.0) || (D == 2.0);}"));
+		assertTrue(tf.runTestInSameEvaluator("{str S = Set::getOneFrom({\"abc\",\"def\"}); (S == \"abc\") || (S == \"def\");}"));
+		
 		
 		//mapper
-		
-		//min
-		
-		System.err.println("Set::min");
-		
-		assertTrue(tf.runTestInSameEvaluator("{Set::min({1, 2, 3, 2, 1}) == 1;};"));
-		assertTrue(tf.runTestInSameEvaluator("{min({1, 2, 3, 2, 1}) == 1;};"));
-
 		
 		System.err.println("Set::max");
 		
 		assertTrue(tf.runTestInSameEvaluator("{Set::max({1, 2, 3, 2, 1}) == 3;};"));
 		assertTrue(tf.runTestInSameEvaluator("{max({1, 2, 3, 2, 1}) == 3;};"));
+		
+		System.err.println("Set::min");
+		
+		assertTrue(tf.runTestInSameEvaluator("{Set::min({1, 2, 3, 2, 1}) == 1;};"));
+		assertTrue(tf.runTestInSameEvaluator("{min({1, 2, 3, 2, 1}) == 1;};"));
 		
 		//multiply
 		
@@ -363,9 +369,9 @@ public class StandardLibraryTests extends TestCase {
 		assertTrue(tf.runTestInSameEvaluator("{Set::power({}) == {{}};};"));
 		assertTrue(tf.runTestInSameEvaluator("{Set::power({1}) == {{}, {1}};};"));
 		assertTrue(tf.runTestInSameEvaluator("{Set::power({1, 2}) == {{}, {1}, {2}, {1,2}};};"));
-		//assertTrue(tf.runTestInSameEvaluator("{Set::power({1, 2, 3}) == {{}, {1}, {2}, {3}, {1,2}, {1,3}, {2,3}, {1,2,3}};};"));
-		//assertTrue(tf.runTestInSameEvaluator("{Set::power({1, 2, 3, 4}) == { {}, {1}, {2}, {3}, {4}, {1,2}, {1,3}, {1,4}, {2,3}, {2,4}, {3,4}, {1,2,3}, {1,2,4}, {1,3,4}, {2,3,4}, {1,2,3,4}};};"));
-		
+		assertTrue(tf.runTestInSameEvaluator("{Set::power({1, 2, 3}) == {{}, {1}, {2}, {3}, {1,2}, {1,3}, {2,3}, {1,2,3}};};"));
+		assertTrue(tf.runTestInSameEvaluator("{Set::power({1, 2, 3, 4}) == { {}, {1}, {2}, {3}, {4}, {1,2}, {1,3}, {1,4}, {2,3}, {2,4}, {3,4}, {1,2,3}, {1,2,4}, {1,3,4}, {2,3,4}, {1,2,3,4}};};"));
+
 		//reducer
 		
 		System.err.println("Set::size");
@@ -387,6 +393,11 @@ public class StandardLibraryTests extends TestCase {
 		//assertTrue(tf.runTestInSameEvaluator("{Set::sum({1, 2, 3}, 0) == 6;};"));
 		//assertTrue(tf.runTestInSameEvaluator("{Set::sum({1, -2, 3}, 0) == 2;};"));
 		//assertTrue(tf.runTestInSameEvaluator("{Set::sum({1, 1, 1}, 0) == 1;};"));
+		
+		System.err.println("Set::takeOneFrom");
+		assertTrue(tf.runTestInSameEvaluator("{<E, S> = Set::takeOneFrom({1}}; (E == 1) && (S == {}) ;}"));
+		assertTrue(tf.runTestInSameEvaluator("{<E, S> = Set::takeOneFrom({1,2}}; ((E == 1) && (S == {2})) || ((E == 2) && (L == {1});}"));
+		
 		
 		System.err.println("Set::toList");
 		
