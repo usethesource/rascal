@@ -6,7 +6,7 @@ public set[&T] java add(&T elm, set[&T] st)
     return st.insert(elm);
  }
  
- ublic &T average(set[&T] st, &T zero)
+public &T average(set[&T] st, &T zero)
 @doc{average -- compute the average of the elements of a set}
 {
   return sum(st, zero)/size(st);

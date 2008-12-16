@@ -154,7 +154,7 @@ public list[&T] sort(list[&T] lst)
        greater = add(elm, greater);
      }
   }
-  return (List::sort(less) + [pivot]) + right; // + List::sort(right);
+  return (sort(less) + [pivot]) + sort(right);
 }
 
 public &T sum(list[&T] lst, &T zero)
