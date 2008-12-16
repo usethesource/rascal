@@ -337,7 +337,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		String name = x.getModule().getName().toString();
 		env.addImport(name);
 		
-		if (env.getModule(name) == null) {
+		if (!env.existsModule(name)) {
 		Parser p = Parser.getInstance();
 		ASTBuilder b = new ASTBuilder(af);
 		
@@ -679,7 +679,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				}
 			}
 			else {
-				if (env.getModule(sort) == null) {
+				if (!env.existsModule(sort)) {
 					throw new RascalTypeError("Qualified name is neither module name nor data type name");
 				}
 			}

@@ -301,4 +301,8 @@ public class GlobalEnvironment {
 	public TreeNodeType getTreeNodeType(String cons, TupleType args) {
 		return stack.getTreeNodeType(cons, args);
 	}
+
+	public boolean existsModule(String name) {
+		return moduleEnvironment.containsKey(name);
+	}
 }
