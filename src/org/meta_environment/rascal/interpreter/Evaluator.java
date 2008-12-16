@@ -336,6 +336,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		// TODO support for full complexity of import declarations
 		String name = x.getModule().getName().toString();
 		env.addImport(name);
+		
+		if (env.getModule(name) == null) {
 		Parser p = Parser.getInstance();
 		ASTBuilder b = new ASTBuilder(af);
 		
@@ -365,6 +367,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 //				throw new RascalTypeError("Module " + declaredNamed + " should be in a file called " + declaredNamed + RASCAL_FILE_EXT + ", not " + name + RASCAL_FILE_EXT);
 //			}
 			return m.accept(this);
+		
 		} catch (FactTypeError e) {
 			throw new RascalTypeError("Something went wrong during parsing of " + name + ": ", e);
 		} catch (FileNotFoundException e) {
@@ -372,6 +375,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		} catch (IOException e) {
 			throw new RascalTypeError("Could not import module", e);
 		}
+		}
+		return result();
 	}
 	
 	@Override 
