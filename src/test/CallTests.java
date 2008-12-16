@@ -11,6 +11,9 @@ public class CallTests extends TestCase{
 		String fac = "int fac(int n){ return (n <= 0) ? 1 : (n * fac(n - 1));}";
 		
 		assertTrue(tf.runTest("{" + fac + " fac(0) == 1;}"));
+		//assertTrue(tf.runTest("{ public " + fac + " fac(0) == 1;}"));
+		assertTrue(tf.runTest("{ private " + fac + " fac(0) == 1;}"));
+		
 		assertTrue(tf.runTest("{" +  fac + " fac(1) == 1;}"));
 		assertTrue(tf.runTest("{" + fac + " fac(2) == 2;}"));
 		assertTrue(tf.runTest("{" + fac + " fac(3) == 6;}"));
@@ -62,6 +65,14 @@ public class CallTests extends TestCase{
 		String put = "map[&K,&V] put(map[&K,&V] m, &K k, &V v) { m[k] = v; return m; }";
 		
 		assertTrue(tf.runTest("{" + put + " put((),1,\"1\") == (1:\"1\"); }"));
+	}
+	
+	public void testAdd() throws IOException {
+		String add = "list[&T] java add(&T elm, list[&T] lst) { return lst.insert(elm); }";
+		
+		assertTrue(tf.runTest("{" + add + " add(3, [1,2]) == [1,2,3];}"));
+		assertTrue(tf.runTest("{ public " + add + " add(3, [1,2]) == [1,2,3];}"));
+		assertTrue(tf.runTest("{" + add + " add(\"c\", [\"a\",\"b\"]) == [\"a\",\"b\", \"c\"];}"));
 	}
 }
 
