@@ -1,12 +1,17 @@
 module Set
 
-public &T java arb(set[&T] s)
+public set[&T] java add(&T elm, set[&T] st)
+ {
+    return st.insert(elm);
+ }
+
+public &T java getOneFrom(set[&T] st)
 @doc{arb -- pick a random element from a set}
 @java-imports{import java.util.Iterator;}
 {
    int i = 0;
-   int k = random.nextInt(s.size());
-   Iterator iter = s.iterator();
+   int k = random.nextInt(st.size());
+   Iterator iter = st.iterator();
   
    while(iter.hasNext()){
       if(i == k){
@@ -17,11 +22,38 @@ public &T java arb(set[&T] s)
    }
    return null;
 }
+
+public tuple[&T, list[&T]] java takeOneFrom(set[&T] st)
+@doc{takeOneFrom -- take (and remove) an arbitrary element from a set}
+@java-imports{import java.util.Iterator;}
+{
+   int n = st.size();
+   
+   if(n > 0){
+      int i = 0;
+   	  int k = random.nextInt(n);
+   	  IValue pick = null;
+   	  IListWriter w = st.getType().writer(values);
+   	  Iterator iter = st.iterator();
   
-public &T average(set[&T] S, &T zero)
+      while(iter.hasNext()){
+      	if(i == k){
+      		pick = (IValue) iter.next();
+      	} else {
+      		w.insert((IValue) iter.next());
+      	}
+      i++;
+   	  }
+      return values.tuple(pick, w.done());
+   	} else {
+   		throw new RascalException(values, "empty_list");
+   	}
+}
+  
+public &T average(set[&T] st, &T zero)
 @doc{average -- compute the average of the elements of a set}
 {
-  return sum(S, zero)/size(S);
+  return sum(st, zero)/size(st);
 }
 
 public set[&T] mapper(set[&T] S, &T (&T,&T) F)

@@ -148,7 +148,7 @@ public &T sum(list[&T] lst, &T zero)
 }
 
 public tuple[&T, list[&T]] java takeOneFrom(list[&T] lst)
-@doc{takeOneFrom -- take an arbitrary element from a list}
+@doc{takeOneFrom -- take (and remove) an arbitrary element from a list}
 {
    int n = lst.length();
    
