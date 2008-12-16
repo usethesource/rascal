@@ -1,4 +1,4 @@
-package org.meta_environment.rascal.interpreter;
+package org.meta_environment.rascal.interpreter.env;
 
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -7,6 +7,8 @@ import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.type.TupleType;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
+import org.meta_environment.rascal.interpreter.EvalResult;
+import org.meta_environment.rascal.interpreter.RascalTypeError;
 
 /**
  * A module environment represents a module object (i.e. a running module).

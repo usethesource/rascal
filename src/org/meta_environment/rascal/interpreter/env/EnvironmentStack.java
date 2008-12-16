@@ -1,4 +1,4 @@
-package org.meta_environment.rascal.interpreter;
+package org.meta_environment.rascal.interpreter.env;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -14,6 +14,10 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.QualifiedName;
+import org.meta_environment.rascal.interpreter.EvalResult;
+import org.meta_environment.rascal.interpreter.Names;
+import org.meta_environment.rascal.interpreter.RascalBug;
+import org.meta_environment.rascal.interpreter.TypeEvaluator;
 
 /**
  * An environment that implements the scoping rules of Rascal.

@@ -1,4 +1,4 @@
-package org.meta_environment.rascal.interpreter;
+package org.meta_environment.rascal.interpreter.env;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -15,6 +15,9 @@ import org.eclipse.imp.pdb.facts.type.TreeNodeType;
 import org.eclipse.imp.pdb.facts.type.TupleType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
+import org.meta_environment.rascal.interpreter.EvalResult;
+import org.meta_environment.rascal.interpreter.RascalTypeError;
+import org.meta_environment.rascal.interpreter.TypeEvaluator;
 
 /**
  * A simple environment for variables and functions and types.

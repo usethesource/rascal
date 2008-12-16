@@ -32,6 +32,7 @@ import org.meta_environment.rascal.ast.Type.User;
 import org.meta_environment.rascal.ast.Type.Variable;
 import org.meta_environment.rascal.ast.TypeArg.Default;
 import org.meta_environment.rascal.ast.TypeArg.Named;
+import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 
 public class TypeEvaluator extends NullASTVisitor<Type> {
 	private static TypeFactory tf = TypeFactory.getInstance();
