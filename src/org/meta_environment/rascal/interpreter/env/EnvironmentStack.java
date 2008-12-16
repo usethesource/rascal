@@ -107,6 +107,7 @@ public class  EnvironmentStack {
 			Environment env = stack.get(i);
 			
             if (env.isModuleEnvironment() || env.getVariable(name) != null) {
+            	
             	return env;
             }
 		}
