@@ -180,14 +180,28 @@ public class StandardLibraryTests extends TestCase {
 		
 		tf.prepare("import List;");
 		
-		System.err.println("List::arb");
+		System.err.println("List::add");
 		
-		assertTrue(tf.runTestInSameEvaluator("{int N = List::arb([1]); N == 1;}"));
-		assertTrue(tf.runTestInSameEvaluator("{int N = arb([1]); N == 1;}"));
-		assertTrue(tf.runTestInSameEvaluator("{int N = List::arb([1,2]); (N == 1) || (N == 2);}"));
-		assertTrue(tf.runTestInSameEvaluator("{int N = List::arb([1,2,3]); (N == 1) || (N == 2) || (N == 3);}"));
-		//assertTrue(tf.runTestInSameEvaluator("{double D = List::arb([1.0,2.0]); (D == 1.0) || (D == 2.0);}"));
-		//assertTrue(tf.runTestInSameEvaluator("{str S = List::arb([\"abc\",\"def\"]); (S == \"abc\") || (S == \"def\");}"));
+		assertTrue(tf.runTestInSameEvaluator("List::add(1, []) == [1];"));
+		assertTrue(tf.runTestInSameEvaluator("add(1, []) == [1];"));
+		assertTrue(tf.runTestInSameEvaluator("List::add(1, [2,3]) == [1,2,3];"));
+		assertTrue(tf.runTestInSameEvaluator("add(1, [2,3]) == [1,2,3];"));
+		
+		System.err.println("List::addAt");
+		
+		assertTrue(tf.runTestInSameEvaluator("List::addAt(1, 0, []) == [1];"));
+		assertTrue(tf.runTestInSameEvaluator("add(1, 0, []) == [1];"));
+		assertTrue(tf.runTestInSameEvaluator("List::add(1, 1, [2,3]) == [2,1, 3];"));
+		assertTrue(tf.runTestInSameEvaluator("add(1, 1, [2,3]) == [2, 1, 3];"));
+		assertTrue(tf.runTestInSameEvaluator("List::add(1, 2, [2,3]) == [2,3,1];"));
+		assertTrue(tf.runTestInSameEvaluator("add(1, 2, [2,3]) == [2, 3, 1];"));
+		
+		System.err.println("List::addAfter");
+		
+		assertTrue(tf.runTestInSameEvaluator("List::addAfter(1, []) == [1];"));
+		assertTrue(tf.runTestInSameEvaluator("addAfter(1, []) == [1];"));
+		assertTrue(tf.runTestInSameEvaluator("List::addAfter(1,[2,3]) == [2,3,1];"));
+		assertTrue(tf.runTestInSameEvaluator("addAfter(1, [2,3]) == [2, 3, 1];"));
 		
 		System.err.println("List::average");
 		
@@ -195,12 +209,21 @@ public class StandardLibraryTests extends TestCase {
 		//assertTrue(tf.runTestInSameEvaluator("{int N = average([],0); N == 0;};"));
 		//assertTrue(tf.runTestInSameEvaluator("{int N = List::average([1],0); N == 1;};"));
 		//assertTrue(tf.runTestInSameEvaluator("{int N = List::average([1, 3],0); N == 4;};"));
-		
+
 		System.err.println("List::first");
 		
 		assertTrue(tf.runTestInSameEvaluator("{List::first([1]) == 1;};"));
 		assertTrue(tf.runTestInSameEvaluator("{first([1]) == 1;};"));
-		assertTrue(tf.runTestInSameEvaluator("{List::first([1, 2]) == 1;};"));
+		assertTrue(tf.runTestInSameEvaluator("{List::first([1, 2]) == 1;};"));	
+		
+		System.err.println("List::getOneFrom");
+		
+		assertTrue(tf.runTestInSameEvaluator("{int N = List::getOneFrom([1]); N == 1;}"));
+		assertTrue(tf.runTestInSameEvaluator("{int N = getOneFrom([1]); N == 1;}"));
+		assertTrue(tf.runTestInSameEvaluator("{int N = List::getOneFrom([1,2]); (N == 1) || (N == 2);}"));
+		assertTrue(tf.runTestInSameEvaluator("{int N = List::getOneFrom([1,2,3]); (N == 1) || (N == 2) || (N == 3);}"));
+		assertTrue(tf.runTestInSameEvaluator("{double D = List::getOneFrom([1.0,2.0]); (D == 1.0) || (D == 2.0);}"));
+		assertTrue(tf.runTestInSameEvaluator("{str S = List::getOneFrom([\"abc\",\"def\"]); (S == \"abc\") || (S == \"def\");}"));
 		
 		System.err.println("List::mapper");
 		
@@ -247,7 +270,16 @@ public class StandardLibraryTests extends TestCase {
 		assertTrue(tf.runTestInSameEvaluator("{List::size([1]) == 1;};"));
 		assertTrue(tf.runTestInSameEvaluator("{List::size([1,2,3]) == 3;};"));
 		
-		//sort
+		System.err.println("List::sort");
+		
+		assertTrue(tf.runTestInSameEvaluator("{List::sort([]) == [];};"));
+		assertTrue(tf.runTestInSameEvaluator("{sort([]) == [];};"));
+		assertTrue(tf.runTestInSameEvaluator("{List::sort([1]) == [1];};"));
+		assertTrue(tf.runTestInSameEvaluator("{sort([1]) == [1];};"));
+		assertTrue(tf.runTestInSameEvaluator("{List::sort([2, 1]) == [1,2];};"));
+		assertTrue(tf.runTestInSameEvaluator("{sort([2, 1]) == [1,2];};"));
+		assertTrue(tf.runTestInSameEvaluator("{List::sort([2,-1,4,-2,3]) == [-1,-2,2,3, 4];};"));
+		assertTrue(tf.runTestInSameEvaluator("{sort([2,-1,4,-2,3]) == [-1,-2,2,3, 4];};"));
 		
 		System.err.println("List::sum");
 		
@@ -262,18 +294,22 @@ public class StandardLibraryTests extends TestCase {
 		//assertTrue(tf.runTestInSameEvaluator("{List::sum([1, -2, 3], 0) == 2;};"));
 		//assertTrue(tf.runTestInSameEvaluator("{List::sum([1, 1, 1], 0) == 3;};"));
 		
-		System.err.println("List::toSet");
+		System.err.println("List::takeOneFrom");
 		
-		assertTrue(tf.runTestInSameEvaluator("{List::toSet([]) == {};};"));
-		assertTrue(tf.runTestInSameEvaluator("{toSet([]) == {};};"));
-		assertTrue(tf.runTestInSameEvaluator("{List::toSet([1]) == {1};};"));
-		assertTrue(tf.runTestInSameEvaluator("{List::toSet([1, 2, 1]) == {1, 2};};"));
+		assertTrue(tf.runTestInSameEvaluator("{<E, L> = List::takeOneFrom([1,2]}; ((E == 1) && (L == [2])) || ((E == 2) && (L == [1]);}"));
 		
 		System.err.println("List::toMap");
 		
 		assertTrue(tf.runTestInSameEvaluator("{List::toMap([]) == ();};"));
 		assertTrue(tf.runTestInSameEvaluator("{toMap([]) == ();};"));
 		assertTrue(tf.runTestInSameEvaluator("{List::toMap([<1,10>, <2,20>]) == (1:10, 2:20);};"));
+		
+		System.err.println("List::toSet");
+		
+		assertTrue(tf.runTestInSameEvaluator("{List::toSet([]) == {};};"));
+		assertTrue(tf.runTestInSameEvaluator("{toSet([]) == {};};"));
+		assertTrue(tf.runTestInSameEvaluator("{List::toSet([1]) == {1};};"));
+		assertTrue(tf.runTestInSameEvaluator("{List::toSet([1, 2, 1]) == {1, 2};};"));
 		
 		System.err.println("List::toString");
 		

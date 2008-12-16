@@ -1,16 +1,19 @@
 module List
 
 public list[&T] java add(&T elm, list[&T] lst)
+@doc{add -- add an element at the beginning of a list}
  {
     return lst.insert(elm);
  }
  
  public list[&T] java addAt(&T elm, int n, list[&T] lst)
+ @doc{addAt -- add an element at a specific position in a list}
  {
     return lst.put(n.getValue(), elm);
  }
 
 public list[&T] java addAfter(&T elm, list[&T] lst)
+@doc{addAfter -- add an element at at the end of a list}
 {
     return lst.append(elm);
 }
@@ -23,7 +26,7 @@ public &T average(list[&T] lst, &T zero)
 
 public &T java first(list[&T] lst)
   throws empty_list()
-  @doc{first -- take first element of a list}
+ @doc{first -- get the first element of a list}
 {
    if(lst.length() > 0){
       return lst.get(0);
@@ -148,7 +151,7 @@ public &T sum(list[&T] lst, &T zero)
 }
 
 public tuple[&T, list[&T]] java takeOneFrom(list[&T] lst)
-@doc{takeOneFrom -- take (and remove) an arbitrary element from a list}
+@doc{takeOneFrom -- remove an arbitrary element from a list, returns the element and the modified list}
 {
    int n = lst.length();
    
