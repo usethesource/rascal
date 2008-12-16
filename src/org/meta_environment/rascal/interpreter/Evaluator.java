@@ -476,11 +476,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		env.storeType(sort);
 		
 		for (Variant var : x.getVariants()) {
-			String altName = var.getName().toString();
-			
-			if (altName.startsWith("\\")) {
-				altName = altName.substring(1);
-			}
+			String altName = Names.name(var.getName());
 			
 		    if (var.isNAryConstructor()) {
 		    	java.util.List<TypeArg> args = var.getArguments();
