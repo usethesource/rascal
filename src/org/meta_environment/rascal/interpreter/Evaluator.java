@@ -6,7 +6,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -60,7 +59,6 @@ import org.meta_environment.rascal.ast.Toplevel;
 import org.meta_environment.rascal.ast.TypeArg;
 import org.meta_environment.rascal.ast.ValueProducer;
 import org.meta_environment.rascal.ast.Variant;
-import org.meta_environment.rascal.ast.Visibility;
 import org.meta_environment.rascal.ast.Assignable.Constructor;
 import org.meta_environment.rascal.ast.Assignable.FieldAccess;
 import org.meta_environment.rascal.ast.Declaration.Annotation;
@@ -634,7 +632,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		 
 		 TupleType signature = tf.tupleType(types);
 		 
-		 if (isTreeConstructorName(name)) {
+		 if (isTreeConstructorName(name, signature)) {
 			 return constructTree(name, actuals, signature);
 		 }
 		 else {
@@ -662,7 +660,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		 }
 	}
 
-	private boolean isTreeConstructorName(QualifiedName name) {
+	private boolean isTreeConstructorName(QualifiedName name, TupleType signature) {
 		java.util.List<Name> names = name.getNames();
 		
 		if (names.size() > 1) {
@@ -672,8 +670,12 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			if (sortType != null) {
 				String cons = Names.consName(name);
 				
-				if (tf.lookupTreeNodeType(sortType, cons).size() > 0) {
-					return true;
+				java.util.List<TreeNodeType> candidates = tf.lookupTreeNodeType(sortType, cons);
+				
+				for (TreeNodeType c : candidates) {
+					if (signature.isSubtypeOf(c.getChildrenTypes())) {
+						return true;
+					}
 				}
 			}
 			else {
@@ -688,8 +690,12 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		
 		String cons = Names.consName(name);
 			
-		if (tf.lookupTreeNodeType(cons).size() > 0) {
-			return true;
+		java.util.List<TreeNodeType> candidates = tf.lookupTreeNodeType(cons);
+		
+		for (TreeNodeType c : candidates) {
+			if (signature.isSubtypeOf(c.getChildrenTypes())) {
+				return true;
+			}
 		}
 
 		return false;
@@ -1462,7 +1468,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	@Override
 	public EvalResult visitExpressionQualifiedName(
 			org.meta_environment.rascal.ast.Expression.QualifiedName x) {
-		if (isTreeConstructorName(x.getQualifiedName())) {
+		if (isTreeConstructorName(x.getQualifiedName(), tf.tupleEmpty())) {
 			return constructTree(x.getQualifiedName(), new IValue[0], tf.tupleType(new Type[0]));
 		}
 		else {
