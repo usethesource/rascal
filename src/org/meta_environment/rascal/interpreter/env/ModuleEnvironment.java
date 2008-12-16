@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.imp.pdb.facts.type.NamedTreeType;
+import org.eclipse.imp.pdb.facts.type.NamedType;
+import org.eclipse.imp.pdb.facts.type.TreeNodeType;
 import org.eclipse.imp.pdb.facts.type.TupleType;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.Visibility;
@@ -26,12 +29,18 @@ public class ModuleEnvironment extends Environment {
 	protected final Set<String> importedModules;
 	protected final Map<FunctionDeclaration, Visibility> functionVisibility;
 	protected final Map<String, Visibility> variableVisibility;
+	protected final Map<String,NamedType> namedTypes;
+	protected final Map<String, NamedTreeType> namedTreeTypes;
+	protected final Map<NamedTreeType, List<TreeNodeType>> signature;
 	
 	public ModuleEnvironment(String name) {
 		this.name = name;
 		this.importedModules = new HashSet<String>();
 		this.functionVisibility = new HashMap<FunctionDeclaration, Visibility>();
 		this.variableVisibility = new HashMap<String, Visibility>();
+		this.namedTypes = new HashMap<String,NamedType>();
+		this.namedTreeTypes = new HashMap<String,NamedTreeType>();
+		this.signature = new HashMap<NamedTreeType, List<TreeNodeType>>();
 	}
 	
 	public void setFunctionVisibility(FunctionDeclaration decl, Visibility vis) {
@@ -149,4 +158,66 @@ public class ModuleEnvironment extends Environment {
 		
 		return null;
 	}
+
+	public NamedType getNamedType(String name) {
+		return namedTypes.get(name);
+	}
+	
+	public NamedTreeType getNamedTreeType(String sort) {
+		return namedTreeTypes.get(sort);
+	}
+	
+	public TreeNodeType getTreeNodeType(NamedTreeType sort, String cons, TupleType args) {
+		List<TreeNodeType> sig = signature.get(sort);
+		
+		if (sig != null) {
+			for (TreeNodeType cand : sig) {
+				if (cand.getName().equals(cons) && args.isSubtypeOf(cand.getChildrenTypes())) {
+					return cand;
+				}
+			}
+		}
+		
+		for (String i : getImports()) {
+			ModuleEnvironment mod = GlobalEnvironment.getInstance().getModule(i);
+			TreeNodeType found = mod.getTreeNodeType(sort, cons, args);
+			
+			if (found != null) {
+				return found;
+			}
+		}
+		
+		return null;
+	}
+	
+	public void storeType(NamedType decl) {
+		namedTypes.put(decl.getName(), decl);
+	}
+	
+	public void storeType(NamedTreeType decl) {
+		List<TreeNodeType> tmp = signature.get(decl);
+		
+		if (tmp == null) {
+			tmp = new LinkedList<TreeNodeType>();
+			signature.put(decl, tmp);
+		}
+		
+		namedTreeTypes.put(decl.getName(), decl);
+	}
+	
+	public void storeType(TreeNodeType decl) {
+		NamedTreeType sort = decl.getSuperType();
+		
+		storeType(sort);
+		
+		List<TreeNodeType> tmp = signature.get(sort);
+		
+		if (tmp == null) {
+			tmp = new LinkedList<TreeNodeType>();
+			signature.put(sort, tmp);
+		}
+		
+		tmp.add(decl);
+	}
+
 }

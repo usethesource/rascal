@@ -156,15 +156,15 @@ public class  EnvironmentStack {
 	}
 
 	public void storeType(NamedType decl) {
-		top().storeType(decl);
+		getModuleEnvironment().storeType(decl);
 	}
 
 	public void storeType(NamedTreeType decl) {
-		top().storeType(decl);
+		getModuleEnvironment().storeType(decl);
 	}
 
 	public void storeType(TreeNodeType decl) {
-		top().storeType(decl);
+		getModuleEnvironment().storeType(decl);
 	}
 
 	public FunctionDeclaration getFunction(QualifiedName name, TupleType actuals) {
@@ -195,5 +195,14 @@ public class  EnvironmentStack {
 
 	public void storeVariable(Name name, EvalResult value) {
 		storeVariable(Names.name(name), value);
+	}
+
+	public NamedTreeType getNamedTreeType(String sort) {
+		return getModuleEnvironment().getNamedTreeType(sort);
+	}
+
+	public TreeNodeType getTreeNodeType(NamedTreeType sort, String cons,
+			TupleType args) {
+		return getModuleEnvironment().getTreeNodeType(sort, cons, args);
 	}
 }

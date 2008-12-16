@@ -2,16 +2,11 @@ package org.meta_environment.rascal.interpreter.env;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import org.eclipse.imp.pdb.facts.type.NamedTreeType;
-import org.eclipse.imp.pdb.facts.type.NamedType;
 import org.eclipse.imp.pdb.facts.type.ParameterType;
-import org.eclipse.imp.pdb.facts.type.TreeNodeType;
 import org.eclipse.imp.pdb.facts.type.TupleType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
@@ -26,15 +21,13 @@ public class Environment {
 	protected final Map<String, EvalResult> variableEnvironment;
 	protected final Map<String, List<FunctionDeclaration>> functionEnvironment;
 	protected final Map<ParameterType, Type> typeParameters;
-	protected final Set<Type> namedTypes;
-	protected final Map<NamedTreeType, List<TreeNodeType>> signature;
+	
 
 	public Environment() {
 		this.variableEnvironment = new HashMap<String, EvalResult>();
 		this.functionEnvironment = new HashMap<String, List<FunctionDeclaration>>();
 		this.typeParameters = new HashMap<ParameterType, Type>();
-		this.namedTypes = new HashSet<Type>();
-		this.signature = new HashMap<NamedTreeType, List<TreeNodeType>>();
+		
 	}
 	
 	/**
@@ -73,31 +66,7 @@ public class Environment {
 		return typeParameters.get(par);
 	}
 	
-	public void storeType(NamedType decl) {
-		namedTypes.add(decl);
-	}
 	
-	public void storeType(NamedTreeType decl) {
-		List<TreeNodeType> tmp = signature.get(decl);
-		
-		if (tmp == null) {
-			tmp = new LinkedList<TreeNodeType>();
-			signature.put(decl, tmp);
-		}
-	}
-	
-	public void storeType(TreeNodeType decl) {
-		NamedTreeType sort = decl.getSuperType();
-		List<TreeNodeType> tmp = signature.get(sort);
-		
-		if (tmp == null) {
-			tmp = new LinkedList<TreeNodeType>();
-			signature.put(sort, tmp);
-		}
-		
-		tmp.add(decl);
-	}
-
 
 	public void storeVariable(String name, EvalResult value) {
 		variableEnvironment.put(name, value);
@@ -128,4 +97,5 @@ public class Environment {
 	public void storeTypes(Map<ParameterType, Type> bindings) {
 		typeParameters.putAll(bindings);
 	}
+	
 }
