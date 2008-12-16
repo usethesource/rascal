@@ -79,7 +79,7 @@ public class ModuleEnvironment extends Environment {
 			List<EvalResult> results = new LinkedList<EvalResult>();
 			for (String i : getImports()) {
 				// imports are not transitive!
-				result = GlobalEnvironment.getInstance().getModule(i).getLocalVariable(name);
+				result = GlobalEnvironment.getInstance().getModule(i).getLocalPublicVariable(name);
 				
 				if (result != null) {
 					results.add(result);
