@@ -2,29 +2,6 @@ module Relation
 
 import Set;
 
-//public &T java arb(set[&T] s)
-//@doc{arb -- pick a random element from a relation}
-//@java-imports{import java.util.Iterator;}
-//{
-//   int i = 0;
-//   int k = random.nextInt(s.size());
-//   Iterator iter = s.iterator();
-//  
-//   while(iter.hasNext()){
-//      if(i == k){
-//      	return (IValue) iter.next();
- //     }
- //     iter.next();
- //     i++;
- //  }
-//   return null;
-//}
-
-
-public rel[&T] mapper(rel[&T] R, &T (&T,&T) F){
-  return {F(E) | &T E : R};
-}
-
 public set[&T]  carrier (rel[&T,&T] R)
 @doc{carrier -- all elements in any tuple in a relation}
 {
@@ -40,7 +17,7 @@ public rel[&T,&T] carrierR (rel[&T,&T] R, set[&T] S)
 public rel[&T,&T] carrierX (rel[&T,&T] R, set[&T] S)
 @doc{carrierX -- all elements in any tuple in relation R excluded elements of S}
 {
-  return { <X, Y> | <&T1 X, &T2 Y> : R, 
+  return { <X, Y> | <&T X, &T Y> : R, 
                     !(X in S), !(Y in S) };
 }
 
@@ -58,11 +35,62 @@ public rel[&T1, &T3] compose(rel[&T1, &T2] R,
                     <&T2 Y2, &T3 Z>: S, Y1 == Y2};
 }
 
+/* ----- begin experiment -----
+
 public set[&T1] domain (rel[&T1,&T2] R)
-@doc{domain -- first elements in tuples of binary relation}
 {
-  return { X | <&T1 X, &T2 Y> : R };
+  return R<0>;
 }
+
+public set[&T1] domain (rel[&T1,&T2,&T3] R)
+{
+  return R<0>;
+
+public set[&T1] domain (rel[&T1,&T2,&T3,&T4] R)
+{
+  return R<0>;
+}
+
+public set[&T1] range (rel[&T1,&T2] R)
+{
+  return R<1>;
+}
+
+public rel[&T2,&T3] range (rel[&T1,&T2, &T3] R)
+{
+  return R<1,2>;
+}
+
+public rel[&T2,&T3,&T4] range (rel[&T1,&T2,&T3,&T4] R)
+{
+  return R<1,2,3>;
+}
+
+public set[&T]  carrier (rel[&T,&T] R)
+@doc{carrier -- all elements in any tuple in a relation}
+{
+  return R<0> + R<1>
+}
+
+public set[&T]  carrier (rel[&T,&T,&T] R)
+@doc{carrier -- all elements in any tuple in a relation}
+{
+  return R<0> + R<1> + R<2>;
+}
+
+public set[&T]  carrier (rel[&T,&T,&T,&T] R)
+@doc{carrier -- all elements in any tuple in a relation}
+{
+  return  R<0> + R<1> + R<2> + R<3>;
+}
+
+----- end experiment ------- */
+
+public set[&T1] domain (rel[&T1,&T2] R)
+{
+  return { X | <&T1 X, &T2 Y> : R};
+}
+
 
 public rel[&T1,&T2] domainR (rel[&T1,&T2] R, set[&T1] S)
 @doc{domainR -- restriction of a binary relation to tuples with first element in S}
@@ -76,7 +104,7 @@ public rel[&T1,&T2] domainX (rel[&T1,&T2] R, set[&T1] S)
   return { <X, Y> | <&T1 X, &T2 Y> : R, X notin S };
 }
 
-public rel[&T, &T] id(set[&T] S)
+public rel[&T, &T] ident(set[&T] S)
 @doc{id == identity relation}
 {
   return { <X, X> | &T X : S};
@@ -106,10 +134,6 @@ public rel[&T1,&T2] rangeX (rel[&T1,&T2] R, set[&T2] S)
   return { <X, Y> | <&T1 X, &T2 Y> : R, Y notin S };
 }
 
-//public int size(rel[&T] R)
-//  @primitive{"Rel.size"}
-
-
 
 //%% Note: in rel[&T], the type variable &T refers 
 ///%% to the tuple type of the relation.
@@ -124,9 +148,4 @@ public rel[&T1,&T2] rangeX (rel[&T1,&T2] R, set[&T2] S)
 //public set[&T] toSet(rel[&T] R)
 //  @primitive{"Rel.toSet"}
 
-public str java toString(rel[&T] R)
-@doc{toString -- convert a relation to a string}
-{
-	return values.string(R.toString());
-}
 
