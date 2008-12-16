@@ -1598,30 +1598,63 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		
 		widenIntToDouble(left, right);
 
+		// Integer
 		if (left.type.isIntegerType() && right.type.isIntegerType()) {
 			return result(((IInteger) left.value).add((IInteger) right.value));
 			
-		} else if (left.type.isDoubleType() && right.type.isDoubleType()) {
+		}
+		//Double
+		if (left.type.isDoubleType() && right.type.isDoubleType()) {
 			return result(((IDouble) left.value).add((IDouble) right.value));
 			
-		} else if (left.type.isStringType() && right.type.isStringType()) {
+		}
+		//String
+		if (left.type.isStringType() && right.type.isStringType()) {
 			return result(vf.string(((IString) left.value).getValue()
 					+ ((IString) right.value).getValue()));
 			
-		} else if (left.type.isListType() && right.type.isListType()) {
-			
-			return result(resultType, ((IList) left.value)
+		}
+		//List
+		if (left.type.isListType()){
+				if(right.type.isListType()) {
+					return result(resultType, ((IList) left.value)
 					.concat((IList) right.value));
-			
-		} else if (left.type.isSetType() && right.type.isSetType()) {
+				}
+				if(right.type.isSubtypeOf(((ListType)left.type).getElementType())){
+					return result(left.type, ((IList)left.value).append(right.value));
+				}
+		}
+		
+		if (right.type.isListType()){
+			if(left.type.isSubtypeOf(((ListType)right.type).getElementType())){
+				return result(right.type, ((IList)right.value).insert(left.value));
+			}
+		}
+		//Set
+		if (left.type.isSetType()){
+			if(right.type.isSetType()) {
 				return result(resultType, ((ISet) left.value)
-						.union((ISet) right.value));
-				
-		} else if (left.type.isMapType() && right.type.isMapType()) {
+				.union((ISet) right.value));
+			}
+			if(right.type.isSubtypeOf(((SetType)left.type).getElementType())){
+				return result(left.type, ((ISet)left.value).insert(right.value));
+			}
+		}
+	
+		if (right.type.isSetType()){
+			if(left.type.isSubtypeOf(((SetType)right.type).getElementType())){
+				return result(right.type, ((ISet)right.value).insert(left.value));
+			}
+		}
+		
+		//Map
+		if (left.type.isMapType() && right.type.isMapType()) {
 			return result(resultType, ((IMap) left.value)              //TODO: is this the right operation?
 					.join((IMap) right.value));
 			
-		} else if(left.type.isTupleType() && right.type.isTupleType()) {
+		}
+		//Tuple
+		if(left.type.isTupleType() && right.type.isTupleType()) {
 			TupleType leftType = (TupleType) left.type;
 			TupleType rightType = (TupleType) right.type;
 			
@@ -1654,13 +1687,15 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			Type newTupleType = tf.tupleType(fieldTypes, fieldNames);
 			return result(newTupleType, vf.tuple(fieldValues));
 			
-		} else if (left.type.isRelationType() && right.type.isRelationType()) {
+		}
+		//Relation
+		if (left.type.isRelationType() && right.type.isRelationType()) {
 				return result(resultType, ((ISet) left.value)
 						.union((ISet) right.value));
-		} else {
-			throw new RascalTypeError("Operands of + have illegal types: "
-					+ left.type + ", " + right.type);
 		}
+		
+		throw new RascalTypeError("Operands of + have illegal types: "
+					+ left.type + ", " + right.type);
 	}
     
 	public EvalResult visitExpressionSubtraction(Subtraction x) {
@@ -1672,24 +1707,34 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 
 		if (left.type.isIntegerType() && right.type.isIntegerType()) {
 			return result(((IInteger) left.value).subtract((IInteger) right.value));
-		} else if (left.type.isDoubleType() && right.type.isDoubleType()) {
+		}
+		if (left.type.isDoubleType() && right.type.isDoubleType()) {
 			return result(((IDouble) left.value).subtract((IDouble) right.value));
-		} else if (left.type.isListType() && right.type.isListType()) {
+		}
+		if (left.type.isListType() && right.type.isListType()) {
 			notImplemented("- on list");
-		} else if (left.type.isSetType() && right.type.isSetType()) {
-				return result(resultType, ((ISet) left.value)
-					.subtract((ISet) right.value));
-		} else if (left.type.isMapType() && right.type.isMapType()) {
+		}
+		if (left.type.isSetType()){
+				if(right.type.isSetType()) {
+					return result(resultType, ((ISet) left.value)
+							.subtract((ISet) right.value));
+				}
+				if(right.type.isSubtypeOf(((SetType)left.type).getElementType())){
+					return result(left.type, ((ISet)left.value)
+							.subtract(vf.set(right.value)));
+				}
+		}
+		if (left.type.isMapType() && right.type.isMapType()) {
 			return result(resultType, ((IMap) left.value)
 					.remove((IMap) right.value));
-		} else if (left.type.isRelationType() && right.type.isRelationType()) {
+		}
+		if (left.type.isRelationType() && right.type.isRelationType()) {
 			return result(resultType, ((ISet) left.value)
 					.subtract((ISet) right.value));
-		} else {
-			throw new RascalTypeError("Operands of - have illegal types: "
-					+ left.type + ", " + right.type);
 		}
-		return result();
+		
+		throw new RascalTypeError("Operands of - have illegal types: "
+					+ left.type + ", " + right.type);
 	}
 	
 	@Override
