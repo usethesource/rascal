@@ -11,10 +11,15 @@ import org.eclipse.imp.pdb.facts.type.ParameterType;
 import org.eclipse.imp.pdb.facts.type.TreeNodeType;
 import org.eclipse.imp.pdb.facts.type.TupleType;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.meta_environment.rascal.ast.Declaration;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.Name;
+import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.ast.Rule;
+import org.meta_environment.rascal.ast.Visibility;
+import org.meta_environment.rascal.ast.Declaration.Function;
+import org.meta_environment.rascal.ast.Declaration.Variable;
 import org.meta_environment.rascal.interpreter.EvalResult;
 import org.meta_environment.rascal.interpreter.Names;
 import org.meta_environment.rascal.interpreter.RascalBug;
@@ -257,6 +262,24 @@ public class GlobalEnvironment {
 	public void storeTypes(Map<ParameterType, Type> bindings) {
 		stack.storeTypes(bindings);
 		
+	}
+	
+	public void setVisibility(Declaration decl, final Visibility vis) {
+		NullASTVisitor<Declaration> dispatcher = new NullASTVisitor<Declaration>() {
+			@Override
+			public Declaration visitDeclarationFunction(Function x) {
+				stack.getModuleEnvironment().setFunctionVisibility(x.getFunctionDeclaration(), vis);
+				return x;
+			}
+			
+			@Override
+			public Declaration visitDeclarationVariable(Variable x) {
+				String name = x.getName().toString();
+				stack.getModuleEnvironment().setVariableVisibility(name, vis);
+				return x;
+			}
+		};
+		decl.accept(dispatcher);
 	}
 
 }

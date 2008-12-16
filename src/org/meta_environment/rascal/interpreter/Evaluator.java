@@ -60,6 +60,7 @@ import org.meta_environment.rascal.ast.Toplevel;
 import org.meta_environment.rascal.ast.TypeArg;
 import org.meta_environment.rascal.ast.ValueProducer;
 import org.meta_environment.rascal.ast.Variant;
+import org.meta_environment.rascal.ast.Visibility;
 import org.meta_environment.rascal.ast.Assignable.Constructor;
 import org.meta_environment.rascal.ast.Assignable.FieldAccess;
 import org.meta_environment.rascal.ast.Declaration.Annotation;
@@ -421,8 +422,11 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	@Override
 	public EvalResult visitToplevelGivenVisibility(GivenVisibility x) {
 		// order dependent code here:
+		Declaration decl = x.getDeclaration();
+		
+		env.setVisibility(decl, x.getVisibility());
 		x.getDeclaration().accept(this);
-		// TODO implement visibility stuff
+
 		return result();
 	}
 	
@@ -1592,10 +1596,10 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	private void widenIntToDouble(EvalResult left, EvalResult right){
 		if (left.type.isIntegerType() && right.type.isDoubleType()) {
 			left.type = tf.doubleType();
-			left.value = vf.dubble(1.0 * ((IInteger) left.value).getValue());
+			left.value =((IInteger) left.value).toDouble();
 		} else if (left.type.isDoubleType() && right.type.isIntegerType()) {
 			right.type = tf.doubleType();
-			right.value = vf.dubble(1.0 * ((IInteger) right.value).getValue());
+			right.value = ((IInteger) right.value).toDouble();
 		}
 	}
 	
