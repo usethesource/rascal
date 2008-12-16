@@ -1,5 +1,5 @@
-module M
+module Mbase
 
-int f(int n) { return 2 * n; }
+public int f(int n) { return 2 * n; }
 
-int n = 2;
+public int n = 2;
