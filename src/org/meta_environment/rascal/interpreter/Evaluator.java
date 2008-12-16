@@ -345,13 +345,20 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			String fileName = name.replaceAll("::","/") + RASCAL_FILE_EXT;
 			File file = new File(fileName);
 			
+			// TODO: support proper search path for modules
+			// TODO: support properly packaged/qualified module names
 			if (!file.exists()) {
-				fileName = "src/StandardLibrary/" + fileName;
-				file = new File(fileName);
+				String libFileName = "src/StandardLibrary/" + fileName;
+				file = new File(libFileName);
 				if (!file.exists()) {
-					throw new RascalTypeError("Can not find file for module " + name);
+					String testFileName = "src/test/" + fileName;
+					file = new File(testFileName);
+					if (!file.exists()) {
+						throw new RascalTypeError("Can not find file for module " + name);
+					}
 				}
 			}
+		
 			
 			INode tree = p.parse(new FileInputStream(file));
 			
