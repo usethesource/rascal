@@ -762,8 +762,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		Type type = func.getSignature().getType().accept(te);
 		TupleType formals = (TupleType) func.getSignature().getParameters().accept(te);
 		env.pushFrame();
-		bindTypeParameters(actualTypes, formals);
 		IValue result = javaFunctionCaller.callJavaMethod(func, actuals);
+		bindTypeParameters(actualTypes, formals);
 		Type resultType = type.instantiate(env.getTypes());
 		env.popFrame();
 		return result(resultType, result);
@@ -1932,7 +1932,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	boolean equals(EvalResult left, EvalResult right){
 		
 		widenIntToDouble(left, right);
-	
+	/*
 		if (left.type.isListType() && right.type.isListType() && 
 		          ((IList) left.value).isEmpty() && ((IList) right.value).isEmpty()){
 		       	  return true;
@@ -1951,10 +1951,13 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		} else if (left.type.isRelationType() && right.type.isRelationType() && 
 	          ((IRelation) left.value).isEmpty() && ((IRelation) right.value).isEmpty()){
 	        	  return true;
-		} else if (left.type.comparable(right.type)) {
+		} else 
+		*/
+		if (left.type.comparable(right.type)) {
 	        			return left.value.equals(right.value);
 		} else {
 			return false;
+				//TODO; type error
 		}
 	}
 
