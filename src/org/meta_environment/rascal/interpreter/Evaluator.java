@@ -665,39 +665,22 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		
 		if (names.size() > 1) {
 			String sort = Names.sortName(name);
-			NamedTreeType sortType = tf.lookupNamedTreeType(sort);
+			NamedTreeType sortType = env.getNamedTreeType(sort);
 			
 			if (sortType != null) {
 				String cons = Names.consName(name);
 				
-				java.util.List<TreeNodeType> candidates = tf.lookupTreeNodeType(sortType, cons);
-				
-				for (TreeNodeType c : candidates) {
-					if (signature.isSubtypeOf(c.getChildrenTypes())) {
-						return true;
-					}
+				if (env.getTreeNodeType(sortType, cons, signature) != null) {
+					return true;
 				}
 			}
 			else {
 				if (env.getModule(sort) == null) {
 					throw new RascalTypeError("Qualified name is neither module name nor data type name");
 				}
-				else {
-				  return false; // it's a module name
-				}
 			}
 		}
 		
-		String cons = Names.consName(name);
-			
-		java.util.List<TreeNodeType> candidates = tf.lookupTreeNodeType(cons);
-		
-		for (TreeNodeType c : candidates) {
-			if (signature.isSubtypeOf(c.getChildrenTypes())) {
-				return true;
-			}
-		}
-
 		return false;
 	}
 	
@@ -724,42 +707,21 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			cons = cons.substring(1);
 		}
 		
-		java.util.List<TreeNodeType> candidates;
+		TreeNodeType candidate = null;
 	
 		if (sort != null) {
-			NamedTreeType sortType = tf.lookupNamedTreeType(sort);
+			NamedTreeType sortType = env.getNamedTreeType(sort);
 			
 			if (sortType != null) {
-			  candidates = tf.lookupTreeNodeType(sortType, cons);
+			  candidate = env.getTreeNodeType(sortType, cons, signature);
 			}
 			else {
 			  return result(tf.treeType(), vf.tree(cons, actuals));
 			}
 		}
-		else {
-		    candidates = tf.lookupTreeNodeType(cons);
-		}
 		
-		if (candidates.size() != 0) {
-			java.util.List<TreeNodeType> matches = new LinkedList<TreeNodeType>();
-
-			for (TreeNodeType candidate : candidates) {
-				if (signature.isSubtypeOf(candidate.getChildrenTypes())) {
-					matches.add(candidate);
-				}
-			}
-
-			if (matches.size() > 1) {
-				StringBuffer buf = new StringBuffer();
-				for (TreeNodeType m : matches) {
-					buf.append(m.getSuperType() + "::" + cons);
-				}
-
-				throw new RascalTypeError(cons + " is ambiguous, could be one of " + buf);
-			}
-			else if (matches.size() == 1) {
-				return result(matches.get(0).make(vf, actuals));
-			}
+		if (candidate != null) {
+			return result(candidate.make(vf, actuals));
 		}
 		
 		return result(tf.treeType(), vf.tree(cons, actuals));

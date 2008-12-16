@@ -282,4 +282,13 @@ public class GlobalEnvironment {
 		decl.accept(dispatcher);
 	}
 
+	public NamedTreeType getNamedTreeType(String sort) {
+		return stack.getNamedTreeType(sort);
+	}
+
+	public TreeNodeType getTreeNodeType(NamedTreeType sortType, String cons,
+			TupleType signature) {
+		return stack.getTreeNodeType(sortType, cons, signature);
+	}
+
 }
