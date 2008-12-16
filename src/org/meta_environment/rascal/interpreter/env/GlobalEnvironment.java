@@ -275,11 +275,13 @@ public class GlobalEnvironment {
 			
 			@Override
 			public Declaration visitDeclarationVariable(Variable x) {
-				String name = x.getName().toString();
-				stack.getModuleEnvironment().setVariableVisibility(name, vis);
+				for (org.meta_environment.rascal.ast.Variable y : x.getVariables()) {
+					stack.getModuleEnvironment().setVariableVisibility(Names.name(y.getName()), vis);
+				}
 				return x;
 			}
 		};
+		
 		decl.accept(dispatcher);
 	}
 
