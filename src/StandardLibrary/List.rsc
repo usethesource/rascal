@@ -9,7 +9,17 @@ public list[&T] java add(&T elm, list[&T] lst)
  public list[&T] java addAt(&T elm, int n, list[&T] lst)
  @doc{addAt -- add an element at a specific position in a list}
  {
-    return lst.put(n.getValue(), elm);
+ 	IListWriter w = lst.getType().writer(values);
+ 	int k = n.getValue
+ 
+      for(int i = lst.length()-1; i >= 0; i--) {
+        w.insert(lst.get(i));
+        if(i == n.getValue()){
+        	w.insert(elm);
+        }
+
+      }
+      return w.done();
  }
 
 public list[&T] java addAfter(&T elm, list[&T] lst)
@@ -55,7 +65,7 @@ list[&T] mapper(list[&T] lst, &T (&T x,&T y) fn)
 public &T max(list[&T] lst)
 @doc{max -- largest element of a list}
 {
-  &T result = List::arb(lst);
+  &T result = getOneFrom(lst);
   for(&T elm : lst) {
    if(result < elm) {
       result = elm;
@@ -67,7 +77,7 @@ public &T max(list[&T] lst)
 public &T min(list[&T] lst)
 @doc{min -- smallest element of a list}
 {
-  &T result = List::arb(lst);
+  &T result = getOneFrom(lst);
   for(&T elm : lst){
    if(elm < result){
       result = elm;
