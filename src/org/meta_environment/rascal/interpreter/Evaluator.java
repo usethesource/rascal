@@ -1087,9 +1087,11 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	@Override
 	public EvalResult visitStatementBlock(Block x) {
 		EvalResult r = result();
+		env.pushFrame(); // blocks are scopes
 		for(Statement stat : x.getStatements()){
 			r = stat.accept(this);
 		}
+		env.popFrame();
 		return r;
 	}
   
