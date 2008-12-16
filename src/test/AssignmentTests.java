@@ -3,7 +3,7 @@ package test;
 import junit.framework.TestCase;
 import java.io.IOException;
 
-public class AssignmentTest extends TestCase {
+public class AssignmentTests extends TestCase {
 	private TestFramework tf = new TestFramework();
 	
 	public void testSimple() throws IOException {
@@ -19,9 +19,14 @@ public class AssignmentTest extends TestCase {
 	}
 	
 	public void testList() throws IOException {
+		assertTrue(tf.runTest("{list[int] L = []; L == [];}"));
 		assertTrue(tf.runTest("{list[int] L = [0,1,2]; L[1] = 10; L == [0,10,2];}"));
 		assertTrue(tf.runTest("{L = [0,1,2]; L[1] = 10; L == [0,10,2];}"));
 		assertTrue(tf.runTest("{list[list[int]] L = [[0,1],[2,3]]; L[1][0] = 20; L == [[0,1],[20,3]];}"));
 		assertTrue(tf.runTest("{L = [[0,1],[2,3]]; L[1][0] = 20; L == [[0,1],[20,3]];}"));
+	}
+	
+	public void testSet() throws IOException {
+		assertTrue(tf.runTest("{set[int] S = {}; S == {};}"));
 	}
 }

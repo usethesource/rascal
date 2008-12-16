@@ -26,7 +26,7 @@ import org.eclipse.imp.pdb.facts.type.NamedTreeType;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.io.ATermReader;
 
-public class TestIO extends TestCase {
+public class IOTests extends TestCase {
 	private static TypeFactory tf = TypeFactory.getInstance();
 	private static IValueFactory vf = ValueFactory.getInstance();
 	private static NamedTreeType Boolean = tf.namedTreeType("Boolean");

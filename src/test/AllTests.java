@@ -5,10 +5,11 @@ import junit.framework.TestSuite;
 public class AllTests {
 	public static Test suite() {
 		TestSuite suite = new TestSuite();
-		suite.addTestSuite(TestIO.class);
-		suite.addTestSuite(TestParsing.class);
+		suite.addTestSuite(IOTests.class);
+		suite.addTestSuite(ParsingTests.class);
 		suite.addTestSuite(DataTypeTests.class);
 		suite.addTestSuite(DataDeclarationTests.class);
+		suite.addTestSuite(AssignmentTests.class);
 		suite.addTestSuite(RegExpTests.class);
 		suite.addTestSuite(PatternTests.class);
 		suite.addTestSuite(ComprehensionTests.class);
