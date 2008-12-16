@@ -28,10 +28,10 @@ public class StandardLibraryTests extends TestCase {
 		
 		tf.prepare("import Boolean;");
 		
-		System.err.println("Boolean::arb");
+		System.err.println("Boolean::arbBool");
 		
-		assertTrue(tf.runTestInSameEvaluator("{bool B = Boolean::arb(); (B == true) || (B == false);};"));
-		assertTrue(tf.runTestInSameEvaluator("{bool B = arb(); (B == true) || (B == false);};"));
+		assertTrue(tf.runTestInSameEvaluator("{bool B = Boolean::arbBool(); (B == true) || (B == false);};"));
+		assertTrue(tf.runTestInSameEvaluator("{bool B = arbBool(); (B == true) || (B == false);};"));
 		
 		System.err.println("Boolean::toInt");
 		
