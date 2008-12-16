@@ -18,6 +18,7 @@ import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.ast.Rule;
 import org.meta_environment.rascal.ast.Visibility;
+import org.meta_environment.rascal.ast.Declaration.Annotation;
 import org.meta_environment.rascal.ast.Declaration.Function;
 import org.meta_environment.rascal.ast.Declaration.Variable;
 import org.meta_environment.rascal.interpreter.EvalResult;
@@ -291,4 +292,7 @@ public class GlobalEnvironment {
 		return stack.getTreeNodeType(sortType, cons, signature);
 	}
 
+	public void storeAnnotation(Type onType, String name, Type annoType) {
+		stack.storeAnnotation(onType, name, annoType);
+	}
 }

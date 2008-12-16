@@ -11,6 +11,7 @@ import org.eclipse.imp.pdb.facts.type.NamedTreeType;
 import org.eclipse.imp.pdb.facts.type.NamedType;
 import org.eclipse.imp.pdb.facts.type.TreeNodeType;
 import org.eclipse.imp.pdb.facts.type.TupleType;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.Visibility;
 import org.meta_environment.rascal.interpreter.EvalResult;
@@ -32,6 +33,7 @@ public class ModuleEnvironment extends Environment {
 	protected final Map<String,NamedType> namedTypes;
 	protected final Map<String, NamedTreeType> namedTreeTypes;
 	protected final Map<NamedTreeType, List<TreeNodeType>> signature;
+	protected final Map<Type, Map<String, Type>> annotations;
 	
 	public ModuleEnvironment(String name) {
 		this.name = name;
@@ -41,6 +43,7 @@ public class ModuleEnvironment extends Environment {
 		this.namedTypes = new HashMap<String,NamedType>();
 		this.namedTreeTypes = new HashMap<String,NamedTreeType>();
 		this.signature = new HashMap<NamedTreeType, List<TreeNodeType>>();
+		this.annotations = new HashMap<Type, Map<String, Type>>();
 	}
 	
 	public void setFunctionVisibility(FunctionDeclaration decl, Visibility vis) {
@@ -220,4 +223,28 @@ public class ModuleEnvironment extends Environment {
 		tmp.add(decl);
 	}
 
+	public void storeAnnotation(Type onType, String name, Type annoType) {
+		Map<String, Type> annosFor = annotations.get(onType);
+		
+		if (annosFor == null) {
+			annosFor = new HashMap<String,Type>();
+			annotations.put(onType, annosFor);
+		}
+
+		annosFor.put(name, annoType);
+	}
+	
+	public Type getAnnotationType(Type onType, String name) {
+		Map<String, Type> annosFor = annotations.get(onType);
+		
+		if (annosFor != null) {
+			return annosFor.get(name);
+		}
+		
+		return null;
+	}
+	
+	public Map<String, Type> getAnnotations(Type onType) {
+		return annotations.get(onType);
+	}
 }

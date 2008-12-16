@@ -205,4 +205,8 @@ public class  EnvironmentStack {
 			TupleType args) {
 		return getModuleEnvironment().getTreeNodeType(sort, cons, args);
 	}
+
+	public void storeAnnotation(Type onType, String name, Type annoType) {
+		getModuleEnvironment().storeAnnotation(onType, name, annoType);
+	}
 }
