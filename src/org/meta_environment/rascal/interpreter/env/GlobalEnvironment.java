@@ -295,4 +295,8 @@ public class GlobalEnvironment {
 	public void storeAnnotation(Type onType, String name, Type annoType) {
 		stack.storeAnnotation(onType, name, annoType);
 	}
+
+	public TreeNodeType getTreeNodeType(String cons, TupleType args) {
+		return stack.getTreeNodeType(cons, args);
+	}
 }

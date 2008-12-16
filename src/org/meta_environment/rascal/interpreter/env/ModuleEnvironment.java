@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.type.NamedTreeType;
 import org.eclipse.imp.pdb.facts.type.NamedType;
@@ -170,6 +171,27 @@ public class ModuleEnvironment extends Environment {
 		return namedTreeTypes.get(sort);
 	}
 	
+	public TreeNodeType getTreeNodeType(String cons, TupleType args) {
+		for (List<TreeNodeType> sig : signature.values()) {
+			for (TreeNodeType cand : sig) {
+				if (cand.getName().equals(cons) && args.isSubtypeOf(cand.getChildrenTypes())) {
+					return cand;
+				}
+			}
+		}
+		
+		for (String i : getImports()) {
+			ModuleEnvironment mod = GlobalEnvironment.getInstance().getModule(i);
+			TreeNodeType found = mod.getTreeNodeType(cons, args);
+			
+			if (found != null) {
+				return found;
+			}
+		}
+		
+		return null;
+	}
+	
 	public TreeNodeType getTreeNodeType(NamedTreeType sort, String cons, TupleType args) {
 		List<TreeNodeType> sig = signature.get(sort);
 		
@@ -247,4 +269,5 @@ public class ModuleEnvironment extends Environment {
 	public Map<String, Type> getAnnotations(Type onType) {
 		return annotations.get(onType);
 	}
+
 }

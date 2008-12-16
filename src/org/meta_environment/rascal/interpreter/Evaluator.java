@@ -1,4 +1,3 @@
-
 package org.meta_environment.rascal.interpreter;
 
 import java.io.File;
@@ -684,6 +683,12 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				}
 			}
 		}
+		else {
+			String cons = Names.consName(name);
+			if (env.getTreeNodeType(cons, signature) != null) {
+				return true;
+			}
+		}
 		
 		return false;
 	}
@@ -704,13 +709,9 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		String sort;
 		String cons;
 		
-		cons = parts.get(parts.size() - 1).toString();
-		sort = parts.size() > 1 ? parts.get(parts.size() - 2).toString() : null;
+		cons = Names.consName(functionName);
+		sort = Names.sortName(functionName);
 
-		if (cons.startsWith("\\")) {
-			cons = cons.substring(1);
-		}
-		
 		TreeNodeType candidate = null;
 	
 		if (sort != null) {
@@ -724,6 +725,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			}
 		}
 		
+		candidate = env.getTreeNodeType(cons, signature);
 		if (candidate != null) {
 			return result(candidate.make(vf, actuals));
 		}
