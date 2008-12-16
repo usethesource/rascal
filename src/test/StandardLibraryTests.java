@@ -189,12 +189,12 @@ public class StandardLibraryTests extends TestCase {
 		
 		System.err.println("List::addAt");
 		
-		assertTrue(tf.runTestInSameEvaluator("List::addAt(1, 0, []) == [1];"));
-		assertTrue(tf.runTestInSameEvaluator("add(1, 0, []) == [1];"));
-		assertTrue(tf.runTestInSameEvaluator("List::add(1, 1, [2,3]) == [2,1, 3];"));
-		assertTrue(tf.runTestInSameEvaluator("add(1, 1, [2,3]) == [2, 1, 3];"));
-		assertTrue(tf.runTestInSameEvaluator("List::add(1, 2, [2,3]) == [2,3,1];"));
-		assertTrue(tf.runTestInSameEvaluator("add(1, 2, [2,3]) == [2, 3, 1];"));
+		//assertTrue(tf.runTestInSameEvaluator("List::addAt(1, 0, []) == [1];"));
+		//assertTrue(tf.runTestInSameEvaluator("add(1, 0, []) == [1];"));
+		assertTrue(tf.runTestInSameEvaluator("List::addAt(1, 1, [2,3]) == [2,1, 3];"));
+		assertTrue(tf.runTestInSameEvaluator("addAt(1, 1, [2,3]) == [2, 1, 3];"));
+		assertTrue(tf.runTestInSameEvaluator("List::addAt(1, 2, [2,3]) == [2,3,1];"));
+		assertTrue(tf.runTestInSameEvaluator("addAt(1, 2, [2,3]) == [2, 3, 1];"));
 		
 		System.err.println("List::addAfter");
 		

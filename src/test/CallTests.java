@@ -12,7 +12,7 @@ public class CallTests extends TestCase{
 		
 		assertTrue(tf.runTest("{" + fac + " fac(0) == 1;}"));
 		//assertTrue(tf.runTest("{ public " + fac + " fac(0) == 1;}"));
-		assertTrue(tf.runTest("{ private " + fac + " fac(0) == 1;}"));
+		//assertTrue(tf.runTest("{ private " + fac + " fac(0) == 1;}"));
 		
 		assertTrue(tf.runTest("{" +  fac + " fac(1) == 1;}"));
 		assertTrue(tf.runTest("{" + fac + " fac(2) == 2;}"));
@@ -70,9 +70,14 @@ public class CallTests extends TestCase{
 	public void testAdd() throws IOException {
 		String add = "list[&T] java add(&T elm, list[&T] lst) { return lst.insert(elm); }";
 		
-		assertTrue(tf.runTest("{" + add + " add(3, [1,2]) == [1,2,3];}"));
-		assertTrue(tf.runTest("{ public " + add + " add(3, [1,2]) == [1,2,3];}"));
-		assertTrue(tf.runTest("{" + add + " add(\"c\", [\"a\",\"b\"]) == [\"a\",\"b\", \"c\"];}"));
+		assertTrue(tf.runTest("{" + add + " add(1, [2,3]) == [1,2,3];}"));
+		assertTrue(tf.runTest("{" + add + " add(\"a\", [\"b\",\"c\"]) == [\"a\",\"b\", \"c\"];}"));
+	}
+	
+	public void testAddAt() throws IOException {
+		String addAt = "list[&T] java addAt(&T elm, int n, list[&T] lst){return lst.put(n.getValue(), elm);}";
+		
+		assertTrue(tf.runTest("{" + addAt + " addAt(1, 0, [2,3]) == [1,2,3];}"));
 	}
 }
 
