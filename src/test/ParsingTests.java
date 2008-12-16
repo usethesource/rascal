@@ -16,7 +16,7 @@ import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
 import org.meta_environment.uptr.Factory;
 
-public class TestParsing extends TestCase {
+public class ParsingTests extends TestCase {
 
 	public void doParse(String dir) {
 		Parser parser = Parser.getInstance();

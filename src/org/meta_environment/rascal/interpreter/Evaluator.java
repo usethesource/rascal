@@ -1932,14 +1932,29 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	boolean equals(EvalResult left, EvalResult right){
 		
 		widenIntToDouble(left, right);
-		if (left.type.comparable(right.type)
-				//|| left.type.isValueType()                   //TODO: is this necessary?
-				//|| right.type.isValueType()
-		) {
+		if (left.type.comparable(right.type)) {
 			return left.value.equals(right.value);
+		} else if (left.type.isListType() && right.type.isListType() && 
+		          ((IList) left.value).isEmpty() && ((IList) right.value).isEmpty()){
+		       	  return true;
+		} else if (left.type.isMapType() && right.type.isMapType() && 
+		          ((IMap) left.value).isEmpty() && ((IMap) right.value).isEmpty()){
+		        	  return true;
+		} else if (left.type.isSetType() && right.type.isSetType() && 
+	          ((ISet) left.value).isEmpty() && ((ISet) right.value).isEmpty()){
+	        	  return true;
+		} else if (left.type.isSetType() && right.type.isRelationType() && 
+		          ((ISet) left.value).isEmpty() && ((IRelation) right.value).isEmpty()){
+		        	  return true;
+		} else if (left.type.isRelationType() && right.type.isSetType() && 
+		          ((IRelation) left.value).isEmpty() && ((ISet) right.value).isEmpty()){
+		        	  return true;
+		} else if (left.type.isRelationType() && right.type.isRelationType() && 
+	          ((IRelation) left.value).isEmpty() && ((IRelation) right.value).isEmpty()){
+	        	  return true;
+		
 		} else {
-			throw new RascalTypeError(
-					"Operands of == have incompatible types: " + left.type + ", " + right.type);
+			return false;
 		}
 	}
 

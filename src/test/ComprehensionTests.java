@@ -113,7 +113,7 @@ public class ComprehensionTests extends TestCase {
 		assertTrue(tf.runTest("[ X | int X : {1}] == [1];"));
 		assertTrue(tf.runTest("[ X | int X : [1]] == [1];"));
 		
-		assertTrue(tf.runTest("[ X | int X : {1, 2}] == [1,2];"));
+		assertTrue(tf.runTest("{L = [ X | int X : {1, 2}]; (L == [1,2]) || (L == [2, 1]);}"));
 		assertTrue(tf.runTest("[ X | int X : [1, 2]] == [1,2];"));
 		
 		assertTrue(tf.runTest("[ X | int X : {1, 1, 1}] == [1];"));
@@ -128,10 +128,10 @@ public class ComprehensionTests extends TestCase {
 		assertTrue(tf.runTest("[ 1 | int X : {1,2,3}, false] 	== [];"));
 		assertTrue(tf.runTest("[ 1 | int X : [1,2,3], false] 	== [];"));
 		
-		assertTrue(tf.runTest("[ X | int X : {1,2,3}] == [1,2,3];"));
+		assertTrue(tf.runTest("{L = [ X | int X : {1,2}]; (L == [1,2]) || (L == [2, 1]);}"));
 		assertTrue(tf.runTest("[ X | int X : [1,2,3]] == [1,2,3];"));
 		
-		assertTrue(tf.runTest("[  X | int X : {1,2,3}, true] == [1,2,3];"));
+		assertTrue(tf.runTest("{L = [  X | int X : {1,2}, true]; (L == [1,2]) || (L == [2, 1]);}"));
 		assertTrue(tf.runTest("[  X | int X : [1,2,3], true] == [1,2,3];"));
 		
 		assertTrue(tf.runTest("[  X | int X : {1,2,3}, false] == [];"));
@@ -165,19 +165,19 @@ public class ComprehensionTests extends TestCase {
 		assertTrue(tf.runTest("[1 | 3 > 2] == [1] ;"));
 		assertTrue(tf.runTest("[1 | 2 > 3] == [] ;"));
 		
-		assertTrue(tf.runTest("[X + 1 | int X : {1,2,3}] == [2,3,4];"));
+		assertTrue(tf.runTest("{L = [X + 1 | int X : {1,2}]; (L == [2,3]) || (L == [3,2]);}"));
 		assertTrue(tf.runTest("[X + 1 | int X : [1,2,3]] == [2,3,4];"));
 		
 		assertTrue(tf.runTest("[X | int X : {1,2,3}, X + 1 < 3] == [1];"));
 		assertTrue(tf.runTest("[X | int X : [1,2,3], X + 1 < 3] == [1];"));
 		
-		assertTrue(tf.runTest("[X - 1 | int X : {1,2,3}] == [0,1,2];"));
+		assertTrue(tf.runTest("{L = [X - 1 | int X : {1,2}]; (L == [0,1]) || (L == [1,0]);}"));
 		assertTrue(tf.runTest("[X - 1 | int X : [1,2,3]] == [0,1,2];"));
 		
-		assertTrue(tf.runTest("[X | int X : {1,2,3}, X - 1 < 3] == [1,2,3];"));
+		assertTrue(tf.runTest("{L = [X | int X : {2,3}, X - 1 < 3]; (L == [2,3]) || (L == [3,2]);}"));
 		assertTrue(tf.runTest("[X | int X : [1,2,3], X - 1 < 3] == [1,2,3];"));
 		
-		assertTrue(tf.runTest("[X * 2 | int X : {1,2,3}] == [2,4,6];"));
+		assertTrue(tf.runTest("{ L = [X * 2 | int X : {2,3}]; (L == [4,6]) || (L == [6,4]);}"));
 		assertTrue(tf.runTest("[X * 2 | int X : [1,2,3]] == [2,4,6];"));
 		
 		assertTrue(tf.runTest("[S | /@<S:[a-z]+>@/ : [\"@abc@\", \"@def@\"]] == [\"abc\",\"def\"];"));
