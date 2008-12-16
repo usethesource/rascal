@@ -7,19 +7,22 @@ public list[&T] java add(&T elm, list[&T] lst)
  }
  
  public list[&T] java addAt(&T elm, int n, list[&T] lst)
+  throws list_index()
  @doc{addAt -- add an element at a specific position in a list}
  {
  	IListWriter w = lst.getType().writer(values);
- 	int k = n.getValue
- 
+ 	int k = n.getValue();
+    if(k >= 0 && k < lst.length()){
       for(int i = lst.length()-1; i >= 0; i--) {
         w.insert(lst.get(i));
         if(i == n.getValue()){
         	w.insert(elm);
         }
-
       }
       return w.done();
+    } else {
+    	throw new RascalException(values, "list_index");
+    }
  }
 
 public list[&T] java addAfter(&T elm, list[&T] lst)
