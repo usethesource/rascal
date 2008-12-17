@@ -102,14 +102,15 @@ public class StandardLibrarySetTests extends TestCase {
 	}
 	
 	public void testSetTakeOneFrom() throws IOException {
+		
 		tf.prepare("import Set;");	
 	
-		System.err.println("Set::takeOneFrom");
-		assertTrue(tf.runTestInSameEvaluator("{<E, S> = Set::takeOneFrom({1}}; (E == 1) && (S == {}) ;}"));
-		assertTrue(tf.runTestInSameEvaluator("{<E, S> = Set::takeOneFrom({1,2}}; ((E == 1) && (S == {2})) || ((E == 2) && (L == {1});}"));
+		assertTrue(tf.runTestInSameEvaluator("{<E, S> = Set::takeOneFrom({1}); (E == 1) && (S == {}) ;}"));
+		assertTrue(tf.runTestInSameEvaluator("{<E, S> = Set::takeOneFrom({1,2}); ((E == 1) && (S == {2})) || ((E == 2) && (L == {1});}"));
 	}
 	
 	public void testSetToList() throws IOException {
+		
 		tf.prepare("import Set;");	
 		
 		assertTrue(tf.runTestInSameEvaluator("{Set::toList({}) == [];};"));
@@ -119,6 +120,7 @@ public class StandardLibrarySetTests extends TestCase {
 	}
 	
 	public void testSetToMap() throws IOException {
+		
 		tf.prepare("import Set;");	
 		
 		assertTrue(tf.runTestInSameEvaluator("{Set::toMap({}) == ();};"));
@@ -128,6 +130,7 @@ public class StandardLibrarySetTests extends TestCase {
 	}
 	
 	public void testSetToString() throws IOException {
+		
 		tf.prepare("import Set;");
 		
 		assertTrue(tf.runTestInSameEvaluator("Set::toString({}) == \"{}\";"));
