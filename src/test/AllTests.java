@@ -18,7 +18,12 @@ public class AllTests {
 		suite.addTestSuite(ErrorTests.class);
 
 		suite.addTestSuite(ImportTests.class);
-		suite.addTestSuite(StandardLibraryTests.class);
+		suite.addTestSuite(StandardLibraryBooleanTests.class);
+		suite.addTestSuite(StandardLibraryIntegerTests.class);
+		suite.addTestSuite(StandardLibraryDoubleTests.class);
+		suite.addTestSuite(StandardLibraryStringTests.class);
+		suite.addTestSuite(StandardLibraryListTests.class);
+		suite.addTestSuite(StandardLibrarySetTests.class);
 		
 		return suite;
 	  }
