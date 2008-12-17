@@ -1,11 +1,11 @@
 package org.meta_environment.rascal.ast; 
 import org.eclipse.imp.pdb.facts.ITree; 
 public abstract class Header extends AbstractAST { 
-  public org.meta_environment.rascal.ast.ModuleName getName() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Tags getTags() { throw new UnsupportedOperationException(); } public java.util.List<org.meta_environment.rascal.ast.Import> getImports() { throw new UnsupportedOperationException(); } public boolean hasName() { return false; } public boolean hasTags() { return false; } public boolean hasImports() { return false; } public boolean isDefault() { return false; }
+  public org.meta_environment.rascal.ast.QualifiedName getName() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Tags getTags() { throw new UnsupportedOperationException(); } public java.util.List<org.meta_environment.rascal.ast.Import> getImports() { throw new UnsupportedOperationException(); } public boolean hasName() { return false; } public boolean hasTags() { return false; } public boolean hasImports() { return false; } public boolean isDefault() { return false; }
 static public class Default extends Header {
-/* "module" name:ModuleName tags:Tags imports:Import* -> Header {cons("Default")} */
+/* "module" name:QualifiedName tags:Tags imports:Import* -> Header {cons("Default")} */
 	private Default() { }
-	/*package*/ Default(ITree tree, org.meta_environment.rascal.ast.ModuleName name, org.meta_environment.rascal.ast.Tags tags, java.util.List<org.meta_environment.rascal.ast.Import> imports) {
+	/*package*/ Default(ITree tree, org.meta_environment.rascal.ast.QualifiedName name, org.meta_environment.rascal.ast.Tags tags, java.util.List<org.meta_environment.rascal.ast.Import> imports) {
 		this.tree = tree;
 		this.name = name;
 		this.tags = tags;
@@ -21,10 +21,10 @@ static public class Default extends Header {
 	public boolean hasTags() { return true; }
 	public boolean hasImports() { return true; }
 
-private org.meta_environment.rascal.ast.ModuleName name;
-	public org.meta_environment.rascal.ast.ModuleName getName() { return name; }
-	private void $setName(org.meta_environment.rascal.ast.ModuleName x) { this.name = x; }
-	public Default setName(org.meta_environment.rascal.ast.ModuleName x) { 
+private org.meta_environment.rascal.ast.QualifiedName name;
+	public org.meta_environment.rascal.ast.QualifiedName getName() { return name; }
+	private void $setName(org.meta_environment.rascal.ast.QualifiedName x) { this.name = x; }
+	public Default setName(org.meta_environment.rascal.ast.QualifiedName x) { 
 		Default z = new Default();
  		z.$setName(x);
 		return z;
@@ -61,9 +61,9 @@ static public class Ambiguity extends Header {
   }
 } public org.meta_environment.rascal.ast.ModuleParameters getParams() { throw new UnsupportedOperationException(); } public boolean hasParams() { return false; } public boolean isParameters() { return false; }
 static public class Parameters extends Header {
-/* "module" name:ModuleName params:ModuleParameters tags:Tags imports:Import* -> Header {cons("Parameters")} */
+/* "module" name:QualifiedName params:ModuleParameters tags:Tags imports:Import* -> Header {cons("Parameters")} */
 	private Parameters() { }
-	/*package*/ Parameters(ITree tree, org.meta_environment.rascal.ast.ModuleName name, org.meta_environment.rascal.ast.ModuleParameters params, org.meta_environment.rascal.ast.Tags tags, java.util.List<org.meta_environment.rascal.ast.Import> imports) {
+	/*package*/ Parameters(ITree tree, org.meta_environment.rascal.ast.QualifiedName name, org.meta_environment.rascal.ast.ModuleParameters params, org.meta_environment.rascal.ast.Tags tags, java.util.List<org.meta_environment.rascal.ast.Import> imports) {
 		this.tree = tree;
 		this.name = name;
 		this.params = params;
@@ -81,10 +81,10 @@ static public class Parameters extends Header {
 	public boolean hasTags() { return true; }
 	public boolean hasImports() { return true; }
 
-private org.meta_environment.rascal.ast.ModuleName name;
-	public org.meta_environment.rascal.ast.ModuleName getName() { return name; }
-	private void $setName(org.meta_environment.rascal.ast.ModuleName x) { this.name = x; }
-	public Parameters setName(org.meta_environment.rascal.ast.ModuleName x) { 
+private org.meta_environment.rascal.ast.QualifiedName name;
+	public org.meta_environment.rascal.ast.QualifiedName getName() { return name; }
+	private void $setName(org.meta_environment.rascal.ast.QualifiedName x) { this.name = x; }
+	public Parameters setName(org.meta_environment.rascal.ast.QualifiedName x) { 
 		Parameters z = new Parameters();
  		z.$setName(x);
 		return z;

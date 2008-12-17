@@ -117,5 +117,18 @@ static public class Loc extends BasicType {
 	}
 
 	public boolean isLoc() { return true; }	
+} 
+public boolean isArea() { return false; }
+static public class Area extends BasicType {
+/* "area" -> BasicType {cons("Area")} */
+	private Area() { }
+	/*package*/ Area(ITree tree) {
+		this.tree = tree;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitBasicTypeArea(this);
+	}
+
+	public boolean isArea() { return true; }	
 }
 }
