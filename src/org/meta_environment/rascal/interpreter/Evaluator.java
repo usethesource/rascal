@@ -871,25 +871,103 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 	@Override
 	public EvalResult visitExpressionSubscript(Subscript x) {
-		// TODO add support for multiple subscripts
-		EvalResult subs = x.getSubscripts().get(0).accept(this);
+		
 		EvalResult expr = x.getExpression().accept(this);
+		Type exprType = expr.type.getBaseType();
+		int nSubs = x.getSubscripts().size();
+		
+		if (exprType.isRelationType()) {
+			int relArity = ((RelationType)exprType).getArity();
+			
+			if(nSubs >= relArity){
+				throw new RascalTypeError("Too many subscripts (" + nSubs + ") for relation of arity " + relArity);
+			}
+			EvalResult subscriptResult[] = new EvalResult[nSubs];
+			Type subscriptType[] = new Type[nSubs];
+			
+			for(int i = 0; i < nSubs; i++){
+				subscriptResult[i] = x.getSubscripts().get(i).accept(this);
+				subscriptType[i] = subscriptResult[i].type.getBaseType();
+			}
+			
+			boolean yieldSet = (relArity - nSubs) == 1;
+			Type resFieldType[] = new Type[relArity - nSubs];
+			for (int i = 0; i < relArity; i++) {
+				Type relFieldType = ((RelationType) exprType).getFieldType(i);
+				if(i < nSubs){
+					if(!subscriptType[i].isSubtypeOf(relFieldType)){
+						throw new RascalTypeError("type " + subscriptType[i] + 
+								" of subscript #" + i + " incompatible with element type " +
+								relFieldType);
+					}
+				} else {
+					resFieldType[i - nSubs] = relFieldType;
+				}
+			}
+			Type resultType;
+			ISetWriter wset = null;
+			IRelationWriter wrel = null;
+			
+			if(yieldSet){
+				resultType = tf.setType(resFieldType[0]);
+				wset = resultType.writer(vf);
+			} else {
+				resultType = tf.relType(resFieldType);
+				wrel = resultType.writer(vf);
+			}
 
-		Type exprBase = expr.type.getBaseType();
+			for (IValue v : ((IRelation) expr.value)) {
+				ITuple tup = (ITuple) v;
+				boolean allEqual = true;
+				for(int k = 0; k < nSubs; k++){
+					if(!tup.get(k).equals(subscriptResult[k].value)){
+						allEqual = false;
+					}
+				}
+				
+				if (allEqual) {
+					IValue args[] = new IValue[relArity - nSubs];
+					for (int i = nSubs; i < relArity; i++) {
+						args[i - nSubs] = tup.get(i);
+					}
+					if(yieldSet){
+						wset.insert(args[0]);
+					} else {
+						wrel.insert(vf.tuple(args));
+					}
+				}
+			}
+			return result(resultType, yieldSet ? wset.done() : wrel.done());
+		}
+		
+		if(nSubs > 1){
+			throw new RascalTypeError("Too many subscripts");
+		}
+		
+		EvalResult subs = x.getSubscripts().get(0).accept(this);
 		Type subsBase = subs.type.getBaseType();
+		
+		if (exprType.isMapType()
+			&& subsBase.isSubtypeOf(((MapType) exprType).getKeyType())) {
+			Type valueType = ((MapType) exprType).getValueType();
+			return result(valueType, ((IMap) expr.value).get(subs.value));
+		}
+		
+		if(!subsBase.isIntegerType()){
+			throw new RascalRunTimeError("Subscript should have type integer");
+		}
+		int index = intValue(subs);
 
-		if (exprBase.isListType() && subsBase.isIntegerType()) {
-			int index = intValue(subs);
-			Type elementType = ((ListType) exprBase).getElementType();
+		if (exprType.isListType()) {
+			Type elementType = ((ListType) exprType).getElementType();
 			try {
 				IValue element = ((IList) expr.value).get(index);
 				return result(elementType, element);
 			} catch (IndexOutOfBoundsException e) {
 				throw new RascalRunTimeError("Subscript out of bounds", e);
 			}
-		} else if ((exprBase.isNamedTreeType() || exprBase.isTreeNodeType())
-				&& subsBase.isIntegerType()) {
-			int index = intValue(subs);
+		}
+		if ((exprType.isNamedTreeType() || exprType.isTreeNodeType())) {
 			if(index >= ((INode) expr.value).arity()){
 				throw new RascalRunTimeError("Subscript out of bounds");
 			}
@@ -897,74 +975,22 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 					.getChildType(index);
 			IValue element = ((ITree) expr.value).get(index);
 			return result(elementType, element);
-		} else if (exprBase.isTreeType() && subsBase.isIntegerType()) {
-			int index = intValue(subs);
+		}
+		if (exprType.isTreeType()) {
 			if(index >= ((ITree) expr.value).arity()){
 				throw new RascalRunTimeError("Subscript out of bounds");
 			}
 			Type elementType = tf.valueType();
 			IValue element = ((ITree) expr.value).get(index);
 			return result(elementType, element);
-		} else if (exprBase.isMapType()
-				&& subsBase.isSubtypeOf(((MapType) exprBase).getKeyType())) {
-			Type valueType = ((MapType) exprBase).getValueType();
-			return result(valueType, ((IMap) expr.value).get(subs.value));
-		} else if (exprBase.isTupleType() && subsBase.isIntegerType()) {
+		}
+		if (exprType.isTupleType()) {
 			try {
-				int index = intValue(subs);
-				Type elementType = ((TupleType) exprBase).getFieldType(index);
+				Type elementType = ((TupleType) exprType).getFieldType(index);
 				IValue element = ((ITuple) expr.value).get(index);
 				return result(elementType, element);
 			} catch (IndexOutOfBoundsException e){
 				throw new RascalRunTimeError("Subscript out of bounds", e);
-			}
-		}
-
-		else if (exprBase.isRelationType()) {
-			Type elementType = ((RelationType) exprBase).getFieldType(0);
-
-			if (subsBase.isSubtypeOf(elementType)) {
-				int arity = ((RelationType) exprBase).getArity();
-
-				if (arity == 2) {
-					Type resultType = tf.setType(((RelationType) exprBase)
-							.getFieldType(1));
-					ISetWriter w = resultType.writer(vf);
-					for (IValue v : ((IRelation) expr.value)) {
-						ITuple tup = (ITuple) v;
-						if (tup.get(0).equals(subs.value)) {
-							w.insert(tup.get(1));
-						}
-					}
-					return result(resultType, w.done());
-
-				} else {
-					Type fieldTypes[] = new Type[arity - 1];
-					for (int i = 1; i < arity; i++) {
-						fieldTypes[i - 1] = ((RelationType) exprBase)
-								.getFieldType(i);
-					}
-					Type resultType = tf.relType(fieldTypes);
-
-					IRelationWriter w = resultType.writer(vf);
-
-					for (IValue v : ((IRelation) expr.value)) {
-						ITuple tup = (ITuple) v;
-						if (tup.get(0).equals(subs.value)) {
-							IValue args[] = new IValue[arity - 1];
-							for (int i = 1; i < arity; i++) {
-								args[i - 1] = tup.get(i);
-							}
-							ITuple res = vf.tuple(args);
-							w.insert(res);
-						}
-					}
-					return result(resultType, w.done());
-				}
-			} else {
-				throw new RascalTypeError("Type of subscript " + subsBase
-						+ "  incompatible with relation element type "
-						+ elementType);
 			}
 		}
 		throw new RascalBug("Not yet implemented subscript: " + x);
