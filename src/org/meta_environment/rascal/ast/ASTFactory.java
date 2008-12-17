@@ -549,6 +549,13 @@ org.meta_environment.rascal.ast.LocalVariableDeclaration.Default x = new org.met
 		}
 		return (org.meta_environment.rascal.ast.LocalVariableDeclaration.Default)table.get(x); 
 }
+public org.meta_environment.rascal.ast.BasicType.Area makeBasicTypeArea(ITree tree) { 
+org.meta_environment.rascal.ast.BasicType.Area x = new org.meta_environment.rascal.ast.BasicType.Area(tree);
+		if (!table.containsKey(x)) { 
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.BasicType.Area)table.get(x); 
+}
 public org.meta_environment.rascal.ast.BasicType.Loc makeBasicTypeLoc(ITree tree) { 
 org.meta_environment.rascal.ast.BasicType.Loc x = new org.meta_environment.rascal.ast.BasicType.Loc(tree);
 		if (!table.containsKey(x)) { 
@@ -815,34 +822,6 @@ org.meta_environment.rascal.ast.Module.Default x = new org.meta_environment.rasc
 		}
 		return (org.meta_environment.rascal.ast.Module.Default)table.get(x); 
 }
-public org.meta_environment.rascal.ast.ModuleWord.Ambiguity makeModuleWordAmbiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.ModuleWord> alternatives) { 
-org.meta_environment.rascal.ast.ModuleWord.Ambiguity amb = new org.meta_environment.rascal.ast.ModuleWord.Ambiguity(tree, alternatives);
-     if (!table.containsKey(amb)) {
-        table.put(amb, amb);
-     }
-     return (org.meta_environment.rascal.ast.ModuleWord.Ambiguity)table.get(amb); 
-}
-public org.meta_environment.rascal.ast.ModuleWord.Lexical makeModuleWordLexical(ITree tree, String string) { 
-org.meta_environment.rascal.ast.ModuleWord.Lexical x = new org.meta_environment.rascal.ast.ModuleWord.Lexical(tree, string);
-		if (!table.containsKey(x)) { 
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.ModuleWord.Lexical)table.get(x); 
-}
-public org.meta_environment.rascal.ast.ModuleName.Ambiguity makeModuleNameAmbiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.ModuleName> alternatives) { 
-org.meta_environment.rascal.ast.ModuleName.Ambiguity amb = new org.meta_environment.rascal.ast.ModuleName.Ambiguity(tree, alternatives);
-     if (!table.containsKey(amb)) {
-        table.put(amb, amb);
-     }
-     return (org.meta_environment.rascal.ast.ModuleName.Ambiguity)table.get(amb); 
-}
-public org.meta_environment.rascal.ast.ModuleName.Lexical makeModuleNameLexical(ITree tree, String string) { 
-org.meta_environment.rascal.ast.ModuleName.Lexical x = new org.meta_environment.rascal.ast.ModuleName.Lexical(tree, string);
-		if (!table.containsKey(x)) { 
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.ModuleName.Lexical)table.get(x); 
-}
 public org.meta_environment.rascal.ast.ModuleActuals.Ambiguity makeModuleActualsAmbiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.ModuleActuals> alternatives) { 
 org.meta_environment.rascal.ast.ModuleActuals.Ambiguity amb = new org.meta_environment.rascal.ast.ModuleActuals.Ambiguity(tree, alternatives);
      if (!table.containsKey(amb)) {
@@ -857,21 +836,21 @@ org.meta_environment.rascal.ast.ModuleActuals.Default x = new org.meta_environme
 		}
 		return (org.meta_environment.rascal.ast.ModuleActuals.Default)table.get(x); 
 }
-public org.meta_environment.rascal.ast.ImportedModule.Default makeImportedModuleDefault(ITree tree, org.meta_environment.rascal.ast.ModuleName name) { 
+public org.meta_environment.rascal.ast.ImportedModule.Default makeImportedModuleDefault(ITree tree, org.meta_environment.rascal.ast.QualifiedName name) { 
 org.meta_environment.rascal.ast.ImportedModule.Default x = new org.meta_environment.rascal.ast.ImportedModule.Default(tree, name);
 		if (!table.containsKey(x)) { 
 			table.put(x, x);
 		}
 		return (org.meta_environment.rascal.ast.ImportedModule.Default)table.get(x); 
 }
-public org.meta_environment.rascal.ast.ImportedModule.Renamings makeImportedModuleRenamings(ITree tree, org.meta_environment.rascal.ast.ModuleName name, org.meta_environment.rascal.ast.Renamings renamings) { 
+public org.meta_environment.rascal.ast.ImportedModule.Renamings makeImportedModuleRenamings(ITree tree, org.meta_environment.rascal.ast.QualifiedName name, org.meta_environment.rascal.ast.Renamings renamings) { 
 org.meta_environment.rascal.ast.ImportedModule.Renamings x = new org.meta_environment.rascal.ast.ImportedModule.Renamings(tree, name, renamings);
 		if (!table.containsKey(x)) { 
 			table.put(x, x);
 		}
 		return (org.meta_environment.rascal.ast.ImportedModule.Renamings)table.get(x); 
 }
-public org.meta_environment.rascal.ast.ImportedModule.Actuals makeImportedModuleActuals(ITree tree, org.meta_environment.rascal.ast.ModuleName name, org.meta_environment.rascal.ast.ModuleActuals actuals) { 
+public org.meta_environment.rascal.ast.ImportedModule.Actuals makeImportedModuleActuals(ITree tree, org.meta_environment.rascal.ast.QualifiedName name, org.meta_environment.rascal.ast.ModuleActuals actuals) { 
 org.meta_environment.rascal.ast.ImportedModule.Actuals x = new org.meta_environment.rascal.ast.ImportedModule.Actuals(tree, name, actuals);
 		if (!table.containsKey(x)) { 
 			table.put(x, x);
@@ -885,7 +864,7 @@ org.meta_environment.rascal.ast.ImportedModule.Ambiguity amb = new org.meta_envi
      }
      return (org.meta_environment.rascal.ast.ImportedModule.Ambiguity)table.get(amb); 
 }
-public org.meta_environment.rascal.ast.ImportedModule.ActualsRenaming makeImportedModuleActualsRenaming(ITree tree, org.meta_environment.rascal.ast.ModuleName name, org.meta_environment.rascal.ast.ModuleActuals actuals, org.meta_environment.rascal.ast.Renamings renamings) { 
+public org.meta_environment.rascal.ast.ImportedModule.ActualsRenaming makeImportedModuleActualsRenaming(ITree tree, org.meta_environment.rascal.ast.QualifiedName name, org.meta_environment.rascal.ast.ModuleActuals actuals, org.meta_environment.rascal.ast.Renamings renamings) { 
 org.meta_environment.rascal.ast.ImportedModule.ActualsRenaming x = new org.meta_environment.rascal.ast.ImportedModule.ActualsRenaming(tree, name, actuals, renamings);
 		if (!table.containsKey(x)) { 
 			table.put(x, x);
@@ -955,7 +934,7 @@ org.meta_environment.rascal.ast.ModuleParameters.Default x = new org.meta_enviro
 		}
 		return (org.meta_environment.rascal.ast.ModuleParameters.Default)table.get(x); 
 }
-public org.meta_environment.rascal.ast.Header.Parameters makeHeaderParameters(ITree tree, org.meta_environment.rascal.ast.ModuleName name, org.meta_environment.rascal.ast.ModuleParameters params, org.meta_environment.rascal.ast.Tags tags, java.util.List<org.meta_environment.rascal.ast.Import> imports) { 
+public org.meta_environment.rascal.ast.Header.Parameters makeHeaderParameters(ITree tree, org.meta_environment.rascal.ast.QualifiedName name, org.meta_environment.rascal.ast.ModuleParameters params, org.meta_environment.rascal.ast.Tags tags, java.util.List<org.meta_environment.rascal.ast.Import> imports) { 
 org.meta_environment.rascal.ast.Header.Parameters x = new org.meta_environment.rascal.ast.Header.Parameters(tree, name, params, tags, imports);
 		if (!table.containsKey(x)) { 
 			table.put(x, x);
@@ -969,7 +948,7 @@ org.meta_environment.rascal.ast.Header.Ambiguity amb = new org.meta_environment.
      }
      return (org.meta_environment.rascal.ast.Header.Ambiguity)table.get(amb); 
 }
-public org.meta_environment.rascal.ast.Header.Default makeHeaderDefault(ITree tree, org.meta_environment.rascal.ast.ModuleName name, org.meta_environment.rascal.ast.Tags tags, java.util.List<org.meta_environment.rascal.ast.Import> imports) { 
+public org.meta_environment.rascal.ast.Header.Default makeHeaderDefault(ITree tree, org.meta_environment.rascal.ast.QualifiedName name, org.meta_environment.rascal.ast.Tags tags, java.util.List<org.meta_environment.rascal.ast.Import> imports) { 
 org.meta_environment.rascal.ast.Header.Default x = new org.meta_environment.rascal.ast.Header.Default(tree, name, tags, imports);
 		if (!table.containsKey(x)) { 
 			table.put(x, x);
@@ -1690,12 +1669,19 @@ org.meta_environment.rascal.ast.Expression.Negation x = new org.meta_environment
 		}
 		return (org.meta_environment.rascal.ast.Expression.Negation)table.get(x); 
 }
-public org.meta_environment.rascal.ast.Expression.Subscript makeExpressionSubscript(ITree tree, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.Expression subscript) { 
-org.meta_environment.rascal.ast.Expression.Subscript x = new org.meta_environment.rascal.ast.Expression.Subscript(tree, expression, subscript);
+public org.meta_environment.rascal.ast.Expression.Subscript makeExpressionSubscript(ITree tree, org.meta_environment.rascal.ast.Expression expression, java.util.List<org.meta_environment.rascal.ast.Expression> subscripts) { 
+org.meta_environment.rascal.ast.Expression.Subscript x = new org.meta_environment.rascal.ast.Expression.Subscript(tree, expression, subscripts);
 		if (!table.containsKey(x)) { 
 			table.put(x, x);
 		}
 		return (org.meta_environment.rascal.ast.Expression.Subscript)table.get(x); 
+}
+public org.meta_environment.rascal.ast.Expression.FieldProject makeExpressionFieldProject(ITree tree, org.meta_environment.rascal.ast.Expression expression, java.util.List<org.meta_environment.rascal.ast.Field> fields) { 
+org.meta_environment.rascal.ast.Expression.FieldProject x = new org.meta_environment.rascal.ast.Expression.FieldProject(tree, expression, fields);
+		if (!table.containsKey(x)) { 
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.FieldProject)table.get(x); 
 }
 public org.meta_environment.rascal.ast.Expression.FieldAccess makeExpressionFieldAccess(ITree tree, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.Name field) { 
 org.meta_environment.rascal.ast.Expression.FieldAccess x = new org.meta_environment.rascal.ast.Expression.FieldAccess(tree, expression, field);
@@ -1837,6 +1823,13 @@ org.meta_environment.rascal.ast.Expression.QualifiedName x = new org.meta_enviro
 		}
 		return (org.meta_environment.rascal.ast.Expression.QualifiedName)table.get(x); 
 }
+public org.meta_environment.rascal.ast.Expression.Area makeExpressionArea(ITree tree, org.meta_environment.rascal.ast.Expression beginLine, org.meta_environment.rascal.ast.Expression beginColumn, org.meta_environment.rascal.ast.Expression endLine, org.meta_environment.rascal.ast.Expression endColumn, org.meta_environment.rascal.ast.Expression offset, org.meta_environment.rascal.ast.Expression length) { 
+org.meta_environment.rascal.ast.Expression.Area x = new org.meta_environment.rascal.ast.Expression.Area(tree, beginLine, beginColumn, endLine, endColumn, offset, length);
+		if (!table.containsKey(x)) { 
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.Area)table.get(x); 
+}
 public org.meta_environment.rascal.ast.Expression.AreaInFileLocation makeExpressionAreaInFileLocation(ITree tree, org.meta_environment.rascal.ast.Expression filename, org.meta_environment.rascal.ast.Expression areaExpression) { 
 org.meta_environment.rascal.ast.Expression.AreaInFileLocation x = new org.meta_environment.rascal.ast.Expression.AreaInFileLocation(tree, filename, areaExpression);
 		if (!table.containsKey(x)) { 
@@ -1844,26 +1837,12 @@ org.meta_environment.rascal.ast.Expression.AreaInFileLocation x = new org.meta_e
 		}
 		return (org.meta_environment.rascal.ast.Expression.AreaInFileLocation)table.get(x); 
 }
-public org.meta_environment.rascal.ast.Expression.AreaLocation makeExpressionAreaLocation(ITree tree, org.meta_environment.rascal.ast.Expression areaExpression) { 
-org.meta_environment.rascal.ast.Expression.AreaLocation x = new org.meta_environment.rascal.ast.Expression.AreaLocation(tree, areaExpression);
-		if (!table.containsKey(x)) { 
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.AreaLocation)table.get(x); 
-}
 public org.meta_environment.rascal.ast.Expression.FileLocation makeExpressionFileLocation(ITree tree, org.meta_environment.rascal.ast.Expression filename) { 
 org.meta_environment.rascal.ast.Expression.FileLocation x = new org.meta_environment.rascal.ast.Expression.FileLocation(tree, filename);
 		if (!table.containsKey(x)) { 
 			table.put(x, x);
 		}
 		return (org.meta_environment.rascal.ast.Expression.FileLocation)table.get(x); 
-}
-public org.meta_environment.rascal.ast.Expression.Area makeExpressionArea(ITree tree, org.meta_environment.rascal.ast.Area area) { 
-org.meta_environment.rascal.ast.Expression.Area x = new org.meta_environment.rascal.ast.Expression.Area(tree, area);
-		if (!table.containsKey(x)) { 
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.Area)table.get(x); 
 }
 public org.meta_environment.rascal.ast.Expression.Map makeExpressionMap(ITree tree, java.util.List<org.meta_environment.rascal.ast.Mapping> mappings) { 
 org.meta_environment.rascal.ast.Expression.Map x = new org.meta_environment.rascal.ast.Expression.Map(tree, mappings);
@@ -1927,20 +1906,6 @@ org.meta_environment.rascal.ast.Mapping.Default x = new org.meta_environment.ras
 			table.put(x, x);
 		}
 		return (org.meta_environment.rascal.ast.Mapping.Default)table.get(x); 
-}
-public org.meta_environment.rascal.ast.Area.Ambiguity makeAreaAmbiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Area> alternatives) { 
-org.meta_environment.rascal.ast.Area.Ambiguity amb = new org.meta_environment.rascal.ast.Area.Ambiguity(tree, alternatives);
-     if (!table.containsKey(amb)) {
-        table.put(amb, amb);
-     }
-     return (org.meta_environment.rascal.ast.Area.Ambiguity)table.get(amb); 
-}
-public org.meta_environment.rascal.ast.Area.Default makeAreaDefault(ITree tree, org.meta_environment.rascal.ast.Expression beginLine, org.meta_environment.rascal.ast.Expression beginColumn, org.meta_environment.rascal.ast.Expression endLine, org.meta_environment.rascal.ast.Expression endColumn, org.meta_environment.rascal.ast.Expression offset, org.meta_environment.rascal.ast.Expression length) { 
-org.meta_environment.rascal.ast.Area.Default x = new org.meta_environment.rascal.ast.Area.Default(tree, beginLine, beginColumn, endLine, endColumn, offset, length);
-		if (!table.containsKey(x)) { 
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Area.Default)table.get(x); 
 }
 public org.meta_environment.rascal.ast.TagString.Ambiguity makeTagStringAmbiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.TagString> alternatives) { 
 org.meta_environment.rascal.ast.TagString.Ambiguity amb = new org.meta_environment.rascal.ast.TagString.Ambiguity(tree, alternatives);
@@ -2984,6 +2949,27 @@ org.meta_environment.rascal.ast.FunctionAsValue.Default x = new org.meta_environ
 			table.put(x, x);
 		}
 		return (org.meta_environment.rascal.ast.FunctionAsValue.Default)table.get(x); 
+}
+public org.meta_environment.rascal.ast.Field.Index makeFieldIndex(ITree tree, org.meta_environment.rascal.ast.IntegerLiteral fieldIndex) { 
+org.meta_environment.rascal.ast.Field.Index x = new org.meta_environment.rascal.ast.Field.Index(tree, fieldIndex);
+		if (!table.containsKey(x)) { 
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Field.Index)table.get(x); 
+}
+public org.meta_environment.rascal.ast.Field.Ambiguity makeFieldAmbiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Field> alternatives) { 
+org.meta_environment.rascal.ast.Field.Ambiguity amb = new org.meta_environment.rascal.ast.Field.Ambiguity(tree, alternatives);
+     if (!table.containsKey(amb)) {
+        table.put(amb, amb);
+     }
+     return (org.meta_environment.rascal.ast.Field.Ambiguity)table.get(amb); 
+}
+public org.meta_environment.rascal.ast.Field.Name makeFieldName(ITree tree, org.meta_environment.rascal.ast.Name fieldName) { 
+org.meta_environment.rascal.ast.Field.Name x = new org.meta_environment.rascal.ast.Field.Name(tree, fieldName);
+		if (!table.containsKey(x)) { 
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Field.Name)table.get(x); 
 }
 public org.meta_environment.rascal.ast.ClosureAsFunction.Ambiguity makeClosureAsFunctionAmbiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.ClosureAsFunction> alternatives) { 
 org.meta_environment.rascal.ast.ClosureAsFunction.Ambiguity amb = new org.meta_environment.rascal.ast.ClosureAsFunction.Ambiguity(tree, alternatives);

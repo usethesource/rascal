@@ -73,7 +73,6 @@ import org.meta_environment.rascal.ast.Expression.Ambiguity;
 import org.meta_environment.rascal.ast.Expression.And;
 import org.meta_environment.rascal.ast.Expression.Area;
 import org.meta_environment.rascal.ast.Expression.AreaInFileLocation;
-import org.meta_environment.rascal.ast.Expression.AreaLocation;
 import org.meta_environment.rascal.ast.Expression.Bracket;
 import org.meta_environment.rascal.ast.Expression.CallOrTree;
 import org.meta_environment.rascal.ast.Expression.Closure;
@@ -872,7 +871,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 	@Override
 	public EvalResult visitExpressionSubscript(Subscript x) {
-		EvalResult subs = x.getSubscript().accept(this);
+		// TODO add support for multiple subscripts
+		EvalResult subs = x.getSubscripts().get(0).accept(this);
 		EvalResult expr = x.getExpression().accept(this);
 
 		Type exprBase = expr.type.getBaseType();
@@ -2035,12 +2035,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 	@Override
 	public EvalResult visitExpressionArea(Area x) {
-		return x.getArea().accept(this);
-	}
-	
-	@Override
-	public EvalResult visitAreaDefault(
-			org.meta_environment.rascal.ast.Area.Default x) {
 		EvalResult beginLine = x.getBeginLine().accept(this);
 		EvalResult endLine = x.getEndLine().accept(this);
 		EvalResult beginColumn = x.getBeginColumn().accept(this);
@@ -2066,7 +2060,16 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		
 	   System.err.println("AreaExpression: " + x.getAreaExpression());
 	   EvalResult area = x.getAreaExpression().accept(this);
+	   
+	   if (!area.type.isSubtypeOf(tf.sourceRangeType())) {
+		   throw new RascalTypeError("Expected area, got " + area.type);
+	   }
+	   
 	   EvalResult file = x.getFilename().accept(this);
+	   
+	   if (!area.type.isSubtypeOf(tf.stringType())) {
+		   throw new RascalTypeError("Expected string filename, got " + file.type);
+	   }
 	   
 	   System.err.println("area = " + area);
 	   System.err.println("file = " + file);
@@ -2077,12 +2080,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	   ISourceRange range = (ISourceRange) area.value;
 	   
 	   return result(tf.sourceLocationType(), vf.sourceLocation(stringValue(file), range));
-	}
-	
-	@Override
-	public EvalResult visitExpressionAreaLocation(AreaLocation x) {
-		// TODO I think this is a bug in the grammar (double area(area(...)))
-		throw new RascalBug("Area in file nyi:" + x);
 	}
 	
 	@Override
@@ -2126,7 +2123,15 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 	@Override
 	public EvalResult visitExpressionFileLocation(FileLocation x) {
-		return x.getFilename().accept(this);
+		EvalResult result = x.getFilename().accept(this);
+		
+		 if (!result.type.isSubtypeOf(tf.stringType())) {
+			   throw new RascalTypeError("Expected area, got " + result.type);
+		 }
+		 
+		 return result(tf.sourceLocationType(), 
+				 vf.sourceLocation(((IString) result.value).getValue(), 
+				 vf.sourceRange(0, 0, 1, 1, 0, 0)));
 	}
 	
 	@Override
