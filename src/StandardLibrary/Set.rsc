@@ -1,10 +1,12 @@
 module Set
 
+/*
 public set[&T] java add(&T elm, set[&T] st)
 @doc{add -- add an element to a set}
  {
     return st.insert(elm);
  }
+ */
  
 public &T average(set[&T] st, &T zero)
 @doc{average -- compute the average of the elements of a set}
