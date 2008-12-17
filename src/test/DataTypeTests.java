@@ -360,7 +360,9 @@ public class DataTypeTests extends TestCase{
 		assertTrue(tf.runTest("{} + {1, 2, 3} == {1, 2, 3};"));
 		assertTrue(tf.runTest("{1, 2} + {3, 4, 5} == {1, 2, 3, 4, 5};"));	
 		assertTrue(tf.runTest("{1, 2, 3, 4} + {3, 4, 5} == {1, 2, 3, 4, 5};"));
-		assertTrue(tf.runTest("{{1, 2}, {3,4}} + {{5,6}} == {{1,2},{3,4},{5,6}};"));	
+		assertTrue(tf.runTest("{{1, 2}, {3,4}} + {{5,6}} == {{1,2},{3,4},{5,6}};"));
+		assertTrue(tf.runTest("1 + {2,3} == {1,2,3};"));
+		assertTrue(tf.runTest("{1,2} + 3 == {1,2,3};"));
 		
 		assertTrue(tf.runTest("{} - {} == {};"));
 		assertTrue(tf.runTest("{1, 2, 3} - {} == {1, 2, 3};"));
@@ -368,6 +370,7 @@ public class DataTypeTests extends TestCase{
 		assertTrue(tf.runTest("{1, 2, 3} - {3, 4, 5} == {1, 2};"));	
 		assertTrue(tf.runTest("{1, 2, 3, 4} - {1, 2, 3, 4, 5} == {};"));
 		assertTrue(tf.runTest("{{1, 2}, {3,4}, {5,6}} - {{3,4}} == {{1,2}, {5,6}};"));
+		assertTrue(tf.runTest("{1,2,3} - 3} == {1,2};"));
 		
 		assertTrue(tf.runTest("{} & {} == {};"));
 		assertTrue(tf.runTest("{1, 2, 3} & {} == {};"));
