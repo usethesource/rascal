@@ -45,6 +45,7 @@ import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.Case;
 import org.meta_environment.rascal.ast.Declaration;
 import org.meta_environment.rascal.ast.Declarator;
+import org.meta_environment.rascal.ast.Field;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.FunctionModifier;
 import org.meta_environment.rascal.ast.Generator;
@@ -82,6 +83,7 @@ import org.meta_environment.rascal.ast.Expression.Comprehension;
 import org.meta_environment.rascal.ast.Expression.Division;
 import org.meta_environment.rascal.ast.Expression.Equivalence;
 import org.meta_environment.rascal.ast.Expression.Exists;
+import org.meta_environment.rascal.ast.Expression.FieldProject;
 import org.meta_environment.rascal.ast.Expression.FieldUpdate;
 import org.meta_environment.rascal.ast.Expression.FileLocation;
 import org.meta_environment.rascal.ast.Expression.ForAll;
@@ -1037,6 +1039,86 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		
 		throw new RascalTypeError("Field selection is not allowed on " + expr.type);
 	}
+	
+	private boolean duplicateIndices(int indices[]){
+		for(int i = 0; i < indices.length; i ++){
+			for(int j = 0; j < indices.length; j++){
+				if(i != j && indices[i] == indices[j]){
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	@Override
+	public EvalResult visitExpressionFieldProject(FieldProject x) {
+		EvalResult  base = x.getExpression().accept(this);
+		
+		java.util.List<Field> fields = x.getFields();
+		int nFields = fields.size();
+		int selectedFields[] = new int[nFields];
+		
+		if(base.type.isTupleType()){
+			Type fieldTypes[] = new Type[nFields];
+			
+			for(int i = 0 ; i < nFields; i++){
+				Field f = fields.get(i);
+				if(f.isIndex()){
+					selectedFields[i] = ((IInteger) f.getFieldIndex().accept(this).value).getValue();
+				} else {
+					String fieldName = f.getFieldName().toString();
+					try {
+						selectedFields[i] = ((TupleType)base.type).getFieldIndex(fieldName);
+					} catch (Exception e){
+						throw new RascalTypeError("Undefined field " + fieldName + " in projection");
+					}
+				}
+				if(selectedFields[i] < 0 || selectedFields[i] > ((TupleType)base.type).getArity()){
+					throw new RascalTypeError("Index " + selectedFields[i] + " in projection exceeds arity of tuple");
+				}
+				fieldTypes[i] = ((TupleType)base.type).getFieldType(selectedFields[i]);
+			}
+			if(duplicateIndices(selectedFields)){
+				throw new RascalTypeError("Duplicate fields in projection");
+			}
+			Type resultType = nFields == 1 ? fieldTypes[0] : tf.tupleType(fieldTypes);
+			
+			return result(resultType, ((ITuple)base.value).select(selectedFields));				     
+		}
+		if(base.type.isRelationType()){
+			
+			Type fieldTypes[] = new Type[nFields];
+			
+			for(int i = 0 ; i < nFields; i++){
+				Field f = fields.get(i);
+				if(f.isIndex()){
+					selectedFields[i] = ((IInteger) f.getFieldIndex().accept(this).value).getValue();
+				} else {
+					String fieldName = f.getFieldName().toString();
+					try {
+						// TODO: selectedFields[i] = ((RelationType)base.type).getFieldIndex(fieldName);
+						selectedFields[i] = 0;
+						throw new RascalBug("Field names in projection not yet implemented");
+					} catch (Exception e){
+						throw new RascalTypeError("Undefined field " + fieldName + " in projection");
+					}
+				}
+				if(selectedFields[i] < 0 || selectedFields[i] > ((RelationType)base.type).getArity()){
+					throw new RascalTypeError("Index " + selectedFields[i] + " in projection exceeds arity of tuple");
+				}
+				fieldTypes[i] = ((RelationType)base.type).getFieldType(selectedFields[i]);
+			}
+			if(duplicateIndices(selectedFields)){
+				throw new RascalTypeError("Duplicate fields in projection");
+			}
+			Type resultType = nFields == 1 ? tf.setType(fieldTypes[0]) : tf.relType(fieldTypes);
+			
+			return result(resultType, ((IRelation)base.value).select(selectedFields));				     
+		}
+		throw new RascalTypeError("Type " + base.type + " does not allow projection");
+	}
+	
 	@Override
 	public EvalResult visitStatementFail(Fail x) {
 		if (x.getFail().isWithLabel()) {
