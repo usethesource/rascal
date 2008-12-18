@@ -28,4 +28,9 @@ public class RascalException extends RuntimeException {
 	public IValue getException() {
 		return exception;
 	}
+	
+	@Override
+	public String getMessage() {
+		return exception.toString();
+	}
 }

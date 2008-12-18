@@ -28,6 +28,7 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.impl.hash.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.BoolType;
 import org.eclipse.imp.pdb.facts.type.DoubleType;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
@@ -86,10 +87,12 @@ public class JavaFunctionCaller {
 	}
 	
 	public IValue callJavaMethod(FunctionDeclaration declaration, IValue[] actuals) {
+		Parameters parameters = declaration.getSignature().getParameters();
+		Class<?>[] javaTypes = getJavaTypes(parameters);
+		
 		try {
 			Class<?> clazz = getJavaClass(declaration);
-			Parameters parameters = declaration.getSignature().getParameters();
-			Class<?>[] javaTypes = getJavaTypes(parameters);
+		
 			if (javaTypes.length > 0) { // non-void
 			  Method method = clazz.getDeclaredMethod(METHOD_NAME, javaTypes);
 			  return (IValue) method.invoke(null, (Object[]) actuals);
@@ -101,7 +104,9 @@ public class JavaFunctionCaller {
 		} catch (SecurityException e) {
 			throw new RascalBug("Unexpected security exception", e);
 		} catch (NoSuchMethodException e) {
-			throw new RascalBug("Method that was just generated could not be found", e);
+			throw new RascalBug("Method that was just generated could not be found:\n" +
+					"Formal parameters: " + parameters +"\n" +
+					"Java Types: " + toString(javaTypes), e);
 		} catch (ClassNotFoundException e) {
 			throw new RascalBug("Class that was just generated could not be found", e);
 		} catch (IllegalArgumentException e) {
@@ -109,10 +114,33 @@ public class JavaFunctionCaller {
 		} catch (IllegalAccessException e) {
 			throw new RascalBug("Unexpected illegal access exception", e);
 		} catch (InvocationTargetException e) {
-			throw new RascalBug("Method that was just generated in a generated class could not be called on that class", e);
+			Throwable targetException = e.getTargetException();
+			
+			if (targetException instanceof RascalException) {
+				throw (RascalException) targetException;
+			}
+			else {
+				throw new RascalException(ValueFactory.getInstance(), targetException.getMessage());
+			}
 		}
 	}
 	
+	private String toString(IValue[] actuals) {
+		StringBuilder str = new StringBuilder();
+		for (IValue value : actuals) {
+			str.append(value.getClass().getCanonicalName() + " ");
+		}
+		return str.toString();
+	}
+
+	private String toString(Class<?>[] javaTypes) {
+		StringBuilder str = new StringBuilder();
+		for (Class<?> clazz : javaTypes) {
+			str.append(clazz.getCanonicalName() + " ");
+		}
+		return str.toString();
+	}
+
 	private Class<?> getJavaClass(FunctionDeclaration declaration) throws ClassNotFoundException {
 		Class<?> clazz = cache.get(declaration);
 		

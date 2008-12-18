@@ -60,7 +60,7 @@ public class RascalShell {
 				    printStacktrace(console, e);
 				}
 				catch (RascalTypeError e) {
-					console.printString("error: " + e.getMessage() + "\n");
+					console.printString("type error: " + e.getMessage() + "\n");
 					if (e.hasCause()) {
 						console.printString("caused by: " + e.getCause().getMessage() + "\n");
 					}
@@ -72,6 +72,9 @@ public class RascalShell {
 						console.printString("caused by: " + e.getCause().getMessage() + "\n");
 					}
 					printStacktrace(console, e);
+				}
+				catch (RascalException e) {
+					console.printString("exception: " + e.getMessage() + "\n");
 				}
 			}
 		}
