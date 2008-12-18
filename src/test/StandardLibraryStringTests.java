@@ -6,11 +6,9 @@ import junit.framework.TestCase;
 
 public class StandardLibraryStringTests extends TestCase {
 	
-	private TestFramework tf = new TestFramework();
+	private static TestFramework tf = new TestFramework("import String;");
 	
 	public void testString() throws IOException {
-		
-		tf.prepare("import String;");
 		
 		System.err.println("String::charAt");
 		

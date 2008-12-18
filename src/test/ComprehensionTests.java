@@ -5,7 +5,8 @@ import junit.framework.TestCase;
 import java.io.IOException;
 
 public class ComprehensionTests extends TestCase {
-	private TestFramework tf = new TestFramework();
+	
+	private static TestFramework tf = new TestFramework();
 	
 	public void testSetComprehension() throws IOException {
 		assertTrue(tf.runTest("{ X | int X : {} } == {};"));

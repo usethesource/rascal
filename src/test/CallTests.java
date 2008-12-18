@@ -5,7 +5,7 @@ import java.io.IOException;
 
 public class CallTests extends TestCase{
 	
-	private TestFramework tf = new TestFramework();
+	private static TestFramework tf = new TestFramework();
 	
 	public void testFac() throws IOException {
 		String fac = "int fac(int n){ return (n <= 0) ? 1 : (n * fac(n - 1));}";

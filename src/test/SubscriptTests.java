@@ -5,7 +5,8 @@ import java.io.IOException;
 import junit.framework.TestCase;
 
 public class SubscriptTests extends TestCase {
-	private TestFramework tf = new TestFramework();
+	
+	private static TestFramework tf = new TestFramework();
 	
 	public void testList() throws IOException{
 		

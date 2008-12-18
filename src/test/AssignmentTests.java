@@ -4,7 +4,8 @@ import junit.framework.TestCase;
 import java.io.IOException;
 
 public class AssignmentTests extends TestCase {
-	private TestFramework tf = new TestFramework();
+	
+	private static TestFramework tf = new TestFramework();
 	
 	public void testSimple() throws IOException {
 		

@@ -5,7 +5,7 @@ import java.io.IOException;
 
 public class RegExpTests extends TestCase {
 	
-	private TestFramework tf = new TestFramework();
+	private static TestFramework tf = new TestFramework();
 	
 	public void testMatch() throws IOException {
 		assertTrue(tf.runTest("/abc/ ~= \"abc\";"));

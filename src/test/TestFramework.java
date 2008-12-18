@@ -12,6 +12,7 @@ import org.meta_environment.rascal.ast.Command;
 import org.meta_environment.rascal.ast.Module;
 import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.RascalBug;
+import org.meta_environment.rascal.interpreter.RascalRunTimeError;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
 import org.meta_environment.uptr.Factory;
@@ -21,6 +22,18 @@ public class TestFramework {
 	private ASTFactory factory = new ASTFactory();
 	private ASTBuilder builder = new ASTBuilder(factory);
 	private Evaluator evaluator;
+	
+	public TestFramework () {
+		
+	}
+	
+	public TestFramework (String  command){
+		try {
+			prepare(command);
+		} catch (Exception e){
+			throw new RascalRunTimeError("Exception while creating TestFramework: " + e);
+		}
+	}
 	
 	boolean runTest(String command) throws IOException {
 		evaluator = new Evaluator(ValueFactory.getInstance(), factory,
