@@ -8,9 +8,11 @@ import junit.framework.TestCase;
 
 public class ImportTests extends TestCase {
 	
-	private static TestFramework tf = new TestFramework();
+	private TestFramework tf = new TestFramework();
 	
 	public void testFun() throws IOException{
+		
+		tf = new TestFramework();
 		
 		tf.prepareModule("module M" +
 				         " public int f(int n) {return 2 * n;}" +
@@ -24,6 +26,8 @@ public class ImportTests extends TestCase {
 	}
 	
 	public void testVar() throws IOException{
+		
+		tf = new TestFramework();
 		
 		tf.prepareModule("module M\n" +
 				         "public int n = 3;\n" +
@@ -43,6 +47,8 @@ public class ImportTests extends TestCase {
 	
 	public void testMbase1() throws IOException{
 		
+		tf = new TestFramework();
+		
 		tf.prepare("import Mbase;");
 		
 		assertTrue(tf.runTestInSameEvaluator("Mbase::n == 2;"));
@@ -53,6 +59,8 @@ public class ImportTests extends TestCase {
 	}
 	
 	public void testMbase2() throws IOException{
+		
+		tf = new TestFramework();
 		
 		tf.prepareModule("module M " +
 						 "import Mbase; " +
@@ -66,6 +74,8 @@ public class ImportTests extends TestCase {
 	}
 	
 	public void testMbase3() throws IOException{
+		
+		tf = new TestFramework();
 		
 		tf.prepareModule("module M " +
 						 "import Mbase;" +

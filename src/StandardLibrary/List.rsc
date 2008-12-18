@@ -14,10 +14,13 @@ public list[&T] java add(&T elm, list[&T] lst)
  {
  	IListWriter w = lst.getType().writer(values);
  	int k = n.getValue();
-    if(k >= 0 && k < lst.length()){
+    if(k >= 0 && k <= lst.length()){
+      if(k == lst.length()){
+      	w.insert(elm);
+      }
       for(int i = lst.length()-1; i >= 0; i--) {
         w.insert(lst.get(i));
-        if(i == n.getValue()){
+        if(i == k){
         	w.insert(elm);
         }
       }

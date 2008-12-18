@@ -88,8 +88,8 @@ public class StandardLibrarySetTests extends TestCase {
 	
 	public void testSetTakeOneFrom() throws IOException {	
 	
-		assertTrue(tf.runTestInSameEvaluator("{<E, S> = Set::takeOneFrom({1}); (E == 1) && (S == {}) ;}"));
-		assertTrue(tf.runTestInSameEvaluator("{<E, S> = Set::takeOneFrom({1,2}); ((E == 1) && (S == {2})) || ((E == 2) && (L == {1});}"));
+		assertTrue(tf.runTestInSameEvaluator("{<E, SI> = Set::takeOneFrom({1}); (E == 1) && (SI == {}) ;}"));
+		assertTrue(tf.runTestInSameEvaluator("{<E, SI> = Set::takeOneFrom({1,2}); ((E == 1) && (SI == {2})) || ((E == 2) && (SI == {1}));}"));
 	}
 	
 	public void testSetToList() throws IOException {	
