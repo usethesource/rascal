@@ -1,5 +1,12 @@
 module Set
 
+import Print;
+
+public void echo(str msg)
+{
+	print("Echo: ", msg);
+	return;
+}
  
 public &T average(set[&T] st, &T zero)
 @doc{average -- compute the average of the elements of a set}
@@ -65,11 +72,14 @@ public set[set[&T]] power(set[&T] st)
 @doc{power -- return all subsets of a set}
 {
   set[set[&T]] result = {st};
+  print("(1) result = ", result);
   for(&T elm : st){
-  	set[set[&T]] pw = power(st - {elm});
+  	set[set[&T]] pw = power(st - elm);
   	result = result + pw;
+  	print("(1) result = ", result);
   	for(set[&T] sub : pw){
-  		result = result + {sub + {elm}};
+  		result = result + {sub + elm};
+  		  print("(1) result = ", result);
   	}
   }
   return result;
@@ -107,7 +117,7 @@ public tuple[&T, set[&T]] java takeOneFrom(set[&T] st)
       int i = 0;
    	  int k = random.nextInt(n);
    	  IValue pick = null;
-   	  IListWriter w = st.getType().writer(values);
+   	  ISetWriter w = st.getType().writer(values);
    	  Iterator iter = st.iterator();
   
       while(iter.hasNext()){
@@ -120,7 +130,7 @@ public tuple[&T, set[&T]] java takeOneFrom(set[&T] st)
    	  }
       return values.tuple(pick, w.done());
    	} else {
-   		throw new RascalException(values, "empty_list");
+   		throw new RascalException(values, "empty_set");
    	}
 }
   

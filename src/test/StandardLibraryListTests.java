@@ -34,7 +34,7 @@ public class StandardLibraryListTests extends TestCase {
 		assertTrue(tf.runTestInSameEvaluator("{List::first([1, 2]) == 1;};"));
 	}
 	
-	public void testLisGetOneFrom() throws IOException {
+	public void testListGetOneFrom() throws IOException {
 		
 		assertTrue(tf.runTestInSameEvaluator("{int N = List::getOneFrom([1]); N == 1;}"));
 		assertTrue(tf.runTestInSameEvaluator("{int N = getOneFrom([1]); N == 1;}"));
@@ -130,20 +130,20 @@ public class StandardLibraryListTests extends TestCase {
 		//assertTrue(tf.runTestInSameEvaluator("{List::sum([1, 1, 1], 0) == 3;};"));
 	}
 	
-	public void testLisTakeOneFrom() throws IOException {	
+	public void testListTakeOneFrom() throws IOException {	
 		
-		assertTrue(tf.runTestInSameEvaluator("{<E, L> = List::takeOneFrom([1]}; (E == 1) && (L == []);}"));
-		assertTrue(tf.runTestInSameEvaluator("{<E, L> = List::takeOneFrom([1,2]}; ((E == 1) && (L == [2])) || ((E == 2) && (L == [1]);}"));
+		assertTrue(tf.runTestInSameEvaluator("{<E, L> = List::takeOneFrom([1]); (E == 1) && (L == []);}"));
+		assertTrue(tf.runTestInSameEvaluator("{<E, L> = List::takeOneFrom([1,2]); ((E == 1) && (L == [2])) || ((E == 2) && (L == [1]));}"));
 	}
 	
-	public void testLisToMap() throws IOException {	
+	public void testListToMap() throws IOException {	
 		
 		assertTrue(tf.runTestInSameEvaluator("{List::toMap([]) == ();};"));
 		assertTrue(tf.runTestInSameEvaluator("{toMap([]) == ();};"));
 		assertTrue(tf.runTestInSameEvaluator("{List::toMap([<1,10>, <2,20>]) == (1:10, 2:20);};"));
 	}
 	
-	public void testLisToList() throws IOException {	
+	public void testListToSet() throws IOException {	
 		
 		assertTrue(tf.runTestInSameEvaluator("{List::toSet([]) == {};};"));
 		assertTrue(tf.runTestInSameEvaluator("{toSet([]) == {};};"));
@@ -152,7 +152,7 @@ public class StandardLibraryListTests extends TestCase {
 		assertTrue(tf.runTestInSameEvaluator("{List::toSet([1, 2, 1]) == {1, 2};};"));
 	}
 	
-	public void testLisToString() throws IOException {		
+	public void testListToString() throws IOException {		
 		
 		assertTrue(tf.runTestInSameEvaluator("{List::toString([]) == \"[]\";};"));
 		assertTrue(tf.runTestInSameEvaluator("{toString([]) == \"[]\";};"));
