@@ -5,7 +5,7 @@ import java.io.IOException;
 
 public class DataTypeTests extends TestCase{
 	
-	private TestFramework tf = new TestFramework();
+	private static TestFramework tf = new TestFramework();
 	
 	public void testBool() throws IOException
 	{
@@ -370,7 +370,7 @@ public class DataTypeTests extends TestCase{
 		assertTrue(tf.runTest("{1, 2, 3} - {3, 4, 5} == {1, 2};"));	
 		assertTrue(tf.runTest("{1, 2, 3, 4} - {1, 2, 3, 4, 5} == {};"));
 		assertTrue(tf.runTest("{{1, 2}, {3,4}, {5,6}} - {{3,4}} == {{1,2}, {5,6}};"));
-		assertTrue(tf.runTest("{1,2,3} - 3} == {1,2};"));
+		assertTrue(tf.runTest("{1,2,3} - 3 == {1,2};"));
 		
 		assertTrue(tf.runTest("{} & {} == {};"));
 		assertTrue(tf.runTest("{1, 2, 3} & {} == {};"));

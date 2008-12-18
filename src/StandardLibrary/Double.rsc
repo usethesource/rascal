@@ -1,6 +1,6 @@
 module Double
 
-public double java arbDoublr()
+public double java arbDouble()
 @java-imports{import java.util.Random;}
 @doc{arbDouble -- returns an arbitrary double value in the interval [0.0,1.0).}
 {

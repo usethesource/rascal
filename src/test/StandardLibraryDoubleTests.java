@@ -5,11 +5,10 @@ import java.io.IOException;
 import junit.framework.TestCase;
 
 public class StandardLibraryDoubleTests extends TestCase {
-	private TestFramework tf = new TestFramework();
+	
+	private static TestFramework tf = new TestFramework("import Double;");
 	
 	public void testDouble() throws IOException {
-		
-		tf.prepare("import Double;");
 		
 		System.err.println("Double::arb");
 		

@@ -6,11 +6,9 @@ import junit.framework.TestCase;
 
 public class StandardLibraryIntegerTests extends TestCase {
 	
-	private TestFramework tf = new TestFramework();
+	private static TestFramework tf = new TestFramework("import Integer;");
 
 		public void testInteger() throws IOException {
-		
-		tf.prepare("import Integer;");
 		
 		System.err.println("Integer::arb");
 		

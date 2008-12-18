@@ -6,7 +6,7 @@ import junit.framework.TestCase;
 
 public class StandardLibraryBooleanTests extends TestCase {
 	
-	private TestFramework tf = new TestFramework();
+	private static TestFramework tf = new TestFramework();
 
 	public void testBoolean() throws IOException {
 		

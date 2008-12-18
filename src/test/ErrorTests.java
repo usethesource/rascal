@@ -6,7 +6,7 @@ import java.io.IOException;
 
 public class ErrorTests extends TestCase{
 	
-	private TestFramework tf = new TestFramework();
+	private static TestFramework tf = new TestFramework();
 	
 	public void testErrors() throws IOException{
 		assertTrue(tf.runWithError("int i = true;", "declared type integer incompatible with initialization type bool"));

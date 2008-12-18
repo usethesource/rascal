@@ -10,6 +10,7 @@ public class AllTests {
 		suite.addTestSuite(DataTypeTests.class);
 		suite.addTestSuite(DataDeclarationTests.class);
 		suite.addTestSuite(AssignmentTests.class);
+		suite.addTestSuite(SubscriptTests.class);
 		suite.addTestSuite(RegExpTests.class);
 		suite.addTestSuite(PatternTests.class);
 		suite.addTestSuite(ComprehensionTests.class);

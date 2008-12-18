@@ -5,7 +5,7 @@ import java.io.IOException;
 
 public class StatementTests extends TestCase {
 	
-	private TestFramework tf = new TestFramework();
+	private static TestFramework tf = new TestFramework();
 
     public void testAssert() throws IOException {
     	assertTrue(tf.runTest("assert \"1\": 3 > 2;"));
