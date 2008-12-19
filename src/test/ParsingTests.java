@@ -20,7 +20,7 @@ public class ParsingTests extends TestCase {
 
 	public void doParse(String dir) {
 		Parser parser = Parser.getInstance();
-		File directory = new File("../rascal-grammar/spec/languages/rascal/examples/" + dir);
+		File directory = new File("demo/" + dir);
 
 		File[] tests = directory.listFiles(new FilenameFilter() {
 			public boolean accept(File dir, String name) {
