@@ -45,10 +45,9 @@ public class StandardLibraryListTests extends TestCase {
 	}
 	
 	public void testListMapper() throws IOException {	
-		fail();
 		
-		assertTrue(tf.runTestInSameEvaluator("{int inc(int n) {return n + 1;} mapper([1, 2, 3], #inc) == [2, 4, 6];};"));
-		assertTrue(tf.runTestInSameEvaluator("{int inc(int n) {return n + 1;} List::mapper([1, 2, 3], #inc) == [2, 4, 6];};"));
+		assertTrue(tf.runTestInSameEvaluator("{int inc(int n) {return n + 1;} mapper([1, 2, 3], #inc) == [2, 3, 4];};"));
+		assertTrue(tf.runTestInSameEvaluator("{int inc(int n) {return n + 1;} List::mapper([1, 2, 3], #inc) == [2, 3, 4];};"));
 	}
 	
 	public void testListMax() throws IOException {	
