@@ -1,8 +1,11 @@
 module Calls
 
+import Set;
 import Relation;
 
 type str Proc;
+
+public void main(){
 
 rel[Proc, Proc] Calls = {<"a", "b">, <"b", "c">, <"b", "d">, <"d", "c">, <"d", "e">, <"f", "e">, <"f", "g">, <"g", "e">};
 
@@ -47,3 +50,4 @@ assert "a5": calledFromF == {"e", "g"};
 set[Proc] commonProcs = calledFromA & calledFromF;
 
 assert "a6": commonProcs == {"e"};
+}

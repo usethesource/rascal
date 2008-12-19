@@ -41,6 +41,18 @@ public rel[&T0, &T1] complement(rel[&T0, &T1] R)
   return (domain(R) * range(R)) - R;
 }
 
+public rel[&T0, &T1, &T2] complement(rel[&T0, &T1, &T2] R)
+@doc{complement -- complement of relation}
+{
+  return {<V0, V1, V2> | &T0 V0 : R<0>, &T1 V1 : R<1>,  &T2 V2 : R<2>, <V0, V1, V2> notin R};
+}
+
+public rel[&T0, &T1, &T2, &T3] complement(rel[&T0, &T1, &T2, &T3] R)
+@doc{complement -- complement of relation}
+{
+  return {<V0, V1, V2, V3> | &T0 V0 : R<0>, &T1 V1 : R<1>,  &T2 V2 : R<2>, &T3 V3 : R<3>, <V0, V1, V2, V3> notin R};
+}
+
 public rel[&T1, &T3] compose(rel[&T1, &T2] R,
                                  rel[&T2, &T3] S)
   @doc{Compose two relations}
