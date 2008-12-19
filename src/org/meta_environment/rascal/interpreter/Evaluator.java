@@ -2166,7 +2166,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	@Override
 	public EvalResult visitExpressionAreaInFileLocation(AreaInFileLocation x) {
 		
-	   System.err.println("AreaExpression: " + x.getAreaExpression());
 	   EvalResult area = x.getAreaExpression().accept(this);
 	   
 	   if (!area.type.isSubtypeOf(tf.sourceRangeType())) {
@@ -2175,12 +2174,9 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	   
 	   EvalResult file = x.getFilename().accept(this);
 	   
-	   if (!area.type.isSubtypeOf(tf.stringType())) {
-		   throw new RascalTypeError("Expected string filename, got " + file.type);
+	   if (!area.type.isSubtypeOf(tf.sourceRangeType())) {
+		   throw new RascalTypeError("Expected area, got " + file.type);
 	   }
-	   
-	   System.err.println("area = " + area);
-	   System.err.println("file = " + file);
 	   
 	   checkType(area, tf.sourceRangeType());
 	   checkType(file, tf.stringType());
