@@ -193,9 +193,7 @@ public class ATermReader implements IValueReader {
 			result = expected.make(vf, list);
 		}
 		c = reader.readSkippingWS();
-		if (c == -1) {
-			throw new FactTypeError("premature EOF encountered.");
-		}
+		
 		return result;
 	}
 
