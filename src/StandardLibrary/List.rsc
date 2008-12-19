@@ -160,7 +160,7 @@ public list[&T] sort(list[&T] lst)
        greater = elm + greater;
      }
   }
-  return (sort(less) + pivot) + sort(right);
+  return (sort(less) + pivot) + sort(greater);
 }
 
 public &T sum(list[&T] lst, &T zero)
