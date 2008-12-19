@@ -214,6 +214,9 @@ public class GlobalEnvironment {
 		String module = Names.moduleName(name);
 		Name function = Names.lastName(name);
 		
+		System.err.println("getFunction: name=" + name + ", actuals=" + actuals);
+		System.err.println("getFunction: module=" + module + ", function=" + function);
+		
 		if (module != null) {
 			return getModuleFunction(module, function, actuals);
 		}
