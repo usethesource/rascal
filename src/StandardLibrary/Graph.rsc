@@ -2,21 +2,27 @@ module Graph
 
 import Relation;
 
+public set[&T] top(rel[&T,&T] G)
+@doc{Top of a Graph}
+{
+  return Relation::domain(G) - Relation::range(G); // TODO: now needed to resolve names
+}
+
+public set[&T] bottom(rel[&T, &T] G)
+@doc{Bottom of a Graph}
+{
+  return Relation::range(G) - Relation::domain(G);
+}
+
 type rel[&T,&T] graph[&T];
 
-public set[&T] top1(rel[&T,&T] G)
+public set[&T] gtop(graph[&T] G)
 @doc{Top of a Graph}
 {
   return domain(G) - range(G);
 }
 
-public set[&T] top(graph[&T] G)
-@doc{Top of a Graph}
-{
-  return domain(G) - range(G);
-}
-
-public set[&T] bottom(graph[&T] G)
+public set[&T] gbottom(graph[&T] G)
   @doc{Bottom of a Graph}
 {
   return range(G) - domain(G);
