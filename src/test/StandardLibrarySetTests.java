@@ -113,6 +113,6 @@ public class StandardLibrarySetTests extends TestCase {
 		assertTrue(tf.runTestInSameEvaluator("Set::toString({}) == \"{}\";"));
 		assertTrue(tf.runTestInSameEvaluator("toString({}) == \"{}\";"));
 		assertTrue(tf.runTestInSameEvaluator("Set::toString({1}) == \"{1}\";"));
-		assertTrue(tf.runTestInSameEvaluator("Set::toString({1, 2, 3}) == \"{1,2,3}\";"));
+		assertTrue(tf.runTestInSameEvaluator("{ S = Set::toString({1, 2}); (S == \"{1,2}\") || (S == \"{2,1}\");}"));
 	}
 }

@@ -64,13 +64,14 @@ public class ImportTests extends TestCase {
 		
 		tf.prepareModule("module M " +
 						 "import Mbase; " +
-						 "public int f() { return Mbase::f(3); } ");
+						 "public int m = n;" +
+						 "public int f() { return n; }"	 +
+						 "public int g() { return m; } "
+		);
 		
-//		assertTrue(tf.runTestInSameEvaluator("Mbase::n == 2;")); illegal access
-//		assertTrue(tf.runTestInSameEvaluator("n == 2;")); illegal access
-		assertTrue(tf.runTestInSameEvaluator("M::f() == 6;"));
-		assertTrue(tf.runTestInSameEvaluator("f() == 6;"));
-		assertTrue(tf.runTestInSameEvaluator("{ int n = 3; n == 3;}"));
+		assertTrue(tf.runTestInSameEvaluator("M::m == 2;"));
+		assertTrue(tf.runTestInSameEvaluator("M::f() == 2;"));
+		assertTrue(tf.runTestInSameEvaluator("M::g() == 2;"));
 	}
 	
 	public void testMbase3() throws IOException{
@@ -80,20 +81,17 @@ public class ImportTests extends TestCase {
 		tf.prepareModule("module M " +
 						 "import Mbase;" +
 						 "public int g(int n) {return 3 * n;}" +
-						 "public int m = 3;");
+						 "public int h(int n) {return f(n);}" +
+						 "public int m = 3;"
+		);
 		
 		assertTrue(tf.runTestInSameEvaluator("Mbase::n == 2;"));
-		assertTrue(tf.runTestInSameEvaluator("n == 2;"));
 		assertTrue(tf.runTestInSameEvaluator("Mbase::f(3) == 6;"));
-		assertTrue(tf.runTestInSameEvaluator("f(3) == 6;"));
-		assertTrue(tf.runTestInSameEvaluator("{ int n = 3; n == 3;}"));
 		
 		assertTrue(tf.runTestInSameEvaluator("M::m == 3;"));
-		assertTrue(tf.runTestInSameEvaluator("m == 2;"));
 		assertTrue(tf.runTestInSameEvaluator("M::g(3) == 9;"));
-		assertTrue(tf.runTestInSameEvaluator("g(3) == 9;"));
-		assertTrue(tf.runTestInSameEvaluator("{ int n = 3; n == 3;}"));
-		assertTrue(tf.runTestInSameEvaluator("{ int m = 4; m == 3;}"));
+		
+		assertTrue(tf.runTestInSameEvaluator("M::h(3) == 6;"));
 	}
 	
 	

@@ -148,6 +148,7 @@ import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 	public EvalResult visitAssignableTuple(Tuple x) {
 		java.util.List<Assignable> arguments = x.getElements();
 		
+		System.err.println("visitAssignableTuple: " + x + ", value: " + value);
 		if (!value.type.getBaseType().isTupleType()) {
 			throw new RascalTypeError("Receiver is a tuple, but the assigned value is not: " + value.type); 
 		}
