@@ -66,7 +66,7 @@ public &T java getOneFrom(list[&T] lst)
    	}
 }
 
-list[&T] mapper(list[&T] lst, &T (&T x,&T y) fn)
+list[&T] mapper(list[&T] lst, &T (&T x) fn)
 @doc{mapper -- apply a function to each element of a list}
 {
   return [#fn(elm) | &T elm : lst];
@@ -196,6 +196,9 @@ public map[&A,&B] java toMap(list[tuple[&A, &B]] lst)
 @doc{toMap -- convert a list of tuples to a map}
 @java-imports{import java.util.Iterator;}
 {
+   if(lst.length() == 0){
+      return values.map(types.voidType(), types.voidType());
+   }
    TupleType tuple = (TupleType) lst.getElementType();
    Type resultType = types.mapType(tuple.getFieldType(0), tuple.getFieldType(1));
   

@@ -23,16 +23,21 @@ public class StandardLibraryRelationTests extends TestCase {
 		assertTrue(tf.runTestInSameEvaluator("domain({<1,10>,<2,20>}) == {1,2};"));
 		assertTrue(tf.runTestInSameEvaluator("domain({<1,10,100>,<2,20,200>}) == {1,2};"));
 		assertTrue(tf.runTestInSameEvaluator("domain({<1,10,100,1000>,<2,20,200,2000>}) == {1,2};"));
+		assertTrue(tf.runTestInSameEvaluator("domain({<1,10,100,1000,10000>,<2,20,200,2000,20000>}) == {1,2};"));
 	}
 	
 	public void testRelInvert() throws IOException {
 		assertTrue(tf.runTestInSameEvaluator("invert({<1,10>,<2,20>}) == {<10,1>,<20,2>};"));
+		assertTrue(tf.runTestInSameEvaluator("invert({<1,10,100>,<2,20,200>}) == {<100,10,1>,<200,20,2>};"));
+		assertTrue(tf.runTestInSameEvaluator("invert({<1,10,100,1000>,<2,20,200,2000>}) == {<1000,100,10,1>,<2000,200,20,2>};"));
+		assertTrue(tf.runTestInSameEvaluator("invert({<1,10,100,1000,10000>,<2,20,200,2000,20000>}) == {<10000,1000,100,10,1>,<20000,2000,200,20,2>};"));
 	}
 	
 	public void testRelRange() throws IOException {
 		assertTrue(tf.runTestInSameEvaluator("range({<1,10>,<2,20>}) == {10,20};"));
 		assertTrue(tf.runTestInSameEvaluator("range({<1,10,100>,<2,20,200>}) == {<10,100>,<20,200>};"));
 		assertTrue(tf.runTestInSameEvaluator("range({<1,10,100,1000>,<2,20,200,2000>}) == {<10,100,1000>,<20,200,2000>};"));
+		assertTrue(tf.runTestInSameEvaluator("range({<1,10,100,1000,10000>,<2,20,200,2000,20000>}) == {<10,100,1000,10000>,<20,200,2000,20000>};"));
 	}
 
 }
