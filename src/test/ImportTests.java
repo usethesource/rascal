@@ -94,5 +94,17 @@ public class ImportTests extends TestCase {
 		assertTrue(tf.runTestInSameEvaluator("M::h(3) == 6;"));
 	}
 	
+	public void testSize()  throws IOException{
+		tf = new TestFramework();
+		
+		tf.prepareModule("module M " +
+				         "import Set;" +
+						 "import Relation;" +
+						 "public rel[str,str] Calls = {<\"a\", \"b\">, <\"b\", \"c\">};" +
+						 "public int nCalls = size(Calls);"
+		);
+		assertTrue(tf.runTestInSameEvaluator("M::nCalls == 2;"));
+	}
+	
 	
 }
