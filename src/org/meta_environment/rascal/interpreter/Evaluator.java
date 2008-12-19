@@ -392,18 +392,22 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			org.meta_environment.rascal.ast.Module.Default x) {
 		String name = x.getHeader().getName().toString();
 
-		env.addModule(name);
-		env.pushModule(name);
+		try {
+			env.addModule(name);
+			env.pushModule(name);
 
-		x.getHeader().accept(this);
+			x.getHeader().accept(this);
 
-		java.util.List<Toplevel> decls = x.getBody().getToplevels();
-		for (Toplevel l : decls) {
-			l.accept(this);
+			java.util.List<Toplevel> decls = x.getBody().getToplevels();
+			for (Toplevel l : decls) {
+				l.accept(this);
+			}
+
+			return result();
 		}
-
-		env.popModule();
-		return result();
+		finally {
+			env.popModule();
+		}
 	}
 	
 	@Override
@@ -657,15 +661,19 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 
 		 if (func != null) {
 			 String module = Names.moduleName(name);
-			 if (module != null) {
-				 env.pushModule(module);
+			 try {
+				 if (module != null) {
+					 env.pushModule(module);
+				 }
+				 EvalResult res = call(func, actuals, actualTypes);
+
+				 return res;
 			 }
-			 EvalResult res = call(func, actuals, actualTypes);
-			 
-			 if (module != null) {
-				 env.popModule();
+			 finally {
+				 if (module != null) {
+					 env.popModule();
+				 }
 			 }
-			 return res;
 		 }
 		 else {
 			 return constructTree(name, actuals, actualTypes);
@@ -772,12 +780,17 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			IValue[] actuals, TupleType actualTypes) {
 		Type type = func.getSignature().getType().accept(te);
 		TupleType formals = (TupleType) func.getSignature().getParameters().accept(te);
-		env.pushFrame();
-		IValue result = javaFunctionCaller.callJavaMethod(func, actuals);
-		bindTypeParameters(actualTypes, formals);
-		Type resultType = type.instantiate(env.getTypes());
-		env.popFrame();
-		return result(resultType, result);
+		
+		try {
+			env.pushFrame();
+			IValue result = javaFunctionCaller.callJavaMethod(func, actuals);
+			bindTypeParameters(actualTypes, formals);
+			Type resultType = type.instantiate(env.getTypes());
+			return result(resultType, result);
+		}
+		finally {
+			env.popFrame();
+		}
 	}
 
 	private EvalResult callRascalFunction(FunctionDeclaration func,
@@ -805,8 +818,11 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		catch (ReturnException e) {
 			EvalResult result = e.getValue();
 			result.type = result.type.instantiate(env.getTypes());
-			env.popFrame();
+			
 			return result;
+		} 
+		finally {
+			env.popFrame();
 		}
 	}
 
@@ -1202,11 +1218,15 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	@Override
 	public EvalResult visitStatementBlock(Block x) {
 		EvalResult r = result();
-		env.pushFrame(); // blocks are scopes
-		for(Statement stat : x.getStatements()){
-			r = stat.accept(this);
+		try {
+			env.pushFrame(); // blocks are scopes
+			for(Statement stat : x.getStatements()){
+				r = stat.accept(this);
+			}
 		}
-		env.popFrame();
+		finally {
+			env.popFrame();
+		}
 		return r;
 	}
   
