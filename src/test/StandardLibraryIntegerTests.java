@@ -5,38 +5,42 @@ import java.io.IOException;
 import junit.framework.TestCase;
 
 public class StandardLibraryIntegerTests extends TestCase {
-	
+
 	private static TestFramework tf = new TestFramework("import Integer;");
 
-		public void testInteger() throws IOException {
-		
-		System.err.println("Integer::arb");
-		
-		assertTrue(tf.runTestInSameEvaluator("{int N = Integer::arb(10); (N >= 0) && (N < 10);};"));
-		assertTrue(tf.runTestInSameEvaluator("{int N = arb(10); (N >= 0) && (N < 10);};"));
-		
-		System.err.println("Integer::max");
-		
+	public void testIntegerArb() throws IOException {
+
+		assertTrue(tf
+				.runTestInSameEvaluator("{int N = Integer::arb(10); (N >= 0) && (N < 10);}"));
+		assertTrue(tf
+				.runTestInSameEvaluator("{int N = arb(10); (N >= 0) && (N < 10);};"));
+	}
+
+	public void testIntegerMax() throws IOException {
+
 		assertTrue(tf.runTestInSameEvaluator("Integer::max(3, 10) == 10;"));
 		assertTrue(tf.runTestInSameEvaluator("max(3, 10) == 10;"));
 		assertTrue(tf.runTestInSameEvaluator("Integer::max(10, 10) == 10;"));
-		
-		System.err.println("Integer::min");
-		
+	}
+
+	public void testIntegerMin() throws IOException {
+
 		assertTrue(tf.runTestInSameEvaluator("Integer::min(3, 10) == 3;"));
 		assertTrue(tf.runTestInSameEvaluator("min(3, 10) == 3;"));
 		assertTrue(tf.runTestInSameEvaluator("Integer::min(10, 10) == 10;"));
-		
-		System.err.println("Integer::toDouble");
-		
+	}
+
+	public void testIntegerToDouble() throws IOException {
+
 		assertTrue(tf.runTestInSameEvaluator("Integer::toDouble(3) == 3.0;"));
 		assertTrue(tf.runTestInSameEvaluator("toDouble(3) == 3.0;"));
-		
-		System.err.println("Integer::toString");
-		
-		assertTrue(tf.runTestInSameEvaluator("Integer::toString(314) == \"314\";"));
-		assertTrue(tf.runTestInSameEvaluator("toString(314) == \"314\";"));
-		
 	}
-	
+
+	public void testIntegerToString() throws IOException {
+
+		assertTrue(tf
+				.runTestInSameEvaluator("Integer::toString(314) == \"314\";"));
+		assertTrue(tf.runTestInSameEvaluator("toString(314) == \"314\";"));
+	}
+
 }
