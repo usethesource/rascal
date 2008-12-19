@@ -265,7 +265,7 @@ public class DataTypeTests extends TestCase{
 	public void testLocation() throws IOException {
 		//assertTrue(tf.runTest("{area(5,2,6,8,0,0); true;}"));
 		//assertTrue(tf.runTest("{file(\"pico1.trm\"); true;}"));
-		assertTrue(tf.runTest("{area-in-file(file(\"pico1.trm\"),area(5,2,6,8,0,0)); true;}"));
+		assertTrue(tf.runTest("{area-in-file(\"pico1.trm\",area(5,2,6,8,0,0)); true;}"));
 	}
 	
 	public void testList() throws IOException 
@@ -326,7 +326,6 @@ public class DataTypeTests extends TestCase{
 		assertTrue(tf.runTest("[1 , ... , 1] == [1];"));
 		assertTrue(tf.runTest("[1 , ... , 2] == [1, 2];"));
 		assertTrue(tf.runTest("[1 , ... , -1] == [1, 0, -1];"));
-		
 		assertTrue(tf.runTest("[1, 2, ... , 10] == [1,2,3,4,5,6,7,8,9,10];"));
 		assertTrue(tf.runTest("[1, 3, ... , 10] == [1,3,5,7,9];"));
 		assertTrue(tf.runTest("[1, -2, ... , 10] == [1];"));
