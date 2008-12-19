@@ -25,6 +25,8 @@ public class AllTests {
 		suite.addTestSuite(StandardLibraryStringTests.class);
 		suite.addTestSuite(StandardLibraryListTests.class);
 		suite.addTestSuite(StandardLibrarySetTests.class);
+		suite.addTestSuite(StandardLibraryRelationTests.class);
+		suite.addTestSuite(StandardLibraryGraphTests.class);
 		
 		return suite;
 	  }
