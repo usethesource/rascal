@@ -348,18 +348,17 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			
 			// TODO: support proper search path for modules
 			// TODO: support properly packaged/qualified module names
-			if (!file.exists()) {
-				String libFileName = "src/StandardLibrary/" + fileName;
-				file = new File(libFileName);
-				if (!file.exists()) {
-					String testFileName = "src/test/" + fileName;
-					file = new File(testFileName);
-					if (!file.exists()) {
-						throw new RascalTypeError("Can not find file for module " + name);
-					}
+			String searchPath[] = {"src/StandardLibrary/", "src/test/", "demo/Rscript/"};
+			
+			for(int i = 0; i < searchPath.length; i++){
+				file = new File(searchPath[i] + fileName);
+				if(file.exists()){
+					break;
 				}
 			}
-		
+			if (!file.exists()) {
+					throw new RascalTypeError("Can not find file for module " + name);
+			}
 			
 			INode tree = p.parse(new FileInputStream(file));
 			
