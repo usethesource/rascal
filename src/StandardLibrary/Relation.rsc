@@ -61,7 +61,6 @@ public rel[&T1, &T3] compose(rel[&T1, &T2] R,
                     <&T2 Y2, &T3 Z>: S, Y1 == Y2};
 }
 
-
 public set[&T0] domain (rel[&T0,&T1] R)
 {
   return R<0>;
