@@ -97,13 +97,14 @@ public class ImportTests extends TestCase {
 	public void testSize()  throws IOException{
 		tf = new TestFramework();
 		
-		tf.prepareModule("module M " +
+		tf.prepareModule("module Msize " +
 				         "import Set;" +
-						 "import Relation;" +
-						 "public rel[str,str] Calls = {<\"a\", \"b\">, <\"b\", \"c\">};" +
-						 "public int nCalls = size(Calls);"
+						 "public set[int] Procs = {1, 2, 3};" +
+						 "public int f() {int nProcs = Set::size(Procs); return nProcs;}" +
+						 "public int g() {int nProcs = size(Procs); return nProcs;}"
 		);
-		assertTrue(tf.runTestInSameEvaluator("M::nCalls == 2;"));
+		assertTrue(tf.runTestInSameEvaluator("f() == 3;"));
+		assertTrue(tf.runTestInSameEvaluator("g() == 3;"));
 	}
 	
 	

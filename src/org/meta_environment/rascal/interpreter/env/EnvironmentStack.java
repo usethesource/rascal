@@ -88,8 +88,10 @@ public class  EnvironmentStack {
 	public Environment getFunctionDefiningEnvironment(String name, TupleType formals) {
 		int i;
 		
+		System.err.println("getFunctionDefiningEnvironment: stacksize=" + stack.size());
 		for (i = stack.size() - 1; i >= 0; i--) {
 			Environment env = stack.get(i);
+			System.err.println("stack(" + i + ")\n" + env);
 			
 			if (env.isModuleEnvironment()
 					|| env.getFunction(name, formals) != null) {
