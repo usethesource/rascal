@@ -149,8 +149,7 @@ public class ATermReader implements IValueReader {
 					throw new FactTypeError("premature EOF encountered.");
 				}
 				if (reader.getLastChar() == ')') {
-					result = vf
-							.tree(node, new IValue[0]);
+					result = vf.tree(node, new IValue[0]);
 				} else {
 					IValue[] list = parseFixedSizeATermsArray(reader, node.getChildrenTypes());
 
@@ -408,9 +407,12 @@ public class ATermReader implements IValueReader {
 				reader.read();
 				escaped = true;
 			}
+			
+			int lastChar = reader.getLastChar();
+			if(lastChar == -1) throw new IOException("Premature EOF.");
 
 			if (escaped) {
-				switch (reader.getLastChar()) {
+				switch (lastChar) {
 				case 'n':
 					str.append('\n');
 					break;
@@ -446,10 +448,11 @@ public class ATermReader implements IValueReader {
 					str.append(reader.readOct());
 					break;
 				default:
-					str.append('\\').append((char) reader.getLastChar());
+					str.append('\\').append((char) lastChar);
 				}
-			} else if (reader.getLastChar() != '\"')
-				str.append((char) reader.getLastChar());
+			} else if (lastChar != '\"'){
+				str.append((char) lastChar);
+			}
 		} while (escaped || reader.getLastChar() != '"');
 
 		return str.toString();
