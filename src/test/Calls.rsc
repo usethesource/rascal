@@ -10,7 +10,7 @@ public void main(){
 
 rel[Proc, Proc] Calls = {<"a", "b">, <"b", "c">, <"b", "d">, <"d", "c">, <"d", "e">, <"f", "e">, <"f", "g">, <"g", "e">};
 
-int nCalls = Set::size(Calls);
+int nCalls = size(Calls);
 
 assert "nCalls":nCalls == 8;
 

@@ -99,4 +99,14 @@ public class Environment {
 		typeParameters.putAll(bindings);
 	}
 	
+	public String toString(){
+		StringBuffer res = new StringBuffer();
+		for(String name : functionEnvironment.keySet()){
+			res.append(name).append(": ").append(functionEnvironment.get(name)).append("\n");
+		}
+		for(String name : variableEnvironment.keySet()){
+			res.append(name).append(": ").append(variableEnvironment.get(name)).append("\n");
+		}
+		return res.toString();
+	}
 }
