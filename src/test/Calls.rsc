@@ -10,26 +10,26 @@ public void main(){
 
 rel[Proc, Proc] Calls = {<"a", "b">, <"b", "c">, <"b", "d">, <"d", "c">, <"d", "e">, <"f", "e">, <"f", "g">, <"g", "e">};
 
-int nCalls = size(Calls);
+int nCalls = Set::size(Calls);
 
 assert "nCalls":nCalls == 8;
 
-set[Proc] Procs = carrier(Calls);
+set[Proc] Procs = Relation::carrier(Calls);
 
 assert "Procs": Procs == {"a", "b", "c", "d", "e", "f", "g"};
 
-int nProcs = size(carrier(Calls));
+int nProcs = Set::size(Relation::carrier(Calls));
 
 assert "nProcs": nProcs == 7;
 
-set[str] dCalls = domain(Calls);
-set[str] rCalls = range(Calls);
+set[str] dCalls = Relation::domain(Calls);
+set[str] rCalls = Relation::range(Calls);
 
-set[Proc] entryPoints = top(Calls);
+set[Proc] entryPoints = Graph::top(Calls);
 
 assert "a1": entryPoints == {"a", "f"};
 
-set[Proc] bottomCalls = bottom(Calls);
+set[Proc] bottomCalls = Graph::bottom(Calls);
 
 assert "a2": bottomCalls == {"c", "e"};
 
@@ -51,4 +51,6 @@ assert "a5": calledFromF == {"e", "g"};
 set[Proc] commonProcs = calledFromA & calledFromF;
 
 assert "a6": commonProcs == {"e"};
+
+return;
 }
