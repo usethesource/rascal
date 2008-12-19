@@ -44,6 +44,10 @@ public class Parser {
 		IValue tmp = reader.read(ValueFactory.getInstance(), Factory.ParseTree, sglr.getInputStream());
 		waitForSglr(sglr);
 		
+		sglr.getInputStream().close();
+		sglr.getOutputStream().close();
+		sglr.destroy();
+		
 		return (INode) tmp;
 	}
 
