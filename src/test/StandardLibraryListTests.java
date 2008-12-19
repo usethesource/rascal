@@ -74,8 +74,8 @@ public class StandardLibraryListTests extends TestCase {
 	public void testListReducer() throws IOException {	
 		fail();
 		
-		assertTrue(tf.runTestInSameEvaluator("{reducer([1, 2, 3, 4], #1, 0) == 10;};"));
-		assertTrue(tf.runTestInSameEvaluator("{List::reducer([1, 2, 3, 4], #1, 0) == 10;};"));
+		assertTrue(tf.runTestInSameEvaluator("{reducer([1, 2, 3, 4], #+, 0) == 10;};"));
+		assertTrue(tf.runTestInSameEvaluator("{List::reducer([1, 2, 3, 4], #+, 0) == 10;};"));
 	}
 	
 	public void testListRest() throws IOException {	

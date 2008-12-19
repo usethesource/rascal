@@ -31,6 +31,10 @@ public class StandardLibrarySetTests extends TestCase {
 		
 	public void testMapper() throws IOException {
 		fail();
+		
+		assertTrue(tf.runTestInSameEvaluator("{int inc(int n) {return n + 1;} mapper({1, 2, 3}, #inc) == {2, 3, 4};};"));
+		assertTrue(tf.runTestInSameEvaluator("{int inc(int n) {return n + 1;} List::mapper({1, 2, 3}, #inc) == {2, 3, 4};};"));
+	
 	}
 	
 	public void testSetMax() throws IOException {
@@ -47,6 +51,9 @@ public class StandardLibrarySetTests extends TestCase {
 	
 	public void testSetMultiply() throws IOException {
 		fail();
+		
+		assertTrue(tf.runTestInSameEvaluator("{multiply({1, 2, 3, 4}, 1) == 24;};"));
+		assertTrue(tf.runTestInSameEvaluator("{List::multiply({1, 2, 3, 4}, 1) == 24;};"));
 	}
 	
 	public void testSetPower() throws IOException {		
@@ -60,6 +67,10 @@ public class StandardLibrarySetTests extends TestCase {
 	
 	public void testSetReducer() throws IOException {
 		fail();
+		
+		assertTrue(tf.runTestInSameEvaluator("{reducer({1, 2, 3, 4}, #+, 0) == 10;};"));
+		assertTrue(tf.runTestInSameEvaluator("{List::reducer({1, 2, 3, 4}, #+, 0) == 10;};"));
+		
 	}
 	
 	public void testSetSize() throws IOException {	
@@ -101,8 +112,8 @@ public class StandardLibrarySetTests extends TestCase {
 	}
 	
 	public void testSetToMap() throws IOException {
-		
-		assertTrue(tf.runTestInSameEvaluator("{Set::toMap({}) == ();};"));
+				assertTrue(tf.runTestInSameEvaluator("{Set::toMap({}) == ();};"));
+
 		assertTrue(tf.runTestInSameEvaluator("{toMap({}) == ();};"));
 		assertTrue(tf.runTestInSameEvaluator("{Set::toMap({<1, \"a\">}) == (1 : \"a\");};"));
 		assertTrue(tf.runTestInSameEvaluator("{Set::toMap({<1, \"a\">, <2, \"b\">}) == (1 : \"a\", 2 : \"b\");};"));
