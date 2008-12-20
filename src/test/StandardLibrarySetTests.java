@@ -29,7 +29,7 @@ public class StandardLibrarySetTests extends TestCase {
 		assertTrue(tf.runTestInSameEvaluator("{str S = Set::getOneFrom({\"abc\",\"def\"}); (S == \"abc\") || (S == \"def\");}"));
 	}
 		
-	public void testMapper() throws IOException {
+	public void testSetMapper() throws IOException {
 		fail();
 		
 		assertTrue(tf.runTestInSameEvaluator("{int inc(int n) {return n + 1;} mapper({1, 2, 3}, #inc) == {2, 3, 4};};"));
