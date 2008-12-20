@@ -1,28 +1,30 @@
-Module Dominators1
+module Dominators1
 
-// Example from T. Lengauer and R.E. Tarjan, A Fast Algorithm for Finding Dominators
-// in a Flowgraph, TOPLAS, Vol. 1, N0. 1, July 1979, 121-141.
-
-//    +------------------- R ----------+
-//    |         +----- / /             |
-//    |         |       /              |
-//    |         |       v              v
-//    |         |    +--B       +----- C -----+
-//    |         |    |  |       |             | 
-//    |         v    |  |       |             |       
-//    |         A <--+  |       |             |
-//    |         |       |       |             |
-//    |         v       v       v             v       
-//    |         D    +--E       F      +----- G
-//    |         |    |  ^       |      |      |
-//    |         v    |  |       |      |      |
-//    |         L    |  |       |      |      |
-//    |         |    v  |       |      v      v
-//    |         +->  H -+       +----> I <--- J
-//    |              +--------+      ^ |
-//    |                       |     /  |
-//    |                       v   /    |
-//    +---------------------> K / <----+
+/*
+ * Example from T. Lengauer and R.E. Tarjan, A Fast Algorithm for Finding Dominators
+ * in a Flowgraph, TOPLAS, Vol. 1, N0. 1, July 1979, 121-141.
+ *
+ *    +------------------- R ----------+
+ *    |         +----- / /             |
+ *    |         |       /              |
+ *    |         |       v              v
+ *    |         |    +--B       +----- C -----+
+ *    |         |    |  |       |             | 
+ *    |         v    |  |       |             |       
+ *    |         A <--+  |       |             |
+ *    |         |       |       |             |
+ *    |         v       v       v             v       
+ *    |         D    +--E       F      +----- G
+ *    |         |    |  ^       |      |      |
+ *    |         v    |  |       |      |      |
+ *    |         L    |  |       |      |      |
+ *    |         |    v  |       |      v      v
+ *    |         +->  H -+       +----> I <--- J
+ *    |              +--------+      ^ |
+ *    |                       |     /  |
+ *    |                       v   /    |
+ *    +---------------------> K / <----+
+ */
 
 import Set;
 import Relation;
@@ -45,13 +47,13 @@ rel[str,str] PRED ={
 <"L", "H">
 };
 
-set[str] VERTICES = carrier(PRED);
+set[str] VERTICES = Relation::carrier(PRED);
 
 rel[str,set[str]] DOMINATES =
-   { <V,  VERTICES - {V, ROOT} - range(reachX({ROOT}, {V}, PRED))> |  str V : VERTICES}
+   { <V,  (Dominators1::VERTICES - {V, Dominators1::ROOT}) - Relation::range(Graph::reachX({Dominators1::ROOT}, {V}, Dominators1::PRED))> |  str V : Dominators1::VERTICES};
 
 public bool checkResult(){
-	return Dominators1::"DOMINATES": DOMINATES ==
+	return Dominators1::DOMINATES ==
  	{
 	<"R", {"A", "B", "C", "D", "E", "F", "G", "L", "H", "I", "J", "K"}>, 
 	<"A", {}>, 
