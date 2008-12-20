@@ -43,6 +43,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.Case;
+import org.meta_environment.rascal.ast.Catch;
 import org.meta_environment.rascal.ast.Declaration;
 import org.meta_environment.rascal.ast.Declarator;
 import org.meta_environment.rascal.ast.Field;
@@ -1233,17 +1234,50 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 	@Override
 	public EvalResult visitStatementThrow(Throw x) {
-		throw new RascalBug("NYI" + x); // TODO
+		throw new RascalException(x.getExpression().accept(this).value);
 	}
 	
 	@Override
 	public EvalResult visitStatementTry(Try x) {
-		throw new RascalBug("NYI" + x); // TODO
+		return evalStatementTry(x.getBody(), x.getHandlers(), null);
 	}
 	
 	@Override
 	public EvalResult visitStatementTryFinally(TryFinally x) {
-		throw new RascalBug("NYI" + x); // TODO
+		return evalStatementTry(x.getBody(), x.getHandlers(), x.getFinallyBody());
+	}
+	
+	private EvalResult evalStatementTry(Statement body, java.util.List<Catch> handlers, Statement finallyBody){
+		EvalResult res = result();
+		
+		// TODO: proper environment handling
+		try {
+			res = body.accept(this);
+
+		} catch (RascalException e){
+			
+			IValue eValue = e.getException();
+			Type eType = eValue.getType();
+
+			for(Catch c : handlers){
+				if(c.isDefault()){
+					res = c.getBody().accept(this);
+					break;
+				} else {
+					if(eType.isSubtypeOf(c.getType().accept(te))){
+						System.err.println("matching case: " + c);
+						Name name = c.getName();
+						env.storeVariable(name, result(eType, eValue)); //TODO clean up var
+						res =  c.getBody().accept(this);
+						break;
+					}
+				}
+			}
+		}
+		if(finallyBody != null){
+			finallyBody.accept(this);
+		}
+		return res;
 	}
 	
 	@Override
