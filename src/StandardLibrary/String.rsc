@@ -1,7 +1,7 @@
 module String
 
 public int java charAt(str s, int i) throws out_of_range(str msg)
-@doc{charAt returns the character at position i in string s.}
+@doc{charAt -- return the character at position i in string s.}
 @java-imports{import java.lang.String;}
 {
   try {
@@ -14,14 +14,14 @@ public int java charAt(str s, int i) throws out_of_range(str msg)
 }
 
 public bool java endsWith(str s, str suffix)
-@doc{endWith(s, suffix) returns true if string s ends with the string suffix.}
+@doc{endWith -- returns true if string s ends with given string suffix.}
 @java-imports{import java.lang.String;}
 {
   return values.bool(s.getValue().endsWith(suffix.getValue()));
 }
 
 public str java reverse(str s)
-@doc{reverse returns string with all characters in s in reverse order.}
+@doc{reverse -- return string with all characters in reverse order.}
 @java-imports{import java.lang.String;}
 {
    String sval = s.getValue();
@@ -35,26 +35,28 @@ public str java reverse(str s)
 }
 
 public int java size(str s)
-@doc{size returns the length of string s.}
+@doc{size -- return the length of string s.}
 @java-imports{import java.lang.String;}
 {
   return values.integer(s.getValue().length());
 }
 
 public bool java startsWith(str s, str prefix)
-@doc{startsWith(s, prefix) returns true if string s starts with the string prefix.}
+@doc{startsWith -- return true if string s starts with the string prefix.}
 @java-imports{import java.lang.String;}
 {
   return values.bool(s.getValue().startsWith(prefix.getValue()));
 }
 
 public str java toLowerCase(str s)
+@doc{toLowerCase -- convert all characters in string s to lowercase.}
 @java-imports{import java.lang.String;}
 {
   return values.string(s.getValue().toLowerCase());
 }
 
 public str java toUpperCase(str s)
+@doc{toUpperCase -- convert all characters in string s to uppercase.}
 @java-imports{import java.lang.String;}
 {
   return values.string(s.getValue().toUpperCase());

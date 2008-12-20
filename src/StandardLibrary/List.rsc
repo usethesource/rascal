@@ -1,43 +1,6 @@
 module List
-
-/*
-public list[&T] java add(&T elm, list[&T] lst)
-@doc{add -- add an element at the beginning of a list}
- {
-    return lst.insert(elm);
- }
- */
  
- public list[&T] java addAt(&T elm, int n, list[&T] lst)
-  throws list_index()
- @doc{addAt -- add an element at a specific position in a list}
- {
- 	IListWriter w = lst.getType().writer(values);
- 	int k = n.getValue();
-    if(k >= 0 && k <= lst.length()){
-      if(k == lst.length()){
-      	w.insert(elm);
-      }
-      for(int i = lst.length()-1; i >= 0; i--) {
-        w.insert(lst.get(i));
-        if(i == k){
-        	w.insert(elm);
-        }
-      }
-      return w.done();
-    } else {
-    	throw new RascalException(values, "list_index");
-    }
- }
  
- /*
-public list[&T] java addAfter(&T elm, list[&T] lst)
-@doc{addAfter -- add an element at at the end of a list}
-{
-    return lst.append(elm);
-}
-*/
-
 public &T average(list[&T] lst, &T zero)
 @doc{average -- average of elements of a list}
 {
@@ -65,6 +28,29 @@ public &T java getOneFrom(list[&T] lst)
    		throw new RascalException(values, "empty_list");
    	}
 }
+
+public list[&T] java insertAt(&T elm, int n, list[&T] lst)
+  throws list_index()
+ @doc{insertAt -- add an element at a specific position in a list}
+ {
+ 	IListWriter w = lst.getType().writer(values);
+ 	int k = n.getValue();
+    if(k >= 0 && k <= lst.length()){
+      if(k == lst.length()){
+      	w.insert(elm);
+      }
+      for(int i = lst.length()-1; i >= 0; i--) {
+        w.insert(lst.get(i));
+        if(i == k){
+        	w.insert(elm);
+        }
+      }
+      return w.done();
+    } else {
+    	throw new RascalException(values, "list_index");
+    }
+ }
+
 
 list[&T] mapper(list[&T] lst, &T (&T x) fn)
 @doc{mapper -- apply a function to each element of a list}

@@ -8,15 +8,7 @@ public class StandardLibraryListTests extends TestCase {
 	
 	private static TestFramework tf = new TestFramework("import List;");
 	
-	public void testListaddAt() throws IOException {
-		
-		//assertTrue(tf.runTestInSameEvaluator("List::addAt(1, 0, []) == [1];"));
-		//assertTrue(tf.runTestInSameEvaluator("add(1, 0, []) == [1];"));
-		assertTrue(tf.runTestInSameEvaluator("List::addAt(1, 1, [2,3]) == [2,1, 3];"));
-		assertTrue(tf.runTestInSameEvaluator("addAt(1, 1, [2,3]) == [2, 1, 3];"));
-		assertTrue(tf.runTestInSameEvaluator("List::addAt(1, 2, [2,3]) == [2,3,1];"));
-		assertTrue(tf.runTestInSameEvaluator("addAt(1, 2, [2,3]) == [2, 3, 1];"));
-	}
+	
 	
 	public void testListAverage() throws IOException {
 		fail();
@@ -42,6 +34,16 @@ public class StandardLibraryListTests extends TestCase {
 		assertTrue(tf.runTestInSameEvaluator("{int N = List::getOneFrom([1,2,3]); (N == 1) || (N == 2) || (N == 3);}"));
 		assertTrue(tf.runTestInSameEvaluator("{double D = List::getOneFrom([1.0,2.0]); (D == 1.0) || (D == 2.0);}"));
 		assertTrue(tf.runTestInSameEvaluator("{str S = List::getOneFrom([\"abc\",\"def\"]); (S == \"abc\") || (S == \"def\");}"));
+	}
+	
+public void testListinsertAt() throws IOException {
+		
+		//assertTrue(tf.runTestInSameEvaluator("List::insertAt(1, 0, []) == [1];"));
+		//assertTrue(tf.runTestInSameEvaluator("insertAt(1, 0, []) == [1];"));
+		assertTrue(tf.runTestInSameEvaluator("List::insertAt(1, 1, [2,3]) == [2,1, 3];"));
+		assertTrue(tf.runTestInSameEvaluator("insertAt(1, 1, [2,3]) == [2, 1, 3];"));
+		assertTrue(tf.runTestInSameEvaluator("List::insertAt(1, 2, [2,3]) == [2,3,1];"));
+		assertTrue(tf.runTestInSameEvaluator("insertAt(1, 2, [2,3]) == [2, 3, 1];"));
 	}
 	
 	public void testListMapper() throws IOException {	

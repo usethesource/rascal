@@ -9,13 +9,13 @@ import Set;
 import Relation;
 
 public set[&T] top(rel[&T,&T] G)
-@doc{Top of a Graph}
+@doc{top -- return the top nodes of a graph}
 {
   return Relation::domain(G) - Relation::range(G); // TODO: now needed to resolve names
 }
 
 public set[&T] bottom(rel[&T, &T] G)
-@doc{Bottom of a Graph}
+@doc{bottom -- return the bottom nodes of a graph}
 {
   return Relation::range(G) - Relation::domain(G);
 }
@@ -25,7 +25,7 @@ type rel[&T,&T] graph[&T];
 public set[&T] gtop(graph[&T] G)
 @doc{Top of a Graph}
 {
-  return domain(G) - range(G);
+  return Relation::domain(G) - Relation::range(G);
 }
 
 public set[&T] gbottom(graph[&T] G)
