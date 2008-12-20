@@ -1,5 +1,11 @@
 module Graph
 
+/*
+ * TODO:
+ * - remove qualifiers
+ * - replace rel[&T,&T] by graph[&T]
+*/
+import Set;
 import Relation;
 
 public set[&T] top(rel[&T,&T] G)
@@ -28,20 +34,16 @@ public set[&T] gbottom(graph[&T] G)
   return range(G) - domain(G);
 }
 
-public set[&T] reachR(set[&T] Start, set[&T] Restr,
-                          graph[&T] G)
-  @doc{Reachability with restriction}
+public set[&T] reachR(set[&T] Start, set[&T] Restr, rel[&T,&T] G)
+@doc{Reachability with restriction}
 {
-  return range(compose(domainR(G, Start), 
-                       carrierR(G, Restr)+));
+  return range(compose(domainR(G, Start), carrierR(G, Restr)+));
 }
 
-public set[&T] reachX(set[&T] Start, set[&T] Excl, 
-                          graph[&T] G)
-  @doc{Reachability with exclusion}
+public set[&T] reachX(set[&T] Start, set[&T] Excl, rel[&T,&T] G)
+@doc{Reachability with exclusion}
 {
-  return range(compose(domainR(G, Start), 
-                       carrierX(G, Excl)+));
+  return Relation::range(((Relation::domain(G) - Start) o (Relation::carrier(G) - Excl))+);
 }
 /*
 public list[&T] shortestPathPair(&T From, &T To, graph[&T] G)
