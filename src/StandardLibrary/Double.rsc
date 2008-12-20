@@ -8,23 +8,25 @@ public double java arbDouble()
 }
 
 public double max(double n, double m)
+@doc{max -- largest of two doubles}
 {
 	return n > m ? n : m;
 }
 
 public double min(double n, double m)
+@doc{min -- smallest of two doubles}
 {
 	return n < m ? n : m;
 }
 
 public int java toInteger(double d)
-@doc{toInteger a double value integer.}
+@doc{toInteger -- convert a double to integer.}
 {
   return d.toInteger();
 }
 
 public str java toString(double d)
-@doc{toString converts a double value to a string.}
+@doc{toString -- convert a double to a string.}
 {
   return values.string(d.toString());
 }
