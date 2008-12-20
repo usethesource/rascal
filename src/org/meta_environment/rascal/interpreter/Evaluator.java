@@ -167,6 +167,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	private final RegExpPatternEvaluator re = new RegExpPatternEvaluator();
 	private final TreePatternEvaluator pe;
 	GlobalEnvironment env = GlobalEnvironment.getInstance();
+	private boolean callTracing = true;
+	private int callNesting = 0;
 	
 	private final ASTFactory af;
 	private final JavaFunctionCaller javaFunctionCaller;
@@ -755,13 +757,48 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		return result(functionType, functionType.make(vf, x.getFunction().getName().toString()));
 	}
 	
+	private StringBuffer showCall(FunctionDeclaration func, IValue[] actuals, String arrow){
+		StringBuffer trace = new StringBuffer();
+		for(int i = 0; i < callNesting; i++){
+			trace.append("-");
+		}
+		trace.append(arrow).append(" ").append(func.getSignature().getName()).append("(");
+		String sep = "";
+		for(int i = 0; i < actuals.length; i++){
+			trace.append(sep).append(actuals[i]);
+			sep = ", ";
+		}
+		trace.append(")");
+		return trace;
+	}
+	
 	private EvalResult call(FunctionDeclaration func, IValue[] actuals, TupleType actualTypes) {
-		if (isJavaFunction(func)) { 
-			return callJavaFunction(func, actuals, actualTypes);
+		
+		if(callTracing){
+			EvalResult res;
+			System.err.println(showCall(func, actuals, ">").toString());
+			callNesting++;
+			if (isJavaFunction(func)) { 
+				res = callJavaFunction(func, actuals, actualTypes);
+			}
+			else {
+				res = callRascalFunction(func, actuals, actualTypes);
+			}
+
+			callNesting--;
+			StringBuffer trace = showCall(func, actuals, "<");
+			trace.append(" returns ").append(res.value);
+			System.err.println(trace.toString());
+			return res;
+		} else {
+			if (isJavaFunction(func)) { 
+				return callJavaFunction(func, actuals, actualTypes);
+			}
+			else {
+				return callRascalFunction(func, actuals, actualTypes);
+			}
 		}
-		else {
-			return callRascalFunction(func, actuals, actualTypes);
-		}
+
 	}
 
 	private boolean isJavaFunction(FunctionDeclaration func) {
