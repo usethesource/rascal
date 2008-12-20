@@ -1021,7 +1021,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		}
 		
 		if(!subsBase.isIntegerType()){
-			throw new RascalRunTimeError("Subscript should have type integer");
+			throw new RascalTypeError("Subscript should have type integer");
 		}
 		int index = intValue(subs);
 
