@@ -2965,7 +2965,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		}
 		IValue currentValue[] = new IValue[vars.size()];
 		for(int i = 0; i < vars.size(); i++){
-			currentValue[i] = null;
+			currentValue[i] = env.getVariable(vars.get(i)).value;
 		}
 		
 		Statement body = x.getBody();
@@ -2977,7 +2977,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			bodyResult = body.accept(this);
 			for(int i = 0; i < vars.size(); i++){
 				EvalResult v = env.getVariable(vars.get(i));
-				if(!v.value.equals(currentValue[i])){
+				if(currentValue[i] == null || !v.value.equals(currentValue[i])){
 					change = true;
 					currentValue[i] = v.value;
 				}

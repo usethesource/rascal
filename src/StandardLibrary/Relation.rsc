@@ -2,6 +2,8 @@ module Relation
 
 import Set;
 
+// carrier
+
 public set[&T]  carrier (rel[&T,&T] R)
 @doc{carrier -- all elements in any tuple in a binary relation}
 {
@@ -23,23 +25,64 @@ public set[&T]  carrier (rel[&T,&T,&T,&T] R)
 public set[&T]  carrier (rel[&T,&T,&T,&T,&T] R)
 @doc{carrier -- all elements in any tuple in a quinary relation}
 {
-  return  ((R<0> + R<1>) + R<2>) + R<3>;
+  return  (((R<0> + R<1>) + R<2>) + R<3>) + R<4>;
 }
 
-/*
+// carrierR
+
 public rel[&T,&T] carrierR (rel[&T,&T] R, set[&T] S)
-@doc{carrierR -- all elements in any tuple in relation R restricted to elements of S}
+@doc{carrierR -- all elements in any tuple in binary relation R restricted to elements of S}
 {
-  return { <X, Y> | <&T X, &T Y> : R, X in S, Y in S };
+  return { <V0, V1> | <&T V0, &T V1> : R, V0 in S, V1 in S };
 }
+
+public rel[&T,&T,&T] carrierR (rel[&T,&T,&T] R, set[&T] S)
+@doc{carrierR -- all elements in any tuple in ternary relation R restricted to elements of S}
+{
+  return { <V0, V1, V2> | <&T V0, &T V1, &T V2> : R, V0 in S, V1 in S, V2 in S };
+}
+
+public rel[&T,&T,&T,&T] carrierR (rel[&T,&T,&T,&T] R, set[&T] S)
+@doc{carrierR -- all elements in any tuple in quaterny relation R restricted to elements of S}
+{
+  return { <V0, V1, V2, V3> | <&T V0, &T V1, &T V2, &T V3> : R, V0 in S, V1 in S, V2 in S, V3 in S };
+}
+
+public rel[&T,&T,&T,&T,&T] carrierR (rel[&T,&T,&T,&T,&T] R, set[&T] S)
+@doc{carrierR -- all elements in any tuple in quinary relation R restricted to elements of S}
+{
+  return { <V0, V1, V2, V3, V4> | <&T V0, &T V1, &T V2, &T V3, &T V4> : R, 
+                                  V0 in S, V1 in S, V2 in S, V3 in S, V4 in S };
+}
+
+// carrierX
 
 public rel[&T,&T] carrierX (rel[&T,&T] R, set[&T] S)
-@doc{carrierX -- all elements in any tuple in relation R excluded elements of S}
+@doc{carrierX -- binary relation excluded tuples with some element in S}
 {
-  return { <X, Y> | <&T X, &T Y> : R, 
-                    !(X in S), !(Y in S) };
+  return { <V0, V1> | <&T V0, &T V1> : R, V0 notin S, V1 notin S };
 }
-*/
+
+public rel[&T,&T,&T] carrierX (rel[&T,&T,&T] R, set[&T] S)
+@doc{carrierX -- ternary relation excluded tuples with some element in SS}
+{
+  return { <V0, V1, V2> | <&T V0, &T V1, &T V2> : R, V0 notin S, V1 notin S, V2 notin S };
+}
+
+public rel[&T,&T,&T,&T] carrierX (rel[&T,&T,&T,&T] R, set[&T] S)
+@doc{carrierX -- quaterny relation excluded tuples with some element in S}
+{
+  return { <V0, V1, V2, V3> | <&T V0, &T V1, &T V2, &T V3> : R, V0 notin S, V1 notin S, V2 notin S, V3 notin S };
+}
+
+public rel[&T,&T,&T,&T,&T] carrierX (rel[&T,&T,&T,&T,&T] R, set[&T] S)
+@doc{carrierX -- quinary relation excluded tuples with some element in S}
+{
+  return { <V0, V1, V2, V3, V4> | <&T V0, &T V1, &T V2, &T V3, &T V4> : R, 
+                                  V0 notin S, V1 notin S, V2 notin S, V3 notin S, V4 notin S };
+}
+
+// complement
 
 public rel[&T0, &T1] complement(rel[&T0, &T1] R)
 @doc{complement -- complement of binary relation}
@@ -66,15 +109,7 @@ public rel[&T0, &T1, &T2, &T3, &T4] complement(rel[&T0, &T1, &T2, &T3, &T4] R)
                                  &T4 V4 : R<4>, <V0, V1, V2, V3, V4> notin R};
 }
 
-/* -- is already implemented by operator "o".
-public rel[&T1, &T3] compose(rel[&T1, &T2] R,
-                                 rel[&T2, &T3] S)
-  @doc{Compose two relations}
-{
-   return {<X, Z> | <&T1 X, &T2 Y1>: R, 
-                    <&T2 Y2, &T3 Z>: S, Y1 == Y2};
-}
-*/
+// domain
 
 public set[&T0] domain (rel[&T0,&T1] R)
 @doc{domain -- first element of each tuple in binary relation}
@@ -100,27 +135,59 @@ public set[&T0] domain (rel[&T0,&T1,&T2,&T3,&T4] R)
   return R<0>;
 }
 
+// domainR
 
-/*
-public rel[&T1,&T2] domainR (rel[&T1,&T2] R, set[&T1] S)
+public rel[&T0,&T1] domainR (rel[&T0,&T1] R, set[&T0] S)
 @doc{domainR -- restriction of a binary relation to tuples with first element in S}
 {
-  return { <X, Y> | <&T1 X, &T2 Y> : R, X in S };
+  return { <V0, V1> | <&T0 V0, &T1 V1> : R, V0 in S };
 }
 
-public rel[&T1,&T2] domainX (rel[&T1,&T2] R, set[&T1] S)
-@doc{domainX -- binary relation excluded tuples with first element in S}
+public rel[&T0,&T1,&T2] domainR (rel[&T0,&T1,&T2] R, set[&T0] S)
+@doc{domainR -- restriction of a ternary relation to tuples with first element in S}
 {
-  return { <X, Y> | <&T1 X, &T2 Y> : R, X notin S };
+  return { <V0, V1, V2> | <&T0 V0, &T1 V1, &T2 V2> : R, V0 in S };
 }
 
-public rel[&T, &T] ident(set[&T] S)
-@doc{id == identity relation}
+public rel[&T0,&T1,&T2,&T3] domainR (rel[&T0,&T1,&T2,&T3] R, set[&T0] S)
+@doc{domainR -- restriction of a quaterny relation to tuples with first element in S}
 {
-  return { <X, X> | &T X : S};
+  return { <V0, V1, V2, V3> | <&T0 V0, &T1 V1, &T2 V2, &T3 V3> : R, V0 in S };
 }
 
-*/
+public rel[&T0,&T1,&T2,&T3,&T4] domainR (rel[&T0,&T1,&T2,&T3,&T4] R, set[&T0] S)
+@doc{domainR -- restriction of a quinary relation to tuples with first element in S}
+{
+  return { <V0, V1, V2, V3, V4> | <&T0 V0, &T1 V1, &T2 V2, &T3 V3, &T4 V4> : R, V0 in S };
+}
+
+// domainX
+
+public rel[&T0,&T1] domainX (rel[&T0,&T1] R, set[&T0] S)
+@doc{domainR -- binary relation excluded tuples with first element in S}
+{
+  return { <V0, V1> | <&T0 V0, &T1 V1> : R, V0 notin S };
+}
+
+public rel[&T0,&T1,&T2] domainX (rel[&T0,&T1,&T2] R, set[&T0] S)
+@doc{domainR -- ternary relation excluded tuples with first element in SS}
+{
+  return { <V0, V1, V2> | <&T0 V0, &T1 V1, &T2 V2> : R, V0 notin S };
+}
+
+public rel[&T0,&T1,&T2,&T3] domainX (rel[&T0,&T1,&T2,&T3] R, set[&T0] S)
+@doc{domainR -- quaterny relation excluded tuples with first element in S}
+{
+  return { <V0, V1, V2, V3> | <&T0 V0, &T1 V1, &T2 V2, &T3 V3> : R, V0 notin S };
+}
+
+public rel[&T0,&T1,&T2,&T3,&T4] domainX (rel[&T0,&T1,&T2,&T3,&T4] R, set[&T0] S)
+@doc{domainR -- quinary relation excluded tuples with first element in S}
+{
+  return { <V0, V1, V2, V3, V4> | <&T0 V0, &T1 V1, &T2 V2, &T3 V3, &T4 V4> : R, V0 notin S };
+}
+
+// invert
 
 public rel[&T1, &T0] invert (rel[&T0, &T1] R)
 @doc{invert -- inverse the tuples in a binary relation}
@@ -146,6 +213,8 @@ public rel[&T4, &T3, &T2, &T1, &T0] invert (rel[&T0, &T1, &T2, &T3, &T4] R)
   return R<4, 3, 2, 1, 0>;
 }
 
+// range
+
 public set[&T1] range (rel[&T0,&T1] R)
 @doc{range -- all but the first element of each tuples in binary relation}
 {
@@ -170,19 +239,21 @@ public rel[&T1,&T2,&T3,&T4] range (rel[&T0,&T1,&T2,&T3,&T4] R)
   return R<1,2,3,4>;
 }
 
-/*
-public rel[&T1,&T2] rangeR (rel[&T1,&T2] R, set[&T2] S)
+// rangeR
+
+// TODO: generalize rangeR and rangeX
+
+public rel[&T0,&T1] rangeR (rel[&T0,&T1] R, set[&T2] S)
 @doc{rangeR -- restriction of a binary relation to tuples with second element in S}
 {
-  return { <X, Y> | <&T1 X, &T2 Y> : R, Y in S };
+  return { <V0, V1> | <&T0 V0, &T1 V1> : R, V1 in S };
 }
 
-public rel[&T1,&T2] rangeX (rel[&T1,&T2] R, set[&T2] S)
+public rel[&T0,&T1] rangeX (rel[&T0,&T1] R, set[&T2] S)
  @doc{rangeX -- binary relation excluded tuples with second element in S}
 {
-  return { <X, Y> | <&T1 X, &T2 Y> : R, Y notin S };
+  return { <V0, V1> | <&T0 V0, &T1 V1> : R, V1 notin S };
 }
-*/
 
 
 
