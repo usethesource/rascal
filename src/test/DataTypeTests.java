@@ -286,6 +286,9 @@ public class DataTypeTests extends TestCase{
 		//TODO: does not parse:
 		//assertTrue(tf.runTest("[1, 2] + [3, 4] + [5] == [1, 2, 3, 4, 5];"));	
 		
+		assertTrue(tf.runTest("[1,1,2,2,3,3,4,4,5] - [1,2,4] == [3,3,5];"));
+		assertTrue(tf.runTest("[1,2,3,4,5,4,3,2,1] - [1,2,4] == [3,5,3];"));
+		
 		assertTrue(tf.runTest("[] <= [];"));
 		assertTrue(tf.runTest("[] <= [1];"));
 		assertTrue(tf.runTest("[2, 1, 0] <= [2, 3];"));

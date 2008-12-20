@@ -1888,7 +1888,28 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			return result(((IDouble) left.value).subtract((IDouble) right.value));
 		}
 		if (left.type.isListType() && right.type.isListType()) {
-			notImplemented("- on list");
+			IListWriter w = left.type.writer(vf);
+			
+			IList listLeft = (IList)left.value;
+			IList listRight = (IList)right.value;
+			
+			int lenLeft = listLeft.length();
+			int lenRight = listRight.length();
+
+			for(int i = lenLeft-1; i > 0; i--) {
+				boolean found = false;
+				IValue leftVal = listLeft.get(i);
+				for(int j = 0; j < lenRight; j++){
+					if(leftVal.equals(listRight.get(j))){
+						found = true;
+						break;
+					}
+				}
+				if(!found){
+			        w.insert(leftVal);
+				}
+			}
+			return result(left.type, w.done());
 		}
 		if (left.type.isSetType()){
 				if(right.type.isSetType()) {
