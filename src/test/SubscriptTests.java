@@ -56,12 +56,15 @@ public class SubscriptTests extends TestCase {
 		assertTrue(tf.runTest("{<1, \"a\", 10>, <2, \"b\", 20>, <1, \"abc\", 100>}[0] == {};"));
 		assertTrue(tf.runTest("{<1, \"a\", 10>, <2, \"b\", 20>, <1, \"abc\", 100>}[1] == {<\"a\", 10>, <\"abc\", 100>};"));
 		assertTrue(tf.runTest("{<1, \"a\", 10>, <2, \"b\", 20>, <1, \"abc\", 100>}[2] == {<\"b\", 20>};"));
+		assertTrue(tf.runTest("{<1, \"a\", 10>, <2, \"b\", 20>, <1, \"abc\", 100>}[{1,2}] == {<\"a\", 10>, <\"b\", 20>, <\"abc\", 100>};"));
 	}
 	
 	public void testRelationMultiIndex() throws IOException{
 		assertTrue(tf.runTest("{<1,\"a\",1.0>,<2,\"b\",2.0>,<3,\"c\",3.0>}[0] == {};"));
 		assertTrue(tf.runTest("{<1,\"a\",1.0>,<2,\"b\",2.0>,<3,\"c\",3.0>}[1] == {<\"a\",1.0>};"));
 		assertTrue(tf.runTest("{<1,\"a\",1.0>,<2,\"b\",2.0>,<3,\"c\",3.0>}[2, \"b\"] == {2.0};"));
+		
+		assertTrue(tf.runTest("{<1,10,10.5>, <2,20,20.5>, <3,20,30.5>, <2,10,100.5>}[{1},{10,20}] == {10.5};"));
 	}
 	
 	public void testTree() throws IOException{
