@@ -938,6 +938,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			}
 			EvalResult subscriptResult[] = new EvalResult[nSubs];
 			Type subscriptType[] = new Type[nSubs];
+			boolean subscriptIsSet[] = new boolean[nSubs];
 			
 			for(int i = 0; i < nSubs; i++){
 				subscriptResult[i] = x.getSubscripts().get(i).accept(this);
@@ -949,7 +950,13 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			for (int i = 0; i < relArity; i++) {
 				Type relFieldType = ((RelationType) exprType).getFieldType(i);
 				if(i < nSubs){
-					if(!subscriptType[i].isSubtypeOf(relFieldType)){
+					if(subscriptType[i].isSetType() && 
+					   ((SetType)subscriptType[i]).getElementType().isSubtypeOf(relFieldType)){
+						subscriptIsSet[i] = true;
+					} else 
+					if(subscriptType[i].isSubtypeOf(relFieldType)){
+						subscriptIsSet[i] = false;
+					} else {
 						throw new RascalTypeError("type " + subscriptType[i] + 
 								" of subscript #" + i + " incompatible with element type " +
 								relFieldType);
@@ -974,7 +981,12 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				ITuple tup = (ITuple) v;
 				boolean allEqual = true;
 				for(int k = 0; k < nSubs; k++){
-					if(!tup.get(k).equals(subscriptResult[k].value)){
+					if(subscriptIsSet[k] && ((ISet) subscriptResult[k].value).contains(tup.get(k))){
+						/* ok */
+					} else if (tup.get(k).equals(subscriptResult[k].value)){
+						/* ok */
+					} else {
+						System.err.println("allEqual -> false");
 						allEqual = false;
 					}
 				}
