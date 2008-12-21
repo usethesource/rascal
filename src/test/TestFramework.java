@@ -71,7 +71,7 @@ public class TestFramework {
 	
 	boolean prepareModule(String module) throws IOException {
 		INode tree = parser.parse(new ByteArrayInputStream(module.getBytes()));
-		if (tree.getTreeNodeType() == Factory.ParseTree_Summary) {
+		if (tree.getType() == Factory.ParseTree_Summary) {
 			System.err.println(tree);
 			return false;
 		} else {
@@ -86,7 +86,7 @@ public class TestFramework {
 	private boolean execute(String command) throws IOException {
 		INode tree = parser.parse(new ByteArrayInputStream(command.getBytes()));
 
-		if (tree.getTreeNodeType() == Factory.ParseTree_Summary) {
+		if (tree.getType() == Factory.ParseTree_Summary) {
 			System.err.println(tree);
 			return false;
 		} else {

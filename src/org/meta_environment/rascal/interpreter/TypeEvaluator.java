@@ -1,8 +1,5 @@
 package org.meta_environment.rascal.interpreter;
 
-import org.eclipse.imp.pdb.facts.type.NamedTreeType;
-import org.eclipse.imp.pdb.facts.type.NamedType;
-import org.eclipse.imp.pdb.facts.type.ParameterType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.Formal;
@@ -175,7 +172,7 @@ public class TypeEvaluator extends NullASTVisitor<Type> {
 		}
 		
 		
-		return tf.relType(tf.tupleType(fieldTypes, fieldLabels));
+		return tf.relTypeFromTuple(tf.tupleType(fieldTypes, fieldLabels));
 	}
 	
 	@Override
@@ -219,7 +216,7 @@ public class TypeEvaluator extends NullASTVisitor<Type> {
 	@Override
 	public Type visitTypeVariable(Variable x) {
 		TypeVar var = x.getTypeVar();
-		ParameterType param;
+		Type param;
 		
 		if (var.isBounded()) {
 		  param = tf.parameterType(var.getName().toString(), var.getBound().accept(this));
@@ -228,17 +225,17 @@ public class TypeEvaluator extends NullASTVisitor<Type> {
 		  param = tf.parameterType(var.getName().toString());
 		}
 		
-		return param.instantiate(env.getTypes());
+		return param.instantiate(env.getTypeBindings());
 	}
 
 	@Override
 	public Type visitTypeUser(User x) {
 		// TODO add support for parametric types
 		java.lang.String name = x.getUser().getName().toString();
-		NamedType type = tf.lookupNamedType(name);
+		Type type = tf.lookupNamedType(name);
 		
 		if (type == null) {
-			NamedTreeType tree = tf.lookupNamedTreeType(name);
+			Type tree = tf.lookupNamedTreeType(name);
 			
 			if (tree == null) {
 				throw new RascalTypeError("Use of undeclared type " + x);

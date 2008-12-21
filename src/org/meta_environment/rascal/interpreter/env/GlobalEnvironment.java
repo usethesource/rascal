@@ -5,11 +5,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.imp.pdb.facts.type.NamedTreeType;
-import org.eclipse.imp.pdb.facts.type.NamedType;
-import org.eclipse.imp.pdb.facts.type.ParameterType;
-import org.eclipse.imp.pdb.facts.type.TreeNodeType;
-import org.eclipse.imp.pdb.facts.type.TupleType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.Declaration;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
@@ -18,7 +13,6 @@ import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.ast.Rule;
 import org.meta_environment.rascal.ast.Visibility;
-import org.meta_environment.rascal.ast.Declaration.Annotation;
 import org.meta_environment.rascal.ast.Declaration.Function;
 import org.meta_environment.rascal.ast.Declaration.Variable;
 import org.meta_environment.rascal.interpreter.EvalResult;
@@ -138,7 +132,7 @@ public class GlobalEnvironment {
 		return getModule(module).getVariable(Names.name(variable));
 	}
 	
-	public FunctionDeclaration getModuleFunction(String module, Name function, TupleType actuals) {
+	public FunctionDeclaration getModuleFunction(String module, Name function, Type actuals) {
 		return getModule(module).getFunction(Names.name(function), actuals);
 	}
 	
@@ -206,11 +200,11 @@ public class GlobalEnvironment {
 		stack.storeFunction(name, function);
 	}
 	
-	public FunctionDeclaration getFunction(String name, TupleType actuals) {
+	public FunctionDeclaration getFunction(String name, Type actuals) {
 		return stack.getFunction(name, actuals);
 	}
 	
-	public FunctionDeclaration getFunction(QualifiedName name, TupleType actuals) {
+	public FunctionDeclaration getFunction(QualifiedName name, Type actuals) {
 		String module = Names.moduleName(name);
 		Name function = Names.lastName(name);
 		
@@ -239,32 +233,32 @@ public class GlobalEnvironment {
 		return rules != null ? rules : new LinkedList<Rule>();
 	}
 
-	public Type getType(ParameterType par) {
-		return stack.getType(par);
+	public Type getParameterType(Type par) {
+		return stack.getParameterType(par);
 	}
 
-	public Map<ParameterType, Type> getTypes() {
-		return stack.getTypes();
+	public Map<Type, Type> getTypeBindings() {
+		return stack.getTypeBindings();
 	}
 
-	public void storeType(ParameterType par, Type type) {
-		stack.storeType(par, type);
+	public void storeParameterType(Type par, Type type) {
+		stack.storeParameterType(par, type);
 	}
 
-	public void storeType(NamedType decl) {
-		stack.storeType(decl);
+	public void storeTreeNodeType(Type decl) {
+		stack.storeTreeNodeType(decl);
 	}
 
-	public void storeType(NamedTreeType decl) {
-		stack.storeType(decl);
+	public void storeNamedTreeType(Type decl) {
+		stack.storeNamedTreeType(decl);
 	}
 
-	public void storeType(TreeNodeType decl) {
-		stack.storeType(decl);
+	public void storeNamedType(Type decl) {
+		stack.storeNamedType(decl);
 	}
 
-	public void storeTypes(Map<ParameterType, Type> bindings) {
-		stack.storeTypes(bindings);
+	public void storeTypeBindings(Map<Type, Type> bindings) {
+		stack.storeTypeBindings(bindings);
 		
 	}
 	
@@ -288,12 +282,12 @@ public class GlobalEnvironment {
 		decl.accept(dispatcher);
 	}
 
-	public NamedTreeType getNamedTreeType(String sort) {
+	public Type getNamedTreeType(String sort) {
 		return stack.getNamedTreeType(sort);
 	}
 
-	public TreeNodeType getTreeNodeType(NamedTreeType sortType, String cons,
-			TupleType signature) {
+	public Type getTreeNodeType(Type sortType, String cons,
+			Type signature) {
 		return stack.getTreeNodeType(sortType, cons, signature);
 	}
 
@@ -301,7 +295,7 @@ public class GlobalEnvironment {
 		stack.storeAnnotation(onType, name, annoType);
 	}
 
-	public TreeNodeType getTreeNodeType(String cons, TupleType args) {
+	public Type getTreeNodeType(String cons, Type args) {
 		return stack.getTreeNodeType(cons, args);
 	}
 

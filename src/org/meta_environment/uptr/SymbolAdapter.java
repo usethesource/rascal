@@ -8,22 +8,22 @@ public class SymbolAdapter {
 	private INode tree;
 
 	public SymbolAdapter(INode tree) {
-		if (tree.getType() != Factory.Symbol) {
+		if (tree.getType().getSuperType() != Factory.Symbol) {
 			throw new FactTypeError("TreeWrapper will only wrap UPTR symbols, not " +  tree.getType());
 		}
 		this.tree = tree;
 	}
 
 	public boolean isCf() {
-		return tree.getTreeNodeType() == Factory.Symbol_Cf;
+		return tree.getType() == Factory.Symbol_Cf;
 	}
 
 	public boolean isLex() {
-		return tree.getTreeNodeType() == Factory.Symbol_Lex;
+		return tree.getType() == Factory.Symbol_Lex;
 	}
 	
 	public boolean isSort() {
-		return tree.getTreeNodeType() == Factory.Symbol_Sort;
+		return tree.getType() == Factory.Symbol_Sort;
 	}
 
 	public SymbolAdapter getSymbol() {
@@ -48,23 +48,23 @@ public class SymbolAdapter {
 	}
 
 	public boolean isParameterizedSort() {
-		return tree.getTreeNodeType() == Factory.Symbol_ParameterizedSort;
+		return tree.getType() == Factory.Symbol_ParameterizedSort;
 	}
 	
 	public boolean isLiteral() {
-		return tree.getTreeNodeType() == Factory.Symbol_Lit;
+		return tree.getType() == Factory.Symbol_Lit;
 	}
 
 	public boolean isCILiteral() {
-		return tree.getTreeNodeType() == Factory.Symbol_CiLit;
+		return tree.getType() == Factory.Symbol_CiLit;
 	}
 
 	public boolean isIterPlusSep() {
-		return tree.getTreeNodeType() == Factory.Symbol_IterPlusSep;
+		return tree.getType() == Factory.Symbol_IterPlusSep;
 	}
 	
 	public boolean isIterStarSep() {
-		return tree.getTreeNodeType() == Factory.Symbol_IterStarSep;
+		return tree.getType() == Factory.Symbol_IterStarSep;
 	}
 	
 	@Override

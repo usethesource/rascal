@@ -99,7 +99,7 @@ public class RascalShell {
 		StringBuilder result = new StringBuilder();
 		INode tree = parser.parse(new ByteArrayInputStream(statement.toString().getBytes()));
 
-		if (tree.getTreeNodeType() == Factory.ParseTree_Summary) {
+		if (tree.getType() == Factory.ParseTree_Summary) {
 			result.append(tree + "\n");
 		}
 		else {

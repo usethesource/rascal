@@ -7,7 +7,6 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.Expression.CallOrTree;

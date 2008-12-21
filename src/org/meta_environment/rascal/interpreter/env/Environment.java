@@ -6,8 +6,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.imp.pdb.facts.type.ParameterType;
-import org.eclipse.imp.pdb.facts.type.TupleType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.interpreter.EvalResult;
@@ -20,14 +18,13 @@ import org.meta_environment.rascal.interpreter.TypeEvaluator;
 public class Environment {
 	protected final Map<String, EvalResult> variableEnvironment;
 	protected final Map<String, List<FunctionDeclaration>> functionEnvironment;
-	protected final Map<ParameterType, Type> typeParameters;
+	protected final Map<Type, Type> typeParameters;
 	
 
 	public Environment() {
 		this.variableEnvironment = new HashMap<String, EvalResult>();
 		this.functionEnvironment = new HashMap<String, List<FunctionDeclaration>>();
-		this.typeParameters = new HashMap<ParameterType, Type>();
-		
+		this.typeParameters = new HashMap<Type, Type>();
 	}
 	
 	/**
@@ -37,17 +34,12 @@ public class Environment {
 		return false;
 	}
 	
-	public FunctionDeclaration getFunction(String name, TupleType actuals) {
+	public FunctionDeclaration getFunction(String name, Type actuals) {
 		List<FunctionDeclaration> candidates = functionEnvironment.get(name);
 		
 		if (candidates != null) {
 			for (FunctionDeclaration candidate : candidates) {
-				//System.err.println("getFunction: candidate=" + candidate);
-				TupleType formals = (TupleType) candidate.getSignature().accept(TypeEvaluator.getInstance());
-				//System.err.println("formals = " + formals);
-				//System.err.println("formals.basetype = " + formals.getBaseType());
-				//System.err.println("formals.isNamedType = " + formals.isNamedType());
-				//System.err.println("actuals = " + actuals);
+				Type formals = candidate.getSignature().accept(TypeEvaluator.getInstance());
 				
 				if (actuals.isSubtypeOf(formals)) {
 					return candidate;
@@ -63,15 +55,13 @@ public class Environment {
 		return variableEnvironment.get(name);
 	}
 	
-	public void storeType(ParameterType par, Type type) {
+	public void storeParameterType(Type par, Type type) {
 		typeParameters.put(par, type);
 	}
 	
-	public Type getType(ParameterType par) {
+	public Type getParameterType(Type par) {
 		return typeParameters.get(par);
 	}
-	
-	
 
 	public void storeVariable(String name, EvalResult value) {
 		variableEnvironment.put(name, value);
@@ -79,7 +69,7 @@ public class Environment {
 	
 	
 	public void storeFunction(String name, FunctionDeclaration function) {
-		TupleType formals = (TupleType) function.getSignature().getParameters().accept(TypeEvaluator.getInstance());
+		Type formals = function.getSignature().getParameters().accept(TypeEvaluator.getInstance());
 		FunctionDeclaration definedEarlier = getFunction(name, formals);
 		
 		if (definedEarlier != null) {
@@ -95,11 +85,11 @@ public class Environment {
 		list.add(function);
 	}
 	
-	public Map<ParameterType, Type> getTypes() {
+	public Map<Type, Type> getTypeBindings() {
 		return Collections.unmodifiableMap(typeParameters);
 	}
 	
-	public void storeTypes(Map<ParameterType, Type> bindings) {
+	public void storeTypeBindings(Map<Type, Type> bindings) {
 		typeParameters.putAll(bindings);
 	}
 	

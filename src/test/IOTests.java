@@ -21,26 +21,25 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.impl.hash.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
-import org.eclipse.imp.pdb.facts.type.TreeNodeType;
-import org.eclipse.imp.pdb.facts.type.NamedTreeType;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.io.ATermReader;
 
 public class IOTests extends TestCase {
 	private static TypeFactory tf = TypeFactory.getInstance();
 	private static IValueFactory vf = ValueFactory.getInstance();
-	private static NamedTreeType Boolean = tf.namedTreeType("Boolean");
+	private static Type Boolean = tf.namedTreeType("Boolean");
 	
-	private static NamedTreeType Name = tf.namedTreeType("Name");
-	private static TreeNodeType True = tf.treeNodeType(Boolean, "true");
-	private static TreeNodeType False= tf.treeNodeType(Boolean, "false");
-	private static TreeNodeType And= tf.treeNodeType(Boolean, "and", Boolean, Boolean);
-	private static TreeNodeType Or= tf.treeNodeType(Boolean, "or", tf.listType(Boolean));
-	private static TreeNodeType Not= tf.treeNodeType(Boolean, "not", Boolean);
-	private static TreeNodeType TwoTups = tf.treeNodeType(Boolean, "twotups", tf.tupleType(Boolean, Boolean), tf.tupleType(Boolean, Boolean));
-	private static TreeNodeType NameNode  = tf.treeNodeType(Name, "name", tf.stringType());
-	private static TreeNodeType Friends = tf.treeNodeType(Boolean, "friends", tf.listType(Name));
-	private static TreeNodeType Couples = tf.treeNodeType(Boolean, "couples", tf.listType(tf.tupleType(Name, Name)));
+	private static Type Name = tf.namedTreeType("Name");
+	private static Type True = tf.treeNodeType(Boolean, "true");
+	private static Type False= tf.treeNodeType(Boolean, "false");
+	private static Type And= tf.treeNodeType(Boolean, "and", Boolean, Boolean);
+	private static Type Or= tf.treeNodeType(Boolean, "or", tf.listType(Boolean));
+	private static Type Not= tf.treeNodeType(Boolean, "not", Boolean);
+	private static Type TwoTups = tf.treeNodeType(Boolean, "twotups", tf.tupleType(Boolean, Boolean), tf.tupleType(Boolean, Boolean));
+	private static Type NameNode  = tf.treeNodeType(Name, "name", tf.stringType());
+	private static Type Friends = tf.treeNodeType(Boolean, "friends", tf.listType(Name));
+	private static Type Couples = tf.treeNodeType(Boolean, "couples", tf.listType(tf.tupleType(Name, Name)));
 	
 	private IValue[] testValues = {
 			vf.tree(True),

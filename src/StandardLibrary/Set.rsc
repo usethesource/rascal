@@ -154,7 +154,7 @@ public map[&A,&B] java toMap(set[tuple[&A, &B]] st)
 @doc{toMap -- convert a set of tuples to a map}
 @java-imports{import java.util.Iterator;}
 {
-   TupleType tuple = (TupleType) st.getElementType();
+   Type tuple = st.getElementType();
    Type resultType = types.mapType(tuple.getFieldType(0), tuple.getFieldType(1));
   
    IMapWriter w = resultType.writer(values);

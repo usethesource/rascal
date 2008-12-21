@@ -7,21 +7,20 @@ import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
-import org.eclipse.imp.pdb.facts.type.NamedTreeType;
-import org.eclipse.imp.pdb.facts.type.TreeNodeType;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
 public class Factory {
 	private static TypeFactory tf = TypeFactory.getInstance();
 
-	public static final NamedTreeType Location = tf.namedTreeType("Location");
-	public static final NamedTreeType Area = tf.namedTreeType("Area");
+	public static final Type Location = tf.namedTreeType("Location");
+	public static final Type Area = tf.namedTreeType("Area");
 
-	public static final TreeNodeType Location_File = tf.treeNodeType(Location, "file", tf.stringType(), "filename");
-	public static final TreeNodeType Location_Area = tf.treeNodeType(Location, "area", Area, "area");
-	public static final TreeNodeType Location_AreaInFile = tf.treeNodeType(Location, "area-in-file", tf.stringType(), "filename", Area, "area");
+	public static final Type Location_File = tf.treeNodeType(Location, "file", tf.stringType(), "filename");
+	public static final Type Location_Area = tf.treeNodeType(Location, "area", Area, "area");
+	public static final Type Location_AreaInFile = tf.treeNodeType(Location, "area-in-file", tf.stringType(), "filename", Area, "area");
 
-	public static final TreeNodeType Area_Area = tf.treeNodeType(Area, "area", tf.integerType(), "begin-line", tf.integerType(), "begin-column", tf.integerType(), "end-line", tf.integerType(), "end-column", tf.integerType(), "offset", tf.integerType(), "length");
+	public static final Type Area_Area = tf.treeNodeType(Area, "area", tf.integerType(), "begin-line", tf.integerType(), "begin-column", tf.integerType(), "end-line", tf.integerType(), "end-column", tf.integerType(), "offset", tf.integerType(), "length");
 	
 	private static final class InstanceHolder {
 		public final static Factory factory = new Factory();
@@ -34,7 +33,7 @@ public class Factory {
 	private Factory() {}
 	
 	public ISourceLocation toSourceLocation(IValueFactory factory, INode loc) {
-		TreeNodeType type = loc.getTreeNodeType();
+		Type type = loc.getType();
 		
 		if (type == Location_File) {
 		  String filename = ((IString) loc.get("filename")).getValue();
@@ -56,7 +55,7 @@ public class Factory {
 	}
 	
 	public ISourceRange toSourceRange(IValueFactory factory, INode area) {
-		if (area.getTreeNodeType() == Area_Area) {
+		if (area.getType() == Area_Area) {
 		   int offset = ((IInteger) area.get("offset")).getValue();
 		   int startLine = ((IInteger) area.get("begin-line")).getValue();
 		   int endLine = ((IInteger) area.get("end-line")).getValue();
