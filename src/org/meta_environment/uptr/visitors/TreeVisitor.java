@@ -3,7 +3,7 @@ package org.meta_environment.uptr.visitors;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
-import org.eclipse.imp.pdb.facts.type.TreeNodeType;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IdentityVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.meta_environment.uptr.Factory;
@@ -13,8 +13,8 @@ public abstract class TreeVisitor extends IdentityVisitor {
 	
 	@Override
 	public ITree visitNode(INode o) throws VisitorException {
-		if (o.getType() == Factory.Tree) {
-			TreeNodeType alt = o.getTreeNodeType();
+		if (o.getType().getSuperType() == Factory.Tree) {
+			Type alt = o.getType();
 			
 			if (alt == Factory.Tree_Appl) {
 				return visitTreeAppl(o);

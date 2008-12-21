@@ -30,15 +30,6 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
-import org.eclipse.imp.pdb.facts.type.ListType;
-import org.eclipse.imp.pdb.facts.type.MapType;
-import org.eclipse.imp.pdb.facts.type.NamedTreeType;
-import org.eclipse.imp.pdb.facts.type.NamedType;
-import org.eclipse.imp.pdb.facts.type.ParameterType;
-import org.eclipse.imp.pdb.facts.type.RelationType;
-import org.eclipse.imp.pdb.facts.type.SetType;
-import org.eclipse.imp.pdb.facts.type.TreeNodeType;
-import org.eclipse.imp.pdb.facts.type.TupleType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.ASTFactory;
@@ -233,7 +224,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 
 	/* First a number of general utility methods */
 	EvalResult result(Type t, IValue v) {
-		Map<ParameterType, Type> bindings = env.getTypes();
+		Map<Type, Type> bindings = env.getTypeBindings();
 		Type instance;
 		
 		if (bindings.size() > 0) {
@@ -308,11 +299,11 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		return ((IString) val.value).getValue();
 	}
 	
-	private void bindTypeParameters(TupleType actualTypes, TupleType formals) {
+	private void bindTypeParameters(Type actualTypes, Type formals) {
 		try {
-			Map<ParameterType, Type> bindings = new HashMap<ParameterType, Type>();
+			Map<Type, Type> bindings = new HashMap<Type, Type>();
 			formals.match(actualTypes, bindings);
-			env.storeTypes(bindings);
+			env.storeTypeBindings(bindings);
 		}
 		catch (FactTypeError e) {
 			throw new RascalTypeError("Could not bind type parameters in " + formals + " to " + actualTypes, e);
@@ -365,7 +356,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			
 			INode tree = p.parse(new FileInputStream(file));
 			
-			if (tree.getTreeNodeType() == Factory.ParseTree_Summary) {
+			if (tree.getType() == Factory.ParseTree_Summary) {
 				throw new RascalTypeError("Parse error in module " + name + ":\n" + tree);
 			}
 			
@@ -491,8 +482,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	@Override
 	public EvalResult visitDeclarationData(Data x) {
 		String name = x.getUser().getName().toString();
-		NamedTreeType sort = tf.namedTreeType(name);
-		env.storeType(sort);
+		Type sort = tf.namedTreeType(name);
+		env.storeNamedTreeType(sort);
 		
 		for (Variant var : x.getVariants()) {
 			String altName = Names.name(var.getName());
@@ -508,16 +499,16 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		    		labels[i] = arg.getName().toString();
 		    	}
 
-		    	TupleType children = tf.tupleType(fields, labels);
-		    	env.storeType(tf.treeNodeType(sort, altName, children));
+		    	Type children = tf.tupleType(fields, labels);
+		    	env.storeTreeNodeType(tf.treeNodeTypeFromTupleType(sort, altName, children));
 		    }
 		    else if (var.isNillaryConstructor()) {
-		    	env.storeType(tf.treeNodeType(sort, altName, new Object[] { }));
+		    	env.storeTreeNodeType(tf.treeNodeType(sort, altName, new Object[] { }));
 		    }
 		    else if (var.isAnonymousConstructor()) {
 		    	Type argType = var.getType().accept(te);
 		    	String label = var.getName().toString();
-		    	env.storeType(tf.anonymousTreeType(sort, altName, argType, label));
+		    	env.storeTreeNodeType(tf.anonymousTreeType(sort, altName, argType, label));
 		    }
 		}
 		
@@ -530,8 +521,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		// TODO add support for parameterized types
 		String user = x.getUser().getName().toString();
 		Type base = x.getBase().accept(te);
-		NamedType decl = tf.namedType(user, base);
-		env.storeType(decl);
+		Type decl = tf.namedType(user, base);
+		env.storeNamedType(decl);
 		return result();
 	}
 	
@@ -619,7 +610,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			 actuals[i] = resultElem.value;
 		 }
 		 
-		 TupleType actualTypes = tf.tupleType(types);
+		 Type actualTypes = tf.tupleType(types);
 		
 		if (te.isFunctionType(func.type)) {
 			String name = ((IString) func.value).getValue();
@@ -648,7 +639,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			 actuals[i] = resultElem.value;
 		 }
 		 
-		 TupleType signature = tf.tupleType(types);
+		 Type signature = tf.tupleType(types);
 		 
 		 if (isTreeConstructorName(name, signature)) {
 			 return constructTree(name, actuals, signature);
@@ -658,7 +649,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		 }
 	}
 	
-	private EvalResult call(QualifiedName name, IValue[] actuals, TupleType actualTypes) {
+	private EvalResult call(QualifiedName name, IValue[] actuals, Type actualTypes) {
 		 FunctionDeclaration func = env.getFunction(name, actualTypes);
 
 		 if (func != null) {
@@ -682,12 +673,12 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		 }
 	}
 
-	private boolean isTreeConstructorName(QualifiedName name, TupleType signature) {
+	private boolean isTreeConstructorName(QualifiedName name, Type signature) {
 		java.util.List<Name> names = name.getNames();
 		
 		if (names.size() > 1) {
 			String sort = Names.sortName(name);
-			NamedTreeType sortType = env.getNamedTreeType(sort);
+			Type sortType = env.getNamedTreeType(sort);
 			
 			if (sortType != null) {
 				String cons = Names.consName(name);
@@ -723,18 +714,17 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	 * 
 	 * TODO: code does not deal with import structure, rather data def's are global.
 	 */
-	private EvalResult constructTree(QualifiedName functionName, IValue[] actuals, TupleType signature) {
-		java.util.List<Name> parts = functionName.getNames();
+	private EvalResult constructTree(QualifiedName functionName, IValue[] actuals, Type signature) {
 		String sort;
 		String cons;
 		
 		cons = Names.consName(functionName);
 		sort = Names.sortName(functionName);
 
-		TreeNodeType candidate = null;
+		Type candidate = null;
 	
 		if (sort != null) {
-			NamedTreeType sortType = env.getNamedTreeType(sort);
+			Type sortType = env.getNamedTreeType(sort);
 			
 			if (sortType != null) {
 			  candidate = env.getTreeNodeType(sortType, cons, signature);
@@ -773,7 +763,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		return trace;
 	}
 	
-	private EvalResult call(FunctionDeclaration func, IValue[] actuals, TupleType actualTypes) {
+	private EvalResult call(FunctionDeclaration func, IValue[] actuals, Type actualTypes) {
 		
 		if(callTracing){
 			EvalResult res;
@@ -814,15 +804,15 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	}
 
 	private EvalResult callJavaFunction(FunctionDeclaration func,
-			IValue[] actuals, TupleType actualTypes) {
+			IValue[] actuals, Type actualTypes) {
 		Type type = func.getSignature().getType().accept(te);
-		TupleType formals = (TupleType) func.getSignature().getParameters().accept(te);
+	    Type formals = func.getSignature().getParameters().accept(te);
 		
 		try {
 			env.pushFrame();
 			IValue result = javaFunctionCaller.callJavaMethod(func, actuals);
 			bindTypeParameters(actualTypes, formals);
-			Type resultType = type.instantiate(env.getTypes());
+			Type resultType = type.instantiate(env.getTypeBindings());
 			return result(resultType, result);
 		}
 		finally {
@@ -831,14 +821,14 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	}
 
 	private EvalResult callRascalFunction(FunctionDeclaration func,
-			IValue[] actuals, TupleType actualTypes) {
+			IValue[] actuals, Type actualTypes) {
 		try {
 			env.pushFrame();
-			TupleType formals = (TupleType) func.getSignature().accept(te);
+			Type formals = func.getSignature().accept(te);
 			bindTypeParameters(actualTypes, formals);
 			
 			for (int i = 0; i < formals.getArity(); i++) {
-				Type formal = formals.getFieldType(i).instantiate(env.getTypes());
+				Type formal = formals.getFieldType(i).instantiate(env.getTypeBindings());
 				EvalResult result = result(formal, actuals[i]);
 				env.storeVariable(formals.getFieldName(i), result);
 			}
@@ -854,7 +844,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		}
 		catch (ReturnException e) {
 			EvalResult result = e.getValue();
-			result.type = result.type.instantiate(env.getTypes());
+			result.type = result.type.instantiate(env.getTypeBindings());
 			
 			return result;
 		} 
@@ -928,11 +918,11 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	public EvalResult visitExpressionSubscript(Subscript x) {
 		
 		EvalResult expr = x.getExpression().accept(this);
-		Type exprType = expr.type.getBaseType();
+		Type exprType = expr.type;
 		int nSubs = x.getSubscripts().size();
 		
 		if (exprType.isRelationType()) {
-			int relArity = ((RelationType)exprType).getArity();
+			int relArity = exprType.getArity();
 			
 			if(nSubs >= relArity){
 				throw new RascalTypeError("Too many subscripts (" + nSubs + ") for relation of arity " + relArity);
@@ -943,16 +933,16 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			
 			for(int i = 0; i < nSubs; i++){
 				subscriptResult[i] = x.getSubscripts().get(i).accept(this);
-				subscriptType[i] = subscriptResult[i].type.getBaseType();
+				subscriptType[i] = subscriptResult[i].type;
 			}
 			
 			boolean yieldSet = (relArity - nSubs) == 1;
 			Type resFieldType[] = new Type[relArity - nSubs];
 			for (int i = 0; i < relArity; i++) {
-				Type relFieldType = ((RelationType) exprType).getFieldType(i);
+				Type relFieldType = exprType.getFieldType(i);
 				if(i < nSubs){
 					if(subscriptType[i].isSetType() && 
-					   ((SetType)subscriptType[i]).getElementType().isSubtypeOf(relFieldType)){
+					    subscriptType[i].getElementType().isSubtypeOf(relFieldType)){
 						subscriptIsSet[i] = true;
 					} else 
 					if(subscriptType[i].isSubtypeOf(relFieldType)){
@@ -1012,11 +1002,11 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		}
 		
 		EvalResult subs = x.getSubscripts().get(0).accept(this);
-		Type subsBase = subs.type.getBaseType();
+		Type subsBase = subs.type;
 		
 		if (exprType.isMapType()
-			&& subsBase.isSubtypeOf(((MapType) exprType).getKeyType())) {
-			Type valueType = ((MapType) exprType).getValueType();
+			&& subsBase.isSubtypeOf(exprType.getKeyType())) {
+			Type valueType = exprType.getValueType();
 			return result(valueType, ((IMap) expr.value).get(subs.value));
 		}
 		
@@ -1026,7 +1016,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		int index = intValue(subs);
 
 		if (exprType.isListType()) {
-			Type elementType = ((ListType) exprType).getElementType();
+			Type elementType = exprType.getElementType();
 			try {
 				IValue element = ((IList) expr.value).get(index);
 				return result(elementType, element);
@@ -1038,8 +1028,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			if(index >= ((INode) expr.value).arity()){
 				throw new RascalRunTimeError("Subscript out of bounds");
 			}
-			Type elementType = ((INode) expr.value).getTreeNodeType()
-					.getChildType(index);
+			Type elementType = ((INode) expr.value).getType()
+					.getFieldType(index);
 			IValue element = ((ITree) expr.value).get(index);
 			return result(elementType, element);
 		}
@@ -1053,7 +1043,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		}
 		if (exprType.isTupleType()) {
 			try {
-				Type elementType = ((TupleType) exprType).getFieldType(index);
+				Type elementType = exprType.getFieldType(index);
 				IValue element = ((ITuple) expr.value).get(index);
 				return result(elementType, element);
 			} catch (IndexOutOfBoundsException e){
@@ -1070,7 +1060,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		String field = x.getField().toString();
 		
 		if (expr.type.isTupleType()) {
-			TupleType tuple = (TupleType) expr.type;
+			Type tuple = expr.type;
 			if (!tuple.hasFieldNames()) {
 				throw new RascalTypeError("Tuple does not have field names: " + tuple);
 			}
@@ -1078,7 +1068,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			return result(tuple.getFieldType(field), ((ITuple) expr.value).get(field));
 		}
 		else if (expr.type.isRelationType()) {
-			TupleType tuple = ((RelationType) expr.type).getFieldTypes();
+			Type tuple = expr.type.getFieldTypes();
 			
 			try {
 				ISetWriter w = vf.setWriter(tuple.getFieldType(field));
@@ -1092,10 +1082,10 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			}
 		}
 		else if (expr.type.isNamedTreeType() || expr.type.isTreeNodeType()) {
-			TreeNodeType node = ((INode) expr.value).getTreeNodeType();
+			Type node = expr.value.getType();
 			
 			try {
-				return result(node.getChildType(node.getChildIndex(field)),((INode) expr.value).get(field));
+				return result(node.getFieldType(node.getFieldIndex(field)),((INode) expr.value).get(field));
 			}
 			catch (FactTypeError e) {
 				throw new RascalTypeError(e.getMessage(), e);
@@ -1134,15 +1124,15 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				} else {
 					String fieldName = f.getFieldName().toString();
 					try {
-						selectedFields[i] = ((TupleType)base.type).getFieldIndex(fieldName);
+						selectedFields[i] = base.type.getFieldIndex(fieldName);
 					} catch (Exception e){
 						throw new RascalTypeError("Undefined field " + fieldName + " in projection");
 					}
 				}
-				if(selectedFields[i] < 0 || selectedFields[i] > ((TupleType)base.type).getArity()){
+				if(selectedFields[i] < 0 || selectedFields[i] > base.type.getArity()){
 					throw new RascalTypeError("Index " + selectedFields[i] + " in projection exceeds arity of tuple");
 				}
-				fieldTypes[i] = ((TupleType)base.type).getFieldType(selectedFields[i]);
+				fieldTypes[i] = base.type.getFieldType(selectedFields[i]);
 			}
 			if(duplicateIndices(selectedFields)){
 				throw new RascalTypeError("Duplicate fields in projection");
@@ -1169,10 +1159,10 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 						throw new RascalTypeError("Undefined field " + fieldName + " in projection");
 					}
 				}
-				if(selectedFields[i] < 0 || selectedFields[i] > ((RelationType)base.type).getArity()){
+				if(selectedFields[i] < 0 || selectedFields[i] > base.type.getArity()){
 					throw new RascalTypeError("Index " + selectedFields[i] + " in projection exceeds arity of tuple");
 				}
-				fieldTypes[i] = ((RelationType)base.type).getFieldType(selectedFields[i]);
+				fieldTypes[i] = base.type.getFieldType(selectedFields[i]);
 			}
 			if(duplicateIndices(selectedFields)){
 				throw new RascalTypeError("Duplicate fields in projection");
@@ -1325,13 +1315,13 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 		if (receiver.type.isTupleType()) {
 			IValue result = ((ITuple) receiver.value).get(label);
-			Type type = ((TupleType) ((ITuple) receiver.value).getType()).getFieldType(label);
+			Type type = ((ITuple) receiver.value).getType().getFieldType(label);
 			return result(type, result);
 		}
 		else if (receiver.type.isTreeNodeType() || receiver.type.isNamedTreeType()) {
 			IValue result = ((INode) receiver.value).get(label);
-			TreeNodeType treeNodeType = ((INode) receiver.value).getTreeNodeType();
-			Type type = treeNodeType.getChildType(treeNodeType.getChildIndex(label));
+			Type treeNodeType = ((INode) receiver.value).getType();
+			Type type = treeNodeType.getFieldType(treeNodeType.getFieldIndex(label));
 			return result(type, result);
 		}
 		else {
@@ -1368,18 +1358,18 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		EvalResult receiver = x.getReceiver().accept(this);
 		EvalResult subscript = x.getSubscript().accept(this);
 		
-		if (receiver.type.getBaseType().isListType() && subscript.type.getBaseType().isIntegerType()) {
+		if (receiver.type.isListType() && subscript.type.isIntegerType()) {
 			IList list = (IList) receiver.value;
 			IValue result = list.get(intValue(subscript));
-			Type type = ((ListType) receiver.type).getElementType();
+			Type type = receiver.type.getElementType();
 			return result(type, result);
 		}
-		else if (receiver.type.getBaseType().isMapType()) {
-			Type keyType = ((MapType) receiver.type).getKeyType();
+		else if (receiver.type.isMapType()) {
+			Type keyType = receiver.type.getKeyType();
 			
 			if (subscript.type.isSubtypeOf(keyType)) {
 				IValue result = ((IMap) receiver.value).get(subscript.value);
-				Type type = ((MapType) receiver.type).getValueType();
+				Type type = receiver.type.getValueType();
 				return result(type, result);
 			}
 		}
@@ -1651,7 +1641,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		java.util.List<IValue> results = new LinkedList<IValue>();
 		Type elementType = evaluateElements(elements, results);
 
-		ListType resultType = tf.listType(elementType);
+		Type resultType = tf.listType(elementType);
 		IListWriter w = resultType.writer(vf);
 		w.appendAll(results);
 		return result(resultType, w.done());
@@ -1664,7 +1654,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		java.util.List<IValue> results = new LinkedList<IValue>();
 		Type elementType = evaluateElements(elements, results);
 
-		SetType resultType = tf.setType(elementType);
+		Type resultType = tf.setType(elementType);
 		ISetWriter w = resultType.writer(vf);
 		w.insertAll(results);
 		return result(resultType, w.done());
@@ -1703,7 +1693,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			result.put(keyResult.value, valueResult.value);
 		}
 		
-		MapType type = tf.mapType(keyType, valueType);
+		Type type = tf.mapType(keyType, valueType);
 		IMapWriter w = type.writer(vf);
 		w.putAll(result);
 		
@@ -1801,13 +1791,13 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 					return result(resultType, ((IList) left.value)
 					.concat((IList) right.value));
 				}
-				if(right.type.isSubtypeOf(((ListType)left.type).getElementType())){
+				if(right.type.isSubtypeOf(left.type.getElementType())){
 					return result(left.type, ((IList)left.value).append(right.value));
 				}
 		}
 		
 		if (right.type.isListType()){
-			if(left.type.isSubtypeOf(((ListType)right.type).getElementType())){
+			if(left.type.isSubtypeOf(right.type.getElementType())){
 				return result(right.type, ((IList)right.value).insert(left.value));
 			}
 		}
@@ -1817,13 +1807,13 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				return result(resultType, ((ISet) left.value)
 				.union((ISet) right.value));
 			}
-			if(right.type.isSubtypeOf(((SetType)left.type).getElementType())){
+			if(right.type.isSubtypeOf(left.type.getElementType())){
 				return result(left.type, ((ISet)left.value).insert(right.value));
 			}
 		}
 	
 		if (right.type.isSetType()){
-			if(left.type.isSubtypeOf(((SetType)right.type).getElementType())){
+			if(left.type.isSubtypeOf(right.type.getElementType())){
 				return result(right.type, ((ISet)right.value).insert(left.value));
 			}
 		}
@@ -1836,8 +1826,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		}
 		//Tuple
 		if(left.type.isTupleType() && right.type.isTupleType()) {
-			TupleType leftType = (TupleType) left.type;
-			TupleType rightType = (TupleType) right.type;
+			Type leftType = left.type;
+			Type rightType = right.type;
 			
 			int leftArity = leftType.getArity();
 			int rightArity = rightType.getArity();
@@ -1921,7 +1911,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 					return result(resultType, ((ISet) left.value)
 							.subtract((ISet) right.value));
 				}
-				if(right.type.isSubtypeOf(((SetType)left.type).getElementType())){
+				if(right.type.isSubtypeOf(left.type.getElementType())){
 					return result(left.type, ((ISet)left.value)
 							.subtract(vf.set(right.value)));
 				}
@@ -1974,8 +1964,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		} 
 		
 		else if (left.type.isListType() && right.type.isListType()){
-			Type leftElementType = ((ListType) left.type).getElementType();
-			Type rightElementType = ((ListType) right.type).getElementType();
+			Type leftElementType = left.type.getElementType();
+			Type rightElementType = right.type.getElementType();
 			Type resultType = tf.listType(tf.tupleType(leftElementType, rightElementType));
 			IListWriter w = resultType.writer(vf);
 			
@@ -1987,8 +1977,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			return result(resultType, w.done());	
 		}
 		else if(left.type.isRelationType() && right.type.isRelationType()){
-			TupleType leftElementType = (TupleType) ((RelationType) left.type).getElementType();
-			TupleType rightElementType = (TupleType) ((RelationType) right.type).getElementType();
+			Type leftElementType = left.type.getElementType();
+			Type rightElementType = right.type.getElementType();
 			
 			int leftArity = leftElementType.getArity();
 			int rightArity = rightElementType.getArity();
@@ -2013,8 +2003,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				}
 			}
 			
-			TupleType resElementType = tf.tupleType(fieldTypes, fieldNames);
-			Type resultType = tf.relType(resElementType);
+			Type resElementType = tf.tupleType(fieldTypes, fieldNames);
+			Type resultType = tf.relTypeFromTuple(resElementType);
 			IRelationWriter w = resultType.writer(vf);
 			
 			for(IValue v1 : (IRelation) left.value){
@@ -2034,8 +2024,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			return result(resultType, w.done());
 		}
 		else if (left.type.isSetType() && right.type.isSetType()){
-			Type leftElementType = ((SetType) left.type).getElementType();
-			Type rightElementType = ((SetType) right.type).getElementType();
+			Type leftElementType = left.type.getElementType();
+			Type rightElementType = right.type.getElementType();
 			Type resultType = tf.relType(leftElementType, rightElementType);
 			IRelationWriter w = resultType.writer(vf);
 			
@@ -2293,8 +2283,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		String name = x.getKey().toString();
 		
 		try {
-			if (expr.type.getBaseType().isTupleType()) {
-				TupleType tuple = (TupleType) expr.type.getBaseType();
+			if (expr.type.isTupleType()) {
+				Type tuple = expr.type;
 				Type argType = tuple.getFieldType(name);
 				ITuple value = (ITuple) expr.value;
 				
@@ -2303,7 +2293,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				return result(expr.type, value.set(name, repl.value));
 			}
 			else if (expr.type.isNamedTreeType() || expr.type.isTreeNodeType()) {
-				TupleType tuple = (TupleType) ((INode) expr.type.getBaseType()).getChildrenTypes();
+				Type tuple = expr.type.getFieldTypes();
 				Type argType = tuple.getFieldType(name);
 				INode value = (INode) expr.value;
 				
@@ -2738,7 +2728,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		EvalResult right = expression2.accept(this);
 		
 		if(right.type.isListType() &&
-		    left.type.isSubtypeOf(((ListType) right.type).getElementType())){
+		    left.type.isSubtypeOf(right.type.getElementType())){
 			IList lst = (IList) right.value;
 			IValue val = left.value;
 			for(int i = 0; i < lst.length(); i++){
@@ -2747,12 +2737,12 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			}
 			return false;
 		} else if(right.type.isSetType() && 
-				   left.type.isSubtypeOf(((SetType) right.type).getElementType())){
+				   left.type.isSubtypeOf(right.type.getElementType())){
 			return ((ISet) right.value).contains(left.value);
 			
-		} else if(right.type.isMapType() && left.type.isSubtypeOf(((MapType) right.type).getValueType())){
+		} else if(right.type.isMapType() && left.type.isSubtypeOf(right.type.getValueType())){
 			return ((IMap) right.value).containsValue(left.value);
-		} else if(right.type.isRelationType() && left.type.isSubtypeOf(((SetType) right.type).getElementType())){
+		} else if(right.type.isRelationType() && left.type.isSubtypeOf(right.type.getElementType())){
 			return ((ISet) right.value).contains(left.value);
 		} else {
 			throw new RascalTypeError("Operands of in have wrong types: "
@@ -2781,9 +2771,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 		if(left.type.isRelationType() && 
 			right.type.isRelationType()){
-			RelationType leftrelType = (RelationType) left.type; 
-
-			RelationType rightrelType = (RelationType) right.type;
+			Type leftrelType = left.type; 
+			Type rightrelType = right.type;
 			
 
 			// ALARM: not using declared types
@@ -2791,7 +2780,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 					&& rightrelType.getArity() == 2
 					&& leftrelType.getFieldType(1).equals(
 							rightrelType.getFieldType(0))) {
-				RelationType resultType = leftrelType.compose(rightrelType);
+				Type resultType = leftrelType.compose(rightrelType);
 				return result(resultType, ((IRelation) left.value)
 						.compose((IRelation) right.value));
 			}
@@ -2800,10 +2789,10 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			if(((IRelation)right.value).size() == 0)
 				return right;
 		}
-		else if (left.type.isSetType() && ((SetType) left.type).getElementType().isVoidType()) {
+		else if (left.type.isSetType() && left.type.getElementType().isVoidType()) {
 			return left;
 		}
-		else if (right.type.isSetType() && ((SetType) right.type).getElementType().isVoidType()) {
+		else if (right.type.isSetType() && right.type.getElementType().isVoidType()) {
 			return right;
 		}
 		
@@ -2814,7 +2803,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	private EvalResult closure(EvalResult arg, boolean reflexive) {
 
 		if (arg.type.isRelationType()) {
-			RelationType relType = (RelationType) arg.type;
+			Type relType = arg.type;
 			Type fieldType1 = relType.getFieldType(0);
 			Type fieldType2 = relType.getFieldType(1);
 			String fieldName1 = relType.getFieldName(0);
@@ -2825,12 +2814,12 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 							|| fieldType2.isSubtypeOf(fieldType1))) {
 				Type lub = fieldType1.lub(fieldType2);
 				
-				RelationType resultType = fieldName1 != null ? tf.relType(lub, fieldName1, lub, fieldName2) : tf.relType(lub,lub);
+				Type resultType = fieldName1 != null ? tf.relType(lub, fieldName1, lub, fieldName2) : tf.relType(lub,lub);
 				return result(resultType, reflexive ? ((IRelation) arg.value).closureStar()
 						: ((IRelation) arg.value).closure());
 			}
 		}
-		else if (arg.type.isSetType() && ((SetType) arg.type).getElementType().isVoidType()) {
+		else if (arg.type.isSetType() && arg.type.getElementType().isVoidType()) {
 			return arg;
 		}
 		throw new RascalTypeError("Operand of + or * closure has wrong type: "
@@ -2875,10 +2864,10 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			patexpr = vp.getExpression();
 			EvalResult r = patexpr.accept(ev);
 			if(r.type.isListType()){
-				elementType = ((ListType) r.type).getElementType();
+				elementType = r.type.getElementType();
 				iter = ((IList) r.value).iterator();
 			} else 	if(r.type.isSetType()){
-				elementType = ((SetType) r.type).getElementType();
+				elementType = r.type.getElementType();
 				iter = ((ISet) r.value).iterator();
 			
 			} else if(r.type.isTreeType()){

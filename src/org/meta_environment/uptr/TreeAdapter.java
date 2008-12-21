@@ -21,26 +21,26 @@ public class TreeAdapter {
 	private ProductionAdapter prod;
 	
 	public TreeAdapter(INode tree) {
-		if (tree.getType() != Factory.Tree) {
+		if (tree.getType().getSuperType() != Factory.Tree) {
 			throw new FactTypeError("TreeWrapper will only wrap UPTR Trees, not " +  tree.getType());
 		}
 		this.tree = tree;
 	}
 	
 	public boolean isAppl() {
-		return tree.getTreeNodeType() == Factory.Tree_Appl;
+		return tree.getType() == Factory.Tree_Appl;
 	}
 	
 	public boolean isAmb() {
-		return tree.getTreeNodeType() == Factory.Tree_Amb;
+		return tree.getType() == Factory.Tree_Amb;
 	}
 	
 	public boolean isChar() {
-		return tree.getTreeNodeType() == Factory.Tree_Char;
+		return tree.getType() == Factory.Tree_Char;
 	}
 	
 	public boolean isCycle() {
-		return tree.getTreeNodeType() == Factory.Tree_Cycle;
+		return tree.getType() == Factory.Tree_Cycle;
 	}
 	
 	public ProductionAdapter getProduction() {
@@ -176,9 +176,9 @@ public class TreeAdapter {
 	
 	public void unparse(OutputStream stream) throws IOException, FactTypeError {
 		try {
-			if (tree.getTreeNodeType() == Factory.ParseTree_Top) {
+			if (tree.getType() == Factory.ParseTree_Top) {
 				tree.get("top").accept(new BottomUpVisitor<IValue>(new Unparser(stream), ValueFactory.getInstance()));
-			} else if (tree.getType() == Factory.Tree) {
+			} else if (tree.getType().getSuperType() == Factory.Tree) {
 				tree.accept(new BottomUpVisitor<IValue>(new Unparser(stream), ValueFactory.getInstance()));
 			} else {
 				throw new FactTypeError("Can not unparse this "

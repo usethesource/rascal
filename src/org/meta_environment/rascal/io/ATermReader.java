@@ -14,13 +14,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.io.IValueReader;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
-import org.eclipse.imp.pdb.facts.type.ListType;
-import org.eclipse.imp.pdb.facts.type.MapType;
-import org.eclipse.imp.pdb.facts.type.RelationType;
-import org.eclipse.imp.pdb.facts.type.SetType;
-import org.eclipse.imp.pdb.facts.type.TreeNodeType;
-import org.eclipse.imp.pdb.facts.type.NamedTreeType;
-import org.eclipse.imp.pdb.facts.type.TupleType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
@@ -135,12 +128,12 @@ public class ATermReader implements IValueReader {
 
 			String funname = parseId(reader);
 			
-			if (!expected.getBaseType().isNamedTreeType()) {
+			if (!expected.isNamedTreeType()) {
 				throw new FactTypeError("Expected a " + expected + " but got a tree node");
 			}
 			
-			List<TreeNodeType> nodes = tf.lookupTreeNodeType((NamedTreeType) expected.getBaseType(), funname);
-			TreeNodeType node = nodes.get(0); // TODO deal with overloading
+			List<Type> nodes = tf.lookupTreeNodeType(expected, funname);
+			Type node = nodes.get(0); // TODO deal with overloading
 			
 			c = reader.skipWS();
 			if (reader.getLastChar() == '(') {
@@ -151,7 +144,7 @@ public class ATermReader implements IValueReader {
 				if (reader.getLastChar() == ')') {
 					result = vf.tree(node, new IValue[0]);
 				} else {
-					IValue[] list = parseFixedSizeATermsArray(reader, node.getChildrenTypes());
+					IValue[] list = parseFixedSizeATermsArray(reader, node.getFieldTypes());
 
 					if (reader.getLastChar() != ')') {
 						throw new FactTypeError("expected ')' but got '"
@@ -183,7 +176,7 @@ public class ATermReader implements IValueReader {
 		if (reader.getLastChar() == ')') {
 			result = expected.make(vf);
 		} else {
-			IValue[] list = parseFixedSizeATermsArray(reader, (TupleType) expected.getBaseType());
+			IValue[] list = parseFixedSizeATermsArray(reader, expected);
 
 			if (reader.getLastChar() != ')') {
 				throw new FactTypeError("expected ')' but got '"
@@ -228,7 +221,7 @@ public class ATermReader implements IValueReader {
 		if (c == ']') {
 			c = reader.readSkippingWS();
 
-			if (expected.getBaseType().isListType()) {
+			if (expected.isListType()) {
 				result = expected.make(vf);
 			} else {
 				throw new FactTypeError("Did not expect a list, rather a "
@@ -458,7 +451,7 @@ public class ATermReader implements IValueReader {
 
 	private IValue parseATerms(SharingStream reader, Type expected)
 			throws IOException {
-		Type base = expected.getBaseType();
+		Type base = expected;
 		Type elementType = getElementType(expected);
 		IValue[] terms = parseATermsArray(reader, elementType);
 
@@ -493,18 +486,16 @@ public class ATermReader implements IValueReader {
 	}
 
 	private Type getElementType(Type expected) {
-		Type base = expected.getBaseType();
+		Type base = expected;
 
 		if (base.isListType()) {
-			return ((ListType) expected.getBaseType()).getElementType();
+			return base.getElementType();
 		} else if (base.isSetType()) {
-			return ((SetType) expected.getBaseType()).getElementType();
+			return base.getElementType();
 		} else if (base.isMapType()) {
-			MapType map = (MapType) base;
-			return tf.tupleType(map.getKeyType(), map.getValueType());
+			return tf.tupleType(base.getKeyType(), base.getValueType());
 		} else if (base.isRelationType()) {
-			RelationType rel = (RelationType) base;
-			return rel.getFieldTypes();
+			return base.getFieldTypes();
 		} else {
 			throw new FactTypeError("Found a list, set, relation or map instead of the expected "
 					+ expected);
@@ -533,7 +524,7 @@ public class ATermReader implements IValueReader {
 	}
 	
 	private IValue[] parseFixedSizeATermsArray(SharingStream reader,
-			TupleType elementTypes) throws IOException {
+			Type elementTypes) throws IOException {
 		List<IValue> list = new ArrayList<IValue>();
 		int i = 0;
 		Type elementType = elementTypes.getFieldType(i++);

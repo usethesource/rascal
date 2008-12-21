@@ -8,8 +8,6 @@ import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.MapType;
-import org.eclipse.imp.pdb.facts.type.TupleType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.Assignable;
 import org.meta_environment.rascal.ast.NullASTVisitor;
@@ -71,7 +69,7 @@ import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 		EvalResult subscript = x.getSubscript().accept(eval);
 		EvalResult result;
 		
-		if (rec.type.getBaseType().isListType() && subscript.type.getBaseType().isIntegerType()) {
+		if (rec.type.isListType() && subscript.type.isIntegerType()) {
 			try {
 			IList list = (IList) rec.value;
 			int index = ((IInteger) subscript.value).getValue();
@@ -81,8 +79,8 @@ import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 				throw new RascalRunTimeError("Index " + ((IInteger) subscript.value).getValue() + " out of bounds", e);
 			}
 		}
-		else if (rec.type.getBaseType().isMapType()) {
-			Type keyType = ((MapType) rec.type).getKeyType();
+		else if (rec.type.isMapType()) {
+			Type keyType = rec.type.getKeyType();
 			
 			if (subscript.type.isSubtypeOf(keyType)) {
 				IMap map = ((IMap) rec.value).put(subscript.value, value.value);
@@ -149,11 +147,11 @@ import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 		java.util.List<Assignable> arguments = x.getElements();
 		
 		System.err.println("visitAssignableTuple: " + x + ", value: " + value);
-		if (!value.type.getBaseType().isTupleType()) {
+		if (!value.type.isTupleType()) {
 			throw new RascalTypeError("Receiver is a tuple, but the assigned value is not: " + value.type); 
 		}
 		
-		TupleType tupleType = (TupleType) value.type;
+		Type tupleType = value.type;
 		ITuple tuple = (ITuple) value.value;
 		IValue[] results = new IValue[arguments.size()];
 		Type [] resultTypes = new Type[arguments.size()];

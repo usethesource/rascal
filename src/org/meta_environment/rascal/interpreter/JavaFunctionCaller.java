@@ -29,25 +29,7 @@ import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.hash.ValueFactory;
-import org.eclipse.imp.pdb.facts.type.BoolType;
-import org.eclipse.imp.pdb.facts.type.DoubleType;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
-import org.eclipse.imp.pdb.facts.type.IntegerType;
-import org.eclipse.imp.pdb.facts.type.ListType;
-import org.eclipse.imp.pdb.facts.type.MapType;
-import org.eclipse.imp.pdb.facts.type.NamedTreeType;
-import org.eclipse.imp.pdb.facts.type.NamedType;
-import org.eclipse.imp.pdb.facts.type.ParameterType;
-import org.eclipse.imp.pdb.facts.type.RelationType;
-import org.eclipse.imp.pdb.facts.type.SetType;
-import org.eclipse.imp.pdb.facts.type.SourceLocationType;
-import org.eclipse.imp.pdb.facts.type.SourceRangeType;
-import org.eclipse.imp.pdb.facts.type.StringType;
-import org.eclipse.imp.pdb.facts.type.TreeNodeType;
-import org.eclipse.imp.pdb.facts.type.TreeType;
-import org.eclipse.imp.pdb.facts.type.TupleType;
-import org.eclipse.imp.pdb.facts.type.ValueType;
-import org.eclipse.imp.pdb.facts.type.VoidType;
 import org.meta_environment.rascal.ast.Formal;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.Parameters;
@@ -125,14 +107,6 @@ public class JavaFunctionCaller {
 		}
 	}
 	
-	private String toString(IValue[] actuals) {
-		StringBuilder str = new StringBuilder();
-		for (IValue value : actuals) {
-			str.append(value.getClass().getCanonicalName() + " ");
-		}
-		return str.toString();
-	}
-
 	private String toString(Class<?>[] javaTypes) {
 		StringBuilder str = new StringBuilder();
 		for (Class<?> clazz : javaTypes) {
@@ -272,149 +246,149 @@ public class JavaFunctionCaller {
 	
 	private static class JavaClasses implements ITypeVisitor<Class<?>> {
 
-		public Class<?> visitBool(BoolType boolType) {
+		public Class<?> visitBool(org.eclipse.imp.pdb.facts.type.Type boolType) {
 			return IBool.class;
 		}
 
-		public Class<?> visitDouble(DoubleType type) {
+		public Class<?> visitDouble(org.eclipse.imp.pdb.facts.type.Type type) {
 			return IDouble.class;
 		}
 
-		public Class<?> visitInteger(IntegerType type) {
+		public Class<?> visitInteger(org.eclipse.imp.pdb.facts.type.Type type) {
 			return IInteger.class;
 		}
 
-		public Class<?> visitList(ListType type) {
+		public Class<?> visitList(org.eclipse.imp.pdb.facts.type.Type type) {
 			return IList.class;
 		}
 
-		public Class<?> visitMap(MapType type) {
+		public Class<?> visitMap(org.eclipse.imp.pdb.facts.type.Type type) {
 			return IMap.class;
 		}
 
-		public Class<?> visitNamed(NamedType type) {
+		public Class<?> visitNamed(org.eclipse.imp.pdb.facts.type.Type type) {
 			return IValue.class;
 		}
 
-		public Class<?> visitNamedTree(NamedTreeType type) {
+		public Class<?> visitNamedTree(org.eclipse.imp.pdb.facts.type.Type type) {
 			return INode.class;
 		}
 
-		public Class<?> visitRelationType(RelationType type) {
+		public Class<?> visitRelationType(org.eclipse.imp.pdb.facts.type.Type type) {
 			return IRelation.class;
 		}
 
-		public Class<?> visitSet(SetType type) {
+		public Class<?> visitSet(org.eclipse.imp.pdb.facts.type.Type type) {
 			return ISet.class;
 		}
 
-		public Class<?> visitSourceLocation(SourceLocationType type) {
+		public Class<?> visitSourceLocation(org.eclipse.imp.pdb.facts.type.Type type) {
 			return ISourceLocation.class;
 		}
 
-		public Class<?> visitSourceRange(SourceRangeType type) {
+		public Class<?> visitSourceRange(org.eclipse.imp.pdb.facts.type.Type type) {
 			return ISourceRange.class;
 		}
 
-		public Class<?> visitString(StringType type) {
+		public Class<?> visitString(org.eclipse.imp.pdb.facts.type.Type type) {
 			return IString.class;
 		}
 
-		public Class<?> visitTree(TreeType type) {
+		public Class<?> visitTree(org.eclipse.imp.pdb.facts.type.Type type) {
 			return ITree.class;
 		}
 
-		public Class<?> visitTreeNode(TreeNodeType type) {
+		public Class<?> visitTreeNode(org.eclipse.imp.pdb.facts.type.Type type) {
 			return INode.class;
 		}
 
-		public Class<?> visitTuple(TupleType type) {
+		public Class<?> visitTuple(org.eclipse.imp.pdb.facts.type.Type type) {
 			return ITuple.class;
 		}
 
-		public Class<?> visitValue(ValueType type) {
+		public Class<?> visitValue(org.eclipse.imp.pdb.facts.type.Type type) {
 			return IValue.class;
 		}
 
-		public Class<?> visitVoid(VoidType type) {
+		public Class<?> visitVoid(org.eclipse.imp.pdb.facts.type.Type type) {
 			return null;
 		}
 
-		public Class<?> visitParameter(ParameterType parameterType) {
+		public Class<?> visitParameter(org.eclipse.imp.pdb.facts.type.Type parameterType) {
 			return parameterType.getBound().accept(this);
 		}
 	}
 	
 	private static class JavaTypes implements ITypeVisitor<String> {
-		public String visitBool(BoolType boolType) {
+		public String visitBool(org.eclipse.imp.pdb.facts.type.Type boolType) {
 			return "IBool";
 		}
 
-		public String visitDouble(DoubleType type) {
+		public String visitDouble(org.eclipse.imp.pdb.facts.type.Type type) {
 			return "IDouble";
 		}
 
-		public String visitInteger(IntegerType type) {
+		public String visitInteger(org.eclipse.imp.pdb.facts.type.Type type) {
 			return "IInteger";
 		}
 
-		public String visitList(ListType type) {
+		public String visitList(org.eclipse.imp.pdb.facts.type.Type type) {
 			return "IList";
 		}
 
-		public String visitMap(MapType type) {
+		public String visitMap(org.eclipse.imp.pdb.facts.type.Type type) {
 			return "IMap";
 		}
 
-		public String visitNamed(NamedType type) {
+		public String visitNamed(org.eclipse.imp.pdb.facts.type.Type type) {
 			return "IValue";
 		}
 
-		public String visitNamedTree(NamedTreeType type) {
+		public String visitNamedTree(org.eclipse.imp.pdb.facts.type.Type type) {
 			return "INode";
 		}
 
-		public String visitRelationType(RelationType type) {
+		public String visitRelationType(org.eclipse.imp.pdb.facts.type.Type type) {
 			return "IRelation";
 		}
 
-		public String visitSet(SetType type) {
+		public String visitSet(org.eclipse.imp.pdb.facts.type.Type type) {
 			return "ISet";
 		}
 
-		public String visitSourceLocation(SourceLocationType type) {
+		public String visitSourceLocation(org.eclipse.imp.pdb.facts.type.Type type) {
 			return "ISourceLocation";
 		}
 
-		public String visitSourceRange(SourceRangeType type) {
+		public String visitSourceRange(org.eclipse.imp.pdb.facts.type.Type type) {
 			return "ISourceRange";
 		}
 
-		public String visitString(StringType type) {
+		public String visitString(org.eclipse.imp.pdb.facts.type.Type type) {
 			return "IString";
 		}
 
-		public String visitTree(TreeType type) {
+		public String visitTree(org.eclipse.imp.pdb.facts.type.Type type) {
 			return "ITree";
 		}
 
-		public String visitTreeNode(TreeNodeType type) {
+		public String visitTreeNode(org.eclipse.imp.pdb.facts.type.Type type) {
 			return "INode";
 		}
 
-		public String visitTuple(TupleType type) {
+		public String visitTuple(org.eclipse.imp.pdb.facts.type.Type type) {
 			return "ITuple";
 		}
 
-		public String visitValue(ValueType type) {
+		public String visitValue(org.eclipse.imp.pdb.facts.type.Type type) {
 			return "IValue";
 		}
 
-		public String visitVoid(VoidType type) {
+		public String visitVoid(org.eclipse.imp.pdb.facts.type.Type type) {
 			return null;
 		}
 
-		public String visitParameter(ParameterType parameterType) {
+		public String visitParameter(org.eclipse.imp.pdb.facts.type.Type parameterType) {
 			return parameterType.getBound().accept(this);
 		}
 	}

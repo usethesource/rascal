@@ -185,7 +185,7 @@ public map[&A,&B] java toMap(list[tuple[&A, &B]] lst)
    if(lst.length() == 0){
       return values.map(types.voidType(), types.voidType());
    }
-   TupleType tuple = (TupleType) lst.getElementType();
+   Type tuple = lst.getElementType();
    Type resultType = types.mapType(tuple.getFieldType(0), tuple.getFieldType(1));
   
    IMapWriter w = resultType.writer(values);

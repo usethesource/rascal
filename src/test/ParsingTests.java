@@ -37,7 +37,7 @@ public class ParsingTests extends TestCase {
 				FileInputStream s = new FileInputStream(file);
 				INode tree = parser.parse(s);
 
-				if (tree.getTreeNodeType() == Factory.ParseTree_Top) {
+				if (tree.getType() == Factory.ParseTree_Top) {
 					Module.Default module = (Default) b.buildModule(tree);
 					System.err.println("SUCCEEDED: " + module.getHeader());
 				} else {

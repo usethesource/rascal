@@ -5,11 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
-import org.eclipse.imp.pdb.facts.type.NamedTreeType;
-import org.eclipse.imp.pdb.facts.type.NamedType;
-import org.eclipse.imp.pdb.facts.type.ParameterType;
-import org.eclipse.imp.pdb.facts.type.TreeNodeType;
-import org.eclipse.imp.pdb.facts.type.TupleType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.Name;
@@ -17,7 +12,6 @@ import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.interpreter.EvalResult;
 import org.meta_environment.rascal.interpreter.Names;
 import org.meta_environment.rascal.interpreter.RascalBug;
-import org.meta_environment.rascal.interpreter.TypeEvaluator;
 
 /**
  * An environment that implements the scoping rules of Rascal.
@@ -81,11 +75,11 @@ public class  EnvironmentStack {
 		return (ModuleEnvironment) bottom();
 	}
 
-	public Environment getFunctionDefiningEnvironment(Name name, TupleType formals) {
+	public Environment getFunctionDefiningEnvironment(Name name, Type formals) {
 		return getFunctionDefiningEnvironment(Names.name(name), formals);
 	}
 	
-	public Environment getFunctionDefiningEnvironment(String name, TupleType formals) {
+	public Environment getFunctionDefiningEnvironment(String name, Type formals) {
 		int i;
 		
 		//System.err.println("getFunctionDefiningEnvironment: stacksize=" + stack.size());
@@ -117,38 +111,37 @@ public class  EnvironmentStack {
 		return top();
 	}
 
-	public Map<ParameterType, Type> getTypes() {
-		Map<ParameterType,Type> types = new HashMap<ParameterType,Type>();
+	public Map<Type, Type> getTypeBindings() {
+		Map<Type,Type> types = new HashMap<Type,Type>();
 		
 		for (int i = 0; i < stack.size(); i++) {
 			Environment environment = stack.get(i);
-			types.putAll(environment.getTypes());
+			types.putAll(environment.getTypeBindings());
 		}
 		
 		// result can not be given to a match
 		return Collections.unmodifiableMap(types);
 	}
 
-	public void storeType(ParameterType par, Type type) {
-		// types have module scope
-		bottom().storeType(par, type);
+	public void storeParameterType(Type par, Type type) {
+		bottom().storeParameterType(par, type);
 	}
 	
-	public void storeTypes(Map<ParameterType, Type> bindings) {
-		top().storeTypes(bindings);
+	public void storeTypeBindings(Map<Type, Type> bindings) {
+		top().storeTypeBindings(bindings);
 	}
 
-	public FunctionDeclaration getFunction(Name name, TupleType actuals) {
+	public FunctionDeclaration getFunction(Name name, Type actuals) {
 		return getFunction(Names.name(name), actuals);
 	}
 	
-	public FunctionDeclaration getFunction(String name, TupleType actuals) {
+	public FunctionDeclaration getFunction(String name, Type actuals) {
 		Environment env = getFunctionDefiningEnvironment(name, actuals);
 		return env.getFunction(name, actuals);
 	}
 
-	public Type getType(ParameterType par) {
-		return bottom().getType(par);
+	public Type getParameterType(Type par) {
+		return bottom().getParameterType(par);
 	}
 
 	public EvalResult getVariable(String name) {
@@ -156,19 +149,19 @@ public class  EnvironmentStack {
 		return env.getVariable(name);
 	}
 
-	public void storeType(NamedType decl) {
-		getModuleEnvironment().storeType(decl);
+	public void storeNamedType(Type decl) {
+		getModuleEnvironment().storeNamedType(decl);
 	}
 
-	public void storeType(NamedTreeType decl) {
-		getModuleEnvironment().storeType(decl);
+	public void storeNamedTreeType(Type decl) {
+		getModuleEnvironment().storeNamedTreeType(decl);
 	}
 
-	public void storeType(TreeNodeType decl) {
-		getModuleEnvironment().storeType(decl);
+	public void storeTreeNodeType(Type decl) {
+		getModuleEnvironment().storeTreeNodeType(decl);
 	}
 
-	public FunctionDeclaration getFunction(QualifiedName name, TupleType actuals) {
+	public FunctionDeclaration getFunction(QualifiedName name, Type actuals) {
 		return getFunction(Names.lastName(name), actuals);
 	}
 
@@ -198,12 +191,12 @@ public class  EnvironmentStack {
 		storeVariable(Names.name(name), value);
 	}
 
-	public NamedTreeType getNamedTreeType(String sort) {
+	public Type getNamedTreeType(String sort) {
 		return getModuleEnvironment().getNamedTreeType(sort);
 	}
 
-	public TreeNodeType getTreeNodeType(NamedTreeType sort, String cons,
-			TupleType args) {
+	public Type getTreeNodeType(Type sort, String cons,
+			Type args) {
 		return getModuleEnvironment().getTreeNodeType(sort, cons, args);
 	}
 
@@ -211,7 +204,7 @@ public class  EnvironmentStack {
 		getModuleEnvironment().storeAnnotation(onType, name, annoType);
 	}
 
-	public TreeNodeType getTreeNodeType(String cons, TupleType args) {
+	public Type getTreeNodeType(String cons, Type args) {
 		return getModuleEnvironment().getTreeNodeType(cons, args);
 	}
 }

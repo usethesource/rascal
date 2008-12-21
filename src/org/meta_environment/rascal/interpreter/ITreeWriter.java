@@ -15,7 +15,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IWriter;
 import org.eclipse.imp.pdb.facts.impl.hash.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
-import org.meta_environment.rascal.ast.Type;
 
 public class ITreeWriter implements IWriter {
 	

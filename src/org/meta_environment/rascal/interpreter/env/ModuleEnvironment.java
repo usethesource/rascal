@@ -6,12 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
 
-import org.eclipse.imp.pdb.facts.type.NamedTreeType;
-import org.eclipse.imp.pdb.facts.type.NamedType;
-import org.eclipse.imp.pdb.facts.type.TreeNodeType;
-import org.eclipse.imp.pdb.facts.type.TupleType;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.Visibility;
@@ -31,9 +26,9 @@ public class ModuleEnvironment extends Environment {
 	protected final Set<String> importedModules;
 	protected final Map<FunctionDeclaration, Visibility> functionVisibility;
 	protected final Map<String, Visibility> variableVisibility;
-	protected final Map<String,NamedType> namedTypes;
-	protected final Map<String, NamedTreeType> namedTreeTypes;
-	protected final Map<NamedTreeType, List<TreeNodeType>> signature;
+	protected final Map<String,Type> namedTypes;
+	protected final Map<String, Type> namedTreeTypes;
+	protected final Map<Type, List<Type>> signature;
 	protected final Map<Type, Map<String, Type>> annotations;
 	
 	public ModuleEnvironment(String name) {
@@ -41,9 +36,9 @@ public class ModuleEnvironment extends Environment {
 		this.importedModules = new HashSet<String>();
 		this.functionVisibility = new HashMap<FunctionDeclaration, Visibility>();
 		this.variableVisibility = new HashMap<String, Visibility>();
-		this.namedTypes = new HashMap<String,NamedType>();
-		this.namedTreeTypes = new HashMap<String,NamedTreeType>();
-		this.signature = new HashMap<NamedTreeType, List<TreeNodeType>>();
+		this.namedTypes = new HashMap<String,Type>();
+		this.namedTreeTypes = new HashMap<String,Type>();
+		this.signature = new HashMap<Type, List<Type>>();
 		this.annotations = new HashMap<Type, Map<String, Type>>();
 	}
 	
@@ -101,7 +96,7 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	@Override
-	public FunctionDeclaration getFunction(String name, TupleType types) {
+	public FunctionDeclaration getFunction(String name, Type types) {
 		FunctionDeclaration result = super.getFunction(name, types);
 		
 		if (result == null) {
@@ -129,11 +124,11 @@ public class ModuleEnvironment extends Environment {
 		return result;
 	}
 	
-	public FunctionDeclaration getLocalFunction(String name, TupleType types) {
+	public FunctionDeclaration getLocalFunction(String name, Type types) {
 		return super.getFunction(name, types);
 	}
 	
-	public FunctionDeclaration getLocalPublicFunction(String name, TupleType types) {
+	public FunctionDeclaration getLocalPublicFunction(String name, Type types) {
 		FunctionDeclaration decl = getLocalFunction(name, types);
 		if (decl != null) {
 			Visibility vis = functionVisibility.get(decl);
@@ -163,18 +158,18 @@ public class ModuleEnvironment extends Environment {
 		return null;
 	}
 
-	public NamedType getNamedType(String name) {
+	public Type getNamedType(String name) {
 		return namedTypes.get(name);
 	}
 	
-	public NamedTreeType getNamedTreeType(String sort) {
+	public Type getNamedTreeType(String sort) {
 		return namedTreeTypes.get(sort);
 	}
 	
-	public TreeNodeType getTreeNodeType(String cons, TupleType args) {
-		for (List<TreeNodeType> sig : signature.values()) {
-			for (TreeNodeType cand : sig) {
-				if (cand.getName().equals(cons) && args.isSubtypeOf(cand.getChildrenTypes())) {
+	public Type getTreeNodeType(String cons, Type args) {
+		for (List<Type> sig : signature.values()) {
+			for (Type cand : sig) {
+				if (cand.getName().equals(cons) && args.isSubtypeOf(cand.getFieldTypes())) {
 					return cand;
 				}
 			}
@@ -182,7 +177,7 @@ public class ModuleEnvironment extends Environment {
 		
 		for (String i : getImports()) {
 			ModuleEnvironment mod = GlobalEnvironment.getInstance().getModule(i);
-			TreeNodeType found = mod.getTreeNodeType(cons, args);
+			Type found = mod.getTreeNodeType(cons, args);
 			
 			if (found != null) {
 				return found;
@@ -192,12 +187,12 @@ public class ModuleEnvironment extends Environment {
 		return null;
 	}
 	
-	public TreeNodeType getTreeNodeType(NamedTreeType sort, String cons, TupleType args) {
-		List<TreeNodeType> sig = signature.get(sort);
+	public Type getTreeNodeType(Type sort, String cons, Type args) {
+		List<Type> sig = signature.get(sort);
 		
 		if (sig != null) {
-			for (TreeNodeType cand : sig) {
-				if (cand.getName().equals(cons) && args.isSubtypeOf(cand.getChildrenTypes())) {
+			for (Type cand : sig) {
+				if (cand.getName().equals(cons) && args.isSubtypeOf(cand.getFieldTypes())) {
 					return cand;
 				}
 			}
@@ -205,7 +200,7 @@ public class ModuleEnvironment extends Environment {
 		
 		for (String i : getImports()) {
 			ModuleEnvironment mod = GlobalEnvironment.getInstance().getModule(i);
-			TreeNodeType found = mod.getTreeNodeType(sort, cons, args);
+			Type found = mod.getTreeNodeType(sort, cons, args);
 			
 			if (found != null) {
 				return found;
@@ -215,30 +210,30 @@ public class ModuleEnvironment extends Environment {
 		return null;
 	}
 	
-	public void storeType(NamedType decl) {
+	public void storeNamedType(Type decl) {
 		namedTypes.put(decl.getName(), decl);
 	}
 	
-	public void storeType(NamedTreeType decl) {
-		List<TreeNodeType> tmp = signature.get(decl);
+	public void storeNamedTreeType(Type decl) {
+		List<Type> tmp = signature.get(decl);
 		
 		if (tmp == null) {
-			tmp = new LinkedList<TreeNodeType>();
+			tmp = new LinkedList<Type>();
 			signature.put(decl, tmp);
 		}
 		
 		namedTreeTypes.put(decl.getName(), decl);
 	}
 	
-	public void storeType(TreeNodeType decl) {
-		NamedTreeType sort = decl.getSuperType();
+	public void storeTreeNodeType(Type decl) {
+		Type sort = decl.getSuperType();
 		
-		storeType(sort);
+		storeNamedTreeType(sort);
 		
-		List<TreeNodeType> tmp = signature.get(sort);
+		List<Type> tmp = signature.get(sort);
 		
 		if (tmp == null) {
-			tmp = new LinkedList<TreeNodeType>();
+			tmp = new LinkedList<Type>();
 			signature.put(sort, tmp);
 		}
 		
