@@ -40,6 +40,10 @@ public class  EnvironmentStack {
 		stack.push(e);
 	}
 
+	public void pushFrame(Environment env) {
+		stack.push(env);
+	}
+
 	public void popFrame() {
 		stack.pop();
 	}
@@ -75,11 +79,7 @@ public class  EnvironmentStack {
 		return (ModuleEnvironment) bottom();
 	}
 
-	public Environment getFunctionDefiningEnvironment(Name name, Type formals) {
-		return getFunctionDefiningEnvironment(Names.name(name), formals);
-	}
-	
-	public Environment getFunctionDefiningEnvironment(String name, Type formals) {
+	public Environment getFunctionDefiningEnvironment(String name, Type formals, EnvironmentHolder h) {
 		int i;
 		
 		//System.err.println("getFunctionDefiningEnvironment: stacksize=" + stack.size());
@@ -88,7 +88,7 @@ public class  EnvironmentStack {
 			//System.err.println("stack(" + i + ")\n" + env);
 			
 			if (env.isModuleEnvironment()
-					|| env.getFunction(name, formals) != null) {
+					|| env.getFunction(name, formals, h) != null) {
 				return env;
 			}
 		}
@@ -131,15 +131,15 @@ public class  EnvironmentStack {
 		top().storeTypeBindings(bindings);
 	}
 
-	public FunctionDeclaration getFunction(Name name, Type actuals) {
-		return getFunction(Names.name(name), actuals);
+	public FunctionDeclaration getFunction(Name name, Type actuals, EnvironmentHolder h) {
+		return getFunction(Names.name(name), actuals, h);
 	}
 	
-	public FunctionDeclaration getFunction(String name, Type actuals) {
-		Environment env = getFunctionDefiningEnvironment(name, actuals);
-		return env.getFunction(name, actuals);
+	public FunctionDeclaration getFunction(String name, Type actuals, EnvironmentHolder h) {
+		Environment env = getFunctionDefiningEnvironment(name, actuals, h);
+		return env.getFunction(name, actuals, h);
 	}
-
+	
 	public Type getParameterType(Type par) {
 		return bottom().getParameterType(par);
 	}
@@ -161,8 +161,8 @@ public class  EnvironmentStack {
 		getModuleEnvironment().storeTreeNodeType(decl);
 	}
 
-	public FunctionDeclaration getFunction(QualifiedName name, Type actuals) {
-		return getFunction(Names.lastName(name), actuals);
+	public FunctionDeclaration getFunction(QualifiedName name, Type actuals, EnvironmentHolder h) {
+		return getFunction(Names.lastName(name), actuals, h);
 	}
 
 	public EvalResult getVariable(QualifiedName name) {
@@ -207,4 +207,5 @@ public class  EnvironmentStack {
 	public Type getTreeNodeType(String cons, Type args) {
 		return getModuleEnvironment().getTreeNodeType(cons, args);
 	}
+
 }

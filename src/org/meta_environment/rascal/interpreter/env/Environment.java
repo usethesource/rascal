@@ -34,7 +34,7 @@ public class Environment {
 		return false;
 	}
 	
-	public FunctionDeclaration getFunction(String name, Type actuals) {
+	public FunctionDeclaration getFunction(String name, Type actuals, EnvironmentHolder h) {
 		List<FunctionDeclaration> candidates = functionEnvironment.get(name);
 		
 		if (candidates != null) {
@@ -42,6 +42,7 @@ public class Environment {
 				Type formals = candidate.getSignature().accept(TypeEvaluator.getInstance());
 				
 				if (actuals.isSubtypeOf(formals)) {
+					h.setEnvironment(this);
 					return candidate;
 				}
 			}
@@ -70,7 +71,7 @@ public class Environment {
 	
 	public void storeFunction(String name, FunctionDeclaration function) {
 		Type formals = function.getSignature().getParameters().accept(TypeEvaluator.getInstance());
-		FunctionDeclaration definedEarlier = getFunction(name, formals);
+		FunctionDeclaration definedEarlier = getFunction(name, formals, new EnvironmentHolder());
 		
 		if (definedEarlier != null) {
 			throw new RascalTypeError("Illegal redeclaration of function: " + definedEarlier + "\n overlaps with new function: " + function);

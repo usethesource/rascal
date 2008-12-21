@@ -81,6 +81,10 @@ public class GlobalEnvironment {
 		stack.pushModule(getModule(module));
 	}
 	
+	public void pushModule(ModuleEnvironment module) {
+		stack.pushModule(module);
+	}
+	
 	/**
 	 * Push a previously allocated module on the stack
 	 * @param module
@@ -95,6 +99,10 @@ public class GlobalEnvironment {
 	 */
 	public void pushFrame() {
 		stack.pushFrame();
+	}
+	
+	public void pushFrame(Environment env) {
+		stack.pushFrame(env);
 	}
 	
 	/**
@@ -133,7 +141,7 @@ public class GlobalEnvironment {
 	}
 	
 	public FunctionDeclaration getModuleFunction(String module, Name function, Type actuals) {
-		return getModule(module).getFunction(Names.name(function), actuals);
+		return getModule(module).getFunction(Names.name(function), actuals, new EnvironmentHolder());
 	}
 	
 	private void storeModuleFunction(String module, Name name, FunctionDeclaration function) {
@@ -200,11 +208,11 @@ public class GlobalEnvironment {
 		stack.storeFunction(name, function);
 	}
 	
-	public FunctionDeclaration getFunction(String name, Type actuals) {
-		return stack.getFunction(name, actuals);
+	public FunctionDeclaration getFunction(String name, Type actuals, EnvironmentHolder h) {
+		return stack.getFunction(name, actuals, h);
 	}
 	
-	public FunctionDeclaration getFunction(QualifiedName name, Type actuals) {
+	public FunctionDeclaration getFunction(QualifiedName name, Type actuals, EnvironmentHolder h) {
 		String module = Names.moduleName(name);
 		Name function = Names.lastName(name);
 		
@@ -212,9 +220,10 @@ public class GlobalEnvironment {
 		//System.err.println("getFunction: module=" + module + ", function=" + function);
 		
 		if (module != null) {
+			h.setEnvironment(getModule(module));
 			return getModuleFunction(module, function, actuals);
 		}
-		return stack.getFunction(name, actuals);
+		return stack.getFunction(name, actuals, h);
 	}
 	
 	public void storeRule(Type forType, Rule rule) {
