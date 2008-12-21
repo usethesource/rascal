@@ -4,7 +4,7 @@ module List
 public &T average(list[&T] lst, &T zero)
 @doc{average -- average of elements of a list}
 {
-  return sum(lst, zero)/size(lst);
+  return size(lst) > 0 ? sum(lst, zero)/size(lst) : zero;
 }
 
 public &T java first(list[&T] lst)
@@ -52,7 +52,7 @@ public list[&T] java insertAt(&T elm, int n, list[&T] lst)
  }
 
 
-list[&T] mapper(list[&T] lst, &T (&T x) fn)
+list[&T] mapper(list[&T] lst, &T (&T) fn)
 @doc{mapper -- apply a function to each element of a list}
 {
   return [#fn(elm) | &T elm : lst];
@@ -82,10 +82,17 @@ public &T min(list[&T] lst)
   return result;
 }
 
+// TODO: auxiliary function needed as long as #* function names do not work.
+
+&T mul(&T x, &T y)
+{
+	return x * y;
+}
+
 public &T multiply(list[&T] lst, &T unity)
 @doc{multiply -- multiply the elements of a list}
 {
-  return reducer(lst, #*, unity);
+  return reducer(lst, #mul, unity);
 }
 
 public &T reducer(list[&T] lst, &T (&T, &T) fn, &T unit)
@@ -149,10 +156,17 @@ public list[&T] sort(list[&T] lst)
   return (sort(less) + pivot) + sort(greater);
 }
 
+// TODO: auxiliary function needed as long as #+ function names do not work.
+
+&T add(&T x, &T y)
+{
+	return x + y;
+}
+
 public &T sum(list[&T] lst, &T zero)
 @doc{sum -- add elements of a List}
 {
-  return reducer(lst, #+, zero);
+  return reducer(lst, #add, zero);
 }
 
 public tuple[&T, list[&T]] java takeOneFrom(list[&T] lst)

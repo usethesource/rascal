@@ -42,7 +42,6 @@ public class ITreeWriter implements IWriter {
 				}
 				ITree newTree = ValueFactory.getInstance().tree(name, args);
 				spine.push(newTree);
-				// TODO: need implementations for list/set/... here as well.
 			} else if(type.isListType()){
 				IList l = (IList) value[i];
 				IListWriter w = l.getType().writer(vf);
@@ -60,7 +59,7 @@ public class ITreeWriter implements IWriter {
 				}
 				spine.push(w.done());
 
-			} else if(type.isMapType()){
+			} else if(type.isMapType()){  //TODO: solve representation key/entry pairs
 				IMap m = (IMap) value[i];
 				IMapWriter w = m.getType().writer(vf);
 			
@@ -131,7 +130,6 @@ public class ITreeWriter implements IWriter {
 		} else if(newType.isMapType()){
 			replace(((IMap) oldValue).size(), newValue);
 		} else {
-			spine.pop();
 			spine.push(newValue);
 		}
 	}

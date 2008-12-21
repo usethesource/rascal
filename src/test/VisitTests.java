@@ -130,6 +130,31 @@ public class VisitTests extends TestCase {
 		assertTrue(tf.runTest("{" + frepG2H3b + "frepG2H3b(f(1,g(2,<3,4,5>))) == f(1,h(2,<3,4,5>,0));}"));
 		assertTrue(tf.runTest("{" + frepG2H3b + "frepG2H3b(f(1,g(2,{<1,10>,<2,20>}))) == f(1,h(2,{<1,10>,<2,20>},0));}"));
 		//assertTrue(tf.runTest("{" + frepG2H3b + "frepG2H3b(f(1,g(2,(1:10,2:20)))) == 6;}"));
+	}
+	
+	public void testIncAndCount() throws IOException {
+		String inc_and_count =
+		// Accumulating transformer that increments integer leaves with 
+		// amount D and counts them as well.
+
+		"tuple[int, tree] inc_and_count(tree T, int D) {" +
+		"    int C = 0;" +  
+		"    T = visit (T) {" +
+		"        case int N: { C = C + 1; " +
+		"                      insert N + D;" +
+		"                    }" +
+		"        };" +
+		"    return <C, T>;" +
+		"}";
+		
+		assertTrue(tf.runTest("{" + inc_and_count + "inc_and_count(f(3),10)                       == <1,f(13)>;}"));
+		assertTrue(tf.runTest("{" + inc_and_count + "inc_and_count(f(1,2,3), 10)                  == <3,f(11,12,13)>;}"));
+		assertTrue(tf.runTest("{" + inc_and_count + "inc_and_count(f(1,g(2,3)), 10)               == <3, f(11,g(12,13))>;}"));
+		assertTrue(tf.runTest("{" + inc_and_count + "inc_and_count(f(1,g(2,[3,4,5])), 10)         == <5,f(11,g(12,[13,14,15]))>;}"));
+		assertTrue(tf.runTest("{" + inc_and_count + "inc_and_count(f(1,g(2,{3,4,5})), 10)         == <5,f(11,g(12,{13,14,15}))>;}"));
+		assertTrue(tf.runTest("{" + inc_and_count + "inc_and_count(f(1,g(2,<3,4,5>)), 10)         == <5,f(11,g(12,<13,14,15>))>;}"));
+		assertTrue(tf.runTest("{" + inc_and_count + "inc_and_count(f(1,g(2,{<1,10>,<2,20>})), 10) == <6,f(11,g(12,{<11,20>,<12,30>}))>;}"));
+		//assertTrue(tf.runTest("{" + inc_and_count + "inc_and_count(f(1,g(2,(1:10,2:20)))) == 6;}"));
 
 	}
 	

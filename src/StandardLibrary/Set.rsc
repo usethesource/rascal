@@ -11,7 +11,7 @@ public void echo(str msg)
 public &T average(set[&T] st, &T zero)
 @doc{average -- compute the average of the elements of a set}
 {
-  return sum(st, zero)/size(st);
+  return size(st) > 0 ? sum(st, zero)/size(st) : zero;
 }
 
 public &T java getOneFrom(set[&T] st)
@@ -35,7 +35,7 @@ public &T java getOneFrom(set[&T] st)
 public set[&T] mapper(set[&T] st, &T (&T,&T) fn)
 @doc{mapper -- apply a function to each element of a set}
 {
-  return {#f(elm) | &T elm : st};
+  return {#fn(elm) | &T elm : st};
 }
 
 public &T max(set[&T] st)
@@ -62,10 +62,17 @@ public &T min(set[&T] st)
   return result;
 }
 
+// TODO: auxiliary function needed as long as #* function names do not work.
+
+&T mul(&T x, &T y)
+{
+	return x * y;
+}
+
 public &T multiply(set[&T] st, &T unity)
 @doc{multiply -- multiply the elements of a set}
 {
-  return reducer(st, #*, unity);
+  return reducer(st, #mul, unity);
 }
 
 public set[set[&T]] power(set[&T] st)
@@ -100,11 +107,18 @@ public int java size(set[&T] st)
 {
    return values.integer(st.size());
 }
+
+// TODO: auxiliary function needed as long as #+ function names do not work.
+
+&T add(&T x, &T y)
+{
+	return x + y;
+}
  
 public &T sum(set[&T] st, &T zero)
 @doc{sum -- add the elements of a set}
 {
-  return reducer(st, #+, zero);
+  return reducer(st, #add, zero);
 }
 
 public tuple[&T, set[&T]] java takeOneFrom(set[&T] st)
