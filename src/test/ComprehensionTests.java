@@ -236,4 +236,14 @@ public class ComprehensionTests extends TestCase {
 		
 		assertTrue(tf.runTest("( X: 2 * X| int X: [1,2,3] ) == (1:2,2:4,3:6);"));
 	}
+	
+	public void testTreeGenerator() throws IOException {
+		assertTrue(tf.runTest("[N | value N : f(1,2)] == [1,2,f(1,2)];"));
+		assertTrue(tf.runTest("[N | tree N : f(1,2)] == [f(1,2)];"));
+		assertTrue(tf.runTest("[N | int N : f(1,2)] == [1,2];"));
+		
+		assertTrue(tf.runTest("[N | value N : f(1,g(2,3))] == [1,2,3,g(2,3),f(1,g(2,3))];"));
+		assertTrue(tf.runTest("[N | tree N : f(1,g(2,3))] == [g(2,3),f(1,g(2,3))];"));
+		assertTrue(tf.runTest("[N | int N : f(1,g(2,3))] == [1,2,3];"));
+	}
 }

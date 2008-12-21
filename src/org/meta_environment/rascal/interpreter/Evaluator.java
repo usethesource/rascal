@@ -1488,36 +1488,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		} while (true);
 	}
 	
-	// TODO: in progress ...
 	
-	@Override
-	public EvalResult visitStatementSwitch(Switch x) {
-		EvalResult subject = x.getExpression().accept(this);
-
-		for(Case cs : x.getCases()){
-			if(cs.isDefault()){
-				return cs.getStatement().accept(this);
-			}
-			org.meta_environment.rascal.ast.Rule rl = cs.getRule();
-			if(rl.isArbitrary()){
-				org.meta_environment.rascal.ast.Expression pat = rl.getPattern();
-				if(match(subject.value, pat)){
-					return rl.getStatement().accept(this);
-				}
-			} else if(rl.isGuarded())	{
-				org.meta_environment.rascal.ast.Type tp = rl.getType();
-				Type t = tp.accept(te);
-				rl = rl.getRule();
-				org.meta_environment.rascal.ast.Expression pat = rl.getPattern();
-				if(subject.type.isSubtypeOf(t) && match(subject.value, pat)){
-					return rl.getStatement().accept(this);
-				}
-			} else if(rl.isReplacing()){
-				throw new RascalBug("Replacing Rule not yet implemented: " + rl);
-			}
-		}
-		return null;
-	}
 	
     @Override
     public EvalResult visitExpressionMatch(Match x) {
@@ -2422,13 +2393,101 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	}
 	
 	@Override
+	public EvalResult visitStatementSwitch(Switch x) {
+		EvalResult subject = x.getExpression().accept(this);
+
+		for(Case cs : x.getCases()){
+			if(cs.isDefault()){
+				return cs.getStatement().accept(this);
+			}
+			org.meta_environment.rascal.ast.Rule rl = cs.getRule();
+			if(rl.isArbitrary()){
+				org.meta_environment.rascal.ast.Expression pat = rl.getPattern();
+				if(match(subject.value, pat)){
+					return rl.getStatement().accept(this);
+				}
+			} else if(rl.isGuarded())	{
+				org.meta_environment.rascal.ast.Type tp = rl.getType();
+				Type t = tp.accept(te);
+				rl = rl.getRule();
+				org.meta_environment.rascal.ast.Expression pat = rl.getPattern();
+				if(subject.type.isSubtypeOf(t) && match(subject.value, pat)){
+					return rl.getStatement().accept(this);
+				}
+			} else if(rl.isReplacing()){
+				throw new RascalBug("Replacing Rule not yet implemented: " + rl);
+			}
+		}
+		return null;
+	}
+	
+	@Override
 	public EvalResult visitExpressionVisit(Visit x) {
 		return x.getVisit().accept(this);
 	}
 	
 	@Override
 	public EvalResult visitVisitDefaultStrategy(DefaultStrategy x) {
-		throw new RascalBug("NYI"); // TODO
+		EvalResult subject = x.getSubject().accept(this);
+		Iterator reader = new ITreeIReader((ITree) subject.value, false);
+		ITreeWriter writer = new ITreeWriter();
+		
+		while(reader.hasNext()){
+			IValue subtree = (IValue) reader.next();
+		
+			System.err.println("subtree = " + subtree);
+		
+			try {
+				boolean inserted = false;
+				for(Case cs : x.getCases()){
+					if(cs.isDefault()){
+						cs.getStatement().accept(this);
+						writer.insert(subtree);
+						inserted = true;
+						break;
+					} else {
+						org.meta_environment.rascal.ast.Rule rl = cs.getRule();
+						if(rl.isArbitrary()){
+							org.meta_environment.rascal.ast.Expression pat = rl.getPattern();
+							if(match(subtree, pat)){
+								rl.getStatement().accept(this);
+								writer.insert(subtree);
+								inserted = true;
+								break;
+							}
+						} else if(rl.isGuarded())	{
+							org.meta_environment.rascal.ast.Type tp = rl.getType();
+							Type t = tp.accept(te);
+							rl = rl.getRule();
+							org.meta_environment.rascal.ast.Expression pat = rl.getPattern();
+							if(subtree.getType().isSubtypeOf(t) && match(subtree, pat)){
+								rl.getStatement().accept(this);
+								writer.insert(subtree);
+								inserted = true;
+								break;
+							}
+						} else if(rl.isReplacing()){
+							org.meta_environment.rascal.ast.Expression pat = rl.getPattern();
+							if(match(subtree, pat)){
+								writer.replace(subtree, rl.getReplacement().accept(this).value);
+								inserted = true;
+								break;
+							}
+						} else {
+							throw new RascalBug("Impossible case in visit expression");
+						}
+					}
+				}
+				if(!inserted){
+					writer.insert(subtree);
+				}
+			} catch (InsertException e){
+				System.err.println("insert " + e.getValue().value);
+				writer.replace(subtree, e.getValue().value);
+			}
+		}
+		IValue newTree = writer.done();
+		return result(newTree.getType(), newTree);
 	}
 	
 	@Override
@@ -2823,7 +2882,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				iter = ((ISet) r.value).iterator();
 			
 			} else if(r.type.isTreeType()){
-				iter = new ITreeIterator((ITree) r.value, false);
+				iter = new ITreeIReader((ITree) r.value, false);
 			} else {
 				// TODO: add more generator types here	in the future
 				throw new RascalTypeError("expression in generator should be of type list/set/tree");

@@ -1,5 +1,4 @@
-module BTree-Examples
-import BTree-syntax; 
+module Tree-Examples
 
 // Ex1: Count leaves in a BTREE
 // Idea: int N : T generates alle Integer leaves in the tree

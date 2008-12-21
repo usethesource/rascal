@@ -635,7 +635,7 @@ public class DataTypeTests extends TestCase{
 		assertFalse(tf.runTest("f(1, [2, 3]) > f(1, [2,3]);"));
 	}
 	
-	public void testOther() throws IOException {
+	public void testUndefined() throws IOException {
 		assertTrue(tf.runTest("1 =? 13 == 1;"));
 		assertTrue(tf.runTest("x =? 13 == 13;"));
 		assertTrue(tf.runTest("{ x = 3; x =? 13 == 3; }"));

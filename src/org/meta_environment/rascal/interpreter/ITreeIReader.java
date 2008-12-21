@@ -8,14 +8,15 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ITree;
+import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 
-public class ITreeIterator implements Iterator<IValue> {
+public class ITreeIReader implements Iterator<IValue> {
 
 	List<Object> spine = new LinkedList<Object>();
 	private boolean topdown;
 	
-	ITreeIterator(ITree tree, boolean topdown){
+	ITreeIReader(ITree tree, boolean topdown){
 		this.topdown = topdown;
 		initSpine(tree);
 	}
@@ -65,6 +66,21 @@ public class ITreeIterator implements Iterator<IValue> {
 		if(v.getType().isMapType()){
 			return insertAndNext(v, ((IMap) v).iterator());
 		}
+		if(v.getType().isTupleType()){
+			ITuple tp = (ITuple) v;
+			int arity = tp.arity();
+			if(!topdown){
+				spine.add(0, tp);
+			}
+			for(int i = arity - 1; i >= 0; i--){
+				spine.add(0, tp.get(i));
+			}
+			if(topdown){
+				spine.add(0, tp);
+			}
+			return next();
+		}
+		
 		return v;
 	}
 
