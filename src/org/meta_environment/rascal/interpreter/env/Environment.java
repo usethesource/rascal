@@ -42,12 +42,12 @@ public class Environment {
 		
 		if (candidates != null) {
 			for (FunctionDeclaration candidate : candidates) {
-				System.err.println("getFunction: candidate=" + candidate);
+				//System.err.println("getFunction: candidate=" + candidate);
 				TupleType formals = (TupleType) candidate.getSignature().accept(TypeEvaluator.getInstance());
-				System.err.println("formals = " + formals);
-				System.err.println("formals.basetype = " + formals.getBaseType());
-				System.err.println("formals.isNamedType = " + formals.isNamedType());
-				System.err.println("actuals = " + actuals);
+				//System.err.println("formals = " + formals);
+				//System.err.println("formals.basetype = " + formals.getBaseType());
+				//System.err.println("formals.isNamedType = " + formals.isNamedType());
+				//System.err.println("actuals = " + actuals);
 				
 				if (actuals.isSubtypeOf(formals)) {
 					return candidate;
