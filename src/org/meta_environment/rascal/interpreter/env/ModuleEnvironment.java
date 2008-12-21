@@ -96,16 +96,18 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	@Override
-	public FunctionDeclaration getFunction(String name, Type types) {
-		FunctionDeclaration result = super.getFunction(name, types);
+	public FunctionDeclaration getFunction(String name, Type types, EnvironmentHolder h) {
+		FunctionDeclaration result = super.getFunction(name, types, h);
 		
 		if (result == null) {
 			List<FunctionDeclaration> results = new LinkedList<FunctionDeclaration>();
 			for (String i : getImports()) {
 				// imports are not transitive!
-				result = GlobalEnvironment.getInstance().getModule(i).getLocalPublicFunction(name, types);
+				ModuleEnvironment module = GlobalEnvironment.getInstance().getModule(i);
+				result = module.getLocalPublicFunction(name, types);
 				
 				if (result != null) {
+					h.setEnvironment(module);
 					results.add(result);
 				}
 			}
@@ -125,7 +127,7 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	public FunctionDeclaration getLocalFunction(String name, Type types) {
-		return super.getFunction(name, types);
+		return super.getFunction(name, types, new EnvironmentHolder());
 	}
 	
 	public FunctionDeclaration getLocalPublicFunction(String name, Type types) {

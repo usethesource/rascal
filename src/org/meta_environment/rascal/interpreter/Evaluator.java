@@ -146,6 +146,8 @@ import org.meta_environment.rascal.ast.Toplevel.DefaultVisibility;
 import org.meta_environment.rascal.ast.Toplevel.GivenVisibility;
 import org.meta_environment.rascal.ast.Visit.DefaultStrategy;
 import org.meta_environment.rascal.ast.Visit.GivenStrategy;
+import org.meta_environment.rascal.interpreter.env.Environment;
+import org.meta_environment.rascal.interpreter.env.EnvironmentHolder;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
@@ -614,11 +616,18 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		
 		if (te.isFunctionType(func.type)) {
 			String name = ((IString) func.value).getValue();
-			FunctionDeclaration decl = env.getFunction(name, actualTypes);
+			EnvironmentHolder h = new EnvironmentHolder();
+			FunctionDeclaration decl = env.getFunction(name, actualTypes, h);
 			if (decl == null) {
 				throw new RascalTypeError("Call to undefined function: " + name);
 			}
-			return call(decl, actuals, actualTypes);
+			try {
+				env.pushFrame(h.getEnvironment());
+				return call(decl, actuals, actualTypes);
+			}
+			finally {
+				env.popFrame();
+			}
 		}
 		else {
 			throw new RascalBug("Closures are not implemented yet");
@@ -650,22 +659,18 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	}
 	
 	private EvalResult call(QualifiedName name, IValue[] actuals, Type actualTypes) {
-		 FunctionDeclaration func = env.getFunction(name, actualTypes);
+		EnvironmentHolder envHolder = new EnvironmentHolder();
+		 FunctionDeclaration func = env.getFunction(name, actualTypes, envHolder);
 
 		 if (func != null) {
-			 String module = Names.moduleName(name);
 			 try {
-				 if (module != null) {
-					 env.pushModule(module);
-				 }
+				 env.pushFrame(envHolder.getEnvironment());
 				 EvalResult res = call(func, actuals, actualTypes);
 
 				 return res;
 			 }
 			 finally {
-				 if (module != null) {
-					 env.popModule();
-				 }
+				 env.popFrame();
 			 }
 		 }
 		 else {

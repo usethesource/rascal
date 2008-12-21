@@ -103,6 +103,8 @@ public class ImportTests extends TestCase {
 						 "public int f() {int nProcs = Set::size(Procs); return nProcs;}" +
 						 "public int g() {int nProcs = size(Procs); return nProcs;}"
 		);
+		
+		tf.runTestInSameEvaluator("import Msize;");
 		assertTrue(tf.runTestInSameEvaluator("f() == 3;"));
 		assertTrue(tf.runTestInSameEvaluator("g() == 3;"));
 	}
