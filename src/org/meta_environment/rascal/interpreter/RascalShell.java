@@ -4,8 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import javax.tools.ToolProvider;
-
 import jline.ConsoleReader;
 
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -84,13 +82,13 @@ public class RascalShell {
 		}
 	}
 	
-	private int run(String module) throws IOException {
+	private int run(String module, String[] args) throws IOException {
 		loadModule(module);
-		return callMainFunction(module);
+		return callMainFunction(module, args);
 	}
 
-	private int callMainFunction(String module) throws IOException {
-		String callMainStatement = module + "::main();";
+	private int callMainFunction(String module, String[] args) throws IOException {
+		String callMainStatement = module + "::main(" + mainArguments(args) + ");";
 		INode tree = parser.parse(new ByteArrayInputStream(callMainStatement.getBytes()));
 		Command callStat = builder.buildCommand(tree);
 		IValue result = callStat.accept(new CommandEvaluator(evaluator));
@@ -100,6 +98,18 @@ public class RascalShell {
 		}
 		
 		return ((IInteger) result).getValue();
+	}
+
+	private String mainArguments(String[] args) {
+		StringBuilder b = new StringBuilder();
+		
+		b.append("[");
+		for (int i = 1; i < args.length; i++) {
+			b.append("\"" + args[i].replaceAll("\"", "\\\"") + "\"");	
+		}
+		b.append("]");
+		
+		return b.toString();
 	}
 
 	private void loadModule(String module) throws IOException {
@@ -196,17 +206,14 @@ public class RascalShell {
 				System.exit(1);
 			} 
 		}
-		else if (args.length == 1) {
+		else if (args.length > 0) {
 			try {
-				int result = new RascalShell().run(args[0]);
+				int result = new RascalShell().run(args[0], args);
 				System.exit(result);
 			} catch (IOException e) {
 				System.err.println("unexpected error: " + e.getMessage());
 				System.exit(1);
 			} 
-		}
-		else {
-			System.err.println("Too many commandline arguments provided. ");
 		}
 	}
 }
