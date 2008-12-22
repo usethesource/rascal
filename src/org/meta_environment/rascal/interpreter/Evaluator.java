@@ -2778,27 +2778,15 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			right.type.isRelationType()){
 			Type leftrelType = left.type; 
 			Type rightrelType = right.type;
-			
+			int leftArity = leftrelType.getArity();
+			int rightArity = rightrelType.getArity();
 
-			// ALARM: not using declared types
-			if (leftrelType.getArity() == 2
-					&& rightrelType.getArity() == 2
-					&& leftrelType.getFieldType(1).equals(
-							rightrelType.getFieldType(0))) {
+			
+			if ((leftArity == 0 || leftArity == 2) && (rightArity == 0 || rightArity ==2 )) {
 				Type resultType = leftrelType.compose(rightrelType);
 				return result(resultType, ((IRelation) left.value)
 						.compose((IRelation) right.value));
 			}
-			if(((IRelation)left.value).size() == 0)
-				return left;
-			if(((IRelation)right.value).size() == 0)
-				return right;
-		}
-		else if (left.type.isSetType() && left.type.getElementType().isVoidType()) {
-			return left;
-		}
-		else if (right.type.isSetType() && right.type.getElementType().isVoidType()) {
-			return right;
 		}
 		
 		throw new RascalTypeError("Operands of o have wrong types: "
