@@ -178,6 +178,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 	/**
 	 * Clean the global environment for the benefit of repeated testing.
+	 * TODO: can probably be removed.
 	 */
 	public void clean(){
 		GlobalEnvironment.clean();
@@ -983,7 +984,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 					} else if (tup.get(k).equals(subscriptResult[k].value)){
 						/* ok */
 					} else {
-						System.err.println("allEqual -> false");
 						allEqual = false;
 					}
 				}
@@ -1158,9 +1158,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				} else {
 					String fieldName = f.getFieldName().toString();
 					try {
-						// TODO: selectedFields[i] = ((RelationType)base.type).getFieldIndex(fieldName);
-						selectedFields[i] = 0;
-						throw new RascalBug("Field names in projection not yet implemented");
+						selectedFields[i] = base.type.getFieldIndex(fieldName);
 					} catch (Exception e){
 						throw new RascalTypeError("Undefined field " + fieldName + " in projection");
 					}
@@ -1484,8 +1482,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		} while (true);
 	}
 	
-	
-	
     @Override
     public EvalResult visitExpressionMatch(Match x) {
     	org.meta_environment.rascal.ast.Expression pat = x.getPattern();
@@ -1504,10 +1500,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
     
     private PatternValue evalPattern(org.meta_environment.rascal.ast.Expression pat){
     	if(pe.isPattern(pat)){
-    		//System.err.println("tree pattern: " + pat);
     		return pat.accept(pe);
     	} else if(re.isRegExpPattern(pat)){ 
-    		//System.err.println("regexp: " + pat);
 			return pat.accept(re);
 		} else {
 			throw new RascalTypeError("pattern expected instead of " + pat);
@@ -1515,8 +1509,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
     }
 	
 	private boolean match(IValue subj, org.meta_environment.rascal.ast.Expression pat){
-		System.err.println("match: pat : " + pat);
-		
 		return evalPattern(pat).match(subj, this);
 	}
 
@@ -1638,7 +1630,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			}
 		}
 	}
-	
 	
 	@Override
 	public EvalResult visitExpressionList(List x) {
@@ -1865,6 +1856,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			return result(newTupleType, vf.tuple(fieldValues));
 			
 		}
+		
 		//Relation
 		if (left.type.isRelationType() && right.type.isRelationType()) {
 				return result(resultType, ((ISet) left.value)
@@ -2055,6 +2047,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		
 		widenIntToDouble(left, right);
 
+		//TODO: transform Java arithmeticv execptions into Rascal exceptions
+		
 		if (left.type.isIntegerType() && right.type.isIntegerType()) {
 			return result(((IInteger) left.value).divide((IInteger) right.value));
 		} 
@@ -2546,8 +2540,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 	private TraverseResult traverseTop(IValue subject, java.util.List<Case> cases) {
 
-		System.err.println("subject = " + subject);
-
 		try {
 			for (Case cs : cases) {
 				if (cs.isDefault()) {
@@ -2699,9 +2691,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		// ValueType
 		
 		return left.type.toString().compareTo(right.type.toString());
-	
-		//throw new RascalTypeError("Operands of comparison have unequal types: "
-		//			+ left.type + ", " + right.type);
 	}
 	
 	private int compareTree(ITree left, ITree right){
@@ -2899,16 +2888,12 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	@Override
 	public EvalResult visitExpressionIn(In x) {
 		return result(vf.bool(in(x.getLhs(), x.getRhs())));
-
 	}
 	
 	@Override
 	public EvalResult visitExpressionNotIn(NotIn x) {
 		return result(vf.bool(!in(x.getLhs(), x.getRhs())));
-
 	}
-	
-	
 	
 	@Override
 	public EvalResult visitExpressionComposition(Composition x) {
@@ -2981,7 +2966,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		private org.meta_environment.rascal.ast.Expression patexpr;
 		private Evaluator evaluator;
 		private Iterator<?> iter;
-		private Type elementType;
 		
 		void make(ValueProducer vp, Evaluator ev){
 			evaluator = ev;
@@ -2991,10 +2975,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			patexpr = vp.getExpression();
 			EvalResult r = patexpr.accept(ev);
 			if(r.type.isListType()){
-				elementType = r.type.getElementType();
 				iter = ((IList) r.value).iterator();
 			} else 	if(r.type.isSetType()){
-				elementType = r.type.getElementType();
 				iter = ((ISet) r.value).iterator();
 			
 			} else if(r.type.isTreeType()){
@@ -3010,7 +2992,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 						throw new RascalTypeError("Strategy " + strat + " not allowed in generator");
 					}
 				}
-				iter = new ITreeReader((ITree) r.value, true);
+				iter = new ITreeReader((ITree) r.value, bottomup);
 			} else {
 				// TODO: add more generator types here	in the future
 				throw new RascalTypeError("expression in generator should be of type list/set/tree");
@@ -3260,11 +3242,28 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		}
 		
 		Statement body = x.getBody();
+		
+		int max = 1000;
+		
+		if(x.hasBound()){
+			EvalResult res = x.getBound().getExpression().accept(this);
+			if(!res.type.isIntegerType()){
+				throw new RascalTypeError("Bound in solve statement should be integer, instead of " + res.type);
+			}
+			max = ((IInteger)res.value).getValue();
+			if(max <= 0){
+				throw new RascalRunTimeError("Bound in solve statement should be positive");
+			}
+		}
+		
 		EvalResult bodyResult = null;
 		
 		boolean change = true;
-		while (change){
+		int iterations = 0;
+		
+		while (change && iterations < max){
 			change = false;
+			iterations++;
 			bodyResult = body.accept(this);
 			for(int i = 0; i < vars.size(); i++){
 				EvalResult v = env.getVariable(vars.get(i));
@@ -3276,6 +3275,4 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		}
 		return bodyResult;
 	}
-
-	
 }

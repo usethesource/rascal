@@ -153,7 +153,7 @@ public list[&T] sort(list[&T] lst)
        greater = elm + greater;
      }
   }
-  return (sort(less) + pivot) + sort(greater);
+  return sort(less) + pivot + sort(greater);
 }
 
 // TODO: auxiliary function needed as long as #+ function names do not work.
