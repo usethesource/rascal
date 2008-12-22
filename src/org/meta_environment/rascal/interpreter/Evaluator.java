@@ -2221,6 +2221,10 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		EvalResult left = x.getLhs().accept(this);
 		EvalResult right = x.getRhs().accept(this);
 		
+		if (!left.type.comparable(right.type)) {
+			throw new RascalTypeError("Arguments of equals have incomparable types: " + left.type + " and " + right.type);
+		}
+		
 		return result(vf.bool(equals(left, right)));
 	}
 	
@@ -2501,6 +2505,10 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			org.meta_environment.rascal.ast.Expression.NonEquals x) {
 		EvalResult left = x.getLhs().accept(this);
 		EvalResult right = x.getRhs().accept(this);
+		
+		if (!left.type.comparable(right.type)) {
+			throw new RascalTypeError("Arguments of unequal have incomparable types: " + left.type + " and " + right.type);
+		}
 		
 		return result(vf.bool(!equals(left, right)));
 	}
