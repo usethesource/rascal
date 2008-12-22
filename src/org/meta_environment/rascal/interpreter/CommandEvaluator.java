@@ -26,6 +26,11 @@ import org.meta_environment.rascal.ast.ShellCommand.Quit;
 		this.evaluator = evaluator;
 	}
 	
+	public CommandEvaluator(Evaluator evaluator) {
+		this.evaluator = evaluator;
+		this.console = null;
+	}
+
 	public IValue eval(Command command) {
 		return command.accept(this);
 	}
