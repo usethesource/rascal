@@ -1,8 +1,6 @@
 package org.meta_environment.rascal.interpreter;
 
 import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Stack;
 
 import org.eclipse.imp.pdb.facts.IList;
@@ -37,6 +35,7 @@ public class ITreeReader implements Iterator<IValue> {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public boolean hasNext() {
 		while((spine.size() > 0) &&
 			   (spine.peek() instanceof Iterator && !((Iterator<Object>) spine.peek()).hasNext())){
@@ -87,6 +86,7 @@ public class ITreeReader implements Iterator<IValue> {
 		return v;
 	}
 
+	@SuppressWarnings("unchecked")
 	public IValue next() {
 		if(spine.peek() instanceof Iterator){
 			Iterator<Object> iter = (Iterator<Object>) spine.peek();
