@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IDouble;
@@ -48,6 +49,7 @@ import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.ast.Signature;
 import org.meta_environment.rascal.ast.Statement;
+import org.meta_environment.rascal.ast.Strategy;
 import org.meta_environment.rascal.ast.Toplevel;
 import org.meta_environment.rascal.ast.TypeArg;
 import org.meta_environment.rascal.ast.ValueProducer;
@@ -146,7 +148,6 @@ import org.meta_environment.rascal.ast.Toplevel.DefaultVisibility;
 import org.meta_environment.rascal.ast.Toplevel.GivenVisibility;
 import org.meta_environment.rascal.ast.Visit.DefaultStrategy;
 import org.meta_environment.rascal.ast.Visit.GivenStrategy;
-import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.EnvironmentHolder;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.parser.ASTBuilder;
@@ -2425,73 +2426,205 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		return x.getVisit().accept(this);
 	}
 	
-	@Override
-	public EvalResult visitVisitDefaultStrategy(DefaultStrategy x) {
-		EvalResult subject = x.getSubject().accept(this);
-		Iterator reader = new ITreeIReader((ITree) subject.value, false);
-		ITreeWriter writer = new ITreeWriter();
+	/*
+	 * TraverseResult contains the value returned by a traversal
+	 * and a changed flag that indicates whether the value itself or
+	 * any of its children has been changed during the traversal.
+	 */
+	
+	class TraverseResult {
+		IValue value;
+		boolean changed;
 		
-		while(reader.hasNext()){
-			IValue subtree = (IValue) reader.next();
+		TraverseResult(IValue value){
+			this.value = value;
+			this.changed = false;
+		}
+		TraverseResult(IValue value, boolean changed){
+			this.value = value;
+			this.changed = changed;
+		}
+	}
+	
+	private TraverseResult traverse(IValue subject, java.util.List<Case> cases, boolean bottomup, boolean breaking){
+		Type subjectType = subject.getType();
+		boolean changed = false;
+		IValue result = subject;
 		
-			System.err.println("subtree = " + subtree);
+		if(!bottomup){
+			TraverseResult tr = traverseTop(subject, cases);
+			changed |= tr.changed;
+			if(breaking && changed){
+				return tr;
+			}
+			subject = tr.value;
+		}
 		
-			try {
-				boolean inserted = false;
-				for(Case cs : x.getCases()){
-					if(cs.isDefault()){
-						cs.getStatement().accept(this);
-						writer.insert(subtree);
-						inserted = true;
-						break;
-					} else {
-						org.meta_environment.rascal.ast.Rule rl = cs.getRule();
-						if(rl.isArbitrary()){
-							org.meta_environment.rascal.ast.Expression pat = rl.getPattern();
-							if(match(subtree, pat)){
-								rl.getStatement().accept(this);
-								writer.insert(subtree);
-								inserted = true;
-								break;
-							}
-						} else if(rl.isGuarded())	{
-							org.meta_environment.rascal.ast.Type tp = rl.getType();
-							Type t = tp.accept(te);
-							rl = rl.getRule();
-							org.meta_environment.rascal.ast.Expression pat = rl.getPattern();
-							if(subtree.getType().isSubtypeOf(t) && match(subtree, pat)){
-								rl.getStatement().accept(this);
-								writer.insert(subtree);
-								inserted = true;
-								break;
-							}
-						} else if(rl.isReplacing()){
-							org.meta_environment.rascal.ast.Expression pat = rl.getPattern();
-							if(match(subtree, pat)){
-								writer.replace(subtree, rl.getReplacement().accept(this).value);
-								inserted = true;
-								break;
-							}
-						} else {
-							throw new RascalBug("Impossible case in visit expression");
-						}
-					}
+		if(subjectType.isTreeType()){
+			ITree tree = (ITree)subject;
+			IValue args[] = new IValue[tree.arity()];
+			for(int i = 0; i < tree.arity(); i++){
+				TraverseResult tr = traverse(tree.get(i), cases, bottomup, breaking);
+				changed |= tr.changed;
+				args[i] = tr.value;
+			}
+			result = vf.tree(tree.getName(), args);
+		} else
+		if(subjectType.isListType()){
+			IList list = (IList) subject;
+			int len = list.length();
+			IListWriter w = list.getType().writer(vf);
+			for(int i = len - 1; i >= 0; i--){
+				TraverseResult tr = traverse(list.get(i), cases, bottomup, breaking);
+				changed |= tr.changed;
+				w.insert(tr.value);
+			}
+			result = w.done();
+		} else 
+		if(subjectType.isSetType()){
+				ISet set = (ISet) subject;
+				ISetWriter w = set.getType().writer(vf);
+				for(IValue v : set){
+					TraverseResult tr = traverse(v, cases, bottomup, breaking);
+					changed |= tr.changed;
+					w.insert(tr.value);
 				}
-				if(!inserted){
-					writer.insert(subtree);
+				result = w.done();
+		} else
+		if (subjectType.isMapType()) {
+			IMap map = (IMap) subject;
+			IMapWriter w = map.getType().writer(vf);
+			Iterator<Entry<IValue,IValue>> iter = map.entryIterator();
+			
+			while (iter.hasNext()) {
+				Entry<IValue,IValue> entry = iter.next();
+				TraverseResult tr = traverse(entry.getKey(), cases, bottomup, breaking);
+				changed |= tr.changed;
+				IValue newKey = tr.value;
+				tr = traverse(entry.getValue(), cases, bottomup, breaking);
+				changed |= tr.changed;
+				IValue newValue = tr.value;
+				w.put(newKey, newValue);
+			}
+			result = w.done();
+		} else
+			if(subjectType.isTupleType()){
+				ITuple tuple = (ITuple) subject;
+				int arity = tuple.arity();
+				IValue args[] = new IValue[arity];
+				for(int i = 0; i < arity; i++){
+					TraverseResult tr = traverse(tuple.get(i), cases, bottomup, breaking);
+					changed |= tr.changed;
+					args[i] = tr.value;
 				}
-			} catch (InsertException e){
-				System.err.println("insert " + e.getValue().value);
-				writer.replace(subtree, e.getValue().value);
+				result = vf.tuple(args);
+		} else {
+			result = subject;
+		}
+		
+		if(bottomup){
+			if(breaking && changed){
+				return new TraverseResult(result, changed);
+			} else {
+				TraverseResult tr = traverseTop(result, cases);
+				changed |= tr.changed;
+				return new TraverseResult(tr.value, changed);
 			}
 		}
-		IValue newTree = writer.done();
-		return result(newTree.getType(), newTree);
+		return new TraverseResult(result,changed);
+	}
+	
+	private TraverseResult replacement(IValue oldSubject, IValue newSubject){
+		Type oldType = oldSubject.getType();
+		Type newType = newSubject.getType();
+		
+		if(!newType.isSubtypeOf(oldType)){
+			throw new RascalTypeError("Replacing " + oldType + " by " + newType + " value");
+		}
+		return new TraverseResult(newSubject, true);
+	}
+	
+	private TraverseResult traverseTop(IValue subject, java.util.List<Case> cases) {
+
+		System.err.println("subject = " + subject);
+
+		try {
+			for (Case cs : cases) {
+				if (cs.isDefault()) {
+					cs.getStatement().accept(this);
+					return new TraverseResult(subject);
+				} else {
+					org.meta_environment.rascal.ast.Rule rule = cs.getRule();
+					if (rule.isArbitrary()) {
+						org.meta_environment.rascal.ast.Expression pat = rule
+								.getPattern();
+						if (match(subject, pat)) {
+							rule.getStatement().accept(this);
+							return new TraverseResult(subject);
+						}
+					} else if (rule.isGuarded()) {
+						org.meta_environment.rascal.ast.Type tp = rule.getType();
+						Type type = tp.accept(te);
+						rule = rule.getRule();
+						org.meta_environment.rascal.ast.Expression pat = rule
+								.getPattern();
+						if (subject.getType().isSubtypeOf(type)
+								&& match(subject, pat)) {
+							rule.getStatement().accept(this);
+							return new TraverseResult(subject);
+						}
+					} else if (rule.isReplacing()) {
+						org.meta_environment.rascal.ast.Expression pat = rule
+								.getPattern();
+						if (match(subject, pat)) {
+							return replacement(subject, rule.getReplacement()
+									.accept(this).value);
+						}
+					} else {
+						throw new RascalBug(
+								"Impossible case in visit expression");
+					}
+				}
+			}
+			return new TraverseResult(subject);
+		} catch (InsertException e) {
+
+			return replacement(subject, e.getValue().value);
+		}
+	}
+	
+	@Override
+	public EvalResult visitVisitDefaultStrategy(DefaultStrategy x) {
+		
+		IValue subject = x.getSubject().accept(this).value;
+		java.util.List<Case> cases = x.getCases();
+		
+		return result(traverse(subject, cases, true, false).value);
 	}
 	
 	@Override
 	public EvalResult visitVisitGivenStrategy(GivenStrategy x) {
-		throw new RascalBug("NYI"); // TODO
+		
+		IValue subject = x.getSubject().accept(this).value;
+		java.util.List<Case> cases = x.getCases();
+		Strategy s = x.getStrategy();
+		
+		boolean bottomup;
+		boolean breaking;
+		
+		if(s.isBottomUp() || s.isInnermost()){
+			bottomup = true; breaking = false;
+		} else if(s.isBottomUpBreak()){
+			bottomup = true; breaking = true;
+		} else if(s.isTopDown() || s.isOutermost()){
+			bottomup = false; breaking = false;
+		} else if(s.isTopDownBreak()){
+			bottomup = false; breaking = true;
+		} else {
+			throw new RascalBug("Unknown strategy: + s");
+		}
+	
+		return result(traverse(subject, cases, bottomup, breaking).value);
 	}
 	
 	@Override
@@ -2865,7 +2998,19 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				iter = ((ISet) r.value).iterator();
 			
 			} else if(r.type.isTreeType()){
-				iter = new ITreeIReader((ITree) r.value, false);
+				boolean bottomup = true;
+				if(vp.hasStrategy()){
+					Strategy strat = vp.getStrategy();
+
+					if(strat.isTopDown() || strat.isOutermost()){
+						bottomup = false;
+					} else if(strat.isBottomUp() || strat.isInnermost()){
+							bottomup = true;
+					} else {
+						throw new RascalTypeError("Strategy " + strat + " not allowed in generator");
+					}
+				}
+				iter = new ITreeReader((ITree) r.value, true);
 			} else {
 				// TODO: add more generator types here	in the future
 				throw new RascalTypeError("expression in generator should be of type list/set/tree");

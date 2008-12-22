@@ -3,6 +3,7 @@ package org.meta_environment.rascal.interpreter;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Stack;
 
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
@@ -11,44 +12,46 @@ import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 
-public class ITreeIReader implements Iterator<IValue> {
+public class ITreeReader implements Iterator<IValue> {
 
-	List<Object> spine = new LinkedList<Object>();
-	private boolean topdown;
+	Stack<Object> spine = new Stack<Object>();
 	
-	ITreeIReader(ITree tree, boolean topdown){
-		this.topdown = topdown;
+	private boolean bottomup;
+	
+	ITreeReader(ITree tree, boolean bottomup){
+		this.bottomup = bottomup;
 		initSpine(tree);
 	}
 	
 	private void initSpine(IValue t){
-		if(!topdown) {
-			spine.add(0,t);
+		if(bottomup) {
+			spine.push(t);
 		}
 		if(t.getType().isTreeType()){
 			Iterator<IValue> children = ((ITree) t).getChildren().iterator();
-			spine.add(0, children);
+			spine.push(children);
 		}
-		if(topdown) {
-			spine.add(0,t);
+		// TODO add more types here
+		if(!bottomup) {
+			spine.push(t);
 		}
 	}
 
 	public boolean hasNext() {
-		while((spine.size() > 0) && 
-			   (spine.get(0) instanceof Iterator && !((Iterator<Object>) spine.get(0)).hasNext())){
-			spine.remove(0);
+		while((spine.size() > 0) &&
+			   (spine.peek() instanceof Iterator && !((Iterator<Object>) spine.peek()).hasNext())){
+			spine.pop();
 		}		
 		return spine.size() > 0;
 	}
 	
 	private IValue insertAndNext(IValue v, Iterator<IValue> children){
-		if(topdown){
-			spine.add(0, children);
-			spine.add(0, v);
+		if(bottomup){
+			spine.push(v);
+			spine.push(children);
 		} else {
-			spine.add(0, v);
-			spine.add(0, children);
+			spine.push(children);
+			spine.push(v);
 		}
 		return next();
 	}
@@ -69,14 +72,14 @@ public class ITreeIReader implements Iterator<IValue> {
 		if(v.getType().isTupleType()){
 			ITuple tp = (ITuple) v;
 			int arity = tp.arity();
-			if(!topdown){
-				spine.add(0, tp);
+			if(bottomup){
+				spine.push(tp);
 			}
 			for(int i = arity - 1; i >= 0; i--){
-				spine.add(0, tp.get(i));
+				spine.push(tp.get(i));
 			}
-			if(topdown){
-				spine.add(0, tp);
+			if(!bottomup){
+				spine.push(tp);
 			}
 			return next();
 		}
@@ -85,17 +88,15 @@ public class ITreeIReader implements Iterator<IValue> {
 	}
 
 	public IValue next() {
-		if(spine.get(0) instanceof Iterator){
-			Iterator<Object> iter = (Iterator<Object>) spine.get(0);
+		if(spine.peek() instanceof Iterator){
+			Iterator<Object> iter = (Iterator<Object>) spine.peek();
 			if(!iter.hasNext()){
-				spine.remove(0);
+				spine.pop();
 				return next();
 			}
 			return expand((IValue) iter.next());
 		} else {
-			IValue res = (IValue) spine.get(0);
-			spine.remove(0);
-			return res;
+			return (IValue) spine.pop();
 		}
 	}
 
