@@ -56,7 +56,11 @@ public class JavaFunctionCaller {
 		this.typeEvaluator = te;
 		
 		if (ToolProvider.getSystemJavaCompiler() == null) {
-			throw new RascalBug("Could not find an installed Java compiler, please provide a Java Runtime that includes the Java Development Tools (JDK 1.6 or higher).");
+			throw new RascalBug("Could not find an installed System Java Compiler, please provide a Java Runtime that includes the Java Development Tools (JDK 1.6 or higher).");
+		}
+		
+		if (ToolProvider.getSystemToolClassLoader() == null) {
+			throw new RascalBug("Could not find an System Tool Class Loader, please provide a Java Runtime that includes the Java Development Tools (JDK 1.6 or higher).");
 		}
 	}
 

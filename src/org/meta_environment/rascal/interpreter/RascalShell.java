@@ -8,6 +8,7 @@ import javax.tools.ToolProvider;
 
 import jline.ConsoleReader;
 
+import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.hash.ValueFactory;
@@ -81,6 +82,31 @@ public class RascalShell {
 		catch (FailureException e) {
 			return;
 		}
+	}
+	
+	private int run(String module) throws IOException {
+		loadModule(module);
+		return callMainFunction(module);
+	}
+
+	private int callMainFunction(String module) throws IOException {
+		String callMainStatement = module + "::main();";
+		INode tree = parser.parse(new ByteArrayInputStream(callMainStatement.getBytes()));
+		Command callStat = builder.buildCommand(tree);
+		IValue result = callStat.accept(new CommandEvaluator(evaluator));
+		
+		if (!result.getType().isIntegerType()) {
+			System.err.println("Main function should return an integer");
+		}
+		
+		return ((IInteger) result).getValue();
+	}
+
+	private void loadModule(String module) throws IOException {
+		String importCommand = "import " + module + ";";
+		INode tree = parser.parse(new ByteArrayInputStream(importCommand.getBytes()));
+		Command importDecl = builder.buildCommand(tree);
+		importDecl.accept(new CommandEvaluator(evaluator));
 	}
 	
 	private void printStacktrace(ConsoleReader console, Throwable e) throws IOException {
@@ -159,14 +185,28 @@ public class RascalShell {
 	}
 	
 	public static void main(String[] args) {
-		System.err.println(ToolProvider.getSystemToolClassLoader());
-		System.err.println(ToolProvider.getSystemJavaCompiler());
-		try {
-			new RascalShell().run();
-			System.err.println("Que le Rascal soit avec vous!");
-		} catch (IOException e) {
-			System.err.println("unexpected error: " + e.getMessage());
-			System.exit(1);
-		} 
+		if (args.length == 0) {
+			// interactive mode
+			try {
+				new RascalShell().run();
+				System.err.println("Que le Rascal soit avec vous!");
+				System.exit(0);
+			} catch (IOException e) {
+				System.err.println("unexpected error: " + e.getMessage());
+				System.exit(1);
+			} 
+		}
+		else if (args.length == 1) {
+			try {
+				int result = new RascalShell().run(args[0]);
+				System.exit(result);
+			} catch (IOException e) {
+				System.err.println("unexpected error: " + e.getMessage());
+				System.exit(1);
+			} 
+		}
+		else {
+			System.err.println("Too many commandline arguments provided. ");
+		}
 	}
 }
