@@ -22,12 +22,10 @@ public class ITreeWriter implements IWriter {
 	
 	ValueFactory vf = ValueFactory.getInstance();
 	
-	@Override
 	public IValue done() {
 		return spine.pop();
 	}
 
-	@Override
 	public void insert(IValue... value) throws FactTypeError {
 		for(int i = 0; i < value.length; i++){
 			System.err.println("add " + value[i]);
@@ -85,19 +83,16 @@ public class ITreeWriter implements IWriter {
 		}
 	}
 
-	@Override
 	public void insertAll(Iterable<IValue> collection) throws FactTypeError {
 		// TODO Auto-generated method stub
 
 	}
 
-	@Override
 	public void setAnnotation(String label, IValue value) throws FactTypeError {
 		// TODO Auto-generated method stub
 
 	}
 
-	@Override
 	public void setAnnotations(Map<String, IValue> annotations)
 			throws FactTypeError {
 		// TODO Auto-generated method stub
