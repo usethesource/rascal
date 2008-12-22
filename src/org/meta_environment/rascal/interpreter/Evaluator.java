@@ -2795,26 +2795,19 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 
 	private EvalResult closure(EvalResult arg, boolean reflexive) {
 
-		if (arg.type.isRelationType()) {
+		if (arg.type.isRelationType() && arg.type.getArity() < 3) {
 			Type relType = arg.type;
 			Type fieldType1 = relType.getFieldType(0);
 			Type fieldType2 = relType.getFieldType(1);
-			String fieldName1 = relType.getFieldName(0);
-			String fieldName2 = relType.getFieldName(1);
-			
-			if (relType.getArity() == 2
-					&& (fieldType1.isSubtypeOf(fieldType2)
-							|| fieldType2.isSubtypeOf(fieldType1))) {
+			if (fieldType1.comparable(fieldType2)) {
 				Type lub = fieldType1.lub(fieldType2);
 				
-				Type resultType = fieldName1 != null ? tf.relType(lub, fieldName1, lub, fieldName2) : tf.relType(lub,lub);
+				Type resultType = relType.hasFieldNames() ? tf.relType(lub, relType.getFieldName(0), lub, relType.getFieldName(1)) : tf.relType(lub,lub);
 				return result(resultType, reflexive ? ((IRelation) arg.value).closureStar()
 						: ((IRelation) arg.value).closure());
 			}
 		}
-		else if (arg.type.isSetType() && arg.type.getElementType().isVoidType()) {
-			return arg;
-		}
+		
 		throw new RascalTypeError("Operand of + or * closure has wrong type: "
 				+ arg.type);
 	}
