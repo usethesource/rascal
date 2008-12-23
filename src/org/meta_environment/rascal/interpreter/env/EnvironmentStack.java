@@ -41,6 +41,9 @@ public class  EnvironmentStack {
 	}
 
 	public void pushFrame(Environment env) {
+		if (env == null) { 
+			throw new RascalBug("null environment");
+		}
 		stack.push(env);
 	}
 
@@ -93,6 +96,7 @@ public class  EnvironmentStack {
 			
 			if (env.isModuleEnvironment()
 					|| env.getFunction(name, formals, h) != null) {
+				h.setEnvironment(env);
 				return env;
 			}
 		}
