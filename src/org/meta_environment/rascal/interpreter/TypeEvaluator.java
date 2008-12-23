@@ -15,6 +15,7 @@ import org.meta_environment.rascal.ast.BasicType.Tree;
 import org.meta_environment.rascal.ast.BasicType.Value;
 import org.meta_environment.rascal.ast.BasicType.Void;
 import org.meta_environment.rascal.ast.Formal.TypeName;
+import org.meta_environment.rascal.ast.Parameters.VarArgs;
 import org.meta_environment.rascal.ast.Signature.NoThrows;
 import org.meta_environment.rascal.ast.Signature.WithThrows;
 import org.meta_environment.rascal.ast.StructuredType.List;
@@ -66,6 +67,33 @@ public class TypeEvaluator extends NullASTVisitor<Type> {
 	public Type visitParametersDefault(
 			org.meta_environment.rascal.ast.Parameters.Default x) {
 		return x.getFormals().accept(this);
+	}
+	
+	@Override
+	public Type visitParametersVarArgs(VarArgs x) {
+		Type formals = x.getFormals().accept(this);
+		int arity = formals.getArity();
+		
+		if (arity == 0) {
+			// TODO is this sensible or should we restrict the syntax?
+			return tf.tupleType(tf.listType(tf.valueType()), "args");
+		}
+		else {
+			Type[] types = new Type[arity];
+			java.lang.String[] labels = new java.lang.String[arity];
+			int i;
+			
+			for (i = 0; i < arity - 1; i++) {
+				types[i] = formals.getFieldType(i);
+				labels[i] = formals.getFieldName(i);
+			}
+			
+			types[i] = tf.listType(formals.getFieldType(i));
+			labels[i] = formals.getFieldName(i);
+			
+			return tf.tupleType(types, labels);
+		}
+		
 	}
 	
 	@Override
