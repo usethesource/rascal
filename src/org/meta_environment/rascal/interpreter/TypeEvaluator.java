@@ -15,6 +15,7 @@ import org.meta_environment.rascal.ast.BasicType.Tree;
 import org.meta_environment.rascal.ast.BasicType.Value;
 import org.meta_environment.rascal.ast.BasicType.Void;
 import org.meta_environment.rascal.ast.Formal.TypeName;
+import org.meta_environment.rascal.ast.FunctionType.TypeArguments;
 import org.meta_environment.rascal.ast.Parameters.VarArgs;
 import org.meta_environment.rascal.ast.Signature.NoThrows;
 import org.meta_environment.rascal.ast.Signature.WithThrows;
@@ -34,7 +35,6 @@ import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 
 public class TypeEvaluator extends NullASTVisitor<Type> {
 	private static TypeFactory tf = TypeFactory.getInstance();
-	private static final Type functionType = tf.namedType("rascal.functionType", tf.stringType());
 	private static final GlobalEnvironment env = GlobalEnvironment.getInstance();
 	private static final TypeEvaluator sInstance = new TypeEvaluator();
 	
@@ -45,14 +45,6 @@ public class TypeEvaluator extends NullASTVisitor<Type> {
 		return sInstance;
 	}
 	
-	public boolean isFunctionType(Type type) {
-		return type == functionType;
-	}
-	
-	public Type getFunctionType() {
-		return functionType;
-	}
-	
 	@Override
 	public Type visitTypeBasic(Basic x) {
 		return x.getBasic().accept(this);
@@ -61,6 +53,12 @@ public class TypeEvaluator extends NullASTVisitor<Type> {
 	@Override
 	public Type visitFormalTypeName(TypeName x) {
 		return x.getType().accept(this);
+	}
+	
+	@Override
+	public Type visitFunctionDeclarationDefault(
+			org.meta_environment.rascal.ast.FunctionDeclaration.Default x) {
+		return x.getSignature().accept(this);
 	}
 	
 	@Override
@@ -122,7 +120,13 @@ public class TypeEvaluator extends NullASTVisitor<Type> {
 	
 	@Override
 	public Type visitTypeFunction(Function x) {
-		return functionType;
+		return ClosureResult.getClosureType();
+	}
+	
+	
+	@Override
+	public Type visitFunctionTypeTypeArguments(TypeArguments x) {
+		return getArgumentTypes(x.getArguments());
 	}
 	
 	@Override
@@ -182,7 +186,10 @@ public class TypeEvaluator extends NullASTVisitor<Type> {
 	
 	@Override
 	public Type visitStructuredTypeRelation(Relation x) {
-		java.util.List<TypeArg> args = x.getArguments();
+		return getArgumentTypes(x.getArguments());
+	}
+
+	private Type getArgumentTypes(java.util.List<TypeArg> args) {
 		Type[] fieldTypes = new Type[args.size()];
 		java.lang.String[] fieldLabels = new java.lang.String[args.size()];
 		

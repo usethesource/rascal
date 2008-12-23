@@ -7,6 +7,8 @@ public class EvalResult {
 	protected Type type;
 	protected IValue value;
 
+	protected EvalResult() { }
+	
 	public EvalResult(Type t, IValue v) {
 		type = t;
 		value = v;
@@ -18,5 +20,13 @@ public class EvalResult {
 
 	public String toString() {
 		return "EResult(" + type + ", " + value + ")";
+	}
+	
+	public boolean isNormal() {
+		return true;
+	}
+	
+	public boolean isClosure() {
+		return false;
 	}
 }

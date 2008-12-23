@@ -38,6 +38,7 @@ import org.meta_environment.rascal.ast.Case;
 import org.meta_environment.rascal.ast.Catch;
 import org.meta_environment.rascal.ast.Declaration;
 import org.meta_environment.rascal.ast.Declarator;
+import org.meta_environment.rascal.ast.Expression;
 import org.meta_environment.rascal.ast.Field;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.FunctionModifier;
@@ -56,6 +57,7 @@ import org.meta_environment.rascal.ast.ValueProducer;
 import org.meta_environment.rascal.ast.Variant;
 import org.meta_environment.rascal.ast.Assignable.Constructor;
 import org.meta_environment.rascal.ast.Assignable.FieldAccess;
+import org.meta_environment.rascal.ast.ClosureAsFunction.Evaluated;
 import org.meta_environment.rascal.ast.Declaration.Annotation;
 import org.meta_environment.rascal.ast.Declaration.Data;
 import org.meta_environment.rascal.ast.Declaration.Function;
@@ -114,6 +116,7 @@ import org.meta_environment.rascal.ast.Expression.Tuple;
 import org.meta_environment.rascal.ast.Expression.TypedVariable;
 import org.meta_environment.rascal.ast.Expression.Visit;
 import org.meta_environment.rascal.ast.Expression.VoidClosure;
+import org.meta_environment.rascal.ast.FunctionAsValue.Typed;
 import org.meta_environment.rascal.ast.Header.Parameters;
 import org.meta_environment.rascal.ast.IntegerLiteral.DecimalIntegerLiteral;
 import org.meta_environment.rascal.ast.Literal.Boolean;
@@ -262,10 +265,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		return new EvalResult(null, null);
 	}
 	
-	private EvalResult notImplemented(String s){
-		throw new RascalBug(s + " not yet implemented");
-	}
-	
 	private void checkInteger(EvalResult val) {
 		checkType(val, tf.integerType());
 	}
@@ -283,6 +282,9 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	}
 	
 	private void checkType(Type given, Type expected) {
+		if (expected == ClosureResult.getClosureType()) {
+			return;
+		}
 		if (!given.isSubtypeOf(expected)) {
 			throw new RascalTypeError("Expected " + expected + ", got " + given);
 		}
@@ -601,38 +603,38 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	// Function calls and tree constructors
 	
 	@Override
+	public EvalResult visitClosureAsFunctionEvaluated(Evaluated x) {
+		Expression expr = x.getExpression();
+		
+		if (expr.isQualifiedName()) {
+			
+		}
+		
+		return result(vf.string(Names.name(Names.lastName(expr.getQualifiedName()))));
+	}
+	
+	@Override
 	public EvalResult visitExpressionClosureCall(ClosureCall x) {
 		EvalResult func = x.getClosure().getExpression().accept(this);
 		java.util.List<org.meta_environment.rascal.ast.Expression> args = x.getArguments();
-			
-		 IValue[] actuals = new IValue[args.size()];
-		 Type[] types = new Type[args.size()];
 
-		 for (int i = 0; i < args.size(); i++) {
-			 EvalResult resultElem = args.get(i).accept(this);
-			 types[i] = resultElem.type;
-			 actuals[i] = resultElem.value;
-		 }
-		 
-		 Type actualTypes = tf.tupleType(types);
-		
-		if (te.isFunctionType(func.type)) {
-			String name = ((IString) func.value).getValue();
-			EnvironmentHolder h = new EnvironmentHolder();
-			FunctionDeclaration decl = env.getFunction(name, actualTypes, h);
-			if (decl == null) {
-				throw new RascalTypeError("Call to undefined function: " + name);
-			}
-			try {
-				env.pushFrame(h.getEnvironment());
-				return call(decl, actuals, actualTypes);
-			}
-			finally {
-				env.popFrame();
-			}
+		IValue[] actuals = new IValue[args.size()];
+		Type[] types = new Type[args.size()];
+
+		for (int i = 0; i < args.size(); i++) {
+			EvalResult resultElem = args.get(i).accept(this);
+			types[i] = resultElem.type;
+			actuals[i] = resultElem.value;
+		}
+
+		Type actualTypes = tf.tupleType(types);
+
+		if (func.type == ClosureResult.getClosureType()) {
+			ClosureResult closure = (ClosureResult) func.value;
+			return closure.call(actuals, actualTypes);
 		}
 		else {
-			throw new RascalBug("Closures are not implemented yet");
+			throw new RascalTypeError("Expected a closure, a function or an operator, but got a " + func.type);
 		}
 	}
 	
@@ -751,8 +753,31 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 	@Override
 	public EvalResult visitExpressionFunctionAsValue(FunctionAsValue x) {
-		Type functionType = te.getFunctionType();
-		return result(functionType, functionType.make(vf, x.getFunction().getName().toString()));
+		return x.getFunction().accept(this);
+	}
+	
+	@Override
+	public EvalResult visitFunctionAsValueDefault(
+			org.meta_environment.rascal.ast.FunctionAsValue.Default x) {
+		Name name = x.getName();
+		Type formals = tf.voidType();
+		EnvironmentHolder h = new EnvironmentHolder();
+		FunctionDeclaration func = env.getFunction(Names.name(name), formals, h);
+		
+		if (func == null) {
+			throw new RascalTypeError("Could not find function " + name);
+		}
+		
+		return new ClosureResult(this, func, h.getEnvironment());
+	}
+	
+	@Override
+	public EvalResult visitFunctionAsValueTyped(Typed x) {
+		Type formals = x.getType().accept(te);
+		Name name = x.getName();
+		EnvironmentHolder h = new EnvironmentHolder();
+		FunctionDeclaration func = env.getFunction(Names.name(name), formals, h);
+		return new ClosureResult(this, func, h.getEnvironment());
 	}
 	
 	private StringBuffer showCall(FunctionDeclaration func, IValue[] actuals, String arrow){
@@ -770,7 +795,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		return trace;
 	}
 	
-	private EvalResult call(FunctionDeclaration func, IValue[] actuals, Type actualTypes) {
+	protected EvalResult call(FunctionDeclaration func, IValue[] actuals, Type actualTypes) {
 		if (func.getSignature().getParameters().isVarArgs()) {
 			Type formals = func.getSignature().accept(te);
 			Type newActualTypes = computeVarArgsActualTypes(actualTypes, formals);

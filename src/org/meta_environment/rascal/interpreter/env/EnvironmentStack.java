@@ -2,6 +2,7 @@ package org.meta_environment.rascal.interpreter.env;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Stack;
 
@@ -17,7 +18,7 @@ import org.meta_environment.rascal.interpreter.RascalBug;
  * An environment that implements the scoping rules of Rascal.
  * 
  */
-public class  EnvironmentStack {
+public class  EnvironmentStack implements Iterable<Environment>{
 	protected final Stack<Environment> stack = new Stack<Environment>();
     
 	public void clean(ModuleEnvironment bottom) {
@@ -25,10 +26,18 @@ public class  EnvironmentStack {
 		stack.push(bottom);
 	}
 	
+	public Iterator<Environment> iterator() {
+		return stack.iterator();
+	}
+	
 	public EnvironmentStack(ModuleEnvironment bottom) {
 		stack.push(bottom);
 	}
 	
+	public EnvironmentStack() {
+		
+	}
+
 	public void pushFrame() {
 		stack.push(new Environment());
 	}
@@ -215,5 +224,23 @@ public class  EnvironmentStack {
 	public Type getTreeNodeType(String cons, Type args) {
 		return getModuleEnvironment().getTreeNodeType(cons, args);
 	}
+
+	public EnvironmentStack copyStack() {
+		EnvironmentStack copy = new EnvironmentStack();
+		
+		for (int i = stack.size() - 1; i >= 0; i--) {
+			Environment env = stack.get(i);
+			
+			copy.stack.add(copy.stack.size(), env);
+			
+			if (env.isModuleEnvironment()) {
+				break;
+			}
+		}
+		
+		return copy;
+	}
+
+	
 
 }

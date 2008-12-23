@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.Declaration;
@@ -323,5 +324,9 @@ public class GlobalEnvironment {
 
 	public boolean existsModule(String name) {
 		return moduleEnvironment.containsKey(name);
+	}
+
+	public EnvironmentStack copyStack() {
+		return stack.copyStack();
 	}
 }
