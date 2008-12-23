@@ -142,7 +142,7 @@ public list[&T] sort(list[&T] lst)
   
   list[&T] less = [];
   list[&T] greater = [];
-  &T pivot;
+  &T pivot = lst[0];
   
   <pivot, lst> = takeOneFrom(lst);
   
