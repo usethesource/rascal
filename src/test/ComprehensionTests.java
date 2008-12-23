@@ -239,11 +239,40 @@ public class ComprehensionTests extends TestCase {
 	
 	public void testTreeGenerator() throws IOException {
 		assertTrue(tf.runTest("[N | value N : f(1,2)] == [1,2,f(1,2)];"));
+		assertTrue(tf.runTest("[N | bottom-up value N : f(1,2)] == [1,2,f(1,2)];"));
+		assertTrue(tf.runTest("[N | innermost value N : f(1,2)] == [1,2,f(1,2)];"));
+		
+		assertTrue(tf.runTest("[N | top-down value N : f(1,2)] == [f(1,2),1,2];"));
+		assertTrue(tf.runTest("[N | outermost value N : f(1,2)] == [f(1,2),1,2];"));
+		
 		assertTrue(tf.runTest("[N | tree N : f(1,2)] == [f(1,2)];"));
+		assertTrue(tf.runTest("[N | bottom-up tree N : f(1,2)] == [f(1,2)];"));
+		assertTrue(tf.runTest("[N | innermost tree N : f(1,2)] == [f(1,2)];"));
+		assertTrue(tf.runTest("[N | top-down tree N : f(1,2)] == [f(1,2)];"));
+		assertTrue(tf.runTest("[N | outermost tree N : f(1,2)] == [f(1,2)];"));
+		
 		assertTrue(tf.runTest("[N | int N : f(1,2)] == [1,2];"));
 		
 		assertTrue(tf.runTest("[N | value N : f(1,g(2,3))] == [1,2,3,g(2,3),f(1,g(2,3))];"));
+		assertTrue(tf.runTest("[N | bottom-up value N : f(1,g(2,3))] == [1,2,3,g(2,3),f(1,g(2,3))];"));
+		assertTrue(tf.runTest("[N | innermost value N : f(1,g(2,3))] == [1,2,3,g(2,3),f(1,g(2,3))];"));
+		
+		assertTrue(tf.runTest("[N | top-down value N : f(1,g(2,3))] == [f(1,g(2,3)),1,g(2,3),2,3];"));
+		assertTrue(tf.runTest("[N | outermost value N : f(1,g(2,3))] == [f(1,g(2,3)),1,g(2,3),2,3];"));
+		
 		assertTrue(tf.runTest("[N | tree N : f(1,g(2,3))] == [g(2,3),f(1,g(2,3))];"));
+		assertTrue(tf.runTest("[N | bottom-up tree N : f(1,g(2,3))] == [g(2,3),f(1,g(2,3))];"));
+		assertTrue(tf.runTest("[N | innermost tree N : f(1,g(2,3))] == [g(2,3),f(1,g(2,3))];"));
+		
+		assertTrue(tf.runTest("[N | top-down tree N : f(1,g(2,3))] == [f(1,g(2,3)), g(2,3)];"));
+		assertTrue(tf.runTest("[N | outermost tree N : f(1,g(2,3))] == [f(1,g(2,3)), g(2,3)];"));
+		
+		
 		assertTrue(tf.runTest("[N | int N : f(1,g(2,3))] == [1,2,3];"));
+		assertTrue(tf.runTest("[N | bottom-up int N : f(1,g(2,3))] == [1,2,3];"));
+		assertTrue(tf.runTest("[N | innermost int N : f(1,g(2,3))] == [1,2,3];"));
+		
+		assertTrue(tf.runTest("[N | top-down int N : f(1,g(2,3))] == [1,2,3];"));
+		assertTrue(tf.runTest("[N | outermost int N : f(1,g(2,3))] == [1,2,3];"));
 	}
 }
