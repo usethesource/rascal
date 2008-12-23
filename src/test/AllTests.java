@@ -17,6 +17,8 @@ public class AllTests {
 		suite.addTestSuite(StatementTests.class);
 		suite.addTestSuite(CallTests.class);
 		suite.addTestSuite(ErrorTests.class);
+		suite.addTestSuite(VisitTests.class);
+		suite.addTestSuite(TryCatchTests.class);
 
 		suite.addTestSuite(ImportTests.class);
 		suite.addTestSuite(StandardLibraryBooleanTests.class);
