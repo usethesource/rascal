@@ -60,6 +60,10 @@ public class  EnvironmentStack {
 		return stack.peek();
 	}
 	
+	protected int size(){
+		return stack.size();
+	}
+	
 	public void storeFunction(String name, FunctionDeclaration function) {
 		top().storeFunction(name, function);
 	}

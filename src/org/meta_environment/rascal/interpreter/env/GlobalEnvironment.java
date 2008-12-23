@@ -185,10 +185,23 @@ public class GlobalEnvironment {
 	}
 	
 	public EvalResult getVariable(String name) {
-		return stack.getVariable(name);
+		EvalResult r = stack.getVariable(name);
+		
+		StringBuffer indent = new StringBuffer();
+		for(int i = 0; i < stack.size(); i++){
+			indent.append(" ");
+		}
+		System.err.println(indent + "getVariable(" + name + ") -> " + r);
+		return r;
 	}
 	
 	public void storeVariable(String name, EvalResult value) {
+		StringBuffer indent = new StringBuffer();
+		for(int i = 0; i < stack.size(); i++){
+			indent.append(" ");
+		}
+
+		System.err.println(indent + "storeVariable(" + name + ", " + value + ")");
 		stack.storeVariable(name, value);
 	}
 	
