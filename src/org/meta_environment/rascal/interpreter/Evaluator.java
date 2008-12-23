@@ -2260,7 +2260,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		} else 
 		*/
 		if (left.type.comparable(right.type)) {
-	        			return left.value.equals(right.value);
+			return compare(left, right) == 0;
 		} else {
 			return false;
 				//TODO; type error
@@ -2692,51 +2692,60 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			throw new RascalTypeError("Arguments of unequal have incomparable types: " + left.type + " and " + right.type);
 		}
 		
-		return result(vf.bool(!equals(left, right)));
+		return result(vf.bool(compare(left, right) != 0));
 	}
 	
 	
 	private int compare(EvalResult left, EvalResult right){
+		// compare must use run-time types because it is complete for all types
+		// even if statically two values have type 'value' but one is an int 1
+		// and the other is double 1.0 they must be equal.
+		Type leftType = left.value.getType();
+		Type rightType = right.value.getType();
 		
-		widenIntToDouble(left, right);
-		
-		if (left.type.isBoolType() && right.type.isBoolType()) {
+		if (leftType.isBoolType() && rightType.isBoolType()) {
 			boolean lb = ((IBool) left.value).getValue();
 			boolean rb = ((IBool) right.value).getValue();
 			return (lb == rb) ? 0 : ((!lb && rb) ? -1 : 1);
 		}
-		if (left.type.isIntegerType() && right.type.isIntegerType()) {
+		if (left.type.isIntegerType() && rightType.isIntegerType()) {
 			return ((IInteger) left.value).compare((IInteger) right.value);
 		}
-		if (left.type.isDoubleType() && right.type.isDoubleType()) {
+		if (leftType.isDoubleType() && rightType.isDoubleType()) {
 			return ((IDouble) left.value).compare((IDouble) right.value);
 		}
-		if (left.type.isStringType() && right.type.isStringType()) {
+		if (leftType.isIntegerType() && rightType.isDoubleType()) {
+			return ((IInteger) left.value).toDouble().compare((IDouble) right.value);
+		}
+		if (leftType.isDoubleType() && rightType.isIntegerType()) {
+			return ((IDouble) left.value).compare(((IInteger) right.value).toDouble());
+		}
+		if (leftType.isStringType() && rightType.isStringType()) {
 			return ((IString) left.value).compare((IString) right.value);
 		}
-		if (left.type.isListType() && right.type.isListType()) {
+		if (leftType.isListType() && rightType.isListType()) {
 			return compareList(((IList) left.value).iterator(), ((IList) left.value).length(),
 					            ((IList) right.value).iterator(), ((IList) right.value).length());
 		}
-		if (left.type.isSetType() && right.type.isSetType()) {
+		if (leftType.isSetType() && rightType.isSetType()) {
 			return compareSet((ISet) left.value, (ISet) right.value);
 		}
-		if (left.type.isMapType() && right.type.isMapType()) {
+		if (leftType.isMapType() && rightType.isMapType()) {
 			return compareMap((IMap) left.value, (IMap) right.value);
 		}
-		if (left.type.isTupleType() && right.type.isTupleType()) {
+		if (leftType.isTupleType() && rightType.isTupleType()) {
 			return compareList(((ITuple) left.value).iterator(), ((ITuple) left.value).arity(),
 		            ((ITuple) right.value).iterator(), ((ITuple) right.value).arity());
 		} 
-		if (left.type.isRelationType() && right.type.isRelationType()) {
+		if (leftType.isRelationType() && rightType.isRelationType()) {
 			return compareSet((ISet) left.value, (ISet) right.value);
 		}
 		
-		if (left.type.isSubtypeOf(tf.treeType()) && right.type.isSubtypeOf(tf.treeType())){
+		if (leftType.isSubtypeOf(tf.treeType()) && rightType.isSubtypeOf(tf.treeType())){
 			return compareTree((ITree) left.value, (ITree) right.value);
 		}
 		
-		if(left.type.isSourceLocationType() && right.type.isSourceLocationType()){	
+		if(leftType.isSourceLocationType() && rightType.isSourceLocationType()){	
 			return compareSourceLocation((ISourceLocation) left.value, (ISourceLocation) right.value);
 		}
 			
@@ -2747,7 +2756,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		// VoidType
 		// ValueType
 		
-		return left.type.toString().compareTo(right.type.toString());
+		return leftType.toString().compareTo(rightType.toString());
 	}
 	
 	private int compareTree(ITree left, ITree right){
@@ -2837,14 +2846,9 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			EvalResult vr = result(rightVal.getType(), rightVal);
 			int c = compare(vl, vr);
 
-			if(compare == c){
-				continue;
-			} else
-				if(i == 0){
-					compare = c;
-				} else {
-						return c;
-				}
+			if (c < 0 || c > 0) {
+				return c;
+			}
 		}
 		
 		if(compare == 0 && leftLen != rightLen){

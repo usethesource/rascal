@@ -67,7 +67,7 @@ public class DataTypeTests extends TestCase{
 		
 		assertTrue(tf.runTest("1 + 1 == 2;"));
 		assertTrue(tf.runTest("-1 + 2 == 1;"));
-		assertTrue(tf.runTest("1 + -2 == -1;"));
+		assertTrue(tf.runTest("1 + (-2) == -1;"));
 		
 		assertTrue(tf.runTest("2 - 1 == 1;"));	
 		assertTrue(tf.runTest("2 - 3 == -1;"));	
@@ -76,8 +76,8 @@ public class DataTypeTests extends TestCase{
 		
 		assertTrue(tf.runTest("2 * 3 == 6;"));	
 		assertTrue(tf.runTest("-2 * 3 == -6;"));	
-		assertTrue(tf.runTest("2 * -3 == -6;"));
-		assertTrue(tf.runTest("-2 * -3 == 6;"));	
+		assertTrue(tf.runTest("2 * (-3) == -6;"));
+		assertTrue(tf.runTest("-2 * (-3) == 6;"));	
 		
 		assertTrue(tf.runTest("8 / 4 == 2;"));	
 		assertTrue(tf.runTest("-8 / 4 == -2;"));
@@ -131,16 +131,16 @@ public class DataTypeTests extends TestCase{
 		assertTrue(tf.runTest("-1.0 == -1.0;"));
 		assertTrue(tf.runTest("-1.0 != 1.0;"));
 		
-		assertTrue(tf.runTest("1.0 == 1;"));
-		assertTrue(tf.runTest("1.0 != 2;"));
+		assertTrue(tf.runTest("{value x = 1.0; value y = 1; x == y; }"));
+		assertTrue(tf.runTest("{value x = 1.0; value y = 2; x != y; }"));
 		
 		assertTrue(tf.runTest("1.0 + 1.0 == 2.0;"));
 		assertTrue(tf.runTest("-1.0 + 2.0 == 1.0;"));
-		assertTrue(tf.runTest("1.0 + -2.0 == -1.0;"));
+		assertTrue(tf.runTest("1.0 + (-2.0) == -1.0;"));
 		
 		assertTrue(tf.runTest("1.0 + 1 == 2.0;"));
 		assertTrue(tf.runTest("-1 + 2.0 == 1.0;"));
-		assertTrue(tf.runTest("1.0 + -2 == -1.0;"));
+		assertTrue(tf.runTest("1.0 + (-2) == -1.0;"));
 		
 		assertTrue(tf.runTest("2.0 - 1.0 == 1.0;"));	
 		assertTrue(tf.runTest("2.0 - 3.0 == -1.0;"));	
@@ -154,13 +154,13 @@ public class DataTypeTests extends TestCase{
 		
 		assertTrue(tf.runTest("2.0 * 3.0 == 6.0;"));	
 		assertTrue(tf.runTest("-2.0 * 3.0 == -6.0;"));	
-		assertTrue(tf.runTest("2.0 * -3.0 == -6.0;"));
-		assertTrue(tf.runTest("-2.0 * -3.0 == 6.0;"));	
+		assertTrue(tf.runTest("2.0 * (-3.0) == -6.0;"));
+		assertTrue(tf.runTest("-2.0 * (-3.0) == 6.0;"));	
 		
 		assertTrue(tf.runTest("2.0 * 3 == 6.0;"));	
 		assertTrue(tf.runTest("-2 * 3.0 == -6.0;"));	
-		assertTrue(tf.runTest("2.0 * -3 == -6.0;"));
-		assertTrue(tf.runTest("-2 * -3.0 == 6.0;"));	
+		assertTrue(tf.runTest("2.0 * (-3) == -6.0;"));
+		assertTrue(tf.runTest("-2 * (-3.0) == 6.0;"));	
 		
 		assertTrue(tf.runTest("8.0 / 4.0 == 2.0;"));	
 		assertTrue(tf.runTest("-8.0 / 4.0 == -2.0;"));
