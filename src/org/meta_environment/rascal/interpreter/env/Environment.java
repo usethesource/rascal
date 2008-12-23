@@ -5,10 +5,10 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
-import org.meta_environment.rascal.ast.Parameters;
 import org.meta_environment.rascal.interpreter.EvalResult;
 import org.meta_environment.rascal.interpreter.RascalTypeError;
 import org.meta_environment.rascal.interpreter.TypeEvaluator;
@@ -139,4 +139,6 @@ public class Environment {
 		}
 		return res.toString();
 	}
+
+	
 }
