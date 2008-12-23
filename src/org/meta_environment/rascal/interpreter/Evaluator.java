@@ -771,6 +771,16 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	}
 	
 	private EvalResult call(FunctionDeclaration func, IValue[] actuals, Type actualTypes) {
+		if (func.getSignature().getParameters().isVarArgs()) {
+			Type formals = func.getSignature().accept(te);
+			Type newActualTypes = computeVarArgsActualTypes(actualTypes, formals);
+			
+			if (actualTypes != newActualTypes) {
+				actuals = computeVarArgsActuals(actuals, formals);
+			}
+			
+			actualTypes = newActualTypes;
+		}
 		
 		if(callTracing){
 			EvalResult res;
@@ -797,6 +807,53 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			}
 		}
 
+	}
+
+	private IValue[] computeVarArgsActuals(IValue[] actuals, Type formals) {
+		int arity = formals.getArity();
+		IValue[] newActuals = new IValue[arity];
+		int i;
+		
+		for (i = 0; i < arity - 1; i++) {
+			newActuals[i] = actuals[i];
+		}
+		
+		Type lub = tf.voidType();
+		for (int j = i; j < actuals.length; j++) {
+			lub = lub.lub(actuals[j].getType());
+		}
+		
+		IListWriter list = vf.listWriter(lub);
+		list.insertAt(0, actuals, i, actuals.length - arity + 1);
+		newActuals[i] = list.done();
+		return newActuals;
+	}
+
+	private Type computeVarArgsActualTypes(Type actualTypes, Type formals) {
+		if (actualTypes.isSubtypeOf(formals)) {
+			// the argument is already provided as a list
+			return actualTypes;
+		}
+		
+		int arity = formals.getArity();
+		Type[] types = new Type[arity];
+		java.lang.String[] labels = new java.lang.String[arity];
+		int i;
+		
+		for (i = 0; i < arity - 1; i++) {
+			types[i] = formals.getFieldType(i);
+			labels[i] = formals.getFieldName(i);
+		}
+		
+		Type lub = tf.voidType();
+		for (int j = i; j < actualTypes.getArity(); j++) {
+			lub = lub.lub(actualTypes.getFieldType(j));
+		}
+		
+		types[i] = tf.listType(lub);
+		labels[i] = formals.getFieldName(i);
+		
+		return tf.tupleType(types, labels);
 	}
 
 	private boolean isJavaFunction(FunctionDeclaration func) {

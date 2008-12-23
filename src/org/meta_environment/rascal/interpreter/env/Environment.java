@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
+import org.meta_environment.rascal.ast.Parameters;
 import org.meta_environment.rascal.interpreter.EvalResult;
 import org.meta_environment.rascal.interpreter.RascalTypeError;
 import org.meta_environment.rascal.interpreter.TypeEvaluator;
@@ -45,12 +46,46 @@ public class Environment {
 					h.setEnvironment(this);
 					return candidate;
 				}
+				else if (isVarArgsFunction(candidate)) {
+					if (matchVarArgsFunction(candidate, formals, actuals)) {
+						return candidate;
+					}
+				}
 			}
 		}
 		
 		return null;
 	}
 	
+	private boolean matchVarArgsFunction(FunctionDeclaration candidate,
+			Type formals, Type actuals) {
+		int arity = formals.getArity();
+		int i;
+		
+		for (i = 0; i < arity - 1; i++) {
+			if (!actuals.getFieldType(i).isSubtypeOf(formals.getFieldType(i))) {
+				return false;
+			}
+		}
+		
+		if (i > actuals.getArity()) {
+			return false;
+		}
+
+		Type elementType = formals.getFieldType(i).getElementType();
+
+		for (; i < actuals.getArity(); i++) {
+			if (!actuals.getFieldType(i).isSubtypeOf(elementType)) {
+				return false;
+			}
+		}
+		
+		return true;
+	}
+
+	private boolean isVarArgsFunction(FunctionDeclaration candidate) {
+		return candidate.getSignature().getParameters().isVarArgs();
+	}
 	
 	public EvalResult getVariable(String name) {
 		return variableEnvironment.get(name);

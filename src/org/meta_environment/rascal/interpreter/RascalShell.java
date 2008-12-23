@@ -75,6 +75,10 @@ public class RascalShell {
 				catch (RascalException e) {
 					console.printString("exception: " + e.getMessage() + "\n");
 				}
+				catch (Throwable e) {
+					console.printString("bug: " + e.getMessage() + "\n");
+					printStacktrace(console, e);
+				}
 			}
 		}
 		catch (FailureException e) {

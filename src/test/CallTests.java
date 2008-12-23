@@ -29,6 +29,29 @@ public class CallTests extends TestCase{
 		assertTrue(tf.runTest("{" + add + " " + sub + " " + doSomething + " " + "doSomething(#sub) == -1;}"));
 	}
 	
+	public void testVarArgs() throws IOException {
+		String add0 = "int add(int i...) { return 0; }";
+		String add1 = "int add(int i...) { return i[0]; }";
+		String add2 = "int add(int i, int j...) { return i + j[0]; }";
+		
+		assertTrue(tf.runTest("{" + add0 + " add() == 0; }"));
+		assertTrue(tf.runTest("{" + add0 + " add([]) == 0; }"));
+		assertTrue(tf.runTest("{" + add0 + " add(0) == 0; }"));
+		assertTrue(tf.runTest("{" + add0 + " add([0]) == 0; }"));
+		assertTrue(tf.runTest("{" + add0 + " add(0,1,2) == 0; }"));
+		assertTrue(tf.runTest("{" + add0 + " add([0,1,2]) == 0; }"));
+		
+		assertTrue(tf.runTest("{" + add1 + " add(0) == 0; }"));
+		assertTrue(tf.runTest("{" + add1 + " add([0]) == 0; }"));
+		assertTrue(tf.runTest("{" + add1 + " add(0,1,2) == 0; }"));
+		assertTrue(tf.runTest("{" + add1 + " add([0,1,2]) == 0; }"));
+		
+		assertTrue(tf.runTest("{" + add2 + " add(1,2) == 3; }"));
+		assertTrue(tf.runTest("{" + add2 + " add(1,[2]) == 3; }"));
+		assertTrue(tf.runTest("{" + add2 + " add(1,2,3) == 3; }"));
+		assertTrue(tf.runTest("{" + add2 + " add(1,[2,3]) == 3; }"));
+	}
+	
 	public void testSideEffect() throws IOException {
 		String one = "void One() { called = called + 1; return; }";
 		
