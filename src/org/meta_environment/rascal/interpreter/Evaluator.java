@@ -41,6 +41,7 @@ import org.meta_environment.rascal.ast.Declaration;
 import org.meta_environment.rascal.ast.Declarator;
 import org.meta_environment.rascal.ast.Expression;
 import org.meta_environment.rascal.ast.Field;
+import org.meta_environment.rascal.ast.Formal;
 import org.meta_environment.rascal.ast.FunctionBody;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.FunctionModifier;
@@ -955,7 +956,9 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				throw new RascalTypeError("Java method body without a java function modifier in:\n" + func);
 			}
 			
-			throw new RascalTypeError("Function definition:" + func + "\n does not have a return statement.");
+//			throw new RascalTypeError("Function definition:" + func + "\n does not have a return statement.");
+			// assume void function
+			return result(tf.voidType(), null);
 		}
 		catch (ReturnException e) {
 			EvalResult result = e.getValue();
@@ -1808,12 +1811,22 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 	@Override
 	public EvalResult visitExpressionNonEmptyBlock(NonEmptyBlock x) {
-		// TODO: shouldn't this be a closure?
-		EvalResult r = result();
-		for(Statement stat : x.getStatements()){
-			r = stat.accept(this);
-		}
-		return r;
+		FunctionDeclaration function = convertBlockToFunction(x);
+		return new ClosureResult(this, function, env.top());
+	}
+
+	private FunctionDeclaration convertBlockToFunction(
+			NonEmptyBlock x) {
+		ITree tree = x.getTree();
+		org.meta_environment.rascal.ast.Type type = astFactory.makeTypeBasic(tree, astFactory.makeBasicTypeVoid(tree));
+		org.meta_environment.rascal.ast.Formals.Default formals = astFactory.makeFormalsDefault(tree, new LinkedList<Formal>());
+		org.meta_environment.rascal.ast.Parameters params = astFactory.makeParametersDefault(tree, formals);
+		java.util.List<Statement> stats = x.getStatements();
+		FunctionModifiers mods =astFactory.makeFunctionModifiersList(tree, new LinkedList<FunctionModifier>());
+		Signature s = astFactory.makeSignatureNoThrows(params.getTree(), type, mods, Names.toName(x.toString()), params);
+		Tags tags = astFactory.makeTagsDefault(tree, new LinkedList<org.meta_environment.rascal.ast.Tag>());
+		FunctionBody body = astFactory.makeFunctionBodyDefault(tree, stats);
+		return astFactory.makeFunctionDeclarationDefault(tree, s, tags, body);
 	}
 
 	@Override
