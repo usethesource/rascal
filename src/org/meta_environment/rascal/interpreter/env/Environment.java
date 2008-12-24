@@ -9,6 +9,8 @@ import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
+import org.meta_environment.rascal.ast.Name;
+import org.meta_environment.rascal.interpreter.Names;
 import org.meta_environment.rascal.interpreter.RascalTypeError;
 import org.meta_environment.rascal.interpreter.TypeEvaluator;
 
@@ -102,6 +104,9 @@ public class Environment {
 		variableEnvironment.put(name, value);
 	}
 	
+	public void storeVariable(Name name, EvalResult r) {
+		storeVariable(Names.name(name), r);
+	}
 	
 	public void storeFunction(String name, FunctionDeclaration function) {
 		Type formals = function.getSignature().getParameters().accept(TypeEvaluator.getInstance());
@@ -138,6 +143,8 @@ public class Environment {
 		}
 		return res.toString();
 	}
+
+	
 
 	
 }
