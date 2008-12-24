@@ -16,6 +16,7 @@ import org.meta_environment.rascal.ast.Command.Shell;
 import org.meta_environment.rascal.ast.ShellCommand.Edit;
 import org.meta_environment.rascal.ast.ShellCommand.History;
 import org.meta_environment.rascal.ast.ShellCommand.Quit;
+import org.meta_environment.rascal.interpreter.env.EvalResult;
 
 /*package*/ class CommandEvaluator extends NullASTVisitor<IValue> {
 	private final ConsoleReader console;

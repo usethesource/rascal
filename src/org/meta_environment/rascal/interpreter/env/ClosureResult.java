@@ -1,4 +1,4 @@
-package org.meta_environment.rascal.interpreter;
+package org.meta_environment.rascal.interpreter.env;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
@@ -7,10 +7,13 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
-import org.meta_environment.rascal.interpreter.env.Environment;
-import org.meta_environment.rascal.interpreter.env.EnvironmentStack;
-import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
+import org.meta_environment.rascal.interpreter.Evaluator;
 
+/**
+ * TODO: find a more elegant solution for this, by implementing IValue we
+ * get away with storing a Closure as an IValue, but what happens when 
+ * somebody actually starts interpreting this IValue as an INode?
+ */
 public class ClosureResult extends EvalResult implements IValue {
     private final EnvironmentStack stack;
     private final Evaluator eval;

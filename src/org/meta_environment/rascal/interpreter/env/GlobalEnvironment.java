@@ -16,7 +16,6 @@ import org.meta_environment.rascal.ast.Rule;
 import org.meta_environment.rascal.ast.Visibility;
 import org.meta_environment.rascal.ast.Declaration.Function;
 import org.meta_environment.rascal.ast.Declaration.Variable;
-import org.meta_environment.rascal.interpreter.EvalResult;
 import org.meta_environment.rascal.interpreter.Names;
 import org.meta_environment.rascal.interpreter.RascalBug;
 import org.meta_environment.rascal.interpreter.RascalTypeError;
@@ -328,5 +327,9 @@ public class GlobalEnvironment {
 
 	public EnvironmentStack copyStack() {
 		return stack.copyStack();
+	}
+
+	public Environment top() {
+		return stack.top();
 	}
 }

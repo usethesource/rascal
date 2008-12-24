@@ -17,6 +17,8 @@ import org.meta_environment.rascal.ast.Expression.QualifiedName;
 import org.meta_environment.rascal.ast.Expression.Set;
 import org.meta_environment.rascal.ast.Expression.Tuple;
 import org.meta_environment.rascal.ast.Expression.TypedVariable;
+import org.meta_environment.rascal.interpreter.env.EvalResult;
+import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 
 /* package */ interface PatternValue {
 	public boolean match(IValue subj, Evaluator ev);
@@ -144,7 +146,8 @@ import org.meta_environment.rascal.ast.Expression.TypedVariable;
 	}
 	
 	public boolean match(IValue subj, Evaluator ev){
-        EvalResult patRes = ev.env.getVariable(name);
+        GlobalEnvironment env = GlobalEnvironment.getInstance();
+		EvalResult patRes = env.getVariable(name);
          
         if((patRes != null) && (patRes.value != null)){
         	 IValue patVal = patRes.value;
@@ -154,7 +157,7 @@ import org.meta_environment.rascal.ast.Expression.TypedVariable;
         		 return false;
         	 }
          } else {
-        	 ev.env.storeVariable(name,ev.result(subj.getType(), subj));
+        	 env.storeVariable(name,ev.result(subj.getType(), subj));
         	 return true;
          }
 	}
@@ -171,7 +174,7 @@ import org.meta_environment.rascal.ast.Expression.TypedVariable;
 
 	public boolean match(IValue subj, Evaluator ev) {
 		if (subj.getType().isSubtypeOf(declaredType)) {
-			ev.env.storeVariable(name, ev.result(declaredType, subj));
+			GlobalEnvironment.getInstance().storeVariable(name, ev.result(declaredType, subj));
 			return true;
 		}
 		return false;

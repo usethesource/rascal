@@ -18,6 +18,8 @@ import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.Expression.Literal;
 import org.meta_environment.rascal.ast.Literal.RegExp;
 import org.meta_environment.rascal.ast.RegExp.Lexical;
+import org.meta_environment.rascal.interpreter.env.EvalResult;
+import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
 
@@ -57,7 +59,7 @@ class RegExpPatternValue implements PatternValue {
 			if(matcher.matches()){
 				Map<org.meta_environment.rascal.ast.QualifiedName,String> map = getBindings();
 				for(org.meta_environment.rascal.ast.QualifiedName name : map.keySet()){
-					EvalResult res = ev.env.getVariable(name);
+					EvalResult res = GlobalEnvironment.getInstance().getVariable(name);
 					/* TODO: This cannot be satisfied in a generator since there are repated assignments
 					 * to the variables in the regexp.
 					if((res != null) && (res.value != null)){

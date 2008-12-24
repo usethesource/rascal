@@ -9,7 +9,6 @@ import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
-import org.meta_environment.rascal.interpreter.EvalResult;
 import org.meta_environment.rascal.interpreter.RascalTypeError;
 import org.meta_environment.rascal.interpreter.TypeEvaluator;
 

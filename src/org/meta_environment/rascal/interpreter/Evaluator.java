@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -40,8 +41,10 @@ import org.meta_environment.rascal.ast.Declaration;
 import org.meta_environment.rascal.ast.Declarator;
 import org.meta_environment.rascal.ast.Expression;
 import org.meta_environment.rascal.ast.Field;
+import org.meta_environment.rascal.ast.FunctionBody;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.FunctionModifier;
+import org.meta_environment.rascal.ast.FunctionModifiers;
 import org.meta_environment.rascal.ast.Generator;
 import org.meta_environment.rascal.ast.Import;
 import org.meta_environment.rascal.ast.Module;
@@ -51,6 +54,7 @@ import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.ast.Signature;
 import org.meta_environment.rascal.ast.Statement;
 import org.meta_environment.rascal.ast.Strategy;
+import org.meta_environment.rascal.ast.Tags;
 import org.meta_environment.rascal.ast.Toplevel;
 import org.meta_environment.rascal.ast.TypeArg;
 import org.meta_environment.rascal.ast.ValueProducer;
@@ -151,7 +155,9 @@ import org.meta_environment.rascal.ast.Toplevel.DefaultVisibility;
 import org.meta_environment.rascal.ast.Toplevel.GivenVisibility;
 import org.meta_environment.rascal.ast.Visit.DefaultStrategy;
 import org.meta_environment.rascal.ast.Visit.GivenStrategy;
+import org.meta_environment.rascal.interpreter.env.ClosureResult;
 import org.meta_environment.rascal.interpreter.env.EnvironmentHolder;
+import org.meta_environment.rascal.interpreter.env.EvalResult;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
@@ -164,7 +170,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	final TypeEvaluator te = TypeEvaluator.getInstance();
 	private final RegExpPatternEvaluator re = new RegExpPatternEvaluator();
 	private final TreePatternEvaluator pe;
-	GlobalEnvironment env = GlobalEnvironment.getInstance();
+	private GlobalEnvironment env = GlobalEnvironment.getInstance();
+	private ASTFactory astFactory = new ASTFactory();
 	private boolean callTracing = true;
 	private int callNesting = 0;
 	
@@ -814,7 +821,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		return trace;
 	}
 	
-	protected EvalResult call(FunctionDeclaration func, IValue[] actuals, Type actualTypes) {
+	public EvalResult call(FunctionDeclaration func, IValue[] actuals, Type actualTypes) {
 		if (func.getSignature().getParameters().isVarArgs()) {
 			Type formals = func.getSignature().accept(te);
 			Type newActualTypes = computeVarArgsActualTypes(actualTypes, formals);
@@ -2377,8 +2384,19 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 	@Override
 	public EvalResult visitExpressionClosure(Closure x) {
-		// TODO
-		throw new RascalBug("Closures NYI " + x);
+		FunctionDeclaration f = convertClosureToFunctionDeclaration(x);
+		return new ClosureResult(this, f, env.top());
+	}
+
+	private FunctionDeclaration convertClosureToFunctionDeclaration(Closure x) {
+		org.meta_environment.rascal.ast.Type type = x.getType();
+		org.meta_environment.rascal.ast.Parameters params = x.getParameters();
+		java.util.List<Statement> stats = x.getStatements();
+		FunctionModifiers mods =astFactory.makeFunctionModifiersList(x.getTree(), new LinkedList<FunctionModifier>());
+		Signature s = astFactory.makeSignatureNoThrows(params.getTree(), type, mods, Names.toName("***closure***"), params);
+		Tags tags = astFactory.makeTagsDefault(x.getTree(), new LinkedList<org.meta_environment.rascal.ast.Tag>());
+		FunctionBody body = astFactory.makeFunctionBodyDefault(x.getTree(), stats);
+		return astFactory.makeFunctionDeclarationDefault(x.getTree(), s, tags, body);
 	}
 	
 	@Override

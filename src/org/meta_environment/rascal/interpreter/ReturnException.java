@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.interpreter;
 
+import org.meta_environment.rascal.interpreter.env.EvalResult;
+
 /**
  * 
  * Warning: this is not a thread safe implementation. The idea however is

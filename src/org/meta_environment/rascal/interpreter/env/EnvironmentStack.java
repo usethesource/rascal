@@ -10,7 +10,6 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.QualifiedName;
-import org.meta_environment.rascal.interpreter.EvalResult;
 import org.meta_environment.rascal.interpreter.Names;
 import org.meta_environment.rascal.interpreter.RascalBug;
 
@@ -116,11 +115,14 @@ public class  EnvironmentStack implements Iterable<Environment>{
 	public Environment getVariableDefiningEnvironment(String name) {
 		int i;
 		
+		// the first stack frame that contains a definition for this name
+		// is returned. This allows inner scopes to override outer scopes.
+		
 		for (i = stack.size() - 1; i >= 0; i--) {
 			Environment env = stack.get(i);
 			
+			// the outermost scope for plain variables is a module environment
             if (env.isModuleEnvironment() || env.getVariable(name) != null) {
-            	
             	return env;
             }
 		}
