@@ -133,7 +133,7 @@ public class  EnvironmentStack implements Iterable<Environment>{
 	public Map<Type, Type> getTypeBindings() {
 		Map<Type,Type> types = new HashMap<Type,Type>();
 		
-		for (int i = 0; i < stack.size(); i++) {
+		for (int i = stack.size() - 1; i >= 0; i--) {
 			Environment environment = stack.get(i);
 			types.putAll(environment.getTypeBindings());
 			
