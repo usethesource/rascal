@@ -243,6 +243,7 @@ public class GlobalEnvironment {
 	public void storeRule(Type forType, Rule rule) {
 		List<Rule> rules = ruleEnvironment.get(forType);
 		
+		System.err.println("storeRule: type=" + forType + ",rule=" + rule);
 		if (rules == null) {
 			rules = new LinkedList<Rule>();
 			ruleEnvironment.put(forType, rules);
@@ -253,6 +254,7 @@ public class GlobalEnvironment {
 	
 	public List<Rule> getRules(Type forType) {
 		List<Rule> rules = ruleEnvironment.get(forType);
+		System.err.println("getRules: type=" + forType + ",rules=" + rules);
 		return rules != null ? rules : new LinkedList<Rule>();
 	}
 

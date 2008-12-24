@@ -11,9 +11,9 @@ public class StandardLibraryBooleanTests extends TestCase {
 	public void testBooleanArb() throws IOException {
 
 		assertTrue(tf
-				.runTestInSameEvaluator("{bool B = Boolean::arbBool(); (B == true) || (B == false);};"));
+				.runTestInSameEvaluator("{bool B = Boolean::arbBool(); (B == true) || (B == false);}"));
 		assertTrue(tf
-				.runTestInSameEvaluator("{bool B = arbBool(); (B == true) || (B == false);};"));
+				.runTestInSameEvaluator("{bool B = arbBool(); (B == true) || (B == false);}"));
 	}
 
 	public void testBooleanToInt() throws IOException {

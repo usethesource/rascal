@@ -13,7 +13,7 @@ public class StandardLibraryIntegerTests extends TestCase {
 		assertTrue(tf
 				.runTestInSameEvaluator("{int N = Integer::arb(10); (N >= 0) && (N < 10);}"));
 		assertTrue(tf
-				.runTestInSameEvaluator("{int N = arb(10); (N >= 0) && (N < 10);};"));
+				.runTestInSameEvaluator("{int N = arb(10); (N >= 0) && (N < 10);}"));
 	}
 
 	public void testIntegerMax() throws IOException {

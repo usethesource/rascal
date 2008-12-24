@@ -11,9 +11,9 @@ public class StandardLibraryDoubleTests extends TestCase {
 	public void testDoubleArb() throws IOException {
 
 		assertTrue(tf
-				.runTestInSameEvaluator("{double D = Double::arbDouble(); (D >= 0.0) && (D <= 1.0);};"));
+				.runTestInSameEvaluator("{double D = Double::arbDouble(); (D >= 0.0) && (D <= 1.0);}"));
 		assertTrue(tf
-				.runTestInSameEvaluator("{double D = arbDouble(); (D >= 0.0) && (D <= 1.0);};"));
+				.runTestInSameEvaluator("{double D = arbDouble(); (D >= 0.0) && (D <= 1.0);}"));
 	}
 
 	public void testDoubleMax() throws IOException {
