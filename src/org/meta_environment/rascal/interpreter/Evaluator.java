@@ -940,6 +940,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		try {
 			env.pushFrame();
 			Type formals = func.getSignature().accept(te);
+			
 			bindTypeParameters(actualTypes, formals);
 			
 			for (int i = 0; i < formals.getArity(); i++) {

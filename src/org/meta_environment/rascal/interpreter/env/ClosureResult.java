@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.interpreter.env;
 
+import java.util.Map;
+
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -40,6 +42,7 @@ public class ClosureResult extends EvalResult implements IValue {
 	
 	public EvalResult call(IValue[] actuals, Type actualTypes) {
 		GlobalEnvironment global = GlobalEnvironment.getInstance();
+		Map<Type,Type> bindings = global.getTypeBindings();
 		
 		int count = 0;
 		try {
@@ -47,6 +50,8 @@ public class ClosureResult extends EvalResult implements IValue {
 				global.pushFrame(e);
 				count++;
 			}
+			
+		    global.storeTypeBindings(bindings);
 			
 			return eval.call(func, actuals, actualTypes);
 		}
