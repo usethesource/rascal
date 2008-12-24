@@ -29,6 +29,13 @@ public class CallTests extends TestCase{
 		assertTrue(tf.runTest("{" + add + " " + sub + " " + doSomething + " " + "doSomething(#sub) == -1;}"));
 	}
 	
+	public void testClosures() throws IOException {
+		String doSomething = "int f(int (int i) g, int j) { return #g(j); }";
+		
+	    assertTrue(tf.runTest("{ " + doSomething + " f(int (int i) { return i + 1; }, 0) == 1; }"));
+	    assertTrue(tf.runTest("{ int x = 1; " + doSomething + " (f(int (int i) { x = x * 2; return i + x; }, 1) == 3) && (x == 2); }"));
+	}
+	
 	public void testVarArgs() throws IOException {
 		String add0 = "int add(int i...) { return 0; }";
 		String add1 = "int add(int i...) { return i[0]; }";
