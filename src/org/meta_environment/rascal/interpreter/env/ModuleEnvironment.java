@@ -10,7 +10,6 @@ import java.util.Set;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.Visibility;
-import org.meta_environment.rascal.interpreter.EvalResult;
 import org.meta_environment.rascal.interpreter.RascalTypeError;
 
 /**
@@ -70,11 +69,15 @@ public class ModuleEnvironment extends Environment {
 	public EvalResult getVariable(String name) {
 		EvalResult result = super.getVariable(name);
 		
+		// if the local module scope does not contain the variable, it
+		// may be visible in one of its imported modules.
+		
 		if (result == null) {
 			List<EvalResult> results = new LinkedList<EvalResult>();
 			for (String i : getImports()) {
 				// imports are not transitive!
-				result = GlobalEnvironment.getInstance().getModule(i).getLocalPublicVariable(name);
+				ModuleEnvironment module = GlobalEnvironment.getInstance().getModule(i);
+				result = module.getLocalPublicVariable(name);
 				
 				if (result != null) {
 					results.add(result);
@@ -93,6 +96,29 @@ public class ModuleEnvironment extends Environment {
 		}
 		
 		return result;
+	}
+	
+	@Override
+	// NEW
+	public void storeVariable(String name, EvalResult value) {
+		EvalResult result = super.getVariable(name);
+		
+		if (result != null) {
+			super.storeVariable(name, value);
+		}
+		else {
+			for (String i : getImports()) {
+				ModuleEnvironment module = GlobalEnvironment.getInstance().getModule(i);
+				result = module.getLocalPublicVariable(name);
+
+				if (result != null) {
+					module.storeVariable(name, value);
+					return;
+				}
+			}
+			
+			super.storeVariable(name, value);
+		}
 	}
 	
 	@Override
@@ -265,6 +291,11 @@ public class ModuleEnvironment extends Environment {
 	
 	public Map<String, Type> getAnnotations(Type onType) {
 		return annotations.get(onType);
+	}
+	
+	@Override
+	public String toString() {
+		return "Environment [ " + getName() + ":" + importedModules + "]"; 
 	}
 
 }

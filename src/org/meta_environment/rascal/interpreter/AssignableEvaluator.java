@@ -18,6 +18,7 @@ import org.meta_environment.rascal.ast.Assignable.IfDefined;
 import org.meta_environment.rascal.ast.Assignable.Subscript;
 import org.meta_environment.rascal.ast.Assignable.Tuple;
 import org.meta_environment.rascal.ast.Assignable.Variable;
+import org.meta_environment.rascal.interpreter.env.EvalResult;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 
 /**

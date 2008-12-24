@@ -1,11 +1,12 @@
-package org.meta_environment.rascal.interpreter;
+package org.meta_environment.rascal.interpreter.env;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.meta_environment.rascal.interpreter.RascalTypeError;
 
 public class EvalResult {
-	protected Type type;
-	protected IValue value;
+	public Type type;
+	public IValue value;
 
 	protected EvalResult() { }
 	
