@@ -104,8 +104,8 @@ public void testListinsertAt() throws IOException {
 		assertTrue(tf.runTestInSameEvaluator("{sort([1]) == [1];};"));
 		assertTrue(tf.runTestInSameEvaluator("{List::sort([2, 1]) == [1,2];};"));
 		assertTrue(tf.runTestInSameEvaluator("{sort([2, 1]) == [1,2];};"));
-		assertTrue(tf.runTestInSameEvaluator("{List::sort([2,-1,4,-2,3]) == [-1,-2,2,3, 4];};"));
-		assertTrue(tf.runTestInSameEvaluator("{sort([2,-1,4,-2,3]) == [-1,-2,2,3, 4];};"));
+		assertTrue(tf.runTestInSameEvaluator("{List::sort([2,-1,4,-2,3]) == [-2,-1,2,3, 4];};"));
+		assertTrue(tf.runTestInSameEvaluator("{sort([2,-1,4,-2,3]) == [-2,-1,2,3, 4];};"));
 	}
 	
 	public void testListSum() throws IOException {	
