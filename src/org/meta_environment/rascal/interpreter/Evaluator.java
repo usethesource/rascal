@@ -2388,6 +2388,14 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		return new ClosureResult(this, f, env.top());
 	}
 
+	/**
+	 * To be compatible with the call functions, we convert a closure to a plain
+	 * old function declaration here.
+	 * 
+	 * TODO: make the call functions work on parameter lists and bodies instead,
+	 * since the name of the function is not used after the function declaration
+	 * has been looked up. That should remove the need for this clumsiness.
+	 */
 	private FunctionDeclaration convertClosureToFunctionDeclaration(Closure x) {
 		org.meta_environment.rascal.ast.Type type = x.getType();
 		org.meta_environment.rascal.ast.Parameters params = x.getParameters();
