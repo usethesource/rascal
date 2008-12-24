@@ -693,9 +693,11 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		 FunctionDeclaration func = env.getFunction(name, actualTypes, envHolder);
 
 		 if (func != null) {
+			 Type formals = func.getSignature().getParameters().accept(te);
+			 
 			 try {
 				 env.pushFrame(envHolder.getEnvironment());
-				 EvalResult res = call(func, actuals, actualTypes);
+				 EvalResult res = call(func, formals, actuals, actualTypes);
 
 				 return res;
 			 }
@@ -821,13 +823,12 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		return trace;
 	}
 	
-	public EvalResult call(FunctionDeclaration func, IValue[] actuals, Type actualTypes) {
+	public EvalResult call(FunctionDeclaration func, Type formalTypes, IValue[] actuals, Type actualTypes) {
 		if (func.getSignature().getParameters().isVarArgs()) {
-			Type formals = func.getSignature().accept(te);
-			Type newActualTypes = computeVarArgsActualTypes(actualTypes, formals);
+			Type newActualTypes = computeVarArgsActualTypes(actualTypes, formalTypes);
 			
 			if (actualTypes != newActualTypes) {
-				actuals = computeVarArgsActuals(actuals, formals);
+				actuals = computeVarArgsActuals(actuals, formalTypes);
 			}
 			
 			actualTypes = newActualTypes;
@@ -838,10 +839,10 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			System.err.println(showCall(func, actuals, ">").toString());
 			callNesting++;
 			if (isJavaFunction(func)) { 
-				res = callJavaFunction(func, actuals, actualTypes);
+				res = callJavaFunction(func, formalTypes, actuals, actualTypes);
 			}
 			else {
-				res = callRascalFunction(func, actuals, actualTypes);
+				res = callRascalFunction(func, formalTypes, actuals, actualTypes);
 			}
 
 			callNesting--;
@@ -851,10 +852,10 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			return res;
 		} else {
 			if (isJavaFunction(func)) { 
-				return callJavaFunction(func, actuals, actualTypes);
+				return callJavaFunction(func, formalTypes, actuals, actualTypes);
 			}
 			else {
-				return callRascalFunction(func, actuals, actualTypes);
+				return callRascalFunction(func, formalTypes, actuals, actualTypes);
 			}
 		}
 
@@ -919,9 +920,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	}
 
 	private EvalResult callJavaFunction(FunctionDeclaration func,
-			IValue[] actuals, Type actualTypes) {
+			Type formals, IValue[] actuals, Type actualTypes) {
 		Type type = func.getSignature().getType().accept(te);
-	    Type formals = func.getSignature().getParameters().accept(te);
 		
 		try {
 			env.pushFrame();
@@ -936,10 +936,9 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	}
 
 	private EvalResult callRascalFunction(FunctionDeclaration func,
-			IValue[] actuals, Type actualTypes) {
+			Type formals, IValue[] actuals, Type actualTypes) {
 		try {
 			env.pushFrame();
-			Type formals = func.getSignature().accept(te);
 			
 			bindTypeParameters(actualTypes, formals);
 			

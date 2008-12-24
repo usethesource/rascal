@@ -10,6 +10,7 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.interpreter.Evaluator;
+import org.meta_environment.rascal.interpreter.TypeEvaluator;
 
 /**
  * TODO: find a more elegant solution for this, by implementing IValue we
@@ -42,7 +43,7 @@ public class ClosureResult extends EvalResult implements IValue {
 	
 	public EvalResult call(IValue[] actuals, Type actualTypes) {
 		GlobalEnvironment global = GlobalEnvironment.getInstance();
-		Map<Type,Type> bindings = global.getTypeBindings();
+		
 		
 		int count = 0;
 		try {
@@ -51,18 +52,16 @@ public class ClosureResult extends EvalResult implements IValue {
 				count++;
 			}
 			
-			// here we promote type bindings from the calling context
-			// to the context of the closure
-			global.pushFrame();
-		    global.storeTypeBindings(bindings);
+			Map<Type,Type> bindings = global.getTypeBindings();
+			Type formalsType = func.getSignature().getParameters().accept(TypeEvaluator.getInstance());
+			formalsType = formalsType.instantiate(bindings);
 			
-			return eval.call(func, actuals, actualTypes);
+			return eval.call(func, formalsType, actuals, actualTypes);
 		}
 		finally {
 			while (--count >= 0) {
 				global.popFrame();
 			}
-			global.popFrame();
 		}
 	}
 	
