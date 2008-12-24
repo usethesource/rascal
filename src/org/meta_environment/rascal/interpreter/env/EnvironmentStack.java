@@ -136,6 +136,10 @@ public class  EnvironmentStack implements Iterable<Environment>{
 		for (int i = 0; i < stack.size(); i++) {
 			Environment environment = stack.get(i);
 			types.putAll(environment.getTypeBindings());
+			
+			if (environment.isModuleEnvironment()) {
+				break;
+			}
 		}
 		
 		// result can not be given to a match
