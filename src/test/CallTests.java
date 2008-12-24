@@ -20,6 +20,26 @@ public class CallTests extends TestCase{
 		assertTrue(tf.runTest("{" + fac + " fac(4) == 24;}"));
 	}
 	
+	public void testNotTailRecFac() throws IOException {
+		String fac = "int fac(int n) { if (n == 0) { return 1; } int z = fac(n - 1); return z * n; }";
+		
+		assertTrue(tf.runTest("{" + fac + " fac(0) == 1;}"));
+		assertTrue(tf.runTest("{" + fac + " fac(1) == 1;}"));
+		assertTrue(tf.runTest("{" + fac + " fac(2) == 2;}"));
+		assertTrue(tf.runTest("{" + fac + " fac(3) == 6;}"));
+		assertTrue(tf.runTest("{" + fac + " fac(4) == 24;}"));
+	}
+	
+	public void testFormalsAreLocal() throws IOException {
+	String fac = "int fac(int n) { if (n == 0) { return 1; } int z = n; int n = fac(n - 1); return z * n; }";
+		
+		assertTrue(tf.runTest("{" + fac + " fac(0) == 1;}"));
+		assertTrue(tf.runTest("{" + fac + " fac(1) == 1;}"));
+		assertTrue(tf.runTest("{" + fac + " fac(2) == 2;}"));
+		assertTrue(tf.runTest("{" + fac + " fac(3) == 6;}"));
+		assertTrue(tf.runTest("{" + fac + " fac(4) == 24;}"));
+	}
+	
 	public void testHigherOrder() throws IOException  {
 		String add = "int add(int a, int b) { return a + b; }";
 		String sub = "int sub(int a, int b) { return a - b; }";
@@ -109,5 +129,6 @@ public class CallTests extends TestCase{
 		
 		assertTrue(tf.runTest("{" + putAt + " putAt(1, 0, [2,3]) == [1,3];}"));
 	}
+	
 }
 
