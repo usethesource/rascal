@@ -79,14 +79,11 @@ public set[set[&T]] power(set[&T] st)
 @doc{power -- return all subsets of a set}
 {
   set[set[&T]] result = {st};
-  print("(1) result = ", result);
   for(&T elm : st){
   	set[set[&T]] pw = power(st - elm);
   	result = result + pw;
-  	print("(1) result = ", result);
   	for(set[&T] sub : pw){
   		result = result + {sub + elm};
-  		  print("(1) result = ", result);
   	}
   }
   return result;
