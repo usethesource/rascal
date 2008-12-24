@@ -2392,11 +2392,12 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		org.meta_environment.rascal.ast.Type type = x.getType();
 		org.meta_environment.rascal.ast.Parameters params = x.getParameters();
 		java.util.List<Statement> stats = x.getStatements();
-		FunctionModifiers mods =astFactory.makeFunctionModifiersList(x.getTree(), new LinkedList<FunctionModifier>());
-		Signature s = astFactory.makeSignatureNoThrows(params.getTree(), type, mods, Names.toName("***closure***"), params);
-		Tags tags = astFactory.makeTagsDefault(x.getTree(), new LinkedList<org.meta_environment.rascal.ast.Tag>());
-		FunctionBody body = astFactory.makeFunctionBodyDefault(x.getTree(), stats);
-		return astFactory.makeFunctionDeclarationDefault(x.getTree(), s, tags, body);
+		ITree tree = x.getTree();
+		FunctionModifiers mods =astFactory.makeFunctionModifiersList(tree, new LinkedList<FunctionModifier>());
+		Signature s = astFactory.makeSignatureNoThrows(params.getTree(), type, mods, Names.toName(x.toString()), params);
+		Tags tags = astFactory.makeTagsDefault(tree, new LinkedList<org.meta_environment.rascal.ast.Tag>());
+		FunctionBody body = astFactory.makeFunctionBodyDefault(tree, stats);
+		return astFactory.makeFunctionDeclarationDefault(tree, s, tags, body);
 	}
 	
 	@Override
