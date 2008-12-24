@@ -51,6 +51,9 @@ public class ClosureResult extends EvalResult implements IValue {
 				count++;
 			}
 			
+			// here we promote type bindings from the calling context
+			// to the context of the closure
+			global.pushFrame();
 		    global.storeTypeBindings(bindings);
 			
 			return eval.call(func, actuals, actualTypes);
@@ -59,6 +62,7 @@ public class ClosureResult extends EvalResult implements IValue {
 			while (--count >= 0) {
 				global.popFrame();
 			}
+			global.popFrame();
 		}
 	}
 	
