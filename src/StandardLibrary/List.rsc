@@ -52,7 +52,7 @@ public list[&T] java insertAt(&T elm, int n, list[&T] lst)
  }
 
 
-list[&T] mapper(list[&T] lst, &T (&T) fn)
+public list[&T] mapper(list[&T] lst, &T (&T) fn)
 @doc{mapper -- apply a function to each element of a list}
 {
   return [#fn(elm) | &T elm : lst];
