@@ -78,12 +78,12 @@ public class PatternTests extends TestCase {
 	
 	public void testMatchVariable() throws IOException {
 		assertTrue(tf.runTest("(n ~= 1) && (n == 1);"));
-		assertTrue(tf.runTest("{int n = 1; (n ~= 1) && (n == 1);};"));
-		assertTrue(tf.runTest("{int n = 1; (n ~! 2) && (n == 1);};"));
-		assertTrue(tf.runTest("{int n = 1; (n ~! \"abc\") && (n == 1);};"));
+		assertTrue(tf.runTest("{int n = 1; (n ~= 1) && (n == 1);}"));
+		assertTrue(tf.runTest("{int n = 1; (n ~! 2) && (n == 1);}"));
+		assertTrue(tf.runTest("{int n = 1; (n ~! \"abc\") && (n == 1);}"));
 		
 		assertTrue(tf.runTest("(f(n) ~= f(1)) && (n == 1);"));
-		assertTrue(tf.runTest("{int n = 1; (f(n) ~= f(1)) && (n == 1);};"));
+		assertTrue(tf.runTest("{int n = 1; (f(n) ~= f(1)) && (n == 1);}"));
 	}
 	
 }

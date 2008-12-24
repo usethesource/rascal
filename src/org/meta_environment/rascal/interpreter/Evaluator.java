@@ -274,17 +274,19 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 	private EvalResult applyRules(Type t, IValue v){
 		
-		if(true) return new EvalResult(t, v);
+		//if(true) return new EvalResult(t, v);
+		//System.err.println("applyRules: " + t + ", " + v);
 		
 		java.util.List<org.meta_environment.rascal.ast.Rule> rules = env.getRules(t);
 		if(rules.isEmpty()){
+			//System.err.println("applyRules: no matching rules for " + t);
 			return new EvalResult(t, v);
 		}
 		TraverseResult tr = traverse(v, new CasesOrRules(rules), 
 				/* bottomup */ true,  
 				/* breaking */ false, 
 				/* fixedpoint */ true);
-		return new EvalResult(t, tr.value);
+		return new EvalResult(tr.value.getType(), tr.value);
 	}
 	
 	private EvalResult result() {
@@ -374,8 +376,23 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			
 			// TODO: support proper search path for modules
 			// TODO: support properly packaged/qualified module names
-			String searchPath[] = {"src/StandardLibrary/", "src/test/", "demo/Tree/",
-					"demo/Rscript/"};
+			String searchPath[] = {"src/StandardLibrary/", "src/test/", 
+					"demo/AsFix/",
+					"demo/Booleans/",
+					"demo/Graph/",
+					"demo/JavaFun/",
+					"demo/Lambda/",
+					"demo/Let/",
+					"demo/Lexicals/",
+					"demo/Misc/",
+					"demo/Pico/",
+					"demo/Rascal/",
+					"demo/Rscript/",
+					"demo/StdLib/",
+					"demo/Symtable/",
+					"demo/Tree/",
+					"demo/Vectors/"
+					};
 			
 			for(int i = 0; i < searchPath.length; i++){
 				file = new File(searchPath[i] + fileName);
@@ -711,7 +728,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		 }
 	}
 
-	private boolean isTreeConstructorName(QualifiedName name, Type signature) {
+	protected boolean isTreeConstructorName(QualifiedName name, Type signature) {
 		java.util.List<Name> names = name.getNames();
 		
 		if (names.size() > 1) {
@@ -2631,6 +2648,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 	private TraverseResult traverse(IValue subject, CasesOrRules casesOrRules,
 			boolean bottomup, boolean breaking, boolean fixedpoint) {
+		System.err.println("traverse: " + subject);
 		do {
 			TraverseResult tr = traverseOnce(subject, casesOrRules, bottomup, breaking);
 			if(fixedpoint){
@@ -2651,6 +2669,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		boolean matched = false;
 		boolean changed = false;
 		IValue result = subject;
+		
+		//System.err.println("traverseOnce: " + subject);
 		
 		if(!bottomup){
 			TraverseResult tr = traverseTop(subject, casesOrRules);
@@ -2747,9 +2767,12 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		Type oldType = oldSubject.getType();
 		Type newType = newSubject.getType();
 		
+		// TODO: PDB: Should NamedTreeType not be a subtype of TreeType?
+		/*
 		if(!newType.isSubtypeOf(oldType)){
 			throw new RascalTypeError("Replacing " + oldType + " by " + newType + " value");
 		}
+		*/
 		return new TraverseResult(true, newSubject, true);
 	}
 	
@@ -2786,6 +2809,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 	private TraverseResult applyOneRule(IValue subject,
 			org.meta_environment.rascal.ast.Rule rule) {
+		
+		//tSystem.err.println("applyOneRule: " + subject + ", " + rule);
 		if (rule.isArbitrary()) {
 			org.meta_environment.rascal.ast.Expression pat = rule.getPattern();
 			if (match(subject, pat)) {

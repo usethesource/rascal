@@ -10,10 +10,10 @@ public class StandardLibrarySetTests extends TestCase {
 	
 	public void testSetAverage() throws IOException {
 		
-		assertTrue(tf.runTestInSameEvaluator("{int N = Set::average({},0); N == 0;};"));
-		assertTrue(tf.runTestInSameEvaluator("{int N = average({},0); N == 0;};"));
-		assertTrue(tf.runTestInSameEvaluator("{int N = Set::average({1},0); N == 1;};"));
-		assertTrue(tf.runTestInSameEvaluator("{int N = Set::average({1, 3},0); N == 2;};"));
+		assertTrue(tf.runTestInSameEvaluator("{int N = Set::average({},0); N == 0;}"));
+		assertTrue(tf.runTestInSameEvaluator("{int N = average({},0); N == 0;}"));
+		assertTrue(tf.runTestInSameEvaluator("{int N = Set::average({1},0); N == 1;}"));
+		assertTrue(tf.runTestInSameEvaluator("{int N = Set::average({1, 3},0); N == 2;}"));
 	}
 	
 	public void testSetgetOneFrom() throws IOException {
@@ -29,40 +29,40 @@ public class StandardLibrarySetTests extends TestCase {
 		
 	public void testSetMapper() throws IOException {
 		
-		assertTrue(tf.runTestInSameEvaluator("{int inc(int n) {return n + 1;} mapper({1, 2, 3}, #inc) == {2, 3, 4};};"));
+		assertTrue(tf.runTestInSameEvaluator("{int inc(int n) {return n + 1;} mapper({1, 2, 3}, #inc) == {2, 3, 4};}"));
 	
 	}
 	
 	public void testSetMax() throws IOException {
 		
-		assertTrue(tf.runTestInSameEvaluator("{Set::max({1, 2, 3, 2, 1}) == 3;};"));
-		assertTrue(tf.runTestInSameEvaluator("{max({1, 2, 3, 2, 1}) == 3;};"));
+		assertTrue(tf.runTestInSameEvaluator("{Set::max({1, 2, 3, 2, 1}) == 3;}"));
+		assertTrue(tf.runTestInSameEvaluator("{max({1, 2, 3, 2, 1}) == 3;}"));
 	}
 	
 	public void testSetMin() throws IOException {	
 		
-		assertTrue(tf.runTestInSameEvaluator("{Set::min({1, 2, 3, 2, 1}) == 1;};"));
-		assertTrue(tf.runTestInSameEvaluator("{min({1, 2, 3, 2, 1}) == 1;};"));
+		assertTrue(tf.runTestInSameEvaluator("{Set::min({1, 2, 3, 2, 1}) == 1;}"));
+		assertTrue(tf.runTestInSameEvaluator("{min({1, 2, 3, 2, 1}) == 1;}"));
 	}	
 	
 	public void testSetMultiply() throws IOException {
 		
-		assertTrue(tf.runTestInSameEvaluator("{multiply({1, 2, 3, 4}, 1) == 24;};"));
-		assertTrue(tf.runTestInSameEvaluator("{Set::multiply({1, 2, 3, 4}, 1) == 24;};"));
+		assertTrue(tf.runTestInSameEvaluator("{multiply({1, 2, 3, 4}, 1) == 24;}"));
+		assertTrue(tf.runTestInSameEvaluator("{Set::multiply({1, 2, 3, 4}, 1) == 24;}"));
 	}
 	
 	public void testSetPower() throws IOException {		
 		
-		assertTrue(tf.runTestInSameEvaluator("{Set::power({}) == {{}};};"));
-		assertTrue(tf.runTestInSameEvaluator("{Set::power({1}) == {{}, {1}};};"));
-		assertTrue(tf.runTestInSameEvaluator("{Set::power({1, 2}) == {{}, {1}, {2}, {1,2}};};"));
-		assertTrue(tf.runTestInSameEvaluator("{Set::power({1, 2, 3}) == {{}, {1}, {2}, {3}, {1,2}, {1,3}, {2,3}, {1,2,3}};};"));
-		assertTrue(tf.runTestInSameEvaluator("{Set::power({1, 2, 3, 4}) == { {}, {1}, {2}, {3}, {4}, {1,2}, {1,3}, {1,4}, {2,3}, {2,4}, {3,4}, {1,2,3}, {1,2,4}, {1,3,4}, {2,3,4}, {1,2,3,4}};};"));
+		assertTrue(tf.runTestInSameEvaluator("{Set::power({}) == {{}};}"));
+		assertTrue(tf.runTestInSameEvaluator("{Set::power({1}) == {{}, {1}};}"));
+		assertTrue(tf.runTestInSameEvaluator("{Set::power({1, 2}) == {{}, {1}, {2}, {1,2}};}"));
+		assertTrue(tf.runTestInSameEvaluator("{Set::power({1, 2, 3}) == {{}, {1}, {2}, {3}, {1,2}, {1,3}, {2,3}, {1,2,3}};}"));
+		assertTrue(tf.runTestInSameEvaluator("{Set::power({1, 2, 3, 4}) == { {}, {1}, {2}, {3}, {4}, {1,2}, {1,3}, {1,4}, {2,3}, {2,4}, {3,4}, {1,2,3}, {1,2,4}, {1,3,4}, {2,3,4}, {1,2,3,4}};}"));
 	}
 	
 	public void testSetReducer() throws IOException {
 		String add = "int add(int x, int y){return x + y;}";
-		assertTrue(tf.runTestInSameEvaluator("{" + add + "reducer({1, 2, 3, 4}, #add, 0) == 10;};"));
+		assertTrue(tf.runTestInSameEvaluator("{" + add + "reducer({1, 2, 3, 4}, #add, 0) == 10;}"));
 	}
 	
 	public void testSetSize() throws IOException {	
@@ -75,16 +75,16 @@ public class StandardLibrarySetTests extends TestCase {
 	
 	public void testSetSum() throws IOException {
 		
-		assertTrue(tf.runTestInSameEvaluator("{sum({1,2,3},0) == 6;};"));
-		assertTrue(tf.runTestInSameEvaluator("{Set::sum({1,2,3}, 0) == 6;};"));
+		assertTrue(tf.runTestInSameEvaluator("{sum({1,2,3},0) == 6;}"));
+		assertTrue(tf.runTestInSameEvaluator("{Set::sum({1,2,3}, 0) == 6;}"));
 		
-		assertTrue(tf.runTestInSameEvaluator("{Set::sum({}, 0) == 0;};"));
-		assertTrue(tf.runTestInSameEvaluator("{Set::sum({}, 0) == 0;};"));
-		assertTrue(tf.runTestInSameEvaluator("{Set::sum({1}, 0) == 1;};"));
-		assertTrue(tf.runTestInSameEvaluator("{Set::sum({1, 2}, 0) == 3;};"));
-		assertTrue(tf.runTestInSameEvaluator("{Set::sum({1, 2, 3}, 0) == 6;};"));
-		assertTrue(tf.runTestInSameEvaluator("{Set::sum({1, -2, 3}, 0) == 2;};"));
-		assertTrue(tf.runTestInSameEvaluator("{Set::sum({1, 1, 1}, 0) == 1;};"));
+		assertTrue(tf.runTestInSameEvaluator("{Set::sum({}, 0) == 0;}"));
+		assertTrue(tf.runTestInSameEvaluator("{Set::sum({}, 0) == 0;}"));
+		assertTrue(tf.runTestInSameEvaluator("{Set::sum({1}, 0) == 1;}"));
+		assertTrue(tf.runTestInSameEvaluator("{Set::sum({1, 2}, 0) == 3;}"));
+		assertTrue(tf.runTestInSameEvaluator("{Set::sum({1, 2, 3}, 0) == 6;}"));
+		assertTrue(tf.runTestInSameEvaluator("{Set::sum({1, -2, 3}, 0) == 2;}"));
+		assertTrue(tf.runTestInSameEvaluator("{Set::sum({1, 1, 1}, 0) == 1;}"));
 	}
 	
 	public void testSetTakeOneFrom() throws IOException {	
@@ -95,18 +95,18 @@ public class StandardLibrarySetTests extends TestCase {
 	
 	public void testSetToList() throws IOException {	
 		
-		assertTrue(tf.runTestInSameEvaluator("{Set::toList({}) == [];};"));
-		assertTrue(tf.runTestInSameEvaluator("{toList({}) == [];};"));
-		assertTrue(tf.runTestInSameEvaluator("{Set::toList({1}) == [1];};"));
-		assertTrue(tf.runTestInSameEvaluator("{(Set::toList({1, 2, 1}) == [1, 2]) || (Set::toList({1, 2, 1}) == [2, 1]);};"));
+		assertTrue(tf.runTestInSameEvaluator("{Set::toList({}) == [];}"));
+		assertTrue(tf.runTestInSameEvaluator("{toList({}) == [];}"));
+		assertTrue(tf.runTestInSameEvaluator("{Set::toList({1}) == [1];}"));
+		assertTrue(tf.runTestInSameEvaluator("{(Set::toList({1, 2, 1}) == [1, 2]) || (Set::toList({1, 2, 1}) == [2, 1]);}"));
 	}
 	
 	public void testSetToMap() throws IOException {
-		assertTrue(tf.runTestInSameEvaluator("{Set::toMap({}) == ();};"));
+		assertTrue(tf.runTestInSameEvaluator("{Set::toMap({}) == ();}"));
 
-		assertTrue(tf.runTestInSameEvaluator("{toMap({}) == ();};"));
-		assertTrue(tf.runTestInSameEvaluator("{Set::toMap({<1, \"a\">}) == (1 : \"a\");};"));
-		assertTrue(tf.runTestInSameEvaluator("{Set::toMap({<1, \"a\">, <2, \"b\">}) == (1 : \"a\", 2 : \"b\");};"));
+		assertTrue(tf.runTestInSameEvaluator("{toMap({}) == ();}"));
+		assertTrue(tf.runTestInSameEvaluator("{Set::toMap({<1, \"a\">}) == (1 : \"a\");}"));
+		assertTrue(tf.runTestInSameEvaluator("{Set::toMap({<1, \"a\">, <2, \"b\">}) == (1 : \"a\", 2 : \"b\");}"));
 	}
 	
 	public void testSetToString() throws IOException {

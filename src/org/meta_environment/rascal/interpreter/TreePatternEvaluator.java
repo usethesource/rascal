@@ -7,6 +7,8 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.Expression.CallOrTree;
@@ -59,10 +61,12 @@ import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 		this.children = children;
 	}
 	
-	
-	
 	public boolean match(IValue subj, Evaluator ev){
-		if (!subj.getType().isTreeType()) {
+		//System.err.println("TreePatternTree.match(" + name + ") subj = " + subj + "subj Type = " + subj.getType());
+		
+		Type stype = subj.getType();
+		
+		if (!stype.isTreeType()){
 			return false;
 		}
 
@@ -201,7 +205,6 @@ public class TreePatternEvaluator extends NullASTVisitor<PatternValue> {
 		return new TreePatternLiteral(x.getLiteral().accept(ev).value);
 	}
 	
-	
 	@Override
 	public PatternValue visitExpressionCallOrTree(CallOrTree x) {
 		return new TreePatternTree(x.getQualifiedName(), visitElements(x.getArguments()));
@@ -239,7 +242,14 @@ public class TreePatternEvaluator extends NullASTVisitor<PatternValue> {
 	
 	@Override
 	public PatternValue visitExpressionQualifiedName(QualifiedName x) {
-		return new TreePatternQualifiedName(x.getQualifiedName());
+		org.meta_environment.rascal.ast.QualifiedName name = x.getQualifiedName();
+		Type signature = ev.tf.tupleType(new Type[0]);
+		 
+		 if (ev.isTreeConstructorName(name, signature)) {
+			 return new TreePatternTree(name, new java.util.ArrayList<PatternValue>());
+		 } else {
+			 return new TreePatternQualifiedName(x.getQualifiedName());
+		 }
 	}
 	
 	@Override
