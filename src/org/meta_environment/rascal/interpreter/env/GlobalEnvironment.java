@@ -191,7 +191,8 @@ public class GlobalEnvironment {
 		for(int i = 0; i < stack.size(); i++){
 			indent.append(" ");
 		}
-		System.err.println(indent + "getVariable(" + name + ") -> " + r);
+		
+//		System.err.println(indent + "getVariable(" + name + ") -> " + r);
 		return r;
 	}
 	
@@ -201,7 +202,7 @@ public class GlobalEnvironment {
 			indent.append(" ");
 		}
 
-		System.err.println(indent + "storeVariable(" + name + ", " + value + ")");
+//		System.err.println(indent + "storeVariable(" + name + ", " + value + ")");
 		stack.storeVariable(name, value);
 	}
 	

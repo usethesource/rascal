@@ -172,7 +172,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	private final TreePatternEvaluator pe;
 	private GlobalEnvironment env = GlobalEnvironment.getInstance();
 	private ASTFactory astFactory = new ASTFactory();
-	private boolean callTracing = true;
+	private boolean callTracing = false;
 	private int callNesting = 0;
 	
 	private final ASTFactory af;
@@ -612,12 +612,12 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		for (org.meta_environment.rascal.ast.Variable var : x.getVariables()) {
 			if (var.isUnInitialized()) {  // variable declaration without initialization
 				r = result(declaredType, null);
-				env.storeVariable(var.getName(), r);
+				env.top().storeVariable(var.getName(), r);
 			} else {                     // variable declaration with initialization
 				EvalResult v = var.getInitial().accept(this);
 				if(v.type.isSubtypeOf(declaredType)){
 					r = result(declaredType, v.value);
-					env.storeVariable(var.getName(), r);
+					env.top().storeVariable(var.getName(), r);
 				} else {
 					throw new RascalTypeError("variable " + var.getName() + ": declared type " + declaredType + " incompatible with initialization type " + v.type);
 				}
@@ -945,7 +945,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			for (int i = 0; i < formals.getArity(); i++) {
 				Type formal = formals.getFieldType(i).instantiate(env.getTypeBindings());
 				EvalResult result = result(formal, actuals[i]);
-				env.storeVariable(formals.getFieldName(i), result);
+				env.top().storeVariable(formals.getFieldName(i), result);
 			}
 			
 			if (func.getBody().isDefault()) {

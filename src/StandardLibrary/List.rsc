@@ -136,7 +136,9 @@ public int java size(list[&T] lst)
 public list[&T] sort(list[&T] lst)
 @doc{sort -- sort the elements of a list}
 {
+  echo ("sort", "sort");
   if(size(lst) <= 1){
+    echo("result", lst);
   	return lst;
   }
   
@@ -144,7 +146,12 @@ public list[&T] sort(list[&T] lst)
   list[&T] greater = [];
   &T pivot = lst[0];
   
+  echo("before", lst);
   <pivot, lst> = takeOneFrom(lst);
+  
+  echo("list", lst);
+  echo("pivot", pivot);
+  echo("++++","++++");
   
   for(&T elm : lst){
      if(elm <= pivot){
@@ -153,9 +160,21 @@ public list[&T] sort(list[&T] lst)
        greater = elm + greater;
      }
   }
- 
-  return sort(less) + pivot + sort(greater);
+  
+  echo("less", less);
+  echo("pivot", pivot);
+  echo("greater", greater);
+  echo("-----", "----");
+  less = sort(less);
+  greater = sort(greater);
+  echo("less", less);
+  echo("pivot", pivot);
+  echo("greater", greater);
+  echo("result", less + pivot + greater );
+  return less + pivot + greater;
 }
+
+private void java echo(str label, value x) { System.err.println(label.getValue() + ": " + x.toString()); } 
 
 // TODO: auxiliary function needed as long as #+ function names do not work.
 
