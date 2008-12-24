@@ -20,7 +20,7 @@ public abstract class AbstractAST implements IVisitable {
 	
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof AbstractAST) {
+		if (getClass() == obj.getClass()) {
 			return ((AbstractAST) obj).tree.equals(tree);
 		}
 		return false;
