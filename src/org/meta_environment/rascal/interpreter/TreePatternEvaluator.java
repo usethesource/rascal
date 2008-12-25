@@ -24,6 +24,7 @@ import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 
 /* package */ interface PatternValue {
 	public boolean match(IValue subj, Evaluator ev);
+	public Type getType(Evaluator ev);
 }
 
 /* package */ class BasicTreePattern {
@@ -44,11 +45,17 @@ import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 		this.literal = literal;
 	}
 	
+	@Override
 	public boolean match(IValue subj, Evaluator ev){
 			if (subj.getType().isSubtypeOf(literal.getType())) {
 				return ev.equals(ev.result(subj), ev.result(literal));
 			}
 			return false;
+	}
+
+	@Override
+	public Type getType(Evaluator ev) {
+			return literal.getType();
 	}
 }
 
@@ -78,6 +85,23 @@ import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 		}
 		return false;
 	}
+
+	@Override
+	public Type getType(Evaluator ev) {
+		 Type[] types = new Type[children.size()];
+
+		 for (int i = 0; i < children.size(); i++) {
+			 types[i] =  children.get(i).getType(ev);
+		 }
+		 
+		 Type signature = TypeFactory.getInstance().tupleType(types);
+		 
+		 if (ev.isTreeConstructorName(name, signature)) {
+			 return ev.env.getTreeNodeType(name.toString(), signature);
+		 } else {
+			 return TypeFactory.getInstance().treeType();
+		 }
+	}
 }
 
 /* package */ class TreePatternList extends BasicTreePattern implements PatternValue {
@@ -99,6 +123,11 @@ import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 			}
 		return false;
 	}
+
+	@Override
+	public Type getType(Evaluator ev) {
+		return TypeFactory.getInstance().listType(TypeFactory.getInstance().valueType());
+	}
 }
 
 /* package */ class TreePatternSet extends BasicTreePattern implements PatternValue {
@@ -110,6 +139,11 @@ import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 	
 	public boolean match(IValue subj, Evaluator ev){
 		throw new RascalBug("PatternSet.match not implemented");
+	}
+
+	@Override
+	public Type getType(Evaluator ev) {
+		return TypeFactory.getInstance().setType(TypeFactory.getInstance().valueType());
 	}
 }
 
@@ -128,6 +162,11 @@ import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 		}
 		return false;
 	}
+
+	@Override
+	public Type getType(Evaluator ev) {
+		return TypeFactory.getInstance().tupleType(TypeFactory.getInstance().valueType());
+	}
 }
 
 /* package */ class TreePatternMap extends BasicTreePattern implements PatternValue {
@@ -139,6 +178,12 @@ import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 	
 	public boolean match(IValue subj, Evaluator ev){
 		throw new RascalBug("PatternMap.match not implemented");
+	}
+
+	@Override
+	public Type getType(Evaluator ev) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }
 
@@ -165,6 +210,11 @@ import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
         	 return true;
          }
 	}
+
+	@Override
+	public Type getType(Evaluator ev) {
+		return TypeFactory.getInstance().valueType();
+	}
 }
 
 /* package */class TreePatternTypedVariable extends BasicTreePattern implements PatternValue {
@@ -177,11 +227,20 @@ import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 	}
 
 	public boolean match(IValue subj, Evaluator ev) {
+		System.err.println("TypedVariable.match: " + subj + " with " + declaredType + " " + name);
+		System.err.println("subj.getType=" + subj.getType());
+		System.err.println("subj.getType().isSubtypeOf(declaredType)=" + subj.getType().isSubtypeOf(declaredType));
+		
 		if (subj.getType().isSubtypeOf(declaredType)) {
 			GlobalEnvironment.getInstance().storeVariable(name, ev.result(declaredType, subj));
 			return true;
 		}
 		return false;
+	}
+
+	@Override
+	public Type getType(Evaluator ev) {
+		return declaredType;
 	}
 }
 

@@ -12,6 +12,7 @@ import java.util.regex.PatternSyntaxException;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.Command;
 import org.meta_environment.rascal.ast.NullASTVisitor;
@@ -84,6 +85,11 @@ class RegExpPatternValue implements PatternValue {
 			k++;
 		}
 		return map;
+	}
+
+	@Override
+	public Type getType(Evaluator ev) {
+		return ev.tf.stringType();
 	}
 }
 
