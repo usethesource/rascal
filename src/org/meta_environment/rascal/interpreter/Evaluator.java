@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -171,7 +170,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	final TypeEvaluator te = TypeEvaluator.getInstance();
 	private final RegExpPatternEvaluator re = new RegExpPatternEvaluator();
 	private final TreePatternEvaluator pe;
-	private GlobalEnvironment env = GlobalEnvironment.getInstance();
+	protected GlobalEnvironment env = GlobalEnvironment.getInstance();
 	private ASTFactory astFactory = new ASTFactory();
 	private boolean callTracing = false;
 	private int callNesting = 0;
@@ -380,6 +379,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 					"demo/AsFix/",
 					"demo/Booleans/",
 					"demo/Graph/",
+					"demo/Integers/",
 					"demo/JavaFun/",
 					"demo/Lambda/",
 					"demo/Let/",
@@ -589,18 +589,21 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 	@Override
 	public EvalResult visitRuleArbitrary(Arbitrary x) {
-		env.storeRule(x.getPattern().accept(this).type, x);
+		PatternValue pv = x.getPattern().accept(pe);
+		env.storeRule(pv.getType(this), x);
 		return result();
 	}
 	
 	@Override
 	public EvalResult visitRuleReplacing(Replacing x) {
-		env.storeRule(x.getPattern().accept(this).type, x);
+		PatternValue pv = x.getPattern().accept(pe);
+		env.storeRule(pv.getType(this), x);
 		return result();
 	}
 	
 	@Override
 	public EvalResult visitRuleGuarded(Guarded x) {
+		//TODO adapt to new scheme
 		EvalResult result = x.getRule().getPattern().getPattern().accept(this);
 		if (!result.type.isSubtypeOf(x.getType().accept(te))) {
 			throw new RascalTypeError("Declared type of rule does not match type of left-hand side: " + x);
@@ -1405,7 +1408,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	@Override
 	public EvalResult visitStatementVisit(
 			org.meta_environment.rascal.ast.Statement.Visit x) {
-		throw new RascalBug("NYI" + x); // TODO
+		return x.getExpression().accept(this);
 	}
 	
 	@Override
@@ -2012,12 +2015,17 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		
 		widenIntToDouble(left, right);
 
+		// Integer
 		if (left.type.isIntegerType() && right.type.isIntegerType()) {
 			return result(((IInteger) left.value).subtract((IInteger) right.value));
 		}
+		
+		// Double
 		if (left.type.isDoubleType() && right.type.isDoubleType()) {
 			return result(((IDouble) left.value).subtract((IDouble) right.value));
 		}
+		
+		// List
 		if (left.type.isListType() && right.type.isListType()) {
 			IListWriter w = left.type.writer(vf);
 			
@@ -2042,6 +2050,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			}
 			return result(left.type, w.done());
 		}
+		
+		// Set
 		if (left.type.isSetType()){
 				if(right.type.isSetType()) {
 					return result(resultType, ((ISet) left.value)
@@ -2052,10 +2062,14 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 							.subtract(vf.set(right.value)));
 				}
 		}
+		
+		// Map
 		if (left.type.isMapType() && right.type.isMapType()) {
 			return result(resultType, ((IMap) left.value)
 					.remove((IMap) right.value));
 		}
+		
+		//Relation
 		if (left.type.isRelationType() && right.type.isRelationType()) {
 			return result(resultType, ((ISet) left.value)
 					.subtract((ISet) right.value));
@@ -2068,6 +2082,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	@Override
 	public EvalResult visitExpressionNegative(Negative x) {
 		EvalResult arg = x.getArgument().accept(this);
+		
 		if (arg.type.isIntegerType()) {
 			return result(vf.integer(- intValue(arg)));
 		}
@@ -2086,19 +2101,17 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		
 		widenIntToDouble(left, right);
 
+		//Integer
 		if (left.type.isIntegerType() && right.type.isIntegerType()) {
 			return result(((IInteger) left.value).multiply((IInteger) right.value));
 		} 
+		
+		//Double 
 		else if (left.type.isDoubleType() && right.type.isDoubleType()) {
 			return result(((IDouble) left.value).multiply((IDouble) right.value));
 		}
-		else if (left.type.isDoubleType() && right.type.isIntegerType()) {
-			return result(((IDouble) left.value).multiply(((IInteger) right.value).toDouble()));
-		}
-		else if (left.type.isIntegerType() && right.type.isDoubleType()) {
-			return result(((IInteger) left.value).toDouble().multiply((IDouble) right.value));
-		} 
 		
+		// List
 		else if (left.type.isListType() && right.type.isListType()){
 			Type leftElementType = left.type.getElementType();
 			Type rightElementType = right.type.getElementType();
@@ -2112,6 +2125,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			}
 			return result(resultType, w.done());	
 		}
+		
+		// Relation
 		else if(left.type.isRelationType() && right.type.isRelationType()){
 			Type leftElementType = left.type.getElementType();
 			Type rightElementType = right.type.getElementType();
@@ -2159,6 +2174,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			
 			return result(resultType, w.done());
 		}
+		
+		//Set
 		else if (left.type.isSetType() && right.type.isSetType()){
 			Type leftElementType = left.type.getElementType();
 			Type rightElementType = right.type.getElementType();
@@ -2185,20 +2202,17 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		
 		widenIntToDouble(left, right);
 
-		//TODO: transform Java arithmeticv execptions into Rascal exceptions
+		//TODO: transform Java arithmetic exceptions into Rascal exceptions
 		
+		//Integer
 		if (left.type.isIntegerType() && right.type.isIntegerType()) {
 			return result(((IInteger) left.value).divide((IInteger) right.value));
 		} 
+		
+		// Double
 		else if (left.type.isDoubleType() && right.type.isDoubleType()) {
 			return result(((IDouble) left.value).divide((IDouble) right.value));
 		}
-		else if (left.type.isDoubleType() && right.type.isIntegerType()) {
-			return result(((IDouble) left.value).divide(((IInteger) right.value).toDouble()));
-		}
-		else if (left.type.isIntegerType() && right.type.isDoubleType()) {
-			return result(((IInteger) left.value).toDouble().divide((IDouble) right.value));
-		} 
 		else {
 			throw new RascalTypeError("Operands of / have illegal types: "
 					+ left.type + ", " + right.type);
@@ -2230,14 +2244,20 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		EvalResult right = x.getRhs().accept(this);
 		Type resultType = left.type.lub(right.type);
 
+		//Set
 		if (left.type.isSetType() && right.type.isSetType()) {
 				return result(resultType, ((ISet) left.value)
 				.intersect((ISet) right.value));
-		} else if (left.type.isMapType() && right.type.isMapType()) {
+		} 
+		
+		//Map
+		else if (left.type.isMapType() && right.type.isMapType()) {
 			return result(resultType, ((IMap) left.value)
 					.common((IMap) right.value));
-
-		} else if (left.type.isRelationType() && right.type.isRelationType()) {
+		} 
+		
+		//Relation
+		else if (left.type.isRelationType() && right.type.isRelationType()) {
 			return result(resultType, ((ISet) left.value)
 				.intersect((ISet) right.value));
 		} else {
@@ -2250,6 +2270,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	public EvalResult visitExpressionOr(Or x) {
 		EvalResult left = x.getLhs().accept(this);
 		EvalResult right = x.getRhs().accept(this);
+		
+		// Boolean
 		if (left.type.isBoolType() && right.type.isBoolType()) {
 			return result(((IBool) left.value).or((IBool) right.value));
 		} else {
@@ -2263,6 +2285,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	public EvalResult visitExpressionAnd(And x) {
 		EvalResult left = x.getLhs().accept(this);
 		EvalResult right = x.getRhs().accept(this);
+		
+		// Boolean
 		if (left.type.isBoolType() && right.type.isBoolType()) {
 			return result(((IBool) left.value).and((IBool) right.value));
 		} else {
@@ -2275,6 +2299,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	@Override
 	public EvalResult visitExpressionNegation(Negation x) {
 		EvalResult arg = x.getArgument().accept(this);
+		
+		//Boolean
 		if (arg.type.isBoolType()) {
 			return result(((IBool) arg.value).not());
 		} else {
@@ -2287,6 +2313,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	public EvalResult visitExpressionImplication(Implication x) {
 		EvalResult left = x.getLhs().accept(this);
 		EvalResult right = x.getRhs().accept(this);
+		
+		// Boolean
 		if(left.type.isBoolType() && right.type.isBoolType()){
 			if(left.value.equals(vf.bool(true)) &&
 			   right.value.equals(vf.bool(false))){
@@ -2304,6 +2332,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	public EvalResult visitExpressionEquivalence(Equivalence x) {
 		EvalResult left = x.getLhs().accept(this);
 		EvalResult right = x.getRhs().accept(this);
+		
+		// Boolean
 		if(left.type.isBoolType() && right.type.isBoolType()){
 			if(left.value.equals(right.value)) {
 				return result(vf.bool(true));
@@ -2319,27 +2349,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	boolean equals(EvalResult left, EvalResult right){
 		
 		widenIntToDouble(left, right);
-	/*
-		if (left.type.isListType() && right.type.isListType() && 
-		          ((IList) left.value).isEmpty() && ((IList) right.value).isEmpty()){
-		       	  return true;
-		} else if (left.type.isMapType() && right.type.isMapType() && 
-		          ((IMap) left.value).isEmpty() && ((IMap) right.value).isEmpty()){
-		        	  return true;
-		} else if (left.type.isSetType() && right.type.isSetType() && 
-	          ((ISet) left.value).isEmpty() && ((ISet) right.value).isEmpty()){
-	        	  return true;
-		} else if (left.type.isSetType() && right.type.isRelationType() && 
-		          ((ISet) left.value).isEmpty() && ((IRelation) right.value).isEmpty()){
-		        	  return true;
-		} else if (left.type.isRelationType() && right.type.isSetType() && 
-		          ((IRelation) left.value).isEmpty() && ((ISet) right.value).isEmpty()){
-		        	  return true;
-		} else if (left.type.isRelationType() && right.type.isRelationType() && 
-	          ((IRelation) left.value).isEmpty() && ((IRelation) right.value).isEmpty()){
-	        	  return true;
-		} else 
-		*/
+		
 		if (left.type.comparable(right.type)) {
 			return compare(left, right) == 0;
 		} else {
@@ -2541,6 +2551,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 	@Override
 	public EvalResult visitExpressionTypedVariable(TypedVariable x) {
+		//TODO : does not work when evaluating a rule.
 		throw new RascalTypeError("Use of typed variable outside matching context");
 	}
 	
@@ -2670,7 +2681,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		boolean changed = false;
 		IValue result = subject;
 		
-		//System.err.println("traverseOnce: " + subject);
+		System.err.println("traverseOnce: " + subject + ", type=" + subject.getType());
 		
 		if(!bottomup){
 			TraverseResult tr = traverseTop(subject, casesOrRules);
@@ -2684,14 +2695,25 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		
 		if(subjectType.isTreeType()){
 			ITree tree = (ITree)subject;
-			IValue args[] = new IValue[tree.arity()];
-			for(int i = 0; i < tree.arity(); i++){
-				TraverseResult tr = traverseOnce(tree.get(i), casesOrRules, bottomup, breaking);
-				matched |= tr.matched;
-				changed |= tr.changed;
-				args[i] = tr.value;
+			if(tree.arity() == 0){
+				result = subject;
+			} else {
+				IValue args[] = new IValue[tree.arity()];
+				
+				for(int i = 0; i < tree.arity(); i++){
+					TraverseResult tr = traverseOnce(tree.get(i), casesOrRules, bottomup, breaking);
+					matched |= tr.matched;
+					changed |= tr.changed;
+					args[i] = tr.value;
+				}
+				System.err.println("subjectType=" + subjectType);
+				if(subjectType.isNamedTreeType() || subjectType.isTreeNodeType()){
+					result = vf.tree(subject.getType(), args);
+					
+				} else {
+					result = vf.tree(tree.getName(), args);
+				}
 			}
-			result = vf.tree(tree.getName(), args);
 		} else
 		if(subjectType.isListType()){
 			IList list = (IList) subject;
@@ -2787,6 +2809,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 					} else {
 						TraverseResult tr = applyOneRule(subject, cs.getRule());
 						if(tr.matched){
+							System.err.println(" *** matches ***");
 							return tr;
 						}
 					}
@@ -2795,6 +2818,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				for(org.meta_environment.rascal.ast.Rule rule : casesOrRules.getRules()){
 					TraverseResult tr = applyOneRule(subject, rule);
 					if(tr.matched){
+						System.err.println(" *** matches ***");
 						return tr;
 					}
 				}
@@ -2810,7 +2834,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	private TraverseResult applyOneRule(IValue subject,
 			org.meta_environment.rascal.ast.Rule rule) {
 		
-		//tSystem.err.println("applyOneRule: " + subject + ", " + rule);
+		System.err.println("applyOneRule: " + subject + ", type=" + subject.getType() + ", rule=" + rule);
 		if (rule.isArbitrary()) {
 			org.meta_environment.rascal.ast.Expression pat = rule.getPattern();
 			if (match(subject, pat)) {
@@ -2907,6 +2931,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		Type leftType = left.value.getType();
 		Type rightType = right.value.getType();
 		
+		widenIntToDouble(left, right);
+		
 		if (leftType.isBoolType() && rightType.isBoolType()) {
 			boolean lb = ((IBool) left.value).getValue();
 			boolean rb = ((IBool) right.value).getValue();
@@ -2953,10 +2979,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			return compareSourceLocation((ISourceLocation) left.value, (ISourceLocation) right.value);
 		}
 			
-		// NamedType
-		// NamedTreeType
-		// NamedTreeType
-		// TreeNodeType
 		// VoidType
 		// ValueType
 		
@@ -3127,6 +3149,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		EvalResult left = expression.accept(this);
 		EvalResult right = expression2.accept(this);
 		
+		//List
 		if(right.type.isListType() &&
 		    left.type.isSubtypeOf(right.type.getElementType())){
 			IList lst = (IList) right.value;
@@ -3136,12 +3159,16 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 					return true;
 			}
 			return false;
+			
+	    //Set
 		} else if(right.type.isSetType() && 
 				   left.type.isSubtypeOf(right.type.getElementType())){
 			return ((ISet) right.value).contains(left.value);
-			
+		//Map
 		} else if(right.type.isMapType() && left.type.isSubtypeOf(right.type.getValueType())){
 			return ((IMap) right.value).containsValue(left.value);
+			
+		//Relation
 		} else if(right.type.isRelationType() && left.type.isSubtypeOf(right.type.getElementType())){
 			return ((ISet) right.value).contains(left.value);
 		} else {
@@ -3165,6 +3192,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		EvalResult left = x.getLhs().accept(this);
 		EvalResult right = x.getRhs().accept(this);
 	
+		//Relation
 		if(left.type.isRelationType() && 
 			right.type.isRelationType()){
 			Type leftrelType = left.type; 
@@ -3186,6 +3214,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 
 	private EvalResult closure(EvalResult arg, boolean reflexive) {
 
+		//Relation
 		if (arg.type.isRelationType() && arg.type.getArity() < 3) {
 			Type relType = arg.type;
 			Type fieldType1 = relType.getFieldType(0);

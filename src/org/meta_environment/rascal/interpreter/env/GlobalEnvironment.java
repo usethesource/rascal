@@ -254,7 +254,7 @@ public class GlobalEnvironment {
 	
 	public List<Rule> getRules(Type forType) {
 		List<Rule> rules = ruleEnvironment.get(forType);
-		System.err.println("getRules: type=" + forType + ",rules=" + rules);
+		//System.err.println("getRules: type=" + forType + ",rules=" + rules);
 		return rules != null ? rules : new LinkedList<Rule>();
 	}
 
