@@ -86,4 +86,115 @@ public class PatternTests extends TestCase {
 		assertTrue(tf.runTest("{int n = 1; (f(n) ~= f(1)) && (n == 1);}"));
 	}
 	
+	public void testMatchList1() throws IOException {
+		
+		assertTrue(tf.runTest("[1] ~= [1];"));
+		assertTrue(tf.runTest("[1,2] ~= [1,2];"));
+		
+		assertFalse(tf.runTest("[1] ~= [2];"));
+		assertFalse(tf.runTest("[1,2] ~= [1,2, 3];"));
+		
+		assertTrue(tf.runTest("([int n] ~= [1]) && (n == 1);"));
+		assertTrue(tf.runTest("([int n, 2, int m] ~= [1,2,3]) && (n == 1) && (m==3);"));
+		
+		assertTrue(tf.runTest("[1, [2, 3], 4] ~= [1, [2, 3], 4];"));
+		assertFalse(tf.runTest("[1, [2, 3], 4] ~= [1, [2, 3, 4], 4];"));
+		
+		assertTrue(tf.runTest("([list[int] L] ~= []) && (L == []);"));
+		assertTrue(tf.runTest("([list[int] L] ~= [1]) && (L == [1]);"));
+		assertTrue(tf.runTest("([list[int] L] ~= [1,2]) && (L == [1,2]);"));
+		
+		assertTrue(tf.runTest("([1, list[int] L] ~= [1]) && (L == []);"));
+		assertTrue(tf.runTest("([1, list[int] L] ~= [1, 2]) && (L == [2]);"));
+		assertTrue(tf.runTest("([1, list[int] L] ~= [1, 2, 3]) && (L == [2, 3]);"));
+		
+		
+		assertTrue(tf.runTest("([list[int] L, 10] ~= [10]) && (L == []);"));
+		assertTrue(tf.runTest("([list[int] L, 10] ~= [1,10]) && (L == [1]);"));
+		assertTrue(tf.runTest("([list[int] L, 10] ~= [1,2,10]) && (L == [1,2]);"));
+		
+		
+		assertTrue(tf.runTest("([1, list[int] L, 10] ~= [1,10]) && (L == []);"));
+		assertTrue(tf.runTest("([1, list[int] L, 10] ~= [1,2,10]) && (L == [2]);"));
+		assertTrue(tf.runTest("([1, list[int] L, 10, list[int] M, 20] ~= [1,10,20]) && (L == []) && (M == []);"));
+		assertTrue(tf.runTest("([1, list[int] L, 10, list[int] M, 20] ~= [1,2,10,20]) && (L == [2]) && (M == []);"));
+		assertTrue(tf.runTest("([1, list[int] L, 10, list[int] M, 20] ~= [1,2,10,3,20]) && (L == [2]) && (M==[3]);"));
+		assertTrue(tf.runTest("([1, list[int] L, 10, list[int] M, 20] ~= [1,2,3,10,4,5,20]) && (L == [2,3]) && (M==[4,5]);"));
+		
+		//assertTrue(tf.runTest("([1, list[int] L, [10, list[int] M, 100], list[int] N, 1000] ~= [1, [10,100],1000]);"));
+	}
+	
+	public void testMatchList2() throws IOException {
+		tf = new TestFramework("import ListMatchingTests;");
+		
+		assertTrue(tf.runTestInSameEvaluator("hasOrderedElement([]) == false;"));
+		assertTrue(tf.runTestInSameEvaluator("hasOrderedElement([1]) == false;"));
+		assertTrue(tf.runTestInSameEvaluator("hasOrderedElement([1,2]) == false;"));
+		assertTrue(tf.runTestInSameEvaluator("hasOrderedElement([1,2,1]) == true;"));
+		assertTrue(tf.runTestInSameEvaluator("hasOrderedElement([1,2,3,4,3,2,1]) == true;"));
+		
+		assertTrue(tf.runTestInSameEvaluator("hasDuplicateElement([]) == false;"));
+		assertTrue(tf.runTestInSameEvaluator("hasDuplicateElement([1]) == false;"));
+		assertTrue(tf.runTestInSameEvaluator("hasDuplicateElement([1,2]) == false;"));
+		assertTrue(tf.runTestInSameEvaluator("hasDuplicateElement([1,1]) == true;"));
+		assertTrue(tf.runTestInSameEvaluator("hasDuplicateElement([1,2,3]) == false;"));
+		assertTrue(tf.runTestInSameEvaluator("hasDuplicateElement([1,2,3,1]) == true;"));
+		assertTrue(tf.runTestInSameEvaluator("hasDuplicateElement([1,2,3,2]) == true;"));
+		assertTrue(tf.runTestInSameEvaluator("hasDuplicateElement([1,2,3,3]) == true;"));
+		
+		assertTrue(tf.runTestInSameEvaluator("isDuo1([]) == true;"));
+		assertTrue(tf.runTestInSameEvaluator("isDuo1([1]) == false;"));
+		assertTrue(tf.runTestInSameEvaluator("isDuo1([1,1]) == true;"));
+		assertTrue(tf.runTestInSameEvaluator("isDuo1([1,2]) == false;"));
+		assertTrue(tf.runTestInSameEvaluator("isDuo1([1,2, 1]) == false;"));
+		assertTrue(tf.runTestInSameEvaluator("isDuo1([1,2, 1,2]) == true;"));
+		assertTrue(tf.runTestInSameEvaluator("isDuo1([1,2,3, 1,2]) == false;"));
+		assertTrue(tf.runTestInSameEvaluator("isDuo1([1,2,3, 1,2, 3]) == true;"));
+		
+		assertTrue(tf.runTestInSameEvaluator("isDuo2([]) == true;"));
+		assertTrue(tf.runTestInSameEvaluator("isDuo2([1]) == false;"));
+		assertTrue(tf.runTestInSameEvaluator("isDuo2([1,1]) == true;"));
+		assertTrue(tf.runTestInSameEvaluator("isDuo2([1,2]) == false;"));
+		assertTrue(tf.runTestInSameEvaluator("isDuo2([1,2, 1]) == false;"));
+		assertTrue(tf.runTestInSameEvaluator("isDuo2([1,2, 1,2]) == true;"));
+		assertTrue(tf.runTestInSameEvaluator("isDuo2([1,2,3, 1,2]) == false;"));
+		assertTrue(tf.runTestInSameEvaluator("isDuo2([1,2,3, 1,2, 3]) == true;"));
+		
+		assertTrue(tf.runTestInSameEvaluator("isDuo3([]) == true;"));
+		assertTrue(tf.runTestInSameEvaluator("isDuo3([1]) == false;"));
+		assertTrue(tf.runTestInSameEvaluator("isDuo3([1,1]) == true;"));
+		assertTrue(tf.runTestInSameEvaluator("isDuo3([1,2]) == false;"));
+		assertTrue(tf.runTestInSameEvaluator("isDuo3([1,2, 1]) == false;"));
+		assertTrue(tf.runTestInSameEvaluator("isDuo3([1,2, 1,2]) == true;"));
+		assertTrue(tf.runTestInSameEvaluator("isDuo3([1,2,3, 1,2]) == false;"));
+		assertTrue(tf.runTestInSameEvaluator("isDuo3([1,2,3, 1,2, 3]) == true;"));
+		
+		assertTrue(tf.runTestInSameEvaluator("isTrio1([]) == true;"));
+		assertTrue(tf.runTestInSameEvaluator("isTrio1([1]) == false;"));
+		assertTrue(tf.runTestInSameEvaluator("isTrio1([1,1]) == false;"));
+		assertTrue(tf.runTestInSameEvaluator("isTrio1([1,1,1]) == true;"));
+		assertTrue(tf.runTestInSameEvaluator("isTrio1([2,1,1]) == false;"));
+		assertTrue(tf.runTestInSameEvaluator("isTrio1([1,2,1]) == false;"));
+		assertTrue(tf.runTestInSameEvaluator("isTrio1([1,1,2]) == false;"));
+		assertTrue(tf.runTestInSameEvaluator("isTrio1([1,2, 1,2, 1,2]) == true;"));
+		
+		assertTrue(tf.runTestInSameEvaluator("isTrio2([]) == true;"));
+		assertTrue(tf.runTestInSameEvaluator("isTrio2([1]) == false;"));
+		assertTrue(tf.runTestInSameEvaluator("isTrio2([1,1]) == false;"));
+		assertTrue(tf.runTestInSameEvaluator("isTrio2([1,1,1]) == true;"));
+		assertTrue(tf.runTestInSameEvaluator("isTrio2([2,1,1]) == false;"));
+		assertTrue(tf.runTestInSameEvaluator("isTrio2([1,2,1]) == false;"));
+		assertTrue(tf.runTestInSameEvaluator("isTrio2([1,1,2]) == false;"));
+		assertTrue(tf.runTestInSameEvaluator("isTrio2([1,2, 1,2, 1,2]) == true;"));
+		
+		assertTrue(tf.runTestInSameEvaluator("isTrio3([]) == true;"));
+		assertTrue(tf.runTestInSameEvaluator("isTrio3([1]) == false;"));
+		assertTrue(tf.runTestInSameEvaluator("isTrio3([1,1]) == false;"));
+		assertTrue(tf.runTestInSameEvaluator("isTrio3([1,1,1]) == true;"));
+		assertTrue(tf.runTestInSameEvaluator("isTrio3([2,1,1]) == false;"));
+		assertTrue(tf.runTestInSameEvaluator("isTrio3([1,2,1]) == false;"));
+		assertTrue(tf.runTestInSameEvaluator("isTrio3([1,1,2]) == false;"));
+		assertTrue(tf.runTestInSameEvaluator("isTrio3([1,2, 1,2, 1,2]) == true;"));
+	}
+	
 }

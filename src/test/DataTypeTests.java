@@ -131,6 +131,9 @@ public class DataTypeTests extends TestCase{
 		assertTrue(tf.runTest("-1.0 == -1.0;"));
 		assertTrue(tf.runTest("-1.0 != 1.0;"));
 		
+		assertTrue(tf.runTest("1.0 == 1;"));
+		assertTrue(tf.runTest("1 == 1.0;"));
+		
 		assertTrue(tf.runTest("{value x = 1.0; value y = 1; x == y; }"));
 		assertTrue(tf.runTest("{value x = 1.0; value y = 2; x != y; }"));
 		

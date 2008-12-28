@@ -589,14 +589,14 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 	@Override
 	public EvalResult visitRuleArbitrary(Arbitrary x) {
-		PatternValue pv = x.getPattern().accept(pe);
+		MatchPattern pv = x.getPattern().accept(pe);
 		env.storeRule(pv.getType(this), x);
 		return result();
 	}
 	
 	@Override
 	public EvalResult visitRuleReplacing(Replacing x) {
-		PatternValue pv = x.getPattern().accept(pe);
+		MatchPattern pv = x.getPattern().accept(pe);
 		env.storeRule(pv.getType(this), x);
 		return result();
 	}
@@ -1390,7 +1390,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 					break;
 				} else {
 					if(eType.isSubtypeOf(c.getType().accept(te))){
-						System.err.println("matching case: " + c);
+						//System.err.println("matching case: " + c);
 						Name name = c.getName();
 						env.storeVariable(name, result(eType, eValue)); //TODO clean up var
 						res =  c.getBody().accept(this);
@@ -1617,19 +1617,19 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
     public EvalResult visitExpressionMatch(Match x) {
     	org.meta_environment.rascal.ast.Expression pat = x.getPattern();
     	EvalResult subj = x.getExpression().accept(this);
-    	return result(vf.bool(match(subj.value, pat)));
+    	return result(vf.bool(matchOne(subj.value, pat))); 
     }
     
     @Override
     public EvalResult visitExpressionNoMatch(NoMatch x) {
     	org.meta_environment.rascal.ast.Expression pat = x.getPattern();
     	EvalResult subj = x.getExpression().accept(this);
-    	return result(vf.bool(!match(subj.value, pat)));
+    	return result(vf.bool(!matchOne(subj.value, pat)));
     }
 	
 	// ----- General method for matching --------------------------------------------------
     
-    private PatternValue evalPattern(org.meta_environment.rascal.ast.Expression pat){
+    private MatchPattern evalPattern(org.meta_environment.rascal.ast.Expression pat){
     	if(pe.isPattern(pat)){
     		return pat.accept(pe);
     	} else if(re.isRegExpPattern(pat)){ 
@@ -1639,8 +1639,10 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		}
     }
 	
-	private boolean match(IValue subj, org.meta_environment.rascal.ast.Expression pat){
-		return evalPattern(pat).match(subj, this);
+	private boolean matchOne(IValue subj, org.meta_environment.rascal.ast.Expression pat){
+		MatchPattern mp = evalPattern(pat);
+		mp.initMatch(subj, this);
+		return mp.match();
 	}
 
 	// Expressions -----------------------------------------------------------
@@ -2386,7 +2388,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		EvalResult length = x.getLength().accept(this);
 		EvalResult offset = x.getOffset().accept(this);
 		
-		System.err.println("AreaDefault: " + x );
+		//System.err.println("AreaDefault: " + x );
 		
 		int iOffset = intValue(offset);
 		int iLength = intValue(length);
@@ -2555,6 +2557,22 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		throw new RascalTypeError("Use of typed variable outside matching context");
 	}
 	
+	private boolean matchAndEval(IValue subject, org.meta_environment.rascal.ast.Expression pat, Statement stat){
+		MatchPattern mp = evalPattern(pat);
+		mp.initMatch(subject, this);
+		while(mp.hasNext()){  //TODO: restore env
+			if(mp.match()){
+				try {
+					stat.accept(this);
+					return true;
+				} catch (FailureException e){
+					//System.err.println("failure occurred");
+				}
+			}
+		}
+		return false;
+	}
+	
 	@Override
 	public EvalResult visitStatementSwitch(Switch x) {
 		EvalResult subject = x.getExpression().accept(this);
@@ -2564,18 +2582,13 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				return cs.getStatement().accept(this);
 			}
 			org.meta_environment.rascal.ast.Rule rl = cs.getRule();
-			if(rl.isArbitrary()){
-				org.meta_environment.rascal.ast.Expression pat = rl.getPattern();
-				if(match(subject.value, pat)){
-					return rl.getStatement().accept(this);
-				}
+			if(rl.isArbitrary() && matchAndEval(subject.value, rl.getPattern(), rl.getStatement())){
+				return result();
 			} else if(rl.isGuarded())	{
 				org.meta_environment.rascal.ast.Type tp = rl.getType();
 				Type t = tp.accept(te);
-				rl = rl.getRule();
-				org.meta_environment.rascal.ast.Expression pat = rl.getPattern();
-				if(subject.type.isSubtypeOf(t) && match(subject.value, pat)){
-					return rl.getStatement().accept(this);
+				if(subject.type.isSubtypeOf(t) && matchAndEval(subject.value, rl.getPattern(), rl.getStatement())){
+					return result();
 				}
 			} else if(rl.isReplacing()){
 				throw new RascalBug("Replacing Rule not yet implemented: " + rl);
@@ -2659,7 +2672,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 	private TraverseResult traverse(IValue subject, CasesOrRules casesOrRules,
 			boolean bottomup, boolean breaking, boolean fixedpoint) {
-		System.err.println("traverse: " + subject);
+		//System.err.println("traverse: " + subject);
 		do {
 			TraverseResult tr = traverseOnce(subject, casesOrRules, bottomup, breaking);
 			if(fixedpoint){
@@ -2681,7 +2694,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		boolean changed = false;
 		IValue result = subject;
 		
-		System.err.println("traverseOnce: " + subject + ", type=" + subject.getType());
+		//System.err.println("traverseOnce: " + subject + ", type=" + subject.getType());
 		
 		if(!bottomup){
 			TraverseResult tr = traverseTop(subject, casesOrRules);
@@ -2706,7 +2719,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 					changed |= tr.changed;
 					args[i] = tr.value;
 				}
-				System.err.println("subjectType=" + subjectType);
+				//System.err.println("subjectType=" + subjectType);
 				if(subjectType.isNamedTreeType() || subjectType.isTreeNodeType()){
 					result = vf.tree(subject.getType(), args);
 					
@@ -2809,7 +2822,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 					} else {
 						TraverseResult tr = applyOneRule(subject, cs.getRule());
 						if(tr.matched){
-							System.err.println(" *** matches ***");
+							//System.err.println(" *** matches ***");
 							return tr;
 						}
 					}
@@ -2818,7 +2831,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				for(org.meta_environment.rascal.ast.Rule rule : casesOrRules.getRules()){
 					TraverseResult tr = applyOneRule(subject, rule);
 					if(tr.matched){
-						System.err.println(" *** matches ***");
+						//System.err.println(" *** matches ***");
 						return tr;
 					}
 				}
@@ -2834,10 +2847,10 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	private TraverseResult applyOneRule(IValue subject,
 			org.meta_environment.rascal.ast.Rule rule) {
 		
-		System.err.println("applyOneRule: " + subject + ", type=" + subject.getType() + ", rule=" + rule);
+		//System.err.println("applyOneRule: " + subject + ", type=" + subject.getType() + ", rule=" + rule);
 		if (rule.isArbitrary()) {
 			org.meta_environment.rascal.ast.Expression pat = rule.getPattern();
-			if (match(subject, pat)) {
+			if (matchOne(subject, pat)) {
 				rule.getStatement().accept(this);
 				return new TraverseResult(true, subject);
 			}
@@ -2846,13 +2859,13 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			Type type = tp.accept(te);
 			rule = rule.getRule();
 			org.meta_environment.rascal.ast.Expression pat = rule.getPattern();
-			if (subject.getType().isSubtypeOf(type) && match(subject, pat)) {
+			if (subject.getType().isSubtypeOf(type) && matchOne(subject, pat)) {
 				rule.getStatement().accept(this);
 				return new TraverseResult(true, subject);
 			}
 		} else if (rule.isReplacing()) {
 			org.meta_environment.rascal.ast.Expression pat = rule.getPattern();
-			if (match(subject, pat)) {
+			if (matchOne(subject, pat)) {
 				return replacement(subject,
 						rule.getReplacement().accept(this).value);
 			}
@@ -2928,10 +2941,10 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		// compare must use run-time types because it is complete for all types
 		// even if statically two values have type 'value' but one is an int 1
 		// and the other is double 1.0 they must be equal.
+
+		widenIntToDouble(left, right);
 		Type leftType = left.value.getType();
 		Type rightType = right.value.getType();
-		
-		widenIntToDouble(left, right);
 		
 		if (leftType.isBoolType() && rightType.isBoolType()) {
 			boolean lb = ((IBool) left.value).getValue();
@@ -2943,12 +2956,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		}
 		if (leftType.isDoubleType() && rightType.isDoubleType()) {
 			return ((IDouble) left.value).compare((IDouble) right.value);
-		}
-		if (leftType.isIntegerType() && rightType.isDoubleType()) {
-			return ((IInteger) left.value).toDouble().compare((IDouble) right.value);
-		}
-		if (leftType.isDoubleType() && rightType.isIntegerType()) {
-			return ((IDouble) left.value).compare(((IInteger) right.value).toDouble());
 		}
 		if (leftType.isStringType() && rightType.isStringType()) {
 			return ((IString) left.value).compare((IString) right.value);
@@ -3256,7 +3263,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		private boolean isValueProducer;
 		private boolean firstTime = true;
 		private org.meta_environment.rascal.ast.Expression expr;
-		private PatternValue pat;
+		private MatchPattern pat;
 		private org.meta_environment.rascal.ast.Expression patexpr;
 		private Evaluator evaluator;
 		private Iterator<?> iter;
@@ -3310,7 +3317,9 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		public boolean getNext(){
 			if(isValueProducer){
 				while(iter.hasNext()){
-					if(pat.match((IValue)iter.next(), evaluator)){
+					IValue v = (IValue) iter.next();
+					pat.initMatch(v, evaluator);
+					if(pat.hasNext() && pat.match()){
 						return true;
 					}
 				}

@@ -24,11 +24,15 @@ import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
 
-class RegExpPatternValue implements PatternValue {
+class RegExpPatternValue implements MatchPattern {
 	String RegExpAsString;
 	Character modifier = null;
 	List<org.meta_environment.rascal.ast.QualifiedName> patternVars;
 	Matcher matcher = null;
+	IValue subject;
+	Evaluator ev;
+	private boolean initialized = false;
+	private boolean firstMatch;
 	
 	RegExpPatternValue(String s){
 		RegExpAsString = s;
@@ -42,18 +46,34 @@ class RegExpPatternValue implements PatternValue {
 		patternVars = names;
 	}
 	
-	public String toString(){
-		return "RegExpPatternValue(" + RegExpAsString + ", " + modifier + ", " + patternVars + ")";
+	@Override
+	public Type getType(Evaluator ev) {
+		return ev.tf.stringType();
+	}
+
+	@Override
+	public boolean hasNext() {
+		return firstMatch;
+	}
+
+	@Override
+	public void initMatch(IValue subject, Evaluator ev) {
+		this.subject = subject;
+		this.ev = ev;
+		initialized = firstMatch = true;
 	}
 	
-	public boolean match(IValue subj, Evaluator ev){
-		if(!subj.getType().isStringType()){
+	public boolean match(){
+		if(!firstMatch){
+			return false;
+		}
+		if(!subject.getType().isStringType()){
 			return false;
 			/* TODO: this constraint is too harsh in matching context.
 			 * throw new RascalTypeError("Subject in regular expression match should have type string and not " + subj.getType());
 			 */
 		}
-		String s = ((IString) subj).getValue();
+		String s = ((IString) subject).getValue();
 		try {
 			Pattern pat = Pattern.compile(RegExpAsString);
 			matcher = pat.matcher(s);
@@ -86,14 +106,13 @@ class RegExpPatternValue implements PatternValue {
 		}
 		return map;
 	}
-
-	@Override
-	public Type getType(Evaluator ev) {
-		return ev.tf.stringType();
+	
+	public String toString(){
+		return "RegExpPatternValue(" + RegExpAsString + ", " + modifier + ", " + patternVars + ")";
 	}
 }
 
-public class RegExpPatternEvaluator extends NullASTVisitor<PatternValue> {
+public class RegExpPatternEvaluator extends NullASTVisitor<MatchPattern> {
 	
 	public boolean isRegExpPattern(org.meta_environment.rascal.ast.Expression pat){
 		if(pat.isLiteral() && pat.getLiteral().isRegExp()){
@@ -105,24 +124,24 @@ public class RegExpPatternEvaluator extends NullASTVisitor<PatternValue> {
 		return false;
 	}	
 	
-	public PatternValue visitExpressionLiteral(Literal x) {
+	public MatchPattern visitExpressionLiteral(Literal x) {
 		//System.err.println("visitExpressionLiteral: " + x.getLiteral());
 		return x.getLiteral().accept(this);
 	}
 	
-	public PatternValue visitLiteralRegExp(RegExp x) {
+	public MatchPattern visitLiteralRegExp(RegExp x) {
 		//System.err.println("visitLiteralRegExp: " + x.getRegExpLiteral());
 		return x.getRegExpLiteral().accept(this);
 	}
 	
 	@Override
-	public PatternValue visitRegExpLexical(Lexical x) {
+	public MatchPattern visitRegExpLexical(Lexical x) {
 		//System.err.println("visitRegExpLexical: " + x.getString());
 		return new RegExpPatternValue(x.getString());
 	}
 	
 	@Override
-	public PatternValue visitRegExpLiteralLexical(
+	public MatchPattern visitRegExpLiteralLexical(
 			org.meta_environment.rascal.ast.RegExpLiteral.Lexical x) {
 		//System.err.println("visitRegExpLiteralLexical: " + x.getString());
 
