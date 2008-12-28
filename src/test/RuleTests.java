@@ -36,10 +36,10 @@ public class RuleTests extends TestCase {
 		
 		assertTrue(tf.runTestInSameEvaluator("add(s(s(z)), s(s(s(z)))) == s(s(s(s(s(z)))));"));
 		assertTrue(tf.runTestInSameEvaluator("mul(s(s(z)), s(s(s(z)))) == s(s(s(s(s(s(z))))));"));
-		assertTrue(tf.runTestInSameEvaluator("exp(s(s(z)), s(s(s(z)))) == s(s(s(s(s(s(s(s(z)))))));"));
+		assertTrue(tf.runTestInSameEvaluator("exp(s(s(z)), s(s(s(z)))) == s(s(s(s(s(s(s(s(z))))))));"));
 		
 		assertTrue(tf.runTestInSameEvaluator("eq(s(s(z)), s(s(s(z)))) == bfalse;"));
-		assertTrue(tf.runTestInSameEvaluator("eq(s(s(s(z))), s(s(s(z)))) == bfalse;"));
+		assertTrue(tf.runTestInSameEvaluator("eq(s(s(s(z))), s(s(s(z)))) == btrue;"));
 		
 	}
 }

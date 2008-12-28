@@ -1,14 +1,16 @@
 package org.meta_environment.rascal.interpreter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.Expression.CallOrTree;
@@ -22,23 +24,74 @@ import org.meta_environment.rascal.ast.Expression.TypedVariable;
 import org.meta_environment.rascal.interpreter.env.EvalResult;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 
-/* package */ interface PatternValue {
-	public boolean match(IValue subj, Evaluator ev);
+/* package */ 
+/**
+ * The MatchPattern  interface describes the standard way of applying a pattern to a subject:
+ * 1. Create the MatchPattern
+ * 2. Initialize the pattern with the subject to be matched.
+ * 3. While hasNext() returns true: call match() do perform the actual pattern match.
+ *
+ */
+interface MatchPattern {
+	/**
+	 * @param ev: the current evaluator
+	 * @return the Rascal type of this MatchPattern
+	 */
 	public Type getType(Evaluator ev);
+	
+	/**
+	 * @param subject to be matched
+	 * @param ev the current evaluator
+	 */
+	public void initMatch(IValue subject, Evaluator ev);
+	
+	/**
+	 * @return true if this MatchPattern has more matches available
+	 */
+	public boolean hasNext();
+	
+	/**
+	 * @return true if the MatchPattern matches the subject
+	 */
+	public boolean match();
 }
 
 /* package */ class BasicTreePattern {
 	
-	boolean matchChildren(Iterator<IValue> subjChildren, Iterator<PatternValue> patChildren, Evaluator ev){
+	protected IValue subject = null;
+	protected Evaluator ev = null;
+	protected boolean initialized = false;
+	protected boolean firstMatch = true;
+	
+	public void initMatch(IValue subject, Evaluator ev){
+		this.subject = subject;
+		this.ev = ev;
+		this.initialized = true;
+	}
+	
+	protected void checkInitialized(){
+		if(!initialized){
+			throw new RascalBug("hasNext or match called before initMatch");
+		}
+	}
+	
+	public boolean hasNext() {
+		checkInitialized();
+		return firstMatch;
+	}
+	
+	boolean matchChildren(Iterator<IValue> subjChildren, Iterator<MatchPattern> patChildren, Evaluator ev){
 		while (patChildren.hasNext()) {
-			if (!patChildren.next().match(subjChildren.next(), ev)){
+			if (!patChildren.next().match()){
 				return false;
 			}
 		}
 		return true;
 	}
+	
 }
-/* package */ class TreePatternLiteral extends BasicTreePattern implements PatternValue {
+/* package */ class TreePatternLiteral extends BasicTreePattern implements MatchPattern {
+
 	private IValue literal;
 	
 	TreePatternLiteral(IValue literal){
@@ -46,46 +99,53 @@ import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 	}
 	
 	@Override
-	public boolean match(IValue subj, Evaluator ev){
-			if (subj.getType().isSubtypeOf(literal.getType())) {
-				return ev.equals(ev.result(subj), ev.result(literal));
-			}
-			return false;
-	}
-
-	@Override
 	public Type getType(Evaluator ev) {
 			return literal.getType();
 	}
+	
+	@Override
+	public boolean match(){
+		checkInitialized();
+		firstMatch = false;
+		//System.err.println("TreePatternLiteral.match: " + subject);
+		if (subject.getType().isSubtypeOf(literal.getType())) {
+			return ev.equals(ev.result(subject), ev.result(literal));
+		}
+		return false;
+	}
+	
+	public String toString(){
+		return "pattern: " + literal;
+	}
 }
 
-/* package */ class TreePatternTree extends BasicTreePattern implements PatternValue {
+/* package */ class TreePatternTree extends BasicTreePattern implements MatchPattern {
 	private org.meta_environment.rascal.ast.QualifiedName name;
-	private java.util.List<PatternValue> children;
+	private java.util.List<MatchPattern> children;
 	
-	TreePatternTree(org.meta_environment.rascal.ast.QualifiedName qualifiedName, java.util.List<PatternValue> children){
+	TreePatternTree(org.meta_environment.rascal.ast.QualifiedName qualifiedName, java.util.List<MatchPattern> children){
 		this.name = qualifiedName;
 		this.children = children;
 	}
 	
-	public boolean match(IValue subj, Evaluator ev){
-		//System.err.println("TreePatternTree.match(" + name + ") subj = " + subj + "subj Type = " + subj.getType());
+	@Override
+	public void initMatch(IValue subject, Evaluator ev){
+		super.initMatch(subject, ev);
 		
-		Type stype = subj.getType();
-		
-		if (!stype.isTreeType()){
-			return false;
+		if(!subject.getType().isTreeType()){
+			return;
 		}
-
-		ITree subjTree = (ITree) subj;
-		
-		if (name.toString().equals(subjTree.getName().toString()) && 
-			children.size() == subjTree.arity()){
-			return matchChildren(subjTree.getChildren().iterator(), children.iterator(), ev);
+		ITree treeSubject = (ITree) subject;
+		if(treeSubject.arity() != children.size()){
+			return;
 		}
-		return false;
+		
+		for (int i = 0; i < children.size(); i++){
+			children.get(i).initMatch(treeSubject.get(i), ev);
+		}
 	}
-
+	
+	
 	@Override
 	public Type getType(Evaluator ev) {
 		 Type[] types = new Type[children.size()];
@@ -94,130 +154,480 @@ import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 			 types[i] =  children.get(i).getType(ev);
 		 }
 		 
-		 Type signature = TypeFactory.getInstance().tupleType(types);
+		 Type signature = ev.tf.tupleType(types);
 		 
 		 if (ev.isTreeConstructorName(name, signature)) {
 			 return ev.env.getTreeNodeType(name.toString(), signature);
 		 } else {
-			 return TypeFactory.getInstance().treeType();
+			 return ev.tf.treeType();
 		 }
 	}
-}
-
-/* package */ class TreePatternList extends BasicTreePattern implements PatternValue {
-	private java.util.List<PatternValue> children;
 	
-	TreePatternList(java.util.List<PatternValue> children){
-		this.children = children;
-	}
-	
-	public boolean match(IValue subj, Evaluator ev){
+	@Override
+	public boolean match(){
+		checkInitialized();
+		firstMatch = false;
+		//System.err.println("TreePatternTree.match(" + name + ") subj = " + subj + "subj Type = " + subj.getType());
+		Type stype = subject.getType();
 		
-		if (!subj.getType().isListType()) {
+		if (!stype.isTreeType()){
 			return false;
 		}
+
+		ITree subjTree = (ITree) subject;
 		
-		IList subjList = (IList) subj;
-		if ( children.size() == subjList.length()){
-				return matchChildren(subjList.iterator(), children.iterator(), ev);
-			}
-		return false;
-	}
-
-	@Override
-	public Type getType(Evaluator ev) {
-		return TypeFactory.getInstance().listType(TypeFactory.getInstance().valueType());
-	}
-}
-
-/* package */ class TreePatternSet extends BasicTreePattern implements PatternValue {
-	private java.util.List<PatternValue> children;
-	
-	TreePatternSet(java.util.List<PatternValue> children){
-		this.children = children;
-	}
-	
-	public boolean match(IValue subj, Evaluator ev){
-		throw new RascalBug("PatternSet.match not implemented");
-	}
-
-	@Override
-	public Type getType(Evaluator ev) {
-		return TypeFactory.getInstance().setType(TypeFactory.getInstance().valueType());
-	}
-}
-
-/* package */ class TreePatternTuple extends BasicTreePattern implements PatternValue {
-	private java.util.List<PatternValue> children;
-	
-	TreePatternTuple(java.util.List<PatternValue> children){
-		this.children = children;
-	}
-	
-	public boolean match(IValue subj, Evaluator ev) {
-
-		if (subj.getType().isTupleType()
-				&& ((ITuple) subj).arity() == children.size()) {
-			return matchChildren(((ITuple) subj).iterator(), children.iterator(), ev);
+		if (name.toString().equals(subjTree.getName().toString()) && 
+			children.size() == subjTree.arity()){
+			return matchChildren(subjTree.getChildren().iterator(), children.iterator(), ev);
 		}
 		return false;
 	}
+}
 
+/* package */ class TreePatternList extends BasicTreePattern implements MatchPattern {
+	private java.util.List<MatchPattern> children;	// The elements of this list pattern
+	private int patternSize;						// The number of elements in this list pattern
+	private IList listSubject;						// The subject as list
+	private int subjectSize;						// Length of the subject
+	private int minSubjectSize;					// Minimum subject length for this pattern to match
+	private boolean [] isListVar;					// Determine which elements are list variables
+	private boolean hasListVar;					// Any list variables in this pattern?
+	private HashSet<String> listVars;				// Names of list variables declared in this pattern
+	private int [] listVarStart;					// Cursor start position list variable; indexed by pattern position
+	private int [] listVarLength;					// Current length matched by list variable
+	private int [] listVarMinLength;				// Minimal length to be matched by list variable
+	private int [] listVarMaxLength;				// Maximal length that can be matched by list variable
+
+	private int subjectCursor;						// Cursor in the subject
+	private int patternCursor;						// Cursor in the pattern
+	
+	private boolean firstMatch;					// First match after initialization?
+	private boolean hasNext;						// Has this pattern alternatives for further matching?
+	private boolean forward;						// Moving to the right?
+	
+	TreePatternList(java.util.List<MatchPattern> children){
+		this.children = children;					
+		this.patternSize = children.size();			
+		isListVar = new boolean[patternSize];		
+		listVars = new HashSet<String>();			
+		listVarStart = new int[patternSize];		
+		listVarLength = new int[patternSize];		
+		listVarMinLength = new int[patternSize];	
+		listVarMaxLength = new int[patternSize];	
+	}
+	
+	@Override
+	public void initMatch(IValue subject, Evaluator ev){
+		super.initMatch(subject, ev);
+		
+		if (!subject.getType().isListType()) {
+			initialized = true;
+			hasNext = false;
+			return;
+		}
+		
+		listSubject = (IList) subject;
+		subjectCursor = 0;
+		patternCursor = 0;
+		subjectSize = ((IList) subject).length();
+		
+		int nListVar = 0;
+		hasListVar = false;
+		/*
+		 * Pass #1: determine the list variables
+		 */
+		for(int i = 0; i < patternSize; i++){
+			MatchPattern child = children.get(i);
+			isListVar[i] = false;
+			if(child instanceof TreePatternTypedVariable && child.getType(ev).isListType()){
+				/*
+				 * An explicitly declared list variable.
+				 */
+				listVars.add(((TreePatternTypedVariable)child).getName());
+				hasListVar = true;
+				isListVar[i] = true;
+				nListVar++;
+			} else if(child instanceof TreePatternQualifiedName){
+				
+				String name =((TreePatternQualifiedName)child).getName();
+				if(listVars.contains(name)){
+					/*
+					 * A variable that was declared earlier in the pattern
+					 */
+					isListVar[i] = true;
+			    	nListVar++;
+				} else  {
+					GlobalEnvironment env = GlobalEnvironment.getInstance();
+					EvalResult patRes = env.getVariable(name);
+				         
+				    if((patRes != null) && (patRes.value != null)){
+				        IValue patVal = patRes.value;
+				        if (patVal.getType().isListType()){
+				        	/*
+				        	 * A list variable declared in the current scope.
+				        	 */
+				        	isListVar[i] = true;
+				        	nListVar++;
+				        }
+				    }
+				}
+			}
+		}
+		/*
+		 * Pass #2: assign minimum and maximum length to each list variable
+		 */
+		for(int i = 0; i < patternSize; i++){
+			if(isListVar[i]){
+				listVarMaxLength[i] = Math.max(subjectSize - (patternSize - nListVar), 0);
+				listVarLength[i] = 0;
+				listVarMinLength[i] = (nListVar == 1) ? Math.max(subjectSize - patternSize - 1, 0) : 0;
+			}
+		}
+	
+		firstMatch = true;
+
+		minSubjectSize = patternSize - nListVar;
+		hasNext = subject.getType().isListType() && subjectSize >= minSubjectSize;
+	}
+	
 	@Override
 	public Type getType(Evaluator ev) {
-		return TypeFactory.getInstance().tupleType(TypeFactory.getInstance().valueType());
+		if(patternSize == 0){
+			return ev.tf.listType(ev.tf.voidType());
+		} else {
+			Type elemType = children.get(0).getType(ev);
+			return ev.tf.listType(elemType);
+		}
+	}
+	
+	@Override
+	public boolean hasNext(){
+		checkInitialized();
+		return hasNext && (firstMatch || hasListVar);
+	}
+	
+	/**
+	 * We are positioned in the pattern at a list variable and match it with
+	 * the current subject starting at the current position.
+	 * On success, the cursors are advanced.
+	 * On failure, switch to bakctracking (forawrd = false) mode.
+	 */
+	private void matchSublist(MatchPattern child){
+		
+		assert isListVar[patternCursor];
+		
+		int start = listVarStart[patternCursor];
+		int length = listVarLength[patternCursor];
+		
+		IListWriter w = subject.getType().writer(ev.vf);
+		for(int k = start; k < start + length; k++){
+			w.append(listSubject.get(k));
+		}
+		
+		IList sublist =w.done();
+		//System.err.println("matchSublist: init child #" + patternCursor + " (" + child + ") with " + sublist);
+		child.initMatch(sublist, ev);
+		
+		if(child.match()){
+			subjectCursor = start + length;
+			//System.err.println("child matches, subjectCursor=" + subjectCursor);
+			patternCursor++;
+		} else {
+			forward = false;
+			listVarLength[patternCursor] = 0;
+			patternCursor--;
+		}	
+	}
+	
+	/* 
+	 * Perform a list match. When forward=true we move to the right in the pattern
+	 * and try to match the corresponding elements of the subject. When the end of the pattern
+	 * and the subject are reaching, match returns true.
+	 * 
+	 * When a non-matching element is encountered, we switch to moving to the left (forward==false)
+	 * and try to find alternative options in list variables.
+	 * 
+	 * When the left-hand side of the pattern is reached while moving to the left, match return false,
+	 * and no more options are available: hasNext() will return false.
+	 * 
+	 * @see org.meta_environment.rascal.interpreter.MatchPattern#match()
+	 */
+	@Override
+	public boolean match(){
+		checkInitialized();
+		//System.err.println("TreePatternList.match: " + subject);
+		
+		forward = firstMatch;
+		firstMatch = false;
+		
+		do {
+			
+		/*
+		 * Determine the various termination conditions.
+		 */
+			
+			if(forward){
+				if(patternCursor == patternSize){
+					if(subjectCursor == subjectSize){
+						//System.err.println(">>> match returns true");
+						return true;
+					}
+					forward = false;
+					patternCursor--;
+				}
+			} else {
+				if(patternCursor == patternSize){
+					patternCursor--;
+				}
+			}
+			
+			if(patternCursor < 0 || subjectCursor < 0){
+				hasNext = false;
+				//System.err.println(">>> match returns false: patternCursor=" + patternCursor + ", forward=" + forward + ", subjectCursor=" + subjectCursor);
+				return false;
+			}
+			
+			/*
+			 * Perform actions for the current pattern element
+			 */
+			
+			MatchPattern child = children.get(patternCursor);
+			/*System.err.println(this);
+			System.err.println("loop: patternCursor=" + patternCursor + 
+					               ", forward=" + forward + 
+					               ", subjectCursor= " + subjectCursor + 
+					               ", child=" + child); */
+			
+			/*
+			 * Reference to a previously defined list variable
+			 */
+			if(isListVar[patternCursor] &&  child instanceof TreePatternQualifiedName){
+				if(forward){
+					listVarStart[patternCursor] = subjectCursor;
+					
+					String name = ((TreePatternQualifiedName)child).getName();
+					GlobalEnvironment env = GlobalEnvironment.getInstance();
+					EvalResult varRes = env.getVariable(name);
+					IValue varVal = varRes.value;
+				         
+				    assert varVal != null && varVal.getType().isListType();
+				    
+				    int varLength = ((IList)varVal).length();
+					listVarLength[patternCursor] = varLength;
+							           
+					if(subjectCursor + varLength > subjectSize){
+						forward = false;
+						patternCursor--;
+					} else {
+						matchSublist(child);
+					}
+				} else {
+					subjectCursor = listVarStart[patternCursor];
+					patternCursor--;
+				}
+			/*
+			 * A binding occurrence of a list variable
+			 */
+			} else if(isListVar[patternCursor]){	
+				
+				if(forward){
+					listVarStart[patternCursor] = subjectCursor;
+					if(patternCursor == patternSize -1){
+						listVarLength[patternCursor] =  subjectSize - subjectCursor;
+					} else {
+						listVarLength[patternCursor] = listVarMinLength[patternCursor];
+					}
+				} else {
+					listVarLength[patternCursor]++;
+					forward = true;
+				}
+				/*System.err.println("list var: start: " + listVarStart[patternCursor] +
+						           ", len=" + listVarLength[patternCursor] + 
+						           ", minlen=" + listVarMinLength[patternCursor] +
+						           ", maxlen=" + listVarMaxLength[patternCursor]);*/
+				if(listVarLength[patternCursor] > listVarMaxLength[patternCursor]  ||
+				   listVarStart[patternCursor] + listVarLength[patternCursor] > subjectSize){
+					
+					subjectCursor = listVarStart[patternCursor];
+					//System.err.println("Length failure, subjectCursor=" + subjectCursor);
+					
+					forward = false;
+					listVarLength[patternCursor] = 0;
+					patternCursor--;
+				} else {
+					matchSublist(child);
+				}
+			/*
+			 * Any other element of the pattern
+			 */
+			} else {
+				
+				if(forward && subjectCursor < subjectSize){
+					//System.err.println("TreePatternList.match: init child " + patternCursor + " with " + listSubject.get(subjectCursor));
+					child.initMatch(listSubject.get(subjectCursor), ev);
+					if(child.match()){
+						subjectCursor++;
+						patternCursor++;
+						//System.err.println("TreePatternList.match: child matches, subjectCursor=" + subjectCursor);
+					} else {
+						forward = false;
+						patternCursor--;
+					}
+				} else {
+					forward = false;
+					subjectCursor--;
+					patternCursor--;
+				}
+			}
+			
+		} while (true);
+	}
+	
+	public String toString(){
+		StringBuffer s = new StringBuffer();
+		s.append("[");
+		if(initialized){
+			String sep = "";
+			for(int i = 0; i < patternCursor; i++){
+				s.append(sep).append(children.get(i).toString());
+				sep = ", ";
+			}
+			if(patternCursor < patternSize){
+				s.append("...");
+			}
+			s.append("]").append("==").append(subject.toString());
+		} else {
+			s.append("**uninitialized**]");
+		}
+		return s.toString();
 	}
 }
 
-/* package */ class TreePatternMap extends BasicTreePattern implements PatternValue {
-	private java.util.List<PatternValue> children;
+/* package */ class TreePatternSet extends BasicTreePattern implements MatchPattern {
+	private java.util.List<MatchPattern> children;
 	
-	TreePatternMap(java.util.List<PatternValue> children){
+	TreePatternSet(java.util.List<MatchPattern> children){
 		this.children = children;
 	}
 	
-	public boolean match(IValue subj, Evaluator ev){
-		throw new RascalBug("PatternMap.match not implemented");
+	@Override
+	public Type getType(Evaluator ev) {
+		return ev.tf.setType(ev.tf.valueType());
 	}
+	
+	@Override
+	public boolean match(){
+		checkInitialized();
+		firstMatch = false;
+		throw new RascalBug("PatternSet.match not implemented");
+	}
+}
 
+/* package */ class TreePatternTuple extends BasicTreePattern implements MatchPattern {
+	private java.util.List<MatchPattern> children;
+	
+	TreePatternTuple(java.util.List<MatchPattern> children){
+		this.children = children;
+	}
+	
+	@Override
+	public void initMatch(IValue subject, Evaluator ev){
+		super.initMatch(subject, ev);
+		
+		if (!subject.getType().isTupleType()) {
+			return;
+		}
+		ITuple tupleSubject = (ITuple) subject;
+		if(tupleSubject.arity() != children.size()){
+			return;
+		}
+		for(int i = 0; i < children.size(); i++){
+			children.get(i).initMatch(tupleSubject.get(i), ev);
+		}
+	}
+	
+	@Override
+	public Type getType(Evaluator ev) {
+		return ev.tf.tupleType(ev.tf.valueType()); // TODO: return more precise type
+	}
+	
+	@Override
+	public boolean match() {
+		checkInitialized();
+		if (subject.getType().isTupleType()
+				&& ((ITuple) subject).arity() == children.size()) {
+			return matchChildren(((ITuple) subject).iterator(), children.iterator(), ev);
+		}
+		return false;
+	}
+}
+
+/* package */ class TreePatternMap extends BasicTreePattern implements MatchPattern {
+	private java.util.List<MatchPattern> children;
+	
+	TreePatternMap(java.util.List<MatchPattern> children){
+		this.children = children;
+	}
+	
 	@Override
 	public Type getType(Evaluator ev) {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	@Override
+	public boolean match(){
+		checkInitialized();
+		firstMatch = false;
+		throw new RascalBug("PatternMap.match not implemented");
+	}
 }
 
-/* package */ class TreePatternQualifiedName extends BasicTreePattern implements PatternValue {
+/* package */ class TreePatternQualifiedName extends BasicTreePattern implements MatchPattern {
 	private org.meta_environment.rascal.ast.QualifiedName name;
 	
 	TreePatternQualifiedName(org.meta_environment.rascal.ast.QualifiedName qualifiedName){
 		this.name = qualifiedName;
 	}
 	
-	public boolean match(IValue subj, Evaluator ev){
+	@Override
+	public Type getType(Evaluator ev) {
+		return ev.tf.valueType();
+	}
+	
+	public String getName(){
+		return name.toString();
+	}
+	
+	public boolean match(){
+		checkInitialized();
+		firstMatch = false;
+		//System.err.println("TreePatternQualifiedName.match: " + name);
         GlobalEnvironment env = GlobalEnvironment.getInstance();
 		EvalResult patRes = env.getVariable(name);
          
         if((patRes != null) && (patRes.value != null)){
         	 IValue patVal = patRes.value;
-        	 if (subj.getType().isSubtypeOf(patVal.getType())) {
-        		 return ev.equals(ev.result(subj), ev.result(patVal));
+        		//System.err.println("TreePatternQualifiedName.match: " + name + ", subject=" + subject + ", value=" + patVal);
+        	 if (subject.getType().isSubtypeOf(patVal.getType())) {
+        		 //System.err.println("returns " + ev.equals(ev.result(subject.getType(),subject), patRes));
+        		 return ev.equals(ev.result(subject.getType(),subject), patRes);
         	 } else {
+        		 //System.err.println("returns false");
         		 return false;
         	 }
          } else {
-        	 env.storeVariable(name,ev.result(subj.getType(), subj));
+        	 env.storeVariable(name,ev.result(subject.getType(), subject));
         	 return true;
          }
 	}
-
-	@Override
-	public Type getType(Evaluator ev) {
-		return TypeFactory.getInstance().valueType();
+	
+	public String toString(){
+		return name + "==" + subject;
 	}
 }
 
-/* package */class TreePatternTypedVariable extends BasicTreePattern implements PatternValue {
+/* package */class TreePatternTypedVariable extends BasicTreePattern implements MatchPattern {
 	private Name name;
 	org.eclipse.imp.pdb.facts.type.Type declaredType;
 
@@ -225,26 +635,35 @@ import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 		this.declaredType = type2;
 		this.name = name;
 	}
-
-	public boolean match(IValue subj, Evaluator ev) {
-		System.err.println("TypedVariable.match: " + subj + " with " + declaredType + " " + name);
-		System.err.println("subj.getType=" + subj.getType());
-		System.err.println("subj.getType().isSubtypeOf(declaredType)=" + subj.getType().isSubtypeOf(declaredType));
-		
-		if (subj.getType().isSubtypeOf(declaredType)) {
-			GlobalEnvironment.getInstance().storeVariable(name, ev.result(declaredType, subj));
-			return true;
-		}
-		return false;
-	}
-
+	
 	@Override
 	public Type getType(Evaluator ev) {
 		return declaredType;
 	}
+	
+	public String getName(){
+		return name.toString();
+	}
+
+	public boolean match() {
+		checkInitialized();
+		//System.err.println("TypedVariable.match: " + subject + " with " + declaredType + " " + name);
+		//System.err.println("subj.getType=" + subject.getType());
+		//System.err.println("subj.getType().isSubtypeOf(declaredType)=" + subject.getType().isSubtypeOf(declaredType));
+		
+		if (subject.getType().isSubtypeOf(declaredType)) {
+			GlobalEnvironment.getInstance().storeVariable(name, ev.result(declaredType, subject));
+			return true;
+		}
+		return false;
+	}
+	
+	public String toString(){
+		return declaredType + " " + name + "==" + subject;
+	}
 }
 
-public class TreePatternEvaluator extends NullASTVisitor<PatternValue> {
+public class TreePatternEvaluator extends NullASTVisitor<MatchPattern> {
 
 	private Evaluator ev;
 	
@@ -260,17 +679,17 @@ public class TreePatternEvaluator extends NullASTVisitor<PatternValue> {
 	}
 	
 	@Override
-	public PatternValue visitExpressionLiteral(Literal x) {
+	public MatchPattern visitExpressionLiteral(Literal x) {
 		return new TreePatternLiteral(x.getLiteral().accept(ev).value);
 	}
 	
 	@Override
-	public PatternValue visitExpressionCallOrTree(CallOrTree x) {
+	public MatchPattern visitExpressionCallOrTree(CallOrTree x) {
 		return new TreePatternTree(x.getQualifiedName(), visitElements(x.getArguments()));
 	}
 	
-	private java.util.List<PatternValue> visitElements(java.util.List<org.meta_environment.rascal.ast.Expression> elements){
-		ArrayList<PatternValue> args = new java.util.ArrayList<PatternValue>(elements.size());
+	private java.util.List<MatchPattern> visitElements(java.util.List<org.meta_environment.rascal.ast.Expression> elements){
+		ArrayList<MatchPattern> args = new java.util.ArrayList<MatchPattern>(elements.size());
 		
 		int i = 0;
 		for(org.meta_environment.rascal.ast.Expression e : elements){
@@ -280,39 +699,39 @@ public class TreePatternEvaluator extends NullASTVisitor<PatternValue> {
 	}
 	
 	@Override
-	public PatternValue visitExpressionList(List x) {
+	public MatchPattern visitExpressionList(List x) {
 		return new TreePatternList(visitElements(x.getElements()));
 	}
 	
 	@Override
-	public PatternValue visitExpressionSet(Set x) {
+	public MatchPattern visitExpressionSet(Set x) {
 		return new TreePatternSet(visitElements(x.getElements()));
 	}
 	
 	@Override
-	public PatternValue visitExpressionTuple(Tuple x) {
+	public MatchPattern visitExpressionTuple(Tuple x) {
 		return new TreePatternTuple(visitElements(x.getElements()));
 	}
 	
 	@Override
-	public PatternValue visitExpressionMap(Map x) {
+	public MatchPattern visitExpressionMap(Map x) {
 		throw new RascalBug("Map in pattern not yet implemented");
 	}
 	
 	@Override
-	public PatternValue visitExpressionQualifiedName(QualifiedName x) {
+	public MatchPattern visitExpressionQualifiedName(QualifiedName x) {
 		org.meta_environment.rascal.ast.QualifiedName name = x.getQualifiedName();
 		Type signature = ev.tf.tupleType(new Type[0]);
 		 
 		 if (ev.isTreeConstructorName(name, signature)) {
-			 return new TreePatternTree(name, new java.util.ArrayList<PatternValue>());
+			 return new TreePatternTree(name, new java.util.ArrayList<MatchPattern>());
 		 } else {
 			 return new TreePatternQualifiedName(x.getQualifiedName());
 		 }
 	}
 	
 	@Override
-	public PatternValue visitExpressionTypedVariable(TypedVariable x) {
+	public MatchPattern visitExpressionTypedVariable(TypedVariable x) {
 		return new TreePatternTypedVariable(x.getType().accept(ev.te), x.getName());
 	}
 }
