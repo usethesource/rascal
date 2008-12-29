@@ -30,6 +30,7 @@ import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.IWriter;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -200,12 +201,22 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	 * @return
 	 */
 	public IValue eval(Statement stat) {
-		EvalResult r = stat.accept(this);
-        if(r != null){
-        	return r.value;
-        } else {
-        	throw new RascalBug("Not yet implemented: " + stat.getTree());
-        }
+		try {
+			EvalResult r = stat.accept(this);
+	        if(r != null){
+	        	return r.value;
+	        } else {
+	        	throw new RascalBug("Not yet implemented: " + stat.getTree());
+	        }
+		} catch (ReturnException e){
+			throw new RascalRunTimeError("Unhandled return statement");
+		}
+		catch (FailureException e){
+			throw new RascalRunTimeError("Unhandled fail statement");
+		}
+		catch (InsertException e){
+			throw new RascalRunTimeError("Unhandled insert statement");
+		}
 	}
 	
 	/**
@@ -986,6 +997,9 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			
 			return result;
 		} 
+		catch (FailureException e){
+			throw new RascalRunTimeError("Fail statement occurred outside switch or visit statement");
+		}
 		finally {
 			env.popFrame();
 		}
@@ -1375,7 +1389,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	private EvalResult evalStatementTry(Statement body, java.util.List<Catch> handlers, Statement finallyBody){
 		EvalResult res = result();
 		
-		// TODO: proper environment handling
 		try {
 			res = body.accept(this);
 
@@ -1391,10 +1404,15 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				} else {
 					if(eType.isSubtypeOf(c.getType().accept(te))){
 						//System.err.println("matching case: " + c);
-						Name name = c.getName();
-						env.storeVariable(name, result(eType, eValue)); //TODO clean up var
-						res =  c.getBody().accept(this);
-						break;
+						try {
+							env.pushFrame();	// Create local scope for executing handler	
+							Name name = c.getName();
+							env.storeVariable(name, result(eType, eValue));
+							res =  c.getBody().accept(this);
+							break;
+						} finally {
+							env.popFrame();
+						}
 					}
 				}
 			}
@@ -2560,14 +2578,19 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	private boolean matchAndEval(IValue subject, org.meta_environment.rascal.ast.Expression pat, Statement stat){
 		MatchPattern mp = evalPattern(pat);
 		mp.initMatch(subject, this);
-		while(mp.hasNext()){  //TODO: restore env
-			if(mp.match()){
-				try {
-					stat.accept(this);
-					return true;
-				} catch (FailureException e){
-					//System.err.println("failure occurred");
+		while(mp.hasNext()){
+			try {
+				env.pushFrame(); 	// Create a separate scope for match and statement
+				if(mp.match()){
+					try {
+						stat.accept(this);
+						return true;
+					} catch (FailureException e){
+						//System.err.println("failure occurred");
+					}
 				}
+			} finally {
+				env.popFrame();
 			}
 		}
 		return false;
@@ -2848,31 +2871,36 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			org.meta_environment.rascal.ast.Rule rule) {
 		
 		//System.err.println("applyOneRule: " + subject + ", type=" + subject.getType() + ", rule=" + rule);
-		if (rule.isArbitrary()) {
-			org.meta_environment.rascal.ast.Expression pat = rule.getPattern();
-			if (matchOne(subject, pat)) {
-				rule.getStatement().accept(this);
-				return new TraverseResult(true, subject);
+		try {
+			env.pushFrame();		// Create a local scope for match and statement
+			if (rule.isArbitrary()) {
+				org.meta_environment.rascal.ast.Expression pat = rule.getPattern();
+				if (matchOne(subject, pat)) {
+					rule.getStatement().accept(this);
+					return new TraverseResult(true, subject);
+				}
+			} else if (rule.isGuarded()) {
+				org.meta_environment.rascal.ast.Type tp = rule.getType();
+				Type type = tp.accept(te);
+				rule = rule.getRule();
+				org.meta_environment.rascal.ast.Expression pat = rule.getPattern();
+				if (subject.getType().isSubtypeOf(type) && matchOne(subject, pat)) {
+					rule.getStatement().accept(this);
+					return new TraverseResult(true, subject);
+				}
+			} else if (rule.isReplacing()) {
+				org.meta_environment.rascal.ast.Expression pat = rule.getPattern();
+				if (matchOne(subject, pat)) {
+					return replacement(subject,
+							rule.getReplacement().accept(this).value);
+				}
+			} else {
+				throw new RascalBug("Impossible case in a rule");
 			}
-		} else if (rule.isGuarded()) {
-			org.meta_environment.rascal.ast.Type tp = rule.getType();
-			Type type = tp.accept(te);
-			rule = rule.getRule();
-			org.meta_environment.rascal.ast.Expression pat = rule.getPattern();
-			if (subject.getType().isSubtypeOf(type) && matchOne(subject, pat)) {
-				rule.getStatement().accept(this);
-				return new TraverseResult(true, subject);
-			}
-		} else if (rule.isReplacing()) {
-			org.meta_environment.rascal.ast.Expression pat = rule.getPattern();
-			if (matchOne(subject, pat)) {
-				return replacement(subject,
-						rule.getReplacement().accept(this).value);
-			}
-		} else {
-			throw new RascalBug("Impossible case in a rule");
+			return new TraverseResult(subject);
+		} finally {
+			env.popFrame();
 		}
-		return new TraverseResult(subject);
 	}
 	
 	@Override
@@ -3340,35 +3368,101 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			}
 		}
 	}
+	/*
+	 * CollectionWriter provides a uniform interface for writing elements
+	 * to a list/set/map during the evaluation of a list/set/map comprehension.
+	 */
 	
-	@Override
-	public EvalResult visitComprehensionList(
-			org.meta_environment.rascal.ast.Comprehension.List x) {
-		org.meta_environment.rascal.ast.Expression resultExpr = x.getResult();
-		java.util.List<Generator> generators = x.getGenerators();
+	public static enum collectionKind {LIST, SET, MAP};
+	
+	private class CollectionWriter {
+		private Type elementType1;
+		private Type elementType2;
+		private Type resultType;
+		private org.meta_environment.rascal.ast.Expression resultExpr1;
+		private org.meta_environment.rascal.ast.Expression resultExpr2;
+		
+		private collectionKind kind;
+		
+		private IWriter writer;
+		private Evaluator ev;
+		
+		CollectionWriter(collectionKind kind, 
+				org.meta_environment.rascal.ast.Expression resultExpr1,
+				org.meta_environment.rascal.ast.Expression resultExpr2, 
+				Evaluator ev){
+			this.kind = kind;
+			this.ev = ev;
+			this.resultExpr1 = resultExpr1;
+			this.resultExpr2 = resultExpr2;
+			this.writer = null;
+		}
+		
+		public void append(){
+			EvalResult r1 = resultExpr1.accept(ev);
+			EvalResult r2 = null;
+			
+			if(kind == collectionKind.MAP){
+				r2 = resultExpr2.accept(ev);
+			}
+			if(writer == null){
+				elementType1 = r1.type;
+				switch(kind){
+				case LIST:
+					resultType = tf.listType(elementType1); break;
+				case SET:
+					resultType = tf.setType(elementType1); break;
+				case MAP:
+					elementType2 = r2.type;
+					resultType = tf.mapType(elementType1, elementType2);
+				}
+				writer = resultType.writer(vf);
+			}
+			if(!r1.type.isSubtypeOf(elementType1)){
+				throw new RascalTypeError("Cannot add value of type " + r1.type + " to list/set/map comprehension with element/key type " + elementType1);
+			} else {		
+				elementType1 = elementType1.lub(r1.type);
+				switch(kind){
+				case LIST:
+					((IListWriter)writer).append(r1.value); break;
+				case SET:
+					writer.insert(r1.value); break;
+				case MAP:
+					if(!r2.type.isSubtypeOf(elementType2)){
+						throw new RascalTypeError("Cannot add value of type " + r2.type + " to map comprehension with value type " + elementType2);
+					} 
+					((IMapWriter)writer).put(r1.value, r2.value);
+				}	
+			}
+		}
+		
+		public EvalResult done(){
+			switch(kind){
+			case LIST:
+				return (writer== null) ? result(tf.listType(tf.voidType()), vf.list()) : 
+										   result(tf.listType(elementType1), writer.done());
+			case SET:
+				return (writer == null) ? 	result(tf.setType(tf.voidType()), vf.set()) : 
+                    						result(tf.setType(elementType1), writer.done());
+			case MAP:
+				return (writer == null) ? result(tf.mapType(tf.voidType(), tf.voidType()), vf.map(tf.voidType(),tf.voidType())) : 
+                    result(tf.mapType(elementType1, elementType2), writer.done());
+			}
+			return result();
+		}
+		
+	}
+	
+	private EvalResult evalComprehension(java.util.List<Generator> generators, CollectionWriter w){
 		int size = generators.size();
 		GeneratorEvaluator[] gens = new GeneratorEvaluator[size];
-		Type elementType = tf.voidType();
-		Type resultType = tf.setType(elementType);
-		IListWriter res = null;
 		
 		int i = 0;
 		gens[0] = new GeneratorEvaluator(generators.get(0), this);
 		while(i >= 0 && i < size){		
 			if(gens[i].getNext()){
 				if(i == size - 1){
-					EvalResult r = resultExpr.accept(this);
-					if(res == null){
-						elementType = r.type.lub(elementType);
-						resultType = tf.listType(elementType);
-						res = resultType.writer(vf);
-					}
-					if(r.type.isSubtypeOf(elementType)){
-						elementType = elementType.lub(r.type);	
-						res.append(r.value);
-					}  else {
-							throw new RascalTypeError("Cannot add value of type " + r.type + " to list comprehension with element type " + elementType);
-						}
+					w.append();
 				} else {
 					i++;
 					gens[i] = new GeneratorEvaluator(generators.get(i), this);
@@ -3377,97 +3471,32 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				i--;
 			}
 		}
-		return (res == null) ? result(tf.listType(tf.voidType()), vf.list()) : 
-			                     result(tf.listType(elementType), res.done());
+		return w.done();
+	}
+	
+	@Override
+	public EvalResult visitComprehensionList(org.meta_environment.rascal.ast.Comprehension.List x) {
+		return evalComprehension(
+				x.getGenerators(),
+				new CollectionWriter(collectionKind.LIST, x.getResult(), null, this));
 	}
 	
 	@Override
 	public EvalResult visitComprehensionSet(
 			org.meta_environment.rascal.ast.Comprehension.Set x) {
-		org.meta_environment.rascal.ast.Expression resultExpr = x.getResult();
-		java.util.List<Generator> generators = x.getGenerators();
-		int size = generators.size();
-		GeneratorEvaluator[] gens = new GeneratorEvaluator[size];
-		Type elementType = tf.voidType();
-		Type resultType = tf.setType(elementType);
-		ISetWriter res = null;
-		
-		int i = 0;
-		gens[0] = new GeneratorEvaluator(generators.get(0), this);
-		while(i >= 0 && i < size){		
-			if(gens[i].getNext()){
-				if(i == size - 1){
-					EvalResult r = resultExpr.accept(this);
-					if(res == null){
-						elementType = r.type.lub(elementType);
-						resultType = tf.setType(elementType);
-						res = resultType.writer(vf);
-					}
-					if(r.type.isSubtypeOf(elementType)){
-						elementType = elementType.lub(r.type);	
-						res.insert(r.value);
-					}  else {
-							throw new RascalTypeError("Cannot add value of type " + r.type + " to set comprehension with element type " + elementType);
-						}
-				} else {
-					i++;
-					gens[i] = new GeneratorEvaluator(generators.get(i), this);
-				}
-			} else {
-				i--;
-			}
-		}
-		return (res == null) ? result(tf.setType(tf.voidType()), vf.set()) : 
-			                     result(tf.setType(elementType), res.done());
+		return evalComprehension(
+				x.getGenerators(),
+				new CollectionWriter(collectionKind.SET, x.getResult(), null, this));
 	}
 	
 	@Override
 	public EvalResult visitComprehensionMap(
 			org.meta_environment.rascal.ast.Comprehension.Map x) {
-		org.meta_environment.rascal.ast.Expression fromExpr = x.getFrom();
-		org.meta_environment.rascal.ast.Expression toExpr = x.getTo();
-		java.util.List<Generator> generators = x.getGenerators();
-		int size = generators.size();
-		GeneratorEvaluator[] gens = new GeneratorEvaluator[size];
-		Type elementFromType = tf.voidType();
-		Type elementToType =tf.voidType();
-		Type resultType = tf.mapType(elementFromType, elementToType);
-		IMapWriter res = null;
-		
-		int i = 0;
-		gens[0] = new GeneratorEvaluator(generators.get(0), this);
-		while(i >= 0 && i < size){		
-			if(gens[i].getNext()){
-				if(i == size - 1){
-					EvalResult rfrom = fromExpr.accept(this);
-					EvalResult rto = toExpr.accept(this);
-					if(res == null){
-						elementFromType = rfrom.type.lub(elementFromType);
-						elementToType = rto.type.lub(elementToType);
-						resultType = tf.mapType(elementFromType, elementToType);
-						res = resultType.writer(vf);
-					}
-					if(rfrom.type.isSubtypeOf(elementFromType) && rto.type.isSubtypeOf(elementToType)){
-						elementFromType = elementFromType.lub(rfrom.type);	
-						elementFromType = elementToType.lub(rfrom.type);	
-						res.put(rfrom.value, rto.value);
-					}  else {
-							throw new RascalTypeError("Cannot add pair of type (" + rfrom.type + ":" + rto.type  + 
-									") to map comprehension with element type (" + elementFromType + ":"+ elementToType + ")");
-						}
-				} else {
-					i++;
-					gens[i] = new GeneratorEvaluator(generators.get(i), this);
-				}
-			} else {
-				i--;
-			}
-		}
-		return (res == null) ? result(tf.mapType(tf.voidType(), tf.voidType()), vf.map(tf.voidType(),tf.voidType())) : 
-			                     result(tf.mapType(elementFromType, elementToType), res.done());
+		return evalComprehension(
+				x.getGenerators(),
+				new CollectionWriter(collectionKind.MAP, x.getFrom(), x.getTo(), this));
 	}
-	
-	
+
 	@Override
 	public EvalResult visitStatementFor(For x) {
 		Statement body = x.getBody();
