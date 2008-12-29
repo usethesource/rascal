@@ -59,6 +59,7 @@ class RegExpPatternValue implements MatchPattern {
 					throw new RascalTypeError("Name " + name + " should have type string but has type " + res.type);
 				}
 				boundBeforeConstruction.put(name, ((IString)res.value).getValue());
+				//System.err.println("bound before construction: " + name + ", " + res.value);
 			}
 		}
 	}
@@ -96,7 +97,7 @@ class RegExpPatternValue implements MatchPattern {
 			Map<String,String> bindings = getBindings();
 			for(String name : bindings.keySet()){
 				String valBefore = boundBeforeConstruction.get(name);
-				if(valBefore == null){
+				if(true){ // TODO: ??? valBefore == null){
 					GlobalEnvironment.getInstance().storeVariable(name, ev.result(ev.vf.string(bindings.get(name))));
 				} else {					
 					if(!valBefore.equals(bindings.get(name))){
@@ -206,7 +207,7 @@ public class RegExpPatternEvaluator extends NullASTVisitor<MatchPattern> {
 		 * Replace in the final regexp all occurrences of \< by <
 		 */
 		resultRegExp = resultRegExp.replaceAll("(\\\\<)", "<");
-		System.err.println("resultRegExp: " + resultRegExp);
+		//System.err.println("resultRegExp: " + resultRegExp);
 		return new RegExpPatternValue(resultRegExp, modifier, names);
 	}
 }
