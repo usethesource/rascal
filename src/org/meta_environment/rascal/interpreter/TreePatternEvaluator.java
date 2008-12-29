@@ -67,6 +67,7 @@ interface MatchPattern {
 		this.subject = subject;
 		this.ev = ev;
 		this.initialized = true;
+		this.firstMatch = true;
 	}
 	
 	protected void checkInitialized(){
@@ -76,8 +77,7 @@ interface MatchPattern {
 	}
 	
 	public boolean hasNext() {
-		checkInitialized();
-		return firstMatch;
+		return initialized && firstMatch;
 	}
 	
 	boolean matchChildren(Iterator<IValue> subjChildren, Iterator<MatchPattern> patChildren, Evaluator ev){
@@ -302,8 +302,7 @@ interface MatchPattern {
 	
 	@Override
 	public boolean hasNext(){
-		checkInitialized();
-		return hasNext && (firstMatch || hasListVar);
+		return initialized && hasNext && (firstMatch || hasListVar);
 	}
 	
 	/**
@@ -554,6 +553,7 @@ interface MatchPattern {
 	@Override
 	public boolean match() {
 		checkInitialized();
+		firstMatch = false;
 		if (subject.getType().isTupleType()
 				&& ((ITuple) subject).arity() == children.size()) {
 			return matchChildren(((ITuple) subject).iterator(), children.iterator(), ev);
@@ -585,9 +585,13 @@ interface MatchPattern {
 
 /* package */ class TreePatternQualifiedName extends BasicTreePattern implements MatchPattern {
 	private org.meta_environment.rascal.ast.QualifiedName name;
+	private boolean boundBeforeConstruction;
 	
 	TreePatternQualifiedName(org.meta_environment.rascal.ast.QualifiedName qualifiedName){
 		this.name = qualifiedName;
+		GlobalEnvironment env = GlobalEnvironment.getInstance();
+		EvalResult patRes = env.getVariable(name);
+	    boundBeforeConstruction = (patRes != null) && (patRes.value != null);
 	}
 	
 	@Override
@@ -601,10 +605,17 @@ interface MatchPattern {
 	
 	public boolean match(){
 		checkInitialized();
-		firstMatch = false;
 		//System.err.println("TreePatternQualifiedName.match: " + name);
         GlobalEnvironment env = GlobalEnvironment.getInstance();
-		EvalResult patRes = env.getVariable(name);
+		
+		if(firstMatch && !boundBeforeConstruction){
+			firstMatch = false;
+			//System.err.println("name= " + name + ", subject=" + subject + ",");
+			env.storeVariable(name,ev.result(subject.getType(), subject));
+       	 	return true;
+		}
+		
+		EvalResult patRes = env.getVariable(name);		
          
         if((patRes != null) && (patRes.value != null)){
         	 IValue patVal = patRes.value;
@@ -612,14 +623,9 @@ interface MatchPattern {
         	 if (subject.getType().isSubtypeOf(patVal.getType())) {
         		 //System.err.println("returns " + ev.equals(ev.result(subject.getType(),subject), patRes));
         		 return ev.equals(ev.result(subject.getType(),subject), patRes);
-        	 } else {
-        		 //System.err.println("returns false");
-        		 return false;
         	 }
-         } else {
-        	 env.storeVariable(name,ev.result(subject.getType(), subject));
-        	 return true;
          }
+        return false;
 	}
 	
 	public String toString(){
@@ -647,6 +653,7 @@ interface MatchPattern {
 
 	public boolean match() {
 		checkInitialized();
+		firstMatch = false;
 		//System.err.println("TypedVariable.match: " + subject + " with " + declaredType + " " + name);
 		//System.err.println("subj.getType=" + subject.getType());
 		//System.err.println("subj.getType().isSubtypeOf(declaredType)=" + subject.getType().isSubtypeOf(declaredType));
