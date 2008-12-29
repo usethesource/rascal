@@ -1701,6 +1701,31 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		for (int i = 1; i < bytes.length - 1; i++) {
 			char b = (char) bytes[i];
 			switch (b) {
+			/*
+			 * Replace <var> by var's value.
+			 */
+			case '<':
+				StringBuffer var = new StringBuffer();
+				char varchar;
+				while((varchar = (char) bytes[++i]) != '>'){
+					var.append(varchar);
+				}
+				EvalResult val = env.getVariable(var.toString());
+				String replacement;
+				if(val == null || val.value == null){
+					replacement = "**undefined**";	
+				} else {
+					if(val.type.isStringType()){
+						replacement = ((IString)val.value).getValue();
+					} else {
+						replacement = val.value.toString();
+					}
+				}
+				replacement = replacement.replaceAll("<", "\\\\<");
+				int len = replacement.length();
+				b = replacement.charAt(len-1);
+				result.append(replacement.substring(0, len-1));
+				break;
 			case '\\':
 				switch (bytes[++i]) {
 				case '\\':
