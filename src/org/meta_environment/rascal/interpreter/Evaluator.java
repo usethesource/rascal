@@ -3284,8 +3284,42 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	public EvalResult visitExpressionComprehension(Comprehension x) {
 		return x.getComprehension().accept(this);
 	}
+	
+	/*
+	 * SingleIValueIterator turns a single IValue into an Iterator that
+	 * can be used for implementing generators.
+	 */
 
-	//TODO: parameterize with an indicator for list/set/map generators;
+	private class SingleIValueIterator implements Iterator<IValue> {
+		private IValue value;
+		private boolean firstCall;
+		
+		SingleIValueIterator(IValue value){
+			this.value = value;
+			firstCall = true;
+		}
+
+		@Override
+		public boolean hasNext() {
+			
+			return firstCall;
+		}
+
+		@Override
+		public IValue next() {
+			if(!firstCall){
+				throw new RascalBug("next called more than once");
+			}
+			firstCall = false;
+			return value;
+		}
+
+		@Override
+		public void remove() {
+			// TODO Auto-generated method stub
+		}
+		
+	}
 	
 	private class GeneratorEvaluator {
 		private boolean isValueProducer;
@@ -3303,11 +3337,19 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			pat = evalPattern(vp.getPattern());
 			patexpr = vp.getExpression();
 			EvalResult r = patexpr.accept(ev);
+			// List
 			if(r.type.isListType()){
 				iter = ((IList) r.value).iterator();
+				
+			// Set
 			} else 	if(r.type.isSetType()){
 				iter = ((ISet) r.value).iterator();
 			
+			// Map
+			} else if(r.type.isMapType()){
+				iter = ((IMap) r.value).iterator();
+				
+			// Tree
 			} else if(r.type.isTreeType()){
 				boolean bottomup = true;
 				if(vp.hasStrategy()){
@@ -3322,9 +3364,10 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 					}
 				}
 				iter = new ITreeReader((ITree) r.value, bottomup);
+			} else if(r.type.isStringType()){
+				iter = new SingleIValueIterator(r.value);
 			} else {
-				// TODO: add more generator types here	in the future
-				throw new RascalTypeError("expression in generator should be of type list/set/tree");
+				throw new RascalTypeError("Unimplemented expression type " + r.type + " in generator");
 			}
 		}
 		
@@ -3344,13 +3387,26 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 
 		public boolean getNext(){
 			if(isValueProducer){
-				while(iter.hasNext()){
-					IValue v = (IValue) iter.next();
-					pat.initMatch(v, evaluator);
-					if(pat.hasNext() && pat.match()){
+				//System.err.println("getNext, trying pat");
+				while(pat.hasNext()){
+					if(pat.match()){
+						//System.err.println("return true");
 						return true;
 					}
 				}
+				
+				while(iter.hasNext()){
+					IValue v = (IValue) iter.next();
+					//System.err.println("getNext, try next from value iterator: " + v);
+					pat.initMatch(v, evaluator);
+					while(pat.hasNext()){
+						if(pat.match()){
+							//System.err.println("return true");
+							return true;						
+						}	
+					}
+				}
+				//System.err.println("return false");
 				return false;
 			} else {
 				if(firstTime){
@@ -3368,14 +3424,19 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			}
 		}
 	}
+	
 	/*
-	 * CollectionWriter provides a uniform interface for writing elements
+	 * Enumerate the possible kinds of collections that can be produced by any comprehension.
+	 */
+	
+	private static enum collectionKind {LIST, SET, MAP};
+	
+	/*
+	 * ComprehensionCollectionWriter provides a uniform interface for writing elements
 	 * to a list/set/map during the evaluation of a list/set/map comprehension.
 	 */
 	
-	public static enum collectionKind {LIST, SET, MAP};
-	
-	private class CollectionWriter {
+	private class ComprehensionCollectionWriter {
 		private Type elementType1;
 		private Type elementType2;
 		private Type resultType;
@@ -3387,7 +3448,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		private IWriter writer;
 		private Evaluator ev;
 		
-		CollectionWriter(collectionKind kind, 
+		ComprehensionCollectionWriter(collectionKind kind, 
 				org.meta_environment.rascal.ast.Expression resultExpr1,
 				org.meta_environment.rascal.ast.Expression resultExpr2, 
 				Evaluator ev){
@@ -3419,7 +3480,9 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				writer = resultType.writer(vf);
 			}
 			if(!r1.type.isSubtypeOf(elementType1)){
-				throw new RascalTypeError("Cannot add value of type " + r1.type + " to list/set/map comprehension with element/key type " + elementType1);
+				throw new RascalTypeError("Cannot add value of type " + r1.type +
+						                   " to list/set/map comprehension with element/key type " + 
+						                   elementType1);
 			} else {		
 				elementType1 = elementType1.lub(r1.type);
 				switch(kind){
@@ -3429,7 +3492,9 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 					writer.insert(r1.value); break;
 				case MAP:
 					if(!r2.type.isSubtypeOf(elementType2)){
-						throw new RascalTypeError("Cannot add value of type " + r2.type + " to map comprehension with value type " + elementType2);
+						throw new RascalTypeError("Cannot add value of type " + r2.type + 
+												   " to map comprehension with value type " + 
+												   elementType2);
 					} 
 					((IMapWriter)writer).put(r1.value, r2.value);
 				}	
@@ -3452,8 +3517,12 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		}
 		
 	}
+	/*
+	 * The common comprehension evaluator
+	 */
 	
-	private EvalResult evalComprehension(java.util.List<Generator> generators, CollectionWriter w){
+	private EvalResult evalComprehension(java.util.List<Generator> generators, 
+										  ComprehensionCollectionWriter w){
 		int size = generators.size();
 		GeneratorEvaluator[] gens = new GeneratorEvaluator[size];
 		
@@ -3478,7 +3547,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	public EvalResult visitComprehensionList(org.meta_environment.rascal.ast.Comprehension.List x) {
 		return evalComprehension(
 				x.getGenerators(),
-				new CollectionWriter(collectionKind.LIST, x.getResult(), null, this));
+				new ComprehensionCollectionWriter(collectionKind.LIST, x.getResult(), null, this));
 	}
 	
 	@Override
@@ -3486,7 +3555,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			org.meta_environment.rascal.ast.Comprehension.Set x) {
 		return evalComprehension(
 				x.getGenerators(),
-				new CollectionWriter(collectionKind.SET, x.getResult(), null, this));
+				new ComprehensionCollectionWriter(collectionKind.SET, x.getResult(), null, this));
 	}
 	
 	@Override
@@ -3494,7 +3563,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			org.meta_environment.rascal.ast.Comprehension.Map x) {
 		return evalComprehension(
 				x.getGenerators(),
-				new CollectionWriter(collectionKind.MAP, x.getFrom(), x.getTo(), this));
+				new ComprehensionCollectionWriter(collectionKind.MAP, x.getFrom(), x.getTo(), this));
 	}
 
 	@Override

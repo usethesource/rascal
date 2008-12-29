@@ -25,25 +25,42 @@ import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
 
 class RegExpPatternValue implements MatchPattern {
-	String RegExpAsString;
-	Character modifier = null;
-	List<org.meta_environment.rascal.ast.QualifiedName> patternVars;
-	Matcher matcher = null;
-	IValue subject;
+	private String RegExpAsString;				// The regexp represented as string
+	private Character modifier;				// Optional modifier following the pattern
+	private Pattern pat;						// The Pattern resulting from compiling the regexp
+
+	private List<String> patternVars;			// The variables occurring in the regexp
+	private HashMap<String, String> boundBeforeConstruction = new HashMap<String, String>();
+												// The variable (and their value) that were already bound 
+												// when the  pattern was constructed
+	private Matcher matcher;					// The actual regexp matcher
+	String subject;								// Subject string to be matched
 	Evaluator ev;
-	private boolean initialized = false;
-	private boolean firstMatch;
+	private boolean initialized = false;		// Has matcher been initialized?
+	private boolean firstMatch;				// Is this the first match?
+	private boolean hasNext;					// Are there more matches?
 	
 	RegExpPatternValue(String s){
 		RegExpAsString = s;
 		modifier = null;
 		patternVars = null;
+		initialized = false;
 	}
 	
-	RegExpPatternValue(String s, Character mod, List<org.meta_environment.rascal.ast.QualifiedName> names){
+	RegExpPatternValue(String s, Character mod, List<String> names){
 		RegExpAsString = s;
 		modifier = mod;
 		patternVars = names;
+		initialized = false;
+		for(String name : names){
+			EvalResult res = GlobalEnvironment.getInstance().getVariable(name);
+			if((res != null) && (res.value != null)){
+				if(!res.type.isStringType()){
+					throw new RascalTypeError("Name " + name + " should have type string but has type " + res.type);
+				}
+				boundBeforeConstruction.put(name, ((IString)res.value).getValue());
+			}
+		}
 	}
 	
 	@Override
@@ -52,59 +69,66 @@ class RegExpPatternValue implements MatchPattern {
 	}
 
 	@Override
-	public boolean hasNext() {
-		return firstMatch;
-	}
-
-	@Override
 	public void initMatch(IValue subject, Evaluator ev) {
-		this.subject = subject;
-		this.ev = ev;
-		initialized = firstMatch = true;
-	}
-	
-	public boolean match(){
-		if(!firstMatch){
-			return false;
-		}
 		if(!subject.getType().isStringType()){
-			return false;
-			/* TODO: this constraint is too harsh in matching context.
-			 * throw new RascalTypeError("Subject in regular expression match should have type string and not " + subj.getType());
-			 */
+			hasNext = false;
+			return;
 		}
-		String s = ((IString) subject).getValue();
+		this.subject = ((IString) subject).getValue();
+		this.ev = ev;
+		initialized = firstMatch = hasNext = true;
+	
 		try {
-			Pattern pat = Pattern.compile(RegExpAsString);
-			matcher = pat.matcher(s);
-			if(matcher.matches()){
-				Map<org.meta_environment.rascal.ast.QualifiedName,String> map = getBindings();
-				for(org.meta_environment.rascal.ast.QualifiedName name : map.keySet()){
-					EvalResult res = GlobalEnvironment.getInstance().getVariable(name);
-					/* TODO: This cannot be satisfied in a generator since there are repated assignments
-					 * to the variables in the regexp.
-					if((res != null) && (res.value != null)){
-						throw new RascalException(ev.vf, "variable " + name + " in regular expression has already a value (" + res.value + ")");
-					}
-					*/
-					ev.assignVariable(name, ev.result(ev.vf.string(map.get(name))));
-				}
-				return true;
-			}
-			return false;
+			pat = Pattern.compile(RegExpAsString);
 		} catch (PatternSyntaxException e){
 			throw new RascalTypeError(e.getMessage());
 		}
 	}
 	
-	private Map<org.meta_environment.rascal.ast.QualifiedName,String> getBindings(){
-		Map<org.meta_environment.rascal.ast.QualifiedName,String> map = new HashMap<org.meta_environment.rascal.ast.QualifiedName,String>();
+	@Override
+	public boolean hasNext() {
+		return initialized && (firstMatch || hasNext);
+	}
+	
+	private boolean findMatch(){	
+		while(matcher.find()){
+			boolean matches = true;
+			Map<String,String> bindings = getBindings();
+			for(String name : bindings.keySet()){
+				String valBefore = boundBeforeConstruction.get(name);
+				if(valBefore == null){
+					GlobalEnvironment.getInstance().storeVariable(name, ev.result(ev.vf.string(bindings.get(name))));
+				} else {					
+					if(!valBefore.equals(bindings.get(name))){
+						matches = false;
+						break;
+					}
+				}			
+			}
+			if(matches){
+				return true;
+			}
+		}
+		hasNext = false;
+		return false;
+	}
+	
+	public boolean match(){
+		if(firstMatch){
+			firstMatch = false;
+			matcher = pat.matcher(subject);
+		}
+		return findMatch();
+	}
+	
+	private Map<String,String> getBindings(){
+		Map<String,String> bindings = new HashMap<String,String>();
 		int k = 1;
-		for(org.meta_environment.rascal.ast.QualifiedName nm : patternVars){
-			map.put(nm, matcher.group(k));
+		for(String nm : patternVars){
+			bindings.put(nm, matcher.group(k));
 			k++;
 		}
-		return map;
+		return bindings;
 	}
 	
 	public String toString(){
@@ -162,38 +186,27 @@ public class RegExpPatternEvaluator extends NullASTVisitor<MatchPattern> {
 			throw new RascalTypeError("Regular expression does not end with /");
 		}
 		
-		//TODO take escaped \< characters into account.
-		Pattern replacePat = Pattern.compile("<([a-zA-Z0-9]+):([^>]*)>");
+		/*
+		 * Find all pattern variables. Take escaped \< characters into account.
+		 */
+		Pattern replacePat = Pattern.compile("(?<!\\\\)<([a-zA-Z0-9]+)\\s*:\\s*([^>]*)>");
 		Matcher m = replacePat.matcher(subjectPat);
 		
 		String resultRegExp = "";
-		List<org.meta_environment.rascal.ast.QualifiedName> names = new ArrayList<org.meta_environment.rascal.ast.QualifiedName>();
+		List<String> names = new ArrayList<String>();
 
 		while(m.find()){
 			String varName = m.group(1);
-			//System.err.println("varName = " + varName);
-			//TODO: below is a correct but very expensive way of building a Qualified name:
-			// a complete parse and tree construction are done for the text of the variable as it appears in the
-			// regular expression.
-			// A better way would be to build a template for the resulting parse tree and to insert the text
-			// of the variable name in it.
-			Parser parser = Parser.getInstance();
-			ASTFactory factory = new ASTFactory();
-			ASTBuilder builder = new ASTBuilder(factory);
-			try {
-				INode tree = parser.parse(new ByteArrayInputStream((varName + ";").getBytes()));
-				Command cmd = builder.buildCommand(tree);
-				org.meta_environment.rascal.ast.QualifiedName name = cmd.getStatement().getExpression().getQualifiedName();
-				//System.err.println("regexp name = " + name);
-				names.add(name);
-			} catch (Exception e) {
-				throw new RascalBug("Cannot convert string " + varName + " to a name");
-			}
+			names.add(varName);
 			resultRegExp += subjectPat.substring(start, m.start(0)) + "(" + m.group(2) + ")";
 			start = m.end(0);
 		}
 		resultRegExp += subjectPat.substring(start, end);
-		//System.err.println("resultRegExp: " + resultRegExp);
+		/*
+		 * Replace in the final regexp all occurrences of \< by <
+		 */
+		resultRegExp = resultRegExp.replaceAll("(\\\\<)", "<");
+		System.err.println("resultRegExp: " + resultRegExp);
 		return new RegExpPatternValue(resultRegExp, modifier, names);
 	}
 }
