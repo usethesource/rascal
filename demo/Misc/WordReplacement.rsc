@@ -1,15 +1,22 @@
 module WordReplacement
 
-str capitalize1(str S){
-    return visit (S) {
-      // \b matches a word boundary
-      // i turns on case-independent matching
-      case /\brascal\b/i => "Rascal"
-    };
+public str capOne(str S){
+    return (/rascal/i ~= S) ? "Rascal" : S;
 }
 
-str capitalize2(str S, str Pat, str Repl){
-    return visit (S) {
-      case /\b<Pat>\b/i => "<Repl>"
-    };
+public str capAll(str S)
+{
+ result = "";
+ while (/^<before:\W*><word:\w+><after:.*$>/ ~= S) { 
+    result = result + before + capOne(word);
+    S = after;
+  }
+  return result;
+}
+
+public str capAll2(str S)
+{
+   return visit(S){
+   	case /rascal/i => "Rascal"
+   };
 }
