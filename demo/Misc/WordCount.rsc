@@ -1,4 +1,6 @@
 module WordCount
+
+import IO;
  
 /* this is a * test * comment */
 
@@ -7,10 +9,11 @@ public void main(list[str] argv){
   for(str fileName : argv){
     try 
        counts[fileName] = wordCount(readFile(fileName));
-    catch (IO.error e) println("Skipping file <fileName>");
+    catch (IOerror e) println("Skipping file <fileName>");
   }
-
-  println("In total <sum(range(counts))> words in all files");
+  total = sum(range(counts));
+  
+  println("In total <total> words in all files");
   println("Word counts per file: <counts>");
 }
 

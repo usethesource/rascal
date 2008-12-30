@@ -1,6 +1,6 @@
 module Set
 
-import Print;
+import IO;
 
 public void echo(str msg)
 {
