@@ -1,16 +1,20 @@
 module IO
 
-public void java print(value V)
+public void java println(value V)
 @java-imports{import java.io.File;}
 {
-   System.out.println(V.toString());
+   String res = V.getType().isStringType() ? ((IString) V).getValue() : V.toString();
+   System.out.println(res);
    return;
 }
 
-public void java print(value V1, value V2)
+public void java println(value V1, value V2)
 @java-imports{import java.io.File;}
 {
-   System.out.println(V1.toString() + V2.toString());
+   String res1 = V1.getType().isStringType() ? ((IString) V1).getValue() : V1.toString();
+   String res2 = V2.getType().isStringType() ? ((IString) V2).getValue() : V2.toString();
+   
+   System.out.println(res1 + res2);
    return;
 }
 
