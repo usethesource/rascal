@@ -1,12 +1,14 @@
 module Bubble
 
+import List;
+
 // sort1: uses list indexing and for-loop
 
-list[int] sort1(list[int] Numbers){
-  for(int I : [0 .. size(Numbers) - 2 ]){
+public list[int] sort1(list[int] Numbers){
+  for(int I : [0, ... , size(Numbers) - 2 ]){
      if(Numbers[I] > Numbers[I+1]){
        <Numbers[I], Numbers[I+1]> = <Numbers[I+1], Numbers[I]>;
-       return sort(Numbers);
+       return sort1(Numbers);
      }
   }
   return Numbers;
@@ -14,14 +16,16 @@ list[int] sort1(list[int] Numbers){
 
 // sort2: uses list matching and switch
 
-list[int] sort2(list[int] Numbers){
+public list[int] sort2(list[int] Numbers){
   list[int] Nums1, Nums2;
   int P, Q;
 
   switch(Numbers){
     case [Nums1, P, Q, Nums2]:
        if(P > Q){
-          return sort([Nums1, Q, P, Nums2]);
+          return sort2([Nums1, Q, P, Nums2]);
+       } else {
+       	  fail;
        }
      default: return Numbers;
    }
@@ -30,7 +34,7 @@ list[int] sort2(list[int] Numbers){
 
 // sort3: uses list matching and visit
 
-list[int] sort3(list[int] Numbers){
+public list[int] sort3(list[int] Numbers){
   list[int] Nums1, Nums2;
   int P, Q;
 
@@ -38,6 +42,8 @@ list[int] sort3(list[int] Numbers){
     case [Nums1, P, Q, Nums2]:
        if(P > Q){
           insert [Nums1, Q, P, Nums2];
+       } else {
+          fail;
        }
      default: Numbers;
     };

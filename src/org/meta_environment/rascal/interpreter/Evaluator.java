@@ -2629,17 +2629,17 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			if(cs.isDefault()){
 				return cs.getStatement().accept(this);
 			}
-			org.meta_environment.rascal.ast.Rule rl = cs.getRule();
-			if(rl.isArbitrary() && matchAndEval(subject.value, rl.getPattern(), rl.getStatement())){
+			org.meta_environment.rascal.ast.Rule rule = cs.getRule();
+			if(rule.isArbitrary() && matchAndEval(subject.value, rule.getPattern(), rule.getStatement())){
 				return result();
-			} else if(rl.isGuarded())	{
-				org.meta_environment.rascal.ast.Type tp = rl.getType();
+			} else if(rule.isGuarded())	{
+				org.meta_environment.rascal.ast.Type tp = rule.getType();
 				Type t = tp.accept(te);
-				if(subject.type.isSubtypeOf(t) && matchAndEval(subject.value, rl.getPattern(), rl.getStatement())){
+				if(subject.type.isSubtypeOf(t) && matchAndEval(subject.value, rule.getPattern(), rule.getStatement())){
 					return result();
 				}
-			} else if(rl.isReplacing()){
-				throw new RascalBug("Replacing Rule not yet implemented: " + rl);
+			} else if(rule.isReplacing()){
+				throw new RascalBug("Replacing Rule not yet implemented: " + rule);
 			}
 		}
 		return null;
@@ -2733,6 +2733,18 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			}
 		} while (true);
 	}
+	/*
+	private TraverseResult traverseString(IString subject, CasesOrRules casesOrRules){
+		int cursor = 0;
+		String subjectString = subject.getValue();
+		int len = subjectString.length();
+		
+		for(int i = 0; i < len; i++){
+			TraverseResult tr = traverseTop(subject, casesOrRules);
+			
+		}
+	}
+	*/
 	
 	private TraverseResult traverseOnce(IValue subject, CasesOrRules casesOrRules, 
 									boolean bottomup, 
@@ -2898,24 +2910,20 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		//System.err.println("applyOneRule: " + subject + ", type=" + subject.getType() + ", rule=" + rule);
 		try {
 			env.pushFrame();		// Create a local scope for match and statement
-			if (rule.isArbitrary()) {
-				org.meta_environment.rascal.ast.Expression pat = rule.getPattern();
-				if (matchOne(subject, pat)) {
-					rule.getStatement().accept(this);
-					return new TraverseResult(true, subject);
-				}
+			if (rule.isArbitrary() && 
+				matchAndEval(subject, rule.getPattern(), rule.getStatement())) {
+				return new TraverseResult(true, subject);
 			} else if (rule.isGuarded()) {
 				org.meta_environment.rascal.ast.Type tp = rule.getType();
 				Type type = tp.accept(te);
 				rule = rule.getRule();
 				org.meta_environment.rascal.ast.Expression pat = rule.getPattern();
-				if (subject.getType().isSubtypeOf(type) && matchOne(subject, pat)) {
-					rule.getStatement().accept(this);
+				if (subject.getType().isSubtypeOf(type) && 
+					matchAndEval(subject, rule.getPattern(), rule.getStatement())) {
 					return new TraverseResult(true, subject);
 				}
 			} else if (rule.isReplacing()) {
-				org.meta_environment.rascal.ast.Expression pat = rule.getPattern();
-				if (matchOne(subject, pat)) {
+				if (matchOne(subject, rule.getPattern())) {
 					return replacement(subject,
 							rule.getReplacement().accept(this).value);
 				}
