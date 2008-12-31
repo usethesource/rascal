@@ -8,14 +8,17 @@ data Tree amb(Args args);
 
 // constructor(Tree, char, <character(int)>), %%??
 
-type int Tree;
+//type int Tree;
+
+data Tree int intVal;
 
 type list[Tree] Args;
 
 data Production prod(Symbols lhs, Symbol rhs, Attributes attributes);
  
 //constructor(Production, List, list(<rhs(Symbol)>)), 
-type list[Symbol] Production;
+
+data Production list[Symbol] symbols;
 
 data Attributes no-attrs;
 data Attributes attrs(Attrs attrs);
@@ -26,6 +29,16 @@ data Attr assoc(Associativity assoc) | // term(term term) |
              id(str module_name) | bracket | reject | prefer | avoid;
 
 data Associativity left | right | assoc | non-assoc;
+
+type  list[Symbol] Symbols;
+//data Symbols list[Symbol] symbols;
+
+// constructor(CharRange, character, <start(int)>), 
+
+data CharRange int range;
+data CharRange range(int start, int end);
+
+data CharRanges alist(CharRange ranges);  // clash with keyword list!
 
 data Symbol lit(str string);
 data Symbol cilit(str string);
@@ -50,13 +63,7 @@ data Symbol var-sym(Symbol symbol);
 data Symbol layout; 
 data Symbol char-class(CharRanges ranges);
 
-type  list[Symbol] Symbols;
 
-// constructor(CharRange, character, <start(int)>), 
-type int CharRange;
-data CharRange range(int start, int end);
-
-data CharRanges alist(CharRange);  // clash with keyword list!
 
 str join(list[&T] lst, str (&T arg) tostring, str asep){ 
     str res = "";

@@ -17,13 +17,11 @@ public list[int] sort1(list[int] Numbers){
 // sort2: uses list matching and switch
 
 public list[int] sort2(list[int] Numbers){
-  list[int] Nums1, Nums2;
-  int P, Q;
-
+  
   switch(Numbers){
-    case [Nums1, P, Q, Nums2]:
+    case [list[int] Nums1, int P, int Q, list[int] Nums2]:
        if(P > Q){
-          return sort2([Nums1, Q, P, Nums2]);
+          return sort2(Nums1 + [Q, P] + Nums2);
        } else {
        	  fail;
        }
