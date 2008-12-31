@@ -608,7 +608,7 @@ interface MatchPattern {
 		//System.err.println("TreePatternQualifiedName.match: " + name);
         GlobalEnvironment env = GlobalEnvironment.getInstance();
 		
-		if(firstMatch && !boundBeforeConstruction){
+		if(firstMatch){ //TODO:  && !boundBeforeConstruction){
 			firstMatch = false;
 			//System.err.println("name= " + name + ", subject=" + subject + ",");
 			env.storeVariable(name,ev.result(subject.getType(), subject));
