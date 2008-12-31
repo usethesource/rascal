@@ -173,7 +173,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	private final TreePatternEvaluator pe;
 	protected GlobalEnvironment env = GlobalEnvironment.getInstance();
 	private ASTFactory astFactory = new ASTFactory();
-	private boolean callTracing = false;
+	private boolean callTracing = true;
 	private int callNesting = 0;
 	
 	private final ASTFactory af;
@@ -567,6 +567,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		    	env.storeTreeNodeType(tf.treeNodeType(sort, altName, new Object[] { }));
 		    }
 		    else if (var.isAnonymousConstructor()) {
+		    	
 		    	Type argType = var.getType().accept(te);
 		    	String label = var.getName().toString();
 		    	env.storeTreeNodeType(tf.anonymousTreeType(sort, altName, argType, label));
@@ -647,6 +648,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				env.top().storeVariable(var.getName(), r);
 			} else {                     // variable declaration with initialization
 				EvalResult v = var.getInitial().accept(this);
+				System.err.println("Declare: " + var.getName() + ", declaredType=" + declaredType + ", inittype=" + v.type);
 				if(v.type.isSubtypeOf(declaredType)){
 					r = result(declaredType, v.value);
 					env.top().storeVariable(var.getName(), r);

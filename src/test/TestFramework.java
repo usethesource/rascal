@@ -69,6 +69,11 @@ public class TestFramework {
 		execute(command);
 	}
 	
+	void prepareMore(String command) throws IOException{
+		execute(command);
+	}
+	
+	
 	boolean prepareModule(String module) throws IOException {
 		INode tree = parser.parse(new ByteArrayInputStream(module.getBytes()));
 		if (tree.getType() == Factory.ParseTree_Summary) {
