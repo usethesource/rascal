@@ -27,7 +27,7 @@ public int cntb(tree T) {
 // a list and use the library function sum on lists
 // to add all list elements together.
 
-publicint sumtreea(tree T) {
+public int sumtreea(tree T) {
     return sum([n | int N : T]);
 }
 

@@ -4,17 +4,18 @@ import IO;
  
 /* this is a * test * comment */
 
-public void main(list[str] argv){
-  map[str, int] counts = ();
+public void main(str argv ...){
+  int total = 0;
   for(str fileName : argv){
-    try 
-       counts[fileName] = wordCount(readFile(fileName));
-    catch (IOerror e) println("Skipping file <fileName>");
+    try {
+       int count = wordCount(readFile(fileName));
+       println("<count> word in file <fileName>");
+       total = total + count;
+ 	}
+ 	   catch {println("Skipping file <fileName>");}
   }
-  total = sum(range(counts));
   
-  println("In total <total> words in all files");
-  println("Word counts per file: <counts>");
+  println("<total> words in all files");
 }
 
 int wordCount(list[str] input)

@@ -11,6 +11,7 @@ import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.Expression.CallOrTree;
@@ -295,7 +296,11 @@ interface MatchPattern {
 		if(patternSize == 0){
 			return ev.tf.listType(ev.tf.voidType());
 		} else {
-			Type elemType = children.get(0).getType(ev);
+			Type elemType = ev.tf.voidType();
+			for(int i = 0; i < patternSize; i++){
+				elemType = elemType.lub(children.get(0).getType(ev));
+			}
+			System.err.println("ListPattern.getType: " + ev.tf.listType(elemType));
 			return ev.tf.listType(elemType);
 		}
 	}
@@ -309,7 +314,7 @@ interface MatchPattern {
 	 * We are positioned in the pattern at a list variable and match it with
 	 * the current subject starting at the current position.
 	 * On success, the cursors are advanced.
-	 * On failure, switch to bakctracking (forawrd = false) mode.
+	 * On failure, switch to backtracking (forward = false) mode.
 	 */
 	private void matchSublist(MatchPattern child){
 		
@@ -511,7 +516,7 @@ interface MatchPattern {
 	
 	@Override
 	public Type getType(Evaluator ev) {
-		return ev.tf.setType(ev.tf.valueType());
+		return ev.tf.setType(ev.tf.voidType());
 	}
 	
 	@Override
@@ -547,7 +552,7 @@ interface MatchPattern {
 	
 	@Override
 	public Type getType(Evaluator ev) {
-		return ev.tf.tupleType(ev.tf.valueType()); // TODO: return more precise type
+		return ev.tf.tupleType(ev.tf.voidType()); // TODO: return more precise type
 	}
 	
 	@Override
@@ -586,17 +591,20 @@ interface MatchPattern {
 /* package */ class TreePatternQualifiedName extends BasicTreePattern implements MatchPattern {
 	private org.meta_environment.rascal.ast.QualifiedName name;
 	private boolean boundBeforeConstruction;
+	private Type type;
 	
 	TreePatternQualifiedName(org.meta_environment.rascal.ast.QualifiedName qualifiedName){
 		this.name = qualifiedName;
 		GlobalEnvironment env = GlobalEnvironment.getInstance();
 		EvalResult patRes = env.getVariable(name);
 	    boundBeforeConstruction = (patRes != null) && (patRes.value != null);
+	    type = (boundBeforeConstruction) ? patRes.type : TypeFactory.getInstance().voidType();
 	}
 	
 	@Override
 	public Type getType(Evaluator ev) {
-		return ev.tf.valueType();
+		
+		return type;
 	}
 	
 	public String getName(){
