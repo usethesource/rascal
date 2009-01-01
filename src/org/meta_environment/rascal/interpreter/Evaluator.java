@@ -173,7 +173,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	private final TreePatternEvaluator pe;
 	protected GlobalEnvironment env = GlobalEnvironment.getInstance();
 	private ASTFactory astFactory = new ASTFactory();
-	private boolean callTracing = true;
+	private boolean callTracing = false;
 	private int callNesting = 0;
 	
 	private final ASTFactory af;
@@ -648,7 +648,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				env.top().storeVariable(var.getName(), r);
 			} else {                     // variable declaration with initialization
 				EvalResult v = var.getInitial().accept(this);
-				System.err.println("Declare: " + var.getName() + ", declaredType=" + declaredType + ", inittype=" + v.type);
 				if(v.type.isSubtypeOf(declaredType)){
 					r = result(declaredType, v.value);
 					env.top().storeVariable(var.getName(), r);
@@ -2722,7 +2721,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 	private TraverseResult traverse(IValue subject, CasesOrRules casesOrRules,
 			boolean bottomup, boolean breaking, boolean fixedpoint) {
-		//System.err.println("traverse: " + subject);
 		do {
 			TraverseResult tr = traverseOnce(subject, casesOrRules, bottomup, breaking);
 			if(fixedpoint){
@@ -2863,13 +2861,14 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	private TraverseResult replacement(IValue oldSubject, IValue newSubject){
 		Type oldType = oldSubject.getType();
 		Type newType = newSubject.getType();
+	
 		
-		// TODO: PDB: Should NamedTreeType not be a subtype of TreeType?
-		/*
+	  //TODO: PDB: Should NamedTreeType not be a subtype of TreeType?
+		
 		if(!newType.isSubtypeOf(oldType)){
 			throw new RascalTypeError("Replacing " + oldType + " by " + newType + " value");
 		}
-		*/
+		
 		return new TraverseResult(true, newSubject, true);
 	}
 	
@@ -2912,9 +2911,10 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		//System.err.println("applyOneRule: " + subject + ", type=" + subject.getType() + ", rule=" + rule);
 		try {
 			env.pushFrame();		// Create a local scope for match and statement
-			if (rule.isArbitrary() && 
-				matchAndEval(subject, rule.getPattern(), rule.getStatement())) {
-				return new TraverseResult(true, subject);
+			if (rule.isArbitrary()){
+				if(matchAndEval(subject, rule.getPattern(), rule.getStatement())) {
+					return new TraverseResult(true, subject);
+				}
 			} else if (rule.isGuarded()) {
 				org.meta_environment.rascal.ast.Type tp = rule.getType();
 				Type type = tp.accept(te);
@@ -2930,7 +2930,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 							rule.getReplacement().accept(this).value);
 				}
 			} else {
-				throw new RascalBug("Impossible case in a rule");
+				throw new RascalBug("Impossible case in a rule: " + rule);
 			}
 			return new TraverseResult(subject);
 		} finally {
@@ -2977,7 +2977,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			throw new RascalBug("Unknown strategy: " + s);
 		}
 	
-		return result(traverse(subject, new CasesOrRules(cases), bottomup, breaking, fixedpoint).value);
+		return result(subject.getType(), traverse(subject, new CasesOrRules(cases), bottomup, breaking, fixedpoint).value);
 	}
 	
 	@Override

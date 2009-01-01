@@ -33,17 +33,14 @@ public list[int] sort2(list[int] Numbers){
 // sort3: uses list matching and visit
 
 public list[int] sort3(list[int] Numbers){
-  list[int] Nums1, Nums2;
-  int P, Q;
 
   return innermost visit(Numbers){
-    case [Nums1, P, Q, Nums2]:
+    case [list[int] Nums1, int P, int Q, list[int] Nums2]:
        if(P > Q){
-          insert [Nums1, Q, P, Nums2];
+          insert Nums1 + [Q, P] + Nums2;
        } else {
           fail;
        }
-     default: Numbers;
     };
 }
 

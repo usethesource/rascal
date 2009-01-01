@@ -4,7 +4,7 @@ public str capOne(str S){
     return (/rascal/i ~= S) ? "Rascal" : S;
 }
 
-public str capAll(str S)
+public str capAll1(str S)
 {
  result = "";
  while (/^<before:\W*><word:\w+><after:.*$>/ ~= S) { 
