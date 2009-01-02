@@ -190,6 +190,48 @@ public class VisitTests extends TestCase {
 		assertTrue(tf.runTest("{" + srepl + "srepl(g(1,f(g(2,3)))) == h(1,f(g(2,3)));}"));
 		assertTrue(tf.runTest("{" + srepl + "srepl(g(1,f([g(2,3),4,5]))) == h(1,f([g(2,3),4,5]));}"));
 	}
+	
+	public void testStringVisit1a() throws IOException {
+		assertTrue(tf.runTest("visit(\"\"){ case /b/: insert \"B\";} == \"\";"));
+		assertTrue(tf.runTest("visit(\"a\"){ case /b/: insert \"B\";} == \"a\";"));
+		assertTrue(tf.runTest("visit(\"b\"){ case /b/: insert \"B\";} == \"B\";"));
+		assertTrue(tf.runTest("visit(\"abc\"){ case /b/: insert \"B\";} == \"aBc\";"));
+		assertTrue(tf.runTest("visit(\"abcabc\"){ case /b/: insert \"B\";} == \"aBcaBc\";"));
+	}
+	
+	public void testStringVisit1b() throws IOException {
+		assertTrue(tf.runTest("visit(\"\"){ case /b/ => \"B\"} == \"\";"));
+		assertTrue(tf.runTest("visit(\"a\"){ case /b/ => \"B\"} == \"a\";"));
+		assertTrue(tf.runTest("visit(\"b\"){ case /b/ => \"B\"} == \"B\";"));
+		assertTrue(tf.runTest("visit(\"abc\"){ case /b/ => \"B\"} == \"aBc\";"));
+		assertTrue(tf.runTest("visit(\"abcabc\"){ case /b/ =>\"B\"} == \"aBcaBc\";"));
+	}
+	
+	public void testStringVisit2() throws IOException {
+		assertTrue(tf.runTest("visit(\"\"){ case /b/: insert \"BB\";} == \"\";"));
+		assertTrue(tf.runTest("visit(\"a\"){ case /b/: insert \"BB\";} == \"a\";"));
+		assertTrue(tf.runTest("visit(\"b\"){ case /b/: insert \"BB\";} == \"BB\";"));
+		assertTrue(tf.runTest("visit(\"abc\"){ case /b/: insert \"B\";} == \"aBc\";"));
+		assertTrue(tf.runTest("visit(\"abcabc\"){ case /b/: insert \"BB\";} == \"aBBcaBBc\";"));
+	}
+	
+	public void testStringVisit3() throws IOException {
+		assertTrue(tf.runTest("visit(\"\"){ case /^a/: insert \"AA\"; case /^b/: insert \"BB\";} == \"\";"));
+		assertTrue(tf.runTest("visit(\"a\"){ case /^a/: insert \"AA\"; case /^b/: insert \"BB\";} == \"AA\";"));
+		assertTrue(tf.runTest("visit(\"b\"){ case /^a/: insert \"AA\"; case /^b/: insert \"BB\";} == \"BB\";"));
+		assertTrue(tf.runTest("visit(\"abcabc\"){ case /^a/: insert \"AA\"; case /^b/: insert \"BB\";} == \"AABBcAABBc\";"));
+		assertTrue(tf.runTest("visit(\"abcabca\"){ case /^a/: insert \"AA\"; case /^b/: insert \"BB\";} == \"AABBcAABBcAA\";"));
+
+	}
+	
+	public void testStringVisit4() throws IOException {
+		assertTrue(tf.runTest("visit(\"\"){ case \"a\": insert \"AA\"; case /b/: insert \"BB\";} == \"\";"));
+		assertTrue(tf.runTest("visit(\"a\"){ case \"a\": insert \"AA\"; case /b/: insert \"BB\";} == \"AA\";"));
+		assertTrue(tf.runTest("visit(\"b\"){ case \"a\": insert \"AA\"; case /b/: insert \"BB\";} == \"BB\";"));
+		assertTrue(tf.runTest("visit(\"abcabc\"){ case \"a\": insert \"AA\"; case /b/: insert \"BB\";} == \"aBBcaBBc\";"));
+		assertTrue(tf.runTest("visit(\"abcabca\"){ case \"a\": insert \"AA\"; case /b/: insert \"BB\";} == \"aBBcaBBcAA\";"));
+
+	}
 }
 
 
