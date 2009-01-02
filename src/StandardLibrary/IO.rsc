@@ -1,5 +1,6 @@
 module IO
 
+//TODO: switch to varargs when available
 public void java println(value V)
 @java-imports{import java.io.File;}
 {
