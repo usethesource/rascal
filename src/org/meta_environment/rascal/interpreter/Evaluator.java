@@ -178,6 +178,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 	private final ASTFactory af;
 	private final JavaFunctionCaller javaFunctionCaller;
+	
+	private MatchPattern lastPattern;	// The most recent pattern applied in a match
 
 	public Evaluator(IValueFactory f, ASTFactory astFactory, Writer errorWriter) {
 		this.vf = f;
@@ -1660,6 +1662,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 	private boolean matchOne(IValue subj, org.meta_environment.rascal.ast.Expression pat){
 		MatchPattern mp = evalPattern(pat);
+		lastPattern = mp;
 		mp.initMatch(subj, this);
 		return mp.match();
 	}
@@ -2604,6 +2607,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	private boolean matchAndEval(IValue subject, org.meta_environment.rascal.ast.Expression pat, Statement stat){
 		MatchPattern mp = evalPattern(pat);
 		mp.initMatch(subject, this);
+		lastPattern = mp;
+		//System.err.println("matchAndEval: subject=" + subject + ", pat=" + pat);
 		while(mp.hasNext()){
 			try {
 				env.pushFrame(); 	// Create a separate scope for match and statement
@@ -2675,7 +2680,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		}
 		
 		TraverseResult(IValue value, boolean changed){
-			this.matched = false;
+			this.matched = true;
 			this.value = value;
 			this.changed = changed;
 		}
@@ -2711,6 +2716,10 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			return cases != null;
 		}
 		
+		public int length(){
+			return (cases != null) ? cases.size() : rules.size();
+		}
+		
 		public java.util.List<Case> getCases(){
 			return cases;
 		}
@@ -2733,18 +2742,162 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			}
 		} while (true);
 	}
+	
 	/*
-	private TraverseResult traverseString(IString subject, CasesOrRules casesOrRules){
-		int cursor = 0;
-		String subjectString = subject.getValue();
-		int len = subjectString.length();
+	 * StringReplacement represents a single replacement in the subject string.
+	 */
+	
+	private class StringReplacement {
+		int start;
+		int end;
+		String replacement;
 		
-		for(int i = 0; i < len; i++){
-			TraverseResult tr = traverseTop(subject, casesOrRules);
-			
+		StringReplacement(int start, int end, String repl){
+			this.start = start;
+			this.end = end;
+			replacement = repl;
+		}
+		
+		public String toString(){
+			return "StringReplacement(" + start + ", " + end + ", " + replacement + ")";
 		}
 	}
-	*/
+	
+	/*
+	 *  singleCase returns a single case or rules if casesOrRueles has length 1 and null otherwise.
+	 */
+	
+	private Object singleCase(CasesOrRules casesOrRules){
+		if(casesOrRules.length() == 1){
+			if(casesOrRules.hasCases()){
+				return casesOrRules.getCases().get(0);
+			} else {
+				return casesOrRules.getRules().get(0);
+			}
+		}
+		return null;
+	}
+	
+	/*
+	 * traverString implements a visit of a string subject and applies the set of cases
+	 * for all substrings of the subject. At the end, all replacements are applied and the modified
+	 * subject is returned.
+	 */
+	
+	private TraverseResult traverseString(IString subject, CasesOrRules casesOrRules){
+		String subjectString = subject.getValue();
+		int len = subjectString.length();
+		java.util.List<StringReplacement> replacements = new LinkedList<StringReplacement>();
+		boolean matched = false;
+		boolean changed = false;
+		int cursor = 0;
+		
+		Case cs = (Case) singleCase(casesOrRules);
+		
+		if(cs != null && cs.isRule() && re.isRegExpPattern(cs.getRule().getPattern())){
+			/*
+			 * In the frequently occurring case that there is one case with a regexp as pattern,
+			 * we can delegate all the work to the regexp matcher.
+			 */
+			org.meta_environment.rascal.ast.Rule rule = cs.getRule();
+			
+			Expression patexp = rule.getPattern();
+			MatchPattern mp = evalPattern(patexp);
+			mp.initMatch(subject, this);
+			while(mp.hasNext()){
+				try {
+					env.pushFrame(); 	// Create a separate scope for match and statement
+					if(mp.match()){
+						try {
+							if(rule.isReplacing()){
+								throw InsertException.getInstance(rule.getReplacement().accept(this));
+							} else {
+								rule.getStatement().accept(this);
+							}
+						} catch (InsertException e){
+							changed = true;
+							IValue repl = e.getValue().value;
+							if(repl.getType().isStringType()){
+								int start = ((RegExpPatternValue) mp).getStart();
+								int end = ((RegExpPatternValue) mp).getEnd();
+								replacements.add(new StringReplacement(start, end, ((IString)repl).getValue()));
+							} else {
+								throw new RascalTypeError("String replacement should be of type str, not " + repl.getType());
+							}
+						} catch (FailureException e){
+							//System.err.println("failure occurred");
+						}
+					}
+				} finally {
+					env.popFrame();
+				}
+			}
+			
+		} else {
+			/*
+			 * In all other cases we generate subsequent substrings subject[0,len], subject[1,len] ...
+			 * and try to match all the cases.
+			 * Performance issue: we create a lot of garbage by producing all these substrings.
+			 */
+		
+			while(cursor < len){
+				//System.err.println("cursor = " + cursor);
+				try {
+					TraverseResult tr = applyCasesOrRules(vf.string(subjectString.substring(cursor, len)), casesOrRules);
+					matched |= tr.matched;
+					changed |= tr.changed;
+					//System.err.println("matched=" + matched + ", changed=" + changed);
+					cursor++;
+				} catch (InsertException e){
+					IValue repl = e.getValue().value;
+					if(repl.getType().isStringType()){
+						int start;
+						int end;
+						if(lastPattern instanceof RegExpPatternValue){
+							start = ((RegExpPatternValue)lastPattern).getStart();
+							end = ((RegExpPatternValue)lastPattern).getEnd();
+						} else if(lastPattern instanceof TreePatternLiteral){
+							start = 0;
+							end = ((IString)repl).getValue().length();
+						} else {
+							throw new RascalTypeError("Illegal pattern " + lastPattern + " in string visit");
+						}
+						
+						replacements.add(new StringReplacement(cursor + start, cursor + end, ((IString)repl).getValue()));
+						matched = changed = true;
+						cursor += end;
+					} else {
+						throw new RascalTypeError("String replacement should be of type str, not " + repl.getType());
+					}
+				}
+			}
+		}
+	
+		if(!changed){
+			return new TraverseResult(matched, subject, changed);
+		}
+		/*
+		 * The replacements are now known. Create a version of the subject with all replacement applied.
+		 */
+		StringBuffer res = new StringBuffer();
+		cursor = 0;
+		for(StringReplacement sr : replacements){
+			for( ;cursor < sr.start; cursor++){
+				res.append(subjectString.charAt(cursor));
+			}
+			cursor = sr.end;
+			res.append(sr.replacement);
+		}
+		for( ; cursor < len; cursor++){
+			res.append(subjectString.charAt(cursor));
+		}
+		
+		return new TraverseResult(matched, vf.string(res.toString()), changed);
+	}
+	
+	/*
+	 * traverseOnce: traverse an arbitrary IVAlue once. Implements the strategied bottom/topdown.
+	 */
 	
 	private TraverseResult traverseOnce(IValue subject, CasesOrRules casesOrRules, 
 									boolean bottomup, 
@@ -2755,6 +2908,9 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		IValue result = subject;
 		
 		//System.err.println("traverseOnce: " + subject + ", type=" + subject.getType());
+		if(subjectType.isStringType()){
+			return traverseString((IString) subject, casesOrRules);
+		}
 		
 		if(!bottomup){
 			TraverseResult tr = traverseTop(subject, casesOrRules);
@@ -2858,6 +3014,9 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		return new TraverseResult(matched,result,changed);
 	}
 	
+	/*
+	 * Replace an old subject by a new one as result of an insert statement.
+	 */
 	private TraverseResult replacement(IValue oldSubject, IValue newSubject){
 		Type oldType = oldSubject.getType();
 		Type newType = newSubject.getType();
@@ -2872,38 +3031,52 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		return new TraverseResult(true, newSubject, true);
 	}
 	
-	private TraverseResult traverseTop(IValue subject, CasesOrRules casesOrRules) {
-
-		try {
-			if(casesOrRules.hasCases()){
-				for (Case cs : casesOrRules.getCases()) {
-					if (cs.isDefault()) {
-						cs.getStatement().accept(this);
-						return new TraverseResult(true,subject);
-					} else {
-						TraverseResult tr = applyOneRule(subject, cs.getRule());
-						if(tr.matched){
-							//System.err.println(" *** matches ***");
-							return tr;
-						}
-					}
-				}
-			} else {
-				for(org.meta_environment.rascal.ast.Rule rule : casesOrRules.getRules()){
-					TraverseResult tr = applyOneRule(subject, rule);
+	/*
+	 * Loop over all cases or rules.
+	 */
+	
+	private TraverseResult applyCasesOrRules(IValue subject, CasesOrRules casesOrRules) {
+		if(casesOrRules.hasCases()){
+			for (Case cs : casesOrRules.getCases()) {
+				if (cs.isDefault()) {
+					cs.getStatement().accept(this);
+					return new TraverseResult(true,subject);
+				} else {
+					TraverseResult tr = applyOneRule(subject, cs.getRule());
 					if(tr.matched){
 						//System.err.println(" *** matches ***");
 						return tr;
 					}
 				}
 			}
-			return new TraverseResult(subject);
-			
+		} else {
+			for(org.meta_environment.rascal.ast.Rule rule : casesOrRules.getRules()){
+				TraverseResult tr = applyOneRule(subject, rule);
+				if(tr.matched){
+					System.err.println(" *** matches ***");
+					return tr;
+				}
+			}
+		}
+		return new TraverseResult(subject);
+	}
+	
+	/*
+	 * traverseTop: traverse the outermost symbol of the subject.
+	 */
+
+	private TraverseResult traverseTop(IValue subject, CasesOrRules casesOrRules) {
+		try {
+			return applyCasesOrRules(subject, casesOrRules);	
 		} catch (InsertException e) {
 
 			return replacement(subject, e.getValue().value);
 		}
 	}
+	
+	/*
+	 * applyOneRule: try to apply one rule to the subject.
+	 */
 	
 	private TraverseResult applyOneRule(IValue subject,
 			org.meta_environment.rascal.ast.Rule rule) {
@@ -2926,8 +3099,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				}
 			} else if (rule.isReplacing()) {
 				if (matchOne(subject, rule.getPattern())) {
-					return replacement(subject,
-							rule.getReplacement().accept(this).value);
+					throw InsertException.getInstance(rule.getReplacement().accept(this));
 				}
 			} else {
 				throw new RascalBug("Impossible case in a rule: " + rule);

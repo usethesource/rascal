@@ -26,7 +26,7 @@ import org.meta_environment.rascal.parser.Parser;
 
 class RegExpPatternValue implements MatchPattern {
 	private String RegExpAsString;				// The regexp represented as string
-	private Character modifier;				// Optional modifier following the pattern
+	//private Character modifier;				// Optional modifier following the pattern
 	private Pattern pat;						// The Pattern resulting from compiling the regexp
 
 	private List<String> patternVars;			// The variables occurring in the regexp
@@ -40,16 +40,19 @@ class RegExpPatternValue implements MatchPattern {
 	private boolean firstMatch;				// Is this the first match?
 	private boolean hasNext;					// Are there more matches?
 	
+	private int start;							// start of last match in current subject
+	private int end;							// end of last match in current subject
+	
 	RegExpPatternValue(String s){
 		RegExpAsString = s;
-		modifier = null;
+	//	modifier = null;
 		patternVars = null;
 		initialized = false;
 	}
 	
 	RegExpPatternValue(String s, Character mod, List<String> names){
-		RegExpAsString = s;
-		modifier = mod;
+		RegExpAsString = (mod == null) ? s : "(?" + mod + ")" + s;
+	//	modifier = mod;
 		patternVars = names;
 		initialized = false;
 		for(String name : names){
@@ -91,7 +94,16 @@ class RegExpPatternValue implements MatchPattern {
 		return initialized && (firstMatch || hasNext);
 	}
 	
-	private boolean findMatch(){	
+	public int getStart(){
+		return start;
+	}
+	
+	public int getEnd(){
+		return end;
+	}
+	
+	private boolean findMatch(){
+		
 		while(matcher.find()){
 			boolean matches = true;
 			Map<String,String> bindings = getBindings();
@@ -107,10 +119,13 @@ class RegExpPatternValue implements MatchPattern {
 				}			
 			}
 			if(matches){
+				start = matcher.start();
+				end = matcher.end();
 				return true;
 			}
 		}
 		hasNext = false;
+		start = end = -1;
 		return false;
 	}
 	
@@ -133,7 +148,7 @@ class RegExpPatternValue implements MatchPattern {
 	}
 	
 	public String toString(){
-		return "RegExpPatternValue(" + RegExpAsString + ", " + modifier + ", " + patternVars + ")";
+		return "RegExpPatternValue(" + RegExpAsString + ", " + patternVars + ")";
 	}
 }
 

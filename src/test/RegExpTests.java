@@ -23,4 +23,11 @@ public class RegExpTests extends TestCase {
 				            "&& (l == \"\") && (r == \" is marvelous\");"));
 
 	}
+	
+	public void testModiers() throws IOException {
+		assertTrue(tf.runTest("/abc/i ~= \"ABC\";"));
+		assertTrue(tf.runTest("/abc/i ~= \"ABC\";"));
+		
+	//TODO:	assertTrue(tf.runTest("/ab.*c/m ~= \"ab\nc\";"));
+	}
 }
