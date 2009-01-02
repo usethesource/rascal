@@ -50,7 +50,7 @@ rel[str,str] PRED ={
 set[str] VERTICES = Relation::carrier(PRED);
 
 rel[str,set[str]] DOMINATES =
-   { <V,  (Dominators1::VERTICES - {V, Dominators1::ROOT}) - Relation::range(Graph::reachX({Dominators1::ROOT}, {V}, Dominators1::PRED))> |  str V : Dominators1::VERTICES};
+   { <V,  (VERTICES - {V, ROOT}) - range(reachX({ROOT}, {V}, PRED))> |  str V : VERTICES};
 
 public bool checkResult(){
 	return Dominators1::DOMINATES ==

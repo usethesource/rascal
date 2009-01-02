@@ -28,11 +28,12 @@ set[int] R8 =  reachX({ROOT}, {8}, PRED)
 set[int] R9 =  reachX({ROOT}, {9}, PRED)
 set[int] R10 =  reachX({ROOT}, {10}, PRED)
 
-
 rel[int,set[int]] DOMINATES =
- { <V,  VERTICES \ {V, ROOT} \ reachX({ROOT}, {V}, PRED)> |  int V : VERTICES }
+ { <V,  VERTICES - {V, ROOT} - range(reachX({ROOT}, {V}, PRED))> |  int V : VERTICES }
 
-assert "DOMINATES" : DOMINATES ==
+public bool checkResult(){
+	return DOMINATES ==
  	{<1, {2, 3, 4, 5, 6, 7, 8, 9, 10}>, 
 	<2, {}>, <3, {4, 5, 6, 7, 8, 9, 10}>, <4, {5, 6, 7, 8, 9, 10}>, 
-	<5, {}>, <6, {}>, <7, {8, 9, 10}>, <8, {9, 10}>, <9, {}>, <10, {}>}
+	<5, {}>, <6, {}>, <7, {8, 9, 10}>, <8, {9, 10}>, <9, {}>, <10, {}>};
+}
