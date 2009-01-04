@@ -1950,11 +1950,17 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	}
 	
 	private void widenIntToDouble(EvalResult left, EvalResult right){
-		if (left.type.isIntegerType() && right.type.isDoubleType()) {
-			left.type = tf.doubleType();
+		Type leftValType = left.value.getType();
+		Type rightValType = right.value.getType();
+		if (leftValType.isIntegerType() && rightValType.isDoubleType()) {
+			if(left.type.isIntegerType()){
+				left.type = tf.doubleType();
+			}
 			left.value =((IInteger) left.value).toDouble();
-		} else if (left.type.isDoubleType() && right.type.isIntegerType()) {
-			right.type = tf.doubleType();
+		} else if (leftValType.isDoubleType() && rightValType.isIntegerType()) {
+			if(right.type.isIntegerType()){
+				right.type = tf.doubleType();
+			}
 			right.value = ((IInteger) right.value).toDouble();
 		}
 	}
@@ -2423,6 +2429,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			org.meta_environment.rascal.ast.Expression.Equals x) {
 		EvalResult left = x.getLhs().accept(this);
 		EvalResult right = x.getRhs().accept(this);
+		
+		widenIntToDouble(left, right);
 		
 		if (!left.type.comparable(right.type)) {
 			throw new RascalTypeError("Arguments of equals have incomparable types: " + left.type + " and " + right.type);

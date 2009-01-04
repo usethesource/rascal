@@ -1,5 +1,7 @@
 module List
  
+ import IO;
+ 
  //TODO: Replace some uses ListWriter by SubList
  
 public &T average(list[&T] lst, &T zero)
@@ -138,7 +140,7 @@ public list[&T] sort(list[&T] lst)
 @doc{sort -- sort the elements of a list}
 {
   if(size(lst) <= 1){
-    echo("result", lst);
+    println("result", lst);
   	return lst;
   }
   
