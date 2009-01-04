@@ -37,13 +37,15 @@ public set[&T] gbottom(graph[&T] G)
 public set[&T] reachR(set[&T] Start, set[&T] Restr, rel[&T,&T] G)
 @doc{Reachability with restriction}
 {
-	return (rangeR(G, Restr)+)[Start];
+//	return (rangeR(G, Restr)+)[Start];
+    return range(domainR(G, Start) o carrierR(G, Restr)+);
 }
 
 public set[&T] reachX(set[&T] Start, set[&T] Excl, rel[&T,&T] G)
 @doc{Reachability with exclusion}
 {
-  return (Relation::rangeX(G, Excl)+)[Start];
+ // return (Relation::rangeX(G, Excl)+)[Start];
+    return Relation::range(Relation::domainR(G, Start) o Relation::carrierX(G, Excl)+);
 }
 /*
 TO DO

@@ -22,18 +22,10 @@ rule e2 eq(s(Integer N),z)             => bfalse;
 rule e2 eq(z,s(Integer N))             => bfalse;
 rule e3 eq(s(Integer N), s(Integer M)) => eq(N,M);
 
+public bool testInteger-abstract-rules(){
 
-public Integer testMul()
-{
-   return mul(s(s(z)), s(s(s(z))));
-}
-
-public Bool testEq()
-{
-   return eq(s(s(z)), s(s(s(z))));
-}
-
-public Integer testExp()
-{
-	return exp(s(s(z)), s(s(s(z))));
+   return (mul(s(s(z)), s(s(s(z)))) == s(s(s(s(s(s(z))))))) &&
+  		  (eq(s(s(z)), s(s(s(z))))  == bfalse) &&
+  		  (eq(s(s(z)), s(s(z)))     == btrue) &&
+		  (exp(s(s(z)), s(s(s(z)))) == s(s(s(s(s(s(s(s(z)))))))));
 }
