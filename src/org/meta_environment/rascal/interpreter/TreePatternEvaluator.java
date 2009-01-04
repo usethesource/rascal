@@ -1,12 +1,10 @@
 package org.meta_environment.rascal.interpreter;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -279,6 +277,7 @@ interface MatchPattern {
 		 */
 		for(int i = 0; i < patternSize; i++){
 			if(isListVar[i]){
+				// TODO: reduce max length according to number of occurrences
 				listVarMaxLength[i] = Math.max(subjectSize - (patternSize - nListVar), 0);
 				listVarLength[i] = 0;
 				listVarMinLength[i] = (nListVar == 1) ? Math.max(subjectSize - patternSize - 1, 0) : 0;
@@ -300,7 +299,7 @@ interface MatchPattern {
 			for(int i = 0; i < patternSize; i++){
 				elemType = elemType.lub(children.get(0).getType(ev));
 			}
-			System.err.println("ListPattern.getType: " + ev.tf.listType(elemType));
+			//System.err.println("ListPattern.getType: " + ev.tf.listType(elemType));
 			return ev.tf.listType(elemType);
 		}
 	}
@@ -310,28 +309,64 @@ interface MatchPattern {
 		return initialized && hasNext && (firstMatch || hasListVar);
 	}
 	
+	private IList makeSubList(){
+		assert isListVar[patternCursor];
+		
+		int start = listVarStart[patternCursor];
+		int length = listVarLength[patternCursor];
+		
+		return new SubList((org.eclipse.imp.pdb.facts.impl.hash.List) listSubject, start, length);
+		
+	/*	
+		IListWriter w = subject.getType().writer(ev.vf);
+		for(int k = start; k < start + length; k++){
+			w.append(listSubject.get(k));
+		}
+		
+		return w.done();
+		*/
+	}
+	
+	private void matchBoundListVar(IList prev){
+
+		//System.err.println("matchBoundListVar: " + prev);
+		assert isListVar[patternCursor];
+		
+		int start = listVarStart[patternCursor];
+		int length = listVarLength[patternCursor];
+		
+		for(int i = 0; i < prev.length(); i++){
+			//System.err.println("comparing: " + prev.get(i) + " and " + listSubject.get(subjectCursor + i));
+			if(!prev.get(i).equals(listSubject.get(subjectCursor + i))){
+				forward = false;
+				listVarLength[patternCursor] = 0;
+				patternCursor--;
+				//System.err.println("child fails");
+				return;
+			}
+		}
+		subjectCursor = start + length;
+		//System.err.println("child matches, subjectCursor=" + subjectCursor);
+		patternCursor++;
+	}
+	
 	/**
 	 * We are positioned in the pattern at a list variable and match it with
 	 * the current subject starting at the current position.
 	 * On success, the cursors are advanced.
 	 * On failure, switch to backtracking (forward = false) mode.
 	 */
-	private void matchSublist(MatchPattern child){
+	private void matchBindingListVar(MatchPattern child){
 		
 		assert isListVar[patternCursor];
 		
 		int start = listVarStart[patternCursor];
 		int length = listVarLength[patternCursor];
 		
-		IListWriter w = subject.getType().writer(ev.vf);
-		for(int k = start; k < start + length; k++){
-			w.append(listSubject.get(k));
-		}
-		
-		IList sublist =w.done();
-		//System.err.println("matchSublist: init child #" + patternCursor + " (" + child + ") with " + sublist);
+		IList sublist = makeSubList();
+		//System.err.println("matchBindingListVar: init child #" + patternCursor + " (" + child + ") with " + sublist);
 		child.initMatch(sublist, ev);
-		
+	
 		if(child.match()){
 			subjectCursor = start + length;
 			//System.err.println("child matches, subjectCursor=" + subjectCursor);
@@ -340,6 +375,7 @@ interface MatchPattern {
 			forward = false;
 			listVarLength[patternCursor] = 0;
 			patternCursor--;
+			//System.err.println("child failse, subjectCursor=" + subjectCursor);
 		}	
 	}
 	
@@ -400,7 +436,10 @@ interface MatchPattern {
 			System.err.println("loop: patternCursor=" + patternCursor + 
 					               ", forward=" + forward + 
 					               ", subjectCursor= " + subjectCursor + 
-					               ", child=" + child); */
+					               ", child=" + child +
+					               ", isListVar=" + isListVar[patternCursor] +
+					               ", class=" + child.getClass());
+					            */
 			
 			/*
 			 * Reference to a previously defined list variable
@@ -423,7 +462,7 @@ interface MatchPattern {
 						forward = false;
 						patternCursor--;
 					} else {
-						matchSublist(child);
+						matchBoundListVar((IList) varVal);
 					}
 				} else {
 					subjectCursor = listVarStart[patternCursor];
@@ -459,7 +498,7 @@ interface MatchPattern {
 					listVarLength[patternCursor] = 0;
 					patternCursor--;
 				} else {
-					matchSublist(child);
+					matchBindingListVar(child);
 				}
 			/*
 			 * Any other element of the pattern
@@ -616,7 +655,7 @@ interface MatchPattern {
 		//System.err.println("TreePatternQualifiedName.match: " + name);
         GlobalEnvironment env = GlobalEnvironment.getInstance();
 		
-		if(firstMatch){ //TODO:  && !boundBeforeConstruction){
+		if(firstMatch && !boundBeforeConstruction){ //TODO: wrong in some cases?
 			firstMatch = false;
 			//System.err.println("name= " + name + ", subject=" + subject + ",");
 			env.storeVariable(name,ev.result(subject.getType(), subject));
@@ -628,6 +667,7 @@ interface MatchPattern {
         if((patRes != null) && (patRes.value != null)){
         	 IValue patVal = patRes.value;
         		//System.err.println("TreePatternQualifiedName.match: " + name + ", subject=" + subject + ", value=" + patVal);
+        		
         	 if (subject.getType().isSubtypeOf(patVal.getType())) {
         		 //System.err.println("returns " + ev.equals(ev.result(subject.getType(),subject), patRes));
         		 return ev.equals(ev.result(subject.getType(),subject), patRes);

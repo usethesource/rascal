@@ -104,7 +104,7 @@ public class TestFramework {
 				return value.equals(ValueFactory.getInstance().bool(true)) ? true
 						: false;
 			} else if (cmd.isImport()) {
-				IValue value = evaluator.eval(cmd.getImported());
+				evaluator.eval(cmd.getImported());
 				return true;
 			} else if (cmd.isDeclaration()) {
 				evaluator.eval(cmd.getDeclaration());
