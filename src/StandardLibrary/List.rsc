@@ -1,5 +1,6 @@
 module List
  
+ //TODO: Replace some uses ListWriter by SubList
  
 public &T average(list[&T] lst, &T zero)
 @doc{average -- average of elements of a list}
