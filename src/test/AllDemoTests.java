@@ -41,4 +41,10 @@ private static TestFramework tf = new TestFramework();
 		tf = new TestFramework("import Trans;");
 		assertTrue(tf.runTestInSameEvaluator("testTrans() == true;"));
 	}
+	
+	public void testAckermann() throws IOException {
+		tf = new TestFramework("import Ackermann;");
+		assertTrue(tf.runTestInSameEvaluator("testAckermann() == true;"));
+	}
+	
 }

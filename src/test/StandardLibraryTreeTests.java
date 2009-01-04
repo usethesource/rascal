@@ -5,7 +5,8 @@ import java.io.IOException;
 import junit.framework.TestCase;
 
 public class StandardLibraryTreeTests extends TestCase {
-	private static TestFramework tf = new TestFramework("import Tree;");
+	private static TestFramework tf = new TestFramework("import Tree;").
+		prepare("data NODE f | f(int) | f(int,int) | f(int,int,int);");
 
 	public void testTreeArity() throws IOException {
 		assertTrue(tf.runTestInSameEvaluator("arity(f()) == 0;"));

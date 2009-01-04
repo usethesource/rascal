@@ -24,7 +24,7 @@ public class RegExpTests extends TestCase {
 
 	}
 	
-	public void testModiers() throws IOException {
+	public void testModifiers() throws IOException {
 		assertTrue(tf.runTest("/abc/i ~= \"ABC\";"));
 		assertTrue(tf.runTest("/abc/i ~= \"ABC\";"));
 		

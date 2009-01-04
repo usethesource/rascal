@@ -18,16 +18,16 @@ public void main(str argv ...){
   println("<total> words in all files");
 }
 
-int wordCount(list[str] input)
+public int wordCount(list[str] input, int (str s) countLine)
 {
   count = 0;
   for(line : input){
-     count = count + wordCount1(line);
+     count = count + #countLine(line);
   }
   return count;
 }
 
-int wordCount1(str S){
+public int countLine1(str S){
   int count = 0;
   for(/[a-zA-Z0-9]+/: S){
        count = count + 1;
@@ -36,7 +36,7 @@ int wordCount1(str S){
 }
 
 // Here is an alternative (but less desirable) declaration:
-int wordCount2(str S){
+public int countLine2(str S){
   int count = 0;
   
   // \w matches any word character
@@ -53,7 +53,7 @@ int wordCount2(str S){
 // Note how the =? operator initializes each map entry
 // to an appropriate value (0 in this case)
 
-map[str,int] wordCount3(str S){
+public map[str,int] countLine3(str S){
   map[str,int] allCounts = ();
 
  for(/<word:[a-zA-Z0-9]+>/: S){
@@ -62,4 +62,60 @@ map[str,int] wordCount3(str S){
        allCounts[word] = (allCounts[word] =? 0) + 1;
   }
   return allCounts;
+}
+
+public list[str] Jabberwocky = [
+	"Jabberwocky by Lewis Carroll",
+	"",
+	"'Twas brillig, and the slithy toves",
+	"Did gyre and gimble in the wabe;",
+	"All mimsy were the borogoves,",
+	"And the mome raths outgrabe.",
+	"",
+	"\"Beware the Jabberwock, my son!",
+	"The jaws that bite, the claws that catch!",
+	"Beware the Jubjub bird, and shun",
+	"The frumious Bandersnatch!\"",
+	"",
+	"'Twas brillig, and the slithy toves",
+	"Did gyre and gimble in the wabe;",
+	"All mimsy were the borogoves,",
+	"And the mome raths outgrabe.",
+	"",
+	"\"Beware the Jabberwock, my son!",
+	"The jaws that bite, the claws that catch!",
+	"Beware the Jubjub bird, and shun",
+	"The frumious Bandersnatch!\"",
+	"",
+	"He took his vorpal sword in hand:",
+	"Long time the manxome foe he sought—",
+	"So rested he by the Tumtum tree,",
+	"And stood awhile in thought.",
+	"",
+	"And as in uffish thought he stood,",
+	"The Jabberwock, with eyes of flame,",
+	"Came whiffling through the tulgey wood",
+	"And burbled as it came!",
+	"",
+	"One, two! One, two! and through and through",
+	"The vorpal blade went snicker-snack!",
+	"He left it dead, and with its head",
+	"He went galumphing back.",
+	"",
+	"\"And hast thou slain the Jabberwock?",
+	"Come to my arms, my beamish boy!",
+	"O frabjous day! Callooh! Callay!",
+	"He chortled in his joy.",
+	"",
+	"'Twas brillig, and the slithy toves",
+	"Did gyre and gimble in the wabe;",
+	"All mimsy were the borogoves,",
+	"And the mome raths outgrabe."
+];
+
+public bool testWordCount(){
+	return 
+		wordCount(Jabberwocky, #countLine1) == 215 &&
+	 	wordCount(Jabberwocky, #countLine2) == 215 &&
+	 	wordCount(Jabberwocky, #countLine3) == 215;
 }
