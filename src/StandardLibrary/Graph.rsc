@@ -43,7 +43,7 @@ public set[&T] reachR(set[&T] Start, set[&T] Restr, rel[&T,&T] G)
 public set[&T] reachX(set[&T] Start, set[&T] Excl, rel[&T,&T] G)
 @doc{Reachability with exclusion}
 {
-  return (rangeX(G, Excl)+)[Start];
+  return (Relation::rangeX(G, Excl)+)[Start];
 }
 /*
 TO DO
