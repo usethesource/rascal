@@ -9,3 +9,7 @@ type list[Tree] Args;
 
 data Production prod(Symbols lhs, Symbol rhs, Attributes attributes);
 data Production \list(Symbol rhs);
+
+public bool test(){
+	return prod(
+}

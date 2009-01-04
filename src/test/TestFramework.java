@@ -63,14 +63,21 @@ public class TestFramework {
 		return false;
 	}
 	
-	void prepare(String command) throws IOException{
-		evaluator = new Evaluator(ValueFactory.getInstance(), factory,
-				new PrintWriter(System.err));
-		execute(command);
+	TestFramework prepare(String command){
+		try{
+			evaluator = new Evaluator(ValueFactory.getInstance(), factory,
+					new PrintWriter(System.err));
+			execute(command);
+			
+		} catch (Exception e){
+			System.err.println("Unhandled exception: " + e);
+		}
+		return this;
 	}
 	
-	void prepareMore(String command) throws IOException{
+	TestFramework prepareMore(String command) throws IOException{
 		execute(command);
+		return this;
 	}
 	
 	

@@ -1,6 +1,8 @@
 module Tree-examples
 import List;
 
+data NODE int I;
+data NODE f(NODE I, NODE J) | g(NODE I, NODE J) |  h(NODE I, NODE J)  | h(NODE I, NODE J, NODE K);
 
 // Example 1: Count the int nodes in a tree
 

@@ -30,9 +30,9 @@ import Set;
 import Relation;
 import Graph;
 
-str ROOT = "R";
+str ROOT1 = "R";
 
-rel[str,str] PRED ={
+rel[str,str] PRED1 ={
 <"R", "A">,<"R", "B">, <"R", "C">,
 <"A", "D">,
 <"B", "A">, <"B", "D">, <"B", "E">,
@@ -47,13 +47,16 @@ rel[str,str] PRED ={
 <"L", "H">
 };
 
-set[str] VERTICES = Relation::carrier(PRED);
+public rel[str, str] dominators(rel[str,str] PRED, str ROOT)
+{
+	set[str] VERTICES = Relation::carrier(PRED);
 
-rel[str,set[str]] DOMINATES =
-   { <V,  (VERTICES - {V, ROOT}) - Relation::range(Relation::reachX({ROOT}, {V}, PRED))> |  str V : VERTICES};
+	return  { <V,  (VERTICES - {V, ROOT}) - Graph::reachX({ROOT}, {V}, PRED)> |  str V : VERTICES};
+}
 
-public bool checkResult(){
-	return Dominators1::DOMINATES ==
+
+public bool testDominators1(){
+	return dominators(PRED1, ROOT1) ==
  	{
 	<"R", {"A", "B", "C", "D", "E", "F", "G", "L", "H", "I", "J", "K"}>, 
 	<"A", {}>, 

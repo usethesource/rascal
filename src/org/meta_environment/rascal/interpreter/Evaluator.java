@@ -35,6 +35,7 @@ import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.ASTFactory;
+import org.meta_environment.rascal.ast.Bound;
 import org.meta_environment.rascal.ast.Case;
 import org.meta_environment.rascal.ast.Catch;
 import org.meta_environment.rascal.ast.Declaration;
@@ -163,6 +164,8 @@ import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
 import org.meta_environment.uptr.Factory;
+
+import com.sun.org.apache.xpath.internal.functions.FuncCeiling;
 
 public class Evaluator extends NullASTVisitor<EvalResult> {
 	public static final String RASCAL_FILE_EXT = ".rsc";
@@ -741,7 +744,15 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			 }
 		 }
 		 else {
-			 return constructTree(name, actuals, actualTypes);
+			 StringBuffer sb = new StringBuffer();
+			 String sep = "";
+			 for(int i = 0; i < actualTypes.getArity(); i++){
+				 sb.append(sep);
+				 sep = ", ";
+				 sb.append(actualTypes.getFieldType(i).toString());
+			 }
+			 throw new RascalTypeError("Function " + name + "(" +  sb.toString() + ") is not defined");
+			// Used to be: return constructTree(name, actuals, actualTypes);
 		 }
 	}
 
@@ -989,9 +1000,9 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			else {
 				throw new RascalTypeError("Java method body without a java function modifier in:\n" + func);
 			}
-			
-//			throw new RascalTypeError("Function definition:" + func + "\n does not have a return statement.");
-			// assume void function
+			if(!func.getSignature().getType().accept(te).isVoidType()){
+				throw new RascalTypeError("Function definition:" + func + "\n does not have a return statement.");
+			}
 			return result(tf.voidType(), null);
 		}
 		catch (ReturnException e) {
@@ -3853,8 +3864,9 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		
 		int max = 1000;
 		
-		if(x.hasBound()){
-			EvalResult res = x.getBound().getExpression().accept(this);
+		Bound bound= x.getBound();
+		if(bound.isDefault()){
+			EvalResult res = bound.getExpression().accept(this);
 			if(!res.type.isIntegerType()){
 				throw new RascalTypeError("Bound in solve statement should be integer, instead of " + res.type);
 			}

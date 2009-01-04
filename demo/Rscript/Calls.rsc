@@ -11,9 +11,9 @@ import Graph;
 
 type str Proc;
 
-public void main(){
+public bool testCalls(){
 
-rel[Proc, Proc] Calls = {<"a", "b">, <"b", "c">, <"b", "d">, <"d", "c">, <"d", "e">, <"f", "e">, <"f", "g">, <"g", "e">};
+	rel[Proc, Proc] Calls = {<"a", "b">, <"b", "c">, <"b", "d">, <"d", "c">, <"d", "e">, <"f", "e">, <"f", "g">, <"g", "e">};
 
 	int nCalls = size(Calls);
 
@@ -58,5 +58,15 @@ rel[Proc, Proc] Calls = {<"a", "b">, <"b", "c">, <"b", "d">, <"d", "c">, <"d", "
 
 	assert "a6": commonProcs == {"e"};
 
-	return;
+	return 	(nCalls == 8) &&
+	 		(Procs == {"a", "b", "c", "d", "e", "f", "g"}) &&
+			(entryPoints == {"a", "f"}) &&
+			(bottomCalls == {"c", "e"}) &&
+			(closureCalls == 
+				{<"a", "b">, <"b", "c">, <"b", "d">, <"d", "c">, 
+				<"d","e">, <"f", "e">, <"f", "g">, <"g", "e">, 
+				<"a", "c">, <"a", "d">, <"b", "e">, <"a", "e">}) &&
+			(calledFromA == {"b", "c", "d", "e"}) &&	
+			(calledFromF ==  {"e", "g"}) &&
+			(commonProcs == {"e"});
 }
