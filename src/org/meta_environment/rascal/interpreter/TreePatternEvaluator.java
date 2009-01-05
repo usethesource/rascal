@@ -97,12 +97,10 @@ interface MatchPattern {
 		this.literal = literal;
 	}
 	
-	@Override
 	public Type getType(Evaluator ev) {
 			return literal.getType();
 	}
 	
-	@Override
 	public boolean match(){
 		checkInitialized();
 		firstMatch = false;
@@ -145,7 +143,6 @@ interface MatchPattern {
 	}
 	
 	
-	@Override
 	public Type getType(Evaluator ev) {
 		 Type[] types = new Type[children.size()];
 
@@ -162,7 +159,6 @@ interface MatchPattern {
 		 }
 	}
 	
-	@Override
 	public boolean match(){
 		checkInitialized();
 		firstMatch = false;
@@ -290,7 +286,6 @@ interface MatchPattern {
 		hasNext = subject.getType().isListType() && subjectSize >= minSubjectSize;
 	}
 	
-	@Override
 	public Type getType(Evaluator ev) {
 		if(patternSize == 0){
 			return ev.tf.listType(ev.tf.voidType());
@@ -392,7 +387,6 @@ interface MatchPattern {
 	 * 
 	 * @see org.meta_environment.rascal.interpreter.MatchPattern#match()
 	 */
-	@Override
 	public boolean match(){
 		checkInitialized();
 		//System.err.println("TreePatternList.match: " + subject);
@@ -553,12 +547,10 @@ interface MatchPattern {
 		this.children = children;
 	}
 	
-	@Override
 	public Type getType(Evaluator ev) {
 		return ev.tf.setType(ev.tf.voidType());
 	}
 	
-	@Override
 	public boolean match(){
 		checkInitialized();
 		firstMatch = false;
@@ -589,12 +581,10 @@ interface MatchPattern {
 		}
 	}
 	
-	@Override
 	public Type getType(Evaluator ev) {
 		return ev.tf.tupleType(ev.tf.voidType()); // TODO: return more precise type
 	}
 	
-	@Override
 	public boolean match() {
 		checkInitialized();
 		firstMatch = false;
@@ -613,13 +603,11 @@ interface MatchPattern {
 		this.children = children;
 	}
 	
-	@Override
 	public Type getType(Evaluator ev) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 	
-	@Override
 	public boolean match(){
 		checkInitialized();
 		firstMatch = false;
@@ -640,7 +628,6 @@ interface MatchPattern {
 	    type = (boundBeforeConstruction) ? patRes.type : TypeFactory.getInstance().voidType();
 	}
 	
-	@Override
 	public Type getType(Evaluator ev) {
 		
 		return type;
@@ -690,7 +677,6 @@ interface MatchPattern {
 		this.name = name;
 	}
 	
-	@Override
 	public Type getType(Evaluator ev) {
 		return declaredType;
 	}

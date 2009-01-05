@@ -3525,13 +3525,11 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			firstCall = true;
 		}
 
-		@Override
 		public boolean hasNext() {
 			
 			return firstCall;
 		}
 
-		@Override
 		public IValue next() {
 			if(!firstCall){
 				throw new RascalBug("next called more than once");
@@ -3540,7 +3538,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			return value;
 		}
 
-		@Override
 		public void remove() {
 			// TODO Auto-generated method stub
 		}
