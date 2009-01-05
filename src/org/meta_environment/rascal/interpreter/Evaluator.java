@@ -165,8 +165,6 @@ import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
 import org.meta_environment.uptr.Factory;
 
-import com.sun.org.apache.xpath.internal.functions.FuncCeiling;
-
 public class Evaluator extends NullASTVisitor<EvalResult> {
 	public static final String RASCAL_FILE_EXT = ".rsc";
 	final IValueFactory vf;
@@ -751,7 +749,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				 sep = ", ";
 				 sb.append(actualTypes.getFieldType(i).toString());
 			 }
-			 throw new RascalTypeError("Function " + name + "(" +  sb.toString() + ") is not defined");
+			 throw new RascalTypeError("No function/constructor " + name + "(" +  sb.toString() + ") is defined");
 			// Used to be: return constructTree(name, actuals, actualTypes);
 		 }
 	}
@@ -3111,7 +3109,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				org.meta_environment.rascal.ast.Type tp = rule.getType();
 				Type type = tp.accept(te);
 				rule = rule.getRule();
-				org.meta_environment.rascal.ast.Expression pat = rule.getPattern();
 				if (subject.getType().isSubtypeOf(type) && 
 					matchAndEval(subject, rule.getPattern(), rule.getStatement())) {
 					return new TraverseResult(true, subject);
