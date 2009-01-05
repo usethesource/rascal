@@ -82,7 +82,6 @@ public class SubList extends Value implements IList {
 		}
 	}
 
-	@Override
 	public IList append(IValue elem) {
 		IListWriter w = ValueFactory.getInstance().listWriter(elem.getType().lub(getElementType()));
 		insertSubListElements(w);
@@ -91,7 +90,6 @@ public class SubList extends Value implements IList {
 		return w.done();
 	}
 
-	@Override
 	public IList concat(IList other) {
 		IListWriter w = ValueFactory.getInstance().listWriter(other.getElementType().lub(getElementType()));
 		insertSubListElements(w);
@@ -99,19 +97,16 @@ public class SubList extends Value implements IList {
 		return w.done();
 	}
 
-	@Override
 	public IValue get(int i) throws IndexOutOfBoundsException {
 		if(i < start || i >= end)
 			new ArrayIndexOutOfBoundsException("SubList");
 		return base.get(start + i);	
 	}
 
-	@Override
 	public Type getElementType() {
 		return base.getElementType();
 	}
 
-	@Override
 	public IList insert(IValue elem) {
 		IListWriter w = ValueFactory.getInstance().listWriter(elem.getType().lub(getElementType()));
 		insertSubListElements(w);
@@ -120,17 +115,14 @@ public class SubList extends Value implements IList {
 		return w.done();
 	}
 
-	@Override
 	public boolean isEmpty() {
 		return len == 0;
 	}
 
-	@Override
 	public int length() {
 		return len;
 	}
 
-	@Override
 	public IList put(int i, IValue elem) throws FactTypeError,
 			IndexOutOfBoundsException {
 		
@@ -141,7 +133,6 @@ public class SubList extends Value implements IList {
 
 	}
 
-	@Override
 	public IList reverse() {
 		IListWriter w = ValueFactory.getInstance().listWriter(getElementType());
 		for(int i = end - 1; i >= start; i--){
@@ -151,12 +142,10 @@ public class SubList extends Value implements IList {
 		return w.done();
 	}
 
-	@Override
 	public Iterator<IValue> iterator() {
 		return new SubListIterator(this);
 	}
 
-	@Override
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
 		//TODO: Is this ok?
 		return v.visitList(this);
@@ -174,13 +163,11 @@ class SubListIterator implements Iterator<IValue> {
 		end = sl.length();
 	}
 
-	@Override
 	public boolean hasNext() {
 		System.err.println("hasNext: " + (cursor < end -1));
 		return cursor < end;
 	}
 
-	@Override
 	public IValue next() {
 		if(cursor >= end){
 			throw new RascalBug("next called on exhausted SubListIterator");
@@ -188,7 +175,6 @@ class SubListIterator implements Iterator<IValue> {
 		return sl.get(cursor++);
 	}
 
-	@Override
 	public void remove() {
 		// TODO Auto-generated method stub
 		

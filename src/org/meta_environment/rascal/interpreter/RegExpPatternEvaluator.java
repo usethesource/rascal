@@ -67,12 +67,10 @@ class RegExpPatternValue implements MatchPattern {
 		}
 	}
 	
-	@Override
 	public Type getType(Evaluator ev) {
 		return ev.tf.stringType();
 	}
 
-	@Override
 	public void initMatch(IValue subject, Evaluator ev) {
 		if(!subject.getType().isStringType()){
 			hasNext = false;
@@ -89,7 +87,6 @@ class RegExpPatternValue implements MatchPattern {
 		}
 	}
 	
-	@Override
 	public boolean hasNext() {
 		return initialized && (firstMatch || hasNext);
 	}
