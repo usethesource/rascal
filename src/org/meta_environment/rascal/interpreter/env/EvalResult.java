@@ -2,6 +2,7 @@ package org.meta_environment.rascal.interpreter.env;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.meta_environment.rascal.interpreter.RascalBug;
 import org.meta_environment.rascal.interpreter.RascalTypeError;
 
 public class EvalResult {
@@ -29,5 +30,17 @@ public class EvalResult {
 	
 	public boolean isClosure() {
 		return false;
+	}
+	
+	/*
+	 * Experimental extension for backtracking over Boolean expressions
+	 */
+	
+	public boolean hasNext(){
+		return false;
+	}
+	
+	public EvalResult next(){
+		throw new RascalBug("next() cannot be called on a standard EvalResult");
 	}
 }
