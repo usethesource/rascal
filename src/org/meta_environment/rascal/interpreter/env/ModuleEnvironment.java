@@ -197,7 +197,15 @@ public class ModuleEnvironment extends Environment {
 	public Type getTreeNodeType(String cons, Type args) {
 		for (List<Type> sig : signature.values()) {
 			for (Type cand : sig) {
-				if (cand.getName().equals(cons) && args.isSubtypeOf(cand.getFieldTypes())) {
+				String candCons = cand.getName();
+				
+				if (candCons == null) {
+					if (cons == null && args.isSubtypeOf(cand.getFieldTypes())) {
+						return cand;
+					}
+				}
+				else if (candCons.equals(cons)
+				      && args.isSubtypeOf(cand.getFieldTypes())) {
 					return cand;
 				}
 			}
@@ -220,7 +228,8 @@ public class ModuleEnvironment extends Environment {
 		
 		if (sig != null) {
 			for (Type cand : sig) {
-				if (cand.getName().equals(cons) && args.isSubtypeOf(cand.getFieldTypes())) {
+				String candName = cand.getName();
+				if (candName != null && candName.equals(cons) && args.isSubtypeOf(cand.getFieldTypes())) {
 					return cand;
 				}
 			}
