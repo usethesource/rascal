@@ -55,11 +55,11 @@ public class DataDeclarationTests extends TestCase{
 		tf = new TestFramework();
 		tf.prepare("type str Var;");
 		tf.prepareMore("type int intCon;");
-		tf.prepareMore("data Exp let(Var var, Exp exp1, Exp exp2) | Var var | intCon intVal;");
+		tf.prepareMore("data Exp let(Var var, Exp exp1, Exp exp2) | var(Var var) | intCon intVal;");
 		
 		assertTrue(tf.runTestInSameEvaluator("{Exp e = 1; e == 1;}"));
-		assertTrue(tf.runTestInSameEvaluator("{Exp e = \"a\"; e == \"a\";}"));
-		assertTrue(tf.runTestInSameEvaluator("{Exp e = let(\"a\",1,\"a\"); e ==  let(\"a\",1,\"a\");}"));
+		assertTrue(tf.runTestInSameEvaluator("{Exp e = var(\"a\"); e == var(\"a\");}"));
+		assertTrue(tf.runTestInSameEvaluator("{Exp e = let(\"a\",1,var(\"a\")); e ==  let(\"a\",1,var(\"a\"));}"));
 	}
 	
 }
