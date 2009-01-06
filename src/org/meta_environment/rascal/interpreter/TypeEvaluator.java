@@ -24,6 +24,7 @@ import org.meta_environment.rascal.ast.StructuredType.Map;
 import org.meta_environment.rascal.ast.StructuredType.Relation;
 import org.meta_environment.rascal.ast.StructuredType.Set;
 import org.meta_environment.rascal.ast.StructuredType.Tuple;
+import org.meta_environment.rascal.ast.Type.Ambiguity;
 import org.meta_environment.rascal.ast.Type.Basic;
 import org.meta_environment.rascal.ast.Type.Function;
 import org.meta_environment.rascal.ast.Type.Structured;
@@ -282,5 +283,10 @@ public class TypeEvaluator extends NullASTVisitor<Type> {
 		}
 	
 		return type;
+	}
+	
+	@Override
+	public Type visitTypeAmbiguity(Ambiguity x) {
+		throw new RascalBug("Ambiguous type: " + x);
 	}
 }
