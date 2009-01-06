@@ -54,6 +54,9 @@ public class RascalShell {
 					console.printString(output);
 					console.printNewline();
 				}
+				catch (FailureException e) {
+					break;
+				}
 				catch (FactTypeError e) {
 					console.printString("bug: " + e.getMessage() + "\n");
 				    printStacktrace(console, e);
