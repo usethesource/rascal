@@ -63,17 +63,17 @@ public class StatementTests extends TestCase {
 	}
 	
 	public void testFor() throws IOException {
-		assertTrue(tf.runTest("{int n = 0; for(int i:[1,2,3,4]){ n = n + i;}; assert \"a\": n == 10;}"));
-		assertTrue(tf.runTest("{int n = 0; for(int i:[1,2,3,4], n <= 3){ n = n + i;}; assert \"a\": n == 6;}"));
+		assertTrue(tf.runTest("{int n = 0; for(int i:[1,2,3,4]){ n = n + i;} assert \"a\": n == 10;}"));
+		assertTrue(tf.runTest("{int n = 0; for(int i:[1,2,3,4], n <= 3){ n = n + i;} assert \"a\": n == 6;}"));
 	}
 	public void testIfThen() throws IOException {
-		assertTrue(tf.runTest("{int n = 10; if(n < 10){n = n - 4;}; assert \"a\": n == 10;}"));
-		assertTrue(tf.runTest("{int n = 10; if(n < 15){n = n - 4;}; assert \"a\": n == 6;}"));
+		assertTrue(tf.runTest("{int n = 10; if(n < 10){n = n - 4;} assert \"a\": n == 10;}"));
+		assertTrue(tf.runTest("{int n = 10; if(n < 15){n = n - 4;} assert \"a\": n == 6;}"));
 	}
 	
 	public void testIfThenElse() throws IOException {
-		assertTrue(tf.runTest("{int n = 10; if(n < 10){n = n - 4;} else { n = n + 4;}; assert \"a\": n == 14;}"));
-		assertTrue(tf.runTest("{int n = 12; if(n < 10){n = n - 4;} else { n = n + 4;}; assert \"a\": n == 16;}"));
+		assertTrue(tf.runTest("{int n = 10; if(n < 10){n = n - 4;} else { n = n + 4;} assert \"a\": n == 14;}"));
+		assertTrue(tf.runTest("{int n = 12; if(n < 10){n = n - 4;} else { n = n + 4;} assert \"a\": n == 16;}"));
 	}
 	
 	public void testSwitch() throws IOException {
