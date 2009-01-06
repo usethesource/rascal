@@ -9,6 +9,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.hash.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
@@ -164,22 +165,31 @@ public class TreeAdapter {
 		}
 
 		@Override
-		public INode visitTreeCharacter(INode arg) throws VisitorException {
+		public IInteger visitTreeCharacter(IInteger arg) throws VisitorException {
 			try {
-				fStream.write(((IInteger) arg.get("character")).getValue());
+				fStream.write(arg.getValue());
 				return arg;
 			} catch (IOException e) {
 				throw new VisitorException(e);
 			}
+		}
+		
+		@Override
+		public ITree visitTreeAppl(INode arg) throws VisitorException {
+			IList children = (IList) arg.get("args");
+			for (IValue child : children) {
+				child.accept(this);
+			}
+			return arg;
 		}
 	}
 	
 	public void unparse(OutputStream stream) throws IOException, FactTypeError {
 		try {
 			if (tree.getType() == Factory.ParseTree_Top) {
-				tree.get("top").accept(new BottomUpVisitor<IValue>(new Unparser(stream), ValueFactory.getInstance()));
+				tree.get("top").accept(new Unparser(stream));
 			} else if (tree.getType().getSuperType() == Factory.Tree) {
-				tree.accept(new BottomUpVisitor<IValue>(new Unparser(stream), ValueFactory.getInstance()));
+				tree.accept(new Unparser(stream));
 			} else {
 				throw new FactTypeError("Can not unparse this "
 						+ tree.getType());

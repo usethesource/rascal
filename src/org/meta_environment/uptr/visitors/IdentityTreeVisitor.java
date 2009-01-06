@@ -1,5 +1,6 @@
 package org.meta_environment.uptr.visitors;
 
+import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
@@ -17,7 +18,7 @@ public abstract class IdentityTreeVisitor extends TreeVisitor {
 	}
 
 	@Override
-	public ITree visitTreeCharacter(INode arg) throws VisitorException {
+	public IInteger visitTreeCharacter(IInteger arg) throws VisitorException {
 		return arg;
 	}
 
