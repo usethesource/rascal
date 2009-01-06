@@ -1,5 +1,6 @@
 package org.meta_environment.uptr.visitors;
 
+import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
@@ -22,9 +23,6 @@ public abstract class TreeVisitor extends IdentityVisitor {
 			else if (alt == Factory.Tree_Amb) {
 				return visitTreeAmb(o);
 			}
-			else if (alt == Factory.Tree_Char) {
-				return visitTreeCharacter(o);
-			}
 			else if (alt == Factory.Tree_Cycle) {
 				return visitTreeCycle(o);
 			}
@@ -37,8 +35,13 @@ public abstract class TreeVisitor extends IdentityVisitor {
 		}
 	}
 	
+	@Override
+	public IInteger visitInteger(IInteger arg) throws VisitorException {
+		return visitTreeCharacter(arg);
+	}
+	
 	public abstract ITree visitTreeAppl(INode arg) throws VisitorException;
 	public abstract ITree visitTreeAmb(INode arg) throws VisitorException;
-	public abstract ITree visitTreeCharacter(INode arg) throws VisitorException;
+	public abstract IInteger visitTreeCharacter(IInteger arg) throws VisitorException;
 	public abstract ITree visitTreeCycle(INode arg) throws VisitorException;
 }
