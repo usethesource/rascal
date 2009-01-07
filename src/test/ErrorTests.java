@@ -24,9 +24,9 @@ public class ErrorTests extends TestCase{
 		assertTrue(tf.runWithError("3 * true;", "Operands of * have illegal types"));
 		assertTrue(tf.runWithError("3 / true;", "Operands of / have illegal types"));
 		assertTrue(tf.runWithError("3 % true;", "Operands of % have illegal types"));
-		assertTrue(tf.runWithError("3 || true;", "Operands of || should be boolean instead of"));
-		assertTrue(tf.runWithError("3 && true;", "Operands of && should be boolean instead of"));
-		assertTrue(tf.runWithError("3 ==> true;", "Operands of ==> should be boolean instead of"));
+		assertTrue(tf.runWithError("3 || true;", "Operand of boolean operator should be of type bool"));
+		assertTrue(tf.runWithError("3 && true;", "Operand of boolean operator should be of type bool"));
+		assertTrue(tf.runWithError("3 ==> true;", "Operand of boolean operator should be of type bool"));
 		assertTrue(tf.runWithError("1 ? 2 : 3;", "but should be bool"));
 		assertTrue(tf.runWithError("1 in 3;", "Operands of in have wrong types"));
 		assertTrue(tf.runWithError("1 o 3;", "Operands of o have wrong types"));

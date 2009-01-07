@@ -52,7 +52,7 @@ interface MatchPattern {
 	/**
 	 * @return true if the MatchPattern matches the subject
 	 */
-	public boolean match();
+	public boolean next();
 }
 
 /* package */ class BasicTreePattern {
@@ -81,7 +81,7 @@ interface MatchPattern {
 	
 	boolean matchChildren(Iterator<IValue> subjChildren, Iterator<MatchPattern> patChildren, Evaluator ev){
 		while (patChildren.hasNext()) {
-			if (!patChildren.next().match()){
+			if (!patChildren.next().next()){
 				return false;
 			}
 		}
@@ -101,7 +101,7 @@ interface MatchPattern {
 			return literal.getType();
 	}
 	
-	public boolean match(){
+	public boolean next(){
 		checkInitialized();
 		firstMatch = false;
 		//System.err.println("TreePatternLiteral.match: " + subject);
@@ -159,7 +159,7 @@ interface MatchPattern {
 		 }
 	}
 	
-	public boolean match(){
+	public boolean next(){
 		checkInitialized();
 		firstMatch = false;
 		//System.err.println("TreePatternTree.match(" + name + ") subj = " + subj + "subj Type = " + subj.getType());
@@ -192,6 +192,7 @@ interface MatchPattern {
 	private int [] listVarLength;					// Current length matched by list variable
 	private int [] listVarMinLength;				// Minimal length to be matched by list variable
 	private int [] listVarMaxLength;				// Maximal length that can be matched by list variable
+	private int [] listVarOccurrences;				// Number of occurrences of list variable in the pattern
 
 	private int subjectCursor;						// Cursor in the subject
 	private int patternCursor;						// Cursor in the pattern
@@ -199,6 +200,8 @@ interface MatchPattern {
 	private boolean firstMatch;					// First match after initialization?
 	private boolean hasNext;						// Has this pattern alternatives for further matching?
 	private boolean forward;						// Moving to the right?
+	
+	private boolean debug = true;
 	
 	TreePatternList(java.util.List<MatchPattern> children){
 		this.children = children;					
@@ -241,6 +244,7 @@ interface MatchPattern {
 				listVars.add(((TreePatternTypedVariable)child).getName());
 				hasListVar = true;
 				isListVar[i] = true;
+				listVarOccurrences[i] = 1;
 				nListVar++;
 			} else if(child instanceof TreePatternQualifiedName){
 				
@@ -251,6 +255,7 @@ interface MatchPattern {
 					 */
 					isListVar[i] = true;
 			    	nListVar++;
+			    	listVarOccurrences[i]++;
 				} else  {
 					GlobalEnvironment env = GlobalEnvironment.getInstance();
 					EvalResult patRes = env.getVariable(name);
@@ -294,7 +299,7 @@ interface MatchPattern {
 			for(int i = 0; i < patternSize; i++){
 				elemType = elemType.lub(children.get(0).getType(ev));
 			}
-			//System.err.println("ListPattern.getType: " + ev.tf.listType(elemType));
+			if(debug)System.err.println("ListPattern.getType: " + ev.tf.listType(elemType));
 			return ev.tf.listType(elemType);
 		}
 	}
@@ -324,24 +329,24 @@ interface MatchPattern {
 	
 	private void matchBoundListVar(IList prev){
 
-		//System.err.println("matchBoundListVar: " + prev);
+		if(debug) System.err.println("matchBoundListVar: " + prev);
 		assert isListVar[patternCursor];
 		
 		int start = listVarStart[patternCursor];
 		int length = listVarLength[patternCursor];
 		
 		for(int i = 0; i < prev.length(); i++){
-			//System.err.println("comparing: " + prev.get(i) + " and " + listSubject.get(subjectCursor + i));
+			if(debug)System.err.println("comparing: " + prev.get(i) + " and " + listSubject.get(subjectCursor + i));
 			if(!prev.get(i).equals(listSubject.get(subjectCursor + i))){
 				forward = false;
 				listVarLength[patternCursor] = 0;
 				patternCursor--;
-				//System.err.println("child fails");
+				if(debug)System.err.println("child fails");
 				return;
 			}
 		}
 		subjectCursor = start + length;
-		//System.err.println("child matches, subjectCursor=" + subjectCursor);
+		if(debug)System.err.println("child matches, subjectCursor=" + subjectCursor);
 		patternCursor++;
 	}
 	
@@ -359,18 +364,18 @@ interface MatchPattern {
 		int length = listVarLength[patternCursor];
 		
 		IList sublist = makeSubList();
-		//System.err.println("matchBindingListVar: init child #" + patternCursor + " (" + child + ") with " + sublist);
+		if(debug)System.err.println("matchBindingListVar: init child #" + patternCursor + " (" + child + ") with " + sublist);
 		child.initMatch(sublist, ev);
 	
-		if(child.match()){
+		if(child.next()){
 			subjectCursor = start + length;
-			//System.err.println("child matches, subjectCursor=" + subjectCursor);
+			if(debug)System.err.println("child matches, subjectCursor=" + subjectCursor);
 			patternCursor++;
 		} else {
 			forward = false;
 			listVarLength[patternCursor] = 0;
 			patternCursor--;
-			//System.err.println("child failse, subjectCursor=" + subjectCursor);
+			if(debug)System.err.println("child failse, subjectCursor=" + subjectCursor);
 		}	
 	}
 	
@@ -387,9 +392,9 @@ interface MatchPattern {
 	 * 
 	 * @see org.meta_environment.rascal.interpreter.MatchPattern#match()
 	 */
-	public boolean match(){
+	public boolean next(){
 		checkInitialized();
-		//System.err.println("TreePatternList.match: " + subject);
+		if(debug)System.err.println("TreePatternList.match: " + subject);
 		
 		forward = firstMatch;
 		firstMatch = false;
@@ -403,7 +408,7 @@ interface MatchPattern {
 			if(forward){
 				if(patternCursor == patternSize){
 					if(subjectCursor == subjectSize){
-						//System.err.println(">>> match returns true");
+						if(debug)System.err.println(">>> match returns true");
 						return true;
 					}
 					forward = false;
@@ -417,7 +422,7 @@ interface MatchPattern {
 			
 			if(patternCursor < 0 || subjectCursor < 0){
 				hasNext = false;
-				//System.err.println(">>> match returns false: patternCursor=" + patternCursor + ", forward=" + forward + ", subjectCursor=" + subjectCursor);
+				if(debug)System.err.println(">>> match returns false: patternCursor=" + patternCursor + ", forward=" + forward + ", subjectCursor=" + subjectCursor);
 				return false;
 			}
 			
@@ -426,14 +431,15 @@ interface MatchPattern {
 			 */
 			
 			MatchPattern child = children.get(patternCursor);
-			/*System.err.println(this);
-			System.err.println("loop: patternCursor=" + patternCursor + 
+			if(debug){
+				System.err.println(this);
+				System.err.println("loop: patternCursor=" + patternCursor + 
 					               ", forward=" + forward + 
 					               ", subjectCursor= " + subjectCursor + 
 					               ", child=" + child +
 					               ", isListVar=" + isListVar[patternCursor] +
 					               ", class=" + child.getClass());
-					            */
+			}
 			
 			/*
 			 * Reference to a previously defined list variable
@@ -478,15 +484,15 @@ interface MatchPattern {
 					listVarLength[patternCursor]++;
 					forward = true;
 				}
-				/*System.err.println("list var: start: " + listVarStart[patternCursor] +
+				if(debug)System.err.println("list var: start: " + listVarStart[patternCursor] +
 						           ", len=" + listVarLength[patternCursor] + 
 						           ", minlen=" + listVarMinLength[patternCursor] +
-						           ", maxlen=" + listVarMaxLength[patternCursor]);*/
+						           ", maxlen=" + listVarMaxLength[patternCursor]);
 				if(listVarLength[patternCursor] > listVarMaxLength[patternCursor]  ||
 				   listVarStart[patternCursor] + listVarLength[patternCursor] > subjectSize){
 					
 					subjectCursor = listVarStart[patternCursor];
-					//System.err.println("Length failure, subjectCursor=" + subjectCursor);
+					if(debug)System.err.println("Length failure, subjectCursor=" + subjectCursor);
 					
 					forward = false;
 					listVarLength[patternCursor] = 0;
@@ -500,12 +506,12 @@ interface MatchPattern {
 			} else {
 				
 				if(forward && subjectCursor < subjectSize){
-					//System.err.println("TreePatternList.match: init child " + patternCursor + " with " + listSubject.get(subjectCursor));
+					if(debug)System.err.println("TreePatternList.match: init child " + patternCursor + " with " + listSubject.get(subjectCursor));
 					child.initMatch(listSubject.get(subjectCursor), ev);
-					if(child.match()){
+					if(child.next()){
 						subjectCursor++;
 						patternCursor++;
-						//System.err.println("TreePatternList.match: child matches, subjectCursor=" + subjectCursor);
+						if(debug)System.err.println("TreePatternList.match: child matches, subjectCursor=" + subjectCursor);
 					} else {
 						forward = false;
 						patternCursor--;
@@ -551,7 +557,7 @@ interface MatchPattern {
 		return ev.tf.setType(ev.tf.voidType());
 	}
 	
-	public boolean match(){
+	public boolean next(){
 		checkInitialized();
 		firstMatch = false;
 		throw new RascalBug("PatternSet.match not implemented");
@@ -585,7 +591,7 @@ interface MatchPattern {
 		return ev.tf.tupleType(ev.tf.voidType()); // TODO: return more precise type
 	}
 	
-	public boolean match() {
+	public boolean next() {
 		checkInitialized();
 		firstMatch = false;
 		if (subject.getType().isTupleType()
@@ -608,7 +614,7 @@ interface MatchPattern {
 		return null;
 	}
 	
-	public boolean match(){
+	public boolean next(){
 		checkInitialized();
 		firstMatch = false;
 		throw new RascalBug("PatternMap.match not implemented");
@@ -637,7 +643,7 @@ interface MatchPattern {
 		return name.toString();
 	}
 	
-	public boolean match(){
+	public boolean next(){
 		checkInitialized();
 		//System.err.println("TreePatternQualifiedName.match: " + name);
         GlobalEnvironment env = GlobalEnvironment.getInstance();
@@ -685,7 +691,7 @@ interface MatchPattern {
 		return name.toString();
 	}
 
-	public boolean match() {
+	public boolean next() {
 		checkInitialized();
 		firstMatch = false;
 		//System.err.println("TypedVariable.match: " + subject + " with " + declaredType + " " + name);

@@ -120,7 +120,7 @@ class RegExpPatternValue implements MatchPattern {
 		return false;
 	}
 	
-	public boolean match(){
+	public boolean next(){
 		if(firstMatch){
 			firstMatch = false;
 			matcher = pat.matcher(subject);

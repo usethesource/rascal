@@ -1,5 +1,6 @@
 package org.meta_environment.rascal.interpreter.env;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.interpreter.RascalBug;
@@ -32,6 +33,14 @@ public class EvalResult {
 		return false;
 	}
 	
+	public boolean isTrue(){
+		if(type.isBoolType()){
+			return ((IBool)value).getValue();
+		} else {
+			return false;
+		}	
+	}
+	
 	/*
 	 * Experimental extension for backtracking over Boolean expressions
 	 */
@@ -44,3 +53,5 @@ public class EvalResult {
 		throw new RascalBug("next() cannot be called on a standard EvalResult");
 	}
 }
+
+
