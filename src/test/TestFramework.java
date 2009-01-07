@@ -24,7 +24,8 @@ public class TestFramework {
 	private Evaluator evaluator;
 	
 	public TestFramework () {
-		
+		evaluator = new Evaluator(ValueFactory.getInstance(), factory,
+				new PrintWriter(System.err));
 	}
 	
 	public TestFramework (String  command){
@@ -112,7 +113,6 @@ public class TestFramework {
 			return false;
 		} else {
 			Command cmd = builder.buildCommand(tree);
-
 			if (cmd.isStatement()) {
 				IValue value = evaluator.eval(cmd.getStatement());
 				if (value == null || !value.getType().isBoolType())
