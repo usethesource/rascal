@@ -8,11 +8,15 @@ import org.meta_environment.rascal.ast.Expression.And;
 import org.meta_environment.rascal.ast.Expression.Implication;
 import org.meta_environment.rascal.ast.Expression.Negation;
 import org.meta_environment.rascal.ast.Expression.Or;
-import org.meta_environment.rascal.ast.OperatorAsValue.Not;
 import org.meta_environment.rascal.interpreter.env.EvalResult;
 
 class BooleanEvalResult extends EvalResult {
 	BooleanEvaluator beval;
+	
+	BooleanEvalResult(BooleanEvaluator beval){
+		super(TypeFactory.getInstance().boolType(), null);
+		this.beval = beval;
+	}
 	
 	BooleanEvalResult(BooleanEvaluator beval, boolean b){
 		super(TypeFactory.getInstance().boolType(), ValueFactory.getInstance().bool(b));
@@ -41,22 +45,23 @@ public abstract class BooleanEvaluator {
 		result = new EvalResult[] { null, null };
 	}
 	
-	EvalResult getArg(Expression expr){
-		EvalResult argResult = expr.accept(ev);
+	void defArg(int i){
+		System.err.println("defArg: " + i + ", "+ expr[i]);
+		EvalResult argResult = expr[i].accept(ev);
 		if(!argResult.type.isBoolType()){
-			throw new RascalTypeError("Argument of || should be of type bool and not " + argResult.type);
+			throw new RascalTypeError("Argument of boolean operator should be of type bool and not " + argResult.type);
 		}
-		return argResult;
+		result[i] = argResult;
 	};
 	
 	void def(int i){
 		if(result[i] == null){
-			result[i] = getArg(expr[i]);
+			defArg(i);
 		}
 	}
 	
 	void redef(int i){
-		result[i] = getArg(expr[i]);
+		defArg(i);
 	}
 	
 	public boolean hasNext(){
@@ -67,17 +72,25 @@ public abstract class BooleanEvaluator {
 		return null;
 	}
 	
-	public boolean nextResult(int i){
-		def(i);
-		if(result[i].hasNext()){
+	public boolean getNextResult(int i){
+		if(result[i] == null){
+			defArg(i);
+			return true;
+		}
+		while(result[i].hasNext()){
 			result[i] = result[i].next();
 			return true;
 		}
 		return false;
 	}
 	
-	public boolean nextResult(int i, boolean expected){
-		def(i);
+	public boolean getNextResult(int i, boolean expected){
+		if(result[i] == null){
+			defArg(i);
+			if(((IBool)result[i].value).getValue() == expected){
+				return true;
+			}
+		}
 		while(result[i].hasNext()){
 			result[i] = result[i].next();
 			if(((IBool)result[i].value).getValue() == expected){
@@ -87,25 +100,13 @@ public abstract class BooleanEvaluator {
 		return false;
 	}
 	
-	public boolean nextTrueLeft(){
-		return nextResult(LEFT, true);
+	public boolean is(int i, boolean expected){
+		if(result[i] == null){
+			defArg(i);
+		}
+		return ((IBool)result[i].value).getValue() == expected;
 	}
-	
-	public boolean nextTrueRight(){
-		return nextResult(RIGHT, true);
-	}
-	
-	public boolean nextFalseLeft(){
-		return nextResult(LEFT, false);
-	}
-	
-	public boolean nextLeft(){
-		return nextResult(LEFT);
-	}
-	
-	public boolean nextRight(){
-		return nextResult(RIGHT);
-	}
+
 }
 
 class AndEvaluator extends BooleanEvaluator {
@@ -116,18 +117,22 @@ class AndEvaluator extends BooleanEvaluator {
 
 	@Override
 	public EvalResult next() {
-		if(isTrueLeft()){
-			if(nextTrueRight()){
+		System.err.println("AndEvaluator");
+		if(is(LEFT, false)){
+			if(!getNextResult(LEFT,true)){
+				return new BooleanEvalResult(this, false);
+			}
+		}
+		if(is(LEFT, true)){
+			if(getNextResult(RIGHT,true)){
 				return new BooleanEvalResult(this, true);
 			}
-			
-		if(!nextTrueLeft()){
-			return new BooleanEvalResult(this, false);
+			if(getNextResult(LEFT,true)){
+				redef(RIGHT);
+				return next();
+			}
 		}
-		if(!nextTrueRight()){
-			return new BooleanEvalResult(this, false);
-		}
-		return new BooleanEvalResult(this, true);
+		return new BooleanEvalResult(this, false);
 	}
 }
 
@@ -139,13 +144,14 @@ class OrEvaluator extends BooleanEvaluator {
 
 	@Override
 	public EvalResult next() {	
-		if(nextTrueLeft()){
+		if(getNextResult(LEFT, true)){
 			return new BooleanEvalResult(this, true);
 		}
-		if(nextTrueRight()){
+		if(getNextResult(RIGHT,true)){
 			return new BooleanEvalResult(this, true);
 		}
 		return new BooleanEvalResult(this, false);
+			
 	}
 }
 
@@ -157,8 +163,8 @@ class NegationEvaluator extends BooleanEvaluator {
 
 	@Override
 	public EvalResult next() {		
-		if(nextFalseLeft()){
-			return new BooleanEvalResult(this, true);
+		if(getNextResult(LEFT)){
+			return new BooleanEvalResult(this, !((IBool)result[LEFT].value).getValue());
 		}
 		return new BooleanEvalResult(this, false);
 	}
@@ -172,19 +178,27 @@ class ImplicationEvaluator extends BooleanEvaluator {
 
 	@Override
 	public EvalResult next() {
-		if(nextLeft()){
-			if(!(((IBool)result[LEFT].value).getValue())){
+		if(is(LEFT,false)){
+			if(getNextResult(RIGHT)){
 				return new BooleanEvalResult(this, true);
 			}
-			
+			if(getNextResult(LEFT)){
+				redef(RIGHT);
+				return next();
+			} 
+			return new BooleanEvalResult(this, false);
 		}
-		if(((IBool)left.value).getValue()){
-			return new BooleanEvalResult(this, true);
+		if(is(LEFT, true)){
+			if(getNextResult(RIGHT, true)){
+				return new BooleanEvalResult(this, true);
+			}
+			if(getNextResult(LEFT)){
+				redef(RIGHT);
+				return next();
+			} 
+			return new BooleanEvalResult(this, false);
 		}
-		nextTrueRight();
-		if(((IBool)right.value).getValue()){
-			return new BooleanEvalResult(this, true);
-		}
-		return new BooleanEvalResult(this, false);
+	
+		return  new BooleanEvalResult(this, false);
 	}
 }

@@ -1649,7 +1649,9 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
     public EvalResult visitExpressionMatch(Match x) {
     	org.meta_environment.rascal.ast.Expression pat = x.getPattern();
     	EvalResult subj = x.getExpression().accept(this);
+    	
     	return result(vf.bool(matchOne(subj.value, pat))); 
+  
     }
     
     @Override
@@ -1677,6 +1679,14 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		mp.initMatch(subj, this);
 		return mp.match();
 	}
+	/*
+	private BooleanEvalResult matchOneBR(IValue subj, org.meta_environment.rascal.ast.Expression pat){
+		MatchPattern mp = evalPattern(pat);
+		lastPattern = mp;
+		mp.initMatch(subj, this);
+		return mp.match();
+	}
+	*/
 
 	// Expressions -----------------------------------------------------------
 
@@ -2334,6 +2344,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 
 	@Override
 	public EvalResult visitExpressionOr(Or x) {
+		return new OrEvaluator(x, this).next();
+		/*
 		EvalResult left = x.getLhs().accept(this);
 		EvalResult right = x.getRhs().accept(this);
 		
@@ -2345,10 +2357,15 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 					"Operands of || should be boolean instead of: " + left.type
 							+ ", " + right.type);
 		}
+		*/
 	}
 
 	@Override
 	public EvalResult visitExpressionAnd(And x) {
+		
+		return new AndEvaluator(x, this).next();
+		
+		/*
 		EvalResult left = x.getLhs().accept(this);
 		EvalResult right = x.getRhs().accept(this);
 		
@@ -2360,6 +2377,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 					"Operands of && should be boolean instead of: " + left.type
 							+ ", " + right.type);
 		}
+		*/
 	}
 
 	@Override
