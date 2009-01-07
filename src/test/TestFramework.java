@@ -63,6 +63,15 @@ public class TestFramework {
 		return false;
 	}
 	
+	boolean runWithErrorInSameEvaluator(String command, String msg){
+		try {
+			execute(command);
+		} catch (Exception e){
+			return e.toString().indexOf(msg) >= 0;			
+		}
+		return false;
+	}
+	
 	TestFramework prepare(String command){
 		try{
 			evaluator = new Evaluator(ValueFactory.getInstance(), factory,

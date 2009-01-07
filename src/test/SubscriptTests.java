@@ -68,13 +68,16 @@ public class SubscriptTests extends TestCase {
 	}
 	
 	public void testTree() throws IOException{
-		assertTrue(tf.runTest("f(0, \"a\", 3.5)[0] == 0;"));
-		assertTrue(tf.runTest("f(0, \"a\", 3.5)[1] == \"a\";"));
-		assertTrue(tf.runTest("f(0, \"a\", 3.5)[2] == 3.5;"));
 		
-		assertTrue(tf.runWithError("f(0, \"a\", 3.5)[3] == 3.5;", "Subscript out of bounds"));
+		tf = new TestFramework("data NODE value V | f(int a, str b, double c);");
 		
-		assertTrue(tf.runTest("{tree T = f(0, \"a\", 3.5); T[0] = 10; T == f(10, \"a\", 3.5);}"));
+		assertTrue(tf.runTestInSameEvaluator("f(0, \"a\", 3.5)[0] == 0;"));
+		assertTrue(tf.runTestInSameEvaluator("f(0, \"a\", 3.5)[1] == \"a\";"));
+		assertTrue(tf.runTestInSameEvaluator("f(0, \"a\", 3.5)[2] == 3.5;"));
+		
+		assertTrue(tf.runWithErrorInSameEvaluator("f(0, \"a\", 3.5)[3] == 3.5;", "Subscript out of bounds"));
+		
+		assertTrue(tf.runTestInSameEvaluator("{tree T = f(0, \"a\", 3.5); T[0] = 10; T == f(10, \"a\", 3.5);}"));
 		
 	}
 }
