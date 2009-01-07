@@ -2,17 +2,17 @@ module AsFix
 
 data ParseTree parsetree(Tree top, int amb_cnt);
 
-data Tree appl(Production prod, Args args);
-data Tree cycle(Symbol symbol, int cycle_length);
-data Tree amb(Args args);
+data Tree 	appl(Production prod, Args args) |
+	 		cycle(Symbol symbol, int cycle_length) |
+	 		amb(Args args) | 
+	 		int intVal;
 
 // constructor(Tree, char, <character(int)>), %%??
 
-//type int Tree;
-
-data Tree int intVal;
+/*
 
 type list[Tree] Args;
+
 
 data Production prod(Symbols lhs, Symbol rhs, Attributes attributes);
  
@@ -105,4 +105,4 @@ str yieldTree(Tree T) {
    
  }
 }
-
+*/
