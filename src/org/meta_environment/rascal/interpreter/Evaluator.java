@@ -123,6 +123,7 @@ import org.meta_environment.rascal.ast.Expression.TypedVariable;
 import org.meta_environment.rascal.ast.Expression.Visit;
 import org.meta_environment.rascal.ast.Expression.VoidClosure;
 import org.meta_environment.rascal.ast.FunctionAsValue.Typed;
+import org.meta_environment.rascal.ast.Generator.Producer;
 import org.meta_environment.rascal.ast.Header.Parameters;
 import org.meta_environment.rascal.ast.IntegerLiteral.DecimalIntegerLiteral;
 import org.meta_environment.rascal.ast.Literal.Boolean;
@@ -161,6 +162,7 @@ import org.meta_environment.rascal.interpreter.env.ClosureResult;
 import org.meta_environment.rascal.interpreter.env.EnvironmentHolder;
 import org.meta_environment.rascal.interpreter.env.EvalResult;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
+import org.meta_environment.rascal.interpreter.env.IterableEvalResult;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
 import org.meta_environment.uptr.Factory;
@@ -180,7 +182,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	private final ASTFactory af;
 	private final JavaFunctionCaller javaFunctionCaller;
 	
-	private MatchPattern lastPattern;	// The most recent pattern applied in a match
+	protected MatchPattern lastPattern;	// The most recent pattern applied in a match
 
 	public Evaluator(IValueFactory f, ASTFactory astFactory, Writer errorWriter) {
 		this.vf = f;
@@ -1647,23 +1649,29 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
     @Override
     public EvalResult visitExpressionMatch(Match x) {
+    	return new MatchEvaluator(x.getPattern(), x.getExpression(), true, this).next();
+    	/*
     	org.meta_environment.rascal.ast.Expression pat = x.getPattern();
     	EvalResult subj = x.getExpression().accept(this);
     	
     	return result(vf.bool(matchOne(subj.value, pat))); 
+    	*/
   
     }
     
     @Override
     public EvalResult visitExpressionNoMatch(NoMatch x) {
+    	return new MatchEvaluator(x.getPattern(), x.getExpression(), false, this).next();
+    	/*
     	org.meta_environment.rascal.ast.Expression pat = x.getPattern();
     	EvalResult subj = x.getExpression().accept(this);
     	return result(vf.bool(!matchOne(subj.value, pat)));
+    	*/
     }
 	
 	// ----- General method for matching --------------------------------------------------
     
-    private MatchPattern evalPattern(org.meta_environment.rascal.ast.Expression pat){
+    protected MatchPattern evalPattern(org.meta_environment.rascal.ast.Expression pat){
     	if(pe.isPattern(pat)){
     		return pat.accept(pe);
     	} else if(re.isRegExpPattern(pat)){ 
@@ -1677,16 +1685,9 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		MatchPattern mp = evalPattern(pat);
 		lastPattern = mp;
 		mp.initMatch(subj, this);
-		return mp.match();
+		return mp.next();
 	}
-	/*
-	private BooleanEvalResult matchOneBR(IValue subj, org.meta_environment.rascal.ast.Expression pat){
-		MatchPattern mp = evalPattern(pat);
-		lastPattern = mp;
-		mp.initMatch(subj, this);
-		return mp.match();
-	}
-	*/
+
 
 	// Expressions -----------------------------------------------------------
 
@@ -2345,89 +2346,26 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	@Override
 	public EvalResult visitExpressionOr(Or x) {
 		return new OrEvaluator(x, this).next();
-		/*
-		EvalResult left = x.getLhs().accept(this);
-		EvalResult right = x.getRhs().accept(this);
-		
-		// Boolean
-		if (left.type.isBoolType() && right.type.isBoolType()) {
-			return result(((IBool) left.value).or((IBool) right.value));
-		} else {
-			throw new RascalTypeError(
-					"Operands of || should be boolean instead of: " + left.type
-							+ ", " + right.type);
-		}
-		*/
 	}
 
 	@Override
 	public EvalResult visitExpressionAnd(And x) {
-		
 		return new AndEvaluator(x, this).next();
-		
-		/*
-		EvalResult left = x.getLhs().accept(this);
-		EvalResult right = x.getRhs().accept(this);
-		
-		// Boolean
-		if (left.type.isBoolType() && right.type.isBoolType()) {
-			return result(((IBool) left.value).and((IBool) right.value));
-		} else {
-			throw new RascalTypeError(
-					"Operands of && should be boolean instead of: " + left.type
-							+ ", " + right.type);
-		}
-		*/
 	}
 
 	@Override
 	public EvalResult visitExpressionNegation(Negation x) {
-		EvalResult arg = x.getArgument().accept(this);
-		
-		//Boolean
-		if (arg.type.isBoolType()) {
-			return result(((IBool) arg.value).not());
-		} else {
-			throw new RascalTypeError(
-					"Operand of ! should be boolean instead of: " + arg.type);
-		}
+		return new NegationEvaluator(x, this).next();
 	}
 	
 	@Override
 	public EvalResult visitExpressionImplication(Implication x) {
-		EvalResult left = x.getLhs().accept(this);
-		EvalResult right = x.getRhs().accept(this);
-		
-		// Boolean
-		if(left.type.isBoolType() && right.type.isBoolType()){
-			if(left.value.equals(vf.bool(true)) &&
-			   right.value.equals(vf.bool(false))){
-				return result(vf.bool(false));
-			} else {
-				return result(vf.bool(true));
-			}
-		} else {
-			throw new RascalTypeError(
-					"Operands of ==> should be boolean instead of: " + left.type + ", " + right.type);
-		}
+		return new ImplicationEvaluator(x, this).next();
 	}
 	
 	@Override
 	public EvalResult visitExpressionEquivalence(Equivalence x) {
-		EvalResult left = x.getLhs().accept(this);
-		EvalResult right = x.getRhs().accept(this);
-		
-		// Boolean
-		if(left.type.isBoolType() && right.type.isBoolType()){
-			if(left.value.equals(right.value)) {
-				return result(vf.bool(true));
-			} else {
-				return result(vf.bool(false));
-			}
-		} else {
-			throw new RascalTypeError(
-					"Operands of <==> should be boolean instead of: " + left.type + ", " + right.type);
-		}
+		return new EquivalenceEvaluator(x, this).next();
 	}
 	
 	boolean equals(EvalResult left, EvalResult right){
@@ -2649,7 +2587,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		while(mp.hasNext()){
 			try {
 				env.pushFrame(); 	// Create a separate scope for match and statement
-				if(mp.match()){
+				if(mp.next()){
 					try {
 						stat.accept(this);
 						return true;
@@ -2844,7 +2782,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			while(mp.hasNext()){
 				try {
 					env.pushFrame(); 	// Create a separate scope for match and statement
-					if(mp.match()){
+					if(mp.next()){
 						try {
 							if(rule.isReplacing()){
 								throw InsertException.getInstance(rule.getReplacement().accept(this));
@@ -3557,11 +3495,16 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 
 		public void remove() {
 			// TODO Auto-generated method stub
-		}
-		
+		}	
 	}
 	
-	private class GeneratorEvaluator {
+	@Override
+	public EvalResult visitGeneratorExpression(
+			org.meta_environment.rascal.ast.Generator.Expression x) {
+		return new GeneratorEvaluator(x, this).next();
+	}
+	
+	class GeneratorEvaluator implements Iterator<EvalResult>{
 		private boolean isValueProducer;
 		private boolean firstTime = true;
 		private org.meta_environment.rascal.ast.Expression expr;
@@ -3569,6 +3512,20 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		private org.meta_environment.rascal.ast.Expression patexpr;
 		private Evaluator evaluator;
 		private Iterator<?> iter;
+		
+		GeneratorEvaluator(ValueProducer vp, Evaluator ev){
+			make(vp, ev);
+		}
+
+		GeneratorEvaluator(Generator g, Evaluator ev){
+			if(g.isProducer()){
+				make(g.getProducer(), ev);
+			} else {
+				evaluator = ev;
+				isValueProducer = false;
+				expr = g.getExpression();
+			}
+		}
 		
 		void make(ValueProducer vp, Evaluator ev){
 			evaluator = ev;
@@ -3611,57 +3568,65 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			}
 		}
 		
-		GeneratorEvaluator(ValueProducer vp, Evaluator ev){
-			make(vp, ev);
-		}
-
-		GeneratorEvaluator(Generator g, Evaluator ev){
-			if(g.isProducer()){
-				make(g.getProducer(), ev);
+		
+		
+		public boolean hasNext(){
+			if(isValueProducer){
+				return pat.hasNext() || iter.hasNext();
 			} else {
-				evaluator = ev;
-				isValueProducer = false;
-				expr = g.getExpression();
-			}
+				return firstTime;
+			}	
 		}
 
-		public boolean getNext(){
+		public EvalResult next(){
 			if(isValueProducer){
 				//System.err.println("getNext, trying pat");
+				/*
+				 * First, explore alternatives that remain to be matched by the current pattern
+				 */
 				while(pat.hasNext()){
-					if(pat.match()){
+					if(pat.next()){
 						//System.err.println("return true");
-						return true;
+						return new IterableEvalResult(this, true);
 					}
 				}
+				
+				/*
+				 * Next, fetch a new data element (if any) and create a new pattern.
+				 */
 				
 				while(iter.hasNext()){
 					IValue v = (IValue) iter.next();
 					//System.err.println("getNext, try next from value iterator: " + v);
 					pat.initMatch(v, evaluator);
 					while(pat.hasNext()){
-						if(pat.match()){
+						if(pat.next()){
 							//System.err.println("return true");
-							return true;						
+							return new IterableEvalResult(this,true);						
 						}	
 					}
 				}
 				//System.err.println("return false");
-				return false;
+				return new EvalResult(tf.boolType(), vf.bool(false));
 			} else {
 				if(firstTime){
 					/* Evaluate expression only once */
 					firstTime = false;
 					EvalResult v = expr.accept(evaluator);
 					if(v.type.isBoolType()){
-						return v.value.equals(vf.bool(true));
+						return new EvalResult(tf.boolType(), vf.bool(v.value.equals(vf.bool(true))));
 					} else {
 						throw new RascalTypeError("Expression as generator should have type bool");
 					}
 				} else {
-					return false;
+					return new EvalResult(tf.boolType(), vf.bool(false));
 				}
 			}
+		}
+
+		@Override
+		public void remove() {
+			throw new RascalBug("remove() not implemented for GeneratorEvaluator");
 		}
 	}
 	
@@ -3769,7 +3734,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		int i = 0;
 		gens[0] = new GeneratorEvaluator(generators.get(0), this);
 		while(i >= 0 && i < size){		
-			if(gens[i].getNext()){
+			if(gens[i].hasNext() && gens[i].next().isTrue()){
 				if(i == size - 1){
 					w.append();
 				} else {
@@ -3817,7 +3782,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		int i = 0;
 		gens[0] = new GeneratorEvaluator(generators.get(0), this);
 		while(i >= 0 && i < size){		
-			if(gens[i].getNext()){
+			if(gens[i].hasNext() && gens[i].next().isTrue()){
 				if(i == size - 1){
 					result = body.accept(this);
 				} else {
@@ -3836,7 +3801,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		ValueProducer vp = x.getProducer();
 		org.meta_environment.rascal.ast.Expression exp = x .getExpression();
 		GeneratorEvaluator ge = new GeneratorEvaluator(vp, this);
-		while(ge.getNext()){
+		while(ge.hasNext() && ge.next().isTrue()){
 			EvalResult r = exp.accept(this);
 			if(!r.type.isSubtypeOf(tf.boolType())){
 				throw new RascalTypeError("expression in exists should yield bool instead of " + r.type);
@@ -3853,7 +3818,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		ValueProducer vp = x.getProducer();
 		org.meta_environment.rascal.ast.Expression exp = x .getExpression();
 		GeneratorEvaluator ge = new GeneratorEvaluator(vp, this);
-		while(ge.getNext()){
+		while(ge.hasNext() && ge.next().isTrue()){
 			EvalResult r = exp.accept(this);
 			if(!r.type.isSubtypeOf(tf.boolType())){
 				throw new RascalTypeError("expression in forall should yield bool instead of " + r.type);
