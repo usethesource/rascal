@@ -248,7 +248,7 @@ public class ComprehensionTests extends TestCase {
 	
 	public void testTreeGenerator() throws IOException {
 		
-		tf = new TestFramework("data NODE int N | f(NODE,NODE) | g(NODE,NODE);");
+		tf = new TestFramework("data NODE int N | f(NODE a,NODE b) | g(NODE a, NODE b);");
 		
 		assertTrue(tf.runTestInSameEvaluator("[ X | int X : f(1,g(2,3)) ] == [1,2,3];"));
 		assertTrue(tf.runTestInSameEvaluator("[ X | value X : f(1,g(2,3)) ] == [1,2,3, g(2,3),f(1,g(2,3))];"));

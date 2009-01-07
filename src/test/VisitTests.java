@@ -17,14 +17,16 @@ public class VisitTests extends TestCase {
 		"    return C;" +
 		"}";
 		
-		assertTrue(tf.runTest("{" + cnt + "cnt(f(3)) == 1;}"));
-		assertTrue(tf.runTest("{" + cnt + "cnt(f(1,2,3)) == 3;}"));
-		assertTrue(tf.runTest("{" + cnt + "cnt(f(1,g(2,3))) == 3;}"));
-		assertTrue(tf.runTest("{" + cnt + "cnt(f(1,g(2,[3,4,5]))) == 5;}"));
-		assertTrue(tf.runTest("{" + cnt + "cnt(f(1,g(2,{3,4,5}))) == 5;}"));
-		assertTrue(tf.runTest("{" + cnt + "cnt(f(1,g(2,<3,4,5>))) == 5;}"));
-		assertTrue(tf.runTest("{" + cnt + "cnt(f(1,g(2,{<1,10>,<2,20>}))) == 6;}"));
-		assertTrue(tf.runTest("{" + cnt + "cnt(f(1,g(2,(1:10,2:20)))) == 6;}"));
+		tf = new TestFramework("data NODE f(value V) | f(value V1, value V2) | f(value V1, value V2, value V3) | g(value V1, value V2) | h(value V1, value V2);");
+		
+		assertTrue(tf.runTestInSameEvaluator("{" + cnt + "cnt(f(3)) == 1;}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + cnt + "cnt(f(1,2,3)) == 3;}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + cnt + "cnt(f(1,g(2,3))) == 3;}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + cnt + "cnt(f(1,g(2,[3,4,5]))) == 5;}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + cnt + "cnt(f(1,g(2,{3,4,5}))) == 5;}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + cnt + "cnt(f(1,g(2,<3,4,5>))) == 5;}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + cnt + "cnt(f(1,g(2,{<1,10>,<2,20>}))) == 6;}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + cnt + "cnt(f(1,g(2,(1:10,2:20)))) == 6;}"));
 	}
 	
 	public void testInc() throws IOException {
@@ -35,14 +37,17 @@ public class VisitTests extends TestCase {
 		"    };" + 
 		"}";
 		
-		assertTrue(tf.runTest("{" + inc + "inc(f(3)) == f(4);}"));
-		assertTrue(tf.runTest("{" + inc + "inc(f(1,2,3)) == f(2,3,4);}"));
-		assertTrue(tf.runTest("{" + inc + "inc(f(1,g(2,3))) == f(2,g(3,4));}"));
-		assertTrue(tf.runTest("{" + inc + "inc(f(1,g(2,[3,4,5]))) == f(2,g(3,[4,5,6]));}"));
-		assertTrue(tf.runTest("{" + inc + "inc(f(1,g(2,{3,4,5}))) == f(2,g(3,{4,5,6}));}"));
-		assertTrue(tf.runTest("{" + inc + "inc(f(1,g(2,<3,4,5>))) == f(2,g(3,<4,5,6>));}"));
-		assertTrue(tf.runTest("{" + inc + "inc(f(1,g(2,{<1,10>,<2,20>}))) == f(2,g(3,{<2,11>,<3,21>}));}"));
-		assertTrue(tf.runTest("{" + inc + "inc(f(1,g(2,(1:10,2:20)))) == f(2,g(3,(2:11,3:21)));}"));
+		tf = new TestFramework("data NODE f(value V) | f(value V1, value V2) | f(value V1, value V2, value V3) | g(value V1, value V2) | h(value V1, value V2);");
+
+		
+		assertTrue(tf.runTestInSameEvaluator("{" + inc + "inc(f(3)) == f(4);}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + inc + "inc(f(1,2,3)) == f(2,3,4);}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + inc + "inc(f(1,g(2,3))) == f(2,g(3,4));}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + inc + "inc(f(1,g(2,[3,4,5]))) == f(2,g(3,[4,5,6]));}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + inc + "inc(f(1,g(2,{3,4,5}))) == f(2,g(3,{4,5,6}));}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + inc + "inc(f(1,g(2,<3,4,5>))) == f(2,g(3,<4,5,6>));}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + inc + "inc(f(1,g(2,{<1,10>,<2,20>}))) == f(2,g(3,{<2,11>,<3,21>}));}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + inc + "inc(f(1,g(2,(1:10,2:20)))) == f(2,g(3,(2:11,3:21)));}"));
 	}
 	
 	public void testFrepA() throws IOException {
@@ -57,14 +62,17 @@ public class VisitTests extends TestCase {
 		"    };" +
 		"}";
 		
-		assertTrue(tf.runTest("{" + frepa + "frepa(f(3)) == f(3);}"));
-		assertTrue(tf.runTest("{" + frepa + "frepa(f(1,2,3)) == f(1,2,3);}"));
-		assertTrue(tf.runTest("{" + frepa + "frepa(f(1,g(2,3))) == f(1,h(2,3));}"));
-		assertTrue(tf.runTest("{" + frepa + "frepa(f(1,g(2,[3,4,5]))) == f(1,h(2,[3,4,5]));}"));
-		assertTrue(tf.runTest("{" + frepa + "frepa(f(1,g(2,{3,4,5}))) == f(1,h(2,{3,4,5}));}"));
-		assertTrue(tf.runTest("{" + frepa + "frepa(f(1,g(2,<3,4,5>))) == f(1,h(2,<3,4,5>));}"));
-		assertTrue(tf.runTest("{" + frepa + "frepa(f(1,g(2,{<1,10>,<2,20>}))) == f(1,h(2,{<1,10>,<2,20>}));}"));
-		assertTrue(tf.runTest("{" + frepa + "frepa(f(1,g(2,(1:10,2:20)))) == f(1,h(2,(1:10,2:20)));}"));
+		tf = new TestFramework("data NODE f(value V) | f(value V1, value V2) | f(value V1, value V2, value V3) | g(value V1, value V2) | h(value V1, value V2);");
+
+		
+		assertTrue(tf.runTestInSameEvaluator("{" + frepa + "frepa(f(3)) == f(3);}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + frepa + "frepa(f(1,2,3)) == f(1,2,3);}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + frepa + "frepa(f(1,g(2,3))) == f(1,h(2,3));}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + frepa + "frepa(f(1,g(2,[3,4,5]))) == f(1,h(2,[3,4,5]));}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + frepa + "frepa(f(1,g(2,{3,4,5}))) == f(1,h(2,{3,4,5}));}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + frepa + "frepa(f(1,g(2,<3,4,5>))) == f(1,h(2,<3,4,5>));}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + frepa + "frepa(f(1,g(2,{<1,10>,<2,20>}))) == f(1,h(2,{<1,10>,<2,20>}));}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + frepa + "frepa(f(1,g(2,(1:10,2:20)))) == f(1,h(2,(1:10,2:20)));}"));
 	}
 	
 	public void testFrepB() throws IOException {
@@ -78,14 +86,17 @@ public class VisitTests extends TestCase {
 		"    };" +
 		"}";
 		
-		assertTrue(tf.runTest("{" + frepb + "frepb(f(3)) == f(3);}"));
-		assertTrue(tf.runTest("{" + frepb + "frepb(f(1,2,3)) == f(1,2,3);}"));
-		assertTrue(tf.runTest("{" + frepb + "frepb(f(1,g(2,3))) == f(1,h(2,3));}"));
-		assertTrue(tf.runTest("{" + frepb + "frepb(f(1,g(2,[3,4,5]))) == f(1,h(2,[3,4,5]));}"));
-		assertTrue(tf.runTest("{" + frepb + "frepb(f(1,g(2,{3,4,5}))) == f(1,h(2,{3,4,5}));}"));
-		assertTrue(tf.runTest("{" + frepb + "frepb(f(1,g(2,<3,4,5>))) == f(1,h(2,<3,4,5>));}"));
-		assertTrue(tf.runTest("{" + frepb + "frepb(f(1,g(2,{<1,10>,<2,20>}))) == f(1,h(2,{<1,10>,<2,20>}));}"));
-		assertTrue(tf.runTest("{" + frepb + "frepb(f(1,g(2,(1:10,2:20)))) == f(1,h(2,(1:10,2:20)));}"));
+		tf = new TestFramework("data NODE f(value V) | f(value V1, value V2) | f(value V1, value V2, value V3) | g(value V1, value V2) | h(value V1, value V2);");
+
+		
+		assertTrue(tf.runTestInSameEvaluator("{" + frepb + "frepb(f(3)) == f(3);}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + frepb + "frepb(f(1,2,3)) == f(1,2,3);}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + frepb + "frepb(f(1,g(2,3))) == f(1,h(2,3));}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + frepb + "frepb(f(1,g(2,[3,4,5]))) == f(1,h(2,[3,4,5]));}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + frepb + "frepb(f(1,g(2,{3,4,5}))) == f(1,h(2,{3,4,5}));}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + frepb + "frepb(f(1,g(2,<3,4,5>))) == f(1,h(2,<3,4,5>));}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + frepb + "frepb(f(1,g(2,{<1,10>,<2,20>}))) == f(1,h(2,{<1,10>,<2,20>}));}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + frepb + "frepb(f(1,g(2,(1:10,2:20)))) == f(1,h(2,(1:10,2:20)));}"));
 
 	}
 	
@@ -101,14 +112,17 @@ public class VisitTests extends TestCase {
 		"    };" +
 		"}";
 		
-		assertTrue(tf.runTest("{" + frepG2H3a + "frepG2H3a(f(3)) == f(3);}"));
-		assertTrue(tf.runTest("{" + frepG2H3a + "frepG2H3a(f(1,2,3)) == f(1,2,3);}"));
-		assertTrue(tf.runTest("{" + frepG2H3a + "frepG2H3a(f(1,g(2,3))) == f(1,h(2,3,0));}"));
-		assertTrue(tf.runTest("{" + frepG2H3a + "frepG2H3a(f(1,g(2,[3,4,5]))) == f(1,h(2,[3,4,5],0));}"));
-		assertTrue(tf.runTest("{" + frepG2H3a + "frepG2H3a(f(1,g(2,{3,4,5}))) == f(1,h(2,{3,4,5},0));}"));
-		assertTrue(tf.runTest("{" + frepG2H3a + "frepG2H3a(f(1,g(2,<3,4,5>))) == f(1,h(2,<3,4,5>,0));}"));
-		assertTrue(tf.runTest("{" + frepG2H3a + "frepG2H3a(f(1,g(2,{<1,10>,<2,20>}))) == f(1,h(2,{<1,10>,<2,20>},0));}"));
-		assertTrue(tf.runTest("{" + frepG2H3a + "frepG2H3a(f(1,g(2,(1:10,2:20)))) == f(1,h(2,(1:10,2:20), 0));}"));
+		tf = new TestFramework("data NODE f(value V) | f(value V1, value V2) | f(value V1, value V2, value V3) | g(value V1, value V2) | h(value V1, value V2) | h(value V1, value V2, value V3);");
+
+		
+		assertTrue(tf.runTestInSameEvaluator("{" + frepG2H3a + "frepG2H3a(f(3)) == f(3);}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + frepG2H3a + "frepG2H3a(f(1,2,3)) == f(1,2,3);}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + frepG2H3a + "frepG2H3a(f(1,g(2,3))) == f(1,h(2,3,0));}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + frepG2H3a + "frepG2H3a(f(1,g(2,[3,4,5]))) == f(1,h(2,[3,4,5],0));}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + frepG2H3a + "frepG2H3a(f(1,g(2,{3,4,5}))) == f(1,h(2,{3,4,5},0));}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + frepG2H3a + "frepG2H3a(f(1,g(2,<3,4,5>))) == f(1,h(2,<3,4,5>,0));}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + frepG2H3a + "frepG2H3a(f(1,g(2,{<1,10>,<2,20>}))) == f(1,h(2,{<1,10>,<2,20>},0));}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + frepG2H3a + "frepG2H3a(f(1,g(2,(1:10,2:20)))) == f(1,h(2,(1:10,2:20), 0));}"));
 	}
 	
 	public void testFrepG2H3b() throws IOException {
@@ -122,14 +136,17 @@ public class VisitTests extends TestCase {
 		"    };" +
 		"}";
 		
-		assertTrue(tf.runTest("{" + frepG2H3b + "frepG2H3b(f(3)) == f(3);}"));
-		assertTrue(tf.runTest("{" + frepG2H3b + "frepG2H3b(f(1,2,3)) == f(1,2,3);}"));
-		assertTrue(tf.runTest("{" + frepG2H3b + "frepG2H3b(f(1,g(2,3))) == f(1,h(2,3,0));}"));
-		assertTrue(tf.runTest("{" + frepG2H3b + "frepG2H3b(f(1,g(2,[3,4,5]))) == f(1,h(2,[3,4,5],0));}"));
-		assertTrue(tf.runTest("{" + frepG2H3b + "frepG2H3b(f(1,g(2,{3,4,5}))) == f(1,h(2,{3,4,5},0));}"));
-		assertTrue(tf.runTest("{" + frepG2H3b + "frepG2H3b(f(1,g(2,<3,4,5>))) == f(1,h(2,<3,4,5>,0));}"));
-		assertTrue(tf.runTest("{" + frepG2H3b + "frepG2H3b(f(1,g(2,{<1,10>,<2,20>}))) == f(1,h(2,{<1,10>,<2,20>},0));}"));
-		assertTrue(tf.runTest("{" + frepG2H3b + "frepG2H3b(f(1,g(2,(1:10,2:20)))) == f(1,h(2,(1:10,2:20), 0));}"));
+		tf = new TestFramework("data NODE f(value V) | f(value V1, value V2) | f(value V1, value V2, value V3) | g(value V1, value V2) | h(value V1, value V2) | h(value V1, value V2, value V3);");
+
+		
+		assertTrue(tf.runTestInSameEvaluator("{" + frepG2H3b + "frepG2H3b(f(3)) == f(3);}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + frepG2H3b + "frepG2H3b(f(1,2,3)) == f(1,2,3);}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + frepG2H3b + "frepG2H3b(f(1,g(2,3))) == f(1,h(2,3,0));}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + frepG2H3b + "frepG2H3b(f(1,g(2,[3,4,5]))) == f(1,h(2,[3,4,5],0));}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + frepG2H3b + "frepG2H3b(f(1,g(2,{3,4,5}))) == f(1,h(2,{3,4,5},0));}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + frepG2H3b + "frepG2H3b(f(1,g(2,<3,4,5>))) == f(1,h(2,<3,4,5>,0));}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + frepG2H3b + "frepG2H3b(f(1,g(2,{<1,10>,<2,20>}))) == f(1,h(2,{<1,10>,<2,20>},0));}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + frepG2H3b + "frepG2H3b(f(1,g(2,(1:10,2:20)))) == f(1,h(2,(1:10,2:20), 0));}"));
 	}
 	
 	public void testIncAndCount() throws IOException {
@@ -147,14 +164,17 @@ public class VisitTests extends TestCase {
 		"    return <C, T>;" +
 		"}";
 		
-		assertTrue(tf.runTest("{" + inc_and_count + "inc_and_count(f(3),10)                       == <1,f(13)>;}"));
-		assertTrue(tf.runTest("{" + inc_and_count + "inc_and_count(f(1,2,3), 10)                  == <3,f(11,12,13)>;}"));
-		assertTrue(tf.runTest("{" + inc_and_count + "inc_and_count(f(1,g(2,3)), 10)               == <3, f(11,g(12,13))>;}"));
-		assertTrue(tf.runTest("{" + inc_and_count + "inc_and_count(f(1,g(2,[3,4,5])), 10)         == <5,f(11,g(12,[13,14,15]))>;}"));
-		assertTrue(tf.runTest("{" + inc_and_count + "inc_and_count(f(1,g(2,{3,4,5})), 10)         == <5,f(11,g(12,{13,14,15}))>;}"));
-		assertTrue(tf.runTest("{" + inc_and_count + "inc_and_count(f(1,g(2,<3,4,5>)), 10)         == <5,f(11,g(12,<13,14,15>))>;}"));
-		assertTrue(tf.runTest("{" + inc_and_count + "inc_and_count(f(1,g(2,{<1,10>,<2,20>})), 10) == <6,f(11,g(12,{<11,20>,<12,30>}))>;}"));
-		assertTrue(tf.runTest("{" + inc_and_count + "inc_and_count(f(1,g(2,(1:10,2:20))),10)      == <6, f(11,g(12,(11:20,12:30)))>;}"));
+		tf = new TestFramework("data NODE f(value V) | f(value V1, value V2) | f(value V1, value V2, value V3) | g(value V1, value V2) | h(value V1, value V2);");
+
+		
+		assertTrue(tf.runTestInSameEvaluator("{" + inc_and_count + "inc_and_count(f(3),10)                       == <1,f(13)>;}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + inc_and_count + "inc_and_count(f(1,2,3), 10)                  == <3,f(11,12,13)>;}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + inc_and_count + "inc_and_count(f(1,g(2,3)), 10)               == <3, f(11,g(12,13))>;}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + inc_and_count + "inc_and_count(f(1,g(2,[3,4,5])), 10)         == <5,f(11,g(12,[13,14,15]))>;}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + inc_and_count + "inc_and_count(f(1,g(2,{3,4,5})), 10)         == <5,f(11,g(12,{13,14,15}))>;}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + inc_and_count + "inc_and_count(f(1,g(2,<3,4,5>)), 10)         == <5,f(11,g(12,<13,14,15>))>;}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + inc_and_count + "inc_and_count(f(1,g(2,{<1,10>,<2,20>})), 10) == <6,f(11,g(12,{<11,20>,<12,30>}))>;}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + inc_and_count + "inc_and_count(f(1,g(2,(1:10,2:20))),10)      == <6, f(11,g(12,(11:20,12:30)))>;}"));
 	}
 	
 	public void testDrepl() throws IOException {
@@ -168,10 +188,13 @@ public class VisitTests extends TestCase {
 		"    };" +
 		"}";
 		
-		assertTrue(tf.runTest("{" + drepl + "drepl(f(3)) == f(3);}"));
-		assertTrue(tf.runTest("{" + drepl + "drepl(g(1,2)) == h(1,2);}"));
-		assertTrue(tf.runTest("{" + drepl + "drepl(g(1,f(g(2,3)))) == g(1,f(h(2,3)));}"));
-		assertTrue(tf.runTest("{" + drepl + "drepl(g(1,f([g(2,3),4,5]))) == g(1,f([h(2,3),4,5]));}"));
+		tf = new TestFramework("data NODE f(value V) | f(value V1, value V2) | f(value V1, value V2, value V3) | g(value V1, value V2) | h(value V1, value V2);");
+
+		
+		assertTrue(tf.runTestInSameEvaluator("{" + drepl + "drepl(f(3)) == f(3);}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + drepl + "drepl(g(1,2)) == h(1,2);}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + drepl + "drepl(g(1,f(g(2,3)))) == g(1,f(h(2,3)));}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + drepl + "drepl(g(1,f([g(2,3),4,5]))) == g(1,f([h(2,3),4,5]));}"));
 	}
 	
 	public void testSrepl() throws IOException {
@@ -185,51 +208,67 @@ public class VisitTests extends TestCase {
 		"    };" +
 		"}";
 		
-		assertTrue(tf.runTest("{" + srepl + "srepl(f(3)) == f(3);}"));
-		assertTrue(tf.runTest("{" + srepl + "srepl(g(1,2)) == h(1,2);}"));
-		assertTrue(tf.runTest("{" + srepl + "srepl(g(1,f(g(2,3)))) == h(1,f(g(2,3)));}"));
-		assertTrue(tf.runTest("{" + srepl + "srepl(g(1,f([g(2,3),4,5]))) == h(1,f([g(2,3),4,5]));}"));
+		tf = new TestFramework("data NODE f(value V) | f(value V1, value V2) | f(value V1, value V2, value V3) | g(value V1, value V2) | h(value V1, value V2);");
+	
+		assertTrue(tf.runTestInSameEvaluator("{" + srepl + "srepl(f(3)) == f(3);}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + srepl + "srepl(g(1,2)) == h(1,2);}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + srepl + "srepl(g(1,f(g(2,3)))) == h(1,f(g(2,3)));}"));
+		assertTrue(tf.runTestInSameEvaluator("{" + srepl + "srepl(g(1,f([g(2,3),4,5]))) == h(1,f([g(2,3),4,5]));}"));
 	}
 	
 	public void testStringVisit1a() throws IOException {
-		assertTrue(tf.runTest("visit(\"\"){ case /b/: insert \"B\";} == \"\";"));
-		assertTrue(tf.runTest("visit(\"a\"){ case /b/: insert \"B\";} == \"a\";"));
-		assertTrue(tf.runTest("visit(\"b\"){ case /b/: insert \"B\";} == \"B\";"));
-		assertTrue(tf.runTest("visit(\"abc\"){ case /b/: insert \"B\";} == \"aBc\";"));
-		assertTrue(tf.runTest("visit(\"abcabc\"){ case /b/: insert \"B\";} == \"aBcaBc\";"));
+		tf = new TestFramework();
+
+		assertTrue(tf.runTestInSameEvaluator("visit(\"\"){ case /b/: insert \"B\";} == \"\";"));
+		assertTrue(tf.runTestInSameEvaluator("visit(\"a\"){ case /b/: insert \"B\";} == \"a\";"));
+		assertTrue(tf.runTestInSameEvaluator("visit(\"b\"){ case /b/: insert \"B\";} == \"B\";"));
+		assertTrue(tf.runTestInSameEvaluator("visit(\"abc\"){ case /b/: insert \"B\";} == \"aBc\";"));
+		assertTrue(tf.runTestInSameEvaluator("visit(\"abcabc\"){ case /b/: insert \"B\";} == \"aBcaBc\";"));
 	}
 	
 	public void testStringVisit1b() throws IOException {
-		assertTrue(tf.runTest("visit(\"\"){ case /b/ => \"B\"} == \"\";"));
-		assertTrue(tf.runTest("visit(\"a\"){ case /b/ => \"B\"} == \"a\";"));
-		assertTrue(tf.runTest("visit(\"b\"){ case /b/ => \"B\"} == \"B\";"));
-		assertTrue(tf.runTest("visit(\"abc\"){ case /b/ => \"B\"} == \"aBc\";"));
-		assertTrue(tf.runTest("visit(\"abcabc\"){ case /b/ =>\"B\"} == \"aBcaBc\";"));
+		
+		tf = new TestFramework();
+		
+		assertTrue(tf.runTestInSameEvaluator("visit(\"\"){ case /b/ => \"B\"} == \"\";"));
+		assertTrue(tf.runTestInSameEvaluator("visit(\"a\"){ case /b/ => \"B\"} == \"a\";"));
+		assertTrue(tf.runTestInSameEvaluator("visit(\"b\"){ case /b/ => \"B\"} == \"B\";"));
+		assertTrue(tf.runTestInSameEvaluator("visit(\"abc\"){ case /b/ => \"B\"} == \"aBc\";"));
+		assertTrue(tf.runTestInSameEvaluator("visit(\"abcabc\"){ case /b/ =>\"B\"} == \"aBcaBc\";"));
 	}
 	
 	public void testStringVisit2() throws IOException {
-		assertTrue(tf.runTest("visit(\"\"){ case /b/: insert \"BB\";} == \"\";"));
-		assertTrue(tf.runTest("visit(\"a\"){ case /b/: insert \"BB\";} == \"a\";"));
-		assertTrue(tf.runTest("visit(\"b\"){ case /b/: insert \"BB\";} == \"BB\";"));
-		assertTrue(tf.runTest("visit(\"abc\"){ case /b/: insert \"B\";} == \"aBc\";"));
-		assertTrue(tf.runTest("visit(\"abcabc\"){ case /b/: insert \"BB\";} == \"aBBcaBBc\";"));
+		
+		tf = new TestFramework();
+		
+		assertTrue(tf.runTestInSameEvaluator("visit(\"\"){ case /b/: insert \"BB\";} == \"\";"));
+		assertTrue(tf.runTestInSameEvaluator("visit(\"a\"){ case /b/: insert \"BB\";} == \"a\";"));
+		assertTrue(tf.runTestInSameEvaluator("visit(\"b\"){ case /b/: insert \"BB\";} == \"BB\";"));
+		assertTrue(tf.runTestInSameEvaluator("visit(\"abc\"){ case /b/: insert \"B\";} == \"aBc\";"));
+		assertTrue(tf.runTestInSameEvaluator("visit(\"abcabc\"){ case /b/: insert \"BB\";} == \"aBBcaBBc\";"));
 	}
 	
 	public void testStringVisit3() throws IOException {
-		assertTrue(tf.runTest("visit(\"\"){ case /^a/: insert \"AA\"; case /^b/: insert \"BB\";} == \"\";"));
-		assertTrue(tf.runTest("visit(\"a\"){ case /^a/: insert \"AA\"; case /^b/: insert \"BB\";} == \"AA\";"));
-		assertTrue(tf.runTest("visit(\"b\"){ case /^a/: insert \"AA\"; case /^b/: insert \"BB\";} == \"BB\";"));
-		assertTrue(tf.runTest("visit(\"abcabc\"){ case /^a/: insert \"AA\"; case /^b/: insert \"BB\";} == \"AABBcAABBc\";"));
-		assertTrue(tf.runTest("visit(\"abcabca\"){ case /^a/: insert \"AA\"; case /^b/: insert \"BB\";} == \"AABBcAABBcAA\";"));
+		
+		tf = new TestFramework();
+		
+		assertTrue(tf.runTestInSameEvaluator("visit(\"\"){ case /^a/: insert \"AA\"; case /^b/: insert \"BB\";} == \"\";"));
+		assertTrue(tf.runTestInSameEvaluator("visit(\"a\"){ case /^a/: insert \"AA\"; case /^b/: insert \"BB\";} == \"AA\";"));
+		assertTrue(tf.runTestInSameEvaluator("visit(\"b\"){ case /^a/: insert \"AA\"; case /^b/: insert \"BB\";} == \"BB\";"));
+		assertTrue(tf.runTestInSameEvaluator("visit(\"abcabc\"){ case /^a/: insert \"AA\"; case /^b/: insert \"BB\";} == \"AABBcAABBc\";"));
+		assertTrue(tf.runTestInSameEvaluator("visit(\"abcabca\"){ case /^a/: insert \"AA\"; case /^b/: insert \"BB\";} == \"AABBcAABBcAA\";"));
 
 	}
 	
 	public void testStringVisit4() throws IOException {
-		assertTrue(tf.runTest("visit(\"\"){ case \"a\": insert \"AA\"; case /b/: insert \"BB\";} == \"\";"));
-		assertTrue(tf.runTest("visit(\"a\"){ case \"a\": insert \"AA\"; case /b/: insert \"BB\";} == \"AA\";"));
-		assertTrue(tf.runTest("visit(\"b\"){ case \"a\": insert \"AA\"; case /b/: insert \"BB\";} == \"BB\";"));
-		assertTrue(tf.runTest("visit(\"abcabc\"){ case \"a\": insert \"AA\"; case /b/: insert \"BB\";} == \"aBBcaBBc\";"));
-		assertTrue(tf.runTest("visit(\"abcabca\"){ case \"a\": insert \"AA\"; case /b/: insert \"BB\";} == \"aBBcaBBcAA\";"));
+		
+		tf = new TestFramework();
+		
+		assertTrue(tf.runTestInSameEvaluator("visit(\"\"){ case \"a\": insert \"AA\"; case /b/: insert \"BB\";} == \"\";"));
+		assertTrue(tf.runTestInSameEvaluator("visit(\"a\"){ case \"a\": insert \"AA\"; case /b/: insert \"BB\";} == \"AA\";"));
+		assertTrue(tf.runTestInSameEvaluator("visit(\"b\"){ case \"a\": insert \"AA\"; case /b/: insert \"BB\";} == \"BB\";"));
+		assertTrue(tf.runTestInSameEvaluator("visit(\"abcabc\"){ case \"a\": insert \"AA\"; case /b/: insert \"BB\";} == \"aBBcaBBc\";"));
+		assertTrue(tf.runTestInSameEvaluator("visit(\"abcabca\"){ case \"a\": insert \"AA\"; case /b/: insert \"BB\";} == \"aBBcaBBcAA\";"));
 
 	}
 }
