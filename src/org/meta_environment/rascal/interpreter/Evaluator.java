@@ -3624,7 +3624,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			}
 		}
 
-		@Override
 		public void remove() {
 			throw new RascalBug("remove() not implemented for GeneratorEvaluator");
 		}

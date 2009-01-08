@@ -9,6 +9,8 @@ public class StandardLibraryStringTests extends TestCase {
 	private static TestFramework tf = new TestFramework("import String;");
 
 	public void testStringCharAt() throws IOException {
+		
+		tf = new TestFramework("import String;");
 
 		assertTrue(tf
 				.runTestInSameEvaluator("String::charAt(\"abc\", 0) == 97;"));
@@ -20,6 +22,8 @@ public class StandardLibraryStringTests extends TestCase {
 	}
 
 	public void testStringEndsWith() throws IOException {
+		
+		tf = new TestFramework("import String;");
 
 		assertTrue(tf
 				.runTestInSameEvaluator("String::endsWith(\"abc\", \"abc\");"));
@@ -31,6 +35,8 @@ public class StandardLibraryStringTests extends TestCase {
 	}
 
 	public void testStringReverse() throws IOException {
+		
+		tf = new TestFramework("import String;");
 
 		assertTrue(tf.runTestInSameEvaluator("String::reverse(\"\") == \"\";"));
 		assertTrue(tf.runTestInSameEvaluator("reverse(\"\") == \"\";"));
@@ -39,6 +45,8 @@ public class StandardLibraryStringTests extends TestCase {
 	}
 
 	public void testStringSize() throws IOException {
+		
+		tf = new TestFramework("import String;");
 
 		assertTrue(tf.runTestInSameEvaluator("String::size(\"\") == 0;"));
 		assertTrue(tf.runTestInSameEvaluator("size(\"\") == 0;"));
@@ -46,6 +54,8 @@ public class StandardLibraryStringTests extends TestCase {
 	}
 
 	public void testStringStartsWith() throws IOException {
+		
+		tf = new TestFramework("import String;");
 
 		assertTrue(tf
 				.runTestInSameEvaluator("String::startsWith(\"abc\", \"abc\");"));
@@ -57,6 +67,8 @@ public class StandardLibraryStringTests extends TestCase {
 	}
 
 	public void testStringToLowerCase() throws IOException {
+		
+		tf = new TestFramework("import String;");
 
 		assertTrue(tf
 				.runTestInSameEvaluator("String::toLowerCase(\"\") == \"\";"));
@@ -68,6 +80,8 @@ public class StandardLibraryStringTests extends TestCase {
 	}
 
 	public void testStringUpperCase() throws IOException {
+		
+		tf = new TestFramework("import String;");
 
 		assertTrue(tf
 				.runTestInSameEvaluator("String::toUpperCase(\"\") == \"\";"));

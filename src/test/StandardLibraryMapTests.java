@@ -8,6 +8,9 @@ public class StandardLibraryMapTests extends TestCase {
 	private static TestFramework tf = new TestFramework("import Map;");
 	
 	public void testMapArb() throws IOException {
+		
+		tf = new TestFramework("import Map;");
+		
 		assertTrue(tf.runTestInSameEvaluator("arb((1:10)) == 1;"));
 		assertTrue(tf.runTestInSameEvaluator("{int N = arb((1:10, 2:20)); (N == 1) || (N ==2);}"));
 	}
@@ -15,6 +18,9 @@ public class StandardLibraryMapTests extends TestCase {
 	// mapper
 	
 	public void testMapMapper() throws IOException {
+		
+		tf = new TestFramework("import Map;");
+		
 		String inc = "int inc(int n) {return n + 1;} ";
 		String dec = "int dec(int n) {return n - 1;} ";
 		
@@ -29,6 +35,9 @@ public class StandardLibraryMapTests extends TestCase {
 	// size
 	
 	public void testMapSize() throws IOException {
+		
+		tf = new TestFramework("import Map;");
+		
 		assertTrue(tf.runTestInSameEvaluator("size(()) == 0;"));
 		assertTrue(tf.runTestInSameEvaluator("size((1:10)) == 1;"));
 		assertTrue(tf.runTestInSameEvaluator("size((1:10,2:20)) == 2;"));
@@ -36,6 +45,9 @@ public class StandardLibraryMapTests extends TestCase {
 	
 	// toList
 	public void testMapToList() throws IOException {
+		
+		tf = new TestFramework("import Map;");
+		
 		assertTrue(tf.runTestInSameEvaluator("toList(()) == [];"));
 		assertTrue(tf.runTestInSameEvaluator("toList((1:10)) == [<1,10>];"));
 		assertTrue(tf.runTestInSameEvaluator("{list[tuple[int,int]] L = toList((1:10, 2:20)); (L == [<1,10>,<2,20>]) || (L == [<2,20>,<1,10>]);}"));
@@ -43,6 +55,9 @@ public class StandardLibraryMapTests extends TestCase {
 	
 	// toRel
 	public void testMapToRel() throws IOException {
+		
+		tf = new TestFramework("import Map;");
+		
 		assertTrue(tf.runTestInSameEvaluator("toRel(()) == {};"));
 		assertTrue(tf.runTestInSameEvaluator("toRel((1:10)) == {<1,10>};"));
 		assertTrue(tf.runTestInSameEvaluator("{rel[int,int] R = toRel((1:10, 2:20)); R == {<1,10>,<2,20>};}"));
@@ -51,6 +66,9 @@ public class StandardLibraryMapTests extends TestCase {
 	// toString
 	
 	public void testMapToString() throws IOException {
+		
+		tf = new TestFramework("import Map;");
+		
 		assertTrue(tf.runTestInSameEvaluator("toString(()) == \"()\";"));
 		assertTrue(tf.runTestInSameEvaluator("toString((1:10)) == \"(1:10)\";"));
 	}
