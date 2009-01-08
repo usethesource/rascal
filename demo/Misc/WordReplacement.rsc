@@ -14,9 +14,25 @@ public str capAll1(str S)
   return result;
 }
 
+public str capitalize(str word)
+{
+   if(/^<letter:[a-z]><rest:.*$/){
+   		return toUpperCase(letter) + rest;
+   } else {
+   		return word;
+   }
+}
+
 public str capAll2(str S)
 {
    return visit(S){
-   	case /rascal/i => "Rascal"
+   	case /<word:\w+>/i => capitalize(word);
    };
+}
+
+public bool testWordReplacement()
+{
+	return
+		capAll1("turn this into a title") == "Turn This Into A Title" &&
+		capAll2("turn this into a title") == "Turn This Into A Title";
 }

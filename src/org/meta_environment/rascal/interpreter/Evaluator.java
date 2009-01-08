@@ -409,7 +409,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 					"demo/StdLib/",
 					"demo/Symtable/",
 					"demo/Tree/",
-					"demo/Vectors/"
+					"demo/Vectors/",
+					"benchmark/"
 					};
 			
 			for(int i = 0; i < searchPath.length; i++){
