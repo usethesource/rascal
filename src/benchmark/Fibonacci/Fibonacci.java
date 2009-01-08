@@ -1,4 +1,4 @@
-package benchmark;
+package benchmark.Fibonacci;
 
 public class Fibonacci {
 
@@ -7,7 +7,7 @@ public class Fibonacci {
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		int n = 30;
+		int n = 20;
 		double start = System.currentTimeMillis();
 		int result = fib(n);
 		double used = System.currentTimeMillis() - start;

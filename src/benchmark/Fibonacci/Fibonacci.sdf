@@ -1,0 +1,13 @@
+module Fibonacci
+
+imports basic/Whitespace basic/Integers
+
+exports
+    context-free start-symbols Integer
+    context-free syntax
+	fib(Integer)	-> Integer
+
+    variables
+	"N"	-> Integer
+
+

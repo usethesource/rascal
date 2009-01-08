@@ -393,7 +393,10 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			
 			// TODO: support proper search path for modules
 			// TODO: support properly packaged/qualified module names
-			String searchPath[] = {"src/StandardLibrary/", "src/test/", 
+			String searchPath[] = {
+					"src/StandardLibrary/", 
+					"src/test/", 
+					"src/benchmark/",
 					"demo/AsFix/",
 					"demo/Booleans/",
 					"demo/Graph/",
@@ -409,8 +412,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 					"demo/StdLib/",
 					"demo/Symtable/",
 					"demo/Tree/",
-					"demo/Vectors/",
-					"benchmark/"
+					"demo/Vectors/"					
 					};
 			
 			for(int i = 0; i < searchPath.length; i++){
