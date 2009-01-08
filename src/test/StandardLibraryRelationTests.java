@@ -8,6 +8,9 @@ public class StandardLibraryRelationTests extends TestCase {
 	private static TestFramework tf = new TestFramework("import Relation;");
 	
 	public void testRelCarrier() throws IOException {
+		
+		new TestFramework("import Relation;");
+		
 		assertTrue(tf.runTestInSameEvaluator("carrier({<1,10>,<2,20>}) == {1,2,10,20};"));
 		assertTrue(tf.runTestInSameEvaluator("carrier({<1,10,100>,<2,20,200>}) == {1,2,10,20,100,200};"));
 		assertTrue(tf.runTestInSameEvaluator("carrier({<1,10,100,1000>,<2,20,200,2000>}) == {1,2,10,20,100,200,1000,2000};"));
@@ -16,6 +19,9 @@ public class StandardLibraryRelationTests extends TestCase {
 	}
 	
 	public void testRelCarrierR() throws IOException {
+		
+		new TestFramework("import Relation;");
+		
 		assertTrue(tf.runTestInSameEvaluator("carrierR({<1,10>,<2,20>}, {} ) == {};"));
 		assertTrue(tf.runTestInSameEvaluator("carrierR({<1,10>,<2,20>}, {2,3} ) == {};"));
 		assertTrue(tf.runTestInSameEvaluator("carrierR({<1,10>,<2,20>}, {2,20} ) == {<2,20>};"));
@@ -26,6 +32,9 @@ public class StandardLibraryRelationTests extends TestCase {
 	}
 	
 	public void testRelCarrierX() throws IOException {
+		
+		new TestFramework("import Relation;");
+		
 		assertTrue(tf.runTestInSameEvaluator("carrierX({<1,10>,<2,20>}, {} ) == {<1,10>,<2,20>};"));
 		assertTrue(tf.runTestInSameEvaluator("carrierX({<1,10>,<2,20>}, {2,3} ) == {<1,10>};"));
 		assertTrue(tf.runTestInSameEvaluator("carrierX({<1,10,100>,<2,20,200>}, {20}) == {<1,10,100>};"));
@@ -36,12 +45,18 @@ public class StandardLibraryRelationTests extends TestCase {
 	
 	
 	public void testRelComplement() throws IOException {
+		
+		new TestFramework("import Relation;");
+		
 		assertTrue(tf.runTestInSameEvaluator("complement({<1,10>,<2,20>}) == {<2,10>,<1,20>};"));
 		assertTrue(tf.runTestInSameEvaluator("complement({<1,10,100>,<2,20,200>}) == {<2,20,100>,<2,10,200>,<2,10,100>,<1,20,200>,<1,20,100>,<1,10,200>};"));
 		assertTrue(tf.runTestInSameEvaluator("complement({<1,10,100,1000>,<2,20,200,2000>}) == {<2,20,200,1000>,<1,10,100,2000>,<1,10,200,1000>,<1,10,200,2000>,<1,20,100,1000>,<1,20,100,2000>,<1,20,200,1000>,<1,20,200,2000>,<2,10,100,1000>,<2,10,100,2000>,<2,10,200,1000>,<2,10,200,2000>,<2,20,100,1000>,<2,20,100,2000>};"));
 	}
 	
 	public void testRelDomain() throws IOException {
+		
+		new TestFramework("import Relation;");
+		
 		assertTrue(tf.runTestInSameEvaluator("domain({<1,10>,<2,20>}) == {1,2};"));
 		assertTrue(tf.runTestInSameEvaluator("domain({<1,10,100>,<2,20,200>}) == {1,2};"));
 		assertTrue(tf.runTestInSameEvaluator("domain({<1,10,100,1000>,<2,20,200,2000>}) == {1,2};"));
@@ -49,6 +64,9 @@ public class StandardLibraryRelationTests extends TestCase {
 	}
 	
 	public void testRelDomainR() throws IOException {
+		
+		new TestFramework("import Relation;");
+		
 		assertTrue(tf.runTestInSameEvaluator("domainR({<1,10>,<2,20>}, {}) == {};"));
 		assertTrue(tf.runTestInSameEvaluator("domainR({<1,10>,<2,20>}, {2}) == {<2,20>};"));
 		assertTrue(tf.runTestInSameEvaluator("domainR({<1,10,100>,<2,20,200>}, {2,5}) == {<2,20,200>};"));
@@ -57,6 +75,9 @@ public class StandardLibraryRelationTests extends TestCase {
 	}
 	
 	public void testRelDomainX() throws IOException {
+		
+		new TestFramework("import Relation;");
+		
 		assertTrue(tf.runTestInSameEvaluator("domainX({<1,10>,<2,20>}, {}) == {<1,10>,<2,20>};"));
 		assertTrue(tf.runTestInSameEvaluator("domainX({<1,10>,<2,20>}, {2}) == {<1,10>};"));
 		assertTrue(tf.runTestInSameEvaluator("domainX({<1,10,100>,<2,20,200>}, {2,5}) == {<1,10,100>};"));
@@ -66,6 +87,9 @@ public class StandardLibraryRelationTests extends TestCase {
 	}
 	
 	public void testRelInvert() throws IOException {
+		
+		new TestFramework("import Relation;");
+		
 		assertTrue(tf.runTestInSameEvaluator("invert({<1,10>,<2,20>}) == {<10,1>,<20,2>};"));
 		assertTrue(tf.runTestInSameEvaluator("invert({<1,10,100>,<2,20,200>}) == {<100,10,1>,<200,20,2>};"));
 		assertTrue(tf.runTestInSameEvaluator("invert({<1,10,100,1000>,<2,20,200,2000>}) == {<1000,100,10,1>,<2000,200,20,2>};"));
@@ -73,6 +97,9 @@ public class StandardLibraryRelationTests extends TestCase {
 	}
 	
 	public void testRelRange() throws IOException {
+		
+		new TestFramework("import Relation;");
+		
 		assertTrue(tf.runTestInSameEvaluator("range({<1,10>,<2,20>}) == {10,20};"));
 		assertTrue(tf.runTestInSameEvaluator("range({<1,10,100>,<2,20,200>}) == {<10,100>,<20,200>};"));
 		assertTrue(tf.runTestInSameEvaluator("range({<1,10,100,1000>,<2,20,200,2000>}) == {<10,100,1000>,<20,200,2000>};"));
@@ -80,6 +107,9 @@ public class StandardLibraryRelationTests extends TestCase {
 	}
 	
 	public void testRelRangeR() throws IOException {
+		
+		new TestFramework("import Relation;");
+		
 		//assertTrue(tf.runTestInSameEvaluator("rangeR({<1,10>,<2,20>}, {}) == {};"));
 		assertTrue(tf.runTestInSameEvaluator("rangeR({<1,10>,<2,20>}, {20}) == {<2,20>};"));
 		//assertTrue(tf.runTestInSameEvaluator("rangeR({<1,10,100>,<2,20,200>}) == {<10,100>,<20,200>};"));
@@ -89,6 +119,9 @@ public class StandardLibraryRelationTests extends TestCase {
 	}
 	
 	public void testRelRangeX() throws IOException {
+		
+		new TestFramework("import Relation;");
+		
 		//assertTrue(tf.runTestInSameEvaluator("rangeX({<1,10>,<2,20>}, {}) == {<1,10>,<2,20>};"));
 		assertTrue(tf.runTestInSameEvaluator("rangeX({<1,10>,<2,20>}, {20}) == {<1,10>};"));
 		//assertTrue(tf.runTestInSameEvaluator("rangeX({<1,10,100>,<2,20,200>}) == {<10,100>,<20,200>};"));

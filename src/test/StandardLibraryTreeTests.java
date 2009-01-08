@@ -9,24 +9,40 @@ public class StandardLibraryTreeTests extends TestCase {
 		prepare("data NODE f | f(int) | f(int,int) | f(int,int,int);");
 
 	public void testTreeArity() throws IOException {
+		
+		tf = new TestFramework("import Tree;").
+		prepare("data NODE f | f(int) | f(int,int) | f(int,int,int);");
+		
 		assertTrue(tf.runTestInSameEvaluator("arity(f()) == 0;"));
 		assertTrue(tf.runTestInSameEvaluator("arity(f(1)) == 1;"));
 		assertTrue(tf.runTestInSameEvaluator("arity(f(1,2)) == 2;"));
 	}
 	
 	public void testTreeGetChild() throws IOException {
+		
+		tf = new TestFramework("import Tree;").
+		prepare("data NODE f | f(int) | f(int,int) | f(int,int,int);");
+		
 		assertTrue(tf.runTestInSameEvaluator("getChild(f(1),0) == 1;"));
 		assertTrue(tf.runTestInSameEvaluator("getChild(f(1,2),0) == 1;"));
 		assertTrue(tf.runTestInSameEvaluator("getChild(f(1,2),1) == 2;"));
 	}
 	
 	public void testTreeGetChildren() throws IOException {
+		
+		tf = new TestFramework("import Tree;").
+		prepare("data NODE f | f(int) | f(int,int) | f(int,int,int);");
+		
 		assertTrue(tf.runTestInSameEvaluator("getChildren(f()) == [];"));
 		assertTrue(tf.runTestInSameEvaluator("getChildren(f(1)) == [1];"));
 		assertTrue(tf.runTestInSameEvaluator("getChildren(f(1,2)) == [1,2];"));
 	}
 	
 	public void testTreeGetName() throws IOException {
+		
+		tf = new TestFramework("import Tree;").
+		prepare("data NODE f | f(int) | f(int,int) | f(int,int,int);");
+		
 		assertTrue(tf.runTestInSameEvaluator("getName(f()) == \"f\";"));
 		assertTrue(tf.runTestInSameEvaluator("getName(f(1,2,3)) == \"f\";"));
 	}
@@ -34,11 +50,12 @@ public class StandardLibraryTreeTests extends TestCase {
 	// makeTree
 	
 	public void testTreeSetChild() throws IOException {
+		
+		tf = new TestFramework("import Tree;").
+		prepare("data NODE f | f(int) | f(int,int) | f(int,int,int);");
+		
 		assertTrue(tf.runTestInSameEvaluator("setChild(f(1,2,3), 0, 10) == f(10,2,3);"));
 		assertTrue(tf.runTestInSameEvaluator("setChild(f(1,2,3), 1, 20) == f(1,20,3);"));
 		assertTrue(tf.runTestInSameEvaluator("setChild(f(1,2,3), 2, 30) == f(1,2,30);"));
 	}
-	
-	
-		
 }

@@ -9,6 +9,8 @@ public class StandardLibraryIntegerTests extends TestCase {
 	private static TestFramework tf = new TestFramework("import Integer;");
 
 	public void testIntegerArb() throws IOException {
+		
+		new TestFramework("import Integer;");
 
 		assertTrue(tf
 				.runTestInSameEvaluator("{int N = Integer::arb(10); (N >= 0) && (N < 10);}"));
@@ -17,6 +19,8 @@ public class StandardLibraryIntegerTests extends TestCase {
 	}
 
 	public void testIntegerMax() throws IOException {
+		
+		new TestFramework("import Integer;");
 
 		assertTrue(tf.runTestInSameEvaluator("Integer::max(3, 10) == 10;"));
 		assertTrue(tf.runTestInSameEvaluator("max(3, 10) == 10;"));
@@ -24,6 +28,8 @@ public class StandardLibraryIntegerTests extends TestCase {
 	}
 
 	public void testIntegerMin() throws IOException {
+		
+		new TestFramework("import Integer;");
 
 		assertTrue(tf.runTestInSameEvaluator("Integer::min(3, 10) == 3;"));
 		assertTrue(tf.runTestInSameEvaluator("min(3, 10) == 3;"));
@@ -31,12 +37,16 @@ public class StandardLibraryIntegerTests extends TestCase {
 	}
 
 	public void testIntegerToDouble() throws IOException {
+		
+		new TestFramework("import Integer;");
 
 		assertTrue(tf.runTestInSameEvaluator("Integer::toDouble(3) == 3.0;"));
 		assertTrue(tf.runTestInSameEvaluator("toDouble(3) == 3.0;"));
 	}
 
 	public void testIntegerToString() throws IOException {
+		
+		new TestFramework("import Integer;");
 
 		assertTrue(tf
 				.runTestInSameEvaluator("Integer::toString(314) == \"314\";"));

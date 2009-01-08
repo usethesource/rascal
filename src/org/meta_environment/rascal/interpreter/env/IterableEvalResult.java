@@ -34,7 +34,6 @@ public class IterableEvalResult extends EvalResult implements Iterator<EvalResul
 		return last = iterator.next();
 	}
 
-	@Override
 	public void remove() {
 		throw new RascalBug("remove() not implemented for IterableEvalResult");
 		

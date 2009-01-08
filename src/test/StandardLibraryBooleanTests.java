@@ -9,7 +9,9 @@ public class StandardLibraryBooleanTests extends TestCase {
 	private static TestFramework tf = new TestFramework("import Boolean;");
 
 	public void testBooleanArb() throws IOException {
-
+		
+		tf = new TestFramework("import Boolean;");
+		
 		assertTrue(tf
 				.runTestInSameEvaluator("{bool B = Boolean::arbBool(); (B == true) || (B == false);}"));
 		assertTrue(tf
@@ -17,6 +19,8 @@ public class StandardLibraryBooleanTests extends TestCase {
 	}
 
 	public void testBooleanToInt() throws IOException {
+		
+		tf = new TestFramework("import Boolean;");
 
 		assertTrue(tf.runTestInSameEvaluator("Boolean::toInt(false) == 0;"));
 		assertTrue(tf.runTestInSameEvaluator("Boolean::toInt(true) == 1;"));
@@ -26,6 +30,8 @@ public class StandardLibraryBooleanTests extends TestCase {
 	}
 
 	public void testBooleanToDouble() throws IOException {
+		
+		tf = new TestFramework("import Boolean;");
 
 		assertTrue(tf
 				.runTestInSameEvaluator("Boolean::toDouble(false) == 0.0;"));
@@ -36,6 +42,8 @@ public class StandardLibraryBooleanTests extends TestCase {
 	}
 
 	public void testBooleanToString() throws IOException {
+		
+		tf = new TestFramework("import Boolean;");
 
 		assertTrue(tf
 				.runTestInSameEvaluator("Boolean::toString(false) == \"false\";"));

@@ -262,18 +262,15 @@ class MatchEvaluator implements Iterator<EvalResult> {
     	mp.initMatch(subject.accept(ev).value, ev);
 	}
 
-	@Override
 	public boolean hasNext() {
 		return mp.hasNext();
 	}
 
-	@Override
 	public EvalResult next() {
 		boolean result = positive ? mp.next() : !mp.next();
 		return new IterableEvalResult(this,result);
 	}
 
-	@Override
 	public void remove() {
 		throw new RascalBug("remove() not implemented for MatchEvaluator");
 	}
