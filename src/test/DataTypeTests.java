@@ -16,25 +16,25 @@ public class DataTypeTests extends TestCase{
 		assertTrue(tf.runTest("(!true) == false;"));
 		assertTrue(tf.runTest("(!false) == true;"));
 		
-		assertTrue(tf.runTest("true && true == true;"));	
-		assertTrue(tf.runTest("true && false == false;"));	
-		assertTrue(tf.runTest("false && true == false;"));	 
-		assertTrue(tf.runTest("false && false == false;"));	
+		assertTrue(tf.runTest("(true && true) == true;"));	
+		assertTrue(tf.runTest("(true && false) == false;"));	
+		assertTrue(tf.runTest("(false && true) == false;"));	 
+		assertTrue(tf.runTest("(false && false) == false;"));	
 		
-		assertTrue(tf.runTest("true || true == true;"));	
-		assertTrue(tf.runTest("true || false == true;"));	
-		assertTrue(tf.runTest("false || true == true;"));	
-		assertTrue(tf.runTest("false || false == false;"));	
+		assertTrue(tf.runTest("(true || true) == true;"));	
+		assertTrue(tf.runTest("(true || false) == true;"));	
+		assertTrue(tf.runTest("(false || true) == true;"));	
+		assertTrue(tf.runTest("(false || false) == false;"));	
 		
-		assertTrue(tf.runTest("true ==> true == true;"));	
-		assertTrue(tf.runTest("true ==> false == false;"));	
-		assertTrue(tf.runTest("false ==> true == true;"));	
-		assertTrue(tf.runTest("false ==> false == true;"));
+		assertTrue(tf.runTest("(true ==> true) == true;"));	
+		assertTrue(tf.runTest("(true ==> false) == false;"));	
+		assertTrue(tf.runTest("(false ==> true)  == true;"));	
+		assertTrue(tf.runTest("(false ==> false) == true;"));
 		
-		assertTrue(tf.runTest("true <==> true == true;"));	
-		assertTrue(tf.runTest("true <==> false == false;"));	
-		assertTrue(tf.runTest("false <==> true == false;"));	
-		assertTrue(tf.runTest("false <==> false == true;"));
+		assertTrue(tf.runTest("(true <==> true) == true;"));	
+		assertTrue(tf.runTest("(true <==> false) == false;"));	
+		assertTrue(tf.runTest("(false <==> true) == false;"));	
+		assertTrue(tf.runTest("(false <==> false) == true;"));
 		
 		assertTrue(tf.runTest("false  <= false;"));
 		assertTrue(tf.runTest("false  <= true;"));
