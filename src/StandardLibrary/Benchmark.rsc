@@ -11,7 +11,7 @@ public double java currentTimeMillis()
 }
 
 public void benchmark(rel[str, void()] Cases)
-@{benchmark -- measure and report the execution time of <name, void-closure> pairs}
+@doc{benchmark -- measure and report the execution time of <name, void-closure> pairs}
 {
 	for(<str Name, void() Fun> : Cases){
 		double ctm1 = currentTimeMillis();
