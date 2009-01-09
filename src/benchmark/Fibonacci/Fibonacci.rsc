@@ -19,17 +19,10 @@ public bool testFibonacci()
 
 public void measure(int n)
 {
-		int result;
-		double start = currentTimeMillis();
-		int result = fib(n);
-		double used = currentTimeMillis() - start;
+	start = currentTimeMillis();
+	result = fib(n);
+	used = currentTimeMillis() - start;
 		
-		println("fib(<n>) = <result>  (<used> millis)");
-		/*
-		benchmark(
-		{ <"fib(10)", (){fib(10);}>
-		}
-		);
-		*/
+	println("fib(<n>) = <result>  (<used> millis)");
 
 }

@@ -10,11 +10,13 @@ public double java currentTimeMillis()
 	return values.dubble(ctm);
 }
 
-public void benchmark(rel[str, void()] Cases)
-@doc{benchmark -- measure and report the execution time of <name, void-closure> pairs}
+public void benchmark(map[str, void()] Cases)
+@doc{benchmark -- measure and report the execution time of name:void-closure pairs}
 {
-	for(<str Name, void() Fun> : Cases){
+	measurements = ();
+	for(str Name : Cases){
 		double ctm1 = currentTimeMillis();
+		Fun = Cases[Name];
 		#Fun();
 		double ctm2 = currentTimeMillis();
 		measurements[Name] = ctm2 - ctm1;

@@ -713,7 +713,6 @@ interface MatchPattern {
 public class TreePatternEvaluator extends NullASTVisitor<MatchPattern> {
 
 	private Evaluator ev;
-	private int listNesting = 0;
 	
 	TreePatternEvaluator(Evaluator evaluator){
 		ev = evaluator;

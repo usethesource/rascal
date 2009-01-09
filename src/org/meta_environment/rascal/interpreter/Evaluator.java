@@ -291,15 +291,15 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	private EvalResult applyRules(Type t, IValue v){
 		//System.err.println((applyingRules ? "****" : "") + "applyRules: " + t + ", " + v);
 		
-		/*
+		/* TODO:
 		 * This is a temporary hack that does not give good results in all cases.
 		 * The problem: while applying rules another EvalResult may be created that triggers
-		 * applyRules and executes the samen rules. Example: BubbleSort.
+		 * applyRules and executes the same rules. Example: BubbleSort.
 		 * In this case, binding of the first rule execution may get disturbed and wrong results
 		 * are give.
-		 * Probable solution: carefull shielding of these different environments.
+		 * Probable solution: careful shielding of these different environments.
 		 */
-		if(applyingRules) return new EvalResult(t, v);
+		 //if(applyingRules) return new EvalResult(t, v);
 	
 		java.util.List<org.meta_environment.rascal.ast.Rule> rules = env.getRules(t);
 		if(rules.isEmpty()){
@@ -313,14 +313,16 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			TraverseResult tr = traverse(v, new CasesOrRules(rules), 
 				/* bottomup */ true,  
 				/* breaking */ false, 
-				/* fixedpoint */ true);
+				/* fixedpoint */ false);  /* innermost is achieved by repeated applications of applyRules
+				 							* when intermediate results are produced.
+				 							*/
 			applyingRules = false;
 			//RSystem.err.println("applyRules: tr.value =" + tr.value);
 			return new EvalResult(tr.value.getType(), tr.value);
-		} finally{
+		} finally {
 			env.popFrame();
 		}
-		
+
 	}
 	
 	private EvalResult result() {
@@ -416,6 +418,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 					"src/test/", 
 					"src/benchmark/",
 					"src/benchmark/BubbleSort/",
+					"src/benchmark/Factorial/",
 					"src/benchmark/Fibonacci/",
 					"src/benchmark/UnusedProcs/",
 					"demo/AsFix/",
@@ -3063,9 +3066,11 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		
 	  //TODO: PDB: Should NamedTreeType not be a subtype of TreeType?
 		//System.err.println("Replacing " + oldSubject + " by " + newSubject);
+		/*
 		if(!newType.isSubtypeOf(oldType)){
 			throw new RascalTypeError("Replacing " + oldType + " by " + newType + " value");
 		}
+		*/
 		
 		return new TraverseResult(true, newSubject, true);
 	}
