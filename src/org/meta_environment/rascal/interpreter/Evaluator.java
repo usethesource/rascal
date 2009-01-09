@@ -2458,6 +2458,12 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		return new ClosureResult(this, f, env.top());
 	}
 
+	@Override
+	public EvalResult visitExpressionVoidClosure(VoidClosure x) {
+		FunctionDeclaration f = convertVoidClosureToFunctionDeclaration(x);
+		return new ClosureResult(this, f, env.top());
+	}
+	
 	/**
 	 * To be compatible with the call functions, we convert a closure to a plain
 	 * old function declaration here.
@@ -2471,6 +2477,26 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		org.meta_environment.rascal.ast.Parameters params = x.getParameters();
 		java.util.List<Statement> stats = x.getStatements();
 		ITree tree = x.getTree();
+		FunctionModifiers mods =astFactory.makeFunctionModifiersList(tree, new LinkedList<FunctionModifier>());
+		Signature s = astFactory.makeSignatureNoThrows(params.getTree(), type, mods, Names.toName(x.toString()), params);
+		Tags tags = astFactory.makeTagsDefault(tree, new LinkedList<org.meta_environment.rascal.ast.Tag>());
+		FunctionBody body = astFactory.makeFunctionBodyDefault(tree, stats);
+		return astFactory.makeFunctionDeclarationDefault(tree, s, tags, body);
+	}
+	
+	/**
+	 * To be compatible with the call functions, we convert a closure to a plain
+	 * old function declaration here.
+	 * 
+	 * TODO: make the call functions work on parameter lists and bodies instead,
+	 * since the name of the function is not used after the function declaration
+	 * has been looked up. That should remove the need for this clumsiness.
+	 */
+	private FunctionDeclaration convertVoidClosureToFunctionDeclaration(VoidClosure x) {
+		ITree tree = x.getTree();
+		org.meta_environment.rascal.ast.Type type = astFactory.makeTypeBasic(tree, astFactory.makeBasicTypeVoid(tree));
+		org.meta_environment.rascal.ast.Parameters params = x.getParameters();
+		java.util.List<Statement> stats = x.getStatements();
 		FunctionModifiers mods =astFactory.makeFunctionModifiersList(tree, new LinkedList<FunctionModifier>());
 		Signature s = astFactory.makeSignatureNoThrows(params.getTree(), type, mods, Names.toName(x.toString()), params);
 		Tags tags = astFactory.makeTagsDefault(tree, new LinkedList<org.meta_environment.rascal.ast.Tag>());
@@ -3132,12 +3158,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		return result(subject.getType(), traverse(subject, new CasesOrRules(cases), bottomup, breaking, fixedpoint).value);
 	}
 	
-	@Override
-	public EvalResult visitExpressionVoidClosure(VoidClosure x) {
-		// TODO
-		throw new RascalBug("void closure NYI");
-	}
-	
+
 	@Override
 	public EvalResult visitExpressionNonEquals(
 			org.meta_environment.rascal.ast.Expression.NonEquals x) {
