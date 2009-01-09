@@ -288,17 +288,18 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	private EvalResult applyRules(Type t, IValue v){
 		
 		//if(true) return new EvalResult(t, v);
-		//System.err.println("applyRules: " + t + ", " + v);
+		System.err.println("applyRules: " + t + ", " + v);
 		
 		java.util.List<org.meta_environment.rascal.ast.Rule> rules = env.getRules(t);
 		if(rules.isEmpty()){
-			//System.err.println("applyRules: no matching rules for " + t);
+			System.err.println("applyRules: no matching rules for " + t);
 			return new EvalResult(t, v);
 		}
 		TraverseResult tr = traverse(v, new CasesOrRules(rules), 
 				/* bottomup */ true,  
 				/* breaking */ false, 
 				/* fixedpoint */ true);
+		System.err.println("applyRules: tr.value =" + tr.value);
 		return new EvalResult(tr.value.getType(), tr.value);
 	}
 	
@@ -396,6 +397,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 					"src/StandardLibrary/", 
 					"src/test/", 
 					"src/benchmark/",
+					"src/benchmark/BubbleSort/",
 					"src/benchmark/Fibonacci/",
 					"src/benchmark/UnusedProcs/",
 					"demo/AsFix/",
@@ -1839,9 +1841,25 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	public EvalResult visitExpressionList(List x) {
 		java.util.List<org.meta_environment.rascal.ast.Expression> elements = x
 				.getElements();
+		
+		Type elementType = tf.voidType();
 		java.util.List<IValue> results = new LinkedList<IValue>();
-		Type elementType = evaluateElements(elements, results);
 
+		for (org.meta_environment.rascal.ast.Expression expr : elements) {
+			EvalResult resultElem = expr.accept(this);
+			if(resultElem.type.isListType()){
+				/*
+				 * Splice the elements in the outer list.
+				 */
+				for(IValue val : ((IList) resultElem.value)){
+					elementType = elementType.lub(val.getType());
+					results.add(val);
+				}
+			} else {
+				elementType = elementType.lub(resultElem.type);
+				results.add(results.size(), resultElem.value);
+			}
+		}
 		Type resultType = tf.listType(elementType);
 		IListWriter w = resultType.writer(vf);
 		w.appendAll(results);
@@ -1852,26 +1870,29 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	public EvalResult visitExpressionSet(Set x) {
 		java.util.List<org.meta_environment.rascal.ast.Expression> elements = x
 				.getElements();
+		
+		Type elementType = tf.voidType();
 		java.util.List<IValue> results = new LinkedList<IValue>();
-		Type elementType = evaluateElements(elements, results);
 
+		for (org.meta_environment.rascal.ast.Expression expr : elements) {
+			EvalResult resultElem = expr.accept(this);
+			if(resultElem.type.isSetType()){
+				/*
+				 * Splice the elements in the outer set.
+				 */
+				for(IValue val : ((ISet) resultElem.value)){
+					elementType = elementType.lub(val.getType());
+					results.add(val);
+				}
+			} else {
+				elementType = elementType.lub(resultElem.type);
+				results.add(results.size(), resultElem.value);
+			}
+		}
 		Type resultType = tf.setType(elementType);
 		ISetWriter w = resultType.writer(vf);
 		w.insertAll(results);
 		return result(resultType, w.done());
-	}
-
-	private Type evaluateElements(
-			java.util.List<org.meta_environment.rascal.ast.Expression> elements,
-			java.util.List<IValue> results) {
-		Type elementType = tf.voidType();
-
-		for (org.meta_environment.rascal.ast.Expression expr : elements) {
-			EvalResult resultElem = expr.accept(this);
-			elementType = elementType.lub(resultElem.type);
-			results.add(results.size(), resultElem.value);
-		}
-		return elementType;
 	}
 
 	@Override
@@ -1900,7 +1921,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		
 		return result(type, w.done());
 	}
-
 	
 	@Override
 	public EvalResult visitExpressionNonEmptyBlock(NonEmptyBlock x) {
@@ -2910,7 +2930,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		boolean changed = false;
 		IValue result = subject;
 		
-		//System.err.println("traverseOnce: " + subject + ", type=" + subject.getType());
+		System.err.println("traverseOnce: " + subject + ", type=" + subject.getType());
 		if(subjectType.isStringType()){
 			return traverseString((IString) subject, casesOrRules);
 		}
@@ -3026,7 +3046,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 		
 	  //TODO: PDB: Should NamedTreeType not be a subtype of TreeType?
-		
+		System.err.println("Replacing " + oldSubject + " by " + newSubject);
 		if(!newType.isSubtypeOf(oldType)){
 			throw new RascalTypeError("Replacing " + oldType + " by " + newType + " value");
 		}
@@ -3084,7 +3104,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	private TraverseResult applyOneRule(IValue subject,
 			org.meta_environment.rascal.ast.Rule rule) {
 		
-		//System.err.println("applyOneRule: " + subject + ", type=" + subject.getType() + ", rule=" + rule);
+		System.err.println("applyOneRule: subject=" + subject + ", type=" + subject.getType() + ", rule=" + rule);
 		try {
 			env.pushFrame();		// Create a local scope for match and statement
 			if (rule.isArbitrary()){

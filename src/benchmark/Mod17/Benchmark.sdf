@@ -1,0 +1,140 @@
+module Benchmark
+
+imports Layout
+
+exports
+  sorts Nat SNat Bool Tree
+
+  context-free syntax
+    "true"                -> Bool
+    "false"               -> Bool
+    "or" "(" Bool "," Bool ")"       -> Bool
+    "and" "(" Bool "," Bool ")"       -> Bool
+    "not"  "("  Bool  ")"         -> Bool
+
+    "z"                   -> Nat
+    "s" "(" Nat ")"               -> Nat
+    "equal" "(" Nat ","  Nat ")"      -> Bool
+    "less" "(" Nat ","  Nat ")"       -> Bool
+
+    "plus" "(" Nat ","  Nat ")"       -> Nat
+    "mult" "(" Nat ","  Nat ")"       -> Nat
+    "exp" "(" Nat ","  Nat ")"        -> Nat
+
+    "succ17" "(" Nat ")"          -> Nat
+    "pred17" "(" Nat ")"          -> Nat
+    "plus17" "(" Nat ","  Nat ")"     -> Nat
+    "mult17" "(" Nat ","  Nat ")"     -> Nat
+    "exp17" "(" Nat ","  Nat ")"      -> Nat
+
+    "exz"                   -> SNat  %% The constant 0
+    "exs" "(" SNat ")"              -> SNat  %% successor
+    "explus" "(" SNat ","  SNat ")"     -> SNat
+    "exmult" "(" SNat ","  SNat ")"     -> SNat
+    "exexp" "(" SNat ","  SNat ")"      -> SNat
+
+    "leaf" "(" Nat ")"                   -> Tree
+    "node" "(" Nat ","  Nat ","  Tree ","  Tree ")"  -> Tree
+    "buildtree" "(" Nat ","  Nat ")"         -> Tree
+    "calctree17" "(" Nat ")"             -> Nat
+    "getmax" "(" Tree ")"                -> Nat
+    "getval" "(" Tree ")"                -> Nat
+
+    %% Several eval functions
+    "eval" "(" SNat ")"            -> Nat
+    "eval17" "(" SNat ")"          -> Nat
+    "evalsym17" "(" SNat ")"       -> Nat
+    "evalexp17" "(" SNat ")"       -> Nat
+
+    %% The benchmarks
+    "bench-evalsym17" "(" SNat ")"            -> Bool
+    "bench-evalexp17" "(" SNat ")"            -> Bool
+    "bench-evaltree17" "(" SNat ")"           -> Bool
+
+    %% Some constants
+    "zero"        -> SNat
+    "one"         -> SNat
+    "two"         -> SNat
+    "three"       -> SNat
+    "four"        -> SNat
+    "five"        -> SNat
+    "six"         -> SNat
+    "seven"       -> SNat
+    "eight"       -> SNat
+    "nine"        -> SNat
+    "ten"         -> SNat
+    "eleven"      -> SNat
+    "twelve"      -> SNat
+    "thirteen"    -> SNat
+    "fourteen"    -> SNat
+    "fifteen"     -> SNat
+    "sixteen"     -> SNat
+    "seventeen"   -> SNat
+    "eighteen"    -> SNat
+    "nineteen"    -> SNat
+    "twenty"      -> SNat
+    "twentyone"   -> SNat
+    "twentytwo"   -> SNat
+    "twentythree" -> SNat
+    "twentyfour"  -> SNat
+    "twentyfive"  -> SNat
+    "twentysix"   -> SNat
+    "twentyseven" -> SNat
+    "twentyeight" -> SNat
+    "twentynine"  -> SNat
+    "thirty"      -> SNat
+    "thirtyone"   -> SNat
+    "thirtytwo"   -> SNat
+    "thirtythree" -> SNat
+    "thirtyfour"  -> SNat
+    "thirtyfive"  -> SNat
+
+  %% Test constants
+  "0"           -> Nat
+  "1"           -> Nat
+  "2"           -> Nat
+  "3"           -> Nat
+  "4"           -> Nat
+  "5"           -> Nat
+  "6"           -> Nat
+  "7"           -> Nat
+  "8"           -> Nat
+  "9"           -> Nat
+  "10"          -> Nat
+  "11"          -> Nat
+  "12"          -> Nat
+  "13"          -> Nat
+  "14"          -> Nat
+  "15"          -> Nat
+  "16"          -> Nat
+  "17"          -> Nat
+
+variables
+    "Bool"[0-9\']* -> Bool
+    "X"[0-9\']*    -> Nat
+    "Y"[0-9\']*    -> Nat
+    "Z"[0-9\']*    -> Nat
+    "Xs"[0-9\']*   -> SNat
+    "Ys"[0-9\']*   -> SNat
+    "Zs"[0-9\']*   -> SNat
+    "I"[0-9\']*    -> Nat
+    "J"[0-9\']*    -> Nat
+    "K"[0-9\']*    -> Nat
+    "L"[0-9\']*    -> Nat
+
+hiddens
+  sorts NatPair
+  context-free syntax
+    "dec" "(" SNat ")"             -> SNat
+    "expand" "(" SNat ")"          -> SNat
+    "exone"               -> SNat
+
+    "nat2sym" "(" Nat ")"  -> SNat
+
+  variables
+    "P"[0-9\']*    -> NatPair
+    "P*"[0-9\']* -> NatPair*
+    "Left"        -> Tree
+    "Right"       -> Tree
+    "Max"[\']*     -> Nat
+    "Val"[\']*     -> Nat
