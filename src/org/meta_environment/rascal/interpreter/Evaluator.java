@@ -182,6 +182,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 	protected MatchPattern lastPattern;	// The most recent pattern applied in a match
 	                                    // For the benefit of string matching.
+	
+	protected boolean applyingRules = false; //TODO: temp
 
 	public Evaluator(IValueFactory f, ASTFactory astFactory, Writer errorWriter) {
 		this.vf = f;
@@ -287,21 +289,38 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	}
 	
 	private EvalResult applyRules(Type t, IValue v){
+		//System.err.println((applyingRules ? "****" : "") + "applyRules: " + t + ", " + v);
 		
-		//if(true) return new EvalResult(t, v);
-		System.err.println("applyRules: " + t + ", " + v);
-		
+		/*
+		 * This is a temporary hack that does not give good results in all cases.
+		 * The problem: while applying rules another EvalResult may be created that triggers
+		 * applyRules and executes the samen rules. Example: BubbleSort.
+		 * In this case, binding of the first rule execution may get disturbed and wrong results
+		 * are give.
+		 * Probable solution: carefull shielding of these different environments.
+		 */
+		if(applyingRules) return new EvalResult(t, v);
+	
 		java.util.List<org.meta_environment.rascal.ast.Rule> rules = env.getRules(t);
 		if(rules.isEmpty()){
-			System.err.println("applyRules: no matching rules for " + t);
+			//System.err.println("applyRules: no matching rules for " + t);
 			return new EvalResult(t, v);
 		}
-		TraverseResult tr = traverse(v, new CasesOrRules(rules), 
+		applyingRules = true;
+		
+		env.pushFrame();
+		try {
+			TraverseResult tr = traverse(v, new CasesOrRules(rules), 
 				/* bottomup */ true,  
 				/* breaking */ false, 
 				/* fixedpoint */ true);
-		System.err.println("applyRules: tr.value =" + tr.value);
-		return new EvalResult(tr.value.getType(), tr.value);
+			applyingRules = false;
+			//RSystem.err.println("applyRules: tr.value =" + tr.value);
+			return new EvalResult(tr.value.getType(), tr.value);
+		} finally{
+			env.popFrame();
+		}
+		
 	}
 	
 	private EvalResult result() {
@@ -2927,7 +2946,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		boolean changed = false;
 		IValue result = subject;
 		
-		System.err.println("traverseOnce: " + subject + ", type=" + subject.getType());
+		//System.err.println("traverseOnce: " + subject + ", type=" + subject.getType());
 		if(subjectType.isStringType()){
 			return traverseString((IString) subject, casesOrRules);
 		}
@@ -3043,7 +3062,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 		
 	  //TODO: PDB: Should NamedTreeType not be a subtype of TreeType?
-		System.err.println("Replacing " + oldSubject + " by " + newSubject);
+		//System.err.println("Replacing " + oldSubject + " by " + newSubject);
 		if(!newType.isSubtypeOf(oldType)){
 			throw new RascalTypeError("Replacing " + oldType + " by " + newType + " value");
 		}
@@ -3101,7 +3120,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	private TraverseResult applyOneRule(IValue subject,
 			org.meta_environment.rascal.ast.Rule rule) {
 		
-		System.err.println("applyOneRule: subject=" + subject + ", type=" + subject.getType() + ", rule=" + rule);
+		//System.err.println("applyOneRule: subject=" + subject + ", type=" + subject.getType() + ", rule=" + rule);
 		try {
 			env.pushFrame();		// Create a local scope for match and statement
 			if (rule.isArbitrary()){
