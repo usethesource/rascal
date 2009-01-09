@@ -164,7 +164,6 @@ class SubListIterator implements Iterator<IValue> {
 	}
 
 	public boolean hasNext() {
-		System.err.println("hasNext: " + (cursor < end -1));
 		return cursor < end;
 	}
 

@@ -201,7 +201,7 @@ interface MatchPattern {
 	private boolean hasNext;						// Has this pattern alternatives for further matching?
 	private boolean forward;						// Moving to the right?
 	
-	private boolean debug = true;
+	private boolean debug = false;
 	
 	TreePatternList(java.util.List<MatchPattern> children){
 		this.children = children;					
