@@ -743,10 +743,11 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		 FunctionDeclaration func = env.getFunction(name, actualTypes, envHolder);
 
 		 if (func != null) {
-			 Type formals = func.getSignature().getParameters().accept(te);
 			 
 			 try {
 				 env.pushFrame(envHolder.getEnvironment());
+				 Type formals = func.getSignature().getParameters().accept(te);
+					
 				 EvalResult res = call(func, formals, actuals, actualTypes);
 
 				 return res;
