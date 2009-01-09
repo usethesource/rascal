@@ -181,6 +181,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	private final JavaFunctionCaller javaFunctionCaller;
 	
 	protected MatchPattern lastPattern;	// The most recent pattern applied in a match
+	                                    // For the benefit of string matching.
 
 	public Evaluator(IValueFactory f, ASTFactory astFactory, Writer errorWriter) {
 		this.vf = f;
@@ -356,9 +357,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		catch (FactTypeError e) {
 			throw new RascalTypeError("Could not bind type parameters in " + formals + " to " + actualTypes, e);
 		}
-	}
-		
-	
+	}	
 
 	// Ambiguity ...................................................
 	
@@ -1847,18 +1846,17 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 
 		for (org.meta_environment.rascal.ast.Expression expr : elements) {
 			EvalResult resultElem = expr.accept(this);
+			/*
 			if(resultElem.type.isListType()){
-				/*
-				 * Splice the elements in the outer list.
-				 */
 				for(IValue val : ((IList) resultElem.value)){
 					elementType = elementType.lub(val.getType());
 					results.add(val);
 				}
 			} else {
+				*/
 				elementType = elementType.lub(resultElem.type);
 				results.add(results.size(), resultElem.value);
-			}
+			/*}*/
 		}
 		Type resultType = tf.listType(elementType);
 		IListWriter w = resultType.writer(vf);
@@ -1876,18 +1874,17 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 
 		for (org.meta_environment.rascal.ast.Expression expr : elements) {
 			EvalResult resultElem = expr.accept(this);
+			/*
 			if(resultElem.type.isSetType()){
-				/*
-				 * Splice the elements in the outer set.
-				 */
 				for(IValue val : ((ISet) resultElem.value)){
 					elementType = elementType.lub(val.getType());
 					results.add(val);
 				}
 			} else {
+			*/
 				elementType = elementType.lub(resultElem.type);
 				results.add(results.size(), resultElem.value);
-			}
+			/*}*/
 		}
 		Type resultType = tf.setType(elementType);
 		ISetWriter w = resultType.writer(vf);
