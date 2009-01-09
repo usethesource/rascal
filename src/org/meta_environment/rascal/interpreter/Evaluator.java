@@ -122,8 +122,6 @@ import org.meta_environment.rascal.ast.Expression.Tuple;
 import org.meta_environment.rascal.ast.Expression.TypedVariable;
 import org.meta_environment.rascal.ast.Expression.Visit;
 import org.meta_environment.rascal.ast.Expression.VoidClosure;
-import org.meta_environment.rascal.ast.FunctionAsValue.Typed;
-import org.meta_environment.rascal.ast.Generator.Producer;
 import org.meta_environment.rascal.ast.Header.Parameters;
 import org.meta_environment.rascal.ast.IntegerLiteral.DecimalIntegerLiteral;
 import org.meta_environment.rascal.ast.Literal.Boolean;
@@ -852,16 +850,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		
 		return new ClosureResult(this, func, h.getEnvironment());
 	}
-	
-	@Override
-	public EvalResult visitFunctionAsValueTyped(Typed x) {
-		Type formals = x.getType().accept(te);
-		Name name = x.getName();
-		EnvironmentHolder h = new EnvironmentHolder();
-		FunctionDeclaration func = env.getFunction(Names.name(name), formals, h);
-		return new ClosureResult(this, func, h.getEnvironment());
-	}
-	
+
 	private StringBuffer showCall(FunctionDeclaration func, IValue[] actuals, String arrow){
 		StringBuffer trace = new StringBuffer();
 		for(int i = 0; i < callNesting; i++){
