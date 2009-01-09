@@ -585,13 +585,13 @@ public class DataTypeTests extends TestCase{
 	}
 	
 	public void testGood() throws IOException {
-		tf = new TestFramework("data NODE value V | f | f(NODE a);");
-		assertTrue(tf.runTestInSameEvaluator("f(1) == f(1);"));
+		tf = new TestFramework("data NODE val(value V) | f | f(NODE a);");
+		assertTrue(tf.runTestInSameEvaluator("f(val(1)) == f(val(1));"));
 	}
 	
 	public void testBad() throws IOException {
-		tf = new TestFramework("data NODE value V | f | f(NODE);");
-		assertTrue(tf.runTestInSameEvaluator("f(1) == f(1);"));
+		tf = new TestFramework("data NODE val(value V) | f | f(NODE);");
+		assertTrue(tf.runTestInSameEvaluator("f(val(1)) == f(val(1));"));
 	}
 
 
