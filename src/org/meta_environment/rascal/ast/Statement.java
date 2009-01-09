@@ -436,8 +436,20 @@ private org.meta_environment.rascal.ast.Label label;
  		z.$setCases(x);
 		return z;
 	}	
-} public boolean isExpression() { return false; }
-static public class Expression extends Statement {
+} 
+public boolean isEmptyStatement() { return false; }
+static public class EmptyStatement extends Statement {
+/* ";" -> Statement {cons("EmptyStatement")} */
+	private EmptyStatement() { }
+	/*package*/ EmptyStatement(ITree tree) {
+		this.tree = tree;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitStatementEmptyStatement(this);
+	}
+
+	public boolean isEmptyStatement() { return true; }	
+} public boolean isExpression() { return false; } static public class Expression extends Statement {
 /* expression:Expression ";" -> Statement {cons("Expression")} */
 	private Expression() { }
 	/*package*/ Expression(ITree tree, org.meta_environment.rascal.ast.Expression expression) {
@@ -460,8 +472,7 @@ private org.meta_environment.rascal.ast.Expression expression;
  		z.$setExpression(x);
 		return z;
 	}	
-} 
-public org.meta_environment.rascal.ast.Visit getVisit() { throw new UnsupportedOperationException(); }
+} public org.meta_environment.rascal.ast.Visit getVisit() { throw new UnsupportedOperationException(); }
 public boolean hasVisit() { return false; }
 public boolean isVisit() { return false; }
 static public class Visit extends Statement {
