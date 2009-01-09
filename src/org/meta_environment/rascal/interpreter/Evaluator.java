@@ -568,7 +568,13 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		    	for (int i = 0; i < args.size(); i++) {
 		    		TypeArg arg = args.get(i);
 					fields[i] = arg.getType().accept(te);
-		    		labels[i] = arg.getName().toString();
+					
+					if (arg.hasName()) {
+						labels[i] = arg.getName().toString();
+					}
+					else {
+						labels[i] = java.lang.Integer.toString(i);
+					}
 		    	}
 
 		    	Type children = tf.tupleType(fields, labels);
