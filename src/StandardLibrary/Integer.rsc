@@ -1,7 +1,14 @@
 module Integer
 
-public int java arb(int limit)
-@doc{arb -- return an arbitrary integer value in the interval [0, limit).}
+
+public int java arbInt()
+@doc{arbInt -- return an arbitrary integer value}
+{
+   return values.integer(random.nextInt());
+}
+
+public int java arbInt(int limit)
+@doc{arbInt -- return an arbitrary integer value in the interval [0, limit).}
 {
    return values.integer(random.nextInt(limit.getValue()));
 }

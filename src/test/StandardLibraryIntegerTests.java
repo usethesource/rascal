@@ -8,14 +8,17 @@ public class StandardLibraryIntegerTests extends TestCase {
 
 	private static TestFramework tf = new TestFramework("import Integer;");
 
-	public void testIntegerArb() throws IOException {
+	public void testIntegerArbInt() throws IOException {
 		
 		new TestFramework("import Integer;");
 
 		assertTrue(tf
-				.runTestInSameEvaluator("{int N = Integer::arb(10); (N >= 0) && (N < 10);}"));
+				.runTestInSameEvaluator("{int N = Integer::arbInt(10); (N >= 0) && (N < 10);}"));
 		assertTrue(tf
-				.runTestInSameEvaluator("{int N = arb(10); (N >= 0) && (N < 10);}"));
+				.runTestInSameEvaluator("{int N = arbInt(10); (N >= 0) && (N < 10);}"));
+		
+		assertTrue(tf
+				.runTestInSameEvaluator("{int N = arbInt(); true;}"));
 	}
 
 	public void testIntegerMax() throws IOException {
