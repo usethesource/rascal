@@ -597,7 +597,7 @@ public class DataTypeTests extends TestCase{
 
 	
 	public void testTree() throws IOException {
-		tf = new TestFramework("data NODE value V | f | f(NODE a) | f(NODE a, NODE b) | g | g(NODE a) | g(NODE a,NODE b);");
+		tf = new TestFramework("data NODE int V | string(str x)  | s(set[NODE] s) | l(list[NODE]) | m(map[NODE,NODE] m) | f | f(NODE a) | f(NODE a, NODE b) | g | g(NODE a) | g(NODE a,NODE b);");
 		
 		assertTrue(tf.runTestInSameEvaluator("f() == f();"));
 		assertTrue(tf.runTestInSameEvaluator("f() != g();"));
@@ -607,12 +607,12 @@ public class DataTypeTests extends TestCase{
 		assertTrue(tf.runTestInSameEvaluator("f(1,2) != f(1,3);"));
 		assertTrue(tf.runTestInSameEvaluator("f(1,g(2,3)) == f(1,g(2,3));"));
 		assertTrue(tf.runTestInSameEvaluator("f(1,g(2,3)) != f(1,g(2,4));"));
-		assertTrue(tf.runTestInSameEvaluator("f(1,g(2,{3,4,5})) == f(1,g(2,{3,4,5}));"));
-		assertTrue(tf.runTestInSameEvaluator("f(1,g(2,{3,4,5})) != f(1,g(2,{3,4,5,6}));"));
-		assertTrue(tf.runTestInSameEvaluator("f(1,g(2,[3,4,5])) == f(1,g(2,[3,4,5]));"));
-		assertTrue(tf.runTestInSameEvaluator("f(1,g(2,[3,4,5])) != f(1,g(2,[3,4,5,6]));"));
-		assertTrue(tf.runTestInSameEvaluator("f(1,g(2,(3:30,4:40,5:50))) == f(1,g(2,(3:30,4:40,5:50)));"));
-		assertTrue(tf.runTestInSameEvaluator("f(1,g(2,(3:30,4:40,5:50))) != f(1,g(2,(3:30,4:40,5:55)));"));
+		assertTrue(tf.runTestInSameEvaluator("f(1,g(2,s({3,4,5}))) == f(1,g(2,s({3,4,5})));"));
+		assertTrue(tf.runTestInSameEvaluator("f(1,g(2,s({3,4,5}))) != f(1,g(2,s({3,4,5,6})));"));
+		assertTrue(tf.runTestInSameEvaluator("f(1,g(2,l([3,4,5]))) == f(1,g(2,l([3,4,5])));"));
+		assertTrue(tf.runTestInSameEvaluator("f(1,g(2,l([3,4,5]))) != f(1,g(2,l([3,4,5,6])));"));
+		assertTrue(tf.runTestInSameEvaluator("f(1,g(2,m((3:30,4:40,5:50)))) == f(1,g(2,m((3:30,4:40,5:50))));"));
+		assertTrue(tf.runTestInSameEvaluator("f(1,g(2,m((3:30,4:40,5:50)))) != f(1,g(2,m((3:30,4:40,5:55))));"));
 		
 		assertTrue(tf.runTestInSameEvaluator("f()           <= f();"));
 		assertTrue(tf.runTestInSameEvaluator("f()           <= g();"));
@@ -620,9 +620,9 @@ public class DataTypeTests extends TestCase{
 		assertTrue(tf.runTestInSameEvaluator("f(1)          <= f(1);"));
 		assertTrue(tf.runTestInSameEvaluator("f(1, 2)       <= f(1, 3);"));
 		assertTrue(tf.runTestInSameEvaluator("f(1, 2)       <= g(1, 3);"));
-		assertTrue(tf.runTestInSameEvaluator("f(1, \"abc\") <= f(1, \"def\");"));
-		assertTrue(tf.runTestInSameEvaluator("f(1, [2, 3])  <= f(1, [2,3,4]);"));
-		assertTrue(tf.runTestInSameEvaluator("f(1, [2, 3])  <= f(1, [2,3]);"));
+		assertTrue(tf.runTestInSameEvaluator("f(1, string(\"abc\")) <= f(1, string(\"def\"));"));
+		assertTrue(tf.runTestInSameEvaluator("f(1, l([2, 3]))  <= f(1, l([2,3,4]));"));
+		assertTrue(tf.runTestInSameEvaluator("f(1, l([2, 3]))  <= f(1, l([2,3]));"));
 		
 		assertFalse(tf.runTestInSameEvaluator("f()          < f();"));
 		assertTrue(tf.runTestInSameEvaluator("f()           < g();"));
@@ -630,9 +630,9 @@ public class DataTypeTests extends TestCase{
 		assertFalse(tf.runTestInSameEvaluator("f(1)         < f(1);"));
 		assertTrue(tf.runTestInSameEvaluator("f(1, 2)       < f(1, 3);"));
 		assertTrue(tf.runTestInSameEvaluator("f(1, 2)       < g(1, 3);"));
-		assertTrue(tf.runTestInSameEvaluator("f(1, \"abc\") < f(1, \"def\");"));
-		assertTrue(tf.runTestInSameEvaluator("f(1, [2, 3])  < f(1, [2,3,4]);"));
-		assertFalse(tf.runTestInSameEvaluator("f(1, [2, 3]) < f(1, [2,3]);"));
+		assertTrue(tf.runTestInSameEvaluator("f(1, string(\"abc\")) < f(1, string(\"def\"));"));
+		assertTrue(tf.runTestInSameEvaluator("f(1, l([2, 3]))  < f(1, l([2,3,4]));"));
+		assertFalse(tf.runTestInSameEvaluator("f(1, l([2, 3])) < f(1, l([2,3]));"));
 		
 		assertTrue(tf.runTestInSameEvaluator("f()           >= f();"));
 		assertTrue(tf.runTestInSameEvaluator("g()           >= f();"));
@@ -640,9 +640,9 @@ public class DataTypeTests extends TestCase{
 		assertTrue(tf.runTestInSameEvaluator("f(1)          >= f(1);"));
 		assertTrue(tf.runTestInSameEvaluator("f(1, 3)       >= f(1, 2);"));
 		assertTrue(tf.runTestInSameEvaluator("g(1, 2)       >= f(1, 3);"));
-		assertTrue(tf.runTestInSameEvaluator("f(1, \"def\") >= f(1, \"abc\");"));
-		assertTrue(tf.runTestInSameEvaluator("f(1, [2,3,4]) >= f(1, [2,3]);"));
-		assertTrue(tf.runTestInSameEvaluator("f(1, [2, 3])  >= f(1, [2,3]);"));
+		assertTrue(tf.runTestInSameEvaluator("f(1, string(\"def\")) >= f(1, string(\"abc\"));"));
+		assertTrue(tf.runTestInSameEvaluator("f(1, l([2,3,4])) >= f(1, l([2,3]));"));
+		assertTrue(tf.runTestInSameEvaluator("f(1, l([2, 3]))  >= f(1, l([2,3]));"));
 		
 		assertFalse(tf.runTestInSameEvaluator("f()          > f();"));
 		assertTrue(tf.runTestInSameEvaluator("g()           > f();"));
@@ -650,9 +650,9 @@ public class DataTypeTests extends TestCase{
 		assertFalse(tf.runTestInSameEvaluator("f(1)         > f(1);"));
 		assertTrue(tf.runTestInSameEvaluator("f(1, 3)       > f(1, 2);"));
 		assertTrue(tf.runTestInSameEvaluator("g(1, 2)       > f(1, 3);"));
-		assertTrue(tf.runTestInSameEvaluator("f(1, \"def\") > f(1, \"abc\");"));
-		assertTrue(tf.runTestInSameEvaluator("f(1, [2,3,4]) > f(1, [2,3]);"));
-		assertFalse(tf.runTestInSameEvaluator("f(1, [2, 3]) > f(1, [2,3]);"));
+		assertTrue(tf.runTestInSameEvaluator("f(1, string(\"def\")) > f(1, string(\"abc\"));"));
+		assertTrue(tf.runTestInSameEvaluator("f(1, l([2,3,4])) > f(1, l([2,3]));"));
+		assertFalse(tf.runTestInSameEvaluator("f(1, l([2, 3])) > f(1, l([2,3]));"));
 	}
 	
 	public void testUndefined() throws IOException {
