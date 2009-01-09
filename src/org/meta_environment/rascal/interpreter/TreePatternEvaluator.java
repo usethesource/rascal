@@ -201,7 +201,7 @@ interface MatchPattern {
 	private boolean hasNext;						// Has this pattern alternatives for further matching?
 	private boolean forward;						// Moving to the right?
 	
-	private boolean debug = false;
+	private boolean debug = true;
 	
 	TreePatternList(java.util.List<MatchPattern> children){
 		this.children = children;					
@@ -298,7 +298,12 @@ interface MatchPattern {
 		} else {
 			Type elemType = ev.tf.voidType();
 			for(int i = 0; i < patternSize; i++){
-				elemType = elemType.lub(children.get(0).getType(ev));
+				Type childType = children.get(0).getType(ev);
+				if(childType.isListType()){
+					elemType = elemType.lub(childType.getElementType());
+				} else {
+					elemType = elemType.lub(childType);
+				}
 			}
 			if(debug)System.err.println("ListPattern.getType: " + ev.tf.listType(elemType));
 			return ev.tf.listType(elemType);
@@ -317,28 +322,19 @@ interface MatchPattern {
 		int length = listVarLength[patternCursor];
 		
 		return new SubList((org.eclipse.imp.pdb.facts.impl.hash.List) listSubject, start, length);
-		
-	/*	
-		IListWriter w = subject.getType().writer(ev.vf);
-		for(int k = start; k < start + length; k++){
-			w.append(listSubject.get(k));
-		}
-		
-		return w.done();
-		*/
 	}
 	
-	private void matchBoundListVar(IList prev){
+	private void matchBoundListVar(IList previousBinding){
 
-		if(debug) System.err.println("matchBoundListVar: " + prev);
+		if(debug) System.err.println("matchBoundListVar: " + previousBinding);
 		assert isListVar[patternCursor];
 		
 		int start = listVarStart[patternCursor];
 		int length = listVarLength[patternCursor];
 		
-		for(int i = 0; i < prev.length(); i++){
-			if(debug)System.err.println("comparing: " + prev.get(i) + " and " + listSubject.get(subjectCursor + i));
-			if(!prev.get(i).equals(listSubject.get(subjectCursor + i))){
+		for(int i = 0; i < previousBinding.length(); i++){
+			if(debug)System.err.println("comparing: " + previousBinding.get(i) + " and " + listSubject.get(subjectCursor + i));
+			if(!previousBinding.get(i).equals(listSubject.get(subjectCursor + i))){
 				forward = false;
 				listVarLength[patternCursor] = 0;
 				patternCursor--;
@@ -589,7 +585,11 @@ interface MatchPattern {
 	}
 	
 	public Type getType(Evaluator ev) {
-		return ev.tf.tupleType(ev.tf.voidType()); // TODO: return more precise type
+		Type fieldTypes[] = new Type[children.size()];
+		for(int i = 0; i < children.size(); i++){
+			fieldTypes[i] = children.get(i).getType(ev);
+		}
+		return ev.tf.tupleType(fieldTypes);
 	}
 	
 	public boolean next() {
@@ -636,7 +636,6 @@ interface MatchPattern {
 	}
 	
 	public Type getType(Evaluator ev) {
-		
 		return type;
 	}
 	
@@ -714,6 +713,7 @@ interface MatchPattern {
 public class TreePatternEvaluator extends NullASTVisitor<MatchPattern> {
 
 	private Evaluator ev;
+	private int listNesting = 0;
 	
 	TreePatternEvaluator(Evaluator evaluator){
 		ev = evaluator;
