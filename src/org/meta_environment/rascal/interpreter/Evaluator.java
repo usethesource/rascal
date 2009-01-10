@@ -254,6 +254,33 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	}
 
 	/* First a number of general utility methods */
+	
+	/*
+	 * Return an evaluation result that is already in normal form,
+	 * i.e., all potential rules have already been applied to it.
+	 */
+	
+	EvalResult normalizedResult(Type t, IValue v){
+		Map<Type, Type> bindings = env.getTypeBindings();
+		Type instance;
+		
+		if (bindings.size() > 0) {
+		    instance = t.instantiate(bindings);
+		}
+		else {
+			instance = t;
+		}
+		
+		if (v != null) {
+			checkType(v.getType(), instance);
+		}
+		return new EvalResult(instance, v);
+	}
+	
+	/*
+	 * Return an evaluation result that may need normalization.
+	 */
+	
 	EvalResult result(Type t, IValue v) {
 		Map<Type, Type> bindings = env.getTypeBindings();
 		Type instance;
@@ -549,7 +576,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			} else {
 				EvalResult v = var.getInitial().accept(this);
 				if(v.type.isSubtypeOf(declaredType)){
-					r = result(declaredType, v.value);
+					r = normalizedResult(declaredType, v.value);
 					env.storeVariable(var.getName(), r);
 				} else {
 					throw new RascalTypeError("variable " + var + ", declared type " + declaredType + " incompatible with initial type " + v.type);
@@ -1017,7 +1044,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			
 			for (int i = 0; i < formals.getArity(); i++) {
 				Type formal = formals.getFieldType(i).instantiate(env.getTypeBindings());
-				EvalResult result = result(formal, actuals[i]);
+				EvalResult result = normalizedResult(formal, actuals[i]);
 				env.top().storeVariable(formals.getFieldName(i), result);
 			}
 			
@@ -1186,7 +1213,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 					}
 				}
 			}
-			return result(resultType, yieldSet ? wset.done() : wrel.done());
+			return normalizedResult(resultType, yieldSet ? wset.done() : wrel.done());
 		}
 		
 		if(nSubs > 1){
@@ -1199,7 +1226,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		if (exprType.isMapType()
 			&& subsBase.isSubtypeOf(exprType.getKeyType())) {
 			Type valueType = exprType.getValueType();
-			return result(valueType, ((IMap) expr.value).get(subs.value));
+			return normalizedResult(valueType, ((IMap) expr.value).get(subs.value));
 		}
 		
 		if(!subsBase.isIntegerType()){
@@ -1211,7 +1238,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			Type elementType = exprType.getElementType();
 			try {
 				IValue element = ((IList) expr.value).get(index);
-				return result(elementType, element);
+				return normalizedResult(elementType, element);
 			} catch (IndexOutOfBoundsException e) {
 				throw new RascalRunTimeError("Subscript out of bounds", e);
 			}
@@ -1223,7 +1250,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			Type elementType = ((INode) expr.value).getType()
 					.getFieldType(index);
 			IValue element = ((ITree) expr.value).get(index);
-			return result(elementType, element);
+			return normalizedResult(elementType, element);
 		}
 		if (exprType.isTreeType()) {
 			if(index >= ((ITree) expr.value).arity()){
@@ -1231,13 +1258,13 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			}
 			Type elementType = tf.valueType();
 			IValue element = ((ITree) expr.value).get(index);
-			return result(elementType, element);
+			return normalizedResult(elementType, element);
 		}
 		if (exprType.isTupleType()) {
 			try {
 				Type elementType = exprType.getFieldType(index);
 				IValue element = ((ITuple) expr.value).get(index);
-				return result(elementType, element);
+				return normalizedResult(elementType, element);
 			} catch (IndexOutOfBoundsException e){
 				throw new RascalRunTimeError("Subscript out of bounds", e);
 			}
@@ -1257,7 +1284,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				throw new RascalTypeError("Tuple does not have field names: " + tuple);
 			}
 			
-			return result(tuple.getFieldType(field), ((ITuple) expr.value).get(field));
+			return normalizedResult(tuple.getFieldType(field), ((ITuple) expr.value).get(field));
 		}
 		else if (expr.type.isRelationType()) {
 			Type tuple = expr.type.getFieldTypes();
@@ -1277,7 +1304,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			Type node = expr.value.getType();
 			
 			try {
-				return result(node.getFieldType(node.getFieldIndex(field)),((INode) expr.value).get(field));
+				return normalizedResult(node.getFieldType(node.getFieldIndex(field)),((INode) expr.value).get(field));
 			}
 			catch (FactTypeError e) {
 				throw new RascalTypeError(e.getMessage(), e);
@@ -1448,7 +1475,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 						try {
 							env.pushFrame();	// Create local scope for executing handler	
 							Name name = c.getName();
-							env.storeVariable(name, result(eType, eValue));
+							env.storeVariable(name, normalizedResult(eType, eValue));
 							res =  c.getBody().accept(this);
 							break;
 						} finally {
@@ -1510,13 +1537,13 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		if (receiver.type.isTupleType()) {
 			IValue result = ((ITuple) receiver.value).get(label);
 			Type type = ((ITuple) receiver.value).getType().getFieldType(label);
-			return result(type, result);
+			return normalizedResult(type, result);
 		}
 		else if (receiver.type.isTreeNodeType() || receiver.type.isNamedTreeType()) {
 			IValue result = ((INode) receiver.value).get(label);
 			Type treeNodeType = ((INode) receiver.value).getType();
 			Type type = treeNodeType.getFieldType(treeNodeType.getFieldIndex(label));
-			return result(type, result);
+			return normalizedResult(type, result);
 		}
 		else {
 			throw new RascalTypeError(x.getReceiver() + " has no field named " + label);
@@ -1532,7 +1559,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		// TODO get annotation from local and imported environments
 		Type type = tf.getAnnotationType(receiver.type, label);
 		IValue value = receiver.value.getAnnotation(label);
-		return result(type, value);
+		return normalizedResult(type, value);
 	}
 	
 	@Override
@@ -1556,7 +1583,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			IList list = (IList) receiver.value;
 			IValue result = list.get(intValue(subscript));
 			Type type = receiver.type.getElementType();
-			return result(type, result);
+			return normalizedResult(type, result);
 		}
 		else if (receiver.type.isMapType()) {
 			Type keyType = receiver.type.getKeyType();
@@ -1564,7 +1591,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			if (subscript.type.isSubtypeOf(keyType)) {
 				IValue result = ((IMap) receiver.value).get(subscript.value);
 				Type type = receiver.type.getValueType();
-				return result(type, result);
+				return normalizedResult(type, result);
 			}
 		}
 		
@@ -1675,23 +1702,11 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
     @Override
     public EvalResult visitExpressionMatch(Match x) {
     	return new MatchEvaluator(x.getPattern(), x.getExpression(), true, this).next();
-    	/*
-    	org.meta_environment.rascal.ast.Expression pat = x.getPattern();
-    	EvalResult subj = x.getExpression().accept(this);
-    	
-    	return result(vf.bool(matchOne(subj.value, pat))); 
-    	*/
-  
     }
     
     @Override
     public EvalResult visitExpressionNoMatch(NoMatch x) {
     	return new MatchEvaluator(x.getPattern(), x.getExpression(), false, this).next();
-    	/*
-    	org.meta_environment.rascal.ast.Expression pat = x.getPattern();
-    	EvalResult subj = x.getExpression().accept(this);
-    	return result(vf.bool(!matchOne(subj.value, pat)));
-    	*/
     }
 	
 	// ----- General method for matching --------------------------------------------------
@@ -3159,10 +3174,11 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		IValue subject = x.getSubject().accept(this).value;
 		java.util.List<Case> cases = x.getCases();
 		
-		return result(traverse(subject, new CasesOrRules(cases), 
-				/* bottomup */ true, 
-				/* breaking */ false, 
-				/* fixedpoint */ false).value);
+		TraverseResult tr = traverse(subject, new CasesOrRules(cases), 
+									/* bottomup */ true, 
+									/* breaking */ false, 
+									/* fixedpoint */ false);
+		return normalizedResult(tr.value.getType(), tr.value);
 	}
 	
 	@Override
@@ -3191,11 +3207,11 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		} else {
 			throw new RascalBug("Unknown strategy: " + s);
 		}
-	
-		return result(subject.getType(), traverse(subject, new CasesOrRules(cases), bottomup, breaking, fixedpoint).value);
+		
+		TraverseResult tr = traverse(subject, new CasesOrRules(cases), bottomup, breaking, fixedpoint);
+		return normalizedResult(subject.getType(), tr.value);
 	}
 	
-
 	@Override
 	public EvalResult visitExpressionNonEquals(
 			org.meta_environment.rascal.ast.Expression.NonEquals x) {
@@ -3348,8 +3364,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		for(int i = 0; i < m; i++){
 			IValue leftVal = left.next();
 			IValue rightVal = right.next();
-			EvalResult vl = result(leftVal.getType(), leftVal);
-			EvalResult vr = result(rightVal.getType(), rightVal);
+			EvalResult vl = normalizedResult(leftVal.getType(), leftVal);
+			EvalResult vr = normalizedResult(rightVal.getType(), rightVal);
 			int c = compare(vl, vr);
 
 			if (c < 0 || c > 0) {
@@ -3671,19 +3687,19 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 					}
 				}
 				//System.err.println("return false");
-				return new EvalResult(tf.boolType(), vf.bool(false));
+				return normalizedResult(tf.boolType(), vf.bool(false));
 			} else {
 				if(firstTime){
 					/* Evaluate expression only once */
 					firstTime = false;
 					EvalResult v = expr.accept(evaluator);
 					if(v.type.isBoolType()){
-						return new EvalResult(tf.boolType(), vf.bool(v.value.equals(vf.bool(true))));
+						return result(tf.boolType(), vf.bool(v.value.equals(vf.bool(true))));
 					} else {
 						throw new RascalTypeError("Expression as generator should have type bool");
 					}
 				} else {
-					return new EvalResult(tf.boolType(), vf.bool(false));
+					return result(tf.boolType(), vf.bool(false));
 				}
 			}
 		}
