@@ -246,6 +246,14 @@ public class  EnvironmentStack implements Iterable<Environment>{
 		
 		return copy;
 	}
+	
+	public String toString(){
+		StringBuffer res = new StringBuffer();
+		for(int i = 0; i < stack.size(); i++){
+			res.append("Stack Environment #" + i + ":\n").append(stack.get(i).toString()).append("\n");
+		}
+		return res.toString();
+	}
 
 	
 

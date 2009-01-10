@@ -334,4 +334,17 @@ public class GlobalEnvironment {
 	public Environment top() {
 		return stack.top();
 	}
+	
+	public String toString(){
+		StringBuffer res = new StringBuffer();
+		//res.append("==== Module Environment ====\n").append(moduleEnvironment);
+		res.append("==== Stack Environment ====\n").append(stack);
+		/*
+		res.append("==== Rule Environment ====\n");
+		for(Type type : ruleEnvironment.keySet()){
+			res.append(type).append(" : ").append(ruleEnvironment.get(type)).append("\n");
+		}
+		*/
+		return res.toString();
+	}
 }
