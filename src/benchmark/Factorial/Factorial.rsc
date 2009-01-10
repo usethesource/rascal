@@ -99,3 +99,17 @@ public void measure3(int N)
 
 }
 
+public void measure(){
+	measure1(5);
+	measure1(6);
+	
+	measure2(5);
+	measure2(6);
+	measure2(10);
+	
+	measure3(5);
+	measure3(6);
+	measure3(10);
+}
+	
+
