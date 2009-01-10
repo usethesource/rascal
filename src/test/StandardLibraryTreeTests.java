@@ -5,13 +5,12 @@ import java.io.IOException;
 import junit.framework.TestCase;
 
 public class StandardLibraryTreeTests extends TestCase {
-	private static TestFramework tf = new TestFramework("import Tree;").
-		prepare("data NODE f | f(int) | f(int,int) | f(int,int,int);");
+	private static TestFramework tf;
 
 	public void testTreeArity() throws IOException {
 		
 		tf = new TestFramework("import Tree;").
-		prepare("data NODE f | f(int) | f(int,int) | f(int,int,int);");
+		prepareMore("data NODE f | f(int) | f(int,int) | f(int,int,int);");
 		
 		assertTrue(tf.runTestInSameEvaluator("arity(f()) == 0;"));
 		assertTrue(tf.runTestInSameEvaluator("arity(f(1)) == 1;"));
@@ -21,7 +20,7 @@ public class StandardLibraryTreeTests extends TestCase {
 	public void testTreeGetChild() throws IOException {
 		
 		tf = new TestFramework("import Tree;").
-		prepare("data NODE f | f(int) | f(int,int) | f(int,int,int);");
+		prepareMore("data NODE f | f(int) | f(int,int) | f(int,int,int);");
 		
 		assertTrue(tf.runTestInSameEvaluator("getChild(f(1),0) == 1;"));
 		assertTrue(tf.runTestInSameEvaluator("getChild(f(1,2),0) == 1;"));
@@ -31,7 +30,7 @@ public class StandardLibraryTreeTests extends TestCase {
 	public void testTreeGetChildren() throws IOException {
 		
 		tf = new TestFramework("import Tree;").
-		prepare("data NODE f | f(int) | f(int,int) | f(int,int,int);");
+		prepareMore("data NODE f | f(int) | f(int,int) | f(int,int,int);");
 		
 		assertTrue(tf.runTestInSameEvaluator("getChildren(f()) == [];"));
 		assertTrue(tf.runTestInSameEvaluator("getChildren(f(1)) == [1];"));
@@ -41,7 +40,7 @@ public class StandardLibraryTreeTests extends TestCase {
 	public void testTreeGetName() throws IOException {
 		
 		tf = new TestFramework("import Tree;").
-		prepare("data NODE f | f(int) | f(int,int) | f(int,int,int);");
+		prepareMore("data NODE f | f(int) | f(int,int) | f(int,int,int);");
 		
 		assertTrue(tf.runTestInSameEvaluator("getName(f()) == \"f\";"));
 		assertTrue(tf.runTestInSameEvaluator("getName(f(1,2,3)) == \"f\";"));
@@ -52,7 +51,7 @@ public class StandardLibraryTreeTests extends TestCase {
 	public void testTreeSetChild() throws IOException {
 		
 		tf = new TestFramework("import Tree;").
-		prepare("data NODE f | f(int) | f(int,int) | f(int,int,int);");
+		prepareMore("data NODE f | f(int) | f(int,int) | f(int,int,int);");
 		
 		assertTrue(tf.runTestInSameEvaluator("setChild(f(1,2,3), 0, 10) == f(10,2,3);"));
 		assertTrue(tf.runTestInSameEvaluator("setChild(f(1,2,3), 1, 20) == f(1,20,3);"));
