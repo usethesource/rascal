@@ -42,3 +42,14 @@ data Symbol lit(str string) |
   layout  | 
   char-class(list[CharRange] ranges);
 
+str yield(Tree t) {
+  str result = "";
+  visit (t) {
+    case Tree t : if (int i ~= t) { result += i; }
+  }
+  return result;
+}
+
+str yield(Parsetree t) {
+  return yield(t.top);
+}
