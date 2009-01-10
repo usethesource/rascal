@@ -316,25 +316,14 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	}
 	
 	private EvalResult applyRules(Type t, IValue v){
-		//System.err.println((applyingRules ? "****" : "") + "applyRules: " + t + ", " + v);
-		
-		/* TODO:
-		 * This is a temporary hack that does not give good results in all cases.
-		 * The problem: while applying rules another EvalResult may be created that triggers
-		 * applyRules and executes the same rules. Example: BubbleSort.
-		 * In this case, binding of the first rule execution may get disturbed and wrong results
-		 * are give.
-		 * Probable solution: careful shielding of these different environments.
-		 */
-		 //if(applyingRules) return new EvalResult(t, v);
+		System.err.println((applyingRules ? "****" : "") + "applyRules: " + t + ", " + v);
 	
 		java.util.List<org.meta_environment.rascal.ast.Rule> rules = env.getRules(t);
 		if(rules.isEmpty()){
-			//System.err.println("applyRules: no matching rules for " + t);
+			System.err.println("applyRules: no matching rules for " + t);
 			return new EvalResult(t, v);
 		}
-		applyingRules = true;
-		
+		System.err.println("Environment before rule application:\n" + env);
 		env.pushFrame();
 		try {
 			TraverseResult tr = traverse(v, new CasesOrRules(rules), 
@@ -343,8 +332,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				/* fixedpoint */ false);  /* innermost is achieved by repeated applications of applyRules
 				 							* when intermediate results are produced.
 				 							*/
-			applyingRules = false;
-			//RSystem.err.println("applyRules: tr.value =" + tr.value);
+			System.err.println("Environment after rule application:" + env);
+			System.err.println("applyRules: tr.value =" + tr.value);
 			return new EvalResult(tr.value.getType(), tr.value);
 		} finally {
 			env.popFrame();
