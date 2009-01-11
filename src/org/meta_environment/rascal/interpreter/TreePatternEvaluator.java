@@ -8,6 +8,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.impl.Value;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.Name;
@@ -321,7 +322,7 @@ interface MatchPattern {
 		int start = listVarStart[patternCursor];
 		int length = listVarLength[patternCursor];
 		
-		return new SubList((org.eclipse.imp.pdb.facts.impl.hash.List) listSubject, start, length);
+		return new SubList((Value) listSubject, start, length);
 	}
 	
 	private void matchBoundListVar(IList previousBinding){
