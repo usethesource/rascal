@@ -316,14 +316,14 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	}
 	
 	private EvalResult applyRules(Type t, IValue v){
-		System.err.println((applyingRules ? "****" : "") + "applyRules: " + t + ", " + v);
+		//System.err.println((applyingRules ? "****" : "") + "applyRules: " + t + ", " + v);
 	
 		java.util.List<org.meta_environment.rascal.ast.Rule> rules = env.getRules(t);
 		if(rules.isEmpty()){
-			System.err.println("applyRules: no matching rules for " + t);
+			//System.err.println("applyRules: no matching rules for " + t);
 			return new EvalResult(t, v);
 		}
-		System.err.println("Environment before rule application:\n" + env);
+		//System.err.println("Environment before rule application:\n" + env);
 		env.pushFrame();
 		try {
 			TraverseResult tr = traverse(v, new CasesOrRules(rules), 
@@ -332,8 +332,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				/* fixedpoint */ false);  /* innermost is achieved by repeated applications of applyRules
 				 							* when intermediate results are produced.
 				 							*/
-			System.err.println("Environment after rule application:" + env);
-			System.err.println("applyRules: tr.value =" + tr.value);
+			//System.err.println("Environment after rule application:" + env);
+			//System.err.println("applyRules: tr.value =" + tr.value);
 			return new EvalResult(tr.value.getType(), tr.value);
 		} finally {
 			env.popFrame();
@@ -3316,6 +3316,10 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	}
 	
 	private int compareSet(ISet value1, ISet value2) {
+		System.err.println("compareSet: " + value1 + ",\n" + value2);
+		System.err.println("equals=" + value1.equals(value2));
+		System.err.println("subset=" + value1.isSubSet(value2));
+		
 		if (value1.equals(value2)) {
 			return 0;
 		}

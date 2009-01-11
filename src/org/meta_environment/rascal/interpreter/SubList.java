@@ -69,6 +69,7 @@ public class SubList extends Value implements IList {
 	@Override
 	protected IValue clone(String label, IValue value) {
 		return null;
+		// TODO: return new SubList((IList)base.clone(label, value), start, end);	
 	}
 	
 	private void insertSubListElements(IListWriter w){
