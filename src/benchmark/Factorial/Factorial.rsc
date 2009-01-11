@@ -37,10 +37,12 @@ data NUM fac1(NUM);
 rule f1 fac1(z)                 => s(z);
 rule f2 fac1(s(NUM N))          => mul(s(N), fac1(N));
 
-public void measure1(int select)
+public void measure1(int N)
 {
+	NUM result;
+	
 	start = currentTimeMillis();
-	switch(select){
+	switch(N){
 		case 1:  result = fac1(s(z));
 		case 2:  result = fac1(s(s(z)));
 		case 3:  result = fac1(s(s(s(z))));
@@ -101,7 +103,7 @@ public void measure3(int N)
 
 public void measure(){
 	measure1(5);
-	measure1(6);
+	//measure1(6);
 	
 	measure2(5);
 	measure2(6);
