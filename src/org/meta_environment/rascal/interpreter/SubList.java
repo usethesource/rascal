@@ -29,24 +29,19 @@ public class SubList extends Value implements IList {
 	}
 	
 	public boolean equals(Object o){
-		System.err.println("equals" + this + ", " + o);
 		if(o instanceof List || o instanceof SubList){
 			List other = (List) o;
 			if(fType.comparable(other.getType()) && equalAnnotations((Value) o) && (len == other.length())){
 				for(int i = 0; i < len; i++){
 					if(!base.get(start + i).equals(other.get(i))){
-						System.err.println("false");
 						return false;
 					}
 				}
-				System.err.println("true");
 				return true;
 			} else {
-				System.err.println("false");
 				return false;
 			}
 		}
-		System.err.println("false");
 		return false;
 	}
 	
