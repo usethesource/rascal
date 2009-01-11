@@ -4,9 +4,11 @@ import Set;
 
 type str feature;
 
-set[feature] Transmission = { "automatic", "manual" };
-set[set[feature]] Engine =   {{"electric"}, {"gasoline"}, {"electric", "gasoline"}}; //power({"electric", "gasoline"}); // 
-set[feature] HorsePower = {"lowPower", "mediumPower", "highPower"};
+public set[feature] Transmission    = { "automatic", "manual" };
+
+public set[set[feature]] Engine     = power({"electric", "gasoline"}) - {};
+
+set[feature] HorsePower      = {"lowPower", "mediumPower", "highPower"};
 
 set[feature] PullsTrailerOpt = {"pullsTrailer", "pullsNoTrailer"};
 
@@ -18,7 +20,7 @@ set[set[feature]] CarFeatures = { {T} + E + {H} + {PT} |
 			(PT == "pullsTrailer") ==> (H == "highPower")
 };
 
-public bool testCarFDL(){
+bool test(){
 	return 	size(CarFeatures) == 24;
 }
 

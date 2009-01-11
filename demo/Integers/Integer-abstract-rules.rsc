@@ -22,7 +22,7 @@ rule e2 eq(s(Integer N),z)             => bfalse;
 rule e2 eq(z,s(Integer N))             => bfalse;
 rule e3 eq(s(Integer N), s(Integer M)) => eq(N,M);
 
-public bool testInteger-abstract-rules(){
+bool test(){
 
    return (mul(s(s(z)), s(s(s(z)))) == s(s(s(s(s(s(z))))))) &&
   		  (eq(s(s(z)), s(s(s(z))))  == bfalse) &&

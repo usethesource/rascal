@@ -19,7 +19,7 @@ rel[comp,comp] lift(rel[proc,proc] aCalls, rel[proc,comp] aPartOf){
 
 rel[comp,comp] ComponentCalls = lift(Calls, PartOf);
 
-public bool testLift(){
+bool test(){
 	return ComponentCalls == { < "DB" , "Lib" > , < "Appl" , "Lib" > , 
 			                   < "Appl" , "DB" > , < "Appl" , "Appl" > };
 }
