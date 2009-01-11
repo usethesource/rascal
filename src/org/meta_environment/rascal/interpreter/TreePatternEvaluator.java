@@ -651,7 +651,7 @@ interface MatchPattern {
 		if(firstMatch && !boundBeforeConstruction){ //TODO: wrong in some cases?
 			firstMatch = false;
 			//System.err.println("name= " + name + ", subject=" + subject + ",");
-			env.storeVariable(name,ev.result(subject.getType(), subject));
+			env.top().storeVariable(name.toString(),ev.result(subject.getType(), subject));
        	 	return true;
 		}
 		
@@ -662,7 +662,7 @@ interface MatchPattern {
         		//System.err.println("TreePatternQualifiedName.match: " + name + ", subject=" + subject + ", value=" + patVal);
         		
         	 if (subject.getType().isSubtypeOf(patVal.getType())) {
-        		 //System.err.println("returns " + ev.equals(ev.result(subject.getType(),subject), patRes));
+        		// System.err.println("returns " + ev.equals(ev.result(subject.getType(),subject), patRes));
         		 return ev.equals(ev.result(subject.getType(),subject), patRes);
         	 }
          }
@@ -694,12 +694,10 @@ interface MatchPattern {
 	public boolean next() {
 		checkInitialized();
 		firstMatch = false;
-		//System.err.println("TypedVariable.match: " + subject + " with " + declaredType + " " + name);
-		//System.err.println("subj.getType=" + subject.getType());
-		//System.err.println("subj.getType().isSubtypeOf(declaredType)=" + subject.getType().isSubtypeOf(declaredType));
+		//System.err.println("TypedVariable.match: " + subject + " with " + declaredType + " " + name);/
 		
 		if (subject.getType().isSubtypeOf(declaredType)) {
-			GlobalEnvironment.getInstance().storeVariable(name, ev.result(declaredType, subject));
+			GlobalEnvironment.getInstance().top().storeVariable(name, ev.result(declaredType, subject));
 			return true;
 		}
 		return false;

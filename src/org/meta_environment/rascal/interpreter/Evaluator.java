@@ -181,9 +181,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	private final JavaFunctionCaller javaFunctionCaller;
 	
 	protected MatchPattern lastPattern;	// The most recent pattern applied in a match
-	                                    // For the benefit of string matching.
-	
-	protected boolean applyingRules = false; //TODO: temp
+	                                    	// For the benefit of string matching.
 
 	public Evaluator(IValueFactory f, ASTFactory astFactory, Writer errorWriter) {
 		this.vf = f;
@@ -1119,7 +1117,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 						+ "; cannot assign value of type " + right.type);
 			}
 		}
-		env.storeVariable(name, right);
+		env.top().storeVariable(name.toString(), right);
 		return right;
 	}
 	
@@ -1464,7 +1462,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 						try {
 							env.pushFrame();	// Create local scope for executing handler	
 							Name name = c.getName();
-							env.storeVariable(name, normalizedResult(eType, eValue));
+							env.top().storeVariable(name, normalizedResult(eType, eValue));
 							res =  c.getBody().accept(this);
 							break;
 						} finally {
@@ -2655,20 +2653,21 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		mp.initMatch(subject, this);
 		lastPattern = mp;
 		//System.err.println("matchAndEval: subject=" + subject + ", pat=" + pat);
-		while(mp.hasNext()){
-			try {
-				env.pushFrame(); 	// Create a separate scope for match and statement
+		try {
+			env.pushFrame(); 	// Create a separate scope for match and statement
+			while(mp.hasNext()){
 				if(mp.next()){
 					try {
+						System.err.println(env);
 						stat.accept(this);
 						return true;
 					} catch (FailureException e){
 						//System.err.println("failure occurred");
 					}
 				}
-			} finally {
-				env.popFrame();
 			}
+		} finally {
+			env.popFrame();
 		}
 		return false;
 	}
@@ -3316,9 +3315,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	}
 	
 	private int compareSet(ISet value1, ISet value2) {
-		System.err.println("compareSet: " + value1 + ",\n" + value2);
-		System.err.println("equals=" + value1.equals(value2));
-		System.err.println("subset=" + value1.isSubSet(value2));
 		
 		if (value1.equals(value2)) {
 			return 0;
