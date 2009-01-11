@@ -32,6 +32,11 @@ private static TestFramework tf = new TestFramework();
 		assertTrue(tf.runTestInSameEvaluator("testCarFDL() == true;"));
 	}
 	
+	public void testDominators() throws IOException {
+		tf = new TestFramework("import Dominators;");
+		assertTrue(tf.runTestInSameEvaluator("test() == true;"));
+	}
+	
 	public void testLift() throws IOException {
 		tf = new TestFramework("import Lift;");
 		assertTrue(tf.runTestInSameEvaluator("testLift() == true;"));
