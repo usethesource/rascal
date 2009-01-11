@@ -1,4 +1,5 @@
 module Test
+
 import IO;
 
 data NUM int n | fac2(int);

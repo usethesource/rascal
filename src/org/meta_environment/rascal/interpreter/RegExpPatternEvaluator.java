@@ -101,7 +101,7 @@ class RegExpPatternValue implements MatchPattern {
 			for(String name : bindings.keySet()){
 				String valBefore = boundBeforeConstruction.get(name);
 				if(true){ // TODO: ??? valBefore == null){
-					GlobalEnvironment.getInstance().storeVariable(name, ev.result(ev.vf.string(bindings.get(name))));
+					GlobalEnvironment.getInstance().top().storeVariable(name, ev.result(ev.vf.string(bindings.get(name))));
 				} else {					
 					if(!valBefore.equals(bindings.get(name))){
 						matches = false;
