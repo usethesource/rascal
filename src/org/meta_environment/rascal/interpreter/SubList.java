@@ -19,15 +19,20 @@ public class SubList extends Value implements IList {
 	private final int end;
 	private final List base;
 	
-	public SubList(List base, int start, int len){
-		super(base);
-
-		this.base = base;
+	public SubList(Value V, int start, int len){
+		super(V);
+		if(V instanceof List){
+			this.base = (List) V;;
+		} else if (V instanceof SubList){
+			this.base = ((SubList) V).base;
+		} else {
+			throw new RascalBug("Illegal value in SubList");
+		}
 		this.start = start;
 		this.len = len;
 		this.end = start + len;
 	}
-	
+
 	public boolean equals(Object o){
 		if(o instanceof List || o instanceof SubList){
 			List other = (List) o;
