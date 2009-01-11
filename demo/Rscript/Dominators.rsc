@@ -130,7 +130,7 @@ public bool test2(){
 	return example2() == RESULT;
 }
 
-public bool test(){
+bool test(){
 	return test1() && test2();
 }
 

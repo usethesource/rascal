@@ -17,7 +17,7 @@ public Bool reduce(Bool B) {
     };
 }
 
-public bool testBool-abstract-visit(){
+bool test(){
 	
    return reduce(bor(band(btrue,btrue),band(btrue, bfalse))) == btrue;
 }

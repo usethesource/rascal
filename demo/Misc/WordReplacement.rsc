@@ -30,7 +30,7 @@ public str capAll2(str S)
    };
 }
 
-public bool testWordReplacement()
+bool test)
 {
 	return
 		capAll1("turn this into a title") == "Turn This Into A Title" &&

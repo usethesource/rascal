@@ -10,7 +10,7 @@ public int ack(int m, int n)
 		return ack(m - 1, ack(m, n - 1));
 }
 
-public bool testAckermann(){
+bool test(){
 	return
 		(ack(2,5) == 13) &&
 		(ack(3,4) == 125);

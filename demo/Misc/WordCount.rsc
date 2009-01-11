@@ -113,7 +113,7 @@ public list[str] Jabberwocky = [
 	"And the mome raths outgrabe."
 ];
 
-public bool testWordCount(){
+bool test(){
 	return 
 		wordCount(Jabberwocky, #countLine1) == 215 &&
 	 	wordCount(Jabberwocky, #countLine2) == 215 &&

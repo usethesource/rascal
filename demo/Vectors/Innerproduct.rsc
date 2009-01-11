@@ -6,7 +6,7 @@ public int inner1(list[int] V1, list[int] V2){
     if ((size(V1) == 0) || (size(V2) == 0)){
        return 0;
     } else {
-       return (V1[0] * V2[0]) + innerProduct(rest(V1), rest(V2));
+       return (V1[0] * V2[0]) + inner1(rest(V1), rest(V2));
     }
  }
  
@@ -16,4 +16,17 @@ public int inner1(list[int] V1, list[int] V2){
     } else {
        return 0;
     }
+ }
+ 
+ bool test(){
+    return
+    	inner1([], []) == 0 &&
+    	inner1([1],[1]) == 1 &&
+    	inner1([1,2], [3,4]) == 11 &&
+    	inner1([1,2,3],[4,5,6]) == 32 &&
+    	
+    	inner2([], []) == 0 &&
+    	inner2([1],[1]) == 1 &&
+    	inner2([1,2], [3,4]) == 11 &&
+    	inner2([1,2,3],[4,5,6]) == 32;  /** <<< gives 24 **/
  }

@@ -9,47 +9,56 @@ private static TestFramework tf = new TestFramework();
 	
 	public void testBoolAbstractRules() throws IOException {
 		tf = new TestFramework("import Bool-abstract-rules;");
-		assertTrue(tf.runTestInSameEvaluator("testBool-abstract-rules() == true;"));
+		assertTrue(tf.runTestInSameEvaluator("Bool-abstract-rules::test();"));
 	}
 	
 	public void testBoolAbstractVisit() throws IOException {
 		tf = new TestFramework("import Bool-abstract-visit;");
-		assertTrue(tf.runTestInSameEvaluator("testBool-abstract-visit() == true;"));
+		assertTrue(tf.runTestInSameEvaluator("Bool-abstract-visit::test();"));
 	}
 	
 	public void testIntegerAbstractRules() throws IOException {
 		tf = new TestFramework("import Integer-abstract-rules;");
-		assertTrue(tf.runTestInSameEvaluator("testInteger-abstract-rules() == true;"));
+		assertTrue(tf.runTestInSameEvaluator("Integer-abstract-rules::test();"));
 	}
 	
 	public void testCalls() throws IOException {
 		tf = new TestFramework("import Calls;");
-		assertTrue(tf.runTestInSameEvaluator("testCalls() == true;"));
+		assertTrue(tf.runTestInSameEvaluator("Calls::test();"));
 	}
 	
 	public void testCarFDL() throws IOException {
 		tf = new TestFramework("import CarFDL;");
-		assertTrue(tf.runTestInSameEvaluator("testCarFDL() == true;"));
+		assertTrue(tf.runTestInSameEvaluator("CarFDL::test();"));
 	}
 	
 	public void testDominators() throws IOException {
 		tf = new TestFramework("import Dominators;");
-		assertTrue(tf.runTestInSameEvaluator("test() == true;"));
+		assertTrue(tf.runTestInSameEvaluator("Dominators::test();"));
+	}
+	
+	public void testInnerproduct() throws IOException {
+		tf = new TestFramework("import Innerproduct;");
+		assertTrue(tf.runTestInSameEvaluator("Innerproduct::test();"));
 	}
 	
 	public void testLift() throws IOException {
 		tf = new TestFramework("import Lift;");
-		assertTrue(tf.runTestInSameEvaluator("testLift() == true;"));
+		assertTrue(tf.runTestInSameEvaluator("Lift::test();"));
 	}
 	
 	public void testTrans() throws IOException {
 		tf = new TestFramework("import Trans;");
-		assertTrue(tf.runTestInSameEvaluator("testTrans() == true;"));
+		assertTrue(tf.runTestInSameEvaluator("Trans::test();"));
 	}
 	
 	public void testAckermann() throws IOException {
 		tf = new TestFramework("import Ackermann;");
-		assertTrue(tf.runTestInSameEvaluator("testAckermann() == true;"));
+		assertTrue(tf.runTestInSameEvaluator("Ackermann::test();"));
 	}
 	
+	public void testWordcount() throws IOException {
+		tf = new TestFramework("import WordCount;");
+		assertTrue(tf.runTestInSameEvaluator("WordCount::test();"));
+	}
 }
