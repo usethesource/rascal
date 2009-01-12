@@ -17,7 +17,12 @@ public class SubList extends Value implements IList {
 	private final int start;
 	private final int len;
 	private final int end;
-	private final List base;
+	private final IList base;
+	
+	public SubList(List L, int start, int len){
+		super(L);
+		this.start = this.end = this.len = 0; this.base = null;
+	}
 	
 	public SubList(Value V, int start, int len){
 		super(V);
@@ -82,15 +87,15 @@ public class SubList extends Value implements IList {
 		// TODO: return new SubList((IList)base.clone(label, value), start, end);	
 	}
 	
-	private void insertSubListElements(IListWriter w){
+	private void appendSubListElements(IListWriter w){
 		for(int i = start; i < end; i++){
-			w.insert(base.get(i));
+			w.append(base.get(i));
 		}
 	}
 
 	public IList append(IValue elem) {
 		IListWriter w = ValueFactory.getInstance().listWriter(elem.getType().lub(getElementType()));
-		insertSubListElements(w);
+		appendSubListElements(w);
 		w.append(elem);
 		w.setAnnotations(fAnnotations);
 		return w.done();
@@ -98,7 +103,7 @@ public class SubList extends Value implements IList {
 
 	public IList concat(IList other) {
 		IListWriter w = ValueFactory.getInstance().listWriter(other.getElementType().lub(getElementType()));
-		insertSubListElements(w);
+		appendSubListElements(w);
 		w.appendAll(other);
 		return w.done();
 	}
@@ -115,8 +120,8 @@ public class SubList extends Value implements IList {
 
 	public IList insert(IValue elem) {
 		IListWriter w = ValueFactory.getInstance().listWriter(elem.getType().lub(getElementType()));
-		insertSubListElements(w);
 		w.insert(elem);
+		appendSubListElements(w);
 		w.setAnnotations(fAnnotations);
 		return w.done();
 	}
@@ -133,7 +138,7 @@ public class SubList extends Value implements IList {
 			IndexOutOfBoundsException {
 		
 		IListWriter w = ValueFactory.getInstance().listWriter(elem.getType().lub(getElementType()));
-		insertSubListElements(w);
+		appendSubListElements(w);
 		w.replaceAt(i, elem);
 		return w.done();
 
@@ -181,7 +186,7 @@ class SubListIterator implements Iterator<IValue> {
 	}
 
 	public void remove() {
-		// TODO Auto-generated method stub
+		throw new UnsupportedOperationException("remove");
 		
 	}
 }

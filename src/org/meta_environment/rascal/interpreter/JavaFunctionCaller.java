@@ -143,8 +143,11 @@ public class JavaFunctionCaller {
 		compilation.addSource(fullClassName).addLine(
 				"package org.meta_environment.rascal.java;").
 				addLine("import org.meta_environment.rascal.interpreter.RascalException;").
+				addLine("import org.meta_environment.rascal.interpreter.SubList;").
 				addLine("import org.eclipse.imp.pdb.facts.type.*;").
 				addLine("import org.eclipse.imp.pdb.facts.*;").
+				addLine("import org.eclipse.imp.pdb.facts.impl.*;").
+				addLine("import org.eclipse.imp.pdb.facts.impl.hash.*;").
 				addLine("import " + VALUE_FACTORY + ";").
 				addLine("import org.eclipse.imp.pdb.facts.io.*;").
 				addLine("import org.eclipse.imp.pdb.facts.visitors.*;").

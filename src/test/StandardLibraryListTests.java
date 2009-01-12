@@ -18,14 +18,7 @@ public class StandardLibraryListTests extends TestCase {
 		assertTrue(tf.runTestInSameEvaluator("{int N = List::average([1, 3],0); N == 2;}"));
 	}
 	
-	public void testListFirst() throws IOException {
-		
-		tf = new TestFramework("import List;");
-		
-		assertTrue(tf.runTestInSameEvaluator("{List::first([1]) == 1;}"));
-		assertTrue(tf.runTestInSameEvaluator("{first([1]) == 1;}"));
-		assertTrue(tf.runTestInSameEvaluator("{List::first([1, 2]) == 1;}"));
-	}
+	
 	
 	public void testListGetOneFrom() throws IOException {
 		
@@ -37,6 +30,21 @@ public class StandardLibraryListTests extends TestCase {
 		assertTrue(tf.runTestInSameEvaluator("{int N = List::getOneFrom([1,2,3]); (N == 1) || (N == 2) || (N == 3);}"));
 		assertTrue(tf.runTestInSameEvaluator("{double D = List::getOneFrom([1.0,2.0]); (D == 1.0) || (D == 2.0);}"));
 		assertTrue(tf.runTestInSameEvaluator("{str S = List::getOneFrom([\"abc\",\"def\"]); (S == \"abc\") || (S == \"def\");}"));
+	}
+	
+	public void testListHead() throws IOException {
+		
+		tf = new TestFramework("import List;");
+		
+		assertTrue(tf.runTestInSameEvaluator("{List::head([1]) == 1;}"));
+		assertTrue(tf.runTestInSameEvaluator("{head([1]) == 1;}"));
+		assertTrue(tf.runTestInSameEvaluator("{List::head([1, 2]) == 1;}"));
+		
+		assertTrue(tf.runTestInSameEvaluator("{head([1, 2, 3, 4], 0) == [];}"));
+		assertTrue(tf.runTestInSameEvaluator("{head([1, 2, 3, 4], 1) == [1];}"));
+		assertTrue(tf.runTestInSameEvaluator("{head([1, 2, 3, 4], 2) == [1,2];}"));
+		assertTrue(tf.runTestInSameEvaluator("{head([1, 2, 3, 4], 3) == [1,2,3];}"));
+		assertTrue(tf.runTestInSameEvaluator("{head([1, 2, 3, 4], 4) == [1,2,3,4];}"));
 	}
 	
 public void testListinsertAt() throws IOException {
@@ -91,14 +99,7 @@ public void testListinsertAt() throws IOException {
 		assertTrue(tf.runTestInSameEvaluator("{" + add + "reducer([1, 2, 3, 4], #add, 0) == 10;}"));
 	}
 	
-	public void testListRest() throws IOException {	
-		
-		tf = new TestFramework("import List;");
-		
-		assertTrue(tf.runTestInSameEvaluator("{List::rest([1]) == [];}"));
-		assertTrue(tf.runTestInSameEvaluator("{rest([1]) == [];}"));
-		assertTrue(tf.runTestInSameEvaluator("{List::rest([1, 2]) == [2];}"));
-	}
+
 	
 	public void testListReverse() throws IOException {	
 		
@@ -118,6 +119,22 @@ public void testListinsertAt() throws IOException {
 		assertTrue(tf.runTestInSameEvaluator("{size([]) == 0;}"));
 		assertTrue(tf.runTestInSameEvaluator("{List::size([1]) == 1;}"));
 		assertTrue(tf.runTestInSameEvaluator("{List::size([1,2,3]) == 3;}"));
+	}
+	
+	public void testListSlice() throws IOException {	
+		
+		tf = new TestFramework("import List;");
+		
+		assertTrue(tf.runTestInSameEvaluator("{slice([1,2,3,4], 0, 0) == [];}"));
+		assertTrue(tf.runTestInSameEvaluator("{slice([1,2,3,4], 0, 1) == [1];}"));
+		assertTrue(tf.runTestInSameEvaluator("{slice([1,2,3,4], 0, 2) == [1,2];}"));
+		assertTrue(tf.runTestInSameEvaluator("{slice([1,2,3,4], 0, 3) == [1,2,3];}"));
+		assertTrue(tf.runTestInSameEvaluator("{slice([1,2,3,4], 0, 4) == [1,2,3,4];}"));
+		assertTrue(tf.runTestInSameEvaluator("{slice([1,2,3,4], 1, 0) == [];}"));
+		assertTrue(tf.runTestInSameEvaluator("{slice([1,2,3,4], 1, 1) == [2];}"));
+		assertTrue(tf.runTestInSameEvaluator("{slice([1,2,3,4], 1, 2) == [2,3];}"));
+		assertTrue(tf.runTestInSameEvaluator("{slice([1,2,3,4], 3, 0) == [];}"));
+		assertTrue(tf.runTestInSameEvaluator("{slice([1,2,3,4], 3, 1) == [4];}"));
 	}
 	
 	public void testListSort() throws IOException {	
@@ -148,6 +165,20 @@ public void testListinsertAt() throws IOException {
 		assertTrue(tf.runTestInSameEvaluator("{List::sum([1, 2, 3], 0) == 6;}"));
 		assertTrue(tf.runTestInSameEvaluator("{List::sum([1, -2, 3], 0) == 2;}"));
 		assertTrue(tf.runTestInSameEvaluator("{List::sum([1, 1, 1], 0) == 3;}"));
+	}
+	
+	public void testListTail() throws IOException {	
+		
+		tf = new TestFramework("import List;");
+		
+		assertTrue(tf.runTestInSameEvaluator("{List::tail([1]) == [];}"));
+		assertTrue(tf.runTestInSameEvaluator("{tail([1]) == [];}"));
+		assertTrue(tf.runTestInSameEvaluator("{List::tail([1, 2]) == [2];}"));
+		assertTrue(tf.runTestInSameEvaluator("{tail([1, 2, 3]) + [4, 5, 6]  == [2, 3, 4, 5, 6];}"));
+		assertTrue(tf.runTestInSameEvaluator("{tail([1, 2, 3]) + tail([4, 5, 6])  == [2, 3, 5, 6];}"));
+		
+		assertTrue(tf.runTestInSameEvaluator("{tail([1, 2, 3], 2) == [2,3];}"));
+		assertTrue(tf.runTestInSameEvaluator("{tail([1, 2, 3], 0) == [];}"));
 	}
 	
 	public void testListTakeOneFrom() throws IOException {	
