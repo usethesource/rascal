@@ -10,14 +10,25 @@ public &T average(list[&T] lst, &T zero)
   return size(lst) > 0 ? sum(lst, zero)/size(lst) : zero;
 }
 
-public &T java first(list[&T] lst)
+public &T java head(list[&T] lst)
   throws empty_list()
- @doc{first -- get the first element of a list}
+ @doc{head -- get the first element of a list}
 {
    if(lst.length() > 0){
       return lst.get(0);
    } else {
       throw new RascalException(values, "empty_list");
+   }
+}
+
+public list[&T] java head(list[&T] lst, int n)
+  throws list_index_out_of_range()
+ @doc{head -- get the first n elements of a list}
+{
+   if(n.getValue() <= lst.length()){
+      return new SubList((Value)lst, 0, n.getValue());
+   } else {
+      throw new RascalException(values, "list_index_out_of_range");
    }
 }
 
@@ -33,7 +44,7 @@ public &T java getOneFrom(list[&T] lst)
 }
 
 public list[&T] java insertAt(&T elm, int n, list[&T] lst)
-  throws list_index()
+  throws list_index_out_of_range()()
  @doc{insertAt -- add an element at a specific position in a list}
  {
  	IListWriter w = lst.getType().writer(values);
@@ -50,7 +61,7 @@ public list[&T] java insertAt(&T elm, int n, list[&T] lst)
       }
       return w.done();
     } else {
-    	throw new RascalException(values, "list_index");
+    	throw new RascalException(values, "list_index_out_of_range()");
     }
  }
 
@@ -108,20 +119,7 @@ public &T reducer(list[&T] lst, &T (&T, &T) fn, &T unit)
   return result;
 }
 
-public list[&T] java rest(list[&T] lst)
-  throws empty_list()
- @doc{rest -- all but the first element of a list}
- { IListWriter w = lst.getType().writer(values);
- 
-   if(lst.length() > 0){
-      for(int i = lst.length()-1; i > 0; i--) {
-        w.insert(lst.get(i));
-      }
-      return w.done();
-   } else {
-      throw new RascalException(values, "empty_list");
-   }
- }
+
  
 
 public list[&T] java reverse(list[&T] lst)
@@ -135,6 +133,13 @@ public int java size(list[&T] lst)
 {
    return values.integer(lst.length());
 }
+
+ public list[&T] java slice(list[&T] lst, int start, int len)
+  throws empty_list()
+ @doc{slice -- sublist from start of length len}
+ {
+ 	return new SubList((Value)lst, start.getValue(), len.getValue());
+ }
 
 public list[&T] sort(list[&T] lst)
 @doc{sort -- sort the elements of a list}
@@ -174,6 +179,25 @@ public &T sum(list[&T] lst, &T zero)
   return reducer(lst, #add, zero);
 }
 
+ public list[&T] java tail(list[&T] lst)
+  throws empty_list()
+ @doc{tail -- all but the first element of a list}
+ {
+ 	return new SubList((Value)lst, 1, lst.length()-1);
+ }
+ 
+  public list[&T] java tail(list[&T] lst, int len)
+  throws list_index_out_of_range()
+ @doc{tail -- last n elements ofelement of a list}
+ {
+ 	int lenVal = len.getValue();
+ 	int lstLen = lst.length();
+ 	
+ 	if(lenVal > lstLen)
+ 		throw new RascalException(values, "list_index_out_of_range");
+ 	return new SubList((Value)lst, lstLen - lenVal, lenVal);
+ }
+ 
 public tuple[&T, list[&T]] java takeOneFrom(list[&T] lst)
 @doc{takeOneFrom -- remove an arbitrary element from a list, returns the element and the modified list}
 {
