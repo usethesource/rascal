@@ -1,4 +1,4 @@
-module Graph
+module GraphDataType
 
 data Point point(int x, int y);
 
@@ -57,3 +57,8 @@ data Node subgraph(NodeId id,
                    NodeList nodes, 
                    EdgeList edges, 
                    AttributeList attributes);
+                   
+                   
+bool test() {
+     return true;
+}

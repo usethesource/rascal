@@ -22,6 +22,11 @@ private static TestFramework tf = new TestFramework();
 		assertTrue(tf.runTestInSameEvaluator("Integer-abstract-rules::test();"));
 	}
 	
+	public void testBubble() throws IOException {
+		tf = new TestFramework("import Bubble;");
+		assertTrue(tf.runTestInSameEvaluator("Bubble::test();"));
+	}
+	
 	public void testCalls() throws IOException {
 		tf = new TestFramework("import Calls;");
 		assertTrue(tf.runTestInSameEvaluator("Calls::test();"));
@@ -35,6 +40,11 @@ private static TestFramework tf = new TestFramework();
 	public void testDominators() throws IOException {
 		tf = new TestFramework("import Dominators;");
 		assertTrue(tf.runTestInSameEvaluator("Dominators::test();"));
+	}
+	
+	public void testGraphDataType() throws IOException {
+		tf = new TestFramework("import GraphDataType;");
+		assertTrue(tf.runTestInSameEvaluator("GraphDataType::test();"));
 	}
 	
 	public void testInnerproduct() throws IOException {

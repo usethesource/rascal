@@ -6,7 +6,7 @@ type str feature;
 
 public set[feature] Transmission    = { "automatic", "manual" };
 
-public set[set[feature]] Engine     = power({"electric", "gasoline"}) - {};
+public set[set[feature]] Engine     = power({"electric", "gasoline"}) - {{}};
 
 set[feature] HorsePower      = {"lowPower", "mediumPower", "highPower"};
 

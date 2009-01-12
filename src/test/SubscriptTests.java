@@ -69,7 +69,7 @@ public class SubscriptTests extends TestCase {
 	
 	public void testTree() throws IOException{
 		
-		tf = new TestFramework("data NODE value V | f(int a, str b, double c);");
+		tf = new TestFramework("data NODE f(int a, str b, double c);");
 		
 		assertTrue(tf.runTestInSameEvaluator("f(0, \"a\", 3.5)[0] == 0;"));
 		assertTrue(tf.runTestInSameEvaluator("f(0, \"a\", 3.5)[1] == \"a\";"));
