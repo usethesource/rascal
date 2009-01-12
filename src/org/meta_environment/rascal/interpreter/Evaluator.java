@@ -434,6 +434,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 					"src/benchmark/BubbleSort/",
 					"src/benchmark/Factorial/",
 					"src/benchmark/Fibonacci/",
+					"src/benchmark/Reverse/",
 					"src/benchmark/UnusedProcs/",
 					"demo/AsFix/",
 					"demo/Booleans/",
@@ -1619,19 +1620,24 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 	@Override
 	public EvalResult visitStatementIfThenElse(IfThenElse x) {
-		for (org.meta_environment.rascal.ast.Expression expr : x
-				.getConditions()) {
-			EvalResult cval = expr.accept(this);
-			if (cval.type.isBoolType()) {
-				if (cval.value.equals(vf.bool(false))) {
-					return x.getElseStatement().accept(this);
+		env.pushFrame(); // For the benefit of variables bound in the condition
+		try {
+			for (org.meta_environment.rascal.ast.Expression expr : x
+					.getConditions()) {
+				EvalResult cval = expr.accept(this);
+				if (cval.type.isBoolType()) {
+					if (cval.value.equals(vf.bool(false))) {
+						return x.getElseStatement().accept(this);
+					}
+				} else {
+					throw new RascalTypeError("Condition " + expr + " has type "
+							+ cval.type + " but should be bool");
 				}
-			} else {
-				throw new RascalTypeError("Condition " + expr + " has type "
-						+ cval.type + " but should be bool");
 			}
+			return x.getThenStatement().accept(this);
+		} finally {
+			env.popFrame();	// Remove any bindings due to condition evaluation.
 		}
-		return x.getThenStatement().accept(this);
 	}
 
 	@Override

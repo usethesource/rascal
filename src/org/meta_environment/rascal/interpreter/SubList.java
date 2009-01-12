@@ -22,15 +22,20 @@ public class SubList extends Value implements IList {
 	public SubList(Value V, int start, int len){
 		super(V);
 		if(V instanceof List){
-			this.base = (List) V;;
+			this.base = (List) V;
+			this.start = start;
 		} else if (V instanceof SubList){
-			this.base = ((SubList) V).base;
+			SubList other =  (SubList) V;
+			this.base = other.base;
+			this.start = other.start + start;
 		} else {
 			throw new RascalBug("Illegal value in SubList");
 		}
-		this.start = start;
 		this.len = len;
 		this.end = start + len;
+		if(this.start < 0 || this.len > base.length()){
+			throw new RascalBug("Out of bounds");
+		}
 	}
 
 	public boolean equals(Object o){

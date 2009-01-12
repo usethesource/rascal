@@ -627,6 +627,7 @@ interface MatchPattern {
 	private org.meta_environment.rascal.ast.QualifiedName name;
 	private boolean boundBeforeConstruction;
 	private Type type;
+	private boolean debug = false;
 	
 	TreePatternQualifiedName(org.meta_environment.rascal.ast.QualifiedName qualifiedName){
 		this.name = qualifiedName;
@@ -646,12 +647,12 @@ interface MatchPattern {
 	
 	public boolean next(){
 		checkInitialized();
-		//System.err.println("TreePatternQualifiedName.match: " + name);
+		if(debug)System.err.println("TreePatternQualifiedName.match: " + name + ", firstMatch=" + firstMatch + ", boundBeforeConstruction=" + boundBeforeConstruction);
         GlobalEnvironment env = GlobalEnvironment.getInstance();
 		
 		if(firstMatch && !boundBeforeConstruction){ //TODO: wrong in some cases?
 			firstMatch = false;
-			//System.err.println("name= " + name + ", subject=" + subject + ",");
+			if(debug)System.err.println("name= " + name + ", subject=" + subject + ",");
 			env.top().storeVariable(name.toString(),ev.result(subject.getType(), subject));
        	 	return true;
 		}
@@ -660,10 +661,10 @@ interface MatchPattern {
          
         if((patRes != null) && (patRes.value != null)){
         	 IValue patVal = patRes.value;
-        		//System.err.println("TreePatternQualifiedName.match: " + name + ", subject=" + subject + ", value=" + patVal);
+        		if(debug)System.err.println("TreePatternQualifiedName.match: " + name + ", subject=" + subject + ", value=" + patVal);
         		
         	 if (subject.getType().isSubtypeOf(patVal.getType())) {
-        		// System.err.println("returns " + ev.equals(ev.result(subject.getType(),subject), patRes));
+        		if(debug)System.err.println("returns " + ev.equals(ev.result(subject.getType(),subject), patRes));
         		 return ev.equals(ev.result(subject.getType(),subject), patRes);
         	 }
          }
@@ -678,6 +679,7 @@ interface MatchPattern {
 /* package */class TreePatternTypedVariable extends BasicTreePattern implements MatchPattern {
 	private Name name;
 	org.eclipse.imp.pdb.facts.type.Type declaredType;
+	private boolean debug = false;
 
 	TreePatternTypedVariable(org.eclipse.imp.pdb.facts.type.Type type2, Name name) {
 		this.declaredType = type2;
@@ -695,7 +697,7 @@ interface MatchPattern {
 	public boolean next() {
 		checkInitialized();
 		firstMatch = false;
-		//System.err.println("TypedVariable.match: " + subject + " with " + declaredType + " " + name);/
+		if(debug)System.err.println("TypedVariable.match: " + subject + " with " + declaredType + " " + name);
 		
 		if (subject.getType().isSubtypeOf(declaredType)) {
 			GlobalEnvironment.getInstance().top().storeVariable(name, ev.result(declaredType, subject));
