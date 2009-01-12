@@ -436,7 +436,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 					"src/benchmark/Fibonacci/",
 					"src/benchmark/Reverse/",
 					"src/benchmark/UnusedProcs/",
-					"demo/AsFix/",
 					"demo/Booleans/",
 					"demo/Graph/",
 					"demo/Integers/",
@@ -451,6 +450,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 					"demo/StdLib/",
 					"demo/Symtable/",
 					"demo/Tree/",
+					"demo/UPTR/",
 					"demo/Vectors/",
 					"demo/WordCount/"
 					};
@@ -2665,7 +2665,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			while(mp.hasNext()){
 				if(mp.next()){
 					try {
-						System.err.println(env);
+						//System.err.println(env);
 						stat.accept(this);
 						return true;
 					} catch (FailureException e){

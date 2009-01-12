@@ -53,3 +53,7 @@ str yield(Tree t) {
 str yield(Parsetree t) {
   return yield(t.top);
 }
+
+bool test(){
+	return true;
+}
