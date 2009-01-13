@@ -1,21 +1,13 @@
 module IO
 
-//TODO: switch to varargs when available
-public void java println(value V)
+public void java println(value V...)
 @java-imports{import java.io.File;}
 {
-   String res = V.getType().isStringType() ? ((IString) V).getValue() : V.toString();
-   System.out.println(res);
-   return;
-}
-
-public void java println(value V1, value V2)
-@java-imports{import java.io.File;}
-{
-   String res1 = V1.getType().isStringType() ? ((IString) V1).getValue() : V1.toString();
-   String res2 = V2.getType().isStringType() ? ((IString) V2).getValue() : V2.toString();
-   
-   System.out.println(res1 + res2);
+   IList argList = (IList) V;
+   for(int i = 0; i < argList.length(); i++){
+   	System.out.print(argList.get(i).toString());
+   }
+   System.out.println();
    return;
 }
 
