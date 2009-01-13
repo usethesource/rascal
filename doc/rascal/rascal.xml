@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="US-ASCII"?>
 <article version="5.0" xmlns="http://docbook.org/ns/docbook"
          xmlns:xlink="http://www.w3.org/1999/xlink"
          xmlns:xi="http://www.w3.org/2001/XInclude"
@@ -28,7 +28,8 @@
   <note>
     <para>This document is a braindump of ideas that is slowly converging to a
     coherent design. See <xref linkend="section.issues" /> for the issues that
-    have to be resolved.</para>
+    have to be resolved. Updated according to status as of January 13,
+    2009.</para>
   </note>
 
   <section>
@@ -2042,14 +2043,15 @@ default: ...
           </listitem>
 
           <listitem>
-            <para><emphasis role="bold">TO BE DISCUSSED</emphasis>: The new
-            statement constructs "all" and "exists" have a list or set pattern
-            as condition. They establish a save/commit barrier around each
-            iteration. When an iteration completes normally all its
-            side-effects are made permanent and execution continues with the
-            next iteration (all) or the next statement (exists). When "fail"
-            is encountered during execution, all side-effects are undone and
-            execution continues with the next iteration.</para>
+            <para><emphasis role="bold"><remark>TO BE
+            DISCUSSED</remark></emphasis>: The new statement constructs "all"
+            and "exists" have a list or set pattern as condition. They
+            establish a save/commit barrier around each iteration. When an
+            iteration completes normally all its side-effects are made
+            permanent and execution continues with the next iteration (all) or
+            the next statement (exists). When "fail" is encountered during
+            execution, all side-effects are undone and execution continues
+            with the next iteration.</para>
           </listitem>
         </itemizedlist>
       </section>
@@ -2058,15 +2060,16 @@ default: ...
         <title>Solve statement</title>
 
         <para>Rascal provides a solve statement for the solution of sets of
-        simultaneous linear equations. The format is:<programlisting>solve (<replaceable>Expression</replaceable>) {
+        simultaneous linear equations. The format is:<programlisting>with {
   <replaceable>Assignable1</replaceable> = <replaceable>Expression1</replaceable>;
   <replaceable>Assignable2</replaceable> = <replaceable>Expression2</replaceable>;
   ...
-}</programlisting></para>
+} solve
+  <replaceable>Statement</replaceable></programlisting></para>
 
         <para>The solve statement is executed by performing the assignments in
         its body as long as the value of at least one assignable at the
-        left-hand side of an assignment changes. The optional
+        left-hand side of an assignment changes. Optionally, an
         <replaceable>Expression</replaceable> directly following the
         <literal>solve</literal> keyword, gives an upperbound on the number of
         iterations.</para>
@@ -2084,9 +2087,9 @@ default: ...
 
           <thead>
             <row>
-              <entry align="center"> </entry>
+              <entry align="center">&#160;</entry>
 
-              <entry align="center">bool </entry>
+              <entry align="center">bool&#160;</entry>
 
               <entry align="center">int</entry>
 
@@ -2266,7 +2269,7 @@ default: ...
 
               <entry></entry>
 
-              <entry></entry>
+              <entry>&amp;</entry>
 
               <entry></entry>
 
@@ -2305,6 +2308,54 @@ default: ...
               <entry>not</entry>
 
               <entry>!</entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+            </row>
+
+            <row>
+              <entry>Implication</entry>
+
+              <entry>==&gt;</entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+            </row>
+
+            <row>
+              <entry>Equivalence</entry>
+
+              <entry>&lt;==&gt;</entry>
 
               <entry></entry>
 
@@ -2422,6 +2473,30 @@ default: ...
             </row>
 
             <row>
+              <entry>uminus</entry>
+
+              <entry></entry>
+
+              <entry>-</entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+            </row>
+
+            <row>
               <entry>in</entry>
 
               <entry></entry>
@@ -2488,7 +2563,7 @@ default: ...
 
               <entry></entry>
 
-              <entry>*</entry>
+              <entry></entry>
 
               <entry>*</entry>
             </row>
@@ -2512,7 +2587,7 @@ default: ...
 
               <entry></entry>
 
-              <entry>+</entry>
+              <entry>+\</entry>
 
               <entry>+</entry>
             </row>
@@ -2538,7 +2613,7 @@ default: ...
 
               <entry>[ _ ]</entry>
 
-              <entry></entry>
+              <entry>[_]</entry>
             </row>
           </tbody>
         </tgroup>
@@ -2554,11 +2629,11 @@ default: ...
             </listitem>
 
             <listitem>
-              <para><literal>~~</literal> match</para>
+              <para><literal>~=</literal> match</para>
             </listitem>
 
             <listitem>
-              <para><literal>!~</literal> no match</para>
+              <para><literal>~!</literal> no match</para>
             </listitem>
 
             <listitem>
@@ -2581,9 +2656,9 @@ default: ...
         <title>Structured values</title>
 
         <para>Values of the structured types <literal>list</literal>,
-        <literal>set</literal>, <literal>tuple</literal>,
-        <literal>rel</literal> and <literal>map </literal>are expressions and
-        can be constructed as follows:</para>
+        <literal>set</literal>, <literal>map, tuple</literal>, and
+        <literal>rel</literal><literal></literal>are expressions and can be
+        constructed as follows:</para>
 
         <itemizedlist>
           <listitem>
@@ -2609,12 +2684,22 @@ default: ...
                 <literal>S</literal> - <replaceable>F</replaceable>.</para>
               </listitem>
             </itemizedlist>
+
+            <para>When variables of type list occur inside a list, their
+            elements are automatically spliced into the surrounding list. This
+            can be prevented by prefixing the list variable with $.</para>
+
+            <note>
+              <para>To be discussed.</para>
+            </note>
           </listitem>
 
           <listitem>
             <para>Sets are enclosed between { and } and the elements are
             separated by comma's, e.g.<literal> {"abc", "def"}</literal> or
-            <literal>{true, false}</literal>.</para>
+            <literal>{true, false}</literal>. In a simliar fashion as with
+            lists, sets variables are automatically spliced into a surrounding
+            set.</para>
           </listitem>
 
           <listitem>
@@ -2631,16 +2716,17 @@ default: ...
             <para>Maps are a special form of binary relation and satisfy the
             constraint that the first element of each tuple is unique. Maps
             model functions. To distinguish between map tuples and tuples in
-            general relations, we write them as &lt;E1 -&gt; E2&gt;.</para>
+            general relations, we write them as (E11 : E1b, E2a : E2b,
+            ...&gt;.</para>
           </listitem>
         </itemizedlist>
 
         <para>An index operator
         <literal><replaceable>R</replaceable>[<replaceable>N</replaceable>]</literal>
-        can be applied to values of types list, tuple, string and returns the
-        <replaceable>N</replaceable>-th element. It throws the exception
-        <literal>out_of_range(str msg)</literal> when the index value is out
-        of range.</para>
+        can be applied to values of types string, list, tuple, map and
+        relation and returns the <replaceable>N</replaceable>-th element. It
+        throws the exception <literal>out_of_range(str msg)</literal> when the
+        index value is out of range.</para>
 
         <para>For a map <replaceable>M</replaceable>,
         <replaceable>M</replaceable>[<replaceable>N</replaceable>], returns
@@ -2651,11 +2737,15 @@ default: ...
         value <replaceable>N</replaceable> and then adds the tuple
         &lt;<replaceable>N</replaceable> -&gt;
         <replaceable>V</replaceable>&gt;. The net effect is that a new map
-        value is assigned to <replaceable>M</replaceable>.</para>
+        value is assigned to <replaceable>M</replaceable>. For relations, a
+        subscript consisting of n- subscript return the range values that
+        correspond with these index values.</para>
 
         <para>For all structured values, we provide comprehensions for lists
-        of the form:<programlisting>[ E | G1, ..., Gn ]</programlisting>and
-        for sets, maps and relations of the form:<programlisting>{ E | G1, ..., Gn }</programlisting></para>
+        of the form:<programlisting>[ E | G1, ..., Gn ]</programlisting>for
+        maps of the form<programlisting>( K : V | G1, ..., Gn )</programlisting></para>
+
+        <para>and for sets and relations of the form:<programlisting>{ E | G1, ..., Gn }</programlisting></para>
       </section>
 
       <section>
@@ -2672,21 +2762,12 @@ default: ...
           </listitem>
 
           <listitem>
-            <para><literal>top-down-break</literal></para>
-          </listitem>
-
-          <listitem>
             <para><literal>bottom-up</literal> (this is the default)</para>
-          </listitem>
-
-          <listitem>
-            <para><literal>bottom-up-break</literal></para>
           </listitem>
         </itemizedlist>
 
-        <para>The two other strategy options (<literal>innermost</literal> and
-        <literal>outermost</literal>) are only meaningfull in the context of a
-        <literal>visit</literal> expression.</para>
+        <para>There are other strategy options that are only meaningfull in
+        the context of a <literal>visit</literal> expression.</para>
       </section>
 
       <section>
@@ -2707,11 +2788,11 @@ default: ...
           </listitem>
 
           <listitem>
-            <para><literal>~~</literal> match</para>
+            <para><literal>~=</literal> match</para>
           </listitem>
 
           <listitem>
-            <para><literal>!~</literal> nomatch</para>
+            <para><literal>~!</literal> nomatch</para>
           </listitem>
         </itemizedlist>
       </section>
@@ -2775,14 +2856,13 @@ default: ...
 
         <itemizedlist>
           <listitem>
-            <para>The three Rule cases of the form ... =&gt; ... <emphasis
+            <para>Rukes of the form ... =&gt; ... <emphasis
             role="bold">insert</emphasis> their result in the subject (instead
             of returning a value).</para>
           </listitem>
 
           <listitem>
-            <para>In the fourth case
-            <literal><replaceable>Pattern</replaceable> :
+            <para>In the case <literal><replaceable>Pattern</replaceable> :
             <replaceable>Statement</replaceable></literal>, executing
             <replaceable>Statement</replaceable> should lead to one of the
             following:</para>
@@ -2862,7 +2942,7 @@ default: ...
       <para><programlisting>rule a1 true &amp; &lt;Bool B2&gt;   =&gt; &lt;B2&gt;</programlisting>and
       here for abstract Booleans:</para>
 
-      <para><programlisting>rule a1 band(btrue, &lt;Bool B2&gt;)  =&gt; &lt;B2&gt; </programlisting></para>
+      <para><programlisting>rule a1 band(btrue, Bool B2)  =&gt; B2 </programlisting></para>
 
       <para>As we have seen before, the replacement part may also have the
       form colon (<literal>:</literal>) followed by an arbitrary statement.
@@ -2876,8 +2956,8 @@ default: ...
 
         <listitem>
           <para>The right hand side of rules can contain fail statements,
-          which cause backtracking over the alternative rules for a certain
-          constructor.</para>
+          which cause backtracking over the alternative matches or alternative
+          rules for a certain constructor.</para>
         </listitem>
 
         <listitem>
@@ -3016,9 +3096,12 @@ default: ...
 
       <para>The ritual first example:<programlisting>module Hello
 
+import IO;
+
 public void main() {
    println("Hello, this is my first Rascal program");
-}</programlisting></para>
+}</programlisting>Observe how the IO module is imported that defines the
+      <literal>println</literal> function.</para>
     </section>
 
     <section>
@@ -3027,105 +3110,186 @@ public void main() {
       <para>Another ritual example, printing a table of
       squares:<programlisting>module Squares
 
-public void main(list[str] argv){
-  int N = toInt(argv[0]);
-  map[int,int] squares = {};
+import IO;
+
+public void squares(int N){
+  println("Table of squares from 1 to &lt;N&gt;");
   for(int I : [1 .. N]){
-     squares[I] = I * I;
-  }
-  println("Table of squares from 1 to ", N);
-  println(squares);
-}</programlisting><caution>
-          <para>We need a mechanism to insert values in strings,
-          e.g.<programlisting> println("Table of squares from 1 to &lt;N&gt;");</programlisting></para>
-        </caution></para>
+  	I2 = I * I;
+    println("&lt;I&gt; squared = &lt;I2&gt;");
+  } 
+}</programlisting></para>
     </section>
 
     <section>
       <title>Table of word counts per file</title>
 
       <para><programlisting>module WordCount
+
+import IO;
  
-public void main(list[str] argv){
-  map[str, int] counts = {};
+/* this is a * test * comment */
+
+public void main(str argv ...){
+  int total = 0;
   for(str fileName : argv){
     try {
-      counts[fileName] = wordCount(readFile(fileName));
-    }
-    catch: println("Skipping file &lt;fileName&gt;");
+       int count = wordCount(readFile(fileName));
+       println("&lt;count&gt; word in file &lt;fileName&gt;");
+       total = total + count;
+ 	}
+ 	   catch {println("Skipping file &lt;fileName&gt;");}
   }
-
-  println("In total &lt;sum(range(counts))&gt; words in all files");
-  println("Word counts per file: &lt;counts&gt;");
+  
+  println("&lt;total&gt; words in all files");
 }
 
-int wordCount(str S){
-  int count = 0;
-  %% the m-option enables multi-line matching
-  for(/[a-zA-Z0-9]+/m: S){
-       count += 1;
+public int wordCount(list[str] input, int (str s) countLine)
+{
+  count = 0;
+  for(line : input){
+     count = count + #countLine(line);
   }
   return count;
 }
 
-%% Here is an alternative (but less desirable) declaration:
-int wordCount2(str S){
+public int countLine1(str S){
   int count = 0;
-  %% \w matches any word character
-  %% &lt;...&gt; are groups and should appear at the top level.
-  %% m turns on multi-line matching
-  while (/^.*?&lt;word:\w+&gt;&lt;rest:.*$&gt;/m ~~ S) { 
-    count += 1; 
+  for(/[a-zA-Z0-9]+/: S){
+       count = count + 1;
+  }
+  return count;
+}
+
+// Here is an alternative (but less desirable) declaration:
+public int countLine2(str S){
+  int count = 0;
+  
+  // \w matches any word character
+  // \W match3es any non-word character
+  // &lt;...&gt; are groups and should appear at the top level.
+  while (/^\W*&lt;word:\w+&gt;&lt;rest:.*$&gt;/ ~= S) { 
+    count = count + 1; 
     S = rest; 
   }
   return count;
 }
 
-%% Maintain word count per word.
-%% Note how the += operator initializes each map entry
-%% to an appropriate value (0 in this case)
-map[str,int] wordCountPerWord(str S){
-  map[str,int] allCounts = {};
+// Maintain word count per word.
+// Note how the =? operator initializes each map entry
+// to an appropriate value (0 in this case)
 
- for(/&lt;word:^[a-zA-Z0-9]+&gt;/m: S){
-       allCounts[word] ? 0 += 1; 
+public map[str,int] countLine3(str S){
+  map[str,int] allCounts = ();
+
+ for(/&lt;word:[a-zA-Z0-9]+&gt;/: S){
+       /* allCounts[word] ? 0 += 1; */
+	/* This is the same as */
+       allCounts[word] = (allCounts[word] =? 0) + 1;
   }
   return allCounts;
+}
+
+public list[str] Jabberwocky = [
+	"Jabberwocky by Lewis Carroll",
+	"",
+	"'Twas brillig, and the slithy toves",
+	"Did gyre and gimble in the wabe;",
+	"All mimsy were the borogoves,",
+	"And the mome raths outgrabe.",
+	"",
+	"\"Beware the Jabberwock, my son!",
+	"The jaws that bite, the claws that catch!",
+	"Beware the Jubjub bird, and shun",
+	"The frumious Bandersnatch!\"",
+	"",
+	"'Twas brillig, and the slithy toves",
+	"Did gyre and gimble in the wabe;",
+	"All mimsy were the borogoves,",
+	"And the mome raths outgrabe.",
+	"",
+	"\"Beware the Jabberwock, my son!",
+	"The jaws that bite, the claws that catch!",
+	"Beware the Jubjub bird, and shun",
+	"The frumious Bandersnatch!\"",
+	"",
+	"He took his vorpal sword in hand:",
+	"Long time the manxome foe he sought&#8212;",
+	"So rested he by the Tumtum tree,",
+	"And stood awhile in thought.",
+	"",
+	"And as in uffish thought he stood,",
+	"The Jabberwock, with eyes of flame,",
+	"Came whiffling through the tulgey wood",
+	"And burbled as it came!",
+	"",
+	"One, two! One, two! and through and through",
+	"The vorpal blade went snicker-snack!",
+	"He left it dead, and with its head",
+	"He went galumphing back.",
+	"",
+	"\"And hast thou slain the Jabberwock?",
+	"Come to my arms, my beamish boy!",
+	"O frabjous day! Callooh! Callay!",
+	"He chortled in his joy.",
+	"",
+	"'Twas brillig, and the slithy toves",
+	"Did gyre and gimble in the wabe;",
+	"All mimsy were the borogoves,",
+	"And the mome raths outgrabe."
+];
+
+bool test(){
+	return 
+		wordCount(Jabberwocky, #countLine1) == 215 &amp;&amp;
+	 	wordCount(Jabberwocky, #countLine2) == 215 &amp;&amp;
+	 	wordCount(Jabberwocky, #countLine3) == 215;
 }</programlisting></para>
     </section>
 
     <section>
       <title>Word replacement</title>
 
-      <para>Here are two versions of a word replacement function:<caution>
-          <para>How does this example work?</para>
-        </caution></para>
+      <para>Here are two versions of a word replacement function:</para>
 
       <para><programlisting>module WordReplacement
 
-str capitalize1(str S){
-    return visit (S) {
-      %% \b matches a word boundary
-      %% i turns on case-independent matching
-      case /\brascal\b/i =&gt; "Rascal"
-    };
+public str capOne(str S){
+    return (/rascal/i ~= S) ? "Rascal" : S;
 }
 
-str capitalize2(str S, str Pat, str Repl){
-    return visit (S) {
-      case /\b&lt;Pat&gt;\b/i =&gt; "&lt;Repl&gt;"
-    };
-}</programlisting>The function <literal>capitalize1</literal>, replaces all
-      occurrences of <literal>rascal</literal> (in all possible cases) by the
-      standard spelling <literal>Rascal</literal>. The function
-      <literal>capitalize2</literal> is a generalization of
-      <literal>capitalize1</literal>: it takes a subject string, a pattern
-      string and a replacement string. Observe how the argument
-      <literal>Pat</literal> is inserted in the regular expression.</para>
+public str capAll1(str S)
+{
+ result = "";
+ while (/^&lt;before:\W*&gt;&lt;word:\w+&gt;&lt;after:.*$&gt;/ ~= S) { 
+    result = result + before + capOne(word);
+    S = after;
+  }
+  return result;
+}
 
-      <para>The call <literal>capitalize2(Subject, "rascal",
-      "Rascal")</literal> will have the same effect as
-      <literal>capitalize1(Subject)</literal>.</para>
+public str capitalize(str word)
+{
+   if(/^&lt;letter:[a-z]&gt;&lt;rest:.*$/){
+   		return toUpperCase(letter) + rest;
+   } else {
+   		return word;
+   }
+}
+
+public str capAll2(str S)
+{
+   return visit(S){
+   	case /&lt;word:\w+&gt;/i =&gt; capitalize(word);
+   };
+}
+
+bool test)
+{
+	return
+		capAll1("turn this into a title") == "Turn This Into A Title" &amp;&amp;
+		capAll2("turn this into a title") == "Turn This Into A Title";
+}</programlisting></para>
     </section>
 
     <section>
@@ -3137,7 +3301,7 @@ str capitalize2(str S, str Pat, str Repl){
 
 set[Var] getDateVars(Program P){
    return {V | Var V : P, 
-               /.*(date|dt|year|yr).*$/i ~~ toString(V)};
+               /.*(date|dt|year|yr).*$/i ~= toString(V)};
 }</programlisting></para>
     </section>
 
@@ -3201,23 +3365,28 @@ Bool reduce(Bool B) {
 
         <para>In the above example we used concrete syntax for Booleans
         expressions. It also possible to define Booleans as abstract
-        terms.<programlisting>module Bool-abstract
+        terms.<programlisting>module Bool-abstract-visit
 
 data Bool btrue;
 data Bool bfalse;
 data Bool band(Bool L, Bool R);
 data Bool bor(Bool L, Bool R);  
 
-Bool reduce(Bool B) {
-    Bool B1, B2;
-    return bottom-up visit(B) {
-      case band(btrue, B2)      =&gt; B2   %% Use Variables
-      case band(bfalse, B2)     =&gt; bfalse
-      case bor(btrue, btrue)    =&gt; btrue  %% Use a truth table
+public Bool reduce(Bool B) {
+    return innermost visit(B) {
+      case band(btrue, Bool B1) =&gt; B1		// Use variables
+      case band(bfalse, Bool B1)=&gt; bfalse   //TODO: should become B1!
+      
+      case bor(btrue, btrue)    =&gt; btrue    // Use a truth table
       case bor(btrue, bfalse)   =&gt; btrue
       case bor(bfalse, btrue)   =&gt; btrue
       case bor(bfalse, bfalse)  =&gt; bfalse
     };
+}
+
+bool test(){
+	
+   return reduce(bor(band(btrue,btrue),band(btrue, bfalse))) == btrue;
 }</programlisting></para>
 
         <para>First, type declarations are used to define the abstract syntax
@@ -3234,25 +3403,29 @@ Bool reduce(Bool B) {
         syntax, which can also help in the transformation of old ASF+SDF
         programs to Rascal:</para>
 
-        <para><programlisting>module Bool-rules
+        <para><programlisting>module Bool-abstract-rules
 
 data Bool btrue;
 data Bool bfalse;
 data Bool band(Bool L, Bool R);
 data Bool bor(Bool L, Bool R);  
 
-rule a1 band(btrue, Bool B2)  =&gt; B2 
-rule a2 band(bfalse, Bool B2) =&gt; bfalse
+rule a1 band(btrue, Bool B)    =&gt; B;
+rule a2 band(bfalse, Bool B)   =&gt; bfalse;
 
-rule o1 bor(btrue, btrue)     =&gt; btrue
-rule o2 bor(btrue, bfalse)    =&gt; btrue
-rule o3 bor(bfalse, btrue)    =&gt; btrue
-rule o4 bor(bfalse, bfalse)   =&gt; bfalse</programlisting>These rules are
-        applied on every Bool that is constructed. Like in ASF+SDF it is the
-        responsibility of the programmer to make sure the rules are confluent
-        and terminating. A rule definition has the same syntax and semantics
-        as the switch construct, allowing backtracking, side-effects and
-        checking of conditions.</para>
+rule o1 bor(btrue, btrue)     =&gt; btrue;
+rule o2 bor(btrue, bfalse)    =&gt; btrue;
+rule o3 bor(bfalse, btrue)    =&gt; btrue;
+rule o4 bor(bfalse, bfalse)   =&gt; bfalse;
+
+boolean test()
+{
+	return bor(band(btrue,btrue),band(btrue, bfalse)) == btrue;
+}</programlisting>These rules are applied on every Bool that is constructed.
+        Like in ASF+SDF it is the responsibility of the programmer to make
+        sure the rules are confluent and terminating. A rule definition has
+        the same syntax and semantics as the switch construct, allowing
+        backtracking, side-effects and checking of conditions.</para>
 
         <para>There are some issues here:</para>
 
@@ -3289,41 +3462,13 @@ rule o4 false | false      =&gt; false</programlisting></para>
       <title>Abstract Graph datatype</title>
 
       <para>In the Meta-Environment we use an abstract data type to exchange
-      data representing graphs. It can be defined as follows.<programlisting>module Graph
+      data representing graphs. It can be defined as follows.<programlisting>module GraphDataType
 
-data Graph graph(NodeList nodes, 
-                 EdgeList edges, 
-                 AttributeList attributes);
+data Point point(int x, int y);
 
-type list[Node] Nodelist;
+type list[Point]  Polygon;
 
-data Node node(NodeId id, 
-               AttributeList attributes);
-
-data Node subgraph(NodeId id, 
-                   NodeList nodes, 
-                   EdgeList edges, 
-                   AttributeList attributes);
-
-data NodeId id(term id);
-
-type list[Attribute] AttributeList;
-
-data Attribute bounding-box(Point first, Point second);
-data Attribute color(Color color);
-data Attribute curve-points(Polygon points);
-data Attribute direction(Direction direction);
-data Attribute fill-color(Color color);
-data Attribute info(str key, value value);
-data Attribute label(str label);
-data Attribute tooltip(str tooltip);
-data Attribute location(int x, int y);
-data Attribute shape(Shape shape);
-data Attribute size(int width, int height);
-data Attribute style(Style style);
-data Attribute level(str level);
-data Attribute file(File file);
-data Attribute file(value file);
+type str File;
 
 data Color rgb(int red, int green, int blue);
 
@@ -3335,13 +3480,48 @@ data Shape box | circle | diamond | egg | elipse | hexagon |
 
 data Direction forward | back | both | none;
 
-type list[Edge] Edgelist;
+data Attribute bounding-box(Point first, Point second);
+data Attribute color(Color color);
+data Attribute curve-points(Polygon points);
+data Attribute direction(Direction direction);
+data Attribute fill-color(Color color);
+data Attribute info(str key, value val);
+data Attribute label(str label);
+data Attribute tooltip(str tooltip);
+data Attribute location(int x, int y);
+data Attribute shape(Shape shape);
+data Attribute size(int width, int height);
+data Attribute style(Style style);
+data Attribute level(str level);
+data Attribute \file(File \file);
+data Attribute \file(value \file);
+
+type list[Attribute] AttributeList;
+
+data NodeId id(tree id);
 
 data Edge edge(NodeId from, 
                NodeId to, 
                AttributeList attributes);
+               
+type list[Edge] EdgeList;
 
 type list[Point] Polygon;
+
+data Node node(NodeId id,  
+               AttributeList attributes);
+               
+type list[Node] NodeList;
+
+data Graph graph(NodeList nodes, 
+                 EdgeList edges, 
+                 AttributeList attributes);
+
+data Node subgraph(NodeId id, 
+                   NodeList nodes, 
+                   EdgeList edges, 
+                   AttributeList attributes);
+                   on;
 
 data Point point(int x, int y);</programlisting></para>
     </section>
@@ -3350,130 +3530,138 @@ data Point point(int x, int y);</programlisting></para>
       <title>Tree traversal</title>
 
       <para>Here is the binary tree example that we use in explaining
-      traversal functions in ASF+SDF.<programlisting>module BTree-syntax
-imports basic/Integers
+      traversal functions in ASF+SDF.<programlisting>
+module Tree-examples
+import List;
 
-exports 
-  sorts BTREE
-  context-free syntax
-    Integer         -&gt; BTREE
-    f(BTREE,BTREE)  -&gt; BTREE
-    g(BTREE,BTREE)  -&gt; BTREE
-    h(BTREE,BTREE)  -&gt; BTREE
-    i(BTREE,BTREE)  -&gt; BTREE</programlisting><programlisting>module BTree-Examples
-import BTree-syntax; 
+data NODE int N | f(NODE I, NODE J) | g(NODE I, NODE J) |  h(NODE I, NODE J)  | h(NODE I, NODE J, NODE K);
 
-%% Ex1: Count leaves in a BTREE
-%% Idea: int N : T generates alle Integer leaves in the tree
-%% Observe that there is no need to touch the contents of 
-%% each Integer since we only count them.
 
-int cnt(BTREE T) {
-    return size({N | Integer N : T});
+// Example 1: Count the int nodes in a tree
+
+// Ex1a: Collect all integers in the tree in 
+// a list and return the size of the list
+
+public int cnta(tree T) {
+    return size([N | int N : T]);
 }
 
-%% Ex1: alternative solution using a visit statement
+// Ex1b: alternative solution using a visit statement
 
-int cnt(BTREE T) {
+public int cntb(tree T) {
     int C = 0;
     visit(T) {
-      case &lt;Integer N&gt; : C = C+1;
-    };
-    return C;
-}
- 
-%% Ex2: Sum all leaves in a BTREE
-%% NB sum is a built-in that adds all elements in a set or list.
-%% Here we see immediately the need to convert between
-%% - the syntactic sort "Integer"
-%% - the built-in sort "int"
-%% We use the toInt function that attempts convert any tree
-%% to an int.
-
-int sumtree(BTREE T) {
-    return sum({toInt(N) | Integer N : T});
-}
-
-%% Ex2: using visit statement
-
-int cnt(BTREE T) {
-    int C = 0;
-    visit(T) {
-      case &lt;Integer N&gt; : C = C+toInt(N);
+      case int N: C = C + 1;
     };
     return C;
 }
 
-%% Ex3: Increment all leaves in a BTREE
-%% Idea: using the visit statement visit all leaves in
-%% the tree T that match an integer and replace each N in T by N+1.
-%% The expression as a whole returns the modified tree
-%% Note that two conversions are needed here:
-%% - from Integer to int (using toInt)
-%% - from int back to Integer (using parseString)
+// Ex2: Sum all leaves in a tree
 
-BTREE inc(BTREE T) {
+// Ex2a: Collect all integers in the tree in 
+// a list and use the library function sum on lists
+// to add all list elements together.
+
+public int sumtreea(tree T) {
+    return sum([n | int N : T]);
+}
+
+// Ex2b: using visit statement
+
+public int sumtreeb(tree T) {
+    int C = 0;
+    visit(T) {
+      case int N : C = C + N;
+    };
+    return C;
+}
+
+// Ex3: Increment all leaves in a tree
+
+public tree inc(tree T) {
+    return visit(T) {
+      case int N: insert N + 1;
+    };
+}
+
+// Ex4: full replacement of g by h, i.e.
+// replace all nodes g(_,_) by h(_,_)
+
+// Ex4a Using insert
+
+public tree frepa(tree T) {
     return visit (T) {
-      case &lt;Integer N&gt;: insert parseString(toInt(N)+1);
+      case g(value T1, value T2):
+           insert h(T1, T2);
     };
 }
 
-%% Ex4: full replacement of g by i
-%% The whole repertoire of ASF+SDF traversal functions is available:
-%% - bottom-up visit (T) { ... }
-%% - bottom-up-break visit (T) { ... }
-%% - etc.
-%% A nice touch is that these properties are not tied to the
-%% declaration of a travesal function (as in ASF+SDF) but to 
-%% its use.
+// Ex4a Using replacement rule
 
-BTREE frepl(BTREE T) {
-    return bottom-up visit (T) {
-      case [| g(&lt;BTREE T1&gt;, &lt;BTREE T2&gt;) |] =&gt;
-           i(&lt;BTREE T1&gt;, &lt;BTREE T2&gt;)
+public tree frepb(tree T) {
+    return visit (T) {
+      case g(value T1, value T2) =&gt; h(T1, T2)
     };
 }
 
-%% Ex5: Deep replacement of g by i
+// Ex5 Replace all nodes g(_,_) by h(_,_,_)
 
-BTREE frepl(BTREE T) {
+// Ex5a Using insert
+
+public tree frepG2H3a(tree T) {
+    return visit (T) {
+      case g(value T1, value T2):
+           insert h(T1, T2, 0);
+    };
+}
+
+// Ex5b Using replacement rule
+
+public tree frepG2H3b(tree T) {
+    return visit (T) {
+      case g(value T1, value T2) =&gt; h(T1, T2, 0)
+    };
+}
+
+// Ex6: Deep replacement of g by h (i.e. only innermost 
+// g's are replaced); 
+
+public tree drepl(tree T) {
     return bottom-up-break visit (T) {
-      case[| g(&lt;BTREE T1&gt;, &lt;BTREE T2&gt;) |] =&gt;
-             i(&lt;BTREE T1&gt;, &lt;BTREE T2&gt;)
+      case g(value T1, value T2) =&gt;  h(T1, T2)
     };
 }
 
-%% Ex6: shallow replacement of g by i (i.e. only outermost 
-%% g's are replaced); 
+// Ex7: shallow replacement of g by h (i.e. only outermost 
+// g's are replaced); 
 
-BTREE srepl(BTREE T) {
+public tree srepl(tree T) {
     return top-down-break visit (T) {
-      case [| g(&lt;BTREE T1&gt;, &lt;BTREE T2&gt;) |] =&gt; 
-              i(&lt;BTREE T1&gt;, &lt;BTREE T2&gt;)
+       case g(value T1, value T2) =&gt;  h(T1, T2)
     };
 }
 
-%% Ex7: We can also add the top-down-break directive to the 
-%% generator to get only outermost nodes.
 
-set[BTREE] find_outer_gs(BTREE T) {
-    return
-    { S | top-down-break STATEMENT S : T, 
-          [| g(&lt;BTREE T1&gt;, &lt;BTREE T2&gt;) |] ~~ S };
-}
- 
-%% Ex8: accumulating transformer that increments leaves with 
-%% amount D and counts them
-tuple[int, BTREE] count_and_inc(BTREE T, int D) {
+// Ex8: accumulating transformer that increments integer leaves with 
+// amount D and counts them as well.
+
+public tuple[int, tree] count_and_inc(tree T, int D) {
     int C = 0;
     
-    visit (T) {
-      case &lt;Integer N&gt;: { C = C + 1; 
-                          int N1 = toInt(N) + D; 
-                          insert parse(unparseToString(N1));
-                        }
-    };
+    T = visit (T) {
+        case int N: { C = C + 1; 
+                     insert N + D;
+                    }
+        };
     return &lt;C, T&gt;;
+}
+
+// Add an element to an array
+
+public tree array(tree T) {
+    return visit (T) {
+      case list[value] L =&gt; L + [11]
+    };
 }
 </programlisting></para>
     </section>
@@ -4233,80 +4421,6 @@ lexical syntax
     </section>
 
     <section>
-      <title>Symbol table with scopes</title>
-
-      <para>Here is a (probably naive) implementation of a symbol table that
-      maintains a list of numbered scopes as well as a (Name, Value) mapping
-      in each scope. Note that we introduce parameterized modules to do this
-      right.<programlisting>module SymTable[&amp;Name, &amp;Value]
-
-%% A scope-oriented symbol table.
-%% Each scope consists of a map from names to values. 
-%% This is more intended to explore whether this can be expressed
-%% *at all* than that the datatype is well designed.
-
-type rel[&amp;Name, &amp;Value] ScopeMap;
-type int ScopeId;
-data STable[&amp;Name, &amp;Value] stable(ScopeId scope, 
-                                  rel[int, ScopeMap] scopes); 
-
-%%Create a new, empty,  table
-fun STable[&amp;Name, &amp;Value] new_table(){
-  return stable(0, {&lt;0, {}&gt;});
-}
-
-%% Create a new, non-empty, table
-fun STable[&amp;Name, &amp;Value] new_table(ScopeId scope, 
-                              rel[int, ScopeMap] scopes){
-  return stable(scope, scopes);
-} 
-
-%% Update, in a given scope, the value of a variable
-fun STable[&amp;Name, &amp;Value] update(STable[&amp;Name, &amp;Value] ST, 
-                                 ScopeId scope, 
-                                 &amp;Name N, 
-                                 &amp;Value V){
-  ST.scopes(scope) = V;
-  return new_table(scope, ST.scopes)
-}
-
-%% Get, in a given scope, the value of a variable
-fun STable[&amp;Name, &amp;Value] value_of(STable[&amp;Name, &amp;Value] ST, 
-                                ScopeId scope, 
-                                &amp;Name N){
-  return ST.scopes(scope)(N)
-}
-
-%% update, in the current scope, the value of a variable
-fun STable[&amp;Name, &amp;Value] update(STable[&amp;Name, &amp;Value] ST, 
-                                 &amp;Name N, 
-                                 &amp;Value V){
-%%  ST.scopes(scope)(N)= V;
-  return new_table(scope, ST.scopes)
-}
-
-%% Get, in the current scope, the value of a variable
-fun STable value_of(STable[&amp;Name, &amp;Value] ST, 
-                 &amp;Name N){
-  return ST.scopes(ST.scope)(N)
-}
-
-%% add a new scope and make it the current scope
-fun STable[&amp;Name, &amp;Value] new_scope(STable[&amp;Name, &amp;Value] ST){
-  ScopeId scope = ST.scope + 1;
-  return new_table(scope, ST.scopes);
-}
-
-%% switch to another scope
-fun STable[&amp;Name, &amp;Value] switch_scope(STable[&amp;Name, &amp;Value] ST, 
-                                       ScopeId scope){
-  return new_table(scope, ST.scopes);
-}
-
-</programlisting></para>
-    </section>
-
-    <section>
       <title>Innerproduct</title>
 
       <para>[Example inspired by TXL documentation]</para>
@@ -4316,13 +4430,24 @@ fun STable[&amp;Name, &amp;Value] switch_scope(STable[&amp;Name, &amp;Value] ST,
 
       <programlisting>module Innerproduct
 
-int innerProduct(list[int] V1, list[int] V2){
-    if (size(V1) == 0 || size(V2) == 0){
+import List;
+
+public int inner1(list[int] V1, list[int] V2){
+    if ((size(V1) == 0) || (size(V2) == 0)){
        return 0;
     } else {
-       return (N1*N2) + innerProduct(rest(V1), rest(V2));
+       return (V1[0] * V2[0]) + inner1(tail(V1), tail(V2));
     }
- }</programlisting>
+ }
+ 
+ public int inner2(list[int] V1, list[int] V2){
+    if(([N1, list[int] R1] ~= V1) &amp;&amp; ([N2, list[int] R2] ~= V2)){
+    	return N1 * N2 + inner2(R1, R2);
+    } else {
+       return 0;
+    }
+ }
+</programlisting>
     </section>
 
     <section>
@@ -4332,119 +4457,50 @@ int innerProduct(list[int] V1, list[int] V2){
 
       <programlisting>module Bubble
 
-%% sort1: uses list indexing and for-loop
+import List;
 
-list[int] sort1(list[int] Numbers){
+// sort1: uses list indexing and for-loop
+
+public list[int] sort1(list[int] Numbers){
   for(int I : [0 .. size(Numbers) - 2 ]){
      if(Numbers[I] &gt; Numbers[I+1]){
-       Numbers[I], Numbers[I+1] = Numbers[I+1], Numbers[I];
-       return sort(Numbers);
+       &lt;Numbers[I], Numbers[I+1]&gt; = &lt;Numbers[I+1], Numbers[I]&gt;;
+       return sort1(Numbers);
      }
   }
   return Numbers;
 }
 
-%% sort2: uses list matching and switch
+// sort2: uses list matching and switch
 
-list[int] sort2(list[int] Numbers){
-  list[int] Nums1, Nums2;
-  int P, Q;
-
+public list[int] sort2(list[int] Numbers){
+  
   switch(Numbers){
-    case [Nums1, P, Q, Nums2]:
+    case [list[int] Nums1, int P, int Q, list[int] Nums2]:
        if(P &gt; Q){
-          return sort([Nums1, Q, P, Nums2]);
+          return sort2(Nums1 + [Q, P] + Nums2);
+       } else {
+       	  fail;
        }
      default: return Numbers;
    }
   
 }
 
-%% sort3: uses list matching and visit
+// sort3: uses list matching and visit
 
-list[int] sort3(list[int] Numbers){
-  list[int] Nums1, Nums2;
-  int P, Q;
+public list[int] sort3(list[int] Numbers){
 
   return innermost visit(Numbers){
-    case [Nums1, P, Q, Nums2]:
+    case [list[int] Nums1, int P, int Q, list[int] Nums2]:
        if(P &gt; Q){
-          insert [Nums1, Q, P, Nums2];
+          insert Nums1 + [Q, P] + Nums2;
+       } else {
+          fail;
        }
-     default: Numbers;
     };
 }
-
 </programlisting>
-    </section>
-
-    <section>
-      <title>Generic Bubble sort</title>
-
-      <para>Here is a generic bubble sort wich uses type parameters (&amp;E)
-      and a function parameter.<programlisting>module Bubble-Gen
-
-list[&amp;E] sort(list[&amp;E] Elements, bool GreaterThan(&amp;E, &amp;E)){
-  for(int I : [0 .. size(Elements) - 2]){
-     if(GreaterThan(Elements[I],  Elements[I+1])){
-       Elements[I], Elements[I+1] = Elements[I+1], Elements[I];
-       return sort(Elements);
-     }
-  }
-  return Elements;
-}</programlisting></para>
-
-      <para>Of course, we can write a generic sort on arbitrary lists.</para>
-    </section>
-
-    <section>
-      <title>Applying Rascal to Rascal</title>
-
-      <para>Here are some simple examples of applying Rascal to
-      itself:<programlisting>module SimpleExamples
-
-imports Rascal;
-
-int cntModules(Rascal program)
-@doc{Count the modules in a Rascal program}
-{
-    int cnt = 0;
-
-    visit (program){
-      case Module M: cnt += 1;
-    };
-    return cnt;
-}
-
-set[Name] extractNames(Rascal program)
-@doc{Extract all names from a Rascal program}
-{
-   set[Name] names = {};
-
-   visit (program){
-      case Name Nm: names += Name;
-    };
-    return names;
-}
-
-Rascal rename(Rascal program)
-@doc{Prefix all names in the program with "x"}
-{
-   set[Name] names = {};
-
-   return visit (program){
-      case Name Nm: insert parseString("x" + toString(Nm));
-    };
-}
-
-Rascal invertIf(Rascal program)
-@doc{Switch the branches of if statements}
-{
-  return visit (program){
-      case if (&lt;Expression E&gt;)  &lt;Block B1&gt; else &lt;Block B2&gt;: 
-           insert [| if (!&lt;E&gt;) &lt;B2&gt; else &lt;B1&gt; |];
-    };
-}</programlisting></para>
     </section>
 
     <section>
@@ -4466,6 +4522,11 @@ Rascal invertIf(Rascal program)
 
         <listitem>
           <para>Answers start at the beginning of the line.</para>
+
+          <caution>
+            <para>This is not compatible with the current
+            implementation.</para>
+          </caution>
         </listitem>
       </itemizedlist>
 
@@ -4609,7 +4670,7 @@ Boolean . and &lt;= Boolean &lt;= tree &lt;= value
 
           <thead>
             <row>
-              <entry align="center"> </entry>
+              <entry align="center">&#160;</entry>
 
               <entry align="center">bool</entry>
 
@@ -4617,7 +4678,7 @@ Boolean . and &lt;= Boolean &lt;= tree &lt;= value
 
               <entry align="center">double</entry>
 
-              <entry align="center">str </entry>
+              <entry align="center">str&#160;</entry>
 
               <entry align="center">loc</entry>
 
@@ -4634,6 +4695,678 @@ Boolean . and &lt;= Boolean &lt;= tree &lt;= value
           </thead>
 
           <tbody>
+            <row>
+              <entry>arb</entry>
+
+              <entry>x</entry>
+
+              <entry>x</entry>
+
+              <entry>x</entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry>x</entry>
+
+              <entry></entry>
+
+              <entry>x</entry>
+
+              <entry></entry>
+
+              <entry>x</entry>
+            </row>
+
+            <row>
+              <entry>average</entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry>x</entry>
+
+              <entry></entry>
+
+              <entry>x</entry>
+
+              <entry></entry>
+
+              <entry>x</entry>
+            </row>
+
+            <row>
+              <entry>bottom</entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+            </row>
+
+            <row>
+              <entry>carrier</entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry>x</entry>
+            </row>
+
+            <row>
+              <entry>carrierR</entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry>x</entry>
+            </row>
+
+            <row>
+              <entry>carrierX</entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry>x</entry>
+            </row>
+
+            <row>
+              <entry>complement</entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry>x</entry>
+            </row>
+
+            <row>
+              <entry>compose</entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry>x</entry>
+            </row>
+
+            <row>
+              <entry>domain</entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry>x</entry>
+            </row>
+
+            <row>
+              <entry>domainR</entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry>x</entry>
+            </row>
+
+            <row>
+              <entry>domainX</entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+            </row>
+
+            <row>
+              <entry>endsWith</entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry>x</entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+            </row>
+
+            <row>
+              <entry>head</entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry>x</entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+            </row>
+
+            <row>
+              <entry>invert</entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry>x</entry>
+            </row>
+
+            <row>
+              <entry><remark>makeString</remark></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry>x</entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+            </row>
+
+            <row>
+              <entry>mapper</entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry>x</entry>
+
+              <entry></entry>
+
+              <entry>x</entry>
+
+              <entry>x</entry>
+
+              <entry>x</entry>
+            </row>
+
+            <row>
+              <entry>max</entry>
+
+              <entry>x</entry>
+
+              <entry>x</entry>
+
+              <entry>x</entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry>x</entry>
+
+              <entry></entry>
+
+              <entry>x</entry>
+
+              <entry></entry>
+
+              <entry></entry>
+            </row>
+
+            <row>
+              <entry>min</entry>
+
+              <entry>x</entry>
+
+              <entry>x</entry>
+
+              <entry>x</entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry>x</entry>
+
+              <entry></entry>
+
+              <entry>x</entry>
+
+              <entry></entry>
+
+              <entry></entry>
+            </row>
+
+            <row>
+              <entry>multiply</entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry>x</entry>
+
+              <entry></entry>
+
+              <entry>x</entry>
+
+              <entry></entry>
+
+              <entry></entry>
+            </row>
+
+            <row>
+              <entry>power</entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry>x</entry>
+
+              <entry></entry>
+
+              <entry></entry>
+            </row>
+
+            <row>
+              <entry>range</entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry>x</entry>
+            </row>
+
+            <row>
+              <entry>rangeR</entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry>x</entry>
+            </row>
+
+            <row>
+              <entry>rangeX</entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry>x</entry>
+            </row>
+
+            <row>
+              <entry>reach</entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry>x</entry>
+            </row>
+
+            <row>
+              <entry>reachR</entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry>x</entry>
+            </row>
+
+            <row>
+              <entry>reachX</entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry>x</entry>
+            </row>
+
+            <row>
+              <entry>reducer</entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry>x</entry>
+
+              <entry></entry>
+
+              <entry>x</entry>
+
+              <entry></entry>
+
+              <entry>x</entry>
+            </row>
+
+            <row>
+              <entry>reverse</entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry>x</entry>
+
+              <entry></entry>
+
+              <entry>x</entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+            </row>
+
             <row>
               <entry>size</entry>
 
@@ -4659,7 +5392,11 @@ Boolean . and &lt;= Boolean &lt;= tree &lt;= value
             </row>
 
             <row>
-              <entry>get</entry>
+              <entry>sort</entry>
+
+              <entry></entry>
+
+              <entry></entry>
 
               <entry></entry>
 
@@ -4670,10 +5407,6 @@ Boolean . and &lt;= Boolean &lt;= tree &lt;= value
               <entry>x</entry>
 
               <entry></entry>
-
-              <entry>x</entry>
-
-              <entry>x</entry>
 
               <entry></entry>
 
@@ -4683,13 +5416,9 @@ Boolean . and &lt;= Boolean &lt;= tree &lt;= value
             </row>
 
             <row>
-              <entry>arb</entry>
+              <entry><remark>split</remark></entry>
 
-              <entry>x</entry>
-
-              <entry>x</entry>
-
-              <entry>x</entry>
+              <entry></entry>
 
               <entry></entry>
 
@@ -4699,11 +5428,87 @@ Boolean . and &lt;= Boolean &lt;= tree &lt;= value
 
               <entry></entry>
 
-              <entry>x</entry>
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+            </row>
+
+            <row>
+              <entry>startsWith</entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
 
               <entry>x</entry>
 
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+            </row>
+
+            <row>
+              <entry>sum</entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
               <entry>x</entry>
+
+              <entry></entry>
+
+              <entry>x</entry>
+
+              <entry></entry>
+
+              <entry></entry>
+            </row>
+
+            <row>
+              <entry>tail</entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry>x</entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
             </row>
 
             <row>
@@ -4752,6 +5557,30 @@ Boolean . and &lt;= Boolean &lt;= tree &lt;= value
               <entry></entry>
 
               <entry></entry>
+            </row>
+
+            <row>
+              <entry>top</entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry></entry>
+
+              <entry>x</entry>
             </row>
 
             <row>
@@ -4875,102 +5704,6 @@ Boolean . and &lt;= Boolean &lt;= tree &lt;= value
             </row>
 
             <row>
-              <entry>reverse</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-            </row>
-
-            <row>
-              <entry>split</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-            </row>
-
-            <row>
-              <entry>startsWith</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-            </row>
-
-            <row>
-              <entry>endsWith</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-            </row>
-
-            <row>
               <entry>toLowerCase</entry>
 
               <entry></entry>
@@ -5012,174 +5745,6 @@ Boolean . and &lt;= Boolean &lt;= tree &lt;= value
               <entry></entry>
 
               <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-            </row>
-
-            <row>
-              <entry>reducer</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry>-</entry>
-
-              <entry>-</entry>
-            </row>
-
-            <row>
-              <entry>mapper</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry>x</entry>
-
-              <entry>x</entry>
-            </row>
-
-            <row>
-              <entry>min</entry>
-
-              <entry>x</entry>
-
-              <entry>x</entry>
-
-              <entry>x</entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-            </row>
-
-            <row>
-              <entry>max</entry>
-
-              <entry>x</entry>
-
-              <entry>x</entry>
-
-              <entry>x</entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-            </row>
-
-            <row>
-              <entry>sum</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-            </row>
-
-            <row>
-              <entry>multiply</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-            </row>
-
-            <row>
-              <entry>average</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
 
               <entry></entry>
 
@@ -5241,36 +5806,18 @@ Boolean . and &lt;= Boolean &lt;= tree &lt;= value
 
       <itemizedlist>
         <listitem>
-          <para>Operator <literal>==</literal> implements equality on all
-          types. It is extended for data types using structural
-          equality.</para>
+          <para><literal>arb</literal> generates an arbitrary element from a
+          structured value.</para>
         </listitem>
 
         <listitem>
-          <para>Operator <literal>&lt;</literal> implements less-than on all
-          types.</para>
-        </listitem>
-
-        <listitem>
-          <para>Operators +, -, *, / implement these operators for most types.
-          For structured types these operatords exist in three flavours:
-          structured value op struct, structured value op element, and element
-          op structured value.</para>
+          <para><literal>average</literal> computes the average value of
+          structured values that contain integers or doubles.</para>
         </listitem>
 
         <listitem>
           <para><literal>size</literal> gives the number of elements of many
           types.</para>
-        </listitem>
-
-        <listitem>
-          <para><literal>get</literal> (corresponds to the indexing notation
-          R[N]) gives the N-th element of a structure.</para>
-        </listitem>
-
-        <listitem>
-          <para><literal>arb</literal> generates an arbitrary element from a
-          structured value.</para>
         </listitem>
 
         <listitem>
@@ -5309,355 +5856,10 @@ Boolean . and &lt;= Boolean &lt;= tree &lt;= value
         </listitem>
 
         <listitem>
-          <para><literal>average</literal> computes the average value of
-          structured values that contain integers or doubles.</para>
-        </listitem>
-
-        <listitem>
           <para>get_location and set_location are access functions for values
           of type <literal>loc</literal>.</para>
         </listitem>
       </itemizedlist>
-    </section>
-
-    <section>
-      <title>Additional functions on lists sets, maps and relations</title>
-
-      <para>Additional functions on lists, sets maps and relations are listed
-      in the following table.<table>
-          <title>Additional functions on lists, sets, maps and
-          relations</title>
-
-          <tgroup cols="6">
-            <colspec align="center" />
-
-            <thead>
-              <row>
-                <entry align="center"> </entry>
-
-                <entry align="center">list</entry>
-
-                <entry align="center">set</entry>
-
-                <entry align="center">map</entry>
-
-                <entry align="center">rel</entry>
-
-                <entry align="center">graph</entry>
-              </row>
-            </thead>
-
-            <tbody>
-              <row>
-                <entry>first</entry>
-
-                <entry>x</entry>
-
-                <entry></entry>
-
-                <entry></entry>
-
-                <entry></entry>
-
-                <entry></entry>
-              </row>
-
-              <row>
-                <entry>rest</entry>
-
-                <entry>x</entry>
-
-                <entry></entry>
-
-                <entry></entry>
-
-                <entry></entry>
-
-                <entry></entry>
-              </row>
-
-              <row>
-                <entry>makeString</entry>
-
-                <entry>x</entry>
-
-                <entry></entry>
-
-                <entry></entry>
-
-                <entry></entry>
-
-                <entry></entry>
-              </row>
-
-              <row>
-                <entry>sort</entry>
-
-                <entry>x</entry>
-
-                <entry></entry>
-
-                <entry></entry>
-
-                <entry></entry>
-
-                <entry></entry>
-              </row>
-
-              <row>
-                <entry>id</entry>
-
-                <entry></entry>
-
-                <entry>x</entry>
-
-                <entry></entry>
-
-                <entry></entry>
-
-                <entry></entry>
-              </row>
-
-              <row>
-                <entry>power</entry>
-
-                <entry></entry>
-
-                <entry>x</entry>
-
-                <entry></entry>
-
-                <entry></entry>
-
-                <entry></entry>
-              </row>
-
-              <row>
-                <entry>compose</entry>
-
-                <entry></entry>
-
-                <entry></entry>
-
-                <entry>x</entry>
-
-                <entry>x</entry>
-
-                <entry></entry>
-              </row>
-
-              <row>
-                <entry>invert</entry>
-
-                <entry></entry>
-
-                <entry></entry>
-
-                <entry>x</entry>
-
-                <entry>x</entry>
-
-                <entry></entry>
-              </row>
-
-              <row>
-                <entry>complement</entry>
-
-                <entry></entry>
-
-                <entry></entry>
-
-                <entry>x</entry>
-
-                <entry>x</entry>
-
-                <entry></entry>
-              </row>
-
-              <row>
-                <entry>domain</entry>
-
-                <entry></entry>
-
-                <entry></entry>
-
-                <entry>x</entry>
-
-                <entry>x</entry>
-
-                <entry></entry>
-              </row>
-
-              <row>
-                <entry>range</entry>
-
-                <entry></entry>
-
-                <entry></entry>
-
-                <entry>x</entry>
-
-                <entry>x</entry>
-
-                <entry></entry>
-              </row>
-
-              <row>
-                <entry>carrier</entry>
-
-                <entry></entry>
-
-                <entry></entry>
-
-                <entry>x</entry>
-
-                <entry>x</entry>
-
-                <entry></entry>
-              </row>
-
-              <row>
-                <entry>domainR</entry>
-
-                <entry></entry>
-
-                <entry></entry>
-
-                <entry>x</entry>
-
-                <entry>x</entry>
-
-                <entry></entry>
-              </row>
-
-              <row>
-                <entry>rangeR</entry>
-
-                <entry></entry>
-
-                <entry></entry>
-
-                <entry>x</entry>
-
-                <entry>x</entry>
-
-                <entry></entry>
-              </row>
-
-              <row>
-                <entry>carrierR</entry>
-
-                <entry></entry>
-
-                <entry></entry>
-
-                <entry>x</entry>
-
-                <entry>x</entry>
-
-                <entry></entry>
-              </row>
-
-              <row>
-                <entry>domainX</entry>
-
-                <entry></entry>
-
-                <entry></entry>
-
-                <entry>x</entry>
-
-                <entry>x</entry>
-
-                <entry></entry>
-              </row>
-
-              <row>
-                <entry>rangeX</entry>
-
-                <entry></entry>
-
-                <entry></entry>
-
-                <entry>x</entry>
-
-                <entry>x</entry>
-
-                <entry></entry>
-              </row>
-
-              <row>
-                <entry>carrierX</entry>
-
-                <entry></entry>
-
-                <entry></entry>
-
-                <entry>x</entry>
-
-                <entry>x</entry>
-
-                <entry></entry>
-              </row>
-
-              <row>
-                <entry>top</entry>
-
-                <entry></entry>
-
-                <entry></entry>
-
-                <entry></entry>
-
-                <entry>x</entry>
-
-                <entry>x</entry>
-              </row>
-
-              <row>
-                <entry>bottom</entry>
-
-                <entry></entry>
-
-                <entry></entry>
-
-                <entry></entry>
-
-                <entry>x</entry>
-
-                <entry>x</entry>
-              </row>
-
-              <row>
-                <entry>reachR</entry>
-
-                <entry></entry>
-
-                <entry></entry>
-
-                <entry></entry>
-
-                <entry>x</entry>
-
-                <entry>x</entry>
-              </row>
-
-              <row>
-                <entry>reachX</entry>
-
-                <entry></entry>
-
-                <entry></entry>
-
-                <entry></entry>
-
-                <entry>x</entry>
-
-                <entry>x</entry>
-              </row>
-            </tbody>
-          </tgroup>
-        </table></para>
     </section>
 
     <section>
@@ -5667,1104 +5869,12 @@ Boolean . and &lt;= Boolean &lt;= tree &lt;= value
       datatype, input/output and communication with the global database with
       program facts, the Program Database (PDB).</para>
     </section>
-
-    <section>
-      <title>Source code</title>
-
-      <para>This is a very first draft of the library. When the structure is
-      stable we will split it in modules.<caution>
-          <para>The following code is maintained externally and then copied
-          :-( to this document, so be carefull with changes.</para>
-        </caution><programlisting>module RascalStandardLibrary
-
-%%tag function primitive QualName;
-%%tag function memo void;
-%%tag function java CompilationUnit;
-%%tag all doc str;
-
-%% Here is a flat list of library functions that will
-%% structured in to coherent submodules.
-
-%% --- Comparison operators ----------------------------------
-%% Each type defines == and &lt;. The following
-%% functions extend them.
-
-public bool !=(&amp;T A, &amp;T B){
-  return !(A == B);
-}
-
-public bool &lt;=(&amp;T A, &amp;T B){
-  return A &lt; B || A == B;
-}
-
-public bool &gt;(&amp;T A, &amp;T B){
-  return B &lt; A &amp;&amp; A != B;
-}
-
-public bool &gt;=(&amp;T A, &amp;T B){
-  return B &lt; A;
-}
-
-public &amp;T min(&amp;T A, &amp;T B){
-  return (A &lt; B) ? A : B;
-}
-
-public &amp;T max(&amp;T A, &amp;T B){
-  return (A &lt; B) ? B : A;
-}
-
-%% --- Boolean (bool) ----------------------------------------
-
-public bool ==(bool B1, bool B2)
-  @doc{Equality on Booleans}
-  @primitive{"Bool.equal"}
-
-public bool &lt;(bool B1, bool B2)
-  @primitive{"Bool.less"}
- 
-public bool &amp;&amp;(bool B1, bool B2)
-  @primitive{"Bool.and"}
-
-public bool ||(bool B1, bool B2)
-  @primitive{"Bool.or"}
-
-public bool !(bool B){
-  return B ? false : true;
-}
-
-public int arb()
-  @primitive{"Bool.arb"}
-
-public int toInt(bool B)
-  @primitive{"Bool.toInt"}
-
-public double toDouble(bool B)
-  @primitive{"Bool.toDouble"}
-
-public str toString(bool B)
-  @primitive{"Bool.toString"}
-
-%% --- Integer (int)------------------------------------------
-
-public bool ==(int I1, int I2)
-  @primitive{"Int.equal"}
-  
-public bool &lt;(int I1, int I2)
-  @primitive{"Int.less"}
-
-public int +(int I1, int I2) 
-  @primitive{"Int.add"}
-
-public int -(int I1, int I2)  
-  @primitive{"Int.sub"}
-
-public int *(int I1, int I2)
-@primitive{"Int.mul}
- 
-public int /(int I1, int I2)
-  throws divide_by_zero(str msg)
-  @primitive{"Int.div"}
-
-public int arb(int bgn, int end)
-throws illegal_argument(str msg) %% if(end - bgn &lt;= 0)
-  @primitive{"Int.arb"} 
-
-public double toDouble(int I)
-  @primitive{"Int.toDouble"}
-
-public str toString(int I)  
-  @primitive{"toStringInt"}
-
-%% --- Double (double) ---------------------------------------
-
-public bool ==(double D1, double D2)
-  @primitive{"Double.equal"} 
-
-public bool ==(double D, int I){
-  return D == toDouble(I);
-}
-
-public bool ==(int I, double D){
-  return toDouble(I) == D;
-}
-
-public bool &lt;(double D1, double D2)
-  @primitive{"Double.less"}
-
-public bool &lt;(double D, int I){
-  return D &lt; toDouble(I);
-}
-
-public bool &lt;(int I, double D){
-  return toDouble(I) &lt; D;
-}
-
-public double +(double D1, double D2)
-  @primitive{"Double.add"}
-  
-public bool +(double D, int I){
-  return D + toDouble(I);
-}
-
-public bool +(int I, double D){
-  return toDouble(I) + D;
-}
-
-public double -(double D1, double D2)
-  @primitive{"Double.sub"}
- 
-public bool -(double D, int I){
-  return D - toDouble(I);
-}
-
-public bool -(int I, double D){
-  return toDouble(I) - D;
-}
-
-public double *(double D1, double D2)
-  @primitive{"Double.mul"} 
-
-public bool *(double D, int I){
-  return D * toDouble(I);
-}
-
-public bool *(int I, double D){
-  return toDouble(I) * D;
-}
-
-public double /(double D1, double D2)
-throws divide_by_zero(str msg)
-  @primitive{"Double.div"}
-  
-public bool /(double D, int I){
-  return D / toDouble(I);
-}
-
-public bool /(int I, double D){
-  return toDouble(I) / D;
-}
-
-public double arb(double bgn, double end)
-throws illegal_argument(str msg) %% if(end - bgn &lt;= 0)
-  @primitive{"Double.arb"}
-
-public int toInt(double D)
-  @primitive{"Double.toInt"}
- 
-public str toString(double D)
-  @primitive{"Double.toString"}
-
-%% --- Strings (str) -----------------------------------------
-
-public bool ==(str S1, str S2)
-  @primitive{"String.equal"}
-
-public bool &lt;(str S1, str S2)
-  @primitive{"String.less"}
-
-public str +(str S1, str S2)
-  @doc{Concatenate two strings}
-  @primitive{"String.concat"}
-
-public int size(str S)
-  @primitive{"String.size"}
-
-public int get(str S, int N)
-  throws out_of_range(str msg){
-  return charAt(S, N);
-}
-
-%% get and charAt (as provided by java) are synonyms
-
-public int charAt(str S, int N)
-  throws out_of_range(str msg)
-  @primitive{"String.charAt"}
-
-public int toInt(str S)
-  throws cannot_convert_to_int(str msg)
-  @primitive{"String.toInt"}
-
-public int toDouble(str S)
-  throws cannot_convert_to_double(str msg)
-  @primitive{"String.toDouble"}
-
-public list[int] toList(str S)
-  throws cannot_convert_int_to_char(str msg)
-  @primitive{"String.toList"}
- 
-public set[int] toSet(str S)
-  @primitive{"String.toSet"}
-
-public str reverse(str S)
-  @primitive{"String.reverse"}
-
-public list[str] split(str S, str Regex)
-  @primitive{"String.split"}
-
-public bool startsWith(str S, str Prefix)
-  @primitive{"String.startsWith"}
-
-public bool endsWith(str S, str Suffix)
-  @primitive{"String.endsWith"}
-
-public str toLowerCase(str S)
-  @primitive{"String.toLowerCase"}
-
-public str toUpperCase(str S)
-  @primitive{"String.toUpperCase"}
-
-
-%% The above is a selection of methods from Java's String class.
-%% Others will be added on demand.
-
-%% --- Locations ---------------------------------------------
-   
-%% The location datatype
-data location location(str filename,
-                       int beginline,
-                       int endline,
-                       int begincol,
-                       int endcol,
-                       int offset,
-                       int length);
-
-anno tree posinfo loc;
-
-public bool ==(loc L1, loc L2)
-  @primitive{"Location.equal"} 
-
-public bool &lt;(loc L1, loc L2)
-  @primitive{"Location.less"}
-
-public str toString(loc L)
-  @primitive{"Location.toString"}
-
-public loc get_location(&amp;T Subject)
-  throws location_missing(str msg)
-  @primitive{"Location.get_location"}
-
-public &amp;T set_location(&amp;T Subject, loc L)
-  @primitive{"Location.set_location"}
-
-%% --- Lists -------------------------------------------------
-
-public bool ==(list[&amp;T] L1, list[&amp;T] L2)
-  @primitive{"List.equal"}
-
-public bool &lt;(list[&amp;T] L1, list[&amp;T] L2)
-  @primitive{"List.less"}
-
-public list[&amp;T] +(list[&amp;T] L1, list[&amp;T] L2)
-  @primitive{"List.concat"}
-
-public list[&amp;T] +(list[&amp;T] L, &amp;T E){
-  return L + [E];
-}
-
-public list[&amp;T] +(&amp;T E, list[&amp;T] L){
-  return [E] + L;
-}
-
-public int size(list[&amp;T] L)
-  @primitive{"List.size"}
- 
-public &amp;T get(list[&amp;T] L, int N)
-  throws out_of_range(str msg)
-  @doc{Get list element: get}
-  @primitive{"List.get"}
-
-public &amp;T arb(list[&amp;T] L)
-  throws empty_list(str msg)
-  @primitive{"List.arb"}
-
-public str toString(list[&amp;T] L)
-  @primitive{"List.toString"}
-
-
-public set[&amp;T] toSet(list[&amp;T] L)
-  @primitive{"List.toSet"}
-
-public map[&amp;T, &amp;U] toMap(list[tuple[&amp;T, &amp;U]] L)
-  throws domain_not_unique(str msg)
-  @primitive{"List.toMap"}
- 
-public rel[&amp;T] toRel(list[&amp;T] L)
-  @primitive{"List.toRel"}
-
-public list[&amp;T] reverse(list[&amp;T] L)
-  @primitive{"List.reverse"}
-
-public &amp;T reducer(list[&amp;T] L, &amp;T F (&amp;T,&amp;T), &amp;T unit){
-  &amp;T result = unit;
-  for(&amp;T E : L){
-    result = F(result, E);
-  }
-  return result;
-}
-
-public list[&amp;T] mapper(list[&amp;T] L, &amp;T F (&amp;T,&amp;T)){
-  return [F(E) | &amp;T E : L];
-}
-
-public &amp;T min(list[&amp;T] L)
-@doc{Minimum element of a list: min}
-{
-  &amp;T result = arb(L);
-  for(&amp;T E : L){
-   if(less(E, result)){
-      result = min(result, E);
-   }
-  }
-  return result;
-}
-
-public &amp;T max(list[&amp;T] L)
-@doc{Maximum element of a list: max}
-{
-  &amp;T result = arb(L);
-  for(&amp;T E : L){
-   if(less(result, E)){
-      result = max(result, E);
-   }
-  }
-  return result;
-}
-
-public &amp;T sum(list[&amp;T] L, &amp;T zero)
-@doc{Add elements of a List: sum}
-{
-  return reducer(L, +, zero);
-}
-
-public &amp;T multiply(set[&amp;T] R, &amp;T unity)
-@doc{Multiply elements of a list: multiply}
-{
-  return reducer(L, *, unity);
-}
-
-public &amp;T average(list[&amp;T] L, &amp;T zero)
-@doc{Average of elements of a list: average}
-{
-  return sum(L, zero)/size(L);
-}
-
-public &amp;T first(list[&amp;T] L)
-  throws empty_list(str msg)
-  @doc{First element of list: first}
-  @primitive{"List.first"}
-
-public &amp;T rest(list[&amp;T] L)
-  throws empty_list(str msg)
-  @doc{Remaining elements of list: rest}
-  @primitive{"List.rest"}
-
-public str makeString(list[int] L)
-  throws cannot_convert_int_to_char(str msg)
-  @primitive{"List.makeString"}
-
-public list[&amp;T] sort(list[&amp;T] L, bool less(&amp;T, &amp;T))
-  @doc{Sort elements of list: sort}
-  @primitive{"list.sort"}
- 
-%% --- Tuples ------------------------------------------------
-
-public bool ==(tuple[&amp;T] R, tuple[&amp;T] S)
-  @primitive{"Tuple.equal"}
- 
-public bool &lt;(tuple[&amp;T] R, tuple[&amp;T] S)
-  @primitive{"Tuple.less"}
- 
-public tuple[&amp;T + &amp;U] +(tuple[&amp;T] R, tuple[&amp;U] S)
-  @primitive{"Tuple.conc"}
-
-public tuple[&amp;T + &amp;U] +(tuple[&amp;T] R, &amp;U E){
-  return R + &lt;E&gt;;
-}
-
-public tuple[&amp;T + &amp;U] +(&amp;T E, tuple[&amp;U] R){
-  return &lt;E&gt; + R;
-}
-
-public int size(tuple[&amp;T] R)
-  @primitive{"Tuple.size"}
-
-public value get(tuple[&amp;T] R, int N)
-  throws out_of_range(str msg)
-  @primitive{"Tuple.get"}
-
-public str toString(tuple[&amp;T] R)
-  @primitive{"Tuple.toString"}
-
-%% --- Sets  -------------------------------------------------
-
-public bool ==(set[&amp;T] R, set[&amp;T] S)
-  @primitive{"Set.equal"}
-
-public bool &lt;(set[&amp;T] R, set[&amp;T] S)
-  @primitive{"Set.less"}
-
-public set[&amp;T] |(set[&amp;T] R, set[&amp;T] S)
-  @doc{Union of two sets}
-  @primitive{"Set.union"}
-  
-public set[&amp;T] |(set[&amp;T] S, &amp;T E){
-  return S + {E};
-}
-
-public set[&amp;T] |(&amp;T E, set[&amp;T] S){
-  return {E} + S;
-}
-
-public set[&amp;T] -(set[&amp;T] R, set[&amp;T] S)
-  @doc{Difference of two sets}
-  @primitive{"Set.diff"}
-
-public set[&amp;T] -(set[&amp;T] S, &amp;T E){
-  return S - {E};
-}
-
-public set[&amp;T] -(&amp;T E, set[&amp;T] S){
-  return {E} - S;
-}
-
-public set[&amp;T] &amp;(set[&amp;T] R, set[&amp;T] S)
-  @doc{Intersection of two sets}
-  @primitive{"Set.intersection"}
-
-public set[&amp;T] &amp;(set[&amp;T] S, &amp;T E){
-  return S &amp; {E};
-}
-
-public set[&amp;T] &amp;(&amp;T E, set[&amp;T] S){
-  return {E} &amp; S;
-}
-
-public int size(set[&amp;T] S)
-  @primitive{"Set.size"}
-
-public &amp;T arb(set[&amp;T] S)
-throws empty_set(str msg)
-  @primitive{"Set.arb"}
-  
-public str toString(set[&amp;T] S)
-  @primitive{"Set.toString"}
-
-public list[&amp;T] toList(set[&amp;T] S)  
-  @primitive{"List.toList"}
-  
-public map[&amp;T, &amp;U] toMap(set[tuple[&amp;T, &amp;U]] S)
-  throws non_unique_domain(str msg)
-  @primitive{"Set.toMap"}
-
-public rel[&amp;T] toRel(set[&amp;T] S)
-   @primitive{"Set.toRel"}
-
-public &amp;T reducer(set[&amp;T] S, &amp;T F (&amp;T,&amp;T), &amp;T unit){
-  &amp;T result = unit;
-  for(&amp;T E : S){
-    result = F(result, E);
-  }
-  return result;
-}
-
-public set[&amp;T] mapper(set[&amp;T] S, &amp;T F (&amp;T,&amp;T)){
-  return {F(E) | &amp;T E : S};
-}
-
-public &amp;T min(set[&amp;T] S)
-  @doc{Minimum of a set}
-{
-  &amp;T result = arb(S);
-  for(&amp;T E : S){
-    result = min(result, E);
-  }
-  return result;
-}
-
-public &amp;T max(set[&amp;T] R)
-  @doc{Maximum of a set}
-{
-  &amp;T result = arb(R);
-  for(&amp;T E : R){
-    result = max(result, E);
-  }
-  return result;
-}
-
-public &amp;T sum(set[&amp;T] S, &amp;T zero)
-  @doc{Sum elements of a Set: sum}
-{
-  return reducer(S, +, zero);
-}
-
-public &amp;T multiply(set[&amp;T] S, &amp;T unity)
-  @doc{Multiply elements of a Set}
-{
-  return reducer(S, *, unity);
-}
-
-public &amp;T average(set[&amp;T] S, &amp;T zero)
-  @doc{Average of elements of a set}
-{
-  return sum(S, zero)/size(R);
-}
-
-%% TODO
-
-%% Powerset: power0
-%%public set[set[&amp;T]] power0(set[&amp;T] R)
-%% throw unimplemented("power0")
-
-%% Powerset: power1
-%%public set[set[&amp;T]] power1(set[&amp;T] R)
-%%  throw unimplemented("power0")
-
-%% --- Maps --------------------------------------------------
-
-public bool ==(map[&amp;T, &amp;U] M1, map[&amp;T, &amp;U] M2)
-  @primitive{"Map.equal"}
-  
-public bool &lt;(map[&amp;T, &amp;U] M1, map[&amp;T, &amp;U] M2)
-  @primitive{"Map.less"}
-  
-public map[&amp;T] |(map[&amp;T] R, map[&amp;T] S)
-  @primitive{"Map.union"}
-  
-public map[&amp;T] |(map[&amp;T] S, &amp;T E){
-  return S | {E};
-}
-
-public map[&amp;T] |(&amp;T E, map[&amp;T] S){
-  return {E} | S;
-}
-
-public map[&amp;T] -(map[&amp;T] R, map[&amp;T] S)
-  @doc{Difference of two maps}
-  @primitive{"Map.diff"}
- 
-public map[&amp;T] -(map[&amp;T] S, &amp;T E){
-  return S - {E};
-}
-
-public map[&amp;T] -(&amp;T E, map[&amp;T] S){
-  return {E} - S;
-}
-
-public map[&amp;T] &amp;(map[&amp;T] R, map[&amp;T] S)
-  @primitive{"Map.mul"}
-  @doc{Intersection of two maps: operator &amp;}
-
-public map[&amp;T] &amp;(map[&amp;T] S, &amp;T E){
-  return S &amp; {E};
-}
-
-public map[&amp;T] &amp;(&amp;T E, map[&amp;T] S){
-  return {E} &amp; S;
-}
-
-public int size(map[&amp;T] M)
-  @primitive{"Map.size"}
-
-public &amp;T arb(map[&amp;T] M)
-throws empty_map(str msg)
-  @primitive{"Map.arb"}
-  
-public str toString(map[&amp;T] R)
-  @primitive{"Map.toString"}
-  
-public list[tuple[&amp;T, &amp;U]] toList(map[&amp;T, &amp;U] M)
-  @primitive{"Map.toList"}
-
-public set[tuple[&amp;T, &amp;U]] toSet(map[&amp;T, &amp;U] M)
-  @primitive{"Map.toSet"}
-
-public rel[tuple[&amp;T, &amp;U]] toRel(map[&amp;T, &amp;U] M)
-  @primitive{"Map.toRel"}
-
-public map[&amp;T] mapper(map[&amp;T] M, &amp;T F (&amp;T,&amp;T)){
-  return {F(E) | &amp;T E : M};
-}
-
-%% --- Relations ---------------------------------------------
-
-public bool ==(rel[&amp;T] R, rel[&amp;T] S)
-  @primitive{"Rel.equal"}
-  
-public bool &lt;(rel[&amp;T] R, rel[&amp;T] S)
-  @primitive{"Rel.less"}
-  
-public rel[&amp;T] |(rel[&amp;T] R1, rel[&amp;T] R2)
-  @doc{Union of two relations}
-  @primitive{"Rel.union"}
-
-public rel[&amp;T] |(&amp;T E, rel[&amp;T] R){
-  return toRel({E}) | R;
-}
-
-public rel[&amp;T] |(rel[&amp;T] R, &amp;T E){
-  return R | toRel({E});
-}
-
-public rel[&amp;T] -(rel[&amp;T] R1, rel[&amp;T] R2)
-  @doc{Difference of two relations}
-  @primitive{"Rel.diff"}
-  
-public rel[&amp;T] &amp;(rel[&amp;T] R1, rel[&amp;T] R1)
-  @doc{Intersection of two relations}
-  @primitive{"Rel.intersection"}
-
-public int size(rel[&amp;T] R)
-  @primitive{"Rel.size"}
-  
-public &amp;T arb(rel[&amp;T] R)
-throws empty_relation(str msg)
-  @primitive{"Rel.arb"}
-
-public str toString(rel[&amp;T] R)
-  @primitive{"Rel.toString"}
-
-%% Note: in rel[&amp;T], the type variable &amp;T refers 
-%% to the tuple type of the relation.
-
-public list[&amp;T] toList(rel[&amp;T] R)
-  @primitive{"Rel.toList"}
-  
-public set[&amp;T] toSet(rel[&amp;T] R)
-  @primitive{"Rel.toSet"}
-
-public map[&amp;T] toMap(rel[tuple[&amp;T]] S)
-  throws non_unique_domain(str msg)
-  @primitive{"Ret.toMap"}
-
-public rel[&amp;T] mapper(rel[&amp;T] R, &amp;T F (&amp;T,&amp;T)){
-  return {F(E) | &amp;T E : R};
-}
-
-public rel[&amp;T1, &amp;T2] *(set[&amp;T1] R, set[&amp;T2] S)
-  @doc{Carthesian product of two sets}
-{
-  return {&lt;X, Y&gt; | &amp;T1 X : R, &amp;T2 Y : S};
-}
-
-public rel[&amp;T1, &amp;T3] compose(rel[&amp;T1, &amp;T2] R,
-                                 rel[&amp;T2, &amp;T3] S)
-  @doc{Compose two relations}
-{
-   return {&lt;X, Z&gt; | &lt;&amp;T1 X, &amp;T2 Y1&gt;: R, 
-                    &lt;&amp;T2 Y2, &amp;T3 Z&gt;: S, Y1 == Y2};
-}
-
-public rel[&amp;T, &amp;T] id(set[&amp;T] S)
-  @doc{Identity relation}
-{
-  return { &lt;X, X&gt; | &amp;T X : S};
-}
-
-public rel[&amp;T2, &amp;T1] invert (rel[&amp;T1, &amp;T2] R)
-  @doc{Inverse of relation}
-{
-  return { &lt;Y, X&gt; | &lt;&amp;T1 X, &amp;T2 Y&gt; : R };
-}
-
-
-public rel[&amp;T1, &amp;T2] complement(rel[&amp;T1, &amp;T2] R)
-  @doc{Complement of relation}
-{
-  return (domain(R) * range(R)) - R;
-}
-
-public set[&amp;T1] domain (rel[&amp;T1,&amp;T2] R)
-  @doc{Domain of relation}
-{
-  return { X | &lt;&amp;T1 X, &amp;T2 Y&gt; : R };
-}
-
-public set[&amp;T1] range (rel[&amp;T1,&amp;T2] R)
-  @doc{Range of relation}
-{
-  return { Y | &lt;&amp;T1 X, &amp;T2 Y&gt; : R };
-}
-
-public set[&amp;T]  carrier (rel[&amp;T,&amp;T] R)
-  @doc{Carrier of relation}
-{
-  return domain(R) + range(R);
-}
-
-public rel[&amp;T1,&amp;T2] domainR (rel[&amp;T1,&amp;T2] R, set[&amp;T1] S)
-  @doc{Domain Restriction of a relation}
-{
-  return { &lt;X, Y&gt; | &lt;&amp;T1 X, &amp;T2 Y&gt; : R, X in S };
-}
-
-public rel[&amp;T1,&amp;T2] rangeR (rel[&amp;T1,&amp;T2] R, set[&amp;T2] S)
-  @doc{range Restriction of a relation}
-{
-  return { &lt;X, Y&gt; | &lt;&amp;T1 X, &amp;T2 Y&gt; : R, Y in S };
-}
-
-public rel[&amp;T,&amp;T] carrierR (rel[&amp;T,&amp;T] R, set[&amp;T] S)
-  @doc{Carrier restriction of a relation}
-{
-  return { &lt;X, Y&gt; | &lt;&amp;T X, &amp;T Y&gt; : R, X in S, Y in S };
-}
-
-public rel[&amp;T1,&amp;T2] domainX (rel[&amp;T1,&amp;T2] R, set[&amp;T1] S)
-  @doc{Domain exclusion of a relation}
-{
-  return { &lt;X, Y&gt; | &lt;&amp;T1 X, &amp;T2 Y&gt; : R, X notin S };
-}
-
-public rel[&amp;T1,&amp;T2] rangeX (rel[&amp;T1,&amp;T2] R, set[&amp;T2] S)
-  @doc{Range exclusion of a relation}
-{
-  return { &lt;X, Y&gt; | &lt;&amp;T1 X, &amp;T2 Y&gt; : R, Y notin S };
-}
-
-public rel[&amp;T,&amp;T] carrierX (rel[&amp;T,&amp;T] R, set[&amp;T] S)
-  @doc{Carrier exclusion of a relation}
-{
-  return { &lt;X, Y&gt; | &lt;&amp;T1 X, &amp;T2 Y&gt; : R, 
-                    !(X in S), !(Y in S) };
-}
-
-%% Relations viewed as graphs
-
-type rel[&amp;T,&amp;T] graph[&amp;T];
-
-public set[&amp;T] top(graph[&amp;T] G)
-  @doc{Top of a Graph}
-{
-  return domain(G) - range(G);
-}
-
-public set[&amp;T] bottom(graph[&amp;T] G)
-  @doc{Bottom of a Graph}
-{
-  return range(G) - domain(G);
-}
-
-public set[&amp;T] reachR(set[&amp;T] Start, set[&amp;T] Restr,
-                          graph[&amp;T] G)
-  @doc{Reachability with restriction}
-{
-  return range(compose(domainR(G, Start), 
-                       carrierR(G, Restr)+));
-}
-
-public set[&amp;T] reachX(set[&amp;T] Start, set[&amp;T] Excl, 
-                          graph[&amp;T] G)
-  @doc{Reachability with exclusion}
-{
-  return range(compose(domainR(G, Start), 
-                       carrierX(G, Excl)+));
-}
-
-public list[&amp;T] shortestPathPair(&amp;T From, &amp;T To, graph[&amp;T] G)
-  @doc{Shortest path between pair of nodes}
-  @primitive{"Graph.shortestPathPair"}
-
-public set[list[&amp;T]] shortestPathFrom(&amp;T From, graph[&amp;T] G)
-  @doc{Shortest path between one node and all others}
-  @primitive{"Graph.shortestPathFrom"}
-
-public set[list[&amp;T]] shortestPathAll(graph[&amp;T] G)
-  @doc{Shortest path between all nodes}
-  @primitive{"Graph.shortestPathAll"}
-
-%% TO DO
-
-public rel[&amp;T, &amp;T] closure(rel[&amp;T, &amp;T])
-  @primitive{"Rel.closure"}
-
-%% --- Annotations -------------------------------------------
-
-public bool has_annotation(&amp;T Subject, str Name)
-  @doc{Test whether a named annotation exists.
-       A synonym for the ? operator.}
-  @primitive{"Annotation.has_annotation"}
-
-public value get_annotation(&amp;T Subject, str Name)
-  throws missing_annotation(str msg)
-  @doc{Get the value of a named annotation.
-       A synonym for the @ operator.}
-  @primitive{"Annotation.get_annotation"}
-
-public map[str,value] get_annotations(&amp;T Subject)
-  @doc{Get all annotations}
-  @primitive{"Annotation.get_annotations"}
- 
-public &amp;T set_annotation(&amp;T Subject, 
-                             str Name, value AValue)
-  @doc{Set the value of a named annotation.
-       A synonym for: Var @ Anno = Exp}
-  @primitive{"Annotation.set_annotation"}
-
-public &amp;T set_annotations(&amp;T Subject, 
-                              map[str, value] Annos)
-  @doc{Set all annotations}
-  @primitive{"Annotation.set_annotations"}
-
-%% --- Parsing and Unparsing -------------------------------------
-
-public tree parseFile(str filename)
-  throws file_does_not_exist(str msg)
-  @primitive{"Parse.parseFile"}
-
-public tree parseString(str source)
-  @primitive{"Parse.parseString"}
-  
-public str unparseToString(tree Subject)
-  @primitive{"Parse.unparseToString"}
-  
-public str unparseToFile(tree Subject, str filename)
-  throws cannot_create(str msg) 
-  throws write_error(str msg) 
-  @primitive{"Parse.unparseToFile"}
-
-%% --- trees -------------------------------------------------
-
-public int toInt(tree Subject)
-  throws cannot_convert(str msg)
-  @primitive{"Tree.toInt"}
-
-public int toDouble(tree Subject)
-  throws cannot_convert(str msg)
-  @primitive{"Tree.toDouble"}
-
-public int toString(tree Subject)
-  throws cannot_convert(str msg)
-  @primitive{"Tree.toString"}
-
-public bool elementOf(tree S1, tree S2)
-  @primitive{"Tree.elementOf"}
-
-
-%% --- io ----------------------------------------------------
-
-public str readFile(str filename)
-  throws does_not_exist(str msg)            
-  throws read_error(str msg)
-  @primitive{"IO.read"}
-
-
-public &amp;T readTerm(str filename) 
-  throws does_not_exist(str msg)  
-  throws read_error(str msg)
-  throws term_error(str msg, loc l)
-  @primitive{"IO.readTerm"}
-
-
-public void write(str filename, &amp;T Subject) 
-  throws cannot_create(str msg)  
-  throws write_error(str msg)
-  @primitive{"IO.write"}
-
-public void print(list[value] V...)
-  @primitive{"IO.print"}
-
-public void println(list[value] V...)
-  @primitive{"IO.println"}
- 
-%% --- Interface with the Program Database -------------------
-%% The following function provide a bare minimum and will
-%% have to compared with the current PDB interface.
-%% We assume one active PDB that can be opened and closed.
-%% Values can be written to and read from the PDB.
-
-%% Idea: it would be nice to model the PDB as a value
-%% of type map[str, value] and to access it that way!
-
-public void openPDB(str name) 
-  throws cannot_open(str msg)
-  @primitive{"PDB.open"}
-
-public void closePDB()
-  throws cannot_close(str msg)
-  @primitive{"PDB.close"}
-
-public void writePDB(str name, &amp;T val)
-  throws cannot_write(str msg)
-  @primitive{"PDB.write"}
-
-public &amp;T readPDB(str name)
-  throws cannot_read(str msg)
-  @primitive{"PDB.readPDB"}
-
-%% If name is of type set[&amp;T], then the set incr
-%% is added to it. Similar for a rel[&amp;T]
-
-public void addSetPDB(str name, set[&amp;T] incr)
-  throws does_not_exist(str msg)
-  @primitive{"PDB.addSet"}
-
-public void addRelPDB(str name, rel[&amp;T] incr)
-  throws does_not_exist(str msg)
-  @primitive{"PDB.addRel"}
-</programlisting></para>
-    </section>
   </section>
 
   <section>
     <title>Syntax Definition</title>
 
     <para>See separate SDF definition.</para>
-  </section>
-
-  <section>
-    <title>Protyping/implementation of Rascal</title>
-
-    <para>Every prototype will have to address the following issues:</para>
-
-    <itemizedlist>
-      <listitem>
-        <para>Parsing/typechecking/evaluating Rascal.</para>
-      </listitem>
-
-      <listitem>
-        <para>Ambiguous parse trees.</para>
-      </listitem>
-
-      <listitem>
-        <para>How to implement the relational operations.</para>
-      </listitem>
-
-      <listitem>
-        <para>How to implement matching.</para>
-      </listitem>
-
-      <listitem>
-        <para>How to implement replacement.</para>
-      </listitem>
-
-      <listitem>
-        <para>How to implement traversals.</para>
-      </listitem>
-    </itemizedlist>
-
-    <para>The following options should be considered:</para>
-
-    <itemizedlist>
-      <listitem>
-        <para>Implementation of a typechecker in ASF+SDF:</para>
-
-        <itemizedlist>
-          <listitem>
-            <para>Gives good insight in the type system and is comparable in
-            complexity to the Rscript typechecker.</para>
-          </listitem>
-
-          <listitem>
-            <para>Work: 2 weeks</para>
-          </listitem>
-        </itemizedlist>
-      </listitem>
-
-      <listitem>
-        <para>Implementation of an evaluator in ASF+SDF.</para>
-
-        <itemizedlist>
-          <listitem>
-            <para>Requires reimplementation of matching &amp; rewriting in
-            ASF+SDF.</para>
-          </listitem>
-
-          <listitem>
-            <para>Bound to be very slow.</para>
-          </listitem>
-
-          <listitem>
-            <para>Effort: 4 weeks</para>
-          </listitem>
-        </itemizedlist>
-      </listitem>
-
-      <listitem>
-        <para>Implementation of a typechecker in Rascal.</para>
-
-        <itemizedlist>
-          <listitem>
-            <para>Interesting exercise to asses Rascal.</para>
-          </listitem>
-
-          <listitem>
-            <para>Not so easy to do without working Rascal
-            implementation.</para>
-          </listitem>
-
-          <listitem>
-            <para>Not so easy when Rascal is still in flux.</para>
-          </listitem>
-
-          <listitem>
-            <para>Effort: 1 week</para>
-          </listitem>
-        </itemizedlist>
-      </listitem>
-
-      <listitem>
-        <para>Implementation of an evaluator in Rascal.</para>
-
-        <itemizedlist>
-          <listitem>
-            <para>Ditto.</para>
-          </listitem>
-        </itemizedlist>
-      </listitem>
-
-      <listitem>
-        <para>Extending the current ASF+SDF interpreter.</para>
-
-        <itemizedlist>
-          <listitem>
-            <para>This is a viable options. It requires extensions of
-            UPTR.</para>
-          </listitem>
-
-          <listitem>
-            <para>Effort: 4 weeks</para>
-          </listitem>
-        </itemizedlist>
-      </listitem>
-
-      <listitem>
-        <para>Translation of Rascal to ASF+SDF in ASF+SDF.</para>
-
-        <itemizedlist>
-          <listitem>
-            <para>Unclear whether this has longer term merit.</para>
-          </listitem>
-
-          <listitem>
-            <para>Allows easy experimentation and reuse of current ASF+SDF
-            implementation.</para>
-          </listitem>
-
-          <listitem>
-            <para>Effort: 4 weeks</para>
-          </listitem>
-        </itemizedlist>
-      </listitem>
-
-      <listitem>
-        <para>Implementation of an interpreter in Java.</para>
-
-        <itemizedlist>
-          <listitem>
-            <para>A future proof and efficient solution.</para>
-          </listitem>
-
-          <listitem>
-            <para>Requires reimplementation of matching &amp; rewriting in
-            Java.</para>
-          </listitem>
-
-          <listitem>
-            <para>Effort: 8 weeks.</para>
-          </listitem>
-        </itemizedlist>
-      </listitem>
-    </itemizedlist>
   </section>
 
   <section>
@@ -7055,20 +6165,6 @@ public void addRelPDB(str name, rel[&amp;T] incr)
 
     <itemizedlist>
       <listitem>
-        <para>Which comment convention will we use? <remark>Let's use Java
-        style comments.</remark></para>
-      </listitem>
-
-      <listitem>
-        <para>In a list comprehension: do list values splice into the list
-        result?</para>
-      </listitem>
-
-      <listitem>
-        <para>Ditto for set comprehensions.</para>
-      </listitem>
-
-      <listitem>
         <para>Unexplored idea: add (possibly lazy) generators for all types;
         this allows to generate, for instance, all statements in a
         program.</para>
@@ -7124,7 +6220,7 @@ public void addRelPDB(str name, rel[&amp;T] incr)
 
           <thead>
             <row>
-              <entry align="center"> Characters</entry>
+              <entry align="center">&#160;Characters</entry>
 
               <entry align="center">Used in</entry>
             </row>
@@ -7159,7 +6255,7 @@ public void addRelPDB(str name, rel[&amp;T] incr)
               <entry>=</entry>
 
               <entry>== (equal), != (nequal), =&gt; (case), +=, -=, *=, /=,
-              &amp;=, |=, &lt;= (leq), &gt;= (geq)</entry>
+              &amp;=, |=, &lt;= (leq), &gt;= (geq), ~= (match)</entry>
             </row>
 
             <row>
@@ -7186,7 +6282,7 @@ public void addRelPDB(str name, rel[&amp;T] incr)
             <row>
               <entry>!</entry>
 
-              <entry>! (not), != (neq), !~ (nomatch)</entry>
+              <entry>! (not), != (neq), ~! (nomatch)</entry>
             </row>
 
             <row>
