@@ -116,9 +116,6 @@ public &T reducer(list[&T] lst, &T (&T, &T) fn, &T unit)
   return result;
 }
 
-
- 
-
 public list[&T] java reverse(list[&T] lst)
 @doc{reverse -- elements of a list in reverse order}
 {
