@@ -189,7 +189,9 @@
         <listitem>
           <para>Rascal has roughly all the high level features of ASF+SDF and
           some more. Old ASF+SDF specifications can be transformed to Rascal
-          programs using a conversion tool.</para>
+          programs using a conversion tool.<note>
+              <para>Such a conversion tool is not yet available.</para>
+            </note></para>
         </listitem>
 
         <listitem>
@@ -208,9 +210,7 @@
         <listitem>
           <para>In Rascal, patterns and variables in concrete syntax may
           optionally be quoted and escaped, and support explicit declaration
-          of the top non-terminal to solve ambiguity.<caution>
-              <para>How?</para>
-            </caution></para>
+          of the top non-terminal to solve ambiguity.</para>
         </listitem>
 
         <listitem>
@@ -222,8 +222,8 @@
         </listitem>
 
         <listitem>
-          <para>Rascal has primitive and efficient implementations for sets,
-          relations and maps</para>
+          <para>Rascal has primitive and efficient implementations for lists,
+          sets, relations and maps.</para>
         </listitem>
 
         <listitem>
@@ -293,7 +293,7 @@
     <section>
       <title>Rascal for imperative and object-oriented programmers</title>
 
-      <para>Rascal is an imperative DSL with high level statements and
+      <para>Rascal is an imperative DSL with high-level statements and
       expressions specifically targeted at the domain of analysis and
       transformation of source code:</para>
 
@@ -312,16 +312,14 @@
         <listitem>
           <para>Rascal is extra safe: it has a type system that prevents
           casting exceptions and other run-time failures. Still the type
-          system specifically allows many kinds of combinations. For example,
-          unlike in Java a set of integers is a subtype of a set of numbers
-          (co-variance), which allows you to reuse algorithm for sets of
-          numbers on sets of integers. It also provides true polymorphic and
-          functions (no erasure), and functions can safely be parameters to
-          other functions.</para>
+          system specifically allows many kinds of combinations. It provides
+          subtyping which allows you to reuse algorithms. It also provides
+          true polymorphic and functions (no erasure), and functions can
+          safely be parameters to other functions.</para>
         </listitem>
 
         <listitem>
-          <para>Rascal provides high level statements and expressions
+          <para>Rascal provides high-level statements and expressions
           for:</para>
 
           <itemizedlist>
@@ -332,20 +330,20 @@
 
             <listitem>
               <para>Pattern matching and construction (with concrete
-              syntax!)</para>
+              syntax!).</para>
             </listitem>
 
             <listitem>
-              <para>Equation/constraint solving</para>
+              <para>Equation/constraint solving.</para>
             </listitem>
 
             <listitem>
-              <para>Relational calculus</para>
+              <para>Relational calculus.</para>
             </listitem>
 
             <listitem>
               <para>Rewrite rules for normalization/canonicalization of any
-              kind of data-structure</para>
+              kind of data-structure.</para>
             </listitem>
 
             <listitem>
@@ -358,7 +356,7 @@
             </listitem>
 
             <listitem>
-              <para>Communication with databases</para>
+              <para>Communication with databases.</para>
             </listitem>
           </itemizedlist>
         </listitem>
@@ -369,16 +367,7 @@
 
           <itemizedlist>
             <listitem>
-              <para>terms (a.k.a. abstract data types, tree nodes)</para>
-            </listitem>
-
-            <listitem>
-              <para>parse trees (derivations of context-free grammars, for
-              concrete syntax and direct manipulation of source code)</para>
-            </listitem>
-
-            <listitem>
-              <para>relations</para>
+              <para>lists</para>
             </listitem>
 
             <listitem>
@@ -390,11 +379,24 @@
             </listitem>
 
             <listitem>
+              <para>tuples</para>
+            </listitem>
+
+            <listitem>
+              <para>relations</para>
+            </listitem>
+
+            <listitem>
               <para>graphs</para>
             </listitem>
 
             <listitem>
-              <para>tuples</para>
+              <para>terms (a.k.a. abstract data types, tree nodes)</para>
+            </listitem>
+
+            <listitem>
+              <para>parse trees (derivations of context-free grammars, for
+              concrete syntax and direct manipulation of source code)</para>
             </listitem>
           </itemizedlist>
         </listitem>
@@ -414,7 +416,9 @@
 
         <listitem>
           <para>Rascal is executed by an interpreter written in Java, or it
-          can be compiled to Java classes.</para>
+          can be compiled to Java classes.<note>
+              <para>Currently only an interpreter is avaialble.</para>
+            </note></para>
         </listitem>
       </itemizedlist>
     </section>
@@ -612,7 +616,7 @@
 
       <itemizedlist>
         <listitem>
-          <para>Import another Rascal module (suffix: <literal>.ras</literal>)
+          <para>Import another Rascal module (suffix: <literal>.rsc</literal>)
           using <literal>import</literal>. Imports are not transitive. We do
           allow circular imports.</para>
         </listitem>
@@ -623,21 +627,19 @@
         </listitem>
 
         <listitem>
-          <para>Import Java modules (for the benefit of functions written in
-          Java, suffix <literal>.java</literal>) using
-          <literal>import</literal>.</para>
-        </listitem>
-
-        <listitem>
           <para>Extend another Rascal module using <literal>extend</literal>.
           This includes a verbatim copy (similar to
           <literal>#include</literal>) of the-module-to-be-extended in the
           current module. We allow redefinitions of declared names. We do not
-          allow circular extension.</para>
+          allow circular extension.<caution>
+              <para>Not yet implemented.</para>
+            </caution></para>
         </listitem>
 
         <listitem>
-          <para>Define data, views on data, types, rules or functions.</para>
+          <para>Define data, views on data, types, rules or functions.<caution>
+              <para>Views are not yet implemented.</para>
+            </caution></para>
         </listitem>
 
         <listitem>
@@ -665,10 +667,10 @@
       elements of a module from the outside. Inside the module, this
       qualification is implicit. The qualified name consist of two parts: a
       directory name (a list of names separated by <literal>/</literal>) and a
-      module name.</para>
+      module name.<remark>Is this right?</remark></para>
 
       <para>Rascal modules are located in a file with the name of the module,
-      with suffix <literal>.ras</literal>. They should be located in a
+      with suffix <literal>.rsc</literal>. They should be located in a
       directory corresponding to the directory part of the module name. From
       other modules,
       <literal><replaceable>M</replaceable>::<replaceable>F</replaceable></literal>
@@ -743,8 +745,8 @@
 
                 <itemizedlist>
                   <listitem>
-                    <para><literal>unparseToString</literal> converts any
-                    value of an SDF type to a string.</para>
+                    <para><literal>toString</literal> converts any value of an
+                    SDF type to a string.</para>
                   </listitem>
 
                   <listitem>
@@ -783,11 +785,11 @@
           </listitem>
 
           <listitem>
-            <para>Types for sets, maps, relations and tuples can be formed
-            from types; Maps, relations and tuples can have optional column
-            names. Note that a map resembles a function and differs from a
-            binary relation: for each domain value in a map only a single
-            range value is allowed.</para>
+            <para>Types for lists, sets, maps, tuples, and relations can be
+            formed from types; maps, tuples and relations can have optional
+            column names. Note that a map resembles a function and differs
+            from a binary relation: for each domain value in a map only a
+            single range value is allowed.</para>
           </listitem>
 
           <listitem>
@@ -803,10 +805,10 @@
 
           <listitem>
             <para>The last parameter of a function may be of the form
-            <literal>list[<replaceable>T</replaceable>]
+            <literal><replaceable>Type</replaceable>
             <replaceable>Name</replaceable>...</literal> and indicates a
             variable list of remaining parameters of type
-            <replaceable>T</replaceable>.</para>
+            <replaceable>Type</replaceable>.</para>
           </listitem>
 
           <listitem>
@@ -824,8 +826,17 @@
               </note></para>
 
             <note>
-              <para>Constructor names of datatypes may be quoted in order to
-              avoid clashes with reserved words or illegal names.</para>
+              <para>Constructor names of datatypes may be quoted using a
+              backslash (<literal>\</literal>) in order to avoid clashes with
+              reserved words.</para>
+            </note>
+
+            <note>
+              <para>There is limited support for nameless constructors: they
+              may only be of type <literal>int</literal>,
+              <literal>double</literal>, <literal>str</literal>, or
+              <literal>loc</literal> and per datatype only one nameless
+              constructor is allowed.</para>
             </note>
           </listitem>
 
@@ -898,6 +909,9 @@
             <literal>&amp;<replaceable>T</replaceable></literal> as in Rscript
             with the following refinement:</para>
 
+            <remark>The following is no longer applicable, but I left it in
+            the text for the moment.</remark>
+
             <itemizedlist>
               <listitem>
                 <para>In the type
@@ -927,9 +941,9 @@
 
           <listitem>
             <para>A type declaration introduces a name for a new type that is
-            a subtype of a given type, e.g.,<programlisting>type rel[node,node] Graph</programlisting>introduces
+            a subtype of a given type, e.g.,<programlisting>type rel[Node,Node] Graph</programlisting>introduces
             the type <literal>Graph</literal> as a subtype of
-            <literal>rel[node,node]</literal>. There are no built-in
+            <literal>rel[Node,Node]</literal>. There are no built-in
             subtypes.</para>
           </listitem>
 
@@ -1041,7 +1055,7 @@ type Graph DFGraph</programlisting></para>
       passed as parameter, assigned, returned and value. This is, however, not
       true for CFGraph and DFGraph since they are incompatible. Passing a
       value from the one to the other type can only be done via the common
-      type <literal>Graph</literal>. This uncomventional type scheme allows
+      type <literal>Graph</literal>. This unconventional type scheme allows
       flexible conversion between subtypes (without casting or runtime checks)
       while preserving the opaqueness of disjoint subtypes of the same
       ancestor type.</para>
@@ -1139,12 +1153,8 @@ tag function memo int        %% bounded memoization of
                              %% function calls
 tag all doc str              %% documentation string
 tag function primitive str   %% a primitive, built-in, function</programlisting>Here
-        are two examples from the standard library:<programlisting>public &amp;T first(list[&amp;T] L)
-  throws empty_list(str msg)
-  @doc{First element of list: first}
-  @primitive{"List.first"}
-
-public &amp;T max(set[&amp;T] R)
+        is an example of a documentation string as used in the Rascal standard
+        library:<programlisting>public &amp;T max(set[&amp;T] R)
   @doc{Maximum of a set: max}
 {
   &amp;T result = arb(R);
@@ -1188,7 +1198,9 @@ public &amp;T max(set[&amp;T] R)
           <emphasis>declared</emphasis> variables are initialized during the
           match and their scope is the rule in which they occur. For
           <emphasis>used</emphasis> variables, their value is substituted
-          during the match.</para>
+          during the match.<note>
+              <para>Here we need more discussion.</para>
+            </note></para>
         </listitem>
 
         <listitem>
@@ -1254,33 +1266,12 @@ public &amp;T max(set[&amp;T] R)
         function signature (i.e., we have unchecked exceptions in contrast
         with checked exceptions in Java).</para>
 
-        <para>Functions with the tag "<literal>java</literal>" have a body
-        written in Java. They have the following properties:</para>
-
-        <itemizedlist>
-          <listitem>
-            <para>Arguments and result are pure Rascal values.</para>
-          </listitem>
-
-          <listitem>
-            <para>Java functions cannot acces the global state of the Rascal
-            program. Their only interface is via input parameters and a result
-            value. They cannot access Rascal global variables.</para>
-          </listitem>
-
-          <listitem>
-            <para>Side effects caused by Java functions in the Java state, are
-            not undone in the case of backtracking.</para>
-          </listitem>
-        </itemizedlist>
-
-        <note>
-          <para>These Java functions are primarily intended for implementing
-          library functions and for interfacing with Eclipse.</para>
-        </note>
-
         <para>Functions with the tag <literal>@memo</literal> are memo
         functions that cache previous arguments/result combinations.</para>
+
+        <caution>
+          <para>Not yet implemented.</para>
+        </caution>
       </section>
 
       <section>
@@ -1406,7 +1397,7 @@ int f(&amp;T y, double x)</programlisting></para>
         to define such function arguments. Here is a function
         <literal>addOne</literal>, that adds 1 to each element of its argument
         list:<programlisting>list[int] addOne(list[int] L)
-    return mapper(L, fun int (int N) { return N +1 })</programlisting><code></code></para>
+    return mapper(L, int (int N) { return N + 1 })</programlisting><code></code></para>
 
         <programlisting>fun fun(int) -&gt; int makeAdder(int n)
     return fun int (int x) { return x + 1 }</programlisting>
@@ -1414,6 +1405,58 @@ int f(&amp;T y, double x)</programlisting></para>
         <caution>
           <para>The above needs further editing/explanation.</para>
         </caution>
+      </section>
+
+      <section>
+        <title>Java Functions</title>
+
+        <para>Functions with the tag "<literal>java</literal>" have a body
+        written in Java. They have the following properties:</para>
+
+        <itemizedlist>
+          <listitem>
+            <para>The body may be preceeded by a
+            <literal>java-imports</literal> annotation that defines the Java
+            classes needed by the body.</para>
+          </listitem>
+
+          <listitem>
+            <para>Arguments and result are pure Rascal values.</para>
+          </listitem>
+
+          <listitem>
+            <para>Java functions cannot acces the global state of the Rascal
+            program. Their only interface is via input parameters and a result
+            value. They cannot access Rascal global variables.</para>
+          </listitem>
+
+          <listitem>
+            <para>Side effects caused by Java functions in the Java state, are
+            not undone in the case of backtracking.</para>
+          </listitem>
+        </itemizedlist>
+
+        <note>
+          <para>These Java functions are primarily intended for implementing
+          library functions and for interfacing with Eclipse.</para>
+        </note>
+
+        <para>Here is the reverse function on strings as defined in the
+        library:</para>
+
+        <programlisting>public str java reverse(str s)
+@doc{reverse -- return string with all characters in reverse order.}
+@java-imports{import java.lang.String;}
+{
+   String sval = s.getValue();
+   char [] chars = new char[sval.length()];
+   int n = sval.length();
+
+   for(int i = 0; i &lt; n; i++){
+     chars[n - i  - 1] = sval.charAt(i);
+   }
+   return values.string(new String(chars));
+}</programlisting>
       </section>
     </section>
 
@@ -1458,13 +1501,11 @@ int f(&amp;T y, double x)</programlisting></para>
           <itemizedlist>
             <listitem>
               <para>In a case construct, immediately after the
-              <literal>case</literal>, <literal>acase</literal> or
-              <literal>rcase</literal> keyword.</para>
+              <literal>case</literal> keyword.</para>
             </listitem>
 
             <listitem>
-              <para>The left-hand side of a <literal>rules</literal> or
-              <literal>arules</literal> statement.</para>
+              <para>The left-hand side of a <literal>rule</literal>.</para>
             </listitem>
 
             <listitem>
@@ -1486,8 +1527,7 @@ int f(&amp;T y, double x)</programlisting></para>
             </listitem>
 
             <listitem>
-              <para>The right-hand side of a <literal>rules</literal> or
-              <literal>arules</literal> statement.</para>
+              <para>The right-hand side of a <literal>rule</literal>.</para>
             </listitem>
 
             <listitem>
@@ -1513,14 +1553,17 @@ int f(&amp;T y, double x)</programlisting></para>
       <literal>!</literal>. An anti-pattern matches in all cases where the
       original pattern does not match. A match of an anti-pattern cannot bind
       any variables but these variables are nonetheless reserved in the
-      corresponding scope.</para>
+      corresponding scope.<caution>
+          <para>This is not consistent with ~= and ~!. The current syntax does
+          not support this.</para>
+        </caution></para>
 
       <section>
         <title>Abstract Patterns</title>
 
         <para>Data declarations introduce a signature of abstract terms and
         abstract patterns can be used to perform matching on them. The same
-        terms that or in a data delcaration, possibly including typed
+        terms that occur in a data declaration, possibly including typed
         variables that play a similar role as pattern variables in syntax
         patterns, may be used as abstract patterns at the same position where
         concrete patterns are allowed. Lists, sets and tuples may also occur
@@ -1558,7 +1601,9 @@ intval(int n1)
 
         <para>An abstract pattern may be preceeded by the key word
         <literal>abs</literal>, in order to resolve ambiguities with syntax
-        patterns.</para>
+        patterns.<caution>
+            <para>abs currently not implemented.</para>
+          </caution></para>
       </section>
 
       <section>
@@ -1572,12 +1617,11 @@ intval(int n1)
         parallels abstract and concrete syntax patterns as much as possible.
         This means that they can occur in cases of <literal>visit</literal>
         and <literal>switch</literal> statements, on the left-hand side of the
-        match operator (<literal>~~</literal>) and as declarator in
+        match operator (<literal>~= or ~!</literal>) and as declarator in
         generators.</para>
 
-        <para>We use a regular expression language that extends the lexical
-        syntax rules found in SDF towards Java regex with the following
-        exceptions:</para>
+        <para>We use a regular expression language that slightly extends the
+        Java Regex language with the following exceptions:</para>
 
         <itemizedlist>
           <listitem>
@@ -1586,7 +1630,10 @@ intval(int n1)
           </listitem>
 
           <listitem>
-            <para>Character classes are written in the SDF way.</para>
+            <para>We allow named groups, syntax
+            <literal>&lt;<replaceable>Name</replaceable>:<replaceable>Regex</replaceable>&gt;</literal>,
+            which introduce a variable of type <literal>str</literal> named
+            <replaceable>Name</replaceable>.</para>
           </listitem>
 
           <listitem>
@@ -1597,10 +1644,17 @@ intval(int n1)
           </listitem>
 
           <listitem>
-            <para>We allow named groups, syntax
-            <literal>&lt;<replaceable>Name</replaceable>:<replaceable>Regex</replaceable>&gt;</literal>,
-            which introduce a variable of type <literal>str</literal> named
-            <replaceable>Name</replaceable>.</para>
+            <para>Named groups have to be outermost, such that they can only
+            bind in one way.</para>
+          </listitem>
+
+          <listitem>
+            <para>Unlike Perl, Java uses the notation
+            <literal>(?<replaceable>Option</replaceable>)</literal> inside the
+            regular expression to set options like multi-line matching
+            <literal>(?m)</literal>, case-insensitive matching
+            <literal>(?i)</literal> etc. We let these options follow the
+            regular expression.</para>
           </listitem>
 
           <listitem>
@@ -1616,35 +1670,14 @@ intval(int n1)
             inserts the string value of the function call in the regular
             expression.</para>
           </listitem>
-
-          <listitem>
-            <para>Named groups have to be outermost, such that they can only
-            bind in one way.</para>
-          </listitem>
-
-          <listitem>
-            <para>Unlike Perl, Java uses the notation
-            <literal>(?<replaceable>Option</replaceable>)</literal> inside the
-            regular expression to set options like multi-line matching
-            <literal>(?m)</literal>, case-insensitive matching
-            <literal>(?i)</literal> etc. We let these options follow te
-            regular expression.</para>
-          </listitem>
-
-          <listitem>
-            <para>We omit some more esoteric features of Java regex like
-            (octal and hex constants, look ahead and look behind) but these
-            can always be added.</para>
-          </listitem>
-
-          <listitem>
-            <para>We have an explicit grammar for the regular expression
-            language that facilitates translation to Java regex.</para>
-          </listitem>
         </itemizedlist>
 
-        <para>Here are some examples of regular patterns.<programlisting>/\brascal\b/i</programlisting>does
-        a case-insensitive match (<literal>i</literal>) of the word rascal
+        <para><caution>
+            <para>The last two features have not been implemented. The last
+            one is problematic since it requires the parser.</para>
+          </caution>Here are some examples of regular
+        patterns.<programlisting>/\brascal\b/i</programlisting>does a
+        case-insensitive match (<literal>i</literal>) of the word rascal
         between word boundaries (<literal>\b</literal>). And<programlisting>/^.*?&lt;word:\w+&gt;&lt;rest:.*$&gt;/m</programlisting>does
         a multi-line match (<literal>m</literal>), matches the first
         consecutive word characters (<literal>\w</literal>) and assigns them
@@ -1655,12 +1688,15 @@ intval(int n1)
       <section xml:id="section.patterns">
         <title>Syntax Patterns</title>
 
-        <para>There is a notation of a <emphasis>syntax pattern</emphasis>: a
-        (possibly quoted) concrete syntax fragment that may contain variables.
-        We want to cover the whole spectrum from maximally quoted patterns
-        that can unambiguously describe <emphasis role="bold">any</emphasis>
-        syntax fragment to minimally quoted patterns as we are used to in
-        ASF+SDF. Therefore we support the following mechanisms:</para>
+        <para><caution>
+            <para>Not yet implemented.</para>
+          </caution>There is a notation of a <emphasis>syntax
+        pattern</emphasis>: a (possibly quoted) concrete syntax fragment that
+        may contain variables. We want to cover the whole spectrum from
+        maximally quoted patterns that can unambiguously describe <emphasis
+        role="bold">any</emphasis> syntax fragment to minimally quoted
+        patterns as we are used to in ASF+SDF. Therefore we support the
+        following mechanisms:</para>
 
         <itemizedlist>
           <listitem>
@@ -1753,9 +1789,11 @@ intval(int n1)
       <section>
         <title>Lexical Patterns</title>
 
-        <para>A special case of syntax patterns, are lexical patterns that
-        describe lexical notions such as identifiers, numeric constants and
-        the like. Lexical patterns can appear as part of a concrete syntax
+        <para><caution>
+            <para>Not yet implemented.</para>
+          </caution>A special case of syntax patterns, are lexical patterns
+        that describe lexical notions such as identifiers, numeric constants
+        and the like. Lexical patterns can appear as part of a concrete syntax
         pattern. Our solution is a middle road between the original solution
         used in ASF+SDF (simple but not type safe) and the current solution in
         ASF+SDF (complex but type safe). The key idea is that a constructor
@@ -1841,7 +1879,9 @@ lexical syntax
         <para>An assignment may also contain one of the assignment operators
         <literal>+=</literal>, <literal>-=</literal>, <literal>*=</literal>,
         <literal>/=</literal>, <literal>&amp;=</literal>, and
-        <literal>|=</literal>.</para>
+        <literal>|=</literal>.<caution>
+            <para>Only = is currently implemented.</para>
+          </caution></para>
       </section>
 
       <section>
@@ -1857,7 +1897,12 @@ lexical syntax
 
           <listitem>
             <para>A <literal>while</literal> statement to repeat a block of
-            code while a given Predicate is true.</para>
+            code while a given predicate is true.</para>
+          </listitem>
+
+          <listitem>
+            <para>A do-while statement to repeat a block of code while a given
+            predicate is true.</para>
           </listitem>
 
           <listitem>
@@ -1876,33 +1921,16 @@ lexical syntax
       </section>
 
       <section>
-        <title>Solve statement</title>
-
-        <para>Rascal provides a solve statement for the solution of sets of
-        simultaneous linear equations. The format is:<programlisting>solve (<replaceable>Expression</replaceable>) {
-  <replaceable>Assignable1</replaceable> = <replaceable>Expression1</replaceable>;
-  <replaceable>Assignable2</replaceable> = <replaceable>Expression2</replaceable>;
-  ...
-}</programlisting></para>
-
-        <para>The solve statement is executed by performing the assignments in
-        its body as long as the value of at least one assignable at the
-        left-hand side of an assignment changes. The optional
-        <replaceable>Expression</replaceable> directly following the
-        <literal>solve</literal> keyword, gives an upperbound on the number of
-        iterations.</para>
-      </section>
-
-      <section>
         <title>Exception handling</title>
 
         <para>A <literal>try</literal> statement can be used to execute a
         statement and to catch any exception raised by that statement and
-        resembles the corresponding Java construct:<programlisting>try <replaceable>Statement</replaceable>
-catch <replaceable>Pattern1</replaceable> : <replaceable>Statement1</replaceable>
-catch <replaceable>Pattern2</replaceable> : <replaceable>Statement2</replaceable>
+        resembles the corresponding Java construct:<programlisting>try
+<replaceable>    Statement</replaceable>
+catch (Type Name) <replaceable>Body1</replaceable>
+catch <replaceable>Body2</replaceable>
 ...
-finally: Statement</programlisting>A throw statement can raise an
+finally: Body3</programlisting>A throw statement can raise an
         exception.</para>
       </section>
 
@@ -1932,34 +1960,12 @@ default: ...
 
         <itemizedlist>
           <listitem>
-            <para><programlisting><replaceable>SyntaxPattern</replaceable><replaceable>1</replaceable> =&gt; <replaceable>SyntaxPattern2</replaceable></programlisting>When
+            <para><programlisting><replaceable>Pattern</replaceable><replaceable>1</replaceable> =&gt; <replaceable>Pattern2</replaceable></programlisting>When
             the subject matches
             <replaceable>SyntaxPattern</replaceable><replaceable>1</replaceable>,
             <replaceable>SyntaxPattern</replaceable><replaceable>2</replaceable>
             is returned from the enclosing function (after proper
             substitution).</para>
-          </listitem>
-
-          <listitem>
-            <para><programlisting><replaceable>AbstractPattern</replaceable><replaceable>1</replaceable> =&gt; <replaceable>AbstractPattern</replaceable><replaceable>2</replaceable> <emphasis
-                  role="bold">or</emphasis> <replaceable>PatternVariable</replaceable></programlisting>When
-            the subject matches
-            <replaceable>Abstractpattern</replaceable><replaceable>1</replaceable>,
-            <replaceable>AbstractPattern</replaceable><replaceable>2</replaceable>
-            is returned from the enclosing function (after proper
-            substitution). When the right-hand side consists of a single
-            <replaceable>PatternVariable</replaceable>, its value is
-            returned.</para>
-          </listitem>
-
-          <listitem>
-            <para><programlisting><replaceable>RegExpPattern</replaceable> =&gt; <replaceable>StringLiteral</replaceable> <replaceable>or</replaceable> <replaceable>PatternVariable</replaceable></programlisting></para>
-
-            <para>When the subject matches
-            <replaceable>RexExpPattern</replaceable><replaceable>1</replaceable>,
-            <replaceable>StringLiteral</replaceable> (or the single
-            <replaceable>PatternVariable</replaceable>) is returned from the
-            enclosing function (after proper substitution).</para>
           </listitem>
 
           <listitem>
@@ -1990,13 +1996,6 @@ default: ...
             </itemizedlist>
           </listitem>
         </itemizedlist>
-
-        <note>
-          <para>In the future we intend to unify the first three alternatives
-          into:<programlisting><replaceable>Pattern1</replaceable> =&gt; <replaceable>Pattern2</replaceable></programlisting>Right
-          now, we stick to these three alternatives to reduce the number of
-          syntactic ambiguities.</para>
-        </note>
       </section>
 
       <section>
@@ -2011,9 +2010,14 @@ default: ...
 
         <itemizedlist>
           <listitem>
-            <para>The "if" and "while" statement provide ordinary flow of
-            control and their condition may not contain list patterns, set
-            patterns or generators.</para>
+            <para>The "if", "while" and do-while statement provide ordinary
+            flow of control. If their condition contains a pattern match or
+            generator, only the first alternative is taken.</para>
+          </listitem>
+
+          <listitem>
+            <para>If the pattern in a generator provides more alternatives,
+            they are all produced as values of the generator.</para>
           </listitem>
 
           <listitem>
@@ -2033,22 +2037,39 @@ default: ...
           </listitem>
 
           <listitem>
-            <para>We already have "forall" (suggestion: rename this to "all")
-            and "exists" as predicates that test that all (or at least one
-            element) satisfies a predicate.</para>
+            <para>We already have "all" and "exists" as predicates that test
+            that all (or at least one element) satisfies a predicate.</para>
           </listitem>
 
           <listitem>
-            <para>TO BE DISCUSSED: The new statement constructs "all" and
-            "exists" have a list or set pattern as condition. They establish a
-            save/commit barrier around each iteration. When an iteration
-            completes normally all its side-effects are made permanent and
-            execution continues with the next iteration (all) or the next
-            statement (exists). When "fail" is encountered during execution,
-            all side-effects are undone and execution continues with the next
-            iteration.</para>
+            <para><emphasis role="bold">TO BE DISCUSSED</emphasis>: The new
+            statement constructs "all" and "exists" have a list or set pattern
+            as condition. They establish a save/commit barrier around each
+            iteration. When an iteration completes normally all its
+            side-effects are made permanent and execution continues with the
+            next iteration (all) or the next statement (exists). When "fail"
+            is encountered during execution, all side-effects are undone and
+            execution continues with the next iteration.</para>
           </listitem>
         </itemizedlist>
+      </section>
+
+      <section>
+        <title>Solve statement</title>
+
+        <para>Rascal provides a solve statement for the solution of sets of
+        simultaneous linear equations. The format is:<programlisting>solve (<replaceable>Expression</replaceable>) {
+  <replaceable>Assignable1</replaceable> = <replaceable>Expression1</replaceable>;
+  <replaceable>Assignable2</replaceable> = <replaceable>Expression2</replaceable>;
+  ...
+}</programlisting></para>
+
+        <para>The solve statement is executed by performing the assignments in
+        its body as long as the value of at least one assignable at the
+        left-hand side of an assignment changes. The optional
+        <replaceable>Expression</replaceable> directly following the
+        <literal>solve</literal> keyword, gives an upperbound on the number of
+        iterations.</para>
       </section>
     </section>
 
@@ -4430,7 +4451,7 @@ Rascal invertIf(Rascal program)
       <title>Read-Eval-Print Loop (REPL) [Needs further discussion]</title>
 
       <para>For the scripting of applications it is important to have a
-      command language and read-eval-print loop. Here is an attempt. </para>
+      command language and read-eval-print loop. Here is an attempt.</para>
 
       <para>We copy the Python REPL style:</para>
 
