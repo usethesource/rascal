@@ -1,12 +1,12 @@
 package org.meta_environment.rascal.ast; 
 import org.eclipse.imp.pdb.facts.ITree; 
 public abstract class Rule extends AbstractAST { 
-  public org.meta_environment.rascal.ast.Expression getPattern() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Expression getReplacement() { throw new UnsupportedOperationException(); } public boolean hasPattern() { return false; } public boolean hasReplacement() { return false; }
+  public org.meta_environment.rascal.ast.Expression getPattern() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Replacement getReplacement() { throw new UnsupportedOperationException(); } public boolean hasPattern() { return false; } public boolean hasReplacement() { return false; }
 public boolean isReplacing() { return false; }
 static public class Replacing extends Rule {
-/* pattern:Expression "=>" replacement:Expression -> Rule {cons("Replacing")} */
+/* pattern:Expression "=>" replacement:Replacement -> Rule {cons("Replacing")} */
 	private Replacing() { }
-	/*package*/ Replacing(ITree tree, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Expression replacement) {
+	/*package*/ Replacing(ITree tree, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Replacement replacement) {
 		this.tree = tree;
 		this.pattern = pattern;
 		this.replacement = replacement;
@@ -28,10 +28,10 @@ private org.meta_environment.rascal.ast.Expression pattern;
  		z.$setPattern(x);
 		return z;
 	}
-	private org.meta_environment.rascal.ast.Expression replacement;
-	public org.meta_environment.rascal.ast.Expression getReplacement() { return replacement; }
-	private void $setReplacement(org.meta_environment.rascal.ast.Expression x) { this.replacement = x; }
-	public Replacing setReplacement(org.meta_environment.rascal.ast.Expression x) { 
+	private org.meta_environment.rascal.ast.Replacement replacement;
+	public org.meta_environment.rascal.ast.Replacement getReplacement() { return replacement; }
+	private void $setReplacement(org.meta_environment.rascal.ast.Replacement x) { this.replacement = x; }
+	public Replacing setReplacement(org.meta_environment.rascal.ast.Replacement x) { 
 		Replacing z = new Replacing();
  		z.$setReplacement(x);
 		return z;

@@ -40,18 +40,18 @@ static public class Int extends BasicType {
 	}
 
 	public boolean isInt() { return true; }	
-} public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isDouble() { return false; }
-static public class Double extends BasicType {
-/* "double" -> BasicType {cons("Double")} */
-	private Double() { }
-	/*package*/ Double(ITree tree) {
+} public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isReal() { return false; }
+static public class Real extends BasicType {
+/* "real" -> BasicType {cons("Real")} */
+	private Real() { }
+	/*package*/ Real(ITree tree) {
 		this.tree = tree;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitBasicTypeDouble(this);
+		return visitor.visitBasicTypeReal(this);
 	}
 
-	public boolean isDouble() { return true; }	
+	public boolean isReal() { return true; }	
 } 
 public boolean isString() { return false; }
 static public class String extends BasicType {

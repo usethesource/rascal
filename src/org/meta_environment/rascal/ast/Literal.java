@@ -95,30 +95,30 @@ private org.meta_environment.rascal.ast.IntegerLiteral integerLiteral;
 		return z;
 	}	
 } 
-public org.meta_environment.rascal.ast.DoubleLiteral getDoubleLiteral() { throw new UnsupportedOperationException(); }
-public boolean hasDoubleLiteral() { return false; }
-public boolean isDouble() { return false; }
-static public class Double extends Literal {
-/* doubleLiteral:DoubleLiteral -> Literal {cons("Double")} */
-	private Double() { }
-	/*package*/ Double(ITree tree, org.meta_environment.rascal.ast.DoubleLiteral doubleLiteral) {
+public org.meta_environment.rascal.ast.RealLiteral getRealLiteral() { throw new UnsupportedOperationException(); }
+public boolean hasRealLiteral() { return false; }
+public boolean isReal() { return false; }
+static public class Real extends Literal {
+/* realLiteral:RealLiteral -> Literal {cons("Real")} */
+	private Real() { }
+	/*package*/ Real(ITree tree, org.meta_environment.rascal.ast.RealLiteral realLiteral) {
 		this.tree = tree;
-		this.doubleLiteral = doubleLiteral;
+		this.realLiteral = realLiteral;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitLiteralDouble(this);
+		return visitor.visitLiteralReal(this);
 	}
 
-	public boolean isDouble() { return true; }
+	public boolean isReal() { return true; }
 
-	public boolean hasDoubleLiteral() { return true; }
+	public boolean hasRealLiteral() { return true; }
 
-private org.meta_environment.rascal.ast.DoubleLiteral doubleLiteral;
-	public org.meta_environment.rascal.ast.DoubleLiteral getDoubleLiteral() { return doubleLiteral; }
-	private void $setDoubleLiteral(org.meta_environment.rascal.ast.DoubleLiteral x) { this.doubleLiteral = x; }
-	public Double setDoubleLiteral(org.meta_environment.rascal.ast.DoubleLiteral x) { 
-		Double z = new Double();
- 		z.$setDoubleLiteral(x);
+private org.meta_environment.rascal.ast.RealLiteral realLiteral;
+	public org.meta_environment.rascal.ast.RealLiteral getRealLiteral() { return realLiteral; }
+	private void $setRealLiteral(org.meta_environment.rascal.ast.RealLiteral x) { this.realLiteral = x; }
+	public Real setRealLiteral(org.meta_environment.rascal.ast.RealLiteral x) { 
+		Real z = new Real();
+ 		z.$setRealLiteral(x);
 		return z;
 	}	
 } 
