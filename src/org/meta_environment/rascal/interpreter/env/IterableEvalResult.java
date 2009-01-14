@@ -2,7 +2,7 @@ package org.meta_environment.rascal.interpreter.env;
 
 import java.util.Iterator;
 
-import org.eclipse.imp.pdb.facts.impl.hash.ValueFactory;
+import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.interpreter.RascalBug;
 
