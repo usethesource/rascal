@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="US-ASCII"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <article version="5.0" xmlns="http://docbook.org/ns/docbook"
          xmlns:xlink="http://www.w3.org/1999/xlink"
          xmlns:xi="http://www.w3.org/2001/XInclude"
@@ -613,13 +613,71 @@
     <section>
       <title>Modules</title>
 
-      <para>Modules are the organizational unit of Rascal. They may:</para>
+      <para>Modules are the organizational unit of Rascal. </para>
+
+      <para>Declarations may be either private to a module or public to all
+      modules that import the current module. Rules are always public and are
+      globally applied.</para>
+
+      <para>Modules introduce a namespace and qualified names (using the
+      <literal>::</literal> operator) may be used to uniquely identify
+      elements of a module from the outside. Inside the module, this
+      qualification is implicit. The qualified name consist of two parts: a
+      directory name (a list of names separated by <literal>::</literal>) and
+      a module name. </para>
+
+      <para>Rascal modules are located in a file with the name of the module,
+      with suffix <literal>.rascal</literal>. They should be located in a
+      directory corresponding to the directory part of the module name. The
+      qualified name of a module should correspond to its location in the
+      filesystem. From other modules,
+      <literal><replaceable>M</replaceable>::<replaceable>F</replaceable></literal>
+      denotes function <replaceable>F</replaceable> from module
+      <replaceable>M</replaceable>.</para>
+
+      <para>Modules may:</para>
 
       <itemizedlist>
         <listitem>
-          <para>Import another Rascal module (suffix: <literal>.rsc</literal>)
-          using <literal>import</literal>. Imports are not transitive. We do
-          allow circular imports.</para>
+          <para>Import another Rascal module (suffix:
+          <literal>.rascal</literal>) using <literal>import</literal>. Suppose
+          that module M imports another module N. All public names declared in
+          imported module N become available in the importing module M. Import
+          is not transitive regarding visibility, i.e., only the public names
+          declared in M are visible outside M, but the public names of N are
+          invisible outside M. We do allow circular imports.</para>
+
+          <note>
+            <para>The current implementation still uses the
+            <literal>.rsc</literal> suffix.</para>
+          </note>
+        </listitem>
+
+        <listitem>
+          <para>The following options exist to locate Rascal modules:</para>
+
+          <para></para>
+
+          <itemizedlist>
+            <listitem>
+              <para>The environment variable <literal>RASCALPATH</literal>
+              contains a colon-separated list of directories to be searched
+              for when a module is to be imported.</para>
+            </listitem>
+
+            <listitem>
+              <para>At the command line, this same path can be given via the
+              argument:
+              <literal>--RASCALPATH=<replaceable>colon-separated-list.</replaceable></literal></para>
+            </listitem>
+
+            <listitem>
+              <para>The command line argument
+              <literal>-I<replaceable>directory</replaceable></literal> adds
+              <replaceable>directory</replaceable> to the current
+              <literal>RASCALPATH</literal>.</para>
+            </listitem>
+          </itemizedlist>
         </listitem>
 
         <listitem>
@@ -629,10 +687,14 @@
 
         <listitem>
           <para>Extend another Rascal module using <literal>extend</literal>.
-          This includes a verbatim copy (similar to
-          <literal>#include</literal>) of the-module-to-be-extended in the
-          current module. We allow redefinitions of declared names. We do not
-          allow circular extension.<caution>
+          Extend is similar to import but treats visibility differently.
+          Suppose that module M extends another module N. All private and
+          public names declared in imported module N become available in the
+          importing module M. Extend is are transitive regarding visibility,
+          i.e., only the public names declared in M are visible outside M, but
+          the private and public names of N are invisible outside M. We do
+          allow circular imports. We allow redefinitions of declared names. We
+          do not allow circular extension.<caution>
               <para>Not yet implemented.</para>
             </caution></para>
         </listitem>
@@ -649,34 +711,15 @@
         </listitem>
 
         <listitem>
-          <para>Contain a main function that is the starting point of
-          execution. We allow several flavours of main
-          function:<programlisting>public void main() { ... }</programlisting>does
-          not give access to program arguments while<programlisting>public void main(list[str] argv) { ... }</programlisting></para>
+          <para>May contain a main function that is the starting point of
+          execution. We allow one flavour of main function<programlisting>public void main(list[str] argv) { ... }</programlisting></para>
 
-          <para>gives access to all program arguments. We may add extra types
-          that help in parsing command line arguments.</para>
+          <para>that gives access to all program arguments. We may add extra
+          types that help in parsing command line arguments. When invoked at
+          the command line, another function (with the same signature) may be
+          called.</para>
         </listitem>
       </itemizedlist>
-
-      <para>Declarations may be either private to a module or public to all
-      modules that import the current module. Rules are always public and are
-      globally applied.</para>
-
-      <para>Modules introduce a namespace and qualified names (using the
-      <literal>::</literal> operator) may be used to uniquely identify
-      elements of a module from the outside. Inside the module, this
-      qualification is implicit. The qualified name consist of two parts: a
-      directory name (a list of names separated by <literal>/</literal>) and a
-      module name.<remark>Is this right?</remark></para>
-
-      <para>Rascal modules are located in a file with the name of the module,
-      with suffix <literal>.rsc</literal>. They should be located in a
-      directory corresponding to the directory part of the module name. From
-      other modules,
-      <literal><replaceable>M</replaceable>::<replaceable>F</replaceable></literal>
-      denotes function <replaceable>F</replaceable> from module
-      <replaceable>M</replaceable>.</para>
     </section>
 
     <section>
@@ -688,11 +731,11 @@
       <itemizedlist>
         <listitem>
           <para>A Rascal Name is identical to a Java Indentifier except that
-          we <emphasis>do</emphasis> allow -- for reasons of compatibility
-          with names in SDF -- dashes (<literal>-</literal>) but do
-          <emphasis>not</emphasis> allow the dollar sign
-          (<literal>$</literal>) in names. In the initial implementation all
-          reserved words in both Java and Rascal cannot be used as a Name.
+          we do <emphasis>not</emphasis> allow the dollar sign
+          (<literal>$</literal>) in names. To maintain compatibility with SDF
+          names , we map dashes (<literal>-</literal>) in SDF names to
+          underscores (<literal>_</literal>). In the initial implementation
+          all reserved words in both Java and Rascal cannot be used as a Name.
           <remark>For better syntax errors it is probably better to warn for
           Java keywords later on.</remark></para>
         </listitem>
@@ -728,17 +771,12 @@
 
           <listitem>
             <para>There are built-in types (<literal>bool</literal>,
-            <literal>int</literal>, <literal>double</literal>,
+            <literal>int</literal>, <literal>real</literal>,
             <literal>str</literal>, <literal>loc</literal>).</para>
           </listitem>
 
           <listitem>
             <para>Symbols (as defined by an SDF module) are also types.<note>
-                <para>The currently supported subset of SDF symbols contains:
-                single and double quoted literal, character class, sort name,
-                lists with and without separator, alternative, and option.
-                This subset will be extended on demand.</para>
-              </note><note>
                 <para>There is no automatic mapping between the built-in types
                 and types generated by an SDF module. The programmer is
                 responsible for conversion. Typical library functions that are
@@ -756,8 +794,8 @@
                   </listitem>
 
                   <listitem>
-                    <para><literal>toDouble</literal> converts strings to
-                    doubles.</para>
+                    <para><literal>toreal</literal> converts strings to
+                    reals.</para>
                   </listitem>
                 </itemizedlist>
               </note></para>
@@ -794,8 +832,7 @@
           </listitem>
 
           <listitem>
-            <para>Functions can be polymorphic in their parameters as well as
-            in their return type.</para>
+            <para>Functions can be polymorphic in their parameters.</para>
           </listitem>
 
           <listitem>
@@ -835,7 +872,7 @@
             <note>
               <para>There is limited support for nameless constructors: they
               may only be of type <literal>int</literal>,
-              <literal>double</literal>, <literal>str</literal>, or
+              <literal>real</literal>, <literal>str</literal>, or
               <literal>loc</literal> and per datatype only one nameless
               constructor is allowed.</para>
             </note>
@@ -1301,10 +1338,10 @@ tag function primitive str   %% a primitive, built-in, function</programlisting>
 
         <para>Here are some examples.</para>
 
-        <para><programlisting>%% OK, since int and double are incomparable 
+        <para><programlisting>%% OK, since int and real are incomparable 
 
 int +(int a, int b) { ... }
-double +(double a, double b) { ... }
+real +(real a, real b) { ... }
 
 %% NOT OK, since int is comparable to value 
 %% (int is -- like all types -- a subtype of value)
@@ -1318,9 +1355,9 @@ int +(int a, int b) { ... }
 %% be used to select the function
 
 int    +(int a, int b)
-double +(int a, double b)
-double +(double a, int b)
-double +(double a, double b)
+real +(int a, real b)
+real +(real a, int b)
+real +(real a, real b)
 
 %% NOT OK, since arguments cannot be resolved.
 
@@ -1358,7 +1395,7 @@ int f(&amp;T y, int x)
 %% OK, since the second arguments have incomparable types
 
 int f(&amp;T x, int y)
-int f(&amp;T y, double x)</programlisting></para>
+int f(&amp;T y, real x)</programlisting></para>
       </section>
 
       <section>
@@ -2087,13 +2124,13 @@ default: ...
 
           <thead>
             <row>
-              <entry align="center">&#160;</entry>
+              <entry align="center"> </entry>
 
-              <entry align="center">bool&#160;</entry>
+              <entry align="center">bool </entry>
 
               <entry align="center">int</entry>
 
-              <entry align="center">double</entry>
+              <entry align="center">real</entry>
 
               <entry align="center">str</entry>
 
@@ -2646,7 +2683,7 @@ default: ...
         <title>Basic values</title>
 
         <para>Constants of type <literal>bool</literal>,
-        <literal>int</literal> , <literal>double</literal>,
+        <literal>int</literal> , <literal>real</literal>,
         <literal>str</literal> and <literal>loc</literal> are expressions. All
         operators for all datatypes are summarized in <xref
         linkend="table.operators-on-datatypes" />.</para>
@@ -3214,7 +3251,7 @@ public list[str] Jabberwocky = [
 	"The frumious Bandersnatch!\"",
 	"",
 	"He took his vorpal sword in hand:",
-	"Long time the manxome foe he sought&#8212;",
+	"Long time the manxome foe he sought—",
 	"So rested he by the Tumtum tree,",
 	"And stood awhile in thought.",
 	"",
@@ -4670,15 +4707,15 @@ Boolean . and &lt;= Boolean &lt;= tree &lt;= value
 
           <thead>
             <row>
-              <entry align="center">&#160;</entry>
+              <entry align="center"> </entry>
 
               <entry align="center">bool</entry>
 
               <entry align="center">int</entry>
 
-              <entry align="center">double</entry>
+              <entry align="center">real</entry>
 
-              <entry align="center">str&#160;</entry>
+              <entry align="center">str </entry>
 
               <entry align="center">loc</entry>
 
@@ -5536,7 +5573,7 @@ Boolean . and &lt;= Boolean &lt;= tree &lt;= value
             </row>
 
             <row>
-              <entry>toDouble</entry>
+              <entry>toreal</entry>
 
               <entry>x</entry>
 
@@ -5812,7 +5849,7 @@ Boolean . and &lt;= Boolean &lt;= tree &lt;= value
 
         <listitem>
           <para><literal>average</literal> computes the average value of
-          structured values that contain integers or doubles.</para>
+          structured values that contain integers or reals.</para>
         </listitem>
 
         <listitem>
@@ -6220,7 +6257,7 @@ Boolean . and &lt;= Boolean &lt;= tree &lt;= value
 
           <thead>
             <row>
-              <entry align="center">&#160;Characters</entry>
+              <entry align="center"> Characters</entry>
 
               <entry align="center">Used in</entry>
             </row>
