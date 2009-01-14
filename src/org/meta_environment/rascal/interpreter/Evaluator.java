@@ -125,7 +125,7 @@ import org.meta_environment.rascal.ast.Expression.VoidClosure;
 import org.meta_environment.rascal.ast.Header.Parameters;
 import org.meta_environment.rascal.ast.IntegerLiteral.DecimalIntegerLiteral;
 import org.meta_environment.rascal.ast.Literal.Boolean;
-import org.meta_environment.rascal.ast.Literal.Double;
+import org.meta_environment.rascal.ast.Literal.Real;
 import org.meta_environment.rascal.ast.Literal.Integer;
 import org.meta_environment.rascal.ast.LocalVariableDeclaration.Default;
 import org.meta_environment.rascal.ast.Rule.Arbitrary;
@@ -347,7 +347,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		checkType(val, tf.integerType());
 	}
 	
-	private void checkDouble(EvalResult val) {
+	private void checkReal(EvalResult val) {
 		checkType(val, tf.doubleType());
 	}
 	
@@ -373,8 +373,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		return ((IInteger) val.value).getValue();
 	}
 	
-	private double doubleValue(EvalResult val) {
-		checkDouble(val);
+	private double RealValue(EvalResult val) {
+		checkReal(val);
 		return ((IDouble) val.value).getValue();
 	}
 	
@@ -1736,8 +1736,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	}
 
 	@Override
-	public EvalResult visitLiteralDouble(Double x) {
-		String str = x.getDoubleLiteral().toString();
+	public EvalResult visitLiteralReal(Real x) {
+		String str = x.getRealLiteral().toString();
 		return result(vf.dubble(java.lang.Double.parseDouble(str)));
 	}
 
@@ -2010,7 +2010,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		return result(annoType, annoValue);
 	}
 	
-	private void widenIntToDouble(EvalResult left, EvalResult right){
+	private void widenIntToReal(EvalResult left, EvalResult right){
 		Type leftValType = left.value.getType();
 		Type rightValType = right.value.getType();
 		if (leftValType.isIntegerType() && rightValType.isDoubleType()) {
@@ -2032,14 +2032,14 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		EvalResult right = x.getRhs().accept(this);
 		Type resultType = left.type.lub(right.type);
 		
-		widenIntToDouble(left, right);
+		widenIntToReal(left, right);
 
 		// Integer
 		if (left.type.isIntegerType() && right.type.isIntegerType()) {
 			return result(((IInteger) left.value).add((IInteger) right.value));
 			
 		}
-		//Double
+		//Real
 		if (left.type.isDoubleType() && right.type.isDoubleType()) {
 			return result(((IDouble) left.value).add((IDouble) right.value));
 			
@@ -2140,14 +2140,14 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		EvalResult right = x.getRhs().accept(this);
 		Type resultType = left.type.lub(right.type);
 		
-		widenIntToDouble(left, right);
+		widenIntToReal(left, right);
 
 		// Integer
 		if (left.type.isIntegerType() && right.type.isIntegerType()) {
 			return result(((IInteger) left.value).subtract((IInteger) right.value));
 		}
 		
-		// Double
+		// Real
 		if (left.type.isDoubleType() && right.type.isDoubleType()) {
 			return result(((IDouble) left.value).subtract((IDouble) right.value));
 		}
@@ -2214,10 +2214,10 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			return result(vf.integer(- intValue(arg)));
 		}
 		else if (arg.type.isDoubleType()) {
-				return result(vf.dubble(- doubleValue(arg)));
+				return result(vf.dubble(- RealValue(arg)));
 		} else {
 			throw new RascalTypeError(
-					"Operand of unary - should be integer or double instead of: " + arg.type);
+					"Operand of unary - should be integer or Real instead of: " + arg.type);
 		}
 	}
 	
@@ -2226,14 +2226,14 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		EvalResult left = x.getLhs().accept(this);
 		EvalResult right = x.getRhs().accept(this);
 		
-		widenIntToDouble(left, right);
+		widenIntToReal(left, right);
 
 		//Integer
 		if (left.type.isIntegerType() && right.type.isIntegerType()) {
 			return result(((IInteger) left.value).multiply((IInteger) right.value));
 		} 
 		
-		//Double 
+		//Real 
 		else if (left.type.isDoubleType() && right.type.isDoubleType()) {
 			return result(((IDouble) left.value).multiply((IDouble) right.value));
 		}
@@ -2327,7 +2327,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		EvalResult left = x.getLhs().accept(this);
 		EvalResult right = x.getRhs().accept(this);
 		
-		widenIntToDouble(left, right);
+		widenIntToReal(left, right);
 
 		//TODO: transform Java arithmetic exceptions into Rascal exceptions
 		
@@ -2336,7 +2336,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			return result(((IInteger) left.value).divide((IInteger) right.value));
 		} 
 		
-		// Double
+		// Real
 		else if (left.type.isDoubleType() && right.type.isDoubleType()) {
 			return result(((IDouble) left.value).divide((IDouble) right.value));
 		}
@@ -2420,7 +2420,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 	boolean equals(EvalResult left, EvalResult right){
 		
-		widenIntToDouble(left, right);
+		widenIntToReal(left, right);
 		
 		if (left.type.comparable(right.type)) {
 			return compare(left, right) == 0;
@@ -2436,7 +2436,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		EvalResult left = x.getLhs().accept(this);
 		EvalResult right = x.getRhs().accept(this);
 		
-		widenIntToDouble(left, right);
+		widenIntToReal(left, right);
 		
 		if (!left.type.comparable(right.type)) {
 			throw new RascalTypeError("Arguments of equals have incomparable types: " + left.type + " and " + right.type);
@@ -3224,9 +3224,9 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	private int compare(EvalResult left, EvalResult right){
 		// compare must use run-time types because it is complete for all types
 		// even if statically two values have type 'value' but one is an int 1
-		// and the other is double 1.0 they must be equal.
+		// and the other is Real 1.0 they must be equal.
 
-		widenIntToDouble(left, right);
+		widenIntToReal(left, right);
 		Type leftType = left.value.getType();
 		Type rightType = right.value.getType();
 		

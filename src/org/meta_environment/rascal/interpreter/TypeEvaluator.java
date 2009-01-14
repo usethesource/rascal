@@ -7,7 +7,7 @@ import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.TypeArg;
 import org.meta_environment.rascal.ast.TypeVar;
 import org.meta_environment.rascal.ast.BasicType.Bool;
-import org.meta_environment.rascal.ast.BasicType.Double;
+import org.meta_environment.rascal.ast.BasicType.Real;
 import org.meta_environment.rascal.ast.BasicType.Int;
 import org.meta_environment.rascal.ast.BasicType.Loc;
 import org.meta_environment.rascal.ast.BasicType.String;
@@ -137,7 +137,7 @@ public class TypeEvaluator extends NullASTVisitor<Type> {
 	}
 	
 	@Override
-	public Type visitBasicTypeDouble(Double x) {
+	public Type visitBasicTypeReal(Real x) {
 		return tf.doubleType();
 	}
 	
