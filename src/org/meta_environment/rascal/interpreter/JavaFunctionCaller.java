@@ -43,7 +43,7 @@ public class JavaFunctionCaller {
 	private static final String UNWANTED_MESSAGE_PREFIX = "org/meta_environment/rascal/java/";
 	private static final String UNWANTED_MESSAGE_POSTFIX = "\\.java:";
 	private static final String METHOD_NAME = "call";
-	private static final String VALUE_FACTORY = "org.eclipse.imp.pdb.facts.impl.hash.ValueFactory";
+	private static final String VALUE_FACTORY = "org.eclipse.imp.pdb.facts.impl.reference.ValueFactory";
 	
 	private final Writer out;
 	private final static Map<FunctionDeclaration,Class<?>> cache = new WeakHashMap<FunctionDeclaration, Class<?>>();
@@ -147,7 +147,7 @@ public class JavaFunctionCaller {
 				addLine("import org.eclipse.imp.pdb.facts.type.*;").
 				addLine("import org.eclipse.imp.pdb.facts.*;").
 				addLine("import org.eclipse.imp.pdb.facts.impl.*;").
-				addLine("import org.eclipse.imp.pdb.facts.impl.hash.*;").
+				addLine("import org.eclipse.imp.pdb.facts.impl.reference.*;").
 				addLine("import " + VALUE_FACTORY + ";").
 				addLine("import org.eclipse.imp.pdb.facts.io.*;").
 				addLine("import org.eclipse.imp.pdb.facts.visitors.*;").
