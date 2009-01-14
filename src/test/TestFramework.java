@@ -6,7 +6,7 @@ import java.io.PrintWriter;
 
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.impl.hash.ValueFactory;
+import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.Command;
 import org.meta_environment.rascal.ast.Module;
