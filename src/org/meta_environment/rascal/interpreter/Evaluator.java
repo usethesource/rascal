@@ -2885,9 +2885,10 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			Expression patexp = rule.getPattern();
 			MatchPattern mp = evalPattern(patexp);
 			mp.initMatch(subject, this);
-			while(mp.hasNext()){
-				try {
-					env.pushFrame(); 	// Create a separate scope for match and statement
+
+			try {
+				env.pushFrame(); 	// Create a separate scope for match and statement/replacement
+				while(mp.hasNext()){
 					if(mp.next()){
 						try {
 							if(rule.isReplacing()){
@@ -2901,10 +2902,11 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 											break;
 										}
 									}
-									if(trueConditions){
-										throw InsertException.getInstance(repl.getReplacementExpression().accept(this));
-									}
 								}
+								if(trueConditions){
+									throw InsertException.getInstance(repl.getReplacementExpression().accept(this));
+								}
+							
 							} else {
 								rule.getStatement().accept(this);
 							}
@@ -2922,12 +2924,11 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 							//System.err.println("failure occurred");
 						}
 					}
-				} finally {
-					env.popFrame();
 				}
+			} finally {
+				env.popFrame();
 			}
-			
-		} else {
+	} else {
 			/*
 			 * In all other cases we generate subsequent substrings subject[0,len], subject[1,len] ...
 			 * and try to match all the cases.
