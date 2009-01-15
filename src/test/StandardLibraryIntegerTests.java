@@ -39,12 +39,12 @@ public class StandardLibraryIntegerTests extends TestCase {
 		assertTrue(tf.runTestInSameEvaluator("Integer::min(10, 10) == 10;"));
 	}
 
-	public void testIntegerToDouble() throws IOException {
+	public void testIntegerToReal() throws IOException {
 		
 		new TestFramework("import Integer;");
 
-		assertTrue(tf.runTestInSameEvaluator("Integer::toDouble(3) == 3.0;"));
-		assertTrue(tf.runTestInSameEvaluator("toDouble(3) == 3.0;"));
+		assertTrue(tf.runTestInSameEvaluator("Integer::toReal(3) == 3.0;"));
+		assertTrue(tf.runTestInSameEvaluator("toReal(3) == 3.0;"));
 	}
 
 	public void testIntegerToString() throws IOException {

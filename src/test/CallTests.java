@@ -87,9 +87,9 @@ public class CallTests extends TestCase{
 	
 	public void testMax1() throws IOException {
 		String maxInt = "int max(int a, int b) { return a > b ? a : b; }";
-		String maxDouble = "double max(double a, double b) { return a > b ? a : b; }";
+		String maxReal = "real max(real a, real b) { return a > b ? a : b; }";
 		assertTrue(tf.runTest("{" + maxInt + " max(3,4) == 4;}"));
-		assertTrue(tf.runTest("{" + maxInt + maxDouble + " (max(3,4) == 4) && (max(3.0,4.0) == 4.0);}"));
+		assertTrue(tf.runTest("{" + maxInt + maxReal + " (max(3,4) == 4) && (max(3.0,4.0) == 4.0);}"));
 	}
 	
 	public void testMax2() throws IOException {

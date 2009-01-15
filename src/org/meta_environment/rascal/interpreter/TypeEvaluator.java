@@ -272,6 +272,10 @@ public class TypeEvaluator extends NullASTVisitor<Type> {
 		Type type = tf.lookupNamedType(name);
 		
 		if (type == null) {
+			//TODO: This is a hack during transition from double to real
+			if(name.equals("real")){
+				return tf.doubleType();
+			}
 			Type tree = tf.lookupNamedTreeType(name);
 			
 			if (tree == null) {

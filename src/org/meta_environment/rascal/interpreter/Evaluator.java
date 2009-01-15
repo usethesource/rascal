@@ -53,6 +53,7 @@ import org.meta_environment.rascal.ast.Module;
 import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.QualifiedName;
+import org.meta_environment.rascal.ast.Replacement;
 import org.meta_environment.rascal.ast.Signature;
 import org.meta_environment.rascal.ast.Statement;
 import org.meta_environment.rascal.ast.Strategy;
@@ -314,14 +315,12 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	}
 	
 	private EvalResult applyRules(Type t, IValue v){
-		//System.err.println((applyingRules ? "****" : "") + "applyRules: " + t + ", " + v);
 	
 		java.util.List<org.meta_environment.rascal.ast.Rule> rules = env.getRules(t);
 		if(rules.isEmpty()){
 			//System.err.println("applyRules: no matching rules for " + t);
 			return new EvalResult(t, v);
 		}
-		//System.err.println("Environment before rule application:\n" + env);
 		env.pushFrame();
 		try {
 			TraverseResult tr = traverse(v, new CasesOrRules(rules), 
@@ -330,7 +329,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				/* fixedpoint */ false);  /* innermost is achieved by repeated applications of applyRules
 				 							* when intermediate results are produced.
 				 							*/
-			//System.err.println("Environment after rule application:" + env);
 			//System.err.println("applyRules: tr.value =" + tr.value);
 			return new EvalResult(tr.value.getType(), tr.value);
 		} finally {
@@ -1716,6 +1714,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
     }
 	
 	private boolean matchOne(IValue subj, org.meta_environment.rascal.ast.Expression pat){
+		//System.err.println("matchOne: subj=" + subj + ", pat= " + pat);
 		MatchPattern mp = evalPattern(pat);
 		lastPattern = mp;
 		mp.initMatch(subj, this);
@@ -1877,17 +1876,15 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 
 		for (org.meta_environment.rascal.ast.Expression expr : elements) {
 			EvalResult resultElem = expr.accept(this);
-			/*
-			if(resultElem.type.isListType()){
+			if(resultElem.type.isListType() && !expr.isList()){
 				for(IValue val : ((IList) resultElem.value)){
 					elementType = elementType.lub(val.getType());
 					results.add(val);
 				}
 			} else {
-				*/
 				elementType = elementType.lub(resultElem.type);
 				results.add(results.size(), resultElem.value);
-			/*}*/
+			}
 		}
 		Type resultType = tf.listType(elementType);
 		IListWriter w = resultType.writer(vf);
@@ -1905,17 +1902,15 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 
 		for (org.meta_environment.rascal.ast.Expression expr : elements) {
 			EvalResult resultElem = expr.accept(this);
-			/*
-			if(resultElem.type.isSetType()){
+			if(resultElem.type.isSetType() && !expr.isSet()){
 				for(IValue val : ((ISet) resultElem.value)){
 					elementType = elementType.lub(val.getType());
 					results.add(val);
 				}
 			} else {
-			*/
 				elementType = elementType.lub(resultElem.type);
 				results.add(results.size(), resultElem.value);
-			/*}*/
+			}
 		}
 		Type resultType = tf.setType(elementType);
 		ISetWriter w = resultType.writer(vf);
@@ -2651,7 +2646,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 	@Override
 	public EvalResult visitExpressionTypedVariable(TypedVariable x) {
-		//TODO : does not work when evaluating a rule.
 		throw new RascalTypeError("Use of typed variable outside matching context");
 	}
 	
@@ -2668,6 +2662,40 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 						//System.err.println(env);
 						stat.accept(this);
 						return true;
+					} catch (FailureException e){
+						//System.err.println("failure occurred");
+					}
+				}
+			}
+		} finally {
+			env.popFrame();
+		}
+		return false;
+	}
+	
+	private boolean matchEvalAndReplace(IValue subject, 
+			org.meta_environment.rascal.ast.Expression pat, 
+			java.util.List<Expression> conditions,
+			Expression replacementExpr){
+		MatchPattern mp = evalPattern(pat);
+		mp.initMatch(subject, this);
+		lastPattern = mp;
+		//System.err.println("matchEvalAndEval: subject=" + subject + ", pat=" + pat + ", conditions=" + conditions);
+		try {
+			env.pushFrame(); 	// Create a separate scope for match and statement
+			while(mp.hasNext()){
+				if(mp.next()){
+					try {
+						boolean trueConditions = true;
+						for(Expression cond : conditions){
+							if(!cond.accept(this).isTrue()){
+								trueConditions = false;
+								break;
+							}
+						}
+						if(trueConditions){
+							throw InsertException.getInstance(replacementExpr.accept(this));		
+						}
 					} catch (FailureException e){
 						//System.err.println("failure occurred");
 					}
@@ -2782,6 +2810,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 	private TraverseResult traverse(IValue subject, CasesOrRules casesOrRules,
 			boolean bottomup, boolean breaking, boolean fixedpoint) {
+		//System.err.println("traverse: subject=" + subject + ", casesOrRules=" + casesOrRules);
 		do {
 			TraverseResult tr = traverseOnce(subject, casesOrRules, bottomup, breaking);
 			if(fixedpoint){
@@ -2862,7 +2891,20 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 					if(mp.next()){
 						try {
 							if(rule.isReplacing()){
-								throw InsertException.getInstance(rule.getReplacement().accept(this));
+								Replacement repl = rule.getReplacement();
+								boolean trueConditions = true;
+								if(repl.isConditional()){
+									for(Expression cond : repl.getConditions()){
+										EvalResult res = cond.accept(this);
+										if(!res.isTrue()){         // TODO: How about alternatives?
+											trueConditions = false;
+											break;
+										}
+									}
+									if(trueConditions){
+										throw InsertException.getInstance(repl.getReplacementExpression().accept(this));
+									}
+								}
 							} else {
 								rule.getStatement().accept(this);
 							}
@@ -2999,44 +3041,56 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		if(subjectType.isListType()){
 			IList list = (IList) subject;
 			int len = list.length();
-			IListWriter w = list.getType().writer(vf);
-			for(int i = len - 1; i >= 0; i--){
-				TraverseResult tr = traverseOnce(list.get(i), casesOrRules, bottomup, breaking);
-				matched |= tr.matched;
-				changed |= tr.changed;
-				w.insert(tr.value);
-			}
-			result = w.done();
-		} else 
-		if(subjectType.isSetType()){
-				ISet set = (ISet) subject;
-				ISetWriter w = set.getType().writer(vf);
-				for(IValue v : set){
-					TraverseResult tr = traverseOnce(v, casesOrRules, bottomup, breaking);
+			if(len > 0){
+				IListWriter w = list.getType().writer(vf);
+				for(int i = len - 1; i >= 0; i--){
+					TraverseResult tr = traverseOnce(list.get(i), casesOrRules, bottomup, breaking);
 					matched |= tr.matched;
 					changed |= tr.changed;
 					w.insert(tr.value);
 				}
 				result = w.done();
+			} else {
+				result = subject;
+			}
+		} else 
+		if(subjectType.isSetType()){
+				ISet set = (ISet) subject;
+				if(!set.isEmpty()){
+					ISetWriter w = set.getType().writer(vf);
+					for(IValue v : set){
+						TraverseResult tr = traverseOnce(v, casesOrRules, bottomup, breaking);
+						matched |= tr.matched;
+						changed |= tr.changed;
+						w.insert(tr.value);
+					}
+					result = w.done();
+				} else {
+					result = subject;
+				}
 		} else
 		if (subjectType.isMapType()) {
 			IMap map = (IMap) subject;
-			IMapWriter w = map.getType().writer(vf);
-			Iterator<Entry<IValue,IValue>> iter = map.entryIterator();
-			
-			while (iter.hasNext()) {
-				Entry<IValue,IValue> entry = iter.next();
-				TraverseResult tr = traverseOnce(entry.getKey(), casesOrRules, bottomup, breaking);
-				matched |= tr.matched;
-				changed |= tr.changed;
-				IValue newKey = tr.value;
-				tr = traverseOnce(entry.getValue(), casesOrRules, bottomup, breaking);
-				matched |= tr.matched;
-				changed |= tr.changed;
-				IValue newValue = tr.value;
-				w.put(newKey, newValue);
+			if(!map.isEmpty()){
+				IMapWriter w = map.getType().writer(vf);
+				Iterator<Entry<IValue,IValue>> iter = map.entryIterator();
+				
+				while (iter.hasNext()) {
+					Entry<IValue,IValue> entry = iter.next();
+					TraverseResult tr = traverseOnce(entry.getKey(), casesOrRules, bottomup, breaking);
+					matched |= tr.matched;
+					changed |= tr.changed;
+					IValue newKey = tr.value;
+					tr = traverseOnce(entry.getValue(), casesOrRules, bottomup, breaking);
+					matched |= tr.matched;
+					changed |= tr.changed;
+					IValue newValue = tr.value;
+					w.put(newKey, newValue);
+				}
+				result = w.done();
+			} else {
+				result = subject;
 			}
-			result = w.done();
 		} else
 			if(subjectType.isTupleType()){
 				ITuple tuple = (ITuple) subject;
@@ -3106,12 +3160,14 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		} else {
 			for(org.meta_environment.rascal.ast.Rule rule : casesOrRules.getRules()){
 				TraverseResult tr = applyOneRule(subject, rule);
+				//System.err.println("rule fails");
 				if(tr.matched){
-					System.err.println(" *** matches ***");
+					//System.err.println(" *** matches ***");
 					return tr;
 				}
 			}
 		}
+		//System.err.println("applyCasesorRules does not match");
 		return new TraverseResult(subject);
 	}
 	
@@ -3136,31 +3192,29 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			org.meta_environment.rascal.ast.Rule rule) {
 		
 		//System.err.println("applyOneRule: subject=" + subject + ", type=" + subject.getType() + ", rule=" + rule);
-		try {
-			env.pushFrame();		// Create a local scope for match and statement
-			if (rule.isArbitrary()){
-				if(matchAndEval(subject, rule.getPattern(), rule.getStatement())) {
-					return new TraverseResult(true, subject);
-				}
-			} else if (rule.isGuarded()) {
-				org.meta_environment.rascal.ast.Type tp = rule.getType();
-				Type type = tp.accept(te);
-				rule = rule.getRule();
-				if (subject.getType().isSubtypeOf(type) && 
-					matchAndEval(subject, rule.getPattern(), rule.getStatement())) {
-					return new TraverseResult(true, subject);
-				}
-			} else if (rule.isReplacing()) {
-				if (matchOne(subject, rule.getPattern())) {
-					throw InsertException.getInstance(rule.getReplacement().accept(this));
-				}
-			} else {
-				throw new RascalBug("Impossible case in a rule: " + rule);
+	
+		if (rule.isArbitrary()){
+			if(matchAndEval(subject, rule.getPattern(), rule.getStatement())) {
+				return new TraverseResult(true, subject);
 			}
-			return new TraverseResult(subject);
-		} finally {
-			env.popFrame();
+		} else if (rule.isGuarded()) {
+			org.meta_environment.rascal.ast.Type tp = rule.getType();
+			Type type = tp.accept(te);
+			rule = rule.getRule();
+			if (subject.getType().isSubtypeOf(type) && 
+				matchAndEval(subject, rule.getPattern(), rule.getStatement())) {
+				return new TraverseResult(true, subject);
+			}
+		} else if (rule.isReplacing()) {
+			Replacement repl = rule.getReplacement();
+			java.util.List<Expression> conditions = repl.isConditional() ? repl.getConditions() : new java.util.LinkedList<Expression>();
+			if(matchEvalAndReplace(subject, rule.getPattern(), conditions, repl.getReplacementExpression())){
+				return new TraverseResult(true, subject);
+			}
+		} else {
+			throw new RascalBug("Impossible case in a rule: " + rule);
 		}
+			return new TraverseResult(subject);
 	}
 	
 	@Override

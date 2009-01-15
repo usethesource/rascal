@@ -113,6 +113,10 @@ public class SubList extends Value implements IList {
 			new ArrayIndexOutOfBoundsException("SubList");
 		return base.get(start + i);	
 	}
+	
+	public Type getType(){
+		return base.getType();
+	}
 
 	public Type getElementType() {
 		return base.getElementType();

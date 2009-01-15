@@ -25,8 +25,8 @@ public int min(int n, int m)
 	return n < m ? n : m;
 }
 
-public double java toDouble(int n)
-@doc{toDouble -- convert an integer value to a double value.}
+public real java toReal(int n)
+@doc{toReal -- convert an integer value to a real value.}
 {
   return n.toDouble();
 }
