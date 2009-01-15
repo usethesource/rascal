@@ -123,7 +123,7 @@ public class DataTypeTests extends TestCase{
 		
 	}
 	
-	public void testDouble() throws IOException 
+	public void testReal() throws IOException 
 	{
 		assertTrue(tf.runTest("1.0 == 1.0;"));
 		assertTrue(tf.runTest("1.0 != 2.0;"));

@@ -12,8 +12,8 @@ public int java toInt(bool b)
   return values.integer(b.getValue() ? 1 : 0);
 }
 
-public double java toDouble(bool b)
-@doc{toDouble -- convert a boolean value to a double value.}
+public real java toReal(bool b)
+@doc{toReal -- convert a boolean value to a real value.}
 {
   return values.dubble(b.getValue() ? 1.0 : 0.0);
 }

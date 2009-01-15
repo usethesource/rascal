@@ -1,7 +1,44 @@
 package org.meta_environment.rascal.ast; 
 import org.eclipse.imp.pdb.facts.ITree; 
 public abstract class Expression extends AbstractAST { 
-  public org.meta_environment.rascal.ast.Literal getLiteral() { throw new UnsupportedOperationException(); }
+  public java.util.List<org.meta_environment.rascal.ast.Statement> getStatements() { throw new UnsupportedOperationException(); } public boolean hasStatements() { return false; } public boolean isNonEmptyBlock() { return false; } static public class NonEmptyBlock extends Expression {
+/* "{" statements:Statement+ "}" -> Expression {cons("NonEmptyBlock")} */
+	private NonEmptyBlock() { }
+	/*package*/ NonEmptyBlock(ITree tree, java.util.List<org.meta_environment.rascal.ast.Statement> statements) {
+		this.tree = tree;
+		this.statements = statements;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitExpressionNonEmptyBlock(this);
+	}
+
+	public boolean isNonEmptyBlock() { return true; }
+
+	public boolean hasStatements() { return true; }
+
+private java.util.List<org.meta_environment.rascal.ast.Statement> statements;
+	public java.util.List<org.meta_environment.rascal.ast.Statement> getStatements() { return statements; }
+	private void $setStatements(java.util.List<org.meta_environment.rascal.ast.Statement> x) { this.statements = x; }
+	public NonEmptyBlock setStatements(java.util.List<org.meta_environment.rascal.ast.Statement> x) { 
+		NonEmptyBlock z = new NonEmptyBlock();
+ 		z.$setStatements(x);
+		return z;
+	}	
+} static public class Ambiguity extends Expression {
+  private final java.util.List<org.meta_environment.rascal.ast.Expression> alternatives;
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Expression> alternatives) {
+	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
+  }
+  public java.util.List<org.meta_environment.rascal.ast.Expression> getAlternatives() {
+	return alternatives;
+  }
+  
+  public <T> T accept(IASTVisitor<T> v) {
+     return v.visitExpressionAmbiguity(this);
+  }
+} 
+public org.meta_environment.rascal.ast.Literal getLiteral() { throw new UnsupportedOperationException(); }
 public boolean hasLiteral() { return false; }
 public boolean isLiteral() { return false; }
 static public class Literal extends Expression {
@@ -27,21 +64,7 @@ private org.meta_environment.rascal.ast.Literal literal;
  		z.$setLiteral(x);
 		return z;
 	}	
-}
-static public class Ambiguity extends Expression {
-  private final java.util.List<org.meta_environment.rascal.ast.Expression> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Expression> alternatives) {
-	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
-  }
-  public java.util.List<org.meta_environment.rascal.ast.Expression> getAlternatives() {
-	return alternatives;
-  }
-  
-  public <T> T accept(IASTVisitor<T> v) {
-     return v.visitExpressionAmbiguity(this);
-  }
-} public org.meta_environment.rascal.ast.QualifiedName getQualifiedName() { throw new UnsupportedOperationException(); } public java.util.List<org.meta_environment.rascal.ast.Expression> getArguments() { throw new UnsupportedOperationException(); } public boolean hasQualifiedName() { return false; } public boolean hasArguments() { return false; } public boolean isCallOrTree() { return false; }
+} public abstract <T> T accept(IASTVisitor<T> visitor); public org.meta_environment.rascal.ast.QualifiedName getQualifiedName() { throw new UnsupportedOperationException(); } public java.util.List<org.meta_environment.rascal.ast.Expression> getArguments() { throw new UnsupportedOperationException(); } public boolean hasQualifiedName() { return false; } public boolean hasArguments() { return false; } public boolean isCallOrTree() { return false; }
 static public class CallOrTree extends Expression {
 /* qualifiedName:QualifiedName "(" arguments:{Expression ","}* ")" -> Expression {cons("CallOrTree")} */
 	private CallOrTree() { }
@@ -75,7 +98,7 @@ private org.meta_environment.rascal.ast.QualifiedName qualifiedName;
  		z.$setArguments(x);
 		return z;
 	}	
-} public abstract <T> T accept(IASTVisitor<T> visitor); public java.util.List<org.meta_environment.rascal.ast.Expression> getElements() { throw new UnsupportedOperationException(); } public boolean hasElements() { return false; } public boolean isList() { return false; }
+} public java.util.List<org.meta_environment.rascal.ast.Expression> getElements() { throw new UnsupportedOperationException(); } public boolean hasElements() { return false; } public boolean isList() { return false; }
 static public class List extends Expression {
 /* "[" elements:{Expression ","}* "]" -> Expression {cons("List")} */
 	private List() { }
@@ -618,7 +641,7 @@ private org.meta_environment.rascal.ast.Visit visit;
  		z.$setVisit(x);
 		return z;
 	}	
-} public org.meta_environment.rascal.ast.Parameters getParameters() { throw new UnsupportedOperationException(); } public java.util.List<org.meta_environment.rascal.ast.Statement> getStatements() { throw new UnsupportedOperationException(); } public boolean hasParameters() { return false; } public boolean hasStatements() { return false; } public boolean isClosure() { return false; }
+} public org.meta_environment.rascal.ast.Parameters getParameters() { throw new UnsupportedOperationException(); } public boolean hasParameters() { return false; } public boolean isClosure() { return false; }
 static public class Closure extends Expression {
 /* type:Type parameters:Parameters "{" statements:Statement+ "}" -> Expression {cons("Closure")} */
 	private Closure() { }
@@ -693,29 +716,6 @@ private org.meta_environment.rascal.ast.Parameters parameters;
 	private void $setStatements(java.util.List<org.meta_environment.rascal.ast.Statement> x) { this.statements = x; }
 	public VoidClosure setStatements(java.util.List<org.meta_environment.rascal.ast.Statement> x) { 
 		VoidClosure z = new VoidClosure();
- 		z.$setStatements(x);
-		return z;
-	}	
-} public boolean isNonEmptyBlock() { return false; } static public class NonEmptyBlock extends Expression {
-/* "{" statements:Statement+ "}" -> Expression {cons("NonEmptyBlock")} */
-	private NonEmptyBlock() { }
-	/*package*/ NonEmptyBlock(ITree tree, java.util.List<org.meta_environment.rascal.ast.Statement> statements) {
-		this.tree = tree;
-		this.statements = statements;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitExpressionNonEmptyBlock(this);
-	}
-
-	public boolean isNonEmptyBlock() { return true; }
-
-	public boolean hasStatements() { return true; }
-
-private java.util.List<org.meta_environment.rascal.ast.Statement> statements;
-	public java.util.List<org.meta_environment.rascal.ast.Statement> getStatements() { return statements; }
-	private void $setStatements(java.util.List<org.meta_environment.rascal.ast.Statement> x) { this.statements = x; }
-	public NonEmptyBlock setStatements(java.util.List<org.meta_environment.rascal.ast.Statement> x) { 
-		NonEmptyBlock z = new NonEmptyBlock();
  		z.$setStatements(x);
 		return z;
 	}	

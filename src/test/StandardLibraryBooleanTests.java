@@ -29,16 +29,16 @@ public class StandardLibraryBooleanTests extends TestCase {
 		assertTrue(tf.runTestInSameEvaluator("toInt(true) == 1;"));
 	}
 
-	public void testBooleanToDouble() throws IOException {
+	public void testBooleanToReal() throws IOException {
 		
 		tf = new TestFramework("import Boolean;");
 
 		assertTrue(tf
-				.runTestInSameEvaluator("Boolean::toDouble(false) == 0.0;"));
-		assertTrue(tf.runTestInSameEvaluator("Boolean::toDouble(true) == 1.0;"));
+				.runTestInSameEvaluator("Boolean::toReal(false) == 0.0;"));
+		assertTrue(tf.runTestInSameEvaluator("Boolean::toReal(true) == 1.0;"));
 
-		assertTrue(tf.runTestInSameEvaluator("toDouble(false) == 0.0;"));
-		assertTrue(tf.runTestInSameEvaluator("toDouble(true) == 1.0;"));
+		assertTrue(tf.runTestInSameEvaluator("toReal(false) == 0.0;"));
+		assertTrue(tf.runTestInSameEvaluator("toReal(true) == 1.0;"));
 	}
 
 	public void testBooleanToString() throws IOException {

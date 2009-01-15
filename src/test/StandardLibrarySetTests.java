@@ -27,7 +27,7 @@ public class StandardLibrarySetTests extends TestCase {
 		assertTrue(tf.runTestInSameEvaluator("{int N = getOneFrom({1}); N == 1;}"));
 		assertTrue(tf.runTestInSameEvaluator("{int N = Set::getOneFrom({1, 2}); (N == 1) || (N == 2);}"));
 		assertTrue(tf.runTestInSameEvaluator("{int N = Set::getOneFrom({1, 2, 3}); (N == 1) || (N == 2) || (N == 3);}"));
-		assertTrue(tf.runTestInSameEvaluator("{double D = Set::getOneFrom({1.0,2.0}); (D == 1.0) || (D == 2.0);}"));
+		assertTrue(tf.runTestInSameEvaluator("{real D = Set::getOneFrom({1.0,2.0}); (D == 1.0) || (D == 2.0);}"));
 		assertTrue(tf.runTestInSameEvaluator("{str S = Set::getOneFrom({\"abc\",\"def\"}); (S == \"abc\") || (S == \"def\");}"));
 	}
 		

@@ -2,7 +2,7 @@ module Benchmark
 
 import IO;
 
-public double java currentTimeMillis()
+public real java currentTimeMillis()
 @doc{currentTimeMillis -- current time in milliseconds since January 1, 1970 GMT.}
 @java-import{import java.lang.System;}
 {
@@ -15,10 +15,10 @@ public void benchmark(map[str, void()] Cases)
 {
 	measurements = ();
 	for(str Name : Cases){
-		double ctm1 = currentTimeMillis();
+		real ctm1 = currentTimeMillis();
 		Fun = Cases[Name];
 		#Fun();
-		double ctm2 = currentTimeMillis();
+		real ctm2 = currentTimeMillis();
 		measurements[Name] = ctm2 - ctm1;
 	}
 	
