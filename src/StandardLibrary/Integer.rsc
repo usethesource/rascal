@@ -1,5 +1,11 @@
 module Integer
 
+public int abs(int N)
+@doc{abs -- absolute value of integer}
+{
+	return N >= 0 ? N : -N;
+}
+
 
 public int java arbInt()
 @doc{arbInt -- return an arbitrary integer value}
