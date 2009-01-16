@@ -7,6 +7,15 @@ import junit.framework.TestCase;
 public class StandardLibraryIntegerTests extends TestCase {
 
 	private static TestFramework tf = new TestFramework("import Integer;");
+	
+	public void testIntegerAbs() throws IOException {
+		
+		new TestFramework("import Integer;");
+		
+		assertTrue(tf.runTestInSameEvaluator("{abs(0) == 0;}"));
+		assertTrue(tf.runTestInSameEvaluator("{abs(-1) == 1;}"));
+		assertTrue(tf.runTestInSameEvaluator("{abs(1) == 1;}"));
+	}	
 
 	public void testIntegerArbInt() throws IOException {
 		
