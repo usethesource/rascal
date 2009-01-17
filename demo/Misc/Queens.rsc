@@ -1,23 +1,93 @@
 module Queens
 
-int abs(int x, int y)
+import Integer;
+import List;
+import IO;
+
+/*
+ * Experiments with the 8-queens puzzle.
+ */
+
+/*
+ * Version 1: A standard recursive solution for arbitrary N that uses
+ * a map to represent the board.
+ */
+
+public bool consistent(map[int,int] B, int n)
 {
-	int diff = x - y;
-	return diff >= 0 ? diff : - diff;
+    return forall(int i : [1, 2 .. n - 1] | B[i] != B[n] && abs(B[i] - B[n]) != abs(n - i));
 }
 
-public void queens(int N)
+int N = 8;
+
+public void q(map[int,int] B, int row)
 {
-   list[int] R = [1 .. N];
-   
-   all(int i : [1 .. N]){
-      all(int j : [1 .. N]){
-         if(i == j || abs(i - j) == abs(R[i] - R[j])){
-         	fail;
-         }
-         R[i] = j;
+   if(row > N)
+   	  println(B);
+   else {
+      for(int col : [1, 2 .. N]){
+          B[row] = col;
+   	      if(consistent(B, row)){
+     	     	  q(B, row + 1);
+   	      }
       }
    }
-   println(R);
-   fail;
+}
+
+public void queens1()
+{
+	q((), 0);
+}
+
+/*
+ * Versions 2 & 3 share the same consistent function. It has a list
+ * of integers as argument that represents the board.
+ */
+
+public bool consistent(int B...)
+{ 
+  return forall(int i : domain(B) |
+                forall(int j : domain(B) |
+      	        i != j ==> (B[i] != B[j] && abs(B[i] - B[j]) != abs(j - i))
+      	)
+  ); 		
+}
+
+/*
+ * Version 2: uses generators and is for fixed length 8.
+ * The "consistent" calls can be omitted (except the last one), but they
+ * speed up the computation since they prune many false alternatives.
+ */
+
+public void queens2()
+{
+   list[int] R = [1 .. 8];
+   int nsolutions = 0;
+   
+   for(int Q1 : R,
+       int Q2 : R, consistent(Q1, Q2),
+       int Q3 : R, consistent(Q1, Q2, Q3),
+       int Q4 : R, consistent(Q1, Q2, Q3, Q4),
+       int Q5 : R, consistent(Q1, Q2, Q3, Q4, Q5),
+       int Q6 : R, consistent(Q1, Q2, Q3, Q4, Q5, Q6),
+       int Q7 : R, consistent(Q1, Q2, Q3, Q4, Q5, Q6, Q7),
+       int Q8 : R, consistent(Q1, Q2, Q3, Q4, Q5, Q6, Q7, Q8)
+       ){
+        nsolutions = nsolutions + 1;
+     	println(Q1, Q2, Q3, Q4, Q5, Q6, Q7, Q8);
+   }
+   println("<nsolutions> solutions");
+}
+
+/*
+ * Version 3: Use a variable argument to represent the board.
+ */
+public void queens3(int B ...)
+{
+  if(size(B) == 8){
+     println(B);
+  } else {
+     for(int Q : [1 .. 8], consistent(B + Q))
+         queens3(B + Q);
+  }
 }
