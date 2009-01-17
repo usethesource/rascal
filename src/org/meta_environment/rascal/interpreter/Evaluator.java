@@ -1213,7 +1213,11 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		if (exprType.isMapType()
 			&& subsBase.isSubtypeOf(exprType.getKeyType())) {
 			Type valueType = exprType.getValueType();
-			return normalizedResult(valueType, ((IMap) expr.value).get(subs.value));
+			IValue v = ((IMap) expr.value).get(subs.value);
+			if(v == null){
+				throw new RascalUndefinedValue("No value associated with key " + subs.value);
+			}
+			return normalizedResult(valueType,v);
 		}
 		
 		if(!subsBase.isIntegerType()){
@@ -2630,11 +2634,11 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		
 		int diff = iSecond - iFrom;
 		
-		if(iFrom < iTo){
+		if(iFrom <= iTo && diff > 0){
 			for (int i = iFrom; i >= iFrom && i <= iTo; i += diff) {
 				w.append(vf.integer(i));
 			}
-		} else {
+		} else if(iFrom >= iTo && diff < 0){
 			for (int i = iFrom; i <= iFrom && i >= iTo; i += diff) {
 				w.append(vf.integer(i));
 			}	
@@ -3481,12 +3485,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	@Override
 	public EvalResult visitExpressionIfDefined(IfDefined x) {
 		try {
-			EvalResult res = x.getLhs().accept(this);
-			if(res.value == null){
-				res = x.getRhs().accept(this);
-			}
-			return res;
-		} catch (Exception e) {   //TODO: make this more restrictive
+			return x.getLhs().accept(this);
+		} catch (RascalUndefinedValue e) {
 			EvalResult res = x.getRhs().accept(this);
 			return res;
 		}
