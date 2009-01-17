@@ -18,7 +18,14 @@ public class StandardLibraryListTests extends TestCase {
 		assertTrue(tf.runTestInSameEvaluator("{int N = List::average([1, 3],0); N == 2;}"));
 	}
 	
-	
+	public void testListDomain() throws IOException {
+		
+		tf = new TestFramework("import List;");
+		
+		assertTrue(tf.runTestInSameEvaluator("{domain([]) == [];}"));
+		assertTrue(tf.runTestInSameEvaluator("{domain([1]) == [0];}"));
+		assertTrue(tf.runTestInSameEvaluator("{domain([1, 2]) == [0, 1];}"));
+	}
 	
 	public void testListGetOneFrom() throws IOException {
 		
