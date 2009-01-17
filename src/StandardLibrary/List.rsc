@@ -7,6 +7,12 @@ public &T average(list[&T] lst, &T zero)
   return size(lst) > 0 ? sum(lst, zero)/size(lst) : zero;
 }
 
+public list[int] domain(list[&T] lst)
+@doc{domain -- a list of all legal index values for a list}
+{
+   return [0 .. size(lst) - 1];
+}
+
 public &T java head(list[&T] lst)
   throws empty_list()
  @doc{head -- get the first element of a list}
