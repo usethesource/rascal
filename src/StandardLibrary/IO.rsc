@@ -5,7 +5,13 @@ public void java println(value V...)
 {
    IList argList = (IList) V;
    for(int i = 0; i < argList.length(); i++){
-   	System.out.print(argList.get(i).toString());
+   	  IValue arg = argList.get(i);
+   	  if(arg.getType().isStringType()){
+   	    String argString = arg.toString();
+   	  	System.out.print(argString.substring(1, argString.length() - 1));
+   	  } else {
+   		System.out.print(arg.toString());
+   	  }
    }
    System.out.println();
    return;
