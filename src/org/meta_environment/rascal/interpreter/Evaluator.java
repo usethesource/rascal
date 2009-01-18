@@ -1049,7 +1049,10 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		catch (ReturnException e) {
 			EvalResult result = e.getValue();
 			result.type = result.type.instantiate(env.getTypeBindings());
-			
+			Type returnType = func.getSignature().getType().accept(te);
+			if(!result.type.isSubtypeOf(returnType)){
+				throw new RascalTypeError("Actual return type " + result.type + " is not compatible with declared return type " + returnType);
+			}
 			return result;
 		} 
 		catch (FailureException e){
