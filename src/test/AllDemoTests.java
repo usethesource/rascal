@@ -71,4 +71,11 @@ private static TestFramework tf = new TestFramework();
 		tf = new TestFramework("import WordCount;");
 		assertTrue(tf.runTestInSameEvaluator("WordCount::test();"));
 	}
+	
+	public void testLetAbstract() throws IOException {
+		tf = new TestFramework("import Let-abstract;");
+		assertTrue(tf.runTestInSameEvaluator("Let-abstract::test();"));
+	}
+	
+	
 }
