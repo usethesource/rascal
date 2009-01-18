@@ -12,7 +12,9 @@ import IO;
  * - an integer constant
  * - an (arbitrary) binary operator op.
  */
-data Exp let(str name, Exp exp1, Exp exp2) | var(str Name) | intcon(int val) | op(Exp exp1, Exp exp2);
+ 
+type str Var;
+data Exp let(Var name, Exp exp1, Exp exp2) | Var Name | intcon(int val) | op(Exp exp1, Exp exp2);
 
 /*
  * TODO: the ideal definition would be:
@@ -27,7 +29,7 @@ data Exp let(str name, Exp exp1, Exp exp2) | var(str Name) | intcon(int val) | o
  
 int Cnt = 0;
 
-public str genSym()
+public Var genSym()
 {
 	Cnt = Cnt + 1;
     return "x" + toString(Cnt);
@@ -39,16 +41,16 @@ public str genSym()
 
 public Exp rename(Exp E, map[str,str] Rn) {
     switch (E) {
-    case let(str Name, Exp E1, Exp E2): {
-    	 	str Y = genSym();
+    case let(Var Name, Exp E1, Exp E2): {
+    	 	Var Y = genSym();
          	return let(Y, rename(E1, Rn), rename(E2, Rn + (Name: Y)));
          }
          
     case op(Exp E1, Exp E2):
     	 return op(rename(E1, Rn), rename(E2, Rn));
     
-    case var(str Name):
-    	 return var(Rn[Name] =? Name);
+    case Var Name:
+    	 return Rn[Name] =? Name;
 
     default:
     	 return E;
@@ -56,41 +58,41 @@ public Exp rename(Exp E, map[str,str] Rn) {
 }
 
 public Exp test1(){
- return rename(let("a", intcon(3), var("a")), ());
+ return rename(let("a", intcon(3), "a"), ());
 }
 
 public Exp test2(){
- return rename(let("a", intcon(3), var("b")), ());
+ return rename(let("a", intcon(3), "b"), ());
 }
 
 public Exp test3(){
- return rename(let("a", intcon(1),let("b", intcon(2), var("b"))), ());
+ return rename(let("a", intcon(1),let("b", intcon(2), "b")), ());
 }
 
 public Exp test4(){
- return rename(let("a", intcon(1), op(let("b", intcon(2), var("b")), var("a"))), ());
+ return rename(let("a", intcon(1), op(let("b", intcon(2), "b"), "a")), ());
 }
 
 public Exp test5(){
- return rename(let("a", intcon(1), op(let("a", intcon(2), var("a")), var("a"))), ());
+ return rename(let("a", intcon(1), op(let("a", intcon(2), "a"), "a")), ());
 }
 
 public bool test(){
 	return
-		rename(let("a", intcon(3), var("a")), ()) ==
-		       let("x1",intcon(3),var("x1")) &&
+		rename(let("a", intcon(3), "a"), ()) ==
+		       let("x1",intcon(3), "x1") &&
 		       
-	 	rename(let("a", intcon(3), var("b")), ()) == 
-	 	       let("x2",intcon(3),var("b")) &&
+	 	rename(let("a", intcon(3), "b"), ()) == 
+	 	       let("x2",intcon(3), "b") &&
 
-	 	rename(let("a", intcon(1),let("b", intcon(2), var("b"))), ()) == 
-	 	       let("x3",intcon(1),let("x4",intcon(2),var("x4"))) &&
+	 	rename(let("a", intcon(1),let("b", intcon(2), "b")), ()) == 
+	 	       let("x3",intcon(1),let("x4",intcon(2), "x4")) &&
 	 	       
-	 	rename(let("a", intcon(1), op(let("b", intcon(2), var("b")), var("a"))), ()) ==
-	 	       let("x5",intcon(1),op(let("x6",intcon(2),var("x6")),var("x5"))) &&
+	 	rename(let("a", intcon(1), op(let("b", intcon(2), "b"),  "a")), ()) ==
+	 	       let("x5",intcon(1), op(let("x6",intcon(2), "x6"), "x5")) &&
 	 	       
-	 	rename(let("a", intcon(1), op(let("a", intcon(2), var("a")), var("a"))), ()) ==
-	 	       let("x7",intcon(1),op(let("x8",intcon(2),var("x8")),var("x7")));
+	 	rename(let("a", intcon(1), op(let("a", intcon(2), "a"),  "a")), ()) ==
+	 	       let("x7",intcon(1), op(let("x8",intcon(2), "x8"), "x7"));
 }
 
 	 	 
