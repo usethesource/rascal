@@ -46,7 +46,7 @@ public class SubList extends Value implements IList {
 	public boolean equals(Object o){
 		if(o instanceof List || o instanceof SubList){
 			List other = (List) o;
-			if(fType.comparable(other.getType()) && equalAnnotations((Value) o) && (len == other.length())){
+			if(fType.comparable(other.getType()) && (len == other.length())){
 				for(int i = 0; i < len; i++){
 					if(!base.get(start + i).equals(other.get(i))){
 						return false;
@@ -81,12 +81,6 @@ public class SubList extends Value implements IList {
 		return sb.toString();
 	}
 
-	@Override
-	protected IValue clone(String label, IValue value) {
-		return null;
-		// TODO: return new SubList((IList)base.clone(label, value), start, end);	
-	}
-	
 	private void appendSubListElements(IListWriter w){
 		for(int i = start; i < end; i++){
 			w.append(base.get(i));
@@ -97,7 +91,6 @@ public class SubList extends Value implements IList {
 		IListWriter w = ValueFactory.getInstance().listWriter(elem.getType().lub(getElementType()));
 		appendSubListElements(w);
 		w.append(elem);
-		w.setAnnotations(fAnnotations);
 		return w.done();
 	}
 
@@ -126,7 +119,6 @@ public class SubList extends Value implements IList {
 		IListWriter w = ValueFactory.getInstance().listWriter(elem.getType().lub(getElementType()));
 		w.insert(elem);
 		appendSubListElements(w);
-		w.setAnnotations(fAnnotations);
 		return w.done();
 	}
 
@@ -153,7 +145,6 @@ public class SubList extends Value implements IList {
 		for(int i = end - 1; i >= start; i--){
 			w.insert(base.get(start));
 		}
-		w.setAnnotations(fAnnotations);
 		return w.done();
 	}
 

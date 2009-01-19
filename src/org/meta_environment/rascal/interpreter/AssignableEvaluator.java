@@ -59,7 +59,11 @@ import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 		String label = x.getAnnotation().toString();
 		EvalResult result = x.getReceiver().accept(eval);
 		
-		result.value = result.value.setAnnotation(label, value.value);
+		if (!result.type.declaresAnnotation(label)) {
+			throw new RascalTypeError("No annotation " + label + " declared for " + result.type);
+		}
+		
+		result.value = ((INode) result.value).setAnnotation(label, value.value);
 		
 		return recur(x, result);
 	}
