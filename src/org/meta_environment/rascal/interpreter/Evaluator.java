@@ -1550,9 +1550,14 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		EvalResult receiver = x.getReceiver().accept(this);
 		String label = x.getAnnotation().toString();
 		
+		if (receiver.type.declaresAnnotation(label)) {
+			throw new RascalTypeError("No annotation " + label + " declared for " + receiver.type);
+		}
+		
 		// TODO get annotation from local and imported environments
 		Type type = tf.getAnnotationType(receiver.type, label);
-		IValue value = receiver.value.getAnnotation(label);
+		IValue value = ((INode) receiver.value).getAnnotation(label);
+		
 		return normalizedResult(type, value);
 	}
 	
@@ -2003,7 +2008,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 					+ " declared on " + expr.type);
 		}
 
-		IValue annoValue = expr.value.getAnnotation(name);
+		IValue annoValue = ((INode) expr.value).getAnnotation(name);
 		
 		if (annoValue == null) {
 			// TODO: make this a Rascal exception that can be caught by the programmer
