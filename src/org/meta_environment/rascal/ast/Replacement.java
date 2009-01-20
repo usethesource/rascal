@@ -1,79 +1,177 @@
-package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
-public abstract class Replacement extends AbstractAST { 
-  public org.meta_environment.rascal.ast.Expression getReplacementExpression() { throw new UnsupportedOperationException(); } public boolean hasReplacementExpression() { return false; } public boolean isUnconditional() { return false; }
-static public class Unconditional extends Replacement {
-/* replacementExpression:Expression -> Replacement {cons("Unconditional")} */
-	private Unconditional() { }
-	/*package*/ Unconditional(ITree tree, org.meta_environment.rascal.ast.Expression replacementExpression) {
-		this.tree = tree;
-		this.replacementExpression = replacementExpression;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitReplacementUnconditional(this);
-	}
+package org.meta_environment.rascal.ast;
 
-	public boolean isUnconditional() { return true; }
+import org.eclipse.imp.pdb.facts.ITree;
 
-	public boolean hasReplacementExpression() { return true; }
+public abstract class Replacement extends AbstractAST {
+	static public class Ambiguity extends Replacement {
+		private final java.util.List<org.meta_environment.rascal.ast.Replacement> alternatives;
 
-private org.meta_environment.rascal.ast.Expression replacementExpression;
-	public org.meta_environment.rascal.ast.Expression getReplacementExpression() { return replacementExpression; }
-	private void $setReplacementExpression(org.meta_environment.rascal.ast.Expression x) { this.replacementExpression = x; }
-	public Unconditional setReplacementExpression(org.meta_environment.rascal.ast.Expression x) { 
-		Unconditional z = new Unconditional();
- 		z.$setReplacementExpression(x);
-		return z;
-	}	
-}
-static public class Ambiguity extends Replacement {
-  private final java.util.List<org.meta_environment.rascal.ast.Replacement> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Replacement> alternatives) {
-	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
-  }
-  public java.util.List<org.meta_environment.rascal.ast.Replacement> getAlternatives() {
-	return alternatives;
-  }
-  
-  public <T> T accept(IASTVisitor<T> v) {
-     return v.visitReplacementAmbiguity(this);
-  }
-} public java.util.List<org.meta_environment.rascal.ast.Expression> getConditions() { throw new UnsupportedOperationException(); } public boolean hasConditions() { return false; }
-public boolean isConditional() { return false; }
-static public class Conditional extends Replacement {
-/* replacementExpression:Expression "when" conditions:{Expression ","}+ -> Replacement {cons("Conditional")} */
-	private Conditional() { }
-	/*package*/ Conditional(ITree tree, org.meta_environment.rascal.ast.Expression replacementExpression, java.util.List<org.meta_environment.rascal.ast.Expression> conditions) {
-		this.tree = tree;
-		this.replacementExpression = replacementExpression;
-		this.conditions = conditions;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitReplacementConditional(this);
+		public Ambiguity(
+				ITree tree,
+				java.util.List<org.meta_environment.rascal.ast.Replacement> alternatives) {
+			this.alternatives = java.util.Collections
+					.unmodifiableList(alternatives);
+			this.tree = tree;
+		}
+
+		@Override
+		public <T> T accept(IASTVisitor<T> v) {
+			return v.visitReplacementAmbiguity(this);
+		}
+
+		public java.util.List<org.meta_environment.rascal.ast.Replacement> getAlternatives() {
+			return alternatives;
+		}
 	}
 
-	public boolean isConditional() { return true; }
+	static public class Conditional extends Replacement {
+		private org.meta_environment.rascal.ast.Expression replacementExpression;
+		private java.util.List<org.meta_environment.rascal.ast.Expression> conditions;
 
-	public boolean hasReplacementExpression() { return true; }
-	public boolean hasConditions() { return true; }
+		/*
+		 * replacementExpression:Expression "when" conditions:{Expression ","}+
+		 * -> Replacement {cons("Conditional")}
+		 */
+		private Conditional() {
+		}
 
-private org.meta_environment.rascal.ast.Expression replacementExpression;
-	public org.meta_environment.rascal.ast.Expression getReplacementExpression() { return replacementExpression; }
-	private void $setReplacementExpression(org.meta_environment.rascal.ast.Expression x) { this.replacementExpression = x; }
-	public Conditional setReplacementExpression(org.meta_environment.rascal.ast.Expression x) { 
-		Conditional z = new Conditional();
- 		z.$setReplacementExpression(x);
-		return z;
+		/* package */Conditional(
+				ITree tree,
+				org.meta_environment.rascal.ast.Expression replacementExpression,
+				java.util.List<org.meta_environment.rascal.ast.Expression> conditions) {
+			this.tree = tree;
+			this.replacementExpression = replacementExpression;
+			this.conditions = conditions;
+		}
+
+		private void $setConditions(
+				java.util.List<org.meta_environment.rascal.ast.Expression> x) {
+			this.conditions = x;
+		}
+
+		private void $setReplacementExpression(
+				org.meta_environment.rascal.ast.Expression x) {
+			this.replacementExpression = x;
+		}
+
+		@Override
+		public <T> T accept(IASTVisitor<T> visitor) {
+			return visitor.visitReplacementConditional(this);
+		}
+
+		@Override
+		public java.util.List<org.meta_environment.rascal.ast.Expression> getConditions() {
+			return conditions;
+		}
+
+		@Override
+		public org.meta_environment.rascal.ast.Expression getReplacementExpression() {
+			return replacementExpression;
+		}
+
+		@Override
+		public boolean hasConditions() {
+			return true;
+		}
+
+		@Override
+		public boolean hasReplacementExpression() {
+			return true;
+		}
+
+		@Override
+		public boolean isConditional() {
+			return true;
+		}
+
+		public Conditional setConditions(
+				java.util.List<org.meta_environment.rascal.ast.Expression> x) {
+			final Conditional z = new Conditional();
+			z.$setConditions(x);
+			return z;
+		}
+
+		public Conditional setReplacementExpression(
+				org.meta_environment.rascal.ast.Expression x) {
+			final Conditional z = new Conditional();
+			z.$setReplacementExpression(x);
+			return z;
+		}
 	}
-	private java.util.List<org.meta_environment.rascal.ast.Expression> conditions;
-	public java.util.List<org.meta_environment.rascal.ast.Expression> getConditions() { return conditions; }
-	private void $setConditions(java.util.List<org.meta_environment.rascal.ast.Expression> x) { this.conditions = x; }
-	public Conditional setConditions(java.util.List<org.meta_environment.rascal.ast.Expression> x) { 
-		Conditional z = new Conditional();
- 		z.$setConditions(x);
-		return z;
-	}	
-}
- public abstract <T> T accept(IASTVisitor<T> visitor);
+
+	static public class Unconditional extends Replacement {
+		private org.meta_environment.rascal.ast.Expression replacementExpression;
+
+		/*
+		 * replacementExpression:Expression -> Replacement
+		 * {cons("Unconditional")}
+		 */
+		private Unconditional() {
+		}
+
+		/* package */Unconditional(ITree tree,
+				org.meta_environment.rascal.ast.Expression replacementExpression) {
+			this.tree = tree;
+			this.replacementExpression = replacementExpression;
+		}
+
+		private void $setReplacementExpression(
+				org.meta_environment.rascal.ast.Expression x) {
+			this.replacementExpression = x;
+		}
+
+		@Override
+		public <T> T accept(IASTVisitor<T> visitor) {
+			return visitor.visitReplacementUnconditional(this);
+		}
+
+		@Override
+		public org.meta_environment.rascal.ast.Expression getReplacementExpression() {
+			return replacementExpression;
+		}
+
+		@Override
+		public boolean hasReplacementExpression() {
+			return true;
+		}
+
+		@Override
+		public boolean isUnconditional() {
+			return true;
+		}
+
+		public Unconditional setReplacementExpression(
+				org.meta_environment.rascal.ast.Expression x) {
+			final Unconditional z = new Unconditional();
+			z.$setReplacementExpression(x);
+			return z;
+		}
+	}
+
+	@Override
+	public abstract <T> T accept(IASTVisitor<T> visitor);
+
+	public java.util.List<org.meta_environment.rascal.ast.Expression> getConditions() {
+		throw new UnsupportedOperationException();
+	}
+
+	public org.meta_environment.rascal.ast.Expression getReplacementExpression() {
+		throw new UnsupportedOperationException();
+	}
+
+	public boolean hasConditions() {
+		return false;
+	}
+
+	public boolean hasReplacementExpression() {
+		return false;
+	}
+
+	public boolean isConditional() {
+		return false;
+	}
+
+	public boolean isUnconditional() {
+		return false;
+	}
 }

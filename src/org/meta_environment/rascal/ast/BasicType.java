@@ -1,134 +1,209 @@
-package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
-public abstract class BasicType extends AbstractAST { 
-  public boolean isBool() { return false; }
-static public class Bool extends BasicType {
-/* "bool" -> BasicType {cons("Bool")} */
-	private Bool() { }
-	/*package*/ Bool(ITree tree) {
-		this.tree = tree;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitBasicTypeBool(this);
+package org.meta_environment.rascal.ast;
+
+import org.eclipse.imp.pdb.facts.ITree;
+
+public abstract class BasicType extends AbstractAST {
+	static public class Ambiguity extends BasicType {
+		private final java.util.List<org.meta_environment.rascal.ast.BasicType> alternatives;
+
+		public Ambiguity(
+				ITree tree,
+				java.util.List<org.meta_environment.rascal.ast.BasicType> alternatives) {
+			this.alternatives = java.util.Collections
+					.unmodifiableList(alternatives);
+			this.tree = tree;
+		}
+
+		@Override
+		public <T> T accept(IASTVisitor<T> v) {
+			return v.visitBasicTypeAmbiguity(this);
+		}
+
+		public java.util.List<org.meta_environment.rascal.ast.BasicType> getAlternatives() {
+			return alternatives;
+		}
 	}
 
-	public boolean isBool() { return true; }	
-}
-static public class Ambiguity extends BasicType {
-  private final java.util.List<org.meta_environment.rascal.ast.BasicType> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.BasicType> alternatives) {
-	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
-  }
-  public java.util.List<org.meta_environment.rascal.ast.BasicType> getAlternatives() {
-	return alternatives;
-  }
-  
-  public <T> T accept(IASTVisitor<T> v) {
-     return v.visitBasicTypeAmbiguity(this);
-  }
-} 
-public boolean isInt() { return false; }
-static public class Int extends BasicType {
-/* "int" -> BasicType {cons("Int")} */
-	private Int() { }
-	/*package*/ Int(ITree tree) {
-		this.tree = tree;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitBasicTypeInt(this);
+	static public class Area extends BasicType {
+		/* package */Area(ITree tree) {
+			this.tree = tree;
+		}
+
+		@Override
+		public <T> T accept(IASTVisitor<T> visitor) {
+			return visitor.visitBasicTypeArea(this);
+		}
+
+		@Override
+		public boolean isArea() {
+			return true;
+		}
 	}
 
-	public boolean isInt() { return true; }	
-} public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isReal() { return false; }
-static public class Real extends BasicType {
-/* "real" -> BasicType {cons("Real")} */
-	private Real() { }
-	/*package*/ Real(ITree tree) {
-		this.tree = tree;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitBasicTypeReal(this);
+	static public class Bool extends BasicType {
+		/* package */Bool(ITree tree) {
+			this.tree = tree;
+		}
+
+		@Override
+		public <T> T accept(IASTVisitor<T> visitor) {
+			return visitor.visitBasicTypeBool(this);
+		}
+
+		@Override
+		public boolean isBool() {
+			return true;
+		}
 	}
 
-	public boolean isReal() { return true; }	
-} 
-public boolean isString() { return false; }
-static public class String extends BasicType {
-/* "str" -> BasicType {cons("String")} */
-	private String() { }
-	/*package*/ String(ITree tree) {
-		this.tree = tree;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitBasicTypeString(this);
+	static public class Int extends BasicType {
+		/* package */Int(ITree tree) {
+			this.tree = tree;
+		}
+
+		@Override
+		public <T> T accept(IASTVisitor<T> visitor) {
+			return visitor.visitBasicTypeInt(this);
+		}
+
+		@Override
+		public boolean isInt() {
+			return true;
+		}
 	}
 
-	public boolean isString() { return true; }	
-} 
-public boolean isValue() { return false; }
-static public class Value extends BasicType {
-/* "value" -> BasicType {cons("Value")} */
-	private Value() { }
-	/*package*/ Value(ITree tree) {
-		this.tree = tree;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitBasicTypeValue(this);
+	static public class Loc extends BasicType {
+		/* package */Loc(ITree tree) {
+			this.tree = tree;
+		}
+
+		@Override
+		public <T> T accept(IASTVisitor<T> visitor) {
+			return visitor.visitBasicTypeLoc(this);
+		}
+
+		@Override
+		public boolean isLoc() {
+			return true;
+		}
 	}
 
-	public boolean isValue() { return true; }	
-} 
-public boolean isTree() { return false; }
-static public class Tree extends BasicType {
-/* "tree" -> BasicType {cons("Tree")} */
-	private Tree() { }
-	/*package*/ Tree(ITree tree) {
-		this.tree = tree;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitBasicTypeTree(this);
+	static public class Real extends BasicType {
+		/* package */Real(ITree tree) {
+			this.tree = tree;
+		}
+
+		@Override
+		public <T> T accept(IASTVisitor<T> visitor) {
+			return visitor.visitBasicTypeReal(this);
+		}
+
+		@Override
+		public boolean isReal() {
+			return true;
+		}
 	}
 
-	public boolean isTree() { return true; }	
-} 
-public boolean isVoid() { return false; }
-static public class Void extends BasicType {
-/* "void" -> BasicType {cons("Void")} */
-	private Void() { }
-	/*package*/ Void(ITree tree) {
-		this.tree = tree;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitBasicTypeVoid(this);
+	static public class String extends BasicType {
+		/* package */String(ITree tree) {
+			this.tree = tree;
+		}
+
+		@Override
+		public <T> T accept(IASTVisitor<T> visitor) {
+			return visitor.visitBasicTypeString(this);
+		}
+
+		@Override
+		public boolean isString() {
+			return true;
+		}
 	}
 
-	public boolean isVoid() { return true; }	
-} 
-public boolean isLoc() { return false; }
-static public class Loc extends BasicType {
-/* "loc" -> BasicType {cons("Loc")} */
-	private Loc() { }
-	/*package*/ Loc(ITree tree) {
-		this.tree = tree;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitBasicTypeLoc(this);
+	static public class Tree extends BasicType {
+		/* package */Tree(ITree tree) {
+			this.tree = tree;
+		}
+
+		@Override
+		public <T> T accept(IASTVisitor<T> visitor) {
+			return visitor.visitBasicTypeTree(this);
+		}
+
+		@Override
+		public boolean isTree() {
+			return true;
+		}
 	}
 
-	public boolean isLoc() { return true; }	
-} 
-public boolean isArea() { return false; }
-static public class Area extends BasicType {
-/* "area" -> BasicType {cons("Area")} */
-	private Area() { }
-	/*package*/ Area(ITree tree) {
-		this.tree = tree;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitBasicTypeArea(this);
+	static public class Value extends BasicType {
+		/* package */Value(ITree tree) {
+			this.tree = tree;
+		}
+
+		@Override
+		public <T> T accept(IASTVisitor<T> visitor) {
+			return visitor.visitBasicTypeValue(this);
+		}
+
+		@Override
+		public boolean isValue() {
+			return true;
+		}
 	}
 
-	public boolean isArea() { return true; }	
-}
+	static public class Void extends BasicType {
+		/* package */Void(ITree tree) {
+			this.tree = tree;
+		}
+
+		@Override
+		public <T> T accept(IASTVisitor<T> visitor) {
+			return visitor.visitBasicTypeVoid(this);
+		}
+
+		@Override
+		public boolean isVoid() {
+			return true;
+		}
+	}
+
+	@Override
+	public abstract <T> T accept(IASTVisitor<T> visitor);
+
+	public boolean isArea() {
+		return false;
+	}
+
+	public boolean isBool() {
+		return false;
+	}
+
+	public boolean isInt() {
+		return false;
+	}
+
+	public boolean isLoc() {
+		return false;
+	}
+
+	public boolean isReal() {
+		return false;
+	}
+
+	public boolean isString() {
+		return false;
+	}
+
+	public boolean isTree() {
+		return false;
+	}
+
+	public boolean isValue() {
+		return false;
+	}
+
+	public boolean isVoid() {
+		return false;
+	}
 }
