@@ -1,6 +1,8 @@
-module Lambda-Examples
+module Fun-concrete
 
-import Lambda-syntax;
+// OUTDATED, see Fun-abstract
+
+import syntax-syntax;
 
 set[Var] allVars(Exp E) {
     return {V | Var V : E};
