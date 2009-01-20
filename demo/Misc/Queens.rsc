@@ -79,12 +79,20 @@ public void queens2()
 /*
  * Version 3: Use a variable argument to represent the board.
  */
-public void queens3(int B ...)
+public int queens3(int B ...)
 {
-  if(size(B) == 8){
+  int nsolutions = 0;
+  if(size(B) == N){
      println(B);
   } else {
      for(int Q : [1 .. 8], consistent(B + Q))
-         queens3(B + Q);
+         nsolutions = nsolutions + queens3(B + Q);
   }
+  return nsolutions;
+}
+
+public bool test()
+{
+   N = 5;
+   return queens3() == 92;
 }

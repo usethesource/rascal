@@ -40,6 +40,9 @@ public class DataDeclarationTests extends TestCase{
 		assertTrue(tf.runTestInSameEvaluator("{Exp e = intExp(1); e == intExp(1);}"));
 		assertTrue(tf.runTestInSameEvaluator("{Exp e = \"a\"; e == \"a\";}"));
 		assertTrue(tf.runTestInSameEvaluator("{Exp e = let(\"a\",intExp(1),\"a\"); e ==  let(\"a\",intExp(1),\"a\");}"));
+		assertTrue(tf.runTestInSameEvaluator("Var var ~= \"a\";"));
+		assertTrue(tf.runTestInSameEvaluator("Var var ~! let(\"a\",intExp(1),\"a\");"));
+		
 	}
 	
 	public void testLet3() throws IOException {
@@ -61,5 +64,4 @@ public class DataDeclarationTests extends TestCase{
 		assertTrue(tf.runTestInSameEvaluator("{Exp e = var(\"a\"); e == var(\"a\");}"));
 		assertTrue(tf.runTestInSameEvaluator("{Exp e = let(\"a\",1,var(\"a\")); e ==  let(\"a\",1,var(\"a\"));}"));
 	}
-	
 }
