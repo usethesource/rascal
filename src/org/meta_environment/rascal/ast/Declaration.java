@@ -1,383 +1,933 @@
-package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
-public abstract class Declaration extends AbstractAST { 
-  public org.meta_environment.rascal.ast.Name getView() { throw new UnsupportedOperationException(); }
-	public org.meta_environment.rascal.ast.Name getSuperType() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Tags getTags() { throw new UnsupportedOperationException(); } public java.util.List<org.meta_environment.rascal.ast.Alternative> getAlts() { throw new UnsupportedOperationException(); }
-public boolean hasView() { return false; }
-	public boolean hasSuperType() { return false; } public boolean hasTags() { return false; } public boolean hasAlts() { return false; }
-public boolean isView() { return false; }
-static public class View extends Declaration {
-/* "view" view:Name "<:" superType:Name tags:Tags alts:{Alternative "|"}+ ";" -> Declaration {cons("View")} */
-	private View() { }
-	/*package*/ View(ITree tree, org.meta_environment.rascal.ast.Name view, org.meta_environment.rascal.ast.Name superType, org.meta_environment.rascal.ast.Tags tags, java.util.List<org.meta_environment.rascal.ast.Alternative> alts) {
-		this.tree = tree;
-		this.view = view;
-		this.superType = superType;
-		this.tags = tags;
-		this.alts = alts;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitDeclarationView(this);
+package org.meta_environment.rascal.ast;
+
+import org.eclipse.imp.pdb.facts.ITree;
+
+public abstract class Declaration extends AbstractAST {
+	static public class Ambiguity extends Declaration {
+		private final java.util.List<org.meta_environment.rascal.ast.Declaration> alternatives;
+
+		public Ambiguity(
+				ITree tree,
+				java.util.List<org.meta_environment.rascal.ast.Declaration> alternatives) {
+			this.alternatives = java.util.Collections
+					.unmodifiableList(alternatives);
+			this.tree = tree;
+		}
+
+		@Override
+		public <T> T accept(IASTVisitor<T> v) {
+			return v.visitDeclarationAmbiguity(this);
+		}
+
+		public java.util.List<org.meta_environment.rascal.ast.Declaration> getAlternatives() {
+			return alternatives;
+		}
 	}
 
-	public boolean isView() { return true; }
+	static public class Annotation extends Declaration {
+		private org.meta_environment.rascal.ast.Type type;
+		private org.meta_environment.rascal.ast.Name name;
+		private org.meta_environment.rascal.ast.Tags tags;
 
-	public boolean hasView() { return true; }
-	public boolean hasSuperType() { return true; }
-	public boolean hasTags() { return true; }
-	public boolean hasAlts() { return true; }
+		private java.util.List<org.meta_environment.rascal.ast.Type> types;
 
-private org.meta_environment.rascal.ast.Name view;
-	public org.meta_environment.rascal.ast.Name getView() { return view; }
-	private void $setView(org.meta_environment.rascal.ast.Name x) { this.view = x; }
-	public View setView(org.meta_environment.rascal.ast.Name x) { 
-		View z = new View();
- 		z.$setView(x);
-		return z;
-	}
-	private org.meta_environment.rascal.ast.Name superType;
-	public org.meta_environment.rascal.ast.Name getSuperType() { return superType; }
-	private void $setSuperType(org.meta_environment.rascal.ast.Name x) { this.superType = x; }
-	public View setSuperType(org.meta_environment.rascal.ast.Name x) { 
-		View z = new View();
- 		z.$setSuperType(x);
-		return z;
-	}
-	private org.meta_environment.rascal.ast.Tags tags;
-	public org.meta_environment.rascal.ast.Tags getTags() { return tags; }
-	private void $setTags(org.meta_environment.rascal.ast.Tags x) { this.tags = x; }
-	public View setTags(org.meta_environment.rascal.ast.Tags x) { 
-		View z = new View();
- 		z.$setTags(x);
-		return z;
-	}
-	private java.util.List<org.meta_environment.rascal.ast.Alternative> alts;
-	public java.util.List<org.meta_environment.rascal.ast.Alternative> getAlts() { return alts; }
-	private void $setAlts(java.util.List<org.meta_environment.rascal.ast.Alternative> x) { this.alts = x; }
-	public View setAlts(java.util.List<org.meta_environment.rascal.ast.Alternative> x) { 
-		View z = new View();
- 		z.$setAlts(x);
-		return z;
-	}	
-}
-static public class Ambiguity extends Declaration {
-  private final java.util.List<org.meta_environment.rascal.ast.Declaration> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Declaration> alternatives) {
-	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
-  }
-  public java.util.List<org.meta_environment.rascal.ast.Declaration> getAlternatives() {
-	return alternatives;
-  }
-  
-  public <T> T accept(IASTVisitor<T> v) {
-     return v.visitDeclarationAmbiguity(this);
-  }
-} 
-public org.meta_environment.rascal.ast.Type getBase() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.UserType getUser() { throw new UnsupportedOperationException(); } public boolean hasBase() { return false; } public boolean hasUser() { return false; } public boolean isType() { return false; }
-static public class Type extends Declaration {
-/* "type" base:Type user:UserType tags:Tags ";" -> Declaration {cons("Type")} */
-	private Type() { }
-	/*package*/ Type(ITree tree, org.meta_environment.rascal.ast.Type base, org.meta_environment.rascal.ast.UserType user, org.meta_environment.rascal.ast.Tags tags) {
-		this.tree = tree;
-		this.base = base;
-		this.user = user;
-		this.tags = tags;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitDeclarationType(this);
-	}
+		/*
+		 * "anno" type:Type name:Name tags:Tags types:{Type "|"}+ ";" ->
+		 * Declaration {cons("Annotation")}
+		 */
+		private Annotation() {
+		}
 
-	public boolean isType() { return true; }
+		/* package */Annotation(ITree tree,
+				org.meta_environment.rascal.ast.Type type,
+				org.meta_environment.rascal.ast.Name name,
+				org.meta_environment.rascal.ast.Tags tags,
+				java.util.List<org.meta_environment.rascal.ast.Type> types) {
+			this.tree = tree;
+			this.type = type;
+			this.name = name;
+			this.tags = tags;
+			this.types = types;
+		}
 
-	public boolean hasBase() { return true; }
-	public boolean hasUser() { return true; }
-	public boolean hasTags() { return true; }
+		private void $setName(org.meta_environment.rascal.ast.Name x) {
+			this.name = x;
+		}
 
-private org.meta_environment.rascal.ast.Type base;
-	public org.meta_environment.rascal.ast.Type getBase() { return base; }
-	private void $setBase(org.meta_environment.rascal.ast.Type x) { this.base = x; }
-	public Type setBase(org.meta_environment.rascal.ast.Type x) { 
-		Type z = new Type();
- 		z.$setBase(x);
-		return z;
-	}
-	private org.meta_environment.rascal.ast.UserType user;
-	public org.meta_environment.rascal.ast.UserType getUser() { return user; }
-	private void $setUser(org.meta_environment.rascal.ast.UserType x) { this.user = x; }
-	public Type setUser(org.meta_environment.rascal.ast.UserType x) { 
-		Type z = new Type();
- 		z.$setUser(x);
-		return z;
-	}
-	private org.meta_environment.rascal.ast.Tags tags;
-	public org.meta_environment.rascal.ast.Tags getTags() { return tags; }
-	private void $setTags(org.meta_environment.rascal.ast.Tags x) { this.tags = x; }
-	public Type setTags(org.meta_environment.rascal.ast.Tags x) { 
-		Type z = new Type();
- 		z.$setTags(x);
-		return z;
-	}	
-} public abstract <T> T accept(IASTVisitor<T> visitor); public java.util.List<org.meta_environment.rascal.ast.Variant> getVariants() { throw new UnsupportedOperationException(); } public boolean hasVariants() { return false; }
-public boolean isData() { return false; }
-static public class Data extends Declaration {
-/* "data" user:UserType tags:Tags variants:{Variant "|"}+ ";" -> Declaration {cons("Data")} */
-	private Data() { }
-	/*package*/ Data(ITree tree, org.meta_environment.rascal.ast.UserType user, org.meta_environment.rascal.ast.Tags tags, java.util.List<org.meta_environment.rascal.ast.Variant> variants) {
-		this.tree = tree;
-		this.user = user;
-		this.tags = tags;
-		this.variants = variants;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitDeclarationData(this);
-	}
+		private void $setTags(org.meta_environment.rascal.ast.Tags x) {
+			this.tags = x;
+		}
 
-	public boolean isData() { return true; }
+		private void $setType(org.meta_environment.rascal.ast.Type x) {
+			this.type = x;
+		}
 
-	public boolean hasUser() { return true; }
-	public boolean hasTags() { return true; }
-	public boolean hasVariants() { return true; }
+		private void $setTypes(
+				java.util.List<org.meta_environment.rascal.ast.Type> x) {
+			this.types = x;
+		}
 
-private org.meta_environment.rascal.ast.UserType user;
-	public org.meta_environment.rascal.ast.UserType getUser() { return user; }
-	private void $setUser(org.meta_environment.rascal.ast.UserType x) { this.user = x; }
-	public Data setUser(org.meta_environment.rascal.ast.UserType x) { 
-		Data z = new Data();
- 		z.$setUser(x);
-		return z;
-	}
-	private org.meta_environment.rascal.ast.Tags tags;
-	public org.meta_environment.rascal.ast.Tags getTags() { return tags; }
-	private void $setTags(org.meta_environment.rascal.ast.Tags x) { this.tags = x; }
-	public Data setTags(org.meta_environment.rascal.ast.Tags x) { 
-		Data z = new Data();
- 		z.$setTags(x);
-		return z;
-	}
-	private java.util.List<org.meta_environment.rascal.ast.Variant> variants;
-	public java.util.List<org.meta_environment.rascal.ast.Variant> getVariants() { return variants; }
-	private void $setVariants(java.util.List<org.meta_environment.rascal.ast.Variant> x) { this.variants = x; }
-	public Data setVariants(java.util.List<org.meta_environment.rascal.ast.Variant> x) { 
-		Data z = new Data();
- 		z.$setVariants(x);
-		return z;
-	}	
-} 
-public org.meta_environment.rascal.ast.FunctionDeclaration getFunctionDeclaration() { throw new UnsupportedOperationException(); }
-public boolean hasFunctionDeclaration() { return false; }
-public boolean isFunction() { return false; }
-static public class Function extends Declaration {
-/* functionDeclaration:FunctionDeclaration -> Declaration {cons("Function")} */
-	private Function() { }
-	/*package*/ Function(ITree tree, org.meta_environment.rascal.ast.FunctionDeclaration functionDeclaration) {
-		this.tree = tree;
-		this.functionDeclaration = functionDeclaration;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitDeclarationFunction(this);
+		@Override
+		public <T> T accept(IASTVisitor<T> visitor) {
+			return visitor.visitDeclarationAnnotation(this);
+		}
+
+		@Override
+		public org.meta_environment.rascal.ast.Name getName() {
+			return name;
+		}
+
+		@Override
+		public org.meta_environment.rascal.ast.Tags getTags() {
+			return tags;
+		}
+
+		@Override
+		public org.meta_environment.rascal.ast.Type getType() {
+			return type;
+		}
+
+		@Override
+		public java.util.List<org.meta_environment.rascal.ast.Type> getTypes() {
+			return types;
+		}
+
+		@Override
+		public boolean hasName() {
+			return true;
+		}
+
+		@Override
+		public boolean hasTags() {
+			return true;
+		}
+
+		@Override
+		public boolean hasType() {
+			return true;
+		}
+
+		@Override
+		public boolean hasTypes() {
+			return true;
+		}
+
+		@Override
+		public boolean isAnnotation() {
+			return true;
+		}
+
+		public Annotation setName(org.meta_environment.rascal.ast.Name x) {
+			final Annotation z = new Annotation();
+			z.$setName(x);
+			return z;
+		}
+
+		public Annotation setTags(org.meta_environment.rascal.ast.Tags x) {
+			final Annotation z = new Annotation();
+			z.$setTags(x);
+			return z;
+		}
+
+		public Annotation setType(org.meta_environment.rascal.ast.Type x) {
+			final Annotation z = new Annotation();
+			z.$setType(x);
+			return z;
+		}
+
+		public Annotation setTypes(
+				java.util.List<org.meta_environment.rascal.ast.Type> x) {
+			final Annotation z = new Annotation();
+			z.$setTypes(x);
+			return z;
+		}
 	}
 
-	public boolean isFunction() { return true; }
+	static public class Data extends Declaration {
+		private org.meta_environment.rascal.ast.UserType user;
+		private org.meta_environment.rascal.ast.Tags tags;
+		private java.util.List<org.meta_environment.rascal.ast.Variant> variants;
 
-	public boolean hasFunctionDeclaration() { return true; }
+		/*
+		 * "data" user:UserType tags:Tags variants:{Variant "|"}+ ";" ->
+		 * Declaration {cons("Data")}
+		 */
+		private Data() {
+		}
 
-private org.meta_environment.rascal.ast.FunctionDeclaration functionDeclaration;
-	public org.meta_environment.rascal.ast.FunctionDeclaration getFunctionDeclaration() { return functionDeclaration; }
-	private void $setFunctionDeclaration(org.meta_environment.rascal.ast.FunctionDeclaration x) { this.functionDeclaration = x; }
-	public Function setFunctionDeclaration(org.meta_environment.rascal.ast.FunctionDeclaration x) { 
-		Function z = new Function();
- 		z.$setFunctionDeclaration(x);
-		return z;
-	}	
-} public org.meta_environment.rascal.ast.Type getType() { throw new UnsupportedOperationException(); } public java.util.List<org.meta_environment.rascal.ast.Variable> getVariables() { throw new UnsupportedOperationException(); } public boolean hasType() { return false; } public boolean hasVariables() { return false; }
-public boolean isVariable() { return false; }
-static public class Variable extends Declaration {
-/* type:Type variables:{Variable ","}+ ";" -> Declaration {cons("Variable")} */
-	private Variable() { }
-	/*package*/ Variable(ITree tree, org.meta_environment.rascal.ast.Type type, java.util.List<org.meta_environment.rascal.ast.Variable> variables) {
-		this.tree = tree;
-		this.type = type;
-		this.variables = variables;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitDeclarationVariable(this);
-	}
+		/* package */Data(ITree tree,
+				org.meta_environment.rascal.ast.UserType user,
+				org.meta_environment.rascal.ast.Tags tags,
+				java.util.List<org.meta_environment.rascal.ast.Variant> variants) {
+			this.tree = tree;
+			this.user = user;
+			this.tags = tags;
+			this.variants = variants;
+		}
 
-	public boolean isVariable() { return true; }
+		private void $setTags(org.meta_environment.rascal.ast.Tags x) {
+			this.tags = x;
+		}
 
-	public boolean hasType() { return true; }
-	public boolean hasVariables() { return true; }
+		private void $setUser(org.meta_environment.rascal.ast.UserType x) {
+			this.user = x;
+		}
 
-private org.meta_environment.rascal.ast.Type type;
-	public org.meta_environment.rascal.ast.Type getType() { return type; }
-	private void $setType(org.meta_environment.rascal.ast.Type x) { this.type = x; }
-	public Variable setType(org.meta_environment.rascal.ast.Type x) { 
-		Variable z = new Variable();
- 		z.$setType(x);
-		return z;
-	}
-	private java.util.List<org.meta_environment.rascal.ast.Variable> variables;
-	public java.util.List<org.meta_environment.rascal.ast.Variable> getVariables() { return variables; }
-	private void $setVariables(java.util.List<org.meta_environment.rascal.ast.Variable> x) { this.variables = x; }
-	public Variable setVariables(java.util.List<org.meta_environment.rascal.ast.Variable> x) { 
-		Variable z = new Variable();
- 		z.$setVariables(x);
-		return z;
-	}	
-} public org.meta_environment.rascal.ast.Name getName() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Rule getRule() { throw new UnsupportedOperationException(); } public boolean hasName() { return false; } public boolean hasRule() { return false; }
-public boolean isRule() { return false; }
-static public class Rule extends Declaration {
-/* "rule" name:Name tags:Tags rule:Rule ";" -> Declaration {cons("Rule")} */
-	private Rule() { }
-	/*package*/ Rule(ITree tree, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.Tags tags, org.meta_environment.rascal.ast.Rule rule) {
-		this.tree = tree;
-		this.name = name;
-		this.tags = tags;
-		this.rule = rule;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitDeclarationRule(this);
-	}
+		private void $setVariants(
+				java.util.List<org.meta_environment.rascal.ast.Variant> x) {
+			this.variants = x;
+		}
 
-	public boolean isRule() { return true; }
+		@Override
+		public <T> T accept(IASTVisitor<T> visitor) {
+			return visitor.visitDeclarationData(this);
+		}
 
-	public boolean hasName() { return true; }
-	public boolean hasTags() { return true; }
-	public boolean hasRule() { return true; }
+		@Override
+		public org.meta_environment.rascal.ast.Tags getTags() {
+			return tags;
+		}
 
-private org.meta_environment.rascal.ast.Name name;
-	public org.meta_environment.rascal.ast.Name getName() { return name; }
-	private void $setName(org.meta_environment.rascal.ast.Name x) { this.name = x; }
-	public Rule setName(org.meta_environment.rascal.ast.Name x) { 
-		Rule z = new Rule();
- 		z.$setName(x);
-		return z;
-	}
-	private org.meta_environment.rascal.ast.Tags tags;
-	public org.meta_environment.rascal.ast.Tags getTags() { return tags; }
-	private void $setTags(org.meta_environment.rascal.ast.Tags x) { this.tags = x; }
-	public Rule setTags(org.meta_environment.rascal.ast.Tags x) { 
-		Rule z = new Rule();
- 		z.$setTags(x);
-		return z;
-	}
-	private org.meta_environment.rascal.ast.Rule rule;
-	public org.meta_environment.rascal.ast.Rule getRule() { return rule; }
-	private void $setRule(org.meta_environment.rascal.ast.Rule x) { this.rule = x; }
-	public Rule setRule(org.meta_environment.rascal.ast.Rule x) { 
-		Rule z = new Rule();
- 		z.$setRule(x);
-		return z;
-	}	
-} public java.util.List<org.meta_environment.rascal.ast.Type> getTypes() { throw new UnsupportedOperationException(); } public boolean hasTypes() { return false; } public boolean isAnnotation() { return false; }
-static public class Annotation extends Declaration {
-/* "anno" type:Type name:Name tags:Tags types:{Type "|"}+ ";" -> Declaration {cons("Annotation")} */
-	private Annotation() { }
-	/*package*/ Annotation(ITree tree, org.meta_environment.rascal.ast.Type type, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.Tags tags, java.util.List<org.meta_environment.rascal.ast.Type> types) {
-		this.tree = tree;
-		this.type = type;
-		this.name = name;
-		this.tags = tags;
-		this.types = types;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitDeclarationAnnotation(this);
+		@Override
+		public org.meta_environment.rascal.ast.UserType getUser() {
+			return user;
+		}
+
+		@Override
+		public java.util.List<org.meta_environment.rascal.ast.Variant> getVariants() {
+			return variants;
+		}
+
+		@Override
+		public boolean hasTags() {
+			return true;
+		}
+
+		@Override
+		public boolean hasUser() {
+			return true;
+		}
+
+		@Override
+		public boolean hasVariants() {
+			return true;
+		}
+
+		@Override
+		public boolean isData() {
+			return true;
+		}
+
+		public Data setTags(org.meta_environment.rascal.ast.Tags x) {
+			final Data z = new Data();
+			z.$setTags(x);
+			return z;
+		}
+
+		public Data setUser(org.meta_environment.rascal.ast.UserType x) {
+			final Data z = new Data();
+			z.$setUser(x);
+			return z;
+		}
+
+		public Data setVariants(
+				java.util.List<org.meta_environment.rascal.ast.Variant> x) {
+			final Data z = new Data();
+			z.$setVariants(x);
+			return z;
+		}
 	}
 
-	public boolean isAnnotation() { return true; }
+	static public class Function extends Declaration {
+		private org.meta_environment.rascal.ast.FunctionDeclaration functionDeclaration;
 
-	public boolean hasType() { return true; }
-	public boolean hasName() { return true; }
-	public boolean hasTags() { return true; }
-	public boolean hasTypes() { return true; }
+		/*
+		 * functionDeclaration:FunctionDeclaration -> Declaration
+		 * {cons("Function")}
+		 */
+		private Function() {
+		}
 
-private org.meta_environment.rascal.ast.Type type;
-	public org.meta_environment.rascal.ast.Type getType() { return type; }
-	private void $setType(org.meta_environment.rascal.ast.Type x) { this.type = x; }
-	public Annotation setType(org.meta_environment.rascal.ast.Type x) { 
-		Annotation z = new Annotation();
- 		z.$setType(x);
-		return z;
-	}
-	private org.meta_environment.rascal.ast.Name name;
-	public org.meta_environment.rascal.ast.Name getName() { return name; }
-	private void $setName(org.meta_environment.rascal.ast.Name x) { this.name = x; }
-	public Annotation setName(org.meta_environment.rascal.ast.Name x) { 
-		Annotation z = new Annotation();
- 		z.$setName(x);
-		return z;
-	}
-	private org.meta_environment.rascal.ast.Tags tags;
-	public org.meta_environment.rascal.ast.Tags getTags() { return tags; }
-	private void $setTags(org.meta_environment.rascal.ast.Tags x) { this.tags = x; }
-	public Annotation setTags(org.meta_environment.rascal.ast.Tags x) { 
-		Annotation z = new Annotation();
- 		z.$setTags(x);
-		return z;
-	}
-	private java.util.List<org.meta_environment.rascal.ast.Type> types;
-	public java.util.List<org.meta_environment.rascal.ast.Type> getTypes() { return types; }
-	private void $setTypes(java.util.List<org.meta_environment.rascal.ast.Type> x) { this.types = x; }
-	public Annotation setTypes(java.util.List<org.meta_environment.rascal.ast.Type> x) { 
-		Annotation z = new Annotation();
- 		z.$setTypes(x);
-		return z;
-	}	
-} 
-public org.meta_environment.rascal.ast.Kind getKind() { throw new UnsupportedOperationException(); } public boolean hasKind() { return false; } public boolean isTag() { return false; }
-static public class Tag extends Declaration {
-/* "tag" kind:Kind name:Name tags:Tags types:{Type "|"}+ ";" -> Declaration {cons("Tag")} */
-	private Tag() { }
-	/*package*/ Tag(ITree tree, org.meta_environment.rascal.ast.Kind kind, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.Tags tags, java.util.List<org.meta_environment.rascal.ast.Type> types) {
-		this.tree = tree;
-		this.kind = kind;
-		this.name = name;
-		this.tags = tags;
-		this.types = types;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitDeclarationTag(this);
+		/* package */Function(
+				ITree tree,
+				org.meta_environment.rascal.ast.FunctionDeclaration functionDeclaration) {
+			this.tree = tree;
+			this.functionDeclaration = functionDeclaration;
+		}
+
+		private void $setFunctionDeclaration(
+				org.meta_environment.rascal.ast.FunctionDeclaration x) {
+			this.functionDeclaration = x;
+		}
+
+		@Override
+		public <T> T accept(IASTVisitor<T> visitor) {
+			return visitor.visitDeclarationFunction(this);
+		}
+
+		@Override
+		public org.meta_environment.rascal.ast.FunctionDeclaration getFunctionDeclaration() {
+			return functionDeclaration;
+		}
+
+		@Override
+		public boolean hasFunctionDeclaration() {
+			return true;
+		}
+
+		@Override
+		public boolean isFunction() {
+			return true;
+		}
+
+		public Function setFunctionDeclaration(
+				org.meta_environment.rascal.ast.FunctionDeclaration x) {
+			final Function z = new Function();
+			z.$setFunctionDeclaration(x);
+			return z;
+		}
 	}
 
-	public boolean isTag() { return true; }
+	static public class Rule extends Declaration {
+		private org.meta_environment.rascal.ast.Name name;
+		private org.meta_environment.rascal.ast.Tags tags;
+		private org.meta_environment.rascal.ast.Rule rule;
 
-	public boolean hasKind() { return true; }
-	public boolean hasName() { return true; }
-	public boolean hasTags() { return true; }
-	public boolean hasTypes() { return true; }
+		/*
+		 * "rule" name:Name tags:Tags rule:Rule ";" -> Declaration
+		 * {cons("Rule")}
+		 */
+		private Rule() {
+		}
 
-private org.meta_environment.rascal.ast.Kind kind;
-	public org.meta_environment.rascal.ast.Kind getKind() { return kind; }
-	private void $setKind(org.meta_environment.rascal.ast.Kind x) { this.kind = x; }
-	public Tag setKind(org.meta_environment.rascal.ast.Kind x) { 
-		Tag z = new Tag();
- 		z.$setKind(x);
-		return z;
+		/* package */Rule(ITree tree,
+				org.meta_environment.rascal.ast.Name name,
+				org.meta_environment.rascal.ast.Tags tags,
+				org.meta_environment.rascal.ast.Rule rule) {
+			this.tree = tree;
+			this.name = name;
+			this.tags = tags;
+			this.rule = rule;
+		}
+
+		private void $setName(org.meta_environment.rascal.ast.Name x) {
+			this.name = x;
+		}
+
+		private void $setRule(org.meta_environment.rascal.ast.Rule x) {
+			this.rule = x;
+		}
+
+		private void $setTags(org.meta_environment.rascal.ast.Tags x) {
+			this.tags = x;
+		}
+
+		@Override
+		public <T> T accept(IASTVisitor<T> visitor) {
+			return visitor.visitDeclarationRule(this);
+		}
+
+		@Override
+		public org.meta_environment.rascal.ast.Name getName() {
+			return name;
+		}
+
+		@Override
+		public org.meta_environment.rascal.ast.Rule getRule() {
+			return rule;
+		}
+
+		@Override
+		public org.meta_environment.rascal.ast.Tags getTags() {
+			return tags;
+		}
+
+		@Override
+		public boolean hasName() {
+			return true;
+		}
+
+		@Override
+		public boolean hasRule() {
+			return true;
+		}
+
+		@Override
+		public boolean hasTags() {
+			return true;
+		}
+
+		@Override
+		public boolean isRule() {
+			return true;
+		}
+
+		public Rule setName(org.meta_environment.rascal.ast.Name x) {
+			final Rule z = new Rule();
+			z.$setName(x);
+			return z;
+		}
+
+		public Rule setRule(org.meta_environment.rascal.ast.Rule x) {
+			final Rule z = new Rule();
+			z.$setRule(x);
+			return z;
+		}
+
+		public Rule setTags(org.meta_environment.rascal.ast.Tags x) {
+			final Rule z = new Rule();
+			z.$setTags(x);
+			return z;
+		}
 	}
-	private org.meta_environment.rascal.ast.Name name;
-	public org.meta_environment.rascal.ast.Name getName() { return name; }
-	private void $setName(org.meta_environment.rascal.ast.Name x) { this.name = x; }
-	public Tag setName(org.meta_environment.rascal.ast.Name x) { 
-		Tag z = new Tag();
- 		z.$setName(x);
-		return z;
+
+	static public class Tag extends Declaration {
+		private org.meta_environment.rascal.ast.Kind kind;
+		private org.meta_environment.rascal.ast.Name name;
+		private org.meta_environment.rascal.ast.Tags tags;
+
+		private java.util.List<org.meta_environment.rascal.ast.Type> types;
+
+		/*
+		 * "tag" kind:Kind name:Name tags:Tags types:{Type "|"}+ ";" ->
+		 * Declaration {cons("Tag")}
+		 */
+		private Tag() {
+		}
+
+		/* package */Tag(ITree tree, org.meta_environment.rascal.ast.Kind kind,
+				org.meta_environment.rascal.ast.Name name,
+				org.meta_environment.rascal.ast.Tags tags,
+				java.util.List<org.meta_environment.rascal.ast.Type> types) {
+			this.tree = tree;
+			this.kind = kind;
+			this.name = name;
+			this.tags = tags;
+			this.types = types;
+		}
+
+		private void $setKind(org.meta_environment.rascal.ast.Kind x) {
+			this.kind = x;
+		}
+
+		private void $setName(org.meta_environment.rascal.ast.Name x) {
+			this.name = x;
+		}
+
+		private void $setTags(org.meta_environment.rascal.ast.Tags x) {
+			this.tags = x;
+		}
+
+		private void $setTypes(
+				java.util.List<org.meta_environment.rascal.ast.Type> x) {
+			this.types = x;
+		}
+
+		@Override
+		public <T> T accept(IASTVisitor<T> visitor) {
+			return visitor.visitDeclarationTag(this);
+		}
+
+		@Override
+		public org.meta_environment.rascal.ast.Kind getKind() {
+			return kind;
+		}
+
+		@Override
+		public org.meta_environment.rascal.ast.Name getName() {
+			return name;
+		}
+
+		@Override
+		public org.meta_environment.rascal.ast.Tags getTags() {
+			return tags;
+		}
+
+		@Override
+		public java.util.List<org.meta_environment.rascal.ast.Type> getTypes() {
+			return types;
+		}
+
+		@Override
+		public boolean hasKind() {
+			return true;
+		}
+
+		@Override
+		public boolean hasName() {
+			return true;
+		}
+
+		@Override
+		public boolean hasTags() {
+			return true;
+		}
+
+		@Override
+		public boolean hasTypes() {
+			return true;
+		}
+
+		@Override
+		public boolean isTag() {
+			return true;
+		}
+
+		public Tag setKind(org.meta_environment.rascal.ast.Kind x) {
+			final Tag z = new Tag();
+			z.$setKind(x);
+			return z;
+		}
+
+		public Tag setName(org.meta_environment.rascal.ast.Name x) {
+			final Tag z = new Tag();
+			z.$setName(x);
+			return z;
+		}
+
+		public Tag setTags(org.meta_environment.rascal.ast.Tags x) {
+			final Tag z = new Tag();
+			z.$setTags(x);
+			return z;
+		}
+
+		public Tag setTypes(
+				java.util.List<org.meta_environment.rascal.ast.Type> x) {
+			final Tag z = new Tag();
+			z.$setTypes(x);
+			return z;
+		}
 	}
-	private org.meta_environment.rascal.ast.Tags tags;
-	public org.meta_environment.rascal.ast.Tags getTags() { return tags; }
-	private void $setTags(org.meta_environment.rascal.ast.Tags x) { this.tags = x; }
-	public Tag setTags(org.meta_environment.rascal.ast.Tags x) { 
-		Tag z = new Tag();
- 		z.$setTags(x);
-		return z;
+
+	static public class Type extends Declaration {
+		private org.meta_environment.rascal.ast.Type base;
+		private org.meta_environment.rascal.ast.UserType user;
+		private org.meta_environment.rascal.ast.Tags tags;
+
+		/*
+		 * "type" base:Type user:UserType tags:Tags ";" -> Declaration
+		 * {cons("Type")}
+		 */
+		private Type() {
+		}
+
+		/* package */Type(ITree tree,
+				org.meta_environment.rascal.ast.Type base,
+				org.meta_environment.rascal.ast.UserType user,
+				org.meta_environment.rascal.ast.Tags tags) {
+			this.tree = tree;
+			this.base = base;
+			this.user = user;
+			this.tags = tags;
+		}
+
+		private void $setBase(org.meta_environment.rascal.ast.Type x) {
+			this.base = x;
+		}
+
+		private void $setTags(org.meta_environment.rascal.ast.Tags x) {
+			this.tags = x;
+		}
+
+		private void $setUser(org.meta_environment.rascal.ast.UserType x) {
+			this.user = x;
+		}
+
+		@Override
+		public <T> T accept(IASTVisitor<T> visitor) {
+			return visitor.visitDeclarationType(this);
+		}
+
+		@Override
+		public org.meta_environment.rascal.ast.Type getBase() {
+			return base;
+		}
+
+		@Override
+		public org.meta_environment.rascal.ast.Tags getTags() {
+			return tags;
+		}
+
+		@Override
+		public org.meta_environment.rascal.ast.UserType getUser() {
+			return user;
+		}
+
+		@Override
+		public boolean hasBase() {
+			return true;
+		}
+
+		@Override
+		public boolean hasTags() {
+			return true;
+		}
+
+		@Override
+		public boolean hasUser() {
+			return true;
+		}
+
+		@Override
+		public boolean isType() {
+			return true;
+		}
+
+		public Type setBase(org.meta_environment.rascal.ast.Type x) {
+			final Type z = new Type();
+			z.$setBase(x);
+			return z;
+		}
+
+		public Type setTags(org.meta_environment.rascal.ast.Tags x) {
+			final Type z = new Type();
+			z.$setTags(x);
+			return z;
+		}
+
+		public Type setUser(org.meta_environment.rascal.ast.UserType x) {
+			final Type z = new Type();
+			z.$setUser(x);
+			return z;
+		}
 	}
-	private java.util.List<org.meta_environment.rascal.ast.Type> types;
-	public java.util.List<org.meta_environment.rascal.ast.Type> getTypes() { return types; }
-	private void $setTypes(java.util.List<org.meta_environment.rascal.ast.Type> x) { this.types = x; }
-	public Tag setTypes(java.util.List<org.meta_environment.rascal.ast.Type> x) { 
-		Tag z = new Tag();
- 		z.$setTypes(x);
-		return z;
-	}	
-}
+
+	static public class Variable extends Declaration {
+		private org.meta_environment.rascal.ast.Type type;
+		private java.util.List<org.meta_environment.rascal.ast.Variable> variables;
+
+		/*
+		 * type:Type variables:{Variable ","}+ ";" -> Declaration
+		 * {cons("Variable")}
+		 */
+		private Variable() {
+		}
+
+		/* package */Variable(
+				ITree tree,
+				org.meta_environment.rascal.ast.Type type,
+				java.util.List<org.meta_environment.rascal.ast.Variable> variables) {
+			this.tree = tree;
+			this.type = type;
+			this.variables = variables;
+		}
+
+		private void $setType(org.meta_environment.rascal.ast.Type x) {
+			this.type = x;
+		}
+
+		private void $setVariables(
+				java.util.List<org.meta_environment.rascal.ast.Variable> x) {
+			this.variables = x;
+		}
+
+		@Override
+		public <T> T accept(IASTVisitor<T> visitor) {
+			return visitor.visitDeclarationVariable(this);
+		}
+
+		@Override
+		public org.meta_environment.rascal.ast.Type getType() {
+			return type;
+		}
+
+		@Override
+		public java.util.List<org.meta_environment.rascal.ast.Variable> getVariables() {
+			return variables;
+		}
+
+		@Override
+		public boolean hasType() {
+			return true;
+		}
+
+		@Override
+		public boolean hasVariables() {
+			return true;
+		}
+
+		@Override
+		public boolean isVariable() {
+			return true;
+		}
+
+		public Variable setType(org.meta_environment.rascal.ast.Type x) {
+			final Variable z = new Variable();
+			z.$setType(x);
+			return z;
+		}
+
+		public Variable setVariables(
+				java.util.List<org.meta_environment.rascal.ast.Variable> x) {
+			final Variable z = new Variable();
+			z.$setVariables(x);
+			return z;
+		}
+	}
+
+	static public class View extends Declaration {
+		private org.meta_environment.rascal.ast.Name view;
+		private org.meta_environment.rascal.ast.Name superType;
+		private org.meta_environment.rascal.ast.Tags tags;
+
+		private java.util.List<org.meta_environment.rascal.ast.Alternative> alts;
+
+		/*
+		 * "view" view:Name "<:" superType:Name tags:Tags alts:{Alternative
+		 * "|"}+ ";" -> Declaration {cons("View")}
+		 */
+		private View() {
+		}
+
+		/* package */View(ITree tree,
+				org.meta_environment.rascal.ast.Name view,
+				org.meta_environment.rascal.ast.Name superType,
+				org.meta_environment.rascal.ast.Tags tags,
+				java.util.List<org.meta_environment.rascal.ast.Alternative> alts) {
+			this.tree = tree;
+			this.view = view;
+			this.superType = superType;
+			this.tags = tags;
+			this.alts = alts;
+		}
+
+		private void $setAlts(
+				java.util.List<org.meta_environment.rascal.ast.Alternative> x) {
+			this.alts = x;
+		}
+
+		private void $setSuperType(org.meta_environment.rascal.ast.Name x) {
+			this.superType = x;
+		}
+
+		private void $setTags(org.meta_environment.rascal.ast.Tags x) {
+			this.tags = x;
+		}
+
+		private void $setView(org.meta_environment.rascal.ast.Name x) {
+			this.view = x;
+		}
+
+		@Override
+		public <T> T accept(IASTVisitor<T> visitor) {
+			return visitor.visitDeclarationView(this);
+		}
+
+		@Override
+		public java.util.List<org.meta_environment.rascal.ast.Alternative> getAlts() {
+			return alts;
+		}
+
+		@Override
+		public org.meta_environment.rascal.ast.Name getSuperType() {
+			return superType;
+		}
+
+		@Override
+		public org.meta_environment.rascal.ast.Tags getTags() {
+			return tags;
+		}
+
+		@Override
+		public org.meta_environment.rascal.ast.Name getView() {
+			return view;
+		}
+
+		@Override
+		public boolean hasAlts() {
+			return true;
+		}
+
+		@Override
+		public boolean hasSuperType() {
+			return true;
+		}
+
+		@Override
+		public boolean hasTags() {
+			return true;
+		}
+
+		@Override
+		public boolean hasView() {
+			return true;
+		}
+
+		@Override
+		public boolean isView() {
+			return true;
+		}
+
+		public View setAlts(
+				java.util.List<org.meta_environment.rascal.ast.Alternative> x) {
+			final View z = new View();
+			z.$setAlts(x);
+			return z;
+		}
+
+		public View setSuperType(org.meta_environment.rascal.ast.Name x) {
+			final View z = new View();
+			z.$setSuperType(x);
+			return z;
+		}
+
+		public View setTags(org.meta_environment.rascal.ast.Tags x) {
+			final View z = new View();
+			z.$setTags(x);
+			return z;
+		}
+
+		public View setView(org.meta_environment.rascal.ast.Name x) {
+			final View z = new View();
+			z.$setView(x);
+			return z;
+		}
+	}
+
+	@Override
+	public abstract <T> T accept(IASTVisitor<T> visitor);
+
+	public java.util.List<org.meta_environment.rascal.ast.Alternative> getAlts() {
+		throw new UnsupportedOperationException();
+	}
+
+	public org.meta_environment.rascal.ast.Type getBase() {
+		throw new UnsupportedOperationException();
+	}
+
+	public org.meta_environment.rascal.ast.FunctionDeclaration getFunctionDeclaration() {
+		throw new UnsupportedOperationException();
+	}
+
+	public org.meta_environment.rascal.ast.Kind getKind() {
+		throw new UnsupportedOperationException();
+	}
+
+	public org.meta_environment.rascal.ast.Name getName() {
+		throw new UnsupportedOperationException();
+	}
+
+	public org.meta_environment.rascal.ast.Rule getRule() {
+		throw new UnsupportedOperationException();
+	}
+
+	public org.meta_environment.rascal.ast.Name getSuperType() {
+		throw new UnsupportedOperationException();
+	}
+
+	public org.meta_environment.rascal.ast.Tags getTags() {
+		throw new UnsupportedOperationException();
+	}
+
+	public org.meta_environment.rascal.ast.Type getType() {
+		throw new UnsupportedOperationException();
+	}
+
+	public java.util.List<org.meta_environment.rascal.ast.Type> getTypes() {
+		throw new UnsupportedOperationException();
+	}
+
+	public org.meta_environment.rascal.ast.UserType getUser() {
+		throw new UnsupportedOperationException();
+	}
+
+	public java.util.List<org.meta_environment.rascal.ast.Variable> getVariables() {
+		throw new UnsupportedOperationException();
+	}
+
+	public java.util.List<org.meta_environment.rascal.ast.Variant> getVariants() {
+		throw new UnsupportedOperationException();
+	}
+
+	public org.meta_environment.rascal.ast.Name getView() {
+		throw new UnsupportedOperationException();
+	}
+
+	public boolean hasAlts() {
+		return false;
+	}
+
+	public boolean hasBase() {
+		return false;
+	}
+
+	public boolean hasFunctionDeclaration() {
+		return false;
+	}
+
+	public boolean hasKind() {
+		return false;
+	}
+
+	public boolean hasName() {
+		return false;
+	}
+
+	public boolean hasRule() {
+		return false;
+	}
+
+	public boolean hasSuperType() {
+		return false;
+	}
+
+	public boolean hasTags() {
+		return false;
+	}
+
+	public boolean hasType() {
+		return false;
+	}
+
+	public boolean hasTypes() {
+		return false;
+	}
+
+	public boolean hasUser() {
+		return false;
+	}
+
+	public boolean hasVariables() {
+		return false;
+	}
+
+	public boolean hasVariants() {
+		return false;
+	}
+
+	public boolean hasView() {
+		return false;
+	}
+
+	public boolean isAnnotation() {
+		return false;
+	}
+
+	public boolean isData() {
+		return false;
+	}
+
+	public boolean isFunction() {
+		return false;
+	}
+
+	public boolean isRule() {
+		return false;
+	}
+
+	public boolean isTag() {
+		return false;
+	}
+
+	public boolean isType() {
+		return false;
+	}
+
+	public boolean isVariable() {
+		return false;
+	}
+
+	public boolean isView() {
+		return false;
+	}
 }

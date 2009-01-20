@@ -9,15 +9,8 @@ public abstract class AbstractAST implements IVisitable {
 	protected ISourceLocation location;
 	protected ITree tree;
 
-	@Override
-	public String toString() {
-		return new TreeAdapter((INode) tree).yield();
-	}
-	
-	public ITree getTree() {
-		return tree;
-	}
-	
+	abstract public <T> T accept(IASTVisitor<T> v);
+
 	@Override
 	public boolean equals(Object obj) {
 		if (getClass() == obj.getClass()) {
@@ -25,11 +18,18 @@ public abstract class AbstractAST implements IVisitable {
 		}
 		return false;
 	}
-	
+
+	public ITree getTree() {
+		return tree;
+	}
+
 	@Override
 	public int hashCode() {
 		return tree.hashCode();
 	}
 
-	abstract public <T> T accept(IASTVisitor<T> v);
+	@Override
+	public String toString() {
+		return new TreeAdapter((INode) tree).yield();
+	}
 }
