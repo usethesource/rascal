@@ -72,29 +72,29 @@ public class ComprehensionTests extends TestCase {
 	
 	public void testSetComprehension3() throws IOException {	
 		
-		assertTrue(tf.runTest("exists(int X : {1,2,3} | X > 2);"));
-		assertTrue(tf.runTest("exists(int X : [1,2,3] | X > 2);"));
+		assertTrue(tf.runTest("any(int X : {1,2,3}, X > 2);"));
+		assertTrue(tf.runTest("any(int X : [1,2,3], X > 2);"));
 		
-		assertFalse(tf.runTest("exists(int X : {1,2,3} | X > 10);"));
-		assertFalse(tf.runTest("exists(int X : [1,2,3] | X > 10);"));
+		assertFalse(tf.runTest("any(int X : {1,2,3}, X > 10);"));
+		assertFalse(tf.runTest("any(int X : [1,2,3], X > 10);"));
 		
-		assertTrue(tf.runTest("exists(<int X, int Y> : {<1,10>,<30,3>,<2,20>} | X > Y);"));
-		assertTrue(tf.runTest("exists(<int X, int Y> : [<1,10>,<30,3>,<2,20>] | X > Y);"));
+		assertTrue(tf.runTest("any(<int X, int Y> : {<1,10>,<30,3>,<2,20>}, X > Y);"));
+		assertTrue(tf.runTest("any(<int X, int Y> : [<1,10>,<30,3>,<2,20>], X > Y);"));
 		
-		assertFalse(tf.runTest("exists(<int X, int Y> : {<1,10>,<30,3>,<2,20>} | X > 100*Y);"));
-		assertFalse(tf.runTest("exists(<int X, int Y> : [<1,10>,<30,3>,<2,20>] | X > 100*Y);"));
+		assertFalse(tf.runTest("any(<int X, int Y> : {<1,10>,<30,3>,<2,20>}, X > 100*Y);"));
+		assertFalse(tf.runTest("any(<int X, int Y> : [<1,10>,<30,3>,<2,20>], X > 100*Y);"));
 		
-		assertTrue(tf.runTest("forall(int X : {1,2,3} | X >= 1);"));
-		assertTrue(tf.runTest("forall(int X : [1,2,3] | X >= 1);"));
+		assertTrue(tf.runTest("all(int X : {1,2,3}, X >= 1);"));
+		assertTrue(tf.runTest("all(int X : [1,2,3], X >= 1);"));
 		
-		assertFalse(tf.runTest("forall(int X : {1,2,3} | X >= 2);"));
-		assertFalse(tf.runTest("forall(int X : [1,2,3] | X >= 2);"));
+		assertFalse(tf.runTest("all(int X : {1,2,3}, X >= 2);"));
+		assertFalse(tf.runTest("all(int X : [1,2,3], X >= 2);"));
 		
-		assertTrue(tf.runTest("forall(<int X, int Y> : {<1,10>,<3,30>,<2,20>} | X < Y);"));
-		assertTrue(tf.runTest("forall(<int X, int Y> : [<1,10>,<3,30>,<2,20>] | X < Y);"));
+		assertTrue(tf.runTest("all(<int X, int Y> : {<1,10>,<3,30>,<2,20>}, X < Y);"));
+		assertTrue(tf.runTest("all(<int X, int Y> : [<1,10>,<3,30>,<2,20>], X < Y);"));
 		
-		assertFalse(tf.runTest("forall(<int X, int Y> : {<1,10>,<30,3>,<2,20>} | X < Y);"));
-		assertFalse(tf.runTest("forall(<int X, int Y> : [<1,10>,<30,3>,<2,20>] | X < Y);"));
+		assertFalse(tf.runTest("all(<int X, int Y> : {<1,10>,<30,3>,<2,20>}, X < Y);"));
+		assertFalse(tf.runTest("all(<int X, int Y> : [<1,10>,<30,3>,<2,20>], X < Y);"));
 	}
 	
 	public void testSetComprehension4() throws IOException {	
@@ -193,9 +193,6 @@ public class ComprehensionTests extends TestCase {
 		
 		assertTrue(tf.runTest("{ L = [X * 2 | int X : {2,3}]; (L == [4,6]) || (L == [6,4]);}"));
 		assertTrue(tf.runTest("[X * 2 | int X : [1,2,3]] == [2,4,6];"));
-		
-		
-	
 
 	}
 	

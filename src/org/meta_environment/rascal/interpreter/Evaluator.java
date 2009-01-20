@@ -73,8 +73,10 @@ import org.meta_environment.rascal.ast.Declaration.Tag;
 import org.meta_environment.rascal.ast.Declaration.Variable;
 import org.meta_environment.rascal.ast.Declaration.View;
 import org.meta_environment.rascal.ast.Expression.Addition;
+import org.meta_environment.rascal.ast.Expression.All;
 import org.meta_environment.rascal.ast.Expression.Ambiguity;
 import org.meta_environment.rascal.ast.Expression.And;
+import org.meta_environment.rascal.ast.Expression.Any;
 import org.meta_environment.rascal.ast.Expression.Area;
 import org.meta_environment.rascal.ast.Expression.AreaInFileLocation;
 import org.meta_environment.rascal.ast.Expression.Bracket;
@@ -85,11 +87,9 @@ import org.meta_environment.rascal.ast.Expression.Composition;
 import org.meta_environment.rascal.ast.Expression.Comprehension;
 import org.meta_environment.rascal.ast.Expression.Division;
 import org.meta_environment.rascal.ast.Expression.Equivalence;
-import org.meta_environment.rascal.ast.Expression.Exists;
 import org.meta_environment.rascal.ast.Expression.FieldProject;
 import org.meta_environment.rascal.ast.Expression.FieldUpdate;
 import org.meta_environment.rascal.ast.Expression.FileLocation;
-import org.meta_environment.rascal.ast.Expression.ForAll;
 import org.meta_environment.rascal.ast.Expression.FunctionAsValue;
 import org.meta_environment.rascal.ast.Expression.GreaterThan;
 import org.meta_environment.rascal.ast.Expression.GreaterThanOrEq;
@@ -126,13 +126,12 @@ import org.meta_environment.rascal.ast.Expression.VoidClosure;
 import org.meta_environment.rascal.ast.Header.Parameters;
 import org.meta_environment.rascal.ast.IntegerLiteral.DecimalIntegerLiteral;
 import org.meta_environment.rascal.ast.Literal.Boolean;
-import org.meta_environment.rascal.ast.Literal.Real;
 import org.meta_environment.rascal.ast.Literal.Integer;
+import org.meta_environment.rascal.ast.Literal.Real;
 import org.meta_environment.rascal.ast.LocalVariableDeclaration.Default;
 import org.meta_environment.rascal.ast.Rule.Arbitrary;
 import org.meta_environment.rascal.ast.Rule.Guarded;
 import org.meta_environment.rascal.ast.Rule.Replacing;
-import org.meta_environment.rascal.ast.Statement.All;
 import org.meta_environment.rascal.ast.Statement.Assert;
 import org.meta_environment.rascal.ast.Statement.Assignment;
 import org.meta_environment.rascal.ast.Statement.Block;
@@ -140,7 +139,6 @@ import org.meta_environment.rascal.ast.Statement.Break;
 import org.meta_environment.rascal.ast.Statement.Continue;
 import org.meta_environment.rascal.ast.Statement.DoWhile;
 import org.meta_environment.rascal.ast.Statement.Fail;
-import org.meta_environment.rascal.ast.Statement.First;
 import org.meta_environment.rascal.ast.Statement.For;
 import org.meta_environment.rascal.ast.Statement.GlobalDirective;
 import org.meta_environment.rascal.ast.Statement.IfThen;
@@ -1409,22 +1407,12 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	}
 	
 	@Override
-	public EvalResult visitStatementAll(All x) {
-		throw new RascalBug("NYI all" + x); // TODO
-	}
-	
-	@Override
 	public EvalResult visitStatementBreak(Break x) {
 		throw new RascalBug("NYI break" + x); // TODO
 	}
 	
 	@Override
 	public EvalResult visitStatementContinue(Continue x) {
-		throw new RascalBug("NYI" + x); // TODO
-	}
-	
-	@Override
-	public EvalResult visitStatementFirst(First x) {
 		throw new RascalBug("NYI" + x); // TODO
 	}
 	
@@ -3935,34 +3923,47 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	}
 	
 	@Override
-	public EvalResult visitExpressionExists(Exists x) {
-		ValueProducer vp = x.getProducer();
-		org.meta_environment.rascal.ast.Expression exp = x .getExpression();
-		GeneratorEvaluator ge = new GeneratorEvaluator(vp, this);
-		while(ge.hasNext() && ge.next().isTrue()){
-			EvalResult r = exp.accept(this);
-			if(!r.type.isSubtypeOf(tf.boolType())){
-				throw new RascalTypeError("expression in exists should yield bool instead of " + r.type);
-			}
-			if(r.value.equals(vf.bool(true))){
-				return result(vf.bool(true));
+	public EvalResult visitExpressionAny(Any x) {
+		java.util.List<Generator> generators = x.getGenerators();
+		int size = generators.size();
+		GeneratorEvaluator[] gens = new GeneratorEvaluator[size];
+
+		int i = 0;
+		gens[0] = new GeneratorEvaluator(generators.get(0), this);
+		while (i >= 0 && i < size) {
+			if (gens[i].hasNext() && gens[i].next().isTrue()) {
+				if (i == size - 1) {
+					return result(vf.bool(true));
+				} else {
+					i++;
+					gens[i] = new GeneratorEvaluator(generators.get(i), this);
+				}
+			} else {
+				i--;
 			}
 		}
 		return result(vf.bool(false));
 	}
 	
 	@Override
-	public EvalResult visitExpressionForAll(ForAll x) {
-		ValueProducer vp = x.getProducer();
-		org.meta_environment.rascal.ast.Expression exp = x .getExpression();
-		GeneratorEvaluator ge = new GeneratorEvaluator(vp, this);
-		while(ge.hasNext() && ge.next().isTrue()){
-			EvalResult r = exp.accept(this);
-			if(!r.type.isSubtypeOf(tf.boolType())){
-				throw new RascalTypeError("expression in forall should yield bool instead of " + r.type);
-			}
-			if(r.value.equals(vf.bool(false))){
-				return result(vf.bool(false));
+	public EvalResult visitExpressionAll(All x) {
+		java.util.List<Generator> producers = x.getGenerators();
+		int size = producers.size();
+		GeneratorEvaluator[] gens = new GeneratorEvaluator[size];
+
+		int i = 0;
+		gens[0] = new GeneratorEvaluator(producers.get(0), this);
+		while (i >= 0 && i < size) {
+			if (gens[i].hasNext()) {
+				if (!gens[i].next().isTrue()) {
+					return result(vf.bool(false));
+				}
+				if (i < size - 1) {
+					i++;
+					gens[i] = new GeneratorEvaluator(producers.get(i), this);
+				}
+			} else {
+				i--;
 			}
 		}
 		return result(vf.bool(true));
