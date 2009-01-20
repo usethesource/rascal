@@ -1,5 +1,7 @@
 module examples/Lambda/Lambda-syntax
 
+%% OUTDATED
+
 exports
 sorts Var %% variables
       Exp %% expressions

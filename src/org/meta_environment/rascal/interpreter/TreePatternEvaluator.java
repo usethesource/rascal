@@ -679,7 +679,7 @@ interface MatchPattern {
 /* package */class TreePatternTypedVariable extends BasicTreePattern implements MatchPattern {
 	private Name name;
 	org.eclipse.imp.pdb.facts.type.Type declaredType;
-	private boolean debug = true;
+	private boolean debug = false;
 
 	TreePatternTypedVariable(org.eclipse.imp.pdb.facts.type.Type type2, Name name) {
 		this.declaredType = type2;
