@@ -1,433 +1,195 @@
-package org.meta_environment.rascal.ast;
-
-import org.eclipse.imp.pdb.facts.ITree;
-
-public abstract class CharClass extends AbstractAST {
-	static public class Ambiguity extends CharClass {
-		private final java.util.List<org.meta_environment.rascal.ast.CharClass> alternatives;
-
-		public Ambiguity(
-				ITree tree,
-				java.util.List<org.meta_environment.rascal.ast.CharClass> alternatives) {
-			this.alternatives = java.util.Collections
-					.unmodifiableList(alternatives);
-			this.tree = tree;
-		}
-
-		@Override
-		public <T> T accept(IASTVisitor<T> v) {
-			return v.visitCharClassAmbiguity(this);
-		}
-
-		public java.util.List<org.meta_environment.rascal.ast.CharClass> getAlternatives() {
-			return alternatives;
-		}
+package org.meta_environment.rascal.ast; 
+import org.eclipse.imp.pdb.facts.ITree; 
+public abstract class CharClass extends AbstractAST { 
+  public org.meta_environment.rascal.ast.OptCharRanges getOptionalCharRanges() { throw new UnsupportedOperationException(); }
+public boolean hasOptionalCharRanges() { return false; }
+public boolean isSimpleCharclass() { return false; }
+static public class SimpleCharclass extends CharClass {
+/* "[" optionalCharRanges:OptCharRanges "]" -> CharClass {cons("SimpleCharclass")} */
+	private SimpleCharclass() { }
+	/*package*/ SimpleCharclass(ITree tree, org.meta_environment.rascal.ast.OptCharRanges optionalCharRanges) {
+		this.tree = tree;
+		this.optionalCharRanges = optionalCharRanges;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitCharClassSimpleCharclass(this);
 	}
 
-	static public class Bracket extends CharClass {
-		private org.meta_environment.rascal.ast.CharClass charClass;
+	public boolean isSimpleCharclass() { return true; }
 
-		/*
-		 * "(" charClass:CharClass ")" -> CharClass {bracket, cons("Bracket"),
-		 * avoid}
-		 */
-		private Bracket() {
-		}
+	public boolean hasOptionalCharRanges() { return true; }
 
-		/* package */Bracket(ITree tree,
-				org.meta_environment.rascal.ast.CharClass charClass) {
-			this.tree = tree;
-			this.charClass = charClass;
-		}
-
-		private void $setCharClass(org.meta_environment.rascal.ast.CharClass x) {
-			this.charClass = x;
-		}
-
-		@Override
-		public <T> T accept(IASTVisitor<T> visitor) {
-			return visitor.visitCharClassBracket(this);
-		}
-
-		@Override
-		public org.meta_environment.rascal.ast.CharClass getCharClass() {
-			return charClass;
-		}
-
-		@Override
-		public boolean hasCharClass() {
-			return true;
-		}
-
-		@Override
-		public boolean isBracket() {
-			return true;
-		}
-
-		public Bracket setCharClass(org.meta_environment.rascal.ast.CharClass x) {
-			final Bracket z = new Bracket();
-			z.$setCharClass(x);
-			return z;
-		}
+private org.meta_environment.rascal.ast.OptCharRanges optionalCharRanges;
+	public org.meta_environment.rascal.ast.OptCharRanges getOptionalCharRanges() { return optionalCharRanges; }
+	private void $setOptionalCharRanges(org.meta_environment.rascal.ast.OptCharRanges x) { this.optionalCharRanges = x; }
+	public SimpleCharclass setOptionalCharRanges(org.meta_environment.rascal.ast.OptCharRanges x) { 
+		SimpleCharclass z = new SimpleCharclass();
+ 		z.$setOptionalCharRanges(x);
+		return z;
+	}	
+}
+static public class Ambiguity extends CharClass {
+  private final java.util.List<org.meta_environment.rascal.ast.CharClass> alternatives;
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.CharClass> alternatives) {
+	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
+  }
+  public java.util.List<org.meta_environment.rascal.ast.CharClass> getAlternatives() {
+	return alternatives;
+  }
+  
+  public <T> T accept(IASTVisitor<T> v) {
+     return v.visitCharClassAmbiguity(this);
+  }
+} public org.meta_environment.rascal.ast.CharClass getCharClass() { throw new UnsupportedOperationException(); } public boolean hasCharClass() { return false; } public boolean isBracket() { return false; }
+static public class Bracket extends CharClass {
+/* "(" charClass:CharClass ")" -> CharClass {bracket, cons("Bracket"), avoid} */
+	private Bracket() { }
+	/*package*/ Bracket(ITree tree, org.meta_environment.rascal.ast.CharClass charClass) {
+		this.tree = tree;
+		this.charClass = charClass;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitCharClassBracket(this);
 	}
 
-	static public class Complement extends CharClass {
-		private org.meta_environment.rascal.ast.CharClass charClass;
+	public boolean isBracket() { return true; }
 
-		/* "~" charClass:CharClass -> CharClass {cons("Complement")} */
-		private Complement() {
-		}
+	public boolean hasCharClass() { return true; }
 
-		/* package */Complement(ITree tree,
-				org.meta_environment.rascal.ast.CharClass charClass) {
-			this.tree = tree;
-			this.charClass = charClass;
-		}
-
-		private void $setCharClass(org.meta_environment.rascal.ast.CharClass x) {
-			this.charClass = x;
-		}
-
-		@Override
-		public <T> T accept(IASTVisitor<T> visitor) {
-			return visitor.visitCharClassComplement(this);
-		}
-
-		@Override
-		public org.meta_environment.rascal.ast.CharClass getCharClass() {
-			return charClass;
-		}
-
-		@Override
-		public boolean hasCharClass() {
-			return true;
-		}
-
-		@Override
-		public boolean isComplement() {
-			return true;
-		}
-
-		public Complement setCharClass(
-				org.meta_environment.rascal.ast.CharClass x) {
-			final Complement z = new Complement();
-			z.$setCharClass(x);
-			return z;
-		}
+private org.meta_environment.rascal.ast.CharClass charClass;
+	public org.meta_environment.rascal.ast.CharClass getCharClass() { return charClass; }
+	private void $setCharClass(org.meta_environment.rascal.ast.CharClass x) { this.charClass = x; }
+	public Bracket setCharClass(org.meta_environment.rascal.ast.CharClass x) { 
+		Bracket z = new Bracket();
+ 		z.$setCharClass(x);
+		return z;
+	}	
+} public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isComplement() { return false; }
+static public class Complement extends CharClass {
+/* "~" charClass:CharClass -> CharClass {cons("Complement")} */
+	private Complement() { }
+	/*package*/ Complement(ITree tree, org.meta_environment.rascal.ast.CharClass charClass) {
+		this.tree = tree;
+		this.charClass = charClass;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitCharClassComplement(this);
 	}
 
-	static public class Difference extends CharClass {
-		private org.meta_environment.rascal.ast.CharClass lhs;
-		private org.meta_environment.rascal.ast.CharClass rhs;
+	public boolean isComplement() { return true; }
 
-		/*
-		 * lhs:CharClass "/" rhs:CharClass -> CharClass {cons("Difference"),
-		 * left, memo}
-		 */
-		private Difference() {
-		}
+	public boolean hasCharClass() { return true; }
 
-		/* package */Difference(ITree tree,
-				org.meta_environment.rascal.ast.CharClass lhs,
-				org.meta_environment.rascal.ast.CharClass rhs) {
-			this.tree = tree;
-			this.lhs = lhs;
-			this.rhs = rhs;
-		}
-
-		private void $setLhs(org.meta_environment.rascal.ast.CharClass x) {
-			this.lhs = x;
-		}
-
-		private void $setRhs(org.meta_environment.rascal.ast.CharClass x) {
-			this.rhs = x;
-		}
-
-		@Override
-		public <T> T accept(IASTVisitor<T> visitor) {
-			return visitor.visitCharClassDifference(this);
-		}
-
-		@Override
-		public org.meta_environment.rascal.ast.CharClass getLhs() {
-			return lhs;
-		}
-
-		@Override
-		public org.meta_environment.rascal.ast.CharClass getRhs() {
-			return rhs;
-		}
-
-		@Override
-		public boolean hasLhs() {
-			return true;
-		}
-
-		@Override
-		public boolean hasRhs() {
-			return true;
-		}
-
-		@Override
-		public boolean isDifference() {
-			return true;
-		}
-
-		public Difference setLhs(org.meta_environment.rascal.ast.CharClass x) {
-			final Difference z = new Difference();
-			z.$setLhs(x);
-			return z;
-		}
-
-		public Difference setRhs(org.meta_environment.rascal.ast.CharClass x) {
-			final Difference z = new Difference();
-			z.$setRhs(x);
-			return z;
-		}
+private org.meta_environment.rascal.ast.CharClass charClass;
+	public org.meta_environment.rascal.ast.CharClass getCharClass() { return charClass; }
+	private void $setCharClass(org.meta_environment.rascal.ast.CharClass x) { this.charClass = x; }
+	public Complement setCharClass(org.meta_environment.rascal.ast.CharClass x) { 
+		Complement z = new Complement();
+ 		z.$setCharClass(x);
+		return z;
+	}	
+} public org.meta_environment.rascal.ast.CharClass getLhs() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.CharClass getRhs() { throw new UnsupportedOperationException(); } public boolean hasLhs() { return false; } public boolean hasRhs() { return false; } public boolean isDifference() { return false; }
+static public class Difference extends CharClass {
+/* lhs:CharClass "/" rhs:CharClass -> CharClass {cons("Difference"), left, memo} */
+	private Difference() { }
+	/*package*/ Difference(ITree tree, org.meta_environment.rascal.ast.CharClass lhs, org.meta_environment.rascal.ast.CharClass rhs) {
+		this.tree = tree;
+		this.lhs = lhs;
+		this.rhs = rhs;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitCharClassDifference(this);
 	}
 
-	static public class Intersection extends CharClass {
-		private org.meta_environment.rascal.ast.CharClass lhs;
-		private org.meta_environment.rascal.ast.CharClass rhs;
+	public boolean isDifference() { return true; }
 
-		/*
-		 * lhs:CharClass "/\\" rhs:CharClass -> CharClass {cons("Intersection"),
-		 * left, memo}
-		 */
-		private Intersection() {
-		}
+	public boolean hasLhs() { return true; }
+	public boolean hasRhs() { return true; }
 
-		/* package */Intersection(ITree tree,
-				org.meta_environment.rascal.ast.CharClass lhs,
-				org.meta_environment.rascal.ast.CharClass rhs) {
-			this.tree = tree;
-			this.lhs = lhs;
-			this.rhs = rhs;
-		}
-
-		private void $setLhs(org.meta_environment.rascal.ast.CharClass x) {
-			this.lhs = x;
-		}
-
-		private void $setRhs(org.meta_environment.rascal.ast.CharClass x) {
-			this.rhs = x;
-		}
-
-		@Override
-		public <T> T accept(IASTVisitor<T> visitor) {
-			return visitor.visitCharClassIntersection(this);
-		}
-
-		@Override
-		public org.meta_environment.rascal.ast.CharClass getLhs() {
-			return lhs;
-		}
-
-		@Override
-		public org.meta_environment.rascal.ast.CharClass getRhs() {
-			return rhs;
-		}
-
-		@Override
-		public boolean hasLhs() {
-			return true;
-		}
-
-		@Override
-		public boolean hasRhs() {
-			return true;
-		}
-
-		@Override
-		public boolean isIntersection() {
-			return true;
-		}
-
-		public Intersection setLhs(org.meta_environment.rascal.ast.CharClass x) {
-			final Intersection z = new Intersection();
-			z.$setLhs(x);
-			return z;
-		}
-
-		public Intersection setRhs(org.meta_environment.rascal.ast.CharClass x) {
-			final Intersection z = new Intersection();
-			z.$setRhs(x);
-			return z;
-		}
+private org.meta_environment.rascal.ast.CharClass lhs;
+	public org.meta_environment.rascal.ast.CharClass getLhs() { return lhs; }
+	private void $setLhs(org.meta_environment.rascal.ast.CharClass x) { this.lhs = x; }
+	public Difference setLhs(org.meta_environment.rascal.ast.CharClass x) { 
+		Difference z = new Difference();
+ 		z.$setLhs(x);
+		return z;
+	}
+	private org.meta_environment.rascal.ast.CharClass rhs;
+	public org.meta_environment.rascal.ast.CharClass getRhs() { return rhs; }
+	private void $setRhs(org.meta_environment.rascal.ast.CharClass x) { this.rhs = x; }
+	public Difference setRhs(org.meta_environment.rascal.ast.CharClass x) { 
+		Difference z = new Difference();
+ 		z.$setRhs(x);
+		return z;
+	}	
+} public boolean isIntersection() { return false; }
+static public class Intersection extends CharClass {
+/* lhs:CharClass "/\\" rhs:CharClass -> CharClass {cons("Intersection"), left, memo} */
+	private Intersection() { }
+	/*package*/ Intersection(ITree tree, org.meta_environment.rascal.ast.CharClass lhs, org.meta_environment.rascal.ast.CharClass rhs) {
+		this.tree = tree;
+		this.lhs = lhs;
+		this.rhs = rhs;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitCharClassIntersection(this);
 	}
 
-	static public class SimpleCharclass extends CharClass {
-		private org.meta_environment.rascal.ast.OptCharRanges optionalCharRanges;
+	public boolean isIntersection() { return true; }
 
-		/*
-		 * "[" optionalCharRanges:OptCharRanges "]" -> CharClass
-		 * {cons("SimpleCharclass")}
-		 */
-		private SimpleCharclass() {
-		}
+	public boolean hasLhs() { return true; }
+	public boolean hasRhs() { return true; }
 
-		/* package */SimpleCharclass(ITree tree,
-				org.meta_environment.rascal.ast.OptCharRanges optionalCharRanges) {
-			this.tree = tree;
-			this.optionalCharRanges = optionalCharRanges;
-		}
-
-		private void $setOptionalCharRanges(
-				org.meta_environment.rascal.ast.OptCharRanges x) {
-			this.optionalCharRanges = x;
-		}
-
-		@Override
-		public <T> T accept(IASTVisitor<T> visitor) {
-			return visitor.visitCharClassSimpleCharclass(this);
-		}
-
-		@Override
-		public org.meta_environment.rascal.ast.OptCharRanges getOptionalCharRanges() {
-			return optionalCharRanges;
-		}
-
-		@Override
-		public boolean hasOptionalCharRanges() {
-			return true;
-		}
-
-		@Override
-		public boolean isSimpleCharclass() {
-			return true;
-		}
-
-		public SimpleCharclass setOptionalCharRanges(
-				org.meta_environment.rascal.ast.OptCharRanges x) {
-			final SimpleCharclass z = new SimpleCharclass();
-			z.$setOptionalCharRanges(x);
-			return z;
-		}
+private org.meta_environment.rascal.ast.CharClass lhs;
+	public org.meta_environment.rascal.ast.CharClass getLhs() { return lhs; }
+	private void $setLhs(org.meta_environment.rascal.ast.CharClass x) { this.lhs = x; }
+	public Intersection setLhs(org.meta_environment.rascal.ast.CharClass x) { 
+		Intersection z = new Intersection();
+ 		z.$setLhs(x);
+		return z;
+	}
+	private org.meta_environment.rascal.ast.CharClass rhs;
+	public org.meta_environment.rascal.ast.CharClass getRhs() { return rhs; }
+	private void $setRhs(org.meta_environment.rascal.ast.CharClass x) { this.rhs = x; }
+	public Intersection setRhs(org.meta_environment.rascal.ast.CharClass x) { 
+		Intersection z = new Intersection();
+ 		z.$setRhs(x);
+		return z;
+	}	
+} public boolean isUnion() { return false; }
+static public class Union extends CharClass {
+/* lhs:CharClass "\\/" rhs:CharClass -> CharClass {cons("Union"), left} */
+	private Union() { }
+	/*package*/ Union(ITree tree, org.meta_environment.rascal.ast.CharClass lhs, org.meta_environment.rascal.ast.CharClass rhs) {
+		this.tree = tree;
+		this.lhs = lhs;
+		this.rhs = rhs;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitCharClassUnion(this);
 	}
 
-	static public class Union extends CharClass {
-		private org.meta_environment.rascal.ast.CharClass lhs;
-		private org.meta_environment.rascal.ast.CharClass rhs;
+	public boolean isUnion() { return true; }
 
-		/* lhs:CharClass "\\/" rhs:CharClass -> CharClass {cons("Union"), left} */
-		private Union() {
-		}
+	public boolean hasLhs() { return true; }
+	public boolean hasRhs() { return true; }
 
-		/* package */Union(ITree tree,
-				org.meta_environment.rascal.ast.CharClass lhs,
-				org.meta_environment.rascal.ast.CharClass rhs) {
-			this.tree = tree;
-			this.lhs = lhs;
-			this.rhs = rhs;
-		}
-
-		private void $setLhs(org.meta_environment.rascal.ast.CharClass x) {
-			this.lhs = x;
-		}
-
-		private void $setRhs(org.meta_environment.rascal.ast.CharClass x) {
-			this.rhs = x;
-		}
-
-		@Override
-		public <T> T accept(IASTVisitor<T> visitor) {
-			return visitor.visitCharClassUnion(this);
-		}
-
-		@Override
-		public org.meta_environment.rascal.ast.CharClass getLhs() {
-			return lhs;
-		}
-
-		@Override
-		public org.meta_environment.rascal.ast.CharClass getRhs() {
-			return rhs;
-		}
-
-		@Override
-		public boolean hasLhs() {
-			return true;
-		}
-
-		@Override
-		public boolean hasRhs() {
-			return true;
-		}
-
-		@Override
-		public boolean isUnion() {
-			return true;
-		}
-
-		public Union setLhs(org.meta_environment.rascal.ast.CharClass x) {
-			final Union z = new Union();
-			z.$setLhs(x);
-			return z;
-		}
-
-		public Union setRhs(org.meta_environment.rascal.ast.CharClass x) {
-			final Union z = new Union();
-			z.$setRhs(x);
-			return z;
-		}
+private org.meta_environment.rascal.ast.CharClass lhs;
+	public org.meta_environment.rascal.ast.CharClass getLhs() { return lhs; }
+	private void $setLhs(org.meta_environment.rascal.ast.CharClass x) { this.lhs = x; }
+	public Union setLhs(org.meta_environment.rascal.ast.CharClass x) { 
+		Union z = new Union();
+ 		z.$setLhs(x);
+		return z;
 	}
-
-	@Override
-	public abstract <T> T accept(IASTVisitor<T> visitor);
-
-	public org.meta_environment.rascal.ast.CharClass getCharClass() {
-		throw new UnsupportedOperationException();
-	}
-
-	public org.meta_environment.rascal.ast.CharClass getLhs() {
-		throw new UnsupportedOperationException();
-	}
-
-	public org.meta_environment.rascal.ast.OptCharRanges getOptionalCharRanges() {
-		throw new UnsupportedOperationException();
-	}
-
-	public org.meta_environment.rascal.ast.CharClass getRhs() {
-		throw new UnsupportedOperationException();
-	}
-
-	public boolean hasCharClass() {
-		return false;
-	}
-
-	public boolean hasLhs() {
-		return false;
-	}
-
-	public boolean hasOptionalCharRanges() {
-		return false;
-	}
-
-	public boolean hasRhs() {
-		return false;
-	}
-
-	public boolean isBracket() {
-		return false;
-	}
-
-	public boolean isComplement() {
-		return false;
-	}
-
-	public boolean isDifference() {
-		return false;
-	}
-
-	public boolean isIntersection() {
-		return false;
-	}
-
-	public boolean isSimpleCharclass() {
-		return false;
-	}
-
-	public boolean isUnion() {
-		return false;
-	}
+	private org.meta_environment.rascal.ast.CharClass rhs;
+	public org.meta_environment.rascal.ast.CharClass getRhs() { return rhs; }
+	private void $setRhs(org.meta_environment.rascal.ast.CharClass x) { this.rhs = x; }
+	public Union setRhs(org.meta_environment.rascal.ast.CharClass x) { 
+		Union z = new Union();
+ 		z.$setRhs(x);
+		return z;
+	}	
+}
 }

@@ -1,426 +1,206 @@
-package org.meta_environment.rascal.ast;
-
-import org.eclipse.imp.pdb.facts.ITree;
-
-public abstract class Type extends AbstractAST {
-	static public class Ambiguity extends Type {
-		private final java.util.List<org.meta_environment.rascal.ast.Type> alternatives;
-
-		public Ambiguity(
-				ITree tree,
-				java.util.List<org.meta_environment.rascal.ast.Type> alternatives) {
-			this.alternatives = java.util.Collections
-					.unmodifiableList(alternatives);
-			this.tree = tree;
-		}
-
-		@Override
-		public <T> T accept(IASTVisitor<T> v) {
-			return v.visitTypeAmbiguity(this);
-		}
-
-		public java.util.List<org.meta_environment.rascal.ast.Type> getAlternatives() {
-			return alternatives;
-		}
+package org.meta_environment.rascal.ast; 
+import org.eclipse.imp.pdb.facts.ITree; 
+public abstract class Type extends AbstractAST { 
+  public org.meta_environment.rascal.ast.BasicType getBasic() { throw new UnsupportedOperationException(); }
+public boolean hasBasic() { return false; }
+public boolean isBasic() { return false; }
+static public class Basic extends Type {
+/* basic:BasicType -> Type {cons("Basic")} */
+	private Basic() { }
+	/*package*/ Basic(ITree tree, org.meta_environment.rascal.ast.BasicType basic) {
+		this.tree = tree;
+		this.basic = basic;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitTypeBasic(this);
 	}
 
-	static public class Basic extends Type {
-		private org.meta_environment.rascal.ast.BasicType basic;
+	public boolean isBasic() { return true; }
 
-		/* basic:BasicType -> Type {cons("Basic")} */
-		private Basic() {
-		}
+	public boolean hasBasic() { return true; }
 
-		/* package */Basic(ITree tree,
-				org.meta_environment.rascal.ast.BasicType basic) {
-			this.tree = tree;
-			this.basic = basic;
-		}
-
-		private void $setBasic(org.meta_environment.rascal.ast.BasicType x) {
-			this.basic = x;
-		}
-
-		@Override
-		public <T> T accept(IASTVisitor<T> visitor) {
-			return visitor.visitTypeBasic(this);
-		}
-
-		@Override
-		public org.meta_environment.rascal.ast.BasicType getBasic() {
-			return basic;
-		}
-
-		@Override
-		public boolean hasBasic() {
-			return true;
-		}
-
-		@Override
-		public boolean isBasic() {
-			return true;
-		}
-
-		public Basic setBasic(org.meta_environment.rascal.ast.BasicType x) {
-			final Basic z = new Basic();
-			z.$setBasic(x);
-			return z;
-		}
+private org.meta_environment.rascal.ast.BasicType basic;
+	public org.meta_environment.rascal.ast.BasicType getBasic() { return basic; }
+	private void $setBasic(org.meta_environment.rascal.ast.BasicType x) { this.basic = x; }
+	public Basic setBasic(org.meta_environment.rascal.ast.BasicType x) { 
+		Basic z = new Basic();
+ 		z.$setBasic(x);
+		return z;
+	}	
+}
+static public class Ambiguity extends Type {
+  private final java.util.List<org.meta_environment.rascal.ast.Type> alternatives;
+  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Type> alternatives) {
+	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.tree = tree;
+  }
+  public java.util.List<org.meta_environment.rascal.ast.Type> getAlternatives() {
+	return alternatives;
+  }
+  
+  public <T> T accept(IASTVisitor<T> v) {
+     return v.visitTypeAmbiguity(this);
+  }
+} 
+public org.meta_environment.rascal.ast.StructuredType getStructured() { throw new UnsupportedOperationException(); }
+public boolean hasStructured() { return false; }
+public boolean isStructured() { return false; }
+static public class Structured extends Type {
+/* structured:StructuredType -> Type {cons("Structured")} */
+	private Structured() { }
+	/*package*/ Structured(ITree tree, org.meta_environment.rascal.ast.StructuredType structured) {
+		this.tree = tree;
+		this.structured = structured;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitTypeStructured(this);
 	}
 
-	static public class Function extends Type {
-		private org.meta_environment.rascal.ast.FunctionType function;
+	public boolean isStructured() { return true; }
 
-		/* function:FunctionType -> Type {cons("Function")} */
-		private Function() {
-		}
+	public boolean hasStructured() { return true; }
 
-		/* package */Function(ITree tree,
-				org.meta_environment.rascal.ast.FunctionType function) {
-			this.tree = tree;
-			this.function = function;
-		}
-
-		private void $setFunction(org.meta_environment.rascal.ast.FunctionType x) {
-			this.function = x;
-		}
-
-		@Override
-		public <T> T accept(IASTVisitor<T> visitor) {
-			return visitor.visitTypeFunction(this);
-		}
-
-		@Override
-		public org.meta_environment.rascal.ast.FunctionType getFunction() {
-			return function;
-		}
-
-		@Override
-		public boolean hasFunction() {
-			return true;
-		}
-
-		@Override
-		public boolean isFunction() {
-			return true;
-		}
-
-		public Function setFunction(
-				org.meta_environment.rascal.ast.FunctionType x) {
-			final Function z = new Function();
-			z.$setFunction(x);
-			return z;
-		}
+private org.meta_environment.rascal.ast.StructuredType structured;
+	public org.meta_environment.rascal.ast.StructuredType getStructured() { return structured; }
+	private void $setStructured(org.meta_environment.rascal.ast.StructuredType x) { this.structured = x; }
+	public Structured setStructured(org.meta_environment.rascal.ast.StructuredType x) { 
+		Structured z = new Structured();
+ 		z.$setStructured(x);
+		return z;
+	}	
+} public abstract <T> T accept(IASTVisitor<T> visitor); public org.meta_environment.rascal.ast.FunctionType getFunction() { throw new UnsupportedOperationException(); }
+public boolean hasFunction() { return false; }
+public boolean isFunction() { return false; }
+static public class Function extends Type {
+/* function:FunctionType -> Type {cons("Function")} */
+	private Function() { }
+	/*package*/ Function(ITree tree, org.meta_environment.rascal.ast.FunctionType function) {
+		this.tree = tree;
+		this.function = function;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitTypeFunction(this);
 	}
 
-	static public class Selector extends Type {
-		private org.meta_environment.rascal.ast.DataTypeSelector selector;
+	public boolean isFunction() { return true; }
 
-		/* selector:DataTypeSelector -> Type {cons("Selector")} */
-		private Selector() {
-		}
+	public boolean hasFunction() { return true; }
 
-		/* package */Selector(ITree tree,
-				org.meta_environment.rascal.ast.DataTypeSelector selector) {
-			this.tree = tree;
-			this.selector = selector;
-		}
-
-		private void $setSelector(
-				org.meta_environment.rascal.ast.DataTypeSelector x) {
-			this.selector = x;
-		}
-
-		@Override
-		public <T> T accept(IASTVisitor<T> visitor) {
-			return visitor.visitTypeSelector(this);
-		}
-
-		@Override
-		public org.meta_environment.rascal.ast.DataTypeSelector getSelector() {
-			return selector;
-		}
-
-		@Override
-		public boolean hasSelector() {
-			return true;
-		}
-
-		@Override
-		public boolean isSelector() {
-			return true;
-		}
-
-		public Selector setSelector(
-				org.meta_environment.rascal.ast.DataTypeSelector x) {
-			final Selector z = new Selector();
-			z.$setSelector(x);
-			return z;
-		}
+private org.meta_environment.rascal.ast.FunctionType function;
+	public org.meta_environment.rascal.ast.FunctionType getFunction() { return function; }
+	private void $setFunction(org.meta_environment.rascal.ast.FunctionType x) { this.function = x; }
+	public Function setFunction(org.meta_environment.rascal.ast.FunctionType x) { 
+		Function z = new Function();
+ 		z.$setFunction(x);
+		return z;
+	}	
+} 
+public org.meta_environment.rascal.ast.TypeVar getTypeVar() { throw new UnsupportedOperationException(); }
+public boolean hasTypeVar() { return false; }
+public boolean isVariable() { return false; }
+static public class Variable extends Type {
+/* typeVar:TypeVar -> Type {cons("Variable")} */
+	private Variable() { }
+	/*package*/ Variable(ITree tree, org.meta_environment.rascal.ast.TypeVar typeVar) {
+		this.tree = tree;
+		this.typeVar = typeVar;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitTypeVariable(this);
 	}
 
-	static public class Structured extends Type {
-		private org.meta_environment.rascal.ast.StructuredType structured;
+	public boolean isVariable() { return true; }
 
-		/* structured:StructuredType -> Type {cons("Structured")} */
-		private Structured() {
-		}
+	public boolean hasTypeVar() { return true; }
 
-		/* package */Structured(ITree tree,
-				org.meta_environment.rascal.ast.StructuredType structured) {
-			this.tree = tree;
-			this.structured = structured;
-		}
-
-		private void $setStructured(
-				org.meta_environment.rascal.ast.StructuredType x) {
-			this.structured = x;
-		}
-
-		@Override
-		public <T> T accept(IASTVisitor<T> visitor) {
-			return visitor.visitTypeStructured(this);
-		}
-
-		@Override
-		public org.meta_environment.rascal.ast.StructuredType getStructured() {
-			return structured;
-		}
-
-		@Override
-		public boolean hasStructured() {
-			return true;
-		}
-
-		@Override
-		public boolean isStructured() {
-			return true;
-		}
-
-		public Structured setStructured(
-				org.meta_environment.rascal.ast.StructuredType x) {
-			final Structured z = new Structured();
-			z.$setStructured(x);
-			return z;
-		}
+private org.meta_environment.rascal.ast.TypeVar typeVar;
+	public org.meta_environment.rascal.ast.TypeVar getTypeVar() { return typeVar; }
+	private void $setTypeVar(org.meta_environment.rascal.ast.TypeVar x) { this.typeVar = x; }
+	public Variable setTypeVar(org.meta_environment.rascal.ast.TypeVar x) { 
+		Variable z = new Variable();
+ 		z.$setTypeVar(x);
+		return z;
+	}	
+} 
+public org.meta_environment.rascal.ast.UserType getUser() { throw new UnsupportedOperationException(); }
+public boolean hasUser() { return false; }
+public boolean isUser() { return false; }
+static public class User extends Type {
+/* user:UserType -> Type {cons("User")} */
+	private User() { }
+	/*package*/ User(ITree tree, org.meta_environment.rascal.ast.UserType user) {
+		this.tree = tree;
+		this.user = user;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitTypeUser(this);
 	}
 
-	static public class Symbol extends Type {
-		private org.meta_environment.rascal.ast.Symbol symbol;
+	public boolean isUser() { return true; }
 
-		/* symbol:Symbol -> Type {cons("Symbol")} */
-		private Symbol() {
-		}
+	public boolean hasUser() { return true; }
 
-		/* package */Symbol(ITree tree,
-				org.meta_environment.rascal.ast.Symbol symbol) {
-			this.tree = tree;
-			this.symbol = symbol;
-		}
-
-		private void $setSymbol(org.meta_environment.rascal.ast.Symbol x) {
-			this.symbol = x;
-		}
-
-		@Override
-		public <T> T accept(IASTVisitor<T> visitor) {
-			return visitor.visitTypeSymbol(this);
-		}
-
-		@Override
-		public org.meta_environment.rascal.ast.Symbol getSymbol() {
-			return symbol;
-		}
-
-		@Override
-		public boolean hasSymbol() {
-			return true;
-		}
-
-		@Override
-		public boolean isSymbol() {
-			return true;
-		}
-
-		public Symbol setSymbol(org.meta_environment.rascal.ast.Symbol x) {
-			final Symbol z = new Symbol();
-			z.$setSymbol(x);
-			return z;
-		}
+private org.meta_environment.rascal.ast.UserType user;
+	public org.meta_environment.rascal.ast.UserType getUser() { return user; }
+	private void $setUser(org.meta_environment.rascal.ast.UserType x) { this.user = x; }
+	public User setUser(org.meta_environment.rascal.ast.UserType x) { 
+		User z = new User();
+ 		z.$setUser(x);
+		return z;
+	}	
+} 
+public org.meta_environment.rascal.ast.Symbol getSymbol() { throw new UnsupportedOperationException(); }
+public boolean hasSymbol() { return false; }
+public boolean isSymbol() { return false; }
+static public class Symbol extends Type {
+/* symbol:Symbol -> Type {cons("Symbol")} */
+	private Symbol() { }
+	/*package*/ Symbol(ITree tree, org.meta_environment.rascal.ast.Symbol symbol) {
+		this.tree = tree;
+		this.symbol = symbol;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitTypeSymbol(this);
 	}
 
-	static public class User extends Type {
-		private org.meta_environment.rascal.ast.UserType user;
+	public boolean isSymbol() { return true; }
 
-		/* user:UserType -> Type {cons("User")} */
-		private User() {
-		}
+	public boolean hasSymbol() { return true; }
 
-		/* package */User(ITree tree,
-				org.meta_environment.rascal.ast.UserType user) {
-			this.tree = tree;
-			this.user = user;
-		}
-
-		private void $setUser(org.meta_environment.rascal.ast.UserType x) {
-			this.user = x;
-		}
-
-		@Override
-		public <T> T accept(IASTVisitor<T> visitor) {
-			return visitor.visitTypeUser(this);
-		}
-
-		@Override
-		public org.meta_environment.rascal.ast.UserType getUser() {
-			return user;
-		}
-
-		@Override
-		public boolean hasUser() {
-			return true;
-		}
-
-		@Override
-		public boolean isUser() {
-			return true;
-		}
-
-		public User setUser(org.meta_environment.rascal.ast.UserType x) {
-			final User z = new User();
-			z.$setUser(x);
-			return z;
-		}
+private org.meta_environment.rascal.ast.Symbol symbol;
+	public org.meta_environment.rascal.ast.Symbol getSymbol() { return symbol; }
+	private void $setSymbol(org.meta_environment.rascal.ast.Symbol x) { this.symbol = x; }
+	public Symbol setSymbol(org.meta_environment.rascal.ast.Symbol x) { 
+		Symbol z = new Symbol();
+ 		z.$setSymbol(x);
+		return z;
+	}	
+} 
+public org.meta_environment.rascal.ast.DataTypeSelector getSelector() { throw new UnsupportedOperationException(); }
+public boolean hasSelector() { return false; }
+public boolean isSelector() { return false; }
+static public class Selector extends Type {
+/* selector:DataTypeSelector -> Type {cons("Selector")} */
+	private Selector() { }
+	/*package*/ Selector(ITree tree, org.meta_environment.rascal.ast.DataTypeSelector selector) {
+		this.tree = tree;
+		this.selector = selector;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitTypeSelector(this);
 	}
 
-	static public class Variable extends Type {
-		private org.meta_environment.rascal.ast.TypeVar typeVar;
+	public boolean isSelector() { return true; }
 
-		/* typeVar:TypeVar -> Type {cons("Variable")} */
-		private Variable() {
-		}
+	public boolean hasSelector() { return true; }
 
-		/* package */Variable(ITree tree,
-				org.meta_environment.rascal.ast.TypeVar typeVar) {
-			this.tree = tree;
-			this.typeVar = typeVar;
-		}
-
-		private void $setTypeVar(org.meta_environment.rascal.ast.TypeVar x) {
-			this.typeVar = x;
-		}
-
-		@Override
-		public <T> T accept(IASTVisitor<T> visitor) {
-			return visitor.visitTypeVariable(this);
-		}
-
-		@Override
-		public org.meta_environment.rascal.ast.TypeVar getTypeVar() {
-			return typeVar;
-		}
-
-		@Override
-		public boolean hasTypeVar() {
-			return true;
-		}
-
-		@Override
-		public boolean isVariable() {
-			return true;
-		}
-
-		public Variable setTypeVar(org.meta_environment.rascal.ast.TypeVar x) {
-			final Variable z = new Variable();
-			z.$setTypeVar(x);
-			return z;
-		}
-	}
-
-	@Override
-	public abstract <T> T accept(IASTVisitor<T> visitor);
-
-	public org.meta_environment.rascal.ast.BasicType getBasic() {
-		throw new UnsupportedOperationException();
-	}
-
-	public org.meta_environment.rascal.ast.FunctionType getFunction() {
-		throw new UnsupportedOperationException();
-	}
-
-	public org.meta_environment.rascal.ast.DataTypeSelector getSelector() {
-		throw new UnsupportedOperationException();
-	}
-
-	public org.meta_environment.rascal.ast.StructuredType getStructured() {
-		throw new UnsupportedOperationException();
-	}
-
-	public org.meta_environment.rascal.ast.Symbol getSymbol() {
-		throw new UnsupportedOperationException();
-	}
-
-	public org.meta_environment.rascal.ast.TypeVar getTypeVar() {
-		throw new UnsupportedOperationException();
-	}
-
-	public org.meta_environment.rascal.ast.UserType getUser() {
-		throw new UnsupportedOperationException();
-	}
-
-	public boolean hasBasic() {
-		return false;
-	}
-
-	public boolean hasFunction() {
-		return false;
-	}
-
-	public boolean hasSelector() {
-		return false;
-	}
-
-	public boolean hasStructured() {
-		return false;
-	}
-
-	public boolean hasSymbol() {
-		return false;
-	}
-
-	public boolean hasTypeVar() {
-		return false;
-	}
-
-	public boolean hasUser() {
-		return false;
-	}
-
-	public boolean isBasic() {
-		return false;
-	}
-
-	public boolean isFunction() {
-		return false;
-	}
-
-	public boolean isSelector() {
-		return false;
-	}
-
-	public boolean isStructured() {
-		return false;
-	}
-
-	public boolean isSymbol() {
-		return false;
-	}
-
-	public boolean isUser() {
-		return false;
-	}
-
-	public boolean isVariable() {
-		return false;
-	}
+private org.meta_environment.rascal.ast.DataTypeSelector selector;
+	public org.meta_environment.rascal.ast.DataTypeSelector getSelector() { return selector; }
+	private void $setSelector(org.meta_environment.rascal.ast.DataTypeSelector x) { this.selector = x; }
+	public Selector setSelector(org.meta_environment.rascal.ast.DataTypeSelector x) { 
+		Selector z = new Selector();
+ 		z.$setSelector(x);
+		return z;
+	}	
+}
 }
