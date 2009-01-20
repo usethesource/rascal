@@ -47,8 +47,8 @@ public class DataDeclarationTests extends TestCase{
 		tf.prepare("data Exp let(str name, Exp exp1, Exp exp2) | varExp(str name)  | int intVal;");
 		
 		assertTrue(tf.runTestInSameEvaluator("{Exp e = 1; e == 1;}"));
-		assertTrue(tf.runTestInSameEvaluator("{Exp e = \"a\"; e == \"a\";}"));
-		assertTrue(tf.runTestInSameEvaluator("{Exp e = let(\"a\",1,\"a\"); e ==  let(\"a\",1,\"a\");}"));
+		assertTrue(tf.runTestInSameEvaluator("{Exp e = varExp(\"a\"); e == varExp(\"a\");}"));
+		assertTrue(tf.runTestInSameEvaluator("{Exp e = let(\"a\",1,varExp(\"a\")); e ==  let(\"a\",1,varExp(\"a\"));}"));
 	}
 	
 	public void testLet4() throws IOException {
