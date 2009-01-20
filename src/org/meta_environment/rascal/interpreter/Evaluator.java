@@ -432,6 +432,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 					"src/benchmark/Fibonacci/",
 					"src/benchmark/Reverse/",
 					"src/benchmark/UnusedProcs/",
+					"demo/",
 					"demo/Booleans/",
 					"demo/Fun/",
 					"demo/Graph/",
@@ -440,12 +441,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 					"demo/Lexicals/",
 					"demo/Misc/",
 					"demo/Pico/",
-					"demo/Rascal/",
-					"demo/Rscript/",
-					"demo/Tree/",
-					"demo/UPTR/",
-					"demo/Vectors/",
-					"demo/WordCount/"
+					"demo/Rascal/"
 					};
 			
 			for(int i = 0; i < searchPath.length; i++){
