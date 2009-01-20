@@ -15,7 +15,7 @@ import IO;
 
 public bool consistent(map[int,int] B, int n)
 {
-    return forall(int i : [1, 2 .. n - 1] | B[i] != B[n] && abs(B[i] - B[n]) != abs(n - i));
+    return all(int i : [1, 2 .. n - 1], B[i] != B[n] && abs(B[i] - B[n]) != abs(n - i));
 }
 
 int N = 8;
@@ -46,11 +46,8 @@ public void queens1()
 
 public bool consistent(int B...)
 { 
-  return forall(int i : domain(B) |
-                forall(int j : domain(B) |
-      	        i != j ==> (B[i] != B[j] && abs(B[i] - B[j]) != abs(j - i))
-      	)
-  ); 		
+  return all(int i : domain(B), int j : domain(B),
+      	     i != j ==> (B[i] != B[j] && abs(B[i] - B[j]) != abs(j - i))); 		
 }
 
 /*

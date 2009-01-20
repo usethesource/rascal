@@ -34,7 +34,7 @@ public class ErrorTests extends TestCase{
 		assertTrue(tf.runWithError("1+;", "Operand of + or * closure has wrong type"));
 //		assertTrue(tf.runWithError("{x | x : 3};", "expression in generator should be of type list/set"));
 		assertTrue(tf.runWithError("{x | 5};", "Expression as generator should have type bool"));
-		assertTrue(tf.runWithError("exists(x : [1,2,3] | \"abc\");", "expression in exists should yield bool"));
-		assertTrue(tf.runWithError("forall(x : [1,2,3] | \"abc\");", "expression in forall should yield bool"));
+		assertTrue(tf.runWithError("any(x : [1,2,3], \"abc\");", "Expression as generator should have type bool"));
+		assertTrue(tf.runWithError("all(x : [1,2,3], \"abc\");", "Expression as generator should have type bool"));
 	}
 }
