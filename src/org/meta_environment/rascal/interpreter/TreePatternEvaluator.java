@@ -679,7 +679,7 @@ interface MatchPattern {
 /* package */class TreePatternTypedVariable extends BasicTreePattern implements MatchPattern {
 	private Name name;
 	org.eclipse.imp.pdb.facts.type.Type declaredType;
-	private boolean debug = false;
+	private boolean debug = true;
 
 	TreePatternTypedVariable(org.eclipse.imp.pdb.facts.type.Type type2, Name name) {
 		this.declaredType = type2;
@@ -701,8 +701,10 @@ interface MatchPattern {
 		
 		if (subject.getType().isSubtypeOf(declaredType)) {
 			GlobalEnvironment.getInstance().top().storeVariable(name, ev.result(declaredType, subject));
+			if(debug)System.err.println("matches");
 			return true;
 		}
+		if(debug)System.err.println("no match");
 		return false;
 	}
 	
