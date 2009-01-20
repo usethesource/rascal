@@ -42,6 +42,7 @@ data Symbol lit(str string) |
   layout  | 
   char-class(list[CharRange] ranges);
 
+/*
 str yield(Tree t) {
   str result = "";
   visit (t) {
@@ -57,3 +58,4 @@ str yield(Parsetree t) {
 bool test(){
 	return true;
 }
+*/
