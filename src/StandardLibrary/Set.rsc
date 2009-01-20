@@ -78,7 +78,8 @@ public &T multiply(set[&T] st, &T unity)
 public set[set[&T]] power(set[&T] st)
 @doc{power -- return all subsets of a set}
 {
-  set[set[&T]] result = {st};
+
+  set[set[&T]] result = {{st}};
   for(&T elm : st){
   	set[set[&T]] pw = power(st - elm);
   	result = result + pw;

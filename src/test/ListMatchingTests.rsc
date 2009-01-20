@@ -17,7 +17,7 @@ public bool hasOrderedElement(list[int] L)
 }
 
 
-public boolean hasDuplicateElement(list[int] L)
+public bool hasDuplicateElement(list[int] L)
 {
 	switch(L){
 	
@@ -32,7 +32,7 @@ public boolean hasDuplicateElement(list[int] L)
     }
 }
 
-public boolean isDuo1(list[int] L)
+public bool isDuo1(list[int] L)
 {
 	switch(L){
 	case [list[int] L1, list[int] L2]:
@@ -46,7 +46,7 @@ public boolean isDuo1(list[int] L)
     }
 }
 
-public boolean isDuo2(list[int] L)
+public bool isDuo2(list[int] L)
 {
 	switch(L){
 	case [list[int] L1, L1]:
@@ -56,12 +56,12 @@ public boolean isDuo2(list[int] L)
     }
 }
 
-public boolean isDuo3(list[int] L)
+public bool isDuo3(list[int] L)
 {
     return [list[int] L1, L1] ~= L;
 }
 
-public boolean isTrio1(list[int] L)
+public bool isTrio1(list[int] L)
 {
 	switch(L){
 	case [list[int] L1, list[int] L2, list[int] L3]:
@@ -75,7 +75,7 @@ public boolean isTrio1(list[int] L)
     }
 }
 
-public boolean isTrio2(list[int] L)
+public bool isTrio2(list[int] L)
 {
 	switch(L){
 	case [list[int] L1, L1, L1]:
@@ -85,18 +85,18 @@ public boolean isTrio2(list[int] L)
     }
 }
 
-public boolean isTrio3(list[int] L)
+public bool isTrio3(list[int] L)
 {
     return [list[int] L1, L1, L1] ~= L;
 }
 
-public boolean isNestedDuo(list[int] L)
+public bool isNestedDuo(list[int] L)
 {
     return [[list[int] L1, L1], [L1, L1]] ~= L;
 }
 
 /*
-public boolean palindrome(list[int] L)
+public bool palindrome(list[int] L)
 {
 	switch(L){
 	

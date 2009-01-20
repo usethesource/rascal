@@ -3,8 +3,6 @@ module Let-abstract
 import Integer;
 import IO;
 
-
-
 /*
  * Abstract syntax of the Let language. It consists of
  * - a let construct that binds a variable to a first expressions and evaluates the second expression using that binding
