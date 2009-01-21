@@ -56,7 +56,7 @@ interface MatchPattern {
 	public boolean next();
 }
 
-/* package */ class BasicTreePattern {
+/* package */ class AbstractPattern {
 	
 	protected IValue subject = null;
 	protected Evaluator ev = null;
@@ -90,11 +90,11 @@ interface MatchPattern {
 	}
 	
 }
-/* package */ class TreePatternLiteral extends BasicTreePattern implements MatchPattern {
+/* package */ class AbstractPatternLiteral extends AbstractPattern implements MatchPattern {
 
 	private IValue literal;
 	
-	TreePatternLiteral(IValue literal){
+	AbstractPatternLiteral(IValue literal){
 		this.literal = literal;
 	}
 	
@@ -105,7 +105,7 @@ interface MatchPattern {
 	public boolean next(){
 		checkInitialized();
 		firstMatch = false;
-		//System.err.println("TreePatternLiteral.match: " + subject);
+		//System.err.println("AbstractPatternLiteral.match: " + subject);
 		if (subject.getType().isSubtypeOf(literal.getType())) {
 			return ev.equals(ev.result(subject), ev.result(literal));
 		}
@@ -117,11 +117,11 @@ interface MatchPattern {
 	}
 }
 
-/* package */ class TreePatternTree extends BasicTreePattern implements MatchPattern {
+/* package */ class AbstractPatternNode extends AbstractPattern implements MatchPattern {
 	private org.meta_environment.rascal.ast.QualifiedName name;
 	private java.util.List<MatchPattern> children;
 	
-	TreePatternTree(org.meta_environment.rascal.ast.QualifiedName qualifiedName, java.util.List<MatchPattern> children){
+	AbstractPatternNode(org.meta_environment.rascal.ast.QualifiedName qualifiedName, java.util.List<MatchPattern> children){
 		this.name = qualifiedName;
 		this.children = children;
 	}
@@ -130,7 +130,7 @@ interface MatchPattern {
 	public void initMatch(IValue subject, Evaluator ev){
 		super.initMatch(subject, ev);
 		
-		if(!subject.getType().isNodeType()){
+		if(!(subject.getType().isNodeType() || subject.getType().isAbstractDataType())){
 			return;
 		}
 		INode treeSubject = (INode) subject;
@@ -163,7 +163,7 @@ interface MatchPattern {
 	public boolean next(){
 		checkInitialized();
 		firstMatch = false;
-		//System.err.println("TreePatternTree.match(" + name + ") subj = " + subj + "subj Type = " + subj.getType());
+		//System.err.println("AbstractPatternNode.match(" + name + ") subj = " + subj + "subj Type = " + subj.getType());
 		Type stype = subject.getType();
 		
 		if (!stype.isNodeType()){
@@ -180,7 +180,7 @@ interface MatchPattern {
 	}
 }
 
-/* package */ class TreePatternList extends BasicTreePattern implements MatchPattern {
+/* package */ class AbstractPatternList extends AbstractPattern implements MatchPattern {
 	private java.util.List<MatchPattern> children;	// The elements of this list pattern
 	private int patternSize;						// The number of elements in this list pattern
 	private IList listSubject;						// The subject as list
@@ -204,7 +204,7 @@ interface MatchPattern {
 	
 	private boolean debug = false;
 	
-	TreePatternList(java.util.List<MatchPattern> children){
+	AbstractPatternList(java.util.List<MatchPattern> children){
 		this.children = children;					
 		this.patternSize = children.size();			
 		isListVar = new boolean[patternSize];		
@@ -239,18 +239,18 @@ interface MatchPattern {
 		for(int i = 0; i < patternSize; i++){
 			MatchPattern child = children.get(i);
 			isListVar[i] = false;
-			if(child instanceof TreePatternTypedVariable && child.getType(ev).isListType()){
+			if(child instanceof AbstractPatternTypedVariable && child.getType(ev).isListType()){
 				/*
 				 * An explicitly declared list variable.
 				 */
-				listVars.add(((TreePatternTypedVariable)child).getName());
+				listVars.add(((AbstractPatternTypedVariable)child).getName());
 				hasListVar = true;
 				isListVar[i] = true;
 				listVarOccurrences[i] = 1;
 				nListVar++;
-			} else if(child instanceof TreePatternQualifiedName){
+			} else if(child instanceof AbstractPatternQualifiedName){
 				
-				String name =((TreePatternQualifiedName)child).getName();
+				String name =((AbstractPatternQualifiedName)child).getName();
 				if(listVars.contains(name)){
 					/*
 					 * A variable that was declared earlier in the pattern
@@ -392,7 +392,7 @@ interface MatchPattern {
 	 */
 	public boolean next(){
 		checkInitialized();
-		if(debug)System.err.println("TreePatternList.match: " + subject);
+		if(debug)System.err.println("AbstractPatternList.match: " + subject);
 		
 		forward = firstMatch;
 		firstMatch = false;
@@ -442,11 +442,11 @@ interface MatchPattern {
 			/*
 			 * Reference to a previously defined list variable
 			 */
-			if(isListVar[patternCursor] &&  child instanceof TreePatternQualifiedName){
+			if(isListVar[patternCursor] &&  child instanceof AbstractPatternQualifiedName){
 				if(forward){
 					listVarStart[patternCursor] = subjectCursor;
 					
-					String name = ((TreePatternQualifiedName)child).getName();
+					String name = ((AbstractPatternQualifiedName)child).getName();
 					GlobalEnvironment env = GlobalEnvironment.getInstance();
 					EvalResult varRes = env.getVariable(name);
 					IValue varVal = varRes.value;
@@ -504,12 +504,12 @@ interface MatchPattern {
 			} else {
 				
 				if(forward && subjectCursor < subjectSize){
-					if(debug)System.err.println("TreePatternList.match: init child " + patternCursor + " with " + listSubject.get(subjectCursor));
+					if(debug)System.err.println("AbstractPatternList.match: init child " + patternCursor + " with " + listSubject.get(subjectCursor));
 					child.initMatch(listSubject.get(subjectCursor), ev);
 					if(child.next()){
 						subjectCursor++;
 						patternCursor++;
-						if(debug)System.err.println("TreePatternList.match: child matches, subjectCursor=" + subjectCursor);
+						if(debug)System.err.println("AbstractPatternList.match: child matches, subjectCursor=" + subjectCursor);
 					} else {
 						forward = false;
 						patternCursor--;
@@ -544,10 +544,10 @@ interface MatchPattern {
 	}
 }
 
-/* package */ class TreePatternSet extends BasicTreePattern implements MatchPattern {
+/* package */ class AbstractPatternSet extends AbstractPattern implements MatchPattern {
 	private java.util.List<MatchPattern> children;
 	
-	TreePatternSet(java.util.List<MatchPattern> children){
+	AbstractPatternSet(java.util.List<MatchPattern> children){
 		this.children = children;
 	}
 	
@@ -558,14 +558,14 @@ interface MatchPattern {
 	public boolean next(){
 		checkInitialized();
 		firstMatch = false;
-		throw new RascalBug("PatternSet.match not implemented");
+		throw new RascalBug("AbstractPatternSet.match not implemented");
 	}
 }
 
-/* package */ class TreePatternTuple extends BasicTreePattern implements MatchPattern {
+/* package */ class AbstractPatternTuple extends AbstractPattern implements MatchPattern {
 	private java.util.List<MatchPattern> children;
 	
-	TreePatternTuple(java.util.List<MatchPattern> children){
+	AbstractPatternTuple(java.util.List<MatchPattern> children){
 		this.children = children;
 	}
 	
@@ -604,10 +604,10 @@ interface MatchPattern {
 	}
 }
 
-/* package */ class TreePatternMap extends BasicTreePattern implements MatchPattern {
+/* package */ class AbstractPatternMap extends AbstractPattern implements MatchPattern {
 	private java.util.List<MatchPattern> children;
 	
-	TreePatternMap(java.util.List<MatchPattern> children){
+	AbstractPatternMap(java.util.List<MatchPattern> children){
 		this.children = children;
 	}
 	
@@ -619,17 +619,17 @@ interface MatchPattern {
 	public boolean next(){
 		checkInitialized();
 		firstMatch = false;
-		throw new RascalBug("PatternMap.match not implemented");
+		throw new RascalBug("AbstractPatternMap.match not implemented");
 	}
 }
 
-/* package */ class TreePatternQualifiedName extends BasicTreePattern implements MatchPattern {
+/* package */ class AbstractPatternQualifiedName extends AbstractPattern implements MatchPattern {
 	private org.meta_environment.rascal.ast.QualifiedName name;
 	private boolean boundBeforeConstruction;
 	private Type type;
 	private boolean debug = false;
 	
-	TreePatternQualifiedName(org.meta_environment.rascal.ast.QualifiedName qualifiedName){
+	AbstractPatternQualifiedName(org.meta_environment.rascal.ast.QualifiedName qualifiedName){
 		this.name = qualifiedName;
 		GlobalEnvironment env = GlobalEnvironment.getInstance();
 		EvalResult patRes = env.getVariable(name);
@@ -647,7 +647,7 @@ interface MatchPattern {
 	
 	public boolean next(){
 		checkInitialized();
-		if(debug)System.err.println("TreePatternQualifiedName.match: " + name + ", firstMatch=" + firstMatch + ", boundBeforeConstruction=" + boundBeforeConstruction);
+		if(debug)System.err.println("AbstractPatternQualifiedName.match: " + name + ", firstMatch=" + firstMatch + ", boundBeforeConstruction=" + boundBeforeConstruction);
         GlobalEnvironment env = GlobalEnvironment.getInstance();
 		
 		if(firstMatch && !boundBeforeConstruction){ //TODO: wrong in some cases?
@@ -661,7 +661,7 @@ interface MatchPattern {
          
         if((patRes != null) && (patRes.value != null)){
         	 IValue patVal = patRes.value;
-        		if(debug)System.err.println("TreePatternQualifiedName.match: " + name + ", subject=" + subject + ", value=" + patVal);
+        		if(debug)System.err.println("AbstractPatternQualifiedName.match: " + name + ", subject=" + subject + ", value=" + patVal);
         		
         	 if (subject.getType().isSubtypeOf(patVal.getType())) {
         		if(debug)System.err.println("returns " + ev.equals(ev.result(subject.getType(),subject), patRes));
@@ -676,12 +676,12 @@ interface MatchPattern {
 	}
 }
 
-/* package */class TreePatternTypedVariable extends BasicTreePattern implements MatchPattern {
+/* package */class AbstractPatternTypedVariable extends AbstractPattern implements MatchPattern {
 	private Name name;
 	org.eclipse.imp.pdb.facts.type.Type declaredType;
 	private boolean debug = false;
 
-	TreePatternTypedVariable(org.eclipse.imp.pdb.facts.type.Type type2, Name name) {
+	AbstractPatternTypedVariable(org.eclipse.imp.pdb.facts.type.Type type2, Name name) {
 		this.declaredType = type2;
 		this.name = name;
 	}
@@ -697,7 +697,7 @@ interface MatchPattern {
 	public boolean next() {
 		checkInitialized();
 		firstMatch = false;
-		if(debug)System.err.println("TypedVariable.match: " + subject + " with " + declaredType + " " + name);
+		if(debug)System.err.println("AbstractTypedVariable.match: " + subject + " with " + declaredType + " " + name);
 		
 		if (subject.getType().isSubtypeOf(declaredType)) {
 			GlobalEnvironment.getInstance().top().storeVariable(name, ev.result(declaredType, subject));
@@ -713,11 +713,11 @@ interface MatchPattern {
 	}
 }
 
-public class TreePatternEvaluator extends NullASTVisitor<MatchPattern> {
+public class AbstractPatternEvaluator extends NullASTVisitor<MatchPattern> {
 
 	private Evaluator ev;
 	
-	TreePatternEvaluator(Evaluator evaluator){
+	AbstractPatternEvaluator(Evaluator evaluator){
 		ev = evaluator;
 	}
 	
@@ -730,12 +730,12 @@ public class TreePatternEvaluator extends NullASTVisitor<MatchPattern> {
 	
 	@Override
 	public MatchPattern visitExpressionLiteral(Literal x) {
-		return new TreePatternLiteral(x.getLiteral().accept(ev).value);
+		return new AbstractPatternLiteral(x.getLiteral().accept(ev).value);
 	}
 	
 	@Override
 	public MatchPattern visitExpressionCallOrTree(CallOrTree x) {
-		return new TreePatternTree(x.getQualifiedName(), visitElements(x.getArguments()));
+		return new AbstractPatternNode(x.getQualifiedName(), visitElements(x.getArguments()));
 	}
 	
 	private java.util.List<MatchPattern> visitElements(java.util.List<org.meta_environment.rascal.ast.Expression> elements){
@@ -750,17 +750,17 @@ public class TreePatternEvaluator extends NullASTVisitor<MatchPattern> {
 	
 	@Override
 	public MatchPattern visitExpressionList(List x) {
-		return new TreePatternList(visitElements(x.getElements()));
+		return new AbstractPatternList(visitElements(x.getElements()));
 	}
 	
 	@Override
 	public MatchPattern visitExpressionSet(Set x) {
-		return new TreePatternSet(visitElements(x.getElements()));
+		return new AbstractPatternSet(visitElements(x.getElements()));
 	}
 	
 	@Override
 	public MatchPattern visitExpressionTuple(Tuple x) {
-		return new TreePatternTuple(visitElements(x.getElements()));
+		return new AbstractPatternTuple(visitElements(x.getElements()));
 	}
 	
 	@Override
@@ -774,14 +774,14 @@ public class TreePatternEvaluator extends NullASTVisitor<MatchPattern> {
 		Type signature = ev.tf.tupleType(new Type[0]);
 		 
 		 if (ev.isTreeConstructorName(name, signature)) {
-			 return new TreePatternTree(name, new java.util.ArrayList<MatchPattern>());
+			 return new AbstractPatternNode(name, new java.util.ArrayList<MatchPattern>());
 		 } else {
-			 return new TreePatternQualifiedName(x.getQualifiedName());
+			 return new AbstractPatternQualifiedName(x.getQualifiedName());
 		 }
 	}
 	
 	@Override
 	public MatchPattern visitExpressionTypedVariable(TypedVariable x) {
-		return new TreePatternTypedVariable(x.getType().accept(ev.te), x.getName());
+		return new AbstractPatternTypedVariable(x.getType().accept(ev.te), x.getName());
 	}
 }

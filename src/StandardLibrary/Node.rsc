@@ -35,6 +35,6 @@ public node java makeNode(str N, value V...)
 	for(int i = 0; i < len; i++){
 		args[i] = argList.get(i);
 	}
-	return values.tree(N.getValue(), args);
+	return values.node(N.getValue(), args);
 }
 

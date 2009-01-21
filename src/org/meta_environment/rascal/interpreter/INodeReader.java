@@ -10,13 +10,13 @@ import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 
-public class ITreeReader implements Iterator<IValue> {
+public class INodeReader implements Iterator<IValue> {
 
 	Stack<Object> spine = new Stack<Object>();
 	
 	private boolean bottomup;
 	
-	ITreeReader(INode node, boolean bottomup){
+	INodeReader(INode node, boolean bottomup){
 		this.bottomup = bottomup;
 		initSpine(node);
 	}
@@ -25,7 +25,7 @@ public class ITreeReader implements Iterator<IValue> {
 		if(bottomup) {
 			spine.push(t);
 		}
-		if(t.getType().isNodeType()){
+		if(t.getType().isNodeType() || t.getType().isAbstractDataType()){
 			Iterator<IValue> children = ((INode) t).getChildren().iterator();
 			spine.push(children);
 		}

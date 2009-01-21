@@ -245,7 +245,7 @@ public class ComprehensionTests extends TestCase {
 	
 	public void testNodeGenerator() throws IOException {
 		
-		tf = new TestFramework("data NODE int N | f(NODE a,NODE b) | g(NODE a, NODE b);");
+		tf = new TestFramework("data TREE int N | f(TREE a,TREE b) | g(TREE a, TREE b);");
 		
 		assertTrue(tf.runTestInSameEvaluator("[ X | int X : f(1,g(2,3)) ] == [1,2,3];"));
 		assertTrue(tf.runTestInSameEvaluator("[ X | value X : f(1,g(2,3)) ] == [1,2,3, g(2,3),f(1,g(2,3))];"));
@@ -255,9 +255,9 @@ public class ComprehensionTests extends TestCase {
 		
 		assertTrue(tf.runTestInSameEvaluator("[N | top-down value N : f(1,2)] == [f(1,2),1,2];"));
 		
-		assertTrue(tf.runTestInSameEvaluator("[N | node N : f(1,2)] == [f(1,2)];"));
-		assertTrue(tf.runTestInSameEvaluator("[N | bottom-up node N : f(1,2)] == [f(1,2)];"));
-		assertTrue(tf.runTestInSameEvaluator("[N | top-down node N : f(1,2)] == [f(1,2)];"));
+		assertTrue(tf.runTestInSameEvaluator("[N | TREE N : f(1,2)] == [f(1,2)];"));
+		assertTrue(tf.runTestInSameEvaluator("[N | bottom-up TREE N : f(1,2)] == [f(1,2)];"));
+		assertTrue(tf.runTestInSameEvaluator("[N | top-down TREE N : f(1,2)] == [f(1,2)];"));
 		
 		assertTrue(tf.runTestInSameEvaluator("[N | int N : f(1,2)] == [1,2];"));
 		
@@ -266,10 +266,10 @@ public class ComprehensionTests extends TestCase {
 		
 		assertTrue(tf.runTestInSameEvaluator("[N | top-down value N : f(1,g(2,3))] == [f(1,g(2,3)),1,g(2,3),2,3];"));
 		
-		assertTrue(tf.runTestInSameEvaluator("[N | node N : f(1,g(2,3))] == [g(2,3),f(1,g(2,3))];"));
-		assertTrue(tf.runTestInSameEvaluator("[N | bottom-up node N : f(1,g(2,3))] == [g(2,3),f(1,g(2,3))];"));
+		assertTrue(tf.runTestInSameEvaluator("[N | TREE N : f(1,g(2,3))] == [g(2,3),f(1,g(2,3))];"));
+		assertTrue(tf.runTestInSameEvaluator("[N | bottom-up TREE N : f(1,g(2,3))] == [g(2,3),f(1,g(2,3))];"));
 		
-		assertTrue(tf.runTestInSameEvaluator("[N | top-down node N : f(1,g(2,3))] == [f(1,g(2,3)), g(2,3)];"));		
+		assertTrue(tf.runTestInSameEvaluator("[N | top-down TREE N : f(1,g(2,3))] == [f(1,g(2,3)), g(2,3)];"));		
 		
 		assertTrue(tf.runTestInSameEvaluator("[N | int N : f(1,g(2,3))] == [1,2,3];"));
 		assertTrue(tf.runTestInSameEvaluator("[N | bottom-up int N : f(1,g(2,3))] == [1,2,3];"));

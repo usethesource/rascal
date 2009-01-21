@@ -20,7 +20,7 @@ set[set[feature]] CarFeatures = { {T} + E + {H} + {PT} |
 			(PT == "pullsTrailer") ==> (H == "highPower")
 };
 
-bool test(){
+public bool test(){
 	return 	size(CarFeatures) == 24;
 }
 
