@@ -3310,7 +3310,11 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			return compareSet((ISet) left.value, (ISet) right.value);
 		}
 		
-		if (leftType.isSubtypeOf(tf.treeType()) && rightType.isSubtypeOf(tf.treeType())){
+		if (leftType.isConstructorType() && rightType.isConstructorType()) {
+			return compareTree((INode) left.value, (INode) right.value);
+		}
+		
+		if (leftType.isNodeType() && rightType.isNodeType()) {
 			return compareTree((INode) left.value, (INode) right.value);
 		}
 		
