@@ -859,7 +859,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			  candidate = env.getConstructor(sortType, cons, signature);
 			}
 			else {
-			  return result(tf.treeType(), vf.node(cons, actuals));
+			  return result(tf.nodeType(), vf.node(cons, actuals));
 			}
 		}
 		
@@ -868,7 +868,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			return result(candidate, candidate.make(vf, actuals));
 		}
 		
-		return result(tf.treeType(), vf.node(cons, actuals));
+		return result(tf.nodeType(), vf.node(cons, actuals));
 	}
 	
 	@Override

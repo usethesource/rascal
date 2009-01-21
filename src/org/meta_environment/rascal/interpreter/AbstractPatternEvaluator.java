@@ -156,7 +156,7 @@ interface MatchPattern {
 		 if (ev.isTreeConstructorName(name, signature)) {
 			 return ev.env.getConstructor(name.toString(), signature);
 		 } else {
-			 return ev.tf.treeType();
+			 return ev.tf.nodeType();
 		 }
 	}
 	

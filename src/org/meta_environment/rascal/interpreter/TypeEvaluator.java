@@ -158,7 +158,7 @@ public class TypeEvaluator extends NullASTVisitor<Type> {
 	
 	@Override
 	public Type visitBasicTypeNode(Node x) {
-		return tf.treeType();
+		return tf.nodeType();
 	}
 	
 	@Override
