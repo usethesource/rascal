@@ -1,12 +1,12 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Symbol extends AbstractAST { 
   public org.meta_environment.rascal.ast.Sort getSort() { throw new UnsupportedOperationException(); } public boolean hasSort() { return false; } public boolean isSort() { return false; }
 static public class Sort extends Symbol {
 /* sort:Sort -> Symbol {cons("Sort")} */
 	private Sort() { }
-	/*package*/ Sort(ITree tree, org.meta_environment.rascal.ast.Sort sort) {
-		this.tree = tree;
+	/*package*/ Sort(INode node, org.meta_environment.rascal.ast.Sort sort) {
+		this.node = node;
 		this.sort = sort;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -28,9 +28,9 @@ private org.meta_environment.rascal.ast.Sort sort;
 }
 static public class Ambiguity extends Symbol {
   private final java.util.List<org.meta_environment.rascal.ast.Symbol> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Symbol> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Symbol> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.Symbol> getAlternatives() {
 	return alternatives;
@@ -44,8 +44,8 @@ public boolean isParameterizedSort() { return false; }
 static public class ParameterizedSort extends Symbol {
 /* sort:Sort "[[" parameters:{Symbol ","}+ "]]" -> Symbol {cons("ParameterizedSort")} */
 	private ParameterizedSort() { }
-	/*package*/ ParameterizedSort(ITree tree, org.meta_environment.rascal.ast.Sort sort, java.util.List<org.meta_environment.rascal.ast.Symbol> parameters) {
-		this.tree = tree;
+	/*package*/ ParameterizedSort(INode node, org.meta_environment.rascal.ast.Sort sort, java.util.List<org.meta_environment.rascal.ast.Symbol> parameters) {
+		this.node = node;
 		this.sort = sort;
 		this.parameters = parameters;
 	}
@@ -78,8 +78,8 @@ private org.meta_environment.rascal.ast.Sort sort;
 static public class Empty extends Symbol {
 /* "(" ")" -> Symbol {cons("Empty")} */
 	private Empty() { }
-	/*package*/ Empty(ITree tree) {
-		this.tree = tree;
+	/*package*/ Empty(INode node) {
+		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitSymbolEmpty(this);
@@ -95,8 +95,8 @@ public boolean isSequence() { return false; }
 static public class Sequence extends Symbol {
 /* "(" head:Symbol tail:Symbol+ ")" -> Symbol {cons("Sequence")} */
 	private Sequence() { }
-	/*package*/ Sequence(ITree tree, org.meta_environment.rascal.ast.Symbol head, java.util.List<org.meta_environment.rascal.ast.Symbol> tail) {
-		this.tree = tree;
+	/*package*/ Sequence(INode node, org.meta_environment.rascal.ast.Symbol head, java.util.List<org.meta_environment.rascal.ast.Symbol> tail) {
+		this.node = node;
 		this.head = head;
 		this.tail = tail;
 	}
@@ -128,8 +128,8 @@ private org.meta_environment.rascal.ast.Symbol head;
 } public org.meta_environment.rascal.ast.Symbol getSymbol() { throw new UnsupportedOperationException(); } public boolean hasSymbol() { return false; } public boolean isOptional() { return false; } static public class Optional extends Symbol {
 /* symbol:Symbol "?" -> Symbol {cons("Optional")} */
 	private Optional() { }
-	/*package*/ Optional(ITree tree, org.meta_environment.rascal.ast.Symbol symbol) {
-		this.tree = tree;
+	/*package*/ Optional(INode node, org.meta_environment.rascal.ast.Symbol symbol) {
+		this.node = node;
 		this.symbol = symbol;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -151,8 +151,8 @@ private org.meta_environment.rascal.ast.Symbol symbol;
 } public boolean isIter() { return false; } static public class Iter extends Symbol {
 /* symbol:Symbol "+" -> Symbol {cons("Iter")} */
 	private Iter() { }
-	/*package*/ Iter(ITree tree, org.meta_environment.rascal.ast.Symbol symbol) {
-		this.tree = tree;
+	/*package*/ Iter(INode node, org.meta_environment.rascal.ast.Symbol symbol) {
+		this.node = node;
 		this.symbol = symbol;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -174,8 +174,8 @@ private org.meta_environment.rascal.ast.Symbol symbol;
 } public boolean isIterStar() { return false; } static public class IterStar extends Symbol {
 /* symbol:Symbol "*" -> Symbol {cons("IterStar")} */
 	private IterStar() { }
-	/*package*/ IterStar(ITree tree, org.meta_environment.rascal.ast.Symbol symbol) {
-		this.tree = tree;
+	/*package*/ IterStar(INode node, org.meta_environment.rascal.ast.Symbol symbol) {
+		this.node = node;
 		this.symbol = symbol;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -198,8 +198,8 @@ private org.meta_environment.rascal.ast.Symbol symbol;
 static public class IterSep extends Symbol {
 /* "{" symbol:Symbol sep:StrCon "}" "+" -> Symbol {cons("IterSep")} */
 	private IterSep() { }
-	/*package*/ IterSep(ITree tree, org.meta_environment.rascal.ast.Symbol symbol, org.meta_environment.rascal.ast.StrCon sep) {
-		this.tree = tree;
+	/*package*/ IterSep(INode node, org.meta_environment.rascal.ast.Symbol symbol, org.meta_environment.rascal.ast.StrCon sep) {
+		this.node = node;
 		this.symbol = symbol;
 		this.sep = sep;
 	}
@@ -232,8 +232,8 @@ private org.meta_environment.rascal.ast.Symbol symbol;
 static public class IterStarSep extends Symbol {
 /* "{" symbol:Symbol sep:StrCon "}" "*" -> Symbol {cons("IterStarSep")} */
 	private IterStarSep() { }
-	/*package*/ IterStarSep(ITree tree, org.meta_environment.rascal.ast.Symbol symbol, org.meta_environment.rascal.ast.StrCon sep) {
-		this.tree = tree;
+	/*package*/ IterStarSep(INode node, org.meta_environment.rascal.ast.Symbol symbol, org.meta_environment.rascal.ast.StrCon sep) {
+		this.node = node;
 		this.symbol = symbol;
 		this.sep = sep;
 	}
@@ -265,8 +265,8 @@ private org.meta_environment.rascal.ast.Symbol symbol;
 } public org.meta_environment.rascal.ast.Symbol getLhs() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Symbol getRhs() { throw new UnsupportedOperationException(); } public boolean hasLhs() { return false; } public boolean hasRhs() { return false; } public boolean isAlternative() { return false; } static public class Alternative extends Symbol {
 /* lhs:Symbol "|" rhs:Symbol -> Symbol {right, cons("Alternative")} */
 	private Alternative() { }
-	/*package*/ Alternative(ITree tree, org.meta_environment.rascal.ast.Symbol lhs, org.meta_environment.rascal.ast.Symbol rhs) {
-		this.tree = tree;
+	/*package*/ Alternative(INode node, org.meta_environment.rascal.ast.Symbol lhs, org.meta_environment.rascal.ast.Symbol rhs) {
+		this.node = node;
 		this.lhs = lhs;
 		this.rhs = rhs;
 	}
@@ -301,8 +301,8 @@ public boolean isCharacterClass() { return false; }
 static public class CharacterClass extends Symbol {
 /* charClass:CharClass -> Symbol {cons("CharacterClass")} */
 	private CharacterClass() { }
-	/*package*/ CharacterClass(ITree tree, org.meta_environment.rascal.ast.CharClass charClass) {
-		this.tree = tree;
+	/*package*/ CharacterClass(INode node, org.meta_environment.rascal.ast.CharClass charClass) {
+		this.node = node;
 		this.charClass = charClass;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -325,8 +325,8 @@ private org.meta_environment.rascal.ast.CharClass charClass;
 static public class LiftedSymbol extends Symbol {
 /* "140" symbol:Symbol "140" -> Symbol {cons("LiftedSymbol")} */
 	private LiftedSymbol() { }
-	/*package*/ LiftedSymbol(ITree tree, org.meta_environment.rascal.ast.Symbol symbol) {
-		this.tree = tree;
+	/*package*/ LiftedSymbol(INode node, org.meta_environment.rascal.ast.Symbol symbol) {
+		this.node = node;
 		this.symbol = symbol;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -352,8 +352,8 @@ public boolean isLiteral() { return false; }
 static public class Literal extends Symbol {
 /* string:StrCon -> Symbol {cons("Literal")} */
 	private Literal() { }
-	/*package*/ Literal(ITree tree, org.meta_environment.rascal.ast.StrCon string) {
-		this.tree = tree;
+	/*package*/ Literal(INode node, org.meta_environment.rascal.ast.StrCon string) {
+		this.node = node;
 		this.string = string;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -379,8 +379,8 @@ public boolean isCaseInsensitiveLiteral() { return false; }
 static public class CaseInsensitiveLiteral extends Symbol {
 /* singelQuotedString:SingleQuotedStrCon -> Symbol {cons("CaseInsensitiveLiteral")} */
 	private CaseInsensitiveLiteral() { }
-	/*package*/ CaseInsensitiveLiteral(ITree tree, org.meta_environment.rascal.ast.SingleQuotedStrCon singelQuotedString) {
-		this.tree = tree;
+	/*package*/ CaseInsensitiveLiteral(INode node, org.meta_environment.rascal.ast.SingleQuotedStrCon singelQuotedString) {
+		this.node = node;
 		this.singelQuotedString = singelQuotedString;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {

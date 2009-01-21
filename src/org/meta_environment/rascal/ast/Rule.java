@@ -1,13 +1,13 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Rule extends AbstractAST { 
   public org.meta_environment.rascal.ast.Expression getPattern() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Replacement getReplacement() { throw new UnsupportedOperationException(); } public boolean hasPattern() { return false; } public boolean hasReplacement() { return false; }
 public boolean isReplacing() { return false; }
 static public class Replacing extends Rule {
 /* pattern:Expression "=>" replacement:Replacement -> Rule {cons("Replacing")} */
 	private Replacing() { }
-	/*package*/ Replacing(ITree tree, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Replacement replacement) {
-		this.tree = tree;
+	/*package*/ Replacing(INode node, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Replacement replacement) {
+		this.node = node;
 		this.pattern = pattern;
 		this.replacement = replacement;
 	}
@@ -39,9 +39,9 @@ private org.meta_environment.rascal.ast.Expression pattern;
 }
 static public class Ambiguity extends Rule {
   private final java.util.List<org.meta_environment.rascal.ast.Rule> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Rule> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Rule> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.Rule> getAlternatives() {
 	return alternatives;
@@ -55,8 +55,8 @@ public boolean isArbitrary() { return false; }
 static public class Arbitrary extends Rule {
 /* pattern:Expression ":" statement:Statement -> Rule {cons("Arbitrary")} */
 	private Arbitrary() { }
-	/*package*/ Arbitrary(ITree tree, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Statement statement) {
-		this.tree = tree;
+	/*package*/ Arbitrary(INode node, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Statement statement) {
+		this.node = node;
 		this.pattern = pattern;
 		this.statement = statement;
 	}
@@ -93,8 +93,8 @@ public boolean isGuarded() { return false; }
 static public class Guarded extends Rule {
 /* "[" type:Type "]" rule:Rule -> Rule {non-assoc, cons("Guarded")} */
 	private Guarded() { }
-	/*package*/ Guarded(ITree tree, org.meta_environment.rascal.ast.Type type, org.meta_environment.rascal.ast.Rule rule) {
-		this.tree = tree;
+	/*package*/ Guarded(INode node, org.meta_environment.rascal.ast.Type type, org.meta_environment.rascal.ast.Rule rule) {
+		this.node = node;
 		this.type = type;
 		this.rule = rule;
 	}

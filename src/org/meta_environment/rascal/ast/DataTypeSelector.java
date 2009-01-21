@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class DataTypeSelector extends AbstractAST { 
 public org.meta_environment.rascal.ast.Name getSort() { throw new UnsupportedOperationException(); }
 	public org.meta_environment.rascal.ast.Name getProduction() { throw new UnsupportedOperationException(); }
@@ -9,8 +9,8 @@ public boolean isSelector() { return false; }
 static public class Selector extends DataTypeSelector {
 /* sort:Name "." production:Name -> DataTypeSelector {cons("Selector")} */
 	private Selector() { }
-	/*package*/ Selector(ITree tree, org.meta_environment.rascal.ast.Name sort, org.meta_environment.rascal.ast.Name production) {
-		this.tree = tree;
+	/*package*/ Selector(INode node, org.meta_environment.rascal.ast.Name sort, org.meta_environment.rascal.ast.Name production) {
+		this.node = node;
 		this.sort = sort;
 		this.production = production;
 	}
@@ -42,9 +42,9 @@ private org.meta_environment.rascal.ast.Name sort;
 }
 static public class Ambiguity extends DataTypeSelector {
   private final java.util.List<org.meta_environment.rascal.ast.DataTypeSelector> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.DataTypeSelector> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.DataTypeSelector> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.DataTypeSelector> getAlternatives() {
 	return alternatives;

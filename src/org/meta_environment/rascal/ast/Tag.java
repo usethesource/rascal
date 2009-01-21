@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Tag extends AbstractAST { 
 public org.meta_environment.rascal.ast.Name getName() { throw new UnsupportedOperationException(); }
 	public org.meta_environment.rascal.ast.TagString getContents() { throw new UnsupportedOperationException(); }
@@ -9,8 +9,8 @@ public boolean isDefault() { return false; }
 static public class Default extends Tag {
 /* "@" name:Name contents:TagString -> Tag {cons("Default")} */
 	private Default() { }
-	/*package*/ Default(ITree tree, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.TagString contents) {
-		this.tree = tree;
+	/*package*/ Default(INode node, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.TagString contents) {
+		this.node = node;
 		this.name = name;
 		this.contents = contents;
 	}
@@ -42,9 +42,9 @@ private org.meta_environment.rascal.ast.Name name;
 }
 static public class Ambiguity extends Tag {
   private final java.util.List<org.meta_environment.rascal.ast.Tag> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Tag> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Tag> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.Tag> getAlternatives() {
 	return alternatives;

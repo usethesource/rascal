@@ -1,12 +1,12 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Assignment extends AbstractAST { 
   public boolean isDefault() { return false; }
 static public class Default extends Assignment {
 /* "=" -> Assignment {cons("Default")} */
 	private Default() { }
-	/*package*/ Default(ITree tree) {
-		this.tree = tree;
+	/*package*/ Default(INode node) {
+		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitAssignmentDefault(this);
@@ -16,9 +16,9 @@ static public class Default extends Assignment {
 }
 static public class Ambiguity extends Assignment {
   private final java.util.List<org.meta_environment.rascal.ast.Assignment> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Assignment> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Assignment> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.Assignment> getAlternatives() {
 	return alternatives;
@@ -32,8 +32,8 @@ public boolean isAddition() { return false; }
 static public class Addition extends Assignment {
 /* "+=" -> Assignment {cons("Addition")} */
 	private Addition() { }
-	/*package*/ Addition(ITree tree) {
-		this.tree = tree;
+	/*package*/ Addition(INode node) {
+		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitAssignmentAddition(this);
@@ -44,8 +44,8 @@ static public class Addition extends Assignment {
 static public class Subtraction extends Assignment {
 /* "-=" -> Assignment {cons("Subtraction")} */
 	private Subtraction() { }
-	/*package*/ Subtraction(ITree tree) {
-		this.tree = tree;
+	/*package*/ Subtraction(INode node) {
+		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitAssignmentSubtraction(this);
@@ -57,8 +57,8 @@ public boolean isProduct() { return false; }
 static public class Product extends Assignment {
 /* "*=" -> Assignment {cons("Product")} */
 	private Product() { }
-	/*package*/ Product(ITree tree) {
-		this.tree = tree;
+	/*package*/ Product(INode node) {
+		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitAssignmentProduct(this);
@@ -70,8 +70,8 @@ public boolean isDivision() { return false; }
 static public class Division extends Assignment {
 /* "/=" -> Assignment {cons("Division")} */
 	private Division() { }
-	/*package*/ Division(ITree tree) {
-		this.tree = tree;
+	/*package*/ Division(INode node) {
+		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitAssignmentDivision(this);
@@ -83,8 +83,8 @@ public boolean isIntersection() { return false; }
 static public class Intersection extends Assignment {
 /* "&=" -> Assignment {cons("Intersection")} */
 	private Intersection() { }
-	/*package*/ Intersection(ITree tree) {
-		this.tree = tree;
+	/*package*/ Intersection(INode node) {
+		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitAssignmentIntersection(this);

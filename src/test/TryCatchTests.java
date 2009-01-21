@@ -15,7 +15,7 @@ public class TryCatchTests extends TestCase {
 		"	} catch (int x){" +
 		"		return 1;" +
 		"	}" +
-		"	catch (tree x){" +
+		"	catch (node x){" +
 		"		return 2;" +
 		"	}" +
 		"	catch (str s){" +
@@ -42,7 +42,7 @@ public class TryCatchTests extends TestCase {
 		"	} catch (int x){" +
 		"		return x + x;" +
 		"	}" +
-		"	catch (tree x){" +
+		"	catch (node x){" +
 		"		return d(x,x);" +
 		"	}" +
 		"	catch (str s){" +
@@ -70,7 +70,7 @@ public class TryCatchTests extends TestCase {
 		"	} catch (int x){" +
 		"		res = x + x;" +
 		"	}" +
-		"	catch (tree x){" +
+		"	catch (node x){" +
 		"		res = d(x,x);" +
 		"	}" +
 		"	catch (str s){" +

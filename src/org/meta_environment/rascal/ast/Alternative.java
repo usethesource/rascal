@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Alternative extends AbstractAST { 
 public org.meta_environment.rascal.ast.Name getName() { throw new UnsupportedOperationException(); }
 	public org.meta_environment.rascal.ast.Type getType() { throw new UnsupportedOperationException(); }
@@ -7,10 +7,10 @@ public boolean hasName() { return false; }
 	public boolean hasType() { return false; }
 public boolean isNamedType() { return false; }
 static public class NamedType extends Alternative {
-/* name:Name type:Type -> Alternative {cons("NamedType")} */
+/* name:Name type:Type -> Alternative {cons("AliasType")} */
 	private NamedType() { }
-	/*package*/ NamedType(ITree tree, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.Type type) {
-		this.tree = tree;
+	/*package*/ NamedType(INode node, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.Type type) {
+		this.node = node;
 		this.name = name;
 		this.type = type;
 	}
@@ -42,9 +42,9 @@ private org.meta_environment.rascal.ast.Name name;
 }
 static public class Ambiguity extends Alternative {
   private final java.util.List<org.meta_environment.rascal.ast.Alternative> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Alternative> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Alternative> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.Alternative> getAlternatives() {
 	return alternatives;

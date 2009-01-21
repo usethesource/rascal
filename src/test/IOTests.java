@@ -28,32 +28,32 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 public class IOTests extends TestCase {
 	private static TypeFactory tf = TypeFactory.getInstance();
 	private static IValueFactory vf = ValueFactory.getInstance();
-	private static Type Boolean = tf.namedTreeType("Boolean");
+	private static Type Boolean = tf.abstractDataType("Boolean");
 	
-	private static Type Name = tf.namedTreeType("Name");
-	private static Type True = tf.treeNodeType(Boolean, "true");
-	private static Type False= tf.treeNodeType(Boolean, "false");
-	private static Type And= tf.treeNodeType(Boolean, "and", Boolean, Boolean);
-	private static Type Or= tf.treeNodeType(Boolean, "or", tf.listType(Boolean));
-	private static Type Not= tf.treeNodeType(Boolean, "not", Boolean);
-	private static Type TwoTups = tf.treeNodeType(Boolean, "twotups", tf.tupleType(Boolean, Boolean), tf.tupleType(Boolean, Boolean));
-	private static Type NameNode  = tf.treeNodeType(Name, "name", tf.stringType());
-	private static Type Friends = tf.treeNodeType(Boolean, "friends", tf.listType(Name));
-	private static Type Couples = tf.treeNodeType(Boolean, "couples", tf.listType(tf.tupleType(Name, Name)));
+	private static Type Name = tf.abstractDataType("Name");
+	private static Type True = tf.constructor(Boolean, "true");
+	private static Type False= tf.constructor(Boolean, "false");
+	private static Type And= tf.constructor(Boolean, "and", Boolean, Boolean);
+	private static Type Or= tf.constructor(Boolean, "or", tf.listType(Boolean));
+	private static Type Not= tf.constructor(Boolean, "not", Boolean);
+	private static Type TwoTups = tf.constructor(Boolean, "twotups", tf.tupleType(Boolean, Boolean), tf.tupleType(Boolean, Boolean));
+	private static Type NameNode  = tf.constructor(Name, "name", tf.stringType());
+	private static Type Friends = tf.constructor(Boolean, "friends", tf.listType(Name));
+	private static Type Couples = tf.constructor(Boolean, "couples", tf.listType(tf.tupleType(Name, Name)));
 	
 	private IValue[] testValues = {
-			vf.tree(True),
-			vf.tree(True),
-			vf.tree(True),
-			vf.tree(True),
-			vf.tree(And, vf.tree(True), vf.tree(False)),
-			vf.tree(Not, vf.tree(And, vf.tree(True), vf.tree(False))),
-			vf.tree(And, vf.tree(And, vf.tree(True), vf.tree(True)), vf.tree(And, vf.tree(True), vf.tree(True))),
-			vf.tree(TwoTups, vf.tuple(vf.tree(True), vf.tree(False)),vf.tuple(vf.tree(True), vf.tree(False))),
-			vf.tree(Or, vf.list(vf.tree(True), vf.tree(False), vf.tree(True))),
-			vf.tree(Friends, vf.list(name("Hans"), name("Bob"))),
-			vf.tree(Or, vf.list(Boolean)),
-			vf.tree(Couples, vf.list(vf.tuple(name("A"), name("B")), vf.tuple(name("C"), name("D"))))
+			vf.constructor(True),
+			vf.constructor(True),
+			vf.constructor(True),
+			vf.constructor(True),
+			vf.constructor(And, vf.constructor(True), vf.constructor(False)),
+			vf.constructor(Not, vf.constructor(And, vf.constructor(True), vf.constructor(False))),
+			vf.constructor(And, vf.constructor(And, vf.constructor(True), vf.constructor(True)), vf.constructor(And, vf.constructor(True), vf.constructor(True))),
+			vf.constructor(TwoTups, vf.tuple(vf.constructor(True), vf.constructor(False)),vf.tuple(vf.constructor(True), vf.constructor(False))),
+			vf.constructor(Or, vf.list(vf.constructor(True), vf.constructor(False), vf.constructor(True))),
+			vf.constructor(Friends, vf.list(name("Hans"), name("Bob"))),
+			vf.constructor(Or, vf.list(Boolean)),
+			vf.constructor(Couples, vf.list(vf.tuple(name("A"), name("B")), vf.tuple(name("C"), name("D"))))
 	};
 	
 	private String[] testATerm = {
@@ -72,7 +72,7 @@ public class IOTests extends TestCase {
 	    };
 
 	private static IValue name(String n) {
-		return vf.tree(NameNode, vf.string(n));
+		return vf.constructor(NameNode, vf.string(n));
 	}
 	
 	public void testATermReader() {

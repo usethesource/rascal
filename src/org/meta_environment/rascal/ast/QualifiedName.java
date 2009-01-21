@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class QualifiedName extends AbstractAST { 
 public java.util.List<org.meta_environment.rascal.ast.Name> getNames() { throw new UnsupportedOperationException(); }
 public boolean hasNames() { return false; }
@@ -7,8 +7,8 @@ public boolean isDefault() { return false; }
 static public class Default extends QualifiedName {
 /* names:{Name "::"}+ -> QualifiedName {cons("Default")} */
 	private Default() { }
-	/*package*/ Default(ITree tree, java.util.List<org.meta_environment.rascal.ast.Name> names) {
-		this.tree = tree;
+	/*package*/ Default(INode node, java.util.List<org.meta_environment.rascal.ast.Name> names) {
+		this.node = node;
 		this.names = names;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -30,9 +30,9 @@ private java.util.List<org.meta_environment.rascal.ast.Name> names;
 }
 static public class Ambiguity extends QualifiedName {
   private final java.util.List<org.meta_environment.rascal.ast.QualifiedName> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.QualifiedName> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.QualifiedName> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.QualifiedName> getAlternatives() {
 	return alternatives;

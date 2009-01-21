@@ -4,7 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.meta_environment.rascal.ast.ASTFactory;
@@ -92,7 +92,7 @@ public class TestFramework {
 	
 	
 	boolean prepareModule(String module) throws IOException {
-		INode tree = parser.parse(new ByteArrayInputStream(module.getBytes()));
+		IConstructor tree = parser.parse(new ByteArrayInputStream(module.getBytes()));
 		if (tree.getType() == Factory.ParseTree_Summary) {
 			System.err.println(tree);
 			return false;
@@ -106,7 +106,7 @@ public class TestFramework {
 	}
 
 	private boolean execute(String command) throws IOException {
-		INode tree = parser.parse(new ByteArrayInputStream(command.getBytes()));
+		IConstructor tree = parser.parse(new ByteArrayInputStream(command.getBytes()));
 
 		if (tree.getType() == Factory.ParseTree_Summary) {
 			System.err.println(tree);

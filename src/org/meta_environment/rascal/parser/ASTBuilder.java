@@ -7,8 +7,8 @@ import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
-import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.meta_environment.rascal.ast.ASTFactory;
@@ -23,7 +23,7 @@ import org.meta_environment.uptr.TreeAdapter;
 
 /**
  * Uses reflection to construct an AST hierarchy from a 
- * UPTR parse tree of a rascal program.
+ * UPTR parse node of a rascal program.
  *
  */
 public class ASTBuilder {
@@ -35,27 +35,27 @@ public class ASTBuilder {
 		this.clazz = factory.getClass();
 	}
 	
-	public Module buildModule(INode parseTree) throws FactTypeError {
+	public Module buildModule(IConstructor parseTree) throws FactTypeError {
 		return buildSort(parseTree, "Module");
 	}
 	
-	public Expression buildExpression(INode parseTree) {
+	public Expression buildExpression(IConstructor parseTree) {
 		return buildSort(parseTree, "Expression");
 	}
 	
-	public Statement buildStatement(INode parseTree) {
+	public Statement buildStatement(IConstructor parseTree) {
 		return buildSort(parseTree, "Statement");
 	}
 	
-	public Command buildCommand(INode parseTree) {
+	public Command buildCommand(IConstructor parseTree) {
 		return buildSort(parseTree, "Command");
 	}
 	
 	@SuppressWarnings("unchecked")
-	private <T extends AbstractAST> T buildSort(INode parseTree, String sort) {
-		INode top = (INode) parseTree.get("top");
+	private <T extends AbstractAST> T buildSort(IConstructor parseTree, String sort) {
+		IConstructor top = (IConstructor) parseTree.get("top");
 		TreeAdapter start = new TreeAdapter(top);
-		INode tree = (INode) start.getArgs().get(1);
+		IConstructor tree = (IConstructor) start.getArgs().get(1);
 		TreeAdapter treeAdapter = new TreeAdapter(tree); 
 
 		if (treeAdapter.getSortName().equals(sort)) {
@@ -66,7 +66,7 @@ public class ASTBuilder {
 		}
 	}
 	
-	private List<AbstractAST> buildList(INode in)  {
+	private List<AbstractAST> buildList(IConstructor in)  {
 		IList args = new TreeAdapter(in).getListASTArgs();
 		List<AbstractAST> result = new LinkedList<AbstractAST>();
 		for (IValue arg: args) {
@@ -75,7 +75,7 @@ public class ASTBuilder {
 		return result;
 	}
 
-	private AbstractAST buildContextFreeNode(INode in)  {
+	private AbstractAST buildContextFreeNode(IConstructor in)  {
 		try {
 			TreeAdapter tree = new TreeAdapter(in);
 
@@ -89,14 +89,14 @@ public class ASTBuilder {
 			Class<?> formals[] = new Class<?>[arity];
 			Object actuals[] = new Object[arity];
 
-			formals[0] = ITree.class;
+			formals[0] = INode.class;
 			actuals[0] = in;
 
 			int i = 1;
 			for (IValue arg : args) {
-				TreeAdapter argTree = new TreeAdapter((INode) arg);
+				TreeAdapter argTree = new TreeAdapter((IConstructor) arg);
 				if (argTree.isList()) {
-					actuals[i] = buildList((INode) arg);
+					actuals[i] = buildList((IConstructor) arg);
 					formals[i] = List.class;
 				}
 				else {
@@ -121,17 +121,17 @@ public class ASTBuilder {
 		}
 	}
 	
-	private AbstractAST buildAmbNode(ITree tree, ISet alternatives) {
+	private AbstractAST buildAmbNode(INode node, ISet alternatives) {
 		try {
 			String sort = null;
 			List<AbstractAST> alts = new LinkedList<AbstractAST>();
 
 			for (IValue elem : alternatives) {
-				TreeAdapter alt = new TreeAdapter((INode) elem);
+				TreeAdapter alt = new TreeAdapter((IConstructor) elem);
 
 				if (alt.isList()) {
 					// TODO add support for ambiguous lists
-					throw new RascalBug("Can not deal with ambiguous list: " + tree);
+					throw new RascalBug("Can not deal with ambiguous list: " + node);
 				}
 				else if (sort == null) {
 					sort = alt.getSortName();
@@ -141,12 +141,12 @@ public class ASTBuilder {
 			}
 			
 			if (alts.size() == 0) {
-				throw new FactTypeError("bug: Ambiguity without children!?! " + tree);
+				throw new FactTypeError("bug: Ambiguity without children!?! " + node);
 			}
 
 			sort = capitalize(sort);
-			Class<?> formals[] = new Class<?>[]  { ITree.class, List.class };
-			Object actuals[] = new Object[] { tree, alts };
+			Class<?> formals[] = new Class<?>[]  { INode.class, List.class };
+			Object actuals[] = new Object[] { node, alts };
 
 			Method make = clazz.getMethod("make" + sort + "Ambiguity", formals);
 			return (AbstractAST) make.invoke(factory, actuals);
@@ -163,14 +163,14 @@ public class ASTBuilder {
 		}
 	}
 	
-	private AbstractAST buildLexicalNode(INode in) {
+	private AbstractAST buildLexicalNode(IConstructor in) {
 		try {
 			TreeAdapter tree = new TreeAdapter(in);
 
 			String sort = tree.getProduction().getSortName();
 			String Sort = capitalize(sort);
 
-			Class<?> formals[] = new Class<?>[] { ITree.class, String.class };
+			Class<?> formals[] = new Class<?>[] { INode.class, String.class };
 			Object actuals[] = new Object[] { in, new String(new TreeAdapter(in).yield()) };
 
 			Method make = clazz.getMethod("make" + Sort + "Lexical", formals);
@@ -193,23 +193,23 @@ public class ASTBuilder {
 	}
 
 	private AbstractAST buildValue(IValue arg)  {
-		TreeAdapter tree = new TreeAdapter((INode) arg);
+		TreeAdapter tree = new TreeAdapter((IConstructor) arg);
 		
 		if (tree.isAmb()) {
-			return buildAmbNode((ITree) arg, tree.getAlternatives());
+			return buildAmbNode((INode) arg, tree.getAlternatives());
 		}
 		if (!tree.isAppl()) {
 			throw new UnsupportedOperationException();
 		}	
 		
 		if (tree.isLexToCf()) {
-			return buildLexicalNode((INode) ((IList) ((INode) arg).get("args")).get(0));
+			return buildLexicalNode((IConstructor) ((IList) ((IConstructor) arg).get("args")).get(0));
 		}
 		else if (tree.getSortName().equals("FunctionBody") && tree.getConstructorName().equals("Java")) {
-			return new JavaFunctionBody((ITree) arg, tree.yield());
+			return new JavaFunctionBody((INode) arg, tree.yield());
 		}
 			
-		return buildContextFreeNode((INode) arg);
+		return buildContextFreeNode((IConstructor) arg);
 	}
 
 

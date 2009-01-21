@@ -269,14 +269,14 @@ public class TypeEvaluator extends NullASTVisitor<Type> {
 	public Type visitTypeUser(User x) {
 		// TODO add support for parametric types
 		java.lang.String name = x.getUser().getName().toString();
-		Type type = tf.lookupNamedType(name);
+		Type type = tf.lookupAlias(name);
 		
 		if (type == null) {
 			//TODO: This is a hack during transition from double to real
 			if(name.equals("real")){
 				return tf.doubleType();
 			}
-			Type tree = tf.lookupNamedTreeType(name);
+			Type tree = tf.lookupAbstractDataType(name);
 			
 			if (tree == null) {
 				throw new RascalTypeError("Use of undeclared type " + x);

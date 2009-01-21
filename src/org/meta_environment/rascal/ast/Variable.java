@@ -1,12 +1,12 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Variable extends AbstractAST { 
   public org.meta_environment.rascal.ast.Name getName() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Tags getTags() { throw new UnsupportedOperationException(); } public boolean hasName() { return false; } public boolean hasTags() { return false; } public boolean isUnInitialized() { return false; }
 static public class UnInitialized extends Variable {
 /* name:Name tags:Tags -> Variable {cons("UnInitialized")} */
 	private UnInitialized() { }
-	/*package*/ UnInitialized(ITree tree, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.Tags tags) {
-		this.tree = tree;
+	/*package*/ UnInitialized(INode node, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.Tags tags) {
+		this.node = node;
 		this.name = name;
 		this.tags = tags;
 	}
@@ -38,9 +38,9 @@ private org.meta_environment.rascal.ast.Name name;
 }
 static public class Ambiguity extends Variable {
   private final java.util.List<org.meta_environment.rascal.ast.Variable> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Variable> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Variable> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.Variable> getAlternatives() {
 	return alternatives;
@@ -54,8 +54,8 @@ public boolean isInitialized() { return false; }
 static public class Initialized extends Variable {
 /* name:Name tags:Tags "=" initial:Expression -> Variable {cons("Initialized")} */
 	private Initialized() { }
-	/*package*/ Initialized(ITree tree, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.Tags tags, org.meta_environment.rascal.ast.Expression initial) {
-		this.tree = tree;
+	/*package*/ Initialized(INode node, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.Tags tags, org.meta_environment.rascal.ast.Expression initial) {
+		this.node = node;
 		this.name = name;
 		this.tags = tags;
 		this.initial = initial;

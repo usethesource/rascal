@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class ClosureAsFunction extends AbstractAST { 
 public org.meta_environment.rascal.ast.Expression getExpression() { throw new UnsupportedOperationException(); }
 public boolean hasExpression() { return false; }
@@ -7,8 +7,8 @@ public boolean isEvaluated() { return false; }
 static public class Evaluated extends ClosureAsFunction {
 /* "#" expression:Expression -> ClosureAsFunction {cons("Evaluated")} */
 	private Evaluated() { }
-	/*package*/ Evaluated(ITree tree, org.meta_environment.rascal.ast.Expression expression) {
-		this.tree = tree;
+	/*package*/ Evaluated(INode node, org.meta_environment.rascal.ast.Expression expression) {
+		this.node = node;
 		this.expression = expression;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -30,9 +30,9 @@ private org.meta_environment.rascal.ast.Expression expression;
 }
 static public class Ambiguity extends ClosureAsFunction {
   private final java.util.List<org.meta_environment.rascal.ast.ClosureAsFunction> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.ClosureAsFunction> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.ClosureAsFunction> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.ClosureAsFunction> getAlternatives() {
 	return alternatives;

@@ -7,7 +7,7 @@ import java.io.IOException;
 
 import junit.framework.TestCase;
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.Module;
@@ -35,7 +35,7 @@ public class ParsingTests extends TestCase {
 		for (File file : tests) {
 			try {
 				FileInputStream s = new FileInputStream(file);
-				INode tree = parser.parse(s);
+				IConstructor tree = parser.parse(s);
 
 				if (tree.getType() == Factory.ParseTree_Top) {
 					Module.Default module = (Default) b.buildModule(tree);

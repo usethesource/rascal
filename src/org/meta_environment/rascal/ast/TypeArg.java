@@ -1,12 +1,12 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class TypeArg extends AbstractAST { 
   public org.meta_environment.rascal.ast.Type getType() { throw new UnsupportedOperationException(); } public boolean hasType() { return false; } public boolean isDefault() { return false; }
 static public class Default extends TypeArg {
 /* type:Type -> TypeArg {cons("Default")} */
 	private Default() { }
-	/*package*/ Default(ITree tree, org.meta_environment.rascal.ast.Type type) {
-		this.tree = tree;
+	/*package*/ Default(INode node, org.meta_environment.rascal.ast.Type type) {
+		this.node = node;
 		this.type = type;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -28,9 +28,9 @@ private org.meta_environment.rascal.ast.Type type;
 }
 static public class Ambiguity extends TypeArg {
   private final java.util.List<org.meta_environment.rascal.ast.TypeArg> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.TypeArg> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.TypeArg> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.TypeArg> getAlternatives() {
 	return alternatives;
@@ -44,8 +44,8 @@ public boolean isNamed() { return false; }
 static public class Named extends TypeArg {
 /* type:Type name:Name -> TypeArg {cons("Named")} */
 	private Named() { }
-	/*package*/ Named(ITree tree, org.meta_environment.rascal.ast.Type type, org.meta_environment.rascal.ast.Name name) {
-		this.tree = tree;
+	/*package*/ Named(INode node, org.meta_environment.rascal.ast.Type type, org.meta_environment.rascal.ast.Name name) {
+		this.node = node;
 		this.type = type;
 		this.name = name;
 	}

@@ -1,12 +1,12 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Visit extends AbstractAST { 
   public org.meta_environment.rascal.ast.Expression getSubject() { throw new UnsupportedOperationException(); } public java.util.List<org.meta_environment.rascal.ast.Case> getCases() { throw new UnsupportedOperationException(); } public boolean hasSubject() { return false; } public boolean hasCases() { return false; } public boolean isDefaultStrategy() { return false; }
 static public class DefaultStrategy extends Visit {
 /* "visit" "(" subject:Expression ")" "{" cases:Case+ "}" -> Visit {cons("DefaultStrategy")} */
 	private DefaultStrategy() { }
-	/*package*/ DefaultStrategy(ITree tree, org.meta_environment.rascal.ast.Expression subject, java.util.List<org.meta_environment.rascal.ast.Case> cases) {
-		this.tree = tree;
+	/*package*/ DefaultStrategy(INode node, org.meta_environment.rascal.ast.Expression subject, java.util.List<org.meta_environment.rascal.ast.Case> cases) {
+		this.node = node;
 		this.subject = subject;
 		this.cases = cases;
 	}
@@ -38,9 +38,9 @@ private org.meta_environment.rascal.ast.Expression subject;
 }
 static public class Ambiguity extends Visit {
   private final java.util.List<org.meta_environment.rascal.ast.Visit> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Visit> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Visit> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.Visit> getAlternatives() {
 	return alternatives;
@@ -54,8 +54,8 @@ public org.meta_environment.rascal.ast.Strategy getStrategy() { throw new Unsupp
 static public class GivenStrategy extends Visit {
 /* strategy:Strategy "visit" "(" subject:Expression ")" "{" cases:Case+ "}" -> Visit {cons("GivenStrategy")} */
 	private GivenStrategy() { }
-	/*package*/ GivenStrategy(ITree tree, org.meta_environment.rascal.ast.Strategy strategy, org.meta_environment.rascal.ast.Expression subject, java.util.List<org.meta_environment.rascal.ast.Case> cases) {
-		this.tree = tree;
+	/*package*/ GivenStrategy(INode node, org.meta_environment.rascal.ast.Strategy strategy, org.meta_environment.rascal.ast.Expression subject, java.util.List<org.meta_environment.rascal.ast.Case> cases) {
+		this.node = node;
 		this.strategy = strategy;
 		this.subject = subject;
 		this.cases = cases;

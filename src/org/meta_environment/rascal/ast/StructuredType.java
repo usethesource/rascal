@@ -1,12 +1,12 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class StructuredType extends AbstractAST { 
   public org.meta_environment.rascal.ast.TypeArg getTypeArg() { throw new UnsupportedOperationException(); } public boolean hasTypeArg() { return false; } public boolean isList() { return false; }
 static public class List extends StructuredType {
 /* "list" "[" typeArg:TypeArg "]" -> StructuredType {cons("List")} */
 	private List() { }
-	/*package*/ List(ITree tree, org.meta_environment.rascal.ast.TypeArg typeArg) {
-		this.tree = tree;
+	/*package*/ List(INode node, org.meta_environment.rascal.ast.TypeArg typeArg) {
+		this.node = node;
 		this.typeArg = typeArg;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -28,9 +28,9 @@ private org.meta_environment.rascal.ast.TypeArg typeArg;
 }
 static public class Ambiguity extends StructuredType {
   private final java.util.List<org.meta_environment.rascal.ast.StructuredType> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.StructuredType> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.StructuredType> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.StructuredType> getAlternatives() {
 	return alternatives;
@@ -43,8 +43,8 @@ static public class Ambiguity extends StructuredType {
 static public class Set extends StructuredType {
 /* "set" "[" typeArg:TypeArg "]" -> StructuredType {cons("Set")} */
 	private Set() { }
-	/*package*/ Set(ITree tree, org.meta_environment.rascal.ast.TypeArg typeArg) {
-		this.tree = tree;
+	/*package*/ Set(INode node, org.meta_environment.rascal.ast.TypeArg typeArg) {
+		this.node = node;
 		this.typeArg = typeArg;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -71,8 +71,8 @@ public boolean isMap() { return false; }
 static public class Map extends StructuredType {
 /* "map" "[" first:TypeArg "," second:TypeArg "]" -> StructuredType {cons("Map")} */
 	private Map() { }
-	/*package*/ Map(ITree tree, org.meta_environment.rascal.ast.TypeArg first, org.meta_environment.rascal.ast.TypeArg second) {
-		this.tree = tree;
+	/*package*/ Map(INode node, org.meta_environment.rascal.ast.TypeArg first, org.meta_environment.rascal.ast.TypeArg second) {
+		this.node = node;
 		this.first = first;
 		this.second = second;
 	}
@@ -105,8 +105,8 @@ private org.meta_environment.rascal.ast.TypeArg first;
 static public class Relation extends StructuredType {
 /* "rel" "[" arguments:{TypeArg ","}+ "]" -> StructuredType {cons("Relation")} */
 	private Relation() { }
-	/*package*/ Relation(ITree tree, java.util.List<org.meta_environment.rascal.ast.TypeArg> arguments) {
-		this.tree = tree;
+	/*package*/ Relation(INode node, java.util.List<org.meta_environment.rascal.ast.TypeArg> arguments) {
+		this.node = node;
 		this.arguments = arguments;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -129,8 +129,8 @@ private java.util.List<org.meta_environment.rascal.ast.TypeArg> arguments;
 static public class Tuple extends StructuredType {
 /* "tuple" "[" arguments:{TypeArg ","}+  "]" -> StructuredType {cons("Tuple")} */
 	private Tuple() { }
-	/*package*/ Tuple(ITree tree, java.util.List<org.meta_environment.rascal.ast.TypeArg> arguments) {
-		this.tree = tree;
+	/*package*/ Tuple(INode node, java.util.List<org.meta_environment.rascal.ast.TypeArg> arguments) {
+		this.node = node;
 		this.arguments = arguments;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {

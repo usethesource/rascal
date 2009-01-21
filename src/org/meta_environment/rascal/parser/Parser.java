@@ -8,7 +8,7 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.security.AccessController;
 
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.io.ATermReader;
@@ -18,7 +18,7 @@ import org.meta_environment.uptr.Factory;
 import sun.security.action.GetPropertyAction;
 
 /**
- * Parses a Rascal program and a UPTR tree.
+ * Parses a Rascal program and a UPTR node.
  *
  */
 public class Parser {
@@ -34,7 +34,7 @@ public class Parser {
 		return InstanceKeeper.sInstance;
 	}
 	
-	public INode parse(InputStream input) throws IOException, FactTypeError {
+	public IConstructor parse(InputStream input) throws IOException, FactTypeError {
 		ATermReader reader = new ATermReader();
 		String tableFilename = getTableFile();
 		Process sglr = Runtime.getRuntime().exec("sglr -p " + tableFilename + " -t");
@@ -48,7 +48,7 @@ public class Parser {
 		sglr.getOutputStream().close();
 		sglr.destroy();
 		
-		return (INode) tmp;
+		return (IConstructor) tmp;
 	}
 
 	private String getTableFile() throws IOException {

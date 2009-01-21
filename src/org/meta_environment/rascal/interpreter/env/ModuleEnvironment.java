@@ -25,8 +25,8 @@ public class ModuleEnvironment extends Environment {
 	protected final Set<String> importedModules;
 	protected final Map<FunctionDeclaration, Visibility> functionVisibility;
 	protected final Map<String, Visibility> variableVisibility;
-	protected final Map<String,Type> namedTypes;
-	protected final Map<String, Type> namedTreeTypes;
+	protected final Map<String,Type> typeAliases;
+	protected final Map<String, Type> adts;
 	protected final Map<Type, List<Type>> signature;
 	protected final Map<Type, Map<String, Type>> annotations;
 	
@@ -35,8 +35,8 @@ public class ModuleEnvironment extends Environment {
 		this.importedModules = new HashSet<String>();
 		this.functionVisibility = new HashMap<FunctionDeclaration, Visibility>();
 		this.variableVisibility = new HashMap<String, Visibility>();
-		this.namedTypes = new HashMap<String,Type>();
-		this.namedTreeTypes = new HashMap<String,Type>();
+		this.typeAliases = new HashMap<String,Type>();
+		this.adts = new HashMap<String,Type>();
 		this.signature = new HashMap<Type, List<Type>>();
 		this.annotations = new HashMap<Type, Map<String, Type>>();
 	}
@@ -186,15 +186,15 @@ public class ModuleEnvironment extends Environment {
 		return null;
 	}
 
-	public Type getNamedType(String name) {
-		return namedTypes.get(name);
+	public Type getTypeAlias(String name) {
+		return typeAliases.get(name);
 	}
 	
-	public Type getNamedTreeType(String sort) {
-		return namedTreeTypes.get(sort);
+	public Type getAbstractDataType(String sort) {
+		return adts.get(sort);
 	}
 	
-	public Type getTreeNodeType(String cons, Type args) {
+	public Type getConstructor(String cons, Type args) {
 		for (List<Type> sig : signature.values()) {
 			for (Type cand : sig) {
 				String candCons = cand.getName();
@@ -213,7 +213,7 @@ public class ModuleEnvironment extends Environment {
 		
 		for (String i : getImports()) {
 			ModuleEnvironment mod = GlobalEnvironment.getInstance().getModule(i);
-			Type found = mod.getTreeNodeType(cons, args);
+			Type found = mod.getConstructor(cons, args);
 			
 			if (found != null) {
 				return found;
@@ -223,7 +223,7 @@ public class ModuleEnvironment extends Environment {
 		return null;
 	}
 	
-	public Type getTreeNodeType(Type sort, String cons, Type args) {
+	public Type getConstructor(Type sort, String cons, Type args) {
 		List<Type> sig = signature.get(sort);
 		
 		if (sig != null) {
@@ -237,7 +237,7 @@ public class ModuleEnvironment extends Environment {
 		
 		for (String i : getImports()) {
 			ModuleEnvironment mod = GlobalEnvironment.getInstance().getModule(i);
-			Type found = mod.getTreeNodeType(sort, cons, args);
+			Type found = mod.getConstructor(sort, cons, args);
 			
 			if (found != null) {
 				return found;
@@ -247,11 +247,11 @@ public class ModuleEnvironment extends Environment {
 		return null;
 	}
 	
-	public void storeNamedType(Type decl) {
-		namedTypes.put(decl.getName(), decl);
+	public void storeTypeAlias(Type decl) {
+		typeAliases.put(decl.getName(), decl);
 	}
 	
-	public void storeNamedTreeType(Type decl) {
+	public void storeAbstractDataType(Type decl) {
 		List<Type> tmp = signature.get(decl);
 		
 		if (tmp == null) {
@@ -259,13 +259,13 @@ public class ModuleEnvironment extends Environment {
 			signature.put(decl, tmp);
 		}
 		
-		namedTreeTypes.put(decl.getName(), decl);
+		adts.put(decl.getName(), decl);
 	}
 	
-	public void storeTreeNodeType(Type decl) {
-		Type sort = decl.getSuperType();
+	public void storeConstructor(Type decl) {
+		Type sort = decl.getAbstractDataType();
 		
-		storeNamedTreeType(sort);
+		storeAbstractDataType(sort);
 		
 		List<Type> tmp = signature.get(sort);
 		

@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class CharClass extends AbstractAST { 
   public org.meta_environment.rascal.ast.OptCharRanges getOptionalCharRanges() { throw new UnsupportedOperationException(); }
 public boolean hasOptionalCharRanges() { return false; }
@@ -7,8 +7,8 @@ public boolean isSimpleCharclass() { return false; }
 static public class SimpleCharclass extends CharClass {
 /* "[" optionalCharRanges:OptCharRanges "]" -> CharClass {cons("SimpleCharclass")} */
 	private SimpleCharclass() { }
-	/*package*/ SimpleCharclass(ITree tree, org.meta_environment.rascal.ast.OptCharRanges optionalCharRanges) {
-		this.tree = tree;
+	/*package*/ SimpleCharclass(INode node, org.meta_environment.rascal.ast.OptCharRanges optionalCharRanges) {
+		this.node = node;
 		this.optionalCharRanges = optionalCharRanges;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -30,9 +30,9 @@ private org.meta_environment.rascal.ast.OptCharRanges optionalCharRanges;
 }
 static public class Ambiguity extends CharClass {
   private final java.util.List<org.meta_environment.rascal.ast.CharClass> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.CharClass> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.CharClass> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.CharClass> getAlternatives() {
 	return alternatives;
@@ -45,8 +45,8 @@ static public class Ambiguity extends CharClass {
 static public class Bracket extends CharClass {
 /* "(" charClass:CharClass ")" -> CharClass {bracket, cons("Bracket"), avoid} */
 	private Bracket() { }
-	/*package*/ Bracket(ITree tree, org.meta_environment.rascal.ast.CharClass charClass) {
-		this.tree = tree;
+	/*package*/ Bracket(INode node, org.meta_environment.rascal.ast.CharClass charClass) {
+		this.node = node;
 		this.charClass = charClass;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -69,8 +69,8 @@ private org.meta_environment.rascal.ast.CharClass charClass;
 static public class Complement extends CharClass {
 /* "~" charClass:CharClass -> CharClass {cons("Complement")} */
 	private Complement() { }
-	/*package*/ Complement(ITree tree, org.meta_environment.rascal.ast.CharClass charClass) {
-		this.tree = tree;
+	/*package*/ Complement(INode node, org.meta_environment.rascal.ast.CharClass charClass) {
+		this.node = node;
 		this.charClass = charClass;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -93,8 +93,8 @@ private org.meta_environment.rascal.ast.CharClass charClass;
 static public class Difference extends CharClass {
 /* lhs:CharClass "/" rhs:CharClass -> CharClass {cons("Difference"), left, memo} */
 	private Difference() { }
-	/*package*/ Difference(ITree tree, org.meta_environment.rascal.ast.CharClass lhs, org.meta_environment.rascal.ast.CharClass rhs) {
-		this.tree = tree;
+	/*package*/ Difference(INode node, org.meta_environment.rascal.ast.CharClass lhs, org.meta_environment.rascal.ast.CharClass rhs) {
+		this.node = node;
 		this.lhs = lhs;
 		this.rhs = rhs;
 	}
@@ -127,8 +127,8 @@ private org.meta_environment.rascal.ast.CharClass lhs;
 static public class Intersection extends CharClass {
 /* lhs:CharClass "/\\" rhs:CharClass -> CharClass {cons("Intersection"), left, memo} */
 	private Intersection() { }
-	/*package*/ Intersection(ITree tree, org.meta_environment.rascal.ast.CharClass lhs, org.meta_environment.rascal.ast.CharClass rhs) {
-		this.tree = tree;
+	/*package*/ Intersection(INode node, org.meta_environment.rascal.ast.CharClass lhs, org.meta_environment.rascal.ast.CharClass rhs) {
+		this.node = node;
 		this.lhs = lhs;
 		this.rhs = rhs;
 	}
@@ -161,8 +161,8 @@ private org.meta_environment.rascal.ast.CharClass lhs;
 static public class Union extends CharClass {
 /* lhs:CharClass "\\/" rhs:CharClass -> CharClass {cons("Union"), left} */
 	private Union() { }
-	/*package*/ Union(ITree tree, org.meta_environment.rascal.ast.CharClass lhs, org.meta_environment.rascal.ast.CharClass rhs) {
-		this.tree = tree;
+	/*package*/ Union(INode node, org.meta_environment.rascal.ast.CharClass lhs, org.meta_environment.rascal.ast.CharClass rhs) {
+		this.node = node;
 		this.lhs = lhs;
 		this.rhs = rhs;
 	}

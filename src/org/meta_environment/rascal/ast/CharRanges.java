@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class CharRanges extends AbstractAST { 
   public org.meta_environment.rascal.ast.CharRange getRange() { throw new UnsupportedOperationException(); }
 public boolean hasRange() { return false; }
@@ -7,8 +7,8 @@ public boolean isRange() { return false; }
 static public class Range extends CharRanges {
 /* range:CharRange -> CharRanges {cons("Range")} */
 	private Range() { }
-	/*package*/ Range(ITree tree, org.meta_environment.rascal.ast.CharRange range) {
-		this.tree = tree;
+	/*package*/ Range(INode node, org.meta_environment.rascal.ast.CharRange range) {
+		this.node = node;
 		this.range = range;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -30,9 +30,9 @@ private org.meta_environment.rascal.ast.CharRange range;
 }
 static public class Ambiguity extends CharRanges {
   private final java.util.List<org.meta_environment.rascal.ast.CharRanges> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.CharRanges> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.CharRanges> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.CharRanges> getAlternatives() {
 	return alternatives;
@@ -50,8 +50,8 @@ public boolean isConcatenate() { return false; }
 static public class Concatenate extends CharRanges {
 /* lhs:CharRanges rhs:CharRanges -> CharRanges {cons("Concatenate"), right, memo} */
 	private Concatenate() { }
-	/*package*/ Concatenate(ITree tree, org.meta_environment.rascal.ast.CharRanges lhs, org.meta_environment.rascal.ast.CharRanges rhs) {
-		this.tree = tree;
+	/*package*/ Concatenate(INode node, org.meta_environment.rascal.ast.CharRanges lhs, org.meta_environment.rascal.ast.CharRanges rhs) {
+		this.node = node;
 		this.lhs = lhs;
 		this.rhs = rhs;
 	}
@@ -86,8 +86,8 @@ public boolean isBracket() { return false; }
 static public class Bracket extends CharRanges {
 /* "(" ranges:CharRanges ")" -> CharRanges {bracket, cons("Bracket")} */
 	private Bracket() { }
-	/*package*/ Bracket(ITree tree, org.meta_environment.rascal.ast.CharRanges ranges) {
-		this.tree = tree;
+	/*package*/ Bracket(INode node, org.meta_environment.rascal.ast.CharRanges ranges) {
+		this.node = node;
 		this.ranges = ranges;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {

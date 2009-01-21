@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class IntegerLiteral extends AbstractAST { 
   public org.meta_environment.rascal.ast.DecimalIntegerLiteral getDecimal() { throw new UnsupportedOperationException(); }
 public boolean hasDecimal() { return false; }
@@ -7,8 +7,8 @@ public boolean isDecimalIntegerLiteral() { return false; }
 static public class DecimalIntegerLiteral extends IntegerLiteral {
 /* decimal:DecimalIntegerLiteral -> IntegerLiteral {prefer, cons("DecimalIntegerLiteral")} */
 	private DecimalIntegerLiteral() { }
-	/*package*/ DecimalIntegerLiteral(ITree tree, org.meta_environment.rascal.ast.DecimalIntegerLiteral decimal) {
-		this.tree = tree;
+	/*package*/ DecimalIntegerLiteral(INode node, org.meta_environment.rascal.ast.DecimalIntegerLiteral decimal) {
+		this.node = node;
 		this.decimal = decimal;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -30,9 +30,9 @@ private org.meta_environment.rascal.ast.DecimalIntegerLiteral decimal;
 }
 static public class Ambiguity extends IntegerLiteral {
   private final java.util.List<org.meta_environment.rascal.ast.IntegerLiteral> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.IntegerLiteral> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.IntegerLiteral> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.IntegerLiteral> getAlternatives() {
 	return alternatives;
@@ -48,8 +48,8 @@ public boolean isHexIntegerLiteral() { return false; }
 static public class HexIntegerLiteral extends IntegerLiteral {
 /* hex:HexIntegerLiteral -> IntegerLiteral {prefer, cons("HexIntegerLiteral")} */
 	private HexIntegerLiteral() { }
-	/*package*/ HexIntegerLiteral(ITree tree, org.meta_environment.rascal.ast.HexIntegerLiteral hex) {
-		this.tree = tree;
+	/*package*/ HexIntegerLiteral(INode node, org.meta_environment.rascal.ast.HexIntegerLiteral hex) {
+		this.node = node;
 		this.hex = hex;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -74,8 +74,8 @@ public boolean isOctalIntegerLiteral() { return false; }
 static public class OctalIntegerLiteral extends IntegerLiteral {
 /* octal:OctalIntegerLiteral -> IntegerLiteral {prefer, cons("OctalIntegerLiteral")} */
 	private OctalIntegerLiteral() { }
-	/*package*/ OctalIntegerLiteral(ITree tree, org.meta_environment.rascal.ast.OctalIntegerLiteral octal) {
-		this.tree = tree;
+	/*package*/ OctalIntegerLiteral(INode node, org.meta_environment.rascal.ast.OctalIntegerLiteral octal) {
+		this.node = node;
 		this.octal = octal;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {

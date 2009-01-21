@@ -15,7 +15,7 @@ import org.meta_environment.rascal.interpreter.TypeEvaluator;
 /**
  * TODO: find a more elegant solution for this, by implementing IValue we
  * get away with storing a Closure as an IValue, but what happens when 
- * somebody actually starts interpreting this IValue as an INode?
+ * somebody actually starts interpreting this IValue as an IConstructor?
  */
 public class ClosureResult extends EvalResult implements IValue {
     private final EnvironmentStack stack;
@@ -23,8 +23,8 @@ public class ClosureResult extends EvalResult implements IValue {
     private final FunctionDeclaration func;
     private final static TypeFactory tf = TypeFactory.getInstance();
     
-    protected final static Type FunctionType = tf.namedTreeType("Rascal.Function");
-    protected final static Type ClosureType = tf.treeNodeType(FunctionType, "Rascal.Function.Closure");
+    protected final static Type FunctionType = tf.abstractDataType("Rascal.Function");
+    protected final static Type ClosureType = tf.constructor(FunctionType, "Rascal.Function.Closure");
     
 	public ClosureResult(Evaluator eval, FunctionDeclaration func, Environment env) {
 		this.eval = eval;

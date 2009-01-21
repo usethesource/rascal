@@ -4,8 +4,8 @@ import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
-import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -63,7 +63,7 @@ import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 			throw new RascalTypeError("No annotation " + label + " declared for " + result.type);
 		}
 		
-		result.value = ((INode) result.value).setAnnotation(label, value.value);
+		result.value = ((IConstructor) result.value).setAnnotation(label, value.value);
 		
 		return recur(x, result);
 	}
@@ -95,15 +95,15 @@ import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 				throw new RascalTypeError("Key type " + keyType + " of map is not compatible with " + subscript.type);
 			}
 			
-		} else if (rec.type.isTreeType() && subscript.type.isIntegerType()) {
+		} else if (rec.type.isNodeType() && subscript.type.isIntegerType()) {
 			int index = ((IInteger) subscript.value).getValue();
-			ITree tree = (ITree) rec.value;
+			INode node = (INode) rec.value;
 			
-			if(index >= tree.arity()){
+			if(index >= node.arity()){
 				throw new RascalRunTimeError("Subscript out of bounds");
 			}
-			tree = tree.set(index, value.value);
-			result = eval.result(rec.type, tree);
+			node = node.set(index, value.value);
+			result = eval.result(rec.type, node);
 		} else {
 			throw new RascalTypeError("Receiver " + rec.type + " is incompatible with subscript " + subscript.type);
 			// TODO implement other subscripts
@@ -137,8 +137,8 @@ import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 			IValue result = ((ITuple) receiver.value).set(label, value.value);
 			return recur(x, eval.result(receiver.type, result));
 		}
-		else if (receiver.type.isTreeNodeType() || receiver.type.isNamedTreeType()) {
-			IValue result = ((INode) receiver.value).set(label, value.value);
+		else if (receiver.type.isConstructorType() || receiver.type.isAbstractDataType()) {
+			IValue result = ((IConstructor) receiver.value).set(label, value.value);
 			return recur(x, eval.result(receiver.type, result));
 		}
 		else {

@@ -1,12 +1,12 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class ImportedModule extends AbstractAST { 
   public org.meta_environment.rascal.ast.QualifiedName getName() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.ModuleActuals getActuals() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Renamings getRenamings() { throw new UnsupportedOperationException(); } public boolean hasName() { return false; } public boolean hasActuals() { return false; } public boolean hasRenamings() { return false; } public boolean isActualsRenaming() { return false; }
 static public class ActualsRenaming extends ImportedModule {
 /* name:QualifiedName actuals:ModuleActuals renamings:Renamings -> ImportedModule {cons("ActualsRenaming")} */
 	private ActualsRenaming() { }
-	/*package*/ ActualsRenaming(ITree tree, org.meta_environment.rascal.ast.QualifiedName name, org.meta_environment.rascal.ast.ModuleActuals actuals, org.meta_environment.rascal.ast.Renamings renamings) {
-		this.tree = tree;
+	/*package*/ ActualsRenaming(INode node, org.meta_environment.rascal.ast.QualifiedName name, org.meta_environment.rascal.ast.ModuleActuals actuals, org.meta_environment.rascal.ast.Renamings renamings) {
+		this.node = node;
 		this.name = name;
 		this.actuals = actuals;
 		this.renamings = renamings;
@@ -48,9 +48,9 @@ private org.meta_environment.rascal.ast.QualifiedName name;
 }
 static public class Ambiguity extends ImportedModule {
   private final java.util.List<org.meta_environment.rascal.ast.ImportedModule> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.ImportedModule> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.ImportedModule> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.ImportedModule> getAlternatives() {
 	return alternatives;
@@ -63,8 +63,8 @@ static public class Ambiguity extends ImportedModule {
 static public class Actuals extends ImportedModule {
 /* name:QualifiedName actuals:ModuleActuals -> ImportedModule {cons("Actuals")} */
 	private Actuals() { }
-	/*package*/ Actuals(ITree tree, org.meta_environment.rascal.ast.QualifiedName name, org.meta_environment.rascal.ast.ModuleActuals actuals) {
-		this.tree = tree;
+	/*package*/ Actuals(INode node, org.meta_environment.rascal.ast.QualifiedName name, org.meta_environment.rascal.ast.ModuleActuals actuals) {
+		this.node = node;
 		this.name = name;
 		this.actuals = actuals;
 	}
@@ -97,8 +97,8 @@ private org.meta_environment.rascal.ast.QualifiedName name;
 static public class Renamings extends ImportedModule {
 /* name:QualifiedName renamings:Renamings -> ImportedModule {cons("Renamings")} */
 	private Renamings() { }
-	/*package*/ Renamings(ITree tree, org.meta_environment.rascal.ast.QualifiedName name, org.meta_environment.rascal.ast.Renamings renamings) {
-		this.tree = tree;
+	/*package*/ Renamings(INode node, org.meta_environment.rascal.ast.QualifiedName name, org.meta_environment.rascal.ast.Renamings renamings) {
+		this.node = node;
 		this.name = name;
 		this.renamings = renamings;
 	}
@@ -131,8 +131,8 @@ private org.meta_environment.rascal.ast.QualifiedName name;
 static public class Default extends ImportedModule {
 /* name:QualifiedName -> ImportedModule {cons("Default")} */
 	private Default() { }
-	/*package*/ Default(ITree tree, org.meta_environment.rascal.ast.QualifiedName name) {
-		this.tree = tree;
+	/*package*/ Default(INode node, org.meta_environment.rascal.ast.QualifiedName name) {
+		this.node = node;
 		this.name = name;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {

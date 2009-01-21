@@ -1,12 +1,12 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Header extends AbstractAST { 
   public org.meta_environment.rascal.ast.QualifiedName getName() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Tags getTags() { throw new UnsupportedOperationException(); } public java.util.List<org.meta_environment.rascal.ast.Import> getImports() { throw new UnsupportedOperationException(); } public boolean hasName() { return false; } public boolean hasTags() { return false; } public boolean hasImports() { return false; } public boolean isDefault() { return false; }
 static public class Default extends Header {
 /* "module" name:QualifiedName tags:Tags imports:Import* -> Header {cons("Default")} */
 	private Default() { }
-	/*package*/ Default(ITree tree, org.meta_environment.rascal.ast.QualifiedName name, org.meta_environment.rascal.ast.Tags tags, java.util.List<org.meta_environment.rascal.ast.Import> imports) {
-		this.tree = tree;
+	/*package*/ Default(INode node, org.meta_environment.rascal.ast.QualifiedName name, org.meta_environment.rascal.ast.Tags tags, java.util.List<org.meta_environment.rascal.ast.Import> imports) {
+		this.node = node;
 		this.name = name;
 		this.tags = tags;
 		this.imports = imports;
@@ -48,9 +48,9 @@ private org.meta_environment.rascal.ast.QualifiedName name;
 }
 static public class Ambiguity extends Header {
   private final java.util.List<org.meta_environment.rascal.ast.Header> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Header> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Header> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.Header> getAlternatives() {
 	return alternatives;
@@ -63,8 +63,8 @@ static public class Ambiguity extends Header {
 static public class Parameters extends Header {
 /* "module" name:QualifiedName params:ModuleParameters tags:Tags imports:Import* -> Header {cons("Parameters")} */
 	private Parameters() { }
-	/*package*/ Parameters(ITree tree, org.meta_environment.rascal.ast.QualifiedName name, org.meta_environment.rascal.ast.ModuleParameters params, org.meta_environment.rascal.ast.Tags tags, java.util.List<org.meta_environment.rascal.ast.Import> imports) {
-		this.tree = tree;
+	/*package*/ Parameters(INode node, org.meta_environment.rascal.ast.QualifiedName name, org.meta_environment.rascal.ast.ModuleParameters params, org.meta_environment.rascal.ast.Tags tags, java.util.List<org.meta_environment.rascal.ast.Import> imports) {
+		this.node = node;
 		this.name = name;
 		this.params = params;
 		this.tags = tags;

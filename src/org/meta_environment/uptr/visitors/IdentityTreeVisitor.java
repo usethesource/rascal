@@ -1,19 +1,19 @@
 package org.meta_environment.uptr.visitors;
 
 import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
-import org.eclipse.imp.pdb.facts.ITree;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 public abstract class IdentityTreeVisitor extends TreeVisitor {
 
 	@Override
-	public ITree visitTreeAmb(INode arg) throws VisitorException {
+	public INode visitTreeAmb(IConstructor arg) throws VisitorException {
 		return arg;
 	}
 
 	@Override
-	public ITree visitTreeAppl(INode arg) throws VisitorException  {
+	public INode visitTreeAppl(IConstructor arg) throws VisitorException  {
 		return arg;
 	}
 
@@ -23,7 +23,7 @@ public abstract class IdentityTreeVisitor extends TreeVisitor {
 	}
 
 	@Override
-	public ITree visitTreeCycle(INode arg)  throws VisitorException {
+	public INode visitTreeCycle(IConstructor arg)  throws VisitorException {
 		return arg;
 	}
 

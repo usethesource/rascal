@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Type extends AbstractAST { 
   public org.meta_environment.rascal.ast.BasicType getBasic() { throw new UnsupportedOperationException(); }
 public boolean hasBasic() { return false; }
@@ -7,8 +7,8 @@ public boolean isBasic() { return false; }
 static public class Basic extends Type {
 /* basic:BasicType -> Type {cons("Basic")} */
 	private Basic() { }
-	/*package*/ Basic(ITree tree, org.meta_environment.rascal.ast.BasicType basic) {
-		this.tree = tree;
+	/*package*/ Basic(INode node, org.meta_environment.rascal.ast.BasicType basic) {
+		this.node = node;
 		this.basic = basic;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -30,9 +30,9 @@ private org.meta_environment.rascal.ast.BasicType basic;
 }
 static public class Ambiguity extends Type {
   private final java.util.List<org.meta_environment.rascal.ast.Type> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Type> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Type> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.Type> getAlternatives() {
 	return alternatives;
@@ -48,8 +48,8 @@ public boolean isStructured() { return false; }
 static public class Structured extends Type {
 /* structured:StructuredType -> Type {cons("Structured")} */
 	private Structured() { }
-	/*package*/ Structured(ITree tree, org.meta_environment.rascal.ast.StructuredType structured) {
-		this.tree = tree;
+	/*package*/ Structured(INode node, org.meta_environment.rascal.ast.StructuredType structured) {
+		this.node = node;
 		this.structured = structured;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -74,8 +74,8 @@ public boolean isFunction() { return false; }
 static public class Function extends Type {
 /* function:FunctionType -> Type {cons("Function")} */
 	private Function() { }
-	/*package*/ Function(ITree tree, org.meta_environment.rascal.ast.FunctionType function) {
-		this.tree = tree;
+	/*package*/ Function(INode node, org.meta_environment.rascal.ast.FunctionType function) {
+		this.node = node;
 		this.function = function;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -101,8 +101,8 @@ public boolean isVariable() { return false; }
 static public class Variable extends Type {
 /* typeVar:TypeVar -> Type {cons("Variable")} */
 	private Variable() { }
-	/*package*/ Variable(ITree tree, org.meta_environment.rascal.ast.TypeVar typeVar) {
-		this.tree = tree;
+	/*package*/ Variable(INode node, org.meta_environment.rascal.ast.TypeVar typeVar) {
+		this.node = node;
 		this.typeVar = typeVar;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -128,8 +128,8 @@ public boolean isUser() { return false; }
 static public class User extends Type {
 /* user:UserType -> Type {cons("User")} */
 	private User() { }
-	/*package*/ User(ITree tree, org.meta_environment.rascal.ast.UserType user) {
-		this.tree = tree;
+	/*package*/ User(INode node, org.meta_environment.rascal.ast.UserType user) {
+		this.node = node;
 		this.user = user;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -155,8 +155,8 @@ public boolean isSymbol() { return false; }
 static public class Symbol extends Type {
 /* symbol:Symbol -> Type {cons("Symbol")} */
 	private Symbol() { }
-	/*package*/ Symbol(ITree tree, org.meta_environment.rascal.ast.Symbol symbol) {
-		this.tree = tree;
+	/*package*/ Symbol(INode node, org.meta_environment.rascal.ast.Symbol symbol) {
+		this.node = node;
 		this.symbol = symbol;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -182,8 +182,8 @@ public boolean isSelector() { return false; }
 static public class Selector extends Type {
 /* selector:DataTypeSelector -> Type {cons("Selector")} */
 	private Selector() { }
-	/*package*/ Selector(ITree tree, org.meta_environment.rascal.ast.DataTypeSelector selector) {
-		this.tree = tree;
+	/*package*/ Selector(INode node, org.meta_environment.rascal.ast.DataTypeSelector selector) {
+		this.node = node;
 		this.selector = selector;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {

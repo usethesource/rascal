@@ -1,12 +1,12 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class OptCharRanges extends AbstractAST { 
   public boolean isAbsent() { return false; }
 static public class Absent extends OptCharRanges {
 /*  -> OptCharRanges {cons("Absent")} */
 	private Absent() { }
-	/*package*/ Absent(ITree tree) {
-		this.tree = tree;
+	/*package*/ Absent(INode node) {
+		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitOptCharRangesAbsent(this);
@@ -16,9 +16,9 @@ static public class Absent extends OptCharRanges {
 }
 static public class Ambiguity extends OptCharRanges {
   private final java.util.List<org.meta_environment.rascal.ast.OptCharRanges> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.OptCharRanges> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.OptCharRanges> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.OptCharRanges> getAlternatives() {
 	return alternatives;
@@ -34,8 +34,8 @@ public boolean isPresent() { return false; }
 static public class Present extends OptCharRanges {
 /* ranges:CharRanges -> OptCharRanges {cons("Present")} */
 	private Present() { }
-	/*package*/ Present(ITree tree, org.meta_environment.rascal.ast.CharRanges ranges) {
-		this.tree = tree;
+	/*package*/ Present(INode node, org.meta_environment.rascal.ast.CharRanges ranges) {
+		this.node = node;
 		this.ranges = ranges;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {

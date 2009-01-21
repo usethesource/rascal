@@ -1,12 +1,12 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Catch extends AbstractAST { 
   public org.meta_environment.rascal.ast.Statement getBody() { throw new UnsupportedOperationException(); } public boolean hasBody() { return false; } public boolean isDefault() { return false; }
 static public class Default extends Catch {
 /* "catch" body:Statement -> Catch {cons("Default")} */
 	private Default() { }
-	/*package*/ Default(ITree tree, org.meta_environment.rascal.ast.Statement body) {
-		this.tree = tree;
+	/*package*/ Default(INode node, org.meta_environment.rascal.ast.Statement body) {
+		this.node = node;
 		this.body = body;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -28,9 +28,9 @@ private org.meta_environment.rascal.ast.Statement body;
 }
 static public class Ambiguity extends Catch {
   private final java.util.List<org.meta_environment.rascal.ast.Catch> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Catch> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Catch> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.Catch> getAlternatives() {
 	return alternatives;
@@ -46,8 +46,8 @@ public org.meta_environment.rascal.ast.Type getType() { throw new UnsupportedOpe
 static public class Binding extends Catch {
 /* "catch" "(" type:Type name:Name ")" body:Statement -> Catch {cons("Binding")} */
 	private Binding() { }
-	/*package*/ Binding(ITree tree, org.meta_environment.rascal.ast.Type type, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.Statement body) {
-		this.tree = tree;
+	/*package*/ Binding(INode node, org.meta_environment.rascal.ast.Type type, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.Statement body) {
+		this.node = node;
 		this.type = type;
 		this.name = name;
 		this.body = body;

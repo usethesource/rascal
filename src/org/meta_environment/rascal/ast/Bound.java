@@ -1,12 +1,12 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Bound extends AbstractAST { 
   public boolean isEmpty() { return false; }
 static public class Empty extends Bound {
 /*  -> Bound {cons("Empty")} */
 	private Empty() { }
-	/*package*/ Empty(ITree tree) {
-		this.tree = tree;
+	/*package*/ Empty(INode node) {
+		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitBoundEmpty(this);
@@ -16,9 +16,9 @@ static public class Empty extends Bound {
 }
 static public class Ambiguity extends Bound {
   private final java.util.List<org.meta_environment.rascal.ast.Bound> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Bound> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Bound> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.Bound> getAlternatives() {
 	return alternatives;
@@ -34,8 +34,8 @@ public boolean isDefault() { return false; }
 static public class Default extends Bound {
 /* "(" expression:Expression ")" -> Bound {cons("Default")} */
 	private Default() { }
-	/*package*/ Default(ITree tree, org.meta_environment.rascal.ast.Expression expression) {
-		this.tree = tree;
+	/*package*/ Default(INode node, org.meta_environment.rascal.ast.Expression expression) {
+		this.node = node;
 		this.expression = expression;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {

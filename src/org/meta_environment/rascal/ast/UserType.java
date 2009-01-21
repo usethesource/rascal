@@ -1,12 +1,12 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class UserType extends AbstractAST { 
   public org.meta_environment.rascal.ast.Name getName() { throw new UnsupportedOperationException(); } public boolean hasName() { return false; } public boolean isName() { return false; }
 static public class Name extends UserType {
 /* name:Name -> UserType {prefer, cons("Name")} */
 	private Name() { }
-	/*package*/ Name(ITree tree, org.meta_environment.rascal.ast.Name name) {
-		this.tree = tree;
+	/*package*/ Name(INode node, org.meta_environment.rascal.ast.Name name) {
+		this.node = node;
 		this.name = name;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -28,9 +28,9 @@ private org.meta_environment.rascal.ast.Name name;
 }
 static public class Ambiguity extends UserType {
   private final java.util.List<org.meta_environment.rascal.ast.UserType> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.UserType> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.UserType> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.UserType> getAlternatives() {
 	return alternatives;
@@ -44,8 +44,8 @@ public boolean isParametric() { return false; }
 static public class Parametric extends UserType {
 /* name:Name "[" parameters:{TypeVar ","}+ "]" -> UserType {cons("Parametric")} */
 	private Parametric() { }
-	/*package*/ Parametric(ITree tree, org.meta_environment.rascal.ast.Name name, java.util.List<org.meta_environment.rascal.ast.TypeVar> parameters) {
-		this.tree = tree;
+	/*package*/ Parametric(INode node, org.meta_environment.rascal.ast.Name name, java.util.List<org.meta_environment.rascal.ast.TypeVar> parameters) {
+		this.node = node;
 		this.name = name;
 		this.parameters = parameters;
 	}

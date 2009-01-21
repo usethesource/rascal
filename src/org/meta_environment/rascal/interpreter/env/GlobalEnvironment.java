@@ -269,16 +269,16 @@ public class GlobalEnvironment {
 		stack.storeParameterType(par, type);
 	}
 
-	public void storeTreeNodeType(Type decl) {
-		stack.storeTreeNodeType(decl);
+	public void storeConstructor(Type decl) {
+		stack.storeConstructor(decl);
 	}
 
-	public void storeNamedTreeType(Type decl) {
-		stack.storeNamedTreeType(decl);
+	public void storeAbstractDataType(Type decl) {
+		stack.storeAbstractDataType(decl);
 	}
 
-	public void storeNamedType(Type decl) {
-		stack.storeNamedType(decl);
+	public void storeTypeAlias(Type decl) {
+		stack.storeTypeAlias(decl);
 	}
 
 	public void storeTypeBindings(Map<Type, Type> bindings) {
@@ -306,21 +306,21 @@ public class GlobalEnvironment {
 		decl.accept(dispatcher);
 	}
 
-	public Type getNamedTreeType(String sort) {
-		return stack.getNamedTreeType(sort);
+	public Type getAbstractDataType(String sort) {
+		return stack.getAbstractDataType(sort);
 	}
 
-	public Type getTreeNodeType(Type sortType, String cons,
+	public Type getConstructor(Type sortType, String cons,
 			Type signature) {
-		return stack.getTreeNodeType(sortType, cons, signature);
+		return stack.getConstructor(sortType, cons, signature);
 	}
 
 	public void storeAnnotation(Type onType, String name, Type annoType) {
 		stack.storeAnnotation(onType, name, annoType);
 	}
 
-	public Type getTreeNodeType(String cons, Type args) {
-		return stack.getTreeNodeType(cons, args);
+	public Type getConstructor(String cons, Type args) {
+		return stack.getConstructor(cons, args);
 	}
 
 	public boolean existsModule(String name) {

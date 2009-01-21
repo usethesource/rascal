@@ -1,10 +1,10 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class RegExp extends AbstractAST { 
   static public class Lexical extends RegExp {
 	private String string;
-	/*package*/ Lexical(ITree tree, String string) {
-		this.tree = tree;
+	/*package*/ Lexical(INode node, String string) {
+		this.node = node;
 		this.string = string;
 	}
 	public String getString() {
@@ -16,9 +16,9 @@ public abstract class RegExp extends AbstractAST {
   	}
 } static public class Ambiguity extends RegExp {
   private final java.util.List<org.meta_environment.rascal.ast.RegExp> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.RegExp> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.RegExp> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.RegExp> getAlternatives() {
 	return alternatives;

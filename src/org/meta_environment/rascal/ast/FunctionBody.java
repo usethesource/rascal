@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class FunctionBody extends AbstractAST { 
 public java.util.List<org.meta_environment.rascal.ast.Statement> getStatements() { throw new UnsupportedOperationException(); }
 public boolean hasStatements() { return false; }
@@ -7,8 +7,8 @@ public boolean isDefault() { return false; }
 static public class Default extends FunctionBody {
 /* "{" statements:Statement* "}" -> FunctionBody {cons("Default")} */
 	private Default() { }
-	/*package*/ Default(ITree tree, java.util.List<org.meta_environment.rascal.ast.Statement> statements) {
-		this.tree = tree;
+	/*package*/ Default(INode node, java.util.List<org.meta_environment.rascal.ast.Statement> statements) {
+		this.node = node;
 		this.statements = statements;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -30,9 +30,9 @@ private java.util.List<org.meta_environment.rascal.ast.Statement> statements;
 }
 static public class Ambiguity extends FunctionBody {
   private final java.util.List<org.meta_environment.rascal.ast.FunctionBody> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.FunctionBody> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.FunctionBody> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.FunctionBody> getAlternatives() {
 	return alternatives;

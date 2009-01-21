@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class CharRange extends AbstractAST { 
   public org.meta_environment.rascal.ast.Character getCharacter() { throw new UnsupportedOperationException(); }
 public boolean hasCharacter() { return false; }
@@ -7,8 +7,8 @@ public boolean isCharacter() { return false; }
 static public class Character extends CharRange {
 /* character:Character -> CharRange {cons("Character")} */
 	private Character() { }
-	/*package*/ Character(ITree tree, org.meta_environment.rascal.ast.Character character) {
-		this.tree = tree;
+	/*package*/ Character(INode node, org.meta_environment.rascal.ast.Character character) {
+		this.node = node;
 		this.character = character;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -30,9 +30,9 @@ private org.meta_environment.rascal.ast.Character character;
 }
 static public class Ambiguity extends CharRange {
   private final java.util.List<org.meta_environment.rascal.ast.CharRange> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.CharRange> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.CharRange> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.CharRange> getAlternatives() {
 	return alternatives;
@@ -50,8 +50,8 @@ public boolean isRange() { return false; }
 static public class Range extends CharRange {
 /* start:Character "-" end:Character -> CharRange {cons("Range")} */
 	private Range() { }
-	/*package*/ Range(ITree tree, org.meta_environment.rascal.ast.Character start, org.meta_environment.rascal.ast.Character end) {
-		this.tree = tree;
+	/*package*/ Range(INode node, org.meta_environment.rascal.ast.Character start, org.meta_environment.rascal.ast.Character end) {
+		this.node = node;
 		this.start = start;
 		this.end = end;
 	}

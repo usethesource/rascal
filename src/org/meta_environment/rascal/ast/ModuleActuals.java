@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class ModuleActuals extends AbstractAST { 
 public java.util.List<org.meta_environment.rascal.ast.Type> getTypes() { throw new UnsupportedOperationException(); }
 public boolean hasTypes() { return false; }
@@ -7,8 +7,8 @@ public boolean isDefault() { return false; }
 static public class Default extends ModuleActuals {
 /* "[" types:{Type ","}+ "]" -> ModuleActuals {cons("Default")} */
 	private Default() { }
-	/*package*/ Default(ITree tree, java.util.List<org.meta_environment.rascal.ast.Type> types) {
-		this.tree = tree;
+	/*package*/ Default(INode node, java.util.List<org.meta_environment.rascal.ast.Type> types) {
+		this.node = node;
 		this.types = types;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -30,9 +30,9 @@ private java.util.List<org.meta_environment.rascal.ast.Type> types;
 }
 static public class Ambiguity extends ModuleActuals {
   private final java.util.List<org.meta_environment.rascal.ast.ModuleActuals> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.ModuleActuals> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.ModuleActuals> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.ModuleActuals> getAlternatives() {
 	return alternatives;

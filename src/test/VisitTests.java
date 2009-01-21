@@ -9,7 +9,7 @@ public class VisitTests extends TestCase {
 	
 	public void testCnt() throws IOException {
 		String cnt =
-		"int cnt(tree T) {" +
+		"int cnt(node T) {" +
 		"   int C = 0;" +
 		"   visit(T) {" +
 		"      case int N: C = C + 1;" +
@@ -31,7 +31,7 @@ public class VisitTests extends TestCase {
 	
 	public void testInc() throws IOException {
 		String inc =
-		"	tree inc(tree T) {" +
+		"	node inc(node T) {" +
 		"    return visit(T) {" +
 		"      case int N: insert N + 1;" +
 		"    };" + 
@@ -55,7 +55,7 @@ public class VisitTests extends TestCase {
 		// Replace all nodes g(_,_) by h(_,_)
 		// Using insert
 
-		"tree frepa(tree T) { " +
+		"node frepa(node T) { " +
 		"    return visit (T) {" +
 		"      case g(value T1, value T2):" +
 		"           insert h(T1, T2);" +
@@ -80,7 +80,7 @@ public class VisitTests extends TestCase {
 		// Replace all nodes g(_,_) by h(_,_)
 		// Using replacement rule
 
-		"tree frepb(tree T) {" +
+		"node frepb(node T) {" +
 		"    return visit (T) {" +
 		"      case g(value T1, value T2) => h(T1, T2)" +
 		"    };" +
@@ -105,7 +105,7 @@ public class VisitTests extends TestCase {
 		// Replace all nodes g(_,_) by h(_,_,_)
 		// Using insert
 
-		"tree frepG2H3a(tree T) {" +
+		"node frepG2H3a(node T) {" +
 		"    return visit (T) {" +
 		"      case g(value T1, value T2):" +
 		"           insert h(T1, T2, 0);" +
@@ -130,7 +130,7 @@ public class VisitTests extends TestCase {
 		// Replace all nodes g(_,_) by h(_,_,_)
 		// Using replacement rule
 			
-		"tree frepG2H3b(tree T) {" +
+		"node frepG2H3b(node T) {" +
 		"   return visit (T) {" +
 		"      case g(value T1, value T2) => h(T1, T2, 0)" +
 		"    };" +
@@ -154,7 +154,7 @@ public class VisitTests extends TestCase {
 		// Accumulating transformer that increments integer leaves with 
 		// amount D and counts them as well.
 
-		"tuple[int, tree] inc_and_count(tree T, int D) {" +
+		"tuple[int, node] inc_and_count(node T, int D) {" +
 		"    int C = 0;" +  
 		"    T = visit (T) {" +
 		"        case int N: { C = C + 1; " +
@@ -182,7 +182,7 @@ public class VisitTests extends TestCase {
 			
 		// Deep replacement of g by h
 			
-		"tree drepl(tree T) {" +
+		"node drepl(node T) {" +
 		"    return bottom-up-break visit (T) {" +
 		"      case g(value T1, value T2) =>  h(T1, T2)" +
 		"    };" +
@@ -202,7 +202,7 @@ public class VisitTests extends TestCase {
 		// Ex6: shallow replacement of g by h (i.e. only outermost 
 		// g's are replaced); 
 
-		"tree srepl(tree T) {" +
+		"node srepl(node T) {" +
 		"    return top-down-break visit (T) {" +
 		"       case g(value T1, value T2) =>  h(T1, T2)" +
 		"    };" +

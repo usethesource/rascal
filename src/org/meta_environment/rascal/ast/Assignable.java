@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Assignable extends AbstractAST { 
   public org.meta_environment.rascal.ast.QualifiedName getQualifiedName() { throw new UnsupportedOperationException(); }
 public boolean hasQualifiedName() { return false; }
@@ -7,8 +7,8 @@ public boolean isVariable() { return false; }
 static public class Variable extends Assignable {
 /* qualifiedName:QualifiedName -> Assignable {cons("Variable")} */
 	private Variable() { }
-	/*package*/ Variable(ITree tree, org.meta_environment.rascal.ast.QualifiedName qualifiedName) {
-		this.tree = tree;
+	/*package*/ Variable(INode node, org.meta_environment.rascal.ast.QualifiedName qualifiedName) {
+		this.node = node;
 		this.qualifiedName = qualifiedName;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -30,9 +30,9 @@ private org.meta_environment.rascal.ast.QualifiedName qualifiedName;
 }
 static public class Ambiguity extends Assignable {
   private final java.util.List<org.meta_environment.rascal.ast.Assignable> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Assignable> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Assignable> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.Assignable> getAlternatives() {
 	return alternatives;
@@ -46,8 +46,8 @@ public boolean isSubscript() { return false; }
 static public class Subscript extends Assignable {
 /* receiver:Assignable "[" subscript:Expression "]" -> Assignable {cons("Subscript")} */
 	private Subscript() { }
-	/*package*/ Subscript(ITree tree, org.meta_environment.rascal.ast.Assignable receiver, org.meta_environment.rascal.ast.Expression subscript) {
-		this.tree = tree;
+	/*package*/ Subscript(INode node, org.meta_environment.rascal.ast.Assignable receiver, org.meta_environment.rascal.ast.Expression subscript) {
+		this.node = node;
 		this.receiver = receiver;
 		this.subscript = subscript;
 	}
@@ -81,8 +81,8 @@ public boolean isFieldAccess() { return false; }
 static public class FieldAccess extends Assignable {
 /* receiver:Assignable "." field:Name -> Assignable {cons("FieldAccess")} */
 	private FieldAccess() { }
-	/*package*/ FieldAccess(ITree tree, org.meta_environment.rascal.ast.Assignable receiver, org.meta_environment.rascal.ast.Name field) {
-		this.tree = tree;
+	/*package*/ FieldAccess(INode node, org.meta_environment.rascal.ast.Assignable receiver, org.meta_environment.rascal.ast.Name field) {
+		this.node = node;
 		this.receiver = receiver;
 		this.field = field;
 	}
@@ -116,8 +116,8 @@ public boolean isIfDefined() { return false; }
 static public class IfDefined extends Assignable {
 /* receiver:Assignable "?" condition:Expression -> Assignable {cons("IfDefined")} */
 	private IfDefined() { }
-	/*package*/ IfDefined(ITree tree, org.meta_environment.rascal.ast.Assignable receiver, org.meta_environment.rascal.ast.Expression condition) {
-		this.tree = tree;
+	/*package*/ IfDefined(INode node, org.meta_environment.rascal.ast.Assignable receiver, org.meta_environment.rascal.ast.Expression condition) {
+		this.node = node;
 		this.receiver = receiver;
 		this.condition = condition;
 	}
@@ -151,8 +151,8 @@ public boolean isAnnotation() { return false; }
 static public class Annotation extends Assignable {
 /* receiver:Assignable "@" annotation:Name -> Assignable {non-assoc, cons("Annotation")} */
 	private Annotation() { }
-	/*package*/ Annotation(ITree tree, org.meta_environment.rascal.ast.Assignable receiver, org.meta_environment.rascal.ast.Name annotation) {
-		this.tree = tree;
+	/*package*/ Annotation(INode node, org.meta_environment.rascal.ast.Assignable receiver, org.meta_environment.rascal.ast.Name annotation) {
+		this.node = node;
 		this.receiver = receiver;
 		this.annotation = annotation;
 	}
@@ -188,8 +188,8 @@ public boolean isTuple() { return false; }
 static public class Tuple extends Assignable {
 /* "<" elements:{Assignable ","}+ ">" -> Assignable {cons("Tuple")} */
 	private Tuple() { }
-	/*package*/ Tuple(ITree tree, java.util.List<org.meta_environment.rascal.ast.Assignable> elements) {
-		this.tree = tree;
+	/*package*/ Tuple(INode node, java.util.List<org.meta_environment.rascal.ast.Assignable> elements) {
+		this.node = node;
 		this.elements = elements;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -217,8 +217,8 @@ public boolean isConstructor() { return false; }
 static public class Constructor extends Assignable {
 /* name:Name "(" arguments:{Assignable ","}+ ")" -> Assignable {non-assoc, cons("Constructor")} */
 	private Constructor() { }
-	/*package*/ Constructor(ITree tree, org.meta_environment.rascal.ast.Name name, java.util.List<org.meta_environment.rascal.ast.Assignable> arguments) {
-		this.tree = tree;
+	/*package*/ Constructor(INode node, org.meta_environment.rascal.ast.Name name, java.util.List<org.meta_environment.rascal.ast.Assignable> arguments) {
+		this.node = node;
 		this.name = name;
 		this.arguments = arguments;
 	}

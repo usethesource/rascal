@@ -1,12 +1,12 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class BasicType extends AbstractAST { 
   public boolean isBool() { return false; }
 static public class Bool extends BasicType {
 /* "bool" -> BasicType {cons("Bool")} */
 	private Bool() { }
-	/*package*/ Bool(ITree tree) {
-		this.tree = tree;
+	/*package*/ Bool(INode node) {
+		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitBasicTypeBool(this);
@@ -16,9 +16,9 @@ static public class Bool extends BasicType {
 }
 static public class Ambiguity extends BasicType {
   private final java.util.List<org.meta_environment.rascal.ast.BasicType> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.BasicType> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.BasicType> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.BasicType> getAlternatives() {
 	return alternatives;
@@ -32,8 +32,8 @@ public boolean isInt() { return false; }
 static public class Int extends BasicType {
 /* "int" -> BasicType {cons("Int")} */
 	private Int() { }
-	/*package*/ Int(ITree tree) {
-		this.tree = tree;
+	/*package*/ Int(INode node) {
+		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitBasicTypeInt(this);
@@ -44,8 +44,8 @@ static public class Int extends BasicType {
 static public class Real extends BasicType {
 /* "real" -> BasicType {cons("Real")} */
 	private Real() { }
-	/*package*/ Real(ITree tree) {
-		this.tree = tree;
+	/*package*/ Real(INode node) {
+		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitBasicTypeReal(this);
@@ -57,8 +57,8 @@ public boolean isString() { return false; }
 static public class String extends BasicType {
 /* "str" -> BasicType {cons("String")} */
 	private String() { }
-	/*package*/ String(ITree tree) {
-		this.tree = tree;
+	/*package*/ String(INode node) {
+		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitBasicTypeString(this);
@@ -70,8 +70,8 @@ public boolean isValue() { return false; }
 static public class Value extends BasicType {
 /* "value" -> BasicType {cons("Value")} */
 	private Value() { }
-	/*package*/ Value(ITree tree) {
-		this.tree = tree;
+	/*package*/ Value(INode node) {
+		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitBasicTypeValue(this);
@@ -81,10 +81,10 @@ static public class Value extends BasicType {
 } 
 public boolean isTree() { return false; }
 static public class Tree extends BasicType {
-/* "tree" -> BasicType {cons("Tree")} */
+/* "node" -> BasicType {cons("Node")} */
 	private Tree() { }
-	/*package*/ Tree(ITree tree) {
-		this.tree = tree;
+	/*package*/ Tree(INode node) {
+		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitBasicTypeTree(this);
@@ -96,8 +96,8 @@ public boolean isVoid() { return false; }
 static public class Void extends BasicType {
 /* "void" -> BasicType {cons("Void")} */
 	private Void() { }
-	/*package*/ Void(ITree tree) {
-		this.tree = tree;
+	/*package*/ Void(INode node) {
+		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitBasicTypeVoid(this);
@@ -109,8 +109,8 @@ public boolean isLoc() { return false; }
 static public class Loc extends BasicType {
 /* "loc" -> BasicType {cons("Loc")} */
 	private Loc() { }
-	/*package*/ Loc(ITree tree) {
-		this.tree = tree;
+	/*package*/ Loc(INode node) {
+		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitBasicTypeLoc(this);
@@ -122,8 +122,8 @@ public boolean isArea() { return false; }
 static public class Area extends BasicType {
 /* "area" -> BasicType {cons("Area")} */
 	private Area() { }
-	/*package*/ Area(ITree tree) {
-		this.tree = tree;
+	/*package*/ Area(INode node) {
+		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitBasicTypeArea(this);

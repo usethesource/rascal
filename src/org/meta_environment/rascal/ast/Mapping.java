@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Mapping extends AbstractAST { 
 public org.meta_environment.rascal.ast.Expression getFrom() { throw new UnsupportedOperationException(); }
 	public org.meta_environment.rascal.ast.Expression getTo() { throw new UnsupportedOperationException(); }
@@ -9,8 +9,8 @@ public boolean isDefault() { return false; }
 static public class Default extends Mapping {
 /* from:Expression ":" to:Expression -> Mapping {cons("Default")} */
 	private Default() { }
-	/*package*/ Default(ITree tree, org.meta_environment.rascal.ast.Expression from, org.meta_environment.rascal.ast.Expression to) {
-		this.tree = tree;
+	/*package*/ Default(INode node, org.meta_environment.rascal.ast.Expression from, org.meta_environment.rascal.ast.Expression to) {
+		this.node = node;
 		this.from = from;
 		this.to = to;
 	}
@@ -42,9 +42,9 @@ private org.meta_environment.rascal.ast.Expression from;
 }
 static public class Ambiguity extends Mapping {
   private final java.util.List<org.meta_environment.rascal.ast.Mapping> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Mapping> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Mapping> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.Mapping> getAlternatives() {
 	return alternatives;

@@ -1,12 +1,12 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class ValueProducer extends AbstractAST { 
   public org.meta_environment.rascal.ast.Expression getPattern() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Expression getExpression() { throw new UnsupportedOperationException(); } public boolean hasPattern() { return false; } public boolean hasExpression() { return false; } public boolean isDefaultStrategy() { return false; }
 static public class DefaultStrategy extends ValueProducer {
 /* pattern:Expression ":" expression:Expression -> ValueProducer {cons("DefaultStrategy")} */
 	private DefaultStrategy() { }
-	/*package*/ DefaultStrategy(ITree tree, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Expression expression) {
-		this.tree = tree;
+	/*package*/ DefaultStrategy(INode node, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Expression expression) {
+		this.node = node;
 		this.pattern = pattern;
 		this.expression = expression;
 	}
@@ -38,9 +38,9 @@ private org.meta_environment.rascal.ast.Expression pattern;
 }
 static public class Ambiguity extends ValueProducer {
   private final java.util.List<org.meta_environment.rascal.ast.ValueProducer> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.ValueProducer> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.ValueProducer> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.ValueProducer> getAlternatives() {
 	return alternatives;
@@ -54,8 +54,8 @@ public org.meta_environment.rascal.ast.Strategy getStrategy() { throw new Unsupp
 static public class GivenStrategy extends ValueProducer {
 /* strategy:Strategy pattern:Expression ":" expression:Expression -> ValueProducer {cons("GivenStrategy")} */
 	private GivenStrategy() { }
-	/*package*/ GivenStrategy(ITree tree, org.meta_environment.rascal.ast.Strategy strategy, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Expression expression) {
-		this.tree = tree;
+	/*package*/ GivenStrategy(INode node, org.meta_environment.rascal.ast.Strategy strategy, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Expression expression) {
+		this.node = node;
 		this.strategy = strategy;
 		this.pattern = pattern;
 		this.expression = expression;

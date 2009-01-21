@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Generator extends AbstractAST { 
   public org.meta_environment.rascal.ast.Expression getExpression() { throw new UnsupportedOperationException(); }
 public boolean hasExpression() { return false; }
@@ -7,8 +7,8 @@ public boolean isExpression() { return false; }
 static public class Expression extends Generator {
 /* expression:Expression -> Generator {cons("Expression")} */
 	private Expression() { }
-	/*package*/ Expression(ITree tree, org.meta_environment.rascal.ast.Expression expression) {
-		this.tree = tree;
+	/*package*/ Expression(INode node, org.meta_environment.rascal.ast.Expression expression) {
+		this.node = node;
 		this.expression = expression;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -30,9 +30,9 @@ private org.meta_environment.rascal.ast.Expression expression;
 }
 static public class Ambiguity extends Generator {
   private final java.util.List<org.meta_environment.rascal.ast.Generator> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Generator> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Generator> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.Generator> getAlternatives() {
 	return alternatives;
@@ -48,8 +48,8 @@ public boolean isProducer() { return false; }
 static public class Producer extends Generator {
 /* producer:ValueProducer -> Generator {cons("Producer")} */
 	private Producer() { }
-	/*package*/ Producer(ITree tree, org.meta_environment.rascal.ast.ValueProducer producer) {
-		this.tree = tree;
+	/*package*/ Producer(INode node, org.meta_environment.rascal.ast.ValueProducer producer) {
+		this.node = node;
 		this.producer = producer;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {

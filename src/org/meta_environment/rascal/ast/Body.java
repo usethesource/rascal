@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Body extends AbstractAST { 
 public java.util.List<org.meta_environment.rascal.ast.Toplevel> getToplevels() { throw new UnsupportedOperationException(); }
 public boolean hasToplevels() { return false; }
@@ -7,8 +7,8 @@ public boolean isToplevels() { return false; }
 static public class Toplevels extends Body {
 /* toplevels:Toplevel* -> Body {cons("Toplevels")} */
 	private Toplevels() { }
-	/*package*/ Toplevels(ITree tree, java.util.List<org.meta_environment.rascal.ast.Toplevel> toplevels) {
-		this.tree = tree;
+	/*package*/ Toplevels(INode node, java.util.List<org.meta_environment.rascal.ast.Toplevel> toplevels) {
+		this.node = node;
 		this.toplevels = toplevels;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -30,9 +30,9 @@ private java.util.List<org.meta_environment.rascal.ast.Toplevel> toplevels;
 }
 static public class Ambiguity extends Body {
   private final java.util.List<org.meta_environment.rascal.ast.Body> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Body> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Body> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.Body> getAlternatives() {
 	return alternatives;

@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Return extends AbstractAST { 
   public org.meta_environment.rascal.ast.Expression getExpression() { throw new UnsupportedOperationException(); }
 public boolean hasExpression() { return false; }
@@ -7,8 +7,8 @@ public boolean isWithExpression() { return false; }
 static public class WithExpression extends Return {
 /* "return" expression:Expression ";" -> Return {cons("WithExpression")} */
 	private WithExpression() { }
-	/*package*/ WithExpression(ITree tree, org.meta_environment.rascal.ast.Expression expression) {
-		this.tree = tree;
+	/*package*/ WithExpression(INode node, org.meta_environment.rascal.ast.Expression expression) {
+		this.node = node;
 		this.expression = expression;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -30,9 +30,9 @@ private org.meta_environment.rascal.ast.Expression expression;
 }
 static public class Ambiguity extends Return {
   private final java.util.List<org.meta_environment.rascal.ast.Return> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Return> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Return> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.Return> getAlternatives() {
 	return alternatives;
@@ -46,8 +46,8 @@ public boolean isNoExpression() { return false; }
 static public class NoExpression extends Return {
 /* "return" ";" -> Return {cons("NoExpression")} */
 	private NoExpression() { }
-	/*package*/ NoExpression(ITree tree) {
-		this.tree = tree;
+	/*package*/ NoExpression(INode node) {
+		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitReturnNoExpression(this);
