@@ -79,18 +79,18 @@ static public class View extends Kind {
 
 	public boolean isView() { return true; }	
 } 
-public boolean isType() { return false; }
-static public class Type extends Kind {
-/* "type" -> Kind {cons("Type")} */
-	private Type() { }
-	/*package*/ Type(INode node) {
+public boolean isAlias() { return false; }
+static public class Alias extends Kind {
+/* "alias" -> Kind {cons("Alias")} */
+	private Alias() { }
+	/*package*/ Alias(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitKindType(this);
+		return visitor.visitKindAlias(this);
 	}
 
-	public boolean isType() { return true; }	
+	public boolean isAlias() { return true; }	
 } 
 public boolean isAnno() { return false; }
 static public class Anno extends Kind {

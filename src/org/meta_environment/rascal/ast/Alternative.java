@@ -7,7 +7,7 @@ public boolean hasName() { return false; }
 	public boolean hasType() { return false; }
 public boolean isNamedType() { return false; }
 static public class NamedType extends Alternative {
-/* name:Name type:Type -> Alternative {cons("AliasType")} */
+/* name:Name type:Type -> Alternative {cons("NamedType")} */
 	private NamedType() { }
 	/*package*/ NamedType(INode node, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.Type type) {
 		this.node = node;

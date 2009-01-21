@@ -74,21 +74,21 @@ static public class Ambiguity extends Declaration {
      return v.visitDeclarationAmbiguity(this);
   }
 } 
-public org.meta_environment.rascal.ast.Type getBase() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.UserType getUser() { throw new UnsupportedOperationException(); } public boolean hasBase() { return false; } public boolean hasUser() { return false; } public boolean isType() { return false; }
-static public class Type extends Declaration {
-/* "type" base:Type user:UserType tags:Tags ";" -> Declaration {cons("Type")} */
-	private Type() { }
-	/*package*/ Type(INode node, org.meta_environment.rascal.ast.Type base, org.meta_environment.rascal.ast.UserType user, org.meta_environment.rascal.ast.Tags tags) {
+public org.meta_environment.rascal.ast.Type getBase() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.UserType getUser() { throw new UnsupportedOperationException(); } public boolean hasBase() { return false; } public boolean hasUser() { return false; } public boolean isAlias() { return false; }
+static public class Alias extends Declaration {
+/* "alias" base:Type user:UserType tags:Tags ";" -> Declaration {cons("Alias")} */
+	private Alias() { }
+	/*package*/ Alias(INode node, org.meta_environment.rascal.ast.Type base, org.meta_environment.rascal.ast.UserType user, org.meta_environment.rascal.ast.Tags tags) {
 		this.node = node;
 		this.base = base;
 		this.user = user;
 		this.tags = tags;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitDeclarationType(this);
+		return visitor.visitDeclarationAlias(this);
 	}
 
-	public boolean isType() { return true; }
+	public boolean isAlias() { return true; }
 
 	public boolean hasBase() { return true; }
 	public boolean hasUser() { return true; }
@@ -97,24 +97,24 @@ static public class Type extends Declaration {
 private org.meta_environment.rascal.ast.Type base;
 	public org.meta_environment.rascal.ast.Type getBase() { return base; }
 	private void $setBase(org.meta_environment.rascal.ast.Type x) { this.base = x; }
-	public Type setBase(org.meta_environment.rascal.ast.Type x) { 
-		Type z = new Type();
+	public Alias setBase(org.meta_environment.rascal.ast.Type x) { 
+		Alias z = new Alias();
  		z.$setBase(x);
 		return z;
 	}
 	private org.meta_environment.rascal.ast.UserType user;
 	public org.meta_environment.rascal.ast.UserType getUser() { return user; }
 	private void $setUser(org.meta_environment.rascal.ast.UserType x) { this.user = x; }
-	public Type setUser(org.meta_environment.rascal.ast.UserType x) { 
-		Type z = new Type();
+	public Alias setUser(org.meta_environment.rascal.ast.UserType x) { 
+		Alias z = new Alias();
  		z.$setUser(x);
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Tags tags;
 	public org.meta_environment.rascal.ast.Tags getTags() { return tags; }
 	private void $setTags(org.meta_environment.rascal.ast.Tags x) { this.tags = x; }
-	public Type setTags(org.meta_environment.rascal.ast.Tags x) { 
-		Type z = new Type();
+	public Alias setTags(org.meta_environment.rascal.ast.Tags x) { 
+		Alias z = new Alias();
  		z.$setTags(x);
 		return z;
 	}	

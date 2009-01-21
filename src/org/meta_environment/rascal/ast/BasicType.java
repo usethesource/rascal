@@ -79,18 +79,18 @@ static public class Value extends BasicType {
 
 	public boolean isValue() { return true; }	
 } 
-public boolean isTree() { return false; }
-static public class Tree extends BasicType {
+public boolean isNode() { return false; }
+static public class Node extends BasicType {
 /* "node" -> BasicType {cons("Node")} */
-	private Tree() { }
-	/*package*/ Tree(INode node) {
+	private Node() { }
+	/*package*/ Node(INode node) {
 		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitBasicTypeTree(this);
+		return visitor.visitBasicTypeNode(this);
 	}
 
-	public boolean isTree() { return true; }	
+	public boolean isNode() { return true; }	
 } 
 public boolean isVoid() { return false; }
 static public class Void extends BasicType {
