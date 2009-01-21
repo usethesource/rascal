@@ -49,7 +49,7 @@ public class Factory {
 	public static final Type Tree_Appl = tf.constructor(Tree, "appl", Production, "prod", Args, "args");
 	public static final Type Tree_Cycle = tf.constructor(Tree, "cycle", Symbol, "symbol", tf.integerType(), "cycle-length");
 	public static final Type Tree_Amb = tf.constructor(Tree, "amb", Alternatives, "alternatives");
-	public static final Type Tree_Char = tf.define(Tree, tf.integerType(), "character");
+	public static final Type Tree2 = tf.define(Tree, tf.integerType(), "character");
 	
 	public static final Type Production_Default = tf.constructor(Production, "prod", Symbols, "lhs", Symbol, "rhs", Attributes, "attributes");
 	public static final Type Production_List = tf.constructor(Production, "list", Symbol, "rhs");
@@ -93,7 +93,7 @@ public class Factory {
 	public static final Type Symbol_Layout = tf.constructor(Symbol, "layout");
 	public static final Type Symbol_CharClass = tf.constructor(Symbol, "char-class", CharRanges, "ranges");
 		
-	public static final Type CharRange_Character = tf.define(CharRange, tf.integerType(), "character");
+	public static final Type CharRange2 = tf.define(CharRange, tf.integerType(), "character");
 	public static final Type CharRange_Range = tf.constructor(CharRange, "range", tf.integerType(), "start", tf.integerType(), "end");
 	
 	private static final class InstanceHolder {
