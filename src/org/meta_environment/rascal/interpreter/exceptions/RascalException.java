@@ -1,4 +1,4 @@
-package org.meta_environment.rascal.interpreter;
+package org.meta_environment.rascal.interpreter.exceptions;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;

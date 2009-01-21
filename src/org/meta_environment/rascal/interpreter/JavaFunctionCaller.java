@@ -37,6 +37,9 @@ import org.meta_environment.rascal.ast.Signature;
 import org.meta_environment.rascal.ast.Tag;
 import org.meta_environment.rascal.ast.Tags;
 import org.meta_environment.rascal.ast.Type;
+import org.meta_environment.rascal.interpreter.exceptions.RascalBug;
+import org.meta_environment.rascal.interpreter.exceptions.RascalException;
+import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
 
 public class JavaFunctionCaller {
 	private static final String JAVA_IMPORTS_TAG = "java-imports";

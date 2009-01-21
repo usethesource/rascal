@@ -1,4 +1,4 @@
-package org.meta_environment.rascal.interpreter;
+package org.meta_environment.rascal.interpreter.exceptions;
 
 public class RascalTypeError extends RuntimeException {
 	private static final long serialVersionUID = 3715516757858886671L;

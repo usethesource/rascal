@@ -16,8 +16,8 @@ import org.meta_environment.rascal.ast.Visibility;
 import org.meta_environment.rascal.ast.Declaration.Function;
 import org.meta_environment.rascal.ast.Declaration.Variable;
 import org.meta_environment.rascal.interpreter.Names;
-import org.meta_environment.rascal.interpreter.RascalBug;
-import org.meta_environment.rascal.interpreter.RascalTypeError;
+import org.meta_environment.rascal.interpreter.exceptions.RascalBug;
+import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
 
 /**
  * The global environment represents the stack and the heap of Rascal.

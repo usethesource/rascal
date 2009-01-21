@@ -11,7 +11,7 @@ import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.interpreter.Names;
-import org.meta_environment.rascal.interpreter.RascalBug;
+import org.meta_environment.rascal.interpreter.exceptions.RascalBug;
 
 /**
  * An environment that implements the scoping rules of Rascal.

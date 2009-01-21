@@ -23,6 +23,7 @@ import org.meta_environment.rascal.ast.Expression.Tuple;
 import org.meta_environment.rascal.ast.Expression.TypedVariable;
 import org.meta_environment.rascal.interpreter.env.EvalResult;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
+import org.meta_environment.rascal.interpreter.exceptions.RascalBug;
 
 /* package */ 
 /**

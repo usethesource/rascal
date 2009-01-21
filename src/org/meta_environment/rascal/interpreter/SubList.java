@@ -12,6 +12,7 @@ import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
+import org.meta_environment.rascal.interpreter.exceptions.RascalBug;
 
 public class SubList extends Value implements IList {
 	private final int start;

@@ -1,4 +1,4 @@
-package org.meta_environment.rascal.interpreter;
+package org.meta_environment.rascal.interpreter.exceptions;
 
 public class RascalUndefinedValue extends RuntimeException {
 	private static final long serialVersionUID = -7290225483329876543L;

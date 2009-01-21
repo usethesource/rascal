@@ -18,7 +18,7 @@ import org.meta_environment.rascal.ast.Expression;
 import org.meta_environment.rascal.ast.JavaFunctionBody;
 import org.meta_environment.rascal.ast.Module;
 import org.meta_environment.rascal.ast.Statement;
-import org.meta_environment.rascal.interpreter.RascalBug;
+import org.meta_environment.rascal.interpreter.exceptions.RascalBug;
 import org.meta_environment.uptr.TreeAdapter;
 
 /**
