@@ -35,10 +35,6 @@ public class TreeAdapter {
 		return tree.getType() == Factory.Tree_Amb;
 	}
 	
-	public boolean isChar() {
-		return tree.getType() == Factory.Tree_Char;
-	}
-	
 	public boolean isCycle() {
 		return tree.getType() == Factory.Tree_Cycle;
 	}
