@@ -1,4 +1,4 @@
-package org.meta_environment.rascal.interpreter;
+package org.meta_environment.rascal.interpreter.exceptions;
 
 /**
  * Exception used for when the implementation detects that it has a bug.

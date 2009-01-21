@@ -7,6 +7,7 @@ import org.eclipse.imp.pdb.facts.INode;
 import org.meta_environment.rascal.ast.IASTVisitor;
 import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.QualifiedName;
+import org.meta_environment.rascal.interpreter.exceptions.RascalBug;
 
 public class Names {
 

@@ -10,8 +10,8 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.interpreter.Names;
-import org.meta_environment.rascal.interpreter.RascalTypeError;
 import org.meta_environment.rascal.interpreter.TypeEvaluator;
+import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
 
 /**
  * A simple environment for variables and functions and types.

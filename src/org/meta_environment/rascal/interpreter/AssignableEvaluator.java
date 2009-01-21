@@ -20,6 +20,9 @@ import org.meta_environment.rascal.ast.Assignable.Tuple;
 import org.meta_environment.rascal.ast.Assignable.Variable;
 import org.meta_environment.rascal.interpreter.env.EvalResult;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
+import org.meta_environment.rascal.interpreter.exceptions.RascalBug;
+import org.meta_environment.rascal.interpreter.exceptions.RascalRunTimeError;
+import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
 
 /**
  * Implements assignments in their different shapes, using value lookup

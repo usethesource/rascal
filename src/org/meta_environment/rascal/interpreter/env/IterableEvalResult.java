@@ -4,7 +4,7 @@ import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.meta_environment.rascal.interpreter.RascalBug;
+import org.meta_environment.rascal.interpreter.exceptions.RascalBug;
 
 public class IterableEvalResult extends EvalResult implements Iterator<EvalResult>{
 	Iterator<EvalResult> iterator;

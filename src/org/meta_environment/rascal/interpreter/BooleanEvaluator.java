@@ -16,6 +16,8 @@ import org.meta_environment.rascal.ast.Expression.Negation;
 import org.meta_environment.rascal.ast.Expression.Or;
 import org.meta_environment.rascal.interpreter.env.EvalResult;
 import org.meta_environment.rascal.interpreter.env.IterableEvalResult;
+import org.meta_environment.rascal.interpreter.exceptions.RascalBug;
+import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
 
 /*
  * Base class for iterating over the values of the arguments of the Boolean operators.

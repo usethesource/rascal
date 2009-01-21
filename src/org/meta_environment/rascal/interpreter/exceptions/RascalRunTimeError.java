@@ -1,4 +1,4 @@
-package org.meta_environment.rascal.interpreter;
+package org.meta_environment.rascal.interpreter.exceptions;
 
 /*
  * This class is for representing runtime errors during the execution of

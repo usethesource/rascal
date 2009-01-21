@@ -10,7 +10,7 @@ import java.util.Set;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.Visibility;
-import org.meta_environment.rascal.interpreter.RascalTypeError;
+import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
 
 /**
  * A module environment represents a module object (i.e. a running module).
