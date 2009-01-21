@@ -614,7 +614,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		    else if (var.isAnonymousConstructor()) {
 		    	Type argType = var.getType().accept(te);
 		    	String label = var.getName().toString();
-		    	env.storeConstructor(tf.define(sort, argType, label));
+		    	tf.define(sort, argType, label);
+		    	env.storeDefinition(sort, argType);
 		    }
 		}
 		

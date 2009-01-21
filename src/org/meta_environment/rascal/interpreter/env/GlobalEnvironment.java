@@ -272,6 +272,10 @@ public class GlobalEnvironment {
 	public void storeConstructor(Type decl) {
 		stack.storeConstructor(decl);
 	}
+	
+	public void storeDefinition(Type adt, Type extension) {
+		stack.storeDefinition(adt, extension);
+	}
 
 	public void storeAbstractDataType(Type decl) {
 		stack.storeAbstractDataType(decl);
@@ -347,4 +351,6 @@ public class GlobalEnvironment {
 		*/
 		return res.toString();
 	}
+
+	
 }
