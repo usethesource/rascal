@@ -13,7 +13,7 @@ rule o2 bor(btrue, bfalse)    => btrue;
 rule o3 bor(bfalse, btrue)    => btrue;
 rule o4 bor(bfalse, bfalse)   => bfalse;
 
-bool test()
+public bool test()
 {
 	return bor(band(btrue,btrue),band(btrue, bfalse)) == btrue;
 }

@@ -9,13 +9,13 @@ data NODE int N | f(NODE I, NODE J) | g(NODE I, NODE J) |  h(NODE I, NODE J)  | 
 // Ex1a: Collect all integers in the tree in 
 // a list and return the size of the list
 
-public int cnta(tree T) {
+public int cnta(node T) {
     return size([N | int N : T]);
 }
 
 // Ex1b: alternative solution using a visit statement
 
-public int cntb(tree T) {
+public int cntb(node T) {
     int C = 0;
     visit(T) {
       case int N: C = C + 1;
@@ -29,13 +29,13 @@ public int cntb(tree T) {
 // a list and use the library function sum on lists
 // to add all list elements together.
 
-public int sumtreea(tree T) {
+public int sumtreea(node T) {
     return sum([n | int N : T]);
 }
 
 // Ex2b: using visit statement
 
-public int sumtreeb(tree T) {
+public int sumtreeb(node T) {
     int C = 0;
     visit(T) {
       case int N : C = C + N;
@@ -45,7 +45,7 @@ public int sumtreeb(tree T) {
 
 // Ex3: Increment all leaves in a tree
 
-public tree inc(tree T) {
+public node inc(node T) {
     return visit(T) {
       case int N: insert N + 1;
     };
@@ -56,7 +56,7 @@ public tree inc(tree T) {
 
 // Ex4a Using insert
 
-public tree frepa(tree T) {
+public node frepa(node T) {
     return visit (T) {
       case g(value T1, value T2):
            insert h(T1, T2);
@@ -65,7 +65,7 @@ public tree frepa(tree T) {
 
 // Ex4a Using replacement rule
 
-public tree frepb(tree T) {
+public node frepb(node T) {
     return visit (T) {
       case g(value T1, value T2) => h(T1, T2)
     };
@@ -75,7 +75,7 @@ public tree frepb(tree T) {
 
 // Ex5a Using insert
 
-public tree frepG2H3a(tree T) {
+public node frepG2H3a(node T) {
     return visit (T) {
       case g(value T1, value T2):
            insert h(T1, T2, 0);
@@ -84,7 +84,7 @@ public tree frepG2H3a(tree T) {
 
 // Ex5b Using replacement rule
 
-public tree frepG2H3b(tree T) {
+public node frepG2H3b(node T) {
     return visit (T) {
       case g(value T1, value T2) => h(T1, T2, 0)
     };
@@ -93,7 +93,7 @@ public tree frepG2H3b(tree T) {
 // Ex6: Deep replacement of g by h (i.e. only innermost 
 // g's are replaced); 
 
-public tree drepl(tree T) {
+public node drepl(node T) {
     return bottom-up-break visit (T) {
       case g(value T1, value T2) =>  h(T1, T2)
     };
@@ -102,7 +102,7 @@ public tree drepl(tree T) {
 // Ex7: shallow replacement of g by h (i.e. only outermost 
 // g's are replaced); 
 
-public tree srepl(tree T) {
+public node srepl(node T) {
     return top-down-break visit (T) {
        case g(value T1, value T2) =>  h(T1, T2)
     };
@@ -112,7 +112,7 @@ public tree srepl(tree T) {
 // Ex8: accumulating transformer that increments integer leaves with 
 // amount D and counts them as well.
 
-public tuple[int, tree] count_and_inc(tree T, int D) {
+public tuple[int, node] count_and_inc(node T, int D) {
     int C = 0;
     
     T = visit (T) {
@@ -125,7 +125,7 @@ public tuple[int, tree] count_and_inc(tree T, int D) {
 
 // Add an element to an array
 
-public tree array(tree T) {
+public node array(node T) {
     return visit (T) {
       case list[value] L => L + [11]
     };
