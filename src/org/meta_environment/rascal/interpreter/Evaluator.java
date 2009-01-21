@@ -160,6 +160,7 @@ import org.meta_environment.rascal.interpreter.env.EnvironmentHolder;
 import org.meta_environment.rascal.interpreter.env.EvalResult;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.env.IterableEvalResult;
+import org.meta_environment.rascal.interpreter.BooleanEvaluator;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
 import org.meta_environment.uptr.Factory;
@@ -170,7 +171,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	final TypeFactory tf = TypeFactory.getInstance();
 	final TypeEvaluator te = TypeEvaluator.getInstance();
 	private final RegExpPatternEvaluator re = new RegExpPatternEvaluator();
-	private final TreePatternEvaluator pe;
+	private final AbstractPatternEvaluator pe;
 	protected GlobalEnvironment env = GlobalEnvironment.getInstance();
 	private ASTFactory astFactory = new ASTFactory();
 	private boolean callTracing = false;
@@ -186,7 +187,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		this.vf = f;
 		this.af = astFactory;
 		javaFunctionCaller = new JavaFunctionCaller(errorWriter, te);
-		this.pe = new TreePatternEvaluator(this);
+		this.pe = new AbstractPatternEvaluator(this);
 		GlobalEnvironment.clean();
 	}
 	
@@ -359,7 +360,10 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		if (expected == ClosureResult.getClosureType()) {
 			return;
 		}
-		if (!given.isSubtypeOf(expected)) {
+		if (given.isSubtypeOf(expected) || expected.isAbstractDataType() &&
+				given.isSubtypeOf(expected.getAbstractDataType())){
+			// ok
+		} else {
 			throw new RascalTypeError("Expected " + expected + ", got " + given);
 		}
 	}
@@ -647,6 +651,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	@Override
 	public EvalResult visitRuleArbitrary(Arbitrary x) {
 		MatchPattern pv = x.getPattern().accept(pe);
+		//System.err.println("visitRule: " + pv.getType(this));
 		env.storeRule(pv.getType(this), x);
 		return result();
 	}
@@ -654,6 +659,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	@Override
 	public EvalResult visitRuleReplacing(Replacing x) {
 		MatchPattern pv = x.getPattern().accept(pe);
+		//System.err.println("visitRule: " + pv.getType(this));
 		env.storeRule(pv.getType(this), x);
 		return result();
 	}
@@ -793,7 +799,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				 sb.append(actualTypes.getFieldType(i).toString());
 			 }
 			 throw new RascalTypeError("No function/constructor " + name + "(" +  sb.toString() + ") is defined");
-			// Used to be: return constructTree(name, actuals, actualTypes);
 		 }
 	}
 
@@ -860,7 +865,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		
 		candidate = env.getConstructor(cons, signature);
 		if (candidate != null) {
-			return result(candidate.getAbstractDataType(), candidate.make(vf, actuals));
+			return result(candidate, candidate.make(vf, actuals));
 		}
 		
 		return result(tf.treeType(), vf.node(cons, actuals));
@@ -2021,6 +2026,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		Type resultType = left.type.lub(right.type);
 		
 		widenIntToReal(left, right);
+		
+		//System.err.println("addition: " + left + ", " + right);
 
 		// Integer
 		if (left.type.isIntegerType() && right.type.isIntegerType()) {
@@ -2054,6 +2061,13 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				return result(right.type, ((IList)right.value).insert(left.value));
 			}
 		}
+		
+		//Relation
+		if (left.type.isRelationType() && right.type.isRelationType()) {
+				return result(resultType, ((ISet) left.value)
+						.union((ISet) right.value));
+		}
+		
 		//Set
 		if (left.type.isSetType()){
 			if(right.type.isSetType()) {
@@ -2061,6 +2075,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				.union((ISet) right.value));
 			}
 			if(right.type.isSubtypeOf(left.type.getElementType())){
+				System.err.println("XXXX " + left.type + ", " + right.type);
 				return result(left.type, ((ISet)left.value).insert(right.value));
 			}
 		}
@@ -2113,11 +2128,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			
 		}
 		
-		//Relation
-		if (left.type.isRelationType() && right.type.isRelationType()) {
-				return result(resultType, ((ISet) left.value)
-						.union((ISet) right.value));
-		}
+		
 		
 		throw new RascalTypeError("Operands of + have illegal types: "
 					+ left.type + ", " + right.type);
@@ -2425,10 +2436,11 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		EvalResult right = x.getRhs().accept(this);
 		
 		widenIntToReal(left, right);
-		
+/*		
 		if (!left.type.comparable(right.type)) {
 			throw new RascalTypeError("Arguments of equals have incomparable types: " + left.type + " and " + right.type);
 		}
+*/
 		
 		return result(vf.bool(equals(left, right)));
 	}
@@ -2944,7 +2956,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 						if(lastPattern instanceof RegExpPatternValue){
 							start = ((RegExpPatternValue)lastPattern).getStart();
 							end = ((RegExpPatternValue)lastPattern).getEnd();
-						} else if(lastPattern instanceof TreePatternLiteral){
+						} else if(lastPattern instanceof AbstractPatternLiteral){
 							start = 0;
 							end = ((IString)repl).getValue().length();
 						} else {
@@ -3228,6 +3240,12 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	public EvalResult visitVisitGivenStrategy(GivenStrategy x) {
 		
 		IValue subject = x.getSubject().accept(this).value;
+		Type subjectType = subject.getType();
+		
+		if(subjectType.isConstructorType()){
+			subjectType = subjectType.getAbstractDataType();
+		}
+		
 		java.util.List<Case> cases = x.getCases();
 		Strategy s = x.getStrategy();
 		
@@ -3252,7 +3270,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		}
 		
 		TraverseResult tr = traverse(subject, new CasesOrRules(cases), bottomup, breaking, fixedpoint);
-		return normalizedResult(subject.getType(), tr.value);
+		return normalizedResult(subjectType, tr.value);
 	}
 	
 	@Override
@@ -3260,11 +3278,11 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			org.meta_environment.rascal.ast.Expression.NonEquals x) {
 		EvalResult left = x.getLhs().accept(this);
 		EvalResult right = x.getRhs().accept(this);
-		
+/*		
 		if (!left.type.comparable(right.type)) {
 			throw new RascalTypeError("Arguments of unequal have incomparable types: " + left.type + " and " + right.type);
 		}
-		
+*/		
 		return result(vf.bool(compare(left, right) != 0));
 	}
 	
@@ -3311,7 +3329,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		}
 		
 		if (leftType.isNodeType() && rightType.isNodeType()) {
-			return compareTree((INode) left.value, (INode) right.value);
+			return compareNode((INode) left.value, (INode) right.value);
 		}
 		
 		if(leftType.isSourceLocationType() && rightType.isSourceLocationType()){	
@@ -3324,7 +3342,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		return leftType.toString().compareTo(rightType.toString());
 	}
 	
-	private int compareTree(INode left, INode right){
+	private int compareNode(INode left, INode right){
 		String leftName = left.getName().toString();
 		String rightName = right.getName().toString();
 		int compare = leftName.compareTo(rightName);
@@ -3666,8 +3684,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			} else if(r.type.isMapType()){
 				iter = ((IMap) r.value).iterator();
 				
-			// Node
-			} else if(r.type.isNodeType()){
+			// Node and ADT
+			} else if(r.type.isNodeType() || r.type.isAbstractDataType()){
 				boolean bottomup = true;
 				if(vp.hasStrategy()){
 					Strategy strat = vp.getStrategy();
@@ -3680,15 +3698,13 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 						throw new RascalTypeError("Strategy " + strat + " not allowed in generator");
 					}
 				}
-				iter = new ITreeReader((INode) r.value, bottomup);
+				iter = new INodeReader((INode) r.value, bottomup);
 			} else if(r.type.isStringType()){
 				iter = new SingleIValueIterator(r.value);
 			} else {
 				throw new RascalTypeError("Unimplemented expression type " + r.type + " in generator");
 			}
 		}
-		
-		
 		
 		public boolean hasNext(){
 			if(isValueProducer){
