@@ -430,7 +430,7 @@ private org.meta_environment.rascal.ast.Expression condition;
 	}	
 } public org.meta_environment.rascal.ast.Expression getPattern() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Expression getExpression() { throw new UnsupportedOperationException(); } public boolean hasPattern() { return false; } public boolean hasExpression() { return false; } public boolean isMatch() { return false; }
 static public class Match extends Expression {
-/* pattern:Expression "~=" expression:Expression -> Expression {non-assoc, cons("Match")} */
+/* pattern:Expression ":=" expression:Expression -> Expression {non-assoc, cons("Match")} */
 	private Match() { }
 	/*package*/ Match(INode node, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Expression expression) {
 		this.node = node;
@@ -464,7 +464,7 @@ private org.meta_environment.rascal.ast.Expression pattern;
 	}	
 } public boolean isNoMatch() { return false; }
 static public class NoMatch extends Expression {
-/* pattern:Expression "~!" expression:Expression -> Expression {non-assoc, cons("NoMatch")} */
+/* pattern:Expression "!:=" expression:Expression -> Expression {non-assoc, cons("NoMatch")} */
 	private NoMatch() { }
 	/*package*/ NoMatch(INode node, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Expression expression) {
 		this.node = node;
