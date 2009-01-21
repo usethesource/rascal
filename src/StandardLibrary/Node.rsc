@@ -1,13 +1,13 @@
-module Tree
+module Node
 
-public int java arity(tree T)
-@doc{arity -- number of children of a tree}
+public int java arity(node T)
+@doc{arity -- number of children of a node}
 {
    return values.integer(T.arity());
 }
 
-public list[value] java getChildren(tree T)
-@doc{getChildren -- get the children of a tree}
+public list[value] java getChildren(node T)
+@doc{getChildren -- get the children of a node}
 @java-imports{import java.util.Iterator;}
 {
 	Iterator iter = T.getChildren().iterator();
@@ -20,14 +20,14 @@ public list[value] java getChildren(tree T)
 	return w.done();
 }
 
-public str java getName(tree T)
-@doc{getName -- get the function name of a tree}
+public str java getName(node T)
+@doc{getName -- get the function name of a node}
 {
 	return values.string(T.getName());
 }
 
-public tree java makeTree(str N, value V...)
-@doc{makeTree -- create a tree given its function name and arguments}
+public node java makeNode(str N, value V...)
+@doc{makeNode -- create a node given its function name and arguments}
 {
     IList argList = (IList) V;
 	int len = argList.length();

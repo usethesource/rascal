@@ -35,14 +35,14 @@ public class DataDeclarationTests extends TestCase{
 	
 	public void testLet2() throws IOException {
 		tf = new TestFramework();
-		tf.prepare("type str Var2;");
+		tf.prepare("alias str Var2;");
 		tf.prepareMore("data Exp2 let(Var2 var, Exp2 exp1, Exp2 exp2) | Var2 var | intExp(int intVal);");
 		
 		assertTrue(tf.runTestInSameEvaluator("{Exp2 e = intExp(1); e == intExp(1);}"));
 		assertTrue(tf.runTestInSameEvaluator("{Exp2 e = \"a\"; e == \"a\";}"));
 		assertTrue(tf.runTestInSameEvaluator("{Exp2 e = let(\"a\",intExp(1),\"a\"); e ==  let(\"a\",intExp(1),\"a\");}"));
-		assertTrue(tf.runTestInSameEvaluator("Var2 var ~= \"a\";"));
-		assertTrue(tf.runTestInSameEvaluator("Var2 var ~! let(\"a\",intExp(1),\"a\");"));
+		assertTrue(tf.runTestInSameEvaluator("Var2 var := \"a\";"));
+		assertTrue(tf.runTestInSameEvaluator("Var2 var !:= let(\"a\",intExp(1),\"a\");"));
 		
 	}
 	
@@ -57,7 +57,7 @@ public class DataDeclarationTests extends TestCase{
 	
 	public void testLet4() throws IOException {
 		tf = new TestFramework();
-		tf.prepare("type str Var4;");
+		tf.prepare("alias str Var4;");
 		tf.prepareMore("type int intCon4;");
 		tf.prepareMore("data Exp4 let(Var4 var, Exp4 exp1, Exp4 exp2) | var(Var4 var) | intCon4 intVal;");
 		

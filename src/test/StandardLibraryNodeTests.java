@@ -4,10 +4,10 @@ import java.io.IOException;
 
 import junit.framework.TestCase;
 
-public class StandardLibraryTreeTests extends TestCase {
+public class StandardLibraryNodeTests extends TestCase {
 	private static TestFramework tf;
 
-	public void testTreeArity() throws IOException {
+	public void testNodeArity() throws IOException {
 		
 		tf = new TestFramework("import Node;").
 		prepareMore("data NODE f | f(int) | f(int,int) | f(int,int,int);");
@@ -17,7 +17,7 @@ public class StandardLibraryTreeTests extends TestCase {
 		assertTrue(tf.runTestInSameEvaluator("arity(f(1,2)) == 2;"));
 	}
 	
-	public void testTreeGetChildren() throws IOException {
+	public void testNodeGetChildren() throws IOException {
 		
 		tf = new TestFramework("import Node;").
 		prepareMore("data NODE f | f(int) | f(int,int) | f(int,int,int);");
@@ -27,7 +27,7 @@ public class StandardLibraryTreeTests extends TestCase {
 		assertTrue(tf.runTestInSameEvaluator("getChildren(f(1,2)) == [1,2];"));
 	}
 	
-	public void testTreeGetName() throws IOException {
+	public void testNodeGetName() throws IOException {
 		
 		tf = new TestFramework("import Node;").
 		prepareMore("data NODE f | f(int) | f(int,int) | f(int,int,int);");
@@ -36,15 +36,15 @@ public class StandardLibraryTreeTests extends TestCase {
 		assertTrue(tf.runTestInSameEvaluator("getName(f(1,2,3)) == \"f\";"));
 	}
 	
-	public void testTreeMakeTree() throws IOException {
+	public void testNodeMakeNode() throws IOException {
 		
 		tf = new TestFramework("import Node;").
 		prepareMore("data NODE f | f(int) | f(int,int) | f(int,int,int);");
 		
-		assertTrue(tf.runTestInSameEvaluator("makeTree(\"f\") == f;"));
-		assertTrue(tf.runTestInSameEvaluator("makeTree(\"f\", 1) == f(1);"));
-		assertTrue(tf.runTestInSameEvaluator("makeTree(\"f\", 1, 2) == f(1, 2);"));
-		assertTrue(tf.runTestInSameEvaluator("makeTree(\"f\", 1, 2, 3) == f(1, 2, 3);"));
+		assertTrue(tf.runTestInSameEvaluator("makeNode(\"f\") == f;"));
+		assertTrue(tf.runTestInSameEvaluator("makeNode(\"f\", 1) == f(1);"));
+		assertTrue(tf.runTestInSameEvaluator("makeNode(\"f\", 1, 2) == f(1, 2);"));
+		assertTrue(tf.runTestInSameEvaluator("makeNode(\"f\", 1, 2, 3) == f(1, 2, 3);"));
 	}
 		
 }

@@ -42,7 +42,7 @@ public int countLine2(str S){
   // \w matches any word character
   // \W match3es any non-word character
   // <...> are groups and should appear at the top level.
-  while (/^\W*<word:\w+><rest:.*$>/ ~= S) { 
+  while (/^\W*<word:\w+><rest:.*$>/ := S) { 
     count = count + 1; 
     S = rest; 
   }

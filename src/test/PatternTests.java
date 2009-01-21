@@ -11,130 +11,130 @@ public class PatternTests extends TestCase {
 		
 		tf = new TestFramework();
 
-		assertTrue(tf.runTest("true     ~= true;"));
-		assertFalse(tf.runTest("true    ~= false;"));
-		assertTrue(tf.runTest("true     ~! false;"));
-		assertFalse(tf.runTest("true    ~= 1;"));
-		assertTrue(tf.runTest("true     ~! 1;"));
-		assertFalse(tf.runTest("\"abc\" ~= true;"));
-		assertTrue(tf.runTest("\"abc\"  ~! true;"));
+		assertTrue(tf.runTest("true     := true;"));
+		assertFalse(tf.runTest("true    := false;"));
+		assertTrue(tf.runTest("true     !:= false;"));
+		assertFalse(tf.runTest("true    := 1;"));
+		assertTrue(tf.runTest("true     !:= 1;"));
+		assertFalse(tf.runTest("\"abc\" := true;"));
+		assertTrue(tf.runTest("\"abc\"  !:= true;"));
 		
-		assertTrue(tf.runTest("1        ~= 1;"));
-		assertFalse(tf.runTest("2       ~= 1;"));
-		assertTrue(tf.runTest("2        ~! 1;"));
-		assertFalse(tf.runTest("true    ~= 1;"));
-		assertTrue(tf.runTest("true     ~! 1;"));
-		assertFalse(tf.runTest("1.0     ~= 1;"));
-		assertTrue(tf.runTest("1.0      ~! 1;"));
-		assertFalse(tf.runTest("\"abc\" ~= 1;"));
-		assertTrue(tf.runTest("\"abc\"  ~! 1;"));
+		assertTrue(tf.runTest("1        := 1;"));
+		assertFalse(tf.runTest("2       := 1;"));
+		assertTrue(tf.runTest("2        !:= 1;"));
+		assertFalse(tf.runTest("true    := 1;"));
+		assertTrue(tf.runTest("true     !:= 1;"));
+		assertFalse(tf.runTest("1.0     := 1;"));
+		assertTrue(tf.runTest("1.0      !:= 1;"));
+		assertFalse(tf.runTest("\"abc\" := 1;"));
+		assertTrue(tf.runTest("\"abc\"  !:= 1;"));
 		
-		assertTrue(tf.runTest("1.5      ~= 1.5;"));
-		assertFalse(tf.runTest("2.5     ~= 1.5;"));
-		assertTrue(tf.runTest("2.5      ~! 1.5;"));
-		assertFalse(tf.runTest("true    ~= 1.5;"));
-		assertTrue(tf.runTest("true     ~! 1.5;"));
-		assertFalse(tf.runTest("2       ~= 1.5;"));
-		assertTrue(tf.runTest("2        ~! 1.5;"));
-		assertFalse(tf.runTest("1.0     ~= 1.5;"));
-		assertTrue(tf.runTest("1.0      ~! 1.5;"));
-		assertFalse(tf.runTest("\"abc\" ~= 1.5;"));
-		assertTrue(tf.runTest("\"abc\"  ~! 1.5;"));
+		assertTrue(tf.runTest("1.5      := 1.5;"));
+		assertFalse(tf.runTest("2.5     := 1.5;"));
+		assertTrue(tf.runTest("2.5      !:= 1.5;"));
+		assertFalse(tf.runTest("true    := 1.5;"));
+		assertTrue(tf.runTest("true     !:= 1.5;"));
+		assertFalse(tf.runTest("2       := 1.5;"));
+		assertTrue(tf.runTest("2        !:= 1.5;"));
+		assertFalse(tf.runTest("1.0     := 1.5;"));
+		assertTrue(tf.runTest("1.0      !:= 1.5;"));
+		assertFalse(tf.runTest("\"abc\" := 1.5;"));
+		assertTrue(tf.runTest("\"abc\"  !:= 1.5;"));
 		
-		assertTrue(tf.runTest("\"abc\"  ~= \"abc\";"));
-		assertFalse(tf.runTest("\"def\" ~= \"abc\";"));
-		assertTrue(tf.runTest("\"def\"  ~! \"abc\";"));
-		assertFalse(tf.runTest("true    ~= \"abc\";"));
-		assertTrue(tf.runTest("true     ~! \"abc\";"));
-		assertFalse(tf.runTest("1       ~= \"abc\";"));
-		assertTrue(tf.runTest("1        ~! \"abc\";"));
-		assertFalse(tf.runTest("1.5     ~= \"abc\";"));
-		assertTrue(tf.runTest("1.5      ~! \"abc\";"));
+		assertTrue(tf.runTest("\"abc\"  := \"abc\";"));
+		assertFalse(tf.runTest("\"def\" := \"abc\";"));
+		assertTrue(tf.runTest("\"def\"  !:= \"abc\";"));
+		assertFalse(tf.runTest("true    := \"abc\";"));
+		assertTrue(tf.runTest("true     !:= \"abc\";"));
+		assertFalse(tf.runTest("1       := \"abc\";"));
+		assertTrue(tf.runTest("1        !:= \"abc\";"));
+		assertFalse(tf.runTest("1.5     := \"abc\";"));
+		assertTrue(tf.runTest("1.5      !:= \"abc\";"));
 	}
 	
 	public void testMatchTuple() throws IOException {
 		
 		tf = new TestFramework();
 		
-		assertTrue(tf.runTest("<1>           ~= <1>;"));
-		assertTrue(tf.runTest("<1, \"abc\">  ~= <1, \"abc\">;"));
-		assertFalse(tf.runTest("<2>          ~= <1>;"));
-		assertTrue(tf.runTest("<2>           ~! <1>;"));
-		assertFalse(tf.runTest("<1,2>        ~= <1>;"));
-		assertTrue(tf.runTest("<1,2>         ~! <1>;"));
-		assertFalse(tf.runTest("<1, \"abc\"> ~= <1, \"def\">;"));
-		assertTrue(tf.runTest("<1, \"abc\">  ~! <1, \"def\">;"));
+		assertTrue(tf.runTest("<1>           := <1>;"));
+		assertTrue(tf.runTest("<1, \"abc\">  := <1, \"abc\">;"));
+		assertFalse(tf.runTest("<2>          := <1>;"));
+		assertTrue(tf.runTest("<2>           !:= <1>;"));
+		assertFalse(tf.runTest("<1,2>        := <1>;"));
+		assertTrue(tf.runTest("<1,2>         !:= <1>;"));
+		assertFalse(tf.runTest("<1, \"abc\"> := <1, \"def\">;"));
+		assertTrue(tf.runTest("<1, \"abc\">  !:= <1, \"def\">;"));
 	}
 	
 	public void testMatchTree() throws IOException {
 		
 		tf = new TestFramework("data F f(int N) | f(int N, int M) | f(int N, value f, bool B) | g(str S);");
 		
-		assertTrue(tf.runTestInSameEvaluator("f(1)                   ~= f(1);"));
-		assertTrue(tf.runTestInSameEvaluator("f(1, g(\"abc\"), true) ~= f(1, g(\"abc\"), true);"));
-		assertFalse(tf.runTestInSameEvaluator("1                     ~= f(1);"));
-		assertTrue(tf.runTestInSameEvaluator("1                      ~! f(1);"));
-		assertFalse(tf.runTestInSameEvaluator("1.5                   ~= f(1);"));
-		assertTrue(tf.runTestInSameEvaluator("1.5                    ~! f(1);"));
-		assertFalse(tf.runTestInSameEvaluator("\"abc\"               ~= f(1);"));
-		assertTrue(tf.runTestInSameEvaluator("\"abc\"                ~! f(1);"));
-		assertFalse(tf.runTestInSameEvaluator("g(1)                  ~= f(1);"));
-		assertTrue(tf.runTestInSameEvaluator("g(1)                   ~! f(1);"));
-		assertFalse(tf.runTestInSameEvaluator("f(1, 2)               ~= f(1);"));
-		assertTrue(tf.runTestInSameEvaluator("f(1, 2)                ~! f(1);"));
+		assertTrue(tf.runTestInSameEvaluator("f(1)                   := f(1);"));
+		assertTrue(tf.runTestInSameEvaluator("f(1, g(\"abc\"), true) := f(1, g(\"abc\"), true);"));
+		assertFalse(tf.runTestInSameEvaluator("1                     := f(1);"));
+		assertTrue(tf.runTestInSameEvaluator("1                      !:= f(1);"));
+		assertFalse(tf.runTestInSameEvaluator("1.5                   := f(1);"));
+		assertTrue(tf.runTestInSameEvaluator("1.5                    !:= f(1);"));
+		assertFalse(tf.runTestInSameEvaluator("\"abc\"               := f(1);"));
+		assertTrue(tf.runTestInSameEvaluator("\"abc\"                !:= f(1);"));
+		assertFalse(tf.runTestInSameEvaluator("g(1)                  := f(1);"));
+		assertTrue(tf.runTestInSameEvaluator("g(1)                   !:= f(1);"));
+		assertFalse(tf.runTestInSameEvaluator("f(1, 2)               := f(1);"));
+		assertTrue(tf.runTestInSameEvaluator("f(1, 2)                !:= f(1);"));
 	}
 	
 	public void testMatchVariable() throws IOException {
 		
 		tf = new TestFramework("data F f(int N);");
 		
-		assertTrue(tf.runTestInSameEvaluator("(n ~= 1) && (n == 1);"));
-		assertTrue(tf.runTestInSameEvaluator("{int n = 1; (n ~= 1) && (n == 1);}"));
-		assertTrue(tf.runTestInSameEvaluator("{int n = 1; (n ~! 2) && (n == 1);}"));
-		assertTrue(tf.runTestInSameEvaluator("{int n = 1; (n ~! \"abc\") && (n == 1);}"));
+		assertTrue(tf.runTestInSameEvaluator("(n := 1) && (n == 1);"));
+		assertTrue(tf.runTestInSameEvaluator("{int n = 1; (n := 1) && (n == 1);}"));
+		assertTrue(tf.runTestInSameEvaluator("{int n = 1; (n !:= 2) && (n == 1);}"));
+		assertTrue(tf.runTestInSameEvaluator("{int n = 1; (n !:= \"abc\") && (n == 1);}"));
 		
-		assertTrue(tf.runTestInSameEvaluator("(f(n) ~= f(1)) && (n == 1);"));
-		assertTrue(tf.runTestInSameEvaluator("{int n = 1; (f(n) ~= f(1)) && (n == 1);}"));
+		assertTrue(tf.runTestInSameEvaluator("(f(n) := f(1)) && (n == 1);"));
+		assertTrue(tf.runTestInSameEvaluator("{int n = 1; (f(n) := f(1)) && (n == 1);}"));
 	}
 	
 	public void testMatchList1() throws IOException {
 		
 		tf = new TestFramework();
 		
-		assertTrue(tf.runTest("[1] ~= [1];"));
-		assertTrue(tf.runTest("[1,2] ~= [1,2];"));
+		assertTrue(tf.runTest("[1] := [1];"));
+		assertTrue(tf.runTest("[1,2] := [1,2];"));
 		
-		assertFalse(tf.runTest("[1] ~= [2];"));
-		assertFalse(tf.runTest("[1,2] ~= [1,2, 3];"));
+		assertFalse(tf.runTest("[1] := [2];"));
+		assertFalse(tf.runTest("[1,2] := [1,2, 3];"));
 		
-		assertTrue(tf.runTest("([int n] ~= [1]) && (n == 1);"));
-		assertTrue(tf.runTest("([int n, 2, int m] ~= [1,2,3]) && (n == 1) && (m==3);"));
+		assertTrue(tf.runTest("([int n] := [1]) && (n == 1);"));
+		assertTrue(tf.runTest("([int n, 2, int m] := [1,2,3]) && (n == 1) && (m==3);"));
 		
-		assertTrue(tf.runTest("[1, [2, 3], 4] ~= [1, [2, 3], 4];"));
-		assertFalse(tf.runTest("[1, [2, 3], 4] ~= [1, [2, 3, 4], 4];"));
+		assertTrue(tf.runTest("[1, [2, 3], 4] := [1, [2, 3], 4];"));
+		assertFalse(tf.runTest("[1, [2, 3], 4] := [1, [2, 3, 4], 4];"));
 		
-		assertTrue(tf.runTest("([list[int] L] ~= []) && (L == []);"));
-		assertTrue(tf.runTest("([list[int] L] ~= [1]) && (L == [1]);"));
-		assertTrue(tf.runTest("([list[int] L] ~= [1,2]) && (L == [1,2]);"));
+		assertTrue(tf.runTest("([list[int] L] := []) && (L == []);"));
+		assertTrue(tf.runTest("([list[int] L] := [1]) && (L == [1]);"));
+		assertTrue(tf.runTest("([list[int] L] := [1,2]) && (L == [1,2]);"));
 		
-		assertTrue(tf.runTest("([1, list[int] L] ~= [1]) && (L == []);"));
-		assertTrue(tf.runTest("([1, list[int] L] ~= [1, 2]) && (L == [2]);"));
-		assertTrue(tf.runTest("([1, list[int] L] ~= [1, 2, 3]) && (L == [2, 3]);"));
-		
-		
-		assertTrue(tf.runTest("([list[int] L, 10] ~= [10]) && (L == []);"));
-		assertTrue(tf.runTest("([list[int] L, 10] ~= [1,10]) && (L == [1]);"));
-		assertTrue(tf.runTest("([list[int] L, 10] ~= [1,2,10]) && (L == [1,2]);"));
+		assertTrue(tf.runTest("([1, list[int] L] := [1]) && (L == []);"));
+		assertTrue(tf.runTest("([1, list[int] L] := [1, 2]) && (L == [2]);"));
+		assertTrue(tf.runTest("([1, list[int] L] := [1, 2, 3]) && (L == [2, 3]);"));
 		
 		
-		assertTrue(tf.runTest("([1, list[int] L, 10] ~= [1,10]) && (L == []);"));
-		assertTrue(tf.runTest("([1, list[int] L, 10] ~= [1,2,10]) && (L == [2]);"));
-		assertTrue(tf.runTest("([1, list[int] L, 10, list[int] M, 20] ~= [1,10,20]) && (L == []) && (M == []);"));
-		assertTrue(tf.runTest("([1, list[int] L, 10, list[int] M, 20] ~= [1,2,10,20]) && (L == [2]) && (M == []);"));
-		assertTrue(tf.runTest("([1, list[int] L, 10, list[int] M, 20] ~= [1,2,10,3,20]) && (L == [2]) && (M==[3]);"));
-		assertTrue(tf.runTest("([1, list[int] L, 10, list[int] M, 20] ~= [1,2,3,10,4,5,20]) && (L == [2,3]) && (M==[4,5]);"));
+		assertTrue(tf.runTest("([list[int] L, 10] := [10]) && (L == []);"));
+		assertTrue(tf.runTest("([list[int] L, 10] := [1,10]) && (L == [1]);"));
+		assertTrue(tf.runTest("([list[int] L, 10] := [1,2,10]) && (L == [1,2]);"));
 		
-		//assertTrue(tf.runTest("([1, list[int] L, [10, list[int] M, 100], list[int] N, 1000] ~= [1, [10,100],1000]);"));
+		
+		assertTrue(tf.runTest("([1, list[int] L, 10] := [1,10]) && (L == []);"));
+		assertTrue(tf.runTest("([1, list[int] L, 10] := [1,2,10]) && (L == [2]);"));
+		assertTrue(tf.runTest("([1, list[int] L, 10, list[int] M, 20] := [1,10,20]) && (L == []) && (M == []);"));
+		assertTrue(tf.runTest("([1, list[int] L, 10, list[int] M, 20] := [1,2,10,20]) && (L == [2]) && (M == []);"));
+		assertTrue(tf.runTest("([1, list[int] L, 10, list[int] M, 20] := [1,2,10,3,20]) && (L == [2]) && (M==[3]);"));
+		assertTrue(tf.runTest("([1, list[int] L, 10, list[int] M, 20] := [1,2,3,10,4,5,20]) && (L == [2,3]) && (M==[4,5]);"));
+		
+		//assertTrue(tf.runTest("([1, list[int] L, [10, list[int] M, 100], list[int] N, 1000] := [1, [10,100],1000]);"));
 	}
 	
 	public void testMatchList2() throws IOException {

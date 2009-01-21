@@ -58,7 +58,7 @@ public bool isDuo2(list[int] L)
 
 public bool isDuo3(list[int] L)
 {
-    return [list[int] L1, L1] ~= L;
+    return [list[int] L1, L1] := L;
 }
 
 public bool isTrio1(list[int] L)
@@ -87,12 +87,12 @@ public bool isTrio2(list[int] L)
 
 public bool isTrio3(list[int] L)
 {
-    return [list[int] L1, L1, L1] ~= L;
+    return [list[int] L1, L1, L1] := L;
 }
 
 public bool isNestedDuo(list[int] L)
 {
-    return [[list[int] L1, L1], [L1, L1]] ~= L;
+    return [[list[int] L1, L1], [L1, L1]] := L;
 }
 
 /*

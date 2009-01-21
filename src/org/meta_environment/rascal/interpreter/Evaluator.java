@@ -623,8 +623,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	}
 	
 	@Override
-	public EvalResult visitDeclarationType(
-			org.meta_environment.rascal.ast.Declaration.Type x) {
+	public EvalResult visitDeclarationAlias(
+			org.meta_environment.rascal.ast.Declaration.Alias x) {
 		// TODO add support for parameterized types
 		String user = x.getUser().getName().toString();
 		Type base = x.getBase().accept(te);

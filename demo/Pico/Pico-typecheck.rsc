@@ -3,7 +3,7 @@ module Typecheck
 import Pico-syntax;
 import Errors;
 
-type map[PICO-ID,TYPE] Env;
+alias map[PICO-ID,TYPE] Env;
 
 list[Error] tcp(PROGRAM P) {
     switch (P) {

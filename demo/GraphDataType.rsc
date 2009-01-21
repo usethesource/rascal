@@ -2,9 +2,9 @@ module GraphDataType
 
 data Point point(int x, int y);
 
-type list[Point]  Polygon;
+alias list[Point]  Polygon;
 
-type str File;
+alias str File;
 
 data Color rgb(int red, int green, int blue);
 
@@ -32,22 +32,22 @@ data Attribute level(str level);
 data Attribute \file(File \file);
 data Attribute \file(value \file);
 
-type list[Attribute] AttributeList;
+alias list[Attribute] AttributeList;
 
-data NodeId id(tree id);
+data NodeId id(node id);
 
 data Edge edge(NodeId from, 
                NodeId to, 
                AttributeList attributes);
                
-type list[Edge] EdgeList;
+alias list[Edge] EdgeList;
 
-type list[Point] Polygon;
+alias list[Point] Polygon;
 
-data Node node(NodeId id,  
+data Node \node(NodeId id,  
                AttributeList attributes);
                
-type list[Node] NodeList;
+alias list[Node] NodeList;
 
 data Graph graph(NodeList nodes, 
                  EdgeList edges, 

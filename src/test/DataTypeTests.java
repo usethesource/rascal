@@ -589,7 +589,7 @@ public class DataTypeTests extends TestCase{
 		assertTrue(tf.runTestInSameEvaluator("f(val(1)) == f(val(1));"));
 	}
 	
-	public void testTree() throws IOException {
+	public void testNode() throws IOException {
 		tf = new TestFramework("data NODE int V | string(str x)  | s(set[NODE] s) | l(list[NODE]) | m(map[NODE,NODE] m) | f | f(NODE a) | f(NODE a, NODE b) | g | g(NODE a) | g(NODE a,NODE b);");
 		
 		assertTrue(tf.runTestInSameEvaluator("f() == f();"));
