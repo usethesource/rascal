@@ -67,7 +67,7 @@ public class SubscriptTests extends TestCase {
 		assertTrue(tf.runTest("{<1,10,10.5>, <2,20,20.5>, <3,20,30.5>, <2,10,100.5>}[{1},{10,20}] == {10.5};"));
 	}
 	
-	public void testTree() throws IOException{
+	public void testNode() throws IOException{
 		
 		tf = new TestFramework("data NODE f(int a, str b, real c);");
 		

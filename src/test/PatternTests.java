@@ -66,7 +66,7 @@ public class PatternTests extends TestCase {
 		assertTrue(tf.runTest("<1, \"abc\">  !:= <1, \"def\">;"));
 	}
 	
-	public void testMatchTree() throws IOException {
+	public void testMatchNode() throws IOException {
 		
 		tf = new TestFramework("data F f(int N) | f(int N, int M) | f(int N, value f, bool B) | g(str S);");
 		
