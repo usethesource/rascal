@@ -58,7 +58,7 @@ public class DataDeclarationTests extends TestCase{
 	public void testLet4() throws IOException {
 		tf = new TestFramework();
 		tf.prepare("alias str Var4;");
-		tf.prepareMore("type int intCon4;");
+		tf.prepareMore("alias int intCon4;");
 		tf.prepareMore("data Exp4 let(Var4 var, Exp4 exp1, Exp4 exp2) | var(Var4 var) | intCon4 intVal;");
 		
 		assertTrue(tf.runTestInSameEvaluator("{Exp4 e = 1; e == 1;}"));
