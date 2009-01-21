@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class FunctionAsValue extends AbstractAST { 
 public org.meta_environment.rascal.ast.Name getName() { throw new UnsupportedOperationException(); }
 public boolean hasName() { return false; }
@@ -7,8 +7,8 @@ public boolean isDefault() { return false; }
 static public class Default extends FunctionAsValue {
 /* "#" name:Name -> FunctionAsValue {cons("Default")} */
 	private Default() { }
-	/*package*/ Default(ITree tree, org.meta_environment.rascal.ast.Name name) {
-		this.tree = tree;
+	/*package*/ Default(INode node, org.meta_environment.rascal.ast.Name name) {
+		this.node = node;
 		this.name = name;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -30,9 +30,9 @@ private org.meta_environment.rascal.ast.Name name;
 }
 static public class Ambiguity extends FunctionAsValue {
   private final java.util.List<org.meta_environment.rascal.ast.FunctionAsValue> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.FunctionAsValue> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.FunctionAsValue> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.FunctionAsValue> getAlternatives() {
 	return alternatives;

@@ -1,12 +1,12 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class TypeVar extends AbstractAST { 
   public org.meta_environment.rascal.ast.Name getName() { throw new UnsupportedOperationException(); } public boolean hasName() { return false; } public boolean isFree() { return false; }
 static public class Free extends TypeVar {
 /* "&" name:Name -> TypeVar {cons("Free")} */
 	private Free() { }
-	/*package*/ Free(ITree tree, org.meta_environment.rascal.ast.Name name) {
-		this.tree = tree;
+	/*package*/ Free(INode node, org.meta_environment.rascal.ast.Name name) {
+		this.node = node;
 		this.name = name;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -28,9 +28,9 @@ private org.meta_environment.rascal.ast.Name name;
 }
 static public class Ambiguity extends TypeVar {
   private final java.util.List<org.meta_environment.rascal.ast.TypeVar> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.TypeVar> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.TypeVar> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.TypeVar> getAlternatives() {
 	return alternatives;
@@ -44,8 +44,8 @@ public boolean isBounded() { return false; }
 static public class Bounded extends TypeVar {
 /* "&" name:Name "<:" bound:Type -> TypeVar {cons("Bounded")} */
 	private Bounded() { }
-	/*package*/ Bounded(ITree tree, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.Type bound) {
-		this.tree = tree;
+	/*package*/ Bounded(INode node, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.Type bound) {
+		this.node = node;
 		this.name = name;
 		this.bound = bound;
 	}

@@ -1,12 +1,12 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class LocalVariableDeclaration extends AbstractAST { 
   public org.meta_environment.rascal.ast.Declarator getDeclarator() { throw new UnsupportedOperationException(); } public boolean hasDeclarator() { return false; } public boolean isDefault() { return false; }
 static public class Default extends LocalVariableDeclaration {
 /* declarator:Declarator -> LocalVariableDeclaration {cons("Default")} */
 	private Default() { }
-	/*package*/ Default(ITree tree, org.meta_environment.rascal.ast.Declarator declarator) {
-		this.tree = tree;
+	/*package*/ Default(INode node, org.meta_environment.rascal.ast.Declarator declarator) {
+		this.node = node;
 		this.declarator = declarator;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -28,9 +28,9 @@ private org.meta_environment.rascal.ast.Declarator declarator;
 }
 static public class Ambiguity extends LocalVariableDeclaration {
   private final java.util.List<org.meta_environment.rascal.ast.LocalVariableDeclaration> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.LocalVariableDeclaration> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.LocalVariableDeclaration> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.LocalVariableDeclaration> getAlternatives() {
 	return alternatives;
@@ -43,8 +43,8 @@ static public class Ambiguity extends LocalVariableDeclaration {
 static public class Dynamic extends LocalVariableDeclaration {
 /* "dynamic" declarator:Declarator -> LocalVariableDeclaration {cons("Dynamic")} */
 	private Dynamic() { }
-	/*package*/ Dynamic(ITree tree, org.meta_environment.rascal.ast.Declarator declarator) {
-		this.tree = tree;
+	/*package*/ Dynamic(INode node, org.meta_environment.rascal.ast.Declarator declarator) {
+		this.node = node;
 		this.declarator = declarator;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {

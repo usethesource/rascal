@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Declarator extends AbstractAST { 
 public org.meta_environment.rascal.ast.Type getType() { throw new UnsupportedOperationException(); }
 	public java.util.List<org.meta_environment.rascal.ast.Variable> getVariables() { throw new UnsupportedOperationException(); }
@@ -9,8 +9,8 @@ public boolean isDefault() { return false; }
 static public class Default extends Declarator {
 /* type:Type variables:{Variable ","}+ -> Declarator {cons("Default")} */
 	private Default() { }
-	/*package*/ Default(ITree tree, org.meta_environment.rascal.ast.Type type, java.util.List<org.meta_environment.rascal.ast.Variable> variables) {
-		this.tree = tree;
+	/*package*/ Default(INode node, org.meta_environment.rascal.ast.Type type, java.util.List<org.meta_environment.rascal.ast.Variable> variables) {
+		this.node = node;
 		this.type = type;
 		this.variables = variables;
 	}
@@ -42,9 +42,9 @@ private org.meta_environment.rascal.ast.Type type;
 }
 static public class Ambiguity extends Declarator {
   private final java.util.List<org.meta_environment.rascal.ast.Declarator> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Declarator> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Declarator> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.Declarator> getAlternatives() {
 	return alternatives;

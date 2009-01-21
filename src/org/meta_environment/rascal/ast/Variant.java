@@ -1,12 +1,12 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Variant extends AbstractAST { 
   public org.meta_environment.rascal.ast.Type getType() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Name getName() { throw new UnsupportedOperationException(); } public boolean hasType() { return false; } public boolean hasName() { return false; } public boolean isAnonymousConstructor() { return false; }
 static public class AnonymousConstructor extends Variant {
 /* type:Type name:Name -> Variant {cons("AnonymousConstructor")} */
 	private AnonymousConstructor() { }
-	/*package*/ AnonymousConstructor(ITree tree, org.meta_environment.rascal.ast.Type type, org.meta_environment.rascal.ast.Name name) {
-		this.tree = tree;
+	/*package*/ AnonymousConstructor(INode node, org.meta_environment.rascal.ast.Type type, org.meta_environment.rascal.ast.Name name) {
+		this.node = node;
 		this.type = type;
 		this.name = name;
 	}
@@ -38,9 +38,9 @@ private org.meta_environment.rascal.ast.Type type;
 }
 static public class Ambiguity extends Variant {
   private final java.util.List<org.meta_environment.rascal.ast.Variant> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Variant> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Variant> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.Variant> getAlternatives() {
 	return alternatives;
@@ -54,8 +54,8 @@ public boolean isNAryConstructor() { return false; }
 static public class NAryConstructor extends Variant {
 /* name:Name "(" arguments:{TypeArg ","}* ")" -> Variant {cons("NAryConstructor")} */
 	private NAryConstructor() { }
-	/*package*/ NAryConstructor(ITree tree, org.meta_environment.rascal.ast.Name name, java.util.List<org.meta_environment.rascal.ast.TypeArg> arguments) {
-		this.tree = tree;
+	/*package*/ NAryConstructor(INode node, org.meta_environment.rascal.ast.Name name, java.util.List<org.meta_environment.rascal.ast.TypeArg> arguments) {
+		this.node = node;
 		this.name = name;
 		this.arguments = arguments;
 	}
@@ -88,8 +88,8 @@ private org.meta_environment.rascal.ast.Name name;
 static public class NillaryConstructor extends Variant {
 /* name:Name -> Variant {cons("NillaryConstructor")} */
 	private NillaryConstructor() { }
-	/*package*/ NillaryConstructor(ITree tree, org.meta_environment.rascal.ast.Name name) {
-		this.tree = tree;
+	/*package*/ NillaryConstructor(INode node, org.meta_environment.rascal.ast.Name name) {
+		this.node = node;
 		this.name = name;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {

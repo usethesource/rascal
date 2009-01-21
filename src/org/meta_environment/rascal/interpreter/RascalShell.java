@@ -7,7 +7,7 @@ import java.io.PrintWriter;
 import jline.ConsoleReader;
 
 import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
@@ -96,7 +96,7 @@ public class RascalShell {
 
 	private int callMainFunction(String module, String[] args) throws IOException {
 		String callMainStatement = module + "::main(" + mainArguments(args) + ");";
-		INode tree = parser.parse(new ByteArrayInputStream(callMainStatement.getBytes()));
+		IConstructor tree = parser.parse(new ByteArrayInputStream(callMainStatement.getBytes()));
 		Command callStat = builder.buildCommand(tree);
 		IValue result = callStat.accept(new CommandEvaluator(evaluator));
 		
@@ -121,7 +121,7 @@ public class RascalShell {
 
 	private void loadModule(String module) throws IOException {
 		String importCommand = "import " + module + ";";
-		INode tree = parser.parse(new ByteArrayInputStream(importCommand.getBytes()));
+		IConstructor tree = parser.parse(new ByteArrayInputStream(importCommand.getBytes()));
 		Command importDecl = builder.buildCommand(tree);
 		importDecl.accept(new CommandEvaluator(evaluator));
 	}
@@ -140,7 +140,7 @@ public class RascalShell {
 
 	private String handleInput(final CommandEvaluator command, StringBuffer statement) throws IOException {
 		StringBuilder result = new StringBuilder();
-		INode tree = parser.parse(new ByteArrayInputStream(statement.toString().getBytes()));
+		IConstructor tree = parser.parse(new ByteArrayInputStream(statement.toString().getBytes()));
 
 		if (tree.getType() == Factory.ParseTree_Summary) {
 			result.append(tree + "\n");

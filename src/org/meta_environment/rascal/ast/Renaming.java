@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Renaming extends AbstractAST { 
 public org.meta_environment.rascal.ast.Name getFrom() { throw new UnsupportedOperationException(); }
 	public org.meta_environment.rascal.ast.Name getTo() { throw new UnsupportedOperationException(); }
@@ -9,8 +9,8 @@ public boolean isDefault() { return false; }
 static public class Default extends Renaming {
 /* from:Name "=>" to:Name -> Renaming {cons("Default")} */
 	private Default() { }
-	/*package*/ Default(ITree tree, org.meta_environment.rascal.ast.Name from, org.meta_environment.rascal.ast.Name to) {
-		this.tree = tree;
+	/*package*/ Default(INode node, org.meta_environment.rascal.ast.Name from, org.meta_environment.rascal.ast.Name to) {
+		this.node = node;
 		this.from = from;
 		this.to = to;
 	}
@@ -42,9 +42,9 @@ private org.meta_environment.rascal.ast.Name from;
 }
 static public class Ambiguity extends Renaming {
   private final java.util.List<org.meta_environment.rascal.ast.Renaming> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Renaming> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Renaming> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.Renaming> getAlternatives() {
 	return alternatives;

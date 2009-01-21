@@ -1,12 +1,12 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Label extends AbstractAST { 
   public boolean isEmpty() { return false; }
 static public class Empty extends Label {
 /*  -> Label {cons("Empty")} */
 	private Empty() { }
-	/*package*/ Empty(ITree tree) {
-		this.tree = tree;
+	/*package*/ Empty(INode node) {
+		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitLabelEmpty(this);
@@ -16,9 +16,9 @@ static public class Empty extends Label {
 }
 static public class Ambiguity extends Label {
   private final java.util.List<org.meta_environment.rascal.ast.Label> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Label> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Label> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.Label> getAlternatives() {
 	return alternatives;
@@ -34,8 +34,8 @@ public boolean isDefault() { return false; }
 static public class Default extends Label {
 /* name:Name ":" -> Label {cons("Default")} */
 	private Default() { }
-	/*package*/ Default(ITree tree, org.meta_environment.rascal.ast.Name name) {
-		this.tree = tree;
+	/*package*/ Default(INode node, org.meta_environment.rascal.ast.Name name) {
+		this.node = node;
 		this.name = name;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {

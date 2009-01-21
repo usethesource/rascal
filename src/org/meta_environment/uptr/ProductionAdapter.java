@@ -2,16 +2,16 @@ package org.meta_environment.uptr;
 
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 
 public class ProductionAdapter {
-	private INode tree;
+	private IConstructor tree;
 
-	public ProductionAdapter(INode tree) {
-		if (tree.getType().getSuperType() != Factory.Production) {
+	public ProductionAdapter(IConstructor tree) {
+		if (tree.getType().getAbstractDataType() != Factory.Production) {
 			throw new FactTypeError("ProductionWrapper only wraps UPTR productions, not " + tree.getType());
 		}
 		this.tree = tree;
@@ -19,10 +19,10 @@ public class ProductionAdapter {
 	
 	public String getConstructorName() {
 		for (IValue attr : getAttributes()) {
-			if (attr.getType().isTreeNodeType() && ((INode) attr).getType() == Factory.Attr_Term) {
-				IValue value = ((INode)attr).get("value");
-				if (value.getType().isTreeNodeType() && ((INode) value).getType() == Factory.Constructor_Name) {
-					return ((IString) ((INode) value).get("name")).getValue();
+			if (attr.getType().isConstructorType() && ((IConstructor) attr).getType() == Factory.Attr_Term) {
+				IValue value = ((IConstructor)attr).get("value");
+				if (value.getType().isConstructorType() && ((IConstructor) value).getType() == Factory.Constructor_Name) {
+					return ((IString) ((IConstructor) value).get("name")).getValue();
 				}
 			}
 		}
@@ -30,7 +30,7 @@ public class ProductionAdapter {
 	}
 	
 	public SymbolAdapter getRhs() {
-		return new SymbolAdapter((INode) tree.get("rhs"));
+		return new SymbolAdapter((IConstructor) tree.get("rhs"));
 	}
 	
 	public IList getLhs() {
@@ -57,7 +57,7 @@ public class ProductionAdapter {
 	}
 	
 	public IList getAttributes() {
-		INode attributes = (INode) tree.get("attributes");
+		IConstructor attributes = (IConstructor) tree.get("attributes");
 		
 		if (attributes.getType() == Factory.Attributes_Attrs) {
 			return (IList) attributes.get("attrs");
@@ -99,7 +99,7 @@ public class ProductionAdapter {
 		if (lhs.length() != 1) {
 			return false;
 		}
-		SymbolAdapter lhsSym = new SymbolAdapter((INode)lhs.get(0));
+		SymbolAdapter lhsSym = new SymbolAdapter((IConstructor)lhs.get(0));
 		if (!lhsSym.isLex()) {
 			return false;
 		}

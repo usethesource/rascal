@@ -1,13 +1,13 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class FunctionDeclaration extends AbstractAST { 
   public org.meta_environment.rascal.ast.Signature getSignature() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Tags getTags() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.FunctionBody getBody() { throw new UnsupportedOperationException(); } public boolean hasSignature() { return false; } public boolean hasTags() { return false; } public boolean hasBody() { return false; }
 public boolean isDefault() { return false; }
 static public class Default extends FunctionDeclaration {
 /* signature:Signature tags:Tags body:FunctionBody -> FunctionDeclaration {cons("Default")} */
 	private Default() { }
-	/*package*/ Default(ITree tree, org.meta_environment.rascal.ast.Signature signature, org.meta_environment.rascal.ast.Tags tags, org.meta_environment.rascal.ast.FunctionBody body) {
-		this.tree = tree;
+	/*package*/ Default(INode node, org.meta_environment.rascal.ast.Signature signature, org.meta_environment.rascal.ast.Tags tags, org.meta_environment.rascal.ast.FunctionBody body) {
+		this.node = node;
 		this.signature = signature;
 		this.tags = tags;
 		this.body = body;
@@ -49,9 +49,9 @@ private org.meta_environment.rascal.ast.Signature signature;
 }
 static public class Ambiguity extends FunctionDeclaration {
   private final java.util.List<org.meta_environment.rascal.ast.FunctionDeclaration> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.FunctionDeclaration> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.FunctionDeclaration> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.FunctionDeclaration> getAlternatives() {
 	return alternatives;
@@ -64,8 +64,8 @@ static public class Ambiguity extends FunctionDeclaration {
 static public class Abstract extends FunctionDeclaration {
 /* signature:Signature tags:Tags ";" -> FunctionDeclaration {cons("Abstract")} */
 	private Abstract() { }
-	/*package*/ Abstract(ITree tree, org.meta_environment.rascal.ast.Signature signature, org.meta_environment.rascal.ast.Tags tags) {
-		this.tree = tree;
+	/*package*/ Abstract(INode node, org.meta_environment.rascal.ast.Signature signature, org.meta_environment.rascal.ast.Tags tags) {
+		this.node = node;
 		this.signature = signature;
 		this.tags = tags;
 	}

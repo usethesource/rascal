@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Case extends AbstractAST { 
   public org.meta_environment.rascal.ast.Rule getRule() { throw new UnsupportedOperationException(); }
 public boolean hasRule() { return false; }
@@ -7,8 +7,8 @@ public boolean isRule() { return false; }
 static public class Rule extends Case {
 /* "case" rule:Rule -> Case {cons("Rule")} */
 	private Rule() { }
-	/*package*/ Rule(ITree tree, org.meta_environment.rascal.ast.Rule rule) {
-		this.tree = tree;
+	/*package*/ Rule(INode node, org.meta_environment.rascal.ast.Rule rule) {
+		this.node = node;
 		this.rule = rule;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -30,9 +30,9 @@ private org.meta_environment.rascal.ast.Rule rule;
 }
 static public class Ambiguity extends Case {
   private final java.util.List<org.meta_environment.rascal.ast.Case> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Case> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Case> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.Case> getAlternatives() {
 	return alternatives;
@@ -48,8 +48,8 @@ public boolean isDefault() { return false; }
 static public class Default extends Case {
 /* "default" ":" statement:Statement -> Case {cons("Default")} */
 	private Default() { }
-	/*package*/ Default(ITree tree, org.meta_environment.rascal.ast.Statement statement) {
-		this.tree = tree;
+	/*package*/ Default(INode node, org.meta_environment.rascal.ast.Statement statement) {
+		this.node = node;
 		this.statement = statement;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {

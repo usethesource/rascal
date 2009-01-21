@@ -1,13 +1,13 @@
 package org.meta_environment.rascal.ast;
 
-import org.eclipse.imp.pdb.facts.ITree;
+import org.eclipse.imp.pdb.facts.INode;
 import org.meta_environment.rascal.interpreter.RascalBug;
 
 public class JavaFunctionBody extends FunctionBody {
 	private final String string;
 
-	public JavaFunctionBody(ITree tree, String string) {
-		this.tree = tree;
+	public JavaFunctionBody(INode node, String string) {
+		this.node = node;
 		this.string = string;
 	}
 

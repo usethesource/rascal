@@ -1,12 +1,12 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class FunctionModifier extends AbstractAST { 
 public boolean isJava() { return false; }
 static public class Java extends FunctionModifier {
 /* "java" -> FunctionModifier {cons("Java")} */
 	private Java() { }
-	/*package*/ Java(ITree tree) {
-		this.tree = tree;
+	/*package*/ Java(INode node) {
+		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitFunctionModifierJava(this);
@@ -16,9 +16,9 @@ static public class Java extends FunctionModifier {
 }
 static public class Ambiguity extends FunctionModifier {
   private final java.util.List<org.meta_environment.rascal.ast.FunctionModifier> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.FunctionModifier> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.FunctionModifier> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.FunctionModifier> getAlternatives() {
 	return alternatives;

@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.ITree;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.Value;
@@ -130,10 +130,10 @@ interface MatchPattern {
 	public void initMatch(IValue subject, Evaluator ev){
 		super.initMatch(subject, ev);
 		
-		if(!subject.getType().isTreeType()){
+		if(!subject.getType().isNodeType()){
 			return;
 		}
-		ITree treeSubject = (ITree) subject;
+		INode treeSubject = (INode) subject;
 		if(treeSubject.arity() != children.size()){
 			return;
 		}
@@ -154,7 +154,7 @@ interface MatchPattern {
 		 Type signature = ev.tf.tupleType(types);
 		 
 		 if (ev.isTreeConstructorName(name, signature)) {
-			 return ev.env.getTreeNodeType(name.toString(), signature);
+			 return ev.env.getConstructor(name.toString(), signature);
 		 } else {
 			 return ev.tf.treeType();
 		 }
@@ -166,11 +166,11 @@ interface MatchPattern {
 		//System.err.println("TreePatternTree.match(" + name + ") subj = " + subj + "subj Type = " + subj.getType());
 		Type stype = subject.getType();
 		
-		if (!stype.isTreeType()){
+		if (!stype.isNodeType()){
 			return false;
 		}
 
-		ITree subjTree = (ITree) subject;
+		INode subjTree = (INode) subject;
 		
 		if (name.toString().equals(subjTree.getName().toString()) && 
 			children.size() == subjTree.arity()){

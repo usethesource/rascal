@@ -1,10 +1,10 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Backslash extends AbstractAST { 
 static public class Lexical extends Backslash {
 	private String string;
-	/*package*/ Lexical(ITree tree, String string) {
-		this.tree = tree;
+	/*package*/ Lexical(INode node, String string) {
+		this.node = node;
 		this.string = string;
 	}
 	public String getString() {
@@ -17,9 +17,9 @@ static public class Lexical extends Backslash {
 }
 static public class Ambiguity extends Backslash {
   private final java.util.List<org.meta_environment.rascal.ast.Backslash> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Backslash> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Backslash> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.Backslash> getAlternatives() {
 	return alternatives;

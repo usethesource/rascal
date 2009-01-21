@@ -3,7 +3,7 @@ package org.meta_environment.rascal.interpreter;
 import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.imp.pdb.facts.ITree;
+import org.eclipse.imp.pdb.facts.INode;
 import org.meta_environment.rascal.ast.IASTVisitor;
 import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.QualifiedName;
@@ -79,8 +79,8 @@ public class Names {
 		}
 		
 		@Override
-		public ITree getTree() {
-			throw new RascalBug("Invented name does not have a tree");
+		public INode getTree() {
+			throw new RascalBug("Invented name does not have a node");
 		}
 	}
 }

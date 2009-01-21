@@ -1,10 +1,10 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Name extends AbstractAST { 
 static public class Lexical extends Name {
 	private String string;
-	/*package*/ Lexical(ITree tree, String string) {
-		this.tree = tree;
+	/*package*/ Lexical(INode node, String string) {
+		this.node = node;
 		this.string = string;
 	}
 	public String getString() {
@@ -17,9 +17,9 @@ static public class Lexical extends Name {
 }
 static public class Ambiguity extends Name {
   private final java.util.List<org.meta_environment.rascal.ast.Name> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Name> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Name> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.Name> getAlternatives() {
 	return alternatives;

@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Fail extends AbstractAST { 
   public org.meta_environment.rascal.ast.Name getLabel() { throw new UnsupportedOperationException(); }
 public boolean hasLabel() { return false; }
@@ -7,8 +7,8 @@ public boolean isWithLabel() { return false; }
 static public class WithLabel extends Fail {
 /* "fail" label:Name ";" -> Fail {cons("WithLabel")} */
 	private WithLabel() { }
-	/*package*/ WithLabel(ITree tree, org.meta_environment.rascal.ast.Name label) {
-		this.tree = tree;
+	/*package*/ WithLabel(INode node, org.meta_environment.rascal.ast.Name label) {
+		this.node = node;
 		this.label = label;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -30,9 +30,9 @@ private org.meta_environment.rascal.ast.Name label;
 }
 static public class Ambiguity extends Fail {
   private final java.util.List<org.meta_environment.rascal.ast.Fail> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Fail> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Fail> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.Fail> getAlternatives() {
 	return alternatives;
@@ -46,8 +46,8 @@ public boolean isNoLabel() { return false; }
 static public class NoLabel extends Fail {
 /* "fail" ";" -> Fail {cons("NoLabel")} */
 	private NoLabel() { }
-	/*package*/ NoLabel(ITree tree) {
-		this.tree = tree;
+	/*package*/ NoLabel(INode node) {
+		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitFailNoLabel(this);

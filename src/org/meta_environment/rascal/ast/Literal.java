@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Literal extends AbstractAST { 
   public org.meta_environment.rascal.ast.RegExpLiteral getRegExpLiteral() { throw new UnsupportedOperationException(); }
 public boolean hasRegExpLiteral() { return false; }
@@ -7,8 +7,8 @@ public boolean isRegExp() { return false; }
 static public class RegExp extends Literal {
 /* regExpLiteral:RegExpLiteral -> Literal {cons("RegExp")} */
 	private RegExp() { }
-	/*package*/ RegExp(ITree tree, org.meta_environment.rascal.ast.RegExpLiteral regExpLiteral) {
-		this.tree = tree;
+	/*package*/ RegExp(INode node, org.meta_environment.rascal.ast.RegExpLiteral regExpLiteral) {
+		this.node = node;
 		this.regExpLiteral = regExpLiteral;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -30,9 +30,9 @@ private org.meta_environment.rascal.ast.RegExpLiteral regExpLiteral;
 }
 static public class Ambiguity extends Literal {
   private final java.util.List<org.meta_environment.rascal.ast.Literal> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Literal> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Literal> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.Literal> getAlternatives() {
 	return alternatives;
@@ -48,8 +48,8 @@ public boolean isBoolean() { return false; }
 static public class Boolean extends Literal {
 /* booleanLiteral:BooleanLiteral -> Literal {cons("Boolean")} */
 	private Boolean() { }
-	/*package*/ Boolean(ITree tree, org.meta_environment.rascal.ast.BooleanLiteral booleanLiteral) {
-		this.tree = tree;
+	/*package*/ Boolean(INode node, org.meta_environment.rascal.ast.BooleanLiteral booleanLiteral) {
+		this.node = node;
 		this.booleanLiteral = booleanLiteral;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -74,8 +74,8 @@ public boolean isInteger() { return false; }
 static public class Integer extends Literal {
 /* integerLiteral:IntegerLiteral -> Literal {cons("Integer")} */
 	private Integer() { }
-	/*package*/ Integer(ITree tree, org.meta_environment.rascal.ast.IntegerLiteral integerLiteral) {
-		this.tree = tree;
+	/*package*/ Integer(INode node, org.meta_environment.rascal.ast.IntegerLiteral integerLiteral) {
+		this.node = node;
 		this.integerLiteral = integerLiteral;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -101,8 +101,8 @@ public boolean isReal() { return false; }
 static public class Real extends Literal {
 /* realLiteral:RealLiteral -> Literal {cons("Real")} */
 	private Real() { }
-	/*package*/ Real(ITree tree, org.meta_environment.rascal.ast.RealLiteral realLiteral) {
-		this.tree = tree;
+	/*package*/ Real(INode node, org.meta_environment.rascal.ast.RealLiteral realLiteral) {
+		this.node = node;
 		this.realLiteral = realLiteral;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -128,8 +128,8 @@ public boolean isString() { return false; }
 static public class String extends Literal {
 /* stringLiteral:StringLiteral -> Literal {cons("String")} */
 	private String() { }
-	/*package*/ String(ITree tree, org.meta_environment.rascal.ast.StringLiteral stringLiteral) {
-		this.tree = tree;
+	/*package*/ String(INode node, org.meta_environment.rascal.ast.StringLiteral stringLiteral) {
+		this.node = node;
 		this.stringLiteral = stringLiteral;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {

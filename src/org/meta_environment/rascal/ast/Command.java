@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Command extends AbstractAST { 
   public org.meta_environment.rascal.ast.ShellCommand getCommand() { throw new UnsupportedOperationException(); }
 public boolean hasCommand() { return false; }
@@ -7,8 +7,8 @@ public boolean isShell() { return false; }
 static public class Shell extends Command {
 /* ":" command:ShellCommand -> Command {cons("Shell")} */
 	private Shell() { }
-	/*package*/ Shell(ITree tree, org.meta_environment.rascal.ast.ShellCommand command) {
-		this.tree = tree;
+	/*package*/ Shell(INode node, org.meta_environment.rascal.ast.ShellCommand command) {
+		this.node = node;
 		this.command = command;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -30,9 +30,9 @@ private org.meta_environment.rascal.ast.ShellCommand command;
 }
 static public class Ambiguity extends Command {
   private final java.util.List<org.meta_environment.rascal.ast.Command> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Command> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Command> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.Command> getAlternatives() {
 	return alternatives;
@@ -48,8 +48,8 @@ public boolean isStatement() { return false; }
 static public class Statement extends Command {
 /* statement:Statement -> Command {cons("Statement")} */
 	private Statement() { }
-	/*package*/ Statement(ITree tree, org.meta_environment.rascal.ast.Statement statement) {
-		this.tree = tree;
+	/*package*/ Statement(INode node, org.meta_environment.rascal.ast.Statement statement) {
+		this.node = node;
 		this.statement = statement;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -74,8 +74,8 @@ public boolean isDeclaration() { return false; }
 static public class Declaration extends Command {
 /* declaration:Declaration -> Command {avoid, cons("Declaration")} */
 	private Declaration() { }
-	/*package*/ Declaration(ITree tree, org.meta_environment.rascal.ast.Declaration declaration) {
-		this.tree = tree;
+	/*package*/ Declaration(INode node, org.meta_environment.rascal.ast.Declaration declaration) {
+		this.node = node;
 		this.declaration = declaration;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -101,8 +101,8 @@ public boolean isImport() { return false; }
 static public class Import extends Command {
 /* imported:Import -> Command {cons("Import")} */
 	private Import() { }
-	/*package*/ Import(ITree tree, org.meta_environment.rascal.ast.Import imported) {
-		this.tree = tree;
+	/*package*/ Import(INode node, org.meta_environment.rascal.ast.Import imported) {
+		this.node = node;
 		this.imported = imported;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {

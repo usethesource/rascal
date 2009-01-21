@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Field extends AbstractAST { 
   public org.meta_environment.rascal.ast.Name getFieldName() { throw new UnsupportedOperationException(); }
 public boolean hasFieldName() { return false; }
@@ -7,8 +7,8 @@ public boolean isName() { return false; }
 static public class Name extends Field {
 /* fieldName:Name -> Field {cons("Name")} */
 	private Name() { }
-	/*package*/ Name(ITree tree, org.meta_environment.rascal.ast.Name fieldName) {
-		this.tree = tree;
+	/*package*/ Name(INode node, org.meta_environment.rascal.ast.Name fieldName) {
+		this.node = node;
 		this.fieldName = fieldName;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -30,9 +30,9 @@ private org.meta_environment.rascal.ast.Name fieldName;
 }
 static public class Ambiguity extends Field {
   private final java.util.List<org.meta_environment.rascal.ast.Field> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Field> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Field> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.Field> getAlternatives() {
 	return alternatives;
@@ -48,8 +48,8 @@ public boolean isIndex() { return false; }
 static public class Index extends Field {
 /* fieldIndex:IntegerLiteral -> Field {cons("Index")} */
 	private Index() { }
-	/*package*/ Index(ITree tree, org.meta_environment.rascal.ast.IntegerLiteral fieldIndex) {
-		this.tree = tree;
+	/*package*/ Index(INode node, org.meta_environment.rascal.ast.IntegerLiteral fieldIndex) {
+		this.node = node;
 		this.fieldIndex = fieldIndex;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {

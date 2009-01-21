@@ -1,12 +1,12 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class ShellCommand extends AbstractAST { 
   public boolean isHelp() { return false; }
 static public class Help extends ShellCommand {
 /* "help" -> ShellCommand {cons("Help")} */
 	private Help() { }
-	/*package*/ Help(ITree tree) {
-		this.tree = tree;
+	/*package*/ Help(INode node) {
+		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitShellCommandHelp(this);
@@ -16,9 +16,9 @@ static public class Help extends ShellCommand {
 }
 static public class Ambiguity extends ShellCommand {
   private final java.util.List<org.meta_environment.rascal.ast.ShellCommand> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.ShellCommand> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.ShellCommand> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.ShellCommand> getAlternatives() {
 	return alternatives;
@@ -32,8 +32,8 @@ public boolean isQuit() { return false; }
 static public class Quit extends ShellCommand {
 /* "quit" -> ShellCommand {cons("Quit")} */
 	private Quit() { }
-	/*package*/ Quit(ITree tree) {
-		this.tree = tree;
+	/*package*/ Quit(INode node) {
+		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitShellCommandQuit(this);
@@ -46,8 +46,8 @@ public boolean isEdit() { return false; }
 static public class Edit extends ShellCommand {
 /* "edit" name:Name -> ShellCommand {cons("Edit")} */
 	private Edit() { }
-	/*package*/ Edit(ITree tree, org.meta_environment.rascal.ast.Name name) {
-		this.tree = tree;
+	/*package*/ Edit(INode node, org.meta_environment.rascal.ast.Name name) {
+		this.node = node;
 		this.name = name;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -71,8 +71,8 @@ public boolean isHistory() { return false; }
 static public class History extends ShellCommand {
 /* "history" -> ShellCommand {cons("History")} */
 	private History() { }
-	/*package*/ History(ITree tree) {
-		this.tree = tree;
+	/*package*/ History(INode node) {
+		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitShellCommandHistory(this);

@@ -9,7 +9,7 @@ public class StandardLibraryTreeTests extends TestCase {
 
 	public void testTreeArity() throws IOException {
 		
-		tf = new TestFramework("import Tree;").
+		tf = new TestFramework("import Node;").
 		prepareMore("data NODE f | f(int) | f(int,int) | f(int,int,int);");
 		
 		assertTrue(tf.runTestInSameEvaluator("arity(f()) == 0;"));
@@ -19,7 +19,7 @@ public class StandardLibraryTreeTests extends TestCase {
 	
 	public void testTreeGetChildren() throws IOException {
 		
-		tf = new TestFramework("import Tree;").
+		tf = new TestFramework("import Node;").
 		prepareMore("data NODE f | f(int) | f(int,int) | f(int,int,int);");
 		
 		assertTrue(tf.runTestInSameEvaluator("getChildren(f()) == [];"));
@@ -29,7 +29,7 @@ public class StandardLibraryTreeTests extends TestCase {
 	
 	public void testTreeGetName() throws IOException {
 		
-		tf = new TestFramework("import Tree;").
+		tf = new TestFramework("import Node;").
 		prepareMore("data NODE f | f(int) | f(int,int) | f(int,int,int);");
 		
 		assertTrue(tf.runTestInSameEvaluator("getName(f()) == \"f\";"));
@@ -38,7 +38,7 @@ public class StandardLibraryTreeTests extends TestCase {
 	
 	public void testTreeMakeTree() throws IOException {
 		
-		tf = new TestFramework("import Tree;").
+		tf = new TestFramework("import Node;").
 		prepareMore("data NODE f | f(int) | f(int,int) | f(int,int,int);");
 		
 		assertTrue(tf.runTestInSameEvaluator("makeTree(\"f\") == f;"));

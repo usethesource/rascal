@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Declaration extends AbstractAST { 
   public org.meta_environment.rascal.ast.Name getView() { throw new UnsupportedOperationException(); }
 	public org.meta_environment.rascal.ast.Name getSuperType() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Tags getTags() { throw new UnsupportedOperationException(); } public java.util.List<org.meta_environment.rascal.ast.Alternative> getAlts() { throw new UnsupportedOperationException(); }
@@ -9,8 +9,8 @@ public boolean isView() { return false; }
 static public class View extends Declaration {
 /* "view" view:Name "<:" superType:Name tags:Tags alts:{Alternative "|"}+ ";" -> Declaration {cons("View")} */
 	private View() { }
-	/*package*/ View(ITree tree, org.meta_environment.rascal.ast.Name view, org.meta_environment.rascal.ast.Name superType, org.meta_environment.rascal.ast.Tags tags, java.util.List<org.meta_environment.rascal.ast.Alternative> alts) {
-		this.tree = tree;
+	/*package*/ View(INode node, org.meta_environment.rascal.ast.Name view, org.meta_environment.rascal.ast.Name superType, org.meta_environment.rascal.ast.Tags tags, java.util.List<org.meta_environment.rascal.ast.Alternative> alts) {
+		this.node = node;
 		this.view = view;
 		this.superType = superType;
 		this.tags = tags;
@@ -62,9 +62,9 @@ private org.meta_environment.rascal.ast.Name view;
 }
 static public class Ambiguity extends Declaration {
   private final java.util.List<org.meta_environment.rascal.ast.Declaration> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Declaration> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Declaration> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.Declaration> getAlternatives() {
 	return alternatives;
@@ -78,8 +78,8 @@ public org.meta_environment.rascal.ast.Type getBase() { throw new UnsupportedOpe
 static public class Type extends Declaration {
 /* "type" base:Type user:UserType tags:Tags ";" -> Declaration {cons("Type")} */
 	private Type() { }
-	/*package*/ Type(ITree tree, org.meta_environment.rascal.ast.Type base, org.meta_environment.rascal.ast.UserType user, org.meta_environment.rascal.ast.Tags tags) {
-		this.tree = tree;
+	/*package*/ Type(INode node, org.meta_environment.rascal.ast.Type base, org.meta_environment.rascal.ast.UserType user, org.meta_environment.rascal.ast.Tags tags) {
+		this.node = node;
 		this.base = base;
 		this.user = user;
 		this.tags = tags;
@@ -123,8 +123,8 @@ public boolean isData() { return false; }
 static public class Data extends Declaration {
 /* "data" user:UserType tags:Tags variants:{Variant "|"}+ ";" -> Declaration {cons("Data")} */
 	private Data() { }
-	/*package*/ Data(ITree tree, org.meta_environment.rascal.ast.UserType user, org.meta_environment.rascal.ast.Tags tags, java.util.List<org.meta_environment.rascal.ast.Variant> variants) {
-		this.tree = tree;
+	/*package*/ Data(INode node, org.meta_environment.rascal.ast.UserType user, org.meta_environment.rascal.ast.Tags tags, java.util.List<org.meta_environment.rascal.ast.Variant> variants) {
+		this.node = node;
 		this.user = user;
 		this.tags = tags;
 		this.variants = variants;
@@ -170,8 +170,8 @@ public boolean isFunction() { return false; }
 static public class Function extends Declaration {
 /* functionDeclaration:FunctionDeclaration -> Declaration {cons("Function")} */
 	private Function() { }
-	/*package*/ Function(ITree tree, org.meta_environment.rascal.ast.FunctionDeclaration functionDeclaration) {
-		this.tree = tree;
+	/*package*/ Function(INode node, org.meta_environment.rascal.ast.FunctionDeclaration functionDeclaration) {
+		this.node = node;
 		this.functionDeclaration = functionDeclaration;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -195,8 +195,8 @@ public boolean isVariable() { return false; }
 static public class Variable extends Declaration {
 /* type:Type variables:{Variable ","}+ ";" -> Declaration {cons("Variable")} */
 	private Variable() { }
-	/*package*/ Variable(ITree tree, org.meta_environment.rascal.ast.Type type, java.util.List<org.meta_environment.rascal.ast.Variable> variables) {
-		this.tree = tree;
+	/*package*/ Variable(INode node, org.meta_environment.rascal.ast.Type type, java.util.List<org.meta_environment.rascal.ast.Variable> variables) {
+		this.node = node;
 		this.type = type;
 		this.variables = variables;
 	}
@@ -230,8 +230,8 @@ public boolean isRule() { return false; }
 static public class Rule extends Declaration {
 /* "rule" name:Name tags:Tags rule:Rule ";" -> Declaration {cons("Rule")} */
 	private Rule() { }
-	/*package*/ Rule(ITree tree, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.Tags tags, org.meta_environment.rascal.ast.Rule rule) {
-		this.tree = tree;
+	/*package*/ Rule(INode node, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.Tags tags, org.meta_environment.rascal.ast.Rule rule) {
+		this.node = node;
 		this.name = name;
 		this.tags = tags;
 		this.rule = rule;
@@ -274,8 +274,8 @@ private org.meta_environment.rascal.ast.Name name;
 static public class Annotation extends Declaration {
 /* "anno" type:Type name:Name tags:Tags types:{Type "|"}+ ";" -> Declaration {cons("Annotation")} */
 	private Annotation() { }
-	/*package*/ Annotation(ITree tree, org.meta_environment.rascal.ast.Type type, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.Tags tags, java.util.List<org.meta_environment.rascal.ast.Type> types) {
-		this.tree = tree;
+	/*package*/ Annotation(INode node, org.meta_environment.rascal.ast.Type type, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.Tags tags, java.util.List<org.meta_environment.rascal.ast.Type> types) {
+		this.node = node;
 		this.type = type;
 		this.name = name;
 		this.tags = tags;
@@ -329,8 +329,8 @@ public org.meta_environment.rascal.ast.Kind getKind() { throw new UnsupportedOpe
 static public class Tag extends Declaration {
 /* "tag" kind:Kind name:Name tags:Tags types:{Type "|"}+ ";" -> Declaration {cons("Tag")} */
 	private Tag() { }
-	/*package*/ Tag(ITree tree, org.meta_environment.rascal.ast.Kind kind, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.Tags tags, java.util.List<org.meta_environment.rascal.ast.Type> types) {
-		this.tree = tree;
+	/*package*/ Tag(INode node, org.meta_environment.rascal.ast.Kind kind, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.Tags tags, java.util.List<org.meta_environment.rascal.ast.Type> types) {
+		this.node = node;
 		this.kind = kind;
 		this.name = name;
 		this.tags = tags;

@@ -4,25 +4,24 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
-import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.INode;
-import org.eclipse.imp.pdb.facts.ITree;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
-import org.eclipse.imp.pdb.facts.visitors.BottomUpVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.meta_environment.uptr.visitors.IdentityTreeVisitor;
 
 public class TreeAdapter {
-	private INode tree;
+	private IConstructor tree;
 	private ProductionAdapter prod;
 	
-	public TreeAdapter(INode tree) {
-		if (tree.getType().getSuperType() != Factory.Tree) {
+	public TreeAdapter(IConstructor tree) {
+		if (tree.getType().getAbstractDataType() != Factory.Tree) {
 			throw new FactTypeError("TreeWrapper will only wrap UPTR Trees, not " +  tree.getType());
 		}
 		this.tree = tree;
@@ -46,7 +45,7 @@ public class TreeAdapter {
 	
 	public ProductionAdapter getProduction() {
 		if (prod == null) {
-		  prod = new ProductionAdapter((INode) tree.get("prod"));
+		  prod = new ProductionAdapter((IConstructor) tree.get("prod"));
 		}
 		
 		return prod;
@@ -83,7 +82,7 @@ public class TreeAdapter {
 		  return (IList) tree.get("args");
 		}
 		else {
-			throw new FactTypeError("this tree has no args");
+			throw new FactTypeError("this node has no args");
 		}
 	}
 	
@@ -128,7 +127,7 @@ public class TreeAdapter {
 
 		for (int i = 0; i < children.length(); i++) {
 			IValue kid = children.get(i);
-			TreeAdapter treeAdapter = new TreeAdapter((INode) kid);
+			TreeAdapter treeAdapter = new TreeAdapter((IConstructor) kid);
 			if (!treeAdapter.isLiteral() && !treeAdapter.isCILiteral()) {
 				writer.append(kid);	
 			} 
@@ -147,7 +146,7 @@ public class TreeAdapter {
 		  return (ISet) tree.get("alternatives");
 		}
 		else {
-			throw new FactTypeError("this tree has no alternatives");
+			throw new FactTypeError("this node has no alternatives");
 		}
 	}
 	
@@ -159,7 +158,7 @@ public class TreeAdapter {
 		}
 
 		@Override
-		public INode visitTreeAmb(INode arg) throws VisitorException {
+		public IConstructor visitTreeAmb(IConstructor arg) throws VisitorException {
 			((ISet) arg.get("alternatives")).iterator().next().accept(this);
 			return arg;
 		}
@@ -175,7 +174,7 @@ public class TreeAdapter {
 		}
 		
 		@Override
-		public ITree visitTreeAppl(INode arg) throws VisitorException {
+		public INode visitTreeAppl(IConstructor arg) throws VisitorException {
 			IList children = (IList) arg.get("args");
 			for (IValue child : children) {
 				child.accept(this);
@@ -188,7 +187,7 @@ public class TreeAdapter {
 		try {
 			if (tree.getType() == Factory.ParseTree_Top) {
 				tree.get("top").accept(new Unparser(stream));
-			} else if (tree.getType().getSuperType() == Factory.Tree) {
+			} else if (tree.getType().getAbstractDataType() == Factory.Tree) {
 				tree.accept(new Unparser(stream));
 			} else {
 				throw new FactTypeError("Can not unparse this "

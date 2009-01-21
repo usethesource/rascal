@@ -1,12 +1,12 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Comprehension extends AbstractAST { 
   public org.meta_environment.rascal.ast.Expression getResult() { throw new UnsupportedOperationException(); } public java.util.List<org.meta_environment.rascal.ast.Generator> getGenerators() { throw new UnsupportedOperationException(); } public boolean hasResult() { return false; } public boolean hasGenerators() { return false; } public boolean isSet() { return false; }
 static public class Set extends Comprehension {
 /* "{" result:Expression "|" generators:{Generator ","}+ "}" -> Comprehension {cons("Set")} */
 	private Set() { }
-	/*package*/ Set(ITree tree, org.meta_environment.rascal.ast.Expression result, java.util.List<org.meta_environment.rascal.ast.Generator> generators) {
-		this.tree = tree;
+	/*package*/ Set(INode node, org.meta_environment.rascal.ast.Expression result, java.util.List<org.meta_environment.rascal.ast.Generator> generators) {
+		this.node = node;
 		this.result = result;
 		this.generators = generators;
 	}
@@ -38,9 +38,9 @@ private org.meta_environment.rascal.ast.Expression result;
 }
 static public class Ambiguity extends Comprehension {
   private final java.util.List<org.meta_environment.rascal.ast.Comprehension> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Comprehension> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Comprehension> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.Comprehension> getAlternatives() {
 	return alternatives;
@@ -53,8 +53,8 @@ static public class Ambiguity extends Comprehension {
 static public class List extends Comprehension {
 /* "[" result:Expression "|" generators:{Generator ","}+ "]" -> Comprehension {cons("List")} */
 	private List() { }
-	/*package*/ List(ITree tree, org.meta_environment.rascal.ast.Expression result, java.util.List<org.meta_environment.rascal.ast.Generator> generators) {
-		this.tree = tree;
+	/*package*/ List(INode node, org.meta_environment.rascal.ast.Expression result, java.util.List<org.meta_environment.rascal.ast.Generator> generators) {
+		this.node = node;
 		this.result = result;
 		this.generators = generators;
 	}
@@ -89,8 +89,8 @@ private org.meta_environment.rascal.ast.Expression result;
 static public class Map extends Comprehension {
 /* "(" from:Expression ":" to:Expression "|" generators:{Generator ","}+ ")" -> Comprehension {cons("Map")} */
 	private Map() { }
-	/*package*/ Map(ITree tree, org.meta_environment.rascal.ast.Expression from, org.meta_environment.rascal.ast.Expression to, java.util.List<org.meta_environment.rascal.ast.Generator> generators) {
-		this.tree = tree;
+	/*package*/ Map(INode node, org.meta_environment.rascal.ast.Expression from, org.meta_environment.rascal.ast.Expression to, java.util.List<org.meta_environment.rascal.ast.Generator> generators) {
+		this.node = node;
 		this.from = from;
 		this.to = to;
 		this.generators = generators;

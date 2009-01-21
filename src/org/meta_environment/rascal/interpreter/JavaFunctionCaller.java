@@ -19,13 +19,13 @@ import org.eclipse.imp.pdb.facts.IDouble;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.ITree;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
@@ -273,12 +273,12 @@ public class JavaFunctionCaller {
 			return IMap.class;
 		}
 
-		public Class<?> visitNamed(org.eclipse.imp.pdb.facts.type.Type type) {
+		public Class<?> visitAlias(org.eclipse.imp.pdb.facts.type.Type type) {
 			return IValue.class;
 		}
 
-		public Class<?> visitNamedTree(org.eclipse.imp.pdb.facts.type.Type type) {
-			return INode.class;
+		public Class<?> visitAbstractData(org.eclipse.imp.pdb.facts.type.Type type) {
+			return IConstructor.class;
 		}
 
 		public Class<?> visitRelationType(org.eclipse.imp.pdb.facts.type.Type type) {
@@ -301,12 +301,12 @@ public class JavaFunctionCaller {
 			return IString.class;
 		}
 
-		public Class<?> visitTree(org.eclipse.imp.pdb.facts.type.Type type) {
-			return ITree.class;
+		public Class<?> visitNode(org.eclipse.imp.pdb.facts.type.Type type) {
+			return INode.class;
 		}
 
-		public Class<?> visitTreeNode(org.eclipse.imp.pdb.facts.type.Type type) {
-			return INode.class;
+		public Class<?> visitConstructor(org.eclipse.imp.pdb.facts.type.Type type) {
+			return IConstructor.class;
 		}
 
 		public Class<?> visitTuple(org.eclipse.imp.pdb.facts.type.Type type) {
@@ -347,12 +347,12 @@ public class JavaFunctionCaller {
 			return "IMap";
 		}
 
-		public String visitNamed(org.eclipse.imp.pdb.facts.type.Type type) {
+		public String visitAlias(org.eclipse.imp.pdb.facts.type.Type type) {
 			return "IValue";
 		}
 
-		public String visitNamedTree(org.eclipse.imp.pdb.facts.type.Type type) {
-			return "INode";
+		public String visitAbstractData(org.eclipse.imp.pdb.facts.type.Type type) {
+			return "IConstructor";
 		}
 
 		public String visitRelationType(org.eclipse.imp.pdb.facts.type.Type type) {
@@ -375,12 +375,12 @@ public class JavaFunctionCaller {
 			return "IString";
 		}
 
-		public String visitTree(org.eclipse.imp.pdb.facts.type.Type type) {
-			return "ITree";
+		public String visitNode(org.eclipse.imp.pdb.facts.type.Type type) {
+			return "INode";
 		}
 
-		public String visitTreeNode(org.eclipse.imp.pdb.facts.type.Type type) {
-			return "INode";
+		public String visitConstructor(org.eclipse.imp.pdb.facts.type.Type type) {
+			return "IConstructor";
 		}
 
 		public String visitTuple(org.eclipse.imp.pdb.facts.type.Type type) {

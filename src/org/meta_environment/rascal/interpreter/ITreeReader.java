@@ -6,7 +6,7 @@ import java.util.Stack;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.ITree;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 
@@ -16,17 +16,17 @@ public class ITreeReader implements Iterator<IValue> {
 	
 	private boolean bottomup;
 	
-	ITreeReader(ITree tree, boolean bottomup){
+	ITreeReader(INode node, boolean bottomup){
 		this.bottomup = bottomup;
-		initSpine(tree);
+		initSpine(node);
 	}
 	
 	private void initSpine(IValue t){
 		if(bottomup) {
 			spine.push(t);
 		}
-		if(t.getType().isTreeType()){
-			Iterator<IValue> children = ((ITree) t).getChildren().iterator();
+		if(t.getType().isNodeType()){
+			Iterator<IValue> children = ((INode) t).getChildren().iterator();
 			spine.push(children);
 		}
 		// TODO add more types here
@@ -56,8 +56,8 @@ public class ITreeReader implements Iterator<IValue> {
 	}
 	
 	private IValue expand(IValue v){
-		if(v.getType().isTreeType()){
-			return insertAndNext(v,  ((ITree) v).getChildren().iterator());
+		if(v.getType().isNodeType()){
+			return insertAndNext(v,  ((INode) v).getChildren().iterator());
 		}
 		if(v.getType().isListType()){
 			return insertAndNext(v, ((IList) v).iterator());

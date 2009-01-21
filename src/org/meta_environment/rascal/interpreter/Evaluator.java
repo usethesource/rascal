@@ -18,7 +18,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
-import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.ISet;
@@ -26,7 +26,7 @@ import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.ITree;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -454,7 +454,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 					throw new RascalTypeError("Can not find file for module " + name);
 			}
 			
-			INode tree = p.parse(new FileInputStream(file));
+			IConstructor tree = p.parse(new FileInputStream(file));
 			
 			if (tree.getType() == Factory.ParseTree_Summary) {
 				throw new RascalTypeError("Parse error in module " + name + ":\n" + tree);
@@ -582,8 +582,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	@Override
 	public EvalResult visitDeclarationData(Data x) {
 		String name = x.getUser().getName().toString();
-		Type sort = tf.namedTreeType(name);
-		env.storeNamedTreeType(sort);
+		Type sort = tf.abstractDataType(name);
+		env.storeAbstractDataType(sort);
 		
 		for (Variant var : x.getVariants()) {
 			String altName = Names.name(var.getName());
@@ -606,16 +606,15 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		    	}
 
 		    	Type children = tf.tupleType(fields, labels);
-		    	env.storeTreeNodeType(tf.treeNodeTypeFromTupleType(sort, altName, children));
+		    	env.storeConstructor(tf.constructorFromTuple(sort, altName, children));
 		    }
 		    else if (var.isNillaryConstructor()) {
-		    	env.storeTreeNodeType(tf.treeNodeType(sort, altName, new Object[] { }));
+		    	env.storeConstructor(tf.constructor(sort, altName, new Object[] { }));
 		    }
 		    else if (var.isAnonymousConstructor()) {
-		    	
 		    	Type argType = var.getType().accept(te);
 		    	String label = var.getName().toString();
-		    	env.storeTreeNodeType(tf.anonymousTreeType(sort, altName, argType, label));
+		    	env.storeConstructor(tf.define(sort, argType, label));
 		    }
 		}
 		
@@ -628,8 +627,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		// TODO add support for parameterized types
 		String user = x.getUser().getName().toString();
 		Type base = x.getBase().accept(te);
-		Type decl = tf.namedType(user, base);
-		env.storeNamedType(decl);
+		Type decl = tf.aliasType(user, base);
+		env.storeTypeAlias(decl);
 		return result();
 	}
 	
@@ -704,7 +703,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		return r;
 	}
 	
-	// Function calls and tree constructors
+	// Function calls and node constructors
 	
 	@Override
 	public EvalResult visitClosureAsFunctionEvaluated(Evaluated x) {
@@ -802,12 +801,12 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		
 		if (names.size() > 1) {
 			String sort = Names.sortName(name);
-			Type sortType = env.getNamedTreeType(sort);
+			Type sortType = env.getAbstractDataType(sort);
 			
 			if (sortType != null) {
 				String cons = Names.consName(name);
 				
-				if (env.getTreeNodeType(sortType, cons, signature) != null) {
+				if (env.getConstructor(sortType, cons, signature) != null) {
 					return true;
 				}
 			}
@@ -819,7 +818,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		}
 		else {
 			String cons = Names.consName(name);
-			if (env.getTreeNodeType(cons, signature) != null) {
+			if (env.getConstructor(cons, signature) != null) {
 				return true;
 			}
 		}
@@ -848,22 +847,22 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		Type candidate = null;
 	
 		if (sort != null) {
-			Type sortType = env.getNamedTreeType(sort);
+			Type sortType = env.getAbstractDataType(sort);
 			
 			if (sortType != null) {
-			  candidate = env.getTreeNodeType(sortType, cons, signature);
+			  candidate = env.getConstructor(sortType, cons, signature);
 			}
 			else {
-			  return result(tf.treeType(), vf.tree(cons, actuals));
+			  return result(tf.treeType(), vf.node(cons, actuals));
 			}
 		}
 		
-		candidate = env.getTreeNodeType(cons, signature);
+		candidate = env.getConstructor(cons, signature);
 		if (candidate != null) {
 			return result(candidate.make(vf, actuals));
 		}
 		
-		return result(tf.treeType(), vf.tree(cons, actuals));
+		return result(tf.treeType(), vf.node(cons, actuals));
 	}
 	
 	@Override
@@ -1228,21 +1227,21 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				throw new RascalRunTimeError("Subscript out of bounds", e);
 			}
 		}
-		if ((exprType.isNamedTreeType() || exprType.isTreeNodeType())) {
+		if ((exprType.isAbstractDataType() || exprType.isConstructorType())) {
+			if(index >= ((IConstructor) expr.value).arity()){
+				throw new RascalRunTimeError("Subscript out of bounds");
+			}
+			Type elementType = ((IConstructor) expr.value).getType()
+					.getFieldType(index);
+			IValue element = ((INode) expr.value).get(index);
+			return normalizedResult(elementType, element);
+		}
+		if (exprType.isNodeType()) {
 			if(index >= ((INode) expr.value).arity()){
 				throw new RascalRunTimeError("Subscript out of bounds");
 			}
-			Type elementType = ((INode) expr.value).getType()
-					.getFieldType(index);
-			IValue element = ((ITree) expr.value).get(index);
-			return normalizedResult(elementType, element);
-		}
-		if (exprType.isTreeType()) {
-			if(index >= ((ITree) expr.value).arity()){
-				throw new RascalRunTimeError("Subscript out of bounds");
-			}
 			Type elementType = tf.valueType();
-			IValue element = ((ITree) expr.value).get(index);
+			IValue element = ((INode) expr.value).get(index);
 			return normalizedResult(elementType, element);
 		}
 		if (exprType.isTupleType()) {
@@ -1285,11 +1284,11 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				throw new RascalTypeError(e.getMessage(), e);
 			}
 		}
-		else if (expr.type.isNamedTreeType() || expr.type.isTreeNodeType()) {
+		else if (expr.type.isAbstractDataType() || expr.type.isConstructorType()) {
 			Type node = expr.value.getType();
 			
 			try {
-				return normalizedResult(node.getFieldType(node.getFieldIndex(field)),((INode) expr.value).get(field));
+				return normalizedResult(node.getFieldType(node.getFieldIndex(field)),((IConstructor) expr.value).get(field));
 			}
 			catch (FactTypeError e) {
 				throw new RascalTypeError(e.getMessage(), e);
@@ -1514,9 +1513,9 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			Type type = ((ITuple) receiver.value).getType().getFieldType(label);
 			return normalizedResult(type, result);
 		}
-		else if (receiver.type.isTreeNodeType() || receiver.type.isNamedTreeType()) {
-			IValue result = ((INode) receiver.value).get(label);
-			Type treeNodeType = ((INode) receiver.value).getType();
+		else if (receiver.type.isConstructorType() || receiver.type.isAbstractDataType()) {
+			IValue result = ((IConstructor) receiver.value).get(label);
+			Type treeNodeType = ((IConstructor) receiver.value).getType();
 			Type type = treeNodeType.getFieldType(treeNodeType.getFieldIndex(label));
 			return normalizedResult(type, result);
 		}
@@ -1537,7 +1536,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		
 		// TODO get annotation from local and imported environments
 		Type type = tf.getAnnotationType(receiver.type, label);
-		IValue value = ((INode) receiver.value).getAnnotation(label);
+		IValue value = ((IConstructor) receiver.value).getAnnotation(label);
 		
 		return normalizedResult(type, value);
 	}
@@ -1946,16 +1945,16 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 
 	private FunctionDeclaration convertBlockToFunction(
 			NonEmptyBlock x) {
-		ITree tree = x.getTree();
-		org.meta_environment.rascal.ast.Type type = astFactory.makeTypeBasic(tree, astFactory.makeBasicTypeVoid(tree));
-		org.meta_environment.rascal.ast.Formals.Default formals = astFactory.makeFormalsDefault(tree, new LinkedList<Formal>());
-		org.meta_environment.rascal.ast.Parameters params = astFactory.makeParametersDefault(tree, formals);
+		INode node = x.getTree();
+		org.meta_environment.rascal.ast.Type type = astFactory.makeTypeBasic(node, astFactory.makeBasicTypeVoid(node));
+		org.meta_environment.rascal.ast.Formals.Default formals = astFactory.makeFormalsDefault(node, new LinkedList<Formal>());
+		org.meta_environment.rascal.ast.Parameters params = astFactory.makeParametersDefault(node, formals);
 		java.util.List<Statement> stats = x.getStatements();
-		FunctionModifiers mods =astFactory.makeFunctionModifiersList(tree, new LinkedList<FunctionModifier>());
+		FunctionModifiers mods =astFactory.makeFunctionModifiersList(node, new LinkedList<FunctionModifier>());
 		Signature s = astFactory.makeSignatureNoThrows(params.getTree(), type, mods, Names.toName(x.toString()), params);
-		Tags tags = astFactory.makeTagsDefault(tree, new LinkedList<org.meta_environment.rascal.ast.Tag>());
-		FunctionBody body = astFactory.makeFunctionBodyDefault(tree, stats);
-		return astFactory.makeFunctionDeclarationDefault(tree, s, tags, body);
+		Tags tags = astFactory.makeTagsDefault(node, new LinkedList<org.meta_environment.rascal.ast.Tag>());
+		FunctionBody body = astFactory.makeFunctionBodyDefault(node, stats);
+		return astFactory.makeFunctionDeclarationDefault(node, s, tags, body);
 	}
 
 	@Override
@@ -1989,7 +1988,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 					+ " declared on " + expr.type);
 		}
 
-		IValue annoValue = ((INode) expr.value).getAnnotation(name);
+		IValue annoValue = ((IConstructor) expr.value).getAnnotation(name);
 		
 		if (annoValue == null) {
 			// TODO: make this a Rascal exception that can be caught by the programmer
@@ -2508,12 +2507,12 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		org.meta_environment.rascal.ast.Type type = x.getType();
 		org.meta_environment.rascal.ast.Parameters params = x.getParameters();
 		java.util.List<Statement> stats = x.getStatements();
-		ITree tree = x.getTree();
-		FunctionModifiers mods =astFactory.makeFunctionModifiersList(tree, new LinkedList<FunctionModifier>());
+		INode node = x.getTree();
+		FunctionModifiers mods =astFactory.makeFunctionModifiersList(node, new LinkedList<FunctionModifier>());
 		Signature s = astFactory.makeSignatureNoThrows(params.getTree(), type, mods, Names.toName(x.toString()), params);
-		Tags tags = astFactory.makeTagsDefault(tree, new LinkedList<org.meta_environment.rascal.ast.Tag>());
-		FunctionBody body = astFactory.makeFunctionBodyDefault(tree, stats);
-		return astFactory.makeFunctionDeclarationDefault(tree, s, tags, body);
+		Tags tags = astFactory.makeTagsDefault(node, new LinkedList<org.meta_environment.rascal.ast.Tag>());
+		FunctionBody body = astFactory.makeFunctionBodyDefault(node, stats);
+		return astFactory.makeFunctionDeclarationDefault(node, s, tags, body);
 	}
 	
 	/**
@@ -2525,15 +2524,15 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	 * has been looked up. That should remove the need for this clumsiness.
 	 */
 	private FunctionDeclaration convertVoidClosureToFunctionDeclaration(VoidClosure x) {
-		ITree tree = x.getTree();
-		org.meta_environment.rascal.ast.Type type = astFactory.makeTypeBasic(tree, astFactory.makeBasicTypeVoid(tree));
+		INode node = x.getTree();
+		org.meta_environment.rascal.ast.Type type = astFactory.makeTypeBasic(node, astFactory.makeBasicTypeVoid(node));
 		org.meta_environment.rascal.ast.Parameters params = x.getParameters();
 		java.util.List<Statement> stats = x.getStatements();
-		FunctionModifiers mods =astFactory.makeFunctionModifiersList(tree, new LinkedList<FunctionModifier>());
+		FunctionModifiers mods =astFactory.makeFunctionModifiersList(node, new LinkedList<FunctionModifier>());
 		Signature s = astFactory.makeSignatureNoThrows(params.getTree(), type, mods, Names.toName(x.toString()), params);
-		Tags tags = astFactory.makeTagsDefault(tree, new LinkedList<org.meta_environment.rascal.ast.Tag>());
-		FunctionBody body = astFactory.makeFunctionBodyDefault(tree, stats);
-		return astFactory.makeFunctionDeclarationDefault(tree, s, tags, body);
+		Tags tags = astFactory.makeTagsDefault(node, new LinkedList<org.meta_environment.rascal.ast.Tag>());
+		FunctionBody body = astFactory.makeFunctionBodyDefault(node, stats);
+		return astFactory.makeFunctionDeclarationDefault(node, s, tags, body);
 	}
 	
 	@Override
@@ -2552,10 +2551,10 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				
 				return result(expr.type, value.set(name, repl.value));
 			}
-			else if (expr.type.isNamedTreeType() || expr.type.isTreeNodeType()) {
+			else if (expr.type.isAbstractDataType() || expr.type.isConstructorType()) {
 				Type tuple = expr.type.getFieldTypes();
 				Type argType = tuple.getFieldType(name);
-				INode value = (INode) expr.value;
+				IConstructor value = (IConstructor) expr.value;
 				
 				checkType(repl.type, argType);
 				
@@ -3010,25 +3009,25 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			subject = tr.value;
 		}
 		
-		if(subjectType.isTreeType()){
-			ITree tree = (ITree)subject;
-			if(tree.arity() == 0){
+		if(subjectType.isNodeType()){
+			INode node = (INode)subject;
+			if(node.arity() == 0){
 				result = subject;
 			} else {
-				IValue args[] = new IValue[tree.arity()];
+				IValue args[] = new IValue[node.arity()];
 				
-				for(int i = 0; i < tree.arity(); i++){
-					TraverseResult tr = traverseOnce(tree.get(i), casesOrRules, bottomup, breaking);
+				for(int i = 0; i < node.arity(); i++){
+					TraverseResult tr = traverseOnce(node.get(i), casesOrRules, bottomup, breaking);
 					matched |= tr.matched;
 					changed |= tr.changed;
 					args[i] = tr.value;
 				}
 				//System.err.println("subjectType=" + subjectType);
-				if(subjectType.isNamedTreeType() || subjectType.isTreeNodeType()){
-					result = vf.tree(subject.getType(), args);
+				if(subjectType.isAbstractDataType() || subjectType.isConstructorType()){
+					result = vf.constructor(subject.getType(), args);
 					
 				} else {
-					result = vf.tree(tree.getName(), args);
+					result = vf.node(node.getName(), args);
 				}
 			}
 		} else
@@ -3122,7 +3121,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		Type newType = newSubject.getType();
 	
 		
-	  //TODO: PDB: Should NamedTreeType not be a subtype of TreeType?
+	  //TODO: PDB: Should AbstractDataType not be a subtype of NodeType?
 		//System.err.println("Replacing " + oldSubject + " by " + newSubject);
 		/*
 		if(!newType.isSubtypeOf(oldType)){
@@ -3311,7 +3310,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		}
 		
 		if (leftType.isSubtypeOf(tf.treeType()) && rightType.isSubtypeOf(tf.treeType())){
-			return compareTree((ITree) left.value, (ITree) right.value);
+			return compareTree((INode) left.value, (INode) right.value);
 		}
 		
 		if(leftType.isSourceLocationType() && rightType.isSourceLocationType()){	
@@ -3324,7 +3323,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		return leftType.toString().compareTo(rightType.toString());
 	}
 	
-	private int compareTree(ITree left, ITree right){
+	private int compareTree(INode left, INode right){
 		String leftName = left.getName().toString();
 		String rightName = right.getName().toString();
 		int compare = leftName.compareTo(rightName);
@@ -3666,8 +3665,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			} else if(r.type.isMapType()){
 				iter = ((IMap) r.value).iterator();
 				
-			// Tree
-			} else if(r.type.isTreeType()){
+			// Node
+			} else if(r.type.isNodeType()){
 				boolean bottomup = true;
 				if(vp.hasStrategy()){
 					Strategy strat = vp.getStrategy();
@@ -3680,7 +3679,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 						throw new RascalTypeError("Strategy " + strat + " not allowed in generator");
 					}
 				}
-				iter = new ITreeReader((ITree) r.value, bottomup);
+				iter = new ITreeReader((INode) r.value, bottomup);
 			} else if(r.type.isStringType()){
 				iter = new SingleIValueIterator(r.value);
 			} else {

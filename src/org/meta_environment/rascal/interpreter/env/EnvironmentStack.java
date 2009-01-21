@@ -172,16 +172,16 @@ public class  EnvironmentStack implements Iterable<Environment>{
 		return env.getVariable(name);
 	}
 
-	public void storeNamedType(Type decl) {
-		getModuleEnvironment().storeNamedType(decl);
+	public void storeTypeAlias(Type decl) {
+		getModuleEnvironment().storeTypeAlias(decl);
 	}
 
-	public void storeNamedTreeType(Type decl) {
-		getModuleEnvironment().storeNamedTreeType(decl);
+	public void storeAbstractDataType(Type decl) {
+		getModuleEnvironment().storeAbstractDataType(decl);
 	}
 
-	public void storeTreeNodeType(Type decl) {
-		getModuleEnvironment().storeTreeNodeType(decl);
+	public void storeConstructor(Type decl) {
+		getModuleEnvironment().storeConstructor(decl);
 	}
 
 	public FunctionDeclaration getFunction(QualifiedName name, Type actuals, EnvironmentHolder h) {
@@ -214,21 +214,21 @@ public class  EnvironmentStack implements Iterable<Environment>{
 		storeVariable(Names.name(name), value);
 	}
 
-	public Type getNamedTreeType(String sort) {
-		return getModuleEnvironment().getNamedTreeType(sort);
+	public Type getAbstractDataType(String sort) {
+		return getModuleEnvironment().getAbstractDataType(sort);
 	}
 
-	public Type getTreeNodeType(Type sort, String cons,
+	public Type getConstructor(Type sort, String cons,
 			Type args) {
-		return getModuleEnvironment().getTreeNodeType(sort, cons, args);
+		return getModuleEnvironment().getConstructor(sort, cons, args);
 	}
 
 	public void storeAnnotation(Type onType, String name, Type annoType) {
 		getModuleEnvironment().storeAnnotation(onType, name, annoType);
 	}
 
-	public Type getTreeNodeType(String cons, Type args) {
-		return getModuleEnvironment().getTreeNodeType(cons, args);
+	public Type getConstructor(String cons, Type args) {
+		return getModuleEnvironment().getConstructor(cons, args);
 	}
 
 	public EnvironmentStack copyStack() {

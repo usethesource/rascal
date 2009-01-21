@@ -1,12 +1,12 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Toplevel extends AbstractAST { 
   public org.meta_environment.rascal.ast.Visibility getVisibility() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Declaration getDeclaration() { throw new UnsupportedOperationException(); } public boolean hasVisibility() { return false; } public boolean hasDeclaration() { return false; } public boolean isGivenVisibility() { return false; }
 static public class GivenVisibility extends Toplevel {
 /* visibility:Visibility declaration:Declaration -> Toplevel {cons("GivenVisibility")} */
 	private GivenVisibility() { }
-	/*package*/ GivenVisibility(ITree tree, org.meta_environment.rascal.ast.Visibility visibility, org.meta_environment.rascal.ast.Declaration declaration) {
-		this.tree = tree;
+	/*package*/ GivenVisibility(INode node, org.meta_environment.rascal.ast.Visibility visibility, org.meta_environment.rascal.ast.Declaration declaration) {
+		this.node = node;
 		this.visibility = visibility;
 		this.declaration = declaration;
 	}
@@ -38,9 +38,9 @@ private org.meta_environment.rascal.ast.Visibility visibility;
 }
 static public class Ambiguity extends Toplevel {
   private final java.util.List<org.meta_environment.rascal.ast.Toplevel> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Toplevel> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Toplevel> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.Toplevel> getAlternatives() {
 	return alternatives;
@@ -53,8 +53,8 @@ static public class Ambiguity extends Toplevel {
 static public class DefaultVisibility extends Toplevel {
 /* declaration:Declaration -> Toplevel {cons("DefaultVisibility")} */
 	private DefaultVisibility() { }
-	/*package*/ DefaultVisibility(ITree tree, org.meta_environment.rascal.ast.Declaration declaration) {
-		this.tree = tree;
+	/*package*/ DefaultVisibility(INode node, org.meta_environment.rascal.ast.Declaration declaration) {
+		this.node = node;
 		this.declaration = declaration;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {

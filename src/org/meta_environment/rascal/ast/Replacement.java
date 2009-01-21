@@ -1,12 +1,12 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Replacement extends AbstractAST { 
   public org.meta_environment.rascal.ast.Expression getReplacementExpression() { throw new UnsupportedOperationException(); } public boolean hasReplacementExpression() { return false; } public boolean isUnconditional() { return false; }
 static public class Unconditional extends Replacement {
 /* replacementExpression:Expression -> Replacement {cons("Unconditional")} */
 	private Unconditional() { }
-	/*package*/ Unconditional(ITree tree, org.meta_environment.rascal.ast.Expression replacementExpression) {
-		this.tree = tree;
+	/*package*/ Unconditional(INode node, org.meta_environment.rascal.ast.Expression replacementExpression) {
+		this.node = node;
 		this.replacementExpression = replacementExpression;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -28,9 +28,9 @@ private org.meta_environment.rascal.ast.Expression replacementExpression;
 }
 static public class Ambiguity extends Replacement {
   private final java.util.List<org.meta_environment.rascal.ast.Replacement> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Replacement> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Replacement> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.Replacement> getAlternatives() {
 	return alternatives;
@@ -44,8 +44,8 @@ public boolean isConditional() { return false; }
 static public class Conditional extends Replacement {
 /* replacementExpression:Expression "when" conditions:{Expression ","}+ -> Replacement {cons("Conditional")} */
 	private Conditional() { }
-	/*package*/ Conditional(ITree tree, org.meta_environment.rascal.ast.Expression replacementExpression, java.util.List<org.meta_environment.rascal.ast.Expression> conditions) {
-		this.tree = tree;
+	/*package*/ Conditional(INode node, org.meta_environment.rascal.ast.Expression replacementExpression, java.util.List<org.meta_environment.rascal.ast.Expression> conditions) {
+		this.node = node;
 		this.replacementExpression = replacementExpression;
 		this.conditions = conditions;
 	}

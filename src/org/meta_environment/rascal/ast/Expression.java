@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Expression extends AbstractAST { 
   public org.meta_environment.rascal.ast.Literal getLiteral() { throw new UnsupportedOperationException(); }
 public boolean hasLiteral() { return false; }
@@ -7,8 +7,8 @@ public boolean isLiteral() { return false; }
 static public class Literal extends Expression {
 /* literal:Literal -> Expression {cons("Literal")} */
 	private Literal() { }
-	/*package*/ Literal(ITree tree, org.meta_environment.rascal.ast.Literal literal) {
-		this.tree = tree;
+	/*package*/ Literal(INode node, org.meta_environment.rascal.ast.Literal literal) {
+		this.node = node;
 		this.literal = literal;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -30,9 +30,9 @@ private org.meta_environment.rascal.ast.Literal literal;
 }
 static public class Ambiguity extends Expression {
   private final java.util.List<org.meta_environment.rascal.ast.Expression> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Expression> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.Expression> getAlternatives() {
 	return alternatives;
@@ -45,8 +45,8 @@ static public class Ambiguity extends Expression {
 static public class CallOrTree extends Expression {
 /* qualifiedName:QualifiedName "(" arguments:{Expression ","}* ")" -> Expression {cons("CallOrTree")} */
 	private CallOrTree() { }
-	/*package*/ CallOrTree(ITree tree, org.meta_environment.rascal.ast.QualifiedName qualifiedName, java.util.List<org.meta_environment.rascal.ast.Expression> arguments) {
-		this.tree = tree;
+	/*package*/ CallOrTree(INode node, org.meta_environment.rascal.ast.QualifiedName qualifiedName, java.util.List<org.meta_environment.rascal.ast.Expression> arguments) {
+		this.node = node;
 		this.qualifiedName = qualifiedName;
 		this.arguments = arguments;
 	}
@@ -79,8 +79,8 @@ private org.meta_environment.rascal.ast.QualifiedName qualifiedName;
 static public class List extends Expression {
 /* "[" elements:{Expression ","}* "]" -> Expression {cons("List")} */
 	private List() { }
-	/*package*/ List(ITree tree, java.util.List<org.meta_environment.rascal.ast.Expression> elements) {
-		this.tree = tree;
+	/*package*/ List(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> elements) {
+		this.node = node;
 		this.elements = elements;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -103,8 +103,8 @@ private java.util.List<org.meta_environment.rascal.ast.Expression> elements;
 static public class Set extends Expression {
 /* "{" elements:{Expression ","}* "}" -> Expression {cons("Set")} */
 	private Set() { }
-	/*package*/ Set(ITree tree, java.util.List<org.meta_environment.rascal.ast.Expression> elements) {
-		this.tree = tree;
+	/*package*/ Set(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> elements) {
+		this.node = node;
 		this.elements = elements;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -127,8 +127,8 @@ private java.util.List<org.meta_environment.rascal.ast.Expression> elements;
 static public class Tuple extends Expression {
 /* "<" elements:{Expression ","}+ ">" -> Expression {cons("Tuple")} */
 	private Tuple() { }
-	/*package*/ Tuple(ITree tree, java.util.List<org.meta_environment.rascal.ast.Expression> elements) {
-		this.tree = tree;
+	/*package*/ Tuple(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> elements) {
+		this.node = node;
 		this.elements = elements;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -154,8 +154,8 @@ public boolean isMap() { return false; }
 static public class Map extends Expression {
 /* "(" mappings:{Mapping ","}* ")" -> Expression {cons("Map")} */
 	private Map() { }
-	/*package*/ Map(ITree tree, java.util.List<org.meta_environment.rascal.ast.Mapping> mappings) {
-		this.tree = tree;
+	/*package*/ Map(INode node, java.util.List<org.meta_environment.rascal.ast.Mapping> mappings) {
+		this.node = node;
 		this.mappings = mappings;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -178,8 +178,8 @@ private java.util.List<org.meta_environment.rascal.ast.Mapping> mappings;
 static public class FileLocation extends Expression {
 /* "file" "(" filename:Expression ")" -> Expression {cons("FileLocation")} */
 	private FileLocation() { }
-	/*package*/ FileLocation(ITree tree, org.meta_environment.rascal.ast.Expression filename) {
-		this.tree = tree;
+	/*package*/ FileLocation(INode node, org.meta_environment.rascal.ast.Expression filename) {
+		this.node = node;
 		this.filename = filename;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -204,8 +204,8 @@ static public class AreaInFileLocation extends Expression {
 /* "area-in-file" "(" filename:Expression "," 
                      areaExpression:Expression ")" -> Expression {cons("AreaInFileLocation")} */
 	private AreaInFileLocation() { }
-	/*package*/ AreaInFileLocation(ITree tree, org.meta_environment.rascal.ast.Expression filename, org.meta_environment.rascal.ast.Expression areaExpression) {
-		this.tree = tree;
+	/*package*/ AreaInFileLocation(INode node, org.meta_environment.rascal.ast.Expression filename, org.meta_environment.rascal.ast.Expression areaExpression) {
+		this.node = node;
 		this.filename = filename;
 		this.areaExpression = areaExpression;
 	}
@@ -256,8 +256,8 @@ static public class Area extends Expression {
              offset:Expression "," 
              length:Expression ")" -> Expression {cons("Area")} */
 	private Area() { }
-	/*package*/ Area(ITree tree, org.meta_environment.rascal.ast.Expression beginLine, org.meta_environment.rascal.ast.Expression beginColumn, org.meta_environment.rascal.ast.Expression endLine, org.meta_environment.rascal.ast.Expression endColumn, org.meta_environment.rascal.ast.Expression offset, org.meta_environment.rascal.ast.Expression length) {
-		this.tree = tree;
+	/*package*/ Area(INode node, org.meta_environment.rascal.ast.Expression beginLine, org.meta_environment.rascal.ast.Expression beginColumn, org.meta_environment.rascal.ast.Expression endLine, org.meta_environment.rascal.ast.Expression endColumn, org.meta_environment.rascal.ast.Expression offset, org.meta_environment.rascal.ast.Expression length) {
+		this.node = node;
 		this.beginLine = beginLine;
 		this.beginColumn = beginColumn;
 		this.endLine = endLine;
@@ -330,8 +330,8 @@ private org.meta_environment.rascal.ast.Expression beginLine;
 static public class QualifiedName extends Expression {
 /* qualifiedName:QualifiedName -> Expression {cons("QualifiedName")} */
 	private QualifiedName() { }
-	/*package*/ QualifiedName(ITree tree, org.meta_environment.rascal.ast.QualifiedName qualifiedName) {
-		this.tree = tree;
+	/*package*/ QualifiedName(INode node, org.meta_environment.rascal.ast.QualifiedName qualifiedName) {
+		this.node = node;
 		this.qualifiedName = qualifiedName;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -354,8 +354,8 @@ private org.meta_environment.rascal.ast.QualifiedName qualifiedName;
 static public class TypedVariable extends Expression {
 /* type:Type name:Name -> Expression {cons("TypedVariable")} */
 	private TypedVariable() { }
-	/*package*/ TypedVariable(ITree tree, org.meta_environment.rascal.ast.Type type, org.meta_environment.rascal.ast.Name name) {
-		this.tree = tree;
+	/*package*/ TypedVariable(INode node, org.meta_environment.rascal.ast.Type type, org.meta_environment.rascal.ast.Name name) {
+		this.node = node;
 		this.type = type;
 		this.name = name;
 	}
@@ -388,8 +388,8 @@ private org.meta_environment.rascal.ast.Type type;
 /* condition:Expression "?" thenExp:Expression ":" 
                            elseExp:Expression -> Expression {right, cons("IfThenElse")} */
 	private IfThenElse() { }
-	/*package*/ IfThenElse(ITree tree, org.meta_environment.rascal.ast.Expression condition, org.meta_environment.rascal.ast.Expression thenExp, org.meta_environment.rascal.ast.Expression elseExp) {
-		this.tree = tree;
+	/*package*/ IfThenElse(INode node, org.meta_environment.rascal.ast.Expression condition, org.meta_environment.rascal.ast.Expression thenExp, org.meta_environment.rascal.ast.Expression elseExp) {
+		this.node = node;
 		this.condition = condition;
 		this.thenExp = thenExp;
 		this.elseExp = elseExp;
@@ -432,8 +432,8 @@ private org.meta_environment.rascal.ast.Expression condition;
 static public class Match extends Expression {
 /* pattern:Expression "~=" expression:Expression -> Expression {non-assoc, cons("Match")} */
 	private Match() { }
-	/*package*/ Match(ITree tree, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Expression expression) {
-		this.tree = tree;
+	/*package*/ Match(INode node, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Expression expression) {
+		this.node = node;
 		this.pattern = pattern;
 		this.expression = expression;
 	}
@@ -466,8 +466,8 @@ private org.meta_environment.rascal.ast.Expression pattern;
 static public class NoMatch extends Expression {
 /* pattern:Expression "~!" expression:Expression -> Expression {non-assoc, cons("NoMatch")} */
 	private NoMatch() { }
-	/*package*/ NoMatch(ITree tree, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Expression expression) {
-		this.tree = tree;
+	/*package*/ NoMatch(INode node, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Expression expression) {
+		this.node = node;
 		this.pattern = pattern;
 		this.expression = expression;
 	}
@@ -503,8 +503,8 @@ public boolean isComprehension() { return false; }
 static public class Comprehension extends Expression {
 /* comprehension:Comprehension -> Expression {cons("Comprehension")} */
 	private Comprehension() { }
-	/*package*/ Comprehension(ITree tree, org.meta_environment.rascal.ast.Comprehension comprehension) {
-		this.tree = tree;
+	/*package*/ Comprehension(INode node, org.meta_environment.rascal.ast.Comprehension comprehension) {
+		this.node = node;
 		this.comprehension = comprehension;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -527,8 +527,8 @@ private org.meta_environment.rascal.ast.Comprehension comprehension;
 static public class All extends Expression {
 /* "all" "(" generators:{Generator ","}+ ")" -> Expression {cons("All")} */
 	private All() { }
-	/*package*/ All(ITree tree, java.util.List<org.meta_environment.rascal.ast.Generator> generators) {
-		this.tree = tree;
+	/*package*/ All(INode node, java.util.List<org.meta_environment.rascal.ast.Generator> generators) {
+		this.node = node;
 		this.generators = generators;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -551,8 +551,8 @@ private java.util.List<org.meta_environment.rascal.ast.Generator> generators;
 static public class Any extends Expression {
 /* "any" "(" generators:{Generator ","}+ ")" -> Expression {cons("Any")} */
 	private Any() { }
-	/*package*/ Any(ITree tree, java.util.List<org.meta_environment.rascal.ast.Generator> generators) {
-		this.tree = tree;
+	/*package*/ Any(INode node, java.util.List<org.meta_environment.rascal.ast.Generator> generators) {
+		this.node = node;
 		this.generators = generators;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -578,8 +578,8 @@ public boolean isVisit() { return false; }
 static public class Visit extends Expression {
 /* visit:Visit -> Expression {cons("Visit")} */
 	private Visit() { }
-	/*package*/ Visit(ITree tree, org.meta_environment.rascal.ast.Visit visit) {
-		this.tree = tree;
+	/*package*/ Visit(INode node, org.meta_environment.rascal.ast.Visit visit) {
+		this.node = node;
 		this.visit = visit;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -602,8 +602,8 @@ private org.meta_environment.rascal.ast.Visit visit;
 static public class Closure extends Expression {
 /* type:Type parameters:Parameters "{" statements:Statement+ "}" -> Expression {cons("Closure")} */
 	private Closure() { }
-	/*package*/ Closure(ITree tree, org.meta_environment.rascal.ast.Type type, org.meta_environment.rascal.ast.Parameters parameters, java.util.List<org.meta_environment.rascal.ast.Statement> statements) {
-		this.tree = tree;
+	/*package*/ Closure(INode node, org.meta_environment.rascal.ast.Type type, org.meta_environment.rascal.ast.Parameters parameters, java.util.List<org.meta_environment.rascal.ast.Statement> statements) {
+		this.node = node;
 		this.type = type;
 		this.parameters = parameters;
 		this.statements = statements;
@@ -646,8 +646,8 @@ private org.meta_environment.rascal.ast.Type type;
 static public class VoidClosure extends Expression {
 /* parameters:Parameters "{" statements:Statement+ "}" -> Expression {cons("VoidClosure")} */
 	private VoidClosure() { }
-	/*package*/ VoidClosure(ITree tree, org.meta_environment.rascal.ast.Parameters parameters, java.util.List<org.meta_environment.rascal.ast.Statement> statements) {
-		this.tree = tree;
+	/*package*/ VoidClosure(INode node, org.meta_environment.rascal.ast.Parameters parameters, java.util.List<org.meta_environment.rascal.ast.Statement> statements) {
+		this.node = node;
 		this.parameters = parameters;
 		this.statements = statements;
 	}
@@ -679,8 +679,8 @@ private org.meta_environment.rascal.ast.Parameters parameters;
 } public boolean isNonEmptyBlock() { return false; } static public class NonEmptyBlock extends Expression {
 /* "{" statements:Statement+ "}" -> Expression {cons("NonEmptyBlock")} */
 	private NonEmptyBlock() { }
-	/*package*/ NonEmptyBlock(ITree tree, java.util.List<org.meta_environment.rascal.ast.Statement> statements) {
-		this.tree = tree;
+	/*package*/ NonEmptyBlock(INode node, java.util.List<org.meta_environment.rascal.ast.Statement> statements) {
+		this.node = node;
 		this.statements = statements;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -703,8 +703,8 @@ private java.util.List<org.meta_environment.rascal.ast.Statement> statements;
 static public class Bracket extends Expression {
 /* "(" expression:Expression ")" -> Expression {cons("Bracket"), bracket} */
 	private Bracket() { }
-	/*package*/ Bracket(ITree tree, org.meta_environment.rascal.ast.Expression expression) {
-		this.tree = tree;
+	/*package*/ Bracket(INode node, org.meta_environment.rascal.ast.Expression expression) {
+		this.node = node;
 		this.expression = expression;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -727,8 +727,8 @@ private org.meta_environment.rascal.ast.Expression expression;
 static public class Range extends Expression {
 /* "[" first:Expression ".."  last:Expression "]" -> Expression {cons("Range")} */
 	private Range() { }
-	/*package*/ Range(ITree tree, org.meta_environment.rascal.ast.Expression first, org.meta_environment.rascal.ast.Expression last) {
-		this.tree = tree;
+	/*package*/ Range(INode node, org.meta_environment.rascal.ast.Expression first, org.meta_environment.rascal.ast.Expression last) {
+		this.node = node;
 		this.first = first;
 		this.last = last;
 	}
@@ -761,8 +761,8 @@ private org.meta_environment.rascal.ast.Expression first;
 static public class StepRange extends Expression {
 /* "[" first:Expression "," second:Expression ".." last:Expression "]" -> Expression {cons("StepRange")} */
 	private StepRange() { }
-	/*package*/ StepRange(ITree tree, org.meta_environment.rascal.ast.Expression first, org.meta_environment.rascal.ast.Expression second, org.meta_environment.rascal.ast.Expression last) {
-		this.tree = tree;
+	/*package*/ StepRange(INode node, org.meta_environment.rascal.ast.Expression first, org.meta_environment.rascal.ast.Expression second, org.meta_environment.rascal.ast.Expression last) {
+		this.node = node;
 		this.first = first;
 		this.second = second;
 		this.last = last;
@@ -808,8 +808,8 @@ public boolean isOperatorAsValue() { return false; }
 static public class OperatorAsValue extends Expression {
 /* operator:OperatorAsValue -> Expression {cons("OperatorAsValue")} */
 	private OperatorAsValue() { }
-	/*package*/ OperatorAsValue(ITree tree, org.meta_environment.rascal.ast.OperatorAsValue operator) {
-		this.tree = tree;
+	/*package*/ OperatorAsValue(INode node, org.meta_environment.rascal.ast.OperatorAsValue operator) {
+		this.node = node;
 		this.operator = operator;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -835,8 +835,8 @@ public boolean isFunctionAsValue() { return false; }
 static public class FunctionAsValue extends Expression {
 /* function:FunctionAsValue -> Expression {cons("FunctionAsValue")} */
 	private FunctionAsValue() { }
-	/*package*/ FunctionAsValue(ITree tree, org.meta_environment.rascal.ast.FunctionAsValue function) {
-		this.tree = tree;
+	/*package*/ FunctionAsValue(INode node, org.meta_environment.rascal.ast.FunctionAsValue function) {
+		this.node = node;
 		this.function = function;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -860,8 +860,8 @@ public org.meta_environment.rascal.ast.ClosureAsFunction getClosure() { throw ne
 static public class ClosureCall extends Expression {
 /* closure:ClosureAsFunction "(" arguments:{Expression ","}* ")" -> Expression {cons("ClosureCall")} */
 	private ClosureCall() { }
-	/*package*/ ClosureCall(ITree tree, org.meta_environment.rascal.ast.ClosureAsFunction closure, java.util.List<org.meta_environment.rascal.ast.Expression> arguments) {
-		this.tree = tree;
+	/*package*/ ClosureCall(INode node, org.meta_environment.rascal.ast.ClosureAsFunction closure, java.util.List<org.meta_environment.rascal.ast.Expression> arguments) {
+		this.node = node;
 		this.closure = closure;
 		this.arguments = arguments;
 	}
@@ -897,8 +897,8 @@ public boolean isFieldUpdate() { return false; }
 static public class FieldUpdate extends Expression {
 /* expression:Expression "[" key:Name "->" replacement:Expression "]" -> Expression {cons("FieldUpdate")} */
 	private FieldUpdate() { }
-	/*package*/ FieldUpdate(ITree tree, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.Name key, org.meta_environment.rascal.ast.Expression replacement) {
-		this.tree = tree;
+	/*package*/ FieldUpdate(INode node, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.Name key, org.meta_environment.rascal.ast.Expression replacement) {
+		this.node = node;
 		this.expression = expression;
 		this.key = key;
 		this.replacement = replacement;
@@ -942,8 +942,8 @@ public boolean isFieldAccess() { return false; }
 static public class FieldAccess extends Expression {
 /* expression:Expression "." field:Name -> Expression {cons("FieldAccess")} */
 	private FieldAccess() { }
-	/*package*/ FieldAccess(ITree tree, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.Name field) {
-		this.tree = tree;
+	/*package*/ FieldAccess(INode node, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.Name field) {
+		this.node = node;
 		this.expression = expression;
 		this.field = field;
 	}
@@ -977,8 +977,8 @@ public boolean isFieldProject() { return false; }
 static public class FieldProject extends Expression {
 /* expression:Expression "<" fields:{Field ","}+ ">" -> Expression {cons("FieldProject")} */
 	private FieldProject() { }
-	/*package*/ FieldProject(ITree tree, org.meta_environment.rascal.ast.Expression expression, java.util.List<org.meta_environment.rascal.ast.Field> fields) {
-		this.tree = tree;
+	/*package*/ FieldProject(INode node, org.meta_environment.rascal.ast.Expression expression, java.util.List<org.meta_environment.rascal.ast.Field> fields) {
+		this.node = node;
 		this.expression = expression;
 		this.fields = fields;
 	}
@@ -1012,8 +1012,8 @@ public boolean isSubscript() { return false; }
 static public class Subscript extends Expression {
 /* expression:Expression "[" subscripts: {Expression ","}+"]" -> Expression {cons("Subscript")} */
 	private Subscript() { }
-	/*package*/ Subscript(ITree tree, org.meta_environment.rascal.ast.Expression expression, java.util.List<org.meta_environment.rascal.ast.Expression> subscripts) {
-		this.tree = tree;
+	/*package*/ Subscript(INode node, org.meta_environment.rascal.ast.Expression expression, java.util.List<org.meta_environment.rascal.ast.Expression> subscripts) {
+		this.node = node;
 		this.expression = expression;
 		this.subscripts = subscripts;
 	}
@@ -1046,8 +1046,8 @@ private org.meta_environment.rascal.ast.Expression expression;
 static public class Negation extends Expression {
 /* "!" argument:Expression -> Expression {cons("Negation")} */
 	private Negation() { }
-	/*package*/ Negation(ITree tree, org.meta_environment.rascal.ast.Expression argument) {
-		this.tree = tree;
+	/*package*/ Negation(INode node, org.meta_environment.rascal.ast.Expression argument) {
+		this.node = node;
 		this.argument = argument;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -1070,8 +1070,8 @@ private org.meta_environment.rascal.ast.Expression argument;
 static public class Negative extends Expression {
 /* "-" argument:Expression -> Expression {cons("Negative")} */
 	private Negative() { }
-	/*package*/ Negative(ITree tree, org.meta_environment.rascal.ast.Expression argument) {
-		this.tree = tree;
+	/*package*/ Negative(INode node, org.meta_environment.rascal.ast.Expression argument) {
+		this.node = node;
 		this.argument = argument;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -1094,8 +1094,8 @@ private org.meta_environment.rascal.ast.Expression argument;
 static public class TransitiveReflexiveClosure extends Expression {
 /* argument:Expression "*" -> Expression {cons("TransitiveReflexiveClosure")} */
 	private TransitiveReflexiveClosure() { }
-	/*package*/ TransitiveReflexiveClosure(ITree tree, org.meta_environment.rascal.ast.Expression argument) {
-		this.tree = tree;
+	/*package*/ TransitiveReflexiveClosure(INode node, org.meta_environment.rascal.ast.Expression argument) {
+		this.node = node;
 		this.argument = argument;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -1118,8 +1118,8 @@ private org.meta_environment.rascal.ast.Expression argument;
 static public class TransitiveClosure extends Expression {
 /* argument:Expression "+" -> Expression {cons("TransitiveClosure")} */
 	private TransitiveClosure() { }
-	/*package*/ TransitiveClosure(ITree tree, org.meta_environment.rascal.ast.Expression argument) {
-		this.tree = tree;
+	/*package*/ TransitiveClosure(INode node, org.meta_environment.rascal.ast.Expression argument) {
+		this.node = node;
 		this.argument = argument;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -1142,8 +1142,8 @@ private org.meta_environment.rascal.ast.Expression argument;
 static public class Annotation extends Expression {
 /* expression:Expression "@" name:Name -> Expression {cons("Annotation")} */
 	private Annotation() { }
-	/*package*/ Annotation(ITree tree, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.Name name) {
-		this.tree = tree;
+	/*package*/ Annotation(INode node, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.Name name) {
+		this.node = node;
 		this.expression = expression;
 		this.name = name;
 	}
@@ -1176,8 +1176,8 @@ private org.meta_environment.rascal.ast.Expression expression;
 static public class Composition extends Expression {
 /* lhs:Expression "o" rhs:Expression -> Expression {cons("Composition"), left} */
 	private Composition() { }
-	/*package*/ Composition(ITree tree, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
-		this.tree = tree;
+	/*package*/ Composition(INode node, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
+		this.node = node;
 		this.lhs = lhs;
 		this.rhs = rhs;
 	}
@@ -1210,8 +1210,8 @@ private org.meta_environment.rascal.ast.Expression lhs;
 static public class Product extends Expression {
 /* lhs:Expression "*" rhs:Expression -> Expression {cons("Product"), left} */
 	private Product() { }
-	/*package*/ Product(ITree tree, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
-		this.tree = tree;
+	/*package*/ Product(INode node, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
+		this.node = node;
 		this.lhs = lhs;
 		this.rhs = rhs;
 	}
@@ -1244,8 +1244,8 @@ private org.meta_environment.rascal.ast.Expression lhs;
 static public class Division extends Expression {
 /* lhs:Expression "/" rhs:Expression -> Expression {cons("Division"), left} */
 	private Division() { }
-	/*package*/ Division(ITree tree, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
-		this.tree = tree;
+	/*package*/ Division(INode node, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
+		this.node = node;
 		this.lhs = lhs;
 		this.rhs = rhs;
 	}
@@ -1278,8 +1278,8 @@ private org.meta_environment.rascal.ast.Expression lhs;
 static public class Modulo extends Expression {
 /* lhs:Expression "%" rhs:Expression -> Expression {cons("Modulo"), left} */
 	private Modulo() { }
-	/*package*/ Modulo(ITree tree, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
-		this.tree = tree;
+	/*package*/ Modulo(INode node, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
+		this.node = node;
 		this.lhs = lhs;
 		this.rhs = rhs;
 	}
@@ -1312,8 +1312,8 @@ private org.meta_environment.rascal.ast.Expression lhs;
 static public class Intersection extends Expression {
 /* lhs:Expression "&" rhs:Expression -> Expression {cons("Intersection"), left} */
 	private Intersection() { }
-	/*package*/ Intersection(ITree tree, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
-		this.tree = tree;
+	/*package*/ Intersection(INode node, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
+		this.node = node;
 		this.lhs = lhs;
 		this.rhs = rhs;
 	}
@@ -1346,8 +1346,8 @@ private org.meta_environment.rascal.ast.Expression lhs;
 static public class Addition extends Expression {
 /* lhs:Expression "+" rhs:Expression -> Expression {cons("Addition"), left} */
 	private Addition() { }
-	/*package*/ Addition(ITree tree, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
-		this.tree = tree;
+	/*package*/ Addition(INode node, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
+		this.node = node;
 		this.lhs = lhs;
 		this.rhs = rhs;
 	}
@@ -1380,8 +1380,8 @@ private org.meta_environment.rascal.ast.Expression lhs;
 static public class Subtraction extends Expression {
 /* lhs:Expression "-" rhs:Expression -> Expression {cons("Subtraction"), left} */
 	private Subtraction() { }
-	/*package*/ Subtraction(ITree tree, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
-		this.tree = tree;
+	/*package*/ Subtraction(INode node, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
+		this.node = node;
 		this.lhs = lhs;
 		this.rhs = rhs;
 	}
@@ -1414,8 +1414,8 @@ private org.meta_environment.rascal.ast.Expression lhs;
 static public class NotIn extends Expression {
 /* lhs:Expression "notin" rhs:Expression -> Expression {non-assoc, cons("NotIn")} */
 	private NotIn() { }
-	/*package*/ NotIn(ITree tree, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
-		this.tree = tree;
+	/*package*/ NotIn(INode node, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
+		this.node = node;
 		this.lhs = lhs;
 		this.rhs = rhs;
 	}
@@ -1448,8 +1448,8 @@ private org.meta_environment.rascal.ast.Expression lhs;
 static public class In extends Expression {
 /* lhs:Expression "in" rhs:Expression -> Expression {non-assoc, cons("In")} */
 	private In() { }
-	/*package*/ In(ITree tree, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
-		this.tree = tree;
+	/*package*/ In(INode node, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
+		this.node = node;
 		this.lhs = lhs;
 		this.rhs = rhs;
 	}
@@ -1482,8 +1482,8 @@ private org.meta_environment.rascal.ast.Expression lhs;
 static public class IfDefined extends Expression {
 /* lhs:Expression "=?" rhs:Expression -> Expression {left, cons("IfDefined")} */
 	private IfDefined() { }
-	/*package*/ IfDefined(ITree tree, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
-		this.tree = tree;
+	/*package*/ IfDefined(INode node, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
+		this.node = node;
 		this.lhs = lhs;
 		this.rhs = rhs;
 	}
@@ -1516,8 +1516,8 @@ private org.meta_environment.rascal.ast.Expression lhs;
 static public class LessThan extends Expression {
 /* lhs:Expression "<" rhs:Expression -> Expression {non-assoc, cons("LessThan")} */
 	private LessThan() { }
-	/*package*/ LessThan(ITree tree, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
-		this.tree = tree;
+	/*package*/ LessThan(INode node, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
+		this.node = node;
 		this.lhs = lhs;
 		this.rhs = rhs;
 	}
@@ -1550,8 +1550,8 @@ private org.meta_environment.rascal.ast.Expression lhs;
 static public class LessThanOrEq extends Expression {
 /* lhs:Expression "<=" rhs:Expression -> Expression {non-assoc, cons("LessThanOrEq")} */
 	private LessThanOrEq() { }
-	/*package*/ LessThanOrEq(ITree tree, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
-		this.tree = tree;
+	/*package*/ LessThanOrEq(INode node, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
+		this.node = node;
 		this.lhs = lhs;
 		this.rhs = rhs;
 	}
@@ -1584,8 +1584,8 @@ private org.meta_environment.rascal.ast.Expression lhs;
 static public class GreaterThan extends Expression {
 /* lhs:Expression ">" rhs:Expression -> Expression {non-assoc, cons("GreaterThan")} */
 	private GreaterThan() { }
-	/*package*/ GreaterThan(ITree tree, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
-		this.tree = tree;
+	/*package*/ GreaterThan(INode node, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
+		this.node = node;
 		this.lhs = lhs;
 		this.rhs = rhs;
 	}
@@ -1618,8 +1618,8 @@ private org.meta_environment.rascal.ast.Expression lhs;
 static public class GreaterThanOrEq extends Expression {
 /* lhs:Expression ">=" rhs:Expression -> Expression {non-assoc, cons("GreaterThanOrEq")} */
 	private GreaterThanOrEq() { }
-	/*package*/ GreaterThanOrEq(ITree tree, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
-		this.tree = tree;
+	/*package*/ GreaterThanOrEq(INode node, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
+		this.node = node;
 		this.lhs = lhs;
 		this.rhs = rhs;
 	}
@@ -1652,8 +1652,8 @@ private org.meta_environment.rascal.ast.Expression lhs;
 static public class Equals extends Expression {
 /* lhs:Expression "==" rhs:Expression -> Expression {left, cons("Equals")} */
 	private Equals() { }
-	/*package*/ Equals(ITree tree, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
-		this.tree = tree;
+	/*package*/ Equals(INode node, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
+		this.node = node;
 		this.lhs = lhs;
 		this.rhs = rhs;
 	}
@@ -1686,8 +1686,8 @@ private org.meta_environment.rascal.ast.Expression lhs;
 static public class NonEquals extends Expression {
 /* lhs:Expression "!=" rhs:Expression -> Expression {left, cons("NonEquals")} */
 	private NonEquals() { }
-	/*package*/ NonEquals(ITree tree, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
-		this.tree = tree;
+	/*package*/ NonEquals(INode node, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
+		this.node = node;
 		this.lhs = lhs;
 		this.rhs = rhs;
 	}
@@ -1720,8 +1720,8 @@ private org.meta_environment.rascal.ast.Expression lhs;
 static public class Implication extends Expression {
 /* lhs:Expression "==>" rhs:Expression -> Expression {right, cons("Implication")} */
 	private Implication() { }
-	/*package*/ Implication(ITree tree, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
-		this.tree = tree;
+	/*package*/ Implication(INode node, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
+		this.node = node;
 		this.lhs = lhs;
 		this.rhs = rhs;
 	}
@@ -1754,8 +1754,8 @@ private org.meta_environment.rascal.ast.Expression lhs;
 static public class Equivalence extends Expression {
 /* lhs:Expression "<==>" rhs:Expression -> Expression {right, cons("Equivalence")} */
 	private Equivalence() { }
-	/*package*/ Equivalence(ITree tree, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
-		this.tree = tree;
+	/*package*/ Equivalence(INode node, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
+		this.node = node;
 		this.lhs = lhs;
 		this.rhs = rhs;
 	}
@@ -1788,8 +1788,8 @@ private org.meta_environment.rascal.ast.Expression lhs;
 static public class And extends Expression {
 /* lhs:Expression "&&" rhs:Expression -> Expression {left, cons("And")} */
 	private And() { }
-	/*package*/ And(ITree tree, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
-		this.tree = tree;
+	/*package*/ And(INode node, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
+		this.node = node;
 		this.lhs = lhs;
 		this.rhs = rhs;
 	}
@@ -1822,8 +1822,8 @@ private org.meta_environment.rascal.ast.Expression lhs;
 static public class Or extends Expression {
 /* lhs:Expression "||" rhs:Expression -> Expression {left, cons("Or")} */
 	private Or() { }
-	/*package*/ Or(ITree tree, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
-		this.tree = tree;
+	/*package*/ Or(INode node, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
+		this.node = node;
 		this.lhs = lhs;
 		this.rhs = rhs;
 	}
@@ -1854,8 +1854,8 @@ private org.meta_environment.rascal.ast.Expression lhs;
 	}	
 } static public class Lexical extends Expression {
 	private String string;
-	/*package*/ Lexical(ITree tree, String string) {
-		this.tree = tree;
+	/*package*/ Lexical(INode node, String string) {
+		this.node = node;
 		this.string = string;
 	}
 	public String getString() {

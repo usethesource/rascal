@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class LongLiteral extends AbstractAST { 
   public org.meta_environment.rascal.ast.DecimalLongLiteral getDecimalLong() { throw new UnsupportedOperationException(); }
 public boolean hasDecimalLong() { return false; }
@@ -7,8 +7,8 @@ public boolean isDecimalLongLiteral() { return false; }
 static public class DecimalLongLiteral extends LongLiteral {
 /* decimalLong:DecimalLongLiteral -> LongLiteral {prefer, cons("DecimalLongLiteral")} */
 	private DecimalLongLiteral() { }
-	/*package*/ DecimalLongLiteral(ITree tree, org.meta_environment.rascal.ast.DecimalLongLiteral decimalLong) {
-		this.tree = tree;
+	/*package*/ DecimalLongLiteral(INode node, org.meta_environment.rascal.ast.DecimalLongLiteral decimalLong) {
+		this.node = node;
 		this.decimalLong = decimalLong;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -30,9 +30,9 @@ private org.meta_environment.rascal.ast.DecimalLongLiteral decimalLong;
 }
 static public class Ambiguity extends LongLiteral {
   private final java.util.List<org.meta_environment.rascal.ast.LongLiteral> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.LongLiteral> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.LongLiteral> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.LongLiteral> getAlternatives() {
 	return alternatives;
@@ -48,8 +48,8 @@ public boolean isHexLongLiteral() { return false; }
 static public class HexLongLiteral extends LongLiteral {
 /* hexLong:HexLongLiteral -> LongLiteral {prefer, cons("HexLongLiteral")} */
 	private HexLongLiteral() { }
-	/*package*/ HexLongLiteral(ITree tree, org.meta_environment.rascal.ast.HexLongLiteral hexLong) {
-		this.tree = tree;
+	/*package*/ HexLongLiteral(INode node, org.meta_environment.rascal.ast.HexLongLiteral hexLong) {
+		this.node = node;
 		this.hexLong = hexLong;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -74,8 +74,8 @@ public boolean isOctalLongLiteral() { return false; }
 static public class OctalLongLiteral extends LongLiteral {
 /* octalLong:OctalLongLiteral -> LongLiteral {prefer, cons("OctalLongLiteral")} */
 	private OctalLongLiteral() { }
-	/*package*/ OctalLongLiteral(ITree tree, org.meta_environment.rascal.ast.OctalLongLiteral octalLong) {
-		this.tree = tree;
+	/*package*/ OctalLongLiteral(INode node, org.meta_environment.rascal.ast.OctalLongLiteral octalLong) {
+		this.node = node;
 		this.octalLong = octalLong;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {

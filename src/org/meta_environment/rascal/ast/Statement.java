@@ -1,5 +1,5 @@
 package org.meta_environment.rascal.ast; 
-import org.eclipse.imp.pdb.facts.ITree; 
+import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Statement extends AbstractAST { 
   public java.util.List<org.meta_environment.rascal.ast.Declarator> getDeclarations() { throw new UnsupportedOperationException(); }
 	public org.meta_environment.rascal.ast.Bound getBound() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Statement getBody() { throw new UnsupportedOperationException(); } public boolean hasDeclarations() { return false; }
@@ -7,8 +7,8 @@ public abstract class Statement extends AbstractAST {
 static public class Solve extends Statement {
 /* "with" declarations:{Declarator ";"}+ ";" "solve" bound:Bound body:Statement -> Statement {cons("Solve")} */
 	private Solve() { }
-	/*package*/ Solve(ITree tree, java.util.List<org.meta_environment.rascal.ast.Declarator> declarations, org.meta_environment.rascal.ast.Bound bound, org.meta_environment.rascal.ast.Statement body) {
-		this.tree = tree;
+	/*package*/ Solve(INode node, java.util.List<org.meta_environment.rascal.ast.Declarator> declarations, org.meta_environment.rascal.ast.Bound bound, org.meta_environment.rascal.ast.Statement body) {
+		this.node = node;
 		this.declarations = declarations;
 		this.bound = bound;
 		this.body = body;
@@ -50,9 +50,9 @@ private java.util.List<org.meta_environment.rascal.ast.Declarator> declarations;
 }
 static public class Ambiguity extends Statement {
   private final java.util.List<org.meta_environment.rascal.ast.Statement> alternatives;
-  public Ambiguity(ITree tree, java.util.List<org.meta_environment.rascal.ast.Statement> alternatives) {
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Statement> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.tree = tree;
+         this.node = node;
   }
   public java.util.List<org.meta_environment.rascal.ast.Statement> getAlternatives() {
 	return alternatives;
@@ -65,8 +65,8 @@ static public class Ambiguity extends Statement {
 static public class For extends Statement {
 /* label:Label "for" "(" generators:{Generator ","}+ ")" body:Statement -> Statement {cons("For")} */
 	private For() { }
-	/*package*/ For(ITree tree, org.meta_environment.rascal.ast.Label label, java.util.List<org.meta_environment.rascal.ast.Generator> generators, org.meta_environment.rascal.ast.Statement body) {
-		this.tree = tree;
+	/*package*/ For(INode node, org.meta_environment.rascal.ast.Label label, java.util.List<org.meta_environment.rascal.ast.Generator> generators, org.meta_environment.rascal.ast.Statement body) {
+		this.node = node;
 		this.label = label;
 		this.generators = generators;
 		this.body = body;
@@ -109,8 +109,8 @@ private org.meta_environment.rascal.ast.Label label;
 static public class While extends Statement {
 /* label:Label "while" "(" condition:Expression ")" body:Statement -> Statement {cons("While")} */
 	private While() { }
-	/*package*/ While(ITree tree, org.meta_environment.rascal.ast.Label label, org.meta_environment.rascal.ast.Expression condition, org.meta_environment.rascal.ast.Statement body) {
-		this.tree = tree;
+	/*package*/ While(INode node, org.meta_environment.rascal.ast.Label label, org.meta_environment.rascal.ast.Expression condition, org.meta_environment.rascal.ast.Statement body) {
+		this.node = node;
 		this.label = label;
 		this.condition = condition;
 		this.body = body;
@@ -153,8 +153,8 @@ private org.meta_environment.rascal.ast.Label label;
 static public class DoWhile extends Statement {
 /* label:Label "do" body:Statement "while" "(" condition:Expression ")" ";" -> Statement {cons("DoWhile")} */
 	private DoWhile() { }
-	/*package*/ DoWhile(ITree tree, org.meta_environment.rascal.ast.Label label, org.meta_environment.rascal.ast.Statement body, org.meta_environment.rascal.ast.Expression condition) {
-		this.tree = tree;
+	/*package*/ DoWhile(INode node, org.meta_environment.rascal.ast.Label label, org.meta_environment.rascal.ast.Statement body, org.meta_environment.rascal.ast.Expression condition) {
+		this.node = node;
 		this.label = label;
 		this.body = body;
 		this.condition = condition;
@@ -198,8 +198,8 @@ public boolean isIfThenElse() { return false; }
 static public class IfThenElse extends Statement {
 /* label:Label "if" "(" conditions:{Expression ","}+ ")" thenStatement:Statement "else" elseStatement:Statement -> Statement {cons("IfThenElse")} */
 	private IfThenElse() { }
-	/*package*/ IfThenElse(ITree tree, org.meta_environment.rascal.ast.Label label, java.util.List<org.meta_environment.rascal.ast.Expression> conditions, org.meta_environment.rascal.ast.Statement thenStatement, org.meta_environment.rascal.ast.Statement elseStatement) {
-		this.tree = tree;
+	/*package*/ IfThenElse(INode node, org.meta_environment.rascal.ast.Label label, java.util.List<org.meta_environment.rascal.ast.Expression> conditions, org.meta_environment.rascal.ast.Statement thenStatement, org.meta_environment.rascal.ast.Statement elseStatement) {
+		this.node = node;
 		this.label = label;
 		this.conditions = conditions;
 		this.thenStatement = thenStatement;
@@ -253,8 +253,8 @@ public boolean isIfThen() { return false; }
 static public class IfThen extends Statement {
 /* label:Label "if" "(" conditions:{Expression ","}+ ")" thenStatement:Statement noElseMayFollow:NoElseMayFollow -> Statement {cons("IfThen")} */
 	private IfThen() { }
-	/*package*/ IfThen(ITree tree, org.meta_environment.rascal.ast.Label label, java.util.List<org.meta_environment.rascal.ast.Expression> conditions, org.meta_environment.rascal.ast.Statement thenStatement, org.meta_environment.rascal.ast.NoElseMayFollow noElseMayFollow) {
-		this.tree = tree;
+	/*package*/ IfThen(INode node, org.meta_environment.rascal.ast.Label label, java.util.List<org.meta_environment.rascal.ast.Expression> conditions, org.meta_environment.rascal.ast.Statement thenStatement, org.meta_environment.rascal.ast.NoElseMayFollow noElseMayFollow) {
+		this.node = node;
 		this.label = label;
 		this.conditions = conditions;
 		this.thenStatement = thenStatement;
@@ -308,8 +308,8 @@ public boolean isSwitch() { return false; }
 static public class Switch extends Statement {
 /* label:Label "switch" "(" expression:Expression ")" "{" cases:Case+ "}" -> Statement {cons("Switch")} */
 	private Switch() { }
-	/*package*/ Switch(ITree tree, org.meta_environment.rascal.ast.Label label, org.meta_environment.rascal.ast.Expression expression, java.util.List<org.meta_environment.rascal.ast.Case> cases) {
-		this.tree = tree;
+	/*package*/ Switch(INode node, org.meta_environment.rascal.ast.Label label, org.meta_environment.rascal.ast.Expression expression, java.util.List<org.meta_environment.rascal.ast.Case> cases) {
+		this.node = node;
 		this.label = label;
 		this.expression = expression;
 		this.cases = cases;
@@ -353,8 +353,8 @@ public boolean isEmptyStatement() { return false; }
 static public class EmptyStatement extends Statement {
 /* ";" -> Statement {cons("EmptyStatement")} */
 	private EmptyStatement() { }
-	/*package*/ EmptyStatement(ITree tree) {
-		this.tree = tree;
+	/*package*/ EmptyStatement(INode node) {
+		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStatementEmptyStatement(this);
@@ -364,8 +364,8 @@ static public class EmptyStatement extends Statement {
 } public boolean isExpression() { return false; } static public class Expression extends Statement {
 /* expression:Expression ";" -> Statement {cons("Expression")} */
 	private Expression() { }
-	/*package*/ Expression(ITree tree, org.meta_environment.rascal.ast.Expression expression) {
-		this.tree = tree;
+	/*package*/ Expression(INode node, org.meta_environment.rascal.ast.Expression expression) {
+		this.node = node;
 		this.expression = expression;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -390,8 +390,8 @@ public boolean isVisit() { return false; }
 static public class Visit extends Statement {
 /* visit:Visit -> Statement {cons("Visit")} */
 	private Visit() { }
-	/*package*/ Visit(ITree tree, org.meta_environment.rascal.ast.Visit visit) {
-		this.tree = tree;
+	/*package*/ Visit(INode node, org.meta_environment.rascal.ast.Visit visit) {
+		this.node = node;
 		this.visit = visit;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -417,8 +417,8 @@ public org.meta_environment.rascal.ast.Assignable getAssignable() { throw new Un
 static public class Assignment extends Statement {
 /* assignable:Assignable operator:Assignment expression:Expression ";" -> Statement {cons("Assignment")} */
 	private Assignment() { }
-	/*package*/ Assignment(ITree tree, org.meta_environment.rascal.ast.Assignable assignable, org.meta_environment.rascal.ast.Assignment operator, org.meta_environment.rascal.ast.Expression expression) {
-		this.tree = tree;
+	/*package*/ Assignment(INode node, org.meta_environment.rascal.ast.Assignable assignable, org.meta_environment.rascal.ast.Assignment operator, org.meta_environment.rascal.ast.Expression expression) {
+		this.node = node;
 		this.assignable = assignable;
 		this.operator = operator;
 		this.expression = expression;
@@ -464,8 +464,8 @@ public boolean isBreak() { return false; }
 static public class Break extends Statement {
 /* brk:Break -> Statement {cons("Break")} */
 	private Break() { }
-	/*package*/ Break(ITree tree, org.meta_environment.rascal.ast.Break brk) {
-		this.tree = tree;
+	/*package*/ Break(INode node, org.meta_environment.rascal.ast.Break brk) {
+		this.node = node;
 		this.brk = brk;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -491,8 +491,8 @@ public boolean isFail() { return false; }
 static public class Fail extends Statement {
 /* fail:Fail -> Statement {cons("Fail")} */
 	private Fail() { }
-	/*package*/ Fail(ITree tree, org.meta_environment.rascal.ast.Fail fail) {
-		this.tree = tree;
+	/*package*/ Fail(INode node, org.meta_environment.rascal.ast.Fail fail) {
+		this.node = node;
 		this.fail = fail;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -518,8 +518,8 @@ public boolean isReturn() { return false; }
 static public class Return extends Statement {
 /* ret:Return -> Statement {cons("Return")} */
 	private Return() { }
-	/*package*/ Return(ITree tree, org.meta_environment.rascal.ast.Return ret) {
-		this.tree = tree;
+	/*package*/ Return(INode node, org.meta_environment.rascal.ast.Return ret) {
+		this.node = node;
 		this.ret = ret;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -543,8 +543,8 @@ public boolean isContinue() { return false; }
 static public class Continue extends Statement {
 /* "continue" ";" -> Statement {cons("Continue")} */
 	private Continue() { }
-	/*package*/ Continue(ITree tree) {
-		this.tree = tree;
+	/*package*/ Continue(INode node) {
+		this.node = node;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitStatementContinue(this);
@@ -556,8 +556,8 @@ public org.meta_environment.rascal.ast.StringLiteral getMessage() { throw new Un
 static public class Assert extends Statement {
 /* "assert" message:StringLiteral ":" expression:Expression ";" -> Statement {cons("Assert")} */
 	private Assert() { }
-	/*package*/ Assert(ITree tree, org.meta_environment.rascal.ast.StringLiteral message, org.meta_environment.rascal.ast.Expression expression) {
-		this.tree = tree;
+	/*package*/ Assert(INode node, org.meta_environment.rascal.ast.StringLiteral message, org.meta_environment.rascal.ast.Expression expression) {
+		this.node = node;
 		this.message = message;
 		this.expression = expression;
 	}
@@ -590,8 +590,8 @@ private org.meta_environment.rascal.ast.StringLiteral message;
 static public class Insert extends Statement {
 /* "insert" expression:Expression ";" -> Statement {cons("Insert")} */
 	private Insert() { }
-	/*package*/ Insert(ITree tree, org.meta_environment.rascal.ast.Expression expression) {
-		this.tree = tree;
+	/*package*/ Insert(INode node, org.meta_environment.rascal.ast.Expression expression) {
+		this.node = node;
 		this.expression = expression;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -614,8 +614,8 @@ private org.meta_environment.rascal.ast.Expression expression;
 static public class Throw extends Statement {
 /* "throw" expression:Expression ";" -> Statement {cons("Throw")} */
 	private Throw() { }
-	/*package*/ Throw(ITree tree, org.meta_environment.rascal.ast.Expression expression) {
-		this.tree = tree;
+	/*package*/ Throw(INode node, org.meta_environment.rascal.ast.Expression expression) {
+		this.node = node;
 		this.expression = expression;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -638,8 +638,8 @@ private org.meta_environment.rascal.ast.Expression expression;
 static public class Try extends Statement {
 /* "try" body:Statement handlers:Catch+ -> Statement {non-assoc, cons("Try")} */
 	private Try() { }
-	/*package*/ Try(ITree tree, org.meta_environment.rascal.ast.Statement body, java.util.List<org.meta_environment.rascal.ast.Catch> handlers) {
-		this.tree = tree;
+	/*package*/ Try(INode node, org.meta_environment.rascal.ast.Statement body, java.util.List<org.meta_environment.rascal.ast.Catch> handlers) {
+		this.node = node;
 		this.body = body;
 		this.handlers = handlers;
 	}
@@ -673,8 +673,8 @@ public boolean isTryFinally() { return false; }
 static public class TryFinally extends Statement {
 /* "try" body:Statement handlers:Catch+ "finally" finallyBody:Statement -> Statement {cons("TryFinally")} */
 	private TryFinally() { }
-	/*package*/ TryFinally(ITree tree, org.meta_environment.rascal.ast.Statement body, java.util.List<org.meta_environment.rascal.ast.Catch> handlers, org.meta_environment.rascal.ast.Statement finallyBody) {
-		this.tree = tree;
+	/*package*/ TryFinally(INode node, org.meta_environment.rascal.ast.Statement body, java.util.List<org.meta_environment.rascal.ast.Catch> handlers, org.meta_environment.rascal.ast.Statement finallyBody) {
+		this.node = node;
 		this.body = body;
 		this.handlers = handlers;
 		this.finallyBody = finallyBody;
@@ -718,8 +718,8 @@ public boolean isBlock() { return false; }
 static public class Block extends Statement {
 /* label:Label "{" statements:Statement+ "}" -> Statement {cons("Block")} */
 	private Block() { }
-	/*package*/ Block(ITree tree, org.meta_environment.rascal.ast.Label label, java.util.List<org.meta_environment.rascal.ast.Statement> statements) {
-		this.tree = tree;
+	/*package*/ Block(INode node, org.meta_environment.rascal.ast.Label label, java.util.List<org.meta_environment.rascal.ast.Statement> statements) {
+		this.node = node;
 		this.label = label;
 		this.statements = statements;
 	}
@@ -755,8 +755,8 @@ public boolean isFunctionDeclaration() { return false; }
 static public class FunctionDeclaration extends Statement {
 /* functionDeclaration:FunctionDeclaration -> Statement {cons("FunctionDeclaration")} */
 	private FunctionDeclaration() { }
-	/*package*/ FunctionDeclaration(ITree tree, org.meta_environment.rascal.ast.FunctionDeclaration functionDeclaration) {
-		this.tree = tree;
+	/*package*/ FunctionDeclaration(INode node, org.meta_environment.rascal.ast.FunctionDeclaration functionDeclaration) {
+		this.node = node;
 		this.functionDeclaration = functionDeclaration;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -782,8 +782,8 @@ public boolean isVariableDeclaration() { return false; }
 static public class VariableDeclaration extends Statement {
 /* declaration:LocalVariableDeclaration ";" -> Statement {cons("VariableDeclaration")} */
 	private VariableDeclaration() { }
-	/*package*/ VariableDeclaration(ITree tree, org.meta_environment.rascal.ast.LocalVariableDeclaration declaration) {
-		this.tree = tree;
+	/*package*/ VariableDeclaration(INode node, org.meta_environment.rascal.ast.LocalVariableDeclaration declaration) {
+		this.node = node;
 		this.declaration = declaration;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -811,8 +811,8 @@ public boolean isGlobalDirective() { return false; }
 static public class GlobalDirective extends Statement {
 /* "global" type:Type names:{QualifiedName ","}+ ";" -> Statement {cons("GlobalDirective")} */
 	private GlobalDirective() { }
-	/*package*/ GlobalDirective(ITree tree, org.meta_environment.rascal.ast.Type type, java.util.List<org.meta_environment.rascal.ast.QualifiedName> names) {
-		this.tree = tree;
+	/*package*/ GlobalDirective(INode node, org.meta_environment.rascal.ast.Type type, java.util.List<org.meta_environment.rascal.ast.QualifiedName> names) {
+		this.node = node;
 		this.type = type;
 		this.names = names;
 	}
