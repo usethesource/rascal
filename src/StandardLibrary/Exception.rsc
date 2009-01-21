@@ -5,13 +5,13 @@ module Exception
 data Exception Exception(str message);
 
 data OutOfBoundsException OutOfBounds(str message);
-type Exception OutOfBoundsException;
+alias Exception OutOfBoundsException;
 
 data EmptyListException EmptyList(str message);
-type Exception EmptyListException;
+alias Exception EmptyListException;
 
 data ArithmeticOperationException ArithmeticOperation(str message);
-type Exception ArithmeticOperationException;
+alias Exception ArithmeticOperationException;
 
 /* or */
 data Exception OutOfBounds(str message) |

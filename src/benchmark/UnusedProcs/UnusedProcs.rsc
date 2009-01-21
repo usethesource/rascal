@@ -6,7 +6,7 @@ import Graph;
 import Benchmark;
 import IO;
 
-type str Proc;
+alias str Proc;
 
 public map[str, list[str]] meta-deps =
 ("JJTraveler"            : [],

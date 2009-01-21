@@ -12,7 +12,7 @@ public class AllTests4 {
 		suite.addTestSuite(StandardLibraryRelationTests.class);
 		suite.addTestSuite(StandardLibrarySetTests.class);
 		suite.addTestSuite(StandardLibraryStringTests.class);
-		suite.addTestSuite(StandardLibraryTreeTests.class);
+		suite.addTestSuite(StandardLibraryNodeTests.class);
 		suite.addTestSuite(SubscriptTests.class);
 		suite.addTestSuite(StatementTests.class);
 		suite.addTestSuite(TryCatchTests.class);

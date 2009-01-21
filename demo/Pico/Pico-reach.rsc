@@ -1,7 +1,7 @@
 module Pico-reaching-defs
 
-type tuple[Stat theStat, Var theVar] Def;
-type tuple[Stat theStat, Var theVar] Use;
+alias tuple[Stat theStat, Var theVar] Def;
+alias tuple[Stat theStat, Var theVar] Use;
 
 set[Stat] predecessor(rel[Stat,Stat] P, Stat S) { 
     return invert(P)[S]; 

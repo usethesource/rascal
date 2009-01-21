@@ -4,7 +4,7 @@ import pico/syntax/Pico;
 
 data PICO_VALUE intval(int) | strval(str);
 
-type map[PICO-ID, PICO_VALUE] VEnv;
+alias map[PICO-ID, PICO_VALUE] VEnv;
 
 VEnv Env = {};
 

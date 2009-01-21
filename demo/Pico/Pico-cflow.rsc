@@ -4,7 +4,7 @@ import pico/syntax/Pico;
 
 data CP exp(EXP) | stat(STATEMENT);
 
-type tuple[set[CP] entry, 
+alias tuple[set[CP] entry, 
            rel[CP,CP] graph, 
            set[CP] exit] CFSEGMENT;
 

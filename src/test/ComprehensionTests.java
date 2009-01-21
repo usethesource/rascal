@@ -243,7 +243,7 @@ public class ComprehensionTests extends TestCase {
 		assertTrue(tf.runTest("( X: 2 * X| int X: [1,2,3] ) == (1:2,2:4,3:6);"));
 	}
 	
-	public void testTreeGenerator() throws IOException {
+	public void testNodeGenerator() throws IOException {
 		
 		tf = new TestFramework("data NODE int N | f(NODE a,NODE b) | g(NODE a, NODE b);");
 		

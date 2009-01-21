@@ -11,7 +11,7 @@ import org.meta_environment.rascal.ast.BasicType.Real;
 import org.meta_environment.rascal.ast.BasicType.Int;
 import org.meta_environment.rascal.ast.BasicType.Loc;
 import org.meta_environment.rascal.ast.BasicType.String;
-import org.meta_environment.rascal.ast.BasicType.Tree;
+import org.meta_environment.rascal.ast.BasicType.Node;
 import org.meta_environment.rascal.ast.BasicType.Value;
 import org.meta_environment.rascal.ast.BasicType.Void;
 import org.meta_environment.rascal.ast.Formal.TypeName;
@@ -157,7 +157,7 @@ public class TypeEvaluator extends NullASTVisitor<Type> {
 	}
 	
 	@Override
-	public Type visitBasicTypeTree(Tree x) {
+	public Type visitBasicTypeNode(Node x) {
 		return tf.treeType();
 	}
 	
