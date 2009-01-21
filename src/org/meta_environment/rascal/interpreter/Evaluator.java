@@ -860,7 +860,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		
 		candidate = env.getConstructor(cons, signature);
 		if (candidate != null) {
-			return result(candidate.make(vf, actuals));
+			return result(candidate.getAbstractDataType(), candidate.make(vf, actuals));
 		}
 		
 		return result(tf.treeType(), vf.node(cons, actuals));
@@ -3308,10 +3308,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		} 
 		if (leftType.isRelationType() && rightType.isRelationType()) {
 			return compareSet((ISet) left.value, (ISet) right.value);
-		}
-		
-		if (leftType.isConstructorType() && rightType.isConstructorType()) {
-			return compareTree((INode) left.value, (INode) right.value);
 		}
 		
 		if (leftType.isNodeType() && rightType.isNodeType()) {
