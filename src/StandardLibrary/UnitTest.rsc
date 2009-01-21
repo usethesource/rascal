@@ -17,7 +17,7 @@ private void runTest(void () test)
 {
 	try {
 		test();
-	} catch(tree Any){
+	} catch(node Any){
 		nErrors = nErrors + 1;
 	}
 }
