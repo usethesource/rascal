@@ -183,6 +183,10 @@ public class  EnvironmentStack implements Iterable<Environment>{
 	public void storeConstructor(Type decl) {
 		getModuleEnvironment().storeConstructor(decl);
 	}
+	
+	public void storeDefinition(Type adt, Type extension) {
+		getModuleEnvironment().storeDefinition(adt, extension);
+	}
 
 	public FunctionDeclaration getFunction(QualifiedName name, Type actuals, EnvironmentHolder h) {
 		return getFunction(Names.lastName(name), actuals, h);
@@ -254,6 +258,8 @@ public class  EnvironmentStack implements Iterable<Environment>{
 		}
 		return res.toString();
 	}
+
+	
 
 	
 

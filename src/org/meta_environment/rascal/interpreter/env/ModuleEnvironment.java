@@ -28,6 +28,7 @@ public class ModuleEnvironment extends Environment {
 	protected final Map<String,Type> typeAliases;
 	protected final Map<String, Type> adts;
 	protected final Map<Type, List<Type>> signature;
+	protected final Map<Type, List<Type>> extensions;
 	protected final Map<Type, Map<String, Type>> annotations;
 	
 	public ModuleEnvironment(String name) {
@@ -38,6 +39,7 @@ public class ModuleEnvironment extends Environment {
 		this.typeAliases = new HashMap<String,Type>();
 		this.adts = new HashMap<String,Type>();
 		this.signature = new HashMap<Type, List<Type>>();
+		this.extensions = new HashMap<Type, List<Type>>();
 		this.annotations = new HashMap<Type, Map<String, Type>>();
 	}
 	
@@ -263,19 +265,31 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	public void storeConstructor(Type decl) {
-		Type sort = decl.getAbstractDataType();
+		Type adt = decl.getAbstractDataType();
 		
-		storeAbstractDataType(sort);
+		storeAbstractDataType(adt);
 		
-		List<Type> tmp = signature.get(sort);
+		List<Type> tmp = signature.get(adt);
 		
 		if (tmp == null) {
 			tmp = new LinkedList<Type>();
-			signature.put(sort, tmp);
+			signature.put(adt, tmp);
 		}
 		
 		tmp.add(decl);
 	}
+	
+	public void storeDefinition(Type adt, Type extension) {
+		List<Type> tmp = extensions.get(adt);
+		
+		if (tmp == null) {
+			tmp = new LinkedList<Type>();
+			extensions.put(adt, tmp);
+		}
+		
+		tmp.add(extension);
+	}
+
 
 	public void storeAnnotation(Type onType, String name, Type annoType) {
 		Map<String, Type> annosFor = annotations.get(onType);
@@ -306,5 +320,4 @@ public class ModuleEnvironment extends Environment {
 	public String toString() {
 		return "Environment [ " + getName() + ":" + importedModules + "]"; 
 	}
-
 }
