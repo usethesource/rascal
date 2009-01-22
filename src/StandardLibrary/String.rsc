@@ -20,6 +20,90 @@ public bool java endsWith(str s, str suffix)
   return values.bool(s.getValue().endsWith(suffix.getValue()));
 }
 
+private str java format(str s, str dir, int n, str pad)
+@doc{format -- return string of length n, with s placed according to dir (left/center/right) and padded with pad}
+@java-imports{
+	import java.lang.String;
+	import java.lang.StringBuffer;
+}
+{
+    StringBuffer res = new StringBuffer();
+    int sLen = s.getValue().length();
+    int nVal = n.getValue();
+    if(sLen > nVal){
+       return s;
+    }
+    int padLen = pad.getValue().length();
+    String dirVal = dir.getValue();
+    int start;
+    
+    if(dirVal.equals("right"))
+       start = nVal - sLen;
+    else if(dirVal.equals("center"))
+       start = (nVal - sLen)/2;
+    else
+       start = 0;
+    
+    int i = 0;
+    while(i < start){
+         if(i + padLen < start){
+         	res.append(pad.getValue());
+         	i+= padLen;
+         } else {
+         	res.append(pad.getValue().substring(0, start - i));
+         	i += start -i;
+         }
+    }
+    res.append(s.getValue());
+    i = start + sLen;
+    while(i < nVal){
+         if(i + padLen < nVal){
+         	res.append(pad.getValue());
+         	i += padLen;
+         } else {
+         	res.append(pad.getValue().substring(0, nVal - i));
+         	i += nVal - i;
+         }
+    }
+    return values.string(res.toString());
+}
+
+public str center(str s, int n)
+@doc{center -- center s in string of length n using spaces}
+{
+  return format(s, "center", n, " ");
+}
+
+public str center(str s, int n, str pad)
+@doc{center -- center s in string of length n using pad}
+{
+  return format(s, "center", n, pad);
+}
+
+public str left(str s, int n)
+@doc{left -- left align s in string of length n using spaces}
+{
+  return format(s, "left", n, " ");
+}
+
+public str left(str s, int n, str pad)
+@doc{left -- left align s in string of length n using pad}
+{
+  return format(s, "left", n, pad);
+}
+
+public str right(str s, int n)
+@doc{right -- right align s in string of length n using spaces}
+{
+  return format(s, "right", n, " ");
+}
+
+public str right(str s, int n, str pad)
+@doc{right -- right align s in string of length n using pad}
+{
+  return format(s, "right", n, pad);
+}
+
 public str java reverse(str s)
 @doc{reverse -- return string with all characters in reverse order.}
 @java-imports{import java.lang.String;}
