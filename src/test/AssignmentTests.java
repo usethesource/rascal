@@ -16,7 +16,6 @@ public class AssignmentTests extends TestCase {
 	public void testTuple() throws IOException {
 		assertTrue(tf.runTest("{int a = 1; int b = 2; <a, b> = <b, a>; (a == 2) && (b == 1);}"));
 		assertTrue(tf.runTest("{<a, b> = <1, 2>; (a == 1) && (b == 2);}"));
-		assertTrue(tf.runTest("{int a; int b; <a, b> = <1, 2>; (a == 1) && (b == 2);}"));
 	}
 	
 	public void testList() throws IOException {

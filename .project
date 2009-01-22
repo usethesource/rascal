@@ -3,7 +3,6 @@
 	<name>rascal</name>
 	<comment></comment>
 	<projects>
-		<project>org.eclipse.imp.pdb.values</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
