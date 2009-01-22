@@ -9,7 +9,7 @@ public class VisitTests extends TestCase {
 	
 	public void testCnt() throws IOException {
 		String cnt =
-		"int cnt(node T) {" +
+		"int cnt(NODE T) {" +
 		"   int C = 0;" +
 		"   visit(T) {" +
 		"      case int N: C = C + 1;" +
@@ -182,7 +182,7 @@ public class VisitTests extends TestCase {
 			
 		// Deep replacement of g by h
 			
-		"node drepl(node T) {" +
+		"NODE drepl(NODE T) {" +
 		"    return bottom-up-break visit (T) {" +
 		"      case g(value T1, value T2) =>  h(T1, T2)" +
 		"    };" +
@@ -202,7 +202,7 @@ public class VisitTests extends TestCase {
 		// Ex6: shallow replacement of g by h (i.e. only outermost 
 		// g's are replaced); 
 
-		"node srepl(node T) {" +
+		"NODE srepl(NODE T) {" +
 		"    return top-down-break visit (T) {" +
 		"       case g(value T1, value T2) =>  h(T1, T2)" +
 		"    };" +

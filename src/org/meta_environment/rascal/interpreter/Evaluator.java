@@ -3015,8 +3015,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		boolean changed = false;
 		IValue result = subject;
 		
-		System.err.println("traverseOnce: " + subject + ", type=" + subject.getType());
-		System.err.println(subjectType.isNodeType() + ", " + subjectType.isConstructorType());
+		//System.err.println("traverseOnce: " + subject + ", type=" + subject.getType());
 		if(subjectType.isStringType()){
 			return traverseString((IString) subject, casesOrRules);
 		}
@@ -3044,7 +3043,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 					changed |= tr.changed;
 					args[i] = tr.value;
 				}
-				System.err.println("subjectType=" + subjectType);
 				if(subjectType.isAbstractDataType() || subjectType.isConstructorType()){
 					result = vf.constructor(subject.getType(), args);
 					
