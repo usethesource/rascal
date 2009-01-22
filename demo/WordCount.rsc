@@ -2,6 +2,7 @@ module WordCount
 
 import IO;
 import Map;
+import List;
  
 /* this is a * test * comment */
 
@@ -53,14 +54,17 @@ public int countLine2(str S){
 // Maintain word count per word.
 // Note how the =? operator initializes each map entry
 // to an appropriate value (0 in this case)
+// The function as a whole makes no sense, since we throw
+// the map away.
 
-public map[str,int] countLine3(str S){
+public int countLine3(str S){
   map[str,int] allCounts = ();
-
- for(/<word:[a-zA-Z0-9]+>/: S){
+  int cnt = 0;
+  for(/<word:\w+>/: S){
+       cnt = cnt + 1;
        allCounts[word] = (allCounts[word] =? 0) + 1;
   }
-  return sum(range(allCounts));
+  return sum([allCounts[K] | str K : allCounts], 0);
 }
 
 public list[str] Jabberwocky = [
