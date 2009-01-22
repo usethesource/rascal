@@ -1032,8 +1032,8 @@ org.meta_environment.rascal.ast.Declaration.Data x = new org.meta_environment.ra
 		}
 		return (org.meta_environment.rascal.ast.Declaration.Data)table.get(x); 
 }
-public org.meta_environment.rascal.ast.Declaration.Alias makeDeclarationAlias(INode node, org.meta_environment.rascal.ast.Type base, org.meta_environment.rascal.ast.UserType user, org.meta_environment.rascal.ast.Tags tags) { 
-org.meta_environment.rascal.ast.Declaration.Alias x = new org.meta_environment.rascal.ast.Declaration.Alias(node, base, user, tags);
+public org.meta_environment.rascal.ast.Declaration.Alias makeDeclarationAlias(INode node, org.meta_environment.rascal.ast.UserType user, org.meta_environment.rascal.ast.Type base, org.meta_environment.rascal.ast.Tags tags) { 
+org.meta_environment.rascal.ast.Declaration.Alias x = new org.meta_environment.rascal.ast.Declaration.Alias(node, user, base, tags);
 		if (!table.containsKey(x)) { 
 			table.put(x, x);
 		}

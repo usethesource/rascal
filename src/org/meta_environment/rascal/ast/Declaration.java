@@ -7,7 +7,7 @@ public boolean hasView() { return false; }
 	public boolean hasSuperType() { return false; } public boolean hasTags() { return false; } public boolean hasAlts() { return false; }
 public boolean isView() { return false; }
 static public class View extends Declaration {
-/* "view" view:Name "<:" superType:Name tags:Tags alts:{Alternative "|"}+ ";" -> Declaration {cons("View")} */
+/* "view" view:Name "<:" superType:Name tags:Tags "=" alts:{Alternative "|"}+ ";" -> Declaration {cons("View")} */
 	private View() { }
 	/*package*/ View(INode node, org.meta_environment.rascal.ast.Name view, org.meta_environment.rascal.ast.Name superType, org.meta_environment.rascal.ast.Tags tags, java.util.List<org.meta_environment.rascal.ast.Alternative> alts) {
 		this.node = node;
@@ -73,15 +73,14 @@ static public class Ambiguity extends Declaration {
   public <T> T accept(IASTVisitor<T> v) {
      return v.visitDeclarationAmbiguity(this);
   }
-} 
-public org.meta_environment.rascal.ast.Type getBase() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.UserType getUser() { throw new UnsupportedOperationException(); } public boolean hasBase() { return false; } public boolean hasUser() { return false; } public boolean isAlias() { return false; }
+} public org.meta_environment.rascal.ast.UserType getUser() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Type getBase() { throw new UnsupportedOperationException(); } public boolean hasUser() { return false; } public boolean hasBase() { return false; } public boolean isAlias() { return false; }
 static public class Alias extends Declaration {
-/* "alias" base:Type user:UserType tags:Tags ";" -> Declaration {cons("Alias")} */
+/* "alias" user:UserType "=" base:Type tags:Tags ";" -> Declaration {cons("Alias")} */
 	private Alias() { }
-	/*package*/ Alias(INode node, org.meta_environment.rascal.ast.Type base, org.meta_environment.rascal.ast.UserType user, org.meta_environment.rascal.ast.Tags tags) {
+	/*package*/ Alias(INode node, org.meta_environment.rascal.ast.UserType user, org.meta_environment.rascal.ast.Type base, org.meta_environment.rascal.ast.Tags tags) {
 		this.node = node;
-		this.base = base;
 		this.user = user;
+		this.base = base;
 		this.tags = tags;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -90,24 +89,24 @@ static public class Alias extends Declaration {
 
 	public boolean isAlias() { return true; }
 
-	public boolean hasBase() { return true; }
 	public boolean hasUser() { return true; }
+	public boolean hasBase() { return true; }
 	public boolean hasTags() { return true; }
 
-private org.meta_environment.rascal.ast.Type base;
-	public org.meta_environment.rascal.ast.Type getBase() { return base; }
-	private void $setBase(org.meta_environment.rascal.ast.Type x) { this.base = x; }
-	public Alias setBase(org.meta_environment.rascal.ast.Type x) { 
-		Alias z = new Alias();
- 		z.$setBase(x);
-		return z;
-	}
-	private org.meta_environment.rascal.ast.UserType user;
+private org.meta_environment.rascal.ast.UserType user;
 	public org.meta_environment.rascal.ast.UserType getUser() { return user; }
 	private void $setUser(org.meta_environment.rascal.ast.UserType x) { this.user = x; }
 	public Alias setUser(org.meta_environment.rascal.ast.UserType x) { 
 		Alias z = new Alias();
  		z.$setUser(x);
+		return z;
+	}
+	private org.meta_environment.rascal.ast.Type base;
+	public org.meta_environment.rascal.ast.Type getBase() { return base; }
+	private void $setBase(org.meta_environment.rascal.ast.Type x) { this.base = x; }
+	public Alias setBase(org.meta_environment.rascal.ast.Type x) { 
+		Alias z = new Alias();
+ 		z.$setBase(x);
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Tags tags;
@@ -121,7 +120,7 @@ private org.meta_environment.rascal.ast.Type base;
 } public abstract <T> T accept(IASTVisitor<T> visitor); public java.util.List<org.meta_environment.rascal.ast.Variant> getVariants() { throw new UnsupportedOperationException(); } public boolean hasVariants() { return false; }
 public boolean isData() { return false; }
 static public class Data extends Declaration {
-/* "data" user:UserType tags:Tags variants:{Variant "|"}+ ";" -> Declaration {cons("Data")} */
+/* "data" user:UserType tags:Tags "=" variants:{Variant "|"}+ ";" -> Declaration {cons("Data")} */
 	private Data() { }
 	/*package*/ Data(INode node, org.meta_environment.rascal.ast.UserType user, org.meta_environment.rascal.ast.Tags tags, java.util.List<org.meta_environment.rascal.ast.Variant> variants) {
 		this.node = node;

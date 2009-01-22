@@ -323,7 +323,7 @@ private org.meta_environment.rascal.ast.CharClass charClass;
 	}	
 } public boolean isLiftedSymbol() { return false; }
 static public class LiftedSymbol extends Symbol {
-/* "`" symbol:Symbol "`" -> Symbol {cons("LiftedSymbol")} */
+/* "140" symbol:Symbol "140" -> Symbol {cons("LiftedSymbol")} */
 	private LiftedSymbol() { }
 	/*package*/ LiftedSymbol(INode node, org.meta_environment.rascal.ast.Symbol symbol) {
 		this.node = node;
