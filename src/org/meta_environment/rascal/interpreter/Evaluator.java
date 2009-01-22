@@ -2444,11 +2444,10 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		EvalResult right = x.getRhs().accept(this);
 		
 		widenIntToReal(left, right);
-/*		
+
 		if (!left.type.comparable(right.type)) {
 			throw new RascalTypeError("Arguments of equals have incomparable types: " + left.type + " and " + right.type);
 		}
-*/
 		
 		return result(vf.bool(equals(left, right)));
 	}
@@ -3336,6 +3335,10 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		}
 		
 		if (leftType.isNodeType() && rightType.isNodeType()) {
+			return compareNode((INode) left.value, (INode) right.value);
+		}
+		
+		if (leftType.isConstructorType() && rightType.isConstructorType()) {
 			return compareNode((INode) left.value, (INode) right.value);
 		}
 		
