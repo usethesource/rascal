@@ -46,8 +46,10 @@ public void queens1()
 
 public bool consistent(int B...)
 { 
-  return all(int i : domain(B), int j : domain(B),
-      	     i != j ==> (B[i] != B[j] && abs(B[i] - B[j]) != abs(j - i))); 		
+  bool res =  all(int i : domain(B), int j : domain(B),
+      	          i != j ==> (B[i] != B[j] && abs(B[i] - B[j]) != abs(j - i))); 
+  //println("consistent(<B>) = <res>");
+  return res;		
 }
 
 /*
@@ -82,8 +84,9 @@ public void queens2()
 public int queens3(int B ...)
 {
   int nsolutions = 0;
-  if(size(B) == N){
+  if(size(B) == 8){
      println(B);
+     nsolutions = nsolutions + 1;
   } else {
      for(int Q : [1 .. 8], consistent(B + Q))
          nsolutions = nsolutions + queens3(B + Q);
@@ -93,6 +96,5 @@ public int queens3(int B ...)
 
 public bool test()
 {
-   N = 5;
    return queens3() == 92;
 }
