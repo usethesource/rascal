@@ -593,16 +593,16 @@ public class DataTypeTests extends TestCase{
 		tf = new TestFramework("data NODE int V | string(str x)  | s(set[NODE] s) | l(list[NODE]) | m(map[NODE,NODE] m) | f | f(NODE a) | f(NODE a, NODE b) | g | g(NODE a) | g(NODE a,NODE b);");
 		
 		assertTrue(tf.runTestInSameEvaluator("f() == f();"));
-//		assertTrue(tf.runTestInSameEvaluator("f() != g();")); not allowed due to incomparable types
+		assertTrue(tf.runTestInSameEvaluator("f() != g();"));
 		assertTrue(tf.runTestInSameEvaluator("{NODE n = f(); NODE m = g(); n != m;}"));
 		assertTrue(tf.runTestInSameEvaluator("f(1) == f(1);"));
-//		assertTrue(tf.runTestInSameEvaluator("f(1) != g(1);"));
+		assertTrue(tf.runTestInSameEvaluator("f(1) != g(1);"));
 		assertTrue(tf.runTestInSameEvaluator("{NODE n = f(1); NODE m = g(1); n != m;}"));
 		assertTrue(tf.runTestInSameEvaluator("f(1,2) == f(1,2);"));
-//		assertTrue(tf.runTestInSameEvaluator("f(1,2) != f(1,3);"));
+		assertTrue(tf.runTestInSameEvaluator("f(1,2) != f(1,3);"));
 		assertTrue(tf.runTestInSameEvaluator("{ NODE n = f(1,2); NODE m = f(1,3); n != m;}"));
 		assertTrue(tf.runTestInSameEvaluator("f(1,g(2,3)) == f(1,g(2,3));"));
-//		assertTrue(tf.runTestInSameEvaluator("f(1,g(2,3)) != f(1,g(2,4));"));
+		assertTrue(tf.runTestInSameEvaluator("f(1,g(2,3)) != f(1,g(2,4));"));
 		assertTrue(tf.runTestInSameEvaluator("{NODE n = f(1,g(2,3)); NODE m = f(1,g(2,4)); n != m;}"));
 		assertTrue(tf.runTestInSameEvaluator("f(1,g(2,s({3,4,5}))) == f(1,g(2,s({3,4,5})));"));
 		assertTrue(tf.runTestInSameEvaluator("{ NODE n = f(1,g(2,s({3,4,5}))); NODE m = f(1,g(2,s({3,4,5,6}))); n != m;}"));
