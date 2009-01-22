@@ -68,7 +68,7 @@ public class PatternTests extends TestCase {
 	
 	public void testMatchNode() throws IOException {
 		
-		tf = new TestFramework("data F f(int N) | f(int N, int M) | f(int N, value f, bool B) | g(str S);");
+		tf = new TestFramework("data F = f(int N) | f(int N, int M) | f(int N, value f, bool B) | g(str S);");
 		
 		assertTrue(tf.runTestInSameEvaluator("f(1)                   := f(1);"));
 		assertTrue(tf.runTestInSameEvaluator("f(1, g(\"abc\"), true) := f(1, g(\"abc\"), true);"));
@@ -86,7 +86,7 @@ public class PatternTests extends TestCase {
 	
 	public void testMatchVariable() throws IOException {
 		
-		tf = new TestFramework("data F f(int N);");
+		tf = new TestFramework("data F = f(int N);");
 		
 		assertTrue(tf.runTestInSameEvaluator("(n := 1) && (n == 1);"));
 		assertTrue(tf.runTestInSameEvaluator("{int n = 1; (n := 1) && (n == 1);}"));

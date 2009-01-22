@@ -17,7 +17,7 @@ public class VisitTests extends TestCase {
 		"    return C;" +
 		"}";
 		
-		tf = new TestFramework("data NODE f(value V) | f(value V1, value V2) | f(value V1, value V2, value V3) | g(value V1, value V2) | h(value V1, value V2);");
+		tf = new TestFramework("data NODE = f(value V) | f(value V1, value V2) | f(value V1, value V2, value V3) | g(value V1, value V2) | h(value V1, value V2);");
 		
 		assertTrue(tf.runTestInSameEvaluator("{" + cnt + "cnt(f(3)) == 1;}"));
 		assertTrue(tf.runTestInSameEvaluator("{" + cnt + "cnt(f(1,2,3)) == 3;}"));
@@ -37,7 +37,7 @@ public class VisitTests extends TestCase {
 		"    };" + 
 		"}";
 		
-		tf = new TestFramework("data NODE f(value V) | f(value V1, value V2) | f(value V1, value V2, value V3) | g(value V1, value V2) | h(value V1, value V2);");
+		tf = new TestFramework("data NODE = f(value V) | f(value V1, value V2) | f(value V1, value V2, value V3) | g(value V1, value V2) | h(value V1, value V2);");
 
 		
 		assertTrue(tf.runTestInSameEvaluator("{" + inc + "inc(f(3)) == f(4);}"));
@@ -62,7 +62,7 @@ public class VisitTests extends TestCase {
 		"    };" +
 		"}";
 		
-		tf = new TestFramework("data NODE f(value V) | f(value V1, value V2) | f(value V1, value V2, value V3) | g(value V1, value V2) | h(value V1, value V2);");
+		tf = new TestFramework("data NODE = f(value V) | f(value V1, value V2) | f(value V1, value V2, value V3) | g(value V1, value V2) | h(value V1, value V2);");
 
 		
 		assertTrue(tf.runTestInSameEvaluator("{" + frepa + "frepa(f(3)) == f(3);}"));
@@ -86,7 +86,7 @@ public class VisitTests extends TestCase {
 		"    };" +
 		"}";
 		
-		tf = new TestFramework("data NODE f(value V) | f(value V1, value V2) | f(value V1, value V2, value V3) | g(value V1, value V2) | h(value V1, value V2);");
+		tf = new TestFramework("data NODE = f(value V) | f(value V1, value V2) | f(value V1, value V2, value V3) | g(value V1, value V2) | h(value V1, value V2);");
 
 		
 		assertTrue(tf.runTestInSameEvaluator("{" + frepb + "frepb(f(3)) == f(3);}"));
@@ -112,7 +112,7 @@ public class VisitTests extends TestCase {
 		"    };" +
 		"}";
 		
-		tf = new TestFramework("data NODE f(value V) | f(value V1, value V2) | f(value V1, value V2, value V3) | g(value V1, value V2) | h(value V1, value V2) | h(value V1, value V2, value V3);");
+		tf = new TestFramework("data NODE = f(value V) | f(value V1, value V2) | f(value V1, value V2, value V3) | g(value V1, value V2) | h(value V1, value V2) | h(value V1, value V2, value V3);");
 
 		
 		assertTrue(tf.runTestInSameEvaluator("{" + frepG2H3a + "frepG2H3a(f(3)) == f(3);}"));
@@ -136,7 +136,7 @@ public class VisitTests extends TestCase {
 		"    };" +
 		"}";
 		
-		tf = new TestFramework("data NODE f(value V) | f(value V1, value V2) | f(value V1, value V2, value V3) | g(value V1, value V2) | h(value V1, value V2) | h(value V1, value V2, value V3);");
+		tf = new TestFramework("data NODE = f(value V) | f(value V1, value V2) | f(value V1, value V2, value V3) | g(value V1, value V2) | h(value V1, value V2) | h(value V1, value V2, value V3);");
 
 		
 		assertTrue(tf.runTestInSameEvaluator("{" + frepG2H3b + "frepG2H3b(f(3)) == f(3);}"));
@@ -164,7 +164,7 @@ public class VisitTests extends TestCase {
 		"    return <C, T>;" +
 		"}";
 		
-		tf = new TestFramework("data NODE f(value V) | f(value V1, value V2) | f(value V1, value V2, value V3) | g(value V1, value V2) | h(value V1, value V2);");
+		tf = new TestFramework("data NODE = f(value V) | f(value V1, value V2) | f(value V1, value V2, value V3) | g(value V1, value V2) | h(value V1, value V2);");
 
 		
 		assertTrue(tf.runTestInSameEvaluator("{" + inc_and_count + "inc_and_count(f(3),10)                       == <1,f(13)>;}"));
@@ -188,7 +188,7 @@ public class VisitTests extends TestCase {
 		"    };" +
 		"}";
 		
-		tf = new TestFramework("data NODE f(value V) | f(value V1, value V2) | f(value V1, value V2, value V3) | g(value V1, value V2) | h(value V1, value V2);");
+		tf = new TestFramework("data NODE = f(value V) | f(value V1, value V2) | f(value V1, value V2, value V3) | g(value V1, value V2) | h(value V1, value V2);");
 
 		
 		assertTrue(tf.runTestInSameEvaluator("{" + drepl + "drepl(f(3)) == f(3);}"));
@@ -208,7 +208,7 @@ public class VisitTests extends TestCase {
 		"    };" +
 		"}";
 		
-		tf = new TestFramework("data NODE f(value V) | f(value V1, value V2) | f(value V1, value V2, value V3) | g(value V1, value V2) | h(value V1, value V2);");
+		tf = new TestFramework("data NODE = f(value V) | f(value V1, value V2) | f(value V1, value V2, value V3) | g(value V1, value V2) | h(value V1, value V2);");
 	
 		assertTrue(tf.runTestInSameEvaluator("{" + srepl + "srepl(f(3)) == f(3);}"));
 		assertTrue(tf.runTestInSameEvaluator("{" + srepl + "srepl(g(1,2)) == h(1,2);}"));

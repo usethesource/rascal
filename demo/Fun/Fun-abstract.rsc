@@ -7,7 +7,7 @@ import IO;
  * The Expression language EXP
  */
  
-data Exp
+data Exp =
        fun(str name, Exp exp)      // Function application
      | var(str Name)               // Variable occurrence
      | intcon(int ival)            // Integer constant

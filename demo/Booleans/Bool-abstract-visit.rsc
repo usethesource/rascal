@@ -1,9 +1,9 @@
 module Bool-abstract-visit
 
-data Bool btrue;
-data Bool bfalse;
-data Bool band(Bool L, Bool R);
-data Bool bor(Bool L, Bool R);  
+data Bool = btrue;
+data Bool = bfalse;
+data Bool = band(Bool L, Bool R);
+data Bool = bor(Bool L, Bool R);  
 
 public Bool reduce(Bool B) {
     return innermost visit(B) {

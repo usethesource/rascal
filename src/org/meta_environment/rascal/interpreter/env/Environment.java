@@ -41,7 +41,7 @@ public class Environment {
 		if (candidates != null) {
 			for (FunctionDeclaration candidate : candidates) {
 				Type formals = candidate.getSignature().accept(TypeEvaluator.getInstance());
-				System.err.println("getFunction: formals=" + formals + ", " + "actuals=" + actuals);
+				//System.err.println("getFunction: formals=" + formals + ", " + "actuals=" + actuals);
 				if (actuals.isSubtypeOf(formals)) {
 					h.setEnvironment(this);
 					return candidate;
