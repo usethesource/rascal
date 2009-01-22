@@ -300,9 +300,11 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		
 		if (v != null) {
 			checkType(v.getType(), instance);
+			return applyRules(instance, v.getType(), v);
 		}
-
-		return applyRules(instance, v.getType(), v);
+		else {
+			return new EvalResult(instance, v);
+		}
 	}
 
 	EvalResult result(IValue v) {
@@ -325,7 +327,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 		java.util.List<org.meta_environment.rascal.ast.Rule> rules = env.getRules(dynType);
 		if(rules.isEmpty()){
-			System.err.println("applyRules: no matching rules for " + dynType);
+//			System.err.println("applyRules: no matching rules for " + dynType);
 			return new EvalResult(declaredType, v);
 		}
 		System.err.println("applyRules: matching rules for " + dynType);
@@ -337,8 +339,10 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				/* fixedpoint */ false);  /* innermost is achieved by repeated applications of applyRules
 				 							* when intermediate results are produced.
 				 							*/
-			System.err.println("applyRules: tr.value =" + tr.value);
-			return new EvalResult(tr.value.getType(), tr.value);
+//			System.err.println("applyRules: tr.value =" + tr.value);
+//			TODO ?? Jurgen asks: why use the value type here?? rules should not change the declared type
+//			return new EvalResult(tr.value.getType(), tr.value);
+			return new EvalResult(declaredType, tr.value);
 		} finally {
 			env.popFrame();
 		}
