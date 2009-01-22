@@ -37,6 +37,7 @@ class RegExpPatternValue implements MatchPattern {
 	
 	private int start;							// start of last match in current subject
 	private int end;							// end of last match in current subject
+	private boolean debug = false;
 	
 	RegExpPatternValue(String s){
 		RegExpAsString = s;
@@ -57,7 +58,7 @@ class RegExpPatternValue implements MatchPattern {
 					throw new RascalTypeError("Name " + name + " should have type string but has type " + res.type);
 				}
 				boundBeforeConstruction.put(name, ((IString)res.value).getValue());
-				//System.err.println("bound before construction: " + name + ", " + res.value);
+				if(debug)System.err.println("bound before construction: " + name + ", " + res.value);
 			}
 		}
 	}
@@ -145,6 +146,7 @@ class RegExpPatternValue implements MatchPattern {
 }
 
 public class RegExpPatternEvaluator extends NullASTVisitor<MatchPattern> {
+	private boolean debug = false;
 	
 	public boolean isRegExpPattern(org.meta_environment.rascal.ast.Expression pat){
 		if(pat.isLiteral() && pat.getLiteral().isRegExp()){
@@ -157,25 +159,25 @@ public class RegExpPatternEvaluator extends NullASTVisitor<MatchPattern> {
 	}	
 	
 	public MatchPattern visitExpressionLiteral(Literal x) {
-		//System.err.println("visitExpressionLiteral: " + x.getLiteral());
+		if(debug)System.err.println("visitExpressionLiteral: " + x.getLiteral());
 		return x.getLiteral().accept(this);
 	}
 	
 	public MatchPattern visitLiteralRegExp(RegExp x) {
-		//System.err.println("visitLiteralRegExp: " + x.getRegExpLiteral());
+		if(debug)System.err.println("visitLiteralRegExp: " + x.getRegExpLiteral());
 		return x.getRegExpLiteral().accept(this);
 	}
 	
 	@Override
 	public MatchPattern visitRegExpLexical(Lexical x) {
-		//System.err.println("visitRegExpLexical: " + x.getString());
+		if(debug)System.err.println("visitRegExpLexical: " + x.getString());
 		return new RegExpPatternValue(x.getString());
 	}
 	
 	@Override
 	public MatchPattern visitRegExpLiteralLexical(
 			org.meta_environment.rascal.ast.RegExpLiteral.Lexical x) {
-		//System.err.println("visitRegExpLiteralLexical: " + x.getString());
+		if(debug)System.err.println("visitRegExpLiteralLexical: " + x.getString());
 
 		String subjectPat = x.getString();
 		Character modifier = null;
@@ -214,7 +216,7 @@ public class RegExpPatternEvaluator extends NullASTVisitor<MatchPattern> {
 		 * Replace in the final regexp all occurrences of \< by <
 		 */
 		resultRegExp = resultRegExp.replaceAll("(\\\\<)", "<");
-		//System.err.println("resultRegExp: " + resultRegExp);
+		if(debug)System.err.println("resultRegExp: " + resultRegExp);
 		return new RegExpPatternValue(resultRegExp, modifier, names);
 	}
 }

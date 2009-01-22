@@ -30,4 +30,8 @@ public class RegExpTests extends TestCase {
 		
 	//TODO:	assertTrue(tf.runTest("/ab.*c/m := \"ab\nc\";"));
 	}
+	
+	public void testConditions() throws IOException {
+	
+	}
 }

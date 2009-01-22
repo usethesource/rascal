@@ -1,6 +1,7 @@
 module WordCount
 
 import IO;
+import Map;
  
 /* this is a * test * comment */
 
@@ -57,11 +58,9 @@ public map[str,int] countLine3(str S){
   map[str,int] allCounts = ();
 
  for(/<word:[a-zA-Z0-9]+>/: S){
-       /* allCounts[word] ? 0 += 1; */
-	/* This is the same as */
        allCounts[word] = (allCounts[word] =? 0) + 1;
   }
-  return allCounts;
+  return sum(range(allCounts));
 }
 
 public list[str] Jabberwocky = [

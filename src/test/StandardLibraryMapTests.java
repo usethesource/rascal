@@ -15,6 +15,14 @@ public class StandardLibraryMapTests extends TestCase {
 		assertTrue(tf.runTestInSameEvaluator("{int N = arb((1:10, 2:20)); (N == 1) || (N ==2);}"));
 	}
 	
+	public void testMapDomain() throws IOException {
+		
+		tf = new TestFramework("import Map;");
+		
+		assertTrue(tf.runTestInSameEvaluator("domain(()) == {};"));
+		assertTrue(tf.runTestInSameEvaluator("domain((1:10, 2:20)) == {1,2};"));
+	}
+	
 	// mapper
 	
 	public void testMapMapper() throws IOException {
@@ -31,6 +39,15 @@ public class StandardLibraryMapTests extends TestCase {
 		assertTrue(tf.runTestInSameEvaluator("{" + inc + dec + "mapper((1:10,2:20), #inc, #dec) == (2:9,3:19);}"));
 	}
 	
+	// range
+	
+	public void testMapRange() throws IOException {
+		
+		tf = new TestFramework("import Map;");
+		
+		assertTrue(tf.runTestInSameEvaluator("range(()) == {};"));
+		assertTrue(tf.runTestInSameEvaluator("range((1:10, 2:20)) == {10,20};"));
+	}
 	
 	// size
 	

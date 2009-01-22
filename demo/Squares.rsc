@@ -9,3 +9,9 @@ public void squares(int N){
     println("<I> squared = <I2>");
   } 
 }
+
+public bool test(){
+
+	squares(10);
+	return true;
+}
