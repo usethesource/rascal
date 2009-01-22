@@ -1,14 +1,12 @@
 module WordReplacement
 
-public str capOne(str S){
-    return (/rascal/i ~= S) ? "Rascal" : S;
-}
+import String;
 
 public str capAll1(str S)
 {
  result = "";
- while (/^<before:\W*><word:\w+><after:.*$>/ ~= S) { 
-    result = result + before + capOne(word);
+ while (/^<before:\W*><word:\w+><after:.*$>/ := S) { 
+    result = result + before + capitalize(word);
     S = after;
   }
   return result;
@@ -16,7 +14,7 @@ public str capAll1(str S)
 
 public str capitalize(str word)
 {
-   if(/^<letter:[a-z]><rest:.*$/){
+   if(/^<letter:[a-z]><rest:.*$>/ := word){
    		return toUpperCase(letter) + rest;
    } else {
    		return word;
@@ -26,13 +24,15 @@ public str capitalize(str word)
 public str capAll2(str S)
 {
    return visit(S){
-   	case /<word:\w+>/i => capitalize(word);
+   	case /<word:\w+>/i => capitalize(word)
    };
 }
 
-bool test)
+public bool test()
 {
 	return
-		capAll1("turn this into a title") == "Turn This Into A Title" &&
-		capAll2("turn this into a title") == "Turn This Into A Title";
+	    capitalize("1") == "1" &&
+	    capitalize("rascal") == "Rascal" &&
+		capAll1("turn this into a title") == "Turn This Into A Title"  &&
+		capAll2("turn this into a title") == "Turn This Into A Title" ;
 }

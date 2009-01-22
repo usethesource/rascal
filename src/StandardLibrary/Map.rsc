@@ -15,10 +15,48 @@ public &K java arb(map[&K, &V] m)
       i++;
    }
    return null;
-} 
+}
+
+public set[&K] java domain(map[&K, &V] M)
+@doc{domain -- return the domain (keys) of a map}
+@java-imports{
+	import java.util.Iterator;
+	import java.util.Map.Entry;
+}
+{
+  Type keyType = M.getKeyType();
+  
+  Type resultType = types.setType(keyType);
+  ISetWriter w = resultType.writer(values);
+  Iterator iter = M.entryIterator();
+  while (iter.hasNext()) {
+    Entry entry = (Entry) iter.next();
+    w.insert((IValue)entry.getKey());
+  }
+  return w.done();
+}
 
 public map[&K, &V] mapper(map[&K, &V] M, &K (&K) F, &V (&V) G){
   return (#F(key) : #G(M[key]) | &K key : M);
+}
+
+public set[&K] java range(map[&K, &V] M)
+@doc{range -- return the range (values) of a map}
+@java-imports{
+	import java.util.Iterator;
+	import java.util.Map.Entry;
+}
+{
+  Type valueType = M.getValueType();
+  
+  Type resultType = types.setType(valueType);
+  ISetWriter w = resultType.writer(values);
+  Iterator iter = M.entryIterator();
+  while (iter.hasNext()) {
+    Entry entry = (Entry) iter.next();
+    w.insert((IValue)entry.getValue());
+  }
+  return w.done();
 }
 
 public int java size(map[&K, &V] M)

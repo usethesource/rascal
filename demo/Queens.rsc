@@ -84,11 +84,11 @@ public void queens2()
 public int queens3(int B ...)
 {
   int nsolutions = 0;
-  if(size(B) == 8){
+  if(size(B) == N){
      println(B);
      nsolutions = nsolutions + 1;
   } else {
-     for(int Q : [1 .. 8], consistent(B + Q))
+     for(int Q : [1 .. N], consistent(B + Q))
          nsolutions = nsolutions + queens3(B + Q);
   }
   return nsolutions;
@@ -96,5 +96,6 @@ public int queens3(int B ...)
 
 public bool test()
 {
-   return queens3() == 92;
+   N = 5;
+   return queens3() == 10;
 }

@@ -72,6 +72,16 @@ private static TestFramework tf = new TestFramework();
 		assertTrue(tf.runTestInSameEvaluator("MEPT::test();"));
 	}
 	
+	public void testQueens() throws IOException {
+		tf = new TestFramework("import Queens;");
+		assertTrue(tf.runTestInSameEvaluator("Queens::test();"));
+	}
+	
+	public void testSquares() throws IOException {
+		tf = new TestFramework("import Squares;");
+		assertTrue(tf.runTestInSameEvaluator("Squares::test();"));
+	}
+	
 	public void testTrans() throws IOException {
 		tf = new TestFramework("import Trans;");
 		assertTrue(tf.runTestInSameEvaluator("Trans::test();"));
@@ -80,5 +90,10 @@ private static TestFramework tf = new TestFramework();
 	public void testWordCount() throws IOException {
 		tf = new TestFramework("import WordCount;");
 		assertTrue(tf.runTestInSameEvaluator("WordCount::test();"));
+	}
+	
+	public void testWordReplacement() throws IOException {
+		tf = new TestFramework("import WordReplacement;");
+		assertTrue(tf.runTestInSameEvaluator("WordReplacement::test();"));
 	}
 }
