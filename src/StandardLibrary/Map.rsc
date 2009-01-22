@@ -40,7 +40,7 @@ public map[&K, &V] mapper(map[&K, &V] M, &K (&K) F, &V (&V) G){
   return (#F(key) : #G(M[key]) | &K key : M);
 }
 
-public set[&K] java range(map[&K, &V] M)
+public set[&V] java range(map[&K, &V] M)
 @doc{range -- return the range (values) of a map}
 @java-imports{
 	import java.util.Iterator;
