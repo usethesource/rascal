@@ -5,10 +5,10 @@ module Graph
  * - replace rel[&T,&T] by graph[&T]
 */
 
-//type rel[&T,&T] graph[&T];
-
 import Set;
 import Relation;
+
+alias graph[&T] = rel[&T,&T];
 
 public set[&T] top(rel[&T,&T] G)
 @doc{top -- return the top nodes of a graph}
@@ -22,7 +22,7 @@ public set[&T] bottom(rel[&T, &T] G)
   return range(G) - domain(G);
 }
 
-alias rel[&T,&T] graph[&T];
+alias graph[&T] = rel[&T,&T];
 
 public set[&T] gtop(graph[&T] G)
 @doc{Top of a Graph}

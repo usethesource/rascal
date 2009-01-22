@@ -2,7 +2,7 @@ module CarFDL
 
 import Set;
 
-alias str feature;
+alias feature = str;
 
 public set[feature] Transmission    = { "automatic", "manual" };
 

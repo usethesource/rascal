@@ -26,7 +26,7 @@ public class TryCatchTests extends TestCase {
 		"	}" +
 		"}";
 		
-		tf = new TestFramework("data NODE f(int N);");
+		tf = new TestFramework("data NODE = f(int N);");
 		
 		assertTrue(tf.runTestInSameEvaluator("{" + classify + "classify(3) == 1;}"));
 		assertTrue(tf.runTestInSameEvaluator("{" + classify + "classify(f(3)) == 2;}"));
@@ -53,7 +53,7 @@ public class TryCatchTests extends TestCase {
 		"	}" +
 		"}";
 		
-		tf = new TestFramework("data NODE f(int N) | d(NODE a, NODE b);");
+		tf = new TestFramework("data NODE = f(int N) | d(NODE a, NODE b);");
 		
 		assertTrue(tf.runTestInSameEvaluator("{" + duplicate + "duplicate(3) == 6;}"));
 		assertTrue(tf.runTestInSameEvaluator("{" + duplicate + "duplicate(f(3)) == d(f(3),f(3));}"));
@@ -84,7 +84,7 @@ public class TryCatchTests extends TestCase {
 		"	}" +
 		"}";
 		
-		tf = new TestFramework("data NODE f(int N) | fin(value V) | d(NODE a) | d(NODE a, NODE b);");
+		tf = new TestFramework("data NODE = f(int N) | fin(value V) | d(NODE a) | d(NODE a, NODE b);");
 		
 		assertTrue(tf.runTestInSameEvaluator("{" + dfin + "dfin(3) == fin(6);}"));
 		assertTrue(tf.runTestInSameEvaluator("{" + dfin + "dfin(f(3)) == fin(d(f(3),f(3)));}"));
@@ -114,7 +114,7 @@ public class TryCatchTests extends TestCase {
 		
 		//TODO: divide_by_zero will become a built-in exception
 		
-		tf = new TestFramework("data Exception divide_by_zero;");
+		tf = new TestFramework("data Exception = divide_by_zero;");
 		
 		assertTrue(tf.runTestInSameEvaluator("{" + divide + "divide(3, 2) == 1;}"));
 		assertTrue(tf.runTestInSameEvaluator("{" + divide + "safeDivide(3, 2) == 1;}"));

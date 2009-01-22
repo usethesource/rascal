@@ -9,7 +9,7 @@ import Set;
 import Relation;
 import Graph;
 
-alias str Proc;
+alias Proc = str;
 
 bool test(){
 

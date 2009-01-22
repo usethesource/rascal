@@ -10,7 +10,7 @@ public class StandardLibraryNodeTests extends TestCase {
 	public void testNodeArity() throws IOException {
 		
 		tf = new TestFramework("import Node;").
-		prepareMore("data NODE f | f(int) | f(int,int) | f(int,int,int);");
+		prepareMore("data NODE = f | f(int) | f(int,int) | f(int,int,int);");
 		
 		assertTrue(tf.runTestInSameEvaluator("arity(f()) == 0;"));
 		assertTrue(tf.runTestInSameEvaluator("arity(f(1)) == 1;"));
@@ -20,7 +20,7 @@ public class StandardLibraryNodeTests extends TestCase {
 	public void testNodeGetChildren() throws IOException {
 		
 		tf = new TestFramework("import Node;").
-		prepareMore("data NODE f | f(int) | f(int,int) | f(int,int,int);");
+		prepareMore("data NODE = f | f(int) | f(int,int) | f(int,int,int);");
 		
 		assertTrue(tf.runTestInSameEvaluator("getChildren(f()) == [];"));
 		assertTrue(tf.runTestInSameEvaluator("getChildren(f(1)) == [1];"));
@@ -30,7 +30,7 @@ public class StandardLibraryNodeTests extends TestCase {
 	public void testNodeGetName() throws IOException {
 		
 		tf = new TestFramework("import Node;").
-		prepareMore("data NODE f | f(int) | f(int,int) | f(int,int,int);");
+		prepareMore("data NODE = f | f(int) | f(int,int) | f(int,int,int);");
 		
 		assertTrue(tf.runTestInSameEvaluator("getName(f()) == \"f\";"));
 		assertTrue(tf.runTestInSameEvaluator("getName(f(1,2,3)) == \"f\";"));
@@ -39,7 +39,7 @@ public class StandardLibraryNodeTests extends TestCase {
 	public void testNodeMakeNode() throws IOException {
 		
 		tf = new TestFramework("import Node;").
-		prepareMore("data NODE f | f(int) | f(int,int) | f(int,int,int);");
+		prepareMore("data NODE = f | f(int) | f(int,int) | f(int,int,int);");
 		
 		assertTrue(tf.runTestInSameEvaluator("makeNode(\"f\") == f;"));
 		assertTrue(tf.runTestInSameEvaluator("makeNode(\"f\", 1) == f(1);"));

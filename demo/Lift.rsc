@@ -3,8 +3,8 @@ module Lift
 
 // Component structure/lifting example from tutorial
 
-alias str proc;
-alias str comp;
+alias proc = str;
+alias comp = str ;
 
 rel[proc,proc] Calls = {<"main", "a">, <"main", "b">, <"a", "b">, <"a", "c">, <"a", "d">, <"b", "d">};        
 
