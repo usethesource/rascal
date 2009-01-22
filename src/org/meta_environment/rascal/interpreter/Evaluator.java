@@ -667,7 +667,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	@Override
 	public EvalResult visitRuleReplacing(Replacing x) {
 		MatchPattern pv = x.getPattern().accept(pe);
-		//System.err.println("visitRule: " + pv.getType(this));
+		System.err.println("visitRule: " + pv.getType(this));
 		env.storeRule(pv.getType(this), x);
 		return result();
 	}
@@ -1867,7 +1867,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			if (result != null && result.value != null) {
 				return result;
 			} else {
-				throw new RascalTypeError("Uninitialized variable: " + x);
+				throw new RascalUndefinedValue("Uninitialized variable: " + x);
 			}
 		}
 	}
@@ -3015,7 +3015,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		boolean changed = false;
 		IValue result = subject;
 		
-		//System.err.println("traverseOnce: " + subject + ", type=" + subject.getType());
+		System.err.println("traverseOnce: " + subject + ", type=" + subject.getType());
+		System.err.println(subjectType.isNodeType() + ", " + subjectType.isConstructorType());
 		if(subjectType.isStringType()){
 			return traverseString((IString) subject, casesOrRules);
 		}
@@ -3043,7 +3044,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 					changed |= tr.changed;
 					args[i] = tr.value;
 				}
-				//System.err.println("subjectType=" + subjectType);
+				System.err.println("subjectType=" + subjectType);
 				if(subjectType.isAbstractDataType() || subjectType.isConstructorType()){
 					result = vf.constructor(subject.getType(), args);
 					
