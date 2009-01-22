@@ -9,10 +9,10 @@ public class AllTests4 {
 		TestSuite suite = new TestSuite();
 
 		suite.addTestSuite(StandardLibraryMapTests.class);
+		suite.addTestSuite(StandardLibraryNodeTests.class);
 		suite.addTestSuite(StandardLibraryRelationTests.class);
 		suite.addTestSuite(StandardLibrarySetTests.class);
 		suite.addTestSuite(StandardLibraryStringTests.class);
-		suite.addTestSuite(StandardLibraryNodeTests.class);
 		suite.addTestSuite(SubscriptTests.class);
 		suite.addTestSuite(StatementTests.class);
 		suite.addTestSuite(TryCatchTests.class);
