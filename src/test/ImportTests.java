@@ -3,6 +3,7 @@ package test;
 import java.io.IOException;
 
 import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
+import org.meta_environment.rascal.interpreter.exceptions.RascalUndefinedValue;
 
 import junit.framework.TestCase;
 
@@ -38,9 +39,9 @@ public class ImportTests extends TestCase {
 		assertTrue(tf.runTestInSameEvaluator("n == 3;"));
 		try {
 		  tf.runTestInSameEvaluator("m != 3;");
-		  assertTrue(false);
+		  fail("should throw undefined value");
 		}
-		catch (RascalTypeError e) {
+		catch (RascalUndefinedValue e) {
 			// this should happen
 		}
 		assertTrue(tf.runTestInSameEvaluator("{ int n = 4; n == 4;}"));
