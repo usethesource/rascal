@@ -9,6 +9,7 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
 
 public class INodeReader implements Iterator<IValue> {
 
@@ -25,7 +26,7 @@ public class INodeReader implements Iterator<IValue> {
 		if(bottomup) {
 			spine.push(t);
 		}
-		if(t.getType().isNodeType() || t.getType().isAbstractDataType()){
+		if(t.getType().isNodeType() || t.getType().isAbstractDataType() || t.getType().isConstructorType()){
 			Iterator<IValue> children = ((INode) t).getChildren().iterator();
 			spine.push(children);
 		}
@@ -56,19 +57,20 @@ public class INodeReader implements Iterator<IValue> {
 	}
 	
 	private IValue expand(IValue v){
-		if(v.getType().isNodeType()){
+		Type type = v.getType();
+		if(type.isNodeType() || type.isConstructorType()){
 			return insertAndNext(v,  ((INode) v).getChildren().iterator());
 		}
-		if(v.getType().isListType()){
+		if(type.isListType()){
 			return insertAndNext(v, ((IList) v).iterator());
 		}
-		if(v.getType().isSetType()){
+		if(type.isSetType()){
 			return insertAndNext(v, ((ISet) v).iterator());
 		}
-		if(v.getType().isMapType()){
+		if(type.isMapType()){
 			return insertAndNext(v, ((IMap) v).iterator());
 		}
-		if(v.getType().isTupleType()){
+		if(type.isTupleType()){
 			ITuple tp = (ITuple) v;
 			int arity = tp.arity();
 			if(bottomup){

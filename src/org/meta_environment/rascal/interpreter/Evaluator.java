@@ -3699,7 +3699,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				iter = ((IMap) r.value).iterator();
 				
 			// Node and ADT
-			} else if(r.type.isNodeType() || r.type.isAbstractDataType()){
+			} else if(r.type.isNodeType() || r.type.isAbstractDataType() || r.type.isConstructorType()){
 				boolean bottomup = true;
 				if(vp.hasStrategy()){
 					Strategy strat = vp.getStrategy();
