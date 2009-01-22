@@ -77,7 +77,7 @@ private static TestFramework tf = new TestFramework();
 		assertTrue(tf.runTestInSameEvaluator("Trans::test();"));
 	}
 	
-	public void testWordcount() throws IOException {
+	public void testWordCount() throws IOException {
 		tf = new TestFramework("import WordCount;");
 		assertTrue(tf.runTestInSameEvaluator("WordCount::test();"));
 	}
