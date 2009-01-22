@@ -1,6 +1,6 @@
 package org.meta_environment.rascal.interpreter.exceptions;
 
-/*package*/ class FailureException extends RuntimeException {
+/*package*/ public class FailureException extends RuntimeException {
 	private static final long serialVersionUID = 2774285953244945424L;
 	private String fLabel;
 	private FailureException() { };
