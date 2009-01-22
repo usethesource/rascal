@@ -330,7 +330,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 //			System.err.println("applyRules: no matching rules for " + dynType);
 			return new EvalResult(declaredType, v);
 		}
-		System.err.println("applyRules: matching rules for " + dynType);
+		//System.err.println("applyRules: matching rules for " + dynType);
 		env.pushFrame();
 		try {
 			TraverseResult tr = traverse(v, new CasesOrRules(rules), 
@@ -672,7 +672,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	@Override
 	public EvalResult visitRuleReplacing(Replacing x) {
 		MatchPattern pv = x.getPattern().accept(pe);
-		System.err.println("visitRule: " + pv.getType(this));
+		//System.err.println("visitRule: " + pv.getType(this));
 		env.storeRule(pv.getType(this), x);
 		return result();
 	}
@@ -3024,7 +3024,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		boolean changed = false;
 		IValue result = subject;
 		
-		System.err.println("traverseOnce: " + subject + ", type=" + subject.getType());
+		//System.err.println("traverseOnce: " + subject + ", type=" + subject.getType());
 		if(subjectType.isStringType()){
 			return traverseString((IString) subject, casesOrRules);
 		}
@@ -3040,7 +3040,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		}
 		
 		if(subjectType.isNodeType()){
-			System.err.println("NodeType ...");
 			INode node = (INode)subject;
 			if(node.arity() == 0){
 				result = subject;

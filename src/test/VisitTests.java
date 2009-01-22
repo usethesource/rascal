@@ -31,7 +31,7 @@ public class VisitTests extends TestCase {
 	
 	public void testInc() throws IOException {
 		String inc =
-		"	node inc(node T) {" +
+		"	NODE inc(NODE T) {" +
 		"    return visit(T) {" +
 		"      case int N: insert N + 1;" +
 		"    };" + 
@@ -55,7 +55,7 @@ public class VisitTests extends TestCase {
 		// Replace all nodes g(_,_) by h(_,_)
 		// Using insert
 
-		"node frepa(node T) { " +
+		"NODE frepa(NODE T) { " +
 		"    return visit (T) {" +
 		"      case g(value T1, value T2):" +
 		"           insert h(T1, T2);" +
@@ -80,7 +80,7 @@ public class VisitTests extends TestCase {
 		// Replace all nodes g(_,_) by h(_,_)
 		// Using replacement rule
 
-		"node frepb(node T) {" +
+		"NODE frepb(NODE T) {" +
 		"    return visit (T) {" +
 		"      case g(value T1, value T2) => h(T1, T2)" +
 		"    };" +
@@ -105,7 +105,7 @@ public class VisitTests extends TestCase {
 		// Replace all nodes g(_,_) by h(_,_,_)
 		// Using insert
 
-		"node frepG2H3a(node T) {" +
+		"NODE frepG2H3a(NODE T) {" +
 		"    return visit (T) {" +
 		"      case g(value T1, value T2):" +
 		"           insert h(T1, T2, 0);" +
@@ -130,7 +130,7 @@ public class VisitTests extends TestCase {
 		// Replace all nodes g(_,_) by h(_,_,_)
 		// Using replacement rule
 			
-		"node frepG2H3b(node T) {" +
+		"NODE frepG2H3b(NODE T) {" +
 		"   return visit (T) {" +
 		"      case g(value T1, value T2) => h(T1, T2, 0)" +
 		"    };" +
@@ -154,7 +154,7 @@ public class VisitTests extends TestCase {
 		// Accumulating transformer that increments integer leaves with 
 		// amount D and counts them as well.
 
-		"tuple[int, node] inc_and_count(node T, int D) {" +
+		"tuple[int, NODE] inc_and_count(NODE T, int D) {" +
 		"    int C = 0;" +  
 		"    T = visit (T) {" +
 		"        case int N: { C = C + 1; " +
