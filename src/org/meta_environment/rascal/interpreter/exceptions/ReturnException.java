@@ -8,7 +8,7 @@ import org.meta_environment.rascal.interpreter.env.EvalResult;
  * to not create a stack trace every time a Return exception is needed.
  *
  */
-class ReturnException extends RuntimeException {
+public class ReturnException extends RuntimeException {
 	private static final long serialVersionUID = -6601026099925601817L;
     private EvalResult fValue;
 	
