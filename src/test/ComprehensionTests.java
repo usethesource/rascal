@@ -70,10 +70,15 @@ public class ComprehensionTests extends TestCase {
 		assertTrue(tf.runTest("{1 | 2 > 3} == {} ;"));
 	}
 	
-	public void testSetComprehension3() throws IOException {	
+	public void testAny() throws IOException {	
 		
 		assertTrue(tf.runTest("any(int X : {1,2,3}, X > 2);"));
+		assertTrue(tf.runTest("any(int X : {1,2,3}, X > 2, X <10);"));
+		assertTrue(tf.runTest("any(int X : {1,2,3}, X > 2 && X <10);"));
+		
 		assertTrue(tf.runTest("any(int X : [1,2,3], X > 2);"));
+		assertTrue(tf.runTest("any(int X : [1,2,3], X > 2, X < 10);"));
+		assertTrue(tf.runTest("any(int X : [1,2,3], X > 2 && X < 10);"));
 		
 		assertFalse(tf.runTest("any(int X : {1,2,3}, X > 10);"));
 		assertFalse(tf.runTest("any(int X : [1,2,3], X > 10);"));
@@ -83,12 +88,23 @@ public class ComprehensionTests extends TestCase {
 		
 		assertFalse(tf.runTest("any(<int X, int Y> : {<1,10>,<30,3>,<2,20>}, X > 100*Y);"));
 		assertFalse(tf.runTest("any(<int X, int Y> : [<1,10>,<30,3>,<2,20>], X > 100*Y);"));
+	}
+	
+	public void testAll() throws IOException {
 		
 		assertTrue(tf.runTest("all(int X : {1,2,3}, X >= 1);"));
+		assertTrue(tf.runTest("all(int X : {1,2,3}, X >= 1, X < 10);"));
+		assertTrue(tf.runTest("all(int X : {1,2,3}, X >= 1 && X < 10);"));
 		assertTrue(tf.runTest("all(int X : [1,2,3], X >= 1);"));
+		assertTrue(tf.runTest("all(int X : {1,2,3}, X >= 1, X < 10);"));
+		assertTrue(tf.runTest("all(int X : {1,2,3}, X >= 1 && X < 10);"));
 		
 		assertFalse(tf.runTest("all(int X : {1,2,3}, X >= 2);"));
+		assertFalse(tf.runTest("all(int X : {1,2,3}, X >= 2, X <=2);"));
+		assertFalse(tf.runTest("all(int X : {1,2,3}, X >= 2 && X <=2);"));
 		assertFalse(tf.runTest("all(int X : [1,2,3], X >= 2);"));
+		assertFalse(tf.runTest("all(int X : [1,2,3], X >= 2, X <= 2);"));
+		assertFalse(tf.runTest("all(int X : [1,2,3], X >= 2 && X <= 2);"));
 		
 		assertTrue(tf.runTest("all(<int X, int Y> : {<1,10>,<3,30>,<2,20>}, X < Y);"));
 		assertTrue(tf.runTest("all(<int X, int Y> : [<1,10>,<3,30>,<2,20>], X < Y);"));
@@ -97,7 +113,7 @@ public class ComprehensionTests extends TestCase {
 		assertFalse(tf.runTest("all(<int X, int Y> : [<1,10>,<30,3>,<2,20>], X < Y);"));
 	}
 	
-	public void testSetComprehension4() throws IOException {	
+	public void testSetComprehension3() throws IOException {	
 		
 		assertTrue(tf.runTest("{X + 1 | int X : {1,2,3}} == {2,3,4};"));
 		assertTrue(tf.runTest("{X + 1 | int X : [1,2,3]} == {2,3,4};"));
