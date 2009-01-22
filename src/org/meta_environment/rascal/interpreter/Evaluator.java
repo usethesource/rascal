@@ -1282,15 +1282,19 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				throw new RascalTypeError("Tuple does not have field names: " + tuple);
 			}
 			
-			return normalizedResult(tuple.getFieldType(field), ((ITuple) expr.value).get(field));
+			// use declared type, since value may not have labels!
+			int index = tuple.getFieldIndex(field);
+			
+			return normalizedResult(tuple.getFieldType(field), ((ITuple) expr.value).get(index));
 		}
 		else if (expr.type.isRelationType()) {
 			Type tuple = expr.type.getFieldTypes();
 			
 			try {
 				ISetWriter w = vf.setWriter(tuple.getFieldType(field));
+				int index = tuple.getFieldIndex(field);
 				for (IValue e : (ISet) expr.value) {
-					w.insert(((ITuple) e).get(field));
+					w.insert(((ITuple) e).get(index));
 				}
 				return result(tf.setType(tuple.getFieldType(field)), w.done());
 			}
@@ -1300,9 +1304,9 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		}
 		else if (expr.type.isAbstractDataType() || expr.type.isConstructorType()) {
 			Type node = expr.value.getType();
-			
+			int index = node.getFieldIndex(field);
 			try {
-				return normalizedResult(node.getFieldType(node.getFieldIndex(field)),((IConstructor) expr.value).get(field));
+				return normalizedResult(node.getFieldType(node.getFieldIndex(field)),((IConstructor) expr.value).get(index));
 			}
 			catch (FactTypeError e) {
 				throw new RascalTypeError(e.getMessage(), e);
