@@ -302,7 +302,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			checkType(v.getType(), instance);
 		}
 
-		return applyRules(instance, v);
+		return applyRules(instance, v.getType(), v);
 	}
 
 	EvalResult result(IValue v) {
@@ -315,19 +315,20 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			throw new RascalBug("Should not used run-time type for type checking!!!!");
 		}
 		if(v != null){
-			return applyRules(type, v);
+			return applyRules(type, v.getType(), v);
 		} else {
 			return new EvalResult(null, v);
 		}
 	}
 	
-	private EvalResult applyRules(Type t, IValue v){
+	private EvalResult applyRules(Type declaredType, Type dynType, IValue v){
 	
-		java.util.List<org.meta_environment.rascal.ast.Rule> rules = env.getRules(t);
+		java.util.List<org.meta_environment.rascal.ast.Rule> rules = env.getRules(dynType);
 		if(rules.isEmpty()){
-			//System.err.println("applyRules: no matching rules for " + t);
-			return new EvalResult(t, v);
+			System.err.println("applyRules: no matching rules for " + dynType);
+			return new EvalResult(declaredType, v);
 		}
+		System.err.println("applyRules: matching rules for " + dynType);
 		env.pushFrame();
 		try {
 			TraverseResult tr = traverse(v, new CasesOrRules(rules), 
@@ -336,7 +337,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				/* fixedpoint */ false);  /* innermost is achieved by repeated applications of applyRules
 				 							* when intermediate results are produced.
 				 							*/
-			//System.err.println("applyRules: tr.value =" + tr.value);
+			System.err.println("applyRules: tr.value =" + tr.value);
 			return new EvalResult(tr.value.getType(), tr.value);
 		} finally {
 			env.popFrame();
@@ -873,7 +874,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		
 		candidate = env.getConstructor(cons, signature);
 		if (candidate != null) {
-			return result(candidate, candidate.make(vf, actuals));
+			return result(candidate.getAbstractDataType(), candidate.make(vf, actuals));
 		}
 		
 		return result(tf.nodeType(), vf.node(cons, actuals));
@@ -2448,10 +2449,11 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		EvalResult right = x.getRhs().accept(this);
 		
 		widenIntToReal(left, right);
-
+/*
 		if (!left.type.comparable(right.type)) {
 			throw new RascalTypeError("Arguments of equals have incomparable types: " + left.type + " and " + right.type);
 		}
+*/
 		
 		return result(vf.bool(equals(left, right)));
 	}
@@ -3007,7 +3009,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	}
 	
 	/*
-	 * traverseOnce: traverse an arbitrary IVAlue once. Implements the strategied bottom/topdown.
+	 * traverseOnce: traverse an arbitrary IVAlue once. Implements the strategies bottom/topdown.
 	 */
 	
 	private TraverseResult traverseOnce(IValue subject, CasesOrRules casesOrRules, 
@@ -3018,7 +3020,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		boolean changed = false;
 		IValue result = subject;
 		
-		//System.err.println("traverseOnce: " + subject + ", type=" + subject.getType());
+		System.err.println("traverseOnce: " + subject + ", type=" + subject.getType());
 		if(subjectType.isStringType()){
 			return traverseString((IString) subject, casesOrRules);
 		}
@@ -3034,6 +3036,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		}
 		
 		if(subjectType.isNodeType()){
+			System.err.println("NodeType ...");
 			INode node = (INode)subject;
 			if(node.arity() == 0){
 				result = subject;
