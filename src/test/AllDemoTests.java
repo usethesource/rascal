@@ -77,5 +77,10 @@ private static TestFramework tf = new TestFramework();
 		assertTrue(tf.runTestInSameEvaluator("Fun-abstract::test();"));
 	}
 	
+	public void testMEPT() throws IOException {
+		tf = new TestFramework("import MEPT;");
+		assertTrue(tf.runTestInSameEvaluator("MEPT::test();"));
+	}
+	
 	
 }
