@@ -2034,8 +2034,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		Type resultType = left.type.lub(right.type);
 		
 		widenIntToReal(left, right);
-		
-		//System.err.println("addition: " + left + ", " + right);
 
 		// Integer
 		if (left.type.isIntegerType() && right.type.isIntegerType()) {
@@ -2072,6 +2070,9 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		
 		//Relation
 		if (left.type.isRelationType() && right.type.isRelationType()) {
+			    System.err.println("left.type = " + left.type);
+			    System.err.println("right.type = " + right.type);
+			    System.err.println("resultType = " + resultType);
 				return result(resultType, ((ISet) left.value)
 						.union((ISet) right.value));
 		}

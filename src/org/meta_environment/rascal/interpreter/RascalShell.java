@@ -62,28 +62,28 @@ public class RascalShell {
 					break;
 				}
 				catch (FactTypeError e) {
-					console.printString("bug: " + e.getMessage() + "\n");
+					console.printString("FactTypeError: " + e.getMessage() + "\n");
 				    printStacktrace(console, e);
 				}
 				catch (RascalTypeError e) {
-					console.printString("type error: " + e.getMessage() + "\n");
+					console.printString("RascalTypeError: " + e.getMessage() + "\n");
 					if (e.hasCause()) {
 						console.printString("caused by: " + e.getCause().getMessage() + "\n");
 					}
 					printStacktrace(console, e);
 				}
 				catch (RascalBug e) {
-					console.printString("bug: " + e.getMessage() + "\n");
+					console.printString("RascalBug: " + e.getMessage() + "\n");
 					if (e.hasCause()) {
 						console.printString("caused by: " + e.getCause().getMessage() + "\n");
 					}
 					printStacktrace(console, e);
 				}
 				catch (RascalException e) {
-					console.printString("exception: " + e.getMessage() + "\n");
+					console.printString("RascalException: " + e.getMessage() + "\n");
 				}
 				catch (Throwable e) {
-					console.printString("bug: " + e.getMessage() + "\n");
+					console.printString("Throwable: " + e.getMessage() + "\n");
 					printStacktrace(console, e);
 				}
 			}
