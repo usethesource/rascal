@@ -182,7 +182,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	private final AbstractPatternEvaluator pe;
 	protected GlobalEnvironment env = GlobalEnvironment.getInstance();
 	private ASTFactory astFactory = new ASTFactory();
-	private boolean callTracing = false;
+	private boolean callTracing = true;
 	private int callNesting = 0;
 	
 	private final ASTFactory af;
@@ -1482,7 +1482,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	@Override
 	public EvalResult visitStatementVisit(
 			org.meta_environment.rascal.ast.Statement.Visit x) {
-		return x.getExpression().accept(this);
+		return x.getVisit().accept(this);
 	}
 	
 	@Override
@@ -2083,7 +2083,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				.union((ISet) right.value));
 			}
 			if(right.type.isSubtypeOf(left.type.getElementType())){
-				System.err.println("XXXX " + left.type + ", " + right.type);
 				return result(left.type, ((ISet)left.value).insert(right.value));
 			}
 		}
