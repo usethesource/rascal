@@ -8,11 +8,12 @@ import IO;
  */
  
 data Exp =
-       fun(str name, Exp exp)      // Function application
-     | var(str Name)               // Variable occurrence
-     | intcon(int ival)            // Integer constant
-     | apply(Exp exp1, Exp exp2)   // Function application
-     | op (Exp exp1, Exp exp2);    // Arbitrary binary operator
+       fun(str name, Exp exp)             // Function application
+     | var(str Name)                      // Variable occurrence
+     | intcon(int ival)                   // Integer constant
+     | strcon(str sval)                   // String constant
+     | apply(Exp exp1, Exp exp2)          // Function application
+     | op (str name, Exp exp1, Exp exp2); // Named binary operator
 
 
 // Find all the variables in an expression
@@ -68,6 +69,9 @@ public Exp rename(Exp E, map[str,str] Rn) {
     
     case var(str Name):
     	 return var(Rn[Name] =? Name);
+   
+    case op(str Name, Exp E1, Exp E2):
+         return op(Name, rename(E1, Rn), rename(E2, Rn));
 
     default:
     	 return E;
@@ -79,27 +83,81 @@ public Exp rename(Exp E){
 }
 
 
-// Substitution: replace all occurrences of V1 in expression Org by expression Repl
+// Substitution: replace all occurrences of V1 by expression Repl in expression Org
 
 public Exp subst(str V1, Exp Repl, Exp Org) {
 
     return top-down-break visit (Org) { 
-      case var(str V2): insert (V1==V2) ? Repl : var(V2);
+      case var(str V2):
+      	if( V1 == V2) insert Repl;
 
       case apply(Exp Ea, Exp Eb):
         insert apply(subst(V1, Repl, Ea), subst(V1, Repl, Eb));
         
       case fun(str V2, Exp Body):
-        if(V1 == V2)
-           insert fun(V2, Body);
-        else if(V2 in freeVars(Repl)){
-           str V2f = fresh(V2, freeVars(Body) + freeVars(Repl));
-           insert fun(V2f, subst(V1, Repl, subst(V2, var(V2f), Body)));        
-        } else
-           insert fun(V2, subst(V1, Repl, Body));      
+        if(V1 != V2)
+           if(V2 in freeVars(Repl)){
+              str V2f = fresh(V2, freeVars(Body) + freeVars(Repl));
+              insert fun(V2f, subst(V1, Repl, subst(V2, var(V2f), Body)));        
+           } else
+             insert fun(V2, subst(V1, Repl, Body));      
     };
 }
 
+data Type = intType | strType;
+
+public rel[str,Type] collect(Exp E)
+{
+   rel[str,Type] constraints = {};
+   
+   visit(rename(E)){
+   
+   case op("add", Exp E1, Exp E2): {
+        if(var(str Name1) := E1)
+   		   constraints = constraints + {<Name1, intType>};
+        if(var(str Name2) := E2)
+   		   constraints = constraints + {<Name2, intType>};
+        }
+   	
+   case op("conc", Exp E1, Exp E2): {
+   	    if(var(str Name1) := E1)
+   		   constraints = constraints + {<Name1, strType>};
+        if(var(str Name2) := E2)
+   		   constraints = constraints + {<Name2, strType>};
+        }
+   }
+   
+   return constraints;
+}
+
+public bool solveConstraints(rel[str,Type] constraints)
+{
+   set[str] vars = domain(constraints);
+   bool correct = true;
+   
+   for(str name : vars){
+     types = constraints[name];
+     if(size(types) > 1){
+        correct = false;
+   	    println("Conflicting types <types> for <name>");
+   	 }
+   }
+   return correct;
+}
+
+public bool typecheck(Exp E)
+{
+   return solveConstraints(collect(E));
+}
+
+public bool test1(){
+   typecheck(op("add", var("a"), intcon(3)));
+}
+
+/*
+ * Test
+ */
+ 
 int nError = 0;
 public bool assertEqual(value E1, value E2)
 {
