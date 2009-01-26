@@ -2,6 +2,8 @@ module Fun-abstract
 
 import Integer;
 import IO;
+import Set;
+import Relation;
 
 /*
  * The Expression language EXP
@@ -151,7 +153,7 @@ public bool typecheck(Exp E)
 }
 
 public bool test1(){
-   typecheck(op("add", var("a"), intcon(3)));
+   return typecheck(op("add", var("a"), intcon(3)));
 }
 
 /*
