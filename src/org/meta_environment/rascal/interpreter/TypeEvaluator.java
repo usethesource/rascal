@@ -32,6 +32,8 @@ import org.meta_environment.rascal.ast.Type.User;
 import org.meta_environment.rascal.ast.Type.Variable;
 import org.meta_environment.rascal.ast.TypeArg.Default;
 import org.meta_environment.rascal.ast.TypeArg.Named;
+import org.meta_environment.rascal.ast.UserType.Name;
+import org.meta_environment.rascal.ast.UserType.Parametric;
 import org.meta_environment.rascal.interpreter.env.ClosureResult;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.exceptions.RascalBug;
@@ -269,15 +271,25 @@ public class TypeEvaluator extends NullASTVisitor<Type> {
 
 	@Override
 	public Type visitTypeUser(User x) {
-		// TODO add support for parametric types
-		java.lang.String name = x.getUser().getName().toString();
+		return x.getUser().accept(this);
+	}
+	
+	@Override
+	public Type visitUserTypeParametric(Parametric x) {
+		java.lang.String name = Names.name(x.getName());
+		
+		Type type = tf.lookupAlias(name);
+		// TODO: let's hope this is the parameterized one
+		return type.instantiate(env.getTypeBindings());
+	}
+	
+	@Override
+	public Type visitUserTypeName(Name x) {
+		java.lang.String name = Names.name(x.getName());
+		
 		Type type = tf.lookupAlias(name);
 		
 		if (type == null) {
-			//TODO: This is a hack during transition from double to real
-			if(name.equals("real")){
-				return tf.doubleType();
-			}
 			Type tree = tf.lookupAbstractDataType(name);
 			
 			if (tree == null) {
@@ -287,7 +299,7 @@ public class TypeEvaluator extends NullASTVisitor<Type> {
 				return tree;
 			}
 		}
-	
+		
 		return type;
 	}
 	
