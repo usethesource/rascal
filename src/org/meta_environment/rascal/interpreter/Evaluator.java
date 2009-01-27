@@ -60,6 +60,7 @@ import org.meta_environment.rascal.ast.Strategy;
 import org.meta_environment.rascal.ast.Tags;
 import org.meta_environment.rascal.ast.Toplevel;
 import org.meta_environment.rascal.ast.TypeArg;
+import org.meta_environment.rascal.ast.TypeVar;
 import org.meta_environment.rascal.ast.ValueProducer;
 import org.meta_environment.rascal.ast.Variant;
 import org.meta_environment.rascal.ast.Assignable.Constructor;
@@ -640,8 +641,21 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			org.meta_environment.rascal.ast.Declaration.Alias x) {
 		// TODO add support for parameterized types
 		String user = x.getUser().getName().toString();
+		Type[] params;
+		if (x.getUser().isParametric()) {
+			java.util.List<TypeVar> formals = x.getUser().getParameters();
+			params = new Type[formals.size()];
+			int i = 0;
+			for (TypeVar formal : formals) {
+				Type bound = formal.hasBound() ? formal.getBound().accept(te) : tf.valueType();
+				params[i++] = tf.parameterType(Names.name(formal.getName()), bound);
+			}
+		}
+		else {
+			params = new Type[0];
+		}
 		Type base = x.getBase().accept(te);
-		Type decl = tf.aliasType(user, base);
+		Type decl = tf.aliasType(user, base, params);
 		env.storeTypeAlias(decl);
 		return result();
 	}
