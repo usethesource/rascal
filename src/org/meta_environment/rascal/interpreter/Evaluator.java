@@ -568,6 +568,10 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			} else {
 				EvalResult v = var.getInitial().accept(this);
 				if(v.type.isSubtypeOf(declaredType)){
+					// TODO: do we actually want to instantiate the locally bound type parameters?
+					Map<Type,Type> bindings = new HashMap<Type,Type>();
+					declaredType.match(v.type, bindings);
+					declaredType = declaredType.instantiate(bindings);
 					r = normalizedResult(declaredType, v.value);
 					env.storeVariable(var.getName(), r);
 				} else {
@@ -723,6 +727,10 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			} else {                     // variable declaration with initialization
 				EvalResult v = var.getInitial().accept(this);
 				if(v.type.isSubtypeOf(declaredType)){
+					// TODO: do we actually want to instantiate the locally bound type parameters?
+					Map<Type,Type> bindings = new HashMap<Type,Type>();
+					declaredType.match(v.type, bindings);
+					declaredType = declaredType.instantiate(bindings);
 					r = result(declaredType, v.value);
 					env.top().storeVariable(var.getName(), r);
 				} else {
