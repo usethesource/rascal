@@ -216,6 +216,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		try {
 			EvalResult r = stat.accept(this);
 	        if(r != null){
+	        	System.err.println("Static type: " + r.type);
 	        	return r.value;
 	        } else {
 	        	throw new RascalBug("Not yet implemented: " + stat.getTree());
