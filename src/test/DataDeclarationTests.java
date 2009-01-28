@@ -2,6 +2,8 @@ package test;
 
 import java.io.IOException;
 
+import org.meta_environment.rascal.interpreter.exceptions.RascalException;
+
 import junit.framework.TestCase;
 
 public class DataDeclarationTests extends TestCase{
@@ -23,6 +25,14 @@ public class DataDeclarationTests extends TestCase{
 		assertTrue(tf.runTestInSameEvaluator("bor(btrue,bfalse).right == bfalse;"));
 		assertTrue(tf.runTestInSameEvaluator("{Bool b = band(btrue,bfalse).left; b == btrue;}"));
 		assertTrue(tf.runTestInSameEvaluator("{Bool b = band(btrue,bfalse).right; b == bfalse;}"));
+		
+		try {
+			tf.runTestInSameEvaluator("{Bool b = btrue; b.left == btrue;}");
+			fail("should have thrown an exception");
+		}
+		catch (RascalException e) {
+			// should happen
+		}
 	}
 	
 	public void testLet1() throws IOException {

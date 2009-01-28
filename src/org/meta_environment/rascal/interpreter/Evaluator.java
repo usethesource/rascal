@@ -632,7 +632,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		    else if (var.isAnonymousConstructor()) {
 		    	Type argType = var.getType().accept(te);
 		    	String label = var.getName().toString();
-		    	tf.define(sort, argType, label);
+		    	tf.extendAbstractDataType(sort, argType, label);
 		    	env.storeDefinition(sort, argType);
 		    }
 		}
@@ -1322,14 +1322,17 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			}
 		}
 		else if (expr.type.isAbstractDataType() || expr.type.isConstructorType()) {
-			Type node = expr.value.getType();
+			Type node = ((IConstructor) expr.value).getConstructorType();
 			
-			try {
-				return normalizedResult(node.getFieldType(node.getFieldIndex(field)),((IConstructor) expr.value).get(field));
+			if (!expr.type.hasField(field)) {
+				throw new RascalTypeError(expr.type + " does not have a field named " + field);
 			}
-			catch (FactTypeError e) {
-				throw new RascalTypeError(e.getMessage(), e);
+			
+			if (!node.hasField(field)) {
+				throw new RascalException(vf, "Field " + field + " accessed on constructor that does not have it." + expr.value.getType());
 			}
+			
+			return normalizedResult(node.getFieldType(node.getFieldIndex(field)),((IConstructor) expr.value).get(field));
 		}
 		
 		throw new RascalTypeError("Field selection is not allowed on " + expr.type);
