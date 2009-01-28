@@ -146,7 +146,7 @@ public class RascalShell {
 		StringBuilder result = new StringBuilder();
 		IConstructor tree = parser.parse(new ByteArrayInputStream(statement.toString().getBytes()));
 
-		if (tree.getType() == Factory.ParseTree_Summary) {
+		if (tree.getConstructorType() == Factory.ParseTree_Summary) {
 			result.append(tree + "\n");
 		}
 		else {
