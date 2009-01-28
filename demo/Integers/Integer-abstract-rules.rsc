@@ -16,7 +16,7 @@ data Integer = exp(Integer L, Integer R);
 rule m1 exp(Integer N, z)              => s(z);
 rule m2 exp(Integer N, s(Integer M))   => mul(N, exp(N, M));
 
-data Bool = eq(Integer L, Integer R);
+data Bool = eq(Integer Lhs, Integer Rhs);
 rule e1 eq(z,z)                        => btrue;
 rule e2 eq(s(Integer N),z)             => bfalse;
 rule e2 eq(z,s(Integer N))             => bfalse;
