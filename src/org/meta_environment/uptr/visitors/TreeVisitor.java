@@ -14,8 +14,8 @@ public abstract class TreeVisitor extends IdentityVisitor {
 	
 	@Override
 	public INode visitConstructor(IConstructor o) throws VisitorException {
-		if (o.getType().getAbstractDataType() == Factory.Tree) {
-			Type alt = o.getType();
+		if (o.getType() == Factory.Tree) {
+			Type alt = o.getConstructorType();
 			
 			if (alt == Factory.Tree_Appl) {
 				return visitTreeAppl(o);
