@@ -42,8 +42,8 @@ public class IOTests extends TestCase {
 	private static Type Couples = tf.constructor(Boolean, "couples", tf.listType(tf.tupleType(Name, Name)));
 	
 	private IValue[] testValues = {
-			vf.constructor(True),
-			vf.constructor(True),
+			vf.constructor(True).setAnnotation("anno", vf.constructor(False)),
+			vf.constructor(True).setAnnotation("anno", vf.constructor(False)).setAnnotation("banno", vf.constructor(False)),
 			vf.constructor(True),
 			vf.constructor(True),
 			vf.constructor(And, vf.constructor(True), vf.constructor(False)),
@@ -55,6 +55,11 @@ public class IOTests extends TestCase {
 			vf.constructor(Or, vf.list(Boolean)),
 			vf.constructor(Couples, vf.list(vf.tuple(name("A"), name("B")), vf.tuple(name("C"), name("D"))))
 	};
+	
+	static {
+		tf.declareAnnotation(Boolean, "anno", Boolean);
+		tf.declareAnnotation(Boolean, "banno", Boolean);
+	}
 	
 	private String[] testATerm = {
 			"true{[\"anno\",false]}",
@@ -78,8 +83,7 @@ public class IOTests extends TestCase {
 	public void testATermReader() {
 		ATermReader testReader = new ATermReader();
 		
-		tf.declareAnnotation(Boolean, "anno", Boolean);
-		tf.declareAnnotation(tf.valueType(), "banno", Boolean);
+		
 		
 		try {
 			for (int i = 0; i < testATerm.length; i++) {
