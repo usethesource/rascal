@@ -1305,7 +1305,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				throw new RascalTypeError("Tuple does not have field names: " + tuple);
 			}
 			
-			return normalizedResult(tuple.getFieldType(field), ((ITuple) expr.value).get(field));
+			return normalizedResult(tuple.getFieldType(field), ((ITuple) expr.value).get(tuple.getFieldIndex(field)));
 		}
 		else if (expr.type.isRelationType()) {
 			Type tuple = expr.type.getFieldTypes();
@@ -1313,7 +1313,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			try {
 				ISetWriter w = vf.setWriter(tuple.getFieldType(field));
 				for (IValue e : (ISet) expr.value) {
-					w.insert(((ITuple) e).get(field));
+					w.insert(((ITuple) e).get(tuple.getFieldIndex(field)));
 				}
 				return result(tf.setType(tuple.getFieldType(field)), w.done());
 			}
@@ -1332,7 +1332,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				throw new RascalException(vf, "Field " + field + " accessed on constructor that does not have it." + expr.value.getType());
 			}
 			
-			return normalizedResult(node.getFieldType(node.getFieldIndex(field)),((IConstructor) expr.value).get(field));
+			int index = node.getFieldIndex(field);
+			return normalizedResult(node.getFieldType(index),((IConstructor) expr.value).get(index));
 		}
 		
 		throw new RascalTypeError("Field selection is not allowed on " + expr.type);
@@ -3323,11 +3324,11 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			org.meta_environment.rascal.ast.Expression.NonEquals x) {
 		EvalResult left = x.getLhs().accept(this);
 		EvalResult right = x.getRhs().accept(this);
-/*		
+		
 		if (!left.type.comparable(right.type)) {
 			throw new RascalTypeError("Arguments of unequal have incomparable types: " + left.type + " and " + right.type);
 		}
-*/		
+		
 		return result(vf.bool(compare(left, right) != 0));
 	}
 	
@@ -3374,6 +3375,10 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		}
 		
 		if (leftType.isNodeType() && rightType.isNodeType()) {
+			return compareNode((INode) left.value, (INode) right.value);
+		}
+		
+		if (leftType.isAbstractDataType() && rightType.isAbstractDataType()) {
 			return compareNode((INode) left.value, (INode) right.value);
 		}
 		
