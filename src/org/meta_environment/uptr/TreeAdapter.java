@@ -21,22 +21,22 @@ public class TreeAdapter {
 	private ProductionAdapter prod;
 	
 	public TreeAdapter(IConstructor tree) {
-		if (tree.getType().getAbstractDataType() != Factory.Tree) {
+		if (tree.getType() != Factory.Tree) {
 			throw new FactTypeError("TreeWrapper will only wrap UPTR Trees, not " +  tree.getType());
 		}
 		this.tree = tree;
 	}
 	
 	public boolean isAppl() {
-		return tree.getType() == Factory.Tree_Appl;
+		return tree.getConstructorType() == Factory.Tree_Appl;
 	}
 	
 	public boolean isAmb() {
-		return tree.getType() == Factory.Tree_Amb;
+		return tree.getConstructorType() == Factory.Tree_Amb;
 	}
 	
 	public boolean isCycle() {
-		return tree.getType() == Factory.Tree_Cycle;
+		return tree.getConstructorType() == Factory.Tree_Cycle;
 	}
 	
 	public ProductionAdapter getProduction() {
@@ -181,9 +181,9 @@ public class TreeAdapter {
 	
 	public void unparse(OutputStream stream) throws IOException, FactTypeError {
 		try {
-			if (tree.getType() == Factory.ParseTree_Top) {
+			if (tree.getConstructorType() == Factory.ParseTree_Top) {
 				tree.get("top").accept(new Unparser(stream));
-			} else if (tree.getType().getAbstractDataType() == Factory.Tree) {
+			} else if (tree.getType() == Factory.Tree) {
 				tree.accept(new Unparser(stream));
 			} else {
 				throw new FactTypeError("Can not unparse this "

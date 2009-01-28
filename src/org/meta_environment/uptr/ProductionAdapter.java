@@ -11,7 +11,7 @@ public class ProductionAdapter {
 	private IConstructor tree;
 
 	public ProductionAdapter(IConstructor tree) {
-		if (tree.getType().getAbstractDataType() != Factory.Production) {
+		if (tree.getType() != Factory.Production) {
 			throw new FactTypeError("ProductionWrapper only wraps UPTR productions, not " + tree.getType());
 		}
 		this.tree = tree;
@@ -19,9 +19,9 @@ public class ProductionAdapter {
 	
 	public String getConstructorName() {
 		for (IValue attr : getAttributes()) {
-			if (attr.getType().isConstructorType() && ((IConstructor) attr).getType() == Factory.Attr_Term) {
+			if (attr.getType().isAbstractDataType() && ((IConstructor) attr).getConstructorType() == Factory.Attr_Term) {
 				IValue value = ((IConstructor)attr).get("value");
-				if (value.getType().isConstructorType() && ((IConstructor) value).getType() == Factory.Constructor_Name) {
+				if (value.getType().isAbstractDataType() && ((IConstructor) value).getConstructorType() == Factory.Constructor_Name) {
 					return ((IString) ((IConstructor) value).get("name")).getValue();
 				}
 			}
@@ -59,7 +59,7 @@ public class ProductionAdapter {
 	public IList getAttributes() {
 		IConstructor attributes = (IConstructor) tree.get("attributes");
 		
-		if (attributes.getType() == Factory.Attributes_Attrs) {
+		if (attributes.getConstructorType() == Factory.Attributes_Attrs) {
 			return (IList) attributes.get("attrs");
 		}
 		else {
@@ -76,7 +76,7 @@ public class ProductionAdapter {
 	}
 
 	public boolean isList() {
-		return tree.getType() == Factory.Production_List;
+		return tree.getConstructorType() == Factory.Production_List;
 	}
 
 	public boolean isSeparatedList() {
