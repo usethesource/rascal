@@ -37,7 +37,7 @@ public class ParsingTests extends TestCase {
 				FileInputStream s = new FileInputStream(file);
 				IConstructor tree = parser.parse(s);
 
-				if (tree.getType() == Factory.ParseTree_Top) {
+				if (tree.getConstructorType() == Factory.ParseTree_Top) {
 					Module.Default module = (Default) b.buildModule(tree);
 					System.err.println("SUCCEEDED: " + module.getHeader());
 				} else {
@@ -57,10 +57,6 @@ public class ParsingTests extends TestCase {
 			}
 		}
 		if (failed) fail();
-	}
-	
-	public void testAsFix(){
-		doParse("AsFix");
 	}
 	
 	public void testBooleans(){
