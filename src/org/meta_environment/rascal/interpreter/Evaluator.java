@@ -324,8 +324,12 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	}
 	
 	private EvalResult applyRules(Type t, IValue v){
-	
-		java.util.List<org.meta_environment.rascal.ast.Rule> rules = env.getRules(t);
+		// we search using the run-time type of a value
+		Type typeToSearchFor = v.getType();
+		if (typeToSearchFor.isAbstractDataType()) {
+			typeToSearchFor = ((IConstructor) v).getConstructorType();
+		}
+		java.util.List<org.meta_environment.rascal.ast.Rule> rules = env.getRules(typeToSearchFor);
 		if(rules.isEmpty()){
 			//System.err.println("applyRules: no matching rules for " + t);
 			return new EvalResult(t, v);
@@ -339,7 +343,9 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				 							* when intermediate results are produced.
 				 							*/
 			//System.err.println("applyRules: tr.value =" + tr.value);
-			return new EvalResult(tr.value.getType(), tr.value);
+			
+			// rules can not change the declared type!
+			return new EvalResult(t, tr.value);
 		} finally {
 			env.popFrame();
 		}
