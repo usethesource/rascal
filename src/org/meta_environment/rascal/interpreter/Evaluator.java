@@ -183,7 +183,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	private final AbstractPatternEvaluator pe;
 	protected GlobalEnvironment env = GlobalEnvironment.getInstance();
 	private ASTFactory astFactory = new ASTFactory();
-	private boolean callTracing = true;
+	private boolean callTracing = false;
 	private int callNesting = 0;
 	
 	private final ASTFactory af;
@@ -1915,6 +1915,10 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				results.add(results.size(), resultElem.value);
 			}
 		}
+		System.err.println("elementType=" + elementType);
+		if(elementType.isAbstractDataType() && elementType.isConstructorType()){
+			elementType = elementType.getAbstractDataType();
+		}
 		Type resultType = tf.listType(elementType);
 		IListWriter w = resultType.writer(vf);
 		w.appendAll(results);
@@ -2034,7 +2038,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		return result(annoType, annoValue);
 	}
 	
-	private void widenIntToReal(EvalResult left, EvalResult right){
+	private void widenArgs(EvalResult left, EvalResult right){
 		Type leftValType = left.value.getType();
 		Type rightValType = right.value.getType();
 		if (leftValType.isIntegerType() && rightValType.isDoubleType()) {
@@ -2047,6 +2051,10 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				right.type = tf.doubleType();
 			}
 			right.value = ((IInteger) right.value).toDouble();
+		} else if(left.type.isConstructorType()){
+			left.type = left.type.getAbstractDataType();
+		} else 	if(right.type.isConstructorType()){
+			right.type = right.type.getAbstractDataType();
 		}
 	}
 	
@@ -2054,9 +2062,11 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	public EvalResult visitExpressionAddition(Addition x) {
 		EvalResult left = x.getLhs().accept(this);
 		EvalResult right = x.getRhs().accept(this);
+
+		widenArgs(left, right);
 		Type resultType = left.type.lub(right.type);
 		
-		widenIntToReal(left, right);
+		System.err.println("left=" + left + "; right=" + right + "; resulType=" + resultType);
 
 		// Integer
 		if (left.type.isIntegerType() && right.type.isIntegerType()) {
@@ -2170,7 +2180,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		EvalResult right = x.getRhs().accept(this);
 		Type resultType = left.type.lub(right.type);
 		
-		widenIntToReal(left, right);
+		widenArgs(left, right);
 
 		// Integer
 		if (left.type.isIntegerType() && right.type.isIntegerType()) {
@@ -2256,7 +2266,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		EvalResult left = x.getLhs().accept(this);
 		EvalResult right = x.getRhs().accept(this);
 		
-		widenIntToReal(left, right);
+		widenArgs(left, right);
 
 		//Integer
 		if (left.type.isIntegerType() && right.type.isIntegerType()) {
@@ -2357,7 +2367,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		EvalResult left = x.getLhs().accept(this);
 		EvalResult right = x.getRhs().accept(this);
 		
-		widenIntToReal(left, right);
+		widenArgs(left, right);
 
 		//TODO: transform Java arithmetic exceptions into Rascal exceptions
 		
@@ -2450,7 +2460,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 	boolean equals(EvalResult left, EvalResult right){
 		
-		widenIntToReal(left, right);
+		widenArgs(left, right);
 		
 		if (left.type.comparable(right.type)) {
 			return compare(left, right) == 0;
@@ -2466,7 +2476,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		EvalResult left = x.getLhs().accept(this);
 		EvalResult right = x.getRhs().accept(this);
 		
-		widenIntToReal(left, right);
+		widenArgs(left, right);
 /*		
 		if (!left.type.comparable(right.type)) {
 			throw new RascalTypeError("Arguments of equals have incomparable types: " + left.type + " and " + right.type);
@@ -3322,7 +3332,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		// even if statically two values have type 'value' but one is an int 1
 		// and the other is Real 1.0 they must be equal.
 
-		widenIntToReal(left, right);
+		widenArgs(left, right);
 		Type leftType = left.value.getType();
 		Type rightType = right.value.getType();
 		

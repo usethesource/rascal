@@ -698,7 +698,7 @@ interface MatchPattern {
 	public boolean next() {
 		checkInitialized();
 		firstMatch = false;
-		if(debug)System.err.println("AbstractTypedVariable.match: " + subject + " with " + declaredType + " " + name);
+		if(debug)System.err.println("AbstractTypedVariable.match: " + subject + "(type=" + subject.getType() + ") with " + declaredType + " " + name);
 		
 		if (subject.getType().isSubtypeOf(declaredType)) {
 			GlobalEnvironment.getInstance().top().storeVariable(name, ev.result(declaredType, subject));

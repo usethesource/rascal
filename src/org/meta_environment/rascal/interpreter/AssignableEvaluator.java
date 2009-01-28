@@ -45,9 +45,9 @@ import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
 		String name = x.getQualifiedName().toString();
 		EvalResult previous = env.getVariable(name);
 		if (previous != null) {
-			System.err.println("AssignableVariable: " + x);
-			System.err.println("previous.type = " + previous.type);
-			System.err.println("value = " + value);
+			//System.err.println("AssignableVariable: " + x);
+			//System.err.println("previous.type = " + previous.type);
+			//System.err.println("value = " + value);
 			
 			if (value.type.isSubtypeOf(previous.type)) {
 				value.type = previous.type;

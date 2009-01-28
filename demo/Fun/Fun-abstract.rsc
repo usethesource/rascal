@@ -2,7 +2,7 @@ module Fun-abstract
 
 import Integer;
 import IO;
-import Set;
+import List;
 import Relation;
 
 /*
@@ -102,49 +102,66 @@ public Exp subst(str V1, Exp Repl, Exp Org) {
               str V2f = fresh(V2, freeVars(Body) + freeVars(Repl));
               insert fun(V2f, subst(V1, Repl, subst(V2, var(V2f), Body)));        
            } else
-             insert fun(V2, subst(V1, Repl, Body));      
+             insert fun(V2, subst(V1, Repl, Body)); 
+       case op(str Name, Exp E1, Exp E2):
+           insert op(Name, subst(V1, Repl, E1), subst(V2, Repl, E2));     
     };
 }
 
 data Type = intType | strType;
 
-public rel[str,Type] collect(Exp E)
+data Error = constant(Exp E) | varuse(str Nm1, str Nm2);
+
+data Cons = c(Exp E, Type T) | error(Error e);
+
+public list[Cons] collect(Exp E)
 {
-   rel[str,Type] constraints = {};
+   list[Cons] constraints = [];
    
    visit(rename(E)){
    
-   case op("add", Exp E1, Exp E2): {
-        if(var(str Name1) := E1)
-   		   constraints = constraints + {<Name1, intType>};
-        if(var(str Name2) := E2)
-   		   constraints = constraints + {<Name2, intType>};
-        }
+   case op("add", Exp E1, Exp E2):
+   		constraints = constraints  + [c(E1, intType), c(E2, intType)];
    	
-   case op("conc", Exp E1, Exp E2): {
-   	    if(var(str Name1) := E1)
-   		   constraints = constraints + {<Name1, strType>};
-        if(var(str Name2) := E2)
-   		   constraints = constraints + {<Name2, strType>};
-        }
-   }
+   case op("conc", Exp E1, Exp E2):
+   	    constraints = constraints + [c(E1, strType), c(E2, strType)];
+   }   /* Put here a ";" and you get an ambiguous list */
+   
+   println("constraints: <constraints>");
    
    return constraints;
 }
 
-public bool solveConstraints(rel[str,Type] constraints)
+// Simplify a list of constraints
+      
+
+rule a1 [list[Cons] C1, c(intcon(int N), Type T), list[Cons]C2] =>
+        	(T == intType) ? [C1, C2] : [C1, error(constant(intcon(N))), C2];
+        	
+rule a2 [list[Cons] C1, c(strcon(str S), Type T), list[Cons]C2] =>
+        	(T == strType) ? [C1, C2] : [C1, error(constant(strcon(S))), C2];
+        
+rule a3 [list[Cons] C1, c(var(str Nm1), Type T1), list[Cons]C2,  c(var(str Nm2), Type T2), list[Cons]C3]:{
+        if(Nm1 == Nm2){
+           if(T1 == T2) {
+              insert [C1, c(var(Nm1), T1), C2,  C3];
+           } else {
+              insert [C1, error(varuse(Nm1, Nm2)), C2,  C3];
+           }
+        } else {
+           fail;
+           }
+        };      
+                  
+
+public bool solveConstraints(list[Cons] constraints)
 {
-   set[str] vars = domain(constraints);
-   bool correct = true;
-   
-   for(str name : vars){
-     types = constraints[name];
-     if(size(types) > 1){
-        correct = false;
-   	    println("Conflicting types <types> for <name>");
-   	 }
-   }
-   return correct;
+   int nError = 0;
+   for(error(Error e) : constraints){
+      println("Error: <e>");
+      nError = nError + 1;
+   }   
+   return nError == 0;
 }
 
 public bool typecheck(Exp E)
@@ -153,8 +170,11 @@ public bool typecheck(Exp E)
 }
 
 public bool test1(){
-   return typecheck(op("add", var("a"), intcon(3)));
+   return typecheck(
+          op("seq", op("add", var("a"), var("b")),
+                    op("conc", var("a"), op("conc", var("b"), strcon("abc")))));
 }
+
 
 /*
  * Test
