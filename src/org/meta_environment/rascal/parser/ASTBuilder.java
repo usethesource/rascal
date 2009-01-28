@@ -131,7 +131,8 @@ public class ASTBuilder {
 
 				if (alt.isList()) {
 					// TODO add support for ambiguous lists
-					throw new RascalBug("Can not deal with ambiguous list: " + node);
+					throw new RascalBug("Can not deal with ambiguous list: " + 
+							node + "\n" + alternatives);
 				}
 				else if (sort == null) {
 					sort = alt.getSortName();
