@@ -1111,7 +1111,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		String msg = x.getMessage().toString();
 		EvalResult r = x.getExpression().accept(this);
 		if(r.type.equals(tf.boolType())){
-			if(r.value.equals(vf.bool(false))){
+			if(r.value.isEqual(vf.bool(false))){
 				System.err.println("Assertion failed: " + msg + "\n");
 			}
 		} else {
@@ -1211,7 +1211,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				for(int k = 0; k < nSubs; k++){
 					if(subscriptIsSet[k] && ((ISet) subscriptResult[k].value).contains(tup.get(k))){
 						/* ok */
-					} else if (tup.get(k).equals(subscriptResult[k].value)){
+					} else if (tup.get(k).isEqual(subscriptResult[k].value)){
 						/* ok */
 					} else {
 						allEqual = false;
@@ -1653,7 +1653,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 					.getConditions()) {
 				EvalResult cval = expr.accept(this);
 				if (cval.type.isBoolType()) {
-					if (cval.value.equals(vf.bool(false))) {
+					if (cval.value.isEqual(vf.bool(false))) {
 						return x.getElseStatement().accept(this);
 					}
 				} else {
@@ -1673,7 +1673,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				.getConditions()) {
 			EvalResult cval = expr.accept(this);
 			if (cval.type.isBoolType()) {
-				if (cval.value.equals(vf.bool(false))) {
+				if (cval.value.isEqual(vf.bool(false))) {
 					return result();
 				}
 			} else {
@@ -1691,7 +1691,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		do {
 			EvalResult cval = expr.accept(this);
 			if (cval.type.isBoolType()) {
-				if (cval.value.equals(vf.bool(false))) {
+				if (cval.value.isEqual(vf.bool(false))) {
 					return statVal;
 				} else {
 					statVal = x.getBody().accept(this);
@@ -1710,7 +1710,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			EvalResult result = x.getBody().accept(this);
 			EvalResult cval = expr.accept(this);
 			if (cval.type.isBoolType()) {
-				if (cval.value.equals(vf.bool(false))) {
+				if (cval.value.isEqual(vf.bool(false))) {
 					return result;
 				}
 			} else {
@@ -2208,7 +2208,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				boolean found = false;
 				IValue leftVal = listLeft.get(i);
 				for(int j = 0; j < lenRight; j++){
-					if(leftVal.equals(listRight.get(j))){
+					if(leftVal.isEqual(listRight.get(j))){
 						found = true;
 						break;
 					}
@@ -3400,7 +3400,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			ISourceRange leftSR = leftSL.getRange();
 			ISourceRange rightSR = rightSL.getRange();
 			
-			if(leftSR.equals(rightSR)){
+			if(leftSR.isEqual(rightSR)){
 				return 0;
 			}
 			
@@ -3431,7 +3431,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 	private int compareSet(ISet value1, ISet value2) {
 		
-		if (value1.equals(value2)) {
+		if (value1.isEqual(value2)) {
 			return 0;
 		}
 		else if (value1.isSubSet(value2)) {
@@ -3443,7 +3443,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	}
 	
 	private int compareMap(IMap value1, IMap value2) {
-		if (value1.equals(value2)) {
+		if (value1.isEqual(value2)) {
 			return 0;
 		}
 		else if (value1.isSubMap(value2)) {
@@ -3521,7 +3521,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		EvalResult cval = x.getCondition().accept(this);
 	
 		if (cval.type.isBoolType()) {
-			if (cval.value.equals(vf.bool(true))) {
+			if (cval.value.isEqual(vf.bool(true))) {
 				return x.getThenExp().accept(this);
 			}
 		} else {
@@ -3551,7 +3551,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			IList lst = (IList) right.value;
 			IValue val = left.value;
 			for(int i = 0; i < lst.length(); i++){
-				if(lst.get(i).equals(val))
+				if(lst.get(i).isEqual(val))
 					return true;
 			}
 			return false;
@@ -3792,7 +3792,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 					firstTime = false;
 					EvalResult v = expr.accept(evaluator);
 					if(v.type.isBoolType()){
-						return result(tf.boolType(), vf.bool(v.value.equals(vf.bool(true))));
+						return result(tf.boolType(), vf.bool(v.value.isEqual(vf.bool(true))));
 					} else {
 						throw new RascalTypeError("Expression as generator should have type bool");
 					}
@@ -4064,7 +4064,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			bodyResult = body.accept(this);
 			for(int i = 0; i < vars.size(); i++){
 				EvalResult v = env.getVariable(vars.get(i));
-				if(currentValue[i] == null || !v.value.equals(currentValue[i])){
+				if(currentValue[i] == null || !v.value.isEqual(currentValue[i])){
 					change = true;
 					currentValue[i] = v.value;
 				}

@@ -86,7 +86,7 @@ public class IOTests extends TestCase {
 				IValue result = testReader.read(vf, Boolean, new ByteArrayInputStream(testATerm[i].getBytes()));
 				System.err.println(testATerm[i] + " -> " + result);
 				
-				if (!result.equals(testValues[i])) {
+				if (!result.isEqual(testValues[i])) {
 					fail(testATerm[i] + " did not parse correctly: " + result + " != " + testValues[i]);
 				}
 			}

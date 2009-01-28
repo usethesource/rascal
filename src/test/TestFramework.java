@@ -117,7 +117,7 @@ public class TestFramework {
 				IValue value = evaluator.eval(cmd.getStatement());
 				if (value == null || !value.getType().isBoolType())
 					return false;
-				return value.equals(ValueFactory.getInstance().bool(true)) ? true
+				return value.isEqual(ValueFactory.getInstance().bool(true)) ? true
 						: false;
 			} else if (cmd.isImport()) {
 				evaluator.eval(cmd.getImported());
