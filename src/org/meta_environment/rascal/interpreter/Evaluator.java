@@ -370,7 +370,10 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		if (expected == ClosureResult.getClosureType()) {
 			return;
 		}
-		if (!given.isSubtypeOf(expected)) {
+		if (given.isSubtypeOf(expected) || expected.isAbstractDataType() &&
+				given.isSubtypeOf(expected.getAbstractDataType())){
+			// ok
+		} else {
 			throw new RascalTypeError("Expected " + expected + ", got " + given);
 		}
 	}
@@ -2048,11 +2051,13 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				right.type = tf.doubleType();
 			}
 			right.value = ((IInteger) right.value).toDouble();
-		} else if(left.type.isConstructorType()){
+		} 
+		/*else if(left.type.isConstructorType()){
 			left.type = left.type.getAbstractDataType();
 		} else 	if(right.type.isConstructorType()){
 			right.type = right.type.getAbstractDataType();
 		}
+		*/
 	}
 	
     @Override
