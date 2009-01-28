@@ -167,7 +167,7 @@ interface MatchPattern {
 		//System.err.println("AbstractPatternNode.match(" + name + ") subj = " + subj + "subj Type = " + subj.getType());
 		Type stype = subject.getType();
 		
-		if (!stype.isNodeType()){
+		if (!stype.isNodeType() && !stype.isAbstractDataType()){
 			return false;
 		}
 
