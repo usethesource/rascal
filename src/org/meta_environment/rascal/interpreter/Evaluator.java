@@ -1924,9 +1924,9 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			}
 		}
 		System.err.println("elementType=" + elementType);
-		if(elementType.isAbstractDataType() && elementType.isConstructorType()){
-			elementType = elementType.getAbstractDataType();
-		}
+//		if(elementType.isAbstractDataType() && elementType.isConstructorType()){
+//			elementType = elementType.getAbstractDataType();
+//		}
 		Type resultType = tf.listType(elementType);
 		IListWriter w = resultType.writer(vf);
 		w.appendAll(results);
@@ -2616,13 +2616,21 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				return result(expr.type, value.set(name, repl.value));
 			}
 			else if (expr.type.isAbstractDataType() || expr.type.isConstructorType()) {
-				Type tuple = expr.type.getFieldTypes();
-				Type argType = tuple.getFieldType(name);
-				IConstructor value = (IConstructor) expr.value;
+				Type node = ((IConstructor) expr.value).getConstructorType();
 				
-				checkType(repl.type, argType);
+				if (!expr.type.hasField(name)) {
+					throw new RascalTypeError(expr.type + " does not have a field named " + name);
+				}
 				
-				return result(expr.type, value.set(name, repl.value));
+				if (!node.hasField(name)) {
+					throw new RascalException(vf, "Field " + name + " accessed on constructor that does not have it." + expr.value.getType());
+				}
+				
+				int index = node.getFieldIndex(name);
+				
+				checkType(repl.type, node.getFieldType(index));
+				
+				return result(expr.type, ((IConstructor) expr.value).set(index, repl.value));
 			}
 			else {
 				throw new RascalTypeError("Field updates only possible on tuples with labeled fields, relations with labeled fields and data constructors");
