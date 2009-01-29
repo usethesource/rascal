@@ -302,7 +302,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			checkType(v.getType(), instance);
 		}
 
-		return applyRules(instance, v);
+		// rewrite rules do not change the declared type
+		return new EvalResult(instance, applyRules(v));
 	}
 
 	EvalResult result(IValue v) {
@@ -315,39 +316,36 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			throw new RascalBug("Should not used run-time type for type checking!!!!");
 		}
 		if(v != null){
-			return applyRules(type, v);
+			return new EvalResult(type, applyRules(v));
 		} else {
 			return new EvalResult(null, v);
 		}
 	}
 	
-	private EvalResult applyRules(Type t, IValue v){
+	private IValue applyRules(IValue v) {
 		// we search using the run-time type of a value
 		Type typeToSearchFor = v.getType();
 		if (typeToSearchFor.isAbstractDataType()) {
 			typeToSearchFor = ((IConstructor) v).getConstructorType();
 		}
+		
 		java.util.List<org.meta_environment.rascal.ast.Rule> rules = env.getRules(typeToSearchFor);
 		if(rules.isEmpty()){
-			//System.err.println("applyRules: no matching rules for " + t);
-			return new EvalResult(t, v);
+			return v;
 		}
 		env.pushFrame();
 		try {
 			TraverseResult tr = traverse(v, new CasesOrRules(rules), 
-				/* bottomup */ true,  
-				/* breaking */ false, 
-				/* fixedpoint */ false);  /* innermost is achieved by repeated applications of applyRules
-				 							* when intermediate results are produced.
-				 							*/
-			//System.err.println("applyRules: tr.value =" + tr.value);
-			
-			// rules can not change the declared type!
-			return new EvalResult(t, tr.value);
+					/* bottomup */ true,  
+					/* breaking */ false, 
+					/* fixedpoint */ false);  
+			/* innermost is achieved by repeated applications of applyRules
+					 * when intermediate results are produced.
+					 */
+			return tr.value;
 		} finally {
 			env.popFrame();
 		}
-
 	}
 	
 	private EvalResult result() {
