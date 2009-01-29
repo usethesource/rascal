@@ -37,42 +37,22 @@ public class DataDeclarationTests extends TestCase{
 	
 	public void testLet1() throws IOException {
 		tf = new TestFramework();
-		tf.prepare("data Exp = let(str name, Exp exp1, Exp exp2) | varExp(str name) | intExp(int intVal);");
-		assertTrue(tf.runTestInSameEvaluator("{Exp e = intExp(1); e == intExp(1);}"));
-		assertTrue(tf.runTestInSameEvaluator("{Exp e = varExp(\"a\"); e == varExp(\"a\");}"));
-		assertTrue(tf.runTestInSameEvaluator("{Exp e = let(\"a\",intExp(1),varExp(\"a\")); e ==  let(\"a\",intExp(1),varExp(\"a\"));}"));
+		tf.prepare("data Exp = let(str name, Exp exp1, Exp exp2) | var(str name) | \\int(int intVal);");
+		assertTrue(tf.runTestInSameEvaluator("{Exp e = \\int(1); e == \\int(1);}"));
+		assertTrue(tf.runTestInSameEvaluator("{Exp e = var(\"a\"); e == var(\"a\");}"));
+		assertTrue(tf.runTestInSameEvaluator("{Exp e = let(\"a\",\\int(1),var(\"a\")); e ==  let(\"a\",\\int(1),var(\"a\"));}"));
 	}
 	
 	public void testLet2() throws IOException {
 		tf = new TestFramework();
 		tf.prepare("alias Var2 = str;");
-		tf.prepareMore("data Exp2 = let(Var2 var, Exp2 exp1, Exp2 exp2) | Var2 var | intExp(int intVal);");
+		tf.prepareMore("data Exp2 = let(Var2 var, Exp2 exp1, Exp2 exp2) | var(Var2 var) | \\int(int intVal);");
 		
-		assertTrue(tf.runTestInSameEvaluator("{Exp2 e = intExp(1); e == intExp(1);}"));
-		assertTrue(tf.runTestInSameEvaluator("{Exp2 e = \"a\"; e == \"a\";}"));
-		assertTrue(tf.runTestInSameEvaluator("{Exp2 e = let(\"a\",intExp(1),\"a\"); e ==  let(\"a\",intExp(1),\"a\");}"));
+		assertTrue(tf.runTestInSameEvaluator("{Exp2 e = \\int(1); e == \\int(1);}"));
+		assertTrue(tf.runTestInSameEvaluator("{Exp2 e = var(\"a\"); e == var(\"a\");}"));
+		assertTrue(tf.runTestInSameEvaluator("{Exp2 e = let(\"a\",\\int(1),var(\"a\")); e ==  let(\"a\",\\int(1),var(\"a\"));}"));
 		assertTrue(tf.runTestInSameEvaluator("Var2 var := \"a\";"));
-		assertTrue(tf.runTestInSameEvaluator("Var2 var !:= let(\"a\",intExp(1),\"a\");"));
+		assertTrue(tf.runTestInSameEvaluator("Var2 var !:= let(\"a\",\\int(1),var(\"a\"));"));
 		
-	}
-	
-	public void testLet3() throws IOException {
-		tf = new TestFramework();
-		tf.prepare("data Exp3 = let(str name, Exp3 exp1, Exp3 exp2) | varExp(str name)  | int intVal;");
-		
-		assertTrue(tf.runTestInSameEvaluator("{Exp3 e = 1; e == 1;}"));
-		assertTrue(tf.runTestInSameEvaluator("{Exp3 e = varExp(\"a\"); e == varExp(\"a\");}"));
-		assertTrue(tf.runTestInSameEvaluator("{Exp3 e = let(\"a\",1,varExp(\"a\")); e ==  let(\"a\",1,varExp(\"a\"));}"));
-	}
-	
-	public void testLet4() throws IOException {
-		tf = new TestFramework();
-		tf.prepare("alias Var4 = str;");
-		tf.prepareMore("alias intCon4 = int;");
-		tf.prepareMore("data Exp4 = let(Var4 var, Exp4 exp1, Exp4 exp2) | var(Var4 var) | intCon4 intVal;");
-		
-		assertTrue(tf.runTestInSameEvaluator("{Exp4 e = 1; e == 1;}"));
-		assertTrue(tf.runTestInSameEvaluator("{Exp4 e = var(\"a\"); e == var(\"a\");}"));
-		assertTrue(tf.runTestInSameEvaluator("{Exp4 e = let(\"a\",1,var(\"a\")); e ==  let(\"a\",1,var(\"a\"));}"));
 	}
 }
