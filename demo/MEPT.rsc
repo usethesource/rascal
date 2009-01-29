@@ -7,7 +7,7 @@ data Tree =
      appl(Production prod, list[Tree] args) |
 	 cycle(Symbol symbol, int cycle_length) |
 	 amb(Args args) | 
-	 int character;
+	 char(int character);
 
 data Production =
      prod(Symbols lhs, Symbol rhs, Attributes attributes) | 
@@ -24,7 +24,7 @@ data Associativity =
      left | right | assoc | non-assoc;
 
 data CharRange =
-     int range | range(int start, int end);
+     single(int start) | range(int start, int end);
 
 data Symbol =
      lit(str string) |
