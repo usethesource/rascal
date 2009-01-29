@@ -1559,10 +1559,19 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			return normalizedResult(type, result);
 		}
 		else if (receiver.type.isConstructorType() || receiver.type.isAbstractDataType()) {
-			IValue result = ((IConstructor) receiver.value).get(label);
-			Type treeNodeType = ((IConstructor) receiver.value).getType();
-			Type type = treeNodeType.getFieldType(treeNodeType.getFieldIndex(label));
-			return normalizedResult(type, result);
+			IConstructor cons = (IConstructor) receiver.value;
+			Type node = cons.getConstructorType();
+			
+			if (!receiver.type.hasField(label)) {
+				throw new RascalTypeError(receiver.type + " does not have a field named " + label);
+			}
+			
+			if (!node.hasField(label)) {
+				throw new RascalException(vf, "Field " + label + " accessed on constructor that does not have it." + receiver.value.getType());
+			}
+			
+			int index = node.getFieldIndex(label);
+			return normalizedResult(node.getFieldType(index), cons.get(index));
 		}
 		else {
 			throw new RascalTypeError(x.getReceiver() + " has no field named " + label);

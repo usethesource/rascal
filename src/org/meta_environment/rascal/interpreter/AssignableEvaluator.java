@@ -8,6 +8,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.Assignable;
 import org.meta_environment.rascal.ast.NullASTVisitor;
@@ -21,6 +22,7 @@ import org.meta_environment.rascal.ast.Assignable.Variable;
 import org.meta_environment.rascal.interpreter.env.EvalResult;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.exceptions.RascalBug;
+import org.meta_environment.rascal.interpreter.exceptions.RascalException;
 import org.meta_environment.rascal.interpreter.exceptions.RascalRunTimeError;
 import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
 
@@ -141,11 +143,27 @@ import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
 		String label = x.getField().toString();
 		
 		if (receiver.type.isTupleType()) {
+			if (!receiver.type.hasField(label)) {
+				throw new RascalTypeError(receiver.type + " does not have a field named " + label);
+			}
 			IValue result = ((ITuple) receiver.value).set(label, value.value);
 			return recur(x, eval.result(receiver.type, result));
 		}
 		else if (receiver.type.isConstructorType() || receiver.type.isAbstractDataType()) {
-			IValue result = ((IConstructor) receiver.value).set(label, value.value);
+			IConstructor cons = (IConstructor) receiver.value;
+			Type node = cons.getConstructorType();
+			
+			if (!receiver.type.hasField(label)) {
+				throw new RascalTypeError(receiver.type + " does not have a field named " + label);
+			}
+			
+			if (!node.hasField(label)) {
+				throw new RascalException(ValueFactory.getInstance(), "Field " + label + " accessed on constructor that does not have it." + receiver.value.getType());
+			}
+			
+			int index = node.getFieldIndex(label);
+			
+			IValue result = cons.set(index, value.value);
 			return recur(x, eval.result(receiver.type, result));
 		}
 		else {
