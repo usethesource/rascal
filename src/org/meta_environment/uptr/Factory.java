@@ -26,7 +26,7 @@ public class Factory {
 	private static IValueFactory vf = ValueFactory.getInstance();
 
 	public static final Type ParseTree = tf.abstractDataType("ParseTree");
-	public static final Type Tree = tf.abstractDataType("Node");
+	public static final Type Tree = tf.abstractDataType("Tree");
 	public static final Type Production = tf.abstractDataType("Production");
 	public static final Type Attributes = tf.abstractDataType("Attributes");
 	public static final Type Attr = tf.abstractDataType("Attr");
@@ -49,7 +49,7 @@ public class Factory {
 	public static final Type Tree_Appl = tf.constructor(Tree, "appl", Production, "prod", Args, "args");
 	public static final Type Tree_Cycle = tf.constructor(Tree, "cycle", Symbol, "symbol", tf.integerType(), "cycle-length");
 	public static final Type Tree_Amb = tf.constructor(Tree, "amb", Alternatives, "alternatives");
-	public static final Type Tree2 = tf.extendAbstractDataType(Tree, tf.integerType(), "character");
+	public static final Type Tree_Char = tf.constructor(Tree, "char", tf.integerType(), "character");
 	
 	public static final Type Production_Default = tf.constructor(Production, "prod", Symbols, "lhs", Symbol, "rhs", Attributes, "attributes");
 	public static final Type Production_List = tf.constructor(Production, "list", Symbol, "rhs");
@@ -93,7 +93,7 @@ public class Factory {
 	public static final Type Symbol_Layout = tf.constructor(Symbol, "layout");
 	public static final Type Symbol_CharClass = tf.constructor(Symbol, "char-class", CharRanges, "ranges");
 		
-	public static final Type CharRange2 = tf.extendAbstractDataType(CharRange, tf.integerType(), "character");
+	public static final Type CharRange_Single = tf.constructor(CharRange, "single", tf.integerType(), "character");
 	public static final Type CharRange_Range = tf.constructor(CharRange, "range", tf.integerType(), "start", tf.integerType(), "end");
 	
 	private static final class InstanceHolder {
