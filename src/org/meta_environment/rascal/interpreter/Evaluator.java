@@ -12,13 +12,14 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.IBool;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IDouble;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
-import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.ISet;
@@ -26,7 +27,6 @@ import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -169,7 +169,6 @@ import org.meta_environment.rascal.interpreter.exceptions.RascalRunTimeError;
 import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
 import org.meta_environment.rascal.interpreter.exceptions.RascalUndefinedValue;
 import org.meta_environment.rascal.interpreter.exceptions.ReturnException;
-import org.meta_environment.rascal.interpreter.BooleanEvaluator;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
 import org.meta_environment.uptr.Factory;
@@ -217,7 +216,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		try {
 			EvalResult r = stat.accept(this);
 	        if(r != null){
-	        	System.err.println("Static type: " + r.type);
 	        	return r.value;
 	        } else {
 	        	throw new RascalBug("Not yet implemented: " + stat.getTree());
@@ -636,10 +634,12 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		    	env.storeConstructor(tf.constructor(sort, altName, new Object[] { }));
 		    }
 		    else if (var.isAnonymousConstructor()) {
-		    	Type argType = var.getType().accept(te);
-		    	String label = var.getName().toString();
-		    	tf.extendAbstractDataType(sort, argType, label);
-		    	env.storeDefinition(sort, argType);
+		    	// TODO remove syntactic support for anonymous constructors
+		    	throw new RascalBug("Anonymous constructors are not allowed anymore, have to change syntax");
+//		    	Type argType = var.getType().accept(te);
+//		    	String label = var.getName().toString();
+//		    	tf.extendAbstractDataType(sort, argType, label);
+//		    	env.storeDefinition(sort, argType);
 		    }
 		}
 		

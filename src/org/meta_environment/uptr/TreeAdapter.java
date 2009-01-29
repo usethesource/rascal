@@ -8,7 +8,6 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
-import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
@@ -33,6 +32,10 @@ public class TreeAdapter {
 	
 	public boolean isAmb() {
 		return tree.getConstructorType() == Factory.Tree_Amb;
+	}
+	
+	public boolean isChar() {
+		return tree.getConstructorType() == Factory.Tree_Char;
 	}
 	
 	public boolean isCycle() {
@@ -160,9 +163,9 @@ public class TreeAdapter {
 		}
 
 		@Override
-		public IInteger visitTreeCharacter(IInteger arg) throws VisitorException {
+		public IConstructor visitTreeChar(IConstructor arg) throws VisitorException {
 			try {
-				fStream.write(arg.getValue());
+				fStream.write(((IInteger) arg.get("character")).getValue());
 				return arg;
 			} catch (IOException e) {
 				throw new VisitorException(e);
@@ -170,7 +173,7 @@ public class TreeAdapter {
 		}
 		
 		@Override
-		public INode visitTreeAppl(IConstructor arg) throws VisitorException {
+		public IConstructor visitTreeAppl(IConstructor arg) throws VisitorException {
 			IList children = (IList) arg.get("args");
 			for (IValue child : children) {
 				child.accept(this);
