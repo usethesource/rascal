@@ -1268,13 +1268,13 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				throw new RascalRunTimeError("Subscript out of bounds", e);
 			}
 		}
-		if ((exprType.isAbstractDataType() || exprType.isConstructorType())) {
+		if (exprType.isAbstractDataType()) {
 			if(index >= ((IConstructor) expr.value).arity()){
 				throw new RascalRunTimeError("Subscript out of bounds");
 			}
-			Type elementType = ((IConstructor) expr.value).getType()
-					.getFieldType(index);
-			IValue element = ((INode) expr.value).get(index);
+			
+			Type elementType = ((IConstructor) expr.value).getConstructorType().getFieldType(index);
+			IValue element = ((IConstructor) expr.value).get(index);
 			return normalizedResult(elementType, element);
 		}
 		if (exprType.isNodeType()) {
