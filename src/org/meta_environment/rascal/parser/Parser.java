@@ -65,12 +65,12 @@ public class Parser {
 	}
 
 	private String extractParsetable() throws IOException {
-		URL url = getClass().getResource("/resources/rascal.trm.tbl");
+		URL url = Parser.class.getResource("/resources/rascal.trm.tbl");
 		InputStream contents = url.openStream();
 		
 		GetPropertyAction a = new GetPropertyAction("java.io.tmpdir");
 		String tmpdir = ((String) AccessController.doPrivileged(a));
-		File tmp = new File(tmpdir + File.pathSeparator + "rascal.trm.tbl");
+		File tmp = new File(tmpdir +  "/rascal.trm.tbl");
 		
 		if (!tmp.exists()) {
 			tmp.createNewFile();

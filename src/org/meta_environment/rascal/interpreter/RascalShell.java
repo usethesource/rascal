@@ -43,7 +43,7 @@ public class RascalShell {
 		console.setInput(in);
 	}
 	
-	private void run() throws IOException {
+	public void run() throws IOException {
 		CommandEvaluator commander = new CommandEvaluator(evaluator, console);
 		
 		StringBuffer input = new StringBuffer();
