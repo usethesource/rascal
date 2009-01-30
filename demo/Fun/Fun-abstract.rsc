@@ -215,8 +215,8 @@ public bool test(){
    assertEqual(subst("a", var("b"), apply(fun("a", var("b")),  var("a"))),
                                     apply(fun("a",var("b")),var("b")));
                                     
-   assertEqual(subst("a", op(intcon(3),var("b")), apply(fun("b", var("b")),  var("a"))),
-                                                  apply(fun("_x1",var("_x1")),op(intcon(3),var("b"))));
+   assertEqual(subst("a", op("add", intcon(3),var("b")), apply(fun("b", var("b")),  var("a"))),
+                                                  apply(fun("_x1",var("_x1")),op("add", intcon(3),var("b"))));
    return nError == 0;
 }
 
