@@ -2,6 +2,7 @@ package org.meta_environment.rascal.interpreter;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 
 import jline.ConsoleReader;
@@ -36,6 +37,10 @@ public class RascalShell {
 	public RascalShell() throws IOException {
 		console = new ConsoleReader();
 		evaluator = new Evaluator(ValueFactory.getInstance(), factory, new PrintWriter(System.err));
+	}
+	
+	public void setInputStream(InputStream in) {
+		console.setInput(in);
 	}
 	
 	private void run() throws IOException {
