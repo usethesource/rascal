@@ -6,6 +6,7 @@ import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.Value;
@@ -99,10 +100,12 @@ interface MatchPattern {
 		this.literal = literal;
 	}
 	
+	@Override	
 	public Type getType(Evaluator ev) {
 			return literal.getType();
 	}
 	
+	@Override	
 	public boolean next(){
 		checkInitialized();
 		firstMatch = false;
@@ -111,6 +114,10 @@ interface MatchPattern {
 			return ev.equals(ev.result(subject), ev.result(literal));
 		}
 		return false;
+	}
+	
+	public IValue getLiteral(){
+		return literal;
 	}
 	
 	public String toString(){
@@ -131,10 +138,18 @@ interface MatchPattern {
 	public void initMatch(IValue subject, Evaluator ev){
 		super.initMatch(subject, ev);
 		
+		System.err.println("initMatch: " + subject);
+		System.err.println(subject.getType());
+		System.err.println("isNodeType=" + subject.getType().isNodeType());
+		System.err.println("isAbstractDataType=" + subject.getType().isAbstractDataType());
+		
 		if(!(subject.getType().isNodeType() || subject.getType().isAbstractDataType())){
 			return;
 		}
 		INode treeSubject = (INode) subject;
+		
+		System.err.println("treeSubject.arity=" + treeSubject.arity());
+		System.err.println("children.size=" + children.size());
 		if(treeSubject.arity() != children.size()){
 			return;
 		}
@@ -142,6 +157,7 @@ interface MatchPattern {
 		for (int i = 0; i < children.size(); i++){
 			children.get(i).initMatch(treeSubject.get(i), ev);
 		}
+		System.err.println("initMatch completed");
 	}
 	
 	
@@ -155,8 +171,10 @@ interface MatchPattern {
 		 Type signature = ev.tf.tupleType(types);
 		 
 		 if (ev.isTreeConstructorName(name, signature)) {
+			 System.err.println("getType returns: " + ev.env.getConstructor(name.toString(), signature));
 			 return ev.env.getConstructor(name.toString(), signature);
 		 } else {
+			 System.err.println("getType returns: " + ev.tf.nodeType());
 			 return ev.tf.nodeType();
 		 }
 	}
@@ -164,17 +182,21 @@ interface MatchPattern {
 	public boolean next(){
 		checkInitialized();
 		firstMatch = false;
-		//System.err.println("AbstractPatternNode.match(" + name + ") subj = " + subj + "subj Type = " + subj.getType());
+		System.err.println("AbstractPatternNode.match(" + name + ") subj = " + subject + "subj Type = " + subject.getType());
 		Type stype = subject.getType();
-		
+	
 		if (!stype.isNodeType() && !stype.isAbstractDataType()){
 			return false;
 		}
+		
 
 		INode subjTree = (INode) subject;
 		
+		System.err.println("name=" + name + ", subjTree,name=" +  subjTree.getName());
+		
 		if (name.toString().equals(subjTree.getName().toString()) && 
 			children.size() == subjTree.arity()){
+			System.err.println(" ... about to match children");
 			return matchChildren(subjTree.getChildren().iterator(), children.iterator(), ev);
 		}
 		return false;
@@ -203,7 +225,7 @@ interface MatchPattern {
 	private boolean hasNext;						// Has this pattern alternatives for further matching?
 	private boolean forward;						// Moving to the right?
 	
-	private boolean debug = false;
+	private boolean debug = true;
 	
 	AbstractPatternList(java.util.List<MatchPattern> children){
 		this.children = children;					
@@ -547,19 +569,136 @@ interface MatchPattern {
 
 /* package */ class AbstractPatternSet extends AbstractPattern implements MatchPattern {
 	private java.util.List<MatchPattern> children;
+	private int patternSize;
+	private boolean debug = true;
+	private boolean hasNext;
+	private ISet setSubject;
+	private int subjectCursor;
+	private int patternCursor;
+	private Object subjectSize;
+	private boolean hasSetVar;
+	private boolean[] isSetVar;
+	private HashSet<String> setVars;
+	private int[] setVarOccurrences;
+	private ISet fixedSetElements;
+	private ISet variableSetElements;
 	
 	AbstractPatternSet(java.util.List<MatchPattern> children){
 		this.children = children;
+		this.patternSize = children.size();
+		this.isSetVar = new boolean[patternSize];
+		setVars = new HashSet<String>();
+		setVarOccurrences = new int[patternSize];
 	}
 	
 	public Type getType(Evaluator ev) {
-		return ev.tf.setType(ev.tf.voidType());
+		if(patternSize == 0){
+			return ev.tf.setType(ev.tf.voidType());
+		} else {
+			Type elemType = ev.tf.voidType();
+			for(int i = 0; i < patternSize; i++){
+				Type childType = children.get(0).getType(ev);
+				if(childType.isSetType()){
+					elemType = elemType.lub(childType.getElementType());
+				} else {
+					elemType = elemType.lub(childType);
+				}
+			}
+			if(debug)System.err.println("SetPattern.getType: " + ev.tf.setType(elemType));
+			return ev.tf.setType(elemType);
+		}
+	}
+	
+	@Override
+	public void initMatch(IValue subject, Evaluator ev){
+		
+		super.initMatch(subject, ev);
+		
+		if (!subject.getType().isSetType()) {
+			initialized = true;
+			hasNext = false;
+			return;
+		}
+		
+		setSubject = (ISet) subject;
+		subjectCursor = 0;
+		patternCursor = 0;
+		subjectSize = ((ISet) subject).size();
+		fixedSetElements = ev.vf.set(getType(ev));
+		
+		int nSetVar = 0;
+		hasSetVar = false;
+		
+		/*
+		 * Pass #1: determine the set variables
+		 */
+		for(int i = 0; i < patternSize; i++){
+			
+			MatchPattern child = children.get(i);
+			System.err.println("child=" + child);
+			isSetVar[i] = false;
+			if(child instanceof AbstractPatternTypedVariable && child.getType(ev).isSetType()){
+				/*
+				 * An explicitly declared set variable.
+				 */
+				setVars.add(((AbstractPatternTypedVariable)child).getName());
+				hasSetVar = true;
+				isSetVar[i] = true;
+				setVarOccurrences[i] = 1;
+				nSetVar++;
+			} else if(child instanceof AbstractPatternQualifiedName){
+				
+				String name =((AbstractPatternQualifiedName)child).getName();
+				if(setVars.contains(name)){
+					/*
+					 * A set variable that was declared earlier in the pattern
+					 */
+					isSetVar[i] = true;
+			    	nSetVar++;
+			    	setVarOccurrences[i]++;
+				} else  {
+					GlobalEnvironment env = GlobalEnvironment.getInstance();
+					EvalResult patRes = env.getVariable(name);
+				         
+				    if((patRes != null) && (patRes.value != null)){
+				        IValue patVal = patRes.value;
+				        if (patVal.getType().isSetType()){
+				        	/*
+				        	 * A set variable declared in the current scope.
+				        	 */
+				        	isSetVar[i] = true;
+				        	nSetVar++;
+				        }
+				    }
+				}
+			} else {
+				System.err.println("literal=" + child);
+				assert child instanceof AbstractPatternLiteral;
+				fixedSetElements = fixedSetElements.insert(((AbstractPatternLiteral)child).getLiteral());
+			}
+		}
+		/*
+		 * Pass #2: determine ...
+		 */
+		firstMatch = true;
+		hasNext = fixedSetElements.isSubSet(setSubject);
+		variableSetElements = setSubject.subtract(fixedSetElements);
+	}
+	
+	@Override
+	public boolean hasNext(){
+		System.err.println("hasNext");
+		return initialized && hasNext && (firstMatch || hasSetVar);
 	}
 	
 	public boolean next(){
 		checkInitialized();
 		firstMatch = false;
-		throw new RascalBug("AbstractPatternSet.match not implemented");
+		if(!hasSetVar){
+			hasNext = false;
+			return fixedSetElements.isEqual(setSubject);
+		}
+		return false;
 	}
 }
 
@@ -680,7 +819,7 @@ interface MatchPattern {
 /* package */class AbstractPatternTypedVariable extends AbstractPattern implements MatchPattern {
 	private Name name;
 	org.eclipse.imp.pdb.facts.type.Type declaredType;
-	private boolean debug = false;
+	private boolean debug = true;
 
 	AbstractPatternTypedVariable(org.eclipse.imp.pdb.facts.type.Type type2, Name name) {
 		this.declaredType = type2;

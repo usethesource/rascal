@@ -182,7 +182,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	private final AbstractPatternEvaluator pe;
 	protected GlobalEnvironment env = GlobalEnvironment.getInstance();
 	private ASTFactory astFactory = new ASTFactory();
-	private boolean callTracing = false;
+	private boolean callTracing = true;
 	private int callNesting = 0;
 	
 	private final ASTFactory af;
