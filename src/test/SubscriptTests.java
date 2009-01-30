@@ -77,7 +77,7 @@ public class SubscriptTests extends TestCase {
 		
 		assertTrue(tf.runWithErrorInSameEvaluator("f(0, \"a\", 3.5)[3] == 3.5;", "Subscript out of bounds"));
 		
-		assertTrue(tf.runTestInSameEvaluator("{node T = f(0, \"a\", 3.5); T[0] = 10; T == f(10, \"a\", 3.5);}"));
+		assertTrue(tf.runTestInSameEvaluator("{NODE T = f(0, \"a\", 3.5); T[0] = 10; T == f(10, \"a\", 3.5);}"));
 		
 	}
 }
