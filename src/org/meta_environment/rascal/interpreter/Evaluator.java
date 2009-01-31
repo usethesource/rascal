@@ -339,7 +339,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 					/* bottomup */ true,  
 					/* breaking */ false, 
 					/* fixedpoint */ false);  
-			/* innermost is achieved by repeated applications of applyRules
+					/* innermost is achieved by repeated applications of applyRules
 					 * when intermediate results are produced.
 					 */
 			return tr.value;
@@ -1922,7 +1922,11 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 
 		for (org.meta_environment.rascal.ast.Expression expr : elements) {
 			EvalResult resultElem = expr.accept(this);
-			if(resultElem.type.isListType() && !expr.isList()){
+			if(resultElem.type.isListType() && !expr.isList() &&
+					elementType.isSubtypeOf(resultElem.type.getElementType())){
+				/*
+				 * Splice elements in list if element types permit this
+				 */
 				for(IValue val : ((IList) resultElem.value)){
 					elementType = elementType.lub(val.getType());
 					results.add(val);
@@ -1932,10 +1936,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				results.add(results.size(), resultElem.value);
 			}
 		}
-		System.err.println("elementType=" + elementType);
-//		if(elementType.isAbstractDataType() && elementType.isConstructorType()){
-//			elementType = elementType.getAbstractDataType();
-//		}
+
 		Type resultType = tf.listType(elementType);
 		IListWriter w = resultType.writer(vf);
 		w.appendAll(results);
@@ -1952,7 +1953,11 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 
 		for (org.meta_environment.rascal.ast.Expression expr : elements) {
 			EvalResult resultElem = expr.accept(this);
-			if(resultElem.type.isSetType() && !expr.isSet()){
+			if(resultElem.type.isSetType() && !expr.isSet() &&
+			   elementType.isSubtypeOf(resultElem.type.getElementType())){
+				/*
+				 * Splice the elements in the set if element types permit this.
+				 */
 				for(IValue val : ((ISet) resultElem.value)){
 					elementType = elementType.lub(val.getType());
 					results.add(val);
@@ -3068,18 +3073,18 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	 */
 	
 	private TraverseResult traverseOnce(IValue subject, CasesOrRules casesOrRules, 
-									boolean bottomup, 
-									boolean breaking){
+			boolean bottomup, 
+			boolean breaking){
 		Type subjectType = subject.getType();
 		boolean matched = false;
 		boolean changed = false;
 		IValue result = subject;
-		
+
 		//System.err.println("traverseOnce: " + subject + ", type=" + subject.getType());
 		if(subjectType.isStringType()){
 			return traverseString((IString) subject, casesOrRules);
 		}
-		
+
 		if(!bottomup){
 			TraverseResult tr = traverseTop(subject, casesOrRules);
 			matched |= tr.matched;
@@ -3089,97 +3094,109 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			}
 			subject = tr.value;
 		}
-		
-		if(subjectType.isNodeType()){
-			INode node = (INode)subject;
-			if(node.arity() == 0){
+
+		if(subjectType.isAbstractDataType()){
+			IConstructor cons = (IConstructor)subject;
+			if(cons.arity() == 0){
 				result = subject;
 			} else {
-				IValue args[] = new IValue[node.arity()];
-				
-				for(int i = 0; i < node.arity(); i++){
-					TraverseResult tr = traverseOnce(node.get(i), casesOrRules, bottomup, breaking);
+				IValue args[] = new IValue[cons.arity()];
+
+				for(int i = 0; i < cons.arity(); i++){
+					TraverseResult tr = traverseOnce(cons.get(i), casesOrRules, bottomup, breaking);
 					matched |= tr.matched;
 					changed |= tr.changed;
 					args[i] = tr.value;
 				}
-				if(subjectType.isAbstractDataType() || subjectType.isConstructorType()){
-					result = vf.constructor(subject.getType(), args);
-					
-				} else {
-					result = vf.node(node.getName(), args);
-				}
+				
+				result = vf.constructor(cons.getConstructorType(), args);
 			}
 		} else
-		if(subjectType.isListType()){
-			IList list = (IList) subject;
-			int len = list.length();
-			if(len > 0){
-				IListWriter w = list.getType().writer(vf);
-				for(int i = len - 1; i >= 0; i--){
-					TraverseResult tr = traverseOnce(list.get(i), casesOrRules, bottomup, breaking);
-					matched |= tr.matched;
-					changed |= tr.changed;
-					w.insert(tr.value);
-				}
-				result = w.done();
-			} else {
-				result = subject;
-			}
-		} else 
-		if(subjectType.isSetType()){
-				ISet set = (ISet) subject;
-				if(!set.isEmpty()){
-					ISetWriter w = set.getType().writer(vf);
-					for(IValue v : set){
-						TraverseResult tr = traverseOnce(v, casesOrRules, bottomup, breaking);
+			if(subjectType.isNodeType()){
+				INode node = (INode)subject;
+				if(node.arity() == 0){
+					result = subject;
+				} else {
+					IValue args[] = new IValue[node.arity()];
+
+					for(int i = 0; i < node.arity(); i++){
+						TraverseResult tr = traverseOnce(node.get(i), casesOrRules, bottomup, breaking);
 						matched |= tr.matched;
 						changed |= tr.changed;
-						w.insert(tr.value);
+						args[i] = tr.value;
 					}
-					result = w.done();
-				} else {
-					result = subject;
+					result = vf.node(node.getName(), args);
 				}
-		} else
-		if (subjectType.isMapType()) {
-			IMap map = (IMap) subject;
-			if(!map.isEmpty()){
-				IMapWriter w = map.getType().writer(vf);
-				Iterator<Entry<IValue,IValue>> iter = map.entryIterator();
-				
-				while (iter.hasNext()) {
-					Entry<IValue,IValue> entry = iter.next();
-					TraverseResult tr = traverseOnce(entry.getKey(), casesOrRules, bottomup, breaking);
-					matched |= tr.matched;
-					changed |= tr.changed;
-					IValue newKey = tr.value;
-					tr = traverseOnce(entry.getValue(), casesOrRules, bottomup, breaking);
-					matched |= tr.matched;
-					changed |= tr.changed;
-					IValue newValue = tr.value;
-					w.put(newKey, newValue);
-				}
-				result = w.done();
-			} else {
-				result = subject;
-			}
-		} else
-			if(subjectType.isTupleType()){
-				ITuple tuple = (ITuple) subject;
-				int arity = tuple.arity();
-				IValue args[] = new IValue[arity];
-				for(int i = 0; i < arity; i++){
-					TraverseResult tr = traverseOnce(tuple.get(i), casesOrRules, bottomup, breaking);
-					matched |= tr.matched;
-					changed |= tr.changed;
-					args[i] = tr.value;
-				}
-				result = vf.tuple(args);
-		} else {
-			result = subject;
-		}
-		
+			} else
+				if(subjectType.isListType()){
+					IList list = (IList) subject;
+					int len = list.length();
+					if(len > 0){
+						IListWriter w = list.getType().writer(vf);
+						for(int i = len - 1; i >= 0; i--){
+							TraverseResult tr = traverseOnce(list.get(i), casesOrRules, bottomup, breaking);
+							matched |= tr.matched;
+							changed |= tr.changed;
+							w.insert(tr.value);
+						}
+						result = w.done();
+					} else {
+						result = subject;
+					}
+				} else 
+					if(subjectType.isSetType()){
+						ISet set = (ISet) subject;
+						if(!set.isEmpty()){
+							ISetWriter w = set.getType().writer(vf);
+							for(IValue v : set){
+								TraverseResult tr = traverseOnce(v, casesOrRules, bottomup, breaking);
+								matched |= tr.matched;
+								changed |= tr.changed;
+								w.insert(tr.value);
+							}
+							result = w.done();
+						} else {
+							result = subject;
+						}
+					} else
+						if (subjectType.isMapType()) {
+							IMap map = (IMap) subject;
+							if(!map.isEmpty()){
+								IMapWriter w = map.getType().writer(vf);
+								Iterator<Entry<IValue,IValue>> iter = map.entryIterator();
+
+								while (iter.hasNext()) {
+									Entry<IValue,IValue> entry = iter.next();
+									TraverseResult tr = traverseOnce(entry.getKey(), casesOrRules, bottomup, breaking);
+									matched |= tr.matched;
+									changed |= tr.changed;
+									IValue newKey = tr.value;
+									tr = traverseOnce(entry.getValue(), casesOrRules, bottomup, breaking);
+									matched |= tr.matched;
+									changed |= tr.changed;
+									IValue newValue = tr.value;
+									w.put(newKey, newValue);
+								}
+								result = w.done();
+							} else {
+								result = subject;
+							}
+						} else
+							if(subjectType.isTupleType()){
+								ITuple tuple = (ITuple) subject;
+								int arity = tuple.arity();
+								IValue args[] = new IValue[arity];
+								for(int i = 0; i < arity; i++){
+									TraverseResult tr = traverseOnce(tuple.get(i), casesOrRules, bottomup, breaking);
+									matched |= tr.matched;
+									changed |= tr.changed;
+									args[i] = tr.value;
+								}
+								result = vf.tuple(args);
+							} else {
+								result = subject;
+							}
+
 		if(bottomup){
 			if(breaking && changed){
 				return new TraverseResult(matched, result, changed);

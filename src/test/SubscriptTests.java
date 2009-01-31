@@ -76,8 +76,8 @@ public class SubscriptTests extends TestCase {
 		assertTrue(tf.runTestInSameEvaluator("f(0, \"a\", 3.5)[2] == 3.5;"));
 		
 		assertTrue(tf.runWithErrorInSameEvaluator("f(0, \"a\", 3.5)[3] == 3.5;", "Subscript out of bounds"));
-		
-		assertTrue(tf.runTestInSameEvaluator("{NODE T = f(0, \"a\", 3.5); T[0] = 10; T == f(10, \"a\", 3.5);}"));
+//TODO: allow subscript of ADT or not?		
+//		assertTrue(tf.runTestInSameEvaluator("{NODE T = f(0, \"a\", 3.5); T[0] = 10; T == f(10, \"a\", 3.5);}"));
 		
 	}
 }

@@ -10,6 +10,7 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.Value;
+import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.Name;
@@ -138,18 +139,20 @@ interface MatchPattern {
 	public void initMatch(IValue subject, Evaluator ev){
 		super.initMatch(subject, ev);
 		
-		System.err.println("initMatch: " + subject);
+		/*System.err.println("initMatch: " + subject);
 		System.err.println(subject.getType());
 		System.err.println("isNodeType=" + subject.getType().isNodeType());
 		System.err.println("isAbstractDataType=" + subject.getType().isAbstractDataType());
+		*/
 		
 		if(!(subject.getType().isNodeType() || subject.getType().isAbstractDataType())){
 			return;
 		}
 		INode treeSubject = (INode) subject;
-		
+		/*
 		System.err.println("treeSubject.arity=" + treeSubject.arity());
 		System.err.println("children.size=" + children.size());
+		*/
 		if(treeSubject.arity() != children.size()){
 			return;
 		}
@@ -157,7 +160,7 @@ interface MatchPattern {
 		for (int i = 0; i < children.size(); i++){
 			children.get(i).initMatch(treeSubject.get(i), ev);
 		}
-		System.err.println("initMatch completed");
+		//System.err.println("initMatch completed");
 	}
 	
 	
@@ -567,28 +570,63 @@ interface MatchPattern {
 	}
 }
 
+class SubSetGenerator implements Iterator<ISet> {
+	
+	private ISet universe;
+	private Iterator<IValue> universeGen;
+	private SubSetGenerator subsetGen;
+	private boolean firstMatch;
+	private IValue currentUniverseElement;
+	private ValueFactory vf;
+
+	SubSetGenerator(ISet universe){
+		this.universe = universe;
+		universeGen = universe.iterator();
+		this.vf = ValueFactory.getInstance();
+		this.firstMatch = true;
+	}
+	
+	@Override
+	public boolean hasNext() {
+		return firstMatch || subsetGen.hasNext() || universeGen.hasNext();
+	}
+
+	@Override
+	public ISet next() {
+		if(firstMatch || !subsetGen.hasNext()){
+			if(universeGen.hasNext()){
+			currentUniverseElement = universeGen.next();
+			subsetGen = new SubSetGenerator(universe.subtract(vf.set(currentUniverseElement)));
+			} else
+				return vf.set();
+		}
+		return subsetGen.next().insert(currentUniverseElement);
+	}
+
+	@Override
+	public void remove() {
+		throw new UnsupportedOperationException("remove in SubSetGenerator");
+	}
+}
+
 /* package */ class AbstractPatternSet extends AbstractPattern implements MatchPattern {
 	private java.util.List<MatchPattern> children;
 	private int patternSize;
 	private boolean debug = true;
 	private boolean hasNext;
 	private ISet setSubject;
-	private int subjectCursor;
-	private int patternCursor;
-	private Object subjectSize;
 	private boolean hasSetVar;
-	private boolean[] isSetVar;
 	private HashSet<String> setVars;
-	private int[] setVarOccurrences;
 	private ISet fixedSetElements;
 	private ISet variableSetElements;
+	private String[] setVar;
+	private SubSetGenerator[] varGen;
+	private int currentVar;
 	
 	AbstractPatternSet(java.util.List<MatchPattern> children){
 		this.children = children;
 		this.patternSize = children.size();
-		this.isSetVar = new boolean[patternSize];
 		setVars = new HashSet<String>();
-		setVarOccurrences = new int[patternSize];
 	}
 	
 	public Type getType(Evaluator ev) {
@@ -621,41 +659,33 @@ interface MatchPattern {
 		}
 		
 		setSubject = (ISet) subject;
-		subjectCursor = 0;
-		patternCursor = 0;
-		subjectSize = ((ISet) subject).size();
 		fixedSetElements = ev.vf.set(getType(ev));
 		
 		int nSetVar = 0;
 		hasSetVar = false;
-		
+		setVar = new String[patternSize];  			// Two overestimations
+		varGen = new SubSetGenerator[patternSize];
 		/*
 		 * Pass #1: determine the set variables
 		 */
 		for(int i = 0; i < patternSize; i++){
-			
 			MatchPattern child = children.get(i);
 			System.err.println("child=" + child);
-			isSetVar[i] = false;
 			if(child instanceof AbstractPatternTypedVariable && child.getType(ev).isSetType()){
 				/*
 				 * An explicitly declared set variable.
 				 */
-				setVars.add(((AbstractPatternTypedVariable)child).getName());
-				hasSetVar = true;
-				isSetVar[i] = true;
-				setVarOccurrences[i] = 1;
+				String name = ((AbstractPatternTypedVariable)child).getName();
+				setVars.add(name);
+				setVar[nSetVar] = name;
 				nSetVar++;
 			} else if(child instanceof AbstractPatternQualifiedName){
 				
 				String name =((AbstractPatternQualifiedName)child).getName();
 				if(setVars.contains(name)){
 					/*
-					 * A set variable that was declared earlier in the pattern
+					 * A set variable that was declared earlier in the pattern,ignore it.
 					 */
-					isSetVar[i] = true;
-			    	nSetVar++;
-			    	setVarOccurrences[i]++;
 				} else  {
 					GlobalEnvironment env = GlobalEnvironment.getInstance();
 					EvalResult patRes = env.getVariable(name);
@@ -666,7 +696,8 @@ interface MatchPattern {
 				        	/*
 				        	 * A set variable declared in the current scope.
 				        	 */
-				        	isSetVar[i] = true;
+				        	setVars.add(name);
+				        	setVar[nSetVar] = name;
 				        	nSetVar++;
 				        }
 				    }
@@ -678,11 +709,13 @@ interface MatchPattern {
 			}
 		}
 		/*
-		 * Pass #2: determine ...
+		 * Pass #2: set up subset generation
 		 */
 		firstMatch = true;
 		hasNext = fixedSetElements.isSubSet(setSubject);
 		variableSetElements = setSubject.subtract(fixedSetElements);
+		varGen[0]= new SubSetGenerator(variableSetElements);
+		currentVar = 0;
 	}
 	
 	@Override
@@ -693,10 +726,13 @@ interface MatchPattern {
 	
 	public boolean next(){
 		checkInitialized();
-		firstMatch = false;
-		if(!hasSetVar){
-			hasNext = false;
-			return fixedSetElements.isEqual(setSubject);
+		if(firstMatch){
+			
+			firstMatch = false;
+			if(!hasSetVar){
+				hasNext = false;
+				return fixedSetElements.isEqual(setSubject);
+			}
 		}
 		return false;
 	}
