@@ -30,7 +30,6 @@ data Attribute = size(int width, int height);
 data Attribute = style(Style style);
 data Attribute = level(str level);
 data Attribute = \file(File \file);
-data Attribute = \file(value \file);
 
 alias AttributeList = list[Attribute] ;
 

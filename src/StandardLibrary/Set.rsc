@@ -84,7 +84,7 @@ public set[set[&T]] power(set[&T] st)
   	set[set[&T]] pw = power(st - elm);
   	result = result + pw;
   	for(set[&T] sub : pw){
-  		result = result + {sub + elm};
+  		result = result + {{sub + elm}};
   	}
   }
   return result;
