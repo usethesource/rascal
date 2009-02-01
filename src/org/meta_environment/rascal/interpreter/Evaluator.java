@@ -172,6 +172,7 @@ import org.meta_environment.rascal.interpreter.exceptions.ReturnException;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
 import org.meta_environment.uptr.Factory;
+import org.meta_environment.rascal.interpreter.BooleanEvaluator;
 
 public class Evaluator extends NullASTVisitor<EvalResult> {
 	public static final String RASCAL_FILE_EXT = ".rsc";
@@ -182,7 +183,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	private final AbstractPatternEvaluator pe;
 	protected GlobalEnvironment env = GlobalEnvironment.getInstance();
 	private ASTFactory astFactory = new ASTFactory();
-	private boolean callTracing = true;
+	private boolean callTracing = false;
 	private int callNesting = 0;
 	
 	private final ASTFactory af;
@@ -300,10 +301,10 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		
 		if (v != null) {
 			checkType(v.getType(), instance);
+			// rewrite rules do not change the declared type
+			return new EvalResult(instance, applyRules(v));
 		}
-
-		// rewrite rules do not change the declared type
-		return new EvalResult(instance, applyRules(v));
+		return new EvalResult(instance, v);
 	}
 
 	EvalResult result(IValue v) {
