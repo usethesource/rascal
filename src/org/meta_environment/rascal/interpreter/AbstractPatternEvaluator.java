@@ -143,20 +143,10 @@ interface MatchPattern {
 	public void initMatch(IValue subject, Evaluator ev){
 		super.initMatch(subject, ev);
 		
-		/*System.err.println("initMatch: " + subject);
-		System.err.println(subject.getType());
-		System.err.println("isNodeType=" + subject.getType().isNodeType());
-		System.err.println("isAbstractDataType=" + subject.getType().isAbstractDataType());
-		*/
-		
 		if(!(subject.getType().isNodeType() || subject.getType().isAbstractDataType())){
 			return;
 		}
 		INode treeSubject = (INode) subject;
-		/*
-		System.err.println("treeSubject.arity=" + treeSubject.arity());
-		System.err.println("children.size=" + children.size());
-		*/
 		if(treeSubject.arity() != children.size()){
 			return;
 		}
@@ -164,9 +154,7 @@ interface MatchPattern {
 		for (int i = 0; i < children.size(); i++){
 			children.get(i).initMatch(treeSubject.get(i), ev);
 		}
-		//System.err.println("initMatch completed");
 	}
-	
 	
 	public Type getType(Evaluator ev) {
 		 Type[] types = new Type[children.size()];
@@ -178,10 +166,8 @@ interface MatchPattern {
 		 Type signature = ev.tf.tupleType(types);
 		 
 		 if (ev.isTreeConstructorName(name, signature)) {
-			 System.err.println("getType returns: " + ev.env.getConstructor(name.toString(), signature));
 			 return ev.env.getConstructor(name.toString(), signature);
 		 } else {
-			 System.err.println("getType returns: " + ev.tf.nodeType());
 			 return ev.tf.nodeType();
 		 }
 	}
@@ -189,21 +175,16 @@ interface MatchPattern {
 	public boolean next(){
 		checkInitialized();
 		firstMatch = false;
-		System.err.println("AbstractPatternNode.match(" + name + ") subj = " + subject + "subj Type = " + subject.getType());
 		Type stype = subject.getType();
 	
 		if (!stype.isNodeType() && !stype.isAbstractDataType()){
 			return false;
 		}
-		
 
 		INode subjTree = (INode) subject;
 		
-		System.err.println("name=" + name + ", subjTree,name=" +  subjTree.getName());
-		
 		if (name.toString().equals(subjTree.getName().toString()) && 
 			children.size() == subjTree.arity()){
-			System.err.println(" ... about to match children");
 			return matchChildren(subjTree.getChildren().iterator(), children.iterator(), ev);
 		}
 		return false;
@@ -232,7 +213,7 @@ interface MatchPattern {
 	private boolean hasNext;						// Has this pattern alternatives for further matching?
 	private boolean forward;						// Moving to the right?
 	
-	private boolean debug = true;
+	private boolean debug = false;
 	
 	AbstractPatternList(java.util.List<MatchPattern> children){
 		this.children = children;					
@@ -647,7 +628,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 /* package */ class AbstractPatternSet extends AbstractPattern implements MatchPattern {
 	private java.util.List<MatchPattern> children;
 	private int patternSize;
-	private boolean debug = true;
+	private boolean debug = false;
 	private boolean hasNext;
 	private ISet setSubject;
 	private Type subjectElementType;
@@ -1010,7 +991,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 /* package */class AbstractPatternTypedVariable extends AbstractPattern implements MatchPattern {
 	private Name name;
 	org.eclipse.imp.pdb.facts.type.Type declaredType;
-	private boolean debug = true;
+	private boolean debug = false;
 
 	AbstractPatternTypedVariable(org.eclipse.imp.pdb.facts.type.Type type2, Name name) {
 		this.declaredType = type2;

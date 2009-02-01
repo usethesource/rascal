@@ -57,10 +57,8 @@ public class INodeReader implements Iterator<IValue> {
 	}
 	
 	private IValue expand(IValue v){
-		System.err.println("expand: " + v + ", (type=" + v.getType() + ")");
 		Type type = v.getType();
 		if(type.isNodeType() || type.isConstructorType() || type.isAbstractDataType()){
-			System.err.println("node/constructor/ADT");
 			return insertAndNext(v,  ((INode) v).getChildren().iterator());
 		}
 		if(type.isListType()){

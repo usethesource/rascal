@@ -691,7 +691,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	@Override
 	public EvalResult visitRuleReplacing(Replacing x) {
 		MatchPattern pv = x.getPattern().accept(pe);
-		System.err.println("visitRule: " + pv.getType(this));
+		//System.err.println("visitRule: " + pv.getType(this));
 		env.storeRule(pv.getType(this), x);
 		return result();
 	}
@@ -2091,7 +2091,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		widenArgs(left, right);
 		Type resultType = left.type.lub(right.type);
 		
-		System.err.println("left=" + left + "; right=" + right + "; resulType=" + resultType);
+		//System.err.println("left=" + left + "; right=" + right + "; resulType=" + resultType);
 
 		// Integer
 		if (left.type.isIntegerType() && right.type.isIntegerType()) {
@@ -2128,9 +2128,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		
 		//Relation
 		if (left.type.isRelationType() && right.type.isRelationType()) {
-			    System.err.println("left.type = " + left.type);
-			    System.err.println("right.type = " + right.type);
-			    System.err.println("resultType = " + resultType);
 				return result(resultType, ((ISet) left.value)
 						.union((ISet) right.value));
 		}
