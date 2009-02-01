@@ -9,6 +9,7 @@ public class AllTests1 {
 		TestSuite suite = new TestSuite();
 
 		suite.addTestSuite(AssignmentTests.class);
+		suite.addTestSuite(BackTrackingTests.class);
 		suite.addTestSuite(CallTests.class);
 		suite.addTestSuite(ComprehensionTests.class);
 		suite.addTestSuite(DataDeclarationTests.class);
