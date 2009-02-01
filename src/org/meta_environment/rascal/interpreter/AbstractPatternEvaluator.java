@@ -26,6 +26,10 @@ import org.meta_environment.rascal.ast.Expression.TypedVariable;
 import org.meta_environment.rascal.interpreter.env.EvalResult;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.exceptions.RascalBug;
+import org.meta_environment.rascal.interpreter.exceptions.RascalRunTimeError;
+import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
+
+import org.meta_environment.rascal.interpreter.BooleanEvaluator;
 
 /* package */ 
 /**
@@ -570,37 +574,44 @@ interface MatchPattern {
 	}
 }
 
+/*
+ * SubSetGenerator produces all subsets of a given set.
+ */
+
 class SubSetGenerator implements Iterator<ISet> {
 	
-	private ISet universe;
-	private Iterator<IValue> universeGen;
+	private ISet remainingElements;
+	private Iterator<IValue> elementGen;
 	private SubSetGenerator subsetGen;
-	private boolean firstMatch;
-	private IValue currentUniverseElement;
+	private IValue currentElement;
 	private ValueFactory vf;
+	private boolean hasNext;
 
-	SubSetGenerator(ISet universe){
-		this.universe = universe;
-		universeGen = universe.iterator();
+	SubSetGenerator(ISet elements){
+		this.remainingElements = elements;
+		elementGen = elements.iterator();
 		this.vf = ValueFactory.getInstance();
-		this.firstMatch = true;
+		this.hasNext = true;
 	}
 	
 	@Override
 	public boolean hasNext() {
-		return firstMatch || subsetGen.hasNext() || universeGen.hasNext();
+		return hasNext;
 	}
 
 	@Override
 	public ISet next() {
-		if(firstMatch || !subsetGen.hasNext()){
-			if(universeGen.hasNext()){
-			currentUniverseElement = universeGen.next();
-			subsetGen = new SubSetGenerator(universe.subtract(vf.set(currentUniverseElement)));
-			} else
+		if(subsetGen == null || !subsetGen.hasNext()){
+			if(elementGen.hasNext()){
+				currentElement = elementGen.next();
+				remainingElements = remainingElements.subtract(vf.set(currentElement));
+				subsetGen = new SubSetGenerator(remainingElements);
+			} else {
+				hasNext = false;
 				return vf.set();
+			}
 		}
-		return subsetGen.next().insert(currentUniverseElement);
+		return subsetGen.next().insert(currentElement);
 	}
 
 	@Override
@@ -609,24 +620,53 @@ class SubSetGenerator implements Iterator<ISet> {
 	}
 }
 
+class SingleElementGenerator implements Iterator<ISet> {
+	private Iterator<IValue> elementIter;
+	
+	SingleElementGenerator(ISet elements){
+		this.elementIter = elements.iterator();
+	}
+
+	@Override
+	public boolean hasNext() {
+		return elementIter.hasNext();
+	}
+
+	@Override
+	public ISet next() {
+		return ValueFactory.getInstance().set(elementIter.next());
+	}
+
+	@Override
+	public void remove() {
+		throw new UnsupportedOperationException("remove in SingleElementGenerator");
+	}
+	
+}
+
 /* package */ class AbstractPatternSet extends AbstractPattern implements MatchPattern {
 	private java.util.List<MatchPattern> children;
 	private int patternSize;
 	private boolean debug = true;
 	private boolean hasNext;
 	private ISet setSubject;
-	private boolean hasSetVar;
-	private HashSet<String> setVars;
+	private Type subjectElementType;
+	private int nVar;
+	private HashSet<String> allVars;
 	private ISet fixedSetElements;
-	private ISet variableSetElements;
-	private String[] setVar;
-	private SubSetGenerator[] varGen;
+	private ISet availableSetElements;
+	private String[] varName;
+	private ISet[] varVal;
+	private boolean[] isSetVar;
+	private Iterator<?>[] varGen;
 	private int currentVar;
+	private int[] varOrder;
 	
 	AbstractPatternSet(java.util.List<MatchPattern> children){
 		this.children = children;
 		this.patternSize = children.size();
-		setVars = new HashSet<String>();
+		allVars = new HashSet<String>();
+		nVar = 0;
 	}
 	
 	public Type getType(Evaluator ev) {
@@ -642,9 +682,28 @@ class SubSetGenerator implements Iterator<ISet> {
 					elemType = elemType.lub(childType);
 				}
 			}
-			if(debug)System.err.println("SetPattern.getType: " + ev.tf.setType(elemType));
 			return ev.tf.setType(elemType);
 		}
+	}
+	
+	// Compute a variable ordering: element variables should go before list variables
+	// since element variables may not be empty.
+	
+	private void makeVarOrder(){
+		int i = 0;
+		
+		for(int j = 0; j < nVar; j++){
+			if(!isSetVar[j]){
+				varOrder[i++] = j;
+				
+			}
+		}
+		for(int j = 0; j < nVar; j++){
+			if(isSetVar[j]){
+				varOrder[i++] = j;
+			}
+		}
+		assert i == nVar;
 	}
 	
 	@Override
@@ -659,53 +718,70 @@ class SubSetGenerator implements Iterator<ISet> {
 		}
 		
 		setSubject = (ISet) subject;
+		subjectElementType = setSubject.getElementType();
 		fixedSetElements = ev.vf.set(getType(ev));
 		
-		int nSetVar = 0;
-		hasSetVar = false;
-		setVar = new String[patternSize];  			// Two overestimations
-		varGen = new SubSetGenerator[patternSize];
+		nVar = 0;
+		varName = new String[patternSize];  			// Some overestimations
+		isSetVar = new boolean[patternSize];
+		varVal = new ISet[patternSize];
+		varGen = new Iterator<?>[patternSize];
+		varOrder = new int[patternSize];
 		/*
-		 * Pass #1: determine the set variables
+		 * Pass #1: determine the (ordinary and set) variables in the pattern
 		 */
 		for(int i = 0; i < patternSize; i++){
 			MatchPattern child = children.get(i);
-			System.err.println("child=" + child);
-			if(child instanceof AbstractPatternTypedVariable && child.getType(ev).isSetType()){
-				/*
-				 * An explicitly declared set variable.
-				 */
+			if(child instanceof AbstractPatternTypedVariable){
+				Type childType = child.getType(ev);
 				String name = ((AbstractPatternTypedVariable)child).getName();
-				setVars.add(name);
-				setVar[nSetVar] = name;
-				nSetVar++;
-			} else if(child instanceof AbstractPatternQualifiedName){
-				
-				String name =((AbstractPatternQualifiedName)child).getName();
-				if(setVars.contains(name)){
+				if(childType.isSetType() || childType.isSubtypeOf(subjectElementType)){
 					/*
-					 * A set variable that was declared earlier in the pattern,ignore it.
+					 * An explicitly declared set or element variable.
 					 */
+					allVars.add(name);
+					varName[nVar] = name;
+					isSetVar[nVar] = childType.isSetType();
+					nVar++;
+				} else 
+					throw new RascalTypeError(childType + " variable " + name + " not allowed in pattern of type " + setSubject.getType());
+			} else if(child instanceof AbstractPatternQualifiedName){
+				String name =((AbstractPatternQualifiedName)child).getName();
+				if(allVars.contains(name)){
+					/*
+					 * A set/element variable that was declared earlier in the pattern,ignore it.
+					 */
+					//TODO: Give a warning?
 				} else  {
 					GlobalEnvironment env = GlobalEnvironment.getInstance();
-					EvalResult patRes = env.getVariable(name);
+					EvalResult varRes = env.getVariable(name);
 				         
-				    if((patRes != null) && (patRes.value != null)){
-				        IValue patVal = patRes.value;
-				        if (patVal.getType().isSetType()){
+				    if((varRes != null) && (varRes.value != null)){
+				        IValue varVal = varRes.value;
+				        if (varVal.getType().isSetType()){
 				        	/*
-				        	 * A set variable declared in the current scope.
+				        	 * A set variable declared in the current scope: add its elements
 				        	 */
-				        	setVars.add(name);
-				        	setVar[nSetVar] = name;
-				        	nSetVar++;
-				        }
+				        	fixedSetElements = fixedSetElements.union((ISet)varRes.value);
+				        } else if(varVal.getType().isSubtypeOf(subjectElementType)){
+				        	/*
+				        	 * An element variable in the current scope, add its value.
+				        	 */
+				        	fixedSetElements = fixedSetElements.insert(varRes.value);
+				        } else
+				        	throw new RascalTypeError(varVal.getType() + " variable " + name + " not allowed in pattern of type " + setSubject.getType());
+				    } else {
+				    	throw new RascalRunTimeError("Unitialized variable " + name);
 				    }
 				}
 			} else {
-				System.err.println("literal=" + child);
 				assert child instanceof AbstractPatternLiteral;
-				fixedSetElements = fixedSetElements.insert(((AbstractPatternLiteral)child).getLiteral());
+				IValue lit = ((AbstractPatternLiteral)child).getLiteral();
+				Type childType = child.getType(ev);
+				if(!childType.isSubtypeOf(subjectElementType)){
+					throw new RascalTypeError(lit + " not allowed in pattern of type " + setSubject.getType());
+				}
+				fixedSetElements = fixedSetElements.insert(lit);
 			}
 		}
 		/*
@@ -713,29 +789,108 @@ class SubSetGenerator implements Iterator<ISet> {
 		 */
 		firstMatch = true;
 		hasNext = fixedSetElements.isSubSet(setSubject);
-		variableSetElements = setSubject.subtract(fixedSetElements);
-		varGen[0]= new SubSetGenerator(variableSetElements);
-		currentVar = 0;
+		availableSetElements = setSubject.subtract(fixedSetElements);
+		makeVarOrder();
 	}
 	
 	@Override
 	public boolean hasNext(){
-		System.err.println("hasNext");
-		return initialized && hasNext && (firstMatch || hasSetVar);
+		return initialized && hasNext;
+	}
+	
+	private ISet available(){
+		ISet avail = availableSetElements;
+		for(int j = 0; j < currentVar; j++){
+			avail = avail.subtract(varVal[varOrder[j]]);
+		}
+		return avail;
+	}
+	
+	private boolean makeGen(int i, ISet elements){
+		if(isSetVar[i]){
+			varGen[i] = new SubSetGenerator(elements);
+		} else {
+			if(elements.size() == 0)
+				return false;
+			varGen[i] = new SingleElementGenerator(elements);
+		}
+		return true;
+	}
+	
+	private void storeVar(int i, ISet elements){
+		GlobalEnvironment env = GlobalEnvironment.getInstance();
+		varVal[i] = elements;
+		if(isSetVar[i]){
+			env.storeVariable(varName[i], new EvalResult(elements.getType(), elements));
+		} else {
+			assert elements.size() == 1;
+			IValue elem = elements.iterator().next();
+			env.storeVariable(varName[i], new EvalResult(elements.getElementType(), elem));
+		}
 	}
 	
 	public boolean next(){
 		checkInitialized();
 		if(firstMatch){
-			
-			firstMatch = false;
-			if(!hasSetVar){
-				hasNext = false;
+			firstMatch = hasNext = false;
+			if(nVar == 0){
 				return fixedSetElements.isEqual(setSubject);
 			}
+			if(!fixedSetElements.isSubSet(setSubject)){
+				return false;
+			}
+			
+			if(nVar == 1){
+				if(isSetVar[0] || availableSetElements.size() == 1){
+					storeVar(0, availableSetElements);
+					return true;
+				}
+				return false;
+			}
+			
+			currentVar = 0;
+			if(!makeGen(varOrder[currentVar], availableSetElements)){
+				return false;
+			}
+		} else {
+			currentVar = nVar - 2;
 		}
-		return false;
-	}
+		hasNext = true;
+
+		//System.err.println("start assigning setVars");
+	
+		do {
+			//System.err.println("currentVar=" + currentVar + "; nSetVar=" + nVar);
+			int ocurrentVar = varOrder[currentVar];
+			if(varGen[ocurrentVar].hasNext()){
+				storeVar(ocurrentVar, (ISet)varGen[ocurrentVar].next());
+				currentVar++;
+				if(currentVar < nVar - 1){
+					ocurrentVar = varOrder[currentVar];
+					if(!makeGen(ocurrentVar, available())){
+						varGen[ocurrentVar] = null;
+						currentVar--;
+					}
+				}
+			} else {
+				varGen[ocurrentVar] = null;
+				currentVar--;
+			}
+		} while(currentVar >= 0 && currentVar < nVar -1);
+		
+		
+		if(currentVar < 0){
+			hasNext = false;
+			return false;
+		}
+		currentVar = nVar - 1;
+		storeVar(varOrder[currentVar], available());
+		
+		//for(int i = 0; i < nVar; i++){
+		//	System.err.println(i + ": " + varName[i] + "=" + varVal[i]);
+		//}
+		return true;
+	}			
 }
 
 /* package */ class AbstractPatternTuple extends AbstractPattern implements MatchPattern {

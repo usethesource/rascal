@@ -1,15 +1,29 @@
 module Test2
+import IO;
 
 public bool test(){
 
-return 
-{<"F",{}>,<"E",{}>,<"D",{"L"}>,<"C",{"F","G","J"}>,
-<"B",{}>,<"A",{}>,<"R",{"F","E","D","C","B","A","G","H","I","K","L","J"}>,
-<"G",{"J"}>,<"H",{}>,<"I",{}>,<"K",{}>,<"L",{}>,<"J",{}>}
-
-== 
-{<"A",{}>,<"B",{}>,<"E",{}>,<"F",{}>,<"L",{}>,<"H",{}>,<"I",{}>,
-<"J",{}>,<"K",{}>,<"R",{"K","J","I","H","L","G","F","E","D","C","B","A"}>,
-<"C",{"J","G","F"}>,<"D",{"L"}>,<"G",{"J"}>};
-
+    switch({1,2,3,4,5,6}){
+    
+    case {1, set[int] X, 2} : {
+    		println("X = <X>");
+    		fail;
+    	}
+    case {1, int X, 3,4,5,6}: {
+    		println(" X = <X>");
+    		fail;
+    	}
+    	
+    case {1, int X, 3,4,5}: {
+    		println(" X = <X>");
+    		fail;
+    	}
+    
+	case {1, int Q, set[int] X, 2, set[int] Y, 3, int Z} : {
+			println("Q = <Q>, X = <X>; Y = <Y>, Z = <Z>");
+			fail;
+		}
+	}
+	
+	return true;
 }
