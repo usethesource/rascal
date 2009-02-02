@@ -590,7 +590,7 @@ public class DataTypeTests extends TestCase{
 	}
 	
 	public void testNode() throws IOException {
-		tf = new TestFramework("data NODE = i(int V) | s(str x)  | st(set[NODE] s) | l(list[NODE]) | m(map[NODE,NODE] m) | f | f(NODE a) | f(NODE a, NODE b) | g | g(NODE a) | g(NODE a,NODE b);");
+		tf = new TestFramework("data NODE = i(int I) | s(str x)  | st(set[NODE] s) | l(list[NODE]) | m(map[NODE,NODE] m) | f | f(NODE a) | f(NODE a, NODE b) | g | g(NODE a) | g(NODE a,NODE b);");
 		
 		assertTrue(tf.runTestInSameEvaluator("f() == f();"));
 		assertTrue(tf.runTestInSameEvaluator("f() != g();"));
@@ -608,8 +608,8 @@ public class DataTypeTests extends TestCase{
 		assertTrue(tf.runTestInSameEvaluator("{ NODE n = f(i(1),g(i(2),st({i(3),i(4),i(5)}))); NODE m = f(i(1),g(i(2),st({i(3),i(4),i(5),i(6)}))); n != m;}"));
 		assertTrue(tf.runTestInSameEvaluator("f(i(1),g(i(2),l([i(3),i(4),i(5)]))) == f(i(1),g(i(2),l([i(3),i(4),i(5)])));"));
 		assertTrue(tf.runTestInSameEvaluator("{ NODE n = f(i(1),g(i(2),l([i(3),i(4),i(5)]))); NODE m = f(i(1),g(i(2),l([i(3),i(4),i(5),i(6)]))); n != m;}"));
-		assertTrue(tf.runTestInSameEvaluator("f(i(1),g(i(2),m((i(3):i(3)0,i(4):i(4)0,i(5):i(5)0)))) == f(i(1),g(i(2),m((i(3):i(3)0,i(4):i(4)0,i(5):i(5)0))));"));
-		assertTrue(tf.runTestInSameEvaluator("{NODE n = f(i(1),g(i(2),m((i(3):i(3)0,i(4):i(4)0,i(5):i(5)0)))); NODE m = f(i(1),g(i(2),m((i(3):i(3)0,i(4):i(4)0,i(5):i(5)i(5))))); n != m;}"));
+		assertTrue(tf.runTestInSameEvaluator("f(i(1),g(i(2),m((i(3):i(3),i(4):i(4),i(5):i(5))))) == f(i(1),g(i(2),m((i(3):i(3),i(4):i(4),i(5):i(5)))));"));
+		assertTrue(tf.runTestInSameEvaluator("{NODE n = f(i(1),g(i(2),m((i(3):i(3),i(4):i(4),i(5):i(5))))); NODE m = f(i(1),g(i(2),m((i(3):i(3),i(4):i(4),i(5):i(0))))); n != m;}"));
 		
 		assertTrue(tf.runTestInSameEvaluator("f()                       <= f();"));
 		assertTrue(tf.runTestInSameEvaluator("f()                       <= g();"));
