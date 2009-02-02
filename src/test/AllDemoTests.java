@@ -67,9 +67,9 @@ private static TestFramework tf = new TestFramework();
 		assertTrue(tf.runTestInSameEvaluator("Lift::test();"));
 	}
 	
-	public void testMEPT() throws IOException {
-		tf = new TestFramework("import MEPT;");
-		assertTrue(tf.runTestInSameEvaluator("MEPT::test();"));
+	public void testUPTR() throws IOException {
+		tf = new TestFramework("import UPTR;");
+		assertTrue(tf.runTestInSameEvaluator("UPTR::test();"));
 	}
 	
 	public void testQueens() throws IOException {
