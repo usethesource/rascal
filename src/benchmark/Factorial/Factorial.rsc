@@ -101,7 +101,7 @@ public void measure3(int N)
 
 }
 
-public void measure(){
+public bool measure(){
 	measure1(5);
 	//measure1(6);
 	
@@ -112,6 +112,7 @@ public void measure(){
 	measure3(5);
 	measure3(6);
 	measure3(10);
+	return true;
 }
 	
 

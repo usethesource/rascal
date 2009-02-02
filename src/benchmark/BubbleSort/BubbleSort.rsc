@@ -21,10 +21,11 @@ rule L1 [list[int] Nums1, int P, int Q, list[int] Nums2]:
        		when P > Q;
        
        
- public void measure(){
+ public bool measure(){
 		start = currentTimeMillis();
 		result = [10,9,8,7,6,5,4,3,2,1];
 		used = currentTimeMillis() - start;
 		println("bubble = <result>  (<used> millis)");
+		return true;
  }
        

@@ -17,12 +17,13 @@ public bool testFibonacci()
 	return fib(20) == 6765;
 }
 
-public void measure(int n)
+public bool measure()
 {
 	start = currentTimeMillis();
-	result = fib(n);
+	result = fib(15);
 	used = currentTimeMillis() - start;
 		
 	println("fib(<n>) = <result>  (<used> millis)");
+	return true;
 
 }

@@ -59,7 +59,7 @@ private static TestFramework tf = new TestFramework();
 	
 	public void testIntegerAbstractRules() throws IOException {
 		tf = new TestFramework("import Integer-abstract-rules;");
-		assertTrue(tf.runTestInSameEvaluator("Integer-abstract-rules::test();"));
+		assertTrue(tf.runTestInSameEvaluator("Integer-abstract-rules::testInt();"));
 	}
 	
 	public void testLift() throws IOException {

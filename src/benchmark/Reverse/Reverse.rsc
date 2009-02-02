@@ -36,7 +36,7 @@ public bool test(){
 		rev3([9,8,7,6,5,4,3,2,1]) == [1,2,3,4,5,6,7,8,9];
 }
 
-public void measure(){
+public bool measure(){
 	int size = 200;
 	list[int] L = [];
 	for(int i : [0 .. size]){
@@ -57,6 +57,8 @@ public void measure(){
 	used3 = end3 - end2;
 	used4 = end4 - end3;
 	println("rev[123], reverse: <used1>, <used2>, <used3>, <used4> (msec)");
+	
+	return true;
 
 }
 	
