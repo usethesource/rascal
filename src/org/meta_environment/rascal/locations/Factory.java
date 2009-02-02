@@ -18,7 +18,7 @@ public class Factory {
 
 	public static final Type Location_File = tf.constructor(Location, "file", tf.stringType(), "filename");
 	public static final Type Location_Area = tf.constructor(Location, "area", Area, "area");
-	public static final Type Location_AreaInFile = tf.constructor(Location, "areaInFile", tf.stringType(), "filename", Area, "area");
+	public static final Type Location_AreaInFile = tf.constructor(Location, "area-in-file", tf.stringType(), "filename", Area, "area");
 
 	public static final Type Area_Area = tf.constructor(Area, "area", tf.integerType(), "beginLine", tf.integerType(), "beginColumn", tf.integerType(), "endLine", tf.integerType(), "endColumn", tf.integerType(), "offset", tf.integerType(), "length");
 	
