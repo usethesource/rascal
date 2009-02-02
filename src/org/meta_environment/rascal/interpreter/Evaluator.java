@@ -139,6 +139,7 @@ import org.meta_environment.rascal.ast.Statement.Block;
 import org.meta_environment.rascal.ast.Statement.Break;
 import org.meta_environment.rascal.ast.Statement.Continue;
 import org.meta_environment.rascal.ast.Statement.DoWhile;
+import org.meta_environment.rascal.ast.Statement.EmptyStatement;
 import org.meta_environment.rascal.ast.Statement.Fail;
 import org.meta_environment.rascal.ast.Statement.For;
 import org.meta_environment.rascal.ast.Statement.GlobalDirective;
@@ -1419,6 +1420,11 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			return result(resultType, ((IRelation)base.value).select(selectedFields));				     
 		}
 		throw new RascalTypeError("Type " + base.type + " does not allow projection");
+	}
+	
+	@Override
+	public EvalResult visitStatementEmptyStatement(EmptyStatement x) {
+		return result();
 	}
 	
 	@Override
