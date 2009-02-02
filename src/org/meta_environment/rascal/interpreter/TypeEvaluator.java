@@ -207,7 +207,7 @@ public class TypeEvaluator extends NullASTVisitor<Type> {
 				fieldLabels[i] = arg.getName().toString();
 			}
 			else {
-				fieldLabels[i] = Integer.toString(i);
+				fieldLabels[i] = "field" + Integer.toString(i);
 			}
 			i++;
 		}
@@ -236,7 +236,7 @@ public class TypeEvaluator extends NullASTVisitor<Type> {
 				fieldLabels[i] = arg.getName().toString();
 			}
 			else {
-				fieldLabels[i] = Integer.toString(i);
+				fieldLabels[i] = "field" + Integer.toString(i);
 			}
 			i++;
 		}
