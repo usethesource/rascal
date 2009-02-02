@@ -210,7 +210,7 @@ public bool test(){
                       apply(fun("_x1",apply(fun("_x2",var("_x1")),intcon(2))),var("c")));
                       
    assertEqual(subst("a", intcon(1), apply(fun("a", var("a")),  intcon(3))),
-                                     apply(fun("a",var("a")),intcon(3)));
+                                     apply(fun("a", intcon(1)),intcon(3)));
                                      
    assertEqual(subst("a", var("b"), apply(fun("a", var("b")),  var("a"))),
                                     apply(fun("a",var("b")),var("b")));
