@@ -108,7 +108,7 @@ public class TestFramework {
 	private boolean execute(String command) throws IOException {
 		IConstructor tree = parser.parse(new ByteArrayInputStream(command.getBytes()));
 
-		if (tree.getType() == Factory.ParseTree_Summary) {
+		if (tree.getConstructorType() == Factory.ParseTree_Summary) {
 			System.err.println(tree);
 			return false;
 		} else {
