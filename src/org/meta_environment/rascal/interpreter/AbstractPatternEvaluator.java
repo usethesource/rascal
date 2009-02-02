@@ -29,8 +29,6 @@ import org.meta_environment.rascal.interpreter.exceptions.RascalBug;
 import org.meta_environment.rascal.interpreter.exceptions.RascalRunTimeError;
 import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
 
-import org.meta_environment.rascal.interpreter.BooleanEvaluator;
-
 /* package */ 
 /**
  * The MatchPattern  interface describes the standard way of applying a pattern to a subject:
@@ -105,12 +103,10 @@ interface MatchPattern {
 		this.literal = literal;
 	}
 	
-	@Override	
 	public Type getType(Evaluator ev) {
 			return literal.getType();
 	}
 	
-	@Override	
 	public boolean next(){
 		checkInitialized();
 		firstMatch = false;
@@ -575,12 +571,10 @@ class SubSetGenerator implements Iterator<ISet> {
 		this.hasNext = true;
 	}
 	
-	@Override
 	public boolean hasNext() {
 		return hasNext;
 	}
 
-	@Override
 	public ISet next() {
 		if(subsetGen == null || !subsetGen.hasNext()){
 			if(elementGen.hasNext()){
@@ -595,7 +589,6 @@ class SubSetGenerator implements Iterator<ISet> {
 		return subsetGen.next().insert(currentElement);
 	}
 
-	@Override
 	public void remove() {
 		throw new UnsupportedOperationException("remove in SubSetGenerator");
 	}
@@ -608,17 +601,14 @@ class SingleElementGenerator implements Iterator<ISet> {
 		this.elementIter = elements.iterator();
 	}
 
-	@Override
 	public boolean hasNext() {
 		return elementIter.hasNext();
 	}
 
-	@Override
 	public ISet next() {
 		return ValueFactory.getInstance().set(elementIter.next());
 	}
 
-	@Override
 	public void remove() {
 		throw new UnsupportedOperationException("remove in SingleElementGenerator");
 	}
