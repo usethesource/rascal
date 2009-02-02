@@ -1,4 +1,4 @@
-module MEPT
+module UPTR
 
 data ParseTree = 
      parsetree(Tree top, int amb_cnt);
