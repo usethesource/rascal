@@ -40,7 +40,7 @@ public class Factory {
 	public static final Type CharRanges = tf.aliasType("CharRanges", tf.listType(CharRange));
 	public static final Type Alternatives = tf.aliasType("Alternatives", tf.setType(Tree));
 	
-	public static final Type ParseTree_Top = tf.constructor(ParseTree,"parsetree", Tree, "top", tf.integerType(), "amb-cnt");
+	public static final Type ParseTree_Top = tf.constructor(ParseTree,"parsetree", Tree, "top", tf.integerType(), "amb_cnt");
 	public static final Type ParseTree_Summary = tf.constructor(ParseTree, "summary", tf.stringType(), "producer", tf.stringType(), "id", tf.listType(org.meta_environment.rascal.errors.Factory.Error), "errors");
 	
 	public static final Type Constructor_Name = tf.constructor(Constructor, "cons", tf.stringType(), "name");
