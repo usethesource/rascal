@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="US-ASCII"?>
 <article version="5.0" xmlns="http://docbook.org/ns/docbook"
          xmlns:xlink="http://www.w3.org/1999/xlink"
          xmlns:xi="http://www.w3.org/2001/XInclude"
@@ -28,7 +28,7 @@
   <note>
     <para>This document is a braindump of ideas that is slowly converging to a
     coherent design. See <xref linkend="section.issues" /> for the issues that
-    have to be resolved. Updated according to status as of January 13,
+    have to be resolved. Updated according to status as of February 2,
     2009.</para>
   </note>
 
@@ -418,7 +418,7 @@
         <listitem>
           <para>Rascal is executed by an interpreter written in Java, or it
           can be compiled to Java classes.<note>
-              <para>Currently only an interpreter is avaialble.</para>
+              <para>Currently only an interpreter is available.</para>
             </note></para>
         </listitem>
       </itemizedlist>
@@ -613,7 +613,7 @@
     <section>
       <title>Modules</title>
 
-      <para>Modules are the organizational unit of Rascal. </para>
+      <para>Modules are the organizational unit of Rascal.</para>
 
       <para>Declarations may be either private to a module or public to all
       modules that import the current module. Rules are always public and are
@@ -624,7 +624,7 @@
       elements of a module from the outside. Inside the module, this
       qualification is implicit. The qualified name consist of two parts: a
       directory name (a list of names separated by <literal>::</literal>) and
-      a module name. </para>
+      a module name.</para>
 
       <para>Rascal modules are located in a file with the name of the module,
       with suffix <literal>.rascal</literal>. They should be located in a
@@ -655,8 +655,6 @@
 
         <listitem>
           <para>The following options exist to locate Rascal modules:</para>
-
-          <para></para>
 
           <itemizedlist>
             <listitem>
@@ -803,7 +801,7 @@
 
           <listitem>
             <para>All syntactic types are a subtype of the type
-            <literal>tree</literal> that corresponds to an Universal Parse
+            <literal>node</literal> that corresponds to an Universal Parse
             Tree Representation (UPTR). We will use AsFix as UPTR. Up casts
             from a subtype to an enclosing type are automatic. The type
             <literal>tree</literal> is "special" in the following
@@ -812,11 +810,11 @@
             <itemizedlist>
               <listitem>
                 <para>Parsers generate values of type
-                <literal>tree</literal>.</para>
+                <literal>node</literal>.</para>
               </listitem>
 
               <listitem>
-                <para>Although the type <literal>tree</literal> can be defined
+                <para>Although the type <literal>node</literal> can be defined
                 in Rascal, its definition is built-in in order to preserve the
                 consistency with the parser.</para>
               </listitem>
@@ -851,10 +849,10 @@
 
           <listitem>
             <para>Data declarations may introduce new structured types and
-            have the form<programlisting>data N Pat1 | Pat2 | ...</programlisting>where
+            have the form<programlisting>data N = Pat1 | Pat2 | ...</programlisting>where
             N is the name of the datatype and Pat1, Pat2, are prefix patterns
             describing the variants of the datatype. For instance,
-            <programlisting>data Bool btrue | bfalse | band(Bool L, Bool R)  | bor(Bool L, Bool R);  </programlisting>defines
+            <programlisting>data Bool = btrue | bfalse | band(Bool L, Bool R)  | bor(Bool L, Bool R);  </programlisting>defines
             the datatype <literal>Bool</literal> that contains various
             constants and constructor functions.<note>
                 <para>We assume that all constructors for a datatype lead to a
@@ -870,11 +868,9 @@
             </note>
 
             <note>
-              <para>There is limited support for nameless constructors: they
-              may only be of type <literal>int</literal>,
-              <literal>real</literal>, <literal>str</literal>, or
-              <literal>loc</literal> and per datatype only one nameless
-              constructor is allowed.</para>
+              <para>There is no support for nameless constructors: every
+              alternative of a datatype needs to define an explicit
+              constructor.</para>
             </note>
           </listitem>
 
@@ -886,7 +882,7 @@
             access mechanism for existing data structures. A standard example
             is to define a view on a parse tree that suppresses all auxiliary
             information and better reflects the actual abstract tree that is
-            represented as in<programlisting>view Bool &lt;: tree and appl(...) | or appl(...)</programlisting></para>
+            represented as in<programlisting>view Bool &lt;: tree = and appl(...) | or appl(...)</programlisting></para>
 
             <para>This defines the type <literal>Bool</literal> as a view on
             trees with two alternatives named <literal>and</literal> and
@@ -896,12 +892,9 @@
           </listitem>
 
           <listitem>
-            <para><caution>
-                <para>Maybe, the following needs further discussion.</para>
-              </caution>Parse trees are implicitly defined by a data
-            declaration and we provide APIGEN-like functionality to access
-            their elements by automatically providing views for each SDF
-            rule:</para>
+            <para>Parse trees are implicitly defined by a data declaration and
+            we provide APIGEN-like functionality to access their elements by
+            automatically providing views for each SDF rule:</para>
 
             <itemizedlist>
               <listitem>
@@ -978,17 +971,16 @@
           </listitem>
 
           <listitem>
-            <para>A type declaration introduces a name for a new type that is
-            a subtype of a given type, e.g.,<programlisting>type rel[Node,Node] Graph</programlisting>introduces
-            the type <literal>Graph</literal> as a subtype of
-            <literal>rel[Node,Node]</literal>. There are no built-in
-            subtypes.</para>
+            <para>An alias declaration introduces a new name for an existing
+            type, e.g.,<programlisting>alias Graph = rel[Node,Node];</programlisting>introduces
+            the name <literal>Graph</literal> as a shorthand for
+            <literal>rel[Node,Node]</literal>.</para>
           </listitem>
 
           <listitem>
-            <para>The name that is introduced by a type declaration may even
+            <para>The name that is introduced by an alias declaration may even
             be parameterized with one or more type variables,
-            e.g.,<programlisting>type rel[&amp;Node, &amp;Node] Graph[&amp;Node]</programlisting></para>
+            e.g.,<programlisting>alias Graph[&amp;Node] = rel[&amp;Node, &amp;Node];</programlisting></para>
 
             <para>Of course, the type variables that are used in the type in
             the left part should occur as parameters in the right part of the
@@ -1064,26 +1056,23 @@ int f(number x) &lt;: fun number f (int x)    %% assuming int &lt;: number</prog
         <emphasis>not</emphasis> that</para>
 
         <para><programlisting>number f(int x) &lt;: fun number f (number x) %% assuming int &lt;: number</programlisting></para>
-
-        <para>In addition to the above rules for subtyping, each type
-        definition introduces an additional subtype relation, e.g., the
-        previous definition for Graph, <programlisting>type rel[node,node] Graph</programlisting></para>
-
-        <para>introduces the following subtype relation:<programlisting>Graph &lt;: rel[node,node]</programlisting></para>
       </section>
     </section>
 
     <section>
       <title>Type Equivalence</title>
 
-      <para>Types are compatible if they occur on the same path from void to
-      value in the type lattice. This is a middle road between structural and
-      nominal type equivalence, we call it <emphasis>intensional structural
-      type equivalence</emphasis>. An example can illustrate this. Assume we
-      have the following definitions for general graphs, control flow graphs
-      and data flow graphs:<programlisting>type rel[node,node] Graph
-type Graph CFGraph
-type Graph DFGraph</programlisting></para>
+      <para><warning>
+          <para>OUTDATED</para>
+        </warning>Types are compatible if they occur on the same path from
+      void to value in the type lattice. This is a middle road between
+      structural and nominal type equivalence, we call it
+      <emphasis>intensional structural type equivalence</emphasis>. An example
+      can illustrate this. Assume we have the following definitions for
+      general graphs, control flow graphs and data flow
+      graphs:<programlisting>alias Graph = rel[node,node];
+alias CFGRaph = Graph;
+alias DFGRaph = Graph;</programlisting></para>
 
       <para><literal>CFGraph</literal> and <literal>Graph</literal> are
       compatible, and the same holds for <literal>DFGraph</literal> and
@@ -1107,8 +1096,8 @@ type Graph DFGraph</programlisting></para>
 
       <itemizedlist>
         <listitem>
-          <para><emphasis>value annotations</emphasis> that allow associating
-          one or more named values to another value.</para>
+          <para><emphasis>node annotations</emphasis> that allow associating
+          one or more named values with nodes in a tree.</para>
         </listitem>
 
         <listitem>
@@ -1126,12 +1115,14 @@ type Graph DFGraph</programlisting></para>
       hints or database mappings for relations.</para>
 
       <section>
-        <title>Value annotations</title>
+        <title>Node annotations</title>
 
-        <para>Annotations may be associated with any value and are represented
-        by a mapping of type <literal>map[str,Type]</literal>, i.e.,
-        annotation names are strings and annotation values are values of a
-        type that is explicitly declared. Any value of any named type can be
+        <para><warning>
+            <para>Annotation are now restricted to nodes only.</para>
+          </warning>Annotations may be associated with any node value and are
+        represented by a mapping of type <literal>map[str,Type]</literal>,
+        i.e., annotation names are strings and annotation values are values of
+        a type that is explicitly declared. Any value of any named type can be
         annotated and the type of these annotations can be declared precisely.
         For instance, we can add to the graph datatype introduced earlier, the
         annotation with name <literal>LayoutStrategy</literal> that defines
@@ -1227,8 +1218,11 @@ tag function primitive str   %% a primitive, built-in, function</programlisting>
         </listitem>
 
         <listitem>
-          <para>Local variables in a function body are declared and
-          initialized. Their scope is the function body.</para>
+          <para>Local variables in a function body maybe declared and
+          initialized. Their scope is the function body. If a local variable
+          is not declared, it is implicitly declared at first use and has as
+          type the type of its initial value. From then on it behaves like a
+          declared variable of that type.</para>
         </listitem>
 
         <listitem>
@@ -1236,9 +1230,7 @@ tag function primitive str   %% a primitive, built-in, function</programlisting>
           <emphasis>declared</emphasis> variables are initialized during the
           match and their scope is the rule in which they occur. For
           <emphasis>used</emphasis> variables, their value is substituted
-          during the match.<note>
-              <para>Here we need more discussion.</para>
-            </note></para>
+          during the match.</para>
         </listitem>
 
         <listitem>
@@ -1263,7 +1255,8 @@ tag function primitive str   %% a primitive, built-in, function</programlisting>
         <listitem>
           <para>Global variables are declared and ALWAYS initialized at the
           top level of each module and <emphasis role="bold">these
-          initialization may not contain circular calls.</emphasis></para>
+          initialization may not contain circular
+          dependencies.</emphasis></para>
         </listitem>
 
         <listitem>
@@ -1435,14 +1428,7 @@ int f(&amp;T y, real x)</programlisting></para>
         to define such function arguments. Here is a function
         <literal>addOne</literal>, that adds 1 to each element of its argument
         list:<programlisting>list[int] addOne(list[int] L)
-    return mapper(L, int (int N) { return N + 1 })</programlisting><code></code></para>
-
-        <programlisting>fun fun(int) -&gt; int makeAdder(int n)
-    return fun int (int x) { return x + 1 }</programlisting>
-
-        <caution>
-          <para>The above needs further editing/explanation.</para>
-        </caution>
+    return mapper(L, int (int N) { return N + 1 })</programlisting></para>
       </section>
 
       <section>
@@ -1505,13 +1491,13 @@ int f(&amp;T y, real x)</programlisting></para>
 
       <itemizedlist>
         <listitem>
-          <para><emphasis>Abstract</emphasis> patterns: prefix dataterms that
-          are generated by a signature.</para>
+          <para><emphasis>Regular expression</emphasis> patterns: conventional
+          regular expressions</para>
         </listitem>
 
         <listitem>
-          <para><emphasis>Regular expression</emphasis> patterns: conventional
-          regular expressions</para>
+          <para><emphasis>Abstract</emphasis> patterns: prefix dataterms that
+          are generated by a signature.</para>
         </listitem>
 
         <listitem>
@@ -1579,70 +1565,15 @@ int f(&amp;T y, real x)</programlisting></para>
       <para>In make positions, patterns may also contain function calls
       (written between <literal>&lt;</literal> and <literal>&gt;</literal>)
       that are replaced by their value during the construction of the pattern.
-      Example:<programlisting>&lt;subst(V1, E1, Ea)&gt;</programlisting></para>
-
-      <para><note>
-          <para>To avoid syntactic complications, we currently refrain from
-          allowing arbitrary expressions inside patterns, e.g., using notation
-          like <literal>#{ ... }</literal>. However, since function arguments
-          can be arbitrary expressions, this is hardly a restriction.</para>
-        </note>A pattern may be turned into an
-      <emphasis>anti-pattern</emphasis> by prefixing it with the symbol
-      <literal>!</literal>. An anti-pattern matches in all cases where the
-      original pattern does not match. A match of an anti-pattern cannot bind
-      any variables but these variables are nonetheless reserved in the
-      corresponding scope.<caution>
-          <para>This is not consistent with ~= and ~!. The current syntax does
-          not support this.</para>
+      Example:<programlisting>&lt;subst(V1, E1, Ea)&gt;</programlisting><caution>
+          <para>Not yet implemented.</para>
         </caution></para>
 
-      <section>
-        <title>Abstract Patterns</title>
-
-        <para>Data declarations introduce a signature of abstract terms and
-        abstract patterns can be used to perform matching on them. The same
-        terms that occur in a data declaration, possibly including typed
-        variables that play a similar role as pattern variables in syntax
-        patterns, may be used as abstract patterns at the same position where
-        concrete patterns are allowed. Lists, sets and tuples may also occur
-        in abstract patterns. Here are some examples of abstract
-        patterns:<programlisting>%% Assuming:
-%% data Bool band(Bool L, Bool R);
-%% Bool B2;
-%% An abstract pattern matching a band node:
-
-band(btrue, B2)
-
-%% The variable B2 can also be declared inside the pattern:
-
-band(true, Bool B2)
-
-%% Assuming:
-%% data PICO_VALUE intval(int) | strval(str);
-%% An abstract pattern matching an intval:
-
-intval(int n1)
-
-%% Assuming:
-%% int P, Q; 
-%% list[int] Nums1, Nums2;
-
-[Nums1, P, Q, Nums2]
-
-%% This can also be written as:
-[list[int Nums1], int P, int Q, list[int] Nums2]
-
-%% Mixtures of variables declared outside the pattern 
-%% and inside the pattern are also allowed:
-
-[Nums1, int P, int Q, Nums2]</programlisting></para>
-
-        <para>An abstract pattern may be preceeded by the key word
-        <literal>abs</literal>, in order to resolve ambiguities with syntax
-        patterns.<caution>
-            <para>abs currently not implemented.</para>
-          </caution></para>
-      </section>
+      <para>A pattern may be turned into an <emphasis>anti-pattern</emphasis>
+      by prefixing it with the symbol <literal>!</literal>. An anti-pattern
+      matches in all cases where the original pattern does not match. A match
+      of an anti-pattern cannot bind any variables but these variables are
+      nonetheless reserved in the corresponding scope.</para>
 
       <section>
         <title>Regular Expression Patterns</title>
@@ -1655,7 +1586,7 @@ intval(int n1)
         parallels abstract and concrete syntax patterns as much as possible.
         This means that they can occur in cases of <literal>visit</literal>
         and <literal>switch</literal> statements, on the left-hand side of the
-        match operator (<literal>~= or ~!</literal>) and as declarator in
+        match operator (<literal>:= or !:=</literal>) and as declarator in
         generators.</para>
 
         <para>We use a regular expression language that slightly extends the
@@ -1701,26 +1632,85 @@ intval(int n1)
             inserts the string value of <replaceable>Name</replaceable> in the
             pattern.</para>
           </listitem>
-
-          <listitem>
-            <para>We allow function calls inside a regular expression:
-            <literal>&lt;<replaceable>F</replaceable>(...)&gt;</literal> which
-            inserts the string value of the function call in the regular
-            expression.</para>
-          </listitem>
         </itemizedlist>
 
-        <para><caution>
-            <para>The last two features have not been implemented. The last
-            one is problematic since it requires the parser.</para>
-          </caution>Here are some examples of regular
-        patterns.<programlisting>/\brascal\b/i</programlisting>does a
-        case-insensitive match (<literal>i</literal>) of the word rascal
+        <para>Here are some examples of regular patterns.<programlisting>/\brascal\b/i</programlisting>does
+        a case-insensitive match (<literal>i</literal>) of the word rascal
         between word boundaries (<literal>\b</literal>). And<programlisting>/^.*?&lt;word:\w+&gt;&lt;rest:.*$&gt;/m</programlisting>does
         a multi-line match (<literal>m</literal>), matches the first
         consecutive word characters (<literal>\w</literal>) and assigns them
         to the variable <literal>word</literal>. The remainder of the string
         is assigned to the variable <literal>rest</literal>.</para>
+      </section>
+
+      <section>
+        <title>Abstract Patterns</title>
+
+        <para>Data declarations introduce a signature of abstract terms and
+        abstract patterns can be used to perform matching on them. The same
+        terms that occur in a data declaration, possibly including typed
+        variables that play a similar role as pattern variables in syntax
+        patterns, may be used as abstract patterns at the same position where
+        concrete patterns are allowed. Lists, sets and tuples may also occur
+        in abstract patterns. Here are some examples of abstract
+        patterns:<programlisting>%% Assuming:
+%% data Bool = band(Bool L, Bool R);
+%% Bool B2;
+%% An abstract pattern matching a band node:
+
+band(btrue, B2)
+
+%% The variable B2 can also be declared inside the pattern:
+
+band(true, Bool B2)
+
+%% Assuming:
+%% data PICO_VALUE = intval(int) | strval(str);
+%% An abstract pattern matching an intval:
+
+intval(int n1)
+
+%% Assuming:
+%% int P, Q; 
+%% list[int] Nums1, Nums2;
+
+[Nums1, P, Q, Nums2]
+
+%% This can also be written as:
+[list[int Nums1], int P, int Q, list[int] Nums2]
+
+%% Mixtures of variables declared outside the pattern 
+%% and inside the pattern are also allowed:
+
+[Nums1, int P, int Q, Nums2]</programlisting></para>
+
+        <para>An abstract pattern may be preceeded by the key word
+        <literal>abs</literal>, in order to resolve ambiguities with syntax
+        patterns.<caution>
+            <para>abs currently not implemented.</para>
+          </caution><caution>
+            <para>Is it wise to mix declarations in a pattern and declarations
+            before hand? Considerations:</para>
+
+            <itemizedlist>
+              <listitem>
+                <para>A typed declaration in a pattern is completely
+                unambiguous.</para>
+              </listitem>
+
+              <listitem>
+                <para>Using the value of a variable defined outside the
+                pattern is also unambiguous.</para>
+              </listitem>
+
+              <listitem>
+                <para>Identifying a declared but unitialized variable with a
+                local declaration in a pattern is dangerous, since the meaning
+                depends on the control flow outside the pattern. Proposal:
+                forbid this case.</para>
+              </listitem>
+            </itemizedlist>
+          </caution></para>
       </section>
 
       <section xml:id="section.patterns">
@@ -2000,9 +1990,9 @@ default: ...
           <listitem>
             <para><programlisting><replaceable>Pattern</replaceable><replaceable>1</replaceable> =&gt; <replaceable>Pattern2</replaceable></programlisting>When
             the subject matches
-            <replaceable>SyntaxPattern</replaceable><replaceable>1</replaceable>,
-            <replaceable>SyntaxPattern</replaceable><replaceable>2</replaceable>
-            is returned from the enclosing function (after proper
+            <replaceable>Pattern</replaceable><replaceable>1</replaceable>,
+            <replaceable>Pattern</replaceable><replaceable>2</replaceable> is
+            returned from the enclosing function (after proper
             substitution).</para>
           </listitem>
 
@@ -2064,7 +2054,9 @@ default: ...
           </listitem>
 
           <listitem>
-            <para>We have break and continue statements.</para>
+            <para>We have break and continue statements. <caution>
+                <para>How about dropping them?</para>
+              </caution></para>
           </listitem>
 
           <listitem>
@@ -2075,13 +2067,13 @@ default: ...
           </listitem>
 
           <listitem>
-            <para>We already have "all" and "exists" as predicates that test
-            that all (or at least one element) satisfies a predicate.</para>
+            <para>We already have "all" and "any" as predicates that test that
+            all (or at least one element) satisfies a predicate.</para>
           </listitem>
 
           <listitem>
-            <para><emphasis role="bold"><remark>TO BE
-            DISCUSSED</remark></emphasis>: The new statement constructs "all"
+            <para><emphasis role="bold"><remark>AlREADY
+            REMOVED</remark></emphasis>: The new statement constructs "all"
             and "exists" have a list or set pattern as condition. They
             establish a save/commit barrier around each iteration. When an
             iteration completes normally all its side-effects are made
@@ -2124,9 +2116,9 @@ default: ...
 
           <thead>
             <row>
-              <entry align="center"> </entry>
+              <entry align="center">&#160;</entry>
 
-              <entry align="center">bool </entry>
+              <entry align="center">bool&#160;</entry>
 
               <entry align="center">int</entry>
 
@@ -2666,11 +2658,11 @@ default: ...
             </listitem>
 
             <listitem>
-              <para><literal>~=</literal> match</para>
+              <para><literal>:=</literal> match</para>
             </listitem>
 
             <listitem>
-              <para><literal>~!</literal> no match</para>
+              <para><literal>!:=</literal> no match</para>
             </listitem>
 
             <listitem>
@@ -2686,14 +2678,26 @@ default: ...
         <literal>int</literal> , <literal>real</literal>,
         <literal>str</literal> and <literal>loc</literal> are expressions. All
         operators for all datatypes are summarized in <xref
-        linkend="table.operators-on-datatypes" />.</para>
+        linkend="table.operators-on-datatypes" />.<caution>
+            <para>The current implementation uses Java int and double to
+            implement int and real. We will soon switch to infinite
+            precision.</para>
+          </caution></para>
+
+        <para>String literals permit <emphasis>interpolation</emphasis> of
+        variable values: when
+        <literal>&lt;<replaceable>X</replaceable>&gt;</literal> occurs inside
+        a string literal, the value of the variable X is converted to string
+        and replaces &lt;<replaceable>X</replaceable>&gt;. As a consequence,
+        the character <literal>&lt; </literal>has to be escaped as<literal>
+        \&lt;</literal> in string literals.</para>
       </section>
 
       <section>
         <title>Structured values</title>
 
         <para>Values of the structured types <literal>list</literal>,
-        <literal>set</literal>, <literal>map, tuple</literal>, and
+        <literal>set</literal>, <literal>map,tuple</literal>, and
         <literal>rel</literal><literal></literal>are expressions and can be
         constructed as follows:</para>
 
@@ -2724,17 +2728,14 @@ default: ...
 
             <para>When variables of type list occur inside a list, their
             elements are automatically spliced into the surrounding list. This
-            can be prevented by prefixing the list variable with $.</para>
-
-            <note>
-              <para>To be discussed.</para>
-            </note>
+            can be prevented by surrounding them with extra [ and ]
+            brackets.</para>
           </listitem>
 
           <listitem>
             <para>Sets are enclosed between { and } and the elements are
             separated by comma's, e.g.<literal> {"abc", "def"}</literal> or
-            <literal>{true, false}</literal>. In a simliar fashion as with
+            <literal>{true, false}</literal>. In a similar fashion as with
             lists, sets variables are automatically spliced into a surrounding
             set.</para>
           </listitem>
@@ -2753,8 +2754,9 @@ default: ...
             <para>Maps are a special form of binary relation and satisfy the
             constraint that the first element of each tuple is unique. Maps
             model functions. To distinguish between map tuples and tuples in
-            general relations, we write them as (E11 : E1b, E2a : E2b,
-            ...&gt;.</para>
+            general relations, we write them as (E1a : E1b, E2a : E2b, ...),
+            i.e. they are enclosed between ( and ) and the elements are pairs
+            separated by :.</para>
           </listitem>
         </itemizedlist>
 
@@ -2772,13 +2774,13 @@ default: ...
         left-hand side of an assignment:<programlisting><replaceable>M</replaceable>[<replaceable>N</replaceable>] = <replaceable>V</replaceable></programlisting>which
         first removes from <replaceable>M</replaceable> the tuple with domain
         value <replaceable>N</replaceable> and then adds the tuple
-        &lt;<replaceable>N</replaceable> -&gt;
-        <replaceable>V</replaceable>&gt;. The net effect is that a new map
-        value is assigned to <replaceable>M</replaceable>. For relations, a
-        subscript consisting of n- subscript return the range values that
-        correspond with these index values.</para>
+        <replaceable>N</replaceable> : <replaceable>V</replaceable>. The net
+        effect is that a new map value is assigned to
+        <replaceable>M</replaceable>. For relations, a subscript consisting of
+        n- subscripts returns the range values that correspond to these index
+        values.</para>
 
-        <para>For all structured values, we provide comprehensions for lists
+        <para>For all structured values, we provide comprehensions. For lists
         of the form:<programlisting>[ E | G1, ..., Gn ]</programlisting>for
         maps of the form<programlisting>( K : V | G1, ..., Gn )</programlisting></para>
 
@@ -2786,7 +2788,7 @@ default: ...
       </section>
 
       <section>
-        <title>Tree values</title>
+        <title>Node values</title>
 
         <para>Syntax trees are expressions and generators in comprehensions
         may range over syntax trees.</para>
@@ -2825,11 +2827,11 @@ default: ...
           </listitem>
 
           <listitem>
-            <para><literal>~=</literal> match</para>
+            <para><literal>:=</literal> match</para>
           </listitem>
 
           <listitem>
-            <para><literal>~!</literal> nomatch</para>
+            <para><literal>!:=</literal> nomatch</para>
           </listitem>
         </itemizedlist>
       </section>
@@ -2845,14 +2847,14 @@ case <replaceable>Rule</replaceable>2;
 default: ...
 }</programlisting>Given a subject term (the current value of
         <replaceable>Expression</replaceable>) and a list of cases (resembling
-        rewrite rules) it traverses the term. Depending on the precise rules
-        it may perform replacement (mimicking a transformer), update local
-        variables (mimicking an accumulator) or a combination of these two. If
-        <emphasis role="bold">any</emphasis> of the cases contains an
-        <literal>insert</literal> statement, the value of the visit expression
-        is a new value that is obtained by successive insertions in the
-        subject term by executing one or more cases. Otherwise, the value of
-        the subject term is returned.</para>
+        cases in a case statement or rewrite rules) it traverses the term.
+        Depending on the precise rules it may perform replacement (mimicking a
+        transformer), update local variables (mimicking an accumulator) or a
+        combination of these two. If <emphasis role="bold">any</emphasis> of
+        the cases contains an <literal>insert</literal> statement, the value
+        of the visit expression is a new value that is obtained by successive
+        insertions in the subject term by executing one or more cases.
+        Otherwise, the original value of the subject term is returned.</para>
 
         <para>The visit expression is optionally preceeded by one of the
         following strategy indications that determine the traversal order of
@@ -2893,13 +2895,14 @@ default: ...
 
         <itemizedlist>
           <listitem>
-            <para>Rukes of the form ... =&gt; ... <emphasis
+            <para>Rules of the form ... =&gt; ... <emphasis
             role="bold">insert</emphasis> their result in the subject (instead
             of returning a value).</para>
           </listitem>
 
           <listitem>
-            <para>In the case <literal><replaceable>Pattern</replaceable> :
+            <para>For rules of the form
+            <literal><replaceable>Pattern</replaceable> :
             <replaceable>Statement</replaceable></literal>, executing
             <replaceable>Statement</replaceable> should lead to one of the
             following:</para>
@@ -2936,23 +2939,24 @@ default: ...
 
         <para>Each case keyword may be followed by a type constraint of the
         form <literal>[<replaceable>Type</replaceable>]</literal> that limits
-        the type of the tree nodes to which the case applies.</para>
+        the type of the values to which the case applies.</para>
 
         <para>The precise behaviour of the visit statement depends on the type
         of the subject:</para>
 
         <itemizedlist>
           <listitem>
-            <para>For type <literal>tree</literal>, all nodes of the tree are
-            visited (in the order determined by the strategy). SyntaxPatterns
-            and AbstractPatterns directly match tree nodes. RexExpPatterns
-            match only values of type string.</para>
+            <para>For type <literal>node or ADT</literal>, all nodes of the
+            tree are visited (in the order determined by the strategy).
+            SyntaxPatterns and AbstractPatterns directly match tree nodes.
+            RexExpPatterns match only values of type string.</para>
           </listitem>
 
           <listitem>
-            <para>For structured types (list, set, map, rel), the elements of
-            the structured type are visited and matched against the cases.
-            When inserts are made, a new structured value is created.<caution>
+            <para>For structured types (list, set, map, tuple, rel), the
+            elements of the structured type are visited and matched against
+            the cases. When inserts are made, a new structured value is
+            created.<caution>
                 <para>Have strategies any effect for non-tree subjects?</para>
               </caution></para>
           </listitem>
@@ -3038,14 +3042,14 @@ default: ...
 
           <itemizedlist>
             <listitem>
-              <para>the left-hand side contains a list pattern that has more
-              matching options; the next option is tried.</para>
+              <para>the left-hand side contains a list or set pattern that has
+              more matching options; the next option is tried.</para>
             </listitem>
 
             <listitem>
-              <para>the left-hand side contains a list patterns that has no
-              more matching options or it contains no list pattern at all; the
-              next rule is tried.</para>
+              <para>the left-hand side contains a list or set pattern that has
+              no more matching options or it contains no list or set pattern
+              at all; the next rule is tried.</para>
             </listitem>
           </itemizedlist>
         </listitem>
@@ -3251,7 +3255,7 @@ public list[str] Jabberwocky = [
 	"The frumious Bandersnatch!\"",
 	"",
 	"He took his vorpal sword in hand:",
-	"Long time the manxome foe he sought—",
+	"Long time the manxome foe he sought&#8212;",
 	"So rested he by the Tumtum tree,",
 	"And stood awhile in thought.",
 	"",
@@ -4707,7 +4711,7 @@ Boolean . and &lt;= Boolean &lt;= tree &lt;= value
 
           <thead>
             <row>
-              <entry align="center"> </entry>
+              <entry align="center">&#160;</entry>
 
               <entry align="center">bool</entry>
 
@@ -4715,7 +4719,7 @@ Boolean . and &lt;= Boolean &lt;= tree &lt;= value
 
               <entry align="center">real</entry>
 
-              <entry align="center">str </entry>
+              <entry align="center">str&#160;</entry>
 
               <entry align="center">loc</entry>
 
@@ -6257,7 +6261,7 @@ Boolean . and &lt;= Boolean &lt;= tree &lt;= value
 
           <thead>
             <row>
-              <entry align="center"> Characters</entry>
+              <entry align="center">&#160;Characters</entry>
 
               <entry align="center">Used in</entry>
             </row>
