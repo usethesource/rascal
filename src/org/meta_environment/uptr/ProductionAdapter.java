@@ -1,6 +1,7 @@
 package org.meta_environment.uptr;
 
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -20,9 +21,9 @@ public class ProductionAdapter {
 	public String getConstructorName() {
 		for (IValue attr : getAttributes()) {
 			if (attr.getType().isAbstractDataType() && ((IConstructor) attr).getConstructorType() == Factory.Attr_Term) {
-				IValue value = ((IConstructor)attr).get("value");
-				if (value.getType().isAbstractDataType() && ((IConstructor) value).getConstructorType() == Factory.Constructor_Name) {
-					return ((IString) ((IConstructor) value).get("name")).getValue();
+				IValue value = ((IConstructor)attr).get("term");
+				if (value.getType().isNodeType() && ((INode) value).getName().equals("cons")) {
+					return ((IString) ((INode) value).get(0)).getValue();
 				}
 			}
 		}
