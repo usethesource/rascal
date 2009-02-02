@@ -5,20 +5,20 @@ data ParseTree =
 
 data Tree =
      appl(Production prod, list[Tree] args) |
-	 cycle(Symbol symbol, int cycle_length) |
+	 cycle(Symbol symbol, int cycleLength) |
 	 amb(Args args) | 
 	 char(int character);
 
 data Production =
-     prod(Symbols lhs, Symbol rhs, Attributes attributes) | 
-     \list(Symbol lhs);
+     prod(list[Symbol] lhs, Symbol rhs, Attributes attributes) | 
+     \list(Symbol rhs);
 
 data Attributes = 
      no-attrs | attrs(list[Attr] attrs);
 
 data Attr =
      assoc(Associativity assoc) | term(value term) |
-     id(str module_name) | bracket | reject | prefer | avoid;
+     id(str moduleName) | bracket | reject | prefer | avoid;
 
 data Associativity =
      left | right | assoc | non-assoc;

@@ -46,20 +46,20 @@ public class Factory {
 	public static final Type Constructor_Name = tf.constructor(Constructor, "cons", tf.stringType(), "name");
 	public static final Type Constructor_Category = tf.constructor(Constructor, "category", tf.stringType(), "name");
 	
-	public static final Type Tree_Appl = tf.constructor(Tree, "appl", Production, "prod", Args, "args");
-	public static final Type Tree_Cycle = tf.constructor(Tree, "cycle", Symbol, "symbol", tf.integerType(), "cycle-length");
+	public static final Type Tree_Appl = tf.constructor(Tree, "appl", Production, "prod", tf.listType(Tree), "args");
+	public static final Type Tree_Cycle = tf.constructor(Tree, "cycle", Symbol, "symbol", tf.integerType(), "cycleLength");
 	public static final Type Tree_Amb = tf.constructor(Tree, "amb", Alternatives, "alternatives");
 	public static final Type Tree_Char = tf.constructor(Tree, "char", tf.integerType(), "character");
 	
-	public static final Type Production_Default = tf.constructor(Production, "prod", Symbols, "lhs", Symbol, "rhs", Attributes, "attributes");
+	public static final Type Production_Default = tf.constructor(Production, "prod", tf.listType(Symbol), "lhs", Symbol, "rhs", Attributes, "attributes");
 	public static final Type Production_List = tf.constructor(Production, "list", Symbol, "rhs");
 	
 	public static final Type Attributes_NoAttrs = tf.constructor(Attributes, "no-attrs");
-	public static final Type Attributes_Attrs = tf.constructor(Attributes, "attrs", Attrs, "attrs");
+	public static final Type Attributes_Attrs = tf.constructor(Attributes, "attrs", tf.listType(Attr), "attrs");
 	
 	public static final Type Attr_Assoc = tf.constructor(Attr, "assoc", Associativity, "assoc");
-	public static final Type Attr_Term = tf.constructor(Attr, "term", Constructor, "value");
-	public static final Type Attr_Id = tf.constructor(Attr, "id", tf.stringType(), "module-name");
+	public static final Type Attr_Term = tf.constructor(Attr, "term", tf.valueType(), "term");
+	public static final Type Attr_Id = tf.constructor(Attr, "id", tf.stringType(), "moduleName");
 	public static final Type Attr_Bracket = tf.constructor(Attr, "bracket");
 	public static final Type Attr_Reject = tf.constructor(Attr, "reject");
 	public static final Type Attr_Prefer = tf.constructor(Attr, "prefer");
@@ -75,10 +75,10 @@ public class Factory {
 	public static final Type Symbol_Cf = tf.constructor(Symbol, "cf", Symbol, "symbol");
 	public static final Type Symbol_Lex = tf.constructor(Symbol, "lex", Symbol, "symbol");
 	public static final Type Symbol_Empty = tf.constructor(Symbol, "empty");
-	public static final Type Symbol_Seq = tf.constructor(Symbol, "seq", Symbols, "symbols");
+	public static final Type Symbol_Seq = tf.constructor(Symbol, "seq", tf.listType(Symbol), "symbols");
 	public static final Type Symbol_Opt = tf.constructor(Symbol, "opt", Symbol, "symbol");
 	public static final Type Symbol_Alt = tf.constructor(Symbol, "alt", Symbol, "lhs", Symbol, "rhs");
-	public static final Type Symbol_Tuple = tf.constructor(Symbol, "tuple", Symbol, "head", Symbols, "rest");
+	public static final Type Symbol_Tuple = tf.constructor(Symbol, "tuple", Symbol, "head", tf.listType(Symbol), "rest");
 	public static final Type Symbol_Sort = tf.constructor(Symbol, "sort", tf.stringType(), "string");
 	public static final Type Symbol_IterPlus = tf.constructor(Symbol, "iter", Symbol, "symbol");
 	public static final Type Symbol_IterStar = tf.constructor(Symbol, "iter-star", Symbol, "symbol");
@@ -86,14 +86,14 @@ public class Factory {
 	public static final Type Symbol_IterStarSep = tf.constructor(Symbol, "iter-star-sep", Symbol, "symbol", Symbol, "separator");
 	public static final Type Symbol_IterN = tf.constructor(Symbol, "iter-n", Symbol, "symbol", tf.integerType(), "number");
 	public static final Type Symbol_IterSepN = tf.constructor(Symbol, "iter-sep-n", Symbol, "symbol", Symbol, "separator", tf.integerType(), "number");
-	public static final Type Symbol_Func = tf.constructor(Symbol, "func", Symbols, "symbols", Symbol, "symbol");
-	public static final Type Symbol_ParameterizedSort = tf.constructor(Symbol, "parameterized-sort", tf.stringType(), "sort", Symbols, "parameters");
+	public static final Type Symbol_Func = tf.constructor(Symbol, "func", tf.listType(Symbol), "symbols", Symbol, "symbol");
+	public static final Type Symbol_ParameterizedSort = tf.constructor(Symbol, "parameterized-sort", tf.stringType(), "sort", tf.listType(Symbol), "parameters");
 	public static final Type Symbol_Strategy = tf.constructor(Symbol, "strategy", Symbol, "lhs", Symbol, "rhs");
 	public static final Type Symbol_VarSym = tf.constructor(Symbol, "lit", tf.stringType(), "string");
 	public static final Type Symbol_Layout = tf.constructor(Symbol, "layout");
-	public static final Type Symbol_CharClass = tf.constructor(Symbol, "char-class", CharRanges, "ranges");
+	public static final Type Symbol_CharClass = tf.constructor(Symbol, "char-class", tf.listType(CharRange), "ranges");
 		
-	public static final Type CharRange_Single = tf.constructor(CharRange, "single", tf.integerType(), "character");
+	public static final Type CharRange_Single = tf.constructor(CharRange, "single", tf.integerType(), "start");
 	public static final Type CharRange_Range = tf.constructor(CharRange, "range", tf.integerType(), "start", tf.integerType(), "end");
 	
 	private static final class InstanceHolder {
