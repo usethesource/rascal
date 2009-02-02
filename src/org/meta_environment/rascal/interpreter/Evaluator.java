@@ -622,7 +622,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 						labels[i] = arg.getName().toString();
 					}
 					else {
-						labels[i] = java.lang.Integer.toString(i);
+						labels[i] = "arg" + java.lang.Integer.toString(i);
 					}
 		    	}
 
