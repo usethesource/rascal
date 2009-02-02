@@ -4,11 +4,12 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.io.Writer;
 
 import jline.ConsoleReader;
 
-import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
@@ -39,6 +40,12 @@ public class RascalShell {
 		evaluator = new Evaluator(ValueFactory.getInstance(), factory, new PrintWriter(System.err));
 	}
 	
+	public RascalShell(InputStream inputStream,
+			Writer out) throws IOException {
+		console = new ConsoleReader(inputStream, out);
+		evaluator = new Evaluator(ValueFactory.getInstance(), factory, out);
+	}
+
 	public void setInputStream(InputStream in) {
 		console.setInput(in);
 	}
