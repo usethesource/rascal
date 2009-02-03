@@ -33,7 +33,7 @@ public class Factory {
 	private Factory() {}
 	
 	public ISourceLocation toSourceLocation(IValueFactory factory, IConstructor loc) {
-		Type type = loc.getType();
+		Type type = loc.getConstructorType();
 		
 		if (type == Location_File) {
 		  String filename = ((IString) loc.get("filename")).getValue();
@@ -55,12 +55,12 @@ public class Factory {
 	}
 	
 	public ISourceRange toSourceRange(IValueFactory factory, IConstructor area) {
-		if (area.getType() == Area_Area) {
+		if (area.getConstructorType() == Area_Area) {
 		   int offset = ((IInteger) area.get("offset")).getValue();
-		   int startLine = ((IInteger) area.get("begin-line")).getValue();
-		   int endLine = ((IInteger) area.get("end-line")).getValue();
-		   int startCol = ((IInteger) area.get("begin-columm")).getValue();
-		   int endCol = ((IInteger) area.get("end-column")).getValue();
+		   int startLine = ((IInteger) area.get("beginLine")).getValue();
+		   int endLine = ((IInteger) area.get("endLine")).getValue();
+		   int startCol = ((IInteger) area.get("beginColumn")).getValue();
+		   int endCol = ((IInteger) area.get("endColumn")).getValue();
 		   int length = ((IInteger) area.get("length")).getValue();
 		   
 		   return factory.sourceRange(offset, length, startLine, endLine, startCol, endCol);
