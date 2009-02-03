@@ -225,11 +225,21 @@ public class PatternTests extends TestCase {
 	
 	public void testMatchSet2() throws IOException {
 		
-		tf = new TestFramework("data DATA = a | b | c(int N);");
+		tf = new TestFramework("data DATA = a | b | c | d | e(int N) | f(set[DATA] S);");
 		
 		assertTrue(tf.runTestInSameEvaluator("{a, b} := {a, b};"));
-		assertTrue(tf.runTestInSameEvaluator("{DATA X, b} := {a, b} && X == a;"));
+		assertTrue(tf.runTestInSameEvaluator("({DATA X, b} := {a, b}) && (X == a);"));
+		assertTrue(tf.runTestInSameEvaluator("({e(int X), b} := {e(3), b}) && (X == 3);"));
+		assertTrue(tf.runTestInSameEvaluator("({e(int X)} := {e(3)}) && (X == 3);"));
+		assertFalse(tf.runTestInSameEvaluator("({e(int X)} := {a});"));
 		
+		assertTrue(tf.runTestInSameEvaluator("({a, f({a, b, DATA X})} := {a, f({a,b,c})}) && (X == c);"));
+		assertTrue(tf.runTestInSameEvaluator("({a, f({a, b, DATA X})} := {a, f({a,b,c})}) && (X == c);"));
+		
+		assertTrue(tf.runTestInSameEvaluator("({a, f({a, b, DATA X}), set[DATA] Y} := {a, b, f({a,b,c})}) && (X == c && Y == {b});"));
+		assertTrue(tf.runTestInSameEvaluator("({DATA A, f({A, b, DATA X})} := {a, f({a,b,c})}) && (A == a);"));
+		assertTrue(tf.runTestInSameEvaluator("({DATA A, f({A, b, DATA X})} := {f({a,b,c}), a}) && (A == a);"));
+	
 	}
 		
 	
