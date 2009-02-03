@@ -85,6 +85,10 @@ interface MatchPattern {
 		return initialized && firstMatch;
 	}
 	
+	public boolean containsVariables(){
+		return false;
+	}
+	
 	boolean matchChildren(Iterator<IValue> subjChildren, Iterator<MatchPattern> patChildren, Evaluator ev){
 		while (patChildren.hasNext()) {
 			if (!patChildren.next().next()){
@@ -167,6 +171,14 @@ interface MatchPattern {
 			 return ev.tf.nodeType();
 		 }
 	}
+/*
+	@Override
+	public boolean containsVariables(){
+		for (int i = 0; i < children.size(); i++) {
+			 if(children.get(i).containsVariables())
+		 }
+	}
+	*/
 	
 	public boolean next(){
 		checkInitialized();
@@ -593,6 +605,10 @@ class SubSetGenerator implements Iterator<ISet> {
 		throw new UnsupportedOperationException("remove in SubSetGenerator");
 	}
 }
+
+/*
+ * SingleEelementGenerator produces all elements of a set as (single element) set.
+ */
 
 class SingleElementGenerator implements Iterator<ISet> {
 	private Iterator<IValue> elementIter;
