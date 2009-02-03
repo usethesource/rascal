@@ -183,7 +183,7 @@ public class PatternTests extends TestCase {
 		assertTrue(tf.runTestInSameEvaluator("f(1, 2)                !:= f(1);"));
 	}
 	
-	public void testMatchSet() throws IOException {
+	public void testMatchSet1() throws IOException {
 		
 		tf = new TestFramework();
 		
@@ -222,6 +222,16 @@ public class PatternTests extends TestCase {
 		
 		assertTrue(tf.runTest("{ {set[int] X, int Y} := {1, 2}; (X == {1} && Y == 2) || (X == {2} && Y == 1);}"));
 	}
+	
+	public void testMatchSet2() throws IOException {
+		
+		tf = new TestFramework("data DATA = a | b | c(int N);");
+		
+		assertTrue(tf.runTestInSameEvaluator("{a, b} := {a, b};"));
+		assertTrue(tf.runTestInSameEvaluator("{DATA X, b} := {a, b} && X == a;"));
+		
+	}
+		
 	
 	public void testMatchTuple() throws IOException {
 		
