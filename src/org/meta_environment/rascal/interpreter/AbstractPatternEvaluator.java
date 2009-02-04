@@ -100,10 +100,8 @@ interface MatchPattern {
 		return true;
 	}
 
-	@Override
 	abstract public Type getType(Evaluator ev);
 
-	@Override
 	abstract public boolean next();
 	
 }
