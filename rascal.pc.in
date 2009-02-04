@@ -6,6 +6,6 @@ Version: 0.1
 EclipseRequires=org.eclipse.imp.pdb.values
 Requires: sglr-invoker,sglr,config-support,error-support,pt-support,ptable-support,aterm
 JarFile=rascal.jar
-LocalJars=lib/hickory_check.jar:lib/jline-0.9.94.jar
+LocalJars=lib/hickory_check.jar:lib/jline-0.9.94.jar:lib/junit.jar
 Jars=${prefix}/share/${JarFile}
 Packages=
