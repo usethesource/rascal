@@ -1,32 +1,27 @@
 package org.meta_environment.rascal.interpreter.exceptions;
 
-/*package*/ public class FailureException extends RuntimeException {
+public class FailureException extends RuntimeException {
 	private static final long serialVersionUID = 2774285953244945424L;
-	private String fLabel;
-	private FailureException() { };
 	
-	private static class InstanceHolder {
-		public static FailureException sInstance = new FailureException();
+	private final String label;
+	
+	public FailureException() {
+		super();
+		
+		label = null;
 	}
 	
-	public static synchronized FailureException getInstance(String label) {
-		return InstanceHolder.sInstance.setLabel(label);
-	}
-	
-	public static synchronized FailureException getInstance() {
-		return InstanceHolder.sInstance.setLabel(null);
-	}
-	
-	private synchronized FailureException setLabel(String label) {
-		fLabel = label;
-		return this;
-	}
-	
-	public String getLabel() {
-		return fLabel;
+	public FailureException(String label) {
+		super();
+		
+		this.label = label;
 	}
 	
 	public boolean hasLabel() {
-		return fLabel != null;
+		return label != null;
+	}
+	
+	public String getLabel() {
+		return label;
 	}
 }

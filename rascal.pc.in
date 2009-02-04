@@ -1,10 +1,11 @@
 prefix=@prefix@
-Maintainers=jurgenv@cwi.nl,storm@cwi.nl,paulk@cwi.nl
+Maintainers=jurgenv@cwi.nl,storm@cwi.nl,paulk@cwi.nl,lankamp@cwi.nl
 Name: rascal
 Description: 
 Version: 0.1
 EclipseRequires=org.eclipse.imp.pdb.values
-Requires: 
+Requires: sglr-invoker,sglr,config-support,error-support,pt-support,ptable-support,aterm
 JarFile=rascal.jar
+LocalJars=lib/hickory_check.jar:lib/jline-0.9.94.jar
 Jars=${prefix}/share/${JarFile}
 Packages=

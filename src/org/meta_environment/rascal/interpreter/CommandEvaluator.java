@@ -62,7 +62,7 @@ import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
 
 	@Override
 	public IValue visitShellCommandQuit(Quit x) {
-		throw FailureException.getInstance();
+		throw new FailureException();
 	}
 
 	@Override

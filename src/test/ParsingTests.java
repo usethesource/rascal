@@ -1,7 +1,6 @@
 package test;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 
@@ -34,9 +33,8 @@ public class ParsingTests extends TestCase {
 		
 		for (File file : tests) {
 			try {
-				FileInputStream s = new FileInputStream(file);
-				IConstructor tree = parser.parse(s);
-
+				IConstructor tree = parser.parseFromFile(file);
+				
 				if (tree.getConstructorType() == Factory.ParseTree_Top) {
 					Module.Default module = (Default) b.buildModule(tree);
 					System.err.println("SUCCEEDED: " + module.getHeader());

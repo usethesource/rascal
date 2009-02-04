@@ -2,7 +2,7 @@ package org.meta_environment.rascal.interpreter.env;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -117,7 +117,7 @@ public class Environment {
 		
 		List<FunctionDeclaration> list = functionEnvironment.get(name);
 		if (list == null) {
-			list = new LinkedList<FunctionDeclaration>();
+			list = new ArrayList<FunctionDeclaration>();
 			functionEnvironment.put(name, list);
 		}
 		

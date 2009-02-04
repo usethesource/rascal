@@ -1,13 +1,12 @@
 package org.meta_environment.rascal.interpreter;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -472,7 +471,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 					throw new RascalTypeError("Can not find file for module " + name);
 			}
 			
-			IConstructor tree = p.parse(new FileInputStream(file));
+			IConstructor tree = p.parseFromFile(file);
 			
 			if (tree.getType() == Factory.ParseTree_Summary) {
 				throw new RascalTypeError("Parse error in module " + name + ":\n" + tree);
@@ -1430,10 +1429,10 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	@Override
 	public EvalResult visitStatementFail(Fail x) {
 		if (x.getFail().isWithLabel()) {
-			throw FailureException.getInstance(x.getFail().getLabel().toString());
+			throw new FailureException(x.getFail().getLabel().toString());
 		}
 		else {
-		  throw FailureException.getInstance();
+		  throw new FailureException();
 		}
 	}
 	
@@ -1443,10 +1442,10 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		org.meta_environment.rascal.ast.Return r = x.getRet();
 		
 		if (r.isWithExpression()) {
-		  throw ReturnException.getInstance(x.getRet().getExpression().accept(this));
+		  throw new ReturnException(x.getRet().getExpression().accept(this));
 		}
 		else {
-			throw ReturnException.getInstance(result(tf.voidType(), null));
+			throw new ReturnException(result(tf.voidType(), null));
 		}
 	}
 	
@@ -1525,7 +1524,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	
 	@Override
 	public EvalResult visitStatementInsert(Insert x) {
-		throw InsertException.getInstance(x.getExpression().accept(this));
+		throw new InsertException(x.getExpression().accept(this));
 	}
 	
 	@Override
@@ -1925,7 +1924,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				.getElements();
 		
 		Type elementType = tf.voidType();
-		java.util.List<IValue> results = new LinkedList<IValue>();
+		java.util.List<IValue> results = new ArrayList<IValue>();
 
 		for (org.meta_environment.rascal.ast.Expression expr : elements) {
 			EvalResult resultElem = expr.accept(this);
@@ -1956,7 +1955,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 				.getElements();
 		
 		Type elementType = tf.voidType();
-		java.util.List<IValue> results = new LinkedList<IValue>();
+		java.util.List<IValue> results = new ArrayList<IValue>();
 
 		for (org.meta_environment.rascal.ast.Expression expr : elements) {
 			EvalResult resultElem = expr.accept(this);
@@ -2017,12 +2016,12 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			NonEmptyBlock x) {
 		INode node = x.getTree();
 		org.meta_environment.rascal.ast.Type type = astFactory.makeTypeBasic(node, astFactory.makeBasicTypeVoid(node));
-		org.meta_environment.rascal.ast.Formals.Default formals = astFactory.makeFormalsDefault(node, new LinkedList<Formal>());
+		org.meta_environment.rascal.ast.Formals.Default formals = astFactory.makeFormalsDefault(node, new ArrayList<Formal>());
 		org.meta_environment.rascal.ast.Parameters params = astFactory.makeParametersDefault(node, formals);
 		java.util.List<Statement> stats = x.getStatements();
-		FunctionModifiers mods =astFactory.makeFunctionModifiersList(node, new LinkedList<FunctionModifier>());
+		FunctionModifiers mods =astFactory.makeFunctionModifiersList(node, new ArrayList<FunctionModifier>());
 		Signature s = astFactory.makeSignatureNoThrows(params.getTree(), type, mods, Names.toName(x.toString()), params);
-		Tags tags = astFactory.makeTagsDefault(node, new LinkedList<org.meta_environment.rascal.ast.Tag>());
+		Tags tags = astFactory.makeTagsDefault(node, new ArrayList<org.meta_environment.rascal.ast.Tag>());
 		FunctionBody body = astFactory.makeFunctionBodyDefault(node, stats);
 		return astFactory.makeFunctionDeclarationDefault(node, s, tags, body);
 	}
@@ -2590,9 +2589,9 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		org.meta_environment.rascal.ast.Parameters params = x.getParameters();
 		java.util.List<Statement> stats = x.getStatements();
 		INode node = x.getTree();
-		FunctionModifiers mods =astFactory.makeFunctionModifiersList(node, new LinkedList<FunctionModifier>());
+		FunctionModifiers mods =astFactory.makeFunctionModifiersList(node, new ArrayList<FunctionModifier>());
 		Signature s = astFactory.makeSignatureNoThrows(params.getTree(), type, mods, Names.toName(x.toString()), params);
-		Tags tags = astFactory.makeTagsDefault(node, new LinkedList<org.meta_environment.rascal.ast.Tag>());
+		Tags tags = astFactory.makeTagsDefault(node, new ArrayList<org.meta_environment.rascal.ast.Tag>());
 		FunctionBody body = astFactory.makeFunctionBodyDefault(node, stats);
 		return astFactory.makeFunctionDeclarationDefault(node, s, tags, body);
 	}
@@ -2610,9 +2609,9 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		org.meta_environment.rascal.ast.Type type = astFactory.makeTypeBasic(node, astFactory.makeBasicTypeVoid(node));
 		org.meta_environment.rascal.ast.Parameters params = x.getParameters();
 		java.util.List<Statement> stats = x.getStatements();
-		FunctionModifiers mods =astFactory.makeFunctionModifiersList(node, new LinkedList<FunctionModifier>());
+		FunctionModifiers mods =astFactory.makeFunctionModifiersList(node, new ArrayList<FunctionModifier>());
 		Signature s = astFactory.makeSignatureNoThrows(params.getTree(), type, mods, Names.toName(x.toString()), params);
-		Tags tags = astFactory.makeTagsDefault(node, new LinkedList<org.meta_environment.rascal.ast.Tag>());
+		Tags tags = astFactory.makeTagsDefault(node, new ArrayList<org.meta_environment.rascal.ast.Tag>());
 		FunctionBody body = astFactory.makeFunctionBodyDefault(node, stats);
 		return astFactory.makeFunctionDeclarationDefault(node, s, tags, body);
 	}
@@ -2776,7 +2775,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 							}
 						}
 						if(trueConditions){
-							throw InsertException.getInstance(replacementExpr.accept(this));		
+							throw new InsertException(replacementExpr.accept(this));		
 						}
 					} catch (FailureException e){
 						//System.err.println("failure occurred");
@@ -2950,7 +2949,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 	private TraverseResult traverseString(IString subject, CasesOrRules casesOrRules){
 		String subjectString = subject.getValue();
 		int len = subjectString.length();
-		java.util.List<StringReplacement> replacements = new LinkedList<StringReplacement>();
+		java.util.List<StringReplacement> replacements = new ArrayList<StringReplacement>();
 		boolean matched = false;
 		boolean changed = false;
 		int cursor = 0;
@@ -2986,7 +2985,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 									}
 								}
 								if(trueConditions){
-									throw InsertException.getInstance(repl.getReplacementExpression().accept(this));
+									throw new InsertException(repl.getReplacementExpression().accept(this));
 								}
 							
 							} else {
@@ -3301,7 +3300,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			}
 		} else if (rule.isReplacing()) {
 			Replacement repl = rule.getReplacement();
-			java.util.List<Expression> conditions = repl.isConditional() ? repl.getConditions() : new java.util.LinkedList<Expression>();
+			java.util.List<Expression> conditions = repl.isConditional() ? repl.getConditions() : new ArrayList<Expression>();
 			if(matchEvalAndReplace(subject, rule.getPattern(), conditions, repl.getReplacementExpression())){
 				return new TraverseResult(true, subject);
 			}

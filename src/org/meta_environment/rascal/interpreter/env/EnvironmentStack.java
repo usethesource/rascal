@@ -1,10 +1,10 @@
 package org.meta_environment.rascal.interpreter.env;
 
+import java.util.ArrayDeque;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Stack;
 
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
@@ -15,60 +15,70 @@ import org.meta_environment.rascal.interpreter.exceptions.RascalBug;
 
 /**
  * An environment that implements the scoping rules of Rascal.
- * 
  */
 public class  EnvironmentStack implements Iterable<Environment>{
-	protected final Stack<Environment> stack = new Stack<Environment>();
+	protected final ArrayDeque<Environment> stack;
+	
+	public EnvironmentStack(){
+		super();
+		
+		stack = new ArrayDeque<Environment>();
+	}
+	
+	public EnvironmentStack(ModuleEnvironment bottom){
+		super();
+		
+		stack = new ArrayDeque<Environment>();
+		stack.offer(bottom);
+	}
+	
+	public EnvironmentStack(ArrayDeque<Environment> stack){
+		super();
+		
+		this.stack = stack;
+	}
     
 	public void clean(ModuleEnvironment bottom) {
 		stack.clear();
-		stack.push(bottom);
+		stack.offer(bottom);
 	}
 	
 	public Iterator<Environment> iterator() {
 		return stack.iterator();
 	}
-	
-	public EnvironmentStack(ModuleEnvironment bottom) {
-		stack.push(bottom);
-	}
-	
-	public EnvironmentStack() {
-		
-	}
 
 	public void pushFrame() {
-		stack.push(new Environment());
+		stack.offer(new Environment());
 	}
 	
 	public void pushModule(ModuleEnvironment e) {
 		if (e == null) { 
 			throw new RascalBug("null environment");
 		}
-		stack.push(e);
+		stack.offer(e);
 	}
 
 	public void pushFrame(Environment env) {
 		if (env == null) { 
 			throw new RascalBug("null environment");
 		}
-		stack.push(env);
+		stack.offer(env);
 	}
 
 	public void popFrame() {
-		stack.pop();
+		stack.pollLast();
 	}
 	
 	public void popModule() {
-		stack.pop();
+		stack.pollLast();
 	}
 
 	protected Environment bottom() {
-		return stack.get(0);
+		return stack.peekFirst();
 	}
 	
 	protected Environment top() {
-		return stack.peek();
+		return stack.peekLast();
 	}
 	
 	protected int size(){
@@ -84,9 +94,10 @@ public class  EnvironmentStack implements Iterable<Environment>{
 	}
 	
 	public ModuleEnvironment getModuleEnvironment() {
-		for (int i = stack.size() - 1; i >= 0; i--) {
-			Environment env = stack.get(i);
-			if (env.isModuleEnvironment()) {
+		Iterator<Environment> environmentIterator = stack.descendingIterator();
+		while(environmentIterator.hasNext()){
+			Environment env = environmentIterator.next();
+			if(env.isModuleEnvironment()){
 				return (ModuleEnvironment) env;
 			}
 		}
@@ -95,15 +106,13 @@ public class  EnvironmentStack implements Iterable<Environment>{
 	}
 
 	public Environment getFunctionDefiningEnvironment(String name, Type formals, EnvironmentHolder h) {
-		int i;
-		
 		//System.err.println("getFunctionDefiningEnvironment: stacksize=" + stack.size());
-		for (i = stack.size() - 1; i >= 0; i--) {
-			Environment env = stack.get(i);
+		Iterator<Environment> environmentIterator = stack.descendingIterator();
+		while(environmentIterator.hasNext()){
+			Environment env = environmentIterator.next();
 			//System.err.println("stack(" + i + ")\n" + env);
 			
-			if (env.isModuleEnvironment()
-					|| env.getFunction(name, formals, h) != null) {
+			if (env.isModuleEnvironment() || env.getFunction(name, formals, h) != null) {
 				h.setEnvironment(env);
 				return env;
 			}
@@ -113,13 +122,11 @@ public class  EnvironmentStack implements Iterable<Environment>{
 	}
 	
 	public Environment getVariableDefiningEnvironment(String name) {
-		int i;
-		
 		// the first stack frame that contains a definition for this name
 		// is returned. This allows inner scopes to override outer scopes.
-		
-		for (i = stack.size() - 1; i >= 0; i--) {
-			Environment env = stack.get(i);
+		Iterator<Environment> environmentIterator = stack.descendingIterator();
+		while(environmentIterator.hasNext()){
+			Environment env = environmentIterator.next();
 			
 			// the outermost scope for plain variables is a module environment
             if (env.isModuleEnvironment() || env.getVariable(name) != null) {
@@ -133,11 +140,12 @@ public class  EnvironmentStack implements Iterable<Environment>{
 	public Map<Type, Type> getTypeBindings() {
 		Map<Type,Type> types = new HashMap<Type,Type>();
 		
-		for (int i = stack.size() - 1; i >= 0; i--) {
-			Environment environment = stack.get(i);
-			types.putAll(environment.getTypeBindings());
+		Iterator<Environment> environmentIterator = stack.descendingIterator();
+		while(environmentIterator.hasNext()){
+			Environment env = environmentIterator.next();
+			types.putAll(env.getTypeBindings());
 			
-			if (environment.isModuleEnvironment()) {
+			if (env.isModuleEnvironment()) {
 				break;
 			}
 		}
@@ -198,7 +206,6 @@ public class  EnvironmentStack implements Iterable<Environment>{
 
 	public void storeFunction(QualifiedName name, FunctionDeclaration function) {
 		storeFunction(Names.lastName(name), function);
-		
 	}
 
 	public void storeVariable(QualifiedName name, EvalResult value) {
@@ -211,7 +218,6 @@ public class  EnvironmentStack implements Iterable<Environment>{
 
 	public void storeFunction(Name name, FunctionDeclaration function) {
 		storeFunction(Names.name(name), function);
-		
 	}
 
 	public void storeVariable(Name name, EvalResult value) {
@@ -235,32 +241,18 @@ public class  EnvironmentStack implements Iterable<Environment>{
 		return getModuleEnvironment().getConstructor(cons, args);
 	}
 
-	public EnvironmentStack copyStack() {
-		EnvironmentStack copy = new EnvironmentStack();
-		
-		for (int i = stack.size() - 1; i >= 0; i--) {
-			Environment env = stack.get(i);
-			
-			copy.stack.add(copy.stack.size(), env);
-			
-			if (env.isModuleEnvironment()) {
-				break;
-			}
-		}
-		
-		return copy;
+	public EnvironmentStack copyStack(){
+		return new EnvironmentStack(stack.clone());
 	}
 	
 	public String toString(){
 		StringBuffer res = new StringBuffer();
-		for(int i = 0; i < stack.size(); i++){
-			res.append("Stack Environment #" + i + ":\n").append(stack.get(i).toString()).append("\n");
+		Iterator<Environment> environmentIterator = stack.iterator();
+		int i = 0;
+		while(environmentIterator.hasNext()){
+			Environment env = environmentIterator.next();
+			res.append("Stack Environment #" + i++ + ":\n").append(env.toString()).append("\n");
 		}
 		return res.toString();
 	}
-
-	
-
-	
-
 }

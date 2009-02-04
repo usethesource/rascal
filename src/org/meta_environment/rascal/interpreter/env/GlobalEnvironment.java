@@ -1,7 +1,7 @@
 package org.meta_environment.rascal.interpreter.env;
 
 import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -244,7 +244,7 @@ public class GlobalEnvironment {
 		
 		//System.err.println("storeRule: type=" + forType + ",rule=" + rule);
 		if (rules == null) {
-			rules = new LinkedList<Rule>();
+			rules = new ArrayList<Rule>();
 			ruleEnvironment.put(forType, rules);
 		}
 		
@@ -254,7 +254,7 @@ public class GlobalEnvironment {
 	public List<Rule> getRules(Type forType) {
 		List<Rule> rules = ruleEnvironment.get(forType);
 		//System.err.println("getRules: type=" + forType + ",rules=" + rules);
-		return rules != null ? rules : new LinkedList<Rule>();
+		return rules != null ? rules : new ArrayList<Rule>();
 	}
 
 	public Type getParameterType(Type par) {
