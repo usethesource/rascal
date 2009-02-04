@@ -2,10 +2,9 @@ package test;
 
 import java.io.IOException;
 
-import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
-import org.meta_environment.rascal.interpreter.exceptions.RascalUndefinedValue;
-
 import junit.framework.TestCase;
+
+import org.meta_environment.rascal.interpreter.exceptions.RascalUndefinedValue;
 
 public class ImportTests extends TestCase {
 	

@@ -2,44 +2,56 @@ package benchmark.Factorial;
 
 import java.math.BigInteger;
 
-public class Factorial {
+/**
+ * NOTE: You may not be testing what you thing you are testing (HotSpot may mess the test up).
+ */
+public class Factorial{
+	
+	public static int fac(int n){
+	   if(n <= 1)
+	   		return 1;
+	   return n * fac(n - 1);
+	}
+	
+	public static BigInteger BigFac(BigInteger n){
+	   if(n.compareTo(BigInteger.ONE) <= 0)
+	   		return BigInteger.ONE;
+	   return n.multiply(BigFac(n.subtract(BigInteger.ONE)));
+	}
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		int n = 12;
-		String nAsString = new Integer(n).toString();
-		int runs = 10000;
-		int result = 0;
-		BigInteger bigResult = BigInteger.ZERO;
+		int iterations = 10000000;
 		
-		double start1 = System.currentTimeMillis();
-		for(int i = 0; i < runs; i++){
-			result = fac(n);
+		// Warmup
+		for(int i = 0; i < 20000; i++){
+			 fac(n);
 		}
-		double end1 = System.currentTimeMillis();
-		for(int i = 0; i < runs; i++){
-			bigResult = BigFac(new BigInteger(nAsString));
-		}
-		double end2 = System.currentTimeMillis();
 		
-		System.err.println("fac(" + n + ")    = " + result + " (" + (end1 - start1) + " millis)");
-		System.err.println("BigFac(" + n + ") = " + bigResult + " (" + (end2 - end1) + " millis)");
-	}
-	
-	public static int fac(int n)
-	{
-	   if(n <= 1)
-	   		return 1;
-	   return n * fac(n - 1);
-	}
-	
-	public static BigInteger BigFac(BigInteger n)
-	{
-	   if(n.compareTo(BigInteger.ONE) <= 0)
-	   		return BigInteger.ONE;
-	   return n.multiply(BigFac(n.subtract(BigInteger.ONE)));
-	}
+		// Test Integer
+		long start1 = System.currentTimeMillis();
+		for(int i = 0; i < iterations; i++){
+			fac(n);
+		}
+		long end1 = System.currentTimeMillis();
 
+		// Warmup
+		String nAsString = new Integer(n).toString();
+		for(int i = 0; i < 20000; i++){
+			 BigFac(new BigInteger(nAsString));
+		}
+		
+		// Test Big Integer
+		long start2 = System.currentTimeMillis();
+		for(int i = 0; i < iterations; i++){
+			 BigFac(new BigInteger(nAsString));
+		}
+		long end2 = System.currentTimeMillis();
+		
+		System.err.println(iterations+"x fac(" + n + ")    = " + fac(n) + " (" + (end1 - start1) + " millis)");
+		System.err.println(iterations+"x BigFac(" + n + ") = " + BigFac(new BigInteger(nAsString)) + " (" + (end2 - start2) + " millis)");
+	}
 }

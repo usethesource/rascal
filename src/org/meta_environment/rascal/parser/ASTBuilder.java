@@ -2,13 +2,13 @@ package org.meta_environment.rascal.parser;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.meta_environment.rascal.ast.ASTFactory;
@@ -68,7 +68,7 @@ public class ASTBuilder {
 	
 	private List<AbstractAST> buildList(IConstructor in)  {
 		IList args = new TreeAdapter(in).getListASTArgs();
-		List<AbstractAST> result = new LinkedList<AbstractAST>();
+		List<AbstractAST> result = new ArrayList<AbstractAST>();
 		for (IValue arg: args) {
 			result.add(buildValue(arg));
 		}
@@ -124,7 +124,7 @@ public class ASTBuilder {
 	private AbstractAST buildAmbNode(INode node, ISet alternatives) {
 		try {
 			String sort = null;
-			List<AbstractAST> alts = new LinkedList<AbstractAST>();
+			List<AbstractAST> alts = new ArrayList<AbstractAST>();
 
 			for (IValue elem : alternatives) {
 				TreeAdapter alt = new TreeAdapter((IConstructor) elem);

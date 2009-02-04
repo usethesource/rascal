@@ -1,5 +1,8 @@
 package benchmark.Fibonacci;
 
+/**
+ * NOTE: You may not be testing what you thing you are testing (HotSpot may mess the test up).
+ */
 public class Fibonacci {
 
 	/**
@@ -8,11 +11,21 @@ public class Fibonacci {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		int n = 20;
-		double start = System.currentTimeMillis();
-		int result = fib(n);
-		double used = System.currentTimeMillis() - start;
+		int iterations = 100000;
 		
-		System.err.println("fib(" + n + ") = " + result + " (" + used + " millis)");
+		// Warmup
+		for(int i = 0; i < 20000; i++){
+			fib(n);
+		}
+		
+		// Test
+		long start = System.currentTimeMillis();
+		for(int i = 0; i < iterations; i++){
+			fib(n);
+		}
+		long used = System.currentTimeMillis() - start;
+		
+		System.err.println(iterations+"x fib(" + n + ") = " + fib(n) + " (" + used + " millis)");
 	}
 	
 	public static int fib(int n)

@@ -1,8 +1,8 @@
 package org.meta_environment.rascal.interpreter.env;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -75,7 +75,7 @@ public class ModuleEnvironment extends Environment {
 		// may be visible in one of its imported modules.
 		
 		if (result == null) {
-			List<EvalResult> results = new LinkedList<EvalResult>();
+			List<EvalResult> results = new ArrayList<EvalResult>();
 			for (String i : getImports()) {
 				// imports are not transitive!
 				ModuleEnvironment module = GlobalEnvironment.getInstance().getModule(i);
@@ -128,7 +128,7 @@ public class ModuleEnvironment extends Environment {
 		FunctionDeclaration result = super.getFunction(name, types, h);
 		
 		if (result == null) {
-			List<FunctionDeclaration> results = new LinkedList<FunctionDeclaration>();
+			List<FunctionDeclaration> results = new ArrayList<FunctionDeclaration>();
 			for (String i : getImports()) {
 				// imports are not transitive!
 				ModuleEnvironment module = GlobalEnvironment.getInstance().getModule(i);
@@ -257,7 +257,7 @@ public class ModuleEnvironment extends Environment {
 		List<Type> tmp = signature.get(decl);
 		
 		if (tmp == null) {
-			tmp = new LinkedList<Type>();
+			tmp = new ArrayList<Type>();
 			signature.put(decl, tmp);
 		}
 		
@@ -272,7 +272,7 @@ public class ModuleEnvironment extends Environment {
 		List<Type> tmp = signature.get(adt);
 		
 		if (tmp == null) {
-			tmp = new LinkedList<Type>();
+			tmp = new ArrayList<Type>();
 			signature.put(adt, tmp);
 		}
 		
@@ -283,7 +283,7 @@ public class ModuleEnvironment extends Environment {
 		List<Type> tmp = extensions.get(adt);
 		
 		if (tmp == null) {
-			tmp = new LinkedList<Type>();
+			tmp = new ArrayList<Type>();
 			extensions.put(adt, tmp);
 		}
 		

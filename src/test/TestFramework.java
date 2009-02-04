@@ -1,6 +1,5 @@
 package test;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -92,7 +91,7 @@ public class TestFramework {
 	
 	
 	boolean prepareModule(String module) throws IOException {
-		IConstructor tree = parser.parse(new ByteArrayInputStream(module.getBytes()));
+		IConstructor tree = parser.parseFromString(module);
 		if (tree.getType() == Factory.ParseTree_Summary) {
 			System.err.println(tree);
 			return false;
@@ -106,7 +105,7 @@ public class TestFramework {
 	}
 
 	private boolean execute(String command) throws IOException {
-		IConstructor tree = parser.parse(new ByteArrayInputStream(command.getBytes()));
+		IConstructor tree = parser.parseFromString(command);
 
 		if (tree.getConstructorType() == Factory.ParseTree_Summary) {
 			System.err.println(tree);
