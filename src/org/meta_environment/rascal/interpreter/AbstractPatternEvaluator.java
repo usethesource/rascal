@@ -696,8 +696,6 @@ class SingleElementGenerator implements Iterator<ISet> {
 	private boolean[] isSetVar;				// Is this a set variables?			
 	private Iterator<?>[] varGen;				// Value generator for this variables
 	
-	private int[] varOrder;					// The variables are reordered for matching
-												// (non-list variables come first since they must match a single element)
 	private int currentVar;					// The currently matched variable
 
 	private boolean hasNext;					// Has pattern more matches?
@@ -745,24 +743,42 @@ class SingleElementGenerator implements Iterator<ISet> {
 		return false;
 	}
 	
-	// Compute a variable ordering: element variables should go before list variables
-	// since element variables may not be empty.
+	// Sort the variables: element variables and non-literal patterns should 
+	// go before list variables since only set variables may be empty.
 	
-	private void makeVarOrder(){
-		int i = 0;
+	private void sortVars(){
+		String[] newVarName = new String[patternSize];
+		ISet[]newVarVal= new ISet[patternSize];
+		AbstractPattern[] newVarPat = new AbstractPattern[patternSize];
+		boolean[] newIsSetVar = new boolean[patternSize];
 		
-		for(int j = 0; j < nVar; j++){
-			if(!isSetVar[j]){
-				varOrder[i++] = j;
-				
+		int nw = 0;
+		for(int i = 0; i < nVar; i++){
+			if(!isSetVar[i]){
+				newVarName[nw] = varName[i];
+				newVarVal[nw] = varVal[i];
+				newVarPat[nw] = varPat[i];
+				newIsSetVar[nw] = isSetVar[i];
+				nw++;
 			}
 		}
-		for(int j = 0; j < nVar; j++){
-			if(isSetVar[j]){
-				varOrder[i++] = j;
+		for(int i = 0; i < nVar; i++){
+			if(isSetVar[i]){
+				newVarName[nw] = varName[i];
+				newVarVal[nw] = varVal[i];
+				newVarPat[nw] = varPat[i];
+				newIsSetVar[nw] = isSetVar[i];
+				nw++;
 			}
 		}
-		assert i == nVar;
+		
+		assert nw == nVar;
+		for(int i = 0; i < nVar; i++){
+			varName[i] = newVarName[i];
+			varVal[i] = newVarVal[i];
+			varPat[i] = newVarPat[i];
+			isSetVar[i] = newIsSetVar[i];
+		}
 	}
 	
 	@Override
@@ -786,7 +802,6 @@ class SingleElementGenerator implements Iterator<ISet> {
 		varVal = new ISet[patternSize];
 		varPat = new AbstractPattern[patternSize];
 		varGen = new Iterator<?>[patternSize];
-		varOrder = new int[patternSize];
 		/*
 		 * Pass #1: determine the (ordinary and set) variables in the pattern
 		 */
@@ -866,7 +881,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 		firstMatch = true;
 		hasNext = fixedSetElements.isSubSet(setSubject);
 		availableSetElements = setSubject.subtract(fixedSetElements);
-		makeVarOrder();
+		sortVars();
 	}
 	
 	@Override
@@ -877,7 +892,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 	private ISet available(){
 		ISet avail = availableSetElements;
 		for(int j = 0; j < currentVar; j++){
-			avail = avail.subtract(varVal[varOrder[j]]);
+			avail = avail.subtract(varVal[j]);
 		}
 		return avail;
 	}
@@ -931,7 +946,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 			}
 			
 			currentVar = 0;
-			if(!makeGen(varOrder[currentVar], availableSetElements)){
+			if(!makeGen(currentVar, availableSetElements)){
 				return false;
 			}
 		} else {
@@ -943,19 +958,17 @@ class SingleElementGenerator implements Iterator<ISet> {
 	
 		do {
 			do {
-				//System.err.println("currentVar=" + currentVar + "; nSetVar=" + nVar);
-				int ocurrentVar = varOrder[currentVar];
-				if(varGen[ocurrentVar].hasNext() &&	storeVar(ocurrentVar, (ISet)varGen[ocurrentVar].next())){
+				System.err.println("currentVar=" + currentVar + "; nSetVar=" + nVar);
+				if(varGen[currentVar].hasNext() &&	storeVar(currentVar, (ISet)varGen[currentVar].next())){
 					currentVar++;
 					if(currentVar < nVar - 1){
-						ocurrentVar = varOrder[currentVar];
-						if(!makeGen(ocurrentVar, available())){
-							varGen[ocurrentVar] = null;
+						if(!makeGen(currentVar, available())){
+							varGen[currentVar] = null;
 							currentVar--;
 						}
 					}
 				} else {
-					varGen[ocurrentVar] = null;
+					varGen[currentVar] = null;
 					currentVar--;
 				}
 			} while(currentVar >= 0 && currentVar < nVar -1);
@@ -966,7 +979,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 				return false;
 			}
 			currentVar = nVar - 1;
-		} while (!storeVar(varOrder[currentVar], available()));
+		} while (!storeVar(currentVar, available()));
 
 		return true;
 	}			
