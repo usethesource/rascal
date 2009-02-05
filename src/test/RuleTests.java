@@ -9,7 +9,7 @@ public class RuleTests extends TestCase {
 	
 	public void testBool() throws IOException {
 		
-		tf = new TestFramework("import Bool-abstract-rules;");
+		tf = new TestFramework("import \\Bool-abstract-rules;");
 		
 		assertTrue(tf.runTestInSameEvaluator("btrue == btrue;"));
 		assertTrue(tf.runTestInSameEvaluator("bfalse == bfalse;"));
@@ -32,7 +32,7 @@ public class RuleTests extends TestCase {
 	
 	public void testInteger() throws IOException {
 		
-		tf = new TestFramework("import Integer-abstract-rules;");
+		tf = new TestFramework("import \\Integer-abstract-rules;");
 		
 		assertTrue(tf.runTestInSameEvaluator("add(s(s(z)), s(s(s(z)))) == s(s(s(s(s(z)))));"));
 		assertTrue(tf.runTestInSameEvaluator("mul(s(s(z)), s(s(s(z)))) == s(s(s(s(s(s(z))))));"));
