@@ -27,28 +27,28 @@ data CharRange =
      single(int start) | range(int start, int end);
 
 data Symbol =
-     lit(str string) |
-     cilit(str string) | 
-     cf(Symbol symbol)  |
-     lex(Symbol symbol)  |
-     empty  |
-     seq(list[Symbol] symbols)  |
-     opt(Symbol symbol)  |
-     alt(Symbol lhs, Symbol rhs)  |
+     \lit(str string) |
+     \cilit(str string) | 
+     \cf(Symbol symbol)  |
+     \lex(Symbol symbol)  |
+     \empty  |
+     \seq(list[Symbol] symbols)  |
+     \opt(Symbol symbol)  |
+     \alt(Symbol lhs, Symbol rhs)  |
      \tuple(Symbol head, list[Symbol] rest)  |
-     sort (str string)  | 
-     iter-plus(Symbol symbol)  | 
-     iter-star(Symbol symbol)  | 
-     iter-plus-sep(Symbol symbol, Symbol separator)  | 
-     iter-start-sep(Symbol symbol, Symbol separator)  | 
-     iter-n(Symbol symbol, int number)  | 
-     iter-sep-n(Symbol symbol, Symbol separator, int number)  | 
-     func(list[Symbol] symbols, Symbol symbol)  | 
-     parameterized-sort(str sort, list[Symbol] parameters)  | 
-     strategy(Symbol lhs, Symbol rhs)  |
-     var-sym(Symbol symbol)  |
-     layout  | 
-     char-class(list[CharRange] ranges);
+     \sort (str string)  | 
+     \iter-plus(Symbol symbol)  | 
+     \iter-star(Symbol symbol)  | 
+     \iter-plus-sep(Symbol symbol, Symbol separator)  | 
+     \iter-start-sep(Symbol symbol, Symbol separator)  | 
+     \iter-n(Symbol symbol, int number)  | 
+     \iter-sep-n(Symbol symbol, Symbol separator, int number)  | 
+     \func(list[Symbol] symbols, Symbol symbol)  | 
+     \parameterized-sort(str sort, list[Symbol] parameters)  | 
+     \strategy(Symbol lhs, Symbol rhs)  |
+     \var-sym(Symbol symbol)  |
+     \layout  | 
+     \char-class(list[CharRange] ranges);
 
 /*
 str yield(Tree t) {
