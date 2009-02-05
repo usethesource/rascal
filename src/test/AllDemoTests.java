@@ -13,12 +13,12 @@ private static TestFramework tf = new TestFramework();
 	}
 	
 	public void testBoolAbstractRules() throws IOException {
-		tf = new TestFramework("import Bool-abstract-rules;");
+		tf = new TestFramework("import \\Bool-abstract-rules;");
 		assertTrue(tf.runTestInSameEvaluator("Bool-abstract-rules::test();"));
 	}
 	
 	public void testBoolAbstractVisit() throws IOException {
-		tf = new TestFramework("import Bool-abstract-visit;");
+		tf = new TestFramework("import \\Bool-abstract-visit;");
 		assertTrue(tf.runTestInSameEvaluator("Bool-abstract-visit::test();"));
 	}
 	
@@ -43,7 +43,7 @@ private static TestFramework tf = new TestFramework();
 	}
 	
 	public void testFunAbstract() throws IOException {
-		tf = new TestFramework("import Fun-abstract;");
+		tf = new TestFramework("import \\Fun-abstract;");
 		assertTrue(tf.runTestInSameEvaluator("Fun-abstract::test();"));
 	}
 	
@@ -58,7 +58,7 @@ private static TestFramework tf = new TestFramework();
 	}
 	
 	public void testIntegerAbstractRules() throws IOException {
-		tf = new TestFramework("import Integer-abstract-rules;");
+		tf = new TestFramework("import \\Integer-abstract-rules;");
 		assertTrue(tf.runTestInSameEvaluator("Integer-abstract-rules::testInt();"));
 	}
 	
