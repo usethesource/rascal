@@ -16,7 +16,7 @@ public &T average(set[&T] st, &T zero)
 
 public &T java getOneFrom(set[&T] st)
 @doc{getOneFrom -- pick a random element from a set}
-@java-imports{import java.util.Iterator;}
+@javaImports{import java.util.Iterator;}
 {
    int i = 0;
    int k = random.nextInt(st.size());
@@ -121,7 +121,7 @@ public &T sum(set[&T] st, &T zero)
 
 public tuple[&T, set[&T]] java takeOneFrom(set[&T] st)
 @doc{takeOneFrom -- remove an arbitrary element from a set, returns the element and the modified set}
-@java-imports{import java.util.Iterator;}
+@javaImports{import java.util.Iterator;}
 {
    int n = st.size();
    
@@ -148,7 +148,7 @@ public tuple[&T, set[&T]] java takeOneFrom(set[&T] st)
   
 public list[&T] java toList(set[&T] st)
 @doc{toList -- convert a set to a list}
-@java-imports{import java.util.Iterator;}
+@javaImports{import java.util.Iterator;}
 {
   Type resultType = types.listType(st.getElementType());
   IListWriter w = resultType.writer(values);
@@ -164,7 +164,7 @@ public list[&T] java toList(set[&T] st)
 
 public map[&A,&B] java toMap(set[tuple[&A, &B]] st)
 @doc{toMap -- convert a set of tuples to a map}
-@java-imports{import java.util.Iterator;}
+@javaImports{import java.util.Iterator;}
 {
    Type tuple = st.getElementType();
    Type resultType = types.mapType(tuple.getFieldType(0), tuple.getFieldType(1));

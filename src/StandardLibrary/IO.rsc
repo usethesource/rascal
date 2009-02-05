@@ -1,7 +1,7 @@
 module IO
 
 public void java println(value V...)
-@java-imports{import java.io.File;}
+@javaImports{import java.io.File;}
 {
    IList argList = (IList) V;
    for(int i = 0; i < argList.length(); i++){
@@ -19,7 +19,7 @@ public void java println(value V...)
 
 public list[str] java readFile(str filename)
 throws file_not_found(str msg), read_error(str msg)
-@java-imports
+@javaImports
 {
 	import java.io.File; 
 	import java.io.FileReader;

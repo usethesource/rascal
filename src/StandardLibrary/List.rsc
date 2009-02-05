@@ -222,7 +222,7 @@ public tuple[&T, list[&T]] java takeOneFrom(list[&T] lst)
 
 public map[&A,&B] java toMap(list[tuple[&A, &B]] lst)
 @doc{toMap -- convert a list of tuples to a map}
-@java-imports{import java.util.Iterator;}
+@javaImports{import java.util.Iterator;}
 {
    if(lst.length() == 0){
       return values.map(types.voidType(), types.voidType());
@@ -241,7 +241,7 @@ public map[&A,&B] java toMap(list[tuple[&A, &B]] lst)
 
 public set[&T] java toSet(list[&T] lst)
 @doc{toSet -- convert a list to a set}
-@java-imports{import java.util.Iterator;}
+@javaImports{import java.util.Iterator;}
 {
   Type resultType = types.setType(lst.getElementType());
   ISetWriter w = resultType.writer(values);

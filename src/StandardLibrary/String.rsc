@@ -2,7 +2,7 @@ module String
 
 public int java charAt(str s, int i) throws out_of_range(str msg)
 @doc{charAt -- return the character at position i in string s.}
-@java-imports{import java.lang.String;}
+@javaImports{import java.lang.String;}
 {
   try {
     return values.integer(s.getValue().charAt(i.getValue()));
@@ -15,14 +15,14 @@ public int java charAt(str s, int i) throws out_of_range(str msg)
 
 public bool java endsWith(str s, str suffix)
 @doc{endWith -- returns true if string s ends with given string suffix.}
-@java-imports{import java.lang.String;}
+@javaImports{import java.lang.String;}
 {
   return values.bool(s.getValue().endsWith(suffix.getValue()));
 }
 
 private str java format(str s, str dir, int n, str pad)
 @doc{format -- return string of length n, with s placed according to dir (left/center/right) and padded with pad}
-@java-imports{
+@javaImports{
 	import java.lang.String;
 	import java.lang.StringBuffer;
 }
@@ -106,7 +106,7 @@ public str right(str s, int n, str pad)
 
 public str java reverse(str s)
 @doc{reverse -- return string with all characters in reverse order.}
-@java-imports{import java.lang.String;}
+@javaImports{import java.lang.String;}
 {
    String sval = s.getValue();
    char [] chars = new char[sval.length()];
@@ -120,28 +120,28 @@ public str java reverse(str s)
 
 public int java size(str s)
 @doc{size -- return the length of string s.}
-@java-imports{import java.lang.String;}
+@javaImports{import java.lang.String;}
 {
   return values.integer(s.getValue().length());
 }
 
 public bool java startsWith(str s, str prefix)
 @doc{startsWith -- return true if string s starts with the string prefix.}
-@java-imports{import java.lang.String;}
+@javaImports{import java.lang.String;}
 {
   return values.bool(s.getValue().startsWith(prefix.getValue()));
 }
 
 public str java toLowerCase(str s)
 @doc{toLowerCase -- convert all characters in string s to lowercase.}
-@java-imports{import java.lang.String;}
+@javaImports{import java.lang.String;}
 {
   return values.string(s.getValue().toLowerCase());
 }
 
 public str java toUpperCase(str s)
 @doc{toUpperCase -- convert all characters in string s to uppercase.}
-@java-imports{import java.lang.String;}
+@javaImports{import java.lang.String;}
 {
   return values.string(s.getValue().toUpperCase());
 }

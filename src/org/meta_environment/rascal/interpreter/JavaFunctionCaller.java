@@ -42,7 +42,7 @@ import org.meta_environment.rascal.interpreter.exceptions.RascalException;
 import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
 
 public class JavaFunctionCaller {
-	private static final String JAVA_IMPORTS_TAG = "java-imports";
+	private static final String JAVA_IMPORTS_TAG = "javaImports";
 	private static final String UNWANTED_MESSAGE_PREFIX = "org/meta_environment/rascal/java/";
 	private static final String UNWANTED_MESSAGE_POSTFIX = "\\.java:";
 	private static final String METHOD_NAME = "call";

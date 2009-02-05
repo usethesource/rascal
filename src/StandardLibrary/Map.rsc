@@ -1,7 +1,7 @@
 module Map
 
 public &K java arb(map[&K, &V] m)  
-@java-imports{import java.util.Iterator;import java.util.Map.Entry; }
+@javaImports{import java.util.Iterator;import java.util.Map.Entry; }
 {
    int i = 0;
    int k = random.nextInt(m.size());
@@ -19,7 +19,7 @@ public &K java arb(map[&K, &V] m)
 
 public set[&K] java domain(map[&K, &V] M)
 @doc{domain -- return the domain (keys) of a map}
-@java-imports{
+@javaImports{
 	import java.util.Iterator;
 	import java.util.Map.Entry;
 }
@@ -42,7 +42,7 @@ public map[&K, &V] mapper(map[&K, &V] M, &K (&K) F, &V (&V) G){
 
 public set[&V] java range(map[&K, &V] M)
 @doc{range -- return the range (values) of a map}
-@java-imports{
+@javaImports{
 	import java.util.Iterator;
 	import java.util.Map.Entry;
 }
@@ -66,7 +66,7 @@ public int java size(map[&K, &V] M)
 
 public list[tuple[&K, &V]] java toList(map[&K, &V] M)
 @doc{toList -- convert a map to a list}
-@java-imports{
+@javaImports{
 	import java.util.Iterator;
 	import java.util.Map.Entry;
 }
@@ -87,7 +87,7 @@ public list[tuple[&K, &V]] java toList(map[&K, &V] M)
 
 public rel[&K, &V] java toRel(map[&K, &V] M)
 @doc{toRel -- convert a map to a relation}
-@java-imports{
+@javaImports{
 	import java.util.Iterator;
 	import java.util.Map.Entry;
 }
