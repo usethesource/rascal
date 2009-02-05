@@ -85,8 +85,8 @@ interface MatchPattern {
 		return initialized && firstMatch;
 	}
 	
-	public boolean containsVariables(){
-		return false;
+	public java.util.List<String> getVariables(){
+		return new java.util.LinkedList<String>();
 	}
 	
 	abstract public IValue toIValue(Evaluator ev);
@@ -194,12 +194,12 @@ interface MatchPattern {
 	}
 
 	@Override
-	public boolean containsVariables(){
+	public java.util.List<String> getVariables(){
+		java.util.LinkedList<String> res = new java.util.LinkedList<String> ();
 		for (int i = 0; i < children.size(); i++) {
-			 if(children.get(i).containsVariables())
-				 return true;
+			res.addAll(children.get(i).getVariables());
 		 }
-		return false;
+		return res;
 	}
 	
 	public boolean next(){
@@ -258,12 +258,12 @@ interface MatchPattern {
 	}
 	
 	@Override
-	public boolean containsVariables(){
+	public java.util.List<String> getVariables(){
+		java.util.LinkedList<String> res = new java.util.LinkedList<String> ();
 		for (int i = 0; i < children.size(); i++) {
-			 if(children.get(i).containsVariables())
-				 return true;
+			res.addAll(children.get(i).getVariables());
 		 }
-		return false;
+		return res;
 	}
 	
 	public IValue toIValue(Evaluator ev){
@@ -733,12 +733,12 @@ class SingleElementGenerator implements Iterator<ISet> {
 	}
 	
 	@Override
-	public boolean containsVariables(){
+	public java.util.List<String> getVariables(){
+		java.util.LinkedList<String> res = new java.util.LinkedList<String> ();
 		for (int i = 0; i < children.size(); i++) {
-			 if(children.get(i).containsVariables())
-				 return true;
+			res.addAll(children.get(i).getVariables());
 		 }
-		return false;
+		return res;
 	}
 	
 	// Sort the variables: element variables and non-literal patterns should 
@@ -860,8 +860,9 @@ class SingleElementGenerator implements Iterator<ISet> {
 				if(!childType.isSubtypeOf(subjectElementType)){
 					throw new RascalTypeError(child + " not allowed in pattern of type " + setSubject.getType());
 				}
-				if(child.containsVariables()){
-					allVars.add(child.toString());
+				java.util.List<String> childVars = child.getVariables();
+				if(!childVars.isEmpty()){
+					allVars.addAll(childVars);
 					varName[nVar] = child.toString();
 					varPat[nVar] = child;
 					isSetVar[nVar] = false;
@@ -977,9 +978,11 @@ class SingleElementGenerator implements Iterator<ISet> {
 				return false;
 			}
 			currentVar = nVar - 1;
-		} while (!storeVar(currentVar, available()));
-
-		return true;
+			if(storeVar(currentVar, available()))
+				return true;
+			currentVar--;
+			
+		} while (true);
 	}			
 }
 
@@ -991,12 +994,12 @@ class SingleElementGenerator implements Iterator<ISet> {
 	}
 	
 	@Override
-	public boolean containsVariables(){
+	public java.util.List<String> getVariables(){
+		java.util.LinkedList<String> res = new java.util.LinkedList<String> ();
 		for (int i = 0; i < children.size(); i++) {
-			 if(children.get(i).containsVariables())
-				 return true;
+			res.addAll(children.get(i).getVariables());
 		 }
-		return false;
+		return res;
 	}
 	
 	public IValue toIValue(Evaluator ev){
@@ -1050,12 +1053,12 @@ class SingleElementGenerator implements Iterator<ISet> {
 	}
 	
 	@Override
-	public boolean containsVariables(){
+	public java.util.List<String> getVariables(){
+		java.util.LinkedList<String> res = new java.util.LinkedList<String> ();
 		for (int i = 0; i < children.size(); i++) {
-			 if(children.get(i).containsVariables())
-				 return true;
+			res.addAll(children.get(i).getVariables());
 		 }
-		return false;
+		return res;
 	}
 	
 	public IValue toIValue(Evaluator ev){
@@ -1096,8 +1099,10 @@ class SingleElementGenerator implements Iterator<ISet> {
 		return type;
 	}
 	
-	public boolean containsVariables(){
-		return true;
+	public java.util.List<String> getVariables(){
+		java.util.LinkedList<String> res = new java.util.LinkedList<String>();
+		res.addFirst(name.toString());
+		return res;
 	}
 	
 	public IValue toIValue(Evaluator ev){
@@ -1153,8 +1158,10 @@ class SingleElementGenerator implements Iterator<ISet> {
 		return declaredType;
 	}
 	
-	public boolean containsVariables(){
-		return true;
+	public java.util.List<String> getVariables(){
+		java.util.LinkedList<String> res = new java.util.LinkedList<String>();
+		res.addFirst(name.toString());
+		return res;
 	}
 	
 	public IValue toIValue(Evaluator ev){
