@@ -2,8 +2,11 @@ package org.meta_environment.rascal.parser;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
+import java.security.AccessController;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
@@ -12,13 +15,14 @@ import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.meta_environment.uptr.Factory;
 
 import sglr.SGLRInvoker;
+import sun.security.action.GetPropertyAction;
 
 /**
  * Parses a Rascal program and a UPTR node.
  */
 public class Parser{
-	private final static String PARSETABLE_PROPERTY = "rascal.parsetable.file";
-	private final static String PARSETABLE_FILENAME = "resources/rascal.trm.tbl";
+	public final static String PARSETABLE_PROPERTY = "rascal.parsetable.file";
+	public final static String PARSETABLE_FILENAME = "resources/rascal.trm.tbl";
 	
 	private Parser(){
 		super();
@@ -63,8 +67,43 @@ public class Parser{
 		String parseTableFile = System.getProperty(PARSETABLE_PROPERTY, PARSETABLE_FILENAME);
 		File table = new File(parseTableFile);
 		
-		if(!table.exists()) throw new IOException("Could not locate parse table ("+PARSETABLE_FILENAME+").");
+		if(!table.exists()) {
+			String loc = extractParsetable();
+			table = new File(loc);
+			
+			if (!table.exists()) {
+				throw new IOException("Could not locate parse table ("+PARSETABLE_FILENAME+").");
+			}
+		}
 		
 		return table.getPath();
 	}
+	
+	private String extractParsetable() throws IOException {
+		URL url = Parser.class.getResource("/" + PARSETABLE_FILENAME);
+		InputStream contents = url.openStream();
+		
+		GetPropertyAction a = new GetPropertyAction("java.io.tmpdir");
+		String tmpdir = ((String) AccessController.doPrivileged(a));
+		File tmp = new File(tmpdir +  "/rascal.trm.tbl");
+		
+		if (!tmp.exists()) {
+			tmp.createNewFile();
+
+			FileOutputStream s = new FileOutputStream(tmp);
+			byte[] buf = new byte[1024];
+			int count = 0;
+
+			while ((count = contents.read(buf)) >= 0) {
+				s.write(buf, 0, count);
+			}
+			
+			s.flush();
+			s.close();
+			contents.close();
+		}
+		
+		return tmp.getPath();
+	}
+
 }
