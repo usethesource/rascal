@@ -437,6 +437,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		
 		try {
 			String fileName = name.replaceAll("::","/") + RASCAL_FILE_EXT;
+			fileName = fileName.replace('\\', ' '); // workaround bug in replaceAll
+	        fileName = fileName.replaceAll(" ", "");
 			File file = new File(fileName);
 			
 			// TODO: support proper search path for modules
