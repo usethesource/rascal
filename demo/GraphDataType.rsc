@@ -16,19 +16,19 @@ data Shape = box | circle | diamond | egg | elipse | hexagon |
 
 data Direction = forward | back | both | none;
 
-data Attribute = bounding-box(Point first, Point second);
-data Attribute = color(Color color);
-data Attribute = curve-points(Polygon points);
-data Attribute = direction(Direction direction);
-data Attribute = fill-color(Color color);
-data Attribute = info(str key, value val);
-data Attribute = label(str label);
-data Attribute = tooltip(str tooltip);
-data Attribute = location(int x, int y);
-data Attribute = shape(Shape shape);
-data Attribute = size(int width, int height);
-data Attribute = style(Style style);
-data Attribute = level(str level);
+data Attribute = \bounding-box(Point first, Point second);
+data Attribute = \color(Color color);
+data Attribute = \curve-points(Polygon points);
+data Attribute = \direction(Direction direction);
+data Attribute = \fill-color(Color color);
+data Attribute = \info(str key, value val);
+data Attribute = \label(str label);
+data Attribute = \tooltip(str tooltip);
+data Attribute = \location(int x, int y);
+data Attribute = \shape(Shape shape);
+data Attribute = \size(int width, int height);
+data Attribute = \style(Style style);
+data Attribute = \level(str level);
 data Attribute = \file(File \file);
 
 alias AttributeList = list[Attribute] ;

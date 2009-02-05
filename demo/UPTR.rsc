@@ -14,14 +14,14 @@ data Production =
      \list(Symbol rhs);
 
 data Attributes = 
-     no-attrs | attrs(list[Attr] attrs);
+     \no-attrs | \attrs(list[Attr] attrs);
 
 data Attr =
      assoc(Associativity assoc) | term(value term) |
      id(str moduleName) | bracket | reject | prefer | avoid;
 
 data Associativity =
-     left | right | assoc | non-assoc;
+     \left | \right | \assoc | \non-assoc;
 
 data CharRange =
      single(int start) | range(int start, int end);
