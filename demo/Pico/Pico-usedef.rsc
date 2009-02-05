@@ -1,4 +1,4 @@
-module Pico-use-def
+module \Pico-use-def
 
 import pico/syntax/Pico;
 

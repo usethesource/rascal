@@ -1,4 +1,4 @@
-module Bool-conc-rules
+module \Bool-conc-rules
 
 import languages/Booleans/syntax;
 

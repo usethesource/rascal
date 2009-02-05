@@ -1,4 +1,4 @@
-module Pico-controlflow
+module \Pico-controlflow
  
 import pico/syntax/Pico;
 

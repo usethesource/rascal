@@ -1,4 +1,4 @@
-module Pico-reaching-defs
+module \Pico-reaching-defs
 
 alias tuple[Stat theStat, Var theVar] Def;
 alias tuple[Stat theStat, Var theVar] Use;

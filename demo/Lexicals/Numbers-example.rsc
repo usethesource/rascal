@@ -1,4 +1,4 @@
-module Numbers-example
+module \Numbers-example
 
 rule n1 number("0" <Digit+ Ds>) => number(<Ds>);
 
