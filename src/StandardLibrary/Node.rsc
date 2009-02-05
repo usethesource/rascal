@@ -8,7 +8,7 @@ public int java arity(node T)
 
 public list[value] java getChildren(node T)
 @doc{getChildren -- get the children of a node}
-@java-imports{import java.util.Iterator;}
+@javaImports{import java.util.Iterator;}
 {
 	Iterator iter = T.getChildren().iterator();
 	Type resultType = types.listType(types.valueType());

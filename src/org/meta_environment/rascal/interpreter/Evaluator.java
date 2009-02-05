@@ -156,6 +156,9 @@ import org.meta_environment.rascal.ast.Toplevel.DefaultVisibility;
 import org.meta_environment.rascal.ast.Toplevel.GivenVisibility;
 import org.meta_environment.rascal.ast.Visit.DefaultStrategy;
 import org.meta_environment.rascal.ast.Visit.GivenStrategy;
+import org.meta_environment.rascal.errors.ErrorAdapter;
+import org.meta_environment.rascal.errors.SubjectAdapter;
+import org.meta_environment.rascal.errors.SummaryAdapter;
 import org.meta_environment.rascal.interpreter.env.ClosureResult;
 import org.meta_environment.rascal.interpreter.env.EnvironmentHolder;
 import org.meta_environment.rascal.interpreter.env.EvalResult;
@@ -472,8 +475,8 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 			
 			IConstructor tree = p.parseFromFile(file);
 			
-			if (tree.getType() == Factory.ParseTree_Summary) {
-				throw new RascalTypeError("Parse error in module " + name + ":\n" + tree);
+			if (tree.getConstructorType() == Factory.ParseTree_Summary) {
+				throw new RascalTypeError(parseError(tree, name));
 			}
 			
 			Module m = b.buildModule(tree);
@@ -494,6 +497,24 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		}
 		}
 		return result();
+	}
+	
+	private String parseError(IConstructor tree, String file) {
+		ISourceRange range = getErrorRange(new SummaryAdapter(tree));
+		
+	    return "parse error in " + file + " at line " + range.getEndLine() + ", column " + range.getEndColumn() + "\n";
+	}
+	
+	private ISourceRange getErrorRange(SummaryAdapter summaryAdapter) {
+		for (ErrorAdapter error : summaryAdapter) {
+			for (SubjectAdapter subject : error) {
+				if (subject.isLocalized()) {
+					return subject.getRange();
+				}
+			}
+		}
+		
+		return null;
 	}
 	
 	@Override 
