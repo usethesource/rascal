@@ -1,9 +1,9 @@
-module Pico-uninit
+module \Pico-uninit
 
 import pico/syntax/Pico;
 
-import Pico-controlflow;
-import Pico-use-def;
+import \Pico-controlflow;
+import \Pico-use-def;
 
 set[PICO-ID] uninit(PROGRAM P) {
     rel[EXP,PICO-ID] Uses = uses(P);

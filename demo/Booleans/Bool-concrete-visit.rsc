@@ -1,4 +1,4 @@
-module Bool-examples1
+module \Bool-examples1
 
 import languages/Booleans/syntax;
 

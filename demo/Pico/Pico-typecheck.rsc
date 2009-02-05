@@ -1,6 +1,6 @@
 module Typecheck
 
-import Pico-syntax;
+import \Pico-syntax;
 import Errors;
 
 alias map[PICO-ID,TYPE] Env;

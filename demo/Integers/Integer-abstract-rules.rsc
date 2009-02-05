@@ -1,6 +1,6 @@
-module Integer-abstract-rules
+module \Integer-abstract-rules
 
-import Bool-abstract-rules;
+import \Bool-abstract-rules;
 
 data Integer = z | s(Integer arg);
 

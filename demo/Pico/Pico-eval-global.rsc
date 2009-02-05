@@ -1,4 +1,4 @@
-module Pico-eval
+module \Pico-eval
 
 import pico/syntax/Pico;
 

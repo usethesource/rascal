@@ -1,8 +1,8 @@
-module Pico-constant-propagation
+module \Pico-constant-propagation
 
 import  pico/syntax/Pico;
-import  Pico-controlflow;
-import  Pico-use-def;
+import  \Pico-controlflow;
+import  \Pico-use-def;
 
 Boolean is_constant(EXP E) {
    switch (E) {

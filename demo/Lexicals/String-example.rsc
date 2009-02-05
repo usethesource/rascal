@@ -1,4 +1,4 @@
-module String-example
+module \String-example
 
 String removeFirstNL(String S){
     switch (S) {

@@ -1,8 +1,8 @@
-module Pico-common-subexpression
+module \Pico-common-subexpression
 
 import pico/syntax/Pico;
-import Pico-controlflow;
-import Pico-use-def;
+import \Pico-controlflow;
+import \Pico-use-def;
 
 PROGRAM cse(PROGRAM P) {
     rel[PICO-ID, STATEMENT] Defs = defs(P);

@@ -1,4 +1,4 @@
-module Fun-abstract
+module \Fun-abstract
 
 import Integer;
 import IO;
