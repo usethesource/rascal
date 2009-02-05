@@ -63,7 +63,32 @@ private org.meta_environment.rascal.ast.TypeArg typeArg;
  		z.$setTypeArg(x);
 		return z;
 	}	
-} public abstract <T> T accept(IASTVisitor<T> visitor); public org.meta_environment.rascal.ast.TypeArg getFirst() { throw new UnsupportedOperationException(); }
+} public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isBag() { return false; }
+static public class Bag extends StructuredType {
+/* "bag" "[" typeArg:TypeArg "]" -> StructuredType {cons("Bag")} */
+	private Bag() { }
+	/*package*/ Bag(INode node, org.meta_environment.rascal.ast.TypeArg typeArg) {
+		this.node = node;
+		this.typeArg = typeArg;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitStructuredTypeBag(this);
+	}
+
+	public boolean isBag() { return true; }
+
+	public boolean hasTypeArg() { return true; }
+
+private org.meta_environment.rascal.ast.TypeArg typeArg;
+	public org.meta_environment.rascal.ast.TypeArg getTypeArg() { return typeArg; }
+	private void $setTypeArg(org.meta_environment.rascal.ast.TypeArg x) { this.typeArg = x; }
+	public Bag setTypeArg(org.meta_environment.rascal.ast.TypeArg x) { 
+		Bag z = new Bag();
+ 		z.$setTypeArg(x);
+		return z;
+	}	
+} 
+public org.meta_environment.rascal.ast.TypeArg getFirst() { throw new UnsupportedOperationException(); }
 	public org.meta_environment.rascal.ast.TypeArg getSecond() { throw new UnsupportedOperationException(); }
 public boolean hasFirst() { return false; }
 	public boolean hasSecond() { return false; }
@@ -147,6 +172,30 @@ private java.util.List<org.meta_environment.rascal.ast.TypeArg> arguments;
 	public Tuple setArguments(java.util.List<org.meta_environment.rascal.ast.TypeArg> x) { 
 		Tuple z = new Tuple();
  		z.$setArguments(x);
+		return z;
+	}	
+} public boolean isLex() { return false; }
+static public class Lex extends StructuredType {
+/* "lex" "[" typeArg:TypeArg "]" -> StructuredType {cons("Lex")} */
+	private Lex() { }
+	/*package*/ Lex(INode node, org.meta_environment.rascal.ast.TypeArg typeArg) {
+		this.node = node;
+		this.typeArg = typeArg;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitStructuredTypeLex(this);
+	}
+
+	public boolean isLex() { return true; }
+
+	public boolean hasTypeArg() { return true; }
+
+private org.meta_environment.rascal.ast.TypeArg typeArg;
+	public org.meta_environment.rascal.ast.TypeArg getTypeArg() { return typeArg; }
+	private void $setTypeArg(org.meta_environment.rascal.ast.TypeArg x) { this.typeArg = x; }
+	public Lex setTypeArg(org.meta_environment.rascal.ast.TypeArg x) { 
+		Lex z = new Lex();
+ 		z.$setTypeArg(x);
 		return z;
 	}	
 }

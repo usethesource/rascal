@@ -1,7 +1,7 @@
 package org.meta_environment.rascal.ast; 
 import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Name extends AbstractAST { 
-static public class Lexical extends Name {
+  static public class Lexical extends Name {
 	private String string;
 	/*package*/ Lexical(INode node, String string) {
 		this.node = node;
@@ -14,8 +14,7 @@ static public class Lexical extends Name {
  	public <T> T accept(IASTVisitor<T> v) {
      		return v.visitNameLexical(this);
   	}
-}
-static public class Ambiguity extends Name {
+} static public class Ambiguity extends Name {
   private final java.util.List<org.meta_environment.rascal.ast.Name> alternatives;
   public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Name> alternatives) {
 	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
@@ -28,5 +27,5 @@ static public class Ambiguity extends Name {
   public <T> T accept(IASTVisitor<T> v) {
      return v.visitNameAmbiguity(this);
   }
-}
+} public abstract <T> T accept(IASTVisitor<T> visitor);
 }
