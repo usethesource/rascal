@@ -229,16 +229,21 @@ public class PatternTests extends TestCase {
 		
 		assertTrue(tf.runTestInSameEvaluator("{a, b} := {a, b};"));
 		assertTrue(tf.runTestInSameEvaluator("({DATA X, b} := {a, b}) && (X == a);"));
+		
+		assertFalse(tf.runTestInSameEvaluator("({DATA X, DATA Y, c} := {a, b});"));
+		
 		assertTrue(tf.runTestInSameEvaluator("({e(int X), b} := {e(3), b}) && (X == 3);"));
 		assertTrue(tf.runTestInSameEvaluator("({e(int X)} := {e(3)}) && (X == 3);"));
 		assertFalse(tf.runTestInSameEvaluator("({e(int X)} := {a});"));
 		
 		assertTrue(tf.runTestInSameEvaluator("({a, f({a, b, DATA X})} := {a, f({a,b,c})}) && (X == c);"));
-		assertTrue(tf.runTestInSameEvaluator("({a, f({a, b, DATA X})} := {a, f({a,b,c})}) && (X == c);"));
+		assertTrue(tf.runTestInSameEvaluator("({f({a, b, DATA X}), a} := {a, f({a,b,c})}) && (X == c);"));
 		
 		assertTrue(tf.runTestInSameEvaluator("({a, f({a, b, DATA X}), set[DATA] Y} := {a, b, f({a,b,c})}) && (X == c && Y == {b});"));
 		assertTrue(tf.runTestInSameEvaluator("({DATA A, f({A, b, DATA X})} := {a, f({a,b,c})}) && (A == a);"));
 		assertTrue(tf.runTestInSameEvaluator("({DATA A, f({A, b, DATA X})} := {f({a,b,c}), a}) && (A == a);"));
+		
+		assertTrue(tf.runTestInSameEvaluator("({DATA A, f({A, b, set[DATA] SX}), SX} := {f({a,b,c}), a, c}) && (A == a) && (SX =={c});"));
 	
 	}
 		
