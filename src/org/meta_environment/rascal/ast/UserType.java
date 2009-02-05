@@ -3,7 +3,7 @@ import org.eclipse.imp.pdb.facts.INode;
 public abstract class UserType extends AbstractAST { 
   public org.meta_environment.rascal.ast.Name getName() { throw new UnsupportedOperationException(); } public boolean hasName() { return false; } public boolean isName() { return false; }
 static public class Name extends UserType {
-/* name:Name -> UserType {prefer, cons("Name")} */
+/* name:Name -> UserType {cons("Name")} */
 	private Name() { }
 	/*package*/ Name(INode node, org.meta_environment.rascal.ast.Name name) {
 		this.node = node;
@@ -39,12 +39,12 @@ static public class Ambiguity extends UserType {
   public <T> T accept(IASTVisitor<T> v) {
      return v.visitUserTypeAmbiguity(this);
   }
-} public java.util.List<org.meta_environment.rascal.ast.TypeVar> getParameters() { throw new UnsupportedOperationException(); } public boolean hasParameters() { return false; }
+} public java.util.List<org.meta_environment.rascal.ast.Type> getParameters() { throw new UnsupportedOperationException(); } public boolean hasParameters() { return false; }
 public boolean isParametric() { return false; }
 static public class Parametric extends UserType {
-/* name:Name "[" parameters:{TypeVar ","}+ "]" -> UserType {cons("Parametric")} */
+/* name:Name "[" parameters:{Type ","}+ "]" -> UserType {cons("Parametric")} */
 	private Parametric() { }
-	/*package*/ Parametric(INode node, org.meta_environment.rascal.ast.Name name, java.util.List<org.meta_environment.rascal.ast.TypeVar> parameters) {
+	/*package*/ Parametric(INode node, org.meta_environment.rascal.ast.Name name, java.util.List<org.meta_environment.rascal.ast.Type> parameters) {
 		this.node = node;
 		this.name = name;
 		this.parameters = parameters;
@@ -66,10 +66,10 @@ private org.meta_environment.rascal.ast.Name name;
  		z.$setName(x);
 		return z;
 	}
-	private java.util.List<org.meta_environment.rascal.ast.TypeVar> parameters;
-	public java.util.List<org.meta_environment.rascal.ast.TypeVar> getParameters() { return parameters; }
-	private void $setParameters(java.util.List<org.meta_environment.rascal.ast.TypeVar> x) { this.parameters = x; }
-	public Parametric setParameters(java.util.List<org.meta_environment.rascal.ast.TypeVar> x) { 
+	private java.util.List<org.meta_environment.rascal.ast.Type> parameters;
+	public java.util.List<org.meta_environment.rascal.ast.Type> getParameters() { return parameters; }
+	private void $setParameters(java.util.List<org.meta_environment.rascal.ast.Type> x) { this.parameters = x; }
+	public Parametric setParameters(java.util.List<org.meta_environment.rascal.ast.Type> x) { 
 		Parametric z = new Parametric();
  		z.$setParameters(x);
 		return z;

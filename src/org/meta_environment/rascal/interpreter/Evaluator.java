@@ -4,9 +4,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -172,7 +172,6 @@ import org.meta_environment.rascal.interpreter.exceptions.ReturnException;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
 import org.meta_environment.uptr.Factory;
-import org.meta_environment.rascal.interpreter.BooleanEvaluator;
 
 public class Evaluator extends NullASTVisitor<EvalResult> {
 	public static final String RASCAL_FILE_EXT = ".rsc";
@@ -632,14 +631,6 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		    else if (var.isNillaryConstructor()) {
 		    	env.storeConstructor(tf.constructor(sort, altName, new Object[] { }));
 		    }
-		    else if (var.isAnonymousConstructor()) {
-		    	// TODO remove syntactic support for anonymous constructors
-		    	throw new RascalBug("Anonymous constructors are not allowed anymore, have to change syntax");
-//		    	Type argType = var.getType().accept(te);
-//		    	String label = var.getName().toString();
-//		    	tf.extendAbstractDataType(sort, argType, label);
-//		    	env.storeDefinition(sort, argType);
-		    }
 		}
 		
 		return result();
@@ -652,12 +643,16 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		String user = x.getUser().getName().toString();
 		Type[] params;
 		if (x.getUser().isParametric()) {
-			java.util.List<TypeVar> formals = x.getUser().getParameters();
+			java.util.List<org.meta_environment.rascal.ast.Type> formals = x.getUser().getParameters();
 			params = new Type[formals.size()];
 			int i = 0;
-			for (TypeVar formal : formals) {
-				Type bound = formal.hasBound() ? formal.getBound().accept(te) : tf.valueType();
-				params[i++] = tf.parameterType(Names.name(formal.getName()), bound);
+			for (org.meta_environment.rascal.ast.Type formal : formals) {
+				if (!formal.isVariable()) {
+					throw new RascalTypeError("Declaration of parameterized type with type instance " + formal + " is not allowed");
+				}
+				TypeVar var = formal.getTypeVar();
+				Type bound = var.hasBound() ? var.getBound().accept(te) : tf.valueType();
+				params[i++] = tf.parameterType(Names.name(var.getName()), bound);
 			}
 		}
 		else {
@@ -1765,13 +1760,14 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		}
     }
 	
-	private boolean matchOne(IValue subj, org.meta_environment.rascal.ast.Expression pat){
-		//System.err.println("matchOne: subj=" + subj + ", pat= " + pat);
-		MatchPattern mp = evalPattern(pat);
-		lastPattern = mp;
-		mp.initMatch(subj, this);
-		return mp.next();
-	}
+    // TODO remove dead code
+//	private boolean matchOne(IValue subj, org.meta_environment.rascal.ast.Expression pat){
+//		//System.err.println("matchOne: subj=" + subj + ", pat= " + pat);
+//		MatchPattern mp = evalPattern(pat);
+//		lastPattern = mp;
+//		mp.initMatch(subj, this);
+//		return mp.next();
+//	}
 
 
 	// Expressions -----------------------------------------------------------
@@ -3213,26 +3209,14 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		return new TraverseResult(matched,result,changed);
 	}
 	
-	/*
+	/**
 	 * Replace an old subject by a new one as result of an insert statement.
 	 */
 	private TraverseResult replacement(IValue oldSubject, IValue newSubject){
-		Type oldType = oldSubject.getType();
-		Type newType = newSubject.getType();
-	
-		
-	  //TODO: PDB: Should AbstractDataType not be a subtype of NodeType?
-		//System.err.println("Replacing " + oldSubject + " by " + newSubject);
-		/*
-		if(!newType.isSubtypeOf(oldType)){
-			throw new RascalTypeError("Replacing " + oldType + " by " + newType + " value");
-		}
-		*/
-		
 		return new TraverseResult(true, newSubject, true);
 	}
 	
-	/*
+	/**
 	 * Loop over all cases or rules.
 	 */
 	

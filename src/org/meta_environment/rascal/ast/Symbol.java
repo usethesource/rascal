@@ -1,30 +1,18 @@
 package org.meta_environment.rascal.ast; 
 import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Symbol extends AbstractAST { 
-  public org.meta_environment.rascal.ast.Sort getSort() { throw new UnsupportedOperationException(); } public boolean hasSort() { return false; } public boolean isSort() { return false; }
-static public class Sort extends Symbol {
-/* sort:Sort -> Symbol {cons("Sort")} */
-	private Sort() { }
-	/*package*/ Sort(INode node, org.meta_environment.rascal.ast.Sort sort) {
+  public boolean isEmpty() { return false; }
+static public class Empty extends Symbol {
+/* "(" ")" -> Symbol {cons("Empty")} */
+	private Empty() { }
+	/*package*/ Empty(INode node) {
 		this.node = node;
-		this.sort = sort;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitSymbolSort(this);
+		return visitor.visitSymbolEmpty(this);
 	}
 
-	public boolean isSort() { return true; }
-
-	public boolean hasSort() { return true; }
-
-private org.meta_environment.rascal.ast.Sort sort;
-	public org.meta_environment.rascal.ast.Sort getSort() { return sort; }
-	private void $setSort(org.meta_environment.rascal.ast.Sort x) { this.sort = x; }
-	public Sort setSort(org.meta_environment.rascal.ast.Sort x) { 
-		Sort z = new Sort();
- 		z.$setSort(x);
-		return z;
-	}	
+	public boolean isEmpty() { return true; }	
 }
 static public class Ambiguity extends Symbol {
   private final java.util.List<org.meta_environment.rascal.ast.Symbol> alternatives;
@@ -39,53 +27,6 @@ static public class Ambiguity extends Symbol {
   public <T> T accept(IASTVisitor<T> v) {
      return v.visitSymbolAmbiguity(this);
   }
-} public java.util.List<org.meta_environment.rascal.ast.Symbol> getParameters() { throw new UnsupportedOperationException(); } public boolean hasParameters() { return false; }
-public boolean isParameterizedSort() { return false; }
-static public class ParameterizedSort extends Symbol {
-/* sort:Sort "[[" parameters:{Symbol ","}+ "]]" -> Symbol {cons("ParameterizedSort")} */
-	private ParameterizedSort() { }
-	/*package*/ ParameterizedSort(INode node, org.meta_environment.rascal.ast.Sort sort, java.util.List<org.meta_environment.rascal.ast.Symbol> parameters) {
-		this.node = node;
-		this.sort = sort;
-		this.parameters = parameters;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitSymbolParameterizedSort(this);
-	}
-
-	public boolean isParameterizedSort() { return true; }
-
-	public boolean hasSort() { return true; }
-	public boolean hasParameters() { return true; }
-
-private org.meta_environment.rascal.ast.Sort sort;
-	public org.meta_environment.rascal.ast.Sort getSort() { return sort; }
-	private void $setSort(org.meta_environment.rascal.ast.Sort x) { this.sort = x; }
-	public ParameterizedSort setSort(org.meta_environment.rascal.ast.Sort x) { 
-		ParameterizedSort z = new ParameterizedSort();
- 		z.$setSort(x);
-		return z;
-	}
-	private java.util.List<org.meta_environment.rascal.ast.Symbol> parameters;
-	public java.util.List<org.meta_environment.rascal.ast.Symbol> getParameters() { return parameters; }
-	private void $setParameters(java.util.List<org.meta_environment.rascal.ast.Symbol> x) { this.parameters = x; }
-	public ParameterizedSort setParameters(java.util.List<org.meta_environment.rascal.ast.Symbol> x) { 
-		ParameterizedSort z = new ParameterizedSort();
- 		z.$setParameters(x);
-		return z;
-	}	
-} public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isEmpty() { return false; }
-static public class Empty extends Symbol {
-/* "(" ")" -> Symbol {cons("Empty")} */
-	private Empty() { }
-	/*package*/ Empty(INode node) {
-		this.node = node;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitSymbolEmpty(this);
-	}
-
-	public boolean isEmpty() { return true; }	
 } 
 public org.meta_environment.rascal.ast.Symbol getHead() { throw new UnsupportedOperationException(); }
 	public java.util.List<org.meta_environment.rascal.ast.Symbol> getTail() { throw new UnsupportedOperationException(); }
@@ -125,7 +66,7 @@ private org.meta_environment.rascal.ast.Symbol head;
  		z.$setTail(x);
 		return z;
 	}	
-} public org.meta_environment.rascal.ast.Symbol getSymbol() { throw new UnsupportedOperationException(); } public boolean hasSymbol() { return false; } public boolean isOptional() { return false; } static public class Optional extends Symbol {
+} public abstract <T> T accept(IASTVisitor<T> visitor); public org.meta_environment.rascal.ast.Symbol getSymbol() { throw new UnsupportedOperationException(); } public boolean hasSymbol() { return false; } public boolean isOptional() { return false; } static public class Optional extends Symbol {
 /* symbol:Symbol "?" -> Symbol {cons("Optional")} */
 	private Optional() { }
 	/*package*/ Optional(INode node, org.meta_environment.rascal.ast.Symbol symbol) {
@@ -323,7 +264,7 @@ private org.meta_environment.rascal.ast.CharClass charClass;
 	}	
 } public boolean isLiftedSymbol() { return false; }
 static public class LiftedSymbol extends Symbol {
-/* "140" symbol:Symbol "140" -> Symbol {cons("LiftedSymbol")} */
+/* "`" symbol:Symbol "`" -> Symbol {cons("LiftedSymbol")} */
 	private LiftedSymbol() { }
 	/*package*/ LiftedSymbol(INode node, org.meta_environment.rascal.ast.Symbol symbol) {
 		this.node = node;
