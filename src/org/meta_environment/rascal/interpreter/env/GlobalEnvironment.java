@@ -122,7 +122,7 @@ public class GlobalEnvironment {
 	 * Retrieve a module from the heap
 	 */
 	public ModuleEnvironment getModule(String name) {
-		ModuleEnvironment result = moduleEnvironment.get(name);
+		ModuleEnvironment result = moduleEnvironment.get(Names.deescape(name));
 		
 		if (result == null) {
 			throw new RascalTypeError("No such module " + name);

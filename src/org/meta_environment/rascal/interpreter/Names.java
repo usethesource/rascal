@@ -16,6 +16,11 @@ public class Names {
 		return names.get(names.size() - 1);
 	}
 	
+	static public String deescape(String s) {
+		s = s.replace('\\', ' ');
+		return s.replaceAll(" ","");
+	}
+	
 	static public String moduleName(QualifiedName qname) {
 		List<Name> names = qname.getNames();
 		java.util.List<Name> prefix = names.subList(0, names.size() - 1);
@@ -34,17 +39,13 @@ public class Names {
 				tmp.append("::");
 			}
 		}
-
-		return tmp.toString();
+		
+		return deescape(tmp.toString());
 	}
 	
 	static public String name(Name name) {
 		String s = name.toString();
-		if (s.startsWith("\\")) {
-			s = s.substring(1);
-		}
-		
-		return s;
+		return deescape(s);
 	}
 	
 	static public String consName(QualifiedName qname) {

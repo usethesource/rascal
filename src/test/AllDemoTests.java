@@ -14,12 +14,12 @@ private static TestFramework tf = new TestFramework();
 	
 	public void testBoolAbstractRules() throws IOException {
 		tf = new TestFramework("import \\Bool-abstract-rules;");
-		assertTrue(tf.runTestInSameEvaluator("Bool-abstract-rules::test();"));
+		assertTrue(tf.runTestInSameEvaluator("\\Bool-abstract-rules::test();"));
 	}
 	
 	public void testBoolAbstractVisit() throws IOException {
 		tf = new TestFramework("import \\Bool-abstract-visit;");
-		assertTrue(tf.runTestInSameEvaluator("Bool-abstract-visit::test();"));
+		assertTrue(tf.runTestInSameEvaluator("\\Bool-abstract-visit::test();"));
 	}
 	
 	public void testBubble() throws IOException {
@@ -44,7 +44,7 @@ private static TestFramework tf = new TestFramework();
 	
 	public void testFunAbstract() throws IOException {
 		tf = new TestFramework("import \\Fun-abstract;");
-		assertTrue(tf.runTestInSameEvaluator("Fun-abstract::test();"));
+		assertTrue(tf.runTestInSameEvaluator("\\Fun-abstract::test();"));
 	}
 	
 	public void testGraphDataType() throws IOException {
@@ -59,7 +59,7 @@ private static TestFramework tf = new TestFramework();
 	
 	public void testIntegerAbstractRules() throws IOException {
 		tf = new TestFramework("import \\Integer-abstract-rules;");
-		assertTrue(tf.runTestInSameEvaluator("Integer-abstract-rules::testInt();"));
+		assertTrue(tf.runTestInSameEvaluator("\\Integer-abstract-rules::testInt();"));
 	}
 	
 	public void testLift() throws IOException {
