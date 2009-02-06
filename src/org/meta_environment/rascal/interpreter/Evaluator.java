@@ -3706,37 +3706,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		return x.getComprehension().accept(this);
 	}
 	
-	/*
-	 * SingleIValueIterator turns a single IValue into an Iterator that
-	 * can be used for implementing generators.
-	 */
-
-	private class SingleIValueIterator implements Iterator<IValue> {
-		private IValue value;
-		private boolean firstCall;
-		
-		SingleIValueIterator(IValue value){
-			this.value = value;
-			firstCall = true;
-		}
-
-		public boolean hasNext() {
-			
-			return firstCall;
-		}
-
-		public IValue next() {
-			if(!firstCall){
-				throw new RascalBug("next called more than once");
-			}
-			firstCall = false;
-			return value;
-		}
-
-		public void remove() {
-			// TODO Auto-generated method stub
-		}	
-	}
+	
 	
 	@Override
 	public EvalResult visitGeneratorExpression(
