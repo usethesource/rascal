@@ -939,6 +939,7 @@ public class Evaluator extends NullASTVisitor<EvalResult> {
 		Name name = x.getName();
 		Type formals = tf.voidType();
 		EnvironmentHolder h = new EnvironmentHolder();
+		// TODO is this a bug, what if name was overloaded?
 		FunctionDeclaration func = env.getFunction(Names.name(name), formals, h);
 		
 		if (func == null) {

@@ -7,7 +7,7 @@ import IO;
 
 public list[int] rev1 (list[int] L)
 {
-	if([int X, list[int] L1] ~= L)
+	if([int X, list[int] L1] := L)
 		return rev1(L1) + X;
     else
         return L;
@@ -15,7 +15,7 @@ public list[int] rev1 (list[int] L)
 
 public list[int] rev2 (list[int] L)
 {
-	if([list[int] L1, int X] ~= L)
+	if([list[int] L1, int X] := L)
 		return X + rev2(L1);
     else
         return L;
@@ -23,7 +23,7 @@ public list[int] rev2 (list[int] L)
 
 public list[int] rev3 (list[int] L)
 {
-	if([int X, list[int] L1, int Y] ~= L)
+	if([int X, list[int] L1, int Y] := L)
 		return Y + rev3(L1) + X;
     else
         return L;

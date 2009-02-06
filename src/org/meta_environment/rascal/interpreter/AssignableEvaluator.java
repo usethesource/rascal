@@ -46,6 +46,7 @@ import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
 	public EvalResult visitAssignableVariable(Variable x) {
 		String name = x.getQualifiedName().toString();
 		EvalResult previous = env.getVariable(name);
+		
 		if (previous != null) {
 			//System.err.println("AssignableVariable: " + x);
 			//System.err.println("previous.type = " + previous.type);
@@ -58,8 +59,15 @@ import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
 						+ " has type " + previous.type
 						+ "; cannot assign value of type " + value.type);
 			}
-		}	
-		env.storeVariable(name, value);
+			
+			env.storeVariable(name, value);
+		}
+		else {
+			env.top().storeVariable(name, value);
+		}
+		
+		// TODO implement semantics of global keyword, when not given the
+		// variable should be inserted in the local scope.
 		return value;
 	}
 	

@@ -7,13 +7,13 @@ import Benchmark;
  * Datatype NUM of numerals with zero (z) and successor (s).
  */
 
-data NUM z | s(NUM);
+data NUM = z | s(NUM);
 
 /*
  * add -- rewrite rules for addition on numerals
  */
 
-data NUM add(NUM L,NUM R);
+data NUM = add(NUM L,NUM R);
 rule a0 add(NUM N, z)          => N;
 rule a1 add(z, NUM N)          => N;
 rule a2 add(s(NUM N), NUM M)   => s(add(N, M));
@@ -22,7 +22,7 @@ rule a2 add(s(NUM N), NUM M)   => s(add(N, M));
  * mul -- rewrite rules for multiplication on numerals.
  */
  
-data NUM mul(NUM L, NUM R);
+data NUM = mul(NUM L, NUM R);
 
 rule m0 mul(NUM N, z)          => z;
 rule m1 mul(z, NUM N)          => z;
@@ -32,7 +32,7 @@ rule m2 mul(s(NUM N), NUM M)   => add(M, mul(N, M));
  * fac1 -- rewrite rules for factorial on numerals
  */
 
-data NUM fac1(NUM);
+data NUM = fac1(NUM);
 
 rule f1 fac1(z)                 => s(z);
 rule f2 fac1(s(NUM N))          => mul(s(N), fac1(N));
@@ -64,15 +64,15 @@ public void measure1(int N)
  * fac2 -- rewrite rules for factorial on numerals using built-in int datatype
  */
 
-data NUM int n | fac2(int);
+data NUM = number(int n) | fac2(NUM);
 
-rule f1 fac2(0)                => 1;
-rule f2 fac2(int N)            => N * fac2(N - 1);
+rule f1 fac2(number(0))                => number(1);
+rule f2 fac2(number(int N))            => number(N * M) when number(int M) := fac2(number(N - 1));
 
 public void measure2(int N)
 {
 	start = currentTimeMillis();
-	result = fac2(N);
+	result = fac2(number(N));
 	used = currentTimeMillis() - start;
 		
 	println("fac2(<N>) = <result>  (<used> millis)");
