@@ -4,7 +4,7 @@ import IO;
 
 public real java currentTimeMillis()
 @doc{currentTimeMillis -- current time in milliseconds since January 1, 1970 GMT.}
-@java-import{import java.lang.System;}
+@javaImport{import java.lang.System;}
 {
 	double ctm = System.currentTimeMillis();
 	return values.dubble(ctm);
