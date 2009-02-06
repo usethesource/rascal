@@ -68,14 +68,14 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	@Override
-	public EvalResult getVariable(String name) {
-		EvalResult result = super.getVariable(name);
+	public Result getVariable(String name) {
+		Result result = super.getVariable(name);
 		
 		// if the local module scope does not contain the variable, it
 		// may be visible in one of its imported modules.
 		
 		if (result == null) {
-			List<EvalResult> results = new ArrayList<EvalResult>();
+			List<Result> results = new ArrayList<Result>();
 			for (String i : getImports()) {
 				// imports are not transitive!
 				ModuleEnvironment module = GlobalEnvironment.getInstance().getModule(i);
@@ -102,8 +102,8 @@ public class ModuleEnvironment extends Environment {
 	
 	@Override
 	// NEW
-	public void storeVariable(String name, EvalResult value) {
-		EvalResult result = super.getVariable(name);
+	public void storeVariable(String name, Result value) {
+		Result result = super.getVariable(name);
 		
 		if (result != null) {
 			super.storeVariable(name, value);
@@ -124,11 +124,11 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	@Override
-	public FunctionDeclaration getFunction(String name, Type types, EnvironmentHolder h) {
-		FunctionDeclaration result = super.getFunction(name, types, h);
+	public Lambda getFunction(String name, Type types, EnvironmentHolder h) {
+		Lambda result = super.getFunction(name, types, h);
 		
 		if (result == null) {
-			List<FunctionDeclaration> results = new ArrayList<FunctionDeclaration>();
+			List<Lambda> results = new ArrayList<Lambda>();
 			for (String i : getImports()) {
 				// imports are not transitive!
 				ModuleEnvironment module = GlobalEnvironment.getInstance().getModule(i);
@@ -154,12 +154,12 @@ public class ModuleEnvironment extends Environment {
 		return result;
 	}
 	
-	public FunctionDeclaration getLocalFunction(String name, Type types) {
+	public Lambda getLocalFunction(String name, Type types) {
 		return super.getFunction(name, types, new EnvironmentHolder());
 	}
 	
-	public FunctionDeclaration getLocalPublicFunction(String name, Type types) {
-		FunctionDeclaration decl = getLocalFunction(name, types);
+	public Lambda getLocalPublicFunction(String name, Type types) {
+		Lambda decl = getLocalFunction(name, types);
 		if (decl != null) {
 			Visibility vis = functionVisibility.get(decl);
 			
@@ -170,12 +170,12 @@ public class ModuleEnvironment extends Environment {
 		return null;
 	}
 	
-	public EvalResult getLocalVariable(String name) {
+	public Result getLocalVariable(String name) {
 		return super.getVariable(name);
 	}
 	
-	public EvalResult getLocalPublicVariable(String name) {
-		EvalResult var = getLocalVariable(name);
+	public Result getLocalPublicVariable(String name) {
+		Result var = getLocalVariable(name);
 		
 		if (var != null) {
 			Visibility vis = variableVisibility.get(name);

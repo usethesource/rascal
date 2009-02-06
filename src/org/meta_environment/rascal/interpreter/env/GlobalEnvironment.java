@@ -135,19 +135,19 @@ public class GlobalEnvironment {
 		return getModule(Names.moduleName(name));
 	}
 	
-	public EvalResult getModuleVariable(String module, Name variable) {
+	public Result getModuleVariable(String module, Name variable) {
 		return getModule(module).getVariable(Names.name(variable));
 	}
 	
-	public FunctionDeclaration getModuleFunction(String module, Name function, Type actuals) {
+	public Lambda getModuleFunction(String module, Name function, Type actuals) {
 		return getModule(module).getFunction(Names.name(function), actuals, new EnvironmentHolder());
 	}
 	
-	private void storeModuleFunction(String module, Name name, FunctionDeclaration function) {
+	private void storeModuleFunction(String module, Name name, Lambda function) {
 		getModule(module).storeFunction(Names.name(name), function);
 	}
 	
-	public void storeVariable(QualifiedName name, EvalResult value) {
+	public void storeVariable(QualifiedName name, Result value) {
 		String module = Names.moduleName(name);
 		Name var = Names.lastName(name);
 		
@@ -159,15 +159,15 @@ public class GlobalEnvironment {
 		}
 	}
 	
-	public void storeVariable(Name name, EvalResult value) {
+	public void storeVariable(Name name, Result value) {
 		storeVariable(Names.name(name), value);
 	}
 	
-	public void storeFunction(Name name, FunctionDeclaration function) {
+	public void storeFunction(Name name, Lambda function) {
 		storeFunction(Names.name(name), function);
 	}
 	
-	public EvalResult getVariable(QualifiedName name) {
+	public Result getVariable(QualifiedName name) {
 		String module = Names.moduleName(name);
 		Name var = Names.lastName(name);
 		
@@ -179,12 +179,12 @@ public class GlobalEnvironment {
 		}
 	}
 	
-	public EvalResult getVariable(Name name) {
+	public Result getVariable(Name name) {
 		return getVariable(Names.name(name));
 	}
 	
-	public EvalResult getVariable(String name) {
-		EvalResult r = stack.getVariable(name);
+	public Result getVariable(String name) {
+		Result r = stack.getVariable(name);
 		
 		StringBuffer indent = new StringBuffer();
 		for(int i = 0; i < stack.size(); i++){
@@ -195,7 +195,7 @@ public class GlobalEnvironment {
 		return r;
 	}
 	
-	public void storeVariable(String name, EvalResult value) {
+	public void storeVariable(String name, Result value) {
 		StringBuffer indent = new StringBuffer();
 		for(int i = 0; i < stack.size(); i++){
 			indent.append(" ");
@@ -205,7 +205,7 @@ public class GlobalEnvironment {
 		stack.storeVariable(name, value);
 	}
 	
-	public void storeFunction(QualifiedName name, FunctionDeclaration function) {
+	public void storeFunction(QualifiedName name, Lambda function) {
 		String module = Names.moduleName(name);
 		Name func = Names.lastName(name);
 		
@@ -217,15 +217,15 @@ public class GlobalEnvironment {
 		}
 	}
 	
-	public void storeFunction(String name, FunctionDeclaration function) {
+	public void storeFunction(String name, Lambda function) {
 		stack.storeFunction(name, function);
 	}
 	
-	public FunctionDeclaration getFunction(String name, Type actuals, EnvironmentHolder h) {
+	public Lambda getFunction(String name, Type actuals, EnvironmentHolder h) {
 		return stack.getFunction(name, actuals, h);
-	}
+	} 
 	
-	public FunctionDeclaration getFunction(QualifiedName name, Type actuals, EnvironmentHolder h) {
+	public Lambda getFunction(QualifiedName name, Type actuals, EnvironmentHolder h) {
 		String module = Names.moduleName(name);
 		Name function = Names.lastName(name);
 		

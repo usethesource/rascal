@@ -6,13 +6,13 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.interpreter.exceptions.RascalBug;
 import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
 
-public class EvalResult {
+public class Result {
 	public Type type;
 	public IValue value;
 
-	protected EvalResult() { }
+	protected Result() { }
 	
-	public EvalResult(Type t, IValue v) {
+	public Result(Type t, IValue v) {
 		type = t;
 		value = v;
 		if (value != null && !value.getType().isSubtypeOf(t)) {
@@ -49,8 +49,8 @@ public class EvalResult {
 		return false;
 	}
 	
-	public EvalResult next(){
-		throw new RascalBug("next() cannot be called on a standard EvalResult");
+	public Result next(){
+		throw new RascalBug("next() cannot be called on a standard Result");
 	}
 }
 

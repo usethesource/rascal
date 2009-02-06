@@ -23,12 +23,11 @@ import org.meta_environment.rascal.ast.Expression.QualifiedName;
 import org.meta_environment.rascal.ast.Expression.Set;
 import org.meta_environment.rascal.ast.Expression.Tuple;
 import org.meta_environment.rascal.ast.Expression.TypedVariable;
-import org.meta_environment.rascal.interpreter.env.EvalResult;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
+import org.meta_environment.rascal.interpreter.env.Result;
 import org.meta_environment.rascal.interpreter.exceptions.RascalBug;
 import org.meta_environment.rascal.interpreter.exceptions.RascalRunTimeError;
 import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
-import org.meta_environment.rascal.interpreter.Evaluator;
 
 /* package */ 
 /**
@@ -173,7 +172,7 @@ interface MatchPattern {
 		 Type signature = ev.tf.tupleType(types);
 		 
 		 if (ev.isTreeConstructorName(name, signature)) {
-			 return ev.env.getConstructor(name.toString(), signature);
+			 return ev.stack.getConstructor(name.toString(), signature);
 		 } else {
 			 return ev.tf.nodeType();
 		 }
@@ -319,7 +318,7 @@ interface MatchPattern {
 			    	listVarOccurrences[i]++;
 				} else  {
 					GlobalEnvironment env = GlobalEnvironment.getInstance();
-					EvalResult patRes = env.getVariable(name);
+					Result patRes = env.getVariable(name);
 				         
 				    if((patRes != null) && (patRes.value != null)){
 				        IValue patVal = patRes.value;
@@ -507,7 +506,7 @@ interface MatchPattern {
 					
 					String name = ((AbstractPatternQualifiedName)child).getName();
 					GlobalEnvironment env = GlobalEnvironment.getInstance();
-					EvalResult varRes = env.getVariable(name);
+					Result varRes = env.getVariable(name);
 					IValue varVal = varRes.value;
 				         
 				    assert varVal != null && varVal.getType().isListType();
@@ -833,7 +832,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 					nVar++;
 				} else  {
 					GlobalEnvironment env = GlobalEnvironment.getInstance();
-					EvalResult varRes = env.getVariable(name);
+					Result varRes = env.getVariable(name);
 				         
 				    if((varRes != null) && (varRes.value != null)){
 				        IValue varVal = varRes.value;
@@ -1090,7 +1089,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 	AbstractPatternQualifiedName(org.meta_environment.rascal.ast.QualifiedName qualifiedName){
 		this.name = qualifiedName;
 		GlobalEnvironment env = GlobalEnvironment.getInstance();
-		EvalResult patRes = env.getVariable(name);
+		Result patRes = env.getVariable(name);
 	    boundBeforeConstruction = (patRes != null) && (patRes.value != null);
 	    type = (boundBeforeConstruction) ? patRes.type : TypeFactory.getInstance().voidType();
 	}
@@ -1125,7 +1124,7 @@ class SingleElementGenerator implements Iterator<ISet> {
        	 	return true;
 		}
 		
-		EvalResult patRes = env.getVariable(name);		
+		Result patRes = env.getVariable(name);		
          
         if((patRes != null) && (patRes.value != null)){
         	 IValue patVal = patRes.value;

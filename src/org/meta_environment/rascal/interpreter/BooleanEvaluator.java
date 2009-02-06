@@ -14,7 +14,7 @@ import org.meta_environment.rascal.ast.Expression.Equivalence;
 import org.meta_environment.rascal.ast.Expression.Implication;
 import org.meta_environment.rascal.ast.Expression.Negation;
 import org.meta_environment.rascal.ast.Expression.Or;
-import org.meta_environment.rascal.interpreter.env.EvalResult;
+import org.meta_environment.rascal.interpreter.env.Result;
 import org.meta_environment.rascal.interpreter.env.IterableEvalResult;
 import org.meta_environment.rascal.interpreter.exceptions.RascalBug;
 import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
@@ -23,21 +23,21 @@ import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
  * Base class for iterating over the values of the arguments of the Boolean operators.
  */
 
-public abstract class BooleanEvaluator implements Iterator<EvalResult> {
+public abstract class BooleanEvaluator implements Iterator<Result> {
 	static final int LEFT = 0;
 	static final int RIGHT = 1;
 	Expression expr[];
-	EvalResult result[];
+	Result result[];
 	Evaluator ev;
 	
 	BooleanEvaluator(Expression leftExpr, Expression rightExpr, Evaluator ev){
 		expr = new Expression[] { leftExpr, rightExpr };
 		this.ev = ev;
-		result = new EvalResult[] { null, null };
+		result = new Result[] { null, null };
 	}
 	
 	void defArg(int i){
-		EvalResult argResult = expr[i].accept(ev);
+		Result argResult = expr[i].accept(ev);
 		if(!argResult.type.isBoolType()){
 			throw new RascalTypeError("Operand of boolean operator should be of type bool and not " + argResult.type);
 		}
@@ -59,7 +59,7 @@ public abstract class BooleanEvaluator implements Iterator<EvalResult> {
 		        (result[RIGHT] != null && result[RIGHT].hasNext());
 	}
 	
-	public EvalResult next(){
+	public Result next(){
 		return null;
 	}
 	
@@ -115,7 +115,7 @@ class AndEvaluator extends BooleanEvaluator {
 	}
 
 	@Override
-	public EvalResult next() {
+	public Result next() {
 		if(is(LEFT, false)){
 			if(!getNextResult(LEFT,true)){
 				return new IterableEvalResult(this, false);
@@ -145,7 +145,7 @@ class OrEvaluator extends BooleanEvaluator {
 	}
 
 	@Override
-	public EvalResult next() {	
+	public Result next() {	
 		if(getNextResult(LEFT, true)){
 			return new IterableEvalResult(this, true);
 		}
@@ -168,7 +168,7 @@ class NegationEvaluator extends BooleanEvaluator {
 	}
 
 	@Override
-	public EvalResult next() {		
+	public Result next() {		
 		if(getNextResult(LEFT)){
 			return new IterableEvalResult(this, !((IBool)result[LEFT].value).getValue());
 		}
@@ -186,7 +186,7 @@ class ImplicationEvaluator extends BooleanEvaluator {
 	}
 
 	@Override
-	public EvalResult next() {
+	public Result next() {
 		if(is(LEFT,false)){
 			if(getNextResult(RIGHT)){
 				return new IterableEvalResult(this, true);
@@ -223,7 +223,7 @@ class EquivalenceEvaluator extends BooleanEvaluator {
 	}
 
 	@Override
-	public EvalResult next() {
+	public Result next() {
 		if(is(LEFT,false)){
 			if(getNextResult(RIGHT,false)){
 				return new IterableEvalResult(this, true);
@@ -253,7 +253,7 @@ class EquivalenceEvaluator extends BooleanEvaluator {
  * Evaluate match and nomatch expression
  */
 
-class MatchEvaluator implements Iterator<EvalResult> {
+class MatchEvaluator implements Iterator<Result> {
 	private boolean positive;
 	private MatchPattern mp;
 	
@@ -268,7 +268,7 @@ class MatchEvaluator implements Iterator<EvalResult> {
 		return mp.hasNext();
 	}
 
-	public EvalResult next() {
+	public Result next() {
 		boolean result = positive ? mp.next() : !mp.next();
 		return new IterableEvalResult(this,result);
 	}

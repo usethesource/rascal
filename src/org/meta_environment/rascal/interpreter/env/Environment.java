@@ -1,30 +1,28 @@
 package org.meta_environment.rascal.interpreter.env;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.interpreter.Names;
-import org.meta_environment.rascal.interpreter.TypeEvaluator;
 import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
 
 /**
  * A simple environment for variables and functions and types.
  */
 public class Environment {
-	protected final Map<String, EvalResult> variableEnvironment;
-	protected final Map<String, List<FunctionDeclaration>> functionEnvironment;
+	protected final Map<String, Result> variableEnvironment;
+	protected final Map<String, List<Lambda>> functionEnvironment;
 	protected final Map<Type, Type> typeParameters;
 	
 
 	public Environment() {
-		this.variableEnvironment = new HashMap<String, EvalResult>();
-		this.functionEnvironment = new HashMap<String, List<FunctionDeclaration>>();
+		this.variableEnvironment = new HashMap<String, Result>();
+		this.functionEnvironment = new HashMap<String, List<Lambda>>();
 		this.typeParameters = new HashMap<Type, Type>();
 	}
 	
@@ -35,21 +33,13 @@ public class Environment {
 		return false;
 	}
 	
-	public FunctionDeclaration getFunction(String name, Type actuals, EnvironmentHolder h) {
-		List<FunctionDeclaration> candidates = functionEnvironment.get(name);
+	public Lambda getFunction(String name, Type actuals, EnvironmentHolder h) {
+		List<Lambda> candidates = functionEnvironment.get(name);
 		
 		if (candidates != null) {
-			for (FunctionDeclaration candidate : candidates) {
-				Type formals = candidate.getSignature().accept(TypeEvaluator.getInstance());
-				//System.err.println("getFunction: formals=" + formals + ", " + "actuals=" + actuals);
-				if (actuals.isSubtypeOf(formals)) {
-					h.setEnvironment(this);
+			for (Lambda candidate : candidates) {
+				if (candidate.match(actuals)) {
 					return candidate;
-				}
-				else if (isVarArgsFunction(candidate)) {
-					if (matchVarArgsFunction(candidate, formals, actuals)) {
-						return candidate;
-					}
 				}
 			}
 		}
@@ -57,37 +47,7 @@ public class Environment {
 		return null;
 	}
 	
-	private boolean matchVarArgsFunction(FunctionDeclaration candidate,
-			Type formals, Type actuals) {
-		int arity = formals.getArity();
-		int i;
-		
-		for (i = 0; i < arity - 1; i++) {
-			if (!actuals.getFieldType(i).isSubtypeOf(formals.getFieldType(i))) {
-				return false;
-			}
-		}
-		
-		if (i > actuals.getArity()) {
-			return false;
-		}
-
-		Type elementType = formals.getFieldType(i).getElementType();
-
-		for (; i < actuals.getArity(); i++) {
-			if (!actuals.getFieldType(i).isSubtypeOf(elementType)) {
-				return false;
-			}
-		}
-		
-		return true;
-	}
-
-	private boolean isVarArgsFunction(FunctionDeclaration candidate) {
-		return candidate.getSignature().getParameters().isVarArgs();
-	}
-	
-	public EvalResult getVariable(String name) {
+	public Result getVariable(String name) {
 		return variableEnvironment.get(name);
 	}
 	
@@ -99,26 +59,25 @@ public class Environment {
 		return typeParameters.get(par);
 	}
 
-	public void storeVariable(String name, EvalResult value) {
+	public void storeVariable(String name, Result value) {
 		variableEnvironment.put(name, value);
 	}
 	
-	public void storeVariable(Name name, EvalResult r) {
+	public void storeVariable(Name name, Result r) {
 		storeVariable(Names.name(name), r);
 	}
 	
-	public void storeFunction(String name, FunctionDeclaration function) {
-		Type formals = function.getSignature().getParameters().accept(TypeEvaluator.getInstance());
-		FunctionDeclaration definedEarlier = getFunction(name, formals, new EnvironmentHolder());
-		
-		if (definedEarlier != null) {
-			throw new RascalTypeError("Illegal redeclaration of function: " + definedEarlier + "\n overlaps with new function: " + function);
+	public void storeFunction(String name, Lambda function) {
+		List<Lambda> list = functionEnvironment.get(name);
+		if (list == null) {
+			list = new ArrayList<Lambda>();
+			functionEnvironment.put(name, list);
 		}
 		
-		List<FunctionDeclaration> list = functionEnvironment.get(name);
-		if (list == null) {
-			list = new ArrayList<FunctionDeclaration>();
-			functionEnvironment.put(name, list);
+		for (Lambda other : list) {
+			if (function.isAmbiguous(other)) {
+				throw new RascalTypeError("Illegal redeclaration of function: " + other + "\n overlaps with new function: " + function);
+			}
 		}
 		
 		list.add(function);

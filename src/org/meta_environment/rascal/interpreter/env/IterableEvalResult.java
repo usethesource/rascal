@@ -6,16 +6,16 @@ import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.interpreter.exceptions.RascalBug;
 
-public class IterableEvalResult extends EvalResult implements Iterator<EvalResult>{
-	Iterator<EvalResult> iterator;
-	private EvalResult last;
+public class IterableEvalResult extends Result implements Iterator<Result>{
+	Iterator<Result> iterator;
+	private Result last;
 	
-	IterableEvalResult(Iterator<EvalResult> beval){
+	IterableEvalResult(Iterator<Result> beval){
 		super(TypeFactory.getInstance().boolType(), null);
 		this.iterator = beval;
 	}
 	
-	public IterableEvalResult(Iterator<EvalResult> beval, boolean b){
+	public IterableEvalResult(Iterator<Result> beval, boolean b){
 		super(TypeFactory.getInstance().boolType(), ValueFactory.getInstance().bool(b));
 		this.iterator = beval;
 	}
@@ -30,7 +30,7 @@ public class IterableEvalResult extends EvalResult implements Iterator<EvalResul
 	}
 	
 	@Override
-	public EvalResult next(){
+	public Result next(){
 		return last = iterator.next();
 	}
 

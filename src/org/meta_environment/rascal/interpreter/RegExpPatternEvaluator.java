@@ -15,7 +15,7 @@ import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.Expression.Literal;
 import org.meta_environment.rascal.ast.Literal.RegExp;
 import org.meta_environment.rascal.ast.RegExp.Lexical;
-import org.meta_environment.rascal.interpreter.env.EvalResult;
+import org.meta_environment.rascal.interpreter.env.Result;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
 
@@ -52,7 +52,7 @@ class RegExpPatternValue implements MatchPattern {
 		patternVars = names;
 		initialized = false;
 		for(String name : names){
-			EvalResult res = GlobalEnvironment.getInstance().getVariable(name);
+			Result res = GlobalEnvironment.getInstance().getVariable(name);
 			if((res != null) && (res.value != null)){
 				if(!res.type.isStringType()){
 					throw new RascalTypeError("Name " + name + " should have type string but has type " + res.type);
