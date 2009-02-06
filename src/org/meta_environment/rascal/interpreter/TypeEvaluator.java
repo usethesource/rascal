@@ -34,7 +34,7 @@ import org.meta_environment.rascal.ast.TypeArg.Default;
 import org.meta_environment.rascal.ast.TypeArg.Named;
 import org.meta_environment.rascal.ast.UserType.Name;
 import org.meta_environment.rascal.ast.UserType.Parametric;
-import org.meta_environment.rascal.interpreter.env.ClosureResult;
+import org.meta_environment.rascal.interpreter.env.Lambda;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.exceptions.RascalBug;
 import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
@@ -126,7 +126,7 @@ public class TypeEvaluator extends NullASTVisitor<Type> {
 	
 	@Override
 	public Type visitTypeFunction(Function x) {
-		return ClosureResult.getClosureType();
+		return Lambda.getClosureType();
 	}
 	
 	

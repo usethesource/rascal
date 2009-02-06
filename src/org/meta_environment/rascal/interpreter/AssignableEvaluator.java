@@ -19,7 +19,7 @@ import org.meta_environment.rascal.ast.Assignable.IfDefined;
 import org.meta_environment.rascal.ast.Assignable.Subscript;
 import org.meta_environment.rascal.ast.Assignable.Tuple;
 import org.meta_environment.rascal.ast.Assignable.Variable;
-import org.meta_environment.rascal.interpreter.env.EvalResult;
+import org.meta_environment.rascal.interpreter.env.Result;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.exceptions.RascalBug;
 import org.meta_environment.rascal.interpreter.exceptions.RascalException;
@@ -31,21 +31,21 @@ import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
  * implemented by Evaluator.
  * TODO: does not implement type checking completely
  */
-/*package*/ class AssignableEvaluator extends NullASTVisitor<EvalResult> {
-    private EvalResult value;
+/*package*/ class AssignableEvaluator extends NullASTVisitor<Result> {
+    private Result value;
     private final GlobalEnvironment env;
     private final Evaluator eval;
     
-	public AssignableEvaluator(GlobalEnvironment env, EvalResult value, Evaluator eval) {
+	public AssignableEvaluator(GlobalEnvironment env, Result value, Evaluator eval) {
 		this.value = value;
 		this.env = env;
 		this.eval = eval;
 	}  
 	
 	@Override
-	public EvalResult visitAssignableVariable(Variable x) {
+	public Result visitAssignableVariable(Variable x) {
 		String name = x.getQualifiedName().toString();
-		EvalResult previous = env.getVariable(name);
+		Result previous = env.getVariable(name);
 		
 		if (previous != null) {
 			//System.err.println("AssignableVariable: " + x);
@@ -72,9 +72,9 @@ import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
 	}
 	
 	@Override
-	public EvalResult visitAssignableAnnotation(Annotation x) {
+	public Result visitAssignableAnnotation(Annotation x) {
 		String label = x.getAnnotation().toString();
-		EvalResult result = x.getReceiver().accept(eval);
+		Result result = x.getReceiver().accept(eval);
 		
 		if (!result.type.declaresAnnotation(label)) {
 			throw new RascalTypeError("No annotation " + label + " declared for " + result.type);
@@ -86,10 +86,10 @@ import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
 	}
 	
 	@Override
-	public EvalResult visitAssignableSubscript(Subscript x) {
-		EvalResult rec = x.getReceiver().accept(eval);
-		EvalResult subscript = x.getSubscript().accept(eval);
-		EvalResult result;
+	public Result visitAssignableSubscript(Subscript x) {
+		Result rec = x.getReceiver().accept(eval);
+		Result subscript = x.getSubscript().accept(eval);
+		Result result;
 		
 		if (rec.type.isListType() && subscript.type.isIntegerType()) {
 			try {
@@ -129,13 +129,13 @@ import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
 		return recur(x, result);
 	}
 
-	private EvalResult recur(Assignable x, EvalResult result) {
+	private Result recur(Assignable x, Result result) {
 		return x.getReceiver().accept(new AssignableEvaluator(env, result, eval));
 	}
 	
 	@Override
-	public EvalResult visitAssignableIfDefined(IfDefined x) {
-		EvalResult cond = x.getCondition().accept(eval);
+	public Result visitAssignableIfDefined(IfDefined x) {
+		Result cond = x.getCondition().accept(eval);
 		
 		if (((IBool) cond.value).getValue()) {
 			return x.getReceiver().accept(this);
@@ -146,8 +146,8 @@ import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
 	}
 	
 	@Override
-	public EvalResult visitAssignableFieldAccess(FieldAccess x) {
-		EvalResult receiver = x.getReceiver().accept(eval);
+	public Result visitAssignableFieldAccess(FieldAccess x) {
+		Result receiver = x.getReceiver().accept(eval);
 		String label = x.getField().toString();
 		
 		if (receiver.type.isTupleType()) {
@@ -181,7 +181,7 @@ import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
 	}
 	
 	@Override
-	public EvalResult visitAssignableTuple(Tuple x) {
+	public Result visitAssignableTuple(Tuple x) {
 		java.util.List<Assignable> arguments = x.getElements();
 		
 		if (!value.type.isTupleType()) {
@@ -196,9 +196,9 @@ import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
 		for (int i = 0; i < arguments.size(); i++) {
 			Type argType = tupleType.getFieldType(i);
 			IValue arg = tuple.get(i);
-			EvalResult result = eval.result(argType, arg);
+			Result result = eval.result(argType, arg);
 			AssignableEvaluator ae = new AssignableEvaluator(env,result, eval);
-			EvalResult argResult = arguments.get(i).accept(ae);
+			Result argResult = arguments.get(i).accept(ae);
 			results[i] = argResult.value;
 			resultTypes[i] = argResult.type;
 		}
@@ -207,7 +207,7 @@ import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
 	}
 	
 	@Override
-	public EvalResult visitAssignableConstructor(Constructor x) {
+	public Result visitAssignableConstructor(Constructor x) {
 		throw new RascalBug("Constructor assignables not yet implemented");
 	}
 }

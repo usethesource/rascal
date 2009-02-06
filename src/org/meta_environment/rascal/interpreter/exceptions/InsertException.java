@@ -1,11 +1,11 @@
 package org.meta_environment.rascal.interpreter.exceptions;
 
-import org.meta_environment.rascal.interpreter.env.EvalResult;
+import org.meta_environment.rascal.interpreter.env.Result;
 
 public class InsertException extends RuntimeException {
 	private static final long serialVersionUID = -6601026099925601817L;
     
-	private final EvalResult value;
+	private final Result value;
 	
 	public InsertException(){
     	super();
@@ -13,13 +13,13 @@ public class InsertException extends RuntimeException {
     	this.value = null;
     }
     
-    public InsertException(EvalResult value){
+    public InsertException(Result value){
     	super();
     	
     	this.value = value;
     }
 	
-	public EvalResult getValue() {
+	public Result getValue() {
 		return value;
 	}
 }

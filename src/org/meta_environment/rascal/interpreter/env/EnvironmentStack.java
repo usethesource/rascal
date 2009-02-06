@@ -7,7 +7,6 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.interpreter.Names;
@@ -85,11 +84,11 @@ public class  EnvironmentStack implements Iterable<Environment>{
 		return stack.size();
 	}
 	
-	public void storeFunction(String name, FunctionDeclaration function) {
+	public void storeFunction(String name, Lambda function) {
 		top().storeFunction(name, function);
 	}
 
-	public void storeVariable(String name, EvalResult value) {
+	public void storeVariable(String name, Result value) {
 		getVariableDefiningEnvironment(name).storeVariable(name, value);
 	}
 	
@@ -110,7 +109,7 @@ public class  EnvironmentStack implements Iterable<Environment>{
 		Iterator<Environment> environmentIterator = stack.descendingIterator();
 		while(environmentIterator.hasNext()){
 			Environment env = environmentIterator.next();
-			//System.err.println("stack(" + i + ")\n" + env);
+			//System.err.println("stack(" + i + ")\n" + stack);
 			
 			if (env.isModuleEnvironment() || env.getFunction(name, formals, h) != null) {
 				h.setEnvironment(env);
@@ -162,11 +161,11 @@ public class  EnvironmentStack implements Iterable<Environment>{
 		top().storeTypeBindings(bindings);
 	}
 
-	public FunctionDeclaration getFunction(Name name, Type actuals, EnvironmentHolder h) {
+	public Lambda getFunction(Name name, Type actuals, EnvironmentHolder h) {
 		return getFunction(Names.name(name), actuals, h);
 	}
 	
-	public FunctionDeclaration getFunction(String name, Type actuals, EnvironmentHolder h) {
+	public Lambda getFunction(String name, Type actuals, EnvironmentHolder h) {
 		Environment env = getFunctionDefiningEnvironment(name, actuals, h);
 		return env.getFunction(name, actuals, h);
 	}
@@ -175,7 +174,7 @@ public class  EnvironmentStack implements Iterable<Environment>{
 		return bottom().getParameterType(par);
 	}
 
-	public EvalResult getVariable(String name) {
+	public Result getVariable(String name) {
 		Environment env = getVariableDefiningEnvironment(name);
 		return env.getVariable(name);
 	}
@@ -196,31 +195,31 @@ public class  EnvironmentStack implements Iterable<Environment>{
 		getModuleEnvironment().storeDefinition(adt, extension);
 	}
 
-	public FunctionDeclaration getFunction(QualifiedName name, Type actuals, EnvironmentHolder h) {
+	public Lambda getFunction(QualifiedName name, Type actuals, EnvironmentHolder h) {
 		return getFunction(Names.lastName(name), actuals, h);
 	}
 
-	public EvalResult getVariable(QualifiedName name) {
+	public Result getVariable(QualifiedName name) {
 		return getVariable(Names.lastName(name));
 	}
 
-	public void storeFunction(QualifiedName name, FunctionDeclaration function) {
+	public void storeFunction(QualifiedName name, Lambda function) {
 		storeFunction(Names.lastName(name), function);
 	}
 
-	public void storeVariable(QualifiedName name, EvalResult value) {
+	public void storeVariable(QualifiedName name, Result value) {
 		storeVariable(Names.lastName(name), value);
 	}
 
-	public EvalResult getVariable(Name name) {
+	public Result getVariable(Name name) {
 		return getVariable(Names.name(name));
 	}
 
-	public void storeFunction(Name name, FunctionDeclaration function) {
+	public void storeFunction(Name name, Lambda function) {
 		storeFunction(Names.name(name), function);
 	}
 
-	public void storeVariable(Name name, EvalResult value) {
+	public void storeVariable(Name name, Result value) {
 		storeVariable(Names.name(name), value);
 	}
 

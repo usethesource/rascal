@@ -16,7 +16,7 @@ import org.meta_environment.rascal.ast.Command.Shell;
 import org.meta_environment.rascal.ast.ShellCommand.Edit;
 import org.meta_environment.rascal.ast.ShellCommand.History;
 import org.meta_environment.rascal.ast.ShellCommand.Quit;
-import org.meta_environment.rascal.interpreter.env.EvalResult;
+import org.meta_environment.rascal.interpreter.env.Result;
 import org.meta_environment.rascal.interpreter.exceptions.FailureException;
 import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
 
@@ -56,7 +56,7 @@ import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
 	
 	@Override
 	public IValue visitCommandImport(Import x) {
-		EvalResult r = x.getImported().accept(evaluator);
+		Result r = x.getImported().accept(evaluator);
 		return r.value;
 	}
 
