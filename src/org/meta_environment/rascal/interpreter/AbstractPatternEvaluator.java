@@ -28,6 +28,7 @@ import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.exceptions.RascalBug;
 import org.meta_environment.rascal.interpreter.exceptions.RascalRunTimeError;
 import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
+import org.meta_environment.rascal.interpreter.Evaluator;
 
 /* package */ 
 /**
@@ -814,7 +815,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 					 */
 					allVars.add(name);
 					varName[nVar] = name;
-					varPat[nVar] = null;
+					varPat[nVar] = child;
 					isSetVar[nVar] = childType.isSetType();
 					nVar++;
 				} else 
@@ -823,9 +824,13 @@ class SingleElementGenerator implements Iterator<ISet> {
 				String name =((AbstractPatternQualifiedName)child).getName();
 				if(allVars.contains(name)){
 					/*
-					 * A set/element variable that was declared earlier in the pattern,ignore it.
+					 * A set/element variable that was declared earlier in the pattern itself,
+					 * or in a preceding nested pattern element.
 					 */
-					//TODO: Give a warning?
+					varName[nVar] = name;
+					varPat[nVar] = child;
+					isSetVar[nVar] = true; //TODO: childType.isSetType();
+					nVar++;
 				} else  {
 					GlobalEnvironment env = GlobalEnvironment.getInstance();
 					EvalResult varRes = env.getVariable(name);
@@ -897,6 +902,10 @@ class SingleElementGenerator implements Iterator<ISet> {
 	}
 	
 	private boolean makeGen(int i, ISet elements){
+		if(varPat[i] instanceof AbstractPatternQualifiedName){
+			String name = ((AbstractPatternQualifiedName) varPat[i]).getName();
+			varGen[i] = new SingleIValueIterator(GlobalEnvironment.getInstance().getVariable(name).value);
+		}
 		if(isSetVar[i]){
 			varGen[i] = new SubSetGenerator(elements);
 		} else {
@@ -907,23 +916,17 @@ class SingleElementGenerator implements Iterator<ISet> {
 		return true;
 	}
 	
-	private boolean storeVar(int i, ISet elements){
-		GlobalEnvironment env = GlobalEnvironment.getInstance();
+	private boolean matchVar(int i, ISet elements){
 		varVal[i] = elements;
+		IValue elem ;
 		if(isSetVar[i]){
-			env.storeVariable(varName[i], new EvalResult(elements.getType(), elements));
+			elem = elements;
 		} else {
 			assert elements.size() == 1;
-			IValue elem = elements.iterator().next();
-			if(varPat[i] == null){
-				env.storeVariable(varName[i], new EvalResult(elements.getElementType(), elem));
-			} else {
-				varPat[i].initMatch(elem, ev);
-				if(!varPat[i].next())
-					return false;
-			}
+			elem = elements.iterator().next();
 		}
-		return true;
+		varPat[i].initMatch(elem, ev);
+		return varPat[i].next();
 	}
 	
 	public boolean next(){
@@ -939,7 +942,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 			
 			if(nVar == 1){
 				if(isSetVar[0] || availableSetElements.size() == 1){
-					return storeVar(0, availableSetElements);
+					return matchVar(0, availableSetElements);
 				}
 				return false;
 			}
@@ -953,36 +956,33 @@ class SingleElementGenerator implements Iterator<ISet> {
 		}
 		hasNext = true;
 
-		//System.err.println("start assigning setVars");
-	
+		if(debug)System.err.println("start assigning Vars");
+
+		main: 
 		do {
-			do {
-				System.err.println("currentVar=" + currentVar + "; nSetVar=" + nVar);
-				if(varGen[currentVar].hasNext() &&	storeVar(currentVar, (ISet)varGen[currentVar].next())){
+			if(debug)System.err.println("currentVar=" + currentVar + "; nVar=" + nVar);
+			while(varGen[currentVar].hasNext()){
+				if(matchVar(currentVar, (ISet)varGen[currentVar].next())){
 					currentVar++;
-					if(currentVar < nVar - 1){
+					if(currentVar <= nVar - 1){
 						if(!makeGen(currentVar, available())){
 							varGen[currentVar] = null;
 							currentVar--;
 						}
 					}
-				} else {
-					varGen[currentVar] = null;
-					currentVar--;
+					continue main;
 				}
-			} while(currentVar >= 0 && currentVar < nVar -1);
-
-
-			if(currentVar < 0){
-				hasNext = false;
-				return false;
 			}
-			currentVar = nVar - 1;
-			if(storeVar(currentVar, available()))
-				return true;
+			varGen[currentVar] = null;
 			currentVar--;
-			
-		} while (true);
+		} while(currentVar >= 0 && currentVar < nVar);
+
+
+		if(currentVar < 0){
+			hasNext = false;
+			return false;
+		}
+		return true;
 	}			
 }
 
