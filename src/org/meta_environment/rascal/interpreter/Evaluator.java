@@ -57,6 +57,7 @@ import org.meta_environment.rascal.ast.TypeArg;
 import org.meta_environment.rascal.ast.TypeVar;
 import org.meta_environment.rascal.ast.ValueProducer;
 import org.meta_environment.rascal.ast.Variant;
+import org.meta_environment.rascal.ast.Visibility;
 import org.meta_environment.rascal.ast.Assignable.Constructor;
 import org.meta_environment.rascal.ast.Assignable.FieldAccess;
 import org.meta_environment.rascal.ast.ClosureAsFunction.Evaluated;
@@ -547,18 +548,16 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	@Override
 	public Result visitToplevelDefaultVisibility(DefaultVisibility x) {
-		return x.getDeclaration().accept(this);
+		Result r = x.getDeclaration().accept(this);
+		r.setPublic(false);
+		return r;
 	}
 
 	@Override
 	public Result visitToplevelGivenVisibility(GivenVisibility x) {
-		// order dependent code here:
-		Declaration decl = x.getDeclaration();
-		
-		stack.setVisibility(decl, x.getVisibility());
-		x.getDeclaration().accept(this);
-
-		return result();
+		Result r = x.getDeclaration().accept(this);
+		r.setPublic(x.getVisibility().isPublic());
+		return r;
 	}
 	
 	@Override

@@ -8,8 +8,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.meta_environment.rascal.ast.FunctionDeclaration;
-import org.meta_environment.rascal.ast.Visibility;
 import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
 
 /**
@@ -23,8 +21,6 @@ import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
 public class ModuleEnvironment extends Environment {
 	private final String name;
 	protected final Set<String> importedModules;
-	protected final Map<FunctionDeclaration, Visibility> functionVisibility;
-	protected final Map<String, Visibility> variableVisibility;
 	protected final Map<String,Type> typeAliases;
 	protected final Map<String, Type> adts;
 	protected final Map<Type, List<Type>> signature;
@@ -34,21 +30,11 @@ public class ModuleEnvironment extends Environment {
 	public ModuleEnvironment(String name) {
 		this.name = name;
 		this.importedModules = new HashSet<String>();
-		this.functionVisibility = new HashMap<FunctionDeclaration, Visibility>();
-		this.variableVisibility = new HashMap<String, Visibility>();
 		this.typeAliases = new HashMap<String,Type>();
 		this.adts = new HashMap<String,Type>();
 		this.signature = new HashMap<Type, List<Type>>();
 		this.extensions = new HashMap<Type, List<Type>>();
 		this.annotations = new HashMap<Type, Map<String, Type>>();
-	}
-	
-	public void setFunctionVisibility(FunctionDeclaration decl, Visibility vis) {
-		functionVisibility.put(decl, vis);
-	}
-	
-	public void setVariableVisibility(String var, Visibility vis) {
-		variableVisibility.put(var, vis);
 	}
 	
 	public boolean isModuleEnvironment() {
@@ -160,12 +146,8 @@ public class ModuleEnvironment extends Environment {
 	
 	public Lambda getLocalPublicFunction(String name, Type types) {
 		Lambda decl = getLocalFunction(name, types);
-		if (decl != null) {
-			Visibility vis = functionVisibility.get(decl);
-			
-			if (vis != null && vis.isPublic()) {
-				return decl;
-			}
+		if (decl != null && decl.isPublic()) {
+			return decl;
 		}
 		return null;
 	}
@@ -177,12 +159,8 @@ public class ModuleEnvironment extends Environment {
 	public Result getLocalPublicVariable(String name) {
 		Result var = getLocalVariable(name);
 		
-		if (var != null) {
-			Visibility vis = variableVisibility.get(name);
-			
-			if (vis != null && vis.isPublic()) {
-				return var;
-			}
+		if (var != null && var.isPublic()) {
+			return var;
 		}
 		
 		return null;

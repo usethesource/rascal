@@ -3,12 +3,15 @@ package org.meta_environment.rascal.interpreter.env;
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.meta_environment.rascal.ast.Visibility;
 import org.meta_environment.rascal.interpreter.exceptions.RascalBug;
 import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
 
 public class Result {
 	public Type type;
 	public IValue value;
+	private boolean isPublic = false;
+
 
 	protected Result() { }
 	
@@ -20,7 +23,7 @@ public class Result {
 					+ t);
 		}
 	}
-
+	
 	public String toString() {
 		return "EResult(" + type + ", " + value + ")";
 	}
@@ -31,6 +34,14 @@ public class Result {
 	
 	public boolean isClosure() {
 		return false;
+	}
+
+	public boolean isPublic() {
+		return isPublic;
+	}
+
+	public void setPublic(boolean val) {
+		isPublic = val;
 	}
 	
 	public boolean isTrue(){

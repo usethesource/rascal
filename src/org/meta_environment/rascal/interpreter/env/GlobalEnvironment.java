@@ -1,20 +1,14 @@
 package org.meta_environment.rascal.interpreter.env;
 
-import java.util.HashMap;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.meta_environment.rascal.ast.Declaration;
-import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.Name;
-import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.ast.Rule;
-import org.meta_environment.rascal.ast.Visibility;
-import org.meta_environment.rascal.ast.Declaration.Function;
-import org.meta_environment.rascal.ast.Declaration.Variable;
 import org.meta_environment.rascal.interpreter.Names;
 import org.meta_environment.rascal.interpreter.exceptions.RascalBug;
 import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
@@ -290,26 +284,6 @@ public class GlobalEnvironment {
 		
 	}
 	
-	public void setVisibility(Declaration decl, final Visibility vis) {
-		NullASTVisitor<Declaration> dispatcher = new NullASTVisitor<Declaration>() {
-			@Override
-			public Declaration visitDeclarationFunction(Function x) {
-				stack.getModuleEnvironment().setFunctionVisibility(x.getFunctionDeclaration(), vis);
-				return x;
-			}
-			
-			@Override
-			public Declaration visitDeclarationVariable(Variable x) {
-				for (org.meta_environment.rascal.ast.Variable y : x.getVariables()) {
-					stack.getModuleEnvironment().setVariableVisibility(Names.name(y.getName()), vis);
-				}
-				return x;
-			}
-		};
-		
-		decl.accept(dispatcher);
-	}
-
 	public Type getAbstractDataType(String sort) {
 		return stack.getAbstractDataType(sort);
 	}
