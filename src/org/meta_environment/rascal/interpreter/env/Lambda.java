@@ -203,6 +203,11 @@ public class Lambda extends Result implements IValue {
 		int arity = formals.getArity();
 		IValue[] newActuals = new IValue[arity];
 		int i;
+
+		if (arity == actuals.length) {
+			// the last argument is already a list
+			return actuals;
+		}
 		
 		for (i = 0; i < arity - 1; i++) {
 			newActuals[i] = actuals[i];
