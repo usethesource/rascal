@@ -15,6 +15,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.NullASTVisitor;
+import org.meta_environment.rascal.ast.Expression.Area;
 import org.meta_environment.rascal.ast.Expression.CallOrTree;
 import org.meta_environment.rascal.ast.Expression.List;
 import org.meta_environment.rascal.ast.Expression.Literal;
@@ -139,10 +140,12 @@ interface MatchPattern {
 /* package */ class AbstractPatternNode extends AbstractPattern {
 	private org.meta_environment.rascal.ast.QualifiedName name;
 	private java.util.List<AbstractPattern> children;
+	private boolean hasNext;
 	
 	AbstractPatternNode(org.meta_environment.rascal.ast.QualifiedName qualifiedName, java.util.List<AbstractPattern> children){
 		this.name = qualifiedName;
 		this.children = children;
+		this.hasNext = false;
 	}
 	
 	@Override
@@ -160,6 +163,7 @@ interface MatchPattern {
 		for (int i = 0; i < children.size(); i++){
 			children.get(i).initMatch(treeSubject.get(i), ev);
 		}
+		hasNext = true;
 	}
 	
 	public Type getType(Evaluator ev) {
@@ -204,6 +208,10 @@ interface MatchPattern {
 	
 	public boolean next(){
 		checkInitialized();
+		
+		if(!hasNext)
+			return false;
+		
 		firstMatch = false;
 		Type stype = subject.getType();
 	
@@ -225,11 +233,13 @@ interface MatchPattern {
 	private java.util.List<AbstractPattern> children;	// The elements of this list pattern
 	private int patternSize;						// The number of elements in this list pattern
 	private IList listSubject;						// The subject as list
+	private Type listSubjectType;					// The type of the subject
+	private Type listSubjectElementType;			// The type of list elements
 	private int subjectSize;						// Length of the subject
 	private int minSubjectSize;					// Minimum subject length for this pattern to match
-	private boolean [] isListVar;					// Determine which elements are list variables
+	private boolean [] isListVar;					// Determine which elements are list or variables
 	private boolean hasListVar;					// Any list variables in this pattern?
-	private HashSet<String> listVars;				// Names of list variables declared in this pattern
+	private HashSet<String> allVars;				// Names of list variables declared in this pattern
 	private int [] listVarStart;					// Cursor start position list variable; indexed by pattern position
 	private int [] listVarLength;					// Current length matched by list variable
 	private int [] listVarMinLength;				// Minimal length to be matched by list variable
@@ -243,18 +253,13 @@ interface MatchPattern {
 	private boolean hasNext;						// Has this pattern alternatives for further matching?
 	private boolean forward;						// Moving to the right?
 	
-	private boolean debug = false;
+	private boolean debug = true;
+
 	
 	AbstractPatternList(java.util.List<AbstractPattern> children){
 		this.children = children;					
 		this.patternSize = children.size();			
-		isListVar = new boolean[patternSize];		
-		listVars = new HashSet<String>();			
-		listVarStart = new int[patternSize];		
-		listVarLength = new int[patternSize];		
-		listVarMinLength = new int[patternSize];	
-		listVarMaxLength = new int[patternSize];	
-		listVarOccurrences = new int[patternSize];
+		
 	}
 	
 	@Override
@@ -285,9 +290,19 @@ interface MatchPattern {
 		}
 		
 		listSubject = (IList) subject;
+		listSubjectType = listSubject.getType();
+		listSubjectElementType = listSubject.getElementType();
 		subjectCursor = 0;
 		patternCursor = 0;
 		subjectSize = ((IList) subject).length();
+		
+		isListVar = new boolean[patternSize];		
+		allVars = new HashSet<String>();			
+		listVarStart = new int[patternSize];		
+		listVarLength = new int[patternSize];		
+		listVarMinLength = new int[patternSize];	
+		listVarMaxLength = new int[patternSize];	
+		listVarOccurrences = new int[patternSize];
 		
 		int nListVar = 0;
 		hasListVar = false;
@@ -295,21 +310,31 @@ interface MatchPattern {
 		 * Pass #1: determine the list variables
 		 */
 		for(int i = 0; i < patternSize; i++){
-			MatchPattern child = children.get(i);
+			AbstractPattern child = children.get(i);
 			isListVar[i] = false;
 			if(child instanceof AbstractPatternTypedVariable && child.getType(ev).isListType()){
-				/*
-				 * An explicitly declared list variable.
-				 */
-				listVars.add(((AbstractPatternTypedVariable)child).getName());
-				hasListVar = true;
-				isListVar[i] = true;
-				listVarOccurrences[i] = 1;
-				nListVar++;
+				
+				Type childType = child.getType(ev);
+				String name = ((AbstractPatternTypedVariable)child).getName();
+				if(allVars.contains(name)){
+					throw new RascalTypeError("Double declaration of variable " + name);
+				}
+				if(childType.isSubtypeOf(listSubject.getType())){
+					/*
+					 * An explicitly declared list variable.
+					 */
+					allVars.add(name);
+					hasListVar = true;
+					isListVar[i] = childType.isListType();
+					listVarOccurrences[i] = 1;
+					nListVar++;
+				} else {
+					throw new RascalTypeError(childType + " variable " + name + " not allowed in pattern of type " + listSubject.getType());
+				}
 			} else if(child instanceof AbstractPatternQualifiedName){
 				
 				String name =((AbstractPatternQualifiedName)child).getName();
-				if(listVars.contains(name)){
+				if(allVars.contains(name)){
 					/*
 					 * A variable that was declared earlier in the pattern
 					 */
@@ -318,19 +343,41 @@ interface MatchPattern {
 			    	listVarOccurrences[i]++;
 				} else  {
 					GlobalEnvironment env = GlobalEnvironment.getInstance();
-					Result patRes = env.getVariable(name);
+					Result varRes = env.getVariable(name);
 				         
-				    if((patRes != null) && (patRes.value != null)){
-				        IValue patVal = patRes.value;
-				        if (patVal.getType().isListType()){
+				    if((varRes != null) && (varRes.value != null)){
+				        IValue varVal = varRes.value;
+				        Type varType = varRes.type;
+				        if (varType.isListType()){
 				        	/*
-				        	 * A list variable declared in the current scope.
+				        	 * A variable declared in the current scope.
 				        	 */
-				        	isListVar[i] = true;
-				        	nListVar++;
+				        	if(varType.isSubtypeOf(listSubjectType)){
+				        		isListVar[i] = true;
+				        		nListVar++;
+				        	} else {
+				        		throw new RascalTypeError(varType + " variable " + name + " not allowed in pattern of type " + listSubjectType);
+				        	}
+				        } else {
+				        	if(!varVal.getType().isSubtypeOf(listSubjectElementType)){
+				        		throw new RascalTypeError(varType + " variable " + name + " not allowed in pattern of type " + listSubjectType);
+				        	}
 				        }
+				    } else {
+				    	throw new RascalRunTimeError("Uninitialized variable " + name);
 				    }
 				}
+			} else {
+				Type childType = child.getType(ev);
+				if(!childType.isSubtypeOf(listSubjectElementType)){
+					throw new RascalTypeError(child + " not allowed in pattern of type " + listSubjectType);
+				}
+				java.util.List<String> childVars = child.getVariables();
+				if(!childVars.isEmpty()){
+					allVars.addAll(childVars);
+					isListVar[nListVar] = false;
+					nListVar++;
+				} 
 			}
 		}
 		/*
@@ -431,7 +478,7 @@ interface MatchPattern {
 			forward = false;
 			listVarLength[patternCursor] = 0;
 			patternCursor--;
-			if(debug)System.err.println("child failse, subjectCursor=" + subjectCursor);
+			if(debug)System.err.println("child fails, subjectCursor=" + subjectCursor);
 		}	
 	}
 	
@@ -451,6 +498,9 @@ interface MatchPattern {
 	public boolean next(){
 		checkInitialized();
 		if(debug)System.err.println("AbstractPatternList.match: " + subject);
+		
+		if(!hasNext)
+			return false;
 		
 		forward = firstMatch;
 		firstMatch = false;
@@ -498,36 +548,9 @@ interface MatchPattern {
 			}
 			
 			/*
-			 * Reference to a previously defined list variable
-			 */
-			if(isListVar[patternCursor] &&  child instanceof AbstractPatternQualifiedName){
-				if(forward){
-					listVarStart[patternCursor] = subjectCursor;
-					
-					String name = ((AbstractPatternQualifiedName)child).getName();
-					GlobalEnvironment env = GlobalEnvironment.getInstance();
-					Result varRes = env.getVariable(name);
-					IValue varVal = varRes.value;
-				         
-				    assert varVal != null && varVal.getType().isListType();
-				    
-				    int varLength = ((IList)varVal).length();
-					listVarLength[patternCursor] = varLength;
-							           
-					if(subjectCursor + varLength > subjectSize){
-						forward = false;
-						patternCursor--;
-					} else {
-						matchBoundListVar((IList) varVal);
-					}
-				} else {
-					subjectCursor = listVarStart[patternCursor];
-					patternCursor--;
-				}
-			/*
 			 * A binding occurrence of a list variable
 			 */
-			} else if(isListVar[patternCursor]){	
+			if(isListVar[patternCursor] && child instanceof AbstractPatternTypedVariable){	
 				
 				if(forward){
 					listVarStart[patternCursor] = subjectCursor;
@@ -556,6 +579,42 @@ interface MatchPattern {
 				} else {
 					matchBindingListVar(child);
 				}
+			
+			/*
+			 * Reference to a previously defined list variable
+			 */
+			} else if(isListVar[patternCursor] &&  child instanceof AbstractPatternQualifiedName &&
+					GlobalEnvironment.getInstance().getVariable(((AbstractPatternQualifiedName)child).getName()).type.isListType()
+			){
+				if(forward){
+					listVarStart[patternCursor] = subjectCursor;
+					
+					String name = ((AbstractPatternQualifiedName)child).getName();
+					GlobalEnvironment env = GlobalEnvironment.getInstance();
+					Result varRes = env.getVariable(name);
+					IValue varVal = varRes.value;
+					
+					if(!varRes.type.isListType()){
+						
+					} else {
+				         
+					    assert varVal != null && varVal.getType().isListType();
+					    
+					    int varLength = ((IList)varVal).length();
+						listVarLength[patternCursor] = varLength;
+								           
+						if(subjectCursor + varLength > subjectSize){
+							forward = false;
+							patternCursor--;
+						} else {
+							matchBoundListVar((IList) varVal);
+						}
+					}
+				} else {
+					subjectCursor = listVarStart[patternCursor];
+					patternCursor--;
+				}
+			
 			/*
 			 * Any other element of the pattern
 			 */
@@ -674,7 +733,8 @@ class SingleElementGenerator implements Iterator<ISet> {
 	private java.util.List<AbstractPattern> children; // The elements of the set pattern
 	private int patternSize;					// Number of elements in the set pattern
 	private ISet setSubject;					// Current subject	
-	private Type subjectElementType;			// Type of the elements of current subject
+	private Type setSubjectType;				// Type of the subject
+	private Type setSubjectElementType;		// Type of the elements of current subject
 
 	private ISet fixedSetElements;				// The fixed, non-variable elements in the pattern
 	private ISet availableSetElements;			// The elements in the subject that are available:
@@ -687,7 +747,9 @@ class SingleElementGenerator implements Iterator<ISet> {
 	 * - a non-literal pattern that contains variables
 	 */
 	private int nVar;							// Number of variables
-	private HashSet<String> allVars;			// List of names of all the variables in the pattern
+	private HashSet<String> patVars;           // List of names of variables at top-level of the pattern
+	private HashSet<String> allVars;			// List of names of all the variables in the pattern 
+												// (including nested subpatterns)
 	private String[] varName;					// Name of each variable
 	private ISet[] varVal;						// Value of each variable
 	private AbstractPattern[] varPat;			// The pattern value for non-literal patterns
@@ -698,13 +760,11 @@ class SingleElementGenerator implements Iterator<ISet> {
 
 	private boolean hasNext;					// Has pattern more matches?
 	
-	private boolean debug = false;
+	private boolean debug = true;
 	
 	AbstractPatternSet(java.util.List<AbstractPattern> children){
 		this.children = children;
 		this.patternSize = children.size();
-		allVars = new HashSet<String>();
-		nVar = 0;
 	}
 	
 	public Type getType(Evaluator ev) {
@@ -791,10 +851,13 @@ class SingleElementGenerator implements Iterator<ISet> {
 		}
 		
 		setSubject = (ISet) subject;
-		subjectElementType = setSubject.getElementType();
+		setSubjectType = setSubject.getType();
+		setSubjectElementType = setSubject.getElementType();
 		fixedSetElements = ev.vf.set(getType(ev));
 		
 		nVar = 0;
+		patVars = new HashSet<String>();
+		allVars = new HashSet<String>();
 		varName = new String[patternSize];  			// Some overestimations
 		isSetVar = new boolean[patternSize];
 		varVal = new ISet[patternSize];
@@ -808,10 +871,14 @@ class SingleElementGenerator implements Iterator<ISet> {
 			if(child instanceof AbstractPatternTypedVariable){
 				Type childType = child.getType(ev);
 				String name = ((AbstractPatternTypedVariable)child).getName();
-				if(childType.isSetType() || childType.isSubtypeOf(subjectElementType)){
+				if(allVars.contains(name)){
+					throw new RascalTypeError("Double declaration of variable " + name);
+				}
+				if(childType.isSubtypeOf(setSubjectType) || childType.isSubtypeOf(setSubjectElementType)){
 					/*
 					 * An explicitly declared set or element variable.
 					 */
+					patVars.add(name);
 					allVars.add(name);
 					varName[nVar] = name;
 					varPat[nVar] = child;
@@ -826,42 +893,52 @@ class SingleElementGenerator implements Iterator<ISet> {
 					 * A set/element variable that was declared earlier in the pattern itself,
 					 * or in a preceding nested pattern element.
 					 */
-					varName[nVar] = name;
-					varPat[nVar] = child;
-					isSetVar[nVar] = true; //TODO: childType.isSetType();
-					nVar++;
+					if(!patVars.contains(name)){
+						/*
+						 * It occurred in an earlier nested subpattern.
+						 */
+						varName[nVar] = name;
+						varPat[nVar] = child;
+						isSetVar[nVar] = true; //TODO: childType.isSetType();
+						nVar++;
+					} else {
+						/*
+						 * Ignore it (we are dealing with sets, remember).
+						 */
+					}
 				} else  {
 					GlobalEnvironment env = GlobalEnvironment.getInstance();
 					Result varRes = env.getVariable(name);
 				         
 				    if((varRes != null) && (varRes.value != null)){
 				        IValue varVal = varRes.value;
-				        if (varVal.getType().isSetType()){
+				        Type varType = varRes.type;
+				        if (varType.isSubtypeOf(setSubjectType)){
 				        	/*
 				        	 * A set variable declared in the current scope: add its elements
 				        	 */
 				        	fixedSetElements = fixedSetElements.union((ISet)varRes.value);
-				        } else if(varVal.getType().isSubtypeOf(subjectElementType)){
+				        } else if(varType.isSubtypeOf(setSubjectElementType)){
 				        	/*
 				        	 * An element variable in the current scope, add its value.
 				        	 */
 				        	fixedSetElements = fixedSetElements.insert(varRes.value);
 				        } else
-				        	throw new RascalTypeError(varVal.getType() + " variable " + name + " not allowed in pattern of type " + setSubject.getType());
+				        	throw new RascalTypeError(varType + " variable " + name + " not allowed in pattern of type " + setSubject.getType());
 				    } else {
-				    	throw new RascalRunTimeError("Unitialized variable " + name);
+				    	throw new RascalRunTimeError("Uninitialized variable " + name);
 				    }
 				}
 			} else if(child instanceof AbstractPatternLiteral){
 				IValue lit = child.toIValue(ev);
 				Type childType = child.getType(ev);
-				if(!childType.isSubtypeOf(subjectElementType)){
+				if(!childType.isSubtypeOf(setSubjectElementType)){
 					throw new RascalTypeError(lit + " not allowed in pattern of type " + setSubject.getType());
 				}
 				fixedSetElements = fixedSetElements.insert(lit);
 			} else {
 				Type childType = child.getType(ev);
-				if(!childType.isSubtypeOf(subjectElementType)){
+				if(!childType.isSubtypeOf(setSubjectElementType)){
 					throw new RascalTypeError(child + " not allowed in pattern of type " + setSubject.getType());
 				}
 				java.util.List<String> childVars = child.getVariables();
@@ -930,6 +1007,10 @@ class SingleElementGenerator implements Iterator<ISet> {
 	
 	public boolean next(){
 		checkInitialized();
+		
+		if(!hasNext)
+			return false;
+		
 		if(firstMatch){
 			firstMatch = hasNext = false;
 			if(nVar == 0){
@@ -987,9 +1068,11 @@ class SingleElementGenerator implements Iterator<ISet> {
 
 /* package */ class AbstractPatternTuple extends AbstractPattern implements MatchPattern {
 	private java.util.List<AbstractPattern> children;
+	private boolean hasNext;
 	
 	AbstractPatternTuple(java.util.List<AbstractPattern> children){
 		this.children = children;
+		this.hasNext = false;
 	}
 	
 	@Override
@@ -1023,6 +1106,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 		for(int i = 0; i < children.size(); i++){
 			children.get(i).initMatch(tupleSubject.get(i), ev);
 		}
+		hasNext = true;
 	}
 	
 	public Type getType(Evaluator ev) {
@@ -1035,6 +1119,8 @@ class SingleElementGenerator implements Iterator<ISet> {
 	
 	public boolean next() {
 		checkInitialized();
+		if(!hasNext)
+			return false;
 		firstMatch = false;
 		if (subject.getType().isTupleType()
 				&& ((ITuple) subject).arity() == children.size()) {
@@ -1082,15 +1168,14 @@ class SingleElementGenerator implements Iterator<ISet> {
 
 /* package */ class AbstractPatternQualifiedName extends AbstractPattern implements MatchPattern {
 	private org.meta_environment.rascal.ast.QualifiedName name;
-	private boolean boundBeforeConstruction;
 	private Type type;
-	private boolean debug = false;
+	private boolean debug = true;
 	
 	AbstractPatternQualifiedName(org.meta_environment.rascal.ast.QualifiedName qualifiedName){
 		this.name = qualifiedName;
 		GlobalEnvironment env = GlobalEnvironment.getInstance();
 		Result patRes = env.getVariable(name);
-	    boundBeforeConstruction = (patRes != null) && (patRes.value != null);
+	    boolean boundBeforeConstruction = (patRes != null) && (patRes.value != null);
 	    type = (boundBeforeConstruction) ? patRes.type : TypeFactory.getInstance().voidType();
 	}
 	
@@ -1114,28 +1199,24 @@ class SingleElementGenerator implements Iterator<ISet> {
 	
 	public boolean next(){
 		checkInitialized();
-		if(debug)System.err.println("AbstractPatternQualifiedName.match: " + name + ", firstMatch=" + firstMatch + ", boundBeforeConstruction=" + boundBeforeConstruction);
-        GlobalEnvironment env = GlobalEnvironment.getInstance();
+		if(debug)System.err.println("AbstractPatternQualifiedName.match: " + name + ", firstMatch=" + firstMatch);
+		GlobalEnvironment env = GlobalEnvironment.getInstance();
 		
-		if(firstMatch && !boundBeforeConstruction){ //TODO: wrong in some cases?
-			firstMatch = false;
+		Result varRes = env.getVariable(name);
+		if((varRes == null) || (varRes.value == null)){
 			if(debug)System.err.println("name= " + name + ", subject=" + subject + ",");
-			env.top().storeVariable(name.toString(),ev.result(subject.getType(), subject));
-       	 	return true;
+			type = subject.getType();
+			env.top().storeVariable(name.toString(),ev.result(type, subject));
+			return true;
+		} else {
+			IValue varVal = varRes.value;
+			if(debug)System.err.println("AbstractPatternQualifiedName.match: " + name + ", subject=" + subject + ", value=" + varVal);
+			if (subject.getType().isSubtypeOf(varRes.type)) {
+				if(debug)System.err.println("returns " + ev.equals(ev.result(subject.getType(),subject), varRes));
+				return ev.equals(ev.result(subject.getType(),subject), varRes);
+			} else
+				return false;
 		}
-		
-		Result patRes = env.getVariable(name);		
-         
-        if((patRes != null) && (patRes.value != null)){
-        	 IValue patVal = patRes.value;
-        		if(debug)System.err.println("AbstractPatternQualifiedName.match: " + name + ", subject=" + subject + ", value=" + patVal);
-        		
-        	 if (subject.getType().isSubtypeOf(patVal.getType())) {
-        		if(debug)System.err.println("returns " + ev.equals(ev.result(subject.getType(),subject), patRes));
-        		 return ev.equals(ev.result(subject.getType(),subject), patRes);
-        	 }
-         }
-        return false;
 	}
 	
 	public String toString(){
@@ -1146,7 +1227,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 /* package */class AbstractPatternTypedVariable extends AbstractPattern implements MatchPattern {
 	private Name name;
 	org.eclipse.imp.pdb.facts.type.Type declaredType;
-	private boolean debug = false;
+	private boolean debug = true;
 
 	AbstractPatternTypedVariable(org.eclipse.imp.pdb.facts.type.Type type2, Name name) {
 		this.declaredType = type2;
@@ -1212,7 +1293,12 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 	
 	@Override
 	public AbstractPattern visitExpressionCallOrTree(CallOrTree x) {
-		return new AbstractPatternNode(x.getQualifiedName(), visitElements(x.getArguments()));
+		org.meta_environment.rascal.ast.QualifiedName N = x.getQualifiedName();
+	//	if(N.toString().equals("search")){
+	//		return new AbstractPatternSearch(visitElements(x.getArguments()));
+	//	} else {
+			return new AbstractPatternNode(N, visitElements(x.getArguments()));
+	//	}
 	}
 	
 	private java.util.List<AbstractPattern> visitElements(java.util.List<org.meta_environment.rascal.ast.Expression> elements){
@@ -1256,7 +1342,10 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 			 return new AbstractPatternQualifiedName(x.getQualifiedName());
 		 }
 	}
-	
+	@Override
+	public AbstractPattern visitExpressionArea(Area x) {
+		throw new UnsupportedOperationException("Areas in pattern");
+	}
 	@Override
 	public AbstractPattern visitExpressionTypedVariable(TypedVariable x) {
 		return new AbstractPatternTypedVariable(x.getType().accept(ev.te), x.getName());
