@@ -67,11 +67,6 @@ private static TestFramework tf = new TestFramework();
 		assertTrue(tf.runTestInSameEvaluator("Lift::test();"));
 	}
 	
-	public void testUPTR() throws IOException {
-		tf = new TestFramework("import UPTR;");
-		assertTrue(tf.runTestInSameEvaluator("UPTR::test();"));
-	}
-	
 	public void testQueens() throws IOException {
 		tf = new TestFramework("import Queens;");
 		assertTrue(tf.runTestInSameEvaluator("Queens::test();"));
@@ -85,6 +80,11 @@ private static TestFramework tf = new TestFramework();
 	public void testTrans() throws IOException {
 		tf = new TestFramework("import Trans;");
 		assertTrue(tf.runTestInSameEvaluator("Trans::test();"));
+	}
+	
+	public void testUPTR() throws IOException {
+		tf = new TestFramework("import UPTR;");
+		assertTrue(tf.runTestInSameEvaluator("UPTR::test();"));
 	}
 	
 	public void testWordCount() throws IOException {
