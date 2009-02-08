@@ -68,10 +68,10 @@ public class Lambda extends Result implements IValue {
 	}
 
 	public boolean match(Type actuals) {
-		if (!hasVarArgs) {
+//		if (!hasVarArgs) {
 			return actuals.isSubtypeOf(formals);
-		}
-		return matchVarArgsFunction(actuals);
+//		}
+//		return matchVarArgsFunction(actuals);
 	}
 	
 	public boolean isAmbiguous(Lambda other) {
