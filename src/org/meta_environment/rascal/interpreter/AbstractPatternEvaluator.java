@@ -253,7 +253,7 @@ interface MatchPattern {
 	private boolean hasNext;						// Has this pattern alternatives for further matching?
 	private boolean forward;						// Moving to the right?
 	
-	private boolean debug = true;
+	private boolean debug = false;
 
 	
 	AbstractPatternList(java.util.List<AbstractPattern> children){
@@ -760,7 +760,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 
 	private boolean hasNext;					// Has pattern more matches?
 	
-	private boolean debug = true;
+	private boolean debug = false;
 	
 	AbstractPatternSet(java.util.List<AbstractPattern> children){
 		this.children = children;
@@ -1169,7 +1169,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 /* package */ class AbstractPatternQualifiedName extends AbstractPattern implements MatchPattern {
 	private org.meta_environment.rascal.ast.QualifiedName name;
 	private Type type;
-	private boolean debug = true;
+	private boolean debug = false;
 	
 	AbstractPatternQualifiedName(org.meta_environment.rascal.ast.QualifiedName qualifiedName){
 		this.name = qualifiedName;
@@ -1227,7 +1227,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 /* package */class AbstractPatternTypedVariable extends AbstractPattern implements MatchPattern {
 	private Name name;
 	org.eclipse.imp.pdb.facts.type.Type declaredType;
-	private boolean debug = true;
+	private boolean debug = false;
 
 	AbstractPatternTypedVariable(org.eclipse.imp.pdb.facts.type.Type type2, Name name) {
 		this.declaredType = type2;
