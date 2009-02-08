@@ -60,6 +60,10 @@ public class Environment {
 	}
 
 	public void storeVariable(String name, Result value) {
+		Result old = variableEnvironment.get(name);
+		if (old != null) {
+			value.setPublic(old.isPublic());
+		}
 		variableEnvironment.put(name, value);
 	}
 	
