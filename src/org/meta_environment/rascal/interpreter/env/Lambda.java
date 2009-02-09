@@ -68,10 +68,15 @@ public class Lambda extends Result implements IValue {
 	}
 
 	public boolean match(Type actuals) {
-//		if (!hasVarArgs) {
-			return actuals.isSubtypeOf(formals);
-//		}
-//		return matchVarArgsFunction(actuals);
+		if (actuals.isSubtypeOf(formals)) {
+			return true;
+		}
+		
+		if (hasVarArgs) {
+			return matchVarArgsFunction(actuals);
+		}
+		
+		return false;
 	}
 	
 	public boolean isAmbiguous(Lambda other) {
@@ -203,12 +208,12 @@ public class Lambda extends Result implements IValue {
 		int arity = formals.getArity();
 		IValue[] newActuals = new IValue[arity];
 		int i;
-
-		if (arity == actuals.length) {
-			// the last argument is already a list
+		
+		if (formals.getArity() == actuals.length && actuals[actuals.length - 1].getType().isSubtypeOf(formals.getFieldType(formals.getArity() - 1))) {
+			// variable length argument is provided as a list
 			return actuals;
 		}
-		
+
 		for (i = 0; i < arity - 1; i++) {
 			newActuals[i] = actuals[i];
 		}
