@@ -32,8 +32,18 @@ public class JavaFunction extends Lambda {
 		GlobalEnvironment global = GlobalEnvironment.getInstance();
 		try {
 			global.pushFrame();
+			
+			if (hasVarArgs) {
+				actuals = computeVarArgsActuals(actuals, formals);
+			}
+			
 			IValue result = invoke(actuals);
-			bindTypeParameters(actualTypes, formals);
+			
+			if (hasVarArgs) {
+				actualTypes = computeVarArgsActualTypes(actualTypes, formals);
+			}
+			
+			bindTypeParameters(actualTypes, formals); 
 			Type resultType = returnType.instantiate(global.getTypeBindings());
 			return new Result(resultType, result);
 		}

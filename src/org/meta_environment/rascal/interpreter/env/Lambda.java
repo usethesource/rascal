@@ -33,7 +33,7 @@ public class Lambda extends Result implements IValue {
     protected EnvironmentStack stackClone;
     protected final Evaluator eval;
 	protected final Type formals;
-	private boolean hasVarArgs;
+	protected final boolean hasVarArgs;
 	private boolean isVoidFunction;
     
     protected final static Type FunctionType = TF.abstractDataType("Rascal.Function");
@@ -204,7 +204,7 @@ public class Lambda extends Result implements IValue {
 		}
 	}	
 	
-	private IValue[] computeVarArgsActuals(IValue[] actuals, Type formals) {
+	protected IValue[] computeVarArgsActuals(IValue[] actuals, Type formals) {
 		int arity = formals.getArity();
 		IValue[] newActuals = new IValue[arity];
 		int i;
@@ -229,7 +229,7 @@ public class Lambda extends Result implements IValue {
 		return newActuals;
 	}
 
-	private Type computeVarArgsActualTypes(Type actualTypes, Type formals) {
+	protected Type computeVarArgsActualTypes(Type actualTypes, Type formals) {
 		if (actualTypes.isSubtypeOf(formals)) {
 			// the argument is already provided as a list
 			return actualTypes;
