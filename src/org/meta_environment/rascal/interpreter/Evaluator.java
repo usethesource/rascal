@@ -455,7 +455,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				}
 			}
 			if (!file.exists()) {
-					throw new RascalTypeError("Can not find file for module " + name);
+					throw new RascalTypeError("Can not find file for module " + name, x);
 			}
 			
 			IConstructor tree = p.parseFromFile(file);
@@ -574,7 +574,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 		for (org.meta_environment.rascal.ast.Variable var : x.getVariables()) {
 			if (var.isUnInitialized()) {  
-				throw new RascalTypeError("Module variable is not initialized: " + x);
+				throw new RascalTypeError("Module variable " + var + " is not initialized", var);
 			} else {
 				Result v = var.getInitial().accept(this);
 				if(v.type.isSubtypeOf(declaredType)){
@@ -585,7 +585,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 					r = normalizedResult(declaredType, v.value);
 					stack.storeVariable(var.getName(), r);
 				} else {
-					throw new RascalTypeError("variable " + var + ", declared type " + declaredType + " incompatible with initial type " + v.type);
+					throw new RascalTypeError("Variable " + declaredType + " " + var + " incompatible with initial type " + v.type, var);
 				}
 			}
 		}
@@ -656,7 +656,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			int i = 0;
 			for (org.meta_environment.rascal.ast.Type formal : formals) {
 				if (!formal.isVariable()) {
-					throw new RascalTypeError("Declaration of parameterized type with type instance " + formal + " is not allowed");
+					throw new RascalTypeError("Declaration of parameterized type with type instance " + formal + " is not allowed", formal);
 				}
 				TypeVar var = formal.getTypeVar();
 				Type bound = var.hasBound() ? var.getBound().accept(te) : tf.valueType();
@@ -704,7 +704,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		//TODO adapt to new scheme
 		Result result = x.getRule().getPattern().getPattern().accept(this);
 		if (!result.type.isSubtypeOf(x.getType().accept(te))) {
-			throw new RascalTypeError("Declared type of rule does not match type of left-hand side: " + x);
+			throw new RascalTypeError("Declared type of rule does not match type of left-hand side", x);
 		}
 		return x.getRule().accept(this);
 	}
@@ -742,7 +742,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 					r = result(declaredType, v.value);
 					stack.top().storeVariable(var.getName(), r);
 				} else {
-					throw new RascalTypeError("variable " + var.getName() + ": declared type " + declaredType + " incompatible with initialization type " + v.type);
+					throw new RascalTypeError("Variable " + declaredType + " " + var.getName() + " incompatible with initialization type " + v.type, var);
 				}
 			}
 		}
@@ -783,7 +783,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			return lambda.call(actuals, actualTypes);
 		}
 		else {
-			throw new RascalTypeError("Expected a closure, a function or an operator, but got a " + func.type);
+			throw new RascalTypeError("Expected a closure, a function or an operator, but got a " + func.type, x);
 		}
 	}
 	
@@ -838,7 +838,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			sep = ", ";
 			sb.append(actualTypes.getFieldType(i).toString());
 		}
-		throw new RascalTypeError("No function/constructor " + name + "(" +  sb.toString() + ") is defined");
+		throw new RascalTypeError("No function/constructor " + name + "(" +  sb.toString() + ") is defined", name);
 	}
 
 	protected boolean isTreeConstructorName(QualifiedName name, Type signature) {
@@ -857,7 +857,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			}
 			else {
 				if (!stack.existsModule(sort)) {
-					throw new RascalTypeError("Qualified name is neither module name nor data type name");
+					throw new RascalTypeError("Qualified name is neither module name nor data type name", name);
 				}
 			}
 		}
@@ -926,7 +926,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Lambda func = stack.getFunction(Names.name(name), tf.voidType(), h);
 		
 		if (func == null) {
-			throw new RascalTypeError("Could not find function " + name);
+			throw new RascalTypeError("Could not find function " + name, x);
 		}
 		
 		return func;
@@ -966,7 +966,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				//System.err.println("Assertion failed: " + msg + "\n");
 			}
 		} else {
-			throw new RascalTypeError("expression in assertion should be bool instead of " + r.type);
+			throw new RascalTypeError("Expression in assertion should be bool instead of " + r.type, x);
 		}
 		return r;	
 	}
@@ -995,7 +995,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			} else {
 				throw new RascalTypeError("Variable " + name
 						+ " has type " + previous.type
-						+ "; cannot assign value of type " + right.type);
+						+ "; cannot assign value of type " + right.type, name);
 			}
 		}
 		stack.top().storeVariable(name.toString(), right);
@@ -1013,7 +1013,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			int relArity = exprType.getArity();
 			
 			if(nSubs >= relArity){
-				throw new RascalTypeError("Too many subscripts (" + nSubs + ") for relation of arity " + relArity);
+				throw new RascalTypeError("Too many subscripts (" + nSubs + ") for relation of arity " + relArity, x);
 			}
 			Result subscriptResult[] = new Result[nSubs];
 			Type subscriptType[] = new Type[nSubs];
@@ -1038,7 +1038,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 					} else {
 						throw new RascalTypeError("type " + subscriptType[i] + 
 								" of subscript #" + i + " incompatible with element type " +
-								relFieldType);
+								relFieldType, x);
 					}
 				} else {
 					resFieldType[i - nSubs] = relFieldType;
@@ -1085,7 +1085,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 		
 		if(nSubs > 1){
-			throw new RascalTypeError("Too many subscripts");
+			throw new RascalTypeError("Too many subscripts", x);
 		}
 		
 		Result subs = x.getSubscripts().get(0).accept(this);
@@ -1102,7 +1102,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 		
 		if(!subsBase.isIntegerType()){
-			throw new RascalTypeError("Subscript should have type integer");
+			throw new RascalTypeError("Subscript should have type integer", x);
 		}
 		int index = intValue(subs);
 
@@ -1153,7 +1153,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		if (expr.type.isTupleType()) {
 			Type tuple = expr.type;
 			if (!tuple.hasFieldNames()) {
-				throw new RascalTypeError("Tuple does not have field names: " + tuple);
+				throw new RascalTypeError("Tuple does not have field names: " + tuple, x);
 			}
 			
 			return normalizedResult(tuple.getFieldType(field), ((ITuple) expr.value).get(tuple.getFieldIndex(field)));
@@ -1176,7 +1176,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			Type node = ((IConstructor) expr.value).getConstructorType();
 			
 			if (!expr.type.hasField(field)) {
-				throw new RascalTypeError(expr.type + " does not have a field named " + field);
+				throw new RascalTypeError(expr.type + " does not have a field named " + field, x);
 			}
 			
 			if (!node.hasField(field)) {
@@ -1187,7 +1187,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			return normalizedResult(node.getFieldType(index),((IConstructor) expr.value).get(index));
 		}
 		
-		throw new RascalTypeError("Field selection is not allowed on " + expr.type);
+		throw new RascalTypeError("Field selection is not allowed on " + expr.type, x);
 	}
 	
 	private boolean duplicateIndices(int indices[]){
@@ -1221,16 +1221,16 @@ public class Evaluator extends NullASTVisitor<Result> {
 					try {
 						selectedFields[i] = base.type.getFieldIndex(fieldName);
 					} catch (Exception e){
-						throw new RascalTypeError("Undefined field " + fieldName + " in projection");
+						throw new RascalTypeError("Undefined field " + fieldName + " in projection", x);
 					}
 				}
 				if(selectedFields[i] < 0 || selectedFields[i] > base.type.getArity()){
-					throw new RascalTypeError("Index " + selectedFields[i] + " in projection exceeds arity of tuple");
+					throw new RascalTypeError("Index " + selectedFields[i] + " in projection exceeds arity of tuple", x);
 				}
 				fieldTypes[i] = base.type.getFieldType(selectedFields[i]);
 			}
 			if(duplicateIndices(selectedFields)){
-				throw new RascalTypeError("Duplicate fields in projection");
+				throw new RascalTypeError("Duplicate fields in projection", x);
 			}
 			Type resultType = nFields == 1 ? fieldTypes[0] : tf.tupleType(fieldTypes);
 			
@@ -1249,22 +1249,22 @@ public class Evaluator extends NullASTVisitor<Result> {
 					try {
 						selectedFields[i] = base.type.getFieldIndex(fieldName);
 					} catch (Exception e){
-						throw new RascalTypeError("Undefined field " + fieldName + " in projection");
+						throw new RascalTypeError("Undefined field " + fieldName + " in projection", x);
 					}
 				}
 				if(selectedFields[i] < 0 || selectedFields[i] > base.type.getArity()){
-					throw new RascalTypeError("Index " + selectedFields[i] + " in projection exceeds arity of tuple");
+					throw new RascalTypeError("Index " + selectedFields[i] + " in projection exceeds arity of tuple", x);
 				}
 				fieldTypes[i] = base.type.getFieldType(selectedFields[i]);
 			}
 			if(duplicateIndices(selectedFields)){
-				throw new RascalTypeError("Duplicate fields in projection");
+				throw new RascalTypeError("Duplicate fields in projection", x);
 			}
 			Type resultType = nFields == 1 ? tf.setType(fieldTypes[0]) : tf.relType(fieldTypes);
 			
 			return result(resultType, ((IRelation)base.value).select(selectedFields));				     
 		}
-		throw new RascalTypeError("Type " + base.type + " does not allow projection");
+		throw new RascalTypeError("Type " + base.type + " does not allow projection", x);
 	}
 	
 	@Override
@@ -1415,7 +1415,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			Type node = cons.getConstructorType();
 			
 			if (!receiver.type.hasField(label)) {
-				throw new RascalTypeError(receiver.type + " does not have a field named " + label);
+				throw new RascalTypeError(receiver.type + " does not have a field named " + label, x);
 			}
 			
 			if (!node.hasField(label)) {
@@ -1426,7 +1426,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			return normalizedResult(node.getFieldType(index), cons.get(index));
 		}
 		else {
-			throw new RascalTypeError(x.getReceiver() + " has no field named " + label);
+			throw new RascalTypeError(x.getReceiver() + " has no field named " + label, x);
 		}
 	}
 	
@@ -1437,7 +1437,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		String label = x.getAnnotation().toString();
 		
 		if (receiver.type.declaresAnnotation(label)) {
-			throw new RascalTypeError("No annotation " + label + " declared for " + receiver.type);
+			throw new RascalTypeError("No annotation " + label + " declared for " + receiver.type, x);
 		}
 		
 		// TODO get annotation from local and imported environments
@@ -1482,7 +1482,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		
 		// TODO implement other subscripts
 
-		throw new RascalTypeError("Illegal subscript " + x.getSubscript() + " for receiver " + x.getReceiver());
+		throw new RascalTypeError("Illegal subscript " + x.getSubscript() + " for receiver " + x.getReceiver(), x);
 	}
 	
 	@Override
@@ -1508,7 +1508,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 		else {
 			if (!x.getBody().isDefault()) {
-				throw new RascalTypeError("Java function body without java function modifier in: " + x);
+				throw new RascalTypeError("Java function body without java function modifier in: " + x, x);
 			}
 			
 			lambda = new RascalFunction(this, x, varArgs, stack.top());
@@ -1533,7 +1533,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 					}
 				} else {
 					throw new RascalTypeError("Condition " + expr + " has type "
-							+ cval.type + " but should be bool");
+							+ cval.type + " but should be bool", x);
 				}
 			}
 			return x.getThenStatement().accept(this);
@@ -1553,7 +1553,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				}
 			} else {
 				throw new RascalTypeError("Condition " + expr + " has type "
-						+ cval.type + " but should be bool");
+						+ cval.type + " but should be bool", x);
 			}
 		}
 		return x.getThenStatement().accept(this);
@@ -1573,7 +1573,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				}
 			} else {
 				throw new RascalTypeError("Condition " + expr + " has type "
-						+ cval.type + " but should be bool");
+						+ cval.type + " but should be bool", x);
 			}
 		} while (true);
 	}
@@ -1590,7 +1590,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				}
 			} else {
 				throw new RascalTypeError("Condition " + expr + " has type "
-						+ cval.type + " but should be bool");
+						+ cval.type + " but should be bool", x);
 			}
 		} while (true);
 	}
@@ -1613,7 +1613,7 @@ public class Evaluator extends NullASTVisitor<Result> {
     	} else if(re.isRegExpPattern(pat)){ 
 			return pat.accept(re);
 		} else {
-			throw new RascalTypeError("pattern expected instead of " + pat);
+			throw new RascalTypeError("pattern expected instead of " + pat, pat);
 		}
     }
 	
@@ -1891,14 +1891,14 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 		if (annoType == null) {
 			throw new RascalTypeError("No annotation " + x.getName()
-					+ " declared on " + expr.type);
+					+ " declared on " + expr.type, x);
 		}
 
 		IValue annoValue = ((IConstructor) expr.value).getAnnotation(name);
 		
 		if (annoValue == null) {
 			// TODO: make this a Rascal exception that can be caught by the programmer
-			throw new RascalTypeError("This " + expr.type + " does not have a " + name + " annotation set");
+			throw new RascalTypeError("This " + expr.type + " does not have a " + name + " annotation set", x);
 		}
 		return result(annoType, annoValue);
 	}
@@ -2106,7 +2106,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 		
 		throw new RascalTypeError("Operands of - have illegal types: "
-					+ left.type + ", " + right.type);
+					+ left.type + ", " + right.type, x);
 	}
 	
 	@Override
@@ -2120,7 +2120,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				return result(vf.dubble(- RealValue(arg)));
 		} else {
 			throw new RascalTypeError(
-					"Operand of unary - should be integer or Real instead of: " + arg.type);
+					"Operand of unary - should be integer or Real instead of: " + arg.type, x);
 		}
 	}
 	
@@ -2245,7 +2245,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 		else {
 			throw new RascalTypeError("Operands of / have illegal types: "
-					+ left.type + ", " + right.type);
+					+ left.type + ", " + right.type, x);
 		}
 	}
 	
@@ -2259,7 +2259,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		} 
 		else {
 			throw new RascalTypeError("Operands of % have illegal types: "
-					+ left.type + ", " + right.type);
+					+ left.type + ", " + right.type, x);
 		}
 	}
 	
@@ -2292,7 +2292,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				.intersect((ISet) right.value));
 		} else {
 			throw new RascalTypeError("Operands of & have illegal types: "
-					+ left.type + ", " + right.type);
+					+ left.type + ", " + right.type, x);
 		}
 	}
 
@@ -2342,7 +2342,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		widenArgs(left, right);
 /*		
 		if (!left.type.comparable(right.type)) {
-			throw new RascalTypeError("Arguments of equals have incomparable types: " + left.type + " and " + right.type);
+			throw new RascalTypeError("Arguments of equals have incomparable types: " + left.type + " and " + right.type, x);
 		}
 */
 		
@@ -2383,13 +2383,13 @@ public class Evaluator extends NullASTVisitor<Result> {
 	   Result area = x.getAreaExpression().accept(this);
 	   
 	   if (!area.type.isSubtypeOf(tf.sourceRangeType())) {
-		   throw new RascalTypeError("Expected area, got " + area.type);
+		   throw new RascalTypeError("Expected area, got " + area.type, x);
 	   }
 	   
 	   Result file = x.getFilename().accept(this);
 	   
 	   if (!area.type.isSubtypeOf(tf.sourceRangeType())) {
-		   throw new RascalTypeError("Expected area, got " + file.type);
+		   throw new RascalTypeError("Expected area, got " + file.type, x);
 	   }
 	   
 	   checkType(area, tf.sourceRangeType());
@@ -2433,7 +2433,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				Type node = ((IConstructor) expr.value).getConstructorType();
 				
 				if (!expr.type.hasField(name)) {
-					throw new RascalTypeError(expr.type + " does not have a field named " + name);
+					throw new RascalTypeError(expr.type + " does not have a field named " + name, x);
 				}
 				
 				if (!node.hasField(name)) {
@@ -2447,7 +2447,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				return result(expr.type, ((IConstructor) expr.value).set(index, repl.value));
 			}
 			else {
-				throw new RascalTypeError("Field updates only possible on tuples with labeled fields, relations with labeled fields and data constructors");
+				throw new RascalTypeError("Field updates only possible on tuples with labeled fields, relations with labeled fields and data constructors", x);
 			}
 		} catch (FactTypeError e) {
 			throw new RascalTypeError(e.getMessage(), e);
@@ -2459,7 +2459,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result result = x.getFilename().accept(this);
 		
 		 if (!result.type.isSubtypeOf(tf.stringType())) {
-			   throw new RascalTypeError("Expected area, got " + result.type);
+			   throw new RascalTypeError("Expected area, got " + result.type, x);
 		 }
 		 
 		 return result(tf.sourceLocationType(), 
@@ -2524,7 +2524,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	@Override
 	public Result visitExpressionTypedVariable(TypedVariable x) {
-		throw new RascalTypeError("Use of typed variable outside matching context");
+		throw new RascalTypeError("Use of typed variable outside matching context", x);
 	}
 	
 	private boolean matchAndEval(IValue subject, org.meta_environment.rascal.ast.Expression pat, Statement stat){
@@ -3157,7 +3157,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result right = x.getRhs().accept(this);
 		
 		if (!left.type.comparable(right.type)) {
-			throw new RascalTypeError("Arguments of unequal have incomparable types: " + left.type + " and " + right.type);
+			throw new RascalTypeError("Arguments of unequal have incomparable types: " + left.type + " and " + right.type, x);
 		}
 		
 		return result(vf.bool(compare(left, right) != 0));
@@ -3365,7 +3365,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			}
 		} else {
 			throw new RascalTypeError("Condition has type "
-					+ cval.type + " but should be bool");
+					+ cval.type + " but should be bool", x);
 		}
 		return x.getElseExp().accept(this);
 	}
@@ -3408,7 +3408,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			return ((ISet) right.value).contains(left.value);
 		} else {
 			throw new RascalTypeError("Operands of in have wrong types: "
-					+ left.type + ", " + right.type);
+					+ left.type + ", " + right.type, expression2);
 		}
 	}
 	
@@ -3444,7 +3444,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 		
 		throw new RascalTypeError("Operands of o have wrong types: "
-				+ left.type + ", " + right.type);
+				+ left.type + ", " + right.type, x);
 	}
 
 	private Result closure(Result arg, boolean reflexive) {
@@ -3546,14 +3546,14 @@ public class Evaluator extends NullASTVisitor<Result> {
 					} else if(strat.isBottomUp()){
 							bottomup = true;
 					} else {
-						throw new RascalTypeError("Strategy " + strat + " not allowed in generator");
+						throw new RascalTypeError("Strategy " + strat + " not allowed in generator", vp);
 					}
 				}
 				iter = new INodeReader((INode) r.value, bottomup);
 			} else if(r.type.isStringType()){
 				iter = new SingleIValueIterator(r.value);
 			} else {
-				throw new RascalTypeError("Unimplemented expression type " + r.type + " in generator");
+				throw new RascalTypeError("Unimplemented expression type " + r.type + " in generator", vp);
 			}
 		}
 		
@@ -3603,7 +3603,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 					if(v.type.isBoolType()){
 						return result(tf.boolType(), vf.bool(v.value.isEqual(vf.bool(true))));
 					} else {
-						throw new RascalTypeError("Expression as generator should have type bool");
+						throw new RascalTypeError("Expression as generator should have type bool", expr);
 					}
 				} else {
 					return result(tf.boolType(), vf.bool(false));
@@ -3673,7 +3673,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			if(!r1.type.isSubtypeOf(elementType1)){
 				throw new RascalTypeError("Cannot add value of type " + r1.type +
 						                   " to list/set/map comprehension with element/key type " + 
-						                   elementType1);
+						                   elementType1, resultExpr1);
 			} else {		
 				elementType1 = elementType1.lub(r1.type);
 				switch(kind){
@@ -3685,7 +3685,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 					if(!r2.type.isSubtypeOf(elementType2)){
 						throw new RascalTypeError("Cannot add value of type " + r2.type + 
 												   " to map comprehension with value type " + 
-												   elementType2);
+												   elementType2, resultExpr2);
 					} 
 					((IMapWriter)writer).put(r1.value, r2.value);
 				}	
@@ -3854,7 +3854,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		if(bound.isDefault()){
 			Result res = bound.getExpression().accept(this);
 			if(!res.type.isIntegerType()){
-				throw new RascalTypeError("Bound in solve statement should be integer, instead of " + res.type);
+				throw new RascalTypeError("Bound in solve statement should be integer, instead of " + res.type, x);
 			}
 			max = ((IInteger)res.value).getValue();
 			if(max <= 0){
