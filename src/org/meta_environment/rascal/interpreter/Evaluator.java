@@ -57,7 +57,6 @@ import org.meta_environment.rascal.ast.TypeArg;
 import org.meta_environment.rascal.ast.TypeVar;
 import org.meta_environment.rascal.ast.ValueProducer;
 import org.meta_environment.rascal.ast.Variant;
-import org.meta_environment.rascal.ast.Visibility;
 import org.meta_environment.rascal.ast.Assignable.Constructor;
 import org.meta_environment.rascal.ast.Assignable.FieldAccess;
 import org.meta_environment.rascal.ast.ClosureAsFunction.Evaluated;
@@ -1499,16 +1498,17 @@ public class Evaluator extends NullASTVisitor<Result> {
 	public Result visitFunctionDeclarationDefault(
 			org.meta_environment.rascal.ast.FunctionDeclaration.Default x) {
 		Lambda lambda;
+		boolean varArgs = x.getSignature().getParameters().isVarArgs();
 		
 		if (hasJavaModifier(x)) {
-			lambda = new JavaFunction(this, x, stack.top(), javaBridge);
+			lambda = new JavaFunction(this, x, varArgs, stack.top(), javaBridge);
 		}
 		else {
 			if (!x.getBody().isDefault()) {
 				throw new RascalTypeError("Java function body without java function modifier in: " + x);
 			}
 			
-			lambda = new RascalFunction(this, x, stack.top());
+			lambda = new RascalFunction(this, x, varArgs, stack.top());
 		}
 		
 		String name = Names.name(x.getSignature().getName());
@@ -1858,7 +1858,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	@Override
 	public Result visitExpressionNonEmptyBlock(NonEmptyBlock x) {
-		return new Lambda(this, tf.voidType(), "", tf.tupleEmpty(), x.getStatements(), stack.top());
+		return new Lambda(this, tf.voidType(), "", tf.tupleEmpty(), false, x.getStatements(), stack.top());
 	}
 
 	public Result visitExpressionTuple(Tuple x) {
@@ -2402,13 +2402,13 @@ public class Evaluator extends NullASTVisitor<Result> {
 	public Result visitExpressionClosure(Closure x) {
 		Type formals = x.getParameters().accept(te);
 		Type returnType = x.getType().accept(te);
-		return new Lambda(this, returnType, "", formals, x.getStatements(), stack.top());
+		return new Lambda(this, returnType, "", formals, x.getParameters().isVarArgs(), x.getStatements(), stack.top());
 	}
 
 	@Override
 	public Result visitExpressionVoidClosure(VoidClosure x) {
 		Type formals = x.getParameters().accept(te);
-		return new Lambda(this, tf.voidType(), "", formals, x.getStatements(), stack.top());
+		return new Lambda(this, tf.voidType(), "", formals, x.getParameters().isVarArgs(), x.getStatements(), stack.top());
 	}
 	
 	@Override
