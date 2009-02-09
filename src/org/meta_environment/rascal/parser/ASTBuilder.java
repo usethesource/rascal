@@ -197,8 +197,6 @@ public class ASTBuilder {
 	private AbstractAST buildValue(IValue arg)  {
 		TreeAdapter tree = new TreeAdapter((IConstructor) arg);
 		
-		System.err.println("area: " + tree.getRange());
-		
 		if (tree.isAmb()) {
 			return buildAmbNode((INode) arg, tree.getAlternatives());
 		}
