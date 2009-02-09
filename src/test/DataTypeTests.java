@@ -5,10 +5,10 @@ import java.io.IOException;
 
 public class DataTypeTests extends TestCase{
 	
-	private static TestFramework tf = new TestFramework();
-	
 	public void testBool() throws IOException
 	{
+		TestFramework tf = new TestFramework();
+		
 		assertTrue(tf.runTest("true == true;"));
 		assertFalse(tf.runTest("true == false;"));
 		assertTrue(tf.runTest("true != false;"));	
@@ -59,6 +59,8 @@ public class DataTypeTests extends TestCase{
 	
 	public void testInt() throws IOException 
 	{
+		TestFramework tf = new TestFramework();
+		
 		assertTrue(tf.runTest("1 == 1;"));
 		assertTrue(tf.runTest("1 != 2;"));
 		
@@ -125,6 +127,8 @@ public class DataTypeTests extends TestCase{
 	
 	public void testReal() throws IOException 
 	{
+		TestFramework tf = new TestFramework();
+		
 		assertTrue(tf.runTest("1.0 == 1.0;"));
 		assertTrue(tf.runTest("1.0 != 2.0;"));
 		
@@ -236,6 +240,8 @@ public class DataTypeTests extends TestCase{
 	}
 	
 	public void testString() throws IOException {
+		TestFramework tf = new TestFramework();
+		
 		assertTrue(tf.runTest("\"\" == \"\";"));
 		assertTrue(tf.runTest("\"abc\" != \"\";"));
 		assertTrue(tf.runTest("\"abc\" == \"abc\";"));
@@ -266,6 +272,8 @@ public class DataTypeTests extends TestCase{
 	}
 	
 	public void testLocation() throws IOException {
+		TestFramework tf = new TestFramework();
+		
 		//assertTrue(tf.runTest("{area(5,2,6,8,0,0); true;}"));
 		//assertTrue(tf.runTest("{file(\"pico1.trm\"); true;}"));
 		assertTrue(tf.runTest("{area-in-file(\"pico1.trm\",area(5,2,6,8,0,0)); true;}"));
@@ -273,6 +281,8 @@ public class DataTypeTests extends TestCase{
 	
 	public void testList() throws IOException 
 	{
+		TestFramework tf = new TestFramework();
+		
 		assertTrue(tf.runTest("[] == [];"));
 		assertTrue(tf.runTest("[] != [1];"));
 		assertTrue(tf.runTest("[1] == [1];"));
@@ -332,6 +342,8 @@ public class DataTypeTests extends TestCase{
 	}
 	
 	public void testRange() throws IOException {
+		TestFramework tf = new TestFramework();
+		
 		assertTrue(tf.runTest("[1 .. 1] == [1];"));
 		assertTrue(tf.runTest("[1 .. 2] == [1, 2];"));
 		assertTrue(tf.runTest("[1 .. -1] == [1, 0, -1];"));
@@ -342,6 +354,8 @@ public class DataTypeTests extends TestCase{
 	}
 	
 	public void testSet() throws IOException {
+		TestFramework tf = new TestFramework();
+		
 		assertTrue(tf.runTest("{} == {};"));
 		assertTrue(tf.runTest("{} != {1};"));
 		assertTrue(tf.runTest("{1} == {1};"));
@@ -422,6 +436,8 @@ public class DataTypeTests extends TestCase{
 	}
 	
 	public void testMap() throws IOException {
+		TestFramework tf = new TestFramework();
+		
 		assertTrue(tf.runTest("() == ();"));
 		assertTrue(tf.runTest("(1:10) != ();"));
 		assertTrue(tf.runTest("(1:10) == (1:10);"));
@@ -473,6 +489,8 @@ public class DataTypeTests extends TestCase{
 	}
 	
 	public void testTuple() throws IOException {
+		TestFramework tf = new TestFramework();
+		
 		assertTrue(tf.runTest("<1, 2.5, true> == <1, 2.5, true>;"));
 		assertTrue(tf.runTest("<1, 2.5, true> != <0, 2.5, true>;"));
 		assertTrue(tf.runTest("<{1,2}, 3> == <{2,1}, 3>;"));
@@ -519,6 +537,8 @@ public class DataTypeTests extends TestCase{
 	}
 	
 	public void testNamedTuple()  throws IOException {
+		TestFramework tf = new TestFramework();
+		
 		assertTrue(tf.runTest("{tuple[int key, str val] T = <1, \"abc\">; T.key == 1;}"));
 		assertTrue(tf.runTest("{tuple[int key, str val] T = <1, \"abc\">; T.val == \"abc\";}"));
 		
@@ -526,6 +546,8 @@ public class DataTypeTests extends TestCase{
 	}
 	
 	public void testRelation() throws IOException {
+		TestFramework tf = new TestFramework();
+		
 		assertTrue(tf.runTest("{} == {};"));
 		assertTrue(tf.runTest("{<1,10>} == {<1,10>};"));
 		assertTrue(tf.runTest("{<1,2,3>} == {<1,2,3>};"));
@@ -579,18 +601,21 @@ public class DataTypeTests extends TestCase{
 	}
 	
 	public void testNamedRelation() throws IOException {
+		TestFramework tf = new TestFramework();
+		
 		assertTrue(tf.runTest("{rel[int from, int to] R = {<1,10>, <2,20>}; R.from == {1,2};}"));
 		assertTrue(tf.runTest("{rel[int from, int to] R = {<1,10>, <2,20>}; R.to == {10,20};}"));
 		assertTrue(tf.runWithError("{rel[int from, int to] R = {<1,10>, <2,20>}; R.zip == {10,20};}", "no field exists"));
 	}
 	
 	public void testGood() throws IOException {
-		tf = new TestFramework("data NODE = val(value V) | f | f(NODE a);");
+		TestFramework tf = new TestFramework("data NODE = val(value V) | f | f(NODE a);");
+		
 		assertTrue(tf.runTestInSameEvaluator("f(val(1)) == f(val(1));"));
 	}
 	
 	public void testNode() throws IOException {
-		tf = new TestFramework("data NODE = i(int I) | s(str x)  | st(set[NODE] s) | l(list[NODE]) | m(map[NODE,NODE] m) | f | f(NODE a) | f(NODE a, NODE b) | g | g(NODE a) | g(NODE a,NODE b);");
+		TestFramework tf = new TestFramework("data NODE = i(int I) | s(str x)  | st(set[NODE] s) | l(list[NODE]) | m(map[NODE,NODE] m) | f | f(NODE a) | f(NODE a, NODE b) | g | g(NODE a) | g(NODE a,NODE b);");
 		
 		assertTrue(tf.runTestInSameEvaluator("f() == f();"));
 		assertTrue(tf.runTestInSameEvaluator("f() != g();"));
@@ -653,6 +678,8 @@ public class DataTypeTests extends TestCase{
 	}
 	
 	public void testUndefined() throws IOException {
+		TestFramework tf = new TestFramework();
+		
 		assertTrue(tf.runTest("1 =? 13 == 1;"));
 		assertTrue(tf.runTest("x =? 13 == 13;"));
 		assertTrue(tf.runTest("{ x = 3; x =? 13 == 3; }"));
