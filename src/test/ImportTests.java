@@ -8,11 +8,8 @@ import org.meta_environment.rascal.interpreter.exceptions.RascalUndefinedValue;
 
 public class ImportTests extends TestCase {
 	
-	private TestFramework tf = new TestFramework();
-	
 	public void testFun() throws IOException{
-		
-		tf = new TestFramework();
+		TestFramework tf = new TestFramework();
 		
 		tf.prepareModule("module M" +
 				         " public int f(int n) {return 2 * n;}" +
@@ -27,8 +24,7 @@ public class ImportTests extends TestCase {
 	}
 	
 	public void testVar() throws IOException{
-		
-		tf = new TestFramework();
+		TestFramework tf = new TestFramework();
 		
 		tf.prepareModule("module M\n" +
 				         "public int n = 3;\n" +
@@ -47,8 +43,7 @@ public class ImportTests extends TestCase {
 	}
 	
 	public void testMbase1() throws IOException{
-		
-		tf = new TestFramework();
+		TestFramework tf = new TestFramework();
 		
 		tf.prepare("import Mbase;");
 		
@@ -60,8 +55,7 @@ public class ImportTests extends TestCase {
 	}
 	
 	public void testMbase2() throws IOException{
-		
-		tf = new TestFramework();
+		TestFramework tf = new TestFramework();
 		
 		tf.prepareModule("module M " +
 						 "import Mbase; " +
@@ -76,8 +70,7 @@ public class ImportTests extends TestCase {
 	}
 	
 	public void testMbase3() throws IOException{
-		
-		tf = new TestFramework();
+		TestFramework tf = new TestFramework();
 		
 		tf.prepareModule("module M " +
 						 "import Mbase;" +
@@ -96,7 +89,7 @@ public class ImportTests extends TestCase {
 	}
 	
 	public void testSize()  throws IOException{
-		tf = new TestFramework();
+		TestFramework tf = new TestFramework();
 		
 		tf.prepareModule("module Msize " +
 				         "import Set;" +

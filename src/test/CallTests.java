@@ -5,9 +5,9 @@ import java.io.IOException;
 
 public class CallTests extends TestCase{
 	
-	private static TestFramework tf = new TestFramework();
-	
 	public void testFac() throws IOException {
+		TestFramework tf = new TestFramework();
+		
 		String fac = "int fac(int n){ return (n <= 0) ? 1 : (n * fac(n - 1));}";
 		
 		assertTrue(tf.runTest("{" + fac + " fac(0) == 1;}"));
@@ -21,6 +21,8 @@ public class CallTests extends TestCase{
 	}
 	
 	public void testNotTailRecFac() throws IOException {
+		TestFramework tf = new TestFramework();
+		
 		String fac = "int fac(int n) { if (n == 0) { return 1; } int z = fac(n - 1); return z * n; }";
 		
 		assertTrue(tf.runTest("{" + fac + " fac(0) == 1;}"));
@@ -31,7 +33,9 @@ public class CallTests extends TestCase{
 	}
 	
 	public void testFormalsAreLocal() throws IOException {
-	String fac = "int fac(int n) { if (n == 0) { return 1; } int z = n; int n = fac(n - 1); return z * n; }";
+		TestFramework tf = new TestFramework();
+		
+		String fac = "int fac(int n) { if (n == 0) { return 1; } int z = n; int n = fac(n - 1); return z * n; }";
 		
 		assertTrue(tf.runTest("{" + fac + " fac(0) == 1;}"));
 		assertTrue(tf.runTest("{" + fac + " fac(1) == 1;}"));
@@ -41,6 +45,8 @@ public class CallTests extends TestCase{
 	}
 	
 	public void testHigherOrder() throws IOException  {
+		TestFramework tf = new TestFramework();
+		
 		String add = "int add(int a, int b) { return a + b; }";
 		String sub = "int sub(int a, int b) { return a - b; }";
 		String doSomething = "int doSomething(int (int a, int b) F) { return #F(1,2); }";
@@ -50,6 +56,8 @@ public class CallTests extends TestCase{
 	}
 	
 	public void testClosures() throws IOException {
+		TestFramework tf = new TestFramework();
+		
 		String doSomething = "int f(int (int i) g, int j) { return #g(j); }";
 		
 	    assertTrue(tf.runTest("{ " + doSomething + " f(int (int i) { return i + 1; }, 0) == 1; }"));
@@ -57,6 +65,8 @@ public class CallTests extends TestCase{
 	}
 	
 	public void testVarArgs() throws IOException {
+		TestFramework tf = new TestFramework();
+		
 		String add0 = "int add(int i...) { return 0; }";
 		String add1 = "int add(int i...) { return i[0]; }";
 		String add2 = "int add(int i, int j...) { return i + j[0]; }";
@@ -80,12 +90,16 @@ public class CallTests extends TestCase{
 	}
 	
 	public void testSideEffect() throws IOException {
+		TestFramework tf = new TestFramework();
+		
 		String one = "void One() { called = called + 1; return; }";
 		
 		assertTrue(tf.runTest("{ int called = 0; " + one + " One(); One(); One(); called == 3;}"));
 	}
 	
 	public void testMax1() throws IOException {
+		TestFramework tf = new TestFramework();
+		
 		String maxInt = "int max(int a, int b) { return a > b ? a : b; }";
 		String maxReal = "real max(real a, real b) { return a > b ? a : b; }";
 		assertTrue(tf.runTest("{" + maxInt + " max(3,4) == 4;}"));
@@ -93,6 +107,8 @@ public class CallTests extends TestCase{
 	}
 	
 	public void testMax2() throws IOException {
+		TestFramework tf = new TestFramework();
+		
 		String max = "&T max(&T a, &T b) { return a > b ? a : b; }";
 		assertTrue(tf.runTest("{" + max + " max(3,4) == 4;}"));
 		assertTrue(tf.runTest("{" + max + " max(3.0,4.0) == 4.0;}"));
@@ -100,6 +116,8 @@ public class CallTests extends TestCase{
 	}
 	
 	public void testIdent() throws IOException {
+		TestFramework tf = new TestFramework();
+		
 		String ident = "&T ident(&T x){ return x; }";
 		assertTrue(tf.runTest("{" + ident + " ident(true) == true;}"));
 		assertTrue(tf.runTest("{" + ident + " ident(4) == 4;}"));
@@ -112,12 +130,16 @@ public class CallTests extends TestCase{
 	}
 	
 	public void testMap() throws IOException {
+		TestFramework tf = new TestFramework();
+		
 		String put = "map[&K,&V] put(map[&K,&V] m, &K k, &V v) { m[k] = v; return m; }";
 		
 		assertTrue(tf.runTest("{" + put + " put((),1,\"1\") == (1:\"1\"); }"));
 	}
 	
 	public void testAdd() throws IOException {
+		TestFramework tf = new TestFramework();
+		
 		String add = "list[&T] java add(&T elm, list[&T] lst) { return lst.insert(elm); }";
 		
 		assertTrue(tf.runTest("{" + add + " add(1, [2,3]) == [1,2,3];}"));
@@ -125,6 +147,8 @@ public class CallTests extends TestCase{
 	}
 	
 	public void testPutAt() throws IOException {
+		TestFramework tf = new TestFramework();
+		
 		String putAt = "list[&T] java putAt(&T elm, int n, list[&T] lst){return lst.put(n.getValue(), elm);}";
 		
 		assertTrue(tf.runTest("{" + putAt + " putAt(1, 0, [2,3]) == [1,3];}"));
