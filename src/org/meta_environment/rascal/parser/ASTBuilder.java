@@ -58,6 +58,7 @@ public class ASTBuilder {
 		IConstructor tree = (IConstructor) start.getArgs().get(1);
 		TreeAdapter treeAdapter = new TreeAdapter(tree); 
 
+		
 		if (treeAdapter.getSortName().equals(sort)) {
 			return (T) buildValue(tree);
 		} else {
@@ -196,9 +197,12 @@ public class ASTBuilder {
 	private AbstractAST buildValue(IValue arg)  {
 		TreeAdapter tree = new TreeAdapter((IConstructor) arg);
 		
+		System.err.println("area: " + tree.getRange());
+		
 		if (tree.isAmb()) {
 			return buildAmbNode((INode) arg, tree.getAlternatives());
 		}
+		
 		if (!tree.isAppl()) {
 			throw new UnsupportedOperationException();
 		}	

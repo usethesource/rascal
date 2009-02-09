@@ -96,6 +96,9 @@ public class Factory {
 	public static final Type CharRange_Single = tf.constructor(CharRange, "single", tf.integerType(), "start");
 	public static final Type CharRange_Range = tf.constructor(CharRange, "range", tf.integerType(), "start", tf.integerType(), "end");
 	
+	public static final String Location = "loc";
+	public static final String Length = "len";
+	
 	private static final class InstanceHolder {
 		public final static Factory factory = new Factory();
 	}
@@ -104,7 +107,10 @@ public class Factory {
 		return InstanceHolder.factory;
 	}
 	
-	private Factory() {}
+	private Factory() {
+		tf.declareAnnotation(Tree, Location, tf.sourceLocationType());
+		tf.declareAnnotation(Tree, Length, tf.integerType());
+	}
 	
 	public INode readParseTree(InputStream stream) throws FactTypeError, IOException {
 		ATermReader reader = new ATermReader();

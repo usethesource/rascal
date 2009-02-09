@@ -2032,9 +2032,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 		
 		
-		
 		throw new RascalTypeError("Operands of + have illegal types: "
-					+ left.type + ", " + right.type);
+					+ left.type + ", " + right.type, x);
 	}
     
 	public Result visitExpressionSubtraction(Subtraction x) {
@@ -2220,7 +2219,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 		else {
 			throw new RascalTypeError("Operands of * have illegal types: "
-					+ left.type + ", " + right.type);
+					+ left.type + ", " + right.type, x);
 		}
 	}
 	

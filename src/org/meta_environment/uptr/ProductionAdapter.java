@@ -42,7 +42,9 @@ public class ProductionAdapter {
 		return getRhs().isCf();
 	}
 	
-	
+	public boolean isLayout() {
+		return getRhs().isLayout();
+	}
 	
 	public String getSortName() {
 		SymbolAdapter rhs = getRhs();
@@ -89,7 +91,11 @@ public class ProductionAdapter {
 	}
 
 	public boolean isLexical() {
-		return getRhs().isLex();
+		SymbolAdapter rhsSym = getRhs();
+		if (rhsSym.isLex() || rhsSym.isCf()) {
+			rhsSym = rhsSym.getSymbol();
+		}
+		return rhsSym.isLayout();
 	}
 
 	public boolean isLexToCf() {
@@ -107,5 +113,6 @@ public class ProductionAdapter {
 		SymbolAdapter rhsSym = getRhs();
 		return lhsSym.getSymbol().equals(rhsSym.getSymbol());
 	}
+
 
 }

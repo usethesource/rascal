@@ -63,6 +63,10 @@ public class SymbolAdapter {
 		return tree.getConstructorType() == Factory.Symbol_IterPlusSep;
 	}
 	
+	public boolean isLayout() {
+		return tree.getConstructorType() == Factory.Symbol_Layout;
+	}
+	
 	public boolean isIterStarSep() {
 		return tree.getConstructorType() == Factory.Symbol_IterStarSep;
 	}
@@ -74,4 +78,6 @@ public class SymbolAdapter {
 		}
 		return tree.equals(((SymbolAdapter)obj).tree);
 	}
+
+
 }
