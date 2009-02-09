@@ -13,6 +13,8 @@ import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.io.ATermReader;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.meta_environment.uptr.Factory;
+import org.meta_environment.uptr.ParsetreeAdapter;
+import org.meta_environment.uptr.TreeAdapter;
 
 import sglr.SGLRInvoker;
 import sun.security.action.GetPropertyAction;
@@ -42,7 +44,8 @@ public class Parser{
 		
 		ATermReader reader = new ATermReader();
 		ByteArrayInputStream bais = new ByteArrayInputStream(result);
-		return (IConstructor) reader.read(ValueFactory.getInstance(), Factory.ParseTree, bais);
+		IConstructor tree = (IConstructor) reader.read(ValueFactory.getInstance(), Factory.ParseTree, bais);
+		return new ParsetreeAdapter(tree).addPositionInformation("-");
 	}
 
 	public IConstructor parseFromStream(InputStream inputStringStream) throws IOException, FactTypeError{
@@ -51,7 +54,8 @@ public class Parser{
 		
 		ATermReader reader = new ATermReader();
 		ByteArrayInputStream bais = new ByteArrayInputStream(result);
-		return (IConstructor) reader.read(ValueFactory.getInstance(), Factory.ParseTree, bais);
+		IConstructor tree = (IConstructor) reader.read(ValueFactory.getInstance(), Factory.ParseTree, bais);
+		return new ParsetreeAdapter(tree).addPositionInformation("-");
 	}
 	
 	public IConstructor parseFromFile(File inputFile) throws IOException, FactTypeError{
@@ -60,7 +64,8 @@ public class Parser{
 
 		ATermReader reader = new ATermReader();
 		ByteArrayInputStream bais = new ByteArrayInputStream(result);
-		return (IConstructor) reader.read(ValueFactory.getInstance(), Factory.ParseTree, bais);
+		IConstructor tree = (IConstructor) reader.read(ValueFactory.getInstance(), Factory.ParseTree, bais);
+		return new TreeAdapter(tree).addPositionInformation(inputFile.getAbsolutePath());
 	}
 	
 	private String getTableFile() throws IOException{
