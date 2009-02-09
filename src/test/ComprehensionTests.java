@@ -6,9 +6,9 @@ import java.io.IOException;
 
 public class ComprehensionTests extends TestCase {
 	
-	private static TestFramework tf = new TestFramework();
-	
 	public void testSetComprehension1() throws IOException {
+		TestFramework tf = new TestFramework();
+		
 		assertTrue(tf.runTest("{ X | int X : {} } == {};"));
 		assertTrue(tf.runTest("{ X | int X : [] } == {};"));
 		
@@ -44,6 +44,8 @@ public class ComprehensionTests extends TestCase {
 	}
 	
 	public void testSetComprehension2() throws IOException {	
+		TestFramework tf = new TestFramework();
+		
 		assertTrue(tf.runTest("{  {} | int X : {1,2,3}} == {{}};"));
 		assertTrue(tf.runTest("{  {} | int X : [1,2,3]} == {{}};"));
 		
@@ -70,7 +72,8 @@ public class ComprehensionTests extends TestCase {
 		assertTrue(tf.runTest("{1 | 2 > 3} == {} ;"));
 	}
 	
-	public void testAny() throws IOException {	
+	public void testAny() throws IOException {
+		TestFramework tf = new TestFramework();
 		
 		assertTrue(tf.runTest("any(int X : {1,2,3}, X > 2);"));
 		assertTrue(tf.runTest("any(int X : {1,2,3}, X > 2, X <10);"));
@@ -91,6 +94,7 @@ public class ComprehensionTests extends TestCase {
 	}
 	
 	public void testAll() throws IOException {
+		TestFramework tf = new TestFramework();
 		
 		assertTrue(tf.runTest("all(int X : {1,2,3}, X >= 1);"));
 		assertTrue(tf.runTest("all(int X : {1,2,3}, X >= 1, X < 10);"));
@@ -114,6 +118,7 @@ public class ComprehensionTests extends TestCase {
 	}
 	
 	public void testSetComprehension3() throws IOException {	
+		TestFramework tf = new TestFramework();
 		
 		assertTrue(tf.runTest("{X + 1 | int X : {1,2,3}} == {2,3,4};"));
 		assertTrue(tf.runTest("{X + 1 | int X : [1,2,3]} == {2,3,4};"));
@@ -132,6 +137,8 @@ public class ComprehensionTests extends TestCase {
 	}
 	
 	public void testListComprehension1() throws IOException {
+		TestFramework tf = new TestFramework();
+		
 		assertTrue(tf.runTest("[ X | int X : {} ] == [];"));
 		assertTrue(tf.runTest("[ X | int X : [] ] == [];"));
 		
@@ -167,6 +174,7 @@ public class ComprehensionTests extends TestCase {
 	}
 	
 	public void testListComprehension2() throws IOException {
+		TestFramework tf = new TestFramework();
 		
 		assertTrue(tf.runTest("[  [] | int X : {1,2,3}] == [[], [], []];"));
 		assertTrue(tf.runTest("[  [] | int X : [1,2,3]] == [[], [], []];"));
@@ -191,6 +199,8 @@ public class ComprehensionTests extends TestCase {
 	}
 	
 	public void testListComprehension3() throws IOException {
+		TestFramework tf = new TestFramework();
+		
 		assertTrue(tf.runTest("[ Y | list[int] Y : [[1,2,3],[10,20,30],[100,200,300]] ] == [ [1,2,3], [10,20,30],[100,200,300]];"));
 		assertTrue(tf.runTest("[1 | 3 > 2] == [1] ;"));
 		assertTrue(tf.runTest("[1 | 2 > 3] == [] ;"));
@@ -213,6 +223,8 @@ public class ComprehensionTests extends TestCase {
 	}
 	
 	public void testRelationComprehension() throws IOException {
+		TestFramework tf = new TestFramework();
+		
 		assertTrue(tf.runTest("{<X,Y> | <int X, int Y> : {}} == {} ;"));
 		assertTrue(tf.runTest("{<X,Y> | <int X, int Y> : []} == {} ;"));
 		
@@ -247,6 +259,8 @@ public class ComprehensionTests extends TestCase {
 		}
 	
 	public void testMapComprehension() throws IOException {
+		TestFramework tf = new TestFramework();
+		
 		assertTrue(tf.runTest("( X : 2 * X | int X : {} ) == ();"));
 		assertTrue(tf.runTest("( X : 2 * X | int X : [] ) == ();"));
 		
@@ -260,8 +274,7 @@ public class ComprehensionTests extends TestCase {
 	}
 	
 	public void testNodeGenerator() throws IOException {
-		
-		tf = new TestFramework("data TREE = i(int N) | f(TREE a,TREE b) | g(TREE a, TREE b);");
+		TestFramework tf = new TestFramework("data TREE = i(int N) | f(TREE a,TREE b) | g(TREE a, TREE b);");
 		
 		assertTrue(tf.runTestInSameEvaluator("[ X | int X : f(i(1),g(i(2),i(3))) ] == [1,2,3];"));
 		assertTrue(tf.runTestInSameEvaluator("[ X | value X : f(i(1),g(i(2),i(3))) ] == [1,i(1),2,i(2),3,i(3),g(i(2),i(3)),f(i(1),g(i(2),i(3)))];"));
@@ -293,7 +306,9 @@ public class ComprehensionTests extends TestCase {
 		assertTrue(tf.runTestInSameEvaluator("[N | top-down int N : f(i(1),g(i(2),i(3)))] == [1,2,3];"));
 	}
 	
-	public void xxtestRegularGenerators() throws IOException  {
+	public void xxtestRegularGenerators() throws IOException{
+		TestFramework tf = new TestFramework();
+		
 		assertTrue(tf.runTest("[S | /@<S:[a-z]+>@/ : [\"@abc@\", \"@def@\"]] == [\"abc\",\"def\"];"));
 		assertTrue(tf.runTest("{S | /@<S:[a-z]+>@/ : [\"@abc@\", \"@def@\"]} == {\"abc\", \"def\"};"));
 		assertTrue(tf.runTest("{S | /@<S:[a-z]+>@/ : {\"@abc@\", \"@def@\"}} == {\"abc\", \"def\"};"));
