@@ -442,6 +442,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 					"demo/Lexicals/",
 					"demo/Misc/",
 					"demo/Pico/",
+					"demo/PicoAbstract/",
 					"demo/Rascal/"
 					};
 			
