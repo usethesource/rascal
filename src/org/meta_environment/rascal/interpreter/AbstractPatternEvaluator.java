@@ -166,6 +166,11 @@ interface MatchPattern {
 		hasNext = true;
 	}
 	
+	@Override
+	public boolean hasNext(){
+		return hasNext;
+	}
+	
 	public Type getType(Evaluator ev) {
 		 Type[] types = new Type[children.size()];
 
@@ -211,7 +216,7 @@ interface MatchPattern {
 		
 		if(!hasNext)
 			return false;
-		
+		hasNext = false;
 		firstMatch = false;
 		Type stype = subject.getType();
 	
@@ -223,7 +228,10 @@ interface MatchPattern {
 		
 		if (name.toString().equals(subjTree.getName().toString()) && 
 			children.size() == subjTree.arity()){
-			return matchChildren(subjTree.getChildren().iterator(), children.iterator(), ev);
+			boolean result = matchChildren(subjTree.getChildren().iterator(), children.iterator(), ev);
+			if(result)
+				hasNext = true;
+			return result;
 		}
 		return false;
 	}
