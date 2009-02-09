@@ -9,11 +9,15 @@ import jline.ConsoleReader;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.Command;
+import org.meta_environment.rascal.errors.ErrorAdapter;
+import org.meta_environment.rascal.errors.SubjectAdapter;
+import org.meta_environment.rascal.errors.SummaryAdapter;
 import org.meta_environment.rascal.interpreter.exceptions.FailureException;
 import org.meta_environment.rascal.interpreter.exceptions.RascalBug;
 import org.meta_environment.rascal.interpreter.exceptions.RascalException;
@@ -26,7 +30,6 @@ import org.meta_environment.uptr.Factory;
 public class RascalShell {
 	private final static String PROMPT = ">";
 	private final static String CONTINUE_PROMPT = "?";
-	private final static String TERMINATOR = ";";
 	
 	private final Parser parser = Parser.getInstance();
 	private final ASTFactory factory = new ASTFactory();
@@ -56,13 +59,21 @@ public class RascalShell {
 		String line;
 		
 		try {
-			while (true) {
+			next:while (true) {
 				try {
 					input.delete(0, input.length());
+					String prompt = PROMPT;
 
 					do {
-						line = prompt(console, input);
-						input.append(line + "\n");
+						line = console.readLine(prompt);
+						if (line.trim().isEmpty()) {
+							console.printString("cancelled\n");
+							continue next;
+						}
+						else {
+							input.append(line);
+							prompt = CONTINUE_PROMPT;
+						}
 					} while (!completeStatement(input));
 
 					String output = handleInput(commander, input);
@@ -176,44 +187,37 @@ public class RascalShell {
 		return result.toString();
 	}
 
-	private String prompt(ConsoleReader console, StringBuffer statement) throws IOException {
-		if (statement.length() == 0) {
-			return console.readLine(PROMPT);
-		}
-		else {
-		  return console.readLine(CONTINUE_PROMPT);
-		}
-	}
-	
-	private boolean completeStatement(StringBuffer statement) {
-		if (statement.toString().trim().startsWith(":")) {
-			return true;
-		}
-		else {
-			int brackets = 0, curlies = 0, angular = 0, braces = 0, semies = 0;
-			boolean multiline = false;
-			
-			for (byte ch : statement.toString().getBytes()) {
-				switch (ch) {
-				case '(': brackets++; break;
-				case ')': if (brackets > 0) brackets--; break;
-				case '{': curlies++; break;
-				case '}': if(curlies > 0) curlies--; break;
-				case '[': braces++; break;
-				case ']': if (braces > 0) braces--; break;
-				case ';': semies++; break;
-				case '\n': multiline = true; break;
+	private ISourceRange getErrorRange(SummaryAdapter summaryAdapter) {
+		for (ErrorAdapter error : summaryAdapter) {
+			for (SubjectAdapter subject : error) {
+				if (subject.isLocalized()) {
+					return subject.getRange();
 				}
 			}
+		}
+		
+		return null;
+	}
+	
+	private boolean completeStatement(StringBuffer statement) throws FactTypeError, IOException {
+		String command = statement.toString();
+		IConstructor tree = parser.parseFromString(command);
+
+		if (tree.getConstructorType() == Factory.ParseTree_Summary) {
+			ISourceRange range = getErrorRange(new SummaryAdapter(tree));
+			String[] commandLines = command.split("\n");
+			int lastLine = commandLines.length;
+			int lastColumn = commandLines[lastLine - 1].length();
 			
-			if (multiline) {
-			  return brackets == 0 && curlies == 0 && angular == 0 && braces == 0;
+			if (range.getEndLine() == lastLine && lastColumn <= range.getEndColumn()) { 
+				return false;
 			}
 			else {
-				int lastTerminator = statement.lastIndexOf(TERMINATOR);
-				  return (lastTerminator != -1 && statement.substring(lastTerminator).trim().equals(TERMINATOR));	
+				return true;
 			}
 		}
+		
+		return true;
 	}
 	
 	public static void main(String[] args) {
