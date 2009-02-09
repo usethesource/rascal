@@ -45,14 +45,14 @@ public class Lambda extends Result implements IValue {
 	protected static boolean callTracing = false;
 	
 	
-	public Lambda(Evaluator eval, Type returnType, String name, Type formals, java.util.List<Statement> body, 
+	public Lambda(Evaluator eval, Type returnType, String name, Type formals, boolean varargs, java.util.List<Statement> body, 
 				Environment env) {
 			this.eval = eval;
 		this.returnType = returnType;
 		this.name = name;
 		this.formals = formals;
 		this.body = body;
-		this.hasVarArgs = hasVarArgs(formals);
+		this.hasVarArgs = varargs;
 		this.isVoidFunction = returnType.isSubtypeOf(TF.voidType());
 		this.value = this;
 		this.type = ClosureType;
@@ -60,13 +60,6 @@ public class Lambda extends Result implements IValue {
 		this.stackClone.pushFrame(env);
 	}
     
-	private boolean hasVarArgs(Type formals) {
-		if (formals.isTupleType() && formals.getArity() > 0) {
-			return formals.getFieldType(formals.getArity() - 1).isListType();
-		}
-		return false;
-	}
-
 	public boolean match(Type actuals) {
 		if (actuals.isSubtypeOf(formals)) {
 			return true;
