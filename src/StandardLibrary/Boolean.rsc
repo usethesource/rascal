@@ -6,21 +6,34 @@ public bool java arbBool()
   return values.bool(random.nextInt(2) == 1);
 }
 
-public int java toInt(bool b)
+public int toInt(bool b)
 @doc{toInt -- convert a boolean value to integer.}
 {
-  return values.integer(b.getValue() ? 1 : 0);
+  return b ? 1 : 0;
 }
 
-public real java toReal(bool b)
+public bool fromInt(int i) {
+  return i != 0;
+}
+
+public real toReal(bool b)
 @doc{toReal -- convert a boolean value to a real value.}
 {
-  return values.dubble(b.getValue() ? 1.0 : 0.0);
+  return b ? 1.0 : 0.0;
 }
 
-public str java toString(bool b)
+public str toString(bool b)
 @doc{toString -- convert a boolean value to a string.}
 {
-  return values.string(b.getValue() ? "true" : "false");
+  return b ? "true" : "false";
 }
 
+public bool fromString(str s) {
+  if (s == "true") {
+    return true;
+  }
+  if (s == "false") {
+    return false;
+  }
+  throw s + " is not \"true\" or \"false\";
+}
