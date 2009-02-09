@@ -20,7 +20,7 @@ public class AllTests1 {
 		return suite;
 	}
 
-	public void main(String args[]) {
+	public static void main(String args[]) {
 		junit.textui.TestRunner.run(suite());
 	}
 }
