@@ -3,6 +3,7 @@ package org.meta_environment.uptr;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
+import org.meta_environment.rascal.errors.SummaryAdapter;
 
 public class ParsetreeAdapter {
 	IConstructor parseTree;
@@ -15,9 +16,26 @@ public class ParsetreeAdapter {
 	}
 	
 	public IConstructor addPositionInformation(String filename) {
-		IConstructor tree = (IConstructor) parseTree.get("top");
-		tree = new TreeAdapter(tree).addPositionInformation(filename);
-		return parseTree.set("top", tree);
+		if (isParseTree()) {
+			IConstructor tree = (IConstructor) parseTree.get("top");
+			tree = new TreeAdapter(tree).addPositionInformation(filename);
+			return parseTree.set("top", tree);
+		}
+		else {
+			return parseTree;
+		}
+	}
+	
+	public boolean isErrorSummary() {
+		return parseTree.getConstructorType() == Factory.ParseTree_Summary;
+	}
+	
+	public boolean isParseTree() {
+		return parseTree.getConstructorType() == Factory.ParseTree_Top;
+	}
+	
+	public SummaryAdapter getSummary() {
+		return new SummaryAdapter(parseTree);
 	}
 	
 	public boolean hasAmbiguities() {
