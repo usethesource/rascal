@@ -1,18 +1,13 @@
 module Test
 
-import IO;
+data Bool = btrue | bfalse;
+data Bool = bor(Bool L, Bool R); 
 
-data NUM int n | fac2(int);
+rule o1 bor(btrue, btrue)     => btrue;
+rule o2 bor(btrue, bfalse)    => btrue;
+rule o3 bor(bfalse, btrue)    => btrue;
+rule o4 bor(bfalse, bfalse)   => bfalse;
 
-rule f1 fac2(0)                => 1;
-rule f2 fac2(int N)            => N * fac2(N - 1);
-
-public void test(int S)
-{
-	int N = S;
-	
-	M = fac2(N);
-	
-	println("S = <S>, N = <N>, M = <M>");
-
+public bool test(){
+	return bor(btrue, bfalse) == btrue;
 }

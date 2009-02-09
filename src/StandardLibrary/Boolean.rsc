@@ -35,5 +35,5 @@ public bool fromString(str s) {
   if (s == "false") {
     return false;
   }
-  throw s + " is not \"true\" or \"false\";
+//  throw s + " is not \"true\" or \"false\";
 }

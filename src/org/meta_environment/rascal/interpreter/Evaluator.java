@@ -320,6 +320,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 	}
 	
 	private IValue applyRules(IValue v) {
+		
+		//System.err.println("applyRules(" + v + ")");
 		// we search using the run-time type of a value
 		Type typeToSearchFor = v.getType();
 		if (typeToSearchFor.isAbstractDataType()) {
@@ -961,7 +963,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result r = x.getExpression().accept(this);
 		if(r.type.equals(tf.boolType())){
 			if(r.value.isEqual(vf.bool(false))){
-				System.err.println("Assertion failed: " + msg + "\n");
+				//System.err.println("Assertion failed: " + msg + "\n");
 			}
 		} else {
 			throw new RascalTypeError("expression in assertion should be bool instead of " + r.type);
@@ -2556,14 +2558,16 @@ public class Evaluator extends NullASTVisitor<Result> {
 		MatchPattern mp = evalPattern(pat);
 		mp.initMatch(subject, this);
 		lastPattern = mp;
-		//System.err.println("matchEvalAndEval: subject=" + subject + ", pat=" + pat + ", conditions=" + conditions);
+		//System.err.println("matchEvalAndReplace: subject=" + subject + ", pat=" + pat + ", conditions=" + conditions);
 		try {
 			stack.pushFrame(); 	// Create a separate scope for match and statement
 			while(mp.hasNext()){
+				//System.err.println("mp.hasNext()==true; mp=" + mp);
 				if(mp.next()){
 					try {
 						boolean trueConditions = true;
 						for(Expression cond : conditions){
+							//System.err.println("cond = " + cond);
 							if(!cond.accept(this).isTrue()){
 								trueConditions = false;
 								break;
@@ -2867,7 +2871,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	}
 	
 	/*
-	 * traverseOnce: traverse an arbitrary IVAlue once. Implements the strategied bottom/topdown.
+	 * traverseOnce: traverse an arbitrary IVAlue once. Implements the strategies bottomup/topdown.
 	 */
 	
 	private TraverseResult traverseOnce(IValue subject, CasesOrRules casesOrRules, 
@@ -3034,7 +3038,9 @@ public class Evaluator extends NullASTVisitor<Result> {
 				}
 			}
 		} else {
+			//System.err.println("hasRules");
 			for(org.meta_environment.rascal.ast.Rule rule : casesOrRules.getRules()){
+				//System.err.println(rule);
 				TraverseResult tr = applyOneRule(subject, rule);
 				//System.err.println("rule fails");
 				if(tr.matched){
@@ -3052,6 +3058,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	 */
 
 	private TraverseResult traverseTop(IValue subject, CasesOrRules casesOrRules) {
+		//System.err.println("traversTop(" + subject + ")");
 		try {
 			return applyCasesOrRules(subject, casesOrRules);	
 		} catch (InsertException e) {
