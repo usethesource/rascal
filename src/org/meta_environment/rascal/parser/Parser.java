@@ -6,7 +6,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.security.AccessController;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
@@ -17,7 +16,6 @@ import org.meta_environment.uptr.ParsetreeAdapter;
 import org.meta_environment.uptr.TreeAdapter;
 
 import sglr.SGLRInvoker;
-import sun.security.action.GetPropertyAction;
 
 /**
  * Parses a Rascal program and a UPTR node.
@@ -26,8 +24,33 @@ public class Parser{
 	public final static String PARSETABLE_PROPERTY = "rascal.parsetable.file";
 	public final static String PARSETABLE_FILENAME = "resources/rascal.trm.tbl";
 	
+	private final String parseTableFileName;
+	
 	private Parser(){
 		super();
+		
+		parseTableFileName = getParseTable();
+	}
+	
+	private String getParseTable(){
+		String parseTableFile = System.getProperty(PARSETABLE_PROPERTY, PARSETABLE_FILENAME);
+		File table = new File(parseTableFile);
+		
+		if(!table.exists()) {
+			String parseTableLocation;
+			try{
+				parseTableLocation = extractParsetable();
+			}catch(IOException ioex){
+				throw new RuntimeException(ioex);
+			}
+			table = new File(parseTableLocation);
+			
+			if (!table.exists()) {
+				throw new RuntimeException("Could not locate parse table ("+PARSETABLE_FILENAME+").");
+			}
+		}
+		
+		return table.getPath();
 	}
 	
 	private static class InstanceKeeper{
@@ -68,44 +91,47 @@ public class Parser{
 		return new TreeAdapter(tree).addPositionInformation(inputFile.getAbsolutePath());
 	}
 	
-	private String getTableFile() throws IOException{
-		String parseTableFile = System.getProperty(PARSETABLE_PROPERTY, PARSETABLE_FILENAME);
-		File table = new File(parseTableFile);
-		
-		if(!table.exists()) {
-			String loc = extractParsetable();
-			table = new File(loc);
-			
-			if (!table.exists()) {
-				throw new IOException("Could not locate parse table ("+PARSETABLE_FILENAME+").");
-			}
-		}
-		
-		return table.getPath();
+	private String getTableFile(){
+		return parseTableFileName;
 	}
 	
-	private String extractParsetable() throws IOException {
+	private String extractParsetable() throws IOException{
 		URL url = Parser.class.getResource("/" + PARSETABLE_FILENAME);
 		InputStream contents = url.openStream();
 		
-		GetPropertyAction a = new GetPropertyAction("java.io.tmpdir");
-		String tmpdir = ((String) AccessController.doPrivileged(a));
+		String tmpdir = System.getProperty("java.io.tmpdir");
 		File tmp = new File(tmpdir +  "/rascal.trm.tbl");
 		
-		if (!tmp.exists()) {
+		if(!tmp.exists()){
 			tmp.createNewFile();
 
-			FileOutputStream s = new FileOutputStream(tmp);
-			byte[] buf = new byte[1024];
-			int count = 0;
-
-			while ((count = contents.read(buf)) >= 0) {
-				s.write(buf, 0, count);
+			FileOutputStream s = null;
+			try{
+				s = new FileOutputStream(tmp);
+				byte[] buf = new byte[8192];
+				
+				int count;
+				while((count = contents.read(buf)) > 0){
+					s.write(buf, 0, count);
+				}
+			}catch(IOException ioex){
+				throw ioex;
+			}finally{
+				if(s != null){
+					try{
+						s.close();
+					}catch(IOException ioex){
+						throw ioex;
+					}
+				}
+				if(contents != null){
+					try{
+						contents.close();
+					}catch(IOException ioex){
+						throw ioex;
+					}
+				}
 			}
-			
-			s.flush();
-			s.close();
-			contents.close();
 		}
 		
 		return tmp.getPath();
