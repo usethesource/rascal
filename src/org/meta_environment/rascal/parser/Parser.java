@@ -88,7 +88,7 @@ public class Parser{
 		ATermReader reader = new ATermReader();
 		ByteArrayInputStream bais = new ByteArrayInputStream(result);
 		IConstructor tree = (IConstructor) reader.read(ValueFactory.getInstance(), Factory.ParseTree, bais);
-		return new TreeAdapter(tree).addPositionInformation(inputFile.getAbsolutePath());
+		return new ParsetreeAdapter(tree).addPositionInformation(inputFile.getAbsolutePath());
 	}
 	
 	private String getTableFile(){
