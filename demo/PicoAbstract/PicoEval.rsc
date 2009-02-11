@@ -1,6 +1,8 @@
 module PicoEval
 
 import PicoAbstractSyntax;
+import PicoPrograms;
+import UnitTest;
  
 data PicoValue = intval(int) | strval(str);
 
@@ -71,7 +73,7 @@ PICO_VALUE evalExp(Exp exp) {
 
       case add(EXP E1, EXP E2):
            if(intval(int n1) := evalExp(E1) &&
-              intval(int n2) := evalExp(E1){
+              intval(int n2) := evalExp(E1)){
               return intval(n1 + n2);
            }
       
@@ -87,4 +89,9 @@ PICO_VALUE evalExp(Exp exp) {
               return strval(s1 + s2);
            }
    } 
+}
+
+public bool test(){
+	assertEqual(evalExp(natCon(3)), intval(3));
+	return report();
 }
