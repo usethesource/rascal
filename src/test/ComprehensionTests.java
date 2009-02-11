@@ -141,9 +141,11 @@ public class ComprehensionTests extends TestCase {
 		
 		assertTrue(tf.runTest("[ X | int X : {} ] == [];"));
 		assertTrue(tf.runTest("[ X | int X : [] ] == [];"));
+		assertTrue(tf.runTest("[ X |     X : [] ] == [];"));
 		
 		assertTrue(tf.runTest("[ X | int X : {1}] == [1];"));
 		assertTrue(tf.runTest("[ X | int X : [1]] == [1];"));
+		assertTrue(tf.runTest("[ X |     X : [1]] == [1];"));
 		
 		assertTrue(tf.runTest("{L = [ X | int X : {1, 2}]; (L == [1,2]) || (L == [2, 1]);}"));
 		assertTrue(tf.runTest("[ X | int X : [1, 2]] == [1,2];"));

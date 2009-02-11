@@ -3567,7 +3567,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 		public Result next(){
 			if(isValueProducer){
-				//System.err.println("getNext, trying pat");
+				//System.err.println("getNext, trying pat" + pat);
 				/*
 				 * First, explore alternatives that remain to be matched by the current pattern
 				 */
