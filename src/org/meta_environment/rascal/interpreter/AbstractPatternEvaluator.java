@@ -209,6 +209,22 @@ interface MatchPattern {
 		return res;
 	}
 	
+	public boolean hasNext(){
+		if(firstMatch)
+			return true;
+		if(!hasNext)
+			return false;
+		if(children.size() > 0){
+			for (int i = 0; i < children.size(); i++) {
+				if(children.get(i).hasNext()){
+					return true;
+				}
+			}
+		}
+		hasNext = false;
+		return false;
+	}
+	
 	public boolean next(){
 		checkInitialized();
 		
