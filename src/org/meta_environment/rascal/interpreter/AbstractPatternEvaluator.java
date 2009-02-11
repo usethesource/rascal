@@ -84,6 +84,7 @@ interface MatchPattern {
 	
 	public boolean hasNext()
 	{
+		//System.err.println("hasNext: " + (initialized && hasNext) + this);
 		return initialized && hasNext;
 	}
 	
@@ -142,7 +143,7 @@ interface MatchPattern {
 	private org.meta_environment.rascal.ast.QualifiedName name;
 	private java.util.List<AbstractPattern> children;
 	private INode treeSubject;
-	private boolean firstMatch = true;
+	private boolean firstMatch = false;
 	
 	AbstractPatternNode(org.meta_environment.rascal.ast.QualifiedName qualifiedName, java.util.List<AbstractPattern> children){
 		this.name = qualifiedName;
@@ -151,7 +152,6 @@ interface MatchPattern {
 	
 	@Override
 	public void initMatch(IValue subject, Evaluator ev){
-		System.err.println(name + ": initMatch " + subject);
 		super.initMatch(subject, ev);
 		hasNext = false;
 		if(!(subject.getType().isNodeType() || subject.getType().isAbstractDataType())){
@@ -168,7 +168,6 @@ interface MatchPattern {
 			children.get(i).initMatch(treeSubject.get(i), ev);
 		}
 		firstMatch = hasNext = true;
-		System.err.println(name + ": initMatch " + subject + " sets hasNext=true");
 	}
 	
 	public Type getType(Evaluator ev) {
@@ -199,7 +198,6 @@ interface MatchPattern {
 		} else {
 			return ev.vf.node(name.toString(), vals);
 		}
-		
 	}
 
 	@Override
@@ -211,27 +209,7 @@ interface MatchPattern {
 		return res;
 	}
 	
-	@Override
-	public boolean hasNext(){
-		System.err.println(name + ": hasNext " + subject);
-		if(!initialized)
-			return false;
-		if(firstMatch)
-			return true;
-		if(!hasNext)
-			return false;
-		hasNext = false;
-		for(int i = 0; i < children.size(); i++){
-			if(children.get(i).hasNext()){
-				hasNext = true;
-				break;
-			}	
-		}
-		return hasNext;
-	}
-	
 	public boolean next(){
-		System.err.println(name + ": next " + subject);
 		checkInitialized();
 		
 		if(!(firstMatch || hasNext))
