@@ -24,6 +24,7 @@ public int wordCount(list[str] input, int (str s) countLine)
 {
   count = 0;
   for(line : input){
+  println("line = <line>");
      count = count + #countLine(line);
   }
   return count;

@@ -67,13 +67,13 @@ interface MatchPattern {
 	protected IValue subject = null;
 	protected Evaluator ev = null;
 	protected boolean initialized = false;
-	protected boolean firstMatch = true;
+	protected boolean hasNext = true;
 	
 	public void initMatch(IValue subject, Evaluator ev){
 		this.subject = subject;
 		this.ev = ev;
 		this.initialized = true;
-		this.firstMatch = true;
+		this.hasNext = true;
 	}
 	
 	protected void checkInitialized(){
@@ -82,8 +82,9 @@ interface MatchPattern {
 		}
 	}
 	
-	public boolean hasNext() {
-		return initialized && firstMatch;
+	public boolean hasNext()
+	{
+		return initialized && hasNext;
 	}
 	
 	public java.util.List<String> getVariables(){
@@ -120,7 +121,7 @@ interface MatchPattern {
 	
 	public boolean next(){
 		checkInitialized();
-		firstMatch = false;
+		hasNext = false;
 		//System.err.println("AbstractPatternLiteral.match: " + subject);
 		if (subject.getType().isSubtypeOf(literal.getType())) {
 			return ev.equals(ev.result(subject), ev.result(literal));
@@ -140,35 +141,34 @@ interface MatchPattern {
 /* package */ class AbstractPatternNode extends AbstractPattern {
 	private org.meta_environment.rascal.ast.QualifiedName name;
 	private java.util.List<AbstractPattern> children;
-	private boolean hasNext;
+	private INode treeSubject;
+	private boolean firstMatch = true;
 	
 	AbstractPatternNode(org.meta_environment.rascal.ast.QualifiedName qualifiedName, java.util.List<AbstractPattern> children){
 		this.name = qualifiedName;
 		this.children = children;
-		this.hasNext = false;
 	}
 	
 	@Override
 	public void initMatch(IValue subject, Evaluator ev){
+		System.err.println(name + ": initMatch " + subject);
 		super.initMatch(subject, ev);
-		
+		hasNext = false;
 		if(!(subject.getType().isNodeType() || subject.getType().isAbstractDataType())){
 			return;
 		}
-		INode treeSubject = (INode) subject;
+		treeSubject = (INode) subject;
 		if(treeSubject.arity() != children.size()){
 			return;
 		}
+		if(!name.toString().equals(treeSubject.getName().toString()))
+				return;
 		
 		for (int i = 0; i < children.size(); i++){
 			children.get(i).initMatch(treeSubject.get(i), ev);
 		}
-		hasNext = true;
-	}
-	
-	@Override
-	public boolean hasNext(){
-		return hasNext;
+		firstMatch = hasNext = true;
+		System.err.println(name + ": initMatch " + subject + " sets hasNext=true");
 	}
 	
 	public Type getType(Evaluator ev) {
@@ -211,29 +211,36 @@ interface MatchPattern {
 		return res;
 	}
 	
-	public boolean next(){
-		checkInitialized();
-		
+	@Override
+	public boolean hasNext(){
+		System.err.println(name + ": hasNext " + subject);
+		if(!initialized)
+			return false;
+		if(firstMatch)
+			return true;
 		if(!hasNext)
 			return false;
 		hasNext = false;
-		firstMatch = false;
-		Type stype = subject.getType();
-	
-		if (!stype.isNodeType() && !stype.isAbstractDataType()){
-			return false;
-		}
-
-		INode subjTree = (INode) subject;
-		
-		if (name.toString().equals(subjTree.getName().toString()) && 
-			children.size() == subjTree.arity()){
-			boolean result = matchChildren(subjTree.getChildren().iterator(), children.iterator(), ev);
-			if(result)
+		for(int i = 0; i < children.size(); i++){
+			if(children.get(i).hasNext()){
 				hasNext = true;
-			return result;
+				break;
+			}	
 		}
-		return false;
+		return hasNext;
+	}
+	
+	public boolean next(){
+		System.err.println(name + ": next " + subject);
+		checkInitialized();
+		
+		if(!(firstMatch || hasNext))
+			return false;
+		firstMatch = false;
+
+		hasNext = matchChildren(treeSubject.getChildren().iterator(), children.iterator(), ev);
+
+		return hasNext;
 	}
 }
 
@@ -258,7 +265,6 @@ interface MatchPattern {
 	private int patternCursor;						// Cursor in the pattern
 	
 	private boolean firstMatch;					// First match after initialization?
-	private boolean hasNext;						// Has this pattern alternatives for further matching?
 	private boolean forward;						// Moving to the right?
 	
 	private boolean debug = false;
@@ -267,7 +273,6 @@ interface MatchPattern {
 	AbstractPatternList(java.util.List<AbstractPattern> children){
 		this.children = children;					
 		this.patternSize = children.size();			
-		
 	}
 	
 	@Override
@@ -292,7 +297,6 @@ interface MatchPattern {
 		super.initMatch(subject, ev);
 		
 		if (!subject.getType().isListType()) {
-			initialized = true;
 			hasNext = false;
 			return;
 		}
@@ -426,7 +430,7 @@ interface MatchPattern {
 	
 	@Override
 	public boolean hasNext(){
-		return initialized && hasNext && (firstMatch || hasListVar);
+		return initialized && hasNext && hasListVar;
 	}
 	
 	private IList makeSubList(){
@@ -765,8 +769,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 	private Iterator<?>[] varGen;				// Value generator for this variables
 	
 	private int currentVar;					// The currently matched variable
-
-	private boolean hasNext;					// Has pattern more matches?
+    private boolean firstMatch;				// First match of this pattern?
 	
 	private boolean debug = false;
 	
@@ -853,7 +856,6 @@ class SingleElementGenerator implements Iterator<ISet> {
 		super.initMatch(subject, ev);
 		
 		if (!subject.getType().isSetType()) {
-			initialized = true;
 			hasNext = false;
 			return;
 		}
@@ -1076,11 +1078,10 @@ class SingleElementGenerator implements Iterator<ISet> {
 
 /* package */ class AbstractPatternTuple extends AbstractPattern implements MatchPattern {
 	private java.util.List<AbstractPattern> children;
-	private boolean hasNext;
+	private boolean firstMatch;
 	
 	AbstractPatternTuple(java.util.List<AbstractPattern> children){
 		this.children = children;
-		this.hasNext = false;
 	}
 	
 	@Override
@@ -1103,7 +1104,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 	@Override
 	public void initMatch(IValue subject, Evaluator ev){
 		super.initMatch(subject, ev);
-		
+		hasNext = false;
 		if (!subject.getType().isTupleType()) {
 			return;
 		}
@@ -1114,7 +1115,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 		for(int i = 0; i < children.size(); i++){
 			children.get(i).initMatch(tupleSubject.get(i), ev);
 		}
-		hasNext = true;
+		firstMatch = hasNext = true;
 	}
 	
 	public Type getType(Evaluator ev) {
@@ -1125,16 +1126,32 @@ class SingleElementGenerator implements Iterator<ISet> {
 		return ev.tf.tupleType(fieldTypes);
 	}
 	
-	public boolean next() {
-		checkInitialized();
+	@Override
+	public boolean hasNext(){
+		if(firstMatch)
+			return true;
 		if(!hasNext)
 			return false;
-		firstMatch = false;
-		if (subject.getType().isTupleType()
-				&& ((ITuple) subject).arity() == children.size()) {
-			return matchChildren(((ITuple) subject).iterator(), children.iterator(), ev);
+		hasNext = false;
+		for(int i = 0; i < children.size(); i++){
+			if(children.get(i).hasNext()){
+				hasNext = true;
+				break;
+			}	
 		}
-		return false;
+		return hasNext;
+	}
+	
+	public boolean next() {
+		checkInitialized();
+		
+		if(!(firstMatch || hasNext))
+			return false;
+		firstMatch = false;
+		
+		hasNext =  matchChildren(((ITuple) subject).iterator(), children.iterator(), ev);
+			
+		return hasNext;
 	}
 }
 
@@ -1169,7 +1186,6 @@ class SingleElementGenerator implements Iterator<ISet> {
 	
 	public boolean next(){
 		checkInitialized();
-		firstMatch = false;
 		throw new RascalBug("AbstractPatternMap.match not implemented");
 	}
 }
@@ -1207,7 +1223,8 @@ class SingleElementGenerator implements Iterator<ISet> {
 	
 	public boolean next(){
 		checkInitialized();
-		if(debug)System.err.println("AbstractPatternQualifiedName.match: " + name + ", firstMatch=" + firstMatch);
+		hasNext = false;
+		if(debug)System.err.println("AbstractPatternQualifiedName.match: " + name);
 		GlobalEnvironment env = GlobalEnvironment.getInstance();
 		
 		Result varRes = env.getVariable(name);
@@ -1262,7 +1279,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 
 	public boolean next() {
 		checkInitialized();
-		firstMatch = false;
+		hasNext = false;
 		if(debug)System.err.println("AbstractTypedVariable.match: " + subject + "(type=" + subject.getType() + ") with " + declaredType + " " + name);
 		
 		if (subject.getType().isSubtypeOf(declaredType)) {

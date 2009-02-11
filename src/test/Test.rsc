@@ -1,13 +1,9 @@
 module Test
 
-data Bool = btrue | bfalse;
-data Bool = bor(Bool L, Bool R); 
+import IO;
 
-rule o1 bor(btrue, btrue)     => btrue;
-rule o2 bor(btrue, bfalse)    => btrue;
-rule o3 bor(bfalse, btrue)    => btrue;
-rule o4 bor(bfalse, bfalse)   => bfalse;
-
-public bool test(){
-	return bor(btrue, bfalse) == btrue;
+public void test(){
+	for(str line : ["a", "b"]){
+		println(line);
+    }
 }
