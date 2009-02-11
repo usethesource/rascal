@@ -15,8 +15,8 @@ begin
 end
 *********************************************/
 
-public PicoProgram small =
-program([decl("x", natural), decl("y", string)],
+public PROGRAM small =
+program([decl("x", natural), decl("s", string)],
         [ asgStat("x", natCon(1)),
           whileStat(id("x"),
                     [ asgStat("x", sub(id("x"), natCon(1))),
@@ -50,9 +50,9 @@ begin
 end
 **********************************************/
 
-public PicoProgram fac =
+public PROGRAM fac =
 program([ decl("input", natural),
-          decl("output", string),
+          decl("output", natural),
           decl("repnr", natural),
           decl("rep", natural)
         ],
@@ -109,7 +109,7 @@ begin
 end
 *********************************************/  
 
-public PicoProgram big =
+public PROGRAM big =
 program([ decl("input", natural),
           decl("output", string),
           decl("i", natural),
