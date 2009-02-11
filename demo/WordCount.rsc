@@ -23,9 +23,19 @@ public void main(str argv ...){
 public int wordCount(list[str] input, int (str s) countLine)
 {
   count = 0;
-  for(line : input){
+  for(str line : input){
   println("line = <line>");
      count = count + #countLine(line);
+  }
+  return count;
+}
+
+public int wordCount1(list[str] input)
+{
+  count = 0;
+  for(str line : input){
+  println("line = <line>");
+     count = count + countLine1(line);
   }
   return count;
 }
