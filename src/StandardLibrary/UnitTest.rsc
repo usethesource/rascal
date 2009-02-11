@@ -1,6 +1,7 @@
 module UnitTest
 
-private int nTests = 0;
+import IO;
+
 private int nAssertions = 0;
 private int nErrors = 0;
 private int nFailures = 0;
@@ -13,6 +14,15 @@ public void assertTrue(bool outcome)
 	}
 }
 
+public void assertEqual(value V1, value V2)
+{
+	nAssertions = nAssertions + 1;
+	if(V1 != V2){
+		nFailures = nFailures + 1;
+		println("assertEqual fails: <V1> != <V2>");
+	}
+}
+
 private void runTest(void () test)
 {
 	try {
@@ -22,6 +32,7 @@ private void runTest(void () test)
 	}
 }
 
+/*
 private list[void()] java getTests()
 {
 }
@@ -33,9 +44,11 @@ public void runAllTests()
 		Test();
 	}
 }
+*/
 
-public void report()
+public bool report()
 {
-	println("<nTests> tests, <nAssertions> assertions, <nFailures> failures, <nErrors> errors");
+	println("<nAssertions> assertions, <nFailures> failures, <nErrors> errors");
+	return nFailures == 0 && nErrors == 0;
 }
 

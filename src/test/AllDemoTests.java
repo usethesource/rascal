@@ -92,6 +92,11 @@ private static TestFramework tf = new TestFramework();
 		assertTrue(tf.runTestInSameEvaluator("WordCount::test();"));
 	}
 	
+	public void testPicoTypecheck() throws IOException {
+		tf = new TestFramework("import PicoTypecheck;");
+		assertTrue(tf.runTestInSameEvaluator("PicoTypecheck::test();"));
+	}
+	
 	public void testWordReplacement() throws IOException {
 		tf = new TestFramework("import WordReplacement;");
 		assertTrue(tf.runTestInSameEvaluator("WordReplacement::test();"));
