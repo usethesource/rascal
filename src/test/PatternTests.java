@@ -169,7 +169,7 @@ public class PatternTests extends TestCase {
 		tf = new TestFramework();
 		
 		assertTrue(tf.runWithError("[1, list[int] L, 2, list[int] L] := [1,2,3];", "Double"));
-		assertTrue(tf.runWithError("[1, list[str] L, 2] := [1,2,3];", "not allowed"));
+		assertTrue(tf.runWithError("[1, list[str] L, 2] := [1,2,3];", "is incompatible"));
 		assertTrue(tf.runWithError("[1, str S, 2] := [1,2,3];", "not allowed"));
 		assertTrue(tf.runWithError("{str S = \"a\"; [1, S, 2] := [1,2,3];}", "not allowed"));
 		assertTrue(tf.runWithError("{list[str] S = [\"a\"]; [1, S, 2] := [1,2,3];}", "not allowed"));
