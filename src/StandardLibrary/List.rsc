@@ -50,7 +50,8 @@ public list[&T] java insertAt(&T elm, int n, list[&T] lst)
   throws list_index_out_of_range()()
  @doc{insertAt -- add an element at a specific position in a list}
  {
- 	IListWriter w = lst.getType().writer(values);
+ 	IListWriter w = values.listWriter(elm.getType().lub(lst.getElementType()));
+ 	
  	int k = n.getValue();
     if(k >= 0 && k <= lst.length()){
       if(k == lst.length()){
