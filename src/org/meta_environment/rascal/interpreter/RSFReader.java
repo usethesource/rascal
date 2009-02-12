@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 
+import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -16,11 +17,22 @@ import org.meta_environment.rascal.interpreter.exceptions.RascalRunTimeError;
 public class RSFReader {
 	
 	public static void main(String[] args){
-		IValue res = readRSF("/ufs/paulk/workspace/rascal/src/benchmark/RSF/JHotDraw52.rsf");
+		IValue res = readRSF("/home/paulk/cwi/workspace/rascal/src/benchmark/RSF/JHotDraw52.rsf");
 		System.err.println(res);
 	}
+	
+	/*
+	 * Read relations from an RSF file. An RSF file contains tuples of binary relations
+	 * in the following format:
+	 * 		RelationName Arg1 Arg2
+	 * where each field is separated by a tabulation character (\t). One file may contain tuples
+	 * for more than one relation.
+	 * 
+	 * readRSF takes an RSF file nameRSFFile and generates a map[str,rel[str,str]] that maps
+	 * each relation name to the actual relation.
+	 */
 
-	public static IValue readRSF(String fileName) {
+	public static IMap readRSF(String nameRSFFile) {
 		HashMap<String, IRelationWriter> table = new HashMap<String, IRelationWriter>();
 		ValueFactory vf = ValueFactory.getInstance();
 		TypeFactory tf = TypeFactory.getInstance();
@@ -28,14 +40,14 @@ public class RSFReader {
 		Type tupleType = tf.tupleType(strType, strType);
 
 		try {
-			FileReader input = new FileReader(fileName);
+			FileReader input = new FileReader(nameRSFFile);
 			BufferedReader bufRead = new BufferedReader(input);
 			String line = bufRead.readLine();
 
 			while (line != null) {
 				String[] fields = line.split("\t");
 				String name = fields[0];
-				System.err.println(fields[0] + "|" + fields[1] + "|" + fields[2]);
+				//System.err.println(fields[0] + "|" + fields[1] + "|" + fields[2]);
 				if (!table.containsKey(name)) {
 					table.put(name, vf.relationWriter(tupleType));
 				}
@@ -46,13 +58,13 @@ public class RSFReader {
 			bufRead.close();
 
 		} catch (IOException e) {
-			throw new RascalRunTimeError("Can not find file " + fileName);
+			throw new RascalRunTimeError("Can not find file " + nameRSFFile);
 		}
 
 		IMapWriter mw = vf.mapWriter(strType, tf.relType(strType, strType));
 
 		for (String key : table.keySet()) {
-			mw.insert(vf.string(key), table.get(key).done());
+			mw.insert(vf.tuple(vf.string(key), table.get(key).done()));
 		}
 		return mw.done();
 	}
