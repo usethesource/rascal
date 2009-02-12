@@ -10,8 +10,8 @@ public class ErrorTests extends TestCase{
 	
 	public void testErrors() throws IOException{
 	
-		assertTrue(tf.runWithError("int i = true;", "declared type int incompatible with initialization type bool"));
-		assertTrue(tf.runWithError("assert \"a\": 3.5;", "expression in assertion should be bool instead of double"));
+		assertTrue(tf.runWithError("int i = true;", "int i incompatible with initialization type bool"));
+		assertTrue(tf.runWithError("assert \"a\": 3.5;", "Expression in assertion should be bool instead of double"));
 		assertTrue(tf.runWithError("{int n = 3; n = true;}", "cannot assign value of type bool"));
 		assertTrue(tf.runWithError("[1,2][5];", "Subscript out of bounds"));
 		assertTrue(tf.runWithError("{tuple[int a, str b] T = <1, \"a\">;T.zip == 0;}", "no field exists"));
