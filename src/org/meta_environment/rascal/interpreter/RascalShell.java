@@ -31,6 +31,7 @@ import org.meta_environment.uptr.Factory;
 public class RascalShell {
 	private final static String PROMPT = ">";
 	private final static String CONTINUE_PROMPT = "?";
+	private final static int MAX_CONSOLE_LINE = 100;
 	
 	private final Parser parser = Parser.getInstance();
 	private final ASTFactory factory = new ASTFactory();
@@ -80,6 +81,8 @@ public class RascalShell {
 					} while (!completeStatement(input));
 
 					String output = handleInput(commander, input);
+					if(output.length() > MAX_CONSOLE_LINE)
+						output = output.substring(0, MAX_CONSOLE_LINE) + " ...";
 					console.printString(output);
 					console.printNewline();
 				}
