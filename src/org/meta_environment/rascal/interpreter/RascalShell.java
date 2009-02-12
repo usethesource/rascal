@@ -18,6 +18,7 @@ import org.meta_environment.rascal.ast.Command;
 import org.meta_environment.rascal.errors.ErrorAdapter;
 import org.meta_environment.rascal.errors.SubjectAdapter;
 import org.meta_environment.rascal.errors.SummaryAdapter;
+import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.exceptions.FailureException;
 import org.meta_environment.rascal.interpreter.exceptions.RascalBug;
 import org.meta_environment.rascal.interpreter.exceptions.RascalException;
@@ -39,13 +40,15 @@ public class RascalShell {
 	
 	public RascalShell() throws IOException {
 		console = new ConsoleReader();
-		evaluator = new Evaluator(ValueFactory.getInstance(), factory, new PrintWriter(System.err));
+		ModuleEnvironment root = new ModuleEnvironment("***shell***");
+		evaluator = new Evaluator(ValueFactory.getInstance(), factory, new PrintWriter(System.err), root);
 	}
 	
 	public RascalShell(InputStream inputStream,
 			Writer out) throws IOException {
 		console = new ConsoleReader(inputStream, out);
-		evaluator = new Evaluator(ValueFactory.getInstance(), factory, out);
+		ModuleEnvironment root = new ModuleEnvironment("***shell***");
+		evaluator = new Evaluator(ValueFactory.getInstance(), factory, out, root);
 	}
 
 	public void setInputStream(InputStream in) {
@@ -92,7 +95,6 @@ public class RascalShell {
 					if (e.hasCause()) {
 						console.printString("caused by: " + e.getCause().getMessage() + "\n");
 					}
-					printStacktrace(console, e);
 				}
 				catch (RascalBug e) {
 					console.printString("RascalBug: " + e.getMessage() + "\n");

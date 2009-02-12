@@ -16,7 +16,7 @@ public class Names {
 		return names.get(names.size() - 1);
 	}
 	
-	static public String deescape(String s) {
+	static public String unescape(String s) {
 		s = s.replace('\\', ' ');
 		return s.replaceAll(" ","");
 	}
@@ -40,12 +40,12 @@ public class Names {
 			}
 		}
 		
-		return deescape(tmp.toString());
+		return unescape(tmp.toString());
 	}
 	
 	static public String name(Name name) {
 		String s = name.toString();
-		return deescape(s);
+		return unescape(s);
 	}
 	
 	static public String consName(QualifiedName qname) {

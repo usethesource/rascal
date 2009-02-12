@@ -12,7 +12,6 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
-import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.Statement;
 import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.TypeEvaluator;
@@ -30,7 +29,8 @@ public class Lambda extends Result implements IValue {
     protected static final ValueFactory VF = ValueFactory.getInstance();
 	protected static final TypeEvaluator TE = TypeEvaluator.getInstance();
 	protected static final TypeFactory TF = TypeFactory.getInstance();
-    protected EnvironmentStack stackClone;
+    
+	private final Environment env;
     protected final Evaluator eval;
 	protected final Type formals;
 	protected final boolean hasVarArgs;
@@ -56,10 +56,13 @@ public class Lambda extends Result implements IValue {
 		this.isVoidFunction = returnType.isSubtypeOf(TF.voidType());
 		this.value = this;
 		this.type = ClosureType;
-		this.stackClone = GlobalEnvironment.getInstance().copyStack();  
-		this.stackClone.pushFrame(env);
+		this.env = env;
 	}
     
+	public Environment getEnv() {
+		return env;
+	}
+	
 	public boolean match(Type actuals) {
 		if (actuals.isSubtypeOf(formals)) {
 			return true;
@@ -105,92 +108,63 @@ public class Lambda extends Result implements IValue {
 		return ClosureType;
 	}
 	
-	public Result call(IValue[] actuals, Type actualTypes) {
-		GlobalEnvironment global = GlobalEnvironment.getInstance();
-		
-		int count = restoreStack(global);
+	public Result call(IValue[] actuals, Type actualTypes, Environment env) {
+		Map<Type,Type> bindings = env.getTypeBindings();
+		Type instantiatedFormals = formals.instantiate(bindings);
+
+		if (hasVarArgs) {
+			actualTypes = computeVarArgsActualTypes(actualTypes, instantiatedFormals);
+		}
+
 		try {
-			Map<Type,Type> bindings = global.getTypeBindings();
-			Type instantiatedFormals = formals.instantiate(bindings);
-			
+			bindTypeParameters(actualTypes, instantiatedFormals, env);
+
 			if (hasVarArgs) {
-				actualTypes = computeVarArgsActualTypes(actualTypes, instantiatedFormals);
+				actuals = computeVarArgsActuals(actuals, formals);
 			}
-			
-			try {
-				global.pushFrame();
-				
-				bindTypeParameters(actualTypes, instantiatedFormals);
-				
-				if (hasVarArgs) {
-					actuals = computeVarArgsActuals(actuals, formals);
-				}
 
-				assignFormals(actuals, global);
-				
-				for (Statement stat: body) {
-					stat.accept(eval);
-				}
-				
-				if(!isVoidFunction){
-					throw new RascalTypeError("Function definition:" + this + "\n does not have a return statement.");
-				}
-				
-				return new Result(TF.voidType(), null);
+			assignFormals(actuals, env);
+
+			for (Statement stat: body) {
+				stat.accept(eval);
 			}
-			catch (ReturnException e) {
-				Result result = e.getValue();
-				
-				Type instantiatedReturnType = returnType.instantiate(global.getTypeBindings());
-				
-				if(!result.type.isSubtypeOf(instantiatedReturnType)){
-					throw new RascalTypeError("Actual return type " + result.type + " is not compatible with declared return type " + returnType);
-				}
-				
-				return new Result(instantiatedReturnType, result.value);
-			} 
-			catch (FailureException e){
-				throw new RascalRunTimeError("Fail statement occurred outside switch or visit statement in " + this);
+
+			if(!isVoidFunction){
+				throw new RascalTypeError("Function definition:" + this + "\n does not have a return statement.");
 			}
-			finally {
-				global.popFrame();
-			}
+
+			return new Result(TF.voidType(), null);
 		}
-		finally {
-			discardStack(global, count);
+		catch (ReturnException e) {
+			Result result = e.getValue();
+
+			Type instantiatedReturnType = returnType.instantiate(env.getTypeBindings());
+
+			if(!result.type.isSubtypeOf(instantiatedReturnType)){
+				throw new RascalTypeError("Actual return type " + result.type + " is not compatible with declared return type " + returnType);
+			}
+
+			return new Result(instantiatedReturnType, result.value);
+		} 
+		catch (FailureException e){
+			throw new RascalRunTimeError("Fail statement occurred outside switch or visit statement in " + this);
 		}
 	}
 
-	private void assignFormals(IValue[] actuals, GlobalEnvironment global) {
+	private void assignFormals(IValue[] actuals, Environment env) {
 		for (int i = 0; i < formals.getArity(); i++) {
-			Type formal = formals.getFieldType(i).instantiate(global.getTypeBindings());
+			Type formal = formals.getFieldType(i).instantiate(env.getTypeBindings());
 			Result result = new Result(formal, actuals[i]);
-			global.top().storeVariable(formals.getFieldName(i), result);
+			env.storeVariable(formals.getFieldName(i), result);
 		}
 	}
 
 
-	private void discardStack(GlobalEnvironment global, int count) {
-		while (--count >= 0) {
-			global.popFrame();
-		}
-	}
-
-	private int restoreStack(GlobalEnvironment global) {
-		int count = 0;
-		
-		for (Environment e : stackClone) {
-			global.pushFrame(e);
-			count++;
-		}
-		return count;
-	}
-	
-	protected void bindTypeParameters(Type actualTypes, Type formals) {
+	protected void bindTypeParameters(Type actualTypes, Type formals, Environment env) {
 		try {
 			Map<Type, Type> bindings = new HashMap<Type, Type>();
 			formals.match(actualTypes, bindings);
-			GlobalEnvironment.getInstance().storeTypeBindings(bindings);
+			env.storeTypeBindings(bindings);
 		}
 		catch (FactTypeError e) {
 			throw new RascalTypeError("Could not bind type parameters in " + formals + " to " + actualTypes, e);
@@ -249,20 +223,20 @@ public class Lambda extends Result implements IValue {
 		return TF.tupleType(types, labels);
 	}
 	
-	private StringBuffer showCall(FunctionDeclaration func, IValue[] actuals, String arrow){
-		StringBuffer trace = new StringBuffer();
-		for(int i = 0; i < callNesting; i++){
-			trace.append("-");
-		}
-		trace.append(arrow).append(" ").append(func.getSignature().getName()).append("(");
-		String sep = "";
-		for(int i = 0; i < actuals.length; i++){
-			trace.append(sep).append(actuals[i]);
-			sep = ", ";
-		}
-		trace.append(")");
-		return trace;
-	}
+//	private StringBuffer showCall(FunctionDeclaration func, IValue[] actuals, String arrow){
+//		StringBuffer trace = new StringBuffer();
+//		for(int i = 0; i < callNesting; i++){
+//			trace.append("-");
+//		}
+//		trace.append(arrow).append(" ").append(func.getSignature().getName()).append("(");
+//		String sep = "";
+//		for(int i = 0; i < actuals.length; i++){
+//			trace.append(sep).append(actuals[i]);
+//			sep = ", ";
+//		}
+//		trace.append(")");
+//		return trace;
+//	}
 
 	
 	public boolean isNormal() {

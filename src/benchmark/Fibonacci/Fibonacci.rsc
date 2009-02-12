@@ -20,7 +20,8 @@ public bool testFibonacci()
 public bool measure()
 {
 	start = currentTimeMillis();
-	result = fib(15);
+	n = 15;
+	result = fib(n);
 	used = currentTimeMillis() - start;
 		
 	println("fib(<n>) = <result>  (<used> millis)");

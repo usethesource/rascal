@@ -54,7 +54,6 @@ public class Result {
 	/*
 	 * Experimental extension for backtracking over Boolean expressions
 	 */
-	
 	public boolean hasNext(){
 		return false;
 	}

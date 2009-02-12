@@ -1,16 +1,15 @@
 package org.meta_environment.rascal.interpreter.exceptions;
 
-public class RascalUndefinedValue extends RuntimeException {
+import org.meta_environment.rascal.ast.AbstractAST;
+
+public class RascalUndefinedValue extends RascalTypeError {
 	private static final long serialVersionUID = -7290225483329876543L;
 	
-	private String message;
-	
     public RascalUndefinedValue(String message) {
-    	this.message = message;
+    	super(message);
     };
-	
-	@Override
-	public String getMessage() {
-		return message;
+    
+    public RascalUndefinedValue(String message, AbstractAST ast) {
+    	super(message, ast);
 	}
 }

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -34,6 +35,7 @@ import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.ASTFactory;
+import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.Bound;
 import org.meta_environment.rascal.ast.Case;
 import org.meta_environment.rascal.ast.Catch;
@@ -154,15 +156,17 @@ import org.meta_environment.rascal.ast.Visit.GivenStrategy;
 import org.meta_environment.rascal.errors.ErrorAdapter;
 import org.meta_environment.rascal.errors.SubjectAdapter;
 import org.meta_environment.rascal.errors.SummaryAdapter;
-import org.meta_environment.rascal.interpreter.env.EnvironmentHolder;
+import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.env.IterableEvalResult;
 import org.meta_environment.rascal.interpreter.env.JavaFunction;
 import org.meta_environment.rascal.interpreter.env.Lambda;
+import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.env.RascalFunction;
 import org.meta_environment.rascal.interpreter.env.Result;
 import org.meta_environment.rascal.interpreter.exceptions.FailureException;
 import org.meta_environment.rascal.interpreter.exceptions.InsertException;
+import org.meta_environment.rascal.interpreter.exceptions.RascalAssertionException;
 import org.meta_environment.rascal.interpreter.exceptions.RascalBug;
 import org.meta_environment.rascal.interpreter.exceptions.RascalException;
 import org.meta_environment.rascal.interpreter.exceptions.RascalRunTimeError;
@@ -174,34 +178,56 @@ import org.meta_environment.rascal.parser.Parser;
 import org.meta_environment.uptr.Factory;
 
 public class Evaluator extends NullASTVisitor<Result> {
+	private static final String[] SEARCH_PATH = {
+							"src/StandardLibrary/", 
+							"src/test/", 
+							"src/benchmark/",
+							"src/benchmark/BubbleSort/",
+							"src/benchmark/Factorial/",
+							"src/benchmark/Fibonacci/",
+							"src/benchmark/Reverse/",
+							"src/benchmark/UnusedProcs/",
+							"demo/",
+							"demo/Booleans/",
+							"demo/Fun/",
+							"demo/Graph/",
+							"demo/Integers/",
+							"demo/JavaFun/",					
+							"demo/Lexicals/",
+							"demo/Misc/",
+							"demo/Pico/",
+							"demo/PicoAbstract/",
+							"demo/Rascal/"
+					};
 	public static final String RASCAL_FILE_EXT = ".rsc";
 	final IValueFactory vf;
 	final TypeFactory tf = TypeFactory.getInstance();
-	final TypeEvaluator te = TypeEvaluator.getInstance();
-	private final RegExpPatternEvaluator re = new RegExpPatternEvaluator();
-	private final AbstractPatternEvaluator pe;
-	protected GlobalEnvironment stack = GlobalEnvironment.getInstance();
+	private final TypeEvaluator te = TypeEvaluator.getInstance();
+	private final java.util.ArrayDeque<Environment> callStack;
+	private final GlobalEnvironment heap;
+	private final java.util.ArrayDeque<ModuleEnvironment> scopeStack;
 	
 	private final ASTFactory af;
 	private final JavaBridge javaBridge;
 	
+	// TODO: can we remove this?
 	protected MatchPattern lastPattern;	// The most recent pattern applied in a match
 	                                    	// For the benefit of string matching.
 
-	public Evaluator(IValueFactory f, ASTFactory astFactory, Writer errorWriter) {
+	public Evaluator(IValueFactory f, ASTFactory astFactory, Writer errorWriter, ModuleEnvironment scope) {
 		this.vf = f;
 		this.af = astFactory;
 		this.javaBridge = new JavaBridge(errorWriter);
-		this.pe = new AbstractPatternEvaluator(this);
-		GlobalEnvironment.clean();
+		this.heap = new GlobalEnvironment();
+		this.callStack = new ArrayDeque<Environment>();
+		this.callStack.push(scope);
+		this.scopeStack = new ArrayDeque<ModuleEnvironment>();
+		this.scopeStack.push(scope);
 	}
 	
-	/**
-	 * Clean the global environment for the benefit of repeated testing.
-	 * TODO: can probably be removed.
-	 */
-	public void clean(){
-		GlobalEnvironment.clean();
+	
+	private Environment peek() {
+		return this.callStack.peek();
 	}
 	
 	/**
@@ -264,7 +290,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	 */
 	
 	Result normalizedResult(Type t, IValue v){
-		Map<Type, Type> bindings = stack.getTypeBindings();
+		Map<Type, Type> bindings = peek().getTypeBindings();
 		Type instance;
 		
 		if (bindings.size() > 0) {
@@ -285,7 +311,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	 */
 	
 	Result result(Type t, IValue v) {
-		Map<Type, Type> bindings = stack.getTypeBindings();
+		Map<Type, Type> bindings = peek().getTypeBindings();
 		Type instance;
 		
 		if (bindings.size() > 0) {
@@ -319,6 +345,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 	}
 	
+	
 	private IValue applyRules(IValue v) {
 		
 		//System.err.println("applyRules(" + v + ")");
@@ -328,11 +355,12 @@ public class Evaluator extends NullASTVisitor<Result> {
 			typeToSearchFor = ((IConstructor) v).getConstructorType();
 		}
 		
-		java.util.List<org.meta_environment.rascal.ast.Rule> rules = stack.getRules(typeToSearchFor);
+		java.util.List<org.meta_environment.rascal.ast.Rule> rules = heap.getRules(typeToSearchFor);
 		if(rules.isEmpty()){
 			return v;
 		}
-		stack.pushFrame();
+		
+		callStack.push(scopeStack.peek());
 		try {
 			TraverseResult tr = traverse(v, new CasesOrRules(rules), 
 					/* bottomup */ true,  
@@ -343,8 +371,18 @@ public class Evaluator extends NullASTVisitor<Result> {
 					 */
 			return tr.value;
 		} finally {
-			stack.popFrame();
+			callStack.pop();
 		}
+	}
+
+
+	private void pop() {
+		callStack.pop();
+	}
+
+
+	private void push() {
+		callStack.push(new Environment(peek()));
 	}
 	
 	private Result result() {
@@ -412,42 +450,32 @@ public class Evaluator extends NullASTVisitor<Result> {
 			org.meta_environment.rascal.ast.Import.Default x) {
 		// TODO support for full complexity of import declarations
 		String name = x.getModule().getName().toString();
-		stack.addImport(name);
-		
-		if (!stack.existsModule(name)) {
+		if (name.startsWith("\\")) {
+			name = name.substring(1);
+		}
+		if (!heap.existsModule(name)) {
+			loadModule(x, name).accept(this);
+		}
+		scopeStack.peek().addImport(name, heap.getModule(name));
+		return result();
+	}
+
+
+	private Module loadModule(org.meta_environment.rascal.ast.Import.Default x,
+			String name) {
 		Parser p = Parser.getInstance();
 		ASTBuilder b = new ASTBuilder(af);
-		
+
 		try {
 			String fileName = name.replaceAll("::","/") + RASCAL_FILE_EXT;
-			fileName = Names.deescape(fileName);
+			fileName = Names.unescape(fileName);
 			File file = new File(fileName);
-			
+
 			// TODO: support proper search path for modules
 			// TODO: support properly packaged/qualified module names
 			// TODO: mind the / at the end of each directory!
-			String searchPath[] = {
-					"src/StandardLibrary/", 
-					"src/test/", 
-					"src/benchmark/",
-					"src/benchmark/BubbleSort/",
-					"src/benchmark/Factorial/",
-					"src/benchmark/Fibonacci/",
-					"src/benchmark/Reverse/",
-					"src/benchmark/UnusedProcs/",
-					"demo/",
-					"demo/Booleans/",
-					"demo/Fun/",
-					"demo/Graph/",
-					"demo/Integers/",
-					"demo/JavaFun/",					
-					"demo/Lexicals/",
-					"demo/Misc/",
-					"demo/Pico/",
-					"demo/PicoAbstract/",
-					"demo/Rascal/"
-					};
-			
+			String searchPath[] = SEARCH_PATH;
+
 			for(int i = 0; i < searchPath.length; i++){
 				file = new File(searchPath[i] + fileName);
 				if(file.exists()){
@@ -455,24 +483,16 @@ public class Evaluator extends NullASTVisitor<Result> {
 				}
 			}
 			if (!file.exists()) {
-					throw new RascalTypeError("Can not find file for module " + name, x);
+				throw new RascalTypeError("Can not find file for module " + name, x);
 			}
-			
+
 			IConstructor tree = p.parseFromFile(file);
-			
+
 			if (tree.getConstructorType() == Factory.ParseTree_Summary) {
 				throw new RascalTypeError(parseError(tree, name));
 			}
-			
-			Module m = b.buildModule(tree);
-		
-			// TODO reactivate checking module name
-//			ModuleName declaredNamed = m.getHeader().getName();
-//			if (!declaredNamed.toString().equals(name)) {
-//				throw new RascalTypeError("Module " + declaredNamed + " should be in a file called " + declaredNamed + RASCAL_FILE_EXT + ", not " + name + RASCAL_FILE_EXT);
-//			}
-			return m.accept(this);
-		
+
+			return b.buildModule(tree);			
 		} catch (FactTypeError e) {
 			throw new RascalTypeError("Something went wrong during parsing of " + name + ": ", e);
 		} catch (FileNotFoundException e) {
@@ -480,10 +500,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 		} catch (IOException e) {
 			throw new RascalTypeError("Could not import module", e);
 		}
-		}
-		return result();
 	}
-	
+
 	private String parseError(IConstructor tree, String file) {
 		ISourceRange range = getErrorRange(new SummaryAdapter(tree));
 		
@@ -506,29 +524,32 @@ public class Evaluator extends NullASTVisitor<Result> {
 	public Result visitModuleDefault(
 			org.meta_environment.rascal.ast.Module.Default x) {
 		String name = x.getHeader().getName().toString();
-		
 		if (name.startsWith("\\")) {
 			name = name.substring(1);
 		}
 
-		try {
-			stack.addModule(name);
-			stack.pushModule(name);
+		if (!heap.existsModule(name)) {
+			ModuleEnvironment env = heap.addModule(name);
+			scopeStack.push(env);
+			callStack.push(env); // such that declarations end up in the module scope
+			
+			try {
+				x.getHeader().accept(this);
 
-			x.getHeader().accept(this);
-
-			java.util.List<Toplevel> decls = x.getBody().getToplevels();
-			for (Toplevel l : decls) {
-				l.accept(this);
+				java.util.List<Toplevel> decls = x.getBody().getToplevels();
+				for (Toplevel l : decls) {
+					l.accept(this);
+				}
 			}
-
-			return result();
+			finally {
+				scopeStack.pop();
+				callStack.pop();
+			}
 		}
-		finally {
-			stack.popModule();
-		}
+		
+		return result();
 	}
-	
+
 	@Override
 	public Result visitHeaderDefault(
 			org.meta_environment.rascal.ast.Header.Default x) {
@@ -569,7 +590,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	@Override
 	public Result visitDeclarationVariable(Variable x) {
-		Type declaredType = x.getType().accept(te);
+		Type declaredType = te.eval(x.getType(), scopeStack.peek());
 		Result r = result();
 
 		for (org.meta_environment.rascal.ast.Variable var : x.getVariables()) {
@@ -583,7 +604,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 					declaredType.match(v.type, bindings);
 					declaredType = declaredType.instantiate(bindings);
 					r = normalizedResult(declaredType, v.value);
-					stack.storeVariable(var.getName(), r);
+					scopeStack.peek().storeVariable(var.getName(), r);
 				} else {
 					throw new RascalTypeError("Variable " + declaredType + " " + var + " incompatible with initial type " + v.type, var);
 				}
@@ -595,13 +616,13 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	@Override
 	public Result visitDeclarationAnnotation(Annotation x) {
-		Type annoType = x.getType().accept(te);
+		Type annoType = te.eval(x.getType(), scopeStack.peek());
 		String name = x.getName().toString();
 		
 		for (org.meta_environment.rascal.ast.Type type : x.getTypes()) {
-		  Type onType = type.accept(te);
+		  Type onType = te.eval(type, scopeStack.peek());
 		  tf.declareAnnotation(onType, name, annoType);	
-		  stack.storeAnnotation(onType, name, annoType);
+		  scopeStack.peek().storeAnnotation(onType, name, annoType);
 		}
 		
 		return result();
@@ -611,7 +632,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	public Result visitDeclarationData(Data x) {
 		String name = x.getUser().getName().toString();
 		Type sort = tf.abstractDataType(name);
-		stack.storeAbstractDataType(sort);
+		scopeStack.peek().storeAbstractDataType(sort);
 		
 		for (Variant var : x.getVariants()) {
 			String altName = Names.name(var.getName());
@@ -623,7 +644,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 		    	for (int i = 0; i < args.size(); i++) {
 		    		TypeArg arg = args.get(i);
-					fields[i] = arg.getType().accept(te);
+					fields[i] = te.eval(arg.getType(), scopeStack.peek());
 					
 					if (arg.hasName()) {
 						labels[i] = arg.getName().toString();
@@ -634,10 +655,10 @@ public class Evaluator extends NullASTVisitor<Result> {
 		    	}
 
 		    	Type children = tf.tupleType(fields, labels);
-		    	stack.storeConstructor(tf.constructorFromTuple(sort, altName, children));
+		    	scopeStack.peek().storeConstructor(tf.constructorFromTuple(sort, altName, children));
 		    }
 		    else if (var.isNillaryConstructor()) {
-		    	stack.storeConstructor(tf.constructor(sort, altName, new Object[] { }));
+		    	scopeStack.peek().storeConstructor(tf.constructor(sort, altName, new Object[] { }));
 		    }
 		}
 		
@@ -659,17 +680,21 @@ public class Evaluator extends NullASTVisitor<Result> {
 					throw new RascalTypeError("Declaration of parameterized type with type instance " + formal + " is not allowed", formal);
 				}
 				TypeVar var = formal.getTypeVar();
-				Type bound = var.hasBound() ? var.getBound().accept(te) : tf.valueType();
+				Type bound = var.hasBound() ? evalType(var.getBound()) : tf.valueType();
 				params[i++] = tf.parameterType(Names.name(var.getName()), bound);
 			}
 		}
 		else {
 			params = new Type[0];
 		}
-		Type base = x.getBase().accept(te);
+		Type base = evalType(x.getBase());
 		Type decl = tf.aliasType(user, base, params);
-		stack.storeTypeAlias(decl);
+		scopeStack.peek().storeTypeAlias(decl);
 		return result();
+	}
+	
+	private Type evalType(org.meta_environment.rascal.ast.Type type) {
+		return te.eval(type, peek());
 	}
 	
 	@Override
@@ -685,17 +710,22 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	@Override
 	public Result visitRuleArbitrary(Arbitrary x) {
-		MatchPattern pv = x.getPattern().accept(pe);
+		MatchPattern pv = x.getPattern().accept(makePatternEvaluator());
 		//System.err.println("visitRule: " + pv.getType(this));
-		stack.storeRule(pv.getType(this), x);
+		heap.storeRule(pv.getType(scopeStack.peek()), x);
 		return result();
+	}
+
+
+	private AbstractPatternEvaluator makePatternEvaluator() {
+		return new AbstractPatternEvaluator(vf, peek(), peek(), this);
 	}
 	
 	@Override
 	public Result visitRuleReplacing(Replacing x) {
-		MatchPattern pv = x.getPattern().accept(pe);
+		MatchPattern pv = x.getPattern().accept(makePatternEvaluator());
 		//System.err.println("visitRule: " + pv.getType(this));
-		stack.storeRule(pv.getType(this), x);
+		heap.storeRule(pv.getType(scopeStack.peek()), x);
 		return result();
 	}
 	
@@ -703,7 +733,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	public Result visitRuleGuarded(Guarded x) {
 		//TODO adapt to new scheme
 		Result result = x.getRule().getPattern().getPattern().accept(this);
-		if (!result.type.isSubtypeOf(x.getType().accept(te))) {
+		if (!result.type.isSubtypeOf(evalType(x.getType()))) {
 			throw new RascalTypeError("Declared type of rule does not match type of left-hand side", x);
 		}
 		return x.getRule().accept(this);
@@ -725,13 +755,13 @@ public class Evaluator extends NullASTVisitor<Result> {
 	@Override
 	public Result visitDeclaratorDefault(
 			org.meta_environment.rascal.ast.Declarator.Default x) {
-		Type declaredType = x.getType().accept(te);
+		Type declaredType = evalType(x.getType());
 		Result r = result();
 
 		for (org.meta_environment.rascal.ast.Variable var : x.getVariables()) {
 			if (var.isUnInitialized()) {  // variable declaration without initialization
 				r = result(declaredType, null);
-				stack.top().storeVariable(var.getName(), r);
+				peek().storeVariable(var.getName(), r);
 			} else {                     // variable declaration with initialization
 				Result v = var.getInitial().accept(this);
 				if(v.type.isSubtypeOf(declaredType)){
@@ -740,7 +770,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 					declaredType.match(v.type, bindings);
 					declaredType = declaredType.instantiate(bindings);
 					r = result(declaredType, v.value);
-					stack.top().storeVariable(var.getName(), r);
+					peek().storeVariable(var.getName(), r);
 				} else {
 					throw new RascalTypeError("Variable " + declaredType + " " + var.getName() + " incompatible with initialization type " + v.type, var);
 				}
@@ -780,7 +810,13 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 		if (func.type == Lambda.getClosureType()) {
 			Lambda lambda = (Lambda) func.value;
-			return lambda.call(actuals, actualTypes);
+			try {
+				pushCallFrame(lambda.getEnv()); 
+				return lambda.call(actuals, actualTypes, peek());
+			}
+			finally {
+				pop();
+			}
 		}
 		else {
 			throw new RascalTypeError("Expected a closure, a function or an operator, but got a " + func.type, x);
@@ -812,22 +848,36 @@ public class Evaluator extends NullASTVisitor<Result> {
 	}
 	
 	private Result call(QualifiedName name, IValue[] actuals, Type actualTypes) {
-		EnvironmentHolder envHolder = new EnvironmentHolder();
-		Lambda func = stack.getFunction(name, actualTypes, envHolder);
-
-		if (func != null) {
-			try {
-				stack.pushFrame(envHolder.getEnvironment());
-				return func.call(actuals, actualTypes);
-			}
-			finally {
-				stack.popFrame();
-			}
+		String moduleName = Names.moduleName(name);
+		Environment env;
+		
+		if (moduleName == null) {
+			env = peek();
 		}
 		else {
-			undefinedFunctionException(name, actualTypes);
-			return null;
+			env = peek().getImport(moduleName);
+			if (env == null) {
+				throw new RascalTypeError("unknown module " + moduleName, name);
+			}
 		}
+		Lambda func = env.getFunction(Names.name(Names.lastName(name)), actualTypes);
+		
+		if (func != null) {
+			try {
+				pushCallFrame(func.getEnv());
+				return func.call(actuals, actualTypes, peek());
+			}
+			finally {
+				pop();
+			}
+		}
+		undefinedFunctionException(name, actualTypes);
+		return null;
+	}
+
+
+	private void pushCallFrame(Environment env) {
+		callStack.push(new Environment(env));
 	}
 
 	private void undefinedFunctionException(QualifiedName name, Type actualTypes) {
@@ -841,34 +891,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 		throw new RascalTypeError("No function/constructor " + name + "(" +  sb.toString() + ") is defined", name);
 	}
 
-	protected boolean isTreeConstructorName(QualifiedName name, Type signature) {
-		java.util.List<Name> names = name.getNames();
-		
-		if (names.size() > 1) {
-			String sort = Names.sortName(name);
-			Type sortType = stack.getAbstractDataType(sort);
-			
-			if (sortType != null) {
-				String cons = Names.consName(name);
-				
-				if (stack.getConstructor(sortType, cons, signature) != null) {
-					return true;
-				}
-			}
-			else {
-				if (!stack.existsModule(sort)) {
-					throw new RascalTypeError("Qualified name is neither module name nor data type name", name);
-				}
-			}
-		}
-		else {
-			String cons = Names.consName(name);
-			if (stack.getConstructor(cons, signature) != null) {
-				return true;
-			}
-		}
-		
-		return false;
+	private boolean isTreeConstructorName(QualifiedName name, Type signature) {
+		return peek().isTreeConstructorName(name, signature);
 	}
 	
 	/**
@@ -892,17 +916,17 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Type candidate = null;
 	
 		if (sort != null) {
-			Type sortType = stack.getAbstractDataType(sort);
+			Type sortType = peek().getAbstractDataType(sort);
 			
 			if (sortType != null) {
-			  candidate = stack.getConstructor(sortType, cons, signature);
+			  candidate = peek().getConstructor(sortType, cons, signature);
 			}
 			else {
 			  return result(tf.nodeType(), vf.node(cons, actuals));
 			}
 		}
 		
-		candidate = stack.getConstructor(cons, signature);
+		candidate = peek().getConstructor(cons, signature);
 		if (candidate != null) {
 			return result(candidate.getAbstractDataType(), candidate.make(vf, actuals));
 		}
@@ -919,11 +943,10 @@ public class Evaluator extends NullASTVisitor<Result> {
 	public Result visitFunctionAsValueDefault(
 			org.meta_environment.rascal.ast.FunctionAsValue.Default x) {
 		Name name = x.getName();
-		EnvironmentHolder h = new EnvironmentHolder();
 		
-		// TODO is this a bug, what if name was overloaded?
+		//TODO is this a bug, what if name was overloaded?
 		//TODO add support for typed function names
-		Lambda func = stack.getFunction(Names.name(name), tf.voidType(), h);
+		Lambda func = peek().getFunction(Names.name(name), tf.voidType());
 		
 		if (func == null) {
 			throw new RascalTypeError("Could not find function " + name, x);
@@ -959,14 +982,13 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	@Override
 	public Result visitStatementAssert(Assert x) {
-		String msg = x.getMessage().toString();
 		Result r = x.getExpression().accept(this);
-		if(r.type.equals(tf.boolType())){
-			if(r.value.isEqual(vf.bool(false))){
-				//System.err.println("Assertion failed: " + msg + "\n");
-			}
-		} else {
-			throw new RascalTypeError("Expression in assertion should be bool instead of " + r.type, x);
+		if (!r.type.equals(tf.boolType())) {
+			throw new RascalTypeError("Expression in assertion should be bool instead of " + r.type, x);	
+		}
+		
+		if(r.value.isEqual(vf.bool(false))){
+			throw new RascalAssertionException(x.getMessage().toString());
 		}
 		return r;	
 	}
@@ -988,7 +1010,9 @@ public class Evaluator extends NullASTVisitor<Result> {
 	}
 	
 	Result assignVariable(QualifiedName name, Result right){
-		Result previous = stack.getVariable(name);
+		Environment env = getEnv(name);
+		Result previous = env.getVariable(name);
+		
 		if (previous != null) {
 			if (right.type.isSubtypeOf(previous.type)) {
 				right.type = previous.type;
@@ -998,8 +1022,23 @@ public class Evaluator extends NullASTVisitor<Result> {
 						+ "; cannot assign value of type " + right.type, name);
 			}
 		}
-		stack.top().storeVariable(name.toString(), right);
+		
+		env.storeVariable(name, right);
 		return right;
+	}
+
+
+	private Environment getEnv(QualifiedName name) {
+		String moduleName = Names.moduleName(name);
+		Environment env;
+		
+		if (moduleName == null) {
+			env = peek();
+		}
+		else {
+			env = peek().getImport(moduleName);
+		}
+		return env;
 	}
 	
 	@Override
@@ -1330,34 +1369,35 @@ public class Evaluator extends NullASTVisitor<Result> {
 		
 		try {
 			res = body.accept(this);
-
 		} catch (RascalException e){
 			
 			IValue eValue = e.getException();
 			Type eType = eValue.getType();
 
-			for(Catch c : handlers){
+			for (Catch c : handlers){
 				if(c.isDefault()){
 					res = c.getBody().accept(this);
 					break;
-				} else {
-					if(eType.isSubtypeOf(c.getType().accept(te))){
-						//System.err.println("matching case: " + c);
-						try {
-							stack.pushFrame();	// Create local scope for executing handler	
-							Name name = c.getName();
-							stack.top().storeVariable(name, normalizedResult(eType, eValue));
-							res =  c.getBody().accept(this);
-							break;
-						} finally {
-							stack.popFrame();
-						}
+				} 
+				
+				if (eType.isSubtypeOf(evalType(c.getType()))){
+					try {
+						push();		
+						Name name = c.getName();
+						peek().storeVariable(name, normalizedResult(eType, eValue));
+						res = c.getBody().accept(this);
+						break;
+					} 
+					finally {
+						pop();
 					}
 				}
 			}
 		}
-		if(finallyBody != null){
-			finallyBody.accept(this);
+		finally {
+			if (finallyBody != null) {
+				finallyBody.accept(this);
+			}
 		}
 		return res;
 	}
@@ -1376,20 +1416,20 @@ public class Evaluator extends NullASTVisitor<Result> {
 	@Override
 	public Result visitStatementAssignment(Assignment x) {
 		Result right = x.getExpression().accept(this);
-		return x.getAssignable().accept(new AssignableEvaluator(stack, right, this));
+		return x.getAssignable().accept(new AssignableEvaluator(peek(), right, this));
 	}
 	
 	@Override
 	public Result visitStatementBlock(Block x) {
 		Result r = result();
 		try {
-			stack.pushFrame(); // blocks are scopes
-			for(Statement stat : x.getStatements()){
+			push(); 
+			for (Statement stat : x.getStatements()) {
 				r = stat.accept(this);
 			}
 		}
 		finally {
-			stack.popFrame();
+			pop();
 		}
 		return r;
 	}
@@ -1397,7 +1437,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	@Override
 	public Result visitAssignableVariable(
 			org.meta_environment.rascal.ast.Assignable.Variable x) {
-		return stack.getVariable(x.getQualifiedName().toString());
+		return peek().getVariable(x.getQualifiedName().toString());
 	}
 	
 	@Override
@@ -1504,116 +1544,139 @@ public class Evaluator extends NullASTVisitor<Result> {
 		boolean varArgs = x.getSignature().getParameters().isVarArgs();
 		
 		if (hasJavaModifier(x)) {
-			lambda = new JavaFunction(this, x, varArgs, stack.top(), javaBridge);
+			lambda = new JavaFunction(this, x, varArgs, peek(), javaBridge);
 		}
 		else {
 			if (!x.getBody().isDefault()) {
 				throw new RascalTypeError("Java function body without java function modifier in: " + x, x);
 			}
 			
-			lambda = new RascalFunction(this, x, varArgs, stack.top());
+			lambda = new RascalFunction(this, x, varArgs, peek());
 		}
 		
 		String name = Names.name(x.getSignature().getName());
-		stack.storeFunction(name, lambda);
+		peek().storeFunction(name, lambda);
 		
 		return lambda;
 	}
 	
 	@Override
 	public Result visitStatementIfThenElse(IfThenElse x) {
-		stack.pushFrame(); // For the benefit of variables bound in the condition
-		try {
-			for (org.meta_environment.rascal.ast.Expression expr : x
-					.getConditions()) {
-				Result cval = expr.accept(this);
-				if (cval.type.isBoolType()) {
-					if (cval.value.isEqual(vf.bool(false))) {
-						return x.getElseStatement().accept(this);
+		elseBranch: 
+			do {
+				push(); // For the benefit of variables bound in the condition
+				try {
+					for (org.meta_environment.rascal.ast.Expression expr : x.getConditions()) {
+						Result cval = expr.accept(this);
+						if (!cval.type.isBoolType()) {
+							throw new RascalTypeError("Condition " + expr + " has type "
+									+ cval.type + " but should be bool", x);
+						}
+						if (cval.value.isEqual(vf.bool(false))) {
+							break elseBranch;
+						}
+						// condition is true: continue
 					}
-				} else {
-					throw new RascalTypeError("Condition " + expr + " has type "
-							+ cval.type + " but should be bool", x);
+					return x.getThenStatement().accept(this);
+				} finally {
+					pop();	// Remove any bindings due to condition evaluation.
 				}
-			}
-			return x.getThenStatement().accept(this);
-		} finally {
-			stack.popFrame();	// Remove any bindings due to condition evaluation.
-		}
+			} 
+			while (false);
+		return x.getElseStatement().accept(this);
 	}
 
 	@Override
 	public Result visitStatementIfThen(IfThen x) {
-		for (org.meta_environment.rascal.ast.Expression expr : x
-				.getConditions()) {
-			Result cval = expr.accept(this);
-			if (cval.type.isBoolType()) {
+		push(); // For the benefit of variables bound in the condition
+		try {
+			for (org.meta_environment.rascal.ast.Expression expr : x.getConditions()) {
+				Result cval = expr.accept(this);
+				if (!cval.type.isBoolType()) {
+					throw new RascalTypeError("Condition " + expr + " has type "
+							+ cval.type + " but should be bool", x);
+				}
 				if (cval.value.isEqual(vf.bool(false))) {
 					return result();
 				}
-			} else {
-				throw new RascalTypeError("Condition " + expr + " has type "
-						+ cval.type + " but should be bool", x);
 			}
+			return x.getThenStatement().accept(this);
 		}
-		return x.getThenStatement().accept(this);
+		finally {
+			pop();
+		}
 	}
-
+	
 	@Override
 	public Result visitStatementWhile(While x) {
 		org.meta_environment.rascal.ast.Expression expr = x.getCondition();
 		Result statVal = result();
+		
 		do {
-			Result cval = expr.accept(this);
-			if (cval.type.isBoolType()) {
+			push();
+			try {
+				Result cval = expr.accept(this);
+				if (!cval.type.isBoolType()) {
+					throw new RascalTypeError("Condition " + expr + " has type "
+							+ cval.type + " but should be bool", x);
+				}
 				if (cval.value.isEqual(vf.bool(false))) {
 					return statVal;
-				} else {
-					statVal = x.getBody().accept(this);
 				}
-			} else {
-				throw new RascalTypeError("Condition " + expr + " has type "
-						+ cval.type + " but should be bool", x);
+				statVal = x.getBody().accept(this);
+			}
+			finally {
+				pop();
 			}
 		} while (true);
 	}
-	
+		
 	@Override
 	public Result visitStatementDoWhile(DoWhile x) {
 		org.meta_environment.rascal.ast.Expression expr = x.getCondition();
 		do {
 			Result result = x.getBody().accept(this);
-			Result cval = expr.accept(this);
-			if (cval.type.isBoolType()) {
+
+			push();
+			try {
+				Result cval = expr.accept(this);
+				if (!cval.type.isBoolType()) {
+					throw new RascalTypeError("Condition " + expr + " has type "
+							+ cval.type + " but should be bool", x);
+				}
 				if (cval.value.isEqual(vf.bool(false))) {
 					return result;
 				}
-			} else {
-				throw new RascalTypeError("Condition " + expr + " has type "
-						+ cval.type + " but should be bool", x);
+			}
+			finally {
+				pop();
 			}
 		} while (true);
 	}
 	
     @Override
     public Result visitExpressionMatch(Match x) {
-    	return new MatchEvaluator(x.getPattern(), x.getExpression(), true, this).next();
+    	return new MatchEvaluator(x.getPattern(), x.getExpression(), true, peek(), this).next();
     }
     
     @Override
     public Result visitExpressionNoMatch(NoMatch x) {
-    	return new MatchEvaluator(x.getPattern(), x.getExpression(), false, this).next();
+    	return new MatchEvaluator(x.getPattern(), x.getExpression(), false, peek(), this).next();
     }
 	
 	// ----- General method for matching --------------------------------------------------
     
     protected MatchPattern evalPattern(org.meta_environment.rascal.ast.Expression pat){
-    	if(pe.isPattern(pat)){
+    	AbstractPatternEvaluator pe = makePatternEvaluator();
+		if(pe.isPattern(pat)){
     		return pat.accept(pe);
-    	} else if(re.isRegExpPattern(pat)){ 
-			return pat.accept(re);
-		} else {
-			throw new RascalTypeError("pattern expected instead of " + pat, pat);
+    	} else {
+			RegExpPatternEvaluator re = new RegExpPatternEvaluator(vf, peek());
+			if(re.isRegExpPattern(pat)){ 
+				return pat.accept(re);
+			} else {
+				throw new RascalTypeError("pattern expected instead of " + pat, pat);
+			}
 		}
     }
 	
@@ -1655,10 +1718,10 @@ public class Evaluator extends NullASTVisitor<Result> {
 	public Result visitLiteralString(
 			org.meta_environment.rascal.ast.Literal.String x) {
 		String str = x.getStringLiteral().toString();
-		return result(vf.string(deescape(str)));
+		return result(vf.string(unescape(str, x)));
 	}
 
-	private String deescape(String str) {
+	private String unescape(String str, AbstractAST ast) {
 		byte[] bytes = str.getBytes();
 		StringBuffer result = new StringBuffer();
 		
@@ -1674,10 +1737,12 @@ public class Evaluator extends NullASTVisitor<Result> {
 				while((varchar = (char) bytes[++i]) != '>'){
 					var.append(varchar);
 				}
-				Result val = stack.getVariable(var.toString());
+				Result val = peek().getVariable(var.toString());
 				String replacement;
-				if(val == null || val.value == null){
-					replacement = "**undefined**";	
+				if(val == null || val.value == null) {
+					// TODO JURGEN: should we not throw an exception or something? Undefined variables are not allowed.
+//					replacement = "**undefined**";	
+					throw new RascalUndefinedValue("Undefined variable " + var, ast);
 				} else {
 					if(val.type.isStringType()){
 						replacement = ((IString)val.value).getValue();
@@ -1685,11 +1750,9 @@ public class Evaluator extends NullASTVisitor<Result> {
 						replacement = val.value.toString();
 					}
 				}
-				replacement = replacement.replaceAll("<", "\\\\<");
-				int len = replacement.length();
-				b = replacement.charAt(len-1);
-				result.append(replacement.substring(0, len-1));
-				break;
+//				replacement = replacement.replaceAll("<", "\\\\<"); TODO: maybe we need this after all?
+				result.append(replacement);
+				continue;
 			case '\\':
 				switch (bytes[++i]) {
 				case '\\':
@@ -1761,12 +1824,12 @@ public class Evaluator extends NullASTVisitor<Result> {
 			return constructTree(x.getQualifiedName(), new IValue[0], tf.tupleType(new Type[0]));
 		}
 		else {
-			Result result = stack.getVariable(x.getQualifiedName());
+			Result result = peek().getVariable(x.getQualifiedName());
 
 			if (result != null && result.value != null) {
 				return result;
 			} else {
-				throw new RascalUndefinedValue("Uninitialized variable: " + x);
+				throw new RascalUndefinedValue("Uninitialized variable: " + x, x);
 			}
 		}
 	}
@@ -1861,7 +1924,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	@Override
 	public Result visitExpressionNonEmptyBlock(NonEmptyBlock x) {
-		return new Lambda(this, tf.voidType(), "", tf.tupleEmpty(), false, x.getStatements(), stack.top());
+		return new Lambda(this, tf.voidType(), "", tf.tupleEmpty(), false, x.getStatements(), peek());
 	}
 
 	public Result visitExpressionTuple(Tuple x) {
@@ -1903,7 +1966,9 @@ public class Evaluator extends NullASTVisitor<Result> {
 		return result(annoType, annoValue);
 	}
 	
-	private void widenArgs(Result left, Result right){
+	public static void widenArgs(Result left, Result right) {
+		TypeFactory tf = TypeFactory.getInstance();
+		
 		Type leftValType = left.value.getType();
 		Type rightValType = right.value.getType();
 		if (leftValType.isIntegerType() && rightValType.isDoubleType()) {
@@ -2321,8 +2386,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 		return new EquivalenceEvaluator(x, this).next();
 	}
 	
-	boolean equals(Result left, Result right){
-		
+	// TODO factor out into Result or a subclass thereof
+	public static boolean equals(Result left, Result right){
 		widenArgs(left, right);
 		
 		if (left.type.comparable(right.type)) {
@@ -2402,15 +2467,15 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	@Override
 	public Result visitExpressionClosure(Closure x) {
-		Type formals = x.getParameters().accept(te);
-		Type returnType = x.getType().accept(te);
-		return new Lambda(this, returnType, "", formals, x.getParameters().isVarArgs(), x.getStatements(), stack.top());
+		Type formals = te.eval(x.getParameters(), peek());
+		Type returnType = evalType(x.getType());
+		return new Lambda(this, returnType, "", formals, x.getParameters().isVarArgs(), x.getStatements(), peek());
 	}
 
 	@Override
 	public Result visitExpressionVoidClosure(VoidClosure x) {
-		Type formals = x.getParameters().accept(te);
-		return new Lambda(this, tf.voidType(), "", formals, x.getParameters().isVarArgs(), x.getStatements(), stack.top());
+		Type formals = te.eval(x.getParameters(), peek());
+		return new Lambda(this, tf.voidType(), "", formals, x.getParameters().isVarArgs(), x.getStatements(), peek());
 	}
 	
 	@Override
@@ -2529,11 +2594,11 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	private boolean matchAndEval(IValue subject, org.meta_environment.rascal.ast.Expression pat, Statement stat){
 		MatchPattern mp = evalPattern(pat);
-		mp.initMatch(subject, this);
+		mp.initMatch(subject, peek());
 		lastPattern = mp;
 		//System.err.println("matchAndEval: subject=" + subject + ", pat=" + pat);
 		try {
-			stack.pushFrame(); 	// Create a separate scope for match and statement
+			push(); 	// Create a separate scope for match and statement
 			while(mp.hasNext()){
 				if(mp.next()){
 					try {
@@ -2546,7 +2611,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				}
 			}
 		} finally {
-			stack.popFrame();
+			pop();
 		}
 		return false;
 	}
@@ -2556,11 +2621,11 @@ public class Evaluator extends NullASTVisitor<Result> {
 			java.util.List<Expression> conditions,
 			Expression replacementExpr){
 		MatchPattern mp = evalPattern(pat);
-		mp.initMatch(subject, this);
+		mp.initMatch(subject, peek());
 		lastPattern = mp;
 		//System.err.println("matchEvalAndReplace: subject=" + subject + ", pat=" + pat + ", conditions=" + conditions);
 		try {
-			stack.pushFrame(); 	// Create a separate scope for match and statement
+			push(); 	// Create a separate scope for match and statement
 			while(mp.hasNext()){
 				//System.err.println("mp.hasNext()==true; mp=" + mp);
 				if(mp.next()){
@@ -2582,7 +2647,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				}
 			}
 		} finally {
-			stack.popFrame();
+			push();
 		}
 		return false;
 	}
@@ -2600,7 +2665,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				return result();
 			} else if(rule.isGuarded())	{
 				org.meta_environment.rascal.ast.Type tp = rule.getType();
-				Type t = tp.accept(te);
+				Type t = evalType(tp);
 				if(subject.type.isSubtypeOf(t) && matchAndEval(subject.value, rule.getPattern(), rule.getStatement())){
 					return result();
 				}
@@ -2755,6 +2820,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		
 		Case cs = (Case) singleCase(casesOrRules);
 		
+		RegExpPatternEvaluator re = new RegExpPatternEvaluator(vf, peek());
 		if(cs != null && cs.isRule() && re.isRegExpPattern(cs.getRule().getPattern())){
 			/*
 			 * In the frequently occurring case that there is one case with a regexp as pattern,
@@ -2764,10 +2830,10 @@ public class Evaluator extends NullASTVisitor<Result> {
 			
 			Expression patexp = rule.getPattern();
 			MatchPattern mp = evalPattern(patexp);
-			mp.initMatch(subject, this);
+			mp.initMatch(subject, peek());
 
 			try {
-				stack.pushFrame(); 	// Create a separate scope for match and statement/replacement
+				push(); // a separate scope for match and statement/replacement
 				while(mp.hasNext()){
 					if(mp.next()){
 						try {
@@ -2806,7 +2872,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 					}
 				}
 			} finally {
-				stack.popFrame();
+				pop();
 			}
 	} else {
 			/*
@@ -3082,7 +3148,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			}
 		} else if (rule.isGuarded()) {
 			org.meta_environment.rascal.ast.Type tp = rule.getType();
-			Type type = tp.accept(te);
+			Type type = evalType(tp);
 			rule = rule.getRule();
 			if (subject.getType().isSubtypeOf(type) && 
 				matchAndEval(subject, rule.getPattern(), rule.getStatement())) {
@@ -3164,10 +3230,15 @@ public class Evaluator extends NullASTVisitor<Result> {
 	}
 	
 	
-	private int compare(Result left, Result right){
+	// TODO distribute over subclasses of Result
+	public static int compare(Result left, Result right){
 		// compare must use run-time types because it is complete for all types
 		// even if statically two values have type 'value' but one is an int 1
 		// and the other is Real 1.0 they must be equal.
+		
+		// TODO distribute this method over subclasses of Result,
+		// IntegerResult to MapResult which implement equals and compare and add and
+		// subtract, etc.
 
 		widenArgs(left, right);
 		Type leftType = left.value.getType();
@@ -3223,7 +3294,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		return leftType.toString().compareTo(rightType.toString());
 	}
 	
-	private int compareNode(INode left, INode right){
+	private static int compareNode(INode left, INode right){
 		String leftName = left.getName().toString();
 		String rightName = right.getName().toString();
 		int compare = leftName.compareTo(rightName);
@@ -3234,7 +3305,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		return compareList(left.iterator(), left.arity(), right.iterator(), right.arity());
 	}
 	
-	private int compareSourceLocation(ISourceLocation leftSL, ISourceLocation rightSL){
+	private static int compareSourceLocation(ISourceLocation leftSL, ISourceLocation rightSL){
 		if(leftSL.getPath().equals(rightSL.getPath())){
 			ISourceRange leftSR = leftSL.getRange();
 			ISourceRange rightSR = rightSL.getRange();
@@ -3268,7 +3339,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 	}
 	
-	private int compareSet(ISet value1, ISet value2) {
+	private static int compareSet(ISet value1, ISet value2) {
 		
 		if (value1.isEqual(value2)) {
 			return 0;
@@ -3281,7 +3352,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 	}
 	
-	private int compareMap(IMap value1, IMap value2) {
+	private static int compareMap(IMap value1, IMap value2) {
 		if (value1.isEqual(value2)) {
 			return 0;
 		}
@@ -3293,7 +3364,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 	}
 
-	private int compareList(Iterator<IValue> left, int leftLen, Iterator<IValue> right, int rightLen){
+	private static int compareList(Iterator<IValue> left, int leftLen, Iterator<IValue> right, int rightLen){
 		
 		if(leftLen == 0){
 			return rightLen == 0 ? 0 : -1;
@@ -3307,8 +3378,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 		for(int i = 0; i < m; i++){
 			IValue leftVal = left.next();
 			IValue rightVal = right.next();
-			Result vl = normalizedResult(leftVal.getType(), leftVal);
-			Result vr = normalizedResult(rightVal.getType(), rightVal);
+			Result vl = new Result(leftVal.getType(), leftVal);
+			Result vr = new Result(rightVal.getType(), rightVal);
 			int c = compare(vl, vr);
 
 			if (c < 0 || c > 0) {
@@ -3585,7 +3656,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				while(iter.hasNext()){
 					IValue v = (IValue) iter.next();
 					//System.err.println("getNext, try next from value iterator: " + v);
-					pat.initMatch(v, evaluator);
+					pat.initMatch(v, peek());
 					while(pat.hasNext()){
 						if(pat.next()){
 							//System.err.println("return true");
@@ -3843,7 +3914,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 		IValue currentValue[] = new IValue[vars.size()];
 		for(int i = 0; i < vars.size(); i++){
-			currentValue[i] = stack.getVariable(vars.get(i)).value;
+			currentValue[i] = peek().getVariable(Names.name(vars.get(i))).value;
 		}
 		
 		Statement body = x.getBody();
@@ -3872,7 +3943,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			iterations++;
 			bodyResult = body.accept(this);
 			for(int i = 0; i < vars.size(); i++){
-				Result v = stack.getVariable(vars.get(i));
+				Result v = peek().getVariable(Names.name(vars.get(i)));
 				if(currentValue[i] == null || !v.value.isEqual(currentValue[i])){
 					change = true;
 					currentValue[i] = v.value;

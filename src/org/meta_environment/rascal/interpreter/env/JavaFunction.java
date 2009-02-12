@@ -20,9 +20,9 @@ public class JavaFunction extends Lambda {
 	
 	@SuppressWarnings("unchecked")
 	public JavaFunction(Evaluator eval, FunctionDeclaration func, boolean varargs, Environment env, JavaBridge javaBridge) {
-		super(eval, func.getSignature().getType().accept(TE),
+		super(eval, TE.eval(func.getSignature().getType(),env),
 				Names.name(func.getSignature().getName()),
-				func.getSignature().getParameters().accept(TE), 
+				TE.eval(func.getSignature().getParameters(), env), 
 				varargs,
 				Collections.EMPTY_LIST, env);
 		this.method = javaBridge.compileJavaMethod(func);
@@ -30,28 +30,20 @@ public class JavaFunction extends Lambda {
 	}
 	
 	@Override
-	public Result call(IValue[] actuals, Type actualTypes) {
-		GlobalEnvironment global = GlobalEnvironment.getInstance();
-		try {
-			global.pushFrame();
-			
-			if (hasVarArgs) {
-				actuals = computeVarArgsActuals(actuals, formals);
-			}
-			
-			IValue result = invoke(actuals);
-			
-			if (hasVarArgs) {
-				actualTypes = computeVarArgsActualTypes(actualTypes, formals);
-			}
-			
-			bindTypeParameters(actualTypes, formals); 
-			Type resultType = returnType.instantiate(global.getTypeBindings());
-			return new Result(resultType, result);
+	public Result call(IValue[] actuals, Type actualTypes, Environment env) {
+		if (hasVarArgs) {
+			actuals = computeVarArgsActuals(actuals, formals);
 		}
-		finally {
-			global.popFrame();
+
+		IValue result = invoke(actuals);
+
+		if (hasVarArgs) {
+			actualTypes = computeVarArgsActualTypes(actualTypes, formals);
 		}
+
+		bindTypeParameters(actualTypes, formals, env); 
+		Type resultType = returnType.instantiate(env.getTypeBindings());
+		return new Result(resultType, result);
 	}
 	
 	public IValue invoke(IValue[] actuals) {

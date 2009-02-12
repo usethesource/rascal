@@ -38,7 +38,10 @@ public class PatternTests extends TestCase {
 		assertTrue(tf.runTest("[1, [2, 3], 4] := [1, [2, 3], 4];"));
 		assertFalse(tf.runTest("[1, [2, 3], 4] := [1, [2, 3, 4], 4];"));
 
+
 		assertTrue(tf.runTest("([list[int] L] := []) && (L == []);"));
+		assertTrue(tf.runTest("{ list[int] X = []; ([list[int] L] := X) && (L == []); }"));
+		assertTrue(tf.runTest("([list[int] L] := ([1] - [1])) && (L == []);"));
 		assertTrue(tf.runTest("([list[int] L] := [1]) && (L == [1]);"));
 		assertTrue(tf.runTest("([list[int] L] := [1,2]) && (L == [1,2]);"));
 
