@@ -5,7 +5,6 @@ import java.util.Iterator;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.impl.Value;
 import org.eclipse.imp.pdb.facts.impl.reference.List;
 import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
@@ -14,21 +13,30 @@ import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.meta_environment.rascal.interpreter.exceptions.RascalBug;
 
-public class SubList extends Value implements IList {
+public class SubList implements IList {
+	private final Type fType;
+	
 	private final int start;
 	private final int len;
 	private final int end;
 	private final IList base;
 	
 	public SubList(List L, int start, int len){
-		super(L);
-		this.start = this.end = this.len = 0; this.base = null;
+		super();
+		
+		fType = L.getType();
+		
+		this.start = this.end = this.len = 0;
+		this.base = null;
 	}
-	
-	public SubList(Value V, int start, int len){
-		super(V);
-		if(V instanceof List){
-			this.base = (List) V;
+
+	public SubList(IValue V, int start, int len){
+		super();
+		
+		fType = V.getType();
+		
+		if(V instanceof IList){
+			this.base = (IList) V;
 			this.start = start;
 		} else if (V instanceof SubList){
 			SubList other =  (SubList) V;
@@ -42,6 +50,11 @@ public class SubList extends Value implements IList {
 		if(this.start < 0 || this.len > base.length()){
 			throw new RascalBug("Out of bounds");
 		}
+	}
+	
+	@Override
+	public int hashCode() {
+		return base.hashCode() + start << 8 + len << 4;
 	}
 
 	public boolean equals(Object o){
@@ -61,9 +74,8 @@ public class SubList extends Value implements IList {
 		return false;
 	}
 	
-	@Override
-	public int hashCode() {
-		return base.hashCode() + start << 8 + len << 4;
+	public boolean isEqual(IValue other) {
+		return equals(other);
 	}
 	
 	public String toString(){

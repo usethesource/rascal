@@ -9,7 +9,6 @@ import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.impl.Value;
 import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -433,7 +432,7 @@ interface MatchPattern {
 		int start = listVarStart[patternCursor];
 		int length = listVarLength[patternCursor];
 		
-		return new SubList((Value) listSubject, start, length);
+		return new SubList(listSubject, start, length);
 	}
 	
 	private void matchBoundListVar(IList previousBinding){
