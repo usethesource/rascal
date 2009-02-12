@@ -8,18 +8,12 @@ import java.util.HashMap;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.IRelationWriter;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.interpreter.exceptions.RascalRunTimeError;
 
 public class RSFReader {
-	
-	public static void main(String[] args){
-		IValue res = readRSF("/home/paulk/cwi/workspace/rascal/src/benchmark/RSF/JHotDraw52.rsf");
-		System.err.println(res);
-	}
 	
 	/*
 	 * Read relations from an RSF file. An RSF file contains tuples of binary relations
