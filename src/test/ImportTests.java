@@ -64,6 +64,7 @@ public class ImportTests extends TestCase {
 						 "public int g() { return m; } "
 		);
 		
+		tf.prepareMore("import M;");
 		assertTrue(tf.runTestInSameEvaluator("M::m == 2;"));
 		assertTrue(tf.runTestInSameEvaluator("M::f() == 2;"));
 		assertTrue(tf.runTestInSameEvaluator("M::g() == 2;"));
@@ -79,6 +80,8 @@ public class ImportTests extends TestCase {
 						 "public int m = 3;"
 		);
 		
+		tf.prepareMore("import M;");
+		tf.prepareMore("import Mbase;");
 		assertTrue(tf.runTestInSameEvaluator("Mbase::n == 2;"));
 		assertTrue(tf.runTestInSameEvaluator("Mbase::f(3) == 6;"));
 		
@@ -91,11 +94,11 @@ public class ImportTests extends TestCase {
 	public void testSize()  throws IOException{
 		TestFramework tf = new TestFramework();
 		
-		tf.prepareModule("module Msize " +
-				         "import Set;" +
-						 "public set[int] Procs = {1, 2, 3};" +
-						 "public int f() {int nProcs = Set::size(Procs); return nProcs;}" +
-						 "public int g() {int nProcs = size(Procs); return nProcs;}"
+		tf.prepareModule("module Msize \n" +
+				         "import Set;\n" +
+						 "public set[int] Procs = {1, 2, 3};\n" +
+						 "public int f() {int nProcs = Set::size(Procs); return nProcs;}\n" +
+						 "public int g() {int nProcs = size(Procs); return nProcs;}\n"
 		);
 		
 		tf.runTestInSameEvaluator("import Msize;");
