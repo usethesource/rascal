@@ -2,12 +2,15 @@ package org.meta_environment.rascal.interpreter.env;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.meta_environment.rascal.ast.Name;
+import org.meta_environment.rascal.ast.QualifiedName;
+import org.meta_environment.rascal.interpreter.Names;
+import org.meta_environment.rascal.interpreter.exceptions.RascalBug;
 import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
 
 /**
@@ -20,7 +23,7 @@ import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
  */
 public class ModuleEnvironment extends Environment {
 	private final String name;
-	protected final Set<String> importedModules;
+	protected final Map<String, ModuleEnvironment> importedModules;
 	protected final Map<String,Type> typeAliases;
 	protected final Map<String, Type> adts;
 	protected final Map<Type, List<Type>> signature;
@@ -28,8 +31,9 @@ public class ModuleEnvironment extends Environment {
 	protected final Map<Type, Map<String, Type>> annotations;
 	
 	public ModuleEnvironment(String name) {
+		super(null);
 		this.name = name;
-		this.importedModules = new HashSet<String>();
+		this.importedModules = new HashMap<String, ModuleEnvironment>();
 		this.typeAliases = new HashMap<String,Type>();
 		this.adts = new HashMap<String,Type>();
 		this.signature = new HashMap<Type, List<Type>>();
@@ -41,16 +45,37 @@ public class ModuleEnvironment extends Environment {
 		return true;
 	}
 	
-	public void addImport(String name) {
-		importedModules.add(name);
+	public void addImport(String name, ModuleEnvironment env) {
+		importedModules.put(name, env);
 	}
 	
 	public Set<String> getImports() {
-		return importedModules;
+		return importedModules.keySet();
 	}
 
 	public String getName() {
 		return name;
+	}
+	
+	@Override
+	public Result getVariable(QualifiedName name) {
+		String modulename = Names.moduleName(name);
+		
+		if (modulename != null) {
+			if (modulename.equals(getName())) {
+				return getVariable(Names.name(Names.lastName(name)));
+			}
+			
+			ModuleEnvironment imported = getImport(modulename);
+			if (imported == null) {
+				throw new RascalTypeError("Module " + modulename + " is not visible in " + getName(), name);
+			}
+			return imported.getVariable(name);
+		}
+		else {
+			return getVariable(Names.name(Names.lastName(name)));
+		}
+	
 	}
 	
 	@Override
@@ -64,7 +89,7 @@ public class ModuleEnvironment extends Environment {
 			List<Result> results = new ArrayList<Result>();
 			for (String i : getImports()) {
 				// imports are not transitive!
-				ModuleEnvironment module = GlobalEnvironment.getInstance().getModule(i);
+				ModuleEnvironment module = importedModules.get(i);
 				result = module.getLocalPublicVariable(name);
 				
 				if (result != null) {
@@ -87,7 +112,6 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	@Override
-	// NEW
 	public void storeVariable(String name, Result value) {
 		Result result = super.getVariable(name);
 		
@@ -96,7 +120,7 @@ public class ModuleEnvironment extends Environment {
 		}
 		else {
 			for (String i : getImports()) {
-				ModuleEnvironment module = GlobalEnvironment.getInstance().getModule(i);
+				ModuleEnvironment module = importedModules.get(i);
 				result = module.getLocalPublicVariable(name);
 
 				if (result != null) {
@@ -110,18 +134,17 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	@Override
-	public Lambda getFunction(String name, Type types, EnvironmentHolder h) {
-		Lambda result = super.getFunction(name, types, h);
+	public Lambda getFunction(String name, Type types) {
+		Lambda result = super.getFunction(name, types);
 		
 		if (result == null) {
 			List<Lambda> results = new ArrayList<Lambda>();
 			for (String i : getImports()) {
 				// imports are not transitive!
-				ModuleEnvironment module = GlobalEnvironment.getInstance().getModule(i);
+				ModuleEnvironment module = importedModules.get(i);
 				result = module.getLocalPublicFunction(name, types);
 				
 				if (result != null) {
-					h.setEnvironment(module);
 					results.add(result);
 				}
 			}
@@ -141,7 +164,7 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	public Lambda getLocalFunction(String name, Type types) {
-		return super.getFunction(name, types, new EnvironmentHolder());
+		return super.getFunction(name, types);
 	}
 	
 	public Lambda getLocalPublicFunction(String name, Type types) {
@@ -151,6 +174,7 @@ public class ModuleEnvironment extends Environment {
 		}
 		return null;
 	}
+	
 	
 	public Result getLocalVariable(String name) {
 		return super.getVariable(name);
@@ -166,14 +190,17 @@ public class ModuleEnvironment extends Environment {
 		return null;
 	}
 
+	@Override
 	public Type getTypeAlias(String name) {
 		return typeAliases.get(name);
 	}
 	
+	@Override
 	public Type getAbstractDataType(String sort) {
 		return adts.get(sort);
 	}
 	
+	@Override
 	public Type getConstructor(String cons, Type args) {
 		for (List<Type> sig : signature.values()) {
 			for (Type cand : sig) {
@@ -192,7 +219,7 @@ public class ModuleEnvironment extends Environment {
 		}
 		
 		for (String i : getImports()) {
-			ModuleEnvironment mod = GlobalEnvironment.getInstance().getModule(i);
+			ModuleEnvironment mod = importedModules.get(i);
 			Type found = mod.getConstructor(cons, args);
 			
 			if (found != null) {
@@ -203,6 +230,7 @@ public class ModuleEnvironment extends Environment {
 		return null;
 	}
 	
+	@Override
 	public Type getConstructor(Type sort, String cons, Type args) {
 		List<Type> sig = signature.get(sort);
 		
@@ -216,7 +244,7 @@ public class ModuleEnvironment extends Environment {
 		}
 		
 		for (String i : getImports()) {
-			ModuleEnvironment mod = GlobalEnvironment.getInstance().getModule(i);
+			ModuleEnvironment mod = importedModules.get(i);
 			Type found = mod.getConstructor(sort, cons, args);
 			
 			if (found != null) {
@@ -225,6 +253,32 @@ public class ModuleEnvironment extends Environment {
 		}
 		
 		return null;
+	}
+	
+	@Override
+	public boolean isTreeConstructorName(QualifiedName name, Type signature) {
+		java.util.List<Name> names = name.getNames();
+		
+		if (names.size() > 1) {
+			String sort = Names.sortName(name);
+			Type sortType = getAbstractDataType(sort);
+			
+			if (sortType != null) {
+				String cons = Names.consName(name);
+				
+				if (getConstructor(sortType, cons, signature) != null) {
+					return true;
+				}
+			}
+		}
+		else {
+			String cons = Names.consName(name);
+			if (getConstructor(cons, signature) != null) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
 	
 	public void storeTypeAlias(Type decl) {
@@ -280,6 +334,8 @@ public class ModuleEnvironment extends Environment {
 		annosFor.put(name, annoType);
 	}
 	
+	// TODO deal with imports
+	@Override
 	public Type getAnnotationType(Type onType, String name) {
 		Map<String, Type> annosFor = annotations.get(onType);
 		
@@ -290,6 +346,7 @@ public class ModuleEnvironment extends Environment {
 		return null;
 	}
 	
+	@Override
 	public Map<String, Type> getAnnotations(Type onType) {
 		return annotations.get(onType);
 	}
@@ -297,5 +354,25 @@ public class ModuleEnvironment extends Environment {
 	@Override
 	public String toString() {
 		return "Environment [ " + getName() + ":" + importedModules + "]"; 
+	}
+
+	@Override
+	public ModuleEnvironment getImport(String moduleName) {
+		return importedModules.get(moduleName);
+	}
+	
+	private void checkModuleName(QualifiedName name) {
+		String moduleName = Names.moduleName(name);
+		
+		if (moduleName != null && !moduleName.equals(getName())) {
+			throw new RascalBug("attempting to access a variable of a different module");
+		}
+	}
+	
+	@Override
+	public void storeVariable(QualifiedName name, Result result) {
+		checkModuleName(name);
+		
+		super.storeVariable(name, result);
 	}
 }

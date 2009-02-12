@@ -8,9 +8,9 @@ import org.meta_environment.rascal.interpreter.Names;
 public class RascalFunction extends Lambda {
 
 	public RascalFunction(Evaluator eval, FunctionDeclaration func, boolean varargs, Environment env) {
-		super(eval, func.getSignature().getType().accept(TE),
+		super(eval, TE.eval(func.getSignature().getType(), env),
 				Names.name(func.getSignature().getName()),
-				func.getSignature().getParameters().accept(TE),
+				TE.eval(func.getSignature().getParameters(), env),
 				varargs, 
 				func.getBody().getStatements(), env);
 	}

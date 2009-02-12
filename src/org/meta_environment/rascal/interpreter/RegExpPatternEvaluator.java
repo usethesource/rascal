@@ -10,13 +10,15 @@ import java.util.regex.PatternSyntaxException;
 
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.Expression.Literal;
 import org.meta_environment.rascal.ast.Literal.RegExp;
 import org.meta_environment.rascal.ast.RegExp.Lexical;
+import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.Result;
-import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
 
 class RegExpPatternValue implements MatchPattern {
@@ -30,7 +32,6 @@ class RegExpPatternValue implements MatchPattern {
 												// when the  pattern was constructed
 	private Matcher matcher;					// The actual regexp matcher
 	String subject;								// Subject string to be matched
-	Evaluator ev;
 	private boolean initialized = false;		// Has matcher been initialized?
 	private boolean firstMatch;				// Is this the first match?
 	private boolean hasNext;					// Are there more matches?
@@ -39,20 +40,26 @@ class RegExpPatternValue implements MatchPattern {
 	private int end;							// end of last match in current subject
 	private boolean debug = false;
 	
-	RegExpPatternValue(String s){
+	private final Environment env;
+	private final TypeFactory tf = TypeFactory.getInstance();
+	private final IValueFactory vf;
+	
+	RegExpPatternValue(IValueFactory vf, String s, Environment env){
 		RegExpAsString = s;
 	//	modifier = null;
 		patternVars = null;
 		initialized = false;
+		this.env = env;
+		this.vf = vf;
 	}
 	
-	RegExpPatternValue(String s, Character mod, List<String> names){
+	RegExpPatternValue(IValueFactory vf, String s, Character mod, List<String> names, Environment env){
 		RegExpAsString = (mod == null) ? s : "(?" + mod + ")" + s;
 	//	modifier = mod;
 		patternVars = names;
 		initialized = false;
 		for(String name : names){
-			Result res = GlobalEnvironment.getInstance().getVariable(name);
+			Result res = env.getVariable(name);
 			if((res != null) && (res.value != null)){
 				if(!res.type.isStringType()){
 					throw new RascalTypeError("Name " + name + " should have type string but has type " + res.type);
@@ -61,19 +68,20 @@ class RegExpPatternValue implements MatchPattern {
 				if(debug)System.err.println("bound before construction: " + name + ", " + res.value);
 			}
 		}
+		this.env = env;
+		this.vf = vf;
 	}
 	
-	public Type getType(Evaluator ev) {
-		return ev.tf.stringType();
+	public Type getType(Environment ev) {
+		return tf.stringType();
 	}
 
-	public void initMatch(IValue subject, Evaluator ev) {
+	public void initMatch(IValue subject, Environment ev) {
 		if(!subject.getType().isStringType()){
 			hasNext = false;
 			return;
 		}
 		this.subject = ((IString) subject).getValue();
-		this.ev = ev;
 		initialized = firstMatch = hasNext = true;
 	
 		try {
@@ -103,7 +111,7 @@ class RegExpPatternValue implements MatchPattern {
 			for(String name : bindings.keySet()){
 				String valBefore = boundBeforeConstruction.get(name);
 				if(true){ // TODO: ??? valBefore == null){
-					GlobalEnvironment.getInstance().top().storeVariable(name, ev.result(ev.vf.string(bindings.get(name))));
+					env.storeVariable(name, new Result(tf.stringType(), vf.string(bindings.get(name))));
 				} else {					
 					if(!valBefore.equals(bindings.get(name))){
 						matches = false;
@@ -147,6 +155,13 @@ class RegExpPatternValue implements MatchPattern {
 
 public class RegExpPatternEvaluator extends NullASTVisitor<MatchPattern> {
 	private boolean debug = false;
+	private final Environment env;
+	private final IValueFactory vf;
+	
+	public RegExpPatternEvaluator(IValueFactory vf, Environment env) {
+		this.env = env;
+		this.vf = vf;
+	}
 	
 	public boolean isRegExpPattern(org.meta_environment.rascal.ast.Expression pat){
 		if(pat.isLiteral() && pat.getLiteral().isRegExp()){
@@ -171,7 +186,7 @@ public class RegExpPatternEvaluator extends NullASTVisitor<MatchPattern> {
 	@Override
 	public MatchPattern visitRegExpLexical(Lexical x) {
 		if(debug)System.err.println("visitRegExpLexical: " + x.getString());
-		return new RegExpPatternValue(x.getString());
+		return new RegExpPatternValue(vf, x.getString(), env);
 	}
 	
 	@Override
@@ -217,6 +232,6 @@ public class RegExpPatternEvaluator extends NullASTVisitor<MatchPattern> {
 		 */
 		resultRegExp = resultRegExp.replaceAll("(\\\\<)", "<");
 		if(debug)System.err.println("resultRegExp: " + resultRegExp);
-		return new RegExpPatternValue(resultRegExp, modifier, names);
+		return new RegExpPatternValue(vf, resultRegExp, modifier, names, env);
 	}
 }

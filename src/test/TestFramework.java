@@ -10,6 +10,7 @@ import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.Command;
 import org.meta_environment.rascal.ast.Module;
 import org.meta_environment.rascal.interpreter.Evaluator;
+import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.exceptions.RascalBug;
 import org.meta_environment.rascal.interpreter.exceptions.RascalRunTimeError;
 import org.meta_environment.rascal.parser.ASTBuilder;
@@ -24,7 +25,7 @@ public class TestFramework {
 	
 	public TestFramework () {
 		evaluator = new Evaluator(ValueFactory.getInstance(), factory,
-				new PrintWriter(System.err));
+				new PrintWriter(System.err), new ModuleEnvironment("***test***"));
 	}
 	
 	public TestFramework (String  command){
@@ -37,7 +38,7 @@ public class TestFramework {
 	
 	boolean runTest(String command) throws IOException {
 		evaluator = new Evaluator(ValueFactory.getInstance(), factory,
-				new PrintWriter(System.err));
+				new PrintWriter(System.err), new ModuleEnvironment("***test***"));
 		return execute(command);
 	}
 	
@@ -47,14 +48,14 @@ public class TestFramework {
 
 	boolean runTest(String command1, String command2) throws IOException {
 		evaluator = new Evaluator(ValueFactory.getInstance(), factory,
-				new PrintWriter(System.err));
+				new PrintWriter(System.err), new ModuleEnvironment("***test***"));
 		execute(command1);
 		return execute(command2);
 	}
 	
 	boolean runWithError(String command, String msg){
 		evaluator = new Evaluator(ValueFactory.getInstance(), factory,
-				new PrintWriter(System.err));
+				new PrintWriter(System.err), new ModuleEnvironment("***test***"));
 		try {
 			execute(command);
 		} catch (Exception e){
@@ -75,7 +76,7 @@ public class TestFramework {
 	TestFramework prepare(String command){
 		try{
 			evaluator = new Evaluator(ValueFactory.getInstance(), factory,
-					new PrintWriter(System.err));
+					new PrintWriter(System.err), new ModuleEnvironment("***test***"));
 			execute(command);
 			
 		} catch (Exception e){
@@ -97,7 +98,7 @@ public class TestFramework {
 			return false;
 		} else {
 			evaluator = new Evaluator(ValueFactory.getInstance(), factory,
-					new PrintWriter(System.err));
+					new PrintWriter(System.err), new ModuleEnvironment("***test***"));
 			Module mod = builder.buildModule(tree);
 			mod.accept(evaluator);
 			return true;

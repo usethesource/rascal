@@ -14,6 +14,7 @@ import org.meta_environment.rascal.ast.Expression.Equivalence;
 import org.meta_environment.rascal.ast.Expression.Implication;
 import org.meta_environment.rascal.ast.Expression.Negation;
 import org.meta_environment.rascal.ast.Expression.Or;
+import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.Result;
 import org.meta_environment.rascal.interpreter.env.IterableEvalResult;
 import org.meta_environment.rascal.interpreter.exceptions.RascalBug;
@@ -257,11 +258,13 @@ class MatchEvaluator implements Iterator<Result> {
 	private boolean positive;
 	private MatchPattern mp;
 	
-	MatchEvaluator(Expression pat, Expression subject, boolean positive, Evaluator ev){
+	// TODO: remove use of evaluator here! it's not good to have this dependency and the use
+	// of the "global" variable lastPattern complicates things a lot.
+	MatchEvaluator(Expression pat, Expression subject, boolean positive, Environment env, Evaluator ev){
     	this.positive = positive;
     	mp = ev.evalPattern(pat);
     	ev.lastPattern = mp;
-    	mp.initMatch(subject.accept(ev).value, ev);
+    	mp.initMatch(subject.accept(ev).value, env);
 	}
 
 	public boolean hasNext() {

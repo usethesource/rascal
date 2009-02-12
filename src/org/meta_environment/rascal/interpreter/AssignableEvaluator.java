@@ -1,10 +1,10 @@
 package org.meta_environment.rascal.interpreter;
 
 import org.eclipse.imp.pdb.facts.IBool;
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -19,8 +19,8 @@ import org.meta_environment.rascal.ast.Assignable.IfDefined;
 import org.meta_environment.rascal.ast.Assignable.Subscript;
 import org.meta_environment.rascal.ast.Assignable.Tuple;
 import org.meta_environment.rascal.ast.Assignable.Variable;
+import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.Result;
-import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.exceptions.RascalBug;
 import org.meta_environment.rascal.interpreter.exceptions.RascalException;
 import org.meta_environment.rascal.interpreter.exceptions.RascalRunTimeError;
@@ -33,10 +33,10 @@ import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
  */
 /*package*/ class AssignableEvaluator extends NullASTVisitor<Result> {
     private Result value;
-    private final GlobalEnvironment env;
+    private final Environment env;
     private final Evaluator eval;
     
-	public AssignableEvaluator(GlobalEnvironment env, Result value, Evaluator eval) {
+	public AssignableEvaluator(Environment env, Result value, Evaluator eval) {
 		this.value = value;
 		this.env = env;
 		this.eval = eval;
@@ -48,10 +48,6 @@ import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
 		Result previous = env.getVariable(name);
 		
 		if (previous != null) {
-			//System.err.println("AssignableVariable: " + x);
-			//System.err.println("previous.type = " + previous.type);
-			//System.err.println("value = " + value);
-			
 			if (value.type.isSubtypeOf(previous.type)) {
 				value.type = previous.type;
 			} else {
@@ -63,7 +59,7 @@ import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
 			env.storeVariable(name, value);
 		}
 		else {
-			env.top().storeVariable(name, value);
+			env.storeVariable(name, value);
 		}
 		
 		// TODO implement semantics of global keyword, when not given the

@@ -104,7 +104,7 @@ public class JavaBridge {
 		String fullClassName = "org.meta_environment.rascal.java." + name;
 		String params = getJavaFormals(signature
 				.getParameters());
-		String result = signature.getType().accept(TE).isVoidType() ? "void" : "IValue";
+		String result = TE.eval(signature.getType()).isVoidType() ? "void" : "IValue";
 		Compilation compilation = new Compilation();
 
 		compilation.addSource(fullClassName).addLine(
@@ -190,7 +190,7 @@ public class JavaBridge {
 	
 	
 	private org.eclipse.imp.pdb.facts.type.Type toValueType(Type type) {
-		return type.accept(TE);
+		return TE.eval(type);
 	}
 	
 	
@@ -298,7 +298,7 @@ public class JavaBridge {
 	}
 	
 	private org.eclipse.imp.pdb.facts.type.Type toValueType(Formal formal) {
-		return formal.accept(TE);
+		return TE.eval(formal);
 	}
 	
 	private static class JavaClasses implements ITypeVisitor<Class<?>> {
