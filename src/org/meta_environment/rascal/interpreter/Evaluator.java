@@ -186,6 +186,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 							"src/benchmark/Factorial/",
 							"src/benchmark/Fibonacci/",
 							"src/benchmark/Reverse/",
+							"src/benchmark/RSF/",
 							"src/benchmark/UnusedProcs/",
 							"demo/",
 							"demo/Booleans/",

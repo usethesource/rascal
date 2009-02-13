@@ -314,6 +314,9 @@ public class PatternTests extends TestCase {
 		assertTrue(tf.runTest("{ {set[int] X, int Y} := {1}; X == {} && Y == 1;}"));
 
 		assertTrue(tf.runTest("{ {set[int] X, int Y} := {1, 2}; (X == {1} && Y == 2) || (X == {2} && Y == 1);}"));
+		
+		assertTrue(tf.runTest("{ {set[int] X, set[real] Y} := { 1, 5.5, 2, 6.5}; (X == {1,2} && Y == {5.5, 6.5});}"));
+		
 	}	
 
 	public void testMatchSet2() throws IOException {
