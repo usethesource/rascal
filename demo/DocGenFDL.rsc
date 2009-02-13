@@ -22,23 +22,23 @@ public set[set[str]] RelationSet = {P | set[str] P : power({"annotationRelation"
 
 public set[set[str]] Blocks	=  power({"programBlock", "copybookBlock", "statisticsBlock"});
 
-public set[[str]] DocGen =
+public set[set[str]] DocGen =
 	{ {DocGen1} | 
 
-	MainBlocks: { {U + B} | U : UsersGuide, B : Blocks ,
+	set[set[str]] MainBlocks: { U + B | set[str] U : UsersGuide, set[str] B : Blocks ,
 			"programBlock" in B ==> "programHelp" in U	// C5
 		},
 
-	Analysis : { {{R + A}} | R : RelationSet, A : AnalysisSpecializations },
+	set[set[str]] Analysis : { {{R + A}} | set[str] R : RelationSet, set[str] A : AnalysisSpecializations },
 
-	Presentation :  { {{{L} + {I} + {M} + S + P}}  | 
-			   L : Localization, I : Interaction, M :  MainBlocks, S : SourceSections,
+	set[set[str]] Presentation :  { {{{L} + {I} + {M} + S + P}}  | 
+			   str L : Localization, str I : Interaction, set[str] M :  MainBlocks, set[str] S : SourceSections,
 		
-        		   P : PresentationSpecializations },
+        		   set[str] P : PresentationSpecializations },
 
 	"entitiesSection" in S ==> ("entitiesRelation" in DocGen1 &&  "entitiesOperationRelation" in DocGen1),
 
-	DocGen1 :  { {A + P} | A : Analysis, P : Presentation }
+	set[set[str]] DocGen1 :  { {A + P} | set[str] A : Analysis, set[str] P : Presentation }
 
 //v C1: "entityOperationRelation" in DocGen1 implies "entitiesRelation" in DocGen1,
 //  C2	"annotationSection" in DocGen1 implies "annotationRelation" in DocGen1,
@@ -53,5 +53,3 @@ public set[[str]] DocGen =
 	};
 
 public int nconfigurations = size(DocGen);
-
-*/
