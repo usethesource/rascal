@@ -77,6 +77,11 @@ private static TestFramework tf = new TestFramework();
 		assertTrue(tf.runTestInSameEvaluator("Queens::test();"));
 	}
 	
+	public void testReachingDefs() throws IOException {
+		tf = new TestFramework("import ReachingDefs;");
+		assertTrue(tf.runTestInSameEvaluator("ReachingDefs::test();"));
+	}
+	
 	public void testSquares() throws IOException {
 		tf = new TestFramework("import Squares;");
 		assertTrue(tf.runTestInSameEvaluator("Squares::test();"));
