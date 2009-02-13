@@ -42,7 +42,7 @@ public class Lambda extends Result implements IValue {
 	private final List<Statement> body;
 	private final String name;
 	protected static int callNesting = 0;
-	protected static boolean callTracing = false;
+	protected static boolean callTracing = true;
 	
 	
 	public Lambda(Evaluator eval, Type returnType, String name, Type formals, boolean varargs, java.util.List<Statement> body, 
