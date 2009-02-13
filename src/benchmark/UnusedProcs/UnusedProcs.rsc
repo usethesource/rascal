@@ -6,9 +6,9 @@ import Graph;
 import Benchmark;
 import IO;
 
-alias str Proc;
+alias Proc = str;
 
-public map[str, list[str]] meta-deps =
+public map[str, list[str]] metadeps =
 ("JJTraveler"            : [],
 "asc-support"            : ["asf-support", "aterm", "c-library", "config-support", "error-support", "pt-support", "ptable-support", "relation-stores", "sglr", "tide-support", "toolbuslib"],
 "asf"                    : ["asc-support", "asf-support", "aterm", "error-support", "pt-support", "ptable-support", "sdf-support", "tide-support", "toolbuslib"],
@@ -94,7 +94,7 @@ public void test1(){
 
 public void test2(){
 	start = currentTimeMillis();		
-	result = unusedProcs({"meta-studio"}, makeGraph(meta-deps));
+	result = unusedProcs({"meta-studio"}, makeGraph(metadeps));
 	used = currentTimeMillis() - start;
 	println("unusedProcs = <result>  (<used> millis)");
 }
