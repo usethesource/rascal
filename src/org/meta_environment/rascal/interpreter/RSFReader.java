@@ -11,7 +11,7 @@ import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.meta_environment.rascal.interpreter.errors.RascalRunTimeError;
+import org.meta_environment.rascal.interpreter.errors.RascalRunTimeException;
 
 public class RSFReader {
 	
@@ -52,7 +52,7 @@ public class RSFReader {
 			bufRead.close();
 
 		} catch (IOException e) {
-			throw new RascalRunTimeError("Can not find file " + nameRSFFile);
+			throw new RascalRunTimeException("Can not find file " + nameRSFFile);
 		}
 
 		IMapWriter mw = vf.mapWriter(strType, tf.relType(strType, strType));

@@ -35,8 +35,8 @@ import org.meta_environment.rascal.ast.Signature;
 import org.meta_environment.rascal.ast.Tag;
 import org.meta_environment.rascal.ast.Tags;
 import org.meta_environment.rascal.ast.Type;
-import org.meta_environment.rascal.interpreter.errors.RascalImplementationError;
-import org.meta_environment.rascal.interpreter.errors.RascalTypeError;
+import org.meta_environment.rascal.interpreter.errors.RascalImplementationException;
+import org.meta_environment.rascal.interpreter.errors.RascalTypeException;
 
 public class JavaBridge {
 	private static final String JAVA_IMPORTS_TAG = "javaImports";
@@ -55,11 +55,11 @@ public class JavaBridge {
 		this.out = outputWriter;
 		
 		if (ToolProvider.getSystemJavaCompiler() == null) {
-			throw new RascalImplementationError("Could not find an installed System Java Compiler, please provide a Java Runtime that includes the Java Development Tools (JDK 1.6 or higher).");
+			throw new RascalImplementationException("Could not find an installed System Java Compiler, please provide a Java Runtime that includes the Java Development Tools (JDK 1.6 or higher).");
 		}
 		
 		if (ToolProvider.getSystemToolClassLoader() == null) {
-			throw new RascalImplementationError("Could not find an System Tool Class Loader, please provide a Java Runtime that includes the Java Development Tools (JDK 1.6 or higher).");
+			throw new RascalImplementationException("Could not find an System Tool Class Loader, please provide a Java Runtime that includes the Java Development Tools (JDK 1.6 or higher).");
 		}
 	}
 
@@ -67,7 +67,7 @@ public class JavaBridge {
 		try {
 			return getJavaMethod(declaration);
 		} catch (ClassNotFoundException e) {
-			throw new RascalImplementationError("unexpected error in Java compilation", e);
+			throw new RascalImplementationException("unexpected error in Java compilation", e);
 		}
 	}
 	
@@ -90,9 +90,9 @@ public class JavaBridge {
 				return clazz.getDeclaredMethod(METHOD_NAME);
 			}
 		} catch (SecurityException e) {
-			throw new RascalImplementationError("Unexpected error during compilation of java function: " + declaration, e);
+			throw new RascalImplementationException("Unexpected error during compilation of java function: " + declaration, e);
 		} catch (NoSuchMethodException e) {
-			throw new RascalImplementationError("Unexpected error during compilation of java function: " + declaration, e);
+			throw new RascalImplementationException("Unexpected error during compilation of java function: " + declaration, e);
 		}
 		finally {}
 	}
@@ -139,7 +139,7 @@ public class JavaBridge {
 				message = message.replaceAll(UNWANTED_MESSAGE_PREFIX, "").replaceAll(UNWANTED_MESSAGE_POSTFIX, ",");
 				messages.append(message + "\n");
 			}
-			throw new RascalTypeError("Compilation of Java method failed due to the following error(s): \n" + messages.toString(), declaration);
+			throw new RascalTypeException("Compilation of Java method failed due to the following error(s): \n" + messages.toString(), declaration);
 		}
 
 		return compilation.getOutputClass(fullClassName);

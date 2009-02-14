@@ -11,8 +11,8 @@ import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.JavaBridge;
 import org.meta_environment.rascal.interpreter.Names;
-import org.meta_environment.rascal.interpreter.errors.RascalImplementationError;
-import org.meta_environment.rascal.interpreter.exceptions.RascalException;
+import org.meta_environment.rascal.interpreter.errors.RascalException;
+import org.meta_environment.rascal.interpreter.errors.RascalImplementationException;
 
 public class JavaFunction extends Lambda {
 	private final Method method;
@@ -50,11 +50,11 @@ public class JavaFunction extends Lambda {
 		try {
 			return (IValue) method.invoke(null, (Object[]) actuals);
 		} catch (SecurityException e) {
-			throw new RascalImplementationError("Unexpected security exception", e);
+			throw new RascalImplementationException("Unexpected security exception", e);
 		} catch (IllegalArgumentException e) {
-			throw new RascalImplementationError("An illegal argument was generated for a generated method", e);
+			throw new RascalImplementationException("An illegal argument was generated for a generated method", e);
 		} catch (IllegalAccessException e) {
-			throw new RascalImplementationError("Unexpected illegal access exception", e);
+			throw new RascalImplementationException("Unexpected illegal access exception", e);
 		} catch (InvocationTargetException e) {
 			Throwable targetException = e.getTargetException();
 			
@@ -62,7 +62,7 @@ public class JavaFunction extends Lambda {
 				throw (RascalException) targetException;
 			}
 			else {
-				throw new RascalException(ValueFactory.getInstance(), targetException.getMessage());
+				throw new RascalException(targetException.getMessage());
 			}
 		}
 	}

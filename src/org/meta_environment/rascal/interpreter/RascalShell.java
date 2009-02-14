@@ -18,11 +18,11 @@ import org.meta_environment.rascal.ast.Command;
 import org.meta_environment.rascal.errors.ErrorAdapter;
 import org.meta_environment.rascal.errors.SubjectAdapter;
 import org.meta_environment.rascal.errors.SummaryAdapter;
+import org.meta_environment.rascal.interpreter.control_exceptions.FailureControlException;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
-import org.meta_environment.rascal.interpreter.errors.RascalImplementationError;
-import org.meta_environment.rascal.interpreter.errors.RascalTypeError;
-import org.meta_environment.rascal.interpreter.exceptions.FailureException;
-import org.meta_environment.rascal.interpreter.exceptions.RascalException;
+import org.meta_environment.rascal.interpreter.errors.RascalException;
+import org.meta_environment.rascal.interpreter.errors.RascalImplementationException;
+import org.meta_environment.rascal.interpreter.errors.RascalTypeException;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
 import org.meta_environment.uptr.Factory;
@@ -86,20 +86,20 @@ public class RascalShell {
 					console.printString(output);
 					console.printNewline();
 				}
-				catch (FailureException e) {
+				catch (FailureControlException e) {
 					break;
 				}
 				catch (FactTypeError e) {
 					console.printString("FactTypeError: " + e.getMessage() + "\n");
 				    printStacktrace(console, e);
 				}
-				catch (RascalTypeError e) {
+				catch (RascalTypeException e) {
 					console.printString("RascalTypeError: " + e.getMessage() + "\n");
 					if (e.hasCause()) {
 						console.printString("caused by: " + e.getCause().getMessage() + "\n");
 					}
 				}
-				catch (RascalImplementationError e) {
+				catch (RascalImplementationException e) {
 					console.printString("RascalBug: " + e.getMessage() + "\n");
 					if (e.hasCause()) {
 						console.printString("caused by: " + e.getCause().getMessage() + "\n");
@@ -115,7 +115,7 @@ public class RascalShell {
 				}
 			}
 		}
-		catch (FailureException e) {
+		catch (FailureControlException e) {
 			return;
 		}
 	}

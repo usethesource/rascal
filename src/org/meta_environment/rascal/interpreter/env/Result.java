@@ -3,8 +3,8 @@ package org.meta_environment.rascal.interpreter.env;
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.meta_environment.rascal.interpreter.errors.RascalImplementationError;
-import org.meta_environment.rascal.interpreter.errors.RascalTypeError;
+import org.meta_environment.rascal.interpreter.errors.RascalImplementationException;
+import org.meta_environment.rascal.interpreter.errors.RascalTypeException;
 
 public class Result {
 	public Type type;
@@ -18,7 +18,7 @@ public class Result {
 		type = t;
 		value = v;
 		if (value != null && !value.getType().isSubtypeOf(t)) {
-			throw new RascalTypeError("Type " + v.getType() + " is not a subtype of expected type "
+			throw new RascalTypeException("Type " + v.getType() + " is not a subtype of expected type "
 					+ t);
 		}
 	}
@@ -59,7 +59,7 @@ public class Result {
 	}
 	
 	public Result next(){
-		throw new RascalImplementationError("next() cannot be called on a standard Result");
+		throw new RascalImplementationException("next() cannot be called on a standard Result");
 	}
 }
 

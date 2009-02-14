@@ -5,17 +5,17 @@ import org.meta_environment.rascal.ast.AbstractAST;
 /**
  * Exception used for when the implementation detects that it has a bug.
  */
-public class RascalImplementationError extends RascalError {
+public class RascalImplementationException extends RascalException {
 	private static final long serialVersionUID = -8740312542969306482L;
 
-	public RascalImplementationError(String message) {
+	public RascalImplementationException(String message) {
 		super(message);
 	}
 	
-	public RascalImplementationError(String message, AbstractAST ast) {
+	public RascalImplementationException(String message, AbstractAST ast) {
 		super(message, ast);
 	}
-	
+/*	
 	public RascalImplementationError(String message, Throwable cause) {
 		super(message, cause);
 	}
@@ -23,4 +23,5 @@ public class RascalImplementationError extends RascalError {
 	public boolean hasCause() {
 		return getCause() != null;
 	}
+	*/
 }

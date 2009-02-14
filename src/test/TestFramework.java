@@ -11,8 +11,8 @@ import org.meta_environment.rascal.ast.Command;
 import org.meta_environment.rascal.ast.Module;
 import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
-import org.meta_environment.rascal.interpreter.errors.RascalImplementationError;
-import org.meta_environment.rascal.interpreter.errors.RascalRunTimeError;
+import org.meta_environment.rascal.interpreter.errors.RascalImplementationException;
+import org.meta_environment.rascal.interpreter.errors.RascalRunTimeException;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
 import org.meta_environment.uptr.Factory;
@@ -32,7 +32,7 @@ public class TestFramework {
 		try {
 			prepare(command);
 		} catch (Exception e){
-			throw new RascalRunTimeError("Exception while creating TestFramework: " + e);
+			throw new RascalRunTimeException("Exception while creating TestFramework: " + e);
 		}
 	}
 	
@@ -126,7 +126,7 @@ public class TestFramework {
 				evaluator.eval(cmd.getDeclaration());
 				return true;
 			} else {
-				throw new RascalImplementationError("unexpected case in eval: " + cmd);
+				throw new RascalImplementationException("unexpected case in eval: " + cmd);
 			}
 		}
 	}
