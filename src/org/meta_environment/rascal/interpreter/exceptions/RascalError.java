@@ -1,4 +1,4 @@
-package org.meta_environment.rascal.interpreter.errors;
+package org.meta_environment.rascal.interpreter.exceptions;
 
 import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.meta_environment.rascal.ast.AbstractAST;

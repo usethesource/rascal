@@ -35,8 +35,8 @@ import org.meta_environment.rascal.ast.Signature;
 import org.meta_environment.rascal.ast.Tag;
 import org.meta_environment.rascal.ast.Tags;
 import org.meta_environment.rascal.ast.Type;
-import org.meta_environment.rascal.interpreter.errors.RascalImplementationException;
-import org.meta_environment.rascal.interpreter.errors.RascalTypeException;
+import org.meta_environment.rascal.interpreter.exceptions.RascalImplementationException;
+import org.meta_environment.rascal.interpreter.exceptions.RascalTypeException;
 
 public class JavaBridge {
 	private static final String JAVA_IMPORTS_TAG = "javaImports";
@@ -67,7 +67,7 @@ public class JavaBridge {
 		try {
 			return getJavaMethod(declaration);
 		} catch (ClassNotFoundException e) {
-			throw new RascalImplementationException("unexpected error in Java compilation", e);
+			throw new RascalImplementationException("Error during Java compilation", e.getCause());
 		}
 	}
 	
@@ -90,9 +90,9 @@ public class JavaBridge {
 				return clazz.getDeclaredMethod(METHOD_NAME);
 			}
 		} catch (SecurityException e) {
-			throw new RascalImplementationException("Unexpected error during compilation of java function: " + declaration, e);
+			throw new RascalImplementationException("Error during compilation of java function: " + declaration, e.getCause());
 		} catch (NoSuchMethodException e) {
-			throw new RascalImplementationException("Unexpected error during compilation of java function: " + declaration, e);
+			throw new RascalImplementationException("Unexpected error during compilation of java function: " + declaration,  e.getCause());
 		}
 		finally {}
 	}
@@ -131,6 +131,8 @@ public class JavaBridge {
 
 		System.err.println("Classpath for compilation: " + System.getProperty("java.class.path"));
 		compilation.doCompile(out);
+		
+		System.err.println("ready with Java compilation, ndiags=" + compilation.getDiagnostics().size());
 
 		if (compilation.getDiagnostics().size() != 0) {
 			StringBuilder messages = new StringBuilder();
@@ -138,6 +140,7 @@ public class JavaBridge {
 				String message = d.getMessage(null);
 				message = message.replaceAll(UNWANTED_MESSAGE_PREFIX, "").replaceAll(UNWANTED_MESSAGE_POSTFIX, ",");
 				messages.append(message + "\n");
+				System.err.println("messages=" + messages);
 			}
 			throw new RascalTypeException("Compilation of Java method failed due to the following error(s): \n" + messages.toString(), declaration);
 		}

@@ -1,4 +1,4 @@
-package org.meta_environment.rascal.interpreter.errors;
+package org.meta_environment.rascal.interpreter.exceptions;
 
 import org.meta_environment.rascal.ast.AbstractAST;
 
@@ -15,13 +15,13 @@ public class RascalImplementationException extends RascalException {
 	public RascalImplementationException(String message, AbstractAST ast) {
 		super(message, ast);
 	}
-/*	
-	public RascalImplementationError(String message, Throwable cause) {
+	
+	public RascalImplementationException(String message, Throwable cause) {
 		super(message, cause);
 	}
 	
 	public boolean hasCause() {
 		return getCause() != null;
 	}
-	*/
+	
 }
