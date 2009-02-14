@@ -15,9 +15,9 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.meta_environment.rascal.ast.Statement;
 import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.TypeEvaluator;
+import org.meta_environment.rascal.interpreter.errors.RascalRunTimeError;
+import org.meta_environment.rascal.interpreter.errors.RascalTypeError;
 import org.meta_environment.rascal.interpreter.exceptions.FailureException;
-import org.meta_environment.rascal.interpreter.exceptions.RascalRunTimeError;
-import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
 import org.meta_environment.rascal.interpreter.exceptions.ReturnException;
 
 /**

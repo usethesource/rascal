@@ -164,14 +164,14 @@ import org.meta_environment.rascal.interpreter.env.Lambda;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.env.RascalFunction;
 import org.meta_environment.rascal.interpreter.env.Result;
+import org.meta_environment.rascal.interpreter.errors.RascalAssertionError;
+import org.meta_environment.rascal.interpreter.errors.RascalImplementationError;
+import org.meta_environment.rascal.interpreter.errors.RascalRunTimeError;
+import org.meta_environment.rascal.interpreter.errors.RascalTypeError;
+import org.meta_environment.rascal.interpreter.errors.RascalUndefinedValueError;
 import org.meta_environment.rascal.interpreter.exceptions.FailureException;
 import org.meta_environment.rascal.interpreter.exceptions.InsertException;
-import org.meta_environment.rascal.interpreter.exceptions.RascalAssertionException;
-import org.meta_environment.rascal.interpreter.exceptions.RascalBug;
 import org.meta_environment.rascal.interpreter.exceptions.RascalException;
-import org.meta_environment.rascal.interpreter.exceptions.RascalRunTimeError;
-import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
-import org.meta_environment.rascal.interpreter.exceptions.RascalUndefinedValue;
 import org.meta_environment.rascal.interpreter.exceptions.ReturnException;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
@@ -242,7 +242,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	        if(r != null){
 	        	return r.value;
 	        } else {
-	        	throw new RascalBug("Not yet implemented: " + stat.getTree());
+	        	throw new RascalImplementationError("Not yet implemented: " + stat.getTree());
 	        }
 		} catch (ReturnException e){
 			throw new RascalRunTimeError("Unhandled return statement");
@@ -265,7 +265,7 @@ public class Evaluator extends NullASTVisitor<Result> {
         if(r != null){
         	return r.value;
         } else {
-        	throw new RascalBug("Not yet implemented: " + declaration.getTree());
+        	throw new RascalImplementationError("Not yet implemented: " + declaration.getTree());
         }
 	}
 	
@@ -279,7 +279,7 @@ public class Evaluator extends NullASTVisitor<Result> {
         if(r != null){
         	return r.value;
         } else {
-        	throw new RascalBug("Not yet implemented: " + imp.getTree());
+        	throw new RascalImplementationError("Not yet implemented: " + imp.getTree());
         }
 	}
 
@@ -337,7 +337,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				|| type.isSetType() 
 				|| type.isMapType()
 				|| type.isListType()) {
-			throw new RascalBug("Should not used run-time type for type checking!!!!");
+			throw new RascalImplementationError("Should not used run-time type for type checking!!!!");
 		}
 		if(v != null){
 			return new Result(type, applyRules(v));
@@ -435,13 +435,13 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	@Override
 	public Result visitExpressionAmbiguity(Ambiguity x) {
-		throw new RascalBug("Ambiguous expression: " + x);
+		throw new RascalImplementationError("Ambiguous expression: " + x);
 	}
 	
 	@Override
 	public Result visitStatementAmbiguity(
 			org.meta_environment.rascal.ast.Statement.Ambiguity x) {
-		throw new RascalBug("Ambiguous statement: " + x);
+		throw new RascalImplementationError("Ambiguous statement: " + x);
 	}
 	
 	// Modules -------------------------------------------------------------
@@ -701,7 +701,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	@Override
 	public Result visitDeclarationView(View x) {
 		// TODO implement
-		throw new RascalBug("views are not yet implemented");
+		throw new RascalImplementationError("views are not yet implemented");
 	}
 	
 	@Override
@@ -742,7 +742,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	@Override
 	public Result visitDeclarationTag(Tag x) {
-		throw new RascalBug("tags are not yet implemented");
+		throw new RascalImplementationError("tags are not yet implemented");
 	}
 	
 	// Variable Declarations -----------------------------------------------
@@ -989,7 +989,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 		
 		if(r.value.isEqual(vf.bool(false))){
-			throw new RascalAssertionException(x.getMessage().toString());
+			throw new RascalAssertionError(x.getMessage().toString());
 		}
 		return r;	
 	}
@@ -1136,7 +1136,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			Type valueType = exprType.getValueType();
 			IValue v = ((IMap) expr.value).get(subs.value);
 			if(v == null){
-				throw new RascalUndefinedValue("No value associated with key " + subs.value);
+				throw new RascalUndefinedValueError("No value associated with key " + subs.value);
 			}
 			return normalizedResult(valueType,v);
 		}
@@ -1181,7 +1181,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				throw new RascalRunTimeError("Subscript out of bounds", e);
 			}
 		}
-		throw new RascalBug("Not yet implemented subscript: " + x);
+		throw new RascalImplementationError("Not yet implemented subscript: " + x);
 	}
 
 	@Override
@@ -1337,17 +1337,17 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	@Override
 	public Result visitStatementBreak(Break x) {
-		throw new RascalBug("NYI break" + x); // TODO
+		throw new RascalImplementationError("NYI break" + x); // TODO
 	}
 	
 	@Override
 	public Result visitStatementContinue(Continue x) {
-		throw new RascalBug("NYI" + x); // TODO
+		throw new RascalImplementationError("NYI" + x); // TODO
 	}
 	
 	@Override
 	public Result visitStatementGlobalDirective(GlobalDirective x) {
-		throw new RascalBug("NYI" + x); // TODO
+		throw new RascalImplementationError("NYI" + x); // TODO
 	}
 	
 	@Override
@@ -1490,13 +1490,13 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	@Override
 	public Result visitAssignableConstructor(Constructor x) {
-		throw new RascalBug("constructor assignable does not represent a value:" + x);
+		throw new RascalImplementationError("constructor assignable does not represent a value:" + x);
 	}
 	
 	@Override
 	public Result visitAssignableIfDefined(
 			org.meta_environment.rascal.ast.Assignable.IfDefined x) {
-		throw new RascalBug("ifdefined assignable does not represent a value");
+		throw new RascalImplementationError("ifdefined assignable does not represent a value");
 	}
 	
 	@Override
@@ -1529,13 +1529,13 @@ public class Evaluator extends NullASTVisitor<Result> {
 	@Override
 	public Result visitAssignableTuple(
 			org.meta_environment.rascal.ast.Assignable.Tuple x) {
-		throw new RascalBug("tuple in assignable does not represent a value:" + x);
+		throw new RascalImplementationError("tuple in assignable does not represent a value:" + x);
 	}
 	
 	@Override
 	public Result visitAssignableAmbiguity(
 			org.meta_environment.rascal.ast.Assignable.Ambiguity x) {
-		throw new RascalBug("ambiguous Assignable: " + x);
+		throw new RascalImplementationError("ambiguous Assignable: " + x);
 	}
 	
 	@Override
@@ -1743,7 +1743,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				if(val == null || val.value == null) {
 					// TODO JURGEN: should we not throw an exception or something? Undefined variables are not allowed.
 //					replacement = "**undefined**";	
-					throw new RascalUndefinedValue("Undefined variable " + var, ast);
+					throw new RascalUndefinedValueError("Undefined variable " + var, ast);
 				} else {
 					if(val.type.isStringType()){
 						replacement = ((IString)val.value).getValue();
@@ -1830,7 +1830,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			if (result != null && result.value != null) {
 				return result;
 			} else {
-				throw new RascalUndefinedValue("Uninitialized variable: " + x, x);
+				throw new RascalUndefinedValueError("Uninitialized variable: " + x, x);
 			}
 		}
 	}
@@ -2418,7 +2418,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	@Override
 	public Result visitExpressionOperatorAsValue(OperatorAsValue x) {
 		// TODO
-		throw new RascalBug("Operator as value not yet implemented:" + x);
+		throw new RascalImplementationError("Operator as value not yet implemented:" + x);
 	}
 	
 	@Override
@@ -2535,7 +2535,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	@Override
 	public Result visitExpressionLexical(Lexical x) {
-		throw new RascalBug("Lexical NYI: " + x);// TODO
+		throw new RascalImplementationError("Lexical NYI: " + x);// TODO
 	}
 	
 	@Override
@@ -2671,7 +2671,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 					return result();
 				}
 			} else if(rule.isReplacing()){
-				throw new RascalBug("Replacing Rule not yet implemented: " + rule);
+				throw new RascalImplementationError("Replacing Rule not yet implemented: " + rule);
 			}
 		}
 		return null;
@@ -3162,7 +3162,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				return new TraverseResult(true, subject);
 			}
 		} else {
-			throw new RascalBug("Impossible case in a rule: " + rule);
+			throw new RascalImplementationError("Impossible case in a rule: " + rule);
 		}
 			return new TraverseResult(subject);
 	}
@@ -3210,7 +3210,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		} else if(s.isOutermost()){
 			bottomup = false; fixedpoint = true;
 		} else {
-			throw new RascalBug("Unknown strategy: " + s);
+			throw new RascalImplementationError("Unknown strategy: " + s);
 		}
 		
 		TraverseResult tr = traverse(subject, new CasesOrRules(cases), bottomup, breaking, fixedpoint);
@@ -3446,7 +3446,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	public Result visitExpressionIfDefined(IfDefined x) {
 		try {
 			return x.getLhs().accept(this);
-		} catch (RascalUndefinedValue e) {
+		} catch (RascalUndefinedValueError e) {
 			Result res = x.getRhs().accept(this);
 			return res;
 		}
@@ -3684,7 +3684,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 
 		public void remove() {
-			throw new RascalBug("remove() not implemented for GeneratorEvaluator");
+			throw new RascalImplementationError("remove() not implemented for GeneratorEvaluator");
 		}
 	}
 	

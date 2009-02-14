@@ -26,9 +26,9 @@ import org.meta_environment.rascal.ast.Expression.Tuple;
 import org.meta_environment.rascal.ast.Expression.TypedVariable;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.Result;
-import org.meta_environment.rascal.interpreter.exceptions.RascalBug;
-import org.meta_environment.rascal.interpreter.exceptions.RascalRunTimeError;
-import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
+import org.meta_environment.rascal.interpreter.errors.RascalImplementationError;
+import org.meta_environment.rascal.interpreter.errors.RascalRunTimeError;
+import org.meta_environment.rascal.interpreter.errors.RascalTypeError;
 
 /* package */ 
 /**
@@ -84,7 +84,7 @@ interface MatchPattern {
 	
 	protected void checkInitialized(){
 		if(!initialized){
-			throw new RascalBug("hasNext or match called before initMatch");
+			throw new RascalImplementationError("hasNext or match called before initMatch");
 		}
 	}
 	
@@ -1197,7 +1197,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 	
 	public boolean next(){
 		checkInitialized();
-		throw new RascalBug("AbstractPatternMap.match not implemented");
+		throw new RascalImplementationError("AbstractPatternMap.match not implemented");
 	}
 }
 
@@ -1374,7 +1374,7 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 	
 	@Override
 	public AbstractPattern visitExpressionMap(Map x) {
-		throw new RascalBug("Map in pattern not yet implemented");
+		throw new RascalImplementationError("Map in pattern not yet implemented");
 	}
 	
 	@Override

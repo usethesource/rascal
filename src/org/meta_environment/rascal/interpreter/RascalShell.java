@@ -19,10 +19,10 @@ import org.meta_environment.rascal.errors.ErrorAdapter;
 import org.meta_environment.rascal.errors.SubjectAdapter;
 import org.meta_environment.rascal.errors.SummaryAdapter;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
+import org.meta_environment.rascal.interpreter.errors.RascalImplementationError;
+import org.meta_environment.rascal.interpreter.errors.RascalTypeError;
 import org.meta_environment.rascal.interpreter.exceptions.FailureException;
-import org.meta_environment.rascal.interpreter.exceptions.RascalBug;
 import org.meta_environment.rascal.interpreter.exceptions.RascalException;
-import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
 import org.meta_environment.uptr.Factory;
@@ -99,7 +99,7 @@ public class RascalShell {
 						console.printString("caused by: " + e.getCause().getMessage() + "\n");
 					}
 				}
-				catch (RascalBug e) {
+				catch (RascalImplementationError e) {
 					console.printString("RascalBug: " + e.getMessage() + "\n");
 					if (e.hasCause()) {
 						console.printString("caused by: " + e.getCause().getMessage() + "\n");

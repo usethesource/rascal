@@ -3,8 +3,8 @@ package org.meta_environment.rascal.interpreter.env;
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.meta_environment.rascal.interpreter.exceptions.RascalBug;
-import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
+import org.meta_environment.rascal.interpreter.errors.RascalImplementationError;
+import org.meta_environment.rascal.interpreter.errors.RascalTypeError;
 
 public class Result {
 	public Type type;
@@ -59,7 +59,7 @@ public class Result {
 	}
 	
 	public Result next(){
-		throw new RascalBug("next() cannot be called on a standard Result");
+		throw new RascalImplementationError("next() cannot be called on a standard Result");
 	}
 }
 

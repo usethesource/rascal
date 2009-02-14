@@ -35,8 +35,8 @@ import org.meta_environment.rascal.ast.Signature;
 import org.meta_environment.rascal.ast.Tag;
 import org.meta_environment.rascal.ast.Tags;
 import org.meta_environment.rascal.ast.Type;
-import org.meta_environment.rascal.interpreter.exceptions.RascalBug;
-import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
+import org.meta_environment.rascal.interpreter.errors.RascalImplementationError;
+import org.meta_environment.rascal.interpreter.errors.RascalTypeError;
 
 public class JavaBridge {
 	private static final String JAVA_IMPORTS_TAG = "javaImports";
@@ -55,11 +55,11 @@ public class JavaBridge {
 		this.out = outputWriter;
 		
 		if (ToolProvider.getSystemJavaCompiler() == null) {
-			throw new RascalBug("Could not find an installed System Java Compiler, please provide a Java Runtime that includes the Java Development Tools (JDK 1.6 or higher).");
+			throw new RascalImplementationError("Could not find an installed System Java Compiler, please provide a Java Runtime that includes the Java Development Tools (JDK 1.6 or higher).");
 		}
 		
 		if (ToolProvider.getSystemToolClassLoader() == null) {
-			throw new RascalBug("Could not find an System Tool Class Loader, please provide a Java Runtime that includes the Java Development Tools (JDK 1.6 or higher).");
+			throw new RascalImplementationError("Could not find an System Tool Class Loader, please provide a Java Runtime that includes the Java Development Tools (JDK 1.6 or higher).");
 		}
 	}
 
@@ -67,7 +67,7 @@ public class JavaBridge {
 		try {
 			return getJavaMethod(declaration);
 		} catch (ClassNotFoundException e) {
-			throw new RascalBug("unexpected error in Java compilation", e);
+			throw new RascalImplementationError("unexpected error in Java compilation", e);
 		}
 	}
 	
@@ -90,9 +90,9 @@ public class JavaBridge {
 				return clazz.getDeclaredMethod(METHOD_NAME);
 			}
 		} catch (SecurityException e) {
-			throw new RascalBug("Unexpected error during compilation of java function: " + declaration, e);
+			throw new RascalImplementationError("Unexpected error during compilation of java function: " + declaration, e);
 		} catch (NoSuchMethodException e) {
-			throw new RascalBug("Unexpected error during compilation of java function: " + declaration, e);
+			throw new RascalImplementationError("Unexpected error during compilation of java function: " + declaration, e);
 		}
 		finally {}
 	}

@@ -1,7 +1,7 @@
 package org.meta_environment.rascal.ast;
 
 import org.eclipse.imp.pdb.facts.INode;
-import org.meta_environment.rascal.interpreter.exceptions.RascalBug;
+import org.meta_environment.rascal.interpreter.errors.RascalImplementationError;
 
 public class JavaFunctionBody extends FunctionBody {
 	private final String string;
@@ -13,7 +13,7 @@ public class JavaFunctionBody extends FunctionBody {
 
 	@Override
 	public <T> T accept(IASTVisitor<T> v) {
-		throw new RascalBug("Can not visit JavaFunctionBody");
+		throw new RascalImplementationError("Can not visit JavaFunctionBody");
 	}
 
 	public String getString() {

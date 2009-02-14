@@ -11,7 +11,7 @@ import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.meta_environment.rascal.interpreter.exceptions.RascalRunTimeError;
+import org.meta_environment.rascal.interpreter.errors.RascalRunTimeError;
 
 public class RSFReader {
 	
