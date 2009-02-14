@@ -139,7 +139,7 @@ public class JavaBridge {
 				message = message.replaceAll(UNWANTED_MESSAGE_PREFIX, "").replaceAll(UNWANTED_MESSAGE_POSTFIX, ",");
 				messages.append(message + "\n");
 			}
-			throw new RascalTypeError("Compilation of Java method failed due to the following error(s): \n" + messages.toString());
+			throw new RascalTypeError("Compilation of Java method failed due to the following error(s): \n" + messages.toString(), declaration);
 		}
 
 		return compilation.getOutputClass(fullClassName);

@@ -130,7 +130,7 @@ public class Lambda extends Result implements IValue {
 			}
 
 			if(!isVoidFunction){
-				throw new RascalTypeError("Function definition:" + this + "\n does not have a return statement.");
+				throw new RascalTypeError("Function definition:" + this + "\n does not have a return statement");
 			}
 
 			return new Result(TF.voidType(), null);
