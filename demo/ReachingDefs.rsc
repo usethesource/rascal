@@ -3,36 +3,37 @@ module ReachingDefs
 import Relation;
 import IO;
 
-alias stat = int;
-alias var = str;
-alias def  = tuple[stat, var];
+public alias stat = int;
+public alias var = str;
+public alias def  = tuple[stat, var];
+public alias use = tuple[stat,var];
 
 
-set[stat] predecessor(rel[stat,stat] P, stat S)
+public set[stat] predecessor(rel[stat,stat] P, stat S)
 @doc{predecessor -- of statement S in cfg P}
 {
 	return invert(P)[S];
 }
 
-set[stat] successor(rel[stat,stat] P, stat S)
+public set[stat] successor(rel[stat,stat] P, stat S)
 @doc{successor -- of statement S in cfg P}
 {
 	return P[S];
 }
 
-rel[stat,def] kill(rel[stat,var] DEFS) { 
+public rel[stat,def] kill(rel[stat,var] DEFS) { 
 	return {<S1, <S2, V>> | <stat S1, var V> : DEFS, <stat S2, V> : DEFS, S1 != S2};
 }
 
-rel[stat,def] definition(rel[stat,var] DEFS){
+public rel[stat,def] definition(rel[stat,var] DEFS){
 	return {<S,<S,V>> | <stat S, var V> : DEFS};
 }
 
-rel[stat,def] use(rel[stat, var] USES){
+public rel[stat,def] use(rel[stat, var] USES){
 	return {<S, <S, V>> | <stat S, var V> : USES};
 }
 
-rel[stat, def] reachingDefinitions(rel[stat,var] DEFS, rel[stat,stat] PRED){
+public rel[stat, def] reachingDefinitions(rel[stat,var] DEFS, rel[stat,stat] PRED){
 	set[stat] STATEMENT = carrier(PRED);
 	rel[stat,def] DEF  = definition(DEFS);
 	rel[stat,def] KILL = kill(DEFS);
