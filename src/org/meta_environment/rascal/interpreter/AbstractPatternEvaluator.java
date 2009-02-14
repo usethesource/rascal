@@ -27,9 +27,9 @@ import org.meta_environment.rascal.ast.Expression.Tuple;
 import org.meta_environment.rascal.ast.Expression.TypedVariable;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.Result;
-import org.meta_environment.rascal.interpreter.errors.RascalImplementationError;
-import org.meta_environment.rascal.interpreter.errors.RascalRunTimeError;
-import org.meta_environment.rascal.interpreter.errors.RascalTypeError;
+import org.meta_environment.rascal.interpreter.errors.RascalImplementationException;
+import org.meta_environment.rascal.interpreter.errors.RascalRunTimeException;
+import org.meta_environment.rascal.interpreter.errors.RascalTypeException;
 
 /* package */ 
 /**
@@ -90,7 +90,7 @@ interface MatchPattern {
 	
 	protected void checkInitialized(){
 		if(!initialized){
-			throw new RascalImplementationError("hasNext or match called before initMatch", ast);
+			throw new RascalImplementationException("hasNext or match called before initMatch", ast);
 		}
 	}
 	
@@ -344,7 +344,7 @@ interface MatchPattern {
 				Type childType = child.getType(ev);
 				String name = ((AbstractPatternTypedVariable)child).getName();
 				if(allVars.contains(name)){
-					throw new RascalTypeError("Double declaration of variable `" + name + "`", ast);
+					throw new RascalTypeException("Double declaration of variable `" + name + "`", ast);
 				}
 				if(childType.comparable(listSubject.getType())){
 					/*
@@ -356,7 +356,7 @@ interface MatchPattern {
 					listVarOccurrences[i] = 1;
 					nListVar++;
 				} else {
-					throw new RascalTypeError(childType + " variable `" + name + "` is incompatible " + listSubject.getType(), ast);
+					throw new RascalTypeException(childType + " variable `" + name + "` is incompatible " + listSubject.getType(), ast);
 				}
 			} else if(child instanceof AbstractPatternQualifiedName){
 				
@@ -382,24 +382,24 @@ interface MatchPattern {
 				        		isListVar[i] = true;
 				        		nListVar++;
 				        	} else {
-				        		throw new RascalTypeError(varType + " variable `" + name + "` not allowed in pattern of type " + listSubjectType, ast);
+				        		throw new RascalTypeException(varType + " variable `" + name + "` not allowed in pattern of type " + listSubjectType, ast);
 				        	}
 				        } else {
 				        	if(!varVal.getType().comparable(listSubjectElementType)){
-				        		throw new RascalTypeError(varType + " variable `" + name + "` not allowed in pattern of type " + listSubjectType, ast);
+				        		throw new RascalTypeException(varType + " variable `" + name + "` not allowed in pattern of type " + listSubjectType, ast);
 				        	}
 				        }
 				    } else {
 				    	// uninitialized variables should statically be wrong, so
 				    	// this is not a runtime error
 //				    	throw new RascalRunTimeError("Uninitialized variable " + name);
-				    	throw new RascalTypeError("Uninitialized variable `" + name + "`", ast);
+				    	throw new RascalTypeException("Uninitialized variable `" + name + "`", ast);
 				    }
 				}
 			} else {
 				Type childType = child.getType(ev);
 				if(!childType.comparable(listSubjectElementType)){
-					throw new RascalTypeError(child + " not allowed in pattern of type " + listSubjectType, ast);
+					throw new RascalTypeException(child + " not allowed in pattern of type " + listSubjectType, ast);
 				}
 				java.util.List<String> childVars = child.getVariables();
 				if(!childVars.isEmpty()){
@@ -898,7 +898,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 				Type childType = child.getType(ev);
 				String name = ((AbstractPatternTypedVariable)child).getName();
 				if(allVars.contains(name)){
-					throw new RascalTypeError("Double declaration of variable `" + name + "`", ast);
+					throw new RascalTypeException("Double declaration of variable `" + name + "`", ast);
 				}
 				if(childType.comparable(setSubjectType) || childType.comparable(setSubjectElementType)){
 					/*
@@ -911,7 +911,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 					isSetVar[nVar] = childType.isSetType();
 					nVar++;
 				} else 
-					throw new RascalTypeError(childType + " variable `" + name + "` not allowed in pattern of type " + setSubject.getType(), ast);
+					throw new RascalTypeException(childType + " variable `" + name + "` not allowed in pattern of type " + setSubject.getType(), ast);
 			} else if(child instanceof AbstractPatternQualifiedName){
 				String name =((AbstractPatternQualifiedName)child).getName();
 				if(allVars.contains(name)){
@@ -948,22 +948,22 @@ class SingleElementGenerator implements Iterator<ISet> {
 				        	 */
 				        	fixedSetElements = fixedSetElements.insert(varRes.value);
 				        } else
-				        	throw new RascalTypeError(varType + " variable `" + name + "` not allowed in pattern of type " + setSubject.getType(), ast);
+				        	throw new RascalTypeException(varType + " variable `" + name + "` not allowed in pattern of type " + setSubject.getType(), ast);
 				    } else {
-				    	throw new RascalRunTimeError("Uninitialized variable `" + name + "`", ast);
+				    	throw new RascalRunTimeException("Uninitialized variable `" + name + "`", ast);
 				    }
 				}
 			} else if(child instanceof AbstractPatternLiteral){
 				IValue lit = child.toIValue(ev);
 				Type childType = child.getType(ev);
 				if(!childType.comparable(setSubjectElementType)){
-					throw new RascalTypeError(lit + " not allowed in pattern of type " + setSubject.getType(), ast);
+					throw new RascalTypeException(lit + " not allowed in pattern of type " + setSubject.getType(), ast);
 				}
 				fixedSetElements = fixedSetElements.insert(lit);
 			} else {
 				Type childType = child.getType(ev);
 				if(!childType.comparable(setSubjectElementType)){
-					throw new RascalTypeError(child + " not allowed in pattern of type " + setSubject.getType(), ast);
+					throw new RascalTypeException(child + " not allowed in pattern of type " + setSubject.getType(), ast);
 				}
 				java.util.List<String> childVars = child.getVariables();
 				if(!childVars.isEmpty()){
@@ -1202,7 +1202,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 	
 	public boolean next(){
 		checkInitialized();
-		throw new RascalImplementationError("AbstractPatternMap.match not implemented", ast);
+		throw new RascalImplementationException("AbstractPatternMap.match not implemented", ast);
 	}
 }
 
@@ -1380,7 +1380,7 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 	
 	@Override
 	public AbstractPattern visitExpressionMap(Map x) {
-		throw new RascalImplementationError("Map in pattern not yet implemented");
+		throw new RascalImplementationException("Map in pattern not yet implemented");
 	}
 	
 	@Override

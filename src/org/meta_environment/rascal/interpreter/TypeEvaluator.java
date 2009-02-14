@@ -37,8 +37,8 @@ import org.meta_environment.rascal.ast.UserType.Name;
 import org.meta_environment.rascal.ast.UserType.Parametric;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.Lambda;
-import org.meta_environment.rascal.interpreter.errors.RascalImplementationError;
-import org.meta_environment.rascal.interpreter.errors.RascalTypeError;
+import org.meta_environment.rascal.interpreter.errors.RascalImplementationException;
+import org.meta_environment.rascal.interpreter.errors.RascalTypeException;
 
 public class TypeEvaluator {
 	private static TypeFactory tf = TypeFactory.getInstance();
@@ -325,7 +325,7 @@ public class TypeEvaluator {
 				Type tree = tf.lookupAbstractDataType(name);
 
 				if (tree == null) {
-					throw new RascalTypeError("Undeclared type `" + x + "`", x);
+					throw new RascalTypeException("Undeclared type `" + x + "`", x);
 				} else {
 					return tree;
 				}
@@ -336,7 +336,7 @@ public class TypeEvaluator {
 
 		@Override
 		public Type visitTypeAmbiguity(Ambiguity x) {
-			throw new RascalImplementationError("Ambiguous type: " + x);
+			throw new RascalImplementationException("Ambiguous type: " + x);
 		}
 	}
 }

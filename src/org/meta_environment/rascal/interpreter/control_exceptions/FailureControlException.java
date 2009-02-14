@@ -1,17 +1,17 @@
-package org.meta_environment.rascal.interpreter.exceptions;
+package org.meta_environment.rascal.interpreter.control_exceptions;
 
-public class FailureException extends RuntimeException {
+public class FailureControlException extends RuntimeException {
 	private static final long serialVersionUID = 2774285953244945424L;
 	
 	private final String label;
 	
-	public FailureException() {
+	public FailureControlException() {
 		super();
 		
 		label = null;
 	}
 	
-	public FailureException(String label) {
+	public FailureControlException(String label) {
 		super();
 		
 		this.label = label;

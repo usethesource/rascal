@@ -2,7 +2,7 @@ package test;
 
 import java.io.IOException;
 
-import org.meta_environment.rascal.interpreter.exceptions.RascalException;
+import org.meta_environment.rascal.interpreter.errors.RascalException;
 
 import junit.framework.TestCase;
 

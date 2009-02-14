@@ -1,18 +1,19 @@
-package org.meta_environment.rascal.interpreter.exceptions;
+package org.meta_environment.rascal.interpreter.control_exceptions;
 
 import org.meta_environment.rascal.interpreter.env.Result;
 
-public class ReturnException extends RuntimeException {
+public class InsertControlException extends RuntimeException {
 	private static final long serialVersionUID = -6601026099925601817L;
-    private Result value;
+    
+	private final Result value;
 	
-    public ReturnException(){
+	public InsertControlException(){
     	super();
     	
     	this.value = null;
     }
     
-    public ReturnException(Result value){
+    public InsertControlException(Result value){
     	super();
     	
     	this.value = value;

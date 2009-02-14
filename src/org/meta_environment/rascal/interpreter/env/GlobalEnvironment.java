@@ -9,7 +9,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.ast.Rule;
 import org.meta_environment.rascal.interpreter.Names;
-import org.meta_environment.rascal.interpreter.errors.RascalTypeError;
+import org.meta_environment.rascal.interpreter.errors.RascalTypeException;
 
 /**
  * The global environment represents the stack and the heap of Rascal.
@@ -46,7 +46,7 @@ public class GlobalEnvironment {
 		ModuleEnvironment result = moduleEnvironment.get(Names.unescape(name));
 		
 		if (result == null) {
-			throw new RascalTypeError("No such module " + name);
+			throw new RascalTypeException("No such module " + name);
 		}
 		
 		return result;

@@ -16,9 +16,9 @@ import org.meta_environment.rascal.ast.Command.Shell;
 import org.meta_environment.rascal.ast.ShellCommand.Edit;
 import org.meta_environment.rascal.ast.ShellCommand.History;
 import org.meta_environment.rascal.ast.ShellCommand.Quit;
+import org.meta_environment.rascal.interpreter.control_exceptions.FailureControlException;
 import org.meta_environment.rascal.interpreter.env.Result;
-import org.meta_environment.rascal.interpreter.errors.RascalTypeError;
-import org.meta_environment.rascal.interpreter.exceptions.FailureException;
+import org.meta_environment.rascal.interpreter.errors.RascalTypeException;
 
 /*package*/ class CommandEvaluator extends NullASTVisitor<IValue> {
 	private final ConsoleReader console;
@@ -62,7 +62,7 @@ import org.meta_environment.rascal.interpreter.exceptions.FailureException;
 
 	@Override
 	public IValue visitShellCommandQuit(Quit x) {
-		throw new FailureException();
+		throw new FailureControlException();
 	}
 
 	@Override
@@ -71,7 +71,7 @@ import org.meta_environment.rascal.interpreter.exceptions.FailureException;
 		String editor = System.getenv("EDITOR");
 		
 		if (editor == null) {
-			throw new RascalTypeError("EDITOR environment variable is not set.");
+			throw new RascalTypeException("EDITOR environment variable is not set.");
 		}
 		
 		String file = x.getName().toString();
@@ -84,7 +84,7 @@ import org.meta_environment.rascal.interpreter.exceptions.FailureException;
 			Process p = Runtime.getRuntime().exec(editor + " " + file);
 			p.waitFor();
 		} catch (IOException e) {
-			throw new RascalTypeError("Editing failed: ", e);
+			throw new RascalTypeException("Editing failed: ", e);
 		} catch (InterruptedException e) {
 			// might happen, don't know a sensible thing to do
 		}

@@ -2,17 +2,17 @@ package org.meta_environment.rascal.interpreter.errors;
 
 import org.meta_environment.rascal.ast.AbstractAST;
 
-public class RascalTypeError extends RascalError {
+public class RascalTypeException extends RascalException {
 	
     
-	public RascalTypeError(String message) {
+	public RascalTypeException(String message) {
 		super(message);
 	}
 	
-	public RascalTypeError(String message, AbstractAST node) {
+	public RascalTypeException(String message, AbstractAST node) {
 		super(message, node);
 	}
-	
+	/*
 	public RascalTypeError(String message, Throwable cause) {
 		super(message, cause);
 	}
@@ -21,4 +21,5 @@ public class RascalTypeError extends RascalError {
 		// TODO Auto-generated method stub
 		return getCause() != null;
 	}
+	*/
 }

@@ -15,10 +15,10 @@ import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.meta_environment.rascal.ast.Statement;
 import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.TypeEvaluator;
-import org.meta_environment.rascal.interpreter.errors.RascalRunTimeError;
-import org.meta_environment.rascal.interpreter.errors.RascalTypeError;
-import org.meta_environment.rascal.interpreter.exceptions.FailureException;
-import org.meta_environment.rascal.interpreter.exceptions.ReturnException;
+import org.meta_environment.rascal.interpreter.control_exceptions.FailureControlException;
+import org.meta_environment.rascal.interpreter.control_exceptions.ReturnControlException;
+import org.meta_environment.rascal.interpreter.errors.RascalRunTimeException;
+import org.meta_environment.rascal.interpreter.errors.RascalTypeException;
 
 /**
  * TODO: find a more elegant solution for this, by implementing IValue we
@@ -130,24 +130,24 @@ public class Lambda extends Result implements IValue {
 			}
 
 			if(!isVoidFunction){
-				throw new RascalTypeError("Function definition:" + this + "\n does not have a return statement");
+				throw new RascalTypeException("Function definition:" + this + "\n does not have a return statement");
 			}
 
 			return new Result(TF.voidType(), null);
 		}
-		catch (ReturnException e) {
+		catch (ReturnControlException e) {
 			Result result = e.getValue();
 
 			Type instantiatedReturnType = returnType.instantiate(env.getTypeBindings());
 
 			if(!result.type.isSubtypeOf(instantiatedReturnType)){
-				throw new RascalTypeError("Actual return type " + result.type + " is not compatible with declared return type " + returnType);
+				throw new RascalTypeException("Actual return type " + result.type + " is not compatible with declared return type " + returnType);
 			}
 
 			return new Result(instantiatedReturnType, result.value);
 		} 
-		catch (FailureException e){
-			throw new RascalRunTimeError("Fail statement occurred outside switch or visit statement in " + this);
+		catch (FailureControlException e){
+			throw new RascalRunTimeException("Fail statement occurred outside switch or visit statement in " + this);
 		}
 	}
 
@@ -167,7 +167,7 @@ public class Lambda extends Result implements IValue {
 			env.storeTypeBindings(bindings);
 		}
 		catch (FactTypeError e) {
-			throw new RascalTypeError("Could not bind type parameters in " + formals + " to " + actualTypes, e);
+			throw new RascalTypeException("Could not bind type parameters in " + formals + " to " + actualTypes, e);
 		}
 	}	
 	
