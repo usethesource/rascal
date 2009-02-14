@@ -1,4 +1,4 @@
-package org.meta_environment.rascal.interpreter.errors;
+package org.meta_environment.rascal.interpreter.exceptions;
 
 import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -41,13 +41,13 @@ public class RascalException extends RuntimeException {
 	public RascalException(String message, AbstractAST node) {
 		this(ValueFactory.getInstance().string(message), node);
 	}
-	/*
+	
 	public RascalException(String message, Throwable cause) {
 		super(message, cause);
+		this.exception = ValueFactory.getInstance().string(message);
 		range = null;
 		path = null;
 	}
-	*/
 
 	public IValue getException() {
 		return exception;
@@ -59,7 +59,8 @@ public class RascalException extends RuntimeException {
 
 	@Override
 	public String getMessage() {
-		String message = super.getMessage();
+		//String message = super.getMessage();
+		String message = exception.toString();
 
 		if (hasRange()) {
 			if (range.getStartLine() != range.getEndLine()) {
@@ -88,6 +89,11 @@ public class RascalException extends RuntimeException {
 	public boolean hasPath() {
 		return path != null && !path.equals("-");
 
+	}
+	
+	public boolean hasCause() {
+		// TODO Auto-generated method stub
+		return getCause() != null;
 	}
 
 }

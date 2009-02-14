@@ -20,7 +20,7 @@ import org.meta_environment.rascal.ast.Literal.RegExp;
 import org.meta_environment.rascal.ast.RegExp.Lexical;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.Result;
-import org.meta_environment.rascal.interpreter.errors.RascalTypeException;
+import org.meta_environment.rascal.interpreter.exceptions.RascalTypeException;
 
 class RegExpPatternValue implements MatchPattern {
 	private AbstractAST ast;					// The AST for this regexp

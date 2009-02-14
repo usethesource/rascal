@@ -1,4 +1,4 @@
-package org.meta_environment.rascal.interpreter.errors;
+package org.meta_environment.rascal.interpreter.exceptions;
 
 import org.meta_environment.rascal.ast.AbstractAST;
 
@@ -12,14 +12,14 @@ public class RascalTypeException extends RascalException {
 	public RascalTypeException(String message, AbstractAST node) {
 		super(message, node);
 	}
-	/*
-	public RascalTypeError(String message, Throwable cause) {
+	
+	public RascalTypeException(String message, Throwable cause) {
 		super(message, cause);
 	}
-
+	
 	public boolean hasCause() {
-		// TODO Auto-generated method stub
 		return getCause() != null;
 	}
-	*/
+	
+	
 }

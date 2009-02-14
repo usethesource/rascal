@@ -167,12 +167,12 @@ import org.meta_environment.rascal.interpreter.env.Lambda;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.env.RascalFunction;
 import org.meta_environment.rascal.interpreter.env.Result;
-import org.meta_environment.rascal.interpreter.errors.RascalAssertionException;
-import org.meta_environment.rascal.interpreter.errors.RascalException;
-import org.meta_environment.rascal.interpreter.errors.RascalImplementationException;
-import org.meta_environment.rascal.interpreter.errors.RascalRunTimeException;
-import org.meta_environment.rascal.interpreter.errors.RascalTypeException;
-import org.meta_environment.rascal.interpreter.errors.RascalUndefinedValueException;
+import org.meta_environment.rascal.interpreter.exceptions.RascalAssertionException;
+import org.meta_environment.rascal.interpreter.exceptions.RascalException;
+import org.meta_environment.rascal.interpreter.exceptions.RascalImplementationException;
+import org.meta_environment.rascal.interpreter.exceptions.RascalRunTimeException;
+import org.meta_environment.rascal.interpreter.exceptions.RascalTypeException;
+import org.meta_environment.rascal.interpreter.exceptions.RascalUndefinedValueException;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
 import org.meta_environment.uptr.Factory;
@@ -495,11 +495,11 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 			return b.buildModule(tree);			
 		} catch (FactTypeError e) {
-			throw new RascalTypeException("Something went wrong during parsing of " + name + ": ", e);
+			throw new RascalTypeException("Something went wrong during parsing of " + name + ": " + e);
 		} catch (FileNotFoundException e) {
-			throw new RascalTypeException("Could not import module", e);
+			throw new RascalTypeException("Could not import module: :" + e);
 		} catch (IOException e) {
-			throw new RascalTypeException("Could not import module", e);
+			throw new RascalTypeException("Could not import module " + e);
 		}
 	}
 
@@ -1178,7 +1178,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				IValue element = ((ITuple) expr.value).get(index);
 				return normalizedResult(elementType, element);
 			} catch (IndexOutOfBoundsException e){
-				throw new RascalRunTimeException("Subscript out of bounds", e);
+				throw new RascalRunTimeException("Subscript " + index + " out of bounds", x);
 			}
 		}
 		throw new RascalImplementationException("Not yet implemented subscript: " + x, x);
@@ -1209,7 +1209,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				return result(tf.setType(tuple.getFieldType(field)), w.done());
 			}
 			catch (FactTypeError e) {
-				throw new RascalTypeException(e.getMessage(), e);
+				throw new RascalTypeException(e.getMessage());
 			}
 		}
 		else if (expr.type.isAbstractDataType() || expr.type.isConstructorType()) {
@@ -2516,7 +2516,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				throw new RascalTypeException("Field updates only possible on tuples with labeled fields, relations with labeled fields and data constructors", x);
 			}
 		} catch (FactTypeError e) {
-			throw new RascalTypeException(e.getMessage(), e);
+			throw new RascalTypeException(e.getMessage());
 		}
 	}
 	
