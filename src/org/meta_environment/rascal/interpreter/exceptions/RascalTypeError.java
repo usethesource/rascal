@@ -31,13 +31,13 @@ public class RascalTypeError extends RuntimeException {
 		String message = super.getMessage();
 		
 		if (hasRange()) {
-			if (range.getEndColumn() != range.getStartColumn()) {
+			if (range.getStartLine() != range.getEndLine()) {
 				message += " from line " + range.getStartLine() + ", column " + range.getStartColumn() + 
-				" to" + (range.getEndLine() != range.getStartLine() ? " line " + range.getEndLine() + "," : "") + " column " + range.getEndColumn();
+				" to line " + range.getEndLine() + "," + " column " + range.getEndColumn();
 			}
 			else {
-				message += " at line " + range.getStartLine() + ", column " + range.getStartColumn();
-			}
+				message += " at line " + range.getStartLine() + ", column " + range.getStartColumn() + " to " + range.getEndColumn();
+			}			
 		}
 		
 		if (hasPath()) {

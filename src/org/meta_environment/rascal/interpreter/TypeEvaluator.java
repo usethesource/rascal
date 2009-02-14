@@ -325,7 +325,7 @@ public class TypeEvaluator {
 				Type tree = tf.lookupAbstractDataType(name);
 
 				if (tree == null) {
-					throw new RascalTypeError("Use of undeclared type " + x);
+					throw new RascalTypeError("Undeclared type `" + x + "`", x);
 				} else {
 					return tree;
 				}
