@@ -40,7 +40,7 @@ public abstract class BooleanEvaluator implements Iterator<Result> {
 	void defArg(int i){
 		Result argResult = expr[i].accept(ev);
 		if(!argResult.type.isBoolType()){
-			throw new RascalTypeError("Operand of boolean operator should be of type bool and not " + argResult.type);
+			throw new RascalTypeError("Operand of boolean operator should be of type bool and not " + argResult.type, expr[i]);
 		}
 		result[i] = argResult;
 	};
@@ -65,7 +65,7 @@ public abstract class BooleanEvaluator implements Iterator<Result> {
 	}
 	
 	public void remove(){
-		throw new RascalImplementationError("remove() in BooleanEvaluator not implemented");
+		throw new RascalImplementationError("remove() in BooleanEvaluator not implemented", expr[LEFT]);
 	}
 	
 	public boolean getNextResult(int i){

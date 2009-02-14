@@ -16,4 +16,9 @@ public class RascalTypeError extends RascalError {
 	public RascalTypeError(String message, Throwable cause) {
 		super(message, cause);
 	}
+
+	public boolean hasCause() {
+		// TODO Auto-generated method stub
+		return getCause() != null;
+	}
 }

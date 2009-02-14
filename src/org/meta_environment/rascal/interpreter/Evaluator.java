@@ -242,16 +242,16 @@ public class Evaluator extends NullASTVisitor<Result> {
 	        if(r != null){
 	        	return r.value;
 	        } else {
-	        	throw new RascalImplementationError("Not yet implemented: " + stat.getTree());
+	        	throw new RascalImplementationError("Not yet implemented: " + stat.getTree(), stat);
 	        }
 		} catch (ReturnException e){
-			throw new RascalRunTimeError("Unhandled return statement");
+			throw new RascalRunTimeError("Unhandled return statement", stat);
 		}
 		catch (FailureException e){
-			throw new RascalRunTimeError("Unhandled fail statement");
+			throw new RascalRunTimeError("Unhandled fail statement", stat);
 		}
 		catch (InsertException e){
-			throw new RascalRunTimeError("Unhandled insert statement");
+			throw new RascalRunTimeError("Unhandled insert statement", stat);
 		}
 	}
 	
@@ -265,7 +265,7 @@ public class Evaluator extends NullASTVisitor<Result> {
         if(r != null){
         	return r.value;
         } else {
-        	throw new RascalImplementationError("Not yet implemented: " + declaration.getTree());
+        	throw new RascalImplementationError("Not yet implemented: " + declaration.getTree(), declaration);
         }
 	}
 	
@@ -279,7 +279,7 @@ public class Evaluator extends NullASTVisitor<Result> {
         if(r != null){
         	return r.value;
         } else {
-        	throw new RascalImplementationError("Not yet implemented: " + imp.getTree());
+        	throw new RascalImplementationError("Not yet implemented: " + imp.getTree(), imp);
         }
 	}
 
@@ -435,13 +435,13 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	@Override
 	public Result visitExpressionAmbiguity(Ambiguity x) {
-		throw new RascalImplementationError("Ambiguous expression: " + x);
+		throw new RascalImplementationError("Ambiguous expression: " + x, x);
 	}
 	
 	@Override
 	public Result visitStatementAmbiguity(
 			org.meta_environment.rascal.ast.Statement.Ambiguity x) {
-		throw new RascalImplementationError("Ambiguous statement: " + x);
+		throw new RascalImplementationError("Ambiguous statement: " + x, x);
 	}
 	
 	// Modules -------------------------------------------------------------
@@ -596,7 +596,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 		for (org.meta_environment.rascal.ast.Variable var : x.getVariables()) {
 			if (var.isUnInitialized()) {  
-				throw new RascalTypeError("Module variable " + var + " is not initialized", var);
+				throw new RascalTypeError("Module variable `" + var + "` is not initialized", var);
 			} else {
 				Result v = var.getInitial().accept(this);
 				if(v.type.isSubtypeOf(declaredType)){
@@ -607,7 +607,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 					r = normalizedResult(declaredType, v.value);
 					scopeStack.peek().storeVariable(var.getName(), r);
 				} else {
-					throw new RascalTypeError("Variable " + declaredType + " " + var + " incompatible with initial type " + v.type, var);
+					throw new RascalTypeError("Variable `" + declaredType + " " + var + "` incompatible with initial type " + v.type, var);
 				}
 			}
 		}
@@ -701,7 +701,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	@Override
 	public Result visitDeclarationView(View x) {
 		// TODO implement
-		throw new RascalImplementationError("views are not yet implemented");
+		throw new RascalImplementationError("Views are not yet implemented", x);
 	}
 	
 	@Override
@@ -742,7 +742,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	@Override
 	public Result visitDeclarationTag(Tag x) {
-		throw new RascalImplementationError("tags are not yet implemented");
+		throw new RascalImplementationError("Tags are not yet implemented", x);
 	}
 	
 	// Variable Declarations -----------------------------------------------
@@ -773,7 +773,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 					r = result(declaredType, v.value);
 					peek().storeVariable(var.getName(), r);
 				} else {
-					throw new RascalTypeError("Variable " + declaredType + " " + var.getName() + " incompatible with initialization type " + v.type, var);
+					throw new RascalTypeError("Variable `" + declaredType + " " + var.getName() + "` incompatible with initialization type " + v.type, var);
 				}
 			}
 		}
@@ -858,7 +858,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		else {
 			env = peek().getImport(moduleName);
 			if (env == null) {
-				throw new RascalTypeError("unknown module " + moduleName, name);
+				throw new RascalTypeError("Unknown module `" + moduleName + "`", name);
 			}
 		}
 		Lambda func = env.getFunction(Names.name(Names.lastName(name)), actualTypes);
@@ -889,7 +889,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			sep = ", ";
 			sb.append(actualTypes.getFieldType(i).toString());
 		}
-		throw new RascalTypeError("No function/constructor " + name + "(" +  sb.toString() + ") is defined", name);
+		throw new RascalTypeError("Undefined function/constructor `" + name + "(" +  sb.toString() + ")`", name);
 	}
 
 	private boolean isTreeConstructorName(QualifiedName name, Type signature) {
@@ -950,7 +950,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Lambda func = peek().getFunction(Names.name(name), tf.voidType());
 		
 		if (func == null) {
-			throw new RascalTypeError("Could not find function " + name, x);
+			throw new RascalTypeError("Can not find function `" + name + "`", x);
 		}
 		
 		return func;
@@ -985,11 +985,11 @@ public class Evaluator extends NullASTVisitor<Result> {
 	public Result visitStatementAssert(Assert x) {
 		Result r = x.getExpression().accept(this);
 		if (!r.type.equals(tf.boolType())) {
-			throw new RascalTypeError("Expression in assertion should be bool instead of " + r.type, x);	
+			throw new RascalTypeError("Expression in assertion should have type bool instead of " + r.type, x);	
 		}
 		
 		if(r.value.isEqual(vf.bool(false))){
-			throw new RascalAssertionError(x.getMessage().toString());
+			throw new RascalAssertionError(x.getMessage().toString(), x);
 		}
 		return r;	
 	}
@@ -1018,8 +1018,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 			if (right.type.isSubtypeOf(previous.type)) {
 				right.type = previous.type;
 			} else {
-				throw new RascalTypeError("Variable " + name
-						+ " has type " + previous.type
+				throw new RascalTypeError("Variable `" + name
+						+ "` has type " + previous.type
 						+ "; cannot assign value of type " + right.type, name);
 			}
 		}
@@ -1053,7 +1053,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			int relArity = exprType.getArity();
 			
 			if(nSubs >= relArity){
-				throw new RascalTypeError("Too many subscripts (" + nSubs + ") for relation of arity " + relArity, x);
+				throw new RascalTypeError("Too many (" + nSubs + ") subscripts for relation of arity " + relArity, x);
 			}
 			Result subscriptResult[] = new Result[nSubs];
 			Type subscriptType[] = new Type[nSubs];
@@ -1136,7 +1136,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			Type valueType = exprType.getValueType();
 			IValue v = ((IMap) expr.value).get(subs.value);
 			if(v == null){
-				throw new RascalUndefinedValueError("No value associated with key " + subs.value);
+				throw new RascalUndefinedValueError("No value associated with key `" + subs.value + "`", x);
 			}
 			return normalizedResult(valueType,v);
 		}
@@ -1152,12 +1152,12 @@ public class Evaluator extends NullASTVisitor<Result> {
 				IValue element = ((IList) expr.value).get(index);
 				return normalizedResult(elementType, element);
 			} catch (IndexOutOfBoundsException e) {
-				throw new RascalRunTimeError("Subscript out of bounds", e);
+				throw new RascalRunTimeError("Subscript " + index + " out of bounds", x);
 			}
 		}
 		if (exprType.isAbstractDataType()) {
 			if(index >= ((IConstructor) expr.value).arity()){
-				throw new RascalRunTimeError("Subscript out of bounds");
+				throw new RascalRunTimeError("Subscript " + index + " out of bounds", x);
 			}
 			
 			Type elementType = ((IConstructor) expr.value).getConstructorType().getFieldType(index);
@@ -1166,7 +1166,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 		if (exprType.isNodeType()) {
 			if(index >= ((INode) expr.value).arity()){
-				throw new RascalRunTimeError("Subscript out of bounds");
+				throw new RascalRunTimeError("Subscript " + index + " out of bounds", x);
 			}
 			Type elementType = tf.valueType();
 			IValue element = ((INode) expr.value).get(index);
@@ -1181,7 +1181,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				throw new RascalRunTimeError("Subscript out of bounds", e);
 			}
 		}
-		throw new RascalImplementationError("Not yet implemented subscript: " + x);
+		throw new RascalImplementationError("Not yet implemented subscript: " + x, x);
 	}
 
 	@Override
@@ -1216,11 +1216,11 @@ public class Evaluator extends NullASTVisitor<Result> {
 			Type node = ((IConstructor) expr.value).getConstructorType();
 			
 			if (!expr.type.hasField(field)) {
-				throw new RascalTypeError(expr.type + " does not have a field named " + field, x);
+				throw new RascalTypeError(expr.type + " does not have a field named `" + field + "`", x);
 			}
 			
 			if (!node.hasField(field)) {
-				throw new RascalException(vf, "Field " + field + " accessed on constructor that does not have it." + expr.value.getType());
+				throw new RascalTypeError("Field `" + field + "` accessed on constructor that does not have it." + expr.value.getType(), x);
 			}
 			
 			int index = node.getFieldIndex(field);
@@ -1261,7 +1261,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 					try {
 						selectedFields[i] = base.type.getFieldIndex(fieldName);
 					} catch (Exception e){
-						throw new RascalTypeError("Undefined field " + fieldName + " in projection", x);
+						throw new RascalTypeError("Undefined field name `" + fieldName + "` in projection", x);
 					}
 				}
 				if(selectedFields[i] < 0 || selectedFields[i] > base.type.getArity()){
@@ -1337,17 +1337,17 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	@Override
 	public Result visitStatementBreak(Break x) {
-		throw new RascalImplementationError("NYI break" + x); // TODO
+		throw new RascalImplementationError("NYI break" + x, x); // TODO
 	}
 	
 	@Override
 	public Result visitStatementContinue(Continue x) {
-		throw new RascalImplementationError("NYI" + x); // TODO
+		throw new RascalImplementationError("NYI" + x, x); // TODO
 	}
 	
 	@Override
 	public Result visitStatementGlobalDirective(GlobalDirective x) {
-		throw new RascalImplementationError("NYI" + x); // TODO
+		throw new RascalImplementationError("NYI", x); // TODO
 	}
 	
 	@Override
@@ -1456,18 +1456,18 @@ public class Evaluator extends NullASTVisitor<Result> {
 			Type node = cons.getConstructorType();
 			
 			if (!receiver.type.hasField(label)) {
-				throw new RascalTypeError(receiver.type + " does not have a field named " + label, x);
+				throw new RascalTypeError(receiver.type + " does not have a field named `" + label + "`", x);
 			}
 			
 			if (!node.hasField(label)) {
-				throw new RascalException(vf, "Field " + label + " accessed on constructor that does not have it." + receiver.value.getType());
+				throw new RascalTypeError("Field 11" + label + " accessed on constructor that does not have it." + receiver.value.getType(), x);
 			}
 			
 			int index = node.getFieldIndex(label);
 			return normalizedResult(node.getFieldType(index), cons.get(index));
 		}
 		else {
-			throw new RascalTypeError(x.getReceiver() + " has no field named " + label, x);
+			throw new RascalTypeError(x.getReceiver() + " has no field named `" + label + "`", x);
 		}
 	}
 	
@@ -1478,7 +1478,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		String label = x.getAnnotation().toString();
 		
 		if (receiver.type.declaresAnnotation(label)) {
-			throw new RascalTypeError("No annotation " + label + " declared for " + receiver.type, x);
+			throw new RascalTypeError("No annotation `" + label + "` declared for " + receiver.type, x);
 		}
 		
 		// TODO get annotation from local and imported environments
@@ -1490,13 +1490,13 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	@Override
 	public Result visitAssignableConstructor(Constructor x) {
-		throw new RascalImplementationError("constructor assignable does not represent a value:" + x);
+		throw new RascalImplementationError("Constructor assignable does not represent a value:" + x, x);
 	}
 	
 	@Override
 	public Result visitAssignableIfDefined(
 			org.meta_environment.rascal.ast.Assignable.IfDefined x) {
-		throw new RascalImplementationError("ifdefined assignable does not represent a value");
+		throw new RascalImplementationError("ifdefined assignable does not represent a value", x);
 	}
 	
 	@Override
@@ -1529,13 +1529,13 @@ public class Evaluator extends NullASTVisitor<Result> {
 	@Override
 	public Result visitAssignableTuple(
 			org.meta_environment.rascal.ast.Assignable.Tuple x) {
-		throw new RascalImplementationError("tuple in assignable does not represent a value:" + x);
+		throw new RascalImplementationError("Tuple in assignable does not represent a value:" + x, x);
 	}
 	
 	@Override
 	public Result visitAssignableAmbiguity(
 			org.meta_environment.rascal.ast.Assignable.Ambiguity x) {
-		throw new RascalImplementationError("ambiguous Assignable: " + x);
+		throw new RascalImplementationError("Ambiguous Assignable: " + x, x);
 	}
 	
 	@Override
@@ -1549,7 +1549,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 		else {
 			if (!x.getBody().isDefault()) {
-				throw new RascalTypeError("Java function body without java function modifier in: " + x, x);
+				throw new RascalTypeError("Java function body without java function modifier", x);
 			}
 			
 			lambda = new RascalFunction(this, x, varArgs, peek());
@@ -1676,7 +1676,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			if(re.isRegExpPattern(pat)){ 
 				return pat.accept(re);
 			} else {
-				throw new RascalTypeError("pattern expected instead of " + pat, pat);
+				throw new RascalTypeError("Pattern expected instead of " + pat, pat);
 			}
 		}
     }
@@ -1954,8 +1954,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Type annoType = tf.getAnnotationType(expr.type, name);
 
 		if (annoType == null) {
-			throw new RascalTypeError("No annotation " + x.getName()
-					+ " declared on " + expr.type, x);
+			throw new RascalTypeError("No annotation `" + x.getName()
+					+ "` declared on " + expr.type, x);
 		}
 
 		IValue annoValue = ((IConstructor) expr.value).getAnnotation(name);
@@ -2418,7 +2418,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	@Override
 	public Result visitExpressionOperatorAsValue(OperatorAsValue x) {
 		// TODO
-		throw new RascalImplementationError("Operator as value not yet implemented:" + x);
+		throw new RascalImplementationError("Operator as value not yet implemented", x);
 	}
 	
 	@Override
@@ -2499,11 +2499,11 @@ public class Evaluator extends NullASTVisitor<Result> {
 				Type node = ((IConstructor) expr.value).getConstructorType();
 				
 				if (!expr.type.hasField(name)) {
-					throw new RascalTypeError(expr.type + " does not have a field named " + name, x);
+					throw new RascalTypeError(expr.type + " does not have a field named `" + name + "`", x);
 				}
 				
 				if (!node.hasField(name)) {
-					throw new RascalException(vf, "Field " + name + " accessed on constructor that does not have it." + expr.value.getType());
+					throw new RascalTypeError("Field `" + name + "` accessed on constructor that does not have it." + expr.value.getType(), x);
 				}
 				
 				int index = node.getFieldIndex(name);
@@ -2535,7 +2535,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	@Override
 	public Result visitExpressionLexical(Lexical x) {
-		throw new RascalImplementationError("Lexical NYI: " + x);// TODO
+		throw new RascalImplementationError("Lexical NYI", x);// TODO
 	}
 	
 	@Override
@@ -2671,7 +2671,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 					return result();
 				}
 			} else if(rule.isReplacing()){
-				throw new RascalImplementationError("Replacing Rule not yet implemented: " + rule);
+				throw new RascalImplementationError("Replacing Rule not yet implemented", rule);
 			}
 		}
 		return null;
@@ -2865,7 +2865,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 								int end = ((RegExpPatternValue) mp).getEnd();
 								replacements.add(new StringReplacement(start, end, ((IString)repl).getValue()));
 							} else {
-								throw new RascalTypeError("String replacement should be of type str, not " + repl.getType());
+								throw new RascalTypeError("String replacement should be of type str, not " + repl.getType(), rule);
 							}
 						} catch (FailureException e){
 							//System.err.println("failure occurred");
@@ -3162,7 +3162,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				return new TraverseResult(true, subject);
 			}
 		} else {
-			throw new RascalImplementationError("Impossible case in a rule: " + rule);
+			throw new RascalImplementationError("Impossible case in rule", rule);
 		}
 			return new TraverseResult(subject);
 	}
@@ -3210,7 +3210,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		} else if(s.isOutermost()){
 			bottomup = false; fixedpoint = true;
 		} else {
-			throw new RascalImplementationError("Unknown strategy: " + s);
+			throw new RascalImplementationError("Unknown strategy " + s, x);
 		}
 		
 		TraverseResult tr = traverse(subject, new CasesOrRules(cases), bottomup, breaking, fixedpoint);
@@ -3519,35 +3519,36 @@ public class Evaluator extends NullASTVisitor<Result> {
 				+ left.type + ", " + right.type, x);
 	}
 
-	private Result closure(Result arg, boolean reflexive) {
+	private Result closure(AbstractAST expression, boolean reflexive) {
 
+		Result res = expression.accept(this);
 		//Relation
-		if (arg.type.isRelationType() && arg.type.getArity() < 3) {
-			Type relType = arg.type;
+		if (res.type.isRelationType() && res.type.getArity() < 3) {
+			Type relType = res.type;
 			Type fieldType1 = relType.getFieldType(0);
 			Type fieldType2 = relType.getFieldType(1);
 			if (fieldType1.comparable(fieldType2)) {
 				Type lub = fieldType1.lub(fieldType2);
 				
 				Type resultType = relType.hasFieldNames() ? tf.relType(lub, relType.getFieldName(0), lub, relType.getFieldName(1)) : tf.relType(lub,lub);
-				return result(resultType, reflexive ? ((IRelation) arg.value).closureStar()
-						: ((IRelation) arg.value).closure());
+				return result(resultType, reflexive ? ((IRelation) res.value).closureStar()
+						: ((IRelation) res.value).closure());
 			}
 		}
 		
 		throw new RascalTypeError("Operand of + or * closure has wrong type: "
-				+ arg.type);
+				+ res.type, expression);
 	}
 	
 	@Override
 	public Result visitExpressionTransitiveClosure(TransitiveClosure x) {
-		return closure(x.getArgument().accept(this), false);
+		return closure(x.getArgument(), false);
 	}
 	
 	@Override
 	public Result visitExpressionTransitiveReflexiveClosure(
 			TransitiveReflexiveClosure x) {
-		return closure(x.getArgument().accept(this), true);
+		return closure(x.getArgument(), true);
 	}
 	
 	// Comprehensions ----------------------------------------------------
@@ -3930,7 +3931,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			}
 			max = ((IInteger)res.value).getValue();
 			if(max <= 0){
-				throw new RascalRunTimeError("Bound in solve statement should be positive");
+				throw new RascalRunTimeError("Bound in solve statement should be positive", x);
 			}
 		}
 		
