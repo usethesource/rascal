@@ -37,6 +37,11 @@ private static TestFramework tf = new TestFramework();
 		assertTrue(tf.runTestInSameEvaluator("CarFDL::test();"));
 	}
 	
+	public void testCycles() throws IOException {
+		tf = new TestFramework("import Cycles;");
+		assertTrue(tf.runTestInSameEvaluator("Cycles::test();"));
+	}
+	
 	public void testDominators() throws IOException {
 		tf = new TestFramework("import Dominators;");
 		assertTrue(tf.runTestInSameEvaluator("Dominators::test();"));
@@ -106,4 +111,5 @@ private static TestFramework tf = new TestFramework();
 		tf = new TestFramework("import WordReplacement;");
 		assertTrue(tf.runTestInSameEvaluator("WordReplacement::test();"));
 	}
+	
 }

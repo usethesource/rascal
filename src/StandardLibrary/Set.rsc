@@ -90,6 +90,12 @@ public set[set[&T]] power(set[&T] st)
   return result;
 }
 
+public set[set[&T]] power1(set[&T] st)
+@doc{power1-- return all subsets (excluding empty set) of a set}
+{
+	return power(st) - {{}};
+}
+
 public &T reducer(set[&T] st, &T (&T,&T) fn, &T unit)
 @doc{reducer -- apply function F to successive elements of a set}
 {
