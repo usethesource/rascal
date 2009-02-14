@@ -18,7 +18,7 @@ import org.meta_environment.rascal.ast.Expression;
 import org.meta_environment.rascal.ast.JavaFunctionBody;
 import org.meta_environment.rascal.ast.Module;
 import org.meta_environment.rascal.ast.Statement;
-import org.meta_environment.rascal.interpreter.exceptions.RascalBug;
+import org.meta_environment.rascal.interpreter.errors.RascalImplementationError;
 import org.meta_environment.uptr.TreeAdapter;
 
 /**
@@ -132,7 +132,7 @@ public class ASTBuilder {
 
 				if (alt.isList()) {
 					// TODO add support for ambiguous lists
-					throw new RascalBug("Can not deal with ambiguous list: " + 
+					throw new RascalImplementationError("Can not deal with ambiguous list: " + 
 							node + "\n" + alternatives);
 				}
 				else if (sort == null) {

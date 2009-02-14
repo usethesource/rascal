@@ -17,8 +17,8 @@ import org.meta_environment.rascal.ast.Expression.Or;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.Result;
 import org.meta_environment.rascal.interpreter.env.IterableEvalResult;
-import org.meta_environment.rascal.interpreter.exceptions.RascalBug;
-import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
+import org.meta_environment.rascal.interpreter.errors.RascalImplementationError;
+import org.meta_environment.rascal.interpreter.errors.RascalTypeError;
 
 /*
  * Base class for iterating over the values of the arguments of the Boolean operators.
@@ -65,7 +65,7 @@ public abstract class BooleanEvaluator implements Iterator<Result> {
 	}
 	
 	public void remove(){
-		throw new RascalBug("remove() in BooleanEvaluator not implemented");
+		throw new RascalImplementationError("remove() in BooleanEvaluator not implemented");
 	}
 	
 	public boolean getNextResult(int i){
@@ -277,6 +277,6 @@ class MatchEvaluator implements Iterator<Result> {
 	}
 
 	public void remove() {
-		throw new RascalBug("remove() not implemented for MatchEvaluator");
+		throw new RascalImplementationError("remove() not implemented for MatchEvaluator");
 	}
 }

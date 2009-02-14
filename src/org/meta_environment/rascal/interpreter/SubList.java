@@ -11,7 +11,7 @@ import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
-import org.meta_environment.rascal.interpreter.exceptions.RascalBug;
+import org.meta_environment.rascal.interpreter.errors.RascalImplementationError;
 
 public class SubList implements IList {
 	private final Type fType;
@@ -43,12 +43,12 @@ public class SubList implements IList {
 			this.base = other.base;
 			this.start = other.start + start;
 		} else {
-			throw new RascalBug("Illegal value in SubList");
+			throw new RascalImplementationError("Illegal value in SubList");
 		}
 		this.len = len;
 		this.end = start + len;
 		if(this.start < 0 || this.len > base.length()){
-			throw new RascalBug("Out of bounds");
+			throw new RascalImplementationError("Out of bounds");
 		}
 	}
 	
@@ -188,7 +188,7 @@ class SubListIterator implements Iterator<IValue> {
 
 	public IValue next() {
 		if(cursor >= end){
-			throw new RascalBug("next called on exhausted SubListIterator");
+			throw new RascalImplementationError("next called on exhausted SubListIterator");
 		}
 		return sl.get(cursor++);
 	}

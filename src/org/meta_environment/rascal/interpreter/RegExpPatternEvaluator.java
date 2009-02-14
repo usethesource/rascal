@@ -19,7 +19,7 @@ import org.meta_environment.rascal.ast.Literal.RegExp;
 import org.meta_environment.rascal.ast.RegExp.Lexical;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.Result;
-import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
+import org.meta_environment.rascal.interpreter.errors.RascalTypeError;
 
 class RegExpPatternValue implements MatchPattern {
 	private String RegExpAsString;				// The regexp represented as string

@@ -10,8 +10,8 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.interpreter.Names;
-import org.meta_environment.rascal.interpreter.exceptions.RascalBug;
-import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
+import org.meta_environment.rascal.interpreter.errors.RascalImplementationError;
+import org.meta_environment.rascal.interpreter.errors.RascalTypeError;
 
 /**
  * A simple environment for variables and functions and types.
@@ -30,7 +30,7 @@ public class Environment {
 		this.parent = parent;
 		
 		if (parent == this) {
-			throw new RascalBug("internal error: cyclic environment");
+			throw new RascalImplementationError("internal error: cyclic environment");
 		}
 	}
 	

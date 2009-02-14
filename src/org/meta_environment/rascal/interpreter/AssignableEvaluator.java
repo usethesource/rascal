@@ -21,10 +21,10 @@ import org.meta_environment.rascal.ast.Assignable.Tuple;
 import org.meta_environment.rascal.ast.Assignable.Variable;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.Result;
-import org.meta_environment.rascal.interpreter.exceptions.RascalBug;
+import org.meta_environment.rascal.interpreter.errors.RascalImplementationError;
+import org.meta_environment.rascal.interpreter.errors.RascalRunTimeError;
+import org.meta_environment.rascal.interpreter.errors.RascalTypeError;
 import org.meta_environment.rascal.interpreter.exceptions.RascalException;
-import org.meta_environment.rascal.interpreter.exceptions.RascalRunTimeError;
-import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
 
 /**
  * Implements assignments in their different shapes, using value lookup
@@ -204,6 +204,6 @@ import org.meta_environment.rascal.interpreter.exceptions.RascalTypeError;
 	
 	@Override
 	public Result visitAssignableConstructor(Constructor x) {
-		throw new RascalBug("Constructor assignables not yet implemented");
+		throw new RascalImplementationError("Constructor assignables not yet implemented");
 	}
 }
