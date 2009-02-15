@@ -1,68 +1,66 @@
 package test;
 
-import java.io.IOException;
+import org.junit.Test;
 
-import junit.framework.TestCase;
+public class StandardLibraryIntegerTests extends TestFramework {
 
-public class StandardLibraryIntegerTests extends TestCase {
+	@Test
+	public void testIntegerAbs() {
 
-	private static TestFramework tf = new TestFramework("import Integer;");
-	
-	public void testIntegerAbs() throws IOException {
-		
-		new TestFramework("import Integer;");
-		
-		assertTrue(tf.runTestInSameEvaluator("{abs(0) == 0;}"));
-		assertTrue(tf.runTestInSameEvaluator("{abs(-1) == 1;}"));
-		assertTrue(tf.runTestInSameEvaluator("{abs(1) == 1;}"));
-	}	
+		prepare("import Integer;");
 
-	public void testIntegerArbInt() throws IOException {
-		
-		new TestFramework("import Integer;");
-
-		assertTrue(tf
-				.runTestInSameEvaluator("{int N = Integer::arbInt(10); (N >= 0) && (N < 10);}"));
-		assertTrue(tf
-				.runTestInSameEvaluator("{int N = arbInt(10); (N >= 0) && (N < 10);}"));
-		
-		assertTrue(tf
-				.runTestInSameEvaluator("{int N = arbInt(); true;}"));
+		assertTrue(runTestInSameEvaluator("{abs(0) == 0;}"));
+		assertTrue(runTestInSameEvaluator("{abs(-1) == 1;}"));
+		assertTrue(runTestInSameEvaluator("{abs(1) == 1;}"));
 	}
 
-	public void testIntegerMax() throws IOException {
-		
-		new TestFramework("import Integer;");
+	@Test
+	public void testIntegerArbInt() {
 
-		assertTrue(tf.runTestInSameEvaluator("Integer::max(3, 10) == 10;"));
-		assertTrue(tf.runTestInSameEvaluator("max(3, 10) == 10;"));
-		assertTrue(tf.runTestInSameEvaluator("Integer::max(10, 10) == 10;"));
+		prepare("import Integer;");
+
+		assertTrue(runTestInSameEvaluator("{int N = Integer::arbInt(10); (N >= 0) && (N < 10);}"));
+		assertTrue(runTestInSameEvaluator("{int N = arbInt(10); (N >= 0) && (N < 10);}"));
+
+		assertTrue(runTestInSameEvaluator("{int N = arbInt(); true;}"));
 	}
 
-	public void testIntegerMin() throws IOException {
-		
-		new TestFramework("import Integer;");
+	@Test
+	public void testIntegerMax() {
 
-		assertTrue(tf.runTestInSameEvaluator("Integer::min(3, 10) == 3;"));
-		assertTrue(tf.runTestInSameEvaluator("min(3, 10) == 3;"));
-		assertTrue(tf.runTestInSameEvaluator("Integer::min(10, 10) == 10;"));
+		prepare("import Integer;");
+
+		assertTrue(runTestInSameEvaluator("Integer::max(3, 10) == 10;"));
+		assertTrue(runTestInSameEvaluator("max(3, 10) == 10;"));
+		assertTrue(runTestInSameEvaluator("Integer::max(10, 10) == 10;"));
 	}
 
-	public void testIntegerToReal() throws IOException {
-		
-		new TestFramework("import Integer;");
+	@Test
+	public void testIntegerMin() {
 
-		assertTrue(tf.runTestInSameEvaluator("Integer::toReal(3) == 3.0;"));
-		assertTrue(tf.runTestInSameEvaluator("toReal(3) == 3.0;"));
+		prepare("import Integer;");
+
+		assertTrue(runTestInSameEvaluator("Integer::min(3, 10) == 3;"));
+		assertTrue(runTestInSameEvaluator("min(3, 10) == 3;"));
+		assertTrue(runTestInSameEvaluator("Integer::min(10, 10) == 10;"));
 	}
 
-	public void testIntegerToString() throws IOException {
-		
-		new TestFramework("import Integer;");
+	@Test
+	public void testIntegerToReal() {
 
-		assertTrue(tf
-				.runTestInSameEvaluator("Integer::toString(314) == \"314\";"));
-		assertTrue(tf.runTestInSameEvaluator("toString(314) == \"314\";"));
+		prepare("import Integer;");
+
+		assertTrue(runTestInSameEvaluator("Integer::toReal(3) == 3.0;"));
+		assertTrue(runTestInSameEvaluator("toReal(3) == 3.0;"));
+	}
+
+	@Test
+	public void testIntegerToString() {
+
+		prepare("import Integer;");
+
+		assertTrue(runTestInSameEvaluator("Integer::toString(314) == \"314\";"));
+		assertTrue(runTestInSameEvaluator("toString(314) == \"314\";"));
 	}
 
 }

@@ -1,13 +1,11 @@
 package test;
 
-import java.io.IOException;
+import org.junit.Test;
 
-import junit.framework.TestCase;
-
-public class TryCatchTests extends TestCase {
-	private static TestFramework tf = new TestFramework();
+public class TryCatchTests extends TestFramework {
 	
-	public void testClassify() throws IOException {
+	@Test
+	public void testClassify()  {
 		String classify = 
 		"int classify(value v){" +
 		"	try {" +
@@ -26,15 +24,16 @@ public class TryCatchTests extends TestCase {
 		"	}" +
 		"}";
 		
-		tf = new TestFramework("data NODEA = f(int N);");
+		prepare("data NODEA = f(int N);");
 		
-		assertTrue(tf.runTestInSameEvaluator("{" + classify + "classify(3) == 1;}"));
-		assertTrue(tf.runTestInSameEvaluator("{" + classify + "classify(f(3)) == 2;}"));
-		assertTrue(tf.runTestInSameEvaluator("{" + classify + "classify(\"abc\") == 3;}"));
-		assertTrue(tf.runTestInSameEvaluator("{" + classify + "classify([1,2,3]) == 4;}"));
+		assertTrue(runTestInSameEvaluator("{" + classify + "classify(3) == 1;}"));
+		assertTrue(runTestInSameEvaluator("{" + classify + "classify(f(3)) == 2;}"));
+		assertTrue(runTestInSameEvaluator("{" + classify + "classify(\"abc\") == 3;}"));
+		assertTrue(runTestInSameEvaluator("{" + classify + "classify([1,2,3]) == 4;}"));
 	}
 	
-	public void testDuplicate() throws IOException {
+	@Test
+	public void testDuplicate()  {
 		String duplicate = 
 		"	value duplicate(value v){" +
 		"	try {" +
@@ -53,15 +52,16 @@ public class TryCatchTests extends TestCase {
 		"	}" +
 		"}";
 		
-		tf = new TestFramework("data NODEB = f(int N) | d(NODEB a, NODEB b);");
+		prepare("data NODEB = f(int N) | d(NODEB a, NODEB b);");
 		
-		assertTrue(tf.runTestInSameEvaluator("{" + duplicate + "duplicate(3) == 6;}"));
-		assertTrue(tf.runTestInSameEvaluator("{" + duplicate + "duplicate(f(3)) == d(f(3),f(3));}"));
-		assertTrue(tf.runTestInSameEvaluator("{" + duplicate + "duplicate(\"abc\") == \"abcabc\";}"));
-		assertTrue(tf.runTestInSameEvaluator("{" + duplicate + "duplicate(3.5) == 3.5;}"));
+		assertTrue(runTestInSameEvaluator("{" + duplicate + "duplicate(3) == 6;}"));
+		assertTrue(runTestInSameEvaluator("{" + duplicate + "duplicate(f(3)) == d(f(3),f(3));}"));
+		assertTrue(runTestInSameEvaluator("{" + duplicate + "duplicate(\"abc\") == \"abcabc\";}"));
+		assertTrue(runTestInSameEvaluator("{" + duplicate + "duplicate(3.5) == 3.5;}"));
 	}
 	
-	public void testDFin() throws IOException {
+	@Test
+	public void testDFin()  {
 		String dfin = 
 		"value dfin(value v){" +
 		"    value res = 0;" +
@@ -84,15 +84,16 @@ public class TryCatchTests extends TestCase {
 		"	}" +
 		"}";
 		
-		tf = new TestFramework("data NODEC = f(int N) | fin(value V) | d(NODEC a) | d(NODEC a, NODEC b);");
+		prepare("data NODEC = f(int N) | fin(value V) | d(NODEC a) | d(NODEC a, NODEC b);");
 		
-		assertTrue(tf.runTestInSameEvaluator("{" + dfin + "dfin(3) == fin(6);}"));
-		assertTrue(tf.runTestInSameEvaluator("{" + dfin + "dfin(f(3)) == fin(d(f(3),f(3)));}"));
-		assertTrue(tf.runTestInSameEvaluator("{" + dfin + "dfin(\"abc\") == fin(\"abcabc\");}"));
-		assertTrue(tf.runTestInSameEvaluator("{" + dfin + "dfin(3.5) == fin(3.5);}"));
+		assertTrue(runTestInSameEvaluator("{" + dfin + "dfin(3) == fin(6);}"));
+		assertTrue(runTestInSameEvaluator("{" + dfin + "dfin(f(3)) == fin(d(f(3),f(3)));}"));
+		assertTrue(runTestInSameEvaluator("{" + dfin + "dfin(\"abc\") == fin(\"abcabc\");}"));
+		assertTrue(runTestInSameEvaluator("{" + dfin + "dfin(3.5) == fin(3.5);}"));
 	}
 	
-	public void testDivide () throws IOException {
+	@Test
+	public void testDivide ()  {
 		String divide = 
 	
 		"int divide(int x, int y)" +
@@ -114,11 +115,11 @@ public class TryCatchTests extends TestCase {
 		
 		//TODO: divide_by_zero will become a built-in exception
 		
-		tf = new TestFramework("data Exception = divide_by_zero;");
+		prepare("data Exception = divide_by_zero;");
 		
-		assertTrue(tf.runTestInSameEvaluator("{" + divide + "divide(3, 2) == 1;}"));
-		assertTrue(tf.runTestInSameEvaluator("{" + divide + "safeDivide(3, 2) == 1;}"));
-		assertTrue(tf.runTestInSameEvaluator("{" + divide + "safeDivide(3, 0) == 0;}"));
+		assertTrue(runTestInSameEvaluator("{" + divide + "divide(3, 2) == 1;}"));
+		assertTrue(runTestInSameEvaluator("{" + divide + "safeDivide(3, 2) == 1;}"));
+		assertTrue(runTestInSameEvaluator("{" + divide + "safeDivide(3, 0) == 0;}"));
 	}
 		
 }

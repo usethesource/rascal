@@ -1,93 +1,98 @@
 package test;
 
-import java.io.IOException;
+import org.junit.Test;
 
-import junit.framework.TestCase;
+public class StandardLibraryMapTests extends TestFramework {
 
-public class StandardLibraryMapTests extends TestCase {
-	private static TestFramework tf = new TestFramework("import Map;");
-	
-	public void testMapArb() throws IOException {
-		
-		tf = new TestFramework("import Map;");
-		
-		assertTrue(tf.runTestInSameEvaluator("arb((1:10)) == 1;"));
-		assertTrue(tf.runTestInSameEvaluator("{int N = arb((1:10, 2:20)); (N == 1) || (N ==2);}"));
+	@Test
+	public void testMapArb() {
+
+		prepare("import Map;");
+
+		assertTrue(runTestInSameEvaluator("arb((1:10)) == 1;"));
+		assertTrue(runTestInSameEvaluator("{int N = arb((1:10, 2:20)); (N == 1) || (N ==2);}"));
 	}
-	
-	public void testMapDomain() throws IOException {
-		
-		tf = new TestFramework("import Map;");
-		
-		assertTrue(tf.runTestInSameEvaluator("domain(()) == {};"));
-		assertTrue(tf.runTestInSameEvaluator("domain((1:10, 2:20)) == {1,2};"));
+
+	@Test
+	public void testMapDomain() {
+
+		prepare("import Map;");
+
+		assertTrue(runTestInSameEvaluator("domain(()) == {};"));
+		assertTrue(runTestInSameEvaluator("domain((1:10, 2:20)) == {1,2};"));
 	}
-	
+
 	// mapper
-	
-	public void testMapMapper() throws IOException {
-		
-		tf = new TestFramework("import Map;");
-		
+	@Test
+	public void testMapMapper() {
+
+		prepare("import Map;");
+
 		String inc = "int inc(int n) {return n + 1;} ";
 		String dec = "int dec(int n) {return n - 1;} ";
-		
-		assertTrue(tf.runTestInSameEvaluator("{" + inc + "mapper((), #inc, #inc) == ();}"));
-		assertTrue(tf.runTestInSameEvaluator("{" + inc + "mapper((1:10,2:20), #inc, #inc) == (2:11,3:21);}"));
-		
-		assertTrue(tf.runTestInSameEvaluator("{" + inc + dec + "mapper((), #inc, #dec) == ();}"));
-		assertTrue(tf.runTestInSameEvaluator("{" + inc + dec + "mapper((1:10,2:20), #inc, #dec) == (2:9,3:19);}"));
+
+		assertTrue(runTestInSameEvaluator("{" + inc
+				+ "mapper((), #inc, #inc) == ();}"));
+		assertTrue(runTestInSameEvaluator("{" + inc
+				+ "mapper((1:10,2:20), #inc, #inc) == (2:11,3:21);}"));
+
+		assertTrue(runTestInSameEvaluator("{" + inc + dec
+				+ "mapper((), #inc, #dec) == ();}"));
+		assertTrue(runTestInSameEvaluator("{" + inc + dec
+				+ "mapper((1:10,2:20), #inc, #dec) == (2:9,3:19);}"));
 	}
-	
+
 	// range
-	
-	public void testMapRange() throws IOException {
-		
-		tf = new TestFramework("import Map;");
-		
-		assertTrue(tf.runTestInSameEvaluator("range(()) == {};"));
-		assertTrue(tf.runTestInSameEvaluator("range((1:10, 2:20)) == {10,20};"));
+	@Test
+	public void testMapRange() {
+
+		prepare("import Map;");
+
+		assertTrue(runTestInSameEvaluator("range(()) == {};"));
+		assertTrue(runTestInSameEvaluator("range((1:10, 2:20)) == {10,20};"));
 	}
-	
+
 	// size
-	
-	public void testMapSize() throws IOException {
-		
-		tf = new TestFramework("import Map;");
-		
-		assertTrue(tf.runTestInSameEvaluator("size(()) == 0;"));
-		assertTrue(tf.runTestInSameEvaluator("size((1:10)) == 1;"));
-		assertTrue(tf.runTestInSameEvaluator("size((1:10,2:20)) == 2;"));
+	@Test
+	public void testMapSize() {
+
+		prepare("import Map;");
+
+		assertTrue(runTestInSameEvaluator("size(()) == 0;"));
+		assertTrue(runTestInSameEvaluator("size((1:10)) == 1;"));
+		assertTrue(runTestInSameEvaluator("size((1:10,2:20)) == 2;"));
 	}
-	
+
 	// toList
-	public void testMapToList() throws IOException {
-		
-		tf = new TestFramework("import Map;");
-		
-		assertTrue(tf.runTestInSameEvaluator("toList(()) == [];"));
-		assertTrue(tf.runTestInSameEvaluator("toList((1:10)) == [<1,10>];"));
-		assertTrue(tf.runTestInSameEvaluator("{list[tuple[int,int]] L = toList((1:10, 2:20)); (L == [<1,10>,<2,20>]) || (L == [<2,20>,<1,10>]);}"));
+	@Test
+	public void testMapToList() {
+
+		prepare("import Map;");
+
+		assertTrue(runTestInSameEvaluator("toList(()) == [];"));
+		assertTrue(runTestInSameEvaluator("toList((1:10)) == [<1,10>];"));
+		assertTrue(runTestInSameEvaluator("{list[tuple[int,int]] L = toList((1:10, 2:20)); (L == [<1,10>,<2,20>]) || (L == [<2,20>,<1,10>]);}"));
 	}
-	
+
 	// toRel
-	public void testMapToRel() throws IOException {
-		
-		tf = new TestFramework("import Map;");
-		
-		assertTrue(tf.runTestInSameEvaluator("toRel(()) == {};"));
-		assertTrue(tf.runTestInSameEvaluator("toRel((1:10)) == {<1,10>};"));
-		assertTrue(tf.runTestInSameEvaluator("{rel[int,int] R = toRel((1:10, 2:20)); R == {<1,10>,<2,20>};}"));
+	@Test
+	public void testMapToRel() {
+
+		prepare("import Map;");
+
+		assertTrue(runTestInSameEvaluator("toRel(()) == {};"));
+		assertTrue(runTestInSameEvaluator("toRel((1:10)) == {<1,10>};"));
+		assertTrue(runTestInSameEvaluator("{rel[int,int] R = toRel((1:10, 2:20)); R == {<1,10>,<2,20>};}"));
 	}
-	
+
 	// toString
-	
-	public void testMapToString() throws IOException {
-		
-		tf = new TestFramework("import Map;");
-		
-		assertTrue(tf.runTestInSameEvaluator("toString(()) == \"()\";"));
-		assertTrue(tf.runTestInSameEvaluator("toString((1:10)) == \"(1:10)\";"));
+	@Test
+	public void testMapToString() {
+
+		prepare("import Map;");
+
+		assertTrue(runTestInSameEvaluator("toString(()) == \"()\";"));
+		assertTrue(runTestInSameEvaluator("toString((1:10)) == \"(1:10)\";"));
 	}
-	
+
 }

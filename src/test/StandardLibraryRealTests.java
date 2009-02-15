@@ -1,58 +1,54 @@
 package test;
 
-import java.io.IOException;
+import org.junit.Test;
 
-import junit.framework.TestCase;
+public class StandardLibraryRealTests extends TestFramework {
 
-public class StandardLibraryRealTests extends TestCase {
+	@Test
+	public void testRealArb() {
 
-	private static TestFramework tf = new TestFramework("import Real;");
+		prepare("import Real;");
 
-	public void testRealArb() throws IOException {
-		
-		tf = new TestFramework("import Real;");
-
-		assertTrue(tf
-				.runTestInSameEvaluator("{real D = Real::arbReal(); (D >= 0.0) && (D <= 1.0);}"));
-		assertTrue(tf
-				.runTestInSameEvaluator("{real D = arbReal(); (D >= 0.0) && (D <= 1.0);}"));
+		assertTrue(runTestInSameEvaluator("{real D = Real::arbReal(); (D >= 0.0) && (D <= 1.0);}"));
+		assertTrue(runTestInSameEvaluator("{real D = arbReal(); (D >= 0.0) && (D <= 1.0);}"));
 	}
 
-	public void testRealMax() throws IOException {
-		
-		tf = new TestFramework("import Real;");
+	@Test
+	public void testRealMax() {
 
-		assertTrue(tf.runTestInSameEvaluator("Real::max(3.0, 10.0) == 10.0;"));
-		assertTrue(tf.runTestInSameEvaluator("max(3.0, 10.0) == 10.0;"));
-		assertTrue(tf
-				.runTestInSameEvaluator("Real::max(10.0, 10.0) == 10.0;"));
+		prepare("import Real;");
+
+		assertTrue(runTestInSameEvaluator("Real::max(3.0, 10.0) == 10.0;"));
+		assertTrue(runTestInSameEvaluator("max(3.0, 10.0) == 10.0;"));
+		assertTrue(runTestInSameEvaluator("Real::max(10.0, 10.0) == 10.0;"));
 	}
 
-	public void testRealMin() throws IOException {
-		
-		tf = new TestFramework("import Real;");
+	@Test
+	public void testRealMin() {
 
-		assertTrue(tf.runTestInSameEvaluator("Real::min(3.0, 10.0) == 3.0;"));
-		assertTrue(tf.runTestInSameEvaluator("min(3.0, 10.0) == 3.0;"));
-		assertTrue(tf
-				.runTestInSameEvaluator("Real::min(10.0, 10.0) == 10.0;"));
+		prepare("import Real;");
+
+		assertTrue(runTestInSameEvaluator("Real::min(3.0, 10.0) == 3.0;"));
+		assertTrue(runTestInSameEvaluator("min(3.0, 10.0) == 3.0;"));
+		assertTrue(runTestInSameEvaluator("Real::min(10.0, 10.0) == 10.0;"));
 	}
 
-	public void testRealToInteger() throws IOException {
-		
-		tf = new TestFramework("import Real;");
+	@Test
+	public void testRealToInteger() {
 
-		assertTrue(tf.runTestInSameEvaluator("Real::toInteger(3.14) == 3;"));
-		assertTrue(tf.runTestInSameEvaluator("toInteger(3.14) == 3;"));
+		prepare("import Real;");
+
+		assertTrue(runTestInSameEvaluator("Real::toInteger(3.14) == 3;"));
+		assertTrue(runTestInSameEvaluator("toInteger(3.14) == 3;"));
 	}
 
-	public void testRealToString() throws IOException {
-		
-		tf = new TestFramework("import Real;");
+	@Test
+	public void testRealToString() {
 
-		assertTrue(tf
-				.runTestInSameEvaluator("Real::toString(3.14) == \"3.14\";"));
-		assertTrue(tf.runTestInSameEvaluator("toString(3.14) == \"3.14\";"));
+		prepare("import Real;");
+
+		assertTrue(runTestInSameEvaluator("Real::toString(3.14) == \"3.14\";"));
+		assertTrue(runTestInSameEvaluator("toString(3.14) == \"3.14\";"));
 
 	}
 }

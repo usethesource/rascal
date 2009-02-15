@@ -1230,7 +1230,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			}
 			
 			if (!node.hasField(field)) {
-				throw new NoSuchFieldError("Field `" + field + "` accessed on constructor that does not have it." + expr.value.getType(), x);
+				throw new NoSuchFieldError("Field `" + field + "` accessed on constructor that does not have it: " + expr.value.getType(), x);
 			}
 			
 			int index = node.getFieldIndex(field);
