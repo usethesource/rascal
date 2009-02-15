@@ -167,7 +167,7 @@ import org.meta_environment.rascal.interpreter.env.Lambda;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.env.RascalFunction;
 import org.meta_environment.rascal.interpreter.env.Result;
-import org.meta_environment.rascal.interpreter.exceptions.AssertionFails;
+import org.meta_environment.rascal.interpreter.exceptions.AssertionError;
 import org.meta_environment.rascal.interpreter.exceptions.AssignmentError;
 import org.meta_environment.rascal.interpreter.exceptions.IOError;
 import org.meta_environment.rascal.interpreter.exceptions.IndexOutOfBoundsError;
@@ -177,7 +177,7 @@ import org.meta_environment.rascal.interpreter.exceptions.NoSuchFieldError;
 import org.meta_environment.rascal.interpreter.exceptions.NoSuchModuleError;
 import org.meta_environment.rascal.interpreter.exceptions.RascalException;
 import org.meta_environment.rascal.interpreter.exceptions.ImplementationError;
-import org.meta_environment.rascal.interpreter.exceptions.RascalRunTimeException;
+import org.meta_environment.rascal.interpreter.exceptions.RunTimeError;
 import org.meta_environment.rascal.interpreter.exceptions.SubscriptError;
 import org.meta_environment.rascal.interpreter.exceptions.SyntaxError;
 import org.meta_environment.rascal.interpreter.exceptions.TypeError;
@@ -255,13 +255,13 @@ public class Evaluator extends NullASTVisitor<Result> {
 	        	throw new ImplementationError("Not yet implemented: " + stat.getTree(), stat);
 	        }
 		} catch (ReturnControlException e){
-			throw new RascalRunTimeException("Unhandled return statement", stat);
+			throw new RunTimeError("Unhandled return statement", stat);
 		}
 		catch (FailureControlException e){
-			throw new RascalRunTimeException("Unhandled fail statement", stat);
+			throw new RunTimeError("Unhandled fail statement", stat);
 		}
 		catch (InsertControlException e){
-			throw new RascalRunTimeException("Unhandled insert statement", stat);
+			throw new RunTimeError("Unhandled insert statement", stat);
 		}
 	}
 	
@@ -999,7 +999,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 		
 		if(r.value.isEqual(vf.bool(false))){
-			throw new AssertionFails(x.getMessage().toString(), x);
+			throw new AssertionError(x.getMessage().toString(), x);
 		}
 		return r;	
 	}
@@ -1219,7 +1219,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				return result(tf.setType(tuple.getFieldType(field)), w.done());
 			}
 			catch (FactTypeError e) {
-				throw new RascalRunTimeException(e.getMessage());
+				throw new RunTimeError(e.getMessage());
 			}
 		}
 		else if (expr.type.isAbstractDataType() || expr.type.isConstructorType()) {

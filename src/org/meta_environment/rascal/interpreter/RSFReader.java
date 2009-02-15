@@ -12,7 +12,7 @@ import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.interpreter.exceptions.NoSuchFileError;
-import org.meta_environment.rascal.interpreter.exceptions.RascalRunTimeException;
+import org.meta_environment.rascal.interpreter.exceptions.RunTimeError;
 
 public class RSFReader {
 	

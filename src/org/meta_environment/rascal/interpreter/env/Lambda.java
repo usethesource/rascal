@@ -17,7 +17,7 @@ import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.TypeEvaluator;
 import org.meta_environment.rascal.interpreter.control_exceptions.FailureControlException;
 import org.meta_environment.rascal.interpreter.control_exceptions.ReturnControlException;
-import org.meta_environment.rascal.interpreter.exceptions.RascalRunTimeException;
+import org.meta_environment.rascal.interpreter.exceptions.RunTimeError;
 import org.meta_environment.rascal.interpreter.exceptions.TypeError;
 
 /**
@@ -147,7 +147,7 @@ public class Lambda extends Result implements IValue {
 			return new Result(instantiatedReturnType, result.value);
 		} 
 		catch (FailureControlException e){
-			throw new RascalRunTimeException("Fail statement occurred outside switch or visit statement in " + this);
+			throw new RunTimeError("Fail statement occurred outside switch or visit statement in " + this);
 		}
 	}
 

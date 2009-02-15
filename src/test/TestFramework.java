@@ -12,7 +12,7 @@ import org.meta_environment.rascal.ast.Module;
 import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.exceptions.ImplementationError;
-import org.meta_environment.rascal.interpreter.exceptions.RascalRunTimeException;
+import org.meta_environment.rascal.interpreter.exceptions.RunTimeError;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
 import org.meta_environment.uptr.Factory;
@@ -32,7 +32,7 @@ public class TestFramework {
 		try {
 			prepare(command);
 		} catch (Exception e){
-			throw new RascalRunTimeException("Exception while creating TestFramework: " + e);
+			throw new RunTimeError("Exception while creating TestFramework: " + e);
 		}
 	}
 	
