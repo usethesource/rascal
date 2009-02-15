@@ -3,8 +3,6 @@ package test;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-import junit.framework.TestCase;
-
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;

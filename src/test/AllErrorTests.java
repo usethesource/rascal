@@ -2,7 +2,6 @@ package test;
 
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
-import org.meta_environment.rascal.interpreter.errors.ImplementationError;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({

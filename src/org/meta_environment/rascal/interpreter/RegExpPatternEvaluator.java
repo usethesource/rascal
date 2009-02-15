@@ -92,7 +92,7 @@ class RegExpPatternValue implements MatchPattern {
 		try {
 			pat = Pattern.compile(RegExpAsString);
 		} catch (PatternSyntaxException e){
-			throw new TypeError(e.getMessage());
+			throw new TypeError(e.getMessage(), ast);
 		}
 	}
 	
