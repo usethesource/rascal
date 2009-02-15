@@ -7,19 +7,19 @@ import org.meta_environment.rascal.ast.AbstractAST;
  * Rascal programs. Examples are subscript out of bounds and the like.
  */
 
-public class RascalRunTimeException extends RascalException {
+public class RunTimeError extends RascalException {
 	
 	private static final long serialVersionUID = 3715676299644311671L;
 	
-	public RascalRunTimeException(String message) {
+	public RunTimeError(String message) {
 		super(null, message);
 	}
 	
-	public RascalRunTimeException(String message, AbstractAST ast) {
+	public RunTimeError(String message, AbstractAST ast) {
 		super(message, null, ast);
 	}
 	
-	public RascalRunTimeException(String message, Throwable cause) {
+	public RunTimeError(String message, Throwable cause) {
 		super(message, cause);
 	}
 	
