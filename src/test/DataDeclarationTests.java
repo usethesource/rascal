@@ -2,7 +2,7 @@ package test;
 
 import java.io.IOException;
 
-import org.meta_environment.rascal.interpreter.exceptions.RascalException;
+import org.meta_environment.rascal.interpreter.errors.Error;
 
 import junit.framework.TestCase;
 
@@ -30,7 +30,7 @@ public class DataDeclarationTests extends TestCase{
 			tf.runTestInSameEvaluator("{Bool b = btrue; b.left == btrue;}");
 			fail("should have thrown an exception");
 		}
-		catch (RascalException e) {
+		catch (Error e) {
 			// should happen
 		}
 	}

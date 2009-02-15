@@ -1,8 +1,8 @@
-package org.meta_environment.rascal.interpreter.exceptions;
+package org.meta_environment.rascal.interpreter.errors;
 
 import org.meta_environment.rascal.ast.AbstractAST;
 
-public class AssignmentError extends RascalException {
+public class AssignmentError extends Error {
 	 
 	public AssignmentError(String message) {
 		super(null, message);

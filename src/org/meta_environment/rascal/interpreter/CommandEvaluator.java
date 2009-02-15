@@ -18,9 +18,9 @@ import org.meta_environment.rascal.ast.ShellCommand.History;
 import org.meta_environment.rascal.ast.ShellCommand.Quit;
 import org.meta_environment.rascal.interpreter.control_exceptions.FailureControlException;
 import org.meta_environment.rascal.interpreter.env.Result;
-import org.meta_environment.rascal.interpreter.exceptions.RascalException;
-import org.meta_environment.rascal.interpreter.exceptions.RunTimeError;
-import org.meta_environment.rascal.interpreter.exceptions.TypeError;
+import org.meta_environment.rascal.interpreter.errors.Error;
+import org.meta_environment.rascal.interpreter.errors.RunTimeError;
+import org.meta_environment.rascal.interpreter.errors.TypeError;
 
 /*package*/ class CommandEvaluator extends NullASTVisitor<IValue> {
 	private final ConsoleReader console;

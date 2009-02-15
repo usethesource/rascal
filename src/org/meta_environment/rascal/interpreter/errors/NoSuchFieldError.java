@@ -1,8 +1,8 @@
-package org.meta_environment.rascal.interpreter.exceptions;
+package org.meta_environment.rascal.interpreter.errors;
 
 import org.meta_environment.rascal.ast.AbstractAST;
 
-public class NoSuchFieldError extends RascalException {
+public class NoSuchFieldError extends Error {
 	 
 	public NoSuchFieldError(String message) {
 		super("NoSuchFieldError", message);

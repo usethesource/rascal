@@ -1,11 +1,11 @@
-package org.meta_environment.rascal.interpreter.exceptions;
+package org.meta_environment.rascal.interpreter.errors;
 
 import org.meta_environment.rascal.ast.AbstractAST;
 
 /**
  * Exception used for when the implementation detects that it has a bug.
  */
-public class ImplementationError extends RascalException {
+public class ImplementationError extends Error {
 	private static final long serialVersionUID = -8740312542969306482L;
 
 	public ImplementationError(String message) {

@@ -1,8 +1,8 @@
-package org.meta_environment.rascal.interpreter.exceptions;
+package org.meta_environment.rascal.interpreter.errors;
 
 import org.meta_environment.rascal.ast.AbstractAST;
 
-public class SubscriptError extends RascalException {
+public class SubscriptError extends Error {
 	 
 	public SubscriptError(String message) {
 		super(null, message);

@@ -35,8 +35,8 @@ import org.meta_environment.rascal.ast.Signature;
 import org.meta_environment.rascal.ast.Tag;
 import org.meta_environment.rascal.ast.Tags;
 import org.meta_environment.rascal.ast.Type;
-import org.meta_environment.rascal.interpreter.exceptions.ImplementationError;
-import org.meta_environment.rascal.interpreter.exceptions.TypeError;
+import org.meta_environment.rascal.interpreter.errors.ImplementationError;
+import org.meta_environment.rascal.interpreter.errors.TypeError;
 
 public class JavaBridge {
 	private static final String JAVA_IMPORTS_TAG = "javaImports";
@@ -109,7 +109,7 @@ public class JavaBridge {
 
 		compilation.addSource(fullClassName).addLine(
 				"package org.meta_environment.rascal.java;").
-				addLine("import org.meta_environment.rascal.interpreter.exceptions.RascalException;").
+				addLine("import org.meta_environment.rascal.interpreter.errors.Error;").
 				addLine("import org.meta_environment.rascal.interpreter.SubList;").
 				addLine("import org.eclipse.imp.pdb.facts.type.*;").
 				addLine("import org.eclipse.imp.pdb.facts.*;").

@@ -1,4 +1,4 @@
-package org.meta_environment.rascal.interpreter.exceptions;
+package org.meta_environment.rascal.interpreter.errors;
 
 import org.meta_environment.rascal.ast.AbstractAST;
 
@@ -7,7 +7,7 @@ import org.meta_environment.rascal.ast.AbstractAST;
  * Rascal programs. Examples are subscript out of bounds and the like.
  */
 
-public class RunTimeError extends RascalException {
+public class RunTimeError extends Error {
 	
 	private static final long serialVersionUID = 3715676299644311671L;
 	

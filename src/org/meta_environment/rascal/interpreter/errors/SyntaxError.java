@@ -1,8 +1,8 @@
-package org.meta_environment.rascal.interpreter.exceptions;
+package org.meta_environment.rascal.interpreter.errors;
 
 import org.meta_environment.rascal.ast.AbstractAST;
 
-public class SyntaxError extends RascalException {
+public class SyntaxError extends Error {
 	 
 	public SyntaxError(String message) {
 		super(null, message);

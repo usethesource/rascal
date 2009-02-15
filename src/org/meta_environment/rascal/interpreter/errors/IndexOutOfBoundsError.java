@@ -1,8 +1,8 @@
-package org.meta_environment.rascal.interpreter.exceptions;
+package org.meta_environment.rascal.interpreter.errors;
 
 import org.meta_environment.rascal.ast.AbstractAST;
 
-public class IndexOutOfBoundsError extends RascalException {
+public class IndexOutOfBoundsError extends Error {
 	 
 	public IndexOutOfBoundsError(String message) {
 		super(null, message);
