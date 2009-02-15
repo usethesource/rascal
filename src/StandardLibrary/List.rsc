@@ -181,7 +181,7 @@ public &T sum(list[&T] lst, &T zero)
  public list[&T] java tail(list[&T] lst)
  @doc{tail -- all but the first element of a list}
  {
- 	return new SubList((Value)lst, 1, lst.length()-1);
+ 	return new SubList((IValue)lst, 1, lst.length()-1);
  }
  
   public list[&T] java tail(list[&T] lst, int len)
@@ -193,7 +193,7 @@ public &T sum(list[&T] lst, &T zero)
  	
  	if(lenVal > lstLen)
  		throw new Error("IndexOutOfBoundsError", "tail");
- 	return new SubList((Value)lst, lstLen - lenVal, lenVal);
+ 	return new SubList((IValue)lst, lstLen - lenVal, lenVal);
  }
  
 public tuple[&T, list[&T]] java takeOneFrom(list[&T] lst)
