@@ -1,6 +1,6 @@
 package test;
 
-import java.io.IOException;
+import java.io.IOException;import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 

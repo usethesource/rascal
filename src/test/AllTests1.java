@@ -1,26 +1,20 @@
 package test;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
-public class AllTests1 {
+@RunWith(Suite.class)
+@Suite.SuiteClasses({
+	AssignmentTests.class,
+	BackTrackingTests.class,
+	CallTests.class,
+	ComprehensionTests.class,
+	DataDeclarationTests.class,
+	DataTypeTests.class,
+	ErrorTests.class,
+	ImportTests.class
+        })
 
-	public static Test suite() {
-		TestSuite suite = new TestSuite();
+public class AllTests1 extends TestFramework {
 
-		suite.addTestSuite(AssignmentTests.class);
-		suite.addTestSuite(BackTrackingTests.class);
-		suite.addTestSuite(CallTests.class);
-		suite.addTestSuite(ComprehensionTests.class);
-		suite.addTestSuite(DataDeclarationTests.class);
-		suite.addTestSuite(DataTypeTests.class);
-		suite.addTestSuite(ErrorTests.class);
-		suite.addTestSuite(ImportTests.class);
-
-		return suite;
-	}
-
-	public static void main(String args[]) {
-		junit.textui.TestRunner.run(suite());
-	}
 }

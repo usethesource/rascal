@@ -2,6 +2,7 @@ package test;
 
 import org.junit.Test;
 import org.meta_environment.rascal.interpreter.errors.UndefinedValueError;
+import static org.junit.Assert.*;
 
 public class ImportTests extends TestFramework {
 	

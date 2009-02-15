@@ -3,10 +3,9 @@ package test;
 import java.io.IOException;
 
 import org.junit.Test;
+import static org.junit.Assert.assertTrue;
 
 public class AssignmentTests extends TestFramework {
-	
-	//private static TestFramework tf = new TestFramework();
 	
 	@Test public void testSimple() throws IOException {
 		
