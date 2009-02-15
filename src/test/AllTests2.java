@@ -7,7 +7,7 @@ import org.junit.runners.Suite;
 @Suite.SuiteClasses({
 	
 	IOTests.class,
-	ParsingTests.class,
+//	ParsingTests.class,
 	PatternTests.class,
 	RegExpTests.class,
 	RuleTests.class

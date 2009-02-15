@@ -73,7 +73,8 @@ public class TestFramework  {
 		try {
 			execute(command);
 		} catch (Exception e){
-			return e.toString().indexOf(msg) >= 0;			
+			return e.toString().indexOf(msg) >= 0;
+				
 		}
 		return false;
 	}
