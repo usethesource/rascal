@@ -7,7 +7,7 @@ import org.eclipse.imp.pdb.facts.INode;
 import org.meta_environment.rascal.ast.IASTVisitor;
 import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.QualifiedName;
-import org.meta_environment.rascal.interpreter.exceptions.RascalImplementationException;
+import org.meta_environment.rascal.interpreter.exceptions.ImplementationError;
 
 public class Names {
 
@@ -72,7 +72,7 @@ public class Names {
 		}
 
 		public <T> T accept(IASTVisitor<T> v) {
-			throw new RascalImplementationException("Can not visit invented name");
+			throw new ImplementationError("Can not visit invented name");
 		}
 		
 		@Override
@@ -82,7 +82,7 @@ public class Names {
 		
 		@Override
 		public INode getTree() {
-			throw new RascalImplementationException("Invented name does not have a node");
+			throw new ImplementationError("Invented name does not have a node");
 		}
 	}
 }

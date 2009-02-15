@@ -18,7 +18,7 @@ import org.meta_environment.rascal.interpreter.TypeEvaluator;
 import org.meta_environment.rascal.interpreter.control_exceptions.FailureControlException;
 import org.meta_environment.rascal.interpreter.control_exceptions.ReturnControlException;
 import org.meta_environment.rascal.interpreter.exceptions.RascalRunTimeException;
-import org.meta_environment.rascal.interpreter.exceptions.RascalTypeException;
+import org.meta_environment.rascal.interpreter.exceptions.TypeError;
 
 /**
  * TODO: find a more elegant solution for this, by implementing IValue we
@@ -130,7 +130,7 @@ public class Lambda extends Result implements IValue {
 			}
 
 			if(!isVoidFunction){
-				throw new RascalTypeException("Function definition:" + this + "\n does not have a return statement");
+				throw new TypeError("Function definition:" + this + "\n does not have a return statement");
 			}
 
 			return new Result(TF.voidType(), null);
@@ -141,7 +141,7 @@ public class Lambda extends Result implements IValue {
 			Type instantiatedReturnType = returnType.instantiate(env.getTypeBindings());
 
 			if(!result.type.isSubtypeOf(instantiatedReturnType)){
-				throw new RascalTypeException("Actual return type " + result.type + " is not compatible with declared return type " + returnType);
+				throw new TypeError("Actual return type " + result.type + " is not compatible with declared return type " + returnType);
 			}
 
 			return new Result(instantiatedReturnType, result.value);
@@ -167,7 +167,7 @@ public class Lambda extends Result implements IValue {
 			env.storeTypeBindings(bindings);
 		}
 		catch (FactTypeError e) {
-			throw new RascalTypeException("Could not bind type parameters in " + formals + " to " + actualTypes, e);
+			throw new TypeError("Could not bind type parameters in " + formals + " to " + actualTypes, e);
 		}
 	}	
 	

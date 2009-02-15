@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import junit.framework.TestCase;
 
-import org.meta_environment.rascal.interpreter.exceptions.RascalUndefinedValueException;
+import org.meta_environment.rascal.interpreter.exceptions.UndefinedValueError;
 
 public class ImportTests extends TestCase {
 	
@@ -36,7 +36,7 @@ public class ImportTests extends TestCase {
 		  tf.runTestInSameEvaluator("m != 3;");
 		  fail("should throw undefined value");
 		}
-		catch (RascalUndefinedValueException e) {
+		catch (UndefinedValueError e) {
 			// this should happen
 		}
 		assertTrue(tf.runTestInSameEvaluator("{ int n = 4; n == 4;}"));

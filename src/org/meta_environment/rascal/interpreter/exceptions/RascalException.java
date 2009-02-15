@@ -1,9 +1,13 @@
 package org.meta_environment.rascal.interpreter.exceptions;
 
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.impl.reference.Node;
 import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
 
 /**
@@ -33,18 +37,29 @@ public class RascalException extends RuntimeException {
 		range = node.getSourceRange();
 		path = node.getSourcePath();
 	};
-
-	public RascalException(String message) {
-		this(ValueFactory.getInstance().string(message));
+	
+	private static INode makeNode(String exceptionCons, String message){
+		//System.err.println("makeNode(" + exceptionCons + ", " + message + ")");
+		ValueFactory VF = ValueFactory.getInstance();
+		TypeFactory TF = TypeFactory.getInstance();
+		Type adt = TF.lookupAbstractDataType("Exception");
+		
+		Type Cons = TF.lookupConstructor(adt, exceptionCons).get(0);
+		
+		return VF.constructor(Cons, VF.string(message));
 	}
 
-	public RascalException(String message, AbstractAST node) {
-		this(ValueFactory.getInstance().string(message), node);
+	public RascalException(String exceptionCons, String message) {
+		this(makeNode(exceptionCons, message));
+	}
+
+	public RascalException(String message, String exceptionCons, AbstractAST node) {
+		this(makeNode(exceptionCons, message));
 	}
 	
 	public RascalException(String message, Throwable cause) {
 		super(message, cause);
-		this.exception = ValueFactory.getInstance().string(message);
+		this.exception = makeNode("RascalException", message);
 		range = null;
 		path = null;
 	}

@@ -15,7 +15,7 @@ public class SubscriptTests extends TestCase {
 		assertTrue(tf.runTest("[0,1,2,3][2] == 2;"));
 		assertTrue(tf.runTest("[0,1,2,3][3] == 3;"));
 		
-		assertTrue(tf.runWithError("[0,1,2,3][4] == 3;", "Subscript out of bounds"));
+		assertTrue(tf.runWithError("[0,1,2,3][4] == 3;", "out of bounds"));
 		
 		assertTrue(tf.runTest("{list[int] L = [0,1,2,3]; L[0] = 10; L == [10,1,2,3];}"));
 		assertTrue(tf.runTest("{list[int] L = [0,1,2,3]; L[1] = 11; L == [0,11,2,3];}"));
@@ -43,7 +43,7 @@ public class SubscriptTests extends TestCase {
 		assertTrue(tf.runTest("<0, \"a\", 3.5>[1] == \"a\";"));
 		assertTrue(tf.runTest("<0, \"a\", 3.5>[2] == 3.5;"));
 		
-		assertTrue(tf.runWithError("<0, \"a\", 3.5>[3] == 3.5;", "Subscript out of bounds"));
+		assertTrue(tf.runWithError("<0, \"a\", 3.5>[3] == 3.5;", "out of bounds"));
 	}
 	
 	public void testRelation() throws IOException{
@@ -75,7 +75,7 @@ public class SubscriptTests extends TestCase {
 		assertTrue(tf.runTestInSameEvaluator("f(0, \"a\", 3.5)[1] == \"a\";"));
 		assertTrue(tf.runTestInSameEvaluator("f(0, \"a\", 3.5)[2] == 3.5;"));
 		
-		assertTrue(tf.runWithErrorInSameEvaluator("f(0, \"a\", 3.5)[3] == 3.5;", "Subscript out of bounds"));
+		assertTrue(tf.runWithErrorInSameEvaluator("f(0, \"a\", 3.5)[3] == 3.5;", "out of bounds"));
 		assertTrue(tf.runTestInSameEvaluator("{NODE T = f(0, \"a\", 3.5); T[0] = 10; T == f(10, \"a\", 3.5);}"));
 		
 	}

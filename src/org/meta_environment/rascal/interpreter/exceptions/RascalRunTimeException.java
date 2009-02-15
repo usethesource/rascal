@@ -12,19 +12,19 @@ public class RascalRunTimeException extends RascalException {
 	private static final long serialVersionUID = 3715676299644311671L;
 	
 	public RascalRunTimeException(String message) {
-		super(message);
+		super(null, message);
 	}
 	
 	public RascalRunTimeException(String message, AbstractAST ast) {
-		super(message, ast);
+		super(message, null, ast);
 	}
-/*	
-	public RascalRunTimeError(String message, Throwable cause) {
+	
+	public RascalRunTimeException(String message, Throwable cause) {
 		super(message, cause);
 	}
 	
 	public boolean hasCause() {
 		return getCause() != null;
 	}
-	*/
+
 }

@@ -20,7 +20,8 @@ import org.meta_environment.rascal.ast.Literal.RegExp;
 import org.meta_environment.rascal.ast.RegExp.Lexical;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.Result;
-import org.meta_environment.rascal.interpreter.exceptions.RascalTypeException;
+import org.meta_environment.rascal.interpreter.exceptions.SyntaxError;
+import org.meta_environment.rascal.interpreter.exceptions.TypeError;
 
 class RegExpPatternValue implements MatchPattern {
 	private AbstractAST ast;					// The AST for this regexp
@@ -66,7 +67,7 @@ class RegExpPatternValue implements MatchPattern {
 			Result res = env.getVariable(name);
 			if((res != null) && (res.value != null)){
 				if(!res.type.isStringType()){
-					throw new RascalTypeException("Name `" + name + "` should have type string but has type " + res.type, ast);
+					throw new TypeError("Name `" + name + "` should have type string but has type " + res.type, ast);
 				}
 				boundBeforeConstruction.put(name, ((IString)res.value).getValue());
 				if(debug)System.err.println("bound before construction: " + name + ", " + res.value);
@@ -91,7 +92,7 @@ class RegExpPatternValue implements MatchPattern {
 		try {
 			pat = Pattern.compile(RegExpAsString);
 		} catch (PatternSyntaxException e){
-			throw new RascalTypeException(e.getMessage());
+			throw new TypeError(e.getMessage());
 		}
 	}
 	
@@ -202,7 +203,7 @@ public class RegExpPatternEvaluator extends NullASTVisitor<MatchPattern> {
 		Character modifier = null;
 		
 		if(subjectPat.charAt(0) != '/'){
-			throw new RascalTypeException("Malformed Regular expression: " + subjectPat, x);
+			throw new SyntaxError("Malformed Regular expression: " + subjectPat, x);
 		}
 		
 		int start = 1;
@@ -212,7 +213,7 @@ public class RegExpPatternEvaluator extends NullASTVisitor<MatchPattern> {
 			end--;
 		}
 		if(subjectPat.charAt(end) != '/'){
-			throw new RascalTypeException("Regular expression does not end with /", x);
+			throw new SyntaxError("Regular expression does not end with /", x);
 		}
 		
 		/*

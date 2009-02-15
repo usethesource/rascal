@@ -9,7 +9,7 @@ public int java charAt(str s, int i) throws out_of_range(str msg)
   }
   catch (IndexOutOfBoundsException e) {
     IString msg = values.string(i + " is out of range in " + s);
-    throw new RascalException(values.node("out_of_range", msg));
+    throw new RascalException(values.node("OutOfBounds", msg));
   }
 }
 
