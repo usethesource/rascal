@@ -18,7 +18,7 @@ public int inner1(list[int] V1, list[int] V2){
     }
  }
  
- bool test(){
+ public bool test(){
     return
     	inner1([], []) == 0 &&
     	inner1([1],[1]) == 1 &&

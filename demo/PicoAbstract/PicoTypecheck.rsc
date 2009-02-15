@@ -1,30 +1,30 @@
 module PicoTypecheck
 
 import PicoAbstractSyntax;
-import Error;
+import Message;
 import IO;
 import PicoPrograms;
 import UnitTest;
 
 alias Env = map[PicoId,TYPE];
 
-public list[Error] tcp(PROGRAM P) {
+public list[Message] tcp(PROGRAM P) {
     if(program(list[DECL] Decls, list[STATEMENT] Stats) := P){
            Env Env = (Id : Type | decl(PicoId Id, TYPE Type): Decls);
            return tcs(Stats, Env);
     }
-    return [error("Malformed Pico program")];
+    return [message("Malformed Pico program")];
 }
 
-public list[Error] tcs(list[STATEMENT] Stats, Env Env){
-    list[Error] errors = [];
+public list[Message] tcs(list[STATEMENT] Stats, Env Env){
+    list[Message] messages = [];
     for(STATEMENT S : Stats){
-    	errors = [errors, tcst(S, Env)];
+    	messages = [messages, tcst(S, Env)];
     }
-    return errors;
+    return messages;
 }
 
-public list[Error] tcst(STATEMENT Stat, Env Env) {
+public list[Message] tcst(STATEMENT Stat, Env Env) {
     switch (Stat) {
       case asgStat(PicoId Id, EXP Exp):
         return requireType(Exp, Env[Id], Env);  // TODO: undefined variable
@@ -35,10 +35,10 @@ public list[Error] tcst(STATEMENT Stat, Env Env) {
       case whileStat(EXP Exp, list[STATEMENT] Stats): 
         return requireType(Exp, natural, Env) + tcs(Stats, Env);
     }
-    return [error("Unknown statement: <Stat>")];
+    return [message("Unknown statement: <Stat>")];
 }
  
-public list[Error] requireType(EXP E, TYPE Type, Env Env) {
+public list[Message] requireType(EXP E, TYPE Type, Env Env) {
     switch (E) {
       case natCon(int N): if(Type == natural){ return []; } else fail;
 
@@ -69,7 +69,7 @@ public list[Error] requireType(EXP E, TYPE Type, Env Env) {
       
       }
     
-      return [error("Type error: expected <Type> got <E>")];
+      return [message("Type error: expected <Type> got <E>")];
 }
 
 public bool test(){
@@ -77,7 +77,7 @@ public bool test(){
 	assertEqual(requireType(natCon(3), natural, ()), []);
 	assertEqual(requireType(strCon("a"), string, ()), []);
 	assertEqual(requireType(id("x"), string, ("x" : string)), []);
-	assertEqual(requireType(id("x"), string, ("x" : natural)), [error("Type error: expected string() got id(\"x\")")]);
+	assertEqual(requireType(id("x"), string, ("x" : natural)), [message("Type error: expected string() got id(\"x\")")]);
 
    PROGRAM small =
    program([decl("x", natural), decl("s", string)],

@@ -50,11 +50,11 @@ public class JavaFunction extends Lambda {
 		try {
 			return (IValue) method.invoke(null, (Object[]) actuals);
 		} catch (SecurityException e) {
-			throw new ImplementationError("Unexpected security exception" + e);
+			throw new ImplementationError("Unexpected security exception", e);
 		} catch (IllegalArgumentException e) {
-			throw new ImplementationError("An illegal argument was generated for a generated method" + e);
+			throw new ImplementationError("An illegal argument was generated for a generated method", e);
 		} catch (IllegalAccessException e) {
-			throw new ImplementationError("Unexpected illegal access exception" + e);
+			throw new ImplementationError("Unexpected illegal access exception", e);
 		} catch (InvocationTargetException e) {
 			Throwable targetException = e.getTargetException();
 			
@@ -62,7 +62,7 @@ public class JavaFunction extends Lambda {
 				throw (Error) targetException;
 			}
 			else {
-				throw new Error(null, targetException.getMessage());
+				throw new ImplementationError("Unexepected Error", e);
 			}
 		}
 	}
