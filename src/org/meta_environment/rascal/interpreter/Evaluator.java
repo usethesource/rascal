@@ -167,22 +167,22 @@ import org.meta_environment.rascal.interpreter.env.Lambda;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.env.RascalFunction;
 import org.meta_environment.rascal.interpreter.env.Result;
-import org.meta_environment.rascal.interpreter.exceptions.AssertionError;
-import org.meta_environment.rascal.interpreter.exceptions.AssignmentError;
-import org.meta_environment.rascal.interpreter.exceptions.IOError;
-import org.meta_environment.rascal.interpreter.exceptions.IndexOutOfBoundsError;
-import org.meta_environment.rascal.interpreter.exceptions.NoSuchAnnotationError;
-import org.meta_environment.rascal.interpreter.exceptions.NoSuchFunctionError;
-import org.meta_environment.rascal.interpreter.exceptions.NoSuchFieldError;
-import org.meta_environment.rascal.interpreter.exceptions.NoSuchModuleError;
-import org.meta_environment.rascal.interpreter.exceptions.RascalException;
-import org.meta_environment.rascal.interpreter.exceptions.ImplementationError;
-import org.meta_environment.rascal.interpreter.exceptions.RunTimeError;
-import org.meta_environment.rascal.interpreter.exceptions.SubscriptError;
-import org.meta_environment.rascal.interpreter.exceptions.SyntaxError;
-import org.meta_environment.rascal.interpreter.exceptions.TypeError;
-import org.meta_environment.rascal.interpreter.exceptions.UndefinedValueError;
-import org.meta_environment.rascal.interpreter.exceptions.UninitializedVariableError;
+import org.meta_environment.rascal.interpreter.errors.AssertionError;
+import org.meta_environment.rascal.interpreter.errors.AssignmentError;
+import org.meta_environment.rascal.interpreter.errors.Error;
+import org.meta_environment.rascal.interpreter.errors.IOError;
+import org.meta_environment.rascal.interpreter.errors.ImplementationError;
+import org.meta_environment.rascal.interpreter.errors.IndexOutOfBoundsError;
+import org.meta_environment.rascal.interpreter.errors.NoSuchAnnotationError;
+import org.meta_environment.rascal.interpreter.errors.NoSuchFieldError;
+import org.meta_environment.rascal.interpreter.errors.NoSuchFunctionError;
+import org.meta_environment.rascal.interpreter.errors.NoSuchModuleError;
+import org.meta_environment.rascal.interpreter.errors.RunTimeError;
+import org.meta_environment.rascal.interpreter.errors.SubscriptError;
+import org.meta_environment.rascal.interpreter.errors.SyntaxError;
+import org.meta_environment.rascal.interpreter.errors.TypeError;
+import org.meta_environment.rascal.interpreter.errors.UndefinedValueError;
+import org.meta_environment.rascal.interpreter.errors.UninitializedVariableError;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
 import org.meta_environment.uptr.Factory;
@@ -1362,7 +1362,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	@Override
 	public Result visitStatementThrow(Throw x) {
-		throw new RascalException(x.getExpression().accept(this).value);
+		throw new Error(x.getExpression().accept(this).value);
 	}
 	
 	@Override
@@ -1380,7 +1380,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		
 		try {
 			res = body.accept(this);
-		} catch (RascalException e){
+		} catch (Error e){
 			
 			IValue eValue = e.getException();
 			Type eType = eValue.getType();

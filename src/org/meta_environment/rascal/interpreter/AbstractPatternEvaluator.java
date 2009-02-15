@@ -27,10 +27,10 @@ import org.meta_environment.rascal.ast.Expression.Tuple;
 import org.meta_environment.rascal.ast.Expression.TypedVariable;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.Result;
-import org.meta_environment.rascal.interpreter.exceptions.ImplementationError;
-import org.meta_environment.rascal.interpreter.exceptions.RunTimeError;
-import org.meta_environment.rascal.interpreter.exceptions.TypeError;
-import org.meta_environment.rascal.interpreter.exceptions.UninitializedVariableError;
+import org.meta_environment.rascal.interpreter.errors.ImplementationError;
+import org.meta_environment.rascal.interpreter.errors.RunTimeError;
+import org.meta_environment.rascal.interpreter.errors.TypeError;
+import org.meta_environment.rascal.interpreter.errors.UninitializedVariableError;
 
 /* package */ 
 /**

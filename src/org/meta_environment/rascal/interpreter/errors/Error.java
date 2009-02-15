@@ -1,4 +1,4 @@
-package org.meta_environment.rascal.interpreter.exceptions;
+package org.meta_environment.rascal.interpreter.errors;
 
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISourceRange;
@@ -19,45 +19,45 @@ import org.meta_environment.rascal.ast.AbstractAST;
  * create a stack trace every time a Return exception is needed.
  * 
  */
-public class RascalException extends RuntimeException {
+public class Error extends RuntimeException {
 	private static final long serialVersionUID = -7290501865940548332L;
 
 	private IValue exception;
 	private ISourceRange range;
 	private String path;
 	
-	public RascalException(IValue value) {
+	public Error(IValue value) {
 		this.exception = value;
 		this.range = null;
 		this.path = null;
 	};
 	
-	public RascalException(IValue value, AbstractAST node) {
+	public Error(IValue value, AbstractAST node) {
 		this.exception = value;
 		range = node.getSourceRange();
 		path = node.getSourcePath();
 	};
 	
-	private static INode makeNode(String exceptionCons, String message){
+	private static INode makeNode(String errorCons, String message){
 		//System.err.println("makeNode(" + exceptionCons + ", " + message + ")");
 		ValueFactory VF = ValueFactory.getInstance();
 		TypeFactory TF = TypeFactory.getInstance();
-		Type adt = TF.lookupAbstractDataType("Exception");
+		Type adt = TF.lookupAbstractDataType("Error");
 		
-		Type Cons = TF.lookupConstructor(adt, exceptionCons).get(0);
+		Type Cons = TF.lookupConstructor(adt, errorCons).get(0);
 		
 		return VF.constructor(Cons, VF.string(message));
 	}
 
-	public RascalException(String exceptionCons, String message) {
+	public Error(String exceptionCons, String message) {
 		this(makeNode(exceptionCons, message));
 	}
 
-	public RascalException(String message, String exceptionCons, AbstractAST node) {
+	public Error(String message, String exceptionCons, AbstractAST node) {
 		this(makeNode(exceptionCons, message));
 	}
 	
-	public RascalException(String message, Throwable cause) {
+	public Error(String message, Throwable cause) {
 		super(message, cause);
 		this.exception = makeNode("RascalException", message);
 		range = null;

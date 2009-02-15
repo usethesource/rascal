@@ -11,7 +11,7 @@ import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
-import org.meta_environment.rascal.interpreter.exceptions.ImplementationError;
+import org.meta_environment.rascal.interpreter.errors.ImplementationError;
 
 public class SubList implements IList {
 	private final Type fType;

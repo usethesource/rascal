@@ -1,8 +1,8 @@
-package org.meta_environment.rascal.interpreter.exceptions;
+package org.meta_environment.rascal.interpreter.errors;
 
 import org.meta_environment.rascal.ast.AbstractAST;
 
-public class ClosureInvocationError extends RascalException {
+public class ClosureInvocationError extends Error {
 	 
 	public ClosureInvocationError(String message) {
 		super(null, message);

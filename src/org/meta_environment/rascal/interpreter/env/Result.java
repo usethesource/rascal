@@ -3,8 +3,8 @@ package org.meta_environment.rascal.interpreter.env;
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.meta_environment.rascal.interpreter.exceptions.ImplementationError;
-import org.meta_environment.rascal.interpreter.exceptions.TypeError;
+import org.meta_environment.rascal.interpreter.errors.ImplementationError;
+import org.meta_environment.rascal.interpreter.errors.TypeError;
 
 public class Result {
 	public Type type;

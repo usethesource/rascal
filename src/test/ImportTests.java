@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import junit.framework.TestCase;
 
-import org.meta_environment.rascal.interpreter.exceptions.UndefinedValueError;
+import org.meta_environment.rascal.interpreter.errors.UndefinedValueError;
 
 public class ImportTests extends TestCase {
 	

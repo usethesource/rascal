@@ -1,8 +1,8 @@
-package org.meta_environment.rascal.interpreter.exceptions;
+package org.meta_environment.rascal.interpreter.errors;
 
 import org.meta_environment.rascal.ast.AbstractAST;
 
-public class EmptyListError extends RascalException {
+public class EmptyListError extends Error {
 	 
 	public EmptyListError(String message) {
 		super(null, message);

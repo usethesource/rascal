@@ -11,8 +11,8 @@ import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.JavaBridge;
 import org.meta_environment.rascal.interpreter.Names;
-import org.meta_environment.rascal.interpreter.exceptions.RascalException;
-import org.meta_environment.rascal.interpreter.exceptions.ImplementationError;
+import org.meta_environment.rascal.interpreter.errors.Error;
+import org.meta_environment.rascal.interpreter.errors.ImplementationError;
 
 public class JavaFunction extends Lambda {
 	private final Method method;
@@ -58,11 +58,11 @@ public class JavaFunction extends Lambda {
 		} catch (InvocationTargetException e) {
 			Throwable targetException = e.getTargetException();
 			
-			if (targetException instanceof RascalException) {
-				throw (RascalException) targetException;
+			if (targetException instanceof Error) {
+				throw (Error) targetException;
 			}
 			else {
-				throw new RascalException(null, targetException.getMessage());
+				throw new Error(null, targetException.getMessage());
 			}
 		}
 	}

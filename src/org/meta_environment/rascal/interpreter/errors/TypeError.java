@@ -1,8 +1,8 @@
-package org.meta_environment.rascal.interpreter.exceptions;
+package org.meta_environment.rascal.interpreter.errors;
 
 import org.meta_environment.rascal.ast.AbstractAST;
 
-public class TypeError extends RascalException {
+public class TypeError extends Error {
 	
     
 	public TypeError(String message) {

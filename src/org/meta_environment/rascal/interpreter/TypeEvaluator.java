@@ -37,8 +37,8 @@ import org.meta_environment.rascal.ast.UserType.Name;
 import org.meta_environment.rascal.ast.UserType.Parametric;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.Lambda;
-import org.meta_environment.rascal.interpreter.exceptions.ImplementationError;
-import org.meta_environment.rascal.interpreter.exceptions.TypeError;
+import org.meta_environment.rascal.interpreter.errors.ImplementationError;
+import org.meta_environment.rascal.interpreter.errors.TypeError;
 
 public class TypeEvaluator {
 	private static TypeFactory tf = TypeFactory.getInstance();

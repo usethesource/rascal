@@ -3,7 +3,7 @@ package org.meta_environment.rascal.interpreter;
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IValue;
-import org.meta_environment.rascal.interpreter.exceptions.ImplementationError;
+import org.meta_environment.rascal.interpreter.errors.ImplementationError;
 
 /*
  * SingleIValueIterator turns a single IValue into an Iterator that

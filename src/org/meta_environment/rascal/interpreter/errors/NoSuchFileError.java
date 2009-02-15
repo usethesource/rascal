@@ -1,8 +1,8 @@
-package org.meta_environment.rascal.interpreter.exceptions;
+package org.meta_environment.rascal.interpreter.errors;
 
 import org.meta_environment.rascal.ast.AbstractAST;
 
-public class NoSuchFileError extends RascalException {
+public class NoSuchFileError extends Error {
 	 
 	public NoSuchFileError(String message) {
 		super(null, message);

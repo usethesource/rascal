@@ -1,8 +1,8 @@
-package org.meta_environment.rascal.interpreter.exceptions;
+package org.meta_environment.rascal.interpreter.errors;
 
 import org.meta_environment.rascal.ast.AbstractAST;
 
-public class NoSuchFunctionError extends RascalException {
+public class NoSuchFunctionError extends Error {
 	 
 	public NoSuchFunctionError(String message) {
 		super(null, message);

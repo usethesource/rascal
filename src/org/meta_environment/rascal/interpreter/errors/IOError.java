@@ -1,8 +1,8 @@
-package org.meta_environment.rascal.interpreter.exceptions;
+package org.meta_environment.rascal.interpreter.errors;
 
 import org.meta_environment.rascal.ast.AbstractAST;
 
-public class IOError extends RascalException {
+public class IOError extends Error {
 	 
 	public IOError(String message) {
 		super(null, message);

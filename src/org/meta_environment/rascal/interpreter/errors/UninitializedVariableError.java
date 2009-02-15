@@ -1,8 +1,8 @@
-package org.meta_environment.rascal.interpreter.exceptions;
+package org.meta_environment.rascal.interpreter.errors;
 
 import org.meta_environment.rascal.ast.AbstractAST;
 
-public class UninitializedVariableError extends RascalException {
+public class UninitializedVariableError extends Error {
 	 
 	public UninitializedVariableError(String message) {
 		super(null, message);

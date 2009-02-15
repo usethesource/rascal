@@ -1,8 +1,8 @@
-package org.meta_environment.rascal.interpreter.exceptions;
+package org.meta_environment.rascal.interpreter.errors;
 
 import org.meta_environment.rascal.ast.AbstractAST;
 
-public class NoSuchAnnotationError extends RascalException {
+public class NoSuchAnnotationError extends Error {
 	 
 	public NoSuchAnnotationError(String message) {
 		super(null, message);
