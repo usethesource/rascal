@@ -14,24 +14,24 @@ public list[int] domain(list[&T] lst)
 }
 
 public &T java head(list[&T] lst)
-  throws empty_list()
+  throws EmptyListError()
  @doc{head -- get the first element of a list}
 {
    if(lst.length() > 0){
       return lst.get(0);
    } else {
-      throw new RascalException("EmptyList");
+      throw new Error("EmptyListError", "head");
    }
 }
 
 public list[&T] java head(list[&T] lst, int n)
-  throws list_index_out_of_range()
+  throws IndexOutOfBoundsError
  @doc{head -- get the first n elements of a list}
 {
    if(n.getValue() <= lst.length()){
       return new SubList((Value)lst, 0, n.getValue());
    } else {
-      throw new RascalException("IndexOutOfBounds");
+      throw new Error("IndexOutOfBoundsError", "head");
    }
 }
 
@@ -42,12 +42,12 @@ public &T java getOneFrom(list[&T] lst)
    if(n > 0){
    	return lst.get(random.nextInt(n));
    	} else {
-   		throw new RascalException("EmptyList");
+   		throw new Error("EmptyListError", "getOneFrom");
    	}
 }
 
 public list[&T] java insertAt(&T elm, int n, list[&T] lst)
-  throws list_index_out_of_range()()
+  throws IndexOutOfBoundsError()
  @doc{insertAt -- add an element at a specific position in a list}
  {
  	IListWriter w = values.listWriter(elm.getType().lub(lst.getElementType()));
@@ -65,7 +65,7 @@ public list[&T] java insertAt(&T elm, int n, list[&T] lst)
       }
       return w.done();
     } else {
-    	throw new RascalException("IndexOutOfBounds");
+    	throw new Error("IndexOutOfBoundsError", "insertAt");
     }
  }
 
@@ -136,7 +136,6 @@ public int java size(list[&T] lst)
 }
 
  public list[&T] java slice(list[&T] lst, int start, int len)
-  throws empty_list()
  @doc{slice -- sublist from start of length len}
  {
  	return new SubList((Value)lst, start.getValue(), len.getValue());
@@ -180,21 +179,20 @@ public &T sum(list[&T] lst, &T zero)
 }
 
  public list[&T] java tail(list[&T] lst)
-  throws empty_list()
  @doc{tail -- all but the first element of a list}
  {
  	return new SubList((Value)lst, 1, lst.length()-1);
  }
  
   public list[&T] java tail(list[&T] lst, int len)
-  throws list_index_out_of_range()
+  throws IndexOutOfBoundsErrors()
  @doc{tail -- last n elements ofelement of a list}
  {
  	int lenVal = len.getValue();
  	int lstLen = lst.length();
  	
  	if(lenVal > lstLen)
- 		throw new RascalException("IndexOutOfBounds");
+ 		throw new Error("IndexOutOfBoundsError", "tail");
  	return new SubList((Value)lst, lstLen - lenVal, lenVal);
  }
  
@@ -217,7 +215,7 @@ public tuple[&T, list[&T]] java takeOneFrom(list[&T] lst)
       }
       return values.tuple(pick, w.done());
    	} else {
-   		throw new RascalException("EmptyList");
+   		throw new Error("EmptyListError", "takeOneFrom");
    	}
 }
 

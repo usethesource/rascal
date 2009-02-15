@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.interpreter.errors;
 
+import java.util.List;
+
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -43,10 +45,15 @@ public class Error extends RuntimeException {
 		ValueFactory VF = ValueFactory.getInstance();
 		TypeFactory TF = TypeFactory.getInstance();
 		Type adt = TF.lookupAbstractDataType("Error");
-		
-		Type Cons = TF.lookupConstructor(adt, errorCons).get(0);
-		
-		return VF.constructor(Cons, VF.string(message));
+		List<Type> types = TF.lookupConstructor(adt, errorCons);
+		if(types.size() > 0){
+			// The Error ADT is defined
+			Type Cons = types.get(0);
+			return VF.constructor(Cons, VF.string(message));
+		} else {
+			// The Error ADT is not defined, return just a node
+			return VF.node(errorCons, VF.string(message));
+		}
 	}
 
 	public Error(String exceptionCons, String message) {

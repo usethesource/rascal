@@ -18,7 +18,7 @@ public void java println(value V...)
 }
 
 public list[str] java readFile(str filename)
-throws NoSuchFile(str msg), IOError(str msg)
+throws NoSuchFileError(str msg), IOError(str msg)
 @javaImports
 {
 	import java.io.File; 
@@ -44,10 +44,10 @@ throws NoSuchFile(str msg), IOError(str msg)
   	res =  w.done();
   }
     catch (FileNotFoundException e){
-  	throw new RascalException("NoSuchFile", filename.getValue());
+  	throw new Error("NoSuchFileError", filename.getValue());
   }
   catch (IOException e){
-    throw new RascalException("IOError", e.getMessage());
+    throw new Error("IOError", e.getMessage());
   }
 
   return res;
