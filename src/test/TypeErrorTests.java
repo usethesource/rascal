@@ -2,7 +2,6 @@ package test;
 
 import org.junit.Test;
 import org.meta_environment.rascal.interpreter.errors.AssignmentError;
-import org.meta_environment.rascal.interpreter.errors.IndexOutOfBoundsError;
 import org.meta_environment.rascal.interpreter.errors.NoSuchFieldError;
 import org.meta_environment.rascal.interpreter.errors.TypeError;
 import org.meta_environment.rascal.interpreter.errors.UndefinedValueError;
@@ -22,11 +21,6 @@ public class TypeErrorTests extends TestFramework {
 	@Test(expected=AssignmentError.class)
 	public void testAssignment() {
 		runTest("{int n = 3; n = true;}");
-	}
-	
-	@Test(expected=IndexOutOfBoundsError.class)
-	public void testSubscript1() {
-		runTest("[1,2][5];");
 	}
 	
 	@Test(expected=NoSuchFieldError.class)
