@@ -1,56 +1,50 @@
 package test;
 
-import java.io.IOException;
+import org.junit.Test;
 
-import junit.framework.TestCase;
+public class StandardLibraryBooleanTests extends TestFramework {
 
-public class StandardLibraryBooleanTests extends TestCase {
-
-	private static TestFramework tf = new TestFramework("import Boolean;");
-
-	public void testBooleanArb() throws IOException {
+	@Test
+	public void testBooleanArb() {
 		
-		tf = new TestFramework("import Boolean;");
+		prepare("import Boolean;");
 		
-		assertTrue(tf
-				.runTestInSameEvaluator("{bool B = Boolean::arbBool(); (B == true) || (B == false);}"));
-		assertTrue(tf
-				.runTestInSameEvaluator("{bool B = arbBool(); (B == true) || (B == false);}"));
+		assertTrue(runTestInSameEvaluator("{bool B = Boolean::arbBool(); (B == true) || (B == false);}"));
+		assertTrue(runTestInSameEvaluator("{bool B = arbBool(); (B == true) || (B == false);}"));
 	}
 
-	public void testBooleanToInt() throws IOException {
+	@Test
+	public void testBooleanToInt() {
 		
-		tf = new TestFramework("import Boolean;");
+		prepare("import Boolean;");
 
-		assertTrue(tf.runTestInSameEvaluator("Boolean::toInt(false) == 0;"));
-		assertTrue(tf.runTestInSameEvaluator("Boolean::toInt(true) == 1;"));
+		assertTrue(runTestInSameEvaluator("Boolean::toInt(false) == 0;"));
+		assertTrue(runTestInSameEvaluator("Boolean::toInt(true) == 1;"));
 
-		assertTrue(tf.runTestInSameEvaluator("toInt(false) == 0;"));
-		assertTrue(tf.runTestInSameEvaluator("toInt(true) == 1;"));
+		assertTrue(runTestInSameEvaluator("toInt(false) == 0;"));
+		assertTrue(runTestInSameEvaluator("toInt(true) == 1;"));
 	}
 
-	public void testBooleanToReal() throws IOException {
+	@Test
+	public void testBooleanToReal() {
 		
-		tf = new TestFramework("import Boolean;");
+		prepare("import Boolean;");
 
-		assertTrue(tf
-				.runTestInSameEvaluator("Boolean::toReal(false) == 0.0;"));
-		assertTrue(tf.runTestInSameEvaluator("Boolean::toReal(true) == 1.0;"));
+		assertTrue(runTestInSameEvaluator("Boolean::toReal(false) == 0.0;"));
+		assertTrue(runTestInSameEvaluator("Boolean::toReal(true) == 1.0;"));
 
-		assertTrue(tf.runTestInSameEvaluator("toReal(false) == 0.0;"));
-		assertTrue(tf.runTestInSameEvaluator("toReal(true) == 1.0;"));
+		assertTrue(runTestInSameEvaluator("toReal(false) == 0.0;"));
+		assertTrue(runTestInSameEvaluator("toReal(true) == 1.0;"));
 	}
 
-	public void testBooleanToString() throws IOException {
-		
-		tf = new TestFramework("import Boolean;");
+	@Test
+	public void testBooleanToString() {
+		prepare("import Boolean;");
 
-		assertTrue(tf
-				.runTestInSameEvaluator("Boolean::toString(false) == \"false\";"));
-		assertTrue(tf
-				.runTestInSameEvaluator("Boolean::toString(true) == \"true\";"));
+		assertTrue(runTestInSameEvaluator("Boolean::toString(false) == \"false\";"));
+		assertTrue(runTestInSameEvaluator("Boolean::toString(true) == \"true\";"));
 
-		assertTrue(tf.runTestInSameEvaluator("toString(false) == \"false\";"));
-		assertTrue(tf.runTestInSameEvaluator("toString(true) == \"true\";"));
+		assertTrue(runTestInSameEvaluator("toString(false) == \"false\";"));
+		assertTrue(runTestInSameEvaluator("toString(true) == \"true\";"));
 	}
 }

@@ -3,13 +3,20 @@ package test;
 import junit.framework.TestCase;
 import java.io.IOException;
 
+import org.junit.Test;
+import org.meta_environment.rascal.interpreter.errors.TypeError;
+
 
 public class ErrorTests extends TestCase{
 	
 	private static TestFramework tf = new TestFramework();
 	
+	@Test(expected=TypeError.class)
+	public void testAssignTrueToInt() throws IOException {
+		tf.runTest("int i = true;");
+	}
+	/*
 	public void testErrors() throws IOException{
-	
 		assertTrue(tf.runWithError("int i = true;", "int i incompatible with initialization type bool"));
 		assertTrue(tf.runWithError("assert \"a\": 3.5;", "Expression in assertion should be bool instead of double"));
 		assertTrue(tf.runWithError("{int n = 3; n = true;}", "cannot assign value of type bool"));
@@ -38,4 +45,5 @@ public class ErrorTests extends TestCase{
 		assertTrue(tf.runWithError("any(x : [1,2,3], \"abc\");", "Expression as generator should have type bool"));
 		assertTrue(tf.runWithError("all(x : [1,2,3], \"abc\");", "Expression as generator should have type bool"));
 	}
+	*/
 }

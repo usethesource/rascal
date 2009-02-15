@@ -1,48 +1,47 @@
 package test;
 
-import java.io.IOException;
+import org.junit.Test;
 
-import junit.framework.TestCase;
+public class StandardLibraryGraphTests extends TestFramework {
 
-public class StandardLibraryGraphTests extends TestCase {
-	
-	private static TestFramework tf = new TestFramework("import Graph;");
-	
-	public void testGraphBottom() throws IOException {
-		
-		tf = new TestFramework("import Graph;");
-		assertTrue(tf.runTestInSameEvaluator("bottom({}) == {};"));
-		assertTrue(tf.runTestInSameEvaluator("bottom({<1,2>, <1,3>, <2,4>, <3,4>}) == {4};"));
-	}
-	
-	public void testGraphTop() throws IOException {
-		
-		tf = new TestFramework("import Graph;");
-		assertTrue(tf.runTestInSameEvaluator("top({}) == {};"));
-		assertTrue(tf.runTestInSameEvaluator("top({<1,2>, <1,3>, <2,4>, <3,4>}) == {1};"));
-	}
-	
-	public void testGraphReachR() throws IOException {
-		
-		tf = new TestFramework("import Graph;");
+	@Test
+	public void testGraphBottom() {
 
-		assertTrue(tf.runTestInSameEvaluator("reachR({}, {}, {}) == {};"));
-		assertTrue(tf.runTestInSameEvaluator("reachR({1}, {}, {<1,2>, <1,3>, <2,4>, <3,4>}) =={};")); 
-		assertTrue(tf.runTestInSameEvaluator("reachR({1}, {1,2}, {<1,2>, <1,3>, <2,4>, <3,4>}) =={2};")); 
-		assertTrue(tf.runTestInSameEvaluator("reachR({1}, {1,2,3}, {<1,2>, <1,3>, <2,4>, <3,4>}) =={2,3};")); 
-		assertTrue(tf.runTestInSameEvaluator("reachR({1}, {1,2,4}, {<1,2>, <1,3>, <2,4>, <3,4>}) =={2, 4};")); 
+		prepare("import Graph;");
+		assertTrue(runTestInSameEvaluator("bottom({}) == {};"));
+		assertTrue(runTestInSameEvaluator("bottom({<1,2>, <1,3>, <2,4>, <3,4>}) == {4};"));
 	}
-	
-	public void testGraphReachX() throws IOException {
-		
-		tf = new TestFramework("import Graph;");
-	
-		assertTrue(tf.runTestInSameEvaluator("reachX({}, {}, {}) == {};"));
-//		assertTrue(tf.runTestInSameEvaluator("reachX({1}, {}, {<1,2>, <1,3>, <2,4>, <3,4>}) =={2, 3, 4};")); 
-		assertTrue(tf.runTestInSameEvaluator("reachX({1}, {2}, {<1,2>, <1,3>, <2,4>, <3,4>}) =={3, 4};")); 
-		//assertTrue(tf.runTestInSameEvaluator("reachX({1}, {2,3}, {<1,2>, <1,3>, <2,4>, <3,4>}) =={};")); 
-		assertTrue(tf.runTestInSameEvaluator("reachX({1}, {4}, {<1,2>, <1,3>, <2,4>, <3,4>}) =={2, 3};")); 
+
+	@Test
+	public void testGraphTop() {
+
+		prepare("import Graph;");
+		assertTrue(runTestInSameEvaluator("top({}) == {};"));
+		assertTrue(runTestInSameEvaluator("top({<1,2>, <1,3>, <2,4>, <3,4>}) == {1};"));
 	}
-	
-	
+
+	@Test
+	public void testGraphReachR() {
+
+		prepare("import Graph;");
+
+		assertTrue(runTestInSameEvaluator("reachR({}, {}, {}) == {};"));
+		assertTrue(runTestInSameEvaluator("reachR({1}, {}, {<1,2>, <1,3>, <2,4>, <3,4>}) =={};"));
+		assertTrue(runTestInSameEvaluator("reachR({1}, {1,2}, {<1,2>, <1,3>, <2,4>, <3,4>}) =={2};"));
+		assertTrue(runTestInSameEvaluator("reachR({1}, {1,2,3}, {<1,2>, <1,3>, <2,4>, <3,4>}) =={2,3};"));
+		assertTrue(runTestInSameEvaluator("reachR({1}, {1,2,4}, {<1,2>, <1,3>, <2,4>, <3,4>}) =={2, 4};"));
+	}
+
+	@Test
+	public void testGraphReachX() {
+
+		prepare("import Graph;");
+
+		assertTrue(runTestInSameEvaluator("reachX({}, {}, {}) == {};"));
+		// assertTrue(runTestInSameEvaluator("reachX({1}, {}, {<1,2>, <1,3>, <2,4>, <3,4>}) =={2, 3, 4};"));
+		assertTrue(runTestInSameEvaluator("reachX({1}, {2}, {<1,2>, <1,3>, <2,4>, <3,4>}) =={3, 4};"));
+		// assertTrue(runTestInSameEvaluator("reachX({1}, {2,3}, {<1,2>, <1,3>, <2,4>, <3,4>}) =={};"));
+		assertTrue(runTestInSameEvaluator("reachX({1}, {4}, {<1,2>, <1,3>, <2,4>, <3,4>}) =={2, 3};"));
+	}
+
 }

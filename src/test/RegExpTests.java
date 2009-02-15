@@ -1,37 +1,33 @@
 package test;
 
-import junit.framework.TestCase;
 import java.io.IOException;
 
-public class RegExpTests extends TestCase {
-	
-	private static TestFramework tf = new TestFramework();
-	
-	public void testMatch() throws IOException {
-		assertTrue(tf.runTest("/abc/ := \"abc\";"));
-		assertFalse(tf.runTest("/def/ := \"abc\";"));
-		assertTrue(tf.runTest("/def/ !:= \"abc\";"));
-		assertTrue(tf.runTest("/[a-z]+/ := \"abc\";"));
-		assertTrue(tf.runTest("/.*is.*/ := \"Rascal is marvelous\";"));
-		assertTrue(tf.runTest("/@.*@/ := \"@ abc @\";"));
+import org.junit.Test;
+
+public class RegExpTests extends TestFramework{
+
+	@Test
+	public void testMatch() {
+		assertTrue(runTest("/abc/ := \"abc\";"));
+		assertFalse(runTest("/def/ := \"abc\";"));
+		assertTrue(runTest("/def/ !:= \"abc\";"));
+		assertTrue(runTest("/[a-z]+/ := \"abc\";"));
+		assertTrue(runTest("/.*is.*/ := \"Rascal is marvelous\";"));
+		assertTrue(runTest("/@.*@/ := \"@ abc @\";"));
 		
-		assertTrue(tf.runTest("(/<x:[a-z]+>/ := \"abc\") && (x == \"abc\");"));
-		assertTrue(tf.runTest("(/if<tst:.*>then<th:.*>fi/ := \"if a > b then c fi\") " +
+		assertTrue(runTest("(/<x:[a-z]+>/ := \"abc\") && (x == \"abc\");"));
+		assertTrue(runTest("(/if<tst:.*>then<th:.*>fi/ := \"if a > b then c fi\") " +
 				           "&& (tst == \" a > b \") && (th == \" c \");"));
 
-		assertTrue(tf.runTest("(/<l:.*>[Rr][Aa][Ss][Cc][Aa][Ll]<r:.*>/ := \"RASCAL is marvelous\")" +
+		assertTrue(runTest("(/<l:.*>[Rr][Aa][Ss][Cc][Aa][Ll]<r:.*>/ := \"RASCAL is marvelous\")" +
 				            "&& (l == \"\") && (r == \" is marvelous\");"));
 
 	}
 	
-	public void testModifiers() throws IOException {
-		assertTrue(tf.runTest("/abc/i := \"ABC\";"));
-		assertTrue(tf.runTest("/abc/i := \"ABC\";"));
+	public void testModifiers() {
+		assertTrue(runTest("/abc/i := \"ABC\";"));
+		assertTrue(runTest("/abc/i := \"ABC\";"));
 		
-	//TODO:	assertTrue(tf.runTest("/ab.*c/m := \"ab\nc\";"));
-	}
-	
-	public void testConditions() throws IOException {
-	
+	//TODO:	assertTrue(runTest("/ab.*c/m := \"ab\nc\";"));
 	}
 }
