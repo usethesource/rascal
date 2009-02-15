@@ -28,7 +28,6 @@ import org.meta_environment.rascal.ast.Expression.TypedVariable;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.Result;
 import org.meta_environment.rascal.interpreter.errors.ImplementationError;
-import org.meta_environment.rascal.interpreter.errors.RunTimeError;
 import org.meta_environment.rascal.interpreter.errors.TypeError;
 import org.meta_environment.rascal.interpreter.errors.UninitializedVariableError;
 
