@@ -1,115 +1,135 @@
 package test;
 
-import java.io.IOException;
+import static org.junit.Assert.assertTrue;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
-public class AllDemoTests extends TestCase {
-private static TestFramework tf = new TestFramework();
-	
-	public void testAckermann() throws IOException {
-		tf = new TestFramework("import Ackermann;");
-		assertTrue(tf.runTestInSameEvaluator("Ackermann::test();"));
+public class AllDemoTests extends TestFramework {
+
+	@Test
+	public void testAckermann() {
+		prepare("import Ackermann;");
+		assertTrue(runTestInSameEvaluator("Ackermann::test();"));
 	}
-	
-	public void testBoolAbstractRules() throws IOException {
-		tf = new TestFramework("import \\Bool-abstract-rules;");
-		assertTrue(tf.runTestInSameEvaluator("\\Bool-abstract-rules::test();"));
+
+	@Test
+	public void testBoolAbstractRules() {
+		prepare("import \\Bool-abstract-rules;");
+		assertTrue(runTestInSameEvaluator("\\Bool-abstract-rules::test();"));
 	}
-	
-	public void testBoolAbstractVisit() throws IOException {
-		tf = new TestFramework("import \\Bool-abstract-visit;");
-		assertTrue(tf.runTestInSameEvaluator("\\Bool-abstract-visit::test();"));
+
+	@Test
+	public void testBoolAbstractVisit() {
+		prepare("import \\Bool-abstract-visit;");
+		assertTrue(runTestInSameEvaluator("\\Bool-abstract-visit::test();"));
 	}
-	
-	public void testBubble() throws IOException {
-		tf = new TestFramework("import Bubble;");
-		assertTrue(tf.runTestInSameEvaluator("Bubble::test();"));
+
+	@Test
+	public void testBubble() {
+		prepare("import Bubble;");
+		assertTrue(runTestInSameEvaluator("Bubble::test();"));
 	}
-	
-	public void testCalls() throws IOException {
-		tf = new TestFramework("import Calls;");
-		assertTrue(tf.runTestInSameEvaluator("Calls::test();"));
+
+	@Test
+	public void testCalls() {
+		prepare("import Calls;");
+		assertTrue(runTestInSameEvaluator("Calls::test();"));
 	}
-	
-	public void testCarFDL() throws IOException {
-		tf = new TestFramework("import CarFDL;");
-		assertTrue(tf.runTestInSameEvaluator("CarFDL::test();"));
+
+	@Test
+	public void testCarFDL() {
+		prepare("import CarFDL;");
+		assertTrue(runTestInSameEvaluator("CarFDL::test();"));
 	}
-	
-	public void testCycles() throws IOException {
-		tf = new TestFramework("import Cycles;");
-		assertTrue(tf.runTestInSameEvaluator("Cycles::test();"));
+
+	@Test
+	public void testCycles() {
+		prepare("import Cycles;");
+		assertTrue(runTestInSameEvaluator("Cycles::test();"));
 	}
-	
-	public void testDominators() throws IOException {
-		tf = new TestFramework("import Dominators;");
-		assertTrue(tf.runTestInSameEvaluator("Dominators::test();"));
+
+	@Test
+	public void testDominators() {
+		prepare("import Dominators;");
+		assertTrue(runTestInSameEvaluator("Dominators::test();"));
 	}
-	
-	public void testFunAbstract() throws IOException {
-		tf = new TestFramework("import \\Fun-abstract;");
-		assertTrue(tf.runTestInSameEvaluator("\\Fun-abstract::test();"));
+
+	@Test
+	public void testFunAbstract() {
+		prepare("import \\Fun-abstract;");
+		assertTrue(runTestInSameEvaluator("\\Fun-abstract::test();"));
 	}
-	
-	public void testGraphDataType() throws IOException {
-		tf = new TestFramework("import GraphDataType;");
-		assertTrue(tf.runTestInSameEvaluator("GraphDataType::test();"));
+
+	@Test
+	public void testGraphDataType() {
+		prepare("import GraphDataType;");
+		assertTrue(runTestInSameEvaluator("GraphDataType::test();"));
 	}
-	
-	public void testInnerproduct() throws IOException {
-		tf = new TestFramework("import Innerproduct;");
-		assertTrue(tf.runTestInSameEvaluator("Innerproduct::test();"));
+
+	@Test
+	public void testInnerproduct() {
+		prepare("import Innerproduct;");
+		assertTrue(runTestInSameEvaluator("Innerproduct::test();"));
 	}
-	
-	public void testIntegerAbstractRules() throws IOException {
-		tf = new TestFramework("import \\Integer-abstract-rules;");
-		assertTrue(tf.runTestInSameEvaluator("\\Integer-abstract-rules::testInt();"));
+
+	@Test
+	public void testIntegerAbstractRules() {
+		prepare("import \\Integer-abstract-rules;");
+		assertTrue(runTestInSameEvaluator("\\Integer-abstract-rules::testInt();"));
 	}
-	
-	public void testLift() throws IOException {
-		tf = new TestFramework("import Lift;");
-		assertTrue(tf.runTestInSameEvaluator("Lift::test();"));
+
+	@Test
+	public void testLift() {
+		prepare("import Lift;");
+		assertTrue(runTestInSameEvaluator("Lift::test();"));
 	}
-	
-	public void testPicoTypecheck() throws IOException {
-		tf = new TestFramework("import PicoTypecheck;");
-		assertTrue(tf.runTestInSameEvaluator("PicoTypecheck::test();"));
+
+	@Test
+	public void testPicoTypecheck() {
+		prepare("import PicoTypecheck;");
+		assertTrue(runTestInSameEvaluator("PicoTypecheck::test();"));
 	}
-	
-	public void testQueens() throws IOException {
-		tf = new TestFramework("import Queens;");
-		assertTrue(tf.runTestInSameEvaluator("Queens::test();"));
+
+	@Test
+	public void testQueens() {
+		prepare("import Queens;");
+		assertTrue(runTestInSameEvaluator("Queens::test();"));
 	}
-	
-	public void testReachingDefs() throws IOException {
-		tf = new TestFramework("import ReachingDefs;");
-		assertTrue(tf.runTestInSameEvaluator("ReachingDefs::test();"));
+
+	@Test
+	public void testReachingDefs() {
+		prepare("import ReachingDefs;");
+		assertTrue(runTestInSameEvaluator("ReachingDefs::test();"));
 	}
-	
-	public void testSquares() throws IOException {
-		tf = new TestFramework("import Squares;");
-		assertTrue(tf.runTestInSameEvaluator("Squares::test();"));
+
+	@Test
+	public void testSquares() {
+		prepare("import Squares;");
+		assertTrue(runTestInSameEvaluator("Squares::test();"));
 	}
-	
-	public void testTrans() throws IOException {
-		tf = new TestFramework("import Trans;");
-		assertTrue(tf.runTestInSameEvaluator("Trans::test();"));
+
+	@Test
+	public void testTrans() {
+		prepare("import Trans;");
+		assertTrue(runTestInSameEvaluator("Trans::test();"));
 	}
-	
-	public void testUPTR() throws IOException {
-		tf = new TestFramework("import UPTR;");
-		assertTrue(tf.runTestInSameEvaluator("UPTR::test();"));
+
+	@Test
+	public void testUPTR() {
+		prepare("import UPTR;");
+		assertTrue(runTestInSameEvaluator("UPTR::test();"));
 	}
-	
-	public void testWordCount() throws IOException {
-		tf = new TestFramework("import WordCount;");
-		assertTrue(tf.runTestInSameEvaluator("WordCount::test();"));
+
+	@Test
+	public void testWordCount() {
+		prepare("import WordCount;");
+		assertTrue(runTestInSameEvaluator("WordCount::test();"));
 	}
-	
-	public void testWordReplacement() throws IOException {
-		tf = new TestFramework("import WordReplacement;");
-		assertTrue(tf.runTestInSameEvaluator("WordReplacement::test();"));
+
+	@Test
+	public void testWordReplacement() {
+		prepare("import WordReplacement;");
+		assertTrue(runTestInSameEvaluator("WordReplacement::test();"));
 	}
-	
+
 }

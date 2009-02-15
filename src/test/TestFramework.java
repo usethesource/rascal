@@ -19,7 +19,7 @@ import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
 import org.meta_environment.uptr.Factory;
 
-public class TestFramework  extends TestCase {
+public class TestFramework  {
 	private Parser parser = Parser.getInstance();
 	private ASTFactory factory = new ASTFactory();
 	private ASTBuilder builder = new ASTBuilder(factory);

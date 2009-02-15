@@ -1,7 +1,6 @@
 package test;
 
-import java.util.ArrayList;
-
+import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import org.meta_environment.rascal.interpreter.errors.NoSuchFieldError;
 
@@ -23,12 +22,6 @@ public class DataDeclarationTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{Bool b = band(btrue,bfalse).left; b == btrue;}"));
 		assertTrue(runTestInSameEvaluator("{Bool b = band(btrue,bfalse).right; b == bfalse;}"));
 	}
-
-	 @Test(expected=IndexOutOfBoundsException.class)
-	    public void testIndexOutOfBoundsException() {
-	        ArrayList emptyList = new ArrayList();
-		Object o = emptyList.get(0);
-	    }
 
 	@Test(expected=NoSuchFieldError.class)
 	public void testBool2() throws NoSuchFieldError {
