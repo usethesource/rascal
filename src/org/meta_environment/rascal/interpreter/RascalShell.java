@@ -20,9 +20,9 @@ import org.meta_environment.rascal.errors.SubjectAdapter;
 import org.meta_environment.rascal.errors.SummaryAdapter;
 import org.meta_environment.rascal.interpreter.control_exceptions.FailureControlException;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
+import org.meta_environment.rascal.interpreter.exceptions.ImplementationError;
 import org.meta_environment.rascal.interpreter.exceptions.RascalException;
-import org.meta_environment.rascal.interpreter.exceptions.RascalImplementationException;
-import org.meta_environment.rascal.interpreter.exceptions.RascalTypeException;
+import org.meta_environment.rascal.interpreter.exceptions.TypeError;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
 import org.meta_environment.uptr.Factory;
@@ -93,14 +93,14 @@ public class RascalShell {
 					console.printString("FactTypeError: " + e.getMessage() + "\n");
 				    printStacktrace(console, e);
 				}
-				catch (RascalTypeException e) {
-					console.printString("RascalTypeError: " + e.getMessage() + "\n");
+				catch (TypeError e) {
+					console.printString("TypeError: " + e.getMessage() + "\n");
 					if (e.hasCause()) {
 						console.printString("caused by: " + e.getCause().getMessage() + "\n");
 					}
 				}
-				catch (RascalImplementationException e) {
-					console.printString("RascalBug: " + e.getMessage() + "\n");
+				catch (ImplementationError e) {
+					console.printString("ImplementationError: " + e.getMessage() + "\n");
 					if (e.hasCause()) {
 						console.printString("caused by: " + e.getCause().getMessage() + "\n");
 					}

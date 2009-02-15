@@ -10,8 +10,8 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.interpreter.Names;
-import org.meta_environment.rascal.interpreter.exceptions.RascalImplementationException;
-import org.meta_environment.rascal.interpreter.exceptions.RascalTypeException;
+import org.meta_environment.rascal.interpreter.exceptions.ImplementationError;
+import org.meta_environment.rascal.interpreter.exceptions.TypeError;
 
 /**
  * A module environment represents a module object (i.e. a running module).
@@ -68,7 +68,7 @@ public class ModuleEnvironment extends Environment {
 			
 			ModuleEnvironment imported = getImport(modulename);
 			if (imported == null) {
-				throw new RascalTypeException("Module " + modulename + " is not visible in " + getName(), name);
+				throw new TypeError("Module " + modulename + " is not visible in " + getName(), name);
 			}
 			return imported.getVariable(name);
 		}
@@ -104,7 +104,7 @@ public class ModuleEnvironment extends Environment {
 				return null;
 			}
 			else {
-				throw new RascalTypeException("Variable " + name + " is ambiguous, please qualify");
+				throw new TypeError("Variable " + name + " is ambiguous, please qualify");
 			}
 		}
 		
@@ -156,7 +156,7 @@ public class ModuleEnvironment extends Environment {
 				return null;
 			}
 			else {
-				throw new RascalTypeException("Function " + name + " is ambiguous, please qualify");
+				throw new TypeError("Function " + name + " is ambiguous, please qualify");
 			}
 		}
 		
@@ -365,7 +365,7 @@ public class ModuleEnvironment extends Environment {
 		String moduleName = Names.moduleName(name);
 		
 		if (moduleName != null && !moduleName.equals(getName())) {
-			throw new RascalImplementationException("attempting to access a variable of a different module");
+			throw new ImplementationError("attempting to access a variable of a different module");
 		}
 	}
 	

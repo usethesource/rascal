@@ -10,8 +10,8 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.interpreter.Names;
-import org.meta_environment.rascal.interpreter.exceptions.RascalImplementationException;
-import org.meta_environment.rascal.interpreter.exceptions.RascalTypeException;
+import org.meta_environment.rascal.interpreter.exceptions.ImplementationError;
+import org.meta_environment.rascal.interpreter.exceptions.TypeError;
 
 /**
  * A simple environment for variables and functions and types.
@@ -30,7 +30,7 @@ public class Environment {
 		this.parent = parent;
 		
 		if (parent == this) {
-			throw new RascalImplementationException("internal error: cyclic environment");
+			throw new ImplementationError("internal error: cyclic environment");
 		}
 	}
 	
@@ -121,7 +121,7 @@ public class Environment {
 		
 		for (Lambda other : list) {
 			if (function.isAmbiguous(other)) {
-				throw new RascalTypeException("Illegal redeclaration of function: " + other + "\n overlaps with new function: " + function);
+				throw new TypeError("Illegal redeclaration of function: " + other + "\n overlaps with new function: " + function);
 			}
 		}
 		

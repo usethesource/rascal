@@ -20,9 +20,13 @@ import org.meta_environment.rascal.ast.Assignable.Tuple;
 import org.meta_environment.rascal.ast.Assignable.Variable;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.Result;
-import org.meta_environment.rascal.interpreter.exceptions.RascalImplementationException;
-import org.meta_environment.rascal.interpreter.exceptions.RascalRunTimeException;
-import org.meta_environment.rascal.interpreter.exceptions.RascalTypeException;
+import org.meta_environment.rascal.interpreter.exceptions.AssignmentError;
+import org.meta_environment.rascal.interpreter.exceptions.ImplementationError;
+import org.meta_environment.rascal.interpreter.exceptions.IndexOutOfBoundsError;
+import org.meta_environment.rascal.interpreter.exceptions.NoSuchAnnotationError;
+import org.meta_environment.rascal.interpreter.exceptions.NoSuchFieldError;
+import org.meta_environment.rascal.interpreter.exceptions.TypeError;
+
 
 /**
  * Implements assignments in their different shapes, using value lookup
@@ -49,7 +53,7 @@ import org.meta_environment.rascal.interpreter.exceptions.RascalTypeException;
 			if (value.type.isSubtypeOf(previous.type)) {
 				value.type = previous.type;
 			} else {
-				throw new RascalTypeException("Variable `" + name
+				throw new AssignmentError("Variable `" + name
 						+ "` has type " + previous.type
 						+ "; cannot assign value of type " + value.type, x);
 			}
@@ -71,7 +75,7 @@ import org.meta_environment.rascal.interpreter.exceptions.RascalTypeException;
 		Result result = x.getReceiver().accept(eval);
 		
 		if (!result.type.declaresAnnotation(label)) {
-			throw new RascalTypeException("No annotation `" + label + "` declared for " + result.type, x);
+			throw new NoSuchAnnotationError("No annotation `" + label + "` declared for " + result.type, x);
 		}
 		
 		result.value = ((IConstructor) result.value).setAnnotation(label, value.value);
@@ -92,7 +96,7 @@ import org.meta_environment.rascal.interpreter.exceptions.RascalTypeException;
 			list = list.put(index, value.value);
 			result = eval.result(rec.type, list);
 			} catch (Exception e){
-				throw new RascalRunTimeException("Index " + ((IInteger) subscript.value).getValue() + " out of bounds", x);
+				throw new IndexOutOfBoundsError("Index " + ((IInteger) subscript.value).getValue() + " out of bounds", x);
 			}
 		}
 		else if (rec.type.isMapType()) {
@@ -103,7 +107,7 @@ import org.meta_environment.rascal.interpreter.exceptions.RascalTypeException;
 				result = eval.result(rec.type, map);
 			}
 			else {
-				throw new RascalTypeException("Key type " + keyType + " of map is not compatible with " + subscript.type, x);
+				throw new TypeError("Key type " + keyType + " of map is not compatible with " + subscript.type, x);
 			}
 			
 		} else if (rec.type.isNodeType() && subscript.type.isIntegerType()) {
@@ -111,12 +115,12 @@ import org.meta_environment.rascal.interpreter.exceptions.RascalTypeException;
 			INode node = (INode) rec.value;
 			
 			if(index >= node.arity()){
-				throw new RascalRunTimeException("Subscript out of bounds", x);
+				throw new IndexOutOfBoundsError("Subscript out of bounds", x);
 			}
 			node = node.set(index, value.value);
 			result = eval.result(rec.type, node);
 		} else {
-			throw new RascalTypeException("Receiver " + rec.type + " is incompatible with subscript " + subscript.type, x);
+			throw new TypeError("Receiver " + rec.type + " is incompatible with subscript " + subscript.type, x);
 			// TODO implement other subscripts
 		}
 		
@@ -146,7 +150,7 @@ import org.meta_environment.rascal.interpreter.exceptions.RascalTypeException;
 		
 		if (receiver.type.isTupleType()) {
 			if (!receiver.type.hasField(label)) {
-				throw new RascalTypeException(receiver.type + " does not have a field named `" + label + "`", x);
+				throw new NoSuchFieldError(receiver.type + " does not have a field named `" + label + "`", x);
 			}
 			IValue result = ((ITuple) receiver.value).set(label, value.value);
 			return recur(x, eval.result(receiver.type, result));
@@ -156,11 +160,11 @@ import org.meta_environment.rascal.interpreter.exceptions.RascalTypeException;
 			Type node = cons.getConstructorType();
 			
 			if (!receiver.type.hasField(label)) {
-				throw new RascalTypeException(receiver.type + " does not have a field named `" + label + "`", x);
+				throw new NoSuchFieldError(receiver.type + " does not have a field named `" + label + "`", x);
 			}
 			
 			if (!node.hasField(label)) {
-				throw new RascalTypeException("Field `" + label + "` accessed on constructor that does not have it." + receiver.value.getType(), x);
+				throw new NoSuchFieldError("Field `" + label + "` accessed on constructor that does not have it." + receiver.value.getType(), x);
 			}
 			
 			int index = node.getFieldIndex(label);
@@ -169,7 +173,7 @@ import org.meta_environment.rascal.interpreter.exceptions.RascalTypeException;
 			return recur(x, eval.result(receiver.type, result));
 		}
 		else {
-			throw new RascalTypeException(x.getReceiver() + " has no field named `" + label + "`", x);
+			throw new NoSuchFieldError(x.getReceiver() + " has no field named `" + label + "`", x);
 		}
 		
 	}
@@ -179,7 +183,7 @@ import org.meta_environment.rascal.interpreter.exceptions.RascalTypeException;
 		java.util.List<Assignable> arguments = x.getElements();
 		
 		if (!value.type.isTupleType()) {
-			throw new RascalTypeException("Receiver is a tuple, but the assigned value is not: " + value.type, x); 
+			throw new AssignmentError("Receiver is a tuple, but the assigned value is not: " + value.type, x); 
 		}
 		
 		Type tupleType = value.type;
@@ -202,6 +206,6 @@ import org.meta_environment.rascal.interpreter.exceptions.RascalTypeException;
 	
 	@Override
 	public Result visitAssignableConstructor(Constructor x) {
-		throw new RascalImplementationException("Constructor assignables not yet implemented", x);
+		throw new ImplementationError("Constructor assignables not yet implemented", x);
 	}
 }

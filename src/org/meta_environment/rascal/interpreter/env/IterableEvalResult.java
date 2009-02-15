@@ -4,7 +4,7 @@ import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.meta_environment.rascal.interpreter.exceptions.RascalImplementationException;
+import org.meta_environment.rascal.interpreter.exceptions.ImplementationError;
 
 public class IterableEvalResult extends Result implements Iterator<Result>{
 	Iterator<Result> iterator;
@@ -35,7 +35,7 @@ public class IterableEvalResult extends Result implements Iterator<Result>{
 	}
 
 	public void remove() {
-		throw new RascalImplementationException("remove() not implemented for IterableEvalResult");
+		throw new ImplementationError("remove() not implemented for IterableEvalResult");
 		
 	}
 }

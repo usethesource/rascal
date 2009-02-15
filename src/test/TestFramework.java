@@ -11,7 +11,7 @@ import org.meta_environment.rascal.ast.Command;
 import org.meta_environment.rascal.ast.Module;
 import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
-import org.meta_environment.rascal.interpreter.exceptions.RascalImplementationException;
+import org.meta_environment.rascal.interpreter.exceptions.ImplementationError;
 import org.meta_environment.rascal.interpreter.exceptions.RascalRunTimeException;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
@@ -126,7 +126,7 @@ public class TestFramework {
 				evaluator.eval(cmd.getDeclaration());
 				return true;
 			} else {
-				throw new RascalImplementationException("unexpected case in eval: " + cmd);
+				throw new ImplementationError("unexpected case in eval: " + cmd);
 			}
 		}
 	}

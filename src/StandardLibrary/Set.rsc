@@ -148,7 +148,7 @@ public tuple[&T, set[&T]] java takeOneFrom(set[&T] st)
    	  }
       return values.tuple(pick, w.done());
    	} else {
-   		throw new RascalException(values, "empty_set");
+   		throw new RascalException("EmptySet");
    	}
 }
   

@@ -20,7 +20,7 @@ public &T java head(list[&T] lst)
    if(lst.length() > 0){
       return lst.get(0);
    } else {
-      throw new RascalException(values, "empty_list");
+      throw new RascalException("EmptyList");
    }
 }
 
@@ -31,7 +31,7 @@ public list[&T] java head(list[&T] lst, int n)
    if(n.getValue() <= lst.length()){
       return new SubList((Value)lst, 0, n.getValue());
    } else {
-      throw new RascalException(values, "list_index_out_of_range");
+      throw new RascalException("IndexOutOfBounds");
    }
 }
 
@@ -42,7 +42,7 @@ public &T java getOneFrom(list[&T] lst)
    if(n > 0){
    	return lst.get(random.nextInt(n));
    	} else {
-   		throw new RascalException(values, "empty_list");
+   		throw new RascalException("EmptyList");
    	}
 }
 
@@ -65,7 +65,7 @@ public list[&T] java insertAt(&T elm, int n, list[&T] lst)
       }
       return w.done();
     } else {
-    	throw new RascalException(values, "list_index_out_of_range()");
+    	throw new RascalException("IndexOutOfBounds");
     }
  }
 
@@ -194,7 +194,7 @@ public &T sum(list[&T] lst, &T zero)
  	int lstLen = lst.length();
  	
  	if(lenVal > lstLen)
- 		throw new RascalException(values, "list_index_out_of_range");
+ 		throw new RascalException("IndexOutOfBounds");
  	return new SubList((Value)lst, lstLen - lenVal, lenVal);
  }
  
@@ -217,7 +217,7 @@ public tuple[&T, list[&T]] java takeOneFrom(list[&T] lst)
       }
       return values.tuple(pick, w.done());
    	} else {
-   		throw new RascalException(values, "empty_list");
+   		throw new RascalException("EmptyList");
    	}
 }
 

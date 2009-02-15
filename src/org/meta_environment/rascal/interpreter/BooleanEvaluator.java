@@ -17,8 +17,8 @@ import org.meta_environment.rascal.ast.Expression.Or;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.Result;
 import org.meta_environment.rascal.interpreter.env.IterableEvalResult;
-import org.meta_environment.rascal.interpreter.exceptions.RascalImplementationException;
-import org.meta_environment.rascal.interpreter.exceptions.RascalTypeException;
+import org.meta_environment.rascal.interpreter.exceptions.ImplementationError;
+import org.meta_environment.rascal.interpreter.exceptions.TypeError;
 
 /*
  * Base class for iterating over the values of the arguments of the Boolean operators.
@@ -40,7 +40,7 @@ public abstract class BooleanEvaluator implements Iterator<Result> {
 	void defArg(int i){
 		Result argResult = expr[i].accept(ev);
 		if(!argResult.type.isBoolType()){
-			throw new RascalTypeException("Operand of boolean operator should be of type bool and not " + argResult.type, expr[i]);
+			throw new TypeError("Operand of boolean operator should be of type bool and not " + argResult.type, expr[i]);
 		}
 		result[i] = argResult;
 	};
@@ -65,7 +65,7 @@ public abstract class BooleanEvaluator implements Iterator<Result> {
 	}
 	
 	public void remove(){
-		throw new RascalImplementationException("remove() in BooleanEvaluator not implemented", expr[LEFT]);
+		throw new ImplementationError("remove() in BooleanEvaluator not implemented", expr[LEFT]);
 	}
 	
 	public boolean getNextResult(int i){
@@ -277,6 +277,6 @@ class MatchEvaluator implements Iterator<Result> {
 	}
 
 	public void remove() {
-		throw new RascalImplementationException("remove() not implemented for MatchEvaluator");
+		throw new ImplementationError("remove() not implemented for MatchEvaluator");
 	}
 }
