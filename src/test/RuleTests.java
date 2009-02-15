@@ -8,7 +8,7 @@ public class RuleTests extends TestFramework {
 	@Test
 	public void testBool() {
 		
-		prepare("import \\Bool-abstract-rules;");
+		prepare("import BoolAbstractRules;");
 		
 		assertTrue(runTestInSameEvaluator("btrue == btrue;"));
 		assertTrue(runTestInSameEvaluator("bfalse == bfalse;"));
@@ -32,7 +32,7 @@ public class RuleTests extends TestFramework {
 	@Test
 	public void testInteger() {
 		
-		prepare("import \\Integer-abstract-rules;");
+		prepare("import IntegerAbstractRules;");
 		
 		assertTrue(runTestInSameEvaluator("add(s(s(z)), s(s(s(z)))) == s(s(s(s(s(z)))));"));
 		assertTrue(runTestInSameEvaluator("mul(s(s(z)), s(s(s(z)))) == s(s(s(s(s(s(z))))));"));

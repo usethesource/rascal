@@ -1,4 +1,4 @@
-module \Bool-abstract-rules
+module BoolAbstractRules
 
 data Bool = btrue;
 data Bool = bfalse;

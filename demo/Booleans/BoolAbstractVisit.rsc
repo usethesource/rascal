@@ -1,4 +1,4 @@
-module \Bool-abstract-visit
+module BoolAbstractVisit
 
 data Bool = btrue;
 data Bool = bfalse;

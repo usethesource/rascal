@@ -14,14 +14,14 @@ public class AllDemoTests extends TestFramework {
 
 	@Test
 	public void testBoolAbstractRules() {
-		prepare("import \\Bool-abstract-rules;");
-		assertTrue(runTestInSameEvaluator("\\Bool-abstract-rules::test();"));
+		prepare("import BoolAbstractRules;");
+		assertTrue(runTestInSameEvaluator("BoolAbstractRules::test();"));
 	}
 
 	@Test
 	public void testBoolAbstractVisit() {
-		prepare("import \\Bool-abstract-visit;");
-		assertTrue(runTestInSameEvaluator("\\Bool-abstract-visit::test();"));
+		prepare("import BoolAbstractVisit;");
+		assertTrue(runTestInSameEvaluator("BoolAbstractVisit::test();"));
 	}
 
 	@Test
@@ -56,8 +56,8 @@ public class AllDemoTests extends TestFramework {
 
 	@Test
 	public void testFunAbstract() {
-		prepare("import \\Fun-abstract;");
-		assertTrue(runTestInSameEvaluator("\\Fun-abstract::test();"));
+		prepare("import FunAbstract;");
+		assertTrue(runTestInSameEvaluator("FunAbstract::test();"));
 	}
 
 	@Test
@@ -74,8 +74,8 @@ public class AllDemoTests extends TestFramework {
 
 	@Test
 	public void testIntegerAbstractRules() {
-		prepare("import \\Integer-abstract-rules;");
-		assertTrue(runTestInSameEvaluator("\\Integer-abstract-rules::testInt();"));
+		prepare("import IntegerAbstractRules;");
+		assertTrue(runTestInSameEvaluator("IntegerAbstractRules::testInt();"));
 	}
 
 	@Test
