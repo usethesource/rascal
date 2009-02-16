@@ -221,6 +221,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 	private final ASTFactory af;
 	private final JavaBridge javaBridge;
 	
+	private Statement currentStatement; // used in runtime errormessages
+	
 	// TODO: can we remove this?
 	protected MatchPattern lastPattern;	// The most recent pattern applied in a match
 	                                    	// For the benefit of string matching.
@@ -347,7 +349,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				|| type.isSetType() 
 				|| type.isMapType()
 				|| type.isListType()) {
-			throw new ImplementationError("Should not used run-time type for type checking!!!!");
+			throw new ImplementationError("Should not be used run-time type for type checking!!!!", currentStatement);
 		}
 		if(v != null){
 			return new Result(type, applyRules(v));
@@ -421,7 +423,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			return;
 		}
 		if (!given.isSubtypeOf(expected)){
-			throw new TypeError("Expected " + expected + ", got " + given);
+			throw new TypeError("Expected " + expected + ", got " + given, currentStatement);
 		}
 	}
 	
@@ -1219,7 +1221,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				return result(tf.setType(tuple.getFieldType(field)), w.done());
 			}
 			catch (FactTypeError e) {
-				throw new RunTimeError(e.getMessage());
+				throw new RunTimeError(e.getMessage(), x);
 			}
 		}
 		else if (expr.type.isAbstractDataType() || expr.type.isConstructorType()) {
@@ -1436,6 +1438,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		try {
 			push(); 
 			for (Statement stat : x.getStatements()) {
+				currentStatement = stat;
 				r = stat.accept(this);
 			}
 		}
@@ -1470,7 +1473,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			}
 			
 			if (!node.hasField(label)) {
-				throw new NoSuchFieldError("Field 11" + label + " accessed on constructor that does not have it." + receiver.value.getType(), x);
+				throw new NoSuchFieldError("Field " + label + " accessed on constructor that does not have it." + receiver.value.getType(), x);
 			}
 			
 			int index = node.getFieldIndex(label);
@@ -2526,7 +2529,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				throw new NoSuchFieldError("Field updates only possible on tuples with labeled fields, relations with labeled fields and data constructors", x);
 			}
 		} catch (FactTypeError e) {
-			throw new TypeError(e.getMessage());
+			throw new TypeError(e.getMessage(), x);
 		}
 	}
 	
@@ -2912,14 +2915,14 @@ public class Evaluator extends NullASTVisitor<Result> {
 							start = 0;
 							end = ((IString)repl).getValue().length();
 						} else {
-							throw new TypeError("Illegal pattern " + lastPattern + " in string visit");
+							throw new TypeError("Illegal pattern " + lastPattern + " in string visit", currentStatement);
 						}
 						
 						replacements.add(new StringReplacement(cursor + start, cursor + end, ((IString)repl).getValue()));
 						matched = changed = true;
 						cursor += end;
 					} else {
-						throw new TypeError("String replacement should be of type str, not " + repl.getType());
+						throw new TypeError("String replacement should be of type str, not " + repl.getType(), currentStatement);
 					}
 				}
 			}
@@ -3695,7 +3698,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 
 		public void remove() {
-			throw new ImplementationError("remove() not implemented for GeneratorEvaluator");
+			throw new ImplementationError("remove() not implemented for GeneratorEvaluator", currentStatement);
 		}
 	}
 	
