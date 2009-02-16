@@ -47,6 +47,9 @@ public class TreeAdapter {
 	
 	public ProductionAdapter getProduction() {
 		if (prod == null) {
+			if (!isAppl()) {
+				throw new RuntimeException("wazzup?");
+			}
 		  prod = new ProductionAdapter((IConstructor) tree.get("prod"));
 		}
 		
@@ -111,15 +114,15 @@ public class TreeAdapter {
 	}
 	
 	public boolean isLexical() {
-		return getProduction().isLexical();
+		return isAppl() ? getProduction().isLexical() : false;
 	}
 	
 	public boolean isLayout() {
-		return getProduction().isLayout();
+		return isAppl() ? getProduction().isLayout() : false;
 	}
 
 	private boolean isSeparatedList() {
-		return isList() && getProduction().isSeparatedList();
+		return isAppl() ? isList() && getProduction().isSeparatedList() : false;
 	}
 
 	public IList getASTArgs() {
