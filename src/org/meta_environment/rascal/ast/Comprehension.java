@@ -1,11 +1,11 @@
 package org.meta_environment.rascal.ast; 
 import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Comprehension extends AbstractAST { 
-  public org.meta_environment.rascal.ast.Expression getResult() { throw new UnsupportedOperationException(); } public java.util.List<org.meta_environment.rascal.ast.Generator> getGenerators() { throw new UnsupportedOperationException(); } public boolean hasResult() { return false; } public boolean hasGenerators() { return false; } public boolean isSet() { return false; }
+  public org.meta_environment.rascal.ast.Expression getResult() { throw new UnsupportedOperationException(); } public java.util.List<org.meta_environment.rascal.ast.Expression> getGenerators() { throw new UnsupportedOperationException(); } public boolean hasResult() { return false; } public boolean hasGenerators() { return false; } public boolean isSet() { return false; }
 static public class Set extends Comprehension {
-/* "{" result:Expression "|" generators:{Generator ","}+ "}" -> Comprehension {cons("Set")} */
+/* "{" result:Expression "|" generators:{Expression ","}+ "}" -> Comprehension {cons("Set")} */
 	private Set() { }
-	/*package*/ Set(INode node, org.meta_environment.rascal.ast.Expression result, java.util.List<org.meta_environment.rascal.ast.Generator> generators) {
+	/*package*/ Set(INode node, org.meta_environment.rascal.ast.Expression result, java.util.List<org.meta_environment.rascal.ast.Expression> generators) {
 		this.node = node;
 		this.result = result;
 		this.generators = generators;
@@ -27,10 +27,10 @@ private org.meta_environment.rascal.ast.Expression result;
  		z.$setResult(x);
 		return z;
 	}
-	private java.util.List<org.meta_environment.rascal.ast.Generator> generators;
-	public java.util.List<org.meta_environment.rascal.ast.Generator> getGenerators() { return generators; }
-	private void $setGenerators(java.util.List<org.meta_environment.rascal.ast.Generator> x) { this.generators = x; }
-	public Set setGenerators(java.util.List<org.meta_environment.rascal.ast.Generator> x) { 
+	private java.util.List<org.meta_environment.rascal.ast.Expression> generators;
+	public java.util.List<org.meta_environment.rascal.ast.Expression> getGenerators() { return generators; }
+	private void $setGenerators(java.util.List<org.meta_environment.rascal.ast.Expression> x) { this.generators = x; }
+	public Set setGenerators(java.util.List<org.meta_environment.rascal.ast.Expression> x) { 
 		Set z = new Set();
  		z.$setGenerators(x);
 		return z;
@@ -51,9 +51,9 @@ static public class Ambiguity extends Comprehension {
   }
 } public boolean isList() { return false; }
 static public class List extends Comprehension {
-/* "[" result:Expression "|" generators:{Generator ","}+ "]" -> Comprehension {cons("List")} */
+/* "[" result:Expression "|" generators:{Expression ","}+ "]" -> Comprehension {cons("List")} */
 	private List() { }
-	/*package*/ List(INode node, org.meta_environment.rascal.ast.Expression result, java.util.List<org.meta_environment.rascal.ast.Generator> generators) {
+	/*package*/ List(INode node, org.meta_environment.rascal.ast.Expression result, java.util.List<org.meta_environment.rascal.ast.Expression> generators) {
 		this.node = node;
 		this.result = result;
 		this.generators = generators;
@@ -75,10 +75,10 @@ private org.meta_environment.rascal.ast.Expression result;
  		z.$setResult(x);
 		return z;
 	}
-	private java.util.List<org.meta_environment.rascal.ast.Generator> generators;
-	public java.util.List<org.meta_environment.rascal.ast.Generator> getGenerators() { return generators; }
-	private void $setGenerators(java.util.List<org.meta_environment.rascal.ast.Generator> x) { this.generators = x; }
-	public List setGenerators(java.util.List<org.meta_environment.rascal.ast.Generator> x) { 
+	private java.util.List<org.meta_environment.rascal.ast.Expression> generators;
+	public java.util.List<org.meta_environment.rascal.ast.Expression> getGenerators() { return generators; }
+	private void $setGenerators(java.util.List<org.meta_environment.rascal.ast.Expression> x) { this.generators = x; }
+	public List setGenerators(java.util.List<org.meta_environment.rascal.ast.Expression> x) { 
 		List z = new List();
  		z.$setGenerators(x);
 		return z;
@@ -87,9 +87,9 @@ private org.meta_environment.rascal.ast.Expression result;
 	public org.meta_environment.rascal.ast.Expression getTo() { throw new UnsupportedOperationException(); } public boolean hasFrom() { return false; }
 	public boolean hasTo() { return false; } public boolean isMap() { return false; }
 static public class Map extends Comprehension {
-/* "(" from:Expression ":" to:Expression "|" generators:{Generator ","}+ ")" -> Comprehension {cons("Map")} */
+/* "(" from:Expression ":" to:Expression "|" generators:{Expression ","}+ ")" -> Comprehension {cons("Map")} */
 	private Map() { }
-	/*package*/ Map(INode node, org.meta_environment.rascal.ast.Expression from, org.meta_environment.rascal.ast.Expression to, java.util.List<org.meta_environment.rascal.ast.Generator> generators) {
+	/*package*/ Map(INode node, org.meta_environment.rascal.ast.Expression from, org.meta_environment.rascal.ast.Expression to, java.util.List<org.meta_environment.rascal.ast.Expression> generators) {
 		this.node = node;
 		this.from = from;
 		this.to = to;
@@ -121,10 +121,10 @@ private org.meta_environment.rascal.ast.Expression from;
  		z.$setTo(x);
 		return z;
 	}
-	private java.util.List<org.meta_environment.rascal.ast.Generator> generators;
-	public java.util.List<org.meta_environment.rascal.ast.Generator> getGenerators() { return generators; }
-	private void $setGenerators(java.util.List<org.meta_environment.rascal.ast.Generator> x) { this.generators = x; }
-	public Map setGenerators(java.util.List<org.meta_environment.rascal.ast.Generator> x) { 
+	private java.util.List<org.meta_environment.rascal.ast.Expression> generators;
+	public java.util.List<org.meta_environment.rascal.ast.Expression> getGenerators() { return generators; }
+	private void $setGenerators(java.util.List<org.meta_environment.rascal.ast.Expression> x) { this.generators = x; }
+	public Map setGenerators(java.util.List<org.meta_environment.rascal.ast.Expression> x) { 
 		Map z = new Map();
  		z.$setGenerators(x);
 		return z;

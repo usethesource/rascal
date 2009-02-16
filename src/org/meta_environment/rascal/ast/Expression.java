@@ -496,6 +496,85 @@ private org.meta_environment.rascal.ast.Expression pattern;
  		z.$setExpression(x);
 		return z;
 	}	
+} public boolean isValueProducer() { return false; }
+static public class ValueProducer extends Expression {
+/* pattern:Expression ":" expression:Expression -> Expression {cons("ValueProducer")} */
+	private ValueProducer() { }
+	/*package*/ ValueProducer(INode node, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Expression expression) {
+		this.node = node;
+		this.pattern = pattern;
+		this.expression = expression;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitExpressionValueProducer(this);
+	}
+
+	public boolean isValueProducer() { return true; }
+
+	public boolean hasPattern() { return true; }
+	public boolean hasExpression() { return true; }
+
+private org.meta_environment.rascal.ast.Expression pattern;
+	public org.meta_environment.rascal.ast.Expression getPattern() { return pattern; }
+	private void $setPattern(org.meta_environment.rascal.ast.Expression x) { this.pattern = x; }
+	public ValueProducer setPattern(org.meta_environment.rascal.ast.Expression x) { 
+		ValueProducer z = new ValueProducer();
+ 		z.$setPattern(x);
+		return z;
+	}
+	private org.meta_environment.rascal.ast.Expression expression;
+	public org.meta_environment.rascal.ast.Expression getExpression() { return expression; }
+	private void $setExpression(org.meta_environment.rascal.ast.Expression x) { this.expression = x; }
+	public ValueProducer setExpression(org.meta_environment.rascal.ast.Expression x) { 
+		ValueProducer z = new ValueProducer();
+ 		z.$setExpression(x);
+		return z;
+	}	
+} 
+public org.meta_environment.rascal.ast.Strategy getStrategy() { throw new UnsupportedOperationException(); } public boolean hasStrategy() { return false; } public boolean isValueProducerWithStrategy() { return false; }
+static public class ValueProducerWithStrategy extends Expression {
+/* strategy:Strategy pattern:Expression ":" expression:Expression -> Expression {cons("ValueProducerWithStrategy")} */
+	private ValueProducerWithStrategy() { }
+	/*package*/ ValueProducerWithStrategy(INode node, org.meta_environment.rascal.ast.Strategy strategy, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Expression expression) {
+		this.node = node;
+		this.strategy = strategy;
+		this.pattern = pattern;
+		this.expression = expression;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitExpressionValueProducerWithStrategy(this);
+	}
+
+	public boolean isValueProducerWithStrategy() { return true; }
+
+	public boolean hasStrategy() { return true; }
+	public boolean hasPattern() { return true; }
+	public boolean hasExpression() { return true; }
+
+private org.meta_environment.rascal.ast.Strategy strategy;
+	public org.meta_environment.rascal.ast.Strategy getStrategy() { return strategy; }
+	private void $setStrategy(org.meta_environment.rascal.ast.Strategy x) { this.strategy = x; }
+	public ValueProducerWithStrategy setStrategy(org.meta_environment.rascal.ast.Strategy x) { 
+		ValueProducerWithStrategy z = new ValueProducerWithStrategy();
+ 		z.$setStrategy(x);
+		return z;
+	}
+	private org.meta_environment.rascal.ast.Expression pattern;
+	public org.meta_environment.rascal.ast.Expression getPattern() { return pattern; }
+	private void $setPattern(org.meta_environment.rascal.ast.Expression x) { this.pattern = x; }
+	public ValueProducerWithStrategy setPattern(org.meta_environment.rascal.ast.Expression x) { 
+		ValueProducerWithStrategy z = new ValueProducerWithStrategy();
+ 		z.$setPattern(x);
+		return z;
+	}
+	private org.meta_environment.rascal.ast.Expression expression;
+	public org.meta_environment.rascal.ast.Expression getExpression() { return expression; }
+	private void $setExpression(org.meta_environment.rascal.ast.Expression x) { this.expression = x; }
+	public ValueProducerWithStrategy setExpression(org.meta_environment.rascal.ast.Expression x) { 
+		ValueProducerWithStrategy z = new ValueProducerWithStrategy();
+ 		z.$setExpression(x);
+		return z;
+	}	
 } 
 public org.meta_environment.rascal.ast.Comprehension getComprehension() { throw new UnsupportedOperationException(); }
 public boolean hasComprehension() { return false; }
@@ -523,11 +602,11 @@ private org.meta_environment.rascal.ast.Comprehension comprehension;
  		z.$setComprehension(x);
 		return z;
 	}	
-} public java.util.List<org.meta_environment.rascal.ast.Generator> getGenerators() { throw new UnsupportedOperationException(); } public boolean hasGenerators() { return false; } public boolean isAll() { return false; }
+} public java.util.List<org.meta_environment.rascal.ast.Expression> getGenerators() { throw new UnsupportedOperationException(); } public boolean hasGenerators() { return false; } public boolean isAll() { return false; }
 static public class All extends Expression {
-/* "all" "(" generators:{Generator ","}+ ")" -> Expression {cons("All")} */
+/* "all" "(" generators:{Expression ","}+ ")" -> Expression {cons("All")} */
 	private All() { }
-	/*package*/ All(INode node, java.util.List<org.meta_environment.rascal.ast.Generator> generators) {
+	/*package*/ All(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> generators) {
 		this.node = node;
 		this.generators = generators;
 	}
@@ -539,19 +618,19 @@ static public class All extends Expression {
 
 	public boolean hasGenerators() { return true; }
 
-private java.util.List<org.meta_environment.rascal.ast.Generator> generators;
-	public java.util.List<org.meta_environment.rascal.ast.Generator> getGenerators() { return generators; }
-	private void $setGenerators(java.util.List<org.meta_environment.rascal.ast.Generator> x) { this.generators = x; }
-	public All setGenerators(java.util.List<org.meta_environment.rascal.ast.Generator> x) { 
+private java.util.List<org.meta_environment.rascal.ast.Expression> generators;
+	public java.util.List<org.meta_environment.rascal.ast.Expression> getGenerators() { return generators; }
+	private void $setGenerators(java.util.List<org.meta_environment.rascal.ast.Expression> x) { this.generators = x; }
+	public All setGenerators(java.util.List<org.meta_environment.rascal.ast.Expression> x) { 
 		All z = new All();
  		z.$setGenerators(x);
 		return z;
 	}	
 } public boolean isAny() { return false; }
 static public class Any extends Expression {
-/* "any" "(" generators:{Generator ","}+ ")" -> Expression {cons("Any")} */
+/* "any" "(" generators:{Expression ","}+ ")" -> Expression {cons("Any")} */
 	private Any() { }
-	/*package*/ Any(INode node, java.util.List<org.meta_environment.rascal.ast.Generator> generators) {
+	/*package*/ Any(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> generators) {
 		this.node = node;
 		this.generators = generators;
 	}
@@ -563,10 +642,10 @@ static public class Any extends Expression {
 
 	public boolean hasGenerators() { return true; }
 
-private java.util.List<org.meta_environment.rascal.ast.Generator> generators;
-	public java.util.List<org.meta_environment.rascal.ast.Generator> getGenerators() { return generators; }
-	private void $setGenerators(java.util.List<org.meta_environment.rascal.ast.Generator> x) { this.generators = x; }
-	public Any setGenerators(java.util.List<org.meta_environment.rascal.ast.Generator> x) { 
+private java.util.List<org.meta_environment.rascal.ast.Expression> generators;
+	public java.util.List<org.meta_environment.rascal.ast.Expression> getGenerators() { return generators; }
+	private void $setGenerators(java.util.List<org.meta_environment.rascal.ast.Expression> x) { this.generators = x; }
+	public Any setGenerators(java.util.List<org.meta_environment.rascal.ast.Expression> x) { 
 		Any z = new Any();
  		z.$setGenerators(x);
 		return z;
