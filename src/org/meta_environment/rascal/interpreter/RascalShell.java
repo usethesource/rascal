@@ -107,7 +107,7 @@ public class RascalShell {
 					printStacktrace(console, e);
 				}
 				catch (Error e) {
-					console.printString("RascalException: " + e.getMessage() + "\n");
+					console.printString("RascalError: " + e.getMessage() + "\n");
 				}
 				catch (Throwable e) {
 					console.printString("Throwable: " + e.getMessage() + "\n");

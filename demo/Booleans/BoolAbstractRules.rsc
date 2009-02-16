@@ -15,5 +15,16 @@ rule o4 bor(bfalse, bfalse)   => bfalse;
 
 public bool test()
 {
-	return bor(band(btrue,btrue),band(btrue, bfalse)) == btrue;
+		assert bor(band(btrue,btrue),band(btrue, bfalse)) == btrue;
+		assert btrue == btrue;
+		assert bfalse == bfalse;
+		assert btrue != bfalse;
+		assert band(btrue,bfalse) == bfalse;	
+		assert band(band(btrue,btrue),band(btrue, bfalse)) == bfalse;
+		assert bor(btrue,bfalse) == btrue;
+		assert bor(bor(btrue,btrue),bor(btrue, bfalse)) == btrue;
+		assert bor(bor(bfalse,bfalse),bor(bfalse, bfalse)) == bfalse;
+		assert bor(band(btrue,btrue),band(btrue, bfalse)) == btrue;
+		assert band(bor(btrue,btrue),band(btrue, bfalse)) == bfalse;
+		return true;
 }

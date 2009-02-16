@@ -551,14 +551,12 @@ static public class Continue extends Statement {
 	}
 
 	public boolean isContinue() { return true; }	
-} 
-public org.meta_environment.rascal.ast.StringLiteral getMessage() { throw new UnsupportedOperationException(); } public boolean hasMessage() { return false; } public boolean isAssert() { return false; }
+} public boolean isAssert() { return false; }
 static public class Assert extends Statement {
-/* "assert" message:StringLiteral ":" expression:Expression ";" -> Statement {cons("Assert")} */
+/* "assert" expression:Expression ";" -> Statement {cons("Assert")} */
 	private Assert() { }
-	/*package*/ Assert(INode node, org.meta_environment.rascal.ast.StringLiteral message, org.meta_environment.rascal.ast.Expression expression) {
+	/*package*/ Assert(INode node, org.meta_environment.rascal.ast.Expression expression) {
 		this.node = node;
-		this.message = message;
 		this.expression = expression;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -567,23 +565,49 @@ static public class Assert extends Statement {
 
 	public boolean isAssert() { return true; }
 
-	public boolean hasMessage() { return true; }
 	public boolean hasExpression() { return true; }
 
-private org.meta_environment.rascal.ast.StringLiteral message;
-	public org.meta_environment.rascal.ast.StringLiteral getMessage() { return message; }
-	private void $setMessage(org.meta_environment.rascal.ast.StringLiteral x) { this.message = x; }
-	public Assert setMessage(org.meta_environment.rascal.ast.StringLiteral x) { 
-		Assert z = new Assert();
- 		z.$setMessage(x);
-		return z;
-	}
-	private org.meta_environment.rascal.ast.Expression expression;
+private org.meta_environment.rascal.ast.Expression expression;
 	public org.meta_environment.rascal.ast.Expression getExpression() { return expression; }
 	private void $setExpression(org.meta_environment.rascal.ast.Expression x) { this.expression = x; }
 	public Assert setExpression(org.meta_environment.rascal.ast.Expression x) { 
 		Assert z = new Assert();
  		z.$setExpression(x);
+		return z;
+	}	
+} public org.meta_environment.rascal.ast.StringLiteral getMessage() { throw new UnsupportedOperationException(); } public boolean hasMessage() { return false; }
+public boolean isAssertWithMessage() { return false; }
+static public class AssertWithMessage extends Statement {
+/* "assert" expression:Expression ":" message:StringLiteral ";" -> Statement {cons("AssertWithMessage")} */
+	private AssertWithMessage() { }
+	/*package*/ AssertWithMessage(INode node, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.StringLiteral message) {
+		this.node = node;
+		this.expression = expression;
+		this.message = message;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitStatementAssertWithMessage(this);
+	}
+
+	public boolean isAssertWithMessage() { return true; }
+
+	public boolean hasExpression() { return true; }
+	public boolean hasMessage() { return true; }
+
+private org.meta_environment.rascal.ast.Expression expression;
+	public org.meta_environment.rascal.ast.Expression getExpression() { return expression; }
+	private void $setExpression(org.meta_environment.rascal.ast.Expression x) { this.expression = x; }
+	public AssertWithMessage setExpression(org.meta_environment.rascal.ast.Expression x) { 
+		AssertWithMessage z = new AssertWithMessage();
+ 		z.$setExpression(x);
+		return z;
+	}
+	private org.meta_environment.rascal.ast.StringLiteral message;
+	public org.meta_environment.rascal.ast.StringLiteral getMessage() { return message; }
+	private void $setMessage(org.meta_environment.rascal.ast.StringLiteral x) { this.message = x; }
+	public AssertWithMessage setMessage(org.meta_environment.rascal.ast.StringLiteral x) { 
+		AssertWithMessage z = new AssertWithMessage();
+ 		z.$setMessage(x);
 		return z;
 	}	
 } public boolean isInsert() { return false; }

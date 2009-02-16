@@ -1,7 +1,9 @@
 package test;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.meta_environment.rascal.interpreter.errors.*;
 
 public class SubscriptTests extends TestFramework {
 
@@ -13,16 +15,20 @@ public class SubscriptTests extends TestFramework {
 		assertTrue(runTest("[0,1,2,3][2] == 2;"));
 		assertTrue(runTest("[0,1,2,3][3] == 3;"));
 
-		assertTrue(runWithError("[0,1,2,3][4] == 3;", "out of bounds"));
-
 		assertTrue(runTest("{list[int] L = [0,1,2,3]; L[0] = 10; L == [10,1,2,3];}"));
 		assertTrue(runTest("{list[int] L = [0,1,2,3]; L[1] = 11; L == [0,11,2,3];}"));
 		assertTrue(runTest("{list[int] L = [0,1,2,3]; L[2] = 22; L == [0,1,22,3];}"));
 		assertTrue(runTest("{list[int] L = [0,1,2,3]; L[3] = 33; L == [0,1,2,33];}"));
-
-		assertTrue(runWithError(
-				"{list[int] L = [0,1,2,3]; L[4] = 44; L == [0,1,2,3,44];}",
-				"out of bounds"));
+	}
+	
+	@Test(expected=IndexOutOfBoundsError.class)
+	public void testListError1(){
+		runTest("[0,1,2,3][4] == 3;");
+	}
+	
+	@Test(expected=IndexOutOfBoundsError.class)
+	public void testListError2(){
+		runTest("{list[int] L = [0,1,2,3]; L[4] = 44; L == [0,1,2,3,44];}");
 	}
 
 	@Test
@@ -45,7 +51,12 @@ public class SubscriptTests extends TestFramework {
 		assertTrue(runTest("<0, \"a\", 3.5>[1] == \"a\";"));
 		assertTrue(runTest("<0, \"a\", 3.5>[2] == 3.5;"));
 
-		assertTrue(runWithError("<0, \"a\", 3.5>[3] == 3.5;", "out of bounds"));
+		
+	}
+	
+	@Test(expected=IndexOutOfBoundsError.class)
+	public void testTupleBounds(){
+		runTest("<0, \"a\", 3.5>[3] == 3.5;");
 	}
 
 	@Test
@@ -79,10 +90,13 @@ public class SubscriptTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("f(0, \"a\", 3.5)[0] == 0;"));
 		assertTrue(runTestInSameEvaluator("f(0, \"a\", 3.5)[1] == \"a\";"));
 		assertTrue(runTestInSameEvaluator("f(0, \"a\", 3.5)[2] == 3.5;"));
-
-		assertTrue(runWithErrorInSameEvaluator("f(0, \"a\", 3.5)[3] == 3.5;",
-				"out of bounds"));
 		assertTrue(runTestInSameEvaluator("{NODE T = f(0, \"a\", 3.5); T[0] = 10; T == f(10, \"a\", 3.5);}"));
-
+	}
+	
+	@Ignore @Test(expected=IndexOutOfBoundsError.class)
+	public void testNodeBounds(){
+		prepare("data NODE = f(int a, str b, real c);");
+		
+		runTest("f(0, \"a\", 3.5)[3] == 3.5;");
 	}
 }

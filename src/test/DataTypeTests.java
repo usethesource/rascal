@@ -1,7 +1,10 @@
 package test;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.meta_environment.rascal.interpreter.errors.*;
+import org.meta_environment.rascal.interpreter.errors.NoSuchFieldError;
 
 public class DataTypeTests extends TestFramework {
 	
@@ -539,7 +542,12 @@ public class DataTypeTests extends TestFramework {
 		assertTrue(runTest("{tuple[int key, str val] T = <1, \"abc\">; T.key == 1;}"));
 		assertTrue(runTest("{tuple[int key, str val] T = <1, \"abc\">; T.val == \"abc\";}"));
 		
-		assertTrue(runWithError("{tuple[int key, str val] T = <1, \"abc\">; T.zip == \"abc\";}", "no field exists"));
+		
+	}
+	
+	@Ignore @Test(expected=NoSuchFieldError.class)
+	public void testTupleNoField(){
+		runTest("{tuple[int key, str val] T = <1, \"abc\">; T.zip == \"abc\";}");
 	}
 	
 	@Test
@@ -598,11 +606,14 @@ public class DataTypeTests extends TestFramework {
 	}
 	
 	@Test
-	public void testNamedRelation() {
+	public void testNamedRelation1() {
 		
 		assertTrue(runTest("{rel[int from, int to] R = {<1,10>, <2,20>}; R.from == {1,2};}"));
 		assertTrue(runTest("{rel[int from, int to] R = {<1,10>, <2,20>}; R.to == {10,20};}"));
-		assertTrue(runWithError("{rel[int from, int to] R = {<1,10>, <2,20>}; R.zip == {10,20};}", "no field exists"));
+	}
+	@Test(expected=NoSuchFieldError.class)
+	public void testNamedRelation2(){
+		runTest("{rel[int from, int to] R = {<1,10>, <2,20>}; R.zip == {10,20};}");
 	}
 	
 	@Test

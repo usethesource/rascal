@@ -4,6 +4,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
+import org.meta_environment.rascal.interpreter.errors.TypeError;
+import org.meta_environment.rascal.interpreter.errors.UninitializedVariableError;
 
 public class PatternTests extends TestFramework {
 
@@ -166,16 +168,34 @@ public class PatternTests extends TestFramework {
 
 	}
 	
-	@Test
-	public void testMatchList4() {
-		
-		assertTrue(runWithError("[1, list[int] L, 2, list[int] L] := [1,2,3];", "Double"));
-		assertTrue(runWithError("[1, list[str] L, 2] := [1,2,3];", "is incompatible"));
-		assertTrue(runWithError("[1, str S, 2] := [1,2,3];", "not allowed"));
-		assertTrue(runWithError("{str S = \"a\"; [1, S, 2] := [1,2,3];}", "not allowed"));
-		assertTrue(runWithError("{list[str] S = [\"a\"]; [1, S, 2] := [1,2,3];}", "not allowed"));
-		assertTrue(runWithError("{list[int] S; [1, S, 2] := [1,2,3];}", "Uninitialized"));
-		
+	@Test(expected=TypeError.class)
+	public void testMatchListError1() {
+		runTest("[1, list[int] L, 2, list[int] L] := [1,2,3];");
+	}
+	
+	@Test(expected=TypeError.class)
+	public void testMatchListError2() {
+		runTest("[1, list[str] L, 2] := [1,2,3];");
+	}
+	
+	@Test(expected=TypeError.class)
+	public void testMatchListError3() {
+		runTest("[1, str S, 2] := [1,2,3];");
+	}
+	
+	@Test(expected=TypeError.class)
+	public void testMatchListError4() {
+		runTest("{str S = \"a\"; [1, S, 2] := [1,2,3];}");
+	}
+	
+	@Test(expected=TypeError.class)
+	public void testMatchListError5() {
+		runTest("{list[str] S = [\"a\"]; [1, S, 2] := [1,2,3];}");
+	}
+	
+	@Test(expected=UninitializedVariableError.class)
+	public void testMatchListError6() {
+		runTest("{list[int] S; [1, S, 2] := [1,2,3];}");
 	}
 
 	@Test
@@ -349,17 +369,34 @@ public class PatternTests extends TestFramework {
 		assertFalse(runTestInSameEvaluator("({DATA A, f({A, b, set[DATA] SX}), SX} := {c, f({a,b,c}), d});"));
 	}	
 	
-	@Test
-	public void testMatchSet3() {
-		
-		assertTrue(runWithError("{1, set[int] L, 2, set[int] L} := {1,2,3};", "Double"));
-		assertTrue(runWithError("{1, \"a\", 2, set[int] L} := {1,2,3};", "not allowed"));
-		
-		assertTrue(runWithError("{1, set[str] L, 2} := {1,2,3};", "not allowed"));
-		assertTrue(runWithError("{1, str S, 2} := {1,2,3};", "not allowed"));
-		assertTrue(runWithError("{set[str] S = {\"a\"}; {1, S, 2} := {1,2,3};}", "not allowed"));
-		assertTrue(runWithError("{set[int] S; {1, S, 2} := {1,2,3};}", "Uninitialized"));
-		
+	@Test(expected=TypeError.class)
+	public void testMatchSetDoubleDecl() {
+		runTest("{1, set[int] L, 2, set[int] L} := {1,2,3};");
+	}
+	
+	@Test(expected=TypeError.class)
+	public void testMatchSetWrongElem1() {
+		runTest("{1, \"a\", 2, set[int] L} := {1,2,3};");
+	}	
+	
+	@Test(expected=TypeError.class)
+	public void testMatchSetWrongElem2() {
+		runTest("{1, set[str] L, 2} := {1,2,3};");
+	}
+	
+	@Test(expected=TypeError.class)
+	public void testMatchSetWrongElem3() {
+		runTest("{1, str S, 2} := {1,2,3};");
+	}
+	
+	@Test(expected=TypeError.class)
+	public void testMatchSetWrongElem4() {
+		runTest("{set[str] S = {\"a\"}; {1, S, 2} := {1,2,3};}");
+	}
+	
+	@Test(expected=UninitializedVariableError.class)
+	public void testMatchSetWrongElem5() {
+		runTest("{set[int] S; {1, S, 2} := {1,2,3};}");
 	}
 
 	@Test

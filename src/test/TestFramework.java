@@ -64,7 +64,7 @@ public class TestFramework  {
 			throw new RunTimeError("Exception while running test: " + e);
 		}
 	}
-	
+/*	
 	boolean runWithError(String command, String msg){
 		evaluator = new Evaluator(ValueFactory.getInstance(), factory,
 				new PrintWriter(System.err), new ModuleEnvironment("***test***"));
@@ -85,6 +85,7 @@ public class TestFramework  {
 		}
 		return false;
 	}
+	*/
 	
 	TestFramework prepare(String command){
 		try{

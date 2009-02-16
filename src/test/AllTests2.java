@@ -9,8 +9,7 @@ import org.junit.runners.Suite;
 	IOTests.class,
 //	ParsingTests.class,
 	PatternTests.class,
-	RegExpTests.class,
-	RuleTests.class
+	RegExpTests.class
 })
 
 public class AllTests2 {
