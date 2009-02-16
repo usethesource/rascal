@@ -22,7 +22,7 @@ PROGRAM cp(PROGRAM P) {
       {Id2 : E | STATEMENT S : P,
                  asgStat(PicoId Id, EXP E) := S,
                  is_constant(E),
-                 PicoId Id2 : reachX({S},Defs[Id],Pred),
+                 PicoId Id2 : reachX(Pred, {S},Defs[Id]),
                  Id2 == Id 
       };  
  

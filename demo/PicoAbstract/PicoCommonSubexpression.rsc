@@ -11,7 +11,7 @@ PROGRAM cse(PROGRAM P) {
        {E2 : Id | STATEMENT S : P,
                   asgStat(PicoId Id, EXP E) :=  S,
                    Id notin E,
-                   EXP E2 : reachX({S}, Defs[Id], Pred)
+                   EXP E2 : reachX(Pred, {S}, Defs[Id])
        };
   
     return visit (P) {
