@@ -14,7 +14,7 @@ public void main(str argv ...){
        println("<count> word in file <fileName>");
        total = total + count;
  	}
- 	   catch {println("Skipping file <fileName>");}
+ 	catch: {println("Skipping file <fileName>");}
   }
   
   println("<total> words in all files");

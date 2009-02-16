@@ -11,16 +11,16 @@ public class TryCatchTests extends TestFramework {
 		"int classify(value v){" +
 		"	try {" +
 		"		throw v;" +
-		"	} catch (int x){" +
+		"	} catch int x:{" +
 		"		return 1;" +
 		"	}" +
-		"	catch (node x){" +
+		"	catch node x: {" +
 		"		return 2;" +
 		"	}" +
-		"	catch (str s){" +
+		"	catch str s: {" +
 		"		return 3;" +
 		"	}" +
-		"	catch {" +
+		"	catch: {" +
 		"		return 4;" +
 		"	}" +
 		"}";
@@ -39,16 +39,16 @@ public class TryCatchTests extends TestFramework {
 		"	value duplicate(value v){" +
 		"	try {" +
 		"		throw v;" +
-		"	} catch (int x){" +
+		"	} catch int x: {" +
 		"		return x + x;" +
 		"	}" +
-		"	catch (node x){" +
+		"	catch NODEB x: {" +
 		"		return d(x,x);" +
 		"	}" +
-		"	catch (str s){" +
+		"	catch str s: {" +
 		"		return s + s;" +
 		"	}" +
-		"	catch {" +
+		"	catch: {" +
 		"		return v;" +
 		"	}" +
 		"}";
@@ -68,16 +68,16 @@ public class TryCatchTests extends TestFramework {
 		"    value res = 0;" +
 		"	try {" +
 		"		throw v;" +
-		"	} catch (int x){" +
+		"	} catch int x: {" +
 		"		res = x + x;" +
 		"	}" +
-		"	catch (node x){" +
+		"	catch NODEC x: {" +
 		"		res = d(x,x);" +
 		"	}" +
-		"	catch (str s){" +
+		"	catch str s: {" +
 		"		res = s + s;" +
 		"	}" +
-		"	catch {" +
+		"	catch: {" +
 		"		res = v;" +
 		"	}" +
 		"	finally {" +
@@ -110,7 +110,7 @@ public class TryCatchTests extends TestFramework {
 		"int safeDivide(int x, int y){" +
 		"	try" +
 		"		return divide(x,y);" +
-		"	catch " +
+		"	catch: " +
 		"		return 0;" +
 		"}";
 		

@@ -2460,8 +2460,8 @@ org.meta_environment.rascal.ast.Return.WithExpression x = new org.meta_environme
 		}
 		return (org.meta_environment.rascal.ast.Return.WithExpression)table.get(x); 
 }
-public org.meta_environment.rascal.ast.Catch.Binding makeCatchBinding(INode node, org.meta_environment.rascal.ast.Type type, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.Statement body) { 
-org.meta_environment.rascal.ast.Catch.Binding x = new org.meta_environment.rascal.ast.Catch.Binding(node, type, name, body);
+public org.meta_environment.rascal.ast.Catch.Binding makeCatchBinding(INode node, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Statement body) { 
+org.meta_environment.rascal.ast.Catch.Binding x = new org.meta_environment.rascal.ast.Catch.Binding(node, pattern, body);
 		if (!table.containsKey(x)) { 
 			table.put(x, x);
 		}
