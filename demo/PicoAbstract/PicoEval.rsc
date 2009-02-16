@@ -4,17 +4,17 @@ import PicoAbstractSyntax;
 import PicoPrograms;
 import UnitTest;
  
-data PicoValue = intval(int) | strval(str);
+data PicoValue = intval(int i) | strval(str s);
 
 alias VEnv = map[PicoId, PicoValue];
 
 VEnv Env = ();
 
-VEnv evalProgram(PROGRAM P){
+public VEnv evalProgram(PROGRAM P){
     switch (P) {
       case program(list[DECL] Decls, list[STATEMENT] Series): {
            evalDecls(Decls);
-           evalStatements(Series, Env);
+           evalStatements(Series);
       }
    }
 }
@@ -60,7 +60,7 @@ void evalStatement(STATEMENT Stat){
     }
 }
 
-PICO_VALUE evalExp(Exp exp) {
+PicoValue evalExp(EXP exp) {
     switch (exp) {
       case natCon(int N): 
            return intval(toInt(unparseToString(N)));
