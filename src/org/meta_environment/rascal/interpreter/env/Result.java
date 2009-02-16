@@ -1,16 +1,21 @@
 package org.meta_environment.rascal.interpreter.env;
 
+import java.util.Iterator;
+
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.interpreter.errors.ImplementationError;
 import org.meta_environment.rascal.interpreter.errors.TypeError;
 
-public class Result {
+public class Result  implements Iterator<Result>{
 	public Type type;
 	public IValue value;
 	private boolean isPublic = false;
-
+	Iterator<Result> iterator;
+	private Result last;
 
 	protected Result() { }
 	
@@ -21,6 +26,18 @@ public class Result {
 			throw new TypeError("Type " + v.getType() + " is not a subtype of expected type "
 					+ t);
 		}
+		iterator = null;
+		last = null;
+	}
+	
+	Result(Iterator<Result> beval){
+		this(TypeFactory.getInstance().boolType(), null);
+		this.iterator = beval;
+	}
+	
+	public Result(Iterator<Result> beval, boolean b){
+		this(TypeFactory.getInstance().boolType(), ValueFactory.getInstance().bool(b));
+		this.iterator = beval;
 	}
 	
 	public String toString() {
@@ -44,22 +61,31 @@ public class Result {
 	}
 	
 	public boolean isTrue(){
-		if(type.isBoolType()){
-			return ((IBool)value).getValue();
+		if(iterator == null){
+			if(type.isBoolType()){
+				return ((IBool)value).getValue();
+			} else {
+				return false;
+			}
 		} else {
-			return false;
-		}	
+			return (last == null) || last.isTrue();
+		}
 	}
 	
-	/*
-	 * Experimental extension for backtracking over Boolean expressions
-	 */
 	public boolean hasNext(){
-		return false;
+		return iterator != null && iterator.hasNext();
 	}
 	
 	public Result next(){
-		throw new ImplementationError("next() cannot be called on a standard Result");
+		if(iterator == null){
+			new ImplementationError("next called on Result with null iterator");
+		}
+		return last = iterator.next();
+	}
+
+	public void remove() {
+		throw new ImplementationError("remove() not implemented for Result");
+		
 	}
 }
 

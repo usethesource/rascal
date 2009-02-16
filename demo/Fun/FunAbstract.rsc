@@ -11,7 +11,7 @@ import Relation;
  
 data Exp =
        fun(str name, Exp exp)             // Function application
-     | var(str Name)                      // Variable occurrence
+     | var(str name)                      // Variable occurrence
      | intcon(int ival)                   // Integer constant
      | strcon(str sval)                   // String constant
      | apply(Exp exp1, Exp exp2)          // Function application
