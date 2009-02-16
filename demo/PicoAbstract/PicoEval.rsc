@@ -72,19 +72,18 @@ PICO_VALUE evalExp(Exp exp) {
            return Env[Id];
 
       case add(EXP E1, EXP E2):
-           if(intval(int n1) := evalExp(E1) &&
-              intval(int n2) := evalExp(E1)){
-              return intval(n1 + n2);
+           if((intval(int n1) := evalExp(E1)) && intval(int n2) := evalExp(E1)) {
+                return intval(n1 + n2);
            }
       
       case sub(EXP E1, EXP E2):
-            if(intval(int n1) := evalExp(E1) &&
+            if((intval(int n1) := evalExp(E1)) &&
                intval(int n2) := evalExp(E1)){
                return intval(n1 - n2);
            }
  
       case conc(EXP E1, EXP E2):
-           if(strval(str s1) := evalExp(E1) &&
+           if((strval(str s1) := evalExp(E1)) &&
               strval(str s2) := evalExp(E2)){
               return strval(s1 + s2);
            }
