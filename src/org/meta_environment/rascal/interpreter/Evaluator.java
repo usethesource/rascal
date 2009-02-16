@@ -1401,7 +1401,6 @@ public class Evaluator extends NullASTVisitor<Result> {
 		} catch (Error e){
 			
 			IValue eValue = e.getException();
-			Type eType = eValue.getType();
 
 			for (Catch c : handlers){
 				if(c.isDefault()){
@@ -1409,17 +1408,14 @@ public class Evaluator extends NullASTVisitor<Result> {
 					break;
 				} 
 				
-				if (eType.isSubtypeOf(evalType(c.getType()))){
-					try {
-						push();		
-						Name name = c.getName();
-						peek().storeVariable(name, normalizedResult(eType, eValue));
-						res = c.getBody().accept(this);
+				try {
+					push();	
+					if(matchAndEval(eValue, c.getPattern(), c.getBody())){
 						break;
-					} 
-					finally {
-						pop();
 					}
+				} 
+				finally {
+					pop();
 				}
 			}
 		}

@@ -27,7 +27,7 @@ private void runTest(void () test)
 {
 	try {
 		test();
-	} catch(node Any){
+	} catch node Any: {
 		nErrors = nErrors + 1;
 	}
 }

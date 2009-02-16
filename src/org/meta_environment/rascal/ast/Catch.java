@@ -3,7 +3,7 @@ import org.eclipse.imp.pdb.facts.INode;
 public abstract class Catch extends AbstractAST { 
   public org.meta_environment.rascal.ast.Statement getBody() { throw new UnsupportedOperationException(); } public boolean hasBody() { return false; } public boolean isDefault() { return false; }
 static public class Default extends Catch {
-/* "catch" body:Statement -> Catch {cons("Default")} */
+/* "catch" ":" body:Statement -> Catch {cons("Default")} */
 	private Default() { }
 	/*package*/ Default(INode node, org.meta_environment.rascal.ast.Statement body) {
 		this.node = node;
@@ -40,16 +40,13 @@ static public class Ambiguity extends Catch {
      return v.visitCatchAmbiguity(this);
   }
 } 
-public org.meta_environment.rascal.ast.Type getType() { throw new UnsupportedOperationException(); }
-	public org.meta_environment.rascal.ast.Name getName() { throw new UnsupportedOperationException(); } public boolean hasType() { return false; }
-	public boolean hasName() { return false; } public boolean isBinding() { return false; }
+public org.meta_environment.rascal.ast.Expression getPattern() { throw new UnsupportedOperationException(); } public boolean hasPattern() { return false; } public boolean isBinding() { return false; }
 static public class Binding extends Catch {
-/* "catch" "(" type:Type name:Name ")" body:Statement -> Catch {cons("Binding")} */
+/* "catch" pattern:Expression ":" body:Statement -> Catch {cons("Binding")} */
 	private Binding() { }
-	/*package*/ Binding(INode node, org.meta_environment.rascal.ast.Type type, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.Statement body) {
+	/*package*/ Binding(INode node, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Statement body) {
 		this.node = node;
-		this.type = type;
-		this.name = name;
+		this.pattern = pattern;
 		this.body = body;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
@@ -58,24 +55,15 @@ static public class Binding extends Catch {
 
 	public boolean isBinding() { return true; }
 
-	public boolean hasType() { return true; }
-	public boolean hasName() { return true; }
+	public boolean hasPattern() { return true; }
 	public boolean hasBody() { return true; }
 
-private org.meta_environment.rascal.ast.Type type;
-	public org.meta_environment.rascal.ast.Type getType() { return type; }
-	private void $setType(org.meta_environment.rascal.ast.Type x) { this.type = x; }
-	public Binding setType(org.meta_environment.rascal.ast.Type x) { 
+private org.meta_environment.rascal.ast.Expression pattern;
+	public org.meta_environment.rascal.ast.Expression getPattern() { return pattern; }
+	private void $setPattern(org.meta_environment.rascal.ast.Expression x) { this.pattern = x; }
+	public Binding setPattern(org.meta_environment.rascal.ast.Expression x) { 
 		Binding z = new Binding();
- 		z.$setType(x);
-		return z;
-	}
-	private org.meta_environment.rascal.ast.Name name;
-	public org.meta_environment.rascal.ast.Name getName() { return name; }
-	private void $setName(org.meta_environment.rascal.ast.Name x) { this.name = x; }
-	public Binding setName(org.meta_environment.rascal.ast.Name x) { 
-		Binding z = new Binding();
- 		z.$setName(x);
+ 		z.$setPattern(x);
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Statement body;
