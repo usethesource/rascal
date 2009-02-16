@@ -570,14 +570,14 @@ org.meta_environment.rascal.ast.Expression.Visit x = new org.meta_environment.ra
 		}
 		return (org.meta_environment.rascal.ast.Expression.Visit)table.get(x); 
 }
-public org.meta_environment.rascal.ast.Expression.Any makeExpressionAny(INode node, java.util.List<org.meta_environment.rascal.ast.Generator> generators) { 
+public org.meta_environment.rascal.ast.Expression.Any makeExpressionAny(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> generators) { 
 org.meta_environment.rascal.ast.Expression.Any x = new org.meta_environment.rascal.ast.Expression.Any(node, generators);
 		if (!table.containsKey(x)) { 
 			table.put(x, x);
 		}
 		return (org.meta_environment.rascal.ast.Expression.Any)table.get(x); 
 }
-public org.meta_environment.rascal.ast.Expression.All makeExpressionAll(INode node, java.util.List<org.meta_environment.rascal.ast.Generator> generators) { 
+public org.meta_environment.rascal.ast.Expression.All makeExpressionAll(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> generators) { 
 org.meta_environment.rascal.ast.Expression.All x = new org.meta_environment.rascal.ast.Expression.All(node, generators);
 		if (!table.containsKey(x)) { 
 			table.put(x, x);
@@ -590,6 +590,20 @@ org.meta_environment.rascal.ast.Expression.Comprehension x = new org.meta_enviro
 			table.put(x, x);
 		}
 		return (org.meta_environment.rascal.ast.Expression.Comprehension)table.get(x); 
+}
+public org.meta_environment.rascal.ast.Expression.ValueProducerWithStrategy makeExpressionValueProducerWithStrategy(INode node, org.meta_environment.rascal.ast.Strategy strategy, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Expression expression) { 
+org.meta_environment.rascal.ast.Expression.ValueProducerWithStrategy x = new org.meta_environment.rascal.ast.Expression.ValueProducerWithStrategy(node, strategy, pattern, expression);
+		if (!table.containsKey(x)) { 
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.ValueProducerWithStrategy)table.get(x); 
+}
+public org.meta_environment.rascal.ast.Expression.ValueProducer makeExpressionValueProducer(INode node, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Expression expression) { 
+org.meta_environment.rascal.ast.Expression.ValueProducer x = new org.meta_environment.rascal.ast.Expression.ValueProducer(node, pattern, expression);
+		if (!table.containsKey(x)) { 
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.ValueProducer)table.get(x); 
 }
 public org.meta_environment.rascal.ast.Expression.NoMatch makeExpressionNoMatch(INode node, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Expression expression) { 
 org.meta_environment.rascal.ast.Expression.NoMatch x = new org.meta_environment.rascal.ast.Expression.NoMatch(node, pattern, expression);
@@ -752,48 +766,6 @@ org.meta_environment.rascal.ast.Asterisk.Lexical x = new org.meta_environment.ra
 		}
 		return (org.meta_environment.rascal.ast.Asterisk.Lexical)table.get(x); 
 }
-public org.meta_environment.rascal.ast.ValueProducer.GivenStrategy makeValueProducerGivenStrategy(INode node, org.meta_environment.rascal.ast.Strategy strategy, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Expression expression) { 
-org.meta_environment.rascal.ast.ValueProducer.GivenStrategy x = new org.meta_environment.rascal.ast.ValueProducer.GivenStrategy(node, strategy, pattern, expression);
-		if (!table.containsKey(x)) { 
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.ValueProducer.GivenStrategy)table.get(x); 
-}
-public org.meta_environment.rascal.ast.ValueProducer.Ambiguity makeValueProducerAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.ValueProducer> alternatives) { 
-org.meta_environment.rascal.ast.ValueProducer.Ambiguity amb = new org.meta_environment.rascal.ast.ValueProducer.Ambiguity(node, alternatives);
-     if (!table.containsKey(amb)) {
-        table.put(amb, amb);
-     }
-     return (org.meta_environment.rascal.ast.ValueProducer.Ambiguity)table.get(amb); 
-}
-public org.meta_environment.rascal.ast.ValueProducer.DefaultStrategy makeValueProducerDefaultStrategy(INode node, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Expression expression) { 
-org.meta_environment.rascal.ast.ValueProducer.DefaultStrategy x = new org.meta_environment.rascal.ast.ValueProducer.DefaultStrategy(node, pattern, expression);
-		if (!table.containsKey(x)) { 
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.ValueProducer.DefaultStrategy)table.get(x); 
-}
-public org.meta_environment.rascal.ast.Generator.Producer makeGeneratorProducer(INode node, org.meta_environment.rascal.ast.ValueProducer producer) { 
-org.meta_environment.rascal.ast.Generator.Producer x = new org.meta_environment.rascal.ast.Generator.Producer(node, producer);
-		if (!table.containsKey(x)) { 
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Generator.Producer)table.get(x); 
-}
-public org.meta_environment.rascal.ast.Generator.Ambiguity makeGeneratorAmbiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Generator> alternatives) { 
-org.meta_environment.rascal.ast.Generator.Ambiguity amb = new org.meta_environment.rascal.ast.Generator.Ambiguity(node, alternatives);
-     if (!table.containsKey(amb)) {
-        table.put(amb, amb);
-     }
-     return (org.meta_environment.rascal.ast.Generator.Ambiguity)table.get(amb); 
-}
-public org.meta_environment.rascal.ast.Generator.Expression makeGeneratorExpression(INode node, org.meta_environment.rascal.ast.Expression expression) { 
-org.meta_environment.rascal.ast.Generator.Expression x = new org.meta_environment.rascal.ast.Generator.Expression(node, expression);
-		if (!table.containsKey(x)) { 
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Generator.Expression)table.get(x); 
-}
 public org.meta_environment.rascal.ast.Strategy.Innermost makeStrategyInnermost(INode node) { 
 org.meta_environment.rascal.ast.Strategy.Innermost x = new org.meta_environment.rascal.ast.Strategy.Innermost(node);
 		if (!table.containsKey(x)) { 
@@ -843,14 +815,14 @@ org.meta_environment.rascal.ast.Strategy.TopDown x = new org.meta_environment.ra
 		}
 		return (org.meta_environment.rascal.ast.Strategy.TopDown)table.get(x); 
 }
-public org.meta_environment.rascal.ast.Comprehension.Map makeComprehensionMap(INode node, org.meta_environment.rascal.ast.Expression from, org.meta_environment.rascal.ast.Expression to, java.util.List<org.meta_environment.rascal.ast.Generator> generators) { 
+public org.meta_environment.rascal.ast.Comprehension.Map makeComprehensionMap(INode node, org.meta_environment.rascal.ast.Expression from, org.meta_environment.rascal.ast.Expression to, java.util.List<org.meta_environment.rascal.ast.Expression> generators) { 
 org.meta_environment.rascal.ast.Comprehension.Map x = new org.meta_environment.rascal.ast.Comprehension.Map(node, from, to, generators);
 		if (!table.containsKey(x)) { 
 			table.put(x, x);
 		}
 		return (org.meta_environment.rascal.ast.Comprehension.Map)table.get(x); 
 }
-public org.meta_environment.rascal.ast.Comprehension.List makeComprehensionList(INode node, org.meta_environment.rascal.ast.Expression result, java.util.List<org.meta_environment.rascal.ast.Generator> generators) { 
+public org.meta_environment.rascal.ast.Comprehension.List makeComprehensionList(INode node, org.meta_environment.rascal.ast.Expression result, java.util.List<org.meta_environment.rascal.ast.Expression> generators) { 
 org.meta_environment.rascal.ast.Comprehension.List x = new org.meta_environment.rascal.ast.Comprehension.List(node, result, generators);
 		if (!table.containsKey(x)) { 
 			table.put(x, x);
@@ -864,7 +836,7 @@ org.meta_environment.rascal.ast.Comprehension.Ambiguity amb = new org.meta_envir
      }
      return (org.meta_environment.rascal.ast.Comprehension.Ambiguity)table.get(amb); 
 }
-public org.meta_environment.rascal.ast.Comprehension.Set makeComprehensionSet(INode node, org.meta_environment.rascal.ast.Expression result, java.util.List<org.meta_environment.rascal.ast.Generator> generators) { 
+public org.meta_environment.rascal.ast.Comprehension.Set makeComprehensionSet(INode node, org.meta_environment.rascal.ast.Expression result, java.util.List<org.meta_environment.rascal.ast.Expression> generators) { 
 org.meta_environment.rascal.ast.Comprehension.Set x = new org.meta_environment.rascal.ast.Comprehension.Set(node, result, generators);
 		if (!table.containsKey(x)) { 
 			table.put(x, x);
@@ -2236,7 +2208,7 @@ org.meta_environment.rascal.ast.Statement.While x = new org.meta_environment.ras
 		}
 		return (org.meta_environment.rascal.ast.Statement.While)table.get(x); 
 }
-public org.meta_environment.rascal.ast.Statement.For makeStatementFor(INode node, org.meta_environment.rascal.ast.Label label, java.util.List<org.meta_environment.rascal.ast.Generator> generators, org.meta_environment.rascal.ast.Statement body) { 
+public org.meta_environment.rascal.ast.Statement.For makeStatementFor(INode node, org.meta_environment.rascal.ast.Label label, java.util.List<org.meta_environment.rascal.ast.Expression> generators, org.meta_environment.rascal.ast.Statement body) { 
 org.meta_environment.rascal.ast.Statement.For x = new org.meta_environment.rascal.ast.Statement.For(node, label, generators, body);
 		if (!table.containsKey(x)) { 
 			table.put(x, x);

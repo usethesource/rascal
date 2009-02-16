@@ -61,11 +61,11 @@ static public class Ambiguity extends Statement {
   public <T> T accept(IASTVisitor<T> v) {
      return v.visitStatementAmbiguity(this);
   }
-} public org.meta_environment.rascal.ast.Label getLabel() { throw new UnsupportedOperationException(); } public java.util.List<org.meta_environment.rascal.ast.Generator> getGenerators() { throw new UnsupportedOperationException(); } public boolean hasLabel() { return false; } public boolean hasGenerators() { return false; } public boolean isFor() { return false; }
+} public org.meta_environment.rascal.ast.Label getLabel() { throw new UnsupportedOperationException(); } public java.util.List<org.meta_environment.rascal.ast.Expression> getGenerators() { throw new UnsupportedOperationException(); } public boolean hasLabel() { return false; } public boolean hasGenerators() { return false; } public boolean isFor() { return false; }
 static public class For extends Statement {
-/* label:Label "for" "(" generators:{Generator ","}+ ")" body:Statement -> Statement {cons("For")} */
+/* label:Label "for" "(" generators:{Expression ","}+ ")" body:Statement -> Statement {cons("For")} */
 	private For() { }
-	/*package*/ For(INode node, org.meta_environment.rascal.ast.Label label, java.util.List<org.meta_environment.rascal.ast.Generator> generators, org.meta_environment.rascal.ast.Statement body) {
+	/*package*/ For(INode node, org.meta_environment.rascal.ast.Label label, java.util.List<org.meta_environment.rascal.ast.Expression> generators, org.meta_environment.rascal.ast.Statement body) {
 		this.node = node;
 		this.label = label;
 		this.generators = generators;
@@ -89,10 +89,10 @@ private org.meta_environment.rascal.ast.Label label;
  		z.$setLabel(x);
 		return z;
 	}
-	private java.util.List<org.meta_environment.rascal.ast.Generator> generators;
-	public java.util.List<org.meta_environment.rascal.ast.Generator> getGenerators() { return generators; }
-	private void $setGenerators(java.util.List<org.meta_environment.rascal.ast.Generator> x) { this.generators = x; }
-	public For setGenerators(java.util.List<org.meta_environment.rascal.ast.Generator> x) { 
+	private java.util.List<org.meta_environment.rascal.ast.Expression> generators;
+	public java.util.List<org.meta_environment.rascal.ast.Expression> getGenerators() { return generators; }
+	private void $setGenerators(java.util.List<org.meta_environment.rascal.ast.Expression> x) { this.generators = x; }
+	public For setGenerators(java.util.List<org.meta_environment.rascal.ast.Expression> x) { 
 		For z = new For();
  		z.$setGenerators(x);
 		return z;

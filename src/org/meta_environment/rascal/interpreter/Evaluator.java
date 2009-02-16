@@ -45,7 +45,6 @@ import org.meta_environment.rascal.ast.Expression;
 import org.meta_environment.rascal.ast.Field;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.FunctionModifier;
-import org.meta_environment.rascal.ast.Generator;
 import org.meta_environment.rascal.ast.Import;
 import org.meta_environment.rascal.ast.Module;
 import org.meta_environment.rascal.ast.Name;
@@ -58,7 +57,6 @@ import org.meta_environment.rascal.ast.StringLiteral;
 import org.meta_environment.rascal.ast.Toplevel;
 import org.meta_environment.rascal.ast.TypeArg;
 import org.meta_environment.rascal.ast.TypeVar;
-import org.meta_environment.rascal.ast.ValueProducer;
 import org.meta_environment.rascal.ast.Variant;
 import org.meta_environment.rascal.ast.Assignable.Constructor;
 import org.meta_environment.rascal.ast.Assignable.FieldAccess;
@@ -119,6 +117,8 @@ import org.meta_environment.rascal.ast.Expression.TransitiveClosure;
 import org.meta_environment.rascal.ast.Expression.TransitiveReflexiveClosure;
 import org.meta_environment.rascal.ast.Expression.Tuple;
 import org.meta_environment.rascal.ast.Expression.TypedVariable;
+import org.meta_environment.rascal.ast.Expression.ValueProducer;
+import org.meta_environment.rascal.ast.Expression.ValueProducerWithStrategy;
 import org.meta_environment.rascal.ast.Expression.Visit;
 import org.meta_environment.rascal.ast.Expression.VoidClosure;
 import org.meta_environment.rascal.ast.Header.Parameters;
@@ -3583,14 +3583,29 @@ public class Evaluator extends NullASTVisitor<Result> {
 	}
 	
 	
-	
+	/*
 	@Override
 	public Result visitGeneratorExpression(
 			org.meta_environment.rascal.ast.Generator.Expression x) {
 		return new GeneratorEvaluator(x, this).next();
 	}
+	*/
 	
-	class GeneratorEvaluator implements Iterator<Result>{
+	@Override
+	public Result visitExpressionValueProducer(
+			org.meta_environment.rascal.ast.Expression.ValueProducer x) {
+		// TODO Auto-generated method stub
+		return new GeneratorEvaluator(x, this);
+	}
+	
+	@Override
+	public Result visitExpressionValueProducerWithStrategy(
+			ValueProducerWithStrategy x) {
+		// TODO Auto-generated method stub
+		return super.visitExpressionValueProducerWithStrategy(x);
+	}
+	
+	class GeneratorEvaluator extends Result {
 		private boolean isValueProducer;
 		private boolean firstTime = true;
 		private org.meta_environment.rascal.ast.Expression expr;
@@ -3598,62 +3613,64 @@ public class Evaluator extends NullASTVisitor<Result> {
 		private org.meta_environment.rascal.ast.Expression patexpr;
 		private Evaluator evaluator;
 		private Iterator<?> iter;
-		
+		/*
 		GeneratorEvaluator(ValueProducer vp, Evaluator ev){
 			make(vp, ev);
 		}
+		*/
 
-		GeneratorEvaluator(Generator g, Evaluator ev){
-			if(g.isProducer()){
-				make(g.getProducer(), ev);
+		GeneratorEvaluator(Expression g, Evaluator ev){
+			make(g, ev);
+		}
+		
+		void make(Expression vp, Evaluator ev){
+			if(vp.isValueProducer() || vp.isValueProducerWithStrategy()){
+				evaluator = ev;
+				isValueProducer = true;
+				
+				pat = evalPattern(vp.getPattern());
+				patexpr = vp.getExpression();
+				Result r = patexpr.accept(ev);
+				// List
+				if(r.type.isListType()){
+					iter = ((IList) r.value).iterator();
+					
+				// Set
+				} else 	if(r.type.isSetType()){
+					iter = ((ISet) r.value).iterator();
+				
+				// Map
+				} else if(r.type.isMapType()){
+					iter = ((IMap) r.value).iterator();
+					
+				// Node and ADT
+				} else if(r.type.isNodeType() || r.type.isAbstractDataType()){
+					boolean bottomup = true;
+					if(vp.hasStrategy()){
+						Strategy strat = vp.getStrategy();
+	
+						if(strat.isTopDown()){
+							bottomup = false;
+						} else if(strat.isBottomUp()){
+								bottomup = true;
+						} else {
+							throw new TypeError("Strategy " + strat + " not allowed in generator", vp);
+						}
+					}
+					iter = new INodeReader((INode) r.value, bottomup);
+				} else if(r.type.isStringType()){
+					iter = new SingleIValueIterator(r.value);
+				} else {
+					throw new ImplementationError("Unimplemented expression type " + r.type + " in generator", vp);
+				}
 			} else {
 				evaluator = ev;
 				isValueProducer = false;
-				expr = g.getExpression();
+				expr = vp;
 			}
 		}
 		
-		void make(ValueProducer vp, Evaluator ev){
-			evaluator = ev;
-			isValueProducer = true;
-			
-			pat = evalPattern(vp.getPattern());
-			patexpr = vp.getExpression();
-			Result r = patexpr.accept(ev);
-			// List
-			if(r.type.isListType()){
-				iter = ((IList) r.value).iterator();
-				
-			// Set
-			} else 	if(r.type.isSetType()){
-				iter = ((ISet) r.value).iterator();
-			
-			// Map
-			} else if(r.type.isMapType()){
-				iter = ((IMap) r.value).iterator();
-				
-			// Node and ADT
-			} else if(r.type.isNodeType() || r.type.isAbstractDataType()){
-				boolean bottomup = true;
-				if(vp.hasStrategy()){
-					Strategy strat = vp.getStrategy();
-
-					if(strat.isTopDown()){
-						bottomup = false;
-					} else if(strat.isBottomUp()){
-							bottomup = true;
-					} else {
-						throw new TypeError("Strategy " + strat + " not allowed in generator", vp);
-					}
-				}
-				iter = new INodeReader((INode) r.value, bottomup);
-			} else if(r.type.isStringType()){
-				iter = new SingleIValueIterator(r.value);
-			} else {
-				throw new ImplementationError("Unimplemented expression type " + r.type + " in generator", vp);
-			}
-		}
-		
+		@Override
 		public boolean hasNext(){
 			if(isValueProducer){
 				return pat.hasNext() || iter.hasNext();
@@ -3662,6 +3679,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			}	
 		}
 
+		@Override
 		public Result next(){
 			if(isValueProducer){
 				//System.err.println("getNext, trying pat " + pat);
@@ -3809,7 +3827,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	 * The common comprehension evaluator
 	 */
 	
-	private Result evalComprehension(java.util.List<Generator> generators, 
+	private Result evalComprehension(java.util.List<Expression> generators, 
 										  ComprehensionCollectionWriter w){
 		int size = generators.size();
 		GeneratorEvaluator[] gens = new GeneratorEvaluator[size];
@@ -3857,7 +3875,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	@Override
 	public Result visitStatementFor(For x) {
 		Statement body = x.getBody();
-		java.util.List<Generator> generators = x.getGenerators();
+		java.util.List<Expression> generators = x.getGenerators();
 		int size = generators.size();
 		GeneratorEvaluator[] gens = new GeneratorEvaluator[size];
 		Result result = result();
@@ -3881,7 +3899,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	@Override
 	public Result visitExpressionAny(Any x) {
-		java.util.List<Generator> generators = x.getGenerators();
+		java.util.List<Expression> generators = x.getGenerators();
 		int size = generators.size();
 		GeneratorEvaluator[] gens = new GeneratorEvaluator[size];
 
@@ -3904,7 +3922,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	@Override
 	public Result visitExpressionAll(All x) {
-		java.util.List<Generator> producers = x.getGenerators();
+		java.util.List<Expression> producers = x.getGenerators();
 		int size = producers.size();
 		GeneratorEvaluator[] gens = new GeneratorEvaluator[size];
 
