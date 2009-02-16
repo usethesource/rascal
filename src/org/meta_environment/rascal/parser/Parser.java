@@ -13,7 +13,6 @@ import org.eclipse.imp.pdb.facts.io.ATermReader;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.ParsetreeAdapter;
-import org.meta_environment.uptr.TreeAdapter;
 
 import sglr.SGLRInvoker;
 
