@@ -59,11 +59,11 @@ public set[&T] reachX(rel[&T,&T] G, set[&T] Start, set[&T] Excl)
 }
 /*
 TO DO
-public list[&T] shortestPathPair(&T From, &T To, graph[&T] G)
+public list[&T] shortestPathPair(graph[&T] G, &T From, &T To)
   @doc{Shortest path between pair of nodes}
   @primitive{"Graph.shortestPathPair"}
 
-public set[list[&T]] shortestPathFrom(&T From, graph[&T] G)
+public set[list[&T]] shortestPathFrom(graph[&T] G, &T From)
   @doc{Shortest path between one node and all others}
   @primitive{"Graph.shortestPathFrom"}
 
