@@ -163,7 +163,6 @@ import org.meta_environment.rascal.interpreter.control_exceptions.InsertControlE
 import org.meta_environment.rascal.interpreter.control_exceptions.ReturnControlException;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
-import org.meta_environment.rascal.interpreter.env.IterableEvalResult;
 import org.meta_environment.rascal.interpreter.env.JavaFunction;
 import org.meta_environment.rascal.interpreter.env.Lambda;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
@@ -3672,7 +3671,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				while(pat.hasNext()){
 					if(pat.next()){
 						//System.err.println("return true");
-						return new IterableEvalResult(this, true);
+						return new Result(this, true);
 					}
 				}
 				
@@ -3687,7 +3686,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 					while(pat.hasNext()){
 						if(pat.next()){
 							//System.err.println("return true");
-							return new IterableEvalResult(this,true);						
+							return new Result(this,true);						
 						}	
 					}
 				}

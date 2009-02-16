@@ -16,7 +16,6 @@ import org.meta_environment.rascal.ast.Expression.Negation;
 import org.meta_environment.rascal.ast.Expression.Or;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.Result;
-import org.meta_environment.rascal.interpreter.env.IterableEvalResult;
 import org.meta_environment.rascal.interpreter.errors.ImplementationError;
 import org.meta_environment.rascal.interpreter.errors.TypeError;
 
@@ -119,19 +118,19 @@ class AndEvaluator extends BooleanEvaluator {
 	public Result next() {
 		if(is(LEFT, false)){
 			if(!getNextResult(LEFT,true)){
-				return new IterableEvalResult(this, false);
+				return new Result(this, false);
 			}
 		}
 		if(is(LEFT, true)){
 			if(getNextResult(RIGHT,true)){
-				return new IterableEvalResult(this, true);
+				return new Result(this, true);
 			}
 			if(getNextResult(LEFT,true)){
 				redef(RIGHT);
 				return next();
 			}
 		}
-		return new IterableEvalResult(this, false);
+		return new Result(this, false);
 	}
 }
 
@@ -148,12 +147,12 @@ class OrEvaluator extends BooleanEvaluator {
 	@Override
 	public Result next() {	
 		if(getNextResult(LEFT, true)){
-			return new IterableEvalResult(this, true);
+			return new Result(this, true);
 		}
 		if(getNextResult(RIGHT,true)){
-			return new IterableEvalResult(this, true);
+			return new Result(this, true);
 		}
-		return new IterableEvalResult(this, false);
+		return new Result(this, false);
 			
 	}
 }
@@ -171,9 +170,9 @@ class NegationEvaluator extends BooleanEvaluator {
 	@Override
 	public Result next() {		
 		if(getNextResult(LEFT)){
-			return new IterableEvalResult(this, !((IBool)result[LEFT].value).getValue());
+			return new Result(this, !((IBool)result[LEFT].value).getValue());
 		}
-		return new IterableEvalResult(this, false);
+		return new Result(this, false);
 	}
 }
 
@@ -190,26 +189,26 @@ class ImplicationEvaluator extends BooleanEvaluator {
 	public Result next() {
 		if(is(LEFT,false)){
 			if(getNextResult(RIGHT)){
-				return new IterableEvalResult(this, true);
+				return new Result(this, true);
 			}
 			if(getNextResult(LEFT)){
 				redef(RIGHT);
 				return next();
 			} 
-			return new IterableEvalResult(this, false);
+			return new Result(this, false);
 		}
 		if(is(LEFT, true)){
 			if(getNextResult(RIGHT, true)){
-				return new IterableEvalResult(this, true);
+				return new Result(this, true);
 			}
 			if(getNextResult(LEFT)){
 				redef(RIGHT);
 				return next();
 			} 
-			return new IterableEvalResult(this, false);
+			return new Result(this, false);
 		}
 	
-		return  new IterableEvalResult(this, false);
+		return  new Result(this, false);
 	}
 }
 
@@ -227,26 +226,26 @@ class EquivalenceEvaluator extends BooleanEvaluator {
 	public Result next() {
 		if(is(LEFT,false)){
 			if(getNextResult(RIGHT,false)){
-				return new IterableEvalResult(this, true);
+				return new Result(this, true);
 			}
 			if(getNextResult(LEFT)){
 				redef(RIGHT);
 				return next();
 			} 
-			return new IterableEvalResult(this, false);
+			return new Result(this, false);
 		}
 		if(is(LEFT, true)){
 			if(getNextResult(RIGHT, true)){
-				return new IterableEvalResult(this, true);
+				return new Result(this, true);
 			}
 			if(getNextResult(LEFT)){
 				redef(RIGHT);
 				return next();
 			} 
-			return new IterableEvalResult(this, false);
+			return new Result(this, false);
 		}
 	
-		return  new IterableEvalResult(this, false);
+		return  new Result(this, false);
 	}
 }
 
@@ -273,7 +272,7 @@ class MatchEvaluator implements Iterator<Result> {
 
 	public Result next() {
 		boolean result = positive ? mp.next() : !mp.next();
-		return new IterableEvalResult(this,result);
+		return new Result(this,result);
 	}
 
 	public void remove() {

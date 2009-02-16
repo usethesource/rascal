@@ -2,8 +2,8 @@ module BoolAbstractRules
 
 data Bool = btrue;
 data Bool = bfalse;
-data Bool = band(Bool L, Bool R);
-data Bool = bor(Bool L, Bool R);  
+data Bool = band(Bool left, Bool right);
+data Bool = bor(Bool left, Bool right);  
 
 rule a1 band(btrue, Bool B)    => B;
 rule a2 band(bfalse, Bool B)   => bfalse;

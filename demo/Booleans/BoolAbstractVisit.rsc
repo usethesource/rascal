@@ -2,8 +2,8 @@ module BoolAbstractVisit
 
 data Bool = btrue;
 data Bool = bfalse;
-data Bool = band(Bool L, Bool R);
-data Bool = bor(Bool L, Bool R);  
+data Bool = band(Bool left, Bool right);
+data Bool = bor(Bool left, Bool right);  
 
 public Bool reduce(Bool B) {
     return innermost visit(B) {
