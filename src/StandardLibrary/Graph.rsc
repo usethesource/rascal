@@ -36,13 +36,23 @@ public set[&T] gbottom(graph[&T] G)
   return range(G) - domain(G);
 }
 
-public set[&T] reachR(set[&T] Start, set[&T] Restr, rel[&T,&T] G)
+public set[&T] reach(rel[&T,&T] G, set[&T] Start)
+@doc{Reachability from start set}
+{
+	with
+     	set[&T] R = Start;
+	solve
+		R = R + G[R];
+	return R;
+}
+
+public set[&T] reachR(rel[&T,&T] G, set[&T] Start, set[&T] Restr)
 @doc{Reachability with restriction}
 {
 	return (carrierR(G, Restr)+)[Start];
 }
 
-public set[&T] reachX(set[&T] Start, set[&T] Excl, rel[&T,&T] G)
+public set[&T] reachX(rel[&T,&T] G, set[&T] Start, set[&T] Excl)
 @doc{Reachability with exclusion}
 {
    return (carrierX(G, Excl)+)[Start];

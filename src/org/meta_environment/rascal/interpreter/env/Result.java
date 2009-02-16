@@ -30,14 +30,13 @@ public class Result  implements Iterator<Result>{
 		last = null;
 	}
 	
-	Result(Iterator<Result> beval){
-		this(TypeFactory.getInstance().boolType(), null);
-		this.iterator = beval;
-	}
-	
 	public Result(Iterator<Result> beval, boolean b){
 		this(TypeFactory.getInstance().boolType(), ValueFactory.getInstance().bool(b));
 		this.iterator = beval;
+	}
+	
+	Result(Iterator<Result> beval){
+		this(beval, true);
 	}
 	
 	public String toString() {

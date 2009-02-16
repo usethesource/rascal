@@ -13,6 +13,6 @@ set[PICO-ID] uninit(PROGRAM P) {
     rel[CP,CP] Pred = CFLOW.graph; 
 
     return {Id | <EXP E, PicoId Id> : Uses,
-                 E in reachX(Root, Defs[Id], Pred)
+                 E in reachX(Pred, Root, Defs[Id])
     };
 }
