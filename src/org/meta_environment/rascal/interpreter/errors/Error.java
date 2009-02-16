@@ -34,16 +34,22 @@ public class Error extends RuntimeException {
 	
 	public Error(IValue value, AbstractAST node) {
 		this.exception = value;
-		range = node.getSourceRange();
-		path = node.getSourcePath();
+		if(node != null){
+			range = node.getSourceRange();
+			path = node.getSourcePath();
+		} else {
+			range = null;
+			path = null;
+		}
 	};
 	
 	private static INode makeNode(String errorCons, String message){
-		//System.err.println("makeNode(" + exceptionCons + ", " + message + ")");
 		ValueFactory VF = ValueFactory.getInstance();
 		TypeFactory TF = TypeFactory.getInstance();
 		Type adt = TF.lookupAbstractDataType("Error");
 		List<Type> types = TF.lookupConstructor(adt, errorCons);
+		if(message == null)
+			message = "null";
 		if(types.size() > 0){
 			// The Error ADT is defined
 			Type Cons = types.get(0);
@@ -54,17 +60,17 @@ public class Error extends RuntimeException {
 		}
 	}
 
-	public Error(String exceptionCons, String message) {
-		this(makeNode(exceptionCons, message));
+	public Error(String errorCons, String message) {
+		this(makeNode(errorCons, message), null);
 	}
 
-	public Error(String message, String exceptionCons, AbstractAST node) {
-		this(makeNode(exceptionCons, message));
+	public Error(String errorCons, String message, AbstractAST node) {
+		this(makeNode(errorCons, message), node);
 	}
 	
 	public Error(String message, Throwable cause) {
 		super(message, cause);
-		this.exception = makeNode("RascalException", message);
+		this.exception = makeNode("Error", message);
 		range = null;
 		path = null;
 	}

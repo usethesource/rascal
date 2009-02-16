@@ -54,6 +54,7 @@ import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.ast.Replacement;
 import org.meta_environment.rascal.ast.Statement;
 import org.meta_environment.rascal.ast.Strategy;
+import org.meta_environment.rascal.ast.StringLiteral;
 import org.meta_environment.rascal.ast.Toplevel;
 import org.meta_environment.rascal.ast.TypeArg;
 import org.meta_environment.rascal.ast.TypeVar;
@@ -130,6 +131,7 @@ import org.meta_environment.rascal.ast.Rule.Arbitrary;
 import org.meta_environment.rascal.ast.Rule.Guarded;
 import org.meta_environment.rascal.ast.Rule.Replacing;
 import org.meta_environment.rascal.ast.Statement.Assert;
+import org.meta_environment.rascal.ast.Statement.AssertWithMessage;
 import org.meta_environment.rascal.ast.Statement.Assignment;
 import org.meta_environment.rascal.ast.Statement.Block;
 import org.meta_environment.rascal.ast.Statement.Break;
@@ -1001,7 +1003,21 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 		
 		if(r.value.isEqual(vf.bool(false))){
-			throw new AssertionError(x.getMessage().toString(), x);
+			throw new AssertionError("Assertion fails: " + x.getExpression(), x);
+		}
+		return r;	
+	}
+	
+	@Override
+	public Result visitStatementAssertWithMessage(AssertWithMessage x) {
+		Result r = x.getExpression().accept(this);
+		if (!r.type.equals(tf.boolType())) {
+			throw new TypeError("Expression in assertion should have type bool instead of " + r.type, x);	
+		}
+		if(r.value.isEqual(vf.bool(false))){
+			StringLiteral msg = x.getMessage();
+			String str = msg.toString();
+			throw new AssertionError(unescape(str,msg), x);
 		}
 		return r;	
 	}
@@ -1221,7 +1237,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				return result(tf.setType(tuple.getFieldType(field)), w.done());
 			}
 			catch (FactTypeError e) {
-				throw new RunTimeError(e.getMessage(), x);
+				throw new NoSuchFieldError(e.getMessage(), x);
 			}
 		}
 		else if (expr.type.isAbstractDataType() || expr.type.isConstructorType()) {
