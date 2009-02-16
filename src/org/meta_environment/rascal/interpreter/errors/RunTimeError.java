@@ -8,7 +8,6 @@ import org.meta_environment.rascal.ast.AbstractAST;
  */
 
 public class RunTimeError extends Error {
-	
 	private static final long serialVersionUID = 3715676299644311671L;
 	
 	public RunTimeError(String message) {

@@ -22,9 +22,9 @@ import org.meta_environment.rascal.ast.AbstractAST;
 public class Error extends RuntimeException {
 	private static final long serialVersionUID = -7290501865940548332L;
 
-	private IValue exception;
-	private ISourceRange range;
-	private String path;
+	private final IValue exception;
+	private final ISourceRange range;
+	private final String path;
 	
 	public Error(IValue value) {
 		this.exception = value;
@@ -112,8 +112,6 @@ public class Error extends RuntimeException {
 	}
 	
 	public boolean hasCause() {
-		// TODO Auto-generated method stub
 		return getCause() != null;
 	}
-
 }

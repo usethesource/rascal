@@ -3,8 +3,6 @@ package org.meta_environment.rascal.interpreter.errors;
 import org.meta_environment.rascal.ast.AbstractAST;
 
 public class TypeError extends Error {
-	
-	
 	private static final long serialVersionUID = 33333767154564288L;
     
 	public TypeError(String message) {
@@ -22,6 +20,4 @@ public class TypeError extends Error {
 	public boolean hasCause() {
 		return getCause() != null;
 	}
-	
-	
 }
