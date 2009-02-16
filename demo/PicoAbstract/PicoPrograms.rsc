@@ -17,7 +17,7 @@ end
 
 public PROGRAM small =
 program([decl("x", natural), decl("s", string)],
-        [ asgStat("x", natCon(1)),
+        [ asgStat("x", natCon(3)),
           whileStat(id("x"),
                     [ asgStat("x", sub(id("x"), natCon(1))),
                       asgStat("s", conc(id("s"), strCon("#")))
@@ -56,7 +56,7 @@ program([ decl("input", natural),
           decl("repnr", natural),
           decl("rep", natural)
         ],
-        [ asgStat("input", natCon(10)),
+        [ asgStat("input", natCon(13)),
           asgStat("output", natCon(1)),
           whileStat(sub(id("input"), natCon(1)),
                     [ asgStat("rep", id("output")),

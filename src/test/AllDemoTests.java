@@ -83,6 +83,12 @@ public class AllDemoTests extends TestFramework {
 		prepare("import Lift;");
 		assertTrue(runTestInSameEvaluator("Lift::test();"));
 	}
+	
+	@Test
+	public void testPicoEval() {
+		prepare("import PicoEval;");
+		assertTrue(runTestInSameEvaluator("PicoEval::test();"));
+	}
 
 	@Test
 	public void testPicoTypecheck() {
