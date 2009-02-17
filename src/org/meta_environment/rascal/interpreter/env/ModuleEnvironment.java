@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.interpreter.Names;
@@ -63,7 +64,7 @@ public class ModuleEnvironment extends Environment {
 		
 		if (modulename != null) {
 			if (modulename.equals(getName())) {
-				return getVariable(Names.name(Names.lastName(name)));
+				return getVariable(name, Names.name(Names.lastName(name)));
 			}
 			
 			ModuleEnvironment imported = getImport(modulename);
@@ -73,14 +74,14 @@ public class ModuleEnvironment extends Environment {
 			return imported.getVariable(name);
 		}
 		else {
-			return getVariable(Names.name(Names.lastName(name)));
+			return getVariable(name, Names.name(Names.lastName(name)));
 		}
 	
 	}
 	
 	@Override
-	public Result getVariable(String name) {
-		Result result = super.getVariable(name);
+	public Result getVariable(AbstractAST ast, String name) {
+		Result result = super.getVariable(ast, name);
 		
 		// if the local module scope does not contain the variable, it
 		// may be visible in one of its imported modules.
@@ -104,7 +105,7 @@ public class ModuleEnvironment extends Environment {
 				return null;
 			}
 			else {
-				throw new TypeError("Variable " + name + " is ambiguous, please qualify");
+				throw new TypeError("Variable " + name + " is ambiguous, please qualify", ast);
 			}
 		}
 		
@@ -113,7 +114,7 @@ public class ModuleEnvironment extends Environment {
 	
 	@Override
 	public void storeVariable(String name, Result value) {
-		Result result = super.getVariable(name);
+		Result result = super.getVariable(null, name);
 		
 		if (result != null) {
 			super.storeVariable(name, value);
@@ -177,7 +178,7 @@ public class ModuleEnvironment extends Environment {
 	
 	
 	public Result getLocalVariable(String name) {
-		return super.getVariable(name);
+		return super.getVariable(null, name);
 	}
 	
 	public Result getLocalPublicVariable(String name) {

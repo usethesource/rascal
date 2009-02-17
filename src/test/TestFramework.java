@@ -32,7 +32,7 @@ public class TestFramework  {
 		try {
 			prepare(command);
 		} catch (Exception e){
-			throw new RunTimeError("Exception while creating TestFramework: " + e);
+			throw new RunTimeError("Exception while creating TestFramework", e);
 		}
 	}
 	
@@ -42,7 +42,7 @@ public class TestFramework  {
 				new PrintWriter(System.err), new ModuleEnvironment("***test***"));
 		return execute(command);
 		} catch (IOException e){
-			throw new RunTimeError("Exception while running test: " + e);
+			throw new RunTimeError("Exception while running test", e);
 		}
 	}
 	
@@ -50,7 +50,7 @@ public class TestFramework  {
 		try {
 			return execute(command);
 		} catch (IOException e){
-			throw new RunTimeError("Exception while running test: " + e);
+			throw new RunTimeError("Exception while running test", e);
 		}
 	}
 
@@ -61,7 +61,7 @@ public class TestFramework  {
 			execute(command1);
 			return execute(command2);
 		} catch (IOException e){
-			throw new RunTimeError("Exception while running test: " + e);
+			throw new RunTimeError("Exception while running test", e);
 		}
 	}
 /*	

@@ -64,7 +64,7 @@ class RegExpPatternValue implements MatchPattern {
 		patternVars = names;
 		initialized = false;
 		for(String name : names){
-			Result res = env.getVariable(name);
+			Result res = env.getVariable(ast, name);
 			if((res != null) && (res.value != null)){
 				if(!res.type.isStringType()){
 					throw new TypeError("Name `" + name + "` should have type string but has type " + res.type, ast);

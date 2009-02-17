@@ -47,7 +47,7 @@ import org.meta_environment.rascal.interpreter.errors.TypeError;
 	@Override
 	public Result visitAssignableVariable(Variable x) {
 		String name = x.getQualifiedName().toString();
-		Result previous = env.getVariable(name);
+		Result previous = env.getVariable(x.getQualifiedName(), name);
 		
 		if (previous != null) {
 			if (value.type.isSubtypeOf(previous.type)) {

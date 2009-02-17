@@ -71,7 +71,7 @@ import org.meta_environment.rascal.interpreter.errors.RunTimeError;
 		String editor = System.getenv("EDITOR");
 		
 		if (editor == null) {
-			throw new RunTimeError("EDITOR environment variable is not set.");
+			throw new RunTimeError("EDITOR environment variable is not set.", x);
 		}
 		
 		String file = x.getName().toString();
