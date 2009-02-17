@@ -188,6 +188,8 @@ import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
 import org.meta_environment.uptr.Factory;
 
+import sun.awt.SunToolkit.InfiniteLoop;
+
 public class Evaluator extends NullASTVisitor<Result> {
 	private static final String[] SEARCH_PATH = {
 							"src/StandardLibrary/", 
@@ -2332,20 +2334,24 @@ public class Evaluator extends NullASTVisitor<Result> {
 		
 		widenArgs(left, right);
 
-		//TODO: transform Java arithmetic exceptions into Rascal exceptions
-		
-		//Integer
-		if (left.type.isIntegerType() && right.type.isIntegerType()) {
-			return result(((IInteger) left.value).divide((IInteger) right.value));
-		} 
-		
-		// Real
-		else if (left.type.isDoubleType() && right.type.isDoubleType()) {
-			return result(((IDouble) left.value).divide((IDouble) right.value));
+		try {
+			//Integer
+			if (left.type.isIntegerType() && right.type.isIntegerType()) {
+					return result(((IInteger) left.value).divide((IInteger) right.value));
+				
+			} 
+			
+			// Real
+			else if (left.type.isDoubleType() && right.type.isDoubleType()) {
+				return result(((IDouble) left.value).divide((IDouble) right.value));
+			}
+			else {
+				throw new TypeError("Operands of / have illegal types: "
+						+ left.type + ", " + right.type, x);
+			}
 		}
-		else {
-			throw new TypeError("Operands of / have illegal types: "
-					+ left.type + ", " + right.type, x);
+		catch (ArithmeticException e){
+			throw new RunTimeError("Division by zero", x);
 		}
 	}
 	
