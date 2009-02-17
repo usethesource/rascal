@@ -3,14 +3,20 @@ package test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
+import test.StandardLibraryTests.BooleanTests;
+import test.StandardLibraryTests.GraphTests;
+import test.StandardLibraryTests.IntegerTests;
+import test.StandardLibraryTests.ListTests;
+import test.StandardLibraryTests.RealTests;
+
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
 	
-	StandardLibraryBooleanTests.class,
-	StandardLibraryGraphTests.class,
-	StandardLibraryIntegerTests.class,
-	StandardLibraryListTests.class,
-	StandardLibraryRealTests.class
+	BooleanTests.class,
+	GraphTests.class,
+	IntegerTests.class,
+	ListTests.class,
+	RealTests.class
 	
 })
 

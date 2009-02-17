@@ -1,7 +1,9 @@
-package test;
+package test.ErrorTests;
 
 import org.junit.Test;
 import org.meta_environment.rascal.interpreter.errors.EmptyListError;
+
+import test.TestFramework;
 
 public class EmptyListErrorTests extends TestFramework {
 	

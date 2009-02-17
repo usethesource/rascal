@@ -1,9 +1,11 @@
-package test;
+package test.StandardLibraryTests;
 
 import org.junit.Test;
+
+import test.TestFramework;
 import static org.junit.Assert.*;
 
-public class StandardLibraryGraphTests extends TestFramework {
+public class GraphTests extends TestFramework {
 
 	@Test
 	public void testGraphBottom() {
