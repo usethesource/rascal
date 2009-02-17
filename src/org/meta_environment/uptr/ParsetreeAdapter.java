@@ -4,13 +4,14 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.meta_environment.rascal.errors.SummaryAdapter;
+import org.meta_environment.rascal.interpreter.errors.ImplementationError;
 
 public class ParsetreeAdapter {
 	IConstructor parseTree;
 	
 	public ParsetreeAdapter(IConstructor pt) {
 		if (pt.getType() != Factory.ParseTree) {
-			throw new FactTypeError("ParsetreeAdapter will only wrap UPTR ParseTree, not " + pt.getType());
+			throw new ImplementationError("ParsetreeAdapter will only wrap UPTR ParseTree, not " + pt.getType());
 		}
 		this.parseTree = pt;
 	}
