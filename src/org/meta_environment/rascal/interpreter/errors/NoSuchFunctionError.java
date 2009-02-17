@@ -8,12 +8,5 @@ public class NoSuchFunctionError extends Error {
 	public NoSuchFunctionError(String message, AbstractAST node) {
 		super("NoSuchFunctionError", message, node);
 	}
-	
-	public NoSuchFunctionError(String message, Throwable cause) {
-		super(message, cause);
-	}
-	
-	public boolean hasCause() {
-		return getCause() != null;
-	}
+
 }

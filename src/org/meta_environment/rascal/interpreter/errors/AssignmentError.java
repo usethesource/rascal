@@ -8,12 +8,4 @@ public class AssignmentError extends Error {
 	public AssignmentError(String message, AbstractAST node) {
 		super("AssignmentError", message, node);
 	}
-	
-	public AssignmentError(String message, Throwable cause) {
-		super(message, cause);
-	}
-	
-	public boolean hasCause() {
-		return getCause() != null;
-	}
 }

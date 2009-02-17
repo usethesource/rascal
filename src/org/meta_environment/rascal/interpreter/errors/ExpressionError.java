@@ -9,11 +9,4 @@ public class ExpressionError extends Error {
 		super("ExpressionError", message, node);
 	}
 	
-	public ExpressionError(String message, Throwable cause) {
-		super(message, cause);
-	}
-	
-	public boolean hasCause() {
-		return getCause() != null;
-	}
 }

@@ -8,12 +8,5 @@ public class EmptyListError extends Error {
 	public EmptyListError(String message, AbstractAST node) {
 		super("EmptyListError", message, node);
 	}
-	
-	public EmptyListError(String message, Throwable cause) {
-		super(message, cause);
-	}
-	
-	public boolean hasCause() {
-		return getCause() != null;
-	}
+
 }

@@ -8,9 +8,4 @@ public class UndefinedValueError extends Error {
     public UndefinedValueError(String message, AbstractAST ast) {
 		super("UndefinedValueError", message, ast);
 	}
-    /*
-    public RascalUndefinedValueError(String message, Throwable cause) {
-		super(message, cause);
-	}
-	*/
 }

@@ -297,11 +297,21 @@ public class Lambda extends Result implements IValue {
 	@Override
 	public String toString() {
 		StringBuilder b = new StringBuilder();
-		b.append(returnType + " " + name + " " + "(" + formals + ")" + " {");
+		b.append(getHeader() + " {");
 		for (Statement s : body) {
 			b.append("  " + s.toString() + "\n");
 		}
 		b.append("}\n");
 		return b.toString();
+	}
+	
+	public String getHeader(){
+		String sep = "";
+		String strFormals = "";
+		for(Type tp : formals){
+			strFormals = strFormals + sep + tp;
+			sep = ", ";
+		}
+		return returnType + " " + name + "(" + strFormals + ")";
 	}
 }

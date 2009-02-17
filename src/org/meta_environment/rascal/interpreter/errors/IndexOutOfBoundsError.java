@@ -8,12 +8,5 @@ public class IndexOutOfBoundsError extends Error {
 	public IndexOutOfBoundsError(String message, AbstractAST node) {
 		super("IndexOutOfBoundsError", message, node);
 	}
-	
-	public IndexOutOfBoundsError(String message, Throwable cause) {
-		super(message, cause);
-	}
-	
-	public boolean hasCause() {
-		return getCause() != null;
-	}
+
 }

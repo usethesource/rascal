@@ -121,7 +121,7 @@ public class Environment {
 		
 		for (Lambda other : list) {
 			if (function.isAmbiguous(other)) {
-				throw new TypeError("Declaration of function `" + name + "' overlaps with: " + name + other.getFormals(), function.getAst());
+				throw new TypeError("Declaration `" + function.getHeader() + "' overlaps with `" + other.getHeader() + "`", function.getAst());
 			}
 		}
 		
