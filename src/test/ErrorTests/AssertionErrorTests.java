@@ -9,6 +9,6 @@ public class AssertionErrorTests extends TestFramework {
 
 	@Test(expected=AssertionError.class)
 	public void testAssertion() {
-		runTest("assert \"a1\": 1 == 2;");
+		runTest("assert 1 == 2;");
 	}
 }

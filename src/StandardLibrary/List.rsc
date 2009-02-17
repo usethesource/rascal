@@ -20,7 +20,7 @@ public &T java head(list[&T] lst)
    if(lst.length() > 0){
       return lst.get(0);
    } else {
-      throw new Error("EmptyListError", "head");
+      throw new EmptyListError("head", null);
    }
 }
 
@@ -31,7 +31,7 @@ public list[&T] java head(list[&T] lst, int n)
    if(n.getValue() <= lst.length()){
       return new SubList((Value)lst, 0, n.getValue());
    } else {
-      throw new Error("IndexOutOfBoundsError", "head");
+      throw new IndexOutOfBoundsError("head", null);
    }
 }
 
@@ -42,7 +42,7 @@ public &T java getOneFrom(list[&T] lst)
    if(n > 0){
    	return lst.get(random.nextInt(n));
    	} else {
-   		throw new Error("EmptyListError", "getOneFrom");
+   		throw new EmptyListError("getOneFrom", null);
    	}
 }
 
@@ -65,7 +65,7 @@ public list[&T] java insertAt(&T elm, int n, list[&T] lst)
       }
       return w.done();
     } else {
-    	throw new Error("IndexOutOfBoundsError", "insertAt");
+    	throw new IndexOutOfBoundsError("insertAt", null);
     }
  }
 
@@ -192,7 +192,7 @@ public &T sum(list[&T] lst, &T zero)
  	int lstLen = lst.length();
  	
  	if(lenVal > lstLen)
- 		throw new Error("IndexOutOfBoundsError", "tail");
+ 		throw new IndexOutOfBoundsError("tail", null);
  	return new SubList((IValue)lst, lstLen - lenVal, lenVal);
  }
  
@@ -215,7 +215,7 @@ public tuple[&T, list[&T]] java takeOneFrom(list[&T] lst)
       }
       return values.tuple(pick, w.done());
    	} else {
-   		throw new Error("EmptyListError", "takeOneFrom");
+   		throw new EmptyListError("takeOneFrom", null);
    	}
 }
 
