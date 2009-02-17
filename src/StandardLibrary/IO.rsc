@@ -26,6 +26,7 @@ throws NoSuchFileError(str msg), IOError(str msg)
 	import java.io.BufferedReader;
 	import java.io.IOException;
 	import java.io.FileNotFoundException;
+	import org.meta_environment.rascal.interpreter.errors.Error;
 }
 {
   IList res = null;

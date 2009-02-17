@@ -2,7 +2,10 @@ module String
 
 public int java charAt(str s, int i) throws out_of_range(str msg)
 @doc{charAt -- return the character at position i in string s.}
-@javaImports{import java.lang.String;}
+@javaImports{
+	import java.lang.String;
+	import org.meta_environment.rascal.interpreter.errors.Error;
+}
 {
   try {
     return values.integer(s.getValue().charAt(i.getValue()));

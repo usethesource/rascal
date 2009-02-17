@@ -127,7 +127,10 @@ public &T sum(set[&T] st, &T zero)
 
 public tuple[&T, set[&T]] java takeOneFrom(set[&T] st)
 @doc{takeOneFrom -- remove an arbitrary element from a set, returns the element and the modified set}
-@javaImports{import java.util.Iterator;}
+@javaImports{
+	import java.util.Iterator;
+	import org.meta_environment.rascal.interpreter.errors.Error;
+}
 {
    int n = st.size();
    
