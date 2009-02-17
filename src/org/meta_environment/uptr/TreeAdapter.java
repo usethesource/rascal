@@ -16,6 +16,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
+import org.meta_environment.rascal.interpreter.errors.ImplementationError;
 import org.meta_environment.uptr.visitors.IdentityTreeVisitor;
 
 public class TreeAdapter {
@@ -24,7 +25,7 @@ public class TreeAdapter {
 	
 	public TreeAdapter(IConstructor tree) {
 		if (tree.getType() != Factory.Tree) {
-			throw new FactTypeError("TreeWrapper will only wrap UPTR Trees, not " +  tree.getType());
+			throw new ImplementationError("TreeWrapper will only wrap UPTR Trees, not " +  tree.getType());
 		}
 		this.tree = tree;
 	}
@@ -87,7 +88,7 @@ public class TreeAdapter {
 		  return (IList) tree.get("args");
 		}
 		else {
-			throw new FactTypeError("this node has no args");
+			throw new ImplementationError("Node has no args");
 		}
 	}
 	
@@ -98,7 +99,7 @@ public class TreeAdapter {
 	
 	public IList getListASTArgs() {
 		if (!isContextFree() || !isList()) {
-			throw new FactTypeError("This is not a context-free list production: "
+			throw new ImplementationError("This is not a context-free list production: "
 					+ tree);
 		}
 		IList children = getArgs();
@@ -127,7 +128,7 @@ public class TreeAdapter {
 
 	public IList getASTArgs() {
 		if (!isContextFree()) {
-			throw new FactTypeError("This is not a context-free production: "
+			throw new ImplementationError("This is not a context-free production: "
 					+ tree);
 		}
 
@@ -155,7 +156,7 @@ public class TreeAdapter {
 		  return (ISet) tree.get("alternatives");
 		}
 		else {
-			throw new FactTypeError("this node has no alternatives");
+			throw new ImplementationError("Node has no alternatives");
 		}
 	}
 	
@@ -305,7 +306,7 @@ public class TreeAdapter {
 			} else if (tree.getType() == Factory.Tree) {
 				tree.accept(new Unparser(stream));
 			} else {
-				throw new FactTypeError("Can not unparse this "
+				throw new ImplementationError("Can not unparse this "
 						+ tree.getType());
 			}
 		} catch (VisitorException e) {
@@ -327,7 +328,7 @@ public class TreeAdapter {
 			unparse(stream);
 			return stream.toString();
 		} catch (IOException e) {
-			throw new FactTypeError("yield failed", e);
+			throw new ImplementationError("Method yield failed", e);
 		}
 	}
 

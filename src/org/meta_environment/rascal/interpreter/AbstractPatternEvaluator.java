@@ -390,9 +390,6 @@ interface MatchPattern {
 				        	}
 				        }
 				    } else {
-				    	// uninitialized variables should statically be wrong, so
-				    	// this is not a runtime error
-//				    	throw new RascalRunTimeError("Uninitialized variable " + name);
 				    	throw new UninitializedVariableError("Uninitialized variable `" + name + "`", ast);
 				    }
 				}
