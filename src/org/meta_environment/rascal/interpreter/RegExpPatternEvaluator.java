@@ -65,12 +65,12 @@ class RegExpPatternValue implements MatchPattern {
 		initialized = false;
 		for(String name : names){
 			Result res = env.getVariable(ast, name);
-			if((res != null) && (res.value != null)){
-				if(!res.type.isStringType()){
-					throw new TypeError("Name `" + name + "` should have type string but has type " + res.type, ast);
+			if((res != null) && (res.getValue() != null)){
+				if(!res.getType().isStringType()){
+					throw new TypeError("Name `" + name + "` should have type string but has type " + res.getType(), ast);
 				}
-				boundBeforeConstruction.put(name, ((IString)res.value).getValue());
-				if(debug)System.err.println("bound before construction: " + name + ", " + res.value);
+				boundBeforeConstruction.put(name, ((IString)res.getValue()).getValue());
+				if(debug)System.err.println("bound before construction: " + name + ", " + res.getValue());
 			}
 		}
 		this.env = env;

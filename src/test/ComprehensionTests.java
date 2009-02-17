@@ -73,9 +73,26 @@ public class ComprehensionTests extends TestFramework {
 
 	
 	@Test(expected=TypeError.class)
+	public void comprehensionError1() {
+		runTest("{X < 2 ? \"a\" : 3.5 | int X : {1,2,3}};");
+	}
+	
+	@Test(expected=TypeError.class)
+	public void comprehensionError2() {
+		runTest("[X < 2 ? \"a\" : 3.5 | int X : {1,2,3}];");
+	}
+	
+	@Test(expected=TypeError.class)
+	public void comprehensionError3() {
+		runTest("(X < 2 ? \"a\" : 3.5 => 5 | int X : {1,2,3});");
+	}
+	
+	
+	@Test(expected=TypeError.class)
 	public void testGen1() {
 		runTest("{x | 5};");
 	}
+	
 	
 	@Test public void testAny()  {
 		

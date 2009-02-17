@@ -159,11 +159,11 @@ public class Lambda extends Result implements IValue {
 
 			Type instantiatedReturnType = returnType.instantiate(env.getTypeBindings());
 
-			if(!result.type.isSubtypeOf(instantiatedReturnType)){
-				throw new TypeError("Actual return type " + result.type + " is not compatible with declared return type " + returnType, ast);
+			if(!result.getType().isSubtypeOf(instantiatedReturnType)){
+				throw new TypeError("Actual return type " + result.getType() + " is not compatible with declared return type " + returnType, ast);
 			}
 
-			return new Result(instantiatedReturnType, result.value);
+			return new Result(instantiatedReturnType, result.getValue());
 		} 
 		catch (FailureControlException e){
 			throw new RunTimeError("Fail statement used outside switch or visit statement", ast);

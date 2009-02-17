@@ -50,12 +50,12 @@ import org.meta_environment.rascal.interpreter.errors.TypeError;
 		Result previous = env.getVariable(x.getQualifiedName(), name);
 		
 		if (previous != null) {
-			if (value.type.isSubtypeOf(previous.type)) {
-				value.type = previous.type;
+			if (value.getType().isSubtypeOf(previous.getType())) {
+				value.setType(previous.getType());
 			} else {
 				throw new AssignmentError("Variable `" + name
-						+ "` has type " + previous.type
-						+ "; cannot assign value of type " + value.type, x);
+						+ "` has type " + previous.getType()
+						+ "; cannot assign value of type " + value.getType(), x);
 			}
 			
 			env.storeVariable(name, value);
@@ -74,11 +74,11 @@ import org.meta_environment.rascal.interpreter.errors.TypeError;
 		String label = x.getAnnotation().toString();
 		Result result = x.getReceiver().accept(eval);
 		
-		if (!result.type.declaresAnnotation(label)) {
-			throw new NoSuchAnnotationError("No annotation `" + label + "` declared for " + result.type, x);
+		if (!result.getType().declaresAnnotation(label)) {
+			throw new NoSuchAnnotationError("No annotation `" + label + "` declared for " + result.getType(), x);
 		}
 		
-		result.value = ((IConstructor) result.value).setAnnotation(label, value.value);
+		result.setValue(((IConstructor) result.getValue()).setAnnotation(label, value.getValue()));
 		
 		return recur(x, result);
 	}
@@ -89,38 +89,38 @@ import org.meta_environment.rascal.interpreter.errors.TypeError;
 		Result subscript = x.getSubscript().accept(eval);
 		Result result;
 		
-		if (rec.type.isListType() && subscript.type.isIntegerType()) {
+		if (rec.getType().isListType() && subscript.getType().isIntegerType()) {
 			try {
-			IList list = (IList) rec.value;
-			int index = ((IInteger) subscript.value).getValue();
-			list = list.put(index, value.value);
-			result = eval.result(rec.type, list);
+			IList list = (IList) rec.getValue();
+			int index = ((IInteger) subscript.getValue()).getValue();
+			list = list.put(index, value.getValue());
+			result = eval.result(rec.getType(), list);
 			} catch (Exception e){
-				throw new IndexOutOfBoundsError("Index " + ((IInteger) subscript.value).getValue() + " out of bounds", x);
+				throw new IndexOutOfBoundsError("Index " + ((IInteger) subscript.getValue()).getValue() + " out of bounds", x);
 			}
 		}
-		else if (rec.type.isMapType()) {
-			Type keyType = rec.type.getKeyType();
+		else if (rec.getType().isMapType()) {
+			Type keyType = rec.getType().getKeyType();
 			
-			if (subscript.type.isSubtypeOf(keyType)) {
-				IMap map = ((IMap) rec.value).put(subscript.value, value.value);
-				result = eval.result(rec.type, map);
+			if (subscript.getType().isSubtypeOf(keyType)) {
+				IMap map = ((IMap) rec.getValue()).put(subscript.getValue(), value.getValue());
+				result = eval.result(rec.getType(), map);
 			}
 			else {
-				throw new TypeError("Key type " + keyType + " of map is not compatible with " + subscript.type, x);
+				throw new TypeError("Key type " + keyType + " of map is not compatible with " + subscript.getType(), x);
 			}
 			
-		} else if (rec.type.isNodeType() && subscript.type.isIntegerType()) {
-			int index = ((IInteger) subscript.value).getValue();
-			INode node = (INode) rec.value;
+		} else if (rec.getType().isNodeType() && subscript.getType().isIntegerType()) {
+			int index = ((IInteger) subscript.getValue()).getValue();
+			INode node = (INode) rec.getValue();
 			
 			if(index >= node.arity()){
 				throw new IndexOutOfBoundsError("Subscript out of bounds", x);
 			}
-			node = node.set(index, value.value);
-			result = eval.result(rec.type, node);
+			node = node.set(index, value.getValue());
+			result = eval.result(rec.getType(), node);
 		} else {
-			throw new TypeError("Receiver " + rec.type + " is incompatible with subscript " + subscript.type, x);
+			throw new TypeError("Receiver " + rec.getType() + " is incompatible with subscript " + subscript.getType(), x);
 			// TODO implement other subscripts
 		}
 		
@@ -135,7 +135,7 @@ import org.meta_environment.rascal.interpreter.errors.TypeError;
 	public Result visitAssignableIfDefined(IfDefined x) {
 		Result cond = x.getCondition().accept(eval);
 		
-		if (((IBool) cond.value).getValue()) {
+		if (((IBool) cond.getValue()).getValue()) {
 			return x.getReceiver().accept(this);
 		}
 		else {
@@ -148,29 +148,29 @@ import org.meta_environment.rascal.interpreter.errors.TypeError;
 		Result receiver = x.getReceiver().accept(eval);
 		String label = x.getField().toString();
 		
-		if (receiver.type.isTupleType()) {
-			if (!receiver.type.hasField(label)) {
-				throw new NoSuchFieldError(receiver.type + " does not have a field named `" + label + "`", x);
+		if (receiver.getType().isTupleType()) {
+			if (!receiver.getType().hasField(label)) {
+				throw new NoSuchFieldError(receiver.getType() + " does not have a field named `" + label + "`", x);
 			}
-			IValue result = ((ITuple) receiver.value).set(label, value.value);
-			return recur(x, eval.result(receiver.type, result));
+			IValue result = ((ITuple) receiver.getValue()).set(label, value.getValue());
+			return recur(x, eval.result(receiver.getType(), result));
 		}
-		else if (receiver.type.isConstructorType() || receiver.type.isAbstractDataType()) {
-			IConstructor cons = (IConstructor) receiver.value;
+		else if (receiver.getType().isConstructorType() || receiver.getType().isAbstractDataType()) {
+			IConstructor cons = (IConstructor) receiver.getValue();
 			Type node = cons.getConstructorType();
 			
-			if (!receiver.type.hasField(label)) {
-				throw new NoSuchFieldError(receiver.type + " does not have a field named `" + label + "`", x);
+			if (!receiver.getType().hasField(label)) {
+				throw new NoSuchFieldError(receiver.getType() + " does not have a field named `" + label + "`", x);
 			}
 			
 			if (!node.hasField(label)) {
-				throw new NoSuchFieldError("Field `" + label + "` accessed on constructor that does not have it." + receiver.value.getType(), x);
+				throw new NoSuchFieldError("Field `" + label + "` accessed on constructor that does not have it." + receiver.getValue().getType(), x);
 			}
 			
 			int index = node.getFieldIndex(label);
 			
-			IValue result = cons.set(index, value.value);
-			return recur(x, eval.result(receiver.type, result));
+			IValue result = cons.set(index, value.getValue());
+			return recur(x, eval.result(receiver.getType(), result));
 		}
 		else {
 			throw new NoSuchFieldError(x.getReceiver() + " has no field named `" + label + "`", x);
@@ -182,12 +182,12 @@ import org.meta_environment.rascal.interpreter.errors.TypeError;
 	public Result visitAssignableTuple(Tuple x) {
 		java.util.List<Assignable> arguments = x.getElements();
 		
-		if (!value.type.isTupleType()) {
-			throw new AssignmentError("Receiver is a tuple, but the assigned value is not: " + value.type, x); 
+		if (!value.getType().isTupleType()) {
+			throw new AssignmentError("Receiver is a tuple, but the assigned value is not: " + value.getType(), x); 
 		}
 		
-		Type tupleType = value.type;
-		ITuple tuple = (ITuple) value.value;
+		Type tupleType = value.getType();
+		ITuple tuple = (ITuple) value.getValue();
 		IValue[] results = new IValue[arguments.size()];
 		Type [] resultTypes = new Type[arguments.size()];
 		
@@ -197,8 +197,8 @@ import org.meta_environment.rascal.interpreter.errors.TypeError;
 			Result result = eval.result(argType, arg);
 			AssignableEvaluator ae = new AssignableEvaluator(env,result, eval);
 			Result argResult = arguments.get(i).accept(ae);
-			results[i] = argResult.value;
-			resultTypes[i] = argResult.type;
+			results[i] = argResult.getValue();
+			resultTypes[i] = argResult.getType();
 		}
 		
 		return eval.result(eval.tf.tupleType(resultTypes), tupleType.make(eval.vf, results));

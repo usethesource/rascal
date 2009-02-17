@@ -57,7 +57,7 @@ import org.meta_environment.rascal.interpreter.errors.RunTimeError;
 	@Override
 	public IValue visitCommandImport(Import x) {
 		Result r = x.getImported().accept(evaluator);
-		return r.value;
+		return r.getValue();
 	}
 
 	@Override

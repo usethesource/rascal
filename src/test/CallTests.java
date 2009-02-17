@@ -3,14 +3,24 @@ package test;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-import org.meta_environment.rascal.interpreter.errors.NoSuchFunctionError;
+import org.meta_environment.rascal.interpreter.errors.*;
 
 public class CallTests extends TestFramework{
 	
 	
 	@Test(expected=NoSuchFunctionError.class)
-	public void testFunction1() {
+	public void callError1() {
 		runTest("zap(1,2);");
+	}
+	
+	@Test(expected=NoSuchModuleError.class)
+	public void callError2() {
+		runTest("zip::zap(1,2);");
+	}
+	
+	@Test(expected=NoSuchFunctionError.class)
+	public void callError3() {
+		runTest("{zap = 10; zap(1,2);}");
 	}
 	
 	@Test public void testFac() {
