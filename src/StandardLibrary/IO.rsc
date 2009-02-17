@@ -44,10 +44,10 @@ throws NoSuchFileError(str msg), IOError(str msg)
   	res =  w.done();
   }
     catch (FileNotFoundException e){
-  	throw new Error("NoSuchFileError", filename.getValue());
+  	throw new NoSuchFileError(filename.getValue(), null);
   }
   catch (IOException e){
-    throw new Error("IOError", e.getMessage());
+    throw new IOError(e.getMessage(), null);
   }
 
   return res;

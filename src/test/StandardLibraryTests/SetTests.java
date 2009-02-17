@@ -1,6 +1,7 @@
 package test.StandardLibraryTests;
 
 import org.junit.Test;
+import org.meta_environment.rascal.interpreter.errors.EmptySetError;
 
 import test.TestFramework;
 import static org.junit.Assert.*;
@@ -8,7 +9,7 @@ import static org.junit.Assert.*;
 public class SetTests extends TestFramework {
 
 	@Test
-	public void testSetAverage() {
+	public void average() {
 
 		prepare("import Set;");
 
@@ -19,7 +20,7 @@ public class SetTests extends TestFramework {
 	}
 
 	@Test
-	public void testSetgetOneFrom() {
+	public void getOneFrom() {
 
 		prepare("import Set;");
 
@@ -31,9 +32,15 @@ public class SetTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{real D = Set::getOneFrom({1.0,2.0}); (D == 1.0) || (D == 2.0);}"));
 		assertTrue(runTestInSameEvaluator("{str S = Set::getOneFrom({\"abc\",\"def\"}); (S == \"abc\") || (S == \"def\");}"));
 	}
+	
+	@Test(expected=EmptySetError.class)
+	public void getOneFromError() {
+		runTest("import Set;", "getOneFrom({});");
+	}
+	
 
 	@Test
-	public void testSetMapper() {
+	public void mpper() {
 
 		prepare("import Set;");
 
@@ -42,7 +49,7 @@ public class SetTests extends TestFramework {
 	}
 
 	@Test
-	public void testSetMax() {
+	public void max() {
 
 		prepare("import Set;");
 
@@ -51,7 +58,7 @@ public class SetTests extends TestFramework {
 	}
 
 	@Test
-	public void testSetMin() {
+	public void min() {
 
 		prepare("import Set;");
 
@@ -60,7 +67,7 @@ public class SetTests extends TestFramework {
 	}
 
 	@Test
-	public void testSetMultiply() {
+	public void multiply() {
 
 		prepare("import Set;");
 
@@ -69,7 +76,7 @@ public class SetTests extends TestFramework {
 	}
 
 	@Test
-	public void testSetPower() {
+	public void power() {
 
 		prepare("import Set;");
 
@@ -81,7 +88,7 @@ public class SetTests extends TestFramework {
 	}
 
 	@Test
-	public void testSetReducer() {
+	public void reducer() {
 
 		prepare("import Set;");
 		String add = "int add(int x, int y){return x + y;}";
@@ -90,7 +97,7 @@ public class SetTests extends TestFramework {
 	}
 
 	@Test
-	public void testSetSize() {
+	public void size() {
 
 		prepare("import Set;");
 
@@ -101,7 +108,7 @@ public class SetTests extends TestFramework {
 	}
 
 	@Test
-	public void testSetSum() {
+	public void sum() {
 
 		prepare("import Set;");
 
@@ -118,16 +125,22 @@ public class SetTests extends TestFramework {
 	}
 
 	@Test
-	public void testSetTakeOneFrom() {
+	public void takeOneFrom() {
 
 		prepare("import Set;");
 
 		assertTrue(runTestInSameEvaluator("{<E, SI> = Set::takeOneFrom({1}); (E == 1) && (SI == {}) ;}"));
 		assertTrue(runTestInSameEvaluator("{<E, SI> = Set::takeOneFrom({1,2}); ((E == 1) && (SI == {2})) || ((E == 2) && (SI == {1}));}"));
 	}
+	
+
+	@Test(expected=EmptySetError.class)
+	public void takeOneFromError() {
+		runTest("import Set;", "takeOneFrom({});");
+	}
 
 	@Test
-	public void testSetToList() {
+	public void toList() {
 
 		prepare("import Set;");
 
@@ -138,7 +151,7 @@ public class SetTests extends TestFramework {
 	}
 
 	@Test
-	public void testSetToMap() {
+	public void toMap() {
 
 		prepare("import Set;");
 		assertTrue(runTestInSameEvaluator("{Set::toMap({}) == ();}"));
@@ -149,7 +162,7 @@ public class SetTests extends TestFramework {
 	}
 
 	@Test
-	public void testSetToString() {
+	public void testToString() {
 
 		prepare("import Set;");
 

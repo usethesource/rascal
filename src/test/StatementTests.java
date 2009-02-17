@@ -1,6 +1,9 @@
 package test;
 
 import org.junit.Test;
+import org.meta_environment.rascal.interpreter.errors.*;
+import org.meta_environment.rascal.interpreter.errors.AssertionError;
+
 import static org.junit.Assert.*;
 
 public class StatementTests extends TestFramework {
@@ -10,6 +13,17 @@ public class StatementTests extends TestFramework {
 		assertTrue(runTest("assert 3 > 2;"));
 		assertTrue(runTest("assert (3 > 2): \"Yes assert succeeds\";"));
 	}
+	
+	@Test(expected=AssertionError.class)
+	public void assertError1() {
+		runTest("assert 1 == 2;");
+	}
+	
+	@Test(expected=TypeError.class)
+	public void assertError2() {
+		runTest("assert 3.5;");
+	}
+	
 
 	@Test
 	public void testAssignment() {
@@ -79,6 +93,13 @@ public class StatementTests extends TestFramework {
 		assertTrue(runTest("{int n = 10; if(n < 10){n = n - 4;} n == 10;}"));
 		assertTrue(runTest("{int n = 10; if(n < 15){n = n - 4;} n == 6;}"));
 	}
+	
+
+	@Test(expected=TypeError.class)
+	public void ifThenError() {
+		runTest("if(3){n = 4;}");
+	}
+	
 
 	@Test
 	public void testIfThenElse() {
@@ -94,6 +115,18 @@ public class StatementTests extends TestFramework {
 		assertTrue(runTest("{int n = 0; switch(8){ case 2: n = 2; case 4: n = 4; case 6: n = 6; default: n = 10;} n == 10;}"));
 	}
 
+	
+
+	@Test(expected=TypeError.class)
+	public void whileError() {
+		runTest("while(3){n = 4;}");
+	}
+
+	@Test(expected=TypeError.class)
+	public void doError() {
+		runTest("do {n = 4;} while(3);");
+	}
+	
 	@Test
 	// TODO: currently loops :-(
 	public void xxxtestWhile() {

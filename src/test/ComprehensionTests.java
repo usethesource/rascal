@@ -2,6 +2,7 @@ package test;
 
 import static org.junit.Assert.*;
 import org.junit.Test;
+import org.meta_environment.rascal.interpreter.errors.TypeError;
 
 public class ComprehensionTests extends TestFramework {
 	
@@ -69,6 +70,13 @@ public class ComprehensionTests extends TestFramework {
 		assertTrue(runTest("{1 | 2 > 3} == {} ;"));
 	}
 	
+
+	
+	@Test(expected=TypeError.class)
+	public void testGen1() {
+		runTest("{x | 5};");
+	}
+	
 	@Test public void testAny()  {
 		
 		assertTrue(runTest("any(int X : {1,2,3}, X > 2);"));
@@ -87,6 +95,12 @@ public class ComprehensionTests extends TestFramework {
 		
 		assertFalse(runTest("any(<int X, int Y> : {<1,10>,<30,3>,<2,20>}, X > 100*Y);"));
 		assertFalse(runTest("any(<int X, int Y> : [<1,10>,<30,3>,<2,20>], X > 100*Y);"));
+	}
+	
+	
+	@Test(expected=TypeError.class)
+	public void anyError() {
+		runTest("any(x : [1,2,3], \"abc\");");
 	}
 	
 	@Test public void testAll() {
@@ -110,6 +124,12 @@ public class ComprehensionTests extends TestFramework {
 		
 		assertFalse(runTest("all(<int X, int Y> : {<1,10>,<30,3>,<2,20>}, X < Y);"));
 		assertFalse(runTest("all(<int X, int Y> : [<1,10>,<30,3>,<2,20>], X < Y);"));
+	}
+	
+	
+	@Test(expected=TypeError.class)
+	public void allError() {
+		runTest("all(x : [1,2,3], \"abc\");");
 	}
 	
 	@Test public void testSetComprehension3() {	
