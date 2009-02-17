@@ -371,9 +371,9 @@ interface MatchPattern {
 				} else  {
 					Result varRes = ev.getVariable(null, name);
 				         
-				    if((varRes != null) && (varRes.value != null)){
-				        IValue varVal = varRes.value;
-				        Type varType = varRes.type;
+				    if((varRes != null) && (varRes.getValue() != null)){
+				        IValue varVal = varRes.getValue();
+				        Type varType = varRes.getType();
 				        if (varType.isListType()){
 				        	/*
 				        	 * A variable declared in the current scope.
@@ -610,16 +610,16 @@ interface MatchPattern {
 			 * Reference to a previously defined list variable
 			 */
 			} else if(isListVar[patternCursor] &&  child instanceof AbstractPatternQualifiedName &&
-					ev.getVariable(null, ((AbstractPatternQualifiedName)child).getName()).type.isListType()
+					ev.getVariable(null, ((AbstractPatternQualifiedName)child).getName()).getType().isListType()
 			){
 				if(forward){
 					listVarStart[patternCursor] = subjectCursor;
 					
 					String name = ((AbstractPatternQualifiedName)child).getName();
 					Result varRes = ev.getVariable(null, name);
-					IValue varVal = varRes.value;
+					IValue varVal = varRes.getValue();
 					
-					if(!varRes.type.isListType()){
+					if(!varRes.getType().isListType()){
 						
 					} else {
 				         
@@ -932,18 +932,18 @@ class SingleElementGenerator implements Iterator<ISet> {
 				} else  {
 					Result varRes = ev.getVariable(null, name);
 				         
-				    if((varRes != null) && (varRes.value != null)){
-				        Type varType = varRes.type;
+				    if((varRes != null) && (varRes.getValue() != null)){
+				        Type varType = varRes.getType();
 				        if (varType.comparable(setSubjectType)){
 				        	/*
 				        	 * A set variable declared in the current scope: add its elements
 				        	 */
-				        	fixedSetElements = fixedSetElements.union((ISet)varRes.value);
+				        	fixedSetElements = fixedSetElements.union((ISet)varRes.getValue());
 				        } else if(varType.comparable(setSubjectElementType)){
 				        	/*
 				        	 * An element variable in the current scope, add its value.
 				        	 */
-				        	fixedSetElements = fixedSetElements.insert(varRes.value);
+				        	fixedSetElements = fixedSetElements.insert(varRes.getValue());
 				        } else
 				        	throw new TypeError(varType + " variable `" + name + "` not allowed in pattern of type " + setSubject.getType(), ast);
 				    } else {
@@ -1001,7 +1001,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 	private boolean makeGen(int i, ISet elements){
 		if(varPat[i] instanceof AbstractPatternQualifiedName){
 			String name = ((AbstractPatternQualifiedName) varPat[i]).getName();
-			varGen[i] = new SingleIValueIterator(ev.getVariable(null, name).value);
+			varGen[i] = new SingleIValueIterator(ev.getVariable(null, name).getValue());
 		}
 		if(isSetVar[i]){
 			varGen[i] = new SubSetGenerator(elements);
@@ -1215,8 +1215,8 @@ class SingleElementGenerator implements Iterator<ISet> {
 		this.env = env;
 		// TODO: do we really need to lookup here, or can it be done when the pattern is constructed?
 		Result patRes = env.getVariable(name);
-	    boolean boundBeforeConstruction = (patRes != null) && (patRes.value != null);
-	    type = (boundBeforeConstruction) ? patRes.type : TypeFactory.getInstance().voidType();
+	    boolean boundBeforeConstruction = (patRes != null) && (patRes.getValue() != null);
+	    type = (boundBeforeConstruction) ? patRes.getType() : TypeFactory.getInstance().voidType();
 	}
 	
 	public Type getType(Environment ev) {
@@ -1244,15 +1244,15 @@ class SingleElementGenerator implements Iterator<ISet> {
 		
 		// TODO: do we really need to lookup here, or can it be done when the pattern is constructed?
 		Result varRes = env.getVariable(name);
-		if((varRes == null) || (varRes.value == null)){
+		if((varRes == null) || (varRes.getValue() == null)){
 			if(debug)System.err.println("name= " + name + ", subject=" + subject + ",");
 			type = subject.getType();
 			env.storeVariable(name.toString(),new Result(type, subject));
 			return true;
 		} else {
-			IValue varVal = varRes.value;
+			IValue varVal = varRes.getValue();
 			if(debug)System.err.println("AbstractPatternQualifiedName.match: " + name + ", subject=" + subject + ", value=" + varVal);
-			if (subject.getType().isSubtypeOf(varRes.type)) {
+			if (subject.getType().isSubtypeOf(varRes.getType())) {
 				if(debug)System.err.println("returns " + Evaluator.equals(new Result(subject.getType(),subject), varRes));
 				return Evaluator.equals(new Result(subject.getType(),subject), varRes);
 			} else
@@ -1337,7 +1337,7 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 	
 	@Override
 	public AbstractPattern visitExpressionLiteral(Literal x) {
-		return new AbstractPatternLiteral(vf, null, x.getLiteral().accept(ev).value);
+		return new AbstractPatternLiteral(vf, null, x.getLiteral().accept(ev).getValue());
 	}
 	
 	@Override

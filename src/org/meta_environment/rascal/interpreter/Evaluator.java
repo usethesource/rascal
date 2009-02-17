@@ -224,6 +224,11 @@ public class Evaluator extends NullASTVisitor<Result> {
 	private final ASTFactory af;
 	private final JavaBridge javaBridge;
 	
+	enum DIRECTION  {BottomUp, TopDown};	// Parameters for traversing trees
+	enum FIXEDPOINT {Yes, No};
+	enum PROGRESS   {Continuing, Breaking};
+	
+	
 	private Statement currentStatement; // used in runtime errormessages
 	
 	// TODO: can we remove this?
@@ -265,7 +270,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		try {
 			Result r = stat.accept(this);
 	        if(r != null){
-	        	return r.value;
+	        	return r.getValue();
 	        } else {
 	        	throw new ImplementationError("Not yet implemented: " + stat.getTree(), stat);
 	        }
@@ -288,7 +293,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	public IValue eval(Declaration declaration) {
 		Result r = declaration.accept(this);
         if(r != null){
-        	return r.value;
+        	return r.getValue();
         } else {
         	throw new ImplementationError("Not yet implemented: " + declaration.getTree(), declaration);
         }
@@ -302,7 +307,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	public IValue eval(org.meta_environment.rascal.ast.Import imp) {
 		Result r = imp.accept(this);
         if(r != null){
-        	return r.value;
+        	return r.getValue();
         } else {
         	throw new ImplementationError("Not yet implemented: " + imp.getTree(), imp);
         }
@@ -389,9 +394,9 @@ public class Evaluator extends NullASTVisitor<Result> {
 		callStack.push(scopeStack.peek());
 		try {
 			TraverseResult tr = traverse(v, new CasesOrRules(rules), 
-					/* bottomup */ true,  
-					/* breaking */ false, 
-					/* fixedpoint */ false);  
+					/* bottomup  true,  */DIRECTION.BottomUp,
+					/* breaking  false, */ PROGRESS.Continuing,
+					/* fixedpoint  false);  */ FIXEDPOINT.No);
 					/* innermost is achieved by repeated applications of applyRules
 					 * when intermediate results are produced.
 					 */
@@ -428,7 +433,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	}
 	
 	private void checkType(Result val, Type expected) {
-		checkType(val.type, expected);
+		checkType(val.getType(), expected);
 	}
 	
 	private void checkType(Type given, Type expected) {
@@ -442,17 +447,17 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	private int intValue(Result val) {
 		checkInteger(val);
-		return ((IInteger) val.value).getValue();
+		return ((IInteger) val.getValue()).getValue();
 	}
 	
 	private double RealValue(Result val) {
 		checkReal(val);
-		return ((IDouble) val.value).getValue();
+		return ((IDouble) val.getValue()).getValue();
 	}
 	
 	private String stringValue(Result val) {
 		checkString(val);
-		return ((IString) val.value).getValue();
+		return ((IString) val.getValue()).getValue();
 	}
 	
 
@@ -624,15 +629,15 @@ public class Evaluator extends NullASTVisitor<Result> {
 				throw new UninitializedVariableError("Module variable `" + var + "` is not initialized", var);
 			} else {
 				Result v = var.getInitial().accept(this);
-				if(v.type.isSubtypeOf(declaredType)){
+				if(v.getType().isSubtypeOf(declaredType)){
 					// TODO: do we actually want to instantiate the locally bound type parameters?
 					Map<Type,Type> bindings = new HashMap<Type,Type>();
-					declaredType.match(v.type, bindings);
+					declaredType.match(v.getType(), bindings);
 					declaredType = declaredType.instantiate(bindings);
-					r = normalizedResult(declaredType, v.value);
+					r = normalizedResult(declaredType, v.getValue());
 					scopeStack.peek().storeVariable(var.getName(), r);
 				} else {
-					throw new TypeError("Variable `" + declaredType + " " + var + "` incompatible with initial type " + v.type, var);
+					throw new TypeError("Variable `" + declaredType + " " + var + "` incompatible with initial type " + v.getType(), var);
 				}
 			}
 		}
@@ -759,7 +764,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	public Result visitRuleGuarded(Guarded x) {
 		//TODO adapt to new scheme
 		Result result = x.getRule().getPattern().getPattern().accept(this);
-		if (!result.type.isSubtypeOf(evalType(x.getType()))) {
+		if (!result.getType().isSubtypeOf(evalType(x.getType()))) {
 			throw new TypeError("Declared type of rule does not match type of left-hand side", x);
 		}
 		return x.getRule().accept(this);
@@ -790,15 +795,15 @@ public class Evaluator extends NullASTVisitor<Result> {
 				peek().storeVariable(var.getName(), r);
 			} else {                     // variable declaration with initialization
 				Result v = var.getInitial().accept(this);
-				if(v.type.isSubtypeOf(declaredType)){
+				if(v.getType().isSubtypeOf(declaredType)){
 					// TODO: do we actually want to instantiate the locally bound type parameters?
 					Map<Type,Type> bindings = new HashMap<Type,Type>();
-					declaredType.match(v.type, bindings);
+					declaredType.match(v.getType(), bindings);
 					declaredType = declaredType.instantiate(bindings);
-					r = result(declaredType, v.value);
+					r = result(declaredType, v.getValue());
 					peek().storeVariable(var.getName(), r);
 				} else {
-					throw new TypeError("Variable `" + declaredType + " " + var.getName() + "` incompatible with initialization type " + v.type, var);
+					throw new TypeError("Variable `" + declaredType + " " + var.getName() + "` incompatible with initialization type " + v.getType(), var);
 				}
 			}
 		}
@@ -828,14 +833,14 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 		for (int i = 0; i < args.size(); i++) {
 			Result resultElem = args.get(i).accept(this);
-			types[i] = resultElem.type;
-			actuals[i] = resultElem.value;
+			types[i] = resultElem.getType();
+			actuals[i] = resultElem.getValue();
 		}
 
 		Type actualTypes = tf.tupleType(types);
 
-		if (func.type == Lambda.getClosureType()) {
-			Lambda lambda = (Lambda) func.value;
+		if (func.getType() == Lambda.getClosureType()) {
+			Lambda lambda = (Lambda) func.getValue();
 			try {
 				pushCallFrame(lambda.getEnv()); 
 				return lambda.call(actuals, actualTypes, peek());
@@ -845,7 +850,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			}
 		}
 		else {
-			throw new NoSuchFunctionError("Expected a closure, a function or an operator, but got a " + func.type, x);
+			throw new NoSuchFunctionError("Expected a closure, a function or an operator, but got a " + func.getType(), x);
 		}
 	}
 	
@@ -859,8 +864,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 		 for (int i = 0; i < args.size(); i++) {
 			 Result resultElem = args.get(i).accept(this);
-			 types[i] = resultElem.type;
-			 actuals[i] = resultElem.value;
+			 types[i] = resultElem.getType();
+			 actuals[i] = resultElem.getValue();
 		 }
 		 
 		 Type signature = tf.tupleType(types);
@@ -1009,11 +1014,11 @@ public class Evaluator extends NullASTVisitor<Result> {
 	@Override
 	public Result visitStatementAssert(Assert x) {
 		Result r = x.getExpression().accept(this);
-		if (!r.type.equals(tf.boolType())) {
-			throw new TypeError("Expression in assertion should have type bool instead of " + r.type, x);	
+		if (!r.getType().equals(tf.boolType())) {
+			throw new TypeError("Expression in assertion should have type bool instead of " + r.getType(), x);	
 		}
 		
-		if(r.value.isEqual(vf.bool(false))){
+		if(r.getValue().isEqual(vf.bool(false))){
 			throw new AssertionError("Assertion fails: " + x.getExpression(), x);
 		}
 		return r;	
@@ -1022,10 +1027,10 @@ public class Evaluator extends NullASTVisitor<Result> {
 	@Override
 	public Result visitStatementAssertWithMessage(AssertWithMessage x) {
 		Result r = x.getExpression().accept(this);
-		if (!r.type.equals(tf.boolType())) {
-			throw new TypeError("Expression in assertion should have type bool instead of " + r.type, x);	
+		if (!r.getType().equals(tf.boolType())) {
+			throw new TypeError("Expression in assertion should have type bool instead of " + r.getType(), x);	
 		}
-		if(r.value.isEqual(vf.bool(false))){
+		if(r.getValue().isEqual(vf.bool(false))){
 			StringLiteral msg = x.getMessage();
 			String str = msg.toString();
 			throw new AssertionError(unescape(str,msg), x);
@@ -1054,12 +1059,12 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result previous = env.getVariable(name);
 		
 		if (previous != null) {
-			if (right.type.isSubtypeOf(previous.type)) {
-				right.type = previous.type;
+			if (right.getType().isSubtypeOf(previous.getType())) {
+				right.setType(previous.getType());
 			} else {
 				throw new AssignmentError("Variable `" + name
-						+ "` has type " + previous.type
-						+ "; cannot assign value of type " + right.type, name);
+						+ "` has type " + previous.getType()
+						+ "; cannot assign value of type " + right.getType(), name);
 			}
 		}
 		
@@ -1085,7 +1090,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	public Result visitExpressionSubscript(Subscript x) {
 		
 		Result expr = x.getExpression().accept(this);
-		Type exprType = expr.type;
+		Type exprType = expr.getType();
 		int nSubs = x.getSubscripts().size();
 		
 		if (exprType.isRelationType()) {
@@ -1100,7 +1105,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			
 			for(int i = 0; i < nSubs; i++){
 				subscriptResult[i] = x.getSubscripts().get(i).accept(this);
-				subscriptType[i] = subscriptResult[i].type;
+				subscriptType[i] = subscriptResult[i].getType();
 			}
 			
 			boolean yieldSet = (relArity - nSubs) == 1;
@@ -1135,13 +1140,13 @@ public class Evaluator extends NullASTVisitor<Result> {
 				wrel = resultType.writer(vf);
 			}
 
-			for (IValue v : ((IRelation) expr.value)) {
+			for (IValue v : ((IRelation) expr.getValue())) {
 				ITuple tup = (ITuple) v;
 				boolean allEqual = true;
 				for(int k = 0; k < nSubs; k++){
-					if(subscriptIsSet[k] && ((ISet) subscriptResult[k].value).contains(tup.get(k))){
+					if(subscriptIsSet[k] && ((ISet) subscriptResult[k].getValue()).contains(tup.get(k))){
 						/* ok */
-					} else if (tup.get(k).isEqual(subscriptResult[k].value)){
+					} else if (tup.get(k).isEqual(subscriptResult[k].getValue())){
 						/* ok */
 					} else {
 						allEqual = false;
@@ -1168,14 +1173,14 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 		
 		Result subs = x.getSubscripts().get(0).accept(this);
-		Type subsBase = subs.type;
+		Type subsBase = subs.getType();
 		
 		if (exprType.isMapType()
 			&& subsBase.isSubtypeOf(exprType.getKeyType())) {
 			Type valueType = exprType.getValueType();
-			IValue v = ((IMap) expr.value).get(subs.value);
+			IValue v = ((IMap) expr.getValue()).get(subs.getValue());
 			if(v == null){
-				throw new UndefinedValueError("No value associated with key `" + subs.value + "`", x);
+				throw new UndefinedValueError("No value associated with key `" + subs.getValue() + "`", x);
 			}
 			return normalizedResult(valueType,v);
 		}
@@ -1188,33 +1193,33 @@ public class Evaluator extends NullASTVisitor<Result> {
 		if (exprType.isListType()) {
 			Type elementType = exprType.getElementType();
 			try {
-				IValue element = ((IList) expr.value).get(index);
+				IValue element = ((IList) expr.getValue()).get(index);
 				return normalizedResult(elementType, element);
 			} catch (IndexOutOfBoundsException e) {
 				throw new IndexOutOfBoundsError("Subscript " + index + " out of bounds", x);
 			}
 		}
 		if (exprType.isAbstractDataType()) {
-			if(index >= ((IConstructor) expr.value).arity()){
+			if(index >= ((IConstructor) expr.getValue()).arity()){
 				throw new IndexOutOfBoundsError("Subscript " + index + " out of bounds", x);
 			}
 			
-			Type elementType = ((IConstructor) expr.value).getConstructorType().getFieldType(index);
-			IValue element = ((IConstructor) expr.value).get(index);
+			Type elementType = ((IConstructor) expr.getValue()).getConstructorType().getFieldType(index);
+			IValue element = ((IConstructor) expr.getValue()).get(index);
 			return normalizedResult(elementType, element);
 		}
 		if (exprType.isNodeType()) {
-			if(index >= ((INode) expr.value).arity()){
+			if(index >= ((INode) expr.getValue()).arity()){
 				throw new IndexOutOfBoundsError("Subscript " + index + " out of bounds", x);
 			}
 			Type elementType = tf.valueType();
-			IValue element = ((INode) expr.value).get(index);
+			IValue element = ((INode) expr.getValue()).get(index);
 			return normalizedResult(elementType, element);
 		}
 		if (exprType.isTupleType()) {
 			try {
 				Type elementType = exprType.getFieldType(index);
-				IValue element = ((ITuple) expr.value).get(index);
+				IValue element = ((ITuple) expr.getValue()).get(index);
 				return normalizedResult(elementType, element);
 			} catch (IndexOutOfBoundsException e){
 				throw new IndexOutOfBoundsError("Subscript " + index + " out of bounds", x);
@@ -1229,20 +1234,20 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result expr = x.getExpression().accept(this);
 		String field = x.getField().toString();
 		
-		if (expr.type.isTupleType()) {
-			Type tuple = expr.type;
+		if (expr.getType().isTupleType()) {
+			Type tuple = expr.getType();
 			if (!tuple.hasFieldNames()) {
 				throw new NoSuchFieldError("Tuple does not have field names: " + tuple, x);
 			}
 			
-			return normalizedResult(tuple.getFieldType(field), ((ITuple) expr.value).get(tuple.getFieldIndex(field)));
+			return normalizedResult(tuple.getFieldType(field), ((ITuple) expr.getValue()).get(tuple.getFieldIndex(field)));
 		}
-		else if (expr.type.isRelationType()) {
-			Type tuple = expr.type.getFieldTypes();
+		else if (expr.getType().isRelationType()) {
+			Type tuple = expr.getType().getFieldTypes();
 			
 			try {
 				ISetWriter w = vf.setWriter(tuple.getFieldType(field));
-				for (IValue e : (ISet) expr.value) {
+				for (IValue e : (ISet) expr.getValue()) {
 					w.insert(((ITuple) e).get(tuple.getFieldIndex(field)));
 				}
 				return result(tf.setType(tuple.getFieldType(field)), w.done());
@@ -1251,22 +1256,22 @@ public class Evaluator extends NullASTVisitor<Result> {
 				throw new NoSuchFieldError(e.getMessage(), x);
 			}
 		}
-		else if (expr.type.isAbstractDataType() || expr.type.isConstructorType()) {
-			Type node = ((IConstructor) expr.value).getConstructorType();
+		else if (expr.getType().isAbstractDataType() || expr.getType().isConstructorType()) {
+			Type node = ((IConstructor) expr.getValue()).getConstructorType();
 			
-			if (!expr.type.hasField(field)) {
-				throw new NoSuchFieldError(expr.type + " does not have a field named `" + field + "`", x);
+			if (!expr.getType().hasField(field)) {
+				throw new NoSuchFieldError(expr.getType() + " does not have a field named `" + field + "`", x);
 			}
 			
 			if (!node.hasField(field)) {
-				throw new NoSuchFieldError("Field `" + field + "` accessed on constructor that does not have it: " + expr.value.getType(), x);
+				throw new NoSuchFieldError("Field `" + field + "` accessed on constructor that does not have it: " + expr.getValueType(), x);
 			}
 			
 			int index = node.getFieldIndex(field);
-			return normalizedResult(node.getFieldType(index),((IConstructor) expr.value).get(index));
+			return normalizedResult(node.getFieldType(index),((IConstructor) expr.getValue()).get(index));
 		}
 		
-		throw new NoSuchFieldError("Field selection is not allowed on " + expr.type, x);
+		throw new NoSuchFieldError("Field selection is not allowed on " + expr.getType(), x);
 	}
 	
 	private boolean duplicateIndices(int indices[]){
@@ -1288,62 +1293,62 @@ public class Evaluator extends NullASTVisitor<Result> {
 		int nFields = fields.size();
 		int selectedFields[] = new int[nFields];
 		
-		if(base.type.isTupleType()){
+		if(base.getType().isTupleType()){
 			Type fieldTypes[] = new Type[nFields];
 			
 			for(int i = 0 ; i < nFields; i++){
 				Field f = fields.get(i);
 				if(f.isIndex()){
-					selectedFields[i] = ((IInteger) f.getFieldIndex().accept(this).value).getValue();
+					selectedFields[i] = ((IInteger) f.getFieldIndex().accept(this).getValue()).getValue();
 				} else {
 					String fieldName = f.getFieldName().toString();
 					try {
-						selectedFields[i] = base.type.getFieldIndex(fieldName);
+						selectedFields[i] = base.getType().getFieldIndex(fieldName);
 					} catch (Exception e){
 						throw new NoSuchFieldError("Undefined field name `" + fieldName + "` in projection", x);
 					}
 				}
-				if(selectedFields[i] < 0 || selectedFields[i] > base.type.getArity()){
+				if(selectedFields[i] < 0 || selectedFields[i] > base.getType().getArity()){
 					throw new IndexOutOfBoundsError("Index " + selectedFields[i] + " in projection exceeds arity of tuple", x);
 				}
-				fieldTypes[i] = base.type.getFieldType(selectedFields[i]);
+				fieldTypes[i] = base.getType().getFieldType(selectedFields[i]);
 			}
 			if(duplicateIndices(selectedFields)){
 				throw new NoSuchFieldError("Duplicate fields in projection", x);
 			}
 			Type resultType = nFields == 1 ? fieldTypes[0] : tf.tupleType(fieldTypes);
 			
-			return result(resultType, ((ITuple)base.value).select(selectedFields));				     
+			return result(resultType, ((ITuple)base.getValue()).select(selectedFields));				     
 		}
-		if(base.type.isRelationType()){
+		if(base.getType().isRelationType()){
 			
 			Type fieldTypes[] = new Type[nFields];
 			
 			for(int i = 0 ; i < nFields; i++){
 				Field f = fields.get(i);
 				if(f.isIndex()){
-					selectedFields[i] = ((IInteger) f.getFieldIndex().accept(this).value).getValue();
+					selectedFields[i] = ((IInteger) f.getFieldIndex().accept(this).getValue()).getValue();
 				} else {
 					String fieldName = f.getFieldName().toString();
 					try {
-						selectedFields[i] = base.type.getFieldIndex(fieldName);
+						selectedFields[i] = base.getType().getFieldIndex(fieldName);
 					} catch (Exception e){
 						throw new NoSuchFieldError("Undefined field " + fieldName + " in projection", x);
 					}
 				}
-				if(selectedFields[i] < 0 || selectedFields[i] > base.type.getArity()){
+				if(selectedFields[i] < 0 || selectedFields[i] > base.getType().getArity()){
 					throw new IndexOutOfBoundsError("Index " + selectedFields[i] + " in projection exceeds arity of tuple", x);
 				}
-				fieldTypes[i] = base.type.getFieldType(selectedFields[i]);
+				fieldTypes[i] = base.getType().getFieldType(selectedFields[i]);
 			}
 			if(duplicateIndices(selectedFields)){
 				throw new NoSuchFieldError("Duplicate fields in projection", x);
 			}
 			Type resultType = nFields == 1 ? tf.setType(fieldTypes[0]) : tf.relType(fieldTypes);
 			
-			return result(resultType, ((IRelation)base.value).select(selectedFields));				     
+			return result(resultType, ((IRelation)base.getValue()).select(selectedFields));				     
 		}
-		throw new TypeError("Type " + base.type + " does not allow projection", x);
+		throw new TypeError("Type " + base.getType() + " does not allow projection", x);
 	}
 	
 	@Override
@@ -1391,7 +1396,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	@Override
 	public Result visitStatementThrow(Throw x) {
-		throw new Error(x.getExpression().accept(this).value);
+		throw new Error(x.getExpression().accept(this).getValue());
 	}
 	
 	@Override
@@ -1482,21 +1487,21 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result receiver = x.getReceiver().accept(this);
 		String label = x.getField().toString();
 	
-		if (receiver.type.isTupleType()) {
-			IValue result = ((ITuple) receiver.value).get(label);
-			Type type = ((ITuple) receiver.value).getType().getFieldType(label);
+		if (receiver.getType().isTupleType()) {
+			IValue result = ((ITuple) receiver.getValue()).get(label);
+			Type type = ((ITuple) receiver.getValue()).getType().getFieldType(label);
 			return normalizedResult(type, result);
 		}
-		else if (receiver.type.isConstructorType() || receiver.type.isAbstractDataType()) {
-			IConstructor cons = (IConstructor) receiver.value;
+		else if (receiver.getType().isConstructorType() || receiver.getType().isAbstractDataType()) {
+			IConstructor cons = (IConstructor) receiver.getValue();
 			Type node = cons.getConstructorType();
 			
-			if (!receiver.type.hasField(label)) {
-				throw new NoSuchFieldError(receiver.type + " does not have a field named `" + label + "`", x);
+			if (!receiver.getType().hasField(label)) {
+				throw new NoSuchFieldError(receiver.getType() + " does not have a field named `" + label + "`", x);
 			}
 			
 			if (!node.hasField(label)) {
-				throw new NoSuchFieldError("Field " + label + " accessed on constructor that does not have it." + receiver.value.getType(), x);
+				throw new NoSuchFieldError("Field " + label + " accessed on constructor that does not have it." + receiver.getValueType(), x);
 			}
 			
 			int index = node.getFieldIndex(label);
@@ -1513,13 +1518,13 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result receiver = x.getReceiver().accept(this);
 		String label = x.getAnnotation().toString();
 		
-		if (receiver.type.declaresAnnotation(label)) {
-			throw new NoSuchAnnotationError("No annotation `" + label + "` declared for " + receiver.type, x);
+		if (receiver.getType().declaresAnnotation(label)) {
+			throw new NoSuchAnnotationError("No annotation `" + label + "` declared for " + receiver.getType(), x);
 		}
 		
 		// TODO get annotation from local and imported environments
-		Type type = tf.getAnnotationType(receiver.type, label);
-		IValue value = ((IConstructor) receiver.value).getAnnotation(label);
+		Type type = tf.getAnnotationType(receiver.getType(), label);
+		IValue value = ((IConstructor) receiver.getValue()).getAnnotation(label);
 		
 		return normalizedResult(type, value);
 	}
@@ -1541,18 +1546,18 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result receiver = x.getReceiver().accept(this);
 		Result subscript = x.getSubscript().accept(this);
 		
-		if (receiver.type.isListType() && subscript.type.isIntegerType()) {
-			IList list = (IList) receiver.value;
+		if (receiver.getType().isListType() && subscript.getType().isIntegerType()) {
+			IList list = (IList) receiver.getValue();
 			IValue result = list.get(intValue(subscript));
-			Type type = receiver.type.getElementType();
+			Type type = receiver.getType().getElementType();
 			return normalizedResult(type, result);
 		}
-		else if (receiver.type.isMapType()) {
-			Type keyType = receiver.type.getKeyType();
+		else if (receiver.getType().isMapType()) {
+			Type keyType = receiver.getType().getKeyType();
 			
-			if (subscript.type.isSubtypeOf(keyType)) {
-				IValue result = ((IMap) receiver.value).get(subscript.value);
-				Type type = receiver.type.getValueType();
+			if (subscript.getType().isSubtypeOf(keyType)) {
+				IValue result = ((IMap) receiver.getValue()).get(subscript.getValue());
+				Type type = receiver.getType().getValueType();
 				return normalizedResult(type, result);
 			}
 		}
@@ -1605,11 +1610,11 @@ public class Evaluator extends NullASTVisitor<Result> {
 				try {
 					for (org.meta_environment.rascal.ast.Expression expr : x.getConditions()) {
 						Result cval = expr.accept(this);
-						if (!cval.type.isBoolType()) {
+						if (!cval.getType().isBoolType()) {
 							throw new TypeError("Condition " + expr + " has type "
-									+ cval.type + " but should be bool", x);
+									+ cval.getType() + " but should be bool", x);
 						}
-						if (cval.value.isEqual(vf.bool(false))) {
+						if (cval.getValue().isEqual(vf.bool(false))) {
 							break elseBranch;
 						}
 						// condition is true: continue
@@ -1629,11 +1634,11 @@ public class Evaluator extends NullASTVisitor<Result> {
 		try {
 			for (org.meta_environment.rascal.ast.Expression expr : x.getConditions()) {
 				Result cval = expr.accept(this);
-				if (!cval.type.isBoolType()) {
+				if (!cval.getType().isBoolType()) {
 					throw new TypeError("Condition " + expr + " has type "
-							+ cval.type + " but should be bool", x);
+							+ cval.getType() + " but should be bool", x);
 				}
-				if (cval.value.isEqual(vf.bool(false))) {
+				if (cval.getValue().isEqual(vf.bool(false))) {
 					return result();
 				}
 			}
@@ -1653,11 +1658,11 @@ public class Evaluator extends NullASTVisitor<Result> {
 			push();
 			try {
 				Result cval = expr.accept(this);
-				if (!cval.type.isBoolType()) {
+				if (!cval.getType().isBoolType()) {
 					throw new TypeError("Condition " + expr + " has type "
-							+ cval.type + " but should be bool", x);
+							+ cval.getType() + " but should be bool", x);
 				}
-				if (cval.value.isEqual(vf.bool(false))) {
+				if (cval.getValue().isEqual(vf.bool(false))) {
 					return statVal;
 				}
 				statVal = x.getBody().accept(this);
@@ -1677,11 +1682,11 @@ public class Evaluator extends NullASTVisitor<Result> {
 			push();
 			try {
 				Result cval = expr.accept(this);
-				if (!cval.type.isBoolType()) {
+				if (!cval.getType().isBoolType()) {
 					throw new TypeError("Condition " + expr + " has type "
-							+ cval.type + " but should be bool", x);
+							+ cval.getType() + " but should be bool", x);
 				}
-				if (cval.value.isEqual(vf.bool(false))) {
+				if (cval.getValue().isEqual(vf.bool(false))) {
 					return result;
 				}
 			}
@@ -1776,15 +1781,15 @@ public class Evaluator extends NullASTVisitor<Result> {
 				}
 				Result val = peek().getVariable(ast, var.toString());
 				String replacement;
-				if(val == null || val.value == null) {
+				if(val == null || val.getValue() == null) {
 					// TODO JURGEN: should we not throw an exception or something? Undefined variables are not allowed.
 //					replacement = "**undefined**";	
 					throw new UndefinedValueError("Undefined variable " + var, ast);
 				} else {
-					if(val.type.isStringType()){
-						replacement = ((IString)val.value).getValue();
+					if(val.getType().isStringType()){
+						replacement = ((IString)val.getValue()).getValue();
 					} else {
-						replacement = val.value.toString();
+						replacement = val.getValue().toString();
 					}
 				}
 //				replacement = replacement.replaceAll("<", "\\\\<"); TODO: maybe we need this after all?
@@ -1863,7 +1868,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		else {
 			Result result = peek().getVariable(x.getQualifiedName());
 
-			if (result != null && result.value != null) {
+			if (result != null && result.getValue() != null) {
 				return result;
 			} else {
 				throw new UndefinedValueError("Uninitialized variable: " + x, x);
@@ -1881,18 +1886,18 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 		for (org.meta_environment.rascal.ast.Expression expr : elements) {
 			Result resultElem = expr.accept(this);
-			if(resultElem.type.isListType() && !expr.isList() &&
-					elementType.isSubtypeOf(resultElem.type.getElementType())){
+			if(resultElem.getType().isListType() && !expr.isList() &&
+					elementType.isSubtypeOf(resultElem.getType().getElementType())){
 				/*
 				 * Splice elements in list if element types permit this
 				 */
-				for(IValue val : ((IList) resultElem.value)){
+				for(IValue val : ((IList) resultElem.getValue())){
 					elementType = elementType.lub(val.getType());
 					results.add(val);
 				}
 			} else {
-				elementType = elementType.lub(resultElem.type);
-				results.add(results.size(), resultElem.value);
+				elementType = elementType.lub(resultElem.getType());
+				results.add(results.size(), resultElem.getValue());
 			}
 		}
 
@@ -1912,18 +1917,18 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 		for (org.meta_environment.rascal.ast.Expression expr : elements) {
 			Result resultElem = expr.accept(this);
-			if(resultElem.type.isSetType() && !expr.isSet() &&
-			   elementType.isSubtypeOf(resultElem.type.getElementType())){
+			if(resultElem.getType().isSetType() && !expr.isSet() &&
+			   elementType.isSubtypeOf(resultElem.getType().getElementType())){
 				/*
 				 * Splice the elements in the set if element types permit this.
 				 */
-				for(IValue val : ((ISet) resultElem.value)){
+				for(IValue val : ((ISet) resultElem.getValue())){
 					elementType = elementType.lub(val.getType());
 					results.add(val);
 				}
 			} else {
-				elementType = elementType.lub(resultElem.type);
-				results.add(results.size(), resultElem.value);
+				elementType = elementType.lub(resultElem.getType());
+				results.add(results.size(), resultElem.getValue());
 			}
 		}
 		Type resultType = tf.setType(elementType);
@@ -1946,10 +1951,10 @@ public class Evaluator extends NullASTVisitor<Result> {
 			Result keyResult = mapping.getFrom().accept(this);
 			Result valueResult = mapping.getTo().accept(this);
 			
-			keyType = keyType.lub(keyResult.type);
-			valueType = valueType.lub(valueResult.type);
+			keyType = keyType.lub(keyResult.getType());
+			valueType = valueType.lub(valueResult.getType());
 			
-			result.put(keyResult.value, valueResult.value);
+			result.put(keyResult.getValue(), valueResult.getValue());
 		}
 		
 		Type type = tf.mapType(keyType, valueType);
@@ -1973,8 +1978,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 		for (int i = 0; i < elements.size(); i++) {
 			Result resultElem = elements.get(i).accept(this);
-			types[i] = resultElem.type;
-			values[i] = resultElem.value;
+			types[i] = resultElem.getType();
+			values[i] = resultElem.getValue();
 		}
 
 		return result(tf.tupleType(types), vf.tuple(values));
@@ -1987,18 +1992,18 @@ public class Evaluator extends NullASTVisitor<Result> {
 		String name = x.getName().toString();
 
 		// TODO: get annotations from local and imported environments
-		Type annoType = tf.getAnnotationType(expr.type, name);
+		Type annoType = tf.getAnnotationType(expr.getType(), name);
 
 		if (annoType == null) {
 			throw new NoSuchAnnotationError("No annotation `" + x.getName()
-					+ "` declared on " + expr.type, x);
+					+ "` declared on " + expr.getType(), x);
 		}
 
-		IValue annoValue = ((IConstructor) expr.value).getAnnotation(name);
+		IValue annoValue = ((IConstructor) expr.getValue()).getAnnotation(name);
 		
 		if (annoValue == null) {
 			// TODO: make this a Rascal exception that can be caught by the programmer
-			throw new NoSuchAnnotationError("This " + expr.type + " does not have a " + name + " annotation set", x);
+			throw new NoSuchAnnotationError("This " + expr.getType() + " does not have a " + name + " annotation set", x);
 		}
 		return result(annoType, annoValue);
 	}
@@ -2006,23 +2011,23 @@ public class Evaluator extends NullASTVisitor<Result> {
 	public static void widenArgs(Result left, Result right) {
 		TypeFactory tf = TypeFactory.getInstance();
 		
-		Type leftValType = left.value.getType();
-		Type rightValType = right.value.getType();
+		Type leftValType = left.getValueType();
+		Type rightValType = right.getValueType();
 		if (leftValType.isIntegerType() && rightValType.isDoubleType()) {
-			if(left.type.isIntegerType()){
-				left.type = tf.doubleType();
+			if(left.getType().isIntegerType()){
+				left.setType(tf.doubleType());
 			}
-			left.value =((IInteger) left.value).toDouble();
+			left.setValue(((IInteger) left.getValue()).toDouble());
 		} else if (leftValType.isDoubleType() && rightValType.isIntegerType()) {
-			if(right.type.isIntegerType()){
-				right.type = tf.doubleType();
+			if(right.getType().isIntegerType()){
+				right.setType(tf.doubleType());
 			}
-			right.value = ((IInteger) right.value).toDouble();
+			right.setValue(((IInteger) right.getValue()).toDouble());
 		} 
-		/*else if(left.type.isConstructorType()){
-			left.type = left.type.getAbstractDataType();
-		} else 	if(right.type.isConstructorType()){
-			right.type = right.type.getAbstractDataType();
+		/*else if(left.getType().isConstructorType()){
+			left.getType() = left.getType().getAbstractDataType();
+		} else 	if(right.getType().isConstructorType()){
+			right.getType() = right.getType().getAbstractDataType();
 		}
 		*/
 	}
@@ -2033,76 +2038,76 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result right = x.getRhs().accept(this);
 
 		widenArgs(left, right);
-		Type resultType = left.type.lub(right.type);
+		Type resultType = left.getType().lub(right.getType());
 		
 		//System.err.println("left=" + left + "; right=" + right + "; resulType=" + resultType);
 
 		// Integer
-		if (left.type.isIntegerType() && right.type.isIntegerType()) {
-			return result(((IInteger) left.value).add((IInteger) right.value));
+		if (left.getType().isIntegerType() && right.getType().isIntegerType()) {
+			return result(((IInteger) left.getValue()).add((IInteger) right.getValue()));
 			
 		}
 		//Real
-		if (left.type.isDoubleType() && right.type.isDoubleType()) {
-			return result(((IDouble) left.value).add((IDouble) right.value));
+		if (left.getType().isDoubleType() && right.getType().isDoubleType()) {
+			return result(((IDouble) left.getValue()).add((IDouble) right.getValue()));
 			
 		}
 		//String
-		if (left.type.isStringType() && right.type.isStringType()) {
-			return result(vf.string(((IString) left.value).getValue()
-					+ ((IString) right.value).getValue()));
+		if (left.getType().isStringType() && right.getType().isStringType()) {
+			return result(vf.string(((IString) left.getValue()).getValue()
+					+ ((IString) right.getValue()).getValue()));
 			
 		}
 		//List
-		if (left.type.isListType()){
-				if(right.type.isListType()) {
-					return result(resultType, ((IList) left.value)
-					.concat((IList) right.value));
+		if (left.getType().isListType()){
+				if(right.getType().isListType()) {
+					return result(resultType, ((IList) left.getValue())
+					.concat((IList) right.getValue()));
 				}
-				if(right.type.isSubtypeOf(left.type.getElementType())){
-					return result(left.type, ((IList)left.value).append(right.value));
+				if(right.getType().isSubtypeOf(left.getType().getElementType())){
+					return result(left.getType(), ((IList)left.getValue()).append(right.getValue()));
 				}
 		}
 		
-		if (right.type.isListType()){
-			if(left.type.isSubtypeOf(right.type.getElementType())){
-				return result(right.type, ((IList)right.value).insert(left.value));
+		if (right.getType().isListType()){
+			if(left.getType().isSubtypeOf(right.getType().getElementType())){
+				return result(right.getType(), ((IList)right.getValue()).insert(left.getValue()));
 			}
 		}
 		
 		//Relation
-		if (left.type.isRelationType() && right.type.isRelationType()) {
-				return result(resultType, ((ISet) left.value)
-						.union((ISet) right.value));
+		if (left.getType().isRelationType() && right.getType().isRelationType()) {
+				return result(resultType, ((ISet) left.getValue())
+						.union((ISet) right.getValue()));
 		}
 		
 		//Set
-		if (left.type.isSetType()){
-			if(right.type.isSetType()) {
-				return result(resultType, ((ISet) left.value)
-				.union((ISet) right.value));
+		if (left.getType().isSetType()){
+			if(right.getType().isSetType()) {
+				return result(resultType, ((ISet) left.getValue())
+				.union((ISet) right.getValue()));
 			}
-			if(right.type.isSubtypeOf(left.type.getElementType())){
-				return result(left.type, ((ISet)left.value).insert(right.value));
+			if(right.getType().isSubtypeOf(left.getType().getElementType())){
+				return result(left.getType(), ((ISet)left.getValue()).insert(right.getValue()));
 			}
 		}
 	
-		if (right.type.isSetType()){
-			if(left.type.isSubtypeOf(right.type.getElementType())){
-				return result(right.type, ((ISet)right.value).insert(left.value));
+		if (right.getType().isSetType()){
+			if(left.getType().isSubtypeOf(right.getType().getElementType())){
+				return result(right.getType(), ((ISet)right.getValue()).insert(left.getValue()));
 			}
 		}
 		
 		//Map
-		if (left.type.isMapType() && right.type.isMapType()) {
-			return result(resultType, ((IMap) left.value)              //TODO: is this the right operation?
-					.join((IMap) right.value));
+		if (left.getType().isMapType() && right.getType().isMapType()) {
+			return result(resultType, ((IMap) left.getValue())              //TODO: is this the right operation?
+					.join((IMap) right.getValue()));
 			
 		}
 		//Tuple
-		if(left.type.isTupleType() && right.type.isTupleType()) {
-			Type leftType = left.type;
-			Type rightType = right.type;
+		if(left.getType().isTupleType() && right.getType().isTupleType()) {
+			Type leftType = left.getType();
+			Type rightType = right.getType();
 			
 			int leftArity = leftType.getArity();
 			int rightArity = rightType.getArity();
@@ -2115,13 +2120,13 @@ public class Evaluator extends NullASTVisitor<Result> {
 			for(int i = 0; i < leftArity; i++){
 				fieldTypes[i] = leftType.getFieldType(i);
 				fieldNames[i] = leftType.getFieldName(i);
-				fieldValues[i] = ((ITuple) left.value).get(i);
+				fieldValues[i] = ((ITuple) left.getValue()).get(i);
 			}
 			
 			for(int i = 0; i < rightArity; i++){
 				fieldTypes[leftArity + i] = rightType.getFieldType(i);
 				fieldNames[leftArity + i] = rightType.getFieldName(i);
-				fieldValues[leftArity + i] = ((ITuple) right.value).get(i);
+				fieldValues[leftArity + i] = ((ITuple) right.getValue()).get(i);
 			}
 			
 			//TODO: avoid null fieldnames
@@ -2137,32 +2142,32 @@ public class Evaluator extends NullASTVisitor<Result> {
 		
 		
 		throw new TypeError("Operands of + have illegal types: "
-					+ left.type + ", " + right.type, x);
+					+ left.getType() + ", " + right.getType(), x);
 	}
     
 	public Result visitExpressionSubtraction(Subtraction x) {
 		Result left = x.getLhs().accept(this);
 		Result right = x.getRhs().accept(this);
-		Type resultType = left.type.lub(right.type);
+		Type resultType = left.getType().lub(right.getType());
 		
 		widenArgs(left, right);
 
 		// Integer
-		if (left.type.isIntegerType() && right.type.isIntegerType()) {
-			return result(((IInteger) left.value).subtract((IInteger) right.value));
+		if (left.getType().isIntegerType() && right.getType().isIntegerType()) {
+			return result(((IInteger) left.getValue()).subtract((IInteger) right.getValue()));
 		}
 		
 		// Real
-		if (left.type.isDoubleType() && right.type.isDoubleType()) {
-			return result(((IDouble) left.value).subtract((IDouble) right.value));
+		if (left.getType().isDoubleType() && right.getType().isDoubleType()) {
+			return result(((IDouble) left.getValue()).subtract((IDouble) right.getValue()));
 		}
 		
 		// List
-		if (left.type.isListType() && right.type.isListType()) {
-			IListWriter w = left.type.writer(vf);
+		if (left.getType().isListType() && right.getType().isListType()) {
+			IListWriter w = left.getType().writer(vf);
 			
-			IList listLeft = (IList)left.value;
-			IList listRight = (IList)right.value;
+			IList listLeft = (IList)left.getValue();
+			IList listRight = (IList)right.getValue();
 			
 			int lenLeft = listLeft.length();
 			int lenRight = listRight.length();
@@ -2180,49 +2185,49 @@ public class Evaluator extends NullASTVisitor<Result> {
 			        w.insert(leftVal);
 				}
 			}
-			return result(left.type, w.done());
+			return result(left.getType(), w.done());
 		}
 		
 		// Set
-		if (left.type.isSetType()){
-				if(right.type.isSetType()) {
-					return result(resultType, ((ISet) left.value)
-							.subtract((ISet) right.value));
+		if (left.getType().isSetType()){
+				if(right.getType().isSetType()) {
+					return result(resultType, ((ISet) left.getValue())
+							.subtract((ISet) right.getValue()));
 				}
-				if(right.type.isSubtypeOf(left.type.getElementType())){
-					return result(left.type, ((ISet)left.value)
-							.subtract(vf.set(right.value)));
+				if(right.getType().isSubtypeOf(left.getType().getElementType())){
+					return result(left.getType(), ((ISet)left.getValue())
+							.subtract(vf.set(right.getValue())));
 				}
 		}
 		
 		// Map
-		if (left.type.isMapType() && right.type.isMapType()) {
-			return result(resultType, ((IMap) left.value)
-					.remove((IMap) right.value));
+		if (left.getType().isMapType() && right.getType().isMapType()) {
+			return result(resultType, ((IMap) left.getValue())
+					.remove((IMap) right.getValue()));
 		}
 		
 		//Relation
-		if (left.type.isRelationType() && right.type.isRelationType()) {
-			return result(resultType, ((ISet) left.value)
-					.subtract((ISet) right.value));
+		if (left.getType().isRelationType() && right.getType().isRelationType()) {
+			return result(resultType, ((ISet) left.getValue())
+					.subtract((ISet) right.getValue()));
 		}
 		
 		throw new TypeError("Operands of - have illegal types: "
-					+ left.type + ", " + right.type, x);
+					+ left.getType() + ", " + right.getType(), x);
 	}
 	
 	@Override
 	public Result visitExpressionNegative(Negative x) {
 		Result arg = x.getArgument().accept(this);
 		
-		if (arg.type.isIntegerType()) {
+		if (arg.getType().isIntegerType()) {
 			return result(vf.integer(- intValue(arg)));
 		}
-		else if (arg.type.isDoubleType()) {
+		else if (arg.getType().isDoubleType()) {
 				return result(vf.dubble(- RealValue(arg)));
 		} else {
 			throw new TypeError(
-					"Operand of unary - should be integer or Real instead of: " + arg.type, x);
+					"Operand of unary - should be integer or Real instead of: " + arg.getType(), x);
 		}
 	}
 	
@@ -2234,24 +2239,24 @@ public class Evaluator extends NullASTVisitor<Result> {
 		widenArgs(left, right);
 
 		//Integer
-		if (left.type.isIntegerType() && right.type.isIntegerType()) {
-			return result(((IInteger) left.value).multiply((IInteger) right.value));
+		if (left.getType().isIntegerType() && right.getType().isIntegerType()) {
+			return result(((IInteger) left.getValue()).multiply((IInteger) right.getValue()));
 		} 
 		
 		//Real 
-		else if (left.type.isDoubleType() && right.type.isDoubleType()) {
-			return result(((IDouble) left.value).multiply((IDouble) right.value));
+		else if (left.getType().isDoubleType() && right.getType().isDoubleType()) {
+			return result(((IDouble) left.getValue()).multiply((IDouble) right.getValue()));
 		}
 		
 		// List
-		else if (left.type.isListType() && right.type.isListType()){
-			Type leftElementType = left.type.getElementType();
-			Type rightElementType = right.type.getElementType();
+		else if (left.getType().isListType() && right.getType().isListType()){
+			Type leftElementType = left.getType().getElementType();
+			Type rightElementType = right.getType().getElementType();
 			Type resultType = tf.listType(tf.tupleType(leftElementType, rightElementType));
 			IListWriter w = resultType.writer(vf);
 			
-			for(IValue v1 : (IList) left.value){
-				for(IValue v2 : (IList) right.value){
+			for(IValue v1 : (IList) left.getValue()){
+				for(IValue v2 : (IList) right.getValue()){
 					w.append(vf.tuple(v1, v2));	
 				}
 			}
@@ -2259,9 +2264,9 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 		
 		// Relation
-		else if(left.type.isRelationType() && right.type.isRelationType()){
-			Type leftElementType = left.type.getElementType();
-			Type rightElementType = right.type.getElementType();
+		else if(left.getType().isRelationType() && right.getType().isRelationType()){
+			Type leftElementType = left.getType().getElementType();
+			Type rightElementType = right.getType().getElementType();
 			
 			int leftArity = leftElementType.getArity();
 			int rightArity = rightElementType.getArity();
@@ -2290,13 +2295,13 @@ public class Evaluator extends NullASTVisitor<Result> {
 			Type resultType = tf.relTypeFromTuple(resElementType);
 			IRelationWriter w = resultType.writer(vf);
 			
-			for(IValue v1 : (IRelation) left.value){
+			for(IValue v1 : (IRelation) left.getValue()){
 				IValue elementValues[] = new IValue[newArity];
 				
 				for(int i = 0; i < leftArity; i++){
 					elementValues[i] = ((ITuple) v1).get(i);
 				}
-				for(IValue v2 : (IRelation) right.value){
+				for(IValue v2 : (IRelation) right.getValue()){
 					for(int i = 0; i <rightArity; i++){
 						elementValues[leftArity + i] = ((ITuple) v2).get(i);
 					}
@@ -2308,14 +2313,14 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 		
 		//Set
-		else if (left.type.isSetType() && right.type.isSetType()){
-			Type leftElementType = left.type.getElementType();
-			Type rightElementType = right.type.getElementType();
+		else if (left.getType().isSetType() && right.getType().isSetType()){
+			Type leftElementType = left.getType().getElementType();
+			Type rightElementType = right.getType().getElementType();
 			Type resultType = tf.relType(leftElementType, rightElementType);
 			IRelationWriter w = resultType.writer(vf);
 			
-			for(IValue v1 : (ISet) left.value){
-				for(IValue v2 : (ISet) right.value){
+			for(IValue v1 : (ISet) left.getValue()){
+				for(IValue v2 : (ISet) right.getValue()){
 					w.insert(vf.tuple(v1, v2));	
 				}
 			}
@@ -2323,7 +2328,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 		else {
 			throw new TypeError("Operands of * have illegal types: "
-					+ left.type + ", " + right.type, x);
+					+ left.getType() + ", " + right.getType(), x);
 		}
 	}
 	
@@ -2336,18 +2341,18 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 		try {
 			//Integer
-			if (left.type.isIntegerType() && right.type.isIntegerType()) {
-					return result(((IInteger) left.value).divide((IInteger) right.value));
+			if (left.getType().isIntegerType() && right.getType().isIntegerType()) {
+					return result(((IInteger) left.getValue()).divide((IInteger) right.getValue()));
 				
 			} 
 			
 			// Real
-			else if (left.type.isDoubleType() && right.type.isDoubleType()) {
-				return result(((IDouble) left.value).divide((IDouble) right.value));
+			else if (left.getType().isDoubleType() && right.getType().isDoubleType()) {
+				return result(((IDouble) left.getValue()).divide((IDouble) right.getValue()));
 			}
 			else {
 				throw new TypeError("Operands of / have illegal types: "
-						+ left.type + ", " + right.type, x);
+						+ left.getType() + ", " + right.getType(), x);
 			}
 		}
 		catch (ArithmeticException e){
@@ -2360,12 +2365,12 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result left = x.getLhs().accept(this);
 		Result right = x.getRhs().accept(this);
 
-		if (left.type.isIntegerType() && right.type.isIntegerType()) {
-			return result(((IInteger) left.value).remainder((IInteger) right.value));
+		if (left.getType().isIntegerType() && right.getType().isIntegerType()) {
+			return result(((IInteger) left.getValue()).remainder((IInteger) right.getValue()));
 		} 
 		else {
 			throw new TypeError("Operands of % have illegal types: "
-					+ left.type + ", " + right.type, x);
+					+ left.getType() + ", " + right.getType(), x);
 		}
 	}
 	
@@ -2378,27 +2383,27 @@ public class Evaluator extends NullASTVisitor<Result> {
 	public Result visitExpressionIntersection(Intersection x) {
 		Result left = x.getLhs().accept(this);
 		Result right = x.getRhs().accept(this);
-		Type resultType = left.type.lub(right.type);
+		Type resultType = left.getType().lub(right.getType());
 
 		//Set
-		if (left.type.isSetType() && right.type.isSetType()) {
-				return result(resultType, ((ISet) left.value)
-				.intersect((ISet) right.value));
+		if (left.getType().isSetType() && right.getType().isSetType()) {
+				return result(resultType, ((ISet) left.getValue())
+				.intersect((ISet) right.getValue()));
 		} 
 		
 		//Map
-		else if (left.type.isMapType() && right.type.isMapType()) {
-			return result(resultType, ((IMap) left.value)
-					.common((IMap) right.value));
+		else if (left.getType().isMapType() && right.getType().isMapType()) {
+			return result(resultType, ((IMap) left.getValue())
+					.common((IMap) right.getValue()));
 		} 
 		
 		//Relation
-		else if (left.type.isRelationType() && right.type.isRelationType()) {
-			return result(resultType, ((ISet) left.value)
-				.intersect((ISet) right.value));
+		else if (left.getType().isRelationType() && right.getType().isRelationType()) {
+			return result(resultType, ((ISet) left.getValue())
+				.intersect((ISet) right.getValue()));
 		} else {
 			throw new TypeError("Operands of & have illegal types: "
-					+ left.type + ", " + right.type, x);
+					+ left.getType() + ", " + right.getType(), x);
 		}
 	}
 
@@ -2431,7 +2436,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	public static boolean equals(Result left, Result right){
 		widenArgs(left, right);
 		
-		if (left.type.comparable(right.type)) {
+		if (left.getType().comparable(right.getType())) {
 			return compare(left, right) == 0;
 		} else {
 			return false;
@@ -2447,8 +2452,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 		
 		widenArgs(left, right);
 /*		
-		if (!left.type.comparable(right.type)) {
-			throw new RascalTypeError("Arguments of equals have incomparable types: " + left.type + " and " + right.type, x);
+		if (!left.getType().comparable(right.getType())) {
+			throw new RascalTypeError("Arguments of equals have incomparable types: " + left.getType() + " and " + right.getType(), x);
 		}
 */
 		
@@ -2488,20 +2493,20 @@ public class Evaluator extends NullASTVisitor<Result> {
 		
 	   Result area = x.getAreaExpression().accept(this);
 	   
-	   if (!area.type.isSubtypeOf(tf.sourceRangeType())) {
-		   throw new TypeError("Expected area, got " + area.type, x);
+	   if (!area.getType().isSubtypeOf(tf.sourceRangeType())) {
+		   throw new TypeError("Expected area, got " + area.getType(), x);
 	   }
 	   
 	   Result file = x.getFilename().accept(this);
 	   
-	   if (!area.type.isSubtypeOf(tf.sourceRangeType())) {
-		   throw new TypeError("Expected area, got " + file.type, x);
+	   if (!area.getType().isSubtypeOf(tf.sourceRangeType())) {
+		   throw new TypeError("Expected area, got " + file.getType(), x);
 	   }
 	   
 	   checkType(area, tf.sourceRangeType());
 	   checkType(file, tf.stringType());
 	   
-	   ISourceRange range = (ISourceRange) area.value;
+	   ISourceRange range = (ISourceRange) area.getValue();
 	   
 	   return result(tf.sourceLocationType(), vf.sourceLocation(stringValue(file), range));
 	}
@@ -2526,31 +2531,31 @@ public class Evaluator extends NullASTVisitor<Result> {
 		String name = x.getKey().toString();
 		
 		try {
-			if (expr.type.isTupleType()) {
-				Type tuple = expr.type;
+			if (expr.getType().isTupleType()) {
+				Type tuple = expr.getType();
 				Type argType = tuple.getFieldType(name);
-				ITuple value = (ITuple) expr.value;
+				ITuple value = (ITuple) expr.getValue();
 				
-				checkType(repl.type, argType);
+				checkType(repl.getType(), argType);
 				
-				return result(expr.type, value.set(name, repl.value));
+				return result(expr.getType(), value.set(name, repl.getValue()));
 			}
-			else if (expr.type.isAbstractDataType() || expr.type.isConstructorType()) {
-				Type node = ((IConstructor) expr.value).getConstructorType();
+			else if (expr.getType().isAbstractDataType() || expr.getType().isConstructorType()) {
+				Type node = ((IConstructor) expr.getValue()).getConstructorType();
 				
-				if (!expr.type.hasField(name)) {
-					throw new NoSuchFieldError(expr.type + " does not have a field named `" + name + "`", x);
+				if (!expr.getType().hasField(name)) {
+					throw new NoSuchFieldError(expr.getType() + " does not have a field named `" + name + "`", x);
 				}
 				
 				if (!node.hasField(name)) {
-					throw new NoSuchFieldError("Field `" + name + "` accessed on constructor that does not have it." + expr.value.getType(), x);
+					throw new NoSuchFieldError("Field `" + name + "` accessed on constructor that does not have it." + expr.getValueType(), x);
 				}
 				
 				int index = node.getFieldIndex(name);
 				
-				checkType(repl.type, node.getFieldType(index));
+				checkType(repl.getType(), node.getFieldType(index));
 				
-				return result(expr.type, ((IConstructor) expr.value).set(index, repl.value));
+				return result(expr.getType(), ((IConstructor) expr.getValue()).set(index, repl.getValue()));
 			}
 			else {
 				throw new NoSuchFieldError("Field updates only possible on tuples with labeled fields, relations with labeled fields and data constructors", x);
@@ -2564,12 +2569,12 @@ public class Evaluator extends NullASTVisitor<Result> {
 	public Result visitExpressionFileLocation(FileLocation x) {
 		Result result = x.getFilename().accept(this);
 		
-		 if (!result.type.isSubtypeOf(tf.stringType())) {
-			   throw new TypeError("Expected area, got " + result.type, x);
+		 if (!result.getType().isSubtypeOf(tf.stringType())) {
+			   throw new TypeError("Expected area, got " + result.getType(), x);
 		 }
 		 
 		 return result(tf.sourceLocationType(), 
-				 vf.sourceLocation(((IString) result.value).getValue(), 
+				 vf.sourceLocation(((IString) result.getValue()).getValue(), 
 				 vf.sourceRange(0, 0, 1, 1, 0, 0)));
 	}
 	
@@ -2702,12 +2707,12 @@ public class Evaluator extends NullASTVisitor<Result> {
 				return cs.getStatement().accept(this);
 			}
 			org.meta_environment.rascal.ast.Rule rule = cs.getRule();
-			if(rule.isArbitrary() && matchAndEval(subject.value, rule.getPattern(), rule.getStatement())){
+			if(rule.isArbitrary() && matchAndEval(subject.getValue(), rule.getPattern(), rule.getStatement())){
 				return result();
 			} else if(rule.isGuarded())	{
 				org.meta_environment.rascal.ast.Type tp = rule.getType();
 				Type t = evalType(tp);
-				if(subject.type.isSubtypeOf(t) && matchAndEval(subject.value, rule.getPattern(), rule.getStatement())){
+				if(subject.getType().isSubtypeOf(t) && matchAndEval(subject.getValue(), rule.getPattern(), rule.getStatement())){
 					return result();
 				}
 			} else if(rule.isReplacing()){
@@ -2747,12 +2752,12 @@ public class Evaluator extends NullASTVisitor<Result> {
 		
 		TraverseResult(IValue value, boolean changed){
 			this.matched = true;
-			this.value = value;
+			this.value   = value;
 			this.changed = changed;
 		}
 		TraverseResult(boolean someMatch, IValue value, boolean changed){
 			this.matched = someMatch;
-			this.value = value;
+			this.value   = value;
 			this.changed = changed;
 		}
 	}
@@ -2795,11 +2800,11 @@ public class Evaluator extends NullASTVisitor<Result> {
 	}
 	
 	private TraverseResult traverse(IValue subject, CasesOrRules casesOrRules,
-			boolean bottomup, boolean breaking, boolean fixedpoint) {
+			DIRECTION direction, PROGRESS progress, FIXEDPOINT fixedpoint) {
 		//System.err.println("traverse: subject=" + subject + ", casesOrRules=" + casesOrRules);
 		do {
-			TraverseResult tr = traverseOnce(subject, casesOrRules, bottomup, breaking);
-			if(fixedpoint){
+			TraverseResult tr = traverseOnce(subject, casesOrRules, direction, progress);
+			if(fixedpoint == FIXEDPOINT.Yes){
 				if (!tr.changed) {
 					return tr;
 				}
@@ -2899,7 +2904,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 							}
 						} catch (InsertControlException e){
 							changed = true;
-							IValue repl = e.getValue().value;
+							IValue repl = e.getValue().getValue();
 							if(repl.getType().isStringType()){
 								int start = ((RegExpPatternValue) mp).getStart();
 								int end = ((RegExpPatternValue) mp).getEnd();
@@ -2931,7 +2936,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 					//System.err.println("matched=" + matched + ", changed=" + changed);
 					cursor++;
 				} catch (InsertControlException e){
-					IValue repl = e.getValue().value;
+					IValue repl = e.getValue().getValue();
 					if(repl.getType().isStringType()){
 						int start;
 						int end;
@@ -2982,8 +2987,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 	 */
 	
 	private TraverseResult traverseOnce(IValue subject, CasesOrRules casesOrRules, 
-			boolean bottomup, 
-			boolean breaking){
+			DIRECTION direction, 
+			PROGRESS progress){
 		Type subjectType = subject.getType();
 		boolean matched = false;
 		boolean changed = false;
@@ -2994,11 +2999,11 @@ public class Evaluator extends NullASTVisitor<Result> {
 			return traverseString((IString) subject, casesOrRules);
 		}
 
-		if(!bottomup){
+		if(direction == DIRECTION.TopDown){
 			TraverseResult tr = traverseTop(subject, casesOrRules);
 			matched |= tr.matched;
 			changed |= tr.changed;
-			if(breaking && changed){
+			if((progress == PROGRESS.Breaking) && changed){
 				return tr;
 			}
 			subject = tr.value;
@@ -3012,7 +3017,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				IValue args[] = new IValue[cons.arity()];
 
 				for(int i = 0; i < cons.arity(); i++){
-					TraverseResult tr = traverseOnce(cons.get(i), casesOrRules, bottomup, breaking);
+					TraverseResult tr = traverseOnce(cons.get(i), casesOrRules, direction, progress);
 					matched |= tr.matched;
 					changed |= tr.changed;
 					args[i] = tr.value;
@@ -3029,7 +3034,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 					IValue args[] = new IValue[node.arity()];
 
 					for(int i = 0; i < node.arity(); i++){
-						TraverseResult tr = traverseOnce(node.get(i), casesOrRules, bottomup, breaking);
+						TraverseResult tr = traverseOnce(node.get(i), casesOrRules, direction, progress);
 						matched |= tr.matched;
 						changed |= tr.changed;
 						args[i] = tr.value;
@@ -3043,7 +3048,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 					if(len > 0){
 						IListWriter w = list.getType().writer(vf);
 						for(int i = len - 1; i >= 0; i--){
-							TraverseResult tr = traverseOnce(list.get(i), casesOrRules, bottomup, breaking);
+							TraverseResult tr = traverseOnce(list.get(i), casesOrRules, direction, progress);
 							matched |= tr.matched;
 							changed |= tr.changed;
 							w.insert(tr.value);
@@ -3058,7 +3063,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 						if(!set.isEmpty()){
 							ISetWriter w = set.getType().writer(vf);
 							for(IValue v : set){
-								TraverseResult tr = traverseOnce(v, casesOrRules, bottomup, breaking);
+								TraverseResult tr = traverseOnce(v, casesOrRules, direction, progress);
 								matched |= tr.matched;
 								changed |= tr.changed;
 								w.insert(tr.value);
@@ -3076,11 +3081,11 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 								while (iter.hasNext()) {
 									Entry<IValue,IValue> entry = iter.next();
-									TraverseResult tr = traverseOnce(entry.getKey(), casesOrRules, bottomup, breaking);
+									TraverseResult tr = traverseOnce(entry.getKey(), casesOrRules, direction, progress);
 									matched |= tr.matched;
 									changed |= tr.changed;
 									IValue newKey = tr.value;
-									tr = traverseOnce(entry.getValue(), casesOrRules, bottomup, breaking);
+									tr = traverseOnce(entry.getValue(), casesOrRules, direction, progress);
 									matched |= tr.matched;
 									changed |= tr.changed;
 									IValue newValue = tr.value;
@@ -3096,7 +3101,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 								int arity = tuple.arity();
 								IValue args[] = new IValue[arity];
 								for(int i = 0; i < arity; i++){
-									TraverseResult tr = traverseOnce(tuple.get(i), casesOrRules, bottomup, breaking);
+									TraverseResult tr = traverseOnce(tuple.get(i), casesOrRules, direction, progress);
 									matched |= tr.matched;
 									changed |= tr.changed;
 									args[i] = tr.value;
@@ -3106,8 +3111,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 								result = subject;
 							}
 
-		if(bottomup){
-			if(breaking && changed){
+		if(direction == DIRECTION.BottomUp){
+			if((progress == PROGRESS.Breaking) && changed){
 				return new TraverseResult(matched, result, changed);
 			} else {
 				TraverseResult tr = traverseTop(result, casesOrRules);
@@ -3170,7 +3175,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			return applyCasesOrRules(subject, casesOrRules);	
 		} catch (InsertControlException e) {
 
-			return replacement(subject, e.getValue().value);
+			return replacement(subject, e.getValue().getValue());
 		}
 	}
 	
@@ -3210,20 +3215,20 @@ public class Evaluator extends NullASTVisitor<Result> {
 	@Override
 	public Result visitVisitDefaultStrategy(DefaultStrategy x) {
 		
-		IValue subject = x.getSubject().accept(this).value;
+		IValue subject = x.getSubject().accept(this).getValue();
 		java.util.List<Case> cases = x.getCases();
 		
 		TraverseResult tr = traverse(subject, new CasesOrRules(cases), 
-									/* bottomup */ true, 
-									/* breaking */ false, 
-									/* fixedpoint */ false);
+									DIRECTION.BottomUp,
+									PROGRESS.Continuing,
+									FIXEDPOINT.No);
 		return normalizedResult(tr.value.getType(), tr.value);
 	}
 	
 	@Override
 	public Result visitVisitGivenStrategy(GivenStrategy x) {
 		
-		IValue subject = x.getSubject().accept(this).value;
+		IValue subject = x.getSubject().accept(this).getValue();
 		Type subjectType = subject.getType();
 		
 		if(subjectType.isConstructorType()){
@@ -3233,27 +3238,31 @@ public class Evaluator extends NullASTVisitor<Result> {
 		java.util.List<Case> cases = x.getCases();
 		Strategy s = x.getStrategy();
 		
-		boolean bottomup = false;
-		boolean breaking = false;
-		boolean fixedpoint = false;
+		DIRECTION direction = DIRECTION.BottomUp;
+		PROGRESS progress = PROGRESS.Continuing;
+		FIXEDPOINT fixedpoint = FIXEDPOINT.No;
 		
 		if(s.isBottomUp()){
-			bottomup = true;
+			direction = DIRECTION.BottomUp;
 		} else if(s.isBottomUpBreak()){
-			bottomup = true; breaking = true;
+			direction = DIRECTION.BottomUp;
+			progress = PROGRESS.Breaking;
 		} else if(s.isInnermost()){
-			bottomup = true;  fixedpoint = true;
+			direction = DIRECTION.BottomUp;
+			fixedpoint = FIXEDPOINT.Yes;
 		} else if(s.isTopDown()){
-			bottomup = false;
+			direction = DIRECTION.TopDown;
 		} else if(s.isTopDownBreak()){
-			bottomup = false; breaking = true;
+			direction = DIRECTION.TopDown;
+			progress = PROGRESS.Breaking;
 		} else if(s.isOutermost()){
-			bottomup = false; fixedpoint = true;
+			direction = DIRECTION.TopDown;
+			fixedpoint = FIXEDPOINT.Yes;
 		} else {
 			throw new ImplementationError("Unknown strategy " + s, x);
 		}
 		
-		TraverseResult tr = traverse(subject, new CasesOrRules(cases), bottomup, breaking, fixedpoint);
+		TraverseResult tr = traverse(subject, new CasesOrRules(cases), direction, progress, fixedpoint);
 		return normalizedResult(subjectType, tr.value);
 	}
 	
@@ -3263,8 +3272,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result left = x.getLhs().accept(this);
 		Result right = x.getRhs().accept(this);
 		
-		if (!left.type.comparable(right.type)) {
-			throw new TypeError("Arguments of unequal have incomparable types: " + left.type + " and " + right.type, x);
+		if (!left.getType().comparable(right.getType())) {
+			throw new TypeError("Arguments of unequal have incomparable types: " + left.getType() + " and " + right.getType(), x);
 		}
 		
 		return result(vf.bool(compare(left, right) != 0));
@@ -3282,51 +3291,51 @@ public class Evaluator extends NullASTVisitor<Result> {
 		// subtract, etc.
 
 		widenArgs(left, right);
-		Type leftType = left.value.getType();
-		Type rightType = right.value.getType();
+		Type leftType = left.getValueType();
+		Type rightType = right.getValueType();
 		
 		if (leftType.isBoolType() && rightType.isBoolType()) {
-			boolean lb = ((IBool) left.value).getValue();
-			boolean rb = ((IBool) right.value).getValue();
+			boolean lb = ((IBool) left.getValue()).getValue();
+			boolean rb = ((IBool) right.getValue()).getValue();
 			return (lb == rb) ? 0 : ((!lb && rb) ? -1 : 1);
 		}
-		if (left.type.isIntegerType() && rightType.isIntegerType()) {
-			return ((IInteger) left.value).compare((IInteger) right.value);
+		if (left.getType().isIntegerType() && rightType.isIntegerType()) {
+			return ((IInteger) left.getValue()).compare((IInteger) right.getValue());
 		}
 		if (leftType.isDoubleType() && rightType.isDoubleType()) {
-			return ((IDouble) left.value).compare((IDouble) right.value);
+			return ((IDouble) left.getValue()).compare((IDouble) right.getValue());
 		}
 		if (leftType.isStringType() && rightType.isStringType()) {
-			return ((IString) left.value).compare((IString) right.value);
+			return ((IString) left.getValue()).compare((IString) right.getValue());
 		}
 		if (leftType.isListType() && rightType.isListType()) {
-			return compareList(((IList) left.value).iterator(), ((IList) left.value).length(),
-					            ((IList) right.value).iterator(), ((IList) right.value).length());
+			return compareList(((IList) left.getValue()).iterator(), ((IList) left.getValue()).length(),
+					            ((IList) right.getValue()).iterator(), ((IList) right.getValue()).length());
 		}
 		if (leftType.isSetType() && rightType.isSetType()) {
-			return compareSet((ISet) left.value, (ISet) right.value);
+			return compareSet((ISet) left.getValue(), (ISet) right.getValue());
 		}
 		if (leftType.isMapType() && rightType.isMapType()) {
-			return compareMap((IMap) left.value, (IMap) right.value);
+			return compareMap((IMap) left.getValue(), (IMap) right.getValue());
 		}
 		if (leftType.isTupleType() && rightType.isTupleType()) {
-			return compareList(((ITuple) left.value).iterator(), ((ITuple) left.value).arity(),
-		            ((ITuple) right.value).iterator(), ((ITuple) right.value).arity());
+			return compareList(((ITuple) left.getValue()).iterator(), ((ITuple) left.getValue()).arity(),
+		            ((ITuple) right.getValue()).iterator(), ((ITuple) right.getValue()).arity());
 		} 
 		if (leftType.isRelationType() && rightType.isRelationType()) {
-			return compareSet((ISet) left.value, (ISet) right.value);
+			return compareSet((ISet) left.getValue(), (ISet) right.getValue());
 		}
 		
 		if (leftType.isNodeType() && rightType.isNodeType()) {
-			return compareNode((INode) left.value, (INode) right.value);
+			return compareNode((INode) left.getValue(), (INode) right.getValue());
 		}
 		
 		if (leftType.isAbstractDataType() && rightType.isAbstractDataType()) {
-			return compareNode((INode) left.value, (INode) right.value);
+			return compareNode((INode) left.getValue(), (INode) right.getValue());
 		}
 		
 		if(leftType.isSourceLocationType() && rightType.isSourceLocationType()){	
-			return compareSourceLocation((ISourceLocation) left.value, (ISourceLocation) right.value);
+			return compareSourceLocation((ISourceLocation) left.getValue(), (ISourceLocation) right.getValue());
 		}
 			
 		// VoidType
@@ -3471,13 +3480,13 @@ public class Evaluator extends NullASTVisitor<Result> {
 			org.meta_environment.rascal.ast.Expression.IfThenElse x) {
 		Result cval = x.getCondition().accept(this);
 	
-		if (cval.type.isBoolType()) {
-			if (cval.value.isEqual(vf.bool(true))) {
+		if (cval.getType().isBoolType()) {
+			if (cval.getValue().isEqual(vf.bool(true))) {
 				return x.getThenExp().accept(this);
 			}
 		} else {
 			throw new TypeError("Condition has type "
-					+ cval.type + " but should be bool", x);
+					+ cval.getType() + " but should be bool", x);
 		}
 		return x.getElseExp().accept(this);
 	}
@@ -3497,10 +3506,10 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result right = expression2.accept(this);
 		
 		//List
-		if(right.type.isListType() &&
-		    left.type.isSubtypeOf(right.type.getElementType())){
-			IList lst = (IList) right.value;
-			IValue val = left.value;
+		if(right.getType().isListType() &&
+		    left.getType().isSubtypeOf(right.getType().getElementType())){
+			IList lst = (IList) right.getValue();
+			IValue val = left.getValue();
 			for(int i = 0; i < lst.length(); i++){
 				if(lst.get(i).isEqual(val))
 					return true;
@@ -3508,19 +3517,19 @@ public class Evaluator extends NullASTVisitor<Result> {
 			return false;
 			
 	    //Set
-		} else if(right.type.isSetType() && 
-				   left.type.isSubtypeOf(right.type.getElementType())){
-			return ((ISet) right.value).contains(left.value);
+		} else if(right.getType().isSetType() && 
+				   left.getType().isSubtypeOf(right.getType().getElementType())){
+			return ((ISet) right.getValue()).contains(left.getValue());
 		//Map
-		} else if(right.type.isMapType() && left.type.isSubtypeOf(right.type.getValueType())){
-			return ((IMap) right.value).containsValue(left.value);
+		} else if(right.getType().isMapType() && left.getType().isSubtypeOf(right.getType().getValueType())){
+			return ((IMap) right.getValue()).containsValue(left.getValue());
 			
 		//Relation
-		} else if(right.type.isRelationType() && left.type.isSubtypeOf(right.type.getElementType())){
-			return ((ISet) right.value).contains(left.value);
+		} else if(right.getType().isRelationType() && left.getType().isSubtypeOf(right.getType().getElementType())){
+			return ((ISet) right.getValue()).contains(left.getValue());
 		} else {
 			throw new TypeError("Operands of in have wrong types: "
-					+ left.type + ", " + right.type, expression2);
+					+ left.getType() + ", " + right.getType(), expression2);
 		}
 	}
 	
@@ -3540,44 +3549,44 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result right = x.getRhs().accept(this);
 	
 		//Relation
-		if(left.type.isRelationType() && 
-			right.type.isRelationType()){
-			Type leftrelType = left.type; 
-			Type rightrelType = right.type;
+		if(left.getType().isRelationType() && 
+			right.getType().isRelationType()){
+			Type leftrelType = left.getType(); 
+			Type rightrelType = right.getType();
 			int leftArity = leftrelType.getArity();
 			int rightArity = rightrelType.getArity();
 
 			
 			if ((leftArity == 0 || leftArity == 2) && (rightArity == 0 || rightArity ==2 )) {
 				Type resultType = leftrelType.compose(rightrelType);
-				return result(resultType, ((IRelation) left.value)
-						.compose((IRelation) right.value));
+				return result(resultType, ((IRelation) left.getValue())
+						.compose((IRelation) right.getValue()));
 			}
 		}
 		
 		throw new TypeError("Operands of o have wrong types: "
-				+ left.type + ", " + right.type, x);
+				+ left.getType() + ", " + right.getType(), x);
 	}
 
 	private Result closure(AbstractAST expression, boolean reflexive) {
 
 		Result res = expression.accept(this);
 		//Relation
-		if (res.type.isRelationType() && res.type.getArity() < 3) {
-			Type relType = res.type;
+		if (res.getType().isRelationType() && res.getType().getArity() < 3) {
+			Type relType = res.getType();
 			Type fieldType1 = relType.getFieldType(0);
 			Type fieldType2 = relType.getFieldType(1);
 			if (fieldType1.comparable(fieldType2)) {
 				Type lub = fieldType1.lub(fieldType2);
 				
 				Type resultType = relType.hasFieldNames() ? tf.relType(lub, relType.getFieldName(0), lub, relType.getFieldName(1)) : tf.relType(lub,lub);
-				return result(resultType, reflexive ? ((IRelation) res.value).closureStar()
-						: ((IRelation) res.value).closure());
+				return result(resultType, reflexive ? ((IRelation) res.getValue()).closureStar()
+						: ((IRelation) res.getValue()).closure());
 			}
 		}
 		
 		throw new TypeError("Operand of + or * closure has wrong type: "
-				+ res.type, expression);
+				+ res.getType(), expression);
 	}
 	
 	@Override
@@ -3610,15 +3619,13 @@ public class Evaluator extends NullASTVisitor<Result> {
 	@Override
 	public Result visitExpressionValueProducer(
 			org.meta_environment.rascal.ast.Expression.ValueProducer x) {
-		// TODO Auto-generated method stub
 		return new GeneratorEvaluator(x, this);
 	}
 	
 	@Override
 	public Result visitExpressionValueProducerWithStrategy(
 			ValueProducerWithStrategy x) {
-		// TODO Auto-generated method stub
-		return super.visitExpressionValueProducerWithStrategy(x);
+		return new GeneratorEvaluator(x, this);
 	}
 	
 	class GeneratorEvaluator extends Result {
@@ -3628,12 +3635,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		private MatchPattern pat;
 		private org.meta_environment.rascal.ast.Expression patexpr;
 		private Evaluator evaluator;
-		private Iterator<?> iter;
-		/*
-		GeneratorEvaluator(ValueProducer vp, Evaluator ev){
-			make(vp, ev);
-		}
-		*/
+		private Iterator<?> iterator;
 
 		GeneratorEvaluator(Expression g, Evaluator ev){
 			make(g, ev);
@@ -3648,19 +3650,19 @@ public class Evaluator extends NullASTVisitor<Result> {
 				patexpr = vp.getExpression();
 				Result r = patexpr.accept(ev);
 				// List
-				if(r.type.isListType()){
-					iter = ((IList) r.value).iterator();
+				if(r.getType().isListType()){
+					iterator = ((IList) r.getValue()).iterator();
 					
 				// Set
-				} else 	if(r.type.isSetType()){
-					iter = ((ISet) r.value).iterator();
+				} else 	if(r.getType().isSetType()){
+					iterator = ((ISet) r.getValue()).iterator();
 				
 				// Map
-				} else if(r.type.isMapType()){
-					iter = ((IMap) r.value).iterator();
+				} else if(r.getType().isMapType()){
+					iterator = ((IMap) r.getValue()).iterator();
 					
 				// Node and ADT
-				} else if(r.type.isNodeType() || r.type.isAbstractDataType()){
+				} else if(r.getType().isNodeType() || r.getType().isAbstractDataType()){
 					boolean bottomup = true;
 					if(vp.hasStrategy()){
 						Strategy strat = vp.getStrategy();
@@ -3673,11 +3675,11 @@ public class Evaluator extends NullASTVisitor<Result> {
 							throw new TypeError("Strategy " + strat + " not allowed in generator", vp);
 						}
 					}
-					iter = new INodeReader((INode) r.value, bottomup);
-				} else if(r.type.isStringType()){
-					iter = new SingleIValueIterator(r.value);
+					iterator = new INodeReader((INode) r.getValue(), bottomup);
+				} else if(r.getType().isStringType()){
+					iterator = new SingleIValueIterator(r.getValue());
 				} else {
-					throw new ImplementationError("Unimplemented expression type " + r.type + " in generator", vp);
+					throw new ImplementationError("Unimplemented expression type " + r.getType() + " in generator", vp);
 				}
 			} else {
 				evaluator = ev;
@@ -3687,9 +3689,19 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 		
 		@Override
+		public Type getType(){
+			return TypeFactory.getInstance().boolType();
+		}
+		
+		@Override
+		public Type getValueType(){
+			return TypeFactory.getInstance().boolType();
+		}
+		
+		@Override
 		public boolean hasNext(){
 			if(isValueProducer){
-				return pat.hasNext() || iter.hasNext();
+				return pat.hasNext() || iterator.hasNext();
 			} else {
 				return firstTime;
 			}	
@@ -3713,8 +3725,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 				 * Next, fetch a new data element (if any) and create a new pattern.
 				 */
 				
-				while(iter.hasNext()){
-					IValue v = (IValue) iter.next();
+				while(iterator.hasNext()){
+					IValue v = (IValue) iterator.next();
 					//System.err.println("getNext, try next from value iterator: " + v);
 					pat.initMatch(v, peek());
 					while(pat.hasNext()){
@@ -3731,8 +3743,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 					/* Evaluate expression only once */
 					firstTime = false;
 					Result v = expr.accept(evaluator);
-					if(v.type.isBoolType()){
-						return result(tf.boolType(), vf.bool(v.value.isEqual(vf.bool(true))));
+					if(v.getType().isBoolType()){
+						return result(tf.boolType(), vf.bool(v.getValue().isEqual(vf.bool(true))));
 					} else {
 						throw new TypeError("Expression as generator should have type bool", expr);
 					}
@@ -3747,104 +3759,137 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 	}
 	
-	/*
-	 * Enumerate the possible kinds of collections that can be produced by any comprehension.
-	 */
-	
-	private static enum collectionKind {LIST, SET, MAP};
 	
 	/*
-	 * ComprehensionCollectionWriter provides a uniform interface for writing elements
+	 * ComprehensionWriter provides a uniform framework for writing elements
 	 * to a list/set/map during the evaluation of a list/set/map comprehension.
 	 */
 	
-	private class ComprehensionCollectionWriter {
-		private Type elementType1;
-		private Type elementType2;
-		private Type resultType;
-		private org.meta_environment.rascal.ast.Expression resultExpr1;
-		private org.meta_environment.rascal.ast.Expression resultExpr2;
+	private abstract class ComprehensionWriter {
+		protected Type elementType1;
+		protected Type elementType2;
+		protected Type resultType;
+		protected org.meta_environment.rascal.ast.Expression resultExpr1;
+		protected org.meta_environment.rascal.ast.Expression resultExpr2;
+		protected IWriter writer;
+		protected Evaluator ev;
 		
-		private collectionKind kind;
-		
-		private IWriter writer;
-		private Evaluator ev;
-		
-		ComprehensionCollectionWriter(collectionKind kind, 
+		ComprehensionWriter(
 				org.meta_environment.rascal.ast.Expression resultExpr1,
 				org.meta_environment.rascal.ast.Expression resultExpr2, 
 				Evaluator ev){
-			this.kind = kind;
 			this.ev = ev;
 			this.resultExpr1 = resultExpr1;
 			this.resultExpr2 = resultExpr2;
 			this.writer = null;
 		}
 		
-		public void append(){
-			Result r1 = resultExpr1.accept(ev);
-			Result r2 = null;
-			
-			if(kind == collectionKind.MAP){
-				r2 = resultExpr2.accept(ev);
+		public void check(Result r, Type t, String kind, org.meta_environment.rascal.ast.Expression expr){
+			if(!r.getType().isSubtypeOf(t)){
+				throw new TypeError("Cannot add value of type " + r.getType() +
+					                   " to " + kind + " comprehension with element type " + 
+					                   t, expr);
 			}
-			if(writer == null){
-				elementType1 = r1.type;
-				switch(kind){
-				case LIST:
-					resultType = tf.listType(elementType1); break;
-				case SET:
-					resultType = tf.setType(elementType1); break;
-				case MAP:
-					elementType2 = r2.type;
-					resultType = tf.mapType(elementType1, elementType2);
-				}
+		}
+		
+		public abstract void append();
+		
+		public abstract Result done();
+	}
+	
+	private class ListComprehensionWriter extends
+			ComprehensionWriter {
+
+		ListComprehensionWriter(
+				org.meta_environment.rascal.ast.Expression resultExpr1,
+				Evaluator ev) {
+			super(resultExpr1, null, ev);
+		}
+
+		public void append() {
+			Result r1 = resultExpr1.accept(ev);
+			if (writer == null) {
+				elementType1 = r1.getType();
+				resultType = tf.listType(elementType1);
 				writer = resultType.writer(vf);
 			}
-			if(!r1.type.isSubtypeOf(elementType1)){
-				throw new TypeError("Cannot add value of type " + r1.type +
-						                   " to list/set/map comprehension with element/key type " + 
-						                   elementType1, resultExpr1);
-			} else {		
-				elementType1 = elementType1.lub(r1.type);
-				switch(kind){
-				case LIST:
-					((IListWriter)writer).append(r1.value); break;
-				case SET:
-					writer.insert(r1.value); break;
-				case MAP:
-					if(!r2.type.isSubtypeOf(elementType2)){
-						throw new TypeError("Cannot add value of type " + r2.type + 
-												   " to map comprehension with value type " + 
-												   elementType2, resultExpr2);
-					} 
-					((IMapWriter)writer).put(r1.value, r2.value);
-				}	
-			}
+			check(r1, elementType1, "list", resultExpr1);
+			elementType1 = elementType1.lub(r1.getType());
+			((IListWriter) writer).append(r1.getValue());
 		}
-		
-		public Result done(){
-			switch(kind){
-			case LIST:
-				return (writer== null) ? result(tf.listType(tf.voidType()), vf.list()) : 
-										   result(tf.listType(elementType1), writer.done());
-			case SET:
-				return (writer == null) ? 	result(tf.setType(tf.voidType()), vf.set()) : 
-                    						result(tf.setType(elementType1), writer.done());
-			case MAP:
-				return (writer == null) ? result(tf.mapType(tf.voidType(), tf.voidType()), vf.map(tf.voidType(),tf.voidType())) : 
-                    result(tf.mapType(elementType1, elementType2), writer.done());
-			}
-			return result();
+
+		public Result done() {
+			return (writer == null) ? result(tf.listType(tf.voidType()), vf
+					.list()) : result(tf.listType(elementType1), writer.done());
 		}
-		
 	}
+	
+	private class SetComprehensionWriter extends
+			ComprehensionWriter {
+
+		SetComprehensionWriter(
+				org.meta_environment.rascal.ast.Expression resultExpr1,
+				Evaluator ev) {
+			super(resultExpr1, null, ev);
+		}
+
+		public void append() {
+			Result r1 = resultExpr1.accept(ev);
+			if (writer == null) {
+				elementType1 = r1.getType();
+				resultType = tf.setType(elementType1);
+				writer = resultType.writer(vf);
+			}
+			check(r1, elementType1, "set", resultExpr1);
+			elementType1 = elementType1.lub(r1.getType());
+			((ISetWriter) writer).insert(r1.getValue());
+		}
+
+		public Result done() {
+			return (writer == null) ? result(tf.setType(tf.voidType()), vf
+					.set()) : result(tf.setType(elementType1), writer.done());
+		}
+	}
+
+	private class MapComprehensionWriter extends
+			ComprehensionWriter {
+
+		MapComprehensionWriter(
+				org.meta_environment.rascal.ast.Expression resultExpr1,
+				org.meta_environment.rascal.ast.Expression resultExpr2,
+				Evaluator ev) {
+			super(resultExpr1, resultExpr2, ev);
+		}
+
+		public void append() {
+			Result r1 = resultExpr1.accept(ev);
+			Result r2 = resultExpr2.accept(ev);
+			if (writer == null) {
+				elementType1 = r1.getType();
+				elementType2 = r2.getType();
+				resultType = tf.mapType(elementType1, elementType2);
+				writer = resultType.writer(vf);
+			}
+			check(r1, elementType1, "map", resultExpr1);
+			check(r2, elementType2, "map", resultExpr2);
+			((IMapWriter) writer).put(r1.getValue(), r2.getValue());
+		}
+
+		public Result done() {
+			return (writer == null) ? result(tf.mapType(tf.voidType(), tf
+					.voidType()), vf.map(tf.voidType(), tf.voidType()))
+					: result(tf.mapType(elementType1, elementType2), writer
+							.done());
+		}
+	}
+	
+	
 	/*
 	 * The common comprehension evaluator
 	 */
 	
 	private Result evalComprehension(java.util.List<Expression> generators, 
-										  ComprehensionCollectionWriter w){
+										  ComprehensionWriter w){
 		int size = generators.size();
 		GeneratorEvaluator[] gens = new GeneratorEvaluator[size];
 		
@@ -3869,7 +3914,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	public Result visitComprehensionList(org.meta_environment.rascal.ast.Comprehension.List x) {
 		return evalComprehension(
 				x.getGenerators(),
-				new ComprehensionCollectionWriter(collectionKind.LIST, x.getResult(), null, this));
+				new ListComprehensionWriter(x.getResult(), this));
 	}
 	
 	@Override
@@ -3877,7 +3922,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			org.meta_environment.rascal.ast.Comprehension.Set x) {
 		return evalComprehension(
 				x.getGenerators(),
-				new ComprehensionCollectionWriter(collectionKind.SET, x.getResult(), null, this));
+				new SetComprehensionWriter(x.getResult(), this));
 	}
 	
 	@Override
@@ -3885,7 +3930,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			org.meta_environment.rascal.ast.Comprehension.Map x) {
 		return evalComprehension(
 				x.getGenerators(),
-				new ComprehensionCollectionWriter(collectionKind.MAP, x.getFrom(), x.getTo(), this));
+				new MapComprehensionWriter(x.getFrom(), x.getTo(), this));
 	}
 
 	@Override
@@ -3975,7 +4020,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		IValue currentValue[] = new IValue[vars.size()];
 		for(int i = 0; i < vars.size(); i++){
 			org.meta_environment.rascal.ast.Variable v = vars.get(i);
-			currentValue[i] = peek().getVariable(v, Names.name(v.getName())).value;
+			currentValue[i] = peek().getVariable(v, Names.name(v.getName())).getValue();
 		}
 		
 		Statement body = x.getBody();
@@ -3985,10 +4030,10 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Bound bound= x.getBound();
 		if(bound.isDefault()){
 			Result res = bound.getExpression().accept(this);
-			if(!res.type.isIntegerType()){
-				throw new TypeError("Bound in solve statement should be integer, instead of " + res.type, x);
+			if(!res.getType().isIntegerType()){
+				throw new TypeError("Bound in solve statement should be integer, instead of " + res.getType(), x);
 			}
-			max = ((IInteger)res.value).getValue();
+			max = ((IInteger)res.getValue()).getValue();
 			if(max <= 0){
 				throw new IndexOutOfBoundsError("Bound in solve statement should be positive", x);
 			}
@@ -4006,9 +4051,9 @@ public class Evaluator extends NullASTVisitor<Result> {
 			for(int i = 0; i < vars.size(); i++){
 				org.meta_environment.rascal.ast.Variable var = vars.get(i);
 				Result v = peek().getVariable(var, Names.name(var.getName()));
-				if(currentValue[i] == null || !v.value.isEqual(currentValue[i])){
+				if(currentValue[i] == null || !v.getValue().isEqual(currentValue[i])){
 					change = true;
-					currentValue[i] = v.value;
+					currentValue[i] = v.getValue();
 				}
 			}
 		}

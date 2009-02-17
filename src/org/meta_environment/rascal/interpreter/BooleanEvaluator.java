@@ -38,8 +38,8 @@ public abstract class BooleanEvaluator implements Iterator<Result> {
 	
 	void defArg(int i){
 		Result argResult = expr[i].accept(ev);
-		if(!argResult.type.isBoolType()){
-			throw new TypeError("Operand of boolean operator should be of type bool and not " + argResult.type, expr[i]);
+		if(!argResult.getType().isBoolType()){
+			throw new TypeError("Operand of boolean operator should be of type bool and not " + argResult.getType(), expr[i]);
 		}
 		result[i] = argResult;
 	};
@@ -82,13 +82,13 @@ public abstract class BooleanEvaluator implements Iterator<Result> {
 	public boolean getNextResult(int i, boolean expected){
 		if(result[i] == null){
 			defArg(i);
-			if(((IBool)result[i].value).getValue() == expected){
+			if(((IBool)result[i].getValue()).getValue() == expected){
 				return true;
 			}
 		}
 		while(result[i].hasNext()){
 			result[i] = result[i].next();
-			if(((IBool)result[i].value).getValue() == expected){
+			if(((IBool)result[i].getValue()).getValue() == expected){
 				return true;
 			}
 		}
@@ -99,7 +99,7 @@ public abstract class BooleanEvaluator implements Iterator<Result> {
 		if(result[i] == null){
 			defArg(i);
 		}
-		return ((IBool)result[i].value).getValue() == expected;
+		return ((IBool)result[i].getValue()).getValue() == expected;
 	}
 
 }
@@ -170,7 +170,7 @@ class NegationEvaluator extends BooleanEvaluator {
 	@Override
 	public Result next() {		
 		if(getNextResult(LEFT)){
-			return new Result(this, !((IBool)result[LEFT].value).getValue());
+			return new Result(this, !((IBool)result[LEFT].getValue()).getValue());
 		}
 		return new Result(this, false);
 	}
@@ -265,7 +265,7 @@ class MatchEvaluator implements Iterator<Result> {
     	this.positive = positive;
     	mp = ev.evalPattern(pat);
     	ev.lastPattern = mp;
-    	mp.initMatch(subject.accept(ev).value, env);
+    	mp.initMatch(subject.accept(ev).getValue(), env);
 	}
 
 	public boolean hasNext() {

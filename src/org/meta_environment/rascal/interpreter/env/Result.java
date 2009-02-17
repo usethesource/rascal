@@ -11,15 +11,45 @@ import org.meta_environment.rascal.interpreter.errors.ImplementationError;
 import org.meta_environment.rascal.interpreter.errors.TypeError;
 
 public class Result  implements Iterator<Result>{
-	public Type type;
-	public IValue value;
+	protected Type type;          // The declared type of the Result
+	
+	public Type getType(){
+		return type;
+	}
+	
+	public void setType(Type t){
+		type = t;
+	}
+	
+	protected IValue value;        // The actual value of the Result
+	
+	public IValue getValue(){
+		return value;
+	}
+	
+	public void setValue(IValue v){
+		value = v;
+	}
+	
+	public Type getValueType(){
+		//System.err.println("getValueType on Result(" + type + ", " + value +")");
+		if(iterator != null)
+			return TypeFactory.getInstance().boolType();
+		else if(value != null)
+			return value.getType();
+		else
+			return null;	
+	}
+	
 	private boolean isPublic = false;
-	Iterator<Result> iterator;
-	private Result last;
+	
+	protected Iterator<Result> iterator;     // An optional IValue iterator
+	private Result last;          // The last IValue returned by the iterator
 
 	protected Result() { }
 	
 	public Result(Type t, IValue v) {
+		//System.err.println("Result(" + t + ", " + v + ")");
 		type = t;
 		value = v;
 		if (value != null && !value.getType().isSubtypeOf(t)) {
@@ -35,16 +65,10 @@ public class Result  implements Iterator<Result>{
 		this.iterator = beval;
 	}
 	
-	Result(Iterator<Result> beval){
+	public Result(Iterator<Result> beval){
 		this(beval, true);
 	}
 	
-	public Type getValueType(){
-		if(iterator == null)
-			return value.getType();
-		else
-			return TypeFactory.getInstance().boolType();
-	}
 	
 	public Type getDeclaredType(){
 		return type;

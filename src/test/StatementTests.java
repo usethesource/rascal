@@ -24,6 +24,11 @@ public class StatementTests extends TestFramework {
 		runTest("assert 3.5;");
 	}
 	
+	@Test(expected=TypeError.class)
+	public void assertError3() {
+		runTest("assert 3.5 : \"Wrong expression type\";");
+	}
+	
 
 	@Test
 	public void testAssignment() {
@@ -73,6 +78,22 @@ public class StatementTests extends TestFramework {
 		assertTrue(runTest("{int n = 0; m = 2; do {m = m * m; n = n + 1;} while (n < 1); (n == 1) && (m == 4);}"));
 		assertTrue(runTest("{int n = 0; m = 2; do {m = m * m; n = n + 1;} while (n < 3); m == 256;}"));
 	}
+	
+	@Test(expected=TypeError.class)
+	public void doError() {
+		runTest("do {n = 4;} while(3);");
+	}
+	
+	@Test
+	public void testWhile() {
+		assertTrue(runTest("{int n = 0; int m = 2; while(n != 0){ m = m * m;}; (n == 0)&& (m == 2);}"));
+		assertTrue(runTest("{int n = 0; int m = 2; while(n < 3){ m = m * m; n = n + 1;}; (n ==3) && (m == 256);}"));
+	}
+	
+	@Test(expected=TypeError.class)
+	public void whileError() {
+		runTest("while(3){n = 4;}");
+	}
 
 	@Test
 	public void testFail() {
@@ -100,11 +121,15 @@ public class StatementTests extends TestFramework {
 		runTest("if(3){n = 4;}");
 	}
 	
-
 	@Test
 	public void testIfThenElse() {
 		assertTrue(runTest("{int n = 10; if(n < 10){n = n - 4;} else { n = n + 4;} n == 14;}"));
 		assertTrue(runTest("{int n = 12; if(n < 10){n = n - 4;} else { n = n + 4;} n == 16;}"));
+	}
+	
+	@Test(expected=TypeError.class)
+	public void ifThenElseError() {
+		runTest("if(\"abc\"){n = 4;} else {n=5;}");
 	}
 
 	@Test
@@ -114,24 +139,29 @@ public class StatementTests extends TestFramework {
 		assertTrue(runTest("{int n = 0; switch(6){ case 2: n = 2; case 4: n = 4; case 6: n = 6; default: n = 10;} n == 6;}"));
 		assertTrue(runTest("{int n = 0; switch(8){ case 2: n = 2; case 4: n = 4; case 6: n = 6; default: n = 10;} n == 10;}"));
 	}
-
-	
-
-	@Test(expected=TypeError.class)
-	public void whileError() {
-		runTest("while(3){n = 4;}");
-	}
-
-	@Test(expected=TypeError.class)
-	public void doError() {
-		runTest("do {n = 4;} while(3);");
-	}
 	
 	@Test
-	// TODO: currently loops :-(
-	public void xxxtestWhile() {
-		assertTrue(runTest("{int n = 0; int m = 2; while(n != 0){ m = m * m;}; (n == 0)&& (m == 2);}"));
-		assertTrue(runTest("{int n = 0; int m = 2; while(n < 3){ m = m * m; n = n + 1;}; (n ==3) && (m == 256);}"));
+	public void testSolve1(){
+		String S = 	"rel[int,int] R1 =  {<1,2>, <2,3>, <3,4>};" +
+	                " with 	rel[int,int] T = R1;" +
+	                " solve   T = T + (T o R1);";
+		assertTrue(runTest("{" + S + " T =={<1,2>, <1,3>,<1,4>,<2,3>,<2,4>,<3,4>};}"));
 	}
-
+	
+	@Test(expected=TypeError.class)
+	public void solveError1(){
+		String S = 	"rel[int,int] R1 =  {<1,2>, <2,3>, <3,4>};" +
+	                " with 	rel[int,int] T = R1;" +
+	                " solve (true)   T = T + (T o R1);";
+		assertTrue(runTest("{" + S + " T =={<1,2>, <1,3>,<1,4>,<2,3>,<2,4>,<3,4>};}"));
+	}
+	
+	@Test(expected=IndexOutOfBoundsError.class)
+	public void solveError2(){
+		String S = 	"rel[int,int] R1 =  {<1,2>, <2,3>, <3,4>};" +
+	                " with 	rel[int,int] T = R1;" +
+	                " solve (-1)   T = T + (T o R1);";
+		assertTrue(runTest("{" + S + " T =={<1,2>, <1,3>,<1,4>,<2,3>,<2,4>,<3,4>};}"));
+	}
 }
+
