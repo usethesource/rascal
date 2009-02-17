@@ -54,7 +54,7 @@ public class TestFramework  {
 		}
 	}
 
-	public boolean runTest(String command1, String command2) throws IOException {
+	public boolean runTest(String command1, String command2) {
 		try {
 			evaluator = new Evaluator(ValueFactory.getInstance(), factory,
 					        new PrintWriter(System.err), new ModuleEnvironment("***test***"));
