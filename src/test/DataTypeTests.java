@@ -439,53 +439,53 @@ public class DataTypeTests extends TestFramework {
 	public void testMap()  {
 		
 		assertTrue(runTest("() == ();"));
-		assertTrue(runTest("(1:10) != ();"));
-		assertTrue(runTest("(1:10) == (1:10);"));
-		assertTrue(runTest("(1:10) != (2:20);"));
+		assertTrue(runTest("(1=>10) != ();"));
+		assertTrue(runTest("(1=>10) == (1=>10);"));
+		assertTrue(runTest("(1=>10) != (2=>20);"));
 		
 		assertTrue(runTest("() + () == ();"));
-		assertTrue(runTest("(1:10) + () == (1:10);"));
-		assertTrue(runTest("(1:10) + (2:20) == (1:10, 2:20);"));
-		assertTrue(runTest("(1:10, 2:20) + (2:25) == (1:10, 2:25);"));
+		assertTrue(runTest("(1=>10) + () == (1=>10);"));
+		assertTrue(runTest("(1=>10) + (2=>20) == (1=>10, 2=>20);"));
+		assertTrue(runTest("(1=>10, 2=>20) + (2=>25) == (1=>10, 2=>25);"));
 		
 		assertTrue(runTest("() - () == ();"));
-		assertTrue(runTest("(1:10, 2:20) - () == (1:10,2:20);"));
-		assertTrue(runTest("(1:10, 2:20) - (2:20) == (1:10);"));
-		assertTrue(runTest("(1:10, 2:20) - (2:25) == (1:10);")); // This is current behaviour; is this ok?
+		assertTrue(runTest("(1=>10, 2=>20) - () == (1=>10,2=>20);"));
+		assertTrue(runTest("(1=>10, 2=>20) - (2=>20) == (1=>10);"));
+		assertTrue(runTest("(1=>10, 2=>20) - (2=>25) == (1=>10);")); // This is current behaviour; is this ok?
 	
 		assertTrue(runTest("() & () == ();"));
-		assertTrue(runTest("(1:10) & () == ();"));
-		assertTrue(runTest("(1:10, 2:20, 3:30, 4:40) & (2:20, 4:40, 5:50) == (2:20, 4:40);"));
-		assertTrue(runTest("(1:10, 2:20, 3:30, 4:40) & (5:50, 6:60) == ();"));
+		assertTrue(runTest("(1=>10) & () == ();"));
+		assertTrue(runTest("(1=>10, 2=>20, 3=>30, 4=>40) & (2=>20, 4=>40, 5=>50) == (2=>20, 4=>40);"));
+		assertTrue(runTest("(1=>10, 2=>20, 3=>30, 4=>40) & (5=>50, 6=>60) == ();"));
 		
 		assertTrue(runTest("() <= ();"));
-		assertTrue(runTest("() <= (1:10);"));
-		assertTrue(runTest("(1:10) <= (1:10);"));
-		assertTrue(runTest("(1:10) <= (1:10, 2:20);"));
+		assertTrue(runTest("() <= (1=>10);"));
+		assertTrue(runTest("(1=>10) <= (1=>10);"));
+		assertTrue(runTest("(1=>10) <= (1=>10, 2=>20);"));
 		
 		assertFalse(runTest("() < ();"));
-		assertTrue(runTest("() < (1:10);"));
-		assertFalse(runTest("(1:10) < (1:10);"));
-		assertTrue(runTest("(1:10) < (1:10, 2:20);"));
+		assertTrue(runTest("() < (1=>10);"));
+		assertFalse(runTest("(1=>10) < (1=>10);"));
+		assertTrue(runTest("(1=>10) < (1=>10, 2=>20);"));
 		
 		assertTrue(runTest("() >= ();"));
-		assertTrue(runTest("(1:10) >= ();"));
-		assertTrue(runTest("(1:10) >= (1:10);"));
-		assertTrue(runTest("(1:10, 2:20) >= (1:10);"));
+		assertTrue(runTest("(1=>10) >= ();"));
+		assertTrue(runTest("(1=>10) >= (1=>10);"));
+		assertTrue(runTest("(1=>10, 2=>20) >= (1=>10);"));
 		
 		assertFalse(runTest("() > ();"));
-		assertTrue(runTest("(1:10) > ();"));
-		assertFalse(runTest("(1:10) > (1:10);"));
-		assertTrue(runTest("(1:10, 2:20) > (1:10);"));
+		assertTrue(runTest("(1=>10) > ();"));
+		assertFalse(runTest("(1=>10) > (1=>10);"));
+		assertTrue(runTest("(1=>10, 2=>20) > (1=>10);"));
 		
 		
-		assertTrue(runTest("20 in (1:10, 2:20);"));
-		assertFalse(runTest("15 in (1:10, 2:20);"));
+		assertTrue(runTest("20 in (1=>10, 2=>20);"));
+		assertFalse(runTest("15 in (1=>10, 2=>20);"));
 		
-		assertTrue(runTest("15 notin (1:10, 2:20);"));
-		assertFalse(runTest("20 notin (1:10, 2:20);"));
+		assertTrue(runTest("15 notin (1=>10, 2=>20);"));
+		assertFalse(runTest("20 notin (1=>10, 2=>20);"));
 		
-		assertTrue(runTest("{map[str,list[int]] m = (\"a\": [1,2], \"b\": [], \"c\": [4,5,6]); m[\"a\"] == [1,2];}"));
+		assertTrue(runTest("{map[str,list[int]] m = (\"a\"=> [1,2], \"b\"=> [], \"c\"=> [4,5,6]); m[\"a\"] == [1,2];}"));
 	}
 	
 	@Test
@@ -643,8 +643,8 @@ public class DataTypeTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{ NODE n = f(i(1),g(i(2),st({i(3),i(4),i(5)}))); NODE m = f(i(1),g(i(2),st({i(3),i(4),i(5),i(6)}))); n != m;}"));
 		assertTrue(runTestInSameEvaluator("f(i(1),g(i(2),l([i(3),i(4),i(5)]))) == f(i(1),g(i(2),l([i(3),i(4),i(5)])));"));
 		assertTrue(runTestInSameEvaluator("{ NODE n = f(i(1),g(i(2),l([i(3),i(4),i(5)]))); NODE m = f(i(1),g(i(2),l([i(3),i(4),i(5),i(6)]))); n != m;}"));
-		assertTrue(runTestInSameEvaluator("f(i(1),g(i(2),m((i(3):i(3),i(4):i(4),i(5):i(5))))) == f(i(1),g(i(2),m((i(3):i(3),i(4):i(4),i(5):i(5)))));"));
-		assertTrue(runTestInSameEvaluator("{NODE n = f(i(1),g(i(2),m((i(3):i(3),i(4):i(4),i(5):i(5))))); NODE m = f(i(1),g(i(2),m((i(3):i(3),i(4):i(4),i(5):i(0))))); n != m;}"));
+		assertTrue(runTestInSameEvaluator("f(i(1),g(i(2),m((i(3)=>i(3),i(4)=>i(4),i(5)=>i(5))))) == f(i(1),g(i(2),m((i(3)=>i(3),i(4)=>i(4),i(5)=>i(5)))));"));
+		assertTrue(runTestInSameEvaluator("{NODE n = f(i(1),g(i(2),m((i(3)=>i(3),i(4)=>i(4),i(5)=>i(5))))); NODE m = f(i(1),g(i(2),m((i(3)=>i(3),i(4)=>i(4),i(5)=>i(0))))); n != m;}"));
 		
 		assertTrue(runTestInSameEvaluator("f()                       <= f();"));
 		assertTrue(runTestInSameEvaluator("f()                       <= g();"));

@@ -33,16 +33,16 @@ public class SubscriptTests extends TestFramework {
 
 	@Test
 	public void testMap() {
-		assertTrue(runTest("(1:10, 2:20, 3:30)[1] == 10;"));
-		assertTrue(runTest("(1:10, 2:20, 3:30)[2] == 20;"));
-		assertTrue(runTest("(1:10, 2:20, 3:30)[3] == 30;"));
+		assertTrue(runTest("(1=>10, 2=>20, 3=>30)[1] == 10;"));
+		assertTrue(runTest("(1=>10, 2=>20, 3=>30)[2] == 20;"));
+		assertTrue(runTest("(1=>10, 2=>20, 3=>30)[3] == 30;"));
 
-		// assertTruerunWithError("(1:10, 2:20, 3:30)[4] == 30;", "xxx"));
+		// assertTruerunWithError("(1=>10, 2=>20, 3=>30)[4] == 30;", "xxx"));
 
-		assertTrue(runTest("{map[int,int] M = (1:10, 2:20, 3:30); M[1] = 100; M == (1:100, 2:20, 3:30);}"));
-		assertTrue(runTest("{map[int,int] M = (1:10, 2:20, 3:30); M[2] = 200; M == (1:10, 2:200, 3:30);}"));
-		assertTrue(runTest("{map[int,int] M = (1:10, 2:20, 3:30); M[3] = 300; M == (1:10, 2:20, 3:300);}"));
-		assertTrue(runTest("{map[int,int] M = (1:10, 2:20, 3:30); M[4] = 400; M == (1:10, 2:20, 3:30, 4:400);}"));
+		assertTrue(runTest("{map[int,int] M = (1=>10, 2=>20, 3=>30); M[1] = 100; M == (1=>100, 2=>20, 3=>30);}"));
+		assertTrue(runTest("{map[int,int] M = (1=>10, 2=>20, 3=>30); M[2] = 200; M == (1=>10, 2=>200, 3=>30);}"));
+		assertTrue(runTest("{map[int,int] M = (1=>10, 2=>20, 3=>30); M[3] = 300; M == (1=>10, 2=>20, 3=>300);}"));
+		assertTrue(runTest("{map[int,int] M = (1=>10, 2=>20, 3=>30); M[4] = 400; M == (1=>10, 2=>20, 3=>30, 4=>400);}"));
 	}
 
 	@Test
