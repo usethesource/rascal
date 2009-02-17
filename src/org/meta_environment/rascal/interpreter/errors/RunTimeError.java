@@ -15,7 +15,7 @@ public class RunTimeError extends Error {
 	}
 	
 	public RunTimeError(String message, AbstractAST ast) {
-		super(message, null, ast);
+		super("RunTimeError", message, ast);
 	}
 	
 	public RunTimeError(String message, Throwable cause) {

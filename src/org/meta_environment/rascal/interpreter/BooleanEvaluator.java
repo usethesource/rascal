@@ -256,10 +256,12 @@ class EquivalenceEvaluator extends BooleanEvaluator {
 class MatchEvaluator implements Iterator<Result> {
 	private boolean positive;
 	private MatchPattern mp;
+	private Expression pat;
 	
 	// TODO: remove use of evaluator here! it's not good to have this dependency and the use
 	// of the "global" variable lastPattern complicates things a lot.
 	MatchEvaluator(Expression pat, Expression subject, boolean positive, Environment env, Evaluator ev){
+		this.pat = pat;
     	this.positive = positive;
     	mp = ev.evalPattern(pat);
     	ev.lastPattern = mp;
@@ -276,6 +278,6 @@ class MatchEvaluator implements Iterator<Result> {
 	}
 
 	public void remove() {
-		throw new ImplementationError("remove() not implemented for MatchEvaluator");
+		throw new ImplementationError("remove() not implemented for MatchEvaluator", pat);
 	}
 }

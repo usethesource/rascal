@@ -121,7 +121,7 @@ public class Environment {
 		
 		for (Lambda other : list) {
 			if (function.isAmbiguous(other)) {
-				throw new TypeError("Illegal redeclaration of function: " + other + "\n overlaps with new function: " + function);
+				throw new TypeError("Declaration of function `" + name + "' overlaps with: " + name + other.getFormals(), function.getAst());
 			}
 		}
 		

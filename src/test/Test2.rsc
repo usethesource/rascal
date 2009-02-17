@@ -1,5 +1,5 @@
 module Test2
 
-public void test(){
-	assert 1 == 2;
- }
+public int test(){
+	return "a";
+}

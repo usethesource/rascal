@@ -12,6 +12,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
+import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.Statement;
 import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.TypeEvaluator;
@@ -32,7 +33,13 @@ public class Lambda extends Result implements IValue {
     
 	private final Environment env;
     protected final Evaluator eval;
+    
 	protected final Type formals;
+	
+	public Type getFormals() {
+		return formals;
+	}
+
 	protected final boolean hasVarArgs;
 	private boolean isVoidFunction;
     
@@ -41,13 +48,25 @@ public class Lambda extends Result implements IValue {
 	protected final Type returnType;
 	private final List<Statement> body;
 	private final String name;
+	
+	private final AbstractAST ast;
+	
+	public String getName() {
+		return name;
+	}
+
+	public AbstractAST getAst() {
+		return ast;
+	}
+
 	protected static int callNesting = 0;
 	protected static boolean callTracing = true;
 	
 	
-	public Lambda(Evaluator eval, Type returnType, String name, Type formals, boolean varargs, java.util.List<Statement> body, 
-				Environment env) {
-			this.eval = eval;
+	public Lambda(AbstractAST ast, Evaluator eval, Type returnType, String name, Type formals, boolean varargs, 
+				java.util.List<Statement> body, Environment env) {
+		this.ast = ast;
+		this.eval = eval;
 		this.returnType = returnType;
 		this.name = name;
 		this.formals = formals;
@@ -130,7 +149,7 @@ public class Lambda extends Result implements IValue {
 			}
 
 			if(!isVoidFunction){
-				throw new TypeError("Function definition:" + this + "\n does not have a return statement");
+				throw new TypeError("Function definition for `" + name + "` has no return statement", ast);
 			}
 
 			return new Result(TF.voidType(), null);
@@ -141,13 +160,13 @@ public class Lambda extends Result implements IValue {
 			Type instantiatedReturnType = returnType.instantiate(env.getTypeBindings());
 
 			if(!result.type.isSubtypeOf(instantiatedReturnType)){
-				throw new TypeError("Actual return type " + result.type + " is not compatible with declared return type " + returnType);
+				throw new TypeError("Actual return type " + result.type + " is not compatible with declared return type " + returnType, ast);
 			}
 
 			return new Result(instantiatedReturnType, result.value);
 		} 
 		catch (FailureControlException e){
-			throw new RunTimeError("Fail statement occurred outside switch or visit statement in " + this);
+			throw new RunTimeError("Fail statement used outside switch or visit statement", ast);
 		}
 	}
 
@@ -167,7 +186,7 @@ public class Lambda extends Result implements IValue {
 			env.storeTypeBindings(bindings);
 		}
 		catch (FactTypeError e) {
-			throw new TypeError("Could not bind type parameters in " + formals + " to " + actualTypes, e);
+			throw new TypeError("Could not bind type parameters in " + formals + " to " + actualTypes +": " + e, ast);
 		}
 	}	
 	

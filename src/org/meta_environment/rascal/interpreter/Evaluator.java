@@ -240,6 +240,16 @@ public class Evaluator extends NullASTVisitor<Result> {
 	}
 	
 	
+	public void setCurrentStatement(Statement currentStatement) {
+		this.currentStatement = currentStatement;
+	}
+
+
+	public Statement getCurrentStatement() {
+		return currentStatement;
+	}
+
+
 	private Environment peek() {
 		return this.callStack.peek();
 	}
@@ -350,7 +360,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				|| type.isSetType() 
 				|| type.isMapType()
 				|| type.isListType()) {
-			throw new ImplementationError("Should not be used run-time type for type checking!!!!", currentStatement);
+			throw new ImplementationError("Should not be used run-time type for type checking!!!!", getCurrentStatement());
 		}
 		if(v != null){
 			return new Result(type, applyRules(v));
@@ -424,7 +434,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			return;
 		}
 		if (!given.isSubtypeOf(expected)){
-			throw new TypeError("Expected " + expected + ", got " + given, currentStatement);
+			throw new TypeError("Expected " + expected + ", got " + given, getCurrentStatement());
 		}
 	}
 	
@@ -508,11 +518,11 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 			return b.buildModule(tree);			
 		} catch (FactTypeError e) {
-			throw new ImplementationError("Something went wrong during parsing of " + name + ": " + e);
+			throw new ImplementationError("Something went wrong during parsing of " + name + ": " + e, x);
 		} catch (FileNotFoundException e) {
-			throw new NoSuchModuleError("Could not import module: :" + e);
+			throw new NoSuchModuleError("Could not import module " + name + ": " + e, x);
 		} catch (IOException e) {
-			throw new IOError("Could not import module " + e);
+			throw new IOError("Could not import module " + name + ": " + e, x);
 		}
 	}
 
@@ -1449,7 +1459,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		try {
 			push(); 
 			for (Statement stat : x.getStatements()) {
-				currentStatement = stat;
+				setCurrentStatement(stat);
 				r = stat.accept(this);
 			}
 		}
@@ -1949,7 +1959,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	@Override
 	public Result visitExpressionNonEmptyBlock(NonEmptyBlock x) {
-		return new Lambda(this, tf.voidType(), "", tf.tupleEmpty(), false, x.getStatements(), peek());
+		return new Lambda(x, this, tf.voidType(), "", tf.tupleEmpty(), false, x.getStatements(), peek());
 	}
 
 	public Result visitExpressionTuple(Tuple x) {
@@ -2494,13 +2504,13 @@ public class Evaluator extends NullASTVisitor<Result> {
 	public Result visitExpressionClosure(Closure x) {
 		Type formals = te.eval(x.getParameters(), peek());
 		Type returnType = evalType(x.getType());
-		return new Lambda(this, returnType, "", formals, x.getParameters().isVarArgs(), x.getStatements(), peek());
+		return new Lambda(x, this, returnType, "", formals, x.getParameters().isVarArgs(), x.getStatements(), peek());
 	}
 
 	@Override
 	public Result visitExpressionVoidClosure(VoidClosure x) {
 		Type formals = te.eval(x.getParameters(), peek());
-		return new Lambda(this, tf.voidType(), "", formals, x.getParameters().isVarArgs(), x.getStatements(), peek());
+		return new Lambda(x, this, tf.voidType(), "", formals, x.getParameters().isVarArgs(), x.getStatements(), peek());
 	}
 	
 	@Override
@@ -2926,14 +2936,14 @@ public class Evaluator extends NullASTVisitor<Result> {
 							start = 0;
 							end = ((IString)repl).getValue().length();
 						} else {
-							throw new TypeError("Illegal pattern " + lastPattern + " in string visit", currentStatement);
+							throw new TypeError("Illegal pattern " + lastPattern + " in string visit", getCurrentStatement());
 						}
 						
 						replacements.add(new StringReplacement(cursor + start, cursor + end, ((IString)repl).getValue()));
 						matched = changed = true;
 						cursor += end;
 					} else {
-						throw new TypeError("String replacement should be of type str, not " + repl.getType(), currentStatement);
+						throw new TypeError("String replacement should be of type str, not " + repl.getType(), getCurrentStatement());
 					}
 				}
 			}
@@ -3727,7 +3737,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 
 		public void remove() {
-			throw new ImplementationError("remove() not implemented for GeneratorEvaluator", currentStatement);
+			throw new ImplementationError("remove() not implemented for GeneratorEvaluator", getCurrentStatement());
 		}
 	}
 	

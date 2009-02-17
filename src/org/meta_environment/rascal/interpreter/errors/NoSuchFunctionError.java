@@ -4,13 +4,9 @@ import org.meta_environment.rascal.ast.AbstractAST;
 
 public class NoSuchFunctionError extends Error {
 	private static final long serialVersionUID = -3215674987633177L;
-	 
-	public NoSuchFunctionError(String message) {
-		super(null, message);
-	}
 	
 	public NoSuchFunctionError(String message, AbstractAST node) {
-		super(message, null, node);
+		super("NoSuchFunctionError", message, node);
 	}
 	
 	public NoSuchFunctionError(String message, Throwable cause) {

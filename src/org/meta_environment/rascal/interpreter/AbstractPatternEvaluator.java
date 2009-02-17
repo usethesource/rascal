@@ -1380,7 +1380,7 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 	
 	@Override
 	public AbstractPattern visitExpressionMap(Map x) {
-		throw new ImplementationError("Map in pattern not yet implemented");
+		throw new ImplementationError("Map in pattern not yet implemented", x);
 	}
 	
 	@Override

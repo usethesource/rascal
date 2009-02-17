@@ -10,7 +10,7 @@ public class NoSuchFileError extends Error {
 	}
 	
 	public NoSuchFileError(String message, AbstractAST node) {
-		super(message, null, node);
+		super("NoSuchFileError", message, node);
 	}
 	
 	public NoSuchFileError(String message, Throwable cause) {

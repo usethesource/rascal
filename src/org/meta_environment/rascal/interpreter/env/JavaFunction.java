@@ -19,11 +19,11 @@ public class JavaFunction extends Lambda {
 	
 	@SuppressWarnings("unchecked")
 	public JavaFunction(Evaluator eval, FunctionDeclaration func, boolean varargs, Environment env, JavaBridge javaBridge) {
-		super(eval, TE.eval(func.getSignature().getType(),env),
-				Names.name(func.getSignature().getName()),
-				TE.eval(func.getSignature().getParameters(), env), 
-				varargs,
-				Collections.EMPTY_LIST, env);
+		super(func, eval,
+				TE.eval(func.getSignature().getType(),env),
+				Names.name(func.getSignature().getName()), 
+				TE.eval(func.getSignature().getParameters(), env),
+				varargs, Collections.EMPTY_LIST, env);
 		this.method = javaBridge.compileJavaMethod(func);
 		this.func = func;
 	}

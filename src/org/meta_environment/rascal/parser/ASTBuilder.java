@@ -133,7 +133,7 @@ public class ASTBuilder {
 				if (alt.isList()) {
 					// TODO add support for ambiguous lists
 					throw new ImplementationError("Can not deal with ambiguous list: " + 
-							node + "\n" + alternatives);
+							node + "\n" + alternatives, alts.get(0));
 				}
 				else if (sort == null) {
 					sort = alt.getSortName();
