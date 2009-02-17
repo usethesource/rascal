@@ -72,7 +72,7 @@ public class Names {
 		}
 
 		public <T> T accept(IASTVisitor<T> v) {
-			throw new ImplementationError("Can not visit invented name");
+			throw new ImplementationError("Can not visit invented name", this);
 		}
 		
 		@Override
@@ -82,7 +82,7 @@ public class Names {
 		
 		@Override
 		public INode getTree() {
-			throw new ImplementationError("Invented name does not have a node");
+			throw new ImplementationError("Invented name does not have a node", this);
 		}
 	}
 }

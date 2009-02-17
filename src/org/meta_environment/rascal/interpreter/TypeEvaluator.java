@@ -336,7 +336,7 @@ public class TypeEvaluator {
 
 		@Override
 		public Type visitTypeAmbiguity(Ambiguity x) {
-			throw new ImplementationError("Ambiguous type: " + x);
+			throw new ImplementationError("Ambiguous type: " + x, x);
 		}
 	}
 }

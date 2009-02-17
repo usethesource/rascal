@@ -10,7 +10,7 @@ public class SyntaxError extends Error {
 	}
 	
 	public SyntaxError(String message, AbstractAST node) {
-		super(message, null, node);
+		super("SyntaxError", message, node);
 	}
 	
 	public SyntaxError(String message, Throwable cause) {

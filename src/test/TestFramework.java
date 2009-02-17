@@ -150,7 +150,7 @@ public class TestFramework  {
 				evaluator.eval(cmd.getDeclaration());
 				return true;
 			} else {
-				throw new ImplementationError("unexpected case in eval: " + cmd);
+				throw new ImplementationError("Unexpected case in eval: " + cmd, cmd);
 			}
 		}
 	}

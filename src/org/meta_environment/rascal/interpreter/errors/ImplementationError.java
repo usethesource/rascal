@@ -13,7 +13,7 @@ public class ImplementationError extends Error {
 	}
 	
 	public ImplementationError(String message, AbstractAST ast) {
-		super(message, null, ast);
+		super("ImplementationError", message, ast);
 	}
 	
 	public ImplementationError(String message, Throwable cause) {

@@ -9,9 +9,8 @@ public class TypeError extends Error {
 		super(null, message);
 	}
 
-	
 	public TypeError(String message, AbstractAST node) {
-		super(message, null, node);
+		super("TypeError", message, node);
 	}
 	
 	public TypeError(String message, Throwable cause) {

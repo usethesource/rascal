@@ -156,7 +156,7 @@ public class ModuleEnvironment extends Environment {
 				return null;
 			}
 			else {
-				throw new TypeError("Function " + name + " is ambiguous, please qualify");
+				throw new TypeError("Function " + name + " is ambiguous, please qualify", result.getAst());
 			}
 		}
 		
@@ -365,7 +365,7 @@ public class ModuleEnvironment extends Environment {
 		String moduleName = Names.moduleName(name);
 		
 		if (moduleName != null && !moduleName.equals(getName())) {
-			throw new ImplementationError("attempting to access a variable of a different module");
+			throw new ImplementationError("Attempt to access variable " + name + " of different module", name);
 		}
 	}
 	
