@@ -482,7 +482,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		if (!heap.existsModule(name)) {
 			loadModule(x, name).accept(this);
 		}
-		scopeStack.peek().addImport(name, heap.getModule(name));
+		scopeStack.peek().addImport(name, heap.getModule(name, x));
 		return result();
 	}
 

@@ -6,9 +6,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.ast.Rule;
 import org.meta_environment.rascal.interpreter.Names;
+import org.meta_environment.rascal.interpreter.errors.NoSuchModuleError;
 import org.meta_environment.rascal.interpreter.errors.TypeError;
 
 /**
@@ -41,19 +43,20 @@ public class GlobalEnvironment {
 		
 	/**
 	 * Retrieve a module from the heap
+	 * @param ast TODO
 	 */
-	public ModuleEnvironment getModule(String name) {
+	public ModuleEnvironment getModule(String name, AbstractAST ast) {
 		ModuleEnvironment result = moduleEnvironment.get(Names.unescape(name));
 		
 		if (result == null) {
-			throw new TypeError("No such module " + name);
+			throw new NoSuchModuleError("No such module " + name, ast);
 		}
 		
 		return result;
 	}
 
-	public ModuleEnvironment getModule(QualifiedName name) {
-		return getModule(name.toString());
+	public ModuleEnvironment getModule(QualifiedName name, AbstractAST ast) {
+		return getModule(name.toString(), ast);
 	}
 	
 	public void storeRule(Type forType, Rule rule) {
