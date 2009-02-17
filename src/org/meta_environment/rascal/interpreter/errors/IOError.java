@@ -8,12 +8,5 @@ public class IOError extends Error {
 	public IOError(String message, AbstractAST node) {
 		super("IOError", message, node);
 	}
-	
-	public IOError(String message, Throwable cause) {
-		super(message, cause);
-	}
-	
-	public boolean hasCause() {
-		return getCause() != null;
-	}
+
 }

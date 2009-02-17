@@ -9,11 +9,4 @@ public class NoSuchAnnotationError extends Error {
 		super("NoSuchAnnotationError", message, node);
 	}
 	
-	public NoSuchAnnotationError(String message, Throwable cause) {
-		super(message, cause);
-	}
-	
-	public boolean hasCause() {
-		return getCause() != null;
-	}
 }

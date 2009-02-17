@@ -8,12 +8,5 @@ public class NoSuchModuleError extends Error {
 	public NoSuchModuleError(String message, AbstractAST node) {
 		super("NoSuchModuleError", message, node);
 	}
-	
-	public NoSuchModuleError(String message, Throwable cause) {
-		super(message, cause);
-	}
-	
-	public boolean hasCause() {
-		return getCause() != null;
-	}
+
 }

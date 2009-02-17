@@ -9,12 +9,5 @@ public class ClosureInvocationError extends Error {
 	public ClosureInvocationError(String message, AbstractAST node) {
 		super("ClosureInvocationError", message, node);
 	}
-	
-	public ClosureInvocationError(String message, Throwable cause) {
-		super(message, cause);
-	}
-	
-	public boolean hasCause() {
-		return getCause() != null;
-	}
+
 }

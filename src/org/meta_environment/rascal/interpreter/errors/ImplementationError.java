@@ -8,6 +8,7 @@ import org.meta_environment.rascal.ast.AbstractAST;
 public class ImplementationError extends Error {
 	private static final long serialVersionUID = -8740312542969306482L;
 
+	//TODO: remove
 	public ImplementationError(String message) {
 		super(null, message);
 	}

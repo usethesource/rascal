@@ -9,12 +9,4 @@ public class UninitializedVariableError extends Error {
 	public UninitializedVariableError(String message, AbstractAST node) {
 		super("UninitializedVariableError", message, node);
 	}
-	
-	public UninitializedVariableError(String message, Throwable cause) {
-		super(message, cause);
-	}
-	
-	public boolean hasCause() {
-		return getCause() != null;
-	}
 }

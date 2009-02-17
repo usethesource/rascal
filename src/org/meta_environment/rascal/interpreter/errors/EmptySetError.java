@@ -8,12 +8,4 @@ public class EmptySetError extends Error {
 	public EmptySetError(String message, AbstractAST node) {
 		super("EmptySetError", message, node);
 	}
-	
-	public EmptySetError(String message, Throwable cause) {
-		super(message, cause);
-	}
-	
-	public boolean hasCause() {
-		return getCause() != null;
-	}
 }
