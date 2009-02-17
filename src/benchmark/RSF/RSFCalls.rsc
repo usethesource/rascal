@@ -10,7 +10,7 @@ import Benchmark;
 public bool measure(){
 
 	str dir = "src/benchmark/RSF/";
-	list[str] names = ["JHotDraw52.rsf", "JDK140AWT.rsf"]; //, "jdk14v2.rsf", "Eclipse202a.rsf"];
+	list[str] names = ["JHotDraw52.rsf", "JDK140AWT.rsf", "JWAM16FullAndreas.rsf", "jdk14v2.rsf", "Eclipse202a.rsf"];
 	
 	for(str name : names){
 		map[str, rel[str,str]] values = readRSF(dir + name);
