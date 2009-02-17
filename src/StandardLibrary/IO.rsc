@@ -7,8 +7,7 @@ public void java println(value V...)
    for(int i = 0; i < argList.length(); i++){
    	  IValue arg = argList.get(i);
    	  if(arg.getType().isStringType()){
-   	    String argString = arg.toString();
-   	  	System.out.print(argString.substring(1, argString.length() - 1));
+   	  	System.out.print(((IString) arg).getValue().toString());
    	  } else {
    		System.out.print(arg.toString());
    	  }
