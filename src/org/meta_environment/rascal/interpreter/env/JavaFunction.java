@@ -58,7 +58,9 @@ public class JavaFunction extends Lambda {
 			Throwable targetException = e.getTargetException();
 			
 			if (targetException instanceof Error) {
-				throw (Error) targetException;
+				Error err = (Error) targetException;
+				err.setAst(ast);
+				throw err;
 			}
 			else {
 				throw new ImplementationError("Unexepected Error", e);
