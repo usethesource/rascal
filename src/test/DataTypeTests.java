@@ -60,6 +60,23 @@ public class DataTypeTests extends TestFramework {
 		assertFalse(runTest("true   > true;"));
 	}
 	
+
+	@Test(expected=TypeError.class)
+	public void testAnd1() {
+		runTest("3 && true;");
+	}
+	
+	@Test(expected=TypeError.class)
+	public void testImp1() {
+		runTest("3 ==> true;");
+	}
+	
+
+	@Test(expected=TypeError.class)
+	public void testCondExp1() {
+		runTest("1 ? 2 : 3;");
+	}
+	
 	@Test
 	public void testInt()
 	{		
@@ -126,6 +143,39 @@ public class DataTypeTests extends TestFramework {
 		assertTrue(runTest("(3 > 2 ? 3 : 2) == 3;"));
 		
 	}
+	
+
+	@Test(expected=TypeError.class)
+	public void testAdd1() {
+		runTest("3 + true;");
+	}
+	
+
+	@Test(expected=TypeError.class)
+	public void testSub1() {
+		runTest("3 - true;");
+	}
+	
+	@Test(expected=TypeError.class)
+	public void testUMinus1() {
+		runTest("- true;");
+	}
+	
+	@Test(expected=TypeError.class)
+	public void testTimes1() {
+		runTest("3 * true;");
+	}
+	
+	@Test(expected=TypeError.class)
+	public void testDiv1() {
+		runTest("3 / true;");
+	}
+	
+	@Test(expected=TypeError.class)
+	public void testMod1() {
+		runTest("3 % true;");
+	}
+	
 	
 	@Test
 	public void testReal()
@@ -272,6 +322,12 @@ public class DataTypeTests extends TestFramework {
 		assertTrue(runTest("\"def\" > \"abc\";"));
 	}
 	
+
+	@Test(expected=TypeError.class)
+	public void testOr1() {
+		runTest("3 || true;");
+	}
+	
 	@Test
 	public void testLocation() {
 		
@@ -339,6 +395,11 @@ public class DataTypeTests extends TestFramework {
 		assertTrue(runTest("3 notin [2, 4, 6];"));
 		
 		assertTrue(runTest("2 > 3 ? [1,2] : [1,2,3] == [1,2,3];"));
+	}
+
+	@Test(expected=IndexOutOfBoundsError.class)
+	public void testListError1() {
+		runTest("[1,2][5];");
 	}
 	
 	@Test
@@ -433,6 +494,12 @@ public class DataTypeTests extends TestFramework {
 		
 		assertTrue(runTest("{<\"a\", [1,2]>, <\"b\", []>, <\"c\", [4,5,6]>} != {};"));
 		
+	}
+	
+
+	@Test(expected=TypeError.class)
+	public void testIn1() {
+		runTest("1 in 3;");
 	}
 	
 	@Test
@@ -550,6 +617,7 @@ public class DataTypeTests extends TestFramework {
 		runTest("{tuple[int key, str val] T = <1, \"abc\">; T.zip == \"abc\";}");
 	}
 	
+
 	@Test
 	public void testRelation()  {
 		
@@ -603,6 +671,24 @@ public class DataTypeTests extends TestFramework {
 		assertTrue(runTest("{<1,2>, <2,3>, <3,4>, <4,2>, <4,5>}+ ==	{<1,2>, <2,3>, <3,4>, <4,2>, <4,5>, <1, 3>, <2, 4>, <3, 2>, <3, 5>, <4, 3>, <1, 4>, <2, 2>, <2, 5>, <3, 3>, <4, 4>, <1, 5>};"));
 		
 		assertTrue(runTest("{<1,2>, <2,3>, <3,4>, <4,2>, <4,5>}* == {<1,2>, <2,3>, <3,4>, <4,2>, <4,5>, <1, 3>, <2, 4>, <3, 2>, <3, 5>, <4, 3>, <1, 4>, <2, 2>, <2, 5>, <3, 3>, <4, 4>, <1, 5>, <1, 1>, <5, 5>};"));
+	}
+	
+
+	
+	@Test(expected=TypeError.class)
+	public void testComp1() {
+		runTest("1 o 3;");
+	}
+
+	
+	@Test(expected=TypeError.class)
+	public void testClos1() {
+		runTest("1*;");
+	}
+	
+	@Test(expected=TypeError.class)
+	public void testClos2() {
+		runTest("1+;");
 	}
 	
 	@Test

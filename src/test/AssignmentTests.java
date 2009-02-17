@@ -3,9 +3,34 @@ package test;
 import java.io.IOException;
 
 import org.junit.Test;
+import org.meta_environment.rascal.interpreter.errors.AssignmentError;
+import org.meta_environment.rascal.interpreter.errors.TypeError;
+import org.meta_environment.rascal.interpreter.errors.UndefinedValueError;
+
 import static org.junit.Assert.assertTrue;
 
 public class AssignmentTests extends TestFramework {
+	
+	@Test(expected=UndefinedValueError.class)
+	public void testUninit() {
+		runTest("zzz;");
+	}
+	
+	@Test(expected=AssignmentError.class)
+	public void assignmentError1() {
+		runTest("{int n = 3; n = true;}");
+	}
+
+	@Test(expected=TypeError.class)
+	public void assignmentError2() {
+		runTest("int i = true;");
+	}
+	
+
+	@Test(expected=AssignmentError.class)
+	public void assignmentError3() {
+		runTest("{int n = 3; n = true;}");
+	}
 	
 	@Test public void testSimple() throws IOException {
 		

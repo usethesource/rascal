@@ -23,8 +23,8 @@ public class Error extends RuntimeException {
 	private static final long serialVersionUID = -7290501865940548332L;
 
 	private final IValue exception;
-	private final ISourceRange range;
-	private final String path;
+	private  ISourceRange range;
+	private  String path;
 	
 	public Error(IValue value) {
 		this.exception = value;
@@ -42,6 +42,11 @@ public class Error extends RuntimeException {
 			path = null;
 		}
 	};
+	
+	public void setAst(AbstractAST node){
+		range = node.getSourceRange();
+		path = node.getSourcePath();
+	}
 	
 	private static INode makeNode(String errorCons, String message){
 		ValueFactory VF = ValueFactory.getInstance();

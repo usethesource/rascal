@@ -3,8 +3,15 @@ package test;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
+import org.meta_environment.rascal.interpreter.errors.NoSuchFunctionError;
 
 public class CallTests extends TestFramework{
+	
+	
+	@Test(expected=NoSuchFunctionError.class)
+	public void testFunction1() {
+		runTest("zap(1,2);");
+	}
 	
 	@Test public void testFac() {
 		String fac = "int fac(int n){ return (n <= 0) ? 1 : (n * fac(n - 1));}";

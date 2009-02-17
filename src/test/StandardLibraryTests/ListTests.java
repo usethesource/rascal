@@ -1,6 +1,8 @@
 package test.StandardLibraryTests;
 
 import org.junit.Test;
+import org.meta_environment.rascal.interpreter.errors.EmptyListError;
+import org.meta_environment.rascal.interpreter.errors.IndexOutOfBoundsError;
 
 import test.TestFramework;
 import static org.junit.Assert.*;
@@ -8,7 +10,7 @@ import static org.junit.Assert.*;
 public class ListTests extends TestFramework {
 
 	@Test
-	public void testListAverage() {
+	public void average() {
 
 		prepare("import List;");
 
@@ -19,7 +21,7 @@ public class ListTests extends TestFramework {
 	}
 
 	@Test
-	public void testListDomain() {
+	public void domain() {
 
 		prepare("import List;");
 
@@ -29,7 +31,7 @@ public class ListTests extends TestFramework {
 	}
 
 	@Test
-	public void testListGetOneFrom() {
+	public void getOneFrom() {
 
 		prepare("import List;");
 
@@ -40,9 +42,15 @@ public class ListTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{real D = List::getOneFrom([1.0,2.0]); (D == 1.0) || (D == 2.0);}"));
 		assertTrue(runTestInSameEvaluator("{str S = List::getOneFrom([\"abc\",\"def\"]); (S == \"abc\") || (S == \"def\");}"));
 	}
+	
+
+	@Test(expected=EmptyListError.class)
+	public void getOneFromError() {
+		runTest("import List;", "getOneFrom([]);");
+	}
 
 	@Test
-	public void testListHead() {
+	public void head() {
 
 		prepare("import List;");
 
@@ -56,9 +64,24 @@ public class ListTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{head([1, 2, 3, 4], 3) == [1,2,3];}"));
 		assertTrue(runTestInSameEvaluator("{head([1, 2, 3, 4], 4) == [1,2,3,4];}"));
 	}
+	
+	@Test(expected=EmptyListError.class)
+	public void headError1() {
+		runTest("import List;", "head([]);");
+	}
+	
+	@Test(expected=IndexOutOfBoundsError.class)
+	public void headError2() {
+		runTest("import List;", "head([],3);");
+	}
+	
+	@Test(expected=IndexOutOfBoundsError.class)
+	public void testHead2() {
+		runTest("import List;", "head([1,2,3], 4);");
+	}
 
 	@Test
-	public void testListinsertAt() {
+	public void insertAt() {
 
 		prepare("import List;");
 
@@ -69,9 +92,15 @@ public class ListTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("List::insertAt(1, 2, [2,3]) == [2,3,1];"));
 		assertTrue(runTestInSameEvaluator("insertAt(1, 2, [2,3]) == [2, 3, 1];"));
 	}
+	
+
+	@Test(expected=IndexOutOfBoundsError.class)
+	public void testInsertAt() {
+		runTest("import List;", "insertAt([1,2,3], 4, 5);");
+	}
 
 	@Test
-	public void testListMapper() {
+	public void mapper() {
 
 		prepare("import List;");
 
@@ -79,7 +108,7 @@ public class ListTests extends TestFramework {
 	}
 
 	@Test
-	public void testListMax() {
+	public void max() {
 
 		prepare("import List;");
 
@@ -88,7 +117,7 @@ public class ListTests extends TestFramework {
 	}
 
 	@Test
-	public void testListMin() {
+	public void min() {
 
 		prepare("import List;");
 
@@ -97,7 +126,7 @@ public class ListTests extends TestFramework {
 	}
 
 	@Test
-	public void testListMultiply() {
+	public void multiply() {
 
 		prepare("import List;");
 
@@ -107,7 +136,7 @@ public class ListTests extends TestFramework {
 	}
 
 	@Test
-	public void testListReducer() {
+	public void reducer() {
 
 		prepare("import List;");
 		String add = "int add(int x, int y){return x + y;}";
@@ -117,7 +146,7 @@ public class ListTests extends TestFramework {
 	}
 
 	@Test
-	public void testListReverse() {
+	public void reverse() {
 
 		prepare("import List;");
 
@@ -128,7 +157,7 @@ public class ListTests extends TestFramework {
 	}
 
 	@Test
-	public void testListSize() {
+	public void size() {
 
 		prepare("import List;");
 
@@ -139,7 +168,7 @@ public class ListTests extends TestFramework {
 	}
 
 	@Test
-	public void testListSlice() {
+	public void slice() {
 
 		prepare("import List;");
 
@@ -156,7 +185,7 @@ public class ListTests extends TestFramework {
 	}
 
 	@Test
-	public void testListSort() {
+	public void sort() {
 
 		prepare("import List;");
 
@@ -171,7 +200,7 @@ public class ListTests extends TestFramework {
 	}
 
 	@Test
-	public void testListSum() {
+	public void sum() {
 
 		prepare("import List;");
 
@@ -188,7 +217,7 @@ public class ListTests extends TestFramework {
 	}
 
 	@Test
-	public void testListTail() {
+	public void tail() {
 
 		prepare("import List;");
 
@@ -201,18 +230,35 @@ public class ListTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{tail([1, 2, 3], 2) == [2,3];}"));
 		assertTrue(runTestInSameEvaluator("{tail([1, 2, 3], 0) == [];}"));
 	}
+	
+
+	@Test(expected=IndexOutOfBoundsError.class)
+	public void tailError1() {
+		runTest("import List;", "tail([]);");
+	}
+	
+	@Test(expected=IndexOutOfBoundsError.class)
+	public void tailError2() {
+		runTest("import List;",  "tail([1,2,3], 4);");
+	}
 
 	@Test
-	public void testListTakeOneFrom() {
+	public void takeOneFrom() {
 
 		prepare("import List;");
 
 		assertTrue(runTestInSameEvaluator("{<E, L> = takeOneFrom([1]); (E == 1) && (L == []);}"));
 		assertTrue(runTestInSameEvaluator("{<E, L> = List::takeOneFrom([1,2]); ((E == 1) && (L == [2])) || ((E == 2) && (L == [1]));}"));
 	}
+	
+
+	@Test(expected=EmptyListError.class)
+	public void takeOneFromError() {
+		runTest("import List;", "takeOneFrom([]);");
+	}
 
 	@Test
-	public void testListToMap() {
+	public void toMap() {
 
 		prepare("import List;");
 
@@ -222,7 +268,7 @@ public class ListTests extends TestFramework {
 	}
 
 	@Test
-	public void testListToSet() {
+	public void toSet() {
 
 		prepare("import List;");
 
@@ -234,7 +280,7 @@ public class ListTests extends TestFramework {
 	}
 
 	@Test
-	public void testListToString() {
+	public void testToString() {
 
 		prepare("import List;");
 

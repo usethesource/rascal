@@ -18,8 +18,8 @@ import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.TypeEvaluator;
 import org.meta_environment.rascal.interpreter.control_exceptions.FailureControlException;
 import org.meta_environment.rascal.interpreter.control_exceptions.ReturnControlException;
-import org.meta_environment.rascal.interpreter.errors.RunTimeError;
-import org.meta_environment.rascal.interpreter.errors.TypeError;
+import org.meta_environment.rascal.interpreter.errors.*;
+import org.meta_environment.rascal.interpreter.errors.Error;
 
 /**
  * TODO: find a more elegant solution for this, by implementing IValue we
@@ -167,6 +167,12 @@ public class Lambda extends Result implements IValue {
 		} 
 		catch (FailureControlException e){
 			throw new RunTimeError("Fail statement used outside switch or visit statement", ast);
+		}
+		catch (Error e){
+			e.setAst(ast);
+			System.err.println("get: " + e);
+			System.err.println("add ast: " + ast);
+			throw e;
 		}
 	}
 

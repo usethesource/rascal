@@ -12,7 +12,7 @@ public int java charAt(str s, int i) throws out_of_range(str msg)
   }
   catch (IndexOutOfBoundsException e) {
     IString msg = values.string(i + " is out of range in " + s);
-    throw new Error("IndexOutOfBoundsError", "charAt");
+    throw new IndexOutOfBoundsError("charAt", null);
   }
 }
 
