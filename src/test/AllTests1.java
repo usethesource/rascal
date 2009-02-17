@@ -7,6 +7,7 @@ import org.junit.runners.Suite;
 @Suite.SuiteClasses({
 	AssignmentTests.class,
 	BackTrackingTests.class,
+	RecoveryTests.class,
 	CallTests.class,
 	ComprehensionTests.class,
 	DataDeclarationTests.class,
