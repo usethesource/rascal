@@ -369,7 +369,7 @@ interface MatchPattern {
 			    	nListVar++;
 			    	listVarOccurrences[i]++;
 				} else  {
-					Result varRes = ev.getVariable(name);
+					Result varRes = ev.getVariable(null, name);
 				         
 				    if((varRes != null) && (varRes.value != null)){
 				        IValue varVal = varRes.value;
@@ -613,13 +613,13 @@ interface MatchPattern {
 			 * Reference to a previously defined list variable
 			 */
 			} else if(isListVar[patternCursor] &&  child instanceof AbstractPatternQualifiedName &&
-					ev.getVariable(((AbstractPatternQualifiedName)child).getName()).type.isListType()
+					ev.getVariable(null, ((AbstractPatternQualifiedName)child).getName()).type.isListType()
 			){
 				if(forward){
 					listVarStart[patternCursor] = subjectCursor;
 					
 					String name = ((AbstractPatternQualifiedName)child).getName();
-					Result varRes = ev.getVariable(name);
+					Result varRes = ev.getVariable(null, name);
 					IValue varVal = varRes.value;
 					
 					if(!varRes.type.isListType()){
@@ -933,7 +933,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 						 */
 					}
 				} else  {
-					Result varRes = ev.getVariable(name);
+					Result varRes = ev.getVariable(null, name);
 				         
 				    if((varRes != null) && (varRes.value != null)){
 				        Type varType = varRes.type;
@@ -1004,7 +1004,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 	private boolean makeGen(int i, ISet elements){
 		if(varPat[i] instanceof AbstractPatternQualifiedName){
 			String name = ((AbstractPatternQualifiedName) varPat[i]).getName();
-			varGen[i] = new SingleIValueIterator(ev.getVariable(name).value);
+			varGen[i] = new SingleIValueIterator(ev.getVariable(null, name).value);
 		}
 		if(isSetVar[i]){
 			varGen[i] = new SubSetGenerator(elements);

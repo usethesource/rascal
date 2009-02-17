@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.interpreter.Names;
@@ -55,7 +56,7 @@ public class Environment {
 	
 	public Result getVariable(QualifiedName name) {
 		String varName = Names.name(Names.lastName(name));
-		Result r = getVariable(varName);
+		Result r = getVariable(name, varName);
 		
 		if (r != null) {
 			return r;
@@ -69,10 +70,10 @@ public class Environment {
 		storeVariable(varName, result);
 	}
 	
-	public Result getVariable(String name) {
+	public Result getVariable(AbstractAST ast, String name) {
 		Result t = variableEnvironment.get(name);
 		if (t == null) {
-			return isRoot() ? null : parent.getVariable(name);
+			return isRoot() ? null : parent.getVariable(ast, name);
 		}
 		return t;
 	}

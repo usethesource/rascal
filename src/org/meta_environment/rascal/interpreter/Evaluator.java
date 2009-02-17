@@ -1474,7 +1474,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	@Override
 	public Result visitAssignableVariable(
 			org.meta_environment.rascal.ast.Assignable.Variable x) {
-		return peek().getVariable(x.getQualifiedName().toString());
+		return peek().getVariable(x.getQualifiedName(),x.getQualifiedName().toString());
 	}
 	
 	@Override
@@ -1774,7 +1774,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				while((varchar = (char) bytes[++i]) != '>'){
 					var.append(varchar);
 				}
-				Result val = peek().getVariable(var.toString());
+				Result val = peek().getVariable(ast, var.toString());
 				String replacement;
 				if(val == null || val.value == null) {
 					// TODO JURGEN: should we not throw an exception or something? Undefined variables are not allowed.
@@ -3964,17 +3964,18 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	@Override
 	public Result visitStatementSolve(Solve x) {
-		java.util.ArrayList<Name> vars = new java.util.ArrayList<Name>();
+		java.util.ArrayList<org.meta_environment.rascal.ast.Variable> vars = new java.util.ArrayList<org.meta_environment.rascal.ast.Variable>();
 		
 		for(Declarator d : x.getDeclarations()){
 			for(org.meta_environment.rascal.ast.Variable v : d.getVariables()){
-				vars.add(v.getName());
+				vars.add(v);
 			}
 			d.accept(this);
 		}
 		IValue currentValue[] = new IValue[vars.size()];
 		for(int i = 0; i < vars.size(); i++){
-			currentValue[i] = peek().getVariable(Names.name(vars.get(i))).value;
+			org.meta_environment.rascal.ast.Variable v = vars.get(i);
+			currentValue[i] = peek().getVariable(v, Names.name(v.getName())).value;
 		}
 		
 		Statement body = x.getBody();
@@ -4003,7 +4004,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 			iterations++;
 			bodyResult = body.accept(this);
 			for(int i = 0; i < vars.size(); i++){
-				Result v = peek().getVariable(Names.name(vars.get(i)));
+				org.meta_environment.rascal.ast.Variable var = vars.get(i);
+				Result v = peek().getVariable(var, Names.name(var.getName()));
 				if(currentValue[i] == null || !v.value.isEqual(currentValue[i])){
 					change = true;
 					currentValue[i] = v.value;
