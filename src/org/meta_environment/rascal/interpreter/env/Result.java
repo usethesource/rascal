@@ -39,6 +39,17 @@ public class Result  implements Iterator<Result>{
 		this(beval, true);
 	}
 	
+	public Type getValueType(){
+		if(iterator == null)
+			return value.getType();
+		else
+			return TypeFactory.getInstance().boolType();
+	}
+	
+	public Type getDeclaredType(){
+		return type;
+	}
+	
 	public String toString() {
 		return "EResult(" + type + ", " + value + ")";
 	}
