@@ -116,14 +116,14 @@ public class CallTests extends TestFramework{
 //		assertTrue(runTest("{" + ident + " ident(f(1)) == f(1);}"));
 		assertTrue(runTest("{" + ident + " ident([1,2,3]) == [1,2,3];}"));
 		assertTrue(runTest("{" + ident + " ident({1,2,3}) == {1,2,3};}"));
-		assertTrue(runTest("{" + ident + " ident((1:10,2:20,3:30)) == (1:10,2:20,3:30);}"));
+		assertTrue(runTest("{" + ident + " ident((1=>10,2=>20,3=>30)) == (1=>10,2=>20,3=>30);}"));
 	}
 	
 	@Test public void testMap() {
 		
 		String put = "map[&K,&V] put(map[&K,&V] m, &K k, &V v) { m[k] = v; return m; }";
 		
-		assertTrue(runTest("{" + put + " put((),1,\"1\") == (1:\"1\"); }"));
+		assertTrue(runTest("{" + put + " put((),1,\"1\") == (1=>\"1\"); }"));
 	}
 	
 	@Test public void testAdd() {

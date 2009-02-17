@@ -8,7 +8,7 @@ public class StatementTests extends TestFramework {
 	@Test
 	public void testAssert() {
 		assertTrue(runTest("assert 3 > 2;"));
-		assertTrue(runTest("assert 3 > 2: \"Yes assert succeeds\";"));
+		assertTrue(runTest("assert (3 > 2): \"Yes assert succeeds\";"));
 	}
 
 	@Test
@@ -31,8 +31,8 @@ public class StatementTests extends TestFramework {
 		assertTrue(runTest("{list[int] x = [0,1,2]; x[2] == 2;}"));
 		assertTrue(runTest("{list[int] x = [0,1,2]; x[1] = 10; (x[0] == 0) && (x[1] == 10) && (x[2] == 2);}"));
 
-		assertTrue(runTest("{map[int,int] x = (0:0,1:10,2:20); x == (0:0,1:10,2:20);}"));
-		// assertTrue(runTest("{map[int,int] x = (0:0,1:10,2:20); x[1] = 15; (x[0] == 0) && (x[1] == 15) && (x[2] == 20);}"));
+		assertTrue(runTest("{map[int,int] x = (0=>0,1=>10,2=>20); x == (0=>0,1=>10,2=>20);}"));
+		// assertTrue(runTest("{map[int,int] x = (0=>0,1=>10,2=>20); x[1] = 15; (x[0] == 0) && (x[1] == 15) && (x[2] == 20);}"));
 
 		assertTrue(runTest("{set[int] x = {0,1,2}; x == {0,1,2};}"));
 		assertTrue(runTest("{set[int] x = {0,1,2}; x = x + {3,4}; x == {0,1,2, 3,4};}"));

@@ -252,16 +252,16 @@ public class ComprehensionTests extends TestFramework {
 	
 	@Test public void testMapComprehension()  {
 		
-		assertTrue(runTest("( X : 2 * X | int X : {} ) == ();"));
-		assertTrue(runTest("( X : 2 * X | int X : [] ) == ();"));
+		assertTrue(runTest("( X => 2 * X | int X : {} ) == ();"));
+		assertTrue(runTest("( X => 2 * X | int X : [] ) == ();"));
 		
-		assertTrue(runTest("( X : 2 * X | int X : {1}) == (1:2);"));
-		assertTrue(runTest("( X : 2 * X | int X : [1]) == (1:2);"));
+		assertTrue(runTest("( X => 2 * X | int X : {1}) == (1=>2);"));
+		assertTrue(runTest("( X => 2 * X | int X : [1]) == (1=>2);"));
 		
-		assertTrue(runTest("( X : 2 * X | int X : {1, 2}) == (1:2,2:4);"));
-		assertTrue(runTest("( X : 2 * X | int X : [1, 2]) == (1:2,2:4);"));
+		assertTrue(runTest("( X => 2 * X | int X : {1, 2}) == (1=>2,2=>4);"));
+		assertTrue(runTest("( X => 2 * X | int X : [1, 2]) == (1=>2,2=>4);"));
 		
-		assertTrue(runTest("( X: 2 * X| int X: [1,2,3] ) == (1:2,2:4,3:6);"));
+		assertTrue(runTest("( X=> 2 * X| int X: [1,2,3] ) == (1=>2,2=>4,3=>6);"));
 	}
 	
 	@Test public void testNodeGenerator()  {

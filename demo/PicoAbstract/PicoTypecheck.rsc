@@ -10,7 +10,7 @@ alias Env = map[PicoId,TYPE];
 
 public list[Message] tcp(PROGRAM P) {
     if(program(list[DECL] Decls, list[STATEMENT] Stats) := P){
-           Env Env = (Id : Type | decl(PicoId Id, TYPE Type): Decls);
+           Env Env = (Id => Type | decl(PicoId Id, TYPE Type): Decls);
            return tcs(Stats, Env);
     }
     return [message("Malformed Pico program")];
@@ -76,8 +76,8 @@ public bool test(){
 
 	assertEqual(requireType(natCon(3), natural, ()), []);
 	assertEqual(requireType(strCon("a"), string, ()), []);
-	assertEqual(requireType(id("x"), string, ("x" : string)), []);
-	assertEqual(requireType(id("x"), string, ("x" : natural)), [message("Type error: expected string() got id(\"x\")")]);
+	assertEqual(requireType(id("x"), string, ("x" => string)), []);
+	assertEqual(requireType(id("x"), string, ("x" => natural)), [message("Type error: expected string() got id(\"x\")")]);
 
    PROGRAM small =
    program([decl("x", natural), decl("s", string)],

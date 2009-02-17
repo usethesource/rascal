@@ -216,7 +216,7 @@ public class StandardLibraryListTests extends TestFramework {
 
 		assertTrue(runTestInSameEvaluator("{List::toMap([]) == ();}"));
 		assertTrue(runTestInSameEvaluator("{toMap([]) == ();}"));
-		assertTrue(runTestInSameEvaluator("{List::toMap([<1,10>, <2,20>]) == (1:10, 2:20);}"));
+		assertTrue(runTestInSameEvaluator("{List::toMap([<1,10>, <2,20>]) == (1=>10, 2=>20);}"));
 	}
 
 	@Test
