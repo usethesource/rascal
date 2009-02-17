@@ -3,13 +3,19 @@ package test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
+import test.StandardLibraryTests.MapTests;
+import test.StandardLibraryTests.NodeTests;
+import test.StandardLibraryTests.RelationTests;
+import test.StandardLibraryTests.SetTests;
+import test.StandardLibraryTests.StringTests;
+
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-	StandardLibraryMapTests.class,
-	StandardLibraryNodeTests.class,
-	StandardLibraryRelationTests.class,
-	StandardLibrarySetTests.class,
-	StandardLibraryStringTests.class,
+	MapTests.class,
+	NodeTests.class,
+	RelationTests.class,
+	SetTests.class,
+	StringTests.class,
 	SubscriptTests.class,
 	StatementTests.class,
 	TryCatchTests.class,

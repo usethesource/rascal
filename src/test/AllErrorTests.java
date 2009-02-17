@@ -3,6 +3,16 @@ package test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
+import test.ErrorTests.AssertionErrorTests;
+import test.ErrorTests.AssignmentErrorTests;
+import test.ErrorTests.EmptyListErrorTests;
+import test.ErrorTests.EmptySetErrorTests;
+import test.ErrorTests.IndexOutOfBoundsErrorTests;
+import test.ErrorTests.NoSuchFieldErrorTests;
+import test.ErrorTests.NoSuchFunctionErrorTests;
+import test.ErrorTests.NoSuchModuleErrorTests;
+import test.ErrorTests.TypeErrorTests;
+
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
 	AssertionErrorTests.class,

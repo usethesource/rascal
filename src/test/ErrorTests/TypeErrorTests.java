@@ -1,10 +1,12 @@
-package test;
+package test.ErrorTests;
 
 import org.junit.Test;
 import org.meta_environment.rascal.interpreter.errors.AssignmentError;
 import org.meta_environment.rascal.interpreter.errors.NoSuchFieldError;
 import org.meta_environment.rascal.interpreter.errors.TypeError;
 import org.meta_environment.rascal.interpreter.errors.UndefinedValueError;
+
+import test.TestFramework;
 
 public class TypeErrorTests extends TestFramework {
 	

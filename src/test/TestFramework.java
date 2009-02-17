@@ -36,7 +36,7 @@ public class TestFramework  {
 		}
 	}
 	
-	boolean runTest(String command) {
+	public boolean runTest(String command) {
 		try {
 		evaluator = new Evaluator(ValueFactory.getInstance(), factory,
 				new PrintWriter(System.err), new ModuleEnvironment("***test***"));
@@ -46,7 +46,7 @@ public class TestFramework  {
 		}
 	}
 	
-	boolean runTestInSameEvaluator(String command) {
+	public boolean runTestInSameEvaluator(String command) {
 		try {
 			return execute(command);
 		} catch (IOException e){
@@ -54,7 +54,7 @@ public class TestFramework  {
 		}
 	}
 
-	boolean runTest(String command1, String command2) throws IOException {
+	public boolean runTest(String command1, String command2) throws IOException {
 		try {
 			evaluator = new Evaluator(ValueFactory.getInstance(), factory,
 					        new PrintWriter(System.err), new ModuleEnvironment("***test***"));
@@ -64,30 +64,8 @@ public class TestFramework  {
 			throw new RunTimeError("Exception while running test", e);
 		}
 	}
-/*	
-	boolean runWithError(String command, String msg){
-		evaluator = new Evaluator(ValueFactory.getInstance(), factory,
-				new PrintWriter(System.err), new ModuleEnvironment("***test***"));
-		try {
-			execute(command);
-		} catch (Exception e){
-			return e.toString().indexOf(msg) >= 0;
-				
-		}
-		return false;
-	}
 	
-	boolean runWithErrorInSameEvaluator(String command, String msg){
-		try {
-			execute(command);
-		} catch (Exception e){
-			return e.toString().indexOf(msg) >= 0;			
-		}
-		return false;
-	}
-	*/
-	
-	TestFramework prepare(String command){
+	public TestFramework prepare(String command){
 		try{
 			evaluator = new Evaluator(ValueFactory.getInstance(), factory,
 					new PrintWriter(System.err), new ModuleEnvironment("***test***"));
@@ -99,7 +77,7 @@ public class TestFramework  {
 		return this;
 	}
 	
-	TestFramework prepareMore(String command) {
+	public TestFramework prepareMore(String command) {
 		try{
 			execute(command);
 			
@@ -109,9 +87,7 @@ public class TestFramework  {
 		return this;
 	}
 	
-	
-
-	boolean prepareModule(String module) {
+	public boolean prepareModule(String module) {
 		try {
 			IConstructor tree = parser.parseFromString(module);
 			if (tree.getType() == Factory.ParseTree_Summary) {
