@@ -12,6 +12,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.meta_environment.rascal.interpreter.errors.ImplementationError;
+import org.meta_environment.rascal.interpreter.errors.IndexOutOfBoundsError;
 
 public class SubList implements IList {
 	private final Type fType;
@@ -48,7 +49,7 @@ public class SubList implements IList {
 		this.len = len;
 		this.end = start + len;
 		if(this.start < 0 || this.len > base.length()){
-			throw new ImplementationError("Out of bounds");
+			throw new IndexOutOfBoundsError("SubList", null);
 		}
 	}
 	

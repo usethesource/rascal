@@ -49,7 +49,7 @@ public class Lambda extends Result implements IValue {
 	private final List<Statement> body;
 	private final String name;
 	
-	private final AbstractAST ast;
+	protected final AbstractAST ast;
 	
 	public String getName() {
 		return name;
@@ -167,12 +167,6 @@ public class Lambda extends Result implements IValue {
 		} 
 		catch (FailureControlException e){
 			throw new RunTimeError("Fail statement used outside switch or visit statement", ast);
-		}
-		catch (Error e){
-			e.setAst(ast);
-			System.err.println("get: " + e);
-			System.err.println("add ast: " + ast);
-			throw e;
 		}
 	}
 

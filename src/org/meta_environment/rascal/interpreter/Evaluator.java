@@ -1381,12 +1381,12 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	@Override
 	public Result visitStatementContinue(Continue x) {
-		throw new ImplementationError("NYI" + x, x); // TODO
+		throw new ImplementationError("NYI continue" + x, x); // TODO
 	}
 	
 	@Override
 	public Result visitStatementGlobalDirective(GlobalDirective x) {
-		throw new ImplementationError("NYI", x); // TODO
+		throw new ImplementationError("NYI global", x); // TODO
 	}
 	
 	@Override

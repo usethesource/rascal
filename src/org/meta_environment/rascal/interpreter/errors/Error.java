@@ -44,8 +44,11 @@ public class Error extends RuntimeException {
 	};
 	
 	public void setAst(AbstractAST node){
-		range = node.getSourceRange();
-		path = node.getSourcePath();
+		// Set only if not previously defined.
+		if(range != null){
+			range = node.getSourceRange();
+			path = node.getSourcePath();
+		}
 	}
 	
 	private static INode makeNode(String errorCons, String message){
