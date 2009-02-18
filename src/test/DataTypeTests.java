@@ -1,10 +1,13 @@
 package test;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Ignore;
 import org.junit.Test;
-import static org.junit.Assert.*;
-import org.meta_environment.rascal.interpreter.errors.*;
+import org.meta_environment.rascal.interpreter.errors.IndexOutOfBoundsError;
 import org.meta_environment.rascal.interpreter.errors.NoSuchFieldError;
+import org.meta_environment.rascal.interpreter.errors.TypeError;
 
 public class DataTypeTests extends TestFramework {
 	
