@@ -1,6 +1,7 @@
 module RSFCalls
 
 import Relation;
+import Integer;
 import Set;
 import Graph;
 import RSF;
@@ -18,13 +19,19 @@ public bool measure(){
 		rel[str,str] CALL = values["CALL"];
 		n = size(CALL);
 		println("<name>: CALL contains <n> tuples");
+		nTop = size(top(CALL));
+		println("<name>: size top <nTop>");
 	
 		time0 = currentTimeMillis();
-		res1 = trans(CALL);          time1 = currentTimeMillis() - time0;
-		res2  = reachFromTop1(CALL); time2 = currentTimeMillis() - time1;
-		res3 = reachFromTop2(CALL);  time3 = currentTimeMillis() - time2;
+		res1 = trans(CALL);          time1 = currentTimeMillis();
+		res2  = reachFromTop1(CALL); time2 = currentTimeMillis();
+		res3 = reachFromTop2(CALL);  time3 = currentTimeMillis();
 		
-		println("Time (msec): trans <time1>, reachFromTop1 <time2>, reachFromTop2 <time3>");
+		d1 = time1 - time0;
+		d2 = time2 - time1;
+		d3 = time3 - time2;
+		
+		println("Time (msec): trans <d1>, reachFromTop1 <d2>, reachFromTop2 <d3>");
 		
 		size1 = size(res1); size2= size(res2); size3 = size(res3);
 		println("Size (elms): trans <size1>, reachFromTop1 <size2>, reachFromTop2 <size3>");

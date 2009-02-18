@@ -23,6 +23,16 @@ public class CallTests extends TestFramework{
 		runTest("{zap = 10; zap(1,2);}");
 	}
 	
+	@Test(expected=TypeError.class)
+	public void callError4() {
+		runTest("{ int f(){return \"a\";} f();}");
+	}
+	
+	@Test(expected=TypeError.class)
+	public void callError5() {
+		runTest("{ int f(int n) {return \"a\";}  int f(value v) {return \"a\";} }");
+	}
+	
 	@Test public void fac() {
 		String fac = "int fac(int n){ return (n <= 0) ? 1 : (n * fac(n - 1));}";
 		

@@ -35,8 +35,8 @@ public class NodeTests extends TestFramework {
 		prepare("import Node;").prepareMore(
 				"data ZNODE = zf | zf(int) | zf(int,int) | zf(int,int,int);");
 
-		assertTrue(runTestInSameEvaluator("getName(zf()) == \"f\";"));
-		assertTrue(runTestInSameEvaluator("getName(zf(1,2,3)) == \"f\";"));
+		assertTrue(runTestInSameEvaluator("getName(zf()) == \"zf\";"));
+		assertTrue(runTestInSameEvaluator("getName(zf(1,2,3)) == \"zf\";"));
 	}
 
 	@Test
