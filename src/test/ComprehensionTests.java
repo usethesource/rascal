@@ -93,6 +93,11 @@ public class ComprehensionTests extends TestFramework {
 		runTest("{x | 5};");
 	}
 	
+	@Test(expected=TypeError.class)
+	public void testVoidFunctionPredicate() {
+		runTest("{ void f() { } { x | int x : {1,2,3}, f() }; };");
+	}
+	
 	
 	@Test public void any()  {
 		
