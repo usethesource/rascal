@@ -31,7 +31,7 @@ public class StatementTests extends TestFramework {
 	
 
 	@Test
-	public void testAssignment() {
+	public void assignment() {
 		assertTrue(runTest("{int x = 3; x == 3;}"));
 		assertTrue(runTest("{int x = 3; x = 4; x == 4;}"));
 		assertTrue(runTest("{<x, y> = <3, 4>; (x == 3) && (y == 4);}"));
@@ -61,7 +61,7 @@ public class StatementTests extends TestFramework {
 	}
 
 	@Test
-	public void testBlock() {
+	public void block() {
 	}
 
 	@Test
@@ -74,13 +74,13 @@ public class StatementTests extends TestFramework {
 	}
 
 	@Test
-	public void testDoWhile() {
+	public void doWhile() {
 		assertTrue(runTest("{int n = 0; m = 2; do {m = m * m; n = n + 1;} while (n < 1); (n == 1) && (m == 4);}"));
 		assertTrue(runTest("{int n = 0; m = 2; do {m = m * m; n = n + 1;} while (n < 3); m == 256;}"));
 	}
 	
 	@Test(expected=TypeError.class)
-	public void doError() {
+	public void doWhileError() {
 		runTest("do {n = 4;} while(3);");
 	}
 	
@@ -96,11 +96,11 @@ public class StatementTests extends TestFramework {
 	}
 
 	@Test
-	public void testFail() {
+	public void fail() {
 	}
 
 	@Test
-	public void testFirst() {
+	public void first() {
 	}
 
 	@Test
@@ -110,7 +110,7 @@ public class StatementTests extends TestFramework {
 	}
 
 	@Test
-	public void testIfThen() {
+	public void ifThen() {
 		assertTrue(runTest("{int n = 10; if(n < 10){n = n - 4;} n == 10;}"));
 		assertTrue(runTest("{int n = 10; if(n < 15){n = n - 4;} n == 6;}"));
 	}
@@ -122,7 +122,7 @@ public class StatementTests extends TestFramework {
 	}
 	
 	@Test
-	public void testIfThenElse() {
+	public void ifThenElse() {
 		assertTrue(runTest("{int n = 10; if(n < 10){n = n - 4;} else { n = n + 4;} n == 14;}"));
 		assertTrue(runTest("{int n = 12; if(n < 10){n = n - 4;} else { n = n + 4;} n == 16;}"));
 	}
@@ -141,7 +141,7 @@ public class StatementTests extends TestFramework {
 	}
 	
 	@Test
-	public void testSolve1(){
+	public void solve(){
 		String S = 	"rel[int,int] R1 =  {<1,2>, <2,3>, <3,4>};" +
 	                " with 	rel[int,int] T = R1;" +
 	                " solve   T = T + (T o R1);";

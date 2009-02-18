@@ -8,7 +8,7 @@ import static org.junit.Assert.*;
 public class StringTests extends TestFramework {
 
 	@Test
-	public void testStringCenter() {
+	public void center() {
 		prepare("import String;");
 
 		assertTrue(runTestInSameEvaluator("center(\"a\", 0) == \"a\";"));
@@ -29,7 +29,7 @@ public class StringTests extends TestFramework {
 	}
 
 	@Test
-	public void testStringCharAt() {
+	public void charAt() {
 
 		prepare("import String;");
 
@@ -40,7 +40,7 @@ public class StringTests extends TestFramework {
 	}
 
 	@Test
-	public void testStringEndsWith() {
+	public void endsWith() {
 
 		prepare("import String;");
 
@@ -51,7 +51,7 @@ public class StringTests extends TestFramework {
 	}
 
 	@Test
-	public void testStringLeft() {
+	public void left() {
 		prepare("import String;");
 
 		assertTrue(runTestInSameEvaluator("left(\"a\", 0) == \"a\";"));
@@ -71,7 +71,7 @@ public class StringTests extends TestFramework {
 	}
 
 	@Test
-	public void testStringReverse() {
+	public void reverse() {
 
 		prepare("import String;");
 
@@ -81,7 +81,7 @@ public class StringTests extends TestFramework {
 	}
 
 	@Test
-	public void testStringRight() {
+	public void right() {
 		prepare("import String;");
 
 		assertTrue(runTestInSameEvaluator("right(\"a\", 0) == \"a\";"));
@@ -101,7 +101,7 @@ public class StringTests extends TestFramework {
 	}
 
 	@Test
-	public void testStringSize() {
+	public void size() {
 
 		prepare("import String;");
 
@@ -111,7 +111,7 @@ public class StringTests extends TestFramework {
 	}
 
 	@Test
-	public void testStringStartsWith() {
+	public void startsWith() {
 
 		prepare("import String;");
 
@@ -122,7 +122,7 @@ public class StringTests extends TestFramework {
 	}
 
 	@Test
-	public void testStringToLowerCase() {
+	public void toLowerCase() {
 
 		prepare("import String;");
 
@@ -133,7 +133,7 @@ public class StringTests extends TestFramework {
 	}
 
 	@Test
-	public void testStringToUpperCase() {
+	public void toUpperCase() {
 
 		prepare("import String;");
 

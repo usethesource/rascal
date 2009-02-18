@@ -7,13 +7,13 @@ import org.junit.Test;
 public class AllDemoTests extends TestFramework {
 
 	@Test
-	public void testAckermann() {
+	public void Ackermann() {
 		prepare("import Ackermann;");
 		assertTrue(runTestInSameEvaluator("Ackermann::test();"));
 	}
 
 	@Test
-	public void testBoolAbstractRules() {
+	public void BoolAbstractRules() {
 		prepare("import BoolAbstractRules;");
 		assertTrue(runTestInSameEvaluator("BoolAbstractRules::test();"));
 	}
@@ -25,115 +25,115 @@ public class AllDemoTests extends TestFramework {
 	}
 
 	@Test
-	public void testBubble() {
+	public void Bubble() {
 		prepare("import Bubble;");
 		assertTrue(runTestInSameEvaluator("Bubble::test();"));
 	}
 
 	@Test
-	public void testCalls() {
+	public void Calls() {
 		prepare("import Calls;");
 		assertTrue(runTestInSameEvaluator("Calls::test();"));
 	}
 
 	@Test
-	public void testCarFDL() {
+	public void CarFDL() {
 		prepare("import CarFDL;");
 		assertTrue(runTestInSameEvaluator("CarFDL::test();"));
 	}
 
 	@Test
-	public void testCycles() {
+	public void Cycles() {
 		prepare("import Cycles;");
 		assertTrue(runTestInSameEvaluator("Cycles::test();"));
 	}
 
 	@Test
-	public void testDominators() {
+	public void Dominators() {
 		prepare("import Dominators;");
 		assertTrue(runTestInSameEvaluator("Dominators::test();"));
 	}
 
 	@Test
-	public void testFunAbstract() {
+	public void FunAbstract() {
 		prepare("import FunAbstract;");
 		assertTrue(runTestInSameEvaluator("FunAbstract::test();"));
 	}
 
 	@Test
-	public void testGraphDataType() {
+	public void GraphDataType() {
 		prepare("import GraphDataType;");
 		assertTrue(runTestInSameEvaluator("GraphDataType::test();"));
 	}
 
 	@Test
-	public void testInnerproduct() {
+	public void Innerproduct() {
 		prepare("import Innerproduct;");
 		assertTrue(runTestInSameEvaluator("Innerproduct::test();"));
 	}
 
 	@Test
-	public void testIntegerAbstractRules() {
+	public void IntegerAbstractRules() {
 		prepare("import IntegerAbstractRules;");
 		assertTrue(runTestInSameEvaluator("IntegerAbstractRules::testInt();"));
 	}
 
 	@Test
-	public void testLift() {
+	public void Lift() {
 		prepare("import Lift;");
 		assertTrue(runTestInSameEvaluator("Lift::test();"));
 	}
 	
 	@Test
-	public void testPicoEval() {
+	public void PicoEval() {
 		prepare("import PicoEval;");
 		assertTrue(runTestInSameEvaluator("PicoEval::test();"));
 	}
 
 	@Test
-	public void testPicoTypecheck() {
+	public void PicoTypecheck() {
 		prepare("import PicoTypecheck;");
 		assertTrue(runTestInSameEvaluator("PicoTypecheck::test();"));
 	}
 
 	@Test
-	public void testQueens() {
+	public void Queens() {
 		prepare("import Queens;");
 		assertTrue(runTestInSameEvaluator("Queens::test();"));
 	}
 
 	@Test
-	public void testReachingDefs() {
+	public void ReachingDefs() {
 		prepare("import ReachingDefs;");
 		assertTrue(runTestInSameEvaluator("ReachingDefs::test();"));
 	}
 
 	@Test
-	public void testSquares() {
+	public void Squares() {
 		prepare("import Squares;");
 		assertTrue(runTestInSameEvaluator("Squares::test();"));
 	}
 
 	@Test
-	public void testTrans() {
+	public void Trans() {
 		prepare("import Trans;");
 		assertTrue(runTestInSameEvaluator("Trans::test();"));
 	}
 
 	@Test
-	public void testUPTR() {
+	public void UPTR() {
 		prepare("import UPTR;");
 		assertTrue(runTestInSameEvaluator("UPTR::test();"));
 	}
 
 	@Test
-	public void testWordCount() {
+	public void WordCount() {
 		prepare("import WordCount;");
 		assertTrue(runTestInSameEvaluator("WordCount::test();"));
 	}
 
 	@Test
-	public void testWordReplacement() {
+	public void WordReplacement() {
 		prepare("import WordReplacement;");
 		assertTrue(runTestInSameEvaluator("WordReplacement::test();"));
 	}

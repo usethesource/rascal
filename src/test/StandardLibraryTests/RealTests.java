@@ -8,7 +8,7 @@ import static org.junit.Assert.*;
 public class RealTests extends TestFramework {
 
 	@Test
-	public void testRealArb() {
+	public void arbReal() {
 
 		prepare("import Real;");
 
@@ -17,7 +17,7 @@ public class RealTests extends TestFramework {
 	}
 
 	@Test
-	public void testRealMax() {
+	public void max() {
 
 		prepare("import Real;");
 
@@ -27,7 +27,7 @@ public class RealTests extends TestFramework {
 	}
 
 	@Test
-	public void testRealMin() {
+	public void min() {
 
 		prepare("import Real;");
 
@@ -37,7 +37,7 @@ public class RealTests extends TestFramework {
 	}
 
 	@Test
-	public void testRealToInteger() {
+	public void toInteger() {
 
 		prepare("import Real;");
 
@@ -46,7 +46,7 @@ public class RealTests extends TestFramework {
 	}
 
 	@Test
-	public void testRealToString() {
+	public void testToString() {
 
 		prepare("import Real;");
 

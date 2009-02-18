@@ -8,7 +8,7 @@ import org.meta_environment.rascal.interpreter.errors.*;
 public class SubscriptTests extends TestFramework {
 
 	@Test
-	public void testList() {
+	public void list() {
 
 		assertTrue(runTest("[0,1,2,3][0] == 0;"));
 		assertTrue(runTest("[0,1,2,3][1] == 1;"));
@@ -22,17 +22,17 @@ public class SubscriptTests extends TestFramework {
 	}
 	
 	@Test(expected=IndexOutOfBoundsError.class)
-	public void testListError1(){
+	public void listError1(){
 		runTest("[0,1,2,3][4] == 3;");
 	}
 	
 	@Test(expected=IndexOutOfBoundsError.class)
-	public void testListError2(){
+	public void listError2(){
 		runTest("{list[int] L = [0,1,2,3]; L[4] = 44; L == [0,1,2,3,44];}");
 	}
 
 	@Test
-	public void testMap() {
+	public void map() {
 		assertTrue(runTest("(1=>10, 2=>20, 3=>30)[1] == 10;"));
 		assertTrue(runTest("(1=>10, 2=>20, 3=>30)[2] == 20;"));
 		assertTrue(runTest("(1=>10, 2=>20, 3=>30)[3] == 30;"));
@@ -46,21 +46,19 @@ public class SubscriptTests extends TestFramework {
 	}
 
 	@Test
-	public void testTuple() {
+	public void tuple() {
 		assertTrue(runTest("<0, \"a\", 3.5>[0] == 0;"));
 		assertTrue(runTest("<0, \"a\", 3.5>[1] == \"a\";"));
 		assertTrue(runTest("<0, \"a\", 3.5>[2] == 3.5;"));
-
-		
 	}
 	
 	@Test(expected=IndexOutOfBoundsError.class)
-	public void testTupleBounds(){
+	public void tupleBoundsError(){
 		runTest("<0, \"a\", 3.5>[3] == 3.5;");
 	}
 
 	@Test
-	public void testRelation() {
+	public void relation() {
 		assertTrue(runTest("{<1, \"a\">, <2, \"b\">}[0] == {};"));
 		assertTrue(runTest("{<1, \"a\">, <2, \"b\">}[1] == {\"a\"};"));
 		assertTrue(runTest("{<1, \"a\">, <2, \"b\">}[2] == {\"b\"};"));
@@ -74,7 +72,7 @@ public class SubscriptTests extends TestFramework {
 	}
 
 	@Test
-	public void testRelationMultiIndex() {
+	public void relationMultiIndex() {
 		assertTrue(runTest("{<1,\"a\",1.0>,<2,\"b\",2.0>,<3,\"c\",3.0>}[0] == {};"));
 		assertTrue(runTest("{<1,\"a\",1.0>,<2,\"b\",2.0>,<3,\"c\",3.0>}[1] == {<\"a\",1.0>};"));
 		assertTrue(runTest("{<1,\"a\",1.0>,<2,\"b\",2.0>,<3,\"c\",3.0>}[2, \"b\"] == {2.0};"));
@@ -83,7 +81,7 @@ public class SubscriptTests extends TestFramework {
 	}
 
 	@Test
-	public void testNode() {
+	public void node() {
 
 		prepare("data NODE = f(int a, str b, real c);");
 
@@ -94,7 +92,7 @@ public class SubscriptTests extends TestFramework {
 	}
 	
 	@Ignore @Test(expected=IndexOutOfBoundsError.class)
-	public void testNodeBounds(){
+	public void nodeBoundsError(){
 		prepare("data NODE = f(int a, str b, real c);");
 		
 		runTest("f(0, \"a\", 3.5)[3] == 3.5;");
