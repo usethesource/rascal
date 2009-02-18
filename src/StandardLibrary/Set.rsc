@@ -19,7 +19,12 @@ public &T java getOneFrom(set[&T] st)
 @javaImports{import java.util.Iterator;}
 {
    int i = 0;
-   int k = random.nextInt(st.size());
+   int sz = st.size();
+   
+   if(sz == 0){
+   	  throw new EmptySetError("getOneFrom", null);
+   }
+   int k = random.nextInt(sz);
    Iterator iter = st.iterator();
   
    while(iter.hasNext()){

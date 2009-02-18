@@ -8,7 +8,7 @@ import static org.junit.Assert.*;
 public class IntegerTests extends TestFramework {
 
 	@Test
-	public void testIntegerAbs() {
+	public void abs() {
 
 		prepare("import Integer;");
 
@@ -18,7 +18,7 @@ public class IntegerTests extends TestFramework {
 	}
 
 	@Test
-	public void testIntegerArbInt() {
+	public void arbInt() {
 
 		prepare("import Integer;");
 
@@ -29,7 +29,7 @@ public class IntegerTests extends TestFramework {
 	}
 
 	@Test
-	public void testIntegerMax() {
+	public void max() {
 
 		prepare("import Integer;");
 
@@ -39,7 +39,7 @@ public class IntegerTests extends TestFramework {
 	}
 
 	@Test
-	public void testIntegerMin() {
+	public void min() {
 
 		prepare("import Integer;");
 
@@ -49,7 +49,7 @@ public class IntegerTests extends TestFramework {
 	}
 
 	@Test
-	public void testIntegerToReal() {
+	public void toReal() {
 
 		prepare("import Integer;");
 
@@ -58,7 +58,7 @@ public class IntegerTests extends TestFramework {
 	}
 
 	@Test
-	public void testIntegerToString() {
+	public void testToString() {
 
 		prepare("import Integer;");
 

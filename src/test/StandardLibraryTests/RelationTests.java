@@ -8,7 +8,7 @@ import static org.junit.Assert.*;
 public class RelationTests extends TestFramework {
 
 	@Test
-	public void testRelCarrier() {
+	public void carrier() {
 
 		prepare("import Relation;");
 
@@ -20,7 +20,7 @@ public class RelationTests extends TestFramework {
 	}
 
 	@Test
-	public void testRelCarrierR() {
+	public void carrierR() {
 
 		prepare("import Relation;");
 
@@ -34,7 +34,7 @@ public class RelationTests extends TestFramework {
 	}
 
 	@Test
-	public void testRelCarrierX() {
+	public void carrierX() {
 
 		prepare("import Relation;");
 
@@ -47,7 +47,7 @@ public class RelationTests extends TestFramework {
 	}
 
 	@Test
-	public void testRelComplement() {
+	public void complement() {
 
 		prepare("import Relation;");
 
@@ -57,7 +57,7 @@ public class RelationTests extends TestFramework {
 	}
 
 	@Test
-	public void testRelDomain() {
+	public void domain() {
 
 		prepare("import Relation;");
 
@@ -68,7 +68,7 @@ public class RelationTests extends TestFramework {
 	}
 
 	@Test
-	public void testRelDomainR() {
+	public void domainR() {
 
 		prepare("import Relation;");
 
@@ -80,7 +80,7 @@ public class RelationTests extends TestFramework {
 	}
 
 	@Test
-	public void testRelDomainX() {
+	public void domainX() {
 
 		prepare("import Relation;");
 
@@ -93,7 +93,7 @@ public class RelationTests extends TestFramework {
 	}
 
 	@Test
-	public void testRelInvert() {
+	public void invert() {
 
 		prepare("import Relation;");
 
@@ -104,7 +104,7 @@ public class RelationTests extends TestFramework {
 	}
 
 	@Test
-	public void testRelRange() {
+	public void range() {
 
 		prepare("import Relation;");
 
@@ -115,7 +115,7 @@ public class RelationTests extends TestFramework {
 	}
 
 	@Test
-	public void testRelRangeR() {
+	public void rangeR() {
 
 		prepare("import Relation;");
 
@@ -128,7 +128,7 @@ public class RelationTests extends TestFramework {
 	}
 
 	@Test
-	public void testRelRangeX() {
+	public void rangeX() {
 
 		prepare("import Relation;");
 

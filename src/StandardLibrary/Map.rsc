@@ -1,22 +1,5 @@
 module Map
 
-public &K java arb(map[&K, &V] m)  
-@javaImports{import java.util.Iterator;import java.util.Map.Entry; }
-{
-   int i = 0;
-   int k = random.nextInt(m.size());
-   Iterator iter = m.entryIterator();
-  
-   while(iter.hasNext()){
-      if(i == k){
-      	return (IValue) ((Entry) iter.next()).getKey();
-      }
-      iter.next();
-      i++;
-   }
-   return null;
-}
-
 public set[&K] java domain(map[&K, &V] M)
 @doc{domain -- return the domain (keys) of a map}
 @javaImports{
@@ -34,6 +17,28 @@ public set[&K] java domain(map[&K, &V] M)
     w.insert((IValue)entry.getKey());
   }
   return w.done();
+}
+
+public &K java getOneFrom(map[&K, &V] m)  
+@doc{getOneFrom -- return arbitrary key of a map}
+@javaImports{import java.util.Iterator;import java.util.Map.Entry; }
+{
+   int i = 0;
+   int sz = m.size();
+   if(sz == 0){
+      throw new EmptyMapError("getOneFrom", null);
+   }
+   int k = random.nextInt(sz);
+   Iterator iter = m.entryIterator();
+  
+   while(iter.hasNext()){
+      if(i == k){
+      	return (IValue) ((Entry) iter.next()).getKey();
+      }
+      iter.next();
+      i++;
+   }
+   return null;
 }
 
 public map[&K, &V] mapper(map[&K, &V] M, &K (&K) F, &V (&V) G){
