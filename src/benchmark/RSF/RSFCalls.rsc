@@ -11,6 +11,7 @@ public bool measure(){
 
 	str dir = "src/benchmark/RSF/";
 	list[str] names = ["JHotDraw52.rsf", "JDK140AWT.rsf", "JWAM16FullAndreas.rsf", "jdk14v2.rsf", "Eclipse202a.rsf"];
+// 	list[str] names = ["JHotDraw52.rsf"];
 	
 	for(str name : names){
 		map[str, rel[str,str]] values = readRSF(dir + name);
@@ -18,28 +19,32 @@ public bool measure(){
 		n = size(CALL);
 		println("<name>: CALL contains <n> tuples");
 	
-		res1 = trans(CALL);
-		res2 = reachFromTop1(CALL);
-		res3 = reachFromTop2(CALL);
-		println("Time: trans <res1>, reachFromTop1 <res2>, reachFromTop2 <res3> msec");
+		time0 = currentTimeMillis();
+		res1 = trans(CALL);          time1 = currentTimeMillis() - time0;
+		res2  = reachFromTop1(CALL); time2 = currentTimeMillis() - time1;
+		res3 = reachFromTop2(CALL);  time3 = currentTimeMillis() - time2;
+		
+		println("Time (msec): trans <time1>, reachFromTop1 <time2>, reachFromTop2 <time3>");
+		
+		size1 = size(res1); size2= size(res2); size3 = size(res3);
+		println("Size (elms): trans <size1>, reachFromTop1 <size2>, reachFromTop2 <size3>");
+		if(res2 != res3){
+			println("***> res2 != res3");
+		}
+		
     }
     return true;
 }
 
-public real trans(rel[str,str] CALL){
-	start = currentTimeMillis();
-	res = CALL+;
-	return currentTimeMillis() - start;
+public rel[str,str] trans(rel[str,str] CALL){
+	return CALL+;
 }
 
-public real reachFromTop1(rel[str,str] CALL){
-	start = currentTimeMillis();
-	res = domainR(CALL+, top(CALL));
-	return currentTimeMillis() - start;
+public set[str] reachFromTop1(rel[str,str] CALL){
+    top = top(CALL);
+	return top + range(domainR(CALL+, top));
 }
 
-public real reachFromTop2(rel[str,str] CALL){
-	start = currentTimeMillis();
-	res = reach(CALL, top(CALL));
-	return currentTimeMillis() - start;
+public set[str] reachFromTop2(rel[str,str] CALL){
+	return reach(CALL, top(CALL));
 }
