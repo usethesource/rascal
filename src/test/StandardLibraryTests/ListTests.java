@@ -85,12 +85,12 @@ public class ListTests extends TestFramework {
 
 		prepare("import List;");
 
-		assertTrue(runTestInSameEvaluator("List::insertAt(1, 0, []) == [1];"));
-		assertTrue(runTestInSameEvaluator("insertAt(1, 0, []) == [1];"));
-		assertTrue(runTestInSameEvaluator("List::insertAt(1, 1, [2,3]) == [2,1, 3];"));
-		assertTrue(runTestInSameEvaluator("insertAt(1, 1, [2,3]) == [2, 1, 3];"));
-		assertTrue(runTestInSameEvaluator("List::insertAt(1, 2, [2,3]) == [2,3,1];"));
-		assertTrue(runTestInSameEvaluator("insertAt(1, 2, [2,3]) == [2, 3, 1];"));
+		assertTrue(runTestInSameEvaluator("List::insertAt([], 0, 1) == [1];"));
+		assertTrue(runTestInSameEvaluator("insertAt([], 0, 1) == [1];"));
+		assertTrue(runTestInSameEvaluator("List::insertAt([2,3], 1, 1) == [2,1, 3];"));
+		assertTrue(runTestInSameEvaluator("insertAt([2,3], 1, 1) == [2, 1, 3];"));
+		assertTrue(runTestInSameEvaluator("List::insertAt([2,3], 2, 1) == [2,3,1];"));
+		assertTrue(runTestInSameEvaluator("insertAt([2,3], 2, 1) == [2, 3, 1];"));
 	}
 	
 

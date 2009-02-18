@@ -46,7 +46,7 @@ public &T java getOneFrom(list[&T] lst)
    	}
 }
 
-public list[&T] java insertAt(&T elm, int n, list[&T] lst)
+public list[&T] java insertAt(list[&T] lst, int n, &T elm)
   throws IndexOutOfBoundsError()
  @doc{insertAt -- add an element at a specific position in a list}
  {
