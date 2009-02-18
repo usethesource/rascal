@@ -1,6 +1,5 @@
 module List
- 
- 
+
 public &T average(list[&T] lst, &T zero)
 @doc{average -- average of elements of a list}
 {
@@ -13,62 +12,21 @@ public list[int] domain(list[&T] lst)
    return [0, 1 .. size(lst) - 1];
 }
 
-public &T java head(list[&T] lst)
-  throws EmptyListError()
+public &T java head(list[&T] lst) throws EmptyListError
  @doc{head -- get the first element of a list}
-{
-   if(lst.length() > 0){
-      return lst.get(0);
-   } else {
-      throw new EmptyListError("head", null);
-   }
-}
+ @javaClass{org.meta_environment.rascal.std.List};
 
-public list[&T] java head(list[&T] lst, int n)
-  throws IndexOutOfBoundsError
+public list[&T] java head(list[&T] lst, int n) throws IndexOutOfBoundsError
  @doc{head -- get the first n elements of a list}
-{
-   if(n.getValue() <= lst.length()){
-      return new SubList((IValue)lst, 0, n.getValue());
-   } else {
-      throw new IndexOutOfBoundsError("head", null);
-   }
-}
+ @javaClass{org.meta_environment.rascal.std.List};
 
 public &T java getOneFrom(list[&T] lst)
 @doc{getOneFrom -- get an arbitrary element from a list}
-{
-   int n = lst.length();
-   if(n > 0){
-   	return lst.get(random.nextInt(n));
-   	} else {
-   		throw new EmptyListError("getOneFrom", null);
-   	}
-}
+@javaClass{org.meta_environment.rascal.std.List};
 
-public list[&T] java insertAt(list[&T] lst, int n, &T elm)
-  throws IndexOutOfBoundsError()
+public list[&T] java insertAt(list[&T] lst, int n, &T elm) throws IndexOutOfBoundsError
  @doc{insertAt -- add an element at a specific position in a list}
- {
- 	IListWriter w = values.listWriter(elm.getType().lub(lst.getElementType()));
- 	
- 	int k = n.getValue();
-    if(k >= 0 && k <= lst.length()){
-      if(k == lst.length()){
-      	w.insert(elm);
-      }
-      for(int i = lst.length()-1; i >= 0; i--) {
-        w.insert(lst.get(i));
-        if(i == k){
-        	w.insert(elm);
-        }
-      }
-      return w.done();
-    } else {
-    	throw new IndexOutOfBoundsError("insertAt", null);
-    }
- }
-
+ @javaClass{org.meta_environment.rascal.std.List};
 
 public list[&T] mapper(list[&T] lst, &T (&T) fn)
 @doc{mapper -- apply a function to each element of a list}
@@ -125,21 +83,15 @@ public &T reducer(list[&T] lst, &T (&T, &T) fn, &T unit)
 
 public list[&T] java reverse(list[&T] lst)
 @doc{reverse -- elements of a list in reverse order}
-{
-	return lst.reverse();
-}
+@javaClass{org.meta_environment.rascal.std.List};
 
 public int java size(list[&T] lst)
 @doc{size -- number of elements in a list}
-{
-   return values.integer(lst.length());
-}
+@javaClass{org.meta_environment.rascal.std.List};
 
  public list[&T] java slice(list[&T] lst, int start, int len)
  @doc{slice -- sublist from start of length len}
- {
- 	return new SubList((IValue)lst, start.getValue(), len.getValue());
- }
+ @javaClass{org.meta_environment.rascal.std.List};
 
 public list[&T] sort(list[&T] lst)
 @doc{sort -- sort the elements of a list}
@@ -180,80 +132,24 @@ public &T sum(list[&T] lst, &T zero)
 
  public list[&T] java tail(list[&T] lst)
  @doc{tail -- all but the first element of a list}
- {
- 	return new SubList((IValue)lst, 1, lst.length()-1);
- }
+ @javaClass{org.meta_environment.rascal.std.List};
  
-  public list[&T] java tail(list[&T] lst, int len)
-  throws IndexOutOfBoundsErrors()
+  public list[&T] java tail(list[&T] lst, int len)throws IndexOutOfBoundsError
  @doc{tail -- last n elements ofelement of a list}
- {
- 	int lenVal = len.getValue();
- 	int lstLen = lst.length();
- 	
- 	if(lenVal > lstLen)
- 		throw new IndexOutOfBoundsError("tail", null);
- 	return new SubList((IValue)lst, lstLen - lenVal, lenVal);
- }
+ @javaClass{org.meta_environment.rascal.std.List};
  
 public tuple[&T, list[&T]] java takeOneFrom(list[&T] lst)
 @doc{takeOneFrom -- remove an arbitrary element from a list, returns the element and the modified list}
-{
-   int n = lst.length();
-   
-   if(n > 0){
-   	  int k = random.nextInt(n);
-   	  IValue pick = lst.get(0);
-   	  IListWriter w = lst.getType().writer(values);
-  
-      for(int i = n - 1; i >= 0; i--) {
-         if(i == k){
-         	pick = lst.get(i);
-         } else {
-            w.insert(lst.get(i));
-         }
-      }
-      return values.tuple(pick, w.done());
-   	} else {
-   		throw new EmptyListError("takeOneFrom", null);
-   	}
-}
+@javaClass{org.meta_environment.rascal.std.List};
 
 public map[&A,&B] java toMap(list[tuple[&A, &B]] lst)
 @doc{toMap -- convert a list of tuples to a map}
-@javaImports{import java.util.Iterator;}
-{
-   if(lst.length() == 0){
-      return values.map(types.voidType(), types.voidType());
-   }
-   Type tuple = lst.getElementType();
-   Type resultType = types.mapType(tuple.getFieldType(0), tuple.getFieldType(1));
-  
-   IMapWriter w = resultType.writer(values);
-   Iterator iter = lst.iterator();
-   while (iter.hasNext()) {
-     ITuple t = (ITuple) iter.next();
-     w.put(t.get(0), t.get(1));
-   }
-   return w.done();
-}
+@javaClass{org.meta_environment.rascal.std.List};
 
 public set[&T] java toSet(list[&T] lst)
 @doc{toSet -- convert a list to a set}
-@javaImports{import java.util.Iterator;}
-{
-  Type resultType = types.setType(lst.getElementType());
-  ISetWriter w = resultType.writer(values);
-  Iterator iter = lst.iterator();
-  while (iter.hasNext()) {
-    w.insert((IValue) iter.next());
-  }
-	
-  return w.done();
-}
+@javaClass{org.meta_environment.rascal.std.List};
 
 public str java toString(list[&T] lst)
 @doc{toString -- convert a list to a string}
-{
-	return values.string(lst.toString());
-}
+@javaClass{org.meta_environment.rascal.std.List};
