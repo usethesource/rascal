@@ -8,7 +8,7 @@ import static org.junit.Assert.*;
 public class GraphTests extends TestFramework {
 
 	@Test
-	public void testGraphBottom() {
+	public void bottom() {
 
 		prepare("import Graph;");
 		assertTrue(runTestInSameEvaluator("bottom({}) == {};"));
@@ -16,7 +16,7 @@ public class GraphTests extends TestFramework {
 	}
 
 	@Test
-	public void testGraphTop() {
+	public void top() {
 
 		prepare("import Graph;");
 		assertTrue(runTestInSameEvaluator("top({}) == {};"));
@@ -24,7 +24,7 @@ public class GraphTests extends TestFramework {
 	}
 
 	@Test
-	public void testGraphReachR() {
+	public void reachR() {
 
 		prepare("import Graph;");
 
@@ -36,7 +36,7 @@ public class GraphTests extends TestFramework {
 	}
 
 	@Test
-	public void testGraphReachX() {
+	public void reachX() {
 
 		prepare("import Graph;");
 
@@ -48,7 +48,7 @@ public class GraphTests extends TestFramework {
 	}
 	
 	@Test 
-	public void testGraphReach(){
+	public void reach(){
 		
 		prepare("import Graph;");
 		

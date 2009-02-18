@@ -36,6 +36,8 @@ public class SubList implements IList {
 		
 		fType = V.getType();
 		
+		if(start < 0 || len < 0)
+			throw new IndexOutOfBoundsError("SubList", null);
 		if(V instanceof IList){
 			this.base = (IList) V;
 			this.start = start;
@@ -48,7 +50,7 @@ public class SubList implements IList {
 		}
 		this.len = len;
 		this.end = start + len;
-		if(this.start < 0 || this.len > base.length()){
+		if(this.start < 0 || this.end > base.length()){
 			throw new IndexOutOfBoundsError("SubList", null);
 		}
 	}

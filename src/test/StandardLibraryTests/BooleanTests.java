@@ -8,7 +8,7 @@ import static org.junit.Assert.*;
 public class BooleanTests extends TestFramework {
 
 	@Test
-	public void testBooleanArb() {
+	public void arb() {
 		
 		prepare("import Boolean;");
 		
@@ -17,7 +17,7 @@ public class BooleanTests extends TestFramework {
 	}
 
 	@Test
-	public void testBooleanToInt() {
+	public void toInt() {
 		
 		prepare("import Boolean;");
 
@@ -29,7 +29,7 @@ public class BooleanTests extends TestFramework {
 	}
 
 	@Test
-	public void testBooleanToReal() {
+	public void toReal() {
 		
 		prepare("import Boolean;");
 
@@ -41,7 +41,7 @@ public class BooleanTests extends TestFramework {
 	}
 
 	@Test
-	public void testBooleanToString() {
+	public void testToString() {
 		prepare("import Boolean;");
 
 		assertTrue(runTestInSameEvaluator("Boolean::toString(false) == \"false\";"));

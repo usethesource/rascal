@@ -1,6 +1,7 @@
 package test.StandardLibraryTests;
 
 import org.junit.Test;
+import org.meta_environment.rascal.interpreter.errors.*;
 
 import test.TestFramework;
 import static org.junit.Assert.*;
@@ -8,16 +9,21 @@ import static org.junit.Assert.*;
 public class MapTests extends TestFramework {
 
 	@Test
-	public void testMapArb() {
+	public void getOneFrom() {
 
 		prepare("import Map;");
 
-		assertTrue(runTestInSameEvaluator("arb((1=>10)) == 1;"));
-		assertTrue(runTestInSameEvaluator("{int N = arb((1=>10, 2=>20)); (N == 1) || (N ==2);}"));
+		assertTrue(runTestInSameEvaluator("getOneFrom((1=>10)) == 1;"));
+		assertTrue(runTestInSameEvaluator("{int N = getOneFrom((1=>10, 2=>20)); (N == 1) || (N ==2);}"));
+	}
+	
+	@Test(expected=EmptyMapError.class)
+	public void getOneFromError() {
+		runTest("import Map;", "getOneFrom(());");
 	}
 
 	@Test
-	public void testMapDomain() {
+	public void domain() {
 
 		prepare("import Map;");
 
@@ -27,7 +33,7 @@ public class MapTests extends TestFramework {
 
 	// mapper
 	@Test
-	public void testMapMapper() {
+	public void mapper() {
 
 		prepare("import Map;");
 
@@ -47,7 +53,7 @@ public class MapTests extends TestFramework {
 
 	// range
 	@Test
-	public void testMapRange() {
+	public void range() {
 
 		prepare("import Map;");
 
@@ -57,7 +63,7 @@ public class MapTests extends TestFramework {
 
 	// size
 	@Test
-	public void testMapSize() {
+	public void size() {
 
 		prepare("import Map;");
 
@@ -68,7 +74,7 @@ public class MapTests extends TestFramework {
 
 	// toList
 	@Test
-	public void testMapToList() {
+	public void toList() {
 
 		prepare("import Map;");
 
@@ -79,7 +85,7 @@ public class MapTests extends TestFramework {
 
 	// toRel
 	@Test
-	public void testMapToRel() {
+	public void toRel() {
 
 		prepare("import Map;");
 
@@ -90,7 +96,7 @@ public class MapTests extends TestFramework {
 
 	// toString
 	@Test
-	public void testMapToString() {
+	public void testToString() {
 
 		prepare("import Map;");
 
