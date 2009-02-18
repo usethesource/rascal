@@ -11,7 +11,6 @@ import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.ast.Rule;
 import org.meta_environment.rascal.interpreter.Names;
 import org.meta_environment.rascal.interpreter.errors.NoSuchModuleError;
-import org.meta_environment.rascal.interpreter.errors.TypeError;
 
 /**
  * The global environment represents the stack and the heap of Rascal.
@@ -27,6 +26,9 @@ public class GlobalEnvironment {
 	private final Map<Type, List<Rule>> ruleEnvironment = new HashMap<Type, List<Rule>>();
 	
 
+	/** so is the cache */
+	private final Cache cache = new Cache();
+	
 	/**
 	 * Allocate a new module on the heap
 	 * @param name
@@ -34,7 +36,7 @@ public class GlobalEnvironment {
 	public ModuleEnvironment addModule(String name) {
 		ModuleEnvironment env = moduleEnvironment.get(name);
 		if (env == null) {
-			env = new ModuleEnvironment(name);
+			env = new ModuleEnvironment(name, cache);
 			moduleEnvironment.put(name, env);
 		}
 		return env;

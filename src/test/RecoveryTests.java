@@ -1,28 +1,40 @@
 package test;
 
 import static org.junit.Assert.assertTrue;
-import junit.framework.Assert;
 
+import org.junit.Before;
 import org.junit.Test;
 
 public class RecoveryTests extends TestFramework {
 
+
+	@Before
+	public void prepare() {
+		prepare("import RecoveryTests;");
+	}
+	
 	@Test
 	public void testRecoveryOfLocalVariable() {
-		prepare("import RecoveryTests;");
 		assertTrue(runTestInSameEvaluator("recoveryOfLocalVariable() == 0;"));
 	}
 
 	@Test
 	public void testRecoveryOfLocalVariableUsingIfThen() {
-		prepare("import RecoveryTests;");
 		assertTrue(runTestInSameEvaluator("recoveryOfLocalVariableUsingIfThen() == 0;"));
 	}
 
 	@Test
 	public void testRecoveryOfGlobalVariable() {
-		prepare("import RecoveryTests;");
 		assertTrue(runTestInSameEvaluator("recoveryOfGlobalVariable() == 0;"));
 	}
 
+	@Test
+	public void testRecoveryAfterFailingRule() {
+		assertTrue(runTestInSameEvaluator("recoveryOfGlobalAfterFailingRule() == 0;"));
+	}
+	
+	@Test
+	public void testRecoveryOfGlobalDuringComprehension() {
+		assertTrue(runTestInSameEvaluator("recoveryOfGlobalDuringComprehension() == 0;"));
+	}
 }

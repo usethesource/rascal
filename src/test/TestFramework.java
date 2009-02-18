@@ -10,12 +10,15 @@ import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.Command;
 import org.meta_environment.rascal.ast.Module;
 import org.meta_environment.rascal.interpreter.Evaluator;
+import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.errors.ImplementationError;
 import org.meta_environment.rascal.interpreter.errors.RunTimeError;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
 import org.meta_environment.uptr.Factory;
+
+import com.sun.corba.se.spi.legacy.connection.GetEndPointInfoAgainException;
 
 public class TestFramework  {
 	private Parser parser = Parser.getInstance();
@@ -24,9 +27,21 @@ public class TestFramework  {
 	private Evaluator evaluator;
 	
 	public TestFramework () {
-		evaluator = new Evaluator(ValueFactory.getInstance(), factory,
-				new PrintWriter(System.err), new ModuleEnvironment("***test***"));
+		reset();
 	}
+	
+	
+	private Evaluator getTestEvaluator() {
+		GlobalEnvironment heap = new GlobalEnvironment();
+		ModuleEnvironment root = heap.addModule("***test***");
+		return new Evaluator(ValueFactory.getInstance(), factory,
+				new PrintWriter(System.err), root, heap);
+	}
+	
+	private void reset() {
+		evaluator = getTestEvaluator();
+	}
+	
 	
 	public TestFramework (String  command){
 		try {
@@ -38,9 +53,8 @@ public class TestFramework  {
 	
 	public boolean runTest(String command) {
 		try {
-		evaluator = new Evaluator(ValueFactory.getInstance(), factory,
-				new PrintWriter(System.err), new ModuleEnvironment("***test***"));
-		return execute(command);
+			reset();
+			return execute(command);
 		} catch (IOException e){
 			throw new RunTimeError("Exception while running test", e);
 		}
@@ -56,8 +70,7 @@ public class TestFramework  {
 
 	public boolean runTest(String command1, String command2) {
 		try {
-			evaluator = new Evaluator(ValueFactory.getInstance(), factory,
-					        new PrintWriter(System.err), new ModuleEnvironment("***test***"));
+			reset();
 			execute(command1);
 			return execute(command2);
 		} catch (IOException e){
@@ -67,8 +80,7 @@ public class TestFramework  {
 	
 	public TestFramework prepare(String command){
 		try{
-			evaluator = new Evaluator(ValueFactory.getInstance(), factory,
-					new PrintWriter(System.err), new ModuleEnvironment("***test***"));
+			reset();
 			execute(command);
 			
 		} catch (Exception e){
@@ -94,8 +106,7 @@ public class TestFramework  {
 				System.err.println(tree);
 				return false;
 			} else {
-				evaluator = new Evaluator(ValueFactory.getInstance(), factory,
-						new PrintWriter(System.err), new ModuleEnvironment("***test***"));
+				reset();
 				Module mod = builder.buildModule(tree);
 				mod.accept(evaluator);
 				return true;

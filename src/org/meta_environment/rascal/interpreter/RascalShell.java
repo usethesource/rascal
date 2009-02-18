@@ -19,6 +19,7 @@ import org.meta_environment.rascal.errors.ErrorAdapter;
 import org.meta_environment.rascal.errors.SubjectAdapter;
 import org.meta_environment.rascal.errors.SummaryAdapter;
 import org.meta_environment.rascal.interpreter.control_exceptions.FailureControlException;
+import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.errors.Error;
 import org.meta_environment.rascal.interpreter.errors.ImplementationError;
@@ -32,6 +33,7 @@ public class RascalShell {
 	private final static String PROMPT = ">";
 	private final static String CONTINUE_PROMPT = "?";
 	private final static int MAX_CONSOLE_LINE = 100;
+	private static final String SHELL_MODULE = "***shell***";
 	
 	private final Parser parser = Parser.getInstance();
 	private final ASTFactory factory = new ASTFactory();
@@ -39,17 +41,21 @@ public class RascalShell {
 	private final ConsoleReader console;
 	private final Evaluator evaluator;
 	
+	
+	// TODO: cleanup these constructors.
 	public RascalShell() throws IOException {
 		console = new ConsoleReader();
-		ModuleEnvironment root = new ModuleEnvironment("***shell***");
-		evaluator = new Evaluator(ValueFactory.getInstance(), factory, new PrintWriter(System.err), root);
+		GlobalEnvironment heap = new GlobalEnvironment();
+		ModuleEnvironment root = heap.addModule(SHELL_MODULE);
+		evaluator = new Evaluator(ValueFactory.getInstance(), factory, new PrintWriter(System.err), root, heap);
 	}
 	
-	public RascalShell(InputStream inputStream,
-			Writer out) throws IOException {
+
+	public RascalShell(InputStream inputStream, Writer out) throws IOException {
 		console = new ConsoleReader(inputStream, out);
-		ModuleEnvironment root = new ModuleEnvironment("***shell***");
-		evaluator = new Evaluator(ValueFactory.getInstance(), factory, out, root);
+		GlobalEnvironment heap = new GlobalEnvironment();
+		ModuleEnvironment root = heap.addModule(SHELL_MODULE);
+		evaluator = new Evaluator(ValueFactory.getInstance(), factory, out, root, heap);
 	}
 
 	public void setInputStream(InputStream in) {

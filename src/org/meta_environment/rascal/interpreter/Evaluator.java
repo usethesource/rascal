@@ -235,11 +235,16 @@ public class Evaluator extends NullASTVisitor<Result> {
 	protected MatchPattern lastPattern;	// The most recent pattern applied in a match
 	                                    	// For the benefit of string matching.
 
+
 	public Evaluator(IValueFactory f, ASTFactory astFactory, Writer errorWriter, ModuleEnvironment scope) {
+		this(f, astFactory, errorWriter, scope, new GlobalEnvironment());
+	}
+
+	public Evaluator(IValueFactory f, ASTFactory astFactory, Writer errorWriter, ModuleEnvironment scope, GlobalEnvironment heap) {
 		this.vf = f;
 		this.af = astFactory;
 		this.javaBridge = new JavaBridge(errorWriter);
-		this.heap = new GlobalEnvironment();
+		this.heap = heap;
 		this.callStack = new ArrayDeque<Environment>();
 		this.callStack.push(scope);
 		this.scopeStack = new ArrayDeque<ModuleEnvironment>();
@@ -742,7 +747,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	@Override
 	public Result visitRuleArbitrary(Arbitrary x) {
 		MatchPattern pv = x.getPattern().accept(makePatternEvaluator());
-		//System.err.println("visitRule: " + pv.getType(this));
+//		System.err.println("visitRule: " + pv.getType(scopeStack.peek()));
 		heap.storeRule(pv.getType(scopeStack.peek()), x);
 		return result();
 	}
@@ -2648,18 +2653,33 @@ public class Evaluator extends NullASTVisitor<Result> {
 			while(mp.hasNext()){
 				if(mp.next()){
 					try {
-						//System.err.println(stack);
+						peek().checkPoint();
+						//System.err.println(stat.toString());
 						stat.accept(this);
 						return true;
 					} catch (FailureControlException e){
 						//System.err.println("failure occurred");
+						peek().rollback();
 					}
 				}
 			}
 		} finally {
+			peek().commit();
 			pop();
 		}
 		return false;
+	}
+	
+	private void checkPoint() {
+		peek().checkPoint();
+	}
+	
+	private void rollback() {
+		peek().rollback();
+	}
+	
+	private void commit() {
+		peek().commit();
 	}
 	
 	private boolean matchEvalAndReplace(IValue subject, 
@@ -3744,6 +3764,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 					firstTime = false;
 					Result v = expr.accept(evaluator);
 					if(v.getType().isBoolType()){
+						// FIXME: if result is of type void, you get a null pointer here.
 						return result(tf.boolType(), vf.bool(v.getValue().isEqual(vf.bool(true))));
 					} else {
 						throw new TypeError("Expression as generator should have type bool", expr);
