@@ -23,17 +23,43 @@ public class Environment {
 	protected final Map<String, List<Lambda>> functionEnvironment;
 	protected final Map<Type, Type> typeParameters;
 	protected final Environment parent;
+	protected Cache cache;
 
 	public Environment(Environment parent) {
+		this(parent, parent.getCache());
+	}
+	
+	protected Environment(Environment parent, Cache cache) {
 		this.variableEnvironment = new HashMap<String, Result>();
 		this.functionEnvironment = new HashMap<String, List<Lambda>>();
 		this.typeParameters = new HashMap<Type, Type>();
 		this.parent = parent;
-		
+		this.cache = cache;
 		if (parent == this) {
 			throw new ImplementationError("internal error: cyclic environment");
 		}
 	}
+
+	/*
+	 * Recovery interface
+	 */
+	
+	private Cache getCache() {
+		return cache;
+	}
+	
+	public void checkPoint() {
+		cache.enable();
+	}
+	
+	public void commit() {
+		cache.disable();
+	}
+	
+	public void rollback() {
+		cache.restore();
+	}
+
 	
 	public boolean isRoot() {
 		assert this instanceof ModuleEnvironment: "roots should be instance of ModuleEnvironment";
@@ -96,16 +122,25 @@ public class Environment {
 		return isRoot() ? null : parent.getVariableDefiningEnvironment(name);
 	}
 	
+	
+	
 	public void storeVariable(String name, Result value) {
 		Map<String,Result> env = getVariableDefiningEnvironment(name);
-		
 		if (env == null) {
-		   variableEnvironment.put(name, value);
+			updateVariableCache(name, variableEnvironment, null);
+			variableEnvironment.put(name, value);
 		}
 		else {
 			Result old = env.get(name);
+			updateVariableCache(name, env, old);
 			value.setPublic(old.isPublic());
 			env.put(name, value);
+		}
+	}
+
+	private void updateVariableCache(String name, Map<String, Result> env, Result old) {
+		if (!cache.containsVariable(env, name)) {
+			cache.save(env, name, old);
 		}
 	}
 	
@@ -114,6 +149,7 @@ public class Environment {
 	}
 	
 	public void storeFunction(String name, Lambda function) {
+		// TODO: cache semantics
 		List<Lambda> list = functionEnvironment.get(name);
 		if (list == null) {
 			list = new ArrayList<Lambda>();
@@ -195,4 +231,5 @@ public class Environment {
 	public Type getTypeAlias(String name) {
 		return getRoot().getTypeAlias(name);
 	}
+
 }
