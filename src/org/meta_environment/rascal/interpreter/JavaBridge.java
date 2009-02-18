@@ -2,6 +2,7 @@ package org.meta_environment.rascal.interpreter;
 
 import java.io.Writer;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -36,10 +37,15 @@ import org.meta_environment.rascal.ast.Tag;
 import org.meta_environment.rascal.ast.Tags;
 import org.meta_environment.rascal.ast.Type;
 import org.meta_environment.rascal.interpreter.errors.ImplementationError;
+import org.meta_environment.rascal.interpreter.errors.JavaMethodNotFoundException;
+import org.meta_environment.rascal.interpreter.errors.NonStaticJavaMethodError;
+import org.meta_environment.rascal.interpreter.errors.TagMissingError;
 import org.meta_environment.rascal.interpreter.errors.TypeError;
 
 public class JavaBridge {
 	private static final String JAVA_IMPORTS_TAG = "javaImports";
+	private static final String JAVA_CLASS_TAG = "javaClass";
+	
 	private static final String UNWANTED_MESSAGE_PREFIX = "org/meta_environment/rascal/java/";
 	private static final String UNWANTED_MESSAGE_POSTFIX = "\\.java:";
 	private static final String METHOD_NAME = "call";
@@ -49,6 +55,7 @@ public class JavaBridge {
 	private final static TypeEvaluator TE = TypeEvaluator.getInstance();
 	private final static JavaTypes javaTypes = new JavaTypes();
 	private final static JavaClasses javaClasses = new JavaClasses();
+	
 
 	public JavaBridge(Writer outputWriter) {
 		this.out = outputWriter;
@@ -160,6 +167,26 @@ public class JavaBridge {
 		
 		return "";
 	}
+	
+	private String getClassName(FunctionDeclaration declaration) {
+		Tags tags = declaration.getTags();
+		
+		if (tags.hasAnnotations()) {
+			for (Tag tag : tags.getAnnotations()) {
+				if (tag.getName().toString().equals(JAVA_CLASS_TAG)) {
+					String contents = tag.getContents().toString();
+					
+					if (contents.length() > 2 && contents.startsWith("{")) {
+						contents = contents.substring(1, contents.length() - 1);
+					}
+					return contents;
+				}
+			}
+		}
+		
+		return "";
+	}
+	
 
 	private String getJavaFormals(Parameters parameters) {
 		StringBuffer buf = new StringBuffer();
@@ -370,6 +397,48 @@ public class JavaBridge {
 
 		public Class<?> visitParameter(org.eclipse.imp.pdb.facts.type.Type parameterType) {
 			return parameterType.getBound().accept(this);
+		}
+	}
+
+	public Method lookupJavaMethod(FunctionDeclaration func) {
+		if (!func.isAbstract()) {
+			// TODO a better error class for this
+			throw new ImplementationError("lookup on non-abstract function", func);
+		}
+		
+		String className = getClassName(func);
+		
+		if (className.length() == 0) {
+			throw new TagMissingError(func);
+		}
+		
+		try {
+			Class<?> clazz = getClass().getClassLoader().loadClass(className);
+			Parameters parameters = func.getSignature().getParameters();
+			Class<?>[] javaTypes = getJavaTypes(parameters);
+			
+			try {
+				Method m;
+				
+				if (javaTypes.length > 0) { // non-void
+					m = clazz.getDeclaredMethod(func.getSignature().getName().toString(), javaTypes);
+				}
+				else {
+					m = clazz.getDeclaredMethod(METHOD_NAME);
+				}
+				
+				if ((m.getModifiers() & Modifier.STATIC) == 0) {
+					throw new NonStaticJavaMethodError(func);
+				}
+				
+				return m;
+			} catch (SecurityException e) {
+				throw new ImplementationError("Error during retrieval of java function: " + func, e.getCause());
+			} catch (NoSuchMethodException e) {
+				throw new JavaMethodNotFoundException(func);
+			}
+		} catch (ClassNotFoundException e) {
+			throw new JavaMethodNotFoundException(func);
 		}
 	}
 }
