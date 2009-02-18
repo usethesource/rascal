@@ -12,7 +12,7 @@ import org.meta_environment.rascal.interpreter.errors.TypeError;
 public class DataTypeTests extends TestFramework {
 	
 	@Test
-	public void testBool()
+	public void bool()
 	{
 		
 		assertTrue(runTest("true == true;"));
@@ -65,18 +65,18 @@ public class DataTypeTests extends TestFramework {
 	
 
 	@Test(expected=TypeError.class)
-	public void testAnd1() {
+	public void andError() {
 		runTest("3 && true;");
 	}
 	
 	@Test(expected=TypeError.class)
-	public void testImp1() {
+	public void impError() {
 		runTest("3 ==> true;");
 	}
 	
 
 	@Test(expected=TypeError.class)
-	public void testCondExp1() {
+	public void condExpError() {
 		runTest("1 ? 2 : 3;");
 	}
 	
@@ -149,39 +149,39 @@ public class DataTypeTests extends TestFramework {
 	
 
 	@Test(expected=TypeError.class)
-	public void testAdd1() {
+	public void addError() {
 		runTest("3 + true;");
 	}
 	
 
 	@Test(expected=TypeError.class)
-	public void testSub1() {
+	public void subError() {
 		runTest("3 - true;");
 	}
 	
 	@Test(expected=TypeError.class)
-	public void testUMinus1() {
+	public void uMinusError() {
 		runTest("- true;");
 	}
 	
 	@Test(expected=TypeError.class)
-	public void testTimes1() {
+	public void timesError() {
 		runTest("3 * true;");
 	}
 	
 	@Test(expected=TypeError.class)
-	public void testDiv1() {
+	public void divError() {
 		runTest("3 / true;");
 	}
 	
 	@Test(expected=TypeError.class)
-	public void testMod1() {
+	public void modError() {
 		runTest("3 % true;");
 	}
 	
 	
 	@Test
-	public void testReal()
+	public void real()
 	{		
 		assertTrue(runTest("1.0 == 1.0;"));
 		assertTrue(runTest("1.0 != 2.0;"));
@@ -327,7 +327,7 @@ public class DataTypeTests extends TestFramework {
 	
 
 	@Test(expected=TypeError.class)
-	public void testOr1() {
+	public void orError() {
 		runTest("3 || true;");
 	}
 	
@@ -401,7 +401,7 @@ public class DataTypeTests extends TestFramework {
 	}
 
 	@Test(expected=IndexOutOfBoundsError.class)
-	public void testListError1() {
+	public void SubscriptError1() {
 		runTest("[1,2][5];");
 	}
 	
@@ -501,7 +501,7 @@ public class DataTypeTests extends TestFramework {
 	
 
 	@Test(expected=TypeError.class)
-	public void testIn1() {
+	public void inError() {
 		runTest("1 in 3;");
 	}
 	
@@ -607,7 +607,7 @@ public class DataTypeTests extends TestFramework {
 	}
 	
 	@Test
-	public void testNamedTuple()  {
+	public void namedTuple()  {
 		
 		assertTrue(runTest("{tuple[int key, str val] T = <1, \"abc\">; T.key == 1;}"));
 		assertTrue(runTest("{tuple[int key, str val] T = <1, \"abc\">; T.val == \"abc\";}"));
@@ -616,7 +616,7 @@ public class DataTypeTests extends TestFramework {
 	}
 	
 	@Ignore @Test(expected=NoSuchFieldError.class)
-	public void testTupleNoField(){
+	public void tupleError1(){
 		runTest("{tuple[int key, str val] T = <1, \"abc\">; T.zip == \"abc\";}");
 	}
 	
@@ -679,41 +679,41 @@ public class DataTypeTests extends TestFramework {
 
 	
 	@Test(expected=TypeError.class)
-	public void testComp1() {
+	public void compError() {
 		runTest("1 o 3;");
 	}
 
 	
 	@Test(expected=TypeError.class)
-	public void testClos1() {
+	public void closError1() {
 		runTest("1*;");
 	}
 	
 	@Test(expected=TypeError.class)
-	public void testClos2() {
+	public void closError2() {
 		runTest("1+;");
 	}
 	
 	@Test
-	public void testNamedRelation1() {
+	public void namedRelation1() {
 		
 		assertTrue(runTest("{rel[int from, int to] R = {<1,10>, <2,20>}; R.from == {1,2};}"));
 		assertTrue(runTest("{rel[int from, int to] R = {<1,10>, <2,20>}; R.to == {10,20};}"));
 	}
 	@Test(expected=NoSuchFieldError.class)
-	public void testNamedRelation2(){
+	public void namedRelationError(){
 		runTest("{rel[int from, int to] R = {<1,10>, <2,20>}; R.zip == {10,20};}");
 	}
 	
 	@Test
-	public void testGood()  {
+	public void good()  {
 		prepare("data NODE = val(value V) | f | f(NODE a);");
 		
 		assertTrue(runTestInSameEvaluator("f(val(1)) == f(val(1));"));
 	}
 	
 	@Test
-	public void testNode()  {
+	public void node()  {
 		prepare("data NODE = i(int I) | s(str x)  | st(set[NODE] s) | l(list[NODE]) | m(map[NODE,NODE] m) | f | f(NODE a) | f(NODE a, NODE b) | g | g(NODE a) | g(NODE a,NODE b);");
 		
 		assertTrue(runTestInSameEvaluator("f() == f();"));
@@ -777,7 +777,7 @@ public class DataTypeTests extends TestFramework {
 	}
 	
 	@Test
-	public void testUndefined()  {
+	public void undefined()  {
 		
 		assertTrue(runTest("1 =? 13 == 1;"));
 		assertTrue(runTest("x =? 13 == 13;"));

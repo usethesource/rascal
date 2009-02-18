@@ -6,7 +6,7 @@ import org.meta_environment.rascal.interpreter.errors.TypeError;
 
 public class ComprehensionTests extends TestFramework {
 	
-	@Test public void testSetComprehension1() {
+	@Test public void setComprehension1() {
 		
 		assertTrue(runTest("{ X | int X : {} } == {};"));
 		assertTrue(runTest("{ X | int X : [] } == {};"));
@@ -42,7 +42,7 @@ public class ComprehensionTests extends TestFramework {
 		assertTrue(runTest("{  X | int X : [1,2,3], X >= 2, X < 3} == {2};"));
 	}
 	
-	@Test public void testSetComprehension2() {	
+	@Test public void setComprehension2() {	
 		
 		assertTrue(runTest("{  {} | int X : {1,2,3}} == {{}};"));
 		assertTrue(runTest("{  {} | int X : [1,2,3]} == {{}};"));
@@ -94,7 +94,7 @@ public class ComprehensionTests extends TestFramework {
 	}
 	
 	
-	@Test public void testAny()  {
+	@Test public void any()  {
 		
 		assertTrue(runTest("any(int X : {1,2,3}, X > 2);"));
 		assertTrue(runTest("any(int X : {1,2,3}, X > 2, X <10);"));
@@ -120,7 +120,7 @@ public class ComprehensionTests extends TestFramework {
 		runTest("any(x : [1,2,3], \"abc\");");
 	}
 	
-	@Test public void testAll() {
+	@Test public void all() {
 		
 		assertTrue(runTest("all(int X : {1,2,3}, X >= 1);"));
 		assertTrue(runTest("all(int X : {1,2,3}, X >= 1, X < 10);"));
@@ -149,7 +149,7 @@ public class ComprehensionTests extends TestFramework {
 		runTest("all(x : [1,2,3], \"abc\");");
 	}
 	
-	@Test public void testSetComprehension3() {	
+	@Test public void setComprehension3() {	
 		
 		assertTrue(runTest("{X + 1 | int X : {1,2,3}} == {2,3,4};"));
 		assertTrue(runTest("{X + 1 | int X : [1,2,3]} == {2,3,4};"));
@@ -167,7 +167,7 @@ public class ComprehensionTests extends TestFramework {
 		assertTrue(runTest("{X * 2 | int X : [1,2,3]} == {2,4,6};"));
 	}
 	
-	@Test public void testListComprehension1()  {
+	@Test public void listComprehension1()  {
 		
 		assertTrue(runTest("[ X | int X : {} ] == [];"));
 		assertTrue(runTest("[ X | int X : [] ] == [];"));
@@ -205,7 +205,7 @@ public class ComprehensionTests extends TestFramework {
 		assertTrue(runTest("[  X | int X : [1,2,3], X >= 2, X < 3] == [2];"));
 	}
 	
-	@Test public void testListComprehension2() {
+	@Test public void listComprehension2() {
 		
 		assertTrue(runTest("[  [] | int X : {1,2,3}] == [[], [], []];"));
 		assertTrue(runTest("[  [] | int X : [1,2,3]] == [[], [], []];"));
@@ -229,7 +229,7 @@ public class ComprehensionTests extends TestFramework {
 		assertTrue(runTest("[ <1,2,3> | int X : [1,2,3], false]	== [] ;"));
 	}
 	
-	@Test public void testListComprehension3()  {
+	@Test public void listComprehension3()  {
 		
 		assertTrue(runTest("[ Y | list[int] Y : [[1,2,3],[10,20,30],[100,200,300]] ] == [ [1,2,3], [10,20,30],[100,200,300]];"));
 		assertTrue(runTest("[1 | 3 > 2] == [1] ;"));
@@ -252,7 +252,7 @@ public class ComprehensionTests extends TestFramework {
 
 	}
 	
-	@Test public void testRelationComprehension() {
+	@Test public void relationComprehension() {
 		
 		assertTrue(runTest("{<X,Y> | <int X, int Y> : {}} == {} ;"));
 		assertTrue(runTest("{<X,Y> | <int X, int Y> : []} == {} ;"));
@@ -287,7 +287,7 @@ public class ComprehensionTests extends TestFramework {
 		
 		}
 	
-	@Test public void testMapComprehension()  {
+	@Test public void mapComprehension()  {
 		
 		assertTrue(runTest("( X => 2 * X | int X : {} ) == ();"));
 		assertTrue(runTest("( X => 2 * X | int X : [] ) == ();"));
@@ -301,7 +301,7 @@ public class ComprehensionTests extends TestFramework {
 		assertTrue(runTest("( X=> 2 * X| int X: [1,2,3] ) == (1=>2,2=>4,3=>6);"));
 	}
 	
-	@Test public void testNodeGenerator()  {
+	@Test public void nodeGenerator()  {
 		prepare("data TREE = i(int N) | f(TREE a,TREE b) | g(TREE a, TREE b);");
 		
 		assertTrue(runTestInSameEvaluator("[ X | int X : f(i(1),g(i(2),i(3))) ] == [1,2,3];"));
@@ -334,7 +334,7 @@ public class ComprehensionTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("[N | top-down int N : f(i(1),g(i(2),i(3)))] == [1,2,3];"));
 	}
 	
-	@Test public void xxtestRegularGenerators() {
+	@Test public void regularGenerators() {
 		
 		assertTrue(runTest("[S | /@<S:[a-z]+>@/ : [\"@abc@\", \"@def@\"]] == [\"abc\",\"def\"];"));
 		assertTrue(runTest("{S | /@<S:[a-z]+>@/ : [\"@abc@\", \"@def@\"]} == {\"abc\", \"def\"};"));

@@ -8,39 +8,39 @@ import static org.junit.Assert.*;
 public class NodeTests extends TestFramework {
 
 	@Test
-	public void testNodeArity() {
+	public void arity() {
 
 		prepare("import Node;").prepareMore(
-				"data NODE = f | f(int) | f(int,int) | f(int,int,int);");
+				"data XNODE = xf | xf(int) | xf(int,int) | xf(int,int,int);");
 
-		assertTrue(runTestInSameEvaluator("arity(f()) == 0;"));
-		assertTrue(runTestInSameEvaluator("arity(f(1)) == 1;"));
-		assertTrue(runTestInSameEvaluator("arity(f(1,2)) == 2;"));
+		assertTrue(runTestInSameEvaluator("arity(xf()) == 0;"));
+		assertTrue(runTestInSameEvaluator("arity(xf(1)) == 1;"));
+		assertTrue(runTestInSameEvaluator("arity(xf(1,2)) == 2;"));
 	}
 
 	@Test
-	public void testNodeGetChildren() {
+	public void getChildren() {
 
 		prepare("import Node;").prepareMore(
-				"data NODE = f | f(int) | f(int,int) | f(int,int,int);");
+				"data YNODE = yf | yf(int) | yf(int,int) | yf(int,int,int);");
 
-		assertTrue(runTestInSameEvaluator("getChildren(f()) == [];"));
-		assertTrue(runTestInSameEvaluator("getChildren(f(1)) == [1];"));
-		assertTrue(runTestInSameEvaluator("getChildren(f(1,2)) == [1,2];"));
+		assertTrue(runTestInSameEvaluator("getChildren(yf()) == [];"));
+		assertTrue(runTestInSameEvaluator("getChildren(yf(1)) == [1];"));
+		assertTrue(runTestInSameEvaluator("getChildren(yf(1,2)) == [1,2];"));
 	}
 
 	@Test
-	public void testNodeGetName() {
+	public void getName() {
 
 		prepare("import Node;").prepareMore(
-				"data NODE = f | f(int) | f(int,int) | f(int,int,int);");
+				"data ZNODE = zf | zf(int) | zf(int,int) | zf(int,int,int);");
 
-		assertTrue(runTestInSameEvaluator("getName(f()) == \"f\";"));
-		assertTrue(runTestInSameEvaluator("getName(f(1,2,3)) == \"f\";"));
+		assertTrue(runTestInSameEvaluator("getName(zf()) == \"f\";"));
+		assertTrue(runTestInSameEvaluator("getName(zf(1,2,3)) == \"f\";"));
 	}
 
 	@Test
-	public void testNodeMakeNode() {
+	public void makeNode() {
 		prepare("import Node;");
 
 		assertTrue(runTestInSameEvaluator("{node n = makeNode(\"f\"); getName(n) == \"f\" && arity(n) == 0 && getChildren(n) == []; }"));

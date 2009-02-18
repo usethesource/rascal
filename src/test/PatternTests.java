@@ -10,7 +10,7 @@ import org.meta_environment.rascal.interpreter.errors.UninitializedVariableError
 public class PatternTests extends TestFramework {
 
 	@Test
-	public void testMatchList1() {
+	public void matchList1() {
 		
 		assertFalse(runTest("[1] := \"a\";"));
 
@@ -69,7 +69,7 @@ public class PatternTests extends TestFramework {
 	}
 	
 	@Test
-	public void testMatchList2()  {
+	public void matchList2()  {
 		prepare("import ListMatchingTests;");
 
 		assertTrue(runTestInSameEvaluator("hasOrderedElement([]) == false;"));
@@ -143,7 +143,7 @@ public class PatternTests extends TestFramework {
 	}
 
 	@Test
-	public void testMatchList3()  {
+	public void matchList3()  {
 
 		prepare("data DATA = a | b | c | d | e(int N) | f(list[DATA] S);");
 
@@ -169,37 +169,37 @@ public class PatternTests extends TestFramework {
 	}
 	
 	@Test(expected=TypeError.class)
-	public void testMatchListError1() {
+	public void matchListError1() {
 		runTest("[1, list[int] L, 2, list[int] L] := [1,2,3];");
 	}
 	
 	@Test(expected=TypeError.class)
-	public void testMatchListError2() {
+	public void matchListError2() {
 		runTest("[1, list[str] L, 2] := [1,2,3];");
 	}
 	
 	@Test(expected=TypeError.class)
-	public void testMatchListError3() {
+	public void matchListError3() {
 		runTest("[1, str S, 2] := [1,2,3];");
 	}
 	
 	@Test(expected=TypeError.class)
-	public void testMatchListError4() {
+	public void matchListError4() {
 		runTest("{str S = \"a\"; [1, S, 2] := [1,2,3];}");
 	}
 	
 	@Test(expected=TypeError.class)
-	public void testMatchListError5() {
+	public void matchListError5() {
 		runTest("{list[str] S = [\"a\"]; [1, S, 2] := [1,2,3];}");
 	}
 	
 	@Test(expected=UninitializedVariableError.class)
-	public void testMatchListError6() {
+	public void matchListError6() {
 		runTest("{list[int] S; [1, S, 2] := [1,2,3];}");
 	}
 
 	@Test
-	public void testMatchListSet() {
+	public void matchListSet() {
 
 		prepare("data DATA = a | b | c | d | e(int N) | f(list[DATA] S) | f(set[DATA] S);");
 
@@ -224,7 +224,7 @@ public class PatternTests extends TestFramework {
 	}
 
 	@Test
-	public void testMatchLiteral() {
+	public void matchLiteral() {
 
 		assertTrue(runTest("true     := true;"));
 		assertFalse(runTest("true    := false;"));
@@ -268,7 +268,7 @@ public class PatternTests extends TestFramework {
 	}
 
 	@Test
-	public void testMatchNode() {
+	public void matchNode() {
 
 		prepare("data F = f(int N) | f(int N, int M) | f(int N, value f, bool B) | g(str S);");
 		
@@ -288,7 +288,7 @@ public class PatternTests extends TestFramework {
 	}
 
 	@Test
-	public void testMatchSet1() {
+	public void matchSet1() {
 		
 		assertFalse(runTest("{1} := \"a\";"));
 
@@ -341,7 +341,7 @@ public class PatternTests extends TestFramework {
 	}	
 
 	@Test
-	public void testMatchSet2() {
+	public void matchSet2() {
 
 		prepare("data DATA = a | b | c | d | e(int N) | f(set[DATA] S);");
 
@@ -370,37 +370,37 @@ public class PatternTests extends TestFramework {
 	}	
 	
 	@Test(expected=TypeError.class)
-	public void testMatchSetDoubleDecl() {
+	public void matchSetDoubleDeclError() {
 		runTest("{1, set[int] L, 2, set[int] L} := {1,2,3};");
 	}
 	
 	@Test(expected=TypeError.class)
-	public void testMatchSetWrongElem1() {
+	public void matchSetWrongElemError() {
 		runTest("{1, \"a\", 2, set[int] L} := {1,2,3};");
 	}	
 	
 	@Test(expected=TypeError.class)
-	public void testMatchSetWrongElem2() {
+	public void matchSetWrongElemError2() {
 		runTest("{1, set[str] L, 2} := {1,2,3};");
 	}
 	
 	@Test(expected=TypeError.class)
-	public void testMatchSetWrongElem3() {
+	public void matchSetWrongElemError3() {
 		runTest("{1, str S, 2} := {1,2,3};");
 	}
 	
 	@Test(expected=TypeError.class)
-	public void testMatchSetWrongElem4() {
+	public void matchSetWrongElemError4() {
 		runTest("{set[str] S = {\"a\"}; {1, S, 2} := {1,2,3};}");
 	}
 	
 	@Test(expected=UninitializedVariableError.class)
-	public void testMatchSetWrongElem5() {
+	public void matchSetWrongElemError5() {
 		runTest("{set[int] S; {1, S, 2} := {1,2,3};}");
 	}
 
 	@Test
-	public void testMatchTuple() {
+	public void matchTuple() {
 
 		assertFalse(runTest("<1>           := \"a\";"));
 		assertTrue(runTest("<1>           := <1>;"));
@@ -414,7 +414,7 @@ public class PatternTests extends TestFramework {
 	}
 
 	@Test
-	public void testMatchVariable() {
+	public void matchVariable() {
 
 		prepare("data F = f(int N);");
 

@@ -7,7 +7,7 @@ import org.meta_environment.rascal.interpreter.errors.NoSuchFieldError;
 public class DataDeclarationTests extends TestFramework {
 
 	@Test
-	public void testBool1() {
+	public void bool() {
 
 		prepare("data Bool = btrue | bfalse | band(Bool left, Bool right) | bor(Bool left, Bool right);");
 
@@ -24,13 +24,13 @@ public class DataDeclarationTests extends TestFramework {
 	}
 
 	@Test(expected=NoSuchFieldError.class)
-	public void testBool2() throws NoSuchFieldError {
+	public void boolError() throws NoSuchFieldError {
 		prepare("data Bool = btrue | bfalse | band(Bool left, Bool right) | bor(Bool left, Bool right);");
 		assertTrue(runTestInSameEvaluator("{Bool b = btrue; b.left == btrue;}"));
 	}
 
 	@Test
-	public void testLet1() {
+	public void let1() {
 		prepare("data Exp = let(str name, Exp exp1, Exp exp2) | var(str name) | \\int(int intVal);");
 		
 		assertTrue(runTestInSameEvaluator("{Exp e = \\int(1); e == \\int(1);}"));
@@ -39,7 +39,7 @@ public class DataDeclarationTests extends TestFramework {
 	}
 
 	@Test
-	public void testLet2() {
+	public void let2() {
 		prepare("alias Var2 = str;");
 		prepareMore("data Exp2 = let(Var2 var, Exp2 exp1, Exp2 exp2) | var(Var2 var) | \\int(int intVal);");
 

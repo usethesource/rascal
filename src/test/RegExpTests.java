@@ -6,7 +6,7 @@ import static org.junit.Assert.*;
 public class RegExpTests extends TestFramework{
 
 	@Test
-	public void testMatch() {
+	public void match() {
 		assertTrue(runTest("/abc/ := \"abc\";"));
 		assertFalse(runTest("/def/ := \"abc\";"));
 		assertTrue(runTest("/def/ !:= \"abc\";"));
@@ -23,7 +23,7 @@ public class RegExpTests extends TestFramework{
 
 	}
 	
-	public void testModifiers() {
+	public void modifiers() {
 		assertTrue(runTest("/abc/i := \"ABC\";"));
 		assertTrue(runTest("/abc/i := \"ABC\";"));
 		
