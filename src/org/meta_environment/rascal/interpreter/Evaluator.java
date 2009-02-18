@@ -924,7 +924,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			sep = ", ";
 			sb.append(actualTypes.getFieldType(i).toString());
 		}
-		throw new NoSuchFunctionError("Undefined function/constructor `" + name + "(" +  sb.toString() + ")`", name);
+		throw new NoSuchFunctionError(name + "(" +  sb.toString() + ")", name);
 	}
 
 	private boolean isTreeConstructorName(QualifiedName name, Type signature) {

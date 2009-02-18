@@ -1,9 +1,7 @@
 module Test2
 
-public int test(int z){
-	return "a";
-}
+import Benchmark;
 
-public int test(value q){
-	return "a";
+public void measure(){
+	R = currentTimeMillis();
 }
