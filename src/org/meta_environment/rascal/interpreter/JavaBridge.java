@@ -133,6 +133,7 @@ public class JavaBridge {
 				addLine("  }").
 				addLine("}");
 
+	  
 		System.err.println("Classpath for compilation: " + System.getProperty("java.class.path"));
 		compilation.doCompile(out);
 		
