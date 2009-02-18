@@ -13,9 +13,10 @@ import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
+import org.meta_environment.rascal.ValueFactoryFactory;
 import org.meta_environment.rascal.interpreter.errors.ImplementationError;
 import org.meta_environment.uptr.visitors.IdentityTreeVisitor;
 
@@ -103,7 +104,7 @@ public class TreeAdapter {
 					+ tree);
 		}
 		IList children = getArgs();
-		IListWriter writer = Factory.Args.writer(ValueFactory.getInstance());
+		IListWriter writer = Factory.Args.writer(ValueFactoryFactory.getValueFactory());
 		
 		for (int i = 0; i < children.length(); i++) {
 			IValue kid = children.get(i);
@@ -133,7 +134,7 @@ public class TreeAdapter {
 		}
 
 		IList children = getArgs();
-		IListWriter writer = Factory.Args.writer(ValueFactory.getInstance());
+		IListWriter writer = Factory.Args.writer(ValueFactoryFactory.getValueFactory());
 
 		for (int i = 0; i < children.length(); i++) {
 			IValue kid = children.get(i);
@@ -230,7 +231,7 @@ public class TreeAdapter {
 		
 		if (tree.isAppl()) {
 			IList args = tree.getArgs();
-			IListWriter newArgs = ValueFactory.getInstance().listWriter(Factory.Tree);
+			IListWriter newArgs = ValueFactoryFactory.getValueFactory().listWriter(Factory.Tree);
 			
 			for (IValue arg : args) {
 				newArgs.append(addPosInfo((IConstructor) arg, filename, cur));
@@ -242,7 +243,7 @@ public class TreeAdapter {
 			Position tmpCur = null; // there is always at least 2 alternatives
 			
 			ISet alts = tree.getAlternatives();
-			ISetWriter newAlts = ValueFactory.getInstance().setWriter(Factory.Tree);
+			ISetWriter newAlts = ValueFactoryFactory.getValueFactory().setWriter(Factory.Tree);
 			
 			for (IValue arg : alts) {
 				tmpCur = start.clone();
@@ -256,7 +257,7 @@ public class TreeAdapter {
 		}
 		
 		if (!tree.isLayout() && !tree.isLexical()) {
-			ValueFactory factory = ValueFactory.getInstance();
+			IValueFactory factory = ValueFactoryFactory.getValueFactory();
 			ISourceRange range = factory.sourceRange(start.offset, cur.offset - start.offset, start.line, cur.line, start.col, cur.col);
 			ISourceLocation loc = factory.sourceLocation(filename, range);
 			return t.setAnnotation(Factory.Location, loc);

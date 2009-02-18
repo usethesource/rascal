@@ -8,9 +8,10 @@ import java.io.InputStream;
 import java.net.URL;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.io.ATermReader;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
+import org.meta_environment.rascal.ValueFactoryFactory;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.ParsetreeAdapter;
 
@@ -22,6 +23,8 @@ import sglr.SGLRInvoker;
 public class Parser{
 	public final static String PARSETABLE_PROPERTY = "rascal.parsetable.file";
 	public final static String PARSETABLE_FILENAME = "resources/rascal.trm.tbl";
+	
+	private final static IValueFactory valueFactory = ValueFactoryFactory.getValueFactory();
 	
 	private final String parseTableFileName;
 	
@@ -66,7 +69,7 @@ public class Parser{
 		
 		ATermReader reader = new ATermReader();
 		ByteArrayInputStream bais = new ByteArrayInputStream(result);
-		IConstructor tree = (IConstructor) reader.read(ValueFactory.getInstance(), Factory.ParseTree, bais);
+		IConstructor tree = (IConstructor) reader.read(valueFactory, Factory.ParseTree, bais);
 		return new ParsetreeAdapter(tree).addPositionInformation("-");
 	}
 
@@ -76,7 +79,7 @@ public class Parser{
 		
 		ATermReader reader = new ATermReader();
 		ByteArrayInputStream bais = new ByteArrayInputStream(result);
-		IConstructor tree = (IConstructor) reader.read(ValueFactory.getInstance(), Factory.ParseTree, bais);
+		IConstructor tree = (IConstructor) reader.read(valueFactory, Factory.ParseTree, bais);
 		return new ParsetreeAdapter(tree).addPositionInformation("-");
 	}
 	
@@ -86,7 +89,7 @@ public class Parser{
 
 		ATermReader reader = new ATermReader();
 		ByteArrayInputStream bais = new ByteArrayInputStream(result);
-		IConstructor tree = (IConstructor) reader.read(ValueFactory.getInstance(), Factory.ParseTree, bais);
+		IConstructor tree = (IConstructor) reader.read(valueFactory, Factory.ParseTree, bais);
 		return new ParsetreeAdapter(tree).addPositionInformation(inputFile.getAbsolutePath());
 	}
 	

@@ -19,15 +19,15 @@ import junit.framework.TestCase;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.io.ATermReader;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.meta_environment.rascal.ValueFactoryFactory;
 
 public class IOTests extends TestCase {
 	private static TypeFactory tf = TypeFactory.getInstance();
-	private static IValueFactory vf = ValueFactory.getInstance();
+	private static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 	private static Type Boolean = tf.abstractDataType("Boolean");
 	
 	private static Type Name = tf.abstractDataType("Name");

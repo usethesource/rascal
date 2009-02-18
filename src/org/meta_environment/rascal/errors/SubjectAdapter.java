@@ -5,7 +5,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
+import org.meta_environment.rascal.ValueFactoryFactory;
 
 public class SubjectAdapter {
 	private IConstructor subject;
@@ -20,7 +20,7 @@ public class SubjectAdapter {
 
 	public ISourceLocation getLocation() {
 		if (isLocalized()) {
-			return org.meta_environment.rascal.locations.Factory.getInstance().toSourceLocation(ValueFactory.getInstance(), (IConstructor) subject.get("location"));
+			return org.meta_environment.rascal.locations.Factory.getInstance().toSourceLocation(ValueFactoryFactory.getValueFactory(), (IConstructor) subject.get("location"));
 		}
 		return null;
 	}

@@ -5,7 +5,7 @@ import java.io.PrintWriter;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
+import org.meta_environment.rascal.ValueFactoryFactory;
 import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.Command;
 import org.meta_environment.rascal.ast.Module;
@@ -17,8 +17,6 @@ import org.meta_environment.rascal.interpreter.errors.RunTimeError;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
 import org.meta_environment.uptr.Factory;
-
-import com.sun.corba.se.spi.legacy.connection.GetEndPointInfoAgainException;
 
 public class TestFramework  {
 	private Parser parser = Parser.getInstance();
@@ -34,7 +32,7 @@ public class TestFramework  {
 	private Evaluator getTestEvaluator() {
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule("***test***");
-		return new Evaluator(ValueFactory.getInstance(), factory,
+		return new Evaluator(ValueFactoryFactory.getValueFactory(), factory,
 				new PrintWriter(System.err), root, heap);
 	}
 	
@@ -129,7 +127,7 @@ public class TestFramework  {
 				IValue value = evaluator.eval(cmd.getStatement());
 				if (value == null || !value.getType().isBoolType())
 					return false;
-				return value.isEqual(ValueFactory.getInstance().bool(true)) ? true
+				return value.isEqual(ValueFactoryFactory.getValueFactory().bool(true)) ? true
 						: false;
 			} else if (cmd.isImport()) {
 				evaluator.eval(cmd.getImported());

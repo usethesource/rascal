@@ -5,8 +5,8 @@ import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
+import org.meta_environment.rascal.ValueFactoryFactory;
 
 public class ProductionAdapter {
 	private IConstructor tree;
@@ -66,7 +66,7 @@ public class ProductionAdapter {
 			return (IList) attributes.get("attrs");
 		}
 		else {
-			return (IList) Factory.Attrs.make(ValueFactory.getInstance());
+			return (IList) Factory.Attrs.make(ValueFactoryFactory.getValueFactory());
 		}
 	}
 

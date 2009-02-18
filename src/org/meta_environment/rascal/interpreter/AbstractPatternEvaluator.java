@@ -10,9 +10,9 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.meta_environment.rascal.ValueFactoryFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.NullASTVisitor;
@@ -696,13 +696,13 @@ class SubSetGenerator implements Iterator<ISet> {
 	private Iterator<IValue> elementGen;
 	private SubSetGenerator subsetGen;
 	private IValue currentElement;
-	private ValueFactory vf;
+	private IValueFactory vf;
 	private boolean hasNext;
 
 	SubSetGenerator(ISet elements){
 		this.remainingElements = elements;
 		elementGen = elements.iterator();
-		this.vf = ValueFactory.getInstance();
+		this.vf = ValueFactoryFactory.getValueFactory();
 		this.hasNext = true;
 	}
 	
@@ -745,7 +745,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 	}
 
 	public ISet next() {
-		return ValueFactory.getInstance().set(elementIter.next());
+		return ValueFactoryFactory.getValueFactory().set(elementIter.next());
 	}
 
 	public void remove() {

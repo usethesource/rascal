@@ -5,12 +5,11 @@ import java.util.Iterator;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.impl.reference.List;
-import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
+import org.meta_environment.rascal.ValueFactoryFactory;
 import org.meta_environment.rascal.interpreter.errors.ImplementationError;
 import org.meta_environment.rascal.interpreter.errors.IndexOutOfBoundsError;
 
@@ -21,15 +20,6 @@ public class SubList implements IList {
 	private final int len;
 	private final int end;
 	private final IList base;
-	
-	public SubList(List L, int start, int len){
-		super();
-		
-		fType = L.getType();
-		
-		this.start = this.end = this.len = 0;
-		this.base = null;
-	}
 
 	public SubList(IValue V, int start, int len){
 		super();
@@ -61,8 +51,8 @@ public class SubList implements IList {
 	}
 
 	public boolean equals(Object o){
-		if(o instanceof List || o instanceof SubList){
-			List other = (List) o;
+		if(o instanceof IList || o instanceof SubList){
+			IList other = (IList) o;
 			if(fType.comparable(other.getType()) && (len == other.length())){
 				for(int i = 0; i < len; i++){
 					if(!base.get(start + i).equals(other.get(i))){
@@ -104,14 +94,14 @@ public class SubList implements IList {
 	}
 
 	public IList append(IValue elem) {
-		IListWriter w = ValueFactory.getInstance().listWriter(elem.getType().lub(getElementType()));
+		IListWriter w = ValueFactoryFactory.getValueFactory().listWriter(elem.getType().lub(getElementType()));
 		appendSubListElements(w);
 		w.append(elem);
 		return w.done();
 	}
 
 	public IList concat(IList other) {
-		IListWriter w = ValueFactory.getInstance().listWriter(other.getElementType().lub(getElementType()));
+		IListWriter w = ValueFactoryFactory.getValueFactory().listWriter(other.getElementType().lub(getElementType()));
 		appendSubListElements(w);
 		w.appendAll(other);
 		return w.done();
@@ -132,7 +122,7 @@ public class SubList implements IList {
 	}
 
 	public IList insert(IValue elem) {
-		IListWriter w = ValueFactory.getInstance().listWriter(elem.getType().lub(getElementType()));
+		IListWriter w = ValueFactoryFactory.getValueFactory().listWriter(elem.getType().lub(getElementType()));
 		w.insert(elem);
 		appendSubListElements(w);
 		return w.done();
@@ -149,7 +139,7 @@ public class SubList implements IList {
 	public IList put(int i, IValue elem) throws FactTypeError,
 			IndexOutOfBoundsException {
 		
-		IListWriter w = ValueFactory.getInstance().listWriter(elem.getType().lub(getElementType()));
+		IListWriter w = ValueFactoryFactory.getValueFactory().listWriter(elem.getType().lub(getElementType()));
 		appendSubListElements(w);
 		w.replaceAt(i, elem);
 		return w.done();
@@ -157,7 +147,7 @@ public class SubList implements IList {
 	}
 
 	public IList reverse() {
-		IListWriter w = ValueFactory.getInstance().listWriter(getElementType());
+		IListWriter w = ValueFactoryFactory.getValueFactory().listWriter(getElementType());
 		for(int i = end - 1; i >= start; i--){
 			w.insert(base.get(start));
 		}
