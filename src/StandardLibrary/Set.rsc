@@ -1,12 +1,4 @@
 module Set
-
-import IO;
-
-public void echo(str msg)
-{
-	print("Echo: ", msg);
-	return;
-}
  
 public &T average(set[&T] st, &T zero)
 @doc{average -- compute the average of the elements of a set}
@@ -16,26 +8,7 @@ public &T average(set[&T] st, &T zero)
 
 public &T java getOneFrom(set[&T] st)
 @doc{getOneFrom -- pick a random element from a set}
-@javaImports{import java.util.Iterator;}
-{
-   int i = 0;
-   int sz = st.size();
-   
-   if(sz == 0){
-   	  throw new EmptySetError("getOneFrom", null);
-   }
-   int k = random.nextInt(sz);
-   Iterator iter = st.iterator();
-  
-   while(iter.hasNext()){
-      if(i == k){
-      	return (IValue) iter.next();
-      }
-      iter.next();
-      i++;
-   }
-   return null;
-}
+@javaClass{org.meta_environment.rascal.std.Set};
 
 public set[&T] mapper(set[&T] st, &T (&T,&T) fn)
 @doc{mapper -- apply a function to each element of a set}
@@ -113,9 +86,7 @@ public &T reducer(set[&T] st, &T (&T,&T) fn, &T unit)
 
 public int java size(set[&T] st)
 @doc{size -- number of elements in a set}
-{
-   return values.integer(st.size());
-}
+@javaClass{org.meta_environment.rascal.std.Set};
 
 // TODO: auxiliary function needed as long as #+ function names do not work.
 
@@ -132,71 +103,21 @@ public &T sum(set[&T] st, &T zero)
 
 public tuple[&T, set[&T]] java takeOneFrom(set[&T] st)
 @doc{takeOneFrom -- remove an arbitrary element from a set, returns the element and the modified set}
-@javaImports{
-	import java.util.Iterator;
-	import org.meta_environment.rascal.interpreter.errors.Error;
-}
-{
-   int n = st.size();
-   
-   if(n > 0){
-      int i = 0;
-   	  int k = random.nextInt(n);
-   	  IValue pick = null;
-   	  ISetWriter w = st.getType().writer(values);
-   	  Iterator iter = st.iterator();
-  
-      while(iter.hasNext()){
-      	if(i == k){
-      		pick = (IValue) iter.next();
-      	} else {
-      		w.insert((IValue) iter.next());
-      	}
-      i++;
-   	  }
-      return values.tuple(pick, w.done());
-   	} else {
-   		throw new EmptySetError("takeOneFrom", null);
-   	}
-}
+@javaClass{org.meta_environment.rascal.std.Set};
   
 public list[&T] java toList(set[&T] st)
 @doc{toList -- convert a set to a list}
-@javaImports{import java.util.Iterator;}
-{
-  Type resultType = types.listType(st.getElementType());
-  IListWriter w = resultType.writer(values);
-  Iterator iter = st.iterator();
-  while (iter.hasNext()) {
-    w.insert((IValue) iter.next());
-  }
-	
-  return w.done();
-}
+@javaClass{org.meta_environment.rascal.std.Set};
 
 // TODO: multiple elements in map?
 
 public map[&A,&B] java toMap(set[tuple[&A, &B]] st)
 @doc{toMap -- convert a set of tuples to a map}
-@javaImports{import java.util.Iterator;}
-{
-   Type tuple = st.getElementType();
-   Type resultType = types.mapType(tuple.getFieldType(0), tuple.getFieldType(1));
-  
-   IMapWriter w = resultType.writer(values);
-   Iterator iter = st.iterator();
-   while (iter.hasNext()) {
-     ITuple t = (ITuple) iter.next();
-     w.put(t.get(0), t.get(1));
-   }
-   return w.done();
-}
+@javaClass{org.meta_environment.rascal.std.Set};
 
 public str java toString(set[&T] st)
 @doc{toString -- convert a set to a string}
-{
-	return values.string(st.toString());
-}
+@javaClass{org.meta_environment.rascal.std.Set};
 
 
 

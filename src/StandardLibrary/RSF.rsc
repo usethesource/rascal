@@ -13,9 +13,4 @@ module RSF
 
 public map[str, rel[str,str]] java readRSF(str nameRSFFile)
 @doc{readRSF -- read an RSF file}
-@javaImports{
-	import org.meta_environment.rascal.interpreter.RSFReader;
-}
-{
-	return RSFReader.readRSF(nameRSFFile.getValue());
-}
+@javaClass{org.meta_environment.rascal.std.Real};

@@ -149,7 +149,7 @@ public class List {
 	   Type resultType = types.mapType(tuple.getFieldType(0), tuple.getFieldType(1));
 	  
 	   IMapWriter w = resultType.writer(values);
-	   Iterator iter = lst.iterator();
+	   Iterator<IValue> iter = lst.iterator();
 	   while (iter.hasNext()) {
 	     ITuple t = (ITuple) iter.next();
 	     w.put(t.get(0), t.get(1));
@@ -162,7 +162,7 @@ public class List {
 	{
 	  Type resultType = types.setType(lst.getElementType());
 	  ISetWriter w = resultType.writer(values);
-	  Iterator iter = lst.iterator();
+	  Iterator<IValue> iter = lst.iterator();
 	  while (iter.hasNext()) {
 	    w.insert((IValue) iter.next());
 	  }
