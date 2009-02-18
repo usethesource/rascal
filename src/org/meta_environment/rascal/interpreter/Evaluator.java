@@ -161,6 +161,7 @@ import org.meta_environment.rascal.errors.SummaryAdapter;
 import org.meta_environment.rascal.interpreter.control_exceptions.FailureControlException;
 import org.meta_environment.rascal.interpreter.control_exceptions.InsertControlException;
 import org.meta_environment.rascal.interpreter.control_exceptions.ReturnControlException;
+import org.meta_environment.rascal.interpreter.env.Cache;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.env.JavaFunction;
@@ -234,6 +235,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	// TODO: can we remove this?
 	protected MatchPattern lastPattern;	// The most recent pattern applied in a match
 	                                    	// For the benefit of string matching.
+	private ArrayDeque<Cache> recoveryStack;
 
 
 	public Evaluator(IValueFactory f, ASTFactory astFactory, Writer errorWriter, ModuleEnvironment scope) {
@@ -247,10 +249,23 @@ public class Evaluator extends NullASTVisitor<Result> {
 		this.heap = heap;
 		this.callStack = new ArrayDeque<Environment>();
 		this.callStack.push(scope);
+		this.recoveryStack = new ArrayDeque<Cache>();
 		this.scopeStack = new ArrayDeque<ModuleEnvironment>();
 		this.scopeStack.push(scope);
 	}
 	
+	
+	private void checkPoint(Environment env) {
+		env.setCache(new Cache());
+	}
+	
+	private void rollback(Environment env) {
+		env.discardCache().rollback();
+	}
+	
+	private void commit(Environment env) {
+		env.discardCache();
+	}
 	
 	public void setCurrentStatement(Statement currentStatement) {
 		this.currentStatement = currentStatement;
@@ -2653,34 +2668,24 @@ public class Evaluator extends NullASTVisitor<Result> {
 			while(mp.hasNext()){
 				if(mp.next()){
 					try {
-						peek().checkPoint();
+						checkPoint(peek());
 						//System.err.println(stat.toString());
 						stat.accept(this);
+						commit(peek());
 						return true;
 					} catch (FailureControlException e){
 						//System.err.println("failure occurred");
-						peek().rollback();
+						rollback(peek());
 					}
 				}
 			}
 		} finally {
-			peek().commit();
 			pop();
 		}
 		return false;
 	}
 	
-	private void checkPoint() {
-		peek().checkPoint();
-	}
-	
-	private void rollback() {
-		peek().rollback();
-	}
-	
-	private void commit() {
-		peek().commit();
-	}
+
 	
 	private boolean matchEvalAndReplace(IValue subject, 
 			org.meta_environment.rascal.ast.Expression pat, 
@@ -3765,11 +3770,15 @@ public class Evaluator extends NullASTVisitor<Result> {
 					Result v = expr.accept(evaluator);
 					if(v.getType().isBoolType()){
 						// FIXME: if result is of type void, you get a null pointer here.
-						return result(tf.boolType(), vf.bool(v.getValue().isEqual(vf.bool(true))));
+						if (v.getValue().isEqual(vf.bool(true))) {
+							return result(tf.boolType(), vf.bool(true));
+						}
+						return result(tf.boolType(), vf.bool(false));
 					} else {
 						throw new TypeError("Expression as generator should have type bool", expr);
 					}
 				} else {
+					// TODO: why false here? Shouldn't we save the first-time eval result?
 					return result(tf.boolType(), vf.bool(false));
 				}
 			}
@@ -3916,11 +3925,12 @@ public class Evaluator extends NullASTVisitor<Result> {
 		
 		int i = 0;
 		gens[0] = new GeneratorEvaluator(generators.get(0), this);
-		while(i >= 0 && i < size){		
-			if(gens[i].hasNext() && gens[i].next().isTrue()){
+		while (i >= 0 && i < size){
+			if (gens[i].hasNext() && gens[i].next().isTrue()) {
 				if(i == size - 1){
 					w.append();
-				} else {
+				} 
+				else {
 					i++;
 					gens[i] = new GeneratorEvaluator(generators.get(i), this);
 				}

@@ -31,8 +31,8 @@ public class ModuleEnvironment extends Environment {
 	protected final Map<Type, List<Type>> extensions;
 	protected final Map<Type, Map<String, Type>> annotations;
 	
-	public ModuleEnvironment(String name, Cache cache) {
-		super(null, cache);
+	public ModuleEnvironment(String name) {
+		super(null, null);
 		this.name = name;
 		this.importedModules = new HashMap<String, ModuleEnvironment>();
 		this.typeAliases = new HashMap<String,Type>();
