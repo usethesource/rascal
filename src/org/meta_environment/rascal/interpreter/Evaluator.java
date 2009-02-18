@@ -117,7 +117,6 @@ import org.meta_environment.rascal.ast.Expression.TransitiveClosure;
 import org.meta_environment.rascal.ast.Expression.TransitiveReflexiveClosure;
 import org.meta_environment.rascal.ast.Expression.Tuple;
 import org.meta_environment.rascal.ast.Expression.TypedVariable;
-import org.meta_environment.rascal.ast.Expression.ValueProducer;
 import org.meta_environment.rascal.ast.Expression.ValueProducerWithStrategy;
 import org.meta_environment.rascal.ast.Expression.Visit;
 import org.meta_environment.rascal.ast.Expression.VoidClosure;
@@ -188,8 +187,6 @@ import org.meta_environment.rascal.interpreter.errors.UninitializedVariableError
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
 import org.meta_environment.uptr.Factory;
-
-import sun.awt.SunToolkit.InfiniteLoop;
 
 public class Evaluator extends NullASTVisitor<Result> {
 	private static final String[] SEARCH_PATH = {

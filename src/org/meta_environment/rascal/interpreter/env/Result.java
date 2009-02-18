@@ -4,9 +4,9 @@ import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.meta_environment.rascal.ValueFactoryFactory;
 import org.meta_environment.rascal.interpreter.errors.ImplementationError;
 import org.meta_environment.rascal.interpreter.errors.TypeError;
 
@@ -61,7 +61,7 @@ public class Result  implements Iterator<Result>{
 	}
 	
 	public Result(Iterator<Result> beval, boolean b){
-		this(TypeFactory.getInstance().boolType(), ValueFactory.getInstance().bool(b));
+		this(TypeFactory.getInstance().boolType(), ValueFactoryFactory.getValueFactory().bool(b));
 		this.iterator = beval;
 	}
 	

@@ -1,0 +1,12 @@
+package org.meta_environment.rascal;
+
+import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
+
+public class ValueFactoryFactory{
+	private final static IValueFactory valueFactory = ValueFactory.getInstance();
+	
+	public static IValueFactory getValueFactory(){
+		return valueFactory;
+	}
+}

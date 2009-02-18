@@ -5,15 +5,15 @@ import java.io.InputStream;
 
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.io.ATermReader;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.meta_environment.rascal.ValueFactoryFactory;
 
 public class Factory {
 	private static TypeFactory tf = TypeFactory.getInstance();
-	private static IValueFactory vf = ValueFactory.getInstance();
+	private static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 
 	public static final Type Summary = tf.abstractDataType("Summary");
 	public static final Type Error = tf.abstractDataType("Error");

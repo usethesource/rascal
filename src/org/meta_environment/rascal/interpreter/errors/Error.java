@@ -5,9 +5,10 @@ import java.util.List;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.meta_environment.rascal.ValueFactoryFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
 
 /**
@@ -52,7 +53,7 @@ public class Error extends RuntimeException {
 	}
 	
 	private static INode makeNode(String errorCons, String message){
-		ValueFactory VF = ValueFactory.getInstance();
+		IValueFactory VF = ValueFactoryFactory.getValueFactory();
 		TypeFactory TF = TypeFactory.getInstance();
 		Type adt = TF.lookupAbstractDataType("Error");
 		List<Type> types = TF.lookupConstructor(adt, errorCons);

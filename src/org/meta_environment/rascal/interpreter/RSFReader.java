@@ -8,9 +8,10 @@ import java.util.HashMap;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.IRelationWriter;
-import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.meta_environment.rascal.ValueFactoryFactory;
 import org.meta_environment.rascal.interpreter.errors.NoSuchFileError;
 
 public class RSFReader {
@@ -28,7 +29,7 @@ public class RSFReader {
 
 	public static IMap readRSF(String nameRSFFile) {
 		HashMap<String, IRelationWriter> table = new HashMap<String, IRelationWriter>();
-		ValueFactory vf = ValueFactory.getInstance();
+		IValueFactory vf = ValueFactoryFactory.getValueFactory();
 		TypeFactory tf = TypeFactory.getInstance();
 		Type strType = tf.stringType();
 		Type tupleType = tf.tupleType(strType, strType);

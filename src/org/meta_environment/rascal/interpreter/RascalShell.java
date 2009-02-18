@@ -11,8 +11,8 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
+import org.meta_environment.rascal.ValueFactoryFactory;
 import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.Command;
 import org.meta_environment.rascal.errors.ErrorAdapter;
@@ -47,7 +47,7 @@ public class RascalShell {
 		console = new ConsoleReader();
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule(SHELL_MODULE);
-		evaluator = new Evaluator(ValueFactory.getInstance(), factory, new PrintWriter(System.err), root, heap);
+		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), factory, new PrintWriter(System.err), root, heap);
 	}
 	
 
@@ -55,7 +55,7 @@ public class RascalShell {
 		console = new ConsoleReader(inputStream, out);
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule(SHELL_MODULE);
-		evaluator = new Evaluator(ValueFactory.getInstance(), factory, out, root, heap);
+		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), factory, out, root, heap);
 	}
 
 	public void setInputStream(InputStream in) {

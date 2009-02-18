@@ -6,20 +6,21 @@ import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
+import org.meta_environment.rascal.ValueFactoryFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.Statement;
 import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.TypeEvaluator;
 import org.meta_environment.rascal.interpreter.control_exceptions.FailureControlException;
 import org.meta_environment.rascal.interpreter.control_exceptions.ReturnControlException;
-import org.meta_environment.rascal.interpreter.errors.*;
-import org.meta_environment.rascal.interpreter.errors.Error;
+import org.meta_environment.rascal.interpreter.errors.RunTimeError;
+import org.meta_environment.rascal.interpreter.errors.TypeError;
 
 /**
  * TODO: find a more elegant solution for this, by implementing IValue we
@@ -27,7 +28,7 @@ import org.meta_environment.rascal.interpreter.errors.Error;
  * somebody actually starts interpreting this IValue as an IConstructor?
  */
 public class Lambda extends Result implements IValue {
-    protected static final ValueFactory VF = ValueFactory.getInstance();
+    protected static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	protected static final TypeEvaluator TE = TypeEvaluator.getInstance();
 	protected static final TypeFactory TF = TypeFactory.getInstance();
     
