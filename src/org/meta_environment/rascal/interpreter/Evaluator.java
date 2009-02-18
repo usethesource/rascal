@@ -1620,6 +1620,25 @@ public class Evaluator extends NullASTVisitor<Result> {
 	}
 	
 	@Override
+	public Result visitFunctionDeclarationAbstract(Abstract x) {
+		Lambda lambda;
+		boolean varArgs = x.getSignature().getParameters().isVarArgs();
+		
+		if (hasJavaModifier(x)) {
+			lambda = new org.meta_environment.rascal.interpreter.env.JavaMethod(this, x, varArgs, peek(), javaBridge);
+		}
+		else {
+			throw new SyntaxError("Abstract function without java function modifier", x);
+		}
+		
+		String name = Names.name(x.getSignature().getName());
+		peek().storeFunction(name, lambda);
+		
+		return lambda;
+	}
+
+	
+	@Override
 	public Result visitStatementIfThenElse(IfThenElse x) {
 		elseBranch: 
 			do {
