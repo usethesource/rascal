@@ -2,7 +2,6 @@ package org.meta_environment.uptr.visitors;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.INode;
-import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IdentityVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
