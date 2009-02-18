@@ -164,25 +164,25 @@ public rel[&T0,&T1,&T2,&T3,&T4] domainR (rel[&T0,&T1,&T2,&T3,&T4] R, set[&T0] S)
 // domainX
 
 public rel[&T0,&T1] domainX (rel[&T0,&T1] R, set[&T0] S)
-@doc{domainR -- binary relation excluded tuples with first element in S}
+@doc{domainX -- binary relation excluded tuples with first element in S}
 {
   return { <V0, V1> | <&T0 V0, &T1 V1> : R, V0 notin S };
 }
 
 public rel[&T0,&T1,&T2] domainX (rel[&T0,&T1,&T2] R, set[&T0] S)
-@doc{domainR -- ternary relation excluded tuples with first element in SS}
+@doc{domainX -- ternary relation excluded tuples with first element in SS}
 {
   return { <V0, V1, V2> | <&T0 V0, &T1 V1, &T2 V2> : R, V0 notin S };
 }
 
 public rel[&T0,&T1,&T2,&T3] domainX (rel[&T0,&T1,&T2,&T3] R, set[&T0] S)
-@doc{domainR -- quaterny relation excluded tuples with first element in S}
+@doc{domainX -- quaterny relation excluded tuples with first element in S}
 {
   return { <V0, V1, V2, V3> | <&T0 V0, &T1 V1, &T2 V2, &T3 V3> : R, V0 notin S };
 }
 
 public rel[&T0,&T1,&T2,&T3,&T4] domainX (rel[&T0,&T1,&T2,&T3,&T4] R, set[&T0] S)
-@doc{domainR -- quinary relation excluded tuples with first element in S}
+@doc{domainX -- quinary relation excluded tuples with first element in S}
 {
   return { <V0, V1, V2, V3, V4> | <&T0 V0, &T1 V1, &T2 V2, &T3 V3, &T4 V4> : R, V0 notin S };
 }
