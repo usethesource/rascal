@@ -29,7 +29,7 @@ public list[&T] java head(list[&T] lst, int n)
  @doc{head -- get the first n elements of a list}
 {
    if(n.getValue() <= lst.length()){
-      return new SubList((Value)lst, 0, n.getValue());
+      return new SubList((IValue)lst, 0, n.getValue());
    } else {
       throw new IndexOutOfBoundsError("head", null);
    }
@@ -138,7 +138,7 @@ public int java size(list[&T] lst)
  public list[&T] java slice(list[&T] lst, int start, int len)
  @doc{slice -- sublist from start of length len}
  {
- 	return new SubList((Value)lst, start.getValue(), len.getValue());
+ 	return new SubList((IValue)lst, start.getValue(), len.getValue());
  }
 
 public list[&T] sort(list[&T] lst)
