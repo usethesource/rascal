@@ -19,6 +19,11 @@ public class RecoveryTests extends TestFramework {
 	}
 
 	@Test
+	public void testNestedRecoveryOfLocalVariable() {
+		assertTrue(runTestInSameEvaluator("nestedRecoveryOfLocalVariable() == 1;"));
+	}
+
+	@Test
 	public void testRecoveryOfLocalVariableUsingIfThen() {
 		assertTrue(runTestInSameEvaluator("recoveryOfLocalVariableUsingIfThen() == 0;"));
 	}

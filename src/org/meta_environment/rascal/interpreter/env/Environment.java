@@ -23,7 +23,7 @@ public class Environment {
 	protected final Map<String, List<Lambda>> functionEnvironment;
 	protected final Map<Type, Type> typeParameters;
 	protected final Environment parent;
-	protected Cache cache;
+	protected Cache cache = null;
 
 	public Environment(Environment parent) {
 		this(parent, parent.getCache());
@@ -40,27 +40,24 @@ public class Environment {
 		}
 	}
 
-	/*
-	 * Recovery interface
-	 */
-	
 	private Cache getCache() {
 		return cache;
 	}
 	
-	public void checkPoint() {
-		cache.enable();
+	public void setCache(Cache cache) {
+		this.cache = cache;
 	}
 	
-	public void commit() {
-		cache.disable();
+	public Cache discardCache() {
+		Cache temp = cache;
+		cache = null;
+		return temp;
 	}
 	
-	public void rollback() {
-		cache.restore();
-	}
-
-	
+	/*
+	 * Recovery interface
+	 */
+		
 	public boolean isRoot() {
 		assert this instanceof ModuleEnvironment: "roots should be instance of ModuleEnvironment";
 		return parent == null;
@@ -139,21 +136,39 @@ public class Environment {
 	}
 
 	private void updateVariableCache(String name, Map<String, Result> env, Result old) {
+		if (cache == null) {
+			return;
+		}
 		if (!cache.containsVariable(env, name)) {
 			cache.save(env, name, old);
 		}
 	}
 	
+	private void updateFunctionCache(String name,
+			Map<String, List<Lambda>> env, List<Lambda> list) {
+		if (cache == null) {
+			return;
+		}
+		if (!cache.containsFunction(env, name)) {
+			cache.save(env, name, list);
+		}
+	}
+
 	public void storeVariable(Name name, Result r) {
 		storeVariable(Names.name(name), r);
 	}
 	
 	public void storeFunction(String name, Lambda function) {
-		// TODO: cache semantics
 		List<Lambda> list = functionEnvironment.get(name);
 		if (list == null) {
+			// NB: we store null in the cache so that rollback will remove the table entry on name
+			// instead of restoring an empty list.
+			updateFunctionCache(name, functionEnvironment, null);
 			list = new ArrayList<Lambda>();
 			functionEnvironment.put(name, list);
+		}
+		else {
+			updateFunctionCache(name, functionEnvironment, list);
 		}
 		
 		for (Lambda other : list) {
@@ -164,6 +179,7 @@ public class Environment {
 		
 		list.add(function);
 	}
+	
 	
 	public Map<Type, Type> getTypeBindings() {
 		Environment env = this;

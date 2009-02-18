@@ -36,7 +36,7 @@ public class GlobalEnvironment {
 	public ModuleEnvironment addModule(String name) {
 		ModuleEnvironment env = moduleEnvironment.get(name);
 		if (env == null) {
-			env = new ModuleEnvironment(name, cache);
+			env = new ModuleEnvironment(name);
 			moduleEnvironment.put(name, env);
 		}
 		return env;

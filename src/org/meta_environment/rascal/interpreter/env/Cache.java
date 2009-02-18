@@ -18,6 +18,7 @@ public class Cache {
 	public Cache() {
 		variables = new HashMap<VariableCacheEntry, Result>();
 		functions = new HashMap<FunctionCacheEntry, List<Lambda>>();
+		enabled = true;
 	}
 	
 	public void save(Map<String, List<Lambda>> env, String name, List<Lambda> closures) {
@@ -37,12 +38,10 @@ public class Cache {
 		return functions.containsKey(new FunctionCacheEntry(env, name));
 	}
 	
-	public void enable() {
-		clear();
-		enabled = true;
-	}
-	
-	public void disable() {
+	public void commit() {
+		if (!isEnabled()) {
+			throw new ImplementationError("trying to disable cache when it's not enabled");
+		}
 		enabled = false;
 	}
 	
@@ -50,15 +49,11 @@ public class Cache {
 		return enabled;
 	}
 	
-	private void clear() {
-		variables.clear();
-		functions.clear();
-	}
-	
-	public void restore() {
+	public void rollback() {
 		if (!isEnabled()) {
 			throw new ImplementationError("trying to restore cache which is not enabled.");
 		}
+		enabled = false;
 		for (Map.Entry<VariableCacheEntry, Result> entry: variables.entrySet()) {
 			Map<String, Result> env = entry.getKey().env;
 			String name = entry.getKey().name;

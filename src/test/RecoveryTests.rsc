@@ -14,6 +14,25 @@ public int recoveryOfLocalVariable()
     return x;
 }
 
+public int nestedRecoveryOfLocalVariable() 
+@should{return 1}
+{
+	x = 0;
+	l = [1, 2, 3];
+	visit (l) {
+     case int n: {
+     	x += 1;
+     	visit (l) {
+     	   case int n: {
+     	      x += 1;
+     	      fail;
+     	   }
+     	}; 
+      } 	
+	};
+    return x;
+}
+
 public int recoveryOfLocalVariableUsingIfThen()
 @should{return 0}
 {
@@ -61,13 +80,13 @@ public int recoveryOfGlobalAfterFailingRule() {
 }
 
 public bool meddle() {
-  gt += 123;
+  gt = 123;
   return true;
 }
 
 public int recoveryOfGlobalDuringComprehension() {
 	aset = {1, 2, 3};
-	another = { x | int x: aset, meddle(), false };
+	another = { x | int x: aset, meddle() };
 	return gt;
 }
 
