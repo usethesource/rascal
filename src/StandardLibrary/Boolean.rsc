@@ -2,9 +2,7 @@ module Boolean
 
 public bool java arbBool()
 @doc{arbBool -- get an arbitrary boolean value.}
-{
-  return values.bool(random.nextInt(2) == 1);
-}
+@javaClass{org.meta_environment.rascal.std.Boolean};
 
 public int toInt(bool b)
 @doc{toInt -- convert a boolean value to integer.}
