@@ -1,7 +1,7 @@
 package org.meta_environment.uptr;
 
-import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IString;
 import org.meta_environment.rascal.interpreter.errors.ImplementationError;
 
 public class SymbolAdapter {

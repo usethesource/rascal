@@ -8,9 +8,9 @@ import java.io.InputStream;
 import java.net.URL;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.io.ATermReader;
-import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.meta_environment.rascal.ValueFactoryFactory;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.ParsetreeAdapter;
@@ -63,7 +63,7 @@ public class Parser{
 		return InstanceKeeper.sInstance;
 	}
 
-	public IConstructor parseFromString(String inputString) throws IOException, FactTypeError{
+	public IConstructor parseFromString(String inputString) throws IOException, FactTypeUseException{
 		SGLRInvoker sglrInvoker = SGLRInvoker.getInstance();
 		byte[] result = sglrInvoker.parseFromString(inputString, getTableFile());
 		
@@ -73,7 +73,7 @@ public class Parser{
 		return new ParsetreeAdapter(tree).addPositionInformation("-");
 	}
 
-	public IConstructor parseFromStream(InputStream inputStringStream) throws IOException, FactTypeError{
+	public IConstructor parseFromStream(InputStream inputStringStream) throws IOException, FactTypeUseException{
 		SGLRInvoker sglrInvoker = SGLRInvoker.getInstance();
 		byte[] result = sglrInvoker.parseFromStream(inputStringStream, getTableFile());
 		
@@ -83,7 +83,7 @@ public class Parser{
 		return new ParsetreeAdapter(tree).addPositionInformation("-");
 	}
 	
-	public IConstructor parseFromFile(File inputFile) throws IOException, FactTypeError{
+	public IConstructor parseFromFile(File inputFile) throws IOException, FactTypeUseException{
 		SGLRInvoker sglrInvoker = SGLRInvoker.getInstance();
 		byte[] result = sglrInvoker.parseFromFile(inputFile, getTableFile());
 

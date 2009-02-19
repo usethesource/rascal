@@ -5,8 +5,8 @@ import java.io.InputStream;
 
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.io.ATermReader;
-import org.eclipse.imp.pdb.facts.type.FactTypeError;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ValueFactoryFactory;
@@ -38,7 +38,7 @@ public class Factory {
 	
 	private Factory() {}
 	
-	public INode readSummary(InputStream stream) throws FactTypeError, IOException {
+	public INode readSummary(InputStream stream) throws FactTypeUseException, IOException {
 		ATermReader reader = new ATermReader();
 		return (INode) reader.read(vf, Summary, stream);
 	}

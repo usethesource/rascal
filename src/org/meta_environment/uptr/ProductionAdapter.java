@@ -1,11 +1,11 @@
 package org.meta_environment.uptr;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IString;
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.FactTypeError;
+import org.meta_environment.rascal.interpreter.errors.ImplementationError;
 import org.meta_environment.rascal.ValueFactoryFactory;
 
 public class ProductionAdapter {
@@ -13,7 +13,7 @@ public class ProductionAdapter {
 
 	public ProductionAdapter(IConstructor tree) {
 		if (tree.getType() != Factory.Production) {
-			throw new FactTypeError("ProductionWrapper only wraps UPTR productions, not " + tree.getType());
+			throw new ImplementationError("ProductionWrapper only wraps UPTR productions, not " + tree.getType());
 		}
 		this.tree = tree;
 	}
@@ -27,7 +27,7 @@ public class ProductionAdapter {
 				}
 			}
 		}
-		throw new FactTypeError("Production does not have constructor name: " + this.tree);
+		throw new ImplementationError("Production does not have constructor name: " + this.tree);
 	}
 	
 	public SymbolAdapter getRhs() {
@@ -56,7 +56,7 @@ public class ProductionAdapter {
 			}
 		}
 			
-		throw new FactTypeError("Production does not have a sort name: " + tree);
+		throw new ImplementationError("Production does not have a sort name: " + tree);
 	}
 	
 	public IList getAttributes() {

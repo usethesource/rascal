@@ -27,7 +27,7 @@ public class GlobalEnvironment {
 	
 
 	/** so is the cache */
-	private final Cache cache = new Cache();
+	private final Cache cache = new Cache(); // TODO NOT USED
 	
 	/**
 	 * Allocate a new module on the heap

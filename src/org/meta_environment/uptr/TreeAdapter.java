@@ -14,7 +14,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.FactTypeError;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.meta_environment.rascal.ValueFactoryFactory;
 import org.meta_environment.rascal.interpreter.errors.ImplementationError;
@@ -58,7 +58,7 @@ public class TreeAdapter {
 		return prod;
 	}
 	
-	public String getSortName() throws FactTypeError {
+	public String getSortName() throws FactTypeUseException {
 		return getProduction().getSortName();
 	}
 	
@@ -300,7 +300,7 @@ public class TreeAdapter {
 		}
 	}
 	
-	public void unparse(OutputStream stream) throws IOException, FactTypeError {
+	public void unparse(OutputStream stream) throws IOException, FactTypeUseException {
 		try {
 			if (tree.getConstructorType() == Factory.ParseTree_Top) {
 				tree.get("top").accept(new Unparser(stream));
@@ -323,7 +323,7 @@ public class TreeAdapter {
 		}
 	}
 	
-	public String yield() throws FactTypeError {
+	public String yield() throws FactTypeUseException {
 		try {
 			ByteArrayOutputStream stream = new ByteArrayOutputStream();
 			unparse(stream);

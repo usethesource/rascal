@@ -7,7 +7,7 @@ import java.util.Map;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.FactTypeError;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -186,7 +186,7 @@ public class Lambda extends Result implements IValue {
 			formals.match(actualTypes, bindings);
 			env.storeTypeBindings(bindings);
 		}
-		catch (FactTypeError e) {
+		catch (FactTypeUseException e) {
 			throw new TypeError("Could not bind type parameters in " + formals + " to " + actualTypes +": " + e, ast);
 		}
 	}	
@@ -283,11 +283,11 @@ public class Lambda extends Result implements IValue {
 		return false;
 	}
 
-	public boolean isEqual(IValue other) throws FactTypeError {
+	public boolean isEqual(IValue other) throws FactTypeUseException {
 		return other == this;
 	}
 
-	public boolean isIdentical(IValue other) throws FactTypeError {
+	public boolean isIdentical(IValue other) throws FactTypeUseException {
 		return other == this;
 	}
 
