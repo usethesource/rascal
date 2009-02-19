@@ -420,12 +420,13 @@ public class JavaBridge {
 			
 			try {
 				Method m;
-				
+				String name = func.getSignature().getName().toString();
+					
 				if (javaTypes.length > 0) { // non-void
-					m = clazz.getDeclaredMethod(func.getSignature().getName().toString(), javaTypes);
+					m = clazz.getDeclaredMethod(name, javaTypes);
 				}
 				else {
-					m = clazz.getDeclaredMethod(METHOD_NAME);
+					m = clazz.getDeclaredMethod(name);
 				}
 				
 				if ((m.getModifiers() & Modifier.STATIC) == 0) {
