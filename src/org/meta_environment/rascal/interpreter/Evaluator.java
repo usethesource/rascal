@@ -161,7 +161,6 @@ import org.meta_environment.rascal.errors.SummaryAdapter;
 import org.meta_environment.rascal.interpreter.control_exceptions.FailureControlException;
 import org.meta_environment.rascal.interpreter.control_exceptions.InsertControlException;
 import org.meta_environment.rascal.interpreter.control_exceptions.ReturnControlException;
-import org.meta_environment.rascal.interpreter.env.Cache;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.env.JavaFunction;
@@ -3778,9 +3777,10 @@ public class Evaluator extends NullASTVisitor<Result> {
 					/* Evaluate expression only once */
 					firstTime = false;
 					Result v = expr.accept(evaluator);
-					if(v.getType().isBoolType()){
+					if(v.getType().isBoolType() && v.getValue() != null){
 						// FIXME: if result is of type void, you get a null pointer here.
-						if (v.getValue().isEqual(vf.bool(true))) {
+						//if (v.getValue().isEqual(vf.bool(true))) {
+						if(v.isTrue()){
 							return result(tf.boolType(), vf.bool(true));
 						}
 						return result(tf.boolType(), vf.bool(false));

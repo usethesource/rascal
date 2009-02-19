@@ -95,7 +95,7 @@ public class ComprehensionTests extends TestFramework {
 	
 	@Test(expected=TypeError.class)
 	public void testVoidFunctionPredicate() {
-		runTest("{ void f() { } { x | int x <- {1,2,3}, f() }; };");
+		runTest("{ void f() { } { x | int x <- {1,2,3}, f() }; }");
 	}
 	
 	
