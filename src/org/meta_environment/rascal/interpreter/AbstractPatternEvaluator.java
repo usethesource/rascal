@@ -311,6 +311,8 @@ interface MatchPattern {
 	public void initMatch(IValue subject, Environment ev){
 		super.initMatch(subject, ev);
 		
+		if(debug)System.err.println("initMatch: " + subject);
+		
 		if (!subject.getType().isListType()) {
 			hasNext = false;
 			return;
@@ -422,6 +424,8 @@ interface MatchPattern {
 
 		minSubjectSize = patternSize - nListVar;
 		hasNext = subject.getType().isListType() && subjectSize >= minSubjectSize;
+		
+		if(debug)System.err.println("hasNext=" + hasNext);
 	}
 	
 	public Type getType(Environment ev) {
@@ -444,7 +448,7 @@ interface MatchPattern {
 	
 	@Override
 	public boolean hasNext(){
-		return initialized && hasNext && hasListVar;
+		return initialized && hasNext; //&& hasListVar;
 	}
 	
 	private IList makeSubList(){

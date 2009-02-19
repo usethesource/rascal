@@ -18,6 +18,8 @@ public class PatternTests extends TestFramework {
 		assertTrue(runTest("[1] := [1];"));
 		assertTrue(runTest("[1,2] := [1,2];"));
 
+		assertFalse(runTest("[] := [2];"));
+		assertFalse(runTest("[1] := [];"));
 		assertFalse(runTest("[1] := [2];"));
 		assertFalse(runTest("[1,2] := [1,2, 3];"));
 

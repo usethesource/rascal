@@ -3,6 +3,7 @@ module PicoControlflow
 import PicoAbstractSyntax;
 import PicoPrograms;
 import IO;
+import UnitTest;
 
 data CP = exp(EXP exp) | stat(STATEMENT stat);
 
@@ -12,36 +13,35 @@ data CFSEGMENT = cfsegment(set[CP] entry,
                            
 CFSEGMENT cflow(PROGRAM P){
     if(program(list[DECL] Decls, list[STATEMENT] Stats) := P){
-           return cflowstats(Stats);
+           return cflow(Stats);
     }
     return false;
 }
 
-CFSEGMENT cflowstats(list[STATEMENT] Stats){ 
-    println("cflowstats: <Stats>");
+CFSEGMENT cflow(list[STATEMENT] Stats){ 
     switch (Stats) {
+    
+      case [STATEMENT Stat]:
+       		return cflow(Stat);
+       		
       case [STATEMENT Stat, list[STATEMENT] Stats2]: {
-      		CF1 = cfsegment({}, {}, {});
-      		CF2 = cfsegment({}, {}, {});
-           CF1 = cflowstat(Stat); println("CF1=<CF1>, CF2=<CF2>");
-           CF2 = cflowstats(Stats2);
-           println("CF1=<CF1>,CF2=<CF2>");
+           CF1 = cflow(Stat);
+           CF2 = cflow(Stats2);
            return cfsegment(CF1.entry, 
                    CF1.graph + CF2.graph + (CF1.exit * CF2.entry), 
                    CF2.exit);
       }
-      case []: {println("empty stat list"); return cfsegment({}, {}, {});}
+      case []: return cfsegment({}, {}, {});
     }
-     println("cflowstats returns no value");
+     println("cflow returns no value");
 }
 
-CFSEGMENT cflowstat(STATEMENT Stat){
-    println("cflowstat: <Stat>");
+CFSEGMENT cflow(STATEMENT Stat){
     switch (Stat) {                
       case ifStat(EXP Exp, list[STATEMENT] Stats1,
                             list[STATEMENT] Stats2): {
-           CFSEGMENT CF1 = cflowstats(Stats1);
-           CFSEGMENT CF2 = cflowstats(Stats2);
+           CFSEGMENT CF1 = cflow(Stats1);
+           CFSEGMENT CF2 = cflow(Stats2);
            set[CP] E = {exp(Exp)};
            return cfsegment( E, 
                     (E * CF1.entry) + (E * CF2.entry) + 
@@ -51,7 +51,7 @@ CFSEGMENT cflowstat(STATEMENT Stat){
       }
       
       case whileStat(EXP Exp, list[STATEMENT] Stats): {
-           CFSEGMENT CF = cflowstats(Stats);
+           CFSEGMENT CF = cflow(Stats);
            set[CP] E = {exp(Exp)};
            return cfsegment(E, 
                     (E * CF.entry) + CF.graph + (CF.exit * E),
@@ -67,23 +67,40 @@ CFSEGMENT cflowstat(STATEMENT Stat){
 public bool test(){
 
 
-//CFSEGMENT cf0 = cflowstat(asgStat("x", natCon(1)));
-//println("cf0 = <cf0>");
-CFSEGMENT cf1 = cflow(
-    program([decl("x", natural), decl("s", string)],
-        [ asgStat("x", natCon(1)) /*,
-          whileStat(id("x"),
-                    [ asgStat("x", sub(id("x"), natCon(1))),
-                      asgStat("s", conc(id("s"), strCon("#")))
-                    ]
-                   ) */
-        ]
-       )
+assertTrue(
+       cflow([asgStat("x", natCon(1)),  asgStat("s", conc(id("s"), strCon("#")))] ) ==
+       cfsegment({stat(asgStat("x",natCon(1)))},
+                 {<stat(asgStat("x",natCon(1))),stat(asgStat("s",conc(id("s"),strCon("#"))))>},
+                 {stat(asgStat("s",conc(id("s"),strCon("#"))))})
        );
-	println("<cf1>");
 
-//	CFSEGMENT cf = cflow(small);
-//	println("<cf>");
-	return true;
+	
+assertTrue(
+    cflow(small) ==
+	cfsegment({stat(asgStat("x",natCon(3)))},
+	          {<stat(asgStat("x",sub(id("x"),natCon(1)))),stat(asgStat("s",conc(id("s"),strCon("#"))))>,
+	           <stat(asgStat("x",natCon(3))),exp(id("x"))>,
+	           <exp(id("x")),stat(asgStat("x",sub(id("x"),natCon(1))))>,
+	           <stat(asgStat("s",conc(id("s"),strCon("#")))),exp(id("x"))>},
+	           {exp(id("x"))})
+	       );
+	          
+assertTrue(
+    cflow(fac) ==
+	cfsegment({stat(asgStat("input",natCon(13)))},
+	          {<stat(asgStat("rep",id("output"))),stat(asgStat("repnr",id("input")))>,
+	           <stat(asgStat("output",natCon(1))),exp(sub(id("input"),natCon(1)))>,
+	           <stat(asgStat("repnr",id("input"))),exp(sub(id("repnr"),natCon(1)))>,
+	           <exp(sub(id("repnr"),natCon(1))),stat(asgStat("input",sub(id("input"),natCon(1))))>,
+	           <exp(sub(id("repnr"),natCon(1))),stat(asgStat("output",add(id("output"),id("rep"))))>,
+	           <stat(asgStat("output",add(id("output"),id("rep")))),stat(asgStat("repnr",sub(id("repnr"),natCon(1))))>,
+	           <stat(asgStat("input",natCon(13))),stat(asgStat("output",natCon(1)))>,
+	           <exp(sub(id("input"),natCon(1))),stat(asgStat("rep",id("output")))>,
+	           <stat(asgStat("input",sub(id("input"),natCon(1)))),exp(sub(id("input"),natCon(1)))>,
+	           <stat(asgStat("repnr",sub(id("repnr"),natCon(1)))),exp(sub(id("repnr"),natCon(1)))>},
+	           {exp(sub(id("input"),natCon(1)))})
+	        );
+
+return report();
 }
 
