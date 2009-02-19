@@ -19,13 +19,13 @@ import org.meta_environment.rascal.ast.Assignable.Subscript;
 import org.meta_environment.rascal.ast.Assignable.Tuple;
 import org.meta_environment.rascal.ast.Assignable.Variable;
 import org.meta_environment.rascal.interpreter.env.Environment;
-import org.meta_environment.rascal.interpreter.env.Result;
 import org.meta_environment.rascal.interpreter.errors.AssignmentError;
 import org.meta_environment.rascal.interpreter.errors.ImplementationError;
 import org.meta_environment.rascal.interpreter.errors.IndexOutOfBoundsError;
 import org.meta_environment.rascal.interpreter.errors.NoSuchAnnotationError;
 import org.meta_environment.rascal.interpreter.errors.NoSuchFieldError;
 import org.meta_environment.rascal.interpreter.errors.TypeError;
+import org.meta_environment.rascal.interpreter.result.Result;
 
 
 /**

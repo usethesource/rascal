@@ -13,6 +13,7 @@ import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.interpreter.Names;
 import org.meta_environment.rascal.interpreter.errors.ImplementationError;
 import org.meta_environment.rascal.interpreter.errors.TypeError;
+import org.meta_environment.rascal.interpreter.result.Result;
 
 /**
  * A simple environment for variables and functions and types.
@@ -44,19 +45,38 @@ public class Environment {
 		return cache;
 	}
 	
-	public void setCache(Cache cache) {
-		this.cache = cache;
+	public void checkPoint() {
+		this.cache = new Cache();
 	}
 	
-	public Cache discardCache() {
-		Cache temp = cache;
+	public void rollback() {
+		cache.rollback();
 		cache = null;
-		return temp;
+	}
+
+	public void commit() {
+		cache = null;
+	}
+
+	
+	private void updateVariableCache(String name, Map<String, Result> env, Result old) {
+		if (cache == null) {
+			return;
+		}
+		if (!cache.containsVariable(env, name)) {
+			cache.save(env, name, old);
+		}
 	}
 	
-	/*
-	 * Recovery interface
-	 */
+	private void updateFunctionCache(String name,
+			Map<String, List<Lambda>> env, List<Lambda> list) {
+		if (cache == null) {
+			return;
+		}
+		if (!cache.containsFunction(env, name)) {
+			cache.save(env, name, list);
+		}
+	}
 		
 	public boolean isRoot() {
 		assert this instanceof ModuleEnvironment: "roots should be instance of ModuleEnvironment";
@@ -135,24 +155,6 @@ public class Environment {
 		}
 	}
 
-	private void updateVariableCache(String name, Map<String, Result> env, Result old) {
-		if (cache == null) {
-			return;
-		}
-		if (!cache.containsVariable(env, name)) {
-			cache.save(env, name, old);
-		}
-	}
-	
-	private void updateFunctionCache(String name,
-			Map<String, List<Lambda>> env, List<Lambda> list) {
-		if (cache == null) {
-			return;
-		}
-		if (!cache.containsFunction(env, name)) {
-			cache.save(env, name, list);
-		}
-	}
 
 	public void storeVariable(Name name, Result r) {
 		storeVariable(Names.name(name), r);

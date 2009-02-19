@@ -168,7 +168,6 @@ import org.meta_environment.rascal.interpreter.env.JavaFunction;
 import org.meta_environment.rascal.interpreter.env.Lambda;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.env.RascalFunction;
-import org.meta_environment.rascal.interpreter.env.Result;
 import org.meta_environment.rascal.interpreter.errors.AssertionError;
 import org.meta_environment.rascal.interpreter.errors.AssignmentError;
 import org.meta_environment.rascal.interpreter.errors.Error;
@@ -185,6 +184,7 @@ import org.meta_environment.rascal.interpreter.errors.SyntaxError;
 import org.meta_environment.rascal.interpreter.errors.TypeError;
 import org.meta_environment.rascal.interpreter.errors.UndefinedValueError;
 import org.meta_environment.rascal.interpreter.errors.UninitializedVariableError;
+import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
 import org.meta_environment.uptr.Factory;
@@ -233,8 +233,6 @@ public class Evaluator extends NullASTVisitor<Result> {
 	// TODO: can we remove this?
 	protected MatchPattern lastPattern;	// The most recent pattern applied in a match
 	                                    	// For the benefit of string matching.
-	private ArrayDeque<Cache> recoveryStack; // TODO remove unused var
-
 
 	public Evaluator(IValueFactory f, ASTFactory astFactory, Writer errorWriter, ModuleEnvironment scope) {
 		this(f, astFactory, errorWriter, scope, new GlobalEnvironment());
@@ -247,22 +245,21 @@ public class Evaluator extends NullASTVisitor<Result> {
 		this.heap = heap;
 		this.callStack = new ArrayDeque<Environment>();
 		this.callStack.push(scope);
-		this.recoveryStack = new ArrayDeque<Cache>();
 		this.scopeStack = new ArrayDeque<ModuleEnvironment>();
 		this.scopeStack.push(scope);
 	}
 	
 	
 	private void checkPoint(Environment env) {
-		env.setCache(new Cache());
+		env.checkPoint();
 	}
 	
 	private void rollback(Environment env) {
-		env.discardCache().rollback();
+		env.rollback();
 	}
 	
 	private void commit(Environment env) {
-		env.discardCache();
+		env.commit();
 	}
 	
 	public void setCurrentStatement(Statement currentStatement) {

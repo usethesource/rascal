@@ -7,7 +7,7 @@ public int recoveryOfLocalVariable()
 	l = [1, 2, 3];
 	visit (l) {
      case int n: {
-     	x += 1; 
+     	x = x + 1; 
      	fail;
      } 	
 	};
@@ -15,17 +15,35 @@ public int recoveryOfLocalVariable()
 }
 
 public int nestedRecoveryOfLocalVariable() 
-@should{return 1}
+@should{return 3}
 {
 	x = 0;
 	l = [1, 2, 3];
 	visit (l) {
      case int n: {
-     	x += 1;
+     	x = x + 1;
      	visit (l) {
      	   case int n: {
-     	      x += 1;
+     	      x = x + 1;
      	      fail;
+     	   }
+     	}; 
+      } 	
+	};
+    return x;
+}
+
+public int noNestedRecovery()
+@should{return 12} // but why?
+{
+	int x = 0;
+	l = [1, 2, 3];
+	visit (l) {
+     case int n: {
+     	x = x + 1;
+     	visit (l) {
+     	   case int i: {
+     	      x = x + 1;
      	   }
      	}; 
       } 	
@@ -40,9 +58,9 @@ public int recoveryOfLocalVariableUsingIfThen()
 	l = [1, 2, 3];
 	visit (l) {
      case int n: {
-     	x += 1; 
+     	x = x + 1; 
      	if (n > 10) {
-     	   x += 1; // another update
+     	   x = x + 1; // another update
      	}
       } 	
 	};
@@ -58,7 +76,7 @@ public int recoveryOfGlobalVariable()
 	l = [1, 2, 3];
 	visit (l) {
      case int n: {
-     	gx += 1; 
+     	gx = gx + 1; 
      	fail;
      } 	
 	};
@@ -70,7 +88,7 @@ public int gt = 0;
 data City = amsterdam;
 
 rule a1 amsterdam : { 
-  gt += 1;
+  gt = gt + 1;
   fail;
 };
 
