@@ -5,6 +5,7 @@ import java.util.Random;
 
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMapWriter;
+import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
@@ -90,7 +91,7 @@ public class Set {
 
 	// TODO: multiple elements in map?
 
-	public static IValue toMap(ISet st)
+	public static IValue toMap(IRelation st)
 	//@doc{toMap -- convert a set of tuples to a map}
 	{
 	   Type tuple = st.getElementType();
