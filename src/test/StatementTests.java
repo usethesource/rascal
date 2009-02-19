@@ -50,8 +50,8 @@ public class StatementTests extends TestFramework {
 		assertTrue(runTest("{list[int] x = [0,1,2]; x[2] == 2;}"));
 		assertTrue(runTest("{list[int] x = [0,1,2]; x[1] = 10; (x[0] == 0) && (x[1] == 10) && (x[2] == 2);}"));
 
-		assertTrue(runTest("{map[int,int] x = (0=>0,1=>10,2=>20); x == (0=>0,1=>10,2=>20);}"));
-		// assertTrue(runTest("{map[int,int] x = (0=>0,1=>10,2=>20); x[1] = 15; (x[0] == 0) && (x[1] == 15) && (x[2] == 20);}"));
+		assertTrue(runTest("{map[int,int] x = (0:0,1:10,2:20); x == (0:0,1:10,2:20);}"));
+		// assertTrue(runTest("{map[int,int] x = (0:0,1:10,2:20); x[1] = 15; (x[0] == 0) && (x[1] == 15) && (x[2] == 20);}"));
 
 		assertTrue(runTest("{set[int] x = {0,1,2}; x == {0,1,2};}"));
 		assertTrue(runTest("{set[int] x = {0,1,2}; x = x + {3,4}; x == {0,1,2, 3,4};}"));
@@ -105,8 +105,8 @@ public class StatementTests extends TestFramework {
 
 	@Test
 	public void testFor() {
-		assertTrue(runTest("{int n = 0; for(int i:[1,2,3,4]){ n = n + i;} n == 10;}"));
-		assertTrue(runTest("{int n = 0; for(int i:[1,2,3,4], n <= 3){ n = n + i;} n == 6;}"));
+		assertTrue(runTest("{int n = 0; for(int i <- [1,2,3,4]){ n = n + i;} n == 10;}"));
+		assertTrue(runTest("{int n = 0; for(int i <- [1,2,3,4], n <= 3){ n = n + i;} n == 6;}"));
 	}
 
 	@Test

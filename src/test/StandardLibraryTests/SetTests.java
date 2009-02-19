@@ -157,8 +157,8 @@ public class SetTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{Set::toMap({}) == ();}"));
 
 		assertTrue(runTestInSameEvaluator("{toMap({}) == ();}"));
-		assertTrue(runTestInSameEvaluator("{Set::toMap({<1, \"a\">}) == (1 => \"a\");}"));
-		assertTrue(runTestInSameEvaluator("{Set::toMap({<1, \"a\">, <2, \"b\">}) == (1 => \"a\", 2 => \"b\");}"));
+		assertTrue(runTestInSameEvaluator("{Set::toMap({<1, \"a\">}) == (1 : \"a\");}"));
+		assertTrue(runTestInSameEvaluator("{Set::toMap({<1, \"a\">, <2, \"b\">}) == (1 : \"a\", 2 : \"b\");}"));
 	}
 
 	@Test

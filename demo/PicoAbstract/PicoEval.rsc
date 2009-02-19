@@ -33,7 +33,7 @@ void evalDecls(list[DECL] Decls){
 }
 
 void evalStatements(list[STATEMENT] Series){
-    for(STATEMENT Stat : Series){
+    for(STATEMENT Stat <- Series){
         evalStatement(Stat);
     }
 }

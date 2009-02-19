@@ -13,14 +13,14 @@ public &T java getOneFrom(set[&T] st)
 public set[&T] mapper(set[&T] st, &T (&T,&T) fn)
 @doc{mapper -- apply a function to each element of a set}
 {
-  return {#fn(elm) | &T elm : st};
+  return {#fn(elm) | &T elm <- st};
 }
 
 public &T max(set[&T] st)
 @doc{max -- largest element of a set}
 {
   &T result = getOneFrom(st);
-  for(&T elm : st){
+  for(&T elm <- st){
   	if(elm > result){
     	result = elm;
     }
@@ -32,7 +32,7 @@ public &T min(set[&T] st)
 @doc{min -- smallest element of a set}
 {
   &T result = getOneFrom(st);
-  for(&T elm : st){
+  for(&T elm <- st){
    if(elm < result){
       result = elm;
    }
@@ -58,10 +58,10 @@ public set[set[&T]] power(set[&T] st)
 {
 
   set[set[&T]] result = {{st}};
-  for(&T elm : st){
+  for(&T elm <- st){
   	set[set[&T]] pw = power(st - elm);
   	result = result + pw;
-  	for(set[&T] sub : pw){
+  	for(set[&T] sub <- pw){
   		result = result + {{sub + elm}};
   	}
   }
@@ -78,7 +78,7 @@ public &T reducer(set[&T] st, &T (&T,&T) fn, &T unit)
 @doc{reducer -- apply function F to successive elements of a set}
 {
   &T result = unit;
-  for(&T elm : st){
+  for(&T elm <- st){
     result = #fn(result, elm);
   }
   return result;

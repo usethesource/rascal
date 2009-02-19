@@ -5,7 +5,7 @@ import List;
 // sort1: uses list indexing and for-loop
 
 public list[int] sort1(list[int] Numbers){
-  for(int I : [0 .. size(Numbers) - 2 ]){
+  for(int I <- [0 .. size(Numbers) - 2 ]){
      if(Numbers[I] > Numbers[I+1]){
        <Numbers[I], Numbers[I+1]> = <Numbers[I+1], Numbers[I]>;
        return sort1(Numbers);

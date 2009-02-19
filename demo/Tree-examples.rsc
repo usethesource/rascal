@@ -10,7 +10,7 @@ data NODE int N | f(NODE I, NODE J) | g(NODE I, NODE J) |  h(NODE I, NODE J)  | 
 // a list and return the size of the list
 
 public int cnta(node T) {
-    return size([N | int N : T]);
+    return size([N | int N <- T]);
 }
 
 // Ex1b: alternative solution using a visit statement
@@ -30,7 +30,7 @@ public int cntb(node T) {
 // to add all list elements together.
 
 public int sumtreea(node T) {
-    return sum([n | int N : T]);
+    return sum([n | int N <- T]);
 }
 
 // Ex2b: using visit statement

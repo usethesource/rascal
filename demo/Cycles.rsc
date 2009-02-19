@@ -6,20 +6,20 @@ import UnitTest;
 
 public rel[int, set[int]] cycles(rel[int,int] Graph) {
 	rel[int,int] Closure = Graph+;
-  	return { <N, Closure[N]> | int N : carrier(Graph), <N, N> in Closure};
+  	return { <N, Closure[N]> | int N <- carrier(Graph), <N, N> in Closure};
 }
 
 public bool isProperCycle(rel[int,int] Graph, int N, set[int] C){
  	rel[int,int] RC  = carrierR(Graph, C)+;
-    return all(int M : C, <N, M> in RC && <M, N> in RC);
+    return all(int M <- C, <N, M> in RC && <M, N> in RC);
 }
 
 public set[set[int]] subCycles (rel[int,int] Graph, int N, set[int] Cycle){
-	return { B | set[int] B : power1(Cycle), N in B, isProperCycle(Graph, N, B) };
+	return { B | set[int] B <- power1(Cycle), N in B, isProperCycle(Graph, N, B) };
 }
 
 public rel[int, set[set[int]]] allSubCycles(rel[int,int] Graph, rel[int, set[int]] Cycles) {
-	return { <N, subCycles(Graph, N, B)> | <int N, set[int] B> : Cycles};
+	return { <N, subCycles(Graph, N, B)> | <int N, set[int] B> <- Cycles};
 }
 
 public bool test(){

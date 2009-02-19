@@ -31,14 +31,14 @@ public list[&T] java insertAt(list[&T] lst, int n, &T elm) throws IndexOutOfBoun
 public list[&T] mapper(list[&T] lst, &T (&T) fn)
 @doc{mapper -- apply a function to each element of a list}
 {
-  return [#fn(elm) | &T elm : lst];
+  return [#fn(elm) | &T elm <- lst];
 }
 
 public &T max(list[&T] lst)
 @doc{max -- largest element of a list}
 {
   &T result = getOneFrom(lst);
-  for(&T elm : lst) {
+  for(&T elm <- lst) {
    if(result < elm) {
       result = elm;
    }
@@ -50,7 +50,7 @@ public &T min(list[&T] lst)
 @doc{min -- smallest element of a list}
 {
   &T result = getOneFrom(lst);
-  for(&T elm : lst){
+  for(&T elm <- lst){
    if(elm < result){
       result = elm;
    }
@@ -75,7 +75,7 @@ public &T reducer(list[&T] lst, &T (&T, &T) fn, &T unit)
 @doc{reducer -- apply function F to successive elements of a list}
 {
   &T result = unit;
-  for(&T elm : lst){
+  for(&T elm <- lst){
      result = #fn(result, elm);
   }
   return result;
@@ -106,7 +106,7 @@ public list[&T] sort(list[&T] lst)
   
   <pivot, lst> = takeOneFrom(lst);
   
-  for(&T elm : lst){
+  for(&T elm <- lst){
      if(elm <= pivot){
        less = elm + less;
      } else {
