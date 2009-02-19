@@ -2675,7 +2675,9 @@ public class Evaluator extends NullASTVisitor<Result> {
 		try {
 			push(); 	// Create a separate scope for match and statement
 			while(mp.hasNext()){
+				//System.err.println("matchAndEval: mp.hasNext()==true");
 				if(mp.next()){
+					//System.err.println("matchAndEval: mp.next()==true");
 					try {
 						checkPoint(peek());
 						//System.err.println(stat.toString());
@@ -3779,8 +3781,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 					Result v = expr.accept(evaluator);
 					if(v.getType().isBoolType() && v.getValue() != null){
 						// FIXME: if result is of type void, you get a null pointer here.
-						//if (v.getValue().isEqual(vf.bool(true))) {
-						if(v.isTrue()){
+						if (v.getValue().isEqual(vf.bool(true))) {
+						//if(v.isTrue()){
 							return result(tf.boolType(), vf.bool(true));
 						}
 						return result(tf.boolType(), vf.bool(false));

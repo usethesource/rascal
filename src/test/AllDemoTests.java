@@ -95,6 +95,12 @@ public class AllDemoTests extends TestFramework {
 		prepare("import PicoTypecheck;");
 		assertTrue(runTestInSameEvaluator("PicoTypecheck::test();"));
 	}
+	
+	@Test
+	public void PicoControlflow() {
+		prepare("import PicoControlflow;");
+		assertTrue(runTestInSameEvaluator("PicoControlflow::test();"));
+	}
 
 	@Test
 	public void Queens() {
