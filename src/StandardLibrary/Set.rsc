@@ -111,7 +111,7 @@ public list[&T] java toList(set[&T] st)
 
 // TODO: multiple elements in map?
 
-public map[&A,&B] java toMap(set[tuple[&A, &B]] st)
+public map[&A,&B] java toMap(rel[&A, &B] st)
 @doc{toMap -- convert a set of tuples to a map}
 @javaClass{org.meta_environment.rascal.std.Set};
 
