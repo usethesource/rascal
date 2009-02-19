@@ -409,19 +409,14 @@ public class Evaluator extends NullASTVisitor<Result> {
 			return v;
 		}
 		
-		callStack.push(scopeStack.peek());
-		try {
-			TraverseResult tr = traverse(v, new CasesOrRules(rules), 
-					/* bottomup  true,  */DIRECTION.BottomUp,
-					/* breaking  false, */ PROGRESS.Continuing,
-					/* fixedpoint  false);  */ FIXEDPOINT.No);
-					/* innermost is achieved by repeated applications of applyRules
-					 * when intermediate results are produced.
-					 */
-			return tr.value;
-		} finally {
-			callStack.pop();
-		}
+		TraverseResult tr = traverse(v, new CasesOrRules(rules), 
+				DIRECTION.BottomUp,
+				PROGRESS.Continuing,
+				FIXEDPOINT.No);
+				/* innermost is achieved by repeated applications of applyRules
+				 * when intermediate results are produced.
+				 */
+		return tr.value;
 	}
 
 
@@ -2736,7 +2731,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				}
 			}
 		} finally {
-			push();
+			pop();
 		}
 		return false;
 	}

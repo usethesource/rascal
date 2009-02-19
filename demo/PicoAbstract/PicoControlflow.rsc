@@ -12,30 +12,36 @@ data CFSEGMENT = cfsegment(set[CP] entry,
                            
 CFSEGMENT cflow(PROGRAM P){
     if(program(list[DECL] Decls, list[STATEMENT] Stats) := P){
-           return cflow(Stats);
+           return cflowstats(Stats);
     }
     return false;
 }
 
-CFSEGMENT cflow(list[STATEMENT] Stats){ 
+CFSEGMENT cflowstats(list[STATEMENT] Stats){ 
+    println("cflowstats: <Stats>");
     switch (Stats) {
-      case [STATEMENT Stat, list[STATEMENT] Stats2]: { 
-           CFSEGMENT CF1 = cflow(Stat);
-           CFSEGMENT CF2 = cflow(Stats2);
+      case [STATEMENT Stat, list[STATEMENT] Stats2]: {
+      		CF1 = cfsegment({}, {}, {});
+      		CF2 = cfsegment({}, {}, {});
+           CF1 = cflowstat(Stat); println("CF1=<CF1>, CF2=<CF2>");
+           CF2 = cflowstats(Stats2);
+           println("CF1=<CF1>,CF2=<CF2>");
            return cfsegment(CF1.entry, 
                    CF1.graph + CF2.graph + (CF1.exit * CF2.entry), 
                    CF2.exit);
       }
-      case []: return cfsegment({}, {}, {});
+      case []: {println("empty stat list"); return cfsegment({}, {}, {});}
     }
+     println("cflowstats returns no value");
 }
 
-CFSEGMENT cflow(STATEMENT Stat){
+CFSEGMENT cflowstat(STATEMENT Stat){
+    println("cflowstat: <Stat>");
     switch (Stat) {                
       case ifStat(EXP Exp, list[STATEMENT] Stats1,
                             list[STATEMENT] Stats2): {
-           CFSEGMENT CF1 = cflow(Stats1);
-           CFSEGMENT CF2 = cflow(Stats2);
+           CFSEGMENT CF1 = cflowstats(Stats1);
+           CFSEGMENT CF2 = cflowstats(Stats2);
            set[CP] E = {exp(Exp)};
            return cfsegment( E, 
                     (E * CF1.entry) + (E * CF2.entry) + 
@@ -45,7 +51,7 @@ CFSEGMENT cflow(STATEMENT Stat){
       }
       
       case whileStat(EXP Exp, list[STATEMENT] Stats): {
-           CFSEGMENT CF = cflow(Stats);
+           CFSEGMENT CF = cflowstats(Stats);
            set[CP] E = {exp(Exp)};
            return cfsegment(E, 
                     (E * CF.entry) + CF.graph + (CF.exit * E),
@@ -55,9 +61,14 @@ CFSEGMENT cflow(STATEMENT Stat){
          
       case STATEMENT Stat: return cfsegment({stat(Stat)}, {}, {stat(Stat)});
     }
+    println("cflowstat returns no value");
 }
 
 public bool test(){
+
+
+//CFSEGMENT cf0 = cflowstat(asgStat("x", natCon(1)));
+//println("cf0 = <cf0>");
 CFSEGMENT cf1 = cflow(
     program([decl("x", natural), decl("s", string)],
         [ asgStat("x", natCon(1)) /*,
@@ -71,8 +82,8 @@ CFSEGMENT cf1 = cflow(
        );
 	println("<cf1>");
 
-	CFSEGMENT cf = cflow(small);
-	println("<cf>");
+//	CFSEGMENT cf = cflow(small);
+//	println("<cf>");
 	return true;
 }
 
