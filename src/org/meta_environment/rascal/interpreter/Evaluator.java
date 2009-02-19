@@ -529,7 +529,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			IConstructor tree = p.parseFromFile(file);
 
 			if (tree.getConstructorType() == Factory.ParseTree_Summary) {
-				throw new SyntaxError(parseError(tree, name));
+				throw new SyntaxError(parseError(tree, name), x);
 			}
 
 			return b.buildModule(tree);			
@@ -545,7 +545,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	private String parseError(IConstructor tree, String file) {
 		ISourceRange range = getErrorRange(new SummaryAdapter(tree));
 		
-	    return "parse error in " + file + " at line " + range.getEndLine() + ", column " + range.getEndColumn() + "\n";
+	    return file + " at line " + range.getEndLine() + ", column " + range.getEndColumn();
 	}
 	
 	private ISourceRange getErrorRange(SummaryAdapter summaryAdapter) {
