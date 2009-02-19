@@ -71,6 +71,28 @@ program([ decl("input", natural),
                    )                
         ]
        );
+       
+public PROGRAM facUninit =
+program([ decl("input", natural),
+          decl("output", natural),
+          decl("repnr", natural),
+          decl("rep", natural)
+        ],
+        [ asgStat("input", natCon(13)),
+          //asgStat("output", natCon(1)),
+          whileStat(sub(id("input"), natCon(1)),
+                    [ asgStat("rep", id("output")),
+                      asgStat("repnr", id("input")),
+                      whileStat(sub(id("repnr"), natCon(1)),
+                                [ asgStat("output", add(id("output"), id("rep"))),
+                                  asgStat("repnr", sub(id("repnr"), natCon(1)))
+                                ]
+                               ),
+                      asgStat("input", sub(id("input"), natCon(1)))
+                    ]
+                   )                
+        ]
+       );
 
 /********************************************
 begin

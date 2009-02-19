@@ -5,20 +5,20 @@ import PicoPrograms;
 import IO;
 import UnitTest;
 
-data CP = exp(EXP exp) | stat(STATEMENT stat);
+public data CP = exp(EXP exp) | stat(STATEMENT stat);
 
-data CFSEGMENT = cfsegment(set[CP] entry, 
+public data CFSEGMENT = cfsegment(set[CP] entry, 
                            rel[CP,CP] graph, 
                            set[CP] exit);
                            
-CFSEGMENT cflow(PROGRAM P){
+public CFSEGMENT cflow(PROGRAM P){
     if(program(list[DECL] Decls, list[STATEMENT] Stats) := P){
            return cflow(Stats);
     }
     return false;
 }
 
-CFSEGMENT cflow(list[STATEMENT] Stats){ 
+public CFSEGMENT cflow(list[STATEMENT] Stats){ 
     switch (Stats) {
     
       case [STATEMENT Stat]:
@@ -36,7 +36,7 @@ CFSEGMENT cflow(list[STATEMENT] Stats){
      println("cflow returns no value");
 }
 
-CFSEGMENT cflow(STATEMENT Stat){
+public CFSEGMENT cflow(STATEMENT Stat){
     switch (Stat) {                
       case ifStat(EXP Exp, list[STATEMENT] Stats1,
                             list[STATEMENT] Stats2): {
