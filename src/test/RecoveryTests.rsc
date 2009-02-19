@@ -86,7 +86,7 @@ public bool meddle() {
 
 public int recoveryOfGlobalDuringComprehension() {
 	aset = {1, 2, 3};
-	another = { x | int x: aset, meddle() };
+	another = { x | int x <- aset, meddle() };
 	return gt;
 }
 

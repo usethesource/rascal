@@ -11,7 +11,7 @@ public void benchmark(map[str, void()] Cases)
 @doc{benchmark -- measure and report the execution time of name:void-closure pairs}
 {
 	measurements = ();
-	for(str Name : Cases){
+	for(str Name <- Cases){
 		real ctm1 = currentTimeMillis();
 		Fun = Cases[Name];
 		#Fun();

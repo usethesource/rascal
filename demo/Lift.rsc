@@ -14,7 +14,7 @@ rel[proc, comp] PartOf = {<"main", "Appl">, <"a", "Appl">, <"b", "DB">,
 			  			  <"c", "Lib">, <"d", "Lib">};
 
 rel[comp,comp] lift(rel[proc,proc] aCalls, rel[proc,comp] aPartOf){
-	return { <C1, C2> | <proc P1, proc P2> : aCalls, <comp C1, comp C2> : aPartOf[P1] * aPartOf[P2]};
+	return { <C1, C2> | <proc P1, proc P2> <- aCalls, <comp C1, comp C2> <- aPartOf[P1] * aPartOf[P2]};
 }
 
 rel[comp,comp] ComponentCalls = lift(Calls, PartOf);

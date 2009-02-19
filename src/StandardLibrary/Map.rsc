@@ -9,7 +9,7 @@ public &K java getOneFrom(map[&K, &V] m)
 @javaClass{org.meta_environment.rascal.std.Map};
 
 public map[&K, &V] mapper(map[&K, &V] M, &K (&K) F, &V (&V) G){
-  return (#F(key) => #G(M[key]) | &K key : M);
+  return (#F(key) : #G(M[key]) | &K key <- M);
 }
 
 public set[&V] java range(map[&K, &V] M)

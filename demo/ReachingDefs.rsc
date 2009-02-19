@@ -22,15 +22,15 @@ public set[stat] successor(rel[stat,stat] P, stat S)
 }
 
 public rel[stat,def] kill(rel[stat,var] DEFS) { 
-	return {<S1, <S2, V>> | <stat S1, var V> : DEFS, <stat S2, V> : DEFS, S1 != S2};
+	return {<S1, <S2, V>> | <stat S1, var V> <- DEFS, <stat S2, V> <- DEFS, S1 != S2};
 }
 
 public rel[stat,def] definition(rel[stat,var] DEFS){
-	return {<S,<S,V>> | <stat S, var V> : DEFS};
+	return {<S,<S,V>> | <stat S, var V> <- DEFS};
 }
 
 public rel[stat,def] use(rel[stat, var] USES){
-	return {<S, <S, V>> | <stat S, var V> : USES};
+	return {<S, <S, V>> | <stat S, var V> <- USES};
 }
 
 public rel[stat, def] reachingDefinitions(rel[stat,var] DEFS, rel[stat,stat] PRED){
@@ -44,8 +44,8 @@ public rel[stat, def] reachingDefinitions(rel[stat,var] DEFS, rel[stat,stat] PRE
 		rel[stat,def] IN = {};
 		rel[stat,def] OUT = DEF;
 	solve {
-       		IN =  {<S, D> | int S : STATEMENT, stat P : predecessor(PRED,S), def D : OUT[P]};
-        	OUT = {<S, D> | int S : STATEMENT, def D : DEF[S] + (IN[S] - KILL[S])};
+       		IN =  {<S, D> | int S <- STATEMENT, stat P <- predecessor(PRED,S), def D <- OUT[P]};
+        	OUT = {<S, D> | int S <- STATEMENT, def D <- DEF[S] + (IN[S] - KILL[S])};
 	};
 	return IN;
 }
@@ -58,8 +58,8 @@ public rel[stat,def] liveVariables(rel[stat,var] DEFS, rel[stat, var] USES, rel[
 		rel[stat,def] LIN = {};
 		rel[stat,def] LOUT = DEF;
  	solve {
-		LIN  =  { < S, D> | stat S : STATEMENT,  def D : USE[S] + (LOUT[S] - (DEF[S]))};
-		LOUT =  { < S, D> | stat S : STATEMENT,  stat Succ : successor(PRED,S), def D : LIN[Succ] };
+		LIN  =  { < S, D> | stat S <- STATEMENT,  def D <- USE[S] + (LOUT[S] - (DEF[S]))};
+		LOUT =  { < S, D> | stat S <- STATEMENT,  stat Succ <- successor(PRED,S), def D <- LIN[Succ] };
 	}
 	return LIN;
 }

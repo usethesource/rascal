@@ -24,24 +24,24 @@ set[use] BackwardSlice(
 	// Compute the relation between each use and corresponding definitions: ud
 
 	rel[use,def] use_def = 
- 	 {<<S1,V>, <S2,V>> | <stat S1, var V> : USES, <stat S2, V> : REACH[S1]};
+ 	 {<<S1,V>, <S2,V>> | <stat S1, var V> <- USES, <stat S2, V> <- REACH[S1]};
 
 	// Internal dependencies per statement
 
 	rel[def,use] def_use_per_stat  = 
-     		{<<S,V1>, <S,V2>> | <stat S, var V1> : DEFS, <S, var V2> : USES}
+     		{<<S,V1>, <S,V2>> | <stat S, var V1> <- DEFS, <S, var V2> <- USES}
     		 +
-    		 {<<S,V>, <S,"EXEC">> | <stat S, var V> : DEFS}
+    		 {<<S,V>, <S,"EXEC">> | <stat S, var V> <- DEFS}
     		 +
-    		 {<<S,"TEST">,<S,V>> | stat S : CONTROLSTATEMENT, 
-			    	 	  <S, var V> : domainR(USES, {S})};
+    		 {<<S,"TEST">,<S,V>> | stat S <- CONTROLSTATEMENT, 
+			    	 	  <S, var V> <- domainR(USES, {S})};
 
 	// Control dependence: control-dependence
 
 	rel[stat, set[stat]] CONTROLDOMINATOR = domainR(dominators(PRED, 1), CONTROLSTATEMENT); //TODO 1 is ad hoc
 
 	rel[def,use] control_dependence  =
-	   { <<S2, "EXEC">,<S1,"TEST">> | <stat S1, stat S2> : CONTROLDOMINATOR};
+	   { <<S2, "EXEC">,<S1,"TEST">> | <stat S1, stat S2> <- CONTROLDOMINATOR};
 
 	// Control and data dependence: use-control-def
 

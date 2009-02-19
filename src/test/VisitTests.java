@@ -25,7 +25,7 @@ public class VisitTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{" + cnt + "cnt(f(1,g(2,{3,4,5}))) == 5;}"));
 		assertTrue(runTestInSameEvaluator("{" + cnt + "cnt(f(1,g(2,<3,4,5>))) == 5;}"));
 		assertTrue(runTestInSameEvaluator("{" + cnt + "cnt(f(1,g(2,{<1,10>,<2,20>}))) == 6;}"));
-		assertTrue(runTestInSameEvaluator("{" + cnt + "cnt(f(1,g(2,(1=>10,2=>20)))) == 6;}"));
+		assertTrue(runTestInSameEvaluator("{" + cnt + "cnt(f(1,g(2,(1:10,2:20)))) == 6;}"));
 	}
 	
 	@Test
@@ -71,7 +71,7 @@ public class VisitTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{" + frepa + "frepa(f(1,g(2,{3,4,5}))) == f(1,h(2,{3,4,5}));}"));
 		assertTrue(runTestInSameEvaluator("{" + frepa + "frepa(f(1,g(2,<3,4,5>))) == f(1,h(2,<3,4,5>));}"));
 		assertTrue(runTestInSameEvaluator("{" + frepa + "frepa(f(1,g(2,{<1,10>,<2,20>}))) == f(1,h(2,{<1,10>,<2,20>}));}"));
-		assertTrue(runTestInSameEvaluator("{" + frepa + "frepa(f(1,g(2,(1=>10,2=>20)))) == f(1,h(2,(1=>10,2=>20)));}"));
+		assertTrue(runTestInSameEvaluator("{" + frepa + "frepa(f(1,g(2,(1:10,2:20)))) == f(1,h(2,(1:10,2:20)));}"));
 	}
 	
 	@Test
@@ -95,7 +95,7 @@ public class VisitTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{" + frepb + "frepb(f(1,g(2,{3,4,5}))) == f(1,h(2,{3,4,5}));}"));
 		assertTrue(runTestInSameEvaluator("{" + frepb + "frepb(f(1,g(2,<3,4,5>))) == f(1,h(2,<3,4,5>));}"));
 		assertTrue(runTestInSameEvaluator("{" + frepb + "frepb(f(1,g(2,{<1,10>,<2,20>}))) == f(1,h(2,{<1,10>,<2,20>}));}"));
-		assertTrue(runTestInSameEvaluator("{" + frepb + "frepb(f(1,g(2,(1=>10,2=>20)))) == f(1,h(2,(1=>10,2=>20)));}"));
+		assertTrue(runTestInSameEvaluator("{" + frepb + "frepb(f(1,g(2,(1:10,2:20)))) == f(1,h(2,(1:10,2:20)));}"));
 
 	}
 	
@@ -122,7 +122,7 @@ public class VisitTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{" + frepG2H3a + "frepG2H3a(f(1,g(2,{3,4,5}))) == f(1,h(2,{3,4,5},0));}"));
 		assertTrue(runTestInSameEvaluator("{" + frepG2H3a + "frepG2H3a(f(1,g(2,<3,4,5>))) == f(1,h(2,<3,4,5>,0));}"));
 		assertTrue(runTestInSameEvaluator("{" + frepG2H3a + "frepG2H3a(f(1,g(2,{<1,10>,<2,20>}))) == f(1,h(2,{<1,10>,<2,20>},0));}"));
-		assertTrue(runTestInSameEvaluator("{" + frepG2H3a + "frepG2H3a(f(1,g(2,(1=>10,2=>20)))) == f(1,h(2,(1=>10,2=>20), 0));}"));
+		assertTrue(runTestInSameEvaluator("{" + frepG2H3a + "frepG2H3a(f(1,g(2,(1:10,2:20)))) == f(1,h(2,(1:10,2:20), 0));}"));
 	}
 	
 	@Test
@@ -146,7 +146,7 @@ public class VisitTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{" + frepG2H3b + "frepG2H3b(f(1,g(2,{3,4,5}))) == f(1,h(2,{3,4,5},0));}"));
 		assertTrue(runTestInSameEvaluator("{" + frepG2H3b + "frepG2H3b(f(1,g(2,<3,4,5>))) == f(1,h(2,<3,4,5>,0));}"));
 		assertTrue(runTestInSameEvaluator("{" + frepG2H3b + "frepG2H3b(f(1,g(2,{<1,10>,<2,20>}))) == f(1,h(2,{<1,10>,<2,20>},0));}"));
-		assertTrue(runTestInSameEvaluator("{" + frepG2H3b + "frepG2H3b(f(1,g(2,(1=>10,2=>20)))) == f(1,h(2,(1=>10,2=>20), 0));}"));
+		assertTrue(runTestInSameEvaluator("{" + frepG2H3b + "frepG2H3b(f(1,g(2,(1:10,2:20)))) == f(1,h(2,(1:10,2:20), 0));}"));
 	}
 	
 	@Test
@@ -167,7 +167,7 @@ public class VisitTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{" + inc + "inc(f(1,g(2,{3,4,5}))) == f(2,g(3,{4,5,6}));}"));
 		assertTrue(runTestInSameEvaluator("{" + inc + "inc(f(1,g(2,<3,4,5>))) == f(2,g(3,<4,5,6>));}"));
 		assertTrue(runTestInSameEvaluator("{" + inc + "inc(f(1,g(2,{<1,10>,<2,20>}))) == f(2,g(3,{<2,11>,<3,21>}));}"));
-		assertTrue(runTestInSameEvaluator("{" + inc + "inc(f(1,g(2,(1=>10,2=>20)))) == f(2,g(3,(2=>11,3=>21)));}"));
+		assertTrue(runTestInSameEvaluator("{" + inc + "inc(f(1,g(2,(1:10,2:20)))) == f(2,g(3,(2:11,3:21)));}"));
 	}
 	
 	@Test
@@ -195,7 +195,7 @@ public class VisitTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{" + inc_and_count + "inc_and_count(f(1,g(2,{3,4,5})), 10)         == <5,f(11,g(12,{13,14,15}))>;}"));
 		assertTrue(runTestInSameEvaluator("{" + inc_and_count + "inc_and_count(f(1,g(2,<3,4,5>)), 10)         == <5,f(11,g(12,<13,14,15>))>;}"));
 		assertTrue(runTestInSameEvaluator("{" + inc_and_count + "inc_and_count(f(1,g(2,{<1,10>,<2,20>})), 10) == <6,f(11,g(12,{<11,20>,<12,30>}))>;}"));
-		assertTrue(runTestInSameEvaluator("{" + inc_and_count + "inc_and_count(f(1,g(2,(1=>10,2=>20))),10)      == <6, f(11,g(12,(11=>20,12=>30)))>;}"));
+		assertTrue(runTestInSameEvaluator("{" + inc_and_count + "inc_and_count(f(1,g(2,(1:10,2:20))),10)      == <6, f(11,g(12,(11:20,12:30)))>;}"));
 	}
 	
 	@Test

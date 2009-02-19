@@ -13,8 +13,8 @@ public class MapTests extends TestFramework {
 
 		prepare("import Map;");
 
-		assertTrue(runTestInSameEvaluator("getOneFrom((1=>10)) == 1;"));
-		assertTrue(runTestInSameEvaluator("{int N = getOneFrom((1=>10, 2=>20)); (N == 1) || (N ==2);}"));
+		assertTrue(runTestInSameEvaluator("getOneFrom((1:10)) == 1;"));
+		assertTrue(runTestInSameEvaluator("{int N = getOneFrom((1:10, 2:20)); (N == 1) || (N ==2);}"));
 	}
 	
 	@Test(expected=EmptyMapError.class)
@@ -28,7 +28,7 @@ public class MapTests extends TestFramework {
 		prepare("import Map;");
 
 		assertTrue(runTestInSameEvaluator("domain(()) == {};"));
-		assertTrue(runTestInSameEvaluator("domain((1=>10, 2=>20)) == {1,2};"));
+		assertTrue(runTestInSameEvaluator("domain((1:10, 2:20)) == {1,2};"));
 	}
 
 	// mapper
@@ -43,12 +43,12 @@ public class MapTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{" + inc
 				+ "mapper((), #inc, #inc) == ();}"));
 		assertTrue(runTestInSameEvaluator("{" + inc
-				+ "mapper((1=>10,2=>20), #inc, #inc) == (2=>11,3=>21);}"));
+				+ "mapper((1:10,2:20), #inc, #inc) == (2:11,3:21);}"));
 
 		assertTrue(runTestInSameEvaluator("{" + inc + dec
 				+ "mapper((), #inc, #dec) == ();}"));
 		assertTrue(runTestInSameEvaluator("{" + inc + dec
-				+ "mapper((1=>10,2=>20), #inc, #dec) == (2=>9,3=>19);}"));
+				+ "mapper((1:10,2:20), #inc, #dec) == (2:9,3:19);}"));
 	}
 
 	// range
@@ -58,7 +58,7 @@ public class MapTests extends TestFramework {
 		prepare("import Map;");
 
 		assertTrue(runTestInSameEvaluator("range(()) == {};"));
-		assertTrue(runTestInSameEvaluator("range((1=>10, 2=>20)) == {10,20};"));
+		assertTrue(runTestInSameEvaluator("range((1:10, 2:20)) == {10,20};"));
 	}
 
 	// size
@@ -68,8 +68,8 @@ public class MapTests extends TestFramework {
 		prepare("import Map;");
 
 		assertTrue(runTestInSameEvaluator("size(()) == 0;"));
-		assertTrue(runTestInSameEvaluator("size((1=>10)) == 1;"));
-		assertTrue(runTestInSameEvaluator("size((1=>10,2=>20)) == 2;"));
+		assertTrue(runTestInSameEvaluator("size((1:10)) == 1;"));
+		assertTrue(runTestInSameEvaluator("size((1:10,2:20)) == 2;"));
 	}
 
 	// toList
@@ -79,8 +79,8 @@ public class MapTests extends TestFramework {
 		prepare("import Map;");
 
 		assertTrue(runTestInSameEvaluator("toList(()) == [];"));
-		assertTrue(runTestInSameEvaluator("toList((1=>10)) == [<1,10>];"));
-		assertTrue(runTestInSameEvaluator("{list[tuple[int,int]] L = toList((1=>10, 2=>20)); (L == [<1,10>,<2,20>]) || (L == [<2,20>,<1,10>]);}"));
+		assertTrue(runTestInSameEvaluator("toList((1:10)) == [<1,10>];"));
+		assertTrue(runTestInSameEvaluator("{list[tuple[int,int]] L = toList((1:10, 2:20)); (L == [<1,10>,<2,20>]) || (L == [<2,20>,<1,10>]);}"));
 	}
 
 	// toRel
@@ -90,8 +90,8 @@ public class MapTests extends TestFramework {
 		prepare("import Map;");
 
 		assertTrue(runTestInSameEvaluator("toRel(()) == {};"));
-		assertTrue(runTestInSameEvaluator("toRel((1=>10)) == {<1,10>};"));
-		assertTrue(runTestInSameEvaluator("{rel[int,int] R = toRel((1=>10, 2=>20)); R == {<1,10>,<2,20>};}"));
+		assertTrue(runTestInSameEvaluator("toRel((1:10)) == {<1,10>};"));
+		assertTrue(runTestInSameEvaluator("{rel[int,int] R = toRel((1:10, 2:20)); R == {<1,10>,<2,20>};}"));
 	}
 
 	// toString
@@ -101,7 +101,7 @@ public class MapTests extends TestFramework {
 		prepare("import Map;");
 
 		assertTrue(runTestInSameEvaluator("toString(()) == \"()\";"));
-		assertTrue(runTestInSameEvaluator("toString((1=>10)) == \"(1=>10)\";"));
+		assertTrue(runTestInSameEvaluator("toString((1:10)) == \"(1:10)\";"));
 	}
 
 }

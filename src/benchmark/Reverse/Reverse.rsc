@@ -39,7 +39,7 @@ public bool test(){
 public bool measure(){
 	int size = 200;
 	list[int] L = [];
-	for(int i : [0 .. size]){
+	for(int i <- [0 .. size]){
 		L = L + arbInt();
 	}
 	start = currentTimeMillis();

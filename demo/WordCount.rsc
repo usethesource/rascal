@@ -8,7 +8,7 @@ import List;
 
 public void main(str argv ...){
   int total = 0;
-  for(str fileName : argv){
+  for(str fileName <- argv){
     try {
        int count = wordCount(readFile(fileName));
        println("<count> word in file <fileName>");
@@ -23,7 +23,7 @@ public void main(str argv ...){
 public int wordCount(list[str] input, int (str s) countLine)
 {
   count = 0;
-  for(str line : input){
+  for(str line <- input){
   println("line = <line>");
      count = count + #countLine(line);
   }
@@ -33,7 +33,7 @@ public int wordCount(list[str] input, int (str s) countLine)
 public int wordCount1(list[str] input)
 {
   count = 0;
-  for(str line : input){
+  for(str line <- input){
   println("line = <line>");
      count = count + countLine1(line);
   }
@@ -42,7 +42,7 @@ public int wordCount1(list[str] input)
 
 public int countLine1(str S){
   int count = 0;
-  for(/[a-zA-Z0-9]+/: S){
+  for(/[a-zA-Z0-9]+/<- S){
        count = count + 1;
   }
   return count;
@@ -71,11 +71,11 @@ public int countLine2(str S){
 public int countLine3(str S){
   map[str,int] allCounts = ();
   int cnt = 0;
-  for(/<word:\w+>/: S){
+  for(/<word:\w+>/<- S){
        cnt = cnt + 1;
        allCounts[word] = (allCounts[word] =? 0) + 1;
   }
-  return sum([allCounts[K] | str K : allCounts], 0);
+  return sum([allCounts[K] | str K <- allCounts], 0);
 }
 
 public list[str] Jabberwocky = [

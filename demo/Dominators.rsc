@@ -24,7 +24,7 @@ public rel[&T, set[&T]] dominators(rel[&T,&T] PRED, &T ROOT)
 {
 	set[&T] VERTICES = carrier(PRED);
 
-	return  { <V,  (VERTICES - {V, ROOT}) - reachX(PRED, {ROOT}, {V})> |  &T V : VERTICES};
+	return  { <V,  (VERTICES - {V, ROOT}) - reachX(PRED, {ROOT}, {V})> |  &T V <- VERTICES};
 }
 
 /*
