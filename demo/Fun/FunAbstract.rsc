@@ -21,13 +21,13 @@ data Exp =
 // Find all the variables in an expression
 
 public set[str] allVars(Exp E) {
-    return {Name | var(str Name) : E};
+    return {Name | var(str Name) <- E};
 }
 
 // Find all bound variables in an expression
 
 public set[str] boundVars(Exp E) {
-    return {Name | fun(str Name, Exp E1) : E};
+    return {Name | fun(str Name, Exp E1) <- E};
 } 
 
 // Find all free variables in an expression
@@ -157,7 +157,7 @@ rule a3 [list[Cons] C1, c(var(str Nm1), Type T1), list[Cons]C2,  c(var(str Nm2),
 public bool solveConstraints(list[Cons] constraints)
 {
    int nError = 0;
-   for(error(Error e) : constraints){
+   for(error(Error e) <- constraints){
       println("Error: <e>");
       nError = nError + 1;
    }   
