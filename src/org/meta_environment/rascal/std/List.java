@@ -1,6 +1,6 @@
 package org.meta_environment.rascal.std;
 
-import java.util.Iterator;
+import java.util.Random;
 
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
@@ -15,7 +15,6 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.interpreter.SubList;
 import org.meta_environment.rascal.interpreter.errors.EmptyListError;
 import org.meta_environment.rascal.interpreter.errors.IndexOutOfBoundsError;
-import java.util.Random;
 
 public class List {
 
@@ -105,7 +104,7 @@ public class List {
 	 
 	  public static IValue tail(IList lst, IInteger len)
 	  throws IndexOutOfBoundsError
-	 //@doc{tail -- last n elements ofelement of a list}
+	 //@doc{tail -- last n elements of a list}
 	 {
 	 	int lenVal = len.getValue();
 	 	int lstLen = lst.length();
@@ -140,7 +139,6 @@ public class List {
 
 	public static IValue toMap(IList lst)
 	//@doc{toMap -- convert a list of tuples to a map}
-	//@javaImports{import java.util.Iterator;}
 	{
 	   if(lst.length() == 0){
 	      return values.map(types.voidType(), types.voidType());
@@ -149,9 +147,8 @@ public class List {
 	   Type resultType = types.mapType(tuple.getFieldType(0), tuple.getFieldType(1));
 	  
 	   IMapWriter w = resultType.writer(values);
-	   Iterator<IValue> iter = lst.iterator();
-	   while (iter.hasNext()) {
-	     ITuple t = (ITuple) iter.next();
+	   for(IValue v : lst){
+		   ITuple t = (ITuple) v;
 	     w.put(t.get(0), t.get(1));
 	   }
 	   return w.done();
@@ -162,9 +159,9 @@ public class List {
 	{
 	  Type resultType = types.setType(lst.getElementType());
 	  ISetWriter w = resultType.writer(values);
-	  Iterator<IValue> iter = lst.iterator();
-	  while (iter.hasNext()) {
-	    w.insert((IValue) iter.next());
+	  
+	  for(IValue v : lst){
+	    w.insert(v);
 	  }
 		
 	  return w.done();
@@ -175,10 +172,5 @@ public class List {
 	{
 		return values.string(lst.toString());
 	}
-
-	
-	
-	
-	
 	
 }

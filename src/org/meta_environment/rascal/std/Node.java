@@ -1,7 +1,5 @@
 package org.meta_environment.rascal.std;
 
-import java.util.Iterator;
-
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.INode;
@@ -25,12 +23,11 @@ public class Node {
 	public static IValue getChildren(INode T)
 	//@doc{getChildren -- get the children of a node}
 	{
-		Iterator<IValue> iter = T.getChildren().iterator();
 		Type resultType = types.listType(types.valueType());
 		IListWriter w = resultType.writer(values);
 		
-		while(iter.hasNext()){
-			w.append((IValue)iter.next());
+		for(IValue v : T.getChildren()){
+			w.append(v);
 		}
 		return w.done();
 	}
@@ -45,10 +42,10 @@ public class Node {
 	//@doc{makeNode -- create a node given its function name and arguments}
 	{
 	    IList argList = (IList) V;
-		int len = argList.length();
-		IValue args[] = new IValue[len];
-		for(int i = 0; i < len; i++){
-			args[i] = argList.get(i);
+		IValue args[] = new IValue[argList.length()];
+		int i = 0;
+		for(IValue v : argList){
+			args[i++] = v;
 		}
 		return values.node(N.getValue(), args);
 	}

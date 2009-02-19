@@ -21,9 +21,7 @@ public class IO {
 
 	public static void println(IValue V)
 	{
-	 IList argList = (IList) V;
-	   for(int i = 0; i < argList.length(); i++){
-	   	  IValue arg = argList.get(i);
+		for(IValue arg : (IList)V){
 	   	  if(arg.getType().isStringType()){
 	   	  	System.out.print(((IString) arg).getValue().toString());
 	   	  } else {
