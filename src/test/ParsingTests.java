@@ -7,7 +7,7 @@ import java.io.IOException;
 import junit.framework.TestCase;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.type.FactTypeError;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.Module;
 import org.meta_environment.rascal.ast.Module.Default;
@@ -43,7 +43,7 @@ public class ParsingTests extends TestCase {
 					failed = true;
 
 				}
-			} catch (FactTypeError e) {
+			} catch (FactTypeUseException e) {
 				System.err.println("FAILED: " + file);
 				e.printStackTrace();
 				failed = true;

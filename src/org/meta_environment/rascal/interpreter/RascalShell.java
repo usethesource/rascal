@@ -11,7 +11,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.FactTypeError;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.meta_environment.rascal.ValueFactoryFactory;
 import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.Command;
@@ -95,7 +95,7 @@ public class RascalShell {
 				catch (FailureControlException e) {
 					break;
 				}
-				catch (FactTypeError e) {
+				catch (FactTypeUseException e) {
 					console.printString("FactTypeError: " + e.getMessage() + "\n");
 				    printStacktrace(console, e);
 				}
@@ -210,7 +210,7 @@ public class RascalShell {
 		return null;
 	}
 	
-	private boolean completeStatement(StringBuffer statement) throws FactTypeError, IOException {
+	private boolean completeStatement(StringBuffer statement) throws FactTypeUseException, IOException {
 		String command = statement.toString();
 		IConstructor tree = parser.parseFromString(command);
 

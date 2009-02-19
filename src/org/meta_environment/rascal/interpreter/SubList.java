@@ -5,7 +5,7 @@ import java.util.Iterator;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.FactTypeError;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
@@ -136,7 +136,7 @@ public class SubList implements IList {
 		return len;
 	}
 
-	public IList put(int i, IValue elem) throws FactTypeError,
+	public IList put(int i, IValue elem) throws FactTypeUseException,
 			IndexOutOfBoundsException {
 		
 		IListWriter w = ValueFactoryFactory.getValueFactory().listWriter(elem.getType().lub(getElementType()));

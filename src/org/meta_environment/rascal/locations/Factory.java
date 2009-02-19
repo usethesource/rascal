@@ -1,12 +1,12 @@
 package org.meta_environment.rascal.locations;
 
-import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.type.FactTypeError;
+import org.eclipse.imp.pdb.facts.exceptions.UnexpectedConstructorTypeException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
@@ -51,7 +51,7 @@ public class Factory {
 			return factory.sourceLocation(filename, range);
 		}
 		
-		throw new FactTypeError("This is not a Location: " + loc);
+		throw new UnexpectedConstructorTypeException(Location, type);
 	}
 	
 	public ISourceRange toSourceRange(IValueFactory factory, IConstructor area) {
@@ -66,7 +66,7 @@ public class Factory {
 		   return factory.sourceRange(offset, length, startLine, endLine, startCol, endCol);
 		}
 		
-		throw new FactTypeError("This is not an Area: " + area);
+		throw new UnexpectedConstructorTypeException(Area, area.getType());
 	}
 	
 }

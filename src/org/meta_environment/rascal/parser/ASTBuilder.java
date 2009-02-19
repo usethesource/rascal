@@ -10,7 +10,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.FactTypeError;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.Command;
@@ -35,7 +35,7 @@ public class ASTBuilder {
 		this.clazz = factory.getClass();
 	}
 	
-	public Module buildModule(IConstructor parseTree) throws FactTypeError {
+	public Module buildModule(IConstructor parseTree) throws FactTypeUseException {
 		return buildSort(parseTree, "Module");
 	}
 	
@@ -62,7 +62,7 @@ public class ASTBuilder {
 		if (treeAdapter.getSortName().equals(sort)) {
 			return (T) buildValue(tree);
 		} else {
-			throw new FactTypeError("This is not a" + sort +  ": "
+			throw new ImplementationError("This is not a" + sort +  ": "
 					+ new TreeAdapter(parseTree).yield());
 		}
 	}
@@ -143,7 +143,7 @@ public class ASTBuilder {
 			}
 			
 			if (alts.size() == 0) {
-				throw new FactTypeError("bug: Ambiguity without children!?! " + node);
+				throw new ImplementationError("bug: Ambiguity without children!?! " + node);
 			}
 
 			sort = capitalize(sort);
@@ -190,8 +190,8 @@ public class ASTBuilder {
 		}
 	}
 	
-	private FactTypeError unexpectedError(Throwable e) {
-		return new FactTypeError("Unexpected error in AST construction", e);
+	private ImplementationError unexpectedError(Throwable e) {
+		return new ImplementationError("Unexpected error in AST construction", e);
 	}
 
 	private AbstractAST buildValue(IValue arg)  {

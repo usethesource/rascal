@@ -31,7 +31,7 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.IWriter;
-import org.eclipse.imp.pdb.facts.type.FactTypeError;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.ASTFactory;
@@ -233,7 +233,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	// TODO: can we remove this?
 	protected MatchPattern lastPattern;	// The most recent pattern applied in a match
 	                                    	// For the benefit of string matching.
-	private ArrayDeque<Cache> recoveryStack;
+	private ArrayDeque<Cache> recoveryStack; // TODO remove unused var
 
 
 	public Evaluator(IValueFactory f, ASTFactory astFactory, Writer errorWriter, ModuleEnvironment scope) {
@@ -542,7 +542,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			}
 
 			return b.buildModule(tree);			
-		} catch (FactTypeError e) {
+		} catch (FactTypeUseException e) {
 			throw new ImplementationError("Something went wrong during parsing of " + name + ": " + e, x);
 		} catch (FileNotFoundException e) {
 			throw new NoSuchModuleError("Could not import module " + name + ": " + e, x);
@@ -1270,7 +1270,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				}
 				return result(tf.setType(tuple.getFieldType(field)), w.done());
 			}
-			catch (FactTypeError e) {
+			catch (FactTypeUseException e) {
 				throw new NoSuchFieldError(e.getMessage(), x);
 			}
 		}
@@ -1637,7 +1637,6 @@ public class Evaluator extends NullASTVisitor<Result> {
 		
 		return lambda;
 	}
-
 	
 	@Override
 	public Result visitStatementIfThenElse(IfThenElse x) {
@@ -1665,6 +1664,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 		return x.getElseStatement().accept(this);
 	}
 
+	
+	
 	@Override
 	public Result visitStatementIfThen(IfThen x) {
 		push(); // For the benefit of variables bound in the condition
@@ -2597,7 +2598,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			else {
 				throw new NoSuchFieldError("Field updates only possible on tuples with labeled fields, relations with labeled fields and data constructors", x);
 			}
-		} catch (FactTypeError e) {
+		} catch (FactTypeUseException e) {
 			throw new TypeError(e.getMessage(), x);
 		}
 	}
