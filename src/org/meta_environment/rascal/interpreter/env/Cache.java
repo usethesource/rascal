@@ -6,12 +6,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.meta_environment.rascal.interpreter.errors.ImplementationError;
+import org.meta_environment.rascal.interpreter.result.Result;
 
 public class Cache {
-
+	// TODO: fix dependency on internals of Environment (e.g. Map<String,...> etc.).
 	
-	protected final Map<VariableCacheEntry, Result> variables;
-	protected final Map<FunctionCacheEntry, List<Lambda>> functions;
+	private final Map<VariableCacheEntry, Result> variables;
+	private final Map<FunctionCacheEntry, List<Lambda>> functions;
+//	private final Map<CacheEntry<Map<String,List<Lambda>>>, List<Lambda>> functions2;
 	private boolean enabled;
 	
 	
@@ -22,7 +24,10 @@ public class Cache {
 	}
 	
 	public void save(Map<String, List<Lambda>> env, String name, List<Lambda> closures) {
-		List<Lambda> list = new ArrayList<Lambda>(closures);
+		List<Lambda> list = null;
+		if (closures != null) {
+			list = new ArrayList<Lambda>(closures);
+		}
 		functions.put(new FunctionCacheEntry(env, name), list);
 	}
 	
@@ -40,7 +45,7 @@ public class Cache {
 	
 	public void commit() {
 		if (!isEnabled()) {
-			throw new ImplementationError("trying to disable cache when it's not enabled");
+			throw new ImplementationError("trying to commit cache when it's not enabled");
 		}
 		enabled = false;
 	}
@@ -77,6 +82,26 @@ public class Cache {
 			else {
 				env.put(name, value);	
 			}
+		}
+	}
+	
+	private class CacheEntry<Env> {
+		private Env env;
+		private String name;
+		
+		public CacheEntry(String name, Env env) {
+			this.env = env;
+			this.name = name;
+		}
+		
+		@SuppressWarnings("unchecked")
+		@Override
+		public boolean equals(Object o) {
+			if (!(o instanceof CacheEntry)) {
+				return false;
+			}
+			CacheEntry entry = (CacheEntry)o;
+			return env == entry.env && name.equals(entry.name);
 		}
 	}
 	

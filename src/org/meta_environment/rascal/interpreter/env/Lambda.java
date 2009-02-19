@@ -21,6 +21,7 @@ import org.meta_environment.rascal.interpreter.control_exceptions.FailureControl
 import org.meta_environment.rascal.interpreter.control_exceptions.ReturnControlException;
 import org.meta_environment.rascal.interpreter.errors.RunTimeError;
 import org.meta_environment.rascal.interpreter.errors.TypeError;
+import org.meta_environment.rascal.interpreter.result.Result;
 
 /**
  * TODO: find a more elegant solution for this, by implementing IValue we

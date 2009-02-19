@@ -20,7 +20,12 @@ public class RecoveryTests extends TestFramework {
 
 	@Test
 	public void testNestedRecoveryOfLocalVariable() {
-		assertTrue(runTestInSameEvaluator("nestedRecoveryOfLocalVariable() == 1;"));
+		assertTrue(runTestInSameEvaluator("nestedRecoveryOfLocalVariable() == 3;"));
+	}
+
+	@Test
+	public void testNoNestedRecovery() {
+		assertTrue(runTestInSameEvaluator("noNestedRecovery() == 12;"));
 	}
 
 	@Test

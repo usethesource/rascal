@@ -12,6 +12,7 @@ import org.meta_environment.rascal.interpreter.JavaBridge;
 import org.meta_environment.rascal.interpreter.Names;
 import org.meta_environment.rascal.interpreter.errors.Error;
 import org.meta_environment.rascal.interpreter.errors.ImplementationError;
+import org.meta_environment.rascal.interpreter.result.Result;
 
 public class JavaMethod extends Lambda {
 	private final Method method;

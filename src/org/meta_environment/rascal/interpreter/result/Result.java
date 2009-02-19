@@ -1,4 +1,4 @@
-package org.meta_environment.rascal.interpreter.env;
+package org.meta_environment.rascal.interpreter.result;
 
 import java.util.Iterator;
 
@@ -7,6 +7,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ValueFactoryFactory;
+import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.interpreter.errors.ImplementationError;
 import org.meta_environment.rascal.interpreter.errors.TypeError;
 
@@ -121,6 +122,125 @@ public class Result  implements Iterator<Result>{
 		throw new ImplementationError("remove() not implemented for Result");
 		
 	}
+
+
+	/*
+	 * Double dispatch stuff.
+	 */
+	
+
+	// TODO make these abstract
+	protected Result addInteger(IntegerResult n) {
+		throw new ImplementationError("NIY");
+	}
+
+	protected Result reverseSubtractInteger(IntegerResult integerResult) {
+		return null;
+	}
+
+	public Result add(Result result) {
+		// TODO throw type error
+		return null;
+	}
+
+	public Result subtract(Result result) {
+		// TODO throw type error
+		return null;
+	}
+
+	public Result multiply(Result result) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	protected Result multiplyInteger(IntegerResult integerResult) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	protected Result addReal(RealResult n) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	protected Result reverseSubtractReal(RealResult n) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	protected Result multiplyReal(RealResult n) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public Result divide(Result result) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	protected Result reverseDivideReal(RealResult realResult) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	protected Result reverseDivideInteger(IntegerResult integerResult) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	protected Result addString(StringResult s) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	protected Result addList(ListResult l) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	protected Result addSet(SetResult s) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	protected Result addRelation(RelationResult r) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	protected Result addBool(BoolResult n) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	protected Result subtractSet(SetResult s) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	protected Result illegalArguments(String op, AbstractAST ast, Type type1, Type type2) {
+		throw new TypeError("Operands of " + op + " have illegal types: " + type1 + ", " + type2, ast);
+	}
+
+	protected void checkElementType(String op, AbstractAST ast, Type elemType) {
+		if (!elemType.isSubtypeOf(getType().getElementType())) {
+			illegalArguments(op, ast, getType(), elemType);
+		}
+	}
+
+	protected Result multiplySet(SetResult setResult) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	protected Result addMap(MapResult m) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+
 }
 
 

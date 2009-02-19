@@ -1,6 +1,6 @@
 package org.meta_environment.rascal.interpreter.control_exceptions;
 
-import org.meta_environment.rascal.interpreter.env.Result;
+import org.meta_environment.rascal.interpreter.result.Result;
 
 public class ReturnControlException extends RuntimeException {
 	private static final long serialVersionUID = -6601026099925601817L;
