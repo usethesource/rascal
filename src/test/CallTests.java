@@ -30,7 +30,17 @@ public class CallTests extends TestFramework{
 	
 	@Test(expected=TypeError.class)
 	public void callError5() {
+		runTest("{ int f(){ } f();}");
+	}
+	
+	@Test(expected=TypeError.class)
+	public void callError6() {
 		runTest("{ int f(int n) {return \"a\";}  int f(value v) {return \"a\";} }");
+	}
+	
+	@Test
+	public void voidFun() {
+		assertTrue(runTest("{ void f(){ } f(); true;}"));
 	}
 	
 	@Test public void fac() {
