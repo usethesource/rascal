@@ -61,7 +61,8 @@ public int recoveryOfLocalVariableUsingIfThen()
      	x = x + 1; 
      	if (n > 10) {
      	   x = x + 1; // another update
-     	}
+     	} else
+     		fail;
       } 	
 	};
     return x;
