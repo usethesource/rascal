@@ -191,7 +191,7 @@ public class Environment {
 		Map<Type, Type> result = new HashMap<Type,Type>();
 		
 		while (env != null) {
-			result.putAll(typeParameters);
+			result.putAll(env.typeParameters);
 			env = env.parent;
 		}
 		
