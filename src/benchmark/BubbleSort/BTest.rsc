@@ -1,4 +1,4 @@
-module BTest
+module benchmark::BubbleSort::BTest
 
 import Benchmark;
 import IO;

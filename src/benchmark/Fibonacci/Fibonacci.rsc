@@ -1,4 +1,4 @@
-module Fibonacci
+module benchmark::Fibonacci::Fibonacci
 
 import Benchmark;
 import IO;

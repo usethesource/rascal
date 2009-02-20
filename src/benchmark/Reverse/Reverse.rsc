@@ -1,4 +1,4 @@
-module Reverse
+module benchmark::Reverse::Reverse
 
 import Integer;
 import Benchmark;

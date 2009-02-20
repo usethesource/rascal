@@ -1,4 +1,4 @@
-module BubbleSort
+module benchmark::BubbleSort::BubbleSort
 
 import Benchmark;
 import IO;

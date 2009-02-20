@@ -1,4 +1,4 @@
-module RSFCalls
+module benchmark::RSF::RSFCallsError
 
 import Relation;
 import Set;

@@ -7,25 +7,25 @@ public class AllBenchmarks extends TestFramework {
 
 	@Test
 	public void BubbleSort() {
-		prepare("import BubbleSort;");
-		assertTrue(runTestInSameEvaluator("BubbleSort::measure();"));
+		prepare("import benchmark::BubbleSort::BubbleSort;");
+		assertTrue(runTestInSameEvaluator("benchmark::BubbleSort::BubbleSort::measure();"));
 	}
 
 	@Test
 	public void Factorial() {
-		prepare("import Factorial;");
-		assertTrue(runTestInSameEvaluator("Factorial::measure();"));
+		prepare("import benchmark::Factorial::Factorial;");
+		assertTrue(runTestInSameEvaluator("benchmark::Factorial::Factorial::measure();"));
 	}
 
 	@Test
 	public void Fibonacci() {
-		prepare("import Fibonacci;");
-		assertTrue(runTestInSameEvaluator("Fibonacci::measure();"));
+		prepare("import benchmark::Fibonacci::Fibonacci;");
+		assertTrue(runTestInSameEvaluator("benchmark::Fibonacci::Fibonacci::measure();"));
 	}
 
 	@Test
 	public void Reverse() {
-		prepare("import Reverse;");
-		assertTrue(runTestInSameEvaluator("Reverse::measure();"));
+		prepare("import benchmark::Reverse::Reverse;");
+		assertTrue(runTestInSameEvaluator("benchmark::Reverse::Reverse::measure();"));
 	}
 }

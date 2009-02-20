@@ -1,4 +1,4 @@
-module Factorial
+module benchmark::Factorial::Factorial
 
 import IO;
 import Benchmark;

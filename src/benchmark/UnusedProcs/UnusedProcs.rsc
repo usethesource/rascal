@@ -1,4 +1,4 @@
-module UnusedProcs
+module benchmark::UnusedProcs::UnusedProcs
 
 import Set;
 import Relation;
