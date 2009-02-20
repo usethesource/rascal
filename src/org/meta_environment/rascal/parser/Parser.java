@@ -69,7 +69,7 @@ public class Parser{
 		
 		ATermReader reader = new ATermReader();
 		ByteArrayInputStream bais = new ByteArrayInputStream(result);
-		IConstructor tree = (IConstructor) reader.read(valueFactory, Factory.ParseTree, bais);
+		IConstructor tree = (IConstructor) reader.read(valueFactory, Factory.getStore(), Factory.ParseTree, bais);
 		return new ParsetreeAdapter(tree).addPositionInformation("-");
 	}
 
@@ -79,7 +79,7 @@ public class Parser{
 		
 		ATermReader reader = new ATermReader();
 		ByteArrayInputStream bais = new ByteArrayInputStream(result);
-		IConstructor tree = (IConstructor) reader.read(valueFactory, Factory.ParseTree, bais);
+		IConstructor tree = (IConstructor) reader.read(valueFactory,  Factory.getStore(),Factory.ParseTree, bais);
 		return new ParsetreeAdapter(tree).addPositionInformation("-");
 	}
 	
@@ -89,7 +89,7 @@ public class Parser{
 
 		ATermReader reader = new ATermReader();
 		ByteArrayInputStream bais = new ByteArrayInputStream(result);
-		IConstructor tree = (IConstructor) reader.read(valueFactory, Factory.ParseTree, bais);
+		IConstructor tree = (IConstructor) reader.read(valueFactory,  Factory.getStore(), Factory.ParseTree, bais);
 		return new ParsetreeAdapter(tree).addPositionInformation(inputFile.getAbsolutePath());
 	}
 	

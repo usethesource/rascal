@@ -661,8 +661,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		
 		for (org.meta_environment.rascal.ast.Type type : x.getTypes()) {
 		  Type onType = te.eval(type, scopeStack.peek());
-		  tf.declareAnnotation(onType, name, annoType);	
-		  scopeStack.peek().storeAnnotation(onType, name, annoType);
+		  scopeStack.peek().declareAnnotation(onType, name, annoType);	
 		}
 		
 		return result();
@@ -672,7 +671,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	public Result visitDeclarationData(Data x) {
 		String name = x.getUser().getName().toString();
 		Type sort = tf.abstractDataType(name);
-		scopeStack.peek().storeAbstractDataType(sort);
+		scopeStack.peek().abstractDataType(name);
 		
 		for (Variant var : x.getVariants()) {
 			String altName = Names.name(var.getName());
@@ -695,10 +694,10 @@ public class Evaluator extends NullASTVisitor<Result> {
 		    	}
 
 		    	Type children = tf.tupleType(fields, labels);
-		    	scopeStack.peek().storeConstructor(tf.constructorFromTuple(sort, altName, children));
+		    	scopeStack.peek().constructorFromTuple(sort, altName, children);
 		    }
 		    else if (var.isNillaryConstructor()) {
-		    	scopeStack.peek().storeConstructor(tf.constructor(sort, altName, new Object[] { }));
+		    	scopeStack.peek().constructor(sort, altName, new Object[] { });
 		    }
 		}
 		
@@ -728,8 +727,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			params = new Type[0];
 		}
 		Type base = evalType(x.getBase());
-		Type decl = tf.aliasType(user, base, params);
-		scopeStack.peek().storeTypeAlias(decl);
+		scopeStack.peek().aliasType(user, base, params);
 		return result();
 	}
 	
@@ -1268,7 +1266,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		else if (expr.getType().isAbstractDataType() || expr.getType().isConstructorType()) {
 			Type node = ((IConstructor) expr.getValue()).getConstructorType();
 			
-			if (!expr.getType().hasField(field)) {
+			if (!expr.getType().hasField(field, callStack.peek().getStore())) {
 				throw new NoSuchFieldError(expr.getType() + " does not have a field named `" + field + "`", x);
 			}
 			
@@ -1527,12 +1525,11 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result receiver = x.getReceiver().accept(this);
 		String label = x.getAnnotation().toString();
 		
-		if (receiver.getType().declaresAnnotation(label)) {
+		if (!callStack.peek().declaresAnnotation(receiver.getType(), label)) {
 			throw new NoSuchAnnotationError("No annotation `" + label + "` declared for " + receiver.getType(), x);
 		}
 		
-		// TODO get annotation from local and imported environments
-		Type type = tf.getAnnotationType(receiver.getType(), label);
+		Type type = callStack.peek().getAnnotationType(receiver.getType(), label);
 		IValue value = ((IConstructor) receiver.getValue()).getAnnotation(label);
 		
 		return normalizedResult(type, value);
@@ -2020,8 +2017,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		  Result expr = x.getExpression().accept(this);
 		String name = x.getName().toString();
 
-		// TODO: get annotations from local and imported environments
-		Type annoType = tf.getAnnotationType(expr.getType(), name);
+		Type annoType = callStack.peek().getAnnotationType(expr.getType(), name);
 
 		if (annoType == null) {
 			throw new NoSuchAnnotationError("No annotation `" + x.getName()

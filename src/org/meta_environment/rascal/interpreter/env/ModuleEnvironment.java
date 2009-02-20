@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.QualifiedName;
@@ -26,21 +28,15 @@ import org.meta_environment.rascal.interpreter.result.Result;
 public class ModuleEnvironment extends Environment {
 	private final String name;
 	protected final Map<String, ModuleEnvironment> importedModules;
-	protected final Map<String,Type> typeAliases;
-	protected final Map<String, Type> adts;
-	protected final Map<Type, List<Type>> signature;
 	protected final Map<Type, List<Type>> extensions;
-	protected final Map<Type, Map<String, Type>> annotations;
+	protected final TypeStore typeStore;
 	
 	public ModuleEnvironment(String name) {
 		super(null, null);
 		this.name = name;
 		this.importedModules = new HashMap<String, ModuleEnvironment>();
-		this.typeAliases = new HashMap<String,Type>();
-		this.adts = new HashMap<String,Type>();
-		this.signature = new HashMap<Type, List<Type>>();
 		this.extensions = new HashMap<Type, List<Type>>();
-		this.annotations = new HashMap<Type, Map<String, Type>>();
+		this.typeStore = new TypeStore();
 	}
 	
 	public boolean isModuleEnvironment() {
@@ -49,6 +45,7 @@ public class ModuleEnvironment extends Environment {
 	
 	public void addImport(String name, ModuleEnvironment env) {
 		importedModules.put(name, env);
+		typeStore.importStore(env.typeStore);
 	}
 	
 	public Set<String> getImports() {
@@ -57,6 +54,11 @@ public class ModuleEnvironment extends Environment {
 
 	public String getName() {
 		return name;
+	}
+	
+	@Override
+	public TypeStore getStore() {
+		return typeStore;
 	}
 	
 	@Override
@@ -193,68 +195,54 @@ public class ModuleEnvironment extends Environment {
 	}
 
 	@Override
-	public Type getTypeAlias(String name) {
-		return typeAliases.get(name);
+	public Type abstractDataType(String name, Type... parameters) {
+		return typeStore.abstractDataType(name, parameters);
+	}
+	
+	@Override
+	public Type constructorFromTuple(Type adt, String name, Type tupleType) {
+		return typeStore.constructorFromTuple(adt, name, tupleType);
+	}
+	
+	@Override
+	public Type constructor(Type nodeType, String name,
+			Object... childrenAndLabels) {
+		return typeStore.constructor(nodeType, name, childrenAndLabels);
+	}
+	
+	@Override
+	public Type constructor(Type nodeType, String name, Type... children) {
+		return typeStore.constructor(nodeType, name, children);
+	}
+	
+	@Override
+	public Type aliasType(String name, Type aliased, Type... parameters) {
+		return typeStore.aliasType(name, aliased, parameters);
+	}
+	
+	@Override
+	public void declareAnnotation(Type onType, String label, Type valueType) {
+		typeStore.declareAnnotation(onType, label, valueType);
+	}
+	
+	@Override
+	public Type getAnnotationType(Type type, String label) {
+		return typeStore.getAnnotationType(type, label);
 	}
 	
 	@Override
 	public Type getAbstractDataType(String sort) {
-		return adts.get(sort);
+		return typeStore.lookupAbstractDataType(sort);
 	}
 	
 	@Override
 	public Type getConstructor(String cons, Type args) {
-		for (List<Type> sig : signature.values()) {
-			for (Type cand : sig) {
-				String candCons = cand.getName();
-				
-				if (candCons == null) {
-					if (cons == null && args.isSubtypeOf(cand.getFieldTypes())) {
-						return cand;
-					}
-				}
-				else if (candCons.equals(cons)
-				      && args.isSubtypeOf(cand.getFieldTypes())) {
-					return cand;
-				}
-			}
-		}
-		
-		for (String i : getImports()) {
-			ModuleEnvironment mod = importedModules.get(i);
-			Type found = mod.getConstructor(cons, args);
-			
-			if (found != null) {
-				return found;
-			}
-		}
-		
-		return null;
+		return typeStore.lookupFirstConstructor(cons, args);
 	}
 	
 	@Override
 	public Type getConstructor(Type sort, String cons, Type args) {
-		List<Type> sig = signature.get(sort);
-		
-		if (sig != null) {
-			for (Type cand : sig) {
-				String candName = cand.getName();
-				if (candName != null && candName.equals(cons) && args.isSubtypeOf(cand.getFieldTypes())) {
-					return cand;
-				}
-			}
-		}
-		
-		for (String i : getImports()) {
-			ModuleEnvironment mod = importedModules.get(i);
-			Type found = mod.getConstructor(sort, cons, args);
-			
-			if (found != null) {
-				return found;
-			}
-		}
-		
-		return null;
+		return typeStore.lookupConstructor(sort, cons, args);
 	}
 	
 	@Override
@@ -283,76 +271,6 @@ public class ModuleEnvironment extends Environment {
 		return false;
 	}
 	
-	public void storeTypeAlias(Type decl) {
-		typeAliases.put(decl.getName(), decl);
-	}
-	
-	public void storeAbstractDataType(Type decl) {
-		List<Type> tmp = signature.get(decl);
-		
-		if (tmp == null) {
-			tmp = new ArrayList<Type>();
-			signature.put(decl, tmp);
-		}
-		
-		adts.put(decl.getName(), decl);
-	}
-	
-	public void storeConstructor(Type decl) {
-		Type adt = decl.getAbstractDataType();
-		
-		storeAbstractDataType(adt);
-		
-		List<Type> tmp = signature.get(adt);
-		
-		if (tmp == null) {
-			tmp = new ArrayList<Type>();
-			signature.put(adt, tmp);
-		}
-		
-		tmp.add(decl);
-	}
-	
-	public void storeDefinition(Type adt, Type extension) {
-		List<Type> tmp = extensions.get(adt);
-		
-		if (tmp == null) {
-			tmp = new ArrayList<Type>();
-			extensions.put(adt, tmp);
-		}
-		
-		tmp.add(extension);
-	}
-
-
-	public void storeAnnotation(Type onType, String name, Type annoType) {
-		Map<String, Type> annosFor = annotations.get(onType);
-		
-		if (annosFor == null) {
-			annosFor = new HashMap<String,Type>();
-			annotations.put(onType, annosFor);
-		}
-
-		annosFor.put(name, annoType);
-	}
-	
-	// TODO deal with imports
-	@Override
-	public Type getAnnotationType(Type onType, String name) {
-		Map<String, Type> annosFor = annotations.get(onType);
-		
-		if (annosFor != null) {
-			return annosFor.get(name);
-		}
-		
-		return null;
-	}
-	
-	@Override
-	public Map<String, Type> getAnnotations(Type onType) {
-		return annotations.get(onType);
-	}
-	
 	@Override
 	public String toString() {
 		return "Environment [ " + getName() + ":" + importedModules + "]"; 
@@ -376,5 +294,46 @@ public class ModuleEnvironment extends Environment {
 		checkModuleName(name);
 		
 		super.storeVariable(name, result);
+	}
+	
+	@Override
+	public boolean declaresAnnotation(Type type, String label) {
+		return typeStore.getAnnotationType(type, label) != null;
+	}
+	
+	@Override
+	public Type lookupAbstractDataType(String name) {
+		return typeStore.lookupAbstractDataType(name);
+	}
+	
+	@Override
+	public Type lookupAlias(String name) {
+		return typeStore.lookupAlias(name);
+	}
+	
+	@Override
+	public Set<Type> lookupAlternatives(Type adt) {
+		return typeStore.lookupAlternatives(adt);
+	}
+	
+	@Override
+	public Type lookupConstructor(Type adt, String cons, Type args) {
+		return typeStore.lookupConstructor(adt, cons, args);
+	}
+	
+	@Override
+	public Set<Type> lookupConstructor(Type adt, String constructorName)
+			throws FactTypeUseException {
+		return typeStore.lookupConstructor(adt, constructorName);
+	}
+	
+	@Override
+	public Set<Type> lookupConstructors(String constructorName) {
+		return typeStore.lookupConstructors(constructorName);
+	}
+	
+	@Override
+	public Type lookupFirstConstructor(String cons, Type args) {
+		return typeStore.lookupFirstConstructor(cons, args);
 	}
 }

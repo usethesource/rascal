@@ -38,7 +38,7 @@ import org.meta_environment.rascal.ast.UserType.Parametric;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.Lambda;
 import org.meta_environment.rascal.interpreter.errors.ImplementationError;
-import org.meta_environment.rascal.interpreter.errors.TypeError;
+import org.meta_environment.rascal.interpreter.errors.UndeclaredTypeException;
 
 public class TypeEvaluator {
 	private static TypeFactory tf = TypeFactory.getInstance();
@@ -308,30 +308,36 @@ public class TypeEvaluator {
 		public Type visitUserTypeParametric(Parametric x) {
 			java.lang.String name = Names.name(x.getName());
 
-			Type type = tf.lookupAlias(name);
 			if (env != null) {
-				return type.instantiate(env.getTypeBindings());
+				Type type = env.lookupAlias(name);
+				
+				if (type != null) {
+					return type.instantiate(env.getTypeBindings());
+				}
 			}
-			return type;
+			
+			throw new UndeclaredTypeException(name, x);
 		}
 
 		@Override
 		public Type visitUserTypeName(Name x) {
 			java.lang.String name = Names.name(x.getName());
 
-			Type type = tf.lookupAlias(name);
+			if (env != null) {
+				Type type = env.lookupAlias(name);
 
-			if (type == null) {
-				Type tree = tf.lookupAbstractDataType(name);
+				if (type == null) {
+					Type tree = env.lookupAbstractDataType(name);
 
-				if (tree == null) {
-					throw new TypeError("Undeclared type `" + x + "`", x);
-				} else {
-					return tree;
+					if (tree != null) {
+						return tree;
+					}
 				}
-			}
 
-			return type;
+				return type;
+			}
+			
+			throw new UndeclaredTypeException(name, x);
 		}
 
 		@Override

@@ -74,7 +74,7 @@ import org.meta_environment.rascal.interpreter.result.Result;
 		String label = x.getAnnotation().toString();
 		Result result = x.getReceiver().accept(eval);
 		
-		if (!result.getType().declaresAnnotation(label)) {
+		if (!env.declaresAnnotation(result.getType(), label)) {
 			throw new NoSuchAnnotationError("No annotation `" + label + "` declared for " + result.getType(), x);
 		}
 		

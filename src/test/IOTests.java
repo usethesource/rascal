@@ -23,23 +23,25 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.io.ATermReader;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.meta_environment.rascal.ValueFactoryFactory;
 
 public class IOTests extends TestCase {
 	private static TypeFactory tf = TypeFactory.getInstance();
+	private static TypeStore ts = new TypeStore();
 	private static IValueFactory vf = ValueFactoryFactory.getValueFactory();
-	private static Type Boolean = tf.abstractDataType("Boolean");
+	private static Type Boolean = ts.abstractDataType("Boolean");
 	
-	private static Type Name = tf.abstractDataType("Name");
-	private static Type True = tf.constructor(Boolean, "true");
-	private static Type False= tf.constructor(Boolean, "false");
-	private static Type And= tf.constructor(Boolean, "and", Boolean, Boolean);
-	private static Type Or= tf.constructor(Boolean, "or", tf.listType(Boolean));
-	private static Type Not= tf.constructor(Boolean, "not", Boolean);
-	private static Type TwoTups = tf.constructor(Boolean, "twotups", tf.tupleType(Boolean, Boolean), tf.tupleType(Boolean, Boolean));
-	private static Type NameNode  = tf.constructor(Name, "name", tf.stringType());
-	private static Type Friends = tf.constructor(Boolean, "friends", tf.listType(Name));
-	private static Type Couples = tf.constructor(Boolean, "couples", tf.listType(tf.tupleType(Name, Name)));
+	private static Type Name = ts.abstractDataType("Name");
+	private static Type True = ts.constructor(Boolean, "true");
+	private static Type False= ts.constructor(Boolean, "false");
+	private static Type And= ts.constructor(Boolean, "and", Boolean, Boolean);
+	private static Type Or= ts.constructor(Boolean, "or", tf.listType(Boolean));
+	private static Type Not= ts.constructor(Boolean, "not", Boolean);
+	private static Type TwoTups = ts.constructor(Boolean, "twotups", tf.tupleType(Boolean, Boolean), tf.tupleType(Boolean, Boolean));
+	private static Type NameNode  = ts.constructor(Name, "name", tf.stringType());
+	private static Type Friends = ts.constructor(Boolean, "friends", tf.listType(Name));
+	private static Type Couples = ts.constructor(Boolean, "couples", tf.listType(tf.tupleType(Name, Name)));
 	
 	private IValue[] testValues = {
 			vf.constructor(True).setAnnotation("anno", vf.constructor(False)),
@@ -57,8 +59,8 @@ public class IOTests extends TestCase {
 	};
 	
 	static {
-		tf.declareAnnotation(Boolean, "anno", Boolean);
-		tf.declareAnnotation(Boolean, "banno", Boolean);
+		ts.declareAnnotation(Boolean, "anno", Boolean);
+		ts.declareAnnotation(Boolean, "banno", Boolean);
 	}
 	
 	private String[] testATerm = {
@@ -87,7 +89,7 @@ public class IOTests extends TestCase {
 		
 		try {
 			for (int i = 0; i < testATerm.length; i++) {
-				IValue result = testReader.read(vf, Boolean, new ByteArrayInputStream(testATerm[i].getBytes()));
+				IValue result = testReader.read(vf, ts, Boolean, new ByteArrayInputStream(testATerm[i].getBytes()));
 				System.err.println(testATerm[i] + " -> " + result);
 				
 				if (!result.isEqual(testValues[i])) {
