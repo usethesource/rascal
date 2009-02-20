@@ -3637,7 +3637,6 @@ public class Evaluator extends NullASTVisitor<Result> {
 		finally {
 			pop();
 		}
-		
 	}
 	
 	
