@@ -17,14 +17,21 @@ set[ProgramPoint] uninit(PROGRAM P) {
     println("Uses=<Uses>\nDefs=<Defs>\nControlFlow=<ControlFlow>");
     
     R= ControlFlow.entry;
-    G=ControlFlow.entry;
+    G= ControlFlow.graph;
     
     println("R=<R>\nG=<G>");
     dx = Defs["x"]; ux = Uses["x"];
-    ds = Defs["s"]; uy = Uses["s"];
+    ds = Defs["s"]; us = Uses["s"];
     
     println("dx=<dx>\nux=<ux>");
     println("ds=<ds>\nus=<us>");
+    
+    for(<PicoId Id, ProgramPoint PP> <- Uses){
+      println("Id=<Id>, PP=<PP>");
+      rx = reachX(ControlFlow.graph, ControlFlow.entry, Defs[Id]);
+      println("reachX=<rx>");
+    }
+    
 
     return {PP | <PicoId Id, ProgramPoint PP> <- Uses,
                  PP in reachX(ControlFlow.graph, ControlFlow.entry, Defs[Id])

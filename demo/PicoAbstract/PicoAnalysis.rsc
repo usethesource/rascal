@@ -2,7 +2,7 @@ module PicoAnalysis
 
 import PicoAbstractSyntax;
 
-public data ProgramPoint = pp(EXP exp) | pp(STATEMENT stat);
+public data ProgramPoint = pp(EXP exp, int label) | pp(STATEMENT stat, int label);
 
 alias CFG = rel[ProgramPoint, ProgramPoint];
 
