@@ -3636,7 +3636,14 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	@Override
 	public Result visitExpressionComprehension(Comprehension x) {
-		return x.getComprehension().accept(this);
+		push();
+		try {
+			return x.getComprehension().accept(this);	
+		}
+		finally {
+			pop();
+		}
+		
 	}
 	
 	
