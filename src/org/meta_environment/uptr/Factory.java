@@ -1,16 +1,8 @@
 package org.meta_environment.uptr;
 
-import java.io.IOException;
-import java.io.InputStream;
-
-import org.eclipse.imp.pdb.facts.INode;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.io.ATermReader;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.meta_environment.rascal.ValueFactoryFactory;
 
 /**
  * UPTR stands for Universal Parse Node Representation (formerly known as AsFix). It is
@@ -27,7 +19,6 @@ public class Factory {
 			org.meta_environment.rascal.errors.Factory.getStore(), 
 			org.meta_environment.rascal.locations.Factory.getStore());
 	private static TypeFactory tf = TypeFactory.getInstance();
-	private static IValueFactory vf = ValueFactoryFactory.getValueFactory();
 
 	public static final Type ParseTree = uptr.abstractDataType("ParseTree");
 	public static final Type Tree = uptr.abstractDataType("Tree");
@@ -118,10 +109,5 @@ public class Factory {
 	
 	public static TypeStore getStore() {
 		return uptr;
-	}
-	
-	public INode readParseTree(InputStream stream) throws FactTypeUseException, IOException {
-		ATermReader reader = new ATermReader();
-		return (INode) reader.read(vf, ParseTree, stream);
 	}
 }

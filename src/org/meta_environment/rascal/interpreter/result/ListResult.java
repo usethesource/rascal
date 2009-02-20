@@ -1,7 +1,6 @@
 package org.meta_environment.rascal.interpreter.result;
 
 import org.eclipse.imp.pdb.facts.IList;
-import org.meta_environment.rascal.interpreter.errors.ImplementationError;
 
 public class ListResult extends AbstractResult {
 
