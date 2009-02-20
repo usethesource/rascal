@@ -134,7 +134,7 @@ public class JavaBridge {
 				addLine("}");
 
 	  
-		System.err.println("Classpath for compilation: " + System.getProperty("java.class.path"));
+//		System.err.println("Classpath for compilation: " + System.getProperty("java.class.path"));
 		compilation.doCompile(out);
 		
 		if (compilation.getDiagnostics().size() != 0) {
