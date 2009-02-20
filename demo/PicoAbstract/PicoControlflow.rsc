@@ -7,17 +7,6 @@ import IO;
 import UnitTest;
                      
 
-int labelCnt = 0;
-
-private void resetLabelGen(){
-	labelCnt = 0;
-}
-
-private int labelGen(){
-	labelCnt = labelCnt + 1;
-	return labelCnt;
-}
-
 public BLOCK cflow(PROGRAM P){
     resetLabelGen();
     if(program(list[DECL] Decls, list[STATEMENT] Stats) := P){
@@ -60,27 +49,28 @@ public BLOCK cflow(STATEMENT Stat){
       
       case whileStat(EXP Exp, list[STATEMENT] Stats): {
            BLOCK CF = cflow(Stats);
-           set[ProgramPoint] E = {pp(Exp, labelGen())};
+           set[ProgramPoint] E = {pp(Exp)};
            return block(E, 
                     (E * CF.entry) + CF.graph + (CF.exit * E),
                     E
                   );
       }
          
-      case STATEMENT Stat: return block({pp(Stat, labelGen())}, {}, {pp(Stat, labelGen())});
+      case STATEMENT Stat: {PP = pp(Stat); return block({PP}, {}, {PP});}
     }
     println("cflowstat returns no value");
 }
 
 public bool test(){
-
+    resetLabelGen();
 	assertTrue(
        cflow([asgStat("x", natCon(1)),  asgStat("s", conc(id("s"), strCon("#")))] ) ==
        block({pp(asgStat("x",natCon(1)),1)},
              {<pp(asgStat("x",natCon(1)),2),pp(asgStat("s",conc(id("s"),strCon("#"))),3)>},
              {pp(asgStat("s",conc(id("s"),strCon("#"))),4)})
              );
-            
+   
+    resetLabelGen();
 	assertTrue(
     cflow(small) ==
     block({pp(asgStat("x",natCon(3)),1)},
@@ -90,7 +80,8 @@ public bool test(){
            <pp(asgStat("x",sub(id("x"),natCon(1))),4),pp(asgStat("s",conc(id("s"),strCon("#"))),5)>},
           {pp(id("x"),7)})
           );
-	         
+	
+	resetLabelGen();
 	assertTrue(
     cflow(fac) ==
     
