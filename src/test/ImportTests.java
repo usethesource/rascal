@@ -16,7 +16,7 @@ public class ImportTests extends TestFramework {
 	@Test
 	public void testFun() {
 		
-		prepare("module M" +
+		prepareModule("module M" +
 				         " public int f(int n) {return 2 * n;}" +
 				         " private int g(int n) { return 2 * n;}");
 		
@@ -31,7 +31,7 @@ public class ImportTests extends TestFramework {
 	@Test
 	public void testVar() {
 		
-		prepare("module M\n" +
+		prepareModule("module M\n" +
 				         "public int n = 3;\n" +
 				         "private int m = 3;");
 		assertTrue(runTestInSameEvaluator("import M;"));
@@ -62,7 +62,7 @@ public class ImportTests extends TestFramework {
 	@Test
 	public void testMbase2() {
 		
-		prepare("module M " +
+		prepareModule("module M " +
 						 "import Mbase; " +
 						 "public int m = n;" +
 						 "public int f() { return n; }"	 +
@@ -78,7 +78,7 @@ public class ImportTests extends TestFramework {
 	@Test
 	public void testMbase3() {
 		
-		prepare("module M " +
+		prepareModule("module M " +
 						 "import Mbase;" +
 						 "public int g(int n) {return 3 * n;}" +
 						 "public int h(int n) {return f(n);}" +
@@ -99,7 +99,7 @@ public class ImportTests extends TestFramework {
 	@Test
 	public void testSize() {
 		
-		prepare("module Msize \n" +
+		prepareModule("module Msize \n" +
 				         "import Set;\n" +
 						 "public set[int] Procs = {1, 2, 3};\n" +
 						 "public int f() {int nProcs = Set::size(Procs); return nProcs;}\n" +

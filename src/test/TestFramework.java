@@ -83,6 +83,7 @@ public class TestFramework  {
 			
 		} catch (Exception e){
 			System.err.println("Unhandled exception while preparing test: " + e);
+			e.printStackTrace();
 		}
 		return this;
 	}
