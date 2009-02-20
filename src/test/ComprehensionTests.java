@@ -3,6 +3,7 @@ package test;
 import static org.junit.Assert.*;
 import org.junit.Test;
 import org.meta_environment.rascal.interpreter.errors.TypeError;
+import org.meta_environment.rascal.interpreter.errors.UndefinedValueError;
 
 public class ComprehensionTests extends TestFramework {
 	
@@ -148,6 +149,10 @@ public class ComprehensionTests extends TestFramework {
 		assertFalse(runTest("all(<int X, int Y> <- [<1,10>,<30,3>,<2,20>], X < Y);"));
 	}
 	
+	@Test(expected=UndefinedValueError.class)
+	public void noLeaking() {
+		assertTrue(runTest("{{ X | int X <- [1,2,3] }; X == 3; }"));
+	}
 	
 	@Test(expected=TypeError.class)
 	public void allError() {
