@@ -9,7 +9,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
-import org.meta_environment.rascal.ValueFactoryFactory;
+import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.interpreter.errors.ImplementationError;
 import org.meta_environment.rascal.interpreter.errors.IndexOutOfBoundsError;
 
