@@ -14,10 +14,17 @@ public rel[PicoId, ProgramPoint] defs(PROGRAM P) {
   return {<Id, pp(S)> | STATEMENT S <- P, asgStat(PicoId Id, EXP Exp) := S};
 }
 
+void myAssertTrue(bool res){
+ 	resetLabelGen();
+ 	assertTrue(res);
+}
+
 public bool test(){
+
 
   assertTrue(uses(small) == {<"x",pp(id("x"))>,<"s",pp(id("s"))>});
   
+   resetLabelGen();
   assertTrue(defs(small) == {<"s",pp(asgStat("s",conc(id("s"),strCon("#"))))>,
                              <"x",pp(asgStat("x",sub(id("x"),natCon(1))))>,
                              <"x",pp(asgStat("x",natCon(3)))>});               
