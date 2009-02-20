@@ -116,10 +116,10 @@ public class JavaBridge {
 		compilation.addSource(fullClassName).addLine(
 				"package org.meta_environment.rascal.java;").
 				addLine("import org.meta_environment.rascal.interpreter.errors.*;").
-				addLine("import org.meta_environment.rascal.interpreter.SubList;").
+				addLine("import org.meta_environment.rascal.interpreter.SubList;"). // TODO, leaking implementation detail ???
 				addLine("import org.eclipse.imp.pdb.facts.type.*;").
 				addLine("import org.eclipse.imp.pdb.facts.*;").
-				addLine("import org.meta_environment.rascal.ValueFactoryFactory;").
+				addLine("import org.meta_environment.ValueFactoryFactory;").
 				addLine("import org.eclipse.imp.pdb.facts.io.*;").
 				addLine("import org.eclipse.imp.pdb.facts.visitors.*;").
 				addLine("import java.util.Random;").
