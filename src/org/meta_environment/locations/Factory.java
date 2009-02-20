@@ -1,4 +1,4 @@
-package org.meta_environment.rascal.locations;
+package org.meta_environment.locations;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;

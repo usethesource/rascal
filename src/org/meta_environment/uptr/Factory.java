@@ -16,8 +16,8 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
  */
 public class Factory {
 	private static TypeStore uptr = new TypeStore(
-			org.meta_environment.rascal.errors.Factory.getStore(), 
-			org.meta_environment.rascal.locations.Factory.getStore());
+			org.meta_environment.errors.Factory.getStore(), 
+			org.meta_environment.locations.Factory.getStore());
 	private static TypeFactory tf = TypeFactory.getInstance();
 
 	public static final Type ParseTree = uptr.abstractDataType("ParseTree");
@@ -36,7 +36,7 @@ public class Factory {
 	public static final Type Alternatives = uptr.aliasType("Alternatives", tf.setType(Tree));
 	
 	public static final Type ParseTree_Top = uptr.constructor(ParseTree,"parsetree", Tree, "top", tf.integerType(), "amb_cnt");
-	public static final Type ParseTree_Summary = uptr.constructor(ParseTree, "summary", tf.stringType(), "producer", tf.stringType(), "id", tf.listType(org.meta_environment.rascal.errors.Factory.Error), "errors");
+	public static final Type ParseTree_Summary = uptr.constructor(ParseTree, "summary", tf.stringType(), "producer", tf.stringType(), "id", tf.listType(org.meta_environment.errors.Factory.Error), "errors");
 	
 	public static final Type Constructor_Name = uptr.constructor(Constructor, "cons", tf.stringType(), "name");
 	public static final Type Constructor_Category = uptr.constructor(Constructor, "category", tf.stringType(), "name");

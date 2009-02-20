@@ -2,7 +2,7 @@ package org.meta_environment.uptr;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
-import org.meta_environment.rascal.errors.SummaryAdapter;
+import org.meta_environment.errors.SummaryAdapter;
 import org.meta_environment.rascal.interpreter.errors.ImplementationError;
 
 public class ParsetreeAdapter {
