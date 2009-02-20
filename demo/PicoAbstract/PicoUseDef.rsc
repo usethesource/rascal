@@ -17,6 +17,7 @@ public rel[PicoId, ProgramPoint] defs(PROGRAM P) {
 public bool test(){
 
   assertTrue(uses(small) == {<"x",pp(id("x"))>,<"s",pp(id("s"))>});
+  
   assertTrue(defs(small) == {<"s",pp(asgStat("s",conc(id("s"),strCon("#"))))>,
                              <"x",pp(asgStat("x",sub(id("x"),natCon(1))))>,
                              <"x",pp(asgStat("x",natCon(3)))>});               
