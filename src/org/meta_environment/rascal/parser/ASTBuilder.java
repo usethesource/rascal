@@ -63,7 +63,7 @@ public class ASTBuilder {
 			return (T) buildValue(tree);
 		} else {
 			throw new ImplementationError("This is not a" + sort +  ": "
-					+ new TreeAdapter(parseTree).yield());
+					+ new TreeAdapter(tree).yield());
 		}
 	}
 	

@@ -16,7 +16,7 @@ end
 *********************************************/
 
 public PROGRAM small =
-program([decl("x", natural), decl("s", string)],
+program([decl("x", natural)@(p:1), decl("s", string)],
         [ asgStat("x", natCon(3)),
           whileStat(id("x"),
                     [ asgStat("x", sub(id("x"), natCon(1))),

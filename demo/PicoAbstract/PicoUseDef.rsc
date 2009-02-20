@@ -5,12 +5,14 @@ import PicoPrograms;
 import UnitTest;
 import IO;
 
-public rel[PicoId, EXP] uses(PROGRAM P) {
-  return {<Id, E> | EXP E <- P, id(PicoId Id) := E};
+public data ProgramPoint = pp(EXP exp) | pp(STATEMENT stat);
+
+public rel[PicoId, ProgramPoint] uses(PROGRAM P) {
+  return {<Id, pp(E)> | EXP E <- P, id(PicoId Id) := E};
 }
 
-public rel[PicoId, STATEMENT] defs(PROGRAM P) { 
-  return {<Id, S> | STATEMENT S <- P, asgStat(PicoId Id, EXP Exp) := S};
+public rel[PicoId, ProgramPoint] defs(PROGRAM P) { 
+  return {<Id, pp(S)> | STATEMENT S <- P, asgStat(PicoId Id, EXP Exp) := S};
 }
 
 public bool test(){
