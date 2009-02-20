@@ -16,8 +16,19 @@ end
 *********************************************/
 
 public PROGRAM small =
-program([decl("x", natural)@(p:1), decl("s", string)],
+program([decl("x", natural), decl("s", string)],
         [ asgStat("x", natCon(3)),
+          whileStat(id("x"),
+                    [ asgStat("x", sub(id("x"), natCon(1))),
+                      asgStat("s", conc(id("s"), strCon("#")))
+                    ]
+                   )
+        ]
+       );
+       
+public PROGRAM smallUninit =
+program([decl("x", natural), decl("s", string)],
+        [ //asgStat("x", natCon(3)),
           whileStat(id("x"),
                     [ asgStat("x", sub(id("x"), natCon(1))),
                       asgStat("s", conc(id("s"), strCon("#")))
