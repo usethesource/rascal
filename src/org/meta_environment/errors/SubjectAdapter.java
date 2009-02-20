@@ -1,4 +1,4 @@
-package org.meta_environment.rascal.errors;
+package org.meta_environment.errors;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -20,7 +20,7 @@ public class SubjectAdapter {
 
 	public ISourceLocation getLocation() {
 		if (isLocalized()) {
-			return org.meta_environment.rascal.locations.Factory.getInstance().toSourceLocation(ValueFactoryFactory.getValueFactory(), (IConstructor) subject.get("location"));
+			return org.meta_environment.locations.Factory.getInstance().toSourceLocation(ValueFactoryFactory.getValueFactory(), (IConstructor) subject.get("location"));
 		}
 		return null;
 	}

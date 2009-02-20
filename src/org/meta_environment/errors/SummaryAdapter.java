@@ -1,4 +1,4 @@
-package org.meta_environment.rascal.errors;
+package org.meta_environment.errors;
 
 import java.util.Iterator;
 
