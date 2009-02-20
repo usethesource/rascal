@@ -5,7 +5,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.meta_environment.rascal.ValueFactoryFactory;
+import org.meta_environment.ValueFactoryFactory;
 
 public class SubjectAdapter {
 	private IConstructor subject;

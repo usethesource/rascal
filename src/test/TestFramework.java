@@ -5,7 +5,7 @@ import java.io.PrintWriter;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.meta_environment.rascal.ValueFactoryFactory;
+import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.Command;
 import org.meta_environment.rascal.ast.Module;

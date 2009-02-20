@@ -3,7 +3,7 @@ package org.meta_environment.rascal.interpreter.result;
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IBool;
-import org.meta_environment.rascal.ValueFactoryFactory;
+import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.interpreter.errors.ImplementationError;
 
 public class BoolResult extends AbstractResult {

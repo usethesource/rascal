@@ -10,7 +10,7 @@ import org.eclipse.imp.pdb.facts.io.ATermReader;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.meta_environment.rascal.ValueFactoryFactory;
+import org.meta_environment.ValueFactoryFactory;
 
 public class Factory {
 	private static TypeStore errors = new TypeStore(org.meta_environment.locations.Factory.getStore());
