@@ -5,8 +5,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeDeclarationException;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.QualifiedName;
@@ -214,14 +218,6 @@ public class Environment {
 		return getRoot().getImport(moduleName);
 	}
 
-	public Map<String, Type> getAnnotations(Type onType) {
-		return getRoot().getAnnotations(onType);
-	}
-
-	public Type getAnnotationType(Type onType, String name) {
-		return getRoot().getAnnotationType(onType, name);
-	}
-
 	public boolean isTreeConstructorName(QualifiedName name, Type signature) {
 		return getRoot().isTreeConstructorName(name, signature);
 	}
@@ -245,9 +241,72 @@ public class Environment {
 	public Type getAbstractDataType(String sort) {
 		return getRoot().getAbstractDataType(sort);
 	}
-
-	public Type getTypeAlias(String name) {
-		return getRoot().getTypeAlias(name);
+	
+	public Type lookupAbstractDataType(String name) {
+		return getRoot().lookupAbstractDataType(name);
+	}
+	
+	public Type lookupAlias(String name) {
+		return getRoot().lookupAlias(name);
+	}
+	
+	public Set<Type> lookupAlternatives(Type adt) {
+		return getRoot().lookupAlternatives(adt);
+	}
+	
+	public Type lookupConstructor(Type adt, String cons, Type args) {
+		return getRoot().lookupConstructor(adt, cons, args);
 	}
 
+	public Set<Type> lookupConstructor(Type adt, String constructorName)
+			throws FactTypeUseException {
+		return getRoot().lookupConstructor(adt, constructorName);
+	}
+	
+	public Set<Type> lookupConstructors(String constructorName) {
+		return getRoot().lookupConstructors(constructorName);
+	}
+	
+	public Type lookupFirstConstructor(String cons, Type args) {
+		return getRoot().lookupFirstConstructor(cons, args);
+	}
+	
+	public boolean declaresAnnotation(Type type, String label) {
+		return getRoot().declaresAnnotation(type, label);
+	}
+	
+	public Type getAnnotationType(Type type, String label) {
+		return getRoot().getAnnotationType(type, label);
+	}
+	
+	public void declareAnnotation(Type onType, String label, Type valueType) {
+		getRoot().declareAnnotation(onType, label, valueType);
+	}
+	
+	public Type abstractDataType(String name, Type...parameters) {
+		return getRoot().abstractDataType(name, parameters);
+	}
+	
+	public Type constructorFromTuple(Type adt, String name, Type tupleType) {
+		return getRoot().constructorFromTuple(adt, name, tupleType);
+	}
+		   
+	public Type constructor(Type nodeType, String name, Object... childrenAndLabels ) {
+		return getRoot().constructor(nodeType, name, childrenAndLabels);
+	}
+	
+	public Type constructor(Type nodeType, String name, Type... children ) {
+		return getRoot().constructor(nodeType, name, children);
+	}
+	
+	public Type aliasType(String name, Type aliased, Type...parameters) {
+		return getRoot().aliasType(name, aliased, parameters);
+	}
+	
+	public TypeStore getStore() {
+		return getRoot().getStore();
+	}
+		   
+		   
+		  
 }

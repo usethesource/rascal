@@ -1,7 +1,5 @@
 package org.meta_environment.rascal.interpreter.errors;
 
-import java.util.List;
-
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -21,6 +19,8 @@ import org.meta_environment.rascal.ast.AbstractAST;
  * 
  */
 public class Error extends RuntimeException {
+	private static final String ERROR_DATA_TYPE_NAME = "Error";
+
 	private static final long serialVersionUID = -7290501865940548332L;
 
 	private final IValue exception;
@@ -55,18 +55,13 @@ public class Error extends RuntimeException {
 	private static INode makeNode(String errorCons, String message){
 		IValueFactory VF = ValueFactoryFactory.getValueFactory();
 		TypeFactory TF = TypeFactory.getInstance();
-		Type adt = TF.lookupAbstractDataType("Error");
-		List<Type> types = TF.lookupConstructor(adt, errorCons);
-		if(message == null)
+		Type adt = TF.abstractDataType(ERROR_DATA_TYPE_NAME);
+		Type type = TF.constructor(adt, errorCons, TF.stringType());
+		if(message == null) {
 			message = "null";
-		if(types.size() > 0){
-			// The Error ADT is defined
-			Type Cons = types.get(0);
-			return VF.constructor(Cons, VF.string(message));
-		} else {
-			// The Error ADT is not defined, return just a node
-			return VF.node(errorCons, VF.string(message));
 		}
+		
+		return (INode) type.make(VF, VF.string(message));
 	}
 
 	public Error(String errorCons, String message) {
@@ -79,7 +74,7 @@ public class Error extends RuntimeException {
 	
 	public Error(String message, Throwable cause) {
 		super(message, cause);
-		this.exception = makeNode("Error", message);
+		this.exception = makeNode(ERROR_DATA_TYPE_NAME, message);
 		range = null;
 		path = null;
 	}
