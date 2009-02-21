@@ -594,13 +594,13 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	@Override
 	public Result visitDeclarationAlias(Alias x) {
-		new TypeDeclarationEvaluator().declareAlias(x, peek());
+		typeDeclarator.declareAlias(x, peek());
 		return result();
 	}
 	
 	@Override
 	public Result visitDeclarationData(Data x) {
-		new TypeDeclarationEvaluator().declareConstructor(x, peek());
+		typeDeclarator.declareConstructor(x, peek());
 		return result();
 	}
 	
