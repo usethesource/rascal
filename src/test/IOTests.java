@@ -30,18 +30,18 @@ public class IOTests extends TestCase {
 	private static TypeFactory tf = TypeFactory.getInstance();
 	private static TypeStore ts = new TypeStore();
 	private static IValueFactory vf = ValueFactoryFactory.getValueFactory();
-	private static Type Boolean = ts.abstractDataType("Boolean");
+	private static Type Boolean = tf.abstractDataType(ts, "Boolean");
 	
-	private static Type Name = ts.abstractDataType("Name");
-	private static Type True = ts.constructor(Boolean, "true");
-	private static Type False= ts.constructor(Boolean, "false");
-	private static Type And= ts.constructor(Boolean, "and", Boolean, Boolean);
-	private static Type Or= ts.constructor(Boolean, "or", tf.listType(Boolean));
-	private static Type Not= ts.constructor(Boolean, "not", Boolean);
-	private static Type TwoTups = ts.constructor(Boolean, "twotups", tf.tupleType(Boolean, Boolean), tf.tupleType(Boolean, Boolean));
-	private static Type NameNode  = ts.constructor(Name, "name", tf.stringType());
-	private static Type Friends = ts.constructor(Boolean, "friends", tf.listType(Name));
-	private static Type Couples = ts.constructor(Boolean, "couples", tf.listType(tf.tupleType(Name, Name)));
+	private static Type Name = tf.abstractDataType(ts, "Name");
+	private static Type True = tf.constructor(ts, Boolean, "true");
+	private static Type False= tf.constructor(ts, Boolean, "false");
+	private static Type And= tf.constructor(ts, Boolean, "and", Boolean, Boolean);
+	private static Type Or= tf.constructor(ts, Boolean, "or", tf.listType(Boolean));
+	private static Type Not= tf.constructor(ts, Boolean, "not", Boolean);
+	private static Type TwoTups = tf.constructor(ts, Boolean, "twotups", tf.tupleType(Boolean, Boolean), tf.tupleType(Boolean, Boolean));
+	private static Type NameNode  = tf.constructor(ts, Name, "name", tf.stringType());
+	private static Type Friends = tf.constructor(ts, Boolean, "friends", tf.listType(Name));
+	private static Type Couples = tf.constructor(ts, Boolean, "couples", tf.listType(tf.tupleType(Name, Name)));
 	
 	private IValue[] testValues = {
 			vf.constructor(True).setAnnotation("anno", vf.constructor(False)),

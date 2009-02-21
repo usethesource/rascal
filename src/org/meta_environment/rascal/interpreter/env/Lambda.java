@@ -10,6 +10,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.meta_environment.ValueFactoryFactory;
@@ -45,8 +46,9 @@ public class Lambda extends Result implements IValue {
 	protected final boolean hasVarArgs;
 	private boolean isVoidFunction;
     
-    protected final static Type FunctionType = TF.abstractDataType("Rascal.Function");
-    protected final static Type ClosureType = TF.constructor(FunctionType, "Rascal.Function.Closure");
+	protected final static TypeStore hiddenStore = new TypeStore();
+    protected final static Type FunctionType = TF.abstractDataType(hiddenStore, "Rascal.Function");
+    protected final static Type ClosureType = TF.constructor(hiddenStore, FunctionType, "Rascal.Function.Closure");
 	protected final Type returnType;
 	private final List<Statement> body;
 	private final String name;
@@ -131,7 +133,7 @@ public class Lambda extends Result implements IValue {
 	
 	public Result call(IValue[] actuals, Type actualTypes, Environment env) {
 		Map<Type,Type> bindings = env.getTypeBindings();
-		Type instantiatedFormals = formals.instantiate(bindings);
+		Type instantiatedFormals = formals.instantiate(env.getStore(), bindings);
 
 		if (hasVarArgs) {
 			actualTypes = computeVarArgsActualTypes(actualTypes, instantiatedFormals);
@@ -159,7 +161,7 @@ public class Lambda extends Result implements IValue {
 		catch (ReturnControlException e) {
 			Result result = e.getValue();
 
-			Type instantiatedReturnType = returnType.instantiate(env.getTypeBindings());
+			Type instantiatedReturnType = returnType.instantiate(env.getStore(), env.getTypeBindings());
 
 			if(!result.getType().isSubtypeOf(instantiatedReturnType)){
 				throw new TypeError("Actual return type " + result.getType() + " is not compatible with declared return type " + returnType, ast);
@@ -174,7 +176,7 @@ public class Lambda extends Result implements IValue {
 
 	private void assignFormals(IValue[] actuals, Environment env) {
 		for (int i = 0; i < formals.getArity(); i++) {
-			Type formal = formals.getFieldType(i).instantiate(env.getTypeBindings());
+			Type formal = formals.getFieldType(i).instantiate(env.getStore(), env.getTypeBindings());
 			Result result = new Result(formal, actuals[i]);
 			env.storeVariable(formals.getFieldName(i), result);
 		}

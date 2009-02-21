@@ -15,14 +15,14 @@ public class Factory {
 	private static TypeFactory tf = TypeFactory.getInstance();
 	private static TypeStore ts = new TypeStore();
 
-	public static final Type Location = ts.abstractDataType("Location");
-	public static final Type Area = ts.abstractDataType("Area");
+	public static final Type Location = tf.abstractDataType(ts, "Location");
+	public static final Type Area = tf.abstractDataType(ts, "Area");
 
-	public static final Type Location_File = ts.constructor(Location, "file", tf.stringType(), "filename");
-	public static final Type Location_Area = ts.constructor(Location, "area", Area, "area");
-	public static final Type Location_AreaInFile = ts.constructor(Location, "area-in-file", tf.stringType(), "filename", Area, "area");
+	public static final Type Location_File = tf.constructor(ts, Location, "file", tf.stringType(), "filename");
+	public static final Type Location_Area = tf.constructor(ts, Location, "area", Area, "area");
+	public static final Type Location_AreaInFile = tf.constructor(ts, Location, "area-in-file", tf.stringType(), "filename", Area, "area");
 
-	public static final Type Area_Area = ts.constructor(Area, "area", tf.integerType(), "beginLine", tf.integerType(), "beginColumn", tf.integerType(), "endLine", tf.integerType(), "endColumn", tf.integerType(), "offset", tf.integerType(), "length");
+	public static final Type Area_Area = tf.constructor(ts, Area, "area", tf.integerType(), "beginLine", tf.integerType(), "beginColumn", tf.integerType(), "endLine", tf.integerType(), "endColumn", tf.integerType(), "offset", tf.integerType(), "length");
 	
 	private static final class InstanceHolder {
 		public final static Factory factory = new Factory();
