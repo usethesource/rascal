@@ -23,7 +23,7 @@ private int labelGen(){
 	return labelCnt;
 }
 
-public ProgramPoint pp(Exp exp){
+public ProgramPoint pp(EXP exp){
 	return pp(exp, labelGen());
 }
 

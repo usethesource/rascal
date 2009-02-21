@@ -6,7 +6,7 @@ data ParseTree =
 data Tree =
      appl(Production prod, list[Tree] args) |
 	 cycle(Symbol symbol, int cycleLength) |
-	 amb(Args args) | 
+	 amb(set[Tree] alternatives) | 
 	 char(int character);
 
 data Production =

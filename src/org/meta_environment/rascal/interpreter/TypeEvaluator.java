@@ -148,8 +148,14 @@ public class TypeEvaluator {
 			Object[] typesAndNames = new Object[list.size() * 2];
 
 			for (int formal = 0, index = 0; formal < list.size(); formal++, index++) {
-				typesAndNames[index++] = list.get(formal).accept(this);
-				typesAndNames[index] = list.get(formal).getName().toString();
+				Formal f = list.get(formal);
+				Type type = f.accept(this);
+				
+				if (type == null) {
+					throw new UndeclaredTypeException(f.getType().toString(), f);
+				}
+				typesAndNames[index++] = type;
+				typesAndNames[index] = f.getName().toString();
 			}
 
 			return tf.tupleType(typesAndNames);
