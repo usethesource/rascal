@@ -32,6 +32,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.IWriter;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAbstractDataTypeException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.errors.ErrorAdapter;
@@ -181,6 +182,7 @@ import org.meta_environment.rascal.interpreter.errors.RunTimeError;
 import org.meta_environment.rascal.interpreter.errors.SubscriptError;
 import org.meta_environment.rascal.interpreter.errors.SyntaxError;
 import org.meta_environment.rascal.interpreter.errors.TypeError;
+import org.meta_environment.rascal.interpreter.errors.UndeclaredTypeException;
 import org.meta_environment.rascal.interpreter.errors.UndefinedValueError;
 import org.meta_environment.rascal.interpreter.errors.UninitializedVariableError;
 import org.meta_environment.rascal.interpreter.result.Result;
@@ -677,6 +679,10 @@ public class Evaluator extends NullASTVisitor<Result> {
 		    	for (int i = 0; i < args.size(); i++) {
 		    		TypeArg arg = args.get(i);
 					fields[i] = te.eval(arg.getType(), scopeStack.peek());
+					
+					if (fields[i] == null) {
+						throw new UndeclaredTypeException(arg.getType().toString(), arg);
+					}
 					
 					if (arg.hasName()) {
 						labels[i] = arg.getName().toString();
