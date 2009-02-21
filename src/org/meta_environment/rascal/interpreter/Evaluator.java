@@ -224,6 +224,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	// TODO: can we remove this?
 	protected MatchPattern lastPattern;	// The most recent pattern applied in a match
 	                                    	// For the benefit of string matching.
+	private TypeDeclarationEvaluator typeDeclarator = new TypeDeclarationEvaluator();
 
 	public Evaluator(IValueFactory f, ASTFactory astFactory, Writer errorWriter, ModuleEnvironment scope) {
 		this(f, astFactory, errorWriter, scope, new GlobalEnvironment());
@@ -568,12 +569,9 @@ public class Evaluator extends NullASTVisitor<Result> {
 			try {
 				x.getHeader().accept(this);
 
-				// first we pre-evaluate the type declarations
 				java.util.List<Toplevel> decls = x.getBody().getToplevels();
-				TypeDeclarationEvaluator td = new TypeDeclarationEvaluator();
-				td.evaluateDeclarations(decls, peek());
+				typeDeclarator.evaluateDeclarations(decls, peek());
 				
-				// then we run the other declarations
 				for (Toplevel l : decls) {
 					l.accept(this);
 				}
