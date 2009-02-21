@@ -32,7 +32,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.IWriter;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAbstractDataTypeException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.errors.ErrorAdapter;
@@ -59,12 +58,10 @@ import org.meta_environment.rascal.ast.Statement;
 import org.meta_environment.rascal.ast.Strategy;
 import org.meta_environment.rascal.ast.StringLiteral;
 import org.meta_environment.rascal.ast.Toplevel;
-import org.meta_environment.rascal.ast.TypeArg;
-import org.meta_environment.rascal.ast.TypeVar;
-import org.meta_environment.rascal.ast.Variant;
 import org.meta_environment.rascal.ast.Assignable.Constructor;
 import org.meta_environment.rascal.ast.Assignable.FieldAccess;
 import org.meta_environment.rascal.ast.ClosureAsFunction.Evaluated;
+import org.meta_environment.rascal.ast.Declaration.Alias;
 import org.meta_environment.rascal.ast.Declaration.Annotation;
 import org.meta_environment.rascal.ast.Declaration.Data;
 import org.meta_environment.rascal.ast.Declaration.Function;
@@ -182,7 +179,6 @@ import org.meta_environment.rascal.interpreter.errors.RunTimeError;
 import org.meta_environment.rascal.interpreter.errors.SubscriptError;
 import org.meta_environment.rascal.interpreter.errors.SyntaxError;
 import org.meta_environment.rascal.interpreter.errors.TypeError;
-import org.meta_environment.rascal.interpreter.errors.UndeclaredTypeException;
 import org.meta_environment.rascal.interpreter.errors.UndefinedValueError;
 import org.meta_environment.rascal.interpreter.errors.UninitializedVariableError;
 import org.meta_environment.rascal.interpreter.result.Result;
@@ -572,7 +568,12 @@ public class Evaluator extends NullASTVisitor<Result> {
 			try {
 				x.getHeader().accept(this);
 
+				// first we pre-evaluate the type declarations
 				java.util.List<Toplevel> decls = x.getBody().getToplevels();
+				TypeDeclarationEvaluator td = new TypeDeclarationEvaluator();
+				td.evaluateDeclarations(decls, peek());
+				
+				// then we run the other declarations
 				for (Toplevel l : decls) {
 					l.accept(this);
 				}
@@ -590,6 +591,18 @@ public class Evaluator extends NullASTVisitor<Result> {
 	public Result visitHeaderDefault(
 			org.meta_environment.rascal.ast.Header.Default x) {
 		visitImports(x.getImports());
+		return result();
+	}
+	
+	@Override
+	public Result visitDeclarationAlias(Alias x) {
+		new TypeDeclarationEvaluator().declareAlias(x, peek());
+		return result();
+	}
+	
+	@Override
+	public Result visitDeclarationData(Data x) {
+		new TypeDeclarationEvaluator().declareConstructor(x, peek());
 		return result();
 	}
 	
@@ -660,73 +673,6 @@ public class Evaluator extends NullASTVisitor<Result> {
 		  scopeStack.peek().declareAnnotation(onType, name, annoType);	
 		}
 		
-		return result();
-	}
-	
-	@Override
-	public Result visitDeclarationData(Data x) {
-		String name = x.getUser().getName().toString();
-		Type sort = scopeStack.peek().abstractDataType(name);
-		
-		for (Variant var : x.getVariants()) {
-			String altName = Names.name(var.getName());
-			
-		    if (var.isNAryConstructor()) {
-		    	java.util.List<TypeArg> args = var.getArguments();
-		    	Type[] fields = new Type[args.size()];
-		    	String[] labels = new String[args.size()];
-
-		    	for (int i = 0; i < args.size(); i++) {
-		    		TypeArg arg = args.get(i);
-					fields[i] = te.eval(arg.getType(), scopeStack.peek());
-					
-					if (fields[i] == null) {
-						throw new UndeclaredTypeException(arg.getType().toString(), arg);
-					}
-					
-					if (arg.hasName()) {
-						labels[i] = arg.getName().toString();
-					}
-					else {
-						labels[i] = "arg" + java.lang.Integer.toString(i);
-					}
-		    	}
-
-		    	Type children = tf.tupleType(fields, labels);
-		    	scopeStack.peek().constructorFromTuple(sort, altName, children);
-		    }
-		    else if (var.isNillaryConstructor()) {
-		    	scopeStack.peek().constructor(sort, altName, new Object[] { });
-		    }
-		}
-		
-		return result();
-	}
-	
-	@Override
-	public Result visitDeclarationAlias(
-			org.meta_environment.rascal.ast.Declaration.Alias x) {
-		// TODO add support for parameterized types
-		String user = x.getUser().getName().toString();
-		Type[] params;
-		if (x.getUser().isParametric()) {
-			java.util.List<org.meta_environment.rascal.ast.Type> formals = x.getUser().getParameters();
-			params = new Type[formals.size()];
-			int i = 0;
-			for (org.meta_environment.rascal.ast.Type formal : formals) {
-				if (!formal.isVariable()) {
-					throw new TypeError("Declaration of parameterized type with type instance " + formal + " is not allowed", formal);
-				}
-				TypeVar var = formal.getTypeVar();
-				Type bound = var.hasBound() ? evalType(var.getBound()) : tf.valueType();
-				params[i++] = tf.parameterType(Names.name(var.getName()), bound);
-			}
-		}
-		else {
-			params = new Type[0];
-		}
-		Type base = evalType(x.getBase());
-		scopeStack.peek().aliasType(user, base, params);
 		return result();
 	}
 	
