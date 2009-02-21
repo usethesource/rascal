@@ -25,10 +25,6 @@ public class GlobalEnvironment {
 	/** Normalizing rules are a global feature */
 	private final Map<Type, List<Rule>> ruleEnvironment = new HashMap<Type, List<Rule>>();
 	
-
-	/** so is the cache */
-	private final Cache cache = new Cache(); // TODO NOT USED
-	
 	/**
 	 * Allocate a new module on the heap
 	 * @param name

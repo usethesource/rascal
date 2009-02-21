@@ -6,6 +6,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
 
@@ -55,8 +56,9 @@ public class Error extends RuntimeException {
 	private static INode makeNode(String errorCons, String message){
 		IValueFactory VF = ValueFactoryFactory.getValueFactory();
 		TypeFactory TF = TypeFactory.getInstance();
-		Type adt = TF.abstractDataType(ERROR_DATA_TYPE_NAME);
-		Type type = TF.constructor(adt, errorCons, TF.stringType());
+		TypeStore hiddenStore = new TypeStore(); // TODO this may not work since other will not be able to see the declaration
+		Type adt = TF.abstractDataType(hiddenStore, ERROR_DATA_TYPE_NAME);
+		Type type = TF.constructor(hiddenStore, adt, errorCons, TF.stringType());
 		if(message == null) {
 			message = "null";
 		}

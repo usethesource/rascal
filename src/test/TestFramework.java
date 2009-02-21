@@ -54,6 +54,7 @@ public class TestFramework  {
 			reset();
 			return execute(command);
 		} catch (IOException e){
+			e.printStackTrace();
 			throw new RunTimeError("Exception while running test", e);
 		}
 	}

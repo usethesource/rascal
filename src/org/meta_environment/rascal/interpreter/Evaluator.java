@@ -333,7 +333,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Type instance;
 		
 		if (bindings.size() > 0) {
-		    instance = t.instantiate(bindings);
+		    instance = t.instantiate(peek().getStore(), bindings);
 		}
 		else {
 			instance = t;
@@ -354,7 +354,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Type instance;
 		
 		if (bindings.size() > 0) {
-		    instance = t.instantiate(bindings);
+		    instance = t.instantiate(peek().getStore(), bindings);
 		}
 		else {
 			instance = t;
@@ -636,7 +636,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 					// TODO: do we actually want to instantiate the locally bound type parameters?
 					Map<Type,Type> bindings = new HashMap<Type,Type>();
 					declaredType.match(v.getType(), bindings);
-					declaredType = declaredType.instantiate(bindings);
+					declaredType = declaredType.instantiate(peek().getStore(), bindings);
 					r = normalizedResult(declaredType, v.getValue());
 					scopeStack.peek().storeVariable(var.getName(), r);
 				} else {
@@ -664,8 +664,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	@Override
 	public Result visitDeclarationData(Data x) {
 		String name = x.getUser().getName().toString();
-		Type sort = tf.abstractDataType(name);
-		scopeStack.peek().abstractDataType(name);
+		Type sort = scopeStack.peek().abstractDataType(name);
 		
 		for (Variant var : x.getVariants()) {
 			String altName = Names.name(var.getName());
@@ -800,7 +799,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 					// TODO: do we actually want to instantiate the locally bound type parameters?
 					Map<Type,Type> bindings = new HashMap<Type,Type>();
 					declaredType.match(v.getType(), bindings);
-					declaredType = declaredType.instantiate(bindings);
+					declaredType = declaredType.instantiate(peek().getStore(), bindings);
 					r = result(declaredType, v.getValue());
 					peek().storeVariable(var.getName(), r);
 				} else {

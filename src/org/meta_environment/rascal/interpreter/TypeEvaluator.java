@@ -294,7 +294,7 @@ public class TypeEvaluator {
 				param = tf.parameterType(var.getName().toString());
 			}
 			if (env != null) {
-				return param.instantiate(env.getTypeBindings());
+				return param.instantiate(env.getStore(), env.getTypeBindings());
 			}
 			return param;
 		}
@@ -312,7 +312,7 @@ public class TypeEvaluator {
 				Type type = env.lookupAlias(name);
 				
 				if (type != null) {
-					return type.instantiate(env.getTypeBindings());
+					return type.instantiate(env.getStore(), env.getTypeBindings());
 				}
 			}
 			

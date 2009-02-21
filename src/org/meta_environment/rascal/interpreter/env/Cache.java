@@ -85,26 +85,6 @@ public class Cache {
 		}
 	}
 	
-	private class CacheEntry<Env> {
-		private Env env;
-		private String name;
-		
-		public CacheEntry(String name, Env env) {
-			this.env = env;
-			this.name = name;
-		}
-		
-		@SuppressWarnings("unchecked")
-		@Override
-		public boolean equals(Object o) {
-			if (!(o instanceof CacheEntry)) {
-				return false;
-			}
-			CacheEntry entry = (CacheEntry)o;
-			return env == entry.env && name.equals(entry.name);
-		}
-	}
-	
 	private class FunctionCacheEntry {
 		private Map<String,List<Lambda>> env;
 		private String name;

@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.Name;
@@ -30,6 +31,7 @@ public class ModuleEnvironment extends Environment {
 	protected final Map<String, ModuleEnvironment> importedModules;
 	protected final Map<Type, List<Type>> extensions;
 	protected final TypeStore typeStore;
+	protected static final TypeFactory TF = TypeFactory.getInstance();
 	
 	public ModuleEnvironment(String name) {
 		super(null, null);
@@ -196,28 +198,28 @@ public class ModuleEnvironment extends Environment {
 
 	@Override
 	public Type abstractDataType(String name, Type... parameters) {
-		return typeStore.abstractDataType(name, parameters);
+		return TF.abstractDataType(typeStore, name, parameters);
 	}
 	
 	@Override
 	public Type constructorFromTuple(Type adt, String name, Type tupleType) {
-		return typeStore.constructorFromTuple(adt, name, tupleType);
+		return TF.constructorFromTuple(typeStore, adt, name, tupleType);
 	}
 	
 	@Override
 	public Type constructor(Type nodeType, String name,
 			Object... childrenAndLabels) {
-		return typeStore.constructor(nodeType, name, childrenAndLabels);
+		return TF.constructor(typeStore, nodeType, name, childrenAndLabels);
 	}
 	
 	@Override
 	public Type constructor(Type nodeType, String name, Type... children) {
-		return typeStore.constructor(nodeType, name, children);
+		return TF.constructor(typeStore, nodeType, name, children);
 	}
 	
 	@Override
 	public Type aliasType(String name, Type aliased, Type... parameters) {
-		return typeStore.aliasType(name, aliased, parameters);
+		return TF.aliasType(typeStore, name, aliased, parameters);
 	}
 	
 	@Override

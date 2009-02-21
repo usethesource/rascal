@@ -42,7 +42,7 @@ public class JavaMethod extends Lambda {
 		}
 
 		bindTypeParameters(actualTypes, formals, env); 
-		Type resultType = returnType.instantiate(env.getTypeBindings());
+		Type resultType = returnType.instantiate(env.getStore(), env.getTypeBindings());
 		return new Result(resultType, result);
 	}
 	
