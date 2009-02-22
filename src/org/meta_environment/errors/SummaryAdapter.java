@@ -4,6 +4,7 @@ import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IValue;
 
 public class SummaryAdapter implements Iterable<ErrorAdapter> {
@@ -40,5 +41,17 @@ public class SummaryAdapter implements Iterable<ErrorAdapter> {
 				errors.remove();
 			}
 		};
+	}
+	
+	public ISourceRange getInitialErrorRange() {
+		for (ErrorAdapter error : this) {
+			for (SubjectAdapter subject : error) {
+				if (subject.isLocalized()) {
+					return subject.getRange();
+				}
+			}
+		}
+		
+		return null;
 	}
 }

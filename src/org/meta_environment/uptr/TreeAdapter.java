@@ -256,7 +256,7 @@ public class TreeAdapter {
 			t = t.set("alternatives", newAlts.done());
 		}
 		
-		if (!tree.isLayout() && !tree.isLexical()) {
+		if (true || !tree.isLayout() && !tree.isLexical()) {
 			IValueFactory factory = ValueFactoryFactory.getValueFactory();
 			ISourceRange range = factory.sourceRange(start.offset, cur.offset - start.offset, start.line, cur.line, start.col, cur.col);
 			ISourceLocation loc = factory.sourceLocation(filename, range);
