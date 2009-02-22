@@ -49,9 +49,6 @@ public class TreeAdapter {
 	
 	public ProductionAdapter getProduction() {
 		if (prod == null) {
-			if (!isAppl()) {
-				throw new RuntimeException("wazzup?");
-			}
 		  prod = new ProductionAdapter((IConstructor) tree.get("prod"));
 		}
 		

@@ -60,6 +60,9 @@ public class ProductionAdapter {
 	}
 	
 	public IList getAttributes() {
+		if (isList()) {
+			return (IList) Factory.Attrs.make(ValueFactoryFactory.getValueFactory());
+		}
 		IConstructor attributes = (IConstructor) tree.get("attributes");
 		
 		if (attributes.getConstructorType() == Factory.Attributes_Attrs) {
@@ -112,6 +115,20 @@ public class ProductionAdapter {
 		}
 		SymbolAdapter rhsSym = getRhs();
 		return lhsSym.getSymbol().equals(rhsSym.getSymbol());
+	}
+
+	public String getCategory() {
+		if (!isList()) {
+			for (IValue attr : getAttributes()) {
+				if (attr.getType().isAbstractDataType() && ((IConstructor) attr).getConstructorType() == Factory.Attr_Term) {
+					IValue value = ((IConstructor)attr).get("term");
+					if (value.getType().isNodeType() && ((INode) value).getName().equals("category")) {
+						return ((IString) ((INode) value).get(0)).getValue();
+					}
+				}
+			}
+		}
+		return null;
 	}
 
 
