@@ -12,6 +12,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.io.ATermReader;
 import org.meta_environment.ValueFactoryFactory;
+import org.meta_environment.rascal.interpreter.errors.ImplementationError;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.ParsetreeAdapter;
 
@@ -97,8 +98,12 @@ public class Parser{
 		return parseTableFileName;
 	}
 	
-	private String extractParsetable() throws IOException{
-		URL url = Parser.class.getResource("/" + PARSETABLE_FILENAME);
+	private String extractParsetable() throws IOException {
+		URL url = getClass().getResource("/" + PARSETABLE_FILENAME);
+		
+		if (url == null) {
+			throw new ImplementationError("Can not find Rascal parse table");
+		}
 		InputStream contents = url.openStream();
 		
 		String tmpdir = System.getProperty("java.io.tmpdir");
