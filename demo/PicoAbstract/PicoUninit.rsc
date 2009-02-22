@@ -10,9 +10,9 @@ import IO;
 import Graph;
 
 set[ProgramPoint] uninit(PROGRAM P) {
+    BLOCK ControlFlow = cflow(P);
     rel[PicoId, ProgramPoint] Uses = uses(P);
     rel[PicoId, ProgramPoint] Defs = defs(P);
-    BLOCK ControlFlow = cflow(P);
     
     println("Uses=<Uses>\nDefs=<Defs>\nControlFlow=<ControlFlow>");
     

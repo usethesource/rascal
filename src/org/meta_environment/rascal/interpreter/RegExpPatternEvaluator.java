@@ -153,6 +153,7 @@ class RegExpPatternValue implements MatchPattern {
 		return bindings;
 	}
 	
+	@Override
 	public String toString(){
 		return "RegExpPatternValue(" + RegExpAsString + ", " + patternVars + ")";
 	}

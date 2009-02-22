@@ -190,6 +190,7 @@ interface MatchPattern {
 		firstMatch = hasNext = true;
 	}
 	
+	@Override
 	public Type getType(Environment env) {
 		 Type[] types = new Type[children.size()];
 
@@ -206,6 +207,7 @@ interface MatchPattern {
 		 }
 	}
 	
+	@Override
 	public IValue toIValue(Environment ev){
 		Type type = getType(ev);
 		
@@ -229,6 +231,7 @@ interface MatchPattern {
 		return res;
 	}
 	
+	@Override
 	public boolean hasNext(){
 		if(firstMatch)
 			return true;
@@ -245,6 +248,7 @@ interface MatchPattern {
 		return false;
 	}
 	
+	@Override
 	public boolean next(){
 		checkInitialized();
 		
@@ -267,7 +271,6 @@ interface MatchPattern {
 	private int subjectSize;						// Length of the subject
 	private int minSubjectSize;					// Minimum subject length for this pattern to match
 	private boolean [] isListVar;					// Determine which elements are list or variables
-	private boolean hasListVar;					// Any list variables in this pattern?
 	private HashSet<String> allVars;				// Names of list variables declared in this pattern
 	private int [] listVarStart;					// Cursor start position list variable; indexed by pattern position
 	private int [] listVarLength;					// Current length matched by list variable
@@ -299,6 +302,7 @@ interface MatchPattern {
 		return res;
 	}
 	
+	@Override
 	public IValue toIValue(Environment ev){
 		IValue[] vals = new IValue[children.size()];
 		for (int i = 0; i < children.size(); i++) {
@@ -334,7 +338,6 @@ interface MatchPattern {
 		listVarOccurrences = new int[patternSize];
 		
 		int nListVar = 0;
-		hasListVar = false;
 		/*
 		 * Pass #1: determine the list variables
 		 */
@@ -353,7 +356,6 @@ interface MatchPattern {
 					 * An explicitly declared list variable.
 					 */
 					allVars.add(name);
-					hasListVar = true;
 					isListVar[i] = childType.isListType();
 					listVarOccurrences[i] = 1;
 					nListVar++;
@@ -428,6 +430,7 @@ interface MatchPattern {
 		if(debug)System.err.println("hasNext=" + hasNext);
 	}
 	
+	@Override
 	public Type getType(Environment ev) {
 		if(patternSize == 0){
 			return tf.listType(tf.voidType());
@@ -525,6 +528,7 @@ interface MatchPattern {
 	 * 
 	 * @see org.meta_environment.rascal.interpreter.MatchPattern#match()
 	 */
+	@Override
 	public boolean next(){
 		checkInitialized();
 		if(debug)System.err.println("AbstractPatternList.match: " + subject);
@@ -670,6 +674,7 @@ interface MatchPattern {
 		} while (true);
 	}
 	
+	@Override
 	public String toString(){
 		StringBuffer s = new StringBuffer();
 		s.append("[");
@@ -795,6 +800,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 		this.patternSize = children.size();
 	}
 	
+	@Override
 	public Type getType(Environment ev) {
 		if(patternSize == 0){
 			return tf.setType(tf.voidType());
@@ -812,6 +818,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 		}
 	}
 	
+	@Override
 	public IValue toIValue(Environment ev){
 		IValue[] vals = new IValue[children.size()];
 		for (int i = 0; i < children.size(); i++) {
@@ -1030,6 +1037,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 		return varPat[i].next();
 	}
 	
+	@Override
 	public boolean next(){
 		checkInitialized();
 		
@@ -1109,6 +1117,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 		return res;
 	}
 	
+	@Override
 	public IValue toIValue(Environment ev){
 		IValue[] vals = new IValue[children.size()];
 		for (int i = 0; i < children.size(); i++) {
@@ -1134,6 +1143,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 		firstMatch = hasNext = true;
 	}
 	
+	@Override
 	public Type getType(Environment ev) {
 		Type fieldTypes[] = new Type[children.size()];
 		for(int i = 0; i < children.size(); i++){
@@ -1158,6 +1168,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 		return hasNext;
 	}
 	
+	@Override
 	public boolean next() {
 		checkInitialized();
 		
@@ -1188,6 +1199,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 		return res;
 	}
 	
+	@Override
 	public IValue toIValue(Environment ev){
 		IValue[] vals = new IValue[children.size()];
 		for (int i = 0; i < children.size(); i++) {
@@ -1196,11 +1208,13 @@ class SingleElementGenerator implements Iterator<ISet> {
 		return null; //TODO: make correct
 	}
 	
+	@Override
 	public Type getType(Environment ev) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 	
+	@Override
 	public boolean next(){
 		checkInitialized();
 		throw new ImplementationError("AbstractPatternMap.match not implemented", ast);
@@ -1223,16 +1237,19 @@ class SingleElementGenerator implements Iterator<ISet> {
 	    type = (boundBeforeConstruction) ? patRes.getType() : TypeFactory.getInstance().voidType();
 	}
 	
+	@Override
 	public Type getType(Environment ev) {
 		return type;
 	}
 	
+	@Override
 	public java.util.List<String> getVariables(){
 		java.util.LinkedList<String> res = new java.util.LinkedList<String>();
 		res.addFirst(name.toString());
 		return res;
 	}
 	
+	@Override
 	public IValue toIValue(Environment ev){
 		throw new UnsupportedOperationException("toIValue on Variable");
 	}
@@ -1241,6 +1258,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 		return name.toString();
 	}
 	
+	@Override
 	public boolean next(){
 		checkInitialized();
 		hasNext = false;
@@ -1264,6 +1282,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 		}
 	}
 	
+	@Override
 	public String toString(){
 		return name + "==" + subject;
 	}
@@ -1282,16 +1301,19 @@ class SingleElementGenerator implements Iterator<ISet> {
 		this.env = env;
 	}
 	
+	@Override
 	public Type getType(Environment ev) {
 		return declaredType;
 	}
 	
+	@Override
 	public java.util.List<String> getVariables(){
 		java.util.LinkedList<String> res = new java.util.LinkedList<String>();
 		res.addFirst(name.toString());
 		return res;
 	}
 	
+	@Override
 	public IValue toIValue(Environment ev){
 		throw new UnsupportedOperationException("toIValue on Variable");
 	}
@@ -1300,6 +1322,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 		return name.toString();
 	}
 
+	@Override
 	public boolean next() {
 		checkInitialized();
 		hasNext = false;
@@ -1314,6 +1337,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 		return false;
 	}
 	
+	@Override
 	public String toString(){
 		return declaredType + " " + name + "==" + subject;
 	}
