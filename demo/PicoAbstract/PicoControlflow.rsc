@@ -62,41 +62,41 @@ public BLOCK cflow(STATEMENT Stat){
 }
 
 public bool test(){
+	
     resetLabelGen();
 	assertTrue(
        cflow([asgStat("x", natCon(1)),  asgStat("s", conc(id("s"), strCon("#")))] ) ==
        block({pp(asgStat("x",natCon(1)),1)},
-             {<pp(asgStat("x",natCon(1)),2),pp(asgStat("s",conc(id("s"),strCon("#"))),3)>},
-             {pp(asgStat("s",conc(id("s"),strCon("#"))),4)})
+             {<pp(asgStat("x",natCon(1)),1),pp(asgStat("s",conc(id("s"),strCon("#"))),2)>},
+             {pp(asgStat("s",conc(id("s"),strCon("#"))),2)})
              );
-   
+	
     resetLabelGen();
 	assertTrue(
     cflow(small) ==
     block({pp(asgStat("x",natCon(3)),1)},
-          {<pp(id("x"),7),pp(asgStat("x",sub(id("x"),natCon(1))),3)>,
-           <pp(asgStat("x",natCon(3)),2),pp(id("x"),7)>,
-           <pp(asgStat("s",conc(id("s"),strCon("#"))),6),pp(id("x"),7)>,
-           <pp(asgStat("x",sub(id("x"),natCon(1))),4),pp(asgStat("s",conc(id("s"),strCon("#"))),5)>},
-          {pp(id("x"),7)})
+          {<pp(id("x"),4),pp(asgStat("x",sub(id("x"),natCon(1))),2)>,
+           <pp(asgStat("x",sub(id("x"),natCon(1))),2),pp(asgStat("s",conc(id("s"),strCon("#"))),3)>,
+           <pp(asgStat("s",conc(id("s"),strCon("#"))),3),pp(id("x"),4)>,
+           <pp(asgStat("x",natCon(3)),1),pp(id("x"),4)>},
+          {pp(id("x"),4)})
           );
-	
+
 	resetLabelGen();
 	assertTrue(
     cflow(fac) ==
-    
     block({pp(asgStat("input",natCon(13)),1)},
-          {<pp(asgStat("input",sub(id("input"),natCon(1))),15),pp(sub(id("input"),natCon(1)),16)>,
-          <pp(sub(id("repnr"),natCon(1)),13),pp(asgStat("output",add(id("output"),id("rep"))),9)>,
-          <pp(sub(id("input"),natCon(1)),16),pp(asgStat("rep",id("output")),5)>,
-          <pp(asgStat("output",natCon(1)),4),pp(sub(id("input"),natCon(1)),16)>,
-          <pp(asgStat("repnr",id("input")),8),pp(sub(id("repnr"),natCon(1)),13)>,
-          <pp(asgStat("output",add(id("output"),id("rep"))),10),pp(asgStat("repnr",sub(id("repnr"),natCon(1))),11)>,
-          <pp(asgStat("input",natCon(13)),2),pp(asgStat("output",natCon(1)),3)>,
-          <pp(sub(id("repnr"),natCon(1)),13),pp(asgStat("input",sub(id("input"),natCon(1))),14)>,
-          <pp(asgStat("rep",id("output")),6),pp(asgStat("repnr",id("input")),7)>,
-          <pp(asgStat("repnr",sub(id("repnr"),natCon(1))),12),pp(sub(id("repnr"),natCon(1)),13)>},
-          {pp(sub(id("input"),natCon(1)),16)})
+          {<pp(asgStat("repnr",sub(id("repnr"),natCon(1))),6),pp(sub(id("repnr"),natCon(1)),7)>,
+           <pp(asgStat("input",natCon(13)),1),pp(asgStat("output",natCon(1)),2)>,
+           <pp(sub(id("input"),natCon(1)),9),pp(asgStat("rep",id("output")),3)>,
+           <pp(asgStat("output",natCon(1)),2),pp(sub(id("input"),natCon(1)),9)>,
+           <pp(sub(id("repnr"),natCon(1)),7),pp(asgStat("output",add(id("output"),id("rep"))),5)>,
+           <pp(asgStat("output",add(id("output"),id("rep"))),5),pp(asgStat("repnr",sub(id("repnr"),natCon(1))),6)>,
+           <pp(asgStat("input",sub(id("input"),natCon(1))),8),pp(sub(id("input"),natCon(1)),9)>,
+           <pp(asgStat("rep",id("output")),3),pp(asgStat("repnr",id("input")),4)>,
+           <pp(asgStat("repnr",id("input")),4),pp(sub(id("repnr"),natCon(1)),7)>,
+           <pp(sub(id("repnr"),natCon(1)),7),pp(asgStat("input",sub(id("input"),natCon(1))),8)>},
+          {pp(sub(id("input"),natCon(1)),9)})
           );
 
 return report();

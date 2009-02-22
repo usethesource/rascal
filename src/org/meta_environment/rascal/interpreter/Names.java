@@ -71,6 +71,7 @@ public class Names {
 			fName = name;
 		}
 
+		@Override
 		public <T> T accept(IASTVisitor<T> v) {
 			throw new ImplementationError("Can not visit invented name", this);
 		}
