@@ -2,14 +2,11 @@ package org.meta_environment.rascal.interpreter.LazySet;
 
 import java.util.Iterator;
 
-import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 public class LazyInsert extends LazySet implements ISet {
-	final IValue inserted;
+	private final IValue inserted;
 	private final boolean baseContainsInserted;
 	private final int sizeBase;
 	
@@ -79,42 +76,39 @@ public class LazyInsert extends LazySet implements ISet {
 	public Iterator<IValue> iterator() {
 		return new LazyInsertIterator(this);
 	}
+	
+	private static class LazyInsertIterator implements Iterator<IValue> {
+		private final Iterator<IValue> iter;
+		private final LazyInsert Ins;
+		private int seen;
+		private int size;
 
-}
-
-class LazyInsertIterator implements Iterator<IValue> {
-	private final Iterator<IValue> iter;
-	private LazyInsert Ins;
-	private int seen;
-	private int size;
-
-	LazyInsertIterator(LazyInsert I) {
-		Ins = I;
-		iter = I.base.iterator();
-		seen = 0;
-		size = I.size();
-	}
-
-	@Override
-	public boolean hasNext() {
-		return seen < size;
-	}
-
-	@Override
-	public IValue next() {
-		if(seen == 0){
-			seen++;
-			return Ins.inserted;
+		public LazyInsertIterator(LazyInsert I) {
+			Ins = I;
+			iter = I.base.iterator();
+			seen = 0;
+			size = I.size();
 		}
-		IValue v = iter.next();
-		seen++;
-		return v;
+
+		@Override
+		public boolean hasNext() {
+			return seen < size;
+		}
+
+		@Override
+		public IValue next() {
+			if(seen == 0){
+				seen++;
+				return Ins.inserted;
+			}
+			IValue v = iter.next();
+			seen++;
+			return v;
+		}
+
+		@Override
+		public void remove() {
+			throw new UnsupportedOperationException("remove in LazyInsertIterator");
+		}
 	}
-
-	@Override
-	public void remove() {
-		// TODO Auto-generated method stub
-
-	}
-
 }

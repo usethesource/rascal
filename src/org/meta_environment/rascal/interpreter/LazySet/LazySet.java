@@ -3,7 +3,6 @@ package org.meta_environment.rascal.interpreter.LazySet;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -76,7 +75,6 @@ abstract class LazySet implements ISet {
 		return base.getElementType();
 	}
 	
-
 	public IRelation product(ISet set) {
 		Type elmType1 = getElementType();
 		Type elmType2 = set.getElementType();

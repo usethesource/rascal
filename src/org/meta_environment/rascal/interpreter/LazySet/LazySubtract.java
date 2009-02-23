@@ -2,15 +2,12 @@ package org.meta_environment.rascal.interpreter.LazySet;
 
 import java.util.Iterator;
 
-import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.meta_environment.rascal.interpreter.errors.ImplementationError;
 
 public class LazySubtract extends LazySet {
-	private Integer size;
+	private int size = 0;
 
 	LazySubtract(ISet V, ISet other){
 		super(V);
@@ -56,14 +53,16 @@ public class LazySubtract extends LazySet {
 
 	@Override
 	public int size() {
-		if(size == 0){
-			size = 0;
+		int s = size;
+		if(s == 0){
 			for(IValue v : base){
 				if(!partner.contains(v))
-					size++;
+					s++;
 			}
+			size = s;
 		}
-		return size;
+		
+		return s;
 	}
 
 	@Override
@@ -78,49 +77,42 @@ public class LazySubtract extends LazySet {
 
 	@Override
 	public Iterator<IValue> iterator() {
-		// TODO Auto-generated method stub
-		return null;
+		return new LazySubtractIterator(this);
 	}
-
-}
-
-
-class LazySubtractIterator implements Iterator<IValue> {
-	private final Iterator<IValue> iter;
-	private LazySubtract Sub;
-	private int seen;
-	private int size;
-
-
-	LazySubtractIterator(LazySubtract S) {
-		Sub = S;
-		iter = S.base.iterator();
-		seen = 0;
-		size = S.size();
-	}
-
-	@Override
-	public boolean hasNext() {
-		return seen < size;
-	}
-
-	@Override
-	public IValue next() {
-		while(iter.hasNext()){
-			IValue v = iter.next();
-			if(!Sub.partner.contains(v)){
-				seen++;
-				return v;
-			}
+	
+	private static class LazySubtractIterator implements Iterator<IValue> {
+		private final Iterator<IValue> iter;
+		private final LazySubtract Sub;
+		private int seen;
+		private int size;
+		
+		public LazySubtractIterator(LazySubtract S) {
+			Sub = S;
+			iter = S.base.iterator();
+			seen = 0;
+			size = S.size();
 		}
-		throw new ImplementationError("LazyIntersectIterator");
+
+		@Override
+		public boolean hasNext() {
+			return seen < size;
+		}
+
+		@Override
+		public IValue next() {
+			while(iter.hasNext()){
+				IValue v = iter.next();
+				if(!Sub.partner.contains(v)){
+					seen++;
+					return v;
+				}
+			}
+			throw new ImplementationError("LazyIntersectIterator");
+		}
+
+		@Override
+		public void remove() {
+			throw new UnsupportedOperationException("remove in LazySubstractIterator");
+		}
 	}
-
-	@Override
-	public void remove() {
-		throw new UnsupportedOperationException("remove in LazyIntersectIterator");
-
-	}
-
 }
-
