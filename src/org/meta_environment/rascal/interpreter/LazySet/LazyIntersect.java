@@ -2,15 +2,12 @@ package org.meta_environment.rascal.interpreter.LazySet;
 
 import java.util.Iterator;
 
-import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.meta_environment.rascal.interpreter.errors.ImplementationError;
 
 public class LazyIntersect extends LazySet {
-	private Integer size = null;
+	private int size = 0;
 	
 	LazyIntersect(ISet V, ISet other){
 		super(V);
@@ -57,14 +54,16 @@ public class LazyIntersect extends LazySet {
 
 	@Override
 	public int size() {
-		if(size == null){
-			size = 0;
+		int s = size;
+		if(s == 0){
 			for(IValue v : base){
 				if(partner.contains(v))
-					size++;
+					s++;
 			}
+			size = s;
 		}
-		return size;
+		
+		return s;
 	}
 
 	@Override
@@ -81,53 +80,49 @@ public class LazyIntersect extends LazySet {
 	public Iterator<IValue> iterator() {
 		return new LazyIntersectIterator(this);
 	}
-
-}
-
-class LazyIntersectIterator implements Iterator<IValue> {
-	private final Iterator<IValue> iter1;
-	private Iterator<IValue> iter2;
-	private LazyIntersect Inter;
-	private int seen;
-	private int size;
-
-
-	LazyIntersectIterator(LazyIntersect I) {
-		Inter = I;
-		iter1 = I.base.iterator();
-		iter2 = I.partner.iterator();
-		seen = 0;
-		size = I.size();
-	}
-
-	@Override
-	public boolean hasNext() {
-		return seen < size;
-	}
-
-	@Override
-	public IValue next() {
-		while(iter1.hasNext()){
-			IValue v = iter1.next();
-			if(Inter.partner.contains(v)){
-				seen++;
-				return v;
-			}
+	
+	private static class LazyIntersectIterator implements Iterator<IValue> {
+		private final Iterator<IValue> iter1;
+		private final Iterator<IValue> iter2;
+		private final LazyIntersect Inter;
+		private int seen;
+		private int size;
+		
+		public LazyIntersectIterator(LazyIntersect I) {
+			Inter = I;
+			iter1 = I.base.iterator();
+			iter2 = I.partner.iterator();
+			seen = 0;
+			size = I.size();
 		}
-		while(iter2.hasNext()){
-			IValue v = iter2.next();
-			if(Inter.base.contains(v)){
-				seen++;
-				return v;
-			}
+
+		@Override
+		public boolean hasNext() {
+			return seen < size;
 		}
-		throw new ImplementationError("LazyIntersectIterator");
+
+		@Override
+		public IValue next() {
+			while(iter1.hasNext()){
+				IValue v = iter1.next();
+				if(Inter.partner.contains(v)){
+					seen++;
+					return v;
+				}
+			}
+			while(iter2.hasNext()){
+				IValue v = iter2.next();
+				if(Inter.base.contains(v)){
+					seen++;
+					return v;
+				}
+			}
+			throw new ImplementationError("LazyIntersectIterator");
+		}
+
+		@Override
+		public void remove() {
+			throw new UnsupportedOperationException("remove in LazyIntersectIterator");
+		}
 	}
-
-	@Override
-	public void remove() {
-		throw new UnsupportedOperationException("remove in LazyIntersectIterator");
-
-	}
-
 }

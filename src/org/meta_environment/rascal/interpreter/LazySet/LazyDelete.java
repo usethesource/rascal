@@ -2,14 +2,11 @@ package org.meta_environment.rascal.interpreter.LazySet;
 
 import java.util.Iterator;
 
-import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 
 class LazyDelete extends LazySet {
-	final IValue deleted;
+	private final IValue deleted;
 	private final boolean baseContainsDeleted;
 	private final int baseSize;
 
@@ -80,50 +77,49 @@ class LazyDelete extends LazySet {
 
 	@Override
 	public <SetOrRel extends ISet> SetOrRel delete(IValue elem) {
-		if (base.contains(elem))
+		if (base.contains(elem)){
 			return (SetOrRel) new LazyDelete(this, elem);
-		else
+		}else{
 			return (SetOrRel) this;
+		}
 	}
 
 	@Override
 	public Iterator<IValue> iterator() {
 		return new LazyDeleteIterator(this);
 	}
-}
+	
+	private static class LazyDeleteIterator implements Iterator<IValue> {
+		private final Iterator<IValue> iter;
+		private final LazyDelete Del;
+		private int seen;
+		private int size;
 
-class LazyDeleteIterator implements Iterator<IValue> {
-	private final Iterator<IValue> iter;
-	private LazyDelete Del;
-	private int seen;
-	private int size;
-
-	LazyDeleteIterator(LazyDelete D) {
-		Del = D;
-		iter = D.base.iterator();
-		seen = 0;
-		size = D.size();
-	}
-
-	@Override
-	public boolean hasNext() {
-		return seen < size;
-	}
-
-	@Override
-	public IValue next() {
-		IValue v = iter.next();
-		if (v.equals(Del.deleted)) {
-			v = iter.next();
+		public LazyDeleteIterator(LazyDelete D) {
+			Del = D;
+			iter = D.base.iterator();
+			seen = 0;
+			size = D.size();
 		}
-		seen++;
-		return v;
+
+		@Override
+		public boolean hasNext() {
+			return seen < size;
+		}
+
+		@Override
+		public IValue next() {
+			IValue v = iter.next();
+			if (v.equals(Del.deleted)) {
+				v = iter.next();
+			}
+			seen++;
+			return v;
+		}
+
+		@Override
+		public void remove() {
+			throw new UnsupportedOperationException("remove in LazyDeleteIterator");
+		}
 	}
-
-	@Override
-	public void remove() {
-		// TODO Auto-generated method stub
-
-	}
-
 }
