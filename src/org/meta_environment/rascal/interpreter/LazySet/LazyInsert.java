@@ -18,24 +18,20 @@ public class LazyInsert extends LazySet implements ISet {
 		baseContainsInserted = base.contains(inserted);
 	}
 
-	@Override
 	public boolean contains(IValue element) {
 		return element.equals(inserted) || base.contains(element);
 	}
 
-	@Override
 	public <SetOrRel extends ISet> SetOrRel delete(IValue elem) {
 		return (SetOrRel) (inserted.equals(elem) ? base : new LazyDelete(this, elem));
 	}
 
-	@Override
 	public <SetOrRel extends ISet> SetOrRel insert(IValue element) {
 		if(base.contains(element) || element.equals(inserted))
 			return (SetOrRel) this;
 		return (SetOrRel) new LazyInsert(this, element);
 	}
 
-	@Override
 	public <SetOrRel extends ISet> SetOrRel intersect(ISet set) {
 		if(baseContainsInserted && set.contains(inserted))
 			return (SetOrRel) new LazyIntersect(base, set);
@@ -43,36 +39,30 @@ public class LazyInsert extends LazySet implements ISet {
 	}
 
 
-	@Override
 	public boolean isEmpty() {
 		return false;
 	}
 
-	@Override
 	public boolean isSubSet(ISet other) {
 		return other.contains(inserted) && base.isSubSet(other);
 	}
 
-	@Override
 	public int size() {
 		return base.size() + (baseContainsInserted ? 0 : 1);
 	}
 
-	@Override
 	public <SetOrRel extends ISet> SetOrRel subtract(ISet set) {
 		if(set.contains(inserted))
 			return (SetOrRel) new LazySubtract(base, set);
 		return (SetOrRel) new LazySubtract(this,set);
 	}
 
-	@Override
 	public <SetOrRel extends ISet> SetOrRel union(ISet set) {
 		if(set.contains(inserted))
 			return (SetOrRel) new LazyUnion(base, set);
 		return (SetOrRel) new LazyUnion(this,set);
 	}
 
-	@Override
 	public Iterator<IValue> iterator() {
 		return new LazyInsertIterator(this);
 	}
@@ -90,12 +80,10 @@ public class LazyInsert extends LazySet implements ISet {
 			size = I.size();
 		}
 
-		@Override
 		public boolean hasNext() {
 			return seen < size;
 		}
 
-		@Override
 		public IValue next() {
 			if(seen == 0){
 				seen++;
@@ -106,7 +94,6 @@ public class LazyInsert extends LazySet implements ISet {
 			return v;
 		}
 
-		@Override
 		public void remove() {
 			throw new UnsupportedOperationException("remove in LazyInsertIterator");
 		}

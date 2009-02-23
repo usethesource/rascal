@@ -16,19 +16,16 @@ public class LazyUnion extends LazySet {
 		typecheckSet(other);
 	}
 	
-	@Override
 	public boolean contains(IValue element) {
 		return base.contains(element) || partner.contains(element);
 	}
 
-	@Override
 	public <SetOrRel extends ISet> SetOrRel delete(IValue element) {
 		if(contains(element))
 			return (SetOrRel) new LazyDelete(this, element);
 		return (SetOrRel) this;
 	}
 
-	@Override
 	public <SetOrRel extends ISet> SetOrRel insert(IValue element) {
 		if(contains(element))
 			return (SetOrRel) this;
@@ -36,22 +33,18 @@ public class LazyUnion extends LazySet {
 		
 	}
 
-	@Override
 	public <SetOrRel extends ISet> SetOrRel intersect(ISet set) {
 		return (SetOrRel) new LazyIntersect(this, set);
 	}
 
-	@Override
 	public boolean isEmpty() {
 		return base.isEmpty() && partner.isEmpty();
 	}
 
-	@Override
 	public boolean isSubSet(ISet other) {
 		return base.isSubSet(other) && partner.isSubSet(other);
 	}
 	
-	@Override
 	public int size(){
 		int s = size;
 		if(s == 0){
@@ -69,17 +62,14 @@ public class LazyUnion extends LazySet {
 		return s;
 	}
 
-	@Override
 	public <SetOrRel extends ISet> SetOrRel subtract(ISet set) {
 		return (SetOrRel) new LazySubtract(this, set);
 	}
 
-	@Override
 	public <SetOrRel extends ISet> SetOrRel union(ISet set) {
 		return (SetOrRel) new LazyUnion(this, set);
 	}
 
-	@Override
 	public Iterator<IValue> iterator() {
 		return new LazyUnionIterator(this);
 	}
@@ -105,12 +95,10 @@ public class LazyUnion extends LazySet {
 			size = U.size();
 		}
 
-		@Override
 		public boolean hasNext() {
 			return seen < size;
 		}
 
-		@Override
 		public IValue next() {
 			if(iter1.hasNext()){
 				IValue v = iter1.next();
@@ -127,7 +115,6 @@ public class LazyUnion extends LazySet {
 			throw new ImplementationError("LazyIntersectIterator");
 		}
 
-		@Override
 		public void remove() {
 			throw new UnsupportedOperationException("remove in LazyUnionIterator");
 		}
