@@ -13,36 +13,30 @@ public class LazySubtract extends LazySet {
 		super(V);
 		typecheckSet(other);
 	}
-	@Override
 	public boolean contains(IValue element) {
 		return base.contains(element) && !partner.contains(element);
 	}
 
-	@Override
 	public <SetOrRel extends ISet> SetOrRel delete(IValue element) {
 		if(partner.contains(element))
 			return (SetOrRel) this;
 		return (SetOrRel) new LazyDelete(this, element);
 	}
 
-	@Override
 	public <SetOrRel extends ISet> SetOrRel insert(IValue element) {
 		if(partner.contains(element) || !base.contains(element))
 			return (SetOrRel) this;
 		return (SetOrRel) new LazyDelete(this, element);
 	}
 
-	@Override
 	public <SetOrRel extends ISet> SetOrRel intersect(ISet set) {
 		return (SetOrRel) new LazyIntersect(this, set);
 	}
 
-	@Override
 	public boolean isEmpty() {
 		return size() == 0;
 	}
 
-	@Override
 	public boolean isSubSet(ISet other) {
 		for(IValue v : this){
 			if(!partner.contains(v) && !other.contains(v))
@@ -51,7 +45,6 @@ public class LazySubtract extends LazySet {
 		return true;
 	}
 
-	@Override
 	public int size() {
 		int s = size;
 		if(s == 0){
@@ -65,17 +58,14 @@ public class LazySubtract extends LazySet {
 		return s;
 	}
 
-	@Override
 	public <SetOrRel extends ISet> SetOrRel subtract(ISet set) {
 		return (SetOrRel) new LazySubtract(this, set);
 	}
 
-	@Override
 	public <SetOrRel extends ISet> SetOrRel union(ISet set) {
 		return (SetOrRel) new LazyUnion(this,set);
 	}
 
-	@Override
 	public Iterator<IValue> iterator() {
 		return new LazySubtractIterator(this);
 	}
@@ -93,12 +83,10 @@ public class LazySubtract extends LazySet {
 			size = S.size();
 		}
 
-		@Override
 		public boolean hasNext() {
 			return seen < size;
 		}
 
-		@Override
 		public IValue next() {
 			while(iter.hasNext()){
 				IValue v = iter.next();
@@ -110,7 +98,6 @@ public class LazySubtract extends LazySet {
 			throw new ImplementationError("LazyIntersectIterator");
 		}
 
-		@Override
 		public void remove() {
 			throw new UnsupportedOperationException("remove in LazySubstractIterator");
 		}

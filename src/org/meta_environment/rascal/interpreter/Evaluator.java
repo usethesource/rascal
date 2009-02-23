@@ -156,6 +156,8 @@ import org.meta_environment.rascal.ast.Toplevel.DefaultVisibility;
 import org.meta_environment.rascal.ast.Toplevel.GivenVisibility;
 import org.meta_environment.rascal.ast.Visit.DefaultStrategy;
 import org.meta_environment.rascal.ast.Visit.GivenStrategy;
+import org.meta_environment.rascal.interpreter.BooleanEvaluator;
+import org.meta_environment.rascal.interpreter.AbstractPatternEvaluator;
 import org.meta_environment.rascal.interpreter.control_exceptions.FailureControlException;
 import org.meta_environment.rascal.interpreter.control_exceptions.InsertControlException;
 import org.meta_environment.rascal.interpreter.control_exceptions.ReturnControlException;
@@ -673,6 +675,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		
 		return result();
 	}
+	
 	
 	private Type evalType(org.meta_environment.rascal.ast.Type type) {
 		return te.eval(type, peek());
@@ -1953,7 +1956,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 		return result(tf.tupleType(types), vf.tuple(values));
 	}
-	
+
 	@Override
 	public Result visitExpressionAnnotation(
 			org.meta_environment.rascal.ast.Expression.Annotation x) {
@@ -1975,6 +1978,41 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 		return result(annoType, annoValue);
 	}
+	
+	/*
+	@Override
+	public Result visitExpressionAnnotation(
+			org.meta_environment.rascal.ast.Expression.Annotation x) {
+		  Result lhs = x.getLhs().accept(this);
+		  Result rhs = x.getRhs().accept(this);
+		String name = x.getName().toString();
+
+		if(!lhs.getType().isConstructorType()){
+			throw new NoSuchAnnotationError("Value of type " + lhs.getType() + " can not have an annotation", x);
+		}
+		IConstructor adt = (IConstructor) lhs.getValue();
+		
+		if(!rhs.getType().isConstructorType()){
+			throw new NoSuchAnnotationError("Annotation cannot be of type " + rhs.getType(), x);
+		}
+		IConstructor anno = (IConstructor) rhs.getValue();
+		if(anno.arity() != 1){
+			throw new NoSuchAnnotationError("Annotation should have a single argument", x);
+		}
+		String annoName = anno.getName();
+		
+		Type annoType = callStack.peek().getAnnotationType(lhs.getType(), annoName);
+
+		if (annoType == null) {
+			throw new NoSuchAnnotationError("No annotation `" + annoName
+					+ "` declared on " + lhs.getType(), x);
+		}
+		IValue annoVal = anno.get(0);
+		IValue annotatedLhs = adt.setAnnotation(annoName, annoVal);
+		
+		return result(lhs.getType(), annotatedLhs);
+	}
+	*/
 	
 	public static void widenArgs(Result left, Result right) {
 		TypeFactory tf = TypeFactory.getInstance();

@@ -17,28 +17,23 @@ class LazyDelete extends LazySet {
 		baseSize = base.size();
 	}
 
-	@Override
 	public boolean isEmpty() {
 		return baseSize == 0 || (baseSize == 1 && baseContainsDeleted);
 	}
 
-	@Override
 	public int size() {
 		return baseSize;
 	}
 
-	@Override
 	public boolean contains(IValue element) {
 		return element.equals(deleted) ? false : base.contains(element);
 	}
 
-	@Override
 	public <SetOrRel extends ISet> SetOrRel insert(IValue element) {
 		return (SetOrRel) (element.equals(deleted) ? base : new LazyInsert(
 				this, element));
 	}
 
-	@Override
 	public <SetOrRel extends ISet> SetOrRel intersect(ISet set) {
 		if (set.contains(deleted) && baseContainsDeleted) {
 			return (SetOrRel) new LazyIntersect(this, set);
@@ -47,7 +42,6 @@ class LazyDelete extends LazySet {
 		}
 	}
 
-	@Override
 	public boolean isSubSet(ISet other) {
 		for (IValue v : base) {
 			if (!v.equals(deleted) && !other.contains(v)) {
@@ -57,7 +51,6 @@ class LazyDelete extends LazySet {
 		return true;
 	}
 
-	@Override
 	public <SetOrRel extends ISet> SetOrRel subtract(ISet other) {
 		if (other.contains(deleted)) {
 			return (SetOrRel) new LazySubtract(base, other);
@@ -66,7 +59,6 @@ class LazyDelete extends LazySet {
 		}
 	}
 
-	@Override
 	public <SetOrRel extends ISet> SetOrRel union(ISet set) {
 		if (set.contains(deleted)) {
 			return (SetOrRel) new LazyIntersect(base, set);
@@ -75,7 +67,6 @@ class LazyDelete extends LazySet {
 		}
 	}
 
-	@Override
 	public <SetOrRel extends ISet> SetOrRel delete(IValue elem) {
 		if (base.contains(elem)){
 			return (SetOrRel) new LazyDelete(this, elem);
@@ -84,7 +75,6 @@ class LazyDelete extends LazySet {
 		}
 	}
 
-	@Override
 	public Iterator<IValue> iterator() {
 		return new LazyDeleteIterator(this);
 	}
@@ -102,12 +92,10 @@ class LazyDelete extends LazySet {
 			size = D.size();
 		}
 
-		@Override
 		public boolean hasNext() {
 			return seen < size;
 		}
 
-		@Override
 		public IValue next() {
 			IValue v = iter.next();
 			if (v.equals(Del.deleted)) {
@@ -117,7 +105,6 @@ class LazyDelete extends LazySet {
 			return v;
 		}
 
-		@Override
 		public void remove() {
 			throw new UnsupportedOperationException("remove in LazyDeleteIterator");
 		}
