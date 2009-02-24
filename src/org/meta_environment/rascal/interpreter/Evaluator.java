@@ -249,6 +249,10 @@ public class Evaluator extends NullASTVisitor<Result> {
 		return this.callStack.peek();
 	}
 	
+	public void addModuleLoader(IModuleLoader loader) {
+		loaders.add(loader);
+	}
+	
 	/**
 	 * Evaluate a statement
 	 * @param stat
