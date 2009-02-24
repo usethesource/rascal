@@ -940,7 +940,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 		
 		if(r.getValue().isEqual(vf.bool(false))){
-			throw new AssertionError("Assertion fails: " + x.getExpression(), x);
+			throw new AssertionError("Assertion fails", x);
 		}
 		return r;	
 	}

@@ -28,7 +28,4 @@ public data DECL =
 public data PROGRAM =
 	  program(list[DECL] decls, list[STATEMENT] stats);
 
-
-data POS = pos(int n);
-
-anno POS pos on EXP, STATEMENT;
+anno int pos on EXP, STATEMENT;
