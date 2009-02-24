@@ -84,6 +84,33 @@ public bool test(){
             pp(id("x")@pos(2))>},
           {pp(id("x")@pos(2))})
           );
+    
+    assertEqual(
+     block({pp(asgStat("x",natCon(3))@pos(1))},
+          {<pp(id("x")@pos(2)),
+            pp(asgStat("x",sub(id("x"),natCon(1)))@pos(3))>,
+            
+           <pp(asgStat("x",sub(id("x"),natCon(1)))@pos(3)),
+            pp(asgStat("s",conc(id("s"),strCon("#")))@pos(4))>,
+           <pp(asgStat("s",conc(id("s"),strCon("#")))@pos(4)),
+            pp(id("x")@pos(2))>,
+           <pp(asgStat("x",natCon(3))@pos(1)),
+            pp(id("x")@pos(2))>},
+          {pp(id("x")@pos(2))})
+          ,  
+    
+    
+          block({pp(asgStat("x",natCon(3)))},
+               {
+                <pp(id("x")),pp(asgStat("x",sub(id("x"),natCon(1))))>,
+               <pp(asgStat("s",conc(id("s"),strCon("#")))),pp(id("x"))>,
+                <pp(asgStat("x",natCon(3))),pp(id("x"))>,
+                <pp(asgStat("x",sub(id("x"),natCon(1)))),pp(asgStat("s",conc(id("s"),strCon("#"))))>
+                
+                 },
+                 {pp(id("x"))})
+      );
+          
 
 
 	assertTrue(

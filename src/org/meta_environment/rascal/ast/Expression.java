@@ -395,8 +395,7 @@ private org.meta_environment.rascal.ast.QualifiedName qualifiedName;
  		z.$setQualifiedName(x);
 		return z;
 	}	
-} public org.meta_environment.rascal.ast.Type getType() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Name getName() { throw new UnsupportedOperationException(); } public boolean hasType() { return false; } public boolean hasName() { return false; }
-public boolean isTypedVariable() { return false; }
+} public org.meta_environment.rascal.ast.Type getType() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Name getName() { throw new UnsupportedOperationException(); } public boolean hasType() { return false; } public boolean hasName() { return false; } public boolean isTypedVariable() { return false; }
 static public class TypedVariable extends Expression {
 /* type:Type name:Name -> Expression {cons("TypedVariable")} */
 	private TypedVariable() { }
@@ -1246,38 +1245,83 @@ private org.meta_environment.rascal.ast.Expression argument;
  		z.$setArgument(x);
 		return z;
 	}	
-} public boolean isAnnotation() { return false; }
-static public class Annotation extends Expression {
-/* lhs:Expression "@" rhs:Expression -> Expression {cons("Annotation"), left} */
-	private Annotation() { }
-	/*package*/ Annotation(INode node, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
+} public boolean isGetAnnotation() { return false; }
+static public class GetAnnotation extends Expression {
+/* expression:Expression "@" name:Name -> Expression {cons("GetAnnotation")} */
+	private GetAnnotation() { }
+	/*package*/ GetAnnotation(INode node, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.Name name) {
 		this.node = node;
-		this.lhs = lhs;
-		this.rhs = rhs;
+		this.expression = expression;
+		this.name = name;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitExpressionAnnotation(this);
+		return visitor.visitExpressionGetAnnotation(this);
 	}
 
-	public boolean isAnnotation() { return true; }
+	public boolean isGetAnnotation() { return true; }
 
-	public boolean hasLhs() { return true; }
-	public boolean hasRhs() { return true; }
+	public boolean hasExpression() { return true; }
+	public boolean hasName() { return true; }
 
-private org.meta_environment.rascal.ast.Expression lhs;
-	public org.meta_environment.rascal.ast.Expression getLhs() { return lhs; }
-	private void $setLhs(org.meta_environment.rascal.ast.Expression x) { this.lhs = x; }
-	public Annotation setLhs(org.meta_environment.rascal.ast.Expression x) { 
-		Annotation z = new Annotation();
- 		z.$setLhs(x);
+private org.meta_environment.rascal.ast.Expression expression;
+	public org.meta_environment.rascal.ast.Expression getExpression() { return expression; }
+	private void $setExpression(org.meta_environment.rascal.ast.Expression x) { this.expression = x; }
+	public GetAnnotation setExpression(org.meta_environment.rascal.ast.Expression x) { 
+		GetAnnotation z = new GetAnnotation();
+ 		z.$setExpression(x);
 		return z;
 	}
-	private org.meta_environment.rascal.ast.Expression rhs;
-	public org.meta_environment.rascal.ast.Expression getRhs() { return rhs; }
-	private void $setRhs(org.meta_environment.rascal.ast.Expression x) { this.rhs = x; }
-	public Annotation setRhs(org.meta_environment.rascal.ast.Expression x) { 
-		Annotation z = new Annotation();
- 		z.$setRhs(x);
+	private org.meta_environment.rascal.ast.Name name;
+	public org.meta_environment.rascal.ast.Name getName() { return name; }
+	private void $setName(org.meta_environment.rascal.ast.Name x) { this.name = x; }
+	public GetAnnotation setName(org.meta_environment.rascal.ast.Name x) { 
+		GetAnnotation z = new GetAnnotation();
+ 		z.$setName(x);
+		return z;
+	}	
+} public org.meta_environment.rascal.ast.Expression getValue() { throw new UnsupportedOperationException(); } public boolean hasValue() { return false; }
+public boolean isSetAnnotation() { return false; }
+static public class SetAnnotation extends Expression {
+/* expression:Expression "@" "(" name:Name ":" value: Expression ")" -> Expression {cons("SetAnnotation")} */
+	private SetAnnotation() { }
+	/*package*/ SetAnnotation(INode node, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.Expression value) {
+		this.node = node;
+		this.expression = expression;
+		this.name = name;
+		this.value = value;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitExpressionSetAnnotation(this);
+	}
+
+	public boolean isSetAnnotation() { return true; }
+
+	public boolean hasExpression() { return true; }
+	public boolean hasName() { return true; }
+	public boolean hasValue() { return true; }
+
+private org.meta_environment.rascal.ast.Expression expression;
+	public org.meta_environment.rascal.ast.Expression getExpression() { return expression; }
+	private void $setExpression(org.meta_environment.rascal.ast.Expression x) { this.expression = x; }
+	public SetAnnotation setExpression(org.meta_environment.rascal.ast.Expression x) { 
+		SetAnnotation z = new SetAnnotation();
+ 		z.$setExpression(x);
+		return z;
+	}
+	private org.meta_environment.rascal.ast.Name name;
+	public org.meta_environment.rascal.ast.Name getName() { return name; }
+	private void $setName(org.meta_environment.rascal.ast.Name x) { this.name = x; }
+	public SetAnnotation setName(org.meta_environment.rascal.ast.Name x) { 
+		SetAnnotation z = new SetAnnotation();
+ 		z.$setName(x);
+		return z;
+	}
+	private org.meta_environment.rascal.ast.Expression value;
+	public org.meta_environment.rascal.ast.Expression getValue() { return value; }
+	private void $setValue(org.meta_environment.rascal.ast.Expression x) { this.value = x; }
+	public SetAnnotation setValue(org.meta_environment.rascal.ast.Expression x) { 
+		SetAnnotation z = new SetAnnotation();
+ 		z.$setValue(x);
 		return z;
 	}	
 } public boolean isComposition() { return false; }

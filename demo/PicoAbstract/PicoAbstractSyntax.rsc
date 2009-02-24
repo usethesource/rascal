@@ -31,4 +31,4 @@ public data PROGRAM =
 
 data POS = pos(int n);
 
-anno POS on EXP | STATEMENT;
+anno POS pos on EXP, STATEMENT;

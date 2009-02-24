@@ -601,7 +601,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		
 		return r;
 	}
-/*	
+
 	@Override
 	public Result visitDeclarationAnnotation(Annotation x) {
 		Type annoType = te.eval(x.getType(), scopeStack.peek());
@@ -615,8 +615,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 		return result();
 	}
 	
-	*/
 	
+	/*
 	@Override
 	public Result visitDeclarationAnnotation(Annotation x) {
 		String name = x.getName().toString();
@@ -643,7 +643,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		
 		return result();
 	}
-	
+	*/
 	
 	private Type evalType(org.meta_environment.rascal.ast.Type type) {
 		return te.eval(type, peek());
@@ -1946,9 +1946,9 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 		return result(annoType, annoValue);
 	}
-	*/
+*/	
 	
-	
+	/*
 	@Override
 	public Result visitExpressionAnnotation(
 			org.meta_environment.rascal.ast.Expression.Annotation x) {
@@ -1992,7 +1992,52 @@ public class Evaluator extends NullASTVisitor<Result> {
 			return result(lhs.getType(), annotatedLhs);
 		}
 	}
+	*/
 	
+	
+	@Override
+	public Result visitExpressionGetAnnotation(
+			org.meta_environment.rascal.ast.Expression.GetAnnotation x) {
+		  Result base = x.getExpression().accept(this);
+		String annoName = x.getName().toString();
+
+		Type annoType = callStack.peek().getAnnotationType(base.getType(), annoName);
+
+		if (annoType == null) {
+			throw new NoSuchAnnotationError("No annotation `" + annoName
+					+ "` declared on `" + base.getType() + "`", x);
+		}
+
+		IValue annoValue = ((IConstructor) base.getValue()).getAnnotation(annoName);
+		
+		if (annoValue == null) {
+			// TODO: make this a Rascal exception that can be caught by the programmer
+			throw new NoSuchAnnotationError("This `" + base.getType() + "` does not have a `" + annoName + "` annotation set", x);
+		}
+		return result(annoType, annoValue);
+	}
+	
+	@Override
+	public Result visitExpressionSetAnnotation(
+			org.meta_environment.rascal.ast.Expression.SetAnnotation x) {
+		Result base = x.getExpression().accept(this);
+		String annoName = x.getName().toString();
+		Result anno = x.getValue().accept(this);
+
+		Type annoType = callStack.peek().getAnnotationType(base.getType(), annoName);
+
+		if (annoType == null) {
+			throw new NoSuchAnnotationError("No annotation `" + annoName
+					+ "` declared on " + base.getType(), x);
+		}
+		if(!anno.getType().isSubtypeOf(annoType)){
+			throw new TypeError("Incompatible type `" + anno.getType() + "` for annotation `" + annoName +"`", x);
+		}
+
+		IValue annotatedBase = ((IConstructor) base.getValue()).setAnnotation(annoName, anno.getValue());
+		
+		return result(base.getType(), annotatedBase);
+	}
 	
 	public static void widenArgs(Result left, Result right) {
 		TypeFactory tf = TypeFactory.getInstance();

@@ -584,12 +584,19 @@ org.meta_environment.rascal.ast.Expression.Composition x = new org.meta_environm
 		}
 		return (org.meta_environment.rascal.ast.Expression.Composition)table.get(x); 
 }
-public org.meta_environment.rascal.ast.Expression.Annotation makeExpressionAnnotation(INode node, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) { 
-org.meta_environment.rascal.ast.Expression.Annotation x = new org.meta_environment.rascal.ast.Expression.Annotation(node, lhs, rhs);
+public org.meta_environment.rascal.ast.Expression.SetAnnotation makeExpressionSetAnnotation(INode node, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.Expression value) { 
+org.meta_environment.rascal.ast.Expression.SetAnnotation x = new org.meta_environment.rascal.ast.Expression.SetAnnotation(node, expression, name, value);
 		if (!table.containsKey(x)) { 
 			table.put(x, x);
 		}
-		return (org.meta_environment.rascal.ast.Expression.Annotation)table.get(x); 
+		return (org.meta_environment.rascal.ast.Expression.SetAnnotation)table.get(x); 
+}
+public org.meta_environment.rascal.ast.Expression.GetAnnotation makeExpressionGetAnnotation(INode node, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.Name name) { 
+org.meta_environment.rascal.ast.Expression.GetAnnotation x = new org.meta_environment.rascal.ast.Expression.GetAnnotation(node, expression, name);
+		if (!table.containsKey(x)) { 
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.GetAnnotation)table.get(x); 
 }
 public org.meta_environment.rascal.ast.Expression.TransitiveClosure makeExpressionTransitiveClosure(INode node, org.meta_environment.rascal.ast.Expression argument) { 
 org.meta_environment.rascal.ast.Expression.TransitiveClosure x = new org.meta_environment.rascal.ast.Expression.TransitiveClosure(node, argument);
@@ -2488,8 +2495,8 @@ org.meta_environment.rascal.ast.Declaration.Tag x = new org.meta_environment.ras
 		}
 		return (org.meta_environment.rascal.ast.Declaration.Tag)table.get(x); 
 }
-public org.meta_environment.rascal.ast.Declaration.Annotation makeDeclarationAnnotation(INode node, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.Tags tags, java.util.List<org.meta_environment.rascal.ast.Type> types) { 
-org.meta_environment.rascal.ast.Declaration.Annotation x = new org.meta_environment.rascal.ast.Declaration.Annotation(node, name, tags, types);
+public org.meta_environment.rascal.ast.Declaration.Annotation makeDeclarationAnnotation(INode node, org.meta_environment.rascal.ast.Type type, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.Tags tags, java.util.List<org.meta_environment.rascal.ast.Type> types) { 
+org.meta_environment.rascal.ast.Declaration.Annotation x = new org.meta_environment.rascal.ast.Declaration.Annotation(node, type, name, tags, types);
 		if (!table.containsKey(x)) { 
 			table.put(x, x);
 		}
