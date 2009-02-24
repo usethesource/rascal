@@ -47,7 +47,7 @@ assert
     }
     ;  
 
-assert
+assert // Deze assert faalt maar zou moeten slagen.
 	{
 		<"x",pp(asgStat("x",sub(id("x"),natCon(1)))@(pos:3))>,
         <"s",pp(asgStat("s",conc(id("s"),strCon("#")))@(pos:4))>,
