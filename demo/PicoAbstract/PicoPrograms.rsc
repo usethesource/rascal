@@ -17,26 +17,26 @@ end
 
 public PROGRAM small =
 program([decl("x", natural), decl("s", string)],
-        [ asgStat("x", natCon(3)),
-          whileStat(id("x"),
-                    [ asgStat("x", sub(id("x"), natCon(1))),
-                      asgStat("s", conc(id("s"), strCon("#")))
+        [ asgStat("x", natCon(3))@pos(1),
+          whileStat(id("x")@pos(2),
+                    [ asgStat("x", sub(id("x")@pos(6), natCon(1)))@pos(3),
+                      asgStat("s", conc(id("s")@pos(7), strCon("#")))@pos(4)
                     ]
-                   )
+                   )@pos(5)
         ]
        );
        
 public PROGRAM smallUninit =
-program([decl("x", natural), decl("s", string)],
-        [ //asgStat("x", natCon(3)),
-          whileStat(id("x"),
-                    [ asgStat("x", sub(id("x"), natCon(1))),
-                      asgStat("s", conc(id("s"), strCon("#")))
+
+ program([decl("x", natural), decl("s", string)],
+        [ //asgStat("x", natCon(3))@pos(1),
+          whileStat(id("x")@pos(2),
+                    [ asgStat("x", sub(id("x"), natCon(1)))@pos(3),
+                      asgStat("s", conc(id("s"), strCon("#")))@pos(4)
                     ]
-                   )
+                   )@pos(5)
         ]
        );
- 
 
 /********************************************
 begin
@@ -67,17 +67,17 @@ program([ decl("input", natural),
           decl("repnr", natural),
           decl("rep", natural)
         ],
-        [ asgStat("input", natCon(13)),
-          asgStat("output", natCon(1)),
-          whileStat(sub(id("input"), natCon(1)),
-                    [ asgStat("rep", id("output")),
-                      asgStat("repnr", id("input")),
-                      whileStat(sub(id("repnr"), natCon(1)),
-                                [ asgStat("output", add(id("output"), id("rep"))),
-                                  asgStat("repnr", sub(id("repnr"), natCon(1)))
+        [ asgStat("input", natCon(13))@pos(1),
+          asgStat("output", natCon(1))@pos(2),
+          whileStat(sub(id("input"), natCon(1))@pos(3),
+                    [ asgStat("rep", id("output")@pos(11))@pos(4),
+                      asgStat("repnr", id("input")@pos(12))@pos(5),
+                      whileStat(sub(id("repnr")@pos(13), natCon(1))@pos(6),
+                                [ asgStat("output", add(id("output")@pos(14), id("rep")@pos(15)))@pos(7),
+                                  asgStat("repnr", sub(id("repnr")@pos(16), natCon(1)))@pos(8)
                                 ]
                                ),
-                      asgStat("input", sub(id("input"), natCon(1)))
+                      asgStat("input", sub(id("input")@pos(17), natCon(1)))@pos(9)
                     ]
                    )                
         ]
@@ -89,21 +89,22 @@ program([ decl("input", natural),
           decl("repnr", natural),
           decl("rep", natural)
         ],
-        [ asgStat("input", natCon(13)),
-          //asgStat("output", natCon(1)),
-          whileStat(sub(id("input"), natCon(1)),
-                    [ asgStat("rep", id("output")),
-                      asgStat("repnr", id("input")),
-                      whileStat(sub(id("repnr"), natCon(1)),
-                                [ asgStat("output", add(id("output"), id("rep"))),
-                                  asgStat("repnr", sub(id("repnr"), natCon(1)))
+        [ asgStat("input", natCon(13))@pos(1),
+          //asgStat("output", natCon(1))@pos(2),
+          whileStat(sub(id("input"), natCon(1))@pos(3),
+                    [ asgStat("rep", id("output"))@pos(4),
+                      asgStat("repnr", id("input"))@pos(5),
+                      whileStat(sub(id("repnr"), natCon(1))@pos(6),
+                                [ asgStat("output", add(id("output"), id("rep")))@pos(7),
+                                  asgStat("repnr", sub(id("repnr"), natCon(1)))@pos(8)
                                 ]
                                ),
-                      asgStat("input", sub(id("input"), natCon(1)))
+                      asgStat("input", sub(id("input"), natCon(1)))@pos(9)
                     ]
                    )                
         ]
        );
+
 
 /********************************************
 begin
