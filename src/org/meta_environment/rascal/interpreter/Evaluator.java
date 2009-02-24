@@ -158,6 +158,8 @@ import org.meta_environment.rascal.ast.Visit.DefaultStrategy;
 import org.meta_environment.rascal.ast.Visit.GivenStrategy;
 import org.meta_environment.rascal.interpreter.BooleanEvaluator;
 import org.meta_environment.rascal.interpreter.AbstractPatternEvaluator;
+import org.meta_environment.rascal.interpreter.LazySet.LazyInsert;
+import org.meta_environment.rascal.interpreter.LazySet.LazyUnion;
 import org.meta_environment.rascal.interpreter.control_exceptions.FailureControlException;
 import org.meta_environment.rascal.interpreter.control_exceptions.InsertControlException;
 import org.meta_environment.rascal.interpreter.control_exceptions.ReturnControlException;
@@ -215,6 +217,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	private final ASTFactory af;
 	private final JavaBridge javaBridge;
+	private final boolean LAZY = false;
 	
 	enum DIRECTION  {BottomUp, TopDown};	// Parameters for traversing trees
 	enum FIXEDPOINT {Yes, No};
@@ -662,7 +665,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		
 		return r;
 	}
-	
+/*	
 	@Override
 	public Result visitDeclarationAnnotation(Annotation x) {
 		Type annoType = te.eval(x.getType(), scopeStack.peek());
@@ -671,6 +674,35 @@ public class Evaluator extends NullASTVisitor<Result> {
 		for (org.meta_environment.rascal.ast.Type type : x.getTypes()) {
 		  Type onType = te.eval(type, scopeStack.peek());
 		  scopeStack.peek().declareAnnotation(onType, name, annoType);	
+		}
+		
+		return result();
+	}
+	
+	*/
+	
+	@Override
+	public Result visitDeclarationAnnotation(Annotation x) {
+		String name = x.getName().toString();
+		
+		Type adtType = scopeStack.peek().lookupAbstractDataType(name);
+		if(adtType == null){
+			throw new NoSuchAnnotationError("Undeclared datatype " + name, x);
+		}
+		
+		java.util.Set<Type> alts = scopeStack.peek().lookupAlternatives(adtType);
+		for(Type alt : alts){
+			if(!alt.isConstructorType() ||  alt.getArity() != 1){
+				throw new NoSuchAnnotationError("Alternative " + alt + " of datatype " + name + " cannot be used as annotation", x);
+			}
+		}
+		
+		for (org.meta_environment.rascal.ast.Type type : x.getTypes()) {
+		  Type onType = te.eval(type, scopeStack.peek());
+		  for(Type alt : alts){
+			  System.err.println("onType= " + onType + ", name=" + alt.getName() + ", adtType=" + adtType);
+			  scopeStack.peek().declareAnnotation(onType, alt.getName(), adtType);
+		  }
 		}
 		
 		return result();
@@ -1956,7 +1988,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 		return result(tf.tupleType(types), vf.tuple(values));
 	}
-
+/*
 	@Override
 	public Result visitExpressionAnnotation(
 			org.meta_environment.rascal.ast.Expression.Annotation x) {
@@ -1978,41 +2010,53 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 		return result(annoType, annoValue);
 	}
+	*/
 	
-	/*
+	
 	@Override
 	public Result visitExpressionAnnotation(
 			org.meta_environment.rascal.ast.Expression.Annotation x) {
 		  Result lhs = x.getLhs().accept(this);
-		  Result rhs = x.getRhs().accept(this);
-		String name = x.getName().toString();
 
-		if(!lhs.getType().isConstructorType()){
+	
+		if(!lhs.getType().isAbstractDataType()){
 			throw new NoSuchAnnotationError("Value of type " + lhs.getType() + " can not have an annotation", x);
 		}
 		IConstructor adt = (IConstructor) lhs.getValue();
 		
-		if(!rhs.getType().isConstructorType()){
-			throw new NoSuchAnnotationError("Annotation cannot be of type " + rhs.getType(), x);
-		}
-		IConstructor anno = (IConstructor) rhs.getValue();
-		if(anno.arity() != 1){
-			throw new NoSuchAnnotationError("Annotation should have a single argument", x);
-		}
-		String annoName = anno.getName();
+		if(x.getRhs().isQualifiedName()){
+			String annoName = x.getRhs().toString();
+			if(!adt.hasAnnotation(annoName)){
+				throw new NoSuchAnnotationError("Datatype " + adt + " has no annotation " + annoName, x);
+			}
+			
+			return result(adt.getAnnotation(annoName));
+		} else {
 		
-		Type annoType = callStack.peek().getAnnotationType(lhs.getType(), annoName);
-
-		if (annoType == null) {
-			throw new NoSuchAnnotationError("No annotation `" + annoName
-					+ "` declared on " + lhs.getType(), x);
+			  Result rhs = x.getRhs().accept(this);
+			
+			if(!rhs.getType().isAbstractDataType()){
+				throw new NoSuchAnnotationError("Annotation should be a datatype instead of " + rhs.getType(), x);
+			}
+			IConstructor anno = (IConstructor) rhs.getValue();
+			if(anno.arity() != 1){
+				throw new NoSuchAnnotationError("Annotation should have a single argument", x);
+			}
+			String annoName = anno.getName();
+			
+			Type annoType = callStack.peek().getAnnotationType(lhs.getType(), annoName);
+	
+			if (annoType == null) {
+				throw new NoSuchAnnotationError("No annotation `" + annoName
+						+ "` declared on " + lhs.getType(), x);
+			}
+			IValue annoVal = anno.get(0);
+			IValue annotatedLhs = adt.setAnnotation(annoName, annoVal);
+			
+			return result(lhs.getType(), annotatedLhs);
 		}
-		IValue annoVal = anno.get(0);
-		IValue annotatedLhs = adt.setAnnotation(annoName, annoVal);
-		
-		return result(lhs.getType(), annotatedLhs);
 	}
-	*/
+	
 	
 	public static void widenArgs(Result left, Result right) {
 		TypeFactory tf = TypeFactory.getInstance();
@@ -2083,6 +2127,10 @@ public class Evaluator extends NullASTVisitor<Result> {
 		
 		//Relation
 		if (left.getType().isRelationType() && right.getType().isRelationType()) {
+			if(LAZY)
+				return result(resultType, new LazyUnion(((ISet) left.getValue()),
+						                                 (ISet) right.getValue()));
+			else							
 				return result(resultType, ((ISet) left.getValue())
 						.union((ISet) right.getValue()));
 		}
@@ -2090,16 +2138,27 @@ public class Evaluator extends NullASTVisitor<Result> {
 		//Set
 		if (left.getType().isSetType()){
 			if(right.getType().isSetType()) {
-				return result(resultType, ((ISet) left.getValue())
-				.union((ISet) right.getValue()));
+				if(LAZY)
+					return result(resultType, new LazyUnion(((ISet) left.getValue()),
+						                                     (ISet) right.getValue()));
+				else
+					return result(resultType, ((ISet) left.getValue())
+							.union((ISet) right.getValue()));
 			}
 			if(right.getType().isSubtypeOf(left.getType().getElementType())){
-				return result(left.getType(), ((ISet)left.getValue()).insert(right.getValue()));
+				if(LAZY)
+					return result(left.getType(), new LazyInsert((ISet)left.getValue(),
+																   right.getValue()));
+				else
+				 return result(left.getType(), ((ISet)left.getValue()).insert(right.getValue()));
 			}
 		}
 	
 		if (right.getType().isSetType()){
 			if(left.getType().isSubtypeOf(right.getType().getElementType())){
+				if(LAZY)
+					return result(right.getType(), new LazyInsert((ISet)right.getValue(),
+																	left.getValue()));
 				return result(right.getType(), ((ISet)right.getValue()).insert(left.getValue()));
 			}
 		}

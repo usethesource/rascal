@@ -40,7 +40,20 @@ static public class Function extends Kind {
 	}
 
 	public boolean isFunction() { return true; }	
-} public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isVariable() { return false; }
+} public abstract <T> T accept(IASTVisitor<T> visitor); public boolean isRule() { return false; }
+static public class Rule extends Kind {
+/* "rule" -> Kind {cons("Rule")} */
+	private Rule() { }
+	/*package*/ Rule(INode node) {
+		this.node = node;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitKindRule(this);
+	}
+
+	public boolean isRule() { return true; }	
+} 
+public boolean isVariable() { return false; }
 static public class Variable extends Kind {
 /* "variable" -> Kind {cons("Variable")} */
 	private Variable() { }
