@@ -1,13 +1,11 @@
 package org.meta_environment.rascal.interpreter;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -34,9 +32,6 @@ import org.eclipse.imp.pdb.facts.IWriter;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.meta_environment.errors.ErrorAdapter;
-import org.meta_environment.errors.SubjectAdapter;
-import org.meta_environment.errors.SummaryAdapter;
 import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.Bound;
@@ -170,9 +165,9 @@ import org.meta_environment.rascal.interpreter.env.RascalFunction;
 import org.meta_environment.rascal.interpreter.errors.AssertionError;
 import org.meta_environment.rascal.interpreter.errors.AssignmentError;
 import org.meta_environment.rascal.interpreter.errors.Error;
-import org.meta_environment.rascal.interpreter.errors.IOError;
 import org.meta_environment.rascal.interpreter.errors.ImplementationError;
 import org.meta_environment.rascal.interpreter.errors.IndexOutOfBoundsError;
+import org.meta_environment.rascal.interpreter.errors.ModuleLoadException;
 import org.meta_environment.rascal.interpreter.errors.NoSuchAnnotationError;
 import org.meta_environment.rascal.interpreter.errors.NoSuchFieldError;
 import org.meta_environment.rascal.interpreter.errors.NoSuchFunctionError;
@@ -183,29 +178,11 @@ import org.meta_environment.rascal.interpreter.errors.SyntaxError;
 import org.meta_environment.rascal.interpreter.errors.TypeError;
 import org.meta_environment.rascal.interpreter.errors.UndefinedValueError;
 import org.meta_environment.rascal.interpreter.errors.UninitializedVariableError;
+import org.meta_environment.rascal.interpreter.load.IModuleLoader;
+import org.meta_environment.rascal.interpreter.load.LegacyModuleLoader;
 import org.meta_environment.rascal.interpreter.result.Result;
-import org.meta_environment.rascal.parser.ASTBuilder;
-import org.meta_environment.rascal.parser.Parser;
-import org.meta_environment.uptr.Factory;
 
 public class Evaluator extends NullASTVisitor<Result> {
-	private static final String[] SEARCH_PATH = {
-							"src/StandardLibrary/", 
-							"src/test/", 
-							"src/",
-							"demo/",
-							"demo/Booleans/",
-							"demo/Fun/",
-							"demo/Graph/",
-							"demo/Integers/",
-							"demo/JavaFun/",					
-							"demo/Lexicals/",
-							"demo/Misc/",
-							"demo/Pico/",
-							"demo/PicoAbstract/",
-							"demo/Rascal/"
-					};
-	public static final String RASCAL_FILE_EXT = ".rsc";
 	final IValueFactory vf;
 	final TypeFactory tf = TypeFactory.getInstance();
 	private final TypeEvaluator te = TypeEvaluator.getInstance();
@@ -213,7 +190,6 @@ public class Evaluator extends NullASTVisitor<Result> {
 	private final GlobalEnvironment heap;
 	private final java.util.ArrayDeque<ModuleEnvironment> scopeStack;
 	
-	private final ASTFactory af;
 	private final JavaBridge javaBridge;
 	private final boolean LAZY = false;
 	
@@ -228,6 +204,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	protected MatchPattern lastPattern;	// The most recent pattern applied in a match
 	                                    	// For the benefit of string matching.
 	private TypeDeclarationEvaluator typeDeclarator = new TypeDeclarationEvaluator();
+	private java.util.List<IModuleLoader> loaders;
 
 	public Evaluator(IValueFactory f, ASTFactory astFactory, Writer errorWriter, ModuleEnvironment scope) {
 		this(f, astFactory, errorWriter, scope, new GlobalEnvironment());
@@ -235,13 +212,14 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 	public Evaluator(IValueFactory f, ASTFactory astFactory, Writer errorWriter, ModuleEnvironment scope, GlobalEnvironment heap) {
 		this.vf = f;
-		this.af = astFactory;
 		this.javaBridge = new JavaBridge(errorWriter);
 		this.heap = heap;
 		this.callStack = new ArrayDeque<Environment>();
 		this.callStack.push(scope);
 		this.scopeStack = new ArrayDeque<ModuleEnvironment>();
 		this.scopeStack.push(scope);
+		this.loaders = new LinkedList<IModuleLoader>();
+		loaders.add(new LegacyModuleLoader());
 	}
 	
 	
@@ -499,61 +477,17 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 	private Module loadModule(org.meta_environment.rascal.ast.Import.Default x,
 			String name) {
-		Parser p = Parser.getInstance();
-		ASTBuilder b = new ASTBuilder(af);
-
-		try {
-			String fileName = name.replaceAll("::","/") + RASCAL_FILE_EXT;
-			fileName = Names.unescape(fileName);
-			File file = new File(fileName);
-
-			// TODO: support proper search path for modules
-			// TODO: support properly packaged/qualified module names
-			// TODO: mind the / at the end of each directory!
-			String searchPath[] = SEARCH_PATH;
-
-			for(int i = 0; i < searchPath.length; i++){
-				file = new File(searchPath[i] + fileName);
-				if(file.exists()){
-					break;
-				}
+		ModuleLoadException lastError = null;
+		for (IModuleLoader loader : loaders) {
+			try {
+				return loader.loadModule(name);
 			}
-			if (!file.exists()) {
-				throw new NoSuchModuleError("Can not find file for module " + name, x);
-			}
-
-			IConstructor tree = p.parseFromFile(file);
-
-			if (tree.getConstructorType() == Factory.ParseTree_Summary) {
-				throw new SyntaxError(parseError(tree, name), x);
-			}
-
-			return b.buildModule(tree);			
-		} catch (FactTypeUseException e) {
-			throw new ImplementationError("Something went wrong during parsing of " + name + ": " + e, x);
-		} catch (FileNotFoundException e) {
-			throw new NoSuchModuleError("Could not import module " + name + ": " + e, x);
-		} catch (IOException e) {
-			throw new IOError("Could not import module " + name + ": " + e, x);
-		}
-	}
-
-	private String parseError(IConstructor tree, String file) {
-		ISourceRange range = getErrorRange(new SummaryAdapter(tree));
-		
-	    return file + " at line " + range.getEndLine() + ", column " + range.getEndColumn();
-	}
-	
-	private ISourceRange getErrorRange(SummaryAdapter summaryAdapter) {
-		for (ErrorAdapter error : summaryAdapter) {
-			for (SubjectAdapter subject : error) {
-				if (subject.isLocalized()) {
-					return subject.getRange();
-				}
+			catch (ModuleLoadException e) {
+				lastError = e;
 			}
 		}
 		
-		return null;
+		throw new NoSuchModuleError(lastError.getMessage(), x);
 	}
 	
 	@Override 
