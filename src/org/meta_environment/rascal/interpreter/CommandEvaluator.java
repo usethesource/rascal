@@ -17,7 +17,6 @@ import org.meta_environment.rascal.ast.ShellCommand.Edit;
 import org.meta_environment.rascal.ast.ShellCommand.History;
 import org.meta_environment.rascal.ast.ShellCommand.Quit;
 import org.meta_environment.rascal.interpreter.control_exceptions.FailureControlException;
-import org.meta_environment.rascal.interpreter.errors.RunTimeError;
 import org.meta_environment.rascal.interpreter.result.Result;
 
 /*package*/ class CommandEvaluator extends NullASTVisitor<IValue> {
@@ -67,28 +66,6 @@ import org.meta_environment.rascal.interpreter.result.Result;
 
 	@Override
 	public IValue visitShellCommandEdit(Edit x) {
-		// TODO implement this properly
-		String editor = System.getenv("EDITOR");
-		
-		if (editor == null) {
-			throw new RunTimeError("EDITOR environment variable is not set.", x);
-		}
-		
-		String file = x.getName().toString();
-		
-		if (!file.endsWith(Evaluator.RASCAL_FILE_EXT)) {
-			file = file + Evaluator.RASCAL_FILE_EXT;
-		}
-		
-		try {
-			Process p = Runtime.getRuntime().exec(editor + " " + file);
-			p.waitFor();
-		} catch (IOException e) {
-			throw new RunTimeError("Editing failed: ", e);
-		} catch (InterruptedException e) {
-			// might happen, don't know a sensible thing to do
-		}
-		
 		return null;
 	}
 
