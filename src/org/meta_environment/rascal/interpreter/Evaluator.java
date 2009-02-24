@@ -156,8 +156,6 @@ import org.meta_environment.rascal.ast.Toplevel.DefaultVisibility;
 import org.meta_environment.rascal.ast.Toplevel.GivenVisibility;
 import org.meta_environment.rascal.ast.Visit.DefaultStrategy;
 import org.meta_environment.rascal.ast.Visit.GivenStrategy;
-import org.meta_environment.rascal.interpreter.BooleanEvaluator;
-import org.meta_environment.rascal.interpreter.AbstractPatternEvaluator;
 import org.meta_environment.rascal.interpreter.LazySet.LazyInsert;
 import org.meta_environment.rascal.interpreter.LazySet.LazyUnion;
 import org.meta_environment.rascal.interpreter.control_exceptions.FailureControlException;
