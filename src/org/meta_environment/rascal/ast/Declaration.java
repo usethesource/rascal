@@ -189,7 +189,11 @@ private org.meta_environment.rascal.ast.FunctionDeclaration functionDeclaration;
  		z.$setFunctionDeclaration(x);
 		return z;
 	}	
-} public org.meta_environment.rascal.ast.Type getType() { throw new UnsupportedOperationException(); } public java.util.List<org.meta_environment.rascal.ast.Variable> getVariables() { throw new UnsupportedOperationException(); } public boolean hasType() { return false; } public boolean hasVariables() { return false; }
+} 
+public org.meta_environment.rascal.ast.Type getType() { throw new UnsupportedOperationException(); }
+	public java.util.List<org.meta_environment.rascal.ast.Variable> getVariables() { throw new UnsupportedOperationException(); }
+public boolean hasType() { return false; }
+	public boolean hasVariables() { return false; }
 public boolean isVariable() { return false; }
 static public class Variable extends Declaration {
 /* type:Type variables:{Variable ","}+ ";" -> Declaration {cons("Variable")} */
@@ -271,11 +275,10 @@ private org.meta_environment.rascal.ast.Name name;
 	}	
 } public java.util.List<org.meta_environment.rascal.ast.Type> getTypes() { throw new UnsupportedOperationException(); } public boolean hasTypes() { return false; } public boolean isAnnotation() { return false; }
 static public class Annotation extends Declaration {
-/* "anno" type:Type name:Name tags:Tags types:{Type "|"}+ ";" -> Declaration {cons("Annotation")} */
+/* "anno" name:Name tags:Tags "on" types:{Type "|"}+ ";" -> Declaration {cons("Annotation")} */
 	private Annotation() { }
-	/*package*/ Annotation(INode node, org.meta_environment.rascal.ast.Type type, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.Tags tags, java.util.List<org.meta_environment.rascal.ast.Type> types) {
+	/*package*/ Annotation(INode node, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.Tags tags, java.util.List<org.meta_environment.rascal.ast.Type> types) {
 		this.node = node;
-		this.type = type;
 		this.name = name;
 		this.tags = tags;
 		this.types = types;
@@ -286,20 +289,11 @@ static public class Annotation extends Declaration {
 
 	public boolean isAnnotation() { return true; }
 
-	public boolean hasType() { return true; }
 	public boolean hasName() { return true; }
 	public boolean hasTags() { return true; }
 	public boolean hasTypes() { return true; }
 
-private org.meta_environment.rascal.ast.Type type;
-	public org.meta_environment.rascal.ast.Type getType() { return type; }
-	private void $setType(org.meta_environment.rascal.ast.Type x) { this.type = x; }
-	public Annotation setType(org.meta_environment.rascal.ast.Type x) { 
-		Annotation z = new Annotation();
- 		z.$setType(x);
-		return z;
-	}
-	private org.meta_environment.rascal.ast.Name name;
+private org.meta_environment.rascal.ast.Name name;
 	public org.meta_environment.rascal.ast.Name getName() { return name; }
 	private void $setName(org.meta_environment.rascal.ast.Name x) { this.name = x; }
 	public Annotation setName(org.meta_environment.rascal.ast.Name x) { 

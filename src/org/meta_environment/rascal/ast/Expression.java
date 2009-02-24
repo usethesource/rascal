@@ -1,7 +1,66 @@
 package org.meta_environment.rascal.ast; 
 import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Expression extends AbstractAST { 
-  public org.meta_environment.rascal.ast.Literal getLiteral() { throw new UnsupportedOperationException(); }
+  public java.util.List<org.meta_environment.rascal.ast.Statement> getStatements() { throw new UnsupportedOperationException(); } public boolean hasStatements() { return false; } public boolean isNonEmptyBlock() { return false; } static public class NonEmptyBlock extends Expression {
+/* "{" statements:Statement+ "}" -> Expression {cons("NonEmptyBlock")} */
+	private NonEmptyBlock() { }
+	/*package*/ NonEmptyBlock(INode node, java.util.List<org.meta_environment.rascal.ast.Statement> statements) {
+		this.node = node;
+		this.statements = statements;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitExpressionNonEmptyBlock(this);
+	}
+
+	public boolean isNonEmptyBlock() { return true; }
+
+	public boolean hasStatements() { return true; }
+
+private java.util.List<org.meta_environment.rascal.ast.Statement> statements;
+	public java.util.List<org.meta_environment.rascal.ast.Statement> getStatements() { return statements; }
+	private void $setStatements(java.util.List<org.meta_environment.rascal.ast.Statement> x) { this.statements = x; }
+	public NonEmptyBlock setStatements(java.util.List<org.meta_environment.rascal.ast.Statement> x) { 
+		NonEmptyBlock z = new NonEmptyBlock();
+ 		z.$setStatements(x);
+		return z;
+	}	
+} static public class Ambiguity extends Expression {
+  private final java.util.List<org.meta_environment.rascal.ast.Expression> alternatives;
+  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> alternatives) {
+	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
+         this.node = node;
+  }
+  public java.util.List<org.meta_environment.rascal.ast.Expression> getAlternatives() {
+	return alternatives;
+  }
+  
+  public <T> T accept(IASTVisitor<T> v) {
+     return v.visitExpressionAmbiguity(this);
+  }
+} public org.meta_environment.rascal.ast.Visit getVisit() { throw new UnsupportedOperationException(); } public boolean hasVisit() { return false; } public boolean isVisit() { return false; } static public class Visit extends Expression {
+/* visit:Visit -> Expression {cons("Visit")} */
+	private Visit() { }
+	/*package*/ Visit(INode node, org.meta_environment.rascal.ast.Visit visit) {
+		this.node = node;
+		this.visit = visit;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitExpressionVisit(this);
+	}
+
+	public boolean isVisit() { return true; }
+
+	public boolean hasVisit() { return true; }
+
+private org.meta_environment.rascal.ast.Visit visit;
+	public org.meta_environment.rascal.ast.Visit getVisit() { return visit; }
+	private void $setVisit(org.meta_environment.rascal.ast.Visit x) { this.visit = x; }
+	public Visit setVisit(org.meta_environment.rascal.ast.Visit x) { 
+		Visit z = new Visit();
+ 		z.$setVisit(x);
+		return z;
+	}	
+} public abstract <T> T accept(IASTVisitor<T> visitor); public org.meta_environment.rascal.ast.Literal getLiteral() { throw new UnsupportedOperationException(); }
 public boolean hasLiteral() { return false; }
 public boolean isLiteral() { return false; }
 static public class Literal extends Expression {
@@ -27,20 +86,6 @@ private org.meta_environment.rascal.ast.Literal literal;
  		z.$setLiteral(x);
 		return z;
 	}	
-}
-static public class Ambiguity extends Expression {
-  private final java.util.List<org.meta_environment.rascal.ast.Expression> alternatives;
-  public Ambiguity(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> alternatives) {
-	this.alternatives = java.util.Collections.unmodifiableList(alternatives);
-         this.node = node;
-  }
-  public java.util.List<org.meta_environment.rascal.ast.Expression> getAlternatives() {
-	return alternatives;
-  }
-  
-  public <T> T accept(IASTVisitor<T> v) {
-     return v.visitExpressionAmbiguity(this);
-  }
 } public org.meta_environment.rascal.ast.QualifiedName getQualifiedName() { throw new UnsupportedOperationException(); } public java.util.List<org.meta_environment.rascal.ast.Expression> getArguments() { throw new UnsupportedOperationException(); } public boolean hasQualifiedName() { return false; } public boolean hasArguments() { return false; } public boolean isCallOrTree() { return false; }
 static public class CallOrTree extends Expression {
 /* qualifiedName:QualifiedName "(" arguments:{Expression ","}* ")" -> Expression {cons("CallOrTree")} */
@@ -75,7 +120,7 @@ private org.meta_environment.rascal.ast.QualifiedName qualifiedName;
  		z.$setArguments(x);
 		return z;
 	}	
-} public abstract <T> T accept(IASTVisitor<T> visitor); public java.util.List<org.meta_environment.rascal.ast.Expression> getElements() { throw new UnsupportedOperationException(); } public boolean hasElements() { return false; } public boolean isList() { return false; }
+} public java.util.List<org.meta_environment.rascal.ast.Expression> getElements() { throw new UnsupportedOperationException(); } public boolean hasElements() { return false; } public boolean isList() { return false; }
 static public class List extends Expression {
 /* "[" elements:{Expression ","}* "]" -> Expression {cons("List")} */
 	private List() { }
@@ -350,7 +395,8 @@ private org.meta_environment.rascal.ast.QualifiedName qualifiedName;
  		z.$setQualifiedName(x);
 		return z;
 	}	
-} public org.meta_environment.rascal.ast.Type getType() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Name getName() { throw new UnsupportedOperationException(); } public boolean hasType() { return false; } public boolean hasName() { return false; } public boolean isTypedVariable() { return false; }
+} public org.meta_environment.rascal.ast.Type getType() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Name getName() { throw new UnsupportedOperationException(); } public boolean hasType() { return false; } public boolean hasName() { return false; }
+public boolean isTypedVariable() { return false; }
 static public class TypedVariable extends Expression {
 /* type:Type name:Name -> Expression {cons("TypedVariable")} */
 	private TypedVariable() { }
@@ -496,9 +542,42 @@ private org.meta_environment.rascal.ast.Expression pattern;
  		z.$setExpression(x);
 		return z;
 	}	
+} public org.meta_environment.rascal.ast.Expression getLhs() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Expression getRhs() { throw new UnsupportedOperationException(); } public boolean hasLhs() { return false; } public boolean hasRhs() { return false; } public boolean isEquals() { return false; } static public class Equals extends Expression {
+/* lhs:Expression "==" rhs:Expression -> Expression {left, cons("Equals")} */
+	private Equals() { }
+	/*package*/ Equals(INode node, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
+		this.node = node;
+		this.lhs = lhs;
+		this.rhs = rhs;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitExpressionEquals(this);
+	}
+
+	public boolean isEquals() { return true; }
+
+	public boolean hasLhs() { return true; }
+	public boolean hasRhs() { return true; }
+
+private org.meta_environment.rascal.ast.Expression lhs;
+	public org.meta_environment.rascal.ast.Expression getLhs() { return lhs; }
+	private void $setLhs(org.meta_environment.rascal.ast.Expression x) { this.lhs = x; }
+	public Equals setLhs(org.meta_environment.rascal.ast.Expression x) { 
+		Equals z = new Equals();
+ 		z.$setLhs(x);
+		return z;
+	}
+	private org.meta_environment.rascal.ast.Expression rhs;
+	public org.meta_environment.rascal.ast.Expression getRhs() { return rhs; }
+	private void $setRhs(org.meta_environment.rascal.ast.Expression x) { this.rhs = x; }
+	public Equals setRhs(org.meta_environment.rascal.ast.Expression x) { 
+		Equals z = new Equals();
+ 		z.$setRhs(x);
+		return z;
+	}	
 } public boolean isValueProducer() { return false; }
 static public class ValueProducer extends Expression {
-/* pattern:Expression ":" expression:Expression -> Expression {cons("ValueProducer")} */
+/* pattern:Expression "<-" expression:Expression -> Expression {prefer, cons("ValueProducer")} */
 	private ValueProducer() { }
 	/*package*/ ValueProducer(INode node, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Expression expression) {
 		this.node = node;
@@ -533,7 +612,7 @@ private org.meta_environment.rascal.ast.Expression pattern;
 } 
 public org.meta_environment.rascal.ast.Strategy getStrategy() { throw new UnsupportedOperationException(); } public boolean hasStrategy() { return false; } public boolean isValueProducerWithStrategy() { return false; }
 static public class ValueProducerWithStrategy extends Expression {
-/* strategy:Strategy pattern:Expression ":" expression:Expression -> Expression {cons("ValueProducerWithStrategy")} */
+/* strategy:Strategy pattern:Expression "<-" expression:Expression -> Expression {prefer, cons("ValueProducerWithStrategy")} */
 	private ValueProducerWithStrategy() { }
 	/*package*/ ValueProducerWithStrategy(INode node, org.meta_environment.rascal.ast.Strategy strategy, org.meta_environment.rascal.ast.Expression pattern, org.meta_environment.rascal.ast.Expression expression) {
 		this.node = node;
@@ -650,30 +729,7 @@ private java.util.List<org.meta_environment.rascal.ast.Expression> generators;
  		z.$setGenerators(x);
 		return z;
 	}	
-} public org.meta_environment.rascal.ast.Visit getVisit() { throw new UnsupportedOperationException(); } public boolean hasVisit() { return false; } public boolean isVisit() { return false; } static public class Visit extends Expression {
-/* visit:Visit -> Expression {cons("Visit")} */
-	private Visit() { }
-	/*package*/ Visit(INode node, org.meta_environment.rascal.ast.Visit visit) {
-		this.node = node;
-		this.visit = visit;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitExpressionVisit(this);
-	}
-
-	public boolean isVisit() { return true; }
-
-	public boolean hasVisit() { return true; }
-
-private org.meta_environment.rascal.ast.Visit visit;
-	public org.meta_environment.rascal.ast.Visit getVisit() { return visit; }
-	private void $setVisit(org.meta_environment.rascal.ast.Visit x) { this.visit = x; }
-	public Visit setVisit(org.meta_environment.rascal.ast.Visit x) { 
-		Visit z = new Visit();
- 		z.$setVisit(x);
-		return z;
-	}	
-} public org.meta_environment.rascal.ast.Parameters getParameters() { throw new UnsupportedOperationException(); } public java.util.List<org.meta_environment.rascal.ast.Statement> getStatements() { throw new UnsupportedOperationException(); } public boolean hasParameters() { return false; } public boolean hasStatements() { return false; } public boolean isClosure() { return false; }
+} public org.meta_environment.rascal.ast.Parameters getParameters() { throw new UnsupportedOperationException(); } public boolean hasParameters() { return false; } public boolean isClosure() { return false; }
 static public class Closure extends Expression {
 /* type:Type parameters:Parameters "{" statements:Statement+ "}" -> Expression {cons("Closure")} */
 	private Closure() { }
@@ -748,29 +804,6 @@ private org.meta_environment.rascal.ast.Parameters parameters;
 	private void $setStatements(java.util.List<org.meta_environment.rascal.ast.Statement> x) { this.statements = x; }
 	public VoidClosure setStatements(java.util.List<org.meta_environment.rascal.ast.Statement> x) { 
 		VoidClosure z = new VoidClosure();
- 		z.$setStatements(x);
-		return z;
-	}	
-} public boolean isNonEmptyBlock() { return false; } static public class NonEmptyBlock extends Expression {
-/* "{" statements:Statement+ "}" -> Expression {cons("NonEmptyBlock")} */
-	private NonEmptyBlock() { }
-	/*package*/ NonEmptyBlock(INode node, java.util.List<org.meta_environment.rascal.ast.Statement> statements) {
-		this.node = node;
-		this.statements = statements;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitExpressionNonEmptyBlock(this);
-	}
-
-	public boolean isNonEmptyBlock() { return true; }
-
-	public boolean hasStatements() { return true; }
-
-private java.util.List<org.meta_environment.rascal.ast.Statement> statements;
-	public java.util.List<org.meta_environment.rascal.ast.Statement> getStatements() { return statements; }
-	private void $setStatements(java.util.List<org.meta_environment.rascal.ast.Statement> x) { this.statements = x; }
-	public NonEmptyBlock setStatements(java.util.List<org.meta_environment.rascal.ast.Statement> x) { 
-		NonEmptyBlock z = new NonEmptyBlock();
  		z.$setStatements(x);
 		return z;
 	}	
@@ -1215,12 +1248,12 @@ private org.meta_environment.rascal.ast.Expression argument;
 	}	
 } public boolean isAnnotation() { return false; }
 static public class Annotation extends Expression {
-/* expression:Expression "@" name:Name -> Expression {cons("Annotation")} */
+/* lhs:Expression "@" rhs:Expression -> Expression {cons("Annotation"), left} */
 	private Annotation() { }
-	/*package*/ Annotation(INode node, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.Name name) {
+	/*package*/ Annotation(INode node, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
 		this.node = node;
-		this.expression = expression;
-		this.name = name;
+		this.lhs = lhs;
+		this.rhs = rhs;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitExpressionAnnotation(this);
@@ -1228,26 +1261,26 @@ static public class Annotation extends Expression {
 
 	public boolean isAnnotation() { return true; }
 
-	public boolean hasExpression() { return true; }
-	public boolean hasName() { return true; }
+	public boolean hasLhs() { return true; }
+	public boolean hasRhs() { return true; }
 
-private org.meta_environment.rascal.ast.Expression expression;
-	public org.meta_environment.rascal.ast.Expression getExpression() { return expression; }
-	private void $setExpression(org.meta_environment.rascal.ast.Expression x) { this.expression = x; }
-	public Annotation setExpression(org.meta_environment.rascal.ast.Expression x) { 
+private org.meta_environment.rascal.ast.Expression lhs;
+	public org.meta_environment.rascal.ast.Expression getLhs() { return lhs; }
+	private void $setLhs(org.meta_environment.rascal.ast.Expression x) { this.lhs = x; }
+	public Annotation setLhs(org.meta_environment.rascal.ast.Expression x) { 
 		Annotation z = new Annotation();
- 		z.$setExpression(x);
+ 		z.$setLhs(x);
 		return z;
 	}
-	private org.meta_environment.rascal.ast.Name name;
-	public org.meta_environment.rascal.ast.Name getName() { return name; }
-	private void $setName(org.meta_environment.rascal.ast.Name x) { this.name = x; }
-	public Annotation setName(org.meta_environment.rascal.ast.Name x) { 
+	private org.meta_environment.rascal.ast.Expression rhs;
+	public org.meta_environment.rascal.ast.Expression getRhs() { return rhs; }
+	private void $setRhs(org.meta_environment.rascal.ast.Expression x) { this.rhs = x; }
+	public Annotation setRhs(org.meta_environment.rascal.ast.Expression x) { 
 		Annotation z = new Annotation();
- 		z.$setName(x);
+ 		z.$setRhs(x);
 		return z;
 	}	
-} public org.meta_environment.rascal.ast.Expression getLhs() { throw new UnsupportedOperationException(); } public org.meta_environment.rascal.ast.Expression getRhs() { throw new UnsupportedOperationException(); } public boolean hasLhs() { return false; } public boolean hasRhs() { return false; } public boolean isComposition() { return false; }
+} public boolean isComposition() { return false; }
 static public class Composition extends Expression {
 /* lhs:Expression "o" rhs:Expression -> Expression {cons("Composition"), left} */
 	private Composition() { }
@@ -1720,40 +1753,6 @@ private org.meta_environment.rascal.ast.Expression lhs;
 	private void $setRhs(org.meta_environment.rascal.ast.Expression x) { this.rhs = x; }
 	public GreaterThanOrEq setRhs(org.meta_environment.rascal.ast.Expression x) { 
 		GreaterThanOrEq z = new GreaterThanOrEq();
- 		z.$setRhs(x);
-		return z;
-	}	
-} public boolean isEquals() { return false; }
-static public class Equals extends Expression {
-/* lhs:Expression "==" rhs:Expression -> Expression {left, cons("Equals")} */
-	private Equals() { }
-	/*package*/ Equals(INode node, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
-		this.node = node;
-		this.lhs = lhs;
-		this.rhs = rhs;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitExpressionEquals(this);
-	}
-
-	public boolean isEquals() { return true; }
-
-	public boolean hasLhs() { return true; }
-	public boolean hasRhs() { return true; }
-
-private org.meta_environment.rascal.ast.Expression lhs;
-	public org.meta_environment.rascal.ast.Expression getLhs() { return lhs; }
-	private void $setLhs(org.meta_environment.rascal.ast.Expression x) { this.lhs = x; }
-	public Equals setLhs(org.meta_environment.rascal.ast.Expression x) { 
-		Equals z = new Equals();
- 		z.$setLhs(x);
-		return z;
-	}
-	private org.meta_environment.rascal.ast.Expression rhs;
-	public org.meta_environment.rascal.ast.Expression getRhs() { return rhs; }
-	private void $setRhs(org.meta_environment.rascal.ast.Expression x) { this.rhs = x; }
-	public Equals setRhs(org.meta_environment.rascal.ast.Expression x) { 
-		Equals z = new Equals();
  		z.$setRhs(x);
 		return z;
 	}	
