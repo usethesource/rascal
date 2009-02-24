@@ -36,9 +36,9 @@ public class LegacyModuleLoader implements IModuleLoader {
 		"demo/Rascal/"
 	};
 	
-	public static final String RASCAL_FILE_EXT = ".rsc";
-	private static final Parser PARSER = Parser.getInstance();
-	private static final ASTBuilder BUILDER = new ASTBuilder(new ASTFactory());
+	protected static final String RASCAL_FILE_EXT = ".rsc";
+	protected static final Parser PARSER = Parser.getInstance();
+	protected static final ASTBuilder BUILDER = new ASTBuilder(new ASTFactory());
 
 	public Module loadModule(String name) throws ModuleLoadException {
 		try {
@@ -77,7 +77,7 @@ public class LegacyModuleLoader implements IModuleLoader {
 		}
 	}
 	
-	private String parseError(IConstructor tree, String file) {
+	protected String parseError(IConstructor tree, String file) {
 		ISourceRange range = new SummaryAdapter(tree).getInitialErrorRange();
 		
 	    return file + " at line " + range.getEndLine() + ", column " + range.getEndColumn();
