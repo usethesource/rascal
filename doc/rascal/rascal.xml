@@ -1124,47 +1124,58 @@ alias DFGRaph = Graph;</programlisting></para>
         i.e., annotation names are strings and annotation values are values of
         a type that is explicitly declared. Any value of any named type can be
         annotated and the type of these annotations can be declared precisely.
-        For instance, we can add to the graph datatype introduced earlier, the
+        </para>
+
+        <para>For instance, we can add to certain syntactic constructs of
+        programs (e.g., <literal>EXPRESSION, STATEMENT</literal>) an
+        annotation with name <literal>posinfo</literal> that contains location
+        information:<programlisting>anno loc posinfo on EXPRESSION, STATEMENT;</programlisting>or
+        location information could be added for all syntax
+        trees:<programlisting>anno loc posinfo on tree;</programlisting></para>
+
+        <para>We can add to the graph datatype introduced earlier, the
         annotation with name <literal>LayoutStrategy</literal> that defines
         which graph layout algorithm to apply to a particular graph,
-        e.g.,<programlisting>anno Graph LayoutStrategy "dot" | "tree" | "force" | 
-                          "hierarchy" | "fisheye"</programlisting></para>
+        e.g.,<programlisting>data LayoutStrategy = "dot" | "tree" | "force" | 
+                      "hierarchy" | "fisheye";
 
-        <para>Note that the type that can be used in annotation declaration is
-        identical to a type used in a data declaration. In a similar way, we
-        can add to certain syntactic constructs of programs (e.g.,
-        <literal>STATEMENT</literal>) an annotation with name
-        <literal>posinfo</literal> that contains location
-        information:<programlisting>anno STATEMENT posinfo loc</programlisting>or
-        location information could be added for all syntax
-        trees:<programlisting>anno tree posinfo loc</programlisting></para>
+anno LayoutStrategy strategy on Graph;</programlisting></para>
 
-        <para>. The folllowing two operators are provided for handling
+        <para>The folllowing two operators are provided for handling
         annotations:</para>
 
         <itemizedlist>
           <listitem>
             <para><literal><replaceable>Val</replaceable> @
-            <replaceable>Anno</replaceable></literal>: retrieves the value of
+            <replaceable>Anno</replaceable></literal>: get the value of
             annotation <replaceable>Anno</replaceable> of value
-            <replaceable>Val</replaceable>.</para>
+            <replaceable>Val</replaceable> (may be undefined!).</para>
           </listitem>
 
           <listitem>
-            <para><literal><replaceable>Var</replaceable> @
-            <replaceable>Anno</replaceable> =
-            <replaceable>Val</replaceable></literal>: set the value of
-            annotation <replaceable>Anno</replaceable> of the value of
-            variable <replaceable>Var</replaceable> to
-            <replaceable>Val</replaceable>.</para>
+            <para><literal><replaceable>Val1</replaceable> @
+            <replaceable>(Anno</replaceable> :
+            <replaceable>Val2)</replaceable></literal>: set the value of
+            annotation <replaceable>Anno</replaceable> of the value
+            <replaceable>Val</replaceable><replaceable>1</replaceable> to
+            <replaceable>Val2</replaceable>.</para>
           </listitem>
         </itemizedlist>
+
+        <para><warning>
+            <para>Let's drop the special assignment form Var @ Anno =
+            Val</para>
+          </warning></para>
       </section>
 
       <section>
         <title>Declaration tags</title>
 
-        <para>All declarations in a Rascal program may contain (in fixed
+        <para><warning>
+            <para>The syntax of tags has to be aligned with the syntax of
+            annotations. This is done in the examples below but not yet in the
+            synyax.</para>
+          </warning>All declarations in a Rascal program may contain (in fixed
         positions depending on the declaration type) one or more declaration
         tags (<literal>tag</literal>). A tag is defined by declaring its name,
         the declaration type to which it can be attached, and the name and
@@ -1173,15 +1184,15 @@ alias DFGRaph = Graph;</programlisting></para>
         types. All declaration tags have the generic format
         <literal>@<replaceable>Name</replaceable>{ ... }</literal>, with
         arbitrary text between the brackets that is further constrained by the
-        declared type. Here is an example of a license tag:<programlisting>tag module license str</programlisting>This
+        declared type. Here is an example of a license tag:<programlisting>tag str license on module;</programlisting>This
         will allow to write things like:<programlisting>module Booleans
 @license{This module is distributed under the GPL}
-...</programlisting>Other examples of declaration tags are:<programlisting>tag all todo str             %% a todo note for all declaration types
-tag function deprecated void %% marks a deprecated function
-tag function memo int        %% bounded memoization of 
-                             %% function calls
-tag all doc str              %% documentation string
-tag function primitive str   %% a primitive, built-in, function</programlisting>Here
+...</programlisting>Other examples of declaration tags are:<programlisting>tag str todo on all             %% a todo note for all declaration types
+tag void deprecated on function %% marks a deprecated function
+tag int memo on function        %% bounded memoization of 
+                                %% function calls
+tag str doc on all              %% documentation string
+tag str primitive on function   %% a primitive, built-in, function</programlisting>Here
         is an example of a documentation string as used in the Rascal standard
         library:<programlisting>public &amp;T max(set[&amp;T] R)
   @doc{Maximum of a set: max}
