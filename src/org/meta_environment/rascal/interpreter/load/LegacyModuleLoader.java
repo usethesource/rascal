@@ -33,7 +33,13 @@ public class LegacyModuleLoader implements IModuleLoader {
 		"demo/Misc/",
 		"demo/Pico/",
 		"demo/PicoAbstract/",
-		"demo/Rascal/"
+		"demo/Rascal/",
+		"benchmark/Ackermann",
+		"benchmark/BubbleSort",
+		"benchmark/Factorial",
+		"benchmark/Fibonacci",
+		"benchmark/Reverse",
+		"benchmark/RSF"
 	};
 	
 	protected static final String RASCAL_FILE_EXT = ".rsc";

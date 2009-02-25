@@ -5,6 +5,7 @@ import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
+	AnnotationTests.class,
 	AssignmentTests.class,
 	BackTrackingTests.class,
 	RecoveryTests.class,
