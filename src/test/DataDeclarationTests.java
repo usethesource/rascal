@@ -3,6 +3,7 @@ package test;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import org.meta_environment.rascal.interpreter.errors.NoSuchFieldError;
+import org.meta_environment.rascal.interpreter.errors.TypeError;
 
 public class DataDeclarationTests extends TestFramework {
 
@@ -21,12 +22,6 @@ public class DataDeclarationTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("bor(btrue,bfalse).right == bfalse;"));
 		assertTrue(runTestInSameEvaluator("{Bool b = band(btrue,bfalse).left; b == btrue;}"));
 		assertTrue(runTestInSameEvaluator("{Bool b = band(btrue,bfalse).right; b == bfalse;}"));
-	}
-
-	@Test(expected=NoSuchFieldError.class)
-	public void boolError() throws NoSuchFieldError {
-		prepare("data Bool = btrue | bfalse | band(Bool left, Bool right) | bor(Bool left, Bool right);");
-		assertTrue(runTestInSameEvaluator("{Bool b = btrue; b.left == btrue;}"));
 	}
 
 	@Test
@@ -48,5 +43,44 @@ public class DataDeclarationTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{Exp2 e = let(\"a\",\\int(1),var(\"a\")); e ==  let(\"a\",\\int(1),var(\"a\"));}"));
 		assertTrue(runTestInSameEvaluator("Var2 var := \"a\";"));
 		assertTrue(runTestInSameEvaluator("Var2 var !:= let(\"a\",\\int(1),var(\"a\"));"));
+	}
+	
+
+	@Test(expected=NoSuchFieldError.class)
+	public void boolError() throws NoSuchFieldError {
+		prepare("data Bool = btrue | bfalse | band(Bool left, Bool right) | bor(Bool left, Bool right);");
+		assertTrue(runTestInSameEvaluator("{Bool b = btrue; b.left == btrue;}"));
+	}
+	
+	@Test(expected=TypeError.class)
+	public void doubleFieldError1() throws TypeError {
+		runTest("data D = d | d;");
+	}
+	
+	@Test(expected=TypeError.class)
+	public void doubleFieldError2() throws TypeError {
+		runTest("data D = d(int n) | d(value v);");
+	}
+	
+	@Test(expected=TypeError.class)
+	public void doubleFieldError3() throws TypeError {
+		runTest("data D = d(int n) | d(int v);");
+	}
+	
+	@Test(expected=TypeError.class)
+	public void doubleFieldError4() throws TypeError {
+		prepare("alias INTEGER = int;");
+		runTest("data D = d(int n) | d(INTEGER v);");
+	}
+	
+	@Test(expected=TypeError.class)
+	public void doubleDataError1() throws TypeError {
+		prepare("data D = d(int n) | e;");
+		runTestInSameEvaluator("data D = d(int n);");
+	}
+	
+	@Test(expected=TypeError.class)
+	public void undeclaredTypeError1() throws NoSuchFieldError {
+		runTest("data D = anE(E e);");
 	}
 }

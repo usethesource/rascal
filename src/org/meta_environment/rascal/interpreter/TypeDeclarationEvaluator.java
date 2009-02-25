@@ -77,7 +77,11 @@ public class TypeDeclarationEvaluator {
 		    	}
 
 		    	Type children = tf.tupleType(fields, labels);
-		    	env.constructorFromTuple(adt, altName, children);
+		    	try {
+		    		env.constructorFromTuple(adt, altName, children);
+		    	} catch (org.eclipse.imp.pdb.facts.exceptions.RedeclaredConstructorException e){
+		    		throw new TypeError("Redeclared constructor " + altName, var);
+		    	}
 		    }
 		    else if (var.isNillaryConstructor()) {
 		    	env.constructor(adt, altName, new Object[] { });
