@@ -1,14 +1,14 @@
 package org.meta_environment.rascal.interpreter.result;
 
 import org.eclipse.imp.pdb.facts.IDouble;
-import org.meta_environment.rascal.interpreter.errors.ImplementationError;
+import org.meta_environment.ValueFactoryFactory;
 
-public class RealResult extends AbstractResult {
+public class RealResult extends ElementResult {
 
 	private IDouble real;
 	
 	public RealResult(IDouble real) {
-		this.setReal(real);
+		this.real = real;
 	}
 	
 	@Override
@@ -36,9 +36,20 @@ public class RealResult extends AbstractResult {
 		return result.subtractReal(this);
 	}
 	
+	@Override
+	public AbstractResult modulo(AbstractResult result) {
+		return result.moduloReal(this);
+	}
+	
+	
 	/// real impls start here
 	
-
+	@Override
+	public RealResult negative() {
+		return new RealResult(ValueFactoryFactory.getValueFactory().dubble(- getValue().getValue()));
+	}
+	
+	
 	@Override
 	protected RealResult addInteger(IntegerResult n) {
 		return addReal(n.widenToReal());
@@ -61,44 +72,25 @@ public class RealResult extends AbstractResult {
 	
 	@Override  
 	protected RealResult addReal(RealResult n) {
-		return new RealResult(getReal().add(n.getReal()));
+		return new RealResult(getValue().add(n.getValue()));
 	}
 	
 	@Override 
 	protected RealResult subtractReal(RealResult n) {
 		// note the reverse subtraction.
-		return new RealResult(n.getReal().subtract(getReal()));
+		return new RealResult(n.getValue().subtract(getValue()));
 	}
 	
 	@Override
 	protected RealResult multiplyReal(RealResult n) {
-		return new RealResult(getReal().multiply(n.getReal()));
+		return new RealResult(getValue().multiply(n.getValue()));
 	}
 
 	@Override
 	protected RealResult divideReal(RealResult n) {
 		// note the reverse division
-		return new RealResult(n.getReal().divide(getReal()));
-	}
-
-	@Override
-	protected SetResult addSet(SetResult s) {
-		return s.addReal(this);
+		return new RealResult(n.getValue().divide(getValue()));
 	}
 	
-	@Override
-	protected SetResult subtractSet(SetResult s) {
-		throw new ImplementationError("NYI");
-		//return new SetResult(s.getSet().delete(this));
-	}
-
-	
-	public void setReal(IDouble real) {
-		this.real = real;
-	}
-
-	public IDouble getReal() {
-		return real;
-	}
 	
 }

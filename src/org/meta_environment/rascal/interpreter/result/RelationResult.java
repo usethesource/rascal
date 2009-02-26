@@ -3,7 +3,7 @@ package org.meta_environment.rascal.interpreter.result;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.meta_environment.rascal.interpreter.errors.TypeError;
 
-public class RelationResult extends AbstractResult {
+public class RelationResult extends CollectionResult {
 
 		private IRelation rel;
 
@@ -27,7 +27,20 @@ public class RelationResult extends AbstractResult {
 			return result.subtractRelation(this);
 		}
 		
+		
 		////
+		
+		@Override
+		public AbstractResult transitiveClosure() {
+			// TODO: check arity
+			return new RelationResult(getValue().closure());
+		}
+		
+		@Override
+		public AbstractResult transitiveReflexiveClosure() {
+			// TODO: check arity
+			return new RelationResult(getValue().closureStar());
+		}
 		
 		
 		@Override
@@ -46,8 +59,14 @@ public class RelationResult extends AbstractResult {
 		private void checkArities(RelationResult r) {
 			// TODO: fix this
 			if (r.getValue().arity() != getValue().arity()) {
-				throw new TypeError("Incompatible arities in relatios operation");
+				throw new TypeError("Incompatible arities in relational operation");
 			}
+		}
+
+		@Override
+		CollectionResult insertElement(ElementResult result) {
+			// TODO: typechecking
+			return new RelationResult((IRelation) getValue().insert(result.getValue()));
 		}
 		
 		

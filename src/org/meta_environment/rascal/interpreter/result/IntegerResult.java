@@ -1,19 +1,19 @@
 package org.meta_environment.rascal.interpreter.result;
 
 import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.IValue;
+import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.interpreter.errors.ImplementationError;
 
-public class IntegerResult extends AbstractResult {
+public class IntegerResult extends ElementResult {
 
 	private IInteger integer;
 	
 	public IntegerResult(IInteger n) {
-		this.setInteger(n);
+		this.integer = n;
 	}
 	
 	@Override
-	public IValue getValue() {
+	public IInteger getValue() {
 		return integer;
 	}
 	
@@ -38,29 +38,45 @@ public class IntegerResult extends AbstractResult {
 		return result.divideInteger(this);
 	}
 	
+	@Override
+	public AbstractResult modulo(AbstractResult result) {
+		return result.moduloInteger(this);
+	}
+	
 	
 	/// real impls start here
 	
+	@Override
+	public IntegerResult negative() {
+		return new IntegerResult(ValueFactoryFactory.getValueFactory().integer(- getValue().getValue()));
+	}
+	
 	@Override  
 	protected IntegerResult addInteger(IntegerResult n) {
-		return new IntegerResult(getInteger().add(n.getInteger()));
+		return new IntegerResult(getValue().add(n.getValue()));
 	}
 	
 	@Override 
 	protected IntegerResult subtractInteger(IntegerResult n) {
 		// Note the reverse subtraction
-		return new IntegerResult(n.getInteger().subtract(getInteger()));
+		return new IntegerResult(n.getValue().subtract(getValue()));
 	}
 	
 	@Override
 	protected IntegerResult multiplyInteger(IntegerResult n) {
-		return new IntegerResult(getInteger().multiply(n.getInteger()));
+		return new IntegerResult(getValue().multiply(n.getValue()));
 	}
 
 	@Override
 	protected IntegerResult divideInteger(IntegerResult n) {
 		// note the reverse division.
-		return new IntegerResult(n.getInteger().divide(getInteger()));
+		return new IntegerResult(n.getValue().divide(getValue()));
+	}
+	
+	@Override
+	protected IntegerResult moduloInteger(IntegerResult n) {
+		// note reverse
+		return new IntegerResult(n.getValue().remainder(getValue()));
 	}
 	
 	@Override  
@@ -83,33 +99,9 @@ public class IntegerResult extends AbstractResult {
 	protected RealResult divideReal(RealResult n) {
 		return widenToReal().divideReal(n);
 	}
-
-	@Override
-	protected SetResult addSet(SetResult s) {
-		return s.addInteger(this);
-	}
-	
-	@Override
-	protected ListResult addList(ListResult s) {
-		return s.appendResult(this);
-	}
-
-	@Override
-	protected AbstractResult subtractSet(SetResult s) {
-		throw new ImplementationError("NYI");
-		//return new SetResult(s.getSet().delete(this));
-	}
-
-	private void setInteger(IInteger integer) {
-		this.integer = integer;
-	}
-
-	public IInteger getInteger() {
-		return integer;
-	}
-	
-	public RealResult widenToReal() {
-		return new RealResult(getInteger().toDouble());
+		
+	RealResult widenToReal() {
+		return new RealResult(getValue().toDouble());
 	}
 	
 

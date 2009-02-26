@@ -2,7 +2,7 @@ package org.meta_environment.rascal.interpreter.result;
 
 import org.eclipse.imp.pdb.facts.IMap;
 
-public class MapResult extends AbstractResult {
+public class MapResult extends ElementResult {
 	private IMap map;
 	
 	public MapResult(IMap map) {

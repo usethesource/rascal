@@ -2,7 +2,7 @@ package org.meta_environment.rascal.interpreter.result;
 
 import org.eclipse.imp.pdb.facts.ITuple;
 
-public class TupleResult extends AbstractResult {
+public class TupleResult extends ElementResult {
 	
 	private ITuple tuple;
 	
