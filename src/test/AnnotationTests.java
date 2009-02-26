@@ -30,7 +30,7 @@ public class AnnotationTests extends TestFramework{
 	public void annotationNotAllowed4(){
 		prepare("data F = f | f(int n) | g(int n) | deep(F f);");
 		prepareMore("anno int F @ pos;");
-		runTestInSameEvaluator("f [@wrongpos:true];");
+		runTestInSameEvaluator("f [@wrongpos=true];");
 	}
 	
 	@Test
@@ -47,7 +47,7 @@ public class AnnotationTests extends TestFramework{
 		assertTrue(runTestInSameEvaluator("f(5) [@pos=1] [@pos=2] @ pos == 2;"));
 		
 		assertTrue(runTestInSameEvaluator("deep(f(5) [@pos=1]) == deep(f(5));"));
-		assertTrue(runTestInSameEvaluator("f(5) [@pos=1] == f(5) [@pos=2);"));	
+		assertTrue(runTestInSameEvaluator("f(5) [@pos=1] == f(5) [@pos=2];"));	
 	}
 	
 	@Test

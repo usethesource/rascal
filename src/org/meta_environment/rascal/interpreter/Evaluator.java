@@ -605,14 +605,12 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 	@Override
 	public Result visitDeclarationAnnotation(Annotation x) {
-		Type annoType = te.eval(x.getType(), scopeStack.peek());
+		Type annoType = te.eval(x.getAnnoType(), scopeStack.peek());
 		String name = x.getName().toString();
-		
-		for (org.meta_environment.rascal.ast.Type type : x.getTypes()) {
-		  Type onType = te.eval(type, scopeStack.peek());
-		  scopeStack.peek().declareAnnotation(onType, name, annoType);	
-		}
-		
+
+		Type onType = te.eval(x.getOnType(), scopeStack.peek());
+		scopeStack.peek().declareAnnotation(onType, name, annoType);	
+
 		return result();
 	}
 	

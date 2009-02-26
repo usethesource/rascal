@@ -1282,7 +1282,7 @@ private org.meta_environment.rascal.ast.Expression expression;
 } public org.meta_environment.rascal.ast.Expression getValue() { throw new UnsupportedOperationException(); } public boolean hasValue() { return false; }
 public boolean isSetAnnotation() { return false; }
 static public class SetAnnotation extends Expression {
-/* expression:Expression "@" "(" name:Name ":" value: Expression ")" -> Expression {cons("SetAnnotation")} */
+/* expression:Expression "[" "@" name:Name ":" value: Expression "]" -> Expression {cons("SetAnnotation")} */
 	private SetAnnotation() { }
 	/*package*/ SetAnnotation(INode node, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.Expression value) {
 		this.node = node;
