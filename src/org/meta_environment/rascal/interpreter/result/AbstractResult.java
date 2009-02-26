@@ -14,7 +14,7 @@ public abstract class AbstractResult implements Iterator<AbstractResult> {
 	}
 	
 	protected AbstractResult() {
-
+		this(null);
 	}
 
 	public abstract IValue getValue();
@@ -147,5 +147,85 @@ public abstract class AbstractResult implements Iterator<AbstractResult> {
 		return null;
 	}
 
+	protected AbstractResult subtractList(ListResult s) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public AbstractResult modulo(AbstractResult result) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	protected AbstractResult moduloReal(RealResult realResult) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	protected AbstractResult addTuple(TupleResult t) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	protected AbstractResult moduloInteger(IntegerResult integerResult) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	protected AbstractResult intersect(AbstractResult result) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	protected AbstractResult intersectSet(SetResult setResult) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public AbstractResult negative() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	protected AbstractResult in(AbstractResult result) {
+		return null;
+	}
+	
+	protected AbstractResult inSet(SetResult s) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	protected AbstractResult inList(ListResult s) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public AbstractResult transitiveClosure() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public AbstractResult transitiveReflexiveClosure() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public AbstractResult notIn(AbstractResult result) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	protected AbstractResult notInSet(SetResult setResult) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	protected AbstractResult notInList(ListResult listResult) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	
 	
 }
