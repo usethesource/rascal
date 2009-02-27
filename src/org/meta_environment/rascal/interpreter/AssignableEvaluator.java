@@ -159,9 +159,11 @@ import org.meta_environment.rascal.interpreter.result.Result;
 			IConstructor cons = (IConstructor) receiver.getValue();
 			Type node = cons.getConstructorType();
 			
+			/* TODO: remove?
 			if (!receiver.getType().hasField(label)) {
 				throw new NoSuchFieldError(receiver.getType() + " does not have a field named `" + label + "`", x);
 			}
+			*/
 			
 			if (!node.hasField(label)) {
 				throw new NoSuchFieldError("Field `" + label + "` accessed on constructor that does not have it." + receiver.getValue().getType(), x);
