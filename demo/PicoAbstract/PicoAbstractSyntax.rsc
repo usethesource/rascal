@@ -28,5 +28,5 @@ public data DECL =
 public data PROGRAM =
 	  program(list[DECL] decls, list[STATEMENT] stats);
 
-anno int EXP @ pos;
-anno int STATEMENT @ pos;
+anno int EXP@pos;
+anno int STATEMENT@pos;
