@@ -4,6 +4,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeDeclarationException;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeRedeclaredException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.Declaration;
@@ -99,27 +101,30 @@ public class TypeDeclarationEvaluator {
 	public void declareAlias(Alias x, Environment env) {
 		TypeEvaluator te = TypeEvaluator.getInstance();
 		TypeFactory tf = TypeFactory.getInstance();
-		
-		String user = x.getUser().getName().toString();
-		Type[] params;
-		if (x.getUser().isParametric()) {
-			java.util.List<org.meta_environment.rascal.ast.Type> formals = x.getUser().getParameters();
-			params = new Type[formals.size()];
-			int i = 0;
-			for (org.meta_environment.rascal.ast.Type formal : formals) {
-				if (!formal.isVariable()) {
-					throw new TypeError("Declaration of parameterized type with type instance " + formal + " is not allowed", formal);
+		try {
+			String user = x.getUser().getName().toString();
+			Type[] params;
+			if (x.getUser().isParametric()) {
+				java.util.List<org.meta_environment.rascal.ast.Type> formals = x.getUser().getParameters();
+				params = new Type[formals.size()];
+				int i = 0;
+				for (org.meta_environment.rascal.ast.Type formal : formals) {
+					if (!formal.isVariable()) {
+						throw new TypeError("Declaration of parameterized type with type instance " + formal + " is not allowed", formal);
+					}
+					TypeVar var = formal.getTypeVar();
+					Type bound = var.hasBound() ? te.eval(var.getBound(), env) : tf.valueType();
+					params[i++] = tf.parameterType(Names.name(var.getName()), bound);
 				}
-				TypeVar var = formal.getTypeVar();
-				Type bound = var.hasBound() ? te.eval(var.getBound(), env) : tf.valueType();
-				params[i++] = tf.parameterType(Names.name(var.getName()), bound);
 			}
+			else {
+				params = new Type[0];
+			}
+			Type base = te.eval(x.getBase(), env);
+			env.aliasType(user, base, params);	
+		} catch (FactTypeDeclarationException e){
+			throw new TypeError(e.getMessage(), x);
 		}
-		else {
-			params = new Type[0];
-		}
-		Type base = te.eval(x.getBase(), env);
-		env.aliasType(user, base, params);	
 	}
 
 	private void declareAbstractDataTypes(Set<UserType> abstractDataTypes) {

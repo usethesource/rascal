@@ -253,6 +253,7 @@ public class TypeEvaluator {
 
 		@Override
 		public Type visitStructuredTypeSet(Set x) {
+			System.err.println("set=" + x);
 			return tf.setType(x.getTypeArg().accept(this));
 		}
 
