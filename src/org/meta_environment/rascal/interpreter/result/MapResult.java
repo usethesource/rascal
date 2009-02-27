@@ -1,11 +1,13 @@
 package org.meta_environment.rascal.interpreter.result;
 
 import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.type.Type;
 
 public class MapResult extends ValueResult {
 	private IMap map;
 	
-	public MapResult(IMap map) {
+	public MapResult(Type type, IMap map) {
+		super(type, map);
 		this.map = map;
 	}
 	
@@ -19,7 +21,7 @@ public class MapResult extends ValueResult {
 	
 	@Override
 	protected MapResult addMap(MapResult m) {
-		return new MapResult(m.getMap().join(getMap()));
+		return new MapResult(type, m.getMap().join(getMap()));
 	}
 	
 	public IMap getMap() {

@@ -1,8 +1,10 @@
 package org.meta_environment.rascal.interpreter.result;
 
+
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
 
 
 public class ValueResult extends AbstractResult {
@@ -10,13 +12,13 @@ public class ValueResult extends AbstractResult {
 	private IValue value;
 
 	
-	public ValueResult(IValue value) {
+	public ValueResult(Type type, IValue value) {
+		super(type, value);
 		this.value = value;
 	}
 	
-	public ValueResult(Iterator<AbstractResult> iter) {
-		// TODO: what to do with this constructor.
-		super(iter);
+	ValueResult(Type type, IValue value, Iterator<AbstractResult> iter) {
+		super(type, value, iter);
 	}
 	
 	// TODO: do type checking on element types here.
@@ -26,8 +28,6 @@ public class ValueResult extends AbstractResult {
 		return value;
 	}
 
-	ValueResult() {	
-	}
 
 	@Override
 	protected BoolResult inSet(SetResult s) {

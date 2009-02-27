@@ -1,13 +1,21 @@
 package org.meta_environment.rascal.interpreter.result;
 
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListWriter;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.interpreter.errors.ImplementationError;
 
 public class ListResult extends CollectionResult {
 
 	private IList list;
 	
-	public ListResult(IList list) {
+	public ListResult(Type type, IList list) {
+		super(type, list);
 		this.list = list;
 	}
 	
@@ -27,6 +35,11 @@ public class ListResult extends CollectionResult {
 	}
 
 	@Override
+	public AbstractResult multiply(AbstractResult result) {
+		return result.multiplyList(this);
+	}
+	
+	@Override
 	public AbstractResult in(AbstractResult result) {
 		return result.inList(this);
 	}	
@@ -41,7 +54,7 @@ public class ListResult extends CollectionResult {
 	@Override
 	public ListResult addList(ListResult l) {
 		// Note the reverse concat
-		return new ListResult(l.list.concat(l.list));
+		return new ListResult(type, l.list.concat(l.list));
 	}
 
 	@Override
@@ -51,14 +64,28 @@ public class ListResult extends CollectionResult {
 		//return new ListResult(l.list.(l.list));
 	}
 
+	@Override
+	protected ListResult multiplyList(ListResult that) {
+		Type t1 = getValueType().getElementType();
+		Type t2 = that.getValueType().getElementType();
+		// Note: reverse
+		Type type = getTypeFactory().listType(getTypeFactory().tupleType(t2, t1));
+		IListWriter w = type.writer(getValueFactory());
+		for (IValue v1 : that.getValue()) {
+			for (IValue v2 : getValue()) {
+				w.append(getValueFactory().tuple(v1, v2));	
+			}
+		}
+		return new ListResult(type, w.done());	
+	}
 	
 	ListResult insertElement(ValueResult n) {
-		return new ListResult(list.insert(n.getValue()));
+		return new ListResult(type, list.insert(n.getValue()));
 	}
 	
 	ListResult appendElement(ValueResult n) {
 		// this is called by addLists in element types.
-		return new ListResult(list.append(n.getValue()));
+		return new ListResult(type, list.append(n.getValue()));
 	}
 
 	ListResult removeElement(ValueResult value) {
