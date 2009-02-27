@@ -10,6 +10,7 @@ import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.ast.Rule;
 import org.meta_environment.rascal.interpreter.Names;
+import org.meta_environment.rascal.interpreter.errors.ImplementationError;
 import org.meta_environment.rascal.interpreter.errors.NoSuchModuleError;
 
 /**
@@ -29,13 +30,18 @@ public class GlobalEnvironment {
 	 * Allocate a new module on the heap
 	 * @param name
 	 */
-	public ModuleEnvironment addModule(String name) {
-		ModuleEnvironment env = moduleEnvironment.get(name);
+	public ModuleEnvironment addModule(ModuleEnvironment mod) {
+		ModuleEnvironment env = moduleEnvironment.get(mod.getName());
 		if (env == null) {
-			env = new ModuleEnvironment(name);
-			moduleEnvironment.put(name, env);
+			moduleEnvironment.put(mod.getName(), mod);
+			return mod;
 		}
-		return env;
+		else if (env == mod) {
+			return mod;
+		}
+		else {
+			throw new ImplementationError("Reinstantiating same module " + mod.getName());
+		}
 	}
 	
 		
