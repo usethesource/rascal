@@ -1,13 +1,16 @@
 package org.meta_environment.rascal.interpreter.result;
 
 import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.ValueFactoryFactory;
 
 public class IntegerResult extends ValueResult {
 
 	private IInteger integer;
 	
-	public IntegerResult(IInteger n) {
+	public IntegerResult(Type type, IInteger n) {
+		super(type, n);
 		this.integer = n;
 	}
 	
@@ -47,35 +50,35 @@ public class IntegerResult extends ValueResult {
 	
 	@Override
 	public IntegerResult negative() {
-		return new IntegerResult(ValueFactoryFactory.getValueFactory().integer(- getValue().getValue()));
+		return new IntegerResult(type, ValueFactoryFactory.getValueFactory().integer(- getValue().getValue()));
 	}
 	
 	@Override  
 	protected IntegerResult addInteger(IntegerResult n) {
-		return new IntegerResult(getValue().add(n.getValue()));
+		return new IntegerResult(type, getValue().add(n.getValue()));
 	}
 	
 	@Override 
 	protected IntegerResult subtractInteger(IntegerResult n) {
 		// Note the reverse subtraction
-		return new IntegerResult(n.getValue().subtract(getValue()));
+		return new IntegerResult(type, n.getValue().subtract(getValue()));
 	}
 	
 	@Override
 	protected IntegerResult multiplyInteger(IntegerResult n) {
-		return new IntegerResult(getValue().multiply(n.getValue()));
+		return new IntegerResult(type, getValue().multiply(n.getValue()));
 	}
 
 	@Override
 	protected IntegerResult divideInteger(IntegerResult n) {
 		// note the reverse division.
-		return new IntegerResult(n.getValue().divide(getValue()));
+		return new IntegerResult(type, n.getValue().divide(getValue()));
 	}
 	
 	@Override
 	protected IntegerResult moduloInteger(IntegerResult n) {
 		// note reverse
-		return new IntegerResult(n.getValue().remainder(getValue()));
+		return new IntegerResult(type, n.getValue().remainder(getValue()));
 	}
 	
 	@Override  
@@ -100,7 +103,7 @@ public class IntegerResult extends ValueResult {
 	}
 		
 	RealResult widenToReal() {
-		return new RealResult(getValue().toDouble());
+		return new RealResult(TypeFactory.getInstance().doubleType(), getValue().toDouble());
 	}
 	
 

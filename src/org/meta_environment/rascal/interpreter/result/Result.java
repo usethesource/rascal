@@ -130,95 +130,95 @@ public class Result  implements Iterator<Result>{
 	
 
 	// TODO make these abstract
-	protected Result addInteger(IntegerResult n) {
+	protected AbstractResult addInteger(IntegerResult n) {
 		throw new ImplementationError("NIY");
 	}
 
-	protected Result reverseSubtractInteger(IntegerResult integerResult) {
+	protected AbstractResult reverseSubtractInteger(IntegerResult integerResult) {
 		return null;
 	}
 
-	public Result add(Result result) {
+	public AbstractResult add(AbstractResult result) {
 		// TODO throw type error
 		return null;
 	}
 
-	public Result subtract(Result result) {
+	public AbstractResult subtract(AbstractResult result) {
 		// TODO throw type error
 		return null;
 	}
 
-	public Result multiply(Result result) {
+	public AbstractResult multiply(AbstractResult result) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	protected Result multiplyInteger(IntegerResult integerResult) {
+	protected AbstractResult multiplyInteger(IntegerResult integerResult) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	protected Result addReal(RealResult n) {
+	protected AbstractResult addReal(RealResult n) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	protected Result reverseSubtractReal(RealResult n) {
+	protected AbstractResult reverseSubtractReal(RealResult n) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	protected Result multiplyReal(RealResult n) {
+	protected AbstractResult multiplyReal(RealResult n) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public Result divide(Result result) {
+	public AbstractResult divide(AbstractResult result) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	protected Result reverseDivideReal(RealResult realResult) {
+	protected AbstractResult reverseDivideReal(RealResult realResult) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	protected Result reverseDivideInteger(IntegerResult integerResult) {
+	protected AbstractResult reverseDivideInteger(IntegerResult integerResult) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	protected Result addString(StringResult s) {
+	protected AbstractResult addString(StringResult s) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	protected Result addList(ListResult l) {
+	protected AbstractResult addList(ListResult l) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	protected Result addSet(SetResult s) {
+	protected AbstractResult addSet(SetResult s) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	protected Result addRelation(RelationResult r) {
+	protected AbstractResult addRelation(RelationResult r) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	protected Result addBool(BoolResult n) {
+	protected AbstractResult addBool(BoolResult n) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	protected Result subtractSet(SetResult s) {
+	protected AbstractResult subtractSet(SetResult s) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	protected Result illegalArguments(String op, AbstractAST ast, Type type1, Type type2) {
+	protected AbstractResult illegalArguments(String op, AbstractAST ast, Type type1, Type type2) {
 		throw new TypeError("Operands of " + op + " have illegal types: " + type1 + ", " + type2, ast);
 	}
 
@@ -228,12 +228,12 @@ public class Result  implements Iterator<Result>{
 		}
 	}
 
-	protected Result multiplySet(SetResult setResult) {
+	protected AbstractResult multiplySet(SetResult setResult) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	protected Result addMap(MapResult m) {
+	protected AbstractResult addMap(MapResult m) {
 		// TODO Auto-generated method stub
 		return null;
 	}

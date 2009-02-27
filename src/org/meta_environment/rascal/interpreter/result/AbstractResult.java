@@ -3,22 +3,62 @@ package org.meta_environment.rascal.interpreter.result;
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.interpreter.errors.ImplementationError;
+import org.meta_environment.rascal.interpreter.errors.TypeError;
 
 public abstract class AbstractResult implements Iterator<AbstractResult> {
+	private static final String INTERSECTION_STRING = "intersection";
+	private static final String NOTIN_STRING = "notin";
+	private static final String IN_STRING = "in";
+	private static final String TRANSITIVE_REFLEXIVE_CLOSURE_STRING = "transitive-reflexive closure";
+	private static final String TRANSITIVE_CLOSURE_STRING = "transitive closure";
+	private static final String NEGATIVE_STRING = "negative";
+	private static final String MODULO_STRING = "modulo";
+	private static final String DIVISION_STRING = "division";
+	private static final String MULTIPLICATION_STRING = "multiplication";
+	private static final String SUBTRACTION_STRING = "subtraction";
+	private static final String ADDITION_STRING = "addition";
 	private Iterator<AbstractResult> iterator = null;
-	private AbstractResult last = null;
+	protected Type type;
 
-	protected AbstractResult(Iterator<AbstractResult> iter) {
+	protected AbstractResult(Type type, IValue value,  Iterator<AbstractResult> iter) {
+		if (!value.getType().isSubtypeOf(type)) {
+			throw new TypeError("expected value of type " + type + "; got a " + value.getType());
+		}
+		this.type = type;
 		this.iterator = iter;
 	}
 	
-	protected AbstractResult() {
-		this(null);
+	protected AbstractResult(Type type, IValue value) {
+		this(type, value, null);
 	}
 
+	/// The "result" interface
+	
 	public abstract IValue getValue();
 	
+	public Type getType() { 
+		return type;
+	}
+	
+	public Type getValueType() {
+		return getValue().getType();
+	}
+	
+	
+	/// Factory access: this should probably access fields initialized by constructor invocations
+	
+	protected TypeFactory getTypeFactory() {
+		return TypeFactory.getInstance();
+	}
+	
+	protected IValueFactory getValueFactory() {
+		return ValueFactoryFactory.getValueFactory();
+	}
 	
 	//////// The iterator interface
 	
@@ -31,7 +71,7 @@ public abstract class AbstractResult implements Iterator<AbstractResult> {
 		if(iterator == null){
 			new ImplementationError("next called on Result with null iterator");
 		}
-		return last = iterator.next();
+		return iterator.next(); //??? last = iterator.next();
 	}
 
 	public void remove() {
@@ -39,191 +79,175 @@ public abstract class AbstractResult implements Iterator<AbstractResult> {
 	}
 
 	
+	// Error aux methods
+	
+	private String toTypeString() {
+		return type.toString();
+	}
+	
+	protected AbstractResult undefinedError(String operator, AbstractResult ...args) {
+		String msg = operator + " is not defined on " + toTypeString();
+		for (AbstractResult arg: args) {
+			msg += " and " + arg.toTypeString();
+		}
+		throw new TypeError(msg);
+	}
 	
 	///////
 	
-	public AbstractResult add(AbstractResult result) {
-		return null;
+	public AbstractResult add(AbstractResult that) {
+		return undefinedError(ADDITION_STRING, that);
 	}
 
-	public AbstractResult subtract(AbstractResult result) {
-		return null;
+	public AbstractResult subtract(AbstractResult that) {
+		return undefinedError(SUBTRACTION_STRING, that);
 	}
 
-	public AbstractResult multiply(AbstractResult result) {
-		return null;
+	public AbstractResult multiply(AbstractResult that) {
+		return undefinedError(MULTIPLICATION_STRING, that);
 	}
 	
-	public AbstractResult divide(AbstractResult result) {
-		return null;
+	public AbstractResult divide(AbstractResult that) {
+		return undefinedError(DIVISION_STRING, that);
 	}
 
-
-	
-	////////////////
-
-	protected AbstractResult addInteger(IntegerResult n) {
-		throw new ImplementationError("NIY");
+	public AbstractResult modulo(AbstractResult that) {
+		return undefinedError(MODULO_STRING, that);
 	}
 
-	protected AbstractResult subtractInteger(IntegerResult integerResult) {
-		return null;
+	public AbstractResult in(AbstractResult that) {
+		return undefinedError(IN_STRING, that);
 	}
 
-	protected AbstractResult multiplyInteger(IntegerResult integerResult) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	protected AbstractResult addReal(RealResult n) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	protected AbstractResult subtractReal(RealResult n) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	protected AbstractResult multiplyReal(RealResult n) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-	protected AbstractResult divideReal(RealResult realResult) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	protected AbstractResult divideInteger(IntegerResult integerResult) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	protected AbstractResult addString(StringResult s) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	protected AbstractResult addList(ListResult l) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	protected AbstractResult addSet(SetResult s) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	protected AbstractResult addRelation(RelationResult r) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	protected AbstractResult addBool(BoolResult n) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	protected AbstractResult subtractSet(SetResult s) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-
-	protected AbstractResult multiplySet(SetResult setResult) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	protected AbstractResult addMap(MapResult m) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	protected AbstractResult subtractRelation(RelationResult relationResult) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	protected AbstractResult subtractList(ListResult s) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	public AbstractResult modulo(AbstractResult result) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	protected AbstractResult moduloReal(RealResult realResult) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	protected AbstractResult addTuple(TupleResult t) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	protected AbstractResult moduloInteger(IntegerResult integerResult) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	protected AbstractResult intersect(AbstractResult result) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	protected AbstractResult intersectSet(SetResult setResult) {
-		// TODO Auto-generated method stub
-		return null;
+	public AbstractResult notIn(AbstractResult that) {
+		return undefinedError(NOTIN_STRING, that);
 	}
 
 	public AbstractResult negative() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	protected AbstractResult in(AbstractResult result) {
-		return null;
-	}
-	
-	protected AbstractResult inSet(SetResult s) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	protected AbstractResult inList(ListResult s) {
-		// TODO Auto-generated method stub
-		return null;
+		return undefinedError(NEGATIVE_STRING);
 	}
 
 	public AbstractResult transitiveClosure() {
-		// TODO Auto-generated method stub
-		return null;
+		return undefinedError(TRANSITIVE_CLOSURE_STRING);
 	}
 
 	public AbstractResult transitiveReflexiveClosure() {
-		// TODO Auto-generated method stub
-		return null;
+		return undefinedError(TRANSITIVE_REFLEXIVE_CLOSURE_STRING);
+	}
+	
+	///////
+
+	protected AbstractResult addInteger(IntegerResult that) {
+		return that.undefinedError(ADDITION_STRING, this);
 	}
 
-	public AbstractResult notIn(AbstractResult result) {
-		// TODO Auto-generated method stub
-		return null;
+	protected AbstractResult subtractInteger(IntegerResult that) {
+		return that.undefinedError(SUBTRACTION_STRING, this);
 	}
 
-	protected AbstractResult notInSet(SetResult setResult) {
-		// TODO Auto-generated method stub
-		return null;
+	protected AbstractResult multiplyInteger(IntegerResult that) {
+		return that.undefinedError(MULTIPLICATION_STRING, this);
 	}
 
-	protected AbstractResult notInList(ListResult listResult) {
-		// TODO Auto-generated method stub
-		return null;
+	protected AbstractResult addReal(RealResult that) {
+		return that.undefinedError(ADDITION_STRING, this);
+	}
+
+	protected AbstractResult subtractReal(RealResult that) {
+		return that.undefinedError(SUBTRACTION_STRING, this);
+	}
+
+	protected AbstractResult multiplyReal(RealResult that) {
+		return that.undefinedError(MULTIPLICATION_STRING, this);
+	}
+
+
+	protected AbstractResult divideReal(RealResult that) {
+		return that.undefinedError(DIVISION_STRING, this);
+	}
+
+	protected AbstractResult divideInteger(IntegerResult that) {
+		return that.undefinedError(DIVISION_STRING, this);
+	}
+
+	protected AbstractResult addString(StringResult that) {
+		return that.undefinedError(ADDITION_STRING, this);
+	}
+
+	protected AbstractResult addList(ListResult that) {
+		return that.undefinedError(ADDITION_STRING, this);
+	}
+
+	protected AbstractResult subtractList(ListResult that) {
+		return that.undefinedError(SUBTRACTION_STRING, this);
+	}
+
+	protected AbstractResult multiplyList(ListResult that) {
+		return that.undefinedError(MULTIPLICATION_STRING, that);
+	}
+
+	protected AbstractResult addSet(SetResult that) {
+		return that.undefinedError(ADDITION_STRING, this);
+	}
+
+	protected AbstractResult addRelation(RelationResult that) {
+		return that.undefinedError(ADDITION_STRING, this);
+	}
+
+	protected AbstractResult addBool(BoolResult that) {
+		return that.undefinedError(ADDITION_STRING, this);
+	}
+
+	protected AbstractResult subtractSet(SetResult that) {
+		return that.undefinedError(SUBTRACTION_STRING, this);
+	}
+
+	protected AbstractResult multiplySet(SetResult that) {
+		return that.undefinedError(MULTIPLICATION_STRING, this);
+	}
+
+	protected AbstractResult addMap(MapResult that) {
+		return that.undefinedError(ADDITION_STRING, this);
+	}
+
+	protected AbstractResult subtractRelation(RelationResult that) {
+		return that.undefinedError(SUBTRACTION_STRING, this);
+	}
+
+	protected AbstractResult moduloReal(RealResult that) {
+		return that.undefinedError(MODULO_STRING, this);
+	}
+
+	protected AbstractResult addTuple(TupleResult that) {
+		return that.undefinedError(ADDITION_STRING, this);
+	}
+
+	protected AbstractResult moduloInteger(IntegerResult that) {
+		return that.undefinedError(MODULO_STRING, this);
+	}
+
+	protected AbstractResult intersect(AbstractResult that) {
+		return that.undefinedError(INTERSECTION_STRING, this);
+	}
+
+	protected AbstractResult intersectSet(SetResult that) {
+		return that.undefinedError(INTERSECTION_STRING, this);
+	}
+
+	protected AbstractResult inSet(SetResult that) {
+		return that.undefinedError(IN_STRING, this);
+	}
+
+	protected AbstractResult inList(ListResult that) {
+		return that.undefinedError(IN_STRING, this);
+	}
+
+	protected AbstractResult notInSet(SetResult that) {
+		return that.undefinedError(NOTIN_STRING, this);
+	}
+
+	protected AbstractResult notInList(ListResult that) {
+		return that.undefinedError(NOTIN_STRING, this);
 	}
 	
 	

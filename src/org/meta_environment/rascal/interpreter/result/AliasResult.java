@@ -1,12 +1,14 @@
 package org.meta_environment.rascal.interpreter.result;
 
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
 
 public class AliasResult extends AbstractResult {
 
 	private AbstractResult result;
 
-	public AliasResult(AbstractResult result) {
+	public AliasResult(Type type, AbstractResult result) {
+		super(type, result.getValue());
 		this.result = result;
 	}
 	

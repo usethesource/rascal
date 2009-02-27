@@ -1,13 +1,15 @@
 package org.meta_environment.rascal.interpreter.result;
 
 import org.eclipse.imp.pdb.facts.IRelation;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.interpreter.errors.TypeError;
 
 public class RelationResult extends CollectionResult {
 
 		private IRelation rel;
 
-		public RelationResult(IRelation rel) {
+		public RelationResult(Type type, IRelation rel) {
+			super(type, rel);
 			this.rel = rel;
 		}
 
@@ -33,27 +35,27 @@ public class RelationResult extends CollectionResult {
 		@Override
 		public AbstractResult transitiveClosure() {
 			// TODO: check arity
-			return new RelationResult(getValue().closure());
+			return new RelationResult(type, getValue().closure());
 		}
 		
 		@Override
 		public AbstractResult transitiveReflexiveClosure() {
 			// TODO: check arity
-			return new RelationResult(getValue().closureStar());
+			return new RelationResult(type, getValue().closureStar());
 		}
 		
 		
 		@Override
 		protected RelationResult addRelation(RelationResult r) {
 			checkArities(r);
-			return new RelationResult((IRelation)rel.union(r.rel));
+			return new RelationResult(type, (IRelation)rel.union(r.rel));
 		}
 		
 
 		@Override 
 		protected RelationResult subtractRelation(RelationResult r) {			
 			checkArities(r);
-			return new RelationResult((IRelation) r.getValue().union(getValue()));
+			return new RelationResult(type, (IRelation) r.getValue().union(getValue()));
 		}
 
 		private void checkArities(RelationResult r) {
@@ -66,7 +68,7 @@ public class RelationResult extends CollectionResult {
 		@Override
 		CollectionResult insertElement(ValueResult result) {
 			// TODO: typechecking
-			return new RelationResult((IRelation) getValue().insert(result.getValue()));
+			return new RelationResult(type, (IRelation) getValue().insert(result.getValue()));
 		}
 		
 		

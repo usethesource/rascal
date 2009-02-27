@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.interpreter.result;
 
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.interpreter.errors.ImplementationError;
 
 public class CollectionResult extends ValueResult {
@@ -9,8 +11,8 @@ public class CollectionResult extends ValueResult {
 	 * etc.
 	 */
 
-	CollectionResult() {
-		super();
+	CollectionResult(Type type, IValue value) {
+		super(type, value);
 	}
 
 	
