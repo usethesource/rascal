@@ -52,26 +52,26 @@ public class ListResult extends CollectionResult {
 	}
 
 	
-	ListResult insertElement(ElementResult n) {
+	ListResult insertElement(ValueResult n) {
 		return new ListResult(list.insert(n.getValue()));
 	}
 	
-	ListResult appendElement(ElementResult n) {
+	ListResult appendElement(ValueResult n) {
 		// this is called by addLists in element types.
 		return new ListResult(list.append(n.getValue()));
 	}
 
-	ListResult removeElement(ElementResult value) {
+	ListResult removeElement(ValueResult value) {
 		throw new ImplementationError("NYI: pdb has no remove on list");
 		//return new ListResult(list.remove(value.getValue())
 	}
 
-	BoolResult elementOf(ElementResult elementResult) {
+	BoolResult elementOf(ValueResult elementResult) {
 		throw new ImplementationError("NYI: pdb has no contains on lists");
 		//return new BoolResult(getValue().contains(elementResult.getValue());
 	}
 
-	BoolResult notElementOf(ElementResult elementResult) {
+	BoolResult notElementOf(ValueResult elementResult) {
 		throw new ImplementationError("NYI: pdb has no contains on lists");
 		//return new BoolResult(!getValue().contains(elementResult.getValue());
 	}

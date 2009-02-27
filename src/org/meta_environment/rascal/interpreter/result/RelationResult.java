@@ -64,7 +64,7 @@ public class RelationResult extends CollectionResult {
 		}
 
 		@Override
-		CollectionResult insertElement(ElementResult result) {
+		CollectionResult insertElement(ValueResult result) {
 			// TODO: typechecking
 			return new RelationResult((IRelation) getValue().insert(result.getValue()));
 		}

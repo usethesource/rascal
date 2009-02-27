@@ -5,7 +5,7 @@ import java.util.Iterator;
 import org.eclipse.imp.pdb.facts.IBool;
 import org.meta_environment.ValueFactoryFactory;
 
-public class BoolResult extends ElementResult {
+public class BoolResult extends ValueResult {
 
 	private IBool bool;
 	

@@ -2,7 +2,7 @@ package org.meta_environment.rascal.interpreter.result;
 
 import org.eclipse.imp.pdb.facts.IString;
 
-public class StringResult extends ElementResult {
+public class StringResult extends ValueResult {
 
 	private IString string;
 	
