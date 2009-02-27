@@ -7,7 +7,7 @@ public class SyntaxError extends Error {
 	 
 	//TODO: remove
 	public SyntaxError(String message) {
-		super(null, message);
+		super("SyntaxError", message);
 	}
 	
 	public SyntaxError(String message, AbstractAST node) {
