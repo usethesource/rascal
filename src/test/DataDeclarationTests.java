@@ -52,9 +52,9 @@ public class DataDeclarationTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{Bool b = btrue; b.left == btrue;}"));
 	}
 	
-	@Test(expected=TypeError.class)
-	public void doubleFieldError1() throws TypeError {
+	public void exactDoubleFieldIsAllowed() throws TypeError {
 		runTest("data D = d | d;");
+		assertTrue(true);
 	}
 	
 	@Test(expected=TypeError.class)
@@ -73,10 +73,10 @@ public class DataDeclarationTests extends TestFramework {
 		runTest("data D = d(int n) | d(INTEGER v);");
 	}
 	
-	@Test(expected=TypeError.class)
-	public void doubleDataError1() throws TypeError {
+	public void exactDoubleDataDeclarationIsAllowed() throws TypeError {
 		prepare("data D = d(int n) | e;");
 		runTestInSameEvaluator("data D = d(int n);");
+		assertTrue(true);
 	}
 	
 	@Test(expected=TypeError.class)
