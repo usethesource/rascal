@@ -71,23 +71,23 @@ public class SetResult extends CollectionResult {
 	}
 	
 	
-	SetResult insertElement(ElementResult valueResult) {
+	SetResult insertElement(ValueResult valueResult) {
 		return addElement(valueResult);
 	}
 	
-	SetResult addElement(ElementResult valueResult) {
+	SetResult addElement(ValueResult valueResult) {
 		return new SetResult(getValue().insert(valueResult.getValue()));
 	}
 
-	SetResult removeElement(ElementResult valueResult) {
+	SetResult removeElement(ValueResult valueResult) {
 		return new SetResult(getValue().delete(valueResult.getValue()));
 	}
 
-	public BoolResult elementOf(ElementResult elementResult) {
+	public BoolResult elementOf(ValueResult elementResult) {
 		return new BoolResult(getValue().contains(elementResult.getValue()));
 	}
 
-	public BoolResult notElementOf(ElementResult elementResult) {
+	public BoolResult notElementOf(ValueResult elementResult) {
 		return new BoolResult(!getValue().contains(elementResult.getValue()));
 	}
 	

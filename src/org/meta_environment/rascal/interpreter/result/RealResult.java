@@ -3,7 +3,7 @@ package org.meta_environment.rascal.interpreter.result;
 import org.eclipse.imp.pdb.facts.IDouble;
 import org.meta_environment.ValueFactoryFactory;
 
-public class RealResult extends ElementResult {
+public class RealResult extends ValueResult {
 
 	private IDouble real;
 	

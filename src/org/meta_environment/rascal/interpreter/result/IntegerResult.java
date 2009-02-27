@@ -2,9 +2,8 @@ package org.meta_environment.rascal.interpreter.result;
 
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.meta_environment.ValueFactoryFactory;
-import org.meta_environment.rascal.interpreter.errors.ImplementationError;
 
-public class IntegerResult extends ElementResult {
+public class IntegerResult extends ValueResult {
 
 	private IInteger integer;
 	

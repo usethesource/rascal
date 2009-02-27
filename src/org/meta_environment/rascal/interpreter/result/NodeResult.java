@@ -2,7 +2,7 @@ package org.meta_environment.rascal.interpreter.result;
 
 import org.eclipse.imp.pdb.facts.INode;
 
-public class NodeResult extends ElementResult {
+public class NodeResult extends ValueResult {
 
 	private INode node;
 	

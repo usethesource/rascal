@@ -2,22 +2,33 @@ package org.meta_environment.rascal.interpreter.result;
 
 import java.util.Iterator;
 
+import org.eclipse.imp.pdb.facts.IValue;
 
-public abstract class ElementResult extends AbstractResult {
 
-	protected ElementResult() {
+public class ValueResult extends AbstractResult {
+
+	private IValue value;
+
+	
+	public ValueResult(IValue value) {
+		this.value = value;
 	}
 	
-	public ElementResult(Iterator<AbstractResult> iter) {
+	public ValueResult(Iterator<AbstractResult> iter) {
+		// TODO: what to do with this constructor.
 		super(iter);
 	}
 	
-	///
-
-	
-	
 	// TODO: do type checking on element types here.
 	
+	@Override
+	public IValue getValue() {
+		return value;
+	}
+
+	ValueResult() {	
+	}
+
 	@Override
 	protected BoolResult inSet(SetResult s) {
 		return s.elementOf(this);
