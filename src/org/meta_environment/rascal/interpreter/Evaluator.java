@@ -473,7 +473,11 @@ public class Evaluator extends NullASTVisitor<Result> {
 			name = name.substring(1);
 		}
 		if (!heap.existsModule(name)) {
-			loadModule(x, name).accept(this);
+			Module module = loadModule(x, name);
+			if (!getModuleName(module).equals(name)) {
+				throw new TypeError("Module name does not correspond to file name ", module);
+			}
+			module.accept(this);
 		}
 		scopeStack.peek().addImport(name, heap.getModule(name, x));
 		return result();
@@ -498,13 +502,10 @@ public class Evaluator extends NullASTVisitor<Result> {
 	@Override 
 	public Result visitModuleDefault(
 			org.meta_environment.rascal.ast.Module.Default x) {
-		String name = x.getHeader().getName().toString();
-		if (name.startsWith("\\")) {
-			name = name.substring(1);
-		}
+		String name = getModuleName(x);
 
 		if (!heap.existsModule(name)) {
-			ModuleEnvironment env = heap.addModule(name);
+			ModuleEnvironment env = new ModuleEnvironment(name);
 			scopeStack.push(env);
 			callStack.push(env); // such that declarations end up in the module scope
 			
@@ -517,6 +518,9 @@ public class Evaluator extends NullASTVisitor<Result> {
 				for (Toplevel l : decls) {
 					l.accept(this);
 				}
+				
+				// only after everything was successful add the module
+				heap.addModule(env);
 			}
 			finally {
 				scopeStack.pop();
@@ -525,6 +529,15 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 		
 		return result();
+	}
+
+	private String getModuleName(
+			Module module) {
+		String name = module.getHeader().getName().toString();
+		if (name.startsWith("\\")) {
+			name = name.substring(1);
+		}
+		return name;
 	}
 
 	@Override

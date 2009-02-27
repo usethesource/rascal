@@ -46,7 +46,7 @@ public class RascalShell {
 	public RascalShell() throws IOException {
 		console = new ConsoleReader();
 		GlobalEnvironment heap = new GlobalEnvironment();
-		ModuleEnvironment root = heap.addModule(SHELL_MODULE);
+		ModuleEnvironment root = heap.addModule(new ModuleEnvironment(SHELL_MODULE));
 		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), factory, new PrintWriter(System.err), root, heap);
 	}
 	
@@ -54,7 +54,7 @@ public class RascalShell {
 	public RascalShell(InputStream inputStream, Writer out) throws IOException {
 		console = new ConsoleReader(inputStream, out);
 		GlobalEnvironment heap = new GlobalEnvironment();
-		ModuleEnvironment root = heap.addModule(SHELL_MODULE);
+		ModuleEnvironment root = heap.addModule(new ModuleEnvironment(SHELL_MODULE));
 		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), factory, out, root, heap);
 	}
 

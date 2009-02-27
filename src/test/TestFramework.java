@@ -31,7 +31,7 @@ public class TestFramework  {
 	
 	private Evaluator getTestEvaluator() {
 		GlobalEnvironment heap = new GlobalEnvironment();
-		ModuleEnvironment root = heap.addModule("***test***");
+		ModuleEnvironment root = heap.addModule(new ModuleEnvironment("***test***"));
 		return new Evaluator(ValueFactoryFactory.getValueFactory(), factory,
 				new PrintWriter(System.err), root, heap);
 	}
