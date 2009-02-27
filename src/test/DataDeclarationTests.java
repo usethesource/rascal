@@ -23,6 +23,18 @@ public class DataDeclarationTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{Bool b = band(btrue,bfalse).left; b == btrue;}"));
 		assertTrue(runTestInSameEvaluator("{Bool b = band(btrue,bfalse).right; b == bfalse;}"));
 	}
+	
+	@Test
+	public void boolFieldUpdate() {
+
+		prepare("data Bool = btrue | bfalse | band(Bool left, Bool right) | bor(Bool left, Bool right);");
+
+		assertTrue(runTestInSameEvaluator("{Bool b = bor(btrue,bfalse); b[left=bfalse] == bor(bfalse,bfalse);}"));
+		assertTrue(runTestInSameEvaluator("{Bool b = bor(btrue,bfalse); b[right=btrue] == bor(btrue,btrue);}"));
+		assertTrue(runTestInSameEvaluator("{Bool b = bor(btrue,bfalse); b.left=bfalse; b == bor(bfalse,bfalse);}"));
+		assertTrue(runTestInSameEvaluator("{Bool b = bor(btrue,bfalse); b.right=btrue; b == bor(btrue,btrue);}"));
+		assertTrue(runTestInSameEvaluator("{Bool b = bor(bfalse,bfalse); b.left=btrue; b.right=btrue; b == bor(btrue,btrue);}"));
+	}
 
 	@Test
 	public void let1() {

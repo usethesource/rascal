@@ -2600,15 +2600,17 @@ public class Evaluator extends NullASTVisitor<Result> {
 			}
 			else if (expr.getType().isAbstractDataType() || expr.getType().isConstructorType()) {
 				Type node = ((IConstructor) expr.getValue()).getConstructorType();
-				
+			
+				/* TODO: Remove this?
 				if (!expr.getType().hasField(name)) {
 					throw new NoSuchFieldError(expr.getType() + " does not have a field named `" + name + "`", x);
 				}
+				*/
 				
 				if (!node.hasField(name)) {
 					throw new NoSuchFieldError("Field `" + name + "` accessed on constructor that does not have it." + expr.getValueType(), x);
 				}
-				
+			
 				int index = node.getFieldIndex(name);
 				
 				checkType(repl.getType(), node.getFieldType(index));
