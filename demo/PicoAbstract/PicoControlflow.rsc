@@ -61,54 +61,16 @@ public BLOCK cflow(STATEMENT Stat){
 }
 
 public bool test(){
-	/*
    
 	assertTrue(
-       //cflow([asgStat("x", natCon(1))[@pos=1],  asgStat("s", conc(id("s"), strCon("#")))[@pos=2] ]) ==
-             cflow([asgStat("x", natCon(1)),  asgStat("s", conc(id("s"), strCon("#"))) ]) ==
+       cflow([asgStat("x", natCon(1))[@pos=1],  asgStat("s", conc(id("s"), strCon("#")))[@pos=2] ]) ==
        block({1}, {<1,2>}, {2})
              );
 	
-   
-	assertTrue(
-    cflow(small) ==
-    block({1},
-          {<2,3>,
-           <3,4>,
-           <4,2>,
-           <1,2>},
-          {2})
-          );
+	assertTrue(cflow(small) == block({1}, {<2,3>, <3,4>, <4,2>, <1,2>}, {2}));
           
+	assertTrue(cflow(fac) == block({1},{<8,6>,<1,2>,<3,4>,<2,3>,<6,7>,<7,8>,<9,3>,<4,5>,<5,6>,<6,9>}, {3}) );
 
-
-	assertTrue(
-    cflow(fac) ==
-    block({pp(asgStat("input",natCon(13))[@pos=1))},
-          {<pp(asgStat("repnr",sub(id("repnr"),natCon(1)))[@pos=8)),
-            pp(sub(id("repnr"),natCon(1))[@pos=6))>,
-           <pp(asgStat("input",natCon(13))[@pos=1)),
-            pp(asgStat("output",natCon(1))[@pos=2))>,
-           <pp(sub(id("input"),natCon(1))[@pos=3)),
-            pp(asgStat("rep",id("output"))[@pos=4))>,
-           <pp(asgStat("output",natCon(1))[@pos=2)),
-            pp(sub(id("input"),natCon(1))[@pos=3))>,
-           <pp(sub(id("repnr"),natCon(1))[@pos=6)),
-            pp(asgStat("output",add(id("output"),id("rep")))[@pos=7))>,
-           <pp(asgStat("output",add(id("output"),id("rep")))[@pos=7)),
-            pp(asgStat("repnr",sub(id("repnr"),natCon(1)))[@pos=8))>,
-           <pp(asgStat("input",sub(id("input"),natCon(1)))[@pos=9)),
-            pp(sub(id("input"),natCon(1))[@pos=3))>,
-           <pp(asgStat("rep",id("output"))[@pos=4)),
-            pp(asgStat("repnr",id("input"))[@pos=5))>,
-           <pp(asgStat("repnr",id("input"))[@pos=5)),
-            pp(sub(id("repnr"),natCon(1))[@pos=6))>,
-           <pp(sub(id("repnr"),natCon(1))[@pos=6)),
-            pp(asgStat("input",sub(id("input"),natCon(1)))[@pos=9))>},
-          {pp(sub(id("input"),natCon(1))[@pos=3))})
-          );
-          */
-
-return report();
+	return report();
 }
 

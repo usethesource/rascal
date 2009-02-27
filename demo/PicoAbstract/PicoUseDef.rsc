@@ -7,88 +7,38 @@ import UnitTest;
 import IO;
 
 public rel[PicoId, ProgramPoint] uses(PROGRAM P) {
-  return {<Id, pp(E)> | EXP E <- P, id(PicoId Id) := E};
+  return {<Id, E@pos> | EXP E <- P, id(PicoId Id) := E};
 }
 
 public rel[PicoId, ProgramPoint] defs(PROGRAM P) { 
-  return {<Id, pp(S)> | STATEMENT S <- P, asgStat(PicoId Id, EXP Exp) := S};
-}
-
-void myAssertTrue(bool res){
- 	resetLabelGen();
- 	assertTrue(res);
-}
-
-public bool test(){
-
-assert <"x",pp(asgStat("x",sub(id("x"),natCon(1)))@(pos:3))>
-       ==
-       <"x",pp(asgStat("x",sub(id("x"),natCon(1))))>;
-       
-assert <"s",pp(asgStat("s",conc(id("s"),strCon("#")))@(pos:4))>
-       ==
-       <"s",pp(asgStat("s",conc(id("s"),strCon("#"))))>;
-       
-assert <"x",pp(asgStat("x",natCon(3))@(pos:1))>
-       ==
-       <"x",pp(asgStat("x",natCon(3)))>;
-
-assert
-	{
-		<"x",pp(asgStat("x",sub(id("x"),natCon(1))))>,
-        <"s",pp(asgStat("s",conc(id("s"),strCon("#"))))>,
-        <"x",pp(asgStat("x",natCon(3)))>
-    }                
-    ==
-    {
-        <"x",pp(asgStat("x",sub(id("x"),natCon(1))))>,
-    	<"s",pp(asgStat("s",conc(id("s"),strCon("#"))))>,
-        <"x",pp(asgStat("x",natCon(3)))>
-    }
-    ;  
-
-assert // Deze assert faalt maar zou moeten slagen.
-	{
-		<"x",pp(asgStat("x",sub(id("x"),natCon(1)))@(pos:3))>,
-        <"s",pp(asgStat("s",conc(id("s"),strCon("#")))@(pos:4))>,
-        <"x",pp(asgStat("x",natCon(3))@(pos:1))>
-    }                
-    ==
-    {
-        <"x",pp(asgStat("x",sub(id("x"),natCon(1))))>,
-    	<"s",pp(asgStat("s",conc(id("s"),strCon("#"))))>,
-        <"x",pp(asgStat("x",natCon(3)))>
-    }
-    ;  
-  
-}                     
+  return {<Id, S@pos> | STATEMENT S <- P, asgStat(PicoId Id, EXP Exp) := S};
+}        
  
- public bool test2(){
-  assertTrue(uses(small) == {<"x",pp(id("x")@(pos:2))>,
-                             <"x",pp(id("x")@(pos:6))>,
-                             <"s",pp(id("s")@(pos:7))>});  
+public bool test(){
+  assertTrue(uses(small) == {<"x",2>,
+                             <"x",6>,
+                             <"s",7>});  
   
-  assertTrue(defs(small) == {<"x",pp(asgStat("x",sub(id("x"),natCon(1)))@(pos:3))>,
-                             <"s",pp(asgStat("s",conc(id("s"),strCon("#")))@(pos:4))>,
-                             <"x",pp(asgStat("x",natCon(3))@(pos:1))>});
+  assertTrue(defs(small) == {<"x",3>,
+                             <"s",4>,
+                             <"x",1>});
                              
-  assertTrue(uses(fac) == {<"output",pp(id("output")@(pos:11))>,
-                           <"input",pp(id("input")@(pos:12))>,
-                           <"repnr",pp(id("repnr")@(pos:13))>,
-                           <"output",pp(id("output")@(pos:14))>,
-                           <"input",pp(id("input")@(pos:17))>,
-                           <"rep",pp(id("rep")@(pos:15))>,
-                           <"repnr",pp(id("repnr")@(pos:16))>,
-                           <"input",pp(id("input")@(pos:17))>});
+  assertTrue(uses(fac) == {<"output",11>,
+                           <"input",12>,
+                           <"repnr",13>,
+                           <"output",14>,
+                           <"input",17>,
+                           <"rep",15>,
+                           <"repnr",16>,
+                           <"input",17>});
 
-  assertTrue(defs(fac) == {<"repnr",pp(asgStat("repnr",sub(id("repnr"),natCon(1)))@(pos:8))>,
-                           <"output",pp(asgStat("output",natCon(1))@(pos:2))>,
-                           <"input",pp(asgStat("input",natCon(13))@(pos:1))>,
-                           <"output",pp(asgStat("output",add(id("output"),id("rep")))@(pos:7))>,
-                           <"input",pp(asgStat("input",sub(id("input"),natCon(1)))@(pos:8))>,
-                           <"repnr",pp(asgStat("repnr",id("input"))@(pos:5))>,
-                           <"rep",pp(asgStat("rep",id("output"))@(pos:4))>});
-
+  assertTrue(defs(fac) == {<"repnr",8>,
+                           <"output",2>,
+                           <"input",1>,
+                           <"output",7>,
+                           <"input",8>,
+                           <"repnr",5>,
+                           <"rep",4>});
 
   return report();
 }
