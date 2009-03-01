@@ -16,17 +16,86 @@ import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.NullASTVisitor;
+import org.meta_environment.rascal.ast.Alternative.Ambiguity;
+import org.meta_environment.rascal.ast.Alternative.NamedType;
+import org.meta_environment.rascal.ast.Assignable.Annotation;
+import org.meta_environment.rascal.ast.Assignable.Constructor;
+import org.meta_environment.rascal.ast.Assignable.FieldAccess;
+import org.meta_environment.rascal.ast.Assignable.IfDefined;
+import org.meta_environment.rascal.ast.Assignable.Subscript;
+import org.meta_environment.rascal.ast.Assignable.Variable;
+import org.meta_environment.rascal.ast.Assignment.Default;
+import org.meta_environment.rascal.ast.Assignment.Division;
+import org.meta_environment.rascal.ast.Assignment.Intersection;
+import org.meta_environment.rascal.ast.Assignment.Product;
+import org.meta_environment.rascal.ast.Assignment.Subtraction;
+import org.meta_environment.rascal.ast.Asterisk.Lexical;
+import org.meta_environment.rascal.ast.BasicType.Bool;
+import org.meta_environment.rascal.ast.BasicType.Int;
+import org.meta_environment.rascal.ast.BasicType.Loc;
+import org.meta_environment.rascal.ast.BasicType.Node;
+import org.meta_environment.rascal.ast.BasicType.Real;
+import org.meta_environment.rascal.ast.BasicType.Value;
+import org.meta_environment.rascal.ast.BasicType.Void;
+import org.meta_environment.rascal.ast.Body.Toplevels;
+import org.meta_environment.rascal.ast.Bound.Empty;
+import org.meta_environment.rascal.ast.Break.NoLabel;
+import org.meta_environment.rascal.ast.Break.WithLabel;
+import org.meta_environment.rascal.ast.Expression.Addition;
+import org.meta_environment.rascal.ast.Expression.All;
+import org.meta_environment.rascal.ast.Expression.And;
+import org.meta_environment.rascal.ast.Expression.Any;
 import org.meta_environment.rascal.ast.Expression.Area;
+import org.meta_environment.rascal.ast.Expression.AreaInFileLocation;
+import org.meta_environment.rascal.ast.Expression.Bracket;
 import org.meta_environment.rascal.ast.Expression.CallOrTree;
+import org.meta_environment.rascal.ast.Expression.Closure;
+import org.meta_environment.rascal.ast.Expression.ClosureCall;
+import org.meta_environment.rascal.ast.Expression.Composition;
+import org.meta_environment.rascal.ast.Expression.Comprehension;
+import org.meta_environment.rascal.ast.Expression.Equals;
+import org.meta_environment.rascal.ast.Expression.Equivalence;
+import org.meta_environment.rascal.ast.Expression.FieldProject;
+import org.meta_environment.rascal.ast.Expression.FieldUpdate;
+import org.meta_environment.rascal.ast.Expression.FileLocation;
+import org.meta_environment.rascal.ast.Expression.FunctionAsValue;
+import org.meta_environment.rascal.ast.Expression.GetAnnotation;
+import org.meta_environment.rascal.ast.Expression.GreaterThan;
+import org.meta_environment.rascal.ast.Expression.GreaterThanOrEq;
+import org.meta_environment.rascal.ast.Expression.IfThenElse;
+import org.meta_environment.rascal.ast.Expression.Implication;
+import org.meta_environment.rascal.ast.Expression.In;
+import org.meta_environment.rascal.ast.Expression.LessThan;
+import org.meta_environment.rascal.ast.Expression.LessThanOrEq;
 import org.meta_environment.rascal.ast.Expression.List;
 import org.meta_environment.rascal.ast.Expression.Literal;
 import org.meta_environment.rascal.ast.Expression.Map;
+import org.meta_environment.rascal.ast.Expression.Match;
+import org.meta_environment.rascal.ast.Expression.Modulo;
+import org.meta_environment.rascal.ast.Expression.Negation;
+import org.meta_environment.rascal.ast.Expression.Negative;
+import org.meta_environment.rascal.ast.Expression.NoMatch;
+import org.meta_environment.rascal.ast.Expression.NonEmptyBlock;
+import org.meta_environment.rascal.ast.Expression.NonEquals;
+import org.meta_environment.rascal.ast.Expression.NotIn;
+import org.meta_environment.rascal.ast.Expression.OperatorAsValue;
+import org.meta_environment.rascal.ast.Expression.Or;
 import org.meta_environment.rascal.ast.Expression.QualifiedName;
+import org.meta_environment.rascal.ast.Expression.Range;
 import org.meta_environment.rascal.ast.Expression.Set;
+import org.meta_environment.rascal.ast.Expression.SetAnnotation;
+import org.meta_environment.rascal.ast.Expression.StepRange;
+import org.meta_environment.rascal.ast.Expression.TransitiveClosure;
+import org.meta_environment.rascal.ast.Expression.TransitiveReflexiveClosure;
 import org.meta_environment.rascal.ast.Expression.Tuple;
 import org.meta_environment.rascal.ast.Expression.TypedVariable;
+import org.meta_environment.rascal.ast.Expression.ValueProducer;
+import org.meta_environment.rascal.ast.Expression.ValueProducerWithStrategy;
+import org.meta_environment.rascal.ast.Expression.Visit;
+import org.meta_environment.rascal.ast.Expression.VoidClosure;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.errors.ImplementationError;
+import org.meta_environment.rascal.interpreter.errors.SyntaxError;
 import org.meta_environment.rascal.interpreter.errors.TypeError;
 import org.meta_environment.rascal.interpreter.errors.UninitializedVariableError;
 import org.meta_environment.rascal.interpreter.result.Result;
@@ -1463,6 +1532,231 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 	public AbstractPattern visitExpressionTypedVariable(TypedVariable x) {
 		TypeEvaluator te = TypeEvaluator.getInstance();
 		return new AbstractPatternTypedVariable(vf, env, te.eval(x.getType(), env), x);
+	}
+	/*
+	 * The following constructs are not allowed in patterns
+	 */
+	
+	@Override
+	public AbstractPattern visitExpressionAddition(Addition x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	
+	@Override
+	public AbstractPattern visitExpressionAll(All x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionAmbiguity(
+			org.meta_environment.rascal.ast.Expression.Ambiguity x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionAnd(And x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionAny(Any x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionAreaInFileLocation(
+			AreaInFileLocation x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionBracket(Bracket x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionClosure(Closure x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionClosureCall(ClosureCall x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionComposition(Composition x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionComprehension(Comprehension x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionDivision(
+			org.meta_environment.rascal.ast.Expression.Division x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionEquals(Equals x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionEquivalence(Equivalence x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionFieldAccess(
+			org.meta_environment.rascal.ast.Expression.FieldAccess x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionFieldProject(FieldProject x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionFieldUpdate(FieldUpdate x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionFileLocation(FileLocation x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionFunctionAsValue(FunctionAsValue x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionGetAnnotation(GetAnnotation x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionGreaterThan(GreaterThan x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionGreaterThanOrEq(GreaterThanOrEq x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionIfDefined(
+			org.meta_environment.rascal.ast.Expression.IfDefined x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionIfThenElse(IfThenElse x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionImplication(Implication x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionIn(In x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionIntersection(
+			org.meta_environment.rascal.ast.Expression.Intersection x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionLessThan(LessThan x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionLessThanOrEq(LessThanOrEq x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionLexical(
+			org.meta_environment.rascal.ast.Expression.Lexical x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionMatch(Match x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionModulo(Modulo x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionNegation(Negation x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionNegative(Negative x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionNoMatch(NoMatch x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionNonEmptyBlock(NonEmptyBlock x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionNonEquals(NonEquals x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionNotIn(NotIn x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionOperatorAsValue(OperatorAsValue x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionOr(Or x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionProduct(
+			org.meta_environment.rascal.ast.Expression.Product x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionRange(Range x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionSetAnnotation(SetAnnotation x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionStepRange(StepRange x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionSubscript(
+			org.meta_environment.rascal.ast.Expression.Subscript x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionSubtraction(
+			org.meta_environment.rascal.ast.Expression.Subtraction x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionTransitiveClosure(TransitiveClosure x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionTransitiveReflexiveClosure(
+			TransitiveReflexiveClosure x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionValueProducer(ValueProducer x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionValueProducerWithStrategy(
+			ValueProducerWithStrategy x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionVisit(Visit x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
+	}
+	@Override
+	public AbstractPattern visitExpressionVoidClosure(VoidClosure x) {
+		throw new SyntaxError("Construct not allowed in pattern", x);
 	}
 	
 }
