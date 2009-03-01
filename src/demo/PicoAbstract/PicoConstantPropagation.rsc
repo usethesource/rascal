@@ -3,6 +3,8 @@ module demo::PicoAbstract::PicoConstantPropagation
 import  demo::PicoAbstract::PicoAbstractSyntax;
 import  demo::PicoAbstract::PicoControlflow;
 import  demo::PicoAbstract::PicoUseDef;
+import  demo::PicoAbstract::PicoPrograms;
+
 
 bool is_constant(EXP E) {
    switch (E) {
@@ -32,3 +34,16 @@ PROGRAM cp(PROGRAM P) {
                         }
     };
 }
+
+PROGRAM smallCP =
+
+program([decl("x", natural), decl("s", string)],
+        [ asgStat("x", natCon(3))[@pos=1],
+          asgStat("d", natCon(1))[@pos=2],
+          whileStat(id("x"),
+                    [ asgStat("x", sub(id("x"), id("d")))[@pos=4],
+                      asgStat("s", conc(id("s"), strCon("#")))[@pos=5]
+                    ]
+                   )[@pos=3]
+        ]
+       );

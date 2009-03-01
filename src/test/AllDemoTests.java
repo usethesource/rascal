@@ -106,6 +106,12 @@ public class AllDemoTests extends TestFramework {
 		prepare("import demo::PicoAbstract::PicoUseDef;");
 		assertTrue(runTestInSameEvaluator("demo::PicoAbstract::PicoUseDef::test();"));
 	}
+	
+	@Test
+	public void PicoUninit() {
+		prepare("import demo::PicoAbstract::PicoUninit;");
+		assertTrue(runTestInSameEvaluator("demo::PicoAbstract::PicoUninit::test();"));
+	}
 
 
 	@Test

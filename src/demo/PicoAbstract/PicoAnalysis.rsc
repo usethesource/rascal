@@ -6,10 +6,10 @@ import demo::PicoAbstract::PicoAbstractSyntax;
 
 alias ProgramPoint = int;
 
-alias CFG = rel[ProgramPoint, ProgramPoint];
+alias CFG = rel[int, int];
 
-alias Entry = set[ProgramPoint];
+alias Entry = set[int];
 
-alias Exit = set[ProgramPoint];
+alias Exit = set[int];
 
 public data BLOCK = block(Entry entry, CFG graph, Exit exit);
