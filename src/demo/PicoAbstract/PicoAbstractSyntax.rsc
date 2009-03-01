@@ -1,4 +1,4 @@
-module PicoAbstractSyntax
+module demo::PicoAbstract::PicoAbstractSyntax
 /*
  * The abstract syntax of our favourite toy language
  */

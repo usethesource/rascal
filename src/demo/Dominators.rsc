@@ -1,4 +1,4 @@
-module Dominators
+module demo::Dominators
 
 import Set;
 import Relation;

@@ -1,4 +1,4 @@
-module Visitors
+module demo::Misc::Visitors
 
 visitor bottom_up { 
   all { 

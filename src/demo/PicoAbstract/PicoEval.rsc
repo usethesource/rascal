@@ -1,7 +1,7 @@
-module PicoEval
+module demo::PicoAbstract::PicoEval
 
-import PicoAbstractSyntax;
-import PicoPrograms;
+import demo::PicoAbstract::PicoAbstractSyntax;
+import demo::PicoAbstract::PicoPrograms;
 import UnitTest;
 import IO;
  

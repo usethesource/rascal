@@ -1,4 +1,4 @@
-module Bubble
+module demo::Bubble
 
 import List;
 

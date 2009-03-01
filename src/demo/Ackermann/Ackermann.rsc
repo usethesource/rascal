@@ -1,4 +1,4 @@
-module Ackermann
+module demo::Ackermann::Ackermann
 
 public int ack(int m, int n)
 {

@@ -1,9 +1,9 @@
-module Slicing
+module demo::Slicing
 
 import Set;
 import Relation;
-import ReachingDefs;
-import Dominators;
+import demo::ReachingDefs;
+import demo::Dominators;
 import UnitTest;
 
 // A relational definition of program slicing

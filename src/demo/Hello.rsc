@@ -1,4 +1,4 @@
-module Hello
+module demo::Hello
 
 import IO;
 

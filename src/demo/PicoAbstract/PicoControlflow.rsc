@@ -1,8 +1,8 @@
-module PicoControlflow
+module demo::PicoAbstract::PicoControlflow
  
-import PicoAbstractSyntax;
-import PicoAnalysis;
-import PicoPrograms;
+import demo::PicoAbstract::PicoAbstractSyntax;
+import demo::PicoAbstract::PicoAnalysis;
+import demo::PicoAbstract::PicoPrograms;
 import IO;
 import UnitTest;
                      

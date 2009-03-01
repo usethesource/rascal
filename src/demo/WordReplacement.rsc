@@ -1,4 +1,4 @@
-module WordReplacement
+module demo::WordReplacement
 
 import String;
 

@@ -1,9 +1,9 @@
-module PicoTypecheck
+module demo::PicoAbstract::PicoTypecheck
 
-import PicoAbstractSyntax;
-import Message;
+import demo::PicoAbstract::PicoAbstractSyntax;
+import demo::PicoAbstract::Message;
 import IO;
-import PicoPrograms;
+import demo::PicoAbstract::PicoPrograms;
 import UnitTest;
 
 alias Env = map[PicoId,TYPE];

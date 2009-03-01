@@ -1,4 +1,4 @@
-module DateVars
+module demo::Misc::DateVars
 
 set[Var] getDateVars(Program P){
    return {V | Var V : P, 

@@ -1,4 +1,4 @@
-module FunAbstract
+module demo::Fun::FunAbstract
 
 import Integer;
 import IO;

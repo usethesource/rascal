@@ -1,8 +1,8 @@
-module PicoCommonSubexpression
+module demo::PicoAbstract::PicoCommonSubexpression
 
-import PicoAbstractSyntax;
-import PicoControlflow;
-import PicoUseDef;
+import demo::PicoAbstract::PicoAbstractSyntax;
+import demo::PicoAbstract::PicoControlflow;
+import demo::PicoAbstract::PicoUseDef;
 
 PROGRAM cse(PROGRAM P) {
     rel[PicoId, STATEMENT] Defs = defs(P);

@@ -1,6 +1,6 @@
-module PicoAnalysis
+module demo::PicoAbstract::PicoAnalysis
 
-import PicoAbstractSyntax;
+import demo::PicoAbstract::PicoAbstractSyntax;
 
 //public data ProgramPoint = pp(EXP exp) | pp(STATEMENT stat);
 

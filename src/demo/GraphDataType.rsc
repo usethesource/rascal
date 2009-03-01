@@ -1,4 +1,4 @@
-module GraphDataType
+module demo::GraphDataType
 
 data Point = point(int x, int y);
 

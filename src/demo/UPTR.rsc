@@ -1,4 +1,4 @@
-module UPTR
+module demo::UPTR
 
 data ParseTree = 
      parsetree(Tree top, int amb_cnt);

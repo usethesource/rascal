@@ -1,4 +1,4 @@
-module BoolAbstractRules
+module demo::Booleans::BoolAbstractRules
 
 data Bool = btrue;
 data Bool = bfalse;

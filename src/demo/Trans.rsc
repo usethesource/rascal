@@ -1,4 +1,4 @@
-module Trans
+module demo::Trans
 
 // Compute transitive closure using solve
 

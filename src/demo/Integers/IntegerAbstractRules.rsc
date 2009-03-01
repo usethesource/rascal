@@ -1,6 +1,6 @@
-module IntegerAbstractRules
+module demo::Integers::IntegerAbstractRules
 
-import BoolAbstractRules;
+import demo::Booleans::BoolAbstractRules;
 
 data Integer = z | s(Integer arg);
 

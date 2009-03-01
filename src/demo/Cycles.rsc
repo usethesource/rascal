@@ -1,4 +1,4 @@
-module Cycles
+module demo::Cycles
 
 import Set;
 import Relation;

@@ -1,4 +1,4 @@
-module Tree-examples
+module demo::Tree-examples
 import List;
 
 data NODE int N | f(NODE I, NODE J) | g(NODE I, NODE J) |  h(NODE I, NODE J)  | h(NODE I, NODE J, NODE K);
