@@ -1,10 +1,12 @@
 package test;
 
 import org.junit.Test;
+import org.meta_environment.rascal.interpreter.Evaluator;
+import org.meta_environment.rascal.interpreter.load.FromResourceLoader;
+
 import static org.junit.Assert.assertTrue;
 
 public class AllBenchmarks extends TestFramework {
-
 	@Test
 	public void BubbleSort() {
 		prepare("import benchmark::BubbleSort::BubbleSort;");
