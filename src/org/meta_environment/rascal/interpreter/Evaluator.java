@@ -2029,7 +2029,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		
 		if (annoValue == null) {
 			// TODO: make this a Rascal exception that can be caught by the programmer
-			throw new NoSuchAnnotationError("This `" + base.getType() + "` does not have a `" + annoName + "` annotation set", x);
+			throw new NoSuchAnnotationError("The " + base.getType() + " `" + base.getValue() + "` does not have a `" + annoName + "` annotation set", x);
 		}
 		return result(annoType, annoValue);
 	}
@@ -2706,10 +2706,12 @@ public class Evaluator extends NullASTVisitor<Result> {
 	private boolean matchAndEval(IValue subject, org.meta_environment.rascal.ast.Expression pat, Statement stat){
 		MatchPattern mp = evalPattern(pat);
 		mp.initMatch(subject, peek());
+		
 		lastPattern = mp;
 		//System.err.println("matchAndEval: subject=" + subject + ", pat=" + pat);
 		try {
 			push(); 	// Create a separate scope for match and statement
+			peek().storeVariable("subject", result(subject.getType(), subject));
 			while(mp.hasNext()){
 				//System.err.println("matchAndEval: mp.hasNext()==true");
 				if(mp.next()){
@@ -3094,8 +3096,13 @@ public class Evaluator extends NullASTVisitor<Result> {
 					changed |= tr.changed;
 					args[i] = tr.value;
 				}
-				
-				result = vf.constructor(cons.getConstructorType(), args);
+				IConstructor rcons = vf.constructor(cons.getConstructorType(), args);
+				// TODO: how to do this in general?
+				if(cons.hasAnnotation("pos")){
+					IValue anno = cons.getAnnotation("pos");
+					rcons = rcons.setAnnotation("pos", anno);
+				}
+				result = rcons;
 			}
 		} else
 			if(subjectType.isNodeType()){

@@ -38,7 +38,7 @@ public BLOCK cflow(STATEMENT Stat){
                             list[STATEMENT] Stats2): {
            BLOCK CF1 = cflow(Stats1);
            BLOCK CF2 = cflow(Stats2);
-           set[ProgramPoint] E = {Exp@pos}; // {pp(Exp)};
+           set[ProgramPoint] E = {subject@pos}; // {pp(Exp)};
            return block( E, 
                     (E * CF1.entry) + (E * CF2.entry) + 
                                       CF1.graph + CF2.graph,
@@ -48,14 +48,14 @@ public BLOCK cflow(STATEMENT Stat){
       
       case whileStat(EXP Exp, list[STATEMENT] Stats): {
            BLOCK CF = cflow(Stats);
-           set[ProgramPoint] E = {Exp@pos}; //{pp(Exp)};
+           set[ProgramPoint] E = {subject@pos}; //{pp(Exp)};
            return block(E, 
                     (E * CF.entry) + CF.graph + (CF.exit * E),
                     E
                   );
       }
          
-      case STATEMENT Stat: {PP = pp(Stat); return block({PP}, {}, {PP});}
+      case STATEMENT Stat: return block({Stat@pos}, {}, {Stat@pos});
     }
     println("cflowstat returns no value");
 }

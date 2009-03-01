@@ -9,38 +9,24 @@ import UnitTest;
 import IO;
 import Graph;
 
-set[ProgramPoint] uninit(PROGRAM P) {
+set[int] uninit(PROGRAM P) {
     BLOCK ControlFlow = cflow(P);
-    rel[PicoId, ProgramPoint] Uses = uses(P);
-    rel[PicoId, ProgramPoint] Defs = defs(P);
+    rel[PicoId, int] Uses = uses(P);
+    rel[PicoId, int] Defs = defs(P);
     
-    println("Uses=<Uses>\nDefs=<Defs>\nControlFlow=<ControlFlow>");
-    
-    R= ControlFlow.entry;
-    G= ControlFlow.graph;
-    
-    println("R=<R>\nG=<G>");
-    dx = Defs["x"]; ux = Uses["x"];
-    ds = Defs["s"]; us = Uses["s"];
-    
-    println("dx=<dx>\nux=<ux>");
-    println("ds=<ds>\nus=<us>");
-    
-    for(<PicoId Id, ProgramPoint PP> <- Uses){
-      println("Id=<Id>, PP=<PP>");
-      rx = reachX(ControlFlow.graph, ControlFlow.entry, Defs[Id]);
-      println("reachX=<rx>");
-    }
-    
+    ProgramEntry = {0};
+    CFG = ({0} * ControlFlow.entry) + ControlFlow.graph;
 
     return {PP | <PicoId Id, ProgramPoint PP> <- Uses,
-                 PP in reachX(ControlFlow.graph, ControlFlow.entry, Defs[Id])
+                 PP in reachX(CFG, ProgramEntry, Defs[Id])
     };
 }
 
 public bool test(){
 
-ui = uninit(smallUninit);
-println("ui=<ui>");
-return true;
+	assertTrue(uninit(smallUninit) == {2});
+
+	assertTrue(uninit(facUninit) == {4});
+
+	return report();
 }
