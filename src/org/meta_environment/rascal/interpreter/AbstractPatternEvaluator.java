@@ -345,17 +345,18 @@ interface MatchPattern {
 			AbstractPattern child = children.get(i);
 			isListVar[i] = false;
 			if(child instanceof AbstractPatternTypedVariable && child.getType(ev).isListType()){
-				
+				AbstractPatternTypedVariable patVar = (AbstractPatternTypedVariable) child;
 				Type childType = child.getType(ev);
-				String name = ((AbstractPatternTypedVariable)child).getName();
-				if(allVars.contains(name)){
+				String name = patVar.getName();
+				if(!patVar.isAnonymous() && allVars.contains(name)){
 					throw new TypeError("Double declaration of variable `" + name + "`", ast);
 				}
 				if(childType.comparable(listSubject.getType())){
 					/*
 					 * An explicitly declared list variable.
 					 */
-					allVars.add(name);
+					if(!patVar.isAnonymous())
+						allVars.add(name);
 					isListVar[i] = childType.isListType();
 					listVarOccurrences[i] = 1;
 					nListVar++;
@@ -363,16 +364,20 @@ interface MatchPattern {
 					throw new TypeError(childType + " variable `" + name + "` is incompatible " + listSubject.getType(), ast);
 				}
 			} else if(child instanceof AbstractPatternQualifiedName){
-				
-				String name =((AbstractPatternQualifiedName)child).getName();
-				if(allVars.contains(name)){
+				AbstractPatternQualifiedName qualName = (AbstractPatternQualifiedName) child;
+				String name = qualName.getName();
+				if(!qualName.isAnonymous() && allVars.contains(name)){
 					/*
 					 * A variable that was declared earlier in the pattern
 					 */
 					isListVar[i] = true;
 			    	nListVar++;
 			    	listVarOccurrences[i]++;
-				} else  {
+				} else if(qualName.isAnonymous()){
+					/*
+					 * Nothing to do
+					 */
+				} else {
 					Result varRes = ev.getVariable(null, name);
 				         
 				    if((varRes != null) && (varRes.getValue() != null)){
@@ -903,17 +908,20 @@ class SingleElementGenerator implements Iterator<ISet> {
 		for(int i = 0; i < patternSize; i++){
 			AbstractPattern child = children.get(i);
 			if(child instanceof AbstractPatternTypedVariable){
+				AbstractPatternTypedVariable patVar = (AbstractPatternTypedVariable) child;
 				Type childType = child.getType(ev);
 				String name = ((AbstractPatternTypedVariable)child).getName();
-				if(allVars.contains(name)){
+				if(!patVar.isAnonymous() && allVars.contains(name)){
 					throw new TypeError("Double declaration of variable `" + name + "`", ast);
 				}
 				if(childType.comparable(setSubjectType) || childType.comparable(setSubjectElementType)){
 					/*
 					 * An explicitly declared set or element variable.
 					 */
-					patVars.add(name);
-					allVars.add(name);
+					if(!patVar.isAnonymous()){
+						patVars.add(name);
+						allVars.add(name);
+					}
 					varName[nVar] = name;
 					varPat[nVar] = child;
 					isSetVar[nVar] = childType.isSetType();
@@ -921,8 +929,9 @@ class SingleElementGenerator implements Iterator<ISet> {
 				} else 
 					throw new TypeError(childType + " variable `" + name + "` not allowed in pattern of type " + setSubject.getType(), ast);
 			} else if(child instanceof AbstractPatternQualifiedName){
-				String name =((AbstractPatternQualifiedName)child).getName();
-				if(allVars.contains(name)){
+				AbstractPatternQualifiedName qualName = (AbstractPatternQualifiedName) child;
+				String name = qualName.getName();
+				if(!qualName.isAnonymous() && allVars.contains(name)){
 					/*
 					 * A set/element variable that was declared earlier in the pattern itself,
 					 * or in a preceding nested pattern element.
@@ -940,6 +949,11 @@ class SingleElementGenerator implements Iterator<ISet> {
 						 * Ignore it (we are dealing with sets, remember).
 						 */
 					}
+				} else if(qualName.isAnonymous()){
+					varName[nVar] = name;
+					varPat[nVar] = child;
+					isSetVar[nVar] = false;
+					nVar++;
 				} else  {
 					Result varRes = ev.getVariable(null, name);
 				         
@@ -1011,8 +1025,13 @@ class SingleElementGenerator implements Iterator<ISet> {
 	
 	private boolean makeGen(int i, ISet elements){
 		if(varPat[i] instanceof AbstractPatternQualifiedName){
-			String name = ((AbstractPatternQualifiedName) varPat[i]).getName();
-			varGen[i] = new SingleIValueIterator(ev.getVariable(null, name).getValue());
+			AbstractPatternQualifiedName qualName = (AbstractPatternQualifiedName) varPat[i];
+			if(qualName.isAnonymous()){
+				varGen[i] = new SingleElementGenerator(elements);
+			} else {
+				String name = qualName.getName();
+				varGen[i] = new SingleIValueIterator(ev.getVariable(null, name).getValue());
+			}
 		}
 		if(isSetVar[i]){
 			varGen[i] = new SubSetGenerator(elements);
@@ -1224,16 +1243,18 @@ class SingleElementGenerator implements Iterator<ISet> {
 /* package */ class AbstractPatternQualifiedName extends AbstractPattern implements MatchPattern {
 	private org.meta_environment.rascal.ast.QualifiedName name;
 	private Type type;
+	private boolean anonymous = false;
 	private boolean debug = false;
 	private Environment env; 
 	
 	AbstractPatternQualifiedName(IValueFactory vf, Environment env, org.meta_environment.rascal.ast.QualifiedName qualifiedName){
 		super(vf, qualifiedName);
 		this.name = qualifiedName;
+		this.anonymous = name.toString().equals("_");
 		this.env = env;
 		// TODO: do we really need to lookup here, or can it be done when the pattern is constructed?
 		Result patRes = env.getVariable(name);
-	    boolean boundBeforeConstruction = (patRes != null) && (patRes.getValue() != null);
+	    boolean boundBeforeConstruction = (!anonymous) && (patRes != null) && (patRes.getValue() != null);
 	    type = (boundBeforeConstruction) ? patRes.getType() : TypeFactory.getInstance().voidType();
 	}
 	
@@ -1258,6 +1279,10 @@ class SingleElementGenerator implements Iterator<ISet> {
 		return name.toString();
 	}
 	
+	public boolean isAnonymous(){
+		return anonymous;
+	}
+	
 	@Override
 	public boolean next(){
 		checkInitialized();
@@ -1265,6 +1290,8 @@ class SingleElementGenerator implements Iterator<ISet> {
 		if(debug)System.err.println("AbstractPatternQualifiedName.match: " + name);
 		
 		// TODO: do we really need to lookup here, or can it be done when the pattern is constructed?
+		if(anonymous)
+			return true;
 		Result varRes = env.getVariable(name);
 		if((varRes == null) || (varRes.getValue() == null)){
 			if(debug)System.err.println("name= " + name + ", subject=" + subject + ",");
@@ -1291,6 +1318,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 /* package */class AbstractPatternTypedVariable extends AbstractPattern implements MatchPattern {
 	private Name name;
 	org.eclipse.imp.pdb.facts.type.Type declaredType;
+	private boolean anonymous = false;
 	private boolean debug = false;
 	private Environment env;
 
@@ -1299,6 +1327,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 		this.declaredType = type2;
 		this.name = var.getName();
 		this.env = env;
+		this.anonymous = name.toString().equals("_");
 	}
 	
 	@Override
@@ -1321,6 +1350,10 @@ class SingleElementGenerator implements Iterator<ISet> {
 	public String getName(){
 		return name.toString();
 	}
+	
+	public boolean isAnonymous(){
+		return anonymous;
+	}
 
 	@Override
 	public boolean next() {
@@ -1329,7 +1362,8 @@ class SingleElementGenerator implements Iterator<ISet> {
 		if(debug)System.err.println("AbstractTypedVariable.match: " + subject + "(type=" + subject.getType() + ") with " + declaredType + " " + name);
 		
 		if (subject.getType().isSubtypeOf(declaredType)) {
-			env.storeVariable(name, new Result(declaredType, subject));
+			if(!anonymous)
+				env.storeVariable(name, new Result(declaredType, subject));
 			if(debug)System.err.println("matches");
 			return true;
 		}
@@ -1430,4 +1464,5 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 		TypeEvaluator te = TypeEvaluator.getInstance();
 		return new AbstractPatternTypedVariable(vf, env, te.eval(x.getType(), env), x);
 	}
+	
 }

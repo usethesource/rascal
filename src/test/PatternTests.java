@@ -21,11 +21,13 @@ public class PatternTests extends TestFramework {
 		assertFalse(runTest("[] := [2];"));
 		assertFalse(runTest("[1] := [];"));
 		assertFalse(runTest("[1] := [2];"));
-		assertFalse(runTest("[1,2] := [1,2, 3];"));
+		assertFalse(runTest("[1,2] := [1,2,3];"));
 
 		assertTrue(runTest("([int N] := [1]) && (N == 1);"));
+		assertTrue(runTest("[ _ ] := [1];"));
 		
 		assertTrue(runTest("([int N, 2, int M] := [1,2,3]) && (N == 1) && (M==3);"));
+		assertTrue(runTest("[ _, 2, _] := [1,2,3];"));
 		
 		assertTrue(runTest("([int N, 2, N] := [1,2,1]) && (N == 1);"));
 		
@@ -65,7 +67,12 @@ public class PatternTests extends TestFramework {
 		assertTrue(runTest("([1, list[int] L, 10, list[int] M, 20] := [1,2,3,10,4,5,20]) && (L == [2,3]) && (M==[4,5]);"));
 		
 		assertTrue(runTest("([1, list[int] L, 10, L, 20] := [1,2,3,10,2,3,20]) && (L == [2,3]);"));
-		assertFalse(runTest("([1, list[int] L, 10, L, 20] := [1,2,3,10,2,4,20]);"));	
+		assertFalse(runTest("([1, list[int] L, 10, L, 20] := [1,2,3,10,2,4,20]);"));
+		
+		assertTrue(runTest("[list[int] _] := [];"));
+		assertTrue(runTest("[list[int] _] := [1];"));
+		assertTrue(runTest("[list[int] _] := [1,2];"));
+		assertTrue(runTest("([1, list[int] _, 10, list[int] _, 20] := [1,2,10,20]);"));
 		
 //		assertTrue(runTest("([1, list[int] L, [10, list[int] M, 100], list[int] N, 1000] := [1, [10,100],1000]);"));
 	}
@@ -287,6 +294,10 @@ public class PatternTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("g(1)                   !:= f(1);"));
 		assertFalse(runTestInSameEvaluator("f(1, 2)               := f(1);"));
 		assertTrue(runTestInSameEvaluator("f(1, 2)                !:= f(1);"));
+		
+		assertTrue(runTestInSameEvaluator("f(_)                   := f(1);"));
+		assertTrue(runTestInSameEvaluator("f(_,_)                 := f(1,2);"));
+		assertTrue(runTestInSameEvaluator("f(_,_,_)               := f(1,2.5,true);"));
 	}
 
 	@Test
@@ -297,7 +308,13 @@ public class PatternTests extends TestFramework {
 		assertTrue(runTest("{} := {};"));
 		assertTrue(runTest("{1} := {1};"));
 		assertTrue(runTest("{1, 2} := {1, 2};"));
-
+		
+		assertTrue(runTest("{int _} := {1};"));
+		assertTrue(runTest("{int _, int _} := {1, 2};"));
+		
+		assertTrue(runTest("{_} := {1};"));
+		assertTrue(runTest("{_, _} := {1, 2};"));
+ 
 		assertFalse(runTest("{} := {1};"));
 		assertFalse(runTest("{1} := {2};"));
 		assertFalse(runTest("{1,2} := {1,3};"));
@@ -305,6 +322,8 @@ public class PatternTests extends TestFramework {
 		assertTrue(runTest("{ {set[int] X} := {}; X == {};}"));
 		assertTrue(runTest("{ {set[int] X} := {1}; X == {1};}"));
 		assertTrue(runTest("{ {set[int] X} := {1,2}; X == {1,2};}"));
+		
+		assertTrue(runTest("{ {set[int] _} := {1,2}; }"));
 	
 		assertTrue(runTest("({int N, 2, N} := {1,2}) && (N == 1);"));
 		
@@ -335,6 +354,8 @@ public class PatternTests extends TestFramework {
 
 		assertTrue(runTest("{ {int X, set[int] Y} := {1}; X == 1 && Y == {};}"));
 		assertTrue(runTest("{ {set[int] X, int Y} := {1}; X == {} && Y == 1;}"));
+		assertTrue(runTest("{ {set[int] _, int _} := {1}; }"));
+		assertTrue(runTest("{ {set[int] _, _} := {1}; }"));
 
 		assertTrue(runTest("{ {set[int] X, int Y} := {1, 2}; (X == {1} && Y == 2) || (X == {2} && Y == 1);}"));
 		
@@ -413,6 +434,10 @@ public class PatternTests extends TestFramework {
 		assertTrue(runTest("<1,2>         !:= <1>;"));
 		assertFalse(runTest("<1, \"abc\"> := <1, \"def\">;"));
 		assertTrue(runTest("<1, \"abc\">  !:= <1, \"def\">;"));
+		
+		assertTrue(runTest("<_, \"abc\">  := <1, \"abc\">;"));
+		assertTrue(runTest("<1, _>        := <1, \"abc\">;"));
+		assertTrue(runTest("<_, _>        := <1, \"abc\">;"));
 	}
 
 	@Test
@@ -427,6 +452,8 @@ public class PatternTests extends TestFramework {
 
 		assertTrue(runTestInSameEvaluator("(f(n) := f(1)) && (n == 1);"));
 		assertTrue(runTestInSameEvaluator("{int n = 1; (f(n) := f(1)) && (n == 1);}"));
+		
+		assertTrue(runTestInSameEvaluator("(f(_) := f(1));"));
 	}
 
 }
