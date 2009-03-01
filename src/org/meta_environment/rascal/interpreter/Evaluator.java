@@ -220,7 +220,12 @@ public class Evaluator extends NullASTVisitor<Result> {
 		this.scopeStack = new ArrayDeque<ModuleEnvironment>();
 		this.scopeStack.push(scope);
 		this.loaders = new LinkedList<IModuleLoader>();
+		
+		// library
 	    loaders.add(new FromResourceLoader(this.getClass(), "StandardLibrary"));
+	    
+	    // everything rooted at the src directory 
+	    loaders.add(new FromResourceLoader(this.getClass()));
 	}
 	
 	
