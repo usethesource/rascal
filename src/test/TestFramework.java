@@ -14,6 +14,7 @@ import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.errors.ImplementationError;
 import org.meta_environment.rascal.interpreter.errors.RunTimeError;
+import org.meta_environment.rascal.interpreter.load.FromResourceLoader;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
 import org.meta_environment.uptr.Factory;
@@ -29,11 +30,13 @@ public class TestFramework  {
 	}
 	
 	
-	private Evaluator getTestEvaluator() {
+	protected Evaluator getTestEvaluator() {
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment("***test***"));
-		return new Evaluator(ValueFactoryFactory.getValueFactory(), factory,
+		Evaluator eval = new Evaluator(ValueFactoryFactory.getValueFactory(), factory,
 				new PrintWriter(System.err), root, heap);
+		eval.addModuleLoader(new FromResourceLoader(getClass()));
+		return eval;
 	}
 	
 	private void reset() {

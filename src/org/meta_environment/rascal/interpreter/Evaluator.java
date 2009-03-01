@@ -1,3 +1,4 @@
+
 package org.meta_environment.rascal.interpreter;
 
 import java.io.Writer;
@@ -151,7 +152,6 @@ import org.meta_environment.rascal.ast.Toplevel.DefaultVisibility;
 import org.meta_environment.rascal.ast.Toplevel.GivenVisibility;
 import org.meta_environment.rascal.ast.Visit.DefaultStrategy;
 import org.meta_environment.rascal.ast.Visit.GivenStrategy;
-import org.meta_environment.rascal.interpreter.AbstractPatternEvaluator;
 import org.meta_environment.rascal.interpreter.LazySet.LazyInsert;
 import org.meta_environment.rascal.interpreter.LazySet.LazyUnion;
 import org.meta_environment.rascal.interpreter.control_exceptions.FailureControlException;
@@ -179,8 +179,8 @@ import org.meta_environment.rascal.interpreter.errors.SyntaxError;
 import org.meta_environment.rascal.interpreter.errors.TypeError;
 import org.meta_environment.rascal.interpreter.errors.UndefinedValueError;
 import org.meta_environment.rascal.interpreter.errors.UninitializedVariableError;
+import org.meta_environment.rascal.interpreter.load.FromResourceLoader;
 import org.meta_environment.rascal.interpreter.load.IModuleLoader;
-import org.meta_environment.rascal.interpreter.load.LegacyModuleLoader;
 import org.meta_environment.rascal.interpreter.result.Result;
 
 public class Evaluator extends NullASTVisitor<Result> {
@@ -220,7 +220,17 @@ public class Evaluator extends NullASTVisitor<Result> {
 		this.scopeStack = new ArrayDeque<ModuleEnvironment>();
 		this.scopeStack.push(scope);
 		this.loaders = new LinkedList<IModuleLoader>();
-		loaders.add(new LegacyModuleLoader());
+		
+		// TODO remove
+	    final String[] SEARCH_PATH = { "StandardLibrary/",
+			"test/", "demo/", "demo/Booleans/", "demo/Fun/",
+			"demo/Graph/", "demo/Integers/", "demo/JavaFun/", "demo/Lexicals/",
+			"demo/Misc/", "demo/Pico/", "demo/PicoAbstract/", "demo/Rascal/",
+		 };
+	    
+	    for (String path : SEARCH_PATH) {
+	    	loaders.add(new FromResourceLoader(this.getClass(), path));
+	    }
 	}
 	
 	
