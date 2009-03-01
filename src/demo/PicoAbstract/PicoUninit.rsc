@@ -1,10 +1,10 @@
-module PicoUninit
+module demo::PicoAbstract::PicoUninit
 
-import PicoAbstractSyntax;
-import PicoAnalysis;
-import PicoControlflow;
-import PicoUseDef;
-import PicoPrograms;
+import demo::PicoAbstract::PicoAbstractSyntax;
+import demo::PicoAbstract::PicoAnalysis;
+import demo::PicoAbstract::PicoControlflow;
+import demo::PicoAbstract::PicoUseDef;
+import demo::PicoAbstract::PicoPrograms;
 import UnitTest;
 import IO;
 import Graph;

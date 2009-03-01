@@ -1,4 +1,4 @@
-module ReachingDefs
+module demo::ReachingDefs
 
 import Relation;
 import IO;

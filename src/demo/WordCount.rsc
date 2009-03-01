@@ -1,4 +1,4 @@
-module WordCount
+module demo::WordCount
 
 import IO;
 import Map;

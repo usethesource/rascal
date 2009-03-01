@@ -220,17 +220,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		this.scopeStack = new ArrayDeque<ModuleEnvironment>();
 		this.scopeStack.push(scope);
 		this.loaders = new LinkedList<IModuleLoader>();
-		
-		// TODO remove
-	    final String[] SEARCH_PATH = { "StandardLibrary/",
-			"test/", "demo/", "demo/Booleans/", "demo/Fun/",
-			"demo/Graph/", "demo/Integers/", "demo/JavaFun/", "demo/Lexicals/",
-			"demo/Misc/", "demo/Pico/", "demo/PicoAbstract/", "demo/Rascal/",
-		 };
-	    
-	    for (String path : SEARCH_PATH) {
-	    	loaders.add(new FromResourceLoader(this.getClass(), path));
-	    }
+	    loaders.add(new FromResourceLoader(this.getClass(), "StandardLibrary"));
 	}
 	
 	

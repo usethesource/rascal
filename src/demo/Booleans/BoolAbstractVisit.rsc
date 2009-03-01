@@ -1,4 +1,4 @@
-module BoolAbstractVisit
+module demo::Booleans::BoolAbstractVisit
 
 data Bool = btrue;
 data Bool = bfalse;

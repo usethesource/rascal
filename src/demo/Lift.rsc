@@ -1,4 +1,4 @@
-module Lift
+module demo::Lift
 
 
 // Component structure/lifting example from tutorial

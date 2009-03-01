@@ -1,4 +1,4 @@
-module Queens
+module demo::Queens
 
 import Integer;
 import List;

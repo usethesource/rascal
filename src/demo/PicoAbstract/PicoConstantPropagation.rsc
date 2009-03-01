@@ -1,8 +1,8 @@
-module PicoConstantPropagation
+module demo::PicoAbstract::PicoConstantPropagation
 
-import  PicoAbstractSyntax;
-import  PicoControlflow;
-import  PicoUseDef;
+import  demo::PicoAbstract::PicoAbstractSyntax;
+import  demo::PicoAbstract::PicoControlflow;
+import  demo::PicoAbstract::PicoUseDef;
 
 bool is_constant(EXP E) {
    switch (E) {

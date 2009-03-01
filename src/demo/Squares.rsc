@@ -1,4 +1,4 @@
-module Squares
+module demo::Squares
 
 import IO;
 

@@ -1,4 +1,4 @@
-module Innerproduct
+module demo::Innerproduct
 
 import List;
 

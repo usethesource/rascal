@@ -35,7 +35,13 @@ public class TestFramework  {
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment("***test***"));
 		Evaluator eval = new Evaluator(ValueFactoryFactory.getValueFactory(), factory,
 				new PrintWriter(System.err), root, heap);
+		
+		// to load modules from benchmarks and demo's
 		eval.addModuleLoader(new FromResourceLoader(getClass()));
+		
+		// to load modules from the test directory without qualification
+		eval.addModuleLoader(new FromResourceLoader(getClass(), "test"));
+		
 		return eval;
 	}
 	

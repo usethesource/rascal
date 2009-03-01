@@ -1,4 +1,4 @@
-module PicoReachingDefs
+module demo::PicoAbstract::PicoReachingDefs
 
 alias Def = tuple[Stat theStat, Var theVar];
 alias Use = tuple[Stat theStat, Var theVar];

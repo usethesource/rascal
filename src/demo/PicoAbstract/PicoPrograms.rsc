@@ -1,6 +1,6 @@
-module PicoPrograms
+module demo::PicoAbstract::PicoPrograms
 
-import PicoAbstractSyntax;
+import demo::PicoAbstract::PicoAbstractSyntax;
 
 /********************************************
 begin
