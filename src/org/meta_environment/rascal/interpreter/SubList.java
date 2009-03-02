@@ -71,22 +71,6 @@ public class SubList implements IList {
 		return equals(other);
 	}
 	
-	public String toString(){
-		StringBuilder sb = new StringBuilder();
-		String sep = "";
-		
-		sb.append("[");
-		sb.append("/type=" + getType() + ", base=" + base + ", start=" + start + ", end=" + end + "/ ");
-		for(int i = start; i < end; i++){
-			sb.append(sep);
-			sep = ",";
-			sb.append(base.get(i));
-		}
-		sb.append("]");
-	
-		return sb.toString();
-	}
-
 	private void appendSubListElements(IListWriter w){
 		for(int i = start; i < end; i++){
 			w.append(base.get(i));
@@ -159,8 +143,23 @@ public class SubList implements IList {
 	}
 
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
-		//TODO: Is this ok?
 		return v.visitList(this);
+	}
+
+	public boolean contains(IValue e) {
+		for (IValue elem : this) {
+			if (e.isEqual(elem)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public IList remove(IValue e) {
+		IListWriter w = ValueFactoryFactory.getValueFactory().listWriter(getElementType());
+		w.insertAll(this);
+		w.remove(e);
+		return w.done();
 	}
 }
 
