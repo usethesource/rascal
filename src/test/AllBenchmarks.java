@@ -1,10 +1,8 @@
 package test;
 
-import org.junit.Test;
-import org.meta_environment.rascal.interpreter.Evaluator;
-import org.meta_environment.rascal.interpreter.load.FromResourceLoader;
-
 import static org.junit.Assert.assertTrue;
+
+import org.junit.Test;
 
 public class AllBenchmarks extends TestFramework {
 	@Test

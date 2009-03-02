@@ -6,36 +6,21 @@ import demo::PicoAbstract::PicoPrograms;
 import UnitTest;
 import IO;
 
-/*
-public rel[PicoId, ProgramPoint] uses(PROGRAM P) {
-  return {<Id, E@pos> | EXP E <- P, id(PicoId Id) := E};
-}
-*/
 
 private set[PicoId] getVarUses(EXP E){
     return {Id | EXP E1 <- E, id(PicoId Id) := E1};
 }
-/*
-public rel[PicoId, ProgramPoint] uses(PROGRAM P) {
-  rel[PicoId, ProgramPoint] result = {};
-  for(bottom-up STATEMENT S <- P){
-    result = result + getVarUses(S) * {S@pos};
-  }
-  return result;
-}
-*/
 
 public rel[PicoId, ProgramPoint] uses(PROGRAM P) {
   rel[PicoId, ProgramPoint] result = {};
   visit(P) {
-   case ifStat(EXP Exp, list[STATEMENT] Stats1,
-                            list[STATEMENT] Stats2):
+   case ifStat(EXP Exp, _,  _):
         result = result + getVarUses(Exp) * {subject@pos};
                             
-   case whileStat(EXP Exp, list[STATEMENT] Stats):
+   case whileStat(EXP Exp, _):
          result = result + getVarUses(Exp) * {subject@pos};
          
-   case asgStat(PicoId Id, EXP Exp):{
+   case asgStat(_, EXP Exp):{
          result = result + getVarUses(Exp) * {subject@pos};
         }
    };
