@@ -3,11 +3,7 @@ package org.meta_environment.rascal.interpreter.result;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.interpreter.errors.ImplementationError;
 
 public class ListResult extends CollectionResult {
