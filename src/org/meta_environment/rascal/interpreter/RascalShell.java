@@ -93,19 +93,23 @@ public class RascalShell {
 					console.printNewline();
 				}
 				catch (FailureControlException e) {
+					e.printStackTrace();
 					break;
 				}
 				catch (FactTypeUseException e) {
+					e.printStackTrace();
 					console.printString("FactTypeError: " + e.getMessage() + "\n");
 				    printStacktrace(console, e);
 				}
 				catch (TypeError e) {
+					e.printStackTrace();
 					console.printString("TypeError: " + e.getMessage() + "\n");
 					if (e.hasCause()) {
 						console.printString("caused by: " + e.getCause().getMessage() + "\n");
 					}
 				}
 				catch (ImplementationError e) {
+					e.printStackTrace();
 					console.printString("ImplementationError: " + e.getMessage() + "\n");
 					if (e.hasCause()) {
 						console.printString("caused by: " + e.getCause().getMessage() + "\n");
@@ -113,9 +117,11 @@ public class RascalShell {
 					printStacktrace(console, e);
 				}
 				catch (Error e) {
+					e.printStackTrace();
 					console.printString(e.getMessage() + "\n");
 				}
 				catch (Throwable e) {
+					e.printStackTrace();
 					console.printString("Throwable: " + e.getMessage() + "\n");
 					printStacktrace(console, e);
 				}
