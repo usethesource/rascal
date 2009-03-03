@@ -3097,12 +3097,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 					args[i] = tr.value;
 				}
 				IConstructor rcons = vf.constructor(cons.getConstructorType(), args);
-				// TODO: how to do this in general?
-				if(cons.hasAnnotation("pos")){
-					IValue anno = cons.getAnnotation("pos");
-					rcons = rcons.setAnnotation("pos", anno);
-				}
-				result = rcons;
+				result = rcons.setAnnotations(cons.getAnnotations());
 			}
 		} else
 			if(subjectType.isNodeType()){
@@ -3118,7 +3113,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 						changed |= tr.changed;
 						args[i] = tr.value;
 					}
-					result = vf.node(node.getName(), args);
+					result = vf.node(node.getName(), args).setAnnotations(node.getAnnotations());
 				}
 			} else
 				if(subjectType.isListType()){
