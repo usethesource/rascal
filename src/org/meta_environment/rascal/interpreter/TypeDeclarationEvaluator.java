@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeDeclarationException;
+import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAbstractDataTypeException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.Declaration;
@@ -119,7 +120,13 @@ public class TypeDeclarationEvaluator {
 			else {
 				params = new Type[0];
 			}
+			
 			Type base = te.eval(x.getBase(), env);
+			
+			if (base == null) {
+				throw new UndeclaredTypeException(x.getBase().toString(), x.getBase());
+			}
+			
 			env.aliasType(user, base, params);	
 		} catch (FactTypeDeclarationException e){
 			throw new TypeError(e.getMessage(), x);
