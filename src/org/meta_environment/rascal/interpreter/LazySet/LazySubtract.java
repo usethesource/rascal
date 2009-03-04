@@ -37,7 +37,7 @@ public class LazySubtract extends LazySet {
 		return size() == 0;
 	}
 
-	public boolean isSubSet(ISet other) {
+	public boolean isSubsetOf(ISet other) {
 		for(IValue v : this){
 			if(!partner.contains(v) && !other.contains(v))
 				return false;

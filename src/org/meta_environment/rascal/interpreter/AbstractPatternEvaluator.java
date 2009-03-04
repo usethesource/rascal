@@ -1049,7 +1049,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 		 * Pass #2: set up subset generation
 		 */
 		firstMatch = true;
-		hasNext = fixedSetElements.isSubSet(setSubject);
+		hasNext = fixedSetElements.isSubsetOf(setSubject);
 		availableSetElements = setSubject.subtract(fixedSetElements);
 		sortVars();
 	}
@@ -1112,7 +1112,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 			if(nVar == 0){
 				return fixedSetElements.isEqual(setSubject);
 			}
-			if(!fixedSetElements.isSubSet(setSubject)){
+			if(!fixedSetElements.isSubsetOf(setSubject)){
 				return false;
 			}
 			

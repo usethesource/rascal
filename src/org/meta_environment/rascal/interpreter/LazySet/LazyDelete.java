@@ -42,7 +42,7 @@ class LazyDelete extends LazySet {
 		}
 	}
 
-	public boolean isSubSet(ISet other) {
+	public boolean isSubsetOf(ISet other) {
 		for (IValue v : base) {
 			if (!v.equals(deleted) && !other.contains(v)) {
 				return false;
