@@ -1,9 +1,8 @@
 package org.meta_environment.rascal.ast;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.INode;
-import org.eclipse.imp.pdb.facts.ISourceRange;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.meta_environment.uptr.TreeAdapter;
 
 public abstract class AbstractAST implements IVisitable {
@@ -12,12 +11,12 @@ public abstract class AbstractAST implements IVisitable {
 
 	abstract public <T> T accept(IASTVisitor<T> v);
 
-	public ISourceRange getSourceRange() {
-		return new TreeAdapter((IConstructor) node).getRange();
-	}
-	
 	public String getSourcePath() {
 		return new TreeAdapter((IConstructor) node).getPath();
+	}
+	
+	public ISourceLocation getLocation() {
+		return new TreeAdapter((IConstructor) node).getLocation();
 	}
 	
 	@Override

@@ -9,11 +9,9 @@ import jline.ConsoleReader;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.meta_environment.ValueFactoryFactory;
-import org.meta_environment.errors.ErrorAdapter;
 import org.meta_environment.errors.SubjectAdapter;
 import org.meta_environment.errors.SummaryAdapter;
 import org.meta_environment.rascal.ast.ASTFactory;
@@ -204,29 +202,17 @@ public class RascalShell {
 		return result.toString();
 	}
 
-	private ISourceRange getErrorRange(SummaryAdapter summaryAdapter) {
-		for (ErrorAdapter error : summaryAdapter) {
-			for (SubjectAdapter subject : error) {
-				if (subject.isLocalized()) {
-					return subject.getRange();
-				}
-			}
-		}
-		
-		return null;
-	}
-	
 	private boolean completeStatement(StringBuffer statement) throws FactTypeUseException, IOException {
 		String command = statement.toString();
 		IConstructor tree = parser.parseFromString(command);
 
 		if (tree.getConstructorType() == Factory.ParseTree_Summary) {
-			ISourceRange range = getErrorRange(new SummaryAdapter(tree));
+			SubjectAdapter subject = new SummaryAdapter(tree).getInitialSubject();
 			String[] commandLines = command.split("\n");
 			int lastLine = commandLines.length;
 			int lastColumn = commandLines[lastLine - 1].length();
 			
-			if (range.getEndLine() == lastLine && lastColumn <= range.getEndColumn()) { 
+			if (subject.getEndLine() == lastLine && lastColumn <= subject.getEndColumn()) { 
 				return false;
 			}
 			else {

@@ -24,7 +24,6 @@ import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -366,10 +365,6 @@ public class JavaBridge {
 
 		public Class<?> visitSourceLocation(org.eclipse.imp.pdb.facts.type.Type type) {
 			return ISourceLocation.class;
-		}
-
-		public Class<?> visitSourceRange(org.eclipse.imp.pdb.facts.type.Type type) {
-			return ISourceRange.class;
 		}
 
 		public Class<?> visitString(org.eclipse.imp.pdb.facts.type.Type type) {

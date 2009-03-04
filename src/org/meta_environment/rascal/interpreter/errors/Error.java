@@ -1,7 +1,7 @@
 package org.meta_environment.rascal.interpreter.errors;
 
 import org.eclipse.imp.pdb.facts.INode;
-import org.eclipse.imp.pdb.facts.ISourceRange;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -25,31 +25,26 @@ public class Error extends RuntimeException {
 	private static final long serialVersionUID = -7290501865940548332L;
 
 	private final IValue exception;
-	private  ISourceRange range;
-	private  String path;
+	private  ISourceLocation loc;
 	
 	public Error(IValue value) {
 		this.exception = value;
-		this.range = null;
-		this.path = null;
+		this.loc = null;
 	};
 	
 	public Error(IValue value, AbstractAST node) {
 		this.exception = value;
 		if(node != null){
-			range = node.getSourceRange();
-			path = node.getSourcePath();
+			loc = node.getLocation();
 		} else {
-			range = null;
-			path = null;
+			loc = null;
 		}
 	};
 	
 	public void setAst(AbstractAST node){
 		// Set only if not previously defined.
-		if(range != null){
-			range = node.getSourceRange();
-			path = node.getSourcePath();
+		if(loc != null){
+			loc = node.getLocation();
 		}
 	}
 	
@@ -77,8 +72,7 @@ public class Error extends RuntimeException {
 	public Error(String message, Throwable cause) {
 		super(message, cause);
 		this.exception = makeNode(ERROR_DATA_TYPE_NAME, message);
-		range = null;
-		path = null;
+		loc = null;
 	}
 
 	public IValue getException() {
@@ -95,31 +89,31 @@ public class Error extends RuntimeException {
 		String message = exception.toString();
 
 		if (hasRange()) {
-			if (range.getStartLine() != range.getEndLine()) {
-				message += " from line " + range.getStartLine() + ", column "
-						+ range.getStartColumn() + " to line "
-						+ range.getEndLine() + "," + " column "
-						+ range.getEndColumn();
+			if (loc.getStartLine() != loc.getEndLine()) {
+				message += " from line " + loc.getStartLine() + ", column "
+						+ loc.getStartColumn() + " to line "
+						+ loc.getEndLine() + "," + " column "
+						+ loc.getEndColumn();
 			} else {
-				message += " at line " + range.getStartLine() + ", column "
-						+ range.getStartColumn() + " to "
-						+ range.getEndColumn();
+				message += " at line " + loc.getStartLine() + ", column "
+						+ loc.getStartColumn() + " to "
+						+ loc.getEndColumn();
 			}
 		}
 
 		if (hasPath()) {
-			message += " in " + path;
+			message += " in " + loc.getURL().getPath();
 		}
 
 		return message;
 	}
 
 	public boolean hasRange() {
-		return range != null;
+		return loc != null;
 	}
 
 	public boolean hasPath() {
-		return path != null && !path.equals("-");
+		return loc != null && !loc.getURL().getPath().equals("-");
 
 	}
 	

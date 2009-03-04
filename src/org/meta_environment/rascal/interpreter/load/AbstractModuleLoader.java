@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.meta_environment.errors.SubjectAdapter;
 import org.meta_environment.errors.SummaryAdapter;
 import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.Module;
@@ -58,9 +58,9 @@ public abstract class AbstractModuleLoader implements IModuleLoader {
 	}
 
 	protected String parseError(IConstructor tree, String file) {
-		ISourceRange range = new SummaryAdapter(tree).getInitialErrorRange();
+		SubjectAdapter subject = new SummaryAdapter(tree).getInitialSubject();
 
-		return file + " at line " + range.getEndLine() + ", column "
-				+ range.getEndColumn();
+		return file + " at line " + subject.getEndLine() + ", column "
+				+ subject.getEndColumn();
 	}
 }

@@ -24,7 +24,6 @@ import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -33,6 +32,7 @@ import org.eclipse.imp.pdb.facts.IWriter;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.Bound;
@@ -895,7 +895,10 @@ public class Evaluator extends NullASTVisitor<Result> {
 		
 		candidate = peek().getConstructor(cons, signature);
 		if (candidate != null) {
-			return result(candidate.getAbstractDataType(), candidate.make(vf, actuals));
+			Map<Type,Type> localBindings = new HashMap<Type,Type>();
+			candidate.getFieldTypes().match(tf.tupleType(actuals), localBindings);
+			
+			return result(candidate.getAbstractDataType().instantiate(new TypeStore(), localBindings), candidate.make(vf, actuals));
 		}
 		
 		return result(tf.nodeType(), vf.node(cons, actuals));
@@ -2531,26 +2534,26 @@ public class Evaluator extends NullASTVisitor<Result> {
 	public Result visitExpressionArea(
 			org.meta_environment.rascal.ast.Expression.Area x) {
 
-		System.err.println("Area=" + x);
-		Result beginLine = x.getBeginLine().accept(this);
-		Result endLine = x.getEndLine().accept(this);
-		Result beginColumn = x.getBeginColumn().accept(this);
-		Result endColumn = x.getEndColumn().accept(this);
-		Result length = x.getLength().accept(this);
-		Result offset = x.getOffset().accept(this);
+//		System.err.println("Area=" + x);
+//		Result beginLine = x.getBeginLine().accept(this);
+//		Result endLine = x.getEndLine().accept(this);
+//		Result beginColumn = x.getBeginColumn().accept(this);
+//		Result endColumn = x.getEndColumn().accept(this);
+//		Result length = x.getLength().accept(this);
+//		Result offset = x.getOffset().accept(this);
+//		
+//		System.err.println("AreaDefault: " + x );
 		
-		System.err.println("AreaDefault: " + x );
-		
-		int iOffset = intValue(offset);
-		int iLength = intValue(length);
-		int iEndColumn = intValue(endColumn);
-		int iBeginColumn = intValue(beginColumn);
-		int iEndLine = intValue(endLine);
-		int iBeginLine = intValue(beginLine);
+//		int iOffset = intValue(offset);
+//		int iLength = intValue(length);
+//		int iEndColumn = intValue(endColumn);
+//		int iBeginColumn = intValue(beginColumn);
+//		int iEndLine = intValue(endLine);
+//		int iBeginLine = intValue(beginLine);
 	
-		ISourceRange r = vf.sourceRange(iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn);
-		System.err.println(r);
-		return result(tf.sourceRangeType(), r);
+//		ISourceRange r = vf.sourceRange(iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn);
+//		System.err.println(r);
+		throw new ImplementationError("not yet implemented, because areas changed exception");
 	}
 	
 	@Override
@@ -2562,21 +2565,22 @@ public class Evaluator extends NullASTVisitor<Result> {
 		
 		System.err.println("area=" + area);
 	   
-	   if (!area.getType().isSubtypeOf(tf.sourceRangeType())) {
-		   throw new TypeError("Expected area, got " + area.getType(), x);
-	   }
+//	   if (!area.getType().isSubtypeOf(tf.sourceRangeType())) {
+//		   throw new TypeError("Expected area, got " + area.getType(), x);
+//	   }
+//	   
+//	   Result file = x.getProtocol().accept(this);
 	   
-	   Result file = x.getProtocol().accept(this);
-	   
-	   if (!area.getType().isSubtypeOf(tf.sourceRangeType())) {
-		   throw new TypeError("Expected area, got " + file.getType(), x);
-	   }
-	   
-	   checkType(area, tf.sourceRangeType());
-	   
-	   ISourceRange range = (ISourceRange) area.getValue();
-	   
-	   return result(tf.sourceLocationType(), vf.sourceLocation(stringValue(file), range));
+//	   if (!area.getType().isSubtypeOf(tf.sourceRangeType())) {
+//		   throw new TypeError("Expected area, got " + file.getType(), x);
+//	   }
+//	   
+//	   checkType(area, tf.sourceRangeType());
+//	   
+//	   ISourceRange range = (ISourceRange) area.getValue();
+//	   
+//	   return result(tf.sourceLocationType(), vf.sourceLocation(stringValue(file), range));
+	   throw new ImplementationError("not yet implemented because source locations changed");
 	}
 	
 	@Override
@@ -3422,25 +3426,18 @@ public class Evaluator extends NullASTVisitor<Result> {
 	}
 	
 	private static int compareSourceLocation(ISourceLocation leftSL, ISourceLocation rightSL){
-		if(leftSL.getPath().equals(rightSL.getPath())){
-			ISourceRange leftSR = leftSL.getRange();
-			ISourceRange rightSR = rightSL.getRange();
+		if(leftSL.getURL().equals(rightSL.getURL())){
+			int lStartLine = leftSL.getStartLine();
+			int rStartLine = rightSL.getStartLine();
 			
-			if(leftSR.isEqual(rightSR)){
-				return 0;
-			}
+			int lEndLine = leftSL.getEndLine();
+			int rEndLine = rightSL.getEndLine();
 			
-			int lStartLine = leftSR.getStartLine();
-			int rStartLine = rightSR.getStartLine();
+			int lStartColumn = leftSL.getStartColumn();
+			int rStartColumn = rightSL.getStartColumn();
 			
-			int lEndLine = leftSR.getEndLine();
-			int rEndLine = rightSR.getEndLine();
-			
-			int lStartColumn = leftSR.getStartColumn();
-			int rStartColumn = rightSR.getStartColumn();
-			
-			int lEndColumn = leftSR.getEndColumn();
-			int rEndColumn = rightSR.getEndColumn();
+			int lEndColumn = leftSL.getEndColumn();
+			int rEndColumn = rightSL.getEndColumn();
 			
 			if((lStartLine > rStartLine ||
 				(lStartLine == rStartLine && lStartColumn > rStartColumn)) &&
@@ -3451,7 +3448,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				return 1;
 			}
 		} else {
-			return leftSL.getPath().compareTo(rightSL.getPath());
+			return leftSL.getURL().toString().compareTo(rightSL.getURL().toString());
 		}
 	}
 	
