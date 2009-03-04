@@ -219,96 +219,75 @@ private java.util.List<org.meta_environment.rascal.ast.Mapping> mappings;
  		z.$setMappings(x);
 		return z;
 	}	
-} public org.meta_environment.rascal.ast.Expression getFilename() { throw new UnsupportedOperationException(); } public boolean hasFilename() { return false; } public boolean isFileLocation() { return false; }
-static public class FileLocation extends Expression {
-/* "file" "(" filename:Expression ")" -> Expression {cons("FileLocation")} */
-	private FileLocation() { }
-	/*package*/ FileLocation(INode node, org.meta_environment.rascal.ast.Expression filename) {
+} 
+public org.meta_environment.rascal.ast.Protocol getProtocol() { throw new UnsupportedOperationException(); }
+	public org.meta_environment.rascal.ast.Expression getArea() { throw new UnsupportedOperationException(); }
+public boolean hasProtocol() { return false; }
+	public boolean hasArea() { return false; }
+public boolean isLocation() { return false; }
+static public class Location extends Expression {
+/* "!" protocol:Protocol area: Expression -> Expression {cons("Location")} */
+	private Location() { }
+	/*package*/ Location(INode node, org.meta_environment.rascal.ast.Protocol protocol, org.meta_environment.rascal.ast.Expression area) {
 		this.node = node;
-		this.filename = filename;
+		this.protocol = protocol;
+		this.area = area;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitExpressionFileLocation(this);
+		return visitor.visitExpressionLocation(this);
 	}
 
-	public boolean isFileLocation() { return true; }
+	public boolean isLocation() { return true; }
 
-	public boolean hasFilename() { return true; }
+	public boolean hasProtocol() { return true; }
+	public boolean hasArea() { return true; }
 
-private org.meta_environment.rascal.ast.Expression filename;
-	public org.meta_environment.rascal.ast.Expression getFilename() { return filename; }
-	private void $setFilename(org.meta_environment.rascal.ast.Expression x) { this.filename = x; }
-	public FileLocation setFilename(org.meta_environment.rascal.ast.Expression x) { 
-		FileLocation z = new FileLocation();
- 		z.$setFilename(x);
-		return z;
-	}	
-} public org.meta_environment.rascal.ast.Expression getAreaExpression() { throw new UnsupportedOperationException(); } public boolean hasAreaExpression() { return false; }
-public boolean isAreaInFileLocation() { return false; }
-static public class AreaInFileLocation extends Expression {
-/* "area-in-file" "(" filename:Expression "," 
-                     areaExpression:Expression ")" -> Expression {cons("AreaInFileLocation")} */
-	private AreaInFileLocation() { }
-	/*package*/ AreaInFileLocation(INode node, org.meta_environment.rascal.ast.Expression filename, org.meta_environment.rascal.ast.Expression areaExpression) {
-		this.node = node;
-		this.filename = filename;
-		this.areaExpression = areaExpression;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitExpressionAreaInFileLocation(this);
-	}
-
-	public boolean isAreaInFileLocation() { return true; }
-
-	public boolean hasFilename() { return true; }
-	public boolean hasAreaExpression() { return true; }
-
-private org.meta_environment.rascal.ast.Expression filename;
-	public org.meta_environment.rascal.ast.Expression getFilename() { return filename; }
-	private void $setFilename(org.meta_environment.rascal.ast.Expression x) { this.filename = x; }
-	public AreaInFileLocation setFilename(org.meta_environment.rascal.ast.Expression x) { 
-		AreaInFileLocation z = new AreaInFileLocation();
- 		z.$setFilename(x);
+private org.meta_environment.rascal.ast.Protocol protocol;
+	public org.meta_environment.rascal.ast.Protocol getProtocol() { return protocol; }
+	private void $setProtocol(org.meta_environment.rascal.ast.Protocol x) { this.protocol = x; }
+	public Location setProtocol(org.meta_environment.rascal.ast.Protocol x) { 
+		Location z = new Location();
+ 		z.$setProtocol(x);
 		return z;
 	}
-	private org.meta_environment.rascal.ast.Expression areaExpression;
-	public org.meta_environment.rascal.ast.Expression getAreaExpression() { return areaExpression; }
-	private void $setAreaExpression(org.meta_environment.rascal.ast.Expression x) { this.areaExpression = x; }
-	public AreaInFileLocation setAreaExpression(org.meta_environment.rascal.ast.Expression x) { 
-		AreaInFileLocation z = new AreaInFileLocation();
- 		z.$setAreaExpression(x);
+	private org.meta_environment.rascal.ast.Expression area;
+	public org.meta_environment.rascal.ast.Expression getArea() { return area; }
+	private void $setArea(org.meta_environment.rascal.ast.Expression x) { this.area = x; }
+	public Location setArea(org.meta_environment.rascal.ast.Expression x) { 
+		Location z = new Location();
+ 		z.$setArea(x);
 		return z;
 	}	
 } 
-public org.meta_environment.rascal.ast.Expression getBeginLine() { throw new UnsupportedOperationException(); }
+public org.meta_environment.rascal.ast.Expression getOffset() { throw new UnsupportedOperationException(); }
+	public org.meta_environment.rascal.ast.Expression getLength() { throw new UnsupportedOperationException(); }
+	public org.meta_environment.rascal.ast.Expression getBeginLine() { throw new UnsupportedOperationException(); }
 	public org.meta_environment.rascal.ast.Expression getBeginColumn() { throw new UnsupportedOperationException(); }
 	public org.meta_environment.rascal.ast.Expression getEndLine() { throw new UnsupportedOperationException(); }
 	public org.meta_environment.rascal.ast.Expression getEndColumn() { throw new UnsupportedOperationException(); }
-	public org.meta_environment.rascal.ast.Expression getOffset() { throw new UnsupportedOperationException(); }
-	public org.meta_environment.rascal.ast.Expression getLength() { throw new UnsupportedOperationException(); }
-public boolean hasBeginLine() { return false; }
+public boolean hasOffset() { return false; }
+	public boolean hasLength() { return false; }
+	public boolean hasBeginLine() { return false; }
 	public boolean hasBeginColumn() { return false; }
 	public boolean hasEndLine() { return false; }
 	public boolean hasEndColumn() { return false; }
-	public boolean hasOffset() { return false; }
-	public boolean hasLength() { return false; }
 public boolean isArea() { return false; }
 static public class Area extends Expression {
-/* "area" "(" beginLine:Expression "," 
-             beginColumn:Expression "," 
-             endLine:Expression "," 
-             endColumn:Expression "," 
-             offset:Expression "," 
-             length:Expression ")" -> Expression {cons("Area")} */
+/* "?" "off" "=" offset:Expression "&" 
+       "len" "=" length:Expression "&"
+       "start" "=" beginLine:Expression "," 
+                   beginColumn:Expression "&"
+       "end" "=" endLine:Expression "," 
+                 endColumn:Expression -> Expression {cons("Area")} */
 	private Area() { }
-	/*package*/ Area(INode node, org.meta_environment.rascal.ast.Expression beginLine, org.meta_environment.rascal.ast.Expression beginColumn, org.meta_environment.rascal.ast.Expression endLine, org.meta_environment.rascal.ast.Expression endColumn, org.meta_environment.rascal.ast.Expression offset, org.meta_environment.rascal.ast.Expression length) {
+	/*package*/ Area(INode node, org.meta_environment.rascal.ast.Expression offset, org.meta_environment.rascal.ast.Expression length, org.meta_environment.rascal.ast.Expression beginLine, org.meta_environment.rascal.ast.Expression beginColumn, org.meta_environment.rascal.ast.Expression endLine, org.meta_environment.rascal.ast.Expression endColumn) {
 		this.node = node;
+		this.offset = offset;
+		this.length = length;
 		this.beginLine = beginLine;
 		this.beginColumn = beginColumn;
 		this.endLine = endLine;
 		this.endColumn = endColumn;
-		this.offset = offset;
-		this.length = length;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
 		return visitor.visitExpressionArea(this);
@@ -316,14 +295,30 @@ static public class Area extends Expression {
 
 	public boolean isArea() { return true; }
 
+	public boolean hasOffset() { return true; }
+	public boolean hasLength() { return true; }
 	public boolean hasBeginLine() { return true; }
 	public boolean hasBeginColumn() { return true; }
 	public boolean hasEndLine() { return true; }
 	public boolean hasEndColumn() { return true; }
-	public boolean hasOffset() { return true; }
-	public boolean hasLength() { return true; }
 
-private org.meta_environment.rascal.ast.Expression beginLine;
+private org.meta_environment.rascal.ast.Expression offset;
+	public org.meta_environment.rascal.ast.Expression getOffset() { return offset; }
+	private void $setOffset(org.meta_environment.rascal.ast.Expression x) { this.offset = x; }
+	public Area setOffset(org.meta_environment.rascal.ast.Expression x) { 
+		Area z = new Area();
+ 		z.$setOffset(x);
+		return z;
+	}
+	private org.meta_environment.rascal.ast.Expression length;
+	public org.meta_environment.rascal.ast.Expression getLength() { return length; }
+	private void $setLength(org.meta_environment.rascal.ast.Expression x) { this.length = x; }
+	public Area setLength(org.meta_environment.rascal.ast.Expression x) { 
+		Area z = new Area();
+ 		z.$setLength(x);
+		return z;
+	}
+	private org.meta_environment.rascal.ast.Expression beginLine;
 	public org.meta_environment.rascal.ast.Expression getBeginLine() { return beginLine; }
 	private void $setBeginLine(org.meta_environment.rascal.ast.Expression x) { this.beginLine = x; }
 	public Area setBeginLine(org.meta_environment.rascal.ast.Expression x) { 
@@ -353,22 +348,6 @@ private org.meta_environment.rascal.ast.Expression beginLine;
 	public Area setEndColumn(org.meta_environment.rascal.ast.Expression x) { 
 		Area z = new Area();
  		z.$setEndColumn(x);
-		return z;
-	}
-	private org.meta_environment.rascal.ast.Expression offset;
-	public org.meta_environment.rascal.ast.Expression getOffset() { return offset; }
-	private void $setOffset(org.meta_environment.rascal.ast.Expression x) { this.offset = x; }
-	public Area setOffset(org.meta_environment.rascal.ast.Expression x) { 
-		Area z = new Area();
- 		z.$setOffset(x);
-		return z;
-	}
-	private org.meta_environment.rascal.ast.Expression length;
-	public org.meta_environment.rascal.ast.Expression getLength() { return length; }
-	private void $setLength(org.meta_environment.rascal.ast.Expression x) { this.length = x; }
-	public Area setLength(org.meta_environment.rascal.ast.Expression x) { 
-		Area z = new Area();
- 		z.$setLength(x);
 		return z;
 	}	
 } public boolean isQualifiedName() { return false; }
@@ -1002,7 +981,7 @@ private org.meta_environment.rascal.ast.ClosureAsFunction closure;
 	public boolean hasReplacement() { return false; }
 public boolean isFieldUpdate() { return false; }
 static public class FieldUpdate extends Expression {
-/* expression:Expression "[" key:Name "->" replacement:Expression "]" -> Expression {cons("FieldUpdate")} */
+/* expression:Expression "[" key:Name "=" replacement:Expression "]" -> Expression {cons("FieldUpdate")} */
 	private FieldUpdate() { }
 	/*package*/ FieldUpdate(INode node, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.Name key, org.meta_environment.rascal.ast.Expression replacement) {
 		this.node = node;
@@ -1282,7 +1261,7 @@ private org.meta_environment.rascal.ast.Expression expression;
 } public org.meta_environment.rascal.ast.Expression getValue() { throw new UnsupportedOperationException(); } public boolean hasValue() { return false; }
 public boolean isSetAnnotation() { return false; }
 static public class SetAnnotation extends Expression {
-/* expression:Expression "[" "@" name:Name ":" value: Expression "]" -> Expression {cons("SetAnnotation")} */
+/* expression:Expression "[" "@" name:Name "=" value: Expression "]" -> Expression {cons("SetAnnotation")} */
 	private SetAnnotation() { }
 	/*package*/ SetAnnotation(INode node, org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.Name name, org.meta_environment.rascal.ast.Expression value) {
 		this.node = node;

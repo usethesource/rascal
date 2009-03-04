@@ -20,8 +20,6 @@ import org.meta_environment.rascal.ast.Expression.Addition;
 import org.meta_environment.rascal.ast.Expression.All;
 import org.meta_environment.rascal.ast.Expression.And;
 import org.meta_environment.rascal.ast.Expression.Any;
-import org.meta_environment.rascal.ast.Expression.Area;
-import org.meta_environment.rascal.ast.Expression.AreaInFileLocation;
 import org.meta_environment.rascal.ast.Expression.Bracket;
 import org.meta_environment.rascal.ast.Expression.CallOrTree;
 import org.meta_environment.rascal.ast.Expression.Closure;
@@ -32,7 +30,6 @@ import org.meta_environment.rascal.ast.Expression.Equals;
 import org.meta_environment.rascal.ast.Expression.Equivalence;
 import org.meta_environment.rascal.ast.Expression.FieldProject;
 import org.meta_environment.rascal.ast.Expression.FieldUpdate;
-import org.meta_environment.rascal.ast.Expression.FileLocation;
 import org.meta_environment.rascal.ast.Expression.FunctionAsValue;
 import org.meta_environment.rascal.ast.Expression.GetAnnotation;
 import org.meta_environment.rascal.ast.Expression.GreaterThan;
@@ -1499,10 +1496,7 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 			 return new AbstractPatternQualifiedName(vf, env, x.getQualifiedName());
 		 }
 	}
-	@Override
-	public AbstractPattern visitExpressionArea(Area x) {
-		throw new UnsupportedOperationException("Areas in pattern");
-	}
+	
 	@Override
 	public AbstractPattern visitExpressionTypedVariable(TypedVariable x) {
 		TypeEvaluator te = TypeEvaluator.getInstance();
@@ -1534,11 +1528,7 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 	public AbstractPattern visitExpressionAny(Any x) {
 		throw new SyntaxError("Construct not allowed in pattern", x);
 	}
-	@Override
-	public AbstractPattern visitExpressionAreaInFileLocation(
-			AreaInFileLocation x) {
-		throw new SyntaxError("Construct not allowed in pattern", x);
-	}
+	
 	@Override
 	public AbstractPattern visitExpressionBracket(Bracket x) {
 		throw new SyntaxError("Construct not allowed in pattern", x);
@@ -1583,10 +1573,6 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 	}
 	@Override
 	public AbstractPattern visitExpressionFieldUpdate(FieldUpdate x) {
-		throw new SyntaxError("Construct not allowed in pattern", x);
-	}
-	@Override
-	public AbstractPattern visitExpressionFileLocation(FileLocation x) {
 		throw new SyntaxError("Construct not allowed in pattern", x);
 	}
 	@Override

@@ -70,8 +70,6 @@ import org.meta_environment.rascal.ast.Expression.All;
 import org.meta_environment.rascal.ast.Expression.Ambiguity;
 import org.meta_environment.rascal.ast.Expression.And;
 import org.meta_environment.rascal.ast.Expression.Any;
-import org.meta_environment.rascal.ast.Expression.Area;
-import org.meta_environment.rascal.ast.Expression.AreaInFileLocation;
 import org.meta_environment.rascal.ast.Expression.Bracket;
 import org.meta_environment.rascal.ast.Expression.CallOrTree;
 import org.meta_environment.rascal.ast.Expression.Closure;
@@ -82,7 +80,6 @@ import org.meta_environment.rascal.ast.Expression.Division;
 import org.meta_environment.rascal.ast.Expression.Equivalence;
 import org.meta_environment.rascal.ast.Expression.FieldProject;
 import org.meta_environment.rascal.ast.Expression.FieldUpdate;
-import org.meta_environment.rascal.ast.Expression.FileLocation;
 import org.meta_environment.rascal.ast.Expression.FunctionAsValue;
 import org.meta_environment.rascal.ast.Expression.GreaterThan;
 import org.meta_environment.rascal.ast.Expression.GreaterThanOrEq;
@@ -95,6 +92,7 @@ import org.meta_environment.rascal.ast.Expression.LessThanOrEq;
 import org.meta_environment.rascal.ast.Expression.Lexical;
 import org.meta_environment.rascal.ast.Expression.List;
 import org.meta_environment.rascal.ast.Expression.Literal;
+import org.meta_environment.rascal.ast.Expression.Location;
 import org.meta_environment.rascal.ast.Expression.Match;
 import org.meta_environment.rascal.ast.Expression.Modulo;
 import org.meta_environment.rascal.ast.Expression.Negation;
@@ -2530,7 +2528,10 @@ public class Evaluator extends NullASTVisitor<Result> {
 	}
 	
 	@Override
-	public Result visitExpressionArea(Area x) {
+	public Result visitExpressionArea(
+			org.meta_environment.rascal.ast.Expression.Area x) {
+
+		System.err.println("Area=" + x);
 		Result beginLine = x.getBeginLine().accept(this);
 		Result endLine = x.getEndLine().accept(this);
 		Result beginColumn = x.getBeginColumn().accept(this);
@@ -2538,7 +2539,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result length = x.getLength().accept(this);
 		Result offset = x.getOffset().accept(this);
 		
-		//System.err.println("AreaDefault: " + x );
+		System.err.println("AreaDefault: " + x );
 		
 		int iOffset = intValue(offset);
 		int iLength = intValue(length);
@@ -2548,26 +2549,30 @@ public class Evaluator extends NullASTVisitor<Result> {
 		int iBeginLine = intValue(beginLine);
 	
 		ISourceRange r = vf.sourceRange(iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn);
+		System.err.println(r);
 		return result(tf.sourceRangeType(), r);
 	}
 	
 	@Override
-	public Result visitExpressionAreaInFileLocation(AreaInFileLocation x) {
+	public Result visitExpressionLocation(Location x){
 		
-	   Result area = x.getAreaExpression().accept(this);
+		System.err.println("Location=" + x);
+		System.err.println("x.getArea()=" + x.getArea());
+		Result area = x.getArea().accept(this);
+		
+		System.err.println("area=" + area);
 	   
 	   if (!area.getType().isSubtypeOf(tf.sourceRangeType())) {
 		   throw new TypeError("Expected area, got " + area.getType(), x);
 	   }
 	   
-	   Result file = x.getFilename().accept(this);
+	   Result file = x.getProtocol().accept(this);
 	   
 	   if (!area.getType().isSubtypeOf(tf.sourceRangeType())) {
 		   throw new TypeError("Expected area, got " + file.getType(), x);
 	   }
 	   
 	   checkType(area, tf.sourceRangeType());
-	   checkType(file, tf.stringType());
 	   
 	   ISourceRange range = (ISourceRange) area.getValue();
 	   
@@ -2628,19 +2633,6 @@ public class Evaluator extends NullASTVisitor<Result> {
 		} catch (FactTypeUseException e) {
 			throw new TypeError(e.getMessage(), x);
 		}
-	}
-	
-	@Override
-	public Result visitExpressionFileLocation(FileLocation x) {
-		Result result = x.getFilename().accept(this);
-		
-		 if (!result.getType().isSubtypeOf(tf.stringType())) {
-			   throw new TypeError("Expected area, got " + result.getType(), x);
-		 }
-		 
-		 return result(tf.sourceLocationType(), 
-				 vf.sourceLocation(((IString) result.getValue()).getValue(), 
-				 vf.sourceRange(0, 0, 1, 1, 0, 0)));
 	}
 	
 	@Override
