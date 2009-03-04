@@ -155,10 +155,10 @@ public class SubList implements IList {
 		return false;
 	}
 
-	public IList remove(IValue e) {
+	public IList delete(IValue e) {
 		IListWriter w = ValueFactoryFactory.getValueFactory().listWriter(getElementType());
 		w.insertAll(this);
-		w.remove(e);
+		w.delete(e);
 		return w.done();
 	}
 }
