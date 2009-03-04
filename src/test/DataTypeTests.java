@@ -333,10 +333,24 @@ public class DataTypeTests extends TestFramework {
 	
 	@Test
 	public void testLocation() {
+		String Loc = "!file:///home/paulk/pico.trm?off=0&len=1&start=2,3&end=4,5";
+		assertTrue(runTest("{" + Loc + "; true;}"));
 		
-		//assertTrue(runTest("{area(5,2,6,8,0,0); true;}"));
-		//assertTrue(runTest("{file(\"pico1.trm\"); true;}"));
-		assertTrue(runTest("{area-in-file(\"pico1.trm\",area(5,2,6,8,0,0)); true;}"));
+		assertTrue(runTest("{ loc Loc = " + Loc + "; Loc.filename == \"file:///home/paulk/pico.trm\";}"));
+		assertTrue(runTest("{ loc Loc = " + Loc + "; Loc.offset == 0;}"));
+		assertTrue(runTest("{ loc Loc = " + Loc + "; Loc.length == 1;}"));
+		assertTrue(runTest("{ loc Loc = " + Loc + "; Loc.beginLine == 2;}"));
+		assertTrue(runTest("{ loc Loc = " + Loc + "; Loc.beginColumn == 3;}"));
+		assertTrue(runTest("{ loc Loc = " + Loc + "; Loc.endLine == 4;}"));
+		assertTrue(runTest("{ loc Loc = " + Loc + "; Loc.endColumn == 5;}"));
+		
+		assertTrue(runTest("{ loc Loc = " + Loc + "; Loc.filename = \"file:///home/paulk/pico2.trm\"; Loc.filename == \"file:///home/paulk/pico2.trm\";}"));
+		assertTrue(runTest("{ loc Loc = " + Loc + "; Loc.offset = 10; Loc.offset == 10;}"));
+		assertTrue(runTest("{ loc Loc = " + Loc + "; Loc.length = 11; Loc.length == 11;}"));
+		assertTrue(runTest("{ loc Loc = " + Loc + "; Loc.beginLine = 12; Loc.beginLine == 12;}"));
+		assertTrue(runTest("{ loc Loc = " + Loc + "; Loc.beginColumn = 13; Loc.beginColumn == 13;}"));
+		assertTrue(runTest("{ loc Loc = " + Loc + "; Loc.endLine = 14; Loc.endLine == 14;}"));
+		assertTrue(runTest("{ loc Loc = " + Loc + "; Loc.endColumn = 15; Loc.endColumn == 15;}"));
 	}
 	
 	@Test
