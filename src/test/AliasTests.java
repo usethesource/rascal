@@ -2,6 +2,7 @@ package test;
 
 import static org.junit.Assert.assertTrue;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.meta_environment.rascal.interpreter.errors.*;
 
@@ -68,6 +69,17 @@ public class AliasTests extends TestFramework{
 		
 	}
 	
+	@Test @Ignore
+	public void aliases4() {
+		prepareModule("module Test alias INTEGER0 = INTEGER1; data INTEGER1 = f(int);");
+		assertTrue(runTestInSameEvaluator("{ INTEGER0 x = f(0); x == f(0); }"));
+	}
+	
+	@Test @Ignore
+	public void aliases5() {
+		prepareModule("module Test alias INTEGER0 = INTEGER1; alias INTEGER1 = int;");
+		assertTrue(runTestInSameEvaluator("{ INTEGER0 x = 0; x == 0; }"));
+	}
 
 }
 
