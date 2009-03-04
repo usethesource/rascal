@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeDeclarationException;
-import org.eclipse.imp.pdb.facts.exceptions.UndeclaredAbstractDataTypeException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.Declaration;
@@ -100,34 +99,15 @@ public class TypeDeclarationEvaluator {
 
 	public void declareAlias(Alias x, Environment env) {
 		TypeEvaluator te = TypeEvaluator.getInstance();
-		TypeFactory tf = TypeFactory.getInstance();
 		try {
-			String user = x.getUser().getName().toString();
-			Type[] params;
-			if (x.getUser().isParametric()) {
-				java.util.List<org.meta_environment.rascal.ast.Type> formals = x.getUser().getParameters();
-				params = new Type[formals.size()];
-				int i = 0;
-				for (org.meta_environment.rascal.ast.Type formal : formals) {
-					if (!formal.isVariable()) {
-						throw new TypeError("Declaration of parameterized type with type instance " + formal + " is not allowed", formal);
-					}
-					TypeVar var = formal.getTypeVar();
-					Type bound = var.hasBound() ? te.eval(var.getBound(), env) : tf.valueType();
-					params[i++] = tf.parameterType(Names.name(var.getName()), bound);
-				}
-			}
-			else {
-				params = new Type[0];
-			}
-			
 			Type base = te.eval(x.getBase(), env);
 			
 			if (base == null) {
 				throw new UndeclaredTypeException(x.getBase().toString(), x.getBase());
 			}
 			
-			env.aliasType(user, base, params);	
+			env.aliasType(Names.name(x.getUser().getName()), base, 
+					computeTypeParameters(x.getUser(), env));	
 		} catch (FactTypeDeclarationException e){
 			throw new TypeError(e.getMessage(), x);
 		}
@@ -140,9 +120,32 @@ public class TypeDeclarationEvaluator {
 	}
 
 	public Type declareAbstractDataType(UserType decl, Environment env) {
-		// TODO add support for parameterized data types
 		String name = Names.name(decl.getName());
-		return env.abstractDataType(name);
+		return env.abstractDataType(name, computeTypeParameters(decl, env));
+	}
+
+	private Type[] computeTypeParameters(UserType decl, Environment env) {
+		TypeFactory tf = TypeFactory.getInstance();
+		TypeEvaluator te = TypeEvaluator.getInstance();
+		
+		Type[] params;
+		if (decl.isParametric()) {
+			java.util.List<org.meta_environment.rascal.ast.Type> formals = decl.getParameters();
+			params = new Type[formals.size()];
+			int i = 0;
+			for (org.meta_environment.rascal.ast.Type formal : formals) {
+				if (!formal.isVariable()) {
+					throw new TypeError("Declaration of parameterized type with type instance " + formal + " is not allowed", formal);
+				}
+				TypeVar var = formal.getTypeVar();
+				Type bound = var.hasBound() ? te.eval(var.getBound(), env) : tf.valueType();
+				params[i++] = tf.parameterType(Names.name(var.getName()), bound);
+			}
+		}
+		else {
+			params = new Type[0];
+		}
+		return params;
 	}
 
 	private void collectDeclarations(List<Toplevel> decls, Set<UserType> abstractDataTypes,
