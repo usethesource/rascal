@@ -81,5 +81,10 @@ public class AliasTests extends TestFramework{
 		assertTrue(runTestInSameEvaluator("{ INTEGER0 x = 0; x == 0; }"));
 	}
 
+	@Test(expected=TypeError.class) @Ignore
+	public void aliases6() {
+		prepareModule("module Test alias INTEGER0 = INTEGER1; alias INTEGER1 = INTEGER0;");
+		assertTrue(runTestInSameEvaluator("{ INTEGER0 x = 0; x == 0; }"));
+	}
 }
 
