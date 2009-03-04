@@ -2,7 +2,6 @@ package org.meta_environment.errors;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.meta_environment.ValueFactoryFactory;
@@ -25,20 +24,60 @@ public class SubjectAdapter {
 		return null;
 	}
 	
-	public ISourceRange getRange() {
+	public String getPath() {
 		ISourceLocation loc = getLocation();
 		if (loc != null) {
-			return loc.getRange();
+			return loc.getURL().getPath();
 		}
 		return null;
 	}
 	
-	public String getPath() {
+	public int getStartColumn() {
 		ISourceLocation loc = getLocation();
 		if (loc != null) {
-			return loc.getPath();
+			return loc.getStartColumn();
 		}
-		return null;
+		return 0;
+	}
+	
+	public int getEndColumn() {
+		ISourceLocation loc = getLocation();
+		if (loc != null) {
+			return loc.getEndColumn();
+		}
+		return 0;
+	}
+	
+	public int getStartLine() {
+		ISourceLocation loc = getLocation();
+		if (loc != null) {
+			return loc.getStartLine();
+		}
+		return 1;
+	}
+	
+	public int getEndLine() {
+		ISourceLocation loc = getLocation();
+		if (loc != null) {
+			return loc.getEndLine();
+		}
+		return 1;
+	}
+	
+	public int getOffset() {
+		ISourceLocation loc = getLocation();
+		if (loc != null) {
+			return loc.getStartOffset();
+		}
+		return 0;
+	}
+	
+	public int getLength() {
+		ISourceLocation loc = getLocation();
+		if (loc != null) {
+			return loc.getLength();
+		}
+		return 0;
 	}
 	
 	public String getDescription() {

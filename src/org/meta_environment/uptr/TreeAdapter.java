@@ -3,6 +3,8 @@ package org.meta_environment.uptr;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -11,7 +13,6 @@ import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
-import org.eclipse.imp.pdb.facts.ISourceRange;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
@@ -160,25 +161,21 @@ public class TreeAdapter {
 	
 	public IConstructor addPositionInformation(String filename) {
 		Factory.getInstance(); // make sure everything is declared
-		return addPosInfo(tree, filename, new Position());
+		try {
+			return addPosInfo(tree, filename, new Position());
+		} catch (MalformedURLException e) {
+			throw new RuntimeException(e);
+		}
 	}
 	
 	public ISourceLocation getLocation() {
 		return (ISourceLocation) tree.getAnnotation(Factory.Location);
 	}
 	
-	public ISourceRange getRange() {
-		ISourceLocation loc = getLocation();
-		if (loc != null) {
-			return loc.getRange();
-		}
-		return null;
-	}
-	
 	public String getPath() {
 		ISourceLocation loc = getLocation();
 		if (loc != null) {
-			return loc.getPath();
+			return loc.getURL().getPath();
 		}
 		return null;
 	}
@@ -202,7 +199,7 @@ public class TreeAdapter {
 	}
 	
 	// TODO this code breaks in the presence of cycles
-	private IConstructor addPosInfo(IConstructor t, String filename, Position cur) {
+	private IConstructor addPosInfo(IConstructor t, String filename, Position cur) throws MalformedURLException {
 		TreeAdapter tree = new TreeAdapter(t);
 		
 		if (tree.isChar()) {
@@ -255,8 +252,7 @@ public class TreeAdapter {
 		
 		if (true || !tree.isLayout() && !tree.isLexical()) {
 			IValueFactory factory = ValueFactoryFactory.getValueFactory();
-			ISourceRange range = factory.sourceRange(start.offset, cur.offset - start.offset, start.line, cur.line, start.col, cur.col);
-			ISourceLocation loc = factory.sourceLocation(filename, range);
+			ISourceLocation loc = factory.sourceLocation(new URL("file://" + filename), start.offset, cur.offset - start.offset, start.line, cur.line, start.col, cur.col);
 			return t.setAnnotation(Factory.Location, loc);
 		}
 		else {
