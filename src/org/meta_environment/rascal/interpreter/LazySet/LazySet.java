@@ -55,7 +55,7 @@ abstract class LazySet implements ISet {
 		if (o instanceof ISet || o instanceof LazySet) {
 			ISet other = (ISet) o;
 			if (fType.comparable(other.getType())) {
-				return base.isSubSet(other) && other.isSubSet(this);
+				return base.isSubsetOf(other) && other.isSubsetOf(this);
 			} else {
 				return false;
 			}

@@ -43,8 +43,8 @@ public class LazyInsert extends LazySet implements ISet {
 		return false;
 	}
 
-	public boolean isSubSet(ISet other) {
-		return other.contains(inserted) && base.isSubSet(other);
+	public boolean isSubsetOf(ISet other) {
+		return other.contains(inserted) && base.isSubsetOf(other);
 	}
 
 	public int size() {

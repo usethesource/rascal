@@ -38,7 +38,7 @@ public class LazyIntersect extends LazySet {
 		return size() == 0;
 	}
 
-	public boolean isSubSet(ISet other) {
+	public boolean isSubsetOf(ISet other) {
 		for(IValue v : this){
 			if(!other.contains(v))
 				return false;

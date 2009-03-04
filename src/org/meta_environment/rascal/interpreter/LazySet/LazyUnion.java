@@ -41,8 +41,8 @@ public class LazyUnion extends LazySet {
 		return base.isEmpty() && partner.isEmpty();
 	}
 
-	public boolean isSubSet(ISet other) {
-		return base.isSubSet(other) && partner.isSubSet(other);
+	public boolean isSubsetOf(ISet other) {
+		return base.isSubsetOf(other) && partner.isSubsetOf(other);
 	}
 	
 	public int size(){

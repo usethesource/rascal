@@ -3468,7 +3468,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		if (value1.isEqual(value2)) {
 			return 0;
 		}
-		else if (value1.isSubSet(value2)) {
+		else if (value1.isSubsetOf(value2)) {
 			return -1;
 		}
 		else {
