@@ -333,10 +333,10 @@ public class DataTypeTests extends TestFramework {
 	
 	@Test
 	public void testLocation() {
-		String Loc = "!file:///home/paulk/pico.trm?off=0&len=1&start=2,3&end=4,5";
+		String Loc = "!file:/home/paulk/pico.trm?offset=0&length=1&begin=2,3&end=4,5";
 		assertTrue(runTest("{" + Loc + "; true;}"));
 		
-		assertTrue(runTest("{ loc Loc = " + Loc + "; Loc.filename == \"file:///home/paulk/pico.trm\";}"));
+		assertTrue(runTest("{ loc Loc = " + Loc + "; Loc.url == \"file:/home/paulk/pico.trm\";}"));
 		assertTrue(runTest("{ loc Loc = " + Loc + "; Loc.offset == 0;}"));
 		assertTrue(runTest("{ loc Loc = " + Loc + "; Loc.length == 1;}"));
 		assertTrue(runTest("{ loc Loc = " + Loc + "; Loc.beginLine == 2;}"));
@@ -344,7 +344,7 @@ public class DataTypeTests extends TestFramework {
 		assertTrue(runTest("{ loc Loc = " + Loc + "; Loc.endLine == 4;}"));
 		assertTrue(runTest("{ loc Loc = " + Loc + "; Loc.endColumn == 5;}"));
 		
-		assertTrue(runTest("{ loc Loc = " + Loc + "; Loc.filename = \"file:///home/paulk/pico2.trm\"; Loc.filename == \"file:///home/paulk/pico2.trm\";}"));
+		assertTrue(runTest("{ loc Loc = " + Loc + "; Loc.url = \"file:/home/paulk/pico2.trm\"; Loc.filename == \"file:/home/paulk/pico2.trm\";}"));
 		assertTrue(runTest("{ loc Loc = " + Loc + "; Loc.offset = 10; Loc.offset == 10;}"));
 		assertTrue(runTest("{ loc Loc = " + Loc + "; Loc.length = 11; Loc.length == 11;}"));
 		assertTrue(runTest("{ loc Loc = " + Loc + "; Loc.beginLine = 12; Loc.beginLine == 12;}"));

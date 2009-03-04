@@ -2,6 +2,8 @@
 package org.meta_environment.rascal.interpreter;
 
 import java.io.Writer;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -1208,6 +1210,26 @@ public class Evaluator extends NullASTVisitor<Result> {
 			
 			int index = node.getFieldIndex(field);
 			return normalizedResult(node.getFieldType(index),((IConstructor) expr.getValue()).get(index));
+		}
+		else if(expr.getType().isSourceLocationType()){
+			ISourceLocation loc = (ISourceLocation) expr.getValue();
+			if(field.equals("length")){
+				return result(tf.integerType(), vf.integer(loc.getLength()));
+			} else if(field.equals("offset")){
+				return result(tf.integerType(), vf.integer(loc.getStartOffset()));
+			} else if(field.equals("beginLine")){
+				return result(tf.integerType(), vf.integer(loc.getStartLine()));
+			} else if(field.equals("beginColumn")){
+				return result(tf.integerType(), vf.integer(loc.getStartColumn()));
+			} else if(field.equals("endLine")){
+				return result(tf.integerType(), vf.integer(loc.getEndLine()));
+			} else if(field.equals("endColumn")){
+				return result(tf.integerType(), vf.integer(loc.getEndColumn()));
+			} else if(field.equals("url")){
+				return result(tf.stringType(), vf.string(loc.getURL().toString()));
+			} else {
+				throw new TypeError("Field `" + field + "` not defined on loc", x);
+			}
 		}
 		
 		throw new NoSuchFieldError("Field selection is not allowed on " + expr.getType(), x);
@@ -2531,56 +2553,35 @@ public class Evaluator extends NullASTVisitor<Result> {
 	}
 	
 	@Override
-	public Result visitExpressionArea(
-			org.meta_environment.rascal.ast.Expression.Area x) {
-
-//		System.err.println("Area=" + x);
-//		Result beginLine = x.getBeginLine().accept(this);
-//		Result endLine = x.getEndLine().accept(this);
-//		Result beginColumn = x.getBeginColumn().accept(this);
-//		Result endColumn = x.getEndColumn().accept(this);
-//		Result length = x.getLength().accept(this);
-//		Result offset = x.getOffset().accept(this);
-//		
-//		System.err.println("AreaDefault: " + x );
-		
-//		int iOffset = intValue(offset);
-//		int iLength = intValue(length);
-//		int iEndColumn = intValue(endColumn);
-//		int iBeginColumn = intValue(beginColumn);
-//		int iEndLine = intValue(endLine);
-//		int iBeginLine = intValue(beginLine);
-	
-//		ISourceRange r = vf.sourceRange(iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn);
-//		System.err.println(r);
-		throw new ImplementationError("not yet implemented, because areas changed exception");
-	}
-	
-	@Override
 	public Result visitExpressionLocation(Location x){
 		
-		System.err.println("Location=" + x);
-		System.err.println("x.getArea()=" + x.getArea());
-		Result area = x.getArea().accept(this);
+		String urlText = x.getUrl().toString();
 		
-		System.err.println("area=" + area);
-	   
-//	   if (!area.getType().isSubtypeOf(tf.sourceRangeType())) {
-//		   throw new TypeError("Expected area, got " + area.getType(), x);
-//	   }
-//	   
-//	   Result file = x.getProtocol().accept(this);
-	   
-//	   if (!area.getType().isSubtypeOf(tf.sourceRangeType())) {
-//		   throw new TypeError("Expected area, got " + file.getType(), x);
-//	   }
-//	   
-//	   checkType(area, tf.sourceRangeType());
-//	   
-//	   ISourceRange range = (ISourceRange) area.getValue();
-//	   
-//	   return result(tf.sourceLocationType(), vf.sourceLocation(stringValue(file), range));
-	   throw new ImplementationError("not yet implemented because source locations changed");
+		Result length = x.getLength().accept(this);
+		int iLength = intValue(length);
+		
+		Result offset = x.getOffset().accept(this);	
+		int iOffset = intValue(offset);
+		
+		Result beginLine = x.getBeginLine().accept(this);
+		int iBeginLine = intValue(beginLine);
+		
+		Result endLine = x.getEndLine().accept(this);
+		int iEndLine = intValue(endLine);
+		
+		Result beginColumn = x.getBeginColumn().accept(this);
+		int iBeginColumn = intValue(beginColumn);
+		
+		Result endColumn = x.getEndColumn().accept(this);
+		int iEndColumn = intValue(endColumn);
+
+		try {
+			URL url = new URL(urlText);
+			  ISourceLocation r = vf.sourceLocation(url, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn);
+			  return result(tf.sourceLocationType(), r);
+		} catch (MalformedURLException e){
+			throw new SyntaxError(e.getMessage(), x);
+		}
 	}
 	
 	@Override
