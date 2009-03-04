@@ -32,9 +32,9 @@ public class AliasTests extends TestFramework{
 		assertTrue(runTestInSameEvaluator("{INTEGER I = 3; int J = I; J == 3;}"));
 		
 		assertTrue(runTestInSameEvaluator("{list[INTEGER] LI = [1,2,3]; LI == [1,2,3];}"));
-		assertTrue(runTestInSameEvaluator("{set[INTEGER] SI = {1,2,3}; SI = {1,2,3};}"));
-		assertTrue(runTestInSameEvaluator("{map[INTEGER,INTEGER] MI = (1:10,2:20); MI = (1:10,2:20);}"));
-		assertTrue(runTestInSameEvaluator("{rel[INTEGER,INTEGER] RI = {<1,10>,<2,20>}; RI = {<1,10>,<2,20>};}"));
+		assertTrue(runTestInSameEvaluator("{set[INTEGER] SI = {1,2,3}; SI == {1,2,3};}"));
+		assertTrue(runTestInSameEvaluator("{map[INTEGER,INTEGER] MI = (1:10,2:20); MI == (1:10,2:20);}"));
+		assertTrue(runTestInSameEvaluator("{rel[INTEGER,INTEGER] RI = {<1,10>,<2,20>}; RI == {<1,10>,<2,20>};}"));
 	}
 	
 	@Test
@@ -46,9 +46,9 @@ public class AliasTests extends TestFramework{
 		assertTrue(runTestInSameEvaluator("{INTEGER I = 3; int J = I; J == 3;}"));
 		
 		assertTrue(runTestInSameEvaluator("{list[INTEGER] LI = [1,2,3]; LI == [1,2,3];}"));
-		assertTrue(runTestInSameEvaluator("{set[INTEGER] SI = {1,2,3}; SI = {1,2,3};}"));
-		assertTrue(runTestInSameEvaluator("{map[INTEGER,INTEGER] MI = (1:10,2:20); MI = (1:10,2:20);}"));
-		assertTrue(runTestInSameEvaluator("{rel[INTEGER,INTEGER] RI = {<1,10>,<2,20>}; RI = {<1,10>,<2,20>};}"));
+		assertTrue(runTestInSameEvaluator("{set[INTEGER] SI = {1,2,3}; SI == {1,2,3};}"));
+		assertTrue(runTestInSameEvaluator("{map[INTEGER,INTEGER] MI = (1:10,2:20); MI == (1:10,2:20);}"));
+		assertTrue(runTestInSameEvaluator("{rel[INTEGER,INTEGER] RI = {<1,10>,<2,20>}; RI == {<1,10>,<2,20>};}"));
 		
 	}
 	
@@ -62,9 +62,9 @@ public class AliasTests extends TestFramework{
 		assertTrue(runTestInSameEvaluator("{INTEGER I = 3; int J = I; J == 3;}"));
 		
 		assertTrue(runTestInSameEvaluator("{list[INTEGER] LI = [1,2,3]; LI == [1,2,3];}"));
-		assertTrue(runTestInSameEvaluator("{set[INTEGER] SI = {1,2,3}; SI = {1,2,3};}"));
-		assertTrue(runTestInSameEvaluator("{map[INTEGER,INTEGER] MI = (1:10,2:20); MI = (1:10,2:20);}"));
-		assertTrue(runTestInSameEvaluator("{rel[INTEGER,INTEGER] RI = {<1,10>,<2,20>}; RI = {<1,10>,<2,20>};}"));
+		assertTrue(runTestInSameEvaluator("{set[INTEGER] SI = {1,2,3}; SI == {1,2,3};}"));
+		assertTrue(runTestInSameEvaluator("{map[INTEGER,INTEGER] MI = (1:10,2:20); MI == (1:10,2:20);}"));
+		assertTrue(runTestInSameEvaluator("{rel[INTEGER,INTEGER] RI = {<1,10>,<2,20>}; RI == {<1,10>,<2,20>};}"));
 		
 	}
 	
