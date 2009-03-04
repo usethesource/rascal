@@ -344,7 +344,7 @@ public class DataTypeTests extends TestFramework {
 		assertTrue(runTest("{ loc Loc = " + Loc + "; Loc.endLine == 4;}"));
 		assertTrue(runTest("{ loc Loc = " + Loc + "; Loc.endColumn == 5;}"));
 		
-		assertTrue(runTest("{ loc Loc = " + Loc + "; Loc.url = \"file:/home/paulk/pico2.trm\"; Loc.filename == \"file:/home/paulk/pico2.trm\";}"));
+		assertTrue(runTest("{ loc Loc = " + Loc + "; Loc.url = \"file:/home/paulk/pico2.trm\"; Loc.url == \"file:/home/paulk/pico2.trm\";}"));
 		assertTrue(runTest("{ loc Loc = " + Loc + "; Loc.offset = 10; Loc.offset == 10;}"));
 		assertTrue(runTest("{ loc Loc = " + Loc + "; Loc.length = 11; Loc.length == 11;}"));
 		assertTrue(runTest("{ loc Loc = " + Loc + "; Loc.beginLine = 12; Loc.beginLine == 12;}"));
@@ -352,6 +352,60 @@ public class DataTypeTests extends TestFramework {
 		assertTrue(runTest("{ loc Loc = " + Loc + "; Loc.endLine = 14; Loc.endLine == 14;}"));
 		assertTrue(runTest("{ loc Loc = " + Loc + "; Loc.endColumn = 15; Loc.endColumn == 15;}"));
 	}
+	
+	@Test(expected=TypeError.class)
+	public void WrongLocFieldError(){
+		String Loc = "!file:/home/paulk/pico.trm?offset=0&length=1&begin=2,3&end=4,5";
+		runTest("{loc Loc = " + Loc + "; Loc.bla;}");
+	}
+	
+	@Test(expected=TypeError.class)
+	public void URLFieldError1(){
+		String Loc = "!file:/home/paulk/pico.trm?offset=0&length=1&begin=2,3&end=4,5";
+		runTest("{loc Loc = " + Loc + "; Loc.url=true;}");
+	}
+	
+	@Test(expected=TypeError.class)
+	public void URLFieldError2(){
+		String Loc = "!file:/home/paulk/pico.trm?offset=0&length=1&begin=2,3&end=4,5";
+		runTest("{loc Loc = " + Loc + "; Loc.url=\"???\";}");
+	}
+	
+	@Test(expected=TypeError.class)
+	public void LengthFieldError(){
+		String Loc = "!file:/home/paulk/pico.trm?offset=0&length=1&begin=2,3&end=4,5";
+		runTest("{loc Loc = " + Loc + "; Loc.length=true;}");
+	}
+	
+	@Test(expected=TypeError.class)
+	public void OffsetFieldError(){
+		String Loc = "!file:/home/paulk/pico.trm?offset=0&length=1&begin=2,3&end=4,5";
+		runTest("{loc Loc = " + Loc + "; Loc.offset=true;}");
+	}
+	
+	@Test(expected=TypeError.class)
+	public void BeginLineFieldError(){
+		String Loc = "!file:/home/paulk/pico.trm?offset=0&length=1&begin=2,3&end=4,5";
+		runTest("{loc Loc = " + Loc + "; Loc.beginLine=true;}");
+	}
+	@Test(expected=TypeError.class)
+	public void EndLineFieldError(){
+		String Loc = "!file:/home/paulk/pico.trm?offset=0&length=1&begin=2,3&end=4,5";
+		runTest("{loc Loc = " + Loc + "; Loc.endLine=true;}");
+	}
+	
+	@Test(expected=TypeError.class)
+	public void BeginColumnFieldError(){
+		String Loc = "!file:/home/paulk/pico.trm?offset=0&length=1&begin=2,3&end=4,5";
+		runTest("{loc Loc = " + Loc + "; Loc.beginColumn=true;}");
+	}
+	@Test(expected=TypeError.class)
+	public void EndColumnFieldError(){
+		String Loc = "!file:/home/paulk/pico.trm?offset=0&length=1&begin=2,3&end=4,5";
+		runTest("{loc Loc = " + Loc + "; Loc.endColumn=true;}");
+	}
+	
+	
 	
 	@Test
 	public void testList() 

@@ -1,11 +1,16 @@
 package org.meta_environment.rascal.interpreter;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -174,10 +179,52 @@ import org.meta_environment.rascal.interpreter.result.Result;
 			IValue result = cons.set(index, value.getValue());
 			return recur(x, eval.result(receiver.getType(), result));
 		}
+		else if(receiver.getType().isSourceLocationType()){
+			ISourceLocation loc = (ISourceLocation) receiver.getValue();
+			int iLength = loc.getLength();
+			int iOffset = loc.getStartOffset();
+			int iBeginLine = loc.getStartLine();
+			int iBeginColumn = loc.getStartColumn();
+			int iEndLine = loc.getEndLine();
+			int iEndColumn = loc.getEndColumn();
+			String urlText = loc.getURL().toString();
+
+			if(label.equals("url")){
+				if(!value.getType().isStringType())
+					throw new TypeError("string value required", x);
+				urlText = ((IString) value.getValue()).getValue();
+			} else {
+				if(!value.getType().isIntegerType())
+					throw new TypeError("integer value required", x);
+
+				if(label.equals("length")){
+					iLength = ((IInteger) value.getValue()).getValue();
+				} else if(label.equals("offset")){
+					iOffset = ((IInteger) value.getValue()).getValue();
+				} else if(label.equals("beginLine")){
+					iBeginLine = ((IInteger) value.getValue()).getValue();
+				} else if(label.equals("beginColumn")){
+					iBeginColumn = ((IInteger) value.getValue()).getValue();
+				} else if(label.equals("endLine")){
+					iEndLine = ((IInteger) value.getValue()).getValue();
+				} else if(label.equals("endColumn")){
+					iEndColumn = ((IInteger) value.getValue()).getValue();
+				} else {
+					throw new TypeError(x.getReceiver() + " has no field named `" + label + "`", x);
+				}
+			}
+			try {
+				URL url = new URL(urlText);
+				ISourceLocation nloc = eval.vf.sourceLocation(url, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn);
+				return recur(x, eval.result(receiver.getType(), nloc));
+			} catch (MalformedURLException e){
+				throw new TypeError(e.getMessage(), x);
+			}
+		}
 		else {
 			throw new NoSuchFieldError(x.getReceiver() + " has no field named `" + label + "`", x);
 		}
-		
+
 	}
 	
 	@Override
