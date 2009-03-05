@@ -2632,10 +2632,57 @@ public class Evaluator extends NullASTVisitor<Result> {
 				
 				return result(expr.getType(), ((IConstructor) expr.getValue()).set(index, repl.getValue()));
 			}
-			else {
+			else if (expr.getType().isSourceLocationType()){
+				ISourceLocation loc = (ISourceLocation) expr.getValue();
+				
+				return sourceLocationFieldUpdate(loc, name, repl.getValue(), x);
+			} else {
 				throw new NoSuchFieldError("Field updates only possible on tuples with labeled fields, relations with labeled fields and data constructors", x);
 			}
 		} catch (FactTypeUseException e) {
+			throw new TypeError(e.getMessage(), x);
+		}
+	}
+	
+	protected Result sourceLocationFieldUpdate(ISourceLocation loc, String field, IValue value, AbstractAST x){
+		int iLength = loc.getLength();
+		int iOffset = loc.getStartOffset();
+		int iBeginLine = loc.getStartLine();
+		int iBeginColumn = loc.getStartColumn();
+		int iEndLine = loc.getEndLine();
+		int iEndColumn = loc.getEndColumn();
+		String urlText = loc.getURL().toString();
+
+		if(field.equals("url")){
+			if(!value.getType().isStringType())
+				throw new TypeError("string value required", x);
+			urlText = ((IString) value).getValue();
+		} else {
+			if(!value.getType().isIntegerType())
+				throw new TypeError("integer value required", x);
+
+			if(field.equals("length")){
+				iLength = ((IInteger) value).getValue();
+			} else if(field.equals("offset")){
+				iOffset = ((IInteger) value).getValue();
+			} else if(field.equals("beginLine")){
+				iBeginLine = ((IInteger) value).getValue();
+			} else if(field.equals("beginColumn")){
+				iBeginColumn = ((IInteger) value).getValue();
+			} else if(field.equals("endLine")){
+				iEndLine = ((IInteger) value).getValue();
+			} else if(field.equals("endColumn")){
+				iEndColumn = ((IInteger) value).getValue();
+			} else {
+				throw new TypeError(x + " has no field named `" + field + "`", x);
+			}
+		}
+		try {
+			URL url = new URL(urlText);
+			ISourceLocation nloc = vf.sourceLocation(url, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn);
+			System.err.println(nloc);
+			return result(tf.sourceLocationType(), nloc);
+		} catch (MalformedURLException e){
 			throw new TypeError(e.getMessage(), x);
 		}
 	}
