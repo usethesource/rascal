@@ -4,6 +4,8 @@ import org.eclipse.imp.pdb.facts.IDouble;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.ValueFactoryFactory;
 
+import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
+
 public class RealResult extends ValueResult {
 
 	private IDouble real;
@@ -52,7 +54,7 @@ public class RealResult extends ValueResult {
 	
 	@Override
 	public RealResult negative() {
-		return new RealResult(type, ValueFactoryFactory.getValueFactory().dubble(- getValue().getValue()));
+		return makeResult(type, ValueFactoryFactory.getValueFactory().dubble(- getValue().getValue()));
 	}
 	
 	
@@ -78,24 +80,24 @@ public class RealResult extends ValueResult {
 	
 	@Override  
 	protected RealResult addReal(RealResult n) {
-		return new RealResult(type, getValue().add(n.getValue()));
+		return makeResult(type, getValue().add(n.getValue()));
 	}
 	
 	@Override 
 	protected RealResult subtractReal(RealResult n) {
 		// note the reverse subtraction.
-		return new RealResult(type, n.getValue().subtract(getValue()));
+		return makeResult(type, n.getValue().subtract(getValue()));
 	}
 	
 	@Override
 	protected RealResult multiplyReal(RealResult n) {
-		return new RealResult(type, getValue().multiply(n.getValue()));
+		return makeResult(type, getValue().multiply(n.getValue()));
 	}
 
 	@Override
 	protected RealResult divideReal(RealResult n) {
 		// note the reverse division
-		return new RealResult(type, n.getValue().divide(getValue()));
+		return makeResult(type, n.getValue().divide(getValue()));
 	}
 	
 	

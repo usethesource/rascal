@@ -7,28 +7,16 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 
 
-public class ValueResult extends AbstractResult {
+public class ValueResult<T extends IValue> extends AbstractResult<T> {
 
-	private IValue value;
-
-	
-	public ValueResult(Type type, IValue value) {
+	public ValueResult(Type type, T value) {
 		super(type, value);
-		this.value = value;
 	}
 	
-	ValueResult(Type type, IValue value, Iterator<AbstractResult> iter) {
+	public ValueResult(Type type, T value, Iterator<AbstractResult<IValue>> iter) {
 		super(type, value, iter);
 	}
 	
-	// TODO: do type checking on element types here.
-	
-	@Override
-	public IValue getValue() {
-		return value;
-	}
-
-
 	@Override
 	protected BoolResult inSet(SetResult s) {
 		return s.elementOf(this);

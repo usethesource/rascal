@@ -2,16 +2,17 @@ package org.meta_environment.rascal.interpreter.result;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.interpreter.errors.ImplementationError;
 
-public class CollectionResult extends ValueResult {
+public class CollectionResult<T extends IValue> extends ValueResult<T> {
 	/*
 	 * These methods are called for expressions like:
 	 * 1 + [2,3]:   1.add([2,3]) --> [2,3].addInt(1) --> [2,3].insertElement(1) --> [1,2,3]
 	 * etc.
 	 */
 
-	CollectionResult(Type type, IValue value) {
+	CollectionResult(Type type, T value) {
 		super(type, value);
 	}
 
@@ -43,6 +44,13 @@ public class CollectionResult extends ValueResult {
 	
 	CollectionResult insertElement(ValueResult result) {
 		throw new ImplementationError("this method should be specialized in subclasses");
+	}
+
+
+	protected Type resultTypeWhenAddingElement(ValueResult that) {
+		Type t1 = type.getElementType();
+		Type t2 = that.type;
+		return TypeFactory.getInstance().listType(t1.lub(t2));
 	}
 	
 	

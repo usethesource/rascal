@@ -3,12 +3,12 @@ package org.meta_environment.rascal.interpreter.result;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.type.Type;
 
-public class MapResult extends ValueResult {
-	private IMap map;
+import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
+
+public class MapResult extends ValueResult<IMap> {
 	
 	public MapResult(Type type, IMap map) {
 		super(type, map);
-		this.map = map;
 	}
 	
 	@Override 
@@ -21,16 +21,8 @@ public class MapResult extends ValueResult {
 	
 	@Override
 	protected MapResult addMap(MapResult m) {
-		return new MapResult(type, m.getMap().join(getMap()));
-	}
-	
-	public IMap getMap() {
-		return map;
-	}
-
-	@Override
-	public IMap getValue() {
-		return map;
+		// Note the reverse
+		return makeResult(type, m.value.join(value));
 	}
 	
 }
