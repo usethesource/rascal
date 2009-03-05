@@ -8,13 +8,11 @@ import org.eclipse.imp.pdb.facts.IValue;
 public class LazyInsert extends LazySet implements ISet {
 	private final IValue inserted;
 	private final boolean baseContainsInserted;
-	private final int sizeBase;
 	
 	public LazyInsert(ISet V, IValue Ins){
 		super(V);
 		typecheckElement(Ins);
 		inserted = Ins;
-		sizeBase = base.size();
 		baseContainsInserted = base.contains(inserted);
 	}
 
