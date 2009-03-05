@@ -193,7 +193,7 @@ public class Result  implements Iterator<Result>{
 		return null;
 	}
 
-	protected AbstractResult addList(ListResult l) {
+	protected AbstractResult addList(CollectionResult l) {
 		// TODO Auto-generated method stub
 		return null;
 	}

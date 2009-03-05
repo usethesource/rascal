@@ -4,6 +4,8 @@ import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.interpreter.errors.TypeError;
 
+import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
+
 public class RelationResult extends CollectionResult {
 
 		private IRelation rel;
@@ -34,41 +36,46 @@ public class RelationResult extends CollectionResult {
 		
 		@Override
 		public AbstractResult transitiveClosure() {
-			// TODO: check arity
-			return new RelationResult(type, getValue().closure());
+			checkArity(2, getValue().arity());
+			return makeResult(type, getValue().closure());
 		}
 		
+
 		@Override
 		public AbstractResult transitiveReflexiveClosure() {
-			// TODO: check arity
-			return new RelationResult(type, getValue().closureStar());
+			checkArity(2, getValue().arity());
+			return makeResult(type, getValue().closureStar());
 		}
 		
 		
 		@Override
 		protected RelationResult addRelation(RelationResult r) {
-			checkArities(r);
-			return new RelationResult(type, (IRelation)rel.union(r.rel));
+			checkCompatibleArity(r);
+			return makeResult(type.lub(r.type), (IRelation)rel.union(r.rel));
 		}
 		
 
 		@Override 
 		protected RelationResult subtractRelation(RelationResult r) {			
-			checkArities(r);
-			return new RelationResult(type, (IRelation) r.getValue().union(getValue()));
+			checkCompatibleArity(r);
+			return makeResult(type.lub(r.type), (IRelation) r.getValue().union(getValue()));
 		}
 
-		private void checkArities(RelationResult r) {
-			// TODO: fix this
-			if (r.getValue().arity() != getValue().arity()) {
-				throw new TypeError("Incompatible arities in relational operation");
+
+		private void checkCompatibleArity(RelationResult that) {
+			checkArity(getValue().arity(), that.getValue().arity());
+		}
+		
+		private void checkArity(int expected, int given) {
+			if (expected != given) {
+				throw new TypeError("Incompatible arities in relational operation; expected " + expected + ", got " + given);
 			}
 		}
 
 		@Override
 		CollectionResult insertElement(ValueResult result) {
-			// TODO: typechecking
-			return new RelationResult(type, (IRelation) getValue().insert(result.getValue()));
+			// TODO: check that result is tuple and that arity is ok. 
+			return makeResult(resultTypeWhenAddingElement(result), (IRelation) getValue().insert(result.getValue()));
 		}
 		
 		

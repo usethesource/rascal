@@ -10,7 +10,7 @@ import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.interpreter.errors.ImplementationError;
 import org.meta_environment.rascal.interpreter.errors.TypeError;
 
-public abstract class AbstractResult implements Iterator<AbstractResult> {
+public abstract class AbstractResult<T extends IValue> implements Iterator<AbstractResult<IValue>> {
 	private static final String INTERSECTION_STRING = "intersection";
 	private static final String NOTIN_STRING = "notin";
 	private static final String IN_STRING = "in";
@@ -22,29 +22,34 @@ public abstract class AbstractResult implements Iterator<AbstractResult> {
 	private static final String MULTIPLICATION_STRING = "multiplication";
 	private static final String SUBTRACTION_STRING = "subtraction";
 	private static final String ADDITION_STRING = "addition";
-	private Iterator<AbstractResult> iterator = null;
+	private Iterator<AbstractResult<IValue>> iterator = null;
 	protected Type type;
+	protected T value;
 
-	protected AbstractResult(Type type, IValue value,  Iterator<AbstractResult> iter) {
+	protected AbstractResult(Type type, T value,  Iterator<AbstractResult<IValue>> iter) {
 		if (!value.getType().isSubtypeOf(type)) {
 			throw new TypeError("expected value of type " + type + "; got a " + value.getType());
 		}
 		this.type = type;
 		this.iterator = iter;
+		this.value = value;
 	}
 	
-	protected AbstractResult(Type type, IValue value) {
+	protected AbstractResult(Type type, T value) {
 		this(type, value, null);
 	}
 
 	/// The "result" interface
 	
-	public abstract IValue getValue();
+	public T getValue() {
+		return value;
+	}
 	
 	public Type getType() { 
 		return type;
 	}
 	
+	@Deprecated
 	public Type getValueType() {
 		return getValue().getType();
 	}
@@ -67,7 +72,7 @@ public abstract class AbstractResult implements Iterator<AbstractResult> {
 		return iterator != null && iterator.hasNext();
 	}
 	
-	public AbstractResult next(){
+	public AbstractResult<IValue> next(){
 		if(iterator == null){
 			new ImplementationError("next called on Result with null iterator");
 		}
@@ -85,17 +90,24 @@ public abstract class AbstractResult implements Iterator<AbstractResult> {
 		return type.toString();
 	}
 	
-	protected AbstractResult undefinedError(String operator, AbstractResult ...args) {
-		String msg = operator + " is not defined on " + toTypeString();
-		for (AbstractResult arg: args) {
-			msg += " and " + arg.toTypeString();
-		}
-		throw new TypeError(msg);
+	protected <U extends IValue> AbstractResult<U> undefinedError(String operator) {
+		return undefinedError(operator, toTypeString());
 	}
 	
+	protected <U extends IValue, V extends IValue> AbstractResult<U> undefinedError(String operator, AbstractResult<V> arg) {
+		return undefinedError(operator, toTypeString() + " and " + arg.toTypeString());
+	}
+	
+	private <U extends IValue> AbstractResult<U> undefinedError(String operator, String args) {
+		String msg = operator + "is not defined on " + args;
+		throw new TypeError(msg);
+	}
+
 	///////
 	
-	public AbstractResult add(AbstractResult that) {
+	
+	
+	public <U extends IValue> AbstractResult<U> add(AbstractResult<U> that) {
 		return undefinedError(ADDITION_STRING, that);
 	}
 
@@ -182,7 +194,7 @@ public abstract class AbstractResult implements Iterator<AbstractResult> {
 		return that.undefinedError(SUBTRACTION_STRING, this);
 	}
 
-	protected AbstractResult multiplyList(ListResult that) {
+	protected AbstractResult multiplyList(CollectionResult that) {
 		return that.undefinedError(MULTIPLICATION_STRING, that);
 	}
 
