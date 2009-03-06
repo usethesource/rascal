@@ -44,6 +44,33 @@ public class DataDeclarationTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{Exp e = var(\"a\"); e == var(\"a\");}"));
 		assertTrue(runTestInSameEvaluator("{Exp e = let(\"a\",\\int(1),var(\"a\")); e ==  let(\"a\",\\int(1),var(\"a\"));}"));
 	}
+	
+	@Test
+	public void parameterized() {
+		prepare("data Exp[&T] = tval(&T tval) | tval2(&T tval1, &T tval2) | ival(int x);");
+		
+//		assertTrue(runTestInSameEvaluator("{a = tval(1); a == tval(1);}"));
+//		assertTrue(runTestInSameEvaluator("{b = tval(\"abc\"); b == tval(\"abc\");}"));
+//		assertTrue(runTestInSameEvaluator("{c = {tval(\"abc\")}; c == {tval(\"abc\")};}"));
+		
+		assertTrue(runTestInSameEvaluator("{Exp[int] e = tval(1); e == tval(1);}"));
+		assertTrue(runTestInSameEvaluator("{Exp[str] f = tval(\"abc\"); f == tval(\"abc\");}"));
+		assertTrue(runTestInSameEvaluator("{set[Exp[value]] g = {tval(1),tval(\"abc\")}; g == {tval(1), tval(\"abc\")};}"));
+		assertTrue(runTestInSameEvaluator("{Exp[void] h = ival(3); h == ival(3);}"));
+		assertTrue(runTestInSameEvaluator("{Exp[value] i = ival(3); i == ival(3);}"));
+		
+		assertTrue(runTestInSameEvaluator("{j = tval2(\"abc\", \"def\"); j == tval2(\"abc\", \"def\");}"));
+		assertTrue(runTestInSameEvaluator("{k = tval2(\"abc\", \"def\"); k.tval1 == \"abc\";}"));
+		assertTrue(runTestInSameEvaluator("{l = tval2(\"abc\", \"def\"); l.tval2 == \"def\";}"));
+		assertTrue(runTestInSameEvaluator("{m = tval2(\"abc\", \"def\"); str s2 = m.tval2; s2 == \"def\";}"));	
+	}
+	
+	@Test(expected=TypeError.class)
+	public void unequalParameterType(){
+		prepare("data Exp[&T] = tval(&T tval) | tval2(&T tval1, &T tval2);");
+		runTestInSameEvaluator("tval2(3, \"abc\");");
+	}
+	
 
 	@Test
 	public void let2() {
