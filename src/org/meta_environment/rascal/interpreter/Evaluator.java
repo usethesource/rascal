@@ -1216,11 +1216,11 @@ public class Evaluator extends NullASTVisitor<Result> {
 			if(field.equals("length")){
 				return result(tf.integerType(), vf.integer(loc.getLength()));
 			} else if(field.equals("offset")){
-				return result(tf.integerType(), vf.integer(loc.getStartOffset()));
+				return result(tf.integerType(), vf.integer(loc.getOffset()));
 			} else if(field.equals("beginLine")){
-				return result(tf.integerType(), vf.integer(loc.getStartLine()));
+				return result(tf.integerType(), vf.integer(loc.getBeginLine()));
 			} else if(field.equals("beginColumn")){
-				return result(tf.integerType(), vf.integer(loc.getStartColumn()));
+				return result(tf.integerType(), vf.integer(loc.getBeginColumn()));
 			} else if(field.equals("endLine")){
 				return result(tf.integerType(), vf.integer(loc.getEndLine()));
 			} else if(field.equals("endColumn")){
@@ -2646,9 +2646,9 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	protected Result sourceLocationFieldUpdate(ISourceLocation loc, String field, IValue value, AbstractAST x){
 		int iLength = loc.getLength();
-		int iOffset = loc.getStartOffset();
-		int iBeginLine = loc.getStartLine();
-		int iBeginColumn = loc.getStartColumn();
+		int iOffset = loc.getOffset();
+		int iBeginLine = loc.getBeginLine();
+		int iBeginColumn = loc.getBeginColumn();
 		int iEndLine = loc.getEndLine();
 		int iEndColumn = loc.getEndColumn();
 		String urlText = loc.getURL().toString();
@@ -3475,14 +3475,14 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	private static int compareSourceLocation(ISourceLocation leftSL, ISourceLocation rightSL){
 		if(leftSL.getURL().equals(rightSL.getURL())){
-			int lStartLine = leftSL.getStartLine();
-			int rStartLine = rightSL.getStartLine();
+			int lStartLine = leftSL.getBeginLine();
+			int rStartLine = rightSL.getBeginLine();
 			
 			int lEndLine = leftSL.getEndLine();
 			int rEndLine = rightSL.getEndLine();
 			
-			int lStartColumn = leftSL.getStartColumn();
-			int rStartColumn = rightSL.getStartColumn();
+			int lStartColumn = leftSL.getBeginColumn();
+			int rStartColumn = rightSL.getBeginColumn();
 			
 			int lEndColumn = leftSL.getEndColumn();
 			int rEndColumn = rightSL.getEndColumn();
