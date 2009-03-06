@@ -35,7 +35,7 @@ public class SubjectAdapter {
 	public int getStartColumn() {
 		ISourceLocation loc = getLocation();
 		if (loc != null) {
-			return loc.getStartColumn();
+			return loc.getBeginColumn();
 		}
 		return 0;
 	}
@@ -51,7 +51,7 @@ public class SubjectAdapter {
 	public int getStartLine() {
 		ISourceLocation loc = getLocation();
 		if (loc != null) {
-			return loc.getStartLine();
+			return loc.getBeginLine();
 		}
 		return 1;
 	}
@@ -67,7 +67,7 @@ public class SubjectAdapter {
 	public int getOffset() {
 		ISourceLocation loc = getLocation();
 		if (loc != null) {
-			return loc.getStartOffset();
+			return loc.getOffset();
 		}
 		return 0;
 	}

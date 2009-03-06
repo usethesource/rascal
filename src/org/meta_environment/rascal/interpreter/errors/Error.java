@@ -89,14 +89,14 @@ public class Error extends RuntimeException {
 		String message = exception.toString();
 
 		if (hasRange()) {
-			if (loc.getStartLine() != loc.getEndLine()) {
-				message += " from line " + loc.getStartLine() + ", column "
-						+ loc.getStartColumn() + " to line "
+			if (loc.getBeginLine() != loc.getEndLine()) {
+				message += " from line " + loc.getBeginLine() + ", column "
+						+ loc.getBeginColumn() + " to line "
 						+ loc.getEndLine() + "," + " column "
 						+ loc.getEndColumn();
 			} else {
-				message += " at line " + loc.getStartLine() + ", column "
-						+ loc.getStartColumn() + " to "
+				message += " at line " + loc.getBeginLine() + ", column "
+						+ loc.getBeginColumn() + " to "
 						+ loc.getEndColumn();
 			}
 		}
