@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="US-ASCII"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <article version="5.0" xmlns="http://docbook.org/ns/docbook"
          xmlns:xlink="http://www.w3.org/1999/xlink"
          xmlns:xi="http://www.w3.org/2001/XInclude"
@@ -1123,8 +1123,8 @@ alias DFGRaph = Graph;</programlisting></para>
         represented by a mapping of type <literal>map[str,Type]</literal>,
         i.e., annotation names are strings and annotation values are values of
         a type that is explicitly declared. Any value of any named type can be
-        annotated and the type of these annotations can be declared precisely.
-        </para>
+        annotated and the type of these annotations can be declared
+        precisely.</para>
 
         <para>For instance, we can add to certain syntactic constructs of
         programs (e.g., <literal>EXPRESSION, STATEMENT</literal>) an
@@ -2127,9 +2127,9 @@ default: ...
 
           <thead>
             <row>
-              <entry align="center">&#160;</entry>
+              <entry align="center"> </entry>
 
-              <entry align="center">bool&#160;</entry>
+              <entry align="center">bool </entry>
 
               <entry align="center">int</entry>
 
@@ -2702,6 +2702,63 @@ default: ...
         and replaces &lt;<replaceable>X</replaceable>&gt;. As a consequence,
         the character <literal>&lt; </literal>has to be escaped as<literal>
         \&lt;</literal> in string literals.</para>
+
+        <para>Source locations have the following syntax:</para>
+
+        <para><programlisting>!<replaceable>Url</replaceable>?offset=<replaceable>O</replaceable>&amp;length=<replaceable>L</replaceable>&amp;begin=<replaceable>BL</replaceable>,<replaceable>BC</replaceable>&amp;end=<replaceable>EL</replaceable>,<replaceable>EC</replaceable></programlisting>where:</para>
+
+        <itemizedlist>
+          <listitem>
+            <para><replaceable>Url</replaceable> is an arbitrary URL.</para>
+          </listitem>
+
+          <listitem>
+            <para><replaceable>O</replaceable> and
+            <replaceable>L</replaceable> are integer expressions giving the
+            offset of this location to the begin of file, respectively , its
+            length.</para>
+          </listitem>
+
+          <listitem>
+            <para><replaceable>BL</replaceable> and
+            <replaceable>BC</replaceable> are integers expressions giving the
+            begin line and begin column.</para>
+          </listitem>
+
+          <listitem>
+            <para><replaceable>EL</replaceable> and
+            <replaceable>EC</replaceable> are integers expressions giving the
+            end line and end column.</para>
+          </listitem>
+        </itemizedlist>
+
+        <para>This element of a location value can be accessed and modified
+        using the standard mechanism of field selection and field assignment.
+        The corresponding field names are:</para>
+
+        <itemizedlist>
+          <listitem>
+            <para><literal>url</literal></para>
+          </listitem>
+
+          <listitem>
+            <para><literal>offset</literal></para>
+          </listitem>
+
+          <listitem>
+            <para><literal>length</literal></para>
+          </listitem>
+
+          <listitem>
+            <para><literal>beginLine</literal>,
+            <literal>beginColumn</literal></para>
+          </listitem>
+
+          <listitem>
+            <para><literal>endLine</literal>,
+            <literal>endColumn</literal>.</para>
+          </listitem>
+        </itemizedlist>
       </section>
 
       <section>
@@ -3266,7 +3323,7 @@ public list[str] Jabberwocky = [
 	"The frumious Bandersnatch!\"",
 	"",
 	"He took his vorpal sword in hand:",
-	"Long time the manxome foe he sought&#8212;",
+	"Long time the manxome foe he sought—",
 	"So rested he by the Tumtum tree,",
 	"And stood awhile in thought.",
 	"",
@@ -4722,7 +4779,7 @@ Boolean . and &lt;= Boolean &lt;= tree &lt;= value
 
           <thead>
             <row>
-              <entry align="center">&#160;</entry>
+              <entry align="center"> </entry>
 
               <entry align="center">bool</entry>
 
@@ -4730,7 +4787,7 @@ Boolean . and &lt;= Boolean &lt;= tree &lt;= value
 
               <entry align="center">real</entry>
 
-              <entry align="center">str&#160;</entry>
+              <entry align="center">str </entry>
 
               <entry align="center">loc</entry>
 
@@ -6272,7 +6329,7 @@ Boolean . and &lt;= Boolean &lt;= tree &lt;= value
 
           <thead>
             <row>
-              <entry align="center">&#160;Characters</entry>
+              <entry align="center"> Characters</entry>
 
               <entry align="center">Used in</entry>
             </row>

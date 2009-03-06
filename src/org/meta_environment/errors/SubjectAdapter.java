@@ -32,7 +32,7 @@ public class SubjectAdapter {
 		return null;
 	}
 	
-	public int getStartColumn() {
+	public int getBeginColumn() {
 		ISourceLocation loc = getLocation();
 		if (loc != null) {
 			return loc.getBeginColumn();
@@ -48,7 +48,7 @@ public class SubjectAdapter {
 		return 0;
 	}
 	
-	public int getStartLine() {
+	public int getBeginLine() {
 		ISourceLocation loc = getLocation();
 		if (loc != null) {
 			return loc.getBeginLine();
