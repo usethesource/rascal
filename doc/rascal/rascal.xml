@@ -768,9 +768,10 @@
           </listitem>
 
           <listitem>
-            <para>There are built-in types (<literal>bool</literal>,
-            <literal>int</literal>, <literal>real</literal>,
-            <literal>str</literal>, <literal>loc</literal>).</para>
+            <para>There are built-in elementary types
+            (<literal>bool</literal>, <literal>int</literal>,
+            <literal>real</literal>, <literal>str</literal>,
+            <literal>loc</literal>).</para>
           </listitem>
 
           <listitem>
@@ -1117,21 +1118,17 @@ alias DFGRaph = Graph;</programlisting></para>
       <section>
         <title>Node annotations</title>
 
-        <para><warning>
-            <para>Annotation are now restricted to nodes only.</para>
-          </warning>Annotations may be associated with any node value and are
-        represented by a mapping of type <literal>map[str,Type]</literal>,
-        i.e., annotation names are strings and annotation values are values of
-        a type that is explicitly declared. Any value of any named type can be
-        annotated and the type of these annotations can be declared
-        precisely.</para>
+        <para>An annotation may be associated with any node value. An
+        annotation has a name and the type of its value is explicitly
+        declared. Any value of any named type can be annotated and the type of
+        these annotations can be declared precisely.</para>
 
         <para>For instance, we can add to certain syntactic constructs of
-        programs (e.g., <literal>EXPRESSION, STATEMENT</literal>) an
-        annotation with name <literal>posinfo</literal> that contains location
-        information:<programlisting>anno loc posinfo on EXPRESSION, STATEMENT;</programlisting>or
+        programs (e.g., <literal>EXPRESSION</literal>) an annotation with name
+        <literal>posinfo</literal> that contains location
+        information:<programlisting>anno loc EXPRESSION @ posinfo;</programlisting>or
         location information could be added for all syntax
-        trees:<programlisting>anno loc posinfo on tree;</programlisting></para>
+        trees:<programlisting>anno loc node @ posinfo;</programlisting></para>
 
         <para>We can add to the graph datatype introduced earlier, the
         annotation with name <literal>LayoutStrategy</literal> that defines
@@ -1139,9 +1136,9 @@ alias DFGRaph = Graph;</programlisting></para>
         e.g.,<programlisting>data LayoutStrategy = "dot" | "tree" | "force" | 
                       "hierarchy" | "fisheye";
 
-anno LayoutStrategy strategy on Graph;</programlisting></para>
+anno LayoutStrategy Graph @ strategy;</programlisting></para>
 
-        <para>The folllowing two operators are provided for handling
+        <para>The folllowing constructs are provided for handling
         annotations:</para>
 
         <itemizedlist>
@@ -1153,19 +1150,22 @@ anno LayoutStrategy strategy on Graph;</programlisting></para>
           </listitem>
 
           <listitem>
-            <para><literal><replaceable>Val1</replaceable> @
-            <replaceable>(Anno</replaceable> :
-            <replaceable>Val2)</replaceable></literal>: set the value of
+            <para><literal><replaceable>Val1</replaceable>[@<replaceable>Anno</replaceable>
+            = <replaceable>Val2]</replaceable></literal>: set the value of
             annotation <replaceable>Anno</replaceable> of the value
             <replaceable>Val</replaceable><replaceable>1</replaceable> to
             <replaceable>Val2</replaceable>.</para>
           </listitem>
-        </itemizedlist>
 
-        <para><warning>
-            <para>Let's drop the special assignment form Var @ Anno =
-            Val</para>
-          </warning></para>
+          <listitem>
+            <para><literal><replaceable>Var</replaceable> @
+            <replaceable>Anno</replaceable> =
+            <replaceable>Val</replaceable></literal>: set the value of
+            annotation <replaceable>Anno</replaceable> of the value of
+            variable <replaceable>Var</replaceable> to
+            <replaceable>Val</replaceable>.</para>
+          </listitem>
+        </itemizedlist>
       </section>
 
       <section>
@@ -2703,9 +2703,10 @@ default: ...
         the character <literal>&lt; </literal>has to be escaped as<literal>
         \&lt;</literal> in string literals.</para>
 
-        <para>Source locations have the following syntax:</para>
+        <para>Source locations (<literal>loc</literal>) have the following
+        syntax:</para>
 
-        <para><programlisting>!<replaceable>Url</replaceable>?offset=<replaceable>O</replaceable>&amp;length=<replaceable>L</replaceable>&amp;begin=<replaceable>BL</replaceable>,<replaceable>BC</replaceable>&amp;end=<replaceable>EL</replaceable>,<replaceable>EC</replaceable></programlisting>where:</para>
+        <para><programlisting>loc(<replaceable>Url</replaceable>?offset=<replaceable>O</replaceable>&amp;length=<replaceable>L</replaceable>&amp;begin=<replaceable>BL</replaceable>,<replaceable>BC</replaceable>&amp;end=<replaceable>EL</replaceable>,<replaceable>EC)</replaceable></programlisting>where:</para>
 
         <itemizedlist>
           <listitem>
@@ -5848,54 +5849,6 @@ Boolean . and &lt;= Boolean &lt;= tree &lt;= value
               <entry></entry>
 
               <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-            </row>
-
-            <row>
-              <entry>get_location</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-            </row>
-
-            <row>
-              <entry>set_location</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
 
               <entry></entry>
 
