@@ -1418,7 +1418,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	@Override
 	public Result visitStatementAssignment(Assignment x) {
 		Result right = x.getExpression().accept(this);
-		return x.getAssignable().accept(new AssignableEvaluator(peek(), right, this));
+		return x.getAssignable().accept(new AssignableEvaluator(peek(), x.getOperator(), right, this));
 	}
 	
 	@Override
