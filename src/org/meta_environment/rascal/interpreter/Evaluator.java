@@ -2680,7 +2680,6 @@ public class Evaluator extends NullASTVisitor<Result> {
 		try {
 			URL url = new URL(urlText);
 			ISourceLocation nloc = vf.sourceLocation(url, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn);
-			System.err.println(nloc);
 			return result(tf.sourceLocationType(), nloc);
 		} catch (MalformedURLException e){
 			throw new TypeError(e.getMessage(), x);
@@ -3474,21 +3473,23 @@ public class Evaluator extends NullASTVisitor<Result> {
 	}
 	
 	private static int compareSourceLocation(ISourceLocation leftSL, ISourceLocation rightSL){
+		if(leftSL.equals(rightSL))
+			return 0;
 		if(leftSL.getURL().equals(rightSL.getURL())){
-			int lStartLine = leftSL.getBeginLine();
-			int rStartLine = rightSL.getBeginLine();
+			int lBeginLine = leftSL.getBeginLine();
+			int rBeginLine = rightSL.getBeginLine();
 			
 			int lEndLine = leftSL.getEndLine();
 			int rEndLine = rightSL.getEndLine();
 			
-			int lStartColumn = leftSL.getBeginColumn();
-			int rStartColumn = rightSL.getBeginColumn();
+			int lBeginColumn = leftSL.getBeginColumn();
+			int rBeginColumn = rightSL.getBeginColumn();
 			
 			int lEndColumn = leftSL.getEndColumn();
 			int rEndColumn = rightSL.getEndColumn();
 			
-			if((lStartLine > rStartLine ||
-				(lStartLine == rStartLine && lStartColumn > rStartColumn)) &&
+			if((lBeginLine > rBeginLine ||
+				(lBeginLine == rBeginLine && lBeginColumn > rBeginColumn)) &&
 				(lEndLine < rEndLine ||
 						((lEndLine == rEndLine) && lEndColumn < rEndColumn))){
 				return -1;	
