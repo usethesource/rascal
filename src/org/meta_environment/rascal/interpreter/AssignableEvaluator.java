@@ -11,6 +11,7 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.Assignable;
+import org.meta_environment.rascal.ast.Assignment;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.Assignable.Annotation;
 import org.meta_environment.rascal.ast.Assignable.Constructor;
@@ -26,6 +27,7 @@ import org.meta_environment.rascal.interpreter.errors.IndexOutOfBoundsError;
 import org.meta_environment.rascal.interpreter.errors.NoSuchAnnotationError;
 import org.meta_environment.rascal.interpreter.errors.NoSuchFieldError;
 import org.meta_environment.rascal.interpreter.errors.TypeError;
+import org.meta_environment.rascal.interpreter.errors.UndefinedValueError;
 import org.meta_environment.rascal.interpreter.result.Result;
 
 
@@ -35,11 +37,13 @@ import org.meta_environment.rascal.interpreter.result.Result;
  * TODO: does not implement type checking completely
  */
 /*package*/ class AssignableEvaluator extends NullASTVisitor<Result> {
+	private Assignment operator;
     private Result value;
     private final Environment env;
     private final Evaluator eval;
     
-	public AssignableEvaluator(Environment env, Result value, Evaluator eval) {
+	public AssignableEvaluator(Environment env, Assignment operator, Result value, Evaluator eval) {
+		this.operator = operator;
 		this.value = value;
 		this.env = env;
 		this.eval = eval;
@@ -58,11 +62,18 @@ import org.meta_environment.rascal.interpreter.result.Result;
 						+ "` has type " + previous.getType()
 						+ "; cannot assign value of type " + value.getType(), x);
 			}
-			
-			env.storeVariable(name, value);
+			if(operator.isDefault()){
+				env.storeVariable(name, value);
+			} else {
+				//TODO add the various operators here.
+			}
 		}
 		else {
-			env.storeVariable(name, value);
+			if(operator.isDefault())
+				env.storeVariable(name, value);
+			else {
+				throw new UndefinedValueError("Variable needs previous value for assignment operator " + operator, x);
+			}
 		}
 		
 		// TODO implement semantics of global keyword, when not given the
@@ -129,7 +140,7 @@ import org.meta_environment.rascal.interpreter.result.Result;
 	}
 
 	private Result recur(Assignable x, Result result) {
-		return x.getReceiver().accept(new AssignableEvaluator(env, result, eval));
+		return x.getReceiver().accept(new AssignableEvaluator(env, null, result, eval));
 	}
 	
 	@Override
@@ -203,7 +214,7 @@ import org.meta_environment.rascal.interpreter.result.Result;
 			Type argType = tupleType.getFieldType(i);
 			IValue arg = tuple.get(i);
 			Result result = eval.result(argType, arg);
-			AssignableEvaluator ae = new AssignableEvaluator(env,result, eval);
+			AssignableEvaluator ae = new AssignableEvaluator(env,null, result, eval);
 			Result argResult = arguments.get(i).accept(ae);
 			results[i] = argResult.getValue();
 			resultTypes[i] = argResult.getType();
@@ -211,6 +222,7 @@ import org.meta_environment.rascal.interpreter.result.Result;
 		
 		return eval.result(eval.tf.tupleType(resultTypes), tupleType.make(eval.vf, results));
 	}
+	
 	
 	@Override
 	public Result visitAssignableConstructor(Constructor x) {
