@@ -1,7 +1,10 @@
 package org.meta_environment.rascal.interpreter;
 
+import java.util.HashMap;
+
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.meta_environment.rascal.ast.Formal;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.Parameters;
@@ -316,6 +319,23 @@ public class TypeEvaluator {
 
 			if (env != null) {
 				Type type = env.lookupAlias(name);
+				
+				if(type == null){
+					type = env.lookupAbstractDataType(name);
+					java.util.Map<Type, Type> bindings = new HashMap<Type,Type>();
+					Type[] params = new Type[x.getParameters().size()];
+					
+					int i = 0;
+					for (org.meta_environment.rascal.ast.Type param : x.getParameters()) {
+						params[i++] = param.accept(this);
+					}
+					
+					type.getTypeParameters().match(tf.tupleType(params), bindings);
+					
+					System.err.println("before instant: " + type);
+					type = type.instantiate(new TypeStore(), bindings);
+					System.err.println("after instant: " + type);
+				}
 				
 				if (type != null) {
 					return type.instantiate(env.getStore(), env.getTypeBindings());
