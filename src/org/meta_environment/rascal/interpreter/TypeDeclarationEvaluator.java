@@ -19,8 +19,8 @@ import org.meta_environment.rascal.ast.Declaration.Data;
 import org.meta_environment.rascal.ast.Toplevel.DefaultVisibility;
 import org.meta_environment.rascal.ast.Toplevel.GivenVisibility;
 import org.meta_environment.rascal.interpreter.env.Environment;
-import org.meta_environment.rascal.interpreter.errors.TypeError;
-import org.meta_environment.rascal.interpreter.errors.UndeclaredTypeException;
+import org.meta_environment.rascal.interpreter.exceptions.TypeErrorException;
+import org.meta_environment.rascal.interpreter.exceptions.UndeclaredTypeException;
 
 public class TypeDeclarationEvaluator {
 	
@@ -81,7 +81,7 @@ public class TypeDeclarationEvaluator {
 		    	try {
 		    		env.constructorFromTuple(adt, altName, children);
 		    	} catch (org.eclipse.imp.pdb.facts.exceptions.RedeclaredConstructorException e){
-		    		throw new TypeError("Redeclared constructor " + altName, var);
+		    		throw new TypeErrorException("Redeclared constructor " + altName, var);
 		    	}
 		    }
 		    else if (var.isNillaryConstructor()) {
@@ -109,7 +109,7 @@ public class TypeDeclarationEvaluator {
 			env.aliasType(Names.name(x.getUser().getName()), base, 
 					computeTypeParameters(x.getUser(), env));	
 		} catch (FactTypeDeclarationException e){
-			throw new TypeError(e.getMessage(), x);
+			throw new TypeErrorException(e.getMessage(), x);
 		}
 	}
 
@@ -135,7 +135,7 @@ public class TypeDeclarationEvaluator {
 			int i = 0;
 			for (org.meta_environment.rascal.ast.Type formal : formals) {
 				if (!formal.isVariable()) {
-					throw new TypeError("Declaration of parameterized type with type instance " + formal + " is not allowed", formal);
+					throw new TypeErrorException("Declaration of parameterized type with type instance " + formal + " is not allowed", formal);
 				}
 				TypeVar var = formal.getTypeVar();
 				Type bound = var.hasBound() ? te.eval(var.getBound(), env) : tf.valueType();

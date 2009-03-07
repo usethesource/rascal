@@ -15,8 +15,8 @@ import org.meta_environment.rascal.ast.Expression.Implication;
 import org.meta_environment.rascal.ast.Expression.Negation;
 import org.meta_environment.rascal.ast.Expression.Or;
 import org.meta_environment.rascal.interpreter.env.Environment;
-import org.meta_environment.rascal.interpreter.errors.ImplementationError;
-import org.meta_environment.rascal.interpreter.errors.TypeError;
+import org.meta_environment.rascal.interpreter.exceptions.ImplementationException;
+import org.meta_environment.rascal.interpreter.exceptions.TypeErrorException;
 import org.meta_environment.rascal.interpreter.result.Result;
 
 /*
@@ -39,7 +39,7 @@ public abstract class BooleanEvaluator implements Iterator<Result> {
 	void defArg(int i){
 		Result argResult = expr[i].accept(ev);
 		if(!argResult.getType().isBoolType()){
-			throw new TypeError("Operand of boolean operator should be of type bool and not " + argResult.getType(), expr[i]);
+			throw new TypeErrorException("Operand of boolean operator should be of type bool and not " + argResult.getType(), expr[i]);
 		}
 		result[i] = argResult;
 	};
@@ -64,7 +64,7 @@ public abstract class BooleanEvaluator implements Iterator<Result> {
 	}
 	
 	public void remove(){
-		throw new ImplementationError("remove() in BooleanEvaluator not implemented", expr[LEFT]);
+		throw new ImplementationException("remove() in BooleanEvaluator not implemented", expr[LEFT]);
 	}
 	
 	public boolean getNextResult(int i){
@@ -278,6 +278,6 @@ class MatchEvaluator implements Iterator<Result> {
 	}
 
 	public void remove() {
-		throw new ImplementationError("remove() not implemented for MatchEvaluator", pat);
+		throw new ImplementationException("remove() not implemented for MatchEvaluator", pat);
 	}
 }

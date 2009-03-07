@@ -3,31 +3,31 @@ package test;
 import java.io.IOException;
 
 import org.junit.Test;
-import org.meta_environment.rascal.interpreter.errors.AssignmentError;
-import org.meta_environment.rascal.interpreter.errors.TypeError;
-import org.meta_environment.rascal.interpreter.errors.UndefinedValueError;
+import org.meta_environment.rascal.interpreter.exceptions.AssignmentExceptions;
+import org.meta_environment.rascal.interpreter.exceptions.TypeErrorException;
+import org.meta_environment.rascal.interpreter.exceptions.UndefinedValueException;
 
 import static org.junit.Assert.assertTrue;
 
 public class AssignmentTests extends TestFramework {
 	
-	@Test(expected=UndefinedValueError.class)
+	@Test(expected=UndefinedValueException.class)
 	public void testUninit() {
 		runTest("zzz;");
 	}
 	
-	@Test(expected=AssignmentError.class)
+	@Test(expected=AssignmentExceptions.class)
 	public void assignmentError1() {
 		runTest("{int n = 3; n = true;}");
 	}
 
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void assignmentError2() {
 		runTest("int i = true;");
 	}
 	
 
-	@Test(expected=AssignmentError.class)
+	@Test(expected=AssignmentExceptions.class)
 	public void assignmentError3() {
 		runTest("{int n = 3; n = true;}");
 	}

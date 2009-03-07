@@ -35,11 +35,11 @@ import org.meta_environment.rascal.ast.Signature;
 import org.meta_environment.rascal.ast.Tag;
 import org.meta_environment.rascal.ast.Tags;
 import org.meta_environment.rascal.ast.Type;
-import org.meta_environment.rascal.interpreter.errors.ImplementationError;
-import org.meta_environment.rascal.interpreter.errors.JavaMethodNotFoundException;
-import org.meta_environment.rascal.interpreter.errors.NonStaticJavaMethodError;
-import org.meta_environment.rascal.interpreter.errors.TagMissingError;
-import org.meta_environment.rascal.interpreter.errors.TypeError;
+import org.meta_environment.rascal.interpreter.exceptions.ImplementationException;
+import org.meta_environment.rascal.interpreter.exceptions.JavaMethodNotFoundException;
+import org.meta_environment.rascal.interpreter.exceptions.NonStaticJavaMethodException;
+import org.meta_environment.rascal.interpreter.exceptions.TagMissingException;
+import org.meta_environment.rascal.interpreter.exceptions.TypeErrorException;
 
 public class JavaBridge {
 	private static final String JAVA_IMPORTS_TAG = "javaImports";
@@ -60,11 +60,11 @@ public class JavaBridge {
 		this.out = outputWriter;
 		
 		if (ToolProvider.getSystemJavaCompiler() == null) {
-			throw new ImplementationError("Could not find an installed System Java Compiler, please provide a Java Runtime that includes the Java Development Tools (JDK 1.6 or higher).");
+			throw new ImplementationException("Could not find an installed System Java Compiler, please provide a Java Runtime that includes the Java Development Tools (JDK 1.6 or higher).");
 		}
 		
 		if (ToolProvider.getSystemToolClassLoader() == null) {
-			throw new ImplementationError("Could not find an System Tool Class Loader, please provide a Java Runtime that includes the Java Development Tools (JDK 1.6 or higher).");
+			throw new ImplementationException("Could not find an System Tool Class Loader, please provide a Java Runtime that includes the Java Development Tools (JDK 1.6 or higher).");
 		}
 	}
 
@@ -72,7 +72,7 @@ public class JavaBridge {
 		try {
 			return getJavaMethod(declaration);
 		} catch (ClassNotFoundException e) {
-			throw new ImplementationError("Error during Java compilation", e.getCause());
+			throw new ImplementationException("Error during Java compilation", e.getCause());
 		}
 	}
 	
@@ -95,9 +95,9 @@ public class JavaBridge {
 				return clazz.getDeclaredMethod(METHOD_NAME);
 			}
 		} catch (SecurityException e) {
-			throw new ImplementationError("Error during compilation of java function: " + declaration, e.getCause());
+			throw new ImplementationException("Error during compilation of java function: " + declaration, e.getCause());
 		} catch (NoSuchMethodException e) {
-			throw new ImplementationError("Unexpected error during compilation of java function: " + declaration,  e.getCause());
+			throw new ImplementationException("Unexpected error during compilation of java function: " + declaration,  e.getCause());
 		}
 		finally {}
 	}
@@ -114,7 +114,7 @@ public class JavaBridge {
 
 		compilation.addSource(fullClassName).addLine(
 				"package org.meta_environment.rascal.java;").
-				addLine("import org.meta_environment.rascal.interpreter.errors.*;").
+				addLine("import org.meta_environment.rascal.interpreter.exceptions.*;").
 				addLine("import org.meta_environment.rascal.interpreter.SubList;"). // TODO, leaking implementation detail ???
 				addLine("import org.eclipse.imp.pdb.facts.type.*;").
 				addLine("import org.eclipse.imp.pdb.facts.*;").
@@ -143,7 +143,7 @@ public class JavaBridge {
 				message = message.replaceAll(UNWANTED_MESSAGE_PREFIX, "").replaceAll(UNWANTED_MESSAGE_POSTFIX, ",");
 				messages.append(message + "\n");
 			}
-			throw new TypeError("Compilation of Java method failed due to the following error(s): \n" + messages.toString(), declaration);
+			throw new TypeErrorException("Compilation of Java method failed due to the following error(s): \n" + messages.toString(), declaration);
 		}
 
 		return compilation.getOutputClass(fullClassName);
@@ -399,13 +399,13 @@ public class JavaBridge {
 	public Method lookupJavaMethod(FunctionDeclaration func) {
 		if (!func.isAbstract()) {
 			// TODO a better error class for this
-			throw new ImplementationError("lookup on non-abstract function", func);
+			throw new ImplementationException("lookup on non-abstract function", func);
 		}
 		
 		String className = getClassName(func);
 		
 		if (className.length() == 0) {
-			throw new TagMissingError(func);
+			throw new TagMissingException(func);
 		}
 		
 		try {
@@ -425,12 +425,12 @@ public class JavaBridge {
 				}
 				
 				if ((m.getModifiers() & Modifier.STATIC) == 0) {
-					throw new NonStaticJavaMethodError(func);
+					throw new NonStaticJavaMethodException(func);
 				}
 				
 				return m;
 			} catch (SecurityException e) {
-				throw new ImplementationError("Error during retrieval of java function: " + func, e.getCause());
+				throw new ImplementationException("Error during retrieval of java function: " + func, e.getCause());
 			} catch (NoSuchMethodException e) {
 				throw new JavaMethodNotFoundException(func);
 			}

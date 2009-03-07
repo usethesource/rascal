@@ -2,8 +2,8 @@ package test;
 
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
-import org.meta_environment.rascal.interpreter.errors.NoSuchFieldError;
-import org.meta_environment.rascal.interpreter.errors.TypeError;
+import org.meta_environment.rascal.interpreter.exceptions.NoSuchFieldException;
+import org.meta_environment.rascal.interpreter.exceptions.TypeErrorException;
 
 public class DataDeclarationTests extends TestFramework {
 
@@ -65,7 +65,7 @@ public class DataDeclarationTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{m = tval2(\"abc\", \"def\"); str s2 = m.tval2; s2 == \"def\";}"));	
 	}
 	
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void unequalParameterType(){
 		prepare("data Exp[&T] = tval(&T tval) | tval2(&T tval1, &T tval2);");
 		runTestInSameEvaluator("tval2(3, \"abc\");");
@@ -85,41 +85,41 @@ public class DataDeclarationTests extends TestFramework {
 	}
 	
 
-	@Test(expected=NoSuchFieldError.class)
-	public void boolError() throws NoSuchFieldError {
+	@Test(expected=NoSuchFieldException.class)
+	public void boolError() throws NoSuchFieldException {
 		prepare("data Bool = btrue | bfalse | band(Bool left, Bool right) | bor(Bool left, Bool right);");
 		assertTrue(runTestInSameEvaluator("{Bool b = btrue; b.left == btrue;}"));
 	}
 	
-	public void exactDoubleFieldIsAllowed() throws TypeError {
+	public void exactDoubleFieldIsAllowed() throws TypeErrorException {
 		runTest("data D = d | d;");
 		assertTrue(true);
 	}
 	
-	@Test(expected=TypeError.class)
-	public void doubleFieldError2() throws TypeError {
+	@Test(expected=TypeErrorException.class)
+	public void doubleFieldError2() throws TypeErrorException {
 		runTest("data D = d(int n) | d(value v);");
 	}
 	
-	@Test(expected=TypeError.class)
-	public void doubleFieldError3() throws TypeError {
+	@Test(expected=TypeErrorException.class)
+	public void doubleFieldError3() throws TypeErrorException {
 		runTest("data D = d(int n) | d(int v);");
 	}
 	
-	@Test(expected=TypeError.class)
-	public void doubleFieldError4() throws TypeError {
+	@Test(expected=TypeErrorException.class)
+	public void doubleFieldError4() throws TypeErrorException {
 		prepare("alias INTEGER = int;");
 		runTest("data D = d(int n) | d(INTEGER v);");
 	}
 	
-	public void exactDoubleDataDeclarationIsAllowed() throws TypeError {
+	public void exactDoubleDataDeclarationIsAllowed() throws TypeErrorException {
 		prepare("data D = d(int n) | e;");
 		runTestInSameEvaluator("data D = d(int n);");
 		assertTrue(true);
 	}
 	
-	@Test(expected=TypeError.class)
-	public void undeclaredTypeError1() throws NoSuchFieldError {
+	@Test(expected=TypeErrorException.class)
+	public void undeclaredTypeError1() throws NoSuchFieldException {
 		runTest("data D = anE(E e);");
 	}
 }

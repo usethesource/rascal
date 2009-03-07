@@ -10,8 +10,8 @@ import org.meta_environment.errors.SummaryAdapter;
 import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.Module;
 import org.meta_environment.rascal.interpreter.Names;
-import org.meta_environment.rascal.interpreter.errors.ModuleLoadException;
-import org.meta_environment.rascal.interpreter.errors.SyntaxError;
+import org.meta_environment.rascal.interpreter.exceptions.ModuleLoadException;
+import org.meta_environment.rascal.interpreter.exceptions.SyntaxErrorException;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
 import org.meta_environment.uptr.Factory;
@@ -30,7 +30,7 @@ public abstract class AbstractModuleLoader implements IModuleLoader {
 					.parseFromStream(stream);
 
 			if (tree.getConstructorType() == Factory.ParseTree_Summary) {
-				throw new SyntaxError(parseError(tree, name));
+				throw new SyntaxErrorException(parseError(tree, name));
 			}
 
 			return BUILDER.buildModule(tree);

@@ -13,8 +13,8 @@ import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
-import org.meta_environment.rascal.interpreter.errors.EmptySetError;
-import org.meta_environment.rascal.interpreter.errors.ImplementationError;
+import org.meta_environment.rascal.interpreter.exceptions.EmptySetException;
+import org.meta_environment.rascal.interpreter.exceptions.ImplementationException;
 
 public class Set {
 
@@ -28,7 +28,7 @@ public class Set {
 		int sz = st.size();
 
 		if (sz == 0) {
-			throw new EmptySetError("getOneFrom", null);
+			throw new EmptySetException("getOneFrom", null);
 		}
 		int k = random.nextInt(sz);
 		int i = 0;
@@ -39,7 +39,7 @@ public class Set {
 			}
 			i++;
 		}
-		throw new ImplementationError("getOneFrom: no value found",
+		throw new ImplementationException("getOneFrom: no value found",
 				(AbstractAST) null);
 	}
 
@@ -71,7 +71,7 @@ public class Set {
 			}
 			return values.tuple(pick, w.done());
 		} else {
-			throw new EmptySetError("takeOneFrom", null);
+			throw new EmptySetException("takeOneFrom", null);
 		}
 	}
 

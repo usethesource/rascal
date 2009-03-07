@@ -4,23 +4,23 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Ignore;
 import org.junit.Test;
-import org.meta_environment.rascal.interpreter.errors.*;
+import org.meta_environment.rascal.interpreter.exceptions.*;
 
 public class AliasTests extends TestFramework{
 	
 	
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void doubleDeclarationError(){
 		prepare("alias A = str;");
 		runTestInSameEvaluator("alias A = int;");
 	}
 	
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void circularDeclarationError(){
 		runTest("alias A = A;");
 	}
 	
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void undeclaredTYpeError(){
 		runTest("alias A = B;");
 	}
@@ -81,7 +81,7 @@ public class AliasTests extends TestFramework{
 		assertTrue(runTestInSameEvaluator("{ INTEGER0 x = 0; x == 0; }"));
 	}
 
-	@Test(expected=TypeError.class) @Ignore
+	@Test(expected=TypeErrorException.class) @Ignore
 	public void aliases6() {
 		prepareModule("module Test alias INTEGER0 = INTEGER1; alias INTEGER1 = INTEGER0;");
 		assertTrue(runTestInSameEvaluator("{ INTEGER0 x = 0; x == 0; }"));

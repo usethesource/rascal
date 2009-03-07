@@ -12,8 +12,8 @@ import org.meta_environment.rascal.ast.Module;
 import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
-import org.meta_environment.rascal.interpreter.errors.ImplementationError;
-import org.meta_environment.rascal.interpreter.errors.RunTimeError;
+import org.meta_environment.rascal.interpreter.exceptions.ImplementationException;
+import org.meta_environment.rascal.interpreter.exceptions.RunTimeException;
 import org.meta_environment.rascal.interpreter.load.FromResourceLoader;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
@@ -54,7 +54,7 @@ public class TestFramework  {
 		try {
 			prepare(command);
 		} catch (Exception e){
-			throw new RunTimeError("Exception while creating TestFramework", e);
+			throw new RunTimeException("Exception while creating TestFramework", e);
 		}
 	}
 	
@@ -64,7 +64,7 @@ public class TestFramework  {
 			return execute(command);
 		} catch (IOException e){
 			e.printStackTrace();
-			throw new RunTimeError("Exception while running test", e);
+			throw new RunTimeException("Exception while running test", e);
 		}
 	}
 	
@@ -72,7 +72,7 @@ public class TestFramework  {
 		try {
 			return execute(command);
 		} catch (IOException e){
-			throw new RunTimeError("Exception while running test", e);
+			throw new RunTimeException("Exception while running test", e);
 		}
 	}
 
@@ -82,7 +82,7 @@ public class TestFramework  {
 			execute(command1);
 			return execute(command2);
 		} catch (IOException e){
-			throw new RunTimeError("Exception while running test", e);
+			throw new RunTimeException("Exception while running test", e);
 		}
 	}
 	
@@ -147,7 +147,7 @@ public class TestFramework  {
 				evaluator.eval(cmd.getDeclaration());
 				return true;
 			} else {
-				throw new ImplementationError("Unexpected case in eval: " + cmd, cmd);
+				throw new ImplementationException("Unexpected case in eval: " + cmd, cmd);
 			}
 		}
 	}

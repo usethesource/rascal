@@ -4,8 +4,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-import org.meta_environment.rascal.interpreter.errors.TypeError;
-import org.meta_environment.rascal.interpreter.errors.UninitializedVariableError;
+import org.meta_environment.rascal.interpreter.exceptions.TypeErrorException;
+import org.meta_environment.rascal.interpreter.exceptions.UninitializedVariableException;
 
 public class PatternTests extends TestFramework {
 
@@ -177,32 +177,32 @@ public class PatternTests extends TestFramework {
 
 	}
 	
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void matchListError1() {
 		runTest("[1, list[int] L, 2, list[int] L] := [1,2,3];");
 	}
 	
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void matchListError2() {
 		runTest("[1, list[str] L, 2] := [1,2,3];");
 	}
 	
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void matchListError3() {
 		runTest("[1, str S, 2] := [1,2,3];");
 	}
 	
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void matchListError4() {
 		runTest("{str S = \"a\"; [1, S, 2] := [1,2,3];}");
 	}
 	
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void matchListError5() {
 		runTest("{list[str] S = [\"a\"]; [1, S, 2] := [1,2,3];}");
 	}
 	
-	@Test(expected=UninitializedVariableError.class)
+	@Test(expected=UninitializedVariableException.class)
 	public void matchListError6() {
 		runTest("{list[int] S; [1, S, 2] := [1,2,3];}");
 	}
@@ -392,32 +392,32 @@ public class PatternTests extends TestFramework {
 		assertFalse(runTestInSameEvaluator("({DATA A, f({A, b, set[DATA] SX}), SX} := {c, f({a,b,c}), d});"));
 	}	
 	
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void matchSetDoubleDeclError() {
 		runTest("{1, set[int] L, 2, set[int] L} := {1,2,3};");
 	}
 	
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void matchSetWrongElemError() {
 		runTest("{1, \"a\", 2, set[int] L} := {1,2,3};");
 	}	
 	
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void matchSetWrongElemError2() {
 		runTest("{1, set[str] L, 2} := {1,2,3};");
 	}
 	
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void matchSetWrongElemError3() {
 		runTest("{1, str S, 2} := {1,2,3};");
 	}
 	
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void matchSetWrongElemError4() {
 		runTest("{set[str] S = {\"a\"}; {1, S, 2} := {1,2,3};}");
 	}
 	
-	@Test(expected=UninitializedVariableError.class)
+	@Test(expected=UninitializedVariableException.class)
 	public void matchSetWrongElemError5() {
 		runTest("{set[int] S; {1, S, 2} := {1,2,3};}");
 	}

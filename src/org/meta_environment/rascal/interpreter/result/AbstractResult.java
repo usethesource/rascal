@@ -7,8 +7,8 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.ValueFactoryFactory;
-import org.meta_environment.rascal.interpreter.errors.ImplementationError;
-import org.meta_environment.rascal.interpreter.errors.TypeError;
+import org.meta_environment.rascal.interpreter.exceptions.ImplementationException;
+import org.meta_environment.rascal.interpreter.exceptions.TypeErrorException;
 
 public abstract class AbstractResult<T extends IValue> implements Iterator<AbstractResult<IValue>> {
 	private static final String INTERSECTION_STRING = "intersection";
@@ -28,7 +28,7 @@ public abstract class AbstractResult<T extends IValue> implements Iterator<Abstr
 
 	protected AbstractResult(Type type, T value,  Iterator<AbstractResult<IValue>> iter) {
 		if (!value.getType().isSubtypeOf(type)) {
-			throw new TypeError("expected value of type " + type + "; got a " + value.getType());
+			throw new TypeErrorException("expected value of type " + type + "; got a " + value.getType());
 		}
 		this.type = type;
 		this.iterator = iter;
@@ -74,13 +74,13 @@ public abstract class AbstractResult<T extends IValue> implements Iterator<Abstr
 	
 	public AbstractResult<IValue> next(){
 		if(iterator == null){
-			new ImplementationError("next called on Result with null iterator");
+			new ImplementationException("next called on Result with null iterator");
 		}
 		return iterator.next(); //??? last = iterator.next();
 	}
 
 	public void remove() {
-		throw new ImplementationError("remove() not implemented for (iterable) result");		
+		throw new ImplementationException("remove() not implemented for (iterable) result");		
 	}
 
 	
@@ -100,7 +100,7 @@ public abstract class AbstractResult<T extends IValue> implements Iterator<Abstr
 	
 	private <U extends IValue> AbstractResult<U> undefinedError(String operator, String args) {
 		String msg = operator + "is not defined on " + args;
-		throw new TypeError(msg);
+		throw new TypeErrorException(msg);
 	}
 
 	///////

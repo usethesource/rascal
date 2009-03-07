@@ -6,7 +6,7 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
-import org.meta_environment.rascal.interpreter.errors.ImplementationError;
+import org.meta_environment.rascal.interpreter.exceptions.ImplementationException;
 
 public class LazyUnion extends LazySet {
 	private int size;
@@ -112,7 +112,7 @@ public class LazyUnion extends LazySet {
 					return v;
 				}
 			}
-			throw new ImplementationError("LazyIntersectIterator");
+			throw new ImplementationException("LazyIntersectIterator");
 		}
 
 		public void remove() {

@@ -3,7 +3,6 @@ package org.meta_environment.rascal.std;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
 
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
@@ -11,8 +10,8 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.meta_environment.rascal.interpreter.errors.IOError;
-import org.meta_environment.rascal.interpreter.errors.NoSuchFileError;
+import org.meta_environment.rascal.interpreter.exceptions.IOException;
+import org.meta_environment.rascal.interpreter.exceptions.NoSuchFileException;
 
 public class IO {
 
@@ -33,7 +32,7 @@ public class IO {
 	}
 
 	public static IValue readFile(IString filename)
-	throws NoSuchFileError, IOError
+	throws NoSuchFileException, IOException
 	{
 	  IList res = null;
 	  try {
@@ -51,10 +50,10 @@ public class IO {
 	  	res =  w.done();
 	  }
 	    catch (FileNotFoundException e){
-	  	throw new NoSuchFileError(filename.getValue(), null);
+	  	throw new NoSuchFileException(filename.getValue(), null);
 	  }
-	  catch (IOException e){
-	    throw new IOError(e.getMessage(), null);
+	  catch (java.io.IOException e){
+	    throw new IOException(e.getMessage(), null);
 	  }
 
 	  return res;

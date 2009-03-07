@@ -10,8 +10,8 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.meta_environment.ValueFactoryFactory;
-import org.meta_environment.rascal.interpreter.errors.ImplementationError;
-import org.meta_environment.rascal.interpreter.errors.IndexOutOfBoundsError;
+import org.meta_environment.rascal.interpreter.exceptions.ImplementationException;
+import org.meta_environment.rascal.interpreter.exceptions.IndexOutOfBoundsException;
 
 public class SubList implements IList {
 	private final Type fType;
@@ -27,7 +27,7 @@ public class SubList implements IList {
 		fType = V.getType();
 		
 		if(start < 0 || len < 0)
-			throw new IndexOutOfBoundsError("SubList", null);
+			throw new IndexOutOfBoundsException("SubList", null);
 		if(V instanceof IList){
 			this.base = (IList) V;
 			this.start = start;
@@ -36,12 +36,12 @@ public class SubList implements IList {
 			this.base = other.base;
 			this.start = other.start + start;
 		} else {
-			throw new ImplementationError("Illegal value in SubList");
+			throw new ImplementationException("Illegal value in SubList");
 		}
 		this.len = len;
 		this.end = start + len;
 		if(this.start < 0 || this.end > base.length()){
-			throw new IndexOutOfBoundsError("SubList", null);
+			throw new IndexOutOfBoundsException("SubList", null);
 		}
 	}
 	
@@ -93,7 +93,7 @@ public class SubList implements IList {
 
 	public IValue get(int i) throws IndexOutOfBoundsException {
 		if(i < start || i >= end)
-			new ArrayIndexOutOfBoundsException("SubList");
+			new IndexOutOfBoundsException("SubList", null);
 		return base.get(start + i);	
 	}
 	
@@ -180,7 +180,7 @@ class SubListIterator implements Iterator<IValue> {
 
 	public IValue next() {
 		if(cursor >= end){
-			throw new ImplementationError("next called on exhausted SubListIterator");
+			throw new ImplementationException("next called on exhausted SubListIterator");
 		}
 		return sl.get(cursor++);
 	}

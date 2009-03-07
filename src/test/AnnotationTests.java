@@ -3,30 +3,30 @@ package test;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-import org.meta_environment.rascal.interpreter.errors.*;
+import org.meta_environment.rascal.interpreter.exceptions.*;
 
 public class AnnotationTests extends TestFramework{
 	
 	
-	@Test(expected=NoSuchAnnotationError.class)
+	@Test(expected=NoSuchAnnotationException.class)
 	public void annotationNotAllowed(){
 		prepare("data POS = pos(int n);");
 		runTestInSameEvaluator("1 [@pos=3];");
 	}
 	
-	@Test(expected=NoSuchAnnotationError.class)
+	@Test(expected=NoSuchAnnotationException.class)
 	public void annotationNotAllowed2(){
 		runTest("1 @ pos;");
 	}
 	
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void annotationNotAllowed3(){
 		prepare("data F = f | f(int n) | g(int n) | deep(F f);");
 		prepareMore("anno int F @ pos;");
 		runTestInSameEvaluator("f[@pos=true];");
 	}
 	
-	@Test(expected=NoSuchAnnotationError.class)
+	@Test(expected=NoSuchAnnotationException.class)
 	public void annotationNotAllowed4(){
 		prepare("data F = f | f(int n) | g(int n) | deep(F f);");
 		prepareMore("anno int F @ pos;");

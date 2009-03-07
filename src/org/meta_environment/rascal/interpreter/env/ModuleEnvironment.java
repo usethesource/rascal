@@ -14,8 +14,8 @@ import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.interpreter.Names;
-import org.meta_environment.rascal.interpreter.errors.ImplementationError;
-import org.meta_environment.rascal.interpreter.errors.TypeError;
+import org.meta_environment.rascal.interpreter.exceptions.ImplementationException;
+import org.meta_environment.rascal.interpreter.exceptions.TypeErrorException;
 import org.meta_environment.rascal.interpreter.result.Result;
 
 /**
@@ -74,7 +74,7 @@ public class ModuleEnvironment extends Environment {
 			
 			ModuleEnvironment imported = getImport(modulename);
 			if (imported == null) {
-				throw new TypeError("Module " + modulename + " is not visible in " + getName(), name);
+				throw new TypeErrorException("Module " + modulename + " is not visible in " + getName(), name);
 			}
 			return imported.getVariable(name);
 		}
@@ -110,7 +110,7 @@ public class ModuleEnvironment extends Environment {
 				return null;
 			}
 			else {
-				throw new TypeError("Variable " + name + " is ambiguous, please qualify", ast);
+				throw new TypeErrorException("Variable " + name + " is ambiguous, please qualify", ast);
 			}
 		}
 		
@@ -162,7 +162,7 @@ public class ModuleEnvironment extends Environment {
 				return null;
 			}
 			else {
-				throw new TypeError("Function " + name + " is ambiguous, please qualify", result.getAst());
+				throw new TypeErrorException("Function " + name + " is ambiguous, please qualify", result.getAst());
 			}
 		}
 		
@@ -287,7 +287,7 @@ public class ModuleEnvironment extends Environment {
 		String moduleName = Names.moduleName(name);
 		
 		if (moduleName != null && !moduleName.equals(getName())) {
-			throw new ImplementationError("Attempt to access variable " + name + " of different module", name);
+			throw new ImplementationException("Attempt to access variable " + name + " of different module", name);
 		}
 	}
 	

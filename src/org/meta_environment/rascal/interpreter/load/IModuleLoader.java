@@ -1,7 +1,7 @@
 package org.meta_environment.rascal.interpreter.load;
 
 import org.meta_environment.rascal.ast.Module;
-import org.meta_environment.rascal.interpreter.errors.ModuleLoadException;
+import org.meta_environment.rascal.interpreter.exceptions.ModuleLoadException;
 
 public interface IModuleLoader {
 	/**

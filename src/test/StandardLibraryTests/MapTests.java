@@ -1,7 +1,7 @@
 package test.StandardLibraryTests;
 
 import org.junit.Test;
-import org.meta_environment.rascal.interpreter.errors.*;
+import org.meta_environment.rascal.interpreter.exceptions.*;
 
 import test.TestFramework;
 import static org.junit.Assert.*;
@@ -17,7 +17,7 @@ public class MapTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{int N = getOneFrom((1:10, 2:20)); (N == 1) || (N ==2);}"));
 	}
 	
-	@Test(expected=EmptyMapError.class)
+	@Test(expected=EmptyMapException.class)
 	public void getOneFromError() {
 		runTest("import Map;", "getOneFrom(());");
 	}

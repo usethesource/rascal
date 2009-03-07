@@ -1,4 +1,4 @@
-package org.meta_environment.rascal.interpreter.errors;
+package org.meta_environment.rascal.interpreter.exceptions;
 
 
 public class ModuleLoadException extends Exception {

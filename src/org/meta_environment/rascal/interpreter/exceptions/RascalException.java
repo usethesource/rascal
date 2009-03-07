@@ -1,4 +1,4 @@
-package org.meta_environment.rascal.interpreter.errors;
+package org.meta_environment.rascal.interpreter.exceptions;
 
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -11,28 +11,28 @@ import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
 
 /**
- * This class is for representing user exceptions in Rascal. I.e. not to be
- * thrown by the implementation of Rascal, but by Rascal code. Embedded Java
- * code that throws exceptions can also use this exception class.
+ * This class is for representing all exceptions in Rascal.
+ * - RascalSoftExceptions that can be caught by a Rascal program
+ * - all other exceptions.
  * 
  * Warning: this is not a thread safe implementation. The idea however is to not
  * create a stack trace every time a Return exception is needed.
  * 
  */
-public class Error extends RuntimeException {
-	private static final String ERROR_DATA_TYPE_NAME = "Error";
+public class RascalException extends RuntimeException {
+	private static final String ERROR_DATA_TYPE_NAME = "RascalException";
 
 	private static final long serialVersionUID = -7290501865940548332L;
 
 	private final IValue exception;
 	private  ISourceLocation loc;
 	
-	public Error(IValue value) {
+	public RascalException(IValue value) {
 		this.exception = value;
 		this.loc = null;
 	};
 	
-	public Error(IValue value, AbstractAST node) {
+	public RascalException(IValue value, AbstractAST node) {
 		this.exception = value;
 		if(node != null){
 			loc = node.getLocation();
@@ -61,15 +61,15 @@ public class Error extends RuntimeException {
 		return (INode) type.make(VF, VF.string(message));
 	}
 
-	public Error(String errorCons, String message) {
+	public RascalException(String errorCons, String message) {
 		this(makeNode(errorCons, message), null);
 	}
 
-	public Error(String errorCons, String message, AbstractAST node) {
+	public RascalException(String errorCons, String message, AbstractAST node) {
 		this(makeNode(errorCons, message), node);
 	}
 	
-	public Error(String message, Throwable cause) {
+	public RascalException(String message, Throwable cause) {
 		super(message, cause);
 		this.exception = makeNode(ERROR_DATA_TYPE_NAME, message);
 		loc = null;

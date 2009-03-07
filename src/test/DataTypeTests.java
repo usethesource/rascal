@@ -5,9 +5,9 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Ignore;
 import org.junit.Test;
-import org.meta_environment.rascal.interpreter.errors.IndexOutOfBoundsError;
-import org.meta_environment.rascal.interpreter.errors.NoSuchFieldError;
-import org.meta_environment.rascal.interpreter.errors.TypeError;
+import org.meta_environment.rascal.interpreter.exceptions.IndexOutOfBoundsException;
+import org.meta_environment.rascal.interpreter.exceptions.NoSuchFieldException;
+import org.meta_environment.rascal.interpreter.exceptions.TypeErrorException;
 
 public class DataTypeTests extends TestFramework {
 	
@@ -64,18 +64,18 @@ public class DataTypeTests extends TestFramework {
 	}
 	
 
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void andError() {
 		runTest("3 && true;");
 	}
 	
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void impError() {
 		runTest("3 ==> true;");
 	}
 	
 
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void condExpError() {
 		runTest("1 ? 2 : 3;");
 	}
@@ -148,33 +148,33 @@ public class DataTypeTests extends TestFramework {
 	}
 	
 
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void addError() {
 		runTest("3 + true;");
 	}
 	
 
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void subError() {
 		runTest("3 - true;");
 	}
 	
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void uMinusError() {
 		runTest("- true;");
 	}
 	
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void timesError() {
 		runTest("3 * true;");
 	}
 	
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void divError() {
 		runTest("3 / true;");
 	}
 	
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void modError() {
 		runTest("3 % true;");
 	}
@@ -326,7 +326,7 @@ public class DataTypeTests extends TestFramework {
 	}
 	
 
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void orError() {
 		runTest("3 || true;");
 	}
@@ -374,59 +374,59 @@ public class DataTypeTests extends TestFramework {
 		assertTrue(runTest("{loc Loc = " + Loc + "; Loc = Loc[endColumn = 15]; Loc == loc(file:/home/paulk/pico.trm?offset=0&length=1&begin=2,3&end=4,15);}"));
 	}
 	
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void WrongLocFieldError1(){
 		String Loc = "loc(file:/home/paulk/pico.trm?offset=0&length=1&begin=2,3&end=4,5)";
 		runTest("{loc Loc = " + Loc + "; Loc.bla;}");
 	}
 	
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void WrongLocFieldError2(){
 		String Loc = "loc(file:/home/paulk/pico.trm?offset=0&length=1&begin=2,3&end=4,5)";
 		runTest(Loc + "[bla=3];");
 	}
 	
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void URLFieldError1(){
 		String Loc = "loc(file:/home/paulk/pico.trm?offset=0&length=1&begin=2,3&end=4,5)";
 		runTest("{loc Loc = " + Loc + "; Loc.url=true;}");
 	}
 	
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void URLFieldError2(){
 		String Loc = "loc(file:/home/paulk/pico.trm?offset=0&length=1&begin=2,3&end=4,5)";
 		runTest("{loc Loc = " + Loc + "; Loc.url=\"???\";}");
 	}
 	
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void LengthFieldError(){
 		String Loc = "loc(file:/home/paulk/pico.trm?offset=0&length=1&begin=2,3&end=4,5)";
 		runTest("{loc Loc = " + Loc + "; Loc.length=true;}");
 	}
 	
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void OffsetFieldError(){
 		String Loc = "loc(file:/home/paulk/pico.trm?offset=0&length=1&begin=2,3&end=4,5)";
 		runTest("{loc Loc = " + Loc + "; Loc.offset=true;}");
 	}
 	
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void BeginLineFieldError(){
 		String Loc = "loc(file:/home/paulk/pico.trm?offset=0&length=1&begin=2,3&end=4,5)";
 		runTest("{loc Loc = " + Loc + "; Loc.beginLine=true;}");
 	}
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void EndLineFieldError(){
 		String Loc = "loc(file:/home/paulk/pico.trm?offset=0&length=1&begin=2,3&end=4,5)";
 		runTest("{loc Loc = " + Loc + "; Loc.endLine=true;}");
 	}
 	
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void BeginColumnFieldError(){
 		String Loc = "loc(file:/home/paulk/pico.trm?offset=0&length=1&begin=2,3&end=4,5)";
 		runTest("{loc Loc = " + Loc + "; Loc.beginColumn=true;}");
 	}
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void EndColumnFieldError(){
 		String Loc = "loc(file:/home/paulk/pico.trm?offset=0&length=1&begin=2,3&end=4,5)";
 		runTest("{loc Loc = " + Loc + "; Loc.endColumn=true;}");
@@ -495,7 +495,7 @@ public class DataTypeTests extends TestFramework {
 		assertTrue(runTest("2 > 3 ? [1,2] : [1,2,3] == [1,2,3];"));
 	}
 
-	@Test(expected=IndexOutOfBoundsError.class)
+	@Test(expected=IndexOutOfBoundsException.class)
 	public void SubscriptError1() {
 		runTest("[1,2][5];");
 	}
@@ -595,7 +595,7 @@ public class DataTypeTests extends TestFramework {
 	}
 	
 
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void inError() {
 		runTest("1 in 3;");
 	}
@@ -710,7 +710,7 @@ public class DataTypeTests extends TestFramework {
 		
 	}
 	
-	@Ignore @Test(expected=NoSuchFieldError.class)
+	@Ignore @Test(expected=NoSuchFieldException.class)
 	public void tupleError1(){
 		runTest("{tuple[int key, str val] T = <1, \"abc\">; T.zip == \"abc\";}");
 	}
@@ -773,18 +773,18 @@ public class DataTypeTests extends TestFramework {
 	
 
 	
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void compError() {
 		runTest("1 o 3;");
 	}
 
 	
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void closError1() {
 		runTest("1*;");
 	}
 	
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void closError2() {
 		runTest("1+;");
 	}
@@ -795,7 +795,7 @@ public class DataTypeTests extends TestFramework {
 		assertTrue(runTest("{rel[int from, int to] R = {<1,10>, <2,20>}; R.from == {1,2};}"));
 		assertTrue(runTest("{rel[int from, int to] R = {<1,10>, <2,20>}; R.to == {10,20};}"));
 	}
-	@Test(expected=NoSuchFieldError.class)
+	@Test(expected=NoSuchFieldException.class)
 	public void namedRelationError(){
 		runTest("{rel[int from, int to] R = {<1,10>, <2,20>}; R.zip == {10,20};}");
 	}

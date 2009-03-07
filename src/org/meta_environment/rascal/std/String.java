@@ -4,21 +4,21 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
-import org.meta_environment.rascal.interpreter.errors.IndexOutOfBoundsError;
+import org.meta_environment.rascal.interpreter.exceptions.IndexOutOfBoundsException;
 
 public class String {
 
 	private static final ValueFactory values = ValueFactory.getInstance();
 	
 
-	public static IValue charAt(IString s, IInteger i) throws IndexOutOfBoundsError
+	public static IValue charAt(IString s, IInteger i) throws IndexOutOfBoundsException
 	//@doc{charAt -- return the character at position i in string s.}
 	{
 	  try {
 	    return values.integer(s.getValue().charAt(i.getValue()));
 	  }
 	  catch (IndexOutOfBoundsException e) {
-	    throw new IndexOutOfBoundsError("charAt", null);
+	    throw new IndexOutOfBoundsException("charAt", null);
 	  }
 	}
 

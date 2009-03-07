@@ -13,8 +13,8 @@ import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.interpreter.SubList;
-import org.meta_environment.rascal.interpreter.errors.EmptyListError;
-import org.meta_environment.rascal.interpreter.errors.IndexOutOfBoundsError;
+import org.meta_environment.rascal.interpreter.exceptions.EmptyListException;
+import org.meta_environment.rascal.interpreter.exceptions.IndexOutOfBoundsException;
 
 public class List {
 
@@ -23,24 +23,24 @@ public class List {
 	private static final Random random = new Random();
 	
 	public static IValue head(IList lst)
-	  throws EmptyListError
+	  throws EmptyListException
 	// @doc{head -- get the first element of a list}
 	{
 	   if(lst.length() > 0){
 	      return lst.get(0);
 	   } else {
-	      throw new EmptyListError("head", null);
+	      throw new EmptyListException("head", null);
 	   }
 	}
 
 	public static IValue head(IList lst, IInteger n)
-	  throws IndexOutOfBoundsError
+	  throws IndexOutOfBoundsException
 	// @doc{head -- get the first n elements of a list}
 	{
 	   if(n.getValue() <= lst.length()){
 	      return new SubList((IValue)lst, 0, n.getValue());
 	   } else {
-	      throw new IndexOutOfBoundsError("head", null);
+	      throw new IndexOutOfBoundsException("head", null);
 	   }
 	}
 
@@ -51,12 +51,12 @@ public class List {
 	   if(n > 0){
 	   	return lst.get(random.nextInt(n));
 	   	} else {
-	   		throw new EmptyListError("getOneFrom", null);
+	   		throw new EmptyListException("getOneFrom", null);
 	   	}
 	}
 
 	public static IValue insertAt(IList lst, IInteger n, IValue elm)
-	  throws IndexOutOfBoundsError
+	  throws IndexOutOfBoundsException
 	 //@doc{insertAt -- add an element at a specific position in a list}
 	 {
 	 	IListWriter w = values.listWriter(elm.getType().lub(lst.getElementType()));
@@ -74,7 +74,7 @@ public class List {
 	      }
 	      return w.done();
 	    } else {
-	    	throw new IndexOutOfBoundsError("insertAt", null);
+	    	throw new IndexOutOfBoundsException("insertAt", null);
 	    }
 	 }
 
@@ -103,14 +103,14 @@ public class List {
 	 }
 	 
 	  public static IValue tail(IList lst, IInteger len)
-	  throws IndexOutOfBoundsError
+	  throws IndexOutOfBoundsException
 	 //@doc{tail -- last n elements of a list}
 	 {
 	 	int lenVal = len.getValue();
 	 	int lstLen = lst.length();
 	 	
 	 	if(lenVal > lstLen)
-	 		throw new IndexOutOfBoundsError("tail", null);
+	 		throw new IndexOutOfBoundsException("tail", null);
 	 	return new SubList((IValue)lst, lstLen - lenVal, lenVal);
 	 }
 	 
@@ -133,7 +133,7 @@ public class List {
 	      }
 	      return values.tuple(pick, w.done());
 	   	} else {
-	   		throw new EmptyListError("takeOneFrom", null);
+	   		throw new EmptyListException("takeOneFrom", null);
 	   	}
 	}
 

@@ -4,7 +4,7 @@ import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.meta_environment.rascal.interpreter.errors.ImplementationError;
+import org.meta_environment.rascal.interpreter.exceptions.ImplementationException;
 
 public class LazyIntersect extends LazySet {
 	private int size = 0;
@@ -105,7 +105,7 @@ public class LazyIntersect extends LazySet {
 					return v;
 				}
 			}
-			throw new ImplementationError("LazyIntersectIterator");
+			throw new ImplementationException("LazyIntersectIterator");
 		}
 
 		public void remove() {

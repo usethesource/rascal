@@ -3,7 +3,7 @@ package org.meta_environment.rascal.interpreter.result;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.meta_environment.rascal.interpreter.errors.ImplementationError;
+import org.meta_environment.rascal.interpreter.exceptions.ImplementationException;
 
 public class CollectionResult<T extends IValue> extends ValueResult<T> {
 	/*
@@ -43,7 +43,7 @@ public class CollectionResult<T extends IValue> extends ValueResult<T> {
 	}
 	
 	CollectionResult insertElement(ValueResult result) {
-		throw new ImplementationError("this method should be specialized in subclasses");
+		throw new ImplementationException("this method should be specialized in subclasses");
 	}
 
 

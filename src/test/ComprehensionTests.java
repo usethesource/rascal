@@ -2,8 +2,8 @@ package test;
 
 import static org.junit.Assert.*;
 import org.junit.Test;
-import org.meta_environment.rascal.interpreter.errors.TypeError;
-import org.meta_environment.rascal.interpreter.errors.UndefinedValueError;
+import org.meta_environment.rascal.interpreter.exceptions.TypeErrorException;
+import org.meta_environment.rascal.interpreter.exceptions.UndefinedValueException;
 
 public class ComprehensionTests extends TestFramework {
 	
@@ -73,28 +73,28 @@ public class ComprehensionTests extends TestFramework {
 	
 
 	
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void comprehensionError1() {
 		runTest("{X < 2 ? \"a\" : 3.5 | int X <- {1,2,3}};");
 	}
 	
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void comprehensionError2() {
 		runTest("[X < 2 ? \"a\" : 3.5 | int X <- {1,2,3}];");
 	}
 	
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void comprehensionError3() {
 		runTest("(X < 2 ? \"a\" : 3.5 : 5 | int X <- {1,2,3});");
 	}
 	
 	
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void testGen1() {
 		runTest("{x | 5};");
 	}
 	
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void testVoidFunctionPredicate() {
 		runTest("{ void f() { } { x | int x <- {1,2,3}, f() }; }");
 	}
@@ -121,7 +121,7 @@ public class ComprehensionTests extends TestFramework {
 	}
 	
 	
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void anyError() {
 		runTest("any(x <- [1,2,3], \"abc\");");
 	}
@@ -149,12 +149,12 @@ public class ComprehensionTests extends TestFramework {
 		assertFalse(runTest("all(<int X, int Y> <- [<1,10>,<30,3>,<2,20>], X < Y);"));
 	}
 	
-	@Test(expected=UndefinedValueError.class)
+	@Test(expected=UndefinedValueException.class)
 	public void noLeaking() {
 		assertTrue(runTest("{{ X | int X <- [1,2,3] }; X == 3; }"));
 	}
 	
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void allError() {
 		runTest("all(x <- [1,2,3], \"abc\");");
 	}
