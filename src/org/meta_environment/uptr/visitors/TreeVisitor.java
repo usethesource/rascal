@@ -5,7 +5,7 @@ import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IdentityVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
-import org.meta_environment.rascal.interpreter.errors.ImplementationError;
+import org.meta_environment.rascal.interpreter.exceptions.ImplementationException;
 import org.meta_environment.uptr.Factory;
 
 
@@ -29,7 +29,7 @@ public abstract class TreeVisitor extends IdentityVisitor {
 				return visitTreeCycle(o);
 			}
 			else {
-				throw new ImplementationError("TreeVisitor does not implement: " + alt);
+				throw new ImplementationException("TreeVisitor does not implement: " + alt);
 			}
 		}
 		else {

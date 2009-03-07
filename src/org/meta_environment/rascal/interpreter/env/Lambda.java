@@ -20,8 +20,8 @@ import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.TypeEvaluator;
 import org.meta_environment.rascal.interpreter.control_exceptions.FailureControlException;
 import org.meta_environment.rascal.interpreter.control_exceptions.ReturnControlException;
-import org.meta_environment.rascal.interpreter.errors.RunTimeError;
-import org.meta_environment.rascal.interpreter.errors.TypeError;
+import org.meta_environment.rascal.interpreter.exceptions.RunTimeException;
+import org.meta_environment.rascal.interpreter.exceptions.TypeErrorException;
 import org.meta_environment.rascal.interpreter.result.Result;
 
 /**
@@ -153,7 +153,7 @@ public class Lambda extends Result implements IValue {
 			}
 
 			if(!isVoidFunction){
-				throw new TypeError("Function definition for `" + name + "` has no return statement", ast);
+				throw new TypeErrorException("Function definition for `" + name + "` has no return statement", ast);
 			}
 
 			return new Result(TF.voidType(), null);
@@ -164,13 +164,13 @@ public class Lambda extends Result implements IValue {
 			Type instantiatedReturnType = returnType.instantiate(env.getStore(), env.getTypeBindings());
 
 			if(!result.getType().isSubtypeOf(instantiatedReturnType)){
-				throw new TypeError("Actual return type " + result.getType() + " is not compatible with declared return type " + returnType, ast);
+				throw new TypeErrorException("Actual return type " + result.getType() + " is not compatible with declared return type " + returnType, ast);
 			}
 
 			return new Result(instantiatedReturnType, result.getValue());
 		} 
 		catch (FailureControlException e){
-			throw new RunTimeError("Fail statement used outside switch or visit statement", ast);
+			throw new RunTimeException("Fail statement used outside switch or visit statement", ast);
 		}
 	}
 
@@ -190,7 +190,7 @@ public class Lambda extends Result implements IValue {
 			env.storeTypeBindings(bindings);
 		}
 		catch (FactTypeUseException e) {
-			throw new TypeError("Could not bind type parameters in " + formals + " to " + actualTypes +": " + e, ast);
+			throw new TypeErrorException("Could not bind type parameters in " + formals + " to " + actualTypes +": " + e, ast);
 		}
 	}	
 	

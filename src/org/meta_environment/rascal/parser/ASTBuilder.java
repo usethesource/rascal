@@ -18,7 +18,7 @@ import org.meta_environment.rascal.ast.Expression;
 import org.meta_environment.rascal.ast.JavaFunctionBody;
 import org.meta_environment.rascal.ast.Module;
 import org.meta_environment.rascal.ast.Statement;
-import org.meta_environment.rascal.interpreter.errors.ImplementationError;
+import org.meta_environment.rascal.interpreter.exceptions.ImplementationException;
 import org.meta_environment.uptr.TreeAdapter;
 
 /**
@@ -62,7 +62,7 @@ public class ASTBuilder {
 		if (treeAdapter.getSortName().equals(sort)) {
 			return (T) buildValue(tree);
 		} else {
-			throw new ImplementationError("This is not a" + sort +  ": "
+			throw new ImplementationException("This is not a" + sort +  ": "
 					+ new TreeAdapter(tree).yield());
 		}
 	}
@@ -132,7 +132,7 @@ public class ASTBuilder {
 
 				if (alt.isList()) {
 					// TODO add support for ambiguous lists
-					throw new ImplementationError("Can not deal with ambiguous list: " + 
+					throw new ImplementationException("Can not deal with ambiguous list: " + 
 							node + "\n" + alternatives, alts.get(0));
 				}
 				else if (sort == null) {
@@ -143,7 +143,7 @@ public class ASTBuilder {
 			}
 			
 			if (alts.size() == 0) {
-				throw new ImplementationError("bug: Ambiguity without children!?! " + node);
+				throw new ImplementationException("bug: Ambiguity without children!?! " + node);
 			}
 
 			sort = capitalize(sort);
@@ -190,8 +190,8 @@ public class ASTBuilder {
 		}
 	}
 	
-	private ImplementationError unexpectedError(Throwable e) {
-		return new ImplementationError("Unexpected error in AST construction", e);
+	private ImplementationException unexpectedError(Throwable e) {
+		return new ImplementationException("Unexpected error in AST construction", e);
 	}
 
 	private AbstractAST buildValue(IValue arg)  {

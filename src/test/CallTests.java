@@ -3,37 +3,37 @@ package test;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-import org.meta_environment.rascal.interpreter.errors.*;
+import org.meta_environment.rascal.interpreter.exceptions.*;
 
 public class CallTests extends TestFramework{
 	
 	
-	@Test(expected=NoSuchFunctionError.class)
+	@Test(expected=NoSuchFunctionException.class)
 	public void callError1() {
 		runTest("zap(1,2);");
 	}
 	
-	@Test(expected=NoSuchModuleError.class)
+	@Test(expected=NoSuchModuleException.class)
 	public void callError2() {
 		runTest("zip::zap(1,2);");
 	}
 	
-	@Test(expected=NoSuchFunctionError.class)
+	@Test(expected=NoSuchFunctionException.class)
 	public void callError3() {
 		runTest("{zap = 10; zap(1,2);}");
 	}
 	
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void callError4() {
 		runTest("{ int f(){return \"a\";} f();}");
 	}
 	
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void callError5() {
 		runTest("{ int f(){ } f();}");
 	}
 	
-	@Test(expected=TypeError.class)
+	@Test(expected=TypeErrorException.class)
 	public void callError6() {
 		runTest("{ int f(int n) {return \"a\";}  int f(value v) {return \"a\";} }");
 	}

@@ -3,7 +3,9 @@ package test;
 import org.junit.Ignore;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import org.meta_environment.rascal.interpreter.errors.*;
+
+import org.meta_environment.rascal.interpreter.exceptions.*;
+import org.meta_environment.rascal.interpreter.exceptions.IndexOutOfBoundsException;
 
 public class SubscriptTests extends TestFramework {
 
@@ -21,12 +23,12 @@ public class SubscriptTests extends TestFramework {
 		assertTrue(runTest("{list[int] L = [0,1,2,3]; L[3] = 33; L == [0,1,2,33];}"));
 	}
 	
-	@Test(expected=IndexOutOfBoundsError.class)
+	@Test(expected=IndexOutOfBoundsException.class)
 	public void listError1(){
 		runTest("[0,1,2,3][4] == 3;");
 	}
 	
-	@Test(expected=IndexOutOfBoundsError.class)
+	@Test(expected=IndexOutOfBoundsException.class)
 	public void listError2(){
 		runTest("{list[int] L = [0,1,2,3]; L[4] = 44; L == [0,1,2,3,44];}");
 	}
@@ -52,7 +54,7 @@ public class SubscriptTests extends TestFramework {
 		assertTrue(runTest("<0, \"a\", 3.5>[2] == 3.5;"));
 	}
 	
-	@Test(expected=IndexOutOfBoundsError.class)
+	@Test(expected=IndexOutOfBoundsException.class)
 	public void tupleBoundsError(){
 		runTest("<0, \"a\", 3.5>[3] == 3.5;");
 	}
@@ -91,7 +93,7 @@ public class SubscriptTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{NODE T = f(0, \"a\", 3.5); T[0] = 10; T == f(10, \"a\", 3.5);}"));
 	}
 	
-	@Ignore @Test(expected=IndexOutOfBoundsError.class)
+	@Ignore @Test(expected=IndexOutOfBoundsException.class)
 	public void nodeBoundsError(){
 		prepare("data NODE = f(int a, str b, real c);");
 		

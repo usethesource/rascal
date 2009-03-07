@@ -1,14 +1,15 @@
 package test;
 
 import org.junit.Test;
-import org.meta_environment.rascal.interpreter.errors.NoSuchModuleError;
-import org.meta_environment.rascal.interpreter.errors.UndefinedValueError;
+import org.meta_environment.rascal.interpreter.exceptions.NoSuchModuleException;
+import org.meta_environment.rascal.interpreter.exceptions.UndefinedValueException;
+
 import static org.junit.Assert.*;
 
 public class ImportTests extends TestFramework {
 	
 
-	@Test(expected=NoSuchModuleError.class)
+	@Test(expected=NoSuchModuleException.class)
 	public void importError() {
 		runTest("import zap;");
 	}
@@ -41,7 +42,7 @@ public class ImportTests extends TestFramework {
 		  runTestInSameEvaluator("m != 3;");
 		  fail("should throw undefined value");
 		}
-		catch (UndefinedValueError e) {
+		catch (UndefinedValueException e) {
 			// this should happen
 		}
 		assertTrue(runTestInSameEvaluator("{ int n = 4; n == 4;}"));

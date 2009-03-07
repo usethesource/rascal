@@ -1,8 +1,8 @@
 package test.StandardLibraryTests;
 
 import org.junit.Test;
-import org.meta_environment.rascal.interpreter.errors.EmptyListError;
-import org.meta_environment.rascal.interpreter.errors.IndexOutOfBoundsError;
+import org.meta_environment.rascal.interpreter.exceptions.EmptyListException;
+import org.meta_environment.rascal.interpreter.exceptions.IndexOutOfBoundsException;
 
 import test.TestFramework;
 import static org.junit.Assert.*;
@@ -44,7 +44,7 @@ public class ListTests extends TestFramework {
 	}
 	
 
-	@Test(expected=EmptyListError.class)
+	@Test(expected=EmptyListException.class)
 	public void getOneFromError() {
 		runTest("import List;", "getOneFrom([]);");
 	}
@@ -65,17 +65,17 @@ public class ListTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{head([1, 2, 3, 4], 4) == [1,2,3,4];}"));
 	}
 	
-	@Test(expected=EmptyListError.class)
+	@Test(expected=EmptyListException.class)
 	public void headError1() {
 		runTest("import List;", "head([]);");
 	}
 	
-	@Test(expected=IndexOutOfBoundsError.class)
+	@Test(expected=IndexOutOfBoundsException.class)
 	public void headError2() {
 		runTest("import List;", "head([],3);");
 	}
 	
-	@Test(expected=IndexOutOfBoundsError.class)
+	@Test(expected=IndexOutOfBoundsException.class)
 	public void testHead2() {
 		runTest("import List;", "head([1,2,3], 4);");
 	}
@@ -94,7 +94,7 @@ public class ListTests extends TestFramework {
 	}
 	
 
-	@Test(expected=IndexOutOfBoundsError.class)
+	@Test(expected=IndexOutOfBoundsException.class)
 	public void testInsertAt() {
 		runTest("import List;", "insertAt([1,2,3], 4, 5);");
 	}
@@ -232,12 +232,12 @@ public class ListTests extends TestFramework {
 	}
 	
 
-	@Test(expected=IndexOutOfBoundsError.class)
+	@Test(expected=IndexOutOfBoundsException.class)
 	public void tailError1() {
 		runTest("import List;", "tail([]);");
 	}
 	
-	@Test(expected=IndexOutOfBoundsError.class)
+	@Test(expected=IndexOutOfBoundsException.class)
 	public void tailError2() {
 		runTest("import List;",  "tail([1,2,3], 4);");
 	}
@@ -252,7 +252,7 @@ public class ListTests extends TestFramework {
 	}
 	
 
-	@Test(expected=EmptyListError.class)
+	@Test(expected=EmptyListException.class)
 	public void takeOneFromError() {
 		runTest("import List;", "takeOneFrom([]);");
 	}

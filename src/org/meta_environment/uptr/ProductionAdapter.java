@@ -6,14 +6,14 @@ import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.meta_environment.ValueFactoryFactory;
-import org.meta_environment.rascal.interpreter.errors.ImplementationError;
+import org.meta_environment.rascal.interpreter.exceptions.ImplementationException;
 
 public class ProductionAdapter {
 	private IConstructor tree;
 
 	public ProductionAdapter(IConstructor tree) {
 		if (tree.getType() != Factory.Production) {
-			throw new ImplementationError("ProductionWrapper only wraps UPTR productions, not " + tree.getType());
+			throw new ImplementationException("ProductionWrapper only wraps UPTR productions, not " + tree.getType());
 		}
 		this.tree = tree;
 	}
@@ -27,7 +27,7 @@ public class ProductionAdapter {
 				}
 			}
 		}
-		throw new ImplementationError("Production does not have constructor name: " + this.tree);
+		throw new ImplementationException("Production does not have constructor name: " + this.tree);
 	}
 	
 	public SymbolAdapter getRhs() {
@@ -56,7 +56,7 @@ public class ProductionAdapter {
 			}
 		}
 			
-		throw new ImplementationError("Production does not have a sort name: " + tree);
+		throw new ImplementationException("Production does not have a sort name: " + tree);
 	}
 	
 	public IList getAttributes() {

@@ -19,8 +19,8 @@ import org.meta_environment.rascal.ast.Expression.Literal;
 import org.meta_environment.rascal.ast.Literal.RegExp;
 import org.meta_environment.rascal.ast.RegExp.Lexical;
 import org.meta_environment.rascal.interpreter.env.Environment;
-import org.meta_environment.rascal.interpreter.errors.SyntaxError;
-import org.meta_environment.rascal.interpreter.errors.TypeError;
+import org.meta_environment.rascal.interpreter.exceptions.SyntaxErrorException;
+import org.meta_environment.rascal.interpreter.exceptions.TypeErrorException;
 import org.meta_environment.rascal.interpreter.result.Result;
 
 class RegExpPatternValue implements MatchPattern {
@@ -67,7 +67,7 @@ class RegExpPatternValue implements MatchPattern {
 			Result res = env.getVariable(ast, name);
 			if((res != null) && (res.getValue() != null)){
 				if(!res.getType().isStringType()){
-					throw new TypeError("Name `" + name + "` should have type string but has type " + res.getType(), ast);
+					throw new TypeErrorException("Name `" + name + "` should have type string but has type " + res.getType(), ast);
 				}
 				boundBeforeConstruction.put(name, ((IString)res.getValue()).getValue());
 				if(debug)System.err.println("bound before construction: " + name + ", " + res.getValue());
@@ -92,7 +92,7 @@ class RegExpPatternValue implements MatchPattern {
 		try {
 			pat = Pattern.compile(RegExpAsString);
 		} catch (PatternSyntaxException e){
-			throw new TypeError(e.getMessage(), ast);
+			throw new TypeErrorException(e.getMessage(), ast);
 		}
 	}
 	
@@ -204,7 +204,7 @@ public class RegExpPatternEvaluator extends NullASTVisitor<MatchPattern> {
 		Character modifier = null;
 		
 		if(subjectPat.charAt(0) != '/'){
-			throw new SyntaxError("Malformed Regular expression: " + subjectPat, x);
+			throw new SyntaxErrorException("Malformed Regular expression: " + subjectPat, x);
 		}
 		
 		int start = 1;
@@ -214,7 +214,7 @@ public class RegExpPatternEvaluator extends NullASTVisitor<MatchPattern> {
 			end--;
 		}
 		if(subjectPat.charAt(end) != '/'){
-			throw new SyntaxError("Regular expression does not end with /", x);
+			throw new SyntaxErrorException("Regular expression does not end with /", x);
 		}
 		
 		/*

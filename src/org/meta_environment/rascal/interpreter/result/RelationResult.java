@@ -2,7 +2,7 @@ package org.meta_environment.rascal.interpreter.result;
 
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.meta_environment.rascal.interpreter.errors.TypeError;
+import org.meta_environment.rascal.interpreter.exceptions.TypeErrorException;
 
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 
@@ -68,7 +68,7 @@ public class RelationResult extends CollectionResult {
 		
 		private void checkArity(int expected, int given) {
 			if (expected != given) {
-				throw new TypeError("Incompatible arities in relational operation; expected " + expected + ", got " + given);
+				throw new TypeErrorException("Incompatible arities in relational operation; expected " + expected + ", got " + given);
 			}
 		}
 

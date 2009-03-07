@@ -40,8 +40,8 @@ import org.meta_environment.rascal.ast.UserType.Name;
 import org.meta_environment.rascal.ast.UserType.Parametric;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.Lambda;
-import org.meta_environment.rascal.interpreter.errors.ImplementationError;
-import org.meta_environment.rascal.interpreter.errors.UndeclaredTypeException;
+import org.meta_environment.rascal.interpreter.exceptions.ImplementationException;
+import org.meta_environment.rascal.interpreter.exceptions.UndeclaredTypeException;
 
 public class TypeEvaluator {
 	private static TypeFactory tf = TypeFactory.getInstance();
@@ -368,7 +368,7 @@ public class TypeEvaluator {
 
 		@Override
 		public Type visitTypeAmbiguity(Ambiguity x) {
-			throw new ImplementationError("Ambiguous type: " + x, x);
+			throw new ImplementationException("Ambiguous type: " + x, x);
 		}
 	}
 }
