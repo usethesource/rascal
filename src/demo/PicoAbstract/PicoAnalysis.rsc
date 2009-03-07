@@ -2,14 +2,12 @@ module demo::PicoAbstract::PicoAnalysis
 
 import demo::PicoAbstract::PicoAbstractSyntax;
 
-//public data ProgramPoint = pp(EXP exp) | pp(STATEMENT stat);
-
 alias ProgramPoint = int;
 
-alias CFG = rel[int, int];
+//alias CFG = rel[ProgramPoint, ProgramPoint];
 
-alias Entry = set[int];
+//alias Entry = set[ProgramPoint];
 
-alias Exit = set[int];
+alias Exit = set[ProgramPoint];
 
-public data BLOCK = block(Entry entry, CFG graph, Exit exit);
+//public data BLOCK = block(Entry entry, CFG graph, Exit exit);

@@ -37,13 +37,28 @@ import org.meta_environment.rascal.interpreter.result.Result;
  * TODO: does not implement type checking completely
  */
 /*package*/ class AssignableEvaluator extends NullASTVisitor<Result> {
-	private Assignment operator;
+	enum AssignmentOperator {Default, Addition, Subtraction, Product, Division, Intersection};
+	private AssignmentOperator operator;
     private Result value;
     private final Environment env;
     private final Evaluator eval;
+ 
     
 	public AssignableEvaluator(Environment env, Assignment operator, Result value, Evaluator eval) {
-		this.operator = operator;
+		if(operator == null || operator.isDefault())
+			this.operator = AssignmentOperator.Default;
+		else if(operator.isAddition())
+			this.operator = AssignmentOperator.Addition;
+		else if(operator.isSubtraction())
+			this.operator = AssignmentOperator.Subtraction;
+		else if(operator.isProduct())
+			this.operator = AssignmentOperator.Product;
+		else if(operator.isDivision())
+			this.operator = AssignmentOperator.Division;
+		else if(operator.isIntersection())
+			this.operator = AssignmentOperator.Intersection;
+		else
+				throw new ImplementationError("Unknown assignment operator");
 		this.value = value;
 		this.env = env;
 		this.eval = eval;
@@ -62,14 +77,14 @@ import org.meta_environment.rascal.interpreter.result.Result;
 						+ "` has type " + previous.getType()
 						+ "; cannot assign value of type " + value.getType(), x);
 			}
-			if(operator.isDefault()){
+			if(operator == AssignmentOperator.Default){
 				env.storeVariable(name, value);
 			} else {
 				//TODO add the various operators here.
 			}
 		}
 		else {
-			if(operator.isDefault())
+			if(operator == AssignmentOperator.Default)
 				env.storeVariable(name, value);
 			else {
 				throw new UndefinedValueError("Variable needs previous value for assignment operator " + operator, x);
