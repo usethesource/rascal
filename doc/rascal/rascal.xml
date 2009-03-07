@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="US-ASCII"?>
 <article version="5.0" xmlns="http://docbook.org/ns/docbook"
          xmlns:xlink="http://www.w3.org/1999/xlink"
          xmlns:xi="http://www.w3.org/2001/XInclude"
@@ -28,7 +28,7 @@
   <note>
     <para>This document is a braindump of ideas that is slowly converging to a
     coherent design. See <xref linkend="section.issues" /> for the issues that
-    have to be resolved. Updated according to status as of February 2,
+    have to be resolved. Updated according to status as of March 7,
     2009.</para>
   </note>
 
@@ -1966,11 +1966,49 @@ lexical syntax
         statement and to catch any exception raised by that statement and
         resembles the corresponding Java construct:<programlisting>try
 <replaceable>    Statement</replaceable>
-catch (Type Name) <replaceable>Body1</replaceable>
+catch <replaceable>Pattern</replaceable> : <replaceable>Body1</replaceable>
 catch <replaceable>Body2</replaceable>
 ...
-finally: Body3</programlisting>A throw statement can raise an
-        exception.</para>
+finally: Body3</programlisting>A throw statement can raise an exception. There
+        are two kinds of exceptions:</para>
+
+        <itemizedlist>
+          <listitem>
+            <para><emphasis>soft</emphasis> exceptions that can be raised and
+            caught by the Rascal program.</para>
+          </listitem>
+
+          <listitem>
+            <para><emphasis>hard</emphasis> exceptions that cause termination
+            of the Rascal program.</para>
+          </listitem>
+        </itemizedlist>
+
+        <para>The Rascal Standard Library contains the module
+        <literal>Exception</literal> that defines a data type exception that
+        lists all soft exceptions:</para>
+
+        <para><programlisting>data Exception = 
+      EmptyListException(str message) 
+    | EmptyMapException(str message) 
+    | EmptySetException(str message)
+    | IndexOutOfBoundsException(str message)
+    | IOException(str message)
+    | NoSuchAnnotationException(str message)
+    | NoSuchFileException(str message)
+    | SubscriptException(str message)
+    | UndefinedValueException(str message)
+    | UninitializedVariableException(str message)
+    ;</programlisting></para>
+
+        <para>Rascal code that uses exceptions must import the
+        <literal>Exception</literal> module.</para>
+
+        <para>New exceptions can be added by extending the
+        <literal>Exception</literal> data type, for instance:</para>
+
+        <para><programlisting>data Exception =
+     MyUserException(str message);</programlisting></para>
       </section>
 
       <section>
@@ -2127,9 +2165,9 @@ default: ...
 
           <thead>
             <row>
-              <entry align="center"> </entry>
+              <entry align="center">&#160;</entry>
 
-              <entry align="center">bool </entry>
+              <entry align="center">bool&#160;</entry>
 
               <entry align="center">int</entry>
 
@@ -3324,7 +3362,7 @@ public list[str] Jabberwocky = [
 	"The frumious Bandersnatch!\"",
 	"",
 	"He took his vorpal sword in hand:",
-	"Long time the manxome foe he sought—",
+	"Long time the manxome foe he sought&#8212;",
 	"So rested he by the Tumtum tree,",
 	"And stood awhile in thought.",
 	"",
@@ -4780,7 +4818,7 @@ Boolean . and &lt;= Boolean &lt;= tree &lt;= value
 
           <thead>
             <row>
-              <entry align="center"> </entry>
+              <entry align="center">&#160;</entry>
 
               <entry align="center">bool</entry>
 
@@ -4788,7 +4826,7 @@ Boolean . and &lt;= Boolean &lt;= tree &lt;= value
 
               <entry align="center">real</entry>
 
-              <entry align="center">str </entry>
+              <entry align="center">str&#160;</entry>
 
               <entry align="center">loc</entry>
 
@@ -6282,7 +6320,7 @@ Boolean . and &lt;= Boolean &lt;= tree &lt;= value
 
           <thead>
             <row>
-              <entry align="center"> Characters</entry>
+              <entry align="center">&#160;Characters</entry>
 
               <entry align="center">Used in</entry>
             </row>
