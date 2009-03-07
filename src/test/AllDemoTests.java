@@ -6,6 +6,7 @@ import org.junit.Test;
 
 public class AllDemoTests extends TestFramework {
 
+	@Test
 	public void Ackermann() {
 		prepare("import demo::Ackermann::Ackermann;");
 		assertTrue(runTestInSameEvaluator("demo::Ackermann::Ackermann::test();"));
@@ -18,7 +19,7 @@ public class AllDemoTests extends TestFramework {
 	}
 
 	@Test
-	public void testBoolAbstractVisit() {
+	public void BoolAbstractVisit() {
 		prepare("import demo::Booleans::BoolAbstractVisit;");
 		assertTrue(runTestInSameEvaluator("demo::Booleans::BoolAbstractVisit::test();"));
 	}
@@ -63,6 +64,12 @@ public class AllDemoTests extends TestFramework {
 	public void GraphDataType() {
 		prepare("import demo::GraphDataType;");
 		assertTrue(runTestInSameEvaluator("demo::GraphDataType::test();"));
+	}
+	
+	@Test
+	public void Hello() {
+		prepare("import demo::Hello;");
+		assertTrue(runTestInSameEvaluator("demo::Hello::test();"));
 	}
 
 	@Test
@@ -136,6 +143,12 @@ public class AllDemoTests extends TestFramework {
 	public void Trans() {
 		prepare("import demo::Trans;");
 		assertTrue(runTestInSameEvaluator("demo::Trans::test();"));
+	}
+	
+	@Test
+	public void TreeTraversals() {
+		prepare("import demo::TreeTraversals;");
+		assertTrue(runTestInSameEvaluator("demo::TreeTraversals::test();"));
 	}
 
 	@Test
