@@ -4,6 +4,8 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import org.meta_environment.rascal.interpreter.exceptions.NoSuchFieldException;
 import org.meta_environment.rascal.interpreter.exceptions.TypeErrorException;
+import org.meta_environment.rascal.interpreter.exceptions.UndefinedValueException;
+import org.meta_environment.rascal.interpreter.exceptions.UninitializedVariableException;
 
 public class DataDeclarationTests extends TestFramework {
 
@@ -24,6 +26,18 @@ public class DataDeclarationTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{Bool b = band(btrue,bfalse).right; b == bfalse;}"));
 	}
 	
+	@Test(expected=UndefinedValueException.class)
+	public void boolUndefinedValue(){
+		prepare("data Bool = btrue | bfalse | band(Bool left, Bool right) | bor(Bool left, Bool right);");
+		runTestInSameEvaluator("{Bool b; b.left;}");
+	}
+	
+	@Test(expected=UninitializedVariableException.class)
+	public void boolUnitializedVariable1(){
+		prepare("data Bool = btrue | bfalse | band(Bool left, Bool right) | bor(Bool left, Bool right);");
+		runTestInSameEvaluator("{Bool b; b.left = btrue;}");
+	}
+	
 	@Test
 	public void boolFieldUpdate() {
 
@@ -34,6 +48,12 @@ public class DataDeclarationTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{Bool b = bor(btrue,bfalse); b.left=bfalse; b == bor(bfalse,bfalse);}"));
 		assertTrue(runTestInSameEvaluator("{Bool b = bor(btrue,bfalse); b.right=btrue; b == bor(btrue,btrue);}"));
 		assertTrue(runTestInSameEvaluator("{Bool b = bor(bfalse,bfalse); b.left=btrue; b.right=btrue; b == bor(btrue,btrue);}"));
+	}
+	
+	@Test(expected=UndefinedValueException.class)
+	public void boolUnitializedVariable2(){
+		prepare("data Bool = btrue | bfalse | band(Bool left, Bool right) | bor(Bool left, Bool right);");
+		runTestInSameEvaluator("{Bool b; b[left = btrue];}");
 	}
 
 	@Test

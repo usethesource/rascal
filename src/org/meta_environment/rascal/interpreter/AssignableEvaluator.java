@@ -102,6 +102,9 @@ import org.meta_environment.rascal.interpreter.result.Result;
 		String label = x.getAnnotation().toString();
 		Result result = x.getReceiver().accept(eval);
 		
+		if(result == null || result.getValue() == null)
+			throw new UninitializedVariableException(x.getReceiver().toString(), x.getReceiver());
+		
 		if (!env.declaresAnnotation(result.getType(), label)) {
 			throw new NoSuchAnnotationException("No annotation `" + label + "` declared for " + result.getType(), x);
 		}
@@ -178,6 +181,8 @@ import org.meta_environment.rascal.interpreter.result.Result;
 		Result receiver = x.getReceiver().accept(eval);
 		String label = x.getField().toString();
 		
+		if(receiver == null || receiver.getValue() == null)
+			throw new UninitializedVariableException(x.getReceiver().toString(), x.getReceiver());
 		if (receiver.getType().isTupleType()) {
 			if (!receiver.getType().hasField(label)) {
 				throw new NoSuchFieldException(receiver.getType() + " does not have a field named `" + label + "`", x);

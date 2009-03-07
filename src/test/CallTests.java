@@ -13,30 +13,41 @@ public class CallTests extends TestFramework{
 		runTest("zap(1,2);");
 	}
 	
-	@Test(expected=NoSuchModuleException.class)
+	@Test(expected=NoSuchFunctionException.class)
 	public void callError2() {
+		runTest("{ int f(int n) {return 2*n;}  f(\"abc\");}");
+	}
+	
+	@Test(expected=NoSuchModuleException.class)
+	public void callError3() {
 		runTest("zip::zap(1,2);");
 	}
 	
 	@Test(expected=NoSuchFunctionException.class)
-	public void callError3() {
+	public void callError4() {
 		runTest("{zap = 10; zap(1,2);}");
 	}
 	
 	@Test(expected=TypeErrorException.class)
-	public void callError4() {
+	public void callError5() {
 		runTest("{ int f(){return \"a\";} f();}");
 	}
 	
 	@Test(expected=TypeErrorException.class)
-	public void callError5() {
+	public void callError6() {
 		runTest("{ int f(){ } f();}");
 	}
 	
 	@Test(expected=TypeErrorException.class)
-	public void callError6() {
+	public void callError7() {
 		runTest("{ int f(int n) {return \"a\";}  int f(value v) {return \"a\";} }");
 	}
+	
+	@Test(expected=UndefinedValueException.class)
+	public void callError8() {
+		runTest("{ int f(int n) {return n;} f(undef);}");
+	}
+
 	
 	@Test
 	public void voidFun() {

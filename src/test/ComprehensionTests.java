@@ -99,6 +99,11 @@ public class ComprehensionTests extends TestFramework {
 		runTest("{ void f() { } { x | int x <- {1,2,3}, f() }; }");
 	}
 	
+	@Test(expected=UndefinedValueException.class)
+	public void testUndefinedValue() {
+		runTest("{ y | int x <- {1,2,3}};");
+	}
+	
 	
 	@Test public void any()  {
 		
@@ -288,7 +293,7 @@ public class ComprehensionTests extends TestFramework {
 		
 		assertTrue(runTest("{<X,Y> | int X <- {1,2,3}, int Y <- {2,3,4}, X >= Y} =={<2, 2>, <3, 2>, <3, 3>};"));
 		assertTrue(runTest("{<X,Y> | int X <- [1,2,3], int Y <- [2,3,4], X >= Y} =={<2, 2>, <3, 2>, <3, 3>};"));
-	/****/	
+		
 		assertTrue(runTest("{<X,Y> | int X <- {1,2,3}, <X, int Y> <- {<1,10>, <7,70>, <3,30>,<5,50>}} == {<1, 10>, <3, 30>};"));
 		assertTrue(runTest("{<X,Y> | int X <- [1,2,3], <X, int Y> <- [<1,10>, <7,70>, <3,30>,<5,50>]} == {<1, 10>, <3, 30>};"));
 		
