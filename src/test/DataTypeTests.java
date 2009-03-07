@@ -3,11 +3,12 @@ package test;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.meta_environment.rascal.interpreter.exceptions.IndexOutOfBoundsException;
 import org.meta_environment.rascal.interpreter.exceptions.NoSuchFieldException;
 import org.meta_environment.rascal.interpreter.exceptions.TypeErrorException;
+import org.meta_environment.rascal.interpreter.exceptions.UndefinedValueException;
+import org.meta_environment.rascal.interpreter.exceptions.UninitializedVariableException;
 
 public class DataTypeTests extends TestFramework {
 	
@@ -374,6 +375,21 @@ public class DataTypeTests extends TestFramework {
 		assertTrue(runTest("{loc Loc = " + Loc + "; Loc = Loc[endColumn = 15]; Loc == loc(file:/home/paulk/pico.trm?offset=0&length=1&begin=2,3&end=4,15);}"));
 	}
 	
+	@Test(expected=UndefinedValueException.class)
+	public void UndefinedLocationError1(){
+		runTest("{ loc Loc; Loc.url;}");
+	}
+	
+	@Test(expected=UninitializedVariableException.class)
+	public void UndefinedLocationError2(){
+		runTest("{ loc Loc; Loc.url = \"abc\";}");
+	}
+	
+	@Test(expected=UndefinedValueException.class)
+	public void UndefinedLocationError3(){
+		runTest("{ loc Loc; Loc[url = \"abc\"];}");
+	}
+	
 	@Test(expected=TypeErrorException.class)
 	public void WrongLocFieldError1(){
 		String Loc = "loc(file:/home/paulk/pico.trm?offset=0&length=1&begin=2,3&end=4,5)";
@@ -500,6 +516,11 @@ public class DataTypeTests extends TestFramework {
 		runTest("[1,2][5];");
 	}
 	
+	@Test(expected=UndefinedValueException.class)
+	public void SubscriptError2() {
+		runTest("L[5];");
+	}
+	
 	@Test
 	public void testRange() {
 		
@@ -591,13 +612,26 @@ public class DataTypeTests extends TestFramework {
 		assertTrue(runTest("3 > 2 ? {1,2} : {1,2,3} == {1,2};"));
 		
 		assertTrue(runTest("{<\"a\", [1,2]>, <\"b\", []>, <\"c\", [4,5,6]>} != {};"));
-		
 	}
 	
-
-	@Test(expected=TypeErrorException.class)
+    @Test(expected=UndefinedValueException.class)
+    public void UndefinedSetElementError(){
+    	runTest("{X};");
+    }
+    
+    @Test(expected=TypeErrorException.class)
 	public void inError() {
 		runTest("1 in 3;");
+	}
+    
+    @Test(expected=TypeErrorException.class)
+	public void addSetError() {
+		runTest("{1,2,3} + true;");
+	}
+    
+	@Test(expected=TypeErrorException.class)
+	public void productError() {
+		runTest("{1,2,3} * true;");
 	}
 	
 	@Test
@@ -653,6 +687,16 @@ public class DataTypeTests extends TestFramework {
 		assertTrue(runTest("{map[str,list[int]] m = (\"a\": [1,2], \"b\": [], \"c\": [4,5,6]); m[\"a\"] == [1,2];}"));
 	}
 	
+	 @Test(expected=UndefinedValueException.class)
+	    public void UndefinedMapElementError1(){
+	    	runTest("(X:2);");
+	    }
+	 
+	 @Test(expected=UndefinedValueException.class)
+	    public void UndefinedMapElementError2(){
+	    	runTest("(1:Y);");
+	    }
+	
 	@Test
 	public void testTuple() {
 		
@@ -701,6 +745,11 @@ public class DataTypeTests extends TestFramework {
 		assertTrue(runTest("<1, \"a\", true> + <1.5, \"def\"> == <1, \"a\", true> + <1.5, \"def\">;"));
 	}
 	
+	 @Test(expected=UndefinedValueException.class)
+	    public void UndefinedTupleElementError1(){
+	    	runTest("<1,X,3>;");
+	    }
+	
 	@Test
 	public void namedTuple()  {
 		
@@ -710,9 +759,14 @@ public class DataTypeTests extends TestFramework {
 		
 	}
 	
-	@Ignore @Test(expected=NoSuchFieldException.class)
+	@Test(expected=NoSuchFieldException.class)
 	public void tupleError1(){
 		runTest("{tuple[int key, str val] T = <1, \"abc\">; T.zip == \"abc\";}");
+	}
+	
+	@Test(expected=UndefinedValueException.class)
+	public void tupleError2(){
+		runTest("{tuple[int key, str val] T; T.key;}");
 	}
 	
 
@@ -771,6 +825,20 @@ public class DataTypeTests extends TestFramework {
 		assertTrue(runTest("{<1,2>, <2,3>, <3,4>, <4,2>, <4,5>}* == {<1,2>, <2,3>, <3,4>, <4,2>, <4,5>, <1, 3>, <2, 4>, <3, 2>, <3, 5>, <4, 3>, <1, 4>, <2, 2>, <2, 5>, <3, 3>, <4, 4>, <1, 5>, <1, 1>, <5, 5>};"));
 	}
 	
+	@Test(expected=UndefinedValueException.class)
+	public void UndeRelationElementError1(){
+		runTest("{<1,10>, <X,20>};");
+	}
+	
+	@Test(expected=UndefinedValueException.class)
+	public void UndefinedRelationElementError2(){
+		runTest("{<1,10>, <10, Y>};");
+	}
+	
+	@Test(expected=UndefinedValueException.class)
+	public void UndefinedRelationElementError3(){
+		runTest("{<1,10>, T, <3,30>};");
+	}
 
 	
 	@Test(expected=TypeErrorException.class)
@@ -869,6 +937,18 @@ public class DataTypeTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("f(i(1), s(\"def\"))          > f(i(1), s(\"abc\"));"));
 		assertTrue(runTestInSameEvaluator("f(i(1), l([i(2),i(3),i(4)])) > f(i(1), l([i(2),i(3)]));"));
 		assertFalse(runTestInSameEvaluator("f(i(1), l([i(2), i(3)]))    > f(i(1), l([i(2),i(3)]));"));
+	}
+	
+	@Test(expected=UndefinedValueException.class)
+	public void UndefinedDataTypeAccess1(){
+		prepare("data D = d(int ival);");
+		runTestInSameEvaluator("{D someD; someD.ival;}");
+	}
+	
+	@Test(expected=UninitializedVariableException.class)
+	public void UndefinedDataTypeAccess2(){
+		prepare("data D = d(int ival);");
+		runTestInSameEvaluator("{D someD; someD.ival = 3;}");
 	}
 	
 	@Test

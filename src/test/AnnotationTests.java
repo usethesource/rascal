@@ -33,6 +33,27 @@ public class AnnotationTests extends TestFramework{
 		runTestInSameEvaluator("f [@wrongpos=true];");
 	}
 	
+	@Test(expected=UndefinedValueException.class)
+	public void UndefinedValueError1(){
+		prepare("data F = f | f(int n) | g(int n) | deep(F f);");
+		prepareMore("anno int F @ pos;");
+		runTestInSameEvaluator("{F someF; someF @ pos;}");
+	}
+	
+	@Test(expected=UndefinedValueException.class)
+	public void UndefinedValueError2(){
+		prepare("data F = f | f(int n) | g(int n) | deep(F f);");
+		prepareMore("anno int F @ pos;");
+		runTestInSameEvaluator("{F someF; someF [@pos=3];}");
+	}
+	
+	@Test(expected=UninitializedVariableException.class)
+	public void UninitializedVariableError(){
+		prepare("data F = f | f(int n) | g(int n) | deep(F f);");
+		prepareMore("anno int F @ pos;");
+		runTestInSameEvaluator("{F someF; someF @ pos = 3;}");
+	}
+	
 	@Test
 	public void annotations(){
 		prepare("data F = f | f(int n) | g(int n) | deep(F f);");

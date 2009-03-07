@@ -32,6 +32,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.IWriter;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
@@ -1181,9 +1182,12 @@ public class Evaluator extends NullASTVisitor<Result> {
 			if (!tuple.hasFieldNames()) {
 				throw new NoSuchFieldException("Tuple does not have field names: " + tuple, x);
 			}
-			
-			return normalizedResult(tuple.getFieldType(field), ((ITuple) expr.getValue()).get(tuple.getFieldIndex(field)));
-		}
+			 try {
+				 return normalizedResult(tuple.getFieldType(field), ((ITuple) expr.getValue()).get(tuple.getFieldIndex(field)));
+			 } catch (UndeclaredFieldException e){
+				 throw new NoSuchFieldException(field, x.getField());
+			 }
+			 }
 		else if (expr.getType().isRelationType()) {
 			Type tuple = expr.getType().getFieldTypes();
 			

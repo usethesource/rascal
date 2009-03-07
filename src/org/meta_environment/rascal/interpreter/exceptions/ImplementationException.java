@@ -21,6 +21,7 @@ public class ImplementationException extends RascalException {
 		super(message, cause);
 	}
 	
+	@Override
 	public boolean hasCause() {
 		return getCause() != null;
 	}
