@@ -28,4 +28,10 @@ public class AllBenchmarks extends TestFramework {
 		prepare("import benchmark::Reverse::Reverse;");
 		assertTrue(runTestInSameEvaluator("benchmark::Reverse::Reverse::measure();"));
 	}
+	
+	@Test
+	public void RSFCalls() {
+		prepare("import benchmark::RSF::RSFCalls;");
+		assertTrue(runTestInSameEvaluator("benchmark::RSF::RSFCalls::measure();"));
+	}
 }

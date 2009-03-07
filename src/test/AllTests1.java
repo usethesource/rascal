@@ -9,7 +9,7 @@ import org.junit.runners.Suite;
 	AnnotationTests.class,
 	AssignmentTests.class,
 	BackTrackingTests.class,
-	RecoveryTests.class,
+	
 	CallTests.class,
 	ComprehensionTests.class,
 	DataDeclarationTests.class,

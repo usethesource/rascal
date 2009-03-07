@@ -4,6 +4,7 @@ import  demo::PicoAbstract::PicoAbstractSyntax;
 import  demo::PicoAbstract::PicoControlflow;
 import  demo::PicoAbstract::PicoUseDef;
 import  demo::PicoAbstract::PicoPrograms;
+import IO;
 
 
 bool is_constant(EXP E) {
@@ -16,17 +17,19 @@ bool is_constant(EXP E) {
    }
 }
 
-PROGRAM cp(PROGRAM P) {
-    rel[PicoId, STATEMENT] Defs = defs(P);
-    rel[CP,CP] Pred = cflow(P).graph;
+PROGRAM constantPropagation(PROGRAM P) {
+    rel[PicoId, int] Defs = defs(P);
+    rel[int,int] CFG = cflow(P).graph;
 
     map[PicoId, EXP] replacements = 
       {Id2 <- E | STATEMENT S <- P,
                  asgStat(PicoId Id, EXP E) := S,
                  is_constant(E),
-                 PicoId Id2 <- reachX(Pred, {S}, Defs[Id]),
+                 PicoId Id2 <- reachX(CFG, {S@pos}, Defs[Id]),
                  Id2 == Id 
       };  
+      
+      println("replacements=<replacements>");
  
     return visit (P) {
      case id(PicoId Id): if(EXP E := replacements[Id]){
@@ -47,3 +50,8 @@ program([decl("x", natural), decl("s", string)],
                    )[@pos=3]
         ]
        );
+       
+public test(){
+  P = constantsPropagation(smallCP);
+  println("P=<P>"):
+}
