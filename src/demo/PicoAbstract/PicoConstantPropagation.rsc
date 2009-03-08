@@ -1,6 +1,8 @@
 module demo::PicoAbstract::PicoConstantPropagation
 
 import  demo::PicoAbstract::PicoAbstractSyntax;
+import  demo::PicoAbstract::PicoAnalysis;
+
 import  demo::PicoAbstract::PicoControlflow;
 import  demo::PicoAbstract::PicoUseDef;
 import  demo::PicoAbstract::PicoPrograms;
@@ -18,25 +20,33 @@ bool is_constant(EXP E) {
    }
 }
 
+STATEMENT replaceVar(PicoId Id, EXP E, STATEMENT S){
+  return visit(S){
+    case id(Id) => E
+  };
+}
+
 PROGRAM constantPropagation(PROGRAM P) {
-    rel[PicoId, int] Defs = defs(P);
+    rel[PicoId, ProgramPoint] Defs = defs(P);
+    rel[PicoId, ProgramPoint] Uses = uses(P);
     rel[ProgramPoint,ProgramPoint] CFG = cflow(P).graph;
 
-    map[PicoId, EXP] replacements = 
-      (Id2 : E | STATEMENT S <- P,
+    println("CFG=<CFG>");
+    println("Defs=<Defs>");
+    rel[PicoId, set[ProgramPoint], EXP] replacements = 
+      {<Id, CU, E> | STATEMENT S <- P,
                  asgStat(PicoId Id, EXP E) := S,
                  is_constant(E),
-                 PicoId Id2 <- reachX(CFG, {S@pos}, Defs[Id]),
-                 Id2 == Id 
-      );  
+                 CU := reachX(CFG, {S@pos}, Defs[Id] - S@pos) & Uses[Id]
+      };  
       
       println("replacements=<replacements>");
- 
+ /*
     return visit (P) {
-     case id(PicoId Id): if(replacements[Id]? && EXP E := replacements[Id]){
-                           insert E;
-                        }
+     case STATEMENT S: if(S@pos in range(replacements))
     };
+    */
+    return P;
 }
 
 PROGRAM smallCP =
