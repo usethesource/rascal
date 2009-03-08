@@ -1,6 +1,7 @@
 package test;
 
 import org.junit.Test;
+import org.meta_environment.rascal.interpreter.exceptions.NoSuchFunctionException;
 import org.meta_environment.rascal.interpreter.exceptions.NoSuchModuleException;
 import org.meta_environment.rascal.interpreter.exceptions.UndefinedValueException;
 
@@ -24,8 +25,6 @@ public class ImportTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("import M;"));
 		assertTrue(runTestInSameEvaluator("M::f(3) == 6;"));
 		assertTrue(runTestInSameEvaluator("f(3) == 6;"));
- // since g() is private, you can not call it from the shell...
-		//		assertFalse(runTestInSameEvaluator("g(3) == 6;"));
 		assertTrue(runTestInSameEvaluator("{ int f(int n) {return 3 * n;} f(3) == 9;}"));
 	}
 	
@@ -38,14 +37,28 @@ public class ImportTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("import M;"));
 		assertTrue(runTestInSameEvaluator("M::n == 3;"));
 		assertTrue(runTestInSameEvaluator("n == 3;"));
-		try {
-		  runTestInSameEvaluator("m != 3;");
-		  fail("should throw undefined value");
-		}
-		catch (UndefinedValueException e) {
-			// this should happen
-		}
 		assertTrue(runTestInSameEvaluator("{ int n = 4; n == 4;}"));
+	}
+	
+	@Test(expected=UndefinedValueException.class)
+	public void UndefinedPrivateVar1(){
+		prepareModule("module M\n" +
+		         "private int m = 3;");
+		runTestInSameEvaluator("m != 3;");
+	}
+	
+	@Test(expected=UndefinedValueException.class)
+	public void UndefinedPrivateVar2(){
+		prepareModule("module M\n" +
+		         "private int m = 3;");
+		runTestInSameEvaluator("m = 30;");
+	}
+	
+	@Test(expected=NoSuchFunctionException.class)
+	public void UndefinedPrivateFunction(){
+		prepareModule("module M\n" +
+		         "private int f() {return 3;}");
+		runTestInSameEvaluator("f();");
 	}
 	
 	@Test

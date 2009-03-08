@@ -165,7 +165,7 @@ import org.meta_environment.rascal.interpreter.env.Lambda;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.env.RascalFunction;
 import org.meta_environment.rascal.interpreter.exceptions.AssertionException;
-import org.meta_environment.rascal.interpreter.exceptions.AssignmentExceptions;
+import org.meta_environment.rascal.interpreter.exceptions.AssignmentException;
 import org.meta_environment.rascal.interpreter.exceptions.ImplementationException;
 import org.meta_environment.rascal.interpreter.exceptions.IndexOutOfBoundsException;
 import org.meta_environment.rascal.interpreter.exceptions.ModuleLoadException;
@@ -994,7 +994,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			if (right.getType().isSubtypeOf(previous.getType())) {
 				right.setType(previous.getType());
 			} else {
-				throw new AssignmentExceptions("Variable `" + name
+				throw new AssignmentException("Variable `" + name
 						+ "` has type " + previous.getType()
 						+ "; cannot assign value of type " + right.getType(), name);
 			}
@@ -3763,14 +3763,20 @@ public class Evaluator extends NullASTVisitor<Result> {
 				Result r = patexpr.accept(ev);
 				// List
 				if(r.getType().isListType()){
+					if(vp.hasStrategy())
+						throw new TypeErrorException("Strategy not allowed in list generator", vp);
 					iterator = ((IList) r.getValue()).iterator();
 					
 				// Set
 				} else 	if(r.getType().isSetType()){
+					if(vp.hasStrategy())
+						throw new TypeErrorException("Strategy not allowed in set generator", vp);
 					iterator = ((ISet) r.getValue()).iterator();
 				
 				// Map
 				} else if(r.getType().isMapType()){
+					if(vp.hasStrategy())
+						throw new TypeErrorException("Strategy not allowed in map generator", vp);
 					iterator = ((IMap) r.getValue()).iterator();
 					
 				// Node and ADT
@@ -3789,6 +3795,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 					}
 					iterator = new INodeReader((INode) r.getValue(), bottomup);
 				} else if(r.getType().isStringType()){
+					if(vp.hasStrategy())
+						throw new TypeErrorException("Strategy not allowed in string generator", vp);
 					iterator = new SingleIValueIterator(r.getValue());
 				} else {
 					throw new ImplementationException("Unimplemented expression type " + r.getType() + " in generator", vp);

@@ -1,6 +1,8 @@
 package test;
 
 import org.junit.Test;
+import org.meta_environment.rascal.interpreter.exceptions.SyntaxErrorException;
+
 import static org.junit.Assert.*;
 
 public class RegExpTests extends TestFramework{
@@ -21,6 +23,11 @@ public class RegExpTests extends TestFramework{
 		assertTrue(runTest("(/<l:.*>[Rr][Aa][Ss][Cc][Aa][Ll]<r:.*>/ := \"RASCAL is marvelous\")" +
 				            "&& (l == \"\") && (r == \" is marvelous\");"));
 
+	}
+	
+	@Test(expected=SyntaxErrorException.class)
+	public void RegExpError1(){
+		runTest("/[a-/ := \"abc\";");
 	}
 	
 	public void modifiers() {

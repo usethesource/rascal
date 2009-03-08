@@ -3,8 +3,10 @@ package test;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.meta_environment.rascal.interpreter.exceptions.TypeErrorException;
+import org.meta_environment.rascal.interpreter.exceptions.UndefinedValueException;
 import org.meta_environment.rascal.interpreter.exceptions.UninitializedVariableException;
 
 public class PatternTests extends TestFramework {
@@ -299,6 +301,11 @@ public class PatternTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("f(_,_)                 := f(1,2);"));
 		assertTrue(runTestInSameEvaluator("f(_,_,_)               := f(1,2.5,true);"));
 	}
+	
+	@Ignore @Test(expected=TypeErrorException.class)
+	public void NoDataDecl(){
+		runTest("f(1) := 1;");
+	}
 
 	@Test
 	public void matchSet1() {
@@ -392,6 +399,8 @@ public class PatternTests extends TestFramework {
 		assertFalse(runTestInSameEvaluator("({DATA A, f({A, b, set[DATA] SX}), SX} := {c, f({a,b,c}), d});"));
 	}	
 	
+	
+	
 	@Test(expected=TypeErrorException.class)
 	public void matchSetDoubleDeclError() {
 		runTest("{1, set[int] L, 2, set[int] L} := {1,2,3};");
@@ -455,5 +464,9 @@ public class PatternTests extends TestFramework {
 		
 		assertTrue(runTestInSameEvaluator("(f(_) := f(1));"));
 	}
-
+	
+	@Test(expected=TypeErrorException.class)
+	public void UndeclaredTypeError(){
+		runTest("STRANGE X := 123;");
+	}
 }
