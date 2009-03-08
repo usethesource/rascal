@@ -86,10 +86,11 @@ import org.meta_environment.rascal.ast.Expression.FieldUpdate;
 import org.meta_environment.rascal.ast.Expression.FunctionAsValue;
 import org.meta_environment.rascal.ast.Expression.GreaterThan;
 import org.meta_environment.rascal.ast.Expression.GreaterThanOrEq;
-import org.meta_environment.rascal.ast.Expression.IfDefined;
+import org.meta_environment.rascal.ast.Expression.IfDefinedOtherwise;
 import org.meta_environment.rascal.ast.Expression.Implication;
 import org.meta_environment.rascal.ast.Expression.In;
 import org.meta_environment.rascal.ast.Expression.Intersection;
+import org.meta_environment.rascal.ast.Expression.IsDefined;
 import org.meta_environment.rascal.ast.Expression.LessThan;
 import org.meta_environment.rascal.ast.Expression.LessThanOrEq;
 import org.meta_environment.rascal.ast.Expression.Lexical;
@@ -3568,13 +3569,25 @@ public class Evaluator extends NullASTVisitor<Result> {
 		return x.getElseExp().accept(this);
 	}
 	
+
 	@Override
-	public Result visitExpressionIfDefined(IfDefined x) {
+	public Result visitExpressionIfDefinedOtherwise(IfDefinedOtherwise x) {
 		try {
 			return x.getLhs().accept(this);
 		} catch (UndefinedValueException e) {
 			Result res = x.getRhs().accept(this);
 			return res;
+		}
+	}
+	
+	@Override
+	public Result visitExpressionIsDefined(IsDefined x) {
+		try {
+			Result res = x.getArgument().accept(this);
+			return result(tf.boolType(), vf.bool(true));
+			
+		} catch (UndefinedValueException e) {
+			return result(tf.boolType(), vf.bool(false));
 		}
 	}
 	

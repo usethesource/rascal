@@ -1591,11 +1591,7 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 	public AbstractPattern visitExpressionGreaterThanOrEq(GreaterThanOrEq x) {
 		throw new SyntaxErrorException("Construct not allowed in pattern", x);
 	}
-	@Override
-	public AbstractPattern visitExpressionIfDefined(
-			org.meta_environment.rascal.ast.Expression.IfDefined x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
-	}
+	
 	@Override
 	public AbstractPattern visitExpressionIfThenElse(IfThenElse x) {
 		throw new SyntaxErrorException("Construct not allowed in pattern", x);

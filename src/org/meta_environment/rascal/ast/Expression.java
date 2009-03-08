@@ -236,13 +236,13 @@ public boolean hasUrl() { return false; }
 	public boolean hasEndColumn() { return false; }
 public boolean isLocation() { return false; }
 static public class Location extends Expression {
-/* "!" url:URL           
+/* "loc" "(" url:URL           
    "?" "offset" "=" offset:Expression "&" 
        "length" "=" length:Expression "&"
        "begin"  "=" beginLine:Expression "," 
                     beginColumn:Expression "&"
        "end" "=" endLine:Expression "," 
-                 endColumn:Expression -> Expression {cons("Location")} */
+                 endColumn:Expression ")" -> Expression {cons("Location")} */
 	private Location() { }
 	/*package*/ Location(INode node, org.meta_environment.rascal.ast.URL url, org.meta_environment.rascal.ast.Expression offset, org.meta_environment.rascal.ast.Expression length, org.meta_environment.rascal.ast.Expression beginLine, org.meta_environment.rascal.ast.Expression beginColumn, org.meta_environment.rascal.ast.Expression endLine, org.meta_environment.rascal.ast.Expression endColumn) {
 		this.node = node;
@@ -1102,7 +1102,31 @@ private org.meta_environment.rascal.ast.Expression expression;
  		z.$setSubscripts(x);
 		return z;
 	}	
-} public org.meta_environment.rascal.ast.Expression getArgument() { throw new UnsupportedOperationException(); } public boolean hasArgument() { return false; } public boolean isNegation() { return false; }
+} public org.meta_environment.rascal.ast.Expression getArgument() { throw new UnsupportedOperationException(); } public boolean hasArgument() { return false; } public boolean isIsDefined() { return false; }
+static public class IsDefined extends Expression {
+/* argument:Expression "?" -> Expression {cons("IsDefined")} */
+	private IsDefined() { }
+	/*package*/ IsDefined(INode node, org.meta_environment.rascal.ast.Expression argument) {
+		this.node = node;
+		this.argument = argument;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitExpressionIsDefined(this);
+	}
+
+	public boolean isIsDefined() { return true; }
+
+	public boolean hasArgument() { return true; }
+
+private org.meta_environment.rascal.ast.Expression argument;
+	public org.meta_environment.rascal.ast.Expression getArgument() { return argument; }
+	private void $setArgument(org.meta_environment.rascal.ast.Expression x) { this.argument = x; }
+	public IsDefined setArgument(org.meta_environment.rascal.ast.Expression x) { 
+		IsDefined z = new IsDefined();
+ 		z.$setArgument(x);
+		return z;
+	}	
+} public boolean isNegation() { return false; }
 static public class Negation extends Expression {
 /* "!" argument:Expression -> Expression {cons("Negation")} */
 	private Negation() { }
@@ -1583,20 +1607,20 @@ private org.meta_environment.rascal.ast.Expression lhs;
  		z.$setRhs(x);
 		return z;
 	}	
-} public boolean isIfDefined() { return false; }
-static public class IfDefined extends Expression {
-/* lhs:Expression "=?" rhs:Expression -> Expression {left, cons("IfDefined")} */
-	private IfDefined() { }
-	/*package*/ IfDefined(INode node, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
+} public boolean isIfDefinedOtherwise() { return false; }
+static public class IfDefinedOtherwise extends Expression {
+/* lhs:Expression "?=" rhs:Expression -> Expression {left, cons("IfDefinedOtherwise")} */
+	private IfDefinedOtherwise() { }
+	/*package*/ IfDefinedOtherwise(INode node, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) {
 		this.node = node;
 		this.lhs = lhs;
 		this.rhs = rhs;
 	}
 	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitExpressionIfDefined(this);
+		return visitor.visitExpressionIfDefinedOtherwise(this);
 	}
 
-	public boolean isIfDefined() { return true; }
+	public boolean isIfDefinedOtherwise() { return true; }
 
 	public boolean hasLhs() { return true; }
 	public boolean hasRhs() { return true; }
@@ -1604,16 +1628,16 @@ static public class IfDefined extends Expression {
 private org.meta_environment.rascal.ast.Expression lhs;
 	public org.meta_environment.rascal.ast.Expression getLhs() { return lhs; }
 	private void $setLhs(org.meta_environment.rascal.ast.Expression x) { this.lhs = x; }
-	public IfDefined setLhs(org.meta_environment.rascal.ast.Expression x) { 
-		IfDefined z = new IfDefined();
+	public IfDefinedOtherwise setLhs(org.meta_environment.rascal.ast.Expression x) { 
+		IfDefinedOtherwise z = new IfDefinedOtherwise();
  		z.$setLhs(x);
 		return z;
 	}
 	private org.meta_environment.rascal.ast.Expression rhs;
 	public org.meta_environment.rascal.ast.Expression getRhs() { return rhs; }
 	private void $setRhs(org.meta_environment.rascal.ast.Expression x) { this.rhs = x; }
-	public IfDefined setRhs(org.meta_environment.rascal.ast.Expression x) { 
-		IfDefined z = new IfDefined();
+	public IfDefinedOtherwise setRhs(org.meta_environment.rascal.ast.Expression x) { 
+		IfDefinedOtherwise z = new IfDefinedOtherwise();
  		z.$setRhs(x);
 		return z;
 	}	

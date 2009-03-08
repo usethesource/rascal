@@ -11,8 +11,8 @@ import Graph;
 
 set[int] uninit(PROGRAM P) {
     BLOCK ControlFlow = cflow(P);
-    rel[PicoId, int] Uses = uses(P);
-    rel[PicoId, int] Defs = defs(P);
+    rel[PicoId, ProgramPoint] Uses = uses(P);
+    rel[PicoId, ProgramPoint] Defs = defs(P);
     
     ProgramEntry = {0};
     CFG = ({0} * ControlFlow.entry) + ControlFlow.graph;
