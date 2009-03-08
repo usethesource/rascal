@@ -624,35 +624,6 @@ public class Evaluator extends NullASTVisitor<Result> {
 	}
 	
 	
-	/*
-	@Override
-	public Result visitDeclarationAnnotation(Annotation x) {
-		String name = x.getName().toString();
-		
-		Type adtType = scopeStack.peek().lookupAbstractDataType(name);
-		if(adtType == null){
-			throw new NoSuchAnnotationError("Undeclared datatype " + name, x);
-		}
-		
-		java.util.Set<Type> alts = scopeStack.peek().lookupAlternatives(adtType);
-		for(Type alt : alts){
-			if(!alt.isConstructorType() ||  alt.getArity() != 1){
-				throw new NoSuchAnnotationError("Alternative " + alt + " of datatype " + name + " cannot be used as annotation", x);
-			}
-		}
-		
-		for (org.meta_environment.rascal.ast.Type type : x.getTypes()) {
-		  Type onType = te.eval(type, scopeStack.peek());
-		  for(Type alt : alts){
-			  System.err.println("onType= " + onType + ", name=" + alt.getName() + ", adtType=" + adtType);
-			  scopeStack.peek().declareAnnotation(onType, alt.getName(), adtType);
-		  }
-		}
-		
-		return result();
-	}
-	*/
-	
 	private Type evalType(org.meta_environment.rascal.ast.Type type) {
 		return te.eval(type, peek());
 	}
