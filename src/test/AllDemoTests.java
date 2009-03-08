@@ -49,7 +49,7 @@ public class AllDemoTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("demo::Cycles::test();"));
 	}
 
-	@Test
+	@Ignore @Test
 	public void Dominators() {
 		prepare("import demo::Dominators;");
 		assertTrue(runTestInSameEvaluator("demo::Dominators::test();"));
@@ -101,6 +101,18 @@ public class AllDemoTests extends TestFramework {
 	public void PicoTypecheck() {
 		prepare("import demo::PicoAbstract::PicoTypecheck;");
 		assertTrue(runTestInSameEvaluator("demo::PicoAbstract::PicoTypecheck::test();"));
+	}
+	
+	@Test
+	public void PicoCommonSubexpression() {
+		prepare("import demo::PicoAbstract::PicoCommonSubexpression;");
+		assertTrue(runTestInSameEvaluator("demo::PicoAbstract::PicoCommonSubexpression::test();"));
+	}
+	
+	@Test
+	public void PicoConstantPropagation() {
+		prepare("import demo::PicoAbstract::PicoConstantPropagation;");
+		assertTrue(runTestInSameEvaluator("demo::PicoAbstract::PicoConstantPropagation::test();"));
 	}
 	
 	@Test

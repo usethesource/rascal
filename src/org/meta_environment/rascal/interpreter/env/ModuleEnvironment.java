@@ -15,6 +15,7 @@ import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.interpreter.Names;
 import org.meta_environment.rascal.interpreter.exceptions.ImplementationException;
+import org.meta_environment.rascal.interpreter.exceptions.NoSuchFunctionException;
 import org.meta_environment.rascal.interpreter.exceptions.TypeErrorException;
 import org.meta_environment.rascal.interpreter.result.Result;
 
@@ -159,10 +160,19 @@ public class ModuleEnvironment extends Environment {
 				return results.get(0);
 			}
 			else if (results.size() == 0) {
-				return null;
+				//return null;
+				StringBuffer sign = new StringBuffer();
+				String sep = "";
+				sign.append(name).append("(");
+				for(Type t : types){
+					sign.append(sep).append(t);
+					sep = ",";
+				}
+				sign.append(")");
+				throw new NoSuchFunctionException(sign.toString(), null);
 			}
 			else {
-				throw new TypeErrorException("Function " + name + " is ambiguous, please qualify", result.getAst());
+				throw new TypeErrorException("Function " + name + " is ambiguous, please qualify", result == null ? null : result.getAst());
 			}
 		}
 		

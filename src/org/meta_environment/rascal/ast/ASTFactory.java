@@ -514,12 +514,12 @@ org.meta_environment.rascal.ast.Expression.LessThan x = new org.meta_environment
 		}
 		return (org.meta_environment.rascal.ast.Expression.LessThan)table.get(x); 
 }
-public org.meta_environment.rascal.ast.Expression.IfDefined makeExpressionIfDefined(INode node, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) { 
-org.meta_environment.rascal.ast.Expression.IfDefined x = new org.meta_environment.rascal.ast.Expression.IfDefined(node, lhs, rhs);
+public org.meta_environment.rascal.ast.Expression.IfDefinedOtherwise makeExpressionIfDefinedOtherwise(INode node, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) { 
+org.meta_environment.rascal.ast.Expression.IfDefinedOtherwise x = new org.meta_environment.rascal.ast.Expression.IfDefinedOtherwise(node, lhs, rhs);
 		if (!table.containsKey(x)) { 
 			table.put(x, x);
 		}
-		return (org.meta_environment.rascal.ast.Expression.IfDefined)table.get(x); 
+		return (org.meta_environment.rascal.ast.Expression.IfDefinedOtherwise)table.get(x); 
 }
 public org.meta_environment.rascal.ast.Expression.In makeExpressionIn(INode node, org.meta_environment.rascal.ast.Expression lhs, org.meta_environment.rascal.ast.Expression rhs) { 
 org.meta_environment.rascal.ast.Expression.In x = new org.meta_environment.rascal.ast.Expression.In(node, lhs, rhs);
@@ -625,6 +625,13 @@ org.meta_environment.rascal.ast.Expression.Negation x = new org.meta_environment
 			table.put(x, x);
 		}
 		return (org.meta_environment.rascal.ast.Expression.Negation)table.get(x); 
+}
+public org.meta_environment.rascal.ast.Expression.IsDefined makeExpressionIsDefined(INode node, org.meta_environment.rascal.ast.Expression argument) { 
+org.meta_environment.rascal.ast.Expression.IsDefined x = new org.meta_environment.rascal.ast.Expression.IsDefined(node, argument);
+		if (!table.containsKey(x)) { 
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.IsDefined)table.get(x); 
 }
 public org.meta_environment.rascal.ast.Expression.Subscript makeExpressionSubscript(INode node, org.meta_environment.rascal.ast.Expression expression, java.util.List<org.meta_environment.rascal.ast.Expression> subscripts) { 
 org.meta_environment.rascal.ast.Expression.Subscript x = new org.meta_environment.rascal.ast.Expression.Subscript(node, expression, subscripts);
