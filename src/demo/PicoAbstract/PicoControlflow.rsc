@@ -9,7 +9,11 @@ import UnitTest;
 
 public BLOCK cflow(PROGRAM P){
     if(program(list[DECL] Decls, list[STATEMENT] Stats) := P){
-           return cflow(Stats);
+            BLOCK ControlFlow = cflow(Stats);
+            // Add a unique entry point to the graph
+            ProgramEntry = {0};
+            CFG = ({0} * ControlFlow.entry) + ControlFlow.graph;
+            return block({0}, CFG, ControlFlow.exit);
     }
     return false;
 }
@@ -61,15 +65,15 @@ public BLOCK cflow(STATEMENT Stat){
 }
 
 public bool test(){
-   
+
 	assertTrue(
        cflow([asgStat("x", natCon(1))[@pos=1],  asgStat("s", conc(id("s"), strCon("#")))[@pos=2] ]) ==
        block({1}, {<1,2>}, {2})
              );
-	
-	assertTrue(cflow(small) == block({1}, {<2,3>, <3,4>, <4,2>, <1,2>}, {2}));
+
+	assertTrue(cflow(small) == block({0}, {<0,1>, <2,3>, <3,4>, <4,2>, <1,2>}, {2}));
           
-	assertTrue(cflow(fac) == block({1},{<8,6>,<1,2>,<3,4>,<2,3>,<6,7>,<7,8>,<9,3>,<4,5>,<5,6>,<6,9>}, {3}) );
+	assertTrue(cflow(fac) == block({0},{<0,1>, <8,6>,<1,2>,<3,4>,<2,3>,<6,7>,<7,8>,<9,3>,<4,5>,<5,6>,<6,9>}, {3}) );
 
 	return report();
 }
