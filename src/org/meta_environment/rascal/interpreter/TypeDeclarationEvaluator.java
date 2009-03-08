@@ -1,7 +1,10 @@
 package org.meta_environment.rascal.interpreter;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeDeclarationException;
@@ -91,9 +94,39 @@ public class TypeDeclarationEvaluator {
 	}
 
 	private void declareAliases(Set<Alias> aliasDecls) {
-		// TODO allow out of order definition of aliases
-		for (Alias alias : aliasDecls) {
-			declareAlias(alias, env);
+		List<Alias> todo = new LinkedList<Alias>();
+		Set<Alias> done = new HashSet<Alias>();
+		
+		todo.addAll(aliasDecls);
+
+		todo:while (!todo.isEmpty()) {
+			Alias trial = todo.get(0);
+			
+			try {
+				done.add(trial);
+				todo.remove(trial);
+				declareAlias(trial, env);
+			}
+			catch (UndeclaredTypeException e) {
+				String name = e.getName();
+				
+				for (Alias other : todo) {
+					if (done.contains(other)) {
+						throw e; // cyclic alias definition
+					}
+					
+					if (Names.name(other.getUser().getName()).equals(name)) {
+						// re-order declarations
+						todo.remove(other);
+						todo.add(0, other);
+						todo.add(trial);
+						done.remove(trial);
+						continue todo; // try this one first
+					}
+				}
+				
+				throw e;
+			}
 		}
 	}
 
