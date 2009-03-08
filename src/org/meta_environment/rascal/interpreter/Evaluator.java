@@ -173,7 +173,6 @@ import org.meta_environment.rascal.interpreter.exceptions.NoSuchAnnotationExcept
 import org.meta_environment.rascal.interpreter.exceptions.NoSuchFieldException;
 import org.meta_environment.rascal.interpreter.exceptions.NoSuchFunctionException;
 import org.meta_environment.rascal.interpreter.exceptions.NoSuchModuleException;
-import org.meta_environment.rascal.interpreter.exceptions.RascalException;
 import org.meta_environment.rascal.interpreter.exceptions.RascalSoftException;
 import org.meta_environment.rascal.interpreter.exceptions.RunTimeException;
 import org.meta_environment.rascal.interpreter.exceptions.SubscriptException;
@@ -423,10 +422,6 @@ public class Evaluator extends NullASTVisitor<Result> {
 		checkType(val, tf.doubleType());
 	}
 	
-	private void checkString(Result val) {
-		checkType(val, tf.stringType());
-	}
-	
 	private void checkType(Result val, Type expected) {
 		checkType(val.getType(), expected);
 	}
@@ -450,12 +445,6 @@ public class Evaluator extends NullASTVisitor<Result> {
 		return ((IDouble) val.getValue()).getValue();
 	}
 	
-	private String stringValue(Result val) {
-		checkString(val);
-		return ((IString) val.getValue()).getValue();
-	}
-	
-
 	// Ambiguity ...................................................
 	
 	@Override
