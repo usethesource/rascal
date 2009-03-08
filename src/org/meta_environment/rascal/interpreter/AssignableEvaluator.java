@@ -21,11 +21,13 @@ import org.meta_environment.rascal.ast.Assignable.Subscript;
 import org.meta_environment.rascal.ast.Assignable.Tuple;
 import org.meta_environment.rascal.ast.Assignable.Variable;
 import org.meta_environment.rascal.interpreter.env.Environment;
-import org.meta_environment.rascal.interpreter.exceptions.AssignmentExceptions;
+import org.meta_environment.rascal.interpreter.exceptions.AssignmentException;
 import org.meta_environment.rascal.interpreter.exceptions.ImplementationException;
 import org.meta_environment.rascal.interpreter.exceptions.IndexOutOfBoundsException;
 import org.meta_environment.rascal.interpreter.exceptions.NoSuchAnnotationException;
 import org.meta_environment.rascal.interpreter.exceptions.NoSuchFieldException;
+import org.meta_environment.rascal.interpreter.exceptions.RascalException;
+import org.meta_environment.rascal.interpreter.exceptions.SubscriptException;
 import org.meta_environment.rascal.interpreter.exceptions.TypeErrorException;
 import org.meta_environment.rascal.interpreter.exceptions.UndefinedValueException;
 import org.meta_environment.rascal.interpreter.exceptions.UninitializedVariableException;
@@ -74,7 +76,7 @@ import org.meta_environment.rascal.interpreter.result.Result;
 			if (value.getType().isSubtypeOf(previous.getType())) {
 				value.setType(previous.getType());
 			} else {
-				throw new AssignmentExceptions("Variable `" + name
+				throw new AssignmentException("Variable `" + name
 						+ "` has type " + previous.getType()
 						+ "; cannot assign value of type " + value.getType(), x);
 			}
@@ -120,7 +122,7 @@ import org.meta_environment.rascal.interpreter.result.Result;
 		Result subscript = x.getSubscript().accept(eval);
 		Result result;
 		
-		if(rec == null)
+		if(rec == null || rec.getValue() == null)
 				throw new UninitializedVariableException(x.getReceiver().toString(), x.getReceiver());
 		if (rec.getType().isListType() && subscript.getType().isIntegerType()) {
 			try {
@@ -128,7 +130,10 @@ import org.meta_environment.rascal.interpreter.result.Result;
 			int index = ((IInteger) subscript.getValue()).getValue();
 			list = list.put(index, value.getValue());
 			result = eval.result(rec.getType(), list);
-			} catch (Exception e){
+			}  catch (RascalException e){
+				throw e;
+			}
+			catch (Exception e){
 				throw new IndexOutOfBoundsException("Index " + ((IInteger) subscript.getValue()).getValue() + " out of bounds", x);
 			}
 		}
@@ -205,9 +210,12 @@ import org.meta_environment.rascal.interpreter.result.Result;
 			}
 			
 			int index = node.getFieldIndex(label);
-			
-			IValue result = cons.set(index, value.getValue());
-			return recur(x, eval.result(receiver.getType(), result));
+			try {
+				IValue result = cons.set(index, value.getValue());
+				return recur(x, eval.result(receiver.getType(), result));
+			} catch(Exception e){
+				throw new AssignmentException(label, x);
+			}
 		}
 		else if(receiver.getType().isSourceLocationType()){
 			ISourceLocation loc = (ISourceLocation) receiver.getValue();
@@ -225,7 +233,7 @@ import org.meta_environment.rascal.interpreter.result.Result;
 		java.util.List<Assignable> arguments = x.getElements();
 		
 		if (!value.getType().isTupleType()) {
-			throw new AssignmentExceptions("Receiver is a tuple, but the assigned value is not: " + value.getType(), x); 
+			throw new AssignmentException("Receiver is a tuple, but the assigned value is not: " + value.getType(), x); 
 		}
 		
 		Type tupleType = value.getType();

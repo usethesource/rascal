@@ -102,7 +102,7 @@ public class TestFramework  {
 		try{
 			execute(command);
 			
-		} catch (IOException e){
+		} catch (Exception e){
 			System.err.println("Unhandled exception while preparing test: " + e);
 		}
 		return this;
@@ -120,7 +120,7 @@ public class TestFramework  {
 				mod.accept(evaluator);
 				return true;
 			}
-		} catch (IOException e){
+		} catch (Exception e){
 			System.err.println("Unhandled exception while preparing test: " + e);
 		}
 		return false;

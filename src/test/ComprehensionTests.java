@@ -104,6 +104,26 @@ public class ComprehensionTests extends TestFramework {
 		runTest("{ y | int x <- {1,2,3}};");
 	}
 	
+	@Test(expected=TypeErrorException.class)
+	public void WrongStrategyError1(){
+		runTest("innermost int X <- {1,2,3};");
+	}
+	
+	@Test(expected=TypeErrorException.class)
+	public void WrongStrategyError2(){
+		runTest("outermost int X <- {1,2,3};");
+	}
+	
+	@Test(expected=TypeErrorException.class)
+	public void WrongStrategyError3(){
+		runTest("bottom-up-break int X <- {1,2,3};");
+	}
+	
+	@Test(expected=TypeErrorException.class)
+	public void WrongStrategyError4(){
+		runTest("top-down-break int X <- {1,2,3};");
+	}
+	
 	
 	@Test public void any()  {
 		

@@ -1449,7 +1449,7 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 	//	if(N.toString().equals("search")){
 	//		return new AbstractPatternSearch(visitElements(x.getArguments()));
 	//	} else {
-			return new AbstractPatternNode(vf, null, N, visitElements(x.getArguments()));
+			return new AbstractPatternNode(vf, x, N, visitElements(x.getArguments()));
 	//	}
 	}
 	

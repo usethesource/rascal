@@ -32,6 +32,6 @@ public class AllBenchmarks extends TestFramework {
 	@Test
 	public void RSFCalls() {
 		prepare("import benchmark::RSF::RSFCalls;");
-		assertTrue(runTestInSameEvaluator("benchmark::RSF::RSFCalls::measure();"));
+		assertTrue(runTestInSameEvaluator("benchmark::RSF::RSFCalls::measureOne();"));
 	}
 }

@@ -29,6 +29,16 @@ public class StatementTests extends TestFramework {
 		runTest("assert 3.5 : \"Wrong expression type\";");
 	}
 	
+	@Test(expected=UndefinedValueException.class)
+	public void assertError4() {
+		runTest("assert X;");
+	}
+	
+	@Test(expected=UndefinedValueException.class)
+	public void assertError5() {
+		runTest("assert X : \"Wrong expression type\";");
+	}
+	
 
 	@Test
 	public void assignment() {

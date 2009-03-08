@@ -2,6 +2,7 @@ package test;
 
 import static org.junit.Assert.assertTrue;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class AllDemoTests extends TestFramework {
@@ -42,7 +43,7 @@ public class AllDemoTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("demo::CarFDL::test();"));
 	}
 
-	@Test
+	@Ignore @Test
 	public void Cycles() {
 		prepare("import demo::Cycles;");
 		assertTrue(runTestInSameEvaluator("demo::Cycles::test();"));

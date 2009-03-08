@@ -9,10 +9,15 @@ import IO;
 import Benchmark;
 
 public bool measure(){
+  return measure(["JHotDraw52.rsf", "JDK140AWT.rsf", "JWAM16FullAndreas.rsf", "jdk14v2.rsf", "Eclipse202a.rsf"]);
+}
+
+public bool measureOne(){
+   return measure(["JHotDraw52.rsf"]);
+}
+public bool measure(list[str] names){
 
 	str dir = "src/benchmark/RSF/";
-	list[str] names = ["JHotDraw52.rsf", "JDK140AWT.rsf", "JWAM16FullAndreas.rsf", "jdk14v2.rsf", "Eclipse202a.rsf"];
-// 	list[str] names = ["JHotDraw52.rsf"];
 	
 	for(str name <- names){
 		map[str, rel[str,str]] values = readRSF(dir + name);
