@@ -76,13 +76,21 @@ public class DataDeclarationTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{Exp[int] e = tval(1); e == tval(1);}"));
 		assertTrue(runTestInSameEvaluator("{Exp[str] f = tval(\"abc\"); f == tval(\"abc\");}"));
 		assertTrue(runTestInSameEvaluator("{set[Exp[value]] g = {tval(1),tval(\"abc\")}; g == {tval(1), tval(\"abc\")};}"));
-		assertTrue(runTestInSameEvaluator("{Exp[void] h = ival(3); h == ival(3);}"));
-		assertTrue(runTestInSameEvaluator("{Exp[value] i = ival(3); i == ival(3);}"));
+		
+		// if the parameter is not bound by a constructor, the instantiated type equals the bound of the parameter, 
+		// any smaller types, like Exp[int] would result in a type error
+		assertTrue(runTestInSameEvaluator("{Exp[value] h = ival(3); h == ival(3);}"));
 		
 		assertTrue(runTestInSameEvaluator("{j = tval2(\"abc\", \"def\"); j == tval2(\"abc\", \"def\");}"));
 		assertTrue(runTestInSameEvaluator("{k = tval2(\"abc\", \"def\"); k.tval1 == \"abc\";}"));
 		assertTrue(runTestInSameEvaluator("{l = tval2(\"abc\", \"def\"); l.tval2 == \"def\";}"));
 		assertTrue(runTestInSameEvaluator("{m = tval2(\"abc\", \"def\"); str s2 = m.tval2; s2 == \"def\";}"));	
+	}
+	
+	@Test(expected=TypeErrorException.class)
+	public void parameterizedErrorTest() {
+		prepare("data Exp[&T] = tval(&T tval) | tval2(&T tval1, &T tval2) | ival(int x);");
+		assertTrue(runTestInSameEvaluator("{Exp[int] h = ival(3); h == ival(3);}"));
 	}
 	
 	@Test(expected=TypeErrorException.class)
