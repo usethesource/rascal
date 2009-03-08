@@ -352,15 +352,15 @@ public class TypeEvaluator {
 			if (env != null) {
 				Type type = env.lookupAlias(name);
 
-				if (type == null) {
-					Type tree = env.lookupAbstractDataType(name);
-
-					if (tree != null) {
-						return tree;
-					}
+				if (type != null) {
+					return type;
 				}
+				
+				Type tree = env.lookupAbstractDataType(name);
 
-				return type;
+				if (tree != null) {
+					return tree;
+				}
 			}
 			
 			throw new UndeclaredTypeException(name, x);
