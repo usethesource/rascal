@@ -1,13 +1,13 @@
 package org.meta_environment.rascal.interpreter.result;
 
+import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
+
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.ValueFactoryFactory;
-
-import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 
 public class SetResult extends CollectionResult<ISet> {
 
@@ -44,6 +44,11 @@ public class SetResult extends CollectionResult<ISet> {
 	@Override
 	public <U extends IValue, V extends IValue> AbstractResult<U> notIn(AbstractResult<V> result) {
 		return result.notInSet(this);
+	}
+	
+	@Override
+	public <U extends IValue, V extends IValue> AbstractResult<U> compare(AbstractResult<V> result) {
+		return result.compareSet(this);
 	}
 	
 	//////
@@ -95,6 +100,20 @@ public class SetResult extends CollectionResult<ISet> {
 		return makeResult(type, getValue().delete(valueResult.getValue()));
 	}
 
+	@Override
+	protected <U extends IValue> AbstractResult<U> compareSet(SetResult that) {
+		// Note reversed args
+		ISet left = that.getValue();
+		ISet right = this.getValue();
+		if (left.isEqual(right)) {
+			return makeIntegerResult(0);
+		}
+		if (left.isSubsetOf(right)) {
+			return makeIntegerResult(-1);
+		}
+		return makeIntegerResult(1);
+	}
+	
 		
 	private IBool iboolOf(boolean b) {
 		return ValueFactoryFactory.getValueFactory().bool(b);

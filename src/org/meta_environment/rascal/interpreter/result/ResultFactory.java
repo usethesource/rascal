@@ -17,6 +17,8 @@ import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 
 public class ResultFactory {
+
+	// TODO: do apply rules here and introduce normalizedResult. 
 	
 	@SuppressWarnings("unchecked")
 	public static <T extends IValue> AbstractResult<T> makeResult(Type declaredType, IValue value) {
@@ -33,7 +35,7 @@ public class ResultFactory {
 		}
 
 		@Override
-		public ConstructorResult visitAbstractData(Type type) {
+		public ValueResult<INode> visitAbstractData(Type type) {
 			// TODO: rename constructor result to AbstractData
 			return new ConstructorResult(declaredType, (IConstructor)value);
 		}
@@ -49,7 +51,7 @@ public class ResultFactory {
 		}
 
 		@Override
-		public ConstructorResult visitConstructor(Type type) {
+		public ValueResult<INode> visitConstructor(Type type) {
 			return new ConstructorResult(declaredType, (IConstructor)value);
 		}
 

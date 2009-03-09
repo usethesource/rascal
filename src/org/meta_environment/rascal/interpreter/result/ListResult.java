@@ -38,6 +38,11 @@ public class ListResult extends CollectionResult<IList> {
 		return result.notInList(this);
 	}	
 	
+	@Override
+	public <U extends IValue, V extends IValue> AbstractResult<U> compare(AbstractResult<V> result) {
+		return result.compareList(this);
+	}
+	
 	/////
 	
 	@Override
@@ -91,6 +96,25 @@ public class ListResult extends CollectionResult<IList> {
 	<U extends IValue, V extends IValue> AbstractResult<U> notElementOf(ValueResult<V> elementResult) {
 		throw new ImplementationException("NYI: pdb has no contains on lists");
 		//return new BoolResult(!getValue().contains(elementResult.getValue());
+	}
+	
+	
+	@Override
+	protected <U extends IValue> AbstractResult<U> compareList(ListResult that) {
+		// Note reversed args
+		IList left = that.getValue();
+		IList right = this.getValue();
+		int compare = new Integer(left.length()).compareTo(right.length());
+		if (compare != 0) {
+			return makeIntegerResult(compare);
+		}
+		for (int i = 0; i <= left.length(); i++) {
+			compare = compareValues(left.get(i), right.get(i));
+			if (compare != 0) {
+				return makeIntegerResult(compare);
+			}
+		}
+		return makeIntegerResult(0);
 	}
 
 	

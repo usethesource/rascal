@@ -38,6 +38,10 @@ public class IntegerResult extends ValueResult<IInteger> {
 		return result.moduloInteger(this);
 	}
 	
+	@Override
+	public <U extends IValue, V extends IValue> AbstractResult<U> compare(AbstractResult<V> result) {
+		return result.compare(this);
+	}
 	
 	/// real impls start here
 	
@@ -94,6 +98,21 @@ public class IntegerResult extends ValueResult<IInteger> {
 	protected <U extends IValue> AbstractResult<U> divideReal(RealResult n) {
 		return widenToReal().divideReal(n);
 	}
+	
+	@Override
+	protected <U extends IValue> AbstractResult<U> compareInteger(IntegerResult that) {
+		// note: reversed arguments
+		IInteger left = that.getValue();
+		IInteger right = this.getValue();
+		return makeResult(getTypeFactory().integerType(), getValueFactory().integer(left.compare(right)));
+	}
+	
+	@Override
+	protected <U extends IValue> AbstractResult<U> compareReal(RealResult that) {
+		// note: reversed arguments
+		return widenToReal().compare(that);
+	}
+	
 		
 	RealResult widenToReal() {
 		return new RealResult(type, getValue().toReal());

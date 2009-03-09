@@ -25,12 +25,27 @@ public class StringResult extends ValueResult<IString> {
 		return result.addString(this);
 	}
 	
+	@Override
+	public <U extends IValue, V extends IValue> AbstractResult<U> compare(AbstractResult<V> result) {
+		return result.compareString(this);
+	}
+	
 	//////////////////////
+	
 	@Override
 	public <U extends IValue> AbstractResult<U> addString(StringResult s) {
 		// Note the reverse concat.
 		return makeResult(type, s.getValue().concat(getValue()));
 	}	
+	
+	@Override
+	public <U extends IValue> AbstractResult<U> compareString(StringResult that) {
+		// note reversed args
+		IString left = that.getValue();
+		IString right = this.getValue();
+		int result = left.compare(right);
+		return makeIntegerResult(result);
+	}
 	
 	
 }
