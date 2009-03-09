@@ -472,7 +472,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			}
 		}
 		
-		throw new NoSuchModuleException(lastError.getMessage(), x);
+		throw new NoSuchModuleException(lastError == null ? "Unknown" : lastError.getMessage(), x);
 	}
 	
 	@Override 

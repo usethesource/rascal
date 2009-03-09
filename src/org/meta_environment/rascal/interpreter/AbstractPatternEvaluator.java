@@ -1295,8 +1295,11 @@ class SingleElementGenerator implements Iterator<ISet> {
 		this.env = env;
 		// TODO: do we really need to lookup here, or can it be done when the pattern is constructed?
 		Result patRes = env.getVariable(name);
-	    boolean boundBeforeConstruction = (!anonymous) && (patRes != null) && (patRes.getValue() != null);
-	    type = (boundBeforeConstruction) ? patRes.getType() : TypeFactory.getInstance().voidType();
+		if(patRes == null || patRes.getValue() == null || anonymous){
+			type = TypeFactory.getInstance().voidType();
+		} else {
+			type = patRes.getType();
+		}
 	}
 	
 	@Override

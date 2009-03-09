@@ -4,7 +4,6 @@ import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeR
 
 import java.util.Comparator;
 import java.util.SortedSet;
-import java.util.TreeSet;
 
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISetWriter;
