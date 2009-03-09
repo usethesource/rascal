@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.Command;
@@ -19,59 +20,59 @@ import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
 import org.meta_environment.uptr.Factory;
 
-public class TestFramework  {
+public class TestFramework {
 	private Parser parser = Parser.getInstance();
 	private ASTFactory factory = new ASTFactory();
 	private ASTBuilder builder = new ASTBuilder(factory);
 	private Evaluator evaluator;
-	
-	public TestFramework () {
+
+	public TestFramework() {
 		reset();
 	}
-	
-	
+
 	protected Evaluator getTestEvaluator() {
 		GlobalEnvironment heap = new GlobalEnvironment();
-		ModuleEnvironment root = heap.addModule(new ModuleEnvironment("***test***"));
-		Evaluator eval = new Evaluator(ValueFactoryFactory.getValueFactory(), factory,
-				new PrintWriter(System.err), root, heap);
-		
+		ModuleEnvironment root = heap.addModule(new ModuleEnvironment(
+				"***test***"));
+		Evaluator eval = new Evaluator(ValueFactoryFactory.getValueFactory(),
+				factory, new PrintWriter(System.err), root, heap);
+
 		// to load modules from benchmarks and demo's
 		eval.addModuleLoader(new FromResourceLoader(getClass()));
-		
+
 		// to load modules from the test directory without qualification
 		eval.addModuleLoader(new FromResourceLoader(getClass(), "test"));
-		
+
 		return eval;
 	}
-	
+
 	private void reset() {
 		evaluator = getTestEvaluator();
 	}
-	
-	
-	public TestFramework (String  command){
+
+	public TestFramework(String command) {
 		try {
 			prepare(command);
-		} catch (Exception e){
-			throw new RunTimeException("Exception while creating TestFramework", e);
+		} catch (Exception e) {
+			throw new RunTimeException(
+					"Exception while creating TestFramework", e);
 		}
 	}
-	
+
 	public boolean runTest(String command) {
 		try {
 			reset();
 			return execute(command);
-		} catch (IOException e){
+		} catch (IOException e) {
 			e.printStackTrace();
 			throw new RunTimeException("Exception while running test", e);
 		}
 	}
-	
+
 	public boolean runTestInSameEvaluator(String command) {
 		try {
 			return execute(command);
-		} catch (IOException e){
+		} catch (IOException e) {
 			throw new RunTimeException("Exception while running test", e);
 		}
 	}
@@ -81,34 +82,36 @@ public class TestFramework  {
 			reset();
 			execute(command1);
 			return execute(command2);
-		} catch (IOException e){
+		} catch (IOException e) {
 			throw new RunTimeException("Exception while running test", e);
 		}
 	}
-	
-	public TestFramework prepare(String command){
-		try{
+
+	public TestFramework prepare(String command) {
+		try {
 			reset();
 			execute(command);
-			
-		} catch (Exception e){
-			System.err.println("Unhandled exception while preparing test: " + e);
+
+		} catch (Exception e) {
+			System.err
+					.println("Unhandled exception while preparing test: " + e);
 			e.printStackTrace();
 		}
 		return this;
 	}
-	
+
 	public TestFramework prepareMore(String command) {
-		try{
+		try {
 			execute(command);
-			
-		} catch (Exception e){
-			System.err.println("Unhandled exception while preparing test: " + e);
+
+		} catch (Exception e) {
+			System.err
+					.println("Unhandled exception while preparing test: " + e);
 		}
 		return this;
 	}
-	
-	public boolean prepareModule(String module) {
+
+	public boolean prepareModule(String module) throws FactTypeUseException {
 		try {
 			IConstructor tree = parser.parseFromString(module);
 			if (tree.getType() == Factory.ParseTree_Summary) {
@@ -120,10 +123,10 @@ public class TestFramework  {
 				mod.accept(evaluator);
 				return true;
 			}
-		} catch (Exception e){
-			System.err.println("Unhandled exception while preparing test: " + e);
+		} catch (IOException e) {
+			System.err.println("IOException during preparation:" + e);
+			return false;
 		}
-		return false;
 	}
 
 	private boolean execute(String command) throws IOException {
@@ -138,8 +141,8 @@ public class TestFramework  {
 				IValue value = evaluator.eval(cmd.getStatement());
 				if (value == null || !value.getType().isBoolType())
 					return false;
-				return value.isEqual(ValueFactoryFactory.getValueFactory().bool(true)) ? true
-						: false;
+				return value.isEqual(ValueFactoryFactory.getValueFactory()
+						.bool(true)) ? true : false;
 			} else if (cmd.isImport()) {
 				evaluator.eval(cmd.getImported());
 				return true;
@@ -147,7 +150,8 @@ public class TestFramework  {
 				evaluator.eval(cmd.getDeclaration());
 				return true;
 			} else {
-				throw new ImplementationException("Unexpected case in eval: " + cmd, cmd);
+				throw new ImplementationException("Unexpected case in eval: "
+						+ cmd, cmd);
 			}
 		}
 	}
