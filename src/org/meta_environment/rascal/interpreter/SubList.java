@@ -50,6 +50,7 @@ public class SubList implements IList {
 		return base.hashCode() + start << 8 + len << 4;
 	}
 
+	@Override
 	public boolean equals(Object o){
 		if(o instanceof IList || o instanceof SubList){
 			IList other = (IList) o;

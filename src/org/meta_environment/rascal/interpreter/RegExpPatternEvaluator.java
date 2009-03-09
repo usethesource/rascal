@@ -179,11 +179,13 @@ public class RegExpPatternEvaluator extends NullASTVisitor<MatchPattern> {
 		return false;
 	}	
 	
+	@Override
 	public MatchPattern visitExpressionLiteral(Literal x) {
 		if(debug)System.err.println("visitExpressionLiteral: " + x.getLiteral());
 		return x.getLiteral().accept(this);
 	}
 	
+	@Override
 	public MatchPattern visitLiteralRegExp(RegExp x) {
 		if(debug)System.err.println("visitLiteralRegExp: " + x.getRegExpLiteral());
 		return x.getRegExpLiteral().accept(this);

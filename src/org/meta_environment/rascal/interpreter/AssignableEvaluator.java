@@ -30,7 +30,6 @@ import org.meta_environment.rascal.interpreter.exceptions.RascalException;
 import org.meta_environment.rascal.interpreter.exceptions.TypeErrorException;
 import org.meta_environment.rascal.interpreter.exceptions.UndefinedValueException;
 import org.meta_environment.rascal.interpreter.exceptions.UninitializedVariableException;
-import org.meta_environment.rascal.interpreter.result.AbstractResult;
 import org.meta_environment.rascal.interpreter.result.Result;
 
 
