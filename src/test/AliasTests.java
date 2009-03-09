@@ -26,7 +26,7 @@ public class AliasTests extends TestFramework{
 	}
 	
 	@Test
-	public void aliases1(){
+	public void usingAliases(){
 		prepare("alias INTEGER = int;");
 		
 		assertTrue(runTestInSameEvaluator("{INTEGER I = 3; I == 3;}"));
@@ -39,7 +39,7 @@ public class AliasTests extends TestFramework{
 	}
 	
 	@Test
-	public void aliases2(){
+	public void usingIndirectAliases(){
 		prepare("alias INTEGER0 = int;");
 		prepareMore("alias INTEGER = INTEGER0;");
 		
@@ -54,7 +54,7 @@ public class AliasTests extends TestFramework{
 	}
 	
 	@Test
-	public void aliases3(){
+	public void usingVeryIndirectAliases(){
 		prepare("alias INTEGER0 = int;");
 		prepareMore("alias INTEGER1 = INTEGER0;");
 		prepareMore("alias INTEGER = INTEGER1;");
@@ -69,20 +69,30 @@ public class AliasTests extends TestFramework{
 		
 	}
 	
-	@Test @Ignore
-	public void aliases4() {
+	@Test
+	public void aliasAndADT() {
 		prepareModule("module Test alias INTEGER0 = INTEGER1; data INTEGER1 = f(int);");
 		assertTrue(runTestInSameEvaluator("{ INTEGER0 x = f(0); x == f(0); }"));
 	}
 	
-	@Test @Ignore
-	public void aliases5() {
+	@Test
+	public void outofOrderDeclaration() {
 		prepareModule("module Test alias INTEGER0 = INTEGER1; alias INTEGER1 = int;");
 		assertTrue(runTestInSameEvaluator("{ INTEGER0 x = 0; x == 0; }"));
 	}
 
-	@Test(expected=TypeErrorException.class) @Ignore
-	public void aliases6() {
+	@Test(expected=TypeErrorException.class) 
+	public void longCycle() {
+		prepareModule("module Test alias INTEGER0 = INTEGER1; alias INTEGER1 = INTEGER2; alias INTEGER2 = INTEGER0;");
+	}
+	
+	@Test(expected=TypeErrorException.class) 
+	public void undeclaredTypeInDefinition() {
+		prepareModule("module Test alias INTEGER0 = INTEGER1;");
+	}
+	
+	@Test(expected=TypeErrorException.class)
+	public void anotherCircularity() {
 		prepareModule("module Test alias INTEGER0 = INTEGER1; alias INTEGER1 = INTEGER0;");
 		assertTrue(runTestInSameEvaluator("{ INTEGER0 x = 0; x == 0; }"));
 	}
