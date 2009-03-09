@@ -72,12 +72,14 @@ public class AliasTests extends TestFramework{
 	@Test
 	public void aliasAndADT() {
 		prepareModule("module Test alias INTEGER0 = INTEGER1; data INTEGER1 = f(int);");
+		prepareMore("import Test;");
 		assertTrue(runTestInSameEvaluator("{ INTEGER0 x = f(0); x == f(0); }"));
 	}
 	
 	@Test
 	public void outofOrderDeclaration() {
 		prepareModule("module Test alias INTEGER0 = INTEGER1; alias INTEGER1 = int;");
+		prepareMore("import Test;");
 		assertTrue(runTestInSameEvaluator("{ INTEGER0 x = 0; x == 0; }"));
 	}
 
@@ -94,6 +96,7 @@ public class AliasTests extends TestFramework{
 	@Test(expected=TypeErrorException.class)
 	public void anotherCircularity() {
 		prepareModule("module Test alias INTEGER0 = INTEGER1; alias INTEGER1 = INTEGER0;");
+		prepareMore("import Test;");
 		assertTrue(runTestInSameEvaluator("{ INTEGER0 x = 0; x == 0; }"));
 	}
 }
