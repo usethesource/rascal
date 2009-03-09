@@ -219,7 +219,7 @@ import org.meta_environment.rascal.interpreter.result.Result;
 		else if(receiver.getType().isSourceLocationType()){
 			ISourceLocation loc = (ISourceLocation) receiver.getValue();
 			
-			return recur(x, eval.sourceLocationFieldUpdate(loc, label, value.getValue(), x));
+			return recur(x, eval.sourceLocationFieldUpdate(loc, label, value.getValue(), value.getType(), x));
 		}
 		else {
 			throw new NoSuchFieldException(x.getReceiver() + " has no field named `" + label + "`", x);

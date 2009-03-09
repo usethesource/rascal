@@ -184,7 +184,7 @@ public class CallTests extends TestFramework{
 	
 	@Test public void putAt() {
 		
-		String putAt = "list[&T] java putAt(&T elm, int n, list[&T] lst){return lst.put(n.getValue(), elm);}";
+		String putAt = "list[&T] java putAt(&T elm, int n, list[&T] lst){return lst.put(n.intValue(), elm);}";
 		
 		assertTrue(runTest("{" + putAt + " putAt(1, 0, [2,3]) == [1,3];}"));
 	}

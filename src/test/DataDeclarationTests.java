@@ -93,10 +93,10 @@ public class DataDeclarationTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{Exp[int] h = ival(3); h == ival(3);}"));
 	}
 	
-	@Test(expected=TypeErrorException.class)
 	public void unequalParameterType(){
 		prepare("data Exp[&T] = tval(&T tval) | tval2(&T tval1, &T tval2);");
-		runTestInSameEvaluator("tval2(3, \"abc\");");
+		// T becomes lub of int and str
+		runTestInSameEvaluator("Exp[value] x = tval2(3, \"abc\");");
 	}
 	
 
