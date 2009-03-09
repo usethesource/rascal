@@ -230,7 +230,7 @@ public class JavaBridge {
 			return "IBool";
 		}
 
-		public String visitDouble(org.eclipse.imp.pdb.facts.type.Type type) {
+		public String visitReal(org.eclipse.imp.pdb.facts.type.Type type) {
 			return "IReal";
 		}
 
@@ -331,7 +331,7 @@ public class JavaBridge {
 			return IBool.class;
 		}
 
-		public Class<?> visitDouble(org.eclipse.imp.pdb.facts.type.Type type) {
+		public Class<?> visitReal(org.eclipse.imp.pdb.facts.type.Type type) {
 			return IReal.class;
 		}
 

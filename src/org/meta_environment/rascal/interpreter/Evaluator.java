@@ -167,6 +167,7 @@ import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.env.RascalFunction;
 import org.meta_environment.rascal.interpreter.exceptions.AssertionException;
 import org.meta_environment.rascal.interpreter.exceptions.AssignmentException;
+import org.meta_environment.rascal.interpreter.exceptions.IllegalSourceLocationException;
 import org.meta_environment.rascal.interpreter.exceptions.ImplementationException;
 import org.meta_environment.rascal.interpreter.exceptions.IndexOutOfBoundsException;
 import org.meta_environment.rascal.interpreter.exceptions.ModuleLoadException;
@@ -2502,22 +2503,22 @@ public class Evaluator extends NullASTVisitor<Result> {
 		String urlText = x.getUrl().toString();
 		
 		Result length = x.getLength().accept(this);
-		int iLength = ((IInteger) length).intValue();
+		int iLength = ((IInteger) length.getValue()).intValue();
 		
 		Result offset = x.getOffset().accept(this);	
-		int iOffset = ((IInteger) offset).intValue();
+		int iOffset = ((IInteger) offset.getValue()).intValue();
 		
 		Result beginLine = x.getBeginLine().accept(this);
-		int iBeginLine = ((IInteger) beginLine).intValue();
+		int iBeginLine = ((IInteger) beginLine.getValue()).intValue();
 		
 		Result endLine = x.getEndLine().accept(this);
-		int iEndLine = ((IInteger) endLine).intValue();
+		int iEndLine = ((IInteger) endLine.getValue()).intValue();
 		
 		Result beginColumn = x.getBeginColumn().accept(this);
-		int iBeginColumn = ((IInteger) beginColumn).intValue();
+		int iBeginColumn = ((IInteger) beginColumn.getValue()).intValue();
 		
 		Result endColumn = x.getEndColumn().accept(this);
-		int iEndColumn = ((IInteger) endColumn).intValue();
+		int iEndColumn = ((IInteger) endColumn.getValue()).intValue();
 
 		try {
 			URL url = new URL(urlText);
@@ -2579,7 +2580,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			else if (expr.getType().isSourceLocationType()){
 				ISourceLocation loc = (ISourceLocation) expr.getValue();
 				
-				return sourceLocationFieldUpdate(loc, name, repl.getValue(), x);
+				return sourceLocationFieldUpdate(loc, name, repl.getValue(),repl.getType(), x);
 			} else {
 				throw new NoSuchFieldException("Field updates only possible on tuples with labeled fields, relations with labeled fields and data constructors", x);
 			}
@@ -2588,7 +2589,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 	}
 	
-	protected Result sourceLocationFieldUpdate(ISourceLocation loc, String field, IValue value, AbstractAST x){
+	protected Result sourceLocationFieldUpdate(ISourceLocation loc, String field, IValue value, Type type, AbstractAST x){
 		int iLength = loc.getLength();
 		int iOffset = loc.getOffset();
 		int iBeginLine = loc.getBeginLine();
@@ -2598,11 +2599,11 @@ public class Evaluator extends NullASTVisitor<Result> {
 		String urlText = loc.getURL().toString();
 
 		if(field.equals("url")){
-			if(!value.getType().isStringType())
+			if(!type.isStringType())
 				throw new TypeErrorException("string value required", x);
 			urlText = ((IString) value).getValue();
 		} else {
-			if(!value.getType().isIntegerType())
+			if(!type.isIntegerType())
 				throw new TypeErrorException("integer value required", x);
 
 			if(field.equals("length")){
@@ -2627,6 +2628,9 @@ public class Evaluator extends NullASTVisitor<Result> {
 			return result(tf.sourceLocationType(), nloc);
 		} catch (MalformedURLException e){
 			throw new TypeErrorException(e.getMessage(), x);
+		} catch (IllegalArgumentException e) {
+			// endLine is before beginLine or something similar
+			throw new IllegalSourceLocationException(x);
 		}
 	}
 	

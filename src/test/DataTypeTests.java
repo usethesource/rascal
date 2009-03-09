@@ -361,9 +361,9 @@ public class DataTypeTests extends TestFramework {
 		assertTrue(runTest("{ loc Loc = " + Loc + "; Loc.url = \"file:/home/paulk/pico2.trm\"; Loc.url == \"file:/home/paulk/pico2.trm\";}"));
 		assertTrue(runTest("{ loc Loc = " + Loc + "; Loc.offset = 10; Loc.offset == 10;}"));
 		assertTrue(runTest("{ loc Loc = " + Loc + "; Loc.length = 11; Loc.length == 11;}"));
-		assertTrue(runTest("{ loc Loc = " + Loc + "; Loc.beginLine = 12; Loc.beginLine == 12;}"));
-		assertTrue(runTest("{ loc Loc = " + Loc + "; Loc.beginColumn = 13; Loc.beginColumn == 13;}"));
 		assertTrue(runTest("{ loc Loc = " + Loc + "; Loc.endLine = 14; Loc.endLine == 14;}"));
+		assertTrue(runTest("{ loc Loc = " + Loc + "; Loc.beginLine = 1; Loc.beginLine == 1;}"));
+		assertTrue(runTest("{ loc Loc = " + Loc + "; Loc.beginColumn = 13; Loc.beginColumn == 13;}"));
 		assertTrue(runTest("{ loc Loc = " + Loc + "; Loc.endColumn = 15; Loc.endColumn == 15;}"));
 		
 		assertTrue(runTest("{loc Loc = " + Loc + "; Loc = Loc[url= \"file:/home/paulk/pico2.trm\"]; Loc == loc(file:/home/paulk/pico2.trm?offset=0&length=1&begin=2,3&end=4,5);}"));
