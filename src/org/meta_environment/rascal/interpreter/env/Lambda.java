@@ -262,10 +262,12 @@ public class Lambda extends Result implements IValue {
 //	}
 
 	
+	@Override
 	public boolean isNormal() {
 		return false;
 	}
 	
+	@Override
 	public boolean isClosure() {
 		return true;
 	}
@@ -278,6 +280,7 @@ public class Lambda extends Result implements IValue {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
 	public Type getType() {
 		return ClosureType;
 	}

@@ -74,6 +74,7 @@ public class ListResult extends CollectionResult<IList> {
 	}
 	
 	
+	@Override
 	<U extends IValue, V extends IValue> AbstractResult<U> insertElement(ValueResult<V> that) {
 		return makeResult(resultTypeWhenAddingElement(that), value.insert(that.getValue()));
 	}

@@ -15,10 +15,12 @@ public class ConstructorResult extends NodeResult {
 		super(type, cons);
 	}
 	
+	@Override
 	public IConstructor getValue() {
 		return (IConstructor)super.getValue();
 	}
 
+	@Override
 	public <U extends IValue> AbstractResult<U> fieldAccess(String name, TypeStore store) {
 		Type nodeType = getValue().getConstructorType();
 		if (!getType().hasField(name, store)) {
