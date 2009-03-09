@@ -14,46 +14,47 @@ public class ListResult extends CollectionResult<IList> {
 	}
 		
 	@Override
-	public AbstractResult add(AbstractResult result) {
+	public <U extends IValue, V extends IValue> AbstractResult<U> add(AbstractResult<V> result) {
 		return result.addList(this);
 	}
 	
 	@Override 
-	public AbstractResult subtract(AbstractResult result) {
+	public <U extends IValue, V extends IValue> AbstractResult<U> subtract(AbstractResult<V> result) {
 		return result.subtractList(this);
 	}
 
 	@Override
-	public AbstractResult multiply(AbstractResult result) {
+	public <U extends IValue, V extends IValue> AbstractResult<U> multiply(AbstractResult<V> result) {
 		return result.multiplyList(this);
 	}
 	
 	@Override
-	public AbstractResult in(AbstractResult result) {
+	public <U extends IValue, V extends IValue> AbstractResult<U> in(AbstractResult<V> result) {
 		return result.inList(this);
 	}	
 	
 	@Override
-	public AbstractResult notIn(AbstractResult result) {
+	public <U extends IValue, V extends IValue> AbstractResult<U> notIn(AbstractResult<V> result) {
 		return result.notInList(this);
 	}	
 	
 	/////
 	
 	@Override
-	public ListResult addList(ListResult l) {
+	protected <U extends IValue> AbstractResult<U> addList(ListResult l) {
 		// Note the reverse concat
 		return makeResult(type.lub(l.type), l.value.concat(l.value));
 	}
 
 	@Override
-	public ListResult subtractList(ListResult l) {
+	protected <U extends IValue> AbstractResult<U> subtractList(ListResult l) {
 		throw new ImplementationException("NYI");
 		// Note the reverse 
 		//return new ListResult(l.list.(l.list));
 	}
 
-	protected ListResult multiplyList(ListResult that) {
+	@Override
+	protected <U extends IValue> AbstractResult<U> multiplyList(ListResult that) {
 		Type t1 = that.type.getElementType();
 		Type t2 = type.getElementType();
 		// Note: reverse
@@ -68,26 +69,26 @@ public class ListResult extends CollectionResult<IList> {
 	}
 	
 	
-	ListResult insertElement(ValueResult that) {
+	<U extends IValue, V extends IValue> AbstractResult<U> insertElement(ValueResult<V> that) {
 		return makeResult(resultTypeWhenAddingElement(that), value.insert(that.getValue()));
 	}
 	
-	ListResult appendElement(ValueResult that) {
+	<U extends IValue, V extends IValue> AbstractResult<U> appendElement(ValueResult<V> that) {
 		// this is called by addLists in element types.
 		return makeResult(resultTypeWhenAddingElement(that), value.append(that.getValue()));
 	}
 
-	ListResult removeElement(ValueResult value) {
+	<U extends IValue, V extends IValue> AbstractResult<U> removeElement(ValueResult<V> value) {
 		throw new ImplementationException("NYI: pdb has no remove on list");
 		//return new ListResult(list.remove(value.getValue())
 	}
 
-	BoolResult elementOf(ValueResult elementResult) {
+	<U extends IValue, V extends IValue> AbstractResult<U> elementOf(ValueResult<V> elementResult) {
 		throw new ImplementationException("NYI: pdb has no contains on lists");
 		//return new BoolResult(getValue().contains(elementResult.getValue());
 	}
 
-	BoolResult notElementOf(ValueResult elementResult) {
+	<U extends IValue, V extends IValue> AbstractResult<U> notElementOf(ValueResult<V> elementResult) {
 		throw new ImplementationException("NYI: pdb has no contains on lists");
 		//return new BoolResult(!getValue().contains(elementResult.getValue());
 	}

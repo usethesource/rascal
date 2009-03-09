@@ -1,6 +1,7 @@
 package org.meta_environment.rascal.interpreter.result;
 
 import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.ValueFactoryFactory;
 
@@ -14,27 +15,27 @@ public class IntegerResult extends ValueResult<IInteger> {
 	
 	
 	@Override
-	public AbstractResult add(AbstractResult result) {
+	public <U extends IValue, V extends IValue> AbstractResult<U> add(AbstractResult<V> result) {
 		return result.addInteger(this);
 	}
 	
 	@Override
-	public AbstractResult multiply(AbstractResult result) {
+	public <U extends IValue, V extends IValue> AbstractResult<U> multiply(AbstractResult<V> result) {
 		return result.multiplyInteger(this);
 	}
 	
 	@Override
-	public AbstractResult subtract(AbstractResult result) {
+	public <U extends IValue, V extends IValue> AbstractResult<U> subtract(AbstractResult<V> result) {
 		return result.subtractInteger(this);
 	}
 	
 	@Override
-	public AbstractResult divide(AbstractResult result) {
+	public <U extends IValue, V extends IValue> AbstractResult<U> divide(AbstractResult<V> result) {
 		return result.divideInteger(this);
 	}
 	
 	@Override
-	public AbstractResult modulo(AbstractResult result) {
+	public <U extends IValue, V extends IValue> AbstractResult<U> modulo(AbstractResult<V> result) {
 		return result.moduloInteger(this);
 	}
 	
@@ -42,56 +43,56 @@ public class IntegerResult extends ValueResult<IInteger> {
 	/// real impls start here
 	
 	@Override
-	public IntegerResult negative() {
+	public <U extends IValue> AbstractResult<U> negative() {
 		return makeResult(type, ValueFactoryFactory.getValueFactory().integer(- getValue().getValue()));
 	}
 	
 	@Override  
-	protected IntegerResult addInteger(IntegerResult n) {
+	protected <U extends IValue> AbstractResult<U> addInteger(IntegerResult n) {
 		return makeResult(type, getValue().add(n.getValue()));
 	}
 	
 	@Override 
-	protected IntegerResult subtractInteger(IntegerResult n) {
+	protected <U extends IValue> AbstractResult<U> subtractInteger(IntegerResult n) {
 		// Note the reverse subtraction
 		return makeResult(type, n.getValue().subtract(getValue()));
 	}
 	
 	@Override
-	protected IntegerResult multiplyInteger(IntegerResult n) {
+	protected <U extends IValue> AbstractResult<U> multiplyInteger(IntegerResult n) {
 		return makeResult(type, getValue().multiply(n.getValue()));
 	}
 
 	@Override
-	protected IntegerResult divideInteger(IntegerResult n) {
+	protected <U extends IValue> AbstractResult<U> divideInteger(IntegerResult n) {
 		// note the reverse division.
 		return makeResult(type, n.getValue().divide(getValue()));
 	}
 	
 	@Override
-	protected IntegerResult moduloInteger(IntegerResult n) {
+	protected <U extends IValue> AbstractResult<U> moduloInteger(IntegerResult n) {
 		// note reverse
 		return makeResult(type, n.getValue().remainder(getValue()));
 	}
 	
 	@Override  
-	protected RealResult addReal(RealResult n) {
+	protected <U extends IValue> AbstractResult<U> addReal(RealResult n) {
 		return n.addInteger(this);
 	}
 	
 	
 	@Override
-	protected RealResult multiplyReal(RealResult n) {
+	protected <U extends IValue> AbstractResult<U> multiplyReal(RealResult n) {
 		return n.multiplyInteger(this);
 	}
 	
 	@Override 
-	protected RealResult subtractReal(RealResult n) {
+	protected <U extends IValue> AbstractResult<U> subtractReal(RealResult n) {
 		return widenToReal().subtractReal(n);
 	}
 	
 	@Override
-	protected RealResult divideReal(RealResult n) {
+	protected <U extends IValue> AbstractResult<U> divideReal(RealResult n) {
 		return widenToReal().divideReal(n);
 	}
 		

@@ -19,8 +19,8 @@ import org.eclipse.imp.pdb.facts.type.Type;
 public class ResultFactory {
 	
 	@SuppressWarnings("unchecked")
-	public static <T extends AbstractResult> T makeResult(Type declaredType, IValue value) {
-		return (T) declaredType.accept(new Visitor(declaredType, value));
+	public static <T extends IValue> AbstractResult<T> makeResult(Type declaredType, IValue value) {
+		return (AbstractResult<T>) declaredType.accept(new Visitor(declaredType, value));
 	}
 
 	private static class Visitor implements ITypeVisitor<AbstractResult<? extends IValue>> {
