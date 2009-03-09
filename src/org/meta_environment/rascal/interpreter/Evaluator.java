@@ -1673,7 +1673,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	@Override
 	public Result visitLiteralReal(Real x) {
 		String str = x.getRealLiteral().toString();
-		return result(vf.real(java.lang.Double.parseDouble(str)));
+		return result(vf.real(str));
 	}
 
 	@Override
@@ -1782,7 +1782,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	public Result visitIntegerLiteralDecimalIntegerLiteral(
 			DecimalIntegerLiteral x) {
 		String str = x.getDecimal().toString();
-		return result(vf.integer(java.lang.Integer.parseInt(str)));
+		return result(vf.integer(str));
 	}
 	
 	@Override
