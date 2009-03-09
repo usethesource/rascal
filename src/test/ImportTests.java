@@ -1,5 +1,6 @@
 package test;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.meta_environment.rascal.interpreter.exceptions.NoSuchFunctionException;
 import org.meta_environment.rascal.interpreter.exceptions.NoSuchModuleException;
@@ -47,8 +48,10 @@ public class ImportTests extends TestFramework {
 		runTestInSameEvaluator("m != 3;");
 	}
 	
-	@Test(expected=UndefinedValueException.class)
+	@Ignore @Test(expected=UndefinedValueException.class)
 	public void UndefinedPrivateVar2(){
+		// Paul, why would this be wrong? m would just be a fresh variable
+		// because it can't see the m in the module M (Jurgen)
 		prepareModule("module M\n" +
 		         "private int m = 3;");
 		runTestInSameEvaluator("m = 30;");
