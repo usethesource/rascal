@@ -195,7 +195,7 @@ public class TreeAdapter {
 	}
 	
 	public int getCharacter() {
-		return ((IInteger) tree.get("character")).getValue();
+		return ((IInteger) tree.get("character")).intValue();
 	}
 	
 	// TODO this code breaks in the presence of cycles
@@ -276,7 +276,7 @@ public class TreeAdapter {
 		@Override
 		public IConstructor visitTreeChar(IConstructor arg) throws VisitorException {
 			try {
-				fStream.write(((IInteger) arg.get("character")).getValue());
+				fStream.write(((IInteger) arg.get("character")).intValue());
 				return arg;
 			} catch (IOException e) {
 				throw new VisitorException(e);

@@ -20,13 +20,14 @@ public class Integer {
 	public static IValue arbInt(IInteger limit)
 	//@doc{arbInt -- return an arbitrary integer value in the interval [0, limit).}
 	{
-	   return values.integer(random.nextInt(limit.getValue()));
+		// TODO allow big ints
+	   return values.integer(random.nextInt(limit.intValue()));
 	}
 
 	public static IValue toReal(IInteger n)
 	//@doc{toReal -- convert an integer value to a real value.}
 	{
-	  return n.toDouble();
+	  return n.toReal();
 	}
 
 	public static IValue toString(IInteger n)

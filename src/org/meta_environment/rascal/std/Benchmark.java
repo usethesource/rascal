@@ -11,6 +11,6 @@ public class Benchmark {
 	// @doc{currentTimeMillis -- current time in milliseconds since January 1, 1970 GMT.}
 	{
 		double ctm = System.currentTimeMillis();
-		return values.dubble(ctm);
+		return values.real(ctm);
 	}
 }

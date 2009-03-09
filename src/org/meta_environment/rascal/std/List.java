@@ -37,8 +37,8 @@ public class List {
 	  throws IndexOutOfBoundsException
 	// @doc{head -- get the first n elements of a list}
 	{
-	   if(n.getValue() <= lst.length()){
-	      return new SubList((IValue)lst, 0, n.getValue());
+	   if(n.intValue() <= lst.length()){
+	      return new SubList((IValue)lst, 0, n.intValue());
 	   } else {
 	      throw new IndexOutOfBoundsException("head", null);
 	   }
@@ -61,7 +61,7 @@ public class List {
 	 {
 	 	IListWriter w = values.listWriter(elm.getType().lub(lst.getElementType()));
 	 	
-	 	int k = n.getValue();
+	 	int k = n.intValue();
 	    if(k >= 0 && k <= lst.length()){
 	      if(k == lst.length()){
 	      	w.insert(elm);
@@ -93,7 +93,7 @@ public class List {
 	 public static IValue slice(IList lst, IInteger start, IInteger len)
 	 //@doc{slice -- sublist from start of length len}
 	 {
-	 	return new SubList((IValue)lst, start.getValue(), len.getValue());
+	 	return new SubList((IValue)lst, start.intValue(), len.intValue());
 	 }
 
 	 public static IValue tail(IList lst)
@@ -106,7 +106,7 @@ public class List {
 	  throws IndexOutOfBoundsException
 	 //@doc{tail -- last n elements of a list}
 	 {
-	 	int lenVal = len.getValue();
+	 	int lenVal = len.intValue();
 	 	int lstLen = lst.length();
 	 	
 	 	if(lenVal > lstLen)

@@ -60,12 +60,12 @@ public class Factory {
 			String filename = "/";
 			IConstructor area = (IConstructor) loc.get("area");
 			if (area.getConstructorType() == Area_Area) {
-				int offset = ((IInteger) area.get("offset")).getValue();
-				int startLine = ((IInteger) area.get("beginLine")).getValue();
-				int endLine = ((IInteger) area.get("endLine")).getValue();
-				int startCol = ((IInteger) area.get("beginColumn")).getValue();
-				int endCol = ((IInteger) area.get("endColumn")).getValue();
-				int length = ((IInteger) area.get("length")).getValue();
+				int offset = ((IInteger) area.get("offset")).intValue();
+				int startLine = ((IInteger) area.get("beginLine")).intValue();
+				int endLine = ((IInteger) area.get("endLine")).intValue();
+				int startCol = ((IInteger) area.get("beginColumn")).intValue();
+				int endCol = ((IInteger) area.get("endColumn")).intValue();
+				int length = ((IInteger) area.get("length")).intValue();
 
 				return factory.sourceLocation(new URL("file://" + filename),
 						offset, length, startLine, endLine, startCol, endCol);
@@ -75,12 +75,12 @@ public class Factory {
 			String filename = ((IString) loc.get("filename")).getValue();
 			IConstructor area = (IConstructor) loc.get("area");
 			if (area.getConstructorType() == Area_Area) {
-				int offset = ((IInteger) area.get("offset")).getValue();
-				int startLine = ((IInteger) area.get("beginLine")).getValue();
-				int endLine = ((IInteger) area.get("endLine")).getValue();
-				int startCol = ((IInteger) area.get("beginColumn")).getValue();
-				int endCol = ((IInteger) area.get("endColumn")).getValue();
-				int length = ((IInteger) area.get("length")).getValue();
+				int offset = ((IInteger) area.get("offset")).intValue();
+				int startLine = ((IInteger) area.get("beginLine")).intValue();
+				int endLine = ((IInteger) area.get("endLine")).intValue();
+				int startCol = ((IInteger) area.get("beginColumn")).intValue();
+				int endCol = ((IInteger) area.get("endColumn")).intValue();
+				int length = ((IInteger) area.get("length")).intValue();
 
 				return factory.sourceLocation(new URL("file://" + filename),
 						offset, length, startLine, endLine, startCol, endCol);

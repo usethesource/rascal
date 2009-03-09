@@ -15,7 +15,7 @@ public class String {
 	//@doc{charAt -- return the character at position i in string s.}
 	{
 	  try {
-	    return values.integer(s.getValue().charAt(i.getValue()));
+	    return values.integer(s.getValue().charAt(i.intValue()));
 	  }
 	  catch (IndexOutOfBoundsException e) {
 	    throw new IndexOutOfBoundsException("charAt", null);
@@ -33,7 +33,7 @@ public class String {
 	{
 	    StringBuffer res = new StringBuffer();
 	    int sLen = s.getValue().length();
-	    int nVal = n.getValue();
+	    int nVal = n.intValue();
 	    if(sLen > nVal){
 	       return s;
 	    }
