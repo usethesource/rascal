@@ -14,13 +14,13 @@ import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.ISet;
@@ -33,7 +33,6 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.IWriter;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
-import org.eclipse.imp.pdb.facts.exceptions.UnexpectedTypeException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
@@ -970,6 +969,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		return env;
 	}
 	
+	@SuppressWarnings("null")
 	@Override
 	public Result visitExpressionSubscript(Subscript x) {
 		
@@ -1895,6 +1895,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		return new Lambda(x, this, tf.voidType(), "", tf.tupleEmpty(), false, x.getStatements(), peek());
 	}
 
+	@Override
 	public Result visitExpressionTuple(Tuple x) {
 		java.util.List<org.meta_environment.rascal.ast.Expression> elements = x
 				.getElements();
@@ -1910,76 +1911,6 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 		return result(tf.tupleType(types), vf.tuple(values));
 	}
-/*
-	@Override
-	public Result visitExpressionAnnotation(
-			org.meta_environment.rascal.ast.Expression.Annotation x) {
-		  Result expr = x.getExpression().accept(this);
-		String name = x.getName().toString();
-
-		Type annoType = callStack.peek().getAnnotationType(expr.getType(), name);
-
-		if (annoType == null) {
-			throw new NoSuchAnnotationError("No annotation `" + x.getName()
-					+ "` declared on " + expr.getType(), x);
-		}
-
-		IValue annoValue = ((IConstructor) expr.getValue()).getAnnotation(name);
-		
-		if (annoValue == null) {
-			// TODO: make this a Rascal exception that can be caught by the programmer
-			throw new NoSuchAnnotationError("This " + expr.getType() + " does not have a " + name + " annotation set", x);
-		}
-		return result(annoType, annoValue);
-	}
-*/	
-	
-	/*
-	@Override
-	public Result visitExpressionAnnotation(
-			org.meta_environment.rascal.ast.Expression.Annotation x) {
-		  Result lhs = x.getLhs().accept(this);
-
-	
-		if(!lhs.getType().isAbstractDataType()){
-			throw new NoSuchAnnotationError("Value of type " + lhs.getType() + " can not have an annotation", x);
-		}
-		IConstructor adt = (IConstructor) lhs.getValue();
-		
-		if(x.getRhs().isQualifiedName()){
-			String annoName = x.getRhs().toString();
-			if(!adt.hasAnnotation(annoName)){
-				throw new NoSuchAnnotationError("Datatype " + adt + " has no annotation " + annoName, x);
-			}
-			
-			return result(adt.getAnnotation(annoName));
-		} else {
-		
-			  Result rhs = x.getRhs().accept(this);
-			
-			if(!rhs.getType().isAbstractDataType()){
-				throw new NoSuchAnnotationError("Annotation should be a datatype instead of " + rhs.getType(), x);
-			}
-			IConstructor anno = (IConstructor) rhs.getValue();
-			if(anno.arity() != 1){
-				throw new NoSuchAnnotationError("Annotation should have a single argument", x);
-			}
-			String annoName = anno.getName();
-			
-			Type annoType = callStack.peek().getAnnotationType(lhs.getType(), annoName);
-	
-			if (annoType == null) {
-				throw new NoSuchAnnotationError("No annotation `" + annoName
-						+ "` declared on " + lhs.getType(), x);
-			}
-			IValue annoVal = anno.get(0);
-			IValue annotatedLhs = adt.setAnnotation(annoName, annoVal);
-			
-			return result(lhs.getType(), annotatedLhs);
-		}
-	}
-	*/
-	
 	
 	@Override
 	public Result visitExpressionGetAnnotation(
@@ -2177,6 +2108,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 					+ left.getType() + ", " + right.getType(), x);
 	}
     
+	@Override
 	public Result visitExpressionSubtraction(Subtraction x) {
 		Result left = x.getLhs().accept(this);
 		Result right = x.getRhs().accept(this);
@@ -2925,6 +2857,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			replacement = repl;
 		}
 		
+		@Override
 		public String toString(){
 			return "StringReplacement(" + start + ", " + end + ", " + replacement + ")";
 		}
@@ -3876,6 +3809,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			}
 		}
 
+		@Override
 		public void remove() {
 			throw new ImplementationException("remove() not implemented for GeneratorEvaluator", getCurrentStatement());
 		}
@@ -3928,6 +3862,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			super(resultExpr1, null, ev);
 		}
 
+		@Override
 		public void append() {
 			Result r1 = resultExpr1.accept(ev);
 			if (writer == null) {
@@ -3940,6 +3875,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			((IListWriter) writer).append(r1.getValue());
 		}
 
+		@Override
 		public Result done() {
 			return (writer == null) ? result(tf.listType(tf.voidType()), vf
 					.list()) : result(tf.listType(elementType1), writer.done());
@@ -3955,6 +3891,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			super(resultExpr1, null, ev);
 		}
 
+		@Override
 		public void append() {
 			Result r1 = resultExpr1.accept(ev);
 			if (writer == null) {
@@ -3967,6 +3904,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			((ISetWriter) writer).insert(r1.getValue());
 		}
 
+		@Override
 		public Result done() {
 			return (writer == null) ? result(tf.setType(tf.voidType()), vf
 					.set()) : result(tf.setType(elementType1), writer.done());
@@ -3983,6 +3921,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			super(resultExpr1, resultExpr2, ev);
 		}
 
+		@Override
 		public void append() {
 			Result r1 = resultExpr1.accept(ev);
 			Result r2 = resultExpr2.accept(ev);
@@ -3997,6 +3936,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			((IMapWriter) writer).put(r1.getValue(), r2.getValue());
 		}
 
+		@Override
 		public Result done() {
 			return (writer == null) ? result(tf.mapType(tf.voidType(), tf
 					.voidType()), vf.map(tf.voidType(), tf.voidType()))
