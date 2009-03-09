@@ -103,31 +103,31 @@ public class AllDemoTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("demo::PicoAbstract::PicoTypecheck::test();"));
 	}
 	
-	@Test
+	@Ignore @Test
 	public void PicoCommonSubexpression() {
 		prepare("import demo::PicoAbstract::PicoCommonSubexpression;");
 		assertTrue(runTestInSameEvaluator("demo::PicoAbstract::PicoCommonSubexpression::test();"));
 	}
 	
-	@Test
+	@Ignore @Test
 	public void PicoConstantPropagation() {
 		prepare("import demo::PicoAbstract::PicoConstantPropagation;");
 		assertTrue(runTestInSameEvaluator("demo::PicoAbstract::PicoConstantPropagation::test();"));
 	}
 	
-	@Test
+	@Ignore @Test
 	public void PicoControlflow() {
 		prepare("import demo::PicoAbstract::PicoControlflow;");
 		assertTrue(runTestInSameEvaluator("demo::PicoAbstract::PicoControlflow::test();"));
 	}
 	
-	@Test
+	@Ignore @Test
 	public void PicoUseDef() {
 		prepare("import demo::PicoAbstract::PicoUseDef;");
 		assertTrue(runTestInSameEvaluator("demo::PicoAbstract::PicoUseDef::test();"));
 	}
 	
-	@Test
+	@Ignore @Test
 	public void PicoUninit() {
 		prepare("import demo::PicoAbstract::PicoUninit;");
 		assertTrue(runTestInSameEvaluator("demo::PicoAbstract::PicoUninit::test();"));
