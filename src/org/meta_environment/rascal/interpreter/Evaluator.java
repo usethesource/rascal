@@ -33,6 +33,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.IWriter;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
+import org.eclipse.imp.pdb.facts.exceptions.UnexpectedTypeException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
@@ -2645,21 +2646,33 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result from = x.getFirst().accept(this);
 		Result to = x.getLast().accept(this);
 
-		IInteger iFrom = ((IInteger) from);
-		IInteger iTo = ((IInteger) to);
-		
-		if (iTo.less(iFrom).getValue()) {
-			IInteger tmp = iTo;
-			iTo = iFrom;
-			iFrom = tmp;
+		if (!from.getType().isIntegerType()) {
+			throw new TypeErrorException("expected integer, got " + from.getType(), x.getFirst());
 		}
+		
+		if (!to.getType().isIntegerType()) {
+			throw new TypeErrorException("expected integer, got " + to.getType(), x.getLast());
+		}
+		
+		IInteger iFrom = ((IInteger) from.getValue());
+		IInteger iTo = ((IInteger) to.getValue());
+		
+		
 		
 		IInteger one = vf.integer(1);
 		
-		do {
-			w.append(iFrom);
-			iFrom = iFrom.add(one);
-		} while (!iTo.isEqual(iFrom));
+		if (iTo.less(iFrom).getValue()) {
+			while (iFrom.greaterEqual(iTo).getValue()) {
+				w.append(iFrom);
+				iFrom = iFrom.subtract(one);
+			} 
+		}
+		else {
+			while (iFrom.lessEqual(iTo).getValue()) {
+				w.append(iFrom);
+				iFrom = iFrom.add(one);
+			}
+		}
 		
 		return result(tf.listType(tf.integerType()), w.done());
 	}
@@ -2671,21 +2684,35 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result to = x.getLast().accept(this);
 		Result second = x.getSecond().accept(this);
 
-		// TODO allow really big integers
-		int iFrom = ((IInteger) from).intValue();
-		int iSecond = ((IInteger) second).intValue();
-		int iTo = ((IInteger) to).intValue();
+		if (!from.getType().isIntegerType()) {
+			throw new TypeErrorException("expected integer, got " + from.getType(), x.getFirst());
+		}
 		
-		int diff = iSecond - iFrom;
+		if (!to.getType().isIntegerType()) {
+			throw new TypeErrorException("expected integer, got " + to.getType(), x.getLast());
+		}
+	
+		if (!second.getType().isIntegerType()) {
+			throw new TypeErrorException("expected integer, got " + second.getType(), x.getSecond());
+		}
+	
+		IInteger iFrom = ((IInteger) from.getValue());
+		IInteger iSecond = ((IInteger) second.getValue());
+		IInteger iTo = ((IInteger) to.getValue());
 		
-		if(iFrom <= iTo && diff > 0){
-			for (int i = iFrom; i >= iFrom && i <= iTo; i += diff) {
-				w.append(vf.integer(i));
-			}
-		} else if(iFrom >= iTo && diff < 0){
-			for (int i = iFrom; i <= iFrom && i >= iTo; i += diff) {
-				w.append(vf.integer(i));
-			}	
+		IInteger diff = iSecond.subtract(iFrom);
+		
+		if (iFrom.less(iTo).getValue() && diff.greater(vf.integer(0)).getValue()) {
+			do {
+				w.append(iFrom);
+				iFrom = iFrom.add(diff);
+			} while (iFrom.lessEqual(iTo).getValue());
+		} 
+		else if(iFrom.greaterEqual(iTo).getValue() && diff.less(vf.integer(0)).getValue()) {
+			do {
+				w.append(iFrom);
+				iFrom = iFrom.add(diff);
+			} while (iFrom.greaterEqual(iTo).getValue());
 		}
 		
 		return result(tf.listType(tf.integerType()), w.done());
