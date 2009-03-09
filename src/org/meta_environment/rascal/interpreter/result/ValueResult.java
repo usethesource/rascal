@@ -1,7 +1,10 @@
 package org.meta_environment.rascal.interpreter.result;
 
 
+import java.util.Comparator;
 import java.util.Iterator;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -90,6 +93,19 @@ public class ValueResult<T extends IValue> extends AbstractResult<T> {
 		return ((IInteger)resultResult.getValue()).intValue();
 	}
 
+	protected SortedSet<IValue> sortedSet(Iterator<IValue> iter) {
+		Comparator<IValue> comparator = new Comparator<IValue>() {
+			public int compare(IValue o1, IValue o2) {
+				return compareValues(o1, o2);
+			}
+		};
+		SortedSet<IValue> set = new TreeSet<IValue>(comparator);
+		while (iter.hasNext()) {
+			IValue value = iter.next();
+			set.add(value);
+		}
+		return set;
+	}
 
 
 }
