@@ -369,7 +369,7 @@ public class DataTypeTests extends TestFramework {
 		assertTrue(runTest("{loc Loc = " + Loc + "; Loc = Loc[url= \"file:/home/paulk/pico2.trm\"]; Loc == loc(file:/home/paulk/pico2.trm?offset=0&length=1&begin=2,3&end=4,5);}"));
 		assertTrue(runTest("{loc Loc = " + Loc + "; Loc = Loc[offset = 10]; Loc == loc(file:/home/paulk/pico.trm?offset=10&length=1&begin=2,3&end=4,5);}"));
 		assertTrue(runTest("{loc Loc = " + Loc + "; Loc = Loc[length = 11]; Loc ==  loc(file:/home/paulk/pico.trm?offset=0&length=11&begin=2,3&end=4,5);}"));
-		assertTrue(runTest("{loc Loc = " + Loc + "; Loc = Loc[beginLine = 12]; Loc == loc(file:/home/paulk/pico.trm?offset=0&length=1&begin=12,3&end=4,5);}"));
+		assertTrue(runTest("{loc Loc = " + Loc + "; Loc = Loc[beginLine = 1]; Loc == loc(file:/home/paulk/pico.trm?offset=0&length=1&begin=1,3&end=4,5);}"));
 		assertTrue(runTest("{loc Loc = " + Loc + "; Loc = Loc[beginColumn = 13]; Loc  == loc(file:/home/paulk/pico.trm?offset=0&length=1&begin=2,13&end=4,5);}"));
 		assertTrue(runTest("{loc Loc = " + Loc + "; Loc = Loc[endLine = 14]; Loc ==  loc(file:/home/paulk/pico.trm?offset=0&length=1&begin=2,3&end=14,5);}"));
 		assertTrue(runTest("{loc Loc = " + Loc + "; Loc = Loc[endColumn = 15]; Loc == loc(file:/home/paulk/pico.trm?offset=0&length=1&begin=2,3&end=4,15);}"));
