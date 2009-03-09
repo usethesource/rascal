@@ -1,18 +1,17 @@
 package org.meta_environment.rascal.interpreter.result;
 
-import org.eclipse.imp.pdb.facts.IDouble;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.meta_environment.ValueFactoryFactory;
-
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 
-public class RealResult extends ValueResult<IDouble> {
-	public RealResult(IDouble real) {
+import org.eclipse.imp.pdb.facts.IReal;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
+
+public class RealResult extends ValueResult<IReal> {
+	public RealResult(IReal real) {
 		this(real.getType(), real);
 	}
 	
-	public RealResult(Type type, IDouble real) {
+	public RealResult(Type type, IReal real) {
 		super(type, real);
 	}
 	
@@ -46,7 +45,7 @@ public class RealResult extends ValueResult<IDouble> {
 	
 	@Override
 	public <U extends IValue> AbstractResult<U> negative() {
-		return makeResult(type, ValueFactoryFactory.getValueFactory().dubble(- getValue().getValue()));
+		return makeResult(type, getValue().negate());
 	}
 	
 	

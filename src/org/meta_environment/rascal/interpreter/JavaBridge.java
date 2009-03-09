@@ -16,7 +16,7 @@ import net.java.dev.hickory.testing.Compilation;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IDouble;
+import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
@@ -231,7 +231,7 @@ public class JavaBridge {
 		}
 
 		public String visitDouble(org.eclipse.imp.pdb.facts.type.Type type) {
-			return "IDouble";
+			return "IReal";
 		}
 
 		public String visitInteger(org.eclipse.imp.pdb.facts.type.Type type) {
@@ -332,7 +332,7 @@ public class JavaBridge {
 		}
 
 		public Class<?> visitDouble(org.eclipse.imp.pdb.facts.type.Type type) {
-			return IDouble.class;
+			return IReal.class;
 		}
 
 		public Class<?> visitInteger(org.eclipse.imp.pdb.facts.type.Type type) {

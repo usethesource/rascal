@@ -2,11 +2,11 @@ package org.meta_environment.rascal.interpreter.result;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IDouble;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -54,8 +54,8 @@ public class ResultFactory {
 		}
 
 		@Override
-		public RealResult visitDouble(Type type) {
-			return new RealResult(declaredType, (IDouble)value);
+		public RealResult visitReal(Type type) {
+			return new RealResult(declaredType, (IReal)value);
 		}
 
 		@Override

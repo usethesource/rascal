@@ -14,7 +14,7 @@ import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IDouble;
+import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
@@ -415,18 +415,6 @@ public class Evaluator extends NullASTVisitor<Result> {
 		return new Result(null, null);
 	}
 	
-	private void checkInteger(Result val) {
-		checkType(val, tf.integerType());
-	}
-	
-	private void checkReal(Result val) {
-		checkType(val, tf.doubleType());
-	}
-	
-	private void checkType(Result val, Type expected) {
-		checkType(val.getType(), expected);
-	}
-	
 	private void checkType(Type given, Type expected) {
 		if (expected == org.meta_environment.rascal.interpreter.env.Lambda.getClosureType()) {
 			return;
@@ -434,16 +422,6 @@ public class Evaluator extends NullASTVisitor<Result> {
 		if (!given.isSubtypeOf(expected)){
 			throw new TypeErrorException("Expected " + expected + ", got " + given, getCurrentStatement());
 		}
-	}
-	
-	private int intValue(Result val) {
-		checkInteger(val);
-		return ((IInteger) val.getValue()).getValue();
-	}
-	
-	private double RealValue(Result val) {
-		checkReal(val);
-		return ((IDouble) val.getValue()).getValue();
 	}
 	
 	// Ambiguity ...................................................
@@ -1092,7 +1070,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		if(!subsBase.isIntegerType()){
 			throw new SubscriptException("Subscript should have type integer", x);
 		}
-		int index = intValue(subs);
+		int index = ((IInteger) subs.getValue()).intValue();
 
 		if (exprType.isListType()) {
 			Type elementType = exprType.getElementType();
@@ -1226,7 +1204,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			for(int i = 0 ; i < nFields; i++){
 				Field f = fields.get(i);
 				if(f.isIndex()){
-					selectedFields[i] = ((IInteger) f.getFieldIndex().accept(this).getValue()).getValue();
+					selectedFields[i] = ((IInteger) f.getFieldIndex().accept(this).getValue()).intValue();
 				} else {
 					String fieldName = f.getFieldName().toString();
 					try {
@@ -1254,7 +1232,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			for(int i = 0 ; i < nFields; i++){
 				Field f = fields.get(i);
 				if(f.isIndex()){
-					selectedFields[i] = ((IInteger) f.getFieldIndex().accept(this).getValue()).getValue();
+					selectedFields[i] = ((IInteger) f.getFieldIndex().accept(this).getValue()).intValue();
 				} else {
 					String fieldName = f.getFieldName().toString();
 					try {
@@ -1474,7 +1452,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		
 		if (receiver.getType().isListType() && subscript.getType().isIntegerType()) {
 			IList list = (IList) receiver.getValue();
-			IValue result = list.get(intValue(subscript));
+			IValue result = list.get(((IInteger) subscript.getValue()).intValue());
 			Type type = receiver.getType().getElementType();
 			return normalizedResult(type, result);
 		}
@@ -1693,7 +1671,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	@Override
 	public Result visitLiteralReal(Real x) {
 		String str = x.getRealLiteral().toString();
-		return result(vf.dubble(java.lang.Double.parseDouble(str)));
+		return result(vf.real(java.lang.Double.parseDouble(str)));
 	}
 
 	@Override
@@ -2050,16 +2028,16 @@ public class Evaluator extends NullASTVisitor<Result> {
 		
 		Type leftValType = left.getValueType();
 		Type rightValType = right.getValueType();
-		if (leftValType.isIntegerType() && rightValType.isDoubleType()) {
+		if (leftValType.isIntegerType() && rightValType.isRealType()) {
 			if(left.getType().isIntegerType()){
-				left.setType(tf.doubleType());
+				left.setType(tf.realType());
 			}
-			left.setValue(((IInteger) left.getValue()).toDouble());
-		} else if (leftValType.isDoubleType() && rightValType.isIntegerType()) {
+			left.setValue(((IInteger) left.getValue()).toReal());
+		} else if (leftValType.isRealType() && rightValType.isIntegerType()) {
 			if(right.getType().isIntegerType()){
-				right.setType(tf.doubleType());
+				right.setType(tf.realType());
 			}
-			right.setValue(((IInteger) right.getValue()).toDouble());
+			right.setValue(((IInteger) right.getValue()).toReal());
 		} 
 		/*else if(left.getType().isConstructorType()){
 			left.getType() = left.getType().getAbstractDataType();
@@ -2085,8 +2063,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 			
 		}
 		//Real
-		if (left.getType().isDoubleType() && right.getType().isDoubleType()) {
-			return result(((IDouble) left.getValue()).add((IDouble) right.getValue()));
+		if (left.getType().isRealType() && right.getType().isRealType()) {
+			return result(((IReal) left.getValue()).add((IReal) right.getValue()));
 			
 		}
 		//String
@@ -2210,8 +2188,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 		
 		// Real
-		if (left.getType().isDoubleType() && right.getType().isDoubleType()) {
-			return result(((IDouble) left.getValue()).subtract((IDouble) right.getValue()));
+		if (left.getType().isRealType() && right.getType().isRealType()) {
+			return result(((IReal) left.getValue()).subtract((IReal) right.getValue()));
 		}
 		
 		// List
@@ -2273,10 +2251,10 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result arg = x.getArgument().accept(this);
 		
 		if (arg.getType().isIntegerType()) {
-			return result(vf.integer(- intValue(arg)));
+			return result(((IInteger) arg.getValue()).negate());
 		}
-		else if (arg.getType().isDoubleType()) {
-				return result(vf.dubble(- RealValue(arg)));
+		else if (arg.getType().isRealType()) {
+				return result(((IReal) arg.getValue()).negate());
 		} else {
 			throw new TypeErrorException(
 					"Operand of unary - should be integer or Real instead of: " + arg.getType(), x);
@@ -2296,8 +2274,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 		} 
 		
 		//Real 
-		else if (left.getType().isDoubleType() && right.getType().isDoubleType()) {
-			return result(((IDouble) left.getValue()).multiply((IDouble) right.getValue()));
+		else if (left.getType().isRealType() && right.getType().isRealType()) {
+			return result(((IReal) left.getValue()).multiply((IReal) right.getValue()));
 		}
 		
 		// List
@@ -2399,8 +2377,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 			} 
 			
 			// Real
-			else if (left.getType().isDoubleType() && right.getType().isDoubleType()) {
-				return result(((IDouble) left.getValue()).divide((IDouble) right.getValue()));
+			else if (left.getType().isRealType() && right.getType().isRealType()) {
+				return result(((IReal) left.getValue()).divide((IReal) right.getValue()));
 			}
 			else {
 				throw new TypeErrorException("Operands of / have illegal types: "
@@ -2524,22 +2502,22 @@ public class Evaluator extends NullASTVisitor<Result> {
 		String urlText = x.getUrl().toString();
 		
 		Result length = x.getLength().accept(this);
-		int iLength = intValue(length);
+		int iLength = ((IInteger) length).intValue();
 		
 		Result offset = x.getOffset().accept(this);	
-		int iOffset = intValue(offset);
+		int iOffset = ((IInteger) offset).intValue();
 		
 		Result beginLine = x.getBeginLine().accept(this);
-		int iBeginLine = intValue(beginLine);
+		int iBeginLine = ((IInteger) beginLine).intValue();
 		
 		Result endLine = x.getEndLine().accept(this);
-		int iEndLine = intValue(endLine);
+		int iEndLine = ((IInteger) endLine).intValue();
 		
 		Result beginColumn = x.getBeginColumn().accept(this);
-		int iBeginColumn = intValue(beginColumn);
+		int iBeginColumn = ((IInteger) beginColumn).intValue();
 		
 		Result endColumn = x.getEndColumn().accept(this);
-		int iEndColumn = intValue(endColumn);
+		int iEndColumn = ((IInteger) endColumn).intValue();
 
 		try {
 			URL url = new URL(urlText);
@@ -2628,17 +2606,17 @@ public class Evaluator extends NullASTVisitor<Result> {
 				throw new TypeErrorException("integer value required", x);
 
 			if(field.equals("length")){
-				iLength = ((IInteger) value).getValue();
+				iLength = ((IInteger) value).intValue();
 			} else if(field.equals("offset")){
-				iOffset = ((IInteger) value).getValue();
+				iOffset = ((IInteger) value).intValue();
 			} else if(field.equals("beginLine")){
-				iBeginLine = ((IInteger) value).getValue();
+				iBeginLine = ((IInteger) value).intValue();
 			} else if(field.equals("beginColumn")){
-				iBeginColumn = ((IInteger) value).getValue();
+				iBeginColumn = ((IInteger) value).intValue();
 			} else if(field.equals("endLine")){
-				iEndLine = ((IInteger) value).getValue();
+				iEndLine = ((IInteger) value).intValue();
 			} else if(field.equals("endColumn")){
-				iEndColumn = ((IInteger) value).getValue();
+				iEndColumn = ((IInteger) value).intValue();
 			} else {
 				throw new TypeErrorException(x + " has no field named `" + field + "`", x);
 			}
@@ -2663,19 +2641,21 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result from = x.getFirst().accept(this);
 		Result to = x.getLast().accept(this);
 
-		int iFrom = intValue(from);
-		int iTo = intValue(to);
+		IInteger iFrom = ((IInteger) from);
+		IInteger iTo = ((IInteger) to);
 		
-		if (iTo < iFrom) {
-			for (int i = iFrom; i >= iTo; i--) {
-				w.append(vf.integer(i));
-			}	
+		if (iTo.less(iFrom).getValue()) {
+			IInteger tmp = iTo;
+			iTo = iFrom;
+			iFrom = tmp;
 		}
-		else {
-			for (int i = iFrom; i <= iTo; i++) {
-				w.append(vf.integer(i));
-			}
-		}
+		
+		IInteger one = vf.integer(1);
+		
+		do {
+			w.append(iFrom);
+			iFrom = iFrom.add(one);
+		} while (!iTo.isEqual(iFrom));
 		
 		return result(tf.listType(tf.integerType()), w.done());
 	}
@@ -2687,9 +2667,10 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result to = x.getLast().accept(this);
 		Result second = x.getSecond().accept(this);
 
-		int iFrom = intValue(from);
-		int iSecond = intValue(second);
-		int iTo = intValue(to);
+		// TODO allow really big integers
+		int iFrom = ((IInteger) from).intValue();
+		int iSecond = ((IInteger) second).intValue();
+		int iTo = ((IInteger) to).intValue();
 		
 		int diff = iSecond - iFrom;
 		
@@ -3385,8 +3366,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 		if (left.getType().isIntegerType() && rightType.isIntegerType()) {
 			return ((IInteger) left.getValue()).compare((IInteger) right.getValue());
 		}
-		if (leftType.isDoubleType() && rightType.isDoubleType()) {
-			return ((IDouble) left.getValue()).compare((IDouble) right.getValue());
+		if (leftType.isRealType() && rightType.isRealType()) {
+			return ((IReal) left.getValue()).compare((IReal) right.getValue());
 		}
 		if (leftType.isStringType() && rightType.isStringType()) {
 			return ((IString) left.getValue()).compare((IString) right.getValue());
@@ -3583,7 +3564,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	@Override
 	public Result visitExpressionIsDefined(IsDefined x) {
 		try {
-			Result res = x.getArgument().accept(this);
+			x.getArgument().accept(this); // wait for exception
 			return result(tf.boolType(), vf.bool(true));
 			
 		} catch (UndefinedValueException e) {
@@ -4144,7 +4125,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			if(!res.getType().isIntegerType()){
 				throw new TypeErrorException("Bound in solve statement should be integer, instead of " + res.getType(), x);
 			}
-			max = ((IInteger)res.getValue()).getValue();
+			max = ((IInteger)res.getValue()).intValue();
 			if(max <= 0){
 				throw new IndexOutOfBoundsException("Bound in solve statement should be positive", x);
 			}

@@ -145,7 +145,7 @@ public class RascalShell {
 			System.err.println("Main function should return an integer");
 		}
 		
-		return ((IInteger) result).getValue();
+		return ((IInteger) result).intValue();
 	}
 
 	private String mainArguments(String[] args) {

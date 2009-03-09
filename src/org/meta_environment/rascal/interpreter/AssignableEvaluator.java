@@ -27,7 +27,6 @@ import org.meta_environment.rascal.interpreter.exceptions.IndexOutOfBoundsExcept
 import org.meta_environment.rascal.interpreter.exceptions.NoSuchAnnotationException;
 import org.meta_environment.rascal.interpreter.exceptions.NoSuchFieldException;
 import org.meta_environment.rascal.interpreter.exceptions.RascalException;
-import org.meta_environment.rascal.interpreter.exceptions.SubscriptException;
 import org.meta_environment.rascal.interpreter.exceptions.TypeErrorException;
 import org.meta_environment.rascal.interpreter.exceptions.UndefinedValueException;
 import org.meta_environment.rascal.interpreter.exceptions.UninitializedVariableException;
@@ -127,14 +126,14 @@ import org.meta_environment.rascal.interpreter.result.Result;
 		if (rec.getType().isListType() && subscript.getType().isIntegerType()) {
 			try {
 			IList list = (IList) rec.getValue();
-			int index = ((IInteger) subscript.getValue()).getValue();
+			int index = ((IInteger) subscript.getValue()).intValue();
 			list = list.put(index, value.getValue());
 			result = eval.result(rec.getType(), list);
 			}  catch (RascalException e){
 				throw e;
 			}
 			catch (Exception e){
-				throw new IndexOutOfBoundsException("Index " + ((IInteger) subscript.getValue()).getValue() + " out of bounds", x);
+				throw new IndexOutOfBoundsException("Index " + ((IInteger) subscript.getValue()).intValue() + " out of bounds", x);
 			}
 		}
 		else if (rec.getType().isMapType()) {
@@ -149,7 +148,7 @@ import org.meta_environment.rascal.interpreter.result.Result;
 			}
 			
 		} else if (rec.getType().isNodeType() && subscript.getType().isIntegerType()) {
-			int index = ((IInteger) subscript.getValue()).getValue();
+			int index = ((IInteger) subscript.getValue()).intValue();
 			INode node = (INode) rec.getValue();
 			
 			if(index >= node.arity()){

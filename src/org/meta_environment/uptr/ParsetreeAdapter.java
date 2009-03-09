@@ -39,7 +39,7 @@ public class ParsetreeAdapter {
 	}
 	
 	public boolean hasAmbiguities() {
-		return ((IInteger) parseTree.get("amb_cnt")).getValue() != 0;
+		return ((IInteger) parseTree.get("amb_cnt")).intValue() != 0;
 	}
 
 }

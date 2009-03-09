@@ -181,7 +181,7 @@ public class TypeEvaluator {
 
 		@Override
 		public Type visitBasicTypeReal(Real x) {
-			return tf.doubleType();
+			return tf.realType();
 		}
 
 		@Override

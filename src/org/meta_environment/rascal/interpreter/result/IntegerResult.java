@@ -1,11 +1,10 @@
 package org.meta_environment.rascal.interpreter.result;
 
+import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
+
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.meta_environment.ValueFactoryFactory;
-
-import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 
 public class IntegerResult extends ValueResult<IInteger> {
 
@@ -44,7 +43,7 @@ public class IntegerResult extends ValueResult<IInteger> {
 	
 	@Override
 	public <U extends IValue> AbstractResult<U> negative() {
-		return makeResult(type, ValueFactoryFactory.getValueFactory().integer(- getValue().getValue()));
+		return makeResult(type, getValue().negate());
 	}
 	
 	@Override  
@@ -97,7 +96,7 @@ public class IntegerResult extends ValueResult<IInteger> {
 	}
 		
 	RealResult widenToReal() {
-		return new RealResult(type, getValue().toDouble());
+		return new RealResult(type, getValue().toReal());
 	}
 	
 
