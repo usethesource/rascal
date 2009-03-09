@@ -1,14 +1,19 @@
 package org.meta_environment.rascal.interpreter.result;
 
+import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
+
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.interpreter.exceptions.ImplementationException;
 import org.meta_environment.rascal.interpreter.exceptions.TypeErrorException;
+
+// TODO: perhaps move certain stuff down to ValueResult (or merge that class with this one).
 
 public abstract class AbstractResult<T extends IValue> implements Iterator<AbstractResult<IValue>> {
 	private static final String INTERSECTION_STRING = "intersection";
@@ -22,6 +27,9 @@ public abstract class AbstractResult<T extends IValue> implements Iterator<Abstr
 	private static final String MULTIPLICATION_STRING = "multiplication";
 	private static final String SUBTRACTION_STRING = "subtraction";
 	private static final String ADDITION_STRING = "addition";
+	private static final String FIELD_ACCESS_STRING = "field access";
+	private static final String EQUALS_STRING = "equality";
+	private static final String COMPARE_STRING = "comparison";
 	private Iterator<AbstractResult<IValue>> iterator = null;
 	protected Type type;
 	protected T value;
@@ -52,6 +60,10 @@ public abstract class AbstractResult<T extends IValue> implements Iterator<Abstr
 	@Deprecated
 	public Type getValueType() {
 		return getValue().getType();
+	}
+	
+	protected <U extends IValue> AbstractResult<U> makeIntegerResult(int i) {
+		return makeResult(getTypeFactory().integerType(), getValueFactory().integer(i));
 	}
 	
 	
@@ -144,6 +156,16 @@ public abstract class AbstractResult<T extends IValue> implements Iterator<Abstr
 	public <U extends IValue, V extends IValue> AbstractResult<U> intersect(AbstractResult<V> that) {
 		return undefinedError(INTERSECTION_STRING, this);
 	}
+	
+	public <U extends IValue, V extends IValue> AbstractResult<U> equals(AbstractResult<V> that) {
+		// e.g. for closures equality is undefined
+		return undefinedError(EQUALS_STRING, this);
+	}
+	
+	public <U extends IValue, V extends IValue> AbstractResult<U> compare(AbstractResult<V> that) {
+		undefinedError(COMPARE_STRING, that);
+		return null;
+	}
 
 	public <U extends IValue> AbstractResult<U> transitiveClosure() {
 		return undefinedError(TRANSITIVE_CLOSURE_STRING);
@@ -153,8 +175,13 @@ public abstract class AbstractResult<T extends IValue> implements Iterator<Abstr
 		return undefinedError(TRANSITIVE_REFLEXIVE_CLOSURE_STRING);
 	}
 	
+	public <U extends IValue> AbstractResult<U> fieldAccess(String name, TypeStore store) {
+		return undefinedError(FIELD_ACCESS_STRING);
+	}
+	
+	
 	///////
-
+	
 	protected <U extends IValue> AbstractResult<U> addInteger(IntegerResult that) {
 		return that.undefinedError(ADDITION_STRING, this);
 	}
@@ -265,6 +292,49 @@ public abstract class AbstractResult<T extends IValue> implements Iterator<Abstr
 		return that.undefinedError(NOTIN_STRING, this);
 	}
 	
+	protected <U extends IValue> AbstractResult<U> compareInteger(IntegerResult that) {
+		return that.undefinedError(COMPARE_STRING, this);
+	}
+	
+	protected <U extends IValue> AbstractResult<U> compareReal(RealResult that) {
+		return that.undefinedError(COMPARE_STRING, this);
+	}
+	
+	protected <U extends IValue> AbstractResult<U> compareString(StringResult that) {
+		return that.undefinedError(COMPARE_STRING, this);
+	}
+	
+	protected <U extends IValue> AbstractResult<U> compareSourceLocation(SourceLocationResult that) {
+		return that.undefinedError(COMPARE_STRING, this);
+	}
+	
+	protected <U extends IValue> AbstractResult<U> compareTuple(TupleResult that) {
+		return that.undefinedError(COMPARE_STRING, this);
+	}
+	
+	protected <U extends IValue> AbstractResult<U> compareSet(SetResult that) {
+		return that.undefinedError(COMPARE_STRING, this);
+	}
+	
+	protected <U extends IValue> AbstractResult<U> compareList(ListResult that) {
+		return that.undefinedError(COMPARE_STRING, this);
+	}
+	
+	protected <U extends IValue> AbstractResult<U> compareRelation(RelationResult that) {
+		return that.undefinedError(COMPARE_STRING, this);
+	}
+	
+	protected <U extends IValue> AbstractResult<U> compareBool(BoolResult that) {
+		return that.undefinedError(COMPARE_STRING, this);
+	}
+	
+	protected <U extends IValue> AbstractResult<U> compareConstructor(ConstructorResult that) {
+		return that.undefinedError(COMPARE_STRING, this);
+	}
+	
+	protected <U extends IValue> AbstractResult<U> compareMap(MapResult that) {
+		return that.undefinedError(COMPARE_STRING, this);
+	}
 	
 	
 }

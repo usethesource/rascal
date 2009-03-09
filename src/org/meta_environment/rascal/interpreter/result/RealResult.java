@@ -41,6 +41,11 @@ public class RealResult extends ValueResult<IReal> {
 	}
 	
 	
+	@Override
+	public <U extends IValue, V extends IValue> AbstractResult<U> compare(AbstractResult<V> result) {
+		return result.compareReal(this);
+	}
+	
 	/// real impls start here
 	
 	@Override
@@ -91,5 +96,13 @@ public class RealResult extends ValueResult<IReal> {
 		return makeResult(type, n.getValue().divide(getValue()));
 	}
 	
+	@Override
+	protected <U extends IValue> AbstractResult<U> compareReal(RealResult that) {
+		// note reverse arguments
+		IReal left = that.getValue();
+		IReal right = this.getValue();
+		int result = left.compare(right);
+		return makeIntegerResult(result);
+	}
 	
 }

@@ -1,11 +1,16 @@
 package org.meta_environment.rascal.interpreter.result;
 
-import org.eclipse.imp.pdb.facts.IRelation;
-import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.type.Type;
-import org.meta_environment.rascal.interpreter.exceptions.TypeErrorException;
-
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
+
+import org.eclipse.imp.pdb.facts.IRelation;
+import org.eclipse.imp.pdb.facts.ISetWriter;
+import org.eclipse.imp.pdb.facts.ITuple;
+import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.meta_environment.rascal.interpreter.exceptions.NoSuchFieldException;
+import org.meta_environment.rascal.interpreter.exceptions.TypeErrorException;
 
 public class RelationResult extends CollectionResult<IRelation> {
 
@@ -39,6 +44,25 @@ public class RelationResult extends CollectionResult<IRelation> {
 			return makeResult(type, getValue().closureStar());
 		}
 		
+		
+		@Override
+		public <U extends IValue> AbstractResult<U> fieldAccess(String name, TypeStore store) {
+			Type tupleType = getType().getFieldTypes();			
+			try {
+				ISetWriter w = getValueFactory().setWriter(tupleType.getFieldType(name));
+				for (IValue e : getValue()) {
+					w.insert(((ITuple) e).get(tupleType.getFieldIndex(name)));
+				}
+				return makeResult(getTypeFactory().setType(tupleType.getFieldType(name)), w.done());
+			}
+			// TODO: why catch this exception here?
+			catch (FactTypeUseException e) {
+				throw new NoSuchFieldException(e.getMessage(), null);
+			}
+		}
+		
+		
+		///
 		
 		@Override
 		protected <U extends IValue> AbstractResult<U> addRelation(RelationResult r) {
