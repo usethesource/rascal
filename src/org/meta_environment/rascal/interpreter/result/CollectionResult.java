@@ -18,36 +18,36 @@ public class CollectionResult<T extends IValue> extends ValueResult<T> {
 
 	
 	@Override
-	protected CollectionResult addReal(RealResult n) {
+	protected <U extends IValue> AbstractResult<U> addReal(RealResult n) {
 		return insertElement(n);
 	}
 	
 	@Override
-	protected CollectionResult addInteger(IntegerResult n) {
+	protected <U extends IValue> AbstractResult<U> addInteger(IntegerResult n) {
 		return insertElement(n);
 	}
 
 	@Override
-	protected CollectionResult addString(StringResult n) {
+	protected <U extends IValue> AbstractResult<U> addString(StringResult n) {
 		return insertElement(n);
 	}
 	
 	@Override
-	protected CollectionResult addBool(BoolResult n) {
+	protected <U extends IValue> AbstractResult<U> addBool(BoolResult n) {
 		return insertElement(n);
 	}
 	
 	@Override 
-	protected CollectionResult addTuple(TupleResult t) {
+	protected <U extends IValue> AbstractResult<U> addTuple(TupleResult t) {
 		return insertElement(t);
 	}
 	
-	CollectionResult insertElement(ValueResult result) {
+	<U extends IValue, V extends IValue> AbstractResult<U> insertElement(ValueResult<V> result) {
 		throw new ImplementationException("this method should be specialized in subclasses");
 	}
 
 
-	protected Type resultTypeWhenAddingElement(ValueResult that) {
+	protected <U extends IValue> Type resultTypeWhenAddingElement(ValueResult<U> that) {
 		Type t1 = type.getElementType();
 		Type t2 = that.type;
 		return TypeFactory.getInstance().listType(t1.lub(t2));

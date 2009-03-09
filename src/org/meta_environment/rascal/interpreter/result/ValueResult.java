@@ -18,44 +18,44 @@ public class ValueResult<T extends IValue> extends AbstractResult<T> {
 	}
 	
 	@Override
-	protected BoolResult inSet(SetResult s) {
+	protected <U extends IValue> AbstractResult<U> inSet(SetResult s) {
 		return s.elementOf(this);
 	}
 	
 	@Override
-	protected BoolResult notInSet(SetResult s) {
+	protected <U extends IValue> AbstractResult<U> notInSet(SetResult s) {
 		return s.notElementOf(this);
 	}
 	
 	
 	@Override
-	protected BoolResult inList(ListResult s) {
+	protected <U extends IValue> AbstractResult<U> inList(ListResult s) {
 		return s.elementOf(this);
 	}
 	
 	@Override
-	protected BoolResult notInList(ListResult s) {
+	protected <U extends IValue> AbstractResult<U> notInList(ListResult s) {
 		return s.notElementOf(this);
 	}
 	
 	
 	@Override
-	protected SetResult addSet(SetResult s) {
+	protected <U extends IValue> AbstractResult<U> addSet(SetResult s) {
 		return s.addElement(this);
 	}
 	
 	@Override
-	protected SetResult subtractSet(SetResult s) {
+	protected <U extends IValue> AbstractResult<U> subtractSet(SetResult s) {
 		return s.removeElement(this);
 	}
 
 	@Override
-	protected ListResult addList(ListResult s) {
+	protected <U extends IValue> AbstractResult<U> addList(ListResult s) {
 		return s.appendElement(this);
 	}
 
 	@Override
-	protected ListResult subtractList(ListResult s) {
+	protected <U extends IValue> AbstractResult<U> subtractList(ListResult s) {
 		return s.removeElement(this);
 	}
 

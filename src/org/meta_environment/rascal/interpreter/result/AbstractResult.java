@@ -55,7 +55,9 @@ public abstract class AbstractResult<T extends IValue> implements Iterator<Abstr
 	}
 	
 	
-	/// Factory access: this should probably access fields initialized by constructor invocations
+	/// TODO: Factory access:
+	//this should probably access fields initialized by constructor invocations
+	//passed into them by ResultFactory.
 	
 	protected TypeFactory getTypeFactory() {
 		return TypeFactory.getInstance();
@@ -107,158 +109,159 @@ public abstract class AbstractResult<T extends IValue> implements Iterator<Abstr
 	
 	
 	
-	public <U extends IValue> AbstractResult<U> add(AbstractResult<U> that) {
+	public <U extends IValue, V extends IValue> AbstractResult<U> add(AbstractResult<V> that) {
 		return undefinedError(ADDITION_STRING, that);
 	}
 
-	public AbstractResult subtract(AbstractResult that) {
+	public <U extends IValue, V extends IValue> AbstractResult<U> subtract(AbstractResult<V> that) {
 		return undefinedError(SUBTRACTION_STRING, that);
 	}
 
-	public AbstractResult multiply(AbstractResult that) {
+	public <U extends IValue, V extends IValue> AbstractResult<U> multiply(AbstractResult<V> that) {
 		return undefinedError(MULTIPLICATION_STRING, that);
 	}
 	
-	public AbstractResult divide(AbstractResult that) {
+	public <U extends IValue, V extends IValue> AbstractResult<U> divide(AbstractResult<V> that) {
 		return undefinedError(DIVISION_STRING, that);
 	}
 
-	public AbstractResult modulo(AbstractResult that) {
+	public <U extends IValue, V extends IValue> AbstractResult<U> modulo(AbstractResult<V> that) {
 		return undefinedError(MODULO_STRING, that);
 	}
 
-	public AbstractResult in(AbstractResult that) {
+	public <U extends IValue, V extends IValue> AbstractResult<U> in(AbstractResult<V> that) {
 		return undefinedError(IN_STRING, that);
 	}
 
-	public AbstractResult notIn(AbstractResult that) {
+	public <U extends IValue, V extends IValue> AbstractResult<U> notIn(AbstractResult<V> that) {
 		return undefinedError(NOTIN_STRING, that);
 	}
 
-	public AbstractResult negative() {
+	public <U extends IValue> AbstractResult<U> negative() {
 		return undefinedError(NEGATIVE_STRING);
 	}
 
-	public AbstractResult transitiveClosure() {
+	public <U extends IValue, V extends IValue> AbstractResult<U> intersect(AbstractResult<V> that) {
+		return undefinedError(INTERSECTION_STRING, this);
+	}
+
+	public <U extends IValue> AbstractResult<U> transitiveClosure() {
 		return undefinedError(TRANSITIVE_CLOSURE_STRING);
 	}
 
-	public AbstractResult transitiveReflexiveClosure() {
+	public <U extends IValue> AbstractResult<U> transitiveReflexiveClosure() {
 		return undefinedError(TRANSITIVE_REFLEXIVE_CLOSURE_STRING);
 	}
 	
 	///////
 
-	protected AbstractResult addInteger(IntegerResult that) {
+	protected <U extends IValue> AbstractResult<U> addInteger(IntegerResult that) {
 		return that.undefinedError(ADDITION_STRING, this);
 	}
 
-	protected AbstractResult subtractInteger(IntegerResult that) {
+	protected <U extends IValue> AbstractResult<U> subtractInteger(IntegerResult that) {
 		return that.undefinedError(SUBTRACTION_STRING, this);
 	}
 
-	protected AbstractResult multiplyInteger(IntegerResult that) {
+	protected <U extends IValue> AbstractResult<U> multiplyInteger(IntegerResult that) {
 		return that.undefinedError(MULTIPLICATION_STRING, this);
 	}
 
-	protected AbstractResult addReal(RealResult that) {
+	protected <U extends IValue> AbstractResult<U> addReal(RealResult that) {
 		return that.undefinedError(ADDITION_STRING, this);
 	}
 
-	protected AbstractResult subtractReal(RealResult that) {
+	protected <U extends IValue> AbstractResult<U> subtractReal(RealResult that) {
 		return that.undefinedError(SUBTRACTION_STRING, this);
 	}
 
-	protected AbstractResult multiplyReal(RealResult that) {
+	protected <U extends IValue> AbstractResult<U> multiplyReal(RealResult that) {
 		return that.undefinedError(MULTIPLICATION_STRING, this);
 	}
 
 
-	protected AbstractResult divideReal(RealResult that) {
+	protected <U extends IValue> AbstractResult<U> divideReal(RealResult that) {
 		return that.undefinedError(DIVISION_STRING, this);
 	}
 
-	protected AbstractResult divideInteger(IntegerResult that) {
+	protected <U extends IValue> AbstractResult<U> divideInteger(IntegerResult that) {
 		return that.undefinedError(DIVISION_STRING, this);
 	}
 
-	protected AbstractResult addString(StringResult that) {
+	protected <U extends IValue> AbstractResult<U> addString(StringResult that) {
 		return that.undefinedError(ADDITION_STRING, this);
 	}
 
-	protected AbstractResult addList(ListResult that) {
+	protected <U extends IValue> AbstractResult<U> addList(ListResult that) {
 		return that.undefinedError(ADDITION_STRING, this);
 	}
 
-	protected AbstractResult subtractList(ListResult that) {
+	protected <U extends IValue> AbstractResult<U> subtractList(ListResult that) {
 		return that.undefinedError(SUBTRACTION_STRING, this);
 	}
 
-	protected AbstractResult multiplyList(CollectionResult that) {
+	protected <U extends IValue> AbstractResult<U> multiplyList(ListResult that) {
 		return that.undefinedError(MULTIPLICATION_STRING, that);
 	}
 
-	protected AbstractResult addSet(SetResult that) {
+	protected <U extends IValue> AbstractResult<U> addSet(SetResult that) {
 		return that.undefinedError(ADDITION_STRING, this);
 	}
 
-	protected AbstractResult addRelation(RelationResult that) {
+	protected <U extends IValue> AbstractResult<U> addRelation(RelationResult that) {
 		return that.undefinedError(ADDITION_STRING, this);
 	}
 
-	protected AbstractResult addBool(BoolResult that) {
+	protected <U extends IValue> AbstractResult<U> addBool(BoolResult that) {
 		return that.undefinedError(ADDITION_STRING, this);
 	}
 
-	protected AbstractResult subtractSet(SetResult that) {
+	protected <U extends IValue> AbstractResult<U> subtractSet(SetResult that) {
 		return that.undefinedError(SUBTRACTION_STRING, this);
 	}
 
-	protected AbstractResult multiplySet(SetResult that) {
+	protected <U extends IValue> AbstractResult<U> multiplySet(SetResult that) {
 		return that.undefinedError(MULTIPLICATION_STRING, this);
 	}
 
-	protected AbstractResult addMap(MapResult that) {
+	protected <U extends IValue> AbstractResult<U> addMap(MapResult that) {
 		return that.undefinedError(ADDITION_STRING, this);
 	}
 
-	protected AbstractResult subtractRelation(RelationResult that) {
+	protected <U extends IValue> AbstractResult<U> subtractRelation(RelationResult that) {
 		return that.undefinedError(SUBTRACTION_STRING, this);
 	}
 
-	protected AbstractResult moduloReal(RealResult that) {
+	protected <U extends IValue> AbstractResult<U> moduloReal(RealResult that) {
 		return that.undefinedError(MODULO_STRING, this);
 	}
 
-	protected AbstractResult addTuple(TupleResult that) {
+	protected <U extends IValue> AbstractResult<U> addTuple(TupleResult that) {
 		return that.undefinedError(ADDITION_STRING, this);
 	}
 
-	protected AbstractResult moduloInteger(IntegerResult that) {
+	protected <U extends IValue> AbstractResult<U> moduloInteger(IntegerResult that) {
 		return that.undefinedError(MODULO_STRING, this);
 	}
 
-	protected AbstractResult intersect(AbstractResult that) {
+	
+	protected <U extends IValue> AbstractResult<U> intersectSet(SetResult that) {
 		return that.undefinedError(INTERSECTION_STRING, this);
 	}
 
-	protected AbstractResult intersectSet(SetResult that) {
-		return that.undefinedError(INTERSECTION_STRING, this);
-	}
-
-	protected AbstractResult inSet(SetResult that) {
+	protected <U extends IValue> AbstractResult<U> inSet(SetResult that) {
 		return that.undefinedError(IN_STRING, this);
 	}
 
-	protected AbstractResult inList(ListResult that) {
+	protected <U extends IValue> AbstractResult<U> inList(ListResult that) {
 		return that.undefinedError(IN_STRING, this);
 	}
 
-	protected AbstractResult notInSet(SetResult that) {
+	protected <U extends IValue> AbstractResult<U> notInSet(SetResult that) {
 		return that.undefinedError(NOTIN_STRING, this);
 	}
 
-	protected AbstractResult notInList(ListResult that) {
+	protected <U extends IValue> AbstractResult<U> notInList(ListResult that) {
 		return that.undefinedError(NOTIN_STRING, this);
 	}
 	
