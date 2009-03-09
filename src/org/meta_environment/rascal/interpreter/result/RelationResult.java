@@ -2,6 +2,10 @@ package org.meta_environment.rascal.interpreter.result;
 
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 
+import java.util.Comparator;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
@@ -26,6 +30,11 @@ public class RelationResult extends CollectionResult<IRelation> {
 		@Override
 		public  <U extends IValue, V extends IValue> AbstractResult<U> subtract(AbstractResult<V> result) {
 			return result.subtractRelation(this);
+		}
+		
+		@Override
+		public <U extends IValue, V extends IValue> AbstractResult<U> compare(AbstractResult<V> result) {
+			return result.compareRelation(this);
 		}
 		
 		
@@ -78,6 +87,42 @@ public class RelationResult extends CollectionResult<IRelation> {
 		}
 
 
+		@Override
+		protected <U extends IValue> AbstractResult<U> compareRelation(RelationResult that) {
+			// Note reverse args
+			IRelation left = that.getValue();
+			IRelation right = this.getValue();
+			int compare = new Integer(left.size()).compareTo(right.size());
+			if (compare != 0) {
+				return makeIntegerResult(compare);
+			}
+			if (left.isEqual(right)) {
+				return makeIntegerResult(0);
+			}
+			if (left.isSubsetOf(right)) {
+				return makeIntegerResult(-1);
+			}
+			if (right.isSubsetOf(left)) {
+				return makeIntegerResult(1);
+			}
+			
+			// Sets are of equal size from here on
+			SortedSet<IValue> leftSet = sortedSet(left.iterator());
+			SortedSet<IValue> rightSet = sortedSet(right.iterator());
+			Comparator<? super IValue> comparator = leftSet.comparator();
+	
+			while (!leftSet.isEmpty()) {
+				compare = comparator.compare(leftSet.last(), rightSet.last());
+				if (compare != 0) {
+					return makeIntegerResult(compare);
+				}
+				leftSet = leftSet.headSet(leftSet.last());
+				rightSet = rightSet.headSet(rightSet.last());
+			}
+			return makeIntegerResult(0);
+			
+		}
+		
 		private void checkCompatibleArity(RelationResult that) {
 			checkArity(getValue().arity(), that.getValue().arity());
 		}
@@ -93,6 +138,8 @@ public class RelationResult extends CollectionResult<IRelation> {
 			// TODO: check that result is tuple and that arity is ok. 
 			return makeResult(resultTypeWhenAddingElement(result), (IRelation) getValue().insert(result.getValue()));
 		}
+		
+		
 		
 		
 		
