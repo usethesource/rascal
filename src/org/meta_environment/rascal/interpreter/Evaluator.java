@@ -2702,7 +2702,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		
 		IInteger diff = iSecond.subtract(iFrom);
 		
-		if (iFrom.less(iTo).getValue() && diff.greater(vf.integer(0)).getValue()) {
+		if (iFrom.lessEqual(iTo).getValue() && diff.greater(vf.integer(0)).getValue()) {
 			do {
 				w.append(iFrom);
 				iFrom = iFrom.add(diff);
