@@ -34,88 +34,71 @@ public class ResultFactory {
 			this.value = value;
 		}
 
-		@Override
 		public ValueResult<INode> visitAbstractData(Type type) {
 			// TODO: rename constructor result to AbstractData
 			return new ConstructorResult(declaredType, (IConstructor)value);
 		}
 
-		@Override
 		public AbstractResult<? extends IValue> visitAlias(Type type) {
 			return type.getAliased().accept(this);
 		}
 
-		@Override
 		public BoolResult visitBool(Type boolType) {
 			return new BoolResult(declaredType, (IBool)value);
 		}
 
-		@Override
 		public ValueResult<INode> visitConstructor(Type type) {
 			return new ConstructorResult(declaredType, (IConstructor)value);
 		}
 
-		@Override
 		public RealResult visitReal(Type type) {
 			return new RealResult(declaredType, (IReal)value);
 		}
 
-		@Override
 		public IntegerResult visitInteger(Type type) {
 			return new IntegerResult(declaredType, (IInteger)value);
 		}
 
-		@Override
 		public ListResult visitList(Type type) {
 			return new ListResult(declaredType, (IList)value);
 		}
 
-		@Override
 		public MapResult visitMap(Type type) {
 			return new MapResult(declaredType, (IMap)value);
 		}
 
-		@Override
 		public NodeResult visitNode(Type type) {
 			return new NodeResult(declaredType, (INode)value);
 		}
 
-		@Override
 		public AbstractResult<? extends IValue> visitParameter(Type parameterType) {
 			return parameterType.getBound().accept(this);
 		}
 
-		@Override
 		public RelationResult visitRelationType(Type type) {
 			return new RelationResult(declaredType, (IRelation)value);
 		}
 
-		@Override
 		public SetResult visitSet(Type type) {
 			return new SetResult(declaredType, (ISet)value);
 		}
 
-		@Override
 		public SourceLocationResult visitSourceLocation(Type type) {
 			return new SourceLocationResult(declaredType, (ISourceLocation)value);		
 		}
 
-		@Override
 		public StringResult visitString(Type type) {
 			return new StringResult(declaredType, (IString)value);
 		}
 
-		@Override
 		public TupleResult visitTuple(Type type) {
 			return new TupleResult(declaredType, (ITuple)value);
 		}
 
-		@Override
 		public ValueResult<IValue> visitValue(Type type) {
 			return new ValueResult<IValue>(declaredType, value);
 		}
 
-		@Override
 		public VoidResult visitVoid(Type type) {
 			return new VoidResult(declaredType);
 		}
