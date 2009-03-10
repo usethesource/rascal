@@ -71,6 +71,26 @@ public &T multiply(list[&T] lst, &T unity)
   return reducer(lst, #mul, unity);
 }
 
+public list[list[&T]] permutations(list[&T] lst)
+@doc{permutations -- return all permutations of a list}
+{
+  int N = size(lst);
+  if(N <= 1)
+  	return [[lst]];
+  	
+  list[list[&T]] result = [];
+  
+  for(int i <- domain(lst)){
+   
+  	list[list[&T]] perm = permutations(head(lst, i) + tail(lst, N - i -1));
+  	
+  	for(list[&T] sub <- perm){
+  		result = result + [[lst[i], sub]];
+  	}
+  }
+  return result;
+}
+
 public &T reducer(list[&T] lst, &T (&T, &T) fn, &T unit)
 @doc{reducer -- apply function F to successive elements of a list}
 {
@@ -135,7 +155,7 @@ public &T sum(list[&T] lst, &T zero)
  @javaClass{org.meta_environment.rascal.std.List};
  
   public list[&T] java tail(list[&T] lst, int len)throws IndexOutOfBoundsError
- @doc{tail -- last n elements ofelement of a list}
+ @doc{tail -- last n elements of a list}
  @javaClass{org.meta_environment.rascal.std.List};
  
 public tuple[&T, list[&T]] java takeOneFrom(list[&T] lst)

@@ -1772,7 +1772,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				}
 			}
 			
-			result.append((char) b);
+			result.append(b);
 		}
 		
 		return result.toString();
