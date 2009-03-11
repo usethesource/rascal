@@ -50,14 +50,17 @@ public class JavaBridge {
 	private static final String METHOD_NAME = "call";
 	
 	private final Writer out;
+	private final List<ClassLoader> loaders;
+	
 	private final static Map<FunctionDeclaration,Class<?>> cache = new WeakHashMap<FunctionDeclaration, Class<?>>();
 	private final static TypeEvaluator TE = TypeEvaluator.getInstance();
 	private final static JavaTypes javaTypes = new JavaTypes();
 	private final static JavaClasses javaClasses = new JavaClasses();
 	
 
-	public JavaBridge(Writer outputWriter) {
+	public JavaBridge(Writer outputWriter, List<ClassLoader> classLoaders) {
 		this.out = outputWriter;
+		this.loaders = classLoaders;
 		
 		if (ToolProvider.getSystemJavaCompiler() == null) {
 			throw new ImplementationException("Could not find an installed System Java Compiler, please provide a Java Runtime that includes the Java Development Tools (JDK 1.6 or higher).");
@@ -408,34 +411,38 @@ public class JavaBridge {
 			throw new TagMissingException(func);
 		}
 		
-		try {
-			Class<?> clazz = getClass().getClassLoader().loadClass(className);
-			Parameters parameters = func.getSignature().getParameters();
-			Class<?>[] javaTypes = getJavaTypes(parameters);
-			
+		for (ClassLoader loader : loaders) {
 			try {
-				Method m;
-				String name = func.getSignature().getName().toString();
-					
-				if (javaTypes.length > 0) { // non-void
-					m = clazz.getDeclaredMethod(name, javaTypes);
+				Class<?> clazz = loader.loadClass(className);
+				Parameters parameters = func.getSignature().getParameters();
+				Class<?>[] javaTypes = getJavaTypes(parameters);
+
+				try {
+					Method m;
+					String name = func.getSignature().getName().toString();
+
+					if (javaTypes.length > 0) { // non-void
+						m = clazz.getDeclaredMethod(name, javaTypes);
+					}
+					else {
+						m = clazz.getDeclaredMethod(name);
+					}
+
+					if ((m.getModifiers() & Modifier.STATIC) == 0) {
+						throw new NonStaticJavaMethodException(func);
+					}
+
+					return m;
+				} catch (SecurityException e) {
+					throw new ImplementationException("Error during retrieval of java function: " + func, e.getCause());
+				} catch (NoSuchMethodException e) {
+					throw new JavaMethodNotFoundException(func);
 				}
-				else {
-					m = clazz.getDeclaredMethod(name);
-				}
-				
-				if ((m.getModifiers() & Modifier.STATIC) == 0) {
-					throw new NonStaticJavaMethodException(func);
-				}
-				
-				return m;
-			} catch (SecurityException e) {
-				throw new ImplementationException("Error during retrieval of java function: " + func, e.getCause());
-			} catch (NoSuchMethodException e) {
-				throw new JavaMethodNotFoundException(func);
+			} catch (ClassNotFoundException e) {
+				continue;
 			}
-		} catch (ClassNotFoundException e) {
-			throw new JavaMethodNotFoundException(func);
 		}
+		
+		throw new JavaMethodNotFoundException(func);
 	}
 }

@@ -209,6 +209,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	                                    	// For the benefit of string matching.
 	private TypeDeclarationEvaluator typeDeclarator = new TypeDeclarationEvaluator();
 	private java.util.List<IModuleLoader> loaders;
+	private java.util.List<ClassLoader> classLoaders;
 
 	public Evaluator(IValueFactory f, ASTFactory astFactory, Writer errorWriter, ModuleEnvironment scope) {
 		this(f, astFactory, errorWriter, scope, new GlobalEnvironment());
@@ -216,19 +217,24 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 	public Evaluator(IValueFactory f, ASTFactory astFactory, Writer errorWriter, ModuleEnvironment scope, GlobalEnvironment heap) {
 		this.vf = f;
-		this.javaBridge = new JavaBridge(errorWriter);
 		this.heap = heap;
 		this.callStack = new ArrayDeque<Environment>();
 		this.callStack.push(scope);
 		this.scopeStack = new ArrayDeque<ModuleEnvironment>();
 		this.scopeStack.push(scope);
 		this.loaders = new LinkedList<IModuleLoader>();
+		this.classLoaders = new LinkedList<ClassLoader>();
+		this.javaBridge = new JavaBridge(errorWriter, classLoaders);
+
 		
 		// library
 	    loaders.add(new FromResourceLoader(this.getClass(), "StandardLibrary"));
 	    
 	    // everything rooted at the src directory 
 	    loaders.add(new FromResourceLoader(this.getClass()));
+	    
+	    // load Java classes from the current jar (for the standard library)
+	    classLoaders.add(getClass().getClassLoader());
 	}
 	
 	
@@ -260,6 +266,10 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	public void addModuleLoader(IModuleLoader loader) {
 		loaders.add(loader);
+	}
+	
+	public void addClassLoader(ClassLoader loader) {
+		classLoaders.add(loader);
 	}
 	
 	/**
