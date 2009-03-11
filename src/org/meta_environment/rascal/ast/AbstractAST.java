@@ -14,11 +14,11 @@ public abstract class AbstractAST implements IVisitable {
 	public String getSourcePath() {
 		return new TreeAdapter((IConstructor) node).getPath();
 	}
-	
+
 	public ISourceLocation getLocation() {
 		return new TreeAdapter((IConstructor) node).getLocation();
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (getClass() == obj.getClass()) {
