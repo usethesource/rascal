@@ -30,6 +30,8 @@ public class MapTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("invert(()) == ();"));
 		assertTrue(runTestInSameEvaluator("invert((1:10)) == (10:1);"));
 		assertTrue(runTestInSameEvaluator("invert((1:10, 2:20)) == (10:1, 20:2);"));
+		assertTrue(runTestInSameEvaluator("invert(([[]]:0,[[2]]:2,[[1,2],[2,1]]:1,[[1]]:3)) == (0:[[]],2:[[2]],1:[[1,2],[2,1]],3:[[1]]);"));
+		
 	}
 	
 	@Ignore @Test(expected=EmptyMapException.class) 

@@ -1,7 +1,9 @@
 module demo::Dashti 
 
 import List;
+import Relation;
 import Graph;
+import Map;
 import IO;
 
 /* A cryptographic problem originating from work of Mohammed Dashti and
@@ -20,91 +22,83 @@ import IO;
    (1) Generate the graph;
    (2) Compute shortest path from S0 to the end state.
 */
-
 /*
-alias State = list[list[int]];
-alias Trans = map[int, State];
+alias Permutation = list[int];                  // One permutation
+alias StateID = int;                            // A unique state identifier
+alias Symbol = int;                             // Symbols used for state transitions
 */
 
-data State = state(list[list[int]] elms, map[int, int] trans);
+int nStates = 0;                                // Global state counter
 
-int nStates = 0;
+map[list[list[int]], int] allStates = ();       // Associate a list of permutations with a state
 
-map[list[list[int]], int] allStates = ([[]] : 0);
+rel[int from,int to,int symbol] Transitions = {};  // The transition table
 
-map[int, State] ordStates = (0: state([[]], ()));
+// Solve problem of size N
 
 public void dashti(int N){
    nStates = 0;
-   allStates = ([[]] : 0);
-   ordStates = (0: state([[]], ()));
+   allStates = ([[]] : 0);                      // predefine the final state
+   Transitions = {};
    expand(permutations([1 .. N]));
 }
 
-int newState(list[list[int]] elms, map[int,int] trans){
-  if(allStates[elms]?)
-  	return allStates[elms];
+// Create a new StateId for a list of permutations
+
+int newState(list[list[int]] elms){
+  if(allStates[elms]?)       
+  	return allStates[elms];                    // Already defined? return it
   else {
   	nStates = nStates + 1;
   	allStates[elms] = nStates;
-  	ordStates[nStates] = state(elms, trans);
   	return nStates;  
   }
 }
-   
+
+// Expand list of permutations
+
 public int expand(list[list[int]] elms){
    
    if(elms == [[]])
    	  return 0;
-   map[int, list[list[int]]] trans = ();
+   int sid = newState(elms);
+   
+   map[int, list[list[int]]] localTransitions = ();
    for(list[int] perm <- elms){
-       list[list[int]] nextState = trans[perm[0]] ?= [];
+       list[list[int]] nextState = localTransitions[perm[0]] ?= [];
        nextState = nextState + [[tail(perm)]];
-       trans[perm[0]] = nextState;
+       localTransitions[perm[0]] = nextState;
    }
-   map[int, int] strans = ();
-   for(int key <- trans){
-       strans[key] = expand(trans[key]);
+   
+   rel[int,int,int] contrib = {};   // TODO: this local is needed due to bug in Rascal implementation;
+   for(int key <- localTransitions){
+     contrib = contrib + {<sid, expand(localTransitions[key]), key>};
    }
-   return newState(elms, strans);
+   Transitions = Transitions + contrib;
+   return sid;
 }
 
 void printStates () {
-
-  for(int id <- ordStates) {
-      s = ordStates[id];
-      elms = s.elms;
-  
-  	  trans = s.trans;
- 	  trs = "";
-  	  sep = "";
-  	  for(int key <- trans){
-    	  toState = trans[key];
-   	      trs = trs + sep + "<key> -> S<toState>";
-   	      sep = "; ";
- 	  }
- 	  println("S<id>: <elms>;\n     <trs>");
+  map[int, list[list[int]]] invertedStates = (allStates[key] : key | list[list[int]] key <- allStates);
+ 
+  for(int I <- [0 .. nStates]){
+     elms = invertedStates[I];
+ 	 trans = Transitions[I];
+ 	 strtrans = "";
+ 	 for(<int to, int sym> <- trans){
+ 	     strtrans = strtrans + " <sym> -> S<to> ";
+ 	 }
+ 	 println("S<I>: <elms>;\n    <strtrans>");
   }
-}
-
-public rel[int,int] extractGraph(){
-    rel[int,int] Graph = {};
-	for(int id <- ordStates) {
-	    s = ordStates[id];
-	    trans = s.trans;
-	    rel[int,int] contrib = {<id, trans[key]> | int key <- trans};
-	    Graph = Graph + contrib;
-	 }
-	 return Graph;
 }
 
 public void test(int N){
   dashti(N);
   printStates();
   println("Number of States = <nStates>");
-  G = extractGraph();
+  G = Transitions<from,to>;               // restrict Transitions to first to columns
   println("Graph = <G>");
-  P = shortestPathPair(G, nStates, 0);
+  P = shortestPathPair(G, 1, 0);          // 1 is always the start state, 0 the end state
   L = size(P);
   println("Length = <L>; Shortest path = <P>");
 }
