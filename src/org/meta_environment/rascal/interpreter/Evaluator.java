@@ -2330,7 +2330,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 			}
 		}
 		catch (ArithmeticException e){
-			throw new RunTimeException("Division by zero", x);
+			// TODO throw better exception
+			throw new ImplementationException(e.getMessage());
 		}
 	}
 	
