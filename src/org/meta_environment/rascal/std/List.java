@@ -38,7 +38,7 @@ public class List {
 	// @doc{head -- get the first n elements of a list}
 	{
 	   if(n.intValue() <= lst.length()){
-	      return new SubList((IValue)lst, 0, n.intValue());
+	      return new SubList(lst, 0, n.intValue());
 	   } else {
 	      throw new IndexOutOfBoundsException("head", null);
 	   }
@@ -93,13 +93,13 @@ public class List {
 	 public static IValue slice(IList lst, IInteger start, IInteger len)
 	 //@doc{slice -- sublist from start of length len}
 	 {
-	 	return new SubList((IValue)lst, start.intValue(), len.intValue());
+	 	return new SubList(lst, start.intValue(), len.intValue());
 	 }
 
 	 public static IValue tail(IList lst)
 	 //@doc{tail -- all but the first element of a list}
 	 {
-	 	return new SubList((IValue)lst, 1, lst.length()-1);
+	 	return new SubList(lst, 1, lst.length()-1);
 	 }
 	 
 	  public static IValue tail(IList lst, IInteger len)
@@ -111,7 +111,7 @@ public class List {
 	 	
 	 	if(lenVal > lstLen)
 	 		throw new IndexOutOfBoundsException("tail", null);
-	 	return new SubList((IValue)lst, lstLen - lenVal, lenVal);
+	 	return new SubList(lst, lstLen - lenVal, lenVal);
 	 }
 	 
 	public static IValue takeOneFrom(IList lst)

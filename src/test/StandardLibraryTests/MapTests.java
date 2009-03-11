@@ -1,5 +1,6 @@
 package test.StandardLibraryTests;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.meta_environment.rascal.interpreter.exceptions.*;
 
@@ -20,6 +21,22 @@ public class MapTests extends TestFramework {
 	@Test(expected=EmptyMapException.class)
 	public void getOneFromError() {
 		runTest("import Map;", "getOneFrom(());");
+	}
+	
+	@Test
+	public void invert(){
+		
+		prepare("import Map;");
+		assertTrue(runTestInSameEvaluator("invert(()) == ();"));
+		assertTrue(runTestInSameEvaluator("invert((1:10)) == (10:1);"));
+		assertTrue(runTestInSameEvaluator("invert((1:10, 2:20)) == (10:1, 20:2);"));
+	}
+	
+	@Ignore @Test(expected=EmptyMapException.class) 
+	// (a) Change exception name;
+	// (b) Check for duplicates
+	public void invertError() {
+		runTest("import Map;", "invert((1:10, 2:10));");
 	}
 
 	@Test

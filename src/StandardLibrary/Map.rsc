@@ -4,8 +4,12 @@ public set[&K] java domain(map[&K, &V] M)
 @doc{domain -- return the domain (keys) of a map}
 @javaClass{org.meta_environment.rascal.std.Map};
 
-public &K java getOneFrom(map[&K, &V] m)  
+public &K java getOneFrom(map[&K, &V] M)  
 @doc{getOneFrom -- return arbitrary key of a map}
+@javaClass{org.meta_environment.rascal.std.Map};
+
+public map[&K, &V] java invert(map[&K, &V] M)  
+@doc{invert -- return map with key and value inverted}
 @javaClass{org.meta_environment.rascal.std.Map};
 
 public map[&K, &V] mapper(map[&K, &V] M, &K (&K) F, &V (&V) G){

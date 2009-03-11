@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
+import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -32,7 +33,7 @@ public class Map {
 	  Iterator<Entry<IValue,IValue>> iter = M.entryIterator();
 	  while (iter.hasNext()) {
 	    Entry<IValue,IValue> entry = iter.next();
-	    w.insert((IValue)entry.getKey());
+	    w.insert(entry.getKey());
 	  }
 	  return w.done();
 	}
@@ -50,12 +51,27 @@ public class Map {
 	  
 	   while(iter.hasNext()){
 	      if(i == k){
-	      	return (IValue) (iter.next()).getKey();
+	      	return (iter.next()).getKey();
 	      }
 	      iter.next();
 	      i++;
 	   }
 	   return null;
+	}
+	
+	public static IValue invert(IMap M)
+	//@doc{invert -- return map with key and value inverted}
+	{
+		Type keyType = M.getKeyType();
+		Type valueType = M.getValueType();
+		Type resultType = types.mapType(valueType, keyType);
+		IMapWriter w = resultType.writer(values);
+		Iterator<Entry<IValue,IValue>> iter = M.entryIterator();
+		while (iter.hasNext()) {
+			Entry<IValue,IValue> entry = iter.next();
+			w.put(entry.getValue(), entry.getKey());
+		}
+		return w.done();
 	}
 
 	public static  IValue range(IMap M)
@@ -68,7 +84,7 @@ public class Map {
 	  Iterator<Entry<IValue,IValue>> iter = M.entryIterator();
 	  while (iter.hasNext()) {
 	    Entry<IValue,IValue> entry = iter.next();
-	    w.insert((IValue)entry.getValue());
+	    w.insert(entry.getValue());
 	  }
 	  return w.done();
 	}
@@ -90,7 +106,7 @@ public class Map {
 	  Iterator<Entry<IValue,IValue>> iter = M.entryIterator();
 	  while (iter.hasNext()) {
 	    Entry<IValue,IValue> entry = iter.next();
-	    w.insert(values.tuple((IValue)entry.getKey(), (IValue)entry.getValue()));
+	    w.insert(values.tuple(entry.getKey(), entry.getValue()));
 	  }
 	  return w.done();
 	}
@@ -106,7 +122,7 @@ public class Map {
 	  Iterator<Entry<IValue,IValue>> iter = M.entryIterator();
 	  while (iter.hasNext()) {
 	    Entry<IValue,IValue> entry = iter.next();
-	    w.insert(values.tuple((IValue)entry.getKey(), (IValue)entry.getValue()));
+	    w.insert(values.tuple(entry.getKey(), entry.getValue()));
 	  }
 	  return w.done();
 	}
