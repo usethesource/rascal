@@ -13,7 +13,8 @@ public class JavaFunctionBody extends FunctionBody {
 
 	@Override
 	public <T> T accept(IASTVisitor<T> v) {
-		throw new ImplementationException("Can not visit JavaFunctionBody", this);
+		throw new ImplementationException("Can not visit JavaFunctionBody",
+				this);
 	}
 
 	public String getString() {
