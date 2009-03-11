@@ -64,11 +64,13 @@ public class Map {
 	{
 		Type keyType = M.getKeyType();
 		Type valueType = M.getValueType();
+		System.err.println("keyType=" + keyType + ", valueType=" + valueType);
 		Type resultType = types.mapType(valueType, keyType);
 		IMapWriter w = resultType.writer(values);
 		Iterator<Entry<IValue,IValue>> iter = M.entryIterator();
 		while (iter.hasNext()) {
 			Entry<IValue,IValue> entry = iter.next();
+			System.err.println("entry=" + entry);
 			w.put(entry.getValue(), entry.getKey());
 		}
 		return w.done();
