@@ -33,35 +33,26 @@ public rel[PicoId, ProgramPoint] defs(PROGRAM P) {
  
 public bool test(){
 
-  println("small=<small>");
-  asmall = annotate(small);
-  println("asmall=<asmall>");
-  U = uses(annotate(small));
-  println("<U>");
-  assertTrue(uses(small) == {<"x",2>,
-                             <"x",3>,
-                             <"s",4>});  
- 
-  assertTrue(defs(small) == {<"x",3>,
-                             <"s",4>,
-                             <"x",1>});
-                           
-  assertTrue(uses(fac) == {<"output",4>,
-                           <"input",3>,
-                           <"repnr",6>,
-                           <"output",7>,
-                           <"input",5>,
-                           <"rep",7>,
-                           <"repnr",8>,
-                           <"input",9>});
+  assertTrue(uses(annotate(small)) == {<"s",5>,<"x",9>,<"x",10>});  
+  
+  assertTrue(defs(annotate(small)) == {<"s",5>,<"x",9>,<"x",12>});
+                                
+  assertTrue(uses(annotate(fac)) == {<"output",23>,
+                                     <"repnr",14>,
+                                     <"rep",18>,
+                                     <"input",24>,
+                                     <"output",18>,
+                                     <"input",21>,
+                                     <"input",7>,
+                                     <"repnr",19>});
 
-  assertTrue(defs(fac) == {<"repnr",8>,
-                           <"output",2>,
-                           <"input",1>,
-                           <"output",7>,
-                           <"input",9>,
-                           <"repnr",5>,
-                           <"rep",4>});
+  assertTrue(defs(annotate(fac)) == {<"input",28>,
+                                     <"repnr",14>,
+                                     <"output",18>,
+                                     <"rep",23>,
+                                     <"repnr",21>,
+                                     <"input",7>,
+                                     <"output",26>});
 
   return report("PicoUseDef");
 }

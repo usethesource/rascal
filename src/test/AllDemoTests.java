@@ -133,7 +133,7 @@ public class AllDemoTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("demo::PicoAbstract::PicoUseDef::test();"));
 	}
 	
-	@Ignore @Test
+	@Test
 	public void PicoUninit() {
 		prepare("import demo::PicoAbstract::PicoUninit;");
 		assertTrue(runTestInSameEvaluator("demo::PicoAbstract::PicoUninit::test();"));

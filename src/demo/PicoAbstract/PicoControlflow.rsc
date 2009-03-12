@@ -66,16 +66,9 @@ public BLOCK cflow(STATEMENT Stat){
 
 public bool test(){
 
-    C = cflow(annotate(small));
-    println("<C>");
-
-	assertTrue(cflow(small) == block({0}, {<0,1>, <2,3>, <3,4>, <4,2>, <1,2>}, {2}));
-	
-	 C = cflow(annotate(fac));
-    println("<C>");
+	assertTrue(cflow(annotate(small)) == block({0},{<9,5>,<5,10>,<12,10>,<10,9>,<0,12>},{10}));
           
-	assertTrue(cflow(fac) == block({0},{<0,1>, <8,6>,<1,2>,<3,4>,<2,3>,<6,7>,<7,8>,<9,3>,<4,5>,<5,6>,<6,9>}, {3}) );
-
-	return report();
+	assertTrue(cflow(annotate(fac)) == block({0},{<21,19>,<18,14>,<23,21>,<26,24>,<7,24>,<14,19>,<24,23>,<19,7>,<0,28>,<19,18>,<28,26>},{24}));
+	return report("PicoControlFlow");
 }
 
