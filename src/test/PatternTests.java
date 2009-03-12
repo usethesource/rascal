@@ -6,7 +6,6 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.meta_environment.rascal.interpreter.exceptions.TypeErrorException;
-import org.meta_environment.rascal.interpreter.exceptions.UndefinedValueException;
 import org.meta_environment.rascal.interpreter.exceptions.UninitializedVariableException;
 
 public class PatternTests extends TestFramework {

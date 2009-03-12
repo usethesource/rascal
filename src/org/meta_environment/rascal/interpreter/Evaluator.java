@@ -380,11 +380,11 @@ public class Evaluator extends NullASTVisitor<Result> {
 				|| type.isListType()) {
 			throw new ImplementationException("Should not be used run-time type for type checking!!!!", getCurrentStatement());
 		}
-		if(v != null){
+	//	if(v != null){
 			return new Result(type, applyRules(v));
-		} else {
-			return new Result(null, v);
-		}
+	//	} else {
+	//		return new Result(null, v);
+	//	}
 	}
 	
 	

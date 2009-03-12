@@ -185,6 +185,7 @@ public class TreeAdapter {
 		public int line = 1;
 		public int offset = 0;
 		
+		@Override
 		public Position clone() {
 			Position tmp = new Position();
 			tmp.col = col;
@@ -199,6 +200,7 @@ public class TreeAdapter {
 	}
 	
 	// TODO this code breaks in the presence of cycles
+	@SuppressWarnings("null")
 	private IConstructor addPosInfo(IConstructor t, String filename, Position cur) throws MalformedURLException {
 		TreeAdapter tree = new TreeAdapter(t);
 		
@@ -234,9 +236,10 @@ public class TreeAdapter {
 			t = t.set("args", newArgs.done());
 		}
 		else if (tree.isAmb()) {
-			Position tmpCur = null; // there is always at least 2 alternatives
+			Position tmpCur = null; // there are always at least 2 alternatives
 			
 			ISet alts = tree.getAlternatives();
+			assert alts.size() >= 2;
 			ISetWriter newAlts = ValueFactoryFactory.getValueFactory().setWriter(Factory.Tree);
 			
 			for (IValue arg : alts) {

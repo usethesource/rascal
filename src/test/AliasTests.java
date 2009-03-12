@@ -2,9 +2,8 @@ package test;
 
 import static org.junit.Assert.assertTrue;
 
-import org.junit.Ignore;
 import org.junit.Test;
-import org.meta_environment.rascal.interpreter.exceptions.*;
+import org.meta_environment.rascal.interpreter.exceptions.TypeErrorException;
 
 public class AliasTests extends TestFramework{
 	
