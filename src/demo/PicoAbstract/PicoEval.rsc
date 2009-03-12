@@ -106,5 +106,5 @@ public bool test(){
 	
 	evalProgram(small); assertEqual(Env["s"], strval("###"));
 	evalProgram(fac); assertEqual(Env["output"], intval(fac(13)));
-	return report();
+	return report("PicoEval");
 }

@@ -32,6 +32,12 @@ public rel[PicoId, ProgramPoint] defs(PROGRAM P) {
 }        
  
 public bool test(){
+
+  println("small=<small>");
+  asmall = annotate(small);
+  println("asmall=<asmall>");
+  U = uses(annotate(small));
+  println("<U>");
   assertTrue(uses(small) == {<"x",2>,
                              <"x",3>,
                              <"s",4>});  
@@ -57,5 +63,5 @@ public bool test(){
                            <"repnr",5>,
                            <"rep",4>});
 
-  return report();
+  return report("PicoUseDef");
 }

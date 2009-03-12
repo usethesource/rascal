@@ -1,6 +1,20 @@
 module demo::PicoAbstract::PicoPrograms
 
 import demo::PicoAbstract::PicoAbstractSyntax;
+import IO;
+import UnitTest;
+
+public PROGRAM annotate(PROGRAM P)
+{
+   int N = 0;
+   
+   return bottom-up visit(P){
+   case EXP e:
+        { N = N + 1; insert e[@pos=N]; }
+   case STATEMENT S:
+        { N = N + 1; insert S[@pos=N]; }
+   };
+}
 
 /********************************************
 begin
@@ -17,24 +31,24 @@ end
 
 public PROGRAM small =
 program([decl("x", natural), decl("s", string)],
-        [ asgStat("x", natCon(3))[@pos=1],
+        [ asgStat("x", natCon(3)),
           whileStat(id("x"),
-                    [ asgStat("x", sub(id("x"), natCon(1)))[@pos=3],
-                      asgStat("s", conc(id("s"), strCon("#")))[@pos=4]
+                    [ asgStat("x", sub(id("x"), natCon(1))),
+                      asgStat("s", conc(id("s"), strCon("#")))
                     ]
-                   )[@pos=2]
+                   )
         ]
        );
        
 public PROGRAM smallUninit =
        
  program([decl("x", natural), decl("s", string)],
-        [ //asgStat("x", natCon(3))[@pos=1],
+        [ //asgStat("x", natCon(3)),
           whileStat(id("x"),
-                    [ asgStat("x", sub(id("x"), natCon(1)))[@pos=3],
-                      asgStat("s", conc(id("s"), strCon("#")))[@pos=4]
+                    [ asgStat("x", sub(id("x"), natCon(1))),
+                      asgStat("s", conc(id("s"), strCon("#")))
                     ]
-                   )[@pos=2]
+                   )
         ]
        );
 
@@ -67,19 +81,19 @@ program([ decl("input", natural),
           decl("repnr", natural),
           decl("rep", natural)
         ],
-        [ asgStat("input", natCon(13))[@pos=1],
-          asgStat("output", natCon(1))[@pos=2],
+        [ asgStat("input", natCon(13)),
+          asgStat("output", natCon(1)),
           whileStat(sub(id("input"), natCon(1)),
-                    [ asgStat("rep", id("output"))[@pos=4],
-                      asgStat("repnr", id("input"))[@pos=5],
+                    [ asgStat("rep", id("output")),
+                      asgStat("repnr", id("input")),
                       whileStat(sub(id("repnr"), natCon(1)),
-                                [ asgStat("output", add(id("output"), id("rep")))[@pos=7],
-                                  asgStat("repnr", sub(id("repnr"), natCon(1)))[@pos=8]
+                                [ asgStat("output", add(id("output"), id("rep"))),
+                                  asgStat("repnr", sub(id("repnr"), natCon(1)))
                                 ]
-                               )[@pos=6],
-                      asgStat("input", sub(id("input"), natCon(1)))[@pos=9]
+                               ),
+                      asgStat("input", sub(id("input"), natCon(1)))
                     ]
-                   )[@pos=3]               
+                   )              
         ]
        );
        
@@ -89,19 +103,19 @@ program([ decl("input", natural),
           decl("repnr", natural),
           decl("rep", natural)
         ],
-        [ asgStat("input", natCon(13))[@pos=1],
-          //asgStat("output", natCon(1))[@pos=2],
+        [ asgStat("input", natCon(13)),
+          //asgStat("output", natCon(1)),
           whileStat(sub(id("input"), natCon(1)),
-                    [ asgStat("rep", id("output"))[@pos=4],
-                      asgStat("repnr", id("input"))[@pos=5],
+                    [ asgStat("rep", id("output")),
+                      asgStat("repnr", id("input")),
                       whileStat(sub(id("repnr"), natCon(1)),
-                                [ asgStat("output", add(id("output"), id("rep")))[@pos=7],
-                                  asgStat("repnr", sub(id("repnr"), natCon(1)))[@pos=8]
+                                [ asgStat("output", add(id("output"), id("rep"))),
+                                  asgStat("repnr", sub(id("repnr"), natCon(1)))
                                 ]
-                               )[@pos=6],
-                      asgStat("input", sub(id("input"), natCon(1)))[@pos=9]
+                               ),
+                      asgStat("input", sub(id("input"), natCon(1)))
                     ]
-                   )[@pos=3]               
+                   )            
         ]
        );
 
@@ -183,3 +197,15 @@ program([ decl("input", natural),
                       
         ]
        );
+       
+public bool test(){
+   assertTrue( annotate(small) == program([decl("x",natural()),decl("s",string())],
+                                    [asgStat("x",natCon(3)[@pos=11])[@pos=12],
+                                    whileStat(id("x")[@pos=1],
+                                              [asgStat("x",sub(id("x")[@pos=6],natCon(1)[@pos=7])[@pos=8])[@pos=9],
+                                               asgStat("s",conc(id("s")[@pos=2],strCon("#")[@pos=3])[@pos=4])[@pos=5]])[@pos=10]
+                                    ])
+            );
+   
+   return report("PicoPrograms");
+}

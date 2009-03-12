@@ -66,12 +66,13 @@ public BLOCK cflow(STATEMENT Stat){
 
 public bool test(){
 
-	assertTrue(
-       cflow([asgStat("x", natCon(1))[@pos=1],  asgStat("s", conc(id("s"), strCon("#")))[@pos=2] ]) ==
-       block({1}, {<1,2>}, {2})
-             );
+    C = cflow(annotate(small));
+    println("<C>");
 
 	assertTrue(cflow(small) == block({0}, {<0,1>, <2,3>, <3,4>, <4,2>, <1,2>}, {2}));
+	
+	 C = cflow(annotate(fac));
+    println("<C>");
           
 	assertTrue(cflow(fac) == block({0},{<0,1>, <8,6>,<1,2>,<3,4>,<2,3>,<6,7>,<7,8>,<9,3>,<4,5>,<5,6>,<6,9>}, {3}) );
 
