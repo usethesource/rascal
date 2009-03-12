@@ -461,7 +461,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		if (!heap.existsModule(name)) {
 			Module module = loadModule(x, name);
 			if (!getModuleName(module).equals(name)) {
-				throw new TypeErrorException("Module name does not correspond to file name ", module);
+				throw new TypeErrorException("Module name `" + getModuleName(module) + "` does not correspond to file name `" + name + "`", module);
 			}
 			module.accept(this);
 		}
