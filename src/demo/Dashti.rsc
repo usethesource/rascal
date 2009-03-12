@@ -1,6 +1,7 @@
 module demo::Dashti 
 
 import List;
+import Set;
 import Relation;
 import Graph;
 import Map;
@@ -9,12 +10,12 @@ import IO;
 /* A cryptographic problem originating from work of Mohammed Dashti and
    suggested by Yaroslav Usenko.
    First compute a graph as follows:
-   (a) The initial state S0 consists of a list of all permutations of the numbers [1 .. N].
+   (a) The initial state S0 consists of a set of all permutations of the numbers [1 .. N].
    (b) From each state S there are transitions for each number I in [1 .. N] such that:
        - There is a new state S' that consists of all permutations in S that start
          with I but with that first I removed.
        - There is a transition from S to S' labeled with the number I.
-   (c) The end state has an empty list of permutations and no outgoing transitions.
+   (c) The end state has an empty set of permutations and no outgoing transitions.
    
    Problem: what is the shortest path from S0 to the end state for varying N?
    
@@ -30,22 +31,25 @@ alias Symbol = int;                             // Symbols used for state transi
 
 int nStates = 0;                                // Global state counter
 
-map[list[Permutation], StateId] allStates = (); // Associate a list of permutations with a state
+map[set[Permutation], StateId] allStates = (); // Associate a list of permutations with a state
 
 rel[StateId from, StateId to, Symbol symbol] Transitions = {};  // The transition table
 
 // Solve problem of size N
 
-public void dashti(int N){
+int N = 0;
+
+public void dashti(int n){
+   N = n;
    nStates = 0;
-   allStates = ([[]] : 0);                      // predefine the final state
+   allStates = ({[]} : 0);                      // predefine the final state
    Transitions = {};
-   expand(permutations([1 .. N]));
+   expand(toSet(permutations([1 .. N])));
 }
 
-// Create a new StateId for a list of permutations
+// Create a new StateId for a set of permutations
 
-StateId newState(list[Permutation] elms){
+StateId newState(set[Permutation] elms){
   if(allStates[elms]?)       
   	return allStates[elms];                    // Already defined? return it
   else {
@@ -55,34 +59,42 @@ StateId newState(list[Permutation] elms){
   }
 }
 
-// Expand list of permutations
+// Expand set of permutations
 
-public StateId expand(list[Permutation] elms){
+public StateId expand(set[Permutation] elms){
    
-   if(elms == [[]])
-   	  return 0;
+   println("elms=<elms>");
+   if(allStates[elms]?)
+     	return allStates[elms];
+
    StateId sid = newState(elms);
    
-   map[Symbol, list[Permutation]] localTransitions = ();
+   map[Symbol, set[Permutation]] localTransitions = ();
    for(Permutation perm <- elms){
-       list[Permutation] nextState = localTransitions[perm[0]] ?= [];
-       nextState = nextState + [[tail(perm)]];
-       localTransitions[perm[0]] = nextState;
+       for(int i <- [1 .. N]){
+           set[Permutation] nextState = localTransitions[i] ?= {};
+           if(perm != [] && i == perm[0])
+              nextState = nextState + {tail(perm)};
+           else {
+              if(perm notin nextState)
+             	 nextState = nextState + {perm};
+           }
+           println("state <sid>: symbol: <i>, perm=<perm>, nextState=<nextState>");
+           localTransitions[i] = nextState;
+       }
    }
-   
- //  rel[StateId,StateId,Symbol] contrib = {};   // TODO: this local is needed due to bug in Rascal implementation;
-    println("Before: Transitions: <Transitions>");
  
+   rel[StateId,StateId,Symbol] contrib = {};
    for(Symbol sym <- localTransitions){
-     Transitions = Transitions + {<sid, expand(localTransitions[sym]), sym>};
+       contrib = contrib + {<sid, expand(localTransitions[sym]), sym>};
    }
-   //Transitions = Transitions + contrib;
-   println("After: Transitions: <Transitions>");
+   Transitions = Transitions + contrib;
+  
    return sid;
 }
 
 void printStates () {
-  map[StateId, list[Permutation]] invertedStates = (allStates[elms] : elms | list[Permutation] elms <- allStates);
+  map[StateId, set[Permutation]] invertedStates = (allStates[elms] : elms | set[Permutation] elms <- allStates);
  
   for(int I <- [0 .. nStates]){
      elms = invertedStates[I];
