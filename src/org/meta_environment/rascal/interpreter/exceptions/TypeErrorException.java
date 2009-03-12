@@ -9,7 +9,7 @@ public class TypeErrorException extends RascalException {
    
 	//TODO: remove, only one reference remaining in Result.
 	public TypeErrorException(String message) {
-		super(null, message);
+		super("TypeErrorException", message);
 	}
 
 	public TypeErrorException(String message, AbstractAST node) {
