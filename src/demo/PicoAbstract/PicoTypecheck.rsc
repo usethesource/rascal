@@ -92,5 +92,5 @@ public bool test(){
   assertEqual(tcp(small), []);
   assertEqual(tcp(fac), []);
   assertEqual(tcp(big), []);
-  return report();
+  return report("PicoTypecheck");
 }
