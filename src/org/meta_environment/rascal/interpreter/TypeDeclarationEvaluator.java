@@ -100,6 +100,7 @@ public class TypeDeclarationEvaluator {
 		
 		do {
 			todo.addAll(again);
+			again.clear();
 			
 			todo: while (!todo.isEmpty()) {
 				Alias trial = todo.get(0);
@@ -114,7 +115,6 @@ public class TypeDeclarationEvaluator {
 					for (Alias other : todo) {
 						if (Names.name(other.getUser().getName()).equals(name)) {
 							// found an undeclared type, try this one later
-							todo.remove(trial);
 							again.add(trial);
 							continue todo;
 						}
