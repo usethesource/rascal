@@ -22,17 +22,17 @@ import IO;
    (1) Generate the graph;
    (2) Compute shortest path from S0 to the end state.
 */
-/*
+
 alias Permutation = list[int];                  // One permutation
-alias StateID = int;                            // A unique state identifier
+alias StateId = int;                            // A unique state identifier
 alias Symbol = int;                             // Symbols used for state transitions
-*/
+
 
 int nStates = 0;                                // Global state counter
 
-map[list[list[int]], int] allStates = ();       // Associate a list of permutations with a state
+map[list[Permutation], StateId] allStates = (); // Associate a list of permutations with a state
 
-rel[int from,int to,int symbol] Transitions = {};  // The transition table
+rel[StateId from, StateId to, Symbol symbol] Transitions = {};  // The transition table
 
 // Solve problem of size N
 
@@ -45,7 +45,7 @@ public void dashti(int N){
 
 // Create a new StateId for a list of permutations
 
-int newState(list[list[int]] elms){
+StateId newState(list[Permutation] elms){
   if(allStates[elms]?)       
   	return allStates[elms];                    // Already defined? return it
   else {
@@ -57,35 +57,38 @@ int newState(list[list[int]] elms){
 
 // Expand list of permutations
 
-public int expand(list[list[int]] elms){
+public StateId expand(list[Permutation] elms){
    
    if(elms == [[]])
    	  return 0;
-   int sid = newState(elms);
+   StateId sid = newState(elms);
    
-   map[int, list[list[int]]] localTransitions = ();
-   for(list[int] perm <- elms){
-       list[list[int]] nextState = localTransitions[perm[0]] ?= [];
+   map[Symbol, list[Permutation]] localTransitions = ();
+   for(Permutation perm <- elms){
+       list[Permutation] nextState = localTransitions[perm[0]] ?= [];
        nextState = nextState + [[tail(perm)]];
        localTransitions[perm[0]] = nextState;
    }
    
-   rel[int,int,int] contrib = {};   // TODO: this local is needed due to bug in Rascal implementation;
-   for(int key <- localTransitions){
-     contrib = contrib + {<sid, expand(localTransitions[key]), key>};
+ //  rel[StateId,StateId,Symbol] contrib = {};   // TODO: this local is needed due to bug in Rascal implementation;
+    println("Before: Transitions: <Transitions>");
+ 
+   for(Symbol sym <- localTransitions){
+     Transitions = Transitions + {<sid, expand(localTransitions[sym]), sym>};
    }
-   Transitions = Transitions + contrib;
+   //Transitions = Transitions + contrib;
+   println("After: Transitions: <Transitions>");
    return sid;
 }
 
 void printStates () {
-  map[int, list[list[int]]] invertedStates = (allStates[key] : key | list[list[int]] key <- allStates);
+  map[StateId, list[Permutation]] invertedStates = (allStates[elms] : elms | list[Permutation] elms <- allStates);
  
   for(int I <- [0 .. nStates]){
      elms = invertedStates[I];
  	 trans = Transitions[I];
  	 strtrans = "";
- 	 for(<int to, int sym> <- trans){
+ 	 for(<StateId to, Symbol sym> <- trans){
  	     strtrans = strtrans + " <sym> -> S<to> ";
  	 }
  	 println("S<I>: <elms>;\n    <strtrans>");
@@ -96,7 +99,7 @@ public void test(int N){
   dashti(N);
   printStates();
   println("Number of States = <nStates>");
-  G = Transitions<from,to>;               // restrict Transitions to first to columns
+  G = Transitions<from,to>;               // restrict Transitions to first two columns
   println("Graph = <G>");
   P = shortestPathPair(G, 1, 0);          // 1 is always the start state, 0 the end state
   L = size(P);
