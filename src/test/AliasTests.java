@@ -50,7 +50,6 @@ public class AliasTests extends TestFramework{
 		assertTrue(runTestInSameEvaluator("{set[INTEGER] SI = {1,2,3}; SI == {1,2,3};}"));
 		assertTrue(runTestInSameEvaluator("{map[INTEGER,INTEGER] MI = (1:10,2:20); MI == (1:10,2:20);}"));
 		assertTrue(runTestInSameEvaluator("{rel[INTEGER,INTEGER] RI = {<1,10>,<2,20>}; RI == {<1,10>,<2,20>};}"));
-		
 	}
 	
 	@Test
@@ -66,14 +65,25 @@ public class AliasTests extends TestFramework{
 		assertTrue(runTestInSameEvaluator("{set[INTEGER] SI = {1,2,3}; SI == {1,2,3};}"));
 		assertTrue(runTestInSameEvaluator("{map[INTEGER,INTEGER] MI = (1:10,2:20); MI == (1:10,2:20);}"));
 		assertTrue(runTestInSameEvaluator("{rel[INTEGER,INTEGER] RI = {<1,10>,<2,20>}; RI == {<1,10>,<2,20>};}"));
-		
 	}
 	
 	@Test
-	public void aliasAndADT() {
+	public void aliasAndADT1() {
 		prepareModule("module Test alias INTEGER0 = INTEGER1; data INTEGER1 = f(int);");
 		prepareMore("import Test;");
 		assertTrue(runTestInSameEvaluator("{ INTEGER0 x = f(0); x == f(0); }"));
+	}
+	
+	@Test
+	public void aliasAndADT2(){
+		prepare("alias StateId = int;");
+		prepareMore("alias Permutation = list[int];");
+		prepareMore("alias StatedId = int;");
+		prepareMore("alias Symbol = int;");
+		prepareMore("map[list[Permutation], StateId] allStates = ();");
+		prepareMore("rel[StateId from,StateId to,Symbol symbol] Transitions = {}; "); 
+		assertTrue(runTestInSameEvaluator("{Transitions = {<1,2,3>}; true;}"));
+		
 	}
 	
 	@Test
