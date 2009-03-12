@@ -1,12 +1,12 @@
 package test;
 
-import java.io.IOException;import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
 public class BackTrackingTests extends TestFramework {
 	
-	@Test public void testSimple() throws IOException {
+	@Test public void testSimple() {
 		
 		assertTrue(runTest("{([list[int] L1, int N, list[int] L2] := [1,2,3,4]) && (N == 3); " + 
 								"(L1 == [1,2]) && (N == 3) && (L2 == [4]);}"));
