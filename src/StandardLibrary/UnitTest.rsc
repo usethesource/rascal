@@ -32,23 +32,15 @@ private void runTest(void () test)
 	}
 }
 
-/*
-private list[void()] java getTests()
-{
+public bool report(){
+	return report("");
 }
 
-public void runAllTests()
+public bool report(str msg)
 {
-	for(Test : getTests()){
-		nTests = nTests + 1;
-		Test();
-	}
-}
-*/
-
-public bool report()
-{
-	println("<nAssertions> assertions, <nFailures> failures, <nErrors> errors");
+    if(msg != "")
+    	msg = msg + ": ";
+	println("<msg><nAssertions> assertions, <nFailures> failures, <nErrors> errors");
 	return nFailures == 0 && nErrors == 0;
 }
 
