@@ -8,6 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -19,9 +20,10 @@ import org.meta_environment.rascal.ast.Expression.Literal;
 import org.meta_environment.rascal.ast.Literal.RegExp;
 import org.meta_environment.rascal.ast.RegExp.Lexical;
 import org.meta_environment.rascal.interpreter.env.Environment;
-import org.meta_environment.rascal.interpreter.exceptions.SyntaxErrorException;
-import org.meta_environment.rascal.interpreter.exceptions.TypeErrorException;
 import org.meta_environment.rascal.interpreter.result.Result;
+import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
+import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
+
 
 class RegExpPatternValue implements MatchPattern {
 	private AbstractAST ast;					// The AST for this regexp
@@ -60,14 +62,13 @@ class RegExpPatternValue implements MatchPattern {
 	RegExpPatternValue(IValueFactory vf, AbstractAST ast, String s, Character mod, List<String> names, Environment env){
 		this.ast = ast;
 		RegExpAsString = (mod == null) ? s : "(?" + mod + ")" + s;
-	//	modifier = mod;
 		patternVars = names;
 		initialized = false;
 		for(String name : names){
 			Result res = env.getVariable(ast, name);
 			if((res != null) && (res.getValue() != null)){
 				if(!res.getType().isStringType()){
-					throw new TypeErrorException("Name `" + name + "` should have type string but has type " + res.getType(), ast);
+					throw new UnexpectedTypeError(tf.stringType(),res.getType(), ast);
 				}
 				boundBeforeConstruction.put(name, ((IString)res.getValue()).getValue());
 				if(debug)System.err.println("bound before construction: " + name + ", " + res.getValue());
@@ -92,7 +93,8 @@ class RegExpPatternValue implements MatchPattern {
 		try {
 			pat = Pattern.compile(RegExpAsString);
 		} catch (PatternSyntaxException e){
-			throw new SyntaxErrorException(e.getMessage(), ast);
+			ISourceLocation loc = ast.getLocation();
+			throw new SyntaxError(e.getMessage(), loc);
 		}
 	}
 	
@@ -206,7 +208,7 @@ public class RegExpPatternEvaluator extends NullASTVisitor<MatchPattern> {
 		Character modifier = null;
 		
 		if(subjectPat.charAt(0) != '/'){
-			throw new SyntaxErrorException("Malformed Regular expression: " + subjectPat, x);
+			throw new SyntaxError("Malformed Regular expression: " + subjectPat, x.getLocation());
 		}
 		
 		int start = 1;
@@ -216,7 +218,7 @@ public class RegExpPatternEvaluator extends NullASTVisitor<MatchPattern> {
 			end--;
 		}
 		if(subjectPat.charAt(end) != '/'){
-			throw new SyntaxErrorException("Regular expression does not end with /", x);
+			throw new SyntaxError("Regular expression does not end with /", x.getLocation());
 		}
 		
 		/*

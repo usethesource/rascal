@@ -7,17 +7,20 @@ package org.meta_environment.rascal.interpreter;
  */
 
 import java.util.Iterator;
+
 import org.eclipse.imp.pdb.facts.IBool;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.Expression;
 import org.meta_environment.rascal.ast.Expression.And;
 import org.meta_environment.rascal.ast.Expression.Equivalence;
 import org.meta_environment.rascal.ast.Expression.Implication;
 import org.meta_environment.rascal.ast.Expression.Negation;
 import org.meta_environment.rascal.ast.Expression.Or;
+import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.env.Environment;
-import org.meta_environment.rascal.interpreter.exceptions.ImplementationException;
-import org.meta_environment.rascal.interpreter.exceptions.TypeErrorException;
 import org.meta_environment.rascal.interpreter.result.Result;
+import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
+
 
 /*
  * Base class for iterating over the values of the arguments of the Boolean operators.
@@ -39,7 +42,7 @@ public abstract class BooleanEvaluator implements Iterator<Result> {
 	void defArg(int i){
 		Result argResult = expr[i].accept(ev);
 		if(!argResult.getType().isBoolType()){
-			throw new TypeErrorException("Operand of boolean operator should be of type bool and not " + argResult.getType(), expr[i]);
+			throw new UnexpectedTypeError(TypeFactory.getInstance().boolType(), argResult.getType(), expr[i]);
 		}
 		result[i] = argResult;
 	};
@@ -64,7 +67,7 @@ public abstract class BooleanEvaluator implements Iterator<Result> {
 	}
 	
 	public void remove(){
-		throw new ImplementationException("remove() in BooleanEvaluator not implemented", expr[LEFT]);
+		throw new ImplementationError("remove() in BooleanEvaluator not implemented");
 	}
 	
 	public boolean getNextResult(int i){
@@ -250,18 +253,16 @@ class EquivalenceEvaluator extends BooleanEvaluator {
 }
 
 /*
- * Evaluate match and nomatch expression
+ * Evaluate match and no match expression
  */
 
 class MatchEvaluator implements Iterator<Result> {
 	private boolean positive;
 	private MatchPattern mp;
-	private Expression pat;
 	
 	// TODO: remove use of evaluator here! it's not good to have this dependency and the use
 	// of the "global" variable lastPattern complicates things a lot.
 	MatchEvaluator(Expression pat, Expression subject, boolean positive, Environment env, Evaluator ev){
-		this.pat = pat;
     	this.positive = positive;
     	mp = ev.evalPattern(pat);
     	ev.lastPattern = mp;
@@ -278,6 +279,6 @@ class MatchEvaluator implements Iterator<Result> {
 	}
 
 	public void remove() {
-		throw new ImplementationException("remove() not implemented for MatchEvaluator", pat);
+		throw new ImplementationError("remove() not implemented for MatchEvaluator");
 	}
 }

@@ -3,47 +3,48 @@ package test;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-import org.meta_environment.rascal.interpreter.exceptions.*;
+import org.meta_environment.rascal.interpreter.staticErrors.*;
+
 
 public class CallTests extends TestFramework{
 	
 	
-	@Test(expected=NoSuchFunctionException.class)
+	@Test(expected=UndeclaredFunctionError.class)
 	public void callError1() {
 		runTest("zap(1,2);");
 	}
 	
-	@Test(expected=NoSuchFunctionException.class)
+	@Test(expected=UndeclaredFunctionError.class)
 	public void callError2() {
 		runTest("{ int f(int n) {return 2*n;}  f(\"abc\");}");
 	}
 	
-	@Test(expected=NoSuchModuleException.class)
+	@Test(expected=UndeclaredModuleError.class)
 	public void callError3() {
 		runTest("zip::zap(1,2);");
 	}
 	
-	@Test(expected=NoSuchFunctionException.class)
+	@Test(expected=UndeclaredFunctionError.class)
 	public void callError4() {
 		runTest("{zap = 10; zap(1,2);}");
 	}
 	
-	@Test(expected=TypeErrorException.class)
+	@Test(expected=StaticError.class)
 	public void callError5() {
 		runTest("{ int f(){return \"a\";} f();}");
 	}
 	
-	@Test(expected=TypeErrorException.class)
+	@Test(expected=StaticError.class)
 	public void callError6() {
 		runTest("{ int f(){ } f();}");
 	}
 	
-	@Test(expected=TypeErrorException.class)
+	@Test(expected=StaticError.class)
 	public void callError7() {
 		runTest("{ int f(int n) {return \"a\";}  int f(value v) {return \"a\";} }");
 	}
 	
-	@Test(expected=UndefinedValueException.class)
+	@Test(expected=StaticError.class)
 	public void callError8() {
 		runTest("{ int f(int n) {return n;} f(undef);}");
 	}

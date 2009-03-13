@@ -10,10 +10,12 @@ import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.meta_environment.rascal.interpreter.exceptions.NoSuchFieldException;
-import org.meta_environment.rascal.interpreter.exceptions.TypeErrorException;
+import org.meta_environment.rascal.interpreter.staticErrors.ArityError;
+import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFieldError;
+
 
 public class RelationResult extends CollectionResult<IRelation> {
 
@@ -64,8 +66,9 @@ public class RelationResult extends CollectionResult<IRelation> {
 				return makeResult(getTypeFactory().setType(tupleType.getFieldType(name)), w.done());
 			}
 			// TODO: why catch this exception here?
-			catch (FactTypeUseException e) {
-				throw new NoSuchFieldException(e.getMessage(), null);
+			catch (UndeclaredFieldException e) {
+				// TODO add ast location
+				throw new UndeclaredFieldError(name, getType(), null);
 			}
 		}
 		
@@ -128,7 +131,7 @@ public class RelationResult extends CollectionResult<IRelation> {
 		
 		private void checkArity(int expected, int given) {
 			if (expected != given) {
-				throw new TypeErrorException("Incompatible arities in relational operation; expected " + expected + ", got " + given);
+				throw new ArityError(expected, given, null);
 			}
 		}
 

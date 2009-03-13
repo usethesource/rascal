@@ -10,7 +10,8 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.meta_environment.ValueFactoryFactory;
-import org.meta_environment.rascal.interpreter.exceptions.ImplementationException;
+import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
+
 
 abstract class LazySet implements ISet {
 	protected final ISet base;
@@ -28,7 +29,7 @@ abstract class LazySet implements ISet {
 			LazySet other = (LazySet) V;
 			this.base = other;
 		} else {
-			throw new ImplementationException("Illegal value in LazySet");
+			throw new ImplementationError("Illegal value in LazySet");
 		}
 	}
 	
@@ -38,7 +39,7 @@ abstract class LazySet implements ISet {
 		} else if (V instanceof LazySet) {
 			this.partner = (LazySet) partner;
 		} else {
-			throw new ImplementationException("Illegal value in LazySet");
+			throw new ImplementationError("Illegal value in LazySet");
 		}
 	}
 	

@@ -5,8 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.meta_environment.rascal.interpreter.exceptions.ImplementationException;
+import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.result.Result;
+
 
 public class Cache {
 	// TODO: fix dependency on internals of Environment (e.g. Map<String,...> etc.).
@@ -45,7 +46,7 @@ public class Cache {
 	
 	public void commit() {
 		if (!isEnabled()) {
-			throw new ImplementationException("trying to commit cache when it's not enabled");
+			throw new ImplementationError("trying to commit cache when it's not enabled");
 		}
 		enabled = false;
 	}
@@ -56,7 +57,7 @@ public class Cache {
 	
 	public void rollback() {
 		if (!isEnabled()) {
-			throw new ImplementationException("trying to restore cache which is not enabled.");
+			throw new ImplementationError("trying to restore cache which is not enabled.");
 		}
 		enabled = false;
 		for (Map.Entry<VariableCacheEntry, Result> entry: variables.entrySet()) {

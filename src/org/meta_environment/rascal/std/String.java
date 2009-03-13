@@ -4,7 +4,7 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
-import org.meta_environment.rascal.interpreter.exceptions.IndexOutOfBoundsException;
+import org.meta_environment.rascal.interpreter.RuntimeExceptionFactory;
 
 public class String {
 
@@ -18,7 +18,7 @@ public class String {
 	    return values.integer(s.getValue().charAt(i.intValue()));
 	  }
 	  catch (IndexOutOfBoundsException e) {
-	    throw new IndexOutOfBoundsException("charAt", null);
+	    throw RuntimeExceptionFactory.indexOutOfBounds(i);
 	  }
 	}
 

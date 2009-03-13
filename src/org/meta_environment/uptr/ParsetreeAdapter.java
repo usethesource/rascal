@@ -3,14 +3,15 @@ package org.meta_environment.uptr;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.meta_environment.errors.SummaryAdapter;
-import org.meta_environment.rascal.interpreter.exceptions.ImplementationException;
+import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
+
 
 public class ParsetreeAdapter {
 	IConstructor parseTree;
 	
 	public ParsetreeAdapter(IConstructor pt) {
 		if (pt.getType() != Factory.ParseTree) {
-			throw new ImplementationException("ParsetreeAdapter will only wrap UPTR ParseTree, not " + pt.getType());
+			throw new ImplementationError("ParsetreeAdapter will only wrap UPTR ParseTree, not " + pt.getType());
 		}
 		this.parseTree = pt;
 	}

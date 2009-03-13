@@ -10,8 +10,8 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
 import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.meta_environment.ValueFactoryFactory;
-import org.meta_environment.rascal.interpreter.exceptions.ImplementationException;
-import org.meta_environment.rascal.interpreter.exceptions.IndexOutOfBoundsException;
+import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
+
 
 public class SubList implements IList {
 	private final Type fType;
@@ -26,8 +26,14 @@ public class SubList implements IList {
 		
 		fType = V.getType();
 		
-		if(start < 0 || len < 0)
-			throw new IndexOutOfBoundsException("SubList", null);
+		if(start < 0 ) {
+			throw RuntimeExceptionFactory.indexOutOfBounds(ValueFactoryFactory.getValueFactory().integer(start));
+		}
+
+		if(len < 0) {
+			throw RuntimeExceptionFactory.indexOutOfBounds(ValueFactoryFactory.getValueFactory().integer(len));
+		}
+		
 		if(V instanceof IList){
 			this.base = (IList) V;
 			this.start = start;
@@ -36,12 +42,15 @@ public class SubList implements IList {
 			this.base = other.base;
 			this.start = other.start + start;
 		} else {
-			throw new ImplementationException("Illegal value in SubList");
+			throw new ImplementationError("Illegal value in SubList");
 		}
 		this.len = len;
 		this.end = start + len;
-		if(this.start < 0 || this.end > base.length()){
-			throw new IndexOutOfBoundsException("SubList", null);
+		if(this.start < 0){
+			throw RuntimeExceptionFactory.indexOutOfBounds(ValueFactoryFactory.getValueFactory().integer(this.start));
+		}
+		if(this.end > base.length()){
+			throw RuntimeExceptionFactory.indexOutOfBounds(ValueFactoryFactory.getValueFactory().integer(this.end));
 		}
 	}
 	
@@ -111,8 +120,12 @@ public class SubList implements IList {
 	}
 
 	public IValue get(int i) throws IndexOutOfBoundsException {
-		if(i < start || i >= end)
-			new IndexOutOfBoundsException("SubList", null);
+		if(i < start ) {
+			throw RuntimeExceptionFactory.indexOutOfBounds(ValueFactoryFactory.getValueFactory().integer(start));
+		}
+		if(i >= end) {
+			throw RuntimeExceptionFactory.indexOutOfBounds(ValueFactoryFactory.getValueFactory().integer(end));
+		}
 		return base.get(start + i);	
 	}
 	
@@ -199,7 +212,7 @@ class SubListIterator implements Iterator<IValue> {
 
 	public IValue next() {
 		if(cursor >= end){
-			throw new ImplementationException("next called on exhausted SubListIterator");
+			throw new IndexOutOfBoundsException();
 		}
 		return sl.get(cursor++);
 	}

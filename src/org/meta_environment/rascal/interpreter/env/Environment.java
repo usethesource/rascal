@@ -14,9 +14,10 @@ import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.interpreter.Names;
-import org.meta_environment.rascal.interpreter.exceptions.ImplementationException;
-import org.meta_environment.rascal.interpreter.exceptions.TypeErrorException;
+import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.result.Result;
+import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredFunctionError;
+
 
 /**
  * A simple environment for variables and functions and types.
@@ -40,7 +41,7 @@ public class Environment {
 		this.parent = parent;
 		this.cache = cache;
 		if (parent == this) {
-			throw new ImplementationException("internal error: cyclic environment");
+			throw new ImplementationError("internal error: cyclic environment");
 		}
 	}
 
@@ -178,7 +179,7 @@ public class Environment {
 		
 		for (Lambda other : list) {
 			if (function.isAmbiguous(other)) {
-				throw new TypeErrorException("Declaration `" + function.getHeader() + "' overlaps with `" + other.getHeader() + "`", function.getAst());
+				throw new RedeclaredFunctionError(function.getHeader(), other.getHeader(), function.getAst());
 			}
 		}
 		

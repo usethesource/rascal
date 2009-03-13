@@ -2,9 +2,10 @@ package test.StandardLibraryTests;
 
 import org.junit.Ignore;
 import org.junit.Test;
-import org.meta_environment.rascal.interpreter.exceptions.*;
 
 import test.TestFramework;
+import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
+
 import static org.junit.Assert.*;
 
 public class MapTests extends TestFramework {
@@ -18,7 +19,7 @@ public class MapTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{int N = getOneFrom((1:10, 2:20)); (N == 1) || (N ==2);}"));
 	}
 	
-	@Test(expected=EmptyMapException.class)
+	@Test(expected=Throw.class)
 	public void getOneFromError() {
 		runTest("import Map;", "getOneFrom(());");
 	}
@@ -34,7 +35,7 @@ public class MapTests extends TestFramework {
 		
 	}
 	
-	@Ignore @Test(expected=EmptyMapException.class) 
+	@Ignore @Test(expected=Throw.class) 
 	// (a) Change exception name;
 	// (b) Check for duplicates
 	public void invertError() {

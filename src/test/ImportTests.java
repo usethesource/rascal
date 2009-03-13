@@ -1,17 +1,17 @@
 package test;
 
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Ignore;
 import org.junit.Test;
-import org.meta_environment.rascal.interpreter.exceptions.NoSuchFunctionException;
-import org.meta_environment.rascal.interpreter.exceptions.NoSuchModuleException;
-import org.meta_environment.rascal.interpreter.exceptions.UndefinedValueException;
-
-import static org.junit.Assert.*;
+import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFunctionError;
+import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredModuleError;
+import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
 
 public class ImportTests extends TestFramework {
 	
 
-	@Test(expected=NoSuchModuleException.class)
+	@Test(expected=UndeclaredModuleError.class)
 	public void importError() {
 		runTest("import zap;");
 	}
@@ -41,14 +41,14 @@ public class ImportTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{ int n = 4; n == 4;}"));
 	}
 	
-	@Test(expected=UndefinedValueException.class)
+	@Test(expected=UninitializedVariableError.class)
 	public void UndefinedPrivateVar1(){
 		prepareModule("module M\n" +
 		         "private int m = 3;");
 		runTestInSameEvaluator("m != 3;");
 	}
 	
-	@Ignore @Test(expected=UndefinedValueException.class)
+	@Ignore @Test(expected=UninitializedVariableError.class)
 	public void UndefinedPrivateVar2(){
 		prepareModule("module M\n" +
 		         "private int m = 3;");
@@ -56,7 +56,7 @@ public class ImportTests extends TestFramework {
 		runTestInSameEvaluator("int n = m;");
 	}
 	
-	@Test(expected=NoSuchFunctionException.class)
+	@Test(expected=UndeclaredFunctionError.class)
 	public void UndefinedPrivateFunction(){
 		prepareModule("module M\n" +
 		         "private int f() {return 3;}");

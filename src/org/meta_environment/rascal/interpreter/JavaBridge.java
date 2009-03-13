@@ -16,11 +16,11 @@ import net.java.dev.hickory.testing.Compilation;
 
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -28,6 +28,7 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
+import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.ast.Formal;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.Parameters;
@@ -35,11 +36,13 @@ import org.meta_environment.rascal.ast.Signature;
 import org.meta_environment.rascal.ast.Tag;
 import org.meta_environment.rascal.ast.Tags;
 import org.meta_environment.rascal.ast.Type;
-import org.meta_environment.rascal.interpreter.exceptions.ImplementationException;
-import org.meta_environment.rascal.interpreter.exceptions.JavaMethodNotFoundException;
-import org.meta_environment.rascal.interpreter.exceptions.NonStaticJavaMethodException;
-import org.meta_environment.rascal.interpreter.exceptions.TagMissingException;
-import org.meta_environment.rascal.interpreter.exceptions.TypeErrorException;
+import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
+import org.meta_environment.rascal.interpreter.staticErrors.JavaCompilationError;
+import org.meta_environment.rascal.interpreter.staticErrors.MissingTagError;
+import org.meta_environment.rascal.interpreter.staticErrors.NonAbstractJavaFunctionError;
+import org.meta_environment.rascal.interpreter.staticErrors.NonStaticJavaMethodError;
+import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredJavaMethodError;
+
 
 public class JavaBridge {
 	private static final String JAVA_IMPORTS_TAG = "javaImports";
@@ -63,11 +66,11 @@ public class JavaBridge {
 		this.loaders = classLoaders;
 		
 		if (ToolProvider.getSystemJavaCompiler() == null) {
-			throw new ImplementationException("Could not find an installed System Java Compiler, please provide a Java Runtime that includes the Java Development Tools (JDK 1.6 or higher).");
+			throw new ImplementationError("Could not find an installed System Java Compiler, please provide a Java Runtime that includes the Java Development Tools (JDK 1.6 or higher).");
 		}
 		
 		if (ToolProvider.getSystemToolClassLoader() == null) {
-			throw new ImplementationException("Could not find an System Tool Class Loader, please provide a Java Runtime that includes the Java Development Tools (JDK 1.6 or higher).");
+			throw new ImplementationError("Could not find an System Tool Class Loader, please provide a Java Runtime that includes the Java Development Tools (JDK 1.6 or higher).");
 		}
 	}
 
@@ -75,7 +78,7 @@ public class JavaBridge {
 		try {
 			return getJavaMethod(declaration);
 		} catch (ClassNotFoundException e) {
-			throw new ImplementationException("Error during Java compilation", e.getCause());
+			throw new ImplementationError("Error during Java compilation", e.getCause());
 		}
 	}
 	
@@ -98,9 +101,9 @@ public class JavaBridge {
 				return clazz.getDeclaredMethod(METHOD_NAME);
 			}
 		} catch (SecurityException e) {
-			throw new ImplementationException("Error during compilation of java function: " + declaration, e.getCause());
+			throw new ImplementationError("Error during compilation of java function: " + declaration, e.getCause());
 		} catch (NoSuchMethodException e) {
-			throw new ImplementationException("Unexpected error during compilation of java function: " + declaration,  e.getCause());
+			throw new ImplementationError("Unexpected error during compilation of java function: " + declaration,  e.getCause());
 		}
 		finally {}
 	}
@@ -136,7 +139,6 @@ public class JavaBridge {
 				addLine("}");
 
 	  
-//		System.err.println("Classpath for compilation: " + System.getProperty("java.class.path"));
 		compilation.doCompile(out);
 		
 		if (compilation.getDiagnostics().size() != 0) {
@@ -146,7 +148,7 @@ public class JavaBridge {
 				message = message.replaceAll(UNWANTED_MESSAGE_PREFIX, "").replaceAll(UNWANTED_MESSAGE_POSTFIX, ",");
 				messages.append(message + "\n");
 			}
-			throw new TypeErrorException("Compilation of Java method failed due to the following error(s): \n" + messages.toString(), declaration);
+			throw new JavaCompilationError(messages.toString(), declaration);
 		}
 
 		return compilation.getOutputClass(fullClassName);
@@ -401,14 +403,14 @@ public class JavaBridge {
 
 	public Method lookupJavaMethod(FunctionDeclaration func) {
 		if (!func.isAbstract()) {
-			// TODO a better error class for this
-			throw new ImplementationException("lookup on non-abstract function", func);
+			throw new NonAbstractJavaFunctionError(func);
 		}
 		
 		String className = getClassName(func);
+		String name = func.getSignature().getName().toString();
 		
 		if (className.length() == 0) {
-			throw new TagMissingException(func);
+			throw new MissingTagError(JAVA_CLASS_TAG, func);
 		}
 		
 		for (ClassLoader loader : loaders) {
@@ -419,7 +421,7 @@ public class JavaBridge {
 
 				try {
 					Method m;
-					String name = func.getSignature().getName().toString();
+					
 
 					if (javaTypes.length > 0) { // non-void
 						m = clazz.getDeclaredMethod(name, javaTypes);
@@ -429,20 +431,20 @@ public class JavaBridge {
 					}
 
 					if ((m.getModifiers() & Modifier.STATIC) == 0) {
-						throw new NonStaticJavaMethodException(func);
+						throw new NonStaticJavaMethodError(func);
 					}
 
 					return m;
 				} catch (SecurityException e) {
-					throw new ImplementationException("Error during retrieval of java function: " + func, e.getCause());
+					throw RuntimeExceptionFactory.permissionDenied(ValueFactoryFactory.getValueFactory().string(e.getMessage()));
 				} catch (NoSuchMethodException e) {
-					throw new JavaMethodNotFoundException(func);
+					throw new UndeclaredJavaMethodError(className + "." + name, func);
 				}
 			} catch (ClassNotFoundException e) {
 				continue;
 			}
 		}
 		
-		throw new JavaMethodNotFoundException(func);
+		throw new UndeclaredJavaMethodError(className + "." + name, func);
 	}
 }

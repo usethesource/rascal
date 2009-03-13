@@ -2,14 +2,15 @@ package org.meta_environment.uptr;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IString;
-import org.meta_environment.rascal.interpreter.exceptions.ImplementationException;
+import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
+
 
 public class SymbolAdapter {
 	private IConstructor tree;
 
 	public SymbolAdapter(IConstructor tree) {
 		if (tree.getType() != Factory.Symbol) {
-			throw new ImplementationException("TreeWrapper will only wrap UPTR symbols, not " +  tree.getType());
+			throw new ImplementationError("TreeWrapper will only wrap UPTR symbols, not " +  tree.getType());
 		}
 		this.tree = tree;
 	}
@@ -31,7 +32,7 @@ public class SymbolAdapter {
 			return new SymbolAdapter((IConstructor) tree.get("symbol"));
 		}
 		else {
-			throw new ImplementationException("Symbol does not have a child named symbol: " + tree);
+			throw new ImplementationError("Symbol does not have a child named symbol: " + tree);
 		}
 	}
 	
@@ -43,7 +44,7 @@ public class SymbolAdapter {
 			return ((IString) tree.get("sort")).getValue();
 		}
 		else {
-			throw new ImplementationException("Symbol does not have a child named \"name\": " + tree);
+			throw new ImplementationError("Symbol does not have a child named \"name\": " + tree);
 		}
 	}
 

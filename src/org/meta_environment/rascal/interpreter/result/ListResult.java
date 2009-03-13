@@ -4,7 +4,8 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.meta_environment.rascal.interpreter.exceptions.ImplementationException;
+import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
+
 
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 
@@ -53,7 +54,7 @@ public class ListResult extends CollectionResult<IList> {
 
 	@Override
 	protected <U extends IValue> AbstractResult<U> subtractList(ListResult l) {
-		throw new ImplementationException("NYI");
+		throw new ImplementationError("NYI");
 		// Note the reverse 
 		//return new ListResult(l.list.(l.list));
 	}
@@ -85,17 +86,17 @@ public class ListResult extends CollectionResult<IList> {
 	}
 
 	<U extends IValue, V extends IValue> AbstractResult<U> removeElement(ValueResult<V> value) {
-		throw new ImplementationException("NYI: pdb has no remove on list");
+		throw new ImplementationError("NYI: pdb has no remove on list");
 		//return new ListResult(list.remove(value.getValue())
 	}
 
 	<U extends IValue, V extends IValue> AbstractResult<U> elementOf(ValueResult<V> elementResult) {
-		throw new ImplementationException("NYI: pdb has no contains on lists");
+		throw new ImplementationError("NYI: pdb has no contains on lists");
 		//return new BoolResult(getValue().contains(elementResult.getValue());
 	}
 
 	<U extends IValue, V extends IValue> AbstractResult<U> notElementOf(ValueResult<V> elementResult) {
-		throw new ImplementationException("NYI: pdb has no contains on lists");
+		throw new ImplementationError("NYI: pdb has no contains on lists");
 		//return new BoolResult(!getValue().contains(elementResult.getValue());
 	}
 	

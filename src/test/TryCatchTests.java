@@ -1,10 +1,10 @@
 package test;
 
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Ignore;
 import org.junit.Test;
-import org.meta_environment.rascal.interpreter.exceptions.TypeErrorException;
-
-import static org.junit.Assert.*;
+import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
 
 public class TryCatchTests extends TestFramework {
 	
@@ -277,7 +277,7 @@ public class TryCatchTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{" + fun + "fun();}"));
 	}
 	
-	@Test(expected=TypeErrorException.class)
+	@Test(expected=StaticError.class)
 	public void UnknownExceptionError1(){
 		String fun =
 			
@@ -293,7 +293,7 @@ public class TryCatchTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{" + fun + "fun();}"));
 	}
 	
-	@Ignore @Test(expected=TypeErrorException.class)
+	@Ignore @Test(expected=StaticError.class)
 	public void UnknownExceptionError2(){
 		String fun =
 			

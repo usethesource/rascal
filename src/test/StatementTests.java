@@ -1,8 +1,9 @@
 package test;
 
 import org.junit.Test;
-import org.meta_environment.rascal.interpreter.exceptions.*;
-import org.meta_environment.rascal.interpreter.exceptions.IndexOutOfBoundsException;
+import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
+import org.meta_environment.rascal.interpreter.staticErrors.*;
+
 
 import static org.junit.Assert.*;
 
@@ -14,27 +15,27 @@ public class StatementTests extends TestFramework {
 		assertTrue(runTest("assert (3 > 2): \"Yes assert succeeds\";"));
 	}
 	
-	@Test(expected=org.meta_environment.rascal.interpreter.exceptions.AssertionException.class)
+	@Test(expected=Throw.class)
 	public void assertError1() {
 		runTest("assert 1 == 2;");
 	}
 	
-	@Test(expected=TypeErrorException.class)
+	@Test(expected=StaticError.class)
 	public void assertError2() {
 		runTest("assert 3.5;");
 	}
 	
-	@Test(expected=TypeErrorException.class)
+	@Test(expected=StaticError.class)
 	public void assertError3() {
 		runTest("assert 3.5 : \"Wrong expression type\";");
 	}
 	
-	@Test(expected=UndefinedValueException.class)
+	@Test(expected=UninitializedVariableError.class)
 	public void assertError4() {
 		runTest("assert X;");
 	}
 	
-	@Test(expected=UndefinedValueException.class)
+	@Test(expected=UninitializedVariableError.class)
 	public void assertError5() {
 		runTest("assert X : \"Wrong expression type\";");
 	}
@@ -89,7 +90,7 @@ public class StatementTests extends TestFramework {
 		assertTrue(runTest("{int n = 0; m = 2; do {m = m * m; n = n + 1;} while (n < 3); m == 256;}"));
 	}
 	
-	@Test(expected=TypeErrorException.class)
+	@Test(expected=StaticError.class)
 	public void doWhileError() {
 		runTest("do {n = 4;} while(3);");
 	}
@@ -100,7 +101,7 @@ public class StatementTests extends TestFramework {
 		assertTrue(runTest("{int n = 0; int m = 2; while(n < 3){ m = m * m; n = n + 1;}; (n ==3) && (m == 256);}"));
 	}
 	
-	@Test(expected=TypeErrorException.class)
+	@Test(expected=StaticError.class)
 	public void whileError() {
 		runTest("while(3){n = 4;}");
 	}
@@ -126,7 +127,7 @@ public class StatementTests extends TestFramework {
 	}
 	
 
-	@Test(expected=TypeErrorException.class)
+	@Test(expected=StaticError.class)
 	public void ifThenError() {
 		runTest("if(3){n = 4;}");
 	}
@@ -137,7 +138,7 @@ public class StatementTests extends TestFramework {
 		assertTrue(runTest("{int n = 12; if(n < 10){n = n - 4;} else { n = n + 4;} n == 16;}"));
 	}
 	
-	@Test(expected=TypeErrorException.class)
+	@Test(expected=StaticError.class)
 	public void ifThenElseError() {
 		runTest("if(\"abc\"){n = 4;} else {n=5;}");
 	}
@@ -158,7 +159,7 @@ public class StatementTests extends TestFramework {
 		assertTrue(runTest("{" + S + " T =={<1,2>, <1,3>,<1,4>,<2,3>,<2,4>,<3,4>};}"));
 	}
 	
-	@Test(expected=TypeErrorException.class)
+	@Test(expected=StaticError.class)
 	public void solveError1(){
 		String S = 	"rel[int,int] R1 =  {<1,2>, <2,3>, <3,4>};" +
 	                " with 	rel[int,int] T = R1;" +
@@ -166,7 +167,7 @@ public class StatementTests extends TestFramework {
 		assertTrue(runTest("{" + S + " T =={<1,2>, <1,3>,<1,4>,<2,3>,<2,4>,<3,4>};}"));
 	}
 	
-	@Test(expected=IndexOutOfBoundsException.class)
+	@Test(expected=Throw.class)
 	public void solveError2(){
 		String S = 	"rel[int,int] R1 =  {<1,2>, <2,3>, <3,4>};" +
 	                " with 	rel[int,int] T = R1;" +

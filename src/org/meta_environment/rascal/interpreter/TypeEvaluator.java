@@ -38,10 +38,11 @@ import org.meta_environment.rascal.ast.TypeArg.Default;
 import org.meta_environment.rascal.ast.TypeArg.Named;
 import org.meta_environment.rascal.ast.UserType.Name;
 import org.meta_environment.rascal.ast.UserType.Parametric;
+import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.Lambda;
-import org.meta_environment.rascal.interpreter.exceptions.ImplementationException;
-import org.meta_environment.rascal.interpreter.exceptions.UndeclaredTypeException;
+import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredTypeError;
+
 
 public class TypeEvaluator {
 	private static TypeFactory tf = TypeFactory.getInstance();
@@ -155,7 +156,7 @@ public class TypeEvaluator {
 				Type type = f.accept(this);
 				
 				if (type == null) {
-					throw new UndeclaredTypeException(f.getType().toString(), f);
+					throw new UndeclaredTypeError(f.getType().toString(), f);
 				}
 				typesAndNames[index++] = type;
 				typesAndNames[index] = f.getName().toString();
@@ -342,7 +343,7 @@ public class TypeEvaluator {
 				}
 			}
 			
-			throw new UndeclaredTypeException(name, x);
+			throw new UndeclaredTypeError(name, x);
 		}
 
 		@Override
@@ -363,12 +364,12 @@ public class TypeEvaluator {
 				}
 			}
 			
-			throw new UndeclaredTypeException(name, x);
+			throw new UndeclaredTypeError(name, x);
 		}
 
 		@Override
 		public Type visitTypeAmbiguity(Ambiguity x) {
-			throw new ImplementationException("Ambiguous type: " + x, x);
+			throw new ImplementationError("Ambiguous type: " + x);
 		}
 	}
 }

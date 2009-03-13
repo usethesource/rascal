@@ -16,15 +16,16 @@ import org.meta_environment.errors.SubjectAdapter;
 import org.meta_environment.errors.SummaryAdapter;
 import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.Command;
-import org.meta_environment.rascal.interpreter.control_exceptions.FailureControlException;
+import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
+import org.meta_environment.rascal.interpreter.control_exceptions.Failure;
+import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
-import org.meta_environment.rascal.interpreter.exceptions.ImplementationException;
-import org.meta_environment.rascal.interpreter.exceptions.RascalException;
-import org.meta_environment.rascal.interpreter.exceptions.TypeErrorException;
+import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
 import org.meta_environment.uptr.Factory;
+
 
 
 public class RascalShell {
@@ -90,42 +91,37 @@ public class RascalShell {
 					console.printString(output);
 					console.printNewline();
 				}
-				catch (FailureControlException e) {
+				catch (Failure e) {
 					e.printStackTrace();
 					break;
 				}
 				catch (FactTypeUseException e) {
+					// TODO: this should not happen
 					e.printStackTrace();
 					console.printString("FactTypeError: " + e.getMessage() + "\n");
 				    printStacktrace(console, e);
 				}
-				catch (TypeErrorException e) {
+				catch (StaticError e) {
 					e.printStackTrace();
-					console.printString("TypeError: " + e.getMessage() + "\n");
-					if (e.hasCause()) {
-						console.printString("caused by: " + e.getCause().getMessage() + "\n");
-					}
+					console.printString("Error: " + e.getMessage() + "\n");
 				}
-				catch (ImplementationException e) {
+				catch (ImplementationError e) {
 					e.printStackTrace();
 					console.printString("ImplementationError: " + e.getMessage() + "\n");
-					if (e.hasCause()) {
-						console.printString("caused by: " + e.getCause().getMessage() + "\n");
-					}
 					printStacktrace(console, e);
 				}
-				catch (RascalException e) {
+				catch (Throw e) {
 					e.printStackTrace();
 					console.printString(e.getMessage() + "\n");
 				}
 				catch (Throwable e) {
 					e.printStackTrace();
-					console.printString("Throwable: " + e.getMessage() + "\n");
+					console.printString("ImplementationError (generic Throwable): " + e.getMessage() + "\n");
 					printStacktrace(console, e);
 				}
 			}
 		}
-		catch (FailureControlException e) {
+		catch (Failure e) {
 			return;
 		}
 	}

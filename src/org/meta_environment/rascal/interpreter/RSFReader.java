@@ -12,7 +12,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.ValueFactoryFactory;
-import org.meta_environment.rascal.interpreter.exceptions.NoSuchFileException;
+
 
 public class RSFReader {
 	
@@ -53,7 +53,7 @@ public class RSFReader {
 			bufRead.close();
 
 		} catch (IOException e) {
-			throw new NoSuchFileException("Can not find file " + nameRSFFile);
+			throw RuntimeExceptionFactory.io(ValueFactoryFactory.getValueFactory().string(e.getMessage()));
 		}
 
 		IMapWriter mw = vf.mapWriter(strType, tf.relType(strType, strType));

@@ -1,6 +1,8 @@
 package org.meta_environment.rascal.interpreter.result;
 
 
+import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
+
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.SortedSet;
@@ -10,9 +12,7 @@ import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.meta_environment.rascal.interpreter.exceptions.TypeErrorException;
-
-import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
+import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 
 
 public class ValueResult<T extends IValue> extends AbstractResult<T> {
@@ -28,7 +28,8 @@ public class ValueResult<T extends IValue> extends AbstractResult<T> {
 	@Override
 	public <U extends IValue, V extends IValue> AbstractResult<U> equals(AbstractResult<V> that) {
 		if (!getType().comparable(that.getType())) {
-			throw new TypeErrorException("Arguments of equals have incomparable types: " + getType() + " and " + that.getType(), null);
+			// TODO add ast
+			throw new UnexpectedTypeError(getType(),that.getType(), null);
 		}
 		IBool bool = getValueFactory().bool(((IInteger)this.compare(that).getValue()).intValue() == 0);
 		return makeResult(getTypeFactory().boolType(), bool);

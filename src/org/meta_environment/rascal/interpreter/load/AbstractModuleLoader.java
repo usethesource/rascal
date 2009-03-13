@@ -5,23 +5,26 @@ import java.io.InputStream;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.errors.SubjectAdapter;
 import org.meta_environment.errors.SummaryAdapter;
 import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.Module;
 import org.meta_environment.rascal.interpreter.Names;
-import org.meta_environment.rascal.interpreter.exceptions.ModuleLoadException;
-import org.meta_environment.rascal.interpreter.exceptions.SyntaxErrorException;
+import org.meta_environment.rascal.interpreter.RuntimeExceptionFactory;
+import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
+import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
 import org.meta_environment.uptr.Factory;
+
 
 public abstract class AbstractModuleLoader implements IModuleLoader {
 	protected static final String RASCAL_FILE_EXT = ".rsc";
 	protected static final Parser PARSER = Parser.getInstance();
 	protected static final ASTBuilder BUILDER = new ASTBuilder(new ASTFactory());
 
-	public Module loadModule(String name) throws ModuleLoadException {
+	public Module loadModule(String name) throws IOException {
 		InputStream stream = null;
 		
 		try {
@@ -30,20 +33,20 @@ public abstract class AbstractModuleLoader implements IModuleLoader {
 					.parseFromStream(stream);
 
 			if (tree.getConstructorType() == Factory.ParseTree_Summary) {
-				throw new SyntaxErrorException(parseError(tree, name));
+				throw new SyntaxError("module", new SummaryAdapter(tree).getInitialSubject().getLocation());
 			}
 
 			return BUILDER.buildModule(tree);
 		} catch (FactTypeUseException e) {
-			throw new ModuleLoadException(e.getMessage(), e);
+			throw new ImplementationError("Unexpected PDB typecheck exception", e);
 		} catch (IOException e) {
-			throw new ModuleLoadException(e.getMessage(), e);
+			throw RuntimeExceptionFactory.io(ValueFactoryFactory.getValueFactory().string(e.getMessage()));
 		} finally {
 			if (stream != null) {
 				try {
 					stream.close();
 				} catch (IOException e) {
-					throw new ModuleLoadException(e.getMessage(), e);
+					throw RuntimeExceptionFactory.io(ValueFactoryFactory.getValueFactory().string(e.getMessage()));
 				}
 			}
 		}
