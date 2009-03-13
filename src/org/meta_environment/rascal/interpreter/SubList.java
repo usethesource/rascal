@@ -47,35 +47,42 @@ public class SubList implements IList {
 	
 	@Override
 	public int hashCode() {
+		if(len == 0) {
+			//System.err.println("hashcode sublist: = " + ValueFactoryFactory.getValueFactory().list().hashCode() );
+		
+			return ValueFactoryFactory.getValueFactory().list().hashCode();
+		}
 		int hash = 123456789;
 		
 		for(int i = 0; i < len; i++){
 		    hash = (hash << 1) ^ (hash >> 1) ^ base.get(start + i).hashCode();
 		}
-		System.err.println("hashCode=" + hash + ", start=" + start + ", len=" + len);
+		
+		//System.err.println("hashcode sublist: " + this + " = " + hash);
 		return hash;
 	}
 	
 	@Override
 	public boolean equals(Object o){
-		System.err.println(this + " equals " + o);
 		if(o instanceof IList || o instanceof SubList){
 			IList other = (IList) o;
+			//System.err.println("len=" + len + ", other.len=" + other.length());
+			//System.err.println("comparable=" + fType.comparable(other.getType()));
 			if(fType.comparable(other.getType()) && (len == other.length())){
 				for(int i = 0; i < len; i++){
 					if(!base.get(start + i).equals(other.get(i))){
-						System.err.println("false");
+						//System.err.println("unequal element: " + i);
 						return false;
 					}
 				}
-				System.err.println("true");
+				//System.err.println("true");
 				return true;
 			} else {
-				System.err.println("false");
+				//System.err.println("false");
 				return false;
 			}
 		}
-		System.err.println("false");
+		//System.err.println("false");
 		return false;
 	}
 	

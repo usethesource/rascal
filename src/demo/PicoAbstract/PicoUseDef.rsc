@@ -15,13 +15,13 @@ public rel[PicoId, ProgramPoint] uses(PROGRAM P) {
   rel[PicoId, ProgramPoint] result = {};
   visit(P) {
    case ifStat(EXP Exp, _,  _):
-        result = result + getVarUses(Exp) * {subject@pos};
+        result = result + getVarUses(Exp) * {Exp@pos};
                             
    case whileStat(EXP Exp, _):
-         result = result + getVarUses(Exp) * {subject@pos};
+         result = result + getVarUses(Exp) * {Exp@pos};
          
    case asgStat(_, EXP Exp):{
-         result = result + getVarUses(Exp) * {subject@pos};
+         result = result + getVarUses(Exp) * {Exp@pos};
         }
    };
    return result;                  

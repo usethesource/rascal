@@ -20,50 +20,67 @@ bool is_constant(EXP E) {
    }
 }
 
-STATEMENT replaceVar(PicoId Id, EXP E, STATEMENT S){
-  return visit(S){
-    case id(Id) => E
-  };
-}
-
 PROGRAM constantPropagation(PROGRAM P) {
     rel[PicoId, ProgramPoint] Defs = defs(P);
-    rel[PicoId, ProgramPoint] Uses = uses(P);
     rel[ProgramPoint,ProgramPoint] CFG = cflow(P).graph;
 
-    println("CFG=<CFG>");
-    println("Defs=<Defs>");
-    rel[PicoId, set[ProgramPoint], EXP] replacements = 
-      {<Id, CU, E> | STATEMENT S <- P,
-                 asgStat(PicoId Id, EXP E) := S,
-                 is_constant(E),
-                 CU := reachX(CFG, {S@pos}, Defs[Id] - S@pos) & Uses[Id]
-      };  
+    println("CFG=<CFG>\nDefs=<Defs>");
+    
+    rel[ProgramPoint, PicoId, EXP] replacements = {};
+    
+    for(STATEMENT S <- P, asgStat(PicoId Id, EXP E) := S, is_constant(E)){
+        ConstantUses := reachX(CFG, {S@pos}, Defs[Id] - S@pos);
+        
+        for(ProgramPoint C <- ConstantUses){
+            replacements = replacements + {<C, Id, E>};
+        }
+    }
+    
+    return performReplacements(P, replacements);
+ }
+ 
+ PROGRAM performReplacements(PROGRAM P, rel[ProgramPoint, PicoId, EXP] replacements){
       
-      println("replacements=<replacements>");
- /*
+    println("replacements=<replacements>");
+ 
     return visit (P) {
-     case STATEMENT S: if(S@pos in range(replacements))
+     case STATEMENT S:
+     	  { R = replacements[S@pos];
+            if(R != {}){
+               insert visit(S){
+                      case id(PicoId Name):
+                           if({EXP NewExp} := R[Name])
+                              insert NewExp;
+               };
+            }
+          }
+                   
+     case EXP E:
+          { if(id(PicoId Name) := E){
+               R = replacements[E@pos];
+               if(R != {} && {EXP NewExp} := R[Name])
+                  insert NewExp;
+            }
+          }
     };
-    */
-    return P;
 }
 
 PROGRAM smallCP =
 
-program([decl("x", natural), decl("s", string)],
-        [ asgStat("x", natCon(3))[@pos=1],
-          asgStat("d", id("x"))[@pos=2] //,
-          //whileStat(id("x"),
-          //          [ asgStat("x", sub(id("x"), id("d")))[@pos=4],
-           //           asgStat("s", conc(id("s"), strCon("#")))[@pos=5]
-           //         ]
-           //        )[@pos=3]
-        ]//
+program([decl("x", natural), decl("s", string), decl("d", natural), decl("dd", natural)],
+        [ asgStat("x", natCon(3)),
+          asgStat("d", id("x")) ,
+          whileStat(id("x"),
+                    [ asgStat("x", sub(id("x"), id("d"))),
+                      asgStat("s", conc(id("s"), strCon("#"))),
+                      asgStat("dd", add(id("d"), id("x")))
+                    ]
+                   )
+        ]
        );
        
 public bool test(){
-  P = constantPropagation(smallCP);
+  P = constantPropagation(annotate(smallCP));
   println("P=<P>");
   return true;
 }

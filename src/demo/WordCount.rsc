@@ -73,7 +73,7 @@ public int countLine3(str S){
   int cnt = 0;
   for(/<word:\w+>/<- S){
        cnt = cnt + 1;
-       allCounts[word] = (allCounts[word] =? 0) + 1;
+       allCounts[word] = (allCounts[word] ?= 0) + 1;
   }
   return sum([allCounts[K] | str K <- allCounts], 0);
 }

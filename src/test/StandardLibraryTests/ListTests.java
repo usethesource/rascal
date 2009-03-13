@@ -232,7 +232,7 @@ public class ListTests extends TestFramework {
 	public void tail() {
 
 		prepare("import List;");
-/*
+
 		assertTrue(runTestInSameEvaluator("{List::tail([1]) == [];}"));
 		assertTrue(runTestInSameEvaluator("{tail([1]) == [];}"));
 		assertTrue(runTestInSameEvaluator("{List::tail([1, 2]) == [2];}"));
@@ -247,7 +247,6 @@ public class ListTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{L = [1,2]; tail(tail(L)) == tail(tail(L));}"));
 		assertTrue(runTestInSameEvaluator("{L1 = [1,2,3]; L2 = [2,3]; tail(tail(L1)) == tail(L2);}"));
 		assertTrue(runTestInSameEvaluator("{L1 = [1,2]; L2 = [3]; tail(tail(L1)) == tail(L2);}"));
-		*/
 		
 		assertTrue(runTestInSameEvaluator("{L1 = [1,2]; L2 = [3]; {tail(tail(L1)), tail(L2)} == {[]};}"));
 		
