@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeDeclarationException;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeRedeclaredException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.Declaration;
@@ -19,9 +20,12 @@ import org.meta_environment.rascal.ast.Declaration.Alias;
 import org.meta_environment.rascal.ast.Declaration.Data;
 import org.meta_environment.rascal.ast.Toplevel.DefaultVisibility;
 import org.meta_environment.rascal.ast.Toplevel.GivenVisibility;
+import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.env.Environment;
-import org.meta_environment.rascal.interpreter.exceptions.TypeErrorException;
-import org.meta_environment.rascal.interpreter.exceptions.UndeclaredTypeException;
+import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredTypeError;
+import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
+import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredTypeError;
+
 
 public class TypeDeclarationEvaluator {
 
@@ -68,7 +72,7 @@ public class TypeDeclarationEvaluator {
 					fields[i] = te.eval(arg.getType(), env);
 
 					if (fields[i] == null) {
-						throw new UndeclaredTypeException(arg.getType()
+						throw new UndeclaredTypeError(arg.getType()
 								.toString(), arg);
 					}
 
@@ -83,8 +87,7 @@ public class TypeDeclarationEvaluator {
 				try {
 					env.constructorFromTuple(adt, altName, children);
 				} catch (org.eclipse.imp.pdb.facts.exceptions.RedeclaredConstructorException e) {
-					throw new TypeErrorException("Redeclared constructor "
-							+ altName, var);
+					throw new RedeclaredTypeError(altName, var);
 				}
 			} else if (var.isNillaryConstructor()) {
 				env.constructor(adt, altName, new Object[] {});
@@ -108,7 +111,7 @@ public class TypeDeclarationEvaluator {
 				try {
 					todo.remove(trial);
 					declareAlias(trial, env);
-				} catch (UndeclaredTypeException e) {
+				} catch (UndeclaredTypeError e) {
 					// now try to find a declaration for this missing name
 					String name = e.getName();
 
@@ -134,14 +137,18 @@ public class TypeDeclarationEvaluator {
 			Type base = te.eval(x.getBase(), env);
 
 			if (base == null) {
-				throw new UndeclaredTypeException(x.getBase().toString(), x
+				throw new UndeclaredTypeError(x.getBase().toString(), x
 						.getBase());
 			}
 
 			env.aliasType(Names.name(x.getUser().getName()), base,
 					computeTypeParameters(x.getUser(), env));
-		} catch (FactTypeDeclarationException e) {
-			throw new TypeErrorException(e.getMessage(), x);
+		} 
+		catch (FactTypeRedeclaredException e) {
+			throw new RedeclaredTypeError(e.getName(), x);
+		}
+		catch (FactTypeDeclarationException e) {
+			throw new ImplementationError("Unknown FactTypeDeclarationException: " + e.getMessage());
 		}
 	}
 
@@ -168,9 +175,9 @@ public class TypeDeclarationEvaluator {
 			int i = 0;
 			for (org.meta_environment.rascal.ast.Type formal : formals) {
 				if (!formal.isVariable()) {
-					throw new TypeErrorException(
+					throw new SyntaxError(
 							"Declaration of parameterized type with type instance "
-									+ formal + " is not allowed", formal);
+									+ formal + " is not allowed", formal.getLocation());
 				}
 				TypeVar var = formal.getTypeVar();
 				Type bound = var.hasBound() ? te.eval(var.getBound(), env) : tf

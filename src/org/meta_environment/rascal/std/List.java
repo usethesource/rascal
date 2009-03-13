@@ -12,9 +12,9 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.meta_environment.rascal.interpreter.RuntimeExceptionFactory;
 import org.meta_environment.rascal.interpreter.SubList;
-import org.meta_environment.rascal.interpreter.exceptions.EmptyListException;
-import org.meta_environment.rascal.interpreter.exceptions.IndexOutOfBoundsException;
+
 
 public class List {
 
@@ -23,13 +23,12 @@ public class List {
 	private static final Random random = new Random();
 	
 	public static IValue head(IList lst)
-	  throws EmptyListException
 	// @doc{head -- get the first element of a list}
 	{
 	   if(lst.length() > 0){
 	      return lst.get(0);
 	   } else {
-	      throw new EmptyListException("head", null);
+	      throw RuntimeExceptionFactory.emptyList();
 	   }
 	}
 
@@ -40,19 +39,19 @@ public class List {
 	   if(n.intValue() <= lst.length()){
 	      return new SubList(lst, 0, n.intValue());
 	   } else {
-	      throw new IndexOutOfBoundsException("head", null);
+	      throw RuntimeExceptionFactory.indexOutOfBounds(n);
 	   }
 	}
 
 	public static IValue getOneFrom(IList lst)
 	//@doc{getOneFrom -- get an arbitrary element from a list}
 	{
-	   int n = lst.length();
-	   if(n > 0){
-	   	return lst.get(random.nextInt(n));
-	   	} else {
-	   		throw new EmptyListException("getOneFrom", null);
-	   	}
+		int n = lst.length();
+		if(n > 0){
+			return lst.get(random.nextInt(n));
+		} else {
+			throw RuntimeExceptionFactory.emptyList();
+		}
 	}
 
 	public static IValue insertAt(IList lst, IInteger n, IValue elm)
@@ -74,7 +73,7 @@ public class List {
 	      }
 	      return w.done();
 	    } else {
-	    	throw new IndexOutOfBoundsException("insertAt", null);
+	    	throw RuntimeExceptionFactory.indexOutOfBounds(n);
 	    }
 	 }
 
@@ -109,8 +108,9 @@ public class List {
 	 	int lenVal = len.intValue();
 	 	int lstLen = lst.length();
 	 	
-	 	if(lenVal > lstLen)
-	 		throw new IndexOutOfBoundsException("tail", null);
+	 	if(lenVal > lstLen) {
+	 		RuntimeExceptionFactory.indexOutOfBounds(len);
+	 	}
 	 	return new SubList(lst, lstLen - lenVal, lenVal);
 	 }
 	 
@@ -133,7 +133,7 @@ public class List {
 	      }
 	      return values.tuple(pick, w.done());
 	   	} else {
-	   		throw new EmptyListException("takeOneFrom", null);
+	   		throw RuntimeExceptionFactory.emptyList();
 	   	}
 	}
 

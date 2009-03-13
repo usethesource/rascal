@@ -1,9 +1,11 @@
 package test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
-import org.meta_environment.rascal.interpreter.exceptions.TypeErrorException;
-import org.meta_environment.rascal.interpreter.exceptions.UndefinedValueException;
+import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
+
 
 public class ComprehensionTests extends TestFramework {
 	
@@ -73,53 +75,53 @@ public class ComprehensionTests extends TestFramework {
 	
 
 	
-	@Test(expected=TypeErrorException.class)
+	@Test(expected=StaticError.class)
 	public void comprehensionError1() {
 		runTest("{X < 2 ? \"a\" : 3.5 | int X <- {1,2,3}};");
 	}
 	
-	@Test(expected=TypeErrorException.class)
+	@Test(expected=StaticError.class)
 	public void comprehensionError2() {
 		runTest("[X < 2 ? \"a\" : 3.5 | int X <- {1,2,3}];");
 	}
 	
-	@Test(expected=TypeErrorException.class)
+	@Test(expected=StaticError.class)
 	public void comprehensionError3() {
 		runTest("(X < 2 ? \"a\" : 3.5 : 5 | int X <- {1,2,3});");
 	}
 	
 	
-	@Test(expected=TypeErrorException.class)
+	@Test(expected=StaticError.class)
 	public void testGen1() {
 		runTest("{x | 5};");
 	}
 	
-	@Test(expected=TypeErrorException.class)
+	@Test(expected=StaticError.class)
 	public void testVoidFunctionPredicate() {
 		runTest("{ void f() { } { x | int x <- {1,2,3}, f() }; }");
 	}
 	
-	@Test(expected=UndefinedValueException.class)
+	@Test(expected=StaticError.class)
 	public void testUndefinedValue() {
 		runTest("{ y | int x <- {1,2,3}};");
 	}
 	
-	@Test(expected=TypeErrorException.class)
+	@Test(expected=StaticError.class)
 	public void WrongStrategyError1(){
 		runTest("innermost int X <- {1,2,3};");
 	}
 	
-	@Test(expected=TypeErrorException.class)
+	@Test(expected=StaticError.class)
 	public void WrongStrategyError2(){
 		runTest("outermost int X <- {1,2,3};");
 	}
 	
-	@Test(expected=TypeErrorException.class)
+	@Test(expected=StaticError.class)
 	public void WrongStrategyError3(){
 		runTest("bottom-up-break int X <- {1,2,3};");
 	}
 	
-	@Test(expected=TypeErrorException.class)
+	@Test(expected=StaticError.class)
 	public void WrongStrategyError4(){
 		runTest("top-down-break int X <- {1,2,3};");
 	}
@@ -146,7 +148,7 @@ public class ComprehensionTests extends TestFramework {
 	}
 	
 	
-	@Test(expected=TypeErrorException.class)
+	@Test(expected=StaticError.class)
 	public void anyError() {
 		runTest("any(x <- [1,2,3], \"abc\");");
 	}
@@ -174,12 +176,12 @@ public class ComprehensionTests extends TestFramework {
 		assertFalse(runTest("all(<int X, int Y> <- [<1,10>,<30,3>,<2,20>], X < Y);"));
 	}
 	
-	@Test(expected=UndefinedValueException.class)
+	@Test(expected=StaticError.class)
 	public void noLeaking() {
 		assertTrue(runTest("{{ X | int X <- [1,2,3] }; X == 3; }"));
 	}
 	
-	@Test(expected=TypeErrorException.class)
+	@Test(expected=StaticError.class)
 	public void allError() {
 		runTest("all(x <- [1,2,3], \"abc\");");
 	}

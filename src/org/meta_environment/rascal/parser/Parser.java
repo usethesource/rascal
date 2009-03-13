@@ -12,7 +12,7 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.io.ATermReader;
 import org.meta_environment.ValueFactoryFactory;
-import org.meta_environment.rascal.interpreter.exceptions.ImplementationException;
+import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.ParsetreeAdapter;
 
@@ -102,7 +102,7 @@ public class Parser{
 		URL url = getClass().getResource("/" + PARSETABLE_FILENAME);
 		
 		if (url == null) {
-			throw new ImplementationException("Can not find Rascal parse table");
+			throw new ImplementationError("Can not find Rascal parse table");
 		}
 		InputStream contents = url.openStream();
 		

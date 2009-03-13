@@ -6,7 +6,8 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.meta_environment.rascal.interpreter.exceptions.NoSuchFieldException;
+import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFieldError;
+
 
 
 public class SourceLocationResult extends AbstractResult<ISourceLocation> {
@@ -46,8 +47,7 @@ public class SourceLocationResult extends AbstractResult<ISourceLocation> {
 					.string(getValue().getURL().toString()));
 		} 
 		else {
-			throw new NoSuchFieldException("Field `" + name
-					+ "` not defined on locations", null);
+			throw new UndeclaredFieldError(name, getTypeFactory().sourceLocationType(), null);
 		}
 	}
 	

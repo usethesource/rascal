@@ -3,7 +3,8 @@ package org.meta_environment.rascal.interpreter;
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IValue;
-import org.meta_environment.rascal.interpreter.exceptions.ImplementationException;
+import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
+
 
 /*
  * SingleIValueIterator turns a single IValue into an Iterator that
@@ -26,7 +27,7 @@ public class SingleIValueIterator implements Iterator<IValue> {
 
 	public IValue next() {
 		if(!firstCall){
-			throw new ImplementationException("next called more than once");
+			throw new ImplementationError("next called more than once");
 		}
 		firstCall = false;
 		return value;

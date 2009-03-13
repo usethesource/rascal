@@ -10,8 +10,8 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.meta_environment.rascal.interpreter.exceptions.IOException;
-import org.meta_environment.rascal.interpreter.exceptions.NoSuchFileException;
+import org.meta_environment.rascal.interpreter.RuntimeExceptionFactory;
+
 
 public class IO {
 
@@ -32,30 +32,29 @@ public class IO {
 	}
 
 	public static IValue readFile(IString filename)
-	throws NoSuchFileException, IOException
 	{
-	  IList res = null;
-	  try {
-	  	BufferedReader in = new BufferedReader(new FileReader(filename.getValue()));
-	  	java.lang.String line;
-	  	
-	  	IListWriter w = types.listType(types.stringType()).writer(values);
-	  	do {
-	  		line = in.readLine();
-	  		if(line != null){
-	  			w.append(values.string(line));
-	  		}
-	  	} while (line != null);
-	  	in.close();
-	  	res =  w.done();
-	  }
-	    catch (FileNotFoundException e){
-	  	throw new NoSuchFileException(filename.getValue(), null);
-	  }
-	  catch (java.io.IOException e){
-	    throw new IOException(e.getMessage(), null);
-	  }
+		IList res = null;
+		try {
+			BufferedReader in = new BufferedReader(new FileReader(filename.getValue()));
+			java.lang.String line;
 
-	  return res;
+			IListWriter w = types.listType(types.stringType()).writer(values);
+			do {
+				line = in.readLine();
+				if(line != null){
+					w.append(values.string(line));
+				}
+			} while (line != null);
+			in.close();
+			res =  w.done();
+		}
+		catch (FileNotFoundException e){
+			throw RuntimeExceptionFactory.fileNotFound(filename);
+		}
+		catch (java.io.IOException e){
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+		}
+
+		return res;
 	}
 }

@@ -65,12 +65,14 @@ import org.meta_environment.rascal.ast.Expression.ValueProducer;
 import org.meta_environment.rascal.ast.Expression.ValueProducerWithStrategy;
 import org.meta_environment.rascal.ast.Expression.Visit;
 import org.meta_environment.rascal.ast.Expression.VoidClosure;
+import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.env.Environment;
-import org.meta_environment.rascal.interpreter.exceptions.ImplementationException;
-import org.meta_environment.rascal.interpreter.exceptions.SyntaxErrorException;
-import org.meta_environment.rascal.interpreter.exceptions.TypeErrorException;
-import org.meta_environment.rascal.interpreter.exceptions.UninitializedVariableException;
 import org.meta_environment.rascal.interpreter.result.Result;
+import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
+import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
+import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
+import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternError;
+
 
 /* package */ 
 /**
@@ -131,7 +133,7 @@ interface MatchPattern {
 	
 	protected void checkInitialized(){
 		if(!initialized){
-			throw new ImplementationException("hasNext or match called before initMatch", ast);
+			throw new ImplementationError("hasNext or match called before initMatch");
 		}
 	}
 	
@@ -390,7 +392,7 @@ interface MatchPattern {
 				Type childType = child.getType(ev);
 				String name = patVar.getName();
 				if(!patVar.isAnonymous() && allVars.contains(name)){
-					throw new TypeErrorException("Double declaration of variable `" + name + "`", ast);
+					throw new RedeclaredVariableError(name, ast);
 				}
 				if(childType.comparable(listSubject.getType())){
 					/*
@@ -402,7 +404,7 @@ interface MatchPattern {
 					listVarOccurrences[i] = 1;
 					nListVar++;
 				} else {
-					throw new TypeErrorException(childType + " variable `" + name + "` is incompatible " + listSubject.getType(), ast);
+					throw new UnexpectedTypeError(listSubject.getType(),childType, ast);
 				}
 			} else if(child instanceof AbstractPatternQualifiedName){
 				AbstractPatternQualifiedName qualName = (AbstractPatternQualifiedName) child;
@@ -432,21 +434,21 @@ interface MatchPattern {
 				        		isListVar[i] = true;
 				        		nListVar++;
 				        	} else {
-				        		throw new TypeErrorException(varType + " variable `" + name + "` not allowed in pattern of type " + listSubjectType, ast);
+				        		throw new UnexpectedTypeError(listSubjectType,varType, ast);
 				        	}
 				        } else {
 				        	if(!varVal.getType().comparable(listSubjectElementType)){
-				        		throw new TypeErrorException(varType + " variable `" + name + "` not allowed in pattern of type " + listSubjectType, ast);
+				        		throw new UnexpectedTypeError(listSubjectType, varType, ast);
 				        	}
 				        }
 				    } else {
-				    	throw new UninitializedVariableException("Uninitialized variable `" + name + "`", ast);
+				    	throw new UninitializedVariableError(name, ast);
 				    }
 				}
 			} else {
 				Type childType = child.getType(ev);
 				if(!childType.comparable(listSubjectElementType)){
-					throw new TypeErrorException(child + " not allowed in pattern of type " + listSubjectType, ast);
+					throw new UnexpectedTypeError(listSubjectType,childType, ast);
 				}
 				java.util.List<String> childVars = child.getVariables();
 				if(!childVars.isEmpty()){
@@ -953,7 +955,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 				Type childType = child.getType(ev);
 				String name = ((AbstractPatternTypedVariable)child).getName();
 				if(!patVar.isAnonymous() && allVars.contains(name)){
-					throw new TypeErrorException("Double declaration of variable `" + name + "`", ast);
+					throw new RedeclaredVariableError(name, ast);
 				}
 				if(childType.comparable(setSubjectType) || childType.comparable(setSubjectElementType)){
 					/*
@@ -967,8 +969,9 @@ class SingleElementGenerator implements Iterator<ISet> {
 					varPat[nVar] = child;
 					isSetVar[nVar] = childType.isSetType();
 					nVar++;
-				} else 
-					throw new TypeErrorException(childType + " variable `" + name + "` not allowed in pattern of type " + setSubject.getType(), ast);
+				} else {
+					throw new UnexpectedTypeError(setSubject.getType(), childType, ast);
+				}
 			} else if(child instanceof AbstractPatternQualifiedName){
 				AbstractPatternQualifiedName qualName = (AbstractPatternQualifiedName) child;
 				String name = qualName.getName();
@@ -1010,23 +1013,24 @@ class SingleElementGenerator implements Iterator<ISet> {
 				        	 * An element variable in the current scope, add its value.
 				        	 */
 				        	fixedSetElements = fixedSetElements.insert(varRes.getValue());
-				        } else
-				        	throw new TypeErrorException(varType + " variable `" + name + "` not allowed in pattern of type " + setSubject.getType(), ast);
+				        } else {
+				        	throw new UnexpectedTypeError(setSubject.getType(),varType, ast);
+				        }
 				    } else {
-				    	throw new UninitializedVariableException("Uninitialized variable `" + name + "`", ast);
+				    	throw new UninitializedVariableError(name, ast);
 				    }
 				}
 			} else if(child instanceof AbstractPatternLiteral){
 				IValue lit = child.toIValue(ev);
 				Type childType = child.getType(ev);
 				if(!childType.comparable(setSubjectElementType)){
-					throw new TypeErrorException(lit + " not allowed in pattern of type " + setSubject.getType(), ast);
+					throw new UnexpectedTypeError(setSubject.getType(), childType, ast);
 				}
 				fixedSetElements = fixedSetElements.insert(lit);
 			} else {
 				Type childType = child.getType(ev);
 				if(!childType.comparable(setSubjectElementType)){
-					throw new TypeErrorException(child + " not allowed in pattern of type " + setSubject.getType(), ast);
+					throw new UnexpectedTypeError(setSubject.getType(), childType, ast);
 				}
 				java.util.List<String> childVars = child.getVariables();
 				if(!childVars.isEmpty()){
@@ -1277,7 +1281,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 	@Override
 	public boolean next(){
 		checkInitialized();
-		throw new ImplementationException("AbstractPatternMap.match not implemented", ast);
+		throw new ImplementationError("AbstractPatternMap.match not implemented");
 	}
 }
 
@@ -1483,7 +1487,7 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 	
 	@Override
 	public AbstractPattern visitExpressionMap(Map x) {
-		throw new ImplementationException("Map in pattern not yet implemented", x);
+		throw new ImplementationError("Map in pattern not yet implemented");
 	}
 	
 	@Override
@@ -1511,212 +1515,212 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 	
 	@Override
 	public AbstractPattern visitExpressionAddition(Addition x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	
 	@Override
 	public AbstractPattern visitExpressionAll(All x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public AbstractPattern visitExpressionAmbiguity(
 			org.meta_environment.rascal.ast.Expression.Ambiguity x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new ImplementationError("Ambiguity in expression: " + x);
 	}
 	@Override
 	public AbstractPattern visitExpressionAnd(And x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public AbstractPattern visitExpressionAny(Any x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	
 	@Override
 	public AbstractPattern visitExpressionBracket(Bracket x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public AbstractPattern visitExpressionClosure(Closure x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public AbstractPattern visitExpressionClosureCall(ClosureCall x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public AbstractPattern visitExpressionComposition(Composition x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public AbstractPattern visitExpressionComprehension(Comprehension x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public AbstractPattern visitExpressionDivision(
 			org.meta_environment.rascal.ast.Expression.Division x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public AbstractPattern visitExpressionEquals(Equals x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public AbstractPattern visitExpressionEquivalence(Equivalence x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public AbstractPattern visitExpressionFieldAccess(
 			org.meta_environment.rascal.ast.Expression.FieldAccess x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public AbstractPattern visitExpressionFieldProject(FieldProject x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public AbstractPattern visitExpressionFieldUpdate(FieldUpdate x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public AbstractPattern visitExpressionFunctionAsValue(FunctionAsValue x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public AbstractPattern visitExpressionGetAnnotation(GetAnnotation x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public AbstractPattern visitExpressionGreaterThan(GreaterThan x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public AbstractPattern visitExpressionGreaterThanOrEq(GreaterThanOrEq x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	
 	@Override
 	public AbstractPattern visitExpressionIfThenElse(IfThenElse x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public AbstractPattern visitExpressionImplication(Implication x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public AbstractPattern visitExpressionIn(In x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public AbstractPattern visitExpressionIntersection(
 			org.meta_environment.rascal.ast.Expression.Intersection x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public AbstractPattern visitExpressionLessThan(LessThan x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public AbstractPattern visitExpressionLessThanOrEq(LessThanOrEq x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public AbstractPattern visitExpressionLexical(
 			org.meta_environment.rascal.ast.Expression.Lexical x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public AbstractPattern visitExpressionMatch(Match x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public AbstractPattern visitExpressionModulo(Modulo x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public AbstractPattern visitExpressionNegation(Negation x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public AbstractPattern visitExpressionNegative(Negative x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public AbstractPattern visitExpressionNoMatch(NoMatch x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public AbstractPattern visitExpressionNonEmptyBlock(NonEmptyBlock x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public AbstractPattern visitExpressionNonEquals(NonEquals x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public AbstractPattern visitExpressionNotIn(NotIn x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public AbstractPattern visitExpressionOperatorAsValue(OperatorAsValue x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public AbstractPattern visitExpressionOr(Or x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public AbstractPattern visitExpressionProduct(
 			org.meta_environment.rascal.ast.Expression.Product x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public AbstractPattern visitExpressionRange(Range x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public AbstractPattern visitExpressionSetAnnotation(SetAnnotation x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public AbstractPattern visitExpressionStepRange(StepRange x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public AbstractPattern visitExpressionSubscript(
 			org.meta_environment.rascal.ast.Expression.Subscript x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public AbstractPattern visitExpressionSubtraction(
 			org.meta_environment.rascal.ast.Expression.Subtraction x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public AbstractPattern visitExpressionTransitiveClosure(TransitiveClosure x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public AbstractPattern visitExpressionTransitiveReflexiveClosure(
 			TransitiveReflexiveClosure x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public AbstractPattern visitExpressionValueProducer(ValueProducer x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public AbstractPattern visitExpressionValueProducerWithStrategy(
 			ValueProducerWithStrategy x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public AbstractPattern visitExpressionVisit(Visit x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public AbstractPattern visitExpressionVoidClosure(VoidClosure x) {
-		throw new SyntaxErrorException("Construct not allowed in pattern", x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	
 }

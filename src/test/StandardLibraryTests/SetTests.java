@@ -1,7 +1,7 @@
 package test.StandardLibraryTests;
 
 import org.junit.Test;
-import org.meta_environment.rascal.interpreter.exceptions.EmptySetException;
+import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 
 import test.TestFramework;
 import static org.junit.Assert.*;
@@ -33,7 +33,7 @@ public class SetTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{str S = Set::getOneFrom({\"abc\",\"def\"}); (S == \"abc\") || (S == \"def\");}"));
 	}
 	
-	@Test(expected=EmptySetException.class)
+	@Test(expected=Throw.class)
 	public void getOneFromError() {
 		runTest("import Set;", "getOneFrom({});");
 	}
@@ -134,7 +134,7 @@ public class SetTests extends TestFramework {
 	}
 	
 
-	@Test(expected=EmptySetException.class)
+	@Test(expected=Throw.class)
 	public void takeOneFromError() {
 		runTest("import Set;", "takeOneFrom({});");
 	}

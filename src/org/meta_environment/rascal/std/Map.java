@@ -13,7 +13,8 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.meta_environment.rascal.interpreter.exceptions.EmptyMapException;
+import org.meta_environment.rascal.interpreter.RuntimeExceptionFactory;
+
 
 public class Map {
 
@@ -44,7 +45,7 @@ public class Map {
 	   int i = 0;
 	   int sz = m.size();
 	   if(sz == 0){
-	      throw new EmptyMapException("getOneFrom", null);
+	      throw RuntimeExceptionFactory.emptyMap();
 	   }
 	   int k = random.nextInt(sz);
 	   Iterator<Entry<IValue,IValue>> iter = m.entryIterator();

@@ -1,7 +1,8 @@
 package test;
 
 import org.junit.Test;
-import org.meta_environment.rascal.interpreter.exceptions.SyntaxErrorException;
+import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
+
 
 import static org.junit.Assert.*;
 
@@ -25,7 +26,7 @@ public class RegExpTests extends TestFramework{
 
 	}
 	
-	@Test(expected=SyntaxErrorException.class)
+	@Test(expected=SyntaxError.class)
 	public void RegExpError1(){
 		runTest("/[a-/ := \"abc\";");
 	}

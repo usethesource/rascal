@@ -1,11 +1,11 @@
 package test.StandardLibraryTests;
 
+import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
-import org.meta_environment.rascal.interpreter.exceptions.EmptyListException;
-import org.meta_environment.rascal.interpreter.exceptions.IndexOutOfBoundsException;
+import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 
 import test.TestFramework;
-import static org.junit.Assert.*;
 
 public class ListTests extends TestFramework {
 
@@ -44,7 +44,7 @@ public class ListTests extends TestFramework {
 	}
 	
 
-	@Test(expected=EmptyListException.class)
+	@Test(expected=Throw.class)
 	public void getOneFromError() {
 		runTest("import List;", "getOneFrom([]);");
 	}
@@ -65,12 +65,12 @@ public class ListTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{head([1, 2, 3, 4], 4) == [1,2,3,4];}"));
 	}
 	
-	@Test(expected=EmptyListException.class)
+	@Test(expected=Throw.class)
 	public void headError1() {
 		runTest("import List;", "head([]);");
 	}
 	
-	@Test(expected=IndexOutOfBoundsException.class)
+	@Test(expected=Throw.class)
 	public void headError2() {
 		runTest("import List;", "head([],3);");
 	}
@@ -273,7 +273,7 @@ public class ListTests extends TestFramework {
 	}
 	
 
-	@Test(expected=EmptyListException.class)
+	@Test(expected=Throw.class)
 	public void takeOneFromError() {
 		runTest("import List;", "takeOneFrom([]);");
 	}

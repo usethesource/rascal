@@ -3,12 +3,9 @@ package test;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-import org.meta_environment.rascal.interpreter.exceptions.AssignmentException;
-import org.meta_environment.rascal.interpreter.exceptions.IndexOutOfBoundsException;
-import org.meta_environment.rascal.interpreter.exceptions.SubscriptException;
-import org.meta_environment.rascal.interpreter.exceptions.TypeErrorException;
-import org.meta_environment.rascal.interpreter.exceptions.UndefinedValueException;
-import org.meta_environment.rascal.interpreter.exceptions.UninitializedVariableException;
+import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
+import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
+
 
 public class SubscriptTests extends TestFramework {
 
@@ -36,27 +33,27 @@ public class SubscriptTests extends TestFramework {
 		runTest("{list[int] L = [0,1,2,3]; L[4] = 44; L == [0,1,2,3,44];}");
 	}
 	
-	@Test(expected=UndefinedValueException.class)
+	@Test(expected=UninitializedVariableError.class)
 	public void UninitializedListVariable1(){
 		runTest("{list[int] L; L[4];}");
 	}
 	
-	@Test(expected=UninitializedVariableException.class)
+	@Test(expected=UninitializedVariableError.class)
 	public void UninitializedListVariable2(){
 		runTest("{list[int] L; L[4] = 44;}");
 	}
 	
-	@Test(expected=SubscriptException.class)
+	@Test(expected=StaticError.class)
 	public void WrongListIndex1(){
 		runTest("{list[int] L = [0,1,2,3]; L[\"abc\"];}");
 	}
 	
-	@Test(expected=TypeErrorException.class)
+	@Test(expected=StaticError.class)
 	public void WrongListIndex2(){
 		runTest("{list[int] L = [0,1,2,3]; L[\"abc\"] = 44;}");
 	}
 	
-	@Test(expected=TypeErrorException.class)
+	@Test(expected=StaticError.class)
 	public void WrongListAssignment(){
 		runTest("{list[int] L = [0,1,2,3]; L[2] = \"abc\";}");
 	}
@@ -75,27 +72,27 @@ public class SubscriptTests extends TestFramework {
 		assertTrue(runTest("{map[int,int] M = (1:10, 2:20, 3:30); M[4] = 400; M == (1:10, 2:20, 3:30, 4:400);}"));
 	}
 	
-	@Test(expected=SubscriptException.class)
+	@Test(expected=StaticError.class)
 	public void WrongMapIndex1(){
 		runTest("{map[int,int] M = (1:10,2:20); M[\"abc\"];}");
 	}
 	
-	@Test(expected=TypeErrorException.class)
+	@Test(expected=StaticError.class)
 	public void WrongMapIndex2(){
 		runTest("{map[int,int] M  = (1:10,2:20); M[\"abc\"] = 3;}");
 	}
 	
-	@Test(expected=UndefinedValueException.class)
+	@Test(expected=UninitializedVariableError.class)
 	public void UninitializedMapVariable1(){
 		runTest("{map[int,int] M; M[4];}");
 	}
 	
-	@Test(expected=UninitializedVariableException.class)
+	@Test(expected=UninitializedVariableError.class)
 	public void UninitializedMapVariable2(){
 		runTest("{map[int,int] M; M[4] = 44;}");
 	}
 	
-	@Test(expected=TypeErrorException.class)
+	@Test(expected=StaticError.class)
 	public void WrongMapAssignment(){
 		runTest("{map[int,int] M = (1:10,2:20); M[2] = \"abc\";}");
 	}
@@ -107,12 +104,12 @@ public class SubscriptTests extends TestFramework {
 		assertTrue(runTest("<0, \"a\", 3.5>[2] == 3.5;"));
 	}
 	
-	@Test(expected=UndefinedValueException.class)
+	@Test(expected=UninitializedVariableError.class)
 	public void UninitializedTupleVariable1(){
 		runTest("{tuple[int,int] T; T[1];}");
 	}
 	
-	@Test(expected=UninitializedVariableException.class)
+	@Test(expected=UninitializedVariableError.class)
 	public void UninitializedTupleVariable2(){
 		runTest("{tuple[int,int] T; T[1] = 10;}");
 	}
@@ -122,12 +119,12 @@ public class SubscriptTests extends TestFramework {
 		runTest("<0, \"a\", 3.5>[3] == 3.5;");
 	}
 	
-	@Test(expected=SubscriptException.class)
+	@Test(expected=StaticError.class)
 	public void tupleIndexError(){
 		runTest("<0, \"a\", 3.5>[\"abc\"];");
 	}
 	
-	@Test(expected=SubscriptException.class)
+	@Test(expected=StaticError.class)
 	public void tupleAssignmentError(){
 		runTest("{T = <0, \"a\", 3.5>[\"abc\"]; T[1] = 3;}");
 	}
@@ -146,17 +143,17 @@ public class SubscriptTests extends TestFramework {
 		assertTrue(runTest("{<1, \"a\", 10>, <2, \"b\", 20>, <1, \"abc\", 100>}[{1,2}] == {<\"a\", 10>, <\"b\", 20>, <\"abc\", 100>};"));
 	}
 	
-	@Test(expected=UndefinedValueException.class)
+	@Test(expected=UninitializedVariableError.class)
 	public void UninitializedRelVariable1(){
 		runTest("{rel[int,int] R; R[1];}");
 	}
 	
-	@Test(expected=UndefinedValueException.class)
+	@Test(expected=UninitializedVariableError.class)
 	public void UninitializedRelVariable2(){
 		runTest("{rel[int,int] R; R[1,2];}");
 	}
 	
-	@Test(expected=UninitializedVariableException.class)
+	@Test(expected=UninitializedVariableError.class)
 	public void UninitializedRelVariable3(){
 		runTest("{rel[int,int] R; R[1] = 10;}");
 	}
@@ -188,14 +185,14 @@ public class SubscriptTests extends TestFramework {
 		runTestInSameEvaluator("f(0, \"a\", 3.5)[3] == 3.5;");
 	}
 	
-	@Test(expected=SubscriptException.class)
+	@Test(expected=StaticError.class)
 	public void nodeIndexError(){
 		prepare("data NODE = f(int a, str b, real c);");
 		
 		runTestInSameEvaluator("f(0, \"a\", 3.5)[\"abc\"];");
 	}
 	
-	@Test(expected=AssignmentException.class)
+	@Test(expected=StaticError.class)
 	public void nodeAssignmentError(){
 		prepare("data NODE = f(int a, str b, real c);");
 		

@@ -3,51 +3,52 @@ package test;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-import org.meta_environment.rascal.interpreter.exceptions.*;
+import org.meta_environment.rascal.interpreter.staticErrors.*;
+
 
 public class AnnotationTests extends TestFramework{
 	
 	
-	@Test(expected=NoSuchAnnotationException.class)
+	@Test(expected=UndeclaredAnnotationError.class)
 	public void annotationNotAllowed(){
 		prepare("data POS = pos(int n);");
 		runTestInSameEvaluator("1 [@pos=3];");
 	}
 	
-	@Test(expected=NoSuchAnnotationException.class)
+	@Test(expected=UndeclaredAnnotationError.class)
 	public void annotationNotAllowed2(){
 		runTest("1 @ pos;");
 	}
 	
-	@Test(expected=TypeErrorException.class)
+	@Test(expected=StaticError.class)
 	public void annotationNotAllowed3(){
 		prepare("data F = f | f(int n) | g(int n) | deep(F f);");
 		prepareMore("anno int F @ pos;");
 		runTestInSameEvaluator("f[@pos=true];");
 	}
 	
-	@Test(expected=NoSuchAnnotationException.class)
+	@Test(expected=UndeclaredAnnotationError.class)
 	public void annotationNotAllowed4(){
 		prepare("data F = f | f(int n) | g(int n) | deep(F f);");
 		prepareMore("anno int F @ pos;");
 		runTestInSameEvaluator("f [@wrongpos=true];");
 	}
 	
-	@Test(expected=UndefinedValueException.class)
+	@Test(expected=UninitializedVariableError.class)
 	public void UndefinedValueError1(){
 		prepare("data F = f | f(int n) | g(int n) | deep(F f);");
 		prepareMore("anno int F @ pos;");
 		runTestInSameEvaluator("{F someF; someF @ pos;}");
 	}
 	
-	@Test(expected=UndefinedValueException.class)
+	@Test(expected=UninitializedVariableError.class)
 	public void UndefinedValueError2(){
 		prepare("data F = f | f(int n) | g(int n) | deep(F f);");
 		prepareMore("anno int F @ pos;");
 		runTestInSameEvaluator("{F someF; someF [@pos=3];}");
 	}
 	
-	@Test(expected=UninitializedVariableException.class)
+	@Test(expected=UninitializedVariableError.class)
 	public void UninitializedVariableError(){
 		prepare("data F = f | f(int n) | g(int n) | deep(F f);");
 		prepareMore("anno int F @ pos;");

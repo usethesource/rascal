@@ -11,14 +11,14 @@ import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.Command;
 import org.meta_environment.rascal.ast.Module;
 import org.meta_environment.rascal.interpreter.Evaluator;
+import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
-import org.meta_environment.rascal.interpreter.exceptions.ImplementationException;
-import org.meta_environment.rascal.interpreter.exceptions.RunTimeException;
 import org.meta_environment.rascal.interpreter.load.FromResourceLoader;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
 import org.meta_environment.uptr.Factory;
+
 
 public class TestFramework {
 	private Parser parser = Parser.getInstance();
@@ -54,7 +54,7 @@ public class TestFramework {
 		try {
 			prepare(command);
 		} catch (Exception e) {
-			throw new RunTimeException(
+			throw new ImplementationError(
 					"Exception while creating TestFramework", e);
 		}
 	}
@@ -65,7 +65,7 @@ public class TestFramework {
 			return execute(command);
 		} catch (IOException e) {
 			e.printStackTrace();
-			throw new RunTimeException("Exception while running test", e);
+			throw new ImplementationError("Exception while running test", e);
 		}
 	}
 
@@ -73,7 +73,7 @@ public class TestFramework {
 		try {
 			return execute(command);
 		} catch (IOException e) {
-			throw new RunTimeException("Exception while running test", e);
+			throw new ImplementationError("Exception while running test", e);
 		}
 	}
 
@@ -83,7 +83,7 @@ public class TestFramework {
 			execute(command1);
 			return execute(command2);
 		} catch (IOException e) {
-			throw new RunTimeException("Exception while running test", e);
+			throw new ImplementationError("Exception while running test", e);
 		}
 	}
 
@@ -150,8 +150,8 @@ public class TestFramework {
 				evaluator.eval(cmd.getDeclaration());
 				return true;
 			} else {
-				throw new ImplementationException("Unexpected case in eval: "
-						+ cmd, cmd);
+				throw new ImplementationError("Unexpected case in eval: "
+						+ cmd);
 			}
 		}
 	}

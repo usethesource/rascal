@@ -10,8 +10,10 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.meta_environment.ValueFactoryFactory;
-import org.meta_environment.rascal.interpreter.exceptions.ImplementationException;
-import org.meta_environment.rascal.interpreter.exceptions.TypeErrorException;
+import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
+import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
+import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedOperationError;
+
 
 // TODO: perhaps move certain stuff down to ValueResult (or merge that class with this one).
 
@@ -36,7 +38,8 @@ public abstract class AbstractResult<T extends IValue> implements Iterator<Abstr
 
 	protected AbstractResult(Type type, T value,  Iterator<AbstractResult<IValue>> iter) {
 		if (!value.getType().isSubtypeOf(type)) {
-			throw new TypeErrorException("expected value of type " + type + "; got a " + value.getType());
+			// TODO: find an AST or a loc
+			throw new UnexpectedTypeError(type, value.getType(), null);
 		}
 		this.type = type;
 		this.iterator = iter;
@@ -88,35 +91,27 @@ public abstract class AbstractResult<T extends IValue> implements Iterator<Abstr
 	
 	public AbstractResult<IValue> next(){
 		if(iterator == null){
-			new ImplementationException("next called on Result with null iterator");
+			new ImplementationError("next called on Result with null iterator");
 		}
 		return iterator.next(); //??? last = iterator.next();
 	}
 
 	public void remove() {
-		throw new ImplementationException("remove() not implemented for (iterable) result");		
+		throw new ImplementationError("remove() not implemented for (iterable) result");		
 	}
 
 	
 	// Error aux methods
 	
-	private String toTypeString() {
-		return type.toString();
-	}
-	
 	protected <U extends IValue> AbstractResult<U> undefinedError(String operator) {
-		return undefinedError(operator, toTypeString());
+		throw new UnsupportedOperationError(operator, type, null);
 	}
 	
 	protected <U extends IValue, V extends IValue> AbstractResult<U> undefinedError(String operator, AbstractResult<V> arg) {
-		return undefinedError(operator, toTypeString() + " and " + arg.toTypeString());
+		// TODO find source location
+		throw new UnsupportedOperationError(operator, type, arg.getType(), null);
 	}
 	
-	private <U extends IValue> AbstractResult<U> undefinedError(String operator, String args) {
-		String msg = operator + "is not defined on " + args;
-		throw new TypeErrorException(msg);
-	}
-
 	///////
 	
 	

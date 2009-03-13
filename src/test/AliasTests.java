@@ -3,23 +3,24 @@ package test;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
-import org.meta_environment.rascal.interpreter.exceptions.TypeErrorException;
+import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
+
 
 public class AliasTests extends TestFramework{
 	
 	
-	@Test(expected=TypeErrorException.class)
+	@Test(expected=StaticError.class)
 	public void doubleDeclarationError(){
 		prepare("alias A = str;");
 		runTestInSameEvaluator("alias A = int;");
 	}
 	
-	@Test(expected=TypeErrorException.class)
+	@Test(expected=StaticError.class)
 	public void circularDeclarationError(){
 		runTest("alias A = A;");
 	}
 	
-	@Test(expected=TypeErrorException.class)
+	@Test(expected=StaticError.class)
 	public void undeclaredTYpeError(){
 		runTest("alias A = B;");
 	}
@@ -92,17 +93,17 @@ public class AliasTests extends TestFramework{
 		assertTrue(runTestInSameEvaluator("{ INTEGER0 x = 0; x == 0; }"));
 	}
 
-	@Test(expected=TypeErrorException.class) 
+	@Test(expected=StaticError.class) 
 	public void longCycle() {
 		prepareModule("module Test alias INTEGER0 = INTEGER1; alias INTEGER1 = INTEGER2; alias INTEGER2 = INTEGER0;");
 	}
 	
-	@Test(expected=TypeErrorException.class) 
+	@Test(expected=StaticError.class) 
 	public void undeclaredTypeInDefinition() {
 		prepareModule("module Test alias INTEGER0 = INTEGER1;");
 	}
 	
-	@Test(expected=TypeErrorException.class)
+	@Test(expected=StaticError.class)
 	public void anotherCircularity() {
 		prepareModule("module Test alias INTEGER0 = INTEGER1; alias INTEGER1 = INTEGER0;");
 		prepareMore("import Test;");

@@ -1,11 +1,11 @@
 package test;
 
 import static org.junit.Assert.assertTrue;
+
 import org.junit.Test;
-import org.meta_environment.rascal.interpreter.exceptions.NoSuchFieldException;
-import org.meta_environment.rascal.interpreter.exceptions.TypeErrorException;
-import org.meta_environment.rascal.interpreter.exceptions.UndefinedValueException;
-import org.meta_environment.rascal.interpreter.exceptions.UninitializedVariableException;
+import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
+import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFieldError;
+
 
 public class DataDeclarationTests extends TestFramework {
 
@@ -26,13 +26,13 @@ public class DataDeclarationTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{Bool b = band(btrue,bfalse).right; b == bfalse;}"));
 	}
 	
-	@Test(expected=UndefinedValueException.class)
+	@Test(expected=StaticError.class)
 	public void boolUndefinedValue(){
 		prepare("data Bool = btrue | bfalse | band(Bool left, Bool right) | bor(Bool left, Bool right);");
 		runTestInSameEvaluator("{Bool b; b.left;}");
 	}
 	
-	@Test(expected=UninitializedVariableException.class)
+	@Test(expected=StaticError.class)
 	public void boolUnitializedVariable1(){
 		prepare("data Bool = btrue | bfalse | band(Bool left, Bool right) | bor(Bool left, Bool right);");
 		runTestInSameEvaluator("{Bool b; b.left = btrue;}");
@@ -50,7 +50,7 @@ public class DataDeclarationTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{Bool b = bor(bfalse,bfalse); b.left=btrue; b.right=btrue; b == bor(btrue,btrue);}"));
 	}
 	
-	@Test(expected=UndefinedValueException.class)
+	@Test(expected=StaticError.class)
 	public void boolUnitializedVariable2(){
 		prepare("data Bool = btrue | bfalse | band(Bool left, Bool right) | bor(Bool left, Bool right);");
 		runTestInSameEvaluator("{Bool b; b[left = btrue];}");
@@ -87,7 +87,7 @@ public class DataDeclarationTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{m = tval2(\"abc\", \"def\"); str s2 = m.tval2; s2 == \"def\";}"));	
 	}
 	
-	@Test(expected=TypeErrorException.class)
+	@Test(expected=StaticError.class)
 	public void parameterizedErrorTest() {
 		prepare("data Exp[&T] = tval(&T tval) | tval2(&T tval1, &T tval2) | ival(int x);");
 		assertTrue(runTestInSameEvaluator("{Exp[int] h = ival(3); h == ival(3);}"));
@@ -113,41 +113,41 @@ public class DataDeclarationTests extends TestFramework {
 	}
 	
 
-	@Test(expected=NoSuchFieldException.class)
-	public void boolError() throws NoSuchFieldException {
+	@Test(expected=UndeclaredFieldError.class)
+	public void boolError() throws UndeclaredFieldError {
 		prepare("data Bool = btrue | bfalse | band(Bool left, Bool right) | bor(Bool left, Bool right);");
 		assertTrue(runTestInSameEvaluator("{Bool b = btrue; b.left == btrue;}"));
 	}
 	
-	public void exactDoubleFieldIsAllowed() throws TypeErrorException {
+	public void exactDoubleFieldIsAllowed() throws StaticError {
 		runTest("data D = d | d;");
 		assertTrue(true);
 	}
 	
-	@Test(expected=TypeErrorException.class)
-	public void doubleFieldError2() throws TypeErrorException {
+	@Test(expected=StaticError.class)
+	public void doubleFieldError2() throws StaticError {
 		runTest("data D = d(int n) | d(value v);");
 	}
 	
-	@Test(expected=TypeErrorException.class)
-	public void doubleFieldError3() throws TypeErrorException {
+	@Test(expected=StaticError.class)
+	public void doubleFieldError3() throws StaticError {
 		runTest("data D = d(int n) | d(int v);");
 	}
 	
-	@Test(expected=TypeErrorException.class)
-	public void doubleFieldError4() throws TypeErrorException {
+	@Test(expected=StaticError.class)
+	public void doubleFieldError4() throws StaticError {
 		prepare("alias INTEGER = int;");
 		runTest("data D = d(int n) | d(INTEGER v);");
 	}
 	
-	public void exactDoubleDataDeclarationIsAllowed() throws TypeErrorException {
+	public void exactDoubleDataDeclarationIsAllowed() throws StaticError {
 		prepare("data D = d(int n) | e;");
 		runTestInSameEvaluator("data D = d(int n);");
 		assertTrue(true);
 	}
 	
-	@Test(expected=TypeErrorException.class)
-	public void undeclaredTypeError1() throws NoSuchFieldException {
+	@Test(expected=StaticError.class)
+	public void undeclaredTypeError1() throws UndeclaredFieldError {
 		runTest("data D = anE(E e);");
 	}
 }

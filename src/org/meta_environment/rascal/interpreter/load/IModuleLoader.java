@@ -1,7 +1,9 @@
 package org.meta_environment.rascal.interpreter.load;
 
+import java.io.IOException;
+
 import org.meta_environment.rascal.ast.Module;
-import org.meta_environment.rascal.interpreter.exceptions.ModuleLoadException;
+
 
 public interface IModuleLoader {
 	/**
@@ -12,7 +14,7 @@ public interface IModuleLoader {
 	 * 
 	 * @param name fully qualified name of the module to be loaded
 	 * @return an AST of a module
-	 * @throws ModuleLoadException when a module can not be loaded
+	 * @throws IOException 
 	 */
-	public Module loadModule(String name) throws ModuleLoadException;
+	public Module loadModule(String name) throws IOException;
 }

@@ -18,11 +18,13 @@ import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.Statement;
 import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.TypeEvaluator;
-import org.meta_environment.rascal.interpreter.control_exceptions.FailureControlException;
-import org.meta_environment.rascal.interpreter.control_exceptions.ReturnControlException;
-import org.meta_environment.rascal.interpreter.exceptions.RunTimeException;
-import org.meta_environment.rascal.interpreter.exceptions.TypeErrorException;
+import org.meta_environment.rascal.interpreter.control_exceptions.Failure;
+import org.meta_environment.rascal.interpreter.control_exceptions.Return;
 import org.meta_environment.rascal.interpreter.result.Result;
+import org.meta_environment.rascal.interpreter.staticErrors.MissingReturnError;
+import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
+import org.meta_environment.rascal.interpreter.staticErrors.UnguardedFailError;
+
 
 /**
  * TODO: find a more elegant solution for this, by implementing IValue we
@@ -153,24 +155,24 @@ public class Lambda extends Result implements IValue {
 			}
 
 			if(!isVoidFunction){
-				throw new TypeErrorException("Function definition for `" + name + "` has no return statement", ast);
+				throw new MissingReturnError(ast);
 			}
 
 			return new Result(TF.voidType(), null);
 		}
-		catch (ReturnControlException e) {
+		catch (Return e) {
 			Result result = e.getValue();
 
 			Type instantiatedReturnType = returnType.instantiate(env.getStore(), env.getTypeBindings());
 
 			if(!result.getType().isSubtypeOf(instantiatedReturnType)){
-				throw new TypeErrorException("Actual return type " + result.getType() + " is not compatible with declared return type " + returnType, ast);
+				throw new UnexpectedTypeError(returnType, result.getType(), ast);
 			}
 
 			return new Result(instantiatedReturnType, result.getValue());
 		} 
-		catch (FailureControlException e){
-			throw new RunTimeException("Fail statement used outside switch or visit statement", ast);
+		catch (Failure e) {
+			throw new UnguardedFailError(ast);
 		}
 	}
 
@@ -190,7 +192,7 @@ public class Lambda extends Result implements IValue {
 			env.storeTypeBindings(bindings);
 		}
 		catch (FactTypeUseException e) {
-			throw new TypeErrorException("Could not bind type parameters in " + formals + " to " + actualTypes +": " + e, ast);
+			throw new UnexpectedTypeError(formals, actualTypes, ast);
 		}
 	}	
 	

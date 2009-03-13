@@ -14,10 +14,13 @@ import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.interpreter.Names;
-import org.meta_environment.rascal.interpreter.exceptions.ImplementationException;
-import org.meta_environment.rascal.interpreter.exceptions.NoSuchFunctionException;
-import org.meta_environment.rascal.interpreter.exceptions.TypeErrorException;
+import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.result.Result;
+import org.meta_environment.rascal.interpreter.staticErrors.AmbiguousFunctionReferenceError;
+import org.meta_environment.rascal.interpreter.staticErrors.AmbiguousVariableReferenceError;
+import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFunctionError;
+import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredModuleError;
+
 
 /**
  * A module environment represents a module object (i.e. a running module).
@@ -75,7 +78,7 @@ public class ModuleEnvironment extends Environment {
 			
 			ModuleEnvironment imported = getImport(modulename);
 			if (imported == null) {
-				throw new TypeErrorException("Module " + modulename + " is not visible in " + getName(), name);
+				throw new UndeclaredModuleError(modulename, name);
 			}
 			return imported.getVariable(name);
 		}
@@ -111,7 +114,7 @@ public class ModuleEnvironment extends Environment {
 				return null;
 			}
 			else {
-				throw new TypeErrorException("Variable " + name + " is ambiguous, please qualify", ast);
+				throw new AmbiguousVariableReferenceError(name, ast);
 			}
 		}
 		
@@ -169,10 +172,13 @@ public class ModuleEnvironment extends Environment {
 					sep = ",";
 				}
 				sign.append(")");
-				throw new NoSuchFunctionException(sign.toString(), null);
+				
+				// TODO: provide AST argument
+				throw new UndeclaredFunctionError(sign.toString(), null);
 			}
 			else {
-				throw new TypeErrorException("Function " + name + " is ambiguous, please qualify", result == null ? null : result.getAst());
+				// TODO: provide AST argument
+				throw new AmbiguousFunctionReferenceError(name, result == null ? null : result.getAst());
 			}
 		}
 		
@@ -297,7 +303,7 @@ public class ModuleEnvironment extends Environment {
 		String moduleName = Names.moduleName(name);
 		
 		if (moduleName != null && !moduleName.equals(getName())) {
-			throw new ImplementationException("Attempt to access variable " + name + " of different module", name);
+			throw new ImplementationError("Attempt to access variable " + name + " of different module");
 		}
 	}
 	

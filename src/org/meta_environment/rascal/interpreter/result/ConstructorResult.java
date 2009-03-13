@@ -5,7 +5,8 @@ import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.meta_environment.rascal.interpreter.exceptions.NoSuchFieldException;
+import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFieldError;
+
 
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 
@@ -24,10 +25,11 @@ public class ConstructorResult extends NodeResult {
 	public <U extends IValue> AbstractResult<U> fieldAccess(String name, TypeStore store) {
 		Type nodeType = getValue().getConstructorType();
 		if (!getType().hasField(name, store)) {
-			throw new NoSuchFieldException(getType() + " does not have a field named `" + name + "`", null);
+			// TODO: add ast or location to result
+			throw new UndeclaredFieldError(name, getType(), null);
 		}
 		if (!getValueType().hasField(name)) {
-			throw new NoSuchFieldException("Field `" + name + "` accessed on constructor that does not have it: " + getValueType(), null);
+			throw new UndeclaredFieldError(name, getValueType(), null);
 		}				
 		int index = nodeType.getFieldIndex(name);
 		return makeResult(nodeType.getFieldType(index), getValue().get(index));

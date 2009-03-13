@@ -8,8 +8,10 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
-import org.meta_environment.rascal.interpreter.exceptions.ImplementationException;
-import org.meta_environment.rascal.interpreter.exceptions.TypeErrorException;
+import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
+import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
+import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedOperationError;
+
 
 public class Result  implements Iterator<Result>{
 	protected Type type;          // The declared type of the Result
@@ -54,8 +56,8 @@ public class Result  implements Iterator<Result>{
 		type = t;
 		value = v;
 		if (value != null && !value.getType().isSubtypeOf(t)) {
-			throw new TypeErrorException("Type " + v.getType() + " is not a subtype of expected type "
-					+ t);
+			// TODO find an ast or a loc
+			throw new UnexpectedTypeError(v.getType(), t, null);
 		}
 		iterator = null;
 		last = null;
@@ -113,13 +115,13 @@ public class Result  implements Iterator<Result>{
 	
 	public Result next(){
 		if(iterator == null){
-			new ImplementationException("next called on Result with null iterator");
+			new ImplementationError("next called on Result with null iterator");
 		}
 		return last = iterator.next();
 	}
 
 	public void remove() {
-		throw new ImplementationException("remove() not implemented for Result");
+		throw new ImplementationError("remove() not implemented for Result");
 		
 	}
 
@@ -131,7 +133,7 @@ public class Result  implements Iterator<Result>{
 
 	// TODO make these abstract
 	protected AbstractResult addInteger(IntegerResult n) {
-		throw new ImplementationException("NIY");
+		throw new ImplementationError("NIY");
 	}
 
 	protected AbstractResult reverseSubtractInteger(IntegerResult integerResult) {
@@ -219,7 +221,7 @@ public class Result  implements Iterator<Result>{
 	}
 
 	protected AbstractResult illegalArguments(String op, AbstractAST ast, Type type1, Type type2) {
-		throw new TypeErrorException("Operands of " + op + " have illegal types: " + type1 + ", " + type2, ast);
+		throw new UnsupportedOperationError(op, type1, type2, ast);
 	}
 
 	protected void checkElementType(String op, AbstractAST ast, Type elemType) {
