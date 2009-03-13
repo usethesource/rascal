@@ -23,8 +23,6 @@ public set[&T] bottom(rel[&T, &T] G)
   return range(G) - domain(G);
 }
 
-alias graph[&T] = rel[&T,&T];
-
 public set[&T] gtop(graph[&T] G)
 @doc{Top of a Graph}
 {

@@ -23,15 +23,10 @@ set[int] uninit(PROGRAM P) {
 }
 
 public bool test(){
-    println("Start ...");
-    U = uninit(annotate(smallUninit)) ;
-    println(U);
-	assertTrue(uninit(annotate(smallUninit)) == {2});
-	
-	  U = uninit(annotate(facUninit)) ;
-    println(U);
+   
+	assertTrue(uninit(annotate(smallUninit)) == {10});
 
-	assertTrue(uninit(annotate(facUninit)) == {4});
+	assertTrue(uninit(annotate(facUninit)) == {23});
 
 	return report("PicoUninit");
 }

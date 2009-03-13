@@ -6,6 +6,7 @@ import Relation;
 import Graph;
 import Map;
 import IO;
+import Benchmark;
 
 /* A cryptographic problem originating from work of Mohammed Dashti and
    suggested by Yaroslav Usenko.
@@ -63,7 +64,6 @@ StateId newState(set[Permutation] elms){
 
 public StateId expand(set[Permutation] elms){
    
-   println("elms=<elms>");
    if(allStates[elms]?)
      	return allStates[elms];
 
@@ -79,7 +79,7 @@ public StateId expand(set[Permutation] elms){
               if(perm notin nextState)
              	 nextState = nextState + {perm};
            }
-           println("state <sid>: symbol: <i>, perm=<perm>, nextState=<nextState>");
+           //println("state <sid>: symbol: <i>, perm=<perm>, nextState=<nextState>");
            localTransitions[i] = nextState;
        }
    }
@@ -108,12 +108,46 @@ void printStates () {
 }
 
 public void test(int N){
-  dashti(N);
-  printStates();
-  println("Number of States = <nStates>");
+  time1 = currentTimeMillis(); dashti(N); time2 = currentTimeMillis(); delta = (time2 - time1)/1000;
+  if(N <= 3)
+  	printStates();
+  println("Number of States = <nStates>, Time=<delta> sec.");
   G = Transitions<from,to>;               // restrict Transitions to first two columns
-  println("Graph = <G>");
+  if(N <= 3)
+ 	 println("Graph = <G>");
+  L = size(G);
+  println("Edges: <L>");
+  time1 = currentTimeMillis();
   P = shortestPathPair(G, 1, 0);          // 1 is always the start state, 0 the end state
+  time2 = currentTimeMillis();
+  delta = (time2 - time1)/1000;
   L = size(P);
-  println("Length = <L>; Shortest path = <P>");
+  println("Length = <L>; Shortest path = <P>; Time=<delta> sec.");
 }
+
+/*
+   1: 2 states, Length = 2; Shortest path = [1,0], 
+      Graph={<1,0>}
+   2: 5 states, Length = 4; Shortest path = [1,4,5,0], 
+      Graph = {<1,2>,<3,3>,<2,3>,<1,4>,<2,2>,<3,0>,<5,0>,<5,5>,<4,4>,<4,5>}
+      Edges = 10
+   3: 43 states; Length = 8; Shortest path = [1,2,3,10,14,15,13,0]
+      Graph= {<5,8>,<1,2>,<3,4>,<3,3>,<2,3>,<2,2>,<6,7>,<6,6>,<7,7>,<7,0>,<3,10>,
+              <5,5>,<5,6>,<4,4>,<4,5>,<31,32>,<13,13>,<15,9>,<12,13>,<12,12>,
+              <14,14>,<29,33>,<2,16>,<11,6>,<14,15>,<15,13>,<15,15>,<9,0>,<12,7>,<11,11>,
+              <10,10>,<10,11>,<1,24>,<8,9>,<13,0>,<8,8>,<9,9>,<10,14>,<11,12>,<26,27>,<23,7>,
+              <26,26>,<27,27>,<24,29>,<1,36>,<31,23>,<25,25>,<25,26>,<24,24>,<24,25>,<26,28>,
+              <28,28>,<29,30>,<30,27>,<19,7>,<29,29>,<21,14>,<31,31>,<20,13>,<23,9>,<30,31>,
+              <30,30>,<23,23>,<22,22>,<22,23>,<27,12>,<21,22>,<20,20>,<21,21>,<22,19>,<17,17>,
+              <25,4>,<28,15>,<16,17>,<18,20>,<17,18>,<16,16>,<18,18>,<18,19>,<28,8>,<16,21>,
+              <19,19>,<43,12>,<37,17>,<39,23>,<40,15>,<40,20>,<32,9>,<35,13>,<42,39>,<41,33>,
+              <43,35>,<41,41>,<40,40>,<41,42>,<42,43>,<42,42>,<43,43>,<38,40>,<34,34>,<34,35>,
+              <34,32>,<35,35>,<36,41>, <33,33>,<32,32>,<33,34>,<36,37>,<37,38>,<36,36>,<37,37>,
+              <39,39>,<38,38>,<38,39>}
+       Edges = 114
+       0.51 sec.
+     4: 2697 States; Length = 13; Shortest path = [1,2,1197,1447,1465,1466,1467,1141,1142,365,123,15,0]
+        Edges: 9712
+        Time=324.072 sec.
+     5: 
+ */

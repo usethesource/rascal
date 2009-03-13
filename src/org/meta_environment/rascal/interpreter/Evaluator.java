@@ -2411,6 +2411,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	public static boolean equals(Result left, Result right){
 		widenArgs(left, right);
 		
+		//System.err.println("equals: left=" + left + ", right=" + right + " comparable=" + left.getType().comparable(right.getType()));
 		if (left.getType().comparable(right.getType())) {
 			return compare(left, right) == 0;
 		} else {
@@ -3425,6 +3426,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	private static int compareSet(ISet value1, ISet value2) {
 		
+		
+		//System.err.println("compareSet: value1=" + value1 + ", value2=" + value2 + "isEqual=" + value1.isEqual(value2));
 		if (value1.isEqual(value2)) {
 			return 0;
 		}

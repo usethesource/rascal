@@ -109,7 +109,7 @@ public class AllDemoTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("demo::PicoAbstract::PicoCommonSubexpression::test();"));
 	}
 	
-	@Ignore @Test
+	@Test
 	public void PicoConstantPropagation() {
 		prepare("import demo::PicoAbstract::PicoConstantPropagation;");
 		assertTrue(runTestInSameEvaluator("demo::PicoAbstract::PicoConstantPropagation::test();"));
