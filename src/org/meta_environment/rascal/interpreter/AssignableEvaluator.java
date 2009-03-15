@@ -200,12 +200,17 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 				throw new NoSuchFieldError(receiver.getType() + " does not have a field named `" + label + "`", x);
 			}
 			*/
-			
+
 			if (!node.hasField(label)) {
 				throw new UndeclaredFieldError(label, receiver.getValue().getType() , x);
 			}
 			
 			int index = node.getFieldIndex(label);
+			
+			if (!value.getType().isSubtypeOf(node.getFieldType(index))) {
+				throw new UnexpectedTypeError(node.getFieldType(index), value.getType(), x);
+			}
+			
 			IValue result = cons.set(index, value.getValue());
 			return recur(x, eval.result(receiver.getType(), result));
 		}

@@ -5,7 +5,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
 import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
-
+import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 
 public class SubscriptTests extends TestFramework {
 
@@ -23,12 +23,12 @@ public class SubscriptTests extends TestFramework {
 		assertTrue(runTest("{list[int] L = [0,1,2,3]; L[3] = 33; L == [0,1,2,33];}"));
 	}
 	
-	@Test(expected=IndexOutOfBoundsException.class)
+	@Test(expected=Throw.class)
 	public void listError1(){
 		runTest("[0,1,2,3][4] == 3;");
 	}
 	
-	@Test(expected=IndexOutOfBoundsException.class)
+	@Test(expected=Throw.class)
 	public void listError2(){
 		runTest("{list[int] L = [0,1,2,3]; L[4] = 44; L == [0,1,2,3,44];}");
 	}
@@ -114,7 +114,7 @@ public class SubscriptTests extends TestFramework {
 		runTest("{tuple[int,int] T; T[1] = 10;}");
 	}
 	
-	@Test(expected=IndexOutOfBoundsException.class)
+	@Test(expected=Throw.class)
 	public void tupleBoundsError(){
 		runTest("<0, \"a\", 3.5>[3] == 3.5;");
 	}
@@ -178,7 +178,7 @@ public class SubscriptTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{NODE T = f(0, \"a\", 3.5); T[0] = 10; T == f(10, \"a\", 3.5);}"));
 	}
 	
-	@Test(expected=IndexOutOfBoundsException.class)
+	@Test(expected=Throw.class)
 	public void nodeBoundsError(){
 		prepare("data NODE = f(int a, str b, real c);");
 		
