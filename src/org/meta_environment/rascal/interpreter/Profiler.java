@@ -82,7 +82,7 @@ public class Profiler extends Thread {
 			}
         });
         
-        int maxURL = 0;
+        int maxURL = 1;
         long nTicks = 0;
         
         for(Map.Entry<Statement, Count> e : sortedData){
