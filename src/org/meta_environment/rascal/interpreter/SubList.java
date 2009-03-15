@@ -66,8 +66,7 @@ public class SubList implements IList {
 		for(int i = 0; i < len; i++){
 		    hash = (hash << 1) ^ (hash >> 1) ^ base.get(start + i).hashCode();
 		}
-		
-		//System.err.println("hashcode sublist: " + this + " = " + hash);
+
 		return hash;
 	}
 	
@@ -75,23 +74,17 @@ public class SubList implements IList {
 	public boolean equals(Object o){
 		if(o instanceof IList || o instanceof SubList){
 			IList other = (IList) o;
-			//System.err.println("len=" + len + ", other.len=" + other.length());
-			//System.err.println("comparable=" + fType.comparable(other.getType()));
 			if(fType.comparable(other.getType()) && (len == other.length())){
 				for(int i = 0; i < len; i++){
 					if(!base.get(start + i).equals(other.get(i))){
-						//System.err.println("unequal element: " + i);
 						return false;
 					}
 				}
-				//System.err.println("true");
 				return true;
 			} else {
-				//System.err.println("false");
 				return false;
 			}
 		}
-		//System.err.println("false");
 		return false;
 	}
 	

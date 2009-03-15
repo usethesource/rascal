@@ -151,8 +151,10 @@ public class Lambda extends Result implements IValue {
 			assignFormals(actuals, env);
 
 			for (Statement stat: body) {
+				eval.setCurrentStatement(stat);
 				stat.accept(eval);
 			}
+			
 
 			if(!isVoidFunction){
 				throw new MissingReturnError(ast);

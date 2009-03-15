@@ -113,7 +113,7 @@ public class TestFramework {
 
 	public boolean prepareModule(String module) throws FactTypeUseException {
 		try {
-			IConstructor tree = parser.parseFromString(module);
+			IConstructor tree = parser.parseFromString(module, "-");
 			if (tree.getType() == Factory.ParseTree_Summary) {
 				System.err.println(tree);
 				return false;
@@ -130,7 +130,7 @@ public class TestFramework {
 	}
 
 	private boolean execute(String command) throws IOException {
-		IConstructor tree = parser.parseFromString(command);
+		IConstructor tree = parser.parseFromString(command, "-");
 
 		if (tree.getConstructorType() == Factory.ParseTree_Summary) {
 			System.err.println(tree);

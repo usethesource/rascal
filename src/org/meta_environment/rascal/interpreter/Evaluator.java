@@ -202,6 +202,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	
 	private Statement currentStatement; // used in runtime errormessages
+	private Profiler profiler;
+	private boolean doProfiling = true;
 	
 	// TODO: can we remove this?
 	protected MatchPattern lastPattern;	// The most recent pattern applied in a match
@@ -224,7 +226,6 @@ public class Evaluator extends NullASTVisitor<Result> {
 		this.loaders = new LinkedList<IModuleLoader>();
 		this.classLoaders = new LinkedList<ClassLoader>();
 		this.javaBridge = new JavaBridge(errorWriter, classLoaders);
-
 		
 		// library
 	    loaders.add(new FromResourceLoader(this.getClass(), "StandardLibrary"));
@@ -234,6 +235,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	    
 	    // load Java classes from the current jar (for the standard library)
 	    classLoaders.add(getClass().getClassLoader());
+	    
 	}
 	
 	
@@ -278,8 +280,17 @@ public class Evaluator extends NullASTVisitor<Result> {
 	 */
 	public IValue eval(Statement stat) {
 		try {
+			 if(doProfiling){
+			    	profiler = new Profiler(this);
+			    	profiler.start();
+			    	
+			    }
 			Result r = stat.accept(this);
 	        if(r != null){
+	        	if(doProfiling){
+	        		profiler.pleaseStop();
+	        		profiler.report();
+	        	}
 	        	return r.getValue();
 	        } else {
 	        	throw new ImplementationError("Not yet implemented: " + stat.toString());
@@ -884,6 +895,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result result = result();
 		
 		for (Statement statement : x.getStatements()) {
+			setCurrentStatement(statement);
 			result = statement.accept(this);
 		}
 		
@@ -926,6 +938,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	@Override
 	public Result visitStatementExpression(Statement.Expression x) {
+		setCurrentStatement(x);
 		return x.getExpression().accept(this);
 	}
 	

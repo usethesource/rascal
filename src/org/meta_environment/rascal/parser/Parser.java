@@ -64,24 +64,24 @@ public class Parser{
 		return InstanceKeeper.sInstance;
 	}
 
-	public IConstructor parseFromString(String inputString) throws IOException, FactTypeUseException{
+	public IConstructor parseFromString(String inputString, String fileName) throws IOException, FactTypeUseException{
 		SGLRInvoker sglrInvoker = SGLRInvoker.getInstance();
 		byte[] result = sglrInvoker.parseFromString(inputString, getTableFile());
 		
 		ATermReader reader = new ATermReader();
 		ByteArrayInputStream bais = new ByteArrayInputStream(result);
 		IConstructor tree = (IConstructor) reader.read(valueFactory, Factory.getStore(), Factory.ParseTree, bais);
-		return new ParsetreeAdapter(tree).addPositionInformation("-");
+		return new ParsetreeAdapter(tree).addPositionInformation(fileName);
 	}
 
-	public IConstructor parseFromStream(InputStream inputStringStream) throws IOException, FactTypeUseException{
+	public IConstructor parseFromStream(InputStream inputStringStream, String fileName) throws IOException, FactTypeUseException{
 		SGLRInvoker sglrInvoker = SGLRInvoker.getInstance();
 		byte[] result = sglrInvoker.parseFromStream(inputStringStream, getTableFile());
 		
 		ATermReader reader = new ATermReader();
 		ByteArrayInputStream bais = new ByteArrayInputStream(result);
 		IConstructor tree = (IConstructor) reader.read(valueFactory,  Factory.getStore(),Factory.ParseTree, bais);
-		return new ParsetreeAdapter(tree).addPositionInformation("-");
+		return new ParsetreeAdapter(tree).addPositionInformation(fileName);
 	}
 	
 	public IConstructor parseFromFile(File inputFile) throws IOException, FactTypeUseException{
