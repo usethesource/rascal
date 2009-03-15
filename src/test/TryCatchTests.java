@@ -5,6 +5,8 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
+import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
+import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
 
 public class TryCatchTests extends TestFramework {
 	
@@ -133,7 +135,7 @@ public class TryCatchTests extends TestFramework {
 		"bool fun() {" +
 		"  try {" +
 		"     head([]);" +
-		"  } catch EmptyListException(str e):" +
+		"  } catch EmptyList:" +
 		"      return true;" +
 		"  return false;" +
 		"}";
@@ -151,7 +153,7 @@ public class TryCatchTests extends TestFramework {
 		"bool fun() {" +
 		"  try {" +
 		"     getOneFrom(());" +
-		"  } catch EmptyMapException(str e):" +
+		"  } catch EmptyMap:" +
 		"      return true;" +
 		"  return false;" +
 		"}";
@@ -169,7 +171,7 @@ public class TryCatchTests extends TestFramework {
 		"bool fun() {" +
 		"  try {" +
 		"     getOneFrom({});" +
-		"  } catch EmptySetException(str e):" +
+		"  } catch EmptySet:" +
 		"      return true;" +
 		"  return false;" +
 		"}";
@@ -187,7 +189,7 @@ public class TryCatchTests extends TestFramework {
 		"bool fun() {" +
 		"  try {" +
 		"     [0,1,2][3];" +
-		"  } catch IndexOutOfBoundsException(str e):" +
+		"  } catch IndexOutOfBounds(int i):" +
 		"      return true;" +
 		"  return false;" +
 		"}";
@@ -196,16 +198,12 @@ public class TryCatchTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{" + fun + "fun();}"));
 	}
 	
-	@Test
+	@Test(expected=StaticError.class)
 	public void NoSuchAnnotationException(){
 		String fun =
 			
 		"bool fun() {" +
-		"  try {" +
 		"     1@pos;" +
-		"  } catch NoSuchAnnotationException(str e):" +
-		"      return true;" +
-		"  return false;" +
 		"}";
 	
 		prepare("import Exception;");
@@ -219,7 +217,7 @@ public class TryCatchTests extends TestFramework {
 		"bool fun() {" +
 		"  try {" +
 		"      S = readFile(\"DoesNotExist\");" +
-		"  } catch NoSuchFileException(str e):" +
+		"  } catch FileNotFound(str name):" +
 		"      return true;" +
 		"  return false;" +
 		"}";
@@ -229,7 +227,7 @@ public class TryCatchTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{" + fun + "fun();}"));
 	}
 	
-	@Test
+	@Test(expected=SyntaxError.class)
 	public void SubscriptException(){
 		String fun =
 			
@@ -245,32 +243,24 @@ public class TryCatchTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{" + fun + "fun();}"));
 	}
 	
-	@Test
+	@Test(expected=UninitializedVariableError.class)
 	public void UndefinedValueException(){
 		String fun =
 			
 		"bool fun() {" +
-		"  try {" +
 		"      X + 3;" +
-		"  } catch UndefinedValueException(str e):" +
-		"      return true;" +
-		"  return false;" +
 		"}";
 	
 		prepare("import Exception;");
 		assertTrue(runTestInSameEvaluator("{" + fun + "fun();}"));
 	}
 	
-	@Test
+	@Test(expected=UninitializedVariableError.class)
 	public void UninitializedvariableException(){
 		String fun =
 			
 		"bool fun() {" +
-		"  try {" +
 		"      X[2] = 3;" +
-		"  } catch UninitializedVariableException(str e):" +
-		"      return true;" +
-		"  return false;" +
 		"}";
 	
 		prepare("import Exception;");
