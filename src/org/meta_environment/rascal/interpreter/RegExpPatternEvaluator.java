@@ -242,6 +242,6 @@ public class RegExpPatternEvaluator extends NullASTVisitor<MatchPattern> {
 		 */
 		resultRegExp = resultRegExp.replaceAll("(\\\\<)", "<");
 		if(debug)System.err.println("resultRegExp: " + resultRegExp);
-		return new RegExpPatternValue(vf, null, resultRegExp, modifier, names, env);
+		return new RegExpPatternValue(vf, x, resultRegExp, modifier, names, env);
 	}
 }
