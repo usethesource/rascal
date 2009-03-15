@@ -333,9 +333,7 @@ public class TypeEvaluator {
 					
 					type.getTypeParameters().match(tf.tupleType(params), bindings);
 					
-					System.err.println("before instant: " + type);
 					type = type.instantiate(new TypeStore(), bindings);
-					System.err.println("after instant: " + type);
 				}
 				
 				if (type != null) {

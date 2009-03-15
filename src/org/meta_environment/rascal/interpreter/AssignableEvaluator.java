@@ -69,19 +69,25 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 		String name = x.getQualifiedName().toString();
 		Result previous = env.getVariable(x.getQualifiedName(), name);
 		
-		if (previous == null) {
-			throw new UninitializedVariableError(name, x);
+		if (previous != null) {
+			if (value.getType().isSubtypeOf(previous.getType())) {
+				value.setType(previous.getType());
+			} else {
+				// TODO: I don't think this check uses static types only.
+				throw new UnexpectedTypeError(previous.getType(), value.getType(), x);
+			}
+			if(operator == AssignmentOperator.Default){
+				env.storeVariable(name, value);
+			} else {
+				//TODO add the various operators here.
+			}
 		}
-		
-		if (value.getType().isSubtypeOf(previous.getType())) {
-			value.setType(previous.getType());
-		} else {
-			throw new UnexpectedTypeError(previous.getDeclaredType(), value.getType(), x);
-		}
-		if (operator == AssignmentOperator.Default){
-			env.storeVariable(name, value);
-		} else {
-			//TODO add the various operators here.
+		else {
+			if(operator == AssignmentOperator.Default)
+				env.storeVariable(name, value);
+			else {
+				throw new UninitializedVariableError(name, x);
+			}
 		}
 		
 		// TODO implement semantics of global keyword, when not given the
@@ -112,7 +118,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 		Result subscript = x.getSubscript().accept(eval);
 		Result result;
 		
-		if(rec == null || rec.getValue() == null) {
+		if (rec == null || rec.getValue() == null) {
 			throw new UninitializedVariableError(x.getReceiver().toString(), x.getReceiver());
 		}
 		
