@@ -2308,7 +2308,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 			
 			// Real
 			else if (left.getType().isRealType() && right.getType().isRealType()) {
-				return result(((IReal) left.getValue()).divide((IReal) right.getValue()));
+				// TODO magic constant 80*80 should dissappear when Tijs is done
+				return result(((IReal) left.getValue()).divide((IReal) right.getValue(), 80*80));
 			}
 			else {
 				throw new UnsupportedOperationError("/", left.getType(), right.getType(),x);

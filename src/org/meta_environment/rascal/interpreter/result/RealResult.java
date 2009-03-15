@@ -7,6 +7,8 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 
 public class RealResult extends ValueResult<IReal> {
+	private static final int PRECISION = 80*80; // ONE PAGE OF DIGITS
+
 	public RealResult(IReal real) {
 		this(real.getType(), real);
 	}
@@ -93,7 +95,7 @@ public class RealResult extends ValueResult<IReal> {
 	@Override
 	protected <U extends IValue> AbstractResult<U> divideReal(RealResult n) {
 		// note the reverse division
-		return makeResult(type, n.getValue().divide(getValue()));
+		return makeResult(type, n.getValue().divide(getValue(), PRECISION));
 	}
 	
 	@Override
