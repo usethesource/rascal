@@ -19,7 +19,7 @@ data RuntimeException =
 	| PermissionDenied
 	| PermissionDenied(str message)
 	| ModuleNotFound(str name)
-	| NoSuchKey(value key);
+	| NoSuchKey(value key)
 	| NoSuchAnnotation(str label)
 	| Java(str message)
 	;
