@@ -1046,8 +1046,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 			return normalizedResult(resultType, yieldSet ? wset.done() : wrel.done());
 		}
 		
-		if(nSubs > 1){
-			throw new ArityError(x.getSubscripts().size(), 1, x);
+		if (nSubs > 1){
+			throw new SyntaxError("No more than one subscript allowed on " + exprType, x.getLocation());
 		}
 		
 		Result subs = x.getSubscripts().get(0).accept(this);
