@@ -7,8 +7,9 @@ import Graph;
 import Map;
 import IO;
 import Benchmark;
+import Exception;
 
-/* A cryptographic problem originating from work of Mohammed Dashti and
+/* A security problem originating from work of Mohammed Dashti and
    suggested by Yaroslav Usenko.
    First compute a graph as follows:
    (a) The initial state S0 consists of a set of all permutations of the numbers [1 .. N].
@@ -48,49 +49,34 @@ public void dashti(int n){
    expand(toSet(permutations([1 .. N])));
 }
 
-// Create a new StateId for a set of permutations
-
-StateId newState(set[Permutation] elms){
-  if(allStates[elms]?)       
-  	return allStates[elms];                    // Already defined? return it
-  else {
-  	nStates = nStates + 1;
-  	allStates[elms] = nStates;
-  	return nStates;  
-  }
-}
-
-// Expand set of permutations
+// Expand list of permutations
 
 public StateId expand(set[Permutation] elms){
+    println("Expand(<elms>");
+    StateId sid;
+    try {
+    	sid = allStates[elms];
+    } catch NoSuchKey(value key): {
+     	
+    	nStates = nStates + 1;
+    	allStates[elms] = nStates;
+    
+    	sid = nStates;
+    }
    
-   if(allStates[elms]?)
-     	return allStates[elms];
-
-   StateId sid = newState(elms);
-   
-   map[Symbol, set[Permutation]] localTransitions = ();
-   for(Permutation perm <- elms){
-       for(int i <- [1 .. N]){
-           set[Permutation] nextState = localTransitions[i] ?= {};
-           if(perm != [] && i == perm[0])
-              nextState = nextState + {tail(perm)};
-           else {
-              if(perm notin nextState)
-             	 nextState = nextState + {perm};
-           }
-           //println("state <sid>: symbol: <i>, perm=<perm>, nextState=<nextState>");
-           localTransitions[i] = nextState;
-       }
-   }
+   		rel[StateId,StateId,Symbol] contrib = {};
+    	for(Symbol sym <- [1 .. N]){
+        	set[Permutation] nextState = {};
+        
+        	for(Permutation perm <- elms){          
+        		nextState = nextState + ((perm != [] && perm[0] == sym) ? tail(perm) : perm);
+        	}
+        	contrib = contrib + {<sid, expand(nextState), sym>};
+    	}
  
-   rel[StateId,StateId,Symbol] contrib = {};
-   for(Symbol sym <- localTransitions){
-       contrib = contrib + {<sid, expand(localTransitions[sym]), sym>};
-   }
-   Transitions = Transitions + contrib;
+   		Transitions = Transitions + contrib;
   
-   return sid;
+    	return sid;
 }
 
 void printStates () {
