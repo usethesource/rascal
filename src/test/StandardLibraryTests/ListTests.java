@@ -75,7 +75,7 @@ public class ListTests extends TestFramework {
 		runTest("import List;", "head([],3);");
 	}
 	
-	@Test(expected=IndexOutOfBoundsException.class)
+	@Test(expected=Throw.class)
 	public void testHead2() {
 		runTest("import List;", "head([1,2,3], 4);");
 	}
@@ -94,7 +94,7 @@ public class ListTests extends TestFramework {
 	}
 	
 
-	@Test(expected=IndexOutOfBoundsException.class)
+	@Test(expected=Throw.class)
 	public void testInsertAt() {
 		runTest("import List;", "insertAt([1,2,3], 4, 5);");
 	}
@@ -253,12 +253,12 @@ public class ListTests extends TestFramework {
 	}
 	
 
-	@Test(expected=IndexOutOfBoundsException.class)
+	@Test(expected=Throw.class)
 	public void tailError1() {
 		runTest("import List;", "tail([]);");
 	}
 	
-	@Test(expected=IndexOutOfBoundsException.class)
+	@Test(expected=Throw.class)
 	public void tailError2() {
 		runTest("import List;",  "tail([1,2,3], 4);");
 	}
