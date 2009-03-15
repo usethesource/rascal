@@ -3,6 +3,7 @@ module demo::WordCount
 import IO;
 import Map;
 import List;
+import Exception;
  
 /* this is a * test * comment */
 
@@ -73,7 +74,11 @@ public int countLine3(str S){
   int cnt = 0;
   for(/<word:\w+>/<- S){
        cnt = cnt + 1;
-       allCounts[word] = (allCounts[word] ?= 0) + 1;
+       try {
+         allCounts[word] = allCounts[word] + 1;
+       } catch NoSuchKey(value key):{
+       		allCounts[word] = 1;
+       }
   }
   return sum([allCounts[K] | str K <- allCounts], 0);
 }
