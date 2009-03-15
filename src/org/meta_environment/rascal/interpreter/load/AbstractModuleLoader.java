@@ -28,7 +28,7 @@ public abstract class AbstractModuleLoader implements IModuleLoader {
 		try {
 			stream = getStream(getFileName(name));
 			IConstructor tree = PARSER
-					.parseFromStream(stream);
+					.parseFromStream(stream, getFileName(name));
 
 			if (tree.getConstructorType() == Factory.ParseTree_Summary) {
 				throw new SyntaxError("module", new SummaryAdapter(tree).getInitialSubject().getLocation());

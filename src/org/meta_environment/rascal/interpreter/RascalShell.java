@@ -133,7 +133,7 @@ public class RascalShell {
 
 	private int callMainFunction(String module, String[] args) throws IOException {
 		String callMainStatement = module + "::main(" + mainArguments(args) + ");";
-		IConstructor tree = parser.parseFromString(callMainStatement);
+		IConstructor tree = parser.parseFromString(callMainStatement, "-");
 		Command callStat = builder.buildCommand(tree);
 		IValue result = callStat.accept(new CommandEvaluator(evaluator));
 		
@@ -158,7 +158,7 @@ public class RascalShell {
 
 	private void loadModule(String module) throws IOException {
 		String importCommand = "import " + module + ";";
-		IConstructor tree = parser.parseFromString(importCommand);
+		IConstructor tree = parser.parseFromString(importCommand, "-");
 		Command importDecl = builder.buildCommand(tree);
 		importDecl.accept(new CommandEvaluator(evaluator));
 	}
@@ -177,7 +177,7 @@ public class RascalShell {
 
 	private String handleInput(final CommandEvaluator command, StringBuffer statement) throws IOException {
 		StringBuilder result = new StringBuilder();
-		IConstructor tree = parser.parseFromString(statement.toString());
+		IConstructor tree = parser.parseFromString(statement.toString(), "-");
 
 		if (tree.getConstructorType() == Factory.ParseTree_Summary) {
 			result.append(tree + "\n");
@@ -200,7 +200,7 @@ public class RascalShell {
 
 	private boolean completeStatement(StringBuffer statement) throws FactTypeUseException, IOException {
 		String command = statement.toString();
-		IConstructor tree = parser.parseFromString(command);
+		IConstructor tree = parser.parseFromString(command, "-");
 
 		if (tree.getConstructorType() == Factory.ParseTree_Summary) {
 			SubjectAdapter subject = new SummaryAdapter(tree).getInitialSubject();
