@@ -4,14 +4,14 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Ignore;
 import org.junit.Test;
+import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFunctionError;
-import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredModuleError;
 import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
 
 public class ImportTests extends TestFramework {
 	
 
-	@Test(expected=UndeclaredModuleError.class)
+	@Test(expected=Throw.class)
 	public void importError() {
 		runTest("import zap;");
 	}
