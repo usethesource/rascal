@@ -29,15 +29,15 @@ public class RuntimeExceptionFactory {
 	private static Type EmptyList = TF.constructor(TS,E,"EmptyList");
 	private static Type EmptySet = TF.constructor(TS,E,"EmptySet");
 	private static Type EmptyMap = TF.constructor(TS,E,"EmptyMap");
-	private static Type NoSuchElement = TF.constructor(TS,E,"NoSuchElement",TF.valueType(), "value");
-	private static Type IllegalArgument = TF.constructor(TS,E,"IllegalArgument",TF.valueType(), "value");
+	private static Type NoSuchElement = TF.constructor(TS,E,"NoSuchElement",TF.valueType(), "v");
+	private static Type IllegalArgument = TF.constructor(TS,E,"IllegalArgument",TF.valueType(), "v");
 	private static Type AnonymousIllegalArgument = TF.constructor(TS,E,"IllegalArgument");
 	private static Type IO = TF.constructor(TS,E,"IO",TF.stringType(), "message");
 	private static Type FileNotFound = TF.constructor(TS,E,"FileNotFound",TF.stringType(), "filename");
 	private static Type LocationNotFound = TF.constructor(TS,E,"LocationNotFound",TF.sourceLocationType(), "location");
 	private static Type PermissionDenied = TF.constructor(TS,E,"PermissionDenied",TF.stringType(), "message");
 	private static Type AnonymousPermissionDenied = TF.constructor(TS,E,"PermissionDenied");
-	private static Type ModuleNotFound = TF.constructor(TS, E, "ModuleNotFound", TF.stringType(), "module");
+	private static Type ModuleNotFound = TF.constructor(TS, E, "ModuleNotFound", TF.stringType(), "name");
 	private static Type NoSuchKey = TF.constructor(TS, E, "NoSuchKey", TF.valueType(), "key");
 	private static Type NoSuchAnnotation = TF.constructor(TS, E, "NoSuchAnnotation", TF.stringType(), "label");
 	
