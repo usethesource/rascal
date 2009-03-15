@@ -120,10 +120,10 @@ public class SubList implements IList {
 	}
 
 	public IValue get(int i) throws IndexOutOfBoundsException {
-		if(i < start ) {
+		if(start + i < 0 ) {
 			throw RuntimeExceptionFactory.indexOutOfBounds(ValueFactoryFactory.getValueFactory().integer(start));
 		}
-		if(i >= end) {
+		if(i >= end - start) {
 			throw RuntimeExceptionFactory.indexOutOfBounds(ValueFactoryFactory.getValueFactory().integer(end));
 		}
 		return base.get(start + i);	
