@@ -696,6 +696,11 @@ public class DataTypeTests extends TestFramework {
 	    public void UndefinedMapElementError2(){
 	    	runTest("(1:Y);");
 	    }
+	 
+	 @Test(expected=Throw.class)
+	 public void NoKeyError(){
+		 runTest("(1:10, 2:20)[3];");
+	 }
 	
 	@Test
 	public void testTuple() {
