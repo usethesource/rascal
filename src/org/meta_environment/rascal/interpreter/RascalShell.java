@@ -91,28 +91,16 @@ public class RascalShell {
 					console.printString(output);
 					console.printNewline();
 				}
-				catch (Failure e) {
-					e.printStackTrace();
-					break;
-				}
-				catch (FactTypeUseException e) {
-					// TODO: this should not happen
-					e.printStackTrace();
-					console.printString("FactTypeError: " + e.getMessage() + "\n");
-				    printStacktrace(console, e);
-				}
 				catch (StaticError e) {
-					e.printStackTrace();
-					console.printString("Error: " + e.getMessage() + "\n");
+					console.printString(e.getMessage() + "\n");
+				}
+				catch (Throw e) {
+					console.printString(e.getMessage() + "\n");
 				}
 				catch (ImplementationError e) {
 					e.printStackTrace();
 					console.printString("ImplementationError: " + e.getMessage() + "\n");
 					printStacktrace(console, e);
-				}
-				catch (Throw e) {
-					e.printStackTrace();
-					console.printString(e.getMessage() + "\n");
 				}
 				catch (Throwable e) {
 					e.printStackTrace();

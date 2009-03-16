@@ -1,6 +1,6 @@
 module Boolean
 
-public bool java arbBool()
+pubic bool java arbBool()
 @doc{arbBool -- get an arbitrary boolean value.}
 @javaClass{org.meta_environment.rascal.std.Boolean};
 

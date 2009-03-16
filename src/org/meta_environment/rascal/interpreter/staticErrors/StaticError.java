@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.interpreter.staticErrors;
 
+import java.net.URL;
+
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.meta_environment.rascal.ast.AbstractAST;
 
@@ -28,4 +30,19 @@ public abstract class StaticError extends RuntimeException {
 		return loc;
 	}
 
+	@Override
+	public String getMessage() {
+		if (loc != null) {
+			URL url = loc.getURL();
+			
+			return (url.getProtocol().equals("file") ? (url.getAuthority() + url.getPath()) : url) 
+					+ ":" + loc.getBeginLine() 
+					+ "," + loc.getBeginColumn() 
+					+ ": " + super.getMessage();
+		}
+		else {
+			// TODO remove once all errors have locations
+			return super.getMessage();
+		}
+	}
 }
