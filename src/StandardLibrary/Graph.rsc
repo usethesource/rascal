@@ -23,18 +23,6 @@ public set[&T] bottom(rel[&T, &T] G)
   return range(G) - domain(G);
 }
 
-public set[&T] gtop(graph[&T] G)
-@doc{Top of a Graph}
-{
-  return domain(G) - range(G);
-}
-
-public set[&T] gbottom(graph[&T] G)
-  @doc{Bottom of a Graph}
-{
-  return range(G) - domain(G);
-}
-
 public set[&T] reach(rel[&T,&T] G, set[&T] Start)
 @doc{Reachability from start set}
 {
@@ -87,7 +75,7 @@ public list[int] shortestPathPair1(rel[int,int] G, int From, int To)
         u = extractMinimum();
         if(u == To)
         	return extractPath(From, u);
-        settles = settled + u;
+        settled = settled + u;
         relaxNeighbours(u);
     }  
     return [];
