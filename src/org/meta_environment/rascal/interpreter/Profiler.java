@@ -74,7 +74,6 @@ public class Profiler extends Thread {
         List<Map.Entry<Statement, Count>> sortedData = new Vector<Entry<Statement, Count>>(data.entrySet());
 
         java.util.Collections.sort(sortedData, new Comparator<Map.Entry<Statement, Count>>(){
-			@Override
 			public int compare(Entry<Statement, Count> entry1,
 					Entry<Statement, Count> entry2) {
 				 return (entry1.getValue().equals(entry2.getValue()) ? 0 : 
