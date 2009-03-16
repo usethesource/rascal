@@ -470,9 +470,6 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 	private Module loadModule(org.meta_environment.rascal.ast.Import.Default x,
 			String name) {
-		
-		System.err.println("load: " + name);
-		
 		for (IModuleLoader loader : loaders) {
 			try {
 				return loader.loadModule(name);
