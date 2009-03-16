@@ -59,6 +59,11 @@ public set[&T] reachX(rel[&T,&T] G, set[&T] Start, set[&T] Excl)
 
 // Shortest Path functions
 
+public list[&T] java shortestPathPair(rel[&T,&T] G, &T From, &T To)
+@javaClass{org.meta_environment.rascal.std.Graph};
+
+/*
+
 private rel[int,int] Graph ={};
 private map[int, int] distance =();
 private map[int, int] pred = ();
@@ -66,7 +71,7 @@ private set[int] settled = {};
 private set[int] Q = {};
 private int MAXDISTANCE = 10000;
 
-public list[int] shortestPathPair(rel[int,int] G, int From, int To)
+public list[int] shortestPathPair1(rel[int,int] G, int From, int To)
 @doc{Shortest path between pair of nodes}
 {
     Graph = G;
@@ -126,6 +131,7 @@ private list[int] extractPath(int start, int u)
 }
   
 public rel[int,int] examp = {<1,2>,<2,3>,<3,4>,<2,4>};
+*/
 
 /* TODO
 public set[list[&T]] shortestPathFrom(graph[&T] G, &T From)

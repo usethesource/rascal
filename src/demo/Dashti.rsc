@@ -24,6 +24,8 @@ import Exception;
    Solution:
    (1) Generate the graph;
    (2) Compute shortest path from S0 to the end state.
+   
+   Note: this version optimizes speed and not readability.
 */
 
 alias Permutation = list[int];                  // One permutation
@@ -33,8 +35,6 @@ alias Symbol = int;                             // Symbols used for state transi
 int nStates = 0;                                // Global state counter
 
 map[set[Permutation], StateId] allStates = (); // Associate a list of permutations with a state
-
-//rel[StateId from, StateId to, Symbol symbol] Transitions = {};  // The transition table
 
 map[StateId, set[tuple[StateId, Symbol]]] Transitions = ();
 
@@ -46,7 +46,7 @@ public void dashti(int n){
    N = n;
    nStates = 0;
    allStates = ({[]} : 0);                      // predefine the final state
-   Transitions = ();
+   Transitions = (0:{});
    expand(toSet(permutations([1 .. N])));
 }
 
@@ -65,34 +65,37 @@ public StateId expand(set[Permutation] elms){
    
     Transitions[sid] =
        {<expand(nextState), sym> | Symbol sym <- [1 .. N], 
-       	                                set[Permutation] nextState := 
+       	                           set[Permutation] nextState := 
        	                                { ((perm != [] && perm[0] == sym) ? tail(perm) : perm) | Permutation perm <- elms }
  
        };
     return sid;
 }
 
-void printStates () {
-  map[StateId, set[Permutation]] invertedStates = (allStates[elms] : elms | set[Permutation] elms <- allStates);
+void printStates(){
+    map[StateId, set[Permutation]] invertedStates = (allStates[elms] : elms | set[Permutation] elms <- allStates);
  
-  for(int I <- [0 .. nStates]){
-     elms = invertedStates[I];
- 	 trans = Transitions[I];
- 	 strtrans = "";
- 	 for(<StateId to, Symbol sym> <- trans){
- 	     strtrans = strtrans + " <sym> -> S<to> ";
- 	 }
- 	 println("S<I>: <elms>;\n    <strtrans>");
-  }
+	for(int I <- [0 .. nStates]){
+	    elms = invertedStates[I];
+ 	    trans = Transitions[I];
+	    println("S<I>:  <elms>;\n   <trans>");
+	}
+}
+
+// Transform transition table into a graph
+
+rel[StateId, StateId] buildGraph(){
+    return { <from, to> | int from <- [ 1 .. nStates], <StateId to, Symbol sym> <- Transitions[from]};
 }
 
 public void test(int N){
   time1 = currentTimeMillis(); dashti(N); time2 = currentTimeMillis(); delta = (time2 - time1)/1000;
-  /*
+  
   if(N <= 3)
   	printStates();
   println("Number of States = <nStates>, Time=<delta> sec.");
-  G = Transitions<from,to>;               // restrict Transitions to first two columns
+
+  G = buildGraph();
   if(N <= 3)
  	 println("Graph = <G>");
   L = size(G);
@@ -103,7 +106,6 @@ public void test(int N){
   delta = (time2 - time1)/1000;
   L = size(P);
   println("Length = <L>; Shortest path = <P>; Time=<delta> sec.");
-  */
 }
 
 /*
