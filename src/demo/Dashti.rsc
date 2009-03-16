@@ -30,12 +30,13 @@ alias Permutation = list[int];                  // One permutation
 alias StateId = int;                            // A unique state identifier
 alias Symbol = int;                             // Symbols used for state transitions
 
-
 int nStates = 0;                                // Global state counter
 
 map[set[Permutation], StateId] allStates = (); // Associate a list of permutations with a state
 
-rel[StateId from, StateId to, Symbol symbol] Transitions = {};  // The transition table
+//rel[StateId from, StateId to, Symbol symbol] Transitions = {};  // The transition table
+
+map[StateId, set[tuple[StateId, Symbol]]] Transitions = ();
 
 // Solve problem of size N
 
@@ -45,38 +46,30 @@ public void dashti(int n){
    N = n;
    nStates = 0;
    allStates = ({[]} : 0);                      // predefine the final state
-   Transitions = {};
+   Transitions = ();
    expand(toSet(permutations([1 .. N])));
 }
 
 // Expand list of permutations
 
 public StateId expand(set[Permutation] elms){
-    println("Expand(<elms>");
     StateId sid;
     try {
-    	sid = allStates[elms];
+    	return allStates[elms];
     } catch NoSuchKey(value key): {
      	
     	nStates = nStates + 1;
     	allStates[elms] = nStates;
-    
     	sid = nStates;
-    }
+    };
    
-   		rel[StateId,StateId,Symbol] contrib = {};
-    	for(Symbol sym <- [1 .. N]){
-        	set[Permutation] nextState = {};
-        
-        	for(Permutation perm <- elms){          
-        		nextState = nextState + ((perm != [] && perm[0] == sym) ? tail(perm) : perm);
-        	}
-        	contrib = contrib + {<sid, expand(nextState), sym>};
-    	}
+    Transitions[sid] =
+       {<expand(nextState), sym> | Symbol sym <- [1 .. N], 
+       	                                set[Permutation] nextState := 
+       	                                { ((perm != [] && perm[0] == sym) ? tail(perm) : perm) | Permutation perm <- elms }
  
-   		Transitions = Transitions + contrib;
-  
-    	return sid;
+       };
+    return sid;
 }
 
 void printStates () {
@@ -95,6 +88,7 @@ void printStates () {
 
 public void test(int N){
   time1 = currentTimeMillis(); dashti(N); time2 = currentTimeMillis(); delta = (time2 - time1)/1000;
+  /*
   if(N <= 3)
   	printStates();
   println("Number of States = <nStates>, Time=<delta> sec.");
@@ -109,6 +103,7 @@ public void test(int N){
   delta = (time2 - time1)/1000;
   L = size(P);
   println("Length = <L>; Shortest path = <P>; Time=<delta> sec.");
+  */
 }
 
 /*
