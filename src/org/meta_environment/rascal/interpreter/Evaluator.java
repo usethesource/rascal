@@ -1005,12 +1005,11 @@ public class Evaluator extends NullASTVisitor<Result> {
 			Type resFieldType[] = new Type[relArity - nSubs];
 			for (int i = 0; i < relArity; i++) {
 				Type relFieldType = exprType.getFieldType(i);
-				if(i < nSubs){
-					if(subscriptType[i].isSetType() && 
+				if(i < nSubs) {
+					if (subscriptType[i].isSetType() && 
 					    subscriptType[i].getElementType().isSubtypeOf(relFieldType)){
 						subscriptIsSet[i] = true;
-					} else 
-					if(subscriptType[i].isSubtypeOf(relFieldType)){
+					} else if (subscriptType[i].isSubtypeOf(relFieldType)){
 						subscriptIsSet[i] = false;
 					} else {
 						throw new UnexpectedTypeError(relFieldType, subscriptType[i], x);
