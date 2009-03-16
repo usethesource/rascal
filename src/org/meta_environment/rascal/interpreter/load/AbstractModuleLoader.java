@@ -2,9 +2,14 @@ package org.meta_environment.rascal.interpreter.load;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.errors.SubjectAdapter;
 import org.meta_environment.errors.SummaryAdapter;
 import org.meta_environment.rascal.ast.ASTFactory;
@@ -31,7 +36,7 @@ public abstract class AbstractModuleLoader implements IModuleLoader {
 					.parseFromStream(stream, getFileName(name));
 
 			if (tree.getConstructorType() == Factory.ParseTree_Summary) {
-				throw new SyntaxError("module", new SummaryAdapter(tree).getInitialSubject().getLocation());
+				throw parseError(tree, getFileName(name), name);
 			}
 
 			return BUILDER.buildModule(tree);
@@ -52,10 +57,12 @@ public abstract class AbstractModuleLoader implements IModuleLoader {
 		return fileName;
 	}
 
-	protected String parseError(IConstructor tree, String file) {
+	protected SyntaxError parseError(IConstructor tree, String file, String mod) throws MalformedURLException {
 		SubjectAdapter subject = new SummaryAdapter(tree).getInitialSubject();
+		IValueFactory vf = ValueFactoryFactory.getValueFactory();
+		URL url = new URL("file://" + file);
+		ISourceLocation loc = vf.sourceLocation(url, subject.getOffset(), subject.getLength(), subject.getBeginLine(), subject.getEndLine(), subject.getBeginColumn(), subject.getEndColumn());
 
-		return file + " at line " + subject.getEndLine() + ", column "
-				+ subject.getEndColumn();
+		return new SyntaxError("module " + mod, loc);
 	}
 }
