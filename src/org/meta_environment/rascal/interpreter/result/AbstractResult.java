@@ -107,7 +107,7 @@ public abstract class AbstractResult<T extends IValue> implements Iterator<Abstr
 		throw new UnsupportedOperationError(operator, type, null);
 	}
 	
-	protected <U extends IValue, V extends IValue> AbstractResult<U> undefinedError(String operator, AbstractResult<V> arg) {
+	protected <U extends IValue, V extends IValue> AbstractResult<U> undefinedError(String operator, AbstractResult arg) {
 		// TODO find source location
 		throw new UnsupportedOperationError(operator, type, arg.getType(), null);
 	}
