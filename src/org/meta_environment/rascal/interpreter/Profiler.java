@@ -8,7 +8,14 @@ import java.util.Map;
 import java.util.Vector;
 import java.util.Map.Entry;
 
+import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.ast.Statement;
 
 class Count {
@@ -64,14 +71,12 @@ public class Profiler extends Thread {
 		running = false;
 	}
 	
-	public void report(){
-		
+	/* Extract a list of entries from the collected data and
+	 * sort it with descending tick values.
+	 */
 	
-		/* Extract a list of entries from the collected data and
-		 * sort it with descending tick values.
-		 */
-		
-        List<Map.Entry<Statement, Count>> sortedData = new Vector<Entry<Statement, Count>>(data.entrySet());
+	private List<Map.Entry<Statement, Count>> sortData(){
+		 List<Map.Entry<Statement, Count>> sortedData = new Vector<Entry<Statement, Count>>(data.entrySet());
 
         java.util.Collections.sort(sortedData, new Comparator<Map.Entry<Statement, Count>>(){
 			public int compare(Entry<Statement, Count> entry1,
@@ -80,6 +85,24 @@ public class Profiler extends Thread {
 					 (entry1.getValue().getTicks() < entry2.getValue().getTicks() ? 1 : -1));
 			}
         });
+        return sortedData;
+	}
+	
+	public IList getProfileData(){
+		TypeFactory TF = TypeFactory.getInstance();
+		Type elemType = TF.tupleType(TF.sourceLocationType(), TF.integerType());
+		Type listType = TF.listType(elemType);
+		IValueFactory VF = ValueFactoryFactory.getValueFactory();
+		IListWriter w = listType.writer(VF);
+		for(Map.Entry<Statement, Count> e : sortData()){
+			w.insert(VF.tuple(e.getKey().getLocation(), VF.integer(e.getValue().getTicks())));
+		}
+		return w.done();
+	};
+	
+	public void report(){
+		
+		List<Map.Entry<Statement, Count>> sortedData = sortData();
         
         int maxURL = 1;
         long nTicks = 0;
@@ -92,20 +115,27 @@ public class Profiler extends Thread {
         	nTicks += e.getValue().getTicks();
         }
         String URLFormat = "%" + maxURL + "s";
-        System.err.println(String.format("PROFILE: %d data points, %d ticks, tick = %d milliSecs", data.size(), nTicks, resolution));
-        String line0 = String.format(URLFormat + "%8s%8s%9s  %s", " Source File", "Lines", "Ticks", "%", "Source");
-    	System.err.println(line0);
-
+        System.err.printf("PROFILE: %d data points, %d ticks, tick = %d milliSecs\n", data.size(), nTicks, resolution);
+        System.err.printf(URLFormat + "%11s%8s%9s  %s\n", " Source File", "Lines", "Ticks", "%", "Source");
+    	
         for(Map.Entry<Statement, Count> e : sortedData){
         	ISourceLocation L = e.getKey().getLocation();
+        	
+        	String url = L.getURL().toString();
+        	String filePrefix = "file://";
+        	if(url.startsWith(filePrefix))
+        		url = url.substring(filePrefix.length());
+        	
         	int bgn = L.getBeginLine();
         	int end = L.getEndLine();
-        	int ticks = e.getValue().getTicks();
         	String range = (end==bgn) ? Integer.toString(bgn) : bgn + ".." + end;
+        	
+        	int ticks = e.getValue().getTicks();
         	Double perc = (ticks * 100.0)/nTicks;
+        	
         	String source = String.format("%-30.30s", e.getKey().toString().replaceFirst("^[\\s]+", "").replaceAll("[\\s]+", " "));
-        	String line = String.format(URLFormat + "%8s%8d%8.1f%%  %s", L.getURL(), range, ticks, perc, source);
-        	System.err.println(line);
+ 
+        	System.err.printf(URLFormat + "%11s%8d%8.1f%%  %s\n", url, range, ticks, perc, source);
         }
 	}
 
