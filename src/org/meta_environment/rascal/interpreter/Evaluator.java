@@ -1071,7 +1071,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			Type valueType = exprType.getValueType();
 			IValue v = ((IMap) expr.getValue()).get(subs.getValue());
 			if(v == null){
-				throw RuntimeExceptionFactory.noSuchKey(v);
+				throw RuntimeExceptionFactory.noSuchKey(subs.getValue());
 			}
 			return normalizedResult(valueType,v);
 		}
