@@ -3527,6 +3527,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 	@Override
 	public Result visitExpressionIfDefinedOtherwise(IfDefinedOtherwise x) {
+		// TODO add type checking on which types is this operator allowed?
 		try {
 			return x.getLhs().accept(this);
 		} catch (UninitializedVariableError e) {
@@ -3537,6 +3538,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	@Override
 	public Result visitExpressionIsDefined(IsDefined x) {
+		// TODO add type checking on which types is this operator allowed?
 		try {
 			x.getArgument().accept(this); // wait for exception
 			return result(tf.boolType(), vf.bool(true));
