@@ -80,7 +80,7 @@ public class RascalShell {
 							continue next;
 						}
 						else {
-							input.append(line);
+							input.append((input.length() > 0 ? "\n" : "") + line);
 							prompt = CONTINUE_PROMPT;
 						}
 					} while (!completeStatement(input));
@@ -168,7 +168,12 @@ public class RascalShell {
 		IConstructor tree = parser.parseFromString(statement.toString(), "-");
 
 		if (tree.getConstructorType() == Factory.ParseTree_Summary) {
-			result.append(tree + "\n");
+			SubjectAdapter s = new SummaryAdapter(tree).getInitialSubject();
+			for (int i = 0; i < s.getEndColumn(); i++) {
+				result.append(" ");
+			}
+			result.append("^\n");
+			result.append("parse error at" + (s.getEndLine() != 1 ? (" line" + s.getEndLine()) : "") + " column " + s.getEndColumn());
 		}
 		else {
 			Command stat = builder.buildCommand(tree);
