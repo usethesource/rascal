@@ -1,10 +1,14 @@
 package org.meta_environment.rascal.interpreter.LazySet;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.IRelationWriter;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.visitors.IValueVisitor;
@@ -91,19 +95,17 @@ abstract class LazySet implements ISet {
 	}
 	
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
-		//TODO: Is this ok?
 		return v.visitSet(this);
 	}
 
 	public String toString(){
-		StringBuffer sb = new StringBuffer();
-		sb.append("{");
-		String sep = "";
-		for(IValue v : this){
-			sb.append(sep).append(v.toString());
-			sep = ", ";
-		}
-		sb.append("}");
-		return sb.toString();
+		try {
+    		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+    		new StandardTextWriter().write(this, stream);
+			return stream.toString();
+		} catch (IOException e) {
+			// this never happens
+			return null;
+		} 
 	}
 }
