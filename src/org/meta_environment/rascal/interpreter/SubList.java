@@ -20,7 +20,7 @@ public class SubList implements IList {
 	private final int len;
 	private final int end;
 	private final IList base;
-	private final int hash;
+	private int hash;
 
 	public SubList(IValue V, int start, int len){
 		super();
@@ -48,7 +48,7 @@ public class SubList implements IList {
 		this.len = len;
 		this.end = start + len;
 		
-		this.hash = computeHashCode();
+		this.hash = 0;
 		
 		if(this.start < 0){
 			throw RuntimeExceptionFactory.indexOutOfBounds(ValueFactoryFactory.getValueFactory().integer(this.start));
@@ -59,15 +59,16 @@ public class SubList implements IList {
 	}
 	
 	private int computeHashCode() {
-		if(len == 0) {
-			//System.err.println("hashcode sublist: = " + ValueFactoryFactory.getValueFactory().list().hashCode() );
+		if(hash == 0){
+			if(len == 0) {
+				hash =  ValueFactoryFactory.getValueFactory().list().hashCode();
+			} else {
+				hash = 123456789;
 		
-			return ValueFactoryFactory.getValueFactory().list().hashCode();
-		}
-		int hash = 123456789;
-		
-		for(int i = 0; i < len; i++){
-		    hash = (hash << 1) ^ (hash >> 1) ^ base.get(start + i).hashCode();
+				for(int i = 0; i < len; i++){
+					hash = (hash << 1) ^ (hash >> 1) ^ base.get(start + i).hashCode();
+				}
+			}
 		}
 
 		return hash;
@@ -75,7 +76,11 @@ public class SubList implements IList {
 	
 	@Override
 	public int hashCode() {
-		return hash;
+		int h = hash;
+		if(h == 0){
+			hash = h = computeHashCode();
+		}
+		return h;
 	}
 	
 	@Override
