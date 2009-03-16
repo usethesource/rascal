@@ -9,15 +9,15 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.interpreter.RuntimeExceptionFactory;
 
 
 public class Set {
-
-	private static final ValueFactory values = ValueFactory.getInstance();
+	private static final IValueFactory values = ValueFactoryFactory.getValueFactory();
 	private static final TypeFactory types = TypeFactory.getInstance();
 	private static final Random random = new Random();
 

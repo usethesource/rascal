@@ -3,11 +3,11 @@ package org.meta_environment.rascal.std;
 import java.util.Random;
 
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
+import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.meta_environment.ValueFactoryFactory;
 
 public class Boolean {
-
-	private static final ValueFactory values = ValueFactory.getInstance();
+	private static final IValueFactory values = ValueFactoryFactory.getValueFactory();
 	private static final Random random = new Random();
 	
 	public static IValue arbBool()

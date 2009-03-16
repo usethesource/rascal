@@ -3,14 +3,13 @@ package org.meta_environment.rascal.std;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
+import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.interpreter.RuntimeExceptionFactory;
 
 public class String {
-
-	private static final ValueFactory values = ValueFactory.getInstance();
+	private static final IValueFactory values = ValueFactoryFactory.getValueFactory();
 	
-
 	public static IValue charAt(IString s, IInteger i) throws IndexOutOfBoundsException
 	//@doc{charAt -- return the character at position i in string s.}
 	{

@@ -5,13 +5,13 @@ import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.meta_environment.ValueFactoryFactory;
 
 public class Node {
-
-	private static final ValueFactory values = ValueFactory.getInstance();
+	private static final IValueFactory values = ValueFactoryFactory.getValueFactory();
 	private static final TypeFactory types = TypeFactory.getInstance();
 
 	public static IValue arity(INode T)

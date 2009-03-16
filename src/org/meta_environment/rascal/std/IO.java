@@ -8,14 +8,14 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
-import org.eclipse.imp.pdb.facts.impl.reference.ValueFactory;
+import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.interpreter.RuntimeExceptionFactory;
 
 
 public class IO {
-
-	private static final ValueFactory values = ValueFactory.getInstance();
+	private static final IValueFactory values = ValueFactoryFactory.getValueFactory();
 	private static final TypeFactory types = TypeFactory.getInstance();	
 
 	public static void println(IValue V)
