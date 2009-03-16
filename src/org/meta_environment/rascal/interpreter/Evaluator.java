@@ -203,7 +203,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	private Statement currentStatement; // used in runtime errormessages
 	private Profiler profiler;
-	private boolean doProfiling = true;
+	private boolean doProfiling = false;
 	
 	// TODO: can we remove this?
 	protected MatchPattern lastPattern;	// The most recent pattern applied in a match

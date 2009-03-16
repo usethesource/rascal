@@ -150,13 +150,13 @@ public &T sum(list[&T] lst, &T zero)
   return reducer(lst, #add, zero);
 }
 
- public list[&T] java tail(list[&T] lst)
- @doc{tail -- all but the first element of a list}
- @javaClass{org.meta_environment.rascal.std.List};
+public list[&T] java tail(list[&T] lst)
+@doc{tail -- all but the first element of a list}
+@javaClass{org.meta_environment.rascal.std.List};
  
-  public list[&T] java tail(list[&T] lst, int len)throws IndexOutOfBoundsError
- @doc{tail -- last n elements of a list}
- @javaClass{org.meta_environment.rascal.std.List};
+public list[&T] java tail(list[&T] lst, int len)throws IndexOutOfBoundsError
+@doc{tail -- last n elements of a list}
+@javaClass{org.meta_environment.rascal.std.List};
  
 public tuple[&T, list[&T]] java takeOneFrom(list[&T] lst)
 @doc{takeOneFrom -- remove an arbitrary element from a list, returns the element and the modified list}
