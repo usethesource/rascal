@@ -33,7 +33,6 @@ class NodeComparator implements Comparator<IValue> {
 		this.distance = distance;
 	}
 
-	@Override
 	public int compare(IValue arg0, IValue arg1) {
 		int d0 = distance.get(arg0).intval;
 		int d1 = distance.get(arg1).intval;
