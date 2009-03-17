@@ -7,7 +7,7 @@ import test.StandardLibraryTests.BooleanTests;
 import test.StandardLibraryTests.GraphTests;
 import test.StandardLibraryTests.IntegerTests;
 import test.StandardLibraryTests.ListTests;
-import test.StandardLibraryTests.RealTests;
+import test.StandardLibraryTests.MapTests;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
@@ -16,7 +16,7 @@ import test.StandardLibraryTests.RealTests;
 	GraphTests.class,
 	IntegerTests.class,
 	ListTests.class,
-	RealTests.class
+	MapTests.class
 	
 })
 
