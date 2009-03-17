@@ -109,11 +109,15 @@ public void test(int N){
 }
 
 /*
+   Execution times on weepinbell.sen.cwi.nl:
+   
    1: 2 states, Length = 2; Shortest path = [1,0], 
       Graph={<1,0>}
    2: 5 states, Length = 4; Shortest path = [1,4,5,0], 
       Graph = {<1,2>,<3,3>,<2,3>,<1,4>,<2,2>,<3,0>,<5,0>,<5,5>,<4,4>,<4,5>}
       Edges = 10
+      State generation: 0.037 sec
+      Shortest Path: 0 sec
    3: 43 states; Length = 8; Shortest path = [1,2,3,10,14,15,13,0]
       Graph= {<5,8>,<1,2>,<3,4>,<3,3>,<2,3>,<2,2>,<6,7>,<6,6>,<7,7>,<7,0>,<3,10>,
               <5,5>,<5,6>,<4,4>,<4,5>,<31,32>,<13,13>,<15,9>,<12,13>,<12,12>,
@@ -128,9 +132,11 @@ public void test(int N){
               <34,32>,<35,35>,<36,41>, <33,33>,<32,32>,<33,34>,<36,37>,<37,38>,<36,36>,<37,37>,
               <39,39>,<38,38>,<38,39>}
        Edges = 114
-       0.51 sec.
+       State generation: 0.42 sec
+       Shortest path: 0.004 sec
      4: 2697 States; Length = 13; Shortest path = [1,2,1197,1447,1465,1466,1467,1141,1142,365,123,15,0]
         Edges: 9712
-        Time=324.072 sec.
+        State generation: 11.7 sec
+        Shortest path: 0.03 sec
      5: 
  */
