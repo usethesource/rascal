@@ -59,19 +59,20 @@ public class SubList implements IList {
 	}
 	
 	private int computeHashCode() {
-		if(hash == 0){
+		int h = hash;
+		if(h == 0){
 			if(len == 0) {
-				hash =  ValueFactoryFactory.getValueFactory().list().hashCode();
+				hash = h =  ValueFactoryFactory.getValueFactory().list().hashCode();
 			} else {
-				hash = 123456789;
+				h = 123456789;
 		
 				for(int i = 0; i < len; i++){
-					hash = (hash << 1) ^ (hash >> 1) ^ base.get(start + i).hashCode();
+					h = (h << 1) ^ (h >> 1) ^ base.get(start + i).hashCode();
 				}
+				hash = h;
 			}
 		}
-
-		return hash;
+		return h;
 	}
 	
 	@Override
