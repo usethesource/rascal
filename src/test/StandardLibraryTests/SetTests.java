@@ -40,7 +40,7 @@ public class SetTests extends TestFramework {
 	
 
 	@Test
-	public void mpper() {
+	public void mapper() {
 
 		prepare("import Set;");
 
