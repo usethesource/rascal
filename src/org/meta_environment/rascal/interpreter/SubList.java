@@ -125,6 +125,13 @@ public class SubList implements IList {
 		w.appendAll(other);
 		return w.done();
 	}
+	
+	public IList delete(int i) {
+		IListWriter w = ValueFactoryFactory.getValueFactory().listWriter(getElementType());
+		w.insertAll(this);
+		w.delete(i);
+		return w.done();
+	}
 
 	public IValue get(int i) throws IndexOutOfBoundsException {
 		if(start + i < 0 ) {
