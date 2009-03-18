@@ -508,7 +508,7 @@ interface MatchPattern {
 		int start = listVarStart[patternCursor];
 		int length = listVarLength[patternCursor];
 		
-		return new SubList(listSubject, start, length);
+		return listSubject.sublist(start, length);
 	}
 	
 	private void matchBoundListVar(IList previousBinding){

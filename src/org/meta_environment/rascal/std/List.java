@@ -14,7 +14,6 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.interpreter.RuntimeExceptionFactory;
-import org.meta_environment.rascal.interpreter.SubList;
 
 
 public class List {
@@ -37,7 +36,7 @@ public class List {
 	// @doc{head -- get the first n elements of a list}
 	{
 	   if(n.intValue() <= lst.length()){
-	      return new SubList(lst, 0, n.intValue());
+	      return lst.sublist(0, n.intValue());
 	   } else {
 	      throw RuntimeExceptionFactory.indexOutOfBounds(n);
 	   }
@@ -92,13 +91,13 @@ public class List {
 	 public static IValue slice(IList lst, IInteger start, IInteger len)
 	 //@doc{slice -- sublist from start of length len}
 	 {
-	 	return new SubList(lst, start.intValue(), len.intValue());
+	 	return lst.sublist(start.intValue(), len.intValue());
 	 }
 
 	 public static IValue tail(IList lst)
 	 //@doc{tail -- all but the first element of a list}
 	 {
-	 	return new SubList(lst, 1, lst.length()-1);
+	 	return lst.sublist(1, lst.length()-1);
 	 }
 	 
 	  public static IValue tail(IList lst, IInteger len)
@@ -111,7 +110,7 @@ public class List {
 	 	if(lenVal > lstLen) {
 	 		RuntimeExceptionFactory.indexOutOfBounds(len);
 	 	}
-	 	return new SubList(lst, lstLen - lenVal, lenVal);
+	 	return lst.sublist(lstLen - lenVal, lenVal);
 	 }
 	 
 	public static IValue takeOneFrom(IList lst)
