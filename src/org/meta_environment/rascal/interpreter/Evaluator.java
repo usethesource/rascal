@@ -1453,8 +1453,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 	}
 	
 	@Override
-	public Result visitAssignableIfDefined(
-			org.meta_environment.rascal.ast.Assignable.IfDefined x) {
+	public Result visitAssignableIfDefinedOrDefault(
+			org.meta_environment.rascal.ast.Assignable.IfDefinedOrDefault x) {
 		throw new ImplementationError("ifdefined assignable does not represent a value");
 	}
 	
@@ -3523,23 +3523,26 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 	@Override
 	public Result visitExpressionIfDefinedOtherwise(IfDefinedOtherwise x) {
-		// TODO add type checking on which types is this operator allowed?
 		try {
 			return x.getLhs().accept(this);
-		} catch (UninitializedVariableError e) {
-			Result res = x.getRhs().accept(this);
-			return res;
+		} catch (UninitializedVariableError e){
+			return x.getRhs().accept(this);
 		}
+		catch (org.meta_environment.rascal.interpreter.control_exceptions.Throw e) {
+			// TODO For now we accept any Throw here, restrict to NoSuchKey and NoSuchAnno?
+			return x.getRhs().accept(this);
+		}
+
 	}
 	
 	@Override
 	public Result visitExpressionIsDefined(IsDefined x) {
-		// TODO add type checking on which types is this operator allowed?
 		try {
 			x.getArgument().accept(this); // wait for exception
 			return result(tf.boolType(), vf.bool(true));
 			
-		} catch (UninitializedVariableError e) {
+		} catch (org.meta_environment.rascal.interpreter.control_exceptions.Throw e) {
+			// TODO For now we accept any Throw here, restrict to NoSuchKey and NoSuchAnno?
 			return result(tf.boolType(), vf.bool(false));
 		}
 	}

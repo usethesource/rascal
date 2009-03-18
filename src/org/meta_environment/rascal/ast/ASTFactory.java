@@ -552,15 +552,15 @@ public class ASTFactory {
 				.get(x);
 	}
 
-	public org.meta_environment.rascal.ast.Assignable.IfDefined makeAssignableIfDefined(
+	public org.meta_environment.rascal.ast.Assignable.IfDefinedOrDefault makeAssignableIfDefinedOrDefault(
 			INode node, org.meta_environment.rascal.ast.Assignable receiver,
-			org.meta_environment.rascal.ast.Expression condition) {
-		org.meta_environment.rascal.ast.Assignable.IfDefined x = new org.meta_environment.rascal.ast.Assignable.IfDefined(
-				node, receiver, condition);
+			org.meta_environment.rascal.ast.Expression defaultExpression) {
+		org.meta_environment.rascal.ast.Assignable.IfDefinedOrDefault x = new org.meta_environment.rascal.ast.Assignable.IfDefinedOrDefault(
+				node, receiver, defaultExpression);
 		if (!table.containsKey(x)) {
 			table.put(x, x);
 		}
-		return (org.meta_environment.rascal.ast.Assignable.IfDefined) table
+		return (org.meta_environment.rascal.ast.Assignable.IfDefinedOrDefault) table
 				.get(x);
 	}
 
@@ -609,6 +609,17 @@ public class ASTFactory {
 			table.put(x, x);
 		}
 		return (org.meta_environment.rascal.ast.Assignable.Variable) table
+				.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Assignment.IfDefined makeAssignmentIfDefined(
+			INode node) {
+		org.meta_environment.rascal.ast.Assignment.IfDefined x = new org.meta_environment.rascal.ast.Assignment.IfDefined(
+				node);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Assignment.IfDefined) table
 				.get(x);
 	}
 

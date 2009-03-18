@@ -77,13 +77,15 @@ public interface IASTVisitor<T> {
 
 	public T visitAssignableAnnotation(Assignable.Annotation x);
 
-	public T visitAssignableIfDefined(Assignable.IfDefined x);
+	public T visitAssignableIfDefinedOrDefault(Assignable.IfDefinedOrDefault x);
 
 	public T visitAssignableFieldAccess(Assignable.FieldAccess x);
 
 	public T visitAssignableSubscript(Assignable.Subscript x);
 
 	public T visitAssignableVariable(Assignable.Variable x);
+
+	public T visitAssignmentIfDefined(Assignment.IfDefined x);
 
 	public T visitAssignmentIntersection(Assignment.Intersection x);
 
