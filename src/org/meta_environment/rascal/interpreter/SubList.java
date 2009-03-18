@@ -176,6 +176,10 @@ public class SubList implements IList {
 
 	}
 
+	public IList sublist(int start, int end) {
+		return new SubList(base, this.start + start, this.start + end);
+	}
+	
 	public IList reverse() {
 		IListWriter w = ValueFactoryFactory.getValueFactory().listWriter(getElementType());
 		for(int i = end - 1; i >= start; i--){
