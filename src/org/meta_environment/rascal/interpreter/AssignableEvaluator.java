@@ -16,7 +16,7 @@ import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.Assignable.Annotation;
 import org.meta_environment.rascal.ast.Assignable.Constructor;
 import org.meta_environment.rascal.ast.Assignable.FieldAccess;
-import org.meta_environment.rascal.ast.Assignable.IfDefined;
+import org.meta_environment.rascal.ast.Assignable.IfDefinedOrDefault;
 import org.meta_environment.rascal.ast.Assignable.Subscript;
 import org.meta_environment.rascal.ast.Assignable.Tuple;
 import org.meta_environment.rascal.ast.Assignable.Variable;
@@ -37,7 +37,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
  * TODO: does not implement type checking completely
  */
 /*package*/ class AssignableEvaluator extends NullASTVisitor<Result> {
-	enum AssignmentOperator {Default, Addition, Subtraction, Product, Division, Intersection};
+	enum AssignmentOperator {Default, Addition, Subtraction, Product, Division, Intersection, IsDefined};
 	private AssignmentOperator operator;
     private Result value;
     private final Environment env;
@@ -57,6 +57,8 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 			this.operator = AssignmentOperator.Division;
 		else if(operator.isIntersection())
 			this.operator = AssignmentOperator.Intersection;
+		else if(operator.isIfDefined())
+			this.operator = AssignmentOperator.IsDefined;
 		else
 				throw new ImplementationError("Unknown assignment operator");
 		this.value = value;
@@ -166,8 +168,8 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 	}
 	
 	@Override
-	public Result visitAssignableIfDefined(IfDefined x) {
-		Result cond = x.getCondition().accept(eval);
+	public Result visitAssignableIfDefinedOrDefault(IfDefinedOrDefault x) {
+		Result cond = x.getDefaultExpression().accept(eval);
 		
 		if (((IBool) cond.getValue()).getValue()) {
 			return x.getReceiver().accept(this);

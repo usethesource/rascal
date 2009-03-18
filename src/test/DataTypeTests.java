@@ -959,8 +959,11 @@ public class DataTypeTests extends TestFramework {
 	@Test
 	public void undefined()  {
 		
-		assertTrue(runTest("1 ?= 13 == 1;"));
-		assertTrue(runTest("x ?= 13 == 13;"));
-		assertTrue(runTest("{ x = 3; x ?= 13 == 3; }"));
+		assertTrue(runTest("{T = (1:10); T[1] ? 13 == 10;}"));
+		assertTrue(runTest("{T = (1:10); T[2] ? 13 == 13;}"));
+		
+		assertTrue(runTest("{T = (1:10); T[1] ? == true;}"));
+		assertTrue(runTest("{T = (1:10); T[2] ? == false;}"));
+	
 	}
 }

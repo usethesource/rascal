@@ -170,4 +170,28 @@ public abstract class Assignment extends AbstractAST {
 			return true;
 		}
 	}
+
+	public boolean isIfDefined() {
+		return false;
+	}
+
+	static public class IfDefined extends Assignment {
+		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		private IfDefined() {
+		}
+
+		/* package */IfDefined(INode node) {
+			this.node = node;
+		}
+
+		@Override
+		public <T> T accept(IASTVisitor<T> visitor) {
+			return visitor.visitAssignmentIfDefined(this);
+		}
+
+		@Override
+		public boolean isIfDefined() {
+			return true;
+		}
+	}
 }

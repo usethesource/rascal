@@ -3,7 +3,6 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.INode;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 
-
 public class JavaFunctionBody extends FunctionBody {
 	private final String string;
 

@@ -256,38 +256,38 @@ public abstract class Assignable extends AbstractAST {
 		}
 	}
 
-	public org.meta_environment.rascal.ast.Expression getCondition() {
+	public org.meta_environment.rascal.ast.Expression getDefaultExpression() {
 		throw new UnsupportedOperationException();
 	}
 
-	public boolean hasCondition() {
+	public boolean hasDefaultExpression() {
 		return false;
 	}
 
-	public boolean isIfDefined() {
+	public boolean isIfDefinedOrDefault() {
 		return false;
 	}
 
-	static public class IfDefined extends Assignable {
+	static public class IfDefinedOrDefault extends Assignable {
 		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
-		private IfDefined() {
+		private IfDefinedOrDefault() {
 		}
 
-		/* package */IfDefined(INode node,
+		/* package */IfDefinedOrDefault(INode node,
 				org.meta_environment.rascal.ast.Assignable receiver,
-				org.meta_environment.rascal.ast.Expression condition) {
+				org.meta_environment.rascal.ast.Expression defaultExpression) {
 			this.node = node;
 			this.receiver = receiver;
-			this.condition = condition;
+			this.defaultExpression = defaultExpression;
 		}
 
 		@Override
 		public <T> T accept(IASTVisitor<T> visitor) {
-			return visitor.visitAssignableIfDefined(this);
+			return visitor.visitAssignableIfDefinedOrDefault(this);
 		}
 
 		@Override
-		public boolean isIfDefined() {
+		public boolean isIfDefinedOrDefault() {
 			return true;
 		}
 
@@ -297,7 +297,7 @@ public abstract class Assignable extends AbstractAST {
 		}
 
 		@Override
-		public boolean hasCondition() {
+		public boolean hasDefaultExpression() {
 			return true;
 		}
 
@@ -312,28 +312,29 @@ public abstract class Assignable extends AbstractAST {
 			this.receiver = x;
 		}
 
-		public IfDefined setReceiver(
+		public IfDefinedOrDefault setReceiver(
 				org.meta_environment.rascal.ast.Assignable x) {
-			IfDefined z = new IfDefined();
+			IfDefinedOrDefault z = new IfDefinedOrDefault();
 			z.$setReceiver(x);
 			return z;
 		}
 
-		private org.meta_environment.rascal.ast.Expression condition;
+		private org.meta_environment.rascal.ast.Expression defaultExpression;
 
 		@Override
-		public org.meta_environment.rascal.ast.Expression getCondition() {
-			return condition;
+		public org.meta_environment.rascal.ast.Expression getDefaultExpression() {
+			return defaultExpression;
 		}
 
-		private void $setCondition(org.meta_environment.rascal.ast.Expression x) {
-			this.condition = x;
-		}
-
-		public IfDefined setCondition(
+		private void $setDefaultExpression(
 				org.meta_environment.rascal.ast.Expression x) {
-			IfDefined z = new IfDefined();
-			z.$setCondition(x);
+			this.defaultExpression = x;
+		}
+
+		public IfDefinedOrDefault setDefaultExpression(
+				org.meta_environment.rascal.ast.Expression x) {
+			IfDefinedOrDefault z = new IfDefinedOrDefault();
+			z.$setDefaultExpression(x);
 			return z;
 		}
 	}

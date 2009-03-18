@@ -153,7 +153,7 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
 		return null;
 	}
 
-	public T visitAssignableIfDefined(Assignable.IfDefined x) {
+	public T visitAssignableIfDefinedOrDefault(Assignable.IfDefinedOrDefault x) {
 		return null;
 	}
 
@@ -166,6 +166,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
 	}
 
 	public T visitAssignableVariable(Assignable.Variable x) {
+		return null;
+	}
+
+	public T visitAssignmentIfDefined(Assignment.IfDefined x) {
 		return null;
 	}
 
