@@ -27,6 +27,11 @@ public class GlobalEnvironment {
 	/** Normalizing rules are a global feature */
 	private final Map<Type, List<Rule>> ruleEnvironment = new HashMap<Type, List<Rule>>();
 	
+	public void clear() {
+		moduleEnvironment.clear();
+		ruleEnvironment.clear();
+	}
+	
 	/**
 	 * Allocate a new module on the heap
 	 * @param name
@@ -97,6 +102,9 @@ public class GlobalEnvironment {
 		}
 		return res.toString();
 	}
+
+
+	
 
 	
 }

@@ -457,19 +457,40 @@ public class Evaluator extends NullASTVisitor<Result> {
 			name = name.substring(1);
 		}
 		if (!heap.existsModule(name)) {
-			Module module = loadModule(x, name);
-			if (!getModuleName(module).equals(name)) {
-				throw new ModuleNameMismatchError(getModuleName(module), name, x.getModule());
-			}
-			module.accept(this);
+			evalModule(x, name);
 		}
+		else {
+			if (scopeStack.size() == 1 && callStack.size() == 1) {
+				reloadAll(x);
+			}
+		}
+		
 		scopeStack.peek().addImport(name, heap.getModule(name, x));
 		return result();
 	}
 
-
-	private Module loadModule(org.meta_environment.rascal.ast.Import.Default x,
+	private void evalModule(AbstractAST x,
 			String name) {
+		Module module = loadModule(name);
+		if (!getModuleName(module).equals(name)) {
+			throw new ModuleNameMismatchError(getModuleName(module), name, x);
+		}
+		module.accept(this);
+	}
+
+
+	private void reloadAll(AbstractAST cause) {
+		heap.clear();
+		
+		java.util.Set<String> topModules = scopeStack.getFirst().getImports();
+		for (String mod : topModules) {
+			evalModule(cause, mod);
+			scopeStack.peek().addImport(mod, heap.getModule(mod, cause));
+		}
+	}
+	
+
+	private Module loadModule(String name) {
 		for (IModuleLoader loader : loaders) {
 			try {
 				return loader.loadModule(name);
