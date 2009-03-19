@@ -86,8 +86,9 @@ public class RascalShell {
 					} while (!completeStatement(input));
 
 					String output = handleInput(commander, input);
-					if(output.length() > MAX_CONSOLE_LINE)
+					if(output.length() > MAX_CONSOLE_LINE) {
 						output = output.substring(0, MAX_CONSOLE_LINE) + " ...";
+					}
 					console.printString(output);
 					console.printNewline();
 				}
