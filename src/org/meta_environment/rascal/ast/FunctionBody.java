@@ -16,7 +16,7 @@ public abstract class FunctionBody extends AbstractAST {
 	}
 
 	static public class Default extends FunctionBody {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "{" statements:Statement "}" -> FunctionBody {cons("Default")} */
 		private Default() {
 		}
 

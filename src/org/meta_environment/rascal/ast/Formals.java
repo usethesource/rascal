@@ -16,7 +16,7 @@ public abstract class Formals extends AbstractAST {
 	}
 
 	static public class Default extends Formals {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* formals:{Formal ","} -> Formals {cons("Default")} */
 		private Default() {
 		}
 

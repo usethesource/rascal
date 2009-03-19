@@ -16,7 +16,7 @@ public abstract class FunctionModifiers extends AbstractAST {
 	}
 
 	static public class List extends FunctionModifiers {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* modifiers:FunctionModifier -> FunctionModifiers {cons("List")} */
 		private List() {
 		}
 

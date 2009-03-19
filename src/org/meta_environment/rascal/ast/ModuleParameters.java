@@ -16,7 +16,10 @@ public abstract class ModuleParameters extends AbstractAST {
 	}
 
 	static public class Default extends ModuleParameters {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * "[" parameters:{TypeVar ","}+ "]" -> ModuleParameters
+		 * {cons("Default")}
+		 */
 		private Default() {
 		}
 

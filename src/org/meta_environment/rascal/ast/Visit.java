@@ -24,7 +24,10 @@ public abstract class Visit extends AbstractAST {
 	}
 
 	static public class DefaultStrategy extends Visit {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * "visit" "(" subject:Expression ")" "{" cases:Case+ "}" -> Visit
+		 * {cons("DefaultStrategy")}
+		 */
 		private DefaultStrategy() {
 		}
 
@@ -128,7 +131,10 @@ public abstract class Visit extends AbstractAST {
 	}
 
 	static public class GivenStrategy extends Visit {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * strategy:Strategy "visit" "(" subject:Expression ")" "{" cases:Case+
+		 * "}" -> Visit {cons("GivenStrategy")}
+		 */
 		private GivenStrategy() {
 		}
 

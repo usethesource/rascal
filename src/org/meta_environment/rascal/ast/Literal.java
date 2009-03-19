@@ -16,7 +16,7 @@ public abstract class Literal extends AbstractAST {
 	}
 
 	static public class RegExp extends Literal {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* regExpLiteral:RegExpLiteral -> Literal {cons("RegExp")} */
 		private RegExp() {
 		}
 
@@ -95,7 +95,7 @@ public abstract class Literal extends AbstractAST {
 	}
 
 	static public class Boolean extends Literal {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* booleanLiteral:BooleanLiteral -> Literal {cons("Boolean")} */
 		private Boolean() {
 		}
 
@@ -156,7 +156,7 @@ public abstract class Literal extends AbstractAST {
 	}
 
 	static public class Integer extends Literal {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* integerLiteral:IntegerLiteral -> Literal {cons("Integer")} */
 		private Integer() {
 		}
 
@@ -214,7 +214,7 @@ public abstract class Literal extends AbstractAST {
 	}
 
 	static public class Real extends Literal {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* realLiteral:RealLiteral -> Literal {cons("Real")} */
 		private Real() {
 		}
 
@@ -271,7 +271,7 @@ public abstract class Literal extends AbstractAST {
 	}
 
 	static public class String extends Literal {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* stringLiteral:StringLiteral -> Literal {cons("String")} */
 		private String() {
 		}
 

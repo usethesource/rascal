@@ -16,7 +16,7 @@ public abstract class CharRanges extends AbstractAST {
 	}
 
 	static public class Range extends CharRanges {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* range:CharRange -> CharRanges {cons("Range")} */
 		private Range() {
 		}
 
@@ -101,7 +101,10 @@ public abstract class CharRanges extends AbstractAST {
 	}
 
 	static public class Concatenate extends CharRanges {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * lhs:CharRanges rhs:CharRanges -> CharRanges {cons("Concatenate"),
+		 * right, memo}
+		 */
 		private Concatenate() {
 		}
 
@@ -184,7 +187,7 @@ public abstract class CharRanges extends AbstractAST {
 	}
 
 	static public class Bracket extends CharRanges {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "(" ranges:CharRanges ")" -> CharRanges {bracket, cons("Bracket")} */
 		private Bracket() {
 		}
 

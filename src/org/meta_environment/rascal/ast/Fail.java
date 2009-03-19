@@ -16,7 +16,7 @@ public abstract class Fail extends AbstractAST {
 	}
 
 	static public class WithLabel extends Fail {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "fail" label:Name ";" -> Fail {cons("WithLabel")} */
 		private WithLabel() {
 		}
 
@@ -85,7 +85,7 @@ public abstract class Fail extends AbstractAST {
 	}
 
 	static public class NoLabel extends Fail {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "fail" ";" -> Fail {cons("NoLabel")} */
 		private NoLabel() {
 		}
 

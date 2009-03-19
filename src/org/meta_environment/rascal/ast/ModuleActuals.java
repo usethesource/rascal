@@ -16,7 +16,7 @@ public abstract class ModuleActuals extends AbstractAST {
 	}
 
 	static public class Default extends ModuleActuals {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "[" types:{Type ","}+ "]" -> ModuleActuals {cons("Default")} */
 		private Default() {
 		}
 

@@ -16,7 +16,7 @@ public abstract class Renamings extends AbstractAST {
 	}
 
 	static public class Default extends Renamings {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "renaming" renamings:{Renaming ","}+ -> Renamings {cons("Default")} */
 		private Default() {
 		}
 

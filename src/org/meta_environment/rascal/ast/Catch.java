@@ -16,7 +16,7 @@ public abstract class Catch extends AbstractAST {
 	}
 
 	static public class Default extends Catch {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "catch" ":" body:Statement -> Catch {cons("Default")} */
 		private Default() {
 		}
 
@@ -93,7 +93,10 @@ public abstract class Catch extends AbstractAST {
 	}
 
 	static public class Binding extends Catch {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * "catch" pattern:Expression ":" body:Statement -> Catch
+		 * {cons("Binding")}
+		 */
 		private Binding() {
 		}
 

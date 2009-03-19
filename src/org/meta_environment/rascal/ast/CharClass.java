@@ -16,7 +16,10 @@ public abstract class CharClass extends AbstractAST {
 	}
 
 	static public class SimpleCharclass extends CharClass {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * "[" optionalCharRanges:OptCharRanges "]" -> CharClass
+		 * {cons("SimpleCharclass")}
+		 */
 		private SimpleCharclass() {
 		}
 
@@ -95,7 +98,10 @@ public abstract class CharClass extends AbstractAST {
 	}
 
 	static public class Bracket extends CharClass {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * "(" charClass:CharClass ")" -> CharClass {bracket, cons("Bracket"),
+		 * avoid}
+		 */
 		private Bracket() {
 		}
 
@@ -146,7 +152,7 @@ public abstract class CharClass extends AbstractAST {
 	}
 
 	static public class Complement extends CharClass {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "~" charClass:CharClass -> CharClass {cons("Complement")} */
 		private Complement() {
 		}
 
@@ -211,7 +217,10 @@ public abstract class CharClass extends AbstractAST {
 	}
 
 	static public class Difference extends CharClass {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * lhs:CharClass "/" rhs:CharClass -> CharClass {cons("Difference"),
+		 * left, memo}
+		 */
 		private Difference() {
 		}
 
@@ -283,7 +292,10 @@ public abstract class CharClass extends AbstractAST {
 	}
 
 	static public class Intersection extends CharClass {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * lhs:CharClass "/\\" rhs:CharClass -> CharClass {cons("Intersection"),
+		 * left, memo}
+		 */
 		private Intersection() {
 		}
 
@@ -355,7 +367,7 @@ public abstract class CharClass extends AbstractAST {
 	}
 
 	static public class Union extends CharClass {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* lhs:CharClass "\\/" rhs:CharClass -> CharClass {cons("Union"), left} */
 		private Union() {
 		}
 

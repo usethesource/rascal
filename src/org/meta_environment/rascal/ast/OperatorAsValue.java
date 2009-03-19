@@ -8,7 +8,7 @@ public abstract class OperatorAsValue extends AbstractAST {
 	}
 
 	static public class Addition extends OperatorAsValue {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "#+" -> OperatorAsValue {cons("Addition")} */
 		private Addition() {
 		}
 
@@ -53,7 +53,7 @@ public abstract class OperatorAsValue extends AbstractAST {
 	}
 
 	static public class Subtraction extends OperatorAsValue {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "#-" -> OperatorAsValue {cons("Subtraction")} */
 		private Subtraction() {
 		}
 
@@ -80,7 +80,7 @@ public abstract class OperatorAsValue extends AbstractAST {
 	}
 
 	static public class Product extends OperatorAsValue {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "#*" -> OperatorAsValue {cons("Product")} */
 		private Product() {
 		}
 
@@ -104,7 +104,7 @@ public abstract class OperatorAsValue extends AbstractAST {
 	}
 
 	static public class Division extends OperatorAsValue {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "#/" -> OperatorAsValue {cons("Division")} */
 		private Division() {
 		}
 
@@ -128,7 +128,7 @@ public abstract class OperatorAsValue extends AbstractAST {
 	}
 
 	static public class Intersection extends OperatorAsValue {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "#&" -> OperatorAsValue {cons("Intersection")} */
 		private Intersection() {
 		}
 
@@ -152,7 +152,7 @@ public abstract class OperatorAsValue extends AbstractAST {
 	}
 
 	static public class Equals extends OperatorAsValue {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "#==" -> OperatorAsValue {cons("Equals")} */
 		private Equals() {
 		}
 
@@ -176,7 +176,7 @@ public abstract class OperatorAsValue extends AbstractAST {
 	}
 
 	static public class NotEquals extends OperatorAsValue {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "#!=" -> OperatorAsValue {cons("NotEquals")} */
 		private NotEquals() {
 		}
 
@@ -200,7 +200,7 @@ public abstract class OperatorAsValue extends AbstractAST {
 	}
 
 	static public class LessThan extends OperatorAsValue {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "#<" -> OperatorAsValue {cons("LessThan")} */
 		private LessThan() {
 		}
 
@@ -224,7 +224,7 @@ public abstract class OperatorAsValue extends AbstractAST {
 	}
 
 	static public class LessThanOrEq extends OperatorAsValue {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "#<=" -> OperatorAsValue {cons("LessThanOrEq")} */
 		private LessThanOrEq() {
 		}
 
@@ -248,7 +248,7 @@ public abstract class OperatorAsValue extends AbstractAST {
 	}
 
 	static public class GreaterThan extends OperatorAsValue {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "#>" -> OperatorAsValue {cons("GreaterThan")} */
 		private GreaterThan() {
 		}
 
@@ -272,7 +272,7 @@ public abstract class OperatorAsValue extends AbstractAST {
 	}
 
 	static public class GreaterThanOrEq extends OperatorAsValue {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "#>=" -> OperatorAsValue {cons("GreaterThanOrEq")} */
 		private GreaterThanOrEq() {
 		}
 
@@ -296,7 +296,7 @@ public abstract class OperatorAsValue extends AbstractAST {
 	}
 
 	static public class And extends OperatorAsValue {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "#&&" -> OperatorAsValue {cons("And")} */
 		private And() {
 		}
 
@@ -320,7 +320,7 @@ public abstract class OperatorAsValue extends AbstractAST {
 	}
 
 	static public class Or extends OperatorAsValue {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "#||" -> OperatorAsValue {cons("Or")} */
 		private Or() {
 		}
 
@@ -344,7 +344,7 @@ public abstract class OperatorAsValue extends AbstractAST {
 	}
 
 	static public class Not extends OperatorAsValue {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "#!" -> OperatorAsValue {cons("Not")} */
 		private Not() {
 		}
 
@@ -368,7 +368,7 @@ public abstract class OperatorAsValue extends AbstractAST {
 	}
 
 	static public class In extends OperatorAsValue {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "#in" -> OperatorAsValue {cons("In")} */
 		private In() {
 		}
 
@@ -392,7 +392,7 @@ public abstract class OperatorAsValue extends AbstractAST {
 	}
 
 	static public class NotIn extends OperatorAsValue {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "#notin" -> OperatorAsValue {cons("NotIn")} */
 		private NotIn() {
 		}
 

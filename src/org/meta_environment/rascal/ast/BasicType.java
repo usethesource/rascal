@@ -8,7 +8,7 @@ public abstract class BasicType extends AbstractAST {
 	}
 
 	static public class Bool extends BasicType {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "bool" -> BasicType {cons("Bool")} */
 		private Bool() {
 		}
 
@@ -53,7 +53,7 @@ public abstract class BasicType extends AbstractAST {
 	}
 
 	static public class Int extends BasicType {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "int" -> BasicType {cons("Int")} */
 		private Int() {
 		}
 
@@ -80,7 +80,7 @@ public abstract class BasicType extends AbstractAST {
 	}
 
 	static public class Real extends BasicType {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "real" -> BasicType {cons("Real")} */
 		private Real() {
 		}
 
@@ -104,7 +104,7 @@ public abstract class BasicType extends AbstractAST {
 	}
 
 	static public class String extends BasicType {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "str" -> BasicType {cons("String")} */
 		private String() {
 		}
 
@@ -128,7 +128,7 @@ public abstract class BasicType extends AbstractAST {
 	}
 
 	static public class Value extends BasicType {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "value" -> BasicType {cons("Value")} */
 		private Value() {
 		}
 
@@ -152,7 +152,7 @@ public abstract class BasicType extends AbstractAST {
 	}
 
 	static public class Node extends BasicType {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "node" -> BasicType {cons("Node")} */
 		private Node() {
 		}
 
@@ -176,7 +176,7 @@ public abstract class BasicType extends AbstractAST {
 	}
 
 	static public class Void extends BasicType {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "void" -> BasicType {cons("Void")} */
 		private Void() {
 		}
 
@@ -200,7 +200,7 @@ public abstract class BasicType extends AbstractAST {
 	}
 
 	static public class Loc extends BasicType {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "loc" -> BasicType {cons("Loc")} */
 		private Loc() {
 		}
 
@@ -224,7 +224,7 @@ public abstract class BasicType extends AbstractAST {
 	}
 
 	static public class Area extends BasicType {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "area" -> BasicType {cons("Area")} */
 		private Area() {
 		}
 

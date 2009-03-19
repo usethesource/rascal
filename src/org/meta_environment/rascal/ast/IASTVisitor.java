@@ -123,8 +123,6 @@ public interface IASTVisitor<T> {
 
 	public T visitExpressionLessThan(Expression.LessThan x);
 
-	public T visitExpressionIfDefinedOtherwise(Expression.IfDefinedOtherwise x);
-
 	public T visitExpressionIn(Expression.In x);
 
 	public T visitExpressionNotIn(Expression.NotIn x);
@@ -198,6 +196,8 @@ public interface IASTVisitor<T> {
 	public T visitExpressionNoMatch(Expression.NoMatch x);
 
 	public T visitExpressionMatch(Expression.Match x);
+
+	public T visitExpressionIfDefinedOtherwise(Expression.IfDefinedOtherwise x);
 
 	public T visitExpressionIfThenElse(Expression.IfThenElse x);
 

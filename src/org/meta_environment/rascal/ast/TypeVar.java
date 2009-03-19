@@ -16,7 +16,7 @@ public abstract class TypeVar extends AbstractAST {
 	}
 
 	static public class Free extends TypeVar {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "&" name:Name -> TypeVar {cons("Free")} */
 		private Free() {
 		}
 
@@ -92,7 +92,7 @@ public abstract class TypeVar extends AbstractAST {
 	}
 
 	static public class Bounded extends TypeVar {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "&" name:Name "<:" bound:Type -> TypeVar {cons("Bounded")} */
 		private Bounded() {
 		}
 

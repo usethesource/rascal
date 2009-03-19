@@ -24,7 +24,7 @@ public abstract class DataTypeSelector extends AbstractAST {
 	}
 
 	static public class Selector extends DataTypeSelector {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* sort:Name "." production:Name -> DataTypeSelector {cons("Selector")} */
 		private Selector() {
 		}
 

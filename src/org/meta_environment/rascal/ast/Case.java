@@ -16,7 +16,7 @@ public abstract class Case extends AbstractAST {
 	}
 
 	static public class Rule extends Case {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "case" rule:Rule -> Case {cons("Rule")} */
 		private Rule() {
 		}
 
@@ -92,7 +92,7 @@ public abstract class Case extends AbstractAST {
 	}
 
 	static public class Default extends Case {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "default" ":" statement:Statement -> Case {cons("Default")} */
 		private Default() {
 		}
 

@@ -24,7 +24,7 @@ public abstract class Renaming extends AbstractAST {
 	}
 
 	static public class Default extends Renaming {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* from:Name "=>" to:Name -> Renaming {cons("Default")} */
 		private Default() {
 		}
 

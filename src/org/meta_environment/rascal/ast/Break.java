@@ -16,7 +16,7 @@ public abstract class Break extends AbstractAST {
 	}
 
 	static public class WithLabel extends Break {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "break" label:Name ";" -> Break {cons("WithLabel")} */
 		private WithLabel() {
 		}
 
@@ -85,7 +85,7 @@ public abstract class Break extends AbstractAST {
 	}
 
 	static public class NoLabel extends Break {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "break" ";" -> Break {cons("NoLabel")} */
 		private NoLabel() {
 		}
 

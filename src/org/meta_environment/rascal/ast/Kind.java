@@ -8,7 +8,7 @@ public abstract class Kind extends AbstractAST {
 	}
 
 	static public class Module extends Kind {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "module" -> Kind {cons("Module")} */
 		private Module() {
 		}
 
@@ -53,7 +53,7 @@ public abstract class Kind extends AbstractAST {
 	}
 
 	static public class Function extends Kind {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "function" -> Kind {cons("Function")} */
 		private Function() {
 		}
 
@@ -80,7 +80,7 @@ public abstract class Kind extends AbstractAST {
 	}
 
 	static public class Rule extends Kind {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "rule" -> Kind {cons("Rule")} */
 		private Rule() {
 		}
 
@@ -104,7 +104,7 @@ public abstract class Kind extends AbstractAST {
 	}
 
 	static public class Variable extends Kind {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "variable" -> Kind {cons("Variable")} */
 		private Variable() {
 		}
 
@@ -128,7 +128,7 @@ public abstract class Kind extends AbstractAST {
 	}
 
 	static public class Data extends Kind {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "data" -> Kind {cons("Data")} */
 		private Data() {
 		}
 
@@ -152,7 +152,7 @@ public abstract class Kind extends AbstractAST {
 	}
 
 	static public class View extends Kind {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "view" -> Kind {cons("View")} */
 		private View() {
 		}
 
@@ -176,7 +176,7 @@ public abstract class Kind extends AbstractAST {
 	}
 
 	static public class Alias extends Kind {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "alias" -> Kind {cons("Alias")} */
 		private Alias() {
 		}
 
@@ -200,7 +200,7 @@ public abstract class Kind extends AbstractAST {
 	}
 
 	static public class Anno extends Kind {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "anno" -> Kind {cons("Anno")} */
 		private Anno() {
 		}
 
@@ -224,7 +224,7 @@ public abstract class Kind extends AbstractAST {
 	}
 
 	static public class Tag extends Kind {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "tag" -> Kind {cons("Tag")} */
 		private Tag() {
 		}
 
@@ -248,7 +248,7 @@ public abstract class Kind extends AbstractAST {
 	}
 
 	static public class All extends Kind {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "all" -> Kind {cons("All")} */
 		private All() {
 		}
 

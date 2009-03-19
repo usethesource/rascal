@@ -16,7 +16,10 @@ public abstract class IntegerLiteral extends AbstractAST {
 	}
 
 	static public class DecimalIntegerLiteral extends IntegerLiteral {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * decimal:DecimalIntegerLiteral -> IntegerLiteral {prefer,
+		 * cons("DecimalIntegerLiteral")}
+		 */
 		private DecimalIntegerLiteral() {
 		}
 
@@ -95,7 +98,10 @@ public abstract class IntegerLiteral extends AbstractAST {
 	}
 
 	static public class HexIntegerLiteral extends IntegerLiteral {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * hex:HexIntegerLiteral -> IntegerLiteral {prefer,
+		 * cons("HexIntegerLiteral")}
+		 */
 		private HexIntegerLiteral() {
 		}
 
@@ -155,7 +161,10 @@ public abstract class IntegerLiteral extends AbstractAST {
 	}
 
 	static public class OctalIntegerLiteral extends IntegerLiteral {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * octal:OctalIntegerLiteral -> IntegerLiteral {prefer,
+		 * cons("OctalIntegerLiteral")}
+		 */
 		private OctalIntegerLiteral() {
 		}
 

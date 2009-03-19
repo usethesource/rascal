@@ -24,7 +24,7 @@ public abstract class Module extends AbstractAST {
 	}
 
 	static public class Default extends Module {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* header:Header body:Body -> Module {cons("Default")} */
 		private Default() {
 		}
 

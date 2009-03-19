@@ -16,7 +16,7 @@ public abstract class QualifiedName extends AbstractAST {
 	}
 
 	static public class Default extends QualifiedName {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* names:{Name "::"}+ -> QualifiedName {cons("Default")} */
 		private Default() {
 		}
 

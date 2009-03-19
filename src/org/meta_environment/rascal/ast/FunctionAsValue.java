@@ -16,7 +16,7 @@ public abstract class FunctionAsValue extends AbstractAST {
 	}
 
 	static public class Default extends FunctionAsValue {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "#" name:Name -> FunctionAsValue {cons("Default")} */
 		private Default() {
 		}
 

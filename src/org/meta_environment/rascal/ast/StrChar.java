@@ -8,7 +8,7 @@ public abstract class StrChar extends AbstractAST {
 	}
 
 	static public class newline extends StrChar {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "\\n" -> StrChar {cons("newline")} */
 		private newline() {
 		}
 

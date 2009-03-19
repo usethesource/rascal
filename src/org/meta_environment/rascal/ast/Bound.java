@@ -8,7 +8,7 @@ public abstract class Bound extends AbstractAST {
 	}
 
 	static public class Empty extends Bound {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* -> Bound {cons("Empty")} */
 		private Empty() {
 		}
 
@@ -61,7 +61,7 @@ public abstract class Bound extends AbstractAST {
 	}
 
 	static public class Default extends Bound {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "(" expression:Expression ")" -> Bound {cons("Default")} */
 		private Default() {
 		}
 

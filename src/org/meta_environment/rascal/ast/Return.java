@@ -16,7 +16,7 @@ public abstract class Return extends AbstractAST {
 	}
 
 	static public class WithExpression extends Return {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "return" expression:Expression ";" -> Return {cons("WithExpression")} */
 		private WithExpression() {
 		}
 
@@ -86,7 +86,7 @@ public abstract class Return extends AbstractAST {
 	}
 
 	static public class NoExpression extends Return {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "return" ";" -> Return {cons("NoExpression")} */
 		private NoExpression() {
 		}
 

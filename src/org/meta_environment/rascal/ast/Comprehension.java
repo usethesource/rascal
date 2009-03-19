@@ -24,7 +24,10 @@ public abstract class Comprehension extends AbstractAST {
 	}
 
 	static public class Set extends Comprehension {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * "{" result:Expression "|" generators:{Expression ","}+ "}" ->
+		 * Comprehension {cons("Set")}
+		 */
 		private Set() {
 		}
 
@@ -120,7 +123,10 @@ public abstract class Comprehension extends AbstractAST {
 	}
 
 	static public class List extends Comprehension {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * "[" result:Expression "|" generators:{Expression ","}+ "]" ->
+		 * Comprehension {cons("List")}
+		 */
 		private List() {
 		}
 
@@ -214,7 +220,10 @@ public abstract class Comprehension extends AbstractAST {
 	}
 
 	static public class Map extends Comprehension {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * "(" from:Expression ":" to:Expression "|" generators:{Expression
+		 * ","}+ ")" -> Comprehension {cons("Map")}
+		 */
 		private Map() {
 		}
 

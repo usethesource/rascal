@@ -16,7 +16,7 @@ public abstract class LocalVariableDeclaration extends AbstractAST {
 	}
 
 	static public class Default extends LocalVariableDeclaration {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* declarator:Declarator -> LocalVariableDeclaration {cons("Default")} */
 		private Default() {
 		}
 
@@ -86,7 +86,10 @@ public abstract class LocalVariableDeclaration extends AbstractAST {
 	}
 
 	static public class Dynamic extends LocalVariableDeclaration {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * "dynamic" declarator:Declarator -> LocalVariableDeclaration
+		 * {cons("Dynamic")}
+		 */
 		private Dynamic() {
 		}
 

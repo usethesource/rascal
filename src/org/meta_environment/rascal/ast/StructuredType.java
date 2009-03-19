@@ -16,7 +16,7 @@ public abstract class StructuredType extends AbstractAST {
 	}
 
 	static public class List extends StructuredType {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "list" "[" typeArg:TypeArg "]" -> StructuredType {cons("List")} */
 		private List() {
 		}
 
@@ -85,7 +85,7 @@ public abstract class StructuredType extends AbstractAST {
 	}
 
 	static public class Set extends StructuredType {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "set" "[" typeArg:TypeArg "]" -> StructuredType {cons("Set")} */
 		private Set() {
 		}
 
@@ -136,7 +136,7 @@ public abstract class StructuredType extends AbstractAST {
 	}
 
 	static public class Bag extends StructuredType {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "bag" "[" typeArg:TypeArg "]" -> StructuredType {cons("Bag")} */
 		private Bag() {
 		}
 
@@ -200,7 +200,10 @@ public abstract class StructuredType extends AbstractAST {
 	}
 
 	static public class Map extends StructuredType {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * "map" "[" first:TypeArg "," second:TypeArg "]" -> StructuredType
+		 * {cons("Map")}
+		 */
 		private Map() {
 		}
 
@@ -280,7 +283,10 @@ public abstract class StructuredType extends AbstractAST {
 	}
 
 	static public class Relation extends StructuredType {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * "rel" "[" arguments:{TypeArg ","}+ "]" -> StructuredType
+		 * {cons("Relation")}
+		 */
 		private Relation() {
 		}
 
@@ -331,7 +337,10 @@ public abstract class StructuredType extends AbstractAST {
 	}
 
 	static public class Tuple extends StructuredType {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * "tuple" "[" arguments:{TypeArg ","}+ "]" -> StructuredType
+		 * {cons("Tuple")}
+		 */
 		private Tuple() {
 		}
 
@@ -382,7 +391,7 @@ public abstract class StructuredType extends AbstractAST {
 	}
 
 	static public class Lex extends StructuredType {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "lex" "[" typeArg:TypeArg "]" -> StructuredType {cons("Lex")} */
 		private Lex() {
 		}
 

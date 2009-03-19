@@ -16,7 +16,7 @@ public abstract class Body extends AbstractAST {
 	}
 
 	static public class Toplevels extends Body {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* toplevels:Toplevel -> Body {cons("Toplevels")} */
 		private Toplevels() {
 		}
 

@@ -24,7 +24,10 @@ public abstract class Rule extends AbstractAST {
 	}
 
 	static public class Replacing extends Rule {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * pattern:Expression "=>" replacement:Replacement -> Rule
+		 * {cons("Replacing")}
+		 */
 		private Replacing() {
 		}
 
@@ -127,7 +130,10 @@ public abstract class Rule extends AbstractAST {
 	}
 
 	static public class Arbitrary extends Rule {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * pattern:Expression ":" statement:Statement -> Rule
+		 * {cons("Arbitrary")}
+		 */
 		private Arbitrary() {
 		}
 
@@ -219,7 +225,7 @@ public abstract class Rule extends AbstractAST {
 	}
 
 	static public class Guarded extends Rule {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "[" type:Type "]" rule:Rule -> Rule {non-assoc, cons("Guarded")} */
 		private Guarded() {
 		}
 

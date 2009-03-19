@@ -24,7 +24,7 @@ public abstract class Formal extends AbstractAST {
 	}
 
 	static public class TypeName extends Formal {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* type:Type name:Name -> Formal {cons("TypeName")} */
 		private TypeName() {
 		}
 

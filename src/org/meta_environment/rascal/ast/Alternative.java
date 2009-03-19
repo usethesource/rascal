@@ -24,7 +24,7 @@ public abstract class Alternative extends AbstractAST {
 	}
 
 	static public class NamedType extends Alternative {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* name:Name type:Type -> Alternative {cons("NamedType")} */
 		private NamedType() {
 		}
 

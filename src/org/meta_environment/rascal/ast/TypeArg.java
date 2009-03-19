@@ -16,7 +16,7 @@ public abstract class TypeArg extends AbstractAST {
 	}
 
 	static public class Default extends TypeArg {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* type:Type -> TypeArg {cons("Default")} */
 		private Default() {
 		}
 
@@ -93,7 +93,7 @@ public abstract class TypeArg extends AbstractAST {
 	}
 
 	static public class Named extends TypeArg {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* type:Type name:Name -> TypeArg {cons("Named")} */
 		private Named() {
 		}
 

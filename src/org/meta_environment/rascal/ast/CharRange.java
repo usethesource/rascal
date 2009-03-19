@@ -16,7 +16,7 @@ public abstract class CharRange extends AbstractAST {
 	}
 
 	static public class Character extends CharRange {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* character:Character -> CharRange {cons("Character")} */
 		private Character() {
 		}
 
@@ -102,7 +102,7 @@ public abstract class CharRange extends AbstractAST {
 	}
 
 	static public class Range extends CharRange {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* start:Character "-" end:Character -> CharRange {cons("Range")} */
 		private Range() {
 		}
 

@@ -40,7 +40,10 @@ public abstract class Declaration extends AbstractAST {
 	}
 
 	static public class View extends Declaration {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * "view" view:Name "<:" superType:Name tags:Tags "=" alts:{Alternative
+		 * "|"}+ ";" -> Declaration {cons("View")}
+		 */
 		private View() {
 		}
 
@@ -199,7 +202,10 @@ public abstract class Declaration extends AbstractAST {
 	}
 
 	static public class Alias extends Declaration {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * "alias" user:UserType "=" base:Type tags:Tags ";" -> Declaration
+		 * {cons("Alias")}
+		 */
 		private Alias() {
 		}
 
@@ -306,7 +312,10 @@ public abstract class Declaration extends AbstractAST {
 	}
 
 	static public class Data extends Declaration {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * "data" user:UserType tags:Tags "=" variants:{Variant "|"}+ ";" ->
+		 * Declaration {cons("Data")}
+		 */
 		private Data() {
 		}
 
@@ -412,7 +421,10 @@ public abstract class Declaration extends AbstractAST {
 	}
 
 	static public class Function extends Declaration {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * functionDeclaration:FunctionDeclaration -> Declaration
+		 * {cons("Function")}
+		 */
 		private Function() {
 		}
 
@@ -479,7 +491,10 @@ public abstract class Declaration extends AbstractAST {
 	}
 
 	static public class Variable extends Declaration {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * type:Type variables:{Variable ","}+ ";" -> Declaration
+		 * {cons("Variable")}
+		 */
 		private Variable() {
 		}
 
@@ -570,7 +585,10 @@ public abstract class Declaration extends AbstractAST {
 	}
 
 	static public class Rule extends Declaration {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * "rule" name:Name tags:Tags rule:Rule ";" -> Declaration
+		 * {cons("Rule")}
+		 */
 		private Rule() {
 		}
 
@@ -682,7 +700,10 @@ public abstract class Declaration extends AbstractAST {
 	}
 
 	static public class Annotation extends Declaration {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * "anno" annoType:Type onType:Type "@" name:Name tags:Tags ";" ->
+		 * Declaration {cons("Annotation")}
+		 */
 		private Annotation() {
 		}
 
@@ -818,7 +839,10 @@ public abstract class Declaration extends AbstractAST {
 	}
 
 	static public class Tag extends Declaration {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * "tag" kind:Kind name:Name tags:Tags "on" types:{Type ","}+ ";" ->
+		 * Declaration {cons("Tag")}
+		 */
 		private Tag() {
 		}
 
