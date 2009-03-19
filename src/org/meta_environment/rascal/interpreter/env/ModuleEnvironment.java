@@ -309,7 +309,22 @@ public class ModuleEnvironment extends Environment {
 	
 	@Override
 	public void storeVariable(QualifiedName name, Result result) {
-		checkModuleName(name);
+		String modulename = Names.moduleName(name);
+		
+		if (modulename != null) {
+			if (modulename.equals(getName())) {
+				storeVariable(Names.name(Names.lastName(name)), result);
+				return;
+			}
+			
+			ModuleEnvironment imported = getImport(modulename);
+			if (imported == null) {
+				throw new UndeclaredModuleError(modulename, name);
+			}
+			
+			imported.storeVariable(name, result);
+			return;
+		}
 		
 		super.storeVariable(name, result);
 	}
