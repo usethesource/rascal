@@ -800,7 +800,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				throw new UndeclaredModuleError(moduleName, name);
 			}
 		}
-		Lambda func = env.getFunction(Names.name(Names.lastName(name)), actualTypes);
+		Lambda func = env.getFunction(Names.name(Names.lastName(name)), actualTypes, name);
 		
 		if (func != null) {
 			try {
@@ -890,7 +890,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		
 		//TODO is this a bug, what if name was overloaded?
 		//TODO add support for typed function names
-		Lambda func = peek().getFunction(Names.name(name), tf.voidType());
+		Lambda func = peek().getFunction(Names.name(name), tf.voidType(), x);
 		
 		if (func == null) {
 			throw new UndeclaredFunctionError(Names.name(name), x);
