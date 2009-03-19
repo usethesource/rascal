@@ -1,29 +1,24 @@
 module Graph
 
-/*
- * TODO:
- * - replace rel[&T,&T] by graph[&T]
-*/
-
 import Set;
 import Relation;
 import IO;
 
 alias graph[&T] = rel[&T,&T];
 
-public set[&T] top(rel[&T,&T] G)
+public set[&T] top(graph[&T] G)
 @doc{top -- return the top nodes of a graph}
 {
   return domain(G) - range(G);
 }
 
-public set[&T] bottom(rel[&T, &T] G)
+public set[&T] bottom(graph[&T] G)
 @doc{bottom -- return the bottom nodes of a graph}
 {
   return range(G) - domain(G);
 }
 
-public set[&T] reach(rel[&T,&T] G, set[&T] Start)
+public set[&T] reach(graph[&T] G, set[&T] Start)
 @doc{Reachability from start set}
 {
 	with
@@ -33,13 +28,13 @@ public set[&T] reach(rel[&T,&T] G, set[&T] Start)
 	return R;
 }
 
-public set[&T] reachR(rel[&T,&T] G, set[&T] Start, set[&T] Restr)
+public set[&T] reachR(graph[&T] G, set[&T] Start, set[&T] Restr)
 @doc{Reachability with restriction}
 {
 	return (carrierR(G, Restr)+)[Start];
 }
 
-public set[&T] reachX(rel[&T,&T] G, set[&T] Start, set[&T] Excl)
+public set[&T] reachX(graph[&T] G, set[&T] Start, set[&T] Excl)
 @doc{Reachability with exclusion}
 {
    return (carrierX(G, Excl)+)[Start];
@@ -47,12 +42,12 @@ public set[&T] reachX(rel[&T,&T] G, set[&T] Start, set[&T] Excl)
 
 // Shortest Path functions
 
-public list[&T] java shortestPathPair(rel[&T,&T] G, &T From, &T To)
+public list[&T] java shortestPathPair(graph[&T] G, &T From, &T To)
 @javaClass{org.meta_environment.rascal.std.Graph};
 
 /*
 
-private rel[int,int] Graph ={};
+private graph[&T] Graph ={};
 private map[int, int] distance =();
 private map[int, int] pred = ();
 private set[int] settled = {};
