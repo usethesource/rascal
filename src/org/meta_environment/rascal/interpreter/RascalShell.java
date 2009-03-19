@@ -111,8 +111,16 @@ public class RascalShell {
 	}
 	
 	private int run(String module, String[] args) throws IOException {
-		loadModule(module);
-		return callMainFunction(module, args);
+		try {
+			loadModule(module);
+			return callMainFunction(module, args);
+		}
+		catch (Throwable e) {
+			System.err.println(e.getMessage());
+			e.printStackTrace();
+		}
+		
+		return 1;
 	}
 
 	private int callMainFunction(String module, String[] args) throws IOException {
