@@ -17,6 +17,7 @@ import org.meta_environment.rascal.ast.ShellCommand.Edit;
 import org.meta_environment.rascal.ast.ShellCommand.History;
 import org.meta_environment.rascal.ast.ShellCommand.Quit;
 import org.meta_environment.rascal.interpreter.control_exceptions.Failure;
+import org.meta_environment.rascal.interpreter.control_exceptions.QuitException;
 import org.meta_environment.rascal.interpreter.result.Result;
 
 /*package*/ class CommandEvaluator extends NullASTVisitor<IValue> {
@@ -61,7 +62,7 @@ import org.meta_environment.rascal.interpreter.result.Result;
 
 	@Override
 	public IValue visitShellCommandQuit(Quit x) {
-		throw new Failure();
+		throw new QuitException();
 	}
 
 	@Override

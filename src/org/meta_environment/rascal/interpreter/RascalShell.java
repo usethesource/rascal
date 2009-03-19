@@ -18,6 +18,7 @@ import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.Command;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.control_exceptions.Failure;
+import org.meta_environment.rascal.interpreter.control_exceptions.QuitException;
 import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
@@ -67,51 +68,48 @@ public class RascalShell {
 		StringBuffer input = new StringBuffer();
 		String line;
 		
-		try {
-			next:while (true) {
-				try {
-					input.delete(0, input.length());
-					String prompt = PROMPT;
+		next:while (true) {
+			try {
+				input.delete(0, input.length());
+				String prompt = PROMPT;
 
-					do {
-						line = console.readLine(prompt);
-						if (line.trim().isEmpty()) {
-							console.printString("cancelled\n");
-							continue next;
-						}
-						else {
-							input.append((input.length() > 0 ? "\n" : "") + line);
-							prompt = CONTINUE_PROMPT;
-						}
-					} while (!completeStatement(input));
-
-					String output = handleInput(commander, input);
-					if(output.length() > MAX_CONSOLE_LINE) {
-						output = output.substring(0, MAX_CONSOLE_LINE) + " ...";
+				do {
+					line = console.readLine(prompt);
+					if (line.trim().isEmpty()) {
+						console.printString("cancelled\n");
+						continue next;
 					}
-					console.printString(output);
-					console.printNewline();
+					else {
+						input.append((input.length() > 0 ? "\n" : "") + line);
+						prompt = CONTINUE_PROMPT;
+					}
+				} while (!completeStatement(input));
+
+				String output = handleInput(commander, input);
+				if(output.length() > MAX_CONSOLE_LINE) {
+					output = output.substring(0, MAX_CONSOLE_LINE) + " ...";
 				}
-				catch (StaticError e) {
-					console.printString(e.getMessage() + "\n");
-				}
-				catch (Throw e) {
-					console.printString(e.getMessage() + "\n");
-				}
-				catch (ImplementationError e) {
-					e.printStackTrace();
-					console.printString("ImplementationError: " + e.getMessage() + "\n");
-					printStacktrace(console, e);
-				}
-				catch (Throwable e) {
-					e.printStackTrace();
-					console.printString("ImplementationError (generic Throwable): " + e.getMessage() + "\n");
-					printStacktrace(console, e);
-				}
+				console.printString(output);
+				console.printNewline();
 			}
-		}
-		catch (Failure e) {
-			return;
+			catch (StaticError e) {
+				console.printString(e.getMessage() + "\n");
+			}
+			catch (Throw e) {
+				console.printString(e.getMessage() + "\n");
+			}
+			catch (ImplementationError e) {
+				e.printStackTrace();
+				console.printString("ImplementationError: " + e.getMessage() + "\n");
+				printStacktrace(console, e);
+			}
+			catch (QuitException q) {
+				break next;
+			}
+			catch (Throwable e) {
+				console.printString("ImplementationError (generic Throwable): " + e.getMessage() + "\n");
+				printStacktrace(console, e);
+			}
 		}
 	}
 	
@@ -153,9 +151,10 @@ public class RascalShell {
 	}
 	
 	private void printStacktrace(ConsoleReader console, Throwable e) throws IOException {
-		console.printString("stacktrace: " + e.getMessage() + "\n");
+		String message = e.getMessage();
+		console.printString("stacktrace: " + (message != null ? message : "" )+ "\n");
 		for (StackTraceElement elem : e.getStackTrace()) {
-			console.printString("\t" + elem.getClassName() + "." + elem.getMethodName() + ":" + elem.getLineNumber() + "\n");
+			console.printString("\tat " + elem.getClassName() + "." + elem.getMethodName() + "(" + elem.getFileName() + ":" + elem.getLineNumber() + ")\n");
 		}
 		Throwable cause = e.getCause();
 		if (cause != null) {
