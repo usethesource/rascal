@@ -224,7 +224,7 @@ interface MatchPattern {
 		if(treeSubject.arity() != children.size()){
 			return;
 		}
-		if(!name.toString().equals(treeSubject.getName().toString()))
+		if(!Names.name(Names.lastName(name)).equals(treeSubject.getName().toString()))
 				return;
 		
 		for (int i = 0; i < children.size(); i++){
