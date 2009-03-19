@@ -88,7 +88,7 @@ public class Environment {
 		return parent == null;
 	}
 	
-	public Lambda getFunction(String name, Type actuals) {
+	public Lambda getFunction(String name, Type actuals, AbstractAST useSite) {
 		List<Lambda> candidates = functionEnvironment.get(name);
 		
 		if (candidates != null) {
@@ -99,7 +99,7 @@ public class Environment {
 			}
 		}
 		
-		return isRoot() ? null : parent.getFunction(name, actuals);
+		return isRoot() ? null : parent.getFunction(name, actuals, useSite);
 	}
 	
 	public Result getVariable(QualifiedName name) {

@@ -144,15 +144,15 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	@Override
-	public Lambda getFunction(String name, Type types) {
-		Lambda result = super.getFunction(name, types);
+	public Lambda getFunction(String name, Type types, AbstractAST x) {
+		Lambda result = super.getFunction(name, types, x);
 		
 		if (result == null) {
 			List<Lambda> results = new ArrayList<Lambda>();
 			for (String i : getImports()) {
 				// imports are not transitive!
 				ModuleEnvironment module = importedModules.get(i);
-				result = module.getLocalPublicFunction(name, types);
+				result = module.getLocalPublicFunction(name, types, x);
 				
 				if (result != null) {
 					results.add(result);
@@ -173,24 +173,22 @@ public class ModuleEnvironment extends Environment {
 				}
 				sign.append(")");
 				
-				// TODO: provide AST argument
-				throw new UndeclaredFunctionError(sign.toString(), null);
+				throw new UndeclaredFunctionError(sign.toString(), x);
 			}
 			else {
-				// TODO: provide AST argument
-				throw new AmbiguousFunctionReferenceError(name, result == null ? null : result.getAst());
+				throw new AmbiguousFunctionReferenceError(name, x);
 			}
 		}
 		
 		return result;
 	}
 	
-	public Lambda getLocalFunction(String name, Type types) {
-		return super.getFunction(name, types);
+	public Lambda getLocalFunction(String name, Type types, AbstractAST x) {
+		return super.getFunction(name, types, x);
 	}
 	
-	public Lambda getLocalPublicFunction(String name, Type types) {
-		Lambda decl = getLocalFunction(name, types);
+	public Lambda getLocalPublicFunction(String name, Type types, AbstractAST x) {
+		Lambda decl = getLocalFunction(name, types, x);
 		if (decl != null && decl.isPublic()) {
 			return decl;
 		}
