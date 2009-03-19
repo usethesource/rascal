@@ -4,7 +4,7 @@ import Set;
 import Relation;
 import IO;
 
-alias graph[&T] = rel[&T,&T];
+alias graph[&T] = rel[&T from, &T to];
 
 public set[&T] top(graph[&T] G)
 @doc{top -- return the top nodes of a graph}
