@@ -8,8 +8,8 @@ import java.io.InputStream;
 import java.net.URL;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.io.ATermReader;
 import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
@@ -17,6 +17,7 @@ import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.ParsetreeAdapter;
 
 import sglr.SGLRInvoker;
+
 
 /**
  * Parses a Rascal program and a UPTR node.
