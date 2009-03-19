@@ -1,0 +1,108 @@
+module benchmark::CompareShortestPath
+
+import Graph;/* currently contains a Java version of the algorithm below */
+import Relation;
+import Benchmark;
+import IO;
+import List;
+
+private rel[int,int] Graph ={};
+private map[int, int] distance =();
+private map[int, int] pred = ();
+private set[int] settled = {};
+private set[int] Q = {};
+private int MAXDISTANCE = 10000;
+
+public list[int] shortestPathPair1(rel[int,int] G, int From, int To)
+@doc{Shortest path between pair of nodes}
+{
+    Graph = G;
+    for(int edge <- carrier(G)){
+       distance[edge] = MAXDISTANCE;
+    }
+    distance[From] = 0;
+    pred = ();
+    settled = {};
+    Q = {From};
+    
+    while (Q != {}){
+        u = extractMinimum();
+        if(u == To)
+        	return extractPath(From, u);
+        settled = settled + u;
+        relaxNeighbours(u);
+    }  
+    return [];
+}
+  
+private void relaxNeighbours(int u)
+{  
+    for(int v <- Graph[u], v notin settled){
+        if(distance[v] > distance[u] + 1){  // 1 is default weight of each edge
+           distance[v] = distance[u] + 1;
+           pred[v] = u;
+           Q = Q + v;
+        }
+     }
+  }
+  
+private int extractMinimum()
+{
+     minVal = MAXDISTANCE;
+     int min = -1;
+     for(int q <- Q){
+     	 d = distance[q];
+     
+        if(distance[q] <= minVal){
+           minVal = distance[q];
+           min = q;
+        }
+     }
+     Q = Q - min;
+     return min;
+}
+  
+private list[int] extractPath(int start, int u)
+{
+    list[int] path = [u];
+    while(pred[u] != start){
+          u = pred[u];
+          path = u + path;
+    }
+    return start + path;
+}
+  
+public rel[int,int] Graph1 = {<5,8>,<1,2>,<3,4>,<3,3>,<2,3>,<2,2>,<6,7>,<6,6>,<7,7>,<7,0>,<3,10>,
+              <5,5>,<5,6>,<4,4>,<4,5>,<31,32>,<13,13>,<15,9>,<12,13>,<12,12>,
+              <14,14>,<29,33>,<2,16>,<11,6>,<14,15>,<15,13>,<15,15>,<9,0>,<12,7>,<11,11>,
+              <10,10>,<10,11>,<1,24>,<8,9>,<13,0>,<8,8>,<9,9>,<10,14>,<11,12>,<26,27>,<23,7>,
+              <26,26>,<27,27>,<24,29>,<1,36>,<31,23>,<25,25>,<25,26>,<24,24>,<24,25>,<26,28>,
+              <28,28>,<29,30>,<30,27>,<19,7>,<29,29>,<21,14>,<31,31>,<20,13>,<23,9>,<30,31>,
+              <30,30>,<23,23>,<22,22>,<22,23>,<27,12>,<21,22>,<20,20>,<21,21>,<22,19>,<17,17>,
+              <25,4>,<28,15>,<16,17>,<18,20>,<17,18>,<16,16>,<18,18>,<18,19>,<28,8>,<16,21>,
+              <19,19>,<43,12>,<37,17>,<39,23>,<40,15>,<40,20>,<32,9>,<35,13>,<42,39>,<41,33>,
+              <43,35>,<41,41>,<40,40>,<41,42>,<42,43>,<42,42>,<43,43>,<38,40>,<34,34>,<34,35>,
+              <34,32>,<35,35>,<36,41>, <33,33>,<32,32>,<33,34>,<36,37>,<37,38>,<36,36>,<37,37>,
+              <39,39>,<38,38>,<38,39>};
+             
+               
+public rel[int,int] randomGraph(int N, list[int] interval)
+{
+	return {<getOneFrom(interval), getOneFrom(interval)> | int n <- [1 .. N]};
+}
+
+public void measure1(rel[int,int] G){
+ 	time1 = currentTimeMillis(); P1 = shortestPathPair(G, 1, 0); time2 = currentTimeMillis();
+                                 P2 = shortestPathPair1(G, 1, 0); time3 = currentTimeMillis();
+                              
+ 	d1 = time2 - time1;
+ 	d2 = time3 - time2;
+ 	println("Java version:   <P1> in <d1> millis");
+ 	println("Rascal version: <P1> in <d2> millis");
+}
+
+public void measure(){
+	println("Graph1 -------"); measure1(Graph1);
+	Graph2 = randomGraph(10000, [0 .. 50]);
+	println("Graph2 -------"); measure1(Graph2);
+}
