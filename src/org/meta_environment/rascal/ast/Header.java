@@ -32,7 +32,10 @@ public abstract class Header extends AbstractAST {
 	}
 
 	static public class Default extends Header {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * "module" name:QualifiedName tags:Tags imports:Import -> Header
+		 * {cons("Default")}
+		 */
 		private Default() {
 		}
 
@@ -159,7 +162,10 @@ public abstract class Header extends AbstractAST {
 	}
 
 	static public class Parameters extends Header {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * "module" name:QualifiedName params:ModuleParameters tags:Tags
+		 * imports:Import -> Header {cons("Parameters")}
+		 */
 		private Parameters() {
 		}
 

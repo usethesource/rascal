@@ -24,7 +24,7 @@ public abstract class Declarator extends AbstractAST {
 	}
 
 	static public class Default extends Declarator {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* type:Type variables:{Variable ","}+ -> Declarator {cons("Default")} */
 		private Default() {
 		}
 

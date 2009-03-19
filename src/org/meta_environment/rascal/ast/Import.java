@@ -16,7 +16,7 @@ public abstract class Import extends AbstractAST {
 	}
 
 	static public class Default extends Import {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "import" module:ImportedModule ";" -> Import {cons("Default")} */
 		private Default() {
 		}
 
@@ -86,7 +86,7 @@ public abstract class Import extends AbstractAST {
 	}
 
 	static public class Extend extends Import {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "extend" module:ImportedModule ";" -> Import {cons("Extend")} */
 		private Extend() {
 		}
 

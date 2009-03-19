@@ -8,7 +8,7 @@ public abstract class OptCharRanges extends AbstractAST {
 	}
 
 	static public class Absent extends OptCharRanges {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* -> OptCharRanges {cons("Absent")} */
 		private Absent() {
 		}
 
@@ -61,7 +61,7 @@ public abstract class OptCharRanges extends AbstractAST {
 	}
 
 	static public class Present extends OptCharRanges {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* ranges:CharRanges -> OptCharRanges {cons("Present")} */
 		private Present() {
 		}
 

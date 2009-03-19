@@ -24,7 +24,7 @@ public abstract class Mapping extends AbstractAST {
 	}
 
 	static public class Default extends Mapping {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* from:Expression ":" to:Expression -> Mapping {cons("Default")} */
 		private Default() {
 		}
 
@@ -111,4 +111,7 @@ public abstract class Mapping extends AbstractAST {
 			return v.visitMappingAmbiguity(this);
 		}
 	}
+
+	@Override
+	public abstract <T> T accept(IASTVisitor<T> visitor);
 }

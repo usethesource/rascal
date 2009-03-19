@@ -24,7 +24,10 @@ public abstract class Toplevel extends AbstractAST {
 	}
 
 	static public class GivenVisibility extends Toplevel {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * visibility:Visibility declaration:Declaration -> Toplevel
+		 * {cons("GivenVisibility")}
+		 */
 		private GivenVisibility() {
 		}
 
@@ -120,7 +123,7 @@ public abstract class Toplevel extends AbstractAST {
 	}
 
 	static public class DefaultVisibility extends Toplevel {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* declaration:Declaration -> Toplevel {cons("DefaultVisibility")} */
 		private DefaultVisibility() {
 		}
 

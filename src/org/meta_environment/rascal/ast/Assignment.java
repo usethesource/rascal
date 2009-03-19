@@ -8,7 +8,7 @@ public abstract class Assignment extends AbstractAST {
 	}
 
 	static public class Default extends Assignment {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "=" -> Assignment {cons("Default")} */
 		private Default() {
 		}
 
@@ -53,7 +53,7 @@ public abstract class Assignment extends AbstractAST {
 	}
 
 	static public class Addition extends Assignment {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "+=" -> Assignment {cons("Addition")} */
 		private Addition() {
 		}
 
@@ -80,7 +80,7 @@ public abstract class Assignment extends AbstractAST {
 	}
 
 	static public class Subtraction extends Assignment {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "-=" -> Assignment {cons("Subtraction")} */
 		private Subtraction() {
 		}
 
@@ -104,7 +104,7 @@ public abstract class Assignment extends AbstractAST {
 	}
 
 	static public class Product extends Assignment {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "*=" -> Assignment {cons("Product")} */
 		private Product() {
 		}
 
@@ -128,7 +128,7 @@ public abstract class Assignment extends AbstractAST {
 	}
 
 	static public class Division extends Assignment {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "/=" -> Assignment {cons("Division")} */
 		private Division() {
 		}
 
@@ -152,7 +152,7 @@ public abstract class Assignment extends AbstractAST {
 	}
 
 	static public class Intersection extends Assignment {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "&=" -> Assignment {cons("Intersection")} */
 		private Intersection() {
 		}
 
@@ -176,7 +176,7 @@ public abstract class Assignment extends AbstractAST {
 	}
 
 	static public class IfDefined extends Assignment {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "?=" -> Assignment {cons("IfDefined")} */
 		private IfDefined() {
 		}
 

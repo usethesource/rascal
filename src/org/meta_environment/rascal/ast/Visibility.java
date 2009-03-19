@@ -8,7 +8,7 @@ public abstract class Visibility extends AbstractAST {
 	}
 
 	static public class Public extends Visibility {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "public" -> Visibility {cons("Public")} */
 		private Public() {
 		}
 
@@ -53,7 +53,7 @@ public abstract class Visibility extends AbstractAST {
 	}
 
 	static public class Private extends Visibility {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "private" -> Visibility {cons("Private")} */
 		private Private() {
 		}
 

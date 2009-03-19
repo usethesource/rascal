@@ -24,7 +24,7 @@ public abstract class Tag extends AbstractAST {
 	}
 
 	static public class Default extends Tag {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "@" name:Name contents:TagString -> Tag {cons("Default")} */
 		private Default() {
 		}
 

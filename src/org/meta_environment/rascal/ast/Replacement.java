@@ -16,7 +16,10 @@ public abstract class Replacement extends AbstractAST {
 	}
 
 	static public class Unconditional extends Replacement {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * replacementExpression:Expression -> Replacement
+		 * {cons("Unconditional")}
+		 */
 		private Unconditional() {
 		}
 
@@ -95,7 +98,10 @@ public abstract class Replacement extends AbstractAST {
 	}
 
 	static public class Conditional extends Replacement {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * replacementExpression:Expression "when" conditions:{Expression ","}+
+		 * -> Replacement {cons("Conditional")}
+		 */
 		private Conditional() {
 		}
 

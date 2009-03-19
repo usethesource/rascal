@@ -16,7 +16,7 @@ public abstract class Character extends AbstractAST {
 	}
 
 	static public class Numeric extends Character {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* numChar:NumChar -> Character {cons("Numeric")} */
 		private Numeric() {
 		}
 
@@ -93,7 +93,7 @@ public abstract class Character extends AbstractAST {
 	}
 
 	static public class Short extends Character {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* shortChar:ShortChar -> Character {cons("Short")} */
 		private Short() {
 		}
 
@@ -144,7 +144,7 @@ public abstract class Character extends AbstractAST {
 	}
 
 	static public class Top extends Character {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "\\TOP" -> Character {cons("Top")} */
 		private Top() {
 		}
 
@@ -168,7 +168,7 @@ public abstract class Character extends AbstractAST {
 	}
 
 	static public class EOF extends Character {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "\\EOF" -> Character {cons("EOF")} */
 		private EOF() {
 		}
 
@@ -192,7 +192,7 @@ public abstract class Character extends AbstractAST {
 	}
 
 	static public class Bottom extends Character {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "\\BOT" -> Character {cons("Bottom")} */
 		private Bottom() {
 		}
 
@@ -216,7 +216,7 @@ public abstract class Character extends AbstractAST {
 	}
 
 	static public class LabelStart extends Character {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "\\LABEL_START" -> Character {cons("LabelStart")} */
 		private LabelStart() {
 		}
 

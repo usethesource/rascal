@@ -16,7 +16,7 @@ public abstract class Type extends AbstractAST {
 	}
 
 	static public class Basic extends Type {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* basic:BasicType -> Type {cons("Basic")} */
 		private Basic() {
 		}
 
@@ -93,7 +93,7 @@ public abstract class Type extends AbstractAST {
 	}
 
 	static public class Structured extends Type {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* structured:StructuredType -> Type {cons("Structured")} */
 		private Structured() {
 		}
 
@@ -154,7 +154,7 @@ public abstract class Type extends AbstractAST {
 	}
 
 	static public class Function extends Type {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* function:FunctionType -> Type {cons("Function")} */
 		private Function() {
 		}
 
@@ -211,7 +211,7 @@ public abstract class Type extends AbstractAST {
 	}
 
 	static public class Variable extends Type {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* typeVar:TypeVar -> Type {cons("Variable")} */
 		private Variable() {
 		}
 
@@ -267,7 +267,7 @@ public abstract class Type extends AbstractAST {
 	}
 
 	static public class User extends Type {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* user:UserType -> Type {cons("User")} */
 		private User() {
 		}
 
@@ -323,7 +323,7 @@ public abstract class Type extends AbstractAST {
 	}
 
 	static public class Symbol extends Type {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* symbol:Symbol -> Type {cons("Symbol")} */
 		private Symbol() {
 		}
 
@@ -379,7 +379,7 @@ public abstract class Type extends AbstractAST {
 	}
 
 	static public class Selector extends Type {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* selector:DataTypeSelector -> Type {cons("Selector")} */
 		private Selector() {
 		}
 

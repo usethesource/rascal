@@ -16,7 +16,10 @@ public abstract class LongLiteral extends AbstractAST {
 	}
 
 	static public class DecimalLongLiteral extends LongLiteral {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * decimalLong:DecimalLongLiteral -> LongLiteral {prefer,
+		 * cons("DecimalLongLiteral")}
+		 */
 		private DecimalLongLiteral() {
 		}
 
@@ -95,7 +98,10 @@ public abstract class LongLiteral extends AbstractAST {
 	}
 
 	static public class HexLongLiteral extends LongLiteral {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * hexLong:HexLongLiteral -> LongLiteral {prefer,
+		 * cons("HexLongLiteral")}
+		 */
 		private HexLongLiteral() {
 		}
 
@@ -156,7 +162,10 @@ public abstract class LongLiteral extends AbstractAST {
 	}
 
 	static public class OctalLongLiteral extends LongLiteral {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * octalLong:OctalLongLiteral -> LongLiteral {prefer,
+		 * cons("OctalLongLiteral")}
+		 */
 		private OctalLongLiteral() {
 		}
 

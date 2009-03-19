@@ -8,7 +8,7 @@ public abstract class Strategy extends AbstractAST {
 	}
 
 	static public class TopDown extends Strategy {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "top-down" -> Strategy {cons("TopDown")} */
 		private TopDown() {
 		}
 
@@ -53,7 +53,7 @@ public abstract class Strategy extends AbstractAST {
 	}
 
 	static public class TopDownBreak extends Strategy {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "top-down-break" -> Strategy {cons("TopDownBreak")} */
 		private TopDownBreak() {
 		}
 
@@ -80,7 +80,7 @@ public abstract class Strategy extends AbstractAST {
 	}
 
 	static public class BottomUp extends Strategy {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "bottom-up" -> Strategy {cons("BottomUp")} */
 		private BottomUp() {
 		}
 
@@ -104,7 +104,7 @@ public abstract class Strategy extends AbstractAST {
 	}
 
 	static public class BottomUpBreak extends Strategy {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "bottom-up-break" -> Strategy {cons("BottomUpBreak")} */
 		private BottomUpBreak() {
 		}
 
@@ -128,7 +128,7 @@ public abstract class Strategy extends AbstractAST {
 	}
 
 	static public class Outermost extends Strategy {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "outermost" -> Strategy {cons("Outermost")} */
 		private Outermost() {
 		}
 
@@ -152,7 +152,7 @@ public abstract class Strategy extends AbstractAST {
 	}
 
 	static public class Innermost extends Strategy {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "innermost" -> Strategy {cons("Innermost")} */
 		private Innermost() {
 		}
 

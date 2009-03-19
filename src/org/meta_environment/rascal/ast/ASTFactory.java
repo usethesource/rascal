@@ -848,18 +848,6 @@ public class ASTFactory {
 				.get(x);
 	}
 
-	public org.meta_environment.rascal.ast.Expression.IfDefinedOtherwise makeExpressionIfDefinedOtherwise(
-			INode node, org.meta_environment.rascal.ast.Expression lhs,
-			org.meta_environment.rascal.ast.Expression rhs) {
-		org.meta_environment.rascal.ast.Expression.IfDefinedOtherwise x = new org.meta_environment.rascal.ast.Expression.IfDefinedOtherwise(
-				node, lhs, rhs);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.IfDefinedOtherwise) table
-				.get(x);
-	}
-
 	public org.meta_environment.rascal.ast.Expression.In makeExpressionIn(
 			INode node, org.meta_environment.rascal.ast.Expression lhs,
 			org.meta_environment.rascal.ast.Expression rhs) {
@@ -1281,6 +1269,18 @@ public class ASTFactory {
 			table.put(x, x);
 		}
 		return (org.meta_environment.rascal.ast.Expression.Match) table.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.IfDefinedOtherwise makeExpressionIfDefinedOtherwise(
+			INode node, org.meta_environment.rascal.ast.Expression lhs,
+			org.meta_environment.rascal.ast.Expression rhs) {
+		org.meta_environment.rascal.ast.Expression.IfDefinedOtherwise x = new org.meta_environment.rascal.ast.Expression.IfDefinedOtherwise(
+				node, lhs, rhs);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.IfDefinedOtherwise) table
+				.get(x);
 	}
 
 	public org.meta_environment.rascal.ast.Expression.IfThenElse makeExpressionIfThenElse(

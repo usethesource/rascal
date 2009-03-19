@@ -8,7 +8,7 @@ public abstract class Label extends AbstractAST {
 	}
 
 	static public class Empty extends Label {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* -> Label {cons("Empty")} */
 		private Empty() {
 		}
 
@@ -61,7 +61,7 @@ public abstract class Label extends AbstractAST {
 	}
 
 	static public class Default extends Label {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* name:Name ":" -> Label {cons("Default")} */
 		private Default() {
 		}
 

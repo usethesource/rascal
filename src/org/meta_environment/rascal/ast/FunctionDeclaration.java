@@ -32,7 +32,10 @@ public abstract class FunctionDeclaration extends AbstractAST {
 	}
 
 	static public class Default extends FunctionDeclaration {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * signature:Signature tags:Tags body:FunctionBody ->
+		 * FunctionDeclaration {cons("Default")}
+		 */
 		private Default() {
 		}
 
@@ -149,7 +152,10 @@ public abstract class FunctionDeclaration extends AbstractAST {
 	}
 
 	static public class Abstract extends FunctionDeclaration {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * signature:Signature tags:Tags ";" -> FunctionDeclaration
+		 * {cons("Abstract")}
+		 */
 		private Abstract() {
 		}
 

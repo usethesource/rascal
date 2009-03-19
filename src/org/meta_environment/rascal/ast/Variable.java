@@ -24,7 +24,7 @@ public abstract class Variable extends AbstractAST {
 	}
 
 	static public class UnInitialized extends Variable {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* name:Name tags:Tags -> Variable {cons("UnInitialized")} */
 		private UnInitialized() {
 		}
 
@@ -125,7 +125,10 @@ public abstract class Variable extends AbstractAST {
 	}
 
 	static public class Initialized extends Variable {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * name:Name tags:Tags "=" initial:Expression -> Variable
+		 * {cons("Initialized")}
+		 */
 		private Initialized() {
 		}
 

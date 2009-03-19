@@ -16,7 +16,7 @@ public abstract class ClosureAsFunction extends AbstractAST {
 	}
 
 	static public class Evaluated extends ClosureAsFunction {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "#" expression:Expression -> ClosureAsFunction {cons("Evaluated")} */
 		private Evaluated() {
 		}
 

@@ -8,7 +8,7 @@ public abstract class NoElseMayFollow extends AbstractAST {
 	}
 
 	static public class Default extends NoElseMayFollow {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* -> NoElseMayFollow {cons("Default")} */
 		private Default() {
 		}
 

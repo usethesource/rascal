@@ -16,7 +16,7 @@ public abstract class Tags extends AbstractAST {
 	}
 
 	static public class Default extends Tags {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* annotations:Tag -> Tags {cons("Default")} */
 		private Default() {
 		}
 

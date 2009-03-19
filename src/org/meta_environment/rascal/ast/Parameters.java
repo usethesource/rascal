@@ -16,7 +16,7 @@ public abstract class Parameters extends AbstractAST {
 	}
 
 	static public class Default extends Parameters {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "(" formals:Formals ")" -> Parameters {cons("Default")} */
 		private Default() {
 		}
 
@@ -85,7 +85,7 @@ public abstract class Parameters extends AbstractAST {
 	}
 
 	static public class VarArgs extends Parameters {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "(" formals:Formals "..." ")" -> Parameters {cons("VarArgs")} */
 		private VarArgs() {
 		}
 

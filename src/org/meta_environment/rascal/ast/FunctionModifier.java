@@ -8,7 +8,7 @@ public abstract class FunctionModifier extends AbstractAST {
 	}
 
 	static public class Java extends FunctionModifier {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "java" -> FunctionModifier {cons("Java")} */
 		private Java() {
 		}
 

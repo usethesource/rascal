@@ -8,7 +8,7 @@ public abstract class ShellCommand extends AbstractAST {
 	}
 
 	static public class Help extends ShellCommand {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "help" -> ShellCommand {cons("Help")} */
 		private Help() {
 		}
 
@@ -53,7 +53,7 @@ public abstract class ShellCommand extends AbstractAST {
 	}
 
 	static public class Quit extends ShellCommand {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "quit" -> ShellCommand {cons("Quit")} */
 		private Quit() {
 		}
 
@@ -88,7 +88,7 @@ public abstract class ShellCommand extends AbstractAST {
 	}
 
 	static public class Edit extends ShellCommand {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "edit" name:Name -> ShellCommand {cons("Edit")} */
 		private Edit() {
 		}
 
@@ -135,7 +135,7 @@ public abstract class ShellCommand extends AbstractAST {
 	}
 
 	static public class History extends ShellCommand {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "history" -> ShellCommand {cons("History")} */
 		private History() {
 		}
 

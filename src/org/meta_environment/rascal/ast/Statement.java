@@ -32,7 +32,10 @@ public abstract class Statement extends AbstractAST {
 	}
 
 	static public class Solve extends Statement {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * "with" declarations:{Declarator ";"}+ ";" "solve" bound:Bound
+		 * body:Statement -> Statement {cons("Solve")}
+		 */
 		private Solve() {
 		}
 
@@ -168,7 +171,10 @@ public abstract class Statement extends AbstractAST {
 	}
 
 	static public class For extends Statement {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * label:Label "for" "(" generators:{Expression ","}+ ")" body:Statement
+		 * -> Statement {cons("For")}
+		 */
 		private For() {
 		}
 
@@ -278,7 +284,10 @@ public abstract class Statement extends AbstractAST {
 	}
 
 	static public class While extends Statement {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * label:Label "while" "(" condition:Expression ")" body:Statement ->
+		 * Statement {cons("While")}
+		 */
 		private While() {
 		}
 
@@ -374,7 +383,10 @@ public abstract class Statement extends AbstractAST {
 	}
 
 	static public class DoWhile extends Statement {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * label:Label "do" body:Statement "while" "(" condition:Expression ")"
+		 * ";" -> Statement {cons("DoWhile")}
+		 */
 		private DoWhile() {
 		}
 
@@ -494,7 +506,11 @@ public abstract class Statement extends AbstractAST {
 	}
 
 	static public class IfThenElse extends Statement {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * label:Label "if" "(" conditions:{Expression ","}+ ")"
+		 * thenStatement:Statement "else" elseStatement:Statement -> Statement
+		 * {cons("IfThenElse")}
+		 */
 		private IfThenElse() {
 		}
 
@@ -629,7 +645,11 @@ public abstract class Statement extends AbstractAST {
 	}
 
 	static public class IfThen extends Statement {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * label:Label "if" "(" conditions:{Expression ","}+ ")"
+		 * thenStatement:Statement noElseMayFollow:NoElseMayFollow -> Statement
+		 * {cons("IfThen")}
+		 */
 		private IfThen() {
 		}
 
@@ -772,7 +792,10 @@ public abstract class Statement extends AbstractAST {
 	}
 
 	static public class Switch extends Statement {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * label:Label "switch" "(" expression:Expression ")" "{" cases:Case+
+		 * "}" -> Statement {cons("Switch")}
+		 */
 		private Switch() {
 		}
 
@@ -870,7 +893,7 @@ public abstract class Statement extends AbstractAST {
 	}
 
 	static public class EmptyStatement extends Statement {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* ";" -> Statement {cons("EmptyStatement")} */
 		private EmptyStatement() {
 		}
 
@@ -894,7 +917,7 @@ public abstract class Statement extends AbstractAST {
 	}
 
 	static public class Expression extends Statement {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* expression:Expression ";" -> Statement {cons("Expression")} */
 		private Expression() {
 		}
 
@@ -951,7 +974,7 @@ public abstract class Statement extends AbstractAST {
 	}
 
 	static public class Visit extends Statement {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* visit:Visit -> Statement {cons("Visit")} */
 		private Visit() {
 		}
 
@@ -1015,7 +1038,10 @@ public abstract class Statement extends AbstractAST {
 	}
 
 	static public class Assignment extends Statement {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * assignable:Assignable operator:Assignment expression:Expression ";"
+		 * -> Statement {cons("Assignment")}
+		 */
 		private Assignment() {
 		}
 
@@ -1122,7 +1148,7 @@ public abstract class Statement extends AbstractAST {
 	}
 
 	static public class Break extends Statement {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* brk:Break -> Statement {cons("Break")} */
 		private Break() {
 		}
 
@@ -1177,7 +1203,7 @@ public abstract class Statement extends AbstractAST {
 	}
 
 	static public class Fail extends Statement {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* fail:Fail -> Statement {cons("Fail")} */
 		private Fail() {
 		}
 
@@ -1232,7 +1258,7 @@ public abstract class Statement extends AbstractAST {
 	}
 
 	static public class Return extends Statement {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* ret:Return -> Statement {cons("Return")} */
 		private Return() {
 		}
 
@@ -1280,7 +1306,7 @@ public abstract class Statement extends AbstractAST {
 	}
 
 	static public class Continue extends Statement {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "continue" ";" -> Statement {cons("Continue")} */
 		private Continue() {
 		}
 
@@ -1304,7 +1330,7 @@ public abstract class Statement extends AbstractAST {
 	}
 
 	static public class Assert extends Statement {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "assert" expression:Expression ";" -> Statement {cons("Assert")} */
 		private Assert() {
 		}
 
@@ -1360,7 +1386,10 @@ public abstract class Statement extends AbstractAST {
 	}
 
 	static public class AssertWithMessage extends Statement {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * "assert" expression:Expression ":" message:StringLiteral ";" ->
+		 * Statement {cons("AssertWithMessage")}
+		 */
 		private AssertWithMessage() {
 		}
 
@@ -1382,19 +1411,16 @@ public abstract class Statement extends AbstractAST {
 			return true;
 		}
 
-		@Override
 		public boolean hasExpression() {
 			return true;
 		}
 
-		@Override
 		public boolean hasMessage() {
 			return true;
 		}
 
 		private org.meta_environment.rascal.ast.Expression expression;
 
-		@Override
 		public org.meta_environment.rascal.ast.Expression getExpression() {
 			return expression;
 		}
@@ -1412,7 +1438,6 @@ public abstract class Statement extends AbstractAST {
 
 		private org.meta_environment.rascal.ast.StringLiteral message;
 
-		@Override
 		public org.meta_environment.rascal.ast.StringLiteral getMessage() {
 			return message;
 		}
@@ -1434,7 +1459,7 @@ public abstract class Statement extends AbstractAST {
 	}
 
 	static public class Insert extends Statement {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "insert" expression:Expression ";" -> Statement {cons("Insert")} */
 		private Insert() {
 		}
 
@@ -1444,24 +1469,20 @@ public abstract class Statement extends AbstractAST {
 			this.expression = expression;
 		}
 
-		@Override
 		public <T> T accept(IASTVisitor<T> visitor) {
 			return visitor.visitStatementInsert(this);
 		}
 
-		@Override
 		public boolean isInsert() {
 			return true;
 		}
 
-		@Override
 		public boolean hasExpression() {
 			return true;
 		}
 
 		private org.meta_environment.rascal.ast.Expression expression;
 
-		@Override
 		public org.meta_environment.rascal.ast.Expression getExpression() {
 			return expression;
 		}
@@ -1482,7 +1503,7 @@ public abstract class Statement extends AbstractAST {
 	}
 
 	static public class Throw extends Statement {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "throw" expression:Expression ";" -> Statement {cons("Throw")} */
 		private Throw() {
 		}
 
@@ -1492,24 +1513,20 @@ public abstract class Statement extends AbstractAST {
 			this.expression = expression;
 		}
 
-		@Override
 		public <T> T accept(IASTVisitor<T> visitor) {
 			return visitor.visitStatementThrow(this);
 		}
 
-		@Override
 		public boolean isThrow() {
 			return true;
 		}
 
-		@Override
 		public boolean hasExpression() {
 			return true;
 		}
 
 		private org.meta_environment.rascal.ast.Expression expression;
 
-		@Override
 		public org.meta_environment.rascal.ast.Expression getExpression() {
 			return expression;
 		}
@@ -1538,7 +1555,10 @@ public abstract class Statement extends AbstractAST {
 	}
 
 	static public class Try extends Statement {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * "try" body:Statement handlers:Catch+ -> Statement {non-assoc,
+		 * cons("Try")}
+		 */
 		private Try() {
 		}
 
@@ -1550,29 +1570,24 @@ public abstract class Statement extends AbstractAST {
 			this.handlers = handlers;
 		}
 
-		@Override
 		public <T> T accept(IASTVisitor<T> visitor) {
 			return visitor.visitStatementTry(this);
 		}
 
-		@Override
 		public boolean isTry() {
 			return true;
 		}
 
-		@Override
 		public boolean hasBody() {
 			return true;
 		}
 
-		@Override
 		public boolean hasHandlers() {
 			return true;
 		}
 
 		private org.meta_environment.rascal.ast.Statement body;
 
-		@Override
 		public org.meta_environment.rascal.ast.Statement getBody() {
 			return body;
 		}
@@ -1589,7 +1604,6 @@ public abstract class Statement extends AbstractAST {
 
 		private java.util.List<org.meta_environment.rascal.ast.Catch> handlers;
 
-		@Override
 		public java.util.List<org.meta_environment.rascal.ast.Catch> getHandlers() {
 			return handlers;
 		}
@@ -1620,7 +1634,10 @@ public abstract class Statement extends AbstractAST {
 	}
 
 	static public class TryFinally extends Statement {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * "try" body:Statement handlers:Catch+ "finally" finallyBody:Statement
+		 * -> Statement {cons("TryFinally")}
+		 */
 		private TryFinally() {
 		}
 
@@ -1634,34 +1651,28 @@ public abstract class Statement extends AbstractAST {
 			this.finallyBody = finallyBody;
 		}
 
-		@Override
 		public <T> T accept(IASTVisitor<T> visitor) {
 			return visitor.visitStatementTryFinally(this);
 		}
 
-		@Override
 		public boolean isTryFinally() {
 			return true;
 		}
 
-		@Override
 		public boolean hasBody() {
 			return true;
 		}
 
-		@Override
 		public boolean hasHandlers() {
 			return true;
 		}
 
-		@Override
 		public boolean hasFinallyBody() {
 			return true;
 		}
 
 		private org.meta_environment.rascal.ast.Statement body;
 
-		@Override
 		public org.meta_environment.rascal.ast.Statement getBody() {
 			return body;
 		}
@@ -1678,7 +1689,6 @@ public abstract class Statement extends AbstractAST {
 
 		private java.util.List<org.meta_environment.rascal.ast.Catch> handlers;
 
-		@Override
 		public java.util.List<org.meta_environment.rascal.ast.Catch> getHandlers() {
 			return handlers;
 		}
@@ -1697,7 +1707,6 @@ public abstract class Statement extends AbstractAST {
 
 		private org.meta_environment.rascal.ast.Statement finallyBody;
 
-		@Override
 		public org.meta_environment.rascal.ast.Statement getFinallyBody() {
 			return finallyBody;
 		}
@@ -1727,7 +1736,10 @@ public abstract class Statement extends AbstractAST {
 	}
 
 	static public class Block extends Statement {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * label:Label "{" statements:Statement+ "}" -> Statement
+		 * {cons("Block")}
+		 */
 		private Block() {
 		}
 
@@ -1740,29 +1752,24 @@ public abstract class Statement extends AbstractAST {
 			this.statements = statements;
 		}
 
-		@Override
 		public <T> T accept(IASTVisitor<T> visitor) {
 			return visitor.visitStatementBlock(this);
 		}
 
-		@Override
 		public boolean isBlock() {
 			return true;
 		}
 
-		@Override
 		public boolean hasLabel() {
 			return true;
 		}
 
-		@Override
 		public boolean hasStatements() {
 			return true;
 		}
 
 		private org.meta_environment.rascal.ast.Label label;
 
-		@Override
 		public org.meta_environment.rascal.ast.Label getLabel() {
 			return label;
 		}
@@ -1779,7 +1786,6 @@ public abstract class Statement extends AbstractAST {
 
 		private java.util.List<org.meta_environment.rascal.ast.Statement> statements;
 
-		@Override
 		public java.util.List<org.meta_environment.rascal.ast.Statement> getStatements() {
 			return statements;
 		}
@@ -1810,7 +1816,10 @@ public abstract class Statement extends AbstractAST {
 	}
 
 	static public class FunctionDeclaration extends Statement {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * functionDeclaration:FunctionDeclaration -> Statement
+		 * {cons("FunctionDeclaration")}
+		 */
 		private FunctionDeclaration() {
 		}
 
@@ -1821,24 +1830,20 @@ public abstract class Statement extends AbstractAST {
 			this.functionDeclaration = functionDeclaration;
 		}
 
-		@Override
 		public <T> T accept(IASTVisitor<T> visitor) {
 			return visitor.visitStatementFunctionDeclaration(this);
 		}
 
-		@Override
 		public boolean isFunctionDeclaration() {
 			return true;
 		}
 
-		@Override
 		public boolean hasFunctionDeclaration() {
 			return true;
 		}
 
 		private org.meta_environment.rascal.ast.FunctionDeclaration functionDeclaration;
 
-		@Override
 		public org.meta_environment.rascal.ast.FunctionDeclaration getFunctionDeclaration() {
 			return functionDeclaration;
 		}
@@ -1869,7 +1874,10 @@ public abstract class Statement extends AbstractAST {
 	}
 
 	static public class VariableDeclaration extends Statement {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * declaration:LocalVariableDeclaration ";" -> Statement
+		 * {cons("VariableDeclaration")}
+		 */
 		private VariableDeclaration() {
 		}
 
@@ -1880,24 +1888,20 @@ public abstract class Statement extends AbstractAST {
 			this.declaration = declaration;
 		}
 
-		@Override
 		public <T> T accept(IASTVisitor<T> visitor) {
 			return visitor.visitStatementVariableDeclaration(this);
 		}
 
-		@Override
 		public boolean isVariableDeclaration() {
 			return true;
 		}
 
-		@Override
 		public boolean hasDeclaration() {
 			return true;
 		}
 
 		private org.meta_environment.rascal.ast.LocalVariableDeclaration declaration;
 
-		@Override
 		public org.meta_environment.rascal.ast.LocalVariableDeclaration getDeclaration() {
 			return declaration;
 		}
@@ -1936,7 +1940,10 @@ public abstract class Statement extends AbstractAST {
 	}
 
 	static public class GlobalDirective extends Statement {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * "global" type:Type names:{QualifiedName ","}+ ";" -> Statement
+		 * {cons("GlobalDirective")}
+		 */
 		private GlobalDirective() {
 		}
 
@@ -1949,29 +1956,24 @@ public abstract class Statement extends AbstractAST {
 			this.names = names;
 		}
 
-		@Override
 		public <T> T accept(IASTVisitor<T> visitor) {
 			return visitor.visitStatementGlobalDirective(this);
 		}
 
-		@Override
 		public boolean isGlobalDirective() {
 			return true;
 		}
 
-		@Override
 		public boolean hasType() {
 			return true;
 		}
 
-		@Override
 		public boolean hasNames() {
 			return true;
 		}
 
 		private org.meta_environment.rascal.ast.Type type;
 
-		@Override
 		public org.meta_environment.rascal.ast.Type getType() {
 			return type;
 		}
@@ -1988,7 +1990,6 @@ public abstract class Statement extends AbstractAST {
 
 		private java.util.List<org.meta_environment.rascal.ast.QualifiedName> names;
 
-		@Override
 		public java.util.List<org.meta_environment.rascal.ast.QualifiedName> getNames() {
 			return names;
 		}

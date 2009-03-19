@@ -16,7 +16,7 @@ public abstract class Command extends AbstractAST {
 	}
 
 	static public class Shell extends Command {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* ":" command:ShellCommand -> Command {cons("Shell")} */
 		private Shell() {
 		}
 
@@ -93,7 +93,7 @@ public abstract class Command extends AbstractAST {
 	}
 
 	static public class Statement extends Command {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* statement:Statement -> Command {cons("Statement")} */
 		private Statement() {
 		}
 
@@ -153,7 +153,7 @@ public abstract class Command extends AbstractAST {
 	}
 
 	static public class Declaration extends Command {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* declaration:Declaration -> Command {avoid, cons("Declaration")} */
 		private Declaration() {
 		}
 
@@ -211,7 +211,7 @@ public abstract class Command extends AbstractAST {
 	}
 
 	static public class Import extends Command {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* imported:Import -> Command {cons("Import")} */
 		private Import() {
 		}
 

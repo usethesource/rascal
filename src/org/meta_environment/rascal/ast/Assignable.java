@@ -16,7 +16,7 @@ public abstract class Assignable extends AbstractAST {
 	}
 
 	static public class Variable extends Assignable {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* qualifiedName:QualifiedName -> Assignable {cons("Variable")} */
 		private Variable() {
 		}
 
@@ -103,7 +103,10 @@ public abstract class Assignable extends AbstractAST {
 	}
 
 	static public class Subscript extends Assignable {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * receiver:Assignable "[" subscript:Expression "]" -> Assignable
+		 * {cons("Subscript")}
+		 */
 		private Subscript() {
 		}
 
@@ -188,7 +191,10 @@ public abstract class Assignable extends AbstractAST {
 	}
 
 	static public class FieldAccess extends Assignable {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * receiver:Assignable "." field:Name -> Assignable
+		 * {cons("FieldAccess")}
+		 */
 		private FieldAccess() {
 		}
 
@@ -269,7 +275,10 @@ public abstract class Assignable extends AbstractAST {
 	}
 
 	static public class IfDefinedOrDefault extends Assignable {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * receiver:Assignable "?" defaultExpression:Expression -> Assignable
+		 * {cons("IfDefinedOrDefault")}
+		 */
 		private IfDefinedOrDefault() {
 		}
 
@@ -352,7 +361,10 @@ public abstract class Assignable extends AbstractAST {
 	}
 
 	static public class Annotation extends Assignable {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * receiver:Assignable "@" annotation:Name -> Assignable {non-assoc,
+		 * cons("Annotation")}
+		 */
 		private Annotation() {
 		}
 
@@ -433,7 +445,7 @@ public abstract class Assignable extends AbstractAST {
 	}
 
 	static public class Tuple extends Assignable {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "<" elements:{Assignable ","}+ ">" -> Assignable {cons("Tuple")} */
 		private Tuple() {
 		}
 
@@ -500,7 +512,10 @@ public abstract class Assignable extends AbstractAST {
 	}
 
 	static public class Constructor extends Assignable {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * name:Name "(" arguments:{Assignable ","}+ ")" -> Assignable
+		 * {non-assoc, cons("Constructor")}
+		 */
 		private Constructor() {
 		}
 

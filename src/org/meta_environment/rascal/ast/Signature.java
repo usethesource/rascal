@@ -40,7 +40,10 @@ public abstract class Signature extends AbstractAST {
 	}
 
 	static public class NoThrows extends Signature {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * type:Type modifiers:FunctionModifiers name:Name parameters:Parameters
+		 * -> Signature {cons("NoThrows")}
+		 */
 		private NoThrows() {
 		}
 
@@ -192,7 +195,10 @@ public abstract class Signature extends AbstractAST {
 	}
 
 	static public class WithThrows extends Signature {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * type:Type modifiers:FunctionModifiers name:Name parameters:Parameters
+		 * "throws" exceptions:{Type ","}+ -> Signature {cons("WithThrows")}
+		 */
 		private WithThrows() {
 		}
 

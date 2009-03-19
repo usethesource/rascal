@@ -16,7 +16,7 @@ public abstract class URL extends AbstractAST {
 	}
 
 	static public class Default extends URL {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* urlliteral:URLLiteral -> URL {cons("Default")} */
 		private Default() {
 		}
 

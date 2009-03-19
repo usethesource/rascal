@@ -24,7 +24,10 @@ public abstract class FunctionType extends AbstractAST {
 	}
 
 	static public class TypeArguments extends FunctionType {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * type:Type "(" arguments:{TypeArg ","} ")" -> FunctionType
+		 * {cons("TypeArguments")}
+		 */
 		private TypeArguments() {
 		}
 

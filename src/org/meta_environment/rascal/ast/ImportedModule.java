@@ -32,7 +32,10 @@ public abstract class ImportedModule extends AbstractAST {
 	}
 
 	static public class ActualsRenaming extends ImportedModule {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * name:QualifiedName actuals:ModuleActuals renamings:Renamings ->
+		 * ImportedModule {cons("ActualsRenaming")}
+		 */
 		private ActualsRenaming() {
 		}
 
@@ -152,7 +155,10 @@ public abstract class ImportedModule extends AbstractAST {
 	}
 
 	static public class Actuals extends ImportedModule {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * name:QualifiedName actuals:ModuleActuals -> ImportedModule
+		 * {cons("Actuals")}
+		 */
 		private Actuals() {
 		}
 
@@ -228,7 +234,10 @@ public abstract class ImportedModule extends AbstractAST {
 	}
 
 	static public class Renamings extends ImportedModule {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * name:QualifiedName renamings:Renamings -> ImportedModule
+		 * {cons("Renamings")}
+		 */
 		private Renamings() {
 		}
 
@@ -301,7 +310,7 @@ public abstract class ImportedModule extends AbstractAST {
 	}
 
 	static public class Default extends ImportedModule {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* name:QualifiedName -> ImportedModule {cons("Default")} */
 		private Default() {
 		}
 

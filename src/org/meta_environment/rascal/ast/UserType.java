@@ -16,7 +16,7 @@ public abstract class UserType extends AbstractAST {
 	}
 
 	static public class Name extends UserType {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* name:Name -> UserType {cons("Name")} */
 		private Name() {
 		}
 
@@ -92,7 +92,10 @@ public abstract class UserType extends AbstractAST {
 	}
 
 	static public class Parametric extends UserType {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * name:Name "[" parameters:{Type ","}+ "]" -> UserType
+		 * {cons("Parametric")}
+		 */
 		private Parametric() {
 		}
 

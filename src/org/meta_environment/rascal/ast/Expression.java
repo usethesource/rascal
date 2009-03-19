@@ -16,7 +16,7 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class NonEmptyBlock extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "{" statements:Statement+ "}" -> Expression {cons("NonEmptyBlock")} */
 		private NonEmptyBlock() {
 		}
 
@@ -96,7 +96,7 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class Visit extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* visit:Visit -> Expression {cons("Visit")} */
 		private Visit() {
 		}
 
@@ -155,7 +155,7 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class Literal extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* literal:Literal -> Expression {cons("Literal")} */
 		private Literal() {
 		}
 
@@ -219,7 +219,10 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class CallOrTree extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * qualifiedName:QualifiedName "(" arguments:{Expression ","} ")" ->
+		 * Expression {cons("CallOrTree")}
+		 */
 		private CallOrTree() {
 		}
 
@@ -304,7 +307,7 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class List extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "[" elements:{Expression ","} "]" -> Expression {cons("List")} */
 		private List() {
 		}
 
@@ -355,7 +358,7 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class Set extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "{" elements:{Expression ","} "}" -> Expression {cons("Set")} */
 		private Set() {
 		}
 
@@ -406,7 +409,7 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class Tuple extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "<" elements:{Expression ","}+ ">" -> Expression {cons("Tuple")} */
 		private Tuple() {
 		}
 
@@ -465,7 +468,7 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class Map extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "(" mappings:{Mapping ","} ")" -> Expression {cons("Map")} */
 		private Map() {
 		}
 
@@ -571,7 +574,12 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class Location extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * "loc" "(" url:URL "?" "offset" "=" offset:Expression "&" "length" "="
+		 * length:Expression "&" "begin" "=" beginLine:Expression ","
+		 * beginColumn:Expression "&" "end" "=" endLine:Expression ","
+		 * endColumn:Expression ")" -> Expression {cons("Location")}
+		 */
 		private Location() {
 		}
 
@@ -767,7 +775,7 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class QualifiedName extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* qualifiedName:QualifiedName -> Expression {cons("QualifiedName")} */
 		private QualifiedName() {
 		}
 
@@ -833,7 +841,7 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class TypedVariable extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* type:Type name:Name -> Expression {cons("TypedVariable")} */
 		private TypedVariable() {
 		}
 
@@ -929,7 +937,10 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class IfThenElse extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * condition:Expression "?" thenExp:Expression ":" elseExp:Expression ->
+		 * Expression {right, cons("IfThenElse")}
+		 */
 		private IfThenElse() {
 		}
 
@@ -1023,6 +1034,99 @@ public abstract class Expression extends AbstractAST {
 		}
 	}
 
+	public org.meta_environment.rascal.ast.Expression getLhs() {
+		throw new UnsupportedOperationException();
+	}
+
+	public org.meta_environment.rascal.ast.Expression getRhs() {
+		throw new UnsupportedOperationException();
+	}
+
+	public boolean hasLhs() {
+		return false;
+	}
+
+	public boolean hasRhs() {
+		return false;
+	}
+
+	public boolean isIfDefinedOtherwise() {
+		return false;
+	}
+
+	static public class IfDefinedOtherwise extends Expression {
+		/*
+		 * lhs:Expression "?" rhs:Expression -> Expression {non-assoc,
+		 * cons("IfDefinedOtherwise")}
+		 */
+		private IfDefinedOtherwise() {
+		}
+
+		/* package */IfDefinedOtherwise(INode node,
+				org.meta_environment.rascal.ast.Expression lhs,
+				org.meta_environment.rascal.ast.Expression rhs) {
+			this.node = node;
+			this.lhs = lhs;
+			this.rhs = rhs;
+		}
+
+		@Override
+		public <T> T accept(IASTVisitor<T> visitor) {
+			return visitor.visitExpressionIfDefinedOtherwise(this);
+		}
+
+		@Override
+		public boolean isIfDefinedOtherwise() {
+			return true;
+		}
+
+		@Override
+		public boolean hasLhs() {
+			return true;
+		}
+
+		@Override
+		public boolean hasRhs() {
+			return true;
+		}
+
+		private org.meta_environment.rascal.ast.Expression lhs;
+
+		@Override
+		public org.meta_environment.rascal.ast.Expression getLhs() {
+			return lhs;
+		}
+
+		private void $setLhs(org.meta_environment.rascal.ast.Expression x) {
+			this.lhs = x;
+		}
+
+		public IfDefinedOtherwise setLhs(
+				org.meta_environment.rascal.ast.Expression x) {
+			IfDefinedOtherwise z = new IfDefinedOtherwise();
+			z.$setLhs(x);
+			return z;
+		}
+
+		private org.meta_environment.rascal.ast.Expression rhs;
+
+		@Override
+		public org.meta_environment.rascal.ast.Expression getRhs() {
+			return rhs;
+		}
+
+		private void $setRhs(org.meta_environment.rascal.ast.Expression x) {
+			this.rhs = x;
+		}
+
+		public IfDefinedOtherwise setRhs(
+				org.meta_environment.rascal.ast.Expression x) {
+			IfDefinedOtherwise z = new IfDefinedOtherwise();
+			z.$setRhs(x);
+			return z;
+		}
+	}
+
 	public org.meta_environment.rascal.ast.Expression getPattern() {
 		throw new UnsupportedOperationException();
 	}
@@ -1044,7 +1148,10 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class Match extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * pattern:Expression ":=" expression:Expression -> Expression
+		 * {non-assoc, cons("Match")}
+		 */
 		private Match() {
 		}
 
@@ -1116,7 +1223,10 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class NoMatch extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * pattern:Expression "!:=" expression:Expression -> Expression
+		 * {non-assoc, cons("NoMatch")}
+		 */
 		private NoMatch() {
 		}
 
@@ -1184,28 +1294,15 @@ public abstract class Expression extends AbstractAST {
 		}
 	}
 
-	public org.meta_environment.rascal.ast.Expression getLhs() {
-		throw new UnsupportedOperationException();
-	}
-
-	public org.meta_environment.rascal.ast.Expression getRhs() {
-		throw new UnsupportedOperationException();
-	}
-
-	public boolean hasLhs() {
-		return false;
-	}
-
-	public boolean hasRhs() {
-		return false;
-	}
-
 	public boolean isEquals() {
 		return false;
 	}
 
 	static public class Equals extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * lhs:Expression "==" rhs:Expression -> Expression {left,
+		 * cons("Equals")}
+		 */
 		private Equals() {
 		}
 
@@ -1277,7 +1374,10 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class ValueProducer extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * pattern:Expression "<-" expression:Expression -> Expression {prefer,
+		 * cons("ValueProducer")}
+		 */
 		private ValueProducer() {
 		}
 
@@ -1359,7 +1459,10 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class ValueProducerWithStrategy extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * strategy:Strategy pattern:Expression "<-" expression:Expression ->
+		 * Expression {prefer, cons("ValueProducerWithStrategy")}
+		 */
 		private ValueProducerWithStrategy() {
 		}
 
@@ -1373,34 +1476,28 @@ public abstract class Expression extends AbstractAST {
 			this.expression = expression;
 		}
 
-		@Override
 		public <T> T accept(IASTVisitor<T> visitor) {
 			return visitor.visitExpressionValueProducerWithStrategy(this);
 		}
 
-		@Override
 		public boolean isValueProducerWithStrategy() {
 			return true;
 		}
 
-		@Override
 		public boolean hasStrategy() {
 			return true;
 		}
 
-		@Override
 		public boolean hasPattern() {
 			return true;
 		}
 
-		@Override
 		public boolean hasExpression() {
 			return true;
 		}
 
 		private org.meta_environment.rascal.ast.Strategy strategy;
 
-		@Override
 		public org.meta_environment.rascal.ast.Strategy getStrategy() {
 			return strategy;
 		}
@@ -1418,7 +1515,6 @@ public abstract class Expression extends AbstractAST {
 
 		private org.meta_environment.rascal.ast.Expression pattern;
 
-		@Override
 		public org.meta_environment.rascal.ast.Expression getPattern() {
 			return pattern;
 		}
@@ -1436,7 +1532,6 @@ public abstract class Expression extends AbstractAST {
 
 		private org.meta_environment.rascal.ast.Expression expression;
 
-		@Override
 		public org.meta_environment.rascal.ast.Expression getExpression() {
 			return expression;
 		}
@@ -1466,7 +1561,7 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class Comprehension extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* comprehension:Comprehension -> Expression {cons("Comprehension")} */
 		private Comprehension() {
 		}
 
@@ -1476,24 +1571,20 @@ public abstract class Expression extends AbstractAST {
 			this.comprehension = comprehension;
 		}
 
-		@Override
 		public <T> T accept(IASTVisitor<T> visitor) {
 			return visitor.visitExpressionComprehension(this);
 		}
 
-		@Override
 		public boolean isComprehension() {
 			return true;
 		}
 
-		@Override
 		public boolean hasComprehension() {
 			return true;
 		}
 
 		private org.meta_environment.rascal.ast.Comprehension comprehension;
 
-		@Override
 		public org.meta_environment.rascal.ast.Comprehension getComprehension() {
 			return comprehension;
 		}
@@ -1524,7 +1615,10 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class All extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * "all" "(" generators:{Expression ","}+ ")" -> Expression
+		 * {cons("All")}
+		 */
 		private All() {
 		}
 
@@ -1535,24 +1629,20 @@ public abstract class Expression extends AbstractAST {
 			this.generators = generators;
 		}
 
-		@Override
 		public <T> T accept(IASTVisitor<T> visitor) {
 			return visitor.visitExpressionAll(this);
 		}
 
-		@Override
 		public boolean isAll() {
 			return true;
 		}
 
-		@Override
 		public boolean hasGenerators() {
 			return true;
 		}
 
 		private java.util.List<org.meta_environment.rascal.ast.Expression> generators;
 
-		@Override
 		public java.util.List<org.meta_environment.rascal.ast.Expression> getGenerators() {
 			return generators;
 		}
@@ -1575,7 +1665,10 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class Any extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * "any" "(" generators:{Expression ","}+ ")" -> Expression
+		 * {cons("Any")}
+		 */
 		private Any() {
 		}
 
@@ -1586,24 +1679,20 @@ public abstract class Expression extends AbstractAST {
 			this.generators = generators;
 		}
 
-		@Override
 		public <T> T accept(IASTVisitor<T> visitor) {
 			return visitor.visitExpressionAny(this);
 		}
 
-		@Override
 		public boolean isAny() {
 			return true;
 		}
 
-		@Override
 		public boolean hasGenerators() {
 			return true;
 		}
 
 		private java.util.List<org.meta_environment.rascal.ast.Expression> generators;
 
-		@Override
 		public java.util.List<org.meta_environment.rascal.ast.Expression> getGenerators() {
 			return generators;
 		}
@@ -1634,7 +1723,10 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class Closure extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * type:Type parameters:Parameters "{" statements:Statement+ "}" ->
+		 * Expression {cons("Closure")}
+		 */
 		private Closure() {
 		}
 
@@ -1649,34 +1741,28 @@ public abstract class Expression extends AbstractAST {
 			this.statements = statements;
 		}
 
-		@Override
 		public <T> T accept(IASTVisitor<T> visitor) {
 			return visitor.visitExpressionClosure(this);
 		}
 
-		@Override
 		public boolean isClosure() {
 			return true;
 		}
 
-		@Override
 		public boolean hasType() {
 			return true;
 		}
 
-		@Override
 		public boolean hasParameters() {
 			return true;
 		}
 
-		@Override
 		public boolean hasStatements() {
 			return true;
 		}
 
 		private org.meta_environment.rascal.ast.Type type;
 
-		@Override
 		public org.meta_environment.rascal.ast.Type getType() {
 			return type;
 		}
@@ -1693,7 +1779,6 @@ public abstract class Expression extends AbstractAST {
 
 		private org.meta_environment.rascal.ast.Parameters parameters;
 
-		@Override
 		public org.meta_environment.rascal.ast.Parameters getParameters() {
 			return parameters;
 		}
@@ -1711,7 +1796,6 @@ public abstract class Expression extends AbstractAST {
 
 		private java.util.List<org.meta_environment.rascal.ast.Statement> statements;
 
-		@Override
 		public java.util.List<org.meta_environment.rascal.ast.Statement> getStatements() {
 			return statements;
 		}
@@ -1734,7 +1818,10 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class VoidClosure extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * parameters:Parameters "{" statements:Statement+ "}" -> Expression
+		 * {cons("VoidClosure")}
+		 */
 		private VoidClosure() {
 		}
 
@@ -1747,29 +1834,24 @@ public abstract class Expression extends AbstractAST {
 			this.statements = statements;
 		}
 
-		@Override
 		public <T> T accept(IASTVisitor<T> visitor) {
 			return visitor.visitExpressionVoidClosure(this);
 		}
 
-		@Override
 		public boolean isVoidClosure() {
 			return true;
 		}
 
-		@Override
 		public boolean hasParameters() {
 			return true;
 		}
 
-		@Override
 		public boolean hasStatements() {
 			return true;
 		}
 
 		private org.meta_environment.rascal.ast.Parameters parameters;
 
-		@Override
 		public org.meta_environment.rascal.ast.Parameters getParameters() {
 			return parameters;
 		}
@@ -1787,7 +1869,6 @@ public abstract class Expression extends AbstractAST {
 
 		private java.util.List<org.meta_environment.rascal.ast.Statement> statements;
 
-		@Override
 		public java.util.List<org.meta_environment.rascal.ast.Statement> getStatements() {
 			return statements;
 		}
@@ -1810,7 +1891,10 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class Bracket extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * "(" expression:Expression ")" -> Expression {cons("Bracket"),
+		 * bracket}
+		 */
 		private Bracket() {
 		}
 
@@ -1820,24 +1904,20 @@ public abstract class Expression extends AbstractAST {
 			this.expression = expression;
 		}
 
-		@Override
 		public <T> T accept(IASTVisitor<T> visitor) {
 			return visitor.visitExpressionBracket(this);
 		}
 
-		@Override
 		public boolean isBracket() {
 			return true;
 		}
 
-		@Override
 		public boolean hasExpression() {
 			return true;
 		}
 
 		private org.meta_environment.rascal.ast.Expression expression;
 
-		@Override
 		public org.meta_environment.rascal.ast.Expression getExpression() {
 			return expression;
 		}
@@ -1875,7 +1955,10 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class Range extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * "[" first:Expression ".." last:Expression "]" -> Expression
+		 * {cons("Range")}
+		 */
 		private Range() {
 		}
 
@@ -1887,29 +1970,24 @@ public abstract class Expression extends AbstractAST {
 			this.last = last;
 		}
 
-		@Override
 		public <T> T accept(IASTVisitor<T> visitor) {
 			return visitor.visitExpressionRange(this);
 		}
 
-		@Override
 		public boolean isRange() {
 			return true;
 		}
 
-		@Override
 		public boolean hasFirst() {
 			return true;
 		}
 
-		@Override
 		public boolean hasLast() {
 			return true;
 		}
 
 		private org.meta_environment.rascal.ast.Expression first;
 
-		@Override
 		public org.meta_environment.rascal.ast.Expression getFirst() {
 			return first;
 		}
@@ -1926,7 +2004,6 @@ public abstract class Expression extends AbstractAST {
 
 		private org.meta_environment.rascal.ast.Expression last;
 
-		@Override
 		public org.meta_environment.rascal.ast.Expression getLast() {
 			return last;
 		}
@@ -1955,7 +2032,10 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class StepRange extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * "[" first:Expression "," second:Expression ".." last:Expression "]"
+		 * -> Expression {cons("StepRange")}
+		 */
 		private StepRange() {
 		}
 
@@ -1969,34 +2049,28 @@ public abstract class Expression extends AbstractAST {
 			this.last = last;
 		}
 
-		@Override
 		public <T> T accept(IASTVisitor<T> visitor) {
 			return visitor.visitExpressionStepRange(this);
 		}
 
-		@Override
 		public boolean isStepRange() {
 			return true;
 		}
 
-		@Override
 		public boolean hasFirst() {
 			return true;
 		}
 
-		@Override
 		public boolean hasSecond() {
 			return true;
 		}
 
-		@Override
 		public boolean hasLast() {
 			return true;
 		}
 
 		private org.meta_environment.rascal.ast.Expression first;
 
-		@Override
 		public org.meta_environment.rascal.ast.Expression getFirst() {
 			return first;
 		}
@@ -2013,7 +2087,6 @@ public abstract class Expression extends AbstractAST {
 
 		private org.meta_environment.rascal.ast.Expression second;
 
-		@Override
 		public org.meta_environment.rascal.ast.Expression getSecond() {
 			return second;
 		}
@@ -2030,7 +2103,6 @@ public abstract class Expression extends AbstractAST {
 
 		private org.meta_environment.rascal.ast.Expression last;
 
-		@Override
 		public org.meta_environment.rascal.ast.Expression getLast() {
 			return last;
 		}
@@ -2059,7 +2131,7 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class OperatorAsValue extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* operator:OperatorAsValue -> Expression {cons("OperatorAsValue")} */
 		private OperatorAsValue() {
 		}
 
@@ -2069,24 +2141,20 @@ public abstract class Expression extends AbstractAST {
 			this.operator = operator;
 		}
 
-		@Override
 		public <T> T accept(IASTVisitor<T> visitor) {
 			return visitor.visitExpressionOperatorAsValue(this);
 		}
 
-		@Override
 		public boolean isOperatorAsValue() {
 			return true;
 		}
 
-		@Override
 		public boolean hasOperator() {
 			return true;
 		}
 
 		private org.meta_environment.rascal.ast.OperatorAsValue operator;
 
-		@Override
 		public org.meta_environment.rascal.ast.OperatorAsValue getOperator() {
 			return operator;
 		}
@@ -2117,7 +2185,7 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class FunctionAsValue extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* function:FunctionAsValue -> Expression {cons("FunctionAsValue")} */
 		private FunctionAsValue() {
 		}
 
@@ -2127,24 +2195,20 @@ public abstract class Expression extends AbstractAST {
 			this.function = function;
 		}
 
-		@Override
 		public <T> T accept(IASTVisitor<T> visitor) {
 			return visitor.visitExpressionFunctionAsValue(this);
 		}
 
-		@Override
 		public boolean isFunctionAsValue() {
 			return true;
 		}
 
-		@Override
 		public boolean hasFunction() {
 			return true;
 		}
 
 		private org.meta_environment.rascal.ast.FunctionAsValue function;
 
-		@Override
 		public org.meta_environment.rascal.ast.FunctionAsValue getFunction() {
 			return function;
 		}
@@ -2175,7 +2239,10 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class ClosureCall extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * closure:ClosureAsFunction "(" arguments:{Expression ","} ")" ->
+		 * Expression {cons("ClosureCall")}
+		 */
 		private ClosureCall() {
 		}
 
@@ -2188,29 +2255,24 @@ public abstract class Expression extends AbstractAST {
 			this.arguments = arguments;
 		}
 
-		@Override
 		public <T> T accept(IASTVisitor<T> visitor) {
 			return visitor.visitExpressionClosureCall(this);
 		}
 
-		@Override
 		public boolean isClosureCall() {
 			return true;
 		}
 
-		@Override
 		public boolean hasClosure() {
 			return true;
 		}
 
-		@Override
 		public boolean hasArguments() {
 			return true;
 		}
 
 		private org.meta_environment.rascal.ast.ClosureAsFunction closure;
 
-		@Override
 		public org.meta_environment.rascal.ast.ClosureAsFunction getClosure() {
 			return closure;
 		}
@@ -2229,7 +2291,6 @@ public abstract class Expression extends AbstractAST {
 
 		private java.util.List<org.meta_environment.rascal.ast.Expression> arguments;
 
-		@Override
 		public java.util.List<org.meta_environment.rascal.ast.Expression> getArguments() {
 			return arguments;
 		}
@@ -2268,7 +2329,10 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class FieldUpdate extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * expression:Expression "[" key:Name "=" replacement:Expression "]" ->
+		 * Expression {cons("FieldUpdate")}
+		 */
 		private FieldUpdate() {
 		}
 
@@ -2282,34 +2346,28 @@ public abstract class Expression extends AbstractAST {
 			this.replacement = replacement;
 		}
 
-		@Override
 		public <T> T accept(IASTVisitor<T> visitor) {
 			return visitor.visitExpressionFieldUpdate(this);
 		}
 
-		@Override
 		public boolean isFieldUpdate() {
 			return true;
 		}
 
-		@Override
 		public boolean hasExpression() {
 			return true;
 		}
 
-		@Override
 		public boolean hasKey() {
 			return true;
 		}
 
-		@Override
 		public boolean hasReplacement() {
 			return true;
 		}
 
 		private org.meta_environment.rascal.ast.Expression expression;
 
-		@Override
 		public org.meta_environment.rascal.ast.Expression getExpression() {
 			return expression;
 		}
@@ -2327,7 +2385,6 @@ public abstract class Expression extends AbstractAST {
 
 		private org.meta_environment.rascal.ast.Name key;
 
-		@Override
 		public org.meta_environment.rascal.ast.Name getKey() {
 			return key;
 		}
@@ -2344,7 +2401,6 @@ public abstract class Expression extends AbstractAST {
 
 		private org.meta_environment.rascal.ast.Expression replacement;
 
-		@Override
 		public org.meta_environment.rascal.ast.Expression getReplacement() {
 			return replacement;
 		}
@@ -2375,7 +2431,10 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class FieldAccess extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * expression:Expression "." field:Name -> Expression
+		 * {cons("FieldAccess")}
+		 */
 		private FieldAccess() {
 		}
 
@@ -2387,29 +2446,24 @@ public abstract class Expression extends AbstractAST {
 			this.field = field;
 		}
 
-		@Override
 		public <T> T accept(IASTVisitor<T> visitor) {
 			return visitor.visitExpressionFieldAccess(this);
 		}
 
-		@Override
 		public boolean isFieldAccess() {
 			return true;
 		}
 
-		@Override
 		public boolean hasExpression() {
 			return true;
 		}
 
-		@Override
 		public boolean hasField() {
 			return true;
 		}
 
 		private org.meta_environment.rascal.ast.Expression expression;
 
-		@Override
 		public org.meta_environment.rascal.ast.Expression getExpression() {
 			return expression;
 		}
@@ -2427,7 +2481,6 @@ public abstract class Expression extends AbstractAST {
 
 		private org.meta_environment.rascal.ast.Name field;
 
-		@Override
 		public org.meta_environment.rascal.ast.Name getField() {
 			return field;
 		}
@@ -2456,7 +2509,10 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class FieldProject extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * expression:Expression "<" fields:{Field ","}+ ">" -> Expression
+		 * {cons("FieldProject")}
+		 */
 		private FieldProject() {
 		}
 
@@ -2468,29 +2524,24 @@ public abstract class Expression extends AbstractAST {
 			this.fields = fields;
 		}
 
-		@Override
 		public <T> T accept(IASTVisitor<T> visitor) {
 			return visitor.visitExpressionFieldProject(this);
 		}
 
-		@Override
 		public boolean isFieldProject() {
 			return true;
 		}
 
-		@Override
 		public boolean hasExpression() {
 			return true;
 		}
 
-		@Override
 		public boolean hasFields() {
 			return true;
 		}
 
 		private org.meta_environment.rascal.ast.Expression expression;
 
-		@Override
 		public org.meta_environment.rascal.ast.Expression getExpression() {
 			return expression;
 		}
@@ -2508,7 +2559,6 @@ public abstract class Expression extends AbstractAST {
 
 		private java.util.List<org.meta_environment.rascal.ast.Field> fields;
 
-		@Override
 		public java.util.List<org.meta_environment.rascal.ast.Field> getFields() {
 			return fields;
 		}
@@ -2539,7 +2589,10 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class Subscript extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * expression:Expression "[" subscripts: {Expression ","}+"]" ->
+		 * Expression {cons("Subscript")}
+		 */
 		private Subscript() {
 		}
 
@@ -2552,29 +2605,24 @@ public abstract class Expression extends AbstractAST {
 			this.subscripts = subscripts;
 		}
 
-		@Override
 		public <T> T accept(IASTVisitor<T> visitor) {
 			return visitor.visitExpressionSubscript(this);
 		}
 
-		@Override
 		public boolean isSubscript() {
 			return true;
 		}
 
-		@Override
 		public boolean hasExpression() {
 			return true;
 		}
 
-		@Override
 		public boolean hasSubscripts() {
 			return true;
 		}
 
 		private org.meta_environment.rascal.ast.Expression expression;
 
-		@Override
 		public org.meta_environment.rascal.ast.Expression getExpression() {
 			return expression;
 		}
@@ -2592,7 +2640,6 @@ public abstract class Expression extends AbstractAST {
 
 		private java.util.List<org.meta_environment.rascal.ast.Expression> subscripts;
 
-		@Override
 		public java.util.List<org.meta_environment.rascal.ast.Expression> getSubscripts() {
 			return subscripts;
 		}
@@ -2623,7 +2670,7 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class IsDefined extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* argument:Expression "?" -> Expression {cons("IsDefined")} */
 		private IsDefined() {
 		}
 
@@ -2633,24 +2680,20 @@ public abstract class Expression extends AbstractAST {
 			this.argument = argument;
 		}
 
-		@Override
 		public <T> T accept(IASTVisitor<T> visitor) {
 			return visitor.visitExpressionIsDefined(this);
 		}
 
-		@Override
 		public boolean isIsDefined() {
 			return true;
 		}
 
-		@Override
 		public boolean hasArgument() {
 			return true;
 		}
 
 		private org.meta_environment.rascal.ast.Expression argument;
 
-		@Override
 		public org.meta_environment.rascal.ast.Expression getArgument() {
 			return argument;
 		}
@@ -2672,7 +2715,7 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class Negation extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "!" argument:Expression -> Expression {cons("Negation")} */
 		private Negation() {
 		}
 
@@ -2682,24 +2725,20 @@ public abstract class Expression extends AbstractAST {
 			this.argument = argument;
 		}
 
-		@Override
 		public <T> T accept(IASTVisitor<T> visitor) {
 			return visitor.visitExpressionNegation(this);
 		}
 
-		@Override
 		public boolean isNegation() {
 			return true;
 		}
 
-		@Override
 		public boolean hasArgument() {
 			return true;
 		}
 
 		private org.meta_environment.rascal.ast.Expression argument;
 
-		@Override
 		public org.meta_environment.rascal.ast.Expression getArgument() {
 			return argument;
 		}
@@ -2720,7 +2759,7 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class Negative extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "-" argument:Expression -> Expression {cons("Negative")} */
 		private Negative() {
 		}
 
@@ -2730,24 +2769,20 @@ public abstract class Expression extends AbstractAST {
 			this.argument = argument;
 		}
 
-		@Override
 		public <T> T accept(IASTVisitor<T> visitor) {
 			return visitor.visitExpressionNegative(this);
 		}
 
-		@Override
 		public boolean isNegative() {
 			return true;
 		}
 
-		@Override
 		public boolean hasArgument() {
 			return true;
 		}
 
 		private org.meta_environment.rascal.ast.Expression argument;
 
-		@Override
 		public org.meta_environment.rascal.ast.Expression getArgument() {
 			return argument;
 		}
@@ -2768,7 +2803,10 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class TransitiveReflexiveClosure extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * argument:Expression "*" -> Expression
+		 * {cons("TransitiveReflexiveClosure")}
+		 */
 		private TransitiveReflexiveClosure() {
 		}
 
@@ -2778,12 +2816,10 @@ public abstract class Expression extends AbstractAST {
 			this.argument = argument;
 		}
 
-		@Override
 		public <T> T accept(IASTVisitor<T> visitor) {
 			return visitor.visitExpressionTransitiveReflexiveClosure(this);
 		}
 
-		@Override
 		public boolean isTransitiveReflexiveClosure() {
 			return true;
 		}
@@ -2815,7 +2851,7 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class TransitiveClosure extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* argument:Expression "+" -> Expression {cons("TransitiveClosure")} */
 		private TransitiveClosure() {
 		}
 
@@ -2860,7 +2896,10 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class GetAnnotation extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * expression:Expression "@" name:Name -> Expression
+		 * {cons("GetAnnotation")}
+		 */
 		private GetAnnotation() {
 		}
 
@@ -2935,7 +2974,10 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class SetAnnotation extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * expression:Expression "[" "@" name:Name "=" value: Expression "]" ->
+		 * Expression {cons("SetAnnotation")}
+		 */
 		private SetAnnotation() {
 		}
 
@@ -3025,7 +3067,10 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class Composition extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * lhs:Expression "o" rhs:Expression -> Expression {cons("Composition"),
+		 * left}
+		 */
 		private Composition() {
 		}
 
@@ -3091,7 +3136,10 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class Product extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * lhs:Expression "*" rhs:Expression -> Expression {cons("Product"),
+		 * left}
+		 */
 		private Product() {
 		}
 
@@ -3157,7 +3205,10 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class Division extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * lhs:Expression "/" rhs:Expression -> Expression {cons("Division"),
+		 * left}
+		 */
 		private Division() {
 		}
 
@@ -3223,7 +3274,10 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class Modulo extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * lhs:Expression "%" rhs:Expression -> Expression {cons("Modulo"),
+		 * left}
+		 */
 		private Modulo() {
 		}
 
@@ -3289,7 +3343,10 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class Intersection extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * lhs:Expression "&" rhs:Expression -> Expression
+		 * {cons("Intersection"), left}
+		 */
 		private Intersection() {
 		}
 
@@ -3355,7 +3412,10 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class Addition extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * lhs:Expression "+" rhs:Expression -> Expression {cons("Addition"),
+		 * left}
+		 */
 		private Addition() {
 		}
 
@@ -3421,7 +3481,10 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class Subtraction extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * lhs:Expression "-" rhs:Expression -> Expression {cons("Subtraction"),
+		 * left}
+		 */
 		private Subtraction() {
 		}
 
@@ -3487,7 +3550,10 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class NotIn extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * lhs:Expression "notin" rhs:Expression -> Expression {non-assoc,
+		 * cons("NotIn")}
+		 */
 		private NotIn() {
 		}
 
@@ -3553,7 +3619,10 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class In extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * lhs:Expression "in" rhs:Expression -> Expression {non-assoc,
+		 * cons("In")}
+		 */
 		private In() {
 		}
 
@@ -3614,80 +3683,15 @@ public abstract class Expression extends AbstractAST {
 		}
 	}
 
-	public boolean isIfDefinedOtherwise() {
-		return false;
-	}
-
-	static public class IfDefinedOtherwise extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
-		private IfDefinedOtherwise() {
-		}
-
-		/* package */IfDefinedOtherwise(INode node,
-				org.meta_environment.rascal.ast.Expression lhs,
-				org.meta_environment.rascal.ast.Expression rhs) {
-			this.node = node;
-			this.lhs = lhs;
-			this.rhs = rhs;
-		}
-
-		public <T> T accept(IASTVisitor<T> visitor) {
-			return visitor.visitExpressionIfDefinedOtherwise(this);
-		}
-
-		public boolean isIfDefinedOtherwise() {
-			return true;
-		}
-
-		public boolean hasLhs() {
-			return true;
-		}
-
-		public boolean hasRhs() {
-			return true;
-		}
-
-		private org.meta_environment.rascal.ast.Expression lhs;
-
-		public org.meta_environment.rascal.ast.Expression getLhs() {
-			return lhs;
-		}
-
-		private void $setLhs(org.meta_environment.rascal.ast.Expression x) {
-			this.lhs = x;
-		}
-
-		public IfDefinedOtherwise setLhs(
-				org.meta_environment.rascal.ast.Expression x) {
-			IfDefinedOtherwise z = new IfDefinedOtherwise();
-			z.$setLhs(x);
-			return z;
-		}
-
-		private org.meta_environment.rascal.ast.Expression rhs;
-
-		public org.meta_environment.rascal.ast.Expression getRhs() {
-			return rhs;
-		}
-
-		private void $setRhs(org.meta_environment.rascal.ast.Expression x) {
-			this.rhs = x;
-		}
-
-		public IfDefinedOtherwise setRhs(
-				org.meta_environment.rascal.ast.Expression x) {
-			IfDefinedOtherwise z = new IfDefinedOtherwise();
-			z.$setRhs(x);
-			return z;
-		}
-	}
-
 	public boolean isLessThan() {
 		return false;
 	}
 
 	static public class LessThan extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * lhs:Expression "<" rhs:Expression -> Expression {non-assoc,
+		 * cons("LessThan")}
+		 */
 		private LessThan() {
 		}
 
@@ -3753,7 +3757,10 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class LessThanOrEq extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * lhs:Expression "<=" rhs:Expression -> Expression {non-assoc,
+		 * cons("LessThanOrEq")}
+		 */
 		private LessThanOrEq() {
 		}
 
@@ -3819,7 +3826,10 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class GreaterThan extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * lhs:Expression ">" rhs:Expression -> Expression {non-assoc,
+		 * cons("GreaterThan")}
+		 */
 		private GreaterThan() {
 		}
 
@@ -3885,7 +3895,10 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class GreaterThanOrEq extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * lhs:Expression ">=" rhs:Expression -> Expression {non-assoc,
+		 * cons("GreaterThanOrEq")}
+		 */
 		private GreaterThanOrEq() {
 		}
 
@@ -3953,7 +3966,10 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class NonEquals extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * lhs:Expression "!=" rhs:Expression -> Expression {left,
+		 * cons("NonEquals")}
+		 */
 		private NonEquals() {
 		}
 
@@ -4019,7 +4035,10 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class Implication extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * lhs:Expression "==>" rhs:Expression -> Expression {right,
+		 * cons("Implication")}
+		 */
 		private Implication() {
 		}
 
@@ -4085,7 +4104,10 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class Equivalence extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * lhs:Expression "<==>" rhs:Expression -> Expression {right,
+		 * cons("Equivalence")}
+		 */
 		private Equivalence() {
 		}
 
@@ -4151,7 +4173,7 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class And extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* lhs:Expression "&&" rhs:Expression -> Expression {left, cons("And")} */
 		private And() {
 		}
 
@@ -4217,7 +4239,7 @@ public abstract class Expression extends AbstractAST {
 	}
 
 	static public class Or extends Expression {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* lhs:Expression "||" rhs:Expression -> Expression {left, cons("Or")} */
 		private Or() {
 		}
 

@@ -16,7 +16,7 @@ public abstract class Field extends AbstractAST {
 	}
 
 	static public class Name extends Field {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* fieldName:Name -> Field {cons("Name")} */
 		private Name() {
 		}
 
@@ -93,7 +93,7 @@ public abstract class Field extends AbstractAST {
 	}
 
 	static public class Index extends Field {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* fieldIndex:IntegerLiteral -> Field {cons("Index")} */
 		private Index() {
 		}
 

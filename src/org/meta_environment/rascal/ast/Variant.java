@@ -24,7 +24,10 @@ public abstract class Variant extends AbstractAST {
 	}
 
 	static public class NAryConstructor extends Variant {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * name:Name "(" arguments:{TypeArg ","} ")" -> Variant
+		 * {cons("NAryConstructor")}
+		 */
 		private NAryConstructor() {
 		}
 
@@ -120,7 +123,7 @@ public abstract class Variant extends AbstractAST {
 	}
 
 	static public class NillaryConstructor extends Variant {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* name:Name -> Variant {cons("NillaryConstructor")} */
 		private NillaryConstructor() {
 		}
 

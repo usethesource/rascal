@@ -8,7 +8,7 @@ public abstract class Symbol extends AbstractAST {
 	}
 
 	static public class Empty extends Symbol {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "(" ")" -> Symbol {cons("Empty")} */
 		private Empty() {
 		}
 
@@ -69,7 +69,7 @@ public abstract class Symbol extends AbstractAST {
 	}
 
 	static public class Sequence extends Symbol {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "(" head:Symbol tail:Symbol+ ")" -> Symbol {cons("Sequence")} */
 		private Sequence() {
 		}
 
@@ -154,7 +154,7 @@ public abstract class Symbol extends AbstractAST {
 	}
 
 	static public class Optional extends Symbol {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* symbol:Symbol "?" -> Symbol {cons("Optional")} */
 		private Optional() {
 		}
 
@@ -202,7 +202,7 @@ public abstract class Symbol extends AbstractAST {
 	}
 
 	static public class Iter extends Symbol {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* symbol:Symbol "+" -> Symbol {cons("Iter")} */
 		private Iter() {
 		}
 
@@ -250,7 +250,7 @@ public abstract class Symbol extends AbstractAST {
 	}
 
 	static public class IterStar extends Symbol {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* symbol:Symbol "*" -> Symbol {cons("IterStar")} */
 		private IterStar() {
 		}
 
@@ -306,7 +306,7 @@ public abstract class Symbol extends AbstractAST {
 	}
 
 	static public class IterSep extends Symbol {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "{" symbol:Symbol sep:StrCon "}" "+" -> Symbol {cons("IterSep")} */
 		private IterSep() {
 		}
 
@@ -378,7 +378,7 @@ public abstract class Symbol extends AbstractAST {
 	}
 
 	static public class IterStarSep extends Symbol {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "{" symbol:Symbol sep:StrCon "}" "*" -> Symbol {cons("IterStarSep")} */
 		private IterStarSep() {
 		}
 
@@ -466,7 +466,7 @@ public abstract class Symbol extends AbstractAST {
 	}
 
 	static public class Alternative extends Symbol {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* lhs:Symbol "|" rhs:Symbol -> Symbol {right, cons("Alternative")} */
 		private Alternative() {
 		}
 
@@ -546,7 +546,7 @@ public abstract class Symbol extends AbstractAST {
 	}
 
 	static public class CharacterClass extends Symbol {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* charClass:CharClass -> Symbol {cons("CharacterClass")} */
 		private CharacterClass() {
 		}
 
@@ -595,7 +595,7 @@ public abstract class Symbol extends AbstractAST {
 	}
 
 	static public class LiftedSymbol extends Symbol {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* "`" symbol:Symbol "`" -> Symbol {cons("LiftedSymbol")} */
 		private LiftedSymbol() {
 		}
 
@@ -651,7 +651,7 @@ public abstract class Symbol extends AbstractAST {
 	}
 
 	static public class Literal extends Symbol {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/* string:StrCon -> Symbol {cons("Literal")} */
 		private Literal() {
 		}
 
@@ -707,7 +707,10 @@ public abstract class Symbol extends AbstractAST {
 	}
 
 	static public class CaseInsensitiveLiteral extends Symbol {
-		/** &syms -> &sort {&attr*1, cons(&strcon), &attr*2} */
+		/*
+		 * singelQuotedString:SingleQuotedStrCon -> Symbol
+		 * {cons("CaseInsensitiveLiteral")}
+		 */
 		private CaseInsensitiveLiteral() {
 		}
 

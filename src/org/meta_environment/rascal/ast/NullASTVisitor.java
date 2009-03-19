@@ -245,10 +245,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
 		return null;
 	}
 
-	public T visitExpressionIfDefinedOtherwise(Expression.IfDefinedOtherwise x) {
-		return null;
-	}
-
 	public T visitExpressionIn(Expression.In x) {
 		return null;
 	}
@@ -392,6 +388,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
 	}
 
 	public T visitExpressionMatch(Expression.Match x) {
+		return null;
+	}
+
+	public T visitExpressionIfDefinedOtherwise(Expression.IfDefinedOtherwise x) {
 		return null;
 	}
 
