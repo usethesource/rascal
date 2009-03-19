@@ -37,6 +37,7 @@ import org.meta_environment.rascal.ast.Tag;
 import org.meta_environment.rascal.ast.Tags;
 import org.meta_environment.rascal.ast.Type;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
+import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.staticErrors.JavaCompilationError;
 import org.meta_environment.rascal.interpreter.staticErrors.MissingTagError;
 import org.meta_environment.rascal.interpreter.staticErrors.NonAbstractJavaFunctionError;
@@ -74,15 +75,15 @@ public class JavaBridge {
 		}
 	}
 
-	public Method compileJavaMethod(FunctionDeclaration declaration) {
+	public Method compileJavaMethod(FunctionDeclaration declaration, Environment env) {
 		try {
-			return getJavaMethod(declaration);
+			return getJavaMethod(declaration, env);
 		} catch (ClassNotFoundException e) {
 			throw new ImplementationError("Error during Java compilation", e.getCause());
 		}
 	}
 	
-	private Method getJavaMethod(FunctionDeclaration declaration) throws ClassNotFoundException {
+	private Method getJavaMethod(FunctionDeclaration declaration, Environment env) throws ClassNotFoundException {
 		Class<?> clazz = cache.get(declaration);
 		
 		if (clazz == null) {
@@ -91,7 +92,7 @@ public class JavaBridge {
 		}
 		
 		Parameters parameters = declaration.getSignature().getParameters();
-		Class<?>[] javaTypes = getJavaTypes(parameters);
+		Class<?>[] javaTypes = getJavaTypes(parameters, env);
 		
 		try {
 			if (javaTypes.length > 0) { // non-void
@@ -303,11 +304,11 @@ public class JavaBridge {
 		}
 	}
 	
-	private Class<?>[] getJavaTypes(Parameters parameters) {
+	private Class<?>[] getJavaTypes(Parameters parameters, Environment env) {
 		List<Formal> formals = parameters.getFormals().getFormals();
 		Class<?>[] classes = new Class<?>[formals.size()];
 		for (int i = 0; i < classes.length;) {
-			Class<?> clazz = toJavaClass(formals.get(i));
+			Class<?> clazz = toJavaClass(formals.get(i), env);
 			
 			if (clazz != null) {
 			  classes[i++] = clazz;
@@ -317,16 +318,16 @@ public class JavaBridge {
 		return classes;
 	}
 	
-	private Class<?> toJavaClass(Formal formal) {
-		return toJavaClass(toValueType(formal));
+	private Class<?> toJavaClass(Formal formal, Environment env) {
+		return toJavaClass(toValueType(formal, env));
 	}
 
 	private Class<?> toJavaClass(org.eclipse.imp.pdb.facts.type.Type type) {
 		return type.accept(javaClasses);
 	}
 	
-	private org.eclipse.imp.pdb.facts.type.Type toValueType(Formal formal) {
-		return TE.eval(formal);
+	private org.eclipse.imp.pdb.facts.type.Type toValueType(Formal formal, Environment env) {
+		return TE.eval(formal, env);
 	}
 	
 	private static class JavaClasses implements ITypeVisitor<Class<?>> {
@@ -352,7 +353,7 @@ public class JavaBridge {
 		}
 
 		public Class<?> visitAlias(org.eclipse.imp.pdb.facts.type.Type type) {
-			return IValue.class;
+			return type.getAliased().accept(this);
 		}
 
 		public Class<?> visitAbstractData(org.eclipse.imp.pdb.facts.type.Type type) {
@@ -400,7 +401,7 @@ public class JavaBridge {
 		}
 	}
 
-	public Method lookupJavaMethod(FunctionDeclaration func) {
+	public Method lookupJavaMethod(FunctionDeclaration func, Environment env) {
 		if (!func.isAbstract()) {
 			throw new NonAbstractJavaFunctionError(func);
 		}
@@ -416,7 +417,7 @@ public class JavaBridge {
 			try {
 				Class<?> clazz = loader.loadClass(className);
 				Parameters parameters = func.getSignature().getParameters();
-				Class<?>[] javaTypes = getJavaTypes(parameters);
+				Class<?>[] javaTypes = getJavaTypes(parameters, env);
 
 				try {
 					Method m;

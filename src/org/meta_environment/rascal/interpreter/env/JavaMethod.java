@@ -26,7 +26,7 @@ public class JavaMethod extends Lambda {
 				Names.name(func.getSignature().getName()), 
 				TE.eval(func.getSignature().getParameters(), env),
 				varargs, Collections.EMPTY_LIST, env);
-		this.method = javaBridge.lookupJavaMethod(func);
+		this.method = javaBridge.lookupJavaMethod(func, env);
 		this.func = func;
 	}
 	

@@ -26,7 +26,7 @@ public class JavaFunction extends Lambda {
 				Names.name(func.getSignature().getName()), 
 				TE.eval(func.getSignature().getParameters(), env),
 				varargs, Collections.EMPTY_LIST, env);
-		this.method = javaBridge.compileJavaMethod(func);
+		this.method = javaBridge.compileJavaMethod(func, env);
 		this.func = func;
 	}
 	
