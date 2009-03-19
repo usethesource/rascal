@@ -70,7 +70,7 @@ public Exp rename(Exp E, map[str,str] Rn) {
     	 return apply(rename(E1, Rn), rename(E2, Rn));
     
     case var(str Name):
-    	 return var(Rn[Name] ?= Name);
+    	 return var(Rn[Name] ? Name);
    
     case op(str Name, Exp E1, Exp E2):
          return op(Name, rename(E1, Rn), rename(E2, Rn));
