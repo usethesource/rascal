@@ -18,15 +18,4 @@ Export-Package: org.meta_environment.errors,
  org.meta_environment.rascal.parser,
  org.meta_environment.uptr,
  org.meta_environment.uptr.visitors
-Require-Bundle: sglr_invoker,
- sglr,
- aterm,
- c_library,
- config_support,
- error_support,
- toolbuslib,
- ptable_support,
- pt_support,
- pt_support,
- org.eclipse.imp.pdb.values
-Bundle-RequiredExecutionEnvironment: J2SE-1.5
+Require-Bundle: org.eclipse.imp.pdb.values
