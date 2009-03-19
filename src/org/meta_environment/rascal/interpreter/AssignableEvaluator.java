@@ -69,7 +69,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 	@Override
 	public Result visitAssignableVariable(Variable x) {
 		String name = x.getQualifiedName().toString();
-		Result previous = env.getVariable(x.getQualifiedName(), name);
+		Result previous = env.getVariable(x.getQualifiedName());
 		
 		if (previous != null) {
 			if (value.getType().isSubtypeOf(previous.getType())) {
@@ -79,7 +79,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 				throw new UnexpectedTypeError(previous.getType(), value.getType(), x);
 			}
 			if(operator == AssignmentOperator.Default){
-				env.storeVariable(name, value);
+				env.storeVariable(x.getQualifiedName(), value);
 			} else {
 				//TODO add the various operators here.
 			}

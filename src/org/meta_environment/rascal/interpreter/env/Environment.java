@@ -17,6 +17,7 @@ import org.meta_environment.rascal.interpreter.Names;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredFunctionError;
+import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
 
 
 /**
@@ -113,8 +114,15 @@ public class Environment {
 	}
 	
 	public void storeVariable(QualifiedName name, Result result) {
-		String varName = Names.name(Names.lastName(name));
-		storeVariable(varName, result);
+ 		if (name.getNames().size() > 1) {
+ 			if (!isRoot()) {
+ 				parent.storeVariable(name, result);
+ 			}
+ 		}
+ 		else {
+ 			String varName = Names.name(Names.lastName(name));
+ 			storeVariable(varName, result);
+ 		}
 	}
 	
 	public Result getVariable(AbstractAST ast, String name) {
