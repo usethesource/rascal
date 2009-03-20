@@ -50,6 +50,13 @@ public void dashti(int n){
    expand(toSet(permutations([1 .. N])));
 }
 
+Permutation transfer(Permutation perm, Symbol sym){
+  if(perm != [] && perm[0] == sym)
+     return tail(perm);
+  else 
+     return perm;
+}
+
 // Expand list of permutations
 
 public StateId expand(set[Permutation] elms){
@@ -65,9 +72,7 @@ public StateId expand(set[Permutation] elms){
    
     Transitions[sid] =
        {<expand(nextState), sym> | Symbol sym <- [1 .. N], 
-       	                           set[Permutation] nextState := 
-       	                                { ((perm != [] && perm[0] == sym) ? tail(perm) : perm) | Permutation perm <- elms }
- 
+       	                           set[Permutation] nextState := { transfer(perm, sym) | Permutation perm <- elms }
        };
     return sid;
 }
@@ -96,7 +101,7 @@ public void test(int N){
   println("Number of States = <nStates>, Time=<delta> sec.");
 
   G = buildGraph();
-  if(N <= 3)
+  if(N <= 4)
  	 println("Graph = <G>");
   L = size(G);
   println("Edges: <L>");
