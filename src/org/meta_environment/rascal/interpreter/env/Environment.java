@@ -17,7 +17,6 @@ import org.meta_environment.rascal.interpreter.Names;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredFunctionError;
-import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
 
 
 /**
