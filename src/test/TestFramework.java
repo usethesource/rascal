@@ -43,6 +43,7 @@ public class TestFramework {
 		// to load modules from the test directory without qualification
 		eval.addModuleLoader(new FromResourceLoader(getClass(), "test"));
 
+		eval.setImportResetsInterpreter(false);
 		return eval;
 	}
 

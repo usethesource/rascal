@@ -1,0 +1,1528 @@
+JAVA PROFILE 1.0.1, created Thu Mar 19 13:33:47 2009
+
+Header for -agentlib:hprof (or -Xrunhprof) ASCII Output (JDK 5.0 JVMTI based)
+
+@(#)jvm.hprof.txt	1.5 06/01/28
+
+ Copyright (c) 2006 Sun Microsystems, Inc. All  Rights Reserved.
+
+WARNING!  This file format is under development, and is subject to
+change without notice.
+
+This file contains the following types of records:
+
+THREAD START
+THREAD END      mark the lifetime of Java threads
+
+TRACE           represents a Java stack trace.  Each trace consists
+                of a series of stack frames.  Other records refer to
+                TRACEs to identify (1) where object allocations have
+                taken place, (2) the frames in which GC roots were
+                found, and (3) frequently executed methods.
+
+HEAP DUMP       is a complete snapshot of all live objects in the Java
+                heap.  Following distinctions are made:
+
+                ROOT    root set as determined by GC
+                CLS     classes 
+                OBJ     instances
+                ARR     arrays
+
+SITES           is a sorted list of allocation sites.  This identifies
+                the most heavily allocated object types, and the TRACE
+                at which those allocations occurred.
+
+CPU SAMPLES     is a statistical profile of program execution.  The VM
+                periodically samples all running threads, and assigns
+                a quantum to active TRACEs in those threads.  Entries
+                in this record are TRACEs ranked by the percentage of
+                total quanta they consumed; top-ranked TRACEs are
+                typically hot spots in the program.
+
+CPU TIME        is a profile of program execution obtained by measuring
+                the time spent in individual methods (excluding the time
+                spent in callees), as well as by counting the number of
+                times each method is called. Entries in this record are
+                TRACEs ranked by the percentage of total CPU time. The
+                "count" field indicates the number of times each TRACE 
+                is invoked.
+
+MONITOR TIME    is a profile of monitor contention obtained by measuring
+                the time spent by a thread waiting to enter a monitor.
+                Entries in this record are TRACEs ranked by the percentage
+                of total monitor contention time and a brief description
+                of the monitor.  The "count" field indicates the number of 
+                times the monitor was contended at that TRACE.
+
+MONITOR DUMP    is a complete snapshot of all the monitors and threads in 
+                the System.
+
+HEAP DUMP, SITES, CPU SAMPLES|TIME and MONITOR DUMP|TIME records are generated 
+at program exit.  They can also be obtained during program execution by typing 
+Ctrl-\ (on Solaris) or by typing Ctrl-Break (on Win32).
+
+--------
+
+THREAD START (obj=5000013e, id = 200001, name="main", group="main")
+THREAD START (obj=5000013e, id = 200004, name="process reaper", group="main")
+THREAD END (id = 200004)
+THREAD START (obj=5000013e, id = 200005, name="process reaper", group="main")
+THREAD END (id = 200005)
+THREAD START (obj=5000013e, id = 200006, name="process reaper", group="main")
+THREAD END (id = 200006)
+THREAD START (obj=5000013e, id = 200007, name="Thread-1", group="main")
+THREAD START (obj=5000013e, id = 200008, name="process reaper", group="main")
+THREAD END (id = 200008)
+THREAD END (id = 200001)
+TRACE 300006:
+	java.io.UnixFileSystem.getBooleanAttributes0(UnixFileSystem.java:Unknown line)
+	java.io.UnixFileSystem.getBooleanAttributes(UnixFileSystem.java:228)
+	java.io.File.exists(File.java:733)
+	sun.misc.URLClassPath$FileLoader.getResource(URLClassPath.java:983)
+TRACE 300182:
+	sglr.SGLRInvoker.parse(SGLRInvoker.java:Unknown line)
+	sglr.SGLRInvoker.run(SGLRInvoker.java:96)
+	java.lang.Thread.run(Thread.java:619)
+TRACE 300009:
+	java.io.FileInputStream.open(FileInputStream.java:Unknown line)
+	java.io.FileInputStream.<init>(FileInputStream.java:106)
+	sun.misc.URLClassPath$FileLoader$1.getInputStream(URLClassPath.java:989)
+	sun.misc.Resource.cachedInputStream(Resource.java:59)
+TRACE 300297:
+	org.eclipse.imp.pdb.facts.impl.Value.getType(Value.java:40)
+	org.eclipse.imp.pdb.facts.type.TypeFactory.tupleType(TypeFactory.java:218)
+	org.eclipse.imp.pdb.facts.impl.reference.ValueFactory.constructor(ValueFactory.java:164)
+	org.eclipse.imp.pdb.facts.type.ConstructorType.make(ConstructorType.java:214)
+TRACE 300270:
+	org.eclipse.imp.pdb.facts.impl.Value.getType(Value.java:40)
+	org.eclipse.imp.pdb.facts.type.TypeFactory.tupleType(TypeFactory.java:218)
+	org.eclipse.imp.pdb.facts.impl.reference.ValueFactory.constructor(ValueFactory.java:164)
+	org.eclipse.imp.pdb.facts.type.ConstructorType.make(ConstructorType.java:214)
+TRACE 300274:
+	java.lang.Object.clone(Object.java:Unknown line)
+	org.eclipse.imp.pdb.facts.impl.reference.Node.<init>(Node.java:110)
+	org.eclipse.imp.pdb.facts.impl.reference.Constructor.<init>(Constructor.java:29)
+	org.eclipse.imp.pdb.facts.impl.reference.Constructor.set(Constructor.java:75)
+TRACE 300295:
+	sun.nio.cs.UTF_8$Encoder.encodeLoop(UTF_8.java:517)
+	java.nio.charset.CharsetEncoder.encode(CharsetEncoder.java:544)
+	java.lang.StringCoding$StringEncoder.encode(StringCoding.java:240)
+	java.lang.StringCoding.encode(StringCoding.java:272)
+TRACE 300215:
+	org.eclipse.imp.pdb.facts.impl.reference.Node.<init>(Node.java:50)
+	org.eclipse.imp.pdb.facts.impl.reference.Constructor.<init>(Constructor.java:20)
+	org.eclipse.imp.pdb.facts.impl.reference.ValueFactory.constructor(ValueFactory.java:166)
+	org.eclipse.imp.pdb.facts.type.ConstructorType.make(ConstructorType.java:214)
+TRACE 300253:
+	org.eclipse.imp.pdb.facts.impl.reference.ValueFactory.constructor(ValueFactory.java:170)
+	org.eclipse.imp.pdb.facts.type.ConstructorType.make(ConstructorType.java:178)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl(ATermReader.java:210)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parse(ATermReader.java:128)
+TRACE 300260:
+	org.eclipse.imp.pdb.facts.impl.reference.ValueFactory.node(ValueFactory.java:153)
+	org.eclipse.imp.pdb.facts.type.ValueType.make(ValueType.java:127)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl(ATermReader.java:205)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parse(ATermReader.java:128)
+TRACE 300271:
+	java.lang.String.equals(String.java:1018)
+	java.lang.StringCoding.encode(StringCoding.java:260)
+	java.lang.StringCoding.encode(StringCoding.java:284)
+	java.lang.String.getBytes(String.java:987)
+TRACE 300026:
+	java.lang.ClassLoader.defineClass1(ClassLoader.java:Unknown line)
+	java.lang.ClassLoader.defineClass(ClassLoader.java:620)
+	java.security.SecureClassLoader.defineClass(SecureClassLoader.java:124)
+	java.net.URLClassLoader.defineClass(URLClassLoader.java:260)
+TRACE 300267:
+	org.eclipse.imp.pdb.facts.type.TypeStore.lookupConstructor(TypeStore.java:334)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl(ATermReader.java:167)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parse(ATermReader.java:128)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseFixedSizeATermsArray(ATermReader.java:596)
+TRACE 300291:
+	sglr.SGLRInvoker.run(SGLRInvoker.java:107)
+	java.lang.Thread.run(Thread.java:619)
+TRACE 300306:
+	org.eclipse.imp.pdb.facts.type.AbstractDataType.hashCode(AbstractDataType.java:122)
+	java.util.HashMap.get(HashMap.java:300)
+	org.eclipse.imp.pdb.facts.type.TypeStore.lookupAlternatives(TypeStore.java:299)
+	org.eclipse.imp.pdb.facts.type.TypeStore.declareConstructor(TypeStore.java:217)
+TRACE 300326:
+	java.lang.Object.clone(Object.java:Unknown line)
+	java.util.AbstractMap.clone(AbstractMap.java:504)
+	java.util.HashMap.clone(HashMap.java:660)
+	org.eclipse.imp.pdb.facts.impl.reference.Node.<init>(Node.java:67)
+TRACE 300226:
+	org.eclipse.imp.pdb.facts.impl.reference.Node.<init>(Node.java:65)
+	org.eclipse.imp.pdb.facts.impl.reference.Constructor.<init>(Constructor.java:33)
+	org.eclipse.imp.pdb.facts.impl.reference.Constructor.setAnnotation(Constructor.java:121)
+	org.meta_environment.uptr.TreeAdapter.addPosInfo(TreeAdapter.java:260)
+TRACE 300278:
+	org.meta_environment.uptr.TreeAdapter.addPosInfo(TreeAdapter.java:206)
+	org.meta_environment.uptr.TreeAdapter.addPosInfo(TreeAdapter.java:234)
+	org.meta_environment.uptr.TreeAdapter.addPosInfo(TreeAdapter.java:234)
+	org.meta_environment.uptr.TreeAdapter.addPosInfo(TreeAdapter.java:234)
+TRACE 300304:
+	org.eclipse.imp.pdb.facts.impl.reference.ValueFactory.list(ValueFactory.java:109)
+	org.eclipse.imp.pdb.facts.type.ListType.make(ListType.java:91)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseList(ATermReader.java:277)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parse(ATermReader.java:89)
+TRACE 300248:
+	org.eclipse.imp.pdb.facts.impl.reference.ValueFactory.constructor(ValueFactory.java:159)
+	org.eclipse.imp.pdb.facts.type.ConstructorType.make(ConstructorType.java:214)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl(ATermReader.java:202)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parse(ATermReader.java:128)
+TRACE 300265:
+	java.lang.System.arraycopy(System.java:Unknown line)
+	java.io.ByteArrayInputStream.read(ByteArrayInputStream.java:174)
+	java.io.InputStream.read(InputStream.java:85)
+	org.eclipse.imp.pdb.facts.io.ATermReader$SharingStream.read(ATermReader.java:699)
+TRACE 300279:
+	org.meta_environment.uptr.TreeAdapter.addPosInfo(TreeAdapter.java:234)
+	org.meta_environment.uptr.TreeAdapter.addPosInfo(TreeAdapter.java:234)
+	org.meta_environment.uptr.TreeAdapter.addPosInfo(TreeAdapter.java:234)
+	org.meta_environment.uptr.TreeAdapter.addPosInfo(TreeAdapter.java:234)
+TRACE 300296:
+	org.eclipse.imp.pdb.facts.impl.Value.getType(Value.java:40)
+	org.eclipse.imp.pdb.facts.type.TypeFactory.tupleType(TypeFactory.java:218)
+	org.eclipse.imp.pdb.facts.type.AbstractDataType.make(AbstractDataType.java:208)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parse(ATermReader.java:123)
+TRACE 300303:
+	org.eclipse.imp.pdb.facts.type.AbstractDataType.hashCode(AbstractDataType.java:122)
+	org.eclipse.imp.pdb.facts.type.ConstructorType.hashCode(ConstructorType.java:85)
+	java.util.HashMap.put(HashMap.java:372)
+	java.util.HashSet.add(HashSet.java:200)
+TRACE 300028:
+	java.lang.ClassLoader.findBootstrapClass(ClassLoader.java:Unknown line)
+	java.lang.ClassLoader.findBootstrapClass0(ClassLoader.java:891)
+	java.lang.ClassLoader.loadClass(ClassLoader.java:301)
+	java.lang.ClassLoader.loadClass(ClassLoader.java:299)
+TRACE 300030:
+	java.io.UnixFileSystem.getBooleanAttributes0(UnixFileSystem.java:Unknown line)
+	java.io.UnixFileSystem.getBooleanAttributes(UnixFileSystem.java:228)
+	java.io.File.exists(File.java:733)
+	org.meta_environment.rascal.parser.Parser.getParseTable(Parser.java:42)
+TRACE 300160:
+	java.util.Arrays.copyOf(Arrays.java:2786)
+	java.lang.StringCoding.safeTrim(StringCoding.java:64)
+	java.lang.StringCoding.access$300(StringCoding.java:34)
+	java.lang.StringCoding$StringEncoder.encode(StringCoding.java:251)
+TRACE 300246:
+	java.math.BigInteger.<init>(BigInteger.java:965)
+	java.math.BigInteger.valueOf(BigInteger.java:949)
+	org.eclipse.imp.pdb.facts.impl.IntegerValue.<init>(IntegerValue.java:30)
+	org.eclipse.imp.pdb.facts.impl.BaseValueFactory.integer(BaseValueFactory.java:28)
+TRACE 300262:
+	java.util.HashMap.get(HashMap.java:305)
+	org.eclipse.imp.pdb.facts.type.TypeFactory.getFromCache(TypeFactory.java:80)
+	org.eclipse.imp.pdb.facts.type.TypeFactory.tupleType(TypeFactory.java:205)
+	org.eclipse.imp.pdb.facts.type.TupleType.instantiate(TupleType.java:368)
+TRACE 300318:
+	org.eclipse.imp.pdb.facts.type.TypeStore.checkFieldNames(TypeStore.java:230)
+	org.eclipse.imp.pdb.facts.type.TypeStore.declareConstructor(TypeStore.java:223)
+	org.eclipse.imp.pdb.facts.type.TypeFactory.constructorFromTuple(TypeFactory.java:364)
+	org.eclipse.imp.pdb.facts.type.ConstructorType.instantiate(ConstructorType.java:252)
+TRACE 300379:
+	java.util.AbstractList$ListItr.<init>(AbstractList.java:377)
+	java.util.AbstractList.listIterator(AbstractList.java:315)
+	java.util.AbstractList.listIterator(AbstractList.java:284)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseFixedSizeATermsArray(ATermReader.java:606)
+TRACE 300391:
+	org.eclipse.imp.pdb.facts.type.TypeStore.declareConstructor(TypeStore.java:217)
+	org.eclipse.imp.pdb.facts.type.TypeFactory.constructorFromTuple(TypeFactory.java:364)
+	org.eclipse.imp.pdb.facts.type.ConstructorType.instantiate(ConstructorType.java:252)
+	org.eclipse.imp.pdb.facts.impl.reference.ValueFactory.constructor(ValueFactory.java:166)
+TRACE 300146:
+	java.lang.UNIXProcess.forkAndExec(UNIXProcess.java:Unknown line)
+	java.lang.UNIXProcess.access$500(UNIXProcess.java:20)
+	java.lang.UNIXProcess$1$1.run(UNIXProcess.java:109)
+TRACE 300159:
+	org.meta_environment.rascal.interpreter.RascalShell.<init>(RascalShell.java:50)
+	org.meta_environment.rascal.interpreter.RascalShell.main(RascalShell.java:237)
+TRACE 300191:
+	org.eclipse.imp.pdb.facts.type.TypeStore.lookupConstructor(TypeStore.java:334)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl(ATermReader.java:167)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parse(ATermReader.java:128)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseATermsArray(ATermReader.java:573)
+TRACE 300193:
+	org.eclipse.imp.pdb.facts.type.TypeFactory.constructorFromTuple(TypeFactory.java:357)
+	org.eclipse.imp.pdb.facts.type.ConstructorType.instantiate(ConstructorType.java:252)
+	org.eclipse.imp.pdb.facts.impl.reference.ValueFactory.constructor(ValueFactory.java:166)
+	org.eclipse.imp.pdb.facts.type.ConstructorType.make(ConstructorType.java:214)
+TRACE 300213:
+	org.eclipse.imp.pdb.facts.type.TypeFactory.tupleType(TypeFactory.java:216)
+	org.eclipse.imp.pdb.facts.impl.reference.ValueFactory.constructor(ValueFactory.java:164)
+	org.eclipse.imp.pdb.facts.type.ConstructorType.make(ConstructorType.java:214)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl(ATermReader.java:202)
+TRACE 300217:
+	org.eclipse.imp.pdb.facts.impl.reference.ValueFactory.constructor(ValueFactory.java:159)
+	org.eclipse.imp.pdb.facts.type.ConstructorType.make(ConstructorType.java:214)
+	org.eclipse.imp.pdb.facts.type.AbstractDataType.make(AbstractDataType.java:212)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parse(ATermReader.java:123)
+TRACE 300244:
+	org.eclipse.imp.pdb.facts.type.TypeFactory.listType(TypeFactory.java:402)
+	org.eclipse.imp.pdb.facts.type.ListType.instantiate(ListType.java:114)
+	org.eclipse.imp.pdb.facts.type.TupleType.instantiate(TupleType.java:364)
+	org.eclipse.imp.pdb.facts.type.ConstructorType.instantiate(ConstructorType.java:251)
+TRACE 300258:
+	org.eclipse.imp.pdb.facts.impl.reference.ValueFactory.listWriter(ValueFactory.java:114)
+	org.eclipse.imp.pdb.facts.type.ListType.writer(ListType.java:102)
+	org.eclipse.imp.pdb.facts.type.ListType.writer(ListType.java:1)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseATerms(ATermReader.java:524)
+TRACE 300263:
+	org.eclipse.imp.pdb.facts.type.TypeFactory.tupleType(TypeFactory.java:218)
+	org.eclipse.imp.pdb.facts.impl.reference.ValueFactory.constructor(ValueFactory.java:164)
+	org.eclipse.imp.pdb.facts.type.ConstructorType.make(ConstructorType.java:214)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl(ATermReader.java:202)
+TRACE 300276:
+	java.lang.Object.clone(Object.java:Unknown line)
+	java.util.AbstractMap.clone(AbstractMap.java:504)
+	java.util.HashMap.clone(HashMap.java:660)
+	org.eclipse.imp.pdb.facts.impl.reference.Node.<init>(Node.java:112)
+TRACE 300293:
+	java.util.HashMap$HashIterator.nextEntry(HashMap.java:801)
+	java.util.HashMap$KeyIterator.next(HashMap.java:828)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl(ATermReader.java:173)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parse(ATermReader.java:128)
+TRACE 300299:
+	java.lang.StringCoding.encode(StringCoding.java:284)
+	java.lang.String.getBytes(String.java:987)
+	org.eclipse.imp.pdb.facts.type.TypeFactory.isIdentifier(TypeFactory.java:446)
+	org.eclipse.imp.pdb.facts.type.TypeFactory.abstractDataTypeFromTuple(TypeFactory.java:337)
+TRACE 300301:
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseFixedSizeATermsArray(ATermReader.java:600)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl(ATermReader.java:190)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parse(ATermReader.java:128)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseATermsArray(ATermReader.java:573)
+TRACE 300305:
+	org.eclipse.imp.pdb.facts.impl.Value.getType(Value.java:40)
+	org.eclipse.imp.pdb.facts.type.TypeFactory.tupleType(TypeFactory.java:218)
+	org.eclipse.imp.pdb.facts.type.AbstractDataType.make(AbstractDataType.java:208)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parse(ATermReader.java:123)
+TRACE 300307:
+	java.lang.StringCoding.encode(StringCoding.java:284)
+	java.lang.String.getBytes(String.java:987)
+	org.eclipse.imp.pdb.facts.type.TypeFactory.isIdentifier(TypeFactory.java:446)
+	org.eclipse.imp.pdb.facts.type.TypeFactory.constructorFromTuple(TypeFactory.java:359)
+TRACE 300313:
+	sun.reflect.Reflection.getClassAccessFlags(Reflection.java:Unknown line)
+	sun.reflect.Reflection.quickCheckMemberAccess(Reflection.java:51)
+	java.lang.reflect.Method.invoke(Method.java:576)
+	org.meta_environment.rascal.parser.ASTBuilder.buildContextFreeNode(ASTBuilder.java:113)
+TRACE 300324:
+	java.util.ArrayList.<init>(ArrayList.java:119)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseFixedSizeATermsArray(ATermReader.java:592)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl(ATermReader.java:190)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parse(ATermReader.java:128)
+TRACE 300325:
+	org.eclipse.imp.pdb.facts.impl.reference.List$ListWriter.insert(List.java:210)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseATerms(ATermReader.java:527)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseList(ATermReader.java:283)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parse(ATermReader.java:89)
+TRACE 300337:
+	org.eclipse.imp.pdb.facts.type.ConstructorType.make(ConstructorType.java:178)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl(ATermReader.java:210)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parse(ATermReader.java:128)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseFixedSizeATermsArray(ATermReader.java:596)
+TRACE 300341:
+	org.eclipse.imp.pdb.facts.type.TypeStore.lookupConstructor(TypeStore.java:334)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl(ATermReader.java:167)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parse(ATermReader.java:128)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseFixedSizeATermsArray(ATermReader.java:601)
+TRACE 300346:
+	java.util.HashMap.put(HashMap.java:372)
+	org.eclipse.imp.pdb.facts.type.TypeStore.declareAbstractDataType(TypeStore.java:192)
+	org.eclipse.imp.pdb.facts.type.TypeFactory.abstractDataTypeFromTuple(TypeFactory.java:341)
+	org.eclipse.imp.pdb.facts.type.TypeFactory.abstractDataType(TypeFactory.java:331)
+TRACE 300349:
+	org.eclipse.imp.pdb.facts.type.AbstractDataType.hashCode(AbstractDataType.java:122)
+	java.util.HashMap.get(HashMap.java:300)
+	org.eclipse.imp.pdb.facts.type.TypeFactory.getFromCache(TypeFactory.java:80)
+	org.eclipse.imp.pdb.facts.type.TypeFactory.abstractDataTypeFromTuple(TypeFactory.java:340)
+TRACE 300353:
+	org.eclipse.imp.pdb.facts.type.AbstractDataType.hashCode(AbstractDataType.java:122)
+	org.eclipse.imp.pdb.facts.type.TupleType.hashCode(TupleType.java:244)
+	java.util.HashMap.get(HashMap.java:300)
+	org.eclipse.imp.pdb.facts.type.TypeFactory.getFromCache(TypeFactory.java:80)
+TRACE 300371:
+	java.util.HashMap.get(HashMap.java:305)
+	org.eclipse.imp.pdb.facts.type.TypeFactory.getFromCache(TypeFactory.java:80)
+	org.eclipse.imp.pdb.facts.type.TypeFactory.getOrCreateTuple(TypeFactory.java:133)
+	org.eclipse.imp.pdb.facts.type.TypeFactory.tupleType(TypeFactory.java:220)
+TRACE 300424:
+	java.lang.Shutdown.halt0(Shutdown.java:Unknown line)
+	java.lang.Shutdown.halt(Shutdown.java:105)
+	java.lang.Shutdown.exit(Shutdown.java:179)
+	java.lang.Runtime.exit(Runtime.java:90)
+TRACE 300031:
+	org.meta_environment.rascal.interpreter.RascalShell.<init>(RascalShell.java:39)
+	org.meta_environment.rascal.interpreter.RascalShell.main(RascalShell.java:237)
+TRACE 300199:
+	java.lang.Class.getDeclaredMethods0(Class.java:Unknown line)
+	java.lang.Class.privateGetDeclaredMethods(Class.java:2427)
+	java.lang.Class.getMethod0(Class.java:2670)
+	java.lang.Class.getMethod(Class.java:1603)
+TRACE 300202:
+	java.io.UnixFileSystem.getLength(UnixFileSystem.java:Unknown line)
+	java.io.File.length(File.java:848)
+	sun.misc.URLClassPath$FileLoader$1.getContentLength(URLClassPath.java:991)
+	sun.misc.Resource.getBytes(Resource.java:82)
+TRACE 300204:
+	java.lang.Thread.currentThread(Thread.java:Unknown line)
+	java.lang.ThreadLocal.get(ThreadLocal.java:124)
+	java.lang.StringCoding.deref(StringCoding.java:46)
+	java.lang.StringCoding.encode(StringCoding.java:258)
+TRACE 300208:
+	java.io.FileInputStream.readBytes(FileInputStream.java:Unknown line)
+	java.io.FileInputStream.read(FileInputStream.java:199)
+	sun.misc.Resource.getBytes(Resource.java:97)
+	java.net.URLClassLoader.defineClass(URLClassLoader.java:256)
+TRACE 300222:
+	org.eclipse.imp.pdb.facts.type.TupleType.<init>(TupleType.java:48)
+	org.eclipse.imp.pdb.facts.type.TypeFactory.tupleType(TypeFactory.java:205)
+	org.eclipse.imp.pdb.facts.type.TupleType.instantiate(TupleType.java:368)
+	org.eclipse.imp.pdb.facts.type.ConstructorType.instantiate(ConstructorType.java:251)
+TRACE 300223:
+	org.eclipse.imp.pdb.facts.type.TypeFactory.abstractDataTypeFromTuple(TypeFactory.java:335)
+	org.eclipse.imp.pdb.facts.type.TypeFactory.abstractDataType(TypeFactory.java:331)
+	org.eclipse.imp.pdb.facts.type.AbstractDataType.instantiate(AbstractDataType.java:144)
+	org.eclipse.imp.pdb.facts.type.ConstructorType.instantiate(ConstructorType.java:250)
+TRACE 300243:
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseATerms(ATermReader.java:527)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseList(ATermReader.java:283)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parse(ATermReader.java:89)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseFixedSizeATermsArray(ATermReader.java:596)
+TRACE 300252:
+	java.lang.System.arraycopy(System.java:Unknown line)
+	org.eclipse.imp.pdb.facts.type.TupleType.<init>(TupleType.java:59)
+	org.eclipse.imp.pdb.facts.type.TypeFactory.tupleType(TypeFactory.java:205)
+	org.eclipse.imp.pdb.facts.type.TupleType.instantiate(TupleType.java:368)
+TRACE 300259:
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseATerms(ATermReader.java:519)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseList(ATermReader.java:283)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parse(ATermReader.java:89)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseFixedSizeATermsArray(ATermReader.java:596)
+TRACE 300266:
+	org.eclipse.imp.pdb.facts.impl.reference.Constructor.<init>(Constructor.java:25)
+	org.eclipse.imp.pdb.facts.impl.reference.ValueFactory.constructor(ValueFactory.java:171)
+	org.eclipse.imp.pdb.facts.type.ConstructorType.make(ConstructorType.java:178)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl(ATermReader.java:210)
+TRACE 300294:
+	java.util.Arrays.copyOf(Arrays.java:2734)
+	java.util.ArrayList.ensureCapacity(ArrayList.java:167)
+	java.util.ArrayList.add(ArrayList.java:351)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseATermsArray(ATermReader.java:578)
+TRACE 300298:
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl(ATermReader.java:163)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parse(ATermReader.java:128)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseFixedSizeATermsArray(ATermReader.java:596)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl(ATermReader.java:190)
+TRACE 300308:
+	java.util.HashSet.iterator(HashSet.java:153)
+	org.eclipse.imp.pdb.facts.type.TypeStore.lookupConstructor(TypeStore.java:334)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl(ATermReader.java:167)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parse(ATermReader.java:128)
+TRACE 300309:
+	org.eclipse.imp.pdb.facts.type.TypeStore.declareConstructor(TypeStore.java:222)
+	org.eclipse.imp.pdb.facts.type.TypeFactory.constructorFromTuple(TypeFactory.java:364)
+	org.eclipse.imp.pdb.facts.type.ConstructorType.instantiate(ConstructorType.java:252)
+	org.eclipse.imp.pdb.facts.impl.reference.ValueFactory.constructor(ValueFactory.java:166)
+TRACE 300311:
+	sun.reflect.Reflection.getCallerClass(Reflection.java:Unknown line)
+	java.lang.ClassLoader.getCallerClassLoader(ClassLoader.java:1350)
+	java.lang.Class.getMethod(Class.java:1602)
+	org.meta_environment.rascal.parser.ASTBuilder.buildLexicalNode(ASTBuilder.java:180)
+TRACE 300317:
+	java.lang.String.valueOf(String.java:2917)
+	org.meta_environment.rascal.parser.ASTBuilder.capitalize(ASTBuilder.java:224)
+	org.meta_environment.rascal.parser.ASTBuilder.buildLexicalNode(ASTBuilder.java:175)
+	org.meta_environment.rascal.parser.ASTBuilder.buildValue(ASTBuilder.java:211)
+TRACE 300320:
+	org.eclipse.imp.pdb.facts.type.ListType.isSubtypeOf(ListType.java:41)
+	org.eclipse.imp.pdb.facts.type.TupleType.isSubtypeOf(TupleType.java:161)
+	org.eclipse.imp.pdb.facts.type.Type.match(Type.java:364)
+	org.eclipse.imp.pdb.facts.type.TupleType.match(TupleType.java:350)
+TRACE 300339:
+	org.eclipse.imp.pdb.facts.type.AbstractDataType.instantiate(AbstractDataType.java:144)
+	org.eclipse.imp.pdb.facts.type.ListType.instantiate(ListType.java:114)
+	org.eclipse.imp.pdb.facts.type.TupleType.instantiate(TupleType.java:364)
+	org.eclipse.imp.pdb.facts.type.ConstructorType.instantiate(ConstructorType.java:251)
+TRACE 300345:
+	org.eclipse.imp.pdb.facts.type.TypeStore.declareConstructor(TypeStore.java:223)
+	org.eclipse.imp.pdb.facts.type.TypeFactory.constructorFromTuple(TypeFactory.java:364)
+	org.eclipse.imp.pdb.facts.type.ConstructorType.instantiate(ConstructorType.java:252)
+	org.eclipse.imp.pdb.facts.impl.reference.ValueFactory.constructor(ValueFactory.java:166)
+TRACE 300350:
+	org.eclipse.imp.pdb.facts.type.AbstractDataType.hashCode(AbstractDataType.java:122)
+	org.eclipse.imp.pdb.facts.type.ConstructorType.hashCode(ConstructorType.java:85)
+	java.util.HashMap.get(HashMap.java:300)
+	org.eclipse.imp.pdb.facts.type.TypeFactory.getFromCache(TypeFactory.java:80)
+TRACE 300352:
+	org.eclipse.imp.pdb.facts.type.TypeStore.lookupConstructor(TypeStore.java:334)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl(ATermReader.java:167)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parse(ATermReader.java:128)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseATermsArray(ATermReader.java:577)
+TRACE 300357:
+	java.lang.Object.clone(Object.java:Unknown line)
+	java.lang.reflect.Method.getParameterTypes(Method.java:251)
+	java.lang.Class.searchMethods(Class.java:2649)
+	java.lang.Class.getMethod0(Class.java:2670)
+TRACE 300358:
+	sun.reflect.Reflection.getClassAccessFlags(Reflection.java:Unknown line)
+	sun.reflect.Reflection.quickCheckMemberAccess(Reflection.java:51)
+	java.lang.reflect.Method.invoke(Method.java:576)
+	org.meta_environment.rascal.parser.ASTBuilder.buildLexicalNode(ASTBuilder.java:181)
+TRACE 300362:
+	org.meta_environment.uptr.TreeAdapter.getASTArgs(TreeAdapter.java:142)
+	org.meta_environment.rascal.parser.ASTBuilder.buildContextFreeNode(ASTBuilder.java:90)
+	org.meta_environment.rascal.parser.ASTBuilder.buildValue(ASTBuilder.java:217)
+	org.meta_environment.rascal.parser.ASTBuilder.buildContextFreeNode(ASTBuilder.java:106)
+TRACE 300375:
+	org.eclipse.imp.pdb.facts.type.TypeFactory.getOrCreateTuple(TypeFactory.java:133)
+	org.eclipse.imp.pdb.facts.type.TypeFactory.tupleType(TypeFactory.java:220)
+	org.eclipse.imp.pdb.facts.impl.reference.ValueFactory.constructor(ValueFactory.java:164)
+	org.eclipse.imp.pdb.facts.type.ConstructorType.make(ConstructorType.java:214)
+TRACE 300383:
+	org.eclipse.imp.pdb.facts.type.AbstractDataType.hashCode(AbstractDataType.java:122)
+	java.util.HashMap.get(HashMap.java:300)
+	org.eclipse.imp.pdb.facts.type.TypeStore.lookupConstructor(TypeStore.java:342)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl(ATermReader.java:167)
+TRACE 300386:
+	org.eclipse.imp.pdb.facts.type.AbstractDataType.instantiate(AbstractDataType.java:144)
+	org.eclipse.imp.pdb.facts.type.TupleType.instantiate(TupleType.java:364)
+	org.eclipse.imp.pdb.facts.type.ConstructorType.instantiate(ConstructorType.java:251)
+	org.eclipse.imp.pdb.facts.impl.reference.ValueFactory.constructor(ValueFactory.java:166)
+TRACE 300390:
+	org.eclipse.imp.pdb.facts.type.Type.isSubtypeOf(Type.java:304)
+	org.eclipse.imp.pdb.facts.type.TupleType.isSubtypeOf(TupleType.java:161)
+	org.eclipse.imp.pdb.facts.type.Type.match(Type.java:364)
+	org.eclipse.imp.pdb.facts.type.TupleType.match(TupleType.java:350)
+TRACE 300396:
+	java.util.HashMap$HashIterator.<init>(HashMap.java:783)
+	java.util.HashMap$KeyIterator.<init>(HashMap.java:826)
+	java.util.HashMap$KeyIterator.<init>(HashMap.java:826)
+	java.util.HashMap.newKeyIterator(HashMap.java:840)
+TRACE 300408:
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseATermsArray(ATermReader.java:584)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseATerms(ATermReader.java:521)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseList(ATermReader.java:283)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parse(ATermReader.java:89)
+TRACE 300004:
+	java.security.AccessController.doPrivileged(AccessController.java:Unknown line)
+	java.net.URLClassLoader.findClass(URLClassLoader.java:188)
+	java.lang.ClassLoader.loadClass(ClassLoader.java:306)
+	java.lang.ClassLoader.loadClass(ClassLoader.java:299)
+TRACE 300027:
+	java.lang.StringCoding$StringEncoder.encode(StringCoding.java:232)
+	java.lang.StringCoding.encode(StringCoding.java:272)
+	java.lang.String.getBytes(String.java:947)
+	java.io.FileInputStream.open(FileInputStream.java:Unknown line)
+TRACE 300029:
+	java.lang.ClassLoader.compareCerts(ClassLoader.java:790)
+	java.lang.ClassLoader.checkCerts(ClassLoader.java:774)
+	java.lang.ClassLoader.preDefineClass(ClassLoader.java:487)
+	java.lang.ClassLoader.defineClass(ClassLoader.java:614)
+TRACE 300038:
+	java.util.zip.ZipFile.getEntry(ZipFile.java:151)
+	java.util.jar.JarFile.getEntry(JarFile.java:206)
+	java.util.jar.JarFile.getJarEntry(JarFile.java:189)
+	java.util.jar.JarFile.getManEntry(JarFile.java:430)
+TRACE 300059:
+	java.security.Security$1.run(Security.java:52)
+	java.security.AccessController.doPrivileged(AccessController.java:Unknown line)
+	java.security.Security.<clinit>(Security.java:50)
+	sun.security.provider.Sun$1.run(Sun.java:276)
+TRACE 300097:
+	java.util.regex.Pattern.rangeFor(Pattern.java:3619)
+	java.util.regex.Pattern.access$600(Pattern.java:600)
+	java.util.regex.Pattern$CharPropertyNames$2.make(Pattern.java:5074)
+	java.util.regex.Pattern$CharPropertyNames.charPropertyFor(Pattern.java:5058)
+TRACE 300119:
+	sun.net.www.protocol.jar.Handler.openConnection(Handler.java:24)
+	java.net.URL.openConnection(URL.java:945)
+	java.net.URL.openStream(URL.java:1009)
+	java.lang.ClassLoader.getResourceAsStream(ClassLoader.java:1161)
+TRACE 300152:
+	java.io.FileInputStream.readBytes(FileInputStream.java:Unknown line)
+	java.io.FileInputStream.read(FileInputStream.java:199)
+	java.io.BufferedInputStream.fill(BufferedInputStream.java:218)
+	java.io.BufferedInputStream.read(BufferedInputStream.java:237)
+TRACE 300153:
+	java.lang.UNIXProcess.waitForProcessExit(UNIXProcess.java:Unknown line)
+	java.lang.UNIXProcess.access$900(UNIXProcess.java:20)
+	java.lang.UNIXProcess$1$1.run(UNIXProcess.java:132)
+TRACE 300154:
+	java.lang.CharacterDataLatin1.toUpperCase(CharacterDataLatin1.java:159)
+	java.lang.Character.toUpperCase(Character.java:4311)
+	java.lang.Character.toUpperCase(Character.java:4278)
+	java.lang.String.regionMatches(String.java:1384)
+TRACE 300156:
+	java.util.Arrays.fill(Arrays.java:2500)
+	java.util.Arrays.fill(Arrays.java:2478)
+	jline.ConsoleReader.<init>(ConsoleReader.java:234)
+	jline.ConsoleReader.<init>(ConsoleReader.java:191)
+TRACE 300158:
+	java.lang.System.arraycopy(System.java:Unknown line)
+	java.lang.String.getChars(String.java:855)
+	java.lang.AbstractStringBuilder.append(AbstractStringBuilder.java:391)
+	java.lang.StringBuilder.append(StringBuilder.java:119)
+TRACE 300161:
+	java.lang.StringCoding$StringEncoder.encode(StringCoding.java:232)
+	java.lang.StringCoding.encode(StringCoding.java:272)
+	java.lang.String.getBytes(String.java:947)
+	java.io.UnixFileSystem.getLength(UnixFileSystem.java:Unknown line)
+TRACE 300169:
+	java.util.zip.ZipFile.open(ZipFile.java:Unknown line)
+	java.util.zip.ZipFile.<init>(ZipFile.java:114)
+	java.util.jar.JarFile.<init>(JarFile.java:133)
+	java.util.jar.JarFile.<init>(JarFile.java:70)
+TRACE 300170:
+	com.sun.tools.javac.util.Context.<init>(Context.java:106)
+	com.sun.tools.javac.api.JavacTool.<init>(JavacTool.java:57)
+	sun.reflect.NativeConstructorAccessorImpl.newInstance0(NativeConstructorAccessorImpl.java:Unknown line)
+	sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:39)
+TRACE 300171:
+	com.sun.tools.javac.main.Main.<init>(Main.java:56)
+	com.sun.tools.javac.api.JavacTool.<init>(JavacTool.java:63)
+	sun.reflect.NativeConstructorAccessorImpl.newInstance0(NativeConstructorAccessorImpl.java:Unknown line)
+	sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:39)
+TRACE 300176:
+	com.sun.tools.javac.main.RecognizedOptions.getAll(RecognizedOptions.java:238)
+	com.sun.tools.javac.main.RecognizedOptions.getOptions(RecognizedOptions.java:228)
+	com.sun.tools.javac.main.RecognizedOptions.getJavaCompilerOptions(RecognizedOptions.java:215)
+	com.sun.tools.javac.main.Main.<init>(Main.java:56)
+TRACE 300177:
+	com.sun.tools.javac.api.JavacTool.<init>(JavacTool.java:65)
+	sun.reflect.NativeConstructorAccessorImpl.newInstance0(NativeConstructorAccessorImpl.java:Unknown line)
+	sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:39)
+	sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:27)
+TRACE 300178:
+	java.lang.ClassLoader$NativeLibrary.load(ClassLoader.java:Unknown line)
+	java.lang.ClassLoader.loadLibrary0(ClassLoader.java:1751)
+	java.lang.ClassLoader.loadLibrary(ClassLoader.java:1676)
+	java.lang.Runtime.loadLibrary0(Runtime.java:823)
+TRACE 300183:
+	org.eclipse.imp.pdb.facts.type.TypeFactory.voidType(TypeFactory.java:75)
+	org.eclipse.imp.pdb.facts.type.TypeFactory.abstractDataType(TypeFactory.java:326)
+	org.meta_environment.locations.Factory.<clinit>(Factory.java:20)
+	org.meta_environment.errors.Factory.<clinit>(Factory.java:16)
+TRACE 300188:
+	org.eclipse.imp.pdb.facts.type.TypeFactory.constructorFromTuple(TypeFactory.java:357)
+	org.eclipse.imp.pdb.facts.type.TypeFactory.constructor(TypeFactory.java:393)
+	org.meta_environment.errors.Factory.<clinit>(Factory.java:31)
+	org.meta_environment.uptr.Factory.<clinit>(Factory.java:19)
+TRACE 300189:
+	sun.misc.MetaIndex.mayContain(MetaIndex.java:224)
+	sun.misc.URLClassPath$JarLoader.getResource(URLClassPath.java:744)
+	sun.misc.URLClassPath.getResource(URLClassPath.java:168)
+	java.net.URLClassLoader$1.run(URLClassLoader.java:192)
+TRACE 300190:
+	java.lang.System.arraycopy(System.java:Unknown line)
+	java.util.Arrays.copyOf(Arrays.java:2883)
+	java.lang.AbstractStringBuilder.expandCapacity(AbstractStringBuilder.java:100)
+	java.lang.AbstractStringBuilder.append(AbstractStringBuilder.java:390)
+TRACE 300192:
+	java.util.HashMap.<init>(HashMap.java:209)
+	java.util.HashSet.<init>(HashSet.java:86)
+	org.eclipse.imp.pdb.facts.type.TypeStore.lookupConstructor(TypeStore.java:331)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl(ATermReader.java:167)
+TRACE 300194:
+	java.net.URLStreamHandler.sameFile(URLStreamHandler.java:390)
+	java.net.URLStreamHandler.equals(URLStreamHandler.java:316)
+	java.net.URL.equals(URL.java:842)
+	java.security.CodeSource.equals(CodeSource.java:135)
+TRACE 300198:
+	java.lang.String.valueOf(String.java:2917)
+	org.meta_environment.rascal.parser.ASTBuilder.capitalize(ASTBuilder.java:224)
+	org.meta_environment.rascal.parser.ASTBuilder.buildContextFreeNode(ASTBuilder.java:88)
+	org.meta_environment.rascal.parser.ASTBuilder.buildValue(ASTBuilder.java:217)
+TRACE 300200:
+	java.lang.String.lastIndexOf(String.java:1628)
+	java.net.URLStreamHandler.parseURL(URLStreamHandler.java:228)
+	sun.net.www.protocol.file.Handler.parseURL(Handler.java:50)
+	java.net.URL.<init>(URL.java:596)
+TRACE 300201:
+	java.lang.Object.<init>(Object.java:20)
+	java.io.InputStream.<init>(InputStream.java:28)
+	java.io.FileInputStream.<init>(FileInputStream.java:96)
+	sun.misc.URLClassPath$FileLoader$1.getInputStream(URLClassPath.java:989)
+TRACE 300203:
+	java.lang.StringCoding$StringEncoder.encode(StringCoding.java:232)
+	java.lang.StringCoding.encode(StringCoding.java:272)
+	java.lang.String.getBytes(String.java:947)
+	java.io.UnixFileSystem.getBooleanAttributes0(UnixFileSystem.java:Unknown line)
+TRACE 300205:
+	java.net.URLClassLoader.findClass(URLClassLoader.java:204)
+	java.lang.ClassLoader.loadClass(ClassLoader.java:306)
+	java.lang.ClassLoader.loadClass(ClassLoader.java:299)
+	sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:276)
+TRACE 300206:
+	java.util.Arrays.copyOfRange(Arrays.java:3209)
+	java.lang.String.<init>(String.java:216)
+	java.lang.StringBuilder.toString(StringBuilder.java:430)
+	java.net.URLStreamHandler.parseURL(URLStreamHandler.java:232)
+TRACE 300207:
+	java.lang.Throwable.fillInStackTrace(Throwable.java:Unknown line)
+	java.lang.Throwable.<init>(Throwable.java:218)
+	java.lang.Exception.<init>(Exception.java:59)
+	java.lang.ClassNotFoundException.<init>(ClassNotFoundException.java:65)
+TRACE 300209:
+	java.lang.Object.getClass(Object.java:Unknown line)
+	org.eclipse.imp.pdb.facts.impl.StringValue.equals(StringValue.java:46)
+	org.eclipse.imp.pdb.facts.impl.reference.Node.equals(Node.java:195)
+	org.eclipse.imp.pdb.facts.impl.reference.Constructor.equals(Constructor.java:90)
+TRACE 300210:
+	java.util.regex.Pattern.compile(Pattern.java:1473)
+	java.util.regex.Pattern.<init>(Pattern.java:1133)
+	java.util.regex.Pattern.compile(Pattern.java:823)
+	java.lang.String.replaceAll(String.java:2190)
+TRACE 300214:
+	java.util.HashMap.<init>(HashMap.java:209)
+	org.eclipse.imp.pdb.facts.impl.reference.ValueFactory.constructor(ValueFactory.java:161)
+	org.eclipse.imp.pdb.facts.type.ConstructorType.make(ConstructorType.java:214)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl(ATermReader.java:202)
+TRACE 300216:
+	java.util.Arrays.copyOfRange(Arrays.java:3209)
+	java.lang.String.<init>(String.java:216)
+	java.lang.StringBuilder.toString(StringBuilder.java:430)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseId(ATermReader.java:453)
+TRACE 300218:
+	java.util.HashMap.<init>(HashMap.java:209)
+	java.util.HashSet.<init>(HashSet.java:86)
+	org.eclipse.imp.pdb.facts.type.TypeStore.declareAbstractDataType(TypeStore.java:195)
+	org.eclipse.imp.pdb.facts.type.TypeFactory.abstractDataTypeFromTuple(TypeFactory.java:341)
+TRACE 300219:
+	org.eclipse.imp.pdb.facts.type.TupleType.instantiate(TupleType.java:360)
+	org.eclipse.imp.pdb.facts.type.ConstructorType.instantiate(ConstructorType.java:251)
+	org.eclipse.imp.pdb.facts.impl.reference.ValueFactory.constructor(ValueFactory.java:166)
+	org.eclipse.imp.pdb.facts.type.ConstructorType.make(ConstructorType.java:214)
+TRACE 300221:
+	java.util.ArrayList.<init>(ArrayList.java:112)
+	java.util.ArrayList.<init>(ArrayList.java:119)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseFixedSizeATermsArray(ATermReader.java:592)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl(ATermReader.java:190)
+TRACE 300224:
+	java.util.Arrays.copyOfRange(Arrays.java:3209)
+	java.lang.String.<init>(String.java:216)
+	java.lang.StringBuilder.toString(StringBuilder.java:430)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseNumber(ATermReader.java:397)
+TRACE 300225:
+	org.eclipse.imp.pdb.facts.type.AbstractDataType.instantiate(AbstractDataType.java:136)
+	org.eclipse.imp.pdb.facts.type.TupleType.instantiate(TupleType.java:364)
+	org.eclipse.imp.pdb.facts.type.ConstructorType.instantiate(ConstructorType.java:251)
+	org.eclipse.imp.pdb.facts.impl.reference.ValueFactory.constructor(ValueFactory.java:166)
+TRACE 300227:
+	java.lang.Object.getClass(Object.java:Unknown line)
+	org.meta_environment.rascal.ast.AbstractAST.equals(AbstractAST.java:24)
+	java.util.Hashtable.containsKey(Hashtable.java:310)
+	org.meta_environment.rascal.ast.ASTFactory.makeNameLexical(ASTFactory.java:112)
+TRACE 300240:
+	org.meta_environment.rascal.ast.ASTFactory.makeStatementExpression(ASTFactory.java:374)
+	sun.reflect.NativeMethodAccessorImpl.invoke0(NativeMethodAccessorImpl.java:Unknown line)
+	sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+TRACE 300241:
+	org.eclipse.imp.pdb.facts.type.AbstractDataType.instantiate(AbstractDataType.java:136)
+	org.eclipse.imp.pdb.facts.type.ConstructorType.instantiate(ConstructorType.java:250)
+	org.eclipse.imp.pdb.facts.impl.reference.ValueFactory.constructor(ValueFactory.java:166)
+	org.eclipse.imp.pdb.facts.type.ConstructorType.make(ConstructorType.java:214)
+TRACE 300242:
+	java.lang.AbstractStringBuilder.<init>(AbstractStringBuilder.java:45)
+	java.lang.StringBuilder.<init>(StringBuilder.java:68)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseStringLiteral(ATermReader.java:458)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseString(ATermReader.java:249)
+TRACE 300245:
+	org.eclipse.imp.pdb.facts.type.TupleType.<init>(TupleType.java:58)
+	org.eclipse.imp.pdb.facts.type.TypeFactory.tupleType(TypeFactory.java:205)
+	org.eclipse.imp.pdb.facts.type.TupleType.instantiate(TupleType.java:368)
+	org.eclipse.imp.pdb.facts.type.ConstructorType.instantiate(ConstructorType.java:251)
+TRACE 300247:
+	org.eclipse.imp.pdb.facts.type.AbstractDataType.instantiate(AbstractDataType.java:136)
+	org.eclipse.imp.pdb.facts.type.ListType.instantiate(ListType.java:114)
+	org.eclipse.imp.pdb.facts.type.TupleType.instantiate(TupleType.java:364)
+	org.eclipse.imp.pdb.facts.type.ConstructorType.instantiate(ConstructorType.java:251)
+TRACE 300249:
+	java.lang.System.arraycopy(System.java:Unknown line)
+	org.eclipse.imp.pdb.facts.type.TupleType.<init>(TupleType.java:37)
+	org.eclipse.imp.pdb.facts.type.TypeFactory.getOrCreateTuple(TypeFactory.java:133)
+	org.eclipse.imp.pdb.facts.type.TypeFactory.tupleType(TypeFactory.java:220)
+TRACE 300251:
+	java.math.BigInteger.<init>(BigInteger.java:122)
+	java.math.BigInteger.valueOf(BigInteger.java:949)
+	org.eclipse.imp.pdb.facts.impl.IntegerValue.<init>(IntegerValue.java:30)
+	org.eclipse.imp.pdb.facts.impl.BaseValueFactory.integer(BaseValueFactory.java:28)
+TRACE 300254:
+	org.eclipse.imp.pdb.facts.type.TypeFactory.listType(TypeFactory.java:402)
+	org.eclipse.imp.pdb.facts.impl.reference.List.<init>(List.java:36)
+	org.eclipse.imp.pdb.facts.impl.reference.List$ListWriter.done(List.java:255)
+	org.eclipse.imp.pdb.facts.impl.reference.ValueFactory.list(ValueFactory.java:110)
+TRACE 300255:
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseNumber(ATermReader.java:385)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parse(ATermReader.java:118)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseATermsArray(ATermReader.java:577)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseATerms(ATermReader.java:521)
+TRACE 300256:
+	org.eclipse.imp.pdb.facts.impl.reference.ValueFactory.constructor(ValueFactory.java:166)
+	org.eclipse.imp.pdb.facts.type.ConstructorType.make(ConstructorType.java:214)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl(ATermReader.java:202)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parse(ATermReader.java:128)
+TRACE 300257:
+	org.eclipse.imp.pdb.facts.type.TypeFactory.getFromCache(TypeFactory.java:87)
+	org.eclipse.imp.pdb.facts.type.TypeFactory.constructorFromTuple(TypeFactory.java:363)
+	org.eclipse.imp.pdb.facts.type.ConstructorType.instantiate(ConstructorType.java:252)
+	org.eclipse.imp.pdb.facts.impl.reference.ValueFactory.constructor(ValueFactory.java:166)
+TRACE 300261:
+	org.eclipse.imp.pdb.facts.type.TypeFactory.getFromCache(TypeFactory.java:80)
+	org.eclipse.imp.pdb.facts.type.TypeFactory.constructorFromTuple(TypeFactory.java:363)
+	org.eclipse.imp.pdb.facts.type.ConstructorType.instantiate(ConstructorType.java:252)
+	org.eclipse.imp.pdb.facts.impl.reference.ValueFactory.constructor(ValueFactory.java:166)
+TRACE 300264:
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseId(ATermReader.java:449)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl(ATermReader.java:163)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parse(ATermReader.java:128)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseFixedSizeATermsArray(ATermReader.java:596)
+TRACE 300268:
+	java.util.HashSet.<init>(HashSet.java:86)
+	org.eclipse.imp.pdb.facts.type.TypeStore.<init>(TypeStore.java:66)
+	org.eclipse.imp.pdb.facts.impl.reference.ValueFactory.constructor(ValueFactory.java:166)
+	org.eclipse.imp.pdb.facts.type.ConstructorType.make(ConstructorType.java:214)
+TRACE 300269:
+	org.eclipse.imp.pdb.facts.type.TypeFactory.tupleType(TypeFactory.java:205)
+	org.eclipse.imp.pdb.facts.type.TupleType.instantiate(TupleType.java:368)
+	org.eclipse.imp.pdb.facts.type.ConstructorType.instantiate(ConstructorType.java:251)
+	org.eclipse.imp.pdb.facts.impl.reference.ValueFactory.constructor(ValueFactory.java:166)
+TRACE 300272:
+	org.eclipse.imp.pdb.facts.impl.StringValue.<init>(StringValue.java:28)
+	org.eclipse.imp.pdb.facts.impl.BaseValueFactory.string(BaseValueFactory.java:59)
+	org.eclipse.imp.pdb.facts.type.StringType.make(StringType.java:57)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseString(ATermReader.java:254)
+TRACE 300273:
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseId(ATermReader.java:449)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl(ATermReader.java:163)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parse(ATermReader.java:128)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseATermsArray(ATermReader.java:577)
+TRACE 300275:
+	java.net.URL.isValidProtocol(URL.java:616)
+	java.net.URL.<init>(URL.java:529)
+	java.net.URL.<init>(URL.java:464)
+	java.net.URL.<init>(URL.java:413)
+TRACE 300277:
+	java.net.URLStreamHandler.parseURL(URLStreamHandler.java:121)
+	sun.net.www.protocol.file.Handler.parseURL(Handler.java:50)
+	java.net.URL.<init>(URL.java:596)
+	java.net.URL.<init>(URL.java:464)
+TRACE 300280:
+	org.meta_environment.uptr.TreeAdapter.addPosInfo(TreeAdapter.java:259)
+	org.meta_environment.uptr.TreeAdapter.addPosInfo(TreeAdapter.java:234)
+	org.meta_environment.uptr.TreeAdapter.addPosInfo(TreeAdapter.java:234)
+	org.meta_environment.uptr.TreeAdapter.addPosInfo(TreeAdapter.java:234)
+TRACE 300281:
+	java.net.URLStreamHandler.setURL(URLStreamHandler.java:521)
+	java.net.URLStreamHandler.parseURL(URLStreamHandler.java:288)
+	sun.net.www.protocol.file.Handler.parseURL(Handler.java:50)
+	java.net.URL.<init>(URL.java:596)
+TRACE 300282:
+	java.lang.System.arraycopy(System.java:Unknown line)
+	org.eclipse.imp.pdb.facts.impl.reference.Node.<init>(Node.java:66)
+	org.eclipse.imp.pdb.facts.impl.reference.Constructor.<init>(Constructor.java:33)
+	org.eclipse.imp.pdb.facts.impl.reference.Constructor.setAnnotation(Constructor.java:121)
+TRACE 300283:
+	java.lang.Object.getClass(Object.java:Unknown line)
+	org.eclipse.imp.pdb.facts.impl.reference.Constructor.equals(Constructor.java:88)
+	org.eclipse.imp.pdb.facts.impl.reference.Node.equals(Node.java:195)
+	org.eclipse.imp.pdb.facts.impl.reference.Constructor.equals(Constructor.java:90)
+TRACE 300284:
+	java.lang.Object.getClass(Object.java:Unknown line)
+	org.eclipse.imp.pdb.facts.impl.reference.List.equals(List.java:134)
+	org.eclipse.imp.pdb.facts.impl.reference.Node.equals(Node.java:195)
+	org.eclipse.imp.pdb.facts.impl.reference.Constructor.equals(Constructor.java:90)
+TRACE 300285:
+	java.util.AbstractList.hashCode(AbstractList.java:523)
+	org.eclipse.imp.pdb.facts.impl.reference.List.hashCode(List.java:144)
+	org.eclipse.imp.pdb.facts.impl.reference.Node.computeHashCode(Node.java:211)
+	org.eclipse.imp.pdb.facts.impl.reference.Node.hashCode(Node.java:219)
+TRACE 300286:
+	org.meta_environment.uptr.TreeAdapter.getListASTArgs(TreeAdapter.java:110)
+	org.meta_environment.rascal.parser.ASTBuilder.buildList(ASTBuilder.java:73)
+	org.meta_environment.rascal.parser.ASTBuilder.buildContextFreeNode(ASTBuilder.java:102)
+	org.meta_environment.rascal.parser.ASTBuilder.buildValue(ASTBuilder.java:217)
+TRACE 300287:
+	java.lang.Object.getClass(Object.java:Unknown line)
+	org.eclipse.imp.pdb.facts.impl.IntegerValue.equals(IntegerValue.java:49)
+	org.eclipse.imp.pdb.facts.impl.reference.Node.equals(Node.java:195)
+	org.eclipse.imp.pdb.facts.impl.reference.Constructor.equals(Constructor.java:90)
+TRACE 300288:
+	java.math.BigInteger.intValue(BigInteger.java:2738)
+	org.eclipse.imp.pdb.facts.impl.IntegerValue.intValue(IntegerValue.java:125)
+	org.meta_environment.uptr.TreeAdapter$Unparser.visitTreeChar(TreeAdapter.java:283)
+	org.meta_environment.uptr.visitors.TreeVisitor.visitConstructor(TreeVisitor.java:27)
+TRACE 300289:
+	sun.reflect.GeneratedMethodAccessor7.invoke(<Unknown Source>:Unknown line)
+	sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	java.lang.reflect.Method.invoke(Method.java:597)
+	org.meta_environment.rascal.parser.ASTBuilder.buildContextFreeNode(ASTBuilder.java:113)
+TRACE 300290:
+	java.lang.Class.isPrimitive(Class.java:Unknown line)
+	sun.reflect.AccessorGenerator.isPrimitive(AccessorGenerator.java:669)
+	sun.reflect.MethodAccessorGenerator.generate(MethodAccessorGenerator.java:326)
+	sun.reflect.MethodAccessorGenerator.generateMethod(MethodAccessorGenerator.java:59)
+TRACE 300292:
+	org.eclipse.imp.pdb.facts.impl.BaseValueFactory.string(BaseValueFactory.java:56)
+	org.eclipse.imp.pdb.facts.type.StringType.make(StringType.java:57)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseString(ATermReader.java:254)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parse(ATermReader.java:94)
+TRACE 300300:
+	java.util.HashSet.add(HashSet.java:200)
+	org.eclipse.imp.pdb.facts.type.TypeStore.declareConstructor(TypeStore.java:225)
+	org.eclipse.imp.pdb.facts.type.TypeFactory.constructorFromTuple(TypeFactory.java:364)
+	org.eclipse.imp.pdb.facts.type.ConstructorType.instantiate(ConstructorType.java:252)
+TRACE 300302:
+	java.io.InputStream.read(InputStream.java:85)
+	org.eclipse.imp.pdb.facts.io.ATermReader$SharingStream.read(ATermReader.java:699)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseId(ATermReader.java:448)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl(ATermReader.java:163)
+TRACE 300310:
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl(ATermReader.java:167)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parse(ATermReader.java:128)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseFixedSizeATermsArray(ATermReader.java:601)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl(ATermReader.java:190)
+TRACE 300312:
+	org.meta_environment.uptr.TreeAdapter.getASTArgs(TreeAdapter.java:142)
+	org.meta_environment.rascal.parser.ASTBuilder.buildContextFreeNode(ASTBuilder.java:90)
+	org.meta_environment.rascal.parser.ASTBuilder.buildValue(ASTBuilder.java:217)
+	org.meta_environment.rascal.parser.ASTBuilder.buildList(ASTBuilder.java:76)
+TRACE 300314:
+	java.lang.String.valueOf(String.java:2917)
+	org.meta_environment.rascal.parser.ASTBuilder.capitalize(ASTBuilder.java:224)
+	org.meta_environment.rascal.parser.ASTBuilder.buildContextFreeNode(ASTBuilder.java:87)
+	org.meta_environment.rascal.parser.ASTBuilder.buildValue(ASTBuilder.java:217)
+TRACE 300315:
+	java.lang.Object.getClass(Object.java:Unknown line)
+	org.meta_environment.rascal.ast.AbstractAST.equals(AbstractAST.java:24)
+	java.util.Hashtable.get(Hashtable.java:337)
+	org.meta_environment.rascal.ast.ASTFactory.makeQualifiedNameDefault(ASTFactory.java:162)
+TRACE 300316:
+	java.lang.Object.getClass(Object.java:Unknown line)
+	org.meta_environment.rascal.ast.AbstractAST.equals(AbstractAST.java:24)
+	java.util.Hashtable.get(Hashtable.java:337)
+	org.meta_environment.rascal.ast.ASTFactory.makeVariableInitialized(ASTFactory.java:4403)
+TRACE 300319:
+	org.eclipse.imp.pdb.facts.type.ListType.isSubtypeOf(ListType.java:42)
+	org.eclipse.imp.pdb.facts.type.TupleType.isSubtypeOf(TupleType.java:161)
+	org.eclipse.imp.pdb.facts.type.Type.match(Type.java:364)
+	org.eclipse.imp.pdb.facts.type.TupleType.match(TupleType.java:350)
+TRACE 300321:
+	org.eclipse.imp.pdb.facts.type.ListType.isSubtypeOf(ListType.java:41)
+	org.eclipse.imp.pdb.facts.type.Type.match(Type.java:364)
+	org.eclipse.imp.pdb.facts.type.ListType.match(ListType.java:108)
+	org.eclipse.imp.pdb.facts.type.TupleType.match(TupleType.java:353)
+TRACE 300322:
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseFixedSizeATermsArray(ATermReader.java:592)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl(ATermReader.java:190)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parse(ATermReader.java:128)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseFixedSizeATermsArray(ATermReader.java:601)
+TRACE 300323:
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl(ATermReader.java:208)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parse(ATermReader.java:128)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseFixedSizeATermsArray(ATermReader.java:596)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl(ATermReader.java:190)
+TRACE 300327:
+	org.eclipse.imp.pdb.facts.impl.reference.Node.equals(Node.java:195)
+	org.eclipse.imp.pdb.facts.impl.reference.Constructor.equals(Constructor.java:90)
+	org.eclipse.imp.pdb.facts.impl.reference.Node.equals(Node.java:195)
+	org.eclipse.imp.pdb.facts.impl.reference.Constructor.equals(Constructor.java:90)
+TRACE 300328:
+	java.lang.String.intern(String.java:Unknown line)
+	java.lang.Class.searchMethods(Class.java:2646)
+	java.lang.Class.getMethod0(Class.java:2670)
+	java.lang.Class.getMethod(Class.java:1603)
+TRACE 300329:
+	sun.reflect.ByteVectorImpl.<init>(ByteVectorImpl.java:19)
+	sun.reflect.ByteVectorImpl.<init>(ByteVectorImpl.java:15)
+	sun.reflect.ByteVectorFactory.create(ByteVectorFactory.java:12)
+	sun.reflect.ClassFileAssembler.<init>(ClassFileAssembler.java:15)
+TRACE 300330:
+	java.lang.Object.getClass(Object.java:Unknown line)
+	org.meta_environment.rascal.parser.ASTBuilder.buildContextFreeNode(ASTBuilder.java:107)
+	org.meta_environment.rascal.parser.ASTBuilder.buildValue(ASTBuilder.java:217)
+	org.meta_environment.rascal.parser.ASTBuilder.buildContextFreeNode(ASTBuilder.java:106)
+TRACE 300331:
+	org.eclipse.imp.pdb.facts.type.TypeFactory.getOrCreateTuple(TypeFactory.java:133)
+	org.eclipse.imp.pdb.facts.type.TypeFactory.tupleType(TypeFactory.java:220)
+	org.eclipse.imp.pdb.facts.type.AbstractDataType.make(AbstractDataType.java:208)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parse(ATermReader.java:123)
+TRACE 300332:
+	java.lang.Object.getClass(Object.java:Unknown line)
+	java.util.Arrays.copyOf(Arrays.java:2734)
+	java.util.ArrayList.ensureCapacity(ArrayList.java:167)
+	java.util.ArrayList.add(ArrayList.java:351)
+TRACE 300333:
+	java.lang.StringCoding$StringEncoder.encode(StringCoding.java:232)
+	java.lang.StringCoding.encode(StringCoding.java:272)
+	java.lang.StringCoding.encode(StringCoding.java:284)
+	java.lang.String.getBytes(String.java:987)
+TRACE 300334:
+	org.eclipse.imp.pdb.facts.type.TypeFactory.abstractDataTypeFromTuple(TypeFactory.java:337)
+	org.eclipse.imp.pdb.facts.type.TypeFactory.abstractDataType(TypeFactory.java:331)
+	org.eclipse.imp.pdb.facts.type.AbstractDataType.instantiate(AbstractDataType.java:144)
+	org.eclipse.imp.pdb.facts.type.ConstructorType.instantiate(ConstructorType.java:250)
+TRACE 300335:
+	org.eclipse.imp.pdb.facts.type.TypeFactory.abstractDataTypeFromTuple(TypeFactory.java:340)
+	org.eclipse.imp.pdb.facts.type.TypeFactory.abstractDataType(TypeFactory.java:331)
+	org.eclipse.imp.pdb.facts.type.AbstractDataType.instantiate(AbstractDataType.java:144)
+	org.eclipse.imp.pdb.facts.type.ConstructorType.instantiate(ConstructorType.java:250)
+TRACE 300336:
+	org.eclipse.imp.pdb.facts.type.TypeFactory.tupleType(TypeFactory.java:203)
+	org.eclipse.imp.pdb.facts.type.TupleType.instantiate(TupleType.java:368)
+	org.eclipse.imp.pdb.facts.type.ConstructorType.instantiate(ConstructorType.java:251)
+	org.eclipse.imp.pdb.facts.impl.reference.ValueFactory.constructor(ValueFactory.java:166)
+TRACE 300338:
+	java.util.HashMap.<init>(HashMap.java:209)
+	java.util.HashSet.<init>(HashSet.java:86)
+	org.eclipse.imp.pdb.facts.type.TypeStore.<init>(TypeStore.java:66)
+	org.eclipse.imp.pdb.facts.impl.reference.ValueFactory.constructor(ValueFactory.java:166)
+TRACE 300340:
+	org.eclipse.imp.pdb.facts.io.ATermReader.parse(ATermReader.java:118)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseATermsArray(ATermReader.java:573)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseATerms(ATermReader.java:521)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseList(ATermReader.java:283)
+TRACE 300342:
+	org.eclipse.imp.pdb.facts.type.AbstractDataType.hashCode(AbstractDataType.java:122)
+	java.util.HashMap.get(HashMap.java:300)
+	org.eclipse.imp.pdb.facts.type.TypeStore.lookupConstructor(TypeStore.java:330)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl(ATermReader.java:167)
+TRACE 300343:
+	org.eclipse.imp.pdb.facts.type.TupleType.<init>(TupleType.java:35)
+	org.eclipse.imp.pdb.facts.type.TypeFactory.getOrCreateTuple(TypeFactory.java:133)
+	org.eclipse.imp.pdb.facts.type.TypeFactory.tupleType(TypeFactory.java:220)
+	org.eclipse.imp.pdb.facts.impl.reference.ValueFactory.constructor(ValueFactory.java:164)
+TRACE 300344:
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseId(ATermReader.java:449)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl(ATermReader.java:163)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parse(ATermReader.java:128)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseATermsArray(ATermReader.java:573)
+TRACE 300347:
+	org.eclipse.imp.pdb.facts.type.AbstractDataType.make(AbstractDataType.java:207)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parse(ATermReader.java:123)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseATermsArray(ATermReader.java:577)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseATerms(ATermReader.java:521)
+TRACE 300348:
+	org.eclipse.imp.pdb.facts.impl.reference.ValueFactory.node(ValueFactory.java:153)
+	org.eclipse.imp.pdb.facts.type.ValueType.make(ValueType.java:127)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl(ATermReader.java:205)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parse(ATermReader.java:128)
+TRACE 300351:
+	java.util.HashSet.add(HashSet.java:200)
+	org.eclipse.imp.pdb.facts.type.TypeStore.lookupConstructor(TypeStore.java:336)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl(ATermReader.java:167)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parse(ATermReader.java:128)
+TRACE 300354:
+	org.eclipse.imp.pdb.facts.type.ValueType.make(ValueType.java:127)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl(ATermReader.java:205)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parse(ATermReader.java:128)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseFixedSizeATermsArray(ATermReader.java:596)
+TRACE 300355:
+	java.util.HashMap.get(HashMap.java:303)
+	org.eclipse.imp.pdb.facts.type.TypeStore.lookupAbstractDataType(TypeStore.java:464)
+	org.eclipse.imp.pdb.facts.type.TypeStore.declareConstructor(TypeStore.java:212)
+	org.eclipse.imp.pdb.facts.type.TypeFactory.constructorFromTuple(TypeFactory.java:364)
+TRACE 300356:
+	java.lang.Object.getClass(Object.java:Unknown line)
+	org.meta_environment.rascal.ast.AbstractAST.equals(AbstractAST.java:24)
+	java.util.Hashtable.get(Hashtable.java:337)
+	org.meta_environment.rascal.ast.ASTFactory.makeToplevelGivenVisibility(ASTFactory.java:4070)
+TRACE 300359:
+	org.meta_environment.rascal.parser.ASTBuilder.buildContextFreeNode(ASTBuilder.java:95)
+	org.meta_environment.rascal.parser.ASTBuilder.buildValue(ASTBuilder.java:217)
+	org.meta_environment.rascal.parser.ASTBuilder.buildContextFreeNode(ASTBuilder.java:106)
+	org.meta_environment.rascal.parser.ASTBuilder.buildValue(ASTBuilder.java:217)
+TRACE 300361:
+	sun.reflect.NativeMethodAccessorImpl.invoke0(NativeMethodAccessorImpl.java:Unknown line)
+	sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	java.lang.reflect.Method.invoke(Method.java:597)
+TRACE 300363:
+	org.meta_environment.rascal.ast.AbstractAST.equals(AbstractAST.java:25)
+	java.util.Hashtable.containsKey(Hashtable.java:310)
+	org.meta_environment.rascal.ast.ASTFactory.makeExpressionTypedVariable(ASTFactory.java:1304)
+	sun.reflect.GeneratedMethodAccessor33.invoke(<Unknown Source>:Unknown line)
+TRACE 300364:
+	org.meta_environment.rascal.parser.ASTBuilder.buildContextFreeNode(ASTBuilder.java:103)
+	org.meta_environment.rascal.parser.ASTBuilder.buildValue(ASTBuilder.java:217)
+	org.meta_environment.rascal.parser.ASTBuilder.buildContextFreeNode(ASTBuilder.java:106)
+	org.meta_environment.rascal.parser.ASTBuilder.buildValue(ASTBuilder.java:217)
+TRACE 300365:
+	org.meta_environment.uptr.ProductionAdapter.getConstructorName(ProductionAdapter.java:23)
+	org.meta_environment.uptr.TreeAdapter.getConstructorName(TreeAdapter.java:65)
+	org.meta_environment.rascal.parser.ASTBuilder.buildContextFreeNode(ASTBuilder.java:85)
+	org.meta_environment.rascal.parser.ASTBuilder.buildValue(ASTBuilder.java:217)
+TRACE 300366:
+	java.util.LinkedList.listIterator(LinkedList.java:667)
+	java.util.AbstractList.listIterator(AbstractList.java:284)
+	java.util.AbstractSequentialList.iterator(AbstractSequentialList.java:222)
+	java.util.AbstractList.hashCode(AbstractList.java:524)
+TRACE 300367:
+	java.lang.Object.getClass(Object.java:Unknown line)
+	org.meta_environment.rascal.parser.ASTBuilder.buildContextFreeNode(ASTBuilder.java:107)
+	org.meta_environment.rascal.parser.ASTBuilder.buildValue(ASTBuilder.java:217)
+	org.meta_environment.rascal.parser.ASTBuilder.buildList(ASTBuilder.java:76)
+TRACE 300368:
+	org.meta_environment.rascal.parser.ASTBuilder.buildLexicalNode(ASTBuilder.java:177)
+	org.meta_environment.rascal.parser.ASTBuilder.buildValue(ASTBuilder.java:211)
+	org.meta_environment.rascal.parser.ASTBuilder.buildContextFreeNode(ASTBuilder.java:106)
+	org.meta_environment.rascal.parser.ASTBuilder.buildValue(ASTBuilder.java:217)
+TRACE 300369:
+	java.lang.Integer.toString(Integer.java:306)
+	org.meta_environment.rascal.interpreter.TypeEvaluator$Visitor.getArgumentTypes(TypeEvaluator.java:250)
+	org.meta_environment.rascal.interpreter.TypeEvaluator$Visitor.visitStructuredTypeRelation(TypeEvaluator.java:236)
+	org.meta_environment.rascal.interpreter.TypeEvaluator$Visitor.visitStructuredTypeRelation(TypeEvaluator.java:1)
+TRACE 300370:
+	org.eclipse.imp.pdb.facts.type.TypeFactory.constructorFromTuple(TypeFactory.java:363)
+	org.eclipse.imp.pdb.facts.type.ConstructorType.instantiate(ConstructorType.java:252)
+	org.eclipse.imp.pdb.facts.impl.reference.ValueFactory.constructor(ValueFactory.java:166)
+	org.eclipse.imp.pdb.facts.type.ConstructorType.make(ConstructorType.java:214)
+TRACE 300372:
+	org.eclipse.imp.pdb.facts.type.TupleType.isTupleType(TupleType.java:74)
+	org.eclipse.imp.pdb.facts.type.TupleType.isSubtypeOf(TupleType.java:158)
+	org.eclipse.imp.pdb.facts.type.AbstractDataType.make(AbstractDataType.java:211)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parse(ATermReader.java:123)
+TRACE 300373:
+	org.eclipse.imp.pdb.facts.type.TypeFactory.abstractDataType(TypeFactory.java:323)
+	org.eclipse.imp.pdb.facts.type.AbstractDataType.instantiate(AbstractDataType.java:144)
+	org.eclipse.imp.pdb.facts.type.ConstructorType.instantiate(ConstructorType.java:250)
+	org.eclipse.imp.pdb.facts.impl.reference.ValueFactory.constructor(ValueFactory.java:166)
+TRACE 300374:
+	java.util.regex.Matcher.<init>(Matcher.java:207)
+	java.util.regex.Pattern.matcher(Pattern.java:888)
+	java.lang.String.replaceAll(String.java:2190)
+	org.meta_environment.rascal.interpreter.Names.unescape(Names.java:22)
+TRACE 300376:
+	org.eclipse.imp.pdb.facts.impl.reference.Node.hashCode(Node.java:219)
+	org.eclipse.imp.pdb.facts.impl.reference.Constructor.hashCode(Constructor.java:97)
+	org.eclipse.imp.pdb.facts.impl.reference.Node.computeHashCode(Node.java:211)
+	org.eclipse.imp.pdb.facts.impl.reference.Node.hashCode(Node.java:219)
+TRACE 300377:
+	org.meta_environment.rascal.interpreter.TypeDeclarationEvaluator.collectDeclarations(TypeDeclarationEvaluator.java:200)
+	org.meta_environment.rascal.interpreter.TypeDeclarationEvaluator.evaluateDeclarations(TypeDeclarationEvaluator.java:41)
+	org.meta_environment.rascal.interpreter.Evaluator.visitModuleDefault(Evaluator.java:499)
+	org.meta_environment.rascal.interpreter.Evaluator.visitModuleDefault(Evaluator.java:1)
+TRACE 300378:
+	org.eclipse.imp.pdb.facts.type.TypeStore.declareAbstractDataType(TypeStore.java:192)
+	org.eclipse.imp.pdb.facts.type.TypeFactory.abstractDataTypeFromTuple(TypeFactory.java:341)
+	org.eclipse.imp.pdb.facts.type.TypeFactory.abstractDataType(TypeFactory.java:331)
+	org.eclipse.imp.pdb.facts.type.AbstractDataType.instantiate(AbstractDataType.java:144)
+TRACE 300380:
+	java.lang.StringBuilder.toString(StringBuilder.java:430)
+	org.meta_environment.uptr.TreeAdapter.addPosInfo(TreeAdapter.java:259)
+	org.meta_environment.uptr.TreeAdapter.addPosInfo(TreeAdapter.java:234)
+	org.meta_environment.uptr.TreeAdapter.addPosInfo(TreeAdapter.java:234)
+TRACE 300381:
+	org.meta_environment.rascal.interpreter.Evaluator.normalizedResult(Evaluator.java:348)
+	org.meta_environment.rascal.interpreter.Evaluator.visitDeclarationVariable(Evaluator.java:591)
+	org.meta_environment.rascal.interpreter.Evaluator.visitDeclarationVariable(Evaluator.java:1)
+	org.meta_environment.rascal.ast.Declaration$Variable.accept(Declaration.java:497)
+TRACE 300382:
+	java.io.FileInputStream.open(FileInputStream.java:Unknown line)
+	java.io.FileInputStream.<init>(FileInputStream.java:106)
+	java.io.FileInputStream.<init>(FileInputStream.java:66)
+	sun.net.www.protocol.file.FileURLConnection.connect(FileURLConnection.java:70)
+TRACE 300384:
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl(ATermReader.java:181)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parse(ATermReader.java:128)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseFixedSizeATermsArray(ATermReader.java:596)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl(ATermReader.java:190)
+TRACE 300385:
+	org.eclipse.imp.pdb.facts.type.TypeStore.<init>(TypeStore.java:45)
+	org.eclipse.imp.pdb.facts.impl.reference.ValueFactory.constructor(ValueFactory.java:166)
+	org.eclipse.imp.pdb.facts.type.ConstructorType.make(ConstructorType.java:214)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl(ATermReader.java:202)
+TRACE 300387:
+	java.util.LinkedList.listIterator(LinkedList.java:667)
+	java.util.AbstractList.listIterator(AbstractList.java:284)
+	java.util.AbstractList.equals(AbstractList.java:502)
+	org.eclipse.imp.pdb.facts.impl.reference.List.equals(List.java:136)
+TRACE 300388:
+	org.meta_environment.uptr.TreeAdapter.isContextFree(TreeAdapter.java:79)
+	org.meta_environment.uptr.TreeAdapter.getListASTArgs(TreeAdapter.java:101)
+	org.meta_environment.rascal.parser.ASTBuilder.buildList(ASTBuilder.java:73)
+	org.meta_environment.rascal.parser.ASTBuilder.buildContextFreeNode(ASTBuilder.java:102)
+TRACE 300389:
+	java.lang.Class.getDeclaredConstructors0(Class.java:Unknown line)
+	java.lang.Class.privateGetDeclaredConstructors(Class.java:2389)
+	java.lang.Class.getConstructor0(Class.java:2699)
+	java.lang.Class.newInstance0(Class.java:326)
+TRACE 300392:
+	org.meta_environment.rascal.parser.ASTBuilder.buildLexicalNode(ASTBuilder.java:172)
+	org.meta_environment.rascal.parser.ASTBuilder.buildValue(ASTBuilder.java:211)
+	org.meta_environment.rascal.parser.ASTBuilder.buildContextFreeNode(ASTBuilder.java:106)
+	org.meta_environment.rascal.parser.ASTBuilder.buildValue(ASTBuilder.java:217)
+TRACE 300393:
+	sun.misc.Resource.getBytes(Resource.java:102)
+	java.net.URLClassLoader.defineClass(URLClassLoader.java:256)
+	java.net.URLClassLoader.access$000(URLClassLoader.java:56)
+	java.net.URLClassLoader$1.run(URLClassLoader.java:195)
+TRACE 300394:
+	java.lang.Integer.parseInt(Integer.java:497)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseNumber(ATermReader.java:397)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parse(ATermReader.java:118)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseFixedSizeATermsArray(ATermReader.java:596)
+TRACE 300395:
+	java.util.HashMap.newKeyIterator(HashMap.java:840)
+	java.util.HashMap$KeySet.iterator(HashMap.java:874)
+	java.util.HashSet.iterator(HashSet.java:153)
+	org.eclipse.imp.pdb.facts.type.TypeStore.checkFieldNames(TypeStore.java:234)
+TRACE 300397:
+	org.eclipse.imp.pdb.facts.type.TypeStore.lookupAbstractDataType(TypeStore.java:464)
+	org.meta_environment.rascal.interpreter.env.ModuleEnvironment.lookupAbstractDataType(ModuleEnvironment.java:324)
+	org.meta_environment.rascal.interpreter.TypeEvaluator$Visitor.visitUserTypeName(TypeEvaluator.java:358)
+	org.meta_environment.rascal.interpreter.TypeEvaluator$Visitor.visitUserTypeName(TypeEvaluator.java:1)
+TRACE 300398:
+	java.io.InputStream.read(InputStream.java:85)
+	org.eclipse.imp.pdb.facts.io.ATermReader$SharingStream.read(ATermReader.java:699)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseId(ATermReader.java:448)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl(ATermReader.java:163)
+TRACE 300399:
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl(ATermReader.java:181)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parse(ATermReader.java:128)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseATermsArray(ATermReader.java:577)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseATerms(ATermReader.java:521)
+TRACE 300400:
+	org.eclipse.imp.pdb.facts.type.TypeStore.declareAbstractDataType(TypeStore.java:195)
+	org.eclipse.imp.pdb.facts.type.TypeFactory.abstractDataTypeFromTuple(TypeFactory.java:341)
+	org.eclipse.imp.pdb.facts.type.TypeFactory.abstractDataType(TypeFactory.java:331)
+	org.eclipse.imp.pdb.facts.type.AbstractDataType.instantiate(AbstractDataType.java:144)
+TRACE 300401:
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseNumber(ATermReader.java:388)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parse(ATermReader.java:118)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseATermsArray(ATermReader.java:573)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseATerms(ATermReader.java:521)
+TRACE 300402:
+	java.lang.Class.getSuperclass(Class.java:Unknown line)
+	org.meta_environment.rascal.parser.ASTBuilder.buildContextFreeNode(ASTBuilder.java:107)
+	org.meta_environment.rascal.parser.ASTBuilder.buildValue(ASTBuilder.java:217)
+	org.meta_environment.rascal.parser.ASTBuilder.buildContextFreeNode(ASTBuilder.java:106)
+TRACE 300403:
+	org.eclipse.imp.pdb.facts.impl.reference.Constructor.getConstructorType(Constructor.java:54)
+	org.meta_environment.uptr.SymbolAdapter.isCILiteral(SymbolAdapter.java:60)
+	org.meta_environment.uptr.ProductionAdapter.isCILiteral(ProductionAdapter.java:82)
+	org.meta_environment.uptr.TreeAdapter.isCILiteral(TreeAdapter.java:151)
+TRACE 300404:
+	java.io.ByteArrayOutputStream.<init>(ByteArrayOutputStream.java:60)
+	java.io.ByteArrayOutputStream.<init>(ByteArrayOutputStream.java:45)
+	org.meta_environment.uptr.TreeAdapter.yield(TreeAdapter.java:325)
+	org.meta_environment.rascal.parser.ASTBuilder.buildLexicalNode(ASTBuilder.java:178)
+TRACE 300405:
+	org.eclipse.imp.pdb.facts.type.AbstractDataType.hashCode(AbstractDataType.java:122)
+	java.util.HashMap.put(HashMap.java:372)
+	org.eclipse.imp.pdb.facts.type.TypeStore.declareAbstractDataType(TypeStore.java:195)
+	org.eclipse.imp.pdb.facts.type.TypeFactory.abstractDataTypeFromTuple(TypeFactory.java:341)
+TRACE 300406:
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl(ATermReader.java:208)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parse(ATermReader.java:128)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseATermsArray(ATermReader.java:573)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseATerms(ATermReader.java:521)
+TRACE 300407:
+	org.eclipse.imp.pdb.facts.type.TypeFactory.constructorFromTuple(TypeFactory.java:359)
+	org.eclipse.imp.pdb.facts.type.ConstructorType.instantiate(ConstructorType.java:252)
+	org.eclipse.imp.pdb.facts.impl.reference.ValueFactory.constructor(ValueFactory.java:166)
+	org.eclipse.imp.pdb.facts.type.ConstructorType.make(ConstructorType.java:214)
+TRACE 300409:
+	java.util.HashMap.get(HashMap.java:303)
+	org.eclipse.imp.pdb.facts.type.TypeStore.lookupConstructor(TypeStore.java:329)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl(ATermReader.java:167)
+	org.eclipse.imp.pdb.facts.io.ATermReader.parse(ATermReader.java:128)
+TRACE 300410:
+	org.meta_environment.rascal.ast.ASTFactory.makeExpressionVisit(ASTFactory.java:1411)
+	sun.reflect.NativeMethodAccessorImpl.invoke0(NativeMethodAccessorImpl.java:Unknown line)
+	sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:39)
+	sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+TRACE 300411:
+	java.io.OutputStream.<init>(OutputStream.java:29)
+	java.io.ByteArrayOutputStream.<init>(ByteArrayOutputStream.java:55)
+	java.io.ByteArrayOutputStream.<init>(ByteArrayOutputStream.java:45)
+	org.meta_environment.uptr.TreeAdapter.yield(TreeAdapter.java:325)
+TRACE 300412:
+	sun.reflect.Reflection.getCallerClass(Reflection.java:Unknown line)
+	java.lang.ClassLoader.getCallerClassLoader(ClassLoader.java:1350)
+	java.lang.Class.getMethod(Class.java:1602)
+	org.meta_environment.rascal.parser.ASTBuilder.buildContextFreeNode(ASTBuilder.java:112)
+TRACE 300413:
+	java.math.BigInteger.equals(BigInteger.java:2558)
+	org.eclipse.imp.pdb.facts.impl.IntegerValue.equals(IntegerValue.java:50)
+	org.eclipse.imp.pdb.facts.impl.reference.Node.equals(Node.java:195)
+	org.eclipse.imp.pdb.facts.impl.reference.Constructor.equals(Constructor.java:90)
+TRACE 300414:
+	org.meta_environment.rascal.parser.ASTBuilder.buildLexicalNode(ASTBuilder.java:178)
+	org.meta_environment.rascal.parser.ASTBuilder.buildValue(ASTBuilder.java:211)
+	org.meta_environment.rascal.parser.ASTBuilder.buildList(ASTBuilder.java:76)
+	org.meta_environment.rascal.parser.ASTBuilder.buildContextFreeNode(ASTBuilder.java:102)
+TRACE 300415:
+	java.lang.Class.getSuperclass(Class.java:Unknown line)
+	org.meta_environment.rascal.parser.ASTBuilder.buildContextFreeNode(ASTBuilder.java:107)
+	org.meta_environment.rascal.parser.ASTBuilder.buildValue(ASTBuilder.java:217)
+	org.meta_environment.rascal.parser.ASTBuilder.buildList(ASTBuilder.java:76)
+TRACE 300416:
+	org.meta_environment.rascal.ast.ASTFactory.makeIntegerLiteralDecimalIntegerLiteral(ASTFactory.java:3951)
+	sun.reflect.GeneratedMethodAccessor10.invoke(<Unknown Source>:Unknown line)
+	sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:25)
+	java.lang.reflect.Method.invoke(Method.java:597)
+TRACE 300417:
+	java.util.HashMap$ValueIterator.next(HashMap.java:822)
+	java.util.AbstractCollection.addAll(AbstractCollection.java:305)
+	org.eclipse.imp.pdb.facts.type.TypeStore.allAbstractDataTypes(TypeStore.java:386)
+	org.eclipse.imp.pdb.facts.type.TypeStore.lookupFirstConstructor(TypeStore.java:367)
+TRACE 300418:
+	org.eclipse.imp.pdb.facts.type.TypeStore.lookupConstructor(TypeStore.java:352)
+	org.eclipse.imp.pdb.facts.type.TypeStore.lookupConstructor(TypeStore.java:404)
+	org.eclipse.imp.pdb.facts.type.TypeStore.lookupFirstConstructor(TypeStore.java:370)
+	org.meta_environment.rascal.interpreter.env.ModuleEnvironment.getConstructor(ModuleEnvironment.java:258)
+TRACE 300422:
+	java.io.DeleteOnExitHook.<clinit>(DeleteOnExitHook.java:21)
+	java.io.File$1.run(File.java:1946)
+	java.lang.Shutdown.runHooks(Shutdown.java:89)
+	java.lang.Shutdown.sequence(Shutdown.java:133)
+CPU SAMPLES BEGIN (total = 1107) Thu Mar 19 13:33:59 2009
+rank   self  accum   count trace method
+   1 28.91% 28.91%     320 300006 java.io.UnixFileSystem.getBooleanAttributes0
+   2 18.79% 47.70%     208 300182 sglr.SGLRInvoker.parse
+   3  3.52% 51.22%      39 300009 java.io.FileInputStream.open
+   4  3.25% 54.47%      36 300297 org.eclipse.imp.pdb.facts.impl.Value.getType
+   5  1.90% 56.37%      21 300270 org.eclipse.imp.pdb.facts.impl.Value.getType
+   6  1.54% 57.90%      17 300274 java.lang.Object.clone
+   7  1.45% 59.35%      16 300295 sun.nio.cs.UTF_8$Encoder.encodeLoop
+   8  0.99% 60.34%      11 300215 org.eclipse.imp.pdb.facts.impl.reference.Node.<init>
+   9  0.99% 61.34%      11 300253 org.eclipse.imp.pdb.facts.impl.reference.ValueFactory.constructor
+  10  0.99% 62.33%      11 300260 org.eclipse.imp.pdb.facts.impl.reference.ValueFactory.node
+  11  0.99% 63.32%      11 300271 java.lang.String.equals
+  12  0.81% 64.14%       9 300026 java.lang.ClassLoader.defineClass1
+  13  0.72% 64.86%       8 300267 org.eclipse.imp.pdb.facts.type.TypeStore.lookupConstructor
+  14  0.72% 65.58%       8 300291 sglr.SGLRInvoker.run
+  15  0.63% 66.21%       7 300306 org.eclipse.imp.pdb.facts.type.AbstractDataType.hashCode
+  16  0.63% 66.85%       7 300326 java.lang.Object.clone
+  17  0.54% 67.39%       6 300226 org.eclipse.imp.pdb.facts.impl.reference.Node.<init>
+  18  0.54% 67.93%       6 300278 org.meta_environment.uptr.TreeAdapter.addPosInfo
+  19  0.54% 68.47%       6 300304 org.eclipse.imp.pdb.facts.impl.reference.ValueFactory.list
+  20  0.45% 68.93%       5 300248 org.eclipse.imp.pdb.facts.impl.reference.ValueFactory.constructor
+  21  0.45% 69.38%       5 300265 java.lang.System.arraycopy
+  22  0.45% 69.83%       5 300279 org.meta_environment.uptr.TreeAdapter.addPosInfo
+  23  0.45% 70.28%       5 300296 org.eclipse.imp.pdb.facts.impl.Value.getType
+  24  0.45% 70.73%       5 300303 org.eclipse.imp.pdb.facts.type.AbstractDataType.hashCode
+  25  0.36% 71.09%       4 300028 java.lang.ClassLoader.findBootstrapClass
+  26  0.36% 71.45%       4 300030 java.io.UnixFileSystem.getBooleanAttributes0
+  27  0.36% 71.82%       4 300160 java.util.Arrays.copyOf
+  28  0.36% 72.18%       4 300246 java.math.BigInteger.<init>
+  29  0.36% 72.54%       4 300262 java.util.HashMap.get
+  30  0.36% 72.90%       4 300318 org.eclipse.imp.pdb.facts.type.TypeStore.checkFieldNames
+  31  0.36% 73.26%       4 300379 java.util.AbstractList$ListItr.<init>
+  32  0.36% 73.62%       4 300391 org.eclipse.imp.pdb.facts.type.TypeStore.declareConstructor
+  33  0.27% 73.89%       3 300146 java.lang.UNIXProcess.forkAndExec
+  34  0.27% 74.16%       3 300159 org.meta_environment.rascal.interpreter.RascalShell.<init>
+  35  0.27% 74.44%       3 300191 org.eclipse.imp.pdb.facts.type.TypeStore.lookupConstructor
+  36  0.27% 74.71%       3 300193 org.eclipse.imp.pdb.facts.type.TypeFactory.constructorFromTuple
+  37  0.27% 74.98%       3 300213 org.eclipse.imp.pdb.facts.type.TypeFactory.tupleType
+  38  0.27% 75.25%       3 300217 org.eclipse.imp.pdb.facts.impl.reference.ValueFactory.constructor
+  39  0.27% 75.52%       3 300244 org.eclipse.imp.pdb.facts.type.TypeFactory.listType
+  40  0.27% 75.79%       3 300258 org.eclipse.imp.pdb.facts.impl.reference.ValueFactory.listWriter
+  41  0.27% 76.06%       3 300263 org.eclipse.imp.pdb.facts.type.TypeFactory.tupleType
+  42  0.27% 76.33%       3 300276 java.lang.Object.clone
+  43  0.27% 76.60%       3 300293 java.util.HashMap$HashIterator.nextEntry
+  44  0.27% 76.87%       3 300299 java.lang.StringCoding.encode
+  45  0.27% 77.15%       3 300301 org.eclipse.imp.pdb.facts.io.ATermReader.parseFixedSizeATermsArray
+  46  0.27% 77.42%       3 300305 org.eclipse.imp.pdb.facts.impl.Value.getType
+  47  0.27% 77.69%       3 300307 java.lang.StringCoding.encode
+  48  0.27% 77.96%       3 300313 sun.reflect.Reflection.getClassAccessFlags
+  49  0.27% 78.23%       3 300324 java.util.ArrayList.<init>
+  50  0.27% 78.50%       3 300325 org.eclipse.imp.pdb.facts.impl.reference.List$ListWriter.insert
+  51  0.27% 78.77%       3 300337 org.eclipse.imp.pdb.facts.type.ConstructorType.make
+  52  0.27% 79.04%       3 300341 org.eclipse.imp.pdb.facts.type.TypeStore.lookupConstructor
+  53  0.27% 79.31%       3 300346 java.util.HashMap.put
+  54  0.27% 79.58%       3 300349 org.eclipse.imp.pdb.facts.type.AbstractDataType.hashCode
+  55  0.27% 79.86%       3 300353 org.eclipse.imp.pdb.facts.type.AbstractDataType.hashCode
+  56  0.27% 80.13%       3 300371 java.util.HashMap.get
+  57  0.27% 80.40%       3 300424 java.lang.Shutdown.halt0
+  58  0.18% 80.58%       2 300031 org.meta_environment.rascal.interpreter.RascalShell.<init>
+  59  0.18% 80.76%       2 300199 java.lang.Class.getDeclaredMethods0
+  60  0.18% 80.94%       2 300202 java.io.UnixFileSystem.getLength
+  61  0.18% 81.12%       2 300204 java.lang.Thread.currentThread
+  62  0.18% 81.30%       2 300208 java.io.FileInputStream.readBytes
+  63  0.18% 81.48%       2 300222 org.eclipse.imp.pdb.facts.type.TupleType.<init>
+  64  0.18% 81.66%       2 300223 org.eclipse.imp.pdb.facts.type.TypeFactory.abstractDataTypeFromTuple
+  65  0.18% 81.84%       2 300243 org.eclipse.imp.pdb.facts.io.ATermReader.parseATerms
+  66  0.18% 82.02%       2 300252 java.lang.System.arraycopy
+  67  0.18% 82.20%       2 300259 org.eclipse.imp.pdb.facts.io.ATermReader.parseATerms
+  68  0.18% 82.38%       2 300266 org.eclipse.imp.pdb.facts.impl.reference.Constructor.<init>
+  69  0.18% 82.57%       2 300294 java.util.Arrays.copyOf
+  70  0.18% 82.75%       2 300298 org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl
+  71  0.18% 82.93%       2 300308 java.util.HashSet.iterator
+  72  0.18% 83.11%       2 300309 org.eclipse.imp.pdb.facts.type.TypeStore.declareConstructor
+  73  0.18% 83.29%       2 300311 sun.reflect.Reflection.getCallerClass
+  74  0.18% 83.47%       2 300317 java.lang.String.valueOf
+  75  0.18% 83.65%       2 300320 org.eclipse.imp.pdb.facts.type.ListType.isSubtypeOf
+  76  0.18% 83.83%       2 300339 org.eclipse.imp.pdb.facts.type.AbstractDataType.instantiate
+  77  0.18% 84.01%       2 300345 org.eclipse.imp.pdb.facts.type.TypeStore.declareConstructor
+  78  0.18% 84.19%       2 300350 org.eclipse.imp.pdb.facts.type.AbstractDataType.hashCode
+  79  0.18% 84.37%       2 300352 org.eclipse.imp.pdb.facts.type.TypeStore.lookupConstructor
+  80  0.18% 84.55%       2 300357 java.lang.Object.clone
+  81  0.18% 84.73%       2 300358 sun.reflect.Reflection.getClassAccessFlags
+  82  0.18% 84.91%       2 300362 org.meta_environment.uptr.TreeAdapter.getASTArgs
+  83  0.18% 85.09%       2 300375 org.eclipse.imp.pdb.facts.type.TypeFactory.getOrCreateTuple
+  84  0.18% 85.28%       2 300383 org.eclipse.imp.pdb.facts.type.AbstractDataType.hashCode
+  85  0.18% 85.46%       2 300386 org.eclipse.imp.pdb.facts.type.AbstractDataType.instantiate
+  86  0.18% 85.64%       2 300390 org.eclipse.imp.pdb.facts.type.Type.isSubtypeOf
+  87  0.18% 85.82%       2 300396 java.util.HashMap$HashIterator.<init>
+  88  0.18% 86.00%       2 300408 org.eclipse.imp.pdb.facts.io.ATermReader.parseATermsArray
+  89  0.09% 86.09%       1 300004 java.security.AccessController.doPrivileged
+  90  0.09% 86.18%       1 300027 java.lang.StringCoding$StringEncoder.encode
+  91  0.09% 86.27%       1 300029 java.lang.ClassLoader.compareCerts
+  92  0.09% 86.36%       1 300038 java.util.zip.ZipFile.getEntry
+  93  0.09% 86.45%       1 300059 java.security.Security$1.run
+  94  0.09% 86.54%       1 300097 java.util.regex.Pattern.rangeFor
+  95  0.09% 86.63%       1 300119 sun.net.www.protocol.jar.Handler.openConnection
+  96  0.09% 86.72%       1 300152 java.io.FileInputStream.readBytes
+  97  0.09% 86.81%       1 300153 java.lang.UNIXProcess.waitForProcessExit
+  98  0.09% 86.90%       1 300154 java.lang.CharacterDataLatin1.toUpperCase
+  99  0.09% 86.99%       1 300156 java.util.Arrays.fill
+ 100  0.09% 87.08%       1 300158 java.lang.System.arraycopy
+ 101  0.09% 87.17%       1 300161 java.lang.StringCoding$StringEncoder.encode
+ 102  0.09% 87.26%       1 300169 java.util.zip.ZipFile.open
+ 103  0.09% 87.35%       1 300170 com.sun.tools.javac.util.Context.<init>
+ 104  0.09% 87.44%       1 300171 com.sun.tools.javac.main.Main.<init>
+ 105  0.09% 87.53%       1 300176 com.sun.tools.javac.main.RecognizedOptions.getAll
+ 106  0.09% 87.62%       1 300177 com.sun.tools.javac.api.JavacTool.<init>
+ 107  0.09% 87.71%       1 300178 java.lang.ClassLoader$NativeLibrary.load
+ 108  0.09% 87.80%       1 300183 org.eclipse.imp.pdb.facts.type.TypeFactory.voidType
+ 109  0.09% 87.90%       1 300188 org.eclipse.imp.pdb.facts.type.TypeFactory.constructorFromTuple
+ 110  0.09% 87.99%       1 300189 sun.misc.MetaIndex.mayContain
+ 111  0.09% 88.08%       1 300190 java.lang.System.arraycopy
+ 112  0.09% 88.17%       1 300192 java.util.HashMap.<init>
+ 113  0.09% 88.26%       1 300194 java.net.URLStreamHandler.sameFile
+ 114  0.09% 88.35%       1 300198 java.lang.String.valueOf
+ 115  0.09% 88.44%       1 300200 java.lang.String.lastIndexOf
+ 116  0.09% 88.53%       1 300201 java.lang.Object.<init>
+ 117  0.09% 88.62%       1 300203 java.lang.StringCoding$StringEncoder.encode
+ 118  0.09% 88.71%       1 300205 java.net.URLClassLoader.findClass
+ 119  0.09% 88.80%       1 300206 java.util.Arrays.copyOfRange
+ 120  0.09% 88.89%       1 300207 java.lang.Throwable.fillInStackTrace
+ 121  0.09% 88.98%       1 300209 java.lang.Object.getClass
+ 122  0.09% 89.07%       1 300210 java.util.regex.Pattern.compile
+ 123  0.09% 89.16%       1 300214 java.util.HashMap.<init>
+ 124  0.09% 89.25%       1 300216 java.util.Arrays.copyOfRange
+ 125  0.09% 89.34%       1 300218 java.util.HashMap.<init>
+ 126  0.09% 89.43%       1 300219 org.eclipse.imp.pdb.facts.type.TupleType.instantiate
+ 127  0.09% 89.52%       1 300221 java.util.ArrayList.<init>
+ 128  0.09% 89.61%       1 300224 java.util.Arrays.copyOfRange
+ 129  0.09% 89.70%       1 300225 org.eclipse.imp.pdb.facts.type.AbstractDataType.instantiate
+ 130  0.09% 89.79%       1 300227 java.lang.Object.getClass
+ 131  0.09% 89.88%       1 300240 org.meta_environment.rascal.ast.ASTFactory.makeStatementExpression
+ 132  0.09% 89.97%       1 300241 org.eclipse.imp.pdb.facts.type.AbstractDataType.instantiate
+ 133  0.09% 90.06%       1 300242 java.lang.AbstractStringBuilder.<init>
+ 134  0.09% 90.15%       1 300245 org.eclipse.imp.pdb.facts.type.TupleType.<init>
+ 135  0.09% 90.24%       1 300247 org.eclipse.imp.pdb.facts.type.AbstractDataType.instantiate
+ 136  0.09% 90.33%       1 300249 java.lang.System.arraycopy
+ 137  0.09% 90.42%       1 300251 java.math.BigInteger.<init>
+ 138  0.09% 90.51%       1 300254 org.eclipse.imp.pdb.facts.type.TypeFactory.listType
+ 139  0.09% 90.61%       1 300255 org.eclipse.imp.pdb.facts.io.ATermReader.parseNumber
+ 140  0.09% 90.70%       1 300256 org.eclipse.imp.pdb.facts.impl.reference.ValueFactory.constructor
+ 141  0.09% 90.79%       1 300257 org.eclipse.imp.pdb.facts.type.TypeFactory.getFromCache
+ 142  0.09% 90.88%       1 300261 org.eclipse.imp.pdb.facts.type.TypeFactory.getFromCache
+ 143  0.09% 90.97%       1 300264 org.eclipse.imp.pdb.facts.io.ATermReader.parseId
+ 144  0.09% 91.06%       1 300268 java.util.HashSet.<init>
+ 145  0.09% 91.15%       1 300269 org.eclipse.imp.pdb.facts.type.TypeFactory.tupleType
+ 146  0.09% 91.24%       1 300272 org.eclipse.imp.pdb.facts.impl.StringValue.<init>
+ 147  0.09% 91.33%       1 300273 org.eclipse.imp.pdb.facts.io.ATermReader.parseId
+ 148  0.09% 91.42%       1 300275 java.net.URL.isValidProtocol
+ 149  0.09% 91.51%       1 300277 java.net.URLStreamHandler.parseURL
+ 150  0.09% 91.60%       1 300280 org.meta_environment.uptr.TreeAdapter.addPosInfo
+ 151  0.09% 91.69%       1 300281 java.net.URLStreamHandler.setURL
+ 152  0.09% 91.78%       1 300282 java.lang.System.arraycopy
+ 153  0.09% 91.87%       1 300283 java.lang.Object.getClass
+ 154  0.09% 91.96%       1 300284 java.lang.Object.getClass
+ 155  0.09% 92.05%       1 300285 java.util.AbstractList.hashCode
+ 156  0.09% 92.14%       1 300286 org.meta_environment.uptr.TreeAdapter.getListASTArgs
+ 157  0.09% 92.23%       1 300287 java.lang.Object.getClass
+ 158  0.09% 92.32%       1 300288 java.math.BigInteger.intValue
+ 159  0.09% 92.41%       1 300289 sun.reflect.GeneratedMethodAccessor7.invoke
+ 160  0.09% 92.50%       1 300290 java.lang.Class.isPrimitive
+ 161  0.09% 92.59%       1 300292 org.eclipse.imp.pdb.facts.impl.BaseValueFactory.string
+ 162  0.09% 92.68%       1 300300 java.util.HashSet.add
+ 163  0.09% 92.77%       1 300302 java.io.InputStream.read
+ 164  0.09% 92.86%       1 300310 org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl
+ 165  0.09% 92.95%       1 300312 org.meta_environment.uptr.TreeAdapter.getASTArgs
+ 166  0.09% 93.04%       1 300314 java.lang.String.valueOf
+ 167  0.09% 93.13%       1 300315 java.lang.Object.getClass
+ 168  0.09% 93.22%       1 300316 java.lang.Object.getClass
+ 169  0.09% 93.32%       1 300319 org.eclipse.imp.pdb.facts.type.ListType.isSubtypeOf
+ 170  0.09% 93.41%       1 300321 org.eclipse.imp.pdb.facts.type.ListType.isSubtypeOf
+ 171  0.09% 93.50%       1 300322 org.eclipse.imp.pdb.facts.io.ATermReader.parseFixedSizeATermsArray
+ 172  0.09% 93.59%       1 300323 org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl
+ 173  0.09% 93.68%       1 300327 org.eclipse.imp.pdb.facts.impl.reference.Node.equals
+ 174  0.09% 93.77%       1 300328 java.lang.String.intern
+ 175  0.09% 93.86%       1 300329 sun.reflect.ByteVectorImpl.<init>
+ 176  0.09% 93.95%       1 300330 java.lang.Object.getClass
+ 177  0.09% 94.04%       1 300331 org.eclipse.imp.pdb.facts.type.TypeFactory.getOrCreateTuple
+ 178  0.09% 94.13%       1 300332 java.lang.Object.getClass
+ 179  0.09% 94.22%       1 300333 java.lang.StringCoding$StringEncoder.encode
+ 180  0.09% 94.31%       1 300334 org.eclipse.imp.pdb.facts.type.TypeFactory.abstractDataTypeFromTuple
+ 181  0.09% 94.40%       1 300335 org.eclipse.imp.pdb.facts.type.TypeFactory.abstractDataTypeFromTuple
+ 182  0.09% 94.49%       1 300336 org.eclipse.imp.pdb.facts.type.TypeFactory.tupleType
+ 183  0.09% 94.58%       1 300338 java.util.HashMap.<init>
+ 184  0.09% 94.67%       1 300340 org.eclipse.imp.pdb.facts.io.ATermReader.parse
+ 185  0.09% 94.76%       1 300342 org.eclipse.imp.pdb.facts.type.AbstractDataType.hashCode
+ 186  0.09% 94.85%       1 300343 org.eclipse.imp.pdb.facts.type.TupleType.<init>
+ 187  0.09% 94.94%       1 300344 org.eclipse.imp.pdb.facts.io.ATermReader.parseId
+ 188  0.09% 95.03%       1 300347 org.eclipse.imp.pdb.facts.type.AbstractDataType.make
+ 189  0.09% 95.12%       1 300348 org.eclipse.imp.pdb.facts.impl.reference.ValueFactory.node
+ 190  0.09% 95.21%       1 300351 java.util.HashSet.add
+ 191  0.09% 95.30%       1 300354 org.eclipse.imp.pdb.facts.type.ValueType.make
+ 192  0.09% 95.39%       1 300355 java.util.HashMap.get
+ 193  0.09% 95.48%       1 300356 java.lang.Object.getClass
+ 194  0.09% 95.57%       1 300359 org.meta_environment.rascal.parser.ASTBuilder.buildContextFreeNode
+ 195  0.09% 95.66%       1 300361 sun.reflect.NativeMethodAccessorImpl.invoke0
+ 196  0.09% 95.75%       1 300363 org.meta_environment.rascal.ast.AbstractAST.equals
+ 197  0.09% 95.84%       1 300364 org.meta_environment.rascal.parser.ASTBuilder.buildContextFreeNode
+ 198  0.09% 95.93%       1 300365 org.meta_environment.uptr.ProductionAdapter.getConstructorName
+ 199  0.09% 96.03%       1 300366 java.util.LinkedList.listIterator
+ 200  0.09% 96.12%       1 300367 java.lang.Object.getClass
+ 201  0.09% 96.21%       1 300368 org.meta_environment.rascal.parser.ASTBuilder.buildLexicalNode
+ 202  0.09% 96.30%       1 300369 java.lang.Integer.toString
+ 203  0.09% 96.39%       1 300370 org.eclipse.imp.pdb.facts.type.TypeFactory.constructorFromTuple
+ 204  0.09% 96.48%       1 300372 org.eclipse.imp.pdb.facts.type.TupleType.isTupleType
+ 205  0.09% 96.57%       1 300373 org.eclipse.imp.pdb.facts.type.TypeFactory.abstractDataType
+ 206  0.09% 96.66%       1 300374 java.util.regex.Matcher.<init>
+ 207  0.09% 96.75%       1 300376 org.eclipse.imp.pdb.facts.impl.reference.Node.hashCode
+ 208  0.09% 96.84%       1 300377 org.meta_environment.rascal.interpreter.TypeDeclarationEvaluator.collectDeclarations
+ 209  0.09% 96.93%       1 300378 org.eclipse.imp.pdb.facts.type.TypeStore.declareAbstractDataType
+ 210  0.09% 97.02%       1 300380 java.lang.StringBuilder.toString
+ 211  0.09% 97.11%       1 300381 org.meta_environment.rascal.interpreter.Evaluator.normalizedResult
+ 212  0.09% 97.20%       1 300382 java.io.FileInputStream.open
+ 213  0.09% 97.29%       1 300384 org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl
+ 214  0.09% 97.38%       1 300385 org.eclipse.imp.pdb.facts.type.TypeStore.<init>
+ 215  0.09% 97.47%       1 300387 java.util.LinkedList.listIterator
+ 216  0.09% 97.56%       1 300388 org.meta_environment.uptr.TreeAdapter.isContextFree
+ 217  0.09% 97.65%       1 300389 java.lang.Class.getDeclaredConstructors0
+ 218  0.09% 97.74%       1 300392 org.meta_environment.rascal.parser.ASTBuilder.buildLexicalNode
+ 219  0.09% 97.83%       1 300393 sun.misc.Resource.getBytes
+ 220  0.09% 97.92%       1 300394 java.lang.Integer.parseInt
+ 221  0.09% 98.01%       1 300395 java.util.HashMap.newKeyIterator
+ 222  0.09% 98.10%       1 300397 org.eclipse.imp.pdb.facts.type.TypeStore.lookupAbstractDataType
+ 223  0.09% 98.19%       1 300398 java.io.InputStream.read
+ 224  0.09% 98.28%       1 300399 org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl
+ 225  0.09% 98.37%       1 300400 org.eclipse.imp.pdb.facts.type.TypeStore.declareAbstractDataType
+ 226  0.09% 98.46%       1 300401 org.eclipse.imp.pdb.facts.io.ATermReader.parseNumber
+ 227  0.09% 98.55%       1 300402 java.lang.Class.getSuperclass
+ 228  0.09% 98.64%       1 300403 org.eclipse.imp.pdb.facts.impl.reference.Constructor.getConstructorType
+ 229  0.09% 98.74%       1 300404 java.io.ByteArrayOutputStream.<init>
+ 230  0.09% 98.83%       1 300405 org.eclipse.imp.pdb.facts.type.AbstractDataType.hashCode
+ 231  0.09% 98.92%       1 300406 org.eclipse.imp.pdb.facts.io.ATermReader.parseAppl
+ 232  0.09% 99.01%       1 300407 org.eclipse.imp.pdb.facts.type.TypeFactory.constructorFromTuple
+ 233  0.09% 99.10%       1 300409 java.util.HashMap.get
+ 234  0.09% 99.19%       1 300410 org.meta_environment.rascal.ast.ASTFactory.makeExpressionVisit
+ 235  0.09% 99.28%       1 300411 java.io.OutputStream.<init>
+ 236  0.09% 99.37%       1 300412 sun.reflect.Reflection.getCallerClass
+ 237  0.09% 99.46%       1 300413 java.math.BigInteger.equals
+ 238  0.09% 99.55%       1 300414 org.meta_environment.rascal.parser.ASTBuilder.buildLexicalNode
+ 239  0.09% 99.64%       1 300415 java.lang.Class.getSuperclass
+ 240  0.09% 99.73%       1 300416 org.meta_environment.rascal.ast.ASTFactory.makeIntegerLiteralDecimalIntegerLiteral
+ 241  0.09% 99.82%       1 300417 java.util.HashMap$ValueIterator.next
+ 242  0.09% 99.91%       1 300418 org.eclipse.imp.pdb.facts.type.TypeStore.lookupConstructor
+ 243  0.09% 100.00%       1 300422 java.io.DeleteOnExitHook.<clinit>
+CPU SAMPLES END
