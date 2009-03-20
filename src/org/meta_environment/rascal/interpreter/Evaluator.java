@@ -195,6 +195,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	private final JavaBridge javaBridge;
 	private final boolean LAZY = false;
+	private boolean importResetsInterpreter = true;
 	
 	enum DIRECTION  {BottomUp, TopDown};	// Parameters for traversing trees
 	enum FIXEDPOINT {Yes, No};
@@ -238,6 +239,13 @@ public class Evaluator extends NullASTVisitor<Result> {
 	    
 	}
 	
+	/**
+	 * In interactive mode this flag should be set to true, such that re-importing
+	 * a module causes a re-initialization. 
+	 */
+	public void setImportResetsInterpreter(boolean flag) {
+		this.importResetsInterpreter = flag;
+	}
 	
 	private void checkPoint(Environment env) {
 		env.checkPoint();
@@ -460,7 +468,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			evalModule(x, name);
 		}
 		else {
-			if (scopeStack.size() == 1 && callStack.size() == 1) {
+			if (importResetsInterpreter && scopeStack.size() == 1 && callStack.size() == 1) {
 				reloadAll(x);
 			}
 		}
