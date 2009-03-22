@@ -27,7 +27,7 @@ public class List {
 	   if(lst.length() > 0){
 	      return lst.get(0);
 	   } else {
-	      throw RuntimeExceptionFactory.emptyList();
+	      throw RuntimeExceptionFactory.emptyList(null);
 	   }
 	}
 
@@ -35,10 +35,11 @@ public class List {
 	  throws IndexOutOfBoundsException
 	// @doc{head -- get the first n elements of a list}
 	{
-	   if(n.intValue() <= lst.length()){
+	   try {
 	      return lst.sublist(0, n.intValue());
-	   } else {
-	      throw RuntimeExceptionFactory.indexOutOfBounds(n);
+	   } catch(IndexOutOfBoundsException e){
+		   IInteger end = values.integer(n.intValue() - 1);
+	      throw RuntimeExceptionFactory.indexOutOfBounds(end, null);
 	   }
 	}
 
@@ -49,7 +50,7 @@ public class List {
 		if(n > 0){
 			return lst.get(random.nextInt(n));
 		} else {
-			throw RuntimeExceptionFactory.emptyList();
+			throw RuntimeExceptionFactory.emptyList(null);
 		}
 	}
 
@@ -72,7 +73,7 @@ public class List {
 	      }
 	      return w.done();
 	    } else {
-	    	throw RuntimeExceptionFactory.indexOutOfBounds(n);
+	    	throw RuntimeExceptionFactory.indexOutOfBounds(n, null);
 	    }
 	 }
 
@@ -91,26 +92,36 @@ public class List {
 	 public static IValue slice(IList lst, IInteger start, IInteger len)
 	 //@doc{slice -- sublist from start of length len}
 	 {
-	 	return lst.sublist(start.intValue(), len.intValue());
+		try {
+			return lst.sublist(start.intValue(), len.intValue());
+		} catch (IndexOutOfBoundsException e){
+			IInteger end = values.integer(start.intValue() + len.intValue());
+			throw RuntimeExceptionFactory.indexOutOfBounds(end, null);
+		}
 	 }
 
 	 public static IValue tail(IList lst)
 	 //@doc{tail -- all but the first element of a list}
 	 {
-	 	return lst.sublist(1, lst.length()-1);
+	 	try {
+	 		return lst.sublist(1, lst.length()-1);
+	 	} catch (IndexOutOfBoundsException e){
+	 		throw RuntimeExceptionFactory.emptyList(null);
+	 	}
 	 }
 	 
 	  public static IValue tail(IList lst, IInteger len)
-	  throws IndexOutOfBoundsException
 	 //@doc{tail -- last n elements of a list}
 	 {
 	 	int lenVal = len.intValue();
 	 	int lstLen = lst.length();
-	 	
-	 	if(lenVal > lstLen) {
-	 		RuntimeExceptionFactory.indexOutOfBounds(len);
+	 
+	 	try {
+	 		return lst.sublist(lstLen - lenVal, lenVal);
+	 	} catch (IndexOutOfBoundsException e){
+	 		IInteger end = values.integer(lenVal - lstLen);
+	 		throw RuntimeExceptionFactory.indexOutOfBounds(end, null);
 	 	}
-	 	return lst.sublist(lstLen - lenVal, lenVal);
 	 }
 	 
 	public static IValue takeOneFrom(IList lst)
@@ -132,7 +143,7 @@ public class List {
 	      }
 	      return values.tuple(pick, w.done());
 	   	} else {
-	   		throw RuntimeExceptionFactory.emptyList();
+	   		throw RuntimeExceptionFactory.emptyList(null);
 	   	}
 	}
 

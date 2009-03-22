@@ -9,6 +9,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.meta_environment.ValueFactoryFactory;
+import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 
 /**
@@ -43,75 +44,75 @@ public class RuntimeExceptionFactory {
 	
 	private static Type Java = TF.constructor(TS, E, "Java", TF.stringType(), "message");
 
-    public static Throw indexOutOfBounds(IInteger i) {
-    	return new Throw(IndexOutOfBounds.make(VF, i));
+    public static Throw indexOutOfBounds(IInteger i, AbstractAST ast) {
+    	return new Throw(IndexOutOfBounds.make(VF, i), ast);
     }
     
-    public static Throw assertionFailed(IString msg) {
-    	return new Throw(LabeledAssertionFailed.make(VF, msg));
+    public static Throw assertionFailed(IString msg, AbstractAST ast) {
+    	return new Throw(LabeledAssertionFailed.make(VF, msg), ast);
     }
     
-    public static Throw assertionFailed() {
-    	return new Throw(AssertionFailed.make(VF));
+    public static Throw assertionFailed(AbstractAST ast) {
+    	return new Throw(AssertionFailed.make(VF), ast);
     }
 
-	public static Throw emptyList() {
-		return new Throw(EmptyList.make(VF));
+	public static Throw emptyList(AbstractAST ast) {
+		return new Throw(EmptyList.make(VF), ast);
 	}
 	
-	public static Throw emptySet() {
-		return new Throw(EmptySet.make(VF));
+	public static Throw emptySet(AbstractAST ast) {
+		return new Throw(EmptySet.make(VF), ast);
 	}
 	
-	public static Throw emptyMap() {
-		return new Throw(EmptyMap.make(VF));
+	public static Throw emptyMap(AbstractAST ast) {
+		return new Throw(EmptyMap.make(VF), ast);
 	}
 
-	public static Throw noSuchElement(IValue v) {
-		return new Throw(NoSuchElement.make(VF,v));	
+	public static Throw noSuchElement(IValue v, AbstractAST ast) {
+		return new Throw(NoSuchElement.make(VF,v), ast);	
 	}
 	
-	public static Throw illegalArgument(IValue v) {
-		return new Throw(IllegalArgument.make(VF,v));	
+	public static Throw illegalArgument(IValue v, AbstractAST ast) {
+		return new Throw(IllegalArgument.make(VF,v), ast);	
 	}
 	
-	public static Throw illegalArgument() {
-		return new Throw(AnonymousIllegalArgument.make(VF));	
+	public static Throw illegalArgument(AbstractAST ast) {
+		return new Throw(AnonymousIllegalArgument.make(VF), ast);	
 	}
 	
-	public static Throw fileNotFound(IString name) {
-		return new Throw(FileNotFound.make(VF, name));
+	public static Throw fileNotFound(IString name, AbstractAST ast) {
+		return new Throw(FileNotFound.make(VF, name), ast);
 	}
 	
-	public static Throw locationNotFound(ISourceLocation loc) {
-		return new Throw(LocationNotFound.make(VF, loc));
+	public static Throw locationNotFound(ISourceLocation loc, AbstractAST ast) {
+		return new Throw(LocationNotFound.make(VF, loc), ast);
 	}
 	
-	public static Throw permissionDenied() {
-		return new Throw(AnonymousPermissionDenied.make(VF));
+	public static Throw permissionDenied(AbstractAST ast) {
+		return new Throw(AnonymousPermissionDenied.make(VF), ast);
 	}
 	
-	public static Throw permissionDenied(IString msg) {
-		return new Throw(PermissionDenied.make(VF, msg));
+	public static Throw permissionDenied(IString msg, AbstractAST ast) {
+		return new Throw(PermissionDenied.make(VF, msg), ast);
 	}
 	
-	public static Throw io(IString msg) {
-		return new Throw(IO.make(VF, msg));
+	public static Throw io(IString msg, AbstractAST ast) {
+		return new Throw(IO.make(VF, msg), ast);
 	}
 	
-	public static Throw moduleNotFound(IString module) {
-		return new Throw(ModuleNotFound.make(VF, module));
+	public static Throw moduleNotFound(IString module, AbstractAST ast) {
+		return new Throw(ModuleNotFound.make(VF, module), ast);
 	}
 
-	public static Throw noSuchKey(IValue v) {
-		return new Throw(NoSuchKey.make(VF, v));
+	public static Throw noSuchKey(IValue v, AbstractAST ast) {
+		return new Throw(NoSuchKey.make(VF, v), ast);
 	}
 	
-	public static Throw noSuchAnnotation(String label) {
-		return new Throw(NoSuchAnnotation.make(VF, VF.string(label)));
+	public static Throw noSuchAnnotation(String label, AbstractAST ast) {
+		return new Throw(NoSuchAnnotation.make(VF, VF.string(label)), ast);
 	}
 
-	public static Throw javaException(String message) {
-		return new Throw(Java.make(VF, VF.string(message)));
+	public static Throw javaException(String message, AbstractAST ast) {
+		return new Throw(Java.make(VF, VF.string(message)), ast);
 	}
 }

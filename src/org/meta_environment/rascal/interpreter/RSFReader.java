@@ -53,7 +53,7 @@ public class RSFReader {
 			bufRead.close();
 
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(ValueFactoryFactory.getValueFactory().string(e.getMessage()));
+			throw RuntimeExceptionFactory.io(ValueFactoryFactory.getValueFactory().string(e.getMessage()), null);
 		}
 
 		IMapWriter mw = vf.mapWriter(strType, tf.relType(strType, strType));

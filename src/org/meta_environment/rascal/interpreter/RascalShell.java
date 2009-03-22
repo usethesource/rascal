@@ -90,10 +90,10 @@ public class RascalShell {
 				console.printNewline();
 			}
 			catch (StaticError e) {
-				console.printString(e.getMessage() + "\n");
+				console.printString("Static Error: " + e.getMessage() + "\n");
 			}
 			catch (Throw e) {
-				console.printString(e.getMessage() + "\n");
+				console.printString("Uncaught Rascal Exception: " + e.getMessage() + "\n");
 			}
 			catch (ImplementationError e) {
 				e.printStackTrace();
@@ -110,7 +110,7 @@ public class RascalShell {
 		}
 	}
 	
-	private int run(String module, String[] args) throws IOException {
+	private int run(String module, String[] args) {
 		try {
 			loadModule(module);
 			return callMainFunction(module, args);

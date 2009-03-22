@@ -60,10 +60,12 @@ public class JavaFunction extends Lambda {
 			Throwable targetException = e.getTargetException();
 			
 			if (targetException instanceof Throw) {
-				throw (Throw) targetException;
+				Throw th = (Throw) targetException;
+				((Throw) targetException).setLocation(eval.getCurrentStatement().getLocation());
+				throw th;
 			}
 			else {
-				throw org.meta_environment.rascal.interpreter.RuntimeExceptionFactory.javaException(targetException.getMessage());
+				throw org.meta_environment.rascal.interpreter.RuntimeExceptionFactory.javaException(targetException.getMessage(), eval.getCurrentStatement());
 			}
 		}
 	}
