@@ -19,6 +19,15 @@ public class ListTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{int N = List::average([1],0); N == 1;}"));
 		assertTrue(runTestInSameEvaluator("{int N = List::average([1, 3],0); N == 2;}"));
 	}
+	
+	@Test
+	public void delete() {
+		prepare("import List;");
+		
+		assertTrue(runTestInSameEvaluator("{delete([0,1,2], 0) == [1,2];}"));
+		assertTrue(runTestInSameEvaluator("{delete([0,1,2], 1) == [0,2];}"));
+		assertTrue(runTestInSameEvaluator("{delete([0,1,2], 2) == [0,1];}"));
+	}
 
 	@Test
 	public void domain() {

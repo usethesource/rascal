@@ -6,6 +6,10 @@ public &T average(list[&T] lst, &T zero)
   return size(lst) > 0 ? sum(lst, zero)/size(lst) : zero;
 }
 
+public list[&T] java delete(list[&T] lst, int n)
+@doc{delete -- delete nth element from list}
+@javaClass{org.meta_environment.rascal.std.List};
+
 public list[int] domain(list[&T] lst)
 @doc{domain -- a list of all legal index values for a list}
 {
