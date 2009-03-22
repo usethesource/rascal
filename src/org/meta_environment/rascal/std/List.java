@@ -31,6 +31,17 @@ public class List {
 		}
 	}
 	
+	public static IValue domain(IList lst)
+	//@doc{domain -- a list of all legal index values for a list}
+	{
+		IListWriter w = values.listWriter(types.integerType());
+		int len = lst.length();
+		for(int i = 0; i < len; i++){
+			w.append(values.integer(i));
+		}
+		return w.done();
+	}
+	
 	public static IValue head(IList lst)
 	// @doc{head -- get the first element of a list}
 	{

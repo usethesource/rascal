@@ -401,7 +401,7 @@ public class JavaBridge {
 		}
 	}
 
-	public Method lookupJavaMethod(FunctionDeclaration func, Environment env) {
+	public Method lookupJavaMethod(Evaluator eval, FunctionDeclaration func, Environment env) {
 		if (!func.isAbstract()) {
 			throw new NonAbstractJavaFunctionError(func);
 		}
@@ -436,7 +436,7 @@ public class JavaBridge {
 
 					return m;
 				} catch (SecurityException e) {
-					throw RuntimeExceptionFactory.permissionDenied(ValueFactoryFactory.getValueFactory().string(e.getMessage()), null);
+					throw RuntimeExceptionFactory.permissionDenied(ValueFactoryFactory.getValueFactory().string(e.getMessage()), eval.getCurrentStatement());
 				} catch (NoSuchMethodException e) {
 					throw new UndeclaredJavaMethodError(className + "." + name, func);
 				}
