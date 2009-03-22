@@ -24,6 +24,11 @@ public str center(str s, int n, str pad)
   return format(s, "center", n, pad);
 }
 
+public bool java isEmpty(str s)
+ @doc{isEmpty -- is string empty?}
+ @javaClass{org.meta_environment.rascal.std.String};
+
+
 public str left(str s, int n)
 @doc{left -- left align s in string of length n using spaces}
 {

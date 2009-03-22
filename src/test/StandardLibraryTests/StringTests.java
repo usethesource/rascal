@@ -69,6 +69,14 @@ public class StringTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("left(\"ab\", 5, \"-+\") == \"ab-+-\";"));
 		assertTrue(runTestInSameEvaluator("left(\"ab\", 6, \"-+\") == \"ab-+-+\";"));
 	}
+	
+	@Test
+	public void isEmpty(){
+		prepare("import String;");
+		
+		assertTrue(runTestInSameEvaluator("isEmpty(\"\");"));
+		assertTrue(runTestInSameEvaluator("isEmpty(\"abc\") == false;"));
+	}
 
 	@Test
 	public void reverse() {

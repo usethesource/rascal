@@ -76,6 +76,12 @@ public class List {
 	    	throw RuntimeExceptionFactory.indexOutOfBounds(n, null);
 	    }
 	 }
+	
+	public static IValue isEmpty(IList lst)
+	//@doc{isEmpty -- is list empty?}
+	{
+		return values.bool(lst.length() == 0);
+	}
 
 	public static IValue reverse(IList lst)
 	//@doc{reverse -- elements of a list in reverse order}

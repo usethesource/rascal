@@ -1,6 +1,7 @@
 package org.meta_environment.rascal.std;
 
 import org.eclipse.imp.pdb.facts.IInteger;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -69,6 +70,12 @@ public class String {
 	         }
 	    }
 	    return values.string(res.toString());
+	}
+	
+	public static IValue isEmpty(IString s)
+	//@doc{isEmpty -- is string empty?}
+	{
+		return values.bool(s.getValue().length() == 0);
 	}
 
 	public static IValue reverse(IString s)

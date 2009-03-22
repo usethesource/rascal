@@ -98,6 +98,14 @@ public class ListTests extends TestFramework {
 	public void testInsertAt() {
 		runTest("import List;", "insertAt([1,2,3], 4, 5);");
 	}
+	
+	@Test
+	public void isEmpty(){
+		prepare("import List;");
+		
+		assertTrue(runTestInSameEvaluator("isEmpty([]);"));
+		assertTrue(runTestInSameEvaluator("isEmpty([1,2]) == false;"));
+	}
 
 	@Test
 	public void mapper() {

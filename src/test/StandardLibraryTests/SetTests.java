@@ -38,6 +38,14 @@ public class SetTests extends TestFramework {
 		runTest("import Set;", "getOneFrom({});");
 	}
 	
+	@Test
+	public void isEmpty(){
+		prepare("import Set;");
+		
+		assertTrue(runTestInSameEvaluator("isEmpty({});"));
+		assertTrue(runTestInSameEvaluator("isEmpty({1,2}) == false;"));
+	}
+	
 
 	@Test
 	public void mapper() {

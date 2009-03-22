@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.Random;
 import java.util.Map.Entry;
 
+import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
@@ -73,6 +74,12 @@ public class Map {
 			w.put(entry.getValue(), entry.getKey());
 		}
 		return w.done();
+	}
+	
+	public static IValue isEmpty(IMap M)
+	//@doc{isEmpty -- is map empty?}
+	{
+		return values.bool(M.size() == 0);
 	}
 
 	public static  IValue range(IMap M)
