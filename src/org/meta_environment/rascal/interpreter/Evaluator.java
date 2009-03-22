@@ -205,7 +205,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	private Statement currentStatement; // used in runtime errormessages
 	private Profiler profiler;
-	private boolean doProfiling = false;
+	private boolean doProfiling = true;
 	
 	// TODO: can we remove this?
 	protected MatchPattern lastPattern;	// The most recent pattern applied in a match
@@ -509,7 +509,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			}
 		}
 		
-		throw RuntimeExceptionFactory.moduleNotFound(vf.string(name));
+		throw RuntimeExceptionFactory.moduleNotFound(vf.string(name), getCurrentStatement());
 	}
 	
 	@Override 
@@ -942,7 +942,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 		
 		if(r.getValue().isEqual(vf.bool(false))) {
-			throw RuntimeExceptionFactory.assertionFailed();
+			throw RuntimeExceptionFactory.assertionFailed(getCurrentStatement());
 		}
 		return r;	
 	}
@@ -956,7 +956,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		if(r.getValue().isEqual(vf.bool(false))){
 			String str = x.getMessage().toString();
 			IString msg = vf.string(unescape(str, x));
-			throw RuntimeExceptionFactory.assertionFailed(msg);
+			throw RuntimeExceptionFactory.assertionFailed(msg, getCurrentStatement());
 		}
 		return r;	
 	}
@@ -1097,10 +1097,12 @@ public class Evaluator extends NullASTVisitor<Result> {
 		
 		if (exprType.isMapType()
 			&& subsBase.isSubtypeOf(exprType.getKeyType())) {
+			
 			Type valueType = exprType.getValueType();
 			IValue v = ((IMap) expr.getValue()).get(subs.getValue());
+		
 			if(v == null){
-				throw RuntimeExceptionFactory.noSuchKey(subs.getValue());
+				throw RuntimeExceptionFactory.noSuchKey(subs.getValue(), getCurrentStatement());
 			}
 			return normalizedResult(valueType,v);
 		}
@@ -1116,12 +1118,12 @@ public class Evaluator extends NullASTVisitor<Result> {
 				IValue element = ((IList) expr.getValue()).get(index);
 				return normalizedResult(elementType, element);
 			} catch (java.lang.IndexOutOfBoundsException e) {
-				throw RuntimeExceptionFactory.indexOutOfBounds((IInteger) subs.getValue());
+				throw RuntimeExceptionFactory.indexOutOfBounds((IInteger) subs.getValue(), getCurrentStatement());
 			}
 		}
 		if (exprType.isAbstractDataType()) {
 			if(index >= ((IConstructor) expr.getValue()).arity()){
-				throw RuntimeExceptionFactory.indexOutOfBounds((IInteger) subs.getValue());
+				throw RuntimeExceptionFactory.indexOutOfBounds((IInteger) subs.getValue(), getCurrentStatement());
 			}
 			
 			Type elementType = ((IConstructor) expr.getValue()).getConstructorType().getFieldType(index);
@@ -1130,7 +1132,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 		if (exprType.isNodeType()) {
 			if(index >= ((INode) expr.getValue()).arity()){
-				throw RuntimeExceptionFactory.indexOutOfBounds((IInteger) subs.getValue());
+				throw RuntimeExceptionFactory.indexOutOfBounds((IInteger) subs.getValue(), null);
 			}
 			Type elementType = tf.valueType();
 			IValue element = ((INode) expr.getValue()).get(index);
@@ -1142,7 +1144,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				IValue element = ((ITuple) expr.getValue()).get(index);
 				return normalizedResult(elementType, element);
 			} catch (ArrayIndexOutOfBoundsException e){
-				throw RuntimeExceptionFactory.indexOutOfBounds((IInteger) subs.getValue());
+				throw RuntimeExceptionFactory.indexOutOfBounds((IInteger) subs.getValue(), null);
 			}
 		}
 		
@@ -1254,7 +1256,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				}
 				
 				if (selectedFields[i] < 0 || selectedFields[i] > base.getType().getArity()) {
-					throw RuntimeExceptionFactory.indexOutOfBounds(vf.integer(i));
+					throw RuntimeExceptionFactory.indexOutOfBounds(vf.integer(i), getCurrentStatement());
 				}
 				fieldTypes[i] = base.getType().getFieldType(selectedFields[i]);
 			}
@@ -1284,7 +1286,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 					}
 				}
 				if(selectedFields[i] < 0 || selectedFields[i] > base.getType().getArity()) {
-					throw RuntimeExceptionFactory.indexOutOfBounds(vf.integer(i));
+					throw RuntimeExceptionFactory.indexOutOfBounds(vf.integer(i), null);
 				}
 				fieldTypes[i] = base.getType().getFieldType(selectedFields[i]);
 			}
@@ -1346,7 +1348,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	@Override
 	public Result visitStatementThrow(Throw x) {
-		throw new org.meta_environment.rascal.interpreter.control_exceptions.Throw(x.getExpression().accept(this).getValue());
+		throw new org.meta_environment.rascal.interpreter.control_exceptions.Throw(x.getExpression().accept(this).getValue(), getCurrentStatement());
 	}
 	
 	@Override
@@ -1971,7 +1973,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		IValue annoValue = ((IConstructor) base.getValue()).getAnnotation(annoName);
 		
 		if (annoValue == null) {
-			throw RuntimeExceptionFactory.noSuchAnnotation(annoName);
+			throw RuntimeExceptionFactory.noSuchAnnotation(annoName, getCurrentStatement());
 		}
 		return result(annoType, annoValue);
 	}
@@ -2598,7 +2600,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			throw new SyntaxError("URL", x.getLocation());
 		} 
 		catch (IllegalArgumentException e) {
-			throw RuntimeExceptionFactory.illegalArgument();
+			throw RuntimeExceptionFactory.illegalArgument(getCurrentStatement());
 		}
 	}
 	
@@ -4142,7 +4144,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			}
 			max = ((IInteger)res.getValue()).intValue();
 			if(max <= 0){
-				throw RuntimeExceptionFactory.indexOutOfBounds((IInteger) res.getValue());
+				throw RuntimeExceptionFactory.indexOutOfBounds((IInteger) res.getValue(), getCurrentStatement());
 			}
 		}
 		

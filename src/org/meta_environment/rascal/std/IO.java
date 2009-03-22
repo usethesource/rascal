@@ -49,10 +49,10 @@ public class IO {
 			res =  w.done();
 		}
 		catch (FileNotFoundException e){
-			throw RuntimeExceptionFactory.fileNotFound(filename);
+			throw RuntimeExceptionFactory.fileNotFound(filename, null);
 		}
 		catch (java.io.IOException e){
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()));
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null);
 		}
 
 		return res;

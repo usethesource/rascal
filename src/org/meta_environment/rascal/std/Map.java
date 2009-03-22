@@ -45,7 +45,7 @@ public class Map {
 	   int i = 0;
 	   int sz = m.size();
 	   if(sz == 0){
-	      throw RuntimeExceptionFactory.emptyMap();
+	      throw RuntimeExceptionFactory.emptyMap(null);
 	   }
 	   int k = random.nextInt(sz);
 	   Iterator<Entry<IValue,IValue>> iter = m.entryIterator();

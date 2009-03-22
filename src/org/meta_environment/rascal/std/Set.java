@@ -27,7 +27,7 @@ public class Set {
 		int sz = st.size();
 
 		if (sz == 0) {
-			throw RuntimeExceptionFactory.emptySet();
+			throw RuntimeExceptionFactory.emptySet(null);
 		}
 		int k = random.nextInt(sz);
 		int i = 0;
@@ -39,7 +39,7 @@ public class Set {
 			i++;
 		}
 		
-		throw RuntimeExceptionFactory.emptySet();
+		throw RuntimeExceptionFactory.emptySet(null);
 	}
 
 	public static IValue size(ISet st)
@@ -70,7 +70,7 @@ public class Set {
 			}
 			return values.tuple(pick, w.done());
 		} else {
-			throw RuntimeExceptionFactory.emptySet();
+			throw RuntimeExceptionFactory.emptySet(null);
 		}
 	}
 
