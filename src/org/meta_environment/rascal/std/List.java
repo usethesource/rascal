@@ -21,6 +21,16 @@ public class List {
 	private static final TypeFactory types = TypeFactory.getInstance();
 	private static final Random random = new Random();
 	
+	public static IValue delete(IList lst, IInteger n)
+	// @doc{delete -- delete nth element from list}
+	{
+		try {
+			return lst.delete(n.intValue());
+		} catch (IndexOutOfBoundsException e){
+			 throw RuntimeExceptionFactory.indexOutOfBounds(n, null);
+		}
+	}
+	
 	public static IValue head(IList lst)
 	// @doc{head -- get the first element of a list}
 	{
