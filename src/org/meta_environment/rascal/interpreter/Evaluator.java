@@ -205,7 +205,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	private Statement currentStatement; // used in runtime errormessages
 	private Profiler profiler;
-	private boolean doProfiling = true;
+	private boolean doProfiling = false;
 	
 	// TODO: can we remove this?
 	protected MatchPattern lastPattern;	// The most recent pattern applied in a match
@@ -480,7 +480,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 	private void evalModule(AbstractAST x,
 			String name) {
-		Module module = loadModule(name);
+		Module module = loadModule(name, x);
 		if (!getModuleName(module).equals(name)) {
 			throw new ModuleNameMismatchError(getModuleName(module), name, x);
 		}
@@ -499,7 +499,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	}
 	
 
-	private Module loadModule(String name) {
+	private Module loadModule(String name, AbstractAST ast) {
 		for (IModuleLoader loader : loaders) {
 			try {
 				return loader.loadModule(name);
@@ -509,7 +509,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			}
 		}
 		
-		throw RuntimeExceptionFactory.moduleNotFound(vf.string(name), getCurrentStatement());
+		throw RuntimeExceptionFactory.moduleNotFound(vf.string(name), ast);
 	}
 	
 	@Override 
@@ -1132,7 +1132,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 		if (exprType.isNodeType()) {
 			if(index >= ((INode) expr.getValue()).arity()){
-				throw RuntimeExceptionFactory.indexOutOfBounds((IInteger) subs.getValue(), null);
+				throw RuntimeExceptionFactory.indexOutOfBounds((IInteger) subs.getValue(), getCurrentStatement());
 			}
 			Type elementType = tf.valueType();
 			IValue element = ((INode) expr.getValue()).get(index);
@@ -1144,7 +1144,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				IValue element = ((ITuple) expr.getValue()).get(index);
 				return normalizedResult(elementType, element);
 			} catch (ArrayIndexOutOfBoundsException e){
-				throw RuntimeExceptionFactory.indexOutOfBounds((IInteger) subs.getValue(), null);
+				throw RuntimeExceptionFactory.indexOutOfBounds((IInteger) subs.getValue(), getCurrentStatement());
 			}
 		}
 		
@@ -1286,7 +1286,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 					}
 				}
 				if(selectedFields[i] < 0 || selectedFields[i] > base.getType().getArity()) {
-					throw RuntimeExceptionFactory.indexOutOfBounds(vf.integer(i), null);
+					throw RuntimeExceptionFactory.indexOutOfBounds(vf.integer(i), getCurrentStatement());
 				}
 				fieldTypes[i] = base.getType().getFieldType(selectedFields[i]);
 			}

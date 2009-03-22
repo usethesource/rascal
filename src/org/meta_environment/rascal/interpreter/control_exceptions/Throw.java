@@ -28,9 +28,11 @@ public final class Throw extends RuntimeException {
 		super(value.toString());
 		this.exception = value;
 		this.loc = loc;
+		/* This code can be removed, only builtins return a null AST but that is filled in later
 		if (loc == null) {
 			System.err.println("TODO: provide error location");
 		}
+		*/
 	};
 	
 	public Throw(IValue value, AbstractAST ast) {

@@ -151,7 +151,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 			INode node = (INode) rec.getValue();
 			
 			if(index >= node.arity()){
-				throw RuntimeExceptionFactory.indexOutOfBounds((IInteger) subscript.getValue(), null);
+				throw RuntimeExceptionFactory.indexOutOfBounds((IInteger) subscript.getValue(), eval.getCurrentStatement());
 			}
 			node = node.set(index, value.getValue());
 			result = eval.result(rec.getType(), node);

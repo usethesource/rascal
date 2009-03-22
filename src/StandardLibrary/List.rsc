@@ -10,31 +10,29 @@ public list[&T] java delete(list[&T] lst, int n)
 @doc{delete -- delete nth element from list}
 @javaClass{org.meta_environment.rascal.std.List};
 
-public list[int] domain(list[&T] lst)
+public list[int] java domain(list[&T] lst)
 @doc{domain -- a list of all legal index values for a list}
-{
-   return [0, 1 .. size(lst) - 1];
-}
+@javaClass{org.meta_environment.rascal.std.List};
 
 public &T java head(list[&T] lst) throws EmptyListError
- @doc{head -- get the first element of a list}
- @javaClass{org.meta_environment.rascal.std.List};
+@doc{head -- get the first element of a list}
+@javaClass{org.meta_environment.rascal.std.List};
 
 public list[&T] java head(list[&T] lst, int n) throws IndexOutOfBoundsError
- @doc{head -- get the first n elements of a list}
- @javaClass{org.meta_environment.rascal.std.List};
+@doc{head -- get the first n elements of a list}
+@javaClass{org.meta_environment.rascal.std.List};
 
 public &T java getOneFrom(list[&T] lst)
 @doc{getOneFrom -- get an arbitrary element from a list}
 @javaClass{org.meta_environment.rascal.std.List};
 
 public list[&T] java insertAt(list[&T] lst, int n, &T elm) throws IndexOutOfBoundsError
- @doc{insertAt -- add an element at a specific position in a list}
- @javaClass{org.meta_environment.rascal.std.List};
+@doc{insertAt -- add an element at a specific position in a list}
+@javaClass{org.meta_environment.rascal.std.List};
  
- public bool java isEmpty(list[&T] lst)
- @doc{isEmpty -- is list empty?}
-  @javaClass{org.meta_environment.rascal.std.List};
+public bool java isEmpty(list[&T] lst)
+@doc{isEmpty -- is list empty?}
+@javaClass{org.meta_environment.rascal.std.List};
 
 public list[&T] mapper(list[&T] lst, &T (&T) fn)
 @doc{mapper -- apply a function to each element of a list}
@@ -117,9 +115,9 @@ public int java size(list[&T] lst)
 @doc{size -- number of elements in a list}
 @javaClass{org.meta_environment.rascal.std.List};
 
- public list[&T] java slice(list[&T] lst, int start, int len)
- @doc{slice -- sublist from start of length len}
- @javaClass{org.meta_environment.rascal.std.List};
+public list[&T] java slice(list[&T] lst, int start, int len)
+@doc{slice -- sublist from start of length len}
+@javaClass{org.meta_environment.rascal.std.List};
 
 public list[&T] sort(list[&T] lst)
 @doc{sort -- sort the elements of a list}
