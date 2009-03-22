@@ -987,7 +987,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			if (right.getType().isSubtypeOf(previous.getType())) {
 				right.setType(previous.getType());
 			} else {
-				throw new UnexpectedTypeError(previous.getType(), right.getType(), null);
+				throw new UnexpectedTypeError(previous.getType(), right.getType(), getCurrentStatement());
 			}
 		}
 		

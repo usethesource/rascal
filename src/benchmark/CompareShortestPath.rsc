@@ -2,6 +2,7 @@ module benchmark::CompareShortestPath
 
 import Graph;/* currently contains a Java version of the algorithm below */
 import Relation;
+import PriorityQueue;
 import Benchmark;
 import IO;
 import List;
@@ -10,7 +11,8 @@ private rel[int,int] Graph ={};
 private map[int, int] distance =();
 private map[int, int] pred = ();
 private set[int] settled = {};
-private set[int] Q = {};
+//private set[int] Q = {};
+private PriorityQueue Q = priorityQueue();
 private int MAXDISTANCE = 10000;
 
 public list[int] shortestPathPair1(rel[int,int] G, int From, int To)
@@ -23,10 +25,13 @@ public list[int] shortestPathPair1(rel[int,int] G, int From, int To)
     distance[From] = 0;
     pred = ();
     settled = {};
-    Q = {From};
+    // Q = {From};
+    Q = priorityQueue(0, From);
     
-    while (Q != {}){
-        u = extractMinimum();
+ //   while (Q != {}){
+    while(!isEmpty(Q)){
+       // u = extractMinimum();
+       <d, u, Q> = extractMinimum(Q);
         if(u == To)
         	return extractPath(From, u);
         settled = settled + u;
@@ -41,7 +46,8 @@ private void relaxNeighbours(int u)
         if(distance[v] > distance[u] + 1){  // 1 is default weight of each edge
            distance[v] = distance[u] + 1;
            pred[v] = u;
-           Q = Q + v;
+           //Q = Q + v;
+           Q = insertElement(Q, distance[v], v);
         }
      }
   }
@@ -99,6 +105,12 @@ public void measure1(rel[int,int] G){
  	d2 = time3 - time2;
  	println("Java version:   <P1> in <d1> millis");
  	println("Rascal version: <P1> in <d2> millis");
+}
+
+public void measure(int n)
+{
+   for(int i <- [1 .. n])
+     shortestPathPair1(Graph1, 1, 0);
 }
 
 public void measure(){
