@@ -41,6 +41,14 @@ public class MapTests extends TestFramework {
 	public void invertError() {
 		runTest("import Map;", "invert((1:10, 2:10));");
 	}
+	
+	@Test
+	public void isEmpty(){
+		prepare("import Map;");
+		
+		assertTrue(runTestInSameEvaluator("isEmpty(());"));
+		assertTrue(runTestInSameEvaluator("isEmpty((1:10)) == false;"));
+	}
 
 	@Test
 	public void domain() {

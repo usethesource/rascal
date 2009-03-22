@@ -27,6 +27,10 @@ public &T java getOneFrom(list[&T] lst)
 public list[&T] java insertAt(list[&T] lst, int n, &T elm) throws IndexOutOfBoundsError
  @doc{insertAt -- add an element at a specific position in a list}
  @javaClass{org.meta_environment.rascal.std.List};
+ 
+ public bool java isEmpty(list[&T] lst)
+ @doc{isEmpty -- is list empty?}
+  @javaClass{org.meta_environment.rascal.std.List};
 
 public list[&T] mapper(list[&T] lst, &T (&T) fn)
 @doc{mapper -- apply a function to each element of a list}

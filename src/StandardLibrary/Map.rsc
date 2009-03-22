@@ -12,6 +12,10 @@ public map[&V, &K] java invert(map[&K, &V] M)
 @doc{invert -- return map with key and value inverted}
 @javaClass{org.meta_environment.rascal.std.Map};
 
+public bool java isEmpty(map[&K, &V] M)
+ @doc{isEmpty -- is map empty?}
+ @javaClass{org.meta_environment.rascal.std.Map};
+
 public map[&K, &V] mapper(map[&K, &V] M, &K (&K) F, &V (&V) G){
   return (#F(key) : #G(M[key]) | &K key <- M);
 }

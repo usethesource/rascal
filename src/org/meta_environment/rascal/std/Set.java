@@ -3,6 +3,7 @@ package org.meta_environment.rascal.std;
 import java.util.Random;
 
 import org.eclipse.imp.pdb.facts.IListWriter;
+import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;
 import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISet;
@@ -42,6 +43,12 @@ public class Set {
 		throw RuntimeExceptionFactory.emptySet(null);
 	}
 
+	public static IValue isEmpty(ISet st)
+	//@doc{isEmpty -- is set empty?}
+	{
+		return values.bool(st.size() == 0);
+	}
+	
 	public static IValue size(ISet st)
 	// @doc{size -- number of elements in a set}
 	{

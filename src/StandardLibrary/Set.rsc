@@ -10,6 +10,11 @@ public &T java getOneFrom(set[&T] st)
 @doc{getOneFrom -- pick a random element from a set}
 @javaClass{org.meta_environment.rascal.std.Set};
 
+public bool java isEmpty(set[&T] st)
+ @doc{isEmpty -- is set empty?}
+ @javaClass{org.meta_environment.rascal.std.Set};
+
+
 public set[&T] mapper(set[&T] st, &T (&T,&T) fn)
 @doc{mapper -- apply a function to each element of a set}
 {
