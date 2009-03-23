@@ -1,7 +1,6 @@
 package org.meta_environment.rascal.std;
 
 import org.eclipse.imp.pdb.facts.IInteger;
-import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
