@@ -4,7 +4,6 @@ import java.util.Iterator;
 import java.util.Random;
 import java.util.Map.Entry;
 
-import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IMapWriter;

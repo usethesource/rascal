@@ -17,7 +17,7 @@ import org.meta_environment.rascal.ast.AbstractAST;
  * different kinds of Rascal exceptions need to be modeled by different kind
  * of exception values, not different kind of Java classes.
  */
-public final class Throw extends RuntimeException {
+public final class Throw extends ControlException {
 	private static final long serialVersionUID = -7290501865940548332L;
 	private final IValue exception;
 	private ISourceLocation loc;

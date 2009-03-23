@@ -1,6 +1,6 @@
 package org.meta_environment.rascal.interpreter.control_exceptions;
 
-public class Failure extends RuntimeException {
+public class Failure extends ControlException{
 	private static final long serialVersionUID = 2774285953244945424L;
 	
 	private final String label;
