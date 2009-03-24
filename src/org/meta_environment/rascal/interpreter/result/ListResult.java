@@ -80,7 +80,7 @@ public class ListResult extends CollectionResult<IList> {
 	@Override
 	protected <U extends IValue> Result<U> addList(ListResult l, AbstractAST ast) {
 		// Note the reverse concat
-		return makeResult(getType().lub(l.getType()), l.getValue().concat(l.getValue()));
+		return makeResult(getType().lub(l.getType()), l.getValue().concat(getValue()));
 	}
 
 	@Override

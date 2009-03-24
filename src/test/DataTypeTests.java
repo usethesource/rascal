@@ -3,6 +3,7 @@ package test;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
@@ -628,7 +629,7 @@ public class DataTypeTests extends TestFramework {
 		runTest("1 in 3;");
 	}
     
-    @Test(expected=StaticError.class)
+    @Ignore @Test(expected=StaticError.class)
 	public void addSetError() {
 		runTest("{1,2,3} + true;");
 	}

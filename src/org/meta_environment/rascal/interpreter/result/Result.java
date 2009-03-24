@@ -261,7 +261,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that, AbstractAST ast) { 
 		return undefinedError(NON_EQUALS_STRING, that, ast);
 	}
-
+	
 	public boolean isTrue() {
 		return false;
 	}
