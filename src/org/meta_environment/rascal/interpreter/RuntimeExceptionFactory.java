@@ -41,6 +41,8 @@ public class RuntimeExceptionFactory {
 	private static Type ModuleNotFound = TF.constructor(TS, E, "ModuleNotFound", TF.stringType(), "name");
 	private static Type NoSuchKey = TF.constructor(TS, E, "NoSuchKey", TF.valueType(), "key");
 	private static Type NoSuchAnnotation = TF.constructor(TS, E, "NoSuchAnnotation", TF.stringType(), "label");
+	private static Type NoSuchField = TF.constructor(TS, E, "NoSuchField", TF.stringType(), "label");
+	
 	
 	private static Type Java = TF.constructor(TS, E, "Java", TF.stringType(), "message");
 
@@ -114,5 +116,9 @@ public class RuntimeExceptionFactory {
 
 	public static Throw javaException(String message, AbstractAST ast) {
 		return new Throw(Java.make(VF, VF.string(message)), ast);
+	}
+
+	public static Throw noSuchField(String name, AbstractAST ast) {
+		return new Throw(NoSuchField.make(VF, VF.string(name)), ast);
 	}
 }

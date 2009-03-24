@@ -1,11 +1,11 @@
 package org.meta_environment.rascal.interpreter.result;
 
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
-
-import java.util.Comparator;
-import java.util.SortedSet;
+import static org.meta_environment.rascal.interpreter.result.ResultFactory.bool;
 
 import org.eclipse.imp.pdb.facts.IRelation;
+import org.eclipse.imp.pdb.facts.IRelationWriter;
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -14,7 +14,10 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.meta_environment.rascal.interpreter.staticErrors.ArityError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFieldError;
+import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
+import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscriptArityError;
 
+import org.meta_environment.rascal.ast.AbstractAST;
 
 public class RelationResult extends CollectionResult<IRelation> {
 
@@ -23,39 +26,182 @@ public class RelationResult extends CollectionResult<IRelation> {
 		}
 
 		@Override
-		public <U extends IValue, V extends IValue> AbstractResult<U> add(AbstractResult<V> result) {
-			return result.addRelation(this);
+		public <U extends IValue, V extends IValue> Result<U> add(Result<V> result, AbstractAST ast) {
+			return result.addRelation(this, ast);
 		}
 		
 		@Override
-		public  <U extends IValue, V extends IValue> AbstractResult<U> subtract(AbstractResult<V> result) {
-			return result.subtractRelation(this);
+		public  <U extends IValue, V extends IValue> Result<U> subtract(Result<V> result, AbstractAST ast) {
+			return result.subtractRelation(this, ast);
 		}
 		
 		@Override
-		public <U extends IValue, V extends IValue> AbstractResult<U> compare(AbstractResult<V> result) {
-			return result.compareRelation(this);
+		public <U extends IValue, V extends IValue> Result<U> intersect(Result<V> result, AbstractAST ast) {
+			return result.intersectRelation(this, ast);
+		}
+		
+		@Override
+		public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that, AbstractAST ast) {
+			return that.equalToRelation(this, ast);
+		}
+
+		@Override
+		public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that, AbstractAST ast) {
+			return that.nonEqualToRelation(this, ast);
+		}
+		
+		@Override
+		public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> that, AbstractAST ast) {
+			return that.lessThanRelation(this, ast);
+		}
+		
+		@Override
+		public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(Result<V> that, AbstractAST ast) {
+			return that.lessThanOrEqualRelation(this, ast);
+		}
+
+		@Override
+		public <U extends IValue, V extends IValue> Result<U> greaterThan(Result<V> that, AbstractAST ast) {
+			return that.greaterThanRelation(this, ast);
+		}
+		
+		@Override
+		public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(Result<V> that, AbstractAST ast) {
+			return that.greaterThanOrEqualRelation(this, ast);
+		}
+
+		@Override
+		public <U extends IValue, V extends IValue> Result<U> compare(Result<V> result, AbstractAST ast) {
+			return result.compareRelation(this, ast);
+		}
+
+		@Override
+		public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right, AbstractAST ast) {
+			return right.composeRelation(this, ast);
+		}
+
+		@Override
+		public <U extends IValue, V extends IValue> Result<U> multiply(Result<V> that, AbstractAST ast) {
+			return that.multiplyRelation(this, ast);
+		}
+		
+		@Override
+		public <U extends IValue, V extends IValue> Result<U> in(Result<V> that, AbstractAST ast) {
+			return that.inRelation(this, ast);
+		}
+		
+		@Override
+		public <U extends IValue, V extends IValue> Result<U> notIn(Result<V> that, AbstractAST ast) {
+			return that.notInRelation(this, ast);
 		}
 		
 		
+		public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts, AbstractAST ast) {
+			// TODO: must go to PDB
+			int nSubs = subscripts.length;
+			if (nSubs >= getType().getArity()) {
+				throw new UnsupportedSubscriptArityError(getType(), nSubs, ast);
+			}
+			int relArity = getType().getArity();
+			
+			Type subscriptType[] = new Type[nSubs];
+			boolean subscriptIsSet[] = new boolean[nSubs];
+			
+			for (int i = 0; i < nSubs; i++){
+				subscriptType[i] = subscripts[i].getType();
+			}
+			
+			boolean yieldSet = (relArity - nSubs) == 1;
+			Type resFieldType[] = new Type[relArity - nSubs];
+			for (int i = 0; i < relArity; i++) {
+				Type relFieldType = getType().getFieldType(i);
+				if (i < nSubs) {
+					if (subscriptType[i].isSetType() && 
+					    subscriptType[i].getElementType().isSubtypeOf(relFieldType)){
+						subscriptIsSet[i] = true;
+					} 
+					else if (subscriptType[i].isSubtypeOf(relFieldType)){
+						subscriptIsSet[i] = false;
+					} 
+					else {
+						throw new UnexpectedTypeError(relFieldType, subscriptType[i], ast);
+					}
+				} else {
+					resFieldType[i - nSubs] = relFieldType;
+				}
+			}
+			Type resultType;
+			ISetWriter wset = null;
+			IRelationWriter wrel = null;
+			
+			if (yieldSet){
+				resultType = getTypeFactory().setType(resFieldType[0]);
+				wset = resultType.writer(getValueFactory());
+			} else {
+				resultType = getTypeFactory().relType(resFieldType);
+				wrel = resultType.writer(getValueFactory());
+			}
+
+			
+			for (IValue v : getValue()) {
+				ITuple tup = (ITuple)v;
+				boolean allEqual = true;
+				for(int k = 0; k < nSubs; k++){
+					if(subscriptIsSet[k] && ((ISet) subscripts[k].getValue()).contains(tup.get(k))){
+						/* ok */
+					} else if (tup.get(k).isEqual(subscripts[k].getValue())){
+						/* ok */
+					} else {
+						allEqual = false;
+					}
+				}
+				
+				if (allEqual) {
+					IValue args[] = new IValue[relArity - nSubs];
+					for (int i = nSubs; i < relArity; i++) {
+						args[i - nSubs] = tup.get(i);
+					}
+					if(yieldSet){
+						wset.insert(args[0]);
+					} else {
+						wrel.insert(getValueFactory().tuple(args));
+					}
+				}
+			}
+			return makeResult(resultType, yieldSet ? wset.done() : wrel.done());
+		}
+
 		////
 		
+		
+		protected <U extends IValue, V extends IValue> Result<U> elementOf(ElementResult<V> elementResult, AbstractAST ast) {
+			return bool(getValue().contains(elementResult.getValue()));
+		}
+
+		protected <U extends IValue, V extends IValue> Result<U> notElementOf(ElementResult<V> elementResult, AbstractAST ast) {
+			return bool(!getValue().contains(elementResult.getValue()));
+		}
+		
 		@Override
-		public  <U extends IValue> AbstractResult<U> transitiveClosure() {
-			checkArity(2, getValue().arity());
-			return makeResult(type, getValue().closure());
+		public  <U extends IValue> Result<U> transitiveClosure(AbstractAST ast) {
+			if (getValue().arity() == 0 || getValue().arity() == 2) {
+				return makeResult(type, getValue().closure());
+			}
+			throw new ArityError(2, getValue().arity(), ast);
 		}
 		
 
 		@Override
-		public  <U extends IValue> AbstractResult<U> transitiveReflexiveClosure() {
-			checkArity(2, getValue().arity());
-			return makeResult(type, getValue().closureStar());
+		public  <U extends IValue> Result<U> transitiveReflexiveClosure(AbstractAST ast) {
+			if (getValue().arity() == 0 || getValue().arity() == 2) {
+				return makeResult(type, getValue().closureStar());
+			}
+			throw new ArityError(2, getValue().arity(), ast);
 		}
 		
 		
 		@Override
-		public <U extends IValue> AbstractResult<U> fieldAccess(String name, TypeStore store) {
+		public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store, AbstractAST ast) {
 			Type tupleType = getType().getFieldTypes();			
 			try {
 				ISetWriter w = getValueFactory().setWriter(tupleType.getFieldType(name));
@@ -66,8 +212,7 @@ public class RelationResult extends CollectionResult<IRelation> {
 			}
 			// TODO: why catch this exception here?
 			catch (UndeclaredFieldException e) {
-				// TODO add ast location
-				throw new UndeclaredFieldError(name, getType(), null);
+				throw new UndeclaredFieldError(name, getType(), ast);
 			}
 		}
 		
@@ -75,71 +220,174 @@ public class RelationResult extends CollectionResult<IRelation> {
 		///
 		
 		@Override
-		protected <U extends IValue> AbstractResult<U> addRelation(RelationResult r) {
-			checkCompatibleArity(r);
+		protected <U extends IValue> Result<U> addRelation(RelationResult r, AbstractAST ast) {
+			//checkCompatibleArity(r);
 			return makeResult(type.lub(r.type), (IRelation)getValue().union(r.getValue()));
 		}
 		
+		@Override
+		protected <U extends IValue> Result<U> addSet(SetResult s, AbstractAST ast) {
+			return makeResult(type.lub(s.type), getValue().union(s.getValue()));
+		}
+		
+		@Override 
+		protected <U extends IValue> Result<U> subtractRelation(RelationResult r, AbstractAST ast) {			
+			//checkCompatibleArity(r);
+			return makeResult(type.lub(r.type), (IRelation) r.getValue().subtract(getValue()));
+		}
 
 		@Override 
-		protected <U extends IValue> AbstractResult<U> subtractRelation(RelationResult r) {			
-			checkCompatibleArity(r);
-			return makeResult(type.lub(r.type), (IRelation) r.getValue().union(getValue()));
+		protected <U extends IValue> Result<U> subtractSet(SetResult r, AbstractAST ast) {			
+			//checkCompatibleArity(r);
+			return makeResult(getType().lub(r.getType()), r.getValue().subtract(getValue()));
+		}
+
+		
+		@Override 
+		protected <U extends IValue> Result<U> intersectSet(SetResult s, AbstractAST ast) {
+			return makeResult(type.lub(s.type), getValue().intersect(s.getValue()));
+		}
+		
+		@Override 
+		protected <U extends IValue> Result<U> intersectRelation(RelationResult s, AbstractAST ast) {
+			return makeResult(type.lub(s.type), getValue().intersect(s.getValue()));
+		}
+		
+		
+		@Override
+		protected <U extends IValue> Result<U> equalToRelation(RelationResult that, AbstractAST ast) {
+			return that.equalityBoolean(this);
+		}
+		
+		@Override
+		protected <U extends IValue> Result<U> equalToSet(SetResult that, AbstractAST ast) {
+			return that.equalityBoolean(this);
+		}
+
+		@Override
+		protected <U extends IValue> Result<U> nonEqualToRelation(RelationResult that, AbstractAST ast) {
+			return that.nonEqualityBoolean(this);
+		}
+		
+		@Override
+		protected <U extends IValue> Result<U> nonEqualToSet(SetResult that, AbstractAST ast) {
+			return that.nonEqualityBoolean(this);
+		}
+
+		
+
+		@Override
+		protected <U extends IValue> Result<U> lessThanSet(SetResult that, AbstractAST ast) {
+			// note reversed args: we need that < this
+			return bool(that.comparisonInts(this, ast) < 0);
+		}
+		
+		@Override
+		protected <U extends IValue> Result<U> lessThanOrEqualSet(SetResult that, AbstractAST ast) {
+			// note reversed args: we need that <= this
+			return bool(that.comparisonInts(this, ast) <= 0);
+		}
+
+		@Override
+		protected <U extends IValue> Result<U> greaterThanSet(SetResult that, AbstractAST ast) {
+			// note reversed args: we need that > this
+			return bool(that.comparisonInts(this, ast) > 0);
+		}
+		
+		@Override
+		protected <U extends IValue> Result<U> greaterThanOrEqualSet(SetResult that, AbstractAST ast) {
+			// note reversed args: we need that >= this
+			return bool(that.comparisonInts(this, ast) >= 0);
+		}
+		
+		@Override
+		protected <U extends IValue> Result<U> lessThanRelation(RelationResult that, AbstractAST ast) {
+			// note reversed args: we need that < this
+			return bool(that.comparisonInts(this, ast) < 0);
+		}
+		
+		@Override
+		protected <U extends IValue> Result<U> lessThanOrEqualRelation(RelationResult that, AbstractAST ast) {
+			// note reversed args: we need that <= this
+			return bool(that.comparisonInts(this, ast) <= 0);
+		}
+
+		@Override
+		protected <U extends IValue> Result<U> greaterThanRelation(RelationResult that, AbstractAST ast) {
+			// note reversed args: we need that > this
+			return bool(that.comparisonInts(this, ast) > 0);
+		}
+		
+		@Override
+		protected <U extends IValue> Result<U> greaterThanOrEqualRelation(RelationResult that, AbstractAST ast) {
+			// note reversed args: we need that >= this
+			return bool(that.comparisonInts(this, ast) >= 0);
+		}
+		
+		@Override
+		protected <U extends IValue> Result<U> composeRelation(RelationResult that, AbstractAST ast) {
+			RelationResult left = that;
+			RelationResult right = this;
+			Type leftrelType = left.getType(); 
+			Type rightrelType = right.getType();
+			int leftArity = leftrelType.getArity();
+			int rightArity = rightrelType.getArity();
+				
+			if (leftArity != 0 && leftArity != 2) {
+				throw new ArityError(2, leftArity, null);
+			}
+				
+			if (rightArity != 0 && rightArity != 2) {
+				throw new ArityError(2, rightArity, null);
+			}
+			Type resultType = leftrelType.compose(rightrelType);
+			return makeResult(resultType, left.getValue().compose(right.getValue()));
 		}
 
 
 		@Override
-		protected <U extends IValue> AbstractResult<U> compareRelation(RelationResult that) {
+		protected <U extends IValue> Result<U> multiplyRelation(RelationResult that, AbstractAST ast) {
+			Type tupleType = getTypeFactory().tupleType(that.type.getElementType(), type.getElementType());
+			// Note the reverse in .product
+			return makeResult(getTypeFactory().relTypeFromTuple(tupleType), that.getValue().product(getValue()));
+		}
+		
+		@Override
+		protected <U extends IValue> Result<U> multiplySet(SetResult that, AbstractAST ast) {
+			Type tupleType = getTypeFactory().tupleType(that.type.getElementType(), type.getElementType());
+			// Note the reverse in .product
+			return makeResult(getTypeFactory().relTypeFromTuple(tupleType), that.getValue().product(getValue()));
+		}
+		
+			
+		@Override
+		protected <U extends IValue> Result<U> compareRelation(RelationResult that, AbstractAST ast) {
 			// Note reverse args
-			IRelation left = that.getValue();
-			IRelation right = this.getValue();
-			int compare = new Integer(left.size()).compareTo(right.size());
-			if (compare != 0) {
-				return makeIntegerResult(compare);
-			}
-			if (left.isEqual(right)) {
-				return makeIntegerResult(0);
-			}
-			if (left.isSubsetOf(right)) {
-				return makeIntegerResult(-1);
-			}
-			if (right.isSubsetOf(left)) {
-				return makeIntegerResult(1);
-			}
-			
-			// Sets are of equal size from here on
-			SortedSet<IValue> leftSet = sortedSet(left.iterator());
-			SortedSet<IValue> rightSet = sortedSet(right.iterator());
-			Comparator<? super IValue> comparator = leftSet.comparator();
-	
-			while (!leftSet.isEmpty()) {
-				compare = comparator.compare(leftSet.last(), rightSet.last());
-				if (compare != 0) {
-					return makeIntegerResult(compare);
-				}
-				leftSet = leftSet.headSet(leftSet.last());
-				rightSet = rightSet.headSet(rightSet.last());
-			}
-			return makeIntegerResult(0);
-			
+			return makeIntegerResult(compareISets(that.getValue(), this.getValue(), ast));
 		}
 		
-		private void checkCompatibleArity(RelationResult that) {
-			checkArity(getValue().arity(), that.getValue().arity());
+		@Override
+		protected <U extends IValue> Result<U> compareSet(SetResult that, AbstractAST ast) {
+			// Note reverse args
+			return makeIntegerResult(compareISets(that.getValue(), this.getValue(), ast));
 		}
 		
-		private void checkArity(int expected, int given) {
+		private void checkCompatibleArity(RelationResult that, AbstractAST ast) {
+			checkArity(getType().getArity(), that.getType().getArity(), ast);
+		}
+		
+		private static void checkArity(int expected, int given, AbstractAST ast) {
 			if (expected != given) {
-				throw new ArityError(expected, given, null);
+				throw new ArityError(expected, given, ast);
 			}
 		}
 
-		@Override
-		<U extends IValue, V extends IValue> AbstractResult<U> insertElement(ValueResult<V> result) {
-			// TODO: check that result is tuple and that arity is ok. 
-			return makeResult(resultTypeWhenAddingElement(result), (IRelation) getValue().insert(result.getValue()));
+		<U extends IValue, V extends IValue> Result<U> insertTuple(TupleResult tuple, AbstractAST ast) {
+			// TODO: check arity 
+			Type newType = getTypeFactory().relTypeFromTuple(tuple.getType().lub(getType().getElementType()));
+			return makeResult(newType, (IRelation) getValue().insert(tuple.getValue()));
 		}
-		
+
 		
 		
 		

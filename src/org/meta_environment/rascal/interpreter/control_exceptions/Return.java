@@ -1,10 +1,11 @@
 package org.meta_environment.rascal.interpreter.control_exceptions;
 
+import org.eclipse.imp.pdb.facts.IValue;
 import org.meta_environment.rascal.interpreter.result.Result;
 
 public class Return extends ControlException {
 	private static final long serialVersionUID = -6601026099925601817L;
-    private Result value;
+    private Result<IValue> value;
 	
     public Return(){
     	super();
@@ -12,13 +13,13 @@ public class Return extends ControlException {
     	this.value = null;
     }
     
-    public Return(Result value){
+    public Return(Result<IValue> value){
     	super();
     	
     	this.value = value;
     }
 	
-	public Result getValue() {
+	public Result<IValue> getValue() {
 		return value;
 	}
 }

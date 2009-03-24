@@ -227,7 +227,7 @@ public class TryCatchTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{" + fun + "fun();}"));
 	}
 	
-	@Test(expected=SyntaxError.class)
+	@Ignore @Test(expected=SyntaxError.class)
 	public void SubscriptException(){
 		String fun =
 			

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.imp.pdb.facts.IValue;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.result.Result;
 
@@ -12,14 +13,14 @@ import org.meta_environment.rascal.interpreter.result.Result;
 public class Cache {
 	// TODO: fix dependency on internals of Environment (e.g. Map<String,...> etc.).
 	
-	private final Map<VariableCacheEntry, Result> variables;
+	private final HashMap<VariableCacheEntry,Result<IValue>> variables;
 	private final Map<FunctionCacheEntry, List<Lambda>> functions;
 //	private final Map<CacheEntry<Map<String,List<Lambda>>>, List<Lambda>> functions2;
 	private boolean enabled;
 	
 	
 	public Cache() {
-		variables = new HashMap<VariableCacheEntry, Result>();
+		variables = new HashMap<VariableCacheEntry, Result<IValue>>();
 		functions = new HashMap<FunctionCacheEntry, List<Lambda>>();
 		enabled = true;
 	}
@@ -32,11 +33,11 @@ public class Cache {
 		functions.put(new FunctionCacheEntry(env, name), list);
 	}
 	
-	public void save(Map<String, Result> env, String name, Result result) {
+	public void save(Map<String, Result<IValue>> env, String name, Result<IValue> result) {
 		variables.put(new VariableCacheEntry(env, name), result);
 	}
 	
-	public boolean containsVariable(Map<String, Result> env, String name) {
+	public boolean containsVariable(Map<String, Result<IValue>> env, String name) {
 		return variables.containsKey(new VariableCacheEntry(env, name));
 	}
 	
@@ -60,10 +61,10 @@ public class Cache {
 			throw new ImplementationError("trying to restore cache which is not enabled.");
 		}
 		enabled = false;
-		for (Map.Entry<VariableCacheEntry, Result> entry: variables.entrySet()) {
-			Map<String, Result> env = entry.getKey().env;
+		for (Map.Entry<VariableCacheEntry, Result<IValue>> entry: variables.entrySet()) {
+			Map<String, Result<IValue>> env = entry.getKey().env;
 			String name = entry.getKey().name;
-			Result value = entry.getValue();
+			Result<IValue> value = entry.getValue();
 			// NULL indicates the variable was unbound before.
 			if (value == null) {
 				env.remove(name);
@@ -106,10 +107,10 @@ public class Cache {
 	}
 
 	private class VariableCacheEntry {
-		private Map<String, Result> env;
+		private Map<String, Result<IValue>> env;
 		private String name;
 
-		public VariableCacheEntry(Map<String, Result> env, String name) {
+		public VariableCacheEntry(Map<String, Result<IValue>> env, String name) {
 			this.env = env;
 			this.name = name;
 		}

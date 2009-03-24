@@ -15,17 +15,29 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 
 public class ResultFactory {
 
 	// TODO: do apply rules here and introduce normalizedResult. 
 	
 	@SuppressWarnings("unchecked")
-	public static <T extends IValue> AbstractResult<T> makeResult(Type declaredType, IValue value) {
-		return (AbstractResult<T>) declaredType.accept(new Visitor(declaredType, value));
+	public static <T extends IValue> Result<T> makeResult(Type declaredType, IValue value) {
+		return (Result<T>) declaredType.accept(new Visitor(declaredType, value));
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static <T extends IValue> Result<T> nothing() {
+		Type type = TypeFactory.getInstance().voidType();
+		return (Result<T>) type.accept(new Visitor(type, null));
 	}
 
-	private static class Visitor implements ITypeVisitor<AbstractResult<? extends IValue>> {
+	@SuppressWarnings("unchecked")
+	public static <T extends IValue> Result<T> bool(boolean b) {
+		return (Result<T>) new BoolResult(b);
+	}
+	
+	private static class Visitor implements ITypeVisitor<Result<? extends IValue>> {
 		private IValue value;
 		private Type declaredType;
 
@@ -34,12 +46,12 @@ public class ResultFactory {
 			this.value = value;
 		}
 
-		public ValueResult<INode> visitAbstractData(Type type) {
+		public ElementResult<? extends IValue> visitAbstractData(Type type) {
 			// TODO: rename constructor result to AbstractData
 			return new ConstructorResult(declaredType, (IConstructor)value);
 		}
 
-		public AbstractResult<? extends IValue> visitAlias(Type type) {
+		public Result<? extends IValue> visitAlias(Type type) {
 			return type.getAliased().accept(this);
 		}
 
@@ -47,7 +59,7 @@ public class ResultFactory {
 			return new BoolResult(declaredType, (IBool)value);
 		}
 
-		public ValueResult<INode> visitConstructor(Type type) {
+		public ElementResult<? extends IValue> visitConstructor(Type type) {
 			return new ConstructorResult(declaredType, (IConstructor)value);
 		}
 
@@ -67,11 +79,11 @@ public class ResultFactory {
 			return new MapResult(declaredType, (IMap)value);
 		}
 
-		public NodeResult visitNode(Type type) {
+		public ElementResult<? extends IValue> visitNode(Type type) {
 			return new NodeResult(declaredType, (INode)value);
 		}
 
-		public AbstractResult<? extends IValue> visitParameter(Type parameterType) {
+		public Result<? extends IValue> visitParameter(Type parameterType) {
 			return parameterType.getBound().accept(this);
 		}
 
@@ -95,8 +107,8 @@ public class ResultFactory {
 			return new TupleResult(declaredType, (ITuple)value);
 		}
 
-		public ValueResult<IValue> visitValue(Type type) {
-			return new ValueResult<IValue>(declaredType, value);
+		public ValueResult visitValue(Type type) {
+			return new ValueResult(declaredType, value);
 		}
 
 		public VoidResult visitVoid(Type type) {
