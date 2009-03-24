@@ -297,6 +297,7 @@ public class ModuleEnvironment extends Environment {
 		return importedModules.get(moduleName);
 	}
 	
+	@SuppressWarnings("unused")
 	private void checkModuleName(QualifiedName name) {
 		String moduleName = Names.moduleName(name);
 		
