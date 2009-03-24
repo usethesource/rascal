@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -33,7 +32,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnguardedFailError;
  * get away with storing a Lambda as an IValue, but what happens when 
  * somebody actually starts interpreting this IValue as an IConstructor?
  */
-public class Lambda extends Result<IConstructor> {
+public class Lambda extends Result<IValue> implements IValue {
     protected static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	protected static final TypeEvaluator TE = TypeEvaluator.getInstance();
 	protected static final TypeFactory TF = TypeFactory.getInstance();
@@ -88,6 +87,13 @@ public class Lambda extends Result<IConstructor> {
 	@Override
 	public Type getType() {
 		return ClosureType;
+	}
+
+	@Override
+	public IValue getValue() {
+		// TODO: is this a hack?
+		// Lambdas are results and IValues at the same time...
+		return this;
 	}
 
 	public Environment getEnv() {
@@ -187,7 +193,15 @@ public class Lambda extends Result<IConstructor> {
 	private void assignFormals(IValue[] actuals, Environment env) {
 		for (int i = 0; i < formals.getArity(); i++) {
 			Type formal = formals.getFieldType(i).instantiate(env.getStore(), env.getTypeBindings());
-			Result<IValue> result = ResultFactory.makeResult(formal, actuals[i]);
+			
+			Result<IValue> result;
+			if (actuals[i] instanceof Lambda) {
+				result = (Lambda)actuals[i];
+			}
+			else {	
+				result = ResultFactory.makeResult(formal, actuals[i]);
+			}
+//			System.out.println(i + ": Formal " + formals.getFieldName(i) + " actual " + actuals[i]);
 			env.storeVariable(formals.getFieldName(i), result);
 		}
 	}
