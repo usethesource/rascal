@@ -5,7 +5,11 @@ import demo::PicoAbstract::PicoAnalysis;
 import demo::PicoAbstract::PicoPrograms;
 import IO;
 import UnitTest;
-                     
+      
+/*
+ * Extract the control flow graph from a program.
+ * Convention: the entry point is always labelled with 0.
+ */               
 
 public BLOCK cflow(PROGRAM P){
     if(program(list[DECL] Decls, list[STATEMENT] Stats) := P){
@@ -65,10 +69,11 @@ public BLOCK cflow(STATEMENT Stat){
 }
 
 public bool test(){
-
-	assertTrue(cflow(annotate(small)) == block({0},{<9,5>,<5,10>,<12,10>,<10,9>,<0,12>},{10}));
+  
+	assertEqual(cflow(annotate(small)), block({0},{<9,6>,<1,6>,<3,1>,<0,9>,<6,3>},{6}));
           
-	assertTrue(cflow(annotate(fac)) == block({0},{<21,19>,<18,14>,<23,21>,<26,24>,<7,24>,<14,19>,<24,23>,<19,7>,<0,28>,<19,18>,<28,26>},{24}));
+	assertEqual(cflow(annotate(fac)), block({0},{<11,18>,<1,16>,<3,18>,<13,11>,<23,16>,<16,13>,<0,25>,<18,5>,<5,3>,<25,23>,<18,1>},{16}));
+
 	return report("PicoControlFlow");
 }
 

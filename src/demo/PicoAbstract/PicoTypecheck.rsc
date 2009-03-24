@@ -6,6 +6,10 @@ import IO;
 import demo::PicoAbstract::PicoPrograms;
 import UnitTest;
 
+/*
+ * Typechecker for Pico.
+ */
+
 alias Env = map[PicoId,TYPE];
 
 public list[Message] tcp(PROGRAM P) {

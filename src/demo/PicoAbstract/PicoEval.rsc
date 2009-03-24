@@ -4,6 +4,10 @@ import demo::PicoAbstract::PicoAbstractSyntax;
 import demo::PicoAbstract::PicoPrograms;
 import UnitTest;
 import IO;
+
+/*
+ * Evaluator for Pico.
+ */
  
 data PicoValue = intval(int i) | strval(str s);
 
