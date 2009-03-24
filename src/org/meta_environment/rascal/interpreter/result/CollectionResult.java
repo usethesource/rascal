@@ -1,12 +1,12 @@
 package org.meta_environment.rascal.interpreter.result;
 
+
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
+import org.meta_environment.rascal.ast.AbstractAST;
 
-
-public class CollectionResult<T extends IValue> extends ValueResult<T> {
+public class CollectionResult<T extends IValue> extends ElementResult<T> {
 	/*
 	 * These methods are called for expressions like:
 	 * 1 + [2,3]:   1.add([2,3]) --> [2,3].addInt(1) --> [2,3].insertElement(1) --> [1,2,3]
@@ -19,40 +19,41 @@ public class CollectionResult<T extends IValue> extends ValueResult<T> {
 
 	
 	@Override
-	protected <U extends IValue> AbstractResult<U> addReal(RealResult n) {
-		return insertElement(n);
+	protected <U extends IValue> Result<U> addReal(RealResult n, AbstractAST ast) {
+		return insertElement(n, ast);
 	}
 	
 	@Override
-	protected <U extends IValue> AbstractResult<U> addInteger(IntegerResult n) {
-		return insertElement(n);
+	protected <U extends IValue> Result<U> addInteger(IntegerResult n, AbstractAST ast) {
+		return insertElement(n, ast);
 	}
 
 	@Override
-	protected <U extends IValue> AbstractResult<U> addString(StringResult n) {
-		return insertElement(n);
+	protected <U extends IValue> Result<U> addString(StringResult n, AbstractAST ast) {
+		return insertElement(n, ast);
 	}
 	
 	@Override
-	protected <U extends IValue> AbstractResult<U> addBool(BoolResult n) {
-		return insertElement(n);
+	protected <U extends IValue> Result<U> addBool(BoolResult n, AbstractAST ast) {
+		return insertElement(n, ast);
 	}
 	
 	@Override 
-	protected <U extends IValue> AbstractResult<U> addTuple(TupleResult t) {
-		return insertElement(t);
+	protected <U extends IValue> Result<U> addTuple(TupleResult t, AbstractAST ast) {
+		return insertElement(t, ast);
 	}
 	
-	<U extends IValue, V extends IValue> AbstractResult<U> insertElement(ValueResult<V> result) {
+	<U extends IValue, V extends IValue> Result<U> insertElement(ElementResult<V> result, AbstractAST ast) {
 		throw new ImplementationError("this method should be specialized in subclasses");
 	}
 
 
-	protected <U extends IValue> Type resultTypeWhenAddingElement(ValueResult<U> that) {
-		Type t1 = type.getElementType();
-		Type t2 = that.type;
-		return TypeFactory.getInstance().listType(t1.lub(t2));
-	}
-	
+//	protected <U extends IValue> Type resultTypeWhenAddingElement(ElementResult<U> that) {
+//		Type t1 = getType().getElementType();
+//		Type t2 = that.getType();
+//		getType().
+//		return getTypeFactory().(t1.lub(t2));
+//	}
+
 	
 }

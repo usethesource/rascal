@@ -29,6 +29,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscriptError;
 
+import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 
 
 /**
@@ -36,15 +37,15 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
  * implemented by Evaluator.
  * TODO: does not implement type checking completely
  */
-/*package*/ class AssignableEvaluator extends NullASTVisitor<Result> {
+/*package*/ class AssignableEvaluator extends NullASTVisitor<Result<IValue>> {
 	enum AssignmentOperator {Default, Addition, Subtraction, Product, Division, Intersection, IsDefined};
 	private AssignmentOperator operator;
-    private Result value;
+    private Result<IValue> value;
     private final Environment env;
     private final Evaluator eval;
  
     
-	public AssignableEvaluator(Environment env, Assignment operator, Result value, Evaluator eval) {
+	public AssignableEvaluator(Environment env, Assignment operator, Result<IValue> value, Evaluator eval) {
 		if(operator == null || operator.isDefault())
 			this.operator = AssignmentOperator.Default;
 		else if(operator.isAddition())
@@ -67,9 +68,9 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 	}  
 	
 	@Override
-	public Result visitAssignableVariable(Variable x) {
+	public Result<IValue> visitAssignableVariable(Variable x) {
 		String name = x.getQualifiedName().toString();
-		Result previous = env.getVariable(x.getQualifiedName(), name);
+		Result<IValue> previous = env.getVariable(x.getQualifiedName(), name);
 		
 		if (previous != null) {
 			if (value.getType().isSubtypeOf(previous.getType())) {
@@ -98,9 +99,9 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 	}
 	
 	@Override
-	public Result visitAssignableAnnotation(Annotation x) {
+	public Result<IValue> visitAssignableAnnotation(Annotation x) {
 		String label = x.getAnnotation().toString();
-		Result result = x.getReceiver().accept(eval);
+		Result<IValue> result = x.getReceiver().accept(eval);
 		
 		if(result == null || result.getValue() == null)
 			throw new UninitializedVariableError(x.getReceiver().toString(), x.getReceiver());
@@ -109,16 +110,16 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 			throw new UndeclaredAnnotationError(label, result.getType(), x);
 		}
 		
-		result.setValue(((IConstructor) result.getValue()).setAnnotation(label, value.getValue()));
-		
-		return recur(x, result);
+		return recur(x, result.setAnnotation(label, value, env, x));
+//		result.setValue(((IConstructor) result.getValue()).setAnnotation(label, value.getValue()));
+		//return recur(x, result);
 	}
 	
 	@Override
-	public Result visitAssignableSubscript(Subscript x) {
-		Result rec = x.getReceiver().accept(eval);
-		Result subscript = x.getSubscript().accept(eval);
-		Result result;
+	public Result<IValue> visitAssignableSubscript(Subscript x) {
+		Result<IValue> rec = x.getReceiver().accept(eval);
+		Result<IValue> subscript = x.getSubscript().accept(eval);
+		Result<IValue> result;
 		
 		if (rec == null || rec.getValue() == null) {
 			throw new UninitializedVariableError(x.getReceiver().toString(), x.getReceiver());
@@ -129,7 +130,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 				IList list = (IList) rec.getValue();
 				int index = ((IInteger) subscript.getValue()).intValue();
 				list = list.put(index, value.getValue());
-				result = eval.result(rec.getType(), list);
+				result = makeResult(rec.getType(), list);
 			}  
 			catch (java.lang.IndexOutOfBoundsException e){
 				throw RuntimeExceptionFactory.indexOutOfBounds((IInteger) subscript.getValue(), eval.getCurrentStatement());
@@ -140,7 +141,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 			
 			if (subscript.getType().isSubtypeOf(keyType)) {
 				IMap map = ((IMap) rec.getValue()).put(subscript.getValue(), value.getValue());
-				result = eval.result(rec.getType(), map);
+				result = makeResult(rec.getType(), map);
 			}
 			else {
 				throw new UnexpectedTypeError(keyType, subscript.getType(), x);
@@ -154,7 +155,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 				throw RuntimeExceptionFactory.indexOutOfBounds((IInteger) subscript.getValue(), eval.getCurrentStatement());
 			}
 			node = node.set(index, value.getValue());
-			result = eval.result(rec.getType(), node);
+			result = makeResult(rec.getType(), node);
 		} else {
 			throw new UnsupportedSubscriptError(rec.getType(), subscript.getType(), x);
 			// TODO implement other subscripts
@@ -163,13 +164,13 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 		return recur(x, result);
 	}
 
-	private Result recur(Assignable x, Result result) {
+	private Result<IValue> recur(Assignable x, Result<IValue> result) {
 		return x.getReceiver().accept(new AssignableEvaluator(env, null, result, eval));
 	}
 	
 	@Override
-	public Result visitAssignableIfDefinedOrDefault(IfDefinedOrDefault x) {
-		Result cond = x.getDefaultExpression().accept(eval);
+	public Result<IValue> visitAssignableIfDefinedOrDefault(IfDefinedOrDefault x) {
+		Result<IValue> cond = x.getDefaultExpression().accept(eval);
 		
 		if (((IBool) cond.getValue()).getValue()) {
 			return x.getReceiver().accept(this);
@@ -180,8 +181,8 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 	}
 	
 	@Override
-	public Result visitAssignableFieldAccess(FieldAccess x) {
-		Result receiver = x.getReceiver().accept(eval);
+	public Result<IValue> visitAssignableFieldAccess(FieldAccess x) {
+		Result<IValue> receiver = x.getReceiver().accept(eval);
 		String label = x.getField().toString();
 		
 		if(receiver == null || receiver.getValue() == null)
@@ -191,7 +192,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 				throw new UndeclaredFieldError(label, receiver.getType(), x);
 			}
 			IValue result = ((ITuple) receiver.getValue()).set(label, value.getValue());
-			return recur(x, eval.result(receiver.getType(), result));
+			return recur(x, makeResult(receiver.getType(), result));
 		}
 		else if (receiver.getType().isConstructorType() || receiver.getType().isAbstractDataType()) {
 			IConstructor cons = (IConstructor) receiver.getValue();
@@ -214,12 +215,13 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 			}
 			
 			IValue result = cons.set(index, value.getValue());
-			return recur(x, eval.result(receiver.getType(), result));
+			return recur(x, makeResult(receiver.getType(), result));
 		}
-		else if(receiver.getType().isSourceLocationType()){
-			ISourceLocation loc = (ISourceLocation) receiver.getValue();
+		else if (receiver.getType().isSourceLocationType()){
+//			ISourceLocation loc = (ISourceLocation) receiver.getValue();
 			
-			return recur(x, eval.sourceLocationFieldUpdate(loc, label, value.getValue(), value.getType(), x));
+			return recur(x, receiver.fieldUpdate(label, value, env.getStore(), x));
+			//return recur(x, eval.sourceLocationFieldUpdate(loc, label, value.getValue(), value.getType(), x));
 		}
 		else {
 			throw new UndeclaredFieldError(label, receiver.getType(), x);
@@ -228,12 +230,12 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 	}
 	
 	@Override
-	public Result visitAssignableTuple(Tuple x) {
+	public Result<IValue> visitAssignableTuple(Tuple x) {
 		java.util.List<Assignable> arguments = x.getElements();
 		
 		if (!value.getType().isTupleType()) {
 			// TODO construct a better expected type
-			throw new UnexpectedTypeError(eval.tf.tupleEmpty(), value.getDeclaredType(), x);
+			throw new UnexpectedTypeError(eval.tf.tupleEmpty(), value.getType(), x);
 		}
 		
 		Type tupleType = value.getType();
@@ -244,19 +246,19 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 		for (int i = 0; i < arguments.size(); i++) {
 			Type argType = tupleType.getFieldType(i);
 			IValue arg = tuple.get(i);
-			Result result = eval.result(argType, arg);
+			Result<IValue> result = makeResult(argType, arg);
 			AssignableEvaluator ae = new AssignableEvaluator(env,null, result, eval);
-			Result argResult = arguments.get(i).accept(ae);
+			Result<IValue> argResult = arguments.get(i).accept(ae);
 			results[i] = argResult.getValue();
 			resultTypes[i] = argResult.getType();
 		}
 		
-		return eval.result(eval.tf.tupleType(resultTypes), tupleType.make(eval.vf, results));
+		return makeResult(eval.tf.tupleType(resultTypes), tupleType.make(eval.vf, results));
 	}
 	
 	
 	@Override
-	public Result visitAssignableConstructor(Constructor x) {
+	public Result<IValue> visitAssignableConstructor(Constructor x) {
 		throw new ImplementationError("Constructor assignables not yet implemented");
 	}
 }

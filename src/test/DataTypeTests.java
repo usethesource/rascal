@@ -180,6 +180,10 @@ public class DataTypeTests extends TestFramework {
 		runTest("3 % true;");
 	}
 	
+	@Test
+	public void valueEquals() {
+		assertTrue(runTest("{value x = 1.0; value y = 2; x != y; }"));
+	}
 	
 	@Test
 	public void real()

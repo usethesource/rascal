@@ -24,6 +24,7 @@ import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 
+import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 
 class RegExpPatternValue implements MatchPattern {
 	private AbstractAST ast;					// The AST for this regexp
@@ -65,7 +66,7 @@ class RegExpPatternValue implements MatchPattern {
 		patternVars = names;
 		initialized = false;
 		for(String name : names){
-			Result res = env.getVariable(ast, name);
+			Result<IValue> res = env.getVariable(ast, name);
 			if((res != null) && (res.getValue() != null)){
 				if(!res.getType().isStringType()){
 					throw new UnexpectedTypeError(tf.stringType(),res.getType(), ast);
@@ -118,7 +119,7 @@ class RegExpPatternValue implements MatchPattern {
 			for(String name : bindings.keySet()){
 				String valBefore = boundBeforeConstruction.get(name);
 				if(true){ // TODO: ??? valBefore == null){
-					env.storeVariable(name, new Result(tf.stringType(), vf.string(bindings.get(name))));
+					env.storeVariable(name, makeResult(tf.stringType(), vf.string(bindings.get(name))));
 				} else {					
 					if(!valBefore.equals(bindings.get(name))){
 						matches = false;

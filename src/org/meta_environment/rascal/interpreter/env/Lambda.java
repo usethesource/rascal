@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -21,6 +22,7 @@ import org.meta_environment.rascal.interpreter.TypeEvaluator;
 import org.meta_environment.rascal.interpreter.control_exceptions.Failure;
 import org.meta_environment.rascal.interpreter.control_exceptions.Return;
 import org.meta_environment.rascal.interpreter.result.Result;
+import org.meta_environment.rascal.interpreter.result.ResultFactory;
 import org.meta_environment.rascal.interpreter.staticErrors.MissingReturnError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnguardedFailError;
@@ -31,7 +33,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnguardedFailError;
  * get away with storing a Lambda as an IValue, but what happens when 
  * somebody actually starts interpreting this IValue as an IConstructor?
  */
-public class Lambda extends Result implements IValue {
+public class Lambda extends Result<IConstructor> {
     protected static final IValueFactory VF = ValueFactoryFactory.getValueFactory();
 	protected static final TypeEvaluator TE = TypeEvaluator.getInstance();
 	protected static final TypeFactory TF = TypeFactory.getInstance();
@@ -49,8 +51,8 @@ public class Lambda extends Result implements IValue {
 	private boolean isVoidFunction;
     
 	protected final static TypeStore hiddenStore = new TypeStore();
-    protected final static Type FunctionType = TF.abstractDataType(hiddenStore, "Rascal.Function");
-    protected final static Type ClosureType = TF.constructor(hiddenStore, FunctionType, "Rascal.Function.Closure");
+    private final static Type FunctionType = TF.abstractDataType(hiddenStore, "Rascal.Function");
+    private final static Type ClosureType = TF.constructor(hiddenStore, FunctionType, "Rascal.Function.Closure");
 	protected final Type returnType;
 	private final List<Statement> body;
 	private final String name;
@@ -71,6 +73,7 @@ public class Lambda extends Result implements IValue {
 	
 	public Lambda(AbstractAST ast, Evaluator eval, Type returnType, String name, Type formals, boolean varargs, 
 				java.util.List<Statement> body, Environment env) {
+		super(ClosureType, null /*VF.constructor(ClosureType)*/);
 		this.ast = ast;
 		this.eval = eval;
 		this.returnType = returnType;
@@ -79,11 +82,14 @@ public class Lambda extends Result implements IValue {
 		this.body = body;
 		this.hasVarArgs = varargs;
 		this.isVoidFunction = returnType.isSubtypeOf(TF.voidType());
-		this.value = this;
-		this.type = ClosureType;
 		this.env = env;
 	}
     
+	@Override
+	public Type getType() {
+		return ClosureType;
+	}
+
 	public Environment getEnv() {
 		return env;
 	}
@@ -133,7 +139,7 @@ public class Lambda extends Result implements IValue {
 		return ClosureType;
 	}
 	
-	public Result call(IValue[] actuals, Type actualTypes, Environment env) {
+	public Result<IValue> call(IValue[] actuals, Type actualTypes, Environment env) {
 		Map<Type,Type> bindings = env.getTypeBindings();
 		Type instantiatedFormals = formals.instantiate(env.getStore(), bindings);
 
@@ -160,10 +166,10 @@ public class Lambda extends Result implements IValue {
 				throw new MissingReturnError(ast);
 			}
 
-			return new Result(TF.voidType(), null);
+			return ResultFactory.makeResult(TF.voidType(), null);
 		}
 		catch (Return e) {
-			Result result = e.getValue();
+			Result<IValue> result = e.getValue();
 
 			Type instantiatedReturnType = returnType.instantiate(env.getStore(), env.getTypeBindings());
 
@@ -171,7 +177,7 @@ public class Lambda extends Result implements IValue {
 				throw new UnexpectedTypeError(returnType, result.getType(), ast);
 			}
 
-			return new Result(instantiatedReturnType, result.getValue());
+			return ResultFactory.makeResult(instantiatedReturnType, result.getValue());
 		} 
 		catch (Failure e) {
 			throw new UnguardedFailError(ast);
@@ -181,7 +187,7 @@ public class Lambda extends Result implements IValue {
 	private void assignFormals(IValue[] actuals, Environment env) {
 		for (int i = 0; i < formals.getArity(); i++) {
 			Type formal = formals.getFieldType(i).instantiate(env.getStore(), env.getTypeBindings());
-			Result result = new Result(formal, actuals[i]);
+			Result<IValue> result = ResultFactory.makeResult(formal, actuals[i]);
 			env.storeVariable(formals.getFieldName(i), result);
 		}
 	}
@@ -266,15 +272,15 @@ public class Lambda extends Result implements IValue {
 //	}
 
 	
-	@Override
-	public boolean isNormal() {
-		return false;
-	}
-	
-	@Override
-	public boolean isClosure() {
-		return true;
-	}
+//	@Override
+//	public boolean isNormal() {
+//		return false;
+//	}
+//	
+//	@Override
+//	public boolean isClosure() {
+//		return true;
+//	}
 
 	public <T> T accept(IValueVisitor<T> v) throws VisitorException {
 		throw new UnsupportedOperationException();
@@ -282,11 +288,6 @@ public class Lambda extends Result implements IValue {
 
 	public IValue getAnnotation(String label) {
 		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Type getType() {
-		return ClosureType;
 	}
 
 	public boolean hasAnnotation(String label) {

@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
@@ -24,7 +25,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredFunctionEr
  * TODO: this class does not support shadowing of variables and functions yet, which is wrong.
  */
 public class Environment {
-	protected final Map<String, Result> variableEnvironment;
+	protected final Map<String, Result<IValue>> variableEnvironment;
 	protected final Map<String, List<Lambda>> functionEnvironment;
 	protected final Map<Type, Type> typeParameters;
 	protected final Environment parent;
@@ -35,7 +36,7 @@ public class Environment {
 	}
 	
 	protected Environment(Environment parent, Cache cache) {
-		this.variableEnvironment = new HashMap<String, Result>();
+		this.variableEnvironment = new HashMap<String, Result<IValue>>();
 		this.functionEnvironment = new HashMap<String, List<Lambda>>();
 		this.typeParameters = new HashMap<Type, Type>();
 		this.parent = parent;
@@ -63,7 +64,7 @@ public class Environment {
 	}
 
 	
-	private void updateVariableCache(String name, Map<String, Result> env, Result old) {
+	private void updateVariableCache(String name, Map<String, Result<IValue>> env, Result<IValue> old) {
 		if (cache == null) {
 			return;
 		}
@@ -101,9 +102,9 @@ public class Environment {
 		return isRoot() ? null : parent.getFunction(name, actuals, useSite);
 	}
 	
-	public Result getVariable(QualifiedName name) {
+	public Result<IValue> getVariable(QualifiedName name) {
 		String varName = Names.name(Names.lastName(name));
-		Result r = getVariable(name, varName);
+		Result<IValue> r = getVariable(name, varName);
 		
 		if (r != null) {
 			return r;
@@ -112,7 +113,7 @@ public class Environment {
 		return isRoot() ? null : parent.getVariable(name);
 	}
 	
-	public void storeVariable(QualifiedName name, Result result) {
+	public void storeVariable(QualifiedName name, Result<IValue> result) {
  		if (name.getNames().size() > 1) {
  			if (!isRoot()) {
  				parent.storeVariable(name, result);
@@ -124,8 +125,8 @@ public class Environment {
  		}
 	}
 	
-	public Result getVariable(AbstractAST ast, String name) {
-		Result t = variableEnvironment.get(name);
+	public Result<IValue> getVariable(AbstractAST ast, String name) {
+		Result<IValue> t = variableEnvironment.get(name);
 		if (t == null) {
 			return isRoot() ? null : parent.getVariable(ast, name);
 		}
@@ -140,8 +141,8 @@ public class Environment {
 		return typeParameters.get(par);
 	}
 
-	private Map<String,Result> getVariableDefiningEnvironment(String name) {
-		Result r = variableEnvironment.get(name);
+	private Map<String,Result<IValue>> getVariableDefiningEnvironment(String name) {
+		Result<IValue> r = variableEnvironment.get(name);
 		
 		if (r != null) {
 			return variableEnvironment;
@@ -152,14 +153,14 @@ public class Environment {
 	
 	
 	
-	public void storeVariable(String name, Result value) {
-		Map<String,Result> env = getVariableDefiningEnvironment(name);
+	public void storeVariable(String name, Result<IValue> value) {
+		Map<String,Result<IValue>> env = getVariableDefiningEnvironment(name);
 		if (env == null) {
 			updateVariableCache(name, variableEnvironment, null);
 			variableEnvironment.put(name, value);
 		}
 		else {
-			Result old = env.get(name);
+			Result<IValue> old = env.get(name);
 			updateVariableCache(name, env, old);
 			value.setPublic(old.isPublic());
 			env.put(name, value);
@@ -167,7 +168,7 @@ public class Environment {
 	}
 
 
-	public void storeVariable(Name name, Result r) {
+	public void storeVariable(Name name, Result<IValue> r) {
 		storeVariable(Names.name(name), r);
 	}
 	

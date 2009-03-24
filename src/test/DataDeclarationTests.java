@@ -113,7 +113,7 @@ public class DataDeclarationTests extends TestFramework {
 	}
 	
 
-	@Test(expected=UndeclaredFieldError.class)
+	@Test(expected=UndeclaredFieldError.class) // TODO: fixme should be runtime exception.
 	public void boolError() throws UndeclaredFieldError {
 		prepare("data Bool = btrue | bfalse | band(Bool left, Bool right) | bor(Bool left, Bool right);");
 		assertTrue(runTestInSameEvaluator("{Bool b = btrue; b.left == btrue;}"));

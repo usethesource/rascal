@@ -72,7 +72,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableEr
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternError;
-
+import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 
 /* package */ 
 /**
@@ -183,8 +183,9 @@ interface MatchPattern {
 		hasNext = false;
 		//System.err.println("AbstractPatternLiteral.match: " + subject);
 		if (subject.getType().comparable(literal.getType())) {
+			return makeResult(subject.getType(), subject).equals(makeResult(literal.getType(), literal), ast).isTrue();
 			// TODO move to call to Result.equals
-			return Evaluator.equals(new Result(subject.getType(), subject), new Result(literal.getType(), literal));
+//			return Evaluator.equals(new Result(subject.getType(), subject), new Result(literal.getType(), literal));
 		}
 		return false;
 	}
@@ -421,7 +422,7 @@ interface MatchPattern {
 					 * Nothing to do
 					 */
 				} else {
-					Result varRes = ev.getVariable(null, name);
+					Result<IValue> varRes = ev.getVariable(null, name);
 				         
 				    if((varRes != null) && (varRes.getValue() != null)){
 				        IValue varVal = varRes.getValue();
@@ -672,7 +673,7 @@ interface MatchPattern {
 					listVarStart[patternCursor] = subjectCursor;
 					
 					String name = ((AbstractPatternQualifiedName)child).getName();
-					Result varRes = ev.getVariable(null, name);
+					Result<IValue> varRes = ev.getVariable(null, name);
 					IValue varVal = varRes.getValue();
 					
 					if(!varRes.getType().isListType()){
@@ -999,7 +1000,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 					isSetVar[nVar] = false;
 					nVar++;
 				} else  {
-					Result varRes = ev.getVariable(null, name);
+					Result<IValue> varRes = ev.getVariable(null, name);
 				         
 				    if((varRes != null) && (varRes.getValue() != null)){
 				        Type varType = varRes.getType();
@@ -1298,7 +1299,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 		this.anonymous = name.toString().equals("_");
 		this.env = env;
 		// TODO: do we really need to lookup here, or can it be done when the pattern is constructed?
-		Result patRes = env.getVariable(name);
+		Result<IValue> patRes = env.getVariable(name);
 		if(patRes == null || patRes.getValue() == null || anonymous){
 			type = TypeFactory.getInstance().voidType();
 		} else {
@@ -1338,22 +1339,26 @@ class SingleElementGenerator implements Iterator<ISet> {
 		if(debug)System.err.println("AbstractPatternQualifiedName.match: " + name);
 		
 		// TODO: do we really need to lookup here, or can it be done when the pattern is constructed?
-		if(anonymous)
+		if(anonymous) {
 			return true;
-		Result varRes = env.getVariable(name);
+		}
+		Result<IValue> varRes = env.getVariable(name);
 		if((varRes == null) || (varRes.getValue() == null)){
 			if(debug)System.err.println("name= " + name + ", subject=" + subject + ",");
 			type = subject.getType();
-			env.storeVariable(name.toString(),new Result(type, subject));
+			env.storeVariable(name.toString(), makeResult(type, subject));
 			return true;
 		} else {
 			IValue varVal = varRes.getValue();
 			if(debug)System.err.println("AbstractPatternQualifiedName.match: " + name + ", subject=" + subject + ", value=" + varVal);
 			if (subject.getType().isSubtypeOf(varRes.getType())) {
-				if(debug)System.err.println("returns " + Evaluator.equals(new Result(subject.getType(),subject), varRes));
-				return Evaluator.equals(new Result(subject.getType(),subject), varRes);
-			} else
+				if(debug) {
+					System.err.println("returns " + makeResult(subject.getType(),subject).equals(varRes));
+				}
+				return makeResult(subject.getType(),subject).equals(varRes, ast).isTrue();
+			} else {
 				return false;
+			}
 		}
 	}
 	
@@ -1411,7 +1416,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 		
 		if (subject.getType().isSubtypeOf(declaredType)) {
 			if(!anonymous)
-				env.storeVariable(name, new Result(declaredType, subject));
+				env.storeVariable(name, makeResult(declaredType, subject));
 			if(debug)System.err.println("matches");
 			return true;
 		}

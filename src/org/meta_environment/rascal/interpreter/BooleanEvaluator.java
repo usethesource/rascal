@@ -9,6 +9,7 @@ package org.meta_environment.rascal.interpreter;
 import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IBool;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.Expression;
 import org.meta_environment.rascal.ast.Expression.And;
@@ -18,6 +19,7 @@ import org.meta_environment.rascal.ast.Expression.Negation;
 import org.meta_environment.rascal.ast.Expression.Or;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.env.Environment;
+import org.meta_environment.rascal.interpreter.result.BoolResult;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 
@@ -26,13 +28,14 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
  * Base class for iterating over the values of the arguments of the Boolean operators.
  */
 
-public abstract class BooleanEvaluator implements Iterator<Result> {
+public abstract class BooleanEvaluator implements Iterator<Result<IValue>> {
 	static final int LEFT = 0;
 	static final int RIGHT = 1;
 	Expression expr[];
-	Result result[];
+	Result<IValue> result[];
 	Evaluator ev;
 	
+	@SuppressWarnings("unchecked")
 	BooleanEvaluator(Expression leftExpr, Expression rightExpr, Evaluator ev){
 		expr = new Expression[] { leftExpr, rightExpr };
 		this.ev = ev;
@@ -40,7 +43,7 @@ public abstract class BooleanEvaluator implements Iterator<Result> {
 	}
 	
 	void defArg(int i){
-		Result argResult = expr[i].accept(ev);
+		Result<IValue> argResult = expr[i].accept(ev);
 		if(!argResult.getType().isBoolType()){
 			throw new UnexpectedTypeError(TypeFactory.getInstance().boolType(), argResult.getType(), expr[i]);
 		}
@@ -62,7 +65,7 @@ public abstract class BooleanEvaluator implements Iterator<Result> {
 		        (result[RIGHT] != null && result[RIGHT].hasNext());
 	}
 	
-	public Result next(){
+	public Result<IValue> next(){
 		return null;
 	}
 	
@@ -121,19 +124,19 @@ class AndEvaluator extends BooleanEvaluator {
 	public Result next() {
 		if(is(LEFT, false)){
 			if(!getNextResult(LEFT,true)){
-				return new Result(this, false);
+				return new BoolResult(false, this);
 			}
 		}
 		if(is(LEFT, true)){
 			if(getNextResult(RIGHT,true)){
-				return new Result(this, true);
+				return new BoolResult(true, this);
 			}
 			if(getNextResult(LEFT,true)){
 				redef(RIGHT);
 				return next();
 			}
 		}
-		return new Result(this, false);
+		return new BoolResult(false, this);
 	}
 }
 
@@ -150,12 +153,12 @@ class OrEvaluator extends BooleanEvaluator {
 	@Override
 	public Result next() {	
 		if(getNextResult(LEFT, true)){
-			return new Result(this, true);
+			return new BoolResult(true, this);
 		}
 		if(getNextResult(RIGHT,true)){
-			return new Result(this, true);
+			return new BoolResult(true, this);
 		}
-		return new Result(this, false);
+		return new BoolResult(false, this);
 			
 	}
 }
@@ -173,9 +176,9 @@ class NegationEvaluator extends BooleanEvaluator {
 	@Override
 	public Result next() {		
 		if(getNextResult(LEFT)){
-			return new Result(this, !((IBool)result[LEFT].getValue()).getValue());
+			return new BoolResult(!((IBool)result[LEFT].getValue()).getValue(), this);
 		}
-		return new Result(this, false);
+		return new BoolResult(false, this);
 	}
 }
 
@@ -192,26 +195,26 @@ class ImplicationEvaluator extends BooleanEvaluator {
 	public Result next() {
 		if(is(LEFT,false)){
 			if(getNextResult(RIGHT)){
-				return new Result(this, true);
+				return new BoolResult(true, this);
 			}
 			if(getNextResult(LEFT)){
 				redef(RIGHT);
 				return next();
 			} 
-			return new Result(this, false);
+			return new BoolResult(false, this);
 		}
 		if(is(LEFT, true)){
 			if(getNextResult(RIGHT, true)){
-				return new Result(this, true);
+				return new BoolResult(true, this);
 			}
 			if(getNextResult(LEFT)){
 				redef(RIGHT);
 				return next();
 			} 
-			return new Result(this, false);
+			return new BoolResult(false, this);
 		}
 	
-		return  new Result(this, false);
+		return new BoolResult(false, this);
 	}
 }
 
@@ -229,26 +232,26 @@ class EquivalenceEvaluator extends BooleanEvaluator {
 	public Result next() {
 		if(is(LEFT,false)){
 			if(getNextResult(RIGHT,false)){
-				return new Result(this, true);
+				return new BoolResult(true, this);
 			}
 			if(getNextResult(LEFT)){
 				redef(RIGHT);
 				return next();
 			} 
-			return new Result(this, false);
+			return new BoolResult(false, this);
 		}
 		if(is(LEFT, true)){
 			if(getNextResult(RIGHT, true)){
-				return new Result(this, true);
+				return new BoolResult(true, this);
 			}
 			if(getNextResult(LEFT)){
 				redef(RIGHT);
 				return next();
 			} 
-			return new Result(this, false);
+			return new BoolResult(false, this);
 		}
 	
-		return  new Result(this, false);
+		return  new BoolResult(false, this);
 	}
 }
 
@@ -256,7 +259,7 @@ class EquivalenceEvaluator extends BooleanEvaluator {
  * Evaluate match and no match expression
  */
 
-class MatchEvaluator implements Iterator<Result> {
+class MatchEvaluator implements Iterator<Result<IValue>> {
 	private boolean positive;
 	private MatchPattern mp;
 	
@@ -275,7 +278,7 @@ class MatchEvaluator implements Iterator<Result> {
 
 	public Result next() {
 		boolean result = positive ? mp.next() : !mp.next();
-		return new Result(this,result);
+		return new BoolResult(result, this);
 	}
 
 	public void remove() {

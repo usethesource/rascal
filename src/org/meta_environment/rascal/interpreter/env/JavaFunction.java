@@ -13,6 +13,7 @@ import org.meta_environment.rascal.interpreter.Names;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 import org.meta_environment.rascal.interpreter.result.Result;
+import org.meta_environment.rascal.interpreter.result.ResultFactory;
 
 
 public class JavaFunction extends Lambda {
@@ -31,7 +32,7 @@ public class JavaFunction extends Lambda {
 	}
 	
 	@Override
-	public Result call(IValue[] actuals, Type actualTypes, Environment env) {
+	public Result<IValue> call(IValue[] actuals, Type actualTypes, Environment env) {
 		if (hasVarArgs) {
 			actuals = computeVarArgsActuals(actuals, formals);
 		}
@@ -44,7 +45,7 @@ public class JavaFunction extends Lambda {
 
 		bindTypeParameters(actualTypes, formals, env); 
 		Type resultType = returnType.instantiate(env.getStore(), env.getTypeBindings());
-		return new Result(resultType, result);
+		return ResultFactory.makeResult(resultType, result);
 	}
 	
 	public IValue invoke(IValue[] actuals) {

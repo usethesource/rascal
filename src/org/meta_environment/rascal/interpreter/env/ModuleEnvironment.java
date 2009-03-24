@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
@@ -68,7 +69,7 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	@Override
-	public Result getVariable(QualifiedName name) {
+	public Result<IValue> getVariable(QualifiedName name) {
 		String modulename = Names.moduleName(name);
 		
 		if (modulename != null) {
@@ -89,14 +90,14 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	@Override
-	public Result getVariable(AbstractAST ast, String name) {
-		Result result = super.getVariable(ast, name);
+	public Result<IValue> getVariable(AbstractAST ast, String name) {
+		Result<IValue> result = super.getVariable(ast, name);
 		
 		// if the local module scope does not contain the variable, it
 		// may be visible in one of its imported modules.
 		
 		if (result == null) {
-			List<Result> results = new ArrayList<Result>();
+			List<Result<IValue>> results = new ArrayList<Result<IValue>>();
 			for (String i : getImports()) {
 				// imports are not transitive!
 				ModuleEnvironment module = importedModules.get(i);
@@ -122,8 +123,8 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	@Override
-	public void storeVariable(String name, Result value) {
-		Result result = super.getVariable(null, name);
+	public void storeVariable(String name, Result<IValue> value) {
+		Result<IValue> result = super.getVariable(null, name);
 		
 		if (result != null) {
 			super.storeVariable(name, value);
@@ -196,12 +197,12 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	
-	public Result getLocalVariable(String name) {
+	public Result<IValue> getLocalVariable(String name) {
 		return super.getVariable(null, name);
 	}
 	
-	public Result getLocalPublicVariable(String name) {
-		Result var = getLocalVariable(name);
+	public Result<IValue> getLocalPublicVariable(String name) {
+		Result<IValue> var = getLocalVariable(name);
 		
 		if (var != null && var.isPublic()) {
 			return var;
@@ -307,7 +308,7 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	@Override
-	public void storeVariable(QualifiedName name, Result result) {
+	public void storeVariable(QualifiedName name, Result<IValue> result) {
 		String modulename = Names.moduleName(name);
 		
 		if (modulename != null) {
@@ -324,7 +325,6 @@ public class ModuleEnvironment extends Environment {
 			imported.storeVariable(name, result);
 			return;
 		}
-		
 		super.storeVariable(name, result);
 	}
 	
