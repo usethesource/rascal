@@ -6,6 +6,7 @@ import PriorityQueue;
 import Benchmark;
 import IO;
 import List;
+import Real;
 
 private rel[int,int] Graph ={};
 private map[int, int] distance =();
@@ -97,19 +98,32 @@ public rel[int,int] randomGraph(int N, list[int] interval)
 	return {<getOneFrom(interval), getOneFrom(interval)> | int n <- [1 .. N]};
 }
 
-public void measure1(rel[int,int] G){
- 	time1 = currentTimeMillis(); P1 = shortestPathPair(G, 1, 0); time2 = currentTimeMillis();
-                                 P2 = shortestPathPair1(G, 1, 0); time3 = currentTimeMillis();
+public void measure1(){
+
+    G = Graph1;
+	/* warm up for JVM */
+	for(int i <- [1 .. 50])
+		shortestPathPair(G, 1, 0);
+
+    jtime = 0.0; jmin = 10000.0; jmax = 0.0;
+    rtime = 0.0; rmin = 10000.0; rmax = 0.0;
+    for(int i <- [1 .. 10]){
+ 		time1 = currentTimeMillis(); P1 = shortestPathPair(G, 1, 0); time2 = currentTimeMillis();
+                                     P2 = shortestPathPair1(G, 1, 0); time3 = currentTimeMillis();
                               
- 	d1 = time2 - time1;
- 	d2 = time3 - time2;
- 	println("Java version:   <P1> in <d1> millis");
- 	println("Rascal version: <P1> in <d2> millis");
+ 		d1 = time2 - time1; jtime = jtime + d1; jmin = min(d1, jmin); jmax = max(d1, jmax);
+ 		d2 = time3 - time2; rtime = rtime + d2; rmin = min(d2, rmin); rmax = max(d2, rmax);
+ 		println("Java version:   <P1> in <d1> millis");
+ 		println("Rascal version: <P1> in <d2> millis");
+ 	}
+ 	println("Java average: ", jtime/10, " [<jmin> .. <jmax>]");
+ 	println("Rascal average: ", rtime/10, " [<rmin> .. <rmax>]");
+ 	
 }
 
-public void measure(int n)
+public void measure2()
 {
-   for(int i <- [1 .. n])
+   for(int i <- [1 .. 2000])
      shortestPathPair1(Graph1, 1, 0);
 }
 

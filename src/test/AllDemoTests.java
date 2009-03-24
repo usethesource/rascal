@@ -115,7 +115,7 @@ public class AllDemoTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("demo::PicoAbstract::PicoConstantPropagation::test();"));
 	}
 	
-	@Ignore @Test
+	@Test
 	public void PicoControlflow() {
 		prepare("import demo::PicoAbstract::PicoControlflow;");
 		assertTrue(runTestInSameEvaluator("demo::PicoAbstract::PicoControlflow::test();"));
@@ -138,7 +138,6 @@ public class AllDemoTests extends TestFramework {
 		prepare("import demo::PicoAbstract::PicoUninit;");
 		assertTrue(runTestInSameEvaluator("demo::PicoAbstract::PicoUninit::test();"));
 	}
-
 
 	@Test
 	public void Queens() {

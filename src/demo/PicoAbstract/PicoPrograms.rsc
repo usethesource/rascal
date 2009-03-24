@@ -4,16 +4,33 @@ import demo::PicoAbstract::PicoAbstractSyntax;
 import IO;
 import UnitTest;
 
+/*
+ * A bunch of sample Pico programs.
+ */
+ 
+/*
+ * Annotate Pico programs for the benefit of analysis:
+ * - Each statement gets an annotation.
+ * - In nested expressions only the outermost expression gets an annotation.
+ *
+ * Caution: the actual order of labeling is unimportant but changing it will break
+ * all test cases in the various analysis functions.
+ */
+
 public PROGRAM annotate(PROGRAM P)
 {
    int N = 0;
-   
+ 
    return bottom-up visit(P){
-   case EXP e:
-        { N = N + 1; insert e[@pos=N]; }
    case STATEMENT S:
-        { N = N + 1; insert S[@pos=N]; }
-   };
+         { N = N + 1; M = N;
+           S1 = top-down-break visit(S){
+                case EXP e: 
+                     { N = N + 1; insert e[@pos=N]; }
+                };
+           insert S1[@pos=M];
+         }
+    };
 }
 
 /********************************************
@@ -199,13 +216,7 @@ program([ decl("input", natural),
        );
        
 public bool test(){
-   assertTrue( annotate(small) == program([decl("x",natural()),decl("s",string())],
-                                    [asgStat("x",natCon(3)[@pos=11])[@pos=12],
-                                    whileStat(id("x")[@pos=1],
-                                              [asgStat("x",sub(id("x")[@pos=6],natCon(1)[@pos=7])[@pos=8])[@pos=9],
-                                               asgStat("s",conc(id("s")[@pos=2],strCon("#")[@pos=3])[@pos=4])[@pos=5]])[@pos=10]
-                                    ])
-            );
+   assertEqual( annotate(small), small);
    
    return report("PicoPrograms");
 }

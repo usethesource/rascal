@@ -125,6 +125,31 @@ public set[list[&T]] shortestPathAll(graph[&T] G)
   @doc{Shortest path between all nodes}
   @primitive{"Graph.shortestPathAll"}
 
+*/
 
+/* TODO:
+public set[&T] successors(graph[&T] G, &T From)
+@doc{successors -- the successor of a single node in a graph}
+{
+  return G[From];
+}
 
+public set[&T] successors(graph[&T] G, set[&T] From)
+@doc{successors -- the successor of a set of nodes in a graph}
+{
+  return G[From];
+}
+
+/* TODO:
+public set[&T] predecessors(graph[&T] G, &T From)
+@doc{predecessors -- the predecessors of a single node in a graph}
+{
+  return G[_,From];
+}
+
+public set[&T] predecessors(graph[&T] G, &T From)
+@doc{predecessors -- the predecessors of a set of nodes in a graph}
+{
+  return G[_,From];
+}
 */

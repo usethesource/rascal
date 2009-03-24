@@ -27,6 +27,11 @@ public data DECL =
 
 public data PROGRAM =
 	  program(list[DECL] decls, list[STATEMENT] stats);
+	  
+/*
+ * Define annotations on expressions and statements to be used in the
+ * controlflow graph
+ */
 
 anno int EXP@pos;
 anno int STATEMENT@pos;

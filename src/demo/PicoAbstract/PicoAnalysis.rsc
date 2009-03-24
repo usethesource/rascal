@@ -2,6 +2,10 @@ module demo::PicoAbstract::PicoAnalysis
 
 import demo::PicoAbstract::PicoAbstractSyntax;
 
+/*
+ * Comman abstractions for source code analysis
+ */
+
 alias ProgramPoint = int;
 
 alias CFG = rel[ProgramPoint, ProgramPoint];

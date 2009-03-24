@@ -1,4 +1,4 @@
-module demo::PicoAbstract::PicoUseDef
+module  demo::PicoAbstract::PicoUseDef
 
 import demo::PicoAbstract::PicoAbstractSyntax;
 import demo::PicoAbstract::PicoAnalysis;
@@ -6,10 +6,20 @@ import demo::PicoAbstract::PicoPrograms;
 import UnitTest;
 import IO;
 
+/*
+ * Extract uses and definitions of variables in a program.
+ */
+
 
 private set[PicoId] getVarUses(EXP E){
-    return {Id | EXP E1 <- E, id(PicoId Id) := E1};
+    return {Id | id(PicoId Id) <- E};
 }
+
+/*
+ * Compute variable uses:
+ * - Associate all variable uses in an expression with the enclosing expression.
+ * - Associate all variable uses in an assignment statement with that statement.
+ */
 
 public rel[PicoId, ProgramPoint] uses(PROGRAM P) {
   rel[PicoId, ProgramPoint] result = {};
@@ -21,38 +31,31 @@ public rel[PicoId, ProgramPoint] uses(PROGRAM P) {
          result = result + getVarUses(Exp) * {Exp@pos};
          
    case asgStat(_, EXP Exp):{
-         result = result + getVarUses(Exp) * {Exp@pos};
+         result = result + getVarUses(Exp) * {subject@pos};
         }
    };
    return result;                  
   }
-
+  
+  
+/*
+ * Compute variable definitions:
+ * - Each assignment generates a definition
+ */
+ 
 public rel[PicoId, ProgramPoint] defs(PROGRAM P) { 
   return {<Id, S@pos> | STATEMENT S <- P, asgStat(PicoId Id, EXP Exp) := S};
 }        
  
 public bool test(){
 
-  assertTrue(uses(annotate(small)) == {<"s",5>,<"x",9>,<"x",10>});  
+  assertEqual(uses(annotate(small)), {<"x",3>,<"s",1>,<"x",6>});  
   
-  assertTrue(defs(annotate(small)) == {<"s",5>,<"x",9>,<"x",12>});
-                                
-  assertTrue(uses(annotate(fac)) == {<"output",23>,
-                                     <"repnr",14>,
-                                     <"rep",18>,
-                                     <"input",24>,
-                                     <"output",18>,
-                                     <"input",21>,
-                                     <"input",7>,
-                                     <"repnr",19>});
+  assertEqual(defs(annotate(small)), {<"s",1>,<"x",3>,<"x",9>});
+  
+  assertEqual(uses(annotate(fac)), {<"output",5>,<"rep",5>,<"input",11>,<"output",13>,<"input",16>,<"input",1>,<"repnr",3>,<"repnr",18>}); 
 
-  assertTrue(defs(annotate(fac)) == {<"input",28>,
-                                     <"repnr",14>,
-                                     <"output",18>,
-                                     <"rep",23>,
-                                     <"repnr",21>,
-                                     <"input",7>,
-                                     <"output",26>});
+  assertEqual(defs(annotate(fac)), {<"output",23>,<"output",5>,<"input",25>,<"repnr",11>,<"input",1>,<"rep",13>,<"repnr",3>});
 
   return report("PicoUseDef");
 }
