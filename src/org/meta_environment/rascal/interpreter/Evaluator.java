@@ -170,7 +170,6 @@ import org.meta_environment.rascal.interpreter.load.IModuleLoader;
 import org.meta_environment.rascal.interpreter.result.BoolResult;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.result.ResultFactory;
-import org.meta_environment.rascal.interpreter.staticErrors.ArityError;
 import org.meta_environment.rascal.interpreter.staticErrors.MissingModifierError;
 import org.meta_environment.rascal.interpreter.staticErrors.ModuleNameMismatchError;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
@@ -783,6 +782,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 		 for (int i = 0; i < args.size(); i++) {
 			 Result<IValue> resultElem = args.get(i).accept(this);
+//			 System.out.println("Arg:" + i + ": " + resultElem);
 			 types[i] = resultElem.getType();
 			 actuals[i] = resultElem.getValue();
 		 }
