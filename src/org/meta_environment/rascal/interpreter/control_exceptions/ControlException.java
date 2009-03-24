@@ -24,10 +24,12 @@ public class ControlException extends RuntimeException{
 		super(cause);
 	}
 	
+	@Override
 	public Throwable fillInStackTrace(){
 		return null;
 	}
 	
+	@Override
 	public void printStackTrace(){
 		if(!initialized){
 			super.fillInStackTrace();
@@ -37,6 +39,7 @@ public class ControlException extends RuntimeException{
 		super.printStackTrace();
 	}
 	
+	@Override
 	public void printStackTrace(PrintStream s){
 		if(!initialized){
 			super.fillInStackTrace();
@@ -46,6 +49,7 @@ public class ControlException extends RuntimeException{
 		super.printStackTrace(s);
 	}
 	
+	@Override
 	public void printStackTrace(PrintWriter s){
 		if(!initialized){
 			super.fillInStackTrace();
@@ -55,6 +59,7 @@ public class ControlException extends RuntimeException{
 		super.printStackTrace(s);
 	}
 	
+	@Override
 	public StackTraceElement[] getStackTrace(){
 		if(!initialized){
 			super.fillInStackTrace();
