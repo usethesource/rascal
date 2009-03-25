@@ -72,15 +72,6 @@ public class Graph {
 			adjacencies.add(to);
 			AdjacencyList.put(from, adjacencies);
 		}
-	/*	
-		for(Entry<IValue, LinkedList<IValue>>  entry: AdjacencyList.entrySet()){
-			System.err.printf("%s -> ", entry.getKey());
-			for(IValue v : entry.getValue()){
-				System.err.printf("%s ", v);
-			}
-			System.err.printf("\n");
-		}
-		*/
 	}
 	
 	public static IValue shortestPathPair(IRelation G, IValue From, IValue To){
@@ -94,7 +85,6 @@ public class Graph {
 		
 		while(!Q.isEmpty()){
 			IValue u = Q.remove();
-			//System.err.println("u = " + u);
 			if(u.isEqual(To))	
 				return extractPath(From, u);
 			settled.add(u);
@@ -104,19 +94,18 @@ public class Graph {
 	}
 	
 	private static void relaxNeighbours(IValue u){
-		for(IValue v : AdjacencyList.get(u)){
-			if(!settled.contains(v)){
-				Distance dv = distance.get(v);
-				Distance du = distance.get(u);
-				//System.err.println("u = " + u + " v = " + v + " du = " + du.intval + " dv = " + dv.intval);
-				if(dv.intval > du.intval + 1){  // 1 is default weight of each edge
-			           dv.intval = du.intval + 1;
-			           //System.err.println("distance[" + v + "] = " + (du.intval + 1));
-			           pred.put(v,u);
-			           Q.add(v);
-			           //System.err.println("add pred(" + v + "," + u + ")");
-			           //System.err.println("add " + v + " to Q");
-			        }
+		LinkedList<IValue> adjacencies = AdjacencyList.get(u);
+		if(adjacencies != null) {
+			for(IValue v : AdjacencyList.get(u)){
+				if(!settled.contains(v)){
+					Distance dv = distance.get(v);
+					Distance du = distance.get(u);
+					if(dv.intval > du.intval + 1){  // 1 is default weight of each edge
+						dv.intval = du.intval + 1;
+						pred.put(v,u);
+						Q.add(v);
+					}
+				}
 			}
 		}
 	}
