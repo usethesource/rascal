@@ -35,7 +35,7 @@ public list[int] shortestPathPair1(rel[int,int] G, int From, int To)
        <d, u, Q> = extractMinimum(Q);
         if(u == To)
         	return extractPath(From, u);
-        settled = settled + u;
+        settled = settled + {u};
         relaxNeighbours(u);
     }  
     return [];
@@ -74,9 +74,9 @@ private list[int] extractPath(int start, int u)
     list[int] path = [u];
     while(pred[u] != start){
           u = pred[u];
-          path = u + path;
+          path = [u] + path;
     }
-    return start + path;
+    return [start] + path;
 }
   
 public rel[int,int] Graph1 = {<5,8>,<1,2>,<3,4>,<3,3>,<2,3>,<2,2>,<6,7>,<6,6>,<7,7>,<7,0>,<3,10>,
