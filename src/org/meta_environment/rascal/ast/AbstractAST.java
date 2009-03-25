@@ -6,7 +6,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.meta_environment.uptr.TreeAdapter;
 
 public abstract class AbstractAST implements IVisitable {
-	protected ISourceLocation location;
+//	protected ISourceLocation location;
 	protected INode node;
 
 	abstract public <T> T accept(IASTVisitor<T> v);
