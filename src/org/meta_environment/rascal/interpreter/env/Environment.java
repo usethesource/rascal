@@ -103,14 +103,24 @@ public class Environment {
 	}
 	
 	public Result<IValue> getVariable(QualifiedName name) {
-		String varName = Names.name(Names.lastName(name));
-		Result<IValue> r = getVariable(name, varName);
-		
-		if (r != null) {
-			return r;
+		if (name.getNames().size() > 1) {
+			Environment current = this;
+			while (!current.isRoot()) {
+				current = current.parent;
+			}
+			
+			return current.getVariable(name);
 		}
-		
-		return isRoot() ? null : parent.getVariable(name);
+		else {
+			String varName = Names.name(Names.lastName(name));
+			Result<IValue> r = getVariable(name, varName);
+
+			if (r != null) {
+				return r;
+			}
+
+			return isRoot() ? null : parent.getVariable(name);
+		}
 	}
 	
 	public void storeVariable(QualifiedName name, Result<IValue> result) {

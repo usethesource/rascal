@@ -1437,7 +1437,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	@Override
 	public Result<IValue> visitAssignableVariable(
 			org.meta_environment.rascal.ast.Assignable.Variable x) {
-		return peek().getVariable(x.getQualifiedName(),x.getQualifiedName().toString());
+		return peek().getVariable(x.getQualifiedName());
 	}
 	
 	@Override
@@ -3441,7 +3441,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result<IValue> right = x.getRhs().accept(this);
 		return left.lessThanOrEqual(right, x);
 		
-//		return truth(left.comparisonInt¤(left, right) <= 0));
+//		return truth(left.comparisonIntï¿½(left, right) <= 0));
 	}
 	@Override
 	public Result<IValue> visitExpressionGreaterThan(GreaterThan x) {
