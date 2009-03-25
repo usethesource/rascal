@@ -38,7 +38,7 @@ public class Profiler extends Thread {
 	private Evaluator eval;
 	private HashMap<Statement,Count> data;
 	private volatile boolean running;
-	private long resolution = 10;
+	private long resolution = 1;
 	
 	Profiler(Evaluator ev){
 		this.eval = ev;
