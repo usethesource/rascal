@@ -35,6 +35,7 @@ alias Symbol = int;                             // Symbols used for state transi
 int nStates = 0;                                // Global state counter
 
 map[set[Permutation], StateId] allStates = (); // Associate a list of permutations with a state
+map[StateId, int] distance = ();               // The distance of each state from the start state
 
 map[StateId, set[tuple[StateId, Symbol]]] Transitions = ();
 
@@ -47,7 +48,9 @@ public void dashti(int n){
    nStates = 0;
    allStates = ({[]} : 0);                      // predefine the final state
    Transitions = (0:{});
-   expand(toSet(permutations([1 .. N])));
+   distance[0] = 0;
+   
+   expand(toSet(permutations([1 .. N])), 0);
 }
 
 Permutation transfer(Permutation perm, Symbol sym){
@@ -59,7 +62,7 @@ Permutation transfer(Permutation perm, Symbol sym){
 
 // Expand list of permutations
 
-public StateId expand(set[Permutation] elms){
+public StateId expand(set[Permutation] elms, int dist){
     StateId sid;
     try {
     	return allStates[elms];
@@ -68,12 +71,19 @@ public StateId expand(set[Permutation] elms){
     	nStates = nStates + 1;
     	allStates[elms] = nStates;
     	sid = nStates;
+ 
     };
    
-    Transitions[sid] =
-       {<expand(nextState), sym> | Symbol sym <- [1 .. N], 
+    contributions =
+       {<expand(nextState, dist + 1), sym> | Symbol sym <- [1 .. N], 
        	                           set[Permutation] nextState := { transfer(perm, sym) | Permutation perm <- elms }
        };
+       
+    dist1 = dist + 1;
+     
+    Transitions[sid] = {<s, sym> | <StateId s, Symbol sym> <- contributions, s != sid, !distance[s]? || distance[s] <= dist1};
+    
+    distance[sid] = dist;
     return sid;
 }
 
