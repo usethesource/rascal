@@ -2553,6 +2553,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		return left.compose(right, x);
 	}
 
+	@Override
 	public Result<IValue> visitExpressionTransitiveClosure(TransitiveClosure x) {
 		return x.getArgument().accept(this).transitiveClosure(x);
 	}
@@ -2606,7 +2607,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		private Iterator<?> iterator;
 
 		GeneratorEvaluator(Expression g, Evaluator ev){
-			super(tf.boolType(), null);
+			super(tf.boolType(), vf.bool(true));
 			make(g, ev);
 		}
 		
@@ -2679,6 +2680,12 @@ public class Evaluator extends NullASTVisitor<Result> {
 //			return TypeFactory.getInstance().boolType();
 //		}
 //		
+		
+		@Override
+		public IValue getValue(){
+			return next().getValue();
+		}
+		
 		@Override
 		public boolean hasNext(){
 			if(isValueProducer){

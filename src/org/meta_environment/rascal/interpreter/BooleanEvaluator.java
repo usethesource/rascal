@@ -43,7 +43,7 @@ public abstract class BooleanEvaluator implements Iterator<Result<IValue>> {
 	}
 	
 	void defArg(int i){
-		Result<IValue> argResult = expr[i].accept(ev);
+		Result argResult = expr[i].accept(ev);
 		if(!argResult.getType().isBoolType()){
 			throw new UnexpectedTypeError(TypeFactory.getInstance().boolType(), argResult.getType(), expr[i]);
 		}
@@ -65,8 +65,8 @@ public abstract class BooleanEvaluator implements Iterator<Result<IValue>> {
 		        (result[RIGHT] != null && result[RIGHT].hasNext());
 	}
 	
-	public Result<IValue> next(){
-		return null;
+	public Result<IValue>  next(){
+		throw new ImplementationError("next on empty BooleanEvaluator");
 	}
 	
 	public void remove(){
