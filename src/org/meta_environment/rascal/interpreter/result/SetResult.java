@@ -88,11 +88,11 @@ public class SetResult extends CollectionResult<ISet> {
 	//////
 	
 	protected <U extends IValue, V extends IValue> Result<U> elementOf(ElementResult<V> elementResult, AbstractAST ast) {
-		return makeResult(TypeFactory.getInstance().boolType(), iboolOf(getValue().contains(elementResult.getValue())));
+		return bool(getValue().contains(elementResult.getValue()));
 	}
 
 	protected <U extends IValue, V extends IValue> Result<U> notElementOf(ElementResult<V> elementResult, AbstractAST ast) {
-		return makeResult(TypeFactory.getInstance().boolType(), iboolOf(!getValue().contains(elementResult.getValue())));
+		return bool(!getValue().contains(elementResult.getValue()));
 	}
 
 
@@ -182,49 +182,49 @@ public class SetResult extends CollectionResult<ISet> {
 	@Override
 	protected <U extends IValue> Result<U> lessThanSet(SetResult that, AbstractAST ast) {
 		// note reversed args: we need that < this
-		return bool(that.comparisonInts(this, ast) < 0);
+		return bool(that.getValue().isSubsetOf(getValue()) && !that.getValue().isEqual(getValue()));
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> lessThanOrEqualSet(SetResult that, AbstractAST ast) {
 		// note reversed args: we need that <= this
-		return bool(that.comparisonInts(this, ast) <= 0);
+		return bool(that.getValue().isSubsetOf(getValue()));
 	}
 
 	@Override
 	protected <U extends IValue> Result<U> greaterThanSet(SetResult that, AbstractAST ast) {
 		// note reversed args: we need that > this
-		return bool(that.comparisonInts(this, ast) > 0);
+		return bool(getValue().isSubsetOf(that.getValue()) && !getValue().isEqual(that.getValue()));
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> greaterThanOrEqualSet(SetResult that, AbstractAST ast) {
 		// note reversed args: we need that >= this
-		return bool(that.comparisonInts(this, ast) >= 0);
+		return bool(getValue().isSubsetOf(that.getValue()));
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> lessThanRelation(RelationResult that, AbstractAST ast) {
 		// note reversed args: we need that < this
-		return bool(that.comparisonInts(this, ast) < 0);
+		return bool(that.getValue().isSubsetOf(getValue()) && !that.getValue().isEqual(getValue()));
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> lessThanOrEqualRelation(RelationResult that, AbstractAST ast) {
 		// note reversed args: we need that <= this
-		return bool(that.comparisonInts(this, ast) <= 0);
+		return bool(that.getValue().isSubsetOf(getValue()));
 	}
 
 	@Override
 	protected <U extends IValue> Result<U> greaterThanRelation(RelationResult that, AbstractAST ast) {
 		// note reversed args: we need that > this
-		return bool(that.comparisonInts(this, ast) > 0);
+		return bool(getValue().isSubsetOf(that.getValue()) && !getValue().isEqual(that.getValue()));
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> greaterThanOrEqualRelation(RelationResult that, AbstractAST ast) {
 		// note reversed args: we need that >= this
-		return bool(that.comparisonInts(this, ast) >= 0);
+		return bool(getValue().isSubsetOf(that.getValue()));
 	}
 	
 	@Override
@@ -239,8 +239,4 @@ public class SetResult extends CollectionResult<ISet> {
 		return makeIntegerResult(compareISets(that.getValue(), this.getValue(), ast));
 	}
 		
-	private IBool iboolOf(boolean b) {
-		return ValueFactoryFactory.getValueFactory().bool(b);
-	}
-	
 }

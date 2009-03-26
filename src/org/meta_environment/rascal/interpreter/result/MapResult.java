@@ -6,6 +6,7 @@ import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeR
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.interpreter.RuntimeExceptionFactory;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscriptArityError;
@@ -89,8 +90,25 @@ public class MapResult extends ElementResult<IMap> {
 		return result.compareMap(this, ast);
 	}
 	
+	@Override
+	public <U extends IValue, V extends IValue> Result<U> in(Result<V> result, AbstractAST ast) {
+		return result.inMap(this, ast);
+	}	
+	
+	@Override
+	public <U extends IValue, V extends IValue> Result<U> notIn(Result<V> result, AbstractAST ast) {
+		return result.notInMap(this, ast);
+	}	
 	
 	////
+	
+	protected <U extends IValue, V extends IValue> Result<U> elementOf(ElementResult<V> elementResult, AbstractAST ast) {
+		return bool(getValue().containsValue(elementResult.getValue()));
+	}
+
+	protected <U extends IValue, V extends IValue> Result<U> notElementOf(ElementResult<V> elementResult, AbstractAST ast) {
+		return bool(!getValue().containsValue(elementResult.getValue()));
+	}
 	
 	@Override
 	protected <U extends IValue> Result<U> addMap(MapResult m, AbstractAST ast) {
@@ -124,25 +142,25 @@ public class MapResult extends ElementResult<IMap> {
 	@Override
 	protected <U extends IValue> Result<U> lessThanMap(MapResult that, AbstractAST ast) {
 		// note reversed args: we need that < this
-		return bool(that.comparisonInts(this, ast) < 0);
+		return bool(that.getValue().isSubMap(getValue()) && !that.getValue().isEqual(getValue()));
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> lessThanOrEqualMap(MapResult that, AbstractAST ast) {
 		// note reversed args: we need that <= this
-		return bool(that.comparisonInts(this, ast) <= 0);
+		return bool(that.getValue().isSubMap(getValue()));
 	}
 
 	@Override
 	protected <U extends IValue> Result<U> greaterThanMap(MapResult that, AbstractAST ast) {
 		// note reversed args: we need that > this
-		return bool(that.comparisonInts(this, ast) > 0);
+		return bool(getValue().isSubMap(that.getValue()) && !getValue().isEqual(that.getValue()));
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> greaterThanOrEqualMap(MapResult that, AbstractAST ast) {
 		// note reversed args: we need that >= this
-		return bool(that.comparisonInts(this, ast) >= 0);
+		return bool(getValue().isSubMap(that.getValue()));
 	}
 	
 	@Override

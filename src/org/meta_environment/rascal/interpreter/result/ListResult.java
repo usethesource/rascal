@@ -1,6 +1,7 @@
 package org.meta_environment.rascal.interpreter.result;
 
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
+import static org.meta_environment.rascal.interpreter.result.ResultFactory.bool;
 
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
@@ -58,6 +59,27 @@ public class ListResult extends CollectionResult<IList> {
 	public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that, AbstractAST ast) {
 		return that.nonEqualToList(this, ast);
 	}
+	
+	@Override
+	public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> that, AbstractAST ast) {
+		return that.lessThanList(this, ast);
+	}
+	
+	@Override
+	public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(Result<V> that, AbstractAST ast) {
+		return that.lessThanOrEqualList(this, ast);
+	}
+
+	@Override
+	public <U extends IValue, V extends IValue> Result<U> greaterThan(Result<V> that, AbstractAST ast) {
+		return that.greaterThanList(this, ast);
+	}
+	
+	@Override
+	public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(Result<V> that, AbstractAST ast) {
+		return that.greaterThanOrEqualList(this, ast);
+	}
+
 
 	@SuppressWarnings("unchecked")
 	public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts, AbstractAST ast) {
@@ -88,7 +110,9 @@ public class ListResult extends CollectionResult<IList> {
 		// Note the reversal of args
 		IList list = l.getValue();
 		for (IValue v: getValue()) {
-			list = list.delete(v);
+			while (list.contains(v)) {
+				list = list.delete(v);
+			}
 		}
 		return makeResult(l.getType(), list);
 	}
@@ -127,13 +151,11 @@ public class ListResult extends CollectionResult<IList> {
 	}
 
 	<U extends IValue, V extends IValue> Result<U> elementOf(ElementResult<V> elementResult, AbstractAST ast) {
-		throw new ImplementationError("NYI: pdb has no contains on lists");
-		//return new BoolResult(getValue().contains(elementResult.getValue());
+		return bool(getValue().contains(elementResult.getValue()));
 	}
 
 	<U extends IValue, V extends IValue> Result<U> notElementOf(ElementResult<V> elementResult, AbstractAST ast) {
-		throw new ImplementationError("NYI: pdb has no contains on lists");
-		//return new BoolResult(!getValue().contains(elementResult.getValue());
+		return bool(!getValue().contains(elementResult.getValue()));
 	}
 	
 	@Override
@@ -145,6 +167,35 @@ public class ListResult extends CollectionResult<IList> {
 	protected <U extends IValue> Result<U> nonEqualToList(ListResult that, AbstractAST ast) {
 		return that.nonEqualityBoolean(this);
 	}
+	
+	protected <U extends IValue> Result<U> lessThanList(ListResult that, AbstractAST ast) {
+		// note reverse of arguments: we need that < this
+		// TODO: move to PDB:
+		if (that.getValue().isEqual(getValue())) {
+			return bool(false);
+		}
+		return lessThanOrEqualList(that, ast);
+	}
+	
+	protected <U extends IValue> Result<U> lessThanOrEqualList(ListResult that, AbstractAST ast) {
+		for (IValue value: that.getValue()) {
+			if (!getValue().contains(value)) {
+				return bool(false);
+			}
+		}
+		return bool(true);
+	}
+
+	protected <U extends IValue> Result<U> greaterThanList(ListResult that, AbstractAST ast) {
+		// note double reversal of arguments: that >  this
+		return that.lessThanList(this, ast);
+	}
+	
+	protected <U extends IValue> Result<U> greaterThanOrEqualList(ListResult that, AbstractAST ast) {
+		// note double reversal of arguments: that >=  this
+		return that.lessThanOrEqualList(this, ast);
+	}
+	
 	
 	@Override
 	protected <U extends IValue> Result<U> compareList(ListResult that, AbstractAST ast) {

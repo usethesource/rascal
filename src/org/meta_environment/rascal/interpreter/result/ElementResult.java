@@ -53,6 +53,15 @@ public class ElementResult<T extends IValue> extends Result<T> {
 		return s.notElementOf(this, ast);
 	}
 	
+	@Override
+	protected <U extends IValue> Result<U> inMap(MapResult s, AbstractAST ast) {
+		return s.elementOf(this, ast);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> notInMap(MapResult s, AbstractAST ast) {
+		return s.notElementOf(this, ast);
+	}
 	
 	@Override
 	protected <U extends IValue> Result<U> addSet(SetResult s, AbstractAST ast) {

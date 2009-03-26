@@ -400,6 +400,10 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return that.undefinedError(IN_STRING, this, ast);
 	}
 
+	protected <U extends IValue> Result<U> inMap(MapResult that, AbstractAST ast) {
+		return that.undefinedError(IN_STRING, this, ast);
+	}
+
 	protected <U extends IValue> Result<U> notInSet(SetResult that, AbstractAST ast) {
 		return that.undefinedError(NOTIN_STRING, this, ast);
 	}
@@ -409,6 +413,10 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	}
 	
 	protected <U extends IValue> Result<U> notInList(ListResult that, AbstractAST ast) {
+		return that.undefinedError(NOTIN_STRING, this, ast);
+	}
+	
+	protected <U extends IValue> Result<U> notInMap(MapResult that, AbstractAST ast) {
 		return that.undefinedError(NOTIN_STRING, this, ast);
 	}
 	
@@ -683,6 +691,23 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	protected <U extends IValue> Result<U> greaterThanOrEqualRelation(RelationResult that, AbstractAST ast) {
 		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this, ast);
 	}
+	
+	protected <U extends IValue> Result<U> lessThanList(ListResult that, AbstractAST ast) {
+		return that.undefinedError(LESS_THAN_STRING, this, ast);
+	}
+	
+	protected <U extends IValue> Result<U> lessThanOrEqualList(ListResult that, AbstractAST ast) {
+		return that.undefinedError(LESS_THAN_OR_EQUAL_STRING, this, ast);
+	}
+
+	protected <U extends IValue> Result<U> greaterThanList(ListResult that, AbstractAST ast) {
+		return that.undefinedError(GREATER_THAN_STRING, this, ast);
+	}
+	
+	protected <U extends IValue> Result<U> greaterThanOrEqualList(ListResult that, AbstractAST ast) {
+		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this, ast);
+	}
+	
 	
 	public boolean isPublic() {
 		return isPublic;
