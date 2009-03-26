@@ -62,13 +62,13 @@ public class JavaMethod extends Lambda {
 			
 			if (targetException instanceof Throw) {
 				Throw th = (Throw) targetException;
-				((Throw) targetException).setLocation(eval.getCurrentStatement().getLocation());
+				((Throw) targetException).setLocation(eval.getCurrentAST().getLocation());
 				throw th;
 			}
 			else {
 				e.printStackTrace();
 				String msg = targetException.getMessage() != null ? targetException.getMessage() : "Exception in Java code";
-				throw org.meta_environment.rascal.interpreter.RuntimeExceptionFactory.javaException(msg, eval.getCurrentStatement());
+				throw org.meta_environment.rascal.interpreter.RuntimeExceptionFactory.javaException(msg, eval.getCurrentAST());
 			}
 		}
 	}

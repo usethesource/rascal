@@ -202,7 +202,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	enum PROGRESS   {Continuing, Breaking};
 	
 	
-	private Statement currentStatement; // used in runtime errormessages
+	private AbstractAST currentAST; // used in runtime errormessages
 	private Profiler profiler;
 	private boolean doProfiling = false;
 	
@@ -259,13 +259,12 @@ public class Evaluator extends NullASTVisitor<Result> {
 		env.commit();
 	}
 	
-	public void setCurrentStatement(Statement currentStatement) {
-		this.currentStatement = currentStatement;
+	public void setCurrentAST(AbstractAST currentAST) {
+		this.currentAST = currentAST;
 	}
 
-
-	public Statement getCurrentStatement() {
-		return currentStatement;
+	public AbstractAST getCurrentAST() {
+		return currentAST;
 	}
 
 
@@ -293,6 +292,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			    	profiler.start();
 			    	
 			    }
+			currentAST = stat;
 			Result<IValue> r = stat.accept(this);
 	        if(r != null){
 	        	if(doProfiling){
@@ -320,6 +320,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	 * @return
 	 */
 	public IValue eval(Declaration declaration) {
+		currentAST = declaration;
 		Result<IValue> r = declaration.accept(this);
         if(r != null){
         	return r.getValue();
@@ -334,6 +335,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	 * @return
 	 */
 	public IValue eval(org.meta_environment.rascal.ast.Import imp) {
+		currentAST = imp;
 		Result<IValue> r = imp.accept(this);
         if(r != null){
         	return r.getValue();
@@ -437,7 +439,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			return;
 		}
 		if (!given.isSubtypeOf(expected)){
-			throw new UnexpectedTypeError(expected, given, getCurrentStatement());
+			throw new UnexpectedTypeError(expected, given, getCurrentAST());
 		}
 	}
 	
@@ -927,7 +929,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result<IValue> result = nothing();
 		
 		for (Statement statement : x.getStatements()) {
-			setCurrentStatement(statement);
+			setCurrentAST(statement);
 			result = statement.accept(this);
 		}
 		
@@ -944,7 +946,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 		
 		if(r.getValue().isEqual(vf.bool(false))) {
-			throw RuntimeExceptionFactory.assertionFailed(getCurrentStatement());
+			throw RuntimeExceptionFactory.assertionFailed(getCurrentAST());
 		}
 		return r;	
 	}
@@ -958,7 +960,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		if(r.getValue().isEqual(vf.bool(false))){
 			String str = x.getMessage().toString();
 			IString msg = vf.string(unescape(str, x, peek()));
-			throw RuntimeExceptionFactory.assertionFailed(msg, getCurrentStatement());
+			throw RuntimeExceptionFactory.assertionFailed(msg, getCurrentAST());
 		}
 		return r;	
 	}
@@ -970,7 +972,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	@Override
 	public Result<IValue> visitStatementExpression(Statement.Expression x) {
-		setCurrentStatement(x);
+		setCurrentAST(x);
 		return x.getExpression().accept(this);
 	}
 	
@@ -1263,7 +1265,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				}
 				
 				if (selectedFields[i] < 0 || selectedFields[i] > base.getType().getArity()) {
-					throw RuntimeExceptionFactory.indexOutOfBounds(vf.integer(i), getCurrentStatement());
+					throw RuntimeExceptionFactory.indexOutOfBounds(vf.integer(i), getCurrentAST());
 				}
 				fieldTypes[i] = base.getType().getFieldType(selectedFields[i]);
 			}
@@ -1293,7 +1295,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 					}
 				}
 				if(selectedFields[i] < 0 || selectedFields[i] > base.getType().getArity()) {
-					throw RuntimeExceptionFactory.indexOutOfBounds(vf.integer(i), getCurrentStatement());
+					throw RuntimeExceptionFactory.indexOutOfBounds(vf.integer(i), getCurrentAST());
 				}
 				fieldTypes[i] = base.getType().getFieldType(selectedFields[i]);
 			}
@@ -1355,7 +1357,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	@Override
 	public Result<IValue> visitStatementThrow(Throw x) {
-		throw new org.meta_environment.rascal.interpreter.control_exceptions.Throw(x.getExpression().accept(this).getValue(), getCurrentStatement());
+		throw new org.meta_environment.rascal.interpreter.control_exceptions.Throw(x.getExpression().accept(this).getValue(), getCurrentAST());
 	}
 	
 	@Override
@@ -1424,7 +1426,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		try {
 			push(); 
 			for (Statement stat : x.getStatements()) {
-				setCurrentStatement(stat);
+				setCurrentAST(stat);
 				r = stat.accept(this);
 			}
 		}
@@ -2931,14 +2933,14 @@ public class Evaluator extends NullASTVisitor<Result> {
 							start = 0;
 							end = ((IString)repl).getValue().length();
 						} else {
-							throw new SyntaxError("Illegal pattern " + lastPattern + " in string visit", getCurrentStatement().getLocation());
+							throw new SyntaxError("Illegal pattern " + lastPattern + " in string visit", getCurrentAST().getLocation());
 						}
 						
 						replacements.add(new StringReplacement(cursor + start, cursor + end, ((IString)repl).getValue()));
 						matched = changed = true;
 						cursor += end;
 					} else {
-						throw new UnexpectedTypeError(tf.stringType(),repl.getType(), getCurrentStatement());
+						throw new UnexpectedTypeError(tf.stringType(),repl.getType(), getCurrentAST());
 					}
 				}
 			}
@@ -3114,7 +3116,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	private TraverseResult replacement(IValue oldSubject, IValue newSubject){
 		if(newSubject.getType().equivalent((oldSubject.getType())))
 			return new TraverseResult(true, newSubject, true);
-		throw new UnexpectedTypeError(oldSubject.getType(), newSubject.getType(), getCurrentStatement());
+		throw new UnexpectedTypeError(oldSubject.getType(), newSubject.getType(), getCurrentAST());
 	}
 	
 	/**
@@ -4081,7 +4083,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			}
 			max = ((IInteger)res.getValue()).intValue();
 			if(max <= 0){
-				throw RuntimeExceptionFactory.indexOutOfBounds((IInteger) res.getValue(), getCurrentStatement());
+				throw RuntimeExceptionFactory.indexOutOfBounds((IInteger) res.getValue(), getCurrentAST());
 			}
 		}
 		

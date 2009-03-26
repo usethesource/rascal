@@ -163,7 +163,7 @@ public class Lambda extends Result<IValue> implements IValue {
 			assignFormals(actuals, env);
 
 			for (Statement stat: body) {
-				eval.setCurrentStatement(stat);
+				eval.setCurrentAST(stat);
 				stat.accept(eval);
 			}
 			

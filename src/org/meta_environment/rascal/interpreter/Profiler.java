@@ -15,6 +15,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.ValueFactoryFactory;
+import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.Statement;
 
 class Count {
@@ -36,20 +37,20 @@ class Count {
 
 public class Profiler extends Thread {
 	private Evaluator eval;
-	private HashMap<Statement,Count> data;
+	private HashMap<AbstractAST,Count> data;
 	private volatile boolean running;
 	private long resolution = 1;
 	
 	Profiler(Evaluator ev){
 		this.eval = ev;
-		this.data = new HashMap<Statement,Count>();
+		this.data = new HashMap<AbstractAST,Count>();
 		running = true;
 	}
 	
 	@Override
 	public void run(){
 		while(running){
-			Statement stat = eval.getCurrentStatement();
+			AbstractAST stat = eval.getCurrentAST();
 			if(stat != null){
 				Count currentCount = data.get(stat);
 				if(currentCount == null)
@@ -74,12 +75,12 @@ public class Profiler extends Thread {
 	 * sort it with descending tick values.
 	 */
 	
-	private List<Map.Entry<Statement, Count>> sortData(){
-		 List<Map.Entry<Statement, Count>> sortedData = new Vector<Entry<Statement, Count>>(data.entrySet());
+	private List<Map.Entry<AbstractAST, Count>> sortData(){
+		 List<Map.Entry<AbstractAST, Count>> sortedData = new Vector<Entry<AbstractAST, Count>>(data.entrySet());
 
-        java.util.Collections.sort(sortedData, new Comparator<Map.Entry<Statement, Count>>(){
-			public int compare(Entry<Statement, Count> entry1,
-					Entry<Statement, Count> entry2) {
+        java.util.Collections.sort(sortedData, new Comparator<Map.Entry<AbstractAST, Count>>(){
+			public int compare(Entry<AbstractAST, Count> entry1,
+					Entry<AbstractAST, Count> entry2) {
 				 return (entry1.getValue().equals(entry2.getValue()) ? 0 : 
 					 (entry1.getValue().getTicks() < entry2.getValue().getTicks() ? 1 : -1));
 			}
@@ -93,7 +94,7 @@ public class Profiler extends Thread {
 		Type listType = TF.listType(elemType);
 		IValueFactory VF = ValueFactoryFactory.getValueFactory();
 		IListWriter w = listType.writer(VF);
-		for(Map.Entry<Statement, Count> e : sortData()){
+		for(Map.Entry<AbstractAST, Count> e : sortData()){
 			w.insert(VF.tuple(e.getKey().getLocation(), VF.integer(e.getValue().getTicks())));
 		}
 		return w.done();
@@ -101,12 +102,12 @@ public class Profiler extends Thread {
 	
 	public void report(){
 		
-		List<Map.Entry<Statement, Count>> sortedData = sortData();
+		List<Map.Entry<AbstractAST, Count>> sortedData = sortData();
         
         int maxURL = 1;
         long nTicks = 0;
         
-        for(Map.Entry<Statement, Count> e : sortedData){
+        for(Map.Entry<AbstractAST, Count> e : sortedData){
         	URL url = e.getKey().getLocation().getURL();
         	int sz = url.toString().length();
         	if(sz > maxURL)
@@ -117,7 +118,7 @@ public class Profiler extends Thread {
         System.err.printf("PROFILE: %d data points, %d ticks, tick = %d milliSecs\n", data.size(), nTicks, resolution);
         System.err.printf(URLFormat + "%11s%8s%9s  %s\n", " Source File", "Lines", "Ticks", "%", "Source");
     	
-        for(Map.Entry<Statement, Count> e : sortedData){
+        for(Map.Entry<AbstractAST, Count> e : sortedData){
         	ISourceLocation L = e.getKey().getLocation();
         	
         	String url = L.getURL().toString();
