@@ -60,7 +60,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 					.string(getValue().getURL().toString()));
 		} 
 		else {
-			throw new UndeclaredFieldError(name, getTypeFactory().sourceLocationType(), null);
+			throw new UndeclaredFieldError(name, getTypeFactory().sourceLocationType(), ast);
 		}
 	}
 	
