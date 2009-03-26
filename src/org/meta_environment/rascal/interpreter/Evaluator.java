@@ -368,33 +368,6 @@ public class Evaluator extends NullASTVisitor<Result> {
 		return makeResult(instance, v);
 	}
 	
-//	/*
-//	 * Return an evaluation result that may need normalization.
-//	 */
-//	
-//	Result<IValue> result(Type t, IValue v) {
-//		Map<Type, Type> bindings = peek().getTypeBindings();
-//		Type instance;
-//		
-//		if (bindings.size() > 0) {
-//		    instance = t.instantiate(peek().getStore(), bindings);
-//		}
-//		else {
-//			instance = t;
-//		}
-//		
-//		if (v != null) {
-//			checkType(v.getType(), instance);
-//			// rewrite rules do not change the declared type
-//			return new Result<IValue>(instance, applyRules(v));
-//		}
-//		return new Result<IValue>(instance, v);
-//	}
-//
-//	// TODO: package visibility?
-//	Result<IValue> result(IValue v) {
-//		return new Result<IValue>(v.getType(), applyRules(v));
-//	}
 	
 	private IValue applyRules(IValue v) {
 		
@@ -430,9 +403,6 @@ public class Evaluator extends NullASTVisitor<Result> {
 		callStack.push(new Environment(peek()));
 	}
 	
-//	private Result<IValue> result() {
-//		return new Result<IValue>(null, null);
-//	}
 	
 	private void checkType(Type given, Type expected) {
 		if (expected == org.meta_environment.rascal.interpreter.env.Lambda.getClosureType()) {
@@ -740,7 +710,6 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 		
 		return nothing();
-//		return result(vf.string(Names.name(Names.lastName(expr.getQualifiedName()))));
 	}
 	
 	@Override
@@ -982,38 +951,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		return x.getFunctionDeclaration().accept(this);
 	}
 	
-//	// TODO?? package visibility??
-//	Result<IValue> assignVariable(QualifiedName name, Result<IValue> right){
-//		Environment env = getEnv(name);
-//		Result<IValue> previous = env.getVariable(name);
-//		
-//		if (previous != null) {
-//			if (right.getType().isSubtypeOf(previous.getType())) {
-//				right.setType(previous.getType());
-//			} else {
-//				throw new UnexpectedTypeError(previous.getType(), right.getType(), null);
-//			}
-//		}
-//		
-//		env.storeVariable(name, right);
-//		return right;
-//	}
-	
 
-
-//	private Environment getEnv(QualifiedName name) {
-//		String moduleName = Names.moduleName(name);
-//		Environment env;
-//		
-//		if (moduleName == null) {
-//			env = peek();
-//		}
-//		else {
-//			env = peek().getImport(moduleName);
-//		}
-//		return env;
-//	}
-//	
 	@Override
 	public Result<IValue> visitExpressionSubscript(Subscript x) {		
 		Result<IValue> expr = x.getExpression().accept(this);
@@ -1023,140 +961,6 @@ public class Evaluator extends NullASTVisitor<Result> {
 			subscripts[i] = x.getSubscripts().get(i).accept(this);
 		}
 		return expr.subscript(subscripts, x);
-		
-//		Type exprType = expr.getType();
-//		
-//		if (exprType.isRelationType()) {
-//			int relArity = exprType.getArity();
-//			
-//			if(nSubs >= relArity){
-//				throw new ArityError(exprType, nSubs, x);
-//			}
-//			Result<IValue> subscriptResult[] = new Result<IValue>[nSubs];
-//			Type subscriptType[] = new Type[nSubs];
-//			boolean subscriptIsSet[] = new boolean[nSubs];
-//			
-//			for(int i = 0; i < nSubs; i++){
-//				subscriptResult[i] = x.getSubscripts().get(i).accept(this);
-//				subscriptType[i] = subscriptResult[i].getType();
-//			}
-//			
-//			boolean yieldSet = (relArity - nSubs) == 1;
-//			Type resFieldType[] = new Type[relArity - nSubs];
-//			for (int i = 0; i < relArity; i++) {
-//				Type relFieldType = exprType.getFieldType(i);
-//				if(i < nSubs) {
-//					if (subscriptType[i].isSetType() && 
-//					    subscriptType[i].getElementType().isSubtypeOf(relFieldType)){
-//						subscriptIsSet[i] = true;
-//					} else if (subscriptType[i].isSubtypeOf(relFieldType)){
-//						subscriptIsSet[i] = false;
-//					} else {
-//						throw new UnexpectedTypeError(relFieldType, subscriptType[i], x);
-//					}
-//				} else {
-//					resFieldType[i - nSubs] = relFieldType;
-//				}
-//			}
-//			Type resultType;
-//			ISetWriter wset = null;
-//			IRelationWriter wrel = null;
-//			
-//			if(yieldSet){
-//				resultType = tf.setType(resFieldType[0]);
-//				wset = resultType.writer(vf);
-//			} else {
-//				resultType = tf.relType(resFieldType);
-//				wrel = resultType.writer(vf);
-//			}
-//
-//			for (IValue v : ((IRelation) expr.getValue())) {
-//				ITuple tup = (ITuple) v;
-//				boolean allEqual = true;
-//				for(int k = 0; k < nSubs; k++){
-//					if(subscriptIsSet[k] && ((ISet) subscriptResult<IValue>[k].getValue()).contains(tup.get(k))){
-//						/* ok */
-//					} else if (tup.get(k).isEqual(subscriptResult<IValue>[k].getValue())){
-//						/* ok */
-//					} else {
-//						allEqual = false;
-//					}
-//				}
-//				
-//				if (allEqual) {
-//					IValue args[] = new IValue[relArity - nSubs];
-//					for (int i = nSubs; i < relArity; i++) {
-//						args[i - nSubs] = tup.get(i);
-//					}
-//					if(yieldSet){
-//						wset.insert(args[0]);
-//					} else {
-//						wrel.insert(vf.tuple(args));
-//					}
-//				}
-//			}
-//			return normalizedResult<IValue>(resultType, yieldSet ? wset.done() : wrel.done());
-//		}
-//		
-//		if (nSubs > 1){
-//			throw new SyntaxError("No more than one subscript allowed on " + exprType, x.getLocation());
-//		}
-//		
-//		Result<IValue> subs = x.getSubscripts().get(0).accept(this);
-//		Type subsBase = subs.getType();
-//		
-//		if (exprType.isMapType()
-//			&& subsBase.isSubtypeOf(exprType.getKeyType())) {
-//			Type valueType = exprType.getValueType();
-//			IValue v = ((IMap) expr.getValue()).get(subs.getValue());
-//			if(v == null){
-//				throw RuntimeExceptionFactory.noSuchKey(subs.getValue());
-//			}
-//			return normalizedResult<IValue>(valueType,v);
-//		}
-//		
-//		if(!subsBase.isIntegerType()){
-//			throw new UnexpectedTypeError(tf.integerType(), subsBase, x);
-//		}
-//		int index = ((IInteger) subs.getValue()).intValue();
-//
-//		if (exprType.isListType()) {
-//			Type elementType = exprType.getElementType();
-//			try {
-//				IValue element = ((IList) expr.getValue()).get(index);
-//				return normalizedResult<IValue>(elementType, element);
-//			} catch (java.lang.IndexOutOfBoundsException e) {
-//				throw RuntimeExceptionFactory.indexOutOfBounds((IInteger) subs.getValue());
-//			}
-//		}
-//		if (exprType.isAbstractDataType()) {
-//			if(index >= ((IConstructor) expr.getValue()).arity()){
-//				throw RuntimeExceptionFactory.indexOutOfBounds((IInteger) subs.getValue());
-//			}
-//			
-//			Type elementType = ((IConstructor) expr.getValue()).getConstructorType().getFieldType(index);
-//			IValue element = ((IConstructor) expr.getValue()).get(index);
-//			return normalizedResult<IValue>(elementType, element);
-//		}
-//		if (exprType.isNodeType()) {
-//			if(index >= ((INode) expr.getValue()).arity()){
-//				throw RuntimeExceptionFactory.indexOutOfBounds((IInteger) subs.getValue());
-//			}
-//			Type elementType = tf.valueType();
-//			IValue element = ((INode) expr.getValue()).get(index);
-//			return normalizedResult<IValue>(elementType, element);
-//		}
-//		if (exprType.isTupleType()) {
-//			try {
-//				Type elementType = exprType.getFieldType(index);
-//				IValue element = ((ITuple) expr.getValue()).get(index);
-//				return normalizedResult<IValue>(elementType, element);
-//			} catch (ArrayIndexOutOfBoundsException e){
-//				throw RuntimeExceptionFactory.indexOutOfBounds((IInteger) subs.getValue());
-//			}
-//		}
-//		
-//		throw new UnsupportedOperationError("subscript", exprType, x);
 	}
 
 	@Override
@@ -1165,68 +969,6 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result<IValue> expr = x.getExpression().accept(this);
 		String field = x.getField().toString();
 		return expr.fieldAccess(field, peek().getStore(), x);
-		
-//		if (expr.getType().isTupleType()) {
-//			Type tuple = expr.getType();
-//			if (!tuple.hasFieldNames()) {
-//				throw new UndeclaredFieldError(field, tuple, x);
-//			}
-//			 try {
-//				 return normalizedResult<IValue>(tuple.getFieldType(field), ((ITuple) expr.getValue()).get(tuple.getFieldIndex(field)));
-//			 } catch (UndeclaredFieldException e){
-//				 throw new UndeclaredFieldError(field, tuple, x.getField());
-//			 }
-//			 }
-//		else if (expr.getType().isRelationType()) {
-//			Type tuple = expr.getType().getFieldTypes();
-//			
-//			try {
-//				ISetWriter w = vf.setWriter(tuple.getFieldType(field));
-//				for (IValue e : (ISet) expr.getValue()) {
-//					w.insert(((ITuple) e).get(tuple.getFieldIndex(field)));
-//				}
-//				return result(tf.setType(tuple.getFieldType(field)), w.done());
-//			}
-//			catch (UndeclaredFieldException e) {
-//				throw new UndeclaredFieldError(field, tuple, x);
-//			}
-//		}
-//		else if (expr.getType().isAbstractDataType() || expr.getType().isConstructorType()) {
-//			Type node = ((IConstructor) expr.getValue()).getConstructorType();
-//			
-//			if (!expr.getType().hasField(field, callStack.peek().getStore())) {
-//				throw new UndeclaredFieldError(field, expr.getType(), x);
-//			}
-//			
-//			if (!node.hasField(field)) {
-//				throw new UndeclaredFieldError(field, expr.getType(), x);
-//			}
-//			
-//			int index = node.getFieldIndex(field);
-//			return normalizedResult<IValue>(node.getFieldType(index),((IConstructor) expr.getValue()).get(index));
-//		}
-//		else if(expr.getType().isSourceLocationType()){
-//			ISourceLocation loc = (ISourceLocation) expr.getValue();
-//			if(field.equals("length")){
-//				return result(tf.integerType(), vf.integer(loc.getLength()));
-//			} else if(field.equals("offset")){
-//				return result(tf.integerType(), vf.integer(loc.getOffset()));
-//			} else if(field.equals("beginLine")){
-//				return result(tf.integerType(), vf.integer(loc.getBeginLine()));
-//			} else if(field.equals("beginColumn")){
-//				return result(tf.integerType(), vf.integer(loc.getBeginColumn()));
-//			} else if(field.equals("endLine")){
-//				return result(tf.integerType(), vf.integer(loc.getEndLine()));
-//			} else if(field.equals("endColumn")){
-//				return result(tf.integerType(), vf.integer(loc.getEndColumn()));
-//			} else if(field.equals("url")){
-//				return result(tf.stringType(), vf.string(loc.getURL().toString()));
-//			} else {
-//				throw new UndeclaredFieldError(field, tf.sourceLocationType(), x);
-//			}
-//		}
-//		
-//		throw new UndeclaredFieldError(field, expr.getType(), x);
 	}
 	
 	private boolean duplicateIndices(int indices[]){
@@ -1242,6 +984,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	@Override
 	public Result<IValue> visitExpressionFieldProject(FieldProject x) {
+		// TODO: move to result classes
 		Result<IValue>  base = x.getExpression().accept(this);
 		
 		java.util.List<Field> fields = x.getFields();
@@ -1886,20 +1629,6 @@ public class Evaluator extends NullASTVisitor<Result> {
 		  Result<IValue> base = x.getExpression().accept(this);
 		String annoName = x.getName().toString();
 		return base.getAnnotation(annoName, callStack.peek(), x);
-	
-//		Type annoType = callStack.peek().getAnnotationType(base.getType(), annoName);
-//
-//		if (annoType == null) {
-//			throw new UndeclaredAnnotationError(annoName
-//					,base.getType(), x);
-//		}
-//
-//		IValue annoValue = ((IConstructor) base.getValue()).getAnnotation(annoName);
-//		
-//		if (annoValue == null) {
-//			throw RuntimeExceptionFactory.noSuchAnnotation(annoName, getCurrentStatement());
-//		}
-//		return result(annoType, annoValue);
 	}
 	
 	@Override
@@ -1911,155 +1640,12 @@ public class Evaluator extends NullASTVisitor<Result> {
 		return base.setAnnotation(annoName, anno, callStack.peek(), x);
 	}
 	
-//	public static void widenArgs(Result<IValue> left, Result<IValue> right) {
-//		TypeFactory tf = TypeFactory.getInstance();
-//		
-//		Type leftValType = left.getValueType();
-//		Type rightValType = right.getValueType();
-//		if (leftValType.isIntegerType() && rightValType.isRealType()) {
-//			if(left.getType().isIntegerType()){
-//				left.setType(tf.realType());
-//			}
-//			left.setValue(((IInteger) left.getValue()).toReal());
-//		} else if (leftValType.isRealType() && rightValType.isIntegerType()) {
-//			if(right.getType().isIntegerType()){
-//				right.setType(tf.realType());
-//			}
-//			right.setValue(((IInteger) right.getValue()).toReal());
-//		} 
-//		/*else if(left.getType().isConstructorType()){
-//			left.getType() = left.getType().getAbstractDataType();
-//		} else 	if(right.getType().isConstructorType()){
-//			right.getType() = right.getType().getAbstractDataType();
-//		}
-//		*/
-//	}
-//	
     @Override
 	public Result<IValue> visitExpressionAddition(Addition x) {
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
 		return left.add(right, x);
-//		widenArgs(left, right);
-//		Type resultType = left.getType().lub(right.getType());
-//		
-//		//System.err.println("left=" + left + "; right=" + right + "; resulType=" + resultType);
-//
-//		// Integer
-//		if (left.getType().isIntegerType() && right.getType().isIntegerType()) {
-//			return result(((IInteger) left.getValue()).add((IInteger) right.getValue()));
-//			
-//		}
-//		//Real
-//		if (left.getType().isRealType() && right.getType().isRealType()) {
-//			return result(((IReal) left.getValue()).add((IReal) right.getValue()));
-//			
-//		}
-//		//String
-//		if (left.getType().isStringType() && right.getType().isStringType()) {
-//			return result(vf.string(((IString) left.getValue()).getValue()
-//					+ ((IString) right.getValue()).getValue()));
-//			
-//		}
-//		//List
-//		if (left.getType().isListType()){
-//				if(right.getType().isListType()) {
-//					return result(resultType, ((IList) left.getValue())
-//					.concat((IList) right.getValue()));
-//				}
-//				if(right.getType().isSubtypeOf(left.getType().getElementType())){
-//					return result(left.getType(), ((IList)left.getValue()).append(right.getValue()));
-//				}
-//		}
-//		
-//		if (right.getType().isListType()){
-//			if(left.getType().isSubtypeOf(right.getType().getElementType())){
-//				return result(right.getType(), ((IList)right.getValue()).insert(left.getValue()));
-//			}
-//		}
-//		
-//		//Relation
-//		if (left.getType().isRelationType() && right.getType().isRelationType()) {
-//			if(LAZY)
-//				return result(resultType, new LazyUnion(((ISet) left.getValue()),
-//						                                 (ISet) right.getValue()));
-//			else							
-//				return result(resultType, ((ISet) left.getValue())
-//						.union((ISet) right.getValue()));
-//		}
-//		
-//		//Set
-//		if (left.getType().isSetType()){
-//			if(right.getType().isSetType()) {
-//				if(LAZY)
-//					return result(resultType, new LazyUnion(((ISet) left.getValue()),
-//						                                     (ISet) right.getValue()));
-//				else
-//					return result(resultType, ((ISet) left.getValue())
-//							.union((ISet) right.getValue()));
-//			}
-//			if(right.getType().isSubtypeOf(left.getType().getElementType())){
-//				if(LAZY)
-//					return result(left.getType(), new LazyInsert((ISet)left.getValue(),
-//																   right.getValue()));
-//				else
-//				 return result(left.getType(), ((ISet)left.getValue()).insert(right.getValue()));
-//			}
-//		}
-//	
-//		if (right.getType().isSetType()){
-//			if(left.getType().isSubtypeOf(right.getType().getElementType())){
-//				if(LAZY)
-//					return result(right.getType(), new LazyInsert((ISet)right.getValue(),
-//																	left.getValue()));
-//				return result(right.getType(), ((ISet)right.getValue()).insert(left.getValue()));
-//			}
-//		}
-//		
-//		//Map
-//		if (left.getType().isMapType() && right.getType().isMapType()) {
-//			return result(resultType, ((IMap) left.getValue())              //TODO: is this the right operation?
-//					.join((IMap) right.getValue()));
-//			
-//		}
-//		//Tuple
-//		if(left.getType().isTupleType() && right.getType().isTupleType()) {
-//			Type leftType = left.getType();
-//			Type rightType = right.getType();
-//			
-//			int leftArity = leftType.getArity();
-//			int rightArity = rightType.getArity();
-//			int newArity = leftArity + rightArity;
-//			
-//			Type fieldTypes[] = new Type[newArity];
-//			String fieldNames[] = new String[newArity];
-//			IValue fieldValues[] = new IValue[newArity];
-//			
-//			for(int i = 0; i < leftArity; i++){
-//				fieldTypes[i] = leftType.getFieldType(i);
-//				fieldNames[i] = leftType.getFieldName(i);
-//				fieldValues[i] = ((ITuple) left.getValue()).get(i);
-//			}
-//			
-//			for(int i = 0; i < rightArity; i++){
-//				fieldTypes[leftArity + i] = rightType.getFieldType(i);
-//				fieldNames[leftArity + i] = rightType.getFieldName(i);
-//				fieldValues[leftArity + i] = ((ITuple) right.getValue()).get(i);
-//			}
-//			
-//			//TODO: avoid null fieldnames
-//			for(int i = 0; i < newArity; i++){
-//				if(fieldNames[i] == null){
-//					fieldNames[i] = "f" + String.valueOf(i);
-//				}
-//			}
-//			Type newTupleType = tf.tupleType(fieldTypes, fieldNames);
-//			return result(newTupleType, vf.tuple(fieldValues));
-//			
-//		}
-//		
-//		
-//		throw new UnsupportedOperationError("+", left.getType(), right.getType(),x);
+
     }
     
 	@Override
@@ -2067,85 +1653,13 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
 		return left.subtract(right, x);
-//		Type resultType = left.getType().lub(right.getType());
-//		widenArgs(left, right);
-//
-//		// Integer
-//		if (left.getType().isIntegerType() && right.getType().isIntegerType()) {
-//			return result(((IInteger) left.getValue()).subtract((IInteger) right.getValue()));
-//		}
-//		
-//		// Real
-//		if (left.getType().isRealType() && right.getType().isRealType()) {
-//			return result(((IReal) left.getValue()).subtract((IReal) right.getValue()));
-//		}
-//		
-//		// List
-//		if (left.getType().isListType() && right.getType().isListType()) {
-//			IListWriter w = left.getType().writer(vf);
-//			
-//			IList listLeft = (IList)left.getValue();
-//			IList listRight = (IList)right.getValue();
-//			
-//			int lenLeft = listLeft.length();
-//			int lenRight = listRight.length();
-//
-//			for(int i = lenLeft-1; i > 0; i--) {
-//				boolean found = false;
-//				IValue leftVal = listLeft.get(i);
-//				for(int j = 0; j < lenRight; j++){
-//					if(leftVal.isEqual(listRight.get(j))){
-//						found = true;
-//						break;
-//					}
-//				}
-//				if(!found){
-//			        w.insert(leftVal);
-//				}
-//			}
-//			return result(left.getType(), w.done());
-//		}
-//		
-//		// Set
-//		if (left.getType().isSetType()){
-//				if(right.getType().isSetType()) {
-//					return result(resultType, ((ISet) left.getValue())
-//							.subtract((ISet) right.getValue()));
-//				}
-//				if(right.getType().isSubtypeOf(left.getType().getElementType())){
-//					return result(left.getType(), ((ISet)left.getValue())
-//							.subtract(vf.set(right.getValue())));
-//				}
-//		}
-//		
-//		// Map
-//		if (left.getType().isMapType() && right.getType().isMapType()) {
-//			return result(resultType, ((IMap) left.getValue())
-//					.remove((IMap) right.getValue()));
-//		}
-//		
-//		//Relation
-//		if (left.getType().isRelationType() && right.getType().isRelationType()) {
-//			return result(resultType, ((ISet) left.getValue())
-//					.subtract((ISet) right.getValue()));
-//		}
-//		
-//		throw new UnsupportedOperationError("-", left.getType(), right.getType(),x);
+
 	}
 	
 	@Override
 	public Result<IValue> visitExpressionNegative(Negative x) {
 		Result<IValue> arg = x.getArgument().accept(this);
 		return arg.negative(x);
-		
-//		if (arg.getType().isIntegerType()) {
-//			return result(((IInteger) arg.getValue()).negate());
-//		}
-//		else if (arg.getType().isRealType()) {
-//				return result(((IReal) arg.getValue()).negate());
-//		} else {
-//			throw new UnsupportedOperationError("-", arg.getType(), x);
-//		}
 	}
 	
 	@Override
@@ -2153,100 +1667,6 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
 		return left.multiply(right, x);
-		
-//		widenArgs(left, right);
-//
-//		//Integer
-//		if (left.getType().isIntegerType() && right.getType().isIntegerType()) {
-//			return result(((IInteger) left.getValue()).multiply((IInteger) right.getValue()));
-//		} 
-//		
-//		//Real 
-//		else if (left.getType().isRealType() && right.getType().isRealType()) {
-//			return result(((IReal) left.getValue()).multiply((IReal) right.getValue()));
-//		}
-//		
-//		// List
-//		else if (left.getType().isListType() && right.getType().isListType()){
-//			Type leftElementType = left.getType().getElementType();
-//			Type rightElementType = right.getType().getElementType();
-//			Type resultType = tf.listType(tf.tupleType(leftElementType, rightElementType));
-//			IListWriter w = resultType.writer(vf);
-//			
-//			for(IValue v1 : (IList) left.getValue()){
-//				for(IValue v2 : (IList) right.getValue()){
-//					w.append(vf.tuple(v1, v2));	
-//				}
-//			}
-//			return result(resultType, w.done());	
-//		}
-//		
-//		// Relation
-//		else if(left.getType().isRelationType() && right.getType().isRelationType()){
-//			Type leftElementType = left.getType().getElementType();
-//			Type rightElementType = right.getType().getElementType();
-//			
-//			int leftArity = leftElementType.getArity();
-//			int rightArity = rightElementType.getArity();
-//			int newArity = leftArity + rightArity;
-//			
-//			Type fieldTypes[] = new Type[newArity];
-//			String fieldNames[] = new String[newArity];
-//			
-//			for(int i = 0; i < leftArity; i++){
-//				fieldTypes[i] = leftElementType.getFieldType(i);
-//				fieldNames[i] = leftElementType.getFieldName(i);
-//			}
-//			for(int i = 0; i < rightArity; i++){
-//				fieldTypes[leftArity + i] = rightElementType.getFieldType(i);
-//				fieldNames[leftArity + i] = rightElementType.getFieldName(i);
-//			}
-//			
-//			// TODO: avoid empty field names
-//			for(int i = 0; i < newArity; i++){
-//				if(fieldNames[i] == null){
-//					fieldNames[i] = "f" + String.valueOf(i);
-//				}
-//			}
-//			
-//			Type resElementType = tf.tupleType(fieldTypes, fieldNames);
-//			Type resultType = tf.relTypeFromTuple(resElementType);
-//			IRelationWriter w = resultType.writer(vf);
-//			
-//			for(IValue v1 : (IRelation) left.getValue()){
-//				IValue elementValues[] = new IValue[newArity];
-//				
-//				for(int i = 0; i < leftArity; i++){
-//					elementValues[i] = ((ITuple) v1).get(i);
-//				}
-//				for(IValue v2 : (IRelation) right.getValue()){
-//					for(int i = 0; i <rightArity; i++){
-//						elementValues[leftArity + i] = ((ITuple) v2).get(i);
-//					}
-//					w.insert(vf.tuple(elementValues));	
-//				}
-//			}
-//			
-//			return result(resultType, w.done());
-//		}
-//		
-//		//Set
-//		else if (left.getType().isSetType() && right.getType().isSetType()){
-//			Type leftElementType = left.getType().getElementType();
-//			Type rightElementType = right.getType().getElementType();
-//			Type resultType = tf.relType(leftElementType, rightElementType);
-//			IRelationWriter w = resultType.writer(vf);
-//			
-//			for(IValue v1 : (ISet) left.getValue()){
-//				for(IValue v2 : (ISet) right.getValue()){
-//					w.insert(vf.tuple(v1, v2));	
-//				}
-//			}
-//			return result(resultType, w.done());	
-//		}
-//		else {
-//			throw new UnsupportedOperationError("*", left.getType(), right.getType(),x);
-//		}
 	}
 	
 	@Override
@@ -2254,29 +1674,6 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
 		return left.divide(right, x);
-		
-//		widenArgs(left, right);
-//
-//		try {
-//			//Integer
-//			if (left.getType().isIntegerType() && right.getType().isIntegerType()) {
-//					return result(((IInteger) left.getValue()).divide((IInteger) right.getValue()));
-//				
-//			} 
-//			
-//			// Real
-//			else if (left.getType().isRealType() && right.getType().isRealType()) {
-//				// TODO magic constant 80*80 should dissappear when Tijs is done
-//				return result(((IReal) left.getValue()).divide((IReal) right.getValue(), 80*80));
-//			}
-//			else {
-//				throw new UnsupportedOperationError("/", left.getType(), right.getType(),x);
-//			}
-//		}
-//		catch (ArithmeticException e){
-//			// TODO throw better exception
-//			throw new ImplementationError(e.getMessage());
-//		}
 	}
 	
 	@Override
@@ -2284,13 +1681,6 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
 		return left.modulo(right, x);
-//
-//		if (left.getType().isIntegerType() && right.getType().isIntegerType()) {
-//			return result(((IInteger) left.getValue()).remainder((IInteger) right.getValue()));
-//		} 
-//		else {
-//			throw new UnsupportedOperationError("%", left.getType(), right.getType(),x);
-//		}
 	}
 	
 	@Override
@@ -2303,27 +1693,6 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
 		return left.intersect(right, x);
-//		Type resultType = left.getType().lub(right.getType());
-//
-//		//Set
-//		if (left.getType().isSetType() && right.getType().isSetType()) {
-//				return result(resultType, ((ISet) left.getValue())
-//				.intersect((ISet) right.getValue()));
-//		} 
-//		
-//		//Map
-//		else if (left.getType().isMapType() && right.getType().isMapType()) {
-//			return result(resultType, ((IMap) left.getValue())
-//					.common((IMap) right.getValue()));
-//		} 
-//		
-//		//Relation
-//		else if (left.getType().isRelationType() && right.getType().isRelationType()) {
-//			return result(resultType, ((ISet) left.getValue())
-//				.intersect((ISet) right.getValue()));
-//		} else {
-//			throw new UnsupportedOperationError("&", left.getType() , right.getType(), x);
-//		}
 	}
 
 	@Override
@@ -2350,20 +1719,6 @@ public class Evaluator extends NullASTVisitor<Result> {
 	public Result<IValue> visitExpressionEquivalence(Equivalence x) {
 		return new EquivalenceEvaluator(x, this).next();
 	}
-	
-	// TODO factor out into Result<IValue> or a subclass thereof
-//	public static boolean equals(Result<IValue> left, Result<IValue> right){
-//		
-////		widenArgs(left, right);
-//		
-////		//System.err.println("equals: left=" + left + ", right=" + right + " comparable=" + left.getType().comparable(right.getType()));
-////		if (left.getType().comparable(right.getType())) {
-////			return compare(left, right) == 0;
-////		} else {
-////			return false;
-////				//TODO; type error
-////		}
-//	}
 
 	@Override
 	public Result<IValue> visitExpressionEquals(
@@ -2371,15 +1726,6 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
 		return left.equals(right, x);
-		
-//		widenArgs(left, right);
-/*		
-		if (!left.getType().comparable(right.getType())) {
-			throw new RascalTypeError("Arguments of equals have incomparable types: " + left.getType() + " and " + right.getType(), x);
-		}
-*/
-		
-//		return result(vf.bool(equals(left, right)));
 	}
 	
 	@Override
@@ -2440,89 +1786,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result<IValue> repl = x.getReplacement().accept(this);
 		String name = x.getKey().toString();
 		return expr.fieldUpdate(name, repl, peek().getStore(), x);
-//		
-//		try {
-//			if (expr.getType().isTupleType()) {
-//				Type tuple = expr.getType();
-//				Type argType = tuple.getFieldType(name);
-//				ITuple value = (ITuple) expr.getValue();
-//				
-//				checkType(repl.getType(), argType);
-//				
-//				return result(expr.getType(), value.set(name, repl.getValue()));
-//			}
-//			else if (expr.getType().isAbstractDataType() || expr.getType().isConstructorType()) {
-//				Type node = ((IConstructor) expr.getValue()).getConstructorType();
-//			
-//				if (!node.hasField(name)) {
-//					throw new UndeclaredFieldError(name, expr.getValueType(), x);
-//				}
-//			
-//				int index = node.getFieldIndex(name);
-//				
-//				checkType(repl.getType(), node.getFieldType(index));
-//				
-//				return result(expr.getType(), ((IConstructor) expr.getValue()).set(index, repl.getValue()));
-//			}
-//			else if (expr.getType().isSourceLocationType()){
-//				ISourceLocation loc = (ISourceLocation) expr.getValue();
-//				
-//				return sourceLocationFieldUpdate(loc, name, repl.getValue(),repl.getType(), x);
-//			} else {
-//				throw new UnsupportedOperationError("Field update", expr.getType(), x);
-//			}
-//		} catch (UndeclaredFieldException e) {
-//			// TODO I don't think that this should ever happen (ImplementationError?)
-//			throw new UndeclaredFieldError(e.getLabel(), expr.getType(), x);
-//		}
 	}
-	
-//	protected Result<IValue> sourceLocationFieldUpdate(ISourceLocation loc, String field, IValue value, Type type, AbstractAST x){
-//		int iLength = loc.getLength();
-//		int iOffset = loc.getOffset();
-//		int iBeginLine = loc.getBeginLine();
-//		int iBeginColumn = loc.getBeginColumn();
-//		int iEndLine = loc.getEndLine();
-//		int iEndColumn = loc.getEndColumn();
-//		String urlText = loc.getURL().toString();
-//
-//		if(field.equals("url")){
-//			if(!type.isStringType())
-//				throw new UnexpectedTypeError(tf.stringType(), type, x);
-//			urlText = ((IString) value).getValue();
-//		} else {
-//			if(!type.isIntegerType()) {
-//				throw new UnexpectedTypeError(tf.integerType(), type, x);
-//			}
-//
-//			if(field.equals("length")){
-//				iLength = ((IInteger) value).intValue();
-//			} else if(field.equals("offset")){
-//				iOffset = ((IInteger) value).intValue();
-//			} else if(field.equals("beginLine")){
-//				iBeginLine = ((IInteger) value).intValue();
-//			} else if(field.equals("beginColumn")){
-//				iBeginColumn = ((IInteger) value).intValue();
-//			} else if(field.equals("endLine")){
-//				iEndLine = ((IInteger) value).intValue();
-//			} else if(field.equals("endColumn")){
-//				iEndColumn = ((IInteger) value).intValue();
-//			} else {
-//				throw new UndeclaredFieldError(field, tf.sourceLocationType(), x);
-//			}
-//		}
-//		try {
-//			URL url = new URL(urlText);
-//			ISourceLocation nloc = vf.sourceLocation(url, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn);
-//			return result(tf.sourceLocationType(), nloc);
-//		} 
-//		catch (MalformedURLException e) {
-//			throw new SyntaxError("URL", x.getLocation());
-//		} 
-//		catch (IllegalArgumentException e) {
-//			throw RuntimeExceptionFactory.illegalArgument();
-//		}
-//	}	
+
 	
 	@Override
 	public Result<IValue> visitExpressionLexical(Lexical x) {
@@ -2535,79 +1800,14 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result<IValue> from = x.getFirst().accept(this);
 		Result<IValue> to = x.getLast().accept(this);
 		return from.makeRange(to, x);
-
-//		if (!from.getType().isIntegerType()) {
-//			throw new UnexpectedTypeError(tf.integerType(), from.getType(), x.getFirst());
-//		}
-//		
-//		if (!to.getType().isIntegerType()) {
-//			throw new UnexpectedTypeError(tf.integerType(), to.getType(), x.getLast());
-//		}
-//		
-//		IInteger iFrom = ((IInteger) from.getValue());
-//		IInteger iTo = ((IInteger) to.getValue());
-//		
-//		
-//		
-//		IInteger one = vf.integer(1);
-//		
-//		if (iTo.less(iFrom).getValue()) {
-//			while (iFrom.greaterEqual(iTo).getValue()) {
-//				w.append(iFrom);
-//				iFrom = iFrom.subtract(one);
-//			} 
-//		}
-//		else {
-//			while (iFrom.lessEqual(iTo).getValue()) {
-//				w.append(iFrom);
-//				iFrom = iFrom.add(one);
-//			}
-//		}
-//		
-//		return result(tf.listType(tf.integerType()), w.done());
 	}
 	
 	@Override
 	public Result<IValue> visitExpressionStepRange(StepRange x) {
-//		IListWriter w = vf.listWriter(tf.integerType());
 		Result<IValue> from = x.getFirst().accept(this);
 		Result<IValue> to = x.getLast().accept(this);
 		Result<IValue> second = x.getSecond().accept(this);
 		return from.makeStepRange(to, second, x);
-//
-//		if (!from.getType().isIntegerType()) {
-//			throw new UnexpectedTypeError(tf.integerType(), from.getType(), x.getFirst());
-//		}
-//		
-//		if (!to.getType().isIntegerType()) {
-//			throw new UnexpectedTypeError(tf.integerType(), to.getType(), x.getLast());
-//		}
-//	
-//		if (!second.getType().isIntegerType()) {
-//			throw new UnexpectedTypeError(tf.integerType(), second.getType(), x.getSecond());
-//		}
-//	
-//		IInteger iFrom = ((IInteger) from.getValue());
-//		IInteger iSecond = ((IInteger) second.getValue());
-//		IInteger iTo = ((IInteger) to.getValue());
-//		
-//		IInteger diff = iSecond.subtract(iFrom);
-//		
-//		if (iFrom.lessEqual(iTo).getValue() && diff.greater(vf.integer(0)).getValue()) {
-//			do {
-//				w.append(iFrom);
-//				iFrom = iFrom.add(diff);
-//			} while (iFrom.lessEqual(iTo).getValue());
-//		} 
-//		else if(iFrom.greaterEqual(iTo).getValue() && diff.less(vf.integer(0)).getValue()) {
-//			do {
-//				w.append(iFrom);
-//				iFrom = iFrom.add(diff);
-//			} while (iFrom.greaterEqual(iTo).getValue());
-//		}
-//		
-//		return result(tf.listType(tf.integerType()), w.done());
-//		
 	}
 	
 	@Override
@@ -3260,183 +2460,14 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
 		return left.nonEquals(right, x);
-		
-//		if (!left.getType().comparable(right.getType())) {
-//			throw new UnexpectedTypeError(left.getType(), right.getType(), x);
-//		}
-//		
-//		return result(vf.bool(compare(left, right) != 0));
 	}
 	
-	
-//	// TODO distribute over subclasses of Result<IValue>
-//	public static int compare(Result<IValue> left, Result<IValue> right){
-//		// compare must use run-time types because it is complete for all types
-//		// even if statically two values have type 'value' but one is an int 1
-//		// and the other is Real 1.0 they must be equal.
-//		
-//		// TODO distribute this method over subclasses of Result<IValue>,
-//		// IntegerResult<IValue> to MapResult<IValue> which implement equals and compare and add and
-//		// subtract, etc.
-//
-//		widenArgs(left, right);
-//		Type leftType = left.getValueType();
-//		Type rightType = right.getValueType();
-//		
-//		if (leftType.isBoolType() && rightType.isBoolType()) {
-//			boolean lb = ((IBool) left.getValue()).getValue();
-//			boolean rb = ((IBool) right.getValue()).getValue();
-//			return (lb == rb) ? 0 : ((!lb && rb) ? -1 : 1);
-//		}
-//		if (left.getType().isIntegerType() && rightType.isIntegerType()) {
-//			return ((IInteger) left.getValue()).compare((IInteger) right.getValue());
-//		}
-//		if (leftType.isRealType() && rightType.isRealType()) {
-//			return ((IReal) left.getValue()).compare((IReal) right.getValue());
-//		}
-//		if (leftType.isStringType() && rightType.isStringType()) {
-//			return ((IString) left.getValue()).compare((IString) right.getValue());
-//		}
-//		if (leftType.isListType() && rightType.isListType()) {
-//			return compareList(((IList) left.getValue()).iterator(), ((IList) left.getValue()).length(),
-//					            ((IList) right.getValue()).iterator(), ((IList) right.getValue()).length());
-//		}
-//		if (leftType.isSetType() && rightType.isSetType()) {
-//			return compareSet((ISet) left.getValue(), (ISet) right.getValue());
-//		}
-//		if (leftType.isMapType() && rightType.isMapType()) {
-//			return compareMap((IMap) left.getValue(), (IMap) right.getValue());
-//		}
-//		if (leftType.isTupleType() && rightType.isTupleType()) {
-//			return compareList(((ITuple) left.getValue()).iterator(), ((ITuple) left.getValue()).arity(),
-//		            ((ITuple) right.getValue()).iterator(), ((ITuple) right.getValue()).arity());
-//		} 
-//		if (leftType.isRelationType() && rightType.isRelationType()) {
-//			return compareSet((ISet) left.getValue(), (ISet) right.getValue());
-//		}
-//		
-//		if (leftType.isNodeType() && rightType.isNodeType()) {
-//			return compareNode((INode) left.getValue(), (INode) right.getValue());
-//		}
-//		
-//		if (leftType.isAbstractDataType() && rightType.isAbstractDataType()) {
-//			return compareNode((INode) left.getValue(), (INode) right.getValue());
-//		}
-//		
-//		if(leftType.isSourceLocationType() && rightType.isSourceLocationType()){	
-//			return compareSourceLocation((ISourceLocation) left.getValue(), (ISourceLocation) right.getValue());
-//		}
-//			
-//		// VoidType
-//		// ValueType
-//		
-//		return leftType.toString().compareTo(rightType.toString());
-//	}
-//	
-//	private static int compareNode(INode left, INode right){
-//		String leftName = left.getName().toString();
-//		String rightName = right.getName().toString();
-//		int compare = leftName.compareTo(rightName);
-//		
-//		if(compare != 0){
-//			return compare;
-//		}
-//		return compareList(left.iterator(), left.arity(), right.iterator(), right.arity());
-//	}
-//	
-//	private static int compareSourceLocation(ISourceLocation leftSL, ISourceLocation rightSL){
-//		if(leftSL.equals(rightSL))
-//			return 0;
-//		if(leftSL.getURL().equals(rightSL.getURL())){
-//			int lBeginLine = leftSL.getBeginLine();
-//			int rBeginLine = rightSL.getBeginLine();
-//			
-//			int lEndLine = leftSL.getEndLine();
-//			int rEndLine = rightSL.getEndLine();
-//			
-//			int lBeginColumn = leftSL.getBeginColumn();
-//			int rBeginColumn = rightSL.getBeginColumn();
-//			
-//			int lEndColumn = leftSL.getEndColumn();
-//			int rEndColumn = rightSL.getEndColumn();
-//			
-//			if((lBeginLine > rBeginLine ||
-//				(lBeginLine == rBeginLine && lBeginColumn > rBeginColumn)) &&
-//				(lEndLine < rEndLine ||
-//						((lEndLine == rEndLine) && lEndColumn < rEndColumn))){
-//				return -1;	
-//			} else {
-//				return 1;
-//			}
-//		} else {
-//			return leftSL.getURL().toString().compareTo(rightSL.getURL().toString());
-//		}
-//	}
-//	
-//	private static int compareSet(ISet value1, ISet value2) {
-//		
-//		
-//		//System.err.println("compareSet: value1=" + value1 + ", value2=" + value2 + "isEqual=" + value1.isEqual(value2));
-//		if (value1.isEqual(value2)) {
-//			return 0;
-//		}
-//		else if (value1.isSubsetOf(value2)) {
-//			return -1;
-//		}
-//		else {
-//			return 1;
-//		}
-//	}
-//	
-//	private static int compareMap(IMap value1, IMap value2) {
-//		if (value1.isEqual(value2)) {
-//			return 0;
-//		}
-//		else if (value1.isSubMap(value2)) {
-//			return -1;
-//		}
-//		else {
-//			return 1;
-//		}
-//	}
-//
-//	private static int compareList(Iterator<IValue> left, int leftLen, Iterator<IValue> right, int rightLen){
-//		
-//		if(leftLen == 0){
-//			return rightLen == 0 ? 0 : -1;
-//		}
-//		if(rightLen == 0){
-//			return 1;
-//		}
-//		int m = (leftLen > rightLen) ? rightLen : leftLen;  
-//		int compare = 0;
-//		
-//		for(int i = 0; i < m; i++){
-//			IValue leftVal = left.next();
-//			IValue rightVal = right.next();
-//			Result<IValue> vl = new Result<IValue>(leftVal.getType(), leftVal);
-//			Result<IValue> vr = new Result<IValue>(rightVal.getType(), rightVal);
-//			int c = compare(vl, vr);
-//
-//			if (c < 0 || c > 0) {
-//				return c;
-//			}
-//		}
-//		
-//		if(compare == 0 && leftLen != rightLen){
-//			compare = leftLen < rightLen ? -1 : 1;
-//		}
-//			
-//		return compare;
-//	}
 	
 	@Override
 	public Result<IValue> visitExpressionLessThan(LessThan x) {
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
 		return left.lessThan(right, x);
-		
-//		return result(vf.bool(compare(left, right) < 0));
 	}
 	
 	@Override
@@ -3444,16 +2475,12 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
 		return left.lessThanOrEqual(right, x);
-		
-//		return truth(left.comparisonInt�(left, right) <= 0));
 	}
 	@Override
 	public Result<IValue> visitExpressionGreaterThan(GreaterThan x) {
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
 		return left.greaterThan(right, x);
-		
-//		return result(vf.bool(compare(left, right) > 0));
 	}
 	
 	@Override
@@ -3461,8 +2488,6 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
 		return left.greaterThanOrEqual(right, x);
-		
-//		return result(vf.bool(compare(left, right) >= 0));
 	}
 	
 	@Override
@@ -3476,15 +2501,6 @@ public class Evaluator extends NullASTVisitor<Result> {
 			return x.getThenExp().accept(this);
 		}
 		return x.getElseExp().accept(this);
-	
-//		if (cval.getType().isBoolType()) {
-//			if (cval.getValue().isEqual(vf.bool(true))) {
-//				return x.getThenExp().accept(this);
-//			}
-//		} else {
-//			throw new UnexpectedTypeError(tf.boolType(),cval.getType(), x);
-//		}
-//		return x.getElseExp().accept(this);
 	}
 	
 
@@ -3510,38 +2526,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			return makeResult(tf.boolType(), vf.bool(false));
 		}
 	}
-	
-//	private boolean in(org.meta_environment.rascal.ast.Expression expression, org.meta_environment.rascal.ast.Expression expression2){
-//		Result<IValue> left = expression.accept(this);
-//		Result<IValue> right = expression2.accept(this);
-//		
-//		//List
-//		if(right.getType().isListType() &&
-//		    left.getType().isSubtypeOf(right.getType().getElementType())){
-//			IList lst = (IList) right.getValue();
-//			IValue val = left.getValue();
-//			for(int i = 0; i < lst.length(); i++){
-//				if(lst.get(i).isEqual(val))
-//					return true;
-//			}
-//			return false;
-//			
-//	    //Set
-//		} else if(right.getType().isSetType() && 
-//				   left.getType().isSubtypeOf(right.getType().getElementType())){
-//			return ((ISet) right.getValue()).contains(left.getValue());
-//		//Map
-//		} else if(right.getType().isMapType() && left.getType().isSubtypeOf(right.getType().getValueType())){
-//			return ((IMap) right.getValue()).containsValue(left.getValue());
-//			
-//		//Relation
-//		} else if(right.getType().isRelationType() && left.getType().isSubtypeOf(right.getType().getElementType())){
-//			return ((ISet) right.getValue()).contains(left.getValue());
-//		} else {
-//			throw new UnsupportedOperationError("in"
-//					, left.getType(), right.getType(), expression2);
-//		}
-//	}
+
 	
 	@Override
 	public Result<IValue> visitExpressionIn(In x) {
@@ -3566,49 +2551,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
 		return left.compose(right, x);
-	
-//		//Relation
-//		if(left.getType().isRelationType() && 
-//			right.getType().isRelationType()){
-//			Type leftrelType = left.getType(); 
-//			Type rightrelType = right.getType();
-//			int leftArity = leftrelType.getArity();
-//			int rightArity = rightrelType.getArity();
-//
-//			
-//			if ((leftArity == 0 || leftArity == 2) && (rightArity == 0 || rightArity ==2 )) {
-//				Type resultType = leftrelType.compose(rightrelType);
-//				return result(resultType, ((IRelation) left.getValue())
-//						.compose((IRelation) right.getValue()));
-//			}
-//		}
-//		
-//		throw new UnsupportedOperationError("o"
-//				, left.getType(), right.getType(), x);
 	}
 
-//	private Result<IValue> closure(AbstractAST expression, boolean reflexive) {
-//		Result<IValue> res = expression.accept(this);
-//		return res.transitiveReflexiveClosure();
-//		//Relation
-//		if (res.getType().isRelationType() && res.getType().getArity() < 3) {
-//			Type relType = res.getType();
-//			Type fieldType1 = relType.getFieldType(0);
-//			Type fieldType2 = relType.getFieldType(1);
-//			if (fieldType1.comparable(fieldType2)) {
-//				Type lub = fieldType1.lub(fieldType2);
-//				
-//				Type resultType = relType.hasFieldNames() ? tf.relType(lub, relType.getFieldName(0), lub, relType.getFieldName(1)) : tf.relType(lub,lub);
-//				return result(resultType, reflexive ? ((IRelation) res.getValue()).closureStar()
-//						: ((IRelation) res.getValue()).closure());
-//			}
-//		}
-//		
-//		throw new UnsupportedOperationError("*",
-//				res.getType(), expression);
-//	}
-//	
-	@Override
 	public Result<IValue> visitExpressionTransitiveClosure(TransitiveClosure x) {
 		return x.getArgument().accept(this).transitiveClosure(x);
 	}
