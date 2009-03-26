@@ -62,11 +62,11 @@ public class JavaFunction extends Lambda {
 			
 			if (targetException instanceof Throw) {
 				Throw th = (Throw) targetException;
-				((Throw) targetException).setLocation(eval.getCurrentStatement().getLocation());
+				((Throw) targetException).setLocation(eval.getCurrentAST().getLocation());
 				throw th;
 			}
 			else {
-				throw org.meta_environment.rascal.interpreter.RuntimeExceptionFactory.javaException(targetException.getMessage(), eval.getCurrentStatement());
+				throw org.meta_environment.rascal.interpreter.RuntimeExceptionFactory.javaException(targetException.getMessage(), eval.getCurrentAST());
 			}
 		}
 	}

@@ -19,6 +19,7 @@ public abstract class StaticError extends RuntimeException {
 		this.loc = loc;
 		if (loc == null) {
 			System.err.println("TODO: provide error location");
+			printStackTrace();
 		}
 	}
 	

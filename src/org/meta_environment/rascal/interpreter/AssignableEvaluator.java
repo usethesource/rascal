@@ -82,19 +82,19 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 			}
 			switch(operator){
 			case Addition:
-				value = env.getVariable(qname).add(value, eval.getCurrentStatement());
+				value = env.getVariable(qname).add(value, eval.getCurrentAST());
 				break;
 			case Subtraction:
-				value = env.getVariable(qname).subtract(value, eval.getCurrentStatement());
+				value = env.getVariable(qname).subtract(value, eval.getCurrentAST());
 				break;
 			case Product:
-				value = env.getVariable(qname).multiply(value, eval.getCurrentStatement());
+				value = env.getVariable(qname).multiply(value, eval.getCurrentAST());
 				break;
 			case Division:
-				value = env.getVariable(qname).divide(value, eval.getCurrentStatement());
+				value = env.getVariable(qname).divide(value, eval.getCurrentAST());
 				break;
 			case Intersection:
-				value = env.getVariable(qname).intersect(value, eval.getCurrentStatement());
+				value = env.getVariable(qname).intersect(value, eval.getCurrentAST());
 				break;
 			case IsDefined:
 				return env.getVariable(qname);
@@ -152,7 +152,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 				result = makeResult(rec.getType(), list);
 			}  
 			catch (java.lang.IndexOutOfBoundsException e){
-				throw RuntimeExceptionFactory.indexOutOfBounds((IInteger) subscript.getValue(), eval.getCurrentStatement());
+				throw RuntimeExceptionFactory.indexOutOfBounds((IInteger) subscript.getValue(), eval.getCurrentAST());
 			}
 		}
 		else if (rec.getType().isMapType()) {
@@ -171,7 +171,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 			INode node = (INode) rec.getValue();
 			
 			if(index >= node.arity()){
-				throw RuntimeExceptionFactory.indexOutOfBounds((IInteger) subscript.getValue(), eval.getCurrentStatement());
+				throw RuntimeExceptionFactory.indexOutOfBounds((IInteger) subscript.getValue(), eval.getCurrentAST());
 			}
 			node = node.set(index, value.getValue());
 			result = makeResult(rec.getType(), node);
