@@ -253,6 +253,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
 		return null;
 	}
 
+	public T visitExpressionJoin(Expression.Join x) {
+		return null;
+	}
+
 	public T visitExpressionSubtraction(Expression.Subtraction x) {
 		return null;
 	}
@@ -370,16 +374,16 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
 		return null;
 	}
 
+	public T visitExpressionEquals(Expression.Equals x) {
+		return null;
+	}
+
 	public T visitExpressionValueProducerWithStrategy(
 			Expression.ValueProducerWithStrategy x) {
 		return null;
 	}
 
 	public T visitExpressionValueProducer(Expression.ValueProducer x) {
-		return null;
-	}
-
-	public T visitExpressionEquals(Expression.Equals x) {
 		return null;
 	}
 

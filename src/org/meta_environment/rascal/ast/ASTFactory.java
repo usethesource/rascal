@@ -870,6 +870,17 @@ public class ASTFactory {
 		return (org.meta_environment.rascal.ast.Expression.NotIn) table.get(x);
 	}
 
+	public org.meta_environment.rascal.ast.Expression.Join makeExpressionJoin(
+			INode node, org.meta_environment.rascal.ast.Expression lhs,
+			org.meta_environment.rascal.ast.Expression rhs) {
+		org.meta_environment.rascal.ast.Expression.Join x = new org.meta_environment.rascal.ast.Expression.Join(
+				node, lhs, rhs);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.Join) table.get(x);
+	}
+
 	public org.meta_environment.rascal.ast.Expression.Subtraction makeExpressionSubtraction(
 			INode node, org.meta_environment.rascal.ast.Expression lhs,
 			org.meta_environment.rascal.ast.Expression rhs) {
@@ -1212,6 +1223,17 @@ public class ASTFactory {
 				.get(x);
 	}
 
+	public org.meta_environment.rascal.ast.Expression.Equals makeExpressionEquals(
+			INode node, org.meta_environment.rascal.ast.Expression lhs,
+			org.meta_environment.rascal.ast.Expression rhs) {
+		org.meta_environment.rascal.ast.Expression.Equals x = new org.meta_environment.rascal.ast.Expression.Equals(
+				node, lhs, rhs);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.Equals) table.get(x);
+	}
+
 	public org.meta_environment.rascal.ast.Expression.ValueProducerWithStrategy makeExpressionValueProducerWithStrategy(
 			INode node, org.meta_environment.rascal.ast.Strategy strategy,
 			org.meta_environment.rascal.ast.Expression pattern,
@@ -1235,17 +1257,6 @@ public class ASTFactory {
 		}
 		return (org.meta_environment.rascal.ast.Expression.ValueProducer) table
 				.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.Equals makeExpressionEquals(
-			INode node, org.meta_environment.rascal.ast.Expression lhs,
-			org.meta_environment.rascal.ast.Expression rhs) {
-		org.meta_environment.rascal.ast.Expression.Equals x = new org.meta_environment.rascal.ast.Expression.Equals(
-				node, lhs, rhs);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.Equals) table.get(x);
 	}
 
 	public org.meta_environment.rascal.ast.Expression.NoMatch makeExpressionNoMatch(

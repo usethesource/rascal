@@ -127,6 +127,8 @@ public interface IASTVisitor<T> {
 
 	public T visitExpressionNotIn(Expression.NotIn x);
 
+	public T visitExpressionJoin(Expression.Join x);
+
 	public T visitExpressionSubtraction(Expression.Subtraction x);
 
 	public T visitExpressionAddition(Expression.Addition x);
@@ -186,12 +188,12 @@ public interface IASTVisitor<T> {
 
 	public T visitExpressionComprehension(Expression.Comprehension x);
 
+	public T visitExpressionEquals(Expression.Equals x);
+
 	public T visitExpressionValueProducerWithStrategy(
 			Expression.ValueProducerWithStrategy x);
 
 	public T visitExpressionValueProducer(Expression.ValueProducer x);
-
-	public T visitExpressionEquals(Expression.Equals x);
 
 	public T visitExpressionNoMatch(Expression.NoMatch x);
 
