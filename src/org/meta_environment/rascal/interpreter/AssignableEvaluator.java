@@ -14,6 +14,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.Assignable;
 import org.meta_environment.rascal.ast.Assignment;
 import org.meta_environment.rascal.ast.NullASTVisitor;
+import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.ast.Assignable.Annotation;
 import org.meta_environment.rascal.ast.Assignable.Constructor;
 import org.meta_environment.rascal.ast.Assignable.FieldAccess;
@@ -68,7 +69,9 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 	
 	@Override
 	public Result<IValue> visitAssignableVariable(Variable x) {
-		Result<IValue> previous = env.getVariable(x.getQualifiedName());
+		QualifiedName qname = x.getQualifiedName();
+		Result<IValue> previous = env.getVariable(qname);
+		
 		
 		if (previous != null) {
 			if (value.getType().isSubtypeOf(previous.getType())) {
@@ -77,16 +80,34 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 				// TODO: I don't think this check uses static types only.
 				throw new UnexpectedTypeError(previous.getType(), value.getType(), x);
 			}
-			if(operator == AssignmentOperator.Default){
-				env.storeVariable(x.getQualifiedName(), value);
-			} else {
-				//TODO add the various operators here.
+			switch(operator){
+			case Addition:
+				value = env.getVariable(qname).add(value, eval.getCurrentStatement());
+				break;
+			case Subtraction:
+				value = env.getVariable(qname).subtract(value, eval.getCurrentStatement());
+				break;
+			case Product:
+				value = env.getVariable(qname).multiply(value, eval.getCurrentStatement());
+				break;
+			case Division:
+				value = env.getVariable(qname).divide(value, eval.getCurrentStatement());
+				break;
+			case Intersection:
+				value = env.getVariable(qname).intersect(value, eval.getCurrentStatement());
+				break;
+			case IsDefined:
+				return env.getVariable(qname);
 			}
+			env.storeVariable(qname, value);
 		}
 		else {
-			if(operator == AssignmentOperator.Default)
+			switch(operator){
+			case Default:
+			case IsDefined:
 				env.storeVariable(x.getQualifiedName(), value);
-			else {
+				break;
+			default:
 				throw new UninitializedVariableError(x.toString(), x);
 			}
 		}
