@@ -3,6 +3,8 @@ package test;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
+import org.meta_environment.rascal.ast.Statement.Throw;
+import org.meta_environment.rascal.interpreter.RuntimeExceptionFactory;
 import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFieldError;
 
@@ -113,8 +115,8 @@ public class DataDeclarationTests extends TestFramework {
 	}
 	
 
-	@Test(expected=UndeclaredFieldError.class) // TODO: fixme should be runtime exception.
-	public void boolError() throws UndeclaredFieldError {
+	@Test(expected=org.meta_environment.rascal.interpreter.control_exceptions.Throw.class) 
+	public void boolError() {
 		prepare("data Bool = btrue | bfalse | band(Bool left, Bool right) | bor(Bool left, Bool right);");
 		assertTrue(runTestInSameEvaluator("{Bool b = btrue; b.left == btrue;}"));
 	}

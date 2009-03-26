@@ -1437,7 +1437,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	@Override
 	public Result<IValue> visitAssignableVariable(
 			org.meta_environment.rascal.ast.Assignable.Variable x) {
-		return peek().getVariable(x.getQualifiedName());
+		return peek().getVariable(x.getQualifiedName(),x.getQualifiedName().toString());
 	}
 	
 	@Override
@@ -3112,7 +3112,9 @@ public class Evaluator extends NullASTVisitor<Result> {
 	 * Replace an old subject by a new one as result of an insert statement.
 	 */
 	private TraverseResult replacement(IValue oldSubject, IValue newSubject){
-		return new TraverseResult(true, newSubject, true);
+		if(newSubject.getType().equivalent((oldSubject.getType())))
+			return new TraverseResult(true, newSubject, true);
+		throw new UnexpectedTypeError(oldSubject.getType(), newSubject.getType(), getCurrentStatement());
 	}
 	
 	/**
