@@ -1,6 +1,8 @@
 package test;
 
 import org.junit.Test;
+import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
+
 import static org.junit.Assert.*;
 
 public class VisitTests extends TestFramework {
@@ -268,6 +270,12 @@ public class VisitTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("visit(\"abcabc\"){ case \"a\": insert \"AA\"; case /b/: insert \"BB\";} == \"aBBcaBBc\";"));
 		assertTrue(runTestInSameEvaluator("visit(\"abcabca\"){ case \"a\": insert \"AA\"; case /b/: insert \"BB\";} == \"aBBcaBBcAA\";"));
 
+	}
+	
+	@Test(expected=UnexpectedTypeError.class)
+	public void testWrongInsert()  {
+		String vs = "visit ([1,2,3]) {case 1: insert \"abc\";}";
+		assertTrue(runTestInSameEvaluator(vs + " == [\"abc\", 2, 3];"));
 	}
 }
 

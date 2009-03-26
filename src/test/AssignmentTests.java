@@ -69,7 +69,7 @@ public class AssignmentTests extends TestFramework {
 		assertTrue(runTest("{map[int,int] M = (1:10, 2:20); M == (1:10, 2:20);}"));
 		
 		assertTrue(runTest("{map[int,int] M = (1:10, 2:20); M += (3:30); M==(1:10, 2:20,3:30);}"));
-		assertTrue(runTest("{map[int,int] M = (1:10, 2:20); M -= {2:20}; M==(1:10);}"));
+		assertTrue(runTest("{map[int,int] M = (1:10, 2:20); M -= (2:20); M==(1:10);}"));
 		assertTrue(runTest("{map[int,int] M = (1:10, 2:20); M ?= (3:30); M==(1:10, 2:20);}"));
 		assertTrue(runTest("{                               M ?= (3:30); M==(3:30);}"));
 	}
