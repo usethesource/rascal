@@ -1294,81 +1294,6 @@ public abstract class Expression extends AbstractAST {
 		}
 	}
 
-	public boolean isEquals() {
-		return false;
-	}
-
-	static public class Equals extends Expression {
-		/*
-		 * lhs:Expression "==" rhs:Expression -> Expression {left,
-		 * cons("Equals")}
-		 */
-		private Equals() {
-		}
-
-		/* package */Equals(INode node,
-				org.meta_environment.rascal.ast.Expression lhs,
-				org.meta_environment.rascal.ast.Expression rhs) {
-			this.node = node;
-			this.lhs = lhs;
-			this.rhs = rhs;
-		}
-
-		@Override
-		public <T> T accept(IASTVisitor<T> visitor) {
-			return visitor.visitExpressionEquals(this);
-		}
-
-		@Override
-		public boolean isEquals() {
-			return true;
-		}
-
-		@Override
-		public boolean hasLhs() {
-			return true;
-		}
-
-		@Override
-		public boolean hasRhs() {
-			return true;
-		}
-
-		private org.meta_environment.rascal.ast.Expression lhs;
-
-		@Override
-		public org.meta_environment.rascal.ast.Expression getLhs() {
-			return lhs;
-		}
-
-		private void $setLhs(org.meta_environment.rascal.ast.Expression x) {
-			this.lhs = x;
-		}
-
-		public Equals setLhs(org.meta_environment.rascal.ast.Expression x) {
-			Equals z = new Equals();
-			z.$setLhs(x);
-			return z;
-		}
-
-		private org.meta_environment.rascal.ast.Expression rhs;
-
-		@Override
-		public org.meta_environment.rascal.ast.Expression getRhs() {
-			return rhs;
-		}
-
-		private void $setRhs(org.meta_environment.rascal.ast.Expression x) {
-			this.rhs = x;
-		}
-
-		public Equals setRhs(org.meta_environment.rascal.ast.Expression x) {
-			Equals z = new Equals();
-			z.$setRhs(x);
-			return z;
-		}
-	}
-
 	public boolean isValueProducer() {
 		return false;
 	}
@@ -1476,28 +1401,34 @@ public abstract class Expression extends AbstractAST {
 			this.expression = expression;
 		}
 
+		@Override
 		public <T> T accept(IASTVisitor<T> visitor) {
 			return visitor.visitExpressionValueProducerWithStrategy(this);
 		}
 
+		@Override
 		public boolean isValueProducerWithStrategy() {
 			return true;
 		}
 
+		@Override
 		public boolean hasStrategy() {
 			return true;
 		}
 
+		@Override
 		public boolean hasPattern() {
 			return true;
 		}
 
+		@Override
 		public boolean hasExpression() {
 			return true;
 		}
 
 		private org.meta_environment.rascal.ast.Strategy strategy;
 
+		@Override
 		public org.meta_environment.rascal.ast.Strategy getStrategy() {
 			return strategy;
 		}
@@ -1544,6 +1475,75 @@ public abstract class Expression extends AbstractAST {
 				org.meta_environment.rascal.ast.Expression x) {
 			ValueProducerWithStrategy z = new ValueProducerWithStrategy();
 			z.$setExpression(x);
+			return z;
+		}
+	}
+
+	public boolean isEquals() {
+		return false;
+	}
+
+	static public class Equals extends Expression {
+		/*
+		 * lhs:Expression "==" rhs:Expression -> Expression {left,
+		 * cons("Equals")}
+		 */
+		private Equals() {
+		}
+
+		/* package */Equals(INode node,
+				org.meta_environment.rascal.ast.Expression lhs,
+				org.meta_environment.rascal.ast.Expression rhs) {
+			this.node = node;
+			this.lhs = lhs;
+			this.rhs = rhs;
+		}
+
+		public <T> T accept(IASTVisitor<T> visitor) {
+			return visitor.visitExpressionEquals(this);
+		}
+
+		public boolean isEquals() {
+			return true;
+		}
+
+		public boolean hasLhs() {
+			return true;
+		}
+
+		public boolean hasRhs() {
+			return true;
+		}
+
+		private org.meta_environment.rascal.ast.Expression lhs;
+
+		public org.meta_environment.rascal.ast.Expression getLhs() {
+			return lhs;
+		}
+
+		private void $setLhs(org.meta_environment.rascal.ast.Expression x) {
+			this.lhs = x;
+		}
+
+		public Equals setLhs(org.meta_environment.rascal.ast.Expression x) {
+			Equals z = new Equals();
+			z.$setLhs(x);
+			return z;
+		}
+
+		private org.meta_environment.rascal.ast.Expression rhs;
+
+		public org.meta_environment.rascal.ast.Expression getRhs() {
+			return rhs;
+		}
+
+		private void $setRhs(org.meta_environment.rascal.ast.Expression x) {
+			this.rhs = x;
+		}
+
+		public Equals setRhs(org.meta_environment.rascal.ast.Expression x) {
+			Equals z = new Equals();
+			z.$setRhs(x);
 			return z;
 		}
 	}
@@ -3540,6 +3540,75 @@ public abstract class Expression extends AbstractAST {
 
 		public Subtraction setRhs(org.meta_environment.rascal.ast.Expression x) {
 			Subtraction z = new Subtraction();
+			z.$setRhs(x);
+			return z;
+		}
+	}
+
+	public boolean isJoin() {
+		return false;
+	}
+
+	static public class Join extends Expression {
+		/*
+		 * lhs:Expression "join" rhs:Expression -> Expression {cons("Join"),
+		 * left}
+		 */
+		private Join() {
+		}
+
+		/* package */Join(INode node,
+				org.meta_environment.rascal.ast.Expression lhs,
+				org.meta_environment.rascal.ast.Expression rhs) {
+			this.node = node;
+			this.lhs = lhs;
+			this.rhs = rhs;
+		}
+
+		public <T> T accept(IASTVisitor<T> visitor) {
+			return visitor.visitExpressionJoin(this);
+		}
+
+		public boolean isJoin() {
+			return true;
+		}
+
+		public boolean hasLhs() {
+			return true;
+		}
+
+		public boolean hasRhs() {
+			return true;
+		}
+
+		private org.meta_environment.rascal.ast.Expression lhs;
+
+		public org.meta_environment.rascal.ast.Expression getLhs() {
+			return lhs;
+		}
+
+		private void $setLhs(org.meta_environment.rascal.ast.Expression x) {
+			this.lhs = x;
+		}
+
+		public Join setLhs(org.meta_environment.rascal.ast.Expression x) {
+			Join z = new Join();
+			z.$setLhs(x);
+			return z;
+		}
+
+		private org.meta_environment.rascal.ast.Expression rhs;
+
+		public org.meta_environment.rascal.ast.Expression getRhs() {
+			return rhs;
+		}
+
+		private void $setRhs(org.meta_environment.rascal.ast.Expression x) {
+			this.rhs = x;
+		}
+
+		public Join setRhs(org.meta_environment.rascal.ast.Expression x) {
+			Join z = new Join();
 			z.$setRhs(x);
 			return z;
 		}
