@@ -28,10 +28,12 @@ public class Parser{
 	
 	private final static IValueFactory valueFactory = ValueFactoryFactory.getValueFactory();
 	
-	private String parseTableFileName;
+	private final String parseTableFileName;
 	
 	private Parser(){
 		super();
+		
+		parseTableFileName = getParseTable();
 	}
 	
 	private String getParseTable(){
@@ -94,14 +96,11 @@ public class Parser{
 	}
 	
 	private String getTableFile(){
-		if (parseTableFileName == null) {
-			parseTableFileName = getParseTable();
-		}
 		return parseTableFileName;
 	}
 	
-	private String extractParsetable() throws IOException {
-		URL url = getClass().getResource("/" + PARSETABLE_FILENAME);
+	private String extractParsetable() throws IOException{
+		URL url = ClassLoader.getSystemResource("/" + PARSETABLE_FILENAME);
 		
 		if (url == null) {
 			throw new ImplementationError("Can not find Rascal parse table");
