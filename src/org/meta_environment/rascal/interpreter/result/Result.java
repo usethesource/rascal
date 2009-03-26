@@ -1,17 +1,16 @@
 package org.meta_environment.rascal.interpreter.result;
 
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
-import org.meta_environment.rascal.ast.AbstractAST;
 
 import java.util.Iterator;
 
-import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.meta_environment.ValueFactoryFactory;
+import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
@@ -59,7 +58,8 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 			// TODO: find an AST or a loc
 			throw new UnexpectedTypeError(type, value.getType(), null);
 		}
-		this.type = type;
+	
+	    this.type = type;
 		this.iterator = iter;
 		this.value = value;
 	}
