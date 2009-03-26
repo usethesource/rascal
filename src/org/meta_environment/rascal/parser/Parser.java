@@ -28,12 +28,10 @@ public class Parser{
 	
 	private final static IValueFactory valueFactory = ValueFactoryFactory.getValueFactory();
 	
-	private final String parseTableFileName;
+	private String parseTableFileName;
 	
 	private Parser(){
 		super();
-		
-		parseTableFileName = getParseTable();
 	}
 	
 	private String getParseTable(){
@@ -96,6 +94,9 @@ public class Parser{
 	}
 	
 	private String getTableFile(){
+		if (parseTableFileName == null) {
+			parseTableFileName = getParseTable();
+		}
 		return parseTableFileName;
 	}
 	
