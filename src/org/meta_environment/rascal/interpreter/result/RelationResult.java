@@ -19,7 +19,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 
 import org.meta_environment.rascal.ast.AbstractAST;
 
-public class RelationResult extends CollectionResult<IRelation> {
+public class RelationResult extends SetOrRelationResult<IRelation> {
 
 		public RelationResult(Type type, IRelation rel) {
 			super(type, rel);
@@ -218,110 +218,6 @@ public class RelationResult extends CollectionResult<IRelation> {
 		
 		
 		///
-		
-		@Override
-		protected <U extends IValue> Result<U> addRelation(RelationResult r, AbstractAST ast) {
-			//checkCompatibleArity(r);
-			return makeResult(type.lub(r.type), (IRelation)getValue().union(r.getValue()));
-		}
-		
-		@Override
-		protected <U extends IValue> Result<U> addSet(SetResult s, AbstractAST ast) {
-			return makeResult(type.lub(s.type), getValue().union(s.getValue()));
-		}
-		
-		@Override 
-		protected <U extends IValue> Result<U> subtractRelation(RelationResult r, AbstractAST ast) {			
-			//checkCompatibleArity(r);
-			return makeResult(type.lub(r.type), (IRelation) r.getValue().subtract(getValue()));
-		}
-
-		@Override 
-		protected <U extends IValue> Result<U> subtractSet(SetResult r, AbstractAST ast) {			
-			//checkCompatibleArity(r);
-			return makeResult(getType().lub(r.getType()), r.getValue().subtract(getValue()));
-		}
-
-		
-		@Override 
-		protected <U extends IValue> Result<U> intersectSet(SetResult s, AbstractAST ast) {
-			return makeResult(type.lub(s.type), getValue().intersect(s.getValue()));
-		}
-		
-		@Override 
-		protected <U extends IValue> Result<U> intersectRelation(RelationResult s, AbstractAST ast) {
-			return makeResult(type.lub(s.type), getValue().intersect(s.getValue()));
-		}
-		
-		
-		@Override
-		protected <U extends IValue> Result<U> equalToRelation(RelationResult that, AbstractAST ast) {
-			return that.equalityBoolean(this);
-		}
-		
-		@Override
-		protected <U extends IValue> Result<U> equalToSet(SetResult that, AbstractAST ast) {
-			return that.equalityBoolean(this);
-		}
-
-		@Override
-		protected <U extends IValue> Result<U> nonEqualToRelation(RelationResult that, AbstractAST ast) {
-			return that.nonEqualityBoolean(this);
-		}
-		
-		@Override
-		protected <U extends IValue> Result<U> nonEqualToSet(SetResult that, AbstractAST ast) {
-			return that.nonEqualityBoolean(this);
-		}
-
-		
-		@Override
-		protected <U extends IValue> Result<U> lessThanSet(SetResult that, AbstractAST ast) {
-			// note reversed args: we need that < this
-			return bool(that.getValue().isSubsetOf(getValue()) && !that.getValue().isEqual(getValue()));
-		}
-		
-		@Override
-		protected <U extends IValue> Result<U> lessThanOrEqualSet(SetResult that, AbstractAST ast) {
-			// note reversed args: we need that <= this
-			return bool(that.getValue().isSubsetOf(getValue()));
-		}
-
-		@Override
-		protected <U extends IValue> Result<U> greaterThanSet(SetResult that, AbstractAST ast) {
-			// note reversed args: we need that > this
-			return bool(getValue().isSubsetOf(that.getValue()) && !getValue().isEqual(that.getValue()));
-		}
-		
-		@Override
-		protected <U extends IValue> Result<U> greaterThanOrEqualSet(SetResult that, AbstractAST ast) {
-			// note reversed args: we need that >= this
-			return bool(getValue().isSubsetOf(that.getValue()));
-		}
-		
-		@Override
-		protected <U extends IValue> Result<U> lessThanRelation(RelationResult that, AbstractAST ast) {
-			// note reversed args: we need that < this
-			return bool(that.getValue().isSubsetOf(getValue()) && !that.getValue().isEqual(getValue()));
-		}
-		
-		@Override
-		protected <U extends IValue> Result<U> lessThanOrEqualRelation(RelationResult that, AbstractAST ast) {
-			// note reversed args: we need that <= this
-			return bool(that.getValue().isSubsetOf(getValue()));
-		}
-
-		@Override
-		protected <U extends IValue> Result<U> greaterThanRelation(RelationResult that, AbstractAST ast) {
-			// note reversed args: we need that > this
-			return bool(getValue().isSubsetOf(that.getValue()) && !getValue().isEqual(that.getValue()));
-		}
-		
-		@Override
-		protected <U extends IValue> Result<U> greaterThanOrEqualRelation(RelationResult that, AbstractAST ast) {
-			// note reversed args: we need that >= this
-			return bool(getValue().isSubsetOf(that.getValue()));
-		}
 
 		@Override
 		protected <U extends IValue> Result<U> composeRelation(RelationResult that, AbstractAST ast) {
@@ -343,33 +239,6 @@ public class RelationResult extends CollectionResult<IRelation> {
 			return makeResult(resultType, left.getValue().compose(right.getValue()));
 		}
 
-
-		@Override
-		protected <U extends IValue> Result<U> multiplyRelation(RelationResult that, AbstractAST ast) {
-			Type tupleType = getTypeFactory().tupleType(that.type.getElementType(), type.getElementType());
-			// Note the reverse in .product
-			return makeResult(getTypeFactory().relTypeFromTuple(tupleType), that.getValue().product(getValue()));
-		}
-		
-		@Override
-		protected <U extends IValue> Result<U> multiplySet(SetResult that, AbstractAST ast) {
-			Type tupleType = getTypeFactory().tupleType(that.type.getElementType(), type.getElementType());
-			// Note the reverse in .product
-			return makeResult(getTypeFactory().relTypeFromTuple(tupleType), that.getValue().product(getValue()));
-		}
-		
-			
-		@Override
-		protected <U extends IValue> Result<U> compareRelation(RelationResult that, AbstractAST ast) {
-			// Note reverse args
-			return makeIntegerResult(compareISets(that.getValue(), this.getValue(), ast));
-		}
-		
-		@Override
-		protected <U extends IValue> Result<U> compareSet(SetResult that, AbstractAST ast) {
-			// Note reverse args
-			return makeIntegerResult(compareISets(that.getValue(), this.getValue(), ast));
-		}
 		
 		private void checkCompatibleArity(RelationResult that, AbstractAST ast) {
 			checkArity(getType().getArity(), that.getType().getArity(), ast);

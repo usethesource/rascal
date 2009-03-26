@@ -5,6 +5,7 @@ import org.meta_environment.rascal.ast.AbstractAST;
 
 import java.util.Iterator;
 
+import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;

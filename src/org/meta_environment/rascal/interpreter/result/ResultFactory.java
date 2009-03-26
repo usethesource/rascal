@@ -91,7 +91,7 @@ public class ResultFactory {
 			return new RelationResult(declaredType, (IRelation)value);
 		}
 
-		public SetResult visitSet(Type type) {
+		public SetOrRelationResult<ISet> visitSet(Type type) {
 			return new SetResult(declaredType, (ISet)value);
 		}
 
