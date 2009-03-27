@@ -11,6 +11,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
+import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
@@ -55,8 +56,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	protected Result(Type type, T value,  Iterator<Result<IValue>> iter) {
 		// Check for null in case of void result or uninit.
 		if (value != null && !value.getType().isSubtypeOf(type)) {
-			// TODO: find an AST or a loc
-			throw new UnexpectedTypeError(type, value.getType(), null);
+			throw new UnexpectedTypeError(type, value.getType(), Evaluator.getCurrentAST());
 		}
 	
 	    this.type = type;

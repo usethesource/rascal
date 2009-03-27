@@ -96,6 +96,7 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 		}
 		
 		
+		@Override
 		public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts, AbstractAST ast) {
 			// TODO: must go to PDB
 			int nSubs = subscripts.length;
@@ -174,10 +175,12 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 		////
 		
 		
+		@Override
 		protected <U extends IValue, V extends IValue> Result<U> elementOf(ElementResult<V> elementResult, AbstractAST ast) {
 			return bool(getValue().contains(elementResult.getValue()));
 		}
 
+		@Override
 		protected <U extends IValue, V extends IValue> Result<U> notElementOf(ElementResult<V> elementResult, AbstractAST ast) {
 			return bool(!getValue().contains(elementResult.getValue()));
 		}
@@ -240,6 +243,7 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 		}
 
 		
+		@SuppressWarnings("unused")
 		private void checkCompatibleArity(RelationResult that, AbstractAST ast) {
 			checkArity(getType().getArity(), that.getType().getArity(), ast);
 		}

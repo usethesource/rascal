@@ -81,6 +81,7 @@ public class ListResult extends CollectionResult<IList> {
 	}
 
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts, AbstractAST ast) {
 		if (subscripts.length != 1) {
@@ -168,6 +169,7 @@ public class ListResult extends CollectionResult<IList> {
 		return that.nonEqualityBoolean(this);
 	}
 	
+	@Override
 	protected <U extends IValue> Result<U> lessThanList(ListResult that, AbstractAST ast) {
 		// note reverse of arguments: we need that < this
 		// TODO: move to PDB:
@@ -177,6 +179,7 @@ public class ListResult extends CollectionResult<IList> {
 		return lessThanOrEqualList(that, ast);
 	}
 	
+	@Override
 	protected <U extends IValue> Result<U> lessThanOrEqualList(ListResult that, AbstractAST ast) {
 		for (IValue value: that.getValue()) {
 			if (!getValue().contains(value)) {
@@ -186,11 +189,13 @@ public class ListResult extends CollectionResult<IList> {
 		return bool(true);
 	}
 
+	@Override
 	protected <U extends IValue> Result<U> greaterThanList(ListResult that, AbstractAST ast) {
 		// note double reversal of arguments: that >  this
 		return that.lessThanList(this, ast);
 	}
 	
+	@Override
 	protected <U extends IValue> Result<U> greaterThanOrEqualList(ListResult that, AbstractAST ast) {
 		// note double reversal of arguments: that >=  this
 		return that.lessThanOrEqualList(this, ast);

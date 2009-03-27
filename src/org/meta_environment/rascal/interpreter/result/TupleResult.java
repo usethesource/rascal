@@ -40,6 +40,7 @@ public class TupleResult extends ElementResult<ITuple> {
 			}
 	}
 	
+	@Override
 	@SuppressWarnings("unchecked")
 	public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts, AbstractAST ast) {
 		if (subscripts.length > 1) {
@@ -115,13 +116,13 @@ public class TupleResult extends ElementResult<ITuple> {
 		for(int i = 0; i < leftArity; i++){
 			fieldTypes[i] = leftType.getFieldType(i);
 			fieldNames[i] = leftType.getFieldName(i);
-			fieldValues[i] = ((ITuple) left.getValue()).get(i);
+			fieldValues[i] = left.getValue().get(i);
 		}
 		
 		for(int i = 0; i < rightArity; i++){
 			fieldTypes[leftArity + i] = rightType.getFieldType(i);
 			fieldNames[leftArity + i] = rightType.getFieldName(i);
-			fieldValues[leftArity + i] = ((ITuple) right.getValue()).get(i);
+			fieldValues[leftArity + i] = right.getValue().get(i);
 		}
 		
 		// TODO: avoid null fieldnames

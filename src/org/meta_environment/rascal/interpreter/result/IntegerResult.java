@@ -147,8 +147,8 @@ public class IntegerResult extends ElementResult<IInteger> {
 	@Override
 	protected <U extends IValue> Result<U> makeRangeFromInteger(IntegerResult from, AbstractAST ast) {
 		// NOTE: this == to
-		IInteger iFrom = ((IInteger) from.getValue());
-		IInteger iTo = ((IInteger) this.getValue());
+		IInteger iFrom = from.getValue();
+		IInteger iTo = this.getValue();
 		IInteger one = getValueFactory().integer(1);
 		IListWriter w = getValueFactory().listWriter(getTypeFactory().integerType());
 		
@@ -170,8 +170,8 @@ public class IntegerResult extends ElementResult<IInteger> {
 	@Override
 	protected <U extends IValue, V extends IValue> Result<U> makeStepRangeFromInteger(IntegerResult from, Result<V> second, AbstractAST ast) {
 		// NOTE: this == to
-		IInteger iFrom = ((IInteger) from.getValue());
-		IInteger iTo = ((IInteger) this.getValue());
+		IInteger iFrom = from.getValue();
+		IInteger iTo = this.getValue();
 		if (!second.getType().isIntegerType()) {
 			throw new UnexpectedTypeError(getTypeFactory().integerType(), second.getType(), ast);
 		}
