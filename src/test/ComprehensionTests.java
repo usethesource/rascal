@@ -174,6 +174,8 @@ public class ComprehensionTests extends TestFramework {
 		
 		assertFalse(runTest("all(<int X, int Y> <- {<1,10>,<30,3>,<2,20>}, X < Y);"));
 		assertFalse(runTest("all(<int X, int Y> <- [<1,10>,<30,3>,<2,20>], X < Y);"));
+		
+		assertTrue(runTest("all(int i <- [0, 1] && [0, 1][i] == i);"));
 	}
 	
 	@Test(expected=StaticError.class)

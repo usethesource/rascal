@@ -2683,7 +2683,11 @@ public class Evaluator extends NullASTVisitor<Result> {
 		
 		@Override
 		public IValue getValue(){
-			return next().getValue();
+			if(firstTime){
+				firstTime = false;
+				return next().getValue();
+			}
+			return vf.bool(true);
 		}
 		
 		@Override
@@ -2734,7 +2738,6 @@ public class Evaluator extends NullASTVisitor<Result> {
 					if(v.getType().isBoolType() && v.getValue() != null){
 						// FIXME: if result is of type void, you get a null pointer here.
 						if (v.getValue().isEqual(vf.bool(true))) {
-						//if(v.isTrue()){
 							return new BoolResult(true);
 						}
 						return new BoolResult(false);
@@ -2742,7 +2745,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 						throw new UnexpectedTypeError(tf.boolType(), v.getType(), expr);
 					}
 				} else {
-					// TODO: why false here? Shouldn't we save the first-time eval result?
+					// After the first evaluation, we always return false;
 					return new BoolResult(false);
 				}
 			}
