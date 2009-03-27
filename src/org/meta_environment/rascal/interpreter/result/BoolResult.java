@@ -126,6 +126,7 @@ public class BoolResult extends ElementResult<IBool> {
 		return bool(that.comparisonInts(this, ast) >= 0);
 	}
 	
+	@Override
 	public boolean isTrue() {
 		return getValue().getValue();
 	}

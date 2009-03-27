@@ -6,12 +6,10 @@ import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeR
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.interpreter.RuntimeExceptionFactory;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscriptArityError;
-
-import org.meta_environment.rascal.ast.AbstractAST;
 
 public class MapResult extends ElementResult<IMap> {
 	
@@ -38,6 +36,7 @@ public class MapResult extends ElementResult<IMap> {
 	}
 	
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts, AbstractAST ast) {
 		if (subscripts.length != 1) {

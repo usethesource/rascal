@@ -202,7 +202,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 	enum PROGRESS   {Continuing, Breaking};
 	
 	
-	private AbstractAST currentAST; // used in runtime errormessages
+	private static AbstractAST currentAST; // used in runtime errormessages
+											 // TODO: only Result needs this to be static
 	private Profiler profiler;
 	private boolean doProfiling = false;
 	
@@ -259,11 +260,11 @@ public class Evaluator extends NullASTVisitor<Result> {
 		env.commit();
 	}
 	
-	public void setCurrentAST(AbstractAST currentAST) {
-		this.currentAST = currentAST;
+	public static void setCurrentAST(AbstractAST currentAST) {
+		currentAST = currentAST;
 	}
 
-	public AbstractAST getCurrentAST() {
+	public static AbstractAST getCurrentAST() {
 		return currentAST;
 	}
 

@@ -2,10 +2,8 @@ package org.meta_environment.rascal.interpreter.result;
 
 import java.util.Iterator;
 
-import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
-
 import org.meta_environment.rascal.ast.AbstractAST;
 
 public class ValueResult extends ElementResult<IValue> {
