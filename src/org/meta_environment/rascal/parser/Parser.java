@@ -28,10 +28,12 @@ public class Parser{
 	
 	private final static IValueFactory valueFactory = ValueFactoryFactory.getValueFactory();
 	
-	private String parseTableFileName;
+	private final String parseTableFileName;
 	
 	private Parser(){
 		super();
+		
+		parseTableFileName = getParseTable();
 	}
 	
 	private String getParseTable(){
@@ -93,10 +95,7 @@ public class Parser{
 		return new ParsetreeAdapter(tree).addPositionInformation(inputFile.getAbsolutePath());
 	}
 	
-	private synchronized String getTableFile() {
-		if (parseTableFileName == null) {
-			parseTableFileName = getParseTable();
-		}
+	private String getTableFile(){
 		return parseTableFileName;
 	}
 	
