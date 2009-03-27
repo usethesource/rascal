@@ -19,4 +19,8 @@ public class BackTrackingTests extends TestFramework {
 							  "(N == 4);}"));
 		
 	}
+	
+	@Test public void and(){
+		assertTrue(runTest("int i <- [0, 1] && [\"a\",\"b\"][i] == \"a\";"));
+	}
 }
