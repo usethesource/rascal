@@ -100,7 +100,7 @@ public class Parser{
 	}
 	
 	private String extractParsetable() throws IOException{
-		URL url = ClassLoader.getSystemResource("/" + PARSETABLE_FILENAME);
+		URL url = Parser.class.getClassLoader().getResource("/" + PARSETABLE_FILENAME);
 		
 		if (url == null) {
 			throw new ImplementationError("Can not find Rascal parse table");
