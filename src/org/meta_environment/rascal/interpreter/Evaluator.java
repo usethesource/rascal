@@ -261,7 +261,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	}
 	
 	public static void setCurrentAST(AbstractAST currentAST) {
-		currentAST = currentAST;
+		Evaluator.currentAST = currentAST;
 	}
 
 	public static AbstractAST getCurrentAST() {
