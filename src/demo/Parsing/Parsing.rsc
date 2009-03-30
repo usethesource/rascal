@@ -1,19 +1,21 @@
 module demo::Parsing::Parsing
 
+import List;
+import IO;
+
 /* Very preliminary LR parser generator */
 
-public data Terminal    = t(str text);
-public data NonTerminal = nt(str name);
-public data Symbol      = Terminal | NonTerminal | epsilon;
+public data Symbol      = t(str text) | nt(str name) | epsilon;
 
-public alias Rule       = tuple[str name, list[value] symbols];  // value => Symbol
+public alias Rule       = tuple[str name, list[Symbol] symbols];
 public data Grammar     = grammar(str start, set[Rule] rules);  
 
 // First and follow
 
-public map[NonTerminal, set[Symbol]] FIRST = ();
+public map[Symbol, set[Symbol]] FIRST = ();
 
 public set[Symbol] firstNonEmpty(Rule r){
+    println("firstNonEmpty(<r>)");
 	for(Symbol sym <- r.symbols){
 	    switch(sym){
 	    case Terminal _:
@@ -27,7 +29,7 @@ public set[Symbol] firstNonEmpty(Rule r){
 }
 
 public Symbol first(Symbol sym){
-
+ 	println("first(<sym>)");
 	switch(sym){
 	case t(_): return {sym};
 	
@@ -46,8 +48,9 @@ public Symbol first(Symbol sym){
 // ------------ Items ------------------------------
 data Item = item(str name, list[Symbol] left, list[Symbol] right);
 
-private Item makeItem(Rule r){
-	return item(r,name, [], r.symbols);
+public Item makeItem(Rule r){
+	//println("makeItem(<r>)");
+	return item(r.name, [], r.symbols);
 }
 
 private bool canMove(Item it, Symbol sym){
@@ -66,8 +69,16 @@ private bool atEnd(Item it){
    return isEmpty(it.right);
 }
 
-private bool atNonterminal(Item it){
-	return !isEmpty(it.right) && nt(_) := head(it.right);
+private bool atNonTerminal(Item it){
+	bool res = !isEmpty(it.right) && nt(_) := head(it.right);
+	//println("atNonTerminal(<it>) => <res>");
+	return res;
+}
+
+private str getNonTerminal(Item it){
+	Symbol h = head(it.right);
+	if(nt(str Name) := h)
+		return Name;
 }
 	
 private bool atTerminal(Item it){
@@ -88,15 +99,16 @@ private bool isEmpty(Item it){
 alias ItemSet = set[Item];
 
 public ItemSet closure(Grammar G, ItemSet I){
-
+	//println("closure(<G>, <I>)");
     with 
-    	ItemSet items = {};
+    	ItemSet items = I;
     solve {
-        for(Item item <- I1){
+        for(Item item <- items){
             if(atNonTerminal(item)){
         	   nonterm = getNonTerminal(item);
-        	   for(Rule r <- G.rules[nonterm]){
-        		   items = items + makeItem(r);
+        	   for(list[Symbol] symbols <- G.rules[nonterm]){
+        	       println("symbols = <symbols>");
+        		   items = items + makeItem(<nonterm, symbols>);
         	   }
             }
         }
@@ -104,22 +116,25 @@ public ItemSet closure(Grammar G, ItemSet I){
     return items;
 }
 
-public ItemSet goto(Grammar G, ItemSet items, Symbol sym){
-     return closure(G, {moveRight(it) | Item it <- items, atSymbol(it, sym)});
+public ItemSet goto(Grammar G, ItemSet I, Symbol sym){
+	println("goto(<G>, <I>, <sym>)");
+    return closure(G, {moveRight(it) | Item it <- I, atSymbol(it, sym)});
 }
 
 public ItemSet items(Grammar G){
+	println("items(<G>)");
 	set[Symbol] symbols = { sym | Rule r <- G.rules, Symbol sym <- r.symbols};
 	Rule startRule = <"START", [nt(G.start)]>;
-	G.rules += {startRule};
-	
+	G.rules = G.rules + {startRule};  // TODO += does not seem to work here
+
 	with 
 		ItemSet C = { closure(G, {makeItem(startRule)}) };
-	solve
-		C += { G | ItemSet I <- C, Symbol sym <- symbols, ItemSet G := goto(G, I, X), !isEmpty(G)};
+	solve {
+		C += { GT | ItemSet I <- C, Symbol X <- symbols, ItemSet GT := goto(G, I, X), !isEmpty(GT)};
+		println("items: C = <C>");
+	}
 	return C;      
 }
-
 
 public Grammar G1 = grammar("E",
 {
@@ -132,7 +147,8 @@ public Grammar G1 = grammar("E",
 
 
 public bool test(){
-	items(G1);
+	C = items(G1);
+	println("C = <C>");
 	return true;
 }
 
