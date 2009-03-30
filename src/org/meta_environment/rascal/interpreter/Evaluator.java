@@ -204,6 +204,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	private static AbstractAST currentAST; // used in runtime errormessages
 											 // TODO: only Result needs this to be static
+	// TODO NOTE: AbstractAST MUST not be static; otherwise you can't run two interpreters simultaineously (at least not without the potential of something going wrong).
 	private Profiler profiler;
 	private boolean doProfiling = false;
 	

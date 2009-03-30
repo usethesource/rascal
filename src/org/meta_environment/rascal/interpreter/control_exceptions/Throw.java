@@ -20,7 +20,7 @@ import org.meta_environment.rascal.ast.AbstractAST;
 public final class Throw extends ControlException {
 	private static final long serialVersionUID = -7290501865940548332L;
 	private final IValue exception;
-	private ISourceLocation loc;
+	private volatile ISourceLocation loc;
 	
 	// TODO add support for Rascal stack trace, which will make these errors locatable
 	// it is not the idea that these exceptions get references to AbstractAST's!!

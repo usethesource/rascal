@@ -5,7 +5,7 @@ import org.meta_environment.rascal.interpreter.result.Result;
 
 public class Return extends ControlException {
 	private static final long serialVersionUID = -6601026099925601817L;
-    private Result<IValue> value;
+    private final Result<IValue> value;
 	
     public Return(){
     	super();

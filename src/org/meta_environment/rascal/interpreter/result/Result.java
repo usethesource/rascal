@@ -53,7 +53,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	protected T value;
 	private boolean isPublic;
 
-	protected Result(Type type, T value,  Iterator<Result<IValue>> iter) {
+	protected Result(Type type, T value, Iterator<Result<IValue>> iter) {
 		// Check for null in case of void result or uninit.
 		if (value != null && !value.getType().isSubtypeOf(type)) {
 			throw new UnexpectedTypeError(type, value.getType(), Evaluator.getCurrentAST());
