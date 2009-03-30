@@ -264,7 +264,7 @@ public class TreeAdapter {
 	}
 	
 	private static class Unparser extends IdentityTreeVisitor {
-		private OutputStream fStream;
+		private final OutputStream fStream;
 
 		public Unparser(OutputStream stream) {
 			fStream = stream;

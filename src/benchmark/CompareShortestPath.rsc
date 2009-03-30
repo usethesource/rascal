@@ -98,7 +98,7 @@ public rel[int,int] randomGraph(int N, list[int] interval)
 	return {<getOneFrom(interval), getOneFrom(interval)> | int n <- [1 .. N]};
 }
 
-public void measure1(){
+public void measure1(rel[int,int] Graph1){
 
     G = Graph1;
 	/* warm up for JVM */
@@ -107,7 +107,7 @@ public void measure1(){
 
     jtime = 0.0; jmin = 10000.0; jmax = 0.0;
     rtime = 0.0; rmin = 10000.0; rmax = 0.0;
-    for(int i <- [1 .. 10]){
+    for(int i <- [1 .. 20]){
  		time1 = currentTimeMillis(); P1 = shortestPathPair(G, 1, 0); time2 = currentTimeMillis();
                                      P2 = shortestPathPair1(G, 1, 0); time3 = currentTimeMillis();
                               
@@ -116,15 +116,15 @@ public void measure1(){
  		println("Java version:   <P1> in <d1> millis");
  		println("Rascal version: <P1> in <d2> millis");
  	}
- 	println("Java average: ", jtime/10, " [<jmin> .. <jmax>]");
- 	println("Rascal average: ", rtime/10, " [<rmin> .. <rmax>]");
+ 	println("Java average: ", jtime/20, " [<jmin> .. <jmax>]");
+ 	println("Rascal average: ", rtime/20, " [<rmin> .. <rmax>]");
  	
 }
 
-public void measure2()
+public void measure2(rel[int,int] Graph2)
 {
    for(int i <- [1 .. 2000])
-     shortestPathPair1(Graph1, 1, 0);
+     shortestPathPair1(Graph2, 1, 0);
 }
 
 public void measure(){
