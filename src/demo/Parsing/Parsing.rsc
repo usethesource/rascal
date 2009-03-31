@@ -1,7 +1,9 @@
 module demo::Parsing::Parsing
 
 import List;
+import Set;
 import IO;
+import UnitTest;
 
 /* Very preliminary LR parser generator */
 
@@ -14,34 +16,44 @@ public data Grammar     = grammar(str start, set[Rule] rules);
 
 public map[Symbol, set[Symbol]] FIRST = ();
 
-public set[Symbol] firstNonEmpty(Rule r){
-    println("firstNonEmpty(<r>)");
-	for(Symbol sym <- r.symbols){
+public set[Symbol] firstNonEmpty(Grammar G, list[Symbol] symbols){
+    println("firstNonEmpty(<symbols>)");
+	for(Symbol sym <- symbols){
 	    switch(sym){
-	    case Terminal _:
+	    case t(_):
 	    	return {sym};
-	    case NonTerminal _:
-	 		if(epsilon notin FIRST[sym])
-				return FIRST[sym] - {epsilon};	
+	    case nt(str name): {
+	    		frts = first(G, subject);
+	 			if(epsilon notin frts)
+					return frts - {epsilon};
+			}
 		}
 	}
 	return {};
 }
 
-public Symbol first(Symbol sym){
+public set[Symbol] first(Grammar G, Symbol sym){
  	println("first(<sym>)");
 	switch(sym){
+	
+	case epsilon: return {epsilon};
+	
 	case t(_): return {sym};
 	
-	case n(str name):
-		for(Rule r <- definition[name]){
-			f = firstNonEmpty(r);
-			if(isEmpty(f))
-				FIRST[r.name] = FIRST[r.name] + epsilon;
-			else
-				FIRST[r.name] = FIRST[r.name] + f;
+	case nt(str name): {
+	        nonterm = subject;
+	        
+			for(list[Symbol] symbols <- G.rules[name]){
+				f = firstNonEmpty(G, symbols);
+				if(isEmpty(f))
+					FIRST[nonterm] += epsilon;
+				else
+					FIRST[nonterm] += f;
+			}
+			return FIRST[nonterm];
 		}
 	}
+	
 }
 
 
@@ -58,7 +70,7 @@ private bool canMove(Item it, Symbol sym){
 }
 
 private Item moveRight(Item it){
-   return item(it.left + [it.head], tail(it.right));
+   return item(it.name, it.left + [head(it.right)], tail(it.right));
 }
 
 private Symbol getSymbol(Item it){
@@ -107,7 +119,7 @@ public ItemSet closure(Grammar G, ItemSet I){
             if(atNonTerminal(item)){
         	   nonterm = getNonTerminal(item);
         	   for(list[Symbol] symbols <- G.rules[nonterm]){
-        	       println("symbols = <symbols>");
+        	       //println("symbols = <symbols>");
         		   items = items + makeItem(<nonterm, symbols>);
         	   }
             }
@@ -117,21 +129,21 @@ public ItemSet closure(Grammar G, ItemSet I){
 }
 
 public ItemSet goto(Grammar G, ItemSet I, Symbol sym){
-	println("goto(<G>, <I>, <sym>)");
+	//println("goto(<G>, <I>, <sym>)");
     return closure(G, {moveRight(it) | Item it <- I, atSymbol(it, sym)});
 }
 
-public ItemSet items(Grammar G){
-	println("items(<G>)");
+public set[ItemSet] items(Grammar G){
+	// Extract the symbols from the grammar
 	set[Symbol] symbols = { sym | Rule r <- G.rules, Symbol sym <- r.symbols};
+	// Add a new start rule
 	Rule startRule = <"START", [nt(G.start)]>;
 	G.rules = G.rules + {startRule};  // TODO += does not seem to work here
 
 	with 
-		ItemSet C = { closure(G, {makeItem(startRule)}) };
+		set[ItemSet] C = {{ closure(G, {makeItem(startRule)}) }};  // TODO: {{ }} horror
 	solve {
 		C += { GT | ItemSet I <- C, Symbol X <- symbols, ItemSet GT := goto(G, I, X), !isEmpty(GT)};
-		println("items: C = <C>");
 	}
 	return C;      
 }
@@ -145,10 +157,44 @@ public Grammar G1 = grammar("E",
 <"B", [t("1")]>
 });
 
+public Grammar G2 = grammar( "E",
+{
+<"E",  [nt("T"), nt("E1")]>,
+<"E1", [t("+"), nt("T"), nt("E1")]>,
+<"E1", []>,
+<"T",  [nt("F"), nt("T1")]>,
+<"T1", [t("*"), nt("F"), nt("T1")]>,
+<"T1", []>,
+<"F",  [t("("), nt("E"), t(")")]>,
+<"F",  [t("id")]>
+});
 
 public bool test(){
-	C = items(G1);
-	println("C = <C>");
-	return true;
+
+    assertEqual(first(G2, nt("E")), {t("("), t("id")});
+    
+	assertEqual(items(G1),
+	{
+	//0
+	{item("B",[],[t("1")]),item("E",[],[nt("E"),t("*"),nt("B")]),item("E",[],[nt("E"),t("+"),nt("B")]), item("START",[],[nt("E")]),item("E",[],[nt("B")]),item("B",[],[t("0")])},
+	//1
+	{item("B",[t("0")],[])},
+	//2
+	{item("B",[t("1")],[])},
+	//3
+	{item("E",[nt("E")],[t("*"),nt("B")]),item("START",[nt("E")],[]),item("E",[nt("E")],[t("+"),nt("B")])},
+	//4
+	{item("E",[nt("B")],[])},
+	//5
+	{item("E",[nt("E"),t("*")],[nt("B")]),item("B",[],[t("1")]),item("B",[],[t("0")])},
+	//6
+	{item("B",[],[t("1")]),item("E",[nt("E"),t("+")],[nt("B")]),item("B",[],[t("0")])},
+	//7
+	{item("E",[nt("E"),t("*"),nt("B")],[])},
+	//8
+	{item("E",[nt("E"),t("+"),nt("B")],[])}
+	});
+	
+	return report("Parser");
 }
 
