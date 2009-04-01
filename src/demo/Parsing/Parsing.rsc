@@ -15,28 +15,32 @@ public data Grammar     = grammar(str start, set[Rule] rules);
 // First and follow
 
 public set[Symbol] firstNonEmpty(list[Symbol] symbols, map[Symbol, set[Symbol]] FIRST){
-    println("firstNonEmpty(<symbols>)");
+    set[Symbol] result = {};
 	for(Symbol sym <- symbols){
 	    switch(sym){
 	    case t(_):
-	    	return {sym};
+	    	return result + {sym};
 	    case nt(str name): {
-	    		frts = FIRST[subject] ? {};
-	 			if(epsilon notin frts)
-					return frts;
+	            nonterm= nt(name);
+	    		f = FIRST[nonterm] ? {};
+	 			if(epsilon notin f)
+					return (result + f) - {epsilon};
+				else
+				    result = result + f;
 			}
 		}
 	}
-	return {};
+	return result;
 }
 
 public map[Symbol, set[Symbol]] first(Grammar G){
-	symbols = symbols(G);
+	gsymbols = symbols(G);
 	
 	with
 		map[Symbol, set[Symbol]] FIRST = ();
 	solve {
-		for(Symbol sym <- symbols){
+		for(Symbol sym <- gsymbols){
+			println("sym = <sym>");
 		
 		    switch(sym){
 		    case t(_):
@@ -44,20 +48,17 @@ public map[Symbol, set[Symbol]] first(Grammar G){
 		    case nt(str name):
 		    	{
 	        		nonterm = nt(name);
-	        
+	        		if(!FIRST[nonterm]?)
+	        			FIRST[nonterm] = {};
 					for(list[Symbol] symbols <- G.rules[name]){
-						f = firstNonEmpty(symbols, FIRST);
-				
-						println("f = <f>");
-						if(isEmpty(f))
-							FIRST[nonterm] = FIRST[nonterm]?{} + {epsilon};
-						else
-							FIRST[nonterm] = FIRST[nonterm]?{} + f;
+					    if(isEmpty(symbols))
+					    	FIRST[nonterm] = FIRST[nonterm] + {epsilon};
+						FIRST[nonterm] = FIRST[nonterm] + firstNonEmpty(symbols, FIRST);
 					}
+				}
 			}
 		}
 	}	
-	println("FIRST = <FIRST>");
 	return FIRST;
 }
 
@@ -181,7 +182,12 @@ public Grammar G2 = grammar( "E",
 
 public bool test(){
 
-    assertEqual(first(G2), {t("("), t("id")});
+    assertEqual(first(G2), (nt("T1"):{epsilon(),t("*")},
+                            t("*"):{t("*")},t("id"):{t("id")},t("+"):{t("+")},t("("):{t("(")},t(")"):{t(")")},
+                            nt("E1"):{epsilon(),t("+")},
+                            nt("E"):{t("id"),t("(")},
+                            nt("T"):{t("id"),t("(")},
+                            nt("F"):{t("id"),t("(")}));    
     
 	assertEqual(items(G1),
 	{
