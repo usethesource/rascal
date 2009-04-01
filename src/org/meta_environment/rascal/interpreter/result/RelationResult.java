@@ -86,6 +86,11 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 		}
 		
 		@Override
+		public <U extends IValue, V extends IValue> Result<U> join(Result<V> that, AbstractAST ast) {
+			return that.joinRelation(this, ast);
+		}
+		
+		@Override
 		public <U extends IValue, V extends IValue> Result<U> in(Result<V> that, AbstractAST ast) {
 			return that.inRelation(this, ast);
 		}
@@ -260,7 +265,64 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 			return makeResult(newType, (IRelation) getValue().insert(tuple.getValue()));
 		}
 
-		
+		@Override
+		protected <U extends IValue> Result<U> joinRelation(RelationResult that, AbstractAST ast) {
+			// Note the reverse of arguments, we need "that join this"
+			int arity1 = that.getValue().arity();
+			int arity2 = this.getValue().arity();
+			Type tupleType1 = that.getType().getElementType();
+			Type tupleType2 = this.getType().getElementType();
+			Type fieldTypes[] = new Type[arity1 + arity2];
+			for (int i = 0; i < arity1; i++) {
+				fieldTypes[i] = tupleType1.getFieldType(i);
+			}
+			for (int i = arity1;  i < arity1 + arity2; i++) {
+				fieldTypes[i] = tupleType2.getFieldType(i - arity1);
+			}
+			Type tupleType = getTypeFactory().tupleType(fieldTypes);
+			ISetWriter writer = getValueFactory().setWriter(tupleType);
+			IValue fieldValues[] = new IValue[arity1 + arity2];
+			for (IValue tuple1: that.getValue()) {
+				for (IValue tuple2: this.getValue()) {
+					for (int i = 0; i < arity1; i++) {
+						fieldValues[i] = ((ITuple)tuple1).get(i);
+					}
+					for (int i = arity1; i < arity1 + arity2; i++) {
+						fieldValues[i] = ((ITuple)tuple2).get(i - arity1);
+					}
+					writer.insert(getValueFactory().tuple(fieldValues));
+				}
+			}
+			Type resultType = getTypeFactory().relTypeFromTuple(tupleType);
+			return makeResult(resultType, writer.done());
+		}
+
+		@Override
+		protected <U extends IValue> Result<U> joinSet(SetResult that, AbstractAST ast) {
+			// Note the reverse of arguments, we need "that join this"
+			int arity2 = this.getValue().arity();
+			Type eltType = that.getType().getElementType();
+			Type tupleType = this.getType().getElementType();
+			Type fieldTypes[] = new Type[1 + arity2];
+			fieldTypes[0] = eltType;
+			for (int i = 1;  i < 1 + arity2; i++) {
+				fieldTypes[i] = tupleType.getFieldType(i);
+			}
+			Type resultTupleType = getTypeFactory().tupleType(fieldTypes);
+			ISetWriter writer = getValueFactory().setWriter(resultTupleType);
+			IValue fieldValues[] = new IValue[1 + arity2];
+			for (IValue setValue: that.getValue()) {
+				for (IValue relValue: this.getValue()) {
+					fieldValues[0] = setValue;
+					for (int i = 1; i < 1 + arity2; i++) {
+						fieldValues[i] = ((ITuple)relValue).get(i);
+					}
+					writer.insert(getValueFactory().tuple(fieldValues));
+				}
+			}
+			Type resultType = getTypeFactory().relTypeFromTuple(resultTupleType);
+			return makeResult(resultType, writer.done());
+		}
 		
 		
 		

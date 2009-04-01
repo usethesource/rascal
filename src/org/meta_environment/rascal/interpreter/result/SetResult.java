@@ -1,7 +1,11 @@
 package org.meta_environment.rascal.interpreter.result;
 
 
+import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
+
 import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.ISetWriter;
+import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.AbstractAST;
@@ -26,6 +30,12 @@ public class SetResult extends SetOrRelationResult<ISet> {
 	public <U extends IValue, V extends IValue> Result<U> multiply(Result<V> result, AbstractAST ast) {
 		return result.multiplySet(this, ast);
 	}
+	
+	@Override
+	public <U extends IValue, V extends IValue> Result<U> join(Result<V> that, AbstractAST ast) {
+		return that.joinSet(this, ast);
+	}
+	
 
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> intersect(Result<V> result, AbstractAST ast) {
@@ -78,5 +88,41 @@ public class SetResult extends SetOrRelationResult<ISet> {
 	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> result, AbstractAST ast) {
 		return result.compareSet(this, ast);
 	}
-		
+	
+	@Override
+	protected <U extends IValue> Result<U> joinRelation(RelationResult that, AbstractAST ast) {
+		// Note the reverse of arguments, we need "that join this"
+		int arity1 = that.getValue().arity();
+		Type eltType = getType().getElementType();
+		Type tupleType = that.getType().getElementType();
+		Type fieldTypes[] = new Type[arity1 + 1];
+		for (int i = 0;  i < arity1; i++) {
+			fieldTypes[i] = tupleType.getFieldType(i);
+		}
+		fieldTypes[arity1] = eltType;
+		Type resultTupleType = getTypeFactory().tupleType(fieldTypes);
+		ISetWriter writer = getValueFactory().setWriter(resultTupleType);
+		IValue fieldValues[] = new IValue[arity1 + 1];
+		for (IValue relValue: that.getValue()) {
+			for (IValue setValue: this.getValue()) {
+				for (int i = 0; i < arity1; i++) {
+					fieldValues[i] = ((ITuple)relValue).get(i);
+				}
+				fieldValues[arity1] = setValue;
+				writer.insert(getValueFactory().tuple(fieldValues));
+			}
+		}
+		Type resultType = getTypeFactory().relTypeFromTuple(resultTupleType);
+		return makeResult(resultType, writer.done());
+	}
+
+	@Override
+	protected <U extends IValue> Result<U> joinSet(SetResult that, AbstractAST ast) {
+		// Note the reverse of arguments, we need "that join this"
+		// join between sets degenerates to product
+		Type tupleType = getTypeFactory().tupleType(that.getType().getElementType(), 
+				getType().getElementType());
+		return makeResult(getTypeFactory().relTypeFromTuple(tupleType),
+				that.getValue().product(getValue()));
+	}
 }

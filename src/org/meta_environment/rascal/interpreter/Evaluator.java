@@ -91,6 +91,7 @@ import org.meta_environment.rascal.ast.Expression.Implication;
 import org.meta_environment.rascal.ast.Expression.In;
 import org.meta_environment.rascal.ast.Expression.Intersection;
 import org.meta_environment.rascal.ast.Expression.IsDefined;
+import org.meta_environment.rascal.ast.Expression.Join;
 import org.meta_environment.rascal.ast.Expression.LessThan;
 import org.meta_environment.rascal.ast.Expression.LessThanOrEq;
 import org.meta_environment.rascal.ast.Expression.Lexical;
@@ -1669,6 +1670,13 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
 		return left.multiply(right, x);
+	}
+	
+	@Override
+	public Result<IValue> visitExpressionJoin(Join x) {
+		Result<IValue> left = x.getLhs().accept(this);
+		Result<IValue> right = x.getRhs().accept(this);
+		return left.join(right, x);
 	}
 	
 	@Override

@@ -613,6 +613,7 @@ public class DataTypeTests extends TestFramework {
 		assertTrue(runTest("{1, 2, 3} * {9} == {<1,9>, <2,9>, <3,9>};"));
 		assertTrue(runTest("{1, 2, 3} * {9, 10} == {<1,9>, <1,10>, <2,9>, <2,10>, <3,9>, <3,10>};"));
 		
+		
 		assertTrue(runTest("2 in {1, 2, 3};"));
 		assertTrue(runTest("{4,3} in {{1, 2}, {3,4}, {5,6}};"));
 		
@@ -830,7 +831,17 @@ public class DataTypeTests extends TestFramework {
 		assertTrue(runTest("{<1,10>,<2,20>} o {<10,100>, <20,200>} == {<1,100>, <2,200>};"));
 		
 		assertTrue(runTest("{<1, \"a\">, <2, \"b\">} * {<false, 0>, <true, 1>} == {<<1,\"a\">,<false,0>>,<<2,\"b\">,<false,0>>,<<1,\"a\">,<true,1>>,<<2,\"b\">,<true,1>>};"));
+
+		assertTrue(runTest("{<1,2>} join {<2,3>} == {<1,2,2,3>};"));
+		assertTrue(runTest("{<1,2>} join {} == {};"));
+		assertTrue(runTest("{} join {<2,3>} == {};"));
+		assertTrue(runTest("{} join {} == {};"));
+		assertTrue(runTest("{<1,2>} join {3} == {<1,2,3>};"));
+		assertTrue(runTest("{<1,2>} join {3, 4} == {<1,2,3>, <1,2,4>};"));
+		assertTrue(runTest("{1} join {2} == {<1,2>};"));
+		assertTrue(runTest("{1,2,3} join {2} == {<1,2>, <2,2>, <3,2>};"));
 		
+
 		assertTrue(runTest("{} + == {};"));
 		assertTrue(runTest("{} * == {};"));
 		

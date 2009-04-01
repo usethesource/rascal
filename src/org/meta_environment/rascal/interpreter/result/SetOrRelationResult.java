@@ -62,6 +62,8 @@ public class SetOrRelationResult<T extends ISet> extends CollectionResult<T> {
 		return makeResult(getTypeFactory().relTypeFromTuple(tupleType), s.getValue().product(getValue()));
 	}
 
+
+	
 	@Override
 	protected <U extends IValue> Result<U> intersectSet(SetResult s, AbstractAST ast) {
 		return makeResult(type.lub(s.type), getValue().intersect(s.getValue()));
