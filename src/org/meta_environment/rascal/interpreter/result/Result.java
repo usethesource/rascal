@@ -48,6 +48,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	private static final String IF_THEN_ELSE_STRING = "if-then-else";
 	private static final String COMPOSE_STRING = "composition";
 	private static final String NEGATE_STRING = "negation";
+	private static final String JOIN_STRING = "join";
 	private Iterator<Result<IValue>> iterator = null;
 	protected Type type;
 	protected T value;
@@ -149,6 +150,10 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 
 	public <U extends IValue, V extends IValue> Result<U> multiply(Result<V> that, AbstractAST ast) {
 		return undefinedError(MULTIPLICATION_STRING, that, ast);
+	}
+	
+	public <U extends IValue, V extends IValue> Result<U> join(Result<V> that, AbstractAST ast) {
+		return undefinedError(JOIN_STRING, that, ast);
 	}
 	
 	public <U extends IValue, V extends IValue> Result<U> divide(Result<V> that, AbstractAST ast) {
@@ -339,9 +344,18 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	protected <U extends IValue> Result<U> multiplySet(SetResult that, AbstractAST ast) {
 		return that.undefinedError(MULTIPLICATION_STRING, this, ast);
 	}
+	
+	protected <U extends IValue> Result<U> joinSet(SetResult that, AbstractAST ast) {
+		return that.undefinedError(JOIN_STRING, this, ast);
+	}
+
 
 	protected <U extends IValue> Result<U> multiplyRelation(RelationResult that, AbstractAST ast) {
 		return that.undefinedError(MULTIPLICATION_STRING, this, ast);
+	}
+
+	protected <U extends IValue> Result<U> joinRelation(RelationResult that, AbstractAST ast) {
+		return that.undefinedError(JOIN_STRING, this, ast);
 	}
 
 	protected <U extends IValue> Result<U> addMap(MapResult that, AbstractAST ast) {
