@@ -23,6 +23,7 @@ import org.meta_environment.rascal.ast.Assignable.Subscript;
 import org.meta_environment.rascal.ast.Assignable.Tuple;
 import org.meta_environment.rascal.ast.Assignable.Variable;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
+import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredAnnotationError;
@@ -65,63 +66,89 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 		this.value = value;
 		this.env = env;
 		this.eval = eval;
-	}  
+	} 
+	
+	/*
+	 * Given an old result and a right-hand side Result, compute a new result.
+	 */
+	private Result<IValue> newResult(Result<IValue> oldValue, Result<IValue> rhsValue){
+		Result<IValue> newValue;
+		if(oldValue != null){
+			switch(operator){
+			case Default:
+				newValue = rhsValue; break;
+			case Addition:
+				newValue = oldValue.add(rhsValue, eval.getCurrentAST()); break;
+			case Subtraction:
+				newValue = oldValue.subtract(rhsValue, eval.getCurrentAST()); break;
+			case Product:
+				newValue = oldValue.multiply(rhsValue, eval.getCurrentAST()); break;
+			case Division:
+				newValue = oldValue.divide(rhsValue, eval.getCurrentAST()); break;
+			case Intersection:
+				newValue = oldValue.intersect(rhsValue, eval.getCurrentAST()); break;
+			case IsDefined:
+				return oldValue;
+			default:
+				throw new ImplementationError("Unknown assignment operator");
+			}
+		
+			if (newValue.getType().isSubtypeOf(oldValue.getType())) {
+				newValue.setType(oldValue.getType());
+				return newValue;
+			} else {
+				// TODO: I don't think this check uses static types only.
+				throw new UnexpectedTypeError(oldValue.getType(), newValue.getType(),eval.getCurrentAST());
+			}
+		}
+		switch(operator){
+		case Default:
+		case IsDefined:
+				return rhsValue;
+		}
+		throw new UninitializedVariableError("assignment operator", eval.getCurrentAST());
+	}
+	
+	private Result<IValue> newResult(IValue oldValue, Result<IValue> rhsValue){
+		if(oldValue != null){
+			Result<IValue> res = makeResult(oldValue.getType(), oldValue);
+			return newResult(res, rhsValue);
+		}
+		switch(operator){
+		case Default:
+		case IsDefined:
+				return rhsValue;
+		}
+		throw new UninitializedVariableError("assignment operator", eval.getCurrentAST());
+	}
 	
 	@Override
 	public Result<IValue> visitAssignableVariable(Variable x) {
 		QualifiedName qname = x.getQualifiedName();
 		Result<IValue> previous = env.getVariable(qname);
 		
-		
-		if (previous != null) {
-			if (value.getType().isSubtypeOf(previous.getType())) {
-				value.setType(previous.getType());
-			} else {
-				// TODO: I don't think this check uses static types only.
-				throw new UnexpectedTypeError(previous.getType(), value.getType(), x);
-			}
-			switch(operator){
-			case Addition:
-				value = env.getVariable(qname).add(value, eval.getCurrentAST());
-				break;
-			case Subtraction:
-				value = env.getVariable(qname).subtract(value, eval.getCurrentAST());
-				break;
-			case Product:
-				value = env.getVariable(qname).multiply(value, eval.getCurrentAST());
-				break;
-			case Division:
-				value = env.getVariable(qname).divide(value, eval.getCurrentAST());
-				break;
-			case Intersection:
-				value = env.getVariable(qname).intersect(value, eval.getCurrentAST());
-				break;
-			case IsDefined:
-				return env.getVariable(qname);
-			}
+		if(previous != null){
+			value = newResult(env.getVariable(qname), value);
 			env.storeVariable(qname, value);
+			return value;
 		}
-		else {
-			switch(operator){
-			case Default:
-			case IsDefined:
-				env.storeVariable(x.getQualifiedName(), value);
-				break;
-			default:
-				throw new UninitializedVariableError(x.toString(), x);
-			}
+		switch(operator){
+		case Default:
+		case IsDefined:
+				env.storeVariable(qname, value);
+				return value;
 		}
+		throw new UninitializedVariableError(x.toString(), x);
 		
 		// TODO implement semantics of global keyword, when not given the
 		// variable should be inserted in the local scope.
-		return value;
 	}
 	
 	@Override
 	public Result<IValue> visitAssignableAnnotation(Annotation x) {
 		String label = x.getAnnotation().toString();
 		Result<IValue> result = x.getReceiver().accept(eval);
-		
+				
 		if(result == null || result.getValue() == null)
 			throw new UninitializedVariableError(x.getReceiver().toString(), x.getReceiver());
 		
@@ -129,6 +156,11 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 			throw new UndeclaredAnnotationError(label, result.getType(), x);
 		}
 		
+		try {
+			value = newResult(result.getAnnotation(label, env, x), value);
+		} catch (Throw e){
+			// NoSuchAnnotation
+		}
 		return recur(x, result.setAnnotation(label, value, env, x));
 //		result.setValue(((IConstructor) result.getValue()).setAnnotation(label, value.getValue()));
 		//return recur(x, result);
@@ -148,6 +180,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 			try {
 				IList list = (IList) rec.getValue();
 				int index = ((IInteger) subscript.getValue()).intValue();
+				value = newResult(list.get(index), value);
 				list = list.put(index, value.getValue());
 				result = makeResult(rec.getType(), list);
 			}  
@@ -159,6 +192,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 			Type keyType = rec.getType().getKeyType();
 			
 			if (subscript.getType().isSubtypeOf(keyType)) {
+				value = newResult(((IMap) rec.getValue()).get(subscript.getValue()), value);
 				IMap map = ((IMap) rec.getValue()).put(subscript.getValue(), value.getValue());
 				result = makeResult(rec.getType(), map);
 			}
@@ -173,6 +207,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 			if(index >= node.arity()){
 				throw RuntimeExceptionFactory.indexOutOfBounds((IInteger) subscript.getValue(), eval.getCurrentAST());
 			}
+			value = newResult(node.get(index), value);
 			node = node.set(index, value.getValue());
 			result = makeResult(rec.getType(), node);
 		} else {
@@ -210,6 +245,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 			if (!receiver.getType().hasField(label)) {
 				throw new UndeclaredFieldError(label, receiver.getType(), x);
 			}
+			value = newResult(((ITuple) receiver.getValue()).get(label), value);
 			IValue result = ((ITuple) receiver.getValue()).set(label, value.getValue());
 			return recur(x, makeResult(receiver.getType(), result));
 		}
@@ -232,6 +268,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 			if (!value.getType().isSubtypeOf(node.getFieldType(index))) {
 				throw new UnexpectedTypeError(node.getFieldType(index), value.getType(), x);
 			}
+			value = newResult(cons.get(index), value);
 			
 			IValue result = cons.set(index, value.getValue());
 			return recur(x, makeResult(receiver.getType(), result));
@@ -239,6 +276,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 		else if (receiver.getType().isSourceLocationType()){
 //			ISourceLocation loc = (ISourceLocation) receiver.getValue();
 			
+			value = newResult(receiver.fieldAccess(label, env.getStore(), x), value);
 			return recur(x, receiver.fieldUpdate(label, value, env.getStore(), x));
 			//return recur(x, eval.sourceLocationFieldUpdate(loc, label, value.getValue(), value.getType(), x));
 		}

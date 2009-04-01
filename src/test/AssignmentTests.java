@@ -50,7 +50,7 @@ public class AssignmentTests extends TestFramework {
 		assertTrue(runTest("{<a, b> = <1, 2>; (a == 1) && (b == 2);}"));
 	}
 	
-	@Test public void testList() {
+	@Test public void testList1() {
 		assertTrue(runTest("{list[int] L = []; L == [];}"));
 		assertTrue(runTest("{list[int] L = [0,1,2]; L[1] = 10; L == [0,10,2];}"));
 		assertTrue(runTest("{L = [0,1,2]; L[1] = 10; L == [0,10,2];}"));
@@ -59,12 +59,22 @@ public class AssignmentTests extends TestFramework {
 		
 		assertTrue(runTest("{list[int] L = [1,2,3]; L += [4]; L==[1,2,3,4];}"));
 		assertTrue(runTest("{list[int] L = [1,2,3]; L -= [2]; L==[1,3];}"));
-		assertTrue(runTest("{list[int] L = [1,2,3]; L *= [4]; L==[<1,4>,<2,4>,<3,4>];}"));
 		assertTrue(runTest("{list[int] L = [1,2,3]; L ?= [4]; L==[1,2,3];}"));
 		assertTrue(runTest("{                       L ?= [4]; L==[4];}"));
 	}
 	
-	@Test public void testMap() {
+	@Test public void testList2() {
+		assertTrue(runTest("{list[list[int]] L = [[1,2,3],[10,20,30]]; L[0] += [4]; L==[[1,2,3,4],[10,20,30]];}"));
+		assertTrue(runTest("{list[list[int]] L = [[1,2,3],[10,20,30]]; L[0] -= [2]; L==[[1,3],[10,20,30]];}"));
+		assertTrue(runTest("{list[list[int]] L = [[1,2,3],[10,20,30]]; L[0] ?= [4]; L==[[1,2,3],[10,20,30]];}"));
+	}
+	
+	@Test(expected=UnexpectedTypeError.class)
+	public void errorList(){
+		assertTrue(runTest("{list[int] L = {1,2,3}; L *= [4]; L==[<1,4>,<2,4>,<3,4>];}"));
+	}
+	
+	@Test public void testMap1() {
 		assertTrue(runTest("{map[int,int] M = (); M == ();}"));
 		assertTrue(runTest("{map[int,int] M = (1:10, 2:20); M == (1:10, 2:20);}"));
 		
@@ -74,14 +84,59 @@ public class AssignmentTests extends TestFramework {
 		assertTrue(runTest("{                               M ?= (3:30); M==(3:30);}"));
 	}
 	
+	@Test(expected=UnexpectedTypeError.class)
+	public void errorMap(){
+		assertTrue(runTest("{map[int,list[int]] M = (0:[1,2,3],1:[10,20,30]); M[0] *= [4]; M==(0:[<1,4>,<2,4>,<3,4>],1:[10,20,30]);}"));
+
+	}
+	
+	@Test public void testMap2() {
+		assertTrue(runTest("{map[int,list[int]] M = (0:[1,2,3],1:[10,20,30]); M[0] += [4]; M==(0:[1,2,3,4],1:[10,20,30]);}"));
+		assertTrue(runTest("{map[int,list[int]] M = (0:[1,2,3],1:[10,20,30]); M[0] -= [2]; M==(0:[1,3],1:[10,20,30]);}"));
+		assertTrue(runTest("{map[int,list[int]] M = (0:[1,2,3],1:[10,20,30]); M[0] ?= [4]; M==(0:[1,2,3],1:[10,20,30]);}"));
+		assertTrue(runTest("{map[int, list[int]] M = (0:[1,2,3],1:[10,20,30]); M[2] ?= [4]; M==(0:[1,2,3],1:[10,20,30], 2:[4]);}"));
+		
+	}
+	
 	@Test public void testSet() {
 		assertTrue(runTest("{set[int] S = {}; S == {};}"));
 		assertTrue(runTest("{set[int] S = {0,1,2}; S == {0, 1, 2};}"));
 		
 		assertTrue(runTest("{set[int] L = {1,2,3}; L += {4}; L=={1,2,3,4};}"));
 		assertTrue(runTest("{set[int] L = {1,2,3}; L -= {2}; L=={1,3};}"));
-		assertTrue(runTest("{set[int] L = {1,2,3}; L *= {4}; L=={<1,4>,<2,4>,<3,4>};}"));
 		assertTrue(runTest("{set[int] L = {1,2,3}; L ?= {4}; L=={1,2,3};}"));
 		assertTrue(runTest("{                       L ?= {4}; L=={4};}"));
+	}
+	
+	@Test(expected=UnexpectedTypeError.class)
+	public void errorSet(){
+		assertTrue(runTest("{set[int] L = {1,2,3}; L *= {4}; L=={<1,4>,<2,4>,<3,4>};}"));
+	}
+	
+	@Test public void testADT(){
+		
+		prepare("data D = listfield(list[int] ints) | intfield(int i);");
+
+		assertTrue(runTestInSameEvaluator("{D d = listfield([1,2]); d.ints += [3]; d == listfield([1,2,3]);}"));
+		assertTrue(runTestInSameEvaluator("{D d = listfield([1,2]); d.ints -= [2]; d == listfield([1]);}"));
+		
+		assertTrue(runTestInSameEvaluator("{D d = intfield(2); d.i += 3; d == intfield(5);}"));
+		assertTrue(runTestInSameEvaluator("{D d = intfield(5); d.i -= 3; d == intfield(2);}"));
+		assertTrue(runTestInSameEvaluator("{D d = intfield(5); d.i *= 3; d == intfield(15);}"));
+		assertTrue(runTestInSameEvaluator("{D d = intfield(6); d.i /= 3; d == intfield(2);}"));
+	}
+	
+	@Test
+	public void testAnnotations(){
+		prepare("data F = f | f(int n) | g(int n) | deep(F f);");
+		prepareMore("anno int F @ pos;");
+		
+		assertTrue(runTestInSameEvaluator("{F X = f; X @ pos = 1; X @ pos == 1;}"));
+		assertTrue(runTestInSameEvaluator("{F X = f; X @ pos = 2; X @ pos += 3;  X @ pos == 5;}"));
+		assertTrue(runTestInSameEvaluator("{F X = f; X @ pos = 3; X @ pos -= 2;  X @ pos == 1;}"));
+		assertTrue(runTestInSameEvaluator("{F X = f; X @ pos = 2; X @ pos *= 3;  X @ pos == 6;}"));
+		assertTrue(runTestInSameEvaluator("{F X = f; X @ pos = 6; X @ pos /= 3;  X @ pos == 2;}"));
+		assertTrue(runTestInSameEvaluator("{F X = f; X @ pos = 6; X @ pos ?= 3;  X @ pos == 6;}"));
+		assertTrue(runTestInSameEvaluator("{F X = f;              X @ pos ?= 3;  X @ pos == 3;}"));
 	}
 }
