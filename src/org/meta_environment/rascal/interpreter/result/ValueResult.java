@@ -5,6 +5,7 @@ import java.util.Iterator;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.AbstractAST;
+import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedOperationError;
 
 public class ValueResult extends ElementResult<IValue> {
 
@@ -31,68 +32,67 @@ public class ValueResult extends ElementResult<IValue> {
 	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> that, AbstractAST ast) {
 		// the default fall back implementation for IValue-based results
 		// Note the use of runtime types here. 
-		int result = getValue().getType().toString().compareTo(that.getValue().getType().toString());
-		return makeIntegerResult(result);
+		return dynamicCompare(getValue(), that.getValue(), ast);
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> equalToInteger(IntegerResult that, AbstractAST ast) {
-		return equalityBoolean(that);
+		return equalityBoolean(that, ast);
 	}
 
 	@Override
 	protected <U extends IValue> Result<U> equalToReal(RealResult that, AbstractAST ast) {
-		return equalityBoolean(that);
+		return equalityBoolean(that, ast);
 	}
 
 	@Override
 	protected <U extends IValue> Result<U> equalToString(StringResult that, AbstractAST ast) {
-		return equalityBoolean(that);
+		return equalityBoolean(that, ast);
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> equalToList(ListResult that, AbstractAST ast) {
-		return equalityBoolean(that);
+		return equalityBoolean(that, ast);
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> equalToSet(SetResult that, AbstractAST ast) {
-		return equalityBoolean(that);
+		return equalityBoolean(that, ast);
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> equalToMap(MapResult that, AbstractAST ast) {
-		return equalityBoolean(that);
+		return equalityBoolean(that, ast);
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> equalToNode(NodeResult that, AbstractAST ast) {
-		return equalityBoolean(that);
+		return equalityBoolean(that, ast);
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> equalToSourceLocation(SourceLocationResult that, AbstractAST ast) {
-		return equalityBoolean(that);
+		return equalityBoolean(that, ast);
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> equalToRelation(RelationResult that, AbstractAST ast) {
-		return equalityBoolean(that);
+		return equalityBoolean(that, ast);
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> equalToTuple(TupleResult that, AbstractAST ast) {
-		return equalityBoolean(that);
+		return equalityBoolean(that, ast);
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> equalToBool(BoolResult that, AbstractAST ast) {
-		return equalityBoolean(that);
+		return equalityBoolean(that, ast);
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> equalToValue(ValueResult that, AbstractAST ast) {
-		return that.equalityBoolean(this);
+		return that.equalityBoolean(this, ast);
 	}
 
 	
@@ -216,6 +216,20 @@ public class ValueResult extends ElementResult<IValue> {
 		int result = getType().toString().compareTo(that.getType().toString());
 		return makeIntegerResult(result);
 	}
-
-
+	
+	private <U extends IValue> Result<U> dynamicCompare(IValue a, IValue b, AbstractAST ast) {
+		// Since equals and compare must be total on all values, we are allowed
+		// to lift dynamic types here to static types. This makes the dynamic compare the 
+		// same as the static compare (to prevent surprises). However, if the static types
+		// do not implement a comparison (like [] == 1 compares a list to an int), 
+		// then we fall back to the comparison of type names.
+		try {
+			Result<?> aResult = ResultFactory.makeResult(a.getType(), a);
+			Result<?> bResult = ResultFactory.makeResult(b.getType(), b);
+			return aResult.compare(bResult, ast);
+		}
+		catch (UnsupportedOperationError e) {
+			return makeIntegerResult(a.getType().toString().compareTo(b.getType().toString()));
+		}
+	}
 }

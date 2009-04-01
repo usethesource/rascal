@@ -96,7 +96,7 @@ public class NodeResult extends ElementResult<INode> {
 
 	@Override
 	protected <U extends IValue> Result<U> equalToNode(NodeResult that, AbstractAST ast) {
-		return that.equalityBoolean(this);
+		return that.equalityBoolean(this, ast);
 	}
 	
 	@Override

@@ -93,7 +93,7 @@ public class SetOrRelationResult<T extends ISet> extends CollectionResult<T> {
 	@Override
 	protected <U extends IValue> Result<U> equalToRelation(RelationResult that,
 			AbstractAST ast) {
-				return that.equalityBoolean(this);
+				return that.equalityBoolean(this, ast);
 			}
 
 	@Override
@@ -104,7 +104,7 @@ public class SetOrRelationResult<T extends ISet> extends CollectionResult<T> {
 
 	@Override
 	protected <U extends IValue> Result<U> equalToSet(SetResult that, AbstractAST ast) {
-		return that.equalityBoolean(this);
+		return that.equalityBoolean(this, ast);
 	}
 
 	@Override

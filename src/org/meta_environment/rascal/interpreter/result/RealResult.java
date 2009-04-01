@@ -90,18 +90,18 @@ public class RealResult extends ElementResult<IReal> {
 	
 	@Override
 	protected <U extends IValue> Result<U> addInteger(IntegerResult n, AbstractAST ast) {
-		return n.widenToReal().add(n, ast);
+		return n.widenToReal().add(this, ast);
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> subtractInteger(IntegerResult n, AbstractAST ast) {
 		// Note reversed args: we need n - this
-		return n.widenToReal().subtract(n, ast);
+		return n.widenToReal().subtract(this, ast);
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> multiplyInteger(IntegerResult n, AbstractAST ast) {
-		return n.widenToReal().multiply(n, ast);
+		return n.widenToReal().multiply(this, ast);
 	}
 	
 	@Override
@@ -134,7 +134,7 @@ public class RealResult extends ElementResult<IReal> {
 	
 	@Override
 	protected <U extends IValue> Result<U> equalToReal(RealResult that, AbstractAST ast) {
-		return that.equalityBoolean(this);
+		return that.equalityBoolean(this, ast);
 	}
 
 	@Override
@@ -208,6 +208,12 @@ public class RealResult extends ElementResult<IReal> {
 		IReal right = this.getValue();
 		int result = left.compare(right);
 		return makeIntegerResult(result);
+	}
+	
+	@Override
+	protected <U extends IValue> Result<U> compareInteger(IntegerResult that,
+			AbstractAST ast) {
+		return that.widenToReal().compare(this, ast);
 	}
 
 	

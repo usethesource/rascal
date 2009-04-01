@@ -211,7 +211,7 @@ public class IntegerResult extends ElementResult<IInteger> {
 
 	@Override
 	protected <U extends IValue> Result<U> equalToInteger(IntegerResult that, AbstractAST ast) {
-		return that.equalityBoolean(this);
+		return that.equalityBoolean(this, ast);
 	}
 	
 	@Override

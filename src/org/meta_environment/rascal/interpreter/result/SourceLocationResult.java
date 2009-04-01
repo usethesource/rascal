@@ -132,7 +132,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 	
 	@Override
 	protected <U extends IValue> Result<U> equalToSourceLocation(SourceLocationResult that, AbstractAST ast) {
-		return that.equalityBoolean(this);
+		return that.equalityBoolean(this, ast);
 	}
 
 	@Override

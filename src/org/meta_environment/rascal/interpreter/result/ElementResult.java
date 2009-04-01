@@ -120,7 +120,7 @@ public class ElementResult<T extends IValue> extends Result<T> {
 
 	@Override
 	protected <U extends IValue> Result<U> equalToValue(ValueResult that, AbstractAST ast) {
-		return that.equalityBoolean(this);
+		return that.equalityBoolean(this, ast);
 	}
 
 	
@@ -191,9 +191,9 @@ public class ElementResult<T extends IValue> extends Result<T> {
 		return ((IInteger)compare(that, ast).getValue()).intValue();
 	}
 
-	protected <U extends IValue> Result<U> equalityBoolean(ElementResult that) {
+	protected <U extends IValue> Result<U> equalityBoolean(ElementResult that, AbstractAST ast) {
 		// Do not delegate to comparison here, since it takes runtime types into account
-		return bool(that.getValue().isEqual(this.getValue()));
+		return bool(((IInteger)compare(that, ast).getValue()).intValue() == 0);
 	}
 
 	protected <U extends IValue, V extends IValue> Result<U> nonEqualityBoolean(ElementResult<V> that) {

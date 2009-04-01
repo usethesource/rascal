@@ -143,7 +143,7 @@ public class TupleResult extends ElementResult<ITuple> {
 	
 	@Override
 	protected <U extends IValue> Result<U> equalToTuple(TupleResult that, AbstractAST ast) {
-		return that.equalityBoolean(this);
+		return that.equalityBoolean(this, ast);
 	}
 	
 	@Override
