@@ -14,46 +14,51 @@ public data Grammar     = grammar(str start, set[Rule] rules);
 
 // First and follow
 
-public map[Symbol, set[Symbol]] FIRST = ();
-
-public set[Symbol] firstNonEmpty(Grammar G, list[Symbol] symbols){
+public set[Symbol] firstNonEmpty(list[Symbol] symbols, map[Symbol, set[Symbol]] FIRST){
     println("firstNonEmpty(<symbols>)");
 	for(Symbol sym <- symbols){
 	    switch(sym){
 	    case t(_):
 	    	return {sym};
 	    case nt(str name): {
-	    		frts = first(G, subject);
+	    		frts = FIRST[subject] ? {};
 	 			if(epsilon notin frts)
-					return frts - {epsilon};
+					return frts;
 			}
 		}
 	}
 	return {};
 }
 
-public set[Symbol] first(Grammar G, Symbol sym){
- 	println("first(<sym>)");
-	switch(sym){
+public map[Symbol, set[Symbol]] first(Grammar G){
+	symbols = symbols(G);
 	
-	case epsilon: return {epsilon};
-	
-	case t(_): return {sym};
-	
-	case nt(str name): {
-	        nonterm = subject;
+	with
+		map[Symbol, set[Symbol]] FIRST = ();
+	solve {
+		for(Symbol sym <- symbols){
+		
+		    switch(sym){
+		    case t(_):
+		    	FIRST[sym] = {sym};
+		    case nt(str name):
+		    	{
+	        		nonterm = nt(name);
 	        
-			for(list[Symbol] symbols <- G.rules[name]){
-				f = firstNonEmpty(G, symbols);
-				if(isEmpty(f))
-					FIRST[nonterm] += epsilon;
-				else
-					FIRST[nonterm] += f;
+					for(list[Symbol] symbols <- G.rules[name]){
+						f = firstNonEmpty(symbols, FIRST);
+				
+						println("f = <f>");
+						if(isEmpty(f))
+							FIRST[nonterm] = FIRST[nonterm]?{} + {epsilon};
+						else
+							FIRST[nonterm] = FIRST[nonterm]?{} + f;
+					}
 			}
-			return FIRST[nonterm];
 		}
-	}
-	
+	}	
+	println("FIRST = <FIRST>");
+	return FIRST;
 }
 
 
@@ -133,9 +138,14 @@ public ItemSet goto(Grammar G, ItemSet I, Symbol sym){
     return closure(G, {moveRight(it) | Item it <- I, atSymbol(it, sym)});
 }
 
+public set[Symbol] symbols(Grammar G){
+   return { sym | Rule r <- G.rules, Symbol sym <- r.symbols};
+}
+
 public set[ItemSet] items(Grammar G){
 	// Extract the symbols from the grammar
-	set[Symbol] symbols = { sym | Rule r <- G.rules, Symbol sym <- r.symbols};
+	set[Symbol] symbols = symbols(G);
+	
 	// Add a new start rule
 	Rule startRule = <"START", [nt(G.start)]>;
 	G.rules = G.rules + {startRule};  // TODO += does not seem to work here
@@ -171,7 +181,7 @@ public Grammar G2 = grammar( "E",
 
 public bool test(){
 
-    assertEqual(first(G2, nt("E")), {t("("), t("id")});
+    assertEqual(first(G2), {t("("), t("id")});
     
 	assertEqual(items(G1),
 	{
