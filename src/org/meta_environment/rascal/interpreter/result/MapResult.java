@@ -130,7 +130,7 @@ public class MapResult extends ElementResult<IMap> {
 	
 	@Override
 	protected <U extends IValue> Result<U> equalToMap(MapResult that, AbstractAST ast) {
-		return that.equalityBoolean(this);
+		return that.equalityBoolean(this, ast);
 	}
 	
 	@Override

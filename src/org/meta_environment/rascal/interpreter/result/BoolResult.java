@@ -94,7 +94,7 @@ public class BoolResult extends ElementResult<IBool> {
 	
 	@Override
 	protected <U extends IValue> Result<U> equalToBool(BoolResult that, AbstractAST ast) {
-		return that.equalityBoolean(this);
+		return that.equalityBoolean(this, ast);
 	}
 	
 	@Override

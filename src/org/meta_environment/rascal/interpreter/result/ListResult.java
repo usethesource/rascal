@@ -161,7 +161,7 @@ public class ListResult extends CollectionResult<IList> {
 	
 	@Override
 	protected <U extends IValue> Result<U> equalToList(ListResult that, AbstractAST ast) {
-		return that.equalityBoolean(this);
+		return that.equalityBoolean(this, ast);
 	}
 	
 	@Override

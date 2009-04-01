@@ -82,7 +82,7 @@ public class StringResult extends ElementResult<IString> {
 	
 	@Override
 	protected <U extends IValue> Result<U> equalToString(StringResult that, AbstractAST ast) {
-		return that.equalityBoolean(this);
+		return that.equalityBoolean(this, ast);
 	}
 	
 	@Override
