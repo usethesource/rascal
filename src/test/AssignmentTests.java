@@ -45,6 +45,26 @@ public class AssignmentTests extends TestFramework {
 		assertTrue(runTest("{           N ?= 2; N==2;}"));
 	}
 	
+	@Test(expected=UninitializedVariableError.class)
+	public void integerError1(){
+		runTest("N += 2;");
+	}
+	
+	@Test(expected=UninitializedVariableError.class)
+	public void integerError2(){
+		runTest("N -= 2;");
+	}
+	
+	@Test(expected=UninitializedVariableError.class)
+	public void integerError3(){
+		runTest("N *= 2;");
+	}
+	
+	@Test(expected=UninitializedVariableError.class)
+	public void integerError4(){
+		runTest("N /= 2;");
+	}
+	
 	@Test public void testTuple() {
 		assertTrue(runTest("{int a = 1; int b = 2; <a, b> = <b, a>; (a == 2) && (b == 1);}"));
 		assertTrue(runTest("{<a, b> = <1, 2>; (a == 1) && (b == 2);}"));
@@ -138,5 +158,40 @@ public class AssignmentTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{F X = f; X @ pos = 6; X @ pos /= 3;  X @ pos == 2;}"));
 		assertTrue(runTestInSameEvaluator("{F X = f; X @ pos = 6; X @ pos ?= 3;  X @ pos == 6;}"));
 		assertTrue(runTestInSameEvaluator("{F X = f;              X @ pos ?= 3;  X @ pos == 3;}"));
+	}
+	
+	@Test(expected=UninitializedVariableError.class)
+	public void annotationError1(){
+		prepare("data F = f | f(int n) | g(int n) | deep(F f);");
+		prepareMore("anno int F @ pos;");
+		runTestInSameEvaluator("X @ pos = 1;");
+	}
+	
+	@Test(expected=UninitializedVariableError.class)
+	public void annotationError2(){
+		prepare("data F = f | f(int n) | g(int n) | deep(F f);");
+		prepareMore("anno int F @ pos;");
+		runTestInSameEvaluator("X @ pos += 1;");
+	}
+	
+	@Test(expected=UninitializedVariableError.class)
+	public void annotationError3(){
+		prepare("data F = f | f(int n) | g(int n) | deep(F f);");
+		prepareMore("anno int F @ pos;");
+		runTestInSameEvaluator("X @ pos -= 1;");
+	}
+	
+	@Test(expected=UninitializedVariableError.class)
+	public void annotationError4(){
+		prepare("data F = f | f(int n) | g(int n) | deep(F f);");
+		prepareMore("anno int F @ pos;");
+		runTestInSameEvaluator("X @ pos *= 1;");
+	}
+	
+	@Test(expected=UninitializedVariableError.class)
+	public void annotationError5(){
+		prepare("data F = f | f(int n) | g(int n) | deep(F f);");
+		prepareMore("anno int F @ pos;");
+		runTestInSameEvaluator("X @ pos /= 1;");
 	}
 }
