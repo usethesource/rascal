@@ -196,6 +196,7 @@ public class DataTypeTests extends TestFramework {
 		assertTrue(runTest("-1.0 != 1.0;"));
 		
 		assertTrue(runTest("1.0 == 1;"));
+		assertTrue(runTest("1.00 == 1.0;"));
 		assertTrue(runTest("1 == 1.0;"));
 		
 		assertTrue(runTest("{value x = 1.0; value y = 1; x == y; }"));
@@ -219,21 +220,23 @@ public class DataTypeTests extends TestFramework {
 		assertTrue(runTest("2.0 - -1 == 3.0;"));	
 		assertTrue(runTest("-2 - 1.0 == -3.0;"));
 		
-		assertTrue(runTest("2.0 * 3.0 == 6.0;"));	
-		assertTrue(runTest("-2.0 * 3.0 == -6.0;"));	
-		assertTrue(runTest("2.0 * (-3.0) == -6.0;"));
-		assertTrue(runTest("-2.0 * (-3.0) == 6.0;"));	
+		assertTrue(runTest("2.0 * 3.0 == 6.00;"));	
+		assertTrue(runTest("-2.0 * 3.0 == -6.00;"));	
+		assertTrue(runTest("2.0 * (-3.0) == -6.00;"));
+		assertTrue(runTest("-2.0 * (-3.0) == 6.00;"));	
 		
 		assertTrue(runTest("2.0 * 3 == 6.0;"));	
 		assertTrue(runTest("-2 * 3.0 == -6.0;"));	
 		assertTrue(runTest("2.0 * (-3) == -6.0;"));
 		assertTrue(runTest("-2 * (-3.0) == 6.0;"));	
 		
-		assertTrue(runTest("8.0 / 4.0 == 2.0;"));	
-		assertTrue(runTest("-8.0 / 4.0 == -2.0;"));
-		assertTrue(runTest("8.0 / -4.0 == -2.0;"));	
-		assertTrue(runTest("-8.0 / -4.0 == 2.0;"));
+		assertTrue(runTest("8.0 / 4.0 == 2e0;"));	
+		assertTrue(runTest("-8.0 / 4.0 == -2e0;"));
+		assertTrue(runTest("8.0 / -4.0 == -2e0;"));	
+		assertTrue(runTest("-8.0 / -4.0 == 2e0;"));
 		
+		// TODO, I don't get it, why does the previous have 1 digit precision and this
+		// one two digits
 		assertTrue(runTest("7.0 / 2.0 == 3.5;"));	
 		assertTrue(runTest("-7.0 / 2.0 == -3.5;"));
 		assertTrue(runTest("7.0 / -2.0 == -3.5;"));	
