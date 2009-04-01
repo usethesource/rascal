@@ -46,7 +46,7 @@ public class RSF {
 			java.lang.String line = bufRead.readLine();
 
 			while (line != null) {
-				java.lang.String[] fields = line.split("\t");
+				java.lang.String[] fields = line.split("\\s+");
 				java.lang.String name = fields[0];
 				//System.err.println(fields[0] + "|" + fields[1] + "|" + fields[2]);
 				if (!table.containsKey(name)) {
