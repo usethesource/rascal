@@ -1521,7 +1521,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		java.util.List<org.meta_environment.rascal.ast.Expression> elements = x
 				.getElements();
 		
-		Type elementType = null;
+		Type elementType =  tf.voidType();;
 		java.util.List<IValue> results = new ArrayList<IValue>();
 
 		for (org.meta_environment.rascal.ast.Expression expr : elements) {
@@ -1529,27 +1529,20 @@ public class Evaluator extends NullASTVisitor<Result> {
 			
 			if(resultElem.getType().isListType() &&
 			   !expr.isList() &&
-				(elementType == null ||
-				 elementType.isSubtypeOf(resultElem.getType().getElementType()))
+			   elementType.isSubtypeOf(resultElem.getType().getElementType())
 			   ){
 				/*
 				 * Splice elements in list if element types permit this
 				 */
-				if(elementType == null)
-					elementType = resultElem.getType().getElementType();
 				for(IValue val : ((IList) resultElem.getValue())){
 					elementType = elementType.lub(val.getType());
 					results.add(val);
 				}
 			} else {
-				if(elementType == null)
-					elementType = resultElem.getType();
 				elementType = elementType.lub(resultElem.getType());
 				results.add(results.size(), resultElem.getValue());
 			}
 		}
-		if(elementType == null)
-			elementType = tf.voidType();
 		Type resultType = tf.listType(elementType);
 		IListWriter w = resultType.writer(vf);
 		w.appendAll(results);
