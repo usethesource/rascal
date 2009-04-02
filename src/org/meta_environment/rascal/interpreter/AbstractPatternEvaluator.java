@@ -1377,6 +1377,9 @@ class SingleElementGenerator implements Iterator<ISet> {
 
 	AbstractPatternTypedVariable(IValueFactory vf, Environment env, org.eclipse.imp.pdb.facts.type.Type type2, TypedVariable var) {
 		super(vf, var);
+		if(env.getVariable(var, var.getName().toString()) != null){
+			throw new RedeclaredVariableError(var.getName().toString(), var);
+		}
 		this.declaredType = type2;
 		this.name = var.getName();
 		this.env = env;
