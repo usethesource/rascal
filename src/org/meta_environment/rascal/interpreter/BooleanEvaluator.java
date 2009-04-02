@@ -33,17 +33,17 @@ public abstract class BooleanEvaluator implements Iterator<Result<IValue>> {
 	static final int RIGHT = 1;
 	Expression expr[];
 	Result<IValue> result[];
-	Evaluator ev;
+	Evaluator evaluator;
 	
 	@SuppressWarnings("unchecked")
-	BooleanEvaluator(Expression leftExpr, Expression rightExpr, Evaluator ev){
+	BooleanEvaluator(Expression leftExpr, Expression rightExpr, Evaluator evaluator){
 		expr = new Expression[] { leftExpr, rightExpr };
-		this.ev = ev;
+		this.evaluator = evaluator;
 		result = new Result[] { null, null };
 	}
 	
 	void defArg(int i){
-		Result argResult = expr[i].accept(ev);
+		Result argResult = expr[i].accept(evaluator);
 		if(!argResult.getType().isBoolType()){
 			throw new UnexpectedTypeError(TypeFactory.getInstance().boolType(), argResult.getType(), expr[i]);
 		}
@@ -262,23 +262,32 @@ class EquivalenceEvaluator extends BooleanEvaluator {
 class MatchEvaluator implements Iterator<Result<IValue>> {
 	private boolean positive;
 	private MatchPattern mp;
+	private Evaluator evaluator;
 	
 	// TODO: remove use of evaluator here! it's not good to have this dependency and the use
 	// of the "global" variable lastPattern complicates things a lot.
 	MatchEvaluator(Expression pat, Expression subject, boolean positive, Environment env, Evaluator ev){
     	this.positive = positive;
+    	this.evaluator = ev;
+    	evaluator.push();
     	mp = ev.evalPattern(pat);
     	ev.lastPattern = mp;
-    	mp.initMatch(subject.accept(ev).getValue(), env);
+    	mp.initMatch(subject.accept(ev).getValue(), evaluator.peek());
 	}
 
 	public boolean hasNext() {
-		return mp.hasNext();
+		boolean hn = mp.hasNext();
+		if(!hn)
+			evaluator.pop();
+		return hn;
 	}
 
 	public Result next() {
-		boolean result = positive ? mp.next() : !mp.next();
-		return new BoolResult(result, this);
+		if(hasNext()){	
+			boolean result = positive ? mp.next() : !mp.next();
+			return new BoolResult(result, this);
+		} else
+			return new BoolResult(!positive, this);
 	}
 
 	public void remove() {
