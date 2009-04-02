@@ -7,7 +7,8 @@ Bundle-Version: 0.1
 Bundle-ClassPath: rascal.jar,
  lib/hickory_check.jar,
  lib/jline-0.9.94.jar,
- lib/junit.jar
+ lib/junit.jar,
+ .
 Bundle-Localization: plugin
 Export-Package: org.meta_environment.errors,
  org.meta_environment.rascal.ast,
@@ -20,4 +21,5 @@ Export-Package: org.meta_environment.errors,
  org.meta_environment.uptr,
  org.meta_environment.uptr.visitors
 Require-Bundle: org.eclipse.imp.pdb.values,
- sglr_invoker
+ sglr_invoker,
+ pdb_shared;bundle-version="1.0.0"
