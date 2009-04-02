@@ -173,6 +173,7 @@ import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.result.ResultFactory;
 import org.meta_environment.rascal.interpreter.staticErrors.MissingModifierError;
 import org.meta_environment.rascal.interpreter.staticErrors.ModuleNameMismatchError;
+import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredAnnotationError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFieldError;
@@ -681,6 +682,9 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result<IValue> r = ResultFactory.nothing();
 
 		for (org.meta_environment.rascal.ast.Variable var : x.getVariables()) {
+			if(peek().getVariable(var, var.getName().toString()) != null){
+				throw new RedeclaredVariableError(var.getName().toString(), var);
+			}
 			if (var.isUnInitialized()) {  // variable declaration without initialization
 				r = ResultFactory.makeResult(declaredType, null);
 				peek().storeVariable(var.getName(), r);
