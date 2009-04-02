@@ -6,7 +6,12 @@ import org.junit.Test;
 
 public class BackTrackingTests extends TestFramework {
 	
-	@Test public void testSimple() {
+	@Test public void testSimple(){
+		assertTrue(runTest("int i <- [1,4] && int k := i && k >= 4;"));
+		assertTrue(runTest("int i <- [1,4] && int j <- [2,1] && int k := i + j && k >= 5;"));
+	}
+	
+	@Test public void testList() {
 		
 		assertTrue(runTest("{([list[int] L1, int N, list[int] L2] := [1,2,3,4]) && (N == 3); " + 
 								"(L1 == [1,2]) && (N == 3) && (L2 == [4]);}"));
@@ -22,5 +27,6 @@ public class BackTrackingTests extends TestFramework {
 	
 	@Test public void and(){
 		assertTrue(runTest("int i <- [0, 1] && [\"a\",\"b\"][i] == \"a\";"));
+		assertTrue(runTest("int i <- [0, 1] && [\"a\",\"b\"][i] == \"b\";"));
 	}
 }

@@ -273,7 +273,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	}
 
 
-	private Environment peek() {
+	Environment peek() {
 		return this.callStack.peek();
 	}
 	
@@ -401,12 +401,12 @@ public class Evaluator extends NullASTVisitor<Result> {
 	}
 
 
-	private void pop() {
+	void pop() {
 		callStack.pop();
 	}
 
 
-	private void push() {
+	void push() {
 		callStack.push(new Environment(peek()));
 	}
 	
@@ -636,10 +636,12 @@ public class Evaluator extends NullASTVisitor<Result> {
 	@Override
 	public Result<IValue> visitRuleArbitrary(Arbitrary x) {
 		MatchPattern pv = x.getPattern().accept(makePatternEvaluator());
+		Type pt = pv.getType(peek());
+		if(!(pt.isAbstractDataType() || pt.isConstructorType() || pt.isNodeType()))
+				throw new UnexpectedTypeError(tf.nodeType(), pt, x);
 		heap.storeRule(pv.getType(scopeStack.peek()), x);
 		return ResultFactory.nothing();
 	}
-
 
 	private AbstractPatternEvaluator makePatternEvaluator() {
 		return new AbstractPatternEvaluator(vf, peek(), peek(), this);
@@ -648,7 +650,9 @@ public class Evaluator extends NullASTVisitor<Result> {
 	@Override
 	public Result<IValue> visitRuleReplacing(Replacing x) {
 		MatchPattern pv = x.getPattern().accept(makePatternEvaluator());
-		//System.err.println("visitRule: " + pv.getType(this));
+		Type pt = pv.getType(peek());
+		if(!(pt.isAbstractDataType() || pt.isConstructorType() || pt.isNodeType()))
+				throw new UnexpectedTypeError(tf.nodeType(), pt, x);
 		heap.storeRule(pv.getType(scopeStack.peek()), x);
 		return ResultFactory.nothing();
 	}
@@ -1455,16 +1459,6 @@ public class Evaluator extends NullASTVisitor<Result> {
 			}
 		}
     }
-	
-    // TODO remove dead code
-//	private boolean matchOne(IValue subj, org.meta_environment.rascal.ast.Expression pat){
-//		//System.err.println("matchOne: subj=" + subj + ", pat= " + pat);
-//		MatchPattern mp = evalPattern(pat);
-//		lastPattern = mp;
-//		mp.initMatch(subj, this);
-//		return mp.next();
-//	}
-
 
 	// Expressions -----------------------------------------------------------
 
@@ -1878,7 +1872,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			//System.err.println("matchEvalAndReplace: subject=" + subject + ", pat=" + pat + ", conditions=" + conditions);
 
 			while(mp.hasNext()){
-				System.err.println("mp.hasNext()==true; mp=" + mp);
+				//System.err.println("mp.hasNext()==true; mp=" + mp);
 				if(mp.next()){
 					try {
 						boolean trueConditions = true;
@@ -2597,15 +2591,6 @@ public class Evaluator extends NullASTVisitor<Result> {
 			pop();
 		}
 	}
-	
-	
-	/*
-	@Override
-	public Result<IValue> visitGeneratorExpression(
-			org.meta_environment.rascal.ast.Generator.Expression x) {
-		return new GeneratorEvaluator(x, this).next();
-	}
-	*/
 	
 	@Override
 	public Result<IValue> visitExpressionValueProducer(
