@@ -81,7 +81,8 @@ public class CallTests extends TestFramework{
 	
 	@Test public void formalsAreLocal() {
 		
-		String fac = "int fac(int n) { if (n == 0) { return 1; } int z = n; int n = fac(n - 1); return z * n; }";
+		String fac = "int fac(int n) { if (n == 0) { return 1; } int z = n; int m = fac(n - 1); return z * m; }";
+		// "m" used to be "n", but now we forbid redeclarations.
 		
 		assertTrue(runTest("{" + fac + " fac(0) == 1;}"));
 		assertTrue(runTest("{" + fac + " fac(1) == 1;}"));

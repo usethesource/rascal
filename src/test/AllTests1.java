@@ -14,6 +14,7 @@ import org.junit.runners.Suite;
 	ComprehensionTests.class,
 	DataDeclarationTests.class,
 	DataTypeTests.class,
+	DeclarationTests.class,
 	ImportTests.class
         })
 

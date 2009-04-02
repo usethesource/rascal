@@ -46,7 +46,7 @@ public int sumtreeb(NODE T) {
 
 // Ex3: Increment all leaves in a tree
 
-public node inc(NODE T) {
+public NODE inc(NODE T) {
     return visit(T) {
       case int N: insert N + 1;
     };
@@ -57,7 +57,7 @@ public node inc(NODE T) {
 
 // Ex4a Using insert
 
-public node frepa(NODE T) {
+public NODE frepa(NODE T) {
     return visit (T) {
       case g(NODE T1, NODE T2):
            insert h(T1, T2);
@@ -66,7 +66,7 @@ public node frepa(NODE T) {
 
 // Ex4a Using replacement rule
 
-public node frepb(NODE T) {
+public NODE frepb(NODE T) {
     return visit (T) {
       case g(NODE T1, NODE T2) => h(T1, T2)
     };
@@ -76,7 +76,7 @@ public node frepb(NODE T) {
 
 // Ex5a Using insert
 
-public node frepG2H3a(NODE T) {
+public NODE frepG2H3a(NODE T) {
     return visit (T) {
       case g(NODE T1, NODE T2):
            insert h(T1, T2, i(0));
@@ -85,7 +85,7 @@ public node frepG2H3a(NODE T) {
 
 // Ex5b Using replacement rule
 
-public node frepG2H3b(NODE T) {
+public NODE frepG2H3b(NODE T) {
     return visit (T) {
       case g(NODE T1, NODE T2) => h(T1, T2, i(0))
     };
@@ -94,7 +94,7 @@ public node frepG2H3b(NODE T) {
 // Ex6: Deep replacement of g by h (i.e. only innermost 
 // g's are replaced); 
 
-public node drepl(NODE T) {
+public NODE drepl(NODE T) {
     return bottom-up-break visit (T) {
       case g(NODE T1, NODE T2) =>  h(T1, T2)
     };
@@ -103,7 +103,7 @@ public node drepl(NODE T) {
 // Ex7: shallow replacement of g by h (i.e. only outermost 
 // g's are replaced); 
 
-public node srepl(NODE T) {
+public NODE srepl(NODE T) {
     return top-down-break visit (T) {
        case g(NODE T1, NODE T2) =>  h(T1, T2)
     };

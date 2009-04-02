@@ -109,7 +109,7 @@ public class DataDeclarationTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{Exp2 e = var(\"a\"); e == var(\"a\");}"));
 		assertTrue(runTestInSameEvaluator("{Exp2 e = let(\"a\",\\int(1),var(\"a\")); e ==  let(\"a\",\\int(1),var(\"a\"));}"));
 		assertTrue(runTestInSameEvaluator("Var2 var := \"a\";"));
-		assertTrue(runTestInSameEvaluator("Var2 var !:= let(\"a\",\\int(1),var(\"a\"));"));
+		assertTrue(runTestInSameEvaluator("Var2 varx !:= let(\"a\",\\int(1),var(\"a\"));"));
 	}
 	
 

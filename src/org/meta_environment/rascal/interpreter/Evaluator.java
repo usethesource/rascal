@@ -155,6 +155,7 @@ import org.meta_environment.rascal.ast.Toplevel.DefaultVisibility;
 import org.meta_environment.rascal.ast.Toplevel.GivenVisibility;
 import org.meta_environment.rascal.ast.Visit.DefaultStrategy;
 import org.meta_environment.rascal.ast.Visit.GivenStrategy;
+
 import org.meta_environment.rascal.interpreter.asserts.Ambiguous;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.asserts.NotYetImplemented;
@@ -386,15 +387,17 @@ public class Evaluator extends NullASTVisitor<Result> {
 		if(rules.isEmpty()){
 			return v;
 		}
-		
-		TraverseResult tr = traverse(v, new CasesOrRules(rules), 
-				DIRECTION.BottomUp,
-				PROGRESS.Continuing,
-				FIXEDPOINT.No);
-				/* innermost is achieved by repeated applications of applyRules
-				 * when intermediate results are produced.
-				 */
-		return tr.value;
+		try {
+			// TODO: Use here the module env from which the rule originated
+			callStack.push(new Environment(callStack.getLast()));
+			TraverseResult tr = traverseTop(v, new CasesOrRules(rules));
+					/* innermost is achieved by repeated applications of applyRules
+					 * when intermediate results are produced.
+					 */
+			return tr.value;
+		} finally {
+			pop();
+		}
 	}
 
 
@@ -1832,13 +1835,13 @@ public class Evaluator extends NullASTVisitor<Result> {
 	}
 	
 	private boolean matchAndEval(IValue subject, org.meta_environment.rascal.ast.Expression pat, Statement stat){
-		MatchPattern mp = evalPattern(pat);
-		mp.initMatch(subject, peek());
 		
-		lastPattern = mp;
-		//System.err.println("matchAndEval: subject=" + subject + ", pat=" + pat);
 		try {
 			push(); 	// Create a separate scope for match and statement
+			MatchPattern mp = evalPattern(pat);
+			mp.initMatch(subject, peek());
+			lastPattern = mp;
+			//System.err.println("matchAndEval: subject=" + subject + ", pat=" + pat);
 			peek().storeVariable("subject", makeResult(subject.getType(), applyRules(subject)));
 			while(mp.hasNext()){
 				//System.err.println("matchAndEval: mp.hasNext()==true");
@@ -1862,20 +1865,20 @@ public class Evaluator extends NullASTVisitor<Result> {
 		return false;
 	}
 	
-
-	
 	private boolean matchEvalAndReplace(IValue subject, 
 			org.meta_environment.rascal.ast.Expression pat, 
 			java.util.List<Expression> conditions,
 			Expression replacementExpr){
-		MatchPattern mp = evalPattern(pat);
-		mp.initMatch(subject, peek());
-		lastPattern = mp;
-		//System.err.println("matchEvalAndReplace: subject=" + subject + ", pat=" + pat + ", conditions=" + conditions);
 		try {
-			push(); 	// Create a separate scope for match and statement
+			//callStack.push(callStack.getFirst());	// create separate scope for match and statement  
+			push();
+			MatchPattern mp = evalPattern(pat);
+			mp.initMatch(subject, peek());
+			lastPattern = mp;
+			//System.err.println("matchEvalAndReplace: subject=" + subject + ", pat=" + pat + ", conditions=" + conditions);
+
 			while(mp.hasNext()){
-				//System.err.println("mp.hasNext()==true; mp=" + mp);
+				System.err.println("mp.hasNext()==true; mp=" + mp);
 				if(mp.next()){
 					try {
 						boolean trueConditions = true;
@@ -1883,10 +1886,12 @@ public class Evaluator extends NullASTVisitor<Result> {
 							//System.err.println("cond = " + cond);
 							if(!cond.accept(this).isTrue()){
 								trueConditions = false;
+								//System.err.println("false cond = " + cond);
 								break;
 							}
 						}
 						if(trueConditions){
+							//System.err.println("evaluating replacement expression: " + replacementExpr);
 							throw new org.meta_environment.rascal.interpreter.control_exceptions.Insert(replacementExpr.accept(this));		
 						}
 					} catch (Failure e){
@@ -1895,6 +1900,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				}
 			}
 		} finally {
+			//System.err.println("matchEvalAndReplace.finally");
 			pop();
 		}
 		return false;
@@ -2630,9 +2636,11 @@ public class Evaluator extends NullASTVisitor<Result> {
 		void make(Expression vp, Evaluator ev){
 			if(vp.isValueProducer() || vp.isValueProducerWithStrategy()){
 				evaluator = ev;
-				isValueProducer = true;
-				
+				isValueProducer = true;				
+			
+				evaluator.push();
 				pat = evalPattern(vp.getPattern());
+
 				patexpr = vp.getExpression();
 				Result<IValue> r = patexpr.accept(ev);
 				// List
@@ -2689,13 +2697,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		@Override
 		public Type getType(){
 			return TypeFactory.getInstance().boolType();
-		}
-		
-//		@Override
-//		public Type getValueType(){
-//			return TypeFactory.getInstance().boolType();
-//		}
-//		
+		}	
 		
 		@Override
 		public IValue getValue(){
@@ -2709,7 +2711,11 @@ public class Evaluator extends NullASTVisitor<Result> {
 		@Override
 		public boolean hasNext(){
 			if(isValueProducer){
-				return pat.hasNext() || iterator.hasNext();
+				boolean hn = pat.hasNext() || iterator.hasNext();
+				if(!hn){
+					evaluator.pop();
+				}
+				return hn;
 			} else {
 				return firstTime;
 			}	
@@ -2745,6 +2751,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 					}
 				}
 				//System.err.println("return false");
+				evaluator.pop();
 				return new BoolResult(false);
 			} else {
 				if(firstTime){
