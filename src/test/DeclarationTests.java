@@ -26,5 +26,12 @@ public class DeclarationTests extends TestFramework {
 		assertTrue(runTest("{int f(int N){int N = 1; return N;} f(3) == 1;}"));
 	}
 	
+	@Test(expected=RedeclaredVariableError.class)
+	public void doubleDeclaration4(){
+		assertTrue(runTest("{int N = 3; int N := 3;}"));
+	}
+	
+	
+	
 	
 }
