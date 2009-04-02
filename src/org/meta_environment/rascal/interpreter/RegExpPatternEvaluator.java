@@ -146,6 +146,10 @@ class RegExpPatternValue implements MatchPattern {
 		return findMatch();
 	}
 	
+	public java.util.List<String> getVariables(){
+		return patternVars;
+	}
+	
 	private Map<String,String> getBindings(){
 		Map<String,String> bindings = new HashMap<String,String>();
 		int k = 1;

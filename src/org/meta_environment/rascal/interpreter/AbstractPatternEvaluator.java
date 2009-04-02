@@ -104,6 +104,11 @@ interface MatchPattern {
 	 * @return true if the MatchPattern matches the subject
 	 */
 	public boolean next();
+	
+	/**
+	 * @return the variables that are bound in the pattern
+	 */
+	public java.util.List<String> getVariables();
 }
 
 /* package */ abstract class AbstractPattern implements MatchPattern {

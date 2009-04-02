@@ -241,7 +241,7 @@ public class Environment {
 		return getRoot().isTreeConstructorName(name, signature);
 	}
 
-	private Environment getRoot() {
+	public Environment getRoot() {
 		Environment target = parent;
 		while (!target.isRoot()) {
 			target = target.parent;
