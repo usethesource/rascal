@@ -202,7 +202,7 @@ public class Lambda extends Result<IValue> implements IValue {
 				result = ResultFactory.makeResult(formal, actuals[i]);
 			}
 //			System.out.println(i + ": Formal " + formals.getFieldName(i) + " actual " + actuals[i]);
-			env.storeVariable(formals.getFieldName(i), result);
+			env.storeLocalVariable(formals.getFieldName(i), result);
 		}
 	}
 
