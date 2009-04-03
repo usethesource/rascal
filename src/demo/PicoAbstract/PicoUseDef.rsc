@@ -12,7 +12,10 @@ import IO;
 
 
 private set[PicoId] getVarUses(EXP E){
-    return {Id | id(PicoId Id) <- E};
+    println("getVarUses: <E>");
+    res = {Id | id(PicoId Id) <- E};
+    println("getVarUses: <res>");
+    return res;
 }
 
 /*
@@ -24,15 +27,19 @@ private set[PicoId] getVarUses(EXP E){
 public rel[PicoId, ProgramPoint] uses(PROGRAM P) {
   rel[PicoId, ProgramPoint] result = {};
   visit(P) {
-   case ifStat(EXP Exp, _,  _):
-        result = result + getVarUses(Exp) * {Exp@pos};
-                            
-   case whileStat(EXP Exp, _):
-         result = result + getVarUses(Exp) * {Exp@pos};
+   case ifStat(EXP Exp, _,  _):{
+   			println("case ifStat: <Exp>");
+        	result = result + getVarUses(Exp) * {Exp@pos};
+        }                    
+   case whileStat(EXP Exp, _):{
+   			println("case whileStat: <Exp>");
+        	result = result + getVarUses(Exp) * {Exp@pos};
+         }
          
    case asgStat(_, EXP Exp):{
-         result = result + getVarUses(Exp) * {subject@pos};
-        }
+   		println("case asgStat: <Exp>");
+        result = result + getVarUses(Exp) * {subject@pos};
+        } 
    };
    return result;                  
   }

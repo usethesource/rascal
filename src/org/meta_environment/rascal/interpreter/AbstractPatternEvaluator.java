@@ -1351,7 +1351,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 		if((varRes == null) || (varRes.getValue() == null)){
 			if(debug)System.err.println("name= " + name + ", subject=" + subject + ",");
 			type = subject.getType();
-			env.storeVariable(name.toString(), makeResult(type, subject));
+			env.storeLocalVariable(name.toString(), makeResult(type, subject));
 			return true;
 		} else {
 			IValue varVal = varRes.getValue();
@@ -1377,7 +1377,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 	private Name name;
 	org.eclipse.imp.pdb.facts.type.Type declaredType;
 	private boolean anonymous = false;
-	private boolean debug = false;
+	private boolean debug = true;
 	private Environment env;
 
 	AbstractPatternTypedVariable(IValueFactory vf, Environment env, org.eclipse.imp.pdb.facts.type.Type type2, TypedVariable var) {
@@ -1424,7 +1424,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 		
 		if (subject.getType().isSubtypeOf(declaredType)) {
 			if(!anonymous)
-				env.storeVariable(name, makeResult(declaredType, subject));
+				env.storeLocalVariable(name, makeResult(declaredType, subject));
 			if(debug)System.err.println("matches");
 			return true;
 		}
