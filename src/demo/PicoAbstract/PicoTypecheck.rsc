@@ -83,7 +83,7 @@ public bool test(){
 	assertEqual(requireType(id("x"), string, ("x" : string)), []);
 	assertEqual(requireType(id("x"), string, ("x" : natural)), [message("Type error: expected string() got id(\"x\")")]);
 
-   PROGRAM small =
+   PROGRAM mySmall =
    program([decl("x", natural), decl("s", string)],
         [ asgStat("x", natCon(1)) ,
          whileStat(id("x"),
@@ -93,7 +93,7 @@ public bool test(){
                    ) 
         ]
        );
-  assertEqual(tcp(small), []);
+  assertEqual(tcp(mySmall), []);
   assertEqual(tcp(fac), []);
   assertEqual(tcp(big), []);
   return report("PicoTypecheck");

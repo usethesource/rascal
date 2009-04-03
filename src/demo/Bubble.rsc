@@ -9,6 +9,7 @@ import IO;
 public list[int] sort1(list[int] Numbers){
 println("sort1");
   for(int I <- [0 .. size(Numbers) - 2 ]){
+     println("I = <I>");
      if(Numbers[I] > Numbers[I+1]){
        <Numbers[I], Numbers[I+1]> = <Numbers[I+1], Numbers[I]>;
        return sort1(Numbers);
