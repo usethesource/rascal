@@ -80,7 +80,7 @@ public class PatternTests extends TestFramework {
 	}
 	
 	@Test
-	public void matchList2()  {
+	public void matchListHasOrderedElement()  {
 		prepare("import ListMatchingTests;");
 
 		assertTrue(runTestInSameEvaluator("hasOrderedElement([]) == false;"));
@@ -88,6 +88,11 @@ public class PatternTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("hasOrderedElement([1,2]) == false;"));
 		assertTrue(runTestInSameEvaluator("hasOrderedElement([1,2,1]) == true;"));
 		assertTrue(runTestInSameEvaluator("hasOrderedElement([1,2,3,4,3,2,1]) == true;"));
+	}
+	
+	@Test
+	public void matchListHasDuplicateElement()  {
+		prepare("import ListMatchingTests;");
 
 		assertTrue(runTestInSameEvaluator("hasDuplicateElement([]) == false;"));
 		assertTrue(runTestInSameEvaluator("hasDuplicateElement([1]) == false;"));
@@ -97,7 +102,11 @@ public class PatternTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("hasDuplicateElement([1,2,3,1]) == true;"));
 		assertTrue(runTestInSameEvaluator("hasDuplicateElement([1,2,3,2]) == true;"));
 		assertTrue(runTestInSameEvaluator("hasDuplicateElement([1,2,3,3]) == true;"));
-
+	}
+	
+	@Test
+	public void matchListIsDuo1()  {
+		prepare("import ListMatchingTests;");
 		assertTrue(runTestInSameEvaluator("isDuo1([]) == true;"));
 		assertTrue(runTestInSameEvaluator("isDuo1([1]) == false;"));
 		assertTrue(runTestInSameEvaluator("isDuo1([1,1]) == true;"));
@@ -106,6 +115,11 @@ public class PatternTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("isDuo1([1,2, 1,2]) == true;"));
 		assertTrue(runTestInSameEvaluator("isDuo1([1,2,3, 1,2]) == false;"));
 		assertTrue(runTestInSameEvaluator("isDuo1([1,2,3, 1,2, 3]) == true;"));
+	}
+		
+	@Test
+	public void matchListIsDuo2()  {
+		prepare("import ListMatchingTests;");
 
 		assertTrue(runTestInSameEvaluator("isDuo2([]) == true;"));
 		assertTrue(runTestInSameEvaluator("isDuo2([1]) == false;"));
@@ -115,6 +129,11 @@ public class PatternTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("isDuo2([1,2, 1,2]) == true;"));
 		assertTrue(runTestInSameEvaluator("isDuo2([1,2,3, 1,2]) == false;"));
 		assertTrue(runTestInSameEvaluator("isDuo2([1,2,3, 1,2, 3]) == true;"));
+	}
+	
+	@Test
+	public void matchListIsDuo3()  {
+		prepare("import ListMatchingTests;");
 
 		assertTrue(runTestInSameEvaluator("isDuo3([]) == true;"));
 		assertTrue(runTestInSameEvaluator("isDuo3([1]) == false;"));
@@ -124,6 +143,11 @@ public class PatternTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("isDuo3([1,2, 1,2]) == true;"));
 		assertTrue(runTestInSameEvaluator("isDuo3([1,2,3, 1,2]) == false;"));
 		assertTrue(runTestInSameEvaluator("isDuo3([1,2,3, 1,2, 3]) == true;"));
+	}
+	
+	@Test
+	public void matchListIsTrio1()  {
+		prepare("import ListMatchingTests;");
 
 		assertTrue(runTestInSameEvaluator("isTrio1([]) == true;"));
 		assertTrue(runTestInSameEvaluator("isTrio1([1]) == false;"));
@@ -133,6 +157,11 @@ public class PatternTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("isTrio1([1,2,1]) == false;"));
 		assertTrue(runTestInSameEvaluator("isTrio1([1,1,2]) == false;"));
 		assertTrue(runTestInSameEvaluator("isTrio1([1,2, 1,2, 1,2]) == true;"));
+	}
+	
+	@Test
+	public void matchListIsTrio2()  {
+		prepare("import ListMatchingTests;");
 
 		assertTrue(runTestInSameEvaluator("isTrio2([]) == true;"));
 		assertTrue(runTestInSameEvaluator("isTrio2([1]) == false;"));
@@ -142,6 +171,11 @@ public class PatternTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("isTrio2([1,2,1]) == false;"));
 		assertTrue(runTestInSameEvaluator("isTrio2([1,1,2]) == false;"));
 		assertTrue(runTestInSameEvaluator("isTrio2([1,2, 1,2, 1,2]) == true;"));
+	}
+	
+	@Test
+	public void matchListIsTrio3()  {
+		prepare("import ListMatchingTests;");
 
 		assertTrue(runTestInSameEvaluator("isTrio3([]) == true;"));
 		assertTrue(runTestInSameEvaluator("isTrio3([1]) == false;"));

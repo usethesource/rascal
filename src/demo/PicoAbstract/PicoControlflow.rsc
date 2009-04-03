@@ -63,7 +63,7 @@ public BLOCK cflow(STATEMENT Stat){
                   );
       }
          
-      case STATEMENT Stat: return block({Stat@pos}, {}, {Stat@pos});
+      case STATEMENT Stat1: return block({Stat1@pos}, {}, {Stat1@pos});
     }
     println("cflowstat returns no value");
 }

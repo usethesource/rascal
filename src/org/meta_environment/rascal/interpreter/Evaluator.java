@@ -387,27 +387,45 @@ public class Evaluator extends NullASTVisitor<Result> {
 		if(rules.isEmpty()){
 			return v;
 		}
+		// TODO: Use here the module env from which the rule originated
+		Environment newEnv = new Environment(callStack.getLast());
+		callStack.push(newEnv);
 		try {
-			// TODO: Use here the module env from which the rule originated
-			callStack.push(new Environment(callStack.getLast()));
+			
 			TraverseResult tr = traverseTop(v, new CasesOrRules(rules));
 					/* innermost is achieved by repeated applications of applyRules
 					 * when intermediate results are produced.
 					 */
 			return tr.value;
 		} finally {
-			pop();
+			popUntil(newEnv);
 		}
 	}
-
-
-	void pop() {
+/*
+	private void pop() {
+		System.err.println("pop");
 		callStack.pop();
 	}
 
-
-	void push() {
+	private void push() {
+		System.err.println("push");
 		callStack.push(new Environment(peek()));
+	}
+	*/
+	
+	Environment pushEnv() {
+		Environment env = new Environment(peek());
+		callStack.push(env);
+		return env;
+	}
+	
+	void popUntil(Environment env){
+		Environment previousEnv;
+		if(!callStack.contains(env))
+			throw new ImplementationError("popUntil");
+		do {
+			previousEnv = callStack.pop();	
+		} while (previousEnv != env);	
 	}
 	
 	
@@ -744,12 +762,12 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 		if (func.getType() == Lambda.getClosureType()) {
 			Lambda lambda = (Lambda) func.getValue();
+			Environment newEnv = pushCallFrame(lambda.getEnv()); 
 			try {
-				pushCallFrame(lambda.getEnv()); 
 				return lambda.call(actuals, actualTypes, peek());
 			}
 			finally {
-				pop();
+				popUntil(newEnv);
 			}
 		}
 		else {
@@ -796,14 +814,13 @@ public class Evaluator extends NullASTVisitor<Result> {
 			}
 		}
 		Lambda func = env.getFunction(Names.name(Names.lastName(name)), actualTypes, name);
-		
 		if (func != null) {
+			Environment newEnv = pushCallFrame(func.getEnv());
 			try {
-				pushCallFrame(func.getEnv());
 				return func.call(actuals, actualTypes, peek());
 			}
 			finally {
-				pop();
+				popUntil(newEnv);
 			}
 		}
 		undefinedFunctionException(name, actualTypes);
@@ -811,8 +828,10 @@ public class Evaluator extends NullASTVisitor<Result> {
 	}
 
 
-	private void pushCallFrame(Environment env) {
-		callStack.push(new Environment(env));
+	private Environment pushCallFrame(Environment env) {
+		Environment newEnv = new Environment(env);
+		callStack.push(newEnv);
+		return newEnv;
 	}
 
 	private void undefinedFunctionException(QualifiedName name, Type actualTypes) {
@@ -1088,7 +1107,6 @@ public class Evaluator extends NullASTVisitor<Result> {
 	public Result<IValue> visitStatementReturn(
 			org.meta_environment.rascal.ast.Statement.Return x) {
 		org.meta_environment.rascal.ast.Return r = x.getRet();
-		
 		if (r.isWithExpression()) {
 		  throw new Return(x.getRet().getExpression().accept(this));
 		}
@@ -1140,15 +1158,14 @@ public class Evaluator extends NullASTVisitor<Result> {
 					res = c.getBody().accept(this);
 					break;
 				} 
-				
+				Environment newEnv = pushEnv();
 				try {
-					push();	
 					if(matchAndEval(eValue, c.getPattern(), c.getBody())){
 						break;
 					}
 				} 
 				finally {
-					pop();
+					popUntil(newEnv);
 				}
 			}
 		}
@@ -1180,15 +1197,15 @@ public class Evaluator extends NullASTVisitor<Result> {
 	@Override
 	public Result<IValue> visitStatementBlock(Block x) {
 		Result<IValue> r = nothing();
+		Environment newEnv = pushEnv();
 		try {
-			push(); 
 			for (Statement stat : x.getStatements()) {
 				setCurrentAST(stat);
 				r = stat.accept(this);
 			}
 		}
 		finally {
-			pop();
+			popUntil(newEnv);
 		}
 		return r;
 	}
@@ -1344,7 +1361,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	public Result<IValue> visitStatementIfThenElse(IfThenElse x) {
 		elseBranch: 
 			do {
-				push(); // For the benefit of variables bound in the condition
+				Environment newEnv = pushEnv(); // For the benefit of variables bound in the condition
 				try {
 					for (org.meta_environment.rascal.ast.Expression expr : x.getConditions()) {
 						Result<IValue> cval = expr.accept(this);
@@ -1359,7 +1376,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 					}
 					return x.getThenStatement().accept(this);
 				} finally {
-					pop();	// Remove any bindings due to condition evaluation.
+					popUntil(newEnv);	// Remove any bindings due to condition evaluation.
 				}
 			} 
 			while (false);
@@ -1370,7 +1387,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	@Override
 	public Result<IValue> visitStatementIfThen(IfThen x) {
-		push(); // For the benefit of variables bound in the condition
+		Environment newEnv = pushEnv(); // For the benefit of variables bound in the condition
 		try {
 			for (org.meta_environment.rascal.ast.Expression expr : x.getConditions()) {
 				Result<IValue> cval = expr.accept(this);
@@ -1384,7 +1401,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			return x.getThenStatement().accept(this);
 		}
 		finally {
-			pop();
+			popUntil(newEnv);
 		}
 	}
 	
@@ -1394,7 +1411,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result<IValue> statVal = nothing();
 		
 		do {
-			push();
+			Environment newEnv = pushEnv();
 			try {
 				Result<IValue> cval = expr.accept(this);
 				if (!cval.getType().isBoolType()) {
@@ -1406,7 +1423,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				statVal = x.getBody().accept(this);
 			}
 			finally {
-				pop();
+				popUntil(newEnv);
 			}
 		} while (true);
 	}
@@ -1414,11 +1431,12 @@ public class Evaluator extends NullASTVisitor<Result> {
 	@Override
 	public Result<IValue> visitStatementDoWhile(DoWhile x) {
 		org.meta_environment.rascal.ast.Expression expr = x.getCondition();
-		do {
-			Result<IValue> result = x.getBody().accept(this);
-
-			push();
-			try {
+		
+		Environment newEnv = pushEnv();
+		try {
+			do {
+			
+				Result<IValue> result = x.getBody().accept(this);
 				Result<IValue> cval = expr.accept(this);
 				if (!cval.getType().isBoolType()) {
 					throw new UnexpectedTypeError(tf.boolType(),cval.getType(), x);
@@ -1426,11 +1444,11 @@ public class Evaluator extends NullASTVisitor<Result> {
 				if (cval.getValue().isEqual(vf.bool(false))) {
 					return result;
 				}
-			}
-			finally {
-				pop();
-			}
-		} while (true);
+			} while (true);
+		}
+		finally {
+			popUntil(newEnv);
+		}
 	}
 	
     @Override
@@ -1829,9 +1847,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 	}
 	
 	private boolean matchAndEval(IValue subject, org.meta_environment.rascal.ast.Expression pat, Statement stat){
-		
+		Environment newEnv = pushEnv(); 	// Create a separate scope for match and statement
 		try {
-			push(); 	// Create a separate scope for match and statement
 			MatchPattern mp = evalPattern(pat);
 			mp.initMatch(subject, peek());
 			lastPattern = mp;
@@ -1854,7 +1871,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				}
 			}
 		} finally {
-			pop();
+			popUntil(newEnv);
 		}
 		return false;
 	}
@@ -1863,9 +1880,9 @@ public class Evaluator extends NullASTVisitor<Result> {
 			org.meta_environment.rascal.ast.Expression pat, 
 			java.util.List<Expression> conditions,
 			Expression replacementExpr){
+		
+		Environment newEnv = pushEnv();	// create separate scope for match and statement  
 		try {
-			//callStack.push(callStack.getFirst());	// create separate scope for match and statement  
-			push();
 			MatchPattern mp = evalPattern(pat);
 			mp.initMatch(subject, peek());
 			lastPattern = mp;
@@ -1895,7 +1912,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			}
 		} finally {
 			//System.err.println("matchEvalAndReplace.finally");
-			pop();
+			popUntil(newEnv);
 		}
 		return false;
 	}
@@ -2079,9 +2096,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 			Expression patexp = rule.getPattern();
 			MatchPattern mp = evalPattern(patexp);
 			mp.initMatch(subject, peek());
-
+			Environment newEnv = pushEnv(); // a separate scope for match and statement/replacement
 			try {
-				push(); // a separate scope for match and statement/replacement
 				while(mp.hasNext()){
 					if(mp.next()){
 						try {
@@ -2120,7 +2136,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 					}
 				}
 			} finally {
-				pop();
+				popUntil(newEnv);
 			}
 	} else {
 			/*
@@ -2583,12 +2599,12 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	@Override
 	public Result<IValue> visitExpressionComprehension(Comprehension x) {
-		push();
+		Environment newEnv = pushEnv();	// TODO not necessary?
 		try {
 			return x.getComprehension().accept(this);	
 		}
 		finally {
-			pop();
+			popUntil(newEnv);
 		}
 	}
 	
@@ -2607,6 +2623,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 	class GeneratorEvaluator extends Result<IValue> {
 		private boolean isValueProducer;
 		private boolean firstTime = true;
+		private boolean hasNext = true;
+		private Environment pushedEnv;
 		private org.meta_environment.rascal.ast.Expression expr;
 		private MatchPattern pat;
 		private org.meta_environment.rascal.ast.Expression patexpr;
@@ -2623,7 +2641,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				evaluator = ev;
 				isValueProducer = true;				
 			
-				evaluator.push();
+				pushedEnv = evaluator.pushEnv();
 				pat = evalPattern(vp.getPattern());
 
 				patexpr = vp.getExpression();
@@ -2696,11 +2714,15 @@ public class Evaluator extends NullASTVisitor<Result> {
 		@Override
 		public boolean hasNext(){
 			if(isValueProducer){
-				boolean hn = pat.hasNext() || iterator.hasNext();
-				if(!hn){
-					evaluator.pop();
+				if(hasNext){
+					boolean hn = pat.hasNext() || iterator.hasNext();
+					if(!hn){
+						hasNext = false;
+						evaluator.popUntil(pushedEnv);
+					}
+					return hn;
 				}
-				return hn;
+				return false;
 			} else {
 				return firstTime;
 			}	
@@ -2735,8 +2757,9 @@ public class Evaluator extends NullASTVisitor<Result> {
 						}	
 					}
 				}
-				//System.err.println("return false");
-				evaluator.pop();
+				//System.err.println("next return false");
+				hasNext = false;
+				evaluator.popUntil(pushedEnv);
 				return new BoolResult(false);
 			} else {
 				if(firstTime){
