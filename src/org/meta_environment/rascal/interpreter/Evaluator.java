@@ -2358,6 +2358,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	private TraverseResult applyCasesOrRules(IValue subject, CasesOrRules casesOrRules) {
 		if(casesOrRules.hasCases()){
 			for (Case cs : casesOrRules.getCases()) {
+				setCurrentAST(cs);
 				if (cs.isDefault()) {
 					cs.getStatement().accept(this);
 					return new TraverseResult(true,subject);
@@ -2372,6 +2373,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		} else {
 			//System.err.println("hasRules");
 			for(org.meta_environment.rascal.ast.Rule rule : casesOrRules.getRules()){
+				setCurrentAST(rule);
 				//System.err.println(rule);
 				TraverseResult tr = applyOneRule(subject, rule);
 				//System.err.println("rule fails");
