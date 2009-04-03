@@ -19,6 +19,8 @@ import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredFunctionError;
 
+import com.sun.corba.se.impl.io.FVDCodeBaseImpl;
+
 
 /**
  * A simple environment for variables and functions and types.
@@ -102,6 +104,21 @@ public class Environment {
 		return isRoot() ? null : parent.getFunction(name, actuals, useSite);
 	}
 	
+	public Result<IValue> getLocalVariable(QualifiedName name) {
+		if (name.getNames().size() != 1) {
+			throw new ImplementationError("Local variables should not be qualified");
+		}
+		return getLocalVariable(name.getNames().get(0));
+	}
+	
+	private Result<IValue> getLocalVariable(Name name) {
+		return getLocalVariable(Names.name(name));
+	}
+
+	private Result<IValue> getLocalVariable(String name) {
+		return variableEnvironment.get(name);
+	}
+	
 	public Result<IValue> getVariable(QualifiedName name) {
 		if (name.getNames().size() > 1) {
 			Environment current = this;
@@ -161,7 +178,21 @@ public class Environment {
 		return isRoot() ? null : parent.getVariableDefiningEnvironment(name);
 	}
 	
+	public void storeLocalVariable(QualifiedName name, Result<IValue> value) {
+		if (name.getNames().size() != 1) {
+			throw new ImplementationError("Local variables should not be qualified");
+		}
+		storeLocalVariable(name.getNames().get(0), value);
+	}
 	
+	public void storeLocalVariable(Name name, Result<IValue> value) {
+		storeLocalVariable(Names.name(name), value);
+	}
+	
+	public void storeLocalVariable(String name, Result<IValue> value) {
+		updateVariableCache(name, variableEnvironment, null); // TODO check if this is correct?
+		variableEnvironment.put(name, value);
+	}
 	
 	public void storeVariable(String name, Result<IValue> value) {
 		Map<String,Result<IValue>> env = getVariableDefiningEnvironment(name);
