@@ -1303,12 +1303,16 @@ class SingleElementGenerator implements Iterator<ISet> {
 		this.name = qualifiedName;
 		this.anonymous = name.toString().equals("_");
 		this.env = env;
-		// TODO: do we really need to lookup here, or can it be done when the pattern is constructed?
-		Result<IValue> patRes = env.getVariable(name);
-		if(patRes == null || patRes.getValue() == null || anonymous){
+		// Look for this variable while we are constructing this pattern
+		if(anonymous){
 			type = TypeFactory.getInstance().voidType();
 		} else {
-			type = patRes.getType();
+			Result<IValue> patRes = env.getVariable(name);
+			if(patRes == null || patRes.getValue() == null){
+				type = TypeFactory.getInstance().voidType();
+			} else {
+				type = patRes.getType();
+			}
 		}
 	}
 	
@@ -1343,17 +1347,20 @@ class SingleElementGenerator implements Iterator<ISet> {
 		hasNext = false;
 		if(debug)System.err.println("AbstractPatternQualifiedName.match: " + name);
 		
-		// TODO: do we really need to lookup here, or can it be done when the pattern is constructed?
+		// Anonymous variables matches always
 		if(anonymous) {
 			return true;
 		}
+	
 		Result<IValue> varRes = env.getVariable(name);
 		if((varRes == null) || (varRes.getValue() == null)){
+			// Is the variable still undefined?
 			if(debug)System.err.println("name= " + name + ", subject=" + subject + ",");
 			type = subject.getType();
 			env.storeLocalVariable(name.toString(), makeResult(type, subject));
 			return true;
 		} else {
+			// ... or has it already received a value during matching?
 			IValue varVal = varRes.getValue();
 			if(debug)System.err.println("AbstractPatternQualifiedName.match: " + name + ", subject=" + subject + ", value=" + varVal);
 			if (subject.getType().isSubtypeOf(varRes.getType())) {
@@ -1420,15 +1427,15 @@ class SingleElementGenerator implements Iterator<ISet> {
 	public boolean next() {
 		checkInitialized();
 		hasNext = false;
-		if(debug)System.err.println("AbstractTypedVariable.match: " + subject + "(type=" + subject.getType() + ") with " + declaredType + " " + name);
+		if(debug)System.out.println("AbstractTypedVariable.match: " + subject + "(type=" + subject.getType() + ") with " + declaredType + " " + name);
 		
 		if (subject.getType().isSubtypeOf(declaredType)) {
 			if(!anonymous)
 				env.storeLocalVariable(name, makeResult(declaredType, subject));
-			if(debug)System.err.println("matches");
+			if(debug)System.out.println("matches");
 			return true;
 		}
-		if(debug)System.err.println("no match");
+		if(debug)System.out.println("no match");
 		return false;
 	}
 	
@@ -1469,6 +1476,7 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 	//	if(N.toString().equals("search")){
 	//		return new AbstractPatternSearch(visitElements(x.getArguments()));
 	//	} else {
+		System.err.println("visitExpressionCallOrTree" + x);
 			return new AbstractPatternNode(vf, x, N, visitElements(x.getArguments()));
 	//	}
 	}

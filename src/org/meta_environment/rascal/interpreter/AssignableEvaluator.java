@@ -135,7 +135,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 		switch(operator){
 		case Default:
 		case IsDefined:
-				env.storeVariable(qname, value);
+				env.storeLocalVariable(qname, value);
 				return value;
 		}
 		throw new UninitializedVariableError(x.toString(), x);
