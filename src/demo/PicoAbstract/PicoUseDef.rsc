@@ -51,12 +51,13 @@ public rel[PicoId, ProgramPoint] uses(PROGRAM P) {
  */
  
 public rel[PicoId, ProgramPoint] defs(PROGRAM P) { 
+  println("defs");
   return {<Id, S@pos> | STATEMENT S <- P, asgStat(PicoId Id, EXP Exp) := S};
 }        
  
 public bool test(){
 
-  assertEqual(uses(annotate(small)), {<"x",3>,<"s",1>,<"x",6>});  
+ // assertEqual(uses(annotate(small)), {<"x",3>,<"s",1>,<"x",6>});  
   
   assertEqual(defs(annotate(small)), {<"s",1>,<"x",3>,<"x",9>});
   

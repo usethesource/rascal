@@ -2623,10 +2623,12 @@ public class Evaluator extends NullASTVisitor<Result> {
 	}
 	
 	class GeneratorEvaluator extends Result<IValue> {
-		private boolean isValueProducer;
+		private boolean isValueProducer = false;
+		private boolean isMatchPattern = false;
 		private boolean firstTime = true;
 		private boolean hasNext = true;
 		private Environment pushedEnv;
+		private MatchEvaluator matchEval;
 		private org.meta_environment.rascal.ast.Expression expr;
 		private MatchPattern pat;
 		private org.meta_environment.rascal.ast.Expression patexpr;
@@ -2639,14 +2641,15 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 		
 		void make(Expression vp, Evaluator ev){
+			evaluator = ev;
 			if(vp.isValueProducer() || vp.isValueProducerWithStrategy()){
-				evaluator = ev;
 				isValueProducer = true;				
-			
+				
 				pushedEnv = evaluator.pushEnv();
 				pat = evalPattern(vp.getPattern());
-
 				patexpr = vp.getExpression();
+				//System.err.println("GeneratorEvaluator.push, " + patexpr);
+			
 				Result<IValue> r = patexpr.accept(ev);
 				// List
 				if(r.getType().isListType()){
@@ -2692,9 +2695,13 @@ public class Evaluator extends NullASTVisitor<Result> {
 				} else {
 					throw new ImplementationError("Unimplemented expression type " + r.getType() + " in generator");
 				}
+			} else if(vp.isMatch()){
+				isMatchPattern = true;
+				pushedEnv = evaluator.pushEnv();
+				matchEval = new MatchEvaluator(vp.getPattern(), vp.getExpression(), true, pushedEnv, evaluator);
+			} else if (vp.isNoMatch()){
 			} else {
-				evaluator = ev;
-				isValueProducer = false;
+				System.err.println("GeneratorEvaluator, non-VP: " + vp);
 				expr = vp;
 			}
 		}
@@ -2715,23 +2722,39 @@ public class Evaluator extends NullASTVisitor<Result> {
 		
 		@Override
 		public boolean hasNext(){
+			//System.err.println("GeneratorEvaluator.hasNext");
+			if(isMatchPattern){
+				if(hasNext){
+					boolean hn = matchEval.hasNext();
+					if(!hn){
+						hasNext = false;
+						//System.err.println("GeneratorEvaluator.pop, " + expr);
+						evaluator.popUntil(pushedEnv);
+					}
+					return hn;
+				}
+			}
 			if(isValueProducer){
+				//System.err.println("GeneratorEvaluator.hasNext: " + patexpr);
 				if(hasNext){
 					boolean hn = pat.hasNext() || iterator.hasNext();
 					if(!hn){
 						hasNext = false;
+						//System.err.println("GeneratorEvaluator.pop, " + patexpr);
 						evaluator.popUntil(pushedEnv);
 					}
 					return hn;
 				}
 				return false;
-			} else {
-				return firstTime;
-			}	
+			}
+			return firstTime;
 		}
 
 		@Override
 		public Result next(){
+			if(isMatchPattern){
+				return matchEval.next();
+			}
 			if(isValueProducer){
 				//System.err.println("getNext, trying pat " + pat);
 				/*
@@ -2759,7 +2782,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 						}	
 					}
 				}
-				//System.err.println("next return false");
+				//System.err.println("next returns false and pops env");
 				hasNext = false;
 				evaluator.popUntil(pushedEnv);
 				return new BoolResult(false);
@@ -2930,15 +2953,19 @@ public class Evaluator extends NullASTVisitor<Result> {
 		int i = 0;
 		gens[0] = new GeneratorEvaluator(generators.get(0), this);
 		while (i >= 0 && i < size){
+			System.err.println(" i = " + i + " " + generators.get(i) + " " + gens[i].hasNext());
 			if (gens[i].hasNext() && gens[i].next().isTrue()) {
 				if(i == size - 1){
+					System.err.println("append");
 					w.append();
 				} 
 				else {
+					System.err.println("right");
 					i++;
 					gens[i] = new GeneratorEvaluator(generators.get(i), this);
 				}
 			} else {
+				System.err.println("left");
 				i--;
 			}
 		}

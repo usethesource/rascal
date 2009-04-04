@@ -116,10 +116,12 @@ public class Environment {
 	}
 
 	private Result<IValue> getLocalVariable(String name) {
+		//System.err.println("getLocalVariable: " + name);
 		return variableEnvironment.get(name);
 	}
 	
 	public Result<IValue> getVariable(QualifiedName name) {
+		//System.err.println("getVariable: " + name);
 		if (name.getNames().size() > 1) {
 			Environment current = this;
 			while (!current.isRoot()) {
@@ -179,6 +181,7 @@ public class Environment {
 	}
 	
 	public void storeLocalVariable(QualifiedName name, Result<IValue> value) {
+		//System.err.println("storeLocalVariable: " + name + ", " + value.getValue());
 		if (name.getNames().size() != 1) {
 			throw new ImplementationError("Local variables should not be qualified");
 		}
@@ -186,15 +189,18 @@ public class Environment {
 	}
 	
 	public void storeLocalVariable(Name name, Result<IValue> value) {
+		//System.err.println("storeLocalVariable: " + name +  ", " + value.getValue());
 		storeLocalVariable(Names.name(name), value);
 	}
 	
 	public void storeLocalVariable(String name, Result<IValue> value) {
+		//System.err.println("storeLocalVariable: " + name +  ", " + value.getValue());
 		updateVariableCache(name, variableEnvironment, null); // TODO check if this is correct?
 		variableEnvironment.put(name, value);
 	}
 	
 	public void storeVariable(String name, Result<IValue> value) {
+		//System.err.println("storeVariable: " + name + value.getValue());
 		Map<String,Result<IValue>> env = getVariableDefiningEnvironment(name);
 		if (env == null) {
 			updateVariableCache(name, variableEnvironment, null);

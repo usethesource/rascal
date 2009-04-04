@@ -272,16 +272,19 @@ class MatchEvaluator implements Iterator<Result<IValue>> {
     	this.positive = positive;
     	this.evaluator = ev;
     	this.pushedEnv = evaluator.pushEnv();
+    	//System.err.println("MatchEvaluator: push " + pat);
     	mp = ev.evalPattern(pat);
     	ev.lastPattern = mp;
     	mp.initMatch(subject.accept(ev).getValue(), evaluator.peek());
 	}
 
 	public boolean hasNext() {
+		//System.err.println("MatchEvaluator: hasNext");
 		if(hasNext){
 			boolean hn = mp.hasNext();
 			if(!hn){
 				hasNext = false;
+				//System.err.println("MatchEvaluator: pop");
 				evaluator.popUntil(pushedEnv);
 			}
 			return hn;
@@ -290,6 +293,7 @@ class MatchEvaluator implements Iterator<Result<IValue>> {
 	}
 
 	public Result next() {
+		//System.err.println("MatchEvaluator: next");
 		if(hasNext()){	
 			boolean result = positive ? mp.next() : !mp.next();
 			return new BoolResult(result, this);
