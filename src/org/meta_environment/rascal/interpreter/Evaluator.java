@@ -720,7 +720,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 					Map<Type,Type> bindings = new HashMap<Type,Type>();
 					declaredType.match(v.getType(), bindings);
 					declaredType = declaredType.instantiate(peek().getStore(), bindings);
-					r = makeResult(declaredType, applyRules(v.getValue()));
+					// Was: r = makeResult(declaredType, applyRules(v.getValue()));
+					r = makeResult(declaredType, v.getValue());
 					peek().storeLocalVariable(var.getName(), r);
 				} else {
 					throw new UnexpectedTypeError(declaredType, v.getType(), var);
@@ -860,6 +861,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 	 * @return
 	 * 
 	 * TODO: code does not deal with import structure, rather data def's are global.
+	 * TODO: We now first build the tree and then apply rules to it. Change this so
+	 * that we can avoid building the tree at all.
 	 */
 	private Result<IValue> constructTree(QualifiedName functionName, IValue[] actuals, Type signature) {
 		String sort;
@@ -1052,7 +1055,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 			}
 			Type resultType = nFields == 1 ? fieldTypes[0] : tf.tupleType(fieldTypes);
 			
-			return makeResult(resultType, applyRules(((ITuple)base.getValue()).select(selectedFields)));				     
+			// Was: return makeResult(resultType, applyRules(((ITuple)base.getValue()).select(selectedFields)));
+			return makeResult(resultType, ((ITuple)base.getValue()).select(selectedFields));
 		}
 		if(base.getType().isRelationType()){
 			
@@ -1082,7 +1086,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 			}
 			Type resultType = nFields == 1 ? tf.setType(fieldTypes[0]) : tf.relType(fieldTypes);
 			
-			return makeResult(resultType, applyRules(((IRelation)base.getValue()).select(selectedFields)));				     
+			//return makeResult(resultType, applyRules(((IRelation)base.getValue()).select(selectedFields)));	
+			return makeResult(resultType, ((IRelation)base.getValue()).select(selectedFields));	
 		}
 		
 		throw new UnsupportedOperationError("projection", base.getType(), x);
@@ -1565,7 +1570,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Type resultType = tf.listType(elementType);
 		IListWriter w = resultType.writer(vf);
 		w.appendAll(results);
-		return makeResult(resultType, applyRules(w.done()));
+		// Was: return makeResult(resultType, applyRules(w.done()));
+		return makeResult(resultType, w.done());
 	}
 
 	@Override
@@ -1595,7 +1601,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Type resultType = tf.setType(elementType);
 		ISetWriter w = resultType.writer(vf);
 		w.insertAll(results);
-		return makeResult(resultType, applyRules(w.done()));
+		//Was: return makeResult(resultType, applyRules(w.done()));
+		return makeResult(resultType, w.done());
 	}
 
 	@Override
@@ -1622,7 +1629,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 		IMapWriter w = type.writer(vf);
 		w.putAll(result);
 		
-		return makeResult(type, applyRules(w.done()));
+		//return makeResult(type, applyRules(w.done()));
+		return makeResult(type, w.done());
 	}
 	
 	@Override
@@ -1644,7 +1652,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 			values[i] = resultElem.getValue();
 		}
 
-		return makeResult(tf.tupleType(types), applyRules(vf.tuple(values)));
+		//return makeResult(tf.tupleType(types), applyRules(vf.tuple(values)));
+		return makeResult(tf.tupleType(types), vf.tuple(values));
 	}
 	
 	@Override
@@ -1853,7 +1862,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 			mp.initMatch(subject, peek());
 			lastPattern = mp;
 			//System.err.println("matchAndEval: subject=" + subject + ", pat=" + pat);
-			peek().storeLocalVariable("subject", makeResult(subject.getType(), applyRules(subject)));
+			//peek().storeLocalVariable("subject", makeResult(subject.getType(), applyRules(subject)));
+			peek().storeLocalVariable("subject", makeResult(subject.getType(), subject));
 			while(mp.hasNext()){
 				//System.err.println("matchAndEval: mp.hasNext()==true");
 				if(mp.next()){
