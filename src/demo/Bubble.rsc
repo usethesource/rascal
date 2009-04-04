@@ -7,7 +7,6 @@ import IO;
 // sort1: uses list indexing and for-loop
 
 public list[int] sort1(list[int] Numbers){
-println("sort1");
   for(int I <- [0 .. size(Numbers) - 2 ]){
      println("I = <I>");
      if(Numbers[I] > Numbers[I+1]){
@@ -21,7 +20,6 @@ println("sort1");
 // sort2: uses list matching and switch
 
 public list[int] sort2(list[int] Numbers){
-  println("sort2");
   switch(Numbers){
     case [list[int] Nums1, int P, int Q, list[int] Nums2]:
        if(P > Q){
@@ -37,7 +35,6 @@ public list[int] sort2(list[int] Numbers){
 // sort3: uses list matching and visit
 
 public list[int] sort3(list[int] Numbers){
-println("sort3");
   return innermost visit(Numbers){
     case [list[int] Nums1, int P, int Q, list[int] Nums2]:
        if(P > Q){

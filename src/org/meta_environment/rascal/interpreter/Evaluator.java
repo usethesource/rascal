@@ -2613,96 +2613,158 @@ public class Evaluator extends NullASTVisitor<Result> {
 	@Override
 	public Result<IValue> visitExpressionValueProducer(
 			org.meta_environment.rascal.ast.Expression.ValueProducer x) {
-		return new GeneratorEvaluator(x, this);
+		return new ValueProducerAsGenerator(x, this);
 	}
 	
 	@Override
 	public Result<IValue> visitExpressionValueProducerWithStrategy(
 			ValueProducerWithStrategy x) {
-		return new GeneratorEvaluator(x, this);
+		return new ValueProducerAsGenerator(x, this);
 	}
 	
-	class GeneratorEvaluator extends Result<IValue> {
-		private boolean isValueProducer = false;
-		private boolean isMatchPattern = false;
+	/*
+	 * ExpressionAsGenerator implements an expression appearing in a comprehension.
+	 * The expression maybe multiple-valued (e.g. a match expression) and its its successive
+	 * values will be generated.
+	 */
+	
+	class ExpressionAsGenerator extends Result<IValue> {
+		private boolean firstTime = true;
+		private Result<IValue> result;
+		private org.meta_environment.rascal.ast.Expression expr;
+		private Evaluator evaluator;
+
+		ExpressionAsGenerator(Expression g, Evaluator ev){
+			super(tf.boolType(), vf.bool(true));
+			evaluator = ev;
+			expr = g;
+		}
+		
+		@Override
+		public Type getType(){
+			return TypeFactory.getInstance().boolType();
+		}	
+		
+		@Override
+		public IValue getValue(){
+			/*
+			
+			if(hasNext())
+				return next().getValue();
+			return vf.bool(false);
+			*/
+			
+			if(firstTime){
+				firstTime = false;
+				return next().getValue();
+			}
+			return vf.bool(true);
+			
+		}
+		
+		@Override
+		public boolean hasNext(){
+			return firstTime || result.hasNext();
+		}
+
+		@Override
+		public Result next(){
+			if(firstTime){
+				/* Evaluate expression only once */
+				firstTime = false;
+				result = expr.accept(evaluator);
+				if(result.getType().isBoolType() && result.getValue() != null){
+					// FIXME: if result is of type void, you get a null pointer here.
+					if (result.getValue().isEqual(vf.bool(true))) {
+						return new BoolResult(true);
+					}
+					return new BoolResult(false);
+				} else {
+					throw new UnexpectedTypeError(tf.boolType(), result.getType(), expr);
+				}
+			}
+			return result.next();
+		}
+
+		@Override
+		public void remove() {
+			throw new ImplementationError("remove() not implemented for GeneratorEvaluator");
+		}
+	}
+	
+	/*
+	 * ValueProducerAsGenerator implements a value producer of the form
+	 * 	pattern <- Expression
+	 * that occurs in a comprehension. The expression produces a sequence of values and the
+	 * pattern is matched against each value.
+	 */
+	
+	class ValueProducerAsGenerator extends Result<IValue> {
 		private boolean firstTime = true;
 		private boolean hasNext = true;
 		private Environment pushedEnv;
-		private MatchEvaluator matchEval;
-		private org.meta_environment.rascal.ast.Expression expr;
 		private MatchPattern pat;
 		private org.meta_environment.rascal.ast.Expression patexpr;
 		private Evaluator evaluator;
 		private Iterator<?> iterator;
 
-		GeneratorEvaluator(Expression g, Evaluator ev){
+		ValueProducerAsGenerator(Expression vp, Evaluator ev){
 			super(tf.boolType(), vf.bool(true));
-			make(g, ev);
-		}
-		
-		void make(Expression vp, Evaluator ev){
+
 			evaluator = ev;
-			if(vp.isValueProducer() || vp.isValueProducerWithStrategy()){
-				isValueProducer = true;				
+			if(!(vp.isValueProducer() || vp.isValueProducerWithStrategy())){
+				throw new ImplementationError("GeneratorEvaluator");
+			}			
 				
-				pushedEnv = evaluator.pushEnv();
-				pat = evalPattern(vp.getPattern());
-				patexpr = vp.getExpression();
-				//System.err.println("GeneratorEvaluator.push, " + patexpr);
-			
-				Result<IValue> r = patexpr.accept(ev);
-				// List
-				if(r.getType().isListType()){
-					if(vp.hasStrategy()) {
-						throw new UnsupportedOperationError(vp.toString(), r.getType(), vp);
-					}
-					iterator = ((IList) r.getValue()).iterator();
-					
-				// Set
-				} else 	if(r.getType().isSetType()){
-					if(vp.hasStrategy()) {
-						throw new UnsupportedOperationError(vp.toString(), r.getType(), vp);
-					}
-					iterator = ((ISet) r.getValue()).iterator();
-				
-				// Map
-				} else if(r.getType().isMapType()){
-					if(vp.hasStrategy()) {
-						throw new UnsupportedOperationError(vp.toString(), r.getType(), vp);
-					}
-					iterator = ((IMap) r.getValue()).iterator();
-					
-				// Node and ADT
-				} else if(r.getType().isNodeType() || r.getType().isAbstractDataType()){
-					boolean bottomup = true;
-					if(vp.hasStrategy()){
-						Strategy strat = vp.getStrategy();
-	
-						if(strat.isTopDown()){
-							bottomup = false;
-						} else if(strat.isBottomUp()){
-								bottomup = true;
-						} else {
-							throw new UnsupportedOperationError(vp.toString(), r.getType(), vp);
-						}
-					}
-					iterator = new INodeReader((INode) r.getValue(), bottomup);
-				} else if(r.getType().isStringType()){
-					if(vp.hasStrategy()) {
-						throw new UnsupportedOperationError(vp.getStrategy().toString(), r.getType(), vp.getStrategy());
-					}
-					iterator = new SingleIValueIterator(r.getValue());
-				} else {
-					throw new ImplementationError("Unimplemented expression type " + r.getType() + " in generator");
+			pushedEnv = evaluator.pushEnv();
+			pat = evalPattern(vp.getPattern());
+			patexpr = vp.getExpression();
+			//System.err.println("GeneratorEvaluator.push, " + patexpr);
+		
+			Result<IValue> r = patexpr.accept(ev);
+			// List
+			if(r.getType().isListType()){
+				if(vp.hasStrategy()) {
+					throw new UnsupportedOperationError(vp.toString(), r.getType(), vp);
 				}
-			} else if(vp.isMatch()){
-				isMatchPattern = true;
-				pushedEnv = evaluator.pushEnv();
-				matchEval = new MatchEvaluator(vp.getPattern(), vp.getExpression(), true, pushedEnv, evaluator);
-			} else if (vp.isNoMatch()){
+				iterator = ((IList) r.getValue()).iterator();
+				
+			// Set
+			} else 	if(r.getType().isSetType()){
+				if(vp.hasStrategy()) {
+					throw new UnsupportedOperationError(vp.toString(), r.getType(), vp);
+				}
+				iterator = ((ISet) r.getValue()).iterator();
+			
+			// Map
+			} else if(r.getType().isMapType()){
+				if(vp.hasStrategy()) {
+					throw new UnsupportedOperationError(vp.toString(), r.getType(), vp);
+				}
+				iterator = ((IMap) r.getValue()).iterator();
+				
+			// Node and ADT
+			} else if(r.getType().isNodeType() || r.getType().isAbstractDataType()){
+				boolean bottomup = true;
+				if(vp.hasStrategy()){
+					Strategy strat = vp.getStrategy();
+
+					if(strat.isTopDown()){
+						bottomup = false;
+					} else if(strat.isBottomUp()){
+							bottomup = true;
+					} else {
+						throw new UnsupportedOperationError(vp.toString(), r.getType(), vp);
+					}
+				}
+				iterator = new INodeReader((INode) r.getValue(), bottomup);
+			} else if(r.getType().isStringType()){
+				if(vp.hasStrategy()) {
+					throw new UnsupportedOperationError(vp.getStrategy().toString(), r.getType(), vp.getStrategy());
+				}
+				iterator = new SingleIValueIterator(r.getValue());
 			} else {
-				System.err.println("GeneratorEvaluator, non-VP: " + vp);
-				expr = vp;
+				throw new ImplementationError("Unimplemented expression type " + r.getType() + " in generator");
 			}
 		}
 		
@@ -2713,98 +2775,66 @@ public class Evaluator extends NullASTVisitor<Result> {
 		
 		@Override
 		public IValue getValue(){
+			/*
+			if(hasNext())
+				return next().getValue();
+			return vf.bool(true);
+			*/
+			
 			if(firstTime){
 				firstTime = false;
 				return next().getValue();
 			}
 			return vf.bool(true);
+		
 		}
 		
 		@Override
 		public boolean hasNext(){
-			//System.err.println("GeneratorEvaluator.hasNext");
-			if(isMatchPattern){
-				if(hasNext){
-					boolean hn = matchEval.hasNext();
-					if(!hn){
-						hasNext = false;
-						//System.err.println("GeneratorEvaluator.pop, " + expr);
-						evaluator.popUntil(pushedEnv);
-					}
-					return hn;
+			if(hasNext){
+				boolean hn = pat.hasNext() || iterator.hasNext();
+				if(!hn){
+					hasNext = false;
+					//System.err.println("GeneratorEvaluator.pop, " + patexpr);
+					evaluator.popUntil(pushedEnv);
 				}
+				return hn;
 			}
-			if(isValueProducer){
-				//System.err.println("GeneratorEvaluator.hasNext: " + patexpr);
-				if(hasNext){
-					boolean hn = pat.hasNext() || iterator.hasNext();
-					if(!hn){
-						hasNext = false;
-						//System.err.println("GeneratorEvaluator.pop, " + patexpr);
-						evaluator.popUntil(pushedEnv);
-					}
-					return hn;
-				}
-				return false;
-			}
-			return firstTime;
+			return false;
 		}
 
 		@Override
 		public Result next(){
-			if(isMatchPattern){
-				return matchEval.next();
+			//System.err.println("getNext, trying pat " + pat);
+			/*
+			 * First, explore alternatives that remain to be matched by the current pattern
+			 */
+			while(pat.hasNext()){
+				if(pat.next()){
+					//System.err.println("return true");
+					return new BoolResult(true, this);
+				}
 			}
-			if(isValueProducer){
-				//System.err.println("getNext, trying pat " + pat);
-				/*
-				 * First, explore alternatives that remain to be matched by the current pattern
-				 */
+			
+			/*
+			 * Next, fetch a new data element (if any) and create a new pattern.
+			 */
+			
+			while(iterator.hasNext()){
+				IValue v = (IValue) iterator.next();
+				//System.err.println("getNext, try next from value iterator: " + v);
+				pat.initMatch(v, peek());
 				while(pat.hasNext()){
 					if(pat.next()){
 						//System.err.println("return true");
-						return new BoolResult(true, this);
-					}
-				}
-				
-				/*
-				 * Next, fetch a new data element (if any) and create a new pattern.
-				 */
-				
-				while(iterator.hasNext()){
-					IValue v = (IValue) iterator.next();
-					//System.err.println("getNext, try next from value iterator: " + v);
-					pat.initMatch(v, peek());
-					while(pat.hasNext()){
-						if(pat.next()){
-							//System.err.println("return true");
-							return new BoolResult(true, this);						
-						}	
-					}
-				}
-				//System.err.println("next returns false and pops env");
-				hasNext = false;
-				evaluator.popUntil(pushedEnv);
-				return new BoolResult(false);
-			} else {
-				if(firstTime){
-					/* Evaluate expression only once */
-					firstTime = false;
-					Result<IValue> v = expr.accept(evaluator);
-					if(v.getType().isBoolType() && v.getValue() != null){
-						// FIXME: if result is of type void, you get a null pointer here.
-						if (v.getValue().isEqual(vf.bool(true))) {
-							return new BoolResult(true);
-						}
-						return new BoolResult(false);
-					} else {
-						throw new UnexpectedTypeError(tf.boolType(), v.getType(), expr);
-					}
-				} else {
-					// After the first evaluation, we always return false;
-					return new BoolResult(false);
+						return new BoolResult(true, this);						
+					}	
 				}
 			}
+			//System.err.println("next returns false and pops env");
+			hasNext = false;
+			evaluator.popUntil(pushedEnv);
+			return new BoolResult(false);
 		}
 
 		@Override
@@ -2813,6 +2843,204 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 	}
 	
+	private Result<IValue> makeGenerator(Expression g){
+		if(g.isValueProducer() || g.isValueProducerWithStrategy()){
+			return new ValueProducerAsGenerator(g, this);
+		} else {
+			return new ExpressionAsGenerator(g,this);
+		}
+	}
+	
+//	class GeneratorEvaluator extends Result<IValue> {
+//		private boolean isValueProducer = false;
+//		private boolean isMatchPattern = false;
+//		private boolean firstTime = true;
+//		private boolean hasNext = true;
+//		private Environment pushedEnv;
+//		private MatchEvaluator matchEval;
+//		private org.meta_environment.rascal.ast.Expression expr;
+//		private MatchPattern pat;
+//		private org.meta_environment.rascal.ast.Expression patexpr;
+//		private Evaluator evaluator;
+//		private Iterator<?> iterator;
+//
+//		GeneratorEvaluator(Expression g, Evaluator ev){
+//			super(tf.boolType(), vf.bool(true));
+//			make(g, ev);
+//		}
+//		
+//		void make(Expression vp, Evaluator ev){
+//			evaluator = ev;
+//			if(vp.isValueProducer() || vp.isValueProducerWithStrategy()){
+//				isValueProducer = true;				
+//				
+//				pushedEnv = evaluator.pushEnv();
+//				pat = evalPattern(vp.getPattern());
+//				patexpr = vp.getExpression();
+//				//System.err.println("GeneratorEvaluator.push, " + patexpr);
+//			
+//				Result<IValue> r = patexpr.accept(ev);
+//				// List
+//				if(r.getType().isListType()){
+//					if(vp.hasStrategy()) {
+//						throw new UnsupportedOperationError(vp.toString(), r.getType(), vp);
+//					}
+//					iterator = ((IList) r.getValue()).iterator();
+//					
+//				// Set
+//				} else 	if(r.getType().isSetType()){
+//					if(vp.hasStrategy()) {
+//						throw new UnsupportedOperationError(vp.toString(), r.getType(), vp);
+//					}
+//					iterator = ((ISet) r.getValue()).iterator();
+//				
+//				// Map
+//				} else if(r.getType().isMapType()){
+//					if(vp.hasStrategy()) {
+//						throw new UnsupportedOperationError(vp.toString(), r.getType(), vp);
+//					}
+//					iterator = ((IMap) r.getValue()).iterator();
+//					
+//				// Node and ADT
+//				} else if(r.getType().isNodeType() || r.getType().isAbstractDataType()){
+//					boolean bottomup = true;
+//					if(vp.hasStrategy()){
+//						Strategy strat = vp.getStrategy();
+//	
+//						if(strat.isTopDown()){
+//							bottomup = false;
+//						} else if(strat.isBottomUp()){
+//								bottomup = true;
+//						} else {
+//							throw new UnsupportedOperationError(vp.toString(), r.getType(), vp);
+//						}
+//					}
+//					iterator = new INodeReader((INode) r.getValue(), bottomup);
+//				} else if(r.getType().isStringType()){
+//					if(vp.hasStrategy()) {
+//						throw new UnsupportedOperationError(vp.getStrategy().toString(), r.getType(), vp.getStrategy());
+//					}
+//					iterator = new SingleIValueIterator(r.getValue());
+//				} else {
+//					throw new ImplementationError("Unimplemented expression type " + r.getType() + " in generator");
+//				}
+//			} else if(vp.isMatch()){
+//				isMatchPattern = true;
+//				pushedEnv = evaluator.pushEnv();
+//				matchEval = new MatchEvaluator(vp.getPattern(), vp.getExpression(), true, pushedEnv, evaluator);
+//			} else if (vp.isNoMatch()){
+//			} else {
+//				System.err.println("GeneratorEvaluator, non-VP: " + vp);
+//				expr = vp;
+//			}
+//		}
+//		
+//		@Override
+//		public Type getType(){
+//			return TypeFactory.getInstance().boolType();
+//		}	
+//		
+//		@Override
+//		public IValue getValue(){
+//			if(firstTime){
+//				firstTime = false;
+//				return next().getValue();
+//			}
+//			return vf.bool(true);
+//		}
+//		
+//		@Override
+//		public boolean hasNext(){
+//			//System.err.println("GeneratorEvaluator.hasNext");
+//			if(isMatchPattern){
+//				if(hasNext){
+//					boolean hn = matchEval.hasNext();
+//					if(!hn){
+//						hasNext = false;
+//						//System.err.println("GeneratorEvaluator.pop, " + expr);
+//						evaluator.popUntil(pushedEnv);
+//					}
+//					return hn;
+//				}
+//			}
+//			if(isValueProducer){
+//				//System.err.println("GeneratorEvaluator.hasNext: " + patexpr);
+//				if(hasNext){
+//					boolean hn = pat.hasNext() || iterator.hasNext();
+//					if(!hn){
+//						hasNext = false;
+//						//System.err.println("GeneratorEvaluator.pop, " + patexpr);
+//						evaluator.popUntil(pushedEnv);
+//					}
+//					return hn;
+//				}
+//				return false;
+//			}
+//			return firstTime;
+//		}
+//
+//		@Override
+//		public Result next(){
+//			if(isMatchPattern){
+//				return matchEval.next();
+//			}
+//			if(isValueProducer){
+//				//System.err.println("getNext, trying pat " + pat);
+//				/*
+//				 * First, explore alternatives that remain to be matched by the current pattern
+//				 */
+//				while(pat.hasNext()){
+//					if(pat.next()){
+//						//System.err.println("return true");
+//						return new BoolResult(true, this);
+//					}
+//				}
+//				
+//				/*
+//				 * Next, fetch a new data element (if any) and create a new pattern.
+//				 */
+//				
+//				while(iterator.hasNext()){
+//					IValue v = (IValue) iterator.next();
+//					//System.err.println("getNext, try next from value iterator: " + v);
+//					pat.initMatch(v, peek());
+//					while(pat.hasNext()){
+//						if(pat.next()){
+//							//System.err.println("return true");
+//							return new BoolResult(true, this);						
+//						}	
+//					}
+//				}
+//				//System.err.println("next returns false and pops env");
+//				hasNext = false;
+//				evaluator.popUntil(pushedEnv);
+//				return new BoolResult(false);
+//			} else {
+//				if(firstTime){
+//					/* Evaluate expression only once */
+//					firstTime = false;
+//					Result<IValue> v = expr.accept(evaluator);
+//					if(v.getType().isBoolType() && v.getValue() != null){
+//						// FIXME: if result is of type void, you get a null pointer here.
+//						if (v.getValue().isEqual(vf.bool(true))) {
+//							return new BoolResult(true);
+//						}
+//						return new BoolResult(false);
+//					} else {
+//						throw new UnexpectedTypeError(tf.boolType(), v.getType(), expr);
+//					}
+//				} else {
+//					// After the first evaluation, we always return false;
+//					return new BoolResult(false);
+//				}
+//			}
+//		}
+//
+//		@Override
+//		public void remove() {
+//			throw new ImplementationError("remove() not implemented for GeneratorEvaluator");
+//		}
+//	}
 	
 	/*
 	 * ComprehensionWriter provides a uniform framework for writing elements
@@ -2948,24 +3176,20 @@ public class Evaluator extends NullASTVisitor<Result> {
 	private Result<IValue> evalComprehension(java.util.List<Expression> generators, 
 										  ComprehensionWriter w){
 		int size = generators.size();
-		GeneratorEvaluator[] gens = new GeneratorEvaluator[size];
+		Result<IValue>[] gens = new Result[size];
 		
 		int i = 0;
-		gens[0] = new GeneratorEvaluator(generators.get(0), this);
+		gens[0] = makeGenerator(generators.get(0));
 		while (i >= 0 && i < size){
-			System.err.println(" i = " + i + " " + generators.get(i) + " " + gens[i].hasNext());
 			if (gens[i].hasNext() && gens[i].next().isTrue()) {
 				if(i == size - 1){
-					System.err.println("append");
 					w.append();
 				} 
 				else {
-					System.err.println("right");
 					i++;
-					gens[i] = new GeneratorEvaluator(generators.get(i), this);
+					gens[i] = makeGenerator(generators.get(i));
 				}
 			} else {
-				System.err.println("left");
 				i--;
 			}
 		}
@@ -3000,18 +3224,18 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Statement body = x.getBody();
 		java.util.List<Expression> generators = x.getGenerators();
 		int size = generators.size();
-		GeneratorEvaluator[] gens = new GeneratorEvaluator[size];
+		Result<IValue>[] gens = new Result[size];
 		Result<IValue> result = nothing();
 		
 		int i = 0;
-		gens[0] = new GeneratorEvaluator(generators.get(0), this);
+		gens[0] = makeGenerator(generators.get(0));
 		while(i >= 0 && i < size){		
 			if(gens[i].hasNext() && gens[i].next().isTrue()){
 				if(i == size - 1){
 					result = body.accept(this);
 				} else {
 					i++;
-					gens[i] = new GeneratorEvaluator(generators.get(i), this);
+					gens[i] = makeGenerator(generators.get(i));
 				}
 			} else {
 				i--;
@@ -3024,17 +3248,17 @@ public class Evaluator extends NullASTVisitor<Result> {
 	public Result visitExpressionAny(Any x) {
 		java.util.List<Expression> generators = x.getGenerators();
 		int size = generators.size();
-		GeneratorEvaluator[] gens = new GeneratorEvaluator[size];
+		Result<IValue>[] gens = new Result[size];
 
 		int i = 0;
-		gens[0] = new GeneratorEvaluator(generators.get(0), this);
+		gens[0] = makeGenerator(generators.get(0));
 		while (i >= 0 && i < size) {
 			if (gens[i].hasNext() && gens[i].next().isTrue()) {
 				if (i == size - 1) {
 					return new BoolResult(true);
 				} else {
 					i++;
-					gens[i] = new GeneratorEvaluator(generators.get(i), this);
+					gens[i] = makeGenerator(generators.get(i));
 				}
 			} else {
 				i--;
@@ -3047,10 +3271,10 @@ public class Evaluator extends NullASTVisitor<Result> {
 	public Result visitExpressionAll(All x) {
 		java.util.List<Expression> producers = x.getGenerators();
 		int size = producers.size();
-		GeneratorEvaluator[] gens = new GeneratorEvaluator[size];
+		Result<IValue>[] gens = new Result[size];
 
 		int i = 0;
-		gens[0] = new GeneratorEvaluator(producers.get(0), this);
+		gens[0] = makeGenerator(producers.get(0));
 		while (i >= 0 && i < size) {
 			if (gens[i].hasNext()) {
 				if (!gens[i].next().isTrue()) {
@@ -3058,7 +3282,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				}
 				if (i < size - 1) {
 					i++;
-					gens[i] = new GeneratorEvaluator(producers.get(i), this);
+					gens[i] = makeGenerator(producers.get(i));
 				}
 			} else {
 				i--;

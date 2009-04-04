@@ -107,7 +107,6 @@ public abstract class BooleanEvaluator implements Iterator<Result<IValue>> {
 		}
 		return ((IBool)result[i].getValue()).getValue() == expected;
 	}
-
 }
 
 /*
