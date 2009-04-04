@@ -1384,7 +1384,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 	private Name name;
 	org.eclipse.imp.pdb.facts.type.Type declaredType;
 	private boolean anonymous = false;
-	private boolean debug = true;
+	private boolean debug = false;
 	private Environment env;
 
 	AbstractPatternTypedVariable(IValueFactory vf, Environment env, org.eclipse.imp.pdb.facts.type.Type type2, TypedVariable var) {
@@ -1427,7 +1427,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 	public boolean next() {
 		checkInitialized();
 		hasNext = false;
-		if(debug)System.out.println("AbstractTypedVariable.match: " + subject + "(type=" + subject.getType() + ") with " + declaredType + " " + name);
+		if(debug)System.out.println("AbstractTypedVariable.next: " + subject + "(type=" + subject.getType() + ") with " + declaredType + " " + name);
 		
 		if (subject.getType().isSubtypeOf(declaredType)) {
 			if(!anonymous)
@@ -1476,7 +1476,6 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 	//	if(N.toString().equals("search")){
 	//		return new AbstractPatternSearch(visitElements(x.getArguments()));
 	//	} else {
-		System.err.println("visitExpressionCallOrTree" + x);
 			return new AbstractPatternNode(vf, x, N, visitElements(x.getArguments()));
 	//	}
 	}
