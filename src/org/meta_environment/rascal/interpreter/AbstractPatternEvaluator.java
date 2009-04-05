@@ -430,7 +430,7 @@ interface MatchPattern {
 					Result<IValue> varRes = ev.getVariable(null, name);
 				         
 				    if((varRes != null) && (varRes.getValue() != null)){
-				        IValue varVal = varRes.getValue();
+				       //IValue varVal = varRes.getValue();
 				        Type varType = varRes.getType();
 				        if (varType.isListType()){
 				        	/*
@@ -443,7 +443,7 @@ interface MatchPattern {
 				        		throw new UnexpectedTypeError(listSubjectType,varType, ast);
 				        	}
 				        } else {
-				        	if(!varVal.getType().comparable(listSubjectElementType)){
+				        	if(!varType.comparable(listSubjectElementType)){
 				        		throw new UnexpectedTypeError(listSubjectType, varType, ast);
 				        	}
 				        }
