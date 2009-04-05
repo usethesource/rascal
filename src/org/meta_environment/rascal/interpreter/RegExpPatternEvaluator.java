@@ -21,6 +21,7 @@ import org.meta_environment.rascal.ast.Literal.RegExp;
 import org.meta_environment.rascal.ast.RegExp.Lexical;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
+import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 
@@ -68,6 +69,9 @@ class RegExpPatternValue implements MatchPattern {
 		for(String name : names){
 			Result<IValue> res = env.getVariable(ast, name);
 			if((res != null) && (res.getValue() != null)){
+				if(env.getLocalVariable(name) != null){
+					throw new RedeclaredVariableError(name, ast);
+				}
 				if(!res.getType().isStringType()){
 					throw new UnexpectedTypeError(tf.stringType(),res.getType(), ast);
 				}
@@ -118,14 +122,18 @@ class RegExpPatternValue implements MatchPattern {
 			Map<String,String> bindings = getBindings();
 			for(String name : bindings.keySet()){
 				String valBefore = boundBeforeConstruction.get(name);
-				if(true){ // TODO: ??? valBefore == null){
-					env.storeVariable(name, makeResult(tf.stringType(), vf.string(bindings.get(name))));
-				} else {					
+				if(valBefore != null){
 					if(!valBefore.equals(bindings.get(name))){
 						matches = false;
 						break;
 					}
-				}			
+				}
+				/*
+				 * Note that regular expressions cannot be non-linear, e.g. duplicate occurrences 
+				 * of variables are not allowed. Otherwise we would have to check here for the
+				 * previous local value of the variable.
+				 */
+				env.storeLocalVariable(name, makeResult(tf.stringType(), vf.string(bindings.get(name))));			
 			}
 			if(matches){
 				start = matcher.start();
@@ -237,6 +245,8 @@ public class RegExpPatternEvaluator extends NullASTVisitor<MatchPattern> {
 
 		while(m.find()){
 			String varName = m.group(1);
+			if(names.contains(varName))
+				throw new RedeclaredVariableError(varName, x);
 			names.add(varName);
 			resultRegExp += subjectPat.substring(start, m.start(0)) + "(" + m.group(2) + ")";
 			start = m.end(0);
