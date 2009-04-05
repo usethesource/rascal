@@ -115,7 +115,7 @@ public class Environment {
 		return getLocalVariable(Names.name(name));
 	}
 
-	private Result<IValue> getLocalVariable(String name) {
+	public Result<IValue> getLocalVariable(String name) {
 		//System.err.println("getLocalVariable: " + name);
 		return variableEnvironment.get(name);
 	}
