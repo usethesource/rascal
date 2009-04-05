@@ -76,6 +76,9 @@ public class PatternTests extends TestFramework {
 		assertTrue(runTest("[list[int] _] := [1,2];"));
 		assertTrue(runTest("([1, list[int] _, 10, list[int] _, 20] := [1,2,10,20]);"));
 		
+// TODO: we should allows this:
+//		assertTrue(runTest("{list[int] L; ([1, L, 4, 5] := [1, 2, 3, 4, 5] && L == [2, 3]);}"));
+		
 //		assertTrue(runTest("([1, list[int] L, [10, list[int] M, 100], list[int] N, 1000] := [1, [10,100],1000]);"));
 	}
 	
