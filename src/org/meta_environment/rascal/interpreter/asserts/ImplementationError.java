@@ -9,7 +9,7 @@ public final class ImplementationError extends AssertionError {
 	private static final long serialVersionUID = -8740312542969306482L;
 
 	public ImplementationError(String message, Throwable cause) {
-		super("Unexpected error in Rascal interpreter: " + message + " caused by " + cause.getMessage());
+		super("Unexpected error in Rascal interpreter: " + message + (cause != null ? (" caused by " + cause.getMessage()) : ""));
 	}
 	
 	// TODO replace these by asserts?
