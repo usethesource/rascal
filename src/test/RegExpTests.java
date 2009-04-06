@@ -46,6 +46,7 @@ public class RegExpTests extends TestFramework{
 		assertTrue(runTestInSameEvaluator("(/<x:[a-z]+>/ := \"abc\") && (x == \"abc\");"));
 		
 		// TODO ?? I don't see how a negative match would bind a variable at all
+		// But the variable x is global and keeps its value!
 		assertTrue(runTest("(/<x:[a-z]+>/ !:= \"ab\") && (x == \"abc\");"));
 	}
 	
