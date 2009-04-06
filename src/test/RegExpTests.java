@@ -42,8 +42,10 @@ public class RegExpTests extends TestFramework{
 	
 	@Test 
 	public void matchWithExternalModuleVariables(){
-		prepare("module XX str x = \"abc\";");
+		prepareModule("module XX str x = \"abc\";");
 		assertTrue(runTestInSameEvaluator("(/<x:[a-z]+>/ := \"abc\") && (x == \"abc\");"));
+		
+		// TODO ?? I don't see how a negative match would bind a variable at all
 		assertTrue(runTest("(/<x:[a-z]+>/ !:= \"ab\") && (x == \"abc\");"));
 	}
 	
