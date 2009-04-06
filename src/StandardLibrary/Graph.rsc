@@ -6,20 +6,20 @@ import IO;
 
 alias graph[&T] = rel[&T from, &T to];
 
-public set[&T] top(graph[&T] G)
-@doc{top -- return the top nodes of a graph}
-{
-  return domain(G) - range(G);
-}
-
 public set[&T] bottom(graph[&T] G)
-@doc{bottom -- return the bottom nodes of a graph}
+@doc{bottom -- return the bottom nodes of a graph.}
 {
   return range(G) - domain(G);
 }
 
+public set[&T] top(graph[&T] G)
+@doc{top -- return the top nodes of a graph.}
+{
+  return domain(G) - range(G);
+}
+
 public set[&T] reach(graph[&T] G, set[&T] Start)
-@doc{Reachability from start set}
+@doc{reach -- Reachability from set of start nodes.}
 {
 	with
      	set[&T] R = Start;
@@ -29,13 +29,13 @@ public set[&T] reach(graph[&T] G, set[&T] Start)
 }
 
 public set[&T] reachR(graph[&T] G, set[&T] Start, set[&T] Restr)
-@doc{Reachability with restriction}
+@doc{reachR -- Reachability from set of start nodes with restriction to certain nodes.}
 {
 	return (carrierR(G, Restr)+)[Start];
 }
 
 public set[&T] reachX(graph[&T] G, set[&T] Start, set[&T] Excl)
-@doc{Reachability with exclusion}
+@doc{reachX -- Reachability from set of start nodes with exclusion of certain nodes.}
 {
    return (carrierX(G, Excl)+)[Start];
 }
@@ -43,6 +43,7 @@ public set[&T] reachX(graph[&T] G, set[&T] Start, set[&T] Excl)
 // Shortest Path functions
 
 public list[&T] java shortestPathPair(graph[&T] G, &T From, &T To)
+@doc{shortestPathPair -- Shortest path between pair of nodes.}
 @javaClass{org.meta_environment.rascal.std.Graph};
 
 /*

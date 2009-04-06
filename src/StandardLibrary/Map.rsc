@@ -16,7 +16,9 @@ public bool java isEmpty(map[&K, &V] M)
  @doc{isEmpty -- is map empty?}
  @javaClass{org.meta_environment.rascal.std.Map};
 
-public map[&K, &V] mapper(map[&K, &V] M, &K (&K) F, &V (&V) G){
+public map[&K, &V] mapper(map[&K, &V] M, &K (&K) F, &V (&V) G)
+@doc{mapper -- apply two functions to each key/value pair in a map.}
+{
   return (#F(key) : #G(M[key]) | &K key <- M);
 }
 
@@ -25,6 +27,7 @@ public set[&V] java range(map[&K, &V] M)
 @javaClass{org.meta_environment.rascal.std.Map};
 
 public int java size(map[&K, &V] M)
+@doc{size -- number of elements in a map.}
 @javaClass{org.meta_environment.rascal.std.Map};
 
 public list[tuple[&K, &V]] java toList(map[&K, &V] M)
@@ -36,6 +39,7 @@ public rel[&K, &V] java toRel(map[&K, &V] M)
 @javaClass{org.meta_environment.rascal.std.Map};
   
 public str java toString(map[&K, &V] M)
+@doc{toString -- convert a list to a string.}
 @javaClass{org.meta_environment.rascal.std.Map};
 
 
