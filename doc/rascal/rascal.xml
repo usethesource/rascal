@@ -3256,8 +3256,23 @@ default: ...
   <section>
     <title>Examples</title>
 
-    <para>Here we list experimental examples of Rascal code to try out
-    features.</para>
+    <para>Here we list some experimental examples of Rascal code to try out
+    features. Caveats:</para>
+
+    <itemizedlist>
+      <listitem>
+        <para>The examples using concrete syntax have not been tested since
+        concrete syntax is not yet implemented, but in most cases we have
+        tested an abstract version instead.</para>
+      </listitem>
+
+      <listitem>
+        <para>Not all examples are completely up-to-date.</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>Despite these caveats, the examples are representative of what we
+    want to express.</para>
 
     <section>
       <title>Hello world</title>
@@ -5796,7 +5811,8 @@ public list[int] sort3(list[int] Numbers){
       <itemizedlist>
         <listitem>
           <para><literal>arb</literal> generates an arbitrary element from a
-          structured value.</para>
+          structured value. In some cases, arb is called differently (e.g.
+          arbInt) to circumvent our restrictions on overloading.</para>
         </listitem>
 
         <listitem>
