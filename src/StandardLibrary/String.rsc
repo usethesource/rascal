@@ -5,7 +5,7 @@ public int java charAt(str s, int i) throws out_of_range(str msg)
 @javaClass{org.meta_environment.rascal.std.String};
 
 public bool java endsWith(str s, str suffix)
-@doc{endWith -- returns true if string s ends with given string suffix.}
+@doc{endsWith -- returns true if string s ends with given string suffix.}
 @javaClass{org.meta_environment.rascal.std.String};
 
 private str java format(str s, str dir, int n, str pad)

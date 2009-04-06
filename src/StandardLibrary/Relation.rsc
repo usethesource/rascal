@@ -31,7 +31,7 @@ public set[&T]  carrier (rel[&T,&T,&T,&T,&T] R)
 // carrierR
 
 public rel[&T,&T] carrierR (rel[&T,&T] R, set[&T] S)
-@doc{carrierR -- all elements in any tuple in binary relation R restricted to elements of S}
+@doc{carrierR -- binary relation restricted to tuples with elements in a set S}
 {
   return { <V0, V1> | <&T V0, &T V1> <- R, V0 in S, V1 in S };
 }

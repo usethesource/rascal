@@ -1,14 +1,13 @@
 module Integer
 
 public int abs(int N)
-@doc{abs -- absolute value of integer}
+@doc{abs -- absolute value of integer.}
 {
 	return N >= 0 ? N : -N;
 }
 
-
 public int java arbInt()
-@doc{arbInt -- return an arbitrary integer value}
+@doc{arbInt -- return an arbitrary integer value.}
 @javaClass{org.meta_environment.rascal.std.Integer};
 
 public int java arbInt(int limit)
@@ -16,13 +15,13 @@ public int java arbInt(int limit)
 @javaClass{org.meta_environment.rascal.std.Integer};
 
 public int max(int n, int m)
-@doc{max -- largest of two integers}
+@doc{max -- largest of two integers.}
 {
 	return n > m ? n : m;
 }
 
 public int min(int n, int m)
-@doc{max -- smallest of two integers}
+@doc{min -- smallest of two integers.}
 {
 	return n < m ? n : m;
 }
