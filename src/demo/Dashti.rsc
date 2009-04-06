@@ -110,6 +110,15 @@ rel[StateId, StateId] buildGraph(){
     return { <from, to> | int from <- [ 1 .. nStates], <StateId to, Symbol sym> <- Transitions[from]};
 }
 
+public rel[StateId,StateId] getGraph(int n) {
+  if (n <= 4) {
+     N = n;
+     return buildGraph();
+  }
+  
+  return {};
+}
+
 public void test(int N){
   time1 = currentTimeMillis(); dashti(N); time2 = currentTimeMillis(); delta = (time2 - time1)/1000;
   
