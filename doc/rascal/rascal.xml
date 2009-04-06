@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="US-ASCII"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <article version="5.0" xmlns="http://docbook.org/ns/docbook"
          xmlns:xlink="http://www.w3.org/1999/xlink"
          xmlns:xi="http://www.w3.org/2001/XInclude"
@@ -28,7 +28,7 @@
   <note>
     <para>This document is a braindump of ideas that is slowly converging to a
     coherent design. See <xref linkend="section.issues" /> for the issues that
-    have to be resolved. Updated according to status as of March 7,
+    have to be resolved. Updated according to status as of April 6,
     2009.</para>
   </note>
 
@@ -78,6 +78,10 @@
       <listitem>
         <para>Unsurprising concepts, syntax and semantics for a wide audience.
         Where possible we will stay close to C and Java notation.</para>
+      </listitem>
+
+      <listitem>
+        <para>Easy integration of existing tools.</para>
       </listitem>
     </itemizedlist>
 
@@ -253,11 +257,9 @@
           <para>Rascal is an imperative language, which natively supports I/O
           and other side-effects without work-arounds. When backtracking
           occurs, for example during list matching, Rascal makes sure that
-          <emphasis role="bold">most</emphasis> side-effects are undone, and
-          that I/O is delayed until no more backtracking can occur. Even
-          rewrite rules support side-effects in Rascal.<caution>
-              <para>Clarify the above.</para>
-            </caution></para>
+          side-effects are undone, and that I/O is delayed until no more
+          backtracking can occur. Even rewrite rules support side-effects in
+          Rascal.</para>
         </listitem>
 
         <listitem>
@@ -287,6 +289,10 @@
         <listitem>
           <para>Rascal is based on a Java interpreter, or a Java run-time when
           compiled. So the code is more portable.</para>
+        </listitem>
+
+        <listitem>
+          <para>Rascal can easily call any Java method.</para>
         </listitem>
       </itemizedlist>
     </section>
@@ -622,7 +628,7 @@
       <para>Modules introduce a namespace and qualified names (using the
       <literal>::</literal> operator) may be used to uniquely identify
       elements of a module from the outside. Inside the module, this
-      qualification is implicit. The qualified name consist of two parts: a
+      qualification is implicit. The qualified name consists of two parts: a
       directory name (a list of names separated by <literal>::</literal>) and
       a module name.</para>
 
@@ -717,6 +723,13 @@
           the command line, another function (with the same signature) may be
           called.</para>
         </listitem>
+
+        <listitem>
+          <para>Another common idiom is for a module to have a test
+          function<programlisting>public void test() { ... }</programlisting></para>
+
+          <para>that can be called for the purpose of unit testing.</para>
+        </listitem>
       </itemizedlist>
     </section>
 
@@ -728,8 +741,8 @@
 
       <itemizedlist>
         <listitem>
-          <para>A Rascal Name is identical to a Java Indentifier except that
-          we do <emphasis>not</emphasis> allow the dollar sign
+          <para>A Rascal Name is identical to a Java Identifier except that we
+          do <emphasis>not</emphasis> allow the dollar sign
           (<literal>$</literal>) in names. To maintain compatibility with SDF
           names , we map dashes (<literal>-</literal>) in SDF names to
           underscores (<literal>_</literal>). In the initial implementation
@@ -793,7 +806,7 @@
                   </listitem>
 
                   <listitem>
-                    <para><literal>toreal</literal> converts strings to
+                    <para><literal>toReal</literal> converts strings to
                     reals.</para>
                   </listitem>
                 </itemizedlist>
@@ -802,7 +815,7 @@
 
           <listitem>
             <para>All syntactic types are a subtype of the type
-            <literal>node</literal> that corresponds to an Universal Parse
+            <literal>"node"</literal> that corresponds to an Universal Parse
             Tree Representation (UPTR). We will use AsFix as UPTR. Up casts
             from a subtype to an enclosing type are automatic. The type
             <literal>tree</literal> is "special" in the following
@@ -889,7 +902,9 @@
             trees with two alternatives named <literal>and</literal> and
             <literal>or</literal>. Each view should be of type
             <literal>tree</literal>. Views for the same type are
-            exclusive.</para>
+            exclusive.<caution>
+                <para>Views are not yet implemented.</para>
+              </caution></para>
           </listitem>
 
           <listitem>
@@ -934,41 +949,16 @@
                 <literal>STATEMENT-list2</literal>.</para>
               </listitem>
             </itemizedlist>
+
+            <caution>
+              <para>Parsing and Parse trees are not yet implemented.</para>
+            </caution>
           </listitem>
 
           <listitem>
             <para>Types may include type variables like
             <literal>&amp;<replaceable>T</replaceable></literal> as in Rscript
             with the following refinement:</para>
-
-            <remark>The following is no longer applicable, but I left it in
-            the text for the moment.</remark>
-
-            <itemizedlist>
-              <listitem>
-                <para>In the type
-                <literal>rel[&amp;<replaceable>*T</replaceable>]</literal>,
-                the type variable
-                <literal>&amp;<replaceable>T</replaceable></literal> is bound
-                to the tuple type of the relation, i.e. an actual type
-                <literal>rel[int,str]</literal> will bind
-                &amp;<replaceable>*T</replaceable> to the type
-                <literal>tuple[int,str]</literal>.</para>
-              </listitem>
-
-              <listitem>
-                <para>Composition of tuple types is only allowed in the result
-                type.</para>
-              </listitem>
-
-              <listitem>
-                <para>In a similar fashion, in
-                <literal>map[&amp;<replaceable>*T</replaceable>]</literal>,
-                the type variable
-                <literal>&amp;<replaceable>*T</replaceable></literal> is bound
-                to the tuple type of the map.</para>
-              </listitem>
-            </itemizedlist>
           </listitem>
 
           <listitem>
@@ -998,8 +988,11 @@
       <section>
         <title>Subtypes</title>
 
-        <para>The type hierarchy leads to a subtype relation &lt;: that can be
-        defined (in ASF+SDF) as follows:<programlisting>%% Subtyping rules (&lt;:) on Types
+        <para><note>
+            <para>This section has to be checked for compatibility with the
+            current situation.</para>
+          </note>The type hierarchy leads to a subtype relation &lt;: that can
+        be defined (in ASF+SDF) as follows:<programlisting>%% Subtyping rules (&lt;:) on Types
 
 [let00] void &lt;: T                          = true
 
@@ -1172,6 +1165,8 @@ anno LayoutStrategy Graph @ strategy;</programlisting></para>
         <title>Declaration tags</title>
 
         <para><warning>
+            <para>Tags are not yet implemented.</para>
+          </warning><warning>
             <para>The syntax of tags has to be aligned with the syntax of
             annotations. This is done in the examples below but not yet in the
             synyax.</para>
@@ -1274,7 +1269,7 @@ tag str primitive on function   %% a primitive, built-in, function</programlisti
           <para>Functions that use a global variable have to be explicitly
           declare it as well. The value of a global variable can be used and
           replaced by all functions that have locally declared it.<caution>
-              <para>Bas: Shadowing?</para>
+              <para>Shadowing?</para>
             </caution></para>
         </listitem>
       </itemizedlist>
@@ -1312,7 +1307,7 @@ tag str primitive on function   %% a primitive, built-in, function</programlisti
         functions that cache previous arguments/result combinations.</para>
 
         <caution>
-          <para>Not yet implemented.</para>
+          <para>The @memo tag is not yet implemented.</para>
         </caution>
       </section>
 
@@ -1358,7 +1353,7 @@ int +(int a, int b) { ... }
 %% in this example the overloading on result types will never 
 %% be used to select the function
 
-int    +(int a, int b)
+int  +(int a, int b)
 real +(int a, real b)
 real +(real a, int b)
 real +(real a, real b)
@@ -1405,7 +1400,7 @@ int f(&amp;T y, real x)</programlisting></para>
       <section>
         <title>Formal description of overloading</title>
 
-        <para>Given the subtype relation <literal>&lt;=:</literal> defined
+        <para>Given the subtype relation <literal>&lt;:</literal> defined
         earlier, we can easily formalize overloading resolution by defining
         two predicates: <literal>incomparable</literal> describes when two
         lists of OptionallyNamedTypes can be compared and
@@ -1446,15 +1441,12 @@ int f(&amp;T y, real x)</programlisting></para>
         <title>Java Functions</title>
 
         <para>Functions with the tag "<literal>java</literal>" have a body
-        written in Java. They have the following properties:</para>
+        written in Java. These functions come in two flavours: inline and
+        offline definitions.</para>
+
+        <para>Both have the following properties:</para>
 
         <itemizedlist>
-          <listitem>
-            <para>The body may be preceeded by a
-            <literal>java-imports</literal> annotation that defines the Java
-            classes needed by the body.</para>
-          </listitem>
-
           <listitem>
             <para>Arguments and result are pure Rascal values.</para>
           </listitem>
@@ -1476,8 +1468,11 @@ int f(&amp;T y, real x)</programlisting></para>
           library functions and for interfacing with Eclipse.</para>
         </note>
 
-        <para>Here is the reverse function on strings as defined in the
-        library:</para>
+        <para>An <emphasis>inline</emphasis> definition includes the relevant
+        Java code as part of the Rascal code. The body may be preceeded by a
+        <literal>java-imports</literal> annotation that defines the Java
+        classes needed by the body Here is the reverse function on strings as
+        defined in the library:</para>
 
         <programlisting>public str java reverse(str s)
 @doc{reverse -- return string with all characters in reverse order.}
@@ -1492,6 +1487,15 @@ int f(&amp;T y, real x)</programlisting></para>
    }
    return values.string(new String(chars));
 }</programlisting>
+
+        <para>An offline definition of a Java functions just contains a
+        reference to the class that contains the methods to be called. Here is
+        the offline version of the same reverse function:<programlisting>public str java reverse(str s)
+@doc{reverse -- return string with all characters in reverse order.}
+@javaClass{org.meta_environment.rascal.std.String};</programlisting>Both
+        styles have their merit, but the offline style wins in most cases
+        since all the functionality of the Java IDE is available while writing
+        the Java code.</para>
       </section>
     </section>
 
@@ -1577,7 +1581,8 @@ int f(&amp;T y, real x)</programlisting></para>
       (written between <literal>&lt;</literal> and <literal>&gt;</literal>)
       that are replaced by their value during the construction of the pattern.
       Example:<programlisting>&lt;subst(V1, E1, Ea)&gt;</programlisting><caution>
-          <para>Not yet implemented.</para>
+          <para>Not yet implemented. Only string interpolation is
+          available.</para>
         </caution></para>
 
       <para>A pattern may be turned into an <emphasis>anti-pattern</emphasis>
@@ -1585,6 +1590,10 @@ int f(&amp;T y, real x)</programlisting></para>
       matches in all cases where the original pattern does not match. A match
       of an anti-pattern cannot bind any variables but these variables are
       nonetheless reserved in the corresponding scope.</para>
+
+      <caution>
+        <para>Anti-patterns are not yet implemented.</para>
+      </caution>
 
       <section>
         <title>Regular Expression Patterns</title>
@@ -1613,7 +1622,8 @@ int f(&amp;T y, real x)</programlisting></para>
             <para>We allow named groups, syntax
             <literal>&lt;<replaceable>Name</replaceable>:<replaceable>Regex</replaceable>&gt;</literal>,
             which introduce a variable of type <literal>str</literal> named
-            <replaceable>Name</replaceable>.</para>
+            <replaceable>Name</replaceable>. Currently, these names have to
+            unique in the pattern.</para>
           </listitem>
 
           <listitem>
@@ -1917,10 +1927,8 @@ lexical syntax
 
         <para>An assignment may also contain one of the assignment operators
         <literal>+=</literal>, <literal>-=</literal>, <literal>*=</literal>,
-        <literal>/=</literal>, <literal>&amp;=</literal>, and
-        <literal>|=</literal>.<caution>
-            <para>Only = is currently implemented.</para>
-          </caution></para>
+        <literal>/=</literal>, <literal>&amp;=</literal>,
+        <literal>|=</literal> and <literal>?=</literal>.</para>
       </section>
 
       <section>
@@ -1946,7 +1954,7 @@ lexical syntax
 
           <listitem>
             <para>A <literal>for</literal> statement repeats a block of code
-            for each value produced by a generator.</para>
+            for each value produced by a list of generators.</para>
           </listitem>
 
           <listitem>
@@ -1979,35 +1987,44 @@ finally: Body3</programlisting>A throw statement can raise an exception. There
           </listitem>
 
           <listitem>
-            <para><emphasis>hard</emphasis> exceptions that cause termination
-            of the Rascal program.</para>
+            <para><emphasis>hard</emphasis> exceptions that cannot be caught
+            by the Rascal program and cause termination of the program.</para>
           </listitem>
         </itemizedlist>
 
         <para>The Rascal Standard Library contains the module
-        <literal>Exception</literal> that defines a data type exception that
-        lists all soft exceptions:</para>
+        <literal>Exception</literal> that defines a data type
+        <literal>RunTimeException</literal> that lists all soft
+        exceptions:</para>
 
-        <para><programlisting>data Exception = 
-      EmptyListException(str message) 
-    | EmptyMapException(str message) 
-    | EmptySetException(str message)
-    | IndexOutOfBoundsException(str message)
-    | IOException(str message)
-    | NoSuchAnnotationException(str message)
-    | NoSuchFileException(str message)
-    | SubscriptException(str message)
-    | UndefinedValueException(str message)
-    | UninitializedVariableException(str message)
+        <para><programlisting>data RuntimeException = 
+      EmptyList
+    | EmptyMap 
+    | EmptySet
+    | IndexOutOfBounds(int index)
+    | AssertionFailed 
+    | AssertionFailed(str label)
+    | NoSuchElement(value v)
+    | IllegalArgument(value v)
+    | IllegalArgument
+    | IO(str message)
+    | FileNotFound(str filename)
+    | LocationNotFound(loc location)
+    | PermissionDenied
+    | PermissionDenied(str message)
+    | ModuleNotFound(str name)
+    | NoSuchKey(value key)
+    | NoSuchAnnotation(str label)
+    | Java(str message)
     ;</programlisting></para>
 
         <para>Rascal code that uses exceptions must import the
         <literal>Exception</literal> module.</para>
 
         <para>New exceptions can be added by extending the
-        <literal>Exception</literal> data type, for instance:</para>
+        <literal>RunTimeException</literal> data type, for instance:</para>
 
-        <para><programlisting>data Exception =
+        <para><programlisting>data RunTimeException =
      MyUserException(str message);</programlisting></para>
       </section>
 
@@ -2099,12 +2116,12 @@ default: ...
 
           <listitem>
             <para>The for-statement also provides ordinary flow of control and
-            its condition is a generator.</para>
+            its condition is a list of generators.</para>
           </listitem>
 
           <listitem>
             <para>We have break and continue statements. <caution>
-                <para>How about dropping them?</para>
+                <para>Not yet implemented. How about dropping them?</para>
               </caution></para>
           </listitem>
 
@@ -2116,20 +2133,8 @@ default: ...
           </listitem>
 
           <listitem>
-            <para>We already have "all" and "any" as predicates that test that
-            all (or at least one element) satisfies a predicate.</para>
-          </listitem>
-
-          <listitem>
-            <para><emphasis role="bold"><remark>AlREADY
-            REMOVED</remark></emphasis>: The new statement constructs "all"
-            and "exists" have a list or set pattern as condition. They
-            establish a save/commit barrier around each iteration. When an
-            iteration completes normally all its side-effects are made
-            permanent and execution continues with the next iteration (all) or
-            the next statement (exists). When "fail" is encountered during
-            execution, all side-effects are undone and execution continues
-            with the next iteration.</para>
+            <para>We have "all" and "any" as predicates that test that all (or
+            at least one element) satisfies a predicate.</para>
           </listitem>
         </itemizedlist>
       </section>
@@ -2165,9 +2170,9 @@ default: ...
 
           <thead>
             <row>
-              <entry align="center">&#160;</entry>
+              <entry align="center"> </entry>
 
-              <entry align="center">bool&#160;</entry>
+              <entry align="center">bool </entry>
 
               <entry align="center">int</entry>
 
@@ -2665,7 +2670,7 @@ default: ...
 
               <entry></entry>
 
-              <entry>+\</entry>
+              <entry>+</entry>
 
               <entry>+</entry>
             </row>
@@ -2717,6 +2722,10 @@ default: ...
             <listitem>
               <para><literal>_ ? _ : _</literal> conditional expression</para>
             </listitem>
+
+            <listitem>
+              <para><literal>?</literal> isdefined operator.</para>
+            </listitem>
           </itemizedlist>
         </note></para>
 
@@ -2727,11 +2736,9 @@ default: ...
         <literal>int</literal> , <literal>real</literal>,
         <literal>str</literal> and <literal>loc</literal> are expressions. All
         operators for all datatypes are summarized in <xref
-        linkend="table.operators-on-datatypes" />.<caution>
-            <para>The current implementation uses Java int and double to
-            implement int and real. We will soon switch to infinite
-            precision.</para>
-          </caution></para>
+        linkend="table.operators-on-datatypes" />. The datatypes
+        <literal>int</literal> and <literal>real</literal> have arbitrary
+        precision.</para>
 
         <para>String literals permit <emphasis>interpolation</emphasis> of
         variable values: when
@@ -2798,15 +2805,20 @@ default: ...
             <literal>endColumn</literal>.</para>
           </listitem>
         </itemizedlist>
+
+        <para>Here is an example of loc value:</para>
+
+        <para><programlisting>loc(file:/home/paulk/pico.trm?offset=0&amp;length=1&amp;begin=2,3&amp;end=4,5)</programlisting>Note
+        that loc values are usually created by tools such as parsers and
+        editors.</para>
       </section>
 
       <section>
         <title>Structured values</title>
 
         <para>Values of the structured types <literal>list</literal>,
-        <literal>set</literal>, <literal>map,tuple</literal>, and
-        <literal>rel</literal><literal></literal>are expressions and can be
-        constructed as follows:</para>
+        <literal>set</literal>, <literal>map,tuple</literal>, and <literal>rel
+        </literal>are expressions and can be constructed as follows:</para>
 
         <itemizedlist>
           <listitem>
@@ -2844,7 +2856,8 @@ default: ...
             separated by comma's, e.g.<literal> {"abc", "def"}</literal> or
             <literal>{true, false}</literal>. In a similar fashion as with
             lists, sets variables are automatically spliced into a surrounding
-            set.</para>
+            set. This can be prevented by surrounding them with extra { and }
+            brackets.</para>
           </listitem>
 
           <listitem>
@@ -2891,7 +2904,7 @@ default: ...
         of the form:<programlisting>[ E | G1, ..., Gn ]</programlisting>for
         maps of the form<programlisting>( K : V | G1, ..., Gn )</programlisting></para>
 
-        <para>and for sets and relations of the form:<programlisting>{ E | G1, ..., Gn }</programlisting></para>
+        <para>and for sets and relations of the form:<programlisting>{ &lt;E1,...,Em&gt; | G1, ..., Gn }</programlisting></para>
       </section>
 
       <section>
@@ -2939,6 +2952,11 @@ default: ...
 
           <listitem>
             <para><literal>!:=</literal> nomatch</para>
+          </listitem>
+
+          <listitem>
+            <para>? is defined, yields true is the expressions has a defined
+            value and false otherwise</para>
           </listitem>
         </itemizedlist>
       </section>
@@ -3082,7 +3100,9 @@ default: ...
       defined for that type, they are immediately applied. In principle, rules
       can be used to define arbitrary computations. In practice, they are
       mostly used to guarantee that certain constraints are satisfied whenever
-      a value of some type is created.</para>
+      a value of some type is created.<note>
+          <para>Rules can only be applied to nodes and ADTs.</para>
+        </note></para>
 
       <para>Rules have the general form:<programlisting>rule <replaceable>Name</replaceable> <replaceable>Rule</replaceable></programlisting>Here
       is an example for concrete Booleans:</para>
@@ -3263,8 +3283,8 @@ import IO;
 public void squares(int N){
   println("Table of squares from 1 to &lt;N&gt;");
   for(int I : [1 .. N]){
-  	I2 = I * I;
-    println("&lt;I&gt; squared = &lt;I2&gt;");
+      I2 = I * I;
+      println("&lt;I&gt; squared = &lt;I2&gt;");
   } 
 }</programlisting></para>
     </section>
@@ -3285,8 +3305,7 @@ public void main(str argv ...){
        int count = wordCount(readFile(fileName));
        println("&lt;count&gt; word in file &lt;fileName&gt;");
        total = total + count;
- 	}
- 	   catch {println("Skipping file &lt;fileName&gt;");}
+    } catch {println("Skipping file &lt;fileName&gt;");}
   }
   
   println("&lt;total&gt; words in all files");
@@ -3362,7 +3381,7 @@ public list[str] Jabberwocky = [
 	"The frumious Bandersnatch!\"",
 	"",
 	"He took his vorpal sword in hand:",
-	"Long time the manxome foe he sought&#8212;",
+	"Long time the manxome foe he sought—",
 	"So rested he by the Tumtum tree,",
 	"And stood awhile in thought.",
 	"",
@@ -3388,10 +3407,10 @@ public list[str] Jabberwocky = [
 ];
 
 bool test(){
-	return 
-		wordCount(Jabberwocky, #countLine1) == 215 &amp;&amp;
-	 	wordCount(Jabberwocky, #countLine2) == 215 &amp;&amp;
-	 	wordCount(Jabberwocky, #countLine3) == 215;
+  return 
+  wordCount(Jabberwocky, #countLine1) == 215 &amp;&amp;
+  wordCount(Jabberwocky, #countLine2) == 215 &amp;&amp;
+  wordCount(Jabberwocky, #countLine3) == 215;
 }</programlisting></para>
     </section>
 
@@ -3419,24 +3438,24 @@ public str capAll1(str S)
 public str capitalize(str word)
 {
    if(/^&lt;letter:[a-z]&gt;&lt;rest:.*$/){
-   		return toUpperCase(letter) + rest;
+      return toUpperCase(letter) + rest;
    } else {
-   		return word;
+      return word;
    }
 }
 
 public str capAll2(str S)
 {
    return visit(S){
-   	case /&lt;word:\w+&gt;/i =&gt; capitalize(word);
+     case /&lt;word:\w+&gt;/i =&gt; capitalize(word);
    };
 }
 
 bool test)
 {
-	return
-		capAll1("turn this into a title") == "Turn This Into A Title" &amp;&amp;
-		capAll2("turn this into a title") == "Turn This Into A Title";
+  return
+  capAll1("turn this into a title") == "Turn This Into A Title" &amp;&amp;
+  capAll2("turn this into a title") == "Turn This Into A Title";
 }</programlisting></para>
     </section>
 
@@ -3522,7 +3541,7 @@ data Bool bor(Bool L, Bool R);
 
 public Bool reduce(Bool B) {
     return innermost visit(B) {
-      case band(btrue, Bool B1) =&gt; B1		// Use variables
+      case band(btrue, Bool B1) =&gt; B1        // Use variables
       case band(bfalse, Bool B1)=&gt; bfalse   //TODO: should become B1!
       
       case bor(btrue, btrue)    =&gt; btrue    // Use a truth table
@@ -3568,7 +3587,7 @@ rule o4 bor(bfalse, bfalse)   =&gt; bfalse;
 
 boolean test()
 {
-	return bor(band(btrue,btrue),band(btrue, bfalse)) == btrue;
+  return bor(band(btrue,btrue),band(btrue, bfalse)) == btrue;
 }</programlisting>These rules are applied on every Bool that is constructed.
         Like in ASF+SDF it is the responsibility of the programmer to make
         sure the rules are confluent and terminating. A rule definition has
@@ -3679,24 +3698,25 @@ data Point point(int x, int y);</programlisting></para>
 
       <para>Here is the binary tree example that we use in explaining
       traversal functions in ASF+SDF.<programlisting>
-module Tree-examples
+module demo::TreeTraversals
 import List;
+import UnitTest;
 
-data NODE int N | f(NODE I, NODE J) | g(NODE I, NODE J) |  h(NODE I, NODE J)  | h(NODE I, NODE J, NODE K);
-
+data NODE = i(int N) | f(NODE I, NODE J) | g(NODE I, NODE J) |  
+            h(NODE I, NODE J)  | h(NODE I, NODE J, NODE K);
 
 // Example 1: Count the int nodes in a tree
 
 // Ex1a: Collect all integers in the tree in 
 // a list and return the size of the list
 
-public int cnta(tree T) {
-    return size([N | int N : T]);
+public int cnta(NODE T) {
+    return size([N | int N &lt;- T]);
 }
 
 // Ex1b: alternative solution using a visit statement
 
-public int cntb(tree T) {
+public int cntb(NODE T) {
     int C = 0;
     visit(T) {
       case int N: C = C + 1;
@@ -3710,13 +3730,13 @@ public int cntb(tree T) {
 // a list and use the library function sum on lists
 // to add all list elements together.
 
-public int sumtreea(tree T) {
-    return sum([n | int N : T]);
+public int sumtreea(NODE T) {
+    return sum([N | int N &lt;- T], 0);
 }
 
 // Ex2b: using visit statement
 
-public int sumtreeb(tree T) {
+public int sumtreeb(NODE T) {
     int C = 0;
     visit(T) {
       case int N : C = C + N;
@@ -3726,7 +3746,7 @@ public int sumtreeb(tree T) {
 
 // Ex3: Increment all leaves in a tree
 
-public tree inc(tree T) {
+public NODE inc(NODE T) {
     return visit(T) {
       case int N: insert N + 1;
     };
@@ -3737,18 +3757,18 @@ public tree inc(tree T) {
 
 // Ex4a Using insert
 
-public tree frepa(tree T) {
+public NODE frepa(NODE T) {
     return visit (T) {
-      case g(value T1, value T2):
+      case g(NODE T1, NODE T2):
            insert h(T1, T2);
     };
 }
 
 // Ex4a Using replacement rule
 
-public tree frepb(tree T) {
+public NODE frepb(NODE T) {
     return visit (T) {
-      case g(value T1, value T2) =&gt; h(T1, T2)
+      case g(NODE T1, NODE T2) =&gt; h(T1, T2)
     };
 }
 
@@ -3756,44 +3776,43 @@ public tree frepb(tree T) {
 
 // Ex5a Using insert
 
-public tree frepG2H3a(tree T) {
+public NODE frepG2H3a(NODE T) {
     return visit (T) {
-      case g(value T1, value T2):
-           insert h(T1, T2, 0);
+      case g(NODE T1, NODE T2):
+           insert h(T1, T2, i(0));
     };
 }
 
 // Ex5b Using replacement rule
 
-public tree frepG2H3b(tree T) {
+public NODE frepG2H3b(NODE T) {
     return visit (T) {
-      case g(value T1, value T2) =&gt; h(T1, T2, 0)
+      case g(NODE T1, NODE T2) =&gt; h(T1, T2, i(0))
     };
 }
 
 // Ex6: Deep replacement of g by h (i.e. only innermost 
 // g's are replaced); 
 
-public tree drepl(tree T) {
+public NODE drepl(NODE T) {
     return bottom-up-break visit (T) {
-      case g(value T1, value T2) =&gt;  h(T1, T2)
+      case g(NODE T1, NODE T2) =&gt;  h(T1, T2)
     };
 }
 
 // Ex7: shallow replacement of g by h (i.e. only outermost 
 // g's are replaced); 
 
-public tree srepl(tree T) {
+public NODE srepl(NODE T) {
     return top-down-break visit (T) {
-       case g(value T1, value T2) =&gt;  h(T1, T2)
+       case g(NODE T1, NODE T2) =&gt;  h(T1, T2)
     };
 }
-
 
 // Ex8: accumulating transformer that increments integer leaves with 
 // amount D and counts them as well.
 
-public tuple[int, tree] count_and_inc(tree T, int D) {
+public tuple[int, NODE] count_and_inc(NODE T, int D) {
     int C = 0;
     
     T = visit (T) {
@@ -3804,14 +3823,29 @@ public tuple[int, tree] count_and_inc(tree T, int D) {
     return &lt;C, T&gt;;
 }
 
-// Add an element to an array
-
-public tree array(tree T) {
-    return visit (T) {
-      case list[value] L =&gt; L + [11]
-    };
-}
-</programlisting></para>
+public bool test(){
+   NODE N = f(g(i(1),g(i(2),i(3))),i(4));
+   
+   assertTrue(cnta(N) == 4);
+   assertTrue(cntb(N) == 4);
+   assertTrue(sumtreea(N) == 10);
+   assertTrue(sumtreeb(N) == 10);
+   
+   assertTrue(inc(N) ==  f(g(i(2),g(i(3),i(4))),i(5)));
+   
+   assertTrue(frepa(N) ==   f(h(i(1),h(i(2),i(3))),i(4)));
+   assertTrue(frepb(N) ==   f(h(i(1),h(i(2),i(3))),i(4)));
+   
+   assertTrue(frepG2H3a(N) ==   f(h(i(1),h(i(2),i(3),i(0)), i(0)),i(4)));
+   assertTrue(frepG2H3b(N) ==   f(h(i(1),h(i(2),i(3),i(0)), i(0)),i(4)));
+   
+   assertTrue(drepl(N) ==  f(g(i(1),h(i(2),i(3))),i(4)));
+   assertTrue(srepl(N) ==  f(h(i(1),g(i(2),i(3))),i(4)));
+   
+   assertTrue(count_and_inc(N,3) == &lt;4, f(g(i(4),g(i(5),i(6))),i(7))&gt;);
+   
+   return report();
+}</programlisting></para>
     </section>
 
     <section>
@@ -4650,151 +4684,6 @@ public list[int] sort3(list[int] Numbers){
 }
 </programlisting>
     </section>
-
-    <section>
-      <title>Read-Eval-Print Loop (REPL) [Needs further discussion]</title>
-
-      <para>For the scripting of applications it is important to have a
-      command language and read-eval-print loop. Here is an attempt.</para>
-
-      <para>We copy the Python REPL style:</para>
-
-      <itemizedlist>
-        <listitem>
-          <para>The command promt prompt is "&gt;&gt;&gt;".</para>
-        </listitem>
-
-        <listitem>
-          <para>Continuation lines are prefixed with "...".</para>
-        </listitem>
-
-        <listitem>
-          <para>Answers start at the beginning of the line.</para>
-
-          <caution>
-            <para>This is not compatible with the current
-            implementation.</para>
-          </caution>
-        </listitem>
-      </itemizedlist>
-
-      <para><programlisting>&gt;&gt;&gt; {1, 2, 3} + {2, 3, 4}
-{1, 2, 3, 4}
-&gt;&gt;&gt; first([1, 2, 3])
-1
-&gt;&gt;&gt; rest([ 1,
-...           2, 3])
-[2, 3]</programlisting>One advantage of this style is that such a dialog can
-      be run and checked automatically. This has two effects:</para>
-
-      <itemizedlist>
-        <listitem>
-          <para>Examples in manuals become test cases.</para>
-        </listitem>
-
-        <listitem>
-          <para>We can introduce a "tests" attribute for functions that
-          conatisn a REPL script. This can also be tested.
-          Example:<programlisting>public &amp;T max(set[&amp;T] R)
-  @doc{Maximum of a set}
-  @tests{
-  &gt;&gt;&gt; max({1, 2, 3})
-  3
-  &gt;&gt;&gt; max({3, 2, 1})
-  3
-  }
-{
-  &amp;T result = arb(R);
-  for(&amp;T E : R){
-    result = max(result, E);
-  }
-  return result;
-}</programlisting></para>
-        </listitem>
-      </itemizedlist>
-
-      <para><caution>
-          <para>The remainder of this section is a mess!</para>
-        </caution><programlisting>&gt;&gt;&gt; import lang.java.syntax.Main as Java;
-&gt;&gt;&gt; str source = read("program.java");
-&gt;&gt;&gt; CU program = parseString(source);
-
-data B and(B b1, B b2)
-
-B.and &lt;= B &lt;= value
-
-lexical syntax
-  [\n\ \t\n] -&gt; LAYOUT
-
-
-view Boolean &lt;= tree and(B b1, LAYOUT? l, 'a' a?, LAYOUT? l2, B b2) appl(prod([ B &amp; B -&gt; B], [ B b1 , LAYOUT? _, lit('a'), LAYOUT? _ = appl(),B b2 ])
-view Boolean &lt;= tree or()            appl()
-
-Boolean . and &lt;= Boolean &lt;= tree &lt;= value
-
-&gt; int count(CU P) {
-&gt;   int cnt = 0;
-    Boolean B1 = true, B2, B3;
-
-&gt;   visit(P) {
-      acase and(B1,l1=&lt;LAYOUT? L&gt;,&lt;Boolean B2&gt;) =&gt; and(B1, l1=parseString(" "), a=A, l2=" ", B2) 
-      case &lt;Boolean B1&gt; &amp; &lt;B2&gt; : 
-      case B &amp; B : 
-      case [| &lt;Identifier&gt; |] : natural =&gt;
-&gt;     acase if(&lt;E&gt;,&lt;S&gt;) : cnt++;
-      acase &lt;Bool.and is&gt; 
-&gt;   }
-&gt;   return cnt
-&gt; }
-
-&gt; count(program)
-17</programlisting>There are several innovations here:</para>
-
-      <itemizedlist>
-        <listitem>
-          <para>The import associates a name with the imported module.<caution>
-              <para>Work out the details.</para>
-            </caution><note>
-              <para>This means that "grammar" and "rule" become notions that
-              can be manipulated.</para>
-            </note></para>
-        </listitem>
-
-        <listitem>
-          <para>There is a read functions that reads a text file into a
-          string.</para>
-        </listitem>
-
-        <listitem>
-          <para>We associate a parse function with every non-terminal in a
-          grammar.</para>
-        </listitem>
-
-        <listitem>
-          <para>The notation <literal>Java::Statements.IF</literal> consists
-          of three parts:</para>
-
-          <itemizedlist>
-            <listitem>
-              <para>Language name</para>
-            </listitem>
-
-            <listitem>
-              <para>Sort name</para>
-            </listitem>
-
-            <listitem>
-              <para>Rule name (currently implemented with the "cons"
-              attribute).</para>
-            </listitem>
-          </itemizedlist>
-
-          <para>It can be used as pattern. Other potential uses are as
-          generator:<programlisting>{S | Java::Statements.IF S : P}</programlisting>It
-          generates all if statements in P.</para>
-        </listitem>
-      </itemizedlist>
-    </section>
   </section>
 
   <section>
@@ -4818,7 +4707,7 @@ Boolean . and &lt;= Boolean &lt;= tree &lt;= value
 
           <thead>
             <row>
-              <entry align="center">&#160;</entry>
+              <entry align="center"> </entry>
 
               <entry align="center">bool</entry>
 
@@ -4826,7 +4715,7 @@ Boolean . and &lt;= Boolean &lt;= tree &lt;= value
 
               <entry align="center">real</entry>
 
-              <entry align="center">str&#160;</entry>
+              <entry align="center">str </entry>
 
               <entry align="center">loc</entry>
 
@@ -5978,290 +5867,14 @@ Boolean . and &lt;= Boolean &lt;= tree &lt;= value
   </section>
 
   <section>
-    <title>Rascal implementation ideas</title>
+    <title>DO NOT READ BEYOND THIS POINT</title>
 
-    <para>Rascal needs to support both a scripting experience as an optimized
-    compiled language experience. Also, it needs to integrate fully with
-    Meta-Environment and Eclipse IMP. Therefore, we have both a simple and
-    unoptimized interpreter in mind, as well as a compiler that aggressively,
-    but correctly, optimizes Rascal programs. The run-time of compiled
-    programs and the interpreter will share the implementation of
-    data-structures.</para>
-
-    <section>
-      <title>Data structures</title>
-
-      <para>Both the compiled code and the interpreter will run on the same
-      data-structures which are defined by the IMP PDB project.</para>
-
-      <itemizedlist>
-        <listitem>
-          <para>We could start with the simple implementation that is now in
-          IMP already which is based on the Java library and use the clone
-          method to implement immutability. This will prove to be slow, but
-          its an easy start.</para>
-        </listitem>
-
-        <listitem>
-          <para>Integration with the ATerms; extend the ATerm library with all
-          the features of the PDB, such that it becomes an implementation of
-          the PDB's interfaces.</para>
-
-          <itemizedlist>
-            <listitem>
-              <para>PDB's terms are typed, while ATerms are not.</para>
-            </listitem>
-
-            <listitem>
-              <para>ATerms demand canonicalization/sharing, which may prove to
-              be hard to implement for maps, sets and relations.</para>
-            </listitem>
-
-            <listitem>
-              <para>PDB does not yet have any story for serialization.</para>
-            </listitem>
-
-            <listitem>
-              <para>ATerms will need to "implement" the PDB's interfaces which
-              will add a dependency and seriously break other peoples code if
-              we are not careful</para>
-            </listitem>
-
-            <listitem>
-              <para>ATerms need to be typed in order to implement correct
-              visiting behavior when AFun's are overloaded.</para>
-            </listitem>
-          </itemizedlist>
-        </listitem>
-
-        <listitem>
-          <para>The C story is harder</para>
-
-          <itemizedlist>
-            <listitem>
-              <para>Extension of C ATerms is hard due to the nature of C, the
-              ATerm garbage collector, the ATerm header implementation and the
-              amount of users of the ATerm library</para>
-            </listitem>
-          </itemizedlist>
-        </listitem>
-
-        <listitem>
-          <para>It may be a good idea to generate Rascal data-types from SDF
-          definitions as an intermediate step, however, Rascal should still
-          implement special code for UPTR trees for performance reasons
-          (unlike Apigen which does not know anything about UPTR).</para>
-        </listitem>
-
-        <listitem>
-          <para>The current PDB implementation does type checking at run-time.
-          After implementing a type-checker for Rascal, we can easily add an
-          implementation which does not do type checking at run-time in order
-          to improve performance.</para>
-        </listitem>
-
-        <listitem>
-          <para>The immutability feature of Rascal data is implemented in the
-          data-structures and not by the compiler or the interpeter.</para>
-        </listitem>
-      </itemizedlist>
-    </section>
-
-    <section>
-      <title>Interpreter</title>
-
-      <para>We just enumerate the thoughts that pop up once in a while:</para>
-
-      <itemizedlist>
-        <listitem>
-          <para>Write the interpreter in Java, and use it later to bootstrap
-          the compiler which will be written in Rascal.</para>
-        </listitem>
-
-        <listitem>
-          <para>Provide a REPL prompt such that experimenting can be done
-          on-the-fly, both on the commandline, and in an Eclipse view.</para>
-        </listitem>
-
-        <listitem>
-          <para>"fail" can be implemented using a Java exception, the catch
-          will be at the choice points (switch).</para>
-        </listitem>
-
-        <listitem>
-          <para>"return" can also be implemented using a Java exception;
-          remember return can jump out of the context of a visitor that could
-          be nested deeply in the structure of a term or a tree.</para>
-        </listitem>
-
-        <listitem>
-          <para>List matching, and especially the kind of backtracking it
-          requires will be implemented using exceptions instead of using
-          continuations.</para>
-        </listitem>
-
-        <listitem>
-          <para>Pattern matching needs to be implemented separately for both
-          builtin data-types, abstract data types and concrete parse trees.
-          Possibly using three "adapters" we can factor out the
-          algorithm.</para>
-        </listitem>
-
-        <listitem>
-          <para>We use apigen to bootstrap the interpreter. The interpreter
-          will traverse the apigen object trees to implement it's
-          functionality using separate classes.</para>
-        </listitem>
-
-        <listitem>
-          <para>When the compiler is finished and bootstrapped on the
-          interpreter, it may be worthwhile to reimplement/bootstrap the
-          interpreter on the compiler again.</para>
-        </listitem>
-      </itemizedlist>
-    </section>
-
-    <section>
-      <title>Compiler</title>
-
-      <para>The compiler will mainly follow the design of Mark's ASF+SDF
-      compiler, which has proven to generate the fastest code in the world for
-      these kinds of applications. Furthermore, these ideas have popped
-      up:</para>
-
-      <itemizedlist>
-        <listitem>
-          <para>Bootstrap the compiler using the interpreter.</para>
-        </listitem>
-
-        <listitem>
-          <para>Generate as readable function names as possible, mainly taking
-          hints from the Rascal programs and of course from the SDF
-          definitions.</para>
-        </listitem>
-
-        <listitem>
-          <para>Generate Java code, one class per module.</para>
-        </listitem>
-
-        <listitem>
-          <para>There is an issue with the globality of rewrite rules, they
-          probably need to be collected and merged into a single factory per
-          application. Rules apparently break modular compilation, especially
-          if you want to optimize matching automatons</para>
-        </listitem>
-
-        <listitem>
-          <para>For visitors we could first generate a tree node type
-          reachability graph, and use it to generate a full traversal for a
-          certain visitor. The generated visitor would not recurse into
-          subtrees that will not be visited.</para>
-        </listitem>
-
-        <listitem>
-          <para>After generating the visitors, non-recursive visits (i.e. the
-          backbone of the grammar) can be inlined as much as possible to
-          prevent using the stack for visiting trees.</para>
-        </listitem>
-
-        <listitem>
-          <para>Inlining in general should be done very aggressively. This
-          will allow other kinds of optimizations, like preventing superfluous
-          condition checking. The ASF+SDF compiler does not do this yet, and
-          it could mean a serious performance improvement. The cost is
-          compilation time obviously, since the Java compiler is going to have
-          to compile a lot more code.</para>
-        </listitem>
-
-        <listitem>
-          <para>The simple control flow constructs of Rascal almost map
-          one-to-one to Java</para>
-        </listitem>
-
-        <listitem>
-          <para>"fail" is always in the current context/frame, so we need no
-          exception implementation for fail.</para>
-        </listitem>
-
-        <listitem>
-          <para>Like in Mark's compiler, list matching is to be implemented
-          using nested while loops.</para>
-        </listitem>
-
-        <listitem>
-          <para>"return" can be mapped to normal return statement in Java,
-          except in the context of a visitor, where it should be an exception
-          that is caught by the containing function of the visit, which
-          immediately returns the result in the catch block that surrounds the
-          call to the generated function that implements the visitor.</para>
-        </listitem>
-
-        <listitem>
-          <para>Important optimizations:</para>
-
-          <itemizedlist>
-            <listitem>
-              <para>Matching automaton:</para>
-
-              <itemizedlist>
-                <listitem>
-                  <para>Sharing prefixes (note that we can not reorder cases
-                  of a switch, or the rules?!?)</para>
-                </listitem>
-
-                <listitem>
-                  <para>Common subexpression elimination</para>
-                </listitem>
-              </itemizedlist>
-            </listitem>
-
-            <listitem>
-              <para>Constant detection and propagation</para>
-            </listitem>
-
-            <listitem>
-              <para>Aggressive inlining (where to stop?)</para>
-            </listitem>
-
-            <listitem>
-              <para>Specialization and instantiation of visitors using
-              grammars and data-type definitions</para>
-            </listitem>
-
-            <listitem>
-              <para>Help the garbage collector by assigning 'null' to fields
-              that will not be used anymore, or will be killed without being
-              used.</para>
-            </listitem>
-          </itemizedlist>
-        </listitem>
-
-        <listitem>
-          <para>Rascal functions with a Java body need the following:</para>
-
-          <itemizedlist>
-            <listitem>
-              <para>Generate for each argument an Java argument with
-              appropirtae Java type.</para>
-            </listitem>
-
-            <listitem>
-              <para>For each return statement, check the type of the resulting
-              value against the return type in the function header.</para>
-            </listitem>
-
-            <listitem>
-              <para>Catch any exceptions raised by the Java code, convert them
-              to string and rethrow as Rascal exception.</para>
-            </listitem>
-          </itemizedlist>
-        </listitem>
-      </itemizedlist>
-    </section>
+    <para>The following contains incoherent snippets that may be inserted
+    somewhere later on. Some texts are outdated.</para>
   </section>
 
   <section xml:id="section.issues">
-    <title xml:id="Issues">Issues</title>
+    <title xml:id="Issues">Misc</title>
 
     <itemizedlist>
       <listitem>
@@ -6310,6 +5923,149 @@ Boolean . and &lt;= Boolean &lt;= tree &lt;= value
   </section>
 
   <section>
+    <title>Read-Eval-Print Loop (REPL) [Needs further discussion]</title>
+
+    <para>For the scripting of applications it is important to have a command
+    language and read-eval-print loop. Here is an attempt.</para>
+
+    <para>We copy the Python REPL style:</para>
+
+    <itemizedlist>
+      <listitem>
+        <para>The command promt prompt is "&gt;&gt;&gt;".</para>
+      </listitem>
+
+      <listitem>
+        <para>Continuation lines are prefixed with "...".</para>
+      </listitem>
+
+      <listitem>
+        <para>Answers start at the beginning of the line.</para>
+
+        <caution>
+          <para>This is not compatible with the current implementation.</para>
+        </caution>
+      </listitem>
+    </itemizedlist>
+
+    <para><programlisting>&gt;&gt;&gt; {1, 2, 3} + {2, 3, 4}
+{1, 2, 3, 4}
+&gt;&gt;&gt; first([1, 2, 3])
+1
+&gt;&gt;&gt; rest([ 1,
+...           2, 3])
+[2, 3]</programlisting>One advantage of this style is that such a dialog can
+    be run and checked automatically. This has two effects:</para>
+
+    <itemizedlist>
+      <listitem>
+        <para>Examples in manuals become test cases.</para>
+      </listitem>
+
+      <listitem>
+        <para>We can introduce a "tests" attribute for functions that conatisn
+        a REPL script. This can also be tested. Example:<programlisting>public &amp;T max(set[&amp;T] R)
+  @doc{Maximum of a set}
+  @tests{
+  &gt;&gt;&gt; max({1, 2, 3})
+  3
+  &gt;&gt;&gt; max({3, 2, 1})
+  3
+  }
+{
+  &amp;T result = arb(R);
+  for(&amp;T E : R){
+    result = max(result, E);
+  }
+  return result;
+}</programlisting></para>
+      </listitem>
+    </itemizedlist>
+
+    <para><caution>
+        <para>The remainder of this section is a mess!</para>
+      </caution><programlisting>&gt;&gt;&gt; import lang.java.syntax.Main as Java;
+&gt;&gt;&gt; str source = read("program.java");
+&gt;&gt;&gt; CU program = parseString(source);
+
+data B and(B b1, B b2)
+
+B.and &lt;= B &lt;= value
+
+lexical syntax
+  [\n\ \t\n] -&gt; LAYOUT
+
+
+view Boolean &lt;= tree and(B b1, LAYOUT? l, 'a' a?, LAYOUT? l2, B b2) appl(prod([ B &amp; B -&gt; B], [ B b1 , LAYOUT? _, lit('a'), LAYOUT? _ = appl(),B b2 ])
+view Boolean &lt;= tree or()            appl()
+
+Boolean . and &lt;= Boolean &lt;= tree &lt;= value
+
+&gt; int count(CU P) {
+&gt;   int cnt = 0;
+    Boolean B1 = true, B2, B3;
+
+&gt;   visit(P) {
+      acase and(B1,l1=&lt;LAYOUT? L&gt;,&lt;Boolean B2&gt;) =&gt; and(B1, l1=parseString(" "), a=A, l2=" ", B2) 
+      case &lt;Boolean B1&gt; &amp; &lt;B2&gt; : 
+      case B &amp; B : 
+      case [| &lt;Identifier&gt; |] : natural =&gt;
+&gt;     acase if(&lt;E&gt;,&lt;S&gt;) : cnt++;
+      acase &lt;Bool.and is&gt; 
+&gt;   }
+&gt;   return cnt
+&gt; }
+
+&gt; count(program)
+17</programlisting>There are several innovations here:</para>
+
+    <itemizedlist>
+      <listitem>
+        <para>The import associates a name with the imported module.<caution>
+            <para>Work out the details.</para>
+          </caution><note>
+            <para>This means that "grammar" and "rule" become notions that can
+            be manipulated.</para>
+          </note></para>
+      </listitem>
+
+      <listitem>
+        <para>There is a read functions that reads a text file into a
+        string.</para>
+      </listitem>
+
+      <listitem>
+        <para>We associate a parse function with every non-terminal in a
+        grammar.</para>
+      </listitem>
+
+      <listitem>
+        <para>The notation <literal>Java::Statements.IF</literal> consists of
+        three parts:</para>
+
+        <itemizedlist>
+          <listitem>
+            <para>Language name</para>
+          </listitem>
+
+          <listitem>
+            <para>Sort name</para>
+          </listitem>
+
+          <listitem>
+            <para>Rule name (currently implemented with the "cons"
+            attribute).</para>
+          </listitem>
+        </itemizedlist>
+
+        <para>It can be used as pattern. Other potential uses are as
+        generator:<programlisting>{S | Java::Statements.IF S : P}</programlisting>It
+        generates all if statements in P.</para>
+      </listitem>
+    </itemizedlist>
+  </section>
+
+  <section>
     <title>Expression operators</title>
 
     <para><table>
@@ -6320,7 +6076,7 @@ Boolean . and &lt;= Boolean &lt;= tree &lt;= value
 
           <thead>
             <row>
-              <entry align="center">&#160;Characters</entry>
+              <entry align="center"> Characters</entry>
 
               <entry align="center">Used in</entry>
             </row>
