@@ -323,6 +323,9 @@ public class TypeEvaluator {
 				
 				if(type == null){
 					type = env.lookupAbstractDataType(name);
+				}
+				
+				if (type != null) {
 					java.util.Map<Type, Type> bindings = new HashMap<Type,Type>();
 					Type[] params = new Type[x.getParameters().size()];
 					
@@ -334,9 +337,7 @@ public class TypeEvaluator {
 					type.getTypeParameters().match(tf.tupleType(params), bindings);
 					
 					type = type.instantiate(new TypeStore(), bindings);
-				}
-				
-				if (type != null) {
+					
 					return type.instantiate(env.getStore(), env.getTypeBindings());
 				}
 			}
