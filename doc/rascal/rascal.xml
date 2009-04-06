@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="US-ASCII"?>
 <article version="5.0" xmlns="http://docbook.org/ns/docbook"
          xmlns:xlink="http://www.w3.org/1999/xlink"
          xmlns:xi="http://www.w3.org/2001/XInclude"
@@ -2170,9 +2170,9 @@ default: ...
 
           <thead>
             <row>
-              <entry align="center"> </entry>
+              <entry align="center">&#160;</entry>
 
-              <entry align="center">bool </entry>
+              <entry align="center">bool&#160;</entry>
 
               <entry align="center">int</entry>
 
@@ -3396,7 +3396,7 @@ public list[str] Jabberwocky = [
 	"The frumious Bandersnatch!\"",
 	"",
 	"He took his vorpal sword in hand:",
-	"Long time the manxome foe he sought—",
+	"Long time the manxome foe he sought&#8212;",
 	"So rested he by the Tumtum tree,",
 	"And stood awhile in thought.",
 	"",
@@ -4650,7 +4650,7 @@ public int inner1(list[int] V1, list[int] V2){
     <section>
       <title>Bubble sort</title>
 
-      <para>[Example inspired byTXL documentation]</para>
+      <para>[Example inspired by TXL documentation]</para>
 
       <programlisting>module Bubble
 
@@ -4704,1175 +4704,639 @@ public list[int] sort3(list[int] Numbers){
   <section>
     <title>The Rascal standard library</title>
 
-    <para>In this section we summarize the (over 300!) functions in the Rascal
-    Standard Library.</para>
+    <para>In this section we summarize the functions in the Rascal Standard
+    Library.</para>
 
     <section>
-      <title>Main functions</title>
+      <title>Benchmark</title>
 
-      <para>The main functions of the library are listed in the following
-      table.</para>
-
-      <table>
-        <title>Main functions in Rascal Standard Library (see Table <xref
-        linkend="table.operators-on-datatypes" /> for all operators)</title>
-
-        <tgroup cols="11">
-          <colspec align="center" />
-
-          <thead>
-            <row>
-              <entry align="center"> </entry>
-
-              <entry align="center">bool</entry>
-
-              <entry align="center">int</entry>
-
-              <entry align="center">real</entry>
-
-              <entry align="center">str </entry>
-
-              <entry align="center">loc</entry>
-
-              <entry align="center">list</entry>
-
-              <entry align="center">tuple</entry>
-
-              <entry align="center">set</entry>
-
-              <entry align="center">map</entry>
-
-              <entry align="center">rel</entry>
-            </row>
-          </thead>
-
-          <tbody>
-            <row>
-              <entry>arb</entry>
-
-              <entry>x</entry>
-
-              <entry>x</entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-            </row>
-
-            <row>
-              <entry>average</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-            </row>
-
-            <row>
-              <entry>bottom</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-            </row>
-
-            <row>
-              <entry>carrier</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-            </row>
-
-            <row>
-              <entry>carrierR</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-            </row>
-
-            <row>
-              <entry>carrierX</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-            </row>
-
-            <row>
-              <entry>complement</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-            </row>
-
-            <row>
-              <entry>compose</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-            </row>
-
-            <row>
-              <entry>domain</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-            </row>
-
-            <row>
-              <entry>domainR</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-            </row>
-
-            <row>
-              <entry>domainX</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-            </row>
-
-            <row>
-              <entry>endsWith</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-            </row>
-
-            <row>
-              <entry>head</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-            </row>
-
-            <row>
-              <entry>invert</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-            </row>
-
-            <row>
-              <entry><remark>makeString</remark></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-            </row>
-
-            <row>
-              <entry>mapper</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry>x</entry>
-
-              <entry>x</entry>
-            </row>
-
-            <row>
-              <entry>max</entry>
-
-              <entry>x</entry>
-
-              <entry>x</entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-            </row>
-
-            <row>
-              <entry>min</entry>
-
-              <entry>x</entry>
-
-              <entry>x</entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-            </row>
-
-            <row>
-              <entry>multiply</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-            </row>
-
-            <row>
-              <entry>power</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-            </row>
-
-            <row>
-              <entry>range</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-            </row>
-
-            <row>
-              <entry>rangeR</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-            </row>
-
-            <row>
-              <entry>rangeX</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-            </row>
-
-            <row>
-              <entry>reach</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-            </row>
-
-            <row>
-              <entry>reachR</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-            </row>
-
-            <row>
-              <entry>reachX</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-            </row>
-
-            <row>
-              <entry>reducer</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-            </row>
-
-            <row>
-              <entry>reverse</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-            </row>
-
-            <row>
-              <entry>size</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry>x</entry>
-
-              <entry>x</entry>
-
-              <entry>x</entry>
-
-              <entry>x</entry>
-            </row>
-
-            <row>
-              <entry>sort</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-            </row>
-
-            <row>
-              <entry><remark>split</remark></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-            </row>
-
-            <row>
-              <entry>startsWith</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-            </row>
-
-            <row>
-              <entry>sum</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-            </row>
-
-            <row>
-              <entry>tail</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-            </row>
-
-            <row>
-              <entry>toInt</entry>
-
-              <entry>x</entry>
-
-              <entry>-</entry>
-
-              <entry>x</entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-            </row>
-
-            <row>
-              <entry>toreal</entry>
-
-              <entry>x</entry>
-
-              <entry>x</entry>
-
-              <entry>-</entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-            </row>
-
-            <row>
-              <entry>top</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-            </row>
-
-            <row>
-              <entry>toString</entry>
-
-              <entry>x</entry>
-
-              <entry>x</entry>
-
-              <entry>x</entry>
-
-              <entry>-</entry>
-
-              <entry>x</entry>
-
-              <entry>x</entry>
-
-              <entry>x</entry>
-
-              <entry>x</entry>
-
-              <entry>x</entry>
-
-              <entry>x</entry>
-            </row>
-
-            <row>
-              <entry>toList</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry>-</entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry>x</entry>
-
-              <entry>x</entry>
-            </row>
-
-            <row>
-              <entry>toSet</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry>-</entry>
-
-              <entry>x</entry>
-
-              <entry>x</entry>
-            </row>
-
-            <row>
-              <entry>toMap</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry>-</entry>
-
-              <entry>x</entry>
-            </row>
-
-            <row>
-              <entry>toRel</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry>x</entry>
-
-              <entry>-</entry>
-            </row>
-
-            <row>
-              <entry>toLowerCase</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry>x</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-            </row>
-
-            <row>
-              <entry>toUpperCase</entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-
-              <entry></entry>
-            </row>
-          </tbody>
-        </tgroup>
-      </table>
-
-      <para>Notes:</para>
+      <para>A starting point for a full suite of benchmarking
+      functions:</para>
 
       <itemizedlist>
         <listitem>
-          <para><literal>arb</literal> generates an arbitrary element from a
-          structured value. In some cases, arb is called differently (e.g.
-          arbInt) to circumvent our restrictions on overloading.</para>
+          <para>currentTimeMillis -- current time in milliseconds since
+          January 1, 1970 GMT.</para>
         </listitem>
 
         <listitem>
-          <para><literal>average</literal> computes the average value of
-          structured values that contain integers or reals.</para>
-        </listitem>
-
-        <listitem>
-          <para><literal>size</literal> gives the number of elements of many
-          types.</para>
-        </listitem>
-
-        <listitem>
-          <para><literal>toString</literal> converts all values to a string
-          representation.</para>
-        </listitem>
-
-        <listitem>
-          <para><literal>toList</literal>, <literal>toSet</literal>,
-          <literal>toMap</literal>, <literal>toRel</literal> provide
-          conversions between structured types. They may be implemented as
-          just a type conversion (and not a data conversion).</para>
-        </listitem>
-
-        <listitem>
-          <para><literal>reverse</literal> reverses the elements of ordered
-          structured types.</para>
-        </listitem>
-
-        <listitem>
-          <para><literal>reduce</literal>r and <literal>mapper</literal> take
-          a function as argument and traverse a structured value.<note>
-              <para>Due to a name class with the type constructor
-              <literal>map</literal>, we use the name
-              <literal>mapper</literal> for a function that is ussually called
-              <literal>map</literal>. The usual function
-              <literal>reduce</literal> is therefore called
-              <literal>reducer</literal>.</para>
-            </note></para>
-        </listitem>
-
-        <listitem>
-          <para><literal>min</literal> and <literal>max</literal> compute the
-          smallest (largest) of two basic values or all elements of structured
-          values.</para>
-        </listitem>
-
-        <listitem>
-          <para>get_location and set_location are access functions for values
-          of type <literal>loc</literal>.</para>
+          <para>benchmark -- measure and report the execution time of
+          name:void-closure pairs.</para>
         </listitem>
       </itemizedlist>
     </section>
 
     <section>
-      <title>Other functions</title>
+      <title>Boolean</title>
 
-      <para>The remaining functions take care of annotations, the tree
-      datatype, input/output and communication with the global database with
-      program facts, the Program Database (PDB).</para>
+      <itemizedlist>
+        <listitem>
+          <para>arbBool -- get an arbitrary boolean value.</para>
+        </listitem>
+
+        <listitem>
+          <para>fromInt -- convert an integer to a bool</para>
+        </listitem>
+
+        <listitem>
+          <para>fromString -- convert the strings "true" or "false" to a
+          bool</para>
+        </listitem>
+
+        <listitem>
+          <para>toInt -- convert a boolean value to integer.</para>
+        </listitem>
+
+        <listitem>
+          <para>toReal -- convert a boolean value to a real value.</para>
+        </listitem>
+
+        <listitem>
+          <para>toString -- convert a boolean value to a string.</para>
+        </listitem>
+      </itemizedlist>
+    </section>
+
+    <section>
+      <title>Exception</title>
+
+      <para>The following "soft" exceptions are defined:<programlisting>data RuntimeException = 
+      EmptyList
+    | EmptyMap 
+    | EmptySet
+    | IndexOutOfBounds(int index)
+    | AssertionFailed 
+    | AssertionFailed(str label)
+    | NoSuchElement(value v)
+    | IllegalArgument(value v)
+    | IllegalArgument
+    | IO(str message)
+    | FileNotFound(str filename)
+    | LocationNotFound(loc location)
+    | PermissionDenied
+    | PermissionDenied(str message)
+    | ModuleNotFound(str name)
+    | NoSuchKey(value key)
+    | NoSuchAnnotation(str label)
+    | Java(str message)
+    ;</programlisting></para>
+    </section>
+
+    <section>
+      <title>Graph</title>
+
+      <para><programlisting>alias graph[&amp;T] = rel[&amp;T from, &amp;T to];</programlisting></para>
+
+      <itemizedlist>
+        <listitem>
+          <para>bottom -- return the bottom nodes of a graph.</para>
+        </listitem>
+
+        <listitem>
+          <para>top -- return the top nodes of a graph.</para>
+        </listitem>
+
+        <listitem>
+          <para>reach -- Reachability from set of start nodes.</para>
+        </listitem>
+
+        <listitem>
+          <para>reachR -- Reachability from set of start nodes with
+          restriction to certain nodes.</para>
+        </listitem>
+
+        <listitem>
+          <para>reachX -- Reachability from set of start nodes with exclusion
+          of certain nodes.</para>
+        </listitem>
+
+        <listitem>
+          <para>shortestPathPair -- Shortest path between pair of
+          nodes.</para>
+        </listitem>
+      </itemizedlist>
+    </section>
+
+    <section>
+      <title>Integer</title>
+
+      <itemizedlist>
+        <listitem>
+          <para>abs -- absolute value of integer.</para>
+        </listitem>
+
+        <listitem>
+          <para>arbInt -- return an arbitrary integer value.</para>
+        </listitem>
+
+        <listitem>
+          <para>arbInt -- return an arbitrary integer value in the interval
+          [0, limit).</para>
+        </listitem>
+
+        <listitem>
+          <para>max -- largest of two integers.</para>
+        </listitem>
+
+        <listitem>
+          <para>min -- smallest of two integers.</para>
+        </listitem>
+
+        <listitem>
+          <para>toReal -- convert an integer value to a real value.</para>
+        </listitem>
+
+        <listitem>
+          <para>toString -- convert an integer value to a string.</para>
+        </listitem>
+      </itemizedlist>
+    </section>
+
+    <section>
+      <title>IO</title>
+
+      <itemizedlist>
+        <listitem>
+          <para>println -- print a list of values on the output stream.</para>
+        </listitem>
+
+        <listitem>
+          <para>readFile -- read a named file as list of strings.</para>
+        </listitem>
+      </itemizedlist>
+    </section>
+
+    <section>
+      <title>LabelledGraph</title>
+
+      <para><programlisting>alias lgraph[&amp;T,&amp;L] = rel[&amp;T from, &amp;L label, &amp;T to];</programlisting><itemizedlist>
+          <listitem>
+            <para>bottom -- return the bottom nodes of a graph.</para>
+          </listitem>
+
+          <listitem>
+            <para>top -- return the top nodes of a graph.</para>
+          </listitem>
+
+          <listitem>
+            <para>reach -- Reachability from set of start nodes.</para>
+          </listitem>
+
+          <listitem>
+            <para>reachR -- Reachability from set of start nodes with
+            restriction to certain nodes.</para>
+          </listitem>
+
+          <listitem>
+            <para>reachX -- Reachability from set of start nodes with
+            exclusion of certain nodes.</para>
+          </listitem>
+
+          <listitem>
+            <para>shortestPathPair -- Shortest path between pair of
+            nodes.</para>
+          </listitem>
+        </itemizedlist></para>
+    </section>
+
+    <section>
+      <title>List</title>
+
+      <itemizedlist>
+        <listitem>
+          <para>average -- average of elements of a list</para>
+        </listitem>
+
+        <listitem>
+          <para>delete -- delete nth element from list</para>
+        </listitem>
+
+        <listitem>
+          <para>domain -- a list of all legal index values for a list</para>
+        </listitem>
+
+        <listitem>
+          <para>head -- get the first element of a list</para>
+        </listitem>
+
+        <listitem>
+          <para>head -- get the first n elements of a list</para>
+        </listitem>
+
+        <listitem>
+          <para>getOneFrom -- get an arbitrary element from a list</para>
+        </listitem>
+
+        <listitem>
+          <para>insertAt -- add an element at a specific position in a
+          list</para>
+        </listitem>
+
+        <listitem>
+          <para>isEmpty -- is list empty?</para>
+        </listitem>
+
+        <listitem>
+          <para>mapper -- apply a function to each element of a list</para>
+        </listitem>
+
+        <listitem>
+          <para>max -- largest element of a list</para>
+        </listitem>
+
+        <listitem>
+          <para>min -- smallest element of a list</para>
+        </listitem>
+
+        <listitem>
+          <para>multiply -- multiply the elements of a list</para>
+        </listitem>
+
+        <listitem>
+          <para>permutations -- return all permutations of a list</para>
+        </listitem>
+
+        <listitem>
+          <para>reducer -- apply function F to successive elements of a
+          list</para>
+        </listitem>
+
+        <listitem>
+          <para>reverse -- elements of a list in reverse order</para>
+        </listitem>
+
+        <listitem>
+          <para>size -- number of elements in a list</para>
+        </listitem>
+
+        <listitem>
+          <para>slice -- sublist from start of length len</para>
+        </listitem>
+
+        <listitem>
+          <para>sort -- sort the elements of a list</para>
+        </listitem>
+
+        <listitem>
+          <para>sum -- add elements of a List</para>
+        </listitem>
+
+        <listitem>
+          <para>tail -- all but the first element of a list</para>
+        </listitem>
+
+        <listitem>
+          <para>tail -- last n elements of a list</para>
+        </listitem>
+
+        <listitem>
+          <para>takeOneFrom -- remove an arbitrary element from a list,
+          returns the element and the modified list</para>
+        </listitem>
+
+        <listitem>
+          <para>toMap -- convert a list of tuples to a map</para>
+        </listitem>
+
+        <listitem>
+          <para>toSet -- convert a list to a set</para>
+        </listitem>
+
+        <listitem>
+          <para>toString -- convert a list to a string</para>
+        </listitem>
+      </itemizedlist>
+    </section>
+
+    <section>
+      <title>Map</title>
+
+      <itemizedlist>
+        <listitem>
+          <para>domain -- return the domain (keys) of a map</para>
+        </listitem>
+
+        <listitem>
+          <para>getOneFrom -- return arbitrary key of a map</para>
+        </listitem>
+
+        <listitem>
+          <para>invert -- return map with key and value inverted</para>
+        </listitem>
+
+        <listitem>
+          <para>isEmpty -- is map empty?</para>
+        </listitem>
+
+        <listitem>
+          <para>mapper -- apply two functions to each key/value pair in a
+          map.</para>
+        </listitem>
+
+        <listitem>
+          <para>range -- return the range (values) of a map</para>
+        </listitem>
+
+        <listitem>
+          <para>size -- number of elements in a map.</para>
+        </listitem>
+
+        <listitem>
+          <para>toList -- convert a map to a list</para>
+        </listitem>
+
+        <listitem>
+          <para>toRel -- convert a map to a relation</para>
+        </listitem>
+
+        <listitem>
+          <para>toString -- convert a list to a string.</para>
+        </listitem>
+      </itemizedlist>
+    </section>
+
+    <section>
+      <title>Node</title>
+
+      <itemizedlist>
+        <listitem>
+          <para>arity -- number of children of a node</para>
+        </listitem>
+
+        <listitem>
+          <para>getChildren -- get the children of a node</para>
+        </listitem>
+
+        <listitem>
+          <para>getName -- get the function name of a node</para>
+        </listitem>
+
+        <listitem>
+          <para>makeNode -- create a node given its function name and
+          arguments</para>
+        </listitem>
+      </itemizedlist>
+    </section>
+
+    <section>
+      <title>Real</title>
+
+      <itemizedlist>
+        <listitem>
+          <para>arbReal -- returns an arbitrary real value in the interval
+          [0.0,1.0).</para>
+        </listitem>
+
+        <listitem>
+          <para>max -- largest of two reals</para>
+        </listitem>
+
+        <listitem>
+          <para>min -- smallest of two reals</para>
+        </listitem>
+
+        <listitem>
+          <para>toInteger -- convert a real to integer.</para>
+        </listitem>
+
+        <listitem>
+          <para>toString -- convert a real to a string.</para>
+        </listitem>
+      </itemizedlist>
+    </section>
+
+    <section>
+      <title>Relation</title>
+
+      <itemizedlist>
+        <listitem>
+          <para>carrier -- all elements in any tuple in a relation</para>
+        </listitem>
+
+        <listitem>
+          <para>carrierR -- relation restricted to tuples with elements in a
+          set S</para>
+        </listitem>
+
+        <listitem>
+          <para>carrierX -- relation excluded tuples with some element in
+          S</para>
+        </listitem>
+
+        <listitem>
+          <para>complement -- complement of relation</para>
+        </listitem>
+
+        <listitem>
+          <para>domain -- first element of each tuple in binary
+          relation</para>
+        </listitem>
+
+        <listitem>
+          <para>domainR -- restriction of a relation to tuples with first
+          element in S}</para>
+        </listitem>
+
+        <listitem>
+          <para>domainX -- relation excluded tuples with first element in
+          S</para>
+        </listitem>
+
+        <listitem>
+          <para>invert -- inverse the tuples in a relation</para>
+        </listitem>
+
+        <listitem>
+          <para>range -- all but the first element of each tuples in binary
+          relation</para>
+        </listitem>
+
+        <listitem>
+          <para>rangeR -- restriction of a binary relation to tuples with
+          second element in set S</para>
+        </listitem>
+      </itemizedlist>
+
+      <note>
+        <para>We have not yet decided which of these functions we will
+        generalize for the n-ary case.</para>
+      </note>
+    </section>
+
+    <section>
+      <title>RSF</title>
+
+      <itemizedlist>
+        <listitem>
+          <para>readRSF -- read a file in Rigi Standard Format (RSF).</para>
+        </listitem>
+      </itemizedlist>
+    </section>
+
+    <section>
+      <title>Set</title>
+
+      <itemizedlist>
+        <listitem>
+          <para>average -- compute the average of the elements of a set</para>
+        </listitem>
+
+        <listitem>
+          <para>getOneFrom -- pick a random element from a set</para>
+        </listitem>
+
+        <listitem>
+          <para>isEmpty -- is set empty?</para>
+        </listitem>
+
+        <listitem>
+          <para>mapper -- apply a function to each element of a set</para>
+        </listitem>
+
+        <listitem>
+          <para>max -- largest element of a set</para>
+        </listitem>
+
+        <listitem>
+          <para>min -- smallest element of a set</para>
+        </listitem>
+
+        <listitem>
+          <para>multiply -- multiply the elements of a set</para>
+        </listitem>
+
+        <listitem>
+          <para>power -- return all subsets of a set</para>
+        </listitem>
+
+        <listitem>
+          <para>power1-- return all subsets (excluding empty set) of a
+          set</para>
+        </listitem>
+
+        <listitem>
+          <para>reducer -- apply function F to successive elements of a
+          set</para>
+        </listitem>
+
+        <listitem>
+          <para>size -- number of elements in a set</para>
+        </listitem>
+
+        <listitem>
+          <para>sum -- add the elements of a set</para>
+        </listitem>
+
+        <listitem>
+          <para>takeOneFrom -- remove an arbitrary element from a set, returns
+          the element and the modified set</para>
+        </listitem>
+
+        <listitem>
+          <para>toList -- convert a set to a list</para>
+        </listitem>
+
+        <listitem>
+          <para>toMap -- convert a set of tuples to a map</para>
+        </listitem>
+
+        <listitem>
+          <para>toString -- convert a set to a string</para>
+        </listitem>
+      </itemizedlist>
+    </section>
+
+    <section>
+      <title>String</title>
+
+      <itemizedlist>
+        <listitem>
+          <para>charAt -- return the character at position i in string
+          s.</para>
+        </listitem>
+
+        <listitem>
+          <para>endsWith -- returns true if string s ends with given string
+          suffix.</para>
+        </listitem>
+
+        <listitem>
+          <para>center -- center s in string of length n using spaces</para>
+        </listitem>
+
+        <listitem>
+          <para>center -- center s in string of length n using a pad
+          character</para>
+        </listitem>
+
+        <listitem>
+          <para>isEmpty -- is string empty</para>
+        </listitem>
+
+        <listitem>
+          <para>left -- left align s in string of length n using spaces</para>
+        </listitem>
+
+        <listitem>
+          <para>left -- left align s in string of length n using pad
+          character</para>
+        </listitem>
+
+        <listitem>
+          <para>right -- right align s in string of length n using
+          spaces</para>
+        </listitem>
+
+        <listitem>
+          <para>right -- right align s in string of length n using pad
+          character</para>
+        </listitem>
+
+        <listitem>
+          <para>reverse -- return string with all characters in reverse
+          order.</para>
+        </listitem>
+
+        <listitem>
+          <para>size -- return the length of string s.</para>
+        </listitem>
+
+        <listitem>
+          <para>startsWith -- return true if string s starts with the string
+          prefix.</para>
+        </listitem>
+
+        <listitem>
+          <para>toLowerCase -- convert all characters in string s to
+          lowercase.</para>
+        </listitem>
+
+        <listitem>
+          <para>toUpperCase -- convert all characters in string s to
+          uppercase.</para>
+        </listitem>
+      </itemizedlist>
+    </section>
+
+    <section>
+      <title>UnitTest</title>
+
+      <para>We provided a very rudimentary library for unit testing that will
+      certainly evolve over time:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>assertEqual -- succeeds is arguments are equal</para>
+        </listitem>
+
+        <listitem>
+          <para>assertTrue -- succeeds if argument is true</para>
+        </listitem>
+
+        <listitem>
+          <para>report -- report the results of unit testing</para>
+        </listitem>
+      </itemizedlist>
     </section>
   </section>
 
@@ -6092,7 +5556,7 @@ Boolean . and &lt;= Boolean &lt;= tree &lt;= value
 
           <thead>
             <row>
-              <entry align="center"> Characters</entry>
+              <entry align="center">&#160;Characters</entry>
 
               <entry align="center">Used in</entry>
             </row>
