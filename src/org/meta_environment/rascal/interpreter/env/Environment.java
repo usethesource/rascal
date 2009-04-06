@@ -19,8 +19,6 @@ import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredFunctionError;
 
-import com.sun.corba.se.impl.io.FVDCodeBaseImpl;
-
 
 /**
  * A simple environment for variables and functions and types.
