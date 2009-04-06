@@ -2774,7 +2774,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				}
 				iterator = new SingleIValueIterator(r.getValue());
 			} else {
-				throw new ImplementationError("Unimplemented expression type " + r.getType() + " in generator");
+				throw new UnsupportedOperationError("generator", r.getType(), vp);
 			}
 		}
 		
