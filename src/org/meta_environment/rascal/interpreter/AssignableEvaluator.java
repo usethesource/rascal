@@ -125,14 +125,8 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 	@Override
 	public Result<IValue> visitAssignableVariable(Variable x) {
 		QualifiedName qname = x.getQualifiedName();
-		Result<IValue> previous = env.getLocalVariable(qname);
+		Result<IValue> previous = env.getVariable(qname);
 		
-		if(previous != null){
-			value = newResult(previous, value);
-			env.storeLocalVariable(qname, value);
-			return value;
-		}
-		previous = env.getVariable(qname);
 		if(previous != null){
 			value = newResult(previous, value);
 			env.storeVariable(qname, value);
