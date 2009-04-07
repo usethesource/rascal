@@ -69,7 +69,7 @@ class RegExpPatternValue implements MatchPattern {
 		for(String name : names){
 			Result<IValue> res = env.getVariable(ast, name);
 			if((res != null) && (res.getValue() != null)){
-				if(env.getLocalVariable(name) != null){
+				if(env.getInnermostVariable(name) != null){
 					throw new RedeclaredVariableError(name, ast);
 				}
 				if(!res.getType().isStringType()){
@@ -133,7 +133,7 @@ class RegExpPatternValue implements MatchPattern {
 				 * of variables are not allowed. Otherwise we would have to check here for the
 				 * previous local value of the variable.
 				 */
-				env.storeLocalVariable(name, makeResult(tf.stringType(), vf.string(bindings.get(name))));			
+				env.storeInnermostVariable(name, makeResult(tf.stringType(), vf.string(bindings.get(name))));			
 			}
 			if(matches){
 				start = matcher.start();

@@ -614,7 +614,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 					declaredType.match(v.getType(), bindings);
 					declaredType = declaredType.instantiate(peek().getStore(), bindings);
 					r = makeResult(declaredType, v.getValue());
-					scopeStack.peek().storeLocalVariable(var.getName(), r);
+					scopeStack.peek().storeInnermostVariable(var.getName(), r);
 				} else {
 					throw new UnexpectedTypeError(declaredType, v.getType(), var);
 				}
@@ -712,7 +712,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			}
 			if (var.isUnInitialized()) {  // variable declaration without initialization
 				r = ResultFactory.makeResult(declaredType, null);
-				peek().storeLocalVariable(var.getName(), r);
+				peek().storeInnermostVariable(var.getName(), r);
 			} else {                     // variable declaration with initialization
 				Result<IValue> v = var.getInitial().accept(this);
 				if(v.getType().isSubtypeOf(declaredType)){
@@ -722,7 +722,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 					declaredType = declaredType.instantiate(peek().getStore(), bindings);
 					// Was: r = makeResult(declaredType, applyRules(v.getValue()));
 					r = makeResult(declaredType, v.getValue());
-					peek().storeLocalVariable(var.getName(), r);
+					peek().storeInnermostVariable(var.getName(), r);
 				} else {
 					throw new UnexpectedTypeError(declaredType, v.getType(), var);
 				}
@@ -1863,7 +1863,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			lastPattern = mp;
 			//System.err.println("matchAndEval: subject=" + subject + ", pat=" + pat);
 			//peek().storeLocalVariable("subject", makeResult(subject.getType(), applyRules(subject)));
-			peek().storeLocalVariable("subject", makeResult(subject.getType(), subject));
+			peek().storeInnermostVariable("subject", makeResult(subject.getType(), subject));
 			while(mp.hasNext()){
 				//System.err.println("matchAndEval: mp.hasNext()==true");
 				if(mp.next()){

@@ -1357,7 +1357,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 			// Is the variable still undefined?
 			if(debug)System.err.println("name= " + name + ", subject=" + subject + ",");
 			type = subject.getType();
-			env.storeLocalVariable(name.toString(), makeResult(type, subject));
+			env.storeInnermostVariable(name.toString(), makeResult(type, subject));
 			return true;
 		} else {
 			// ... or has it already received a value during matching?
@@ -1431,7 +1431,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 		
 		if (subject.getType().isSubtypeOf(declaredType)) {
 			if(!anonymous)
-				env.storeLocalVariable(name, makeResult(declaredType, subject));
+				env.storeInnermostVariable(name, makeResult(declaredType, subject));
 			if(debug)System.out.println("matches");
 			return true;
 		}
