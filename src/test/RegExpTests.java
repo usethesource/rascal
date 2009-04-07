@@ -33,21 +33,26 @@ public class RegExpTests extends TestFramework{
 		//assertTrue(runTest("/<x:[a-z]+>-<x:[a-z]+>/ !:= \"abc-ab\";"));
 	}
 	
-	@Test 
-	public void matchWithLocalVariables(){
-		//TODO: RedeclaredError?
-		assertTrue(runTest("{ str x = \"abc\"; (/<x:[a-z]+>/ := \"abc\") && (x == \"abc\");}"));
-		assertTrue(runTest("{ str x = \"ab\"; (/<x:[a-z]+>/ !:= \"abc\") && (x == \"ab\");}"));
+	@Test (expected=RedeclaredVariableError.class)
+	public void matchWithLocalVariableError(){
+		assertTrue(runTest("{ str x = \"123\"; (/<x:[a-z]+>/ := \"abc\") && (x == \"abc\");}"));
+	}
+	
+	@Test
+	public void matchWithLocalUnitializedVariable(){
+		assertTrue(runTest("{ str x; (/<x:[a-z]+>/ := \"abc\") && (x == \"abc\");}"));
+	}
+	
+	@Test (expected=RedeclaredVariableError.class)
+	public void nomatchWithLocalVariableError(){
+		assertTrue(runTest("{ str x = \"ab\"; (/<x:[a-z]+>/ !:= \"abc\");}"));
 	}
 	
 	@Test 
 	public void matchWithExternalModuleVariables(){
 		prepareModule("module XX str x = \"abc\";");
 		assertTrue(runTestInSameEvaluator("(/<x:[a-z]+>/ := \"abc\") && (x == \"abc\");"));
-		
-		// TODO ?? I don't see how a negative match would bind a variable at all
-		// But the variable x is global and keeps its value!
-		assertTrue(runTest("(/<x:[a-z]+>/ !:= \"ab\") && (x == \"abc\");"));
+		assertTrue(runTest("(/<x:[a-z]+>/ !:= \"pqr\") && (x == \"abc\");"));
 	}
 	
 	@Test(expected=SyntaxError.class)

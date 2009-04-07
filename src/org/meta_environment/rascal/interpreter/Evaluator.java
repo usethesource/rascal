@@ -707,7 +707,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result<IValue> r = ResultFactory.nothing();
 
 		for (org.meta_environment.rascal.ast.Variable var : x.getVariables()) {
-			if(peek().getVariable(var, var.getName().toString()) != null){
+			if(peek().getLocalVariable(var.getName().toString()) != null){
 				throw new RedeclaredVariableError(var.getName().toString(), var);
 			}
 			if (var.isUnInitialized()) {  // variable declaration without initialization

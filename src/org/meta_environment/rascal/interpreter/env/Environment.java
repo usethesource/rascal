@@ -14,6 +14,7 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.QualifiedName;
+import org.meta_environment.rascal.ast.Variable;
 import org.meta_environment.rascal.interpreter.Names;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.result.Result;
@@ -246,7 +247,6 @@ public class Environment {
 	 * Store a variable in the innermost (current) scope.
 	 */
 	public void storeInnermostVariable(QualifiedName name, Result<IValue> value) {
-		//System.err.println("storeLocalVariable: " + name + ", " + value.getValue());
 		if (name.getNames().size() != 1) {
 			throw new ImplementationError("Local variables should not be qualified");
 		}
@@ -257,7 +257,6 @@ public class Environment {
 	 * Store a variable in the innermost (current) scope.
 	 */
 	public void storeInnermostVariable(Name name, Result<IValue> value) {
-		//System.err.println("storeLocalVariable: " + name +  ", " + value.getValue());
 		storeInnermostVariable(Names.name(name), value);
 	}
 
@@ -265,7 +264,6 @@ public class Environment {
 	 * Store a variable in the innermost (current) scope.
 	 */
 	public void storeInnermostVariable(String name, Result<IValue> value) {
-		//System.err.println("storeLocalVariable: " + name +  ", " + value.getValue());
 		updateVariableCache(name, variableEnvironment, null); // TODO check if this is correct?
 		variableEnvironment.put(name, value);
 	}
@@ -284,7 +282,6 @@ public class Environment {
 			env.put(name, value);
 		}
 	}
-
 
 	public void storeVariable(Name name, Result<IValue> r) {
 		storeVariable(Names.name(name), r);
@@ -433,6 +430,8 @@ public class Environment {
 	public TypeStore getStore() {
 		return getRoot().getStore();
 	}
+
+	
 		   
 		   
 		  
