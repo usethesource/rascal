@@ -68,8 +68,8 @@ class RegExpPatternValue implements MatchPattern {
 		initialized = false;
 		for(String name : names){
 			Result<IValue> res = env.getVariable(ast, name);
-			if((res != null) && (res.getValue() != null)){
-				if(env.getInnermostVariable(name) != null){
+			if((res != null)){  // && (res.getValue() != null)){
+				if(env.getLocalVariable(name) != null){
 					throw new RedeclaredVariableError(name, ast);
 				}
 				if(!res.getType().isStringType()){

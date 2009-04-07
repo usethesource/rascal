@@ -10,7 +10,8 @@ import org.junit.runners.Suite;
 //	ParsingTests.class,
 	PatternTests.class,
 	RecoveryTests.class,
-	RegExpTests.class
+	RegExpTests.class,
+	ScopeTests.class
 })
 
 public class AllTests2 {

@@ -38,7 +38,7 @@ public class ImportTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("import M;"));
 		assertTrue(runTestInSameEvaluator("M::n == 3;"));
 		assertTrue(runTestInSameEvaluator("n == 3;"));
-		assertTrue(runTestInSameEvaluator("{ int m = 4; m == 4;}"));  // TODO: m used to be n
+		assertTrue(runTestInSameEvaluator("{ int n = 4; n == 4;}"));
 	}
 	
 	@Test(expected=UninitializedVariableError.class)
@@ -72,7 +72,7 @@ public class ImportTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("n == 2;"));
 		assertTrue(runTestInSameEvaluator("Mbase::f(3) == 6;"));
 		assertTrue(runTestInSameEvaluator("f(3) == 6;"));
-		assertTrue(runTestInSameEvaluator("{ int m = 3; m == 3;}")); //TODO: m used to be n
+		assertTrue(runTestInSameEvaluator("{ int n = 3; n == 3;}"));
 	}
 	
 	@Test
