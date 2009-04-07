@@ -128,6 +128,56 @@ public class Environment {
 
 	/**
 	 * Look up a variable, traversing the parents of the current scope
+	 * until it is found, but don't look in a module scope (which means
+	 * stop in the shell or in the function scope). When the variable
+	 * is qualified however, the variable is looked up in the named scope.
+	 */
+	public Result<IValue> getLocalVariable(QualifiedName name) {
+		//System.err.println("getVariable: " + name);
+		if (name.getNames().size() > 1) {
+			Environment current = this;
+			while (!current.isRoot()) {
+				current = current.parent;
+			}
+			
+			return current.getVariable(name);
+		}
+		else {
+			String varName = Names.name(Names.lastName(name));
+			return getLocalVariable(varName);
+		}
+	}
+
+	/**
+	 * Look up a variable, traversing the parents of the current scope
+	 * until it is found, but don't look in a module scope (which means
+	 * stop in the shell or in the function scope).
+	 */
+	public Result<IValue> getLocalVariable(Name name) {
+		return getLocalVariable(Names.name(name));
+	}
+	
+	/**
+	 * Look up a variable, traversing the parents of the current scope
+	 * until it is found, but don't look in a module scope (which means
+	 * stop in the shell or in the function scope).
+	 */
+	public Result<IValue> getLocalVariable(String varName) {
+		Result<IValue> r = getInnermostVariable(varName);
+
+		if (r != null) {
+			return r;
+		}
+		
+		if (parent.isRoot()) {
+			return null;
+		}
+
+		return parent.getLocalVariable(varName);
+	}
+	
+	/**
+	 * Look up a variable, traversing the parents of the current scope
 	 * until it is found.
 	 * @param name
 	 * @return
