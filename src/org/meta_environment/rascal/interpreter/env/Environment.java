@@ -19,7 +19,6 @@ import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredFunctionError;
 
-
 /**
  * A simple environment for variables and functions and types.
  * TODO: this class does not support shadowing of variables and functions yet, which is wrong.
@@ -102,22 +101,37 @@ public class Environment {
 		return isRoot() ? null : parent.getFunction(name, actuals, useSite);
 	}
 	
-	public Result<IValue> getLocalVariable(QualifiedName name) {
+	/**
+	 * Returns a variable from the innermost scope, if it exists.
+	 */
+	public Result<IValue> getInnermostVariable(QualifiedName name) {
 		if (name.getNames().size() != 1) {
 			throw new ImplementationError("Local variables should not be qualified");
 		}
-		return getLocalVariable(name.getNames().get(0));
+		return getInnermostVariable(name.getNames().get(0));
 	}
 	
-	private Result<IValue> getLocalVariable(Name name) {
-		return getLocalVariable(Names.name(name));
+	/**
+	 * Returns a variable from the innermost scope, if it exists.
+	 */
+	private Result<IValue> getInnermostVariable(Name name) {
+		return getInnermostVariable(Names.name(name));
 	}
 
-	public Result<IValue> getLocalVariable(String name) {
+	/**
+	 * Returns a variable from the innermost scope, if it exists.
+	 */
+	public Result<IValue> getInnermostVariable(String name) {
 		//System.err.println("getLocalVariable: " + name);
 		return variableEnvironment.get(name);
 	}
-	
+
+	/**
+	 * Look up a variable, traversing the parents of the current scope
+	 * until it is found.
+	 * @param name
+	 * @return
+	 */
 	public Result<IValue> getVariable(QualifiedName name) {
 		//System.err.println("getVariable: " + name);
 		if (name.getNames().size() > 1) {
@@ -178,20 +192,29 @@ public class Environment {
 		return isRoot() ? null : parent.getVariableDefiningEnvironment(name);
 	}
 	
-	public void storeLocalVariable(QualifiedName name, Result<IValue> value) {
+	/**
+	 * Store a variable in the innermost (current) scope.
+	 */
+	public void storeInnermostVariable(QualifiedName name, Result<IValue> value) {
 		//System.err.println("storeLocalVariable: " + name + ", " + value.getValue());
 		if (name.getNames().size() != 1) {
 			throw new ImplementationError("Local variables should not be qualified");
 		}
-		storeLocalVariable(name.getNames().get(0), value);
+		storeInnermostVariable(name.getNames().get(0), value);
 	}
-	
-	public void storeLocalVariable(Name name, Result<IValue> value) {
+
+	/**
+	 * Store a variable in the innermost (current) scope.
+	 */
+	public void storeInnermostVariable(Name name, Result<IValue> value) {
 		//System.err.println("storeLocalVariable: " + name +  ", " + value.getValue());
-		storeLocalVariable(Names.name(name), value);
+		storeInnermostVariable(Names.name(name), value);
 	}
-	
-	public void storeLocalVariable(String name, Result<IValue> value) {
+
+	/**
+	 * Store a variable in the innermost (current) scope.
+	 */
+	public void storeInnermostVariable(String name, Result<IValue> value) {
 		//System.err.println("storeLocalVariable: " + name +  ", " + value.getValue());
 		updateVariableCache(name, variableEnvironment, null); // TODO check if this is correct?
 		variableEnvironment.put(name, value);
