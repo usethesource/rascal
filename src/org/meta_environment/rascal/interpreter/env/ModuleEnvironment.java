@@ -198,7 +198,7 @@ public class ModuleEnvironment extends Environment {
 	
 	
 	public Result<IValue> getInnermostVariable(String name) {
-		return super.getVariable(null, name);
+		return super.getInnermostVariable(name);
 	}
 	
 	public Result<IValue> getLocalPublicVariable(String name) {
