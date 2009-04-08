@@ -6,6 +6,7 @@ import static org.junit.Assert.*;
 import org.junit.Test;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
+import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 
 
 public class ScopeTests extends TestFramework {
@@ -45,7 +46,7 @@ public class ScopeTests extends TestFramework {
 		runTest("{int n; [list[int] n] := 3;}");
 	}
 	
-	@Test(expected=RedeclaredVariableError.class)
+	@Test(expected=UnexpectedTypeError.class)
 	public void localRedeclarationError8(){
 		runTest("{int n; /<n:[0-9]*>/ := \"123\";}");
 	}
@@ -63,9 +64,8 @@ public class ScopeTests extends TestFramework {
 	@Test
 	public void moduleAndLocalVarDeclaration(){
 		prepareModule("module XX public int n = 1;");
-		assertTrue(runTestInSameEvaluator("import XX;"));
-		assertTrue(runTestInSameEvaluator("int n = 2;"));
-		
+		prepare("import XX;");
+		assertTrue(runTestInSameEvaluator("{int n = 2; n == 2;}"));
 	}
 	
 	@Test(expected=UninitializedVariableError.class)

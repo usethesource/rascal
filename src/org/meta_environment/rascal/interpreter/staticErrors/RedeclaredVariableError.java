@@ -7,7 +7,6 @@ public class RedeclaredVariableError extends StaticError {
 
 	public RedeclaredVariableError(String name, AbstractAST ast) {
 		super("Redeclared variable: " + name, ast);
-		printStackTrace();
 	}
 
 }
