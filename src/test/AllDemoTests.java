@@ -8,6 +8,12 @@ import org.junit.Test;
 public class AllDemoTests extends TestFramework {
 
 	@Test
+	public void GenericFeatherweightJava() {
+		prepare("import demo::GenericFeatherweightJava::Examples");
+		assertTrue(runTestInSameEvaluator("demo::GenericFeatherweightJava::Examples::test()"));
+	}
+	
+	@Test
 	public void Ackermann() {
 		prepare("import demo::Ackermann::Ackermann;");
 		assertTrue(runTestInSameEvaluator("demo::Ackermann::Ackermann::test();"));
