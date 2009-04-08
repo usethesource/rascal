@@ -16,7 +16,8 @@ public L Tuple = class("Tuple", <[],[]>, Object, <[\type(Object),\type(Object)],
 public L GTuple = class("Tuple", <[X,Y],[ObjectType,ObjectType]>, Object, <[X,Y],["fst","snd"]>, cons(<[],[]>, super([]), []), [method(<[],[]>,X,"getfst", <[],[]>, access(this,"fst"))]);
   
 public void init() {
-  Types::CT = ("A":A, 
+  demo::GenericFeatherweightJava::Types::CT = 
+              ("A":A, 
                "B":B, 
                "Fruit":Fruit,
                "Appel":Appel, 
