@@ -187,6 +187,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnguardedReturnError
 import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedOperationError;
 
+
 @SuppressWarnings("unchecked")
 public class Evaluator extends NullASTVisitor<Result> {
 	final IValueFactory vf;
