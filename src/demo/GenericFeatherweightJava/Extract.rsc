@@ -1,6 +1,6 @@
-module Extract
-import FGJ;
-import TypeConstraints;
+module demo::GenericFeatherweightJava::Extract
+import demo::GenericFeatherweightJava::FGJ;
+import demo::GenericFeatherweightJava::TypeConstraints;
 
 set[Constraint] extract(C class) {
   set[Constraint] result = { };

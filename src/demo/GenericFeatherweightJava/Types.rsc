@@ -1,6 +1,6 @@
-module Types
+module demo::GenericFeatherweightJava::Types
 
-import GFJ;
+import demo::GenericFeatherweightJava::GFJ;
 import List;
 import IO;  
 

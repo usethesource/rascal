@@ -1,7 +1,7 @@
-module Examples
+module demo::GenericFeatherweightJava::Examples
 
-import GFJ;
-import Types;  
+import demo::GenericFeatherweightJava::GFJ;
+import demo::GenericFeatherweightJava::Types;  
 import IO;
 
 public T X = \type(\typevar("X"));
