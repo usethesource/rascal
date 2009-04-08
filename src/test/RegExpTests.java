@@ -3,6 +3,7 @@ package test;
 import org.junit.Test;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
+import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 
 
 import static org.junit.Assert.*;
@@ -32,9 +33,9 @@ public class RegExpTests extends TestFramework{
 		assertTrue(runTest("(/<x:[a-z]+>-<x:[a-z]+>/ := \"abc-abc\") && (x == \"abc\");"));
 	}
 	
-	@Test (expected=RedeclaredVariableError.class)
+	@Test
 	public void matchWithLocalVariableError(){
-		assertTrue(runTest("{ str x = \"123\"; (/<x:[a-z]+>/ := \"abc\") && (x == \"abc\");}"));
+		assertFalse(runTest("{ str x = \"123\"; (/<x:[a-z]+>/ := \"abc\") && (x == \"abc\");}"));
 	}
 	
 	@Test
@@ -42,16 +43,32 @@ public class RegExpTests extends TestFramework{
 		assertTrue(runTest("{ str x; (/<x:[a-z]+>/ := \"abc\") && (x == \"abc\");}"));
 	}
 	
-	@Test (expected=RedeclaredVariableError.class)
+	@Test(expected=UnexpectedTypeError.class)
+	public void matchWithLocalVariableOfWrongType(){
+		assertTrue(runTest("{ int x; (/<x:[a-z]+>/ := \"abc\") && (x == \"abc\");}"));
+	}
+	
+	@Test
 	public void nomatchWithLocalVariableError(){
-		assertTrue(runTest("{ str x = \"ab\"; (/<x:[a-z]+>/ !:= \"abc\");}"));
+		assertTrue(runTest("{ str x = \"123\"; (/<x:[a-z]+>/ !:= \"abc\");}"));
 	}
 	
 	@Test 
-	public void matchWithExternalModuleVariables(){
+	public void matchWithExternalModuleVariable1(){
 		prepareModule("module XX str x = \"abc\";");
 		assertTrue(runTestInSameEvaluator("(/<x:[a-z]+>/ := \"abc\") && (x == \"abc\");"));
+	}
+	
+	@Test 
+	public void matchWithExternalModuleVariable2(){
+		prepareModule("module XX str x = \"abc\";");
 		assertTrue(runTest("(/<x:[a-z]+>/ !:= \"pqr\") && (x == \"abc\");"));
+	}
+	
+	@Test 
+	public void matchWithExternalModuleVariableOfWrongType(){
+		prepareModule("module XX int x = 123;");
+		assertTrue(runTestInSameEvaluator("(/<x:[a-z]+>/ := \"abc\") && (x == \"abc\");"));
 	}
 	
 	@Test(expected=SyntaxError.class)
