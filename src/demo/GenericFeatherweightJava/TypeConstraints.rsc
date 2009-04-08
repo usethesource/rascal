@@ -1,5 +1,5 @@
-module TypeConstraints
-import GFJ;
+module demo::GenericFeatherweightJava::TypeConstraints
+import demo::GenericFeatherweightJava::GFJ;
 
 data Constraint = eq(T a, T b) |
                   subtype(T a, T b) |

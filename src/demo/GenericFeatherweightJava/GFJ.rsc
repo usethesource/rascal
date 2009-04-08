@@ -4,7 +4,7 @@
  * the identifiers used in there. These are very short and not so meaningful names, 
  * which hampers the understandability of this code and all code that depends on it.
  */
-module GFJ
+module demo::GenericFeatherweightJava::GFJ
 
 alias f = str; // field name
 alias C = str; // class name
