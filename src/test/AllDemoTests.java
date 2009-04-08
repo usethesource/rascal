@@ -9,8 +9,8 @@ public class AllDemoTests extends TestFramework {
 
 	@Test
 	public void GenericFeatherweightJava() {
-		prepare("import demo::GenericFeatherweightJava::Examples");
-		assertTrue(runTestInSameEvaluator("demo::GenericFeatherweightJava::Examples::test()"));
+		prepare("import demo::GenericFeatherweightJava::Examples;");
+		assertTrue(runTestInSameEvaluator("demo::GenericFeatherweightJava::Examples::test();"));
 	}
 	
 	@Test

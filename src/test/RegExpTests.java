@@ -30,7 +30,6 @@ public class RegExpTests extends TestFramework{
 	@Test(expected=RedeclaredVariableError.class)
 	public void matchNonLinearError(){
 		assertTrue(runTest("(/<x:[a-z]+>-<x:[a-z]+>/ := \"abc-abc\") && (x == \"abc\");"));
-		//assertTrue(runTest("/<x:[a-z]+>-<x:[a-z]+>/ !:= \"abc-ab\";"));
 	}
 	
 	@Test (expected=RedeclaredVariableError.class)
@@ -56,7 +55,7 @@ public class RegExpTests extends TestFramework{
 	}
 	
 	@Test(expected=SyntaxError.class)
-	public void RegExpError1(){
+	public void RegExpSyntaxError1(){
 		runTest("/[a-/ := \"abc\";");
 	}
 	
