@@ -278,11 +278,13 @@ public class Evaluator extends NullASTVisitor<Result> {
 	}
 	
 	public void addModuleLoader(IModuleLoader loader) {
-		loaders.add(loader);
+		// later loaders have precedence
+		loaders.add(0, loader);
 	}
 	
 	public void addClassLoader(ClassLoader loader) {
-		classLoaders.add(loader);
+		// later loaders have precedence
+		classLoaders.add(0, loader);
 	}
 	
 	/**
