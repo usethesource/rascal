@@ -19,6 +19,7 @@ import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.Expression.Literal;
 import org.meta_environment.rascal.ast.Literal.RegExp;
 import org.meta_environment.rascal.ast.RegExp.Lexical;
+import org.meta_environment.rascal.interpreter.*;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
@@ -67,17 +68,27 @@ class RegExpPatternValue implements MatchPattern {
 		patternVars = names;
 		initialized = false;
 		for(String name : names){
-			Result<IValue> res = env.getVariable(ast, name);
-			if((res != null)){  // && (res.getValue() != null)){
-				if(env.getLocalVariable(name) != null){
-					throw new RedeclaredVariableError(name, ast);
+			Result<IValue> localRes = env.getLocalVariable(name);
+			if(localRes != null){
+				if(!localRes.getType().isStringType()){
+					throw new UnexpectedTypeError(tf.stringType(), localRes.getType(), ast);
 				}
-				if(!res.getType().isStringType()){
-					throw new UnexpectedTypeError(tf.stringType(),res.getType(), ast);
+				if(localRes.getValue() != null){
+					boundBeforeConstruction.put(name, ((IString)localRes.getValue()).getValue());
 				}
-				boundBeforeConstruction.put(name, ((IString)res.getValue()).getValue());
-				if(debug)System.err.println("bound before construction: " + name + ", " + res.getValue());
+				continue;
+			}	
+			Result<IValue> globalRes = env.getVariable(ast, name);
+			if(globalRes != null){
+				if(!globalRes.getType().isStringType()){
+					throw new UnexpectedTypeError(tf.stringType(), globalRes.getType(), ast);
+				}
+				if(globalRes.getValue() != null){
+					boundBeforeConstruction.put(name, ((IString)globalRes.getValue()).getValue());
+				}					
+				continue;
 			}
+			env.storeInnermostVariable(name, null);
 		}
 		this.env = env;
 		this.vf = vf;
@@ -133,7 +144,7 @@ class RegExpPatternValue implements MatchPattern {
 				 * of variables are not allowed. Otherwise we would have to check here for the
 				 * previous local value of the variable.
 				 */
-				env.storeInnermostVariable(name, makeResult(tf.stringType(), vf.string(bindings.get(name))));			
+				env.storeLocalVariable(name, makeResult(tf.stringType(), vf.string(bindings.get(name))));			
 			}
 			if(matches){
 				start = matcher.start();
