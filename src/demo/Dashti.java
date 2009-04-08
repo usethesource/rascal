@@ -7,6 +7,7 @@ import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
 import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesList;
 import org.eclipse.imp.pdb.facts.util.ShareableHashSet;
 
+// NOTE: This thing is incorrect.
 public class Dashti {
 	private final static ValueFactory vf = ValueFactory.getInstance();
 	
