@@ -20,12 +20,16 @@ public class AssignmentTests extends TestFramework {
 
 	@Test(expected=StaticError.class)
 	public void assignmentError2() {
-		runTest("int i = true;");
+		runTest("{int i = true;}");
 	}
 	
-
 	@Test(expected=StaticError.class)
 	public void assignmentError3() {
+		runTest("int i = true;");
+	}
+
+	@Test(expected=StaticError.class)
+	public void assignmentError4() {
 		runTest("{int n = 3; n = true;}");
 	}
 	

@@ -69,6 +69,7 @@ import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
+import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternError;
@@ -1381,19 +1382,35 @@ class SingleElementGenerator implements Iterator<ISet> {
 }
 
 /* package */class AbstractPatternTypedVariable extends AbstractPattern implements MatchPattern {
-	private Name name;
+	private String name;
 	org.eclipse.imp.pdb.facts.type.Type declaredType;
 	private boolean anonymous = false;
 	private boolean debug = false;
 	private Environment env;
 
-	AbstractPatternTypedVariable(IValueFactory vf, Environment env, org.eclipse.imp.pdb.facts.type.Type type2, TypedVariable var) {
-		super(vf, var);
-		if(env.getVariable(var, var.getName().toString()) != null){
-			throw new RedeclaredVariableError(var.getName().toString(), var);
+	
+	// TODO: merge code of these constructors.
+	
+	AbstractPatternTypedVariable(IValueFactory vf, Environment env, org.eclipse.imp.pdb.facts.type.Type type, org.meta_environment.rascal.ast.QualifiedName qname) {
+		super(vf, qname);
+		this.name = qname.toString();
+		Result<IValue> r = env.getLocalVariable(this.name);
+		if(r != null && r.getValue() != null){
+			throw new RedeclaredVariableError(this.name, qname);
 		}
-		this.declaredType = type2;
-		this.name = var.getName();
+		this.declaredType = type;
+		this.env = env;
+		this.anonymous = qname.toString().equals("_");
+	}
+	
+	AbstractPatternTypedVariable(IValueFactory vf, Environment env, org.eclipse.imp.pdb.facts.type.Type type, org.meta_environment.rascal.ast.Name name) {
+		super(vf, name);
+		this.name = name.toString();
+		Result<IValue> r = env.getLocalVariable(this.name);
+		if(r != null && r.getValue() != null){
+			throw new RedeclaredVariableError(this.name, name);
+		}
+		this.declaredType = type;
 		this.env = env;
 		this.anonymous = name.toString().equals("_");
 	}
@@ -1406,7 +1423,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 	@Override
 	public java.util.List<String> getVariables(){
 		java.util.LinkedList<String> res = new java.util.LinkedList<String>();
-		res.addFirst(name.toString());
+		res.addFirst(name);
 		return res;
 	}
 	
@@ -1416,7 +1433,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 	}
 	
 	public String getName(){
-		return name.toString();
+		return name;
 	}
 	
 	public boolean isAnonymous(){
@@ -1514,20 +1531,33 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 	public AbstractPattern visitExpressionQualifiedName(QualifiedName x) {
 		org.meta_environment.rascal.ast.QualifiedName name = x.getQualifiedName();
 		Type signature = ev.tf.tupleType(new Type[0]);
-		 
-		// TODO should local variable not take precedence?
 		
-		 if (scope.isTreeConstructorName(name, signature)) {
+		Result<IValue> r = ev.peek().getVariable(name);
+		 if (r == null && scope.isTreeConstructorName(name, signature)) {
 			 return new AbstractPatternNode(vf, x, name, new java.util.ArrayList<AbstractPattern>());
-		 } else {
-			 return new AbstractPatternQualifiedName(vf, env, x.getQualifiedName());
 		 }
+		return new AbstractPatternQualifiedName(vf, env, name);
+	/*	 
+		
+		if(r != null){
+			if(r.getValue() != null){
+				 return new AbstractPatternQualifiedName(vf, env, x.getQualifiedName());
+			} else {
+				return new AbstractPatternTypedVariable(vf, env, r.getType(), name);
+			}
+		}
+		
+		
+		 //throw new UndeclaredVariableError(name.toString(), x);
+		 //return new AbstractPatternQualifiedName(vf, env, x.getQualifiedName());
+		 return new AbstractPatternTypedVariable(vf, env, ev.tf.valueType(), name);
+		 */
 	}
 	
 	@Override
 	public AbstractPattern visitExpressionTypedVariable(TypedVariable x) {
 		TypeEvaluator te = TypeEvaluator.getInstance();
-		return new AbstractPatternTypedVariable(vf, env, te.eval(x.getType(), env), x);
+		return new AbstractPatternTypedVariable(vf, env, te.eval(x.getType(), env), x.getName());
 	}
 	/*
 	 * The following constructs are not allowed in patterns

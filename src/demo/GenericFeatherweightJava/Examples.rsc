@@ -28,7 +28,7 @@ public void init() {
                );
 }
 
-public void test() {
+public bool test() {
   init();
   
   assert fields(lit("Fruit",[])) == <[],[]>;   
@@ -36,7 +36,8 @@ public void test() {
   assert fields(lit("GTuple",[\type(lit("A",[])),\type(lit("B",[]))])) == 
       <[\type(lit("A",[])),\type(lit("B",[]))],["fst","snd"]>;
   assert mtype("getfst", lit("GTuple", [\type(lit("Appel",[])),\type(lit("Appel",[]))])) == 
-           <<[],[]>,\type(lit("Appel",[])),[]>;   
+           <<[],[]>,\type(lit("Appel",[])),[]>;  
+  return true; 
 }  
 
 /*

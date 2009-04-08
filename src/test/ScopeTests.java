@@ -17,26 +17,41 @@ public class ScopeTests extends TestFramework {
 	
 	@Test(expected=RedeclaredVariableError.class)
 	public void localRedeclarationError2(){
-		runTest("{int n; int n := 3;}");
+		runTest("{int n = 1; int n;}");
 	}
 	
 	@Test(expected=RedeclaredVariableError.class)
 	public void localRedeclarationError3(){
-		runTest("{int n; [int n] := 3;}");
+		runTest("{int n = 1; int n = 2;}");
 	}
 	
 	@Test(expected=RedeclaredVariableError.class)
 	public void localRedeclarationError4(){
-		runTest("{int n; [list[int] n] := 3;}");
+		runTest("{int n = 2; int n := 3;}");
 	}
 	
 	@Test(expected=RedeclaredVariableError.class)
 	public void localRedeclarationError5(){
-		runTest("{int n; /<n:[0-9]*>/ := \"123\";}");
+		runTest("{int n ; int n := 3;}");
 	}
 	
 	@Test(expected=RedeclaredVariableError.class)
 	public void localRedeclarationError6(){
+		runTest("{int n; [int n] := 3;}");
+	}
+	
+	@Test(expected=RedeclaredVariableError.class)
+	public void localRedeclarationError7(){
+		runTest("{int n; [list[int] n] := 3;}");
+	}
+	
+	@Test(expected=RedeclaredVariableError.class)
+	public void localRedeclarationError8(){
+		runTest("{int n; /<n:[0-9]*>/ := \"123\";}");
+	}
+	
+	@Test(expected=RedeclaredVariableError.class)
+	public void localRedeclarationError9(){
 		runTest("{int n; L = [n | int n <- [1 .. 10]];}");
 	}
 	
@@ -66,6 +81,11 @@ public class ScopeTests extends TestFramework {
 	@Test(expected=UninitializedVariableError.class)
 	public void blockNoLeak1(){
 		runTest("{int n = 1; {int m = 2;}; n == 1 && m == 2;}");
+	}
+	
+	@Test
+	public void RedeclaredLocal(){
+		assertTrue(runTest("{int n = 1; {int m = 2;}; int m = 3; n == 1 && m == 3;}"));
 	}
 	
 	@Test

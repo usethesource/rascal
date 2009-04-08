@@ -167,7 +167,7 @@ public class Environment {
 			return r;
 		}
 		
-		if (parent.isRoot()) {
+		if (isRoot() || parent.isRoot()) {
 			return null;
 		}
 
@@ -259,7 +259,7 @@ public class Environment {
 			return variableEnvironment;
 		}
 		
-		return parent.getVariableDefiningEnvironment(name);
+		return parent.getLocalVariableDefiningEnvironment(name);
 	}
 	
 	/**
