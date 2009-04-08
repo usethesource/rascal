@@ -123,7 +123,6 @@ public class Environment {
 	 * Returns a variable from the innermost scope, if it exists.
 	 */
 	public Result<IValue> getInnermostVariable(String name) {
-		//System.err.println("getLocalVariable: " + name);
 		return variableEnvironment.get(name);
 	}
 
@@ -134,7 +133,6 @@ public class Environment {
 	 * is qualified however, the variable is looked up in the named scope.
 	 */
 	public Result<IValue> getLocalVariable(QualifiedName name) {
-		//System.err.println("getVariable: " + name);
 		if (name.getNames().size() > 1) {
 			Environment current = this;
 			while (!current.isRoot()) {
@@ -233,6 +231,10 @@ public class Environment {
 		return typeParameters.get(par);
 	}
 
+	/**
+	 * Search for the environment that declared a variable, down to the module
+	 * scope.
+	 */
 	private Map<String,Result<IValue>> getVariableDefiningEnvironment(String name) {
 		Result<IValue> r = variableEnvironment.get(name);
 		
@@ -241,6 +243,24 @@ public class Environment {
 		}
 		
 		return isRoot() ? null : parent.getVariableDefiningEnvironment(name);
+	}
+	
+	/**
+	 * Search for the environment that declared a variable, but stop just above
+	 * the module scope such that we end up in a function scope or a shell scope.
+	 */
+	private Map<String,Result<IValue>> getLocalVariableDefiningEnvironment(String name) {
+		Result<IValue> r = variableEnvironment.get(name);
+		
+		if (r != null) {
+			return variableEnvironment;
+		}
+		
+		if (parent.isRoot()) {
+			return variableEnvironment;
+		}
+		
+		return parent.getVariableDefiningEnvironment(name);
 	}
 	
 	/**
@@ -268,6 +288,10 @@ public class Environment {
 		variableEnvironment.put(name, value);
 	}
 	
+	/**
+	 * Store a variable the scope that it is declared in, down to the 
+	 * module scope if needed.
+	 */
 	public void storeVariable(String name, Result<IValue> value) {
 		//System.err.println("storeVariable: " + name + value.getValue());
 		Map<String,Result<IValue>> env = getVariableDefiningEnvironment(name);
@@ -281,6 +305,42 @@ public class Environment {
 			value.setPublic(old.isPublic());
 			env.put(name, value);
 		}
+	}
+	
+	/**
+	 * Store a variable the scope that it is declared in, but not in the
+	 * module (root) scope. This should result in storing variables in either
+	 * the function scope or the shell scope. If a variable is not declared yet,
+	 * this function will store it in the function scope.
+	 */
+	public void storeLocalVariable(String name, Result<IValue> value) {
+		Map<String,Result<IValue>> env = getLocalVariableDefiningEnvironment(name);
+		
+		if (env == null) {
+			throw new ImplementationError("storeVariable should always find a scope");
+		}
+
+		Result<IValue> old = env.get(name);
+		
+		if (old != null) {
+			updateVariableCache(name, env, old);
+		}
+		
+		env.put(name, value);
+	}
+	
+	public void storeLocalVariable(QualifiedName name, Result<IValue> result) {
+ 		if (name.getNames().size() > 1) {
+ 			storeVariable(name, result);
+ 		}
+ 		else {
+ 			String varName = Names.name(Names.lastName(name));
+ 			storeLocalVariable(varName, result);
+ 		}
+	}
+	
+	public void storeLocalVariable(Name name, Result<IValue> r) {
+		storeLocalVariable(Names.name(name), r);
 	}
 
 	public void storeVariable(Name name, Result<IValue> r) {
