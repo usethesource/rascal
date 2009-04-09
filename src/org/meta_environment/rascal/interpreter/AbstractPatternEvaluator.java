@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.interpreter;
 
+import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -14,7 +16,6 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
-import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.Expression.Addition;
 import org.meta_environment.rascal.ast.Expression.All;
@@ -69,11 +70,9 @@ import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
-import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternError;
-import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 
 /* package */ 
 /**
