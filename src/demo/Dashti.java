@@ -69,29 +69,32 @@ public class Dashti{
 			permutations = cutNumber(permutations, i);
 			iterations++;
 		}
-		permutations = cutNumber(permutations, 0);
 		
-		
-		int shift = n - 1;
-		
-		OUTER: while(!permutations.isEmpty()){
-			for(int i = 1; i < shift; i++){
-				permutations = cutNumber(permutations, i);
-				iterations++;
-				if(permutations.isEmpty()) break OUTER;
-			}
-			
+		if(!permutations.isEmpty()){
 			permutations = cutNumber(permutations, 0);
-			iterations++;
-			if(permutations.isEmpty()) break OUTER;
 			
-			for(int i = shift; i < n; i++){
-				permutations = cutNumber(permutations, i);
+			
+			int shift = n - 1;
+			
+			OUTER: while(!permutations.isEmpty()){
+				for(int i = 1; i < shift; i++){
+					permutations = cutNumber(permutations, i);
+					iterations++;
+					if(permutations.isEmpty()) break OUTER;
+				}
+				
+				permutations = cutNumber(permutations, 0);
 				iterations++;
 				if(permutations.isEmpty()) break OUTER;
+				
+				for(int i = shift; i < n; i++){
+					permutations = cutNumber(permutations, i);
+					iterations++;
+					if(permutations.isEmpty()) break OUTER;
+				}
+				
+				shift--;
 			}
-			
-			shift--;
 		}
 		
 		System.out.println();
