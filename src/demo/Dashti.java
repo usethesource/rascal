@@ -7,20 +7,45 @@ import org.eclipse.imp.pdb.facts.impl.fast.ValueFactory;
 import org.eclipse.imp.pdb.facts.impl.util.collections.ShareableValuesList;
 import org.eclipse.imp.pdb.facts.util.ShareableHashSet;
 
-// NOTE: This thing is incorrect.
-public class Dashti {
+// NOTE: This thing may be incorrect.
+public class Dashti{
 	private final static ValueFactory vf = ValueFactory.getInstance();
-	
+
+	private final IInteger[] integers;
 	private final int n;
 
 	private ShareableHashSet<ShareableValuesList> permutations;
-
+	
 	public Dashti(int n){
 		super();
 
 		this.n = n;
 		
 		permutations = new ShareableHashSet<ShareableValuesList>();
+		
+		integers = new IInteger[n];
+		for(int i = n - 1; i >= 0; i--){
+			integers[i] = vf.integer(i);
+		}
+	}
+	
+	private ShareableHashSet<ShareableValuesList> cutNumber(ShareableHashSet<ShareableValuesList> permutations, int i){
+		System.out.print(i+" ");
+		
+		ShareableHashSet<ShareableValuesList> newPermutations = new ShareableHashSet<ShareableValuesList>();
+		
+		Iterator<ShareableValuesList> permutationsIterator = permutations.iterator();
+		while(permutationsIterator.hasNext()){
+			ShareableValuesList permutation = permutationsIterator.next();
+			
+			IInteger integer = integers[i];
+			if(permutation.get(0).isEqual(integer)){
+				permutation.remove(0);
+			}
+			if(!permutation.isEmpty()) newPermutations.add(permutation);
+		}
+		
+		return newPermutations;
 	}
 
 	public void generatePermutations(){
@@ -38,46 +63,43 @@ public class Dashti {
 	}
 	
 	public void solve(){
-		IInteger[] integers = new IInteger[n];
-		for(int i = n - 1; i >= 0; i--){
-			integers[i] = vf.integer(i);
-		}
-		
 		int iterations = 0;
 		
+		for(int i = 0; i < n; i++){
+			permutations = cutNumber(permutations, i);
+			iterations++;
+		}
+		permutations = cutNumber(permutations, 0);
+		
+		
+		int shift = n - 1;
+		
 		OUTER: do{
-			for(int i = 0; i < n; i++){
-				ShareableHashSet<ShareableValuesList> newPermutations = new ShareableHashSet<ShareableValuesList>();
-				
-				Iterator<ShareableValuesList> permutationsIterator = permutations.iterator();
-				while(permutationsIterator.hasNext()){
-					ShareableValuesList permutation = permutationsIterator.next();
-					//System.out.print(permutation);
-					
-					IInteger integer = integers[i];
-					if(permutation.get(0).isEqual(integer)){
-						permutation.remove(0);
-						//System.out.println(" -> "+permutation);
-					}/*else{
-						System.out.println(" -> "+permutation);
-					}*/
-					if(!permutation.isEmpty()) newPermutations.add(permutation);
-				}
-				
+			for(int i = 1; i < shift; i++){
+				permutations = cutNumber(permutations, i);
 				iterations++;
-				//System.out.println();
-				
-				permutations = newPermutations;
 				if(permutations.isEmpty()) break OUTER;
 			}
 			
+			permutations = cutNumber(permutations, 0);
+			iterations++;
+			if(permutations.isEmpty()) break OUTER;
+			
+			for(int i = shift; i < n; i++){
+				permutations = cutNumber(permutations, i);
+				iterations++;
+				if(permutations.isEmpty()) break OUTER;
+			}
+			
+			shift--;
 		}while(true);
 		
+		System.out.println();
 		System.out.println("Solved in "+iterations+" iterations, for: "+n);
 	}
 
 	public static void main(String[] args){
-		int n = 8;
+		int n = Integer.parseInt(args[0]);
 
 		Dashti dashti = new Dashti(n);
 		long start = System.currentTimeMillis();
