@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.interpreter;
 
+import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,14 +21,11 @@ import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.Expression.Literal;
 import org.meta_environment.rascal.ast.Literal.RegExp;
 import org.meta_environment.rascal.ast.RegExp.Lexical;
-import org.meta_environment.rascal.interpreter.*;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
-
-import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 
 class RegExpPatternValue implements MatchPattern {
 	private AbstractAST ast;					// The AST for this regexp
