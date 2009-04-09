@@ -74,7 +74,7 @@ public class Dashti{
 		
 		int shift = n - 1;
 		
-		OUTER: do{
+		OUTER: while(!permutations.isEmpty()){
 			for(int i = 1; i < shift; i++){
 				permutations = cutNumber(permutations, i);
 				iterations++;
@@ -92,7 +92,7 @@ public class Dashti{
 			}
 			
 			shift--;
-		}while(true);
+		}
 		
 		System.out.println();
 		System.out.println("Solved in "+iterations+" iterations, for: "+n);
