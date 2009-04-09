@@ -44,7 +44,7 @@ public bool subtypes(Delta d, list[T] t1, list[T] t2) {
   return true;
 }
       
-public tuple[list[T],list[f]] fields(N n) {
+public tuple[list[T] ts,list[f] fs] fields(N n) {
   if (n == Object) return <[],[]>;
   
   L l = CT[n.C];
@@ -53,6 +53,11 @@ public tuple[list[T],list[f]] fields(N n) {
   <tT,tf> = inst(l.Tsfs, l.XsNs, n.Ts);
   
   return <sT + tT, sf + tf>;
+}
+
+public T ftype(N n, f f) {
+  fields = fields(n);
+  if (int i <- domain(fields.fs) && fields.fs[i] == f) return fields.ts[i];
 }
 
 public map[T,T] bindings(tuple[list[T] Xs, list[T] Ns] formals, list[T] actuals ) {
@@ -80,7 +85,6 @@ public MethodType mtype(m name, N n) {
    } 
 }   
 
-// TODO add test for this function
 public e mbody(m name, list[T] bindings, N n) {
    list[tuple[X,N]] let;
    L l = CT[n.name];
@@ -101,9 +105,7 @@ public T bound(T t, Delta d) {
   }
 }
 
-public bool dcast() { } // have to write this
-
-public T typeOf(Gamma g, Delta d, e expr) {
+public T etype(Gamma g, Delta d, e expr) {
   switch (expr) {
     case var(x name) : return d[x];
     case this : return d["this"];
@@ -136,6 +138,6 @@ public T typeOf(Gamma g, Delta d, e expr) {
       if (subtype(N, BT0) && dcast(N, D)) return N;
     }
   }
-  
+    
   throw NoType(e);
 }  
