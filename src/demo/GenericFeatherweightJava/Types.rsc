@@ -31,7 +31,11 @@ public bool subclass(C c1, C c2) {
 
 // TODO check if this works  
 public rel[T,T] subtypes(Delta d) {
-  return { <l,s> | X x <- d, N n := d[x], L l := CT[n.C], s := inst(l.N, l.XsNs, n.Ts)}*;  
+  return { <l,s> | X x <- d, N n := d[x], L l := CT[n.C], s := inst(l.N, l.XsNs, n.Ts) }*;  
+}
+
+public list[T] constructorTypes(T t) {
+  return CT[t.N.C].K.Tsfs.Ts;
 }
 
 public bool subtype(Delta d, T t1, T t2) {
@@ -63,6 +67,8 @@ public T ftype(N n, f f) {
 public map[T,T] bindings(tuple[list[T] Xs, list[T] Ns] formals, list[T] actuals ) {
   return (formals.Xs[i] : actuals[i] | int i <- domain(formals.Xs));  
 }  
+
+
 
 public &T inst(&T arg, tuple[list[T] Xs, list[T] Ns] formals, list[T] actuals) {
   map[T,T] subs = bindings(formals, actuals);
