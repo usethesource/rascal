@@ -39,6 +39,12 @@ set[Constraint] extract(C class) {
            result += { subtype(typeof(es[i]),typeof(M.Us[i])) | int i <- domain(es) };
         }
      }
+     case cast(T C, e e0) : {
+       result += eq(typeof(x), typeof(C));
+       result += subtype(typeof(e0), typeof(C));
+     }
+     case this : 
+       result += eq(typeof(x), typeof(\type(lit(C,[]))));
   }  }  
   
   return result;
