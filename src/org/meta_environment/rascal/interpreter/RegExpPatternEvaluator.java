@@ -74,6 +74,9 @@ class RegExpPatternValue implements MatchPattern {
 				}
 				if(localRes.getValue() != null){
 					boundBeforeConstruction.put(name, ((IString)localRes.getValue()).getValue());
+				} else {
+					// Introduce shadow copy
+					env.storeInnermostVariable(name, null);
 				}
 				continue;
 			}	
@@ -83,8 +86,11 @@ class RegExpPatternValue implements MatchPattern {
 					throw new UnexpectedTypeError(tf.stringType(), globalRes.getType(), ast);
 				}
 				if(globalRes.getValue() != null){
-					boundBeforeConstruction.put(name, ((IString)globalRes.getValue()).getValue());
-				}					
+					boundBeforeConstruction.put(name, ((IString)globalRes.getValue()).getValue());	
+				} else {
+					// Introduce shadow copy
+					env.storeInnermostVariable(name, null);
+				}
 				continue;
 			}
 			env.storeInnermostVariable(name, null);
@@ -143,7 +149,7 @@ class RegExpPatternValue implements MatchPattern {
 				 * of variables are not allowed. Otherwise we would have to check here for the
 				 * previous local value of the variable.
 				 */
-				env.storeLocalVariable(name, makeResult(tf.stringType(), vf.string(bindings.get(name))));			
+				env.storeVariable(name, makeResult(tf.stringType(), vf.string(bindings.get(name))));			
 			}
 			if(matches){
 				start = matcher.start();

@@ -9,10 +9,17 @@ import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
 
 public class ComprehensionTests extends TestFramework {
 	
-	@Test public void setComprehension1() {
-		
+	@Test(expected=StaticError.class)
+	public void emptySetGeneratorError1(){
 		assertTrue(runTest("{ X | int X <- {} } == {};"));
+	}
+	
+	@Test(expected=StaticError.class)
+	public void emptySetGeneratorError2(){
 		assertTrue(runTest("{ X | int X <- [] } == {};"));
+	}
+	
+	@Test public void setComprehension1() {
 		
 		assertTrue(runTest("{ X | int X <- {1}} == {1};"));
 		assertTrue(runTest("{ X | int X <- [1]} == {1};"));
@@ -126,6 +133,32 @@ public class ComprehensionTests extends TestFramework {
 		runTest("top-down-break int X <- {1,2,3};");
 	}
 	
+	@Test(expected=StaticError.class)
+	public void WrongListType(){
+		runTest("str S <- [1,2,3];");
+	}
+	
+	@Test(expected=StaticError.class)
+	public void WrongSetType(){
+		runTest("str S <- {1,2,3};");
+	}
+	
+	@Test(expected=StaticError.class)
+	public void WrongMapType(){
+		runTest("str S <- (1:10,2:20);");
+	}
+	
+	@Test(expected=StaticError.class)
+	public void WrongStringType(){
+		runTest("int N <- \"abc\";");
+	}
+	
+	@Test(expected=StaticError.class)
+	public void WrongADTType(){
+		prepare("data Bool = btrue | bfalse | band(Bool left, Bool right) | bor(Bool left, Bool right);");
+		runTest("int N <- [true, true, false];");
+	}
+
 	
 	@Test public void any()  {
 		
@@ -206,11 +239,22 @@ public class ComprehensionTests extends TestFramework {
 		assertTrue(runTest("{X * 2 | int X <- [1,2,3]} == {2,4,6};"));
 	}
 	
-	@Test public void listComprehension1()  {
-		
+	@Test(expected=StaticError.class)
+	public void emptySetGeneratorError(){
 		assertTrue(runTest("[ X | int X <- {} ] == [];"));
+	}
+	
+	@Test(expected=StaticError.class)
+	public void emptyListGeneratorError1(){
 		assertTrue(runTest("[ X | int X <- [] ] == [];"));
+	}
+	
+	@Test(expected=StaticError.class)
+	public void emptyListGeneratorError2(){
 		assertTrue(runTest("[ X |     X <- [] ] == [];"));
+	}
+	
+	@Test public void listComprehension1()  {
 		
 		assertTrue(runTest("[ X | int X <- {1}] == [1];"));
 		assertTrue(runTest("[ X | int X <- [1]] == [1];"));
@@ -291,13 +335,27 @@ public class ComprehensionTests extends TestFramework {
 
 	}
 	
-	@Test public void relationComprehension() {
-		
+	@Test(expected=StaticError.class)
+	public void emptyTupleGeneratorError1(){
 		assertTrue(runTest("{<X,Y> | <int X, int Y> <- {}} == {} ;"));
+	}
+	
+	@Test(expected=StaticError.class)
+	public void emptyTupleGeneratorError2(){
 		assertTrue(runTest("{<X,Y> | <int X, int Y> <- []} == {} ;"));
-		
+	}
+	
+	@Test(expected=StaticError.class)
+	public void emptyTupleGeneratorError3(){
 		assertTrue(runTest("{<X,Y> | int X <- {}, int Y <- {}} == {};"));
+	}
+	
+	@Test(expected=StaticError.class)
+	public void emptyTupleGeneratorError4(){
 		assertTrue(runTest("{<X,Y> | int X <- [], int Y <- []} == {};"));
+	}
+	
+	@Test public void relationComprehension() {	
 		
 		assertTrue(runTest("{<X,Y> | int X <- {1,1,1}, int Y <- {2,2,2}} == {<1,2>};"));
 		assertTrue(runTest("{<X,Y> | int X <- [1,1,1], int Y <- [2,2,2]} == {<1,2>};"));
@@ -326,10 +384,17 @@ public class ComprehensionTests extends TestFramework {
 		
 		}
 	
-	@Test public void mapComprehension()  {
-		
+	@Test(expected=StaticError.class)
+	public void emptyMapGeneratorError1(){
 		assertTrue(runTest("( X : 2 * X | int X <- {} ) == ();"));
+	}
+	
+	@Test(expected=StaticError.class)
+	public void emptyMapGeneratorError2(){
 		assertTrue(runTest("( X : 2 * X | int X <- [] ) == ();"));
+	}
+	
+	@Test public void mapComprehension()  {
 		
 		assertTrue(runTest("( X : 2 * X | int X <- {1}) == (1:2);"));
 		assertTrue(runTest("( X : 2 * X | int X <- [1]) == (1:2);"));

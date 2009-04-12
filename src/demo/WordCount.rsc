@@ -4,6 +4,7 @@ import IO;
 import Map;
 import List;
 import Exception;
+import UnitTest;
  
 /* this is a * test * comment */
 
@@ -133,8 +134,8 @@ public list[str] Jabberwocky = [
 ];
 
 public bool test(){
-	return 
-		wordCount(Jabberwocky, #countLine1) == 216 &&
-	 	wordCount(Jabberwocky, #countLine2) == 216 &&
-	 	wordCount(Jabberwocky, #countLine3) == 216;
+	assertEqual(wordCount(Jabberwocky, #countLine1), 216);
+	assertEqual(wordCount(Jabberwocky, #countLine2), 216);
+	assertEqual(wordCount(Jabberwocky, #countLine3), 216);
+	return report();
 }

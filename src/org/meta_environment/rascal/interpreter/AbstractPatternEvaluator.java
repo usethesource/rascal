@@ -250,22 +250,27 @@ interface MatchPattern {
 		 Type signature = tf.tupleType(types);
 		 
 		 if (env.isTreeConstructorName(name, signature)) {
-			 return env.getConstructor(name.toString(), signature);
+			 return env.getConstructor(name.toString(), signature); //.getAbstractDataType();
 		 } else {
 			 return tf.nodeType();
 		 }
 	}
 	
 	@Override
-	public IValue toIValue(Environment ev){
-		Type type = getType(ev);
-		
+	public IValue toIValue(Environment env){
+		Type[] types = new Type[children.size()];
 		IValue[] vals = new IValue[children.size()];
+		
 		for (int i = 0; i < children.size(); i++) {
-			 vals[i] =  children.get(i).toIValue(ev);
+			types[i] =  children.get(i).getType(env);
+			vals[i] =  children.get(i).toIValue(env);
 		}
-		if(type.isConstructorType()){
-			return vf.constructor(type, vals);
+		Type signature = tf.tupleType(types);
+		
+		if(env.isTreeConstructorName(name, signature)){
+			Type consType = env.getConstructor(name.toString(), signature);
+			
+			return vf.constructor(consType, vals);
 		} else {
 			return vf.node(name.toString(), vals);
 		}
@@ -320,6 +325,8 @@ interface MatchPattern {
 	private int subjectSize;						// Length of the subject
 	private int minSubjectSize;					// Minimum subject length for this pattern to match
 	private boolean [] isListVar;					// Determine which elements are list or variables
+	private boolean [] isBindingVar;				// Determine which elements are binding occurrences of variables
+	private String [] varName;						// Name of ith variable
 	private HashSet<String> allVars;				// Names of list variables declared in this pattern
 	private int [] listVarStart;					// Cursor start position list variable; indexed by pattern position
 	private int [] listVarLength;					// Current length matched by list variable
@@ -378,7 +385,9 @@ interface MatchPattern {
 		patternCursor = 0;
 		subjectSize = ((IList) subject).length();
 		
-		isListVar = new boolean[patternSize];		
+		isListVar = new boolean[patternSize];	
+		isBindingVar = new boolean[patternSize];
+		varName = new String[patternSize];
 		allVars = new HashSet<String>();			
 		listVarStart = new int[patternSize];		
 		listVarLength = new int[patternSize];		
@@ -393,10 +402,12 @@ interface MatchPattern {
 		for(int i = 0; i < patternSize; i++){
 			AbstractPattern child = children.get(i);
 			isListVar[i] = false;
+			isBindingVar[i] = false;
 			if(child instanceof AbstractPatternTypedVariable && child.getType(ev).isListType()){
 				AbstractPatternTypedVariable patVar = (AbstractPatternTypedVariable) child;
 				Type childType = child.getType(ev);
 				String name = patVar.getName();
+				varName[i] = name;
 				if(!patVar.isAnonymous() && allVars.contains(name)){
 					throw new RedeclaredVariableError(name, ast);
 				}
@@ -407,6 +418,7 @@ interface MatchPattern {
 					if(!patVar.isAnonymous())
 						allVars.add(name);
 					isListVar[i] = childType.isListType();
+					isBindingVar[i] = true;
 					listVarOccurrences[i] = 1;
 					nListVar++;
 				} else {
@@ -415,6 +427,7 @@ interface MatchPattern {
 			} else if(child instanceof AbstractPatternQualifiedName){
 				AbstractPatternQualifiedName qualName = (AbstractPatternQualifiedName) child;
 				String name = qualName.getName();
+				varName[i] = name;
 				if(!qualName.isAnonymous() && allVars.contains(name)){
 					/*
 					 * A variable that was declared earlier in the pattern
@@ -428,9 +441,11 @@ interface MatchPattern {
 					 */
 				} else {
 					Result<IValue> varRes = ev.getVariable(null, name);
-				         
-				    if((varRes != null) && (varRes.getValue() != null)){
-				       //IValue varVal = varRes.getValue();
+					
+					if(varRes == null){
+						// A completely new variable, nothing to do
+					} else {
+					
 				        Type varType = varRes.getType();
 				        if (varType.isListType()){
 				        	/*
@@ -438,7 +453,8 @@ interface MatchPattern {
 				        	 */
 				        	if(varType.comparable(listSubjectType)){
 				        		isListVar[i] = true;
-				        		nListVar++;
+				        		isBindingVar[i] = varRes.getValue() == null;
+				        		nListVar++;			        		
 				        	} else {
 				        		throw new UnexpectedTypeError(listSubjectType,varType, ast);
 				        	}
@@ -447,9 +463,7 @@ interface MatchPattern {
 				        		throw new UnexpectedTypeError(listSubjectType, varType, ast);
 				        	}
 				        }
-				    } else {
-				    	throw new UninitializedVariableError(name, ast);
-				    }
+					}
 				}
 			} else {
 				Type childType = child.getType(ev);
@@ -638,8 +652,11 @@ interface MatchPattern {
 			/*
 			 * A binding occurrence of a list variable
 			 */
-			if(isListVar[patternCursor] && child instanceof AbstractPatternTypedVariable){	
-				
+			/*if(isListVar[patternCursor] && (child instanceof AbstractPatternTypedVariable
+					|| (child instanceof AbstractPatternQualifiedName &&
+						ev.getVariable(null, ((AbstractPatternQualifiedName)child).getName().toString()).getValue() == null))){
+			*/
+			if(isListVar[patternCursor] && isBindingVar[patternCursor]){
 				if(forward){
 					listVarStart[patternCursor] = subjectCursor;
 					if(patternCursor == patternSize -1){
@@ -671,14 +688,17 @@ interface MatchPattern {
 			/*
 			 * Reference to a previously defined list variable
 			 */
-			} else if(isListVar[patternCursor] &&  child instanceof AbstractPatternQualifiedName &&
+			} /*
+			else if(isListVar[patternCursor] &&  child instanceof AbstractPatternQualifiedName &&
 					ev.getVariable(null, ((AbstractPatternQualifiedName)child).getName()).getType().isListType()
+					*/
+			else if(isListVar[patternCursor] && !isBindingVar[patternCursor] && ev.getVariable(null, varName[patternCursor]).getType().isListType()
 			){
 				if(forward){
 					listVarStart[patternCursor] = subjectCursor;
 					
-					String name = ((AbstractPatternQualifiedName)child).getName();
-					Result<IValue> varRes = ev.getVariable(null, name);
+					//String name = ((AbstractPatternQualifiedName)child).getName();
+					Result<IValue> varRes = ev.getVariable(null, varName[patternCursor]);
 					IValue varVal = varRes.getValue();
 					
 					if(!varRes.getType().isListType()){
@@ -1006,24 +1026,31 @@ class SingleElementGenerator implements Iterator<ISet> {
 					nVar++;
 				} else  {
 					Result<IValue> varRes = ev.getVariable(null, name);
-				         
-				    if((varRes != null) && (varRes.getValue() != null)){
-				        Type varType = varRes.getType();
-				        if (varType.comparable(setSubjectType)){
-				        	/*
-				        	 * A set variable declared in the current scope: add its elements
-				        	 */
-				        	fixedSetElements = fixedSetElements.union((ISet)varRes.getValue());
-				        } else if(varType.comparable(setSubjectElementType)){
-				        	/*
-				        	 * An element variable in the current scope, add its value.
-				        	 */
-				        	fixedSetElements = fixedSetElements.insert(varRes.getValue());
-				        } else {
-				        	throw new UnexpectedTypeError(setSubject.getType(),varType, ast);
-				        }
-				    } else {
-				    	throw new UninitializedVariableError(name, ast);
+					
+					if(varRes == null){
+						// Completely new variable
+						varName[nVar] = name;
+						varPat[nVar] = child;
+						isSetVar[nVar] = false;
+						nVar++;
+						ev.storeInnermostVariable(name, null);
+					} else {
+					    if(varRes.getValue() != null){
+					        Type varType = varRes.getType();
+					        if (varType.comparable(setSubjectType)){
+					        	/*
+					        	 * A set variable declared in the current scope: add its elements
+					        	 */
+					        	fixedSetElements = fixedSetElements.union((ISet)varRes.getValue());
+					        } else if(varType.comparable(setSubjectElementType)){
+					        	/*
+					        	 * An element variable in the current scope, add its value.
+					        	 */
+					        	fixedSetElements = fixedSetElements.insert(varRes.getValue());
+					        } else {
+					        	throw new UnexpectedTypeError(setSubject.getType(),varType, ast);
+					        }
+					    } 
 				    }
 				}
 			} else if(child instanceof AbstractPatternLiteral){
@@ -1077,10 +1104,12 @@ class SingleElementGenerator implements Iterator<ISet> {
 	private boolean makeGen(int i, ISet elements){
 		if(varPat[i] instanceof AbstractPatternQualifiedName){
 			AbstractPatternQualifiedName qualName = (AbstractPatternQualifiedName) varPat[i];
+			String name = qualName.getName();
 			if(qualName.isAnonymous()){
 				varGen[i] = new SingleElementGenerator(elements);
+			} else if(ev.getVariable(null, name) == null){
+				varGen[i] = new SingleElementGenerator(elements);
 			} else {
-				String name = qualName.getName();
 				varGen[i] = new SingleIValueIterator(ev.getVariable(null, name).getValue());
 			}
 		}
@@ -1309,7 +1338,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 		} else {
 			Result<IValue> patRes = env.getVariable(name);
 			if(patRes == null || patRes.getValue() == null){
-				type = TypeFactory.getInstance().voidType();
+				type = TypeFactory.getInstance().valueType();
 			} else {
 				type = patRes.getType();
 			}
@@ -1393,26 +1422,70 @@ class SingleElementGenerator implements Iterator<ISet> {
 	AbstractPatternTypedVariable(IValueFactory vf, Environment env, org.eclipse.imp.pdb.facts.type.Type type, org.meta_environment.rascal.ast.QualifiedName qname) {
 		super(vf, qname);
 		this.name = qname.toString();
-		Result<IValue> r = env.getLocalVariable(this.name);
-		if(r != null && r.getValue() != null){
-			throw new RedeclaredVariableError(this.name, qname);
-		}
 		this.declaredType = type;
 		this.env = env;
 		this.anonymous = qname.toString().equals("_");
+		
+		Result<IValue> r = env.getLocalVariable(qname);
+		if(r != null){
+			if(r.getValue() != null){
+				throw new RedeclaredVariableError(this.name, qname);
+			}
+			if(!r.getType().equivalent(type)){
+				throw new UnexpectedTypeError(r.getType(), type, qname);
+			}
+			// Introduce an innermost variable that shadows the original one.
+			// This ensure that the original one becomes undefined agaian when matching is over
+			env.storeInnermostVariable(qname, makeResult(r.getType(), null));
+			return;
+		}
+		Result<IValue> rGlob = env.getVariable(qname);
+		if(rGlob != null){
+			if(rGlob.getValue() != null){
+				throw new RedeclaredVariableError(this.name, qname);
+			}
+			if(!rGlob.getType().equivalent(type)){
+				throw new UnexpectedTypeError(rGlob.getType(), type, qname);
+			}
+			// Introduce an innermost variable that shadows the original one.
+			// This ensure that the original one becomes undefined agaian when matching is over
+			env.storeInnermostVariable(qname, makeResult(rGlob.getType(), null));
+			return;
+		}
+		
 	}
 	
 	AbstractPatternTypedVariable(IValueFactory vf, Environment env, org.eclipse.imp.pdb.facts.type.Type type, org.meta_environment.rascal.ast.Name name) {
 		super(vf, name);
 		this.name = name.toString();
-		Result<IValue> r = env.getLocalVariable(this.name);
-		if(r != null && r.getValue() != null){
-			throw new RedeclaredVariableError(this.name, name);
-		}
 		this.declaredType = type;
 		this.env = env;
 		this.anonymous = name.toString().equals("_");
+		
+		Result<IValue> r = env.getLocalVariable(name);
+		if(r != null){
+			if(r.getValue() != null){
+				throw new RedeclaredVariableError(this.name, name);
+			}
+			if(!r.getType().equivalent(type)){
+				throw new UnexpectedTypeError(r.getType(), type, name);
+			}
+			return;
+		}
+	
+		Result<IValue> rGlob = env.getVariable(name, this.name);
+		if(rGlob != null){
+			if(rGlob.getValue() != null){
+				throw new RedeclaredVariableError(this.name, name);
+			}
+			if(!rGlob.getType().equivalent(type)){
+				throw new UnexpectedTypeError(rGlob.getType(), type, name);
+			}
+			return;
+		}
+		
 	}
+
 	
 	@Override
 	public Type getType(Environment ev) {
@@ -1530,27 +1603,25 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 	public AbstractPattern visitExpressionQualifiedName(QualifiedName x) {
 		org.meta_environment.rascal.ast.QualifiedName name = x.getQualifiedName();
 		Type signature = ev.tf.tupleType(new Type[0]);
-		
+
 		Result<IValue> r = ev.peek().getVariable(name);
-		 if (r == null && scope.isTreeConstructorName(name, signature)) {
-			 return new AbstractPatternNode(vf, x, name, new java.util.ArrayList<AbstractPattern>());
-		 }
-		return new AbstractPatternQualifiedName(vf, env, name);
-	/*	 
-		
-		if(r != null){
-			if(r.getValue() != null){
-				 return new AbstractPatternQualifiedName(vf, env, x.getQualifiedName());
+
+		if (r != null) {
+			if (r.getValue() != null) {
+				// Previously declared and initialized variable
+				return new AbstractPatternQualifiedName(vf, env, name);
 			} else {
-				return new AbstractPatternTypedVariable(vf, env, r.getType(), name);
+				// Previously declared and uninitialized variable
+				return new AbstractPatternTypedVariable(vf, env, r.getType(),name);
 			}
 		}
-		
-		
-		 //throw new UndeclaredVariableError(name.toString(), x);
-		 //return new AbstractPatternQualifiedName(vf, env, x.getQualifiedName());
-		 return new AbstractPatternTypedVariable(vf, env, ev.tf.valueType(), name);
-		 */
+		if (scope.isTreeConstructorName(name, signature)) {
+			return new AbstractPatternNode(vf, x, name,
+					new java.util.ArrayList<AbstractPattern>());
+		}
+		// Completely fresh variable
+		return new AbstractPatternQualifiedName(vf, env, name);
+		//return new AbstractPatternTypedVariable(vf, env, ev.tf.valueType(), name);
 	}
 	
 	@Override
@@ -1558,6 +1629,7 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 		TypeEvaluator te = TypeEvaluator.getInstance();
 		return new AbstractPatternTypedVariable(vf, env, te.eval(x.getType(), env), x.getName());
 	}
+	
 	/*
 	 * The following constructs are not allowed in patterns
 	 */
