@@ -31,34 +31,51 @@ public class ScopeTests extends TestFramework {
 		runTest("{int n = 2; int n := 3;}");
 	}
 	
-	@Test(expected=RedeclaredVariableError.class)
-	public void localRedeclarationError5(){
-		runTest("{int n ; int n := 3;}");
+	@Test
+	public void localRedeclarationInt1(){
+		assertTrue(runTest("{int n ; int n := 3; n == 3;}"));
 	}
 	
-	@Test(expected=RedeclaredVariableError.class)
-	public void localRedeclarationError6(){
-		runTest("{int n; [int n] := 3;}");
-	}
-	
-	@Test(expected=RedeclaredVariableError.class)
-	public void localRedeclarationError7(){
-		runTest("{int n; [list[int] n] := 3;}");
+	@Test
+	public void localRedeclarationInt2(){
+		assertTrue(runTest("{int n; [int n] := [3]; n == 3;}"));
 	}
 	
 	@Test(expected=UnexpectedTypeError.class)
-	public void localRedeclarationError8(){
+	public void localRedeclarationError7(){
+		runTest("{int n; [list[int] n] := [1,2,3]; n == [1,2,3];}");
+	}
+	
+	@Test(expected=RedeclaredVariableError.class)
+	public void localRedeclarationListError(){
+		runTest("{list[int] n = [10,20]; [list[int] n] := [1,2,3]; n == [1,2,3];}");
+	}
+	
+	@Test
+	public void localRedeclarationList(){
+		assertTrue(runTest("{list[int] n; [list[int] n] := [1,2,3]; n == [1,2,3];}"));
+	}
+	
+	@Test(expected=UnexpectedTypeError.class)
+	public void localRedeclarationError9(){
 		runTest("{int n; /<n:[0-9]*>/ := \"123\";}");
 	}
 	
 	@Test(expected=RedeclaredVariableError.class)
-	public void localRedeclarationError9(){
-		runTest("{int n; L = [n | int n <- [1 .. 10]];}");
+	public void localRedeclarationComprehensionError(){
+		runTest("{int n = 5; L = [n | int n <- [1 .. 10]];}");
+	}
+	
+	@Test
+	public void localRedeclarationError10(){
+		assertTrue(runTest("{int n; L = [n | int n <- [1 .. 10]]; L == [1 .. 10];}"));
 	}
 	
 	@Test(expected=RedeclaredVariableError.class)
 	public void moduleRedeclarationError1(){
-		prepareModule("module XX int n = 1; int n = 2;");
+		prepareModule("module XX public int n = 1; public int n = 2;");
+		runTestInSameEvaluator("import XX;");
+		assertTrue(runTestInSameEvaluator("n == 1;"));
 	}
 	
 	@Test

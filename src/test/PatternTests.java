@@ -80,7 +80,7 @@ public class PatternTests extends TestFramework {
 	}
 	
 	@Test
-	public void matchExternalVars(){
+	public void matchExternalListVars(){
 		assertTrue(runTest("{int n; n := 3; n == 3;}"));
 		assertTrue(runTest("{list[int] L; ([1, L, 4, 5] := [1, 2, 3, 4, 5] && L == [2, 3]);}"));
 	}
@@ -244,9 +244,9 @@ public class PatternTests extends TestFramework {
 		runTest("{list[str] S = [\"a\"]; [1, S, 2] := [1,2,3];}");
 	}
 	
-	@Test(expected=UninitializedVariableError.class)
-	public void matchListError6() {
-		runTest("{list[int] S; [1, S, 2] := [1,2,3];}");
+	@Test
+	public void matchListExternalVar() {
+		runTest("{list[int] S; [1, S, 2] := [1,2,3]; S == [3];}");
 	}
 
 	@Test
@@ -438,8 +438,7 @@ public class PatternTests extends TestFramework {
 		assertFalse(runTestInSameEvaluator("({DATA A6, f({A6, b, set[DATA] SX4}), SX4} := {d, f({a,b,c}), a});"));
 		assertFalse(runTestInSameEvaluator("({DATA A7, f({A7, b, set[DATA] SX5}), SX5} := {c, f({a,b,c}), d});"));
 	}	
-	
-	
+
 	
 	@Test(expected=StaticError.class)
 	public void matchSetDoubleDeclError() {
@@ -466,9 +465,9 @@ public class PatternTests extends TestFramework {
 		runTest("{set[str] S = {\"a\"}; {1, S, 2} := {1,2,3};}");
 	}
 	
-	@Test(expected=UninitializedVariableError.class)
-	public void matchSetWrongElemError5() {
-		runTest("{set[int] S; {1, S, 2} := {1,2,3};}");
+	@Test
+	public void matchSetExternalVar() {
+		runTest("{set[int] S; {1, S, 2} := {1,2,3}; S == {3};}");
 	}
 
 	@Test
@@ -487,6 +486,11 @@ public class PatternTests extends TestFramework {
 		assertTrue(runTest("<_, \"abc\">  := <1, \"abc\">;"));
 		assertTrue(runTest("<1, _>        := <1, \"abc\">;"));
 		assertTrue(runTest("<_, _>        := <1, \"abc\">;"));
+	}
+	
+	@Test
+	public void matchTupleExternalVar(){
+		assertTrue(runTest("{tuple[int,int] T; T := <1,2>; T[0] == 1 && T[1] == 2;}"));
 	}
 
 	@Test
@@ -508,5 +512,98 @@ public class PatternTests extends TestFramework {
 	@Test(expected=StaticError.class)
 	public void UndeclaredTypeError(){
 		runTest("STRANGE X := 123;");
+	}
+	
+	@Test
+	public void listCount1(){
+		String cnt = 
+		      "int cnt(list[int] L){" +
+		      "  int count = 0;" +
+		      "  while ([int N, list[int] Ns] := L) { " +
+		      "         count = count + 1;" +
+		      "         L = tail(L);" +
+		      "  }" +
+		      "  return count;" +
+		      "}";
+	
+		prepare("import List;");
+		assertTrue(runTestInSameEvaluator("{" + cnt + "cnt([1,2,3]) == 3;}"));
+	}
+	
+	@Test
+	public void listCount2(){
+		String cnt = 
+		      "int cnt(list[int] L){" +
+		      "  int count = 0;" +
+		      "  while ([int N, list[int] _] := L) { " +
+		      "         count = count + 1;" +
+		      "         L = tail(L);" +
+		      "  }" +
+		      "  return count;" +
+		      "}";
+	
+		prepare("import List;");
+		assertTrue(runTestInSameEvaluator("{" + cnt + "cnt([1,2,3]) == 3;}"));
+	}
+	
+	@Test
+	public void listCount3(){
+		String cnt = 
+		      "int cnt(list[int] L){" +
+		      "  int count = 0;" +
+		      "  while ([N, list[int] _] := L) { " +
+		      "         count = count + 1;" +
+		      "         L = tail(L);" +
+		      "  }" +
+		      "  return count;" +
+		      "}";
+	
+		prepare("import List;");
+		assertTrue(runTestInSameEvaluator("{" + cnt + "cnt([1,2,3]) == 3;}"));
+	}
+	
+	@Test
+	public void setCount1(){
+		String cnt = 
+		      "int cnt(set[int] S){" +
+		      "  int count = 0;" +
+		      "  while ({int N, set[int] Ns} := S) { " +
+		      "         count = count + 1;" +
+		      "         S = S - {N};" +
+		      "  }" +
+		      "  return count;" +
+		      "}";
+	
+		assertTrue(runTestInSameEvaluator("{" + cnt + "cnt({1,2,3}) == 3;}"));
+	}
+	
+	@Test
+	public void setCount2(){
+		String cnt = 
+		      "int cnt(set[int] S){" +
+		      "  int count = 0;" +
+		      "  while ({int N, set[int] _} := S) { " +
+		      "         count = count + 1;" +
+		      "         S = S - {N};" +
+		      "  }" +
+		      "  return count;" +
+		      "}";
+	
+		assertTrue(runTestInSameEvaluator("{" + cnt + "cnt({1,2,3}) == 3;}"));
+	}
+	
+	@Test
+	public void setCount3(){
+		String cnt = 
+		      "int cnt(set[int] S){" +
+		      "  int count = 0;" +
+		      "  while ({N, set[int] _} := S) { " +
+		      "         count = count + 1;" +
+		      "         S = S - {N};" +
+		      "  }" +
+		      "  return count;" +
+		      "}";
+	
+		assertTrue(runTestInSameEvaluator("{" + cnt + "cnt({1,2,3}) == 3;}"));
 	}
 }

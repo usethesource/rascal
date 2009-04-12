@@ -50,19 +50,21 @@ public class RegExpTests extends TestFramework{
 	
 	@Test
 	public void nomatchWithLocalVariableError(){
-		assertTrue(runTest("{ str x = \"123\"; (/<x:[a-z]+>/ !:= \"abc\");}"));
+		assertTrue(runTest("{ str x = \"123\"; (/<x:[a-z]+>/ !:= \"abc\" && x == \"123\");}"));
 	}
 	
 	@Test 
-	public void matchWithExternalModuleVariable1(){
+	public void matchWithExternalModuleVariable(){
 		prepareModule("module XX str x = \"abc\";");
+		runTestInSameEvaluator("import XX;");
 		assertTrue(runTestInSameEvaluator("(/<x:[a-z]+>/ := \"abc\") && (x == \"abc\");"));
 	}
 	
 	@Test 
-	public void matchWithExternalModuleVariable2(){
-		prepareModule("module XX str x = \"abc\";");
-		assertTrue(runTest("(/<x:[a-z]+>/ !:= \"pqr\") && (x == \"abc\");"));
+	public void nomatchWithExternalModuleVariable(){
+		prepareModule("module XX public str x = \"abc\";");
+		runTestInSameEvaluator("import XX;");
+		assertTrue(runTestInSameEvaluator("(/<x:[a-z]+>/ !:= \"pqr\") && (x == \"abc\");"));
 	}
 	
 	@Test 
@@ -81,5 +83,37 @@ public class RegExpTests extends TestFramework{
 		assertTrue(runTest("/abc/i := \"ABC\";"));
 		
 	//TODO:	assertTrue(runTest("/ab.*c/m := \"ab\nc\";"));
+	}
+	
+	@Test
+	public void wordCount1(){
+	
+	String cnt = 
+		      "int cnt(str S){" +
+		      "  int count = 0;" +
+		      "  while (/^\\W*<word:\\w+><rest:.*$>/ := S) { " +
+		      "         count = count + 1;" +
+		      "         S = rest;" +
+		      "  }" +
+		      "  return count;" +
+		      "}";
+		assertTrue(runTest("{" + cnt + "cnt(\"abc def ghi\") == 3;}"));
+	}
+	
+	@Test
+	public void wordCount2(){
+	
+	String cnt = 
+		      "int cnt(str S){" +
+		      "  int count = 0;" +
+		      "  str word;" +
+		      "  str rest;" +
+		      "  while (/^\\W*<word:\\w+><rest:.*$>/ := S) { " +
+		      "         count = count + 1;" +
+		      "         S = rest;" +
+		      "  }" +
+		      "  return count;" +
+		      "}";
+		assertTrue(runTest("{" + cnt + "cnt(\"abc def ghi\") == 3;}"));
 	}
 }

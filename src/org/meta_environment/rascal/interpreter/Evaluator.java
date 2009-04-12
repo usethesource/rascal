@@ -12,6 +12,7 @@ import java.net.URL;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
@@ -385,7 +386,6 @@ public class Evaluator extends NullASTVisitor<Result> {
 		if (typeToSearchFor.isAbstractDataType()) {
 			typeToSearchFor = ((IConstructor) v).getConstructorType();
 		}
-		
 		java.util.List<org.meta_environment.rascal.ast.Rule> rules = heap.getRules(typeToSearchFor);
 		if(rules.isEmpty()){
 			return v;
@@ -439,6 +439,104 @@ public class Evaluator extends NullASTVisitor<Result> {
 		if (!given.isSubtypeOf(expected)){
 			throw new UnexpectedTypeError(expected, given, getCurrentAST());
 		}
+	}
+	
+	boolean mayOccurIn(Type small, Type large){
+		if(small.isVoidType())
+			return true;
+		if(large.isVoidType())
+			return false;
+		if(small.isValueType())
+			return true;
+		if(small.isSubtypeOf(large))
+			return true;
+		if(large.isListType() || large.isSetType())
+			return mayOccurIn(small,large.getElementType());
+		if(large.isMapType())
+			return mayOccurIn(small, large.getKeyType()) ||
+					mayOccurIn(small, large.getValueType());
+		if(large.isTupleType()){
+			for(int i = 0; i < large.getArity(); i++){
+				if(mayOccurIn(small, large.getFieldType(i)))
+						return true;
+			}
+			return false;
+		}
+		if(large.isConstructorType()){
+			for(int i = 0; i < large.getArity(); i++){
+				if(mayOccurIn(small, large.getFieldType(i)))
+						return true;
+			}
+			return false;
+		}
+		if(large.isAbstractDataType()){
+			if(small.isConstructorType() && small.getAbstractDataType().equivalent(large.getAbstractDataType()))
+					return true;
+			HashSet<Type> seen = new HashSet<Type>();
+			seen.add(large);
+			for(Type alt : peek().lookupAlternatives(large)){				
+				if(alt.isConstructorType()){
+					for(int i = 0; i < alt.getArity(); i++){
+						Type fType = alt.getFieldType(i);
+						if(seen.add(fType) && mayOccurIn(small, fType))
+								return true;
+					}
+				} else
+					throw new ImplementationError("ADT");
+				
+			}
+			return false;
+		}
+		return small.equivalent(large);
+	}
+	
+	boolean mayMatch(Type small, Type large){
+		if(small.equivalent(large))
+			return true;
+		if(small.isListType() && large.isListType() || 
+		   small.isSetType() && large.isSetType())
+			return mayMatch(small.getElementType(),large.getElementType());
+		if(small.isMapType() && large.isMapType())
+			return mayMatch(small.getKeyType(), large.getKeyType()) &&
+			        mayMatch(small.getKeyType(), large.getValueType());
+		if(small.isTupleType() && large.isTupleType()){
+			if(small.getArity() != large.getArity())
+					return false;
+			for(int i = 0; i < large.getArity(); i++){
+				if(mayMatch(small.getFieldType(i), large.getFieldType(i)))
+						return true;
+			}
+			return false;
+		}
+		if(small.isConstructorType() && large.isConstructorType()){
+			if(small.getName().equals(large.getName()))
+				return false;
+			for(int i = 0; i < large.getArity(); i++){
+				if(mayMatch(small.getFieldType(i), large.getFieldType(i)))
+						return true;
+			}
+			return false;
+		}
+		if(small.isAbstractDataType() && large.isAbstractDataType()){
+			if(!small.getAbstractDataType().equivalent(large.getAbstractDataType()))
+					return false;
+			HashSet<Type> seen = new HashSet<Type>();
+			seen.add(large);
+			for(Type alt : peek().lookupAlternatives(large)){				
+				if(alt.isConstructorType()){
+					for(int i = 0; i < alt.getArity(); i++){
+						Type fType = alt.getFieldType(i);
+						if(seen.add(fType) && mayMatch(small, fType))
+								return true;
+					}
+				} else
+					throw new ImplementationError("ADT");
+				
+			}
+			return false;
+		}
+		return false;
+		
 	}
 	
 	// Ambiguity ...................................................
@@ -607,6 +705,9 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result<IValue> r = nothing();
 
 		for (org.meta_environment.rascal.ast.Variable var : x.getVariables()) {
+			if(peek().getLocalVariable(var.getName()) != null){
+				throw new RedeclaredVariableError(var.getName().toString(), var);
+			}
 			if (var.isUnInitialized()) {  
 				throw new UninitializedVariableError(var.toString(), var);
 			} else {
@@ -710,8 +811,10 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result<IValue> r = ResultFactory.nothing();
 
 		for (org.meta_environment.rascal.ast.Variable var : x.getVariables()) {
-			if(peek().getLocalVariable(var.getName().toString()) != null){
-				throw new RedeclaredVariableError(var.getName().toString(), var);
+			String varAsString = var.getName().toString();
+			if(peek().getLocalVariable(varAsString) != null ||
+					peek().isRoot() && peek().getInnermostVariable(var.getName()) != null){
+				throw new RedeclaredVariableError(varAsString, var);
 			}
 			if (var.isUnInitialized()) {  // variable declaration without initialization
 				r = ResultFactory.makeResult(declaredType, null);
@@ -1466,7 +1569,11 @@ public class Evaluator extends NullASTVisitor<Result> {
     
     @Override
     public Result<IValue> visitExpressionNoMatch(NoMatch x) {
-    	return new MatchEvaluator(x.getPattern(), x.getExpression(), false, peek(), this).next();
+    	// Make sure that no bindings escape
+    	Environment newEnv = pushEnv();
+    	Result res =  new MatchEvaluator(x.getPattern(), x.getExpression(), false, newEnv, this).next();
+    	popUntil(newEnv);
+    	return res;
     }
 	
 	// ----- General method for matching --------------------------------------------------
@@ -2735,11 +2842,15 @@ public class Evaluator extends NullASTVisitor<Result> {
 			//System.err.println("GeneratorEvaluator.push, " + patexpr);
 		
 			Result<IValue> r = patexpr.accept(ev);
+			Type patType = pat.getType(evaluator.peek());
+			
 			// List
 			if(r.getType().isListType()){
 				if(vp.hasStrategy()) {
 					throw new UnsupportedOperationError(vp.toString(), r.getType(), vp);
 				}
+				if(!mayOccurIn(patType,r.getType().getElementType()))
+						throw new UnexpectedTypeError(patType, r.getType().getElementType(), vp.getPattern());
 				iterator = ((IList) r.getValue()).iterator();
 				
 			// Set
@@ -2747,6 +2858,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 				if(vp.hasStrategy()) {
 					throw new UnsupportedOperationError(vp.toString(), r.getType(), vp);
 				}
+				if(!mayOccurIn(patType,r.getType().getElementType()))
+					throw new UnexpectedTypeError(patType, r.getType().getElementType(), vp.getPattern());
 				iterator = ((ISet) r.getValue()).iterator();
 			
 			// Map
@@ -2754,6 +2867,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 				if(vp.hasStrategy()) {
 					throw new UnsupportedOperationError(vp.toString(), r.getType(), vp);
 				}
+				if(!mayOccurIn(patType,r.getType().getKeyType()))
+					throw new UnexpectedTypeError(patType, r.getType().getKeyType(), vp.getPattern());
 				iterator = ((IMap) r.getValue()).iterator();
 				
 			// Node and ADT
@@ -2770,11 +2885,15 @@ public class Evaluator extends NullASTVisitor<Result> {
 						throw new UnsupportedOperationError(vp.toString(), r.getType(), vp);
 					}
 				}
+				if(!mayOccurIn(patType, r.getType()))
+					throw new UnexpectedTypeError(patType, r.getType(), vp.getPattern());
 				iterator = new INodeReader((INode) r.getValue(), bottomup);
 			} else if(r.getType().isStringType()){
 				if(vp.hasStrategy()) {
 					throw new UnsupportedOperationError(vp.getStrategy().toString(), r.getType(), vp.getStrategy());
 				}
+				if(!r.getType().isSubtypeOf(patType))
+					throw new UnexpectedTypeError(patType, r.getType(), vp.getPattern());
 				iterator = new SingleIValueIterator(r.getValue());
 			} else {
 				throw new UnsupportedOperationError("generator", r.getType(), vp);
@@ -2784,7 +2903,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		@Override
 		public Type getType(){
 			return TypeFactory.getInstance().boolType();
-		}	
+		}
 		
 		@Override
 		public IValue getValue(){
@@ -2863,197 +2982,6 @@ public class Evaluator extends NullASTVisitor<Result> {
 			return new ExpressionAsGenerator(g,this);
 		}
 	}
-	
-//	class GeneratorEvaluator extends Result<IValue> {
-//		private boolean isValueProducer = false;
-//		private boolean isMatchPattern = false;
-//		private boolean firstTime = true;
-//		private boolean hasNext = true;
-//		private Environment pushedEnv;
-//		private MatchEvaluator matchEval;
-//		private org.meta_environment.rascal.ast.Expression expr;
-//		private MatchPattern pat;
-//		private org.meta_environment.rascal.ast.Expression patexpr;
-//		private Evaluator evaluator;
-//		private Iterator<?> iterator;
-//
-//		GeneratorEvaluator(Expression g, Evaluator ev){
-//			super(tf.boolType(), vf.bool(true));
-//			make(g, ev);
-//		}
-//		
-//		void make(Expression vp, Evaluator ev){
-//			evaluator = ev;
-//			if(vp.isValueProducer() || vp.isValueProducerWithStrategy()){
-//				isValueProducer = true;				
-//				
-//				pushedEnv = evaluator.pushEnv();
-//				pat = evalPattern(vp.getPattern());
-//				patexpr = vp.getExpression();
-//				//System.err.println("GeneratorEvaluator.push, " + patexpr);
-//			
-//				Result<IValue> r = patexpr.accept(ev);
-//				// List
-//				if(r.getType().isListType()){
-//					if(vp.hasStrategy()) {
-//						throw new UnsupportedOperationError(vp.toString(), r.getType(), vp);
-//					}
-//					iterator = ((IList) r.getValue()).iterator();
-//					
-//				// Set
-//				} else 	if(r.getType().isSetType()){
-//					if(vp.hasStrategy()) {
-//						throw new UnsupportedOperationError(vp.toString(), r.getType(), vp);
-//					}
-//					iterator = ((ISet) r.getValue()).iterator();
-//				
-//				// Map
-//				} else if(r.getType().isMapType()){
-//					if(vp.hasStrategy()) {
-//						throw new UnsupportedOperationError(vp.toString(), r.getType(), vp);
-//					}
-//					iterator = ((IMap) r.getValue()).iterator();
-//					
-//				// Node and ADT
-//				} else if(r.getType().isNodeType() || r.getType().isAbstractDataType()){
-//					boolean bottomup = true;
-//					if(vp.hasStrategy()){
-//						Strategy strat = vp.getStrategy();
-//	
-//						if(strat.isTopDown()){
-//							bottomup = false;
-//						} else if(strat.isBottomUp()){
-//								bottomup = true;
-//						} else {
-//							throw new UnsupportedOperationError(vp.toString(), r.getType(), vp);
-//						}
-//					}
-//					iterator = new INodeReader((INode) r.getValue(), bottomup);
-//				} else if(r.getType().isStringType()){
-//					if(vp.hasStrategy()) {
-//						throw new UnsupportedOperationError(vp.getStrategy().toString(), r.getType(), vp.getStrategy());
-//					}
-//					iterator = new SingleIValueIterator(r.getValue());
-//				} else {
-//					throw new ImplementationError("Unimplemented expression type " + r.getType() + " in generator");
-//				}
-//			} else if(vp.isMatch()){
-//				isMatchPattern = true;
-//				pushedEnv = evaluator.pushEnv();
-//				matchEval = new MatchEvaluator(vp.getPattern(), vp.getExpression(), true, pushedEnv, evaluator);
-//			} else if (vp.isNoMatch()){
-//			} else {
-//				System.err.println("GeneratorEvaluator, non-VP: " + vp);
-//				expr = vp;
-//			}
-//		}
-//		
-//		@Override
-//		public Type getType(){
-//			return TypeFactory.getInstance().boolType();
-//		}	
-//		
-//		@Override
-//		public IValue getValue(){
-//			if(firstTime){
-//				firstTime = false;
-//				return next().getValue();
-//			}
-//			return vf.bool(true);
-//		}
-//		
-//		@Override
-//		public boolean hasNext(){
-//			//System.err.println("GeneratorEvaluator.hasNext");
-//			if(isMatchPattern){
-//				if(hasNext){
-//					boolean hn = matchEval.hasNext();
-//					if(!hn){
-//						hasNext = false;
-//						//System.err.println("GeneratorEvaluator.pop, " + expr);
-//						evaluator.popUntil(pushedEnv);
-//					}
-//					return hn;
-//				}
-//			}
-//			if(isValueProducer){
-//				//System.err.println("GeneratorEvaluator.hasNext: " + patexpr);
-//				if(hasNext){
-//					boolean hn = pat.hasNext() || iterator.hasNext();
-//					if(!hn){
-//						hasNext = false;
-//						//System.err.println("GeneratorEvaluator.pop, " + patexpr);
-//						evaluator.popUntil(pushedEnv);
-//					}
-//					return hn;
-//				}
-//				return false;
-//			}
-//			return firstTime;
-//		}
-//
-//		@Override
-//		public Result next(){
-//			if(isMatchPattern){
-//				return matchEval.next();
-//			}
-//			if(isValueProducer){
-//				//System.err.println("getNext, trying pat " + pat);
-//				/*
-//				 * First, explore alternatives that remain to be matched by the current pattern
-//				 */
-//				while(pat.hasNext()){
-//					if(pat.next()){
-//						//System.err.println("return true");
-//						return new BoolResult(true, this);
-//					}
-//				}
-//				
-//				/*
-//				 * Next, fetch a new data element (if any) and create a new pattern.
-//				 */
-//				
-//				while(iterator.hasNext()){
-//					IValue v = (IValue) iterator.next();
-//					//System.err.println("getNext, try next from value iterator: " + v);
-//					pat.initMatch(v, peek());
-//					while(pat.hasNext()){
-//						if(pat.next()){
-//							//System.err.println("return true");
-//							return new BoolResult(true, this);						
-//						}	
-//					}
-//				}
-//				//System.err.println("next returns false and pops env");
-//				hasNext = false;
-//				evaluator.popUntil(pushedEnv);
-//				return new BoolResult(false);
-//			} else {
-//				if(firstTime){
-//					/* Evaluate expression only once */
-//					firstTime = false;
-//					Result<IValue> v = expr.accept(evaluator);
-//					if(v.getType().isBoolType() && v.getValue() != null){
-//						// FIXME: if result is of type void, you get a null pointer here.
-//						if (v.getValue().isEqual(vf.bool(true))) {
-//							return new BoolResult(true);
-//						}
-//						return new BoolResult(false);
-//					} else {
-//						throw new UnexpectedTypeError(tf.boolType(), v.getType(), expr);
-//					}
-//				} else {
-//					// After the first evaluation, we always return false;
-//					return new BoolResult(false);
-//				}
-//			}
-//		}
-//
-//		@Override
-//		public void remove() {
-//			throw new ImplementationError("remove() not implemented for GeneratorEvaluator");
-//		}
-//	}
 	
 	/*
 	 * ComprehensionWriter provides a uniform framework for writing elements

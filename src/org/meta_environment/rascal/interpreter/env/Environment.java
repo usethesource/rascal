@@ -114,7 +114,7 @@ public class Environment {
 	/**
 	 * Returns a variable from the innermost scope, if it exists.
 	 */
-	private Result<IValue> getInnermostVariable(Name name) {
+	public Result<IValue> getInnermostVariable(Name name) {
 		return getInnermostVariable(Names.name(name));
 	}
 

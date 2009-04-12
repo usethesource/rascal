@@ -43,7 +43,7 @@ public class AllDemoTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("demo::Calls::test();"));
 	}
 
-	@Ignore @Test
+	@Test
 	public void CarFDL() {
 		prepare("import demo::CarFDL;");
 		assertTrue(runTestInSameEvaluator("demo::CarFDL::test();"));
@@ -55,7 +55,7 @@ public class AllDemoTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("demo::Cycles::test();"));
 	}
 
-	@Ignore @Test
+	@Test
 	public void Dominators() {
 		prepare("import demo::Dominators;");
 		assertTrue(runTestInSameEvaluator("demo::Dominators::test();"));
