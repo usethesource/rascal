@@ -2,7 +2,7 @@
 package org.meta_environment.rascal.interpreter;
 
 import static org.meta_environment.rascal.interpreter.Utils.unescape;
-import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
+import static org.meta_environment.rascal.interpreter.result.ResultFactory.*;
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.nothing;
 
 import java.io.IOException;
@@ -207,9 +207,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 	enum PROGRESS   {Continuing, Breaking};
 	
 	
-	private static AbstractAST currentAST; // used in runtime errormessages
-											 // TODO: only Result needs this to be static
-	// TODO NOTE: AbstractAST MUST not be static; otherwise you can't run two interpreters simultaineously (at least not without the potential of something going wrong).
+	private AbstractAST currentAST; 	// used in runtime errormessages
+
 	private Profiler profiler;
 	private boolean doProfiling = false;
 	
@@ -263,14 +262,13 @@ public class Evaluator extends NullASTVisitor<Result> {
 		env.commit();
 	}
 	
-	public static void setCurrentAST(AbstractAST currentAST) {
-		Evaluator.currentAST = currentAST;
+	public void setCurrentAST(AbstractAST currentAST) {
+		this.currentAST = currentAST;
 	}
 
-	public static AbstractAST getCurrentAST() {
+	public AbstractAST getCurrentAST() {
 		return currentAST;
 	}
-
 
 	Environment peek() {
 		return this.callStack.peek();
@@ -371,7 +369,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		if (v != null) {
 			checkType(v.getType(), instance);
 		}
-		return makeResult(instance, v);
+		return makeResult(instance, v, getCurrentAST());
 	}
 	
 	
@@ -711,7 +709,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 					Map<Type,Type> bindings = new HashMap<Type,Type>();
 					declaredType.match(v.getType(), bindings);
 					declaredType = declaredType.instantiate(peek().getStore(), bindings);
-					r = makeResult(declaredType, v.getValue());
+					r = makeResult(declaredType, v.getValue(), getCurrentAST());
 					scopeStack.peek().storeInnermostVariable(var.getName(), r);
 				} else {
 					throw new UnexpectedTypeError(declaredType, v.getType(), var);
@@ -811,7 +809,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				throw new RedeclaredVariableError(varAsString, var);
 			}
 			if (var.isUnInitialized()) {  // variable declaration without initialization
-				r = ResultFactory.makeResult(declaredType, null);
+				r = ResultFactory.makeResult(declaredType, null, var);
 				peek().storeInnermostVariable(var.getName(), r);
 			} else {                     // variable declaration with initialization
 				Result<IValue> v = var.getInitial().accept(this);
@@ -821,7 +819,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 					declaredType.match(v.getType(), bindings);
 					declaredType = declaredType.instantiate(peek().getStore(), bindings);
 					// Was: r = makeResult(declaredType, applyRules(v.getValue()));
-					r = makeResult(declaredType, v.getValue());
+					r = makeResult(declaredType, v.getValue(), var);
 					peek().storeInnermostVariable(var.getName(), r);
 				} else {
 					throw new UnexpectedTypeError(declaredType, v.getType(), var);
@@ -980,7 +978,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			  candidate = peek().getConstructor(sortType, cons, signature);
 			}
 			else {
-			  return makeResult(tf.nodeType(), applyRules(vf.node(cons, actuals)));
+			  return makeResult(tf.nodeType(), applyRules(vf.node(cons, actuals)), getCurrentAST());
 			}
 		}
 		
@@ -990,10 +988,10 @@ public class Evaluator extends NullASTVisitor<Result> {
 			candidate.getFieldTypes().match(tf.tupleType(actuals), localBindings);
 			
 			return makeResult(candidate.getAbstractDataType().instantiate(new TypeStore(), localBindings), 
-					applyRules(candidate.make(vf, actuals)));
+					applyRules(candidate.make(vf, actuals)), getCurrentAST());
 		}
 		
-		return makeResult(tf.nodeType(), applyRules(vf.node(cons, actuals)));
+		return makeResult(tf.nodeType(), applyRules(vf.node(cons, actuals)), getCurrentAST());
 	}
 	
 	@Override
@@ -1156,7 +1154,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			Type resultType = nFields == 1 ? fieldTypes[0] : tf.tupleType(fieldTypes);
 			
 			// Was: return makeResult(resultType, applyRules(((ITuple)base.getValue()).select(selectedFields)));
-			return makeResult(resultType, ((ITuple)base.getValue()).select(selectedFields));
+			return makeResult(resultType, ((ITuple)base.getValue()).select(selectedFields), getCurrentAST());
 		}
 		if(base.getType().isRelationType()){
 			
@@ -1187,7 +1185,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			Type resultType = nFields == 1 ? tf.setType(fieldTypes[0]) : tf.relType(fieldTypes);
 			
 			//return makeResult(resultType, applyRules(((IRelation)base.getValue()).select(selectedFields)));	
-			return makeResult(resultType, ((IRelation)base.getValue()).select(selectedFields));	
+			return makeResult(resultType, ((IRelation)base.getValue()).select(selectedFields), getCurrentAST());	
 		}
 		
 		throw new UnsupportedOperationError("projection", base.getType(), x);
@@ -1329,7 +1327,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		if (receiver.getType().isTupleType()) {
 			IValue result = ((ITuple) receiver.getValue()).get(label);
 			Type type = ((ITuple) receiver.getValue()).getType().getFieldType(label);
-			return makeResult(type, result);
+			return makeResult(type, result, x);
 		}
 		else if (receiver.getType().isConstructorType() || receiver.getType().isAbstractDataType()) {
 			IConstructor cons = (IConstructor) receiver.getValue();
@@ -1344,7 +1342,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			}
 			
 			int index = node.getFieldIndex(label);
-			return makeResult(node.getFieldType(index), cons.get(index));
+			return makeResult(node.getFieldType(index), cons.get(index), x);
 		}
 		else {
 			throw new UndeclaredFieldError(label, receiver.getType(), x);
@@ -1364,7 +1362,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Type type = callStack.peek().getAnnotationType(receiver.getType(), label);
 		IValue value = ((IConstructor) receiver.getValue()).getAnnotation(label);
 		
-		return makeResult(type, value);
+		return makeResult(type, value, x);
 	}
 	
 	@Override
@@ -1400,7 +1398,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			if (subscript.getType().isSubtypeOf(keyType)) {
 				IValue result = ((IMap) receiver.getValue()).get(subscript.getValue());
 				Type type = receiver.getType().getValueType();
-				return makeResult(type, result);
+				return makeResult(type, result, x);
 			}
 			
 			throw new UnexpectedTypeError(keyType, subscript.getType(), x);
@@ -1602,20 +1600,20 @@ public class Evaluator extends NullASTVisitor<Result> {
 	@Override
 	public Result<IValue> visitLiteralReal(Real x) {
 		String str = x.getRealLiteral().toString();
-		return makeResult(tf.realType(), vf.real(str));
+		return makeResult(tf.realType(), vf.real(str), x);
 	}
 
 	@Override
 	public Result<IValue> visitLiteralBoolean(Boolean x) {
 		String str = x.getBooleanLiteral().toString();
-		return makeResult(tf.boolType(), vf.bool(str.equals("true")));
+		return makeResult(tf.boolType(), vf.bool(str.equals("true")), x);
 	}
 
 	@Override
 	public Result<IValue> visitLiteralString(
 			org.meta_environment.rascal.ast.Literal.String x) {
 		String str = x.getStringLiteral().toString();
-		return makeResult(tf.stringType(), vf.string(unescape(str, x, peek())));
+		return makeResult(tf.stringType(), vf.string(unescape(str, x, peek())), x);
 	}
 
 	
@@ -1624,7 +1622,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	public Result<IValue> visitIntegerLiteralDecimalIntegerLiteral(
 			DecimalIntegerLiteral x) {
 		String str = x.getDecimal().toString();
-		return makeResult(tf.integerType(), vf.integer(str));
+		return makeResult(tf.integerType(), vf.integer(str), x);
 	}
 	
 	@Override
@@ -1675,7 +1673,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		IListWriter w = resultType.writer(vf);
 		w.appendAll(results);
 		// Was: return makeResult(resultType, applyRules(w.done()));
-		return makeResult(resultType, w.done());
+		return makeResult(resultType, w.done(), x);
 	}
 
 	@Override
@@ -1706,7 +1704,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		ISetWriter w = resultType.writer(vf);
 		w.insertAll(results);
 		//Was: return makeResult(resultType, applyRules(w.done()));
-		return makeResult(resultType, w.done());
+		return makeResult(resultType, w.done(), x);
 	}
 
 	@Override
@@ -1734,7 +1732,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		w.putAll(result);
 		
 		//return makeResult(type, applyRules(w.done()));
-		return makeResult(type, w.done());
+		return makeResult(type, w.done(), x);
 	}
 	
 	@Override
@@ -1757,7 +1755,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 
 		//return makeResult(tf.tupleType(types), applyRules(vf.tuple(values)));
-		return makeResult(tf.tupleType(types), vf.tuple(values));
+		return makeResult(tf.tupleType(types), vf.tuple(values), x);
 	}
 	
 	@Override
@@ -1904,7 +1902,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		try {
 			URL url = new URL(urlText);
 			  ISourceLocation r = vf.sourceLocation(url, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn);
-			  return makeResult(tf.sourceLocationType(), r);
+			  return makeResult(tf.sourceLocationType(), r, x);
 //			  return result(tf.sourceLocationType(), r);
 		} catch (MalformedURLException e){
 			throw new SyntaxError("URL", x.getLocation());
@@ -1965,7 +1963,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			MatchPattern mp = evalPattern(pat);
 			mp.initMatch(subject, peek());
 			//System.err.println("matchAndEval: subject=" + subject + ", pat=" + pat);
-			peek().storeInnermostVariable("subject", makeResult(subject.getType(), subject));
+			peek().storeInnermostVariable("subject", makeResult(subject.getType(), subject, getCurrentAST()));
 			while(mp.hasNext()){
 				//System.err.println("matchAndEval: mp.hasNext()==true");
 				if(mp.next()){
@@ -2565,7 +2563,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 									DIRECTION.BottomUp,
 									PROGRESS.Continuing,
 									FIXEDPOINT.No);
-		return makeResult(tr.value.getType(), tr.value);
+		return makeResult(tr.value.getType(), tr.value, x);
 	}
 	
 	@Override
@@ -2606,7 +2604,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 		
 		TraverseResult tr = traverse(subject, new CasesOrRules(cases), direction, progress, fixedpoint);
-		return makeResult(subjectType, tr.value);
+		return makeResult(subjectType, tr.value, x);
 	}
 	
 	@Override
@@ -2674,11 +2672,11 @@ public class Evaluator extends NullASTVisitor<Result> {
 	public Result<IValue> visitExpressionIsDefined(IsDefined x) {
 		try {
 			x.getArgument().accept(this); // wait for exception
-			return makeResult(tf.boolType(), vf.bool(true));
+			return makeResult(tf.boolType(), vf.bool(true), x);
 			
 		} catch (org.meta_environment.rascal.interpreter.control_exceptions.Throw e) {
 			// TODO For now we accept any Throw here, restrict to NoSuchKey and NoSuchAnno?
-			return makeResult(tf.boolType(), vf.bool(false));
+			return makeResult(tf.boolType(), vf.bool(false), x);
 		}
 	}
 
@@ -2756,7 +2754,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		private Evaluator evaluator;
 
 		ExpressionAsGenerator(Expression g, Evaluator ev){
-			super(tf.boolType(), vf.bool(true));
+			super(tf.boolType(), vf.bool(true), null);
 			evaluator = ev;
 			expr = g;
 		}
@@ -2797,9 +2795,9 @@ public class Evaluator extends NullASTVisitor<Result> {
 				if(result.getType().isBoolType() && result.getValue() != null){
 					// FIXME: if result is of type void, you get a null pointer here.
 					if (result.getValue().isEqual(vf.bool(true))) {
-						return new BoolResult(true);
+						return new BoolResult(true, null, null);
 					}
-					return new BoolResult(false);
+					return new BoolResult(false, null, null);
 				} else {
 					throw new UnexpectedTypeError(tf.boolType(), result.getType(), expr);
 				}
@@ -2830,7 +2828,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		private Iterator<?> iterator;
 
 		ValueProducerAsGenerator(Expression vp, Evaluator ev){
-			super(tf.boolType(), vf.bool(true));
+			super(tf.boolType(), vf.bool(true), null);
 
 			evaluator = ev;
 			if(!(vp.isValueProducer() || vp.isValueProducerWithStrategy())){
@@ -2945,7 +2943,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			while(pat.hasNext()){
 				if(pat.next()){
 					//System.err.println("return true");
-					return new BoolResult(true, this);
+					return new BoolResult(true, this, null);
 				}
 			}
 			
@@ -2960,14 +2958,14 @@ public class Evaluator extends NullASTVisitor<Result> {
 				while(pat.hasNext()){
 					if(pat.next()){
 						//System.err.println("return true");
-						return new BoolResult(true, this);						
+						return new BoolResult(true, this, null);						
 					}	
 				}
 			}
 			//System.err.println("next returns false and pops env");
 			hasNext = false;
 			evaluator.popUntil(pushedEnv);
-			return new BoolResult(false);
+			return new BoolResult(false, null, null);
 		}
 
 		@Override
@@ -3044,8 +3042,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 		@Override
 		public Result<IValue> done() {
-			return (writer == null) ? makeResult(tf.listType(tf.voidType()), vf.list()) : 
-				makeResult(tf.listType(elementType1), writer.done());
+			return (writer == null) ? makeResult(tf.listType(tf.voidType()), vf.list(), resultExpr1) : 
+				makeResult(tf.listType(elementType1), writer.done(), resultExpr1);
 		}
 	}
 	
@@ -3073,8 +3071,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 		@Override
 		public Result<IValue> done() {
-			return (writer == null) ? makeResult(tf.setType(tf.voidType()), vf.set()) : 
-				makeResult(tf.setType(elementType1), writer.done());
+			return (writer == null) ? makeResult(tf.setType(tf.voidType()), vf.set(), resultExpr1) : 
+				makeResult(tf.setType(elementType1), writer.done(), resultExpr1);
 		}
 	}
 
@@ -3105,8 +3103,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 		@Override
 		public Result<IValue> done() {
-			return (writer == null) ? makeResult(tf.mapType(tf.voidType(), tf.voidType()), vf.map(tf.voidType(), tf.voidType()))
-					: makeResult(tf.mapType(elementType1, elementType2), writer.done());
+			return (writer == null) ? makeResult(tf.mapType(tf.voidType(), tf.voidType()), vf.map(tf.voidType(), tf.voidType()), resultExpr1)
+					: makeResult(tf.mapType(elementType1, elementType2), writer.done(), resultExpr1);
 		}
 	}
 	
@@ -3197,7 +3195,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		while (i >= 0 && i < size) {
 			if (gens[i].hasNext() && gens[i].next().isTrue()) {
 				if (i == size - 1) {
-					return new BoolResult(true);
+					return new BoolResult(true, null, null);
 				} else {
 					i++;
 					gens[i] = makeGenerator(generators.get(i));
@@ -3206,7 +3204,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				i--;
 			}
 		}
-		return new BoolResult(false);
+		return new BoolResult(false, null, null);
 	}
 	
 	@Override
@@ -3220,7 +3218,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		while (i >= 0 && i < size) {
 			if (gens[i].hasNext()) {
 				if (!gens[i].next().isTrue()) {
-					return new BoolResult(false);
+					return new BoolResult(false, null, null);
 				}
 				if (i < size - 1) {
 					i++;
@@ -3230,7 +3228,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				i--;
 			}
 		}
-		return new BoolResult(true);
+		return new BoolResult(true, null, null);
 	}
 	
 	// ------------ solve -----------------------------------------

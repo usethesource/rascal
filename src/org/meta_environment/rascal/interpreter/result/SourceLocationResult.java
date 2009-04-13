@@ -19,8 +19,8 @@ import org.meta_environment.rascal.ast.AbstractAST;
 
 public class SourceLocationResult extends ElementResult<ISourceLocation> {
 
-	protected SourceLocationResult(Type type, ISourceLocation loc) {
-		super(type, loc);
+	protected SourceLocationResult(Type type, ISourceLocation loc, AbstractAST ast) {
+		super(type, loc, ast);
 	}
 
 	@Override
@@ -33,31 +33,31 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store, AbstractAST ast) {
 		if (name.equals("length")) {
 			return makeResult(getTypeFactory().integerType(), getValueFactory()
-					.integer(getValue().getLength()));
+					.integer(getValue().getLength()), ast);
 		} 
 		else if (name.equals("offset")) {
 			return makeResult(getTypeFactory().integerType(), getValueFactory()
-					.integer(getValue().getOffset()));
+					.integer(getValue().getOffset()), ast);
 		} 
 		else if (name.equals("beginLine")) {
 			return makeResult(getTypeFactory().integerType(), getValueFactory()
-					.integer(getValue().getBeginLine()));
+					.integer(getValue().getBeginLine()), ast);
 		} 
 		else if (name.equals("beginColumn")) {
 			return makeResult(getTypeFactory().integerType(), getValueFactory()
-					.integer(getValue().getBeginColumn()));
+					.integer(getValue().getBeginColumn()), ast);
 		} 
 		else if (name.equals("endLine")) {
 			return makeResult(getTypeFactory().integerType(), getValueFactory()
-					.integer(getValue().getEndLine()));
+					.integer(getValue().getEndLine()), ast);
 		} 
 		else if (name.equals("endColumn")) {
 			return makeResult(getTypeFactory().integerType(), getValueFactory()
-					.integer(getValue().getEndColumn()));
+					.integer(getValue().getEndColumn()), ast);
 		} 
 		else if (name.equals("url")) {
 			return makeResult(getTypeFactory().stringType(), getValueFactory()
-					.string(getValue().getURL().toString()));
+					.string(getValue().getURL().toString()), ast);
 		} 
 		else {
 			throw new UndeclaredFieldError(name, getTypeFactory().sourceLocationType(), ast);
@@ -113,7 +113,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 		try {
 			URL url = new URL(urlText);
 			ISourceLocation nloc = getValueFactory().sourceLocation(url, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn);
-			return makeResult(getType(), nloc);
+			return makeResult(getType(), nloc, ast);
 		} 
 		catch (MalformedURLException e) {
 			throw new SyntaxError("URL", ast.getLocation());

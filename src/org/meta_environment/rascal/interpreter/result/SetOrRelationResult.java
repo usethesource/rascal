@@ -10,8 +10,8 @@ import org.meta_environment.rascal.ast.AbstractAST;
 
 public class SetOrRelationResult<T extends ISet> extends CollectionResult<T> {
 
-	SetOrRelationResult(Type type, T value) {
-		super(type, value);
+	SetOrRelationResult(Type type, T value, AbstractAST ast) {
+		super(type, value, ast);
 	}
 
 	protected <U extends IValue, V extends IValue> Result<U> elementOf(
@@ -26,25 +26,25 @@ public class SetOrRelationResult<T extends ISet> extends CollectionResult<T> {
 
 	@Override
 	protected <U extends IValue> Result<U> addSet(SetResult s, AbstractAST ast) {
-		return makeResult(type.lub(s.type), getValue().union(s.getValue()));
+		return makeResult(type.lub(s.type), getValue().union(s.getValue()), ast);
 	}
 
 	@Override
 	protected <U extends IValue> Result<U> addRelation(RelationResult s, AbstractAST ast) {
-		return makeResult(type.lub(s.type), getValue().union(s.getValue()));
+		return makeResult(type.lub(s.type), getValue().union(s.getValue()), ast);
 	}
 
 	@Override
 	protected <U extends IValue> Result<U> subtractSet(SetResult s, AbstractAST ast) {
 		// note the reverse subtract
-		return makeResult(getType().lub(s.getType()), s.getValue().subtract(getValue()));
+		return makeResult(getType().lub(s.getType()), s.getValue().subtract(getValue()), ast);
 	}
 
 	@Override
 	protected <U extends IValue> Result<U> subtractRelation(RelationResult s,
 			AbstractAST ast) {
 				// note the reverse subtract
-				return makeResult(getType().lub(s.getType()), s.getValue().subtract(getValue()));
+				return makeResult(getType().lub(s.getType()), s.getValue().subtract(getValue()), ast);
 			}
 
 	@Override
@@ -52,27 +52,27 @@ public class SetOrRelationResult<T extends ISet> extends CollectionResult<T> {
 			AbstractAST ast) {
 				Type tupleType = getTypeFactory().tupleType(that.type.getElementType(), type.getElementType());
 				// Note the reverse in .product
-				return makeResult(getTypeFactory().relTypeFromTuple(tupleType), that.getValue().product(getValue()));
+				return makeResult(getTypeFactory().relTypeFromTuple(tupleType), that.getValue().product(getValue()), ast);
 			}
 
 	@Override
 	protected <U extends IValue> Result<U> multiplySet(SetResult s, AbstractAST ast) {
 		Type tupleType = getTypeFactory().tupleType(s.type.getElementType(), type.getElementType());
 		// Note the reverse in .product
-		return makeResult(getTypeFactory().relTypeFromTuple(tupleType), s.getValue().product(getValue()));
+		return makeResult(getTypeFactory().relTypeFromTuple(tupleType), s.getValue().product(getValue()), ast);
 	}
 
 
 	
 	@Override
 	protected <U extends IValue> Result<U> intersectSet(SetResult s, AbstractAST ast) {
-		return makeResult(type.lub(s.type), getValue().intersect(s.getValue()));
+		return makeResult(type.lub(s.type), getValue().intersect(s.getValue()), ast);
 	}
 
 	@Override
 	protected <U extends IValue> Result<U> intersectRelation(RelationResult s,
 			AbstractAST ast) {
-				return makeResult(type.lub(s.type), getValue().intersect(s.getValue()));
+				return makeResult(type.lub(s.type), getValue().intersect(s.getValue()), ast);
 			}
 
 	@Override
@@ -84,12 +84,12 @@ public class SetOrRelationResult<T extends ISet> extends CollectionResult<T> {
 	protected <U extends IValue, V extends IValue> Result<U> addElement(
 			ElementResult<V> that, AbstractAST ast) {
 				Type newType = getTypeFactory().setType(that.getType().lub(getType().getElementType()));
-				return makeResult(newType, getValue().insert(that.getValue()));
+				return makeResult(newType, getValue().insert(that.getValue()), ast);
 			}
 
 	protected <U extends IValue, V extends IValue> Result<U> removeElement(
 			ElementResult<V> valueResult, AbstractAST ast) {
-				return makeResult(type, getValue().delete(valueResult.getValue()));
+				return makeResult(type, getValue().delete(valueResult.getValue()), ast);
 			}
 
 	@Override

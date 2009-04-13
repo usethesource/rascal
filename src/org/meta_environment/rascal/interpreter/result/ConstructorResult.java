@@ -14,8 +14,8 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 
 public class ConstructorResult extends NodeResult {
 
-	public ConstructorResult(Type type, IConstructor cons) {
-		super(type, cons);
+	public ConstructorResult(Type type, IConstructor cons, AbstractAST ast) {
+		super(type, cons, ast);
 	}
 	
 	@Override
@@ -33,7 +33,7 @@ public class ConstructorResult extends NodeResult {
 			throw RuntimeExceptionFactory.noSuchField(name, ast);
 		}				
 		int index = nodeType.getFieldIndex(name);
-		return makeResult(nodeType.getFieldType(index), getValue().get(index));
+		return makeResult(nodeType.getFieldType(index), getValue().get(index), ast);
 	}
 	
 	@Override
@@ -48,9 +48,9 @@ public class ConstructorResult extends NodeResult {
 		int index = nodeType.getFieldIndex(name);
 		Type fieldType = nodeType.getFieldType(index);
 		if (!repl.getType().isSubtypeOf(fieldType)) {
-			throw new UnexpectedTypeError(fieldType, repl.getType(), null);
+			throw new UnexpectedTypeError(fieldType, repl.getType(), ast);
 		}
-		return makeResult(getType(), getValue().set(index, repl.getValue()));
+		return makeResult(getType(), getValue().set(index, repl.getValue()), ast);
 	}
 
 	

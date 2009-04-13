@@ -12,12 +12,12 @@ import org.meta_environment.rascal.ast.AbstractAST;
 public class RealResult extends ElementResult<IReal> {
 	private static final int PRECISION = 80*80; // ONE PAGE OF DIGITS
 
-	public RealResult(IReal real) {
-		this(real.getType(), real);
+	public RealResult(IReal real, AbstractAST ast) {
+		this(real.getType(), real, ast);
 	}
 	
-	public RealResult(Type type, IReal real) {
-		super(type, real);
+	public RealResult(Type type, IReal real, AbstractAST ast) {
+		super(type, real, ast);
 	}
 	
 	@Override
@@ -84,7 +84,7 @@ public class RealResult extends ElementResult<IReal> {
 	
 	@Override
 	public <U extends IValue> Result<U> negative(AbstractAST ast) {
-		return makeResult(type, getValue().negate());
+		return makeResult(type, getValue().negate(), ast);
 	}
 	
 	
@@ -112,24 +112,24 @@ public class RealResult extends ElementResult<IReal> {
 	
 	@Override  
 	protected <U extends IValue> Result<U> addReal(RealResult n, AbstractAST ast) {
-		return makeResult(type, getValue().add(n.getValue()));
+		return makeResult(type, getValue().add(n.getValue()), ast);
 	}
 	
 	@Override 
 	protected <U extends IValue> Result<U> subtractReal(RealResult n, AbstractAST ast) {
 		// note the reverse subtraction.
-		return makeResult(type, n.getValue().subtract(getValue()));
+		return makeResult(type, n.getValue().subtract(getValue()), ast);
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> multiplyReal(RealResult n, AbstractAST ast) {
-		return makeResult(type, getValue().multiply(n.getValue()));
+		return makeResult(type, getValue().multiply(n.getValue()), ast);
 	}
 
 	@Override
 	protected <U extends IValue> Result<U> divideReal(RealResult n, AbstractAST ast) {
 		// note the reverse division
-		return makeResult(type, n.getValue().divide(getValue(), PRECISION));
+		return makeResult(type, n.getValue().divide(getValue(), PRECISION), ast);
 	}
 	
 	@Override

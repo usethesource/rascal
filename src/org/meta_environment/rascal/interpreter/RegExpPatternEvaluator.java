@@ -77,7 +77,7 @@ class RegExpPatternValue implements MatchPattern {
 				} else {
 					// Introduce an innermost variable that shadows the original one.
 					// This ensures that the original one becomes undefined again when matching is over
-					env.storeInnermostVariable(name, makeResult(localRes.getType(), null));
+					env.storeInnermostVariable(name, makeResult(localRes.getType(), null, ast));
 				}
 				continue;
 			}	
@@ -91,7 +91,7 @@ class RegExpPatternValue implements MatchPattern {
 				} else {
 					// Introduce an innermost variable that shadows the original one.
 					// This ensures that the original one becomes undefined agaian when matching is over
-					env.storeInnermostVariable(name, makeResult(globalRes.getType(), null));
+					env.storeInnermostVariable(name, makeResult(globalRes.getType(), null, ast));
 
 				}
 				continue;
@@ -152,7 +152,7 @@ class RegExpPatternValue implements MatchPattern {
 				 * of variables are not allowed. Otherwise we would have to check here for the
 				 * previous local value of the variable.
 				 */
-				env.storeVariable(name, makeResult(tf.stringType(), vf.string(bindings.get(name))));			
+				env.storeVariable(name, makeResult(tf.stringType(), vf.string(bindings.get(name)), ast));			
 			}
 			if(matches){
 				start = matcher.start();

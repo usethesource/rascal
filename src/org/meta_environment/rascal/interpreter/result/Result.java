@@ -11,7 +11,6 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
-import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
@@ -54,10 +53,10 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	protected T value;
 	private boolean isPublic;
 
-	protected Result(Type type, T value, Iterator<Result<IValue>> iter) {
+	protected Result(Type type, T value, Iterator<Result<IValue>> iter, AbstractAST ast) {
 		// Check for null in case of void result or uninit.
 		if (value != null && !value.getType().isSubtypeOf(type)) {
-			throw new UnexpectedTypeError(type, value.getType(), Evaluator.getCurrentAST());
+			throw new UnexpectedTypeError(type, value.getType(), ast);
 		}
 	
 	    this.type = type;
@@ -65,8 +64,8 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		this.value = value;
 	}
 	
-	protected Result(Type type, T value) {
-		this(type, value, null);
+	protected Result(Type type, T value, AbstractAST ast) {
+		this(type, value, null, ast);
 	}
 
 	/// The "result" interface
@@ -90,7 +89,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	}
 	
 	protected <U extends IValue> Result<U> makeIntegerResult(int i) {
-		return makeResult(getTypeFactory().integerType(), getValueFactory().integer(i));
+		return makeResult(getTypeFactory().integerType(), getValueFactory().integer(i), null);
 	}
 	
 	

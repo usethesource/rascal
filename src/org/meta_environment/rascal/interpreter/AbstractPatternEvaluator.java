@@ -151,7 +151,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 		hasNext = false;
 		//System.err.println("AbstractPatternLiteral.match: " + subject);
 		if (subject.getType().comparable(literal.getType())) {
-			return makeResult(subject.getType(), subject).equals(makeResult(literal.getType(), literal), ast).isTrue();
+			return makeResult(subject.getType(), subject, ast).equals(makeResult(literal.getType(), literal, ast), ast).isTrue();
 			// TODO move to call to Result.equals
 //			return Evaluator.equals(new Result(subject.getType(), subject), new Result(literal.getType(), literal));
 		}
@@ -1349,7 +1349,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 			// Is the variable still undefined?
 			if(debug)System.err.println("name= " + name + ", subject=" + subject + ",");
 			type = subject.getType();
-			env.storeInnermostVariable(name.toString(), makeResult(type, subject));
+			env.storeInnermostVariable(name.toString(), makeResult(type, subject, ast));
 			return true;
 		} else {
 			// ... or has it already received a value during matching?
@@ -1357,9 +1357,9 @@ class SingleElementGenerator implements Iterator<ISet> {
 			if(debug)System.err.println("AbstractPatternQualifiedName.match: " + name + ", subject=" + subject + ", value=" + varVal);
 			if (subject.getType().isSubtypeOf(varRes.getType())) {
 				if(debug) {
-					System.err.println("returns " + makeResult(subject.getType(),subject).equals(varRes));
+					System.err.println("returns " + makeResult(subject.getType(),subject, ast).equals(varRes));
 				}
-				return makeResult(subject.getType(),subject).equals(varRes, ast).isTrue();
+				return makeResult(subject.getType(),subject, ast).equals(varRes, ast).isTrue();
 			} else {
 				return false;
 			}
@@ -1399,7 +1399,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 			}
 			// Introduce an innermost variable that shadows the original one.
 			// This ensures that the original one becomes undefined again when matching is over
-			env.storeInnermostVariable(qname, makeResult(localRes.getType(), null));
+			env.storeInnermostVariable(qname, makeResult(localRes.getType(), null, ast));
 			return;
 		}
 		Result<IValue> globalRes = env.getVariable(qname);
@@ -1412,7 +1412,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 			}
 			// Introduce an innermost variable that shadows the original one.
 			// This ensures that the original one becomes undefined again when matching is over
-			env.storeInnermostVariable(qname, makeResult(globalRes.getType(), null));
+			env.storeInnermostVariable(qname, makeResult(globalRes.getType(), null, ast));
 			return;
 		}
 	}
@@ -1434,7 +1434,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 			}
 			// Introduce an innermost variable that shadows the original one.
 			// This ensures that the original one becomes undefined again when matching is over
-			env.storeInnermostVariable(name, makeResult(localRes.getType(), null));
+			env.storeInnermostVariable(name, makeResult(localRes.getType(), null, ast));
 			return;
 		}
 	
@@ -1448,7 +1448,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 			}
 			// Introduce an innermost variable that shadows the original one.
 			// This ensures that the original one becomes undefined again when matching is over
-			env.storeInnermostVariable(name, makeResult(globalRes.getType(), null));
+			env.storeInnermostVariable(name, makeResult(globalRes.getType(), null, ast));
 			return;
 		}
 	}
@@ -1486,7 +1486,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 		
 		if (subject.getType().isSubtypeOf(declaredType)) {
 			if(!anonymous)
-				env.storeInnermostVariable(name, makeResult(declaredType, subject));
+				env.storeInnermostVariable(name, makeResult(declaredType, subject, ast));
 			if(debug)System.out.println("matches");
 			return true;
 		}

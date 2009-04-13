@@ -21,8 +21,8 @@ import org.meta_environment.rascal.ast.AbstractAST;
 
 public class RelationResult extends SetOrRelationResult<IRelation> {
 
-		public RelationResult(Type type, IRelation rel) {
-			super(type, rel);
+		public RelationResult(Type type, IRelation rel, AbstractAST ast) {
+			super(type, rel, ast);
 		}
 
 		@Override
@@ -174,7 +174,7 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 					}
 				}
 			}
-			return makeResult(resultType, yieldSet ? wset.done() : wrel.done());
+			return makeResult(resultType, yieldSet ? wset.done() : wrel.done(), ast);
 		}
 
 		////
@@ -193,7 +193,7 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 		@Override
 		public  <U extends IValue> Result<U> transitiveClosure(AbstractAST ast) {
 			if (getValue().arity() == 0 || getValue().arity() == 2) {
-				return makeResult(type, getValue().closure());
+				return makeResult(type, getValue().closure(), ast);
 			}
 			throw new ArityError(2, getValue().arity(), ast);
 		}
@@ -202,7 +202,7 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 		@Override
 		public  <U extends IValue> Result<U> transitiveReflexiveClosure(AbstractAST ast) {
 			if (getValue().arity() == 0 || getValue().arity() == 2) {
-				return makeResult(type, getValue().closureStar());
+				return makeResult(type, getValue().closureStar(), ast);
 			}
 			throw new ArityError(2, getValue().arity(), ast);
 		}
@@ -216,7 +216,7 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 				for (IValue e : getValue()) {
 					w.insert(((ITuple) e).get(tupleType.getFieldIndex(name)));
 				}
-				return makeResult(getTypeFactory().setType(tupleType.getFieldType(name)), w.done());
+				return makeResult(getTypeFactory().setType(tupleType.getFieldType(name)), w.done(), ast);
 			}
 			// TODO: why catch this exception here?
 			catch (UndeclaredFieldException e) {
@@ -237,14 +237,14 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 			int rightArity = rightrelType.getArity();
 				
 			if (leftArity != 0 && leftArity != 2) {
-				throw new ArityError(2, leftArity, null);
+				throw new ArityError(2, leftArity, ast);
 			}
 				
 			if (rightArity != 0 && rightArity != 2) {
-				throw new ArityError(2, rightArity, null);
+				throw new ArityError(2, rightArity, ast);
 			}
 			Type resultType = leftrelType.compose(rightrelType);
-			return makeResult(resultType, left.getValue().compose(right.getValue()));
+			return makeResult(resultType, left.getValue().compose(right.getValue()), ast);
 		}
 
 		
@@ -262,7 +262,7 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 		<U extends IValue, V extends IValue> Result<U> insertTuple(TupleResult tuple, AbstractAST ast) {
 			// TODO: check arity 
 			Type newType = getTypeFactory().relTypeFromTuple(tuple.getType().lub(getType().getElementType()));
-			return makeResult(newType, (IRelation) getValue().insert(tuple.getValue()));
+			return makeResult(newType, (IRelation) getValue().insert(tuple.getValue()), ast);
 		}
 
 		@Override
@@ -294,7 +294,7 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 				}
 			}
 			Type resultType = getTypeFactory().relTypeFromTuple(tupleType);
-			return makeResult(resultType, writer.done());
+			return makeResult(resultType, writer.done(), ast);
 		}
 
 		@Override
@@ -321,7 +321,7 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 				}
 			}
 			Type resultType = getTypeFactory().relTypeFromTuple(resultTupleType);
-			return makeResult(resultType, writer.done());
+			return makeResult(resultType, writer.done(), ast);
 		}
 		
 		

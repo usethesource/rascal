@@ -13,20 +13,20 @@ import org.meta_environment.rascal.ast.AbstractAST;
 
 public class BoolResult extends ElementResult<IBool> {
 
-	public BoolResult(Type type, IBool bool) {
-		this(type, bool, null);
+	public BoolResult(Type type, IBool bool, AbstractAST ast) {
+		this(type, bool, null, ast);
 	}
 		
-	public BoolResult(Type type, IBool bool, Iterator<Result<IValue>> iter) {
-		super(type, bool, iter);
+	public BoolResult(Type type, IBool bool, Iterator<Result<IValue>> iter, AbstractAST ast) {
+		super(type, bool, iter, ast);
 	}
 	
-	public BoolResult(boolean b) {
-		this(TypeFactory.getInstance().boolType(), ValueFactoryFactory.getValueFactory().bool(b));
+	public BoolResult(boolean b, AbstractAST ast) {
+		this(TypeFactory.getInstance().boolType(), ValueFactoryFactory.getValueFactory().bool(b), ast);
 	}
 	
-	public BoolResult(boolean b, Iterator<Result<IValue>> iter){
-		this(TypeFactory.getInstance().boolType(), ValueFactoryFactory.getValueFactory().bool(b), iter);
+	public BoolResult(boolean b, Iterator<Result<IValue>> iter, AbstractAST ast){
+		this(TypeFactory.getInstance().boolType(), ValueFactoryFactory.getValueFactory().bool(b), iter, ast);
 	}
 	
 	@Override

@@ -16,8 +16,9 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 import org.meta_environment.rascal.ast.AbstractAST;
 
 public class ListResult extends CollectionResult<IList> {
-	public ListResult(Type type, IList list) {
-		super(type, list);
+	
+	public ListResult(Type type, IList list, AbstractAST ast) {
+		super(type, list, ast);
 	}
 		
 	@Override
@@ -95,7 +96,7 @@ public class ListResult extends CollectionResult<IList> {
 		if (index.intValue() >= getValue().length()) {
 			throw RuntimeExceptionFactory.indexOutOfBounds(index, ast);
 		}
-		return makeResult(getType().getElementType(), getValue().get(index.intValue()));
+		return makeResult(getType().getElementType(), getValue().get(index.intValue()), ast);
 	}
 
 	/////
@@ -103,7 +104,7 @@ public class ListResult extends CollectionResult<IList> {
 	@Override
 	protected <U extends IValue> Result<U> addList(ListResult l, AbstractAST ast) {
 		// Note the reverse concat
-		return makeResult(getType().lub(l.getType()), l.getValue().concat(getValue()));
+		return makeResult(getType().lub(l.getType()), l.getValue().concat(getValue()), ast);
 	}
 
 	@Override
@@ -115,7 +116,7 @@ public class ListResult extends CollectionResult<IList> {
 				list = list.delete(v);
 			}
 		}
-		return makeResult(l.getType(), list);
+		return makeResult(l.getType(), list, ast);
 	}
 
 	@Override
@@ -130,20 +131,20 @@ public class ListResult extends CollectionResult<IList> {
 				w.append(getValueFactory().tuple(v1, v2));	
 			}
 		}
-		return makeResult(type, w.done());	
+		return makeResult(type, w.done(), ast);	
 	}
 	
 	
 	@Override
 	<U extends IValue, V extends IValue> Result<U> insertElement(ElementResult<V> that, AbstractAST ast) {
 		Type newType = getTypeFactory().listType(that.getType().lub(getType().getElementType()));
-		return makeResult(newType, value.insert(that.getValue()));
+		return makeResult(newType, value.insert(that.getValue()), ast);
 	}
 	
 	<U extends IValue, V extends IValue> Result<U> appendElement(ElementResult<V> that, AbstractAST ast) {
 		// this is called by addLists in element types.
 		Type newType = getTypeFactory().listType(that.getType().lub(getType().getElementType()));
-		return makeResult(newType, value.append(that.getValue()));
+		return makeResult(newType, value.append(that.getValue()), ast);
 	}
 
 	<U extends IValue, V extends IValue> Result<U> removeElement(ElementResult<V> value, AbstractAST ast) {

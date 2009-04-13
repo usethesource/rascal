@@ -43,7 +43,7 @@ public abstract class BooleanEvaluator implements Iterator<Result<IValue>> {
 	}
 	
 	void defArg(int i){
-		Result argResult = expr[i].accept(evaluator);
+		Result<IValue> argResult = expr[i].accept(evaluator);
 		if(!argResult.getType().isBoolType()){
 			throw new UnexpectedTypeError(TypeFactory.getInstance().boolType(), argResult.getType(), expr[i]);
 		}
@@ -123,19 +123,19 @@ class AndEvaluator extends BooleanEvaluator {
 	public Result next() {
 		if(is(LEFT, false)){
 			if(!getNextResult(LEFT,true)){
-				return new BoolResult(false, this);
+				return new BoolResult(false, this, null);
 			}
 		}
 		if(is(LEFT, true)){
 			if(getNextResult(RIGHT,true)){
-				return new BoolResult(true, this);
+				return new BoolResult(true, this, null);
 			}
 			if(getNextResult(LEFT,true)){
 				redef(RIGHT);
 				return next();
 			}
 		}
-		return new BoolResult(false, this);
+		return new BoolResult(false, this, null);
 	}
 }
 
@@ -152,12 +152,12 @@ class OrEvaluator extends BooleanEvaluator {
 	@Override
 	public Result next() {	
 		if(getNextResult(LEFT, true)){
-			return new BoolResult(true, this);
+			return new BoolResult(true, this, null);
 		}
 		if(getNextResult(RIGHT,true)){
-			return new BoolResult(true, this);
+			return new BoolResult(true, this, null);
 		}
-		return new BoolResult(false, this);
+		return new BoolResult(false, this, null);
 			
 	}
 }
@@ -175,9 +175,9 @@ class NegationEvaluator extends BooleanEvaluator {
 	@Override
 	public Result next() {		
 		if(getNextResult(LEFT)){
-			return new BoolResult(!((IBool)result[LEFT].getValue()).getValue(), this);
+			return new BoolResult(!((IBool)result[LEFT].getValue()).getValue(), this, null);
 		}
-		return new BoolResult(false, this);
+		return new BoolResult(false, this, null);
 	}
 }
 
@@ -194,26 +194,26 @@ class ImplicationEvaluator extends BooleanEvaluator {
 	public Result next() {
 		if(is(LEFT,false)){
 			if(getNextResult(RIGHT)){
-				return new BoolResult(true, this);
+				return new BoolResult(true, this, null);
 			}
 			if(getNextResult(LEFT)){
 				redef(RIGHT);
 				return next();
 			} 
-			return new BoolResult(false, this);
+			return new BoolResult(false, this, null);
 		}
 		if(is(LEFT, true)){
 			if(getNextResult(RIGHT, true)){
-				return new BoolResult(true, this);
+				return new BoolResult(true, this, null);
 			}
 			if(getNextResult(LEFT)){
 				redef(RIGHT);
 				return next();
 			} 
-			return new BoolResult(false, this);
+			return new BoolResult(false, this, null);
 		}
 	
-		return new BoolResult(false, this);
+		return new BoolResult(false, this, null);
 	}
 }
 
@@ -231,26 +231,26 @@ class EquivalenceEvaluator extends BooleanEvaluator {
 	public Result next() {
 		if(is(LEFT,false)){
 			if(getNextResult(RIGHT,false)){
-				return new BoolResult(true, this);
+				return new BoolResult(true, this, null);
 			}
 			if(getNextResult(LEFT)){
 				redef(RIGHT);
 				return next();
 			} 
-			return new BoolResult(false, this);
+			return new BoolResult(false, this, null);
 		}
 		if(is(LEFT, true)){
 			if(getNextResult(RIGHT, true)){
-				return new BoolResult(true, this);
+				return new BoolResult(true, this, null);
 			}
 			if(getNextResult(LEFT)){
 				redef(RIGHT);
 				return next();
 			} 
-			return new BoolResult(false, this);
+			return new BoolResult(false, this, null);
 		}
 	
-		return  new BoolResult(false, this);
+		return  new BoolResult(false, this, null);
 	}
 }
 
@@ -297,9 +297,9 @@ class MatchEvaluator implements Iterator<Result<IValue>> {
 		//System.err.println("MatchEvaluator: next");
 		if(hasNext()){	
 			boolean result = positive ? mp.next() : !mp.next();
-			return new BoolResult(result, this);
+			return new BoolResult(result, this, null);
 		} else
-			return new BoolResult(!positive, this);
+			return new BoolResult(!positive, this, null);
 	}
 
 	public void remove() {

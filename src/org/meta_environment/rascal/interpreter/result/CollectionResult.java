@@ -13,8 +13,8 @@ public class CollectionResult<T extends IValue> extends ElementResult<T> {
 	 * etc.
 	 */
 
-	CollectionResult(Type type, T value) {
-		super(type, value);
+	CollectionResult(Type type, T value, AbstractAST ast) {
+		super(type, value, null, ast);
 	}
 
 	

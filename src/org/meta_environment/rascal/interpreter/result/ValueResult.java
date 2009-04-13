@@ -9,12 +9,12 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedOperation
 
 public class ValueResult extends ElementResult<IValue> {
 
-	public ValueResult(Type type, IValue value) {
-		super(type, value);
+	public ValueResult(Type type, IValue value, AbstractAST ast) {
+		super(type, value, ast);
 	}
 	
-	public ValueResult(Type type, IValue value, Iterator<Result<IValue>> iter) {
-		super(type, value, iter);
+	public ValueResult(Type type, IValue value, Iterator<Result<IValue>> iter, AbstractAST ast) {
+		super(type, value, iter, ast);
 	}
 	
 	@Override
@@ -224,8 +224,8 @@ public class ValueResult extends ElementResult<IValue> {
 		// do not implement a comparison (like [] == 1 compares a list to an int), 
 		// then we fall back to the comparison of type names.
 		try {
-			Result<?> aResult = ResultFactory.makeResult(a.getType(), a);
-			Result<?> bResult = ResultFactory.makeResult(b.getType(), b);
+			Result<?> aResult = ResultFactory.makeResult(a.getType(), a, ast);
+			Result<?> bResult = ResultFactory.makeResult(b.getType(), b, ast);
 			return aResult.compare(bResult, ast);
 		}
 		catch (UnsupportedOperationError e) {

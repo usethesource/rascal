@@ -13,7 +13,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariabl
 
 public final class Utils {
 	public static Result<IValue> truth(boolean b) {
-		return makeResult(TypeFactory.getInstance().boolType(), ValueFactoryFactory.getValueFactory().bool(b)); 
+		return makeResult(TypeFactory.getInstance().boolType(), ValueFactoryFactory.getValueFactory().bool(b), null); 
 	}
 	
 	public static String unescape(String str, AbstractAST ast, Environment env) {

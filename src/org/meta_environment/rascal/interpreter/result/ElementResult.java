@@ -98,7 +98,7 @@ public class ElementResult<T extends IValue> extends Result<T> {
 				IValue annotatedBase = ((IConstructor)getValue()).setAnnotation(annoName, anno.getValue());
 				
 				// TODO: applyRuels?
-				return makeResult(getType(), annotatedBase);
+				return makeResult(getType(), annotatedBase, ast);
 			}
 
 	@Override
@@ -114,7 +114,7 @@ public class ElementResult<T extends IValue> extends Result<T> {
 			throw RuntimeExceptionFactory.noSuchAnnotation(annoName, ast);
 		}
 		// TODO: applyRules?
-		return makeResult(annoType, annoValue);
+		return makeResult(annoType, annoValue, ast);
 	}
 	
 
@@ -125,8 +125,8 @@ public class ElementResult<T extends IValue> extends Result<T> {
 
 	
 	protected static int compareIValues(IValue left, IValue right, AbstractAST ast) {
-		Result<IValue> leftResult = makeResult(left.getType(), left);
-		Result<IValue> rightResult = makeResult(right.getType(), right);
+		Result<IValue> leftResult = makeResult(left.getType(), left, ast);
+		Result<IValue> rightResult = makeResult(right.getType(), right, ast);
 		Result<IValue> resultResult = leftResult.compare(rightResult, ast);
 		// compare always returns IntegerResult so we can cast its value.
 		return ((IInteger)resultResult.getValue()).intValue();
@@ -179,12 +179,12 @@ public class ElementResult<T extends IValue> extends Result<T> {
 		return 0;
 	}
 
-	public ElementResult(Type type, T value) {
-		super(type, value);
+	public ElementResult(Type type, T value, AbstractAST ast) {
+		super(type, value, ast);
 	}
 	
-	public ElementResult(Type type, T value, Iterator<Result<IValue>> iter) {
-		super(type, value, iter);
+	public ElementResult(Type type, T value, Iterator<Result<IValue>> iter, AbstractAST ast) {
+		super(type, value, iter, ast);
 	}
 	
 	protected <V extends IValue> int comparisonInts(Result<V> that, AbstractAST ast) {
