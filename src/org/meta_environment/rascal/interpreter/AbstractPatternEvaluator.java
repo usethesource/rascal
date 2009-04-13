@@ -1417,7 +1417,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 	private Environment env;
 
 	
-	// TODO: merge code of these constructors.
+	// TODO: merge code of the following two constructors.
 	
 	AbstractPatternTypedVariable(IValueFactory vf, Environment env, org.eclipse.imp.pdb.facts.type.Type type, org.meta_environment.rascal.ast.QualifiedName qname) {
 		super(vf, qname);
@@ -1426,33 +1426,32 @@ class SingleElementGenerator implements Iterator<ISet> {
 		this.env = env;
 		this.anonymous = qname.toString().equals("_");
 		
-		Result<IValue> r = env.getLocalVariable(qname);
-		if(r != null){
-			if(r.getValue() != null){
+		Result<IValue> localRes = env.getLocalVariable(qname);
+		if(localRes != null){
+			if(localRes.getValue() != null){
 				throw new RedeclaredVariableError(this.name, qname);
 			}
-			if(!r.getType().equivalent(type)){
-				throw new UnexpectedTypeError(r.getType(), type, qname);
+			if(!localRes.getType().equivalent(type)){
+				throw new UnexpectedTypeError(localRes.getType(), type, qname);
 			}
 			// Introduce an innermost variable that shadows the original one.
-			// This ensure that the original one becomes undefined agaian when matching is over
-			env.storeInnermostVariable(qname, makeResult(r.getType(), null));
+			// This ensures that the original one becomes undefined again when matching is over
+			env.storeInnermostVariable(qname, makeResult(localRes.getType(), null));
 			return;
 		}
-		Result<IValue> rGlob = env.getVariable(qname);
-		if(rGlob != null){
-			if(rGlob.getValue() != null){
+		Result<IValue> globalRes = env.getVariable(qname);
+		if(globalRes != null){
+			if(globalRes.getValue() != null){
 				throw new RedeclaredVariableError(this.name, qname);
 			}
-			if(!rGlob.getType().equivalent(type)){
-				throw new UnexpectedTypeError(rGlob.getType(), type, qname);
+			if(!globalRes.getType().equivalent(type)){
+				throw new UnexpectedTypeError(globalRes.getType(), type, qname);
 			}
 			// Introduce an innermost variable that shadows the original one.
-			// This ensure that the original one becomes undefined agaian when matching is over
-			env.storeInnermostVariable(qname, makeResult(rGlob.getType(), null));
+			// This ensures that the original one becomes undefined again when matching is over
+			env.storeInnermostVariable(qname, makeResult(globalRes.getType(), null));
 			return;
 		}
-		
 	}
 	
 	AbstractPatternTypedVariable(IValueFactory vf, Environment env, org.eclipse.imp.pdb.facts.type.Type type, org.meta_environment.rascal.ast.Name name) {
@@ -1462,30 +1461,34 @@ class SingleElementGenerator implements Iterator<ISet> {
 		this.env = env;
 		this.anonymous = name.toString().equals("_");
 		
-		Result<IValue> r = env.getLocalVariable(name);
-		if(r != null){
-			if(r.getValue() != null){
+		Result<IValue> localRes = env.getLocalVariable(name);
+		if(localRes != null){
+			if(localRes.getValue() != null){
 				throw new RedeclaredVariableError(this.name, name);
 			}
-			if(!r.getType().equivalent(type)){
-				throw new UnexpectedTypeError(r.getType(), type, name);
+			if(!localRes.getType().equivalent(type)){
+				throw new UnexpectedTypeError(localRes.getType(), type, name);
 			}
+			// Introduce an innermost variable that shadows the original one.
+			// This ensures that the original one becomes undefined again when matching is over
+			env.storeInnermostVariable(name, makeResult(localRes.getType(), null));
 			return;
 		}
 	
-		Result<IValue> rGlob = env.getVariable(name, this.name);
-		if(rGlob != null){
-			if(rGlob.getValue() != null){
+		Result<IValue> globalRes = env.getVariable(name, this.name);
+		if(globalRes != null){
+			if(globalRes.getValue() != null){
 				throw new RedeclaredVariableError(this.name, name);
 			}
-			if(!rGlob.getType().equivalent(type)){
-				throw new UnexpectedTypeError(rGlob.getType(), type, name);
+			if(!globalRes.getType().equivalent(type)){
+				throw new UnexpectedTypeError(globalRes.getType(), type, name);
 			}
+			// Introduce an innermost variable that shadows the original one.
+			// This ensures that the original one becomes undefined again when matching is over
+			env.storeInnermostVariable(name, makeResult(globalRes.getType(), null));
 			return;
 		}
-		
 	}
-
 	
 	@Override
 	public Type getType(Environment ev) {
