@@ -12,8 +12,8 @@ import org.meta_environment.rascal.ast.AbstractAST;
 
 public class IntegerResult extends ElementResult<IInteger> {
 
-	public IntegerResult(Type type, IInteger n) {
-		super(type, n);
+	public IntegerResult(Type type, IInteger n, AbstractAST ast) {
+		super(type, n, ast);
 	}
 	
 	
@@ -92,35 +92,35 @@ public class IntegerResult extends ElementResult<IInteger> {
 	
 	@Override
 	public <U extends IValue> Result<U> negative(AbstractAST ast) {
-		return makeResult(type, getValue().negate());
+		return makeResult(type, getValue().negate(), ast);
 	}
 	
 	@Override  
 	protected <U extends IValue> Result<U> addInteger(IntegerResult n, AbstractAST ast) {
-		return makeResult(type, getValue().add(n.getValue()));
+		return makeResult(type, getValue().add(n.getValue()), ast);
 	}
 	
 	@Override 
 	protected <U extends IValue> Result<U> subtractInteger(IntegerResult n, AbstractAST ast) {
 		// Note the reverse subtraction
-		return makeResult(type, n.getValue().subtract(getValue()));
+		return makeResult(type, n.getValue().subtract(getValue()), ast);
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> multiplyInteger(IntegerResult n, AbstractAST ast) {
-		return makeResult(type, getValue().multiply(n.getValue()));
+		return makeResult(type, getValue().multiply(n.getValue()), ast);
 	}
 
 	@Override
 	protected <U extends IValue> Result<U> divideInteger(IntegerResult n, AbstractAST ast) {
 		// note the reverse division.
-		return makeResult(type, n.getValue().divide(getValue()));
+		return makeResult(type, n.getValue().divide(getValue()), ast);
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> moduloInteger(IntegerResult n, AbstractAST ast) {
 		// note reverse
-		return makeResult(type, n.getValue().remainder(getValue()));
+		return makeResult(type, n.getValue().remainder(getValue()), ast);
 	}
 	
 	@Override  
@@ -164,7 +164,7 @@ public class IntegerResult extends ElementResult<IInteger> {
 				iFrom = iFrom.add(one);
 			}
 		}
-		return makeResult(getTypeFactory().listType(getTypeFactory().integerType()), w.done());
+		return makeResult(getTypeFactory().listType(getTypeFactory().integerType()), w.done(), ast);
 	}
 
 	@Override
@@ -192,7 +192,7 @@ public class IntegerResult extends ElementResult<IInteger> {
 				iFrom = iFrom.add(diff);
 			} while (iFrom.greaterEqual(iTo).getValue());
 		}
-		return makeResult(getTypeFactory().listType(getTypeFactory().integerType()), w.done());		
+		return makeResult(getTypeFactory().listType(getTypeFactory().integerType()), w.done(), ast);		
 	}
 	
 	@Override
@@ -200,7 +200,7 @@ public class IntegerResult extends ElementResult<IInteger> {
 		// note: reversed arguments
 		IInteger left = that.getValue();
 		IInteger right = this.getValue();
-		return makeResult(getTypeFactory().integerType(), getValueFactory().integer(left.compare(right)));
+		return makeResult(getTypeFactory().integerType(), getValueFactory().integer(left.compare(right)), ast);
 	}
 	
 	@Override
@@ -279,7 +279,7 @@ public class IntegerResult extends ElementResult<IInteger> {
 
 	
 	<U extends IValue> Result<U> widenToReal() {
-		return makeResult(getTypeFactory().realType(), getValue().toReal());
+		return makeResult(getTypeFactory().realType(), getValue().toReal(), null);
 	}
 	
 

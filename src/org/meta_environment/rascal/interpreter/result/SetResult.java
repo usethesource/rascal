@@ -12,8 +12,8 @@ import org.meta_environment.rascal.ast.AbstractAST;
 
 public class SetResult extends SetOrRelationResult<ISet> {
 
-	public SetResult(Type type, ISet set) {
-		super(type, set);
+	public SetResult(Type type, ISet set, AbstractAST ast) {
+		super(type, set, ast);
 	}
 	
 	@Override
@@ -113,7 +113,7 @@ public class SetResult extends SetOrRelationResult<ISet> {
 			}
 		}
 		Type resultType = getTypeFactory().relTypeFromTuple(resultTupleType);
-		return makeResult(resultType, writer.done());
+		return makeResult(resultType, writer.done(), ast);
 	}
 
 	@Override
@@ -123,6 +123,6 @@ public class SetResult extends SetOrRelationResult<ISet> {
 		Type tupleType = getTypeFactory().tupleType(that.getType().getElementType(), 
 				getType().getElementType());
 		return makeResult(getTypeFactory().relTypeFromTuple(tupleType),
-				that.getValue().product(getValue()));
+				that.getValue().product(getValue()), ast);
 	}
 }

@@ -72,7 +72,7 @@ public class Lambda extends Result<IValue> implements IValue {
 	
 	public Lambda(AbstractAST ast, Evaluator eval, Type returnType, String name, Type formals, boolean varargs, 
 				java.util.List<Statement> body, Environment env) {
-		super(ClosureType, null /*VF.constructor(ClosureType)*/);
+		super(ClosureType, null /*VF.constructor(ClosureType)*/, ast);
 		this.ast = ast;
 		this.eval = eval;
 		this.returnType = returnType;
@@ -172,7 +172,7 @@ public class Lambda extends Result<IValue> implements IValue {
 				throw new MissingReturnError(ast);
 			}
 
-			return ResultFactory.makeResult(TF.voidType(), null);
+			return ResultFactory.makeResult(TF.voidType(), null, ast);
 		}
 		catch (Return e) {
 			Result<IValue> result = e.getValue();
@@ -183,7 +183,7 @@ public class Lambda extends Result<IValue> implements IValue {
 				throw new UnexpectedTypeError(returnType, result.getType(), ast);
 			}
 
-			return ResultFactory.makeResult(instantiatedReturnType, result.getValue());
+			return ResultFactory.makeResult(instantiatedReturnType, result.getValue(), ast);
 		} 
 		catch (Failure e) {
 			throw new UnguardedFailError(ast);
@@ -199,7 +199,7 @@ public class Lambda extends Result<IValue> implements IValue {
 				result = (Lambda)actuals[i];
 			}
 			else {	
-				result = ResultFactory.makeResult(formal, actuals[i]);
+				result = ResultFactory.makeResult(formal, actuals[i], ast);
 			}
 //			System.out.println(i + ": Formal " + formals.getFieldName(i) + " actual " + actuals[i]);
 			env.storeInnermostVariable(formals.getFieldName(i), result);

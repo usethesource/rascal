@@ -16,8 +16,8 @@ import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeR
 
 public class TupleResult extends ElementResult<ITuple> {
 	
-	public TupleResult(Type type, ITuple tuple) {
-		super(type, tuple);
+	public TupleResult(Type type, ITuple tuple, AbstractAST ast) {
+		super(type, tuple, ast);
 	}
 
 	@Override
@@ -33,7 +33,7 @@ public class TupleResult extends ElementResult<ITuple> {
 			try {
 				int index = getType().getFieldIndex(name);
 				Type type = getType().getFieldType(index);
-				return makeResult(type, getValue().get(index));
+				return makeResult(type, getValue().get(index), ast);
 			} 
 			catch (UndeclaredFieldException e){
 				throw new UndeclaredFieldError(name, getType(), ast);
@@ -57,7 +57,7 @@ public class TupleResult extends ElementResult<ITuple> {
 		
 		Type elementType = getType().getFieldType(index.intValue());
 		IValue element = getValue().get(index.intValue());
-		return makeResult(elementType, element);
+		return makeResult(elementType, element, ast);
 	};
 	
 	@Override
@@ -132,7 +132,7 @@ public class TupleResult extends ElementResult<ITuple> {
 			}
 		}
 		Type newTupleType = getTypeFactory().tupleType(fieldTypes, fieldNames);
-		return makeResult(newTupleType, getValueFactory().tuple(fieldValues));
+		return makeResult(newTupleType, getValueFactory().tuple(fieldValues), ast);
 	}
 	
 	

@@ -13,8 +13,8 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 
 public class MapResult extends ElementResult<IMap> {
 	
-	public MapResult(Type type, IMap map) {
-		super(type, map);
+	public MapResult(Type type, IMap map, AbstractAST ast) {
+		super(type, map, ast);
 	}
 	
 	@Override 
@@ -50,7 +50,7 @@ public class MapResult extends ElementResult<IMap> {
 		if (v == null){
 			throw RuntimeExceptionFactory.noSuchKey(key.getValue(), ast);
 		}
-		return makeResult(getType().getValueType(), v);
+		return makeResult(getType().getValueType(), v, ast);
 	};
 	
 	@Override
@@ -112,19 +112,19 @@ public class MapResult extends ElementResult<IMap> {
 	@Override
 	protected <U extends IValue> Result<U> addMap(MapResult m, AbstractAST ast) {
 		// Note the reverse
-		return makeResult(getType().lub(m.getType()), m.value.join(value));
+		return makeResult(getType().lub(m.getType()), m.value.join(value), ast);
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> subtractMap(MapResult m, AbstractAST ast) {
 		// Note the reverse
-		return makeResult(m.getType(), m.getValue().remove(getValue()));
+		return makeResult(m.getType(), m.getValue().remove(getValue()), ast);
 	}
 	
 	@Override
 	protected <U extends IValue> Result<U> intersectMap(MapResult m, AbstractAST ast) {
 		// Note the reverse
-		return makeResult(m.getType(), m.getValue().common(getValue()));
+		return makeResult(m.getType(), m.getValue().common(getValue()), ast);
 	}
 
 	

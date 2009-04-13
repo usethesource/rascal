@@ -111,7 +111,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 	
 	private Result<IValue> newResult(IValue oldValue, Result<IValue> rhsValue){
 		if(oldValue != null){
-			Result<IValue> res = makeResult(oldValue.getType(), oldValue);
+			Result<IValue> res = makeResult(oldValue.getType(), oldValue, eval.getCurrentAST());
 			return newResult(res, rhsValue);
 		}
 		switch(operator){
@@ -183,7 +183,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 				int index = ((IInteger) subscript.getValue()).intValue();
 				value = newResult(list.get(index), value);
 				list = list.put(index, value.getValue());
-				result = makeResult(rec.getType(), list);
+				result = makeResult(rec.getType(), list, x);
 			}  
 			catch (java.lang.IndexOutOfBoundsException e){
 				throw RuntimeExceptionFactory.indexOutOfBounds((IInteger) subscript.getValue(), eval.getCurrentAST());
@@ -195,7 +195,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 			if (subscript.getType().isSubtypeOf(keyType)) {
 				value = newResult(((IMap) rec.getValue()).get(subscript.getValue()), value);
 				IMap map = ((IMap) rec.getValue()).put(subscript.getValue(), value.getValue());
-				result = makeResult(rec.getType(), map);
+				result = makeResult(rec.getType(), map, x);
 			}
 			else {
 				throw new UnexpectedTypeError(keyType, subscript.getType(), x);
@@ -210,7 +210,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 			}
 			value = newResult(node.get(index), value);
 			node = node.set(index, value.getValue());
-			result = makeResult(rec.getType(), node);
+			result = makeResult(rec.getType(), node, x);
 		} else {
 			throw new UnsupportedSubscriptError(rec.getType(), subscript.getType(), x);
 			// TODO implement other subscripts
@@ -248,7 +248,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 			}
 			value = newResult(((ITuple) receiver.getValue()).get(label), value);
 			IValue result = ((ITuple) receiver.getValue()).set(label, value.getValue());
-			return recur(x, makeResult(receiver.getType(), result));
+			return recur(x, makeResult(receiver.getType(), result, x));
 		}
 		else if (receiver.getType().isConstructorType() || receiver.getType().isAbstractDataType()) {
 			IConstructor cons = (IConstructor) receiver.getValue();
@@ -272,7 +272,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 			value = newResult(cons.get(index), value);
 			
 			IValue result = cons.set(index, value.getValue());
-			return recur(x, makeResult(receiver.getType(), result));
+			return recur(x, makeResult(receiver.getType(), result, x));
 		}
 		else if (receiver.getType().isSourceLocationType()){
 //			ISourceLocation loc = (ISourceLocation) receiver.getValue();
@@ -304,14 +304,14 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 		for (int i = 0; i < arguments.size(); i++) {
 			Type argType = tupleType.getFieldType(i);
 			IValue arg = tuple.get(i);
-			Result<IValue> result = makeResult(argType, arg);
+			Result<IValue> result = makeResult(argType, arg, x);
 			AssignableEvaluator ae = new AssignableEvaluator(env,null, result, eval);
 			Result<IValue> argResult = arguments.get(i).accept(ae);
 			results[i] = argResult.getValue();
 			resultTypes[i] = argResult.getType();
 		}
 		
-		return makeResult(eval.tf.tupleType(resultTypes), tupleType.make(eval.vf, results));
+		return makeResult(eval.tf.tupleType(resultTypes), tupleType.make(eval.vf, results), x);
 	}
 	
 	

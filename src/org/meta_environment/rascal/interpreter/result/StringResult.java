@@ -13,8 +13,8 @@ public class StringResult extends ElementResult<IString> {
 
 	private IString string;
 	
-	public StringResult(Type type, IString string) {
-		super(type, string);
+	public StringResult(Type type, IString string, AbstractAST ast) {
+		super(type, string, ast);
 		this.string = string;
 	}
 	
@@ -68,7 +68,7 @@ public class StringResult extends ElementResult<IString> {
 	@Override
 	protected <U extends IValue> Result<U> addString(StringResult s, AbstractAST ast) {
 		// Note the reverse concat.
-		return makeResult(type, s.getValue().concat(getValue()));
+		return makeResult(type, s.getValue().concat(getValue()), ast);
 	}	
 	
 	@Override

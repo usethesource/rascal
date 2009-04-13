@@ -16,8 +16,8 @@ import org.meta_environment.rascal.ast.AbstractAST;
 
 public class NodeResult extends ElementResult<INode> {
 
-	public NodeResult(Type type, INode node) {
-		super(type, node);
+	public NodeResult(Type type, INode node, AbstractAST ast) {
+		super(type, node, ast);
 	}
 
 	@Override
@@ -65,7 +65,7 @@ public class NodeResult extends ElementResult<INode> {
 			throw RuntimeExceptionFactory.indexOutOfBounds(index, ast);
 		}
 		Type elementType = getTypeFactory().valueType();
-		return makeResult(elementType, getValue().get(index.intValue()));
+		return makeResult(elementType, getValue().get(index.intValue()), ast);
 	}
 	
 	//////

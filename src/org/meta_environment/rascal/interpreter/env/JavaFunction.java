@@ -45,7 +45,7 @@ public class JavaFunction extends Lambda {
 
 		bindTypeParameters(actualTypes, formals, env); 
 		Type resultType = returnType.instantiate(env.getStore(), env.getTypeBindings());
-		return ResultFactory.makeResult(resultType, result);
+		return ResultFactory.makeResult(resultType, result, ast);
 	}
 	
 	public IValue invoke(IValue[] actuals) {
