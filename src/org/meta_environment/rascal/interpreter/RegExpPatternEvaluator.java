@@ -75,8 +75,9 @@ class RegExpPatternValue implements MatchPattern {
 				if(localRes.getValue() != null){
 					boundBeforeConstruction.put(name, ((IString)localRes.getValue()).getValue());
 				} else {
-					// Introduce shadow copy
-					env.storeInnermostVariable(name, null);
+					// Introduce an innermost variable that shadows the original one.
+					// This ensures that the original one becomes undefined again when matching is over
+					env.storeInnermostVariable(name, makeResult(localRes.getType(), null));
 				}
 				continue;
 			}	
@@ -88,8 +89,10 @@ class RegExpPatternValue implements MatchPattern {
 				if(globalRes.getValue() != null){
 					boundBeforeConstruction.put(name, ((IString)globalRes.getValue()).getValue());	
 				} else {
-					// Introduce shadow copy
-					env.storeInnermostVariable(name, null);
+					// Introduce an innermost variable that shadows the original one.
+					// This ensures that the original one becomes undefined agaian when matching is over
+					env.storeInnermostVariable(name, makeResult(globalRes.getType(), null));
+
 				}
 				continue;
 			}
