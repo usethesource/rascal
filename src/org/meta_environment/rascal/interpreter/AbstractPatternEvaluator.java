@@ -1334,7 +1334,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 		this.env = env;
 		// Look for this variable while we are constructing this pattern
 		if(anonymous){
-			type = TypeFactory.getInstance().voidType();
+			type = TypeFactory.getInstance().valueType();
 		} else {
 			Result<IValue> patRes = env.getVariable(name);
 			if(patRes == null || patRes.getValue() == null){
