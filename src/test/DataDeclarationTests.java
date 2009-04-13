@@ -99,6 +99,13 @@ public class DataDeclarationTests extends TestFramework {
 		runTestInSameEvaluator("Exp[value] x = tval2(3, \"abc\");");
 	}
 	
+	
+	@Test(expected=StaticError.class)
+	public void letWrongTypeViaAlias(){
+		prepare("alias Var2 = str;");
+		prepareMore("data Exp2 = let(Var2 var, Exp2 exp1, Exp2 exp2) | var(Var2 var) | \\int(int intVal);");
+		assertTrue(runTestInSameEvaluator("Var2 varx !:= let(\"a\",\\int(1),var(\"a\"));"));
+	}
 
 	@Test
 	public void let2() {
@@ -109,10 +116,8 @@ public class DataDeclarationTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{Exp2 e = var(\"a\"); e == var(\"a\");}"));
 		assertTrue(runTestInSameEvaluator("{Exp2 e = let(\"a\",\\int(1),var(\"a\")); e ==  let(\"a\",\\int(1),var(\"a\"));}"));
 		assertTrue(runTestInSameEvaluator("Var2 var := \"a\";"));
-		assertTrue(runTestInSameEvaluator("Var2 varx !:= let(\"a\",\\int(1),var(\"a\"));"));
 	}
 	
-
 	@Test(expected=org.meta_environment.rascal.interpreter.control_exceptions.Throw.class) 
 	public void boolError() {
 		prepare("data Bool = btrue | bfalse | band(Bool left, Bool right) | bor(Bool left, Bool right);");

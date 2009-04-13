@@ -11,17 +11,21 @@ import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariabl
 
 public class PatternTests extends TestFramework {
 
+	@Test(expected=StaticError.class)
+	public void cannotMatchListStr(){
+		assertFalse(runTest("[1] := \"a\";"));
+	}
+	
 	@Test
 	public void matchList1() {
 		
-		assertFalse(runTest("[1] := \"a\";"));
+		assertFalse(runTest("[] := [2];"));
+		assertFalse(runTest("[1] := [];"));
 
 		assertTrue(runTest("[] := [];"));
 		assertTrue(runTest("[1] := [1];"));
 		assertTrue(runTest("[1,2] := [1,2];"));
-
-		assertFalse(runTest("[] := [2];"));
-		assertFalse(runTest("[1] := [];"));
+		
 		assertFalse(runTest("[1] := [2];"));
 		assertFalse(runTest("[1,2] := [1,2,3];"));
 
@@ -273,6 +277,106 @@ public class PatternTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("({DATA A2, f([A2, b, DATA X11])} := {a, f([a,b,c])}) && (A2 == a);"));
 
 	}
+	
+	@Test(expected=StaticError.class)
+	public void matchBoolIntError1(){
+		assertFalse(runTest("true    := 1;"));
+	}
+	
+	@Test(expected=StaticError.class)
+	public void matchBoolIntError2(){
+		assertFalse(runTest("1    := true;"));
+	}
+	
+	@Test(expected=StaticError.class)
+	public void noMatchBoolIntError1(){
+		assertTrue(runTest("true     !:= 1;"));
+	}
+	
+	@Test(expected=StaticError.class)
+	public void noMatchBoolIntError2(){
+		assertTrue(runTest("1     !:= true;"));
+	}
+	
+	@Test(expected=StaticError.class)
+	public void matchStringBoolError1(){
+		assertFalse(runTest("\"abc\" := true;"));
+	}
+	
+	@Test(expected=StaticError.class)
+	public void matchStringBoolError2(){
+		assertFalse(runTest("true := \"abc\";"));
+	}
+	
+	@Test(expected=StaticError.class)
+	public void noMatchStringBoolError1(){
+		assertTrue(runTest("\"abc\"  !:= true;"));
+	}
+	
+	@Test(expected=StaticError.class)
+	public void noMatchStringBoolError2(){
+		assertTrue(runTest("true !:= \"abc\";"));
+	}
+	
+	@Test(expected=StaticError.class)
+	public void matchStringIntError1(){
+		assertFalse(runTest("\"abc\" := 1;"));
+	}
+	
+	@Test(expected=StaticError.class)
+	public void matchStringIntError2(){
+		assertFalse(runTest("1 := \"abc\";"));
+	}
+	
+	@Test(expected=StaticError.class)
+	public void noMatchStringIntError1(){
+		assertTrue(runTest("\"abc\"  !:= 1;"));
+	}
+	
+	@Test(expected=StaticError.class)
+	public void noMatchStringIntError2(){
+		assertTrue(runTest("1 !:= \"abc\";"));
+	}
+	
+	@Test(expected=StaticError.class)
+	public void matchStringRealError1(){
+		assertFalse(runTest("\"abc\" := 1.5;"));
+	}
+	
+	@Test(expected=StaticError.class)
+	public void matchStringRealError2(){
+		assertFalse(runTest("1.5 := \"abc\";"));
+	}
+	
+	@Test(expected=StaticError.class)
+	public void noMatchStringRealError1(){
+		assertTrue(runTest("\"abc\"  !:= 1.5;"));
+	}
+	
+	@Test(expected=StaticError.class)
+	public void noMatchStringRealError2(){
+		assertTrue(runTest("1.5 !:= \"abc\";"));
+	}
+	
+	@Test(expected=StaticError.class)
+	public void matchIntRealError1(){
+		assertFalse(runTest("2 := 1.5;"));
+	}
+	
+	@Test(expected=StaticError.class)
+	public void matchIntRealError2(){
+		assertFalse(runTest("1.5 := 2;"));
+	}
+	
+	@Test(expected=StaticError.class)
+	public void noMatchIntRealError1(){
+		assertTrue(runTest("2  !:= 1.5;"));
+	}
+	
+	@Test(expected=StaticError.class)
+	public void noMatchIntRealError2(){
+		assertTrue(runTest("1.5 !:= 2;"));
+	}
 
 	@Test
 	public void matchLiteral() {
@@ -280,42 +384,45 @@ public class PatternTests extends TestFramework {
 		assertTrue(runTest("true     := true;"));
 		assertFalse(runTest("true    := false;"));
 		assertTrue(runTest("true     !:= false;"));
-		assertFalse(runTest("true    := 1;"));
-		assertTrue(runTest("true     !:= 1;"));
-		assertFalse(runTest("\"abc\" := true;"));
-		assertTrue(runTest("\"abc\"  !:= true;"));
 
 		assertTrue(runTest("1        := 1;"));
 		assertFalse(runTest("2       := 1;"));
 		assertTrue(runTest("2        !:= 1;"));
-		assertFalse(runTest("true    := 1;"));
-		assertTrue(runTest("true     !:= 1;"));
-		assertFalse(runTest("1.0     := 1;"));
-		assertTrue(runTest("1.0      !:= 1;"));
-		assertFalse(runTest("\"abc\" := 1;"));
-		assertTrue(runTest("\"abc\"  !:= 1;"));
 
 		assertTrue(runTest("1.5      := 1.5;"));
 		assertFalse(runTest("2.5     := 1.5;"));
 		assertTrue(runTest("2.5      !:= 1.5;"));
-		assertFalse(runTest("true    := 1.5;"));
-		assertTrue(runTest("true     !:= 1.5;"));
-		assertFalse(runTest("2       := 1.5;"));
-		assertTrue(runTest("2        !:= 1.5;"));
+		
 		assertFalse(runTest("1.0     := 1.5;"));
 		assertTrue(runTest("1.0      !:= 1.5;"));
-		assertFalse(runTest("\"abc\" := 1.5;"));
-		assertTrue(runTest("\"abc\"  !:= 1.5;"));
 
 		assertTrue(runTest("\"abc\"  := \"abc\";"));
 		assertFalse(runTest("\"def\" := \"abc\";"));
 		assertTrue(runTest("\"def\"  !:= \"abc\";"));
-		assertFalse(runTest("true    := \"abc\";"));
-		assertTrue(runTest("true     !:= \"abc\";"));
-		assertFalse(runTest("1       := \"abc\";"));
-		assertTrue(runTest("1        !:= \"abc\";"));
-		assertFalse(runTest("1.5     := \"abc\";"));
-		assertTrue(runTest("1.5      !:= \"abc\";"));
+	}
+	
+	@Test(expected=StaticError.class)
+	public void matchADTStringError1(){
+		prepare("data F = f(int N) | f(int N, int M) | f(int N, value f, bool B) | g(str S);");
+		assertFalse(runTestInSameEvaluator("f(1) := \"abc\";"));
+	}
+	
+	@Test(expected=StaticError.class)
+	public void matchADTStringError2(){
+		prepare("data F = f(int N) | f(int N, int M) | f(int N, value f, bool B) | g(str S);");
+		assertFalse(runTestInSameEvaluator("\"abc\" := f(1);"));
+	}
+	
+	@Test(expected=StaticError.class)
+	public void noMatchADTStringError1(){
+		prepare("data F = f(int N) | f(int N, int M) | f(int N, value f, bool B) | g(str S);");
+		assertTrue(runTestInSameEvaluator("f(1) !:= \"abc\";"));
+	}
+	
+	@Test(expected=StaticError.class)
+	public void noMatchADTStringError2(){
+		prepare("data F = f(int N) | f(int N, int M) | f(int N, value f, bool B) | g(str S);");
+		assertTrue(runTestInSameEvaluator("\"abc\" !:= f(1);"));
 	}
 
 	@Test
@@ -323,15 +430,8 @@ public class PatternTests extends TestFramework {
 
 		prepare("data F = f(int N) | f(int N, int M) | f(int N, value f, bool B) | g(str S);");
 		
-		assertFalse(runTestInSameEvaluator("f(1)                   := \"a\";"));
 		assertTrue(runTestInSameEvaluator("f(1)                   := f(1);"));
 		assertTrue(runTestInSameEvaluator("f(1, g(\"abc\"), true) := f(1, g(\"abc\"), true);"));
-		assertFalse(runTestInSameEvaluator("1                     := f(1);"));
-		assertTrue(runTestInSameEvaluator("1                      !:= f(1);"));
-		assertFalse(runTestInSameEvaluator("1.5                   := f(1);"));
-		assertTrue(runTestInSameEvaluator("1.5                    !:= f(1);"));
-		assertFalse(runTestInSameEvaluator("\"abc\"               := f(1);"));
-		assertTrue(runTestInSameEvaluator("\"abc\"                !:= f(1);"));
 		assertFalse(runTestInSameEvaluator("g(1)                  := f(1);"));
 		assertTrue(runTestInSameEvaluator("g(1)                   !:= f(1);"));
 		assertFalse(runTestInSameEvaluator("f(1, 2)               := f(1);"));
@@ -346,12 +446,15 @@ public class PatternTests extends TestFramework {
 	public void NoDataDecl(){
 		runTest("f(1) := 1;");
 	}
+	
+	@Test(expected=StaticError.class)
+	public void matchSetStringError(){
+		assertFalse(runTest("{1} := \"a\";"));
+	}
 
 	@Test
 	public void matchSet1() {
 		
-		assertFalse(runTest("{1} := \"a\";"));
-
 		assertTrue(runTest("{} := {};"));
 		assertTrue(runTest("{1} := {1};"));
 		assertTrue(runTest("{1, 2} := {1, 2};"));
@@ -469,17 +572,30 @@ public class PatternTests extends TestFramework {
 	public void matchSetExternalVar() {
 		runTest("{set[int] S; {1, S, 2} := {1,2,3}; S == {3};}");
 	}
+	
+	@Test(expected=StaticError.class)
+	public void matchTupleStringError(){
+		assertFalse(runTest("<1>           := \"a\";"));
+	}
+	
+	@Test(expected=StaticError.class)
+	public void matchTupleArityError(){
+		assertFalse(runTest("<1,2>        := <1>;"));
+	}
+	
+	@Test(expected=StaticError.class)
+	public void noMatchTupleArityError(){
+		assertTrue(runTest("<1> !:= <1,2>;"));
+	}
 
 	@Test
 	public void matchTuple() {
 
-		assertFalse(runTest("<1>           := \"a\";"));
 		assertTrue(runTest("<1>           := <1>;"));
 		assertTrue(runTest("<1, \"abc\">  := <1, \"abc\">;"));
 		assertFalse(runTest("<2>          := <1>;"));
 		assertTrue(runTest("<2>           !:= <1>;"));
-		assertFalse(runTest("<1,2>        := <1>;"));
-		assertTrue(runTest("<1,2>         !:= <1>;"));
+		
 		assertFalse(runTest("<1, \"abc\"> := <1, \"def\">;"));
 		assertTrue(runTest("<1, \"abc\">  !:= <1, \"def\">;"));
 		
@@ -501,7 +617,6 @@ public class PatternTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("(n1 := 1) && (n1 == 1);"));
 		assertTrue(runTestInSameEvaluator("{int n2 = 1; (n2 := 1) && (n2 == 1);}"));
 		assertTrue(runTestInSameEvaluator("{int n3 = 1; (n3 !:= 2) && (n3 == 1);}"));
-		assertTrue(runTestInSameEvaluator("{int n4 = 1; (n4 !:= \"abc\") && (n4 == 1);}"));
 
 		assertTrue(runTestInSameEvaluator("(f(n5) := f(1)) && (n5 == 1);"));
 		assertTrue(runTestInSameEvaluator("{int n6 = 1; (f(n6) := f(1)) && (n6 == 1);}"));

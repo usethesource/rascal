@@ -491,8 +491,17 @@ public class Evaluator extends NullASTVisitor<Result> {
 	}
 	
 	boolean mayMatch(Type small, Type large){
+		//System.err.println("mayMatch: " + small + " " + large);
 		if(small.equivalent(large))
 			return true;
+	
+		if(small.isVoidType() || large.isVoidType())
+				return false;
+	
+		if(small.isSubtypeOf(large) || large.isSubtypeOf(small))
+				return true;
+	
+		
 		if(small.isListType() && large.isListType() || 
 		   small.isSetType() && large.isSetType())
 			return mayMatch(small.getElementType(),large.getElementType());
@@ -517,24 +526,12 @@ public class Evaluator extends NullASTVisitor<Result> {
 			}
 			return false;
 		}
-		if(small.isAbstractDataType() && large.isAbstractDataType()){
-			if(!small.getAbstractDataType().equivalent(large.getAbstractDataType()))
-					return false;
-			HashSet<Type> seen = new HashSet<Type>();
-			seen.add(large);
-			for(Type alt : peek().lookupAlternatives(large)){				
-				if(alt.isConstructorType()){
-					for(int i = 0; i < alt.getArity(); i++){
-						Type fType = alt.getFieldType(i);
-						if(seen.add(fType) && mayMatch(small, fType))
-								return true;
-					}
-				} else
-					throw new ImplementationError("ADT");
-				
-			}
-			return false;
-		}
+		if(small.isConstructorType() && large.isAbstractDataType())
+			return small.getAbstractDataType().equivalent(large);
+		if(small.isAbstractDataType() && large.isConstructorType())
+			return small.equivalent(large.getAbstractDataType());
+		
+		
 		return false;
 		
 	}
