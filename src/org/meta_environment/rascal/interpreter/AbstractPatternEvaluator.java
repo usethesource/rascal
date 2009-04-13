@@ -71,45 +71,8 @@ import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
-import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternError;
 
-/* package */ 
-/**
- * The MatchPattern  interface describes the standard way of applying a pattern to a subject:
- * 1. Create the MatchPattern
- * 2. Initialize the pattern with the subject to be matched.
- * 3. While hasNext() returns true: call match() do perform the actual pattern match.
- *
- */
-interface MatchPattern {
-	/**
-	 * @param env: the module scope
-	 * @return the Rascal type of this MatchPattern
-	 */
-	public Type getType(Environment env);
-	
-	/**
-	 * @param subject to be matched
-	 * @param ev the current evaluator
-	 */
-	public void initMatch(IValue subject, Environment ev);
-	
-	/**
-	 * @return true if this MatchPattern has more matches available
-	 */
-	public boolean hasNext();
-	
-	/**
-	 * @return true if the MatchPattern matches the subject
-	 */
-	public boolean next();
-	
-	/**
-	 * @return the variables that are bound in the pattern
-	 */
-	public java.util.List<String> getVariables();
-}
 
 /* package */ abstract class AbstractPattern implements MatchPattern {
 	protected AbstractAST ast = null;

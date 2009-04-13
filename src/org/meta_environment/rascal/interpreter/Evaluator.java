@@ -213,9 +213,6 @@ public class Evaluator extends NullASTVisitor<Result> {
 	private Profiler profiler;
 	private boolean doProfiling = false;
 	
-	// TODO: can we remove this?
-	protected MatchPattern lastPattern;	// The most recent pattern applied in a match
-	                                    	// For the benefit of string matching.
 	private TypeDeclarationEvaluator typeDeclarator = new TypeDeclarationEvaluator();
 	private java.util.List<IModuleLoader> loaders;
 	private java.util.List<ClassLoader> classLoaders;
@@ -1967,9 +1964,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		try {
 			MatchPattern mp = evalPattern(pat);
 			mp.initMatch(subject, peek());
-			lastPattern = mp;
 			//System.err.println("matchAndEval: subject=" + subject + ", pat=" + pat);
-			//peek().storeLocalVariable("subject", makeResult(subject.getType(), applyRules(subject)));
 			peek().storeInnermostVariable("subject", makeResult(subject.getType(), subject));
 			while(mp.hasNext()){
 				//System.err.println("matchAndEval: mp.hasNext()==true");
@@ -1978,7 +1973,14 @@ public class Evaluator extends NullASTVisitor<Result> {
 					try {
 						checkPoint(peek());
 						//System.err.println(stat.toString());
-						stat.accept(this);
+						try {
+							stat.accept(this);
+						} catch (org.meta_environment.rascal.interpreter.control_exceptions.Insert e){
+							// Make sure that the match pattern is set
+							if(e.getMatchPattern() == null)
+								e.setMatchPattern(mp);
+							throw e;
+						}
 						commit(peek());
 						return true;
 					} catch (Failure e){
@@ -2002,7 +2004,6 @@ public class Evaluator extends NullASTVisitor<Result> {
 		try {
 			MatchPattern mp = evalPattern(pat);
 			mp.initMatch(subject, peek());
-			lastPattern = mp;
 			//System.err.println("matchEvalAndReplace: subject=" + subject + ", pat=" + pat + ", conditions=" + conditions);
 
 			while(mp.hasNext()){
@@ -2020,7 +2021,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 						}
 						if(trueConditions){
 							//System.err.println("evaluating replacement expression: " + replacementExpr);
-							throw new org.meta_environment.rascal.interpreter.control_exceptions.Insert(replacementExpr.accept(this));		
+							throw new org.meta_environment.rascal.interpreter.control_exceptions.Insert(replacementExpr.accept(this), mp);		
 						}
 					} catch (Failure e){
 						//System.err.println("failure occurred");
@@ -2231,7 +2232,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 									}
 								}
 								if(trueConditions){
-									throw new org.meta_environment.rascal.interpreter.control_exceptions.Insert(repl.getReplacementExpression().accept(this));
+									throw new org.meta_environment.rascal.interpreter.control_exceptions.Insert(repl.getReplacementExpression().accept(this), mp);
 								}
 							
 							} else {
@@ -2275,6 +2276,9 @@ public class Evaluator extends NullASTVisitor<Result> {
 					if(repl.getType().isStringType()){
 						int start;
 						int end;
+						MatchPattern lastPattern = e.getMatchPattern();
+						if(lastPattern == null)
+							throw new ImplementationError("no last pattern known");
 						if(lastPattern instanceof RegExpPatternValue){
 							start = ((RegExpPatternValue)lastPattern).getStart();
 							end = ((RegExpPatternValue)lastPattern).getEnd();
