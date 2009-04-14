@@ -42,6 +42,7 @@ public abstract class BooleanEvaluator implements Iterator<Result<IValue>> {
 		result = new Result[] { null, null };
 	}
 	
+	@SuppressWarnings("unchecked")
 	void defArg(int i){
 		Result<IValue> argResult = expr[i].accept(evaluator);
 		if(!argResult.getType().isBoolType()){
@@ -119,6 +120,7 @@ class AndEvaluator extends BooleanEvaluator {
 		super(x.getLhs(), x.getRhs(), ev);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Result next() {
 		if(is(LEFT, false)){
@@ -149,6 +151,7 @@ class OrEvaluator extends BooleanEvaluator {
 		super(x.getLhs(), x.getRhs(), ev);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Result next() {	
 		if(getNextResult(LEFT, true)){
@@ -172,6 +175,7 @@ class NegationEvaluator extends BooleanEvaluator {
 		super(x.getArgument(), null, ev);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Result next() {		
 		if(getNextResult(LEFT)){
@@ -190,6 +194,7 @@ class ImplicationEvaluator extends BooleanEvaluator {
 		super(x.getLhs(), x.getRhs(), ev);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Result next() {
 		if(is(LEFT,false)){
@@ -227,6 +232,7 @@ class EquivalenceEvaluator extends BooleanEvaluator {
 		super(x.getLhs(), x.getRhs(), ev);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Result next() {
 		if(is(LEFT,false)){
@@ -292,6 +298,7 @@ class MatchEvaluator implements Iterator<Result<IValue>> {
 		return false;
 	}
 
+	@SuppressWarnings("unchecked")
 	public Result next() {
 		//System.err.println("MatchEvaluator: next");
 		if(hasNext()){	

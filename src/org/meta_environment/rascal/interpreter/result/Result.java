@@ -74,18 +74,8 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return value;
 	}
 	
-	@Deprecated
-	public void setValue(T value) {
-		this.value = value;
-	}
-	
 	public Type getType() { 
 		return type;
-	}
-	
-	@Deprecated
-	public void setType(Type type) {
-		this.type = type;
 	}
 	
 	protected <U extends IValue> Result<U> makeIntegerResult(int i) {

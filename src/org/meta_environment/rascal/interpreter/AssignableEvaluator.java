@@ -94,7 +94,8 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 			}
 		
 			if (newValue.getType().isSubtypeOf(oldValue.getType())) {
-				newValue.setType(oldValue.getType());
+				//newValue.setType(oldValue.getType());
+				newValue = makeResult(oldValue.getType(), newValue.getValue(),eval.getCurrentAST());
 				return newValue;
 			} else {
 				// TODO: I don't think this check uses static types only.
