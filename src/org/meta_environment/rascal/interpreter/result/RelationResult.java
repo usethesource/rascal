@@ -101,6 +101,7 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 		}
 		
 		
+		@SuppressWarnings("null")
 		@Override
 		public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts, AbstractAST ast) {
 			// TODO: must go to PDB
