@@ -201,6 +201,7 @@ public class TreeAdapter {
 	}
 	
 	// TODO this code breaks in the presence of cycles
+	@SuppressWarnings("null")
 	private IConstructor addPosInfo(IConstructor t, String filename, Position cur) throws MalformedURLException {
 		TreeAdapter tree = new TreeAdapter(t);
 		
