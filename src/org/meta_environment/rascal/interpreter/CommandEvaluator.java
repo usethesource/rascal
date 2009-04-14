@@ -53,6 +53,7 @@ import org.meta_environment.rascal.interpreter.result.Result;
 		return evaluator.eval(x.getStatement());
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public IValue visitCommandImport(Import x) {
 		Result r = x.getImported().accept(evaluator);
