@@ -145,6 +145,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 		// variable should be inserted in the local scope.
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public Result<IValue> visitAssignableAnnotation(Annotation x) {
 		String label = x.getAnnotation().toString();
@@ -167,6 +168,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 		//return recur(x, result);
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public Result<IValue> visitAssignableSubscript(Subscript x) {
 		Result<IValue> rec = x.getReceiver().accept(eval);
@@ -223,6 +225,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 		return x.getReceiver().accept(new AssignableEvaluator(env, null, result, eval));
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public Result<IValue> visitAssignableIfDefinedOrDefault(IfDefinedOrDefault x) {
 		Result<IValue> cond = x.getDefaultExpression().accept(eval);
@@ -235,6 +238,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public Result<IValue> visitAssignableFieldAccess(FieldAccess x) {
 		Result<IValue> receiver = x.getReceiver().accept(eval);

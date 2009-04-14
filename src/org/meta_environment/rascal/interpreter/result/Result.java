@@ -130,6 +130,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		throw new UnsupportedOperationError(operator, getType(), ast);
 	}
 	
+	@SuppressWarnings("unchecked")
 	protected <U extends IValue> Result<U> undefinedError(String operator, Result arg, AbstractAST ast) {
 		// TODO find source location
 		throw new UnsupportedOperationError(operator, getType(), arg.getType(), ast);

@@ -265,8 +265,7 @@ class MatchEvaluator implements Iterator<Result<IValue>> {
 	private Evaluator evaluator;
 	private Environment pushedEnv;
 	
-	// TODO: remove use of evaluator here! it's not good to have this dependency and the use
-	// of the "global" variable lastPattern complicates things a lot.
+	// TODO: remove use of evaluator here! it's not good to have this dependency
 	MatchEvaluator(Expression pat, Expression subject, boolean positive, Environment env, Evaluator ev){
     	this.positive = positive;
     	this.evaluator = ev;

@@ -45,7 +45,6 @@ class RegExpPatternValue implements MatchPattern {
 	
 	private int start;							// start of last match in current subject
 	private int end;							// end of last match in current subject
-	private boolean debug = false;
 	
 	private final Environment env;
 	private final TypeFactory tf = TypeFactory.getInstance();
