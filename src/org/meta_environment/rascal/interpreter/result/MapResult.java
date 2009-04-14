@@ -169,12 +169,12 @@ public class MapResult extends ElementResult<IMap> {
 		IMap right = this.getValue();
 		// TODO: this is not right; they can be disjoint
 		if (left.isEqual(right)) {
-			return makeIntegerResult(0);
+			return makeIntegerResult(0, ast);
 		}
 		if (left.isSubMap(left)) {
-			return makeIntegerResult(-1);
+			return makeIntegerResult(-1, ast);
 		}
-		return makeIntegerResult(1);
+		return makeIntegerResult(1, ast);
 	}
 	
 }

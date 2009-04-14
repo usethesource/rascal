@@ -158,15 +158,15 @@ public class TupleResult extends ElementResult<ITuple> {
 		ITuple right = this.getValue();
 		int compare = new Integer(left.arity()).compareTo(right.arity());
 		if (compare != 0) {
-			return makeIntegerResult(compare);
+			return makeIntegerResult(compare, ast);
 		}
 		for (int i = 0; i < left.arity(); i++) {
 			compare = compareIValues(left.get(i), right.get(i), ast);
 			if (compare != 0) {
-				return makeIntegerResult(compare);
+				return makeIntegerResult(compare, ast);
 			}
 		}
-		return makeIntegerResult(0);
+		return makeIntegerResult(0, ast);
 	}
 	
 	@Override

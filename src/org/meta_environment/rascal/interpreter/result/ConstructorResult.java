@@ -66,7 +66,7 @@ public class ConstructorResult extends NodeResult {
 		// Note reversed args
 		INode left = that.getValue();
 		INode right = this.getValue();
-		return makeIntegerResult(compareNodes(left, right, ast));
+		return makeIntegerResult(compareNodes(left, right, ast), ast);
 	}
 	
 	private int compareNodes(INode left, INode right, AbstractAST ast) {
