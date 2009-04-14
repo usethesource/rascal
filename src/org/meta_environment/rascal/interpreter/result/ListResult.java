@@ -210,15 +210,15 @@ public class ListResult extends CollectionResult<IList> {
 		IList right = this.getValue();
 		int compare = new Integer(left.length()).compareTo(right.length());
 		if (compare != 0) {
-			return makeIntegerResult(compare);
+			return makeIntegerResult(compare, ast);
 		}
 		for (int i = 0; i < left.length(); i++) {
 			compare = compareIValues(left.get(i), right.get(i), ast);
 			if (compare != 0) {
-				return makeIntegerResult(compare);
+				return makeIntegerResult(compare, ast);
 			}
 		}
-		return makeIntegerResult(0);
+		return makeIntegerResult(0, ast);
 	}
 
 	

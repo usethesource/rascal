@@ -214,7 +214,7 @@ public class ValueResult extends ElementResult<IValue> {
 	
 	private <U extends IValue, V extends IValue> Result<U> typeCompare(Result<V> that) {
 		int result = getType().toString().compareTo(that.getType().toString());
-		return makeIntegerResult(result);
+		return makeIntegerResult(result, null);
 	}
 	
 	private <U extends IValue> Result<U> dynamicCompare(IValue a, IValue b, AbstractAST ast) {
@@ -229,7 +229,7 @@ public class ValueResult extends ElementResult<IValue> {
 			return aResult.compare(bResult, ast);
 		}
 		catch (UnsupportedOperationError e) {
-			return makeIntegerResult(a.getType().toString().compareTo(b.getType().toString()));
+			return makeIntegerResult(a.getType().toString().compareTo(b.getType().toString()), ast);
 		}
 	}
 }

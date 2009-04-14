@@ -78,7 +78,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return type;
 	}
 	
-	protected <U extends IValue> Result<U> makeIntegerResult(int i) {
+	protected <U extends IValue> Result<U> makeIntegerResult(int i, AbstractAST ast) {
 		return makeResult(getTypeFactory().integerType(), getValueFactory().integer(i), null);
 	}
 	

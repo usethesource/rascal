@@ -207,7 +207,7 @@ public class RealResult extends ElementResult<IReal> {
 		IReal left = that.getValue();
 		IReal right = this.getValue();
 		int result = left.compare(right);
-		return makeIntegerResult(result);
+		return makeIntegerResult(result, ast);
 	}
 	
 	@Override

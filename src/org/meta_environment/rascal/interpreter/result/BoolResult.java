@@ -89,7 +89,7 @@ public class BoolResult extends ElementResult<IBool> {
 		boolean lb = left.getValue().getValue();
 		boolean rb = right.getValue().getValue();
 		int result = (lb == rb) ? 0 : ((!lb && rb) ? -1 : 1);
-		return makeIntegerResult(result);
+		return makeIntegerResult(result, ast);
 	}
 	
 	@Override

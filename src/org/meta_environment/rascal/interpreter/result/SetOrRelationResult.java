@@ -171,14 +171,14 @@ public class SetOrRelationResult<T extends ISet> extends CollectionResult<T> {
 	@Override
 	protected <U extends IValue> Result<U> compareSet(SetResult that, AbstractAST ast) {
 		// Note reversed args.
-		return makeIntegerResult(compareISets(that.getValue(), this.getValue(), ast));
+		return makeIntegerResult(compareISets(that.getValue(), this.getValue(), ast), ast);
 	}
 
 	@Override
 	protected <U extends IValue> Result<U> compareRelation(RelationResult that,
 			AbstractAST ast) {
 				// Note reversed args.
-				return makeIntegerResult(compareISets(that.getValue(), this.getValue(), ast));
+				return makeIntegerResult(compareISets(that.getValue(), this.getValue(), ast), ast);
 			}
 
 

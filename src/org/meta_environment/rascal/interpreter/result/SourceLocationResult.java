@@ -141,11 +141,11 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 		ISourceLocation left = that.getValue();
 		ISourceLocation right = this.getValue();
 		if (left.isEqual(right)) {
-			return makeIntegerResult(0);
+			return makeIntegerResult(0, ast);
 		}
 		int compare = left.getURL().toString().compareTo(right.getURL().toString());
 		if (compare != 0) {
-			return makeIntegerResult(compare);
+			return makeIntegerResult(compare, ast);
 		}
 		int lBeginLine = left.getBeginLine();
 		int rBeginLine = right.getBeginLine();
@@ -161,9 +161,9 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			
 		if ((lBeginLine > rBeginLine || (lBeginLine == rBeginLine && lBeginColumn > rBeginColumn)) &&
 				(lEndLine < rEndLine || ((lEndLine == rEndLine) && lEndColumn < rEndColumn))) {
-			return makeIntegerResult(-1);
+			return makeIntegerResult(-1, ast);
 		} 
-		return makeIntegerResult(1);
+		return makeIntegerResult(1, ast);
 	}
 	
 

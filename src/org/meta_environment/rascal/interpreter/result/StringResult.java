@@ -77,7 +77,7 @@ public class StringResult extends ElementResult<IString> {
 		IString left = that.getValue();
 		IString right = this.getValue();
 		int result = left.compare(right);
-		return makeIntegerResult(result);
+		return makeIntegerResult(result, ast);
 	}
 	
 	@Override
