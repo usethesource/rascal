@@ -73,7 +73,7 @@ public class ValueIOTests extends TestFramework {
 		String exp = "band(bor(btrue,bfalse),band(btrue,btrue))";
 		prepare("data Bool = btrue | bfalse | band(Bool left, Bool right) | bor(Bool left, Bool right);");
 		prepareMore("import ValueIO;");
-		prepareMore("writeValueToBinaryFile(\"xxx\", " + exp + ");");
-		assertTrue(runTestInSameEvaluator("{" + type + " N := readValueFromBinaryFile(\"xxx\"); N == " + exp + ";}"));
+		prepareMore("writeValueToTextFile(\"xxx\", " + exp + ");");
+		assertTrue(runTestInSameEvaluator("{" + type + " N := readValueFromTextFile(\"xxx\"); N == " + exp + ";}"));
 	}
 }
