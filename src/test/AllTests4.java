@@ -8,6 +8,7 @@ import test.StandardLibraryTests.RealTests;
 import test.StandardLibraryTests.RelationTests;
 import test.StandardLibraryTests.SetTests;
 import test.StandardLibraryTests.StringTests;
+import test.StandardLibraryTests.ValueIOTests;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
@@ -19,6 +20,7 @@ import test.StandardLibraryTests.StringTests;
 	SubscriptTests.class,
 	StatementTests.class,
 	TryCatchTests.class,
+	ValueIOTests.class,
 	VisitTests.class
 })
 
