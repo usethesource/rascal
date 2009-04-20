@@ -10,7 +10,7 @@ import org.junit.runners.Suite;
 	AllTests3.class,
 	AllTests4.class,
 	AllBenchmarks.class,
-	AllDemoTests.class,
+	AllDemoTests.class
         })
 public class All {
 
