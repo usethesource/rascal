@@ -1571,7 +1571,7 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 		Type signature = ev.tf.tupleType(new Type[0]);
 
 		Result<IValue> r = ev.peek().getVariable(name);
-
+//System.err.println("name = " + name.toString());
 		if (r != null) {
 			if (r.getValue() != null) {
 				// Previously declared and initialized variable

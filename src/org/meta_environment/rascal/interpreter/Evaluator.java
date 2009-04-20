@@ -878,7 +878,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	public Result<IValue> visitExpressionCallOrTree(CallOrTree x) {
 		 java.util.List<org.meta_environment.rascal.ast.Expression> args = x.getArguments();
 		 QualifiedName name = x.getQualifiedName();
-		 
+//System.err.println("CallOrTree: " + name.toString());
 		 IValue[] actuals = new IValue[args.size()];
 		 Type[] types = new Type[args.size()];
 
@@ -892,9 +892,11 @@ public class Evaluator extends NullASTVisitor<Result> {
 		 Type signature = tf.tupleType(types);
 		 
 		 if (isTreeConstructorName(name, signature)) {
+//			 System.err.println("constructor:" + name);
 			 return constructTree(name, actuals, signature);
 		 }
 		 else {
+//			 System.err.println("function: " + name);
 			 return call(name, actuals, signature);
 		 }
 	}
