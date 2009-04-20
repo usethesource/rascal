@@ -539,6 +539,27 @@ public class PatternTests extends TestFramework {
 		assertFalse(runTestInSameEvaluator("({DATA A6, f({A6, b, set[DATA] SX4}), SX4} := {d, f({a,b,c}), a});"));
 		assertFalse(runTestInSameEvaluator("({DATA A7, f({A7, b, set[DATA] SX5}), SX5} := {c, f({a,b,c}), d});"));
 	}	
+	
+	@Ignore @Test
+	public void matchConstructor1(){
+		prepare("data Bool = btrue | bfalse | band(Bool left, Bool right) | bor(Bool left, Bool right);");
+
+		//assertTrue(runTestInSameEvaluator("Bool::btrue := btrue;"));
+		assertTrue(runTestInSameEvaluator("btrue := btrue;"));
+		//assertTrue(runTestInSameEvaluator("Bool::band := band(btrue, bfalse);"));
+		assertTrue(runTestInSameEvaluator("band := band(btrue, bfalse);"));
+	}
+	
+	@Ignore @Test
+	public void matchConstructor2(){
+	
+		prepareModule("module Bool " +
+				  "data Bool = btrue | bfalse | band(Bool left, Bool right) | bor(Bool left, Bool right);");
+
+		assertTrue(runTestInSameEvaluator("import Bool;"));
+		assertTrue(runTestInSameEvaluator("btrue := btrue;"));
+		assertTrue(runTestInSameEvaluator("Bool::band := band(btrue, bfalse);"));
+	}
 
 	
 	@Test(expected=StaticError.class)
