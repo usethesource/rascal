@@ -2825,6 +2825,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		private boolean hasNext = true;
 		private Environment pushedEnv;
 		private MatchPattern pat;
+		private java.util.List<String> patVars;
 		private org.meta_environment.rascal.ast.Expression patexpr;
 		private Evaluator evaluator;
 		private Iterator<?> iterator;
@@ -2839,6 +2840,18 @@ public class Evaluator extends NullASTVisitor<Result> {
 				
 			pushedEnv = evaluator.pushEnv();
 			pat = evalPattern(vp.getPattern());
+			
+			// Collect all variables in the pattern and remove those that are 
+			// already defined in the current environment
+			
+			java.util.List<String> vars = pat.getVariables();
+		
+			patVars = new java.util.ArrayList<String>(vars.size());
+			for(String name : vars){
+				Result r = pushedEnv.getVariable(null, name);
+				if(r == null || r.getValue() == null)
+					patVars.add(name);
+			}
 			patexpr = vp.getExpression();
 			//System.err.println("GeneratorEvaluator.push, " + patexpr);
 		
@@ -2942,6 +2955,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			/*
 			 * First, explore alternatives that remain to be matched by the current pattern
 			 */
+			
 			while(pat.hasNext()){
 				if(pat.next()){
 					//System.err.println("return true");
@@ -2954,17 +2968,21 @@ public class Evaluator extends NullASTVisitor<Result> {
 			 */
 			
 			while(iterator.hasNext()){
+				// Nullify the variables set by the pattern
+				for(String var : patVars){
+					evaluator.peek().storeVariable(var,  ResultFactory.nothing());
+				}
 				IValue v = (IValue) iterator.next();
-				//System.err.println("getNext, try next from value iterator: " + v);
+				////System.err.println("getNext, try next from value iterator: " + v);
 				pat.initMatch(v, peek());
 				while(pat.hasNext()){
 					if(pat.next()){
 						//System.err.println("return true");
-						return new BoolResult(true, this, null);						
+					return new BoolResult(true, this, null);						
 					}	
 				}
 			}
-			//System.err.println("next returns false and pops env");
+			//aSystem.err.println("next returns false and pops env");
 			hasNext = false;
 			evaluator.popUntil(pushedEnv);
 			return new BoolResult(false, null, null);
