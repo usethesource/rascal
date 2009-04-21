@@ -10,7 +10,7 @@ RASCAL_PARSETABLE_FILE = $(prefix)/share/rascal.trm.tbl
 
 bin_SCRIPTS = rascal rascal-libpath
 
-CLEANFILES += rascal
+CLEANFILES += rascal rascal-libpath
 
 EXTRA_DIST += $(wildcard *.src)
 
