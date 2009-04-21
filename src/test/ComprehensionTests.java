@@ -25,8 +25,14 @@ public class ComprehensionTests extends TestFramework {
 		assertTrue(runTest("{ X | int X <- {1}} == {1};"));
 		assertTrue(runTest("{ X | int X <- [1]} == {1};"));
 		
+		assertTrue(runTest("{ X | X <- {1}} == {1};"));
+		assertTrue(runTest("{ X | X <- [1]} == {1};"));
+		
 		assertTrue(runTest("{ X | int X <- {1, 2}} == {1,2};"));
 		assertTrue(runTest("{ X | int X <- [1, 2]} == {1,2};"));
+		
+		assertTrue(runTest("{ X | X <- {1, 2}} == {1,2};"));
+		assertTrue(runTest("{ X | X <- [1, 2]} == {1,2};"));
 		
 		assertTrue(runTest("{ X | int X <- {1, 1, 1}} == {1};"));
 		assertTrue(runTest("{ X | int X <- [1, 1, 1]} == {1};"));
@@ -163,8 +169,10 @@ public class ComprehensionTests extends TestFramework {
 	@Test public void any()  {
 		
 		assertTrue(runTest("any(int X <- {1,2,3}, X > 2);"));
+		assertTrue(runTest("any(    X <- {1,2,3}, X > 2);"));
 		assertTrue(runTest("any(int X <- {1,2,3}, X > 2, X <10);"));
 		assertTrue(runTest("any(int X <- {1,2,3}, X > 2 && X <10);"));
+		assertTrue(runTest("any(    X <- {1,2,3}, X > 2 && X <10);"));
 		
 		assertTrue(runTest("any(int X <- [1,2,3], X > 2);"));
 		assertTrue(runTest("any(int X <- [1,2,3], X > 2, X < 10);"));
@@ -262,6 +270,7 @@ public class ComprehensionTests extends TestFramework {
 		
 		assertTrue(runTest("{L = [ X | int X <- {1, 2}]; (L == [1,2]) || (L == [2, 1]);}"));
 		assertTrue(runTest("[ X | int X <- [1, 2]] == [1,2];"));
+		assertTrue(runTest("[ X |     X <- [1, 2]] == [1,2];"));
 		
 		assertTrue(runTest("[ X | int X <- {1, 1, 1}] == [1];"));
 		assertTrue(runTest("[ X | int X <- [1, 1, 1]] == [1, 1, 1];"));
