@@ -255,7 +255,7 @@ public class Environment {
 			return variableEnvironment;
 		}
 		
-		if (parent.isRoot()) {
+		if (parent == null || parent.isRoot()) {
 			return variableEnvironment;
 		}
 		
