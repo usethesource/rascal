@@ -4,146 +4,150 @@ import demo::GenericFeatherweightJava::GFJ;
 import List;
 import IO;  
 
-// global class table
-public map[C,L] CT = (); 
+public Type Object = typeLit("Object",[]);
 
-public N Object = lit("Object",[]);
-public T ObjectType = \type(Object);  
+public map[Name,Type] ClassTable = (); 
   
-// representing method types
-alias MethodType = tuple[tuple[list[T Ys],list[T] Ps] YsPs, T U, list[T] Us];
-
-// type environment
-alias Delta = map[T v,T T];
- 
-// variable environment
-alias Gamma = map[x v, T T];  
-
-data Error = NoSuchMethod(m m) | NoSuchField(f f) | NoType(e e);
+alias MethodType = tuple[TypeParameters forall, Type returnType, list[Type] formals];
+alias Bounds     = map[Type var, Type bound];
+alias Env        = map[Name var, Type varType];  
+  
+data Error = NoSuchMethod(Name methodName) | NoSuchField(Name fieldType) | NoType(Expr expr);
     
-public rel[C,C] subclasses() { 
-  return { <CT[c].C,CT[c].extends.C> | C c <- CT }*;
+public rel[Name,Name] subclasses() { 
+  return { <c, CT[c].extends.className> | Name c <- CT }*;
 }
 
-public bool subclass(C c1, C c2) {
+public bool subclass(Name c1, Name c2) {
   return <c1,c2> in subclasses();
 }  
 
-// TODO check if this works  
-public rel[T,T] subtypes(Delta d) {
-  return { <l,s> | X x <- d, N n := d[x], L l := CT[n.C], s := inst(l.N, l.XsNs, n.Ts) }*;  
+public Type bound(Bounds bounds, Type t) {
+  if(typeVar(name) := t) return bounds[t];
+  return t;
+}  
+
+public bool subtype(Bounds bounds, Type sub, Type sup) {
+  if (sub == sup || sup == Object) return true;
+  if (sub == Object) return false;        
+  if (typeVar(name) := sub) return subtype(bounds[name], sup);
+  if (typeLit(name, actuals) := sub) {
+     Class def = ClassTable[name];
+     return subtype(inst(def.extends, def.formals.vars, actuals), sup);  
+  }  
 }
 
-public list[T] constructorTypes(T t) {
-  return CT[t.N.C].K.Tsfs.Ts;
+public list[Type] constructorTypes(Type t) {
+  return ClassTable[t.className].constr.args.types;
 }
 
-public bool subtype(Delta d, T t1, T t2) {
-  return <t1,t2> in subtypes(d);
-}
-  
-public bool subtypes(Delta d, list[T] t1, list[T] t2) {
+public bool subtypes(Bounds env, list[Type] t1, list[Type] t2) {
   if (length(t1) != length(t2)) return false;
-  if ((int i <- domain(t1)) && !subtype(d, t1[i], t2[i])) return false;
+  if ((int i <- domain(t1)) && !subtype(env, t1[i], t2[i])) return false;
   return true;
-}
+}    
       
-public tuple[list[T] ts,list[f] fs] fields(N n) {
-  if (n == Object) return <[],[]>;
+public FormalVars fields(Type t) {
+  if (t == Object) return <[],[]>;
   
-  L l = CT[n.C];
+  Class def = CT[t.className];
       
-  <sT,sf> = fields(inst(l.N, l.XsNs, n.Ts));
-  <tT,tf> = inst(l.Tsfs, l.XsNs, n.Ts);
+  <sT,sf> = fields(inst(def.super, def.formals.types, t.actuals));
+  <tT,tf> = inst(def.fields, def.formals.types, t.actuals);
   
   return <sT + tT, sf + tf>;
 }
 
-public T ftype(N n, f f) {
-  fields = fields(n);
-  if (int i <- domain(fields.fs) && fields.fs[i] == f) return fields.ts[i];
+public T ftype(Type t, name fieldName) {
+  fields = fields(fieldName);
+  if (int i <- domain(fields.names) && fields.names[i] == fieldName) return fields.types[i];
 }
 
-public map[T,T] bindings(tuple[list[T] Xs, list[T] Ns] formals, list[T] actuals ) {
-  return (formals.Xs[i] : actuals[i] | int i <- domain(formals.Xs));  
+public map[T,T] bindings(FormalVars formals, list[Type] actuals ) {
+  return (formals.types[i] : actuals[i] | int i <- domain(formals.names));  
 }  
 
-
-
-public &T inst(&T arg, tuple[list[T] Xs, list[T] Ns] formals, list[T] actuals) {
-  map[T,T] subs = bindings(formals, actuals);
-  return visit (arg) { case T t => subs[t] ? t };
+public &T inst(&T arg, FormalVars formals, list[Type] actuals) {
+  map[Type,Type] subs = bindings(formals, actuals);
+  return visit (arg) { case Type t => subs[t] ? t };
 }
 
-public MethodType mtype(m name, N n) {
-   list[tuple[X,N]] let;
-   L l = CT[n.C];
+public MethodType mtype(Name methodName, Type t) {
+   if (t == Object) throw NoSuchMethod(methodName);
 
-   if (n == Object) throw NoSuchMethod(name);
+   Class def = ClassTable[t.className];
 
-   // find a method with the same name using list matching  
-   methods = CT[n.C].Ms; 
-   if (int i <- domain(methods) && methods[i].m == name) {
-     return inst(<methods[i].XsNs, methods[i].T, methods[i].Tsxs.Ts>, l.XsNs, n.Ts);
+   if (int i <- domain(def.methods) && def.methods[i].name == methodName) {
+     return inst(<methods[i].formalTypes, methods[i].returnType, methods[i].formals.types>, def.formals.types, t.actuals);
    }
    else { // if not found, go to super class
-     return mtype(name, inst(l.extends, l.formals, n.params));    
+     return mtype(name, inst(def.extends, def.formals.types, t.actuals));    
    } 
 }   
 
-public e mbody(m name, list[T] bindings, N n) {
-   list[tuple[X,N]] let;
-   L l = CT[n.name];
+public Expr mbody(Name methodName, list[Type] bindings, Type t) {
+   if (n == Object) throw NoSuchMethod(methodName);
 
-   if (n == Object) throw NoSuchMethod(name);
+   Class def = ClassTable[t.className];
 
-   ms = CT[n.name].methods;
-   if (int i <- domain(ms) && ms[i].m == name) 
-     return inst(inst(expr, l.formals, n.params), ms[i].XsNs, bindings);
-   else
-     return mtype(name, inst(l.extends, l.formals, n.params));     
+   if (int i <- domain(def.methods) && def.methods[i].name == methodName) { 
+     return inst(inst(expr, def.formals.types, t.actuals), def.methods[i].formalTypes, bindings);
+   }
+   else {
+     return mtype(methodName, inst(def.extends, def.formals.types, t.actuals));
+   }     
 }
 
-public T bound(T t, Delta d) {
-  switch (t) {
-    case \type(N n) : return \type(n);
-    case \type(X x) : return \type(d[x]);
-  }
-}
-
-public T etype(Gamma g, Delta d, e expr) {
+public Type etype(Env env, Bounds bounds, Expr expr) {
   switch (expr) {
-    case var(x name) : return d[x];
-    case this : return d["this"];
-    case access(e e0, f fi) : {
-      T T0    = typeOf(g, d, e0);
-      <Ts,fs> = fields(bound(T0, d).n);
-      if (int i <- domain(Ts) && fs[i] == fi) return Ts[i];
+    case var(Name v) : return env[v];
+    case this : return env["this"];
+    case access(Expr rec, Name field) : {
+      Type Trec = etype(env, bounds, rec);
+      <types,fields> = fields(bound(bounds, Trec));
+      if (int i <- domain(types) && fields[i] == field) return types[i];
     }
-    case call(e e0, m name, list[T] Vs, list[e] es) : {
-      T t0 = typeOf(g, d, e0);
-      <<Ys,Ps>, U, Us> = mtype(bound(t0,d).n); 
+    case call(Expr rec, Name methodName, list[Type] actualTypes, list[Expr] params) : {
+      Type Trec = etype(env, bounds, rec);
+      <<vars,bounds>, returnType, formals> = mtype(methodName, bound(bounds, Trec)); 
       
-      if (subtypes(d, <Ys,Ps>, inst(Ps, Vs, Ys))) {
-        Ss = [ typeOf(g, d, e) | e <- es];
-        if (subtypes(d, Ss, inst(Us,Vs,Ys))) return inst(U, Vs, Ys);  
+      if (subtypes(bounds, actualTypes, inst(bounds, vars, actualTypes))) {
+        paramTypes = [ etype(env, bounds, param) | param <- params];
+        if (subtypes(bounds, paramTypes, inst(formals,vars,actualTypes))) { 
+          return inst(returnType, vars, actualTypes);  
+        }
       }
     } 
-    case new(T N, list[e] es) : {
-       <Ts,fs> = fields(N);
-       Ss = [ typeOf(g, d, e) | e <- es];
-       if (subtypes(d, Ss, Ts)) return N;
+    case new(Type t, list[Expr] params) : {
+       <types,fields> = fields(t);
+       paramTypes = [ etype(env, bounds, param) | params <- params];
+       if (subtypes(bounds, paramTypes, types)) {
+         return t;
+       }
     }
-    case cast(T N, e e0) : {
-      T0 = typeOf(g, d, e0);
-      BT0 = bound(d, T0);
-      if (subtype(BT0, N)) return N;
-
-      D = BT0.N.C;
-      Us = BT0.N.Ts;
-      if (subtype(N, BT0) && dcast(N, D)) return N;
+    case cast(Type t, Expr sup) : {
+      Tsup = etype(env, bounds, sup);
+      Bsup = bound(bounds, Tsup);
+      
+      if (subtype(Bsup, t)) return t;
+      if (subtype(t, Bsup) && dcast(t, Bsup)) return t;
     }
   }
     
-  throw NoType(e);
+  throw NoType(expr);
 }  
+
+public bool dcast(Name C, Name D) {
+  if (C == Object || C == D) {
+    return true;
+  }
+  // all vars must contribute    
+  return typeVars(D.actuals) == typeVars(ClassTable[C].formalTypes.vars);
+}
+
+public set[Type] typeVars(&T x) {
+  set[Type] result = { };
+  visit (x) { case typeVar(Name v) : result += { v }; };
+  return result;
+}  
+ 
