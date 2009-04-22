@@ -91,7 +91,7 @@ public class PatternTests extends TestFramework {
 	@Test(expected=UndeclaredVariableError.class) 
 	public void unguardedMatchNoEscape() {
 		// m should not be declared after the unguarded pattern match.
-		assertTrue(runTest("{int n = 3; int m := n; m; }"));
+		assertTrue(runTest("{int n = 3; int m := n; m == n; }"));
 	}
 	
 	@Test
@@ -648,6 +648,39 @@ public class PatternTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{int n6 = 1; (f(n6) := f(1)) && (n6 == 1);}"));
 		
 		assertTrue(runTestInSameEvaluator("(f(_) := f(1));"));
+	}
+	
+	@Test
+	public void matchTypedVariableBecomes() {
+		assertTrue(runTest("{int N : 3 := 3 && N == 3;}"));
+		assertTrue(runTest("{list[int] L1 : [int N, list[int] L2, int M] := [1,2,3] && L1 == [1,2,3] && N == 1 && L2 == [2] && M == 3;}"));
+		assertTrue(runTest("{[1, list[int] L: [int N], 2] := [1,[2],2] && L == [2];}"));
+		assertTrue(runTest("{[1, list[int] L1: [list[int] L2, int N], 5] := [1,[2,3,4],5] && L1 == [2,3,4] && L2==[2,3] && N ==4;}"));
+		assertTrue(runTest("{[1, list[int] L1: [list[int] L2, int N], L1] := [1,[2,3,4],[2,3,4]] && L1 == [2,3,4] && L2==[2,3] && N ==4;}"));
+	}
+	
+	@Test(expected=StaticError.class)
+	public void typedVariableBecomesWrongType(){
+		assertTrue(runTest("{str N : 3 := 3; N == 3;}"));
+	}
+	
+	@Test(expected=StaticError.class)
+	public void redeclaredTypedVariableBecomes(){
+		assertTrue(runTest("{int N = 5; int N : 3 := 3 && N == 3;}"));
+	}
+	
+	@Test(expected=StaticError.class)
+	public void doubleTypedVariableBecomes(){
+		assertTrue(runTest("{[int N : 3, int N : 4] := [3,4] && N == 3;}"));
+	}
+	
+	@Test
+	public void matchVariableBecomes() {
+		assertTrue(runTest("{N : 3 := 3 && N == 3;}"));
+		assertTrue(runTest("{L1 : [int N, list[int] L2, int M] := [1,2,3] && L1 == [1,2,3] && N == 1 && L2 == [2] && M == 3;}"));
+		assertTrue(runTest("{[1, L: [int N], 2] := [1,[2],2] && L == [2];}"));
+		assertTrue(runTest("{[1, L1: [list[int] L2, int N], 5] := [1,[2,3,4],5] && L1 == [2,3,4] && L2==[2,3] && N ==4;}"));
+		assertTrue(runTest("{[1, L1: [list[int] L2, int N], L1] := [1,[2,3,4],[2,3,4]] && L1 == [2,3,4] && L2==[2,3] && N ==4;}"));
 	}
 	
 	@Test(expected=StaticError.class)

@@ -36,7 +36,7 @@ public rel[PicoId, ProgramPoint] uses(PROGRAM P) {
         	result = result + getVarUses(Exp) * {Exp@pos};
          }
          
-   case asgStat(_, EXP Exp):{
+   case subject: asgStat(PicoId _, EXP Exp):{
    		println("case asgStat: <Exp>");
         result = result + getVarUses(Exp) * {subject@pos};
         } 
