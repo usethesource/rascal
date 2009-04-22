@@ -66,13 +66,22 @@ public FormalVars fields(Type t) {
 }
 
 public Type ftype(Type t, Name fieldName) {
-  fields = fields(fieldName);
+  fields = fields(t);
   if (int i <- domain(fields.names) && fields.names[i] == fieldName) 
     return fields.types[i];
 }
 
+public Type fdecl(Type t, Name fieldName) {
+  if (t == Object) throw NoSuchField(fieldName);
+  
+  Class def = ClassTable[t.className];
+  if (fieldname in def.fields.names) return t;
+  
+  return fdecl(inst(def.extends, def.formals.vars, t.actuals), fieldName);
+}
+
 public map[Type,Type] bindings(list[Type] formals, list[Type] actuals ) {
-  return (formals[i] : actuals[i] | int i <- domain(formals));  
+  return (formals[i] : actuals[i] | int i <- domain(formals) + domain(actuals));  
 }  
 
 public &T inst(&T arg, list[Type] formals, list[Type] actuals) {

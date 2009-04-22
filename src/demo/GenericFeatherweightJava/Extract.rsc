@@ -3,74 +3,91 @@ module demo::GenericFeatherweightJava::Extract
 import demo::GenericFeatherweightJava::FGJ;
 import demo::GenericFeatherweightJava::TypeConstraints;
 
-bool isLibraryClass(T t) {
+bool isLibraryClass(Name className) {
   return false;
 }
 
-set[Constraint] extract(set[C] classes) {
+set[Constraint] extract(set[Name] classes) {
   result = { };
-  for (C c <- classes) result += extract(c);
+  for (Name c <- classes) {
+    result += extract(c);
+  }
   return result;
 }
   
-set[Constraint] extract(C class) {
+set[Constraint] extract(Name class) {
   set[Constraint] result = { };
-   
-  visit (CT[class]) { case e x: switch(x) {
-     case access(e erec, f f)  : {
-       Trec = etype((), erec);
-       C = ftype(Trec.N, f);
-       if (!isLibraryClass(C)) {
-         result += eq(typeof(x), typeof(C));
-         result += subtype(typeof(erec), typeof(C));  
+  
+  def = ClassTable[class];
+  bounds = ( def.formals.vars[i]:def.formals.bounds[i] | i <- domain(def.formals.vars));
+  
+  result += { c | Method method <- def, c <- extractMethod(bounds, def, method) };
+  
+  return result;
+}
+set[Constraint] extract(Bounds bounds, Class def, Method method) { // [Fuhrer et al., Fig 5]
+
+  set[Constraint] result = { };
+  bounds += (method.formalTypes.vars[i]:method.formalTypes.bounds[i] | i <- domain(method.formalTypes.vars));
+      
+  visit (method.expr) {  
+     case x:access(Expr erec, Name fieldName) : {
+       Trec = etype(bounds, erec);
+       fieldType = ftype(Trec, fieldName);
+       if (!isLibraryClass(def.className)) {
+         result += eq(typeof(method), typeof(fieldType));
+         result += subtype(typeof(erec), fdecl(Trec, fieldName));  
        } 
-     } 
-     case new(T C, list[e] es) : {
-       result += eq(typeof(x), typeof(C));
-       if (!isLibraryClass(C)) {
-         result += { subtype(typeof(es[i]), typeof(constructorTypes(C)[i])) | int i <- domain(es) }; 
+     }   
+     case x:new(Type new, list[Expr] args) : {
+       result += eq(typeof(x), typeof(new));
+       if (!isLibraryClass(new)) {
+         result += { subtype(typeof(args[i]), typeof(constructorTypes(new)[i])) | int i <- domain(args) }; 
        }
      }
-     case call(e e0, m m, list[T] Ts, list[e] es)  : {
-        C = etype((), e0);
-        result += subtype(typeof(x), typeof(C));
-        if (!isLibraryClass(C)) {
-           M = mtype(m, C.N);
-           result += eq(typeof(x),typeof(M.U));
-           result += { subtype(typeof(es[i]),typeof(M.Us[i])) | int i <- domain(es) };
+     case x:call(Expr rec, Method methodName, list[Type] actuals, list[Expr] args)  : {
+        Trec = etype(bounds, rec);
+        result += subtype(typeof(x), typeof(Trec));
+        if (!isLibraryClass(Trec)) {
+           methodType = mtype(methodeName, Trec);
+           result += eq(typeof(x),typeof(methodType.resultType));
+           result += { subtype(typeof(args[i]),typeof(methodType.formals[i])) | int i <- domain(args) };
         }
-        else { // pending answer of Bob, I think this should implement Fig 7 of the ECOOP paper
-           M = mtype(m, C.N);
-           E = etype(x);
-            
-           Return = M.U;
-           if (Return.N.Ts == []) { // unparameterized
-             result += eq(typeof(x), typeof(M.U));
-           }
-           else if (int i <- domain(E.N.XsNs.Xs) && E.N.XsNs.Xs[i] == Return) { // same as one of the class parameters
-             result += eq(typeof(x), typeof(Return));
-           }
-           else if (Return.N.Ts != []) { // parameterized class
-             result += eq(typeof(x), typeof(M.U));
-             // TODO got stuck here
-             result += { eq(typeof(params[i],TODO)) | list[T] params := E.N.XsNs.Xs, int i <- domain(params) };
-           }      
+        else { // [Fuhrer et al.,Fig 7]
+           methodType = mtype(methodName, Trec);
+           result += cGen(typeof(etype(x)), methodType.returnType, rec, #makeEq);
+           result += { c | i <- domain(args), Ei := args[i], 
+                           c <- cGen(Ei, methodType.formals[i], rec, #makeSub)};      
         }
      }
-     case cast(T C, e e0) : {
-       result += eq(typeof(x), typeof(C));
-       result += subtype(typeof(e0), typeof(C));
+     case x:cast(Type to, Expr expr) : {
+       result += eq(typeof(x), typeof(to));
+       result += subtype(typeof(expr), typeof(to));
      }
-     case this : 
-       result += eq(typeof(x), typeof(\type(lit(C,[]))));
+     case x:var("this") : 
+        result += eq(typeof(x), typeof(typelit(def.className,def.formals.bounds)));
   }  
-  }  
+
+  return result;
+}
+
+
+set[Constraint] cGen(Type a, Type T, Expr E, Constraint (TypeOf t1, TypeOf t2) op) {
+  result = { };
+ 
+  if (t in etype(E).actuals) {
+    result += eq(typeof(x), typeof(methodType.returnType));
+  }
+  else if (typelit(name, actuals) := T) { 
+    result += #op(typeof(a), typeof(T));
+    
+    Wi = ClassTable[name].formals.vars;
+    result += { c | int i <- domain(Wi), Wia := a.actuals[i], c <- cGen(Wia, Wi[i], E, #makeEq)};
+  }
   
   return result;
 }
 
-set[Constraint] CGEN() {
-  result = { };
-  
-  
-}
+Constraint makeEq(TypeOf t1, TypeOf t2)       { return eq(t1, t2);      }
+Constraint makeSub(TypeOf t1, TypeOf t2)      { return subtype(t1, t2); }
+Constraint makeSub(TypeOf t1, set[TypeOf] t2) { return subtype(t1, t2); }
