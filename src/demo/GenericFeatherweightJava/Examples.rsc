@@ -4,19 +4,19 @@ import demo::GenericFeatherweightJava::GFJ;
 import demo::GenericFeatherweightJava::Types;  
 import IO;
 
-public T X = \type(\typevar("X"));
-public T Y = \type(\typevar("Y"));
+public Type X = typeVar("X");
+public Type Y = typeVar("Y");
 
-public L A = class("A", <[],[]>, Object, <[],[]>, cons(<[],[]>, super([]), []), []);
-public L B = class("B", <[],[]>, Object, <[],[]>, cons(<[],[]>, super([]), []), []);
-public L Fruit = class("Fruit", <[],[]>, Object, <[],[]>, cons(<[],[]>, super([]), []), []);
-public L Appel = class("Appel", <[],[]>, lit("Fruit",[]), <[],[]>, cons(<[],[]>, super([]), []), []);
-public L Banaan = class("Banaan", <[],[]>, lit("Fruit",[]), <[],[]>, cons(<[],[]>, super([]), []), []);
-public L Tuple = class("Tuple", <[],[]>, Object, <[\type(Object),\type(Object)],["fst","snd"]>, cons(<[],[]>, super([]), []), [method(<[],[]>,\type(Object),"getfst", <[],[]>, access(this,"fst"))]);
-public L GTuple = class("Tuple", <[X,Y],[ObjectType,ObjectType]>, Object, <[X,Y],["fst","snd"]>, cons(<[],[]>, super([]), []), [method(<[],[]>,X,"getfst", <[],[]>, access(this,"fst"))]);
+public Class A = class("A", <[],[]>, Object, <[],[]>, cons(<[],[]>, super([]), []), []);
+public Class B = class("B", <[],[]>, Object, <[],[]>, cons(<[],[]>, super([]), []), []);
+public Class Fruit = class("Fruit", <[],[]>, Object, <[],[]>, cons(<[],[]>, super([]), []), []);
+public Class Appel = class("Appel", <[],[]>, typeLit("Fruit",[]), <[],[]>, cons(<[],[]>, super([]), []), []);
+public Class Banaan = class("Banaan", <[],[]>, typeLit("Fruit",[]), <[],[]>, cons(<[],[]>, super([]), []), []);
+public Class Tuple = class("Tuple", <[],[]>, Object, <[Object,Object],["fst","snd"]>, cons(<[],[]>, super([]), []), [method(<[],[]>,Object,"getfst", <[],[]>, access(this,"fst"))]);
+public Class GTuple = class("Tuple", <[X,Y],[Object,Object]>, Object, <[X,Y],["fst","snd"]>, cons(<[],[]>, super([]), []), [method(<[],[]>,X,"getfst", <[],[]>, access(this,"fst"))]);
   
 public void init() {
-  demo::GenericFeatherweightJava::Types::CT = 
+  demo::GenericFeatherweightJava::Types::ClassTable = 
               ("A":A, 
                "B":B, 
                "Fruit":Fruit,
@@ -31,12 +31,12 @@ public void init() {
 public bool test() {
   init();
   
-  assert fields(lit("Fruit",[])) == <[],[]>;   
-  assert fields(lit("Tuple",[])) == <[\type(Object),\type(Object)],["fst","snd"]>;  
-  assert fields(lit("GTuple",[\type(lit("A",[])),\type(lit("B",[]))])) == 
-      <[\type(lit("A",[])),\type(lit("B",[]))],["fst","snd"]>;
-  assert mtype("getfst", lit("GTuple", [\type(lit("Appel",[])),\type(lit("Appel",[]))])) == 
-           <<[],[]>,\type(lit("Appel",[])),[]>;  
+  assert fields(typeLit("Fruit",[])) == <[],[]>;   
+  assert fields(typeLit("Tuple",[])) == <[Object,Object],["fst","snd"]>;  
+  assert fields(typeLit("GTuple",[typeLit("A",[]),typeLit("B",[])])) == 
+      <[typeLit("A",[]),typeLit("B",[])],["fst","snd"]>;
+  assert mtype("getfst", typeLit("GTuple", [typeLit("Appel",[]),typeLit("Appel",[])])) == 
+           <<[],[]>,typeLit("Appel",[]),[]>;  
   return true; 
 }  
 

@@ -5,17 +5,18 @@ import List;
 import IO;  
 
 public Type Object = typeLit("Object",[]);
+public Expr this   = var("this");  
 
-public map[Name,Type] ClassTable = (); 
+public map[Name,Class] ClassTable = (); 
   
-alias MethodType = tuple[TypeParameters forall, Type returnType, list[Type] formals];
+alias MethodType = tuple[FormalTypes forall, Type returnType, list[Type] formals];
 alias Bounds     = map[Type var, Type bound];
 alias Env        = map[Name var, Type varType];  
   
 data Error = NoSuchMethod(Name methodName) | NoSuchField(Name fieldType) | NoType(Expr expr);
     
 public rel[Name,Name] subclasses() { 
-  return { <c, CT[c].extends.className> | Name c <- CT }*;
+  return { <c, ClassTable[c].extends.className> | Name c <- ClassTable }*;
 }
 
 public bool subclass(Name c1, Name c2) {
@@ -28,13 +29,19 @@ public Type bound(Bounds bounds, Type t) {
 }  
 
 public bool subtype(Bounds bounds, Type sub, Type sup) {
-  if (sub == sup || sup == Object) return true;
-  if (sub == Object) return false;        
-  if (typeVar(name) := sub) return subtype(bounds[name], sup);
+  if (sub == sup || sup == Object) {
+    return true;
+  }
+  if (sub == Object) {
+    return false;
+  }        
+  if (typeVar(name) := sub) {
+    return subtype(bounds[name], sup);
+  }
   if (typeLit(name, actuals) := sub) {
-     Class def = ClassTable[name];
-     return subtype(inst(def.extends, def.formals.vars, actuals), sup);  
-  }  
+    Class def = ClassTable[name];
+    return subtype(inst(def.extends, def.formals.vars, actuals), sup);  
+  }    
 }
 
 public list[Type] constructorTypes(Type t) {
@@ -42,32 +49,33 @@ public list[Type] constructorTypes(Type t) {
 }
 
 public bool subtypes(Bounds env, list[Type] t1, list[Type] t2) {
-  if (length(t1) != length(t2)) return false;
-  if ((int i <- domain(t1)) && !subtype(env, t1[i], t2[i])) return false;
+  if ((int i <- domain(t1) + domain(t2)) && !subtype(env, t1[i], t2[i])) 
+    return false;
   return true;
-}    
+}      
       
 public FormalVars fields(Type t) {
   if (t == Object) return <[],[]>;
   
-  Class def = CT[t.className];
+  Class def = ClassTable[t.className];
       
-  <sT,sf> = fields(inst(def.super, def.formals.types, t.actuals));
-  <tT,tf> = inst(def.fields, def.formals.types, t.actuals);
+  <sT,sf> = fields(inst(def.extends, def.formals.vars, t.actuals));
+  <tT,tf> = inst(def.fields, def.formals.vars, t.actuals);
   
   return <sT + tT, sf + tf>;
 }
 
-public T ftype(Type t, name fieldName) {
+public Type ftype(Type t, Name fieldName) {
   fields = fields(fieldName);
-  if (int i <- domain(fields.names) && fields.names[i] == fieldName) return fields.types[i];
+  if (int i <- domain(fields.names) && fields.names[i] == fieldName) 
+    return fields.types[i];
 }
 
-public map[T,T] bindings(FormalVars formals, list[Type] actuals ) {
-  return (formals.types[i] : actuals[i] | int i <- domain(formals.names));  
+public map[Type,Type] bindings(list[Type] formals, list[Type] actuals ) {
+  return (formals[i] : actuals[i] | int i <- domain(formals));  
 }  
 
-public &T inst(&T arg, FormalVars formals, list[Type] actuals) {
+public &T inst(&T arg, list[Type] formals, list[Type] actuals) {
   map[Type,Type] subs = bindings(formals, actuals);
   return visit (arg) { case Type t => subs[t] ? t };
 }
@@ -78,10 +86,10 @@ public MethodType mtype(Name methodName, Type t) {
    Class def = ClassTable[t.className];
 
    if (int i <- domain(def.methods) && def.methods[i].name == methodName) {
-     return inst(<methods[i].formalTypes, methods[i].returnType, methods[i].formals.types>, def.formals.types, t.actuals);
+     return inst(<def.methods[i].formalTypes, def.methods[i].returnType, def.methods[i].formals.types>, def.formals.vars, t.actuals);
    }
    else { // if not found, go to super class
-     return mtype(name, inst(def.extends, def.formals.types, t.actuals));    
+     return mtype(name, inst(def.extends, def.formals.vars, t.actuals));    
    } 
 }   
 
@@ -94,14 +102,14 @@ public Expr mbody(Name methodName, list[Type] bindings, Type t) {
      return inst(inst(expr, def.formals.types, t.actuals), def.methods[i].formalTypes, bindings);
    }
    else {
-     return mtype(methodName, inst(def.extends, def.formals.types, t.actuals));
+     return mtype(methodName, inst(def.extends, def.formals.vars, t.actuals));
    }     
 }
 
 public Type etype(Env env, Bounds bounds, Expr expr) {
   switch (expr) {
-    case var(Name v) : return env[v];
     case this : return env["this"];
+    case var(Name v) : return env[v];
     case access(Expr rec, Name field) : {
       Type Trec = etype(env, bounds, rec);
       <types,fields> = fields(bound(bounds, Trec));
