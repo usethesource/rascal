@@ -10,7 +10,7 @@ public list[&T] java delete(list[&T] lst, int n)
 @doc{delete -- delete nth element from list}
 @javaClass{org.meta_environment.rascal.std.List};
 
-public list[int] java domain(list[&T] lst)
+public set[int] java domain(list[&T] lst)
 @doc{domain -- a list of all legal index values for a list}
 @javaClass{org.meta_environment.rascal.std.List};
 

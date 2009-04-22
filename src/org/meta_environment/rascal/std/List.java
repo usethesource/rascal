@@ -34,10 +34,10 @@ public class List {
 	public static IValue domain(IList lst)
 	//@doc{domain -- a list of all legal index values for a list}
 	{
-		IListWriter w = values.listWriter(types.integerType());
+		ISetWriter w = values.setWriter(types.integerType());
 		int len = lst.length();
-		for(int i = 0; i < len; i++){
-			w.append(values.integer(i));
+		for (int i = 0; i < len; i++){
+			w.insert(values.integer(i));
 		}
 		return w.done();
 	}
