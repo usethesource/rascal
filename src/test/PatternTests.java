@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
+import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredVariableError;
 
 public class PatternTests extends TestFramework {
 
@@ -83,8 +84,14 @@ public class PatternTests extends TestFramework {
 	
 	@Test
 	public void matchExternalListVars(){
-		assertTrue(runTest("{int n; n := 3; n == 3;}"));
+		assertTrue(runTest("{int n;  n := 3 && n == 3; }"));
 		assertTrue(runTest("{list[int] L; ([1, L, 4, 5] := [1, 2, 3, 4, 5] && L == [2, 3]);}"));
+	}
+	
+	@Test(expected=UndeclaredVariableError.class) 
+	public void unguardedMatchNoEscape() {
+		// m should not be declared after the unguarded pattern match.
+		assertTrue(runTest("{int n = 3; int m := n; m; }"));
 	}
 	
 	@Test
