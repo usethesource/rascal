@@ -72,6 +72,11 @@ public class RascalShell {
 
 				do {
 					line = console.readLine(prompt);
+					
+					if (line == null) {
+						break next; // EOF
+					}
+					
 					if (line.trim().isEmpty()) {
 						console.printString("cancelled\n");
 						continue next;
