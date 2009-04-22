@@ -1965,7 +1965,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			MatchPattern mp = evalPattern(pat);
 			mp.initMatch(subject, peek());
 			//System.err.println("matchAndEval: subject=" + subject + ", pat=" + pat);
-			peek().storeInnermostVariable("subject", makeResult(subject.getType(), subject, getCurrentAST()));
+			//peek().storeInnermostVariable("subject", makeResult(subject.getType(), subject, getCurrentAST()));
 			while(mp.hasNext()){
 				//System.err.println("matchAndEval: mp.hasNext()==true");
 				if(mp.next()){
