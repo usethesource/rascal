@@ -3,106 +3,6 @@ package org.meta_environment.rascal.ast;
 public interface IASTVisitor<T> {
 	public T visitBodyToplevels(Body.Toplevels x);
 
-	public T visitCommentLexical(Comment.Lexical x);
-
-	public T visitCommentCharLexical(CommentChar.Lexical x);
-
-	public T visitAsteriskLexical(Asterisk.Lexical x);
-
-	public T visitNameLexical(Name.Lexical x);
-
-	public T visitEscapedNameLexical(EscapedName.Lexical x);
-
-	public T visitQualifiedNameDefault(QualifiedName.Default x);
-
-	public T visitBoundDefault(Bound.Default x);
-
-	public T visitBoundEmpty(Bound.Empty x);
-
-	public T visitStatementGlobalDirective(Statement.GlobalDirective x);
-
-	public T visitStatementVariableDeclaration(Statement.VariableDeclaration x);
-
-	public T visitStatementFunctionDeclaration(Statement.FunctionDeclaration x);
-
-	public T visitStatementBlock(Statement.Block x);
-
-	public T visitStatementTryFinally(Statement.TryFinally x);
-
-	public T visitStatementTry(Statement.Try x);
-
-	public T visitStatementThrow(Statement.Throw x);
-
-	public T visitStatementInsert(Statement.Insert x);
-
-	public T visitStatementAssertWithMessage(Statement.AssertWithMessage x);
-
-	public T visitStatementAssert(Statement.Assert x);
-
-	public T visitStatementContinue(Statement.Continue x);
-
-	public T visitStatementReturn(Statement.Return x);
-
-	public T visitStatementFail(Statement.Fail x);
-
-	public T visitStatementBreak(Statement.Break x);
-
-	public T visitStatementAssignment(Statement.Assignment x);
-
-	public T visitStatementVisit(Statement.Visit x);
-
-	public T visitStatementExpression(Statement.Expression x);
-
-	public T visitStatementEmptyStatement(Statement.EmptyStatement x);
-
-	public T visitStatementSwitch(Statement.Switch x);
-
-	public T visitStatementIfThen(Statement.IfThen x);
-
-	public T visitStatementIfThenElse(Statement.IfThenElse x);
-
-	public T visitStatementDoWhile(Statement.DoWhile x);
-
-	public T visitStatementWhile(Statement.While x);
-
-	public T visitStatementFor(Statement.For x);
-
-	public T visitStatementSolve(Statement.Solve x);
-
-	public T visitNoElseMayFollowDefault(NoElseMayFollow.Default x);
-
-	public T visitAssignableConstructor(Assignable.Constructor x);
-
-	public T visitAssignableTuple(Assignable.Tuple x);
-
-	public T visitAssignableAnnotation(Assignable.Annotation x);
-
-	public T visitAssignableIfDefinedOrDefault(Assignable.IfDefinedOrDefault x);
-
-	public T visitAssignableFieldAccess(Assignable.FieldAccess x);
-
-	public T visitAssignableSubscript(Assignable.Subscript x);
-
-	public T visitAssignableVariable(Assignable.Variable x);
-
-	public T visitAssignmentIfDefined(Assignment.IfDefined x);
-
-	public T visitAssignmentIntersection(Assignment.Intersection x);
-
-	public T visitAssignmentDivision(Assignment.Division x);
-
-	public T visitAssignmentProduct(Assignment.Product x);
-
-	public T visitAssignmentSubtraction(Assignment.Subtraction x);
-
-	public T visitAssignmentAddition(Assignment.Addition x);
-
-	public T visitAssignmentDefault(Assignment.Default x);
-
-	public T visitLabelDefault(Label.Default x);
-
-	public T visitLabelEmpty(Label.Empty x);
-
 	public T visitExpressionLexical(Expression.Lexical x);
 
 	public T visitExpressionOr(Expression.Or x);
@@ -224,6 +124,111 @@ public interface IASTVisitor<T> {
 	public T visitExpressionVisit(Expression.Visit x);
 
 	public T visitExpressionNonEmptyBlock(Expression.NonEmptyBlock x);
+
+	public T visitExpressionTypedVariableBecomes(
+			Expression.TypedVariableBecomes x);
+
+	public T visitExpressionVariableBecomes(Expression.VariableBecomes x);
+
+	public T visitCommentLexical(Comment.Lexical x);
+
+	public T visitCommentCharLexical(CommentChar.Lexical x);
+
+	public T visitAsteriskLexical(Asterisk.Lexical x);
+
+	public T visitNameLexical(Name.Lexical x);
+
+	public T visitEscapedNameLexical(EscapedName.Lexical x);
+
+	public T visitQualifiedNameDefault(QualifiedName.Default x);
+
+	public T visitBoundDefault(Bound.Default x);
+
+	public T visitBoundEmpty(Bound.Empty x);
+
+	public T visitStatementGlobalDirective(Statement.GlobalDirective x);
+
+	public T visitStatementVariableDeclaration(Statement.VariableDeclaration x);
+
+	public T visitStatementFunctionDeclaration(Statement.FunctionDeclaration x);
+
+	public T visitStatementBlock(Statement.Block x);
+
+	public T visitStatementTryFinally(Statement.TryFinally x);
+
+	public T visitStatementTry(Statement.Try x);
+
+	public T visitStatementThrow(Statement.Throw x);
+
+	public T visitStatementInsert(Statement.Insert x);
+
+	public T visitStatementAssertWithMessage(Statement.AssertWithMessage x);
+
+	public T visitStatementAssert(Statement.Assert x);
+
+	public T visitStatementContinue(Statement.Continue x);
+
+	public T visitStatementReturn(Statement.Return x);
+
+	public T visitStatementFail(Statement.Fail x);
+
+	public T visitStatementBreak(Statement.Break x);
+
+	public T visitStatementAssignment(Statement.Assignment x);
+
+	public T visitStatementVisit(Statement.Visit x);
+
+	public T visitStatementExpression(Statement.Expression x);
+
+	public T visitStatementEmptyStatement(Statement.EmptyStatement x);
+
+	public T visitStatementSwitch(Statement.Switch x);
+
+	public T visitStatementIfThen(Statement.IfThen x);
+
+	public T visitStatementIfThenElse(Statement.IfThenElse x);
+
+	public T visitStatementDoWhile(Statement.DoWhile x);
+
+	public T visitStatementWhile(Statement.While x);
+
+	public T visitStatementFor(Statement.For x);
+
+	public T visitStatementSolve(Statement.Solve x);
+
+	public T visitNoElseMayFollowDefault(NoElseMayFollow.Default x);
+
+	public T visitAssignableConstructor(Assignable.Constructor x);
+
+	public T visitAssignableTuple(Assignable.Tuple x);
+
+	public T visitAssignableAnnotation(Assignable.Annotation x);
+
+	public T visitAssignableIfDefinedOrDefault(Assignable.IfDefinedOrDefault x);
+
+	public T visitAssignableFieldAccess(Assignable.FieldAccess x);
+
+	public T visitAssignableSubscript(Assignable.Subscript x);
+
+	public T visitAssignableVariable(Assignable.Variable x);
+
+	public T visitAssignmentIfDefined(Assignment.IfDefined x);
+
+	public T visitAssignmentIntersection(Assignment.Intersection x);
+
+	public T visitAssignmentDivision(Assignment.Division x);
+
+	public T visitAssignmentProduct(Assignment.Product x);
+
+	public T visitAssignmentSubtraction(Assignment.Subtraction x);
+
+	public T visitAssignmentAddition(Assignment.Addition x);
+
+	public T visitAssignmentDefault(Assignment.Default x);
+
+	public T visitLabelDefault(Label.Default x);
+
+	public T visitLabelEmpty(Label.Empty x);
 
 	public T visitBreakNoLabel(Break.NoLabel x);
 
@@ -663,6 +668,8 @@ public interface IASTVisitor<T> {
 
 	public T visitBodyAmbiguity(Body.Ambiguity x);
 
+	public T visitExpressionAmbiguity(Expression.Ambiguity x);
+
 	public T visitCommentAmbiguity(Comment.Ambiguity x);
 
 	public T visitCommentCharAmbiguity(CommentChar.Ambiguity x);
@@ -686,8 +693,6 @@ public interface IASTVisitor<T> {
 	public T visitAssignmentAmbiguity(Assignment.Ambiguity x);
 
 	public T visitLabelAmbiguity(Label.Ambiguity x);
-
-	public T visitExpressionAmbiguity(Expression.Ambiguity x);
 
 	public T visitBreakAmbiguity(Break.Ambiguity x);
 

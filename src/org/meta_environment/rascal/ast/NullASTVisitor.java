@@ -5,206 +5,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
 		return null;
 	}
 
-	public T visitCommentLexical(Comment.Lexical x) {
-		return null;
-	}
-
-	public T visitCommentCharLexical(CommentChar.Lexical x) {
-		return null;
-	}
-
-	public T visitAsteriskLexical(Asterisk.Lexical x) {
-		return null;
-	}
-
-	public T visitNameLexical(Name.Lexical x) {
-		return null;
-	}
-
-	public T visitEscapedNameLexical(EscapedName.Lexical x) {
-		return null;
-	}
-
-	public T visitQualifiedNameDefault(QualifiedName.Default x) {
-		return null;
-	}
-
-	public T visitBoundDefault(Bound.Default x) {
-		return null;
-	}
-
-	public T visitBoundEmpty(Bound.Empty x) {
-		return null;
-	}
-
-	public T visitStatementGlobalDirective(Statement.GlobalDirective x) {
-		return null;
-	}
-
-	public T visitStatementVariableDeclaration(Statement.VariableDeclaration x) {
-		return null;
-	}
-
-	public T visitStatementFunctionDeclaration(Statement.FunctionDeclaration x) {
-		return null;
-	}
-
-	public T visitStatementBlock(Statement.Block x) {
-		return null;
-	}
-
-	public T visitStatementTryFinally(Statement.TryFinally x) {
-		return null;
-	}
-
-	public T visitStatementTry(Statement.Try x) {
-		return null;
-	}
-
-	public T visitStatementThrow(Statement.Throw x) {
-		return null;
-	}
-
-	public T visitStatementInsert(Statement.Insert x) {
-		return null;
-	}
-
-	public T visitStatementAssertWithMessage(Statement.AssertWithMessage x) {
-		return null;
-	}
-
-	public T visitStatementAssert(Statement.Assert x) {
-		return null;
-	}
-
-	public T visitStatementContinue(Statement.Continue x) {
-		return null;
-	}
-
-	public T visitStatementReturn(Statement.Return x) {
-		return null;
-	}
-
-	public T visitStatementFail(Statement.Fail x) {
-		return null;
-	}
-
-	public T visitStatementBreak(Statement.Break x) {
-		return null;
-	}
-
-	public T visitStatementAssignment(Statement.Assignment x) {
-		return null;
-	}
-
-	public T visitStatementVisit(Statement.Visit x) {
-		return null;
-	}
-
-	public T visitStatementExpression(Statement.Expression x) {
-		return null;
-	}
-
-	public T visitStatementEmptyStatement(Statement.EmptyStatement x) {
-		return null;
-	}
-
-	public T visitStatementSwitch(Statement.Switch x) {
-		return null;
-	}
-
-	public T visitStatementIfThen(Statement.IfThen x) {
-		return null;
-	}
-
-	public T visitStatementIfThenElse(Statement.IfThenElse x) {
-		return null;
-	}
-
-	public T visitStatementDoWhile(Statement.DoWhile x) {
-		return null;
-	}
-
-	public T visitStatementWhile(Statement.While x) {
-		return null;
-	}
-
-	public T visitStatementFor(Statement.For x) {
-		return null;
-	}
-
-	public T visitStatementSolve(Statement.Solve x) {
-		return null;
-	}
-
-	public T visitNoElseMayFollowDefault(NoElseMayFollow.Default x) {
-		return null;
-	}
-
-	public T visitAssignableConstructor(Assignable.Constructor x) {
-		return null;
-	}
-
-	public T visitAssignableTuple(Assignable.Tuple x) {
-		return null;
-	}
-
-	public T visitAssignableAnnotation(Assignable.Annotation x) {
-		return null;
-	}
-
-	public T visitAssignableIfDefinedOrDefault(Assignable.IfDefinedOrDefault x) {
-		return null;
-	}
-
-	public T visitAssignableFieldAccess(Assignable.FieldAccess x) {
-		return null;
-	}
-
-	public T visitAssignableSubscript(Assignable.Subscript x) {
-		return null;
-	}
-
-	public T visitAssignableVariable(Assignable.Variable x) {
-		return null;
-	}
-
-	public T visitAssignmentIfDefined(Assignment.IfDefined x) {
-		return null;
-	}
-
-	public T visitAssignmentIntersection(Assignment.Intersection x) {
-		return null;
-	}
-
-	public T visitAssignmentDivision(Assignment.Division x) {
-		return null;
-	}
-
-	public T visitAssignmentProduct(Assignment.Product x) {
-		return null;
-	}
-
-	public T visitAssignmentSubtraction(Assignment.Subtraction x) {
-		return null;
-	}
-
-	public T visitAssignmentAddition(Assignment.Addition x) {
-		return null;
-	}
-
-	public T visitAssignmentDefault(Assignment.Default x) {
-		return null;
-	}
-
-	public T visitLabelDefault(Label.Default x) {
-		return null;
-	}
-
-	public T visitLabelEmpty(Label.Empty x) {
-		return null;
-	}
-
 	public T visitExpressionLexical(Expression.Lexical x) {
 		return null;
 	}
@@ -444,6 +244,215 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
 	}
 
 	public T visitExpressionNonEmptyBlock(Expression.NonEmptyBlock x) {
+		return null;
+	}
+
+	public T visitExpressionTypedVariableBecomes(
+			Expression.TypedVariableBecomes x) {
+		return null;
+	}
+
+	public T visitExpressionVariableBecomes(Expression.VariableBecomes x) {
+		return null;
+	}
+
+	public T visitCommentLexical(Comment.Lexical x) {
+		return null;
+	}
+
+	public T visitCommentCharLexical(CommentChar.Lexical x) {
+		return null;
+	}
+
+	public T visitAsteriskLexical(Asterisk.Lexical x) {
+		return null;
+	}
+
+	public T visitNameLexical(Name.Lexical x) {
+		return null;
+	}
+
+	public T visitEscapedNameLexical(EscapedName.Lexical x) {
+		return null;
+	}
+
+	public T visitQualifiedNameDefault(QualifiedName.Default x) {
+		return null;
+	}
+
+	public T visitBoundDefault(Bound.Default x) {
+		return null;
+	}
+
+	public T visitBoundEmpty(Bound.Empty x) {
+		return null;
+	}
+
+	public T visitStatementGlobalDirective(Statement.GlobalDirective x) {
+		return null;
+	}
+
+	public T visitStatementVariableDeclaration(Statement.VariableDeclaration x) {
+		return null;
+	}
+
+	public T visitStatementFunctionDeclaration(Statement.FunctionDeclaration x) {
+		return null;
+	}
+
+	public T visitStatementBlock(Statement.Block x) {
+		return null;
+	}
+
+	public T visitStatementTryFinally(Statement.TryFinally x) {
+		return null;
+	}
+
+	public T visitStatementTry(Statement.Try x) {
+		return null;
+	}
+
+	public T visitStatementThrow(Statement.Throw x) {
+		return null;
+	}
+
+	public T visitStatementInsert(Statement.Insert x) {
+		return null;
+	}
+
+	public T visitStatementAssertWithMessage(Statement.AssertWithMessage x) {
+		return null;
+	}
+
+	public T visitStatementAssert(Statement.Assert x) {
+		return null;
+	}
+
+	public T visitStatementContinue(Statement.Continue x) {
+		return null;
+	}
+
+	public T visitStatementReturn(Statement.Return x) {
+		return null;
+	}
+
+	public T visitStatementFail(Statement.Fail x) {
+		return null;
+	}
+
+	public T visitStatementBreak(Statement.Break x) {
+		return null;
+	}
+
+	public T visitStatementAssignment(Statement.Assignment x) {
+		return null;
+	}
+
+	public T visitStatementVisit(Statement.Visit x) {
+		return null;
+	}
+
+	public T visitStatementExpression(Statement.Expression x) {
+		return null;
+	}
+
+	public T visitStatementEmptyStatement(Statement.EmptyStatement x) {
+		return null;
+	}
+
+	public T visitStatementSwitch(Statement.Switch x) {
+		return null;
+	}
+
+	public T visitStatementIfThen(Statement.IfThen x) {
+		return null;
+	}
+
+	public T visitStatementIfThenElse(Statement.IfThenElse x) {
+		return null;
+	}
+
+	public T visitStatementDoWhile(Statement.DoWhile x) {
+		return null;
+	}
+
+	public T visitStatementWhile(Statement.While x) {
+		return null;
+	}
+
+	public T visitStatementFor(Statement.For x) {
+		return null;
+	}
+
+	public T visitStatementSolve(Statement.Solve x) {
+		return null;
+	}
+
+	public T visitNoElseMayFollowDefault(NoElseMayFollow.Default x) {
+		return null;
+	}
+
+	public T visitAssignableConstructor(Assignable.Constructor x) {
+		return null;
+	}
+
+	public T visitAssignableTuple(Assignable.Tuple x) {
+		return null;
+	}
+
+	public T visitAssignableAnnotation(Assignable.Annotation x) {
+		return null;
+	}
+
+	public T visitAssignableIfDefinedOrDefault(Assignable.IfDefinedOrDefault x) {
+		return null;
+	}
+
+	public T visitAssignableFieldAccess(Assignable.FieldAccess x) {
+		return null;
+	}
+
+	public T visitAssignableSubscript(Assignable.Subscript x) {
+		return null;
+	}
+
+	public T visitAssignableVariable(Assignable.Variable x) {
+		return null;
+	}
+
+	public T visitAssignmentIfDefined(Assignment.IfDefined x) {
+		return null;
+	}
+
+	public T visitAssignmentIntersection(Assignment.Intersection x) {
+		return null;
+	}
+
+	public T visitAssignmentDivision(Assignment.Division x) {
+		return null;
+	}
+
+	public T visitAssignmentProduct(Assignment.Product x) {
+		return null;
+	}
+
+	public T visitAssignmentSubtraction(Assignment.Subtraction x) {
+		return null;
+	}
+
+	public T visitAssignmentAddition(Assignment.Addition x) {
+		return null;
+	}
+
+	public T visitAssignmentDefault(Assignment.Default x) {
+		return null;
+	}
+
+	public T visitLabelDefault(Label.Default x) {
+		return null;
+	}
+
+	public T visitLabelEmpty(Label.Empty x) {
 		return null;
 	}
 
@@ -1317,6 +1326,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
 		return null;
 	}
 
+	public T visitExpressionAmbiguity(Expression.Ambiguity x) {
+		return null;
+	}
+
 	public T visitCommentAmbiguity(Comment.Ambiguity x) {
 		return null;
 	}
@@ -1362,10 +1375,6 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
 	}
 
 	public T visitLabelAmbiguity(Label.Ambiguity x) {
-		return null;
-	}
-
-	public T visitExpressionAmbiguity(Expression.Ambiguity x) {
 		return null;
 	}
 

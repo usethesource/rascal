@@ -27,6 +27,751 @@ public class ASTFactory {
 		return (org.meta_environment.rascal.ast.Body.Toplevels) table.get(x);
 	}
 
+	public org.meta_environment.rascal.ast.Expression.Lexical makeExpressionLexical(
+			INode node, String string) {
+		org.meta_environment.rascal.ast.Expression.Lexical x = new org.meta_environment.rascal.ast.Expression.Lexical(
+				node, string);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.Lexical) table
+				.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.Or makeExpressionOr(
+			INode node, org.meta_environment.rascal.ast.Expression lhs,
+			org.meta_environment.rascal.ast.Expression rhs) {
+		org.meta_environment.rascal.ast.Expression.Or x = new org.meta_environment.rascal.ast.Expression.Or(
+				node, lhs, rhs);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.Or) table.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.And makeExpressionAnd(
+			INode node, org.meta_environment.rascal.ast.Expression lhs,
+			org.meta_environment.rascal.ast.Expression rhs) {
+		org.meta_environment.rascal.ast.Expression.And x = new org.meta_environment.rascal.ast.Expression.And(
+				node, lhs, rhs);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.And) table.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.Equivalence makeExpressionEquivalence(
+			INode node, org.meta_environment.rascal.ast.Expression lhs,
+			org.meta_environment.rascal.ast.Expression rhs) {
+		org.meta_environment.rascal.ast.Expression.Equivalence x = new org.meta_environment.rascal.ast.Expression.Equivalence(
+				node, lhs, rhs);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.Equivalence) table
+				.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.Implication makeExpressionImplication(
+			INode node, org.meta_environment.rascal.ast.Expression lhs,
+			org.meta_environment.rascal.ast.Expression rhs) {
+		org.meta_environment.rascal.ast.Expression.Implication x = new org.meta_environment.rascal.ast.Expression.Implication(
+				node, lhs, rhs);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.Implication) table
+				.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.NonEquals makeExpressionNonEquals(
+			INode node, org.meta_environment.rascal.ast.Expression lhs,
+			org.meta_environment.rascal.ast.Expression rhs) {
+		org.meta_environment.rascal.ast.Expression.NonEquals x = new org.meta_environment.rascal.ast.Expression.NonEquals(
+				node, lhs, rhs);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.NonEquals) table
+				.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.GreaterThanOrEq makeExpressionGreaterThanOrEq(
+			INode node, org.meta_environment.rascal.ast.Expression lhs,
+			org.meta_environment.rascal.ast.Expression rhs) {
+		org.meta_environment.rascal.ast.Expression.GreaterThanOrEq x = new org.meta_environment.rascal.ast.Expression.GreaterThanOrEq(
+				node, lhs, rhs);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.GreaterThanOrEq) table
+				.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.GreaterThan makeExpressionGreaterThan(
+			INode node, org.meta_environment.rascal.ast.Expression lhs,
+			org.meta_environment.rascal.ast.Expression rhs) {
+		org.meta_environment.rascal.ast.Expression.GreaterThan x = new org.meta_environment.rascal.ast.Expression.GreaterThan(
+				node, lhs, rhs);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.GreaterThan) table
+				.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.LessThanOrEq makeExpressionLessThanOrEq(
+			INode node, org.meta_environment.rascal.ast.Expression lhs,
+			org.meta_environment.rascal.ast.Expression rhs) {
+		org.meta_environment.rascal.ast.Expression.LessThanOrEq x = new org.meta_environment.rascal.ast.Expression.LessThanOrEq(
+				node, lhs, rhs);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.LessThanOrEq) table
+				.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.LessThan makeExpressionLessThan(
+			INode node, org.meta_environment.rascal.ast.Expression lhs,
+			org.meta_environment.rascal.ast.Expression rhs) {
+		org.meta_environment.rascal.ast.Expression.LessThan x = new org.meta_environment.rascal.ast.Expression.LessThan(
+				node, lhs, rhs);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.LessThan) table
+				.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.In makeExpressionIn(
+			INode node, org.meta_environment.rascal.ast.Expression lhs,
+			org.meta_environment.rascal.ast.Expression rhs) {
+		org.meta_environment.rascal.ast.Expression.In x = new org.meta_environment.rascal.ast.Expression.In(
+				node, lhs, rhs);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.In) table.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.NotIn makeExpressionNotIn(
+			INode node, org.meta_environment.rascal.ast.Expression lhs,
+			org.meta_environment.rascal.ast.Expression rhs) {
+		org.meta_environment.rascal.ast.Expression.NotIn x = new org.meta_environment.rascal.ast.Expression.NotIn(
+				node, lhs, rhs);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.NotIn) table.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.Join makeExpressionJoin(
+			INode node, org.meta_environment.rascal.ast.Expression lhs,
+			org.meta_environment.rascal.ast.Expression rhs) {
+		org.meta_environment.rascal.ast.Expression.Join x = new org.meta_environment.rascal.ast.Expression.Join(
+				node, lhs, rhs);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.Join) table.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.Subtraction makeExpressionSubtraction(
+			INode node, org.meta_environment.rascal.ast.Expression lhs,
+			org.meta_environment.rascal.ast.Expression rhs) {
+		org.meta_environment.rascal.ast.Expression.Subtraction x = new org.meta_environment.rascal.ast.Expression.Subtraction(
+				node, lhs, rhs);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.Subtraction) table
+				.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.Addition makeExpressionAddition(
+			INode node, org.meta_environment.rascal.ast.Expression lhs,
+			org.meta_environment.rascal.ast.Expression rhs) {
+		org.meta_environment.rascal.ast.Expression.Addition x = new org.meta_environment.rascal.ast.Expression.Addition(
+				node, lhs, rhs);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.Addition) table
+				.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.Intersection makeExpressionIntersection(
+			INode node, org.meta_environment.rascal.ast.Expression lhs,
+			org.meta_environment.rascal.ast.Expression rhs) {
+		org.meta_environment.rascal.ast.Expression.Intersection x = new org.meta_environment.rascal.ast.Expression.Intersection(
+				node, lhs, rhs);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.Intersection) table
+				.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.Modulo makeExpressionModulo(
+			INode node, org.meta_environment.rascal.ast.Expression lhs,
+			org.meta_environment.rascal.ast.Expression rhs) {
+		org.meta_environment.rascal.ast.Expression.Modulo x = new org.meta_environment.rascal.ast.Expression.Modulo(
+				node, lhs, rhs);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.Modulo) table.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.Division makeExpressionDivision(
+			INode node, org.meta_environment.rascal.ast.Expression lhs,
+			org.meta_environment.rascal.ast.Expression rhs) {
+		org.meta_environment.rascal.ast.Expression.Division x = new org.meta_environment.rascal.ast.Expression.Division(
+				node, lhs, rhs);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.Division) table
+				.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.Product makeExpressionProduct(
+			INode node, org.meta_environment.rascal.ast.Expression lhs,
+			org.meta_environment.rascal.ast.Expression rhs) {
+		org.meta_environment.rascal.ast.Expression.Product x = new org.meta_environment.rascal.ast.Expression.Product(
+				node, lhs, rhs);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.Product) table
+				.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.Composition makeExpressionComposition(
+			INode node, org.meta_environment.rascal.ast.Expression lhs,
+			org.meta_environment.rascal.ast.Expression rhs) {
+		org.meta_environment.rascal.ast.Expression.Composition x = new org.meta_environment.rascal.ast.Expression.Composition(
+				node, lhs, rhs);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.Composition) table
+				.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.SetAnnotation makeExpressionSetAnnotation(
+			INode node, org.meta_environment.rascal.ast.Expression expression,
+			org.meta_environment.rascal.ast.Name name,
+			org.meta_environment.rascal.ast.Expression value) {
+		org.meta_environment.rascal.ast.Expression.SetAnnotation x = new org.meta_environment.rascal.ast.Expression.SetAnnotation(
+				node, expression, name, value);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.SetAnnotation) table
+				.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.GetAnnotation makeExpressionGetAnnotation(
+			INode node, org.meta_environment.rascal.ast.Expression expression,
+			org.meta_environment.rascal.ast.Name name) {
+		org.meta_environment.rascal.ast.Expression.GetAnnotation x = new org.meta_environment.rascal.ast.Expression.GetAnnotation(
+				node, expression, name);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.GetAnnotation) table
+				.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.TransitiveClosure makeExpressionTransitiveClosure(
+			INode node, org.meta_environment.rascal.ast.Expression argument) {
+		org.meta_environment.rascal.ast.Expression.TransitiveClosure x = new org.meta_environment.rascal.ast.Expression.TransitiveClosure(
+				node, argument);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.TransitiveClosure) table
+				.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.TransitiveReflexiveClosure makeExpressionTransitiveReflexiveClosure(
+			INode node, org.meta_environment.rascal.ast.Expression argument) {
+		org.meta_environment.rascal.ast.Expression.TransitiveReflexiveClosure x = new org.meta_environment.rascal.ast.Expression.TransitiveReflexiveClosure(
+				node, argument);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.TransitiveReflexiveClosure) table
+				.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.Negative makeExpressionNegative(
+			INode node, org.meta_environment.rascal.ast.Expression argument) {
+		org.meta_environment.rascal.ast.Expression.Negative x = new org.meta_environment.rascal.ast.Expression.Negative(
+				node, argument);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.Negative) table
+				.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.Negation makeExpressionNegation(
+			INode node, org.meta_environment.rascal.ast.Expression argument) {
+		org.meta_environment.rascal.ast.Expression.Negation x = new org.meta_environment.rascal.ast.Expression.Negation(
+				node, argument);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.Negation) table
+				.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.IsDefined makeExpressionIsDefined(
+			INode node, org.meta_environment.rascal.ast.Expression argument) {
+		org.meta_environment.rascal.ast.Expression.IsDefined x = new org.meta_environment.rascal.ast.Expression.IsDefined(
+				node, argument);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.IsDefined) table
+				.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.Subscript makeExpressionSubscript(
+			INode node,
+			org.meta_environment.rascal.ast.Expression expression,
+			java.util.List<org.meta_environment.rascal.ast.Expression> subscripts) {
+		org.meta_environment.rascal.ast.Expression.Subscript x = new org.meta_environment.rascal.ast.Expression.Subscript(
+				node, expression, subscripts);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.Subscript) table
+				.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.FieldProject makeExpressionFieldProject(
+			INode node, org.meta_environment.rascal.ast.Expression expression,
+			java.util.List<org.meta_environment.rascal.ast.Field> fields) {
+		org.meta_environment.rascal.ast.Expression.FieldProject x = new org.meta_environment.rascal.ast.Expression.FieldProject(
+				node, expression, fields);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.FieldProject) table
+				.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.FieldAccess makeExpressionFieldAccess(
+			INode node, org.meta_environment.rascal.ast.Expression expression,
+			org.meta_environment.rascal.ast.Name field) {
+		org.meta_environment.rascal.ast.Expression.FieldAccess x = new org.meta_environment.rascal.ast.Expression.FieldAccess(
+				node, expression, field);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.FieldAccess) table
+				.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.FieldUpdate makeExpressionFieldUpdate(
+			INode node, org.meta_environment.rascal.ast.Expression expression,
+			org.meta_environment.rascal.ast.Name key,
+			org.meta_environment.rascal.ast.Expression replacement) {
+		org.meta_environment.rascal.ast.Expression.FieldUpdate x = new org.meta_environment.rascal.ast.Expression.FieldUpdate(
+				node, expression, key, replacement);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.FieldUpdate) table
+				.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.ClosureCall makeExpressionClosureCall(
+			INode node,
+			org.meta_environment.rascal.ast.ClosureAsFunction closure,
+			java.util.List<org.meta_environment.rascal.ast.Expression> arguments) {
+		org.meta_environment.rascal.ast.Expression.ClosureCall x = new org.meta_environment.rascal.ast.Expression.ClosureCall(
+				node, closure, arguments);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.ClosureCall) table
+				.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.FunctionAsValue makeExpressionFunctionAsValue(
+			INode node, org.meta_environment.rascal.ast.FunctionAsValue function) {
+		org.meta_environment.rascal.ast.Expression.FunctionAsValue x = new org.meta_environment.rascal.ast.Expression.FunctionAsValue(
+				node, function);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.FunctionAsValue) table
+				.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.OperatorAsValue makeExpressionOperatorAsValue(
+			INode node, org.meta_environment.rascal.ast.OperatorAsValue operator) {
+		org.meta_environment.rascal.ast.Expression.OperatorAsValue x = new org.meta_environment.rascal.ast.Expression.OperatorAsValue(
+				node, operator);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.OperatorAsValue) table
+				.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.StepRange makeExpressionStepRange(
+			INode node, org.meta_environment.rascal.ast.Expression first,
+			org.meta_environment.rascal.ast.Expression second,
+			org.meta_environment.rascal.ast.Expression last) {
+		org.meta_environment.rascal.ast.Expression.StepRange x = new org.meta_environment.rascal.ast.Expression.StepRange(
+				node, first, second, last);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.StepRange) table
+				.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.Range makeExpressionRange(
+			INode node, org.meta_environment.rascal.ast.Expression first,
+			org.meta_environment.rascal.ast.Expression last) {
+		org.meta_environment.rascal.ast.Expression.Range x = new org.meta_environment.rascal.ast.Expression.Range(
+				node, first, last);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.Range) table.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.Bracket makeExpressionBracket(
+			INode node, org.meta_environment.rascal.ast.Expression expression) {
+		org.meta_environment.rascal.ast.Expression.Bracket x = new org.meta_environment.rascal.ast.Expression.Bracket(
+				node, expression);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.Bracket) table
+				.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.VoidClosure makeExpressionVoidClosure(
+			INode node, org.meta_environment.rascal.ast.Parameters parameters,
+			java.util.List<org.meta_environment.rascal.ast.Statement> statements) {
+		org.meta_environment.rascal.ast.Expression.VoidClosure x = new org.meta_environment.rascal.ast.Expression.VoidClosure(
+				node, parameters, statements);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.VoidClosure) table
+				.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.Closure makeExpressionClosure(
+			INode node, org.meta_environment.rascal.ast.Type type,
+			org.meta_environment.rascal.ast.Parameters parameters,
+			java.util.List<org.meta_environment.rascal.ast.Statement> statements) {
+		org.meta_environment.rascal.ast.Expression.Closure x = new org.meta_environment.rascal.ast.Expression.Closure(
+				node, type, parameters, statements);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.Closure) table
+				.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.Any makeExpressionAny(
+			INode node,
+			java.util.List<org.meta_environment.rascal.ast.Expression> generators) {
+		org.meta_environment.rascal.ast.Expression.Any x = new org.meta_environment.rascal.ast.Expression.Any(
+				node, generators);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.Any) table.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.All makeExpressionAll(
+			INode node,
+			java.util.List<org.meta_environment.rascal.ast.Expression> generators) {
+		org.meta_environment.rascal.ast.Expression.All x = new org.meta_environment.rascal.ast.Expression.All(
+				node, generators);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.All) table.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.Comprehension makeExpressionComprehension(
+			INode node,
+			org.meta_environment.rascal.ast.Comprehension comprehension) {
+		org.meta_environment.rascal.ast.Expression.Comprehension x = new org.meta_environment.rascal.ast.Expression.Comprehension(
+				node, comprehension);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.Comprehension) table
+				.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.Equals makeExpressionEquals(
+			INode node, org.meta_environment.rascal.ast.Expression lhs,
+			org.meta_environment.rascal.ast.Expression rhs) {
+		org.meta_environment.rascal.ast.Expression.Equals x = new org.meta_environment.rascal.ast.Expression.Equals(
+				node, lhs, rhs);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.Equals) table.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.ValueProducerWithStrategy makeExpressionValueProducerWithStrategy(
+			INode node, org.meta_environment.rascal.ast.Strategy strategy,
+			org.meta_environment.rascal.ast.Expression pattern,
+			org.meta_environment.rascal.ast.Expression expression) {
+		org.meta_environment.rascal.ast.Expression.ValueProducerWithStrategy x = new org.meta_environment.rascal.ast.Expression.ValueProducerWithStrategy(
+				node, strategy, pattern, expression);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.ValueProducerWithStrategy) table
+				.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.ValueProducer makeExpressionValueProducer(
+			INode node, org.meta_environment.rascal.ast.Expression pattern,
+			org.meta_environment.rascal.ast.Expression expression) {
+		org.meta_environment.rascal.ast.Expression.ValueProducer x = new org.meta_environment.rascal.ast.Expression.ValueProducer(
+				node, pattern, expression);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.ValueProducer) table
+				.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.NoMatch makeExpressionNoMatch(
+			INode node, org.meta_environment.rascal.ast.Expression pattern,
+			org.meta_environment.rascal.ast.Expression expression) {
+		org.meta_environment.rascal.ast.Expression.NoMatch x = new org.meta_environment.rascal.ast.Expression.NoMatch(
+				node, pattern, expression);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.NoMatch) table
+				.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.Match makeExpressionMatch(
+			INode node, org.meta_environment.rascal.ast.Expression pattern,
+			org.meta_environment.rascal.ast.Expression expression) {
+		org.meta_environment.rascal.ast.Expression.Match x = new org.meta_environment.rascal.ast.Expression.Match(
+				node, pattern, expression);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.Match) table.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.IfDefinedOtherwise makeExpressionIfDefinedOtherwise(
+			INode node, org.meta_environment.rascal.ast.Expression lhs,
+			org.meta_environment.rascal.ast.Expression rhs) {
+		org.meta_environment.rascal.ast.Expression.IfDefinedOtherwise x = new org.meta_environment.rascal.ast.Expression.IfDefinedOtherwise(
+				node, lhs, rhs);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.IfDefinedOtherwise) table
+				.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.IfThenElse makeExpressionIfThenElse(
+			INode node, org.meta_environment.rascal.ast.Expression condition,
+			org.meta_environment.rascal.ast.Expression thenExp,
+			org.meta_environment.rascal.ast.Expression elseExp) {
+		org.meta_environment.rascal.ast.Expression.IfThenElse x = new org.meta_environment.rascal.ast.Expression.IfThenElse(
+				node, condition, thenExp, elseExp);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.IfThenElse) table
+				.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.TypedVariable makeExpressionTypedVariable(
+			INode node, org.meta_environment.rascal.ast.Type type,
+			org.meta_environment.rascal.ast.Name name) {
+		org.meta_environment.rascal.ast.Expression.TypedVariable x = new org.meta_environment.rascal.ast.Expression.TypedVariable(
+				node, type, name);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.TypedVariable) table
+				.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.QualifiedName makeExpressionQualifiedName(
+			INode node,
+			org.meta_environment.rascal.ast.QualifiedName qualifiedName) {
+		org.meta_environment.rascal.ast.Expression.QualifiedName x = new org.meta_environment.rascal.ast.Expression.QualifiedName(
+				node, qualifiedName);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.QualifiedName) table
+				.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.Location makeExpressionLocation(
+			INode node, org.meta_environment.rascal.ast.URL url,
+			org.meta_environment.rascal.ast.Expression offset,
+			org.meta_environment.rascal.ast.Expression length,
+			org.meta_environment.rascal.ast.Expression beginLine,
+			org.meta_environment.rascal.ast.Expression beginColumn,
+			org.meta_environment.rascal.ast.Expression endLine,
+			org.meta_environment.rascal.ast.Expression endColumn) {
+		org.meta_environment.rascal.ast.Expression.Location x = new org.meta_environment.rascal.ast.Expression.Location(
+				node, url, offset, length, beginLine, beginColumn, endLine,
+				endColumn);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.Location) table
+				.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.Map makeExpressionMap(
+			INode node,
+			java.util.List<org.meta_environment.rascal.ast.Mapping> mappings) {
+		org.meta_environment.rascal.ast.Expression.Map x = new org.meta_environment.rascal.ast.Expression.Map(
+				node, mappings);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.Map) table.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.Tuple makeExpressionTuple(
+			INode node,
+			java.util.List<org.meta_environment.rascal.ast.Expression> elements) {
+		org.meta_environment.rascal.ast.Expression.Tuple x = new org.meta_environment.rascal.ast.Expression.Tuple(
+				node, elements);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.Tuple) table.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.Set makeExpressionSet(
+			INode node,
+			java.util.List<org.meta_environment.rascal.ast.Expression> elements) {
+		org.meta_environment.rascal.ast.Expression.Set x = new org.meta_environment.rascal.ast.Expression.Set(
+				node, elements);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.Set) table.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.List makeExpressionList(
+			INode node,
+			java.util.List<org.meta_environment.rascal.ast.Expression> elements) {
+		org.meta_environment.rascal.ast.Expression.List x = new org.meta_environment.rascal.ast.Expression.List(
+				node, elements);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.List) table.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.CallOrTree makeExpressionCallOrTree(
+			INode node,
+			org.meta_environment.rascal.ast.QualifiedName qualifiedName,
+			java.util.List<org.meta_environment.rascal.ast.Expression> arguments) {
+		org.meta_environment.rascal.ast.Expression.CallOrTree x = new org.meta_environment.rascal.ast.Expression.CallOrTree(
+				node, qualifiedName, arguments);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.CallOrTree) table
+				.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.Literal makeExpressionLiteral(
+			INode node, org.meta_environment.rascal.ast.Literal literal) {
+		org.meta_environment.rascal.ast.Expression.Literal x = new org.meta_environment.rascal.ast.Expression.Literal(
+				node, literal);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.Literal) table
+				.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.Visit makeExpressionVisit(
+			INode node, org.meta_environment.rascal.ast.Visit visit) {
+		org.meta_environment.rascal.ast.Expression.Visit x = new org.meta_environment.rascal.ast.Expression.Visit(
+				node, visit);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.Visit) table.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.NonEmptyBlock makeExpressionNonEmptyBlock(
+			INode node,
+			java.util.List<org.meta_environment.rascal.ast.Statement> statements) {
+		org.meta_environment.rascal.ast.Expression.NonEmptyBlock x = new org.meta_environment.rascal.ast.Expression.NonEmptyBlock(
+				node, statements);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.NonEmptyBlock) table
+				.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.TypedVariableBecomes makeExpressionTypedVariableBecomes(
+			INode node, org.meta_environment.rascal.ast.Type type,
+			org.meta_environment.rascal.ast.Name name,
+			org.meta_environment.rascal.ast.Expression pattern) {
+		org.meta_environment.rascal.ast.Expression.TypedVariableBecomes x = new org.meta_environment.rascal.ast.Expression.TypedVariableBecomes(
+				node, type, name, pattern);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.TypedVariableBecomes) table
+				.get(x);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.Ambiguity makeExpressionAmbiguity(
+			INode node,
+			java.util.List<org.meta_environment.rascal.ast.Expression> alternatives) {
+		org.meta_environment.rascal.ast.Expression.Ambiguity amb = new org.meta_environment.rascal.ast.Expression.Ambiguity(
+				node, alternatives);
+		if (!table.containsKey(amb)) {
+			table.put(amb, amb);
+		}
+		return (org.meta_environment.rascal.ast.Expression.Ambiguity) table
+				.get(amb);
+	}
+
+	public org.meta_environment.rascal.ast.Expression.VariableBecomes makeExpressionVariableBecomes(
+			INode node, org.meta_environment.rascal.ast.Name name,
+			org.meta_environment.rascal.ast.Expression pattern) {
+		org.meta_environment.rascal.ast.Expression.VariableBecomes x = new org.meta_environment.rascal.ast.Expression.VariableBecomes(
+				node, name, pattern);
+		if (!table.containsKey(x)) {
+			table.put(x, x);
+		}
+		return (org.meta_environment.rascal.ast.Expression.VariableBecomes) table
+				.get(x);
+	}
+
 	public org.meta_environment.rascal.ast.Comment.Ambiguity makeCommentAmbiguity(
 			INode node,
 			java.util.List<org.meta_environment.rascal.ast.Comment> alternatives) {
@@ -729,726 +1474,6 @@ public class ASTFactory {
 			table.put(x, x);
 		}
 		return (org.meta_environment.rascal.ast.Label.Empty) table.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.Lexical makeExpressionLexical(
-			INode node, String string) {
-		org.meta_environment.rascal.ast.Expression.Lexical x = new org.meta_environment.rascal.ast.Expression.Lexical(
-				node, string);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.Lexical) table
-				.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.Or makeExpressionOr(
-			INode node, org.meta_environment.rascal.ast.Expression lhs,
-			org.meta_environment.rascal.ast.Expression rhs) {
-		org.meta_environment.rascal.ast.Expression.Or x = new org.meta_environment.rascal.ast.Expression.Or(
-				node, lhs, rhs);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.Or) table.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.And makeExpressionAnd(
-			INode node, org.meta_environment.rascal.ast.Expression lhs,
-			org.meta_environment.rascal.ast.Expression rhs) {
-		org.meta_environment.rascal.ast.Expression.And x = new org.meta_environment.rascal.ast.Expression.And(
-				node, lhs, rhs);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.And) table.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.Equivalence makeExpressionEquivalence(
-			INode node, org.meta_environment.rascal.ast.Expression lhs,
-			org.meta_environment.rascal.ast.Expression rhs) {
-		org.meta_environment.rascal.ast.Expression.Equivalence x = new org.meta_environment.rascal.ast.Expression.Equivalence(
-				node, lhs, rhs);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.Equivalence) table
-				.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.Implication makeExpressionImplication(
-			INode node, org.meta_environment.rascal.ast.Expression lhs,
-			org.meta_environment.rascal.ast.Expression rhs) {
-		org.meta_environment.rascal.ast.Expression.Implication x = new org.meta_environment.rascal.ast.Expression.Implication(
-				node, lhs, rhs);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.Implication) table
-				.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.NonEquals makeExpressionNonEquals(
-			INode node, org.meta_environment.rascal.ast.Expression lhs,
-			org.meta_environment.rascal.ast.Expression rhs) {
-		org.meta_environment.rascal.ast.Expression.NonEquals x = new org.meta_environment.rascal.ast.Expression.NonEquals(
-				node, lhs, rhs);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.NonEquals) table
-				.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.GreaterThanOrEq makeExpressionGreaterThanOrEq(
-			INode node, org.meta_environment.rascal.ast.Expression lhs,
-			org.meta_environment.rascal.ast.Expression rhs) {
-		org.meta_environment.rascal.ast.Expression.GreaterThanOrEq x = new org.meta_environment.rascal.ast.Expression.GreaterThanOrEq(
-				node, lhs, rhs);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.GreaterThanOrEq) table
-				.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.GreaterThan makeExpressionGreaterThan(
-			INode node, org.meta_environment.rascal.ast.Expression lhs,
-			org.meta_environment.rascal.ast.Expression rhs) {
-		org.meta_environment.rascal.ast.Expression.GreaterThan x = new org.meta_environment.rascal.ast.Expression.GreaterThan(
-				node, lhs, rhs);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.GreaterThan) table
-				.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.LessThanOrEq makeExpressionLessThanOrEq(
-			INode node, org.meta_environment.rascal.ast.Expression lhs,
-			org.meta_environment.rascal.ast.Expression rhs) {
-		org.meta_environment.rascal.ast.Expression.LessThanOrEq x = new org.meta_environment.rascal.ast.Expression.LessThanOrEq(
-				node, lhs, rhs);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.LessThanOrEq) table
-				.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.LessThan makeExpressionLessThan(
-			INode node, org.meta_environment.rascal.ast.Expression lhs,
-			org.meta_environment.rascal.ast.Expression rhs) {
-		org.meta_environment.rascal.ast.Expression.LessThan x = new org.meta_environment.rascal.ast.Expression.LessThan(
-				node, lhs, rhs);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.LessThan) table
-				.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.In makeExpressionIn(
-			INode node, org.meta_environment.rascal.ast.Expression lhs,
-			org.meta_environment.rascal.ast.Expression rhs) {
-		org.meta_environment.rascal.ast.Expression.In x = new org.meta_environment.rascal.ast.Expression.In(
-				node, lhs, rhs);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.In) table.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.NotIn makeExpressionNotIn(
-			INode node, org.meta_environment.rascal.ast.Expression lhs,
-			org.meta_environment.rascal.ast.Expression rhs) {
-		org.meta_environment.rascal.ast.Expression.NotIn x = new org.meta_environment.rascal.ast.Expression.NotIn(
-				node, lhs, rhs);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.NotIn) table.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.Join makeExpressionJoin(
-			INode node, org.meta_environment.rascal.ast.Expression lhs,
-			org.meta_environment.rascal.ast.Expression rhs) {
-		org.meta_environment.rascal.ast.Expression.Join x = new org.meta_environment.rascal.ast.Expression.Join(
-				node, lhs, rhs);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.Join) table.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.Subtraction makeExpressionSubtraction(
-			INode node, org.meta_environment.rascal.ast.Expression lhs,
-			org.meta_environment.rascal.ast.Expression rhs) {
-		org.meta_environment.rascal.ast.Expression.Subtraction x = new org.meta_environment.rascal.ast.Expression.Subtraction(
-				node, lhs, rhs);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.Subtraction) table
-				.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.Addition makeExpressionAddition(
-			INode node, org.meta_environment.rascal.ast.Expression lhs,
-			org.meta_environment.rascal.ast.Expression rhs) {
-		org.meta_environment.rascal.ast.Expression.Addition x = new org.meta_environment.rascal.ast.Expression.Addition(
-				node, lhs, rhs);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.Addition) table
-				.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.Intersection makeExpressionIntersection(
-			INode node, org.meta_environment.rascal.ast.Expression lhs,
-			org.meta_environment.rascal.ast.Expression rhs) {
-		org.meta_environment.rascal.ast.Expression.Intersection x = new org.meta_environment.rascal.ast.Expression.Intersection(
-				node, lhs, rhs);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.Intersection) table
-				.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.Modulo makeExpressionModulo(
-			INode node, org.meta_environment.rascal.ast.Expression lhs,
-			org.meta_environment.rascal.ast.Expression rhs) {
-		org.meta_environment.rascal.ast.Expression.Modulo x = new org.meta_environment.rascal.ast.Expression.Modulo(
-				node, lhs, rhs);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.Modulo) table.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.Division makeExpressionDivision(
-			INode node, org.meta_environment.rascal.ast.Expression lhs,
-			org.meta_environment.rascal.ast.Expression rhs) {
-		org.meta_environment.rascal.ast.Expression.Division x = new org.meta_environment.rascal.ast.Expression.Division(
-				node, lhs, rhs);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.Division) table
-				.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.Product makeExpressionProduct(
-			INode node, org.meta_environment.rascal.ast.Expression lhs,
-			org.meta_environment.rascal.ast.Expression rhs) {
-		org.meta_environment.rascal.ast.Expression.Product x = new org.meta_environment.rascal.ast.Expression.Product(
-				node, lhs, rhs);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.Product) table
-				.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.Composition makeExpressionComposition(
-			INode node, org.meta_environment.rascal.ast.Expression lhs,
-			org.meta_environment.rascal.ast.Expression rhs) {
-		org.meta_environment.rascal.ast.Expression.Composition x = new org.meta_environment.rascal.ast.Expression.Composition(
-				node, lhs, rhs);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.Composition) table
-				.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.SetAnnotation makeExpressionSetAnnotation(
-			INode node, org.meta_environment.rascal.ast.Expression expression,
-			org.meta_environment.rascal.ast.Name name,
-			org.meta_environment.rascal.ast.Expression value) {
-		org.meta_environment.rascal.ast.Expression.SetAnnotation x = new org.meta_environment.rascal.ast.Expression.SetAnnotation(
-				node, expression, name, value);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.SetAnnotation) table
-				.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.GetAnnotation makeExpressionGetAnnotation(
-			INode node, org.meta_environment.rascal.ast.Expression expression,
-			org.meta_environment.rascal.ast.Name name) {
-		org.meta_environment.rascal.ast.Expression.GetAnnotation x = new org.meta_environment.rascal.ast.Expression.GetAnnotation(
-				node, expression, name);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.GetAnnotation) table
-				.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.TransitiveClosure makeExpressionTransitiveClosure(
-			INode node, org.meta_environment.rascal.ast.Expression argument) {
-		org.meta_environment.rascal.ast.Expression.TransitiveClosure x = new org.meta_environment.rascal.ast.Expression.TransitiveClosure(
-				node, argument);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.TransitiveClosure) table
-				.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.TransitiveReflexiveClosure makeExpressionTransitiveReflexiveClosure(
-			INode node, org.meta_environment.rascal.ast.Expression argument) {
-		org.meta_environment.rascal.ast.Expression.TransitiveReflexiveClosure x = new org.meta_environment.rascal.ast.Expression.TransitiveReflexiveClosure(
-				node, argument);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.TransitiveReflexiveClosure) table
-				.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.Negative makeExpressionNegative(
-			INode node, org.meta_environment.rascal.ast.Expression argument) {
-		org.meta_environment.rascal.ast.Expression.Negative x = new org.meta_environment.rascal.ast.Expression.Negative(
-				node, argument);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.Negative) table
-				.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.Negation makeExpressionNegation(
-			INode node, org.meta_environment.rascal.ast.Expression argument) {
-		org.meta_environment.rascal.ast.Expression.Negation x = new org.meta_environment.rascal.ast.Expression.Negation(
-				node, argument);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.Negation) table
-				.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.IsDefined makeExpressionIsDefined(
-			INode node, org.meta_environment.rascal.ast.Expression argument) {
-		org.meta_environment.rascal.ast.Expression.IsDefined x = new org.meta_environment.rascal.ast.Expression.IsDefined(
-				node, argument);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.IsDefined) table
-				.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.Subscript makeExpressionSubscript(
-			INode node,
-			org.meta_environment.rascal.ast.Expression expression,
-			java.util.List<org.meta_environment.rascal.ast.Expression> subscripts) {
-		org.meta_environment.rascal.ast.Expression.Subscript x = new org.meta_environment.rascal.ast.Expression.Subscript(
-				node, expression, subscripts);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.Subscript) table
-				.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.FieldProject makeExpressionFieldProject(
-			INode node, org.meta_environment.rascal.ast.Expression expression,
-			java.util.List<org.meta_environment.rascal.ast.Field> fields) {
-		org.meta_environment.rascal.ast.Expression.FieldProject x = new org.meta_environment.rascal.ast.Expression.FieldProject(
-				node, expression, fields);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.FieldProject) table
-				.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.FieldAccess makeExpressionFieldAccess(
-			INode node, org.meta_environment.rascal.ast.Expression expression,
-			org.meta_environment.rascal.ast.Name field) {
-		org.meta_environment.rascal.ast.Expression.FieldAccess x = new org.meta_environment.rascal.ast.Expression.FieldAccess(
-				node, expression, field);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.FieldAccess) table
-				.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.FieldUpdate makeExpressionFieldUpdate(
-			INode node, org.meta_environment.rascal.ast.Expression expression,
-			org.meta_environment.rascal.ast.Name key,
-			org.meta_environment.rascal.ast.Expression replacement) {
-		org.meta_environment.rascal.ast.Expression.FieldUpdate x = new org.meta_environment.rascal.ast.Expression.FieldUpdate(
-				node, expression, key, replacement);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.FieldUpdate) table
-				.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.ClosureCall makeExpressionClosureCall(
-			INode node,
-			org.meta_environment.rascal.ast.ClosureAsFunction closure,
-			java.util.List<org.meta_environment.rascal.ast.Expression> arguments) {
-		org.meta_environment.rascal.ast.Expression.ClosureCall x = new org.meta_environment.rascal.ast.Expression.ClosureCall(
-				node, closure, arguments);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.ClosureCall) table
-				.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.FunctionAsValue makeExpressionFunctionAsValue(
-			INode node, org.meta_environment.rascal.ast.FunctionAsValue function) {
-		org.meta_environment.rascal.ast.Expression.FunctionAsValue x = new org.meta_environment.rascal.ast.Expression.FunctionAsValue(
-				node, function);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.FunctionAsValue) table
-				.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.OperatorAsValue makeExpressionOperatorAsValue(
-			INode node, org.meta_environment.rascal.ast.OperatorAsValue operator) {
-		org.meta_environment.rascal.ast.Expression.OperatorAsValue x = new org.meta_environment.rascal.ast.Expression.OperatorAsValue(
-				node, operator);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.OperatorAsValue) table
-				.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.StepRange makeExpressionStepRange(
-			INode node, org.meta_environment.rascal.ast.Expression first,
-			org.meta_environment.rascal.ast.Expression second,
-			org.meta_environment.rascal.ast.Expression last) {
-		org.meta_environment.rascal.ast.Expression.StepRange x = new org.meta_environment.rascal.ast.Expression.StepRange(
-				node, first, second, last);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.StepRange) table
-				.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.Range makeExpressionRange(
-			INode node, org.meta_environment.rascal.ast.Expression first,
-			org.meta_environment.rascal.ast.Expression last) {
-		org.meta_environment.rascal.ast.Expression.Range x = new org.meta_environment.rascal.ast.Expression.Range(
-				node, first, last);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.Range) table.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.Bracket makeExpressionBracket(
-			INode node, org.meta_environment.rascal.ast.Expression expression) {
-		org.meta_environment.rascal.ast.Expression.Bracket x = new org.meta_environment.rascal.ast.Expression.Bracket(
-				node, expression);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.Bracket) table
-				.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.VoidClosure makeExpressionVoidClosure(
-			INode node, org.meta_environment.rascal.ast.Parameters parameters,
-			java.util.List<org.meta_environment.rascal.ast.Statement> statements) {
-		org.meta_environment.rascal.ast.Expression.VoidClosure x = new org.meta_environment.rascal.ast.Expression.VoidClosure(
-				node, parameters, statements);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.VoidClosure) table
-				.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.Closure makeExpressionClosure(
-			INode node, org.meta_environment.rascal.ast.Type type,
-			org.meta_environment.rascal.ast.Parameters parameters,
-			java.util.List<org.meta_environment.rascal.ast.Statement> statements) {
-		org.meta_environment.rascal.ast.Expression.Closure x = new org.meta_environment.rascal.ast.Expression.Closure(
-				node, type, parameters, statements);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.Closure) table
-				.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.Any makeExpressionAny(
-			INode node,
-			java.util.List<org.meta_environment.rascal.ast.Expression> generators) {
-		org.meta_environment.rascal.ast.Expression.Any x = new org.meta_environment.rascal.ast.Expression.Any(
-				node, generators);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.Any) table.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.All makeExpressionAll(
-			INode node,
-			java.util.List<org.meta_environment.rascal.ast.Expression> generators) {
-		org.meta_environment.rascal.ast.Expression.All x = new org.meta_environment.rascal.ast.Expression.All(
-				node, generators);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.All) table.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.Comprehension makeExpressionComprehension(
-			INode node,
-			org.meta_environment.rascal.ast.Comprehension comprehension) {
-		org.meta_environment.rascal.ast.Expression.Comprehension x = new org.meta_environment.rascal.ast.Expression.Comprehension(
-				node, comprehension);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.Comprehension) table
-				.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.Equals makeExpressionEquals(
-			INode node, org.meta_environment.rascal.ast.Expression lhs,
-			org.meta_environment.rascal.ast.Expression rhs) {
-		org.meta_environment.rascal.ast.Expression.Equals x = new org.meta_environment.rascal.ast.Expression.Equals(
-				node, lhs, rhs);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.Equals) table.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.ValueProducerWithStrategy makeExpressionValueProducerWithStrategy(
-			INode node, org.meta_environment.rascal.ast.Strategy strategy,
-			org.meta_environment.rascal.ast.Expression pattern,
-			org.meta_environment.rascal.ast.Expression expression) {
-		org.meta_environment.rascal.ast.Expression.ValueProducerWithStrategy x = new org.meta_environment.rascal.ast.Expression.ValueProducerWithStrategy(
-				node, strategy, pattern, expression);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.ValueProducerWithStrategy) table
-				.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.ValueProducer makeExpressionValueProducer(
-			INode node, org.meta_environment.rascal.ast.Expression pattern,
-			org.meta_environment.rascal.ast.Expression expression) {
-		org.meta_environment.rascal.ast.Expression.ValueProducer x = new org.meta_environment.rascal.ast.Expression.ValueProducer(
-				node, pattern, expression);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.ValueProducer) table
-				.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.NoMatch makeExpressionNoMatch(
-			INode node, org.meta_environment.rascal.ast.Expression pattern,
-			org.meta_environment.rascal.ast.Expression expression) {
-		org.meta_environment.rascal.ast.Expression.NoMatch x = new org.meta_environment.rascal.ast.Expression.NoMatch(
-				node, pattern, expression);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.NoMatch) table
-				.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.Match makeExpressionMatch(
-			INode node, org.meta_environment.rascal.ast.Expression pattern,
-			org.meta_environment.rascal.ast.Expression expression) {
-		org.meta_environment.rascal.ast.Expression.Match x = new org.meta_environment.rascal.ast.Expression.Match(
-				node, pattern, expression);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.Match) table.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.IfDefinedOtherwise makeExpressionIfDefinedOtherwise(
-			INode node, org.meta_environment.rascal.ast.Expression lhs,
-			org.meta_environment.rascal.ast.Expression rhs) {
-		org.meta_environment.rascal.ast.Expression.IfDefinedOtherwise x = new org.meta_environment.rascal.ast.Expression.IfDefinedOtherwise(
-				node, lhs, rhs);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.IfDefinedOtherwise) table
-				.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.IfThenElse makeExpressionIfThenElse(
-			INode node, org.meta_environment.rascal.ast.Expression condition,
-			org.meta_environment.rascal.ast.Expression thenExp,
-			org.meta_environment.rascal.ast.Expression elseExp) {
-		org.meta_environment.rascal.ast.Expression.IfThenElse x = new org.meta_environment.rascal.ast.Expression.IfThenElse(
-				node, condition, thenExp, elseExp);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.IfThenElse) table
-				.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.TypedVariable makeExpressionTypedVariable(
-			INode node, org.meta_environment.rascal.ast.Type type,
-			org.meta_environment.rascal.ast.Name name) {
-		org.meta_environment.rascal.ast.Expression.TypedVariable x = new org.meta_environment.rascal.ast.Expression.TypedVariable(
-				node, type, name);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.TypedVariable) table
-				.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.QualifiedName makeExpressionQualifiedName(
-			INode node,
-			org.meta_environment.rascal.ast.QualifiedName qualifiedName) {
-		org.meta_environment.rascal.ast.Expression.QualifiedName x = new org.meta_environment.rascal.ast.Expression.QualifiedName(
-				node, qualifiedName);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.QualifiedName) table
-				.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.Location makeExpressionLocation(
-			INode node, org.meta_environment.rascal.ast.URL url,
-			org.meta_environment.rascal.ast.Expression offset,
-			org.meta_environment.rascal.ast.Expression length,
-			org.meta_environment.rascal.ast.Expression beginLine,
-			org.meta_environment.rascal.ast.Expression beginColumn,
-			org.meta_environment.rascal.ast.Expression endLine,
-			org.meta_environment.rascal.ast.Expression endColumn) {
-		org.meta_environment.rascal.ast.Expression.Location x = new org.meta_environment.rascal.ast.Expression.Location(
-				node, url, offset, length, beginLine, beginColumn, endLine,
-				endColumn);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.Location) table
-				.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.Map makeExpressionMap(
-			INode node,
-			java.util.List<org.meta_environment.rascal.ast.Mapping> mappings) {
-		org.meta_environment.rascal.ast.Expression.Map x = new org.meta_environment.rascal.ast.Expression.Map(
-				node, mappings);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.Map) table.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.Tuple makeExpressionTuple(
-			INode node,
-			java.util.List<org.meta_environment.rascal.ast.Expression> elements) {
-		org.meta_environment.rascal.ast.Expression.Tuple x = new org.meta_environment.rascal.ast.Expression.Tuple(
-				node, elements);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.Tuple) table.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.Set makeExpressionSet(
-			INode node,
-			java.util.List<org.meta_environment.rascal.ast.Expression> elements) {
-		org.meta_environment.rascal.ast.Expression.Set x = new org.meta_environment.rascal.ast.Expression.Set(
-				node, elements);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.Set) table.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.List makeExpressionList(
-			INode node,
-			java.util.List<org.meta_environment.rascal.ast.Expression> elements) {
-		org.meta_environment.rascal.ast.Expression.List x = new org.meta_environment.rascal.ast.Expression.List(
-				node, elements);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.List) table.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.CallOrTree makeExpressionCallOrTree(
-			INode node,
-			org.meta_environment.rascal.ast.QualifiedName qualifiedName,
-			java.util.List<org.meta_environment.rascal.ast.Expression> arguments) {
-		org.meta_environment.rascal.ast.Expression.CallOrTree x = new org.meta_environment.rascal.ast.Expression.CallOrTree(
-				node, qualifiedName, arguments);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.CallOrTree) table
-				.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.Literal makeExpressionLiteral(
-			INode node, org.meta_environment.rascal.ast.Literal literal) {
-		org.meta_environment.rascal.ast.Expression.Literal x = new org.meta_environment.rascal.ast.Expression.Literal(
-				node, literal);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.Literal) table
-				.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.Visit makeExpressionVisit(
-			INode node, org.meta_environment.rascal.ast.Visit visit) {
-		org.meta_environment.rascal.ast.Expression.Visit x = new org.meta_environment.rascal.ast.Expression.Visit(
-				node, visit);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.Visit) table.get(x);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.Ambiguity makeExpressionAmbiguity(
-			INode node,
-			java.util.List<org.meta_environment.rascal.ast.Expression> alternatives) {
-		org.meta_environment.rascal.ast.Expression.Ambiguity amb = new org.meta_environment.rascal.ast.Expression.Ambiguity(
-				node, alternatives);
-		if (!table.containsKey(amb)) {
-			table.put(amb, amb);
-		}
-		return (org.meta_environment.rascal.ast.Expression.Ambiguity) table
-				.get(amb);
-	}
-
-	public org.meta_environment.rascal.ast.Expression.NonEmptyBlock makeExpressionNonEmptyBlock(
-			INode node,
-			java.util.List<org.meta_environment.rascal.ast.Statement> statements) {
-		org.meta_environment.rascal.ast.Expression.NonEmptyBlock x = new org.meta_environment.rascal.ast.Expression.NonEmptyBlock(
-				node, statements);
-		if (!table.containsKey(x)) {
-			table.put(x, x);
-		}
-		return (org.meta_environment.rascal.ast.Expression.NonEmptyBlock) table
-				.get(x);
 	}
 
 	public org.meta_environment.rascal.ast.Break.NoLabel makeBreakNoLabel(
