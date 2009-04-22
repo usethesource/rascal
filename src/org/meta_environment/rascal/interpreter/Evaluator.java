@@ -1903,11 +1903,10 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 		try {
 			URL url = new URL(urlText);
-			  ISourceLocation r = vf.sourceLocation(url, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn);
-			  return makeResult(tf.sourceLocationType(), r, x);
-//			  return result(tf.sourceLocationType(), r);
+			ISourceLocation r = vf.sourceLocation(url, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn);
+			return makeResult(tf.sourceLocationType(), r, x);
 		} catch (MalformedURLException e){
-			throw new SyntaxError("URL", x.getLocation());
+			throw new SyntaxError("location (malformed URL)", x.getLocation());
 		}
 	}
 	
