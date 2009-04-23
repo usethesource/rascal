@@ -4,11 +4,13 @@ import demo::GenericFeatherweightJava::GFJ;
 import demo::GenericFeatherweightJava::Types;  
 import IO;
 
+// Reusable type variables
 public Type X = typeVar("X");
 public Type Y = typeVar("Y");
 public Type Z = typeVar("Z");
 public Type T = typeVar("T");
 
+// Generic library classes
 public Class Collection = class("Collection", <[X],[Object]>, Object, 
                             <[],[]>,
                             cons(<[],[]>, super([]), []),
@@ -51,7 +53,20 @@ public Class Succ = class("Succ", <[],[]>, typeLit("Number",[]),
 public Class A = class("A", <[],[]>, Object, <[],[]>, cons(<[],[]>, super([]), []), []);
 public Class B = class("B", <[],[]>, Object, <[],[]>, cons(<[],[]>, super([]), []), []);
 
-  
+// Example classes that use the Raw versions of Generic types
+
+// class Example1 { Tuple main() { return new Tuple(Zero, Succ(Zero)); }
+// {c,sh,w}ould be:
+// class Example1 { Tuple<Zero,Succ> main() { return new Tuple<Zero,Succ>(Zero, Succ(Zero)); }
+public Class Example1 = class("Example1",<[],[]>, Object, 
+                              <[],[]>,
+                              cons(<[],[]>,super([]), []),
+                              [
+                                method(<[],[]>,typeLit("Tuple",[]),"main", <[],[]>, [new(typeLit("Tuple",[]),[new(typeLit("Zero",[]),[]),new(typeLit("Succ",[]),[new(typeLit("Zero",[]),[])])])])
+                              ]
+                             );
+
+
 public void init() {
   demo::GenericFeatherweightJava::Types::ClassTable = 
               ("A":A, 
@@ -61,7 +76,8 @@ public void init() {
                "Succ":Succ, 
                "Tuple":Tuple, 
                "Collection":Container,
-               "Map":Map
+               "Map":Map,
+               "Example1":Example1
                );
 }
 
