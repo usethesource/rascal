@@ -202,6 +202,7 @@ public class TreeAdapter {
 	
 	// TODO this code breaks in the presence of cycles
 	private IConstructor addPosInfo(IConstructor t, String filename, Position cur) throws MalformedURLException {
+		IValueFactory factory = ValueFactoryFactory.getValueFactory();
 		TreeAdapter tree = new TreeAdapter(t);
 		
 		if (tree.isChar()) {
@@ -227,7 +228,7 @@ public class TreeAdapter {
 		
 		if (tree.isAppl()) {
 			IList args = tree.getArgs();
-			IListWriter newArgs = ValueFactoryFactory.getValueFactory().listWriter(Factory.Tree);
+			IListWriter newArgs = factory.listWriter(Factory.Tree);
 			
 			for (IValue arg : args) {
 				newArgs.append(addPosInfo((IConstructor) arg, filename, cur));
@@ -255,7 +256,6 @@ public class TreeAdapter {
 		
 		// TODO: what about this 'true' here?
 		if (true || !tree.isLayout() && !tree.isLexical()) {
-			IValueFactory factory = ValueFactoryFactory.getValueFactory();
 			ISourceLocation loc = factory.sourceLocation(new URL("file://" + filename), start.offset, cur.offset - start.offset, start.line, cur.line, start.col, cur.col);
 			return t.setAnnotation(Factory.Location, loc);
 		}
