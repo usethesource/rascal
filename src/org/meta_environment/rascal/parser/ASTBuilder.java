@@ -127,7 +127,7 @@ public class ASTBuilder {
 	private AbstractAST buildAmbNode(INode node, ISet alternatives) {
 		try {
 			String sort = null;
-			List<AbstractAST> alts = new ArrayList<AbstractAST>();
+			List<AbstractAST> alts = new ArrayList<AbstractAST>(alternatives.size());
 
 			for (IValue elem : alternatives) {
 				TreeAdapter alt = new TreeAdapter((IConstructor) elem);
