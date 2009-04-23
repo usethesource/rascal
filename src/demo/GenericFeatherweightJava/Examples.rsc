@@ -44,7 +44,7 @@ public Class Tuple = class("Tuple", <[X,Y],[Object,Object]>, typeLit("Collection
 public Class Number  = class("Number", <[],[]>, Object, <[],[]>, cons(<[],[]>, super([]), []), []);
 public Class Zero = class("Zero", <[],[]>, typeLit("Number",[]), <[],[]>, cons(<[],[]>, super([]), []), []);
 public Class Succ = class("Succ", <[],[]>, typeLit("Number",[]), 
-                            <[typeLit("Number")],["prev"]>, 
+                            <[typeLit("Number",[])],["prev"]>, 
                             cons(<[typeLit("Number",["prev"])],[this("prev")]>, super([]), [this("prev")]), 
                             [
                             ]
