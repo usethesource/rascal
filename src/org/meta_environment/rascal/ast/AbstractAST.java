@@ -22,7 +22,19 @@ public abstract class AbstractAST implements IVisitable {
 	@Override
 	public boolean equals(Object obj) {
 		if (getClass() == obj.getClass()) {
-			return ((AbstractAST) obj).node.equals(node);
+			if (obj == this) {
+				return true;
+			}
+			
+			AbstractAST other = (AbstractAST) obj;
+			
+			if (other.node == node) {
+				return true;
+			}
+			
+			if (other.node.equals(node)) {
+				return other.node.getAnnotation("loc").isEqual(node.getAnnotation("loc"));	
+			}
 		}
 		return false;
 	}
