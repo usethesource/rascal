@@ -6,25 +6,62 @@ import IO;
 
 public Type X = typeVar("X");
 public Type Y = typeVar("Y");
+public Type Z = typeVar("Z");
+public Type T = typeVar("T");
+
+public Class Collection = class("Collection", <[X],[Object]>, Object, 
+                            <[],[]>,
+                            cons(<[],[]>, super([]), []),
+                            [
+                              method(<[],[]>, typeLit("Number",[]), "size", <[],[]>, new(typeLit("Zero",[]),[]))
+                            ]
+                          );
+
+public Class Map = class("Map",<[X,Y],[Object,Object]>, typeLit("Collection",[X]), // header
+                      <[X,Y], ["key","value"]>, // fields    
+                      cons(<[X,Y],["key","value"]>,super([]),[this("key"),this("value")]), // constructor
+                      [
+                        method(<[],[]>, Y, "get", <[X],["key"]>, access(var("this"),"value")),
+                        method(<[],[]>, typeLit("Map",[X,Y]), "set", <[X,Y],["key","value"]>, new(typeLit("Map",[X,Y]),[var("key"), var("value")])),
+                        method(<[],[]>, typeLit("Number",[]), "size", <[],[]>, new(typeLit("Succ",[]),[new(typeLit("Zero",[]),[])])) 
+                      ]
+                   );
+
+public Class Tuple = class("Tuple", <[X,Y],[Object,Object]>, typeLit("Collection",[Object]), 
+                        <[X,Y],["fst","snd"]>, 
+                        cons(<[X,Y],["fst","snd"]>, super([]), [this("fst"), this("snd")]), 
+                        [
+                           method(<[],[]>,X,"getFst", <[],[]>, access(var("this"),"fst")),
+                           method(<[],[]>,Y,"getSnd", <[],[]>, access(var("this"),"snd")),
+                           method(<[Z],[Object]>, typeLit("Tuple",[Z,Y]), "setFst", <[Z],["fst"]>, new(typeLit("Tuple",[Z,Y]),[var("fst"), access(var("this"), "snd")])), 
+                           method(<[Z],[Object]>, typeLit("Tuple",[X,Z]), "setSnd", <[Z],["snd"]>, new(typeLit("Tuple",[X,Z]),[access(var("this"), "fst"), var("snd")])),
+                           method(<[],[]>, typeLit("Number",[]), "size", <[],[]>, new(typeLit("Succ",[]),[new(typeLit("Succ",[]),[new(typeLit("Zero",[]),[])])])) 
+                        ]
+                     );
+
+public Class Number  = class("Number", <[],[]>, Object, <[],[]>, cons(<[],[]>, super([]), []), []);
+public Class Zero = class("Zero", <[],[]>, typeLit("Number",[]), <[],[]>, cons(<[],[]>, super([]), []), []);
+public Class Succ = class("Succ", <[],[]>, typeLit("Number",[]), 
+                            <[typeLit("Number")],["prev"]>, 
+                            cons(<[typeLit("Number",["prev"])],[this("prev")]>, super([]), [this("prev")]), 
+                            [
+                            ]
+                         );
 
 public Class A = class("A", <[],[]>, Object, <[],[]>, cons(<[],[]>, super([]), []), []);
 public Class B = class("B", <[],[]>, Object, <[],[]>, cons(<[],[]>, super([]), []), []);
-public Class Fruit = class("Fruit", <[],[]>, Object, <[],[]>, cons(<[],[]>, super([]), []), []);
-public Class Appel = class("Appel", <[],[]>, typeLit("Fruit",[]), <[],[]>, cons(<[],[]>, super([]), []), []);
-public Class Banaan = class("Banaan", <[],[]>, typeLit("Fruit",[]), <[],[]>, cons(<[],[]>, super([]), []), []);
-public Class Tuple = class("Tuple", <[],[]>, Object, <[Object,Object],["fst","snd"]>, cons(<[],[]>, super([]), []), [method(<[],[]>,Object,"getfst", <[],[]>, access(this,"fst"))]);
-public Class GTuple = class("Tuple", <[X,Y],[Object,Object]>, Object, <[X,Y],["fst","snd"]>, cons(<[],[]>, super([]), []), [method(<[],[]>,X,"getfst", <[],[]>, access(this,"fst"))]);
+
   
 public void init() {
   demo::GenericFeatherweightJava::Types::ClassTable = 
               ("A":A, 
                "B":B, 
-               "Fruit":Fruit,
-               "Appel":Appel, 
-               "Banaan":Banaan, 
-               // "Object":Object 
+               "Number":Number,
+               "Zero":Zero,
+               "Succ":Succ, 
                "Tuple":Tuple, 
-               "GTuple": GTuple
+               "Collection":Container,
+               "Map":Map
                );
 }
 
