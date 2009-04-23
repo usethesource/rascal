@@ -71,7 +71,7 @@ public class ASTBuilder {
 	
 	private List<AbstractAST> buildList(IConstructor in)  {
 		IList args = new TreeAdapter(in).getListASTArgs();
-		List<AbstractAST> result = new ArrayList<AbstractAST>();
+		List<AbstractAST> result = new ArrayList<AbstractAST>(args.length());
 		for (IValue arg: args) {
 			result.add(buildValue(arg));
 		}
