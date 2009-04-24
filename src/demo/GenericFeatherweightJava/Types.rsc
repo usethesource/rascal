@@ -98,7 +98,7 @@ public MethodType mtype(Name methodName, Type t) {
      return inst(<def.methods[i].formalTypes, def.methods[i].returnType, def.methods[i].formals.types>, def.formals.vars, t.actuals);
    }
    else { // if not found, go to super class
-     return mtype(name, inst(def.extends, def.formals.vars, t.actuals));    
+     return mtype(methodName, inst(def.extends, def.formals.vars, t.actuals));    
    } 
 }   
 
