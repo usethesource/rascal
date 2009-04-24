@@ -81,6 +81,7 @@ import org.meta_environment.rascal.ast.Expression.ClosureCall;
 import org.meta_environment.rascal.ast.Expression.Composition;
 import org.meta_environment.rascal.ast.Expression.Comprehension;
 import org.meta_environment.rascal.ast.Expression.Division;
+import org.meta_environment.rascal.ast.Expression.EnumeratorWithStrategy;
 import org.meta_environment.rascal.ast.Expression.Equivalence;
 import org.meta_environment.rascal.ast.Expression.FieldProject;
 import org.meta_environment.rascal.ast.Expression.FieldUpdate;
@@ -118,7 +119,7 @@ import org.meta_environment.rascal.ast.Expression.TransitiveClosure;
 import org.meta_environment.rascal.ast.Expression.TransitiveReflexiveClosure;
 import org.meta_environment.rascal.ast.Expression.Tuple;
 import org.meta_environment.rascal.ast.Expression.TypedVariable;
-import org.meta_environment.rascal.ast.Expression.ValueProducerWithStrategy;
+import org.meta_environment.rascal.ast.Expression.EnumeratorWithStrategy;
 import org.meta_environment.rascal.ast.Expression.Visit;
 import org.meta_environment.rascal.ast.Expression.VoidClosure;
 import org.meta_environment.rascal.ast.FunctionDeclaration.Abstract;
@@ -2731,15 +2732,14 @@ public class Evaluator extends NullASTVisitor<Result> {
 	}
 	
 	@Override
-	public Result<IValue> visitExpressionValueProducer(
-			org.meta_environment.rascal.ast.Expression.ValueProducer x) {
-		return new ValueProducerAsGenerator(x, this);
+	public Result<IValue> visitExpressionEnumerator(
+			org.meta_environment.rascal.ast.Expression.Enumerator x) {
+		return new EnumeratorAsGenerator(x, this);
 	}
 	
-	@Override
-	public Result<IValue> visitExpressionValueProducerWithStrategy(
-			ValueProducerWithStrategy x) {
-		return new ValueProducerAsGenerator(x, this);
+	public Result<IValue> visitExpressionEnumeratorWithStrategy(
+			EnumeratorWithStrategy x) {
+		return new EnumeratorAsGenerator(x, this);
 	}
 	
 	/*
@@ -2813,13 +2813,13 @@ public class Evaluator extends NullASTVisitor<Result> {
 	}
 	
 	/*
-	 * ValueProducerAsGenerator implements a value producer of the form
+	 * EnumeratorAsGenerator implements an enumerator of the form
 	 * 	pattern <- Expression
 	 * that occurs in a comprehension. The expression produces a sequence of values and the
 	 * pattern is matched against each value.
 	 */
 	
-	class ValueProducerAsGenerator extends Result<IValue> {
+	class EnumeratorAsGenerator extends Result<IValue> {
 		private boolean firstTime = true;
 		private boolean hasNext = true;
 		private Environment pushedEnv;
@@ -2829,16 +2829,16 @@ public class Evaluator extends NullASTVisitor<Result> {
 		private Evaluator evaluator;
 		private Iterator<?> iterator;
 
-		ValueProducerAsGenerator(Expression vp, Evaluator ev){
+		EnumeratorAsGenerator(Expression enumerator, Evaluator ev){
 			super(tf.boolType(), vf.bool(true), null);
 
 			evaluator = ev;
-			if(!(vp.isValueProducer() || vp.isValueProducerWithStrategy())){
-				throw new ImplementationError("GeneratorEvaluator");
+			if(!(enumerator.isEnumerator() || enumerator.isEnumeratorWithStrategy())){
+				throw new ImplementationError("EnumeratorAsGenerator");
 			}			
 				
 			pushedEnv = evaluator.pushEnv();
-			pat = evalPattern(vp.getPattern());
+			pat = evalPattern(enumerator.getPattern());
 			
 			// Collect all variables in the pattern and remove those that are 
 			// already defined in the current environment
@@ -2851,65 +2851,64 @@ public class Evaluator extends NullASTVisitor<Result> {
 				if(r == null || r.getValue() == null)
 					patVars.add(name);
 			}
-			patexpr = vp.getExpression();
-			//System.err.println("GeneratorEvaluator.push, " + patexpr);
+			patexpr = enumerator.getExpression();
 		
 			Result<IValue> r = patexpr.accept(ev);
 			Type patType = pat.getType(evaluator.peek());
 			
 			// List
 			if(r.getType().isListType()){
-				if(vp.hasStrategy()) {
-					throw new UnsupportedOperationError(vp.toString(), r.getType(), vp);
+				if(enumerator.hasStrategy()) {
+					throw new UnsupportedOperationError(enumerator.toString(), r.getType(), enumerator);
 				}
 				if(!mayOccurIn(patType,r.getType().getElementType()))
-						throw new UnexpectedTypeError(patType, r.getType().getElementType(), vp.getPattern());
+						throw new UnexpectedTypeError(patType, r.getType().getElementType(), enumerator.getPattern());
 				iterator = ((IList) r.getValue()).iterator();
 				
 			// Set
 			} else 	if(r.getType().isSetType()){
-				if(vp.hasStrategy()) {
-					throw new UnsupportedOperationError(vp.toString(), r.getType(), vp);
+				if(enumerator.hasStrategy()) {
+					throw new UnsupportedOperationError(enumerator.toString(), r.getType(), enumerator);
 				}
 				if(!mayOccurIn(patType,r.getType().getElementType()))
-					throw new UnexpectedTypeError(patType, r.getType().getElementType(), vp.getPattern());
+					throw new UnexpectedTypeError(patType, r.getType().getElementType(), enumerator.getPattern());
 				iterator = ((ISet) r.getValue()).iterator();
 			
 			// Map
 			} else if(r.getType().isMapType()){
-				if(vp.hasStrategy()) {
-					throw new UnsupportedOperationError(vp.toString(), r.getType(), vp);
+				if(enumerator.hasStrategy()) {
+					throw new UnsupportedOperationError(enumerator.toString(), r.getType(), enumerator);
 				}
 				if(!mayOccurIn(patType,r.getType().getKeyType()))
-					throw new UnexpectedTypeError(patType, r.getType().getKeyType(), vp.getPattern());
+					throw new UnexpectedTypeError(patType, r.getType().getKeyType(), enumerator.getPattern());
 				iterator = ((IMap) r.getValue()).iterator();
 				
 			// Node and ADT
 			} else if(r.getType().isNodeType() || r.getType().isAbstractDataType()){
 				boolean bottomup = true;
-				if(vp.hasStrategy()){
-					Strategy strat = vp.getStrategy();
+				if(enumerator.hasStrategy()){
+					Strategy strat = enumerator.getStrategy();
 
 					if(strat.isTopDown()){
 						bottomup = false;
 					} else if(strat.isBottomUp()){
 							bottomup = true;
 					} else {
-						throw new UnsupportedOperationError(vp.toString(), r.getType(), vp);
+						throw new UnsupportedOperationError(enumerator.toString(), r.getType(), enumerator);
 					}
 				}
 				if(!mayOccurIn(patType, r.getType()))
-					throw new UnexpectedTypeError(patType, r.getType(), vp.getPattern());
+					throw new UnexpectedTypeError(patType, r.getType(), enumerator.getPattern());
 				iterator = new INodeReader((INode) r.getValue(), bottomup);
 			} else if(r.getType().isStringType()){
-				if(vp.hasStrategy()) {
-					throw new UnsupportedOperationError(vp.getStrategy().toString(), r.getType(), vp.getStrategy());
+				if(enumerator.hasStrategy()) {
+					throw new UnsupportedOperationError(enumerator.getStrategy().toString(), r.getType(), enumerator.getStrategy());
 				}
 				if(!r.getType().isSubtypeOf(patType))
-					throw new UnexpectedTypeError(patType, r.getType(), vp.getPattern());
+					throw new UnexpectedTypeError(patType, r.getType(), enumerator.getPattern());
 				iterator = new SingleIValueIterator(r.getValue());
 			} else {
-				throw new UnsupportedOperationError("generator", r.getType(), vp);
+				throw new UnsupportedOperationError("generator", r.getType(), enumerator);
 			}
 		}
 		
@@ -2994,8 +2993,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 	}
 	
 	private Result<IValue> makeGenerator(Expression g){
-		if(g.isValueProducer() || g.isValueProducerWithStrategy()){
-			return new ValueProducerAsGenerator(g, this);
+		if(g.isEnumerator() || g.isEnumeratorWithStrategy()){
+			return new EnumeratorAsGenerator(g, this);
 		} else {
 			return new ExpressionAsGenerator(g,this);
 		}

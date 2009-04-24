@@ -27,8 +27,6 @@ public interface IASTVisitor<T> {
 
 	public T visitExpressionNotIn(Expression.NotIn x);
 
-	public T visitExpressionJoin(Expression.Join x);
-
 	public T visitExpressionSubtraction(Expression.Subtraction x);
 
 	public T visitExpressionAddition(Expression.Addition x);
@@ -38,6 +36,8 @@ public interface IASTVisitor<T> {
 	public T visitExpressionModulo(Expression.Modulo x);
 
 	public T visitExpressionDivision(Expression.Division x);
+
+	public T visitExpressionJoin(Expression.Join x);
 
 	public T visitExpressionProduct(Expression.Product x);
 
@@ -82,29 +82,6 @@ public interface IASTVisitor<T> {
 
 	public T visitExpressionClosure(Expression.Closure x);
 
-	public T visitExpressionAny(Expression.Any x);
-
-	public T visitExpressionAll(Expression.All x);
-
-	public T visitExpressionComprehension(Expression.Comprehension x);
-
-	public T visitExpressionEquals(Expression.Equals x);
-
-	public T visitExpressionValueProducerWithStrategy(
-			Expression.ValueProducerWithStrategy x);
-
-	public T visitExpressionValueProducer(Expression.ValueProducer x);
-
-	public T visitExpressionNoMatch(Expression.NoMatch x);
-
-	public T visitExpressionMatch(Expression.Match x);
-
-	public T visitExpressionIfDefinedOtherwise(Expression.IfDefinedOtherwise x);
-
-	public T visitExpressionIfThenElse(Expression.IfThenElse x);
-
-	public T visitExpressionTypedVariable(Expression.TypedVariable x);
-
 	public T visitExpressionQualifiedName(Expression.QualifiedName x);
 
 	public T visitExpressionLocation(Expression.Location x);
@@ -121,8 +98,6 @@ public interface IASTVisitor<T> {
 
 	public T visitExpressionLiteral(Expression.Literal x);
 
-	public T visitExpressionVisit(Expression.Visit x);
-
 	public T visitExpressionNonEmptyBlock(Expression.NonEmptyBlock x);
 
 	public T visitExpressionTypedVariableBecomes(
@@ -130,17 +105,78 @@ public interface IASTVisitor<T> {
 
 	public T visitExpressionVariableBecomes(Expression.VariableBecomes x);
 
-	public T visitCommentLexical(Comment.Lexical x);
+	public T visitExpressionVisit(Expression.Visit x);
 
-	public T visitCommentCharLexical(CommentChar.Lexical x);
+	public T visitExpressionAny(Expression.Any x);
 
-	public T visitAsteriskLexical(Asterisk.Lexical x);
+	public T visitExpressionAll(Expression.All x);
 
-	public T visitNameLexical(Name.Lexical x);
+	public T visitExpressionComprehension(Expression.Comprehension x);
 
-	public T visitEscapedNameLexical(EscapedName.Lexical x);
+	public T visitExpressionEquals(Expression.Equals x);
 
-	public T visitQualifiedNameDefault(QualifiedName.Default x);
+	public T visitExpressionEnumeratorWithStrategy(
+			Expression.EnumeratorWithStrategy x);
+
+	public T visitExpressionEnumerator(Expression.Enumerator x);
+
+	public T visitExpressionNoMatch(Expression.NoMatch x);
+
+	public T visitExpressionMatch(Expression.Match x);
+
+	public T visitExpressionIfDefinedOtherwise(Expression.IfDefinedOtherwise x);
+
+	public T visitExpressionIfThenElse(Expression.IfThenElse x);
+
+	public T visitExpressionTypedVariable(Expression.TypedVariable x);
+
+	public T visitMappingDefault(Mapping.Default x);
+
+	public T visitStrategyInnermost(Strategy.Innermost x);
+
+	public T visitStrategyOutermost(Strategy.Outermost x);
+
+	public T visitStrategyBottomUpBreak(Strategy.BottomUpBreak x);
+
+	public T visitStrategyBottomUp(Strategy.BottomUp x);
+
+	public T visitStrategyTopDownBreak(Strategy.TopDownBreak x);
+
+	public T visitStrategyTopDown(Strategy.TopDown x);
+
+	public T visitComprehensionMap(Comprehension.Map x);
+
+	public T visitComprehensionList(Comprehension.List x);
+
+	public T visitComprehensionSet(Comprehension.Set x);
+
+	public T visitReplacementConditional(Replacement.Conditional x);
+
+	public T visitReplacementUnconditional(Replacement.Unconditional x);
+
+	public T visitRuleGuarded(Rule.Guarded x);
+
+	public T visitRuleArbitrary(Rule.Arbitrary x);
+
+	public T visitRuleReplacing(Rule.Replacing x);
+
+	public T visitCaseDefault(Case.Default x);
+
+	public T visitCaseRule(Case.Rule x);
+
+	public T visitVisitGivenStrategy(Visit.GivenStrategy x);
+
+	public T visitVisitDefaultStrategy(Visit.DefaultStrategy x);
+
+	public T visitLiteralString(Literal.String x);
+
+	public T visitLiteralReal(Literal.Real x);
+
+	public T visitLiteralInteger(Literal.Integer x);
+
+	public T visitLiteralBoolean(Literal.Boolean x);
+
+	public T visitLiteralRegExp(Literal.RegExp x);
 
 	public T visitBoundDefault(Bound.Default x);
 
@@ -254,93 +290,91 @@ public interface IASTVisitor<T> {
 	public T visitLocalVariableDeclarationDefault(
 			LocalVariableDeclaration.Default x);
 
-	public T visitBasicTypeArea(BasicType.Area x);
+	public T visitURLLiteralLexical(URLLiteral.Lexical x);
 
-	public T visitBasicTypeLoc(BasicType.Loc x);
+	public T visitURLDefault(URL.Default x);
 
-	public T visitBasicTypeVoid(BasicType.Void x);
+	public T visitCommentLexical(Comment.Lexical x);
 
-	public T visitBasicTypeNode(BasicType.Node x);
+	public T visitCommentCharLexical(CommentChar.Lexical x);
 
-	public T visitBasicTypeValue(BasicType.Value x);
+	public T visitAsteriskLexical(Asterisk.Lexical x);
 
-	public T visitBasicTypeString(BasicType.String x);
+	public T visitVisibilityPrivate(Visibility.Private x);
 
-	public T visitBasicTypeReal(BasicType.Real x);
+	public T visitVisibilityPublic(Visibility.Public x);
 
-	public T visitBasicTypeInt(BasicType.Int x);
+	public T visitToplevelDefaultVisibility(Toplevel.DefaultVisibility x);
 
-	public T visitBasicTypeBool(BasicType.Bool x);
+	public T visitToplevelGivenVisibility(Toplevel.GivenVisibility x);
 
-	public T visitTypeArgNamed(TypeArg.Named x);
+	public T visitDeclarationTag(Declaration.Tag x);
 
-	public T visitTypeArgDefault(TypeArg.Default x);
+	public T visitDeclarationAnnotation(Declaration.Annotation x);
 
-	public T visitStructuredTypeLex(StructuredType.Lex x);
+	public T visitDeclarationRule(Declaration.Rule x);
 
-	public T visitStructuredTypeTuple(StructuredType.Tuple x);
+	public T visitDeclarationVariable(Declaration.Variable x);
 
-	public T visitStructuredTypeRelation(StructuredType.Relation x);
+	public T visitDeclarationFunction(Declaration.Function x);
 
-	public T visitStructuredTypeMap(StructuredType.Map x);
+	public T visitDeclarationData(Declaration.Data x);
 
-	public T visitStructuredTypeBag(StructuredType.Bag x);
+	public T visitDeclarationAlias(Declaration.Alias x);
 
-	public T visitStructuredTypeSet(StructuredType.Set x);
+	public T visitDeclarationView(Declaration.View x);
 
-	public T visitStructuredTypeList(StructuredType.List x);
+	public T visitAlternativeNamedType(Alternative.NamedType x);
 
-	public T visitFunctionTypeTypeArguments(FunctionType.TypeArguments x);
+	public T visitVariantNillaryConstructor(Variant.NillaryConstructor x);
 
-	public T visitTypeVarBounded(TypeVar.Bounded x);
+	public T visitVariantNAryConstructor(Variant.NAryConstructor x);
 
-	public T visitTypeVarFree(TypeVar.Free x);
+	public T visitFunctionModifierJava(FunctionModifier.Java x);
 
-	public T visitUserTypeParametric(UserType.Parametric x);
+	public T visitFunctionModifiersList(FunctionModifiers.List x);
 
-	public T visitUserTypeName(UserType.Name x);
+	public T visitSignatureWithThrows(Signature.WithThrows x);
 
-	public T visitDataTypeSelectorSelector(DataTypeSelector.Selector x);
+	public T visitSignatureNoThrows(Signature.NoThrows x);
 
-	public T visitTypeSelector(Type.Selector x);
+	public T visitFunctionDeclarationAbstract(FunctionDeclaration.Abstract x);
 
-	public T visitTypeSymbol(Type.Symbol x);
+	public T visitFunctionDeclarationDefault(FunctionDeclaration.Default x);
 
-	public T visitTypeUser(Type.User x);
+	public T visitFunctionBodyDefault(FunctionBody.Default x);
 
-	public T visitTypeVariable(Type.Variable x);
+	public T visitVariableInitialized(Variable.Initialized x);
 
-	public T visitTypeFunction(Type.Function x);
+	public T visitVariableUnInitialized(Variable.UnInitialized x);
 
-	public T visitTypeStructured(Type.Structured x);
+	public T visitKindAll(Kind.All x);
 
-	public T visitTypeBasic(Type.Basic x);
+	public T visitKindTag(Kind.Tag x);
 
-	public T visitModuleDefault(Module.Default x);
+	public T visitKindAnno(Kind.Anno x);
 
-	public T visitModuleActualsDefault(ModuleActuals.Default x);
+	public T visitKindAlias(Kind.Alias x);
 
-	public T visitImportedModuleDefault(ImportedModule.Default x);
+	public T visitKindView(Kind.View x);
 
-	public T visitImportedModuleRenamings(ImportedModule.Renamings x);
+	public T visitKindData(Kind.Data x);
 
-	public T visitImportedModuleActuals(ImportedModule.Actuals x);
+	public T visitKindVariable(Kind.Variable x);
 
-	public T visitImportedModuleActualsRenaming(ImportedModule.ActualsRenaming x);
+	public T visitKindRule(Kind.Rule x);
 
-	public T visitRenamingDefault(Renaming.Default x);
+	public T visitKindFunction(Kind.Function x);
 
-	public T visitRenamingsDefault(Renamings.Default x);
+	public T visitKindModule(Kind.Module x);
 
-	public T visitImportExtend(Import.Extend x);
+	public T visitTagStringLexical(TagString.Lexical x);
 
-	public T visitImportDefault(Import.Default x);
+	public T visitTagCharLexical(TagChar.Lexical x);
 
-	public T visitModuleParametersDefault(ModuleParameters.Default x);
+	public T visitTagDefault(Tag.Default x);
 
-	public T visitHeaderParameters(Header.Parameters x);
-
-	public T visitHeaderDefault(Header.Default x);
+	public T visitTagsDefault(Tags.Default x);
 
 	public T visitStrCharLexical(StrChar.Lexical x);
 
@@ -418,93 +452,67 @@ public interface IASTVisitor<T> {
 
 	public T visitCharacterNumeric(Character.Numeric x);
 
-	public T visitCommandImport(Command.Import x);
+	public T visitBasicTypeArea(BasicType.Area x);
 
-	public T visitCommandDeclaration(Command.Declaration x);
+	public T visitBasicTypeLoc(BasicType.Loc x);
 
-	public T visitCommandStatement(Command.Statement x);
+	public T visitBasicTypeVoid(BasicType.Void x);
 
-	public T visitCommandShell(Command.Shell x);
+	public T visitBasicTypeNode(BasicType.Node x);
 
-	public T visitShellCommandHistory(ShellCommand.History x);
+	public T visitBasicTypeValue(BasicType.Value x);
 
-	public T visitShellCommandEdit(ShellCommand.Edit x);
+	public T visitBasicTypeString(BasicType.String x);
 
-	public T visitShellCommandQuit(ShellCommand.Quit x);
+	public T visitBasicTypeReal(BasicType.Real x);
 
-	public T visitShellCommandHelp(ShellCommand.Help x);
+	public T visitBasicTypeInt(BasicType.Int x);
 
-	public T visitRegExpLiteralLexical(RegExpLiteral.Lexical x);
+	public T visitBasicTypeBool(BasicType.Bool x);
 
-	public T visitRegExpModifierLexical(RegExpModifier.Lexical x);
+	public T visitTypeArgNamed(TypeArg.Named x);
 
-	public T visitBackslashLexical(Backslash.Lexical x);
+	public T visitTypeArgDefault(TypeArg.Default x);
 
-	public T visitRegExpLexical(RegExp.Lexical x);
+	public T visitStructuredTypeLex(StructuredType.Lex x);
 
-	public T visitNamedRegExpLexical(NamedRegExp.Lexical x);
+	public T visitStructuredTypeTuple(StructuredType.Tuple x);
 
-	public T visitNamedBackslashLexical(NamedBackslash.Lexical x);
+	public T visitStructuredTypeRelation(StructuredType.Relation x);
 
-	public T visitMappingDefault(Mapping.Default x);
+	public T visitStructuredTypeMap(StructuredType.Map x);
 
-	public T visitURLLiteralLexical(URLLiteral.Lexical x);
+	public T visitStructuredTypeBag(StructuredType.Bag x);
 
-	public T visitURLDefault(URL.Default x);
+	public T visitStructuredTypeSet(StructuredType.Set x);
 
-	public T visitTagStringLexical(TagString.Lexical x);
+	public T visitStructuredTypeList(StructuredType.List x);
 
-	public T visitTagCharLexical(TagChar.Lexical x);
+	public T visitFunctionTypeTypeArguments(FunctionType.TypeArguments x);
 
-	public T visitTagDefault(Tag.Default x);
+	public T visitTypeVarBounded(TypeVar.Bounded x);
 
-	public T visitTagsDefault(Tags.Default x);
+	public T visitTypeVarFree(TypeVar.Free x);
 
-	public T visitStrategyInnermost(Strategy.Innermost x);
+	public T visitUserTypeParametric(UserType.Parametric x);
 
-	public T visitStrategyOutermost(Strategy.Outermost x);
+	public T visitUserTypeName(UserType.Name x);
 
-	public T visitStrategyBottomUpBreak(Strategy.BottomUpBreak x);
+	public T visitDataTypeSelectorSelector(DataTypeSelector.Selector x);
 
-	public T visitStrategyBottomUp(Strategy.BottomUp x);
+	public T visitTypeSelector(Type.Selector x);
 
-	public T visitStrategyTopDownBreak(Strategy.TopDownBreak x);
+	public T visitTypeSymbol(Type.Symbol x);
 
-	public T visitStrategyTopDown(Strategy.TopDown x);
+	public T visitTypeUser(Type.User x);
 
-	public T visitComprehensionMap(Comprehension.Map x);
+	public T visitTypeVariable(Type.Variable x);
 
-	public T visitComprehensionList(Comprehension.List x);
+	public T visitTypeFunction(Type.Function x);
 
-	public T visitComprehensionSet(Comprehension.Set x);
+	public T visitTypeStructured(Type.Structured x);
 
-	public T visitReplacementConditional(Replacement.Conditional x);
-
-	public T visitReplacementUnconditional(Replacement.Unconditional x);
-
-	public T visitRuleGuarded(Rule.Guarded x);
-
-	public T visitRuleArbitrary(Rule.Arbitrary x);
-
-	public T visitRuleReplacing(Rule.Replacing x);
-
-	public T visitCaseDefault(Case.Default x);
-
-	public T visitCaseRule(Case.Rule x);
-
-	public T visitVisitGivenStrategy(Visit.GivenStrategy x);
-
-	public T visitVisitDefaultStrategy(Visit.DefaultStrategy x);
-
-	public T visitLiteralString(Literal.String x);
-
-	public T visitLiteralReal(Literal.Real x);
-
-	public T visitLiteralInteger(Literal.Integer x);
-
-	public T visitLiteralBoolean(Literal.Boolean x);
-
-	public T visitLiteralRegExp(Literal.RegExp x);
+	public T visitTypeBasic(Type.Basic x);
 
 	public T visitUnicodeEscapeLexical(UnicodeEscape.Lexical x);
 
@@ -549,73 +557,21 @@ public interface IASTVisitor<T> {
 
 	public T visitLongLiteralDecimalLongLiteral(LongLiteral.DecimalLongLiteral x);
 
-	public T visitVisibilityPrivate(Visibility.Private x);
+	public T visitCommandImport(Command.Import x);
 
-	public T visitVisibilityPublic(Visibility.Public x);
+	public T visitCommandDeclaration(Command.Declaration x);
 
-	public T visitToplevelDefaultVisibility(Toplevel.DefaultVisibility x);
+	public T visitCommandStatement(Command.Statement x);
 
-	public T visitToplevelGivenVisibility(Toplevel.GivenVisibility x);
+	public T visitCommandShell(Command.Shell x);
 
-	public T visitDeclarationTag(Declaration.Tag x);
+	public T visitShellCommandHistory(ShellCommand.History x);
 
-	public T visitDeclarationAnnotation(Declaration.Annotation x);
+	public T visitShellCommandEdit(ShellCommand.Edit x);
 
-	public T visitDeclarationRule(Declaration.Rule x);
+	public T visitShellCommandQuit(ShellCommand.Quit x);
 
-	public T visitDeclarationVariable(Declaration.Variable x);
-
-	public T visitDeclarationFunction(Declaration.Function x);
-
-	public T visitDeclarationData(Declaration.Data x);
-
-	public T visitDeclarationAlias(Declaration.Alias x);
-
-	public T visitDeclarationView(Declaration.View x);
-
-	public T visitAlternativeNamedType(Alternative.NamedType x);
-
-	public T visitVariantNillaryConstructor(Variant.NillaryConstructor x);
-
-	public T visitVariantNAryConstructor(Variant.NAryConstructor x);
-
-	public T visitFunctionModifierJava(FunctionModifier.Java x);
-
-	public T visitFunctionModifiersList(FunctionModifiers.List x);
-
-	public T visitSignatureWithThrows(Signature.WithThrows x);
-
-	public T visitSignatureNoThrows(Signature.NoThrows x);
-
-	public T visitFunctionDeclarationAbstract(FunctionDeclaration.Abstract x);
-
-	public T visitFunctionDeclarationDefault(FunctionDeclaration.Default x);
-
-	public T visitFunctionBodyDefault(FunctionBody.Default x);
-
-	public T visitVariableInitialized(Variable.Initialized x);
-
-	public T visitVariableUnInitialized(Variable.UnInitialized x);
-
-	public T visitKindAll(Kind.All x);
-
-	public T visitKindTag(Kind.Tag x);
-
-	public T visitKindAnno(Kind.Anno x);
-
-	public T visitKindAlias(Kind.Alias x);
-
-	public T visitKindView(Kind.View x);
-
-	public T visitKindData(Kind.Data x);
-
-	public T visitKindVariable(Kind.Variable x);
-
-	public T visitKindRule(Kind.Rule x);
-
-	public T visitKindFunction(Kind.Function x);
-
-	public T visitKindModule(Kind.Module x);
+	public T visitShellCommandHelp(ShellCommand.Help x);
 
 	public T visitFormalTypeName(Formal.TypeName x);
 
@@ -666,21 +622,69 @@ public interface IASTVisitor<T> {
 
 	public T visitClosureAsFunctionEvaluated(ClosureAsFunction.Evaluated x);
 
+	public T visitNameLexical(Name.Lexical x);
+
+	public T visitEscapedNameLexical(EscapedName.Lexical x);
+
+	public T visitQualifiedNameDefault(QualifiedName.Default x);
+
+	public T visitModuleDefault(Module.Default x);
+
+	public T visitModuleActualsDefault(ModuleActuals.Default x);
+
+	public T visitImportedModuleDefault(ImportedModule.Default x);
+
+	public T visitImportedModuleRenamings(ImportedModule.Renamings x);
+
+	public T visitImportedModuleActuals(ImportedModule.Actuals x);
+
+	public T visitImportedModuleActualsRenaming(ImportedModule.ActualsRenaming x);
+
+	public T visitRenamingDefault(Renaming.Default x);
+
+	public T visitRenamingsDefault(Renamings.Default x);
+
+	public T visitImportExtend(Import.Extend x);
+
+	public T visitImportDefault(Import.Default x);
+
+	public T visitModuleParametersDefault(ModuleParameters.Default x);
+
+	public T visitHeaderParameters(Header.Parameters x);
+
+	public T visitHeaderDefault(Header.Default x);
+
+	public T visitRegExpLiteralLexical(RegExpLiteral.Lexical x);
+
+	public T visitRegExpModifierLexical(RegExpModifier.Lexical x);
+
+	public T visitBackslashLexical(Backslash.Lexical x);
+
+	public T visitRegExpLexical(RegExp.Lexical x);
+
+	public T visitNamedRegExpLexical(NamedRegExp.Lexical x);
+
+	public T visitNamedBackslashLexical(NamedBackslash.Lexical x);
+
 	public T visitBodyAmbiguity(Body.Ambiguity x);
 
 	public T visitExpressionAmbiguity(Expression.Ambiguity x);
 
-	public T visitCommentAmbiguity(Comment.Ambiguity x);
+	public T visitMappingAmbiguity(Mapping.Ambiguity x);
 
-	public T visitCommentCharAmbiguity(CommentChar.Ambiguity x);
+	public T visitStrategyAmbiguity(Strategy.Ambiguity x);
 
-	public T visitAsteriskAmbiguity(Asterisk.Ambiguity x);
+	public T visitComprehensionAmbiguity(Comprehension.Ambiguity x);
 
-	public T visitNameAmbiguity(Name.Ambiguity x);
+	public T visitReplacementAmbiguity(Replacement.Ambiguity x);
 
-	public T visitEscapedNameAmbiguity(EscapedName.Ambiguity x);
+	public T visitRuleAmbiguity(Rule.Ambiguity x);
 
-	public T visitQualifiedNameAmbiguity(QualifiedName.Ambiguity x);
+	public T visitCaseAmbiguity(Case.Ambiguity x);
+
+	public T visitVisitAmbiguity(Visit.Ambiguity x);
+
+	public T visitLiteralAmbiguity(Literal.Ambiguity x);
 
 	public T visitBoundAmbiguity(Bound.Ambiguity x);
 
@@ -707,37 +711,47 @@ public interface IASTVisitor<T> {
 	public T visitLocalVariableDeclarationAmbiguity(
 			LocalVariableDeclaration.Ambiguity x);
 
-	public T visitBasicTypeAmbiguity(BasicType.Ambiguity x);
+	public T visitURLLiteralAmbiguity(URLLiteral.Ambiguity x);
 
-	public T visitTypeArgAmbiguity(TypeArg.Ambiguity x);
+	public T visitURLAmbiguity(URL.Ambiguity x);
 
-	public T visitStructuredTypeAmbiguity(StructuredType.Ambiguity x);
+	public T visitCommentAmbiguity(Comment.Ambiguity x);
 
-	public T visitFunctionTypeAmbiguity(FunctionType.Ambiguity x);
+	public T visitCommentCharAmbiguity(CommentChar.Ambiguity x);
 
-	public T visitTypeVarAmbiguity(TypeVar.Ambiguity x);
+	public T visitAsteriskAmbiguity(Asterisk.Ambiguity x);
 
-	public T visitUserTypeAmbiguity(UserType.Ambiguity x);
+	public T visitVisibilityAmbiguity(Visibility.Ambiguity x);
 
-	public T visitDataTypeSelectorAmbiguity(DataTypeSelector.Ambiguity x);
+	public T visitToplevelAmbiguity(Toplevel.Ambiguity x);
 
-	public T visitTypeAmbiguity(Type.Ambiguity x);
+	public T visitDeclarationAmbiguity(Declaration.Ambiguity x);
 
-	public T visitModuleAmbiguity(Module.Ambiguity x);
+	public T visitAlternativeAmbiguity(Alternative.Ambiguity x);
 
-	public T visitModuleActualsAmbiguity(ModuleActuals.Ambiguity x);
+	public T visitVariantAmbiguity(Variant.Ambiguity x);
 
-	public T visitImportedModuleAmbiguity(ImportedModule.Ambiguity x);
+	public T visitFunctionModifierAmbiguity(FunctionModifier.Ambiguity x);
 
-	public T visitRenamingAmbiguity(Renaming.Ambiguity x);
+	public T visitFunctionModifiersAmbiguity(FunctionModifiers.Ambiguity x);
 
-	public T visitRenamingsAmbiguity(Renamings.Ambiguity x);
+	public T visitSignatureAmbiguity(Signature.Ambiguity x);
 
-	public T visitImportAmbiguity(Import.Ambiguity x);
+	public T visitFunctionDeclarationAmbiguity(FunctionDeclaration.Ambiguity x);
 
-	public T visitModuleParametersAmbiguity(ModuleParameters.Ambiguity x);
+	public T visitFunctionBodyAmbiguity(FunctionBody.Ambiguity x);
 
-	public T visitHeaderAmbiguity(Header.Ambiguity x);
+	public T visitVariableAmbiguity(Variable.Ambiguity x);
+
+	public T visitKindAmbiguity(Kind.Ambiguity x);
+
+	public T visitTagStringAmbiguity(TagString.Ambiguity x);
+
+	public T visitTagCharAmbiguity(TagChar.Ambiguity x);
+
+	public T visitTagAmbiguity(Tag.Ambiguity x);
+
+	public T visitTagsAmbiguity(Tags.Ambiguity x);
 
 	public T visitStrCharAmbiguity(StrChar.Ambiguity x);
 
@@ -763,49 +777,21 @@ public interface IASTVisitor<T> {
 
 	public T visitCharacterAmbiguity(Character.Ambiguity x);
 
-	public T visitCommandAmbiguity(Command.Ambiguity x);
+	public T visitBasicTypeAmbiguity(BasicType.Ambiguity x);
 
-	public T visitShellCommandAmbiguity(ShellCommand.Ambiguity x);
+	public T visitTypeArgAmbiguity(TypeArg.Ambiguity x);
 
-	public T visitRegExpLiteralAmbiguity(RegExpLiteral.Ambiguity x);
+	public T visitStructuredTypeAmbiguity(StructuredType.Ambiguity x);
 
-	public T visitRegExpModifierAmbiguity(RegExpModifier.Ambiguity x);
+	public T visitFunctionTypeAmbiguity(FunctionType.Ambiguity x);
 
-	public T visitBackslashAmbiguity(Backslash.Ambiguity x);
+	public T visitTypeVarAmbiguity(TypeVar.Ambiguity x);
 
-	public T visitRegExpAmbiguity(RegExp.Ambiguity x);
+	public T visitUserTypeAmbiguity(UserType.Ambiguity x);
 
-	public T visitNamedRegExpAmbiguity(NamedRegExp.Ambiguity x);
+	public T visitDataTypeSelectorAmbiguity(DataTypeSelector.Ambiguity x);
 
-	public T visitNamedBackslashAmbiguity(NamedBackslash.Ambiguity x);
-
-	public T visitMappingAmbiguity(Mapping.Ambiguity x);
-
-	public T visitURLLiteralAmbiguity(URLLiteral.Ambiguity x);
-
-	public T visitURLAmbiguity(URL.Ambiguity x);
-
-	public T visitTagStringAmbiguity(TagString.Ambiguity x);
-
-	public T visitTagCharAmbiguity(TagChar.Ambiguity x);
-
-	public T visitTagAmbiguity(Tag.Ambiguity x);
-
-	public T visitTagsAmbiguity(Tags.Ambiguity x);
-
-	public T visitStrategyAmbiguity(Strategy.Ambiguity x);
-
-	public T visitComprehensionAmbiguity(Comprehension.Ambiguity x);
-
-	public T visitReplacementAmbiguity(Replacement.Ambiguity x);
-
-	public T visitRuleAmbiguity(Rule.Ambiguity x);
-
-	public T visitCaseAmbiguity(Case.Ambiguity x);
-
-	public T visitVisitAmbiguity(Visit.Ambiguity x);
-
-	public T visitLiteralAmbiguity(Literal.Ambiguity x);
+	public T visitTypeAmbiguity(Type.Ambiguity x);
 
 	public T visitUnicodeEscapeAmbiguity(UnicodeEscape.Ambiguity x);
 
@@ -840,29 +826,9 @@ public interface IASTVisitor<T> {
 
 	public T visitLongLiteralAmbiguity(LongLiteral.Ambiguity x);
 
-	public T visitVisibilityAmbiguity(Visibility.Ambiguity x);
+	public T visitCommandAmbiguity(Command.Ambiguity x);
 
-	public T visitToplevelAmbiguity(Toplevel.Ambiguity x);
-
-	public T visitDeclarationAmbiguity(Declaration.Ambiguity x);
-
-	public T visitAlternativeAmbiguity(Alternative.Ambiguity x);
-
-	public T visitVariantAmbiguity(Variant.Ambiguity x);
-
-	public T visitFunctionModifierAmbiguity(FunctionModifier.Ambiguity x);
-
-	public T visitFunctionModifiersAmbiguity(FunctionModifiers.Ambiguity x);
-
-	public T visitSignatureAmbiguity(Signature.Ambiguity x);
-
-	public T visitFunctionDeclarationAmbiguity(FunctionDeclaration.Ambiguity x);
-
-	public T visitFunctionBodyAmbiguity(FunctionBody.Ambiguity x);
-
-	public T visitVariableAmbiguity(Variable.Ambiguity x);
-
-	public T visitKindAmbiguity(Kind.Ambiguity x);
+	public T visitShellCommandAmbiguity(ShellCommand.Ambiguity x);
 
 	public T visitFormalAmbiguity(Formal.Ambiguity x);
 
@@ -877,4 +843,38 @@ public interface IASTVisitor<T> {
 	public T visitFieldAmbiguity(Field.Ambiguity x);
 
 	public T visitClosureAsFunctionAmbiguity(ClosureAsFunction.Ambiguity x);
+
+	public T visitNameAmbiguity(Name.Ambiguity x);
+
+	public T visitEscapedNameAmbiguity(EscapedName.Ambiguity x);
+
+	public T visitQualifiedNameAmbiguity(QualifiedName.Ambiguity x);
+
+	public T visitModuleAmbiguity(Module.Ambiguity x);
+
+	public T visitModuleActualsAmbiguity(ModuleActuals.Ambiguity x);
+
+	public T visitImportedModuleAmbiguity(ImportedModule.Ambiguity x);
+
+	public T visitRenamingAmbiguity(Renaming.Ambiguity x);
+
+	public T visitRenamingsAmbiguity(Renamings.Ambiguity x);
+
+	public T visitImportAmbiguity(Import.Ambiguity x);
+
+	public T visitModuleParametersAmbiguity(ModuleParameters.Ambiguity x);
+
+	public T visitHeaderAmbiguity(Header.Ambiguity x);
+
+	public T visitRegExpLiteralAmbiguity(RegExpLiteral.Ambiguity x);
+
+	public T visitRegExpModifierAmbiguity(RegExpModifier.Ambiguity x);
+
+	public T visitBackslashAmbiguity(Backslash.Ambiguity x);
+
+	public T visitRegExpAmbiguity(RegExp.Ambiguity x);
+
+	public T visitNamedRegExpAmbiguity(NamedRegExp.Ambiguity x);
+
+	public T visitNamedBackslashAmbiguity(NamedBackslash.Ambiguity x);
 }

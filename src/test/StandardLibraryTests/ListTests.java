@@ -34,9 +34,9 @@ public class ListTests extends TestFramework {
 
 		prepare("import List;");
 
-		assertTrue(runTestInSameEvaluator("{domain([]) == [];}"));
-		assertTrue(runTestInSameEvaluator("{domain([1]) == [0];}"));
-		assertTrue(runTestInSameEvaluator("{domain([1, 2]) == [0, 1];}"));
+		assertTrue(runTestInSameEvaluator("{domain([]) == {};}"));
+		assertTrue(runTestInSameEvaluator("{domain([1]) == {0};}"));
+		assertTrue(runTestInSameEvaluator("{domain([1, 2]) == {0, 1};}"));
 	}
 
 	@Test
