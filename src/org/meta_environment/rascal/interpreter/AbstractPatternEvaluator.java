@@ -63,8 +63,8 @@ import org.meta_environment.rascal.ast.Expression.TransitiveReflexiveClosure;
 import org.meta_environment.rascal.ast.Expression.Tuple;
 import org.meta_environment.rascal.ast.Expression.TypedVariable;
 import org.meta_environment.rascal.ast.Expression.TypedVariableBecomes;
-import org.meta_environment.rascal.ast.Expression.ValueProducer;
-import org.meta_environment.rascal.ast.Expression.ValueProducerWithStrategy;
+import org.meta_environment.rascal.ast.Expression.Enumerator;
+import org.meta_environment.rascal.ast.Expression.EnumeratorWithStrategy;
 import org.meta_environment.rascal.ast.Expression.VariableBecomes;
 import org.meta_environment.rascal.ast.Expression.Visit;
 import org.meta_environment.rascal.ast.Expression.VoidClosure;
@@ -1966,12 +1966,12 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
-	public AbstractPattern visitExpressionValueProducer(ValueProducer x) {
+	public AbstractPattern visitExpressionEnumerator(Enumerator x) {
 		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
-	public AbstractPattern visitExpressionValueProducerWithStrategy(
-			ValueProducerWithStrategy x) {
+	public AbstractPattern visitExpressionEnumeratorWithStrategy(
+			EnumeratorWithStrategy x) {
 		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override

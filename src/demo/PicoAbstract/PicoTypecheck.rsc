@@ -56,19 +56,19 @@ public list[Message] requireType(EXP E, TYPE Type, Env Env) {
       case add(EXP E1, EXP E2):
         if(Type == natural){
            return requireType(E1, natural, Env) + 
-                  requireType(E1, natural, Env);
+                  requireType(E2, natural, Env);
         } else fail;
 
       case sub(EXP E1, EXP E2):
         if(Type == natural){
            return requireType(E1, natural, Env) + 
-                  requireType(E1, natural, Env);
+                  requireType(E2, natural, Env);
         } else fail;
 
       case conc(EXP E1, EXP E2): 
         if(Type == string){
           return requireType(E1, string, Env) + 
-                 requireType(E1, string, Env);
+                 requireType(E2, string, Env);
         } else fail;
       
       }
