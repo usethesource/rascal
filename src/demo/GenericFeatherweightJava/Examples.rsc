@@ -45,7 +45,7 @@ public Class Number  = class("Number", <[],[]>, Object, <[],[]>, cons(<[],[]>, s
 public Class Zero = class("Zero", <[],[]>, typeLit("Number",[]), <[],[]>, cons(<[],[]>, super([]), []), []);
 public Class Succ = class("Succ", <[],[]>, typeLit("Number",[]), 
                             <[typeLit("Number",[])],["prev"]>, 
-                            cons(<[typeLit("Number",["prev"])],[this("prev")]>, super([]), [this("prev")]), 
+                            cons(<[typeLit("Number",[])],["prev"]>, super([]), [this("prev")]), 
                             [
                             ]
                          );
@@ -62,11 +62,11 @@ public Class Example1 = class("Example1",<[],[]>, Object,
                               <[],[]>,
                               cons(<[],[]>,super([]), []),
                               [
-                                method(<[],[]>,typeLit("Tuple",[]),"main", <[],[]>, [new(typeLit("Tuple",[]),[new(typeLit("Zero",[]),[]),new(typeLit("Succ",[]),[new(typeLit("Zero",[]),[])])])])
+                                method(<[],[]>,typeLit("Tuple",[]),"main", <[],[]>, new(typeLit("Tuple",[]),[new(typeLit("Zero",[]),[]),new(typeLit("Succ",[]),[new(typeLit("Zero",[]),[])])]))
                               ]
                              );
 
-
+  
 public void init() {
   demo::GenericFeatherweightJava::Types::ClassTable = 
               ("A":A, 
@@ -75,7 +75,7 @@ public void init() {
                "Zero":Zero,
                "Succ":Succ, 
                "Tuple":Tuple, 
-               "Collection":Container,
+               "Collection":Collection,
                "Map":Map,
                "Example1":Example1
                );
@@ -84,26 +84,11 @@ public void init() {
 public bool test() {
   init();
   
-  assert fields(typeLit("Fruit",[])) == <[],[]>;   
+  assert fields(typeLit("A",[])) == <[],[]>;   
   assert fields(typeLit("Tuple",[])) == <[Object,Object],["fst","snd"]>;  
-  assert fields(typeLit("GTuple",[typeLit("A",[]),typeLit("B",[])])) == 
-      <[typeLit("A",[]),typeLit("B",[])],["fst","snd"]>;
-  assert mtype("getfst", typeLit("GTuple", [typeLit("Appel",[]),typeLit("Appel",[])])) == 
-           <<[],[]>,typeLit("Appel",[]),[]>;  
+  assert fields(typeLit("Tuple",[])) == <[X,Y],["fst","snd"]>;
+  assert mtype("getfst", typeLit("Tuple", [typeLit("A",[]),typeLit("A",[])])) == 
+           <<[],[]>,typeLit("A",[]),[]>;  
   return true; 
 }  
 
-/*
-public L Pair = class("Pair", [<var("X"), lit(Object)>, <var("Y"), lit(Object)>], lit(Object),
-                      ("fst": \type(var("X")), "snd":\type(var("Y"))),
-                      cons(("fst":\type(var("X")),"snd":\type(var("Y"))), super([]),[this("fst"),this("snd")]),
-                      [
-                      method([<var("Z"), lit(Object)>], 
-                             \type(\lit("Pair",[\type(var("X")),\type(var("Y"))])), 
-                             "setfst", 
-                             ("newfst":\type(var("Z"))), 
-                             new(lit("Pair", [\type(var("Z")),\type(var("Y"))]),[var("newfst"), access(this, "snd")]))
-                      ]
-                      );
-*/
-     

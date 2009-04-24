@@ -81,7 +81,7 @@ public Type fdecl(Type t, Name fieldName) {
 }
 
 public map[Type,Type] bindings(list[Type] formals, list[Type] actuals ) {
-  return (formals[i] : actuals[i] | int i <- domain(formals) + domain(actuals));  
+  return (formals[i] : actuals[i] ? Object | int i <- domain(formals) + domain(actuals));  
 }  
 
 public &T inst(&T arg, list[Type] formals, list[Type] actuals) {
