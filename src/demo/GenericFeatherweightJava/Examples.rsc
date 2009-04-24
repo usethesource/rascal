@@ -86,8 +86,8 @@ public bool test() {
   
   assert fields(typeLit("A",[])) == <[],[]>;   
   assert fields(typeLit("Tuple",[])) == <[Object,Object],["fst","snd"]>;  
-  assert fields(typeLit("Tuple",[])) == <[X,Y],["fst","snd"]>;
-  assert mtype("getfst", typeLit("Tuple", [typeLit("A",[]),typeLit("A",[])])) == 
+  assert fields(typeLit("Tuple",[typeLit("A",[]),typeLit("B",[])])) == <[typeLit("A",[]),typeLit("B",[])],["fst","snd"]>;
+  assert mtype("getFst", typeLit("Tuple", [typeLit("A",[]),typeLit("A",[])])) == 
            <<[],[]>,typeLit("A",[]),[]>;  
   return true; 
 }  
