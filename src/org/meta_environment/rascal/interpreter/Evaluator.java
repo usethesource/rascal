@@ -2664,6 +2664,9 @@ public class Evaluator extends NullASTVisitor<Result> {
 		try {
 			return x.getLhs().accept(this);
 		}
+		catch (UninitializedVariableError e){
+			return x.getRhs().accept(this);
+		}
 		catch (org.meta_environment.rascal.interpreter.control_exceptions.Throw e) {
 			// TODO For now we accept any Throw here, restrict to NoSuchKey and NoSuchAnno?
 			return x.getRhs().accept(this);
