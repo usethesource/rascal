@@ -18,15 +18,17 @@ set[Constraint] extract(Name class) {
   // first extract basic constraints
   result = { c | Method method <- def, c <- extract(bounds, def, method) };
 
-  // compute closure for method overloading
-  result += { eq(typeof(methodP.params.types[i]), typeof(methodP.params.types[i])),
-              subtype(TmP.returnType,Tm.returnType) | 
+  // constraints from method overloading
+  result += { c | 
                   Method methodP <- def, Method method <- ClassTable[def.extends],
                   methodP.name == method.name,
                   MethodType TmP := mtype(methodP.name, typeLit(def.className,def.formals.bounds)),
                   MethodType Tm := mtype(method.name, typeLit(ClassTable[def.extends].className,def.formals.bounds)),
-                  overrides(bounds, TmP, Tm), i <- domain(method.formals)
-            }; 
+                  overrides(bounds, TmP, Tm), i <- domain(method.formals),
+                  // TODO inline these two elements in the lhs of the comprehension
+                  c <- { eq(typeof(methodP.params.types[i]), typeof(methodP.params.types[i])), 
+                         subtype(TmP.returnType, Tm.returnType) }
+            };   
 
   return result;
 }
@@ -78,10 +80,9 @@ set[Constraint] extract(Bounds bounds, Class def, Method method) { // [Fuhrer et
   return result;
 }
 
-
 set[Constraint] cGen(Type a, Type T, Expr E, Constraint (TypeOf t1, TypeOf t2) op) {
-  if (t in etype(E).actuals) {
-    return {eq(typeof(x), typeof(methodType.returnType))};
+  if (T in etype(E).actuals) {
+    return {#op(typeof(a), typeof(T, E))};
   }
   else if (typelit(name, actuals) := T) { 
     Wi = ClassTable[name].formals.vars;
