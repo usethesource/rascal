@@ -18,8 +18,6 @@ set[Constraint] extract(set[Name] classes) {
   // TODO rule 18 
   result += {c | typeof(T1, a) <- vars, /* ??? TODO */ c <- cGen(T2, a, T,a,#makeEq) };  
 }
-
-
   
 set[Constraint] extract(Name class) {
   def    = ClassTable[class];
