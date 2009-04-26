@@ -15,7 +15,25 @@ set[Constraint] extract(Name class) {
   def    = ClassTable[class];
   bounds = ( def.formals.vars[i]:def.formals.bounds[i] | i <- domain(def.formals.vars));
   
-  return { c | Method method <- def, c <- extract(bounds, def, method) };
+  // first extract basic constraints
+  result = { c | Method method <- def, c <- extract(bounds, def, method) };
+
+  // compute closure for method overloading
+  result += { eq(typeof(methodP.params.types[i]), typeof(methodP.params.types[i])),
+              subtype(TmP.returnType,Tm.returnType) | 
+                  Method methodP <- def, Method method <- ClassTable[def.extends],
+                  methodP.name == method.name,
+                  MethodType TmP := mtype(methodP.name, typeLit(def.className,def.formals.bounds)),
+                  MethodType Tm := mtype(method.name, typeLit(ClassTable[def.extends].className,def.formals.bounds)),
+                  overrides(bounds, TmP, Tm), i <- domain(method.formals)
+            }; 
+
+  return result;
+}
+
+bool overrides(Bounds b, MethodType m1, MethodType m2) {
+  return m1.name == m2.name &&
+         !(i <- domain(m1.formals.types) && !subtype(b, m1.formals.types[i],m2.formals.types[i]));
 }
 
 set[Constraint] extract(Bounds bounds, Class def, Method method) { // [Fuhrer et al., Fig 5]

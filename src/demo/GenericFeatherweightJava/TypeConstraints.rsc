@@ -6,6 +6,12 @@ data TypeOf = typeof(Expr expr) | typeof(Method method) | typeof(Name fieldName)
 data Constraint = eq(TypeOf a, TypeOf b) |
                   subtype(TypeOf a, TypeOf b) |
                   subtype(TypeOf a, set[TypeOf] alts);
-                  
 
 
+
+
+
+                     
+
+
+  
