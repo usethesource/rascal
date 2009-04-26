@@ -15,7 +15,7 @@ alias Env        = map[Name var, Type varType];
   
 data Error = NoSuchMethod(Name methodName) | NoSuchField(Name fieldType) | NoType(Expr expr);
     
-public rel[Name,Name] subclasses() { 
+public rel[Name sub, Name sup] subclasses() { 
   return { <c, ClassTable[c].extends.className> | Name c <- ClassTable }*;
 }
 
