@@ -8,8 +8,18 @@ bool isLibraryClass(Name className) {
 }
 
 set[Constraint] extract(set[Name] classes) {
-  return { constraint | class <- classes, constraint <- extract(class) }; 
+  // compute initial constraints, Fig 5 and 7
+  result = { constraint | class <- classes, constraint <- extract(class) };
+  // then compute closures from Fig 8.
+  vars = carrier(result);
+  // rule 17
+  result += {eq(typeof(T,a0),typeof(T,a1)) | 
+             subtype(typeof(a0),typeof(a1)) <- result,  a <- {a0,a1}, typeof(T, a) in vars};
+  // TODO rule 18 
+  result += {c | typeof(T1, a) <- vars, /* ??? TODO */ c <- cGen(T2, a, T,a,#makeEq) };  
 }
+
+
   
 set[Constraint] extract(Name class) {
   def    = ClassTable[class];
@@ -86,7 +96,7 @@ set[Constraint] cGen(Type a, Type T, Expr E, Constraint (TypeOf t1, TypeOf t2) o
   }
   else if (typelit(name, actuals) := T) { 
     Wi = ClassTable[name].formals.vars;
-    return { c | int i <- domain(Wi), Wia := a.actuals[i], c <- cGen(Wia, Wi[i], E, #makeEq)}
+    return { c | i <- domain(Wi), Wia := a.actuals[i], c <- cGen(Wia, Wi[i], E, #makeEq)}
          + { #op(typeof(a), typeof(T)) };
   }
 }
