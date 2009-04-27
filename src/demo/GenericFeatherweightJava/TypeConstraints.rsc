@@ -17,17 +17,17 @@ data Constraint = eq(TypeOf a, TypeOf b)
 data TypeSet = Universe
              | EmptySet
              | Root
-             | Single(TypeOf T)
-             | Set(set[TypeOf] Ts) 
+             | Single(Type T)
+             | Set(set[Type] Ts) 
              | Subtypes(TypeSet subs)
              | Supertypes(TypeSet supers)
              | Union(TypeSet lhs, TypeSet rhs)
              | Intersection(TypeSet lhs, TypeSet rhs);
      
 // these optimize the computations on solutions by applying algebraic simplifications
-rule root       Set({typeof(Object)})            => Root;
+rule root       Set({Object})                    => Root;
 rule empty      Set({})                          => EmptySet;        
-rule single     Single(TypeOf T)                 => Set({T});
+rule single     Single(Type T)                   => Set({T});
 rule rootsub    Subtypes(Root)                   => Universe;
 rule rootsup    Supertypes(Root)                 => EmptySet;
 rule subuni     Subtypes(Universe)               => Universe;
