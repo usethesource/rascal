@@ -230,15 +230,23 @@ public class PatternTests extends TestFramework {
 	
 	@Test(expected=StaticError.class)
 	public void recursiveDataTypeNoPossibleMatchVertical() {
-		prepare("data Bool = and(Bool, Bool) | t");
-		runTestInSameEvaluator("t := and(t,t)");
+		prepare("data Bool = and(Bool, Bool) | t;");
+		runTestInSameEvaluator("t := and(t,t);");
 	}
 	
 	@Test(expected=StaticError.class)
 	public void recursiveDataTypeNoPossibleMatchHorizontal() {
-		prepare("data Bool = and(Bool, Bool) | t");
-		prepareMore("data Prop = or(Prop, Prop) | f");
-		runTestInSameEvaluator("or(p1, p2) := and(t,t)");
+		prepare("data Bool = and(Bool, Bool) | t;");
+		prepareMore("data Prop = or(Prop, Prop) | f;");
+		runTestInSameEvaluator("Prop p := and(t,t);");
+	}
+	
+	@Test(expected=StaticError.class)
+	public void recursiveDataTypeNoPossibleHiddenRecursion() {
+		prepare("data Prop = f;");
+		prepareMore("data Bool = and(list[Prop], list[Prop]) | t;");
+		prepareMore("data Prop = or(Bool, Bool);");
+		runTestInSameEvaluator("{p = or(t,t); and(t,t) := p;}");
 	}
 	
 	@Test(expected=StaticError.class)
