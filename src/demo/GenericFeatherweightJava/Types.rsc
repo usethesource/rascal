@@ -5,16 +5,18 @@ import List;
 import IO;  
 
 public Type Object = typeLit("Object",[]);
+public Class ObjectClass = class("Object", <[],[]>, Object, <[],[]>, cons(<[],[]>, super([]), []), []);
+
 public Expr this   = var("this");  
 
-public map[Name,Class] ClassTable = (); 
+public map[Name,Class] ClassTable = ("Object":ObjectClass); 
   
 alias MethodType = tuple[FormalTypes forall, Type returnType, list[Type] formals];
 alias Bounds     = map[Type var, Type bound];
 alias Env        = map[Name var, Type varType];  
   
 data Error = NoSuchMethod(Name methodName) | NoSuchField(Name fieldType) | NoType(Expr expr);
-    
+       
 public rel[Name sub, Name sup] subclasses() { 
   return { <c, ClassTable[c].extends.className> | Name c <- ClassTable }*;
 }
@@ -75,7 +77,7 @@ public Type fdecl(Type t, Name fieldName) {
   if (t == Object) throw NoSuchField(fieldName);
   
   Class def = ClassTable[t.className];
-  if (fieldname in def.fields.names) return t;
+  if (fieldName in def.fields.names) return t;
   
   return fdecl(inst(def.extends, def.formals.vars, t.actuals), fieldName);
 }
