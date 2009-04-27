@@ -20,4 +20,6 @@ Export-Package: org.meta_environment.errors,
  org.meta_environment.rascal.parser,
  org.meta_environment.uptr,
  org.meta_environment.uptr.visitors
-Require-Bundle: org.eclipse.imp.pdb.values
+Require-Bundle: org.eclipse.imp.pdb.values,
+ sglr_invoker,
+ pdb_shared;bundle-version="1.0.0"
