@@ -16,6 +16,7 @@ data Constraint = eq(TypeOf a, TypeOf b)
 // these are the sets of possible solutions for a constraint variable
 data TypeSet = Universe
              | EmptySet
+             | Root
              | Single(TypeOf T)
              | Set(set[TypeOf] Ts) 
              | Subtypes(TypeSet subs)
@@ -24,16 +25,24 @@ data TypeSet = Universe
              | Intersection(TypeSet lhs, TypeSet rhs);
      
 // these optimize the computations on solutions by applying algebraic simplifications
+rule root       Set({typeof(Object)})            => Root;
 rule empty      Set({})                          => EmptySet;        
-rule object     Subtypes(Single(typeof(Object))) => Universe;
+rule single     Single(TypeOf T)                 => Set({T});
+rule rootsub    Subtypes(Root)                   => Universe;
+rule rootsup    Supertypes(Root)                 => EmptySet;
 rule subuni     Subtypes(Universe)               => Universe;
-rule nestedsubs Subtypes(Subtypes(x))            => Subtypes(x);
+rule nestedsubs Subtypes(Subtypes(TypeSet x))    => Subtypes(x);
 rule supuni     Supertypes(Universe)             => Universe;
-rule nestedsups Supertypes(Supertypes(x))        => Supertypes(x);
-rule emptyinter Intersection(EmptySet,_)         => EmptySet;
-rule uniinterl  Intersection(Universe,x)         => x;
-rule uniinterr  Intersection(x,Universe)         => x;
-rule uniunionl  Union(Universe,_)                => Universe;
-rule uniunionr  Union(_,Universe)                => Universe;
-rule emptyunil  Union(EmptySet,x)                => x;
-rule emptyunir  Union(x,EmptySet)                => x;
+rule nestedsups Supertypes(Supertypes(TypeSet x))=> Supertypes(x);
+rule emptyinter Intersection(EmptySet,TypeSet _) => EmptySet;
+rule uniinterl  Intersection(Universe,TypeSet x) => x;
+rule uniinterr  Intersection(TypeSet x,Universe) => x;
+rule uniunionl  Union(Universe,TypeSet _)        => Universe;
+rule uniunionr  Union(TypeSet _,Universe)        => Universe;
+rule emptyunil  Union(EmptySet, TypeSet x)       => x;
+rule emptyunir  Union(TypeSet x,EmptySet)        => x;
+
+// final mappings to actual union and intersection
+rule realunion Union(Set(TypeSet s1),Set(TypeSet s2))           => Set(s1 + s2);
+rule realinter Intersection(Set(TypeSet s1),Set(TypeSet s2))    => Set(s1 & s2);
+
