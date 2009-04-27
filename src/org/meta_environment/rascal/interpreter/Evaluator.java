@@ -437,7 +437,12 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 	}
 	
-	boolean mayOccurIn(Type small, Type large){
+	private boolean mayOccurIn(Type small, Type large) {
+		return mayOccurIn(small, large, new HashSet<Type>());
+	}
+		
+	private boolean mayOccurIn(Type small, Type large, java.util.Set<Type> seen){
+		System.err.println("mayOccurIn(" + small + "," + large + ")");
 		if(small.isVoidType())
 			return true;
 		if(large.isVoidType())
@@ -447,20 +452,20 @@ public class Evaluator extends NullASTVisitor<Result> {
 		if(small.isSubtypeOf(large))
 			return true;
 		if(large.isListType() || large.isSetType())
-			return mayOccurIn(small,large.getElementType());
+			return mayOccurIn(small,large.getElementType(), seen);
 		if(large.isMapType())
-			return mayOccurIn(small, large.getKeyType()) ||
-					mayOccurIn(small, large.getValueType());
+			return mayOccurIn(small, large.getKeyType(), seen) ||
+					mayOccurIn(small, large.getValueType(), seen);
 		if(large.isTupleType()){
 			for(int i = 0; i < large.getArity(); i++){
-				if(mayOccurIn(small, large.getFieldType(i)))
+				if(mayOccurIn(small, large.getFieldType(i), seen))
 						return true;
 			}
 			return false;
 		}
 		if(large.isConstructorType()){
 			for(int i = 0; i < large.getArity(); i++){
-				if(mayOccurIn(small, large.getFieldType(i)))
+				if(mayOccurIn(small, large.getFieldType(i), seen))
 						return true;
 			}
 			return false;
@@ -468,13 +473,12 @@ public class Evaluator extends NullASTVisitor<Result> {
 		if(large.isAbstractDataType()){
 			if(small.isConstructorType() && small.getAbstractDataType().equivalent(large.getAbstractDataType()))
 					return true;
-			HashSet<Type> seen = new HashSet<Type>();
 			seen.add(large);
 			for(Type alt : peek().lookupAlternatives(large)){				
 				if(alt.isConstructorType()){
 					for(int i = 0; i < alt.getArity(); i++){
 						Type fType = alt.getFieldType(i);
-						if(seen.add(fType) && mayOccurIn(small, fType))
+						if(seen.add(fType) && mayOccurIn(small, fType, seen))
 								return true;
 					}
 				} else
@@ -2864,7 +2868,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				if(enumerator.hasStrategy()) {
 					throw new UnsupportedOperationError(enumerator.toString(), r.getType(), enumerator);
 				}
-				if(!mayOccurIn(patType,r.getType().getElementType()))
+				if(!mayOccurIn(patType,r.getType().getElementType(), new HashSet<Type>()))
 						throw new UnexpectedTypeError(patType, r.getType().getElementType(), enumerator.getPattern());
 				iterator = ((IList) r.getValue()).iterator();
 				
