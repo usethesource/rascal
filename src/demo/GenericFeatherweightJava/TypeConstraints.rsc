@@ -45,4 +45,3 @@ rule emptyunir  Union(TypeSet x,EmptySet)        => x;
 // final mappings to actual union and intersection
 rule realunion Union(Set(TypeSet s1),Set(TypeSet s2))           => Set(s1 + s2);
 rule realinter Intersection(Set(TypeSet s1),Set(TypeSet s2))    => Set(s1 & s2);
-

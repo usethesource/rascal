@@ -1,13 +1,19 @@
 module demo::GenericFeatherweightJava::Extract
 
-import demo::GenericFeatherweightJava::FGJ;
+import demo::GenericFeatherweightJava::GFJ;
 import demo::GenericFeatherweightJava::TypeConstraints;
+import demo::GenericFeatherweightJava::Types;
+import List;
 
-bool isLibraryClass(Name className) {
+public bool isLibraryClass(Name className) {
   return false;
+}  
+
+public bool isLibraryClass(Type t) {
+  return typeLit(name, _) := t && isLibraryClass(name);
 }
 
-set[Constraint] extract(set[Name] classes) {
+public set[Constraint] extract(set[Name] classes) {
   // compute initial constraints, Fig 5 and 7
   result = { constraint | class <- classes, constraint <- extract(class) };
   // then compute closures from Fig 8.
@@ -19,7 +25,7 @@ set[Constraint] extract(set[Name] classes) {
   result += {c | typeof(T1, a) <- vars, /* ??? TODO */ c <- cGen(T2, a, T,a,#makeEq) };  
 }
   
-set[Constraint] extract(Name class) {
+public set[Constraint] extract(Name class) {
   def    = ClassTable[class];
   bounds = ( def.formals.vars[i]:def.formals.bounds[i] | i <- domain(def.formals.vars));
   
@@ -28,7 +34,7 @@ set[Constraint] extract(Name class) {
 
   // constraints from method overloading
   result += { c | 
-                  Method methodP <- def, Method method <- ClassTable[def.extends],
+                  Method methodP <- def, Method method <- ClassTable[def.extends.className],
                   methodP.name == method.name,
                   MethodType TmP := mtype(methodP.name, typeLit(def.className,def.formals.bounds)),
                   MethodType Tm := mtype(method.name, typeLit(ClassTable[def.extends].className,def.formals.bounds)),
@@ -46,14 +52,15 @@ bool overrides(Bounds b, MethodType m1, MethodType m2) {
          !(i <- domain(m1.formals.types) && !subtype(b, m1.formals.types[i],m2.formals.types[i]));
 }
 
-set[Constraint] extract(Bounds bounds, Class def, Method method) { // [Fuhrer et al., Fig 5]
+public set[Constraint] extract(Bounds bounds, Class def, Method method) { // [Fuhrer et al., Fig 5]
 
   set[Constraint] result = { };
   bounds += (method.formalTypes.vars[i]:method.formalTypes.bounds[i] | i <- domain(method.formalTypes.vars));
-      
+  env = ("this": typeLit(def.className, [])); // TODO check if this is a good env
+
   visit (method.expr) {  
      case x:access(Expr erec, Name fieldName) : {
-       Trec = etype(bounds, erec);
+       Trec = etype(env, bounds, erec);
        fieldType = ftype(Trec, fieldName);
        if (!isLibraryClass(def.className))
          result += {eq(typeof(method), typeof(fieldType)), subtype(typeof(erec), fdecl(Trec, fieldName))};  
@@ -65,7 +72,7 @@ set[Constraint] extract(Bounds bounds, Class def, Method method) { // [Fuhrer et
        }
      }
      case x:call(Expr rec, Method methodName, list[Type] actuals, list[Expr] args)  : {
-        Trec = etype(bounds, rec);
+        Trec = etype(env, bounds, rec);
         result += {subtype(typeof(x), typeof(Trec))};
         if (!isLibraryClass(Trec)) {
            methodType = mtype(methodeName, Trec);
@@ -74,7 +81,7 @@ set[Constraint] extract(Bounds bounds, Class def, Method method) { // [Fuhrer et
         }
         else { // [Fuhrer et al.,Fig 7] should this be in an else branch or not???
            methodType = mtype(methodName, Trec);
-           result += cGen(typeof(etype(x)), methodType.returnType, rec, #makeEq);
+           result += cGen(typeof(etype(env, bounds, x)), methodType.returnType, rec, #makeEq);
            result += { c | i <- domain(args), Ei := args[i], 
                            c <- cGen(Ei, methodType.formals[i], rec, #makeSub)};      
         }
@@ -82,14 +89,15 @@ set[Constraint] extract(Bounds bounds, Class def, Method method) { // [Fuhrer et
      case x:cast(Type to, Expr expr) :
        result += {eq(typeof(x), typeof(to)), subtype(typeof(expr), typeof(to))};
      case x:var("this") : 
-       result += {eq(typeof(x), typeof(typelit(def.className,def.formals.bounds)))};
+       result += {eq(typeof(x), typeof(typeLit(def.className,def.formals.bounds)))};
   }  
 
   return result;
 }
 
 set[Constraint] cGen(Type a, Type T, Expr E, Constraint (TypeOf t1, TypeOf t2) op) {
-  if (T in etype(E).actuals) {
+  // TODO: bounds and env for etype are bogus
+  if (T in etype((),(),E).actuals) {
     return {#op(typeof(a), typeof(T, E))};
   }
   else if (typelit(name, actuals) := T) { 

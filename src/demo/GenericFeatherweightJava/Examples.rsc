@@ -68,7 +68,7 @@ public Class Example1 = class("Example1",<[],[]>, Object,
 
   
 public void init() {
-  demo::GenericFeatherweightJava::Types::ClassTable = 
+  demo::GenericFeatherweightJava::Types::ClassTable += 
               ("A":A, 
                "B":B, 
                "Number":Number,
