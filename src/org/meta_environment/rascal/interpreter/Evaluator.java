@@ -442,7 +442,6 @@ public class Evaluator extends NullASTVisitor<Result> {
 	}
 		
 	private boolean mayOccurIn(Type small, Type large, java.util.Set<Type> seen){
-		System.err.println("mayOccurIn(" + small + "," + large + ")");
 		if(small.isVoidType())
 			return true;
 		if(large.isVoidType())
