@@ -42,5 +42,12 @@ public class RuleTests extends TestFramework{
 		prepareMore("rule test i(n) => i(1);");
 		runTestInSameEvaluator("i(2) == i(1);");
 	}
+	
+	@Test
+	public void demoConstraints() {
+		prepare("import demo::GenericFeatherweightJava::TypeConstraints;");
+		prepareMore("import demo::GenericFeatherweightJava::Types;");
+		runTestInSameEvaluator("Set({typeof(Object)}) == Root;");
+	}
 }
 
