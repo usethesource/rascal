@@ -1,6 +1,6 @@
 module demo::GenericFeatherweightJava::Extract
 
-import demo::GenericFeatherweightJava::GFJ;
+import demo::GenericFeatherweightJava::AbstractSyntax;
 import demo::GenericFeatherweightJava::TypeConstraints;
 import demo::GenericFeatherweightJava::Types;
 import List;

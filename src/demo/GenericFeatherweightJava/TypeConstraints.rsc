@@ -1,5 +1,6 @@
 module demo::GenericFeatherweightJava::TypeConstraints
-import demo::GenericFeatherweightJava::GFJ;
+
+import demo::GenericFeatherweightJava::AbstractSyntax;
 
 // these are the constraint variables
 data TypeOf = typeof(Expr expr) 

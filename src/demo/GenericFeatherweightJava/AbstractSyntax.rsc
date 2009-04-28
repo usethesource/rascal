@@ -1,5 +1,5 @@
 // This module defines the abstract syntax of Generic Featherweight Java.
-module demo::GenericFeatherweightJava::GFJ
+module demo::GenericFeatherweightJava::AbstractSyntax
   
 alias Name = str;
 
