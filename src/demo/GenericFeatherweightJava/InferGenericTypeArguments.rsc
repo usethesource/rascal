@@ -2,7 +2,7 @@ module demo::GenericFeatherweightJava::InferGenericTypeArguments
 
 import demo::GenericFeatherweightJava::TypeConstraints;
 import demo::GenericFeatherweightJava::Types;
-import demo::GenericFeatherweightJava::GFJ;
+import demo::GenericFeatherweightJava::AbstractSyntax;
 import demo::GenericFeatherweightJava::Extract;
 
 public map[TypeOf var, TypeSet possibles] solveConstraints() {
