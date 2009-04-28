@@ -43,11 +43,19 @@ public class RuleTests extends TestFramework{
 		runTestInSameEvaluator("i(2) == i(1);");
 	}
 	
-	@Test
-	public void demoConstraints() {
-		prepare("import demo::GenericFeatherweightJava::TypeConstraints;");
-		prepareMore("import demo::GenericFeatherweightJava::Types;");
-		runTestInSameEvaluator("Set({typeof(Object)}) == Root;");
+	@Test 
+	public void rulesInModuleEnvironmentNotLocal() {
+		prepare("data Flip = flip(int i, int j);");
+		prepareMore("rule flip flip(int a, int b) => flip(b,a) when a > b;");
+		runTestInSameEvaluator("{int a = 0; flip(3,2) == flip(2,3);}");
+	}
+	
+	@Test 
+	public void rulesInModuleEnvironmentNotFunction() {
+		prepare("data Flip = flip(int i, int j);");
+		prepareMore("rule flip flip(int a, int b) => flip(b,a) when a > b;");
+		prepareMore("Flip f(int a, int b) { return flip(3,2); }");
+		runTestInSameEvaluator("{f(1,0) == flip(2,3);}");
 	}
 }
 
