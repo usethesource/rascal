@@ -25,7 +25,7 @@ public class GlobalEnvironment {
 	private final Map<String, ModuleEnvironment> moduleEnvironment = new HashMap<String, ModuleEnvironment>();
 		
 	/** Normalizing rules are a global feature */
-	private final Map<Type, List<Rule>> ruleEnvironment = new HashMap<Type, List<Rule>>();
+	private final Map<Type, List<RewriteRule>> ruleEnvironment = new HashMap<Type, List<RewriteRule>>();
 	
 	public void clear() {
 		moduleEnvironment.clear();
@@ -68,22 +68,22 @@ public class GlobalEnvironment {
 		return getModule(name.toString(), ast);
 	}
 	
-	public void storeRule(Type forType, Rule rule) {
-		List<Rule> rules = ruleEnvironment.get(forType);
+	public void storeRule(Type forType, Rule rule, Environment env) {
+		List<RewriteRule> rules = ruleEnvironment.get(forType);
 		
 		//System.err.println("storeRule: type=" + forType + ",rule=" + rule);
 		if (rules == null) {
-			rules = new ArrayList<Rule>();
+			rules = new ArrayList<RewriteRule>();
 			ruleEnvironment.put(forType, rules);
 		}
 		
-		rules.add(rule);
+		rules.add(new RewriteRule(rule, env));
 	}
 	
-	public List<Rule> getRules(Type forType) {
-		List<Rule> rules = ruleEnvironment.get(forType);
+	public List<RewriteRule> getRules(Type forType) {
+		List<RewriteRule> rules = ruleEnvironment.get(forType);
 		//System.err.println("getRules: type=" + forType + ",rules=" + rules);
-		return rules != null ? rules : new ArrayList<Rule>();
+		return rules != null ? rules : new ArrayList<RewriteRule>();
 	}
 
 	
