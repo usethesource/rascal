@@ -387,7 +387,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			return v;
 		}
 		// TODO: Use here the module env from which the rule originated
-		Environment newEnv = new Environment(callStack.getLast());
+		Environment newEnv = new ModuleEnvironment("dummy rule environment");
 		callStack.push(newEnv);
 		try {
 			
