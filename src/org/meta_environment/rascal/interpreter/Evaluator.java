@@ -2,7 +2,7 @@
 package org.meta_environment.rascal.interpreter;
 
 import static org.meta_environment.rascal.interpreter.Utils.unescape;
-import static org.meta_environment.rascal.interpreter.result.ResultFactory.*;
+import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.nothing;
 
 import java.io.IOException;
@@ -119,7 +119,6 @@ import org.meta_environment.rascal.ast.Expression.TransitiveClosure;
 import org.meta_environment.rascal.ast.Expression.TransitiveReflexiveClosure;
 import org.meta_environment.rascal.ast.Expression.Tuple;
 import org.meta_environment.rascal.ast.Expression.TypedVariable;
-import org.meta_environment.rascal.ast.Expression.EnumeratorWithStrategy;
 import org.meta_environment.rascal.ast.Expression.Visit;
 import org.meta_environment.rascal.ast.Expression.VoidClosure;
 import org.meta_environment.rascal.ast.FunctionDeclaration.Abstract;
@@ -157,7 +156,6 @@ import org.meta_environment.rascal.ast.Toplevel.DefaultVisibility;
 import org.meta_environment.rascal.ast.Toplevel.GivenVisibility;
 import org.meta_environment.rascal.ast.Visit.DefaultStrategy;
 import org.meta_environment.rascal.ast.Visit.GivenStrategy;
-
 import org.meta_environment.rascal.interpreter.asserts.Ambiguous;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.asserts.NotYetImplemented;
@@ -169,6 +167,7 @@ import org.meta_environment.rascal.interpreter.env.JavaFunction;
 import org.meta_environment.rascal.interpreter.env.Lambda;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.env.RascalFunction;
+import org.meta_environment.rascal.interpreter.env.RewriteRule;
 import org.meta_environment.rascal.interpreter.load.FromResourceLoader;
 import org.meta_environment.rascal.interpreter.load.IModuleLoader;
 import org.meta_environment.rascal.interpreter.result.BoolResult;
@@ -382,23 +381,16 @@ public class Evaluator extends NullASTVisitor<Result> {
 		if (typeToSearchFor.isAbstractDataType()) {
 			typeToSearchFor = ((IConstructor) v).getConstructorType();
 		}
-		java.util.List<org.meta_environment.rascal.ast.Rule> rules = heap.getRules(typeToSearchFor);
+		java.util.List<RewriteRule> rules = heap.getRules(typeToSearchFor);
 		if(rules.isEmpty()){
 			return v;
 		}
-		// TODO: Use here the module env from which the rule originated
-		Environment newEnv = new ModuleEnvironment("dummy rule environment");
-		callStack.push(newEnv);
-		try {
 			
-			TraverseResult tr = traverseTop(v, new CasesOrRules(rules));
-					/* innermost is achieved by repeated applications of applyRules
-					 * when intermediate results are produced.
-					 */
-			return tr.value;
-		} finally {
-			popUntil(newEnv);
-		}
+		TraverseResult tr = traverseTop(v, new CasesOrRules(rules));
+		/* innermost is achieved by repeated applications of applyRules
+		 * when intermediate results are produced.
+		 */
+		return tr.value;
 	}
 /*
 	private void pop() {
@@ -757,7 +749,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Type pt = pv.getType(peek());
 		if(!(pt.isAbstractDataType() || pt.isConstructorType() || pt.isNodeType()))
 				throw new UnexpectedTypeError(tf.nodeType(), pt, x);
-		heap.storeRule(pv.getType(scopeStack.peek()), x);
+		heap.storeRule(pv.getType(scopeStack.peek()), x, scopeStack.peek());
 		return ResultFactory.nothing();
 	}
 
@@ -771,7 +763,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Type pt = pv.getType(peek());
 		if(!(pt.isAbstractDataType() || pt.isConstructorType() || pt.isNodeType()))
 				throw new UnexpectedTypeError(tf.nodeType(), pt, x);
-		heap.storeRule(pv.getType(scopeStack.peek()), x);
+		heap.storeRule(pv.getType(scopeStack.peek()), x, scopeStack.peek());
 		return ResultFactory.nothing();
 	}
 	
@@ -2108,13 +2100,13 @@ public class Evaluator extends NullASTVisitor<Result> {
 	 */
 	class CasesOrRules {
 		private java.util.List<Case> cases;
-		private java.util.List<org.meta_environment.rascal.ast.Rule> rules;
+		private java.util.List<RewriteRule> rules;
 		
 		CasesOrRules(java.util.List<?> casesOrRules){
 			if(casesOrRules.get(0) instanceof Case){
 				this.cases = (java.util.List<Case>) casesOrRules;
 			} else {
-				rules = (java.util.List<org.meta_environment.rascal.ast.Rule>)casesOrRules;
+				rules = (java.util.List<RewriteRule>)casesOrRules;
 			}
 		}
 		
@@ -2133,7 +2125,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		public java.util.List<Case> getCases(){
 			return cases;
 		}
-		public java.util.List<org.meta_environment.rascal.ast.Rule> getRules(){
+		public java.util.List<RewriteRule> getRules(){
 			return rules;
 		}
 	}
@@ -2489,21 +2481,24 @@ public class Evaluator extends NullASTVisitor<Result> {
 				} else {
 					TraverseResult tr = applyOneRule(subject, cs.getRule());
 					if(tr.matched){
-						//System.err.println(" *** matches ***");
 						return tr;
 					}
 				}
 			}
 		} else {
 			//System.err.println("hasRules");
-			for(org.meta_environment.rascal.ast.Rule rule : casesOrRules.getRules()){
-				setCurrentAST(rule);
-				//System.err.println(rule);
-				TraverseResult tr = applyOneRule(subject, rule);
-				//System.err.println("rule fails");
-				if(tr.matched){
-					//System.err.println(" *** matches ***");
-					return tr;
+			for(RewriteRule rule : casesOrRules.getRules()){
+				setCurrentAST(rule.getRule());
+				
+				callStack.push(rule.getEnvironment());
+				try {
+					TraverseResult tr = applyOneRule(subject, rule.getRule());
+					if(tr.matched){
+						return tr;
+					}
+				}
+				finally {
+					popUntil(rule.getEnvironment());
 				}
 			}
 		}
