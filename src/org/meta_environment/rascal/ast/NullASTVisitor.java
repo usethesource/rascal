@@ -966,11 +966,11 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
 		return null;
 	}
 
-	public T visitPatternActionArbitrary(PatternAction.Arbitrary x) {
+	public T visitPatternWithActionArbitrary(PatternWithAction.Arbitrary x) {
 		return null;
 	}
 
-	public T visitPatternActionReplacing(PatternAction.Replacing x) {
+	public T visitPatternWithActionReplacing(PatternWithAction.Replacing x) {
 		return null;
 	}
 
@@ -978,7 +978,7 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
 		return null;
 	}
 
-	public T visitCasePatternAction(Case.PatternAction x) {
+	public T visitCasePatternWithAction(Case.PatternWithAction x) {
 		return null;
 	}
 
@@ -1591,7 +1591,7 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
 		return null;
 	}
 
-	public T visitPatternActionAmbiguity(PatternAction.Ambiguity x) {
+	public T visitPatternWithActionAmbiguity(PatternWithAction.Ambiguity x) {
 		return null;
 	}
 

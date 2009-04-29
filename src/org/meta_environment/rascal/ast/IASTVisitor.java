@@ -486,13 +486,13 @@ public interface IASTVisitor<T> {
 
 	public T visitReplacementUnconditional(Replacement.Unconditional x);
 
-	public T visitPatternActionArbitrary(PatternAction.Arbitrary x);
+	public T visitPatternWithActionArbitrary(PatternWithAction.Arbitrary x);
 
-	public T visitPatternActionReplacing(PatternAction.Replacing x);
+	public T visitPatternWithActionReplacing(PatternWithAction.Replacing x);
 
 	public T visitCaseDefault(Case.Default x);
 
-	public T visitCasePatternAction(Case.PatternAction x);
+	public T visitCasePatternWithAction(Case.PatternWithAction x);
 
 	public T visitVisitGivenStrategy(Visit.GivenStrategy x);
 
@@ -801,7 +801,7 @@ public interface IASTVisitor<T> {
 
 	public T visitReplacementAmbiguity(Replacement.Ambiguity x);
 
-	public T visitPatternActionAmbiguity(PatternAction.Ambiguity x);
+	public T visitPatternWithActionAmbiguity(PatternWithAction.Ambiguity x);
 
 	public T visitCaseAmbiguity(Case.Ambiguity x);
 

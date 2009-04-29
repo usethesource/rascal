@@ -2,7 +2,7 @@ package org.meta_environment.rascal.ast;
 
 import org.eclipse.imp.pdb.facts.INode;
 
-public abstract class PatternAction extends AbstractAST {
+public abstract class PatternWithAction extends AbstractAST {
 	public org.meta_environment.rascal.ast.Expression getPattern() {
 		throw new UnsupportedOperationException();
 	}
@@ -23,9 +23,9 @@ public abstract class PatternAction extends AbstractAST {
 		return false;
 	}
 
-	static public class Replacing extends PatternAction {
+	static public class Replacing extends PatternWithAction {
 		/*
-		 * pattern:Expression "=>" replacement:Replacement -> PatternAction
+		 * pattern:Expression "=>" replacement:Replacement -> PatternWithAction
 		 * {cons("Replacing")}
 		 */
 		private Replacing() {
@@ -41,7 +41,7 @@ public abstract class PatternAction extends AbstractAST {
 
 		@Override
 		public <T> T accept(IASTVisitor<T> visitor) {
-			return visitor.visitPatternActionReplacing(this);
+			return visitor.visitPatternWithActionReplacing(this);
 		}
 
 		@Override
@@ -96,24 +96,24 @@ public abstract class PatternAction extends AbstractAST {
 		}
 	}
 
-	static public class Ambiguity extends PatternAction {
-		private final java.util.List<org.meta_environment.rascal.ast.PatternAction> alternatives;
+	static public class Ambiguity extends PatternWithAction {
+		private final java.util.List<org.meta_environment.rascal.ast.PatternWithAction> alternatives;
 
 		public Ambiguity(
 				INode node,
-				java.util.List<org.meta_environment.rascal.ast.PatternAction> alternatives) {
+				java.util.List<org.meta_environment.rascal.ast.PatternWithAction> alternatives) {
 			this.alternatives = java.util.Collections
 					.unmodifiableList(alternatives);
 			this.node = node;
 		}
 
-		public java.util.List<org.meta_environment.rascal.ast.PatternAction> getAlternatives() {
+		public java.util.List<org.meta_environment.rascal.ast.PatternWithAction> getAlternatives() {
 			return alternatives;
 		}
 
 		@Override
 		public <T> T accept(IASTVisitor<T> v) {
-			return v.visitPatternActionAmbiguity(this);
+			return v.visitPatternWithActionAmbiguity(this);
 		}
 	}
 
@@ -129,9 +129,9 @@ public abstract class PatternAction extends AbstractAST {
 		return false;
 	}
 
-	static public class Arbitrary extends PatternAction {
+	static public class Arbitrary extends PatternWithAction {
 		/*
-		 * pattern:Expression ":" statement:Statement -> PatternAction
+		 * pattern:Expression ":" statement:Statement -> PatternWithAction
 		 * {cons("Arbitrary")}
 		 */
 		private Arbitrary() {
@@ -147,7 +147,7 @@ public abstract class PatternAction extends AbstractAST {
 
 		@Override
 		public <T> T accept(IASTVisitor<T> visitor) {
-			return visitor.visitPatternActionArbitrary(this);
+			return visitor.visitPatternWithActionArbitrary(this);
 		}
 
 		@Override

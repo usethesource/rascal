@@ -3467,39 +3467,39 @@ public class ASTFactory {
 				.get(x);
 	}
 
-	public org.meta_environment.rascal.ast.PatternAction.Arbitrary makePatternActionArbitrary(
+	public org.meta_environment.rascal.ast.PatternWithAction.Arbitrary makePatternWithActionArbitrary(
 			INode node, org.meta_environment.rascal.ast.Expression pattern,
 			org.meta_environment.rascal.ast.Statement statement) {
-		org.meta_environment.rascal.ast.PatternAction.Arbitrary x = new org.meta_environment.rascal.ast.PatternAction.Arbitrary(
+		org.meta_environment.rascal.ast.PatternWithAction.Arbitrary x = new org.meta_environment.rascal.ast.PatternWithAction.Arbitrary(
 				node, pattern, statement);
 		if (!table.containsKey(x)) {
 			table.put(x, x);
 		}
-		return (org.meta_environment.rascal.ast.PatternAction.Arbitrary) table
+		return (org.meta_environment.rascal.ast.PatternWithAction.Arbitrary) table
 				.get(x);
 	}
 
-	public org.meta_environment.rascal.ast.PatternAction.Ambiguity makePatternActionAmbiguity(
+	public org.meta_environment.rascal.ast.PatternWithAction.Ambiguity makePatternWithActionAmbiguity(
 			INode node,
-			java.util.List<org.meta_environment.rascal.ast.PatternAction> alternatives) {
-		org.meta_environment.rascal.ast.PatternAction.Ambiguity amb = new org.meta_environment.rascal.ast.PatternAction.Ambiguity(
+			java.util.List<org.meta_environment.rascal.ast.PatternWithAction> alternatives) {
+		org.meta_environment.rascal.ast.PatternWithAction.Ambiguity amb = new org.meta_environment.rascal.ast.PatternWithAction.Ambiguity(
 				node, alternatives);
 		if (!table.containsKey(amb)) {
 			table.put(amb, amb);
 		}
-		return (org.meta_environment.rascal.ast.PatternAction.Ambiguity) table
+		return (org.meta_environment.rascal.ast.PatternWithAction.Ambiguity) table
 				.get(amb);
 	}
 
-	public org.meta_environment.rascal.ast.PatternAction.Replacing makePatternActionReplacing(
+	public org.meta_environment.rascal.ast.PatternWithAction.Replacing makePatternWithActionReplacing(
 			INode node, org.meta_environment.rascal.ast.Expression pattern,
 			org.meta_environment.rascal.ast.Replacement replacement) {
-		org.meta_environment.rascal.ast.PatternAction.Replacing x = new org.meta_environment.rascal.ast.PatternAction.Replacing(
+		org.meta_environment.rascal.ast.PatternWithAction.Replacing x = new org.meta_environment.rascal.ast.PatternWithAction.Replacing(
 				node, pattern, replacement);
 		if (!table.containsKey(x)) {
 			table.put(x, x);
 		}
-		return (org.meta_environment.rascal.ast.PatternAction.Replacing) table
+		return (org.meta_environment.rascal.ast.PatternWithAction.Replacing) table
 				.get(x);
 	}
 
@@ -3524,15 +3524,15 @@ public class ASTFactory {
 		return (org.meta_environment.rascal.ast.Case.Ambiguity) table.get(amb);
 	}
 
-	public org.meta_environment.rascal.ast.Case.PatternAction makeCasePatternAction(
+	public org.meta_environment.rascal.ast.Case.PatternWithAction makeCasePatternWithAction(
 			INode node,
-			org.meta_environment.rascal.ast.PatternAction patternAction) {
-		org.meta_environment.rascal.ast.Case.PatternAction x = new org.meta_environment.rascal.ast.Case.PatternAction(
-				node, patternAction);
+			org.meta_environment.rascal.ast.PatternWithAction patternWithAction) {
+		org.meta_environment.rascal.ast.Case.PatternWithAction x = new org.meta_environment.rascal.ast.Case.PatternWithAction(
+				node, patternWithAction);
 		if (!table.containsKey(x)) {
 			table.put(x, x);
 		}
-		return (org.meta_environment.rascal.ast.Case.PatternAction) table
+		return (org.meta_environment.rascal.ast.Case.PatternWithAction) table
 				.get(x);
 	}
 
@@ -4152,7 +4152,7 @@ public class ASTFactory {
 	public org.meta_environment.rascal.ast.Declaration.Rule makeDeclarationRule(
 			INode node, org.meta_environment.rascal.ast.Name name,
 			org.meta_environment.rascal.ast.Tags tags,
-			org.meta_environment.rascal.ast.PatternAction patternAction) {
+			org.meta_environment.rascal.ast.PatternWithAction patternAction) {
 		org.meta_environment.rascal.ast.Declaration.Rule x = new org.meta_environment.rascal.ast.Declaration.Rule(
 				node, name, tags, patternAction);
 		if (!table.containsKey(x)) {

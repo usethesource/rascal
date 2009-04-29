@@ -25,15 +25,16 @@ public abstract class AbstractAST implements IVisitable {
 			if (obj == this) {
 				return true;
 			}
-			
+
 			AbstractAST other = (AbstractAST) obj;
-			
+
 			if (other.node == node) {
 				return true;
 			}
-			
+
 			if (other.node.equals(node)) {
-				return other.node.getAnnotation("loc").isEqual(node.getAnnotation("loc"));	
+				return other.node.getAnnotation("loc").isEqual(
+						node.getAnnotation("loc"));
 			}
 		}
 		return false;

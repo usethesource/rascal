@@ -3,60 +3,64 @@ package org.meta_environment.rascal.ast;
 import org.eclipse.imp.pdb.facts.INode;
 
 public abstract class Case extends AbstractAST {
-	public org.meta_environment.rascal.ast.PatternAction getPatternAction() {
+	public org.meta_environment.rascal.ast.PatternWithAction getPatternWithAction() {
 		throw new UnsupportedOperationException();
 	}
 
-	public boolean hasPatternAction() {
+	public boolean hasPatternWithAction() {
 		return false;
 	}
 
-	public boolean isPatternAction() {
+	public boolean isPatternWithAction() {
 		return false;
 	}
 
-	static public class PatternAction extends Case {
-		/* "case" patternAction:PatternAction -> Case {cons("PatternAction")} */
-		private PatternAction() {
+	static public class PatternWithAction extends Case {
+		/*
+		 * "case" patternWithAction:PatternWithAction -> Case
+		 * {cons("PatternWithAction")}
+		 */
+		private PatternWithAction() {
 		}
 
-		/* package */PatternAction(INode node,
-				org.meta_environment.rascal.ast.PatternAction patternAction) {
+		/* package */PatternWithAction(
+				INode node,
+				org.meta_environment.rascal.ast.PatternWithAction patternWithAction) {
 			this.node = node;
-			this.patternAction = patternAction;
+			this.patternWithAction = patternWithAction;
 		}
 
 		@Override
 		public <T> T accept(IASTVisitor<T> visitor) {
-			return visitor.visitCasePatternAction(this);
+			return visitor.visitCasePatternWithAction(this);
 		}
 
 		@Override
-		public boolean isPatternAction() {
+		public boolean isPatternWithAction() {
 			return true;
 		}
 
 		@Override
-		public boolean hasPatternAction() {
+		public boolean hasPatternWithAction() {
 			return true;
 		}
 
-		private org.meta_environment.rascal.ast.PatternAction patternAction;
+		private org.meta_environment.rascal.ast.PatternWithAction patternWithAction;
 
 		@Override
-		public org.meta_environment.rascal.ast.PatternAction getPatternAction() {
-			return patternAction;
+		public org.meta_environment.rascal.ast.PatternWithAction getPatternWithAction() {
+			return patternWithAction;
 		}
 
-		private void $setPatternAction(
-				org.meta_environment.rascal.ast.PatternAction x) {
-			this.patternAction = x;
+		private void $setPatternWithAction(
+				org.meta_environment.rascal.ast.PatternWithAction x) {
+			this.patternWithAction = x;
 		}
 
-		public PatternAction setPatternAction(
-				org.meta_environment.rascal.ast.PatternAction x) {
-			PatternAction z = new PatternAction();
-			z.$setPatternAction(x);
+		public PatternWithAction setPatternWithAction(
+				org.meta_environment.rascal.ast.PatternWithAction x) {
+			PatternWithAction z = new PatternWithAction();
+			z.$setPatternWithAction(x);
 			return z;
 		}
 	}
