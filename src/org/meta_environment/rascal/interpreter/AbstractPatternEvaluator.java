@@ -216,7 +216,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 		 }
 		 
 		 Type signature = tf.tupleType(types);
-		 
+		 System.err.println("AbstractPatternNode.getType: " + name + ", " + signature);
 		 if (env.isTreeConstructorName(name, signature)) {
 			 return env.getConstructor(name.toString(), signature); //.getAbstractDataType();
 		 } else {

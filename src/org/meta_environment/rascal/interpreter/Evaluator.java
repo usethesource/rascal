@@ -475,6 +475,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 			return false;
 		}
 		if(large.isAbstractDataType()){
+			if(small.isNodeType() && !small.isAbstractDataType())
+				return true;
 			if(small.isConstructorType() && small.getAbstractDataType().equivalent(large.getAbstractDataType()))
 					return true;
 			seen.add(large);
@@ -491,7 +493,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			}
 			return false;
 		}
-		return small.equivalent(large);
+		return small.isSubtypeOf(large);
 	}
 	
 	boolean mayMatch(Type small, Type large){
