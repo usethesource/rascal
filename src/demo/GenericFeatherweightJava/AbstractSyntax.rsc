@@ -3,7 +3,7 @@ module demo::GenericFeatherweightJava::AbstractSyntax
   
 alias Name = str;
 
-data Type = typeVar(Name varName) | typeLit(Name className, list[Type] actuals);
+public data Type = typeVar(Name varName) | typeLit(Name className, list[Type] actuals);
 
 alias FormalTypes = tuple[list[Type] vars, list[Type] bounds];
 alias FormalVars  = tuple[list[Type] types, list[Name] names];

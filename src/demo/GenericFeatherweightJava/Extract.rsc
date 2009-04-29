@@ -33,16 +33,16 @@ public set[Constraint] extract(Name class) {
   result = { c | Method method <- def, c <- extract(bounds, def, method) };
 
   // constraints from method overloading
-  result += { c | 
-                  Method methodP <- def, Method method <- ClassTable[def.extends.className],
-                  methodP.name == method.name,
-                  MethodType TmP := mtype(methodP.name, typeLit(def.className,def.formals.bounds)),
-                  MethodType Tm := mtype(method.name, typeLit(ClassTable[def.extends].className,def.formals.bounds)),
-                  overrides(bounds, TmP, Tm), i <- domain(method.formals),
+  // result += { c | 
+                  // Method methodP <- def, Method method <- ClassTable[def.extends.className],
+                  // methodP.name == method.name,
+                  // MethodType TmP := mtype(methodP.name, typeLit(def.className,def.formals.bounds)),
+                  // MethodType Tm := mtype(method.name, typeLit(ClassTable[def.extends.className].className,def.formals.bounds)),
+                  // overrides(bounds, TmP, Tm), i <- domain(method.formals),
                   // TODO inline these two elements in the lhs of the comprehension
-                  c <- { eq(typeof(methodP.params.types[i]), typeof(methodP.params.types[i])), 
-                         subtype(TmP.returnType, Tm.returnType) }
-            };   
+                  // c <- { eq(typeof(methodP.params.types[i]), typeof(methodP.params.types[i])), 
+                         // subtype(TmP.returnType, Tm.returnType) }
+            // };   
 
   return result;
 }
@@ -63,7 +63,7 @@ public set[Constraint] extract(Bounds bounds, Class def, Method method) { // [Fu
        Trec = etype(env, bounds, erec);
        fieldType = ftype(Trec, fieldName);
        if (!isLibraryClass(def.className))
-         result += {eq(typeof(method), typeof(fieldType)), subtype(typeof(erec), fdecl(Trec, fieldName))};  
+         result += {eq(typeof(method), typeof(fieldType)), subtype(typeof(erec), typeof(fdecl(Trec, fieldName)))};  
      }   
      case x:new(Type new, list[Expr] args) : {
        result += {eq(typeof(x), typeof(new))};

@@ -83,15 +83,18 @@ public Type fdecl(Type t, Name fieldName) {
 }
 
 public map[Type,Type] bindings(list[Type] formals, list[Type] actuals ) {
+  println("bindings:", formals, ",", actuals);
   return (formals[i] : actuals[i] ? Object | int i <- domain(formals) + domain(actuals));  
 }  
 
 public &T inst(&T arg, list[Type] formals, list[Type] actuals) {
+  println("inst:", formals, ",", actuals);
   map[Type,Type] subs = bindings(formals, actuals);
   return visit (arg) { case Type t => subs[t] ? t };
 }
 
 public MethodType mtype(Name methodName, Type t) {
+   println("mtype", methodName, ",", t);
    if (t == Object) throw NoSuchMethod(methodName);
 
    Class def = ClassTable[t.className];
