@@ -537,6 +537,8 @@ public class PatternTests extends TestFramework {
 		
 		assertTrue(runTest("{ {set[int] X, set[real] Y} := { 1, 5.5, 2, 6.5}; (X == {1,2} && Y == {5.5, 6.5});}"));
 		
+		assertTrue(runTest("{ set[int] x = {}; {} := x; }"));
+		
 	}	
 
 	@Test

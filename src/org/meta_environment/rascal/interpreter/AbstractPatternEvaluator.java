@@ -216,7 +216,6 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 		 }
 		 
 		 Type signature = tf.tupleType(types);
-		 System.err.println("AbstractPatternNode.getType: " + name + ", " + signature);
 		 if (env.isTreeConstructorName(name, signature)) {
 			 return env.getConstructor(name.toString(), signature); //.getAbstractDataType();
 		 } else {
@@ -929,7 +928,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 		setSubject = (ISet) subject;
 		setSubjectType = setSubject.getType();
 		setSubjectElementType = setSubject.getElementType();
-		fixedSetElements = vf.set(getType(ev));
+		fixedSetElements = vf.set(getType(ev).getElementType());
 		
 		nVar = 0;
 		patVars = new HashSet<String>();
