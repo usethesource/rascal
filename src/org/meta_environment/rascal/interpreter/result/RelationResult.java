@@ -12,6 +12,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.meta_environment.rascal.interpreter.EvaluatorContext;
 import org.meta_environment.rascal.interpreter.staticErrors.ArityError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFieldError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
@@ -21,93 +22,93 @@ import org.meta_environment.rascal.ast.AbstractAST;
 
 public class RelationResult extends SetOrRelationResult<IRelation> {
 
-		public RelationResult(Type type, IRelation rel, AbstractAST ast) {
-			super(type, rel, ast);
+		public RelationResult(Type type, IRelation rel, EvaluatorContext ctx) {
+			super(type, rel, ctx);
 		}
 
 		@Override
-		public <U extends IValue, V extends IValue> Result<U> add(Result<V> result, AbstractAST ast) {
-			return result.addRelation(this, ast);
+		public <U extends IValue, V extends IValue> Result<U> add(Result<V> result, EvaluatorContext ctx) {
+			return result.addRelation(this, ctx);
 		}
 		
 		@Override
-		public  <U extends IValue, V extends IValue> Result<U> subtract(Result<V> result, AbstractAST ast) {
-			return result.subtractRelation(this, ast);
+		public  <U extends IValue, V extends IValue> Result<U> subtract(Result<V> result, EvaluatorContext ctx) {
+			return result.subtractRelation(this, ctx);
 		}
 		
 		@Override
-		public <U extends IValue, V extends IValue> Result<U> intersect(Result<V> result, AbstractAST ast) {
-			return result.intersectRelation(this, ast);
+		public <U extends IValue, V extends IValue> Result<U> intersect(Result<V> result, EvaluatorContext ctx) {
+			return result.intersectRelation(this, ctx);
 		}
 		
 		@Override
-		public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that, AbstractAST ast) {
-			return that.equalToRelation(this, ast);
+		public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that, EvaluatorContext ctx) {
+			return that.equalToRelation(this, ctx);
 		}
 
 		@Override
-		public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that, AbstractAST ast) {
-			return that.nonEqualToRelation(this, ast);
+		public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that, EvaluatorContext ctx) {
+			return that.nonEqualToRelation(this, ctx);
 		}
 		
 		@Override
-		public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> that, AbstractAST ast) {
-			return that.lessThanRelation(this, ast);
+		public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> that, EvaluatorContext ctx) {
+			return that.lessThanRelation(this, ctx);
 		}
 		
 		@Override
-		public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(Result<V> that, AbstractAST ast) {
-			return that.lessThanOrEqualRelation(this, ast);
+		public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(Result<V> that, EvaluatorContext ctx) {
+			return that.lessThanOrEqualRelation(this, ctx);
 		}
 
 		@Override
-		public <U extends IValue, V extends IValue> Result<U> greaterThan(Result<V> that, AbstractAST ast) {
-			return that.greaterThanRelation(this, ast);
+		public <U extends IValue, V extends IValue> Result<U> greaterThan(Result<V> that, EvaluatorContext ctx) {
+			return that.greaterThanRelation(this, ctx);
 		}
 		
 		@Override
-		public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(Result<V> that, AbstractAST ast) {
-			return that.greaterThanOrEqualRelation(this, ast);
+		public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(Result<V> that, EvaluatorContext ctx) {
+			return that.greaterThanOrEqualRelation(this, ctx);
 		}
 
 		@Override
-		public <U extends IValue, V extends IValue> Result<U> compare(Result<V> result, AbstractAST ast) {
-			return result.compareRelation(this, ast);
+		public <U extends IValue, V extends IValue> Result<U> compare(Result<V> result, EvaluatorContext ctx) {
+			return result.compareRelation(this, ctx);
 		}
 
 		@Override
-		public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right, AbstractAST ast) {
-			return right.composeRelation(this, ast);
+		public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right, EvaluatorContext ctx) {
+			return right.composeRelation(this, ctx);
 		}
 
 		@Override
-		public <U extends IValue, V extends IValue> Result<U> multiply(Result<V> that, AbstractAST ast) {
-			return that.multiplyRelation(this, ast);
+		public <U extends IValue, V extends IValue> Result<U> multiply(Result<V> that, EvaluatorContext ctx) {
+			return that.multiplyRelation(this, ctx);
 		}
 		
 		@Override
-		public <U extends IValue, V extends IValue> Result<U> join(Result<V> that, AbstractAST ast) {
-			return that.joinRelation(this, ast);
+		public <U extends IValue, V extends IValue> Result<U> join(Result<V> that, EvaluatorContext ctx) {
+			return that.joinRelation(this, ctx);
 		}
 		
 		@Override
-		public <U extends IValue, V extends IValue> Result<U> in(Result<V> that, AbstractAST ast) {
-			return that.inRelation(this, ast);
+		public <U extends IValue, V extends IValue> Result<U> in(Result<V> that, EvaluatorContext ctx) {
+			return that.inRelation(this, ctx);
 		}
 		
 		@Override
-		public <U extends IValue, V extends IValue> Result<U> notIn(Result<V> that, AbstractAST ast) {
-			return that.notInRelation(this, ast);
+		public <U extends IValue, V extends IValue> Result<U> notIn(Result<V> that, EvaluatorContext ctx) {
+			return that.notInRelation(this, ctx);
 		}
 		
 		
 		@SuppressWarnings("null")
 		@Override
-		public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts, AbstractAST ast) {
+		public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts, EvaluatorContext ctx) {
 			// TODO: must go to PDB
 			int nSubs = subscripts.length;
 			if (nSubs >= getType().getArity()) {
-				throw new UnsupportedSubscriptArityError(getType(), nSubs, ast);
+				throw new UnsupportedSubscriptArityError(getType(), nSubs, ctx.getCurrentAST());
 			}
 			int relArity = getType().getArity();
 			
@@ -131,7 +132,7 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 						subscriptIsSet[i] = false;
 					} 
 					else {
-						throw new UnexpectedTypeError(relFieldType, subscriptType[i], ast);
+						throw new UnexpectedTypeError(relFieldType, subscriptType[i], ctx.getCurrentAST());
 					}
 				} else {
 					resFieldType[i - nSubs] = relFieldType;
@@ -175,53 +176,53 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 					}
 				}
 			}
-			return makeResult(resultType, yieldSet ? wset.done() : wrel.done(), ast);
+			return makeResult(resultType, yieldSet ? wset.done() : wrel.done(), ctx);
 		}
 
 		////
 		
 		
 		@Override
-		protected <U extends IValue, V extends IValue> Result<U> elementOf(ElementResult<V> elementResult, AbstractAST ast) {
+		protected <U extends IValue, V extends IValue> Result<U> elementOf(ElementResult<V> elementResult, EvaluatorContext ctx) {
 			return bool(getValue().contains(elementResult.getValue()));
 		}
 
 		@Override
-		protected <U extends IValue, V extends IValue> Result<U> notElementOf(ElementResult<V> elementResult, AbstractAST ast) {
+		protected <U extends IValue, V extends IValue> Result<U> notElementOf(ElementResult<V> elementResult, EvaluatorContext ctx) {
 			return bool(!getValue().contains(elementResult.getValue()));
 		}
 		
 		@Override
-		public  <U extends IValue> Result<U> transitiveClosure(AbstractAST ast) {
+		public  <U extends IValue> Result<U> transitiveClosure(EvaluatorContext ctx) {
 			if (getValue().arity() == 0 || getValue().arity() == 2) {
-				return makeResult(type, getValue().closure(), ast);
+				return makeResult(type, getValue().closure(), ctx);
 			}
-			throw new ArityError(2, getValue().arity(), ast);
+			throw new ArityError(2, getValue().arity(), ctx.getCurrentAST());
 		}
 		
 
 		@Override
-		public  <U extends IValue> Result<U> transitiveReflexiveClosure(AbstractAST ast) {
+		public  <U extends IValue> Result<U> transitiveReflexiveClosure(EvaluatorContext ctx) {
 			if (getValue().arity() == 0 || getValue().arity() == 2) {
-				return makeResult(type, getValue().closureStar(), ast);
+				return makeResult(type, getValue().closureStar(), ctx);
 			}
-			throw new ArityError(2, getValue().arity(), ast);
+			throw new ArityError(2, getValue().arity(), ctx.getCurrentAST());
 		}
 		
 		
 		@Override
-		public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store, AbstractAST ast) {
+		public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store, EvaluatorContext ctx) {
 			Type tupleType = getType().getFieldTypes();			
 			try {
 				ISetWriter w = getValueFactory().setWriter(tupleType.getFieldType(name));
 				for (IValue e : getValue()) {
 					w.insert(((ITuple) e).get(tupleType.getFieldIndex(name)));
 				}
-				return makeResult(getTypeFactory().setType(tupleType.getFieldType(name)), w.done(), ast);
+				return makeResult(getTypeFactory().setType(tupleType.getFieldType(name)), w.done(), ctx);
 			}
 			// TODO: why catch this exception here?
 			catch (UndeclaredFieldException e) {
-				throw new UndeclaredFieldError(name, getType(), ast);
+				throw new UndeclaredFieldError(name, getType(), ctx.getCurrentAST());
 			}
 		}
 		
@@ -229,7 +230,7 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 		///
 
 		@Override
-		protected <U extends IValue> Result<U> composeRelation(RelationResult that, AbstractAST ast) {
+		protected <U extends IValue> Result<U> composeRelation(RelationResult that, EvaluatorContext ctx) {
 			RelationResult left = that;
 			RelationResult right = this;
 			Type leftrelType = left.getType(); 
@@ -238,36 +239,36 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 			int rightArity = rightrelType.getArity();
 				
 			if (leftArity != 0 && leftArity != 2) {
-				throw new ArityError(2, leftArity, ast);
+				throw new ArityError(2, leftArity, ctx.getCurrentAST());
 			}
 				
 			if (rightArity != 0 && rightArity != 2) {
-				throw new ArityError(2, rightArity, ast);
+				throw new ArityError(2, rightArity, ctx.getCurrentAST());
 			}
 			Type resultType = leftrelType.compose(rightrelType);
-			return makeResult(resultType, left.getValue().compose(right.getValue()), ast);
+			return makeResult(resultType, left.getValue().compose(right.getValue()), ctx);
 		}
 
 		
 		@SuppressWarnings("unused")
-		private void checkCompatibleArity(RelationResult that, AbstractAST ast) {
-			checkArity(getType().getArity(), that.getType().getArity(), ast);
+		private void checkCompatibleArity(RelationResult that, EvaluatorContext ctx) {
+			checkArity(getType().getArity(), that.getType().getArity(), ctx);
 		}
 		
-		private static void checkArity(int expected, int given, AbstractAST ast) {
+		private static void checkArity(int expected, int given, EvaluatorContext ctx) {
 			if (expected != given) {
-				throw new ArityError(expected, given, ast);
+				throw new ArityError(expected, given, ctx.getCurrentAST());
 			}
 		}
 
-		<U extends IValue, V extends IValue> Result<U> insertTuple(TupleResult tuple, AbstractAST ast) {
+		<U extends IValue, V extends IValue> Result<U> insertTuple(TupleResult tuple, EvaluatorContext ctx) {
 			// TODO: check arity 
 			Type newType = getTypeFactory().relTypeFromTuple(tuple.getType().lub(getType().getElementType()));
-			return makeResult(newType, (IRelation) getValue().insert(tuple.getValue()), ast);
+			return makeResult(newType, (IRelation) getValue().insert(tuple.getValue()), ctx);
 		}
 
 		@Override
-		protected <U extends IValue> Result<U> joinRelation(RelationResult that, AbstractAST ast) {
+		protected <U extends IValue> Result<U> joinRelation(RelationResult that, EvaluatorContext ctx) {
 			// Note the reverse of arguments, we need "that join this"
 			int arity1 = that.getValue().arity();
 			int arity2 = this.getValue().arity();
@@ -295,11 +296,11 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 				}
 			}
 			Type resultType = getTypeFactory().relTypeFromTuple(tupleType);
-			return makeResult(resultType, writer.done(), ast);
+			return makeResult(resultType, writer.done(), ctx);
 		}
 
 		@Override
-		protected <U extends IValue> Result<U> joinSet(SetResult that, AbstractAST ast) {
+		protected <U extends IValue> Result<U> joinSet(SetResult that, EvaluatorContext ctx) {
 			// Note the reverse of arguments, we need "that join this"
 			int arity2 = this.getValue().arity();
 			Type eltType = that.getType().getElementType();
@@ -322,7 +323,7 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 				}
 			}
 			Type resultType = getTypeFactory().relTypeFromTuple(resultTupleType);
-			return makeResult(resultType, writer.done(), ast);
+			return makeResult(resultType, writer.done(), ctx);
 		}
 		
 		

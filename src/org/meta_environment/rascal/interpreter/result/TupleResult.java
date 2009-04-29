@@ -6,99 +6,99 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.meta_environment.rascal.interpreter.EvaluatorContext;
 import org.meta_environment.rascal.interpreter.RuntimeExceptionFactory;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFieldError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscriptArityError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscriptError;
-import org.meta_environment.rascal.ast.AbstractAST;
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.bool;
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 
 public class TupleResult extends ElementResult<ITuple> {
 	
-	public TupleResult(Type type, ITuple tuple, AbstractAST ast) {
-		super(type, tuple, ast);
+	public TupleResult(Type type, ITuple tuple, EvaluatorContext ctx) {
+		super(type, tuple, ctx);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> add(Result<V> that, AbstractAST ast) {
-		return that.addTuple(this, ast);
+	public <U extends IValue, V extends IValue> Result<U> add(Result<V> that, EvaluatorContext ctx) {
+		return that.addTuple(this, ctx);
 	}
 	
 	@Override
-	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store, AbstractAST ast) {
+	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store, EvaluatorContext ctx) {
 			if (!getType().hasFieldNames()) {
-				throw new UndeclaredFieldError(name, getType(), ast);
+				throw new UndeclaredFieldError(name, getType(), ctx.getCurrentAST());
 			}
 			try {
 				int index = getType().getFieldIndex(name);
 				Type type = getType().getFieldType(index);
-				return makeResult(type, getValue().get(index), ast);
+				return makeResult(type, getValue().get(index), ctx);
 			} 
 			catch (UndeclaredFieldException e){
-				throw new UndeclaredFieldError(name, getType(), ast);
+				throw new UndeclaredFieldError(name, getType(), ctx.getCurrentAST());
 			}
 	}
 	
 	@Override
 	@SuppressWarnings("unchecked")
-	public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts, AbstractAST ast) {
+	public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts, EvaluatorContext ctx) {
 		if (subscripts.length > 1) {
-			throw new UnsupportedSubscriptArityError(getType(), subscripts.length, ast);
+			throw new UnsupportedSubscriptArityError(getType(), subscripts.length, ctx.getCurrentAST());
 		}
 		Result<IValue> subsBase = (Result<IValue>)subscripts[0];
 		if (!subsBase.getType().isIntegerType()){
-			throw new UnsupportedSubscriptError(getTypeFactory().integerType(), subsBase.getType(), ast);
+			throw new UnsupportedSubscriptError(getTypeFactory().integerType(), subsBase.getType(), ctx.getCurrentAST());
 		}
 		IInteger index = (IInteger)subsBase.getValue();
 		if (index.intValue() >= getValue().arity()) {
-			throw RuntimeExceptionFactory.indexOutOfBounds(index, ast, null);
+			throw RuntimeExceptionFactory.indexOutOfBounds(index, ctx.getCurrentAST(), null);
 		}
 		
 		Type elementType = getType().getFieldType(index.intValue());
 		IValue element = getValue().get(index.intValue());
-		return makeResult(elementType, element, ast);
+		return makeResult(elementType, element, ctx);
 	};
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> result, AbstractAST ast) {
-		return result.compareTuple(this, ast);
+	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> result, EvaluatorContext ctx) {
+		return result.compareTuple(this, ctx);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that, AbstractAST ast) {
-		return that.equalToTuple(this, ast);
+	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that, EvaluatorContext ctx) {
+		return that.equalToTuple(this, ctx);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that, AbstractAST ast) {
-		return that.nonEqualToTuple(this, ast);
+	public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that, EvaluatorContext ctx) {
+		return that.nonEqualToTuple(this, ctx);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> result, AbstractAST ast) {
-		return result.lessThanTuple(this, ast);
+	public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> result, EvaluatorContext ctx) {
+		return result.lessThanTuple(this, ctx);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(Result<V> result, AbstractAST ast) {
-		return result.lessThanOrEqualTuple(this, ast);
+	public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(Result<V> result, EvaluatorContext ctx) {
+		return result.lessThanOrEqualTuple(this, ctx);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> greaterThan(Result<V> result, AbstractAST ast) {
-		return result.greaterThanTuple(this, ast);
+	public <U extends IValue, V extends IValue> Result<U> greaterThan(Result<V> result, EvaluatorContext ctx) {
+		return result.greaterThanTuple(this, ctx);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(Result<V> result, AbstractAST ast) {
-		return result.greaterThanOrEqualTuple(this, ast);
+	public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(Result<V> result, EvaluatorContext ctx) {
+		return result.greaterThanOrEqualTuple(this, ctx);
 	}
 	
 	///
 
 	@Override
-	protected <U extends IValue> Result<U> addTuple(TupleResult that, AbstractAST ast) {
+	protected <U extends IValue> Result<U> addTuple(TupleResult that, EvaluatorContext ctx) {
 		// Note reversed args
 		TupleResult left = that;
 		TupleResult right = this;
@@ -132,64 +132,64 @@ public class TupleResult extends ElementResult<ITuple> {
 			}
 		}
 		Type newTupleType = getTypeFactory().tupleType(fieldTypes, fieldNames);
-		return makeResult(newTupleType, getValueFactory().tuple(fieldValues), ast);
+		return makeResult(newTupleType, getValueFactory().tuple(fieldValues), ctx);
 	}
 	
 	
 	@Override
-	protected <U extends IValue> Result<U> addRelation(RelationResult that, AbstractAST ast) {
-		return that.insertTuple(this, ast);
+	protected <U extends IValue> Result<U> addRelation(RelationResult that, EvaluatorContext ctx) {
+		return that.insertTuple(this, ctx);
 	};
 	
 	@Override
-	protected <U extends IValue> Result<U> equalToTuple(TupleResult that, AbstractAST ast) {
-		return that.equalityBoolean(this, ast);
+	protected <U extends IValue> Result<U> equalToTuple(TupleResult that, EvaluatorContext ctx) {
+		return that.equalityBoolean(this, ctx);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> nonEqualToTuple(TupleResult that, AbstractAST ast) {
+	protected <U extends IValue> Result<U> nonEqualToTuple(TupleResult that, EvaluatorContext ctx) {
 		return that.nonEqualityBoolean(this);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> compareTuple(TupleResult that, AbstractAST ast) {
+	protected <U extends IValue> Result<U> compareTuple(TupleResult that, EvaluatorContext ctx) {
 		// Note reversed args
 		ITuple left = that.getValue();
 		ITuple right = this.getValue();
 		int compare = new Integer(left.arity()).compareTo(right.arity());
 		if (compare != 0) {
-			return makeIntegerResult(compare, ast);
+			return makeIntegerResult(compare, ctx);
 		}
 		for (int i = 0; i < left.arity(); i++) {
-			compare = compareIValues(left.get(i), right.get(i), ast);
+			compare = compareIValues(left.get(i), right.get(i), ctx);
 			if (compare != 0) {
-				return makeIntegerResult(compare, ast);
+				return makeIntegerResult(compare, ctx);
 			}
 		}
-		return makeIntegerResult(0, ast);
+		return makeIntegerResult(0, ctx);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> lessThanTuple(TupleResult that, AbstractAST ast) {
+	protected <U extends IValue> Result<U> lessThanTuple(TupleResult that, EvaluatorContext ctx) {
 		// note reversed args: we need that < this
-		return bool(that.comparisonInts(this, ast) < 0);
+		return bool(that.comparisonInts(this, ctx) < 0);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> lessThanOrEqualTuple(TupleResult that, AbstractAST ast) {
+	protected <U extends IValue> Result<U> lessThanOrEqualTuple(TupleResult that, EvaluatorContext ctx) {
 		// note reversed args: we need that <= this
-		return bool(that.comparisonInts(this, ast) <= 0);
+		return bool(that.comparisonInts(this, ctx) <= 0);
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> greaterThanTuple(TupleResult that, AbstractAST ast) {
+	protected <U extends IValue> Result<U> greaterThanTuple(TupleResult that, EvaluatorContext ctx) {
 		// note reversed args: we need that > this
-		return bool(that.comparisonInts(this, ast) > 0);
+		return bool(that.comparisonInts(this, ctx) > 0);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> greaterThanOrEqualTuple(TupleResult that, AbstractAST ast) {
+	protected <U extends IValue> Result<U> greaterThanOrEqualTuple(TupleResult that, EvaluatorContext ctx) {
 		// note reversed args: we need that >= this
-		return bool(that.comparisonInts(this, ast) >= 0);
+		return bool(that.comparisonInts(this, ctx) >= 0);
 	}
 }

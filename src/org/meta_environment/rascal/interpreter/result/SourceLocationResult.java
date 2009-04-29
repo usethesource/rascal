@@ -1,6 +1,7 @@
 package org.meta_environment.rascal.interpreter.result;
 
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -10,62 +11,61 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.meta_environment.rascal.interpreter.EvaluatorContext;
 import org.meta_environment.rascal.interpreter.RuntimeExceptionFactory;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFieldError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 
-import org.meta_environment.rascal.ast.AbstractAST;
-
 public class SourceLocationResult extends ElementResult<ISourceLocation> {
 
-	protected SourceLocationResult(Type type, ISourceLocation loc, AbstractAST ast) {
-		super(type, loc, ast);
+	protected SourceLocationResult(Type type, ISourceLocation loc, EvaluatorContext ctx) {
+		super(type, loc, ctx);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that, AbstractAST ast) {
-		return that.equalToSourceLocation(this, ast);
+	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that, EvaluatorContext ctx) {
+		return that.equalToSourceLocation(this, ctx);
 	}
 
 	
 	@Override
-	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store, AbstractAST ast) {
+	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store, EvaluatorContext ctx) {
 		if (name.equals("length")) {
 			return makeResult(getTypeFactory().integerType(), getValueFactory()
-					.integer(getValue().getLength()), ast);
+					.integer(getValue().getLength()), ctx);
 		} 
 		else if (name.equals("offset")) {
 			return makeResult(getTypeFactory().integerType(), getValueFactory()
-					.integer(getValue().getOffset()), ast);
+					.integer(getValue().getOffset()), ctx);
 		} 
 		else if (name.equals("beginLine")) {
 			return makeResult(getTypeFactory().integerType(), getValueFactory()
-					.integer(getValue().getBeginLine()), ast);
+					.integer(getValue().getBeginLine()), ctx);
 		} 
 		else if (name.equals("beginColumn")) {
 			return makeResult(getTypeFactory().integerType(), getValueFactory()
-					.integer(getValue().getBeginColumn()), ast);
+					.integer(getValue().getBeginColumn()), ctx);
 		} 
 		else if (name.equals("endLine")) {
 			return makeResult(getTypeFactory().integerType(), getValueFactory()
-					.integer(getValue().getEndLine()), ast);
+					.integer(getValue().getEndLine()), ctx);
 		} 
 		else if (name.equals("endColumn")) {
 			return makeResult(getTypeFactory().integerType(), getValueFactory()
-					.integer(getValue().getEndColumn()), ast);
+					.integer(getValue().getEndColumn()), ctx);
 		} 
 		else if (name.equals("url")) {
 			return makeResult(getTypeFactory().stringType(), getValueFactory()
-					.string(getValue().getURL().toString()), ast);
+					.string(getValue().getURL().toString()), ctx);
 		} 
 		else {
-			throw new UndeclaredFieldError(name, getTypeFactory().sourceLocationType(), ast);
+			throw new UndeclaredFieldError(name, getTypeFactory().sourceLocationType(), ctx.getCurrentAST());
 		}
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(String name, Result<V> repl, TypeStore store, AbstractAST ast) {
+	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(String name, Result<V> repl, TypeStore store, EvaluatorContext ctx) {
 		ISourceLocation loc = getValue();
 		int iLength = loc.getLength();
 		int iOffset = loc.getOffset();
@@ -79,13 +79,13 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 		IValue replValue = repl.getValue();
 		if (name.equals("url")) {
 			if (!replType.isStringType()) {
-				throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ast);
+				throw new UnexpectedTypeError(getTypeFactory().stringType(), replType, ctx.getCurrentAST());
 			}
 			urlText = ((IString)repl.getValue()).getValue();
 		} 
 		else {
 			if (!replType.isIntegerType()) {
-				throw new UnexpectedTypeError(getTypeFactory().integerType(), replType, ast);
+				throw new UnexpectedTypeError(getTypeFactory().integerType(), replType, ctx.getCurrentAST());
 			}
 			if (name.equals("length")){
 				iLength = ((IInteger) replValue).intValue();
@@ -107,45 +107,45 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			} 
 			else {
 				// TODO: is this the right exception? How so "undeclared"?
-				throw new UndeclaredFieldError(name, getTypeFactory().sourceLocationType(), ast);
+				throw new UndeclaredFieldError(name, getTypeFactory().sourceLocationType(), ctx.getCurrentAST());
 			}
 		}
 		try {
 			URL url = new URL(urlText);
 			ISourceLocation nloc = getValueFactory().sourceLocation(url, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn);
-			return makeResult(getType(), nloc, ast);
+			return makeResult(getType(), nloc, ctx);
 		} 
 		catch (MalformedURLException e) {
-			throw new SyntaxError("URL", ast.getLocation());
+			throw new SyntaxError("URL", ctx.getCurrentAST().getLocation());
 		} 
 		catch (IllegalArgumentException e) {
-			throw RuntimeExceptionFactory.illegalArgument(ast, null);
+			throw RuntimeExceptionFactory.illegalArgument(ctx.getCurrentAST(), null);
 		}
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> result, AbstractAST ast) {
-		return result.compareSourceLocation(this, ast);
+	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> result, EvaluatorContext ctx) {
+		return result.compareSourceLocation(this, ctx);
 	}
 	
 	/////
 	
 	@Override
-	protected <U extends IValue> Result<U> equalToSourceLocation(SourceLocationResult that, AbstractAST ast) {
-		return that.equalityBoolean(this, ast);
+	protected <U extends IValue> Result<U> equalToSourceLocation(SourceLocationResult that, EvaluatorContext ctx) {
+		return that.equalityBoolean(this, ctx);
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> compareSourceLocation(SourceLocationResult that, AbstractAST ast) {
+	protected <U extends IValue> Result<U> compareSourceLocation(SourceLocationResult that, EvaluatorContext ctx) {
 		// Note reverse of args
 		ISourceLocation left = that.getValue();
 		ISourceLocation right = this.getValue();
 		if (left.isEqual(right)) {
-			return makeIntegerResult(0, ast);
+			return makeIntegerResult(0, ctx);
 		}
 		int compare = left.getURL().toString().compareTo(right.getURL().toString());
 		if (compare != 0) {
-			return makeIntegerResult(compare, ast);
+			return makeIntegerResult(compare, ctx);
 		}
 		int lBeginLine = left.getBeginLine();
 		int rBeginLine = right.getBeginLine();
@@ -161,9 +161,9 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			
 		if ((lBeginLine > rBeginLine || (lBeginLine == rBeginLine && lBeginColumn > rBeginColumn)) &&
 				(lEndLine < rEndLine || ((lEndLine == rEndLine) && lEndColumn < rEndColumn))) {
-			return makeIntegerResult(-1, ast);
+			return makeIntegerResult(-1, ctx);
 		} 
-		return makeIntegerResult(1, ast);
+		return makeIntegerResult(1, ctx);
 	}
 	
 
