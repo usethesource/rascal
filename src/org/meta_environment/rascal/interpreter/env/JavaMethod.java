@@ -36,16 +36,28 @@ public class JavaMethod extends Lambda {
 		if (hasVarArgs) {
 			actuals = computeVarArgsActuals(actuals, formals);
 		}
-
-		IValue result = invoke(actuals);
-
-		if (hasVarArgs) {
-			actualTypes = computeVarArgsActualTypes(actualTypes, formals);
+		
+		if (callTracing) {
+			printTrace();
+			callNesting++;
 		}
 
-		bindTypeParameters(actualTypes, formals, env); 
-		Type resultType = returnType.instantiate(env.getStore(), env.getTypeBindings());
-		return ResultFactory.makeResult(resultType, result, ast);
+		try {
+			IValue result = invoke(actuals);
+
+			if (hasVarArgs) {
+				actualTypes = computeVarArgsActualTypes(actualTypes, formals);
+			}
+
+			bindTypeParameters(actualTypes, formals, env); 
+			Type resultType = returnType.instantiate(env.getStore(), env.getTypeBindings());
+			return ResultFactory.makeResult(resultType, result, ast);
+		}
+		finally {
+			if (callTracing) {
+				callNesting--;
+			}
+		}
 	}
 	
 	public IValue invoke(IValue[] actuals) {
