@@ -205,7 +205,7 @@ public class Lambda extends Result<IValue> implements IValue {
 		for (int i = 0; i < callNesting; i++) {
 			b.append('>');
 		}
-		System.out.println("trace>" + b + " " + getName());
+		System.out.println("trace>" + b + " " + getName() + "(" + formals + ")");
 	}
 
 	private void assignFormals(IValue[] actuals, Environment env) {
