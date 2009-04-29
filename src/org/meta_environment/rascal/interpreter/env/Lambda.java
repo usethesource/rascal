@@ -67,7 +67,7 @@ public class Lambda extends Result<IValue> implements IValue {
 	}
 
 	protected static int callNesting = 0;
-	protected static boolean callTracing = true;
+	protected static boolean callTracing = false;
 	
 	
 	public Lambda(AbstractAST ast, Evaluator eval, Type returnType, String name, Type formals, boolean varargs, 
