@@ -8,7 +8,7 @@ public class ControlException extends RuntimeException{
 	
 	private volatile boolean initialized = false;
 	
-	public ControlException(){
+	public ControlException() {
 		super();
 	}
 	

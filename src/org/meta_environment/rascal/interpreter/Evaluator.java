@@ -284,6 +284,19 @@ public class Evaluator extends NullASTVisitor<Result> {
 		classLoaders.add(0, loader);
 	}
 	
+	public String getStackTrace() {
+		StringBuilder b = new StringBuilder();
+		for (Environment env : callStack) {
+			ISourceLocation loc = env.getLocation();
+			String name = env.getName();
+			if (name != null && loc != null) {
+				URL url = loc.getURL();
+				b.append(url.getAuthority() + url.getPath() + "::" + name + ":" + loc.getBeginLine() + "," + loc.getBeginColumn());
+			}
+		}
+		return b.toString();
+	}
+	
 	/**
 	 * Evaluate a statement
 	 * @param stat
@@ -594,7 +607,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			}
 		}
 		
-		throw RuntimeExceptionFactory.moduleNotFound(vf.string(name), ast);
+		throw RuntimeExceptionFactory.moduleNotFound(vf.string(name), ast, getStackTrace());
 	}
 	
 	@Override 
@@ -857,7 +870,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 		if (func.getType() == Lambda.getClosureType()) {
 			Lambda lambda = (Lambda) func.getValue();
-			Environment newEnv = pushCallFrame(lambda.getEnv()); 
+			Environment newEnv = pushCallFrame(lambda.getEnv(), x.getLocation(), lambda.getName()); 
 			try {
 				return lambda.call(actuals, actualTypes, peek());
 			}
@@ -912,7 +925,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 		Lambda func = env.getFunction(Names.name(Names.lastName(name)), actualTypes, name);
 		if (func != null) {
-			Environment newEnv = pushCallFrame(func.getEnv());
+			Environment newEnv = pushCallFrame(func.getEnv(), name.getLocation(), func.getName());
 			try {
 				return func.call(actuals, actualTypes, peek());
 			}
@@ -925,8 +938,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 	}
 
 
-	private Environment pushCallFrame(Environment env) {
-		Environment newEnv = new Environment(env);
+	private Environment pushCallFrame(Environment env, ISourceLocation loc, String name) {
+		Environment newEnv = new Environment(env, loc, name);
 		callStack.push(newEnv);
 		return newEnv;
 	}
@@ -1047,7 +1060,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 		
 		if(r.getValue().isEqual(vf.bool(false))) {
-			throw RuntimeExceptionFactory.assertionFailed(getCurrentAST());
+			throw RuntimeExceptionFactory.assertionFailed(getCurrentAST(), getStackTrace());
 		}
 		return r;	
 	}
@@ -1061,7 +1074,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		if(r.getValue().isEqual(vf.bool(false))){
 			String str = x.getMessage().toString();
 			IString msg = vf.string(unescape(str, x, peek()));
-			throw RuntimeExceptionFactory.assertionFailed(msg, getCurrentAST());
+			throw RuntimeExceptionFactory.assertionFailed(msg, getCurrentAST(), getStackTrace());
 		}
 		return r;	
 	}
@@ -1140,7 +1153,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				}
 				
 				if (selectedFields[i] < 0 || selectedFields[i] > base.getType().getArity()) {
-					throw RuntimeExceptionFactory.indexOutOfBounds(vf.integer(i), getCurrentAST());
+					throw RuntimeExceptionFactory.indexOutOfBounds(vf.integer(i), getCurrentAST(), getStackTrace());
 				}
 				fieldTypes[i] = base.getType().getFieldType(selectedFields[i]);
 			}
@@ -1171,7 +1184,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 					}
 				}
 				if(selectedFields[i] < 0 || selectedFields[i] > base.getType().getArity()) {
-					throw RuntimeExceptionFactory.indexOutOfBounds(vf.integer(i), getCurrentAST());
+					throw RuntimeExceptionFactory.indexOutOfBounds(vf.integer(i), getCurrentAST(), getStackTrace());
 				}
 				fieldTypes[i] = base.getType().getFieldType(selectedFields[i]);
 			}
@@ -1233,7 +1246,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	@Override
 	public Result<IValue> visitStatementThrow(Throw x) {
-		throw new org.meta_environment.rascal.interpreter.control_exceptions.Throw(x.getExpression().accept(this).getValue(), getCurrentAST());
+		throw new org.meta_environment.rascal.interpreter.control_exceptions.Throw(x.getExpression().accept(this).getValue(), getCurrentAST(), getStackTrace());
 	}
 	
 	@Override
@@ -1336,7 +1349,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			}
 			
 			if (!node.hasField(label)) {
-				throw RuntimeExceptionFactory.noSuchField(label, x);
+				throw RuntimeExceptionFactory.noSuchField(label, x,getStackTrace());
 			}
 			
 			int index = node.getFieldIndex(label);
@@ -3280,7 +3293,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			}
 			max = ((IInteger)res.getValue()).intValue();
 			if(max <= 0){
-				throw RuntimeExceptionFactory.indexOutOfBounds((IInteger) res.getValue(), getCurrentAST());
+				throw RuntimeExceptionFactory.indexOutOfBounds((IInteger) res.getValue(), getCurrentAST(), getStackTrace());
 			}
 		}
 		

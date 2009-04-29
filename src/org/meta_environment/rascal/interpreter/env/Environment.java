@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -29,20 +30,46 @@ public class Environment {
 	protected final Map<Type, Type> typeParameters;
 	protected final Environment parent;
 	protected Cache cache = null;
+	protected final ISourceLocation loc;
+	protected final String name;
 
 	public Environment(Environment parent) {
 		this(parent, parent.getCache());
 	}
 	
+	public Environment(Environment parent, ISourceLocation loc, String name) {
+		this(parent, parent.getCache(), loc, name);
+	}
+	
 	protected Environment(Environment parent, Cache cache) {
+		this(parent, cache, null, null);
+	}
+	
+	protected Environment(Environment parent, Cache cache, ISourceLocation loc, String name) {
 		this.variableEnvironment = new HashMap<String, Result<IValue>>();
 		this.functionEnvironment = new HashMap<String, List<Lambda>>();
 		this.typeParameters = new HashMap<Type, Type>();
 		this.parent = parent;
 		this.cache = cache;
+		this.loc = loc;
+		this.name = name;
 		if (parent == this) {
 			throw new ImplementationError("internal error: cyclic environment");
 		}
+	}
+	
+	/**
+	 * @return the name of this environment/stack frame for use in tracing
+	 */
+	public String getName() {
+		return name;
+	}
+	
+	/**
+	 * @return the location where this environment was created (i.e. call site) for use in tracing
+	 */
+	public ISourceLocation getLocation() {
+		return loc;
 	}
 
 	private Cache getCache() {

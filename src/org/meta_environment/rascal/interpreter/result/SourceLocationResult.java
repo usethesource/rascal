@@ -119,7 +119,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 			throw new SyntaxError("URL", ast.getLocation());
 		} 
 		catch (IllegalArgumentException e) {
-			throw RuntimeExceptionFactory.illegalArgument(ast);
+			throw RuntimeExceptionFactory.illegalArgument(ast, null);
 		}
 	}
 	

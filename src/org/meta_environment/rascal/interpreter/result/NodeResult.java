@@ -62,7 +62,7 @@ public class NodeResult extends ElementResult<INode> {
 		}
 		IInteger index = ((IntegerResult)subscripts[0]).getValue();
 		if (index.intValue() >= getValue().arity()) {
-			throw RuntimeExceptionFactory.indexOutOfBounds(index, ast);
+			throw RuntimeExceptionFactory.indexOutOfBounds(index, ast, null);
 		}
 		Type elementType = getTypeFactory().valueType();
 		return makeResult(elementType, getValue().get(index.intValue()), ast);

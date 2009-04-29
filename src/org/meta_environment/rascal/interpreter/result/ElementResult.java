@@ -111,7 +111,7 @@ public class ElementResult<T extends IValue> extends Result<T> {
 	
 		IValue annoValue = ((IConstructor) getValue()).getAnnotation(annoName);
 		if (annoValue == null) {
-			throw RuntimeExceptionFactory.noSuchAnnotation(annoName, ast);
+			throw RuntimeExceptionFactory.noSuchAnnotation(annoName, ast, null);
 		}
 		// TODO: applyRules?
 		return makeResult(annoType, annoValue, ast);

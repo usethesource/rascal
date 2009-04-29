@@ -30,10 +30,10 @@ public class ValueIO {
 			// but how can we get access to it?
 			return PBFReader.readValueFromFile(values, new TypeStore(), file);
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null);
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		} catch (Exception e){
 			e.printStackTrace();
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null);
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}
 	}
 	
@@ -50,13 +50,13 @@ public class ValueIO {
 			// but how can we get access to it?
 			return new StandardTextReader().read(values, fis);
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null);
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}finally{
 			if(fis != null){
 				try{
 					fis.close();
 				}catch(IOException ioex){
-					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null);
+					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
 				}
 			}
 		}
@@ -71,7 +71,7 @@ public class ValueIO {
 			File file = new File(fileName);
 			PBFWriter.writeValueToFile(value, file);
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null);
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}
 	}
 	
@@ -87,13 +87,13 @@ public class ValueIO {
 			fos = new FileOutputStream(file);
 			new StandardTextWriter().write(value, fos);
 		} catch (IOException e) {
-			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null);
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}finally{
 			if(fos != null){
 				try{
 					fos.close();
 				}catch(IOException ioex){
-					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null);
+					throw RuntimeExceptionFactory.io(values.string(ioex.getMessage()), null, null);
 				}
 			}
 		}

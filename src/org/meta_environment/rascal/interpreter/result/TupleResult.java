@@ -52,7 +52,7 @@ public class TupleResult extends ElementResult<ITuple> {
 		}
 		IInteger index = (IInteger)subsBase.getValue();
 		if (index.intValue() >= getValue().arity()) {
-			throw RuntimeExceptionFactory.indexOutOfBounds(index, ast);
+			throw RuntimeExceptionFactory.indexOutOfBounds(index, ast, null);
 		}
 		
 		Type elementType = getType().getFieldType(index.intValue());

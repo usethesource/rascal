@@ -436,7 +436,7 @@ public class JavaBridge {
 
 					return m;
 				} catch (SecurityException e) {
-					throw RuntimeExceptionFactory.permissionDenied(ValueFactoryFactory.getValueFactory().string(e.getMessage()), eval.getCurrentAST());
+					throw RuntimeExceptionFactory.permissionDenied(ValueFactoryFactory.getValueFactory().string(e.getMessage()), eval.getCurrentAST(), eval.getStackTrace());
 				} catch (NoSuchMethodException e) {
 					throw new UndeclaredJavaMethodError(className + "." + name, func);
 				}
