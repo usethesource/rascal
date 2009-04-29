@@ -67,7 +67,7 @@ public class Lambda extends Result<IValue> implements IValue {
 	}
 
 	protected static int callNesting = 0;
-	protected static boolean callTracing = false;
+	protected static boolean callTracing = true;
 	
 	
 	public Lambda(AbstractAST ast, Evaluator eval, Type returnType, String name, Type formals, boolean varargs, 
@@ -150,8 +150,7 @@ public class Lambda extends Result<IValue> implements IValue {
 		Type instantiatedFormals = formals.instantiate(env.getStore(), bindings);
 		
 		if (callTracing) {
-			printTrace();
-			callNesting++;
+			printStartTrace();
 		}
 
 		if (hasVarArgs) {
@@ -195,19 +194,52 @@ public class Lambda extends Result<IValue> implements IValue {
 		}
 		finally {
 			if (callTracing) {
-				callNesting--;
+				printEndTrace();
 			}
 		}
 	}
 
-	protected void printTrace() {
-		StringBuilder b = new StringBuilder();
+	private void printNesting(StringBuilder b) {
 		for (int i = 0; i < callNesting; i++) {
 			b.append('>');
 		}
-		System.out.println("trace>" + b + " " + getName() + "(" + formals + ")");
+	}
+	
+	void printHeader(StringBuilder b) {
+		b.append(getName());
+		b.append('(');
+		for (int i = 0; i < formals.getArity(); i++) {
+			b.append(formals.getFieldType(i));
+		    b.append(' ');
+		    b.append(formals.getFieldName(i));
+		    
+		    if (i < formals.getArity() - 1) {
+		    	b.append(',');
+		    }
+		}
+		b.append(')');
 	}
 
+	
+	protected void printStartTrace() {
+		StringBuilder b = new StringBuilder();
+		b.append("call  >");
+		printNesting(b);
+		printHeader(b);
+		System.out.println(b.toString());
+		callNesting++;
+	}
+
+	protected void printEndTrace() {
+		callNesting--;
+		StringBuilder b = new StringBuilder();
+		b.append("return>");
+		printNesting(b);
+		printHeader(b);
+		System.out.println(b);
+	}
+	
+	
 	private void assignFormals(IValue[] actuals, Environment env) {
 		for (int i = 0; i < formals.getArity(); i++) {
 			Type formal = formals.getFieldType(i).instantiate(env.getStore(), env.getTypeBindings());
