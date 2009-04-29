@@ -38,8 +38,7 @@ public class JavaFunction extends Lambda {
 		}
 		
 		if (callTracing) {
-			printTrace();
-			callNesting++;
+			printStartTrace();
 		}
 
 		try {
@@ -55,7 +54,7 @@ public class JavaFunction extends Lambda {
 		}
 		finally {
 			if (callTracing) {
-				callNesting--;
+				printEndTrace();
 			}
 		}
 	}
