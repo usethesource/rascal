@@ -399,6 +399,9 @@ public class Evaluator extends NullASTVisitor<Result> {
 			return v;
 		}
 			
+		if (rules.size() == 1) {
+			System.err.println("hier");
+		}
 		TraverseResult tr = traverseTop(v, new CasesOrRules(rules));
 		/* innermost is achieved by repeated applications of applyRules
 		 * when intermediate results are produced.
