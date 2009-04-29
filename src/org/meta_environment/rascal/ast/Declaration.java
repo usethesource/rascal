@@ -568,7 +568,7 @@ public abstract class Declaration extends AbstractAST {
 		throw new UnsupportedOperationException();
 	}
 
-	public org.meta_environment.rascal.ast.PatternAction getPatternAction() {
+	public org.meta_environment.rascal.ast.PatternWithAction getPatternAction() {
 		throw new UnsupportedOperationException();
 	}
 
@@ -586,7 +586,7 @@ public abstract class Declaration extends AbstractAST {
 
 	static public class Rule extends Declaration {
 		/*
-		 * "rule" name:Name tags:Tags patternAction:PatternAction ";" ->
+		 * "rule" name:Name tags:Tags patternAction:PatternWithAction ";" ->
 		 * Declaration {cons("Rule")}
 		 */
 		private Rule() {
@@ -595,7 +595,7 @@ public abstract class Declaration extends AbstractAST {
 		/* package */Rule(INode node,
 				org.meta_environment.rascal.ast.Name name,
 				org.meta_environment.rascal.ast.Tags tags,
-				org.meta_environment.rascal.ast.PatternAction patternAction) {
+				org.meta_environment.rascal.ast.PatternWithAction patternAction) {
 			this.node = node;
 			this.name = name;
 			this.tags = tags;
@@ -661,20 +661,20 @@ public abstract class Declaration extends AbstractAST {
 			return z;
 		}
 
-		private org.meta_environment.rascal.ast.PatternAction patternAction;
+		private org.meta_environment.rascal.ast.PatternWithAction patternAction;
 
 		@Override
-		public org.meta_environment.rascal.ast.PatternAction getPatternAction() {
+		public org.meta_environment.rascal.ast.PatternWithAction getPatternAction() {
 			return patternAction;
 		}
 
 		private void $setPatternAction(
-				org.meta_environment.rascal.ast.PatternAction x) {
+				org.meta_environment.rascal.ast.PatternWithAction x) {
 			this.patternAction = x;
 		}
 
 		public Rule setPatternAction(
-				org.meta_environment.rascal.ast.PatternAction x) {
+				org.meta_environment.rascal.ast.PatternWithAction x) {
 			Rule z = new Rule();
 			z.$setPatternAction(x);
 			return z;

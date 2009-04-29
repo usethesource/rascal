@@ -7,7 +7,7 @@ import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.AbstractAST;
-import org.meta_environment.rascal.ast.PatternAction;
+import org.meta_environment.rascal.ast.PatternWithAction;
 import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.interpreter.Names;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
@@ -69,7 +69,7 @@ public class GlobalEnvironment {
 	}
 	
 
-	public void storeRule(Type forType, PatternAction rule, Environment env) {
+	public void storeRule(Type forType, PatternWithAction rule, Environment env) {
 		List<RewriteRule> rules = ruleEnvironment.get(forType);
 		
 		//System.err.println("storeRule: type=" + forType + ",rule=" + rule);

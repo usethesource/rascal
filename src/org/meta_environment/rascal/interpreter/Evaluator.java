@@ -128,8 +128,8 @@ import org.meta_environment.rascal.ast.Literal.Boolean;
 import org.meta_environment.rascal.ast.Literal.Integer;
 import org.meta_environment.rascal.ast.Literal.Real;
 import org.meta_environment.rascal.ast.LocalVariableDeclaration.Default;
-import org.meta_environment.rascal.ast.PatternAction.Arbitrary;
-import org.meta_environment.rascal.ast.PatternAction.Replacing;
+import org.meta_environment.rascal.ast.PatternWithAction.Arbitrary;
+import org.meta_environment.rascal.ast.PatternWithAction.Replacing;
 import org.meta_environment.rascal.ast.Statement.Assert;
 import org.meta_environment.rascal.ast.Statement.AssertWithMessage;
 import org.meta_environment.rascal.ast.Statement.Assignment;
@@ -758,7 +758,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	}
 	
 	@Override
-	public Result<IValue> visitPatternActionArbitrary(Arbitrary x) {
+	public Result<IValue> visitPatternWithActionArbitrary(Arbitrary x) {
 		MatchPattern pv = x.getPattern().accept(makePatternEvaluator(x));
 		Type pt = pv.getType(peek());
 		if(!(pt.isAbstractDataType() || pt.isConstructorType() || pt.isNodeType()))
@@ -772,7 +772,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	}
 	
 	@Override
-	public Result<IValue> visitPatternActionReplacing(Replacing x) {
+	public Result<IValue> visitPatternWithActionReplacing(Replacing x) {
 		MatchPattern pv = x.getPattern().accept(makePatternEvaluator(x));
 		Type pt = pv.getType(peek());
 		if(!(pt.isAbstractDataType() || pt.isConstructorType() || pt.isNodeType()))
@@ -2053,7 +2053,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			if(cs.isDefault()){
 				return cs.getStatement().accept(this);
 			}
-			org.meta_environment.rascal.ast.PatternAction rule = cs.getPatternAction();
+			org.meta_environment.rascal.ast.PatternWithAction rule = cs.getPatternWithAction();
 			if(rule.isArbitrary() && matchAndEval(subject.getValue(), rule.getPattern(), rule.getStatement())){
 				return ResultFactory.nothing();
 				/*
@@ -2216,12 +2216,12 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Case cs = (Case) singleCase(casesOrRules);
 		
 		RegExpPatternEvaluator re = new RegExpPatternEvaluator(vf, this, peek());
-		if(cs != null && cs.isPatternAction() && re.isRegExpPattern(cs.getPatternAction().getPattern())){
+		if(cs != null && cs.isPatternWithAction() && re.isRegExpPattern(cs.getPatternWithAction().getPattern())){
 			/*
 			 * In the frequently occurring case that there is one case with a regexp as pattern,
 			 * we can delegate all the work to the regexp matcher.
 			 */
-			org.meta_environment.rascal.ast.PatternAction rule = cs.getPatternAction();
+			org.meta_environment.rascal.ast.PatternWithAction rule = cs.getPatternWithAction();
 			
 			Expression patexp = rule.getPattern();
 			MatchPattern mp = evalPattern(patexp);
@@ -2496,7 +2496,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 					cs.getStatement().accept(this);
 					return new TraverseResult(true,subject);
 				} else {
-					TraverseResult tr = applyOneRule(subject, cs.getPatternAction());
+					TraverseResult tr = applyOneRule(subject, cs.getPatternWithAction());
 					if(tr.matched){
 						return tr;
 					}
@@ -2543,7 +2543,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	 */
 	
 	private TraverseResult applyOneRule(IValue subject,
-			org.meta_environment.rascal.ast.PatternAction rule) {
+			org.meta_environment.rascal.ast.PatternWithAction rule) {
 		
 		//System.err.println("applyOneRule: subject=" + subject + ", type=" + subject.getType() + ", rule=" + rule);
 	
