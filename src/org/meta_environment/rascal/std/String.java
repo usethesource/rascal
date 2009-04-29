@@ -17,7 +17,7 @@ public class String {
 	    return values.integer(s.getValue().charAt(i.intValue()));
 	  }
 	  catch (IndexOutOfBoundsException e) {
-	    throw RuntimeExceptionFactory.indexOutOfBounds(i, null);
+	    throw RuntimeExceptionFactory.indexOutOfBounds(i, null, null);
 	  }
 	}
 

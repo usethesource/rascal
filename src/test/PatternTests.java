@@ -621,12 +621,12 @@ public class PatternTests extends TestFramework {
 	}
 	
 	@Test(expected=StaticError.class)
-	public void matchTupleStringError(){
+	public void matchTupleStringError() {
 		assertFalse(runTest("<1>           := \"a\";"));
 	}
 	
 	@Test(expected=StaticError.class)
-	public void matchTupleArityError(){
+	public void matchTupleArityError() {
 		assertFalse(runTest("<1,2>        := <1>;"));
 	}
 	

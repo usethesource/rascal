@@ -27,7 +27,7 @@ public class List {
 		try {
 			return lst.delete(n.intValue());
 		} catch (IndexOutOfBoundsException e){
-			 throw RuntimeExceptionFactory.indexOutOfBounds(n, null);
+			 throw RuntimeExceptionFactory.indexOutOfBounds(n, null, null);
 		}
 	}
 	
@@ -48,7 +48,7 @@ public class List {
 	   if(lst.length() > 0){
 	      return lst.get(0);
 	   } else {
-	      throw RuntimeExceptionFactory.emptyList(null);
+	      throw RuntimeExceptionFactory.emptyList(null, null);
 	   }
 	}
 
@@ -60,7 +60,7 @@ public class List {
 	      return lst.sublist(0, n.intValue());
 	   } catch(IndexOutOfBoundsException e){
 		   IInteger end = values.integer(n.intValue() - 1);
-	      throw RuntimeExceptionFactory.indexOutOfBounds(end, null);
+	      throw RuntimeExceptionFactory.indexOutOfBounds(end, null, null);
 	   }
 	}
 
@@ -71,7 +71,7 @@ public class List {
 		if(n > 0){
 			return lst.get(random.nextInt(n));
 		} else {
-			throw RuntimeExceptionFactory.emptyList(null);
+			throw RuntimeExceptionFactory.emptyList(null, null);
 		}
 	}
 
@@ -94,7 +94,7 @@ public class List {
 	      }
 	      return w.done();
 	    } else {
-	    	throw RuntimeExceptionFactory.indexOutOfBounds(n, null);
+	    	throw RuntimeExceptionFactory.indexOutOfBounds(n, null, null);
 	    }
 	 }
 	
@@ -123,7 +123,7 @@ public class List {
 			return lst.sublist(start.intValue(), len.intValue());
 		} catch (IndexOutOfBoundsException e){
 			IInteger end = values.integer(start.intValue() + len.intValue());
-			throw RuntimeExceptionFactory.indexOutOfBounds(end, null);
+			throw RuntimeExceptionFactory.indexOutOfBounds(end, null, null);
 		}
 	 }
 
@@ -133,7 +133,7 @@ public class List {
 	 	try {
 	 		return lst.sublist(1, lst.length()-1);
 	 	} catch (IndexOutOfBoundsException e){
-	 		throw RuntimeExceptionFactory.emptyList(null);
+	 		throw RuntimeExceptionFactory.emptyList(null, null);
 	 	}
 	 }
 	 
@@ -147,7 +147,7 @@ public class List {
 	 		return lst.sublist(lstLen - lenVal, lenVal);
 	 	} catch (IndexOutOfBoundsException e){
 	 		IInteger end = values.integer(lenVal - lstLen);
-	 		throw RuntimeExceptionFactory.indexOutOfBounds(end, null);
+	 		throw RuntimeExceptionFactory.indexOutOfBounds(end, null, null);
 	 	}
 	 }
 	 
@@ -170,7 +170,7 @@ public class List {
 	      }
 	      return values.tuple(pick, w.done());
 	   	} else {
-	   		throw RuntimeExceptionFactory.emptyList(null);
+	   		throw RuntimeExceptionFactory.emptyList(null, null);
 	   	}
 	}
 

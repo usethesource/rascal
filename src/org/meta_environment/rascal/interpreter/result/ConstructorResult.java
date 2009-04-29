@@ -30,7 +30,7 @@ public class ConstructorResult extends NodeResult {
 		}
 		Type nodeType = getValue().getConstructorType();
 		if (!nodeType.hasField(name)) {
-			throw RuntimeExceptionFactory.noSuchField(name, ast);
+			throw RuntimeExceptionFactory.noSuchField(name, ast, null);
 		}				
 		int index = nodeType.getFieldIndex(name);
 		return makeResult(nodeType.getFieldType(index), getValue().get(index), ast);
@@ -43,7 +43,7 @@ public class ConstructorResult extends NodeResult {
 		}
 		Type nodeType = getValue().getConstructorType();
 		if (!nodeType.hasField(name)) {
-			throw RuntimeExceptionFactory.noSuchField(name, ast);
+			throw RuntimeExceptionFactory.noSuchField(name, ast, null);
 		}				
 		int index = nodeType.getFieldIndex(name);
 		Type fieldType = nodeType.getFieldType(index);

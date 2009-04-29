@@ -189,7 +189,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 				result = makeResult(rec.getType(), list, x);
 			}  
 			catch (java.lang.IndexOutOfBoundsException e){
-				throw RuntimeExceptionFactory.indexOutOfBounds((IInteger) subscript.getValue(), eval.getCurrentAST());
+				throw RuntimeExceptionFactory.indexOutOfBounds((IInteger) subscript.getValue(), eval.getCurrentAST(), eval.getStackTrace());
 			}
 		}
 		else if (rec.getType().isMapType()) {
@@ -209,7 +209,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 			INode node = (INode) rec.getValue();
 			
 			if(index >= node.arity()){
-				throw RuntimeExceptionFactory.indexOutOfBounds((IInteger) subscript.getValue(), eval.getCurrentAST());
+				throw RuntimeExceptionFactory.indexOutOfBounds((IInteger) subscript.getValue(), eval.getCurrentAST(), eval.getStackTrace());
 			}
 			value = newResult(node.get(index), value);
 			node = node.set(index, value.getValue());

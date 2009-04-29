@@ -21,22 +21,26 @@ public final class Throw extends ControlException {
 	private static final long serialVersionUID = -7290501865940548332L;
 	private final IValue exception;
 	private volatile ISourceLocation loc;
+	private volatile String trace;
 	
-	// TODO add support for Rascal stack trace, which will make these errors locatable
-	// it is not the idea that these exceptions get references to AbstractAST's!!
-	public Throw(IValue value, ISourceLocation loc) {
+	// It is *not* the idea that these exceptions get references to AbstractAST's!
+	public Throw(IValue value, ISourceLocation loc, String trace) {
 		super(value.toString());
 		this.exception = value;
 		this.loc = loc;
-		/* This code can be removed, only builtins return a null AST but that is filled in later
-		if (loc == null) {
-			System.err.println("TODO: provide error location");
-		}
-		*/
-	};
+		this.trace = trace;
+	}
 	
-	public Throw(IValue value, AbstractAST ast) {
-		this(value, ast != null ? ast.getLocation() : null);
+	public Throw(IValue value, AbstractAST ast, String trace) {
+		this(value, ast != null ? ast.getLocation() : null, trace);
+	}
+	
+	public String getTrace() {
+		return trace;
+	}
+	
+	public String setTrace(String trace) {
+		return trace;
 	}
 	
 	public IValue getException() {
