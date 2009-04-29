@@ -8,6 +8,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.interpreter.Evaluator;
+import org.meta_environment.rascal.interpreter.EvaluatorContext;
 import org.meta_environment.rascal.interpreter.JavaBridge;
 import org.meta_environment.rascal.interpreter.Names;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
@@ -50,7 +51,7 @@ public class JavaMethod extends Lambda {
 
 			bindTypeParameters(actualTypes, formals, env); 
 			Type resultType = returnType.instantiate(env.getStore(), env.getTypeBindings());
-			return ResultFactory.makeResult(resultType, result, ast);
+			return ResultFactory.makeResult(resultType, result, new EvaluatorContext(eval, ast));
 		}
 		finally {
 			if (callTracing) {

@@ -3,6 +3,7 @@ package org.meta_environment.rascal.interpreter.result;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.meta_environment.rascal.interpreter.EvaluatorContext;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.ast.AbstractAST;
 
@@ -13,37 +14,37 @@ public class CollectionResult<T extends IValue> extends ElementResult<T> {
 	 * etc.
 	 */
 
-	CollectionResult(Type type, T value, AbstractAST ast) {
-		super(type, value, null, ast);
+	CollectionResult(Type type, T value, EvaluatorContext ctx) {
+		super(type, value, null, ctx);
 	}
 
 	
 	@Override
-	protected <U extends IValue> Result<U> addReal(RealResult n, AbstractAST ast) {
-		return insertElement(n, ast);
+	protected <U extends IValue> Result<U> addReal(RealResult n, EvaluatorContext ctx) {
+		return insertElement(n, ctx);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> addInteger(IntegerResult n, AbstractAST ast) {
-		return insertElement(n, ast);
+	protected <U extends IValue> Result<U> addInteger(IntegerResult n, EvaluatorContext ctx) {
+		return insertElement(n, ctx);
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> addString(StringResult n, AbstractAST ast) {
-		return insertElement(n, ast);
+	protected <U extends IValue> Result<U> addString(StringResult n, EvaluatorContext ctx) {
+		return insertElement(n, ctx);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> addBool(BoolResult n, AbstractAST ast) {
-		return insertElement(n, ast);
+	protected <U extends IValue> Result<U> addBool(BoolResult n, EvaluatorContext ctx) {
+		return insertElement(n, ctx);
 	}
 	
 	@Override 
-	protected <U extends IValue> Result<U> addTuple(TupleResult t, AbstractAST ast) {
-		return insertElement(t, ast);
+	protected <U extends IValue> Result<U> addTuple(TupleResult t, EvaluatorContext ctx) {
+		return insertElement(t, ctx);
 	}
 	
-	<U extends IValue, V extends IValue> Result<U> insertElement(ElementResult<V> result, AbstractAST ast) {
+	<U extends IValue, V extends IValue> Result<U> insertElement(ElementResult<V> result, EvaluatorContext ctx) {
 		throw new ImplementationError("this method should be specialized in subclasses");
 	}
 

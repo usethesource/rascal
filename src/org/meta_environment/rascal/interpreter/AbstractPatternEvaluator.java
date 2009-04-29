@@ -80,21 +80,21 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 
 
 /* package */ abstract class AbstractPattern implements MatchPattern {
-	protected AbstractAST ast = null;
 	protected IValue subject = null;
 	protected Environment ev = null;
 	protected boolean initialized = false;
 	protected boolean hasNext = true;
 	protected TypeFactory tf = TypeFactory.getInstance();
 	protected IValueFactory vf;
+	protected EvaluatorContext ctx;
 	
-	public AbstractPattern(IValueFactory vf, AbstractAST ast) {
+	public AbstractPattern(IValueFactory vf, EvaluatorContext ctx) {
 		this.vf = vf;
-		this.ast = ast;
+		this.ctx = ctx;
 	}
 	
 	public AbstractAST getAST(){
-		return ast;
+		return ctx.getCurrentAST();
 	}
 	
 	public void initMatch(IValue subject, Environment ev){
@@ -140,8 +140,8 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 
 	private IValue literal;
 	
-	AbstractPatternLiteral(IValueFactory vf, AbstractAST ast, IValue literal){
-		super(vf, ast);
+	AbstractPatternLiteral(IValueFactory vf, EvaluatorContext ctx, IValue literal){
+		super(vf, ctx);
 		this.literal = literal;
 	}
 	
@@ -156,7 +156,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 		hasNext = false;
 		//System.err.println("AbstractPatternLiteral.match: " + subject);
 		if (subject.getType().comparable(literal.getType())) {
-			return makeResult(subject.getType(), subject, ast).equals(makeResult(literal.getType(), literal, ast), ast).isTrue();
+			return makeResult(subject.getType(), subject, ctx).equals(makeResult(literal.getType(), literal, ctx), ctx).isTrue();
 			// TODO move to call to Result.equals
 //			return Evaluator.equals(new Result(subject.getType(), subject), new Result(literal.getType(), literal));
 		}
@@ -310,8 +310,8 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 	private boolean debug = false;
 
 	
-	AbstractPatternList(IValueFactory vf, AbstractAST ast, java.util.List<AbstractPattern> children){
-		super(vf, ast);
+	AbstractPatternList(IValueFactory vf, EvaluatorContext ctx, java.util.List<AbstractPattern> children){
+		super(vf, ctx);
 		this.children = children;					
 		this.patternSize = children.size();			
 	}
@@ -376,7 +376,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 				String name = patVar.getName();
 				varName[i] = name;
 				if(!patVar.isAnonymous() && allVars.contains(name)){
-					throw new RedeclaredVariableError(name, ast);
+					throw new RedeclaredVariableError(name, getAST());
 				}
 				if(childType.comparable(listSubject.getType())){
 					/*
@@ -389,7 +389,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 					listVarOccurrences[i] = 1;
 					nListVar++;
 				} else {
-					throw new UnexpectedTypeError(listSubject.getType(),childType, ast);
+					throw new UnexpectedTypeError(listSubject.getType(),childType, getAST());
 				}
 			} else if(child instanceof AbstractPatternQualifiedName){
 				AbstractPatternQualifiedName qualName = (AbstractPatternQualifiedName) child;
@@ -423,11 +423,11 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 				        		isBindingVar[i] = varRes.getValue() == null;
 				        		nListVar++;			        		
 				        	} else {
-				        		throw new UnexpectedTypeError(listSubjectType,varType, ast);
+				        		throw new UnexpectedTypeError(listSubjectType,varType, getAST());
 				        	}
 				        } else {
 				        	if(!varType.comparable(listSubjectElementType)){
-				        		throw new UnexpectedTypeError(listSubjectType, varType, ast);
+				        		throw new UnexpectedTypeError(listSubjectType, varType, getAST());
 				        	}
 				        }
 					}
@@ -435,7 +435,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 			} else {
 				Type childType = child.getType(ev);
 				if(!childType.comparable(listSubjectElementType)){
-					throw new UnexpectedTypeError(listSubjectType,childType, ast);
+					throw new UnexpectedTypeError(listSubjectType,childType, getAST());
 				}
 				java.util.List<String> childVars = child.getVariables();
 				if(!childVars.isEmpty()){
@@ -835,8 +835,8 @@ class SingleElementGenerator implements Iterator<ISet> {
 	
 	private boolean debug = false;
 	
-	AbstractPatternSet(IValueFactory vf, AbstractAST ast, java.util.List<AbstractPattern> children){
-		super(vf, ast);
+	AbstractPatternSet(IValueFactory vf, EvaluatorContext ctx, java.util.List<AbstractPattern> children){
+		super(vf, ctx);
 		this.children = children;
 		this.patternSize = children.size();
 	}
@@ -948,7 +948,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 				Type childType = child.getType(ev);
 				String name = ((AbstractPatternTypedVariable)child).getName();
 				if(!patVar.isAnonymous() && allVars.contains(name)){
-					throw new RedeclaredVariableError(name, ast);
+					throw new RedeclaredVariableError(name, getAST());
 				}
 				if(childType.comparable(setSubjectType) || childType.comparable(setSubjectElementType)){
 					/*
@@ -963,7 +963,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 					isSetVar[nVar] = childType.isSetType();
 					nVar++;
 				} else {
-					throw new UnexpectedTypeError(setSubject.getType(), childType, ast);
+					throw new UnexpectedTypeError(setSubject.getType(), childType, getAST());
 				}
 			} else if(child instanceof AbstractPatternQualifiedName){
 				AbstractPatternQualifiedName qualName = (AbstractPatternQualifiedName) child;
@@ -1015,7 +1015,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 					        	 */
 					        	fixedSetElements = fixedSetElements.insert(varRes.getValue());
 					        } else {
-					        	throw new UnexpectedTypeError(setSubject.getType(),varType, ast);
+					        	throw new UnexpectedTypeError(setSubject.getType(),varType, getAST());
 					        }
 					    } 
 				    }
@@ -1024,13 +1024,13 @@ class SingleElementGenerator implements Iterator<ISet> {
 				IValue lit = child.toIValue(ev);
 				Type childType = child.getType(ev);
 				if(!childType.comparable(setSubjectElementType)){
-					throw new UnexpectedTypeError(setSubject.getType(), childType, ast);
+					throw new UnexpectedTypeError(setSubject.getType(), childType, getAST());
 				}
 				fixedSetElements = fixedSetElements.insert(lit);
 			} else {
 				Type childType = child.getType(ev);
 				if(!childType.comparable(setSubjectElementType)){
-					throw new UnexpectedTypeError(setSubject.getType(), childType, ast);
+					throw new UnexpectedTypeError(setSubject.getType(), childType, getAST());
 				}
 				java.util.List<String> childVars = child.getVariables();
 				if(!childVars.isEmpty()){
@@ -1169,8 +1169,8 @@ class SingleElementGenerator implements Iterator<ISet> {
 	private java.util.List<AbstractPattern> children;
 	private boolean firstMatch;
 	
-	AbstractPatternTuple(IValueFactory vf, AbstractAST ast, java.util.List<AbstractPattern> children){
-		super(vf, ast);
+	AbstractPatternTuple(IValueFactory vf, EvaluatorContext ctx, java.util.List<AbstractPattern> children){
+		super(vf, ctx);
 		this.children = children;
 	}
 	
@@ -1251,8 +1251,8 @@ class SingleElementGenerator implements Iterator<ISet> {
 /* package */ class AbstractPatternMap extends AbstractPattern implements MatchPattern {
 	private java.util.List<AbstractPattern> children;
 	
-	AbstractPatternMap(IValueFactory vf, AbstractAST ast, java.util.List<AbstractPattern> children){
-		super(vf, ast);
+	AbstractPatternMap(IValueFactory vf, EvaluatorContext ctx, java.util.List<AbstractPattern> children){
+		super(vf, ctx);
 		this.children = children;
 	}
 	
@@ -1294,9 +1294,10 @@ class SingleElementGenerator implements Iterator<ISet> {
 	private boolean debug = false;
 	private Environment env; 
 	
-	AbstractPatternQualifiedName(IValueFactory vf, Environment env, org.meta_environment.rascal.ast.QualifiedName qualifiedName){
-		super(vf, qualifiedName);
-		this.name = qualifiedName;
+	//org.meta_environment.rascal.ast.QualifiedName qualifiedName
+	AbstractPatternQualifiedName(IValueFactory vf, Environment env, EvaluatorContext ctx){
+		super(vf, ctx);
+		this.name = (org.meta_environment.rascal.ast.QualifiedName)getAST();
 		this.anonymous = name.toString().equals("_");
 		this.env = env;
 		// Look for this variable while we are constructing this pattern
@@ -1353,7 +1354,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 			// Is the variable still undefined?
 			if(debug)System.err.println("name= " + name + ", subject=" + subject + ",");
 			type = subject.getType();
-			env.storeInnermostVariable(name.toString(), makeResult(type, subject, ast));
+			env.storeInnermostVariable(name.toString(), makeResult(type, subject, ctx));
 			return true;
 		} else {
 			// ... or has it already received a value during matching?
@@ -1361,9 +1362,9 @@ class SingleElementGenerator implements Iterator<ISet> {
 			if(debug)System.err.println("AbstractPatternQualifiedName.match: " + name + ", subject=" + subject + ", value=" + varVal);
 			if (subject.getType().isSubtypeOf(varRes.getType())) {
 				if(debug) {
-					System.err.println("returns " + makeResult(subject.getType(),subject, ast).equals(varRes));
+					System.err.println("returns " + makeResult(subject.getType(),subject, ctx).equals(varRes));
 				}
-				return makeResult(subject.getType(),subject, ast).equals(varRes, ast).isTrue();
+				return makeResult(subject.getType(),subject, ctx).equals(varRes, ctx).isTrue();
 			} else {
 				return false;
 			}
@@ -1382,16 +1383,19 @@ class SingleElementGenerator implements Iterator<ISet> {
 	private boolean anonymous = false;
 	private boolean debug = false;
 	private Environment env;
+	private org.meta_environment.rascal.ast.QualifiedName qname;
 
 	
 	// TODO: merge code of the following two constructors.
 	
-	AbstractPatternTypedVariable(IValueFactory vf, Environment env, org.eclipse.imp.pdb.facts.type.Type type, org.meta_environment.rascal.ast.QualifiedName qname) {
-		super(vf, qname);
-		this.name = qname.toString();
+	AbstractPatternTypedVariable(IValueFactory vf, Environment env, EvaluatorContext ctx, org.eclipse.imp.pdb.facts.type.Type type,
+			org.meta_environment.rascal.ast.QualifiedName qname) {
+		super(vf, ctx);
+		this.name = getAST().toString();
 		this.declaredType = type;
 		this.env = env;
-		this.anonymous = qname.toString().equals("_");
+		this.anonymous = name.equals("_");
+		this.qname = (org.meta_environment.rascal.ast.QualifiedName)getAST();
 		
 		Result<IValue> localRes = env.getLocalVariable(qname);
 		if(localRes != null){
@@ -1403,7 +1407,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 			}
 			// Introduce an innermost variable that shadows the original one.
 			// This ensures that the original one becomes undefined again when matching is over
-			env.storeInnermostVariable(qname, makeResult(localRes.getType(), null, ast));
+			env.storeInnermostVariable(qname, makeResult(localRes.getType(), null, ctx));
 			return;
 		}
 		Result<IValue> globalRes = env.getVariable(qname);
@@ -1416,13 +1420,14 @@ class SingleElementGenerator implements Iterator<ISet> {
 			}
 			// Introduce an innermost variable that shadows the original one.
 			// This ensures that the original one becomes undefined again when matching is over
-			env.storeInnermostVariable(qname, makeResult(globalRes.getType(), null, ast));
+			env.storeInnermostVariable(qname, makeResult(globalRes.getType(), null, ctx));
 			return;
 		}
 	}
 	
-	AbstractPatternTypedVariable(IValueFactory vf, Environment env, org.eclipse.imp.pdb.facts.type.Type type, org.meta_environment.rascal.ast.Name name) {
-		super(vf, name);
+	AbstractPatternTypedVariable(IValueFactory vf, Environment env, EvaluatorContext ctx, 
+			org.eclipse.imp.pdb.facts.type.Type type, org.meta_environment.rascal.ast.Name name) {
+		super(vf, ctx);
 		this.name = name.toString();
 		this.declaredType = type;
 		this.env = env;
@@ -1438,7 +1443,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 			}
 			// Introduce an innermost variable that shadows the original one.
 			// This ensures that the original one becomes undefined again when matching is over
-			env.storeInnermostVariable(name, makeResult(localRes.getType(), null, ast));
+			env.storeInnermostVariable(name, makeResult(localRes.getType(), null, ctx));
 			return;
 		}
 	
@@ -1452,7 +1457,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 			}
 			// Introduce an innermost variable that shadows the original one.
 			// This ensures that the original one becomes undefined again when matching is over
-			env.storeInnermostVariable(name, makeResult(globalRes.getType(), null, ast));
+			env.storeInnermostVariable(name, makeResult(globalRes.getType(), null, ctx));
 			return;
 		}
 	}
@@ -1490,7 +1495,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 		
 		if (subject.getType().isSubtypeOf(declaredType)) {
 			if(!anonymous)
-				env.storeInnermostVariable(name, makeResult(declaredType, subject, ast));
+				env.storeInnermostVariable(name, makeResult(declaredType, subject, ctx));
 			if(debug)System.out.println("matches");
 			return true;
 		}
@@ -1512,8 +1517,9 @@ class AbstractPatternTypedVariableBecomes extends AbstractPattern implements Mat
 	private MatchPattern pat;
 	private boolean debug = false;
 
-	AbstractPatternTypedVariableBecomes(IValueFactory vf, Environment env, org.eclipse.imp.pdb.facts.type.Type type, org.meta_environment.rascal.ast.Name aname, MatchPattern pat){
-		super(vf, aname);
+	AbstractPatternTypedVariableBecomes(IValueFactory vf, Environment env, EvaluatorContext ctx,
+			org.eclipse.imp.pdb.facts.type.Type type, org.meta_environment.rascal.ast.Name aname, MatchPattern pat){
+		super(vf, ctx);
 		this.name = aname.toString();
 		this.declaredType = type;
 		this.env = env;
@@ -1530,7 +1536,7 @@ class AbstractPatternTypedVariableBecomes extends AbstractPattern implements Mat
 			}
 			// Introduce an innermost variable that shadows the original one.
 			// This ensures that the original one becomes undefined again when matching is over
-			env.storeInnermostVariable(name, makeResult(localRes.getType(), null, ast));
+			env.storeInnermostVariable(name, makeResult(localRes.getType(), null, ctx));
 			return;
 		}
 		Result<IValue> globalRes = env.getVariable(null,name);
@@ -1543,7 +1549,7 @@ class AbstractPatternTypedVariableBecomes extends AbstractPattern implements Mat
 			}
 			// Introduce an innermost variable that shadows the original one.
 			// This ensures that the original one becomes undefined again when matching is over
-			env.storeInnermostVariable(name, makeResult(globalRes.getType(), null, ast));
+			env.storeInnermostVariable(name, makeResult(globalRes.getType(), null, ctx));
 			return;
 		}
 	}
@@ -1573,7 +1579,7 @@ class AbstractPatternTypedVariableBecomes extends AbstractPattern implements Mat
 	public boolean next() {
 		if(debug) System.err.println("AbstractPatternTypedVariableBecomes:  next");
 		if(pat.next()){
-			Result<IValue> r = ResultFactory.makeResult(declaredType, subject, ast);
+			Result<IValue> r = ResultFactory.makeResult(declaredType, subject, ctx);
 			env.storeVariable(name, r);
 			return true;
 		}
@@ -1594,8 +1600,9 @@ class AbstractPatternVariableBecomes extends AbstractPattern implements MatchPat
 	private Environment env;
 	private MatchPattern pat;
 
-	AbstractPatternVariableBecomes(IValueFactory vf, Environment env, org.meta_environment.rascal.ast.Name aname, MatchPattern pat){
-		super(vf, aname);
+	AbstractPatternVariableBecomes(IValueFactory vf, Environment env, EvaluatorContext ctx, 
+			org.meta_environment.rascal.ast.Name aname, MatchPattern pat){
+		super(vf, ctx);
 		this.name = aname.toString();
 		this.env = env;
 		this.pat = pat;
@@ -1607,7 +1614,7 @@ class AbstractPatternVariableBecomes extends AbstractPattern implements MatchPat
 			}
 			// Introduce an innermost variable that shadows the original one.
 			// This ensures that the original one becomes undefined again when matching is over
-			env.storeInnermostVariable(name, makeResult(localRes.getType(), null, ast));
+			env.storeInnermostVariable(name, makeResult(localRes.getType(), null, ctx));
 			return;
 		}
 		Result<IValue> globalRes = env.getVariable(null,name);
@@ -1617,7 +1624,7 @@ class AbstractPatternVariableBecomes extends AbstractPattern implements MatchPat
 			}
 			// Introduce an innermost variable that shadows the original one.
 			// This ensures that the original one becomes undefined again when matching is over
-			env.storeInnermostVariable(name, makeResult(globalRes.getType(), null, ast));
+			env.storeInnermostVariable(name, makeResult(globalRes.getType(), null, ctx));
 			return;
 		}
 	}
@@ -1644,7 +1651,7 @@ class AbstractPatternVariableBecomes extends AbstractPattern implements MatchPat
 	@Override
 	public boolean next() {
 		if(pat.next()){	
-			Result<IValue> r = ResultFactory.makeResult(subject.getType(), subject, ast);
+			Result<IValue> r = ResultFactory.makeResult(subject.getType(), subject, ctx);
 			env.storeInnermostVariable(name, r);
 			return true;
 		}
@@ -1661,8 +1668,8 @@ class AbstractPatternGuarded extends AbstractPattern implements MatchPattern {
 	private Type type;
 	private MatchPattern pat;
 	
-	AbstractPatternGuarded(IValueFactory vf, Type type, MatchPattern pat, AbstractAST x){
-		super(vf, x);
+	AbstractPatternGuarded(IValueFactory vf, EvaluatorContext ctx, Type type, MatchPattern pat){
+		super(vf, ctx);
 		this.type = type;
 		this.pat = pat;
 	}
@@ -1698,8 +1705,8 @@ class AbstractPatternAnti extends AbstractPattern implements MatchPattern {
 
 	private MatchPattern pat;
 
-	public AbstractPatternAnti(IValueFactory vf, MatchPattern pat, AbstractAST ast) {
-		super(vf, ast);
+	public AbstractPatternAnti(IValueFactory vf, EvaluatorContext ctx, MatchPattern pat) {
+		super(vf, ctx);
 		this.pat = pat;
 	}
 
@@ -1736,13 +1743,13 @@ class AbstractPatternAnti extends AbstractPattern implements MatchPattern {
 public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 	private IValueFactory vf;
 	private Environment env;
-	private Evaluator evaluator;
+	private EvaluatorContext ctx;
 	private Environment scope;
 	
-	AbstractPatternEvaluator(IValueFactory vf, Environment env, Environment scope, Evaluator evaluator){
+	AbstractPatternEvaluator(IValueFactory vf, Environment env, Environment scope, EvaluatorContext ctx){
 		this.vf = vf;
 		this.env = env;
-		this.evaluator = evaluator;
+		this.ctx = ctx;
 		this.scope = scope;
 	}
 	
@@ -1756,7 +1763,7 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 	
 	@Override
 	public AbstractPattern visitExpressionLiteral(Literal x) {
-		return new AbstractPatternLiteral(vf, null, x.getLiteral().accept(evaluator).getValue());
+		return new AbstractPatternLiteral(vf, null, x.getLiteral().accept(ctx.getEvaluator()).getValue());
 	}
 	
 	@Override
@@ -1781,17 +1788,17 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 	
 	@Override
 	public AbstractPattern visitExpressionList(List x) {
-		return new AbstractPatternList(vf, x, visitElements(x.getElements()));
+		return new AbstractPatternList(vf, new EvaluatorContext(ctx.getEvaluator(), x), visitElements(x.getElements()));
 	}
 	
 	@Override
 	public AbstractPattern visitExpressionSet(Set x) {
-		return new AbstractPatternSet(vf, x, visitElements(x.getElements()));
+		return new AbstractPatternSet(vf, new EvaluatorContext(ctx.getEvaluator(), x), visitElements(x.getElements()));
 	}
 	
 	@Override
 	public AbstractPattern visitExpressionTuple(Tuple x) {
-		return new AbstractPatternTuple(vf, x, visitElements(x.getElements()));
+		return new AbstractPatternTuple(vf, new EvaluatorContext(ctx.getEvaluator(), x), visitElements(x.getElements()));
 	}
 	
 	@Override
@@ -1802,17 +1809,17 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 	@Override
 	public AbstractPattern visitExpressionQualifiedName(QualifiedName x) {
 		org.meta_environment.rascal.ast.QualifiedName name = x.getQualifiedName();
-		Type signature = evaluator.tf.tupleType(new Type[0]);
+		Type signature = ctx.getEvaluator().tf.tupleType(new Type[0]);
 
-		Result<IValue> r = evaluator.peek().getVariable(name);
+		Result<IValue> r = ctx.getEvaluator().peek().getVariable(name);
 //System.err.println("name = " + name.toString());
 		if (r != null) {
 			if (r.getValue() != null) {
 				// Previously declared and initialized variable
-				return new AbstractPatternQualifiedName(vf, env, name);
+				return new AbstractPatternQualifiedName(vf, env, new EvaluatorContext(ctx.getEvaluator(), name));
 			} else {
 				// Previously declared and uninitialized variable
-				return new AbstractPatternTypedVariable(vf, env, r.getType(),name);
+				return new AbstractPatternTypedVariable(vf, env, new EvaluatorContext(ctx.getEvaluator(), name), r.getType(),name);
 			}
 		}
 		if (scope.isTreeConstructorName(name, signature)) {
@@ -1820,14 +1827,14 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 					new java.util.ArrayList<AbstractPattern>());
 		}
 		// Completely fresh variable
-		return new AbstractPatternQualifiedName(vf, env, name);
+		return new AbstractPatternQualifiedName(vf, env, new EvaluatorContext(ctx.getEvaluator(), name));
 		//return new AbstractPatternTypedVariable(vf, env, ev.tf.valueType(), name);
 	}
 	
 	@Override
 	public AbstractPattern visitExpressionTypedVariable(TypedVariable x) {
 		TypeEvaluator te = TypeEvaluator.getInstance();
-		return new AbstractPatternTypedVariable(vf, env, te.eval(x.getType(), env), x.getName());
+		return new AbstractPatternTypedVariable(vf, env,  new EvaluatorContext(ctx.getEvaluator(), x.getName()), te.eval(x.getType(), env), x.getName());
 	}
 	
 	@Override
@@ -1836,14 +1843,14 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 		TypeEvaluator te = TypeEvaluator.getInstance();
 		Type type =  te.eval(x.getType(), env);
 		MatchPattern pat = x.getPattern().accept(this);
-		return new AbstractPatternTypedVariableBecomes(vf, env, type, x.getName(), pat);
+		return new AbstractPatternTypedVariableBecomes(vf, env, new EvaluatorContext(ctx.getEvaluator(), x.getName()), type, x.getName(), pat);
 	}
 	
 	@Override
 	public AbstractPattern visitExpressionVariableBecomes(
 			VariableBecomes x) {
 		MatchPattern pat = x.getPattern().accept(this);
-		return new AbstractPatternVariableBecomes(vf, env, x.getName(), pat);
+		return new AbstractPatternVariableBecomes(vf, env, new EvaluatorContext(ctx.getEvaluator(), x.getName()), x.getName(), pat);
 	}
 	
 	@Override
@@ -1851,13 +1858,13 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 		TypeEvaluator te = TypeEvaluator.getInstance();
 		Type type =  te.eval(x.getType(), env);
 		AbstractPattern absPat = x.getPattern().accept(this);
-		return new AbstractPatternGuarded(vf, type, absPat, x);
+		return new AbstractPatternGuarded(vf, new EvaluatorContext(ctx.getEvaluator(), x), type, absPat);
 	}
 	
 	@Override
 	public AbstractPattern visitExpressionAnti(Anti x) {
 		AbstractPattern absPat = x.getPattern().accept(this);
-		return new AbstractPatternAnti(vf, absPat, x);
+		return new AbstractPatternAnti(vf, new EvaluatorContext(ctx.getEvaluator(), x), absPat);
 	}
 	
 	/*

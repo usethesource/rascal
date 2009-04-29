@@ -17,14 +17,15 @@ import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
+import org.meta_environment.rascal.interpreter.EvaluatorContext;
 
 public class ResultFactory {
 
 	// TODO: do apply rules here and introduce normalizedResult. 
 	
 	@SuppressWarnings("unchecked")
-	public static <T extends IValue> Result<T> makeResult(Type declaredType, IValue value, AbstractAST ast) {
-		return (Result<T>) declaredType.accept(new Visitor(declaredType, value, ast));
+	public static <T extends IValue> Result<T> makeResult(Type declaredType, IValue value, EvaluatorContext ctx) {
+		return (Result<T>) declaredType.accept(new Visitor(declaredType, value, ctx));
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -41,17 +42,17 @@ public class ResultFactory {
 	private static class Visitor implements ITypeVisitor<Result<? extends IValue>> {
 		private IValue value;
 		private Type declaredType;
-		private AbstractAST ast;
+		private EvaluatorContext ctx;
 
-		public Visitor(Type type, IValue value, AbstractAST ast) {
+		public Visitor(Type type, IValue value, EvaluatorContext ctx) {
 			this.declaredType = type;
 			this.value = value;
-			this.ast = ast;
+			this.ctx = ctx;
 		}
 
 		public ElementResult<? extends IValue> visitAbstractData(Type type) {
 			// TODO: rename constructor result to AbstractData
-			return new ConstructorResult(declaredType, (IConstructor)value, ast);
+			return new ConstructorResult(declaredType, (IConstructor)value, ctx);
 		}
 
 		public Result<? extends IValue> visitAlias(Type type) {
@@ -59,31 +60,31 @@ public class ResultFactory {
 		}
 
 		public BoolResult visitBool(Type boolType) {
-			return new BoolResult(declaredType, (IBool)value, null, ast);
+			return new BoolResult(declaredType, (IBool)value, null, ctx);
 		}
 
 		public ElementResult<? extends IValue> visitConstructor(Type type) {
-			return new ConstructorResult(declaredType, (IConstructor)value, ast);
+			return new ConstructorResult(declaredType, (IConstructor)value, ctx);
 		}
 
 		public RealResult visitReal(Type type) {
-			return new RealResult(declaredType, (IReal)value, ast);
+			return new RealResult(declaredType, (IReal)value, ctx);
 		}
 
 		public IntegerResult visitInteger(Type type) {
-			return new IntegerResult(declaredType, (IInteger)value, ast);
+			return new IntegerResult(declaredType, (IInteger)value, ctx);
 		}
 
 		public ListResult visitList(Type type) {
-			return new ListResult(declaredType, (IList)value, ast);
+			return new ListResult(declaredType, (IList)value, ctx);
 		}
 
 		public MapResult visitMap(Type type) {
-			return new MapResult(declaredType, (IMap)value, ast);
+			return new MapResult(declaredType, (IMap)value, ctx);
 		}
 
 		public ElementResult<? extends IValue> visitNode(Type type) {
-			return new NodeResult(declaredType, (INode)value, ast);
+			return new NodeResult(declaredType, (INode)value, ctx);
 		}
 
 		public Result<? extends IValue> visitParameter(Type parameterType) {
@@ -91,31 +92,31 @@ public class ResultFactory {
 		}
 
 		public RelationResult visitRelationType(Type type) {
-			return new RelationResult(declaredType, (IRelation)value, ast);
+			return new RelationResult(declaredType, (IRelation)value, ctx);
 		}
 
 		public SetOrRelationResult<ISet> visitSet(Type type) {
-			return new SetResult(declaredType, (ISet)value, ast);
+			return new SetResult(declaredType, (ISet)value, ctx);
 		}
 
 		public SourceLocationResult visitSourceLocation(Type type) {
-			return new SourceLocationResult(declaredType, (ISourceLocation)value, ast);		
+			return new SourceLocationResult(declaredType, (ISourceLocation)value, ctx);		
 		}
 
 		public StringResult visitString(Type type) {
-			return new StringResult(declaredType, (IString)value, ast);
+			return new StringResult(declaredType, (IString)value, ctx);
 		}
 
 		public TupleResult visitTuple(Type type) {
-			return new TupleResult(declaredType, (ITuple)value, ast);
+			return new TupleResult(declaredType, (ITuple)value, ctx);
 		}
 
 		public ValueResult visitValue(Type type) {
-			return new ValueResult(declaredType, value, ast);
+			return new ValueResult(declaredType, value, ctx);
 		}
 
 		public VoidResult visitVoid(Type type) {
-			return new VoidResult(declaredType, ast);
+			return new VoidResult(declaredType, ctx);
 		}
 	}
 }

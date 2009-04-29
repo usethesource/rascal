@@ -49,9 +49,10 @@ class RegExpPatternValue implements MatchPattern {
 	private final Environment env;
 	private final TypeFactory tf = TypeFactory.getInstance();
 	private final IValueFactory vf;
+	private EvaluatorContext context;
 	
-	RegExpPatternValue(IValueFactory vf, AbstractAST ast, String s, Environment env){
-		this.ast = ast;
+	RegExpPatternValue(IValueFactory vf, EvaluatorContext context, String s, Environment env){
+		this.context = context;
 		RegExpAsString = s;
 	//	modifier = null;
 		patternVars = null;
@@ -76,7 +77,7 @@ class RegExpPatternValue implements MatchPattern {
 				} else {
 					// Introduce an innermost variable that shadows the original one.
 					// This ensures that the original one becomes undefined again when matching is over
-					env.storeInnermostVariable(name, makeResult(localRes.getType(), null, ast));
+					env.storeInnermostVariable(name, makeResult(localRes.getType(), null, context));
 				}
 				continue;
 			}	
@@ -90,7 +91,7 @@ class RegExpPatternValue implements MatchPattern {
 				} else {
 					// Introduce an innermost variable that shadows the original one.
 					// This ensures that the original one becomes undefined agaian when matching is over
-					env.storeInnermostVariable(name, makeResult(globalRes.getType(), null, ast));
+					env.storeInnermostVariable(name, makeResult(globalRes.getType(), null, context));
 
 				}
 				continue;
@@ -151,7 +152,7 @@ class RegExpPatternValue implements MatchPattern {
 				 * of variables are not allowed. Otherwise we would have to check here for the
 				 * previous local value of the variable.
 				 */
-				env.storeVariable(name, makeResult(tf.stringType(), vf.string(bindings.get(name)), ast));			
+				env.storeVariable(name, makeResult(tf.stringType(), vf.string(bindings.get(name)), context));			
 			}
 			if(matches){
 				start = matcher.start();
@@ -196,9 +197,11 @@ public class RegExpPatternEvaluator extends NullASTVisitor<MatchPattern> {
 	private boolean debug = false;
 	private final Environment env;
 	private final IValueFactory vf;
+	private Evaluator eval;
 	
-	public RegExpPatternEvaluator(IValueFactory vf, Environment env) {
+	public RegExpPatternEvaluator(IValueFactory vf, Evaluator eval, Environment env) {
 		this.env = env;
+		this.eval = eval;
 		this.vf = vf;
 	}
 	
@@ -227,7 +230,7 @@ public class RegExpPatternEvaluator extends NullASTVisitor<MatchPattern> {
 	@Override
 	public MatchPattern visitRegExpLexical(Lexical x) {
 		if(debug)System.err.println("visitRegExpLexical: " + x.getString());
-		return new RegExpPatternValue(vf, x, x.getString(), env);
+		return new RegExpPatternValue(vf, new EvaluatorContext(eval, x), x.getString(), env);
 	}
 	
 	@Override

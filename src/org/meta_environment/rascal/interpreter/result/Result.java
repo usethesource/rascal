@@ -11,6 +11,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
+import org.meta_environment.rascal.interpreter.EvaluatorContext;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
@@ -53,10 +54,10 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	protected T value;
 	private boolean isPublic;
 
-	protected Result(Type type, T value, Iterator<Result<IValue>> iter, AbstractAST ast) {
+	protected Result(Type type, T value, Iterator<Result<IValue>> iter, EvaluatorContext ctx) {
 		// Check for null in case of void result or uninit.
 		if (value != null && !value.getType().isSubtypeOf(type)) {
-			throw new UnexpectedTypeError(type, value.getType(), ast);
+			throw new UnexpectedTypeError(type, value.getType(), ctx.getCurrentAST());
 		}
 	
 	    this.type = type;
@@ -64,8 +65,8 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		this.value = value;
 	}
 	
-	protected Result(Type type, T value, AbstractAST ast) {
-		this(type, value, null, ast);
+	protected Result(Type type, T value, EvaluatorContext ctx) {
+		this(type, value, null, ctx);
 	}
 
 	/// The "result" interface
@@ -78,7 +79,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return type;
 	}
 	
-	protected <U extends IValue> Result<U> makeIntegerResult(int i, AbstractAST ast) {
+	protected <U extends IValue> Result<U> makeIntegerResult(int i, EvaluatorContext ctx) {
 		return makeResult(getTypeFactory().integerType(), getValueFactory().integer(i), null);
 	}
 	
@@ -116,146 +117,146 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	
 	// Error aux methods
 	
-	protected <U extends IValue> Result<U> undefinedError(String operator, AbstractAST ast) {
-		throw new UnsupportedOperationError(operator, getType(), ast);
+	protected <U extends IValue> Result<U> undefinedError(String operator, EvaluatorContext ctx) {
+		throw new UnsupportedOperationError(operator, getType(), ctx.getCurrentAST());
 	}
 	
 	@SuppressWarnings("unchecked")
-	protected <U extends IValue> Result<U> undefinedError(String operator, Result arg, AbstractAST ast) {
+	protected <U extends IValue> Result<U> undefinedError(String operator, Result arg, EvaluatorContext ctx) {
 		// TODO find source location
-		throw new UnsupportedOperationError(operator, getType(), arg.getType(), ast);
+		throw new UnsupportedOperationError(operator, getType(), arg.getType(), ctx.getCurrentAST());
 	}
 	
 	///////
 	
 	
 	
-	public <U extends IValue, V extends IValue> Result<U> add(Result<V> that, AbstractAST ast) {
-		return undefinedError(ADDITION_STRING, that, ast);
+	public <U extends IValue, V extends IValue> Result<U> add(Result<V> that, EvaluatorContext ctx) {
+		return undefinedError(ADDITION_STRING, that, ctx);
 	}
 
-	public <U extends IValue, V extends IValue> Result<U> subtract(Result<V> that, AbstractAST ast) {
-		return undefinedError(SUBTRACTION_STRING, that, ast);
+	public <U extends IValue, V extends IValue> Result<U> subtract(Result<V> that, EvaluatorContext ctx) {
+		return undefinedError(SUBTRACTION_STRING, that, ctx);
 	}
 
-	public <U extends IValue, V extends IValue> Result<U> multiply(Result<V> that, AbstractAST ast) {
-		return undefinedError(MULTIPLICATION_STRING, that, ast);
+	public <U extends IValue, V extends IValue> Result<U> multiply(Result<V> that, EvaluatorContext ctx) {
+		return undefinedError(MULTIPLICATION_STRING, that, ctx);
 	}
 	
-	public <U extends IValue, V extends IValue> Result<U> join(Result<V> that, AbstractAST ast) {
-		return undefinedError(JOIN_STRING, that, ast);
+	public <U extends IValue, V extends IValue> Result<U> join(Result<V> that, EvaluatorContext ctx) {
+		return undefinedError(JOIN_STRING, that, ctx);
 	}
 	
-	public <U extends IValue, V extends IValue> Result<U> divide(Result<V> that, AbstractAST ast) {
-		return undefinedError(DIVISION_STRING, that, ast);
+	public <U extends IValue, V extends IValue> Result<U> divide(Result<V> that, EvaluatorContext ctx) {
+		return undefinedError(DIVISION_STRING, that, ctx);
 	}
 
-	public <U extends IValue, V extends IValue> Result<U> modulo(Result<V> that, AbstractAST ast) {
-		return undefinedError(MODULO_STRING, that, ast);
+	public <U extends IValue, V extends IValue> Result<U> modulo(Result<V> that, EvaluatorContext ctx) {
+		return undefinedError(MODULO_STRING, that, ctx);
 	}
 
-	public <U extends IValue, V extends IValue> Result<U> in(Result<V> that, AbstractAST ast) {
-		return undefinedError(IN_STRING, that, ast);
+	public <U extends IValue, V extends IValue> Result<U> in(Result<V> that, EvaluatorContext ctx) {
+		return undefinedError(IN_STRING, that, ctx);
 	}
 
-	public <U extends IValue, V extends IValue> Result<U> notIn(Result<V> that, AbstractAST ast) {
-		return undefinedError(NOTIN_STRING, that, ast);
-	}
-	
-
-	public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right, AbstractAST ast) {
-		return undefinedError(COMPOSE_STRING, right, ast);
-	}
-
-
-	public <U extends IValue> Result<U> negative(AbstractAST ast) {
-		return undefinedError(NEGATIVE_STRING, ast);
-	}
-
-	public <U extends IValue> Result<U> negate(AbstractAST ast) {
-		return undefinedError(NEGATE_STRING, ast);
-	}
-
-	
-	public <U extends IValue, V extends IValue> Result<U> intersect(Result<V> that, AbstractAST ast) {
-		return undefinedError(INTERSECTION_STRING, this, ast);
+	public <U extends IValue, V extends IValue> Result<U> notIn(Result<V> that, EvaluatorContext ctx) {
+		return undefinedError(NOTIN_STRING, that, ctx);
 	}
 	
-	public <U extends IValue, V extends IValue> Result<U> makeRange(Result<V> to, AbstractAST ast) {
-		return undefinedError(RANGE_STRING, ast);
+
+	public <U extends IValue, V extends IValue> Result<U> compose(Result<V> right, EvaluatorContext ctx) {
+		return undefinedError(COMPOSE_STRING, right, ctx);
+	}
+
+
+	public <U extends IValue> Result<U> negative(EvaluatorContext ctx) {
+		return undefinedError(NEGATIVE_STRING, ctx);
+	}
+
+	public <U extends IValue> Result<U> negate(EvaluatorContext ctx) {
+		return undefinedError(NEGATE_STRING, ctx);
 	}
 
 	
-	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that, AbstractAST ast) {
+	public <U extends IValue, V extends IValue> Result<U> intersect(Result<V> that, EvaluatorContext ctx) {
+		return undefinedError(INTERSECTION_STRING, this, ctx);
+	}
+	
+	public <U extends IValue, V extends IValue> Result<U> makeRange(Result<V> to, EvaluatorContext ctx) {
+		return undefinedError(RANGE_STRING, ctx);
+	}
+
+	
+	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that, EvaluatorContext ctx) {
 		// e.g. for closures equality is undefined
-		return undefinedError(EQUALS_STRING, this, ast);
+		return undefinedError(EQUALS_STRING, this, ctx);
 	}
 	
-	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> that, AbstractAST ast) {
-		return undefinedError(COMPARE_STRING, that, ast);
+	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> that, EvaluatorContext ctx) {
+		return undefinedError(COMPARE_STRING, that, ctx);
 	}
 	
 	
 	
-	public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> that, AbstractAST ast) {
-		return undefinedError(LESS_THAN_STRING, that, ast);
+	public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> that, EvaluatorContext ctx) {
+		return undefinedError(LESS_THAN_STRING, that, ctx);
 	}
 	
-	public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(Result<V> that, AbstractAST ast) {
-		return undefinedError(LESS_THAN_OR_EQUAL_STRING, that, ast);
-	}
-
-	public <U extends IValue, V extends IValue> Result<U> greaterThan(Result<V> that, AbstractAST ast) {
-		return undefinedError(GREATER_THAN_STRING, that, ast);
-	}
-	
-	public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(Result<V> that, AbstractAST ast) {
-		return undefinedError(GREATER_THAN_OR_EQUAL_STRING, that, ast);
+	public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(Result<V> that, EvaluatorContext ctx) {
+		return undefinedError(LESS_THAN_OR_EQUAL_STRING, that, ctx);
 	}
 
-
-	public Result<IValue> ifThenElse(Result<IValue> then, Result<IValue> _else, AbstractAST ast) {
-		return undefinedError(IF_THEN_ELSE_STRING, ast);
+	public <U extends IValue, V extends IValue> Result<U> greaterThan(Result<V> that, EvaluatorContext ctx) {
+		return undefinedError(GREATER_THAN_STRING, that, ctx);
 	}
 	
-	public <U extends IValue> Result<U> transitiveClosure(AbstractAST ast) {
-		return undefinedError(TRANSITIVE_CLOSURE_STRING, ast);
-	}
-
-	public <U extends IValue> Result<U> transitiveReflexiveClosure(AbstractAST ast) {
-		return undefinedError(TRANSITIVE_REFLEXIVE_CLOSURE_STRING, ast);
-	}
-	
-	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store, AbstractAST ast) {
-		return undefinedError(FIELD_ACCESS_STRING, ast);
-	}
-	
-	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(String name, Result<V> repl, TypeStore store, AbstractAST ast) {
-		return undefinedError(FIELD_UPDATE_STRING, ast);
-	}
-	
-	
-	public <U extends IValue, V extends IValue, W extends IValue> Result<U> makeStepRange(Result<V> to, Result<W> second, AbstractAST ast) {
-		return undefinedError(RANGE_STRING, ast);
+	public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(Result<V> that, EvaluatorContext ctx) {
+		return undefinedError(GREATER_THAN_OR_EQUAL_STRING, that, ctx);
 	}
 
 
-	public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts, AbstractAST ast) {
-		return undefinedError(SUBSCRIPT_STRING, ast);
+	public Result<IValue> ifThenElse(Result<IValue> then, Result<IValue> _else, EvaluatorContext ctx) {
+		return undefinedError(IF_THEN_ELSE_STRING, ctx);
+	}
+	
+	public <U extends IValue> Result<U> transitiveClosure(EvaluatorContext ctx) {
+		return undefinedError(TRANSITIVE_CLOSURE_STRING, ctx);
 	}
 
-	public <U extends IValue> Result<U> getAnnotation(String annoName, Environment env, AbstractAST ast) {
-		return undefinedError(GET_ANNO_STRING, ast);
+	public <U extends IValue> Result<U> transitiveReflexiveClosure(EvaluatorContext ctx) {
+		return undefinedError(TRANSITIVE_REFLEXIVE_CLOSURE_STRING, ctx);
+	}
+	
+	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store, EvaluatorContext ctx) {
+		return undefinedError(FIELD_ACCESS_STRING, ctx);
+	}
+	
+	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(String name, Result<V> repl, TypeStore store, EvaluatorContext ctx) {
+		return undefinedError(FIELD_UPDATE_STRING, ctx);
+	}
+	
+	
+	public <U extends IValue, V extends IValue, W extends IValue> Result<U> makeStepRange(Result<V> to, Result<W> second, EvaluatorContext ctx) {
+		return undefinedError(RANGE_STRING, ctx);
+	}
+
+
+	public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts, EvaluatorContext ctx) {
+		return undefinedError(SUBSCRIPT_STRING, ctx);
+	}
+
+	public <U extends IValue> Result<U> getAnnotation(String annoName, Environment env, EvaluatorContext ctx) {
+		return undefinedError(GET_ANNO_STRING, ctx);
 	}	
 
 	public <U extends IValue, V extends IValue> Result<U> setAnnotation(String annoName, Result<V> anno,
-			Environment peek, AbstractAST ast) {
-		return undefinedError(SET_ANNO_STRING, ast);
+			Environment peek, EvaluatorContext ctx) {
+		return undefinedError(SET_ANNO_STRING, ctx);
 	}
 	
 	
-	public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that, AbstractAST ast) { 
-		return undefinedError(NON_EQUALS_STRING, that, ast);
+	public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that, EvaluatorContext ctx) { 
+		return undefinedError(NON_EQUALS_STRING, that, ctx);
 	}
 	
 	public boolean isTrue() {
@@ -266,451 +267,451 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	
 	///////
 	
-	protected <U extends IValue> Result<U> addInteger(IntegerResult that, AbstractAST ast) {
-		return that.undefinedError(ADDITION_STRING, this, ast);
+	protected <U extends IValue> Result<U> addInteger(IntegerResult that, EvaluatorContext ctx) {
+		return that.undefinedError(ADDITION_STRING, this, ctx);
 	}
 
-	protected <U extends IValue> Result<U> subtractInteger(IntegerResult that, AbstractAST ast) {
-		return that.undefinedError(SUBTRACTION_STRING, this, ast);
+	protected <U extends IValue> Result<U> subtractInteger(IntegerResult that, EvaluatorContext ctx) {
+		return that.undefinedError(SUBTRACTION_STRING, this, ctx);
 	}
 
-	protected <U extends IValue> Result<U> multiplyInteger(IntegerResult that, AbstractAST ast) {
-		return that.undefinedError(MULTIPLICATION_STRING, this, ast);
+	protected <U extends IValue> Result<U> multiplyInteger(IntegerResult that, EvaluatorContext ctx) {
+		return that.undefinedError(MULTIPLICATION_STRING, this, ctx);
 	}
 
-	protected <U extends IValue> Result<U> addReal(RealResult that, AbstractAST ast) {
-		return that.undefinedError(ADDITION_STRING, this, ast);
+	protected <U extends IValue> Result<U> addReal(RealResult that, EvaluatorContext ctx) {
+		return that.undefinedError(ADDITION_STRING, this, ctx);
 	}
 
-	protected <U extends IValue> Result<U> subtractReal(RealResult that, AbstractAST ast) {
-		return that.undefinedError(SUBTRACTION_STRING, this, ast);
+	protected <U extends IValue> Result<U> subtractReal(RealResult that, EvaluatorContext ctx) {
+		return that.undefinedError(SUBTRACTION_STRING, this, ctx);
 	}
 
-	protected <U extends IValue> Result<U> multiplyReal(RealResult that, AbstractAST ast) {
-		return that.undefinedError(MULTIPLICATION_STRING, this, ast);
+	protected <U extends IValue> Result<U> multiplyReal(RealResult that, EvaluatorContext ctx) {
+		return that.undefinedError(MULTIPLICATION_STRING, this, ctx);
 	}
 
 
-	protected <U extends IValue> Result<U> divideReal(RealResult that, AbstractAST ast) {
-		return that.undefinedError(DIVISION_STRING, this, ast);
+	protected <U extends IValue> Result<U> divideReal(RealResult that, EvaluatorContext ctx) {
+		return that.undefinedError(DIVISION_STRING, this, ctx);
 	}
 
-	protected <U extends IValue> Result<U> divideInteger(IntegerResult that, AbstractAST ast) {
-		return that.undefinedError(DIVISION_STRING, this, ast);
+	protected <U extends IValue> Result<U> divideInteger(IntegerResult that, EvaluatorContext ctx) {
+		return that.undefinedError(DIVISION_STRING, this, ctx);
 	}
 
-	protected <U extends IValue> Result<U> addString(StringResult that, AbstractAST ast) {
-		return that.undefinedError(ADDITION_STRING, this, ast);
+	protected <U extends IValue> Result<U> addString(StringResult that, EvaluatorContext ctx) {
+		return that.undefinedError(ADDITION_STRING, this, ctx);
 	}
 
-	protected <U extends IValue> Result<U> addList(ListResult that, AbstractAST ast) {
-		return that.undefinedError(ADDITION_STRING, this, ast);
+	protected <U extends IValue> Result<U> addList(ListResult that, EvaluatorContext ctx) {
+		return that.undefinedError(ADDITION_STRING, this, ctx);
 	}
 
-	protected <U extends IValue> Result<U> subtractList(ListResult that, AbstractAST ast) {
-		return that.undefinedError(SUBTRACTION_STRING, this, ast);
+	protected <U extends IValue> Result<U> subtractList(ListResult that, EvaluatorContext ctx) {
+		return that.undefinedError(SUBTRACTION_STRING, this, ctx);
 	}
 
-	protected <U extends IValue> Result<U> multiplyList(ListResult that, AbstractAST ast) {
-		return that.undefinedError(MULTIPLICATION_STRING, that, ast);
+	protected <U extends IValue> Result<U> multiplyList(ListResult that, EvaluatorContext ctx) {
+		return that.undefinedError(MULTIPLICATION_STRING, that, ctx);
 	}
 
-	protected <U extends IValue> Result<U> addSet(SetResult that, AbstractAST ast) {
-		return that.undefinedError(ADDITION_STRING, this, ast);
+	protected <U extends IValue> Result<U> addSet(SetResult that, EvaluatorContext ctx) {
+		return that.undefinedError(ADDITION_STRING, this, ctx);
 	}
 
-	protected <U extends IValue> Result<U> addRelation(RelationResult that, AbstractAST ast) {
-		return that.undefinedError(ADDITION_STRING, this, ast);
+	protected <U extends IValue> Result<U> addRelation(RelationResult that, EvaluatorContext ctx) {
+		return that.undefinedError(ADDITION_STRING, this, ctx);
 	}
 
-	protected <U extends IValue> Result<U> addBool(BoolResult that, AbstractAST ast) {
-		return that.undefinedError(ADDITION_STRING, this, ast);
+	protected <U extends IValue> Result<U> addBool(BoolResult that, EvaluatorContext ctx) {
+		return that.undefinedError(ADDITION_STRING, this, ctx);
 	}
 
-	protected <U extends IValue> Result<U> subtractSet(SetResult that, AbstractAST ast) {
-		return that.undefinedError(SUBTRACTION_STRING, this, ast);
+	protected <U extends IValue> Result<U> subtractSet(SetResult that, EvaluatorContext ctx) {
+		return that.undefinedError(SUBTRACTION_STRING, this, ctx);
 	}
 
-	protected <U extends IValue> Result<U> multiplySet(SetResult that, AbstractAST ast) {
-		return that.undefinedError(MULTIPLICATION_STRING, this, ast);
+	protected <U extends IValue> Result<U> multiplySet(SetResult that, EvaluatorContext ctx) {
+		return that.undefinedError(MULTIPLICATION_STRING, this, ctx);
 	}
 	
-	protected <U extends IValue> Result<U> joinSet(SetResult that, AbstractAST ast) {
-		return that.undefinedError(JOIN_STRING, this, ast);
+	protected <U extends IValue> Result<U> joinSet(SetResult that, EvaluatorContext ctx) {
+		return that.undefinedError(JOIN_STRING, this, ctx);
 	}
 
 
-	protected <U extends IValue> Result<U> multiplyRelation(RelationResult that, AbstractAST ast) {
-		return that.undefinedError(MULTIPLICATION_STRING, this, ast);
+	protected <U extends IValue> Result<U> multiplyRelation(RelationResult that, EvaluatorContext ctx) {
+		return that.undefinedError(MULTIPLICATION_STRING, this, ctx);
 	}
 
-	protected <U extends IValue> Result<U> joinRelation(RelationResult that, AbstractAST ast) {
-		return that.undefinedError(JOIN_STRING, this, ast);
+	protected <U extends IValue> Result<U> joinRelation(RelationResult that, EvaluatorContext ctx) {
+		return that.undefinedError(JOIN_STRING, this, ctx);
 	}
 
-	protected <U extends IValue> Result<U> addMap(MapResult that, AbstractAST ast) {
-		return that.undefinedError(ADDITION_STRING, this, ast);
+	protected <U extends IValue> Result<U> addMap(MapResult that, EvaluatorContext ctx) {
+		return that.undefinedError(ADDITION_STRING, this, ctx);
 	}
 
-	protected <U extends IValue> Result<U> subtractRelation(RelationResult that, AbstractAST ast) {
-		return that.undefinedError(SUBTRACTION_STRING, this, ast);
+	protected <U extends IValue> Result<U> subtractRelation(RelationResult that, EvaluatorContext ctx) {
+		return that.undefinedError(SUBTRACTION_STRING, this, ctx);
 	}
 
-	protected <U extends IValue> Result<U> subtractMap(MapResult that, AbstractAST ast) {
-		return that.undefinedError(SUBTRACTION_STRING, this, ast);
+	protected <U extends IValue> Result<U> subtractMap(MapResult that, EvaluatorContext ctx) {
+		return that.undefinedError(SUBTRACTION_STRING, this, ctx);
 	}
 
-	protected <U extends IValue> Result<U> moduloReal(RealResult that, AbstractAST ast) {
-		return that.undefinedError(MODULO_STRING, this, ast);
+	protected <U extends IValue> Result<U> moduloReal(RealResult that, EvaluatorContext ctx) {
+		return that.undefinedError(MODULO_STRING, this, ctx);
 	}
 
-	protected <U extends IValue> Result<U> addTuple(TupleResult that, AbstractAST ast) {
-		return that.undefinedError(ADDITION_STRING, this, ast);
+	protected <U extends IValue> Result<U> addTuple(TupleResult that, EvaluatorContext ctx) {
+		return that.undefinedError(ADDITION_STRING, this, ctx);
 	}
 
-	protected <U extends IValue> Result<U> moduloInteger(IntegerResult that, AbstractAST ast) {
-		return that.undefinedError(MODULO_STRING, this, ast);
-	}
-
-	
-	protected <U extends IValue> Result<U> intersectSet(SetResult that, AbstractAST ast) {
-		return that.undefinedError(INTERSECTION_STRING, this, ast);
-	}
-
-	protected <U extends IValue> Result<U> intersectRelation(RelationResult that, AbstractAST ast) {
-		return that.undefinedError(INTERSECTION_STRING, this, ast);
-	}
-
-	protected <U extends IValue> Result<U> intersectMap(MapResult that, AbstractAST ast) {
-		return that.undefinedError(INTERSECTION_STRING, this, ast);
-	}
-
-	protected <U extends IValue> Result<U> makeRangeFromInteger(IntegerResult that, AbstractAST ast) {
-		return that.undefinedError(RANGE_STRING, this, ast);
-	}
-
-	protected <U extends IValue, V extends IValue> Result<U> makeStepRangeFromInteger(IntegerResult that, Result<V> step, AbstractAST ast) {
-		return that.undefinedError(RANGE_STRING, this, ast);
-	}
-
-	protected <U extends IValue> Result<U> inSet(SetResult that, AbstractAST ast) {
-		return that.undefinedError(IN_STRING, this, ast);
-	}
-
-	protected <U extends IValue> Result<U> inRelation(RelationResult that, AbstractAST ast) {
-		return that.undefinedError(IN_STRING, this, ast);
-	}
-
-	protected <U extends IValue> Result<U> inList(ListResult that, AbstractAST ast) {
-		return that.undefinedError(IN_STRING, this, ast);
-	}
-
-	protected <U extends IValue> Result<U> inMap(MapResult that, AbstractAST ast) {
-		return that.undefinedError(IN_STRING, this, ast);
-	}
-
-	protected <U extends IValue> Result<U> notInSet(SetResult that, AbstractAST ast) {
-		return that.undefinedError(NOTIN_STRING, this, ast);
-	}
-
-	protected <U extends IValue> Result<U> notInRelation(RelationResult that, AbstractAST ast) {
-		return that.undefinedError(NOTIN_STRING, this, ast);
-	}
-	
-	protected <U extends IValue> Result<U> notInList(ListResult that, AbstractAST ast) {
-		return that.undefinedError(NOTIN_STRING, this, ast);
-	}
-	
-	protected <U extends IValue> Result<U> notInMap(MapResult that, AbstractAST ast) {
-		return that.undefinedError(NOTIN_STRING, this, ast);
-	}
-	
-	protected <U extends IValue> Result<U> composeRelation(RelationResult that, AbstractAST ast) {
-		return that.undefinedError(COMPOSE_STRING, this, ast);
-	}
-	
-	protected <U extends IValue> Result<U> compareInteger(IntegerResult that, AbstractAST ast) {
-		return that.undefinedError(COMPARE_STRING, this, ast);
-	}
-	
-	protected <U extends IValue> Result<U> compareReal(RealResult that, AbstractAST ast) {
-		return that.undefinedError(COMPARE_STRING, this, ast);
-	}
-	
-	protected <U extends IValue> Result<U> compareString(StringResult that, AbstractAST ast) {
-		return that.undefinedError(COMPARE_STRING, this, ast);
-	}
-	
-	protected <U extends IValue> Result<U> compareSourceLocation(SourceLocationResult that, AbstractAST ast) {
-		return that.undefinedError(COMPARE_STRING, this, ast);
-	}
-	
-	protected <U extends IValue> Result<U> compareTuple(TupleResult that, AbstractAST ast) {
-		return that.undefinedError(COMPARE_STRING, this, ast);
-	}
-	
-	protected <U extends IValue> Result<U> compareSet(SetResult that, AbstractAST ast) {
-		return that.undefinedError(COMPARE_STRING, this, ast);
-	}
-	
-	protected <U extends IValue> Result<U> compareList(ListResult that, AbstractAST ast) {
-		return that.undefinedError(COMPARE_STRING, this, ast);
-	}
-	
-	protected <U extends IValue> Result<U> compareRelation(RelationResult that, AbstractAST ast) {
-		return that.undefinedError(COMPARE_STRING, this, ast);
-	}
-	
-	protected <U extends IValue> Result<U> compareBool(BoolResult that, AbstractAST ast) {
-		return that.undefinedError(COMPARE_STRING, this, ast);
-	}
-	
-	protected <U extends IValue> Result<U> compareConstructor(NodeResult that, AbstractAST ast) {
-		return that.undefinedError(COMPARE_STRING, this, ast);
-	}
-	
-	protected <U extends IValue> Result<U> compareMap(MapResult that, AbstractAST ast) {
-		return that.undefinedError(COMPARE_STRING, this, ast);
-	}
-
-	protected <U extends IValue> Result<U> equalToInteger(IntegerResult that, AbstractAST ast) {
-		return that.undefinedError(EQUALS_STRING, this, ast);
-	}
-	protected <U extends IValue> Result<U> equalToReal(RealResult that, AbstractAST ast) {
-		return that.undefinedError(EQUALS_STRING, this, ast);
-	}
-	protected <U extends IValue> Result<U> equalToString(StringResult that, AbstractAST ast) {
-		return that.undefinedError(EQUALS_STRING, this, ast);
-	}
-	protected <U extends IValue> Result<U> equalToList(ListResult that, AbstractAST ast) {
-		return that.undefinedError(EQUALS_STRING, this, ast);
-	}
-	protected <U extends IValue> Result<U> equalToSet(SetResult that, AbstractAST ast) {
-		return that.undefinedError(EQUALS_STRING, this, ast);
-	}
-	protected <U extends IValue> Result<U> equalToMap(MapResult that, AbstractAST ast) {
-		return that.undefinedError(EQUALS_STRING, this, ast);
-	}
-	protected <U extends IValue> Result<U> equalToNode(NodeResult that, AbstractAST ast) {
-		return that.undefinedError(EQUALS_STRING, this, ast);
-	}
-	protected <U extends IValue> Result<U> equalToSourceLocation(SourceLocationResult that, AbstractAST ast) {
-		return that.undefinedError(EQUALS_STRING, this, ast);
-	}
-	protected <U extends IValue> Result<U> equalToRelation(RelationResult that, AbstractAST ast) {
-		return that.undefinedError(EQUALS_STRING, this, ast);
-	}
-	protected <U extends IValue> Result<U> equalToTuple(TupleResult that, AbstractAST ast) {
-		return that.undefinedError(EQUALS_STRING, this, ast);
-	}
-	
-	protected <U extends IValue> Result<U> equalToBool(BoolResult that, AbstractAST ast) {
-		return that.undefinedError(EQUALS_STRING, this, ast);
-	}
-	
-	protected <U extends IValue> Result<U> equalToValue(ValueResult that, AbstractAST ast) {
-		return that.undefinedError(EQUALS_STRING, this, ast);
-	}
-	
-
-	protected <U extends IValue> Result<U> nonEqualToInteger(IntegerResult that, AbstractAST ast) {
-		return that.undefinedError(NON_EQUALS_STRING, this, ast);
-	}
-	protected <U extends IValue> Result<U> nonEqualToReal(RealResult that, AbstractAST ast) {
-		return that.undefinedError(NON_EQUALS_STRING, this, ast);
-	}
-	protected <U extends IValue> Result<U> nonEqualToString(StringResult that, AbstractAST ast) {
-		return that.undefinedError(NON_EQUALS_STRING, this, ast);
-	}
-	protected <U extends IValue> Result<U> nonEqualToList(ListResult that, AbstractAST ast) {
-		return that.undefinedError(NON_EQUALS_STRING, this, ast);
-	}
-	protected <U extends IValue> Result<U> nonEqualToSet(SetResult that, AbstractAST ast) {
-		return that.undefinedError(NON_EQUALS_STRING, this, ast);
-	}
-	protected <U extends IValue> Result<U> nonEqualToMap(MapResult that, AbstractAST ast) {
-		return that.undefinedError(NON_EQUALS_STRING, this, ast);
-	}
-	protected <U extends IValue> Result<U> nonEqualToNode(NodeResult that, AbstractAST ast) {
-		return that.undefinedError(NON_EQUALS_STRING, this, ast);
-	}
-	protected <U extends IValue> Result<U> nonEqualToSourceLocation(SourceLocationResult that, AbstractAST ast) {
-		return that.undefinedError(NON_EQUALS_STRING, this, ast);
-	}
-	protected <U extends IValue> Result<U> nonEqualToRelation(RelationResult that, AbstractAST ast) {
-		return that.undefinedError(NON_EQUALS_STRING, this, ast);
-	}
-	protected <U extends IValue> Result<U> nonEqualToTuple(TupleResult that, AbstractAST ast) {
-		return that.undefinedError(NON_EQUALS_STRING, this, ast);
-	}
-	
-	protected <U extends IValue> Result<U> nonEqualToBool(BoolResult that, AbstractAST ast) {
-		return that.undefinedError(NON_EQUALS_STRING, this, ast);
-	}
-	
-	protected <U extends IValue> Result<U> nonEqualToValue(ValueResult that, AbstractAST ast) {
-		return that.undefinedError(NON_EQUALS_STRING, this, ast);
-	}
-	
-	protected <U extends IValue> Result<U> lessThanInteger(IntegerResult that, AbstractAST ast) {
-		return that.undefinedError(LESS_THAN_STRING, this, ast);
-	}
-	
-	protected <U extends IValue> Result<U> lessThanOrEqualInteger(IntegerResult that, AbstractAST ast) {
-		return that.undefinedError(LESS_THAN_OR_EQUAL_STRING, this, ast);
-	}
-
-	protected <U extends IValue> Result<U> greaterThanInteger(IntegerResult that, AbstractAST ast) {
-		return that.undefinedError(GREATER_THAN_STRING, this, ast);
-	}
-	
-	protected <U extends IValue> Result<U> greaterThanOrEqualInteger(IntegerResult that, AbstractAST ast) {
-		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this, ast);
+	protected <U extends IValue> Result<U> moduloInteger(IntegerResult that, EvaluatorContext ctx) {
+		return that.undefinedError(MODULO_STRING, this, ctx);
 	}
 
 	
-	protected <U extends IValue> Result<U> lessThanReal(RealResult that, AbstractAST ast) {
-		return that.undefinedError(LESS_THAN_STRING, this, ast);
-	}
-	
-	protected <U extends IValue> Result<U> lessThanOrEqualReal(RealResult that, AbstractAST ast) {
-		return that.undefinedError(LESS_THAN_OR_EQUAL_STRING, this, ast);
+	protected <U extends IValue> Result<U> intersectSet(SetResult that, EvaluatorContext ctx) {
+		return that.undefinedError(INTERSECTION_STRING, this, ctx);
 	}
 
-	protected <U extends IValue> Result<U> greaterThanReal(RealResult that, AbstractAST ast) {
-		return that.undefinedError(GREATER_THAN_STRING, this, ast);
-	}
-	
-	protected <U extends IValue> Result<U> greaterThanOrEqualReal(RealResult that, AbstractAST ast) {
-		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this, ast);
+	protected <U extends IValue> Result<U> intersectRelation(RelationResult that, EvaluatorContext ctx) {
+		return that.undefinedError(INTERSECTION_STRING, this, ctx);
 	}
 
-	protected <U extends IValue> Result<U> lessThanString(StringResult that, AbstractAST ast) {
-		return that.undefinedError(LESS_THAN_STRING, this, ast);
-	}
-	
-	protected <U extends IValue> Result<U> lessThanOrEqualString(StringResult that, AbstractAST ast) {
-		return that.undefinedError(LESS_THAN_OR_EQUAL_STRING, this, ast);
+	protected <U extends IValue> Result<U> intersectMap(MapResult that, EvaluatorContext ctx) {
+		return that.undefinedError(INTERSECTION_STRING, this, ctx);
 	}
 
-	protected <U extends IValue> Result<U> greaterThanString(StringResult that, AbstractAST ast) {
-		return that.undefinedError(GREATER_THAN_STRING, this, ast);
-	}
-	
-	protected <U extends IValue> Result<U> greaterThanOrEqualString(StringResult that, AbstractAST ast) {
-		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this, ast);
+	protected <U extends IValue> Result<U> makeRangeFromInteger(IntegerResult that, EvaluatorContext ctx) {
+		return that.undefinedError(RANGE_STRING, this, ctx);
 	}
 
-	protected <U extends IValue> Result<U> lessThanTuple(TupleResult that, AbstractAST ast) {
-		return that.undefinedError(LESS_THAN_STRING, this, ast);
-	}
-	
-	protected <U extends IValue> Result<U> lessThanOrEqualTuple(TupleResult that, AbstractAST ast) {
-		return that.undefinedError(LESS_THAN_OR_EQUAL_STRING, this, ast);
+	protected <U extends IValue, V extends IValue> Result<U> makeStepRangeFromInteger(IntegerResult that, Result<V> step, EvaluatorContext ctx) {
+		return that.undefinedError(RANGE_STRING, this, ctx);
 	}
 
-	protected <U extends IValue> Result<U> greaterThanTuple(TupleResult that, AbstractAST ast) {
-		return that.undefinedError(GREATER_THAN_STRING, this, ast);
-	}
-	
-	protected <U extends IValue> Result<U> greaterThanOrEqualTuple(TupleResult that, AbstractAST ast) {
-		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this, ast);
-	}
-	
-	protected <U extends IValue> Result<U> lessThanNode(NodeResult that, AbstractAST ast) {
-		return that.undefinedError(LESS_THAN_STRING, this, ast);
-	}
-	
-	protected <U extends IValue> Result<U> lessThanOrEqualNode(NodeResult that, AbstractAST ast) {
-		return that.undefinedError(LESS_THAN_OR_EQUAL_STRING, this, ast);
+	protected <U extends IValue> Result<U> inSet(SetResult that, EvaluatorContext ctx) {
+		return that.undefinedError(IN_STRING, this, ctx);
 	}
 
-	protected <U extends IValue> Result<U> greaterThanNode(NodeResult that, AbstractAST ast) {
-		return that.undefinedError(GREATER_THAN_STRING, this, ast);
-	}
-	
-	protected <U extends IValue> Result<U> greaterThanOrEqualNode(NodeResult that, AbstractAST ast) {
-		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this, ast);
-	}
-	
-	protected <U extends IValue> Result<U> lessThanBool(BoolResult that, AbstractAST ast) {
-		return that.undefinedError(LESS_THAN_STRING, this, ast);
-	}
-	
-	protected <U extends IValue> Result<U> lessThanOrEqualBool(BoolResult that, AbstractAST ast) {
-		return that.undefinedError(LESS_THAN_OR_EQUAL_STRING, this, ast);
+	protected <U extends IValue> Result<U> inRelation(RelationResult that, EvaluatorContext ctx) {
+		return that.undefinedError(IN_STRING, this, ctx);
 	}
 
-	protected <U extends IValue> Result<U> greaterThanBool(BoolResult that, AbstractAST ast) {
-		return that.undefinedError(GREATER_THAN_STRING, this, ast);
-	}
-	
-	protected <U extends IValue> Result<U> greaterThanOrEqualBool(BoolResult that, AbstractAST ast) {
-		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this, ast);
-	}
-	
-	protected <U extends IValue> Result<U> lessThanMap(MapResult that, AbstractAST ast) {
-		return that.undefinedError(LESS_THAN_STRING, this, ast);
-	}
-	
-	protected <U extends IValue> Result<U> lessThanOrEqualMap(MapResult that, AbstractAST ast) {
-		return that.undefinedError(LESS_THAN_OR_EQUAL_STRING, this, ast);
+	protected <U extends IValue> Result<U> inList(ListResult that, EvaluatorContext ctx) {
+		return that.undefinedError(IN_STRING, this, ctx);
 	}
 
-	protected <U extends IValue> Result<U> greaterThanMap(MapResult that, AbstractAST ast) {
-		return that.undefinedError(GREATER_THAN_STRING, this, ast);
-	}
-	
-	protected <U extends IValue> Result<U> greaterThanOrEqualMap(MapResult that, AbstractAST ast) {
-		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this, ast);
-	}
-	
-	protected <U extends IValue> Result<U> lessThanSet(SetResult that, AbstractAST ast) {
-		return that.undefinedError(LESS_THAN_STRING, this, ast);
-	}
-	
-	protected <U extends IValue> Result<U> lessThanOrEqualSet(SetResult that, AbstractAST ast) {
-		return that.undefinedError(LESS_THAN_OR_EQUAL_STRING, this, ast);
+	protected <U extends IValue> Result<U> inMap(MapResult that, EvaluatorContext ctx) {
+		return that.undefinedError(IN_STRING, this, ctx);
 	}
 
-	protected <U extends IValue> Result<U> greaterThanSet(SetResult that, AbstractAST ast) {
-		return that.undefinedError(GREATER_THAN_STRING, this, ast);
-	}
-	
-	protected <U extends IValue> Result<U> greaterThanOrEqualSet(SetResult that, AbstractAST ast) {
-		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this, ast);
-	}
-	
-	protected <U extends IValue> Result<U> lessThanRelation(RelationResult that, AbstractAST ast) {
-		return that.undefinedError(LESS_THAN_STRING, this, ast);
-	}
-	
-	protected <U extends IValue> Result<U> lessThanOrEqualRelation(RelationResult that, AbstractAST ast) {
-		return that.undefinedError(LESS_THAN_OR_EQUAL_STRING, this, ast);
+	protected <U extends IValue> Result<U> notInSet(SetResult that, EvaluatorContext ctx) {
+		return that.undefinedError(NOTIN_STRING, this, ctx);
 	}
 
-	protected <U extends IValue> Result<U> greaterThanRelation(RelationResult that, AbstractAST ast) {
-		return that.undefinedError(GREATER_THAN_STRING, this, ast);
+	protected <U extends IValue> Result<U> notInRelation(RelationResult that, EvaluatorContext ctx) {
+		return that.undefinedError(NOTIN_STRING, this, ctx);
 	}
 	
-	protected <U extends IValue> Result<U> greaterThanOrEqualRelation(RelationResult that, AbstractAST ast) {
-		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this, ast);
+	protected <U extends IValue> Result<U> notInList(ListResult that, EvaluatorContext ctx) {
+		return that.undefinedError(NOTIN_STRING, this, ctx);
 	}
 	
-	protected <U extends IValue> Result<U> lessThanList(ListResult that, AbstractAST ast) {
-		return that.undefinedError(LESS_THAN_STRING, this, ast);
+	protected <U extends IValue> Result<U> notInMap(MapResult that, EvaluatorContext ctx) {
+		return that.undefinedError(NOTIN_STRING, this, ctx);
 	}
 	
-	protected <U extends IValue> Result<U> lessThanOrEqualList(ListResult that, AbstractAST ast) {
-		return that.undefinedError(LESS_THAN_OR_EQUAL_STRING, this, ast);
+	protected <U extends IValue> Result<U> composeRelation(RelationResult that, EvaluatorContext ctx) {
+		return that.undefinedError(COMPOSE_STRING, this, ctx);
+	}
+	
+	protected <U extends IValue> Result<U> compareInteger(IntegerResult that, EvaluatorContext ctx) {
+		return that.undefinedError(COMPARE_STRING, this, ctx);
+	}
+	
+	protected <U extends IValue> Result<U> compareReal(RealResult that, EvaluatorContext ctx) {
+		return that.undefinedError(COMPARE_STRING, this, ctx);
+	}
+	
+	protected <U extends IValue> Result<U> compareString(StringResult that, EvaluatorContext ctx) {
+		return that.undefinedError(COMPARE_STRING, this, ctx);
+	}
+	
+	protected <U extends IValue> Result<U> compareSourceLocation(SourceLocationResult that, EvaluatorContext ctx) {
+		return that.undefinedError(COMPARE_STRING, this, ctx);
+	}
+	
+	protected <U extends IValue> Result<U> compareTuple(TupleResult that, EvaluatorContext ctx) {
+		return that.undefinedError(COMPARE_STRING, this, ctx);
+	}
+	
+	protected <U extends IValue> Result<U> compareSet(SetResult that, EvaluatorContext ctx) {
+		return that.undefinedError(COMPARE_STRING, this, ctx);
+	}
+	
+	protected <U extends IValue> Result<U> compareList(ListResult that, EvaluatorContext ctx) {
+		return that.undefinedError(COMPARE_STRING, this, ctx);
+	}
+	
+	protected <U extends IValue> Result<U> compareRelation(RelationResult that, EvaluatorContext ctx) {
+		return that.undefinedError(COMPARE_STRING, this, ctx);
+	}
+	
+	protected <U extends IValue> Result<U> compareBool(BoolResult that, EvaluatorContext ctx) {
+		return that.undefinedError(COMPARE_STRING, this, ctx);
+	}
+	
+	protected <U extends IValue> Result<U> compareConstructor(NodeResult that, EvaluatorContext ctx) {
+		return that.undefinedError(COMPARE_STRING, this, ctx);
+	}
+	
+	protected <U extends IValue> Result<U> compareMap(MapResult that, EvaluatorContext ctx) {
+		return that.undefinedError(COMPARE_STRING, this, ctx);
 	}
 
-	protected <U extends IValue> Result<U> greaterThanList(ListResult that, AbstractAST ast) {
-		return that.undefinedError(GREATER_THAN_STRING, this, ast);
+	protected <U extends IValue> Result<U> equalToInteger(IntegerResult that, EvaluatorContext ctx) {
+		return that.undefinedError(EQUALS_STRING, this, ctx);
+	}
+	protected <U extends IValue> Result<U> equalToReal(RealResult that, EvaluatorContext ctx) {
+		return that.undefinedError(EQUALS_STRING, this, ctx);
+	}
+	protected <U extends IValue> Result<U> equalToString(StringResult that, EvaluatorContext ctx) {
+		return that.undefinedError(EQUALS_STRING, this, ctx);
+	}
+	protected <U extends IValue> Result<U> equalToList(ListResult that, EvaluatorContext ctx) {
+		return that.undefinedError(EQUALS_STRING, this, ctx);
+	}
+	protected <U extends IValue> Result<U> equalToSet(SetResult that, EvaluatorContext ctx) {
+		return that.undefinedError(EQUALS_STRING, this, ctx);
+	}
+	protected <U extends IValue> Result<U> equalToMap(MapResult that, EvaluatorContext ctx) {
+		return that.undefinedError(EQUALS_STRING, this, ctx);
+	}
+	protected <U extends IValue> Result<U> equalToNode(NodeResult that, EvaluatorContext ctx) {
+		return that.undefinedError(EQUALS_STRING, this, ctx);
+	}
+	protected <U extends IValue> Result<U> equalToSourceLocation(SourceLocationResult that, EvaluatorContext ctx) {
+		return that.undefinedError(EQUALS_STRING, this, ctx);
+	}
+	protected <U extends IValue> Result<U> equalToRelation(RelationResult that, EvaluatorContext ctx) {
+		return that.undefinedError(EQUALS_STRING, this, ctx);
+	}
+	protected <U extends IValue> Result<U> equalToTuple(TupleResult that, EvaluatorContext ctx) {
+		return that.undefinedError(EQUALS_STRING, this, ctx);
 	}
 	
-	protected <U extends IValue> Result<U> greaterThanOrEqualList(ListResult that, AbstractAST ast) {
-		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this, ast);
+	protected <U extends IValue> Result<U> equalToBool(BoolResult that, EvaluatorContext ctx) {
+		return that.undefinedError(EQUALS_STRING, this, ctx);
+	}
+	
+	protected <U extends IValue> Result<U> equalToValue(ValueResult that, EvaluatorContext ctx) {
+		return that.undefinedError(EQUALS_STRING, this, ctx);
+	}
+	
+
+	protected <U extends IValue> Result<U> nonEqualToInteger(IntegerResult that, EvaluatorContext ctx) {
+		return that.undefinedError(NON_EQUALS_STRING, this, ctx);
+	}
+	protected <U extends IValue> Result<U> nonEqualToReal(RealResult that, EvaluatorContext ctx) {
+		return that.undefinedError(NON_EQUALS_STRING, this, ctx);
+	}
+	protected <U extends IValue> Result<U> nonEqualToString(StringResult that, EvaluatorContext ctx) {
+		return that.undefinedError(NON_EQUALS_STRING, this, ctx);
+	}
+	protected <U extends IValue> Result<U> nonEqualToList(ListResult that, EvaluatorContext ctx) {
+		return that.undefinedError(NON_EQUALS_STRING, this, ctx);
+	}
+	protected <U extends IValue> Result<U> nonEqualToSet(SetResult that, EvaluatorContext ctx) {
+		return that.undefinedError(NON_EQUALS_STRING, this, ctx);
+	}
+	protected <U extends IValue> Result<U> nonEqualToMap(MapResult that, EvaluatorContext ctx) {
+		return that.undefinedError(NON_EQUALS_STRING, this, ctx);
+	}
+	protected <U extends IValue> Result<U> nonEqualToNode(NodeResult that, EvaluatorContext ctx) {
+		return that.undefinedError(NON_EQUALS_STRING, this, ctx);
+	}
+	protected <U extends IValue> Result<U> nonEqualToSourceLocation(SourceLocationResult that, EvaluatorContext ctx) {
+		return that.undefinedError(NON_EQUALS_STRING, this, ctx);
+	}
+	protected <U extends IValue> Result<U> nonEqualToRelation(RelationResult that, EvaluatorContext ctx) {
+		return that.undefinedError(NON_EQUALS_STRING, this, ctx);
+	}
+	protected <U extends IValue> Result<U> nonEqualToTuple(TupleResult that, EvaluatorContext ctx) {
+		return that.undefinedError(NON_EQUALS_STRING, this, ctx);
+	}
+	
+	protected <U extends IValue> Result<U> nonEqualToBool(BoolResult that, EvaluatorContext ctx) {
+		return that.undefinedError(NON_EQUALS_STRING, this, ctx);
+	}
+	
+	protected <U extends IValue> Result<U> nonEqualToValue(ValueResult that, EvaluatorContext ctx) {
+		return that.undefinedError(NON_EQUALS_STRING, this, ctx);
+	}
+	
+	protected <U extends IValue> Result<U> lessThanInteger(IntegerResult that, EvaluatorContext ctx) {
+		return that.undefinedError(LESS_THAN_STRING, this, ctx);
+	}
+	
+	protected <U extends IValue> Result<U> lessThanOrEqualInteger(IntegerResult that, EvaluatorContext ctx) {
+		return that.undefinedError(LESS_THAN_OR_EQUAL_STRING, this, ctx);
+	}
+
+	protected <U extends IValue> Result<U> greaterThanInteger(IntegerResult that, EvaluatorContext ctx) {
+		return that.undefinedError(GREATER_THAN_STRING, this, ctx);
+	}
+	
+	protected <U extends IValue> Result<U> greaterThanOrEqualInteger(IntegerResult that, EvaluatorContext ctx) {
+		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this, ctx);
+	}
+
+	
+	protected <U extends IValue> Result<U> lessThanReal(RealResult that, EvaluatorContext ctx) {
+		return that.undefinedError(LESS_THAN_STRING, this, ctx);
+	}
+	
+	protected <U extends IValue> Result<U> lessThanOrEqualReal(RealResult that, EvaluatorContext ctx) {
+		return that.undefinedError(LESS_THAN_OR_EQUAL_STRING, this, ctx);
+	}
+
+	protected <U extends IValue> Result<U> greaterThanReal(RealResult that, EvaluatorContext ctx) {
+		return that.undefinedError(GREATER_THAN_STRING, this, ctx);
+	}
+	
+	protected <U extends IValue> Result<U> greaterThanOrEqualReal(RealResult that, EvaluatorContext ctx) {
+		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this, ctx);
+	}
+
+	protected <U extends IValue> Result<U> lessThanString(StringResult that, EvaluatorContext ctx) {
+		return that.undefinedError(LESS_THAN_STRING, this, ctx);
+	}
+	
+	protected <U extends IValue> Result<U> lessThanOrEqualString(StringResult that, EvaluatorContext ctx) {
+		return that.undefinedError(LESS_THAN_OR_EQUAL_STRING, this, ctx);
+	}
+
+	protected <U extends IValue> Result<U> greaterThanString(StringResult that, EvaluatorContext ctx) {
+		return that.undefinedError(GREATER_THAN_STRING, this, ctx);
+	}
+	
+	protected <U extends IValue> Result<U> greaterThanOrEqualString(StringResult that, EvaluatorContext ctx) {
+		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this, ctx);
+	}
+
+	protected <U extends IValue> Result<U> lessThanTuple(TupleResult that, EvaluatorContext ctx) {
+		return that.undefinedError(LESS_THAN_STRING, this, ctx);
+	}
+	
+	protected <U extends IValue> Result<U> lessThanOrEqualTuple(TupleResult that, EvaluatorContext ctx) {
+		return that.undefinedError(LESS_THAN_OR_EQUAL_STRING, this, ctx);
+	}
+
+	protected <U extends IValue> Result<U> greaterThanTuple(TupleResult that, EvaluatorContext ctx) {
+		return that.undefinedError(GREATER_THAN_STRING, this, ctx);
+	}
+	
+	protected <U extends IValue> Result<U> greaterThanOrEqualTuple(TupleResult that, EvaluatorContext ctx) {
+		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this, ctx);
+	}
+	
+	protected <U extends IValue> Result<U> lessThanNode(NodeResult that, EvaluatorContext ctx) {
+		return that.undefinedError(LESS_THAN_STRING, this, ctx);
+	}
+	
+	protected <U extends IValue> Result<U> lessThanOrEqualNode(NodeResult that, EvaluatorContext ctx) {
+		return that.undefinedError(LESS_THAN_OR_EQUAL_STRING, this, ctx);
+	}
+
+	protected <U extends IValue> Result<U> greaterThanNode(NodeResult that, EvaluatorContext ctx) {
+		return that.undefinedError(GREATER_THAN_STRING, this, ctx);
+	}
+	
+	protected <U extends IValue> Result<U> greaterThanOrEqualNode(NodeResult that, EvaluatorContext ctx) {
+		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this, ctx);
+	}
+	
+	protected <U extends IValue> Result<U> lessThanBool(BoolResult that, EvaluatorContext ctx) {
+		return that.undefinedError(LESS_THAN_STRING, this, ctx);
+	}
+	
+	protected <U extends IValue> Result<U> lessThanOrEqualBool(BoolResult that, EvaluatorContext ctx) {
+		return that.undefinedError(LESS_THAN_OR_EQUAL_STRING, this, ctx);
+	}
+
+	protected <U extends IValue> Result<U> greaterThanBool(BoolResult that, EvaluatorContext ctx) {
+		return that.undefinedError(GREATER_THAN_STRING, this, ctx);
+	}
+	
+	protected <U extends IValue> Result<U> greaterThanOrEqualBool(BoolResult that, EvaluatorContext ctx) {
+		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this, ctx);
+	}
+	
+	protected <U extends IValue> Result<U> lessThanMap(MapResult that, EvaluatorContext ctx) {
+		return that.undefinedError(LESS_THAN_STRING, this, ctx);
+	}
+	
+	protected <U extends IValue> Result<U> lessThanOrEqualMap(MapResult that, EvaluatorContext ctx) {
+		return that.undefinedError(LESS_THAN_OR_EQUAL_STRING, this, ctx);
+	}
+
+	protected <U extends IValue> Result<U> greaterThanMap(MapResult that, EvaluatorContext ctx) {
+		return that.undefinedError(GREATER_THAN_STRING, this, ctx);
+	}
+	
+	protected <U extends IValue> Result<U> greaterThanOrEqualMap(MapResult that, EvaluatorContext ctx) {
+		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this, ctx);
+	}
+	
+	protected <U extends IValue> Result<U> lessThanSet(SetResult that, EvaluatorContext ctx) {
+		return that.undefinedError(LESS_THAN_STRING, this, ctx);
+	}
+	
+	protected <U extends IValue> Result<U> lessThanOrEqualSet(SetResult that, EvaluatorContext ctx) {
+		return that.undefinedError(LESS_THAN_OR_EQUAL_STRING, this, ctx);
+	}
+
+	protected <U extends IValue> Result<U> greaterThanSet(SetResult that, EvaluatorContext ctx) {
+		return that.undefinedError(GREATER_THAN_STRING, this, ctx);
+	}
+	
+	protected <U extends IValue> Result<U> greaterThanOrEqualSet(SetResult that, EvaluatorContext ctx) {
+		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this, ctx);
+	}
+	
+	protected <U extends IValue> Result<U> lessThanRelation(RelationResult that, EvaluatorContext ctx) {
+		return that.undefinedError(LESS_THAN_STRING, this, ctx);
+	}
+	
+	protected <U extends IValue> Result<U> lessThanOrEqualRelation(RelationResult that, EvaluatorContext ctx) {
+		return that.undefinedError(LESS_THAN_OR_EQUAL_STRING, this, ctx);
+	}
+
+	protected <U extends IValue> Result<U> greaterThanRelation(RelationResult that, EvaluatorContext ctx) {
+		return that.undefinedError(GREATER_THAN_STRING, this, ctx);
+	}
+	
+	protected <U extends IValue> Result<U> greaterThanOrEqualRelation(RelationResult that, EvaluatorContext ctx) {
+		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this, ctx);
+	}
+	
+	protected <U extends IValue> Result<U> lessThanList(ListResult that, EvaluatorContext ctx) {
+		return that.undefinedError(LESS_THAN_STRING, this, ctx);
+	}
+	
+	protected <U extends IValue> Result<U> lessThanOrEqualList(ListResult that, EvaluatorContext ctx) {
+		return that.undefinedError(LESS_THAN_OR_EQUAL_STRING, this, ctx);
+	}
+
+	protected <U extends IValue> Result<U> greaterThanList(ListResult that, EvaluatorContext ctx) {
+		return that.undefinedError(GREATER_THAN_STRING, this, ctx);
+	}
+	
+	protected <U extends IValue> Result<U> greaterThanOrEqualList(ListResult that, EvaluatorContext ctx) {
+		return that.undefinedError(GREATER_THAN_OR_EQUAL_STRING, this, ctx);
 	}
 	
 	

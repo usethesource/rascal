@@ -17,6 +17,7 @@ import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.Statement;
 import org.meta_environment.rascal.interpreter.Evaluator;
+import org.meta_environment.rascal.interpreter.EvaluatorContext;
 import org.meta_environment.rascal.interpreter.TypeEvaluator;
 import org.meta_environment.rascal.interpreter.control_exceptions.Failure;
 import org.meta_environment.rascal.interpreter.control_exceptions.Return;
@@ -70,9 +71,10 @@ public class Lambda extends Result<IValue> implements IValue {
 	protected static boolean callTracing = false;
 	
 	
+	// TODO: change arguments of these constructors to use EvaluatorContexts
 	public Lambda(AbstractAST ast, Evaluator eval, Type returnType, String name, Type formals, boolean varargs, 
 				java.util.List<Statement> body, Environment env) {
-		super(ClosureType, null /*VF.constructor(ClosureType)*/, ast);
+		super(ClosureType, null /*VF.constructor(ClosureType)*/, new EvaluatorContext(eval, ast));
 		this.ast = ast;
 		this.eval = eval;
 		this.returnType = returnType;
@@ -176,7 +178,7 @@ public class Lambda extends Result<IValue> implements IValue {
 				throw new MissingReturnError(ast);
 			}
 
-			return ResultFactory.makeResult(TF.voidType(), null, ast);
+			return ResultFactory.makeResult(TF.voidType(), null, new EvaluatorContext(eval, ast));
 		}
 		catch (Return e) {
 			Result<IValue> result = e.getValue();
@@ -187,7 +189,7 @@ public class Lambda extends Result<IValue> implements IValue {
 				throw new UnexpectedTypeError(returnType, result.getType(), ast);
 			}
 
-			return ResultFactory.makeResult(instantiatedReturnType, result.getValue(), ast);
+			return ResultFactory.makeResult(instantiatedReturnType, result.getValue(), new EvaluatorContext(eval, ast));
 		} 
 		catch (Failure e) {
 			throw new UnguardedFailError(ast);
@@ -249,7 +251,7 @@ public class Lambda extends Result<IValue> implements IValue {
 				result = (Lambda)actuals[i];
 			}
 			else {	
-				result = ResultFactory.makeResult(formal, actuals[i], ast);
+				result = ResultFactory.makeResult(formal, actuals[i], new EvaluatorContext(eval, ast));
 			}
 //			System.out.println(i + ": Formal " + formals.getFieldName(i) + " actual " + actuals[i]);
 			env.storeInnermostVariable(formals.getFieldName(i), result);
