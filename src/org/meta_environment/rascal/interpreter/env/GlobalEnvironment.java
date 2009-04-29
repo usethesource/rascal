@@ -9,7 +9,6 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.PatternAction;
 import org.meta_environment.rascal.ast.QualifiedName;
-import org.meta_environment.rascal.ast.PatternAction;
 import org.meta_environment.rascal.interpreter.Names;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredModuleError;
