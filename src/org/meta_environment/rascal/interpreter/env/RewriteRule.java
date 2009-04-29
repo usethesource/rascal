@@ -1,17 +1,17 @@
 package org.meta_environment.rascal.interpreter.env;
 
-import org.meta_environment.rascal.ast.Rule;
+import org.meta_environment.rascal.ast.PatternAction;
 
 public class RewriteRule {
 	private Environment env;
-	private Rule rule;
+	private PatternAction rule;
 
-	public RewriteRule(Rule rule, Environment env) {
+	public RewriteRule(PatternAction rule, Environment env) {
 		this.rule = rule;
 		this.env = env;
 	}
 	
-	public Rule getRule() {
+	public PatternAction getRule() {
 		return rule;
 	}
 	

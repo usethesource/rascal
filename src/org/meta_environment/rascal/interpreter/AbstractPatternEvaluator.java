@@ -20,6 +20,7 @@ import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.Expression.Addition;
 import org.meta_environment.rascal.ast.Expression.All;
 import org.meta_environment.rascal.ast.Expression.And;
+import org.meta_environment.rascal.ast.Expression.Anti;
 import org.meta_environment.rascal.ast.Expression.Any;
 import org.meta_environment.rascal.ast.Expression.Bracket;
 import org.meta_environment.rascal.ast.Expression.CallOrTree;
@@ -35,6 +36,7 @@ import org.meta_environment.rascal.ast.Expression.FunctionAsValue;
 import org.meta_environment.rascal.ast.Expression.GetAnnotation;
 import org.meta_environment.rascal.ast.Expression.GreaterThan;
 import org.meta_environment.rascal.ast.Expression.GreaterThanOrEq;
+import org.meta_environment.rascal.ast.Expression.Guarded;
 import org.meta_environment.rascal.ast.Expression.IfThenElse;
 import org.meta_environment.rascal.ast.Expression.Implication;
 import org.meta_environment.rascal.ast.Expression.In;
@@ -1656,6 +1658,82 @@ class AbstractPatternVariableBecomes extends AbstractPattern implements MatchPat
 	}
 }
 
+class AbstractPatternGuarded extends AbstractPattern implements MatchPattern {
+	private Type type;
+	private MatchPattern pat;
+	
+	AbstractPatternGuarded(IValueFactory vf, Type type, MatchPattern pat, AbstractAST x){
+		super(vf, x);
+		this.type = type;
+		this.pat = pat;
+	}
+
+	@Override
+	public Type getType(Environment ev) {
+		return type;
+	}
+	
+	@Override
+	public void initMatch(IValue subject, Environment ev){
+		this.subject = subject;
+		this.ev = ev;
+		this.initialized = true;
+		this.hasNext = true;
+		pat.initMatch(subject, ev);
+		this.hasNext = pat.getType(ev).equivalent(type);
+	}
+
+	@Override
+	public boolean next() {
+		return pat.next();
+	}
+
+	@Override
+	public IValue toIValue(Environment ev) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+}
+
+class AbstractPatternAnti extends AbstractPattern implements MatchPattern {
+
+	private MatchPattern pat;
+
+	public AbstractPatternAnti(IValueFactory vf, MatchPattern pat, AbstractAST ast) {
+		super(vf, ast);
+		this.pat = pat;
+	}
+
+	@Override
+	public Type getType(Environment ev) {
+		// TODO Auto-generated method stub
+		return pat.getType(ev);
+	}
+	
+	@Override
+	public void initMatch(IValue subject, Environment ev){
+		this.subject = subject;
+		this.ev = ev;
+		this.initialized = true;
+		this.hasNext = true;
+		pat.initMatch(subject, ev);
+	}
+
+	@Override
+	public boolean next() {
+		if(pat.next())
+			// TODO Clean up bindings
+			return false;
+		return true;
+	}
+
+	@Override
+	public IValue toIValue(Environment ev) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+}
+
 public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 	private IValueFactory vf;
 	private Environment env;
@@ -1767,6 +1845,20 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 			VariableBecomes x) {
 		MatchPattern pat = x.getPattern().accept(this);
 		return new AbstractPatternVariableBecomes(vf, env, x.getName(), pat);
+	}
+	
+	@Override
+	public AbstractPattern visitExpressionGuarded(Guarded x) {
+		TypeEvaluator te = TypeEvaluator.getInstance();
+		Type type =  te.eval(x.getType(), env);
+		AbstractPattern absPat = x.getPattern().accept(this);
+		return new AbstractPatternGuarded(vf, type, absPat, x);
+	}
+	
+	@Override
+	public AbstractPattern visitExpressionAnti(Anti x) {
+		AbstractPattern absPat = x.getPattern().accept(this);
+		return new AbstractPatternAnti(vf, absPat, x);
 	}
 	
 	/*

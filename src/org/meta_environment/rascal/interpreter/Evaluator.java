@@ -128,9 +128,8 @@ import org.meta_environment.rascal.ast.Literal.Boolean;
 import org.meta_environment.rascal.ast.Literal.Integer;
 import org.meta_environment.rascal.ast.Literal.Real;
 import org.meta_environment.rascal.ast.LocalVariableDeclaration.Default;
-import org.meta_environment.rascal.ast.Rule.Arbitrary;
-import org.meta_environment.rascal.ast.Rule.Guarded;
-import org.meta_environment.rascal.ast.Rule.Replacing;
+import org.meta_environment.rascal.ast.PatternAction.Arbitrary;
+import org.meta_environment.rascal.ast.PatternAction.Replacing;
 import org.meta_environment.rascal.ast.Statement.Assert;
 import org.meta_environment.rascal.ast.Statement.AssertWithMessage;
 import org.meta_environment.rascal.ast.Statement.Assignment;
@@ -394,6 +393,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		if (typeToSearchFor.isAbstractDataType()) {
 			typeToSearchFor = ((IConstructor) v).getConstructorType();
 		}
+
 		java.util.List<RewriteRule> rules = heap.getRules(typeToSearchFor);
 		if(rules.isEmpty()){
 			return v;
@@ -753,11 +753,11 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 	@Override
 	public Result<IValue> visitDeclarationRule(Rule x) {
-		return x.getRule().accept(this);
+		return x.getPatternAction().accept(this);
 	}
 	
 	@Override
-	public Result<IValue> visitRuleArbitrary(Arbitrary x) {
+	public Result<IValue> visitPatternActionArbitrary(Arbitrary x) {
 		MatchPattern pv = x.getPattern().accept(makePatternEvaluator());
 		Type pt = pv.getType(peek());
 		if(!(pt.isAbstractDataType() || pt.isConstructorType() || pt.isNodeType()))
@@ -771,7 +771,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	}
 	
 	@Override
-	public Result<IValue> visitRuleReplacing(Replacing x) {
+	public Result<IValue> visitPatternActionReplacing(Replacing x) {
 		MatchPattern pv = x.getPattern().accept(makePatternEvaluator());
 		Type pt = pv.getType(peek());
 		if(!(pt.isAbstractDataType() || pt.isConstructorType() || pt.isNodeType()))
@@ -780,8 +780,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 		return ResultFactory.nothing();
 	}
 	
-	@Override
-	public Result<IValue> visitRuleGuarded(Guarded x) {
+	/*@Override
+	public Result<IValue> visitPatternActionGuarded(Guarded x) {
 		//TODO adapt to new scheme
 		Result<IValue> result = x.getRule().getPattern().getPattern().accept(this);
 		Type expected = evalType(x.getType());
@@ -791,6 +791,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 		return x.getRule().accept(this);
 	}
+	*/
 	
 	@Override
 	public Result<IValue> visitDeclarationTag(Tag x) {
@@ -2051,15 +2052,17 @@ public class Evaluator extends NullASTVisitor<Result> {
 			if(cs.isDefault()){
 				return cs.getStatement().accept(this);
 			}
-			org.meta_environment.rascal.ast.Rule rule = cs.getRule();
+			org.meta_environment.rascal.ast.PatternAction rule = cs.getPatternAction();
 			if(rule.isArbitrary() && matchAndEval(subject.getValue(), rule.getPattern(), rule.getStatement())){
 				return ResultFactory.nothing();
+				/*
 			} else if(rule.isGuarded())	{
 				org.meta_environment.rascal.ast.Type tp = rule.getType();
 				Type t = evalType(tp);
 				if(subject.getType().isSubtypeOf(t) && matchAndEval(subject.getValue(), rule.getPattern(), rule.getStatement())){
 					return ResultFactory.nothing();
 				}
+				*/
 			} else if(rule.isReplacing()){
 				throw new NotYetImplemented(rule);
 			}
@@ -2212,12 +2215,12 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Case cs = (Case) singleCase(casesOrRules);
 		
 		RegExpPatternEvaluator re = new RegExpPatternEvaluator(vf, peek());
-		if(cs != null && cs.isRule() && re.isRegExpPattern(cs.getRule().getPattern())){
+		if(cs != null && cs.isPatternAction() && re.isRegExpPattern(cs.getPatternAction().getPattern())){
 			/*
 			 * In the frequently occurring case that there is one case with a regexp as pattern,
 			 * we can delegate all the work to the regexp matcher.
 			 */
-			org.meta_environment.rascal.ast.Rule rule = cs.getRule();
+			org.meta_environment.rascal.ast.PatternAction rule = cs.getPatternAction();
 			
 			Expression patexp = rule.getPattern();
 			MatchPattern mp = evalPattern(patexp);
@@ -2492,7 +2495,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 					cs.getStatement().accept(this);
 					return new TraverseResult(true,subject);
 				} else {
-					TraverseResult tr = applyOneRule(subject, cs.getRule());
+					TraverseResult tr = applyOneRule(subject, cs.getPatternAction());
 					if(tr.matched){
 						return tr;
 					}
@@ -2500,6 +2503,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			}
 		} else {
 			//System.err.println("hasRules");
+
 			for(RewriteRule rule : casesOrRules.getRules()){
 				setCurrentAST(rule.getRule());
 				
@@ -2538,7 +2542,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	 */
 	
 	private TraverseResult applyOneRule(IValue subject,
-			org.meta_environment.rascal.ast.Rule rule) {
+			org.meta_environment.rascal.ast.PatternAction rule) {
 		
 		//System.err.println("applyOneRule: subject=" + subject + ", type=" + subject.getType() + ", rule=" + rule);
 	
@@ -2546,6 +2550,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			if(matchAndEval(subject, rule.getPattern(), rule.getStatement())) {
 				return new TraverseResult(true, subject);
 			}
+			/*
 		} else if (rule.isGuarded()) {
 			org.meta_environment.rascal.ast.Type tp = rule.getType();
 			Type type = evalType(tp);
@@ -2554,6 +2559,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				matchAndEval(subject, rule.getPattern(), rule.getStatement())) {
 				return new TraverseResult(true, subject);
 			}
+			*/
 		} else if (rule.isReplacing()) {
 			Replacement repl = rule.getReplacement();
 			java.util.List<Expression> conditions = repl.isConditional() ? repl.getConditions() : new ArrayList<Expression>();
@@ -2751,6 +2757,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		return new EnumeratorAsGenerator(x, this);
 	}
 	
+	@Override
 	public Result<IValue> visitExpressionEnumeratorWithStrategy(
 			EnumeratorWithStrategy x) {
 		return new EnumeratorAsGenerator(x, this);
