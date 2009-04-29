@@ -7,8 +7,9 @@ import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.AbstractAST;
+import org.meta_environment.rascal.ast.PatternAction;
 import org.meta_environment.rascal.ast.QualifiedName;
-import org.meta_environment.rascal.ast.Rule;
+import org.meta_environment.rascal.ast.PatternAction;
 import org.meta_environment.rascal.interpreter.Names;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredModuleError;
@@ -68,7 +69,8 @@ public class GlobalEnvironment {
 		return getModule(name.toString(), ast);
 	}
 	
-	public void storeRule(Type forType, Rule rule, Environment env) {
+
+	public void storeRule(Type forType, PatternAction rule, Environment env) {
 		List<RewriteRule> rules = ruleEnvironment.get(forType);
 		
 		//System.err.println("storeRule: type=" + forType + ",rule=" + rule);
