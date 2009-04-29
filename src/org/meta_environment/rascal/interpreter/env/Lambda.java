@@ -67,7 +67,7 @@ public class Lambda extends Result<IValue> implements IValue {
 	}
 
 	protected static int callNesting = 0;
-	protected static boolean callTracing = true;
+	protected static boolean callTracing = false;
 	
 	
 	public Lambda(AbstractAST ast, Evaluator eval, Type returnType, String name, Type formals, boolean varargs, 
@@ -148,6 +148,11 @@ public class Lambda extends Result<IValue> implements IValue {
 	public Result<IValue> call(IValue[] actuals, Type actualTypes, Environment env) {
 		Map<Type,Type> bindings = env.getTypeBindings();
 		Type instantiatedFormals = formals.instantiate(env.getStore(), bindings);
+		
+		if (callTracing) {
+			printTrace();
+			callNesting++;
+		}
 
 		if (hasVarArgs) {
 			actualTypes = computeVarArgsActualTypes(actualTypes, instantiatedFormals);
@@ -188,6 +193,19 @@ public class Lambda extends Result<IValue> implements IValue {
 		catch (Failure e) {
 			throw new UnguardedFailError(ast);
 		}
+		finally {
+			if (callTracing) {
+				callNesting--;
+			}
+		}
+	}
+
+	protected void printTrace() {
+		StringBuilder b = new StringBuilder();
+		for (int i = 0; i < callNesting; i++) {
+			b.append('>');
+		}
+		System.out.println("trace>" + b + " " + getName());
 	}
 
 	private void assignFormals(IValue[] actuals, Environment env) {
