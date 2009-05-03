@@ -9,7 +9,7 @@ import IO;
 public map[TypeOf var, TypeSet possibles] solveConstraints() {
   set[Constraint] constraints = { c | name <- ClassTable, c <- extract(name) };
   set[Type] types = { }; visit(constraints) { case Type t : types += {t}; };
-  rel[Type,Type] subtypes = { <t,u> | t <- types, u <- types, subtype((), t, u) };
+  rel[Type,Type] subtypes = { <u,t> | t <- types, u <- types, subtype((), t, u) };
   supertypes = subtypes<1,0>;
 
   with 
