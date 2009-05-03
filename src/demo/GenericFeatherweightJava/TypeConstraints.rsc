@@ -23,8 +23,8 @@ data TypeSet = Universe
              | Set(set[Type] Ts) 
              | Subtypes(TypeSet subs)
              | Supertypes(TypeSet supers)
-             | Union(TypeSet lhs, TypeSet rhs)
-             | Intersection(TypeSet lhs, TypeSet rhs);
+             | Union(set[TypeSet] args)
+             | Intersection(set[TypeSet] args);
      
 // these optimize the computations on solutions by applying algebraic simplifications
 rule root       Set({Object})                    => Root;
@@ -37,18 +37,23 @@ rule subuni     Subtypes(Universe)               => Universe;
 rule nestedsubs Subtypes(Subtypes(TypeSet x))    => Subtypes(x);
 rule supuni     Supertypes(Universe)             => Universe;
 rule nestedsups Supertypes(Supertypes(TypeSet x))=> Supertypes(x);
-rule subinterl  Intersection(Subtypes(TypeSet x), x) => Subtypes(x);
-rule subinterr  Intersection(TypeSet x, Subtypes(x)) => Subtypes(x);
-rule emptyinter Intersection(EmptySet, TypeSet _)=> EmptySet;
-rule emptyinter Intersection(TypeSet _, EmptySet)=> EmptySet;
-rule uniinterl  Intersection(Universe,TypeSet x) => x;
-rule uniinterr  Intersection(TypeSet x,Universe) => x;
-rule uniunionl  Union(Universe,TypeSet _)        => Universe;
-rule uniunionr  Union(TypeSet _,Universe)        => Universe;
-rule emptyunil  Union(EmptySet, TypeSet x)       => x;
-rule emptyunir  Union(TypeSet x,EmptySet)        => x;
+
+rule interdone  Intersection({TypeSet last})     => last;
+rule subinterl  Intersection({Subtypes(TypeSet x), x, set[TypeSet] rest}) => Intersection(Subtypes(x), rest);
+rule emptyinter Intersection({EmptySet, set[TypeSet] _}) => EmptySet;
+rule uniinterl  Intersection({Universe,set[TypeSet] x}) => Intersection({x});
+rule intermerge Intersection({Intersection({set[TypeSet] x}), set[TypeSet] y}) =>
+                Intersection({x, y});
+
+rule uniondone  Union({TypeSet last})            => last;
+rule uniunionl  Union({Universe,set[TypeSet] _}) => Universe;
+rule emptyunil  Union({EmptySet,set[TypeSet] x}) => Union({x});
+rule unionmerge Union({Union({set[TypeSet] x}), set[TypeSet] y}) =>
+                Union({x, y});
 
 // final implementations
-rule realinter  Intersection(Set(set[Type] t1), Set(set[Type] t2)) => Set(t1 & t2);
-rule realunion         Union(Set(set[Type] t1), Set(set[Type] t2)) => Set(t1 + t2);
+rule realinter  Intersection({Set(set[Type] t1), Set(set[Type] t2), set[TypeSet] rest}) => 
+                Intersection({Set(t1 & t2), rest});
+rule realunion         Union({Set(set[Type] t1), Set(set[Type] t2), set[TypeSet] rest}) => 
+                       Union({Set(t1 + t2), rest});
 
