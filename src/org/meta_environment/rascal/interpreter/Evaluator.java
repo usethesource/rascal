@@ -289,7 +289,9 @@ public class Evaluator extends NullASTVisitor<Result> {
 			String name = env.getName();
 			if (name != null && loc != null) {
 				URL url = loc.getURL();
-				b.append(url.getAuthority() + url.getPath() + "::" + name + ":" + loc.getBeginLine() + "," + loc.getBeginColumn());
+				b.append('\t');
+				b.append(url.getAuthority() + url.getPath() + ":" + loc.getBeginLine() + "," + loc.getBeginColumn() + ": " + name);
+				b.append('\n');
 			}
 		}
 		return b.toString();
