@@ -38,11 +38,11 @@ public bool subtype(Bounds bounds, Type sub, Type sup) {
     return false;
   }        
   if (typeVar(name) := sub) {
-    return subtype(bounds[name], sup);
+    return subtype(bounds, bounds[sub]?Object, sup);
   }
   if (typeLit(name, actuals) := sub) {
     Class def = ClassTable[name];
-    return subtype(inst(def.extends, def.formals.vars, actuals), sup);  
+    return subtype(bounds, inst(def.extends, def.formals.vars, actuals), sup);  
   }    
 }
 

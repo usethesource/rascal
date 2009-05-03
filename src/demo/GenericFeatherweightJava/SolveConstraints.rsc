@@ -1,4 +1,4 @@
-module demo::GenericFeatherweightJava::InferGenericTypeArguments
+module demo::GenericFeatherweightJava::SolveConstraints
 
 import demo::GenericFeatherweightJava::TypeConstraints;
 import demo::GenericFeatherweightJava::Types;
@@ -9,14 +9,16 @@ import IO;
 public map[TypeOf var, TypeSet possibles] solveConstraints() {
   set[Constraint] constraints = { c | name <- ClassTable, c <- extract(name) };
   set[Type] types = { }; visit(constraints) { case Type t : types += {t}; };
-  rel[Type,Type] subtypes = { <t,u> | t <- types, u <- subtypes, subtype((), t, u) };
+  rel[Type,Type] subtypes = { <t,u> | t <- types, u <- types, subtype((), t, u) };
   supertypes = subtypes<1,0>;
 
   with 
     map[TypeOf var, TypeSet possibles] estimates = initialEstimates(constraints);
   solve {
-     estimates = ( v:Intersection(Set(subtypes[v]),estimates[v])    | v <- estimates );
-     // estimates = ( v:Intersection(estimates[v], Set(supertypes[v])) | v <- estimates );
+     for (TypeOf v <- estimates, subtype(v1,typeof(Type t)) <- constraints) {
+        estimates[v] = Intersection(estimates[v], Single(t));
+        if (estimates[v] == EmptySet) throw "Buggy empty estimate for <v>";
+     }
      println(estimates);
   }
 
