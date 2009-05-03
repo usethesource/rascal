@@ -2,6 +2,8 @@ module demo::GenericFeatherweightJava::Examples
 
 import demo::GenericFeatherweightJava::AbstractSyntax;
 import demo::GenericFeatherweightJava::Types;  
+import demo::GenericFeatherweightJava::Extract;
+
 import IO;
 
 // Reusable type variables
@@ -79,6 +81,7 @@ public void init() {
                "Map":Map,
                "Example1":Example1
                );
+  registerLibraries({"Tuple", "Collection", "Map"});
 }
 
 public bool test() {
