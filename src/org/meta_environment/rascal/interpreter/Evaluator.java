@@ -2376,7 +2376,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 					args[i] = tr.value;
 				}
 				IConstructor rcons = vf.constructor(cons.getConstructorType(), args);
-				result = rcons.setAnnotations(cons.getAnnotations());
+				result = applyRules(rcons.setAnnotations(cons.getAnnotations()));
 			}
 		} else
 			if(subjectType.isNodeType()){
@@ -2392,7 +2392,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 						changed |= tr.changed;
 						args[i] = tr.value;
 					}
-					result = vf.node(node.getName(), args).setAnnotations(node.getAnnotations());
+					result = applyRules(vf.node(node.getName(), args).setAnnotations(node.getAnnotations()));
 				}
 			} else
 				if(subjectType.isListType()){
@@ -2692,6 +2692,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			return x.getRhs().accept(this);
 		}
 	}
+	
 	
 	@Override
 	public Result<IValue> visitExpressionIsDefined(IsDefined x) {
