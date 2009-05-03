@@ -31,6 +31,7 @@ rule root       Set({Object})                    => Root;
 rule empty      Set({})                          => EmptySet;        
 rule single     Single(Type   T)                 => Set({T});
 rule rootsub    Subtypes(Root)                   => Universe;
+rule emptysub   Subtypes(EmptySet)               => EmptySet;
 rule rootsup    Supertypes(Root)                 => EmptySet;
 rule subuni     Subtypes(Universe)               => Universe;
 rule nestedsubs Subtypes(Subtypes(TypeSet x))    => Subtypes(x);

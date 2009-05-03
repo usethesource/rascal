@@ -5,8 +5,14 @@ import demo::GenericFeatherweightJava::TypeConstraints;
 import demo::GenericFeatherweightJava::Types;
 import List;
 
+set[Name] libraries = { };
+
+public void registerLibraries(set[Name] libs) {
+  libraries += libs;
+}
+
 public bool isLibraryClass(Name className) {
-  return false;
+  return className in libraries;
 }  
 
 public bool isLibraryClass(Type t) {
