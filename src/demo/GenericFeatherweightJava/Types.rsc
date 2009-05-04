@@ -51,6 +51,9 @@ public list[Type] constructorTypes(Type t) {
 }
 
 public bool subtypes(Bounds env, list[Type] t1, list[Type] t2) {
+  println("SUBTYPES: ", t1, " and ", t2);
+  println(" bounds: ", env);
+  if (size(t2) > size(t1)) throw "subtypes: <t2> is longer than <t1>";
   if ((int i <- domain(t1) + domain(t2)) && !subtype(env, t1[i], t2[i])) 
     return false;
   return true;
@@ -118,6 +121,7 @@ public Expr mbody(Name methodName, list[Type] bindings, Type t) {
 }
 
 public Type etype(Env env, Bounds bounds, Expr expr) {
+  println("ETYPE", expr);
   switch (expr) {
     case this : return env["this"];
     case var(Name v) : return env[v];
@@ -128,9 +132,9 @@ public Type etype(Env env, Bounds bounds, Expr expr) {
     }
     case call(Expr rec, Name methodName, list[Type] actualTypes, list[Expr] params) : {
       Type Trec = etype(env, bounds, rec);
-      <<vars,bounds>, returnType, formals> = mtype(methodName, bound(bounds, Trec)); 
+      <<vars,varBounds>, returnType, formals> = mtype(methodName, bound(bounds, Trec)); 
       
-      if (subtypes(bounds, actualTypes, inst(bounds, vars, actualTypes))) {
+      if (subtypes(bounds, actualTypes, inst(varBounds, vars, actualTypes))) {
         paramTypes = [ etype(env, bounds, param) | param <- params];
         if (subtypes(bounds, paramTypes, inst(formals,vars,actualTypes))) { 
           return inst(returnType, vars, actualTypes);  
@@ -139,7 +143,9 @@ public Type etype(Env env, Bounds bounds, Expr expr) {
     } 
     case new(Type t, list[Expr] params) : {
        <types,fields> = fields(t);
-       paramTypes = [ etype(env, bounds, param) | params <- params];
+       println("etype(new), field types is : ", types, " params is ", params);
+       paramTypes = [ etype(env, bounds, param) | param <- params];
+       println("etype(new), param types is : ", paramTypes);
        if (subtypes(bounds, paramTypes, types)) {
          return t;
        }

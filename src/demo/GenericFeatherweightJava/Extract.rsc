@@ -4,6 +4,7 @@ import demo::GenericFeatherweightJava::AbstractSyntax;
 import demo::GenericFeatherweightJava::TypeConstraints;
 import demo::GenericFeatherweightJava::Types;
 import List;
+import IO;
 
 set[Name] libraries = { };
 
@@ -59,37 +60,45 @@ bool overrides(Bounds b, MethodType m1, MethodType m2) {
 }
 
 public set[Constraint] extract(Bounds bounds, Class def, Method method) { // [Fuhrer et al., Fig 5]
-
+  println("EXTRACT");
   set[Constraint] result = { };
   bounds += (method.formalTypes.vars[i]:method.formalTypes.bounds[i] | i <- domain(method.formalTypes.vars));
   env = ("this": typeLit(def.className, [])); // TODO check if this is a good env
 
   visit (method.expr) {  
      case x:access(Expr erec, Name fieldName) : {
+println("extract ACCESS");
        Trec = etype(env, bounds, erec);
        fieldType = ftype(Trec, fieldName);
        if (!isLibraryClass(def.className))
          result += {eq(typeof(method), typeof(fieldType)), subtype(typeof(erec), typeof(fdecl(Trec, fieldName)))};  
      }   
      case x:new(Type new, list[Expr] args) : {
+println("extract NEW");
        result += {eq(typeof(x), typeof(new))};
+       println("new: ", eq(typeof(x), typeof(new)));
        if (!isLibraryClass(new)) {
          result += { subtype(typeof(args[i]), typeof(constructorTypes(new)[i])) | int i <- domain(args) }; 
        }
      }
-     case x:call(Expr rec, Method methodName, list[Type] actuals, list[Expr] args)  : {
+     case x:call(Expr rec, Name methodName, list[Type] actuals, list[Expr] args)  : {
+println("extract CALL");
         Trec = etype(env, bounds, rec);
+        println("call receiver is: ", Trec);
         result += {subtype(typeof(x), typeof(Trec))};
         if (!isLibraryClass(Trec)) {
+           println("\tis not a library");
            methodType = mtype(methodeName, Trec);
            result += eq(typeof(x),typeof(methodType.resultType));
            result += { subtype(typeof(args[i]),typeof(methodType.formals[i])) | int i <- domain(args) };
         }
         else { // [Fuhrer et al.,Fig 7] should this be in an else branch or not???
+           println("\tis a library");
            methodType = mtype(methodName, Trec);
-           result += cGen(typeof(etype(env, bounds, x)), methodType.returnType, rec, #makeEq);
+           set[Constraint] gen = cGen(etype(env, bounds, x), methodType.returnType, rec, #makeEq);
+           result += gen;
            result += { c | i <- domain(args), Ei := args[i], 
-                           c <- cGen(Ei, methodType.formals[i], rec, #makeSub)};      
+                           c <- cGen(Ei, methodType.formals[i], rec, #makeSub)}; 
         }
      }
      case x:cast(Type to, Expr expr) :
@@ -102,6 +111,8 @@ public set[Constraint] extract(Bounds bounds, Class def, Method method) { // [Fu
 }
 
 set[Constraint] cGen(Type a, Type T, Expr E, Constraint (TypeOf t1, TypeOf t2) op) {
+  println("cGen(<a>,<T>,<E>,<op>");
+
   // TODO: bounds and env for etype are bogus
   if (T in etype((),(),E).actuals) {
     return {#op(typeof(a), typeof(T, E))};
