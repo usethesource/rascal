@@ -1064,7 +1064,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 		
 		if(r.getValue().isEqual(vf.bool(false))) {
-			throw RuntimeExceptionFactory.assertionFailed(getCurrentAST(), getStackTrace());
+			throw RuntimeExceptionFactory.assertionFailed(x, getStackTrace());
 		}
 		return r;	
 	}
