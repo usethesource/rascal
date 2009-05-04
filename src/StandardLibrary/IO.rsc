@@ -9,4 +9,9 @@ throws NoSuchFileError(str msg), IOError(str msg)
 @doc{readFile -- read a named file as list of strings.}
 @javaClass{org.meta_environment.rascal.std.IO};
 
-
+public bool print(value V...) 
+@doc{print and return true, for debugging complex expressions}
+{
+  println(V);
+  return true;
+}
