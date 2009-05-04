@@ -3,6 +3,8 @@ module demo::GenericFeatherweightJava::Examples
 import demo::GenericFeatherweightJava::AbstractSyntax;
 import demo::GenericFeatherweightJava::Types;  
 import demo::GenericFeatherweightJava::Extract;
+import demo::GenericFeatherweightJava::SolveConstraints;
+import demo::GenericFeatherweightJava::TypeConstraints;
 
 import IO;
 
@@ -60,11 +62,11 @@ public Class B = class("B", <[],[]>, Object, <[],[]>, cons(<[],[]>, super([]), [
 // class Example1 { Tuple main() { return new Tuple(Zero, Succ(Zero)); }
 // {c,sh,w}ould be:
 // class Example1 { Tuple<Zero,Succ> main() { return new Tuple<Zero,Succ>(Zero, Succ(Zero)); }
-public Class Example1 = class("Example1",<[],[]>, Object, 
+public Class Example1 = class("Example1",<[],[]>, Object,   
                               <[],[]>,
                               cons(<[],[]>,super([]), []),
                               [
-                                method(<[],[]>,typeLit("Tuple",[]),"main", <[],[]>, new(typeLit("Tuple",[]),[new(typeLit("Zero",[]),[]),new(typeLit("Succ",[]),[new(typeLit("Zero",[]),[])])]))
+                                method(<[],[]>,typeLit("Tuple",[]),"main", <[],[]>, call(new(typeLit("Tuple",[]),[new(typeLit("Zero",[]),[]),new(typeLit("Succ",[]),[new(typeLit("Zero",[]),[])])]), "getFst", [], []))
                               ]
                              );
 
@@ -92,6 +94,10 @@ public bool test() {
   assert fields(typeLit("Tuple",[typeLit("A",[]),typeLit("B",[])])) == <[typeLit("A",[]),typeLit("B",[])],["fst","snd"]>;
   assert mtype("getFst", typeLit("Tuple", [typeLit("A",[]),typeLit("A",[])])) == 
            <<[],[]>,typeLit("A",[]),[]>;  
+
+  result = solveConstraints();
+  assert result[typeof(new(typeLit("Tuple",[]),[new(typeLit("Zero",[]),[]),new(typeLit("Succ",[]),[new(typeLit("Zero",[]),[])])]))]
+         == Set({typeLit("Tuple",[typeLit("Zero",[]),typeLit("Succ",[])])});
   return true; 
 }  
 

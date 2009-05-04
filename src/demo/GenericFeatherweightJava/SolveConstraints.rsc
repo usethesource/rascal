@@ -8,17 +8,17 @@ import IO;
 
 public map[TypeOf var, TypeSet possibles] solveConstraints() {
   set[Constraint] constraints = { c | name <- ClassTable, c <- extract(name) };
-  set[Type] types = { }; visit(constraints) { case Type t : types += {t}; };
-  rel[Type,Type] subtypes = { <u,t> | t <- types, u <- types, subtype((), t, u) };
-  supertypes = subtypes<1,0>;
-
+ 
   with 
     map[TypeOf var, TypeSet possibles] estimates = initialEstimates(constraints);
-  solve (250){
+  solve {
      for (TypeOf v <- estimates, subtype(v, typeof(Type t)) <- constraints)
        estimates[v] = Intersection({estimates[v], Subtypes(Single(t))});
   }
-     
+
+  set[Type] types = { }; visit(constraints) { case Type t : types += {t}; };
+  rel[Type,Type] subtypes = { <u,t> | t <- types, u <- types, subtype((), t, u) };
+  
   println("--- computed estimates are:");
   printEstimates(estimates);
   println("--- resolving final subtype queries");
