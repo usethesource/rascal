@@ -73,6 +73,7 @@ public class AssignmentTests extends TestFramework {
 		assertTrue(runTest("{int a = 1; int b = 2; <a, b> = <b, a>; (a == 2) && (b == 1);}"));
 		assertTrue(runTest("{<a, b> = <1, 2>; (a == 1) && (b == 2);}"));
 		assertTrue(runTest("{tuple[str name, int cnt] T = <\"abc\", 1>; T.name = \"def\"; T.name == \"def\";}"));
+		assertTrue(runTest("{tuple[str name, int cnt] T = <\"abc\", 1>; T[name = \"def\"] == <\"def\", 1>;}"));
 	}
 	
 	@Test public void testList1() {
