@@ -9,6 +9,7 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.meta_environment.rascal.interpreter.EvaluatorContext;
 import org.meta_environment.rascal.interpreter.RuntimeExceptionFactory;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFieldError;
+import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscriptArityError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscriptError;
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.bool;
@@ -38,6 +39,24 @@ public class TupleResult extends ElementResult<ITuple> {
 			catch (UndeclaredFieldException e){
 				throw new UndeclaredFieldError(name, getType(), ctx.getCurrentAST());
 			}
+	}
+		
+	@Override
+	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(String name, Result<V> repl, TypeStore store, EvaluatorContext ctx) {
+		if (!getType().hasFieldNames()) {
+			throw new UndeclaredFieldError(name, getType(), ctx.getCurrentAST());
+		}
+
+		try {
+			int index = getType().getFieldIndex(name);
+			Type type = getType().getFieldType(index);
+			if(!type.isSubtypeOf(repl.getType())){
+				throw new UnexpectedTypeError(type, repl.getType(), ctx.getCurrentAST());
+			}
+			return makeResult(getType(), getValue().set(index, repl.getValue()), ctx);
+		} catch (UndeclaredFieldException e) {
+			throw new UndeclaredFieldError(name, getType(), ctx.getCurrentAST());
+		}
 	}
 	
 	@Override
