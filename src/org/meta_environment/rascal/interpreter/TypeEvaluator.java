@@ -265,7 +265,7 @@ public class TypeEvaluator {
 			java.util.List<TypeArg> args = x.getArguments();
 			Type[] fieldTypes = new Type[args.size()];
 			java.lang.String[] fieldLabels = new java.lang.String[args.size()];
-
+			
 			int i = 0;
 			for (TypeArg arg : args) {
 				fieldTypes[i] = arg.getType().accept(this);
@@ -277,7 +277,6 @@ public class TypeEvaluator {
 				}
 				i++;
 			}
-
 			return tf.tupleType(fieldTypes, fieldLabels);
 		}
 

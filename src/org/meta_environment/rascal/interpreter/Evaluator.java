@@ -839,6 +839,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				}
 			}
 		}
+		
 		return r;
 	}
 	

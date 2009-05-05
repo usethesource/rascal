@@ -248,11 +248,14 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 		if(receiver == null || receiver.getValue() == null)
 			throw new UninitializedVariableError(x.getReceiver().toString(), x.getReceiver());
 		if (receiver.getType().isTupleType()) {
-			if (!receiver.getType().hasField(label)) {
+			
+			int idx = receiver.getType().getFieldIndex(label);
+			if (idx < 0) {
 				throw new UndeclaredFieldError(label, receiver.getType(), x);
 			}
-			value = newResult(((ITuple) receiver.getValue()).get(label), value);
-			IValue result = ((ITuple) receiver.getValue()).set(label, value.getValue());
+			
+			value = newResult(((ITuple) receiver.getValue()).get(idx), value);
+			IValue result = ((ITuple) receiver.getValue()).set(idx, value.getValue());
 			return recur(x, makeResult(receiver.getType(), result, new EvaluatorContext(eval, x)));
 		}
 		else if (receiver.getType().isConstructorType() || receiver.getType().isAbstractDataType()) {
