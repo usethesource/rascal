@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: rascal
 Bundle-ActivationPolicy: lazy
 Bundle-SymbolicName: rascal;singleton:=true
-Bundle-Version: 0.1
+Bundle-Version: 0.0.1
 Bundle-ClassPath: rascal.jar,
  lib/hickory_check.jar,
  lib/jline-0.9.94.jar,
@@ -20,15 +20,17 @@ Export-Package: org.meta_environment.errors,
  org.meta_environment.rascal.parser,
  org.meta_environment.uptr,
  org.meta_environment.uptr.visitors
-Require-Bundle: sglr_invoker,
- sglr,
- aterm,
- c_library,
- config_support,
- error_support,
- toolbuslib,
- ptable_support,
- pt_support,
- pt_support,
- pdb_shared,
- org.eclipse.imp.pdb.values
+Require-Bundle: sglr_invoker;bundle-version="0.0.1",
+ sglr;bundle-version="0.0.1",
+ aterm;bundle-version="0.0.1",
+ c_library;bundle-version="0.0.1",
+ config_support;bundle-version="0.0.1",
+ error_support;bundle-version="0.0.1",
+ toolbuslib;bundle-version="0.0.1",
+ ptable_support;bundle-version="0.0.1",
+ pt_support;bundle-version="0.0.1",
+ pt_support;bundle-version="0.0.1",
+ pdb_shared;bundle-version="0.0.1",
+ org.eclipse.imp.pdb.values;bundle-version="0.1.18",
+ org.eclipse.imp.pdb.ui;bundle-version="0.1.2"
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
