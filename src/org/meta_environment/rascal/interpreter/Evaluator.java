@@ -302,7 +302,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	 * @param stat
 	 * @return
 	 */
-	public IValue eval(Statement stat) {
+	public Result<IValue> eval(Statement stat) {
 		try {
 			 if(doProfiling){
 			    	profiler = new Profiler(this);
@@ -316,7 +316,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	        		profiler.pleaseStop();
 	        		profiler.report();
 	        	}
-	        	return r.getValue();
+	        	return r;
 	        }
 	        throw new ImplementationError("Not yet implemented: " + stat.toString());
 		} catch (Return e){
@@ -335,11 +335,11 @@ public class Evaluator extends NullASTVisitor<Result> {
 	 * @param declaration
 	 * @return
 	 */
-	public IValue eval(Declaration declaration) {
+	public Result<IValue> eval(Declaration declaration) {
 		currentAST = declaration;
 		Result<IValue> r = declaration.accept(this);
         if(r != null){
-        	return r.getValue();
+        	return r;
         }
         
         throw new NotYetImplemented(declaration.toString());

@@ -99,7 +99,12 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 			} else 	if (oldValue.hasInferredType()) {
 				// Be liberal here: if the user has not declared a variable explicitly
 				// we use the lub type for the new value.
+//				System.out.println("oldType = " + oldValue.getType());
+//				System.out.println("newType = " + newValue.getType());
+//				System.out.println("LUB = " + oldValue.getType().lub(newValue.getType()));
+				
 				newValue = makeResult(oldValue.getType().lub(newValue.getType()), newValue.getValue(),new EvaluatorContext(eval, eval.getCurrentAST()));
+//				System.out.println("newValue = " + newValue + " type = " + newValue.getType());
 				newValue.setInferredType(true);
 				return newValue;
 			}

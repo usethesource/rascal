@@ -309,12 +309,6 @@ public class Environment {
 	 */
 	public void storeInnermostVariable(String name, Result<IValue> value) {
 		updateVariableCache(name, variableEnvironment, null); // TODO check if this is correct?
-		//System.out.println("In innermost: " + name + " = " + value);
-		if (!variableEnvironment.containsKey(name)) {
-			if (value != null) {
-				value.setInferredType(true);
-			}
-		}
 		variableEnvironment.put(name, value);
 	}
 	
