@@ -309,6 +309,12 @@ public class Environment {
 	 */
 	public void storeInnermostVariable(String name, Result<IValue> value) {
 		updateVariableCache(name, variableEnvironment, null); // TODO check if this is correct?
+		//System.out.println("In innermost: " + name + " = " + value);
+		if (!variableEnvironment.containsKey(name)) {
+			if (value != null) {
+				value.setInferredType(true);
+			}
+		}
 		variableEnvironment.put(name, value);
 	}
 	
@@ -322,6 +328,10 @@ public class Environment {
 		if (env == null) {
 			updateVariableCache(name, variableEnvironment, null);
 			variableEnvironment.put(name, value);
+			//System.out.println("Inferred: " + name);
+			if (value != null) {
+				value.setInferredType(true);
+			}
 		}
 		else {
 			Result<IValue> old = env.get(name);
@@ -348,6 +358,9 @@ public class Environment {
 		
 		if (old != null) {
 			updateVariableCache(name, env, old);
+		}
+		else {
+			value.setInferredType(true);
 		}
 		
 		env.put(name, value);
@@ -515,6 +528,7 @@ public class Environment {
 		return getRoot().getStore();
 	}
 
+	
 	
 		   
 		   
