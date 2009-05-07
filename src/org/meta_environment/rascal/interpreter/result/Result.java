@@ -52,6 +52,7 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	protected Type type;
 	protected T value;
 	private boolean isPublic;
+	private boolean inferredType = false;
 
 	protected Result(Type type, T value, Iterator<Result<IValue>> iter, EvaluatorContext ctx) {
 		// Check for null in case of void result or uninit.
@@ -722,7 +723,13 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		this.isPublic = isPublic;
 	}
 
+	public void setInferredType(boolean inferredType) {
+		this.inferredType  = inferredType;
+	}
 	
+	public boolean hasInferredType() {
+		return inferredType;
+	}
 	
 	
 	

@@ -71,7 +71,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 	/*
 	 * Given an old result and a right-hand side Result, compute a new result.
 	 */
-	private Result<IValue> newResult(Result<IValue> oldValue, Result<IValue> rhsValue){
+	private Result<IValue> newResult(Result<IValue> oldValue, Result<IValue> rhsValue) {
 		Result<IValue> newValue;
 		if(oldValue != null){
 			switch(operator){
@@ -94,12 +94,17 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 			}
 		
 			if (newValue.getType().isSubtypeOf(oldValue.getType())) {
-				//newValue.setType(oldValue.getType());
 				newValue = makeResult(oldValue.getType(), newValue.getValue(),new EvaluatorContext(eval, eval.getCurrentAST()));
 				return newValue;
+			} else 	if (oldValue.hasInferredType()) {
+				// Be liberal here: if the user has not declared a variable explicitly
+				// we use the lub type for the new value.
+				newValue = makeResult(oldValue.getType().lub(newValue.getType()), newValue.getValue(),new EvaluatorContext(eval, eval.getCurrentAST()));
+				newValue.setInferredType(true);
+				return newValue;
 			}
-			
 			// TODO: I don't think this check uses static types only.
+			//System.out.println("Type error in newResult");
 			throw new UnexpectedTypeError(oldValue.getType(), newValue.getType(), eval.getCurrentAST());
 		}
 		switch(operator){
@@ -111,7 +116,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 	}
 	
 	private Result<IValue> newResult(IValue oldValue, Result<IValue> rhsValue){
-		if(oldValue != null){
+		if (oldValue != null){
 			Result<IValue> res = makeResult(oldValue.getType(), oldValue, new EvaluatorContext(eval, eval.getCurrentAST()));
 			return newResult(res, rhsValue);
 		}
@@ -128,6 +133,8 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 		QualifiedName qname = x.getQualifiedName();
 		Result<IValue> previous = env.getVariable(qname);
 		
+		//System.out.println("I am assigning: " + x + "(oldvalue = " + previous + ")");
+		
 		if(previous != null){
 			value = newResult(previous, value);
 			env.storeVariable(qname, value);
@@ -137,6 +144,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 		switch(operator){
 		case Default:
 		case IsDefined:
+				//System.out.println("And it's local: " + x);
 				env.storeLocalVariable(qname, value); 
 				return value;
 		}
