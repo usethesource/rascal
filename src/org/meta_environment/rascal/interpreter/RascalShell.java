@@ -21,6 +21,7 @@ import org.meta_environment.rascal.interpreter.control_exceptions.QuitException;
 import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
+import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.Parser;
@@ -131,7 +132,7 @@ public class RascalShell {
 		String callMainStatement = module + "::main(" + mainArguments(args) + ");";
 		IConstructor tree = parser.parseFromString(callMainStatement, "-");
 		Command callStat = builder.buildCommand(tree);
-		IValue result = callStat.accept(new CommandEvaluator(evaluator));
+		Result<IValue> result = callStat.accept(new CommandEvaluator(evaluator));
 		
 		if (!result.getType().isIntegerType()) {
 			System.err.println("Main function should return an integer");
@@ -187,13 +188,13 @@ public class RascalShell {
 		else {
 			Command stat = builder.buildCommand(tree);
 			
-			IValue value = command.eval(stat);
+			Result<IValue> value = command.eval(stat);
 			
 			if (value == null) {
 				return "done.";
 			}
 			
-			return value.getType() + ": " + value.toString();
+			return value.getType() + ": " + value.getValue().toString();
 		}
 		
 		return result.toString();
