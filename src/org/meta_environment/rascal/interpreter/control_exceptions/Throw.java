@@ -65,10 +65,9 @@ public final class Throw extends ControlException {
 					+ "," + loc.getBeginColumn() 
 					+ ": " + super.getMessage();
 		}
-		else {
-			// TODO remove once all errors have locations
-			return super.getMessage();
-		}
+		
+		// TODO remove once all errors have locations
+		return super.getMessage();
 	}
 	
 }

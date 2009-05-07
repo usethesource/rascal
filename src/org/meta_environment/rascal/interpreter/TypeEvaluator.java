@@ -51,6 +51,7 @@ public class TypeEvaluator {
 	private final Visitor visitor = new Visitor();
 
 	private TypeEvaluator() {
+		super();
 	}
 
 	public static TypeEvaluator getInstance() {

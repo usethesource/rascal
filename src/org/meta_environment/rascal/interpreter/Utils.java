@@ -36,12 +36,12 @@ public final class Utils {
 				String replacement;
 				if(val == null || val.getValue() == null) {
 					throw new UninitializedVariableError(var.toString(), ast);
+				}
+				
+				if(val.getType().isStringType()){
+					replacement = ((IString)val.getValue()).getValue();
 				} else {
-					if(val.getType().isStringType()){
-						replacement = ((IString)val.getValue()).getValue();
-					} else {
-						replacement = val.getValue().toString();
-					}
+					replacement = val.getValue().toString();
 				}
 //				replacement = replacement.replaceAll("<", "\\\\<"); TODO: maybe we need this after all?
 				result.append(replacement);

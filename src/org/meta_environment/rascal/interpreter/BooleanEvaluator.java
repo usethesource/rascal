@@ -49,7 +49,7 @@ public abstract class BooleanEvaluator implements Iterator<Result<IValue>> {
 			throw new UnexpectedTypeError(TypeFactory.getInstance().boolType(), argResult.getType(), expr[i]);
 		}
 		result[i] = argResult;
-	};
+	}
 	
 	void def(int i){
 		if(result[i] == null){
@@ -304,8 +304,9 @@ class MatchEvaluator implements Iterator<Result<IValue>> {
 		if(hasNext()){	
 			boolean result = positive ? mp.next() : !mp.next();
 			return new BoolResult(result, this, null);
-		} else
-			return new BoolResult(!positive, this, null);
+		}
+		
+		return new BoolResult(!positive, this, null);
 	}
 
 	public void remove() {

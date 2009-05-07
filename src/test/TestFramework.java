@@ -118,12 +118,12 @@ public class TestFramework {
 			if (tree.getType() == Factory.ParseTree_Summary) {
 				System.err.println(tree);
 				return false;
-			} else {
-				reset();
-				Module mod = builder.buildModule(tree);
-				mod.accept(evaluator);
-				return true;
 			}
+			
+			reset();
+			Module mod = builder.buildModule(tree);
+			mod.accept(evaluator);
+			return true;
 		} catch (IOException e) {
 			System.err.println("IOException during preparation:" + e);
 			return false;
@@ -136,24 +136,23 @@ public class TestFramework {
 		if (tree.getConstructorType() == Factory.ParseTree_Summary) {
 			System.err.println(tree);
 			return false;
+		}
+		
+		Command cmd = builder.buildCommand(tree);
+		if (cmd.isStatement()) {
+			IValue value = evaluator.eval(cmd.getStatement());
+			if (value == null || !value.getType().isBoolType())
+				return false;
+			return value.isEqual(ValueFactoryFactory.getValueFactory()
+					.bool(true)) ? true : false;
+		} else if (cmd.isImport()) {
+			evaluator.eval(cmd.getImported());
+			return true;
+		} else if (cmd.isDeclaration()) {
+			evaluator.eval(cmd.getDeclaration());
+			return true;
 		} else {
-			Command cmd = builder.buildCommand(tree);
-			if (cmd.isStatement()) {
-				IValue value = evaluator.eval(cmd.getStatement());
-				if (value == null || !value.getType().isBoolType())
-					return false;
-				return value.isEqual(ValueFactoryFactory.getValueFactory()
-						.bool(true)) ? true : false;
-			} else if (cmd.isImport()) {
-				evaluator.eval(cmd.getImported());
-				return true;
-			} else if (cmd.isDeclaration()) {
-				evaluator.eval(cmd.getDeclaration());
-				return true;
-			} else {
-				throw new ImplementationError("Unexpected case in eval: "
-						+ cmd);
-			}
+			throw new ImplementationError("Unexpected case in eval: " + cmd);
 		}
 	}
 }

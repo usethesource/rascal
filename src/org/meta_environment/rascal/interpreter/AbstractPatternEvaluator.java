@@ -218,9 +218,8 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 		 Type signature = tf.tupleType(types);
 		 if (env.isTreeConstructorName(name, signature)) {
 			 return env.getConstructor(name.toString(), signature); //.getAbstractDataType();
-		 } else {
-			 return tf.nodeType();
 		 }
+	     return tf.nodeType();
 	}
 	
 	@Override
@@ -238,9 +237,8 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 			Type consType = env.getConstructor(name.toString(), signature);
 			
 			return vf.constructor(consType, vals);
-		} else {
-			return vf.node(name.toString(), vals);
 		}
+		return vf.node(name.toString(), vals);
 	}
 
 	@Override
@@ -469,19 +467,19 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 	public Type getType(Environment ev) {
 		if(patternSize == 0){
 			return tf.listType(tf.voidType());
-		} else {
-			Type elemType = tf.voidType();
-			for(int i = 0; i < patternSize; i++){
-				Type childType = children.get(0).getType(ev);
-				if(childType.isListType()){
-					elemType = elemType.lub(childType.getElementType());
-				} else {
-					elemType = elemType.lub(childType);
-				}
-			}
-			if(debug)System.err.println("ListPattern.getType: " + tf.listType(elemType));
-			return tf.listType(elemType);
 		}
+		
+		Type elemType = tf.voidType();
+		for(int i = 0; i < patternSize; i++){
+			Type childType = children.get(0).getType(ev);
+			if(childType.isListType()){
+				elemType = elemType.lub(childType.getElementType());
+			} else {
+				elemType = elemType.lub(childType);
+			}
+		}
+		if(debug)System.err.println("ListPattern.getType: " + tf.listType(elemType));
+		return tf.listType(elemType);
 	}
 	
 	@Override
@@ -668,10 +666,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 					Result<IValue> varRes = ev.getVariable(null, varName[patternCursor]);
 					IValue varVal = varRes.getValue();
 					
-					if(!varRes.getType().isListType()){
-						
-					} else {
-				         
+					if(varRes.getType().isListType()){
 					    assert varVal != null && varVal.getType().isListType();
 					    
 					    int varLength = ((IList)varVal).length();
@@ -845,18 +840,18 @@ class SingleElementGenerator implements Iterator<ISet> {
 	public Type getType(Environment ev) {
 		if(patternSize == 0){
 			return tf.setType(tf.voidType());
-		} else {
-			Type elemType = tf.voidType();
-			for(int i = 0; i < patternSize; i++){
-				Type childType = children.get(0).getType(ev);
-				if(childType.isSetType()){
-					elemType = elemType.lub(childType.getElementType());
-				} else {
-					elemType = elemType.lub(childType);
-				}
-			}
-			return tf.setType(elemType);
 		}
+		
+		Type elemType = tf.voidType();
+		for(int i = 0; i < patternSize; i++){
+			Type childType = children.get(0).getType(ev);
+			if(childType.isSetType()){
+				elemType = elemType.lub(childType.getElementType());
+			} else {
+				elemType = elemType.lub(childType);
+			}
+		}
+		return tf.setType(elemType);
 	}
 	
 	@Override
@@ -1356,19 +1351,19 @@ class SingleElementGenerator implements Iterator<ISet> {
 			type = subject.getType();
 			env.storeInnermostVariable(name.toString(), makeResult(type, subject, ctx));
 			return true;
-		} else {
-			// ... or has it already received a value during matching?
-			IValue varVal = varRes.getValue();
-			if(debug)System.err.println("AbstractPatternQualifiedName.match: " + name + ", subject=" + subject + ", value=" + varVal);
-			if (subject.getType().isSubtypeOf(varRes.getType())) {
-				if(debug) {
-					System.err.println("returns " + makeResult(subject.getType(),subject, ctx).equals(varRes));
-				}
-				return makeResult(subject.getType(),subject, ctx).equals(varRes, ctx).isTrue();
-			} else {
-				return false;
-			}
 		}
+		
+		// ... or has it already received a value during matching?
+		IValue varVal = varRes.getValue();
+		if(debug)System.err.println("AbstractPatternQualifiedName.match: " + name + ", subject=" + subject + ", value=" + varVal);
+		if (subject.getType().isSubtypeOf(varRes.getType())) {
+			if(debug) {
+				System.err.println("returns " + makeResult(subject.getType(),subject, ctx).equals(varRes));
+			}
+			return makeResult(subject.getType(),subject, ctx).equals(varRes, ctx).isTrue();
+		}
+		
+		return false;
 	}
 	
 	@Override
@@ -1383,7 +1378,6 @@ class SingleElementGenerator implements Iterator<ISet> {
 	private boolean anonymous = false;
 	private boolean debug = false;
 	private Environment env;
-	private org.meta_environment.rascal.ast.QualifiedName qname;
 
 	
 	// TODO: merge code of the following two constructors.
@@ -1395,7 +1389,6 @@ class SingleElementGenerator implements Iterator<ISet> {
 		this.declaredType = type;
 		this.env = env;
 		this.anonymous = name.equals("_");
-		this.qname = (org.meta_environment.rascal.ast.QualifiedName)getAST();
 		
 		Result<IValue> localRes = env.getLocalVariable(qname);
 		if(localRes != null){
@@ -1817,10 +1810,10 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 			if (r.getValue() != null) {
 				// Previously declared and initialized variable
 				return new AbstractPatternQualifiedName(vf, env, new EvaluatorContext(ctx.getEvaluator(), name));
-			} else {
-				// Previously declared and uninitialized variable
-				return new AbstractPatternTypedVariable(vf, env, new EvaluatorContext(ctx.getEvaluator(), name), r.getType(),name);
 			}
+			
+			// Previously declared and uninitialized variable
+			return new AbstractPatternTypedVariable(vf, env, new EvaluatorContext(ctx.getEvaluator(), name), r.getType(),name);
 		}
 		if (scope.isTreeConstructorName(name, signature)) {
 			return new AbstractPatternNode(vf, x, name,

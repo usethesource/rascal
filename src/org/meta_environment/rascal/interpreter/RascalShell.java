@@ -81,10 +81,9 @@ public class RascalShell {
 						console.printString("cancelled\n");
 						continue next;
 					}
-					else {
-						input.append((input.length() > 0 ? "\n" : "") + line);
-						prompt = CONTINUE_PROMPT;
-					}
+					
+					input.append((input.length() > 0 ? "\n" : "") + line);
+					prompt = CONTINUE_PROMPT;
 				} while (!completeStatement(input));
 
 				String output = handleInput(commander, input);
@@ -193,9 +192,8 @@ public class RascalShell {
 			if (value == null) {
 				return "done.";
 			}
-			else {
-			  return value.getType() + ": " + value.toString();
-			}
+			
+			return value.getType() + ": " + value.toString();
 		}
 		
 		return result.toString();
@@ -214,9 +212,8 @@ public class RascalShell {
 			if (subject.getEndLine() == lastLine && lastColumn <= subject.getEndColumn()) { 
 				return false;
 			}
-			else {
-				return true;
-			}
+			
+			return true;
 		}
 		
 		return true;

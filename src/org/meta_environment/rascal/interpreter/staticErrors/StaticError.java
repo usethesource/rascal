@@ -41,9 +41,8 @@ public abstract class StaticError extends RuntimeException {
 					+ "," + loc.getBeginColumn() 
 					+ ": " + super.getMessage();
 		}
-		else {
-			// TODO remove once all errors have locations
-			return super.getMessage();
-		}
+		
+		// TODO remove once all errors have locations
+		return super.getMessage();
 	}
 }

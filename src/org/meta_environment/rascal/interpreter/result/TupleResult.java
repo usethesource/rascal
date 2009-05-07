@@ -77,7 +77,7 @@ public class TupleResult extends ElementResult<ITuple> {
 		Type elementType = getType().getFieldType(index.intValue());
 		IValue element = getValue().get(index.intValue());
 		return makeResult(elementType, element, ctx);
-	};
+	}
 	
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> result, EvaluatorContext ctx) {
@@ -158,7 +158,7 @@ public class TupleResult extends ElementResult<ITuple> {
 	@Override
 	protected <U extends IValue> Result<U> addRelation(RelationResult that, EvaluatorContext ctx) {
 		return that.insertTuple(this, ctx);
-	};
+	}
 	
 	@Override
 	protected <U extends IValue> Result<U> equalToTuple(TupleResult that, EvaluatorContext ctx) {

@@ -47,9 +47,9 @@ public class List {
 	{
 	   if(lst.length() > 0){
 	      return lst.get(0);
-	   } else {
-	      throw RuntimeExceptionFactory.emptyList(null, null);
 	   }
+	   
+	   throw RuntimeExceptionFactory.emptyList(null, null);
 	}
 
 	public static IValue head(IList lst, IInteger n)
@@ -70,9 +70,9 @@ public class List {
 		int n = lst.length();
 		if(n > 0){
 			return lst.get(random.nextInt(n));
-		} else {
-			throw RuntimeExceptionFactory.emptyList(null, null);
 		}
+		
+		throw RuntimeExceptionFactory.emptyList(null, null);
 	}
 
 	public static IValue insertAt(IList lst, IInteger n, IValue elm)
@@ -93,9 +93,9 @@ public class List {
 	        }
 	      }
 	      return w.done();
-	    } else {
-	    	throw RuntimeExceptionFactory.indexOutOfBounds(n, null, null);
 	    }
+	    
+		throw RuntimeExceptionFactory.indexOutOfBounds(n, null, null);
 	 }
 	
 	public static IValue isEmpty(IList lst)
@@ -169,9 +169,9 @@ public class List {
 	         }
 	      }
 	      return values.tuple(pick, w.done());
-	   	} else {
-	   		throw RuntimeExceptionFactory.emptyList(null, null);
 	   	}
+	   
+	   throw RuntimeExceptionFactory.emptyList(null, null);
 	}
 
 	public static IValue toMap(IList lst)

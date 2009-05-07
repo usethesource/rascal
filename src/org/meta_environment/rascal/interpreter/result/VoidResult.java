@@ -6,7 +6,7 @@ import org.meta_environment.rascal.interpreter.EvaluatorContext;
 
 
 public class VoidResult extends Result<VoidResult.Void> {
-	abstract class Void implements IValue { }
+	abstract class Void implements IValue {}
 
 	public VoidResult(Type type, EvaluatorContext ctx) {
 		super(type, null, ctx);

@@ -69,9 +69,8 @@ public class ProductionAdapter {
 		if (attributes.getConstructorType() == Factory.Attributes_Attrs) {
 			return (IList) attributes.get("attrs");
 		}
-		else {
-			return (IList) Factory.Attrs.make(ValueFactoryFactory.getValueFactory());
-		}
+		
+		return (IList) Factory.Attrs.make(ValueFactoryFactory.getValueFactory());
 	}
 
 	public boolean isLiteral() {

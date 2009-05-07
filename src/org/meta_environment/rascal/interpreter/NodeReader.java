@@ -11,13 +11,13 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 
-public class INodeReader implements Iterator<IValue> {
+public class NodeReader implements Iterator<IValue> {
 
 	Stack<Object> spine = new Stack<Object>();
 	
 	private boolean bottomup;
 	
-	INodeReader(INode node, boolean bottomup){
+	NodeReader(INode node, boolean bottomup){
 		this.bottomup = bottomup;
 		initSpine(node);
 	}
@@ -97,9 +97,9 @@ public class INodeReader implements Iterator<IValue> {
 				return next();
 			}
 			return expand((IValue) iter.next());
-		} else {
-			return (IValue) spine.pop();
 		}
+		
+		return (IValue) spine.pop();
 	}
 
 	public void remove() {

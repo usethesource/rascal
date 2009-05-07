@@ -38,16 +38,10 @@ abstract class LazySet implements ISet {
 	}
 	
 	public void typecheckSet(ISet V){
-		if (V instanceof ISet) {
-			this.partner = (ISet) V;
-		} else if (V instanceof LazySet) {
-			this.partner = (LazySet) partner;
-		} else {
-			throw new ImplementationError("Illegal value in LazySet");
-		}
+		this.partner = V;
 	}
 	
-	public void typecheckElement(IValue V){
+	protected void typecheckElement(IValue V){
 		
 	}
 
@@ -61,8 +55,6 @@ abstract class LazySet implements ISet {
 			ISet other = (ISet) o;
 			if (fType.comparable(other.getType())) {
 				return base.isSubsetOf(other) && other.isSubsetOf(this);
-			} else {
-				return false;
 			}
 		}
 		return false;

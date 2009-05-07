@@ -38,7 +38,9 @@ public class Factory {
 		return InstanceHolder.factory;
 	}
 	
-	private Factory() {}
+	private Factory() {
+		super();
+	}
 	
 	public static TypeStore getStore() {
 		return errors;

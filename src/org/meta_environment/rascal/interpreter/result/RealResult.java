@@ -7,7 +7,6 @@ import org.eclipse.imp.pdb.facts.IReal;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 
-import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.interpreter.EvaluatorContext;
 
 public class RealResult extends ElementResult<IReal> {

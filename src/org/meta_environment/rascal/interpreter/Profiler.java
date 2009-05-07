@@ -97,7 +97,7 @@ public class Profiler extends Thread {
 			w.insert(VF.tuple(e.getKey().getLocation(), VF.integer(e.getValue().getTicks())));
 		}
 		return w.done();
-	};
+	}
 	
 	public void report(){
 		
@@ -130,7 +130,7 @@ public class Profiler extends Thread {
         	String range = (end==bgn) ? Integer.toString(bgn) : bgn + ".." + end;
         	
         	int ticks = e.getValue().getTicks();
-        	Double perc = (ticks * 100.0)/nTicks;
+        	double perc = (ticks * 100.0)/nTicks;
         	
         	String source = String.format("%-30.30s", e.getKey().toString().replaceFirst("^[\\s]+", "").replaceAll("[\\s]+", " "));
  

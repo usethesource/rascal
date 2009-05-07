@@ -6,7 +6,6 @@ import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeR
 import org.eclipse.imp.pdb.facts.IMap;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.interpreter.EvaluatorContext;
 import org.meta_environment.rascal.interpreter.RuntimeExceptionFactory;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
@@ -52,7 +51,7 @@ public class MapResult extends ElementResult<IMap> {
 			throw RuntimeExceptionFactory.noSuchKey(key.getValue(), ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 		return makeResult(getType().getValueType(), v, ctx);
-	};
+	}
 	
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that, EvaluatorContext ctx) {

@@ -31,9 +31,8 @@ public class SymbolAdapter {
 		if (isCf() || isLex()) {
 			return new SymbolAdapter((IConstructor) tree.get("symbol"));
 		}
-		else {
-			throw new ImplementationError("Symbol does not have a child named symbol: " + tree);
-		}
+		
+		throw new ImplementationError("Symbol does not have a child named symbol: " + tree);
 	}
 	
 	public String getName() {

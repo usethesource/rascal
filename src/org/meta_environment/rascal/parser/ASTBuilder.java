@@ -63,10 +63,8 @@ public class ASTBuilder {
 		
 		if (treeAdapter.getSortName().equals(sort)) {
 			return (T) buildValue(tree);
-		} else {
-			throw new ImplementationError("This is not a" + sort +  ": "
-					+ new TreeAdapter(tree).yield());
 		}
+		throw new ImplementationError("This is not a" + sort +  ": " + new TreeAdapter(tree).yield());
 	}
 	
 	private List<AbstractAST> buildList(IConstructor in)  {
@@ -221,11 +219,10 @@ public class ASTBuilder {
 
 	private String capitalize(String sort) {
 		if (sort.length() > 1) {
-		  return Character.toUpperCase(sort.charAt(0)) + sort.substring(1);
+			return Character.toUpperCase(sort.charAt(0)) + sort.substring(1);
 		}
-		else {
-			return sort.toUpperCase();
-		}
+		
+		return sort.toUpperCase();
 	}
 
 }

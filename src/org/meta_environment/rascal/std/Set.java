@@ -75,9 +75,8 @@ public class Set {
 				i++;
 			}
 			return values.tuple(pick, w.done());
-		} else {
-			throw RuntimeExceptionFactory.emptySet(null, null);
 		}
+		throw RuntimeExceptionFactory.emptySet(null, null);
 	}
 
 	public static IValue toList(ISet st)
