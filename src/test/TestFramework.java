@@ -140,7 +140,7 @@ public class TestFramework {
 		
 		Command cmd = builder.buildCommand(tree);
 		if (cmd.isStatement()) {
-			IValue value = evaluator.eval(cmd.getStatement());
+			IValue value = evaluator.eval(cmd.getStatement()).getValue();
 			if (value == null || !value.getType().isBoolType())
 				return false;
 			return value.isEqual(ValueFactoryFactory.getValueFactory()
