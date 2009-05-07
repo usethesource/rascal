@@ -6,7 +6,6 @@ import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeR
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.interpreter.EvaluatorContext;
 
 public class SetOrRelationResult<T extends ISet> extends CollectionResult<T> {

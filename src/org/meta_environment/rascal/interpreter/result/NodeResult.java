@@ -13,8 +13,6 @@ import org.meta_environment.rascal.interpreter.RuntimeExceptionFactory;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscriptArityError;
 
-import org.meta_environment.rascal.ast.AbstractAST;
-
 public class NodeResult extends ElementResult<INode> {
 
 	public NodeResult(Type type, INode node, EvaluatorContext ctx) {

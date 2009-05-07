@@ -22,9 +22,8 @@ public class ParsetreeAdapter {
 			tree = new TreeAdapter(tree).addPositionInformation(filename);
 			return parseTree.set("top", tree);
 		}
-		else {
-			return parseTree;
-		}
+		
+		return parseTree;
 	}
 	
 	public boolean isErrorSummary() {

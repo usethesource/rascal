@@ -159,7 +159,7 @@ class PermutationGenerator{
 		}
 
 		int k = permutation.length;
-		while(permutation[j] > permutation[--k]){}
+		while(permutation[j] > permutation[--k]){/* Do nothing */}
 
 		int temp = permutation[k];
 		permutation[k] = permutation[j];

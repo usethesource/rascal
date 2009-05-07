@@ -37,9 +37,9 @@ class LazyDelete extends LazySet {
 	public <SetOrRel extends ISet> SetOrRel intersect(ISet set) {
 		if (set.contains(deleted) && baseContainsDeleted) {
 			return (SetOrRel) new LazyIntersect(this, set);
-		} else {
-			return (SetOrRel) new LazyIntersect(base, set);
 		}
+		
+		return (SetOrRel) new LazyIntersect(base, set);
 	}
 
 	public boolean isSubsetOf(ISet other) {
@@ -54,25 +54,25 @@ class LazyDelete extends LazySet {
 	public <SetOrRel extends ISet> SetOrRel subtract(ISet other) {
 		if (other.contains(deleted)) {
 			return (SetOrRel) new LazySubtract(base, other);
-		} else {
-			return (SetOrRel) new LazySubtract(this, other);
 		}
+		
+		return (SetOrRel) new LazySubtract(this, other);
 	}
 
 	public <SetOrRel extends ISet> SetOrRel union(ISet set) {
 		if (set.contains(deleted)) {
 			return (SetOrRel) new LazyIntersect(base, set);
-		} else {
-			return (SetOrRel) new LazyIntersect(this, set);
 		}
+		
+		return (SetOrRel) new LazyIntersect(this, set);
 	}
 
 	public <SetOrRel extends ISet> SetOrRel delete(IValue elem) {
 		if (base.contains(elem)){
 			return (SetOrRel) new LazyDelete(this, elem);
-		}else{
-			return (SetOrRel) this;
 		}
+		
+		return (SetOrRel) this;
 	}
 
 	public Iterator<IValue> iterator() {

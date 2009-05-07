@@ -39,7 +39,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
  * TODO: does not implement type checking completely
  */
 /*package*/ class AssignableEvaluator extends NullASTVisitor<Result<IValue>> {
-	enum AssignmentOperator {Default, Addition, Subtraction, Product, Division, Intersection, IsDefined};
+	enum AssignmentOperator {Default, Addition, Subtraction, Product, Division, Intersection, IsDefined}
 	private AssignmentOperator operator;
     private Result<IValue> value;
     private final Environment env;
@@ -97,14 +97,14 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 				//newValue.setType(oldValue.getType());
 				newValue = makeResult(oldValue.getType(), newValue.getValue(),new EvaluatorContext(eval, eval.getCurrentAST()));
 				return newValue;
-			} else {
-				// TODO: I don't think this check uses static types only.
-				throw new UnexpectedTypeError(oldValue.getType(), newValue.getType(), eval.getCurrentAST());
 			}
+			
+			// TODO: I don't think this check uses static types only.
+			throw new UnexpectedTypeError(oldValue.getType(), newValue.getType(), eval.getCurrentAST());
 		}
 		switch(operator){
-		case Default:
-		case IsDefined:
+			case Default:
+			case IsDefined:
 				return rhsValue;
 		}
 		throw new UninitializedVariableError("assignment operator", eval.getCurrentAST());
@@ -234,9 +234,8 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscript
 		if (((IBool) cond.getValue()).getValue()) {
 			return x.getReceiver().accept(this);
 		}
-		else {
-			return x.getReceiver().accept(eval);
-		}
+		
+		return x.getReceiver().accept(eval);
 	}
 	
 	@SuppressWarnings("unchecked")

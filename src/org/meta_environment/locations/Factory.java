@@ -45,6 +45,7 @@ public class Factory {
 	}
 
 	private Factory() {
+		super();
 	}
 
 	public ISourceLocation toSourceLocation(IValueFactory factory,

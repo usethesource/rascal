@@ -9,8 +9,6 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.interpreter.EvaluatorContext;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 
-import org.meta_environment.rascal.ast.AbstractAST;
-
 public class IntegerResult extends ElementResult<IInteger> {
 
 	public IntegerResult(Type type, IInteger n, EvaluatorContext ctx) {

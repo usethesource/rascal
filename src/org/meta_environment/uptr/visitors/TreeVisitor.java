@@ -33,9 +33,8 @@ public abstract class TreeVisitor extends IdentityVisitor {
 				throw new ImplementationError("TreeVisitor does not implement: " + alt);
 			}
 		}
-		else {
-			return o;
-		}
+		
+		return o;
 	}
 	
 	public abstract IConstructor visitTreeAppl(IConstructor arg) throws VisitorException;

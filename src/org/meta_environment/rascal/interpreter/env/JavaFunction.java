@@ -78,9 +78,8 @@ public class JavaFunction extends Lambda {
 				((Throw) targetException).setTrace(eval.getStackTrace());
 				throw th;
 			}
-			else {
-				throw org.meta_environment.rascal.interpreter.RuntimeExceptionFactory.javaException(targetException.getMessage(), eval.getCurrentAST(), eval.getStackTrace());
-			}
+			
+			throw org.meta_environment.rascal.interpreter.RuntimeExceptionFactory.javaException(targetException.getMessage(), eval.getCurrentAST(), eval.getStackTrace());
 		}
 	}
 	

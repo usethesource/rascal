@@ -200,9 +200,9 @@ public class Evaluator extends NullASTVisitor<Result> {
 //	private final boolean LAZY = false;
 	private boolean importResetsInterpreter = true;
 	
-	enum DIRECTION  {BottomUp, TopDown};	// Parameters for traversing trees
-	enum FIXEDPOINT {Yes, No};
-	enum PROGRESS   {Continuing, Breaking};
+	enum DIRECTION  {BottomUp, TopDown}	// Parameters for traversing trees
+	enum FIXEDPOINT {Yes, No}
+	enum PROGRESS   {Continuing, Breaking}
 	
 	
 	private AbstractAST currentAST; 	// used in runtime errormessages
@@ -317,9 +317,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 	        		profiler.report();
 	        	}
 	        	return r.getValue();
-	        } else {
-	        	throw new ImplementationError("Not yet implemented: " + stat.toString());
 	        }
+	        throw new ImplementationError("Not yet implemented: " + stat.toString());
 		} catch (Return e){
 			throw new UnguardedReturnError(stat);
 		}
@@ -341,9 +340,9 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result<IValue> r = declaration.accept(this);
         if(r != null){
         	return r.getValue();
-        } else {
-        	throw new NotYetImplemented(declaration.toString());
         }
+        
+        throw new NotYetImplemented(declaration.toString());
 	}
 	
 	/**
@@ -356,9 +355,9 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result<IValue> r = imp.accept(this);
         if(r != null){
         	return r.getValue();
-        } else {
-        	throw new ImplementationError("Not yet implemented: " + imp.getTree());
         }
+        
+        throw new ImplementationError("Not yet implemented: " + imp.getTree());
 	}
 
 	/* First a number of general utility methods */
@@ -714,18 +713,18 @@ public class Evaluator extends NullASTVisitor<Result> {
 			}
 			if (var.isUnInitialized()) {  
 				throw new UninitializedVariableError(var.toString(), var);
+			}
+			
+			Result<IValue> v = var.getInitial().accept(this);
+			if(v.getType().isSubtypeOf(declaredType)){
+				// TODO: do we actually want to instantiate the locally bound type parameters?
+				Map<Type,Type> bindings = new HashMap<Type,Type>();
+				declaredType.match(v.getType(), bindings);
+				declaredType = declaredType.instantiate(peek().getStore(), bindings);
+				r = makeResult(declaredType, v.getValue(), new EvaluatorContext(this, getCurrentAST()));
+				scopeStack.peek().storeInnermostVariable(var.getName(), r);
 			} else {
-				Result<IValue> v = var.getInitial().accept(this);
-				if(v.getType().isSubtypeOf(declaredType)){
-					// TODO: do we actually want to instantiate the locally bound type parameters?
-					Map<Type,Type> bindings = new HashMap<Type,Type>();
-					declaredType.match(v.getType(), bindings);
-					declaredType = declaredType.instantiate(peek().getStore(), bindings);
-					r = makeResult(declaredType, v.getValue(), new EvaluatorContext(this, getCurrentAST()));
-					scopeStack.peek().storeInnermostVariable(var.getName(), r);
-				} else {
-					throw new UnexpectedTypeError(declaredType, v.getType(), var);
-				}
+				throw new UnexpectedTypeError(declaredType, v.getType(), var);
 			}
 		}
 		
@@ -883,9 +882,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 				popUntil(newEnv);
 			}
 		}
-		else {
-			throw new ImplementationError("Lambda's should have the closure type");
-		}
+		
+		throw new ImplementationError("Lambda's should have the closure type");
 	}
 	
 	@Override
@@ -909,10 +907,9 @@ public class Evaluator extends NullASTVisitor<Result> {
 //			 System.err.println("constructor:" + name);
 			 return constructTree(name, actuals, signature);
 		 }
-		 else {
-//			 System.err.println("function: " + name);
-			 return call(name, actuals, signature);
-		 }
+		 
+		 // System.err.println("function: " + name);
+		 return call(name, actuals, signature);
 	}
 	
 	private Result<IValue> call(QualifiedName name, IValue[] actuals, Type actualTypes) {
@@ -1217,9 +1214,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 		if (x.getFail().isWithLabel()) {
 			throw new Failure(x.getFail().getLabel().toString());
 		}
-		else {
-		  throw new Failure();
-		}
+		
+		throw new Failure();
 	}
 	
 	@Override
@@ -1229,9 +1225,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 		if (r.isWithExpression()) {
 		  throw new Return(x.getRet().getExpression().accept(this));
 		}
-		else {
-			throw new Return(nothing());
-		}
+		
+		throw new Return(nothing());
 	}
 	
 	@Override
@@ -1590,15 +1585,15 @@ public class Evaluator extends NullASTVisitor<Result> {
     	AbstractPatternEvaluator pe = makePatternEvaluator(pat);
 		if(pe.isPattern(pat)){
     		return pat.accept(pe);
-    	} else {
-			RegExpPatternEvaluator re = new RegExpPatternEvaluator(vf, this, peek());
-			if(re.isRegExpPattern(pat)){ 
-				return pat.accept(re);
-			} else {
-				// TODO how can this happen?
-				throw new ImplementationError("Pattern expected instead of " + pat);
-			}
+    	}
+		
+		RegExpPatternEvaluator re = new RegExpPatternEvaluator(vf, this, peek());
+		if(re.isRegExpPattern(pat)){ 
+			return pat.accept(re);
 		}
+		
+		// TODO how can this happen?
+		throw new ImplementationError("Pattern expected instead of " + pat);
     }
 
 	// Expressions -----------------------------------------------------------
@@ -1647,15 +1642,14 @@ public class Evaluator extends NullASTVisitor<Result> {
 		if (isTreeConstructorName(x.getQualifiedName(), tf.tupleEmpty())) {
 			return constructTree(x.getQualifiedName(), new IValue[0], tf.tupleType(new Type[0]));
 		}
-		else {
-			Result<IValue> result = peek().getVariable(x.getQualifiedName());
+		
+		Result<IValue> result = peek().getVariable(x.getQualifiedName());
 
-			if (result != null && result.getValue() != null) {
-				return result;
-			} else {
-				throw new UninitializedVariableError(x.getQualifiedName().toString(), x);
-			}
+		if (result != null && result.getValue() != null) {
+			return result;
 		}
+		
+		throw new UninitializedVariableError(x.getQualifiedName().toString(), x);
 	}
 	
 	@Override
@@ -1663,7 +1657,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		java.util.List<org.meta_environment.rascal.ast.Expression> elements = x
 				.getElements();
 		
-		Type elementType =  tf.voidType();;
+		Type elementType =  tf.voidType();
 		java.util.List<IValue> results = new ArrayList<IValue>();
 
 		for (org.meta_environment.rascal.ast.Expression expr : elements) {
@@ -2195,9 +2189,9 @@ public class Evaluator extends NullASTVisitor<Result> {
 		if(casesOrRules.length() == 1){
 			if(casesOrRules.hasCases()){
 				return casesOrRules.getCases().get(0);
-			} else {
-				return casesOrRules.getRules().get(0);
 			}
+			
+			return casesOrRules.getRules().get(0);
 		}
 		return null;
 	}
@@ -2468,12 +2462,12 @@ public class Evaluator extends NullASTVisitor<Result> {
 		if(direction == DIRECTION.BottomUp){
 			if((progress == PROGRESS.Breaking) && changed){
 				return new TraverseResult(matched, result, changed);
-			} else {
-				TraverseResult tr = traverseTop(result, casesOrRules);
-				matched |= tr.matched;
-				changed |= tr.changed;
-				return new TraverseResult(matched, tr.value, changed);
 			}
+			
+			TraverseResult tr = traverseTop(result, casesOrRules);
+			matched |= tr.matched;
+			changed |= tr.changed;
+			return new TraverseResult(matched, tr.value, changed);
 		}
 		return new TraverseResult(matched,result,changed);
 	}
@@ -2498,11 +2492,11 @@ public class Evaluator extends NullASTVisitor<Result> {
 				if (cs.isDefault()) {
 					cs.getStatement().accept(this);
 					return new TraverseResult(true,subject);
-				} else {
-					TraverseResult tr = applyOneRule(subject, cs.getPatternWithAction());
-					if(tr.matched){
-						return tr;
-					}
+				}
+				
+				TraverseResult tr = applyOneRule(subject, cs.getPatternWithAction());
+				if(tr.matched){
+					return tr;
 				}
 			}
 		} else {
@@ -2825,9 +2819,9 @@ public class Evaluator extends NullASTVisitor<Result> {
 						return new BoolResult(true, null, null);
 					}
 					return new BoolResult(false, null, null);
-				} else {
-					throw new UnexpectedTypeError(tf.boolType(), result.getType(), expr);
 				}
+				
+				throw new UnexpectedTypeError(tf.boolType(), result.getType(), expr);
 			}
 			return result.next();
 		}
@@ -2925,7 +2919,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				}
 				if(!mayOccurIn(patType, r.getType()))
 					throw new UnexpectedTypeError(patType, r.getType(), enumerator.getPattern());
-				iterator = new INodeReader((INode) r.getValue(), bottomup);
+				iterator = new NodeReader((INode) r.getValue(), bottomup);
 			} else if(r.getType().isStringType()){
 				if(enumerator.hasStrategy()) {
 					throw new UnsupportedOperationError(enumerator.getStrategy().toString(), r.getType(), enumerator.getStrategy());
@@ -3021,9 +3015,9 @@ public class Evaluator extends NullASTVisitor<Result> {
 	private Result<IValue> makeGenerator(Expression g){
 		if(g.isEnumerator() || g.isEnumeratorWithStrategy()){
 			return new EnumeratorAsGenerator(g, this);
-		} else {
-			return new ExpressionAsGenerator(g,this);
 		}
+		
+		return new ExpressionAsGenerator(g,this);
 	}
 	
 	/*
@@ -3247,10 +3241,10 @@ public class Evaluator extends NullASTVisitor<Result> {
 			if (gens[i].hasNext() && gens[i].next().isTrue()) {
 				if (i == size - 1) {
 					return new BoolResult(true, null, null);
-				} else {
-					i++;
-					gens[i] = makeGenerator(generators.get(i));
 				}
+				
+				i++;
+				gens[i] = makeGenerator(generators.get(i));
 			} else {
 				i--;
 			}

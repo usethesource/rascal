@@ -7,7 +7,6 @@ import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.interpreter.EvaluatorContext;
 import org.meta_environment.rascal.interpreter.RuntimeExceptionFactory;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFieldError;

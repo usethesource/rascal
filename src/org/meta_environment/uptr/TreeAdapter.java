@@ -87,9 +87,8 @@ public class TreeAdapter {
 		if (isAppl()) {
 		  return (IList) tree.get("args");
 		}
-		else {
-			throw new ImplementationError("Node has no args");
-		}
+		
+		throw new ImplementationError("Node has no args");
 	}
 	
 	public boolean isLiteral() {
@@ -155,9 +154,8 @@ public class TreeAdapter {
 		if (isAmb()) {
 		  return (ISet) tree.get("alternatives");
 		}
-		else {
-			throw new ImplementationError("Node has no alternatives");
-		}
+		
+		throw new ImplementationError("Node has no alternatives");
 	}
 	
 	public IConstructor addPositionInformation(String filename) {
@@ -259,9 +257,8 @@ public class TreeAdapter {
 			ISourceLocation loc = factory.sourceLocation(new URL("file://" + filename), start.offset, cur.offset - start.offset, start.line, cur.line, start.col, cur.col);
 			return t.setAnnotation(Factory.Location, loc);
 		}
-		else {
-			return t;
-		}
+		
+		return t;
 	}
 	
 	private static class Unparser extends IdentityTreeVisitor {
@@ -313,10 +310,9 @@ public class TreeAdapter {
 			if (cause instanceof IOException) {
 				throw (IOException) cause;
 			}
-			else {
-				System.err.println("Unexpected error in unparse: " + e.getMessage());
-				e.printStackTrace();
-			}
+			
+			System.err.println("Unexpected error in unparse: " + e.getMessage());
+			e.printStackTrace();
 		}
 	}
 	

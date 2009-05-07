@@ -98,15 +98,13 @@ public class JavaBridge {
 			if (javaTypes.length > 0) { // non-void
 			  return clazz.getDeclaredMethod(METHOD_NAME, javaTypes);
 			}
-			else {
-				return clazz.getDeclaredMethod(METHOD_NAME);
-			}
+			
+			return clazz.getDeclaredMethod(METHOD_NAME);
 		} catch (SecurityException e) {
 			throw new ImplementationError("Error during compilation of java function: " + declaration, e.getCause());
 		} catch (NoSuchMethodException e) {
 			throw new ImplementationError("Unexpected error during compilation of java function: " + declaration,  e.getCause());
 		}
-		finally {}
 	}
 
 	private Class<?> buildJavaClass(FunctionDeclaration declaration) throws ClassNotFoundException {

@@ -83,10 +83,8 @@ public class ModuleEnvironment extends Environment {
 			}
 			return imported.getVariable(name);
 		}
-		else {
-			return getVariable(name, Names.name(Names.lastName(name)));
-		}
-	
+		
+		return getVariable(name, Names.name(Names.lastName(name)));
 	}
 	
 	@Override

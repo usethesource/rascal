@@ -9,7 +9,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.ValueFactoryFactory;
-import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.interpreter.EvaluatorContext;
 
 public class BoolResult extends ElementResult<IBool> {

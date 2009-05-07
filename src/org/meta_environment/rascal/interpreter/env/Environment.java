@@ -167,10 +167,9 @@ public class Environment {
 			
 			return current.getVariable(name);
 		}
-		else {
-			String varName = Names.name(Names.lastName(name));
-			return getLocalVariable(varName);
-		}
+		
+		String varName = Names.name(Names.lastName(name));
+		return getLocalVariable(varName);
 	}
 
 	/**
@@ -217,16 +216,15 @@ public class Environment {
 			
 			return current.getVariable(name);
 		}
-		else {
-			String varName = Names.name(Names.lastName(name));
-			Result<IValue> r = getVariable(name, varName);
+		
+		String varName = Names.name(Names.lastName(name));
+		Result<IValue> r = getVariable(name, varName);
 
-			if (r != null) {
-				return r;
-			}
-
-			return isRoot() ? null : parent.getVariable(name);
+		if (r != null) {
+			return r;
 		}
+
+		return isRoot() ? null : parent.getVariable(name);
 	}
 	
 	public void storeVariable(QualifiedName name, Result<IValue> result) {

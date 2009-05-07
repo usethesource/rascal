@@ -18,8 +18,6 @@ import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFieldError
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscriptArityError;
 
-import org.meta_environment.rascal.ast.AbstractAST;
-
 public class RelationResult extends SetOrRelationResult<IRelation> {
 
 		public RelationResult(Type type, IRelation rel, EvaluatorContext ctx) {

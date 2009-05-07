@@ -248,7 +248,7 @@ public class RegExpPatternEvaluator extends NullASTVisitor<MatchPattern> {
 		int start = 1;
 		int end = subjectPat.length()-1;
 		if(subjectPat.charAt(end) != '/'){
-			modifier = subjectPat.charAt(end);
+			modifier = Character.valueOf(subjectPat.charAt(end));
 			end--;
 		}
 		if(subjectPat.charAt(end) != '/'){
