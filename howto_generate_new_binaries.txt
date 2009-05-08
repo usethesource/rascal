@@ -1,0 +1,2 @@
+In case you want to generate new binaries (after you changed something in the standard library for example), you need to go to:
+AbstractModuleLoader.java and comment / uncomment 3 lines (you'll know which when you see them).
