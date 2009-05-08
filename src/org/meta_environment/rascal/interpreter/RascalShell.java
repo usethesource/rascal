@@ -194,7 +194,8 @@ public class RascalShell {
 				return "done.";
 			}
 			
-			return value.getType() + ": " + value.getValue().toString();
+			IValue v = value.getValue();
+			return value.getType() + ": " + ((v != null) ? v.toString() : null);
 		}
 		
 		return result.toString();
