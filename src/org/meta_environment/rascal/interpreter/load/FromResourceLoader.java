@@ -7,8 +7,8 @@ import java.net.URL;
 
 public class FromResourceLoader extends AbstractModuleLoader {
 
-	private String sourceFolder;
-	private Class<?> clazz;
+	private final String sourceFolder;
+	private final Class<?> clazz;
 
 	/**
 	 * Creates a loader that will find modules in the resources
@@ -42,7 +42,7 @@ public class FromResourceLoader extends AbstractModuleLoader {
 	@Override
 	protected InputStream getStream(String name) throws IOException {
 		URL url = clazz.getResource(sourceFolder + name);
-
+		
 		if (url == null) {
 			throw new FileNotFoundException(name);
 		}
