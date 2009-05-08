@@ -24,4 +24,3 @@ Export-Package: org.meta_environment.rascal.ast,
 Require-Bundle: sglr_invoker,
  pdb_shared,
  org.eclipse.imp.pdb.values
-Bundle-RequiredExecutionEnvironment: JavaSE-1.5
