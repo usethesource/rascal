@@ -712,6 +712,26 @@ public class PatternTests extends TestFramework {
 	}
 	
 	@Test
+	public void antiPattern(){
+		assertTrue(runTest("{!4 := 3;}"));
+		assertFalse(runTest("{!3 := 3;}"));
+		
+		assertTrue(runTest("{![1,2,3] := [1,2,4];}"));
+		assertFalse(runTest("{![1,2,3] := [1,2,3];}"));
+		
+		assertTrue(runTest("{![1,int X,3] := [1,2,4]; (X ? 10) == 10;}"));
+	}
+	
+	@Test
+	public void descendant(){
+		prepare("data F = f(F left, F right) | g(int N);");
+		assertTrue(runTestInSameEvaluator("/g(2) := f(g(1),f(g(2),g(3)));"));
+		assertTrue(runTestInSameEvaluator("[1, /g(2), 3] := [1, f(g(1),f(g(2),g(3))), 3];"));
+		assertTrue(runTestInSameEvaluator("[1, !/g(5), 3] := [1, f(g(1),f(g(2),g(3))), 3];"));
+		assertTrue(runTestInSameEvaluator("{[1, /g(int N), 3] := [1, f(g(1),f(g(2),g(3))), 3] && N > 2;}"));
+	}
+	
+	@Test
 	public void listCount1(){
 		String cnt = 
 		      "int cnt(list[int] L){" +
