@@ -137,6 +137,9 @@ public abstract class Command extends AbstractAST {
 		}
 	}
 
+	@Override
+	public abstract <T> T accept(IASTVisitor<T> visitor);
+
 	public org.meta_environment.rascal.ast.Declaration getDeclaration() {
 		throw new UnsupportedOperationException();
 	}

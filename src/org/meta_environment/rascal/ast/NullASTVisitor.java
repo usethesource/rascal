@@ -1,7 +1,189 @@
 package org.meta_environment.rascal.ast;
 
 public class NullASTVisitor<T> implements IASTVisitor<T> {
-	public T visitBodyToplevels(Body.Toplevels x) {
+	public T visitLiteralString(Literal.String x) {
+		return null;
+	}
+
+	public T visitLiteralReal(Literal.Real x) {
+		return null;
+	}
+
+	public T visitLiteralInteger(Literal.Integer x) {
+		return null;
+	}
+
+	public T visitLiteralBoolean(Literal.Boolean x) {
+		return null;
+	}
+
+	public T visitLiteralRegExp(Literal.RegExp x) {
+		return null;
+	}
+
+	public T visitRegExpLiteralLexical(RegExpLiteral.Lexical x) {
+		return null;
+	}
+
+	public T visitRegExpModifierLexical(RegExpModifier.Lexical x) {
+		return null;
+	}
+
+	public T visitBackslashLexical(Backslash.Lexical x) {
+		return null;
+	}
+
+	public T visitRegExpLexical(RegExp.Lexical x) {
+		return null;
+	}
+
+	public T visitNamedRegExpLexical(NamedRegExp.Lexical x) {
+		return null;
+	}
+
+	public T visitNamedBackslashLexical(NamedBackslash.Lexical x) {
+		return null;
+	}
+
+	public T visitCommandImport(Command.Import x) {
+		return null;
+	}
+
+	public T visitCommandDeclaration(Command.Declaration x) {
+		return null;
+	}
+
+	public T visitCommandStatement(Command.Statement x) {
+		return null;
+	}
+
+	public T visitCommandShell(Command.Shell x) {
+		return null;
+	}
+
+	public T visitShellCommandHistory(ShellCommand.History x) {
+		return null;
+	}
+
+	public T visitShellCommandEdit(ShellCommand.Edit x) {
+		return null;
+	}
+
+	public T visitShellCommandQuit(ShellCommand.Quit x) {
+		return null;
+	}
+
+	public T visitShellCommandHelp(ShellCommand.Help x) {
+		return null;
+	}
+
+	public T visitFormalTypeName(Formal.TypeName x) {
+		return null;
+	}
+
+	public T visitFormalsDefault(Formals.Default x) {
+		return null;
+	}
+
+	public T visitParametersVarArgs(Parameters.VarArgs x) {
+		return null;
+	}
+
+	public T visitParametersDefault(Parameters.Default x) {
+		return null;
+	}
+
+	public T visitExpressionQualifiedName(Expression.QualifiedName x) {
+		return null;
+	}
+
+	public T visitExpressionLocation(Expression.Location x) {
+		return null;
+	}
+
+	public T visitExpressionMap(Expression.Map x) {
+		return null;
+	}
+
+	public T visitExpressionTuple(Expression.Tuple x) {
+		return null;
+	}
+
+	public T visitExpressionSet(Expression.Set x) {
+		return null;
+	}
+
+	public T visitExpressionList(Expression.List x) {
+		return null;
+	}
+
+	public T visitExpressionCallOrTree(Expression.CallOrTree x) {
+		return null;
+	}
+
+	public T visitExpressionLiteral(Expression.Literal x) {
+		return null;
+	}
+
+	public T visitExpressionDescendant(Expression.Descendant x) {
+		return null;
+	}
+
+	public T visitExpressionMultiVariable(Expression.MultiVariable x) {
+		return null;
+	}
+
+	public T visitExpressionAnti(Expression.Anti x) {
+		return null;
+	}
+
+	public T visitExpressionGuarded(Expression.Guarded x) {
+		return null;
+	}
+
+	public T visitExpressionTypedVariableBecomes(
+			Expression.TypedVariableBecomes x) {
+		return null;
+	}
+
+	public T visitExpressionVariableBecomes(Expression.VariableBecomes x) {
+		return null;
+	}
+
+	public T visitExpressionVisit(Expression.Visit x) {
+		return null;
+	}
+
+	public T visitExpressionAny(Expression.Any x) {
+		return null;
+	}
+
+	public T visitExpressionAll(Expression.All x) {
+		return null;
+	}
+
+	public T visitExpressionComprehension(Expression.Comprehension x) {
+		return null;
+	}
+
+	public T visitExpressionEnumeratorWithStrategy(
+			Expression.EnumeratorWithStrategy x) {
+		return null;
+	}
+
+	public T visitExpressionEnumerator(Expression.Enumerator x) {
+		return null;
+	}
+
+	public T visitExpressionNoMatch(Expression.NoMatch x) {
+		return null;
+	}
+
+	public T visitExpressionMatch(Expression.Match x) {
+		return null;
+	}
+
+	public T visitExpressionTypedVariable(Expression.TypedVariable x) {
 		return null;
 	}
 
@@ -25,7 +207,19 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
 		return null;
 	}
 
+	public T visitExpressionIfDefinedOtherwise(Expression.IfDefinedOtherwise x) {
+		return null;
+	}
+
+	public T visitExpressionIfThenElse(Expression.IfThenElse x) {
+		return null;
+	}
+
 	public T visitExpressionNonEquals(Expression.NonEquals x) {
+		return null;
+	}
+
+	public T visitExpressionEquals(Expression.Equals x) {
 		return null;
 	}
 
@@ -154,6 +348,10 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
 		return null;
 	}
 
+	public T visitExpressionNonEmptyBlock(Expression.NonEmptyBlock x) {
+		return null;
+	}
+
 	public T visitExpressionVoidClosure(Expression.VoidClosure x) {
 		return null;
 	}
@@ -162,129 +360,332 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
 		return null;
 	}
 
-	public T visitExpressionAny(Expression.Any x) {
+	public T visitOperatorAsValueNotIn(OperatorAsValue.NotIn x) {
 		return null;
 	}
 
-	public T visitExpressionAll(Expression.All x) {
+	public T visitOperatorAsValueIn(OperatorAsValue.In x) {
 		return null;
 	}
 
-	public T visitExpressionComprehension(Expression.Comprehension x) {
+	public T visitOperatorAsValueNot(OperatorAsValue.Not x) {
 		return null;
 	}
 
-	public T visitExpressionEquals(Expression.Equals x) {
+	public T visitOperatorAsValueOr(OperatorAsValue.Or x) {
 		return null;
 	}
 
-	public T visitExpressionEnumeratorWithStrategy(
-			Expression.EnumeratorWithStrategy x) {
+	public T visitOperatorAsValueAnd(OperatorAsValue.And x) {
 		return null;
 	}
 
-	public T visitExpressionEnumerator(Expression.Enumerator x) {
+	public T visitOperatorAsValueGreaterThanOrEq(
+			OperatorAsValue.GreaterThanOrEq x) {
 		return null;
 	}
 
-	public T visitExpressionNoMatch(Expression.NoMatch x) {
+	public T visitOperatorAsValueGreaterThan(OperatorAsValue.GreaterThan x) {
 		return null;
 	}
 
-	public T visitExpressionMatch(Expression.Match x) {
+	public T visitOperatorAsValueLessThanOrEq(OperatorAsValue.LessThanOrEq x) {
 		return null;
 	}
 
-	public T visitExpressionIfDefinedOtherwise(Expression.IfDefinedOtherwise x) {
+	public T visitOperatorAsValueLessThan(OperatorAsValue.LessThan x) {
 		return null;
 	}
 
-	public T visitExpressionIfThenElse(Expression.IfThenElse x) {
+	public T visitOperatorAsValueNotEquals(OperatorAsValue.NotEquals x) {
 		return null;
 	}
 
-	public T visitExpressionTypedVariable(Expression.TypedVariable x) {
+	public T visitOperatorAsValueEquals(OperatorAsValue.Equals x) {
 		return null;
 	}
 
-	public T visitExpressionQualifiedName(Expression.QualifiedName x) {
+	public T visitOperatorAsValueIntersection(OperatorAsValue.Intersection x) {
 		return null;
 	}
 
-	public T visitExpressionLocation(Expression.Location x) {
+	public T visitOperatorAsValueDivision(OperatorAsValue.Division x) {
 		return null;
 	}
 
-	public T visitExpressionMap(Expression.Map x) {
+	public T visitOperatorAsValueProduct(OperatorAsValue.Product x) {
 		return null;
 	}
 
-	public T visitExpressionTuple(Expression.Tuple x) {
+	public T visitOperatorAsValueSubtraction(OperatorAsValue.Subtraction x) {
 		return null;
 	}
 
-	public T visitExpressionSet(Expression.Set x) {
+	public T visitOperatorAsValueAddition(OperatorAsValue.Addition x) {
 		return null;
 	}
 
-	public T visitExpressionList(Expression.List x) {
+	public T visitFunctionAsValueDefault(FunctionAsValue.Default x) {
 		return null;
 	}
 
-	public T visitExpressionCallOrTree(Expression.CallOrTree x) {
+	public T visitFieldIndex(Field.Index x) {
 		return null;
 	}
 
-	public T visitExpressionLiteral(Expression.Literal x) {
+	public T visitFieldName(Field.Name x) {
 		return null;
 	}
 
-	public T visitExpressionVisit(Expression.Visit x) {
+	public T visitClosureAsFunctionEvaluated(ClosureAsFunction.Evaluated x) {
 		return null;
 	}
 
-	public T visitExpressionNonEmptyBlock(Expression.NonEmptyBlock x) {
+	public T visitMappingDefault(Mapping.Default x) {
 		return null;
 	}
 
-	public T visitExpressionAnti(Expression.Anti x) {
+	public T visitStrategyInnermost(Strategy.Innermost x) {
 		return null;
 	}
 
-	public T visitExpressionGuarded(Expression.Guarded x) {
+	public T visitStrategyOutermost(Strategy.Outermost x) {
 		return null;
 	}
 
-	public T visitExpressionTypedVariableBecomes(
-			Expression.TypedVariableBecomes x) {
+	public T visitStrategyBottomUpBreak(Strategy.BottomUpBreak x) {
 		return null;
 	}
 
-	public T visitExpressionVariableBecomes(Expression.VariableBecomes x) {
+	public T visitStrategyBottomUp(Strategy.BottomUp x) {
 		return null;
 	}
 
-	public T visitCommentLexical(Comment.Lexical x) {
+	public T visitStrategyTopDownBreak(Strategy.TopDownBreak x) {
 		return null;
 	}
 
-	public T visitCommentCharLexical(CommentChar.Lexical x) {
+	public T visitStrategyTopDown(Strategy.TopDown x) {
 		return null;
 	}
 
-	public T visitAsteriskLexical(Asterisk.Lexical x) {
+	public T visitComprehensionMap(Comprehension.Map x) {
 		return null;
 	}
 
-	public T visitNameLexical(Name.Lexical x) {
+	public T visitComprehensionList(Comprehension.List x) {
 		return null;
 	}
 
-	public T visitEscapedNameLexical(EscapedName.Lexical x) {
+	public T visitComprehensionSet(Comprehension.Set x) {
 		return null;
 	}
 
-	public T visitQualifiedNameDefault(QualifiedName.Default x) {
+	public T visitReplacementConditional(Replacement.Conditional x) {
+		return null;
+	}
+
+	public T visitReplacementUnconditional(Replacement.Unconditional x) {
+		return null;
+	}
+
+	public T visitPatternWithActionArbitrary(PatternWithAction.Arbitrary x) {
+		return null;
+	}
+
+	public T visitPatternWithActionReplacing(PatternWithAction.Replacing x) {
+		return null;
+	}
+
+	public T visitCaseDefault(Case.Default x) {
+		return null;
+	}
+
+	public T visitCasePatternWithAction(Case.PatternWithAction x) {
+		return null;
+	}
+
+	public T visitVisitGivenStrategy(Visit.GivenStrategy x) {
+		return null;
+	}
+
+	public T visitVisitDefaultStrategy(Visit.DefaultStrategy x) {
+		return null;
+	}
+
+	public T visitBasicTypeArea(BasicType.Area x) {
+		return null;
+	}
+
+	public T visitBasicTypeLoc(BasicType.Loc x) {
+		return null;
+	}
+
+	public T visitBasicTypeVoid(BasicType.Void x) {
+		return null;
+	}
+
+	public T visitBasicTypeNode(BasicType.Node x) {
+		return null;
+	}
+
+	public T visitBasicTypeValue(BasicType.Value x) {
+		return null;
+	}
+
+	public T visitBasicTypeString(BasicType.String x) {
+		return null;
+	}
+
+	public T visitBasicTypeReal(BasicType.Real x) {
+		return null;
+	}
+
+	public T visitBasicTypeInt(BasicType.Int x) {
+		return null;
+	}
+
+	public T visitBasicTypeBool(BasicType.Bool x) {
+		return null;
+	}
+
+	public T visitTypeArgNamed(TypeArg.Named x) {
+		return null;
+	}
+
+	public T visitTypeArgDefault(TypeArg.Default x) {
+		return null;
+	}
+
+	public T visitStructuredTypeLex(StructuredType.Lex x) {
+		return null;
+	}
+
+	public T visitStructuredTypeTuple(StructuredType.Tuple x) {
+		return null;
+	}
+
+	public T visitStructuredTypeRelation(StructuredType.Relation x) {
+		return null;
+	}
+
+	public T visitStructuredTypeMap(StructuredType.Map x) {
+		return null;
+	}
+
+	public T visitStructuredTypeBag(StructuredType.Bag x) {
+		return null;
+	}
+
+	public T visitStructuredTypeSet(StructuredType.Set x) {
+		return null;
+	}
+
+	public T visitStructuredTypeList(StructuredType.List x) {
+		return null;
+	}
+
+	public T visitFunctionTypeTypeArguments(FunctionType.TypeArguments x) {
+		return null;
+	}
+
+	public T visitTypeVarBounded(TypeVar.Bounded x) {
+		return null;
+	}
+
+	public T visitTypeVarFree(TypeVar.Free x) {
+		return null;
+	}
+
+	public T visitUserTypeParametric(UserType.Parametric x) {
+		return null;
+	}
+
+	public T visitUserTypeName(UserType.Name x) {
+		return null;
+	}
+
+	public T visitDataTypeSelectorSelector(DataTypeSelector.Selector x) {
+		return null;
+	}
+
+	public T visitTypeSelector(Type.Selector x) {
+		return null;
+	}
+
+	public T visitTypeSymbol(Type.Symbol x) {
+		return null;
+	}
+
+	public T visitTypeUser(Type.User x) {
+		return null;
+	}
+
+	public T visitTypeVariable(Type.Variable x) {
+		return null;
+	}
+
+	public T visitTypeFunction(Type.Function x) {
+		return null;
+	}
+
+	public T visitTypeStructured(Type.Structured x) {
+		return null;
+	}
+
+	public T visitTypeBasic(Type.Basic x) {
+		return null;
+	}
+
+	public T visitModuleDefault(Module.Default x) {
+		return null;
+	}
+
+	public T visitModuleActualsDefault(ModuleActuals.Default x) {
+		return null;
+	}
+
+	public T visitImportedModuleDefault(ImportedModule.Default x) {
+		return null;
+	}
+
+	public T visitImportedModuleRenamings(ImportedModule.Renamings x) {
+		return null;
+	}
+
+	public T visitImportedModuleActuals(ImportedModule.Actuals x) {
+		return null;
+	}
+
+	public T visitImportedModuleActualsRenaming(ImportedModule.ActualsRenaming x) {
+		return null;
+	}
+
+	public T visitRenamingDefault(Renaming.Default x) {
+		return null;
+	}
+
+	public T visitRenamingsDefault(Renamings.Default x) {
+		return null;
+	}
+
+	public T visitImportExtend(Import.Extend x) {
+		return null;
+	}
+
+	public T visitImportDefault(Import.Default x) {
+		return null;
+	}
+
+	public T visitModuleParametersDefault(ModuleParameters.Default x) {
+		return null;
+	}
+
+	public T visitHeaderParameters(Header.Parameters x) {
+		return null;
+	}
+
+	public T visitHeaderDefault(Header.Default x) {
 		return null;
 	}
 
@@ -510,179 +911,151 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
 		return null;
 	}
 
-	public T visitBasicTypeArea(BasicType.Area x) {
+	public T visitVisibilityPrivate(Visibility.Private x) {
 		return null;
 	}
 
-	public T visitBasicTypeLoc(BasicType.Loc x) {
+	public T visitVisibilityPublic(Visibility.Public x) {
 		return null;
 	}
 
-	public T visitBasicTypeVoid(BasicType.Void x) {
+	public T visitToplevelDefaultVisibility(Toplevel.DefaultVisibility x) {
 		return null;
 	}
 
-	public T visitBasicTypeNode(BasicType.Node x) {
+	public T visitToplevelGivenVisibility(Toplevel.GivenVisibility x) {
 		return null;
 	}
 
-	public T visitBasicTypeValue(BasicType.Value x) {
+	public T visitDeclarationTag(Declaration.Tag x) {
 		return null;
 	}
 
-	public T visitBasicTypeString(BasicType.String x) {
+	public T visitDeclarationAnnotation(Declaration.Annotation x) {
 		return null;
 	}
 
-	public T visitBasicTypeReal(BasicType.Real x) {
+	public T visitDeclarationRule(Declaration.Rule x) {
 		return null;
 	}
 
-	public T visitBasicTypeInt(BasicType.Int x) {
+	public T visitDeclarationVariable(Declaration.Variable x) {
 		return null;
 	}
 
-	public T visitBasicTypeBool(BasicType.Bool x) {
+	public T visitDeclarationFunction(Declaration.Function x) {
 		return null;
 	}
 
-	public T visitTypeArgNamed(TypeArg.Named x) {
+	public T visitDeclarationData(Declaration.Data x) {
 		return null;
 	}
 
-	public T visitTypeArgDefault(TypeArg.Default x) {
+	public T visitDeclarationAlias(Declaration.Alias x) {
 		return null;
 	}
 
-	public T visitStructuredTypeLex(StructuredType.Lex x) {
+	public T visitDeclarationView(Declaration.View x) {
 		return null;
 	}
 
-	public T visitStructuredTypeTuple(StructuredType.Tuple x) {
+	public T visitAlternativeNamedType(Alternative.NamedType x) {
 		return null;
 	}
 
-	public T visitStructuredTypeRelation(StructuredType.Relation x) {
+	public T visitVariantNillaryConstructor(Variant.NillaryConstructor x) {
 		return null;
 	}
 
-	public T visitStructuredTypeMap(StructuredType.Map x) {
+	public T visitVariantNAryConstructor(Variant.NAryConstructor x) {
 		return null;
 	}
 
-	public T visitStructuredTypeBag(StructuredType.Bag x) {
+	public T visitFunctionModifierJava(FunctionModifier.Java x) {
 		return null;
 	}
 
-	public T visitStructuredTypeSet(StructuredType.Set x) {
+	public T visitFunctionModifiersList(FunctionModifiers.List x) {
 		return null;
 	}
 
-	public T visitStructuredTypeList(StructuredType.List x) {
+	public T visitSignatureWithThrows(Signature.WithThrows x) {
 		return null;
 	}
 
-	public T visitFunctionTypeTypeArguments(FunctionType.TypeArguments x) {
+	public T visitSignatureNoThrows(Signature.NoThrows x) {
 		return null;
 	}
 
-	public T visitTypeVarBounded(TypeVar.Bounded x) {
+	public T visitFunctionDeclarationAbstract(FunctionDeclaration.Abstract x) {
 		return null;
 	}
 
-	public T visitTypeVarFree(TypeVar.Free x) {
+	public T visitFunctionDeclarationDefault(FunctionDeclaration.Default x) {
 		return null;
 	}
 
-	public T visitUserTypeParametric(UserType.Parametric x) {
+	public T visitFunctionBodyDefault(FunctionBody.Default x) {
 		return null;
 	}
 
-	public T visitUserTypeName(UserType.Name x) {
+	public T visitVariableInitialized(Variable.Initialized x) {
 		return null;
 	}
 
-	public T visitDataTypeSelectorSelector(DataTypeSelector.Selector x) {
+	public T visitVariableUnInitialized(Variable.UnInitialized x) {
 		return null;
 	}
 
-	public T visitTypeSelector(Type.Selector x) {
+	public T visitKindAll(Kind.All x) {
 		return null;
 	}
 
-	public T visitTypeSymbol(Type.Symbol x) {
+	public T visitKindTag(Kind.Tag x) {
 		return null;
 	}
 
-	public T visitTypeUser(Type.User x) {
+	public T visitKindAnno(Kind.Anno x) {
 		return null;
 	}
 
-	public T visitTypeVariable(Type.Variable x) {
+	public T visitKindAlias(Kind.Alias x) {
 		return null;
 	}
 
-	public T visitTypeFunction(Type.Function x) {
+	public T visitKindView(Kind.View x) {
 		return null;
 	}
 
-	public T visitTypeStructured(Type.Structured x) {
+	public T visitKindData(Kind.Data x) {
 		return null;
 	}
 
-	public T visitTypeBasic(Type.Basic x) {
+	public T visitKindVariable(Kind.Variable x) {
 		return null;
 	}
 
-	public T visitModuleDefault(Module.Default x) {
+	public T visitKindRule(Kind.Rule x) {
 		return null;
 	}
 
-	public T visitModuleActualsDefault(ModuleActuals.Default x) {
+	public T visitKindFunction(Kind.Function x) {
 		return null;
 	}
 
-	public T visitImportedModuleDefault(ImportedModule.Default x) {
+	public T visitKindModule(Kind.Module x) {
 		return null;
 	}
 
-	public T visitImportedModuleRenamings(ImportedModule.Renamings x) {
+	public T visitCommentLexical(Comment.Lexical x) {
 		return null;
 	}
 
-	public T visitImportedModuleActuals(ImportedModule.Actuals x) {
+	public T visitCommentCharLexical(CommentChar.Lexical x) {
 		return null;
 	}
 
-	public T visitImportedModuleActualsRenaming(ImportedModule.ActualsRenaming x) {
-		return null;
-	}
-
-	public T visitRenamingDefault(Renaming.Default x) {
-		return null;
-	}
-
-	public T visitRenamingsDefault(Renamings.Default x) {
-		return null;
-	}
-
-	public T visitImportExtend(Import.Extend x) {
-		return null;
-	}
-
-	public T visitImportDefault(Import.Default x) {
-		return null;
-	}
-
-	public T visitModuleParametersDefault(ModuleParameters.Default x) {
-		return null;
-	}
-
-	public T visitHeaderParameters(Header.Parameters x) {
-		return null;
-	}
-
-	public T visitHeaderDefault(Header.Default x) {
+	public T visitAsteriskLexical(Asterisk.Lexical x) {
 		return null;
 	}
 
@@ -838,63 +1211,7 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
 		return null;
 	}
 
-	public T visitCommandImport(Command.Import x) {
-		return null;
-	}
-
-	public T visitCommandDeclaration(Command.Declaration x) {
-		return null;
-	}
-
-	public T visitCommandStatement(Command.Statement x) {
-		return null;
-	}
-
-	public T visitCommandShell(Command.Shell x) {
-		return null;
-	}
-
-	public T visitShellCommandHistory(ShellCommand.History x) {
-		return null;
-	}
-
-	public T visitShellCommandEdit(ShellCommand.Edit x) {
-		return null;
-	}
-
-	public T visitShellCommandQuit(ShellCommand.Quit x) {
-		return null;
-	}
-
-	public T visitShellCommandHelp(ShellCommand.Help x) {
-		return null;
-	}
-
-	public T visitRegExpLiteralLexical(RegExpLiteral.Lexical x) {
-		return null;
-	}
-
-	public T visitRegExpModifierLexical(RegExpModifier.Lexical x) {
-		return null;
-	}
-
-	public T visitBackslashLexical(Backslash.Lexical x) {
-		return null;
-	}
-
-	public T visitRegExpLexical(RegExp.Lexical x) {
-		return null;
-	}
-
-	public T visitNamedRegExpLexical(NamedRegExp.Lexical x) {
-		return null;
-	}
-
-	public T visitNamedBackslashLexical(NamedBackslash.Lexical x) {
-		return null;
-	}
-
-	public T visitMappingDefault(Mapping.Default x) {
+	public T visitBodyToplevels(Body.Toplevels x) {
 		return null;
 	}
 
@@ -906,107 +1223,27 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
 		return null;
 	}
 
-	public T visitTagStringLexical(TagString.Lexical x) {
+	public T visitPatternConcreteUnquoted(Pattern.ConcreteUnquoted x) {
 		return null;
 	}
 
-	public T visitTagCharLexical(TagChar.Lexical x) {
+	public T visitPatternConcreteQuoted(Pattern.ConcreteQuoted x) {
 		return null;
 	}
 
-	public T visitTagDefault(Tag.Default x) {
+	public T visitSYMBOLMetaVariable(SYMBOL.MetaVariable x) {
 		return null;
 	}
 
-	public T visitTagsDefault(Tags.Default x) {
+	public T visitNameLexical(Name.Lexical x) {
 		return null;
 	}
 
-	public T visitStrategyInnermost(Strategy.Innermost x) {
+	public T visitEscapedNameLexical(EscapedName.Lexical x) {
 		return null;
 	}
 
-	public T visitStrategyOutermost(Strategy.Outermost x) {
-		return null;
-	}
-
-	public T visitStrategyBottomUpBreak(Strategy.BottomUpBreak x) {
-		return null;
-	}
-
-	public T visitStrategyBottomUp(Strategy.BottomUp x) {
-		return null;
-	}
-
-	public T visitStrategyTopDownBreak(Strategy.TopDownBreak x) {
-		return null;
-	}
-
-	public T visitStrategyTopDown(Strategy.TopDown x) {
-		return null;
-	}
-
-	public T visitComprehensionMap(Comprehension.Map x) {
-		return null;
-	}
-
-	public T visitComprehensionList(Comprehension.List x) {
-		return null;
-	}
-
-	public T visitComprehensionSet(Comprehension.Set x) {
-		return null;
-	}
-
-	public T visitReplacementConditional(Replacement.Conditional x) {
-		return null;
-	}
-
-	public T visitReplacementUnconditional(Replacement.Unconditional x) {
-		return null;
-	}
-
-	public T visitPatternWithActionArbitrary(PatternWithAction.Arbitrary x) {
-		return null;
-	}
-
-	public T visitPatternWithActionReplacing(PatternWithAction.Replacing x) {
-		return null;
-	}
-
-	public T visitCaseDefault(Case.Default x) {
-		return null;
-	}
-
-	public T visitCasePatternWithAction(Case.PatternWithAction x) {
-		return null;
-	}
-
-	public T visitVisitGivenStrategy(Visit.GivenStrategy x) {
-		return null;
-	}
-
-	public T visitVisitDefaultStrategy(Visit.DefaultStrategy x) {
-		return null;
-	}
-
-	public T visitLiteralString(Literal.String x) {
-		return null;
-	}
-
-	public T visitLiteralReal(Literal.Real x) {
-		return null;
-	}
-
-	public T visitLiteralInteger(Literal.Integer x) {
-		return null;
-	}
-
-	public T visitLiteralBoolean(Literal.Boolean x) {
-		return null;
-	}
-
-	public T visitLiteralRegExp(Literal.RegExp x) {
+	public T visitQualifiedNameDefault(QualifiedName.Default x) {
 		return null;
 	}
 
@@ -1093,240 +1330,67 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
 		return null;
 	}
 
-	public T visitVisibilityPrivate(Visibility.Private x) {
+	public T visitTagStringLexical(TagString.Lexical x) {
 		return null;
 	}
 
-	public T visitVisibilityPublic(Visibility.Public x) {
+	public T visitTagCharLexical(TagChar.Lexical x) {
 		return null;
 	}
 
-	public T visitToplevelDefaultVisibility(Toplevel.DefaultVisibility x) {
+	public T visitTagDefault(Tag.Default x) {
 		return null;
 	}
 
-	public T visitToplevelGivenVisibility(Toplevel.GivenVisibility x) {
+	public T visitTagsDefault(Tags.Default x) {
 		return null;
 	}
 
-	public T visitDeclarationTag(Declaration.Tag x) {
+	public T visitLiteralAmbiguity(Literal.Ambiguity x) {
 		return null;
 	}
 
-	public T visitDeclarationAnnotation(Declaration.Annotation x) {
+	public T visitRegExpLiteralAmbiguity(RegExpLiteral.Ambiguity x) {
 		return null;
 	}
 
-	public T visitDeclarationRule(Declaration.Rule x) {
+	public T visitRegExpModifierAmbiguity(RegExpModifier.Ambiguity x) {
 		return null;
 	}
 
-	public T visitDeclarationVariable(Declaration.Variable x) {
+	public T visitBackslashAmbiguity(Backslash.Ambiguity x) {
 		return null;
 	}
 
-	public T visitDeclarationFunction(Declaration.Function x) {
+	public T visitRegExpAmbiguity(RegExp.Ambiguity x) {
 		return null;
 	}
 
-	public T visitDeclarationData(Declaration.Data x) {
+	public T visitNamedRegExpAmbiguity(NamedRegExp.Ambiguity x) {
 		return null;
 	}
 
-	public T visitDeclarationAlias(Declaration.Alias x) {
+	public T visitNamedBackslashAmbiguity(NamedBackslash.Ambiguity x) {
 		return null;
 	}
 
-	public T visitDeclarationView(Declaration.View x) {
+	public T visitCommandAmbiguity(Command.Ambiguity x) {
 		return null;
 	}
 
-	public T visitAlternativeNamedType(Alternative.NamedType x) {
+	public T visitShellCommandAmbiguity(ShellCommand.Ambiguity x) {
 		return null;
 	}
 
-	public T visitVariantNillaryConstructor(Variant.NillaryConstructor x) {
+	public T visitFormalAmbiguity(Formal.Ambiguity x) {
 		return null;
 	}
 
-	public T visitVariantNAryConstructor(Variant.NAryConstructor x) {
+	public T visitFormalsAmbiguity(Formals.Ambiguity x) {
 		return null;
 	}
 
-	public T visitFunctionModifierJava(FunctionModifier.Java x) {
-		return null;
-	}
-
-	public T visitFunctionModifiersList(FunctionModifiers.List x) {
-		return null;
-	}
-
-	public T visitSignatureWithThrows(Signature.WithThrows x) {
-		return null;
-	}
-
-	public T visitSignatureNoThrows(Signature.NoThrows x) {
-		return null;
-	}
-
-	public T visitFunctionDeclarationAbstract(FunctionDeclaration.Abstract x) {
-		return null;
-	}
-
-	public T visitFunctionDeclarationDefault(FunctionDeclaration.Default x) {
-		return null;
-	}
-
-	public T visitFunctionBodyDefault(FunctionBody.Default x) {
-		return null;
-	}
-
-	public T visitVariableInitialized(Variable.Initialized x) {
-		return null;
-	}
-
-	public T visitVariableUnInitialized(Variable.UnInitialized x) {
-		return null;
-	}
-
-	public T visitKindAll(Kind.All x) {
-		return null;
-	}
-
-	public T visitKindTag(Kind.Tag x) {
-		return null;
-	}
-
-	public T visitKindAnno(Kind.Anno x) {
-		return null;
-	}
-
-	public T visitKindAlias(Kind.Alias x) {
-		return null;
-	}
-
-	public T visitKindView(Kind.View x) {
-		return null;
-	}
-
-	public T visitKindData(Kind.Data x) {
-		return null;
-	}
-
-	public T visitKindVariable(Kind.Variable x) {
-		return null;
-	}
-
-	public T visitKindRule(Kind.Rule x) {
-		return null;
-	}
-
-	public T visitKindFunction(Kind.Function x) {
-		return null;
-	}
-
-	public T visitKindModule(Kind.Module x) {
-		return null;
-	}
-
-	public T visitFormalTypeName(Formal.TypeName x) {
-		return null;
-	}
-
-	public T visitFormalsDefault(Formals.Default x) {
-		return null;
-	}
-
-	public T visitParametersVarArgs(Parameters.VarArgs x) {
-		return null;
-	}
-
-	public T visitParametersDefault(Parameters.Default x) {
-		return null;
-	}
-
-	public T visitOperatorAsValueNotIn(OperatorAsValue.NotIn x) {
-		return null;
-	}
-
-	public T visitOperatorAsValueIn(OperatorAsValue.In x) {
-		return null;
-	}
-
-	public T visitOperatorAsValueNot(OperatorAsValue.Not x) {
-		return null;
-	}
-
-	public T visitOperatorAsValueOr(OperatorAsValue.Or x) {
-		return null;
-	}
-
-	public T visitOperatorAsValueAnd(OperatorAsValue.And x) {
-		return null;
-	}
-
-	public T visitOperatorAsValueGreaterThanOrEq(
-			OperatorAsValue.GreaterThanOrEq x) {
-		return null;
-	}
-
-	public T visitOperatorAsValueGreaterThan(OperatorAsValue.GreaterThan x) {
-		return null;
-	}
-
-	public T visitOperatorAsValueLessThanOrEq(OperatorAsValue.LessThanOrEq x) {
-		return null;
-	}
-
-	public T visitOperatorAsValueLessThan(OperatorAsValue.LessThan x) {
-		return null;
-	}
-
-	public T visitOperatorAsValueNotEquals(OperatorAsValue.NotEquals x) {
-		return null;
-	}
-
-	public T visitOperatorAsValueEquals(OperatorAsValue.Equals x) {
-		return null;
-	}
-
-	public T visitOperatorAsValueIntersection(OperatorAsValue.Intersection x) {
-		return null;
-	}
-
-	public T visitOperatorAsValueDivision(OperatorAsValue.Division x) {
-		return null;
-	}
-
-	public T visitOperatorAsValueProduct(OperatorAsValue.Product x) {
-		return null;
-	}
-
-	public T visitOperatorAsValueSubtraction(OperatorAsValue.Subtraction x) {
-		return null;
-	}
-
-	public T visitOperatorAsValueAddition(OperatorAsValue.Addition x) {
-		return null;
-	}
-
-	public T visitFunctionAsValueDefault(FunctionAsValue.Default x) {
-		return null;
-	}
-
-	public T visitFieldIndex(Field.Index x) {
-		return null;
-	}
-
-	public T visitFieldName(Field.Name x) {
-		return null;
-	}
-
-	public T visitClosureAsFunctionEvaluated(ClosureAsFunction.Evaluated x) {
-		return null;
-	}
-
-	public T visitBodyAmbiguity(Body.Ambiguity x) {
+	public T visitParametersAmbiguity(Parameters.Ambiguity x) {
 		return null;
 	}
 
@@ -1334,76 +1398,47 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
 		return null;
 	}
 
-	public T visitCommentAmbiguity(Comment.Ambiguity x) {
+	public T visitOperatorAsValueAmbiguity(OperatorAsValue.Ambiguity x) {
 		return null;
 	}
 
-	public T visitCommentCharAmbiguity(CommentChar.Ambiguity x) {
+	public T visitFunctionAsValueAmbiguity(FunctionAsValue.Ambiguity x) {
 		return null;
 	}
 
-	public T visitAsteriskAmbiguity(Asterisk.Ambiguity x) {
+	public T visitFieldAmbiguity(Field.Ambiguity x) {
 		return null;
 	}
 
-	public T visitNameAmbiguity(Name.Ambiguity x) {
+	public T visitClosureAsFunctionAmbiguity(ClosureAsFunction.Ambiguity x) {
 		return null;
 	}
 
-	public T visitEscapedNameAmbiguity(EscapedName.Ambiguity x) {
+	public T visitMappingAmbiguity(Mapping.Ambiguity x) {
 		return null;
 	}
 
-	public T visitQualifiedNameAmbiguity(QualifiedName.Ambiguity x) {
+	public T visitStrategyAmbiguity(Strategy.Ambiguity x) {
 		return null;
 	}
 
-	public T visitBoundAmbiguity(Bound.Ambiguity x) {
+	public T visitComprehensionAmbiguity(Comprehension.Ambiguity x) {
 		return null;
 	}
 
-	public T visitStatementAmbiguity(Statement.Ambiguity x) {
+	public T visitReplacementAmbiguity(Replacement.Ambiguity x) {
 		return null;
 	}
 
-	public T visitNoElseMayFollowAmbiguity(NoElseMayFollow.Ambiguity x) {
+	public T visitPatternWithActionAmbiguity(PatternWithAction.Ambiguity x) {
 		return null;
 	}
 
-	public T visitAssignableAmbiguity(Assignable.Ambiguity x) {
+	public T visitCaseAmbiguity(Case.Ambiguity x) {
 		return null;
 	}
 
-	public T visitAssignmentAmbiguity(Assignment.Ambiguity x) {
-		return null;
-	}
-
-	public T visitLabelAmbiguity(Label.Ambiguity x) {
-		return null;
-	}
-
-	public T visitBreakAmbiguity(Break.Ambiguity x) {
-		return null;
-	}
-
-	public T visitFailAmbiguity(Fail.Ambiguity x) {
-		return null;
-	}
-
-	public T visitReturnAmbiguity(Return.Ambiguity x) {
-		return null;
-	}
-
-	public T visitCatchAmbiguity(Catch.Ambiguity x) {
-		return null;
-	}
-
-	public T visitDeclaratorAmbiguity(Declarator.Ambiguity x) {
-		return null;
-	}
-
-	public T visitLocalVariableDeclarationAmbiguity(
-			LocalVariableDeclaration.Ambiguity x) {
+	public T visitVisitAmbiguity(Visit.Ambiguity x) {
 		return null;
 	}
 
@@ -1471,6 +1506,115 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
 		return null;
 	}
 
+	public T visitBoundAmbiguity(Bound.Ambiguity x) {
+		return null;
+	}
+
+	public T visitStatementAmbiguity(Statement.Ambiguity x) {
+		return null;
+	}
+
+	public T visitNoElseMayFollowAmbiguity(NoElseMayFollow.Ambiguity x) {
+		return null;
+	}
+
+	public T visitAssignableAmbiguity(Assignable.Ambiguity x) {
+		return null;
+	}
+
+	public T visitAssignmentAmbiguity(Assignment.Ambiguity x) {
+		return null;
+	}
+
+	public T visitLabelAmbiguity(Label.Ambiguity x) {
+		return null;
+	}
+
+	public T visitBreakAmbiguity(Break.Ambiguity x) {
+		return null;
+	}
+
+	public T visitFailAmbiguity(Fail.Ambiguity x) {
+		return null;
+	}
+
+	public T visitReturnAmbiguity(Return.Ambiguity x) {
+		return null;
+	}
+
+	public T visitCatchAmbiguity(Catch.Ambiguity x) {
+		return null;
+	}
+
+	public T visitDeclaratorAmbiguity(Declarator.Ambiguity x) {
+		return null;
+	}
+
+	public T visitLocalVariableDeclarationAmbiguity(
+			LocalVariableDeclaration.Ambiguity x) {
+		return null;
+	}
+
+	public T visitVisibilityAmbiguity(Visibility.Ambiguity x) {
+		return null;
+	}
+
+	public T visitToplevelAmbiguity(Toplevel.Ambiguity x) {
+		return null;
+	}
+
+	public T visitDeclarationAmbiguity(Declaration.Ambiguity x) {
+		return null;
+	}
+
+	public T visitAlternativeAmbiguity(Alternative.Ambiguity x) {
+		return null;
+	}
+
+	public T visitVariantAmbiguity(Variant.Ambiguity x) {
+		return null;
+	}
+
+	public T visitFunctionModifierAmbiguity(FunctionModifier.Ambiguity x) {
+		return null;
+	}
+
+	public T visitFunctionModifiersAmbiguity(FunctionModifiers.Ambiguity x) {
+		return null;
+	}
+
+	public T visitSignatureAmbiguity(Signature.Ambiguity x) {
+		return null;
+	}
+
+	public T visitFunctionDeclarationAmbiguity(FunctionDeclaration.Ambiguity x) {
+		return null;
+	}
+
+	public T visitFunctionBodyAmbiguity(FunctionBody.Ambiguity x) {
+		return null;
+	}
+
+	public T visitVariableAmbiguity(Variable.Ambiguity x) {
+		return null;
+	}
+
+	public T visitKindAmbiguity(Kind.Ambiguity x) {
+		return null;
+	}
+
+	public T visitCommentAmbiguity(Comment.Ambiguity x) {
+		return null;
+	}
+
+	public T visitCommentCharAmbiguity(CommentChar.Ambiguity x) {
+		return null;
+	}
+
+	public T visitAsteriskAmbiguity(Asterisk.Ambiguity x) {
+		return null;
+	}
+
 	public T visitStrCharAmbiguity(StrChar.Ambiguity x) {
 		return null;
 	}
@@ -1519,39 +1663,7 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
 		return null;
 	}
 
-	public T visitCommandAmbiguity(Command.Ambiguity x) {
-		return null;
-	}
-
-	public T visitShellCommandAmbiguity(ShellCommand.Ambiguity x) {
-		return null;
-	}
-
-	public T visitRegExpLiteralAmbiguity(RegExpLiteral.Ambiguity x) {
-		return null;
-	}
-
-	public T visitRegExpModifierAmbiguity(RegExpModifier.Ambiguity x) {
-		return null;
-	}
-
-	public T visitBackslashAmbiguity(Backslash.Ambiguity x) {
-		return null;
-	}
-
-	public T visitRegExpAmbiguity(RegExp.Ambiguity x) {
-		return null;
-	}
-
-	public T visitNamedRegExpAmbiguity(NamedRegExp.Ambiguity x) {
-		return null;
-	}
-
-	public T visitNamedBackslashAmbiguity(NamedBackslash.Ambiguity x) {
-		return null;
-	}
-
-	public T visitMappingAmbiguity(Mapping.Ambiguity x) {
+	public T visitBodyAmbiguity(Body.Ambiguity x) {
 		return null;
 	}
 
@@ -1563,47 +1675,23 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
 		return null;
 	}
 
-	public T visitTagStringAmbiguity(TagString.Ambiguity x) {
+	public T visitPatternAmbiguity(Pattern.Ambiguity x) {
 		return null;
 	}
 
-	public T visitTagCharAmbiguity(TagChar.Ambiguity x) {
+	public T visitSYMBOLAmbiguity(SYMBOL.Ambiguity x) {
 		return null;
 	}
 
-	public T visitTagAmbiguity(Tag.Ambiguity x) {
+	public T visitNameAmbiguity(Name.Ambiguity x) {
 		return null;
 	}
 
-	public T visitTagsAmbiguity(Tags.Ambiguity x) {
+	public T visitEscapedNameAmbiguity(EscapedName.Ambiguity x) {
 		return null;
 	}
 
-	public T visitStrategyAmbiguity(Strategy.Ambiguity x) {
-		return null;
-	}
-
-	public T visitComprehensionAmbiguity(Comprehension.Ambiguity x) {
-		return null;
-	}
-
-	public T visitReplacementAmbiguity(Replacement.Ambiguity x) {
-		return null;
-	}
-
-	public T visitPatternWithActionAmbiguity(PatternWithAction.Ambiguity x) {
-		return null;
-	}
-
-	public T visitCaseAmbiguity(Case.Ambiguity x) {
-		return null;
-	}
-
-	public T visitVisitAmbiguity(Visit.Ambiguity x) {
-		return null;
-	}
-
-	public T visitLiteralAmbiguity(Literal.Ambiguity x) {
+	public T visitQualifiedNameAmbiguity(QualifiedName.Ambiguity x) {
 		return null;
 	}
 
@@ -1672,79 +1760,19 @@ public class NullASTVisitor<T> implements IASTVisitor<T> {
 		return null;
 	}
 
-	public T visitVisibilityAmbiguity(Visibility.Ambiguity x) {
+	public T visitTagStringAmbiguity(TagString.Ambiguity x) {
 		return null;
 	}
 
-	public T visitToplevelAmbiguity(Toplevel.Ambiguity x) {
+	public T visitTagCharAmbiguity(TagChar.Ambiguity x) {
 		return null;
 	}
 
-	public T visitDeclarationAmbiguity(Declaration.Ambiguity x) {
+	public T visitTagAmbiguity(Tag.Ambiguity x) {
 		return null;
 	}
 
-	public T visitAlternativeAmbiguity(Alternative.Ambiguity x) {
-		return null;
-	}
-
-	public T visitVariantAmbiguity(Variant.Ambiguity x) {
-		return null;
-	}
-
-	public T visitFunctionModifierAmbiguity(FunctionModifier.Ambiguity x) {
-		return null;
-	}
-
-	public T visitFunctionModifiersAmbiguity(FunctionModifiers.Ambiguity x) {
-		return null;
-	}
-
-	public T visitSignatureAmbiguity(Signature.Ambiguity x) {
-		return null;
-	}
-
-	public T visitFunctionDeclarationAmbiguity(FunctionDeclaration.Ambiguity x) {
-		return null;
-	}
-
-	public T visitFunctionBodyAmbiguity(FunctionBody.Ambiguity x) {
-		return null;
-	}
-
-	public T visitVariableAmbiguity(Variable.Ambiguity x) {
-		return null;
-	}
-
-	public T visitKindAmbiguity(Kind.Ambiguity x) {
-		return null;
-	}
-
-	public T visitFormalAmbiguity(Formal.Ambiguity x) {
-		return null;
-	}
-
-	public T visitFormalsAmbiguity(Formals.Ambiguity x) {
-		return null;
-	}
-
-	public T visitParametersAmbiguity(Parameters.Ambiguity x) {
-		return null;
-	}
-
-	public T visitOperatorAsValueAmbiguity(OperatorAsValue.Ambiguity x) {
-		return null;
-	}
-
-	public T visitFunctionAsValueAmbiguity(FunctionAsValue.Ambiguity x) {
-		return null;
-	}
-
-	public T visitFieldAmbiguity(Field.Ambiguity x) {
-		return null;
-	}
-
-	public T visitClosureAsFunctionAmbiguity(ClosureAsFunction.Ambiguity x) {
+	public T visitTagsAmbiguity(Tags.Ambiguity x) {
 		return null;
 	}
 }

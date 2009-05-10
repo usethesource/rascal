@@ -442,11 +442,11 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 	}
 	
-	private boolean mayOccurIn(Type small, Type large) {
+	boolean mayOccurIn(Type small, Type large) {
 		return mayOccurIn(small, large, new HashSet<Type>());
 	}
 		
-	private boolean mayOccurIn(Type small, Type large, java.util.Set<Type> seen){
+	boolean mayOccurIn(Type small, Type large, java.util.Set<Type> seen){
 		if(small.isVoidType())
 			return true;
 		if(large.isVoidType())
@@ -782,18 +782,6 @@ public class Evaluator extends NullASTVisitor<Result> {
 		return ResultFactory.nothing();
 	}
 	
-	/*@Override
-	public Result<IValue> visitPatternActionGuarded(Guarded x) {
-		//TODO adapt to new scheme
-		Result<IValue> result = x.getRule().getPattern().getPattern().accept(this);
-		Type expected = evalType(x.getType());
-		Type got = result.getType();
-		if (!got.isSubtypeOf(expected)) {
-			throw new UnexpectedTypeError(expected, got, x);
-		}
-		return x.getRule().accept(this);
-	}
-	*/
 	
 	@Override
 	public Result<IValue> visitDeclarationTag(Tag x) {
@@ -2753,18 +2741,18 @@ public class Evaluator extends NullASTVisitor<Result> {
 	@Override
 	public Result<IValue> visitExpressionEnumerator(
 			org.meta_environment.rascal.ast.Expression.Enumerator x) {
-		return new EnumeratorAsGenerator(x, this);
+		return new EnumerateAndMatch(x, this);
 	}
 	
 	@Override
 	public Result<IValue> visitExpressionEnumeratorWithStrategy(
 			EnumeratorWithStrategy x) {
-		return new EnumeratorAsGenerator(x, this);
+		return new EnumerateAndMatch(x, this);
 	}
 	
 	/*
 	 * ExpressionAsGenerator implements an expression appearing in a comprehension.
-	 * The expression maybe multiple-valued (e.g. a match expression) and its its successive
+	 * The expression maybe multiple-valued (e.g. a match expression) and its successive
 	 * values will be generated.
 	 */
 	
@@ -2832,189 +2820,9 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 	}
 	
-	/*
-	 * EnumeratorAsGenerator implements an enumerator of the form
-	 * 	pattern <- Expression
-	 * that occurs in a comprehension. The expression produces a sequence of values and the
-	 * pattern is matched against each value.
-	 */
-	
-	class EnumeratorAsGenerator extends Result<IValue> {
-		private boolean firstTime = true;
-		private boolean hasNext = true;
-		private Environment pushedEnv;
-		private MatchPattern pat;
-		private java.util.List<String> patVars;
-		private org.meta_environment.rascal.ast.Expression patexpr;
-		private Evaluator evaluator;
-		private Iterator<?> iterator;
-
-		EnumeratorAsGenerator(Expression enumerator, Evaluator ev){
-			super(tf.boolType(), vf.bool(true), null);
-
-			evaluator = ev;
-			if(!(enumerator.isEnumerator() || enumerator.isEnumeratorWithStrategy())){
-				throw new ImplementationError("EnumeratorAsGenerator");
-			}			
-				
-			pushedEnv = evaluator.pushEnv();
-			pat = evalPattern(enumerator.getPattern());
-			
-			// Collect all variables in the pattern and remove those that are 
-			// already defined in the current environment
-			
-			java.util.List<String> vars = pat.getVariables();
-		
-			patVars = new java.util.ArrayList<String>(vars.size());
-			for(String name : vars){
-				Result r = pushedEnv.getVariable(null, name);
-				if(r == null || r.getValue() == null)
-					patVars.add(name);
-			}
-			patexpr = enumerator.getExpression();
-		
-			Result<IValue> r = patexpr.accept(ev);
-			Type patType = pat.getType(evaluator.peek());
-			
-			// List
-			if(r.getType().isListType()){
-				if(enumerator.hasStrategy()) {
-					throw new UnsupportedOperationError(enumerator.toString(), r.getType(), enumerator);
-				}
-				if(!mayOccurIn(patType,r.getType().getElementType(), new HashSet<Type>()))
-						throw new UnexpectedTypeError(patType, r.getType().getElementType(), enumerator.getPattern());
-				iterator = ((IList) r.getValue()).iterator();
-				
-			// Set
-			} else 	if(r.getType().isSetType()){
-				if(enumerator.hasStrategy()) {
-					throw new UnsupportedOperationError(enumerator.toString(), r.getType(), enumerator);
-				}
-				if(!mayOccurIn(patType,r.getType().getElementType()))
-					throw new UnexpectedTypeError(patType, r.getType().getElementType(), enumerator.getPattern());
-				iterator = ((ISet) r.getValue()).iterator();
-			
-			// Map
-			} else if(r.getType().isMapType()){
-				if(enumerator.hasStrategy()) {
-					throw new UnsupportedOperationError(enumerator.toString(), r.getType(), enumerator);
-				}
-				if(!mayOccurIn(patType,r.getType().getKeyType()))
-					throw new UnexpectedTypeError(patType, r.getType().getKeyType(), enumerator.getPattern());
-				iterator = ((IMap) r.getValue()).iterator();
-				
-			// Node and ADT
-			} else if(r.getType().isNodeType() || r.getType().isAbstractDataType()){
-				boolean bottomup = true;
-				if(enumerator.hasStrategy()){
-					Strategy strat = enumerator.getStrategy();
-
-					if(strat.isTopDown()){
-						bottomup = false;
-					} else if(strat.isBottomUp()){
-							bottomup = true;
-					} else {
-						throw new UnsupportedOperationError(enumerator.toString(), r.getType(), enumerator);
-					}
-				}
-				if(!mayOccurIn(patType, r.getType()))
-					throw new UnexpectedTypeError(patType, r.getType(), enumerator.getPattern());
-				iterator = new NodeReader((INode) r.getValue(), bottomup);
-			} else if(r.getType().isStringType()){
-				if(enumerator.hasStrategy()) {
-					throw new UnsupportedOperationError(enumerator.getStrategy().toString(), r.getType(), enumerator.getStrategy());
-				}
-				if(!r.getType().isSubtypeOf(patType))
-					throw new UnexpectedTypeError(patType, r.getType(), enumerator.getPattern());
-				iterator = new SingleIValueIterator(r.getValue());
-			} else {
-				throw new UnsupportedOperationError("generator", r.getType(), enumerator);
-			}
-		}
-		
-		@Override
-		public Type getType(){
-			return TypeFactory.getInstance().boolType();
-		}
-		
-		@Override
-		public IValue getValue(){
-			/*
-			if(hasNext())
-				return next().getValue();
-			return vf.bool(true);
-			*/
-			
-			if(firstTime){
-				firstTime = false;
-				return next().getValue();
-			}
-			return vf.bool(true);
-		
-		}
-		
-		@Override
-		public boolean hasNext(){
-			if(hasNext){
-				boolean hn = pat.hasNext() || iterator.hasNext();
-				if(!hn){
-					hasNext = false;
-					//System.err.println("GeneratorEvaluator.pop, " + patexpr);
-					evaluator.popUntil(pushedEnv);
-				}
-				return hn;
-			}
-			return false;
-		}
-
-		@Override
-		public Result next(){
-			//System.err.println("getNext, trying pat " + pat);
-			/*
-			 * First, explore alternatives that remain to be matched by the current pattern
-			 */
-			
-			while(pat.hasNext()){
-				if(pat.next()){
-					//System.err.println("return true");
-					return new BoolResult(true, this, null);
-				}
-			}
-			
-			/*
-			 * Next, fetch a new data element (if any) and create a new pattern.
-			 */
-			
-			while(iterator.hasNext()){
-				// Nullify the variables set by the pattern
-				for(String var : patVars){
-					evaluator.peek().storeVariable(var,  ResultFactory.nothing());
-				}
-				IValue v = (IValue) iterator.next();
-				////System.err.println("getNext, try next from value iterator: " + v);
-				pat.initMatch(v, peek());
-				while(pat.hasNext()){
-					if(pat.next()){
-						//System.err.println("return true");
-					return new BoolResult(true, this, null);						
-					}	
-				}
-			}
-			//aSystem.err.println("next returns false and pops env");
-			hasNext = false;
-			evaluator.popUntil(pushedEnv);
-			return new BoolResult(false, null, null);
-		}
-
-		@Override
-		public void remove() {
-			throw new ImplementationError("remove() not implemented for GeneratorEvaluator");
-		}
-	}
-	
 	private Result<IValue> makeGenerator(Expression g){
 		if(g.isEnumerator() || g.isEnumeratorWithStrategy()){
-			return new EnumeratorAsGenerator(g, this);
+			return new EnumerateAndMatch(g, this);
 		}
 		
 		return new ExpressionAsGenerator(g,this);
