@@ -60,11 +60,20 @@ public class ASTBuilder {
 		IConstructor tree = (IConstructor) start.getArgs().get(1);
 		TreeAdapter treeAdapter = new TreeAdapter(tree); 
 
-		
-		if (treeAdapter.getSortName().equals(sort)) {
+		if (sortName(treeAdapter).equals(sort)) {
 			return (T) buildValue(tree);
 		}
 		throw new ImplementationError("This is not a" + sort +  ": " + new TreeAdapter(tree).yield());
+	}
+	
+	private String sortName(TreeAdapter tree) {
+		String sortName = tree.getSortName();
+		
+		if (sortName.startsWith("_")) {
+			sortName = sortName.substring(1);
+		}
+		
+		return sortName;
 	}
 	
 	private List<AbstractAST> buildList(IConstructor in)  {
@@ -81,7 +90,7 @@ public class ASTBuilder {
 			TreeAdapter tree = new TreeAdapter(in);
 
 			String cons = tree.getConstructorName();
-			String sort = tree.getProduction().getSortName();
+			String sort = sortName(tree);
 			sort = sort.equalsIgnoreCase("pattern") ? "Expression" : capitalize(sort); 
 			cons = capitalize(cons);
 			
@@ -136,7 +145,7 @@ public class ASTBuilder {
 							node);
 				}
 				else if (sort == null) {
-					sort = alt.getSortName();
+					sort = sortName(alt);
 				}
 				
 				alts.add(buildValue(elem));
@@ -169,7 +178,7 @@ public class ASTBuilder {
 		try {
 			TreeAdapter tree = new TreeAdapter(in);
 
-			String sort = tree.getProduction().getSortName();
+			String sort = sortName(tree);
 			String Sort = capitalize(sort);
 
 			Class<?> formals[] = new Class<?>[] { INode.class, String.class };
@@ -208,7 +217,7 @@ public class ASTBuilder {
 		if (tree.isLexToCf()) {
 			return buildLexicalNode((IConstructor) ((IList) ((IConstructor) arg).get("args")).get(0));
 		}
-		else if (tree.getSortName().equals("FunctionBody") && tree.getConstructorName().equals("Java")) {
+		else if (sortName(tree).equals("FunctionBody") && tree.getConstructorName().equals("Java")) {
 			return new JavaFunctionBody((INode) arg, tree.yield());
 		}
 			
