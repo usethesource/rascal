@@ -77,21 +77,21 @@ public &T multiply(list[&T] lst, &T unity)
   return reducer(lst, #mul, unity);
 }
 
-public list[list[&T]] permutations(list[&T] lst)
+public set[list[&T]] permutations(list[&T] lst)
 @doc{permutations -- return all permutations of a list}
 {
   int N = size(lst);
   if(N <= 1)
-  	return [[lst]];
+  	return {[lst]};
   	
-  list[list[&T]] result = [];
+  set[list[&T]] result = {};
   
   for(int i <- domain(lst)){
    
-  	list[list[&T]] perm = permutations(head(lst, i) + tail(lst, N - i -1));
+  	set[list[&T]] perm = permutations(head(lst, i) + tail(lst, N - i -1));
   	
   	for(list[&T] sub <- perm){
-  		result = result + [[lst[i], sub]];
+  		result = result + {[lst[i], sub]};
   	}
   }
   return result;
