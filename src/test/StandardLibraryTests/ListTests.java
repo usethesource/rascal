@@ -157,10 +157,10 @@ public class ListTests extends TestFramework {
 
 		prepare("import List;");
 
-		assertTrue(runTestInSameEvaluator("permutations([]) == [[]];"));
-		assertTrue(runTestInSameEvaluator("permutations([1]) == [[1]];"));
-		assertTrue(runTestInSameEvaluator("permutations([1,2]) == [[1,2],[2,1]];"));
-		assertTrue(runTestInSameEvaluator("permutations([1,2,3]) ==  [[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]];"));
+		assertTrue(runTestInSameEvaluator("permutations([]) == {[]};"));
+		assertTrue(runTestInSameEvaluator("permutations([1]) == {[1]};"));
+		assertTrue(runTestInSameEvaluator("permutations([1,2]) == {[1,2],[2,1]};"));
+		assertTrue(runTestInSameEvaluator("permutations([1,2,3]) ==  {[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]};"));
 
 	}
 
