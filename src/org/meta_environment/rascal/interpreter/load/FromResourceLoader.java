@@ -1,5 +1,6 @@
 package org.meta_environment.rascal.interpreter.load;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -46,7 +47,7 @@ public class FromResourceLoader extends AbstractModuleLoader {
 		URL url = clazz.getResource(sourceFolder + name);
 		
 		if (url == null) {
-			throw new FileNotFoundException(name);
+			throw new FileNotFoundException("File not found: " + name);
 		}
 		
 		return url.openStream();
