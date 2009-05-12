@@ -725,10 +725,16 @@ public class PatternTests extends TestFramework {
 	@Test
 	public void descendant(){
 		prepare("data F = f(F left, F right) | g(int N);");
-		assertTrue(runTestInSameEvaluator("/g(2) := f(g(1),f(g(2),g(3)));"));
-		assertTrue(runTestInSameEvaluator("[1, /g(2), 3] := [1, f(g(1),f(g(2),g(3))), 3];"));
-		assertTrue(runTestInSameEvaluator("[1, !/g(5), 3] := [1, f(g(1),f(g(2),g(3))), 3];"));
-		assertTrue(runTestInSameEvaluator("{[1, /g(int N), 3] := [1, f(g(1),f(g(2),g(3))), 3] && N > 2;}"));
+//		assertTrue(runTestInSameEvaluator("/g(2) := f(g(1),f(g(2),g(3)));"));
+//		assertTrue(runTestInSameEvaluator("[1, /g(2), 3] := [1, f(g(1),f(g(2),g(3))), 3];"));
+//		assertTrue(runTestInSameEvaluator("[1, !/g(5), 3] := [1, f(g(1),f(g(2),g(3))), 3];"));
+		
+//		assertTrue(runTestInSameEvaluator("{[1, /N, 3] := [1, [1,2,3,2], 3] && N == 1;}"));
+		assertTrue(runTestInSameEvaluator("{[1, [list[int] P, int N, list[int] Q]] := [1, [1,2,3,2], 3] && N > 1;}"));
+		
+//		assertTrue(runTestInSameEvaluator("{[1, /g(int N), 3] := [1, f(g(1),f(g(2),g(3))), 3] && N == 1;}"));
+//		assertTrue(runTestInSameEvaluator("{[1, /g(int N), 3] := [1, f(g(1),f(g(2),g(3))), 3] && N == 2;}"));
+//		assertTrue(runTestInSameEvaluator("{[1, /g(int N), 3] := [1, f(g(1),f(g(2),g(3))), 3] && N == 3;}"));
 	}
 	
 	@Test
