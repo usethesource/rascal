@@ -138,6 +138,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 	abstract public boolean next();
 	
 }
+
 /* package */ class AbstractPatternLiteral extends AbstractPattern {
 
 	private IValue literal;
@@ -156,7 +157,6 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 	public boolean next(){
 		checkInitialized();
 		hasNext = false;
-		//System.err.println("AbstractPatternLiteral.match: " + subject);
 		if (subject.getType().comparable(literal.getType())) {
 			return makeResult(subject.getType(), subject, ctx).equals(makeResult(literal.getType(), literal, ctx), ctx).isTrue();
 			// TODO move to call to Result.equals
@@ -254,6 +254,8 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 	
 	@Override
 	public boolean hasNext(){
+		if(!initialized)
+			return false;
 		if(firstMatch)
 			return true;
 		if(!hasNext)
@@ -1551,10 +1553,7 @@ class AbstractPatternTypedVariableBecomes extends AbstractPattern implements Mat
 	
 	@Override
 	public void initMatch(IValue subject, Environment ev){
-		this.subject = subject;
-		this.ev = ev;
-		this.initialized = true;
-		this.hasNext = true;
+		super.initMatch(subject,ev);
 		pat.initMatch(subject, ev);
 		if(!pat.getType(ev).isSubtypeOf(declaredType))
 			throw new UnexpectedTypeError(declaredType, pat.getType(ev), null);
@@ -1626,10 +1625,7 @@ class AbstractPatternVariableBecomes extends AbstractPattern implements MatchPat
 	
 	@Override
 	public void initMatch(IValue subject, Environment ev){
-		this.subject = subject;
-		this.ev = ev;
-		this.initialized = true;
-		this.hasNext = true;
+		super.initMatch(subject,ev);
 		pat.initMatch(subject, ev);
 	}
 	
@@ -1676,10 +1672,7 @@ class AbstractPatternGuarded extends AbstractPattern implements MatchPattern {
 	
 	@Override
 	public void initMatch(IValue subject, Environment ev){
-		this.subject = subject;
-		this.ev = ev;
-		this.initialized = true;
-		this.hasNext = true;
+		super.initMatch(subject,ev);
 		pat.initMatch(subject, ev);
 		this.hasNext = pat.getType(ev).equivalent(type);
 	}
@@ -1713,10 +1706,7 @@ class AbstractPatternAnti extends AbstractPattern implements MatchPattern {
 	
 	@Override
 	public void initMatch(IValue subject, Environment ev){
-		this.subject = subject;
-		this.ev = ev;
-		this.initialized = true;
-		this.hasNext = true;
+		super.initMatch(subject,ev);
 		pat.initMatch(subject, ev);
 		
 		java.util.List<String> vars = pat.getVariables();
@@ -1749,7 +1739,7 @@ class AbstractPatternDescendant extends AbstractPattern implements MatchPattern 
 
 	private MatchPattern pat;
 	private Evaluator eval;
-	private EnumerateAndMatch em;
+	private EnumerateAndMatch enumAndMatch;
 
 	public AbstractPatternDescendant(IValueFactory vf, EvaluatorContext ctx, MatchPattern pat) {
 		super(vf, ctx);
@@ -1764,18 +1754,25 @@ class AbstractPatternDescendant extends AbstractPattern implements MatchPattern 
 	
 	@Override
 	public void initMatch(IValue subject, Environment ev){
-		this.subject = subject;
-		this.ev = ev;
-		this.initialized = true;
-		this.hasNext = true;
-		pat.initMatch(subject, ev);
-		em = new EnumerateAndMatch(pat, makeResult(subject.getType(), subject, ctx), eval);
+		super.initMatch(subject,ev);
+		enumAndMatch = new EnumerateAndMatch(pat, makeResult(subject.getType(), subject, ctx), eval);
+	}
+	
+	@Override
+	public boolean hasNext(){
+		boolean r =  initialized &&  enumAndMatch.hasNext();
+		System.err.println("AbstractPatternDescendant.hasNext: " + r);
+		return r;
 	}
 
 	@Override
 	public boolean next() {
-		if(em.next().isTrue())
+		System.err.println("AbstractPatternDescendant.next");
+		if(enumAndMatch.next().isTrue()){
+			System.err.println("AbstractPatternDescendant.next: true");
 			return true;
+		}
+		System.err.println("AbstractPatternDescendant.next: false");
 		return false;
 	}
 
@@ -1816,11 +1813,7 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 	@Override
 	public AbstractPattern visitExpressionCallOrTree(CallOrTree x) {
 		org.meta_environment.rascal.ast.QualifiedName N = x.getQualifiedName();
-	//	if(N.toString().equals("search")){
-	//		return new AbstractPatternSearch(visitElements(x.getArguments()));
-	//	} else {
-			return new AbstractPatternNode(vf, x, N, visitElements(x.getArguments()));
-	//	}
+		return new AbstractPatternNode(vf, x, N, visitElements(x.getArguments()));
 	}
 	
 	private java.util.List<AbstractPattern> visitElements(java.util.List<org.meta_environment.rascal.ast.Expression> elements){

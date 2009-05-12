@@ -79,12 +79,19 @@ public class EnumerateAndMatch extends Result<IValue> {
 		this.evaluator = ev;
 		pushedEnv = null;
 		pat = pattern;
+		
+		java.util.List<String> vars = pat.getVariables();
 		patVars = new java.util.ArrayList<String>(0);
+		for(String name : vars){
+			Result<IValue> vr = ev.peek().getVariable(null, name);
+			if(vr == null || vr.getValue() == null)
+				patVars.add(name);
+		}
 		makeIterator(subject);
 	}
 		
 	private void makeIterator(Result<IValue> subject){
-		
+		System.err.println("makeIterator: " + subject.getValue());
 		Type subjectType = subject.getType();
 		IValue subjectValue = subject.getValue();
 		Type patType = pat.getType(evaluator.peek());
@@ -151,12 +158,6 @@ public class EnumerateAndMatch extends Result<IValue> {
 	
 	@Override
 	public IValue getValue(){
-		/*
-		if(hasNext())
-			return next().getValue();
-		return vf.bool(true);
-		*/
-		
 		if(firstTime){
 			firstTime = false;
 			return next().getValue();
@@ -171,8 +172,9 @@ public class EnumerateAndMatch extends Result<IValue> {
 			boolean hn = pat.hasNext() || iterator.hasNext();
 			if(!hn){
 				hasNext = false;
-				//System.err.println("GeneratorEvaluator.pop, " + patexpr);
-				evaluator.popUntil(pushedEnv);
+				System.err.println("EnumerateAndMatch.hasNext = false");
+				if(pushedEnv != null)
+					evaluator.popUntil(pushedEnv);
 			}
 			return hn;
 		}
@@ -203,7 +205,7 @@ public class EnumerateAndMatch extends Result<IValue> {
 				evaluator.peek().storeVariable(var,  ResultFactory.nothing());
 			}
 			IValue v = (IValue) iterator.next();
-			////System.err.println("getNext, try next from value iterator: " + v);
+			///System.err.println("getNext, try next from value iterator: " + v);
 			pat.initMatch(v, evaluator.peek());
 			while(pat.hasNext()){
 				if(pat.next()){
@@ -212,7 +214,7 @@ public class EnumerateAndMatch extends Result<IValue> {
 				}	
 			}
 		}
-		//System.err.println("next returns false and pops env");
+		System.err.println("next returns false and pops env");
 		hasNext = false;
 		if(pushedEnv != null){
 			evaluator.popUntil(pushedEnv);
