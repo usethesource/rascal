@@ -23,4 +23,4 @@ Export-Package: org.meta_environment.rascal.ast,
  org.meta_environment.rascal.interpreter.result
 Require-Bundle: sglr_invoker,
  pdb_shared,
- org.eclipse.imp.pdb.values;bundle-version="0.1.18"
+ org.eclipse.imp.pdb.values
