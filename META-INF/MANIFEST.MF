@@ -20,7 +20,8 @@ Export-Package: org.meta_environment.rascal.ast,
  org.meta_environment.rascal.interpreter.staticErrors,
  org.meta_environment.rascal.interpreter.control_exceptions,
  org.meta_environment.rascal.interpreter.load,
- org.meta_environment.rascal.interpreter.result
+ org.meta_environment.rascal.interpreter.result,
+ org.meta_environment
 Require-Bundle: sglr_invoker,
  pdb_shared,
  org.eclipse.imp.pdb.values
