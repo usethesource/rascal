@@ -1,5 +1,7 @@
 package test.StandardLibraryTests;
 
+import java.io.File;
+
 import org.junit.Test;
 
 import test.TestFramework;
@@ -8,9 +10,21 @@ import static org.junit.Assert.*;
 public class ValueIOTests extends TestFramework {
 
 	private boolean binaryWriteRead(String type, String exp){
-		prepare("import ValueIO;");
-		prepareMore("writeValueToBinaryFile(\"xxx\", " + exp + ");");
-		return runTestInSameEvaluator("{" + type + " N := readValueFromBinaryFile(\"xxx\"); N == " + exp + ";}");
+		boolean success = false;
+		try{
+			prepare("import ValueIO;");
+			prepareMore("writeValueToBinaryFile(\"xxx\", " + exp + ");");
+			
+			success = runTestInSameEvaluator("{" + type + " N := readValueFromBinaryFile(\"xxx\"); N == " + exp + ";}");
+		}finally{
+			// Clean up.
+			removeTempFile();
+		}
+		return success;
+	}
+	
+	public void removeTempFile(){
+		new File("xxx").delete();
 	}
 	
 	@Test public void binBool() { assertTrue(binaryWriteRead("bool", "true")); }
@@ -34,18 +48,31 @@ public class ValueIOTests extends TestFramework {
 	@Test public void binTuple() { assertTrue(binaryWriteRead("tuple[int,bool,str]", "<1,true,\"abc\">")); }
 	
 	@Test public void binADT(){
-		String type = "Bool";
-		String exp = "band(bor(btrue,bfalse),band(btrue,btrue))";
-		prepare("data Bool = btrue | bfalse | band(Bool left, Bool right) | bor(Bool left, Bool right);");
-		prepareMore("import ValueIO;");
-		prepareMore("writeValueToBinaryFile(\"xxx\", " + exp + ");");
-		assertTrue(runTestInSameEvaluator("{" + type + " N := readValueFromBinaryFile(\"xxx\"); N == " + exp + ";}"));
+		try{
+			String type = "Bool";
+			String exp = "band(bor(btrue,bfalse),band(btrue,btrue))";
+			prepare("data Bool = btrue | bfalse | band(Bool left, Bool right) | bor(Bool left, Bool right);");
+			prepareMore("import ValueIO;");
+			prepareMore("writeValueToBinaryFile(\"xxx\", " + exp + ");");
+			assertTrue(runTestInSameEvaluator("{" + type + " N := readValueFromBinaryFile(\"xxx\"); N == " + exp + ";}"));
+		}finally{
+			// Clean up.
+			removeTempFile();
+		}
 	}
 	
 	private boolean textWriteRead(String type, String exp){
-		prepare("import ValueIO;");
-		prepareMore("writeValueToTextFile(\"xxx\", " + exp + ");");
-		return runTestInSameEvaluator("{" + type + " N := readValueFromTextFile(\"xxx\"); N == " + exp + ";}");
+		boolean success = false;
+		try{
+			prepare("import ValueIO;");
+			prepareMore("writeValueToTextFile(\"xxx\", " + exp + ");");
+			
+			success = runTestInSameEvaluator("{" + type + " N := readValueFromTextFile(\"xxx\"); N == " + exp + ";}");
+		}finally{
+			// Clean up.
+			removeTempFile();
+		}
+		return success;
 	}
 	
 	@Test public void textBool() { assertTrue(textWriteRead("bool", "true")); }
@@ -69,11 +96,16 @@ public class ValueIOTests extends TestFramework {
 	@Test public void textTuple() { assertTrue(textWriteRead("tuple[int,bool,str]", "<1,true,\"abc\">")); }
 	
 	@Test public void textADT(){
-		String type = "Bool";
-		String exp = "band(bor(btrue,bfalse),band(btrue,btrue))";
-		prepare("data Bool = btrue | bfalse | band(Bool left, Bool right) | bor(Bool left, Bool right);");
-		prepareMore("import ValueIO;");
-		prepareMore("writeValueToTextFile(\"xxx\", " + exp + ");");
-		assertTrue(runTestInSameEvaluator("{" + type + " N := readValueFromTextFile(\"xxx\"); N == " + exp + ";}"));
+		try{
+			String type = "Bool";
+			String exp = "band(bor(btrue,bfalse),band(btrue,btrue))";
+			prepare("data Bool = btrue | bfalse | band(Bool left, Bool right) | bor(Bool left, Bool right);");
+			prepareMore("import ValueIO;");
+			prepareMore("writeValueToTextFile(\"xxx\", " + exp + ");");
+			assertTrue(runTestInSameEvaluator("{" + type + " N := readValueFromTextFile(\"xxx\"); N == " + exp + ";}"));
+		}finally{
+			// Clean up.
+			removeTempFile();
+		}
 	}
 }
