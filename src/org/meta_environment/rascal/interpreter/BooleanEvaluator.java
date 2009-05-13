@@ -276,36 +276,39 @@ class MatchEvaluator implements Iterator<Result<IValue>> {
     	this.positive = positive;
     	this.evaluator = ev;
     	this.pushedEnv = evaluator.pushEnv();
-    	//System.err.println("MatchEvaluator: push " + pat);
+    	System.err.println("MatchEvaluator: push " + pat);
     	mp = ev.evalPattern(pat);
     	IValue subjectValue = subject.accept(ev).getValue();
-    	if(!ev.mayMatch(mp.getType(pushedEnv), subjectValue.getType()))
-    		throw new UnexpectedTypeError(mp.getType(pushedEnv), subjectValue.getType(), pat);
+    	// Type check is done by each pattern
+    //	if(!ev.mayMatch(mp.getType(pushedEnv), subjectValue.getType()))
+    //		throw new UnexpectedTypeError(mp.getType(pushedEnv), subjectValue.getType(), pat);
     	mp.initMatch(subjectValue, evaluator.peek());
 	}
 
 	public boolean hasNext() {
-		//System.err.println("MatchEvaluator: hasNext");
 		if(hasNext){
 			boolean hn = mp.hasNext();
 			if(!hn){
 				hasNext = false;
-				//System.err.println("MatchEvaluator: pop");
+				System.err.println("MatchEvaluator: pop");
 				evaluator.popUntil(pushedEnv);
 			}
+			System.err.println("MatchEvaluator.hasNext: " + hn);
 			return hn;
 		}
+		System.err.println("MatchEvaluator.hasNext: false");
 		return false;
 	}
 
 	@SuppressWarnings("unchecked")
 	public Result next() {
-		//System.err.println("MatchEvaluator: next");
+		System.err.println("MatchEvaluator: next");
 		if(hasNext()){	
 			boolean result = positive ? mp.next() : !mp.next();
+			System.err.println("MatchEvaluator.next: " + result);
 			return new BoolResult(result, this, null);
 		}
-		
+		System.err.println("MatchEvaluator.next: false");
 		return new BoolResult(!positive, this, null);
 	}
 

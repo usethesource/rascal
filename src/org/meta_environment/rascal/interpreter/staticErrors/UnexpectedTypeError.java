@@ -8,5 +8,6 @@ public class UnexpectedTypeError extends StaticError {
 	
 	public UnexpectedTypeError(Type expected, Type got, AbstractAST ast) {
 		super("Expected " + expected + ", but got " + got, ast);
+		printStackTrace();
 	}
 }

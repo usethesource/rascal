@@ -1,4 +1,4 @@
-module \Pico-eval
+module PicoEval
 import pico/syntax/Pico;
  
 data PICO_VALUE intval(int) | strval(str);

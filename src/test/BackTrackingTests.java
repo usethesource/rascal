@@ -23,6 +23,11 @@ public class BackTrackingTests extends TestFramework {
 								"([list[int] L3, int M, list[int] L4] := [3,4]) && (N > M); " + 
 							  "(N == 4);}"));
 		
+		assertTrue(runTest("{[1, [list[int] P, int N, list[int] Q], 3] := [1, [1,2,3,2], 3];}"));
+		assertTrue(runTest("{[list[int] P, int N, list[int] Q]:= [1,2,3,2] && N > 1;}"));
+		
+		assertTrue(runTest("{[1, [list[int] P, int N, list[int] Q], 3] := [1, [1,2,3,2], 3] && N > 1;}"));
+		
 	}
 	
 	@Test public void and(){
