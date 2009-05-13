@@ -118,22 +118,21 @@ public class TypeEvaluator {
 			if (arity == 0) {
 				// TODO is this sensible or should we restrict the syntax?
 				return tf.tupleType(tf.listType(tf.valueType()), "args");
-			} else {
-				Type[] types = new Type[arity];
-				java.lang.String[] labels = new java.lang.String[arity];
-				int i;
+			}
+			
+			Type[] types = new Type[arity];
+			java.lang.String[] labels = new java.lang.String[arity];
+			int i;
 
-				for (i = 0; i < arity - 1; i++) {
-					types[i] = formals.getFieldType(i);
-					labels[i] = formals.getFieldName(i);
-				}
-
-				types[i] = tf.listType(formals.getFieldType(i));
+			for (i = 0; i < arity - 1; i++) {
+				types[i] = formals.getFieldType(i);
 				labels[i] = formals.getFieldName(i);
-
-				return tf.tupleType(types, labels);
 			}
 
+			types[i] = tf.listType(formals.getFieldType(i));
+			labels[i] = formals.getFieldName(i);
+
+			return tf.tupleType(types, labels);
 		}
 
 		@Override
