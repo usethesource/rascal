@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.interpreter.load;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
