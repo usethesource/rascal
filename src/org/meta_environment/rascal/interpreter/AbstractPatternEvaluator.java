@@ -89,10 +89,13 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 	protected TypeFactory tf = TypeFactory.getInstance();
 	protected IValueFactory vf;
 	protected EvaluatorContext ctx;
+	protected Evaluator evaluator;
 	
 	public AbstractPattern(IValueFactory vf, EvaluatorContext ctx) {
 		this.vf = vf;
 		this.ctx = ctx;
+		if(ctx != null)
+			this.evaluator = ctx.getEvaluator();
 	}
 	
 	public AbstractAST getAST(){
@@ -292,7 +295,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 	private Type listSubjectType;					// The type of the subject
 	private Type listSubjectElementType;			// The type of list elements
 	private int subjectSize;						// Length of the subject
-	private int minSubjectSize;					// Minimum subject length for this pattern to match
+	private int minSubjectSize;				   	    // Minimum subject length for this pattern to match
 	private boolean [] isListVar;					// Determine which elements are list or variables
 	private boolean [] isBindingVar;				// Determine which elements are binding occurrences of variables
 	private String [] varName;						// Name of ith variable
@@ -306,10 +309,10 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 	private int subjectCursor;						// Cursor in the subject
 	private int patternCursor;						// Cursor in the pattern
 	
-	private boolean firstMatch;					// First match after initialization?
+	private boolean firstMatch;					    // First match after initialization?
 	private boolean forward;						// Moving to the right?
 	
-	private boolean debug = false;
+	private boolean debug = true;
 
 	
 	AbstractPatternList(IValueFactory vf, EvaluatorContext ctx, java.util.List<AbstractPattern> children){
@@ -1555,8 +1558,8 @@ class AbstractPatternTypedVariableBecomes extends AbstractPattern implements Mat
 	public void initMatch(IValue subject, Environment ev){
 		super.initMatch(subject,ev);
 		pat.initMatch(subject, ev);
-		if(!pat.getType(ev).isSubtypeOf(declaredType))
-			throw new UnexpectedTypeError(declaredType, pat.getType(ev), null);
+		if(!evaluator.mayMatch(pat.getType(ev), declaredType))
+			throw new UnexpectedTypeError(pat.getType(ev), declaredType, ctx.getCurrentAST());
 	}
 	
 	@Override
@@ -1578,7 +1581,6 @@ class AbstractPatternTypedVariableBecomes extends AbstractPattern implements Mat
 			return true;
 		}
 		return false;
-		
 	}
 
 	@Override
@@ -1674,6 +1676,8 @@ class AbstractPatternGuarded extends AbstractPattern implements MatchPattern {
 	public void initMatch(IValue subject, Environment ev){
 		super.initMatch(subject,ev);
 		pat.initMatch(subject, ev);
+		if(!evaluator.mayMatch(pat.getType(ev), type))
+			throw new UnexpectedTypeError(pat.getType(ev), type, ctx.getCurrentAST());
 		this.hasNext = pat.getType(ev).equivalent(type);
 	}
 
@@ -1807,7 +1811,7 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 	
 	@Override
 	public AbstractPattern visitExpressionLiteral(Literal x) {
-		return new AbstractPatternLiteral(vf, null, x.getLiteral().accept(ctx.getEvaluator()).getValue());
+		return new AbstractPatternLiteral(vf, ctx, x.getLiteral().accept(ctx.getEvaluator()).getValue());
 	}
 	
 	@Override
