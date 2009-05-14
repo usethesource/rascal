@@ -48,7 +48,6 @@ public class PatternTests extends TestFramework {
 		assertTrue(runTest("[1, [2, 3], 4] := [1, [2, 3], 4];"));
 		assertFalse(runTest("[1, [2, 3], 4] := [1, [2, 3, 4], 4];"));
 
-
 		assertTrue(runTest("([list[int] L] := []) && (L == []);"));
 		assertTrue(runTest("{ list[int] X = []; ([list[int] L] := X) && (L == []); }"));
 		assertTrue(runTest("([list[int] L] := ([1] - [1])) && (L == []);"));
@@ -62,7 +61,6 @@ public class PatternTests extends TestFramework {
 		assertTrue(runTest("([list[int] L, 10] := [10]) && (L == []);"));
 		assertTrue(runTest("([list[int] L, 10] := [1,10]) && (L == [1]);"));
 		assertTrue(runTest("([list[int] L, 10] := [1,2,10]) && (L == [1,2]);"));
-
 
 		assertTrue(runTest("([1, list[int] L, 10] := [1,10]) && (L == []);"));
 		assertTrue(runTest("([1, list[int] L, 10] := [1,2,10]) && (L == [2]);"));
@@ -79,7 +77,7 @@ public class PatternTests extends TestFramework {
 		assertTrue(runTest("[list[int] _] := [1,2];"));
 		assertTrue(runTest("([1, list[int] _, 10, list[int] _, 20] := [1,2,10,20]);"));
 		
-//		assertTrue(runTest("([1, list[int] L, [10, list[int] M, 100], list[int] N, 1000] := [1, [10,100],1000]);"));
+	//	assertTrue(runTest("([1, list[int] L, [10, list[int] M, 100], list[int] N, 1000] := [1, [10,100],1000]);"));
 	}
 	
 	@Test
@@ -727,10 +725,11 @@ public class PatternTests extends TestFramework {
 		assertTrue(runTest("!/4 := [1,2,3,2];"));
 		
 		assertTrue(runTest("{[1, /N, 3] := [1, [1,2,3,2], 3] && N == 1;}"));
+		assertTrue(runTest("{[1, /N, 3] := [1, [1,2,3,2], 3] && N == 2;}"));
 		assertTrue(runTest("{[1, /int N, 3] := [1, [1,2,3,2], 3] && N == 1;}"));
-		
-		
+		assertTrue(runTest("{[1, /int N, 3] := [1, [1,2,3,2], 3] && N == 2;}"));	
 	}
+	
 	@Test
 	public void descendant2(){
 		prepare("data F = f(F left, F right) | g(int N);");
@@ -744,7 +743,7 @@ public class PatternTests extends TestFramework {
 			
 		assertTrue(runTestInSameEvaluator("{[1, /g(int N1), 3] := [1, f(g(1),f(g(2),g(3))), 3] && N1 == 1;}"));
 		assertTrue(runTestInSameEvaluator("{[1, /g(int N2), 3] := [1, f(g(1),f(g(2),g(3))), 3] && N2 == 2;}"));
-		assertTrue(runTestInSameEvaluator("{[1, /g(int N3), 3] := [1, f(g(1),f(g(2),g(3))), 3] && N2 == 3;}"));
+		assertTrue(runTestInSameEvaluator("{[1, /g(int N3), 3] := [1, f(g(1),f(g(2),g(3))), 3] && N3 == 3;}"));
 	}
 	
 	@Test(expected=StaticError.class)

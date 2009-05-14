@@ -159,6 +159,8 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 	@Override
 	public boolean next(){
 		checkInitialized();
+		if(!hasNext)
+			return false;
 		hasNext = false;
 		if (subject.getType().comparable(literal.getType())) {
 			return makeResult(subject.getType(), subject, ctx).equals(makeResult(literal.getType(), literal, ctx), ctx).isTrue();
@@ -289,7 +291,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 }
 
 /* package */ class AbstractPatternList extends AbstractPattern implements MatchPattern {
-	private java.util.List<AbstractPattern> children;	// The elements of this list pattern
+	private java.util.List<AbstractPattern> patternChildren;	// The elements of this list pattern
 	private int patternSize;						// The number of elements in this list pattern
 	private IList listSubject;						// The subject as list
 	private Type listSubjectType;					// The type of the subject
@@ -309,7 +311,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 	private int subjectCursor;						// Cursor in the subject
 	private int patternCursor;						// Cursor in the pattern
 	
-	private boolean firstMatch;					    // First match after initialization?
+	private boolean firstMatch;					// First match after initialization?
 	private boolean forward;						// Moving to the right?
 	
 	private boolean debug = true;
@@ -317,24 +319,24 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 	
 	AbstractPatternList(IValueFactory vf, EvaluatorContext ctx, java.util.List<AbstractPattern> children){
 		super(vf, ctx);
-		this.children = children;					
+		this.patternChildren = children;					
 		this.patternSize = children.size();			
 	}
 	
 	@Override
 	public java.util.List<String> getVariables(){
 		java.util.LinkedList<String> res = new java.util.LinkedList<String> ();
-		for (int i = 0; i < children.size(); i++) {
-			res.addAll(children.get(i).getVariables());
+		for (int i = 0; i < patternChildren.size(); i++) {
+			res.addAll(patternChildren.get(i).getVariables());
 		 }
 		return res;
 	}
 	
 	@Override
 	public IValue toIValue(Environment ev){
-		IValue[] vals = new IValue[children.size()];
-		for (int i = 0; i < children.size(); i++) {
-			 vals[i] =  children.get(i).toIValue(ev);
+		IValue[] vals = new IValue[patternChildren.size()];
+		for (int i = 0; i < patternChildren.size(); i++) {
+			 vals[i] =  patternChildren.get(i).toIValue(ev);
 		 }
 		return vf.list(vals);
 	}
@@ -372,7 +374,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 		 * Pass #1: determine the list variables
 		 */
 		for(int i = 0; i < patternSize; i++){
-			AbstractPattern child = children.get(i);
+			AbstractPattern child = patternChildren.get(i);
 			isListVar[i] = false;
 			isBindingVar[i] = false;
 			if(child instanceof AbstractPatternTypedVariable && child.getType(ev).isListType()){
@@ -470,6 +472,14 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 		if(debug)System.err.println("hasNext=" + hasNext);
 	}
 	
+	private boolean someChildHasNext(){
+		for(int i = 0; i < patternSize; i++){
+			if(patternChildren.get(i).hasNext())
+				return true;
+		}
+		return false;
+	}
+	
 	@Override
 	public Type getType(Environment ev) {
 		if(patternSize == 0){
@@ -478,7 +488,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 		
 		Type elemType = tf.voidType();
 		for(int i = 0; i < patternSize; i++){
-			Type childType = children.get(0).getType(ev);
+			Type childType = patternChildren.get(i).getType(ev);
 			if(childType.isListType()){
 				elemType = elemType.lub(childType.getElementType());
 			} else {
@@ -491,7 +501,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 	
 	@Override
 	public boolean hasNext(){
-		return initialized && hasNext; //&& hasListVar;
+		return initialized && hasNext  ; //|| someChildHasNext());
 	}
 	
 	private IList makeSubList(){
@@ -597,8 +607,10 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 			} else {
 				if(patternCursor == patternSize){
 					patternCursor--;
+					subjectCursor--; //??
 				}
 			}
+			
 			
 			if(patternCursor < 0 || subjectCursor < 0){
 				hasNext = false;
@@ -610,7 +622,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 			 * Perform actions for the current pattern element
 			 */
 			
-			AbstractPattern child = children.get(patternCursor);
+			AbstractPattern child = patternChildren.get(patternCursor);
 			if(debug){
 				System.err.println(this);
 				System.err.println("loop: patternCursor=" + patternCursor + 
@@ -624,10 +636,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 			/*
 			 * A binding occurrence of a list variable
 			 */
-			/*if(isListVar[patternCursor] && (child instanceof AbstractPatternTypedVariable
-					|| (child instanceof AbstractPatternQualifiedName &&
-						ev.getVariable(null, ((AbstractPatternQualifiedName)child).getName().toString()).getValue() == null))){
-			*/
+	
 			if(isListVar[patternCursor] && isBindingVar[patternCursor]){
 				if(forward){
 					listVarStart[patternCursor] = subjectCursor;
@@ -660,12 +669,10 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 			/*
 			 * Reference to a previously defined list variable
 			 */
-			} /*
-			else if(isListVar[patternCursor] &&  child instanceof AbstractPatternQualifiedName &&
-					ev.getVariable(null, ((AbstractPatternQualifiedName)child).getName()).getType().isListType()
-					*/
-			else if(isListVar[patternCursor] && !isBindingVar[patternCursor] && ev.getVariable(null, varName[patternCursor]).getType().isListType()
-			){
+			} 
+			else if(isListVar[patternCursor] && 
+					!isBindingVar[patternCursor] && 
+					ev.getVariable(null, varName[patternCursor]).getType().isListType()){
 				if(forward){
 					listVarStart[patternCursor] = subjectCursor;
 					
@@ -695,7 +702,6 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 			 * Any other element of the pattern
 			 */
 			} else {
-				
 				if(forward && subjectCursor < subjectSize){
 					if(debug)System.err.println("AbstractPatternList.match: init child " + patternCursor + " with " + listSubject.get(subjectCursor));
 					child.initMatch(listSubject.get(subjectCursor), ev);
@@ -708,9 +714,16 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 						patternCursor--;
 					}
 				} else {
-					forward = false;
-					subjectCursor--;
-					patternCursor--;
+					if(subjectCursor < subjectSize && child.next()){
+						if(debug)System.err.println("child has next:" + child);
+						forward = true;
+						subjectCursor++;
+						patternCursor++;
+					} else {
+						forward = false;
+						subjectCursor--;
+						patternCursor--;
+					}
 				}
 			}
 			
@@ -724,7 +737,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 		if(initialized){
 			String sep = "";
 			for(int i = 0; i < patternCursor; i++){
-				s.append(sep).append(children.get(i).toString());
+				s.append(sep).append(patternChildren.get(i).toString());
 				sep = ", ";
 			}
 			if(patternCursor < patternSize){
@@ -806,7 +819,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 }
 
 /* package */ class AbstractPatternSet extends AbstractPattern implements MatchPattern {
-	private java.util.List<AbstractPattern> children; // The elements of the set pattern
+	private java.util.List<AbstractPattern> patternChildren; // The elements of the set pattern
 	private int patternSize;					// Number of elements in the set pattern
 	private ISet setSubject;					// Current subject	
 	private Type setSubjectType;				// Type of the subject
@@ -839,7 +852,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 	
 	AbstractPatternSet(IValueFactory vf, EvaluatorContext ctx, java.util.List<AbstractPattern> children){
 		super(vf, ctx);
-		this.children = children;
+		this.patternChildren = children;
 		this.patternSize = children.size();
 	}
 	
@@ -851,7 +864,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 		
 		Type elemType = tf.voidType();
 		for(int i = 0; i < patternSize; i++){
-			Type childType = children.get(0).getType(ev);
+			Type childType = patternChildren.get(i).getType(ev);
 			if(childType.isSetType()){
 				elemType = elemType.lub(childType.getElementType());
 			} else {
@@ -863,9 +876,9 @@ class SingleElementGenerator implements Iterator<ISet> {
 	
 	@Override
 	public IValue toIValue(Environment ev){
-		IValue[] vals = new IValue[children.size()];
-		for (int i = 0; i < children.size(); i++) {
-			 vals[i] =  children.get(i).toIValue(ev);
+		IValue[] vals = new IValue[patternChildren.size()];
+		for (int i = 0; i < patternChildren.size(); i++) {
+			 vals[i] =  patternChildren.get(i).toIValue(ev);
 		 }
 		return vf.set(vals);
 	}
@@ -873,8 +886,8 @@ class SingleElementGenerator implements Iterator<ISet> {
 	@Override
 	public java.util.List<String> getVariables(){
 		java.util.LinkedList<String> res = new java.util.LinkedList<String> ();
-		for (int i = 0; i < children.size(); i++) {
-			res.addAll(children.get(i).getVariables());
+		for (int i = 0; i < patternChildren.size(); i++) {
+			res.addAll(patternChildren.get(i).getVariables());
 		 }
 		return res;
 	}
@@ -944,7 +957,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 		 * Pass #1: determine the (ordinary and set) variables in the pattern
 		 */
 		for(int i = 0; i < patternSize; i++){
-			AbstractPattern child = children.get(i);
+			AbstractPattern child = patternChildren.get(i);
 			if(child instanceof AbstractPatternTypedVariable){
 				AbstractPatternTypedVariable patVar = (AbstractPatternTypedVariable) child;
 				Type childType = child.getType(ev);
@@ -1343,6 +1356,8 @@ class SingleElementGenerator implements Iterator<ISet> {
 	@Override
 	public boolean next(){
 		checkInitialized();
+		if(!hasNext)
+			return false;
 		hasNext = false;
 		if(debug)System.err.println("AbstractPatternQualifiedName.match: " + name);
 		
@@ -1490,6 +1505,8 @@ class SingleElementGenerator implements Iterator<ISet> {
 	@Override
 	public boolean next() {
 		checkInitialized();
+		if(!hasNext)
+			return false;
 		hasNext = false;
 		if(debug)System.out.println("AbstractTypedVariable.next: " + subject + "(type=" + subject.getType() + ") with " + declaredType + " " + name);
 		
@@ -1587,7 +1604,6 @@ class AbstractPatternTypedVariableBecomes extends AbstractPattern implements Mat
 	public IValue toIValue(Environment ev) {
 		return null;
 	}
-	
 }
 
 class AbstractPatternVariableBecomes extends AbstractPattern implements MatchPattern {
