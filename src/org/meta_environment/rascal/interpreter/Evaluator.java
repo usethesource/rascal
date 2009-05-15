@@ -506,7 +506,6 @@ public class Evaluator extends NullASTVisitor<Result> {
 	
 		if(small.isSubtypeOf(large) || large.isSubtypeOf(small))
 				return true;
-	
 		
 		if(small.isListType() && large.isListType() || 
 		   small.isSetType() && large.isSetType())
@@ -537,9 +536,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		if(small.isAbstractDataType() && large.isConstructorType())
 			return small.equivalent(large.getAbstractDataType());
 		
-		
 		return false;
-		
 	}
 	
 	// Ambiguity ...................................................

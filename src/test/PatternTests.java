@@ -86,6 +86,19 @@ public class PatternTests extends TestFramework {
 		assertTrue(runTest("{list[int] L; ([1, L, 4, 5] := [1, 2, 3, 4, 5] && L == [2, 3]);}"));
 	}
 	
+	@Test
+	public void matchListMultiVars(){
+		assertTrue(runTest("{[1, L*, 4, 5] := [1, 2, 3, 4, 5] && L == [2, 3];}"));
+		assertTrue(runTest("{[1, _*, 4, 5] := [1, 2, 3, 4, 5];}"));
+		assertTrue(runTest("{[1, L*, 4, L, 5] := [1, 2, 3, 4, 2, 3, 5] && L == [2, 3];}"));
+	}
+	
+	@Test
+	public void matchSetMultiVars(){
+		assertTrue(runTest("{{1, S*, 4, 5}:= {1, 2, 3, 4, 5} && S == {2, 3};}"));
+		assertTrue(runTest("{{1, _*, 4, 5} := {1, 2, 3, 4, 5};}"));
+	}
+	
 	@Test(expected=UndeclaredVariableError.class) 
 	public void unguardedMatchNoEscape() {
 		// m should not be declared after the unguarded pattern match.

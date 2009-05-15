@@ -91,7 +91,7 @@ public class EnumerateAndMatch extends Result<IValue> {
 	}
 		
 	private void makeIterator(Result<IValue> subject){
-		System.err.println("makeIterator: " + subject.getValue());
+		//System.err.println("makeIterator: " + subject.getValue());
 		Type subjectType = subject.getType();
 		IValue subjectValue = subject.getValue();
 		Type patType = pat.getType(evaluator.peek());
@@ -172,7 +172,7 @@ public class EnumerateAndMatch extends Result<IValue> {
 			boolean hn = pat.hasNext() || iterator.hasNext();
 			if(!hn){
 				hasNext = false;
-				System.err.println("EnumerateAndMatch.hasNext = false");
+				//System.err.println("EnumerateAndMatch.hasNext = false");
 				if(pushedEnv != null)
 					evaluator.popUntil(pushedEnv);
 			}
@@ -214,7 +214,7 @@ public class EnumerateAndMatch extends Result<IValue> {
 				}	
 			}
 		}
-		System.err.println("next returns false and pops env");
+		//System.err.println("next returns false and pops env");
 		hasNext = false;
 		if(pushedEnv != null){
 			evaluator.popUntil(pushedEnv);
