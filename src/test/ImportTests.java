@@ -5,13 +5,14 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
+import org.meta_environment.rascal.interpreter.staticErrors.ModuleLoadError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFunctionError;
 import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
 
 public class ImportTests extends TestFramework {
 	
 
-	@Test(expected=Throw.class)
+	@Test(expected=ModuleLoadError.class)
 	public void importError() {
 		runTest("import zap;");
 	}

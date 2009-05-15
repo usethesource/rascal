@@ -34,6 +34,10 @@ public class ParsetreeAdapter {
 		return parseTree.getConstructorType() == Factory.ParseTree_Top;
 	}
 	
+	public TreeAdapter getTop() {
+		return new TreeAdapter((IConstructor) parseTree.get("top"));
+	}
+	
 	public SummaryAdapter getSummary() {
 		return new SummaryAdapter(parseTree);
 	}

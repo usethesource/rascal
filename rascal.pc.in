@@ -4,7 +4,7 @@ Name: rascal
 Description: 
 Version: 0.1
 EclipseRequires=org.eclipse.imp.pdb.values
-Requires:  sglr-invoker,pdb-shared,sglr,error-support,config-support,ptable-support,pt-support,aterm,toolbuslib,c-library,,pdb-shared,rascal-grammar,sdf-library
+Requires: sglr-invoker,pdb-shared,sglr,error-support,config-support,ptable-support,pt-support,aterm,toolbuslib,c-library,pdb-shared,rascal-grammar,sdf-library
 JarFile=rascal.jar
 LocalJars=lib/hickory_check.jar:lib/jline-0.9.94.jar:lib/junit-4.5.jar:.
 Jars=${prefix}/share/${JarFile}

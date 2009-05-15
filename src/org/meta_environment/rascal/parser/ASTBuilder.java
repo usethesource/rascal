@@ -20,6 +20,7 @@ import org.meta_environment.rascal.ast.Module;
 import org.meta_environment.rascal.ast.Statement;
 import org.meta_environment.rascal.interpreter.asserts.Ambiguous;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
+import org.meta_environment.uptr.ParsetreeAdapter;
 import org.meta_environment.uptr.TreeAdapter;
 
 
@@ -38,7 +39,13 @@ public class ASTBuilder {
 	}
 	
 	public Module buildModule(IConstructor parseTree) throws FactTypeUseException {
-		return buildSort(parseTree, "Module");
+		TreeAdapter tree = new ParsetreeAdapter(parseTree).getTop();
+		if (tree.isAppl()) {
+			return buildSort(parseTree, "Module");
+		}
+		else {
+			throw new ImplementationError("Ambiguous module?");
+		}
 	}
 	
 	public Expression buildExpression(IConstructor parseTree) {

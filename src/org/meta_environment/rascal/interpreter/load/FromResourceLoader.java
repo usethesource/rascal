@@ -7,7 +7,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 
-public class FromResourceLoader extends AbstractModuleLoader {
+public class FromResourceLoader implements IModuleFileLoader {
 
 	private final String sourceFolder;
 	private final Class<?> clazz;
@@ -41,8 +41,7 @@ public class FromResourceLoader extends AbstractModuleLoader {
 		this.sourceFolder = sourceFolder;
 	}
 
-	@Override
-	protected InputStream getInputStream(String name) throws IOException {
+	public InputStream getSourceInputStream(String name) throws IOException {
 		URL url = clazz.getResource(sourceFolder + name);
 		
 		if (url == null) {
@@ -52,8 +51,7 @@ public class FromResourceLoader extends AbstractModuleLoader {
 		return url.openStream();
 	}
 
-	@Override
-	protected OutputStream getOutputStream(String name) throws IOException {
+	public OutputStream getBinaryOutputStream(String name) throws IOException {
 		return new FileOutputStream("./bin/" + sourceFolder + name); // Meh, can't output to 'file://' urls for some rediculious reason.
 	}
 }

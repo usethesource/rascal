@@ -9,13 +9,13 @@ import java.io.IOException;
 import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Stack;
 import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -167,8 +167,11 @@ import org.meta_environment.rascal.interpreter.env.Lambda;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.env.RascalFunction;
 import org.meta_environment.rascal.interpreter.env.RewriteRule;
+import org.meta_environment.rascal.interpreter.load.FromCurrentWorkingDirectoryLoader;
 import org.meta_environment.rascal.interpreter.load.FromResourceLoader;
-import org.meta_environment.rascal.interpreter.load.IModuleLoader;
+import org.meta_environment.rascal.interpreter.load.IModuleFileLoader;
+import org.meta_environment.rascal.interpreter.load.ISdfSearchPathContributor;
+import org.meta_environment.rascal.interpreter.load.ModuleLoader;
 import org.meta_environment.rascal.interpreter.result.BoolResult;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.result.ResultFactory;
@@ -192,9 +195,10 @@ public class Evaluator extends NullASTVisitor<Result> {
 	final IValueFactory vf;
 	final TypeFactory tf = TypeFactory.getInstance();
 	private final TypeEvaluator te = TypeEvaluator.getInstance();
-	private final java.util.ArrayDeque<Environment> callStack;
+	private final java.util.Stack<Environment> callStack;
 	private final GlobalEnvironment heap;
-	private final java.util.ArrayDeque<ModuleEnvironment> scopeStack;
+	private final java.util.Stack<ModuleEnvironment> scopeStack;
+	private final static String SDF_LIBRARY_PATH_PROPERTY = "rascal.sdf.library.dir";
 	
 	private final JavaBridge javaBridge;
 //	private final boolean LAZY = false;
@@ -211,7 +215,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 	private boolean doProfiling = false;
 	
 	private TypeDeclarationEvaluator typeDeclarator = new TypeDeclarationEvaluator();
-	private java.util.List<IModuleLoader> loaders;
+	private ModuleLoader loader = new ModuleLoader();
+	
 	private java.util.List<ClassLoader> classLoaders;
 
 	public Evaluator(IValueFactory f, ASTFactory astFactory, Writer errorWriter, ModuleEnvironment scope) {
@@ -221,23 +226,39 @@ public class Evaluator extends NullASTVisitor<Result> {
 	public Evaluator(IValueFactory f, ASTFactory astFactory, Writer errorWriter, ModuleEnvironment scope, GlobalEnvironment heap) {
 		this.vf = f;
 		this.heap = heap;
-		this.callStack = new ArrayDeque<Environment>();
+		this.callStack = new Stack<Environment>();
 		this.callStack.push(scope);
-		this.scopeStack = new ArrayDeque<ModuleEnvironment>();
+		this.scopeStack = new Stack<ModuleEnvironment>();
 		this.scopeStack.push(scope);
-		this.loaders = new LinkedList<IModuleLoader>();
 		this.classLoaders = new LinkedList<ClassLoader>();
 		this.javaBridge = new JavaBridge(errorWriter, classLoaders);
 		
+		// cwd loader
+		loader.addFileLoader(new FromCurrentWorkingDirectoryLoader());
+		
 		// library
-	    loaders.add(new FromResourceLoader(this.getClass(), "StandardLibrary"));
+	    loader.addFileLoader(new FromResourceLoader(this.getClass(), "StandardLibrary"));
 	    
 	    // everything rooted at the src directory 
-	    loaders.add(new FromResourceLoader(this.getClass()));
+	    loader.addFileLoader(new FromResourceLoader(this.getClass()));
+	    
+	    // add current wd and sdf-library to search path for SDF modules
+	    loader.addSdfSearchPathContributor(new ISdfSearchPathContributor() {
+			public java.util.List<String> contributePaths() {
+				java.util.List<String> result = new LinkedList<String>();
+				result.add(".");
+				result.add(System.getProperty(SDF_LIBRARY_PATH_PROPERTY));
+				return result;
+			}
+	    });
 	    
 	    // load Java classes from the current jar (for the standard library)
 	    classLoaders.add(getClass().getClassLoader());
-	    
+	}
+	
+	
+	public IConstructor parseCommand(String command, String fileName) throws IOException {
+		return loader.parseCommand(command, fileName);
 	}
 	
 	/**
@@ -272,9 +293,12 @@ public class Evaluator extends NullASTVisitor<Result> {
 		return this.callStack.peek();
 	}
 	
-	public void addModuleLoader(IModuleLoader loader) {
-		// later loaders have precedence
-		loaders.add(0, loader);
+	public void addModuleLoader(IModuleFileLoader fileLoader) {
+		loader.addFileLoader(fileLoader);
+	}
+	
+	public void addSdfSearchPathContributor(ISdfSearchPathContributor contrib) {
+		loader.addSdfSearchPathContributor(contrib);
 	}
 	
 	public void addClassLoader(ClassLoader loader) {
@@ -577,7 +601,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 	private void evalModule(AbstractAST x,
 			String name) {
-		Module module = loadModule(name, x);
+		Module module = loader.loadModule(name, x);
+		
 		if (!getModuleName(module).equals(name)) {
 			throw new ModuleNameMismatchError(getModuleName(module), name, x);
 		}
@@ -588,7 +613,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	private void reloadAll(AbstractAST cause) {
 		heap.clear();
 		
-		java.util.Set<String> topModules = scopeStack.getFirst().getImports();
+		java.util.Set<String> topModules = scopeStack.peek().getImports();
 		for (String mod : topModules) {
 			evalModule(cause, mod);
 			scopeStack.peek().addImport(mod, heap.getModule(mod, cause));
@@ -596,18 +621,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	}
 	
 
-	private Module loadModule(String name, AbstractAST ast) {
-		for (IModuleLoader loader : loaders) {
-			try {
-				return loader.loadModule(name);
-			}
-			catch (IOException e) {
-				// this happens regularly
-			}
-		}
-		
-		throw RuntimeExceptionFactory.moduleNotFound(vf.string(name), ast, getStackTrace());
-	}
+	
 	
 	@Override 
 	public Result<IValue> visitModuleDefault(
