@@ -126,6 +126,11 @@ class RegExpPatternValue implements MatchPattern {
 		return initialized && (firstMatch || hasNext);
 	}
 	
+	@Override
+	public boolean mayMatch(IValue subject, Environment env) {
+		return subject.getType().equivalent(tf.stringType());
+	}
+	
 	public int getStart(){
 		return start;
 	}
@@ -191,6 +196,8 @@ class RegExpPatternValue implements MatchPattern {
 	public String toString(){
 		return "RegExpPatternValue(" + RegExpAsString + ", " + patternVars + ")";
 	}
+
+	
 }
 
 public class RegExpPatternEvaluator extends NullASTVisitor<MatchPattern> {

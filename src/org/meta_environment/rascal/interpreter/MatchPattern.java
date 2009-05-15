@@ -20,9 +20,15 @@ public interface MatchPattern {
 	
 	/**
 	 * @param subject to be matched
-	 * @param ev the current evaluator
+	 * @param env the current evaluator
 	 */
-	public void initMatch(IValue subject, Environment ev);
+	public void initMatch(IValue subject, Environment env);
+	
+	/**
+	 * @param subject
+	 * @param env
+	 */
+	public boolean mayMatch(IValue subject, Environment env);
 	
 	/**
 	 * @return true if this MatchPattern has more matches available

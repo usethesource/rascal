@@ -83,7 +83,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 
 /* package */ abstract class AbstractPattern implements MatchPattern {
 	protected IValue subject = null;
-	protected Environment ev = null;
+	protected Environment env = null;
 	protected boolean initialized = false;
 	protected boolean hasNext = true;
 	protected TypeFactory tf = TypeFactory.getInstance();
@@ -94,19 +94,22 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 	public AbstractPattern(IValueFactory vf, EvaluatorContext ctx) {
 		this.vf = vf;
 		this.ctx = ctx;
-		if(ctx != null)
-			this.evaluator = ctx.getEvaluator();
+		this.evaluator = ctx.getEvaluator();
 	}
 	
 	public AbstractAST getAST(){
 		return ctx.getCurrentAST();
 	}
 	
-	public void initMatch(IValue subject, Environment ev){
+	public void initMatch(IValue subject, Environment env){
 		this.subject = subject;
-		this.ev = ev;
+		this.env = env;
 		this.initialized = true;
 		this.hasNext = true;
+	}
+	
+	public boolean mayMatch(IValue subject, Environment env){
+		return evaluator.mayMatch(getType(env), subject.getType());
 	}
 	
 	protected void checkInitialized(){
@@ -125,7 +128,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 		return new java.util.LinkedList<String>();
 	}
 	
-	abstract public IValue toIValue(Environment ev);
+	abstract public IValue toIValue(Environment env);
 	
 	boolean matchChildren(Iterator<IValue> subjChildren, Iterator<AbstractPattern> patChildren, Environment ev){
 		while (patChildren.hasNext()) {
@@ -136,10 +139,9 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 		return true;
 	}
 
-	abstract public Type getType(Environment ev);
+	abstract public Type getType(Environment env);
 
 	abstract public boolean next();
-	
 }
 
 /* package */ class AbstractPatternLiteral extends AbstractPattern {
@@ -152,7 +154,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 	}
 	
 	@Override
-	public Type getType(Environment ev) {
+	public Type getType(Environment env) {
 			return literal.getType();
 	}
 	
@@ -171,7 +173,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 	}
 	
 	@Override
-	public IValue toIValue(Environment ev){
+	public IValue toIValue(Environment env){
 		return literal;
 	}
 	
@@ -188,15 +190,15 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 	private boolean firstMatch = false;
 	private final TypeFactory tf = TypeFactory.getInstance();
 	
-	AbstractPatternNode(IValueFactory vf, AbstractAST ast, org.meta_environment.rascal.ast.QualifiedName qualifiedName, java.util.List<AbstractPattern> children){
-		super(vf, null);
+	AbstractPatternNode(IValueFactory vf, EvaluatorContext ctx, org.meta_environment.rascal.ast.QualifiedName qualifiedName, java.util.List<AbstractPattern> children){
+		super(vf, ctx);
 		this.name = qualifiedName;
 		this.children = children;
 	}
 	
 	@Override
-	public void initMatch(IValue subject, Environment ev){
-		super.initMatch(subject, ev);
+	public void initMatch(IValue subject, Environment env){
+		super.initMatch(subject, env);
 		hasNext = false;
 		if(!(subject.getType().isNodeType() || subject.getType().isAbstractDataType())){
 			return;
@@ -209,7 +211,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 				return;
 		
 		for (int i = 0; i < children.size(); i++){
-			children.get(i).initMatch(treeSubject.get(i), ev);
+			children.get(i).initMatch(treeSubject.get(i), env);
 		}
 		firstMatch = hasNext = true;
 	}
@@ -284,7 +286,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 			return false;
 		firstMatch = false;
 
-		hasNext = matchChildren(treeSubject.getChildren().iterator(), children.iterator(), ev);
+		hasNext = matchChildren(treeSubject.getChildren().iterator(), children.iterator(), env);
 
 		return hasNext;
 	}
@@ -314,7 +316,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 	private boolean firstMatch;					// First match after initialization?
 	private boolean forward;						// Moving to the right?
 	
-	private boolean debug = true;
+	private boolean debug = false;
 
 	
 	AbstractPatternList(IValueFactory vf, EvaluatorContext ctx, java.util.List<AbstractPattern> children){
@@ -333,17 +335,17 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 	}
 	
 	@Override
-	public IValue toIValue(Environment ev){
+	public IValue toIValue(Environment env){
 		IValue[] vals = new IValue[patternChildren.size()];
 		for (int i = 0; i < patternChildren.size(); i++) {
-			 vals[i] =  patternChildren.get(i).toIValue(ev);
+			 vals[i] =  patternChildren.get(i).toIValue(env);
 		 }
 		return vf.list(vals);
 	}
 	
 	@Override
-	public void initMatch(IValue subject, Environment ev){
-		super.initMatch(subject, ev);
+	public void initMatch(IValue subject, Environment env){
+		super.initMatch(subject, env);
 		
 		if(debug)System.err.println("initMatch: " + subject);
 		
@@ -377,9 +379,9 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 			AbstractPattern child = patternChildren.get(i);
 			isListVar[i] = false;
 			isBindingVar[i] = false;
-			if(child instanceof AbstractPatternTypedVariable && child.getType(ev).isListType()){
+			if(child instanceof AbstractPatternTypedVariable && child.getType(env).isListType()){
 				AbstractPatternTypedVariable patVar = (AbstractPatternTypedVariable) child;
-				Type childType = child.getType(ev);
+				Type childType = child.getType(env);
 				String name = patVar.getName();
 				varName[i] = name;
 				if(!patVar.isAnonymous() && allVars.contains(name)){
@@ -398,6 +400,19 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 				} else {
 					throw new UnexpectedTypeError(listSubject.getType(),childType, getAST());
 				}
+			} else if(child instanceof AbstractPatternMultiVariable){
+				AbstractPatternMultiVariable multiVar = (AbstractPatternMultiVariable) child;
+				String name = multiVar.getName();
+				if(!multiVar.isAnonymous() && allVars.contains(name)){
+					throw new RedeclaredVariableError(name, getAST());
+				}
+				varName[i] = name;
+				isListVar[i] = true;
+				if(!multiVar.isAnonymous())
+					allVars.add(name);
+				isBindingVar[i] = true;
+				listVarOccurrences[i] = 1;
+				nListVar++;
 			} else if(child instanceof AbstractPatternQualifiedName){
 				AbstractPatternQualifiedName qualName = (AbstractPatternQualifiedName) child;
 				String name = qualName.getName();
@@ -414,7 +429,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 					 * Nothing to do
 					 */
 				} else {
-					Result<IValue> varRes = ev.getVariable(null, name);
+					Result<IValue> varRes = env.getVariable(null, name);
 					
 					if(varRes == null){
 						// A completely new variable, nothing to do
@@ -440,7 +455,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 					}
 				}
 			} else {
-				Type childType = child.getType(ev);
+				Type childType = child.getType(env);
 				if(!childType.comparable(listSubjectElementType)){
 					throw new UnexpectedTypeError(listSubjectType,childType, getAST());
 				}
@@ -472,23 +487,15 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 		if(debug)System.err.println("hasNext=" + hasNext);
 	}
 	
-	private boolean someChildHasNext(){
-		for(int i = 0; i < patternSize; i++){
-			if(patternChildren.get(i).hasNext())
-				return true;
-		}
-		return false;
-	}
-	
 	@Override
-	public Type getType(Environment ev) {
+	public Type getType(Environment env) {
 		if(patternSize == 0){
 			return tf.listType(tf.voidType());
 		}
 		
 		Type elemType = tf.voidType();
 		for(int i = 0; i < patternSize; i++){
-			Type childType = patternChildren.get(i).getType(ev);
+			Type childType = patternChildren.get(i).getType(env);
 			if(childType.isListType()){
 				elemType = elemType.lub(childType.getElementType());
 			} else {
@@ -501,7 +508,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 	
 	@Override
 	public boolean hasNext(){
-		return initialized && hasNext  ; //|| someChildHasNext());
+		return initialized && hasNext;
 	}
 	
 	private IList makeSubList(){
@@ -551,7 +558,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 		
 		IList sublist = makeSubList();
 		if(debug)System.err.println("matchBindingListVar: init child #" + patternCursor + " (" + child + ") with " + sublist);
-		child.initMatch(sublist, ev);
+		child.initMatch(sublist, env);
 	
 		if(child.next()){
 			subjectCursor = start + length;
@@ -607,10 +614,9 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 			} else {
 				if(patternCursor == patternSize){
 					patternCursor--;
-					subjectCursor--; //??
+					subjectCursor--; // Ok?
 				}
 			}
-			
 			
 			if(patternCursor < 0 || subjectCursor < 0){
 				hasNext = false;
@@ -672,12 +678,11 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 			} 
 			else if(isListVar[patternCursor] && 
 					!isBindingVar[patternCursor] && 
-					ev.getVariable(null, varName[patternCursor]).getType().isListType()){
+					env.getVariable(null, varName[patternCursor]).getType().isListType()){
 				if(forward){
 					listVarStart[patternCursor] = subjectCursor;
 					
-					//String name = ((AbstractPatternQualifiedName)child).getName();
-					Result<IValue> varRes = ev.getVariable(null, varName[patternCursor]);
+					Result<IValue> varRes = env.getVariable(null, varName[patternCursor]);
 					IValue varVal = varRes.getValue();
 					
 					if(varRes.getType().isListType()){
@@ -704,7 +709,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 			} else {
 				if(forward && subjectCursor < subjectSize){
 					if(debug)System.err.println("AbstractPatternList.match: init child " + patternCursor + " with " + listSubject.get(subjectCursor));
-					child.initMatch(listSubject.get(subjectCursor), ev);
+					child.initMatch(listSubject.get(subjectCursor), env);
 					if(child.next()){
 						subjectCursor++;
 						patternCursor++;
@@ -857,14 +862,14 @@ class SingleElementGenerator implements Iterator<ISet> {
 	}
 	
 	@Override
-	public Type getType(Environment ev) {
+	public Type getType(Environment env) {
 		if(patternSize == 0){
 			return tf.setType(tf.voidType());
 		}
 		
 		Type elemType = tf.voidType();
 		for(int i = 0; i < patternSize; i++){
-			Type childType = patternChildren.get(i).getType(ev);
+			Type childType = patternChildren.get(i).getType(env);
 			if(childType.isSetType()){
 				elemType = elemType.lub(childType.getElementType());
 			} else {
@@ -875,10 +880,10 @@ class SingleElementGenerator implements Iterator<ISet> {
 	}
 	
 	@Override
-	public IValue toIValue(Environment ev){
+	public IValue toIValue(Environment env){
 		IValue[] vals = new IValue[patternChildren.size()];
 		for (int i = 0; i < patternChildren.size(); i++) {
-			 vals[i] =  patternChildren.get(i).toIValue(ev);
+			 vals[i] =  patternChildren.get(i).toIValue(env);
 		 }
 		return vf.set(vals);
 	}
@@ -931,9 +936,9 @@ class SingleElementGenerator implements Iterator<ISet> {
 	}
 	
 	@Override
-	public void initMatch(IValue subject, Environment ev){
+	public void initMatch(IValue subject, Environment env){
 		
-		super.initMatch(subject, ev);
+		super.initMatch(subject, env);
 		
 		if (!subject.getType().isSetType()) {
 			hasNext = false;
@@ -943,7 +948,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 		setSubject = (ISet) subject;
 		setSubjectType = setSubject.getType();
 		setSubjectElementType = setSubject.getElementType();
-		fixedSetElements = vf.set(getType(ev).getElementType());
+		fixedSetElements = vf.set(getType(env).getElementType());
 		
 		nVar = 0;
 		patVars = new HashSet<String>();
@@ -960,7 +965,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 			AbstractPattern child = patternChildren.get(i);
 			if(child instanceof AbstractPatternTypedVariable){
 				AbstractPatternTypedVariable patVar = (AbstractPatternTypedVariable) child;
-				Type childType = child.getType(ev);
+				Type childType = child.getType(env);
 				String name = ((AbstractPatternTypedVariable)child).getName();
 				if(!patVar.isAnonymous() && allVars.contains(name)){
 					throw new RedeclaredVariableError(name, getAST());
@@ -980,6 +985,17 @@ class SingleElementGenerator implements Iterator<ISet> {
 				} else {
 					throw new UnexpectedTypeError(setSubject.getType(), childType, getAST());
 				}
+				
+			} else if(child instanceof AbstractPatternMultiVariable){
+				AbstractPatternMultiVariable multiVar = (AbstractPatternMultiVariable) child;
+				String name = multiVar.getName();
+				if(!multiVar.isAnonymous() && allVars.contains(name)){
+					throw new RedeclaredVariableError(name, getAST());
+				}
+				varName[nVar] = name;
+				varPat[nVar] = child;
+				isSetVar[nVar] = true;
+				nVar++;
 			} else if(child instanceof AbstractPatternQualifiedName){
 				AbstractPatternQualifiedName qualName = (AbstractPatternQualifiedName) child;
 				String name = qualName.getName();
@@ -1007,7 +1023,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 					isSetVar[nVar] = false;
 					nVar++;
 				} else  {
-					Result<IValue> varRes = ev.getVariable(null, name);
+					Result<IValue> varRes = env.getVariable(null, name);
 					
 					if(varRes == null){
 						// Completely new variable
@@ -1015,7 +1031,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 						varPat[nVar] = child;
 						isSetVar[nVar] = false;
 						nVar++;
-						ev.storeInnermostVariable(name, null);
+						env.storeInnermostVariable(name, null);
 					} else {
 					    if(varRes.getValue() != null){
 					        Type varType = varRes.getType();
@@ -1036,14 +1052,14 @@ class SingleElementGenerator implements Iterator<ISet> {
 				    }
 				}
 			} else if(child instanceof AbstractPatternLiteral){
-				IValue lit = child.toIValue(ev);
-				Type childType = child.getType(ev);
+				IValue lit = child.toIValue(env);
+				Type childType = child.getType(env);
 				if(!childType.comparable(setSubjectElementType)){
 					throw new UnexpectedTypeError(setSubject.getType(), childType, getAST());
 				}
 				fixedSetElements = fixedSetElements.insert(lit);
 			} else {
-				Type childType = child.getType(ev);
+				Type childType = child.getType(env);
 				if(!childType.comparable(setSubjectElementType)){
 					throw new UnexpectedTypeError(setSubject.getType(), childType, getAST());
 				}
@@ -1055,9 +1071,9 @@ class SingleElementGenerator implements Iterator<ISet> {
 					isSetVar[nVar] = false;
 					nVar++;
 				} else {
-					//System.err.println("child =" + child + ", getType=" + child.getType(ev));
-					//System.err.println("child.toIValue(ev)=" + child.toIValue(ev) + ", type =" + child.toIValue(ev).getType());
-					fixedSetElements = fixedSetElements.insert(child.toIValue(ev));
+					//System.err.println("child =" + child + ", getType=" + child.getType(env));
+					//System.err.println("child.toIValue(env)=" + child.toIValue(ev) + ", type =" + child.toIValue(env).getType());
+					fixedSetElements = fixedSetElements.insert(child.toIValue(env));
 				}
 			}
 		}
@@ -1089,10 +1105,10 @@ class SingleElementGenerator implements Iterator<ISet> {
 			String name = qualName.getName();
 			if(qualName.isAnonymous()){
 				varGen[i] = new SingleElementGenerator(elements);
-			} else if(ev.getVariable(null, name) == null){
+			} else if(env.getVariable(null, name) == null){
 				varGen[i] = new SingleElementGenerator(elements);
 			} else {
-				varGen[i] = new SingleIValueIterator(ev.getVariable(null, name).getValue());
+				varGen[i] = new SingleIValueIterator(env.getVariable(null, name).getValue());
 			}
 		}
 		if(isSetVar[i]){
@@ -1114,7 +1130,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 			assert elements.size() == 1;
 			elem = elements.iterator().next();
 		}
-		varPat[i].initMatch(elem, ev);
+		varPat[i].initMatch(elem, env);
 		return varPat[i].next();
 	}
 	
@@ -1199,17 +1215,17 @@ class SingleElementGenerator implements Iterator<ISet> {
 	}
 	
 	@Override
-	public IValue toIValue(Environment ev){
+	public IValue toIValue(Environment env){
 		IValue[] vals = new IValue[children.size()];
 		for (int i = 0; i < children.size(); i++) {
-			 vals[i] =  children.get(i).toIValue(ev);
+			 vals[i] =  children.get(i).toIValue(env);
 		 }
 		return vf.tuple(vals);
 	}
 	
 	@Override
-	public void initMatch(IValue subject, Environment ev){
-		super.initMatch(subject, ev);
+	public void initMatch(IValue subject, Environment env){
+		super.initMatch(subject, env);
 		hasNext = false;
 		if (!subject.getType().isTupleType()) {
 			return;
@@ -1219,16 +1235,16 @@ class SingleElementGenerator implements Iterator<ISet> {
 			return;
 		}
 		for(int i = 0; i < children.size(); i++){
-			children.get(i).initMatch(tupleSubject.get(i), ev);
+			children.get(i).initMatch(tupleSubject.get(i), env);
 		}
 		firstMatch = hasNext = true;
 	}
 	
 	@Override
-	public Type getType(Environment ev) {
+	public Type getType(Environment env) {
 		Type fieldTypes[] = new Type[children.size()];
 		for(int i = 0; i < children.size(); i++){
-			fieldTypes[i] = children.get(i).getType(ev);
+			fieldTypes[i] = children.get(i).getType(env);
 		}
 		return tf.tupleType(fieldTypes);
 	}
@@ -1257,7 +1273,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 			return false;
 		firstMatch = false;
 		
-		hasNext =  matchChildren(((ITuple) subject).iterator(), children.iterator(), ev);
+		hasNext =  matchChildren(((ITuple) subject).iterator(), children.iterator(), env);
 			
 		return hasNext;
 	}
@@ -1281,16 +1297,16 @@ class SingleElementGenerator implements Iterator<ISet> {
 	}
 	
 	@Override
-	public IValue toIValue(Environment ev){
+	public IValue toIValue(Environment env){
 		IValue[] vals = new IValue[children.size()];
 		for (int i = 0; i < children.size(); i++) {
-			 vals[i] =  children.get(i).toIValue(ev);
+			 vals[i] =  children.get(i).toIValue(env);
 		 }
 		return null; //TODO: make correct
 	}
 	
 	@Override
-	public Type getType(Environment ev) {
+	public Type getType(Environment env) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -1303,16 +1319,15 @@ class SingleElementGenerator implements Iterator<ISet> {
 }
 
 /* package */ class AbstractPatternQualifiedName extends AbstractPattern implements MatchPattern {
-	private org.meta_environment.rascal.ast.QualifiedName name;
+	protected org.meta_environment.rascal.ast.QualifiedName name;
 	private Type type;
-	private boolean anonymous = false;
-	private boolean debug = false;
-	private Environment env; 
+	protected boolean anonymous = false;
+	private boolean debug = true;
+	protected Environment env; 
 	
-	//org.meta_environment.rascal.ast.QualifiedName qualifiedName
-	AbstractPatternQualifiedName(IValueFactory vf, Environment env, EvaluatorContext ctx){
+	AbstractPatternQualifiedName(IValueFactory vf, Environment env, EvaluatorContext ctx, org.meta_environment.rascal.ast.QualifiedName name){
 		super(vf, ctx);
-		this.name = (org.meta_environment.rascal.ast.QualifiedName)getAST();
+		this.name = name;
 		this.anonymous = name.toString().equals("_");
 		this.env = env;
 		// Look for this variable while we are constructing this pattern
@@ -1329,7 +1344,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 	}
 	
 	@Override
-	public Type getType(Environment ev) {
+	public Type getType(Environment env) {
 		return type;
 	}
 	
@@ -1341,7 +1356,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 	}
 	
 	@Override
-	public IValue toIValue(Environment ev){
+	public IValue toIValue(Environment env){
 		throw new UnsupportedOperationException("toIValue on Variable");
 	}
 	
@@ -1392,6 +1407,29 @@ class SingleElementGenerator implements Iterator<ISet> {
 	public String toString(){
 		return name + "==" + subject;
 	}
+}
+
+/* package */ class AbstractPatternMultiVariable extends AbstractPatternQualifiedName {
+
+	AbstractPatternMultiVariable(IValueFactory vf, Environment env,
+			EvaluatorContext ctx, org.meta_environment.rascal.ast.QualifiedName name) {
+		super(vf, env, ctx, name);
+	}
+	
+	@Override
+	public boolean next(){
+		checkInitialized();
+		if(!hasNext)
+			return false;
+		
+		// If not anonymous, store the value.
+		if(!anonymous) {
+			Type type = subject.getType();
+			env.storeInnermostVariable(name.toString(), makeResult(type, subject, ctx));
+		}
+		return true;
+	}
+	
 }
 
 /* package */class AbstractPatternTypedVariable extends AbstractPattern implements MatchPattern {
@@ -1478,7 +1516,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 	}
 	
 	@Override
-	public Type getType(Environment ev) {
+	public Type getType(Environment env) {
 		return declaredType;
 	}
 	
@@ -1490,7 +1528,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 	}
 	
 	@Override
-	public IValue toIValue(Environment ev){
+	public IValue toIValue(Environment env){
 		throw new UnsupportedOperationException("toIValue on Variable");
 	}
 	
@@ -1572,15 +1610,15 @@ class AbstractPatternTypedVariableBecomes extends AbstractPattern implements Mat
 	}
 	
 	@Override
-	public void initMatch(IValue subject, Environment ev){
-		super.initMatch(subject,ev);
-		pat.initMatch(subject, ev);
-		if(!evaluator.mayMatch(pat.getType(ev), declaredType))
-			throw new UnexpectedTypeError(pat.getType(ev), declaredType, ctx.getCurrentAST());
+	public void initMatch(IValue subject, Environment env){
+		super.initMatch(subject,env);
+		pat.initMatch(subject, env);
+		if(!evaluator.mayMatch(pat.getType(env), declaredType))
+			throw new UnexpectedTypeError(pat.getType(env), declaredType, ctx.getCurrentAST());
 	}
 	
 	@Override
-	public Type getType(Environment ev) {
+	public Type getType(Environment env) {
 		return declaredType;
 	}
 	
@@ -1601,7 +1639,7 @@ class AbstractPatternTypedVariableBecomes extends AbstractPattern implements Mat
 	}
 
 	@Override
-	public IValue toIValue(Environment ev) {
+	public IValue toIValue(Environment env) {
 		return null;
 	}
 }
@@ -1642,14 +1680,14 @@ class AbstractPatternVariableBecomes extends AbstractPattern implements MatchPat
 	}
 	
 	@Override
-	public void initMatch(IValue subject, Environment ev){
-		super.initMatch(subject,ev);
-		pat.initMatch(subject, ev);
+	public void initMatch(IValue subject, Environment env){
+		super.initMatch(subject,env);
+		pat.initMatch(subject, env);
 	}
 	
 	@Override
-	public Type getType(Environment ev) {
-		return pat.getType(ev);
+	public Type getType(Environment env) {
+		return pat.getType(env);
 	}
 	
 	@Override
@@ -1668,7 +1706,7 @@ class AbstractPatternVariableBecomes extends AbstractPattern implements MatchPat
 	}
 
 	@Override
-	public IValue toIValue(Environment ev) {
+	public IValue toIValue(Environment env) {
 		return null;
 	}
 }
@@ -1684,17 +1722,17 @@ class AbstractPatternGuarded extends AbstractPattern implements MatchPattern {
 	}
 
 	@Override
-	public Type getType(Environment ev) {
+	public Type getType(Environment env) {
 		return type;
 	}
 	
 	@Override
-	public void initMatch(IValue subject, Environment ev){
-		super.initMatch(subject,ev);
-		pat.initMatch(subject, ev);
-		if(!evaluator.mayMatch(pat.getType(ev), type))
-			throw new UnexpectedTypeError(pat.getType(ev), type, ctx.getCurrentAST());
-		this.hasNext = pat.getType(ev).equivalent(type);
+	public void initMatch(IValue subject, Environment env){
+		super.initMatch(subject,env);
+		pat.initMatch(subject, env);
+		if(!evaluator.mayMatch(pat.getType(env), type))
+			throw new UnexpectedTypeError(pat.getType(env), type, ctx.getCurrentAST());
+		this.hasNext = pat.getType(env).equivalent(type);
 	}
 
 	@Override
@@ -1703,7 +1741,7 @@ class AbstractPatternGuarded extends AbstractPattern implements MatchPattern {
 	}
 
 	@Override
-	public IValue toIValue(Environment ev) {
+	public IValue toIValue(Environment env) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -1720,22 +1758,27 @@ class AbstractPatternAnti extends AbstractPattern implements MatchPattern {
 	}
 
 	@Override
-	public Type getType(Environment ev) {
-		return pat.getType(ev);
+	public Type getType(Environment env) {
+		return pat.getType(env);
 	}
 	
 	@Override
-	public void initMatch(IValue subject, Environment ev){
-		super.initMatch(subject,ev);
-		pat.initMatch(subject, ev);
+	public void initMatch(IValue subject, Environment env){
+		super.initMatch(subject,env);
+		pat.initMatch(subject, env);
 		
 		java.util.List<String> vars = pat.getVariables();
 		patVars = new java.util.ArrayList<String>(vars.size());
 		for(String name : vars){
-			Result<IValue> vr = ev.getVariable(null, name);
+			Result<IValue> vr = env.getVariable(null, name);
 			if(vr == null || vr.getValue() == null)
 				patVars.add(name);
 		}
+	}
+	
+	@Override
+	public boolean mayMatch(IValue subject, Environment env){
+		return pat.mayMatch(subject, env);
 	}
 
 	@Override
@@ -1749,7 +1792,7 @@ class AbstractPatternAnti extends AbstractPattern implements MatchPattern {
 	}
 
 	@Override
-	public IValue toIValue(Environment ev) {
+	public IValue toIValue(Environment env) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -1768,13 +1811,18 @@ class AbstractPatternDescendant extends AbstractPattern implements MatchPattern 
 	}
 
 	@Override
-	public Type getType(Environment ev) {
-		return pat.getType(ev);
+	public Type getType(Environment env) {
+		return pat.getType(env);
 	}
 	
 	@Override
-	public void initMatch(IValue subject, Environment ev){
-		super.initMatch(subject,ev);
+	public boolean mayMatch(IValue subject, Environment env){
+		return evaluator.mayOccurIn(getType(env), subject.getType());
+	}
+	
+	@Override
+	public void initMatch(IValue subject, Environment env){
+		super.initMatch(subject,env);
 		enumAndMatch = new EnumerateAndMatch(pat, makeResult(subject.getType(), subject, ctx), eval);
 	}
 	
@@ -1797,7 +1845,7 @@ class AbstractPatternDescendant extends AbstractPattern implements MatchPattern 
 	}
 
 	@Override
-	public IValue toIValue(Environment ev) {
+	public IValue toIValue(Environment env) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -1833,7 +1881,7 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 	@Override
 	public AbstractPattern visitExpressionCallOrTree(CallOrTree x) {
 		org.meta_environment.rascal.ast.QualifiedName N = x.getQualifiedName();
-		return new AbstractPatternNode(vf, x, N, visitElements(x.getArguments()));
+		return new AbstractPatternNode(vf, new EvaluatorContext(ctx.getEvaluator(), x), N, visitElements(x.getArguments()));
 	}
 	
 	private java.util.List<AbstractPattern> visitElements(java.util.List<org.meta_environment.rascal.ast.Expression> elements){
@@ -1876,18 +1924,18 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 		if (r != null) {
 			if (r.getValue() != null) {
 				// Previously declared and initialized variable
-				return new AbstractPatternQualifiedName(vf, env, new EvaluatorContext(ctx.getEvaluator(), name));
+				return new AbstractPatternQualifiedName(vf, env, new EvaluatorContext(ctx.getEvaluator(), name), name);
 			}
 			
 			// Previously declared and uninitialized variable
 			return new AbstractPatternTypedVariable(vf, env, new EvaluatorContext(ctx.getEvaluator(), name), r.getType(),name);
 		}
 		if (scope.isTreeConstructorName(name, signature)) {
-			return new AbstractPatternNode(vf, x, name,
+			return new AbstractPatternNode(vf, new EvaluatorContext(ctx.getEvaluator(), x), name,
 					new java.util.ArrayList<AbstractPattern>());
 		}
 		// Completely fresh variable
-		return new AbstractPatternQualifiedName(vf, env, new EvaluatorContext(ctx.getEvaluator(), name));
+		return new AbstractPatternQualifiedName(vf, env, new EvaluatorContext(ctx.getEvaluator(), name), name);
 		//return new AbstractPatternTypedVariable(vf, env, ev.tf.valueType(), name);
 	}
 	
@@ -1929,8 +1977,7 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 	
 	@Override
 	public AbstractPattern visitExpressionMultiVariable(MultiVariable x) {
-		// TODO Auto-generated method stub
-		return super.visitExpressionMultiVariable(x);
+		return new AbstractPatternMultiVariable(vf, env, new EvaluatorContext(ctx.getEvaluator(), x), x.getQualifiedName());
 	}
 	
 	@Override
