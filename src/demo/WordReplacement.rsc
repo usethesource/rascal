@@ -2,6 +2,15 @@ module demo::WordReplacement
 
 import String;
 
+public str capitalize(str word)
+{
+   if(/^<letter:[a-z]><rest:.*$>/ := word){
+     return toUpperCase(letter) + rest;
+   } else {
+     return word;
+   }
+}
+
 public str capAll1(str S)
 {
  result = "";
@@ -10,15 +19,6 @@ public str capAll1(str S)
     S = after;
   }
   return result;
-}
-
-public str capitalize(str word)
-{
-   if(/^<letter:[a-z]><rest:.*$>/ := word){
-   		return toUpperCase(letter) + rest;
-   } else {
-   		return word;
-   }
 }
 
 public str capAll2(str S)
