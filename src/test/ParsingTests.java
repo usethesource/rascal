@@ -1,8 +1,10 @@
 package test;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.util.Collections;
 
 import junit.framework.TestCase;
 
@@ -12,13 +14,14 @@ import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.Module;
 import org.meta_environment.rascal.ast.Module.Default;
 import org.meta_environment.rascal.parser.ASTBuilder;
-import org.meta_environment.rascal.parser.Parser;
+import org.meta_environment.rascal.parser.ModuleParser;
 import org.meta_environment.uptr.Factory;
 
 public class ParsingTests extends TestCase {
 
 	public void doParse(String dir) {
-		Parser parser = Parser.getInstance();
+		ModuleParser parser = new ModuleParser();
+		
 		File directory = new File("demo/" + dir);
 
 		File[] tests = directory.listFiles(new FilenameFilter() {
@@ -33,7 +36,7 @@ public class ParsingTests extends TestCase {
 		
 		for (File file : tests) {
 			try {
-				IConstructor tree = parser.parseFromFile(file);
+				IConstructor tree = parser.parseModule(Collections.<String>emptyList(), Collections.<String>emptySet(), file.getAbsolutePath(), new FileInputStream(file));
 				
 				if (tree.getConstructorType() == Factory.ParseTree_Top) {
 					Module.Default module = (Default) b.buildModule(tree);

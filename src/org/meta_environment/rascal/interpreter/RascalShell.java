@@ -8,7 +8,6 @@ import java.io.Writer;
 import jline.ConsoleReader;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
-import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.meta_environment.ValueFactoryFactory;
@@ -24,7 +23,7 @@ import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
 import org.meta_environment.rascal.parser.ASTBuilder;
-import org.meta_environment.rascal.parser.Parser;
+import org.meta_environment.rascal.parser.ModuleParser;
 import org.meta_environment.uptr.Factory;
 
 public class RascalShell {
@@ -33,7 +32,7 @@ public class RascalShell {
 	private final static int MAX_CONSOLE_LINE = 100;
 	private static final String SHELL_MODULE = "***shell***";
 	
-	private final Parser parser = Parser.getInstance();
+	private final ModuleParser parser = new ModuleParser();
 	private final ASTFactory factory = new ASTFactory();
 	private final ASTBuilder builder = new ASTBuilder(factory);
 	private final ConsoleReader console;
@@ -78,7 +77,7 @@ public class RascalShell {
 						break next; // EOF
 					}
 					
-					if (line.trim().isEmpty()) {
+					if (line.trim().length() == 0) {
 						console.printString("cancelled\n");
 						continue next;
 					}
@@ -115,51 +114,6 @@ public class RascalShell {
 		}
 	}
 	
-	private int run(String module, String[] args) {
-		try {
-			loadModule(module);
-			return callMainFunction(module, args);
-		}
-		catch (Throwable e) {
-			System.err.println(e.getMessage());
-			e.printStackTrace();
-		}
-		
-		return 1;
-	}
-
-	private int callMainFunction(String module, String[] args) throws IOException {
-		String callMainStatement = module + "::main(" + mainArguments(args) + ");";
-		IConstructor tree = parser.parseFromString(callMainStatement, "-");
-		Command callStat = builder.buildCommand(tree);
-		Result<IValue> result = callStat.accept(new CommandEvaluator(evaluator));
-		
-		if (!result.getType().isIntegerType()) {
-			System.err.println("Main function should return an integer");
-		}
-		
-		return ((IInteger) result).intValue();
-	}
-
-	private String mainArguments(String[] args) {
-		StringBuilder b = new StringBuilder();
-		
-		b.append("[");
-		for (int i = 1; i < args.length; i++) {
-			b.append("\"" + args[i].replaceAll("\"", "\\\"") + "\"");	
-		}
-		b.append("]");
-		
-		return b.toString();
-	}
-
-	private void loadModule(String module) throws IOException {
-		String importCommand = "import " + module + ";";
-		IConstructor tree = parser.parseFromString(importCommand, "-");
-		Command importDecl = builder.buildCommand(tree);
-		importDecl.accept(new CommandEvaluator(evaluator));
-	}
-	
 	private void printStacktrace(ConsoleReader console, Throwable e) throws IOException {
 		String message = e.getMessage();
 		console.printString("stacktrace: " + (message != null ? message : "" )+ "\n");
@@ -175,7 +129,7 @@ public class RascalShell {
 
 	private String handleInput(final CommandEvaluator command, StringBuffer statement) throws IOException {
 		StringBuilder result = new StringBuilder();
-		IConstructor tree = parser.parseFromString(statement.toString(), "-");
+		IConstructor tree = evaluator.parseCommand(statement.toString(), "-");
 
 		if (tree.getConstructorType() == Factory.ParseTree_Summary) {
 			SubjectAdapter s = new SummaryAdapter(tree).getInitialSubject();
@@ -203,7 +157,7 @@ public class RascalShell {
 
 	private boolean completeStatement(StringBuffer statement) throws FactTypeUseException, IOException {
 		String command = statement.toString();
-		IConstructor tree = parser.parseFromString(command, "-");
+		IConstructor tree = evaluator.parseCommand(command, "-");
 
 		if (tree.getConstructorType() == Factory.ParseTree_Summary) {
 			SubjectAdapter subject = new SummaryAdapter(tree).getInitialSubject();
@@ -228,15 +182,6 @@ public class RascalShell {
 				new RascalShell().run();
 				System.err.println("Que le Rascal soit avec vous!");
 				System.exit(0);
-			} catch (IOException e) {
-				System.err.println("unexpected error: " + e.getMessage());
-				System.exit(1);
-			} 
-		}
-		else if (args.length > 0) {
-			try {
-				int result = new RascalShell().run(args[0], args);
-				System.exit(result);
 			} catch (IOException e) {
 				System.err.println("unexpected error: " + e.getMessage());
 				System.exit(1);

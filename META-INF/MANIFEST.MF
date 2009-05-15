@@ -3,25 +3,27 @@ Bundle-ManifestVersion: 2
 Bundle-Name: rascal
 Bundle-ActivationPolicy: lazy
 Bundle-SymbolicName: rascal;singleton:=true
-Bundle-Version: 0.0.1
+Bundle-Version: 0.1
 Bundle-ClassPath: rascal.jar,
  lib/hickory_check.jar,
  lib/jline-0.9.94.jar,
  lib/junit-4.5.jar,
  .
-Export-Package: org.meta_environment.rascal.ast,
+Export-Package: org.meta_environment,
  org.meta_environment.errors,
  org.meta_environment.locations,
+ org.meta_environment.rascal.ast,
  org.meta_environment.rascal.interpreter,
- org.meta_environment.rascal.parser,
- org.meta_environment.uptr,
- org.meta_environment.rascal.interpreter.env,
- org.meta_environment.uptr.visitors,
- org.meta_environment.rascal.interpreter.staticErrors,
  org.meta_environment.rascal.interpreter.control_exceptions,
+ org.meta_environment.rascal.interpreter.env,
  org.meta_environment.rascal.interpreter.load,
  org.meta_environment.rascal.interpreter.result,
- org.meta_environment
+ org.meta_environment.rascal.interpreter.staticErrors,
+ org.meta_environment.rascal.parser,
+ org.meta_environment.uptr,
+ org.meta_environment.uptr.visitors
 Require-Bundle: sglr_invoker,
  pdb_shared,
+ rascal_grammar,
  org.eclipse.imp.pdb.values
+

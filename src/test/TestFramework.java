@@ -1,5 +1,6 @@
 package test;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -15,13 +16,13 @@ import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.load.FromResourceLoader;
+import org.meta_environment.rascal.interpreter.load.ModuleLoader;
 import org.meta_environment.rascal.parser.ASTBuilder;
-import org.meta_environment.rascal.parser.Parser;
 import org.meta_environment.uptr.Factory;
 
 
 public class TestFramework {
-	private Parser parser = Parser.getInstance();
+	private ModuleLoader parser = new ModuleLoader();
 	private ASTFactory factory = new ASTFactory();
 	private ASTBuilder builder = new ASTBuilder(factory);
 	private Evaluator evaluator;
@@ -114,7 +115,7 @@ public class TestFramework {
 
 	public boolean prepareModule(String module) throws FactTypeUseException {
 		try {
-			IConstructor tree = parser.parseFromString(module, "-");
+			IConstructor tree = parser.parseModule("-", "-", module);
 			if (tree.getType() == Factory.ParseTree_Summary) {
 				System.err.println(tree);
 				return false;
@@ -131,7 +132,7 @@ public class TestFramework {
 	}
 
 	private boolean execute(String command) throws IOException {
-		IConstructor tree = parser.parseFromString(command, "-");
+		IConstructor tree = evaluator.parseCommand(command, "-");
 
 		if (tree.getConstructorType() == Factory.ParseTree_Summary) {
 			System.err.println(tree);

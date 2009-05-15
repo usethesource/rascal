@@ -8,12 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import javax.tools.Diagnostic;
-import javax.tools.JavaFileObject;
-import javax.tools.ToolProvider;
-
-import net.java.dev.hickory.testing.Compilation;
-
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
@@ -32,13 +26,11 @@ import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.ast.Formal;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.Parameters;
-import org.meta_environment.rascal.ast.Signature;
 import org.meta_environment.rascal.ast.Tag;
 import org.meta_environment.rascal.ast.Tags;
 import org.meta_environment.rascal.ast.Type;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.env.Environment;
-import org.meta_environment.rascal.interpreter.staticErrors.JavaCompilationError;
 import org.meta_environment.rascal.interpreter.staticErrors.MissingTagError;
 import org.meta_environment.rascal.interpreter.staticErrors.NonAbstractJavaFunctionError;
 import org.meta_environment.rascal.interpreter.staticErrors.NonStaticJavaMethodError;
@@ -49,11 +41,11 @@ public class JavaBridge {
 	private static final String JAVA_IMPORTS_TAG = "javaImports";
 	private static final String JAVA_CLASS_TAG = "javaClass";
 	
-	private static final String UNWANTED_MESSAGE_PREFIX = "org/meta_environment/rascal/java/";
-	private static final String UNWANTED_MESSAGE_POSTFIX = "\\.java:";
+//	private static final String UNWANTED_MESSAGE_PREFIX = "org/meta_environment/rascal/java/";
+//	private static final String UNWANTED_MESSAGE_POSTFIX = "\\.java:";
 	private static final String METHOD_NAME = "call";
 	
-	private final Writer out;
+//	private final Writer out;
 	private final List<ClassLoader> loaders;
 	
 	private final static Map<FunctionDeclaration,Class<?>> cache = new WeakHashMap<FunctionDeclaration, Class<?>>();
@@ -63,16 +55,17 @@ public class JavaBridge {
 	
 
 	public JavaBridge(Writer outputWriter, List<ClassLoader> classLoaders) {
-		this.out = outputWriter;
+//		this.out = outputWriter;
 		this.loaders = classLoaders;
 		
-		if (ToolProvider.getSystemJavaCompiler() == null) {
-			throw new ImplementationError("Could not find an installed System Java Compiler, please provide a Java Runtime that includes the Java Development Tools (JDK 1.6 or higher).");
-		}
-		
-		if (ToolProvider.getSystemToolClassLoader() == null) {
-			throw new ImplementationError("Could not find an System Tool Class Loader, please provide a Java Runtime that includes the Java Development Tools (JDK 1.6 or higher).");
-		}
+//		Commented out while we wait for a 1.6 JVM on MacOSX 
+//		if (ToolProvider.getSystemJavaCompiler() == null) {
+//			throw new ImplementationError("Could not find an installed System Java Compiler, please provide a Java Runtime that includes the Java Development Tools (JDK 1.6 or higher).");
+//		}
+//		
+//		if (ToolProvider.getSystemToolClassLoader() == null) {
+//			throw new ImplementationError("Could not find an System Tool Class Loader, please provide a Java Runtime that includes the Java Development Tools (JDK 1.6 or higher).");
+//		}
 	}
 
 	public Method compileJavaMethod(FunctionDeclaration declaration, Environment env) {
@@ -108,50 +101,53 @@ public class JavaBridge {
 	}
 
 	private Class<?> buildJavaClass(FunctionDeclaration declaration) throws ClassNotFoundException {
-		Signature signature = declaration.getSignature();
-		String imports = getImports(declaration);
-		String name = signature.getName().toString();
-		String fullClassName = "org.meta_environment.rascal.java." + name;
-		String params = getJavaFormals(signature
-				.getParameters());
-		String result = TE.eval(signature.getType()).isVoidType() ? "void" : "IValue";
-		Compilation compilation = new Compilation();
-
-		compilation.addSource(fullClassName).addLine(
-				"package org.meta_environment.rascal.java;").
-				addLine("import org.meta_environment.rascal.interpreter.RuntimeExceptionFactory;").
-				addLine("import org.eclipse.imp.pdb.facts.type.*;").
-				addLine("import org.eclipse.imp.pdb.facts.*;").
-				addLine("import org.meta_environment.ValueFactoryFactory;").
-				addLine("import org.eclipse.imp.pdb.facts.io.*;").
-				addLine("import org.eclipse.imp.pdb.facts.visitors.*;").
-				addLine("import java.util.Random;").
-				addLine(imports).
-				addLine("public class " + name + "{").
-				addLine("  private static final IValueFactory values = ValueFactoryFactory.getValueFactory();").
-				addLine("  private static final TypeFactory types = TypeFactory.getInstance();").
-				addLine("  private static final Random random = new Random();").
-				addLine("  public static " + result + " " + METHOD_NAME + "(" + params + ") {").
-				addLine(declaration.getBody().toString()).
-				addLine("  }").
-				addLine("}");
-
-	  
-		compilation.doCompile(out);
-		
-		if (compilation.getDiagnostics().size() != 0) {
-			StringBuilder messages = new StringBuilder();
-			for (Diagnostic<? extends JavaFileObject> d : compilation.getDiagnostics()) {
-				String message = d.getMessage(null);
-				message = message.replaceAll(UNWANTED_MESSAGE_PREFIX, "").replaceAll(UNWANTED_MESSAGE_POSTFIX, ",");
-				messages.append(message + "\n");
-			}
-			throw new JavaCompilationError(messages.toString(), declaration);
-		}
-
-		return compilation.getOutputClass(fullClassName);
+		// TODO uncomment when we have a 1.6 or 1.7 JVM on MacOS
+		throw new ImplementationError("Embedded Java is not supported while Java 1.6 is not available on Mac");
+//		Signature signature = declaration.getSignature();
+//		String imports = getImports(declaration);
+//		String name = signature.getName().toString();
+//		String fullClassName = "org.meta_environment.rascal.java." + name;
+//		String params = getJavaFormals(signature
+//				.getParameters());
+//		String result = TE.eval(signature.getType()).isVoidType() ? "void" : "IValue";
+//		Compilation compilation = new Compilation();
+//
+//		compilation.addSource(fullClassName).addLine(
+//				"package org.meta_environment.rascal.java;").
+//				addLine("import org.meta_environment.rascal.interpreter.RuntimeExceptionFactory;").
+//				addLine("import org.eclipse.imp.pdb.facts.type.*;").
+//				addLine("import org.eclipse.imp.pdb.facts.*;").
+//				addLine("import org.meta_environment.ValueFactoryFactory;").
+//				addLine("import org.eclipse.imp.pdb.facts.io.*;").
+//				addLine("import org.eclipse.imp.pdb.facts.visitors.*;").
+//				addLine("import java.util.Random;").
+//				addLine(imports).
+//				addLine("public class " + name + "{").
+//				addLine("  private static final IValueFactory values = ValueFactoryFactory.getValueFactory();").
+//				addLine("  private static final TypeFactory types = TypeFactory.getInstance();").
+//				addLine("  private static final Random random = new Random();").
+//				addLine("  public static " + result + " " + METHOD_NAME + "(" + params + ") {").
+//				addLine(declaration.getBody().toString()).
+//				addLine("  }").
+//				addLine("}");
+//
+//	  
+//		compilation.doCompile(out);
+//		
+//		if (compilation.getDiagnostics().size() != 0) {
+//			StringBuilder messages = new StringBuilder();
+//			for (Diagnostic<? extends JavaFileObject> d : compilation.getDiagnostics()) {
+//				String message = d.getMessage(null);
+//				message = message.replaceAll(UNWANTED_MESSAGE_PREFIX, "").replaceAll(UNWANTED_MESSAGE_POSTFIX, ",");
+//				messages.append(message + "\n");
+//			}
+//			throw new JavaCompilationError(messages.toString(), declaration);
+//		}
+//
+//		return compilation.getOutputClass(fullClassName);
 	}
 
+	@SuppressWarnings("unused")
 	private String getImports(FunctionDeclaration declaration) {
 		Tags tags = declaration.getTags();
 		
@@ -191,6 +187,7 @@ public class JavaBridge {
 	}
 	
 
+	@SuppressWarnings("unused")
 	private String getJavaFormals(Parameters parameters) {
 		StringBuffer buf = new StringBuffer();
 		List<Formal> formals = parameters.getFormals().getFormals();
