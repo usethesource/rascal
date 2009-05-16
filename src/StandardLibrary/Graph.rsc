@@ -12,11 +12,21 @@ public set[&T] bottom(graph[&T] G)
   return range(G) - domain(G);
 }
 
-public set[&T] top(graph[&T] G)
-@doc{top -- return the top nodes of a graph.}
+public set[&T] predecessors(graph[&T] G, &T From)
+@doc{predecessors -- the predecessors of a single node in a graph}
 {
-  return domain(G) - range(G);
+  //return G[_,From];
+  return invert(G)[From];
 }
+
+/*
+public set[&T] predecessors(graph[&T] G, set[&T] From)
+@doc{predecessors -- the predecessors of a set of nodes in a graph}
+{
+  //return G[_,From];
+  return invert(G)[From];
+}
+*/
 
 public set[&T] reach(graph[&T] G, set[&T] Start)
 @doc{reach -- Reachability from set of start nodes.}
@@ -128,29 +138,22 @@ public set[list[&T]] shortestPathAll(graph[&T] G)
 
 */
 
-/* TODO:
 public set[&T] successors(graph[&T] G, &T From)
 @doc{successors -- the successor of a single node in a graph}
 {
   return G[From];
 }
 
+/*
 public set[&T] successors(graph[&T] G, set[&T] From)
 @doc{successors -- the successor of a set of nodes in a graph}
 {
   return G[From];
 }
-
-/* TODO:
-public set[&T] predecessors(graph[&T] G, &T From)
-@doc{predecessors -- the predecessors of a single node in a graph}
-{
-  return G[_,From];
-}
-
-public set[&T] predecessors(graph[&T] G, &T From)
-@doc{predecessors -- the predecessors of a set of nodes in a graph}
-{
-  return G[_,From];
-}
 */
+
+public set[&T] top(graph[&T] G)
+@doc{top -- return the top nodes of a graph.}
+{
+  return domain(G) - range(G);
+}
