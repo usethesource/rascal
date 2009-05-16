@@ -1322,7 +1322,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 	protected org.meta_environment.rascal.ast.QualifiedName name;
 	private Type type;
 	protected boolean anonymous = false;
-	private boolean debug = true;
+	private boolean debug = false;
 	protected Environment env; 
 	
 	AbstractPatternQualifiedName(IValueFactory vf, Environment env, EvaluatorContext ctx, org.meta_environment.rascal.ast.QualifiedName name){

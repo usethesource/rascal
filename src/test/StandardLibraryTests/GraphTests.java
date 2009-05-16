@@ -16,11 +16,9 @@ public class GraphTests extends TestFramework {
 	}
 
 	@Test
-	public void top() {
-
+	public void predecessors(){
 		prepare("import Graph;");
-		assertTrue(runTestInSameEvaluator("top({}) == {};"));
-		assertTrue(runTestInSameEvaluator("top({<1,2>, <1,3>, <2,4>, <3,4>}) == {1};"));
+		assertTrue(runTestInSameEvaluator("predecessors({<1,2>, <1,3>, <2,4>, <3,4>}, 4) =={2, 3};"));
 	}
 
 	@Test
@@ -60,5 +58,18 @@ public class GraphTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("reach({<1,2>, <1,3>, <2,4>, <3,4>}, {3,4}) =={3,4};"));
 		assertTrue(runTestInSameEvaluator("reach({<1,2>, <1,3>, <2,4>, <3,4>}, {2,3}) =={2, 3,4};"));
 	}
+	
+	@Test
+	public void successors(){
+		prepare("import Graph;");
+		assertTrue(runTestInSameEvaluator("successors({<1,2>, <1,3>, <2,4>, <3,4>}, 1) =={2, 3};"));
+	}
 
+	@Test
+	public void top() {
+
+		prepare("import Graph;");
+		assertTrue(runTestInSameEvaluator("top({}) == {};"));
+		assertTrue(runTestInSameEvaluator("top({<1,2>, <1,3>, <2,4>, <3,4>}) == {1};"));
+	}
 }
