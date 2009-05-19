@@ -9,7 +9,7 @@ static public class Default extends QualifiedName {
 	private Default() {
 		super();
 	}
-	/*package*/ Default(INode node, java.util.List<org.meta_environment.rascal.ast.Name> names) {
+	/*package*/ public Default(INode node, java.util.List<org.meta_environment.rascal.ast.Name> names) {
 		this.node = node;
 		this.names = names;
 	}

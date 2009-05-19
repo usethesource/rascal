@@ -28,7 +28,7 @@ public class ProductionAdapter {
 				}
 			}
 		}
-		throw new ImplementationError("Production does not have constructor name: " + this.tree);
+		return null;
 	}
 	
 	public SymbolAdapter getRhs() {

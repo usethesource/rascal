@@ -138,6 +138,7 @@ public class ModuleParser {
 	private String getTableLocation(Set<String> sdfImports, List<String> sdfSearchPath) throws IOException {
 		List<String> sorted = new ArrayList<String>(sdfImports);
 		Collections.sort(sorted);
+		InputStream in = null;
 		
 		try {
 			Process p = Runtime.getRuntime().exec(new String[] {  
@@ -148,15 +149,23 @@ public class ModuleParser {
 			}, new String[0], new File(Configuration.getRascal2TableBinDirProperty()));
 			p.waitFor();
 			
-			InputStream in = p.getInputStream();
+			if (p.exitValue() != 0) {
+				throw new ImplementationError("Could not collect syntax for some reason");
+			}
+			
+			in = p.getInputStream();
 			
 			byte[] result = new byte[32];
 			in.read(result);
-			in.close();
 
 			return new File(Configuration.getTableCacheDirectoryProperty(), new String(result) + ".tbl").getAbsolutePath();
 		} catch (InterruptedException e) {
 			throw new IOException("could not compute table location: " + e.getMessage());
+		} 
+		finally {
+			if (in != null) {
+				in.close();
+			}
 		}
 	}
 }

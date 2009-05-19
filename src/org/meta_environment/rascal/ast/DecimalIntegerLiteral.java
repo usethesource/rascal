@@ -3,7 +3,7 @@ import org.eclipse.imp.pdb.facts.INode;
 public abstract class DecimalIntegerLiteral extends AbstractAST { 
   static public class Lexical extends DecimalIntegerLiteral {
 	private String string;
-	/*package*/ Lexical(INode node, String string) {
+	/*package*/ public Lexical(INode node, String string) {
 		this.node = node;
 		this.string = string;
 	}

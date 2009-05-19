@@ -6,10 +6,10 @@ public boolean hasLiteral() { return false; }
 public boolean isLiteral() { return false; }
 static public class Literal extends Expression {
 /* literal:Literal -> Expression {cons("Literal")} */
-	private Literal() {
+	public Literal() {
 		super();
 	}
-	/*package*/ Literal(INode node, org.meta_environment.rascal.ast.Literal literal) {
+	/*package*/ public Literal(INode node, org.meta_environment.rascal.ast.Literal literal) {
 		this.node = node;
 		this.literal = literal;
 	}
@@ -49,7 +49,7 @@ static public class CallOrTree extends Expression {
 	private CallOrTree() {
 		super();
 	}
-	/*package*/ CallOrTree(INode node, org.meta_environment.rascal.ast.QualifiedName qualifiedName, java.util.List<org.meta_environment.rascal.ast.Expression> arguments) {
+	/*package*/ public CallOrTree(INode node, org.meta_environment.rascal.ast.QualifiedName qualifiedName, java.util.List<org.meta_environment.rascal.ast.Expression> arguments) {
 		this.node = node;
 		this.qualifiedName = qualifiedName;
 		this.arguments = arguments;
@@ -85,7 +85,7 @@ static public class List extends Expression {
 	private List() {
 		super();
 	}
-	/*package*/ List(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> elements) {
+	/*package*/ public List(INode node, java.util.List<org.meta_environment.rascal.ast.Expression> elements) {
 		this.node = node;
 		this.elements = elements;
 	}
@@ -299,7 +299,7 @@ static public class QualifiedName extends Expression {
 	private QualifiedName() {
 		super();
 	}
-	/*package*/ QualifiedName(INode node, org.meta_environment.rascal.ast.QualifiedName qualifiedName) {
+	/*package*/ public QualifiedName(INode node, org.meta_environment.rascal.ast.QualifiedName qualifiedName) {
 		this.node = node;
 		this.qualifiedName = qualifiedName;
 	}

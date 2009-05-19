@@ -3,6 +3,7 @@ package org.meta_environment.rascal.parser;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -14,12 +15,19 @@ import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.Command;
+import org.meta_environment.rascal.ast.DecimalIntegerLiteral;
 import org.meta_environment.rascal.ast.Expression;
+import org.meta_environment.rascal.ast.IntegerLiteral;
 import org.meta_environment.rascal.ast.JavaFunctionBody;
+import org.meta_environment.rascal.ast.Literal;
 import org.meta_environment.rascal.ast.Module;
+import org.meta_environment.rascal.ast.Name;
+import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.ast.Statement;
+import org.meta_environment.rascal.ast.StringLiteral;
 import org.meta_environment.rascal.interpreter.asserts.Ambiguous;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
+import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.ParsetreeAdapter;
 import org.meta_environment.uptr.TreeAdapter;
 
@@ -210,6 +218,13 @@ public class ASTBuilder {
 		return new ImplementationError("Unexpected error in AST construction", e);
 	}
 
+	private boolean isEmbedding(TreeAdapter tree) {
+		String name = tree.getConstructorName();
+		return name.equals("ConcreteQuoted") 
+		|| name.equals("ConcreteUnquoted") 
+		|| name.equals("ConcreteTypedQuoted");
+	}
+		
 	private AbstractAST buildValue(IValue arg)  {
 		TreeAdapter tree = new TreeAdapter((IConstructor) arg);
 		
@@ -227,11 +242,118 @@ public class ASTBuilder {
 		else if (sortName(tree).equals("FunctionBody") && tree.getConstructorName().equals("Java")) {
 			return new JavaFunctionBody((INode) arg, tree.yield());
 		}
+		else if (sortName(tree).equals("Pattern") && isEmbedding(tree)) {
+			return lift(tree, true);
+		}
+		else if (sortName(tree).equals("Expression") && isEmbedding(tree)) {
+			return lift(tree, false);
+		}
 			
 		return buildContextFreeNode((IConstructor) arg);
 	}
 
+	private AbstractAST lift(TreeAdapter tree, boolean match) {
+		IConstructor pattern = getConcretePattern(tree);
+		return lift(pattern, pattern, match);
+	}
 
+	private Expression lift(IValue pattern, IConstructor source, boolean match) {
+		if (pattern.getType().isNodeType()) {
+			INode node = (INode) pattern;
+			
+			if (pattern.getType().isAbstractDataType()) {
+				IConstructor constr = (IConstructor) pattern;
+
+				if (constr.getConstructorType() == Factory.Tree_Appl) {
+					TreeAdapter tree = new TreeAdapter(constr);
+					String cons = tree.getConstructorName();
+					if (cons != null && (cons.equals("MetaVariable") || cons.equals("TypedMetaVariable"))) {
+						return liftVariable(tree);
+					}
+
+					if (match && tree.getProduction().getRhs().isLayout()) {
+						return wildCard(constr);
+					}
+
+					source = constr;
+				}
+			}
+
+			String name = node.getName();
+			List<Expression> args = new LinkedList<Expression>();
+
+			for (IValue child : node) {
+				args.add(lift(child, source, match));
+			}
+
+			return new Expression.CallOrTree(node, makeQualifiedName(source, name), args);
+		}
+		else if (pattern.getType().isListType()) {
+			IList list = (IList) pattern;
+			List<Expression> result = new ArrayList<Expression>(list.length());
+			for (IValue arg: list) {
+				result.add(lift(arg, source, match));
+			}
+			return new Expression.List(source, result);
+		}
+		else if (pattern.getType().isStringType()) {
+			return new Expression.Literal(source, new Literal.String(source, new StringLiteral.Lexical(source, pattern.toString())));
+		}
+		else if (pattern.getType().isIntegerType()) {
+			return new Expression.Literal(source, new Literal.Integer(source, new IntegerLiteral.DecimalIntegerLiteral(source, new DecimalIntegerLiteral.Lexical(source, pattern.toString()))));
+		}
+		else {
+			throw new ImplementationError("Illegal value encountered while lifting a concrete syntax pattern:" + pattern);
+		}
+	}
+
+	private Expression wildCard(IConstructor node) {
+		return new Expression.QualifiedName(node, makeQualifiedName(node, "_"));
+	}
+
+	private QualifiedName makeQualifiedName(IConstructor node, String name) {
+		Name simple = new Name.Lexical(node, name);
+		List<Name> list = new ArrayList<Name>(1);
+		list.add(simple);
+		return new QualifiedName.Default(node, list);
+	}
+
+	private Expression liftVariable(TreeAdapter tree) {
+		String cons = tree.getConstructorName();
+		String varName;
+		
+		if (cons.equals("MetaVariable")) {
+			varName = new TreeAdapter((IConstructor) tree.getListASTArgs().get(0)).yield();
+		}
+		else if (cons.equals("TypedMetaVariable")) {
+			varName = new TreeAdapter((IConstructor) tree.getListASTArgs().get(1)).yield();
+		}
+		else {
+			throw new ImplementationError("Unexpected meta variable while lifting pattern");
+		}
+		
+		return new Expression.QualifiedName(tree.getTree(), makeQualifiedName(tree.getTree(), varName));
+	}
+
+	private IConstructor getConcretePattern(TreeAdapter tree) {
+		String cons = tree.getConstructorName();
+		IConstructor pattern;
+		
+		if (cons.equals("ConcreteQuoted")) {
+			pattern = (IConstructor) tree.getASTArgs().get(0);
+		}
+		else if (cons.equals("ConcreteUnquoted")) {
+			pattern = (IConstructor) tree.getASTArgs().get(0);
+		}
+		else if (cons.equals("ConcreteTypedQuoted")) {
+			pattern = (IConstructor) tree.getASTArgs().get(1);
+		}
+		else {
+			throw new ImplementationError("Unexpected embedding syntax");
+		}
+		
+		return pattern;
+	}
 
 	private String capitalize(String sort) {
 		if (sort.length() > 1) {

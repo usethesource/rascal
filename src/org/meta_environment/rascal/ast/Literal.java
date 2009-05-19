@@ -80,7 +80,7 @@ static public class Integer extends Literal {
 	private Integer() {
 		super();
 	}
-	/*package*/ Integer(INode node, org.meta_environment.rascal.ast.IntegerLiteral integerLiteral) {
+	/*package*/ public Integer(INode node, org.meta_environment.rascal.ast.IntegerLiteral integerLiteral) {
 		this.node = node;
 		this.integerLiteral = integerLiteral;
 	}
@@ -138,7 +138,7 @@ static public class String extends Literal {
 	private String() {
 		super();
 	}
-	/*package*/ String(INode node, org.meta_environment.rascal.ast.StringLiteral stringLiteral) {
+	/*package*/ public String(INode node, org.meta_environment.rascal.ast.StringLiteral stringLiteral) {
 		this.node = node;
 		this.stringLiteral = stringLiteral;
 	}

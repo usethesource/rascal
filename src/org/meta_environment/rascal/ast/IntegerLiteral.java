@@ -9,7 +9,7 @@ static public class DecimalIntegerLiteral extends IntegerLiteral {
 	private DecimalIntegerLiteral() {
 		super();
 	}
-	/*package*/ DecimalIntegerLiteral(INode node, org.meta_environment.rascal.ast.DecimalIntegerLiteral decimal) {
+	/*package*/ public DecimalIntegerLiteral(INode node, org.meta_environment.rascal.ast.DecimalIntegerLiteral decimal) {
 		this.node = node;
 		this.decimal = decimal;
 	}

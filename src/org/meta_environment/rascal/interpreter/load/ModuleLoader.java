@@ -55,7 +55,6 @@ public class ModuleLoader {
 				return loader.getSourceInputStream(name);
 			}
 			catch (IOException e) {
-				System.err.println(e);
 				// this happens regularly
 			}
 		}
