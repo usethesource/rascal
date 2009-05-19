@@ -1649,7 +1649,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	@Override
 	public Result<IValue> visitIntegerLiteralDecimalIntegerLiteral(
 			DecimalIntegerLiteral x) {
-		String str = x.getDecimal().toString();
+		String str = ((org.meta_environment.rascal.ast.DecimalIntegerLiteral.Lexical) x.getDecimal()).getString();
 		return makeResult(tf.integerType(), vf.integer(str), new EvaluatorContext(this, x));
 	}
 	

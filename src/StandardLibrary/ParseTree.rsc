@@ -26,6 +26,8 @@ data Associativity =
 data CharRange =
      single(int start) | range(int start, int end);
 
+data Constructor = cons(str name);
+
 data Symbol =
      \lit(str string) |
      \cilit(str string) | 
@@ -37,10 +39,10 @@ data Symbol =
      \alt(Symbol lhs, Symbol rhs)  |
      \tuple(Symbol head, list[Symbol] rest)  |
      \sort (str string)  | 
-     \iter-plus(Symbol symbol)  | 
+     \iter(Symbol symbol)  | 
      \iter-star(Symbol symbol)  | 
-     \iter-plus-sep(Symbol symbol, Symbol separator)  | 
-     \iter-start-sep(Symbol symbol, Symbol separator)  | 
+     \iter-sep(Symbol symbol, Symbol separator)  | 
+     \iter-star-sep(Symbol symbol, Symbol separator)  | 
      \iter-n(Symbol symbol, int number)  | 
      \iter-sep-n(Symbol symbol, Symbol separator, int number)  | 
      \func(list[Symbol] symbols, Symbol symbol)  | 

@@ -45,7 +45,7 @@ public class Names {
 	}
 	
 	static public String name(Name name) {
-		String s = name.toString();
+		String s = ((Name.Lexical) name).getString();
 		return unescape(s);
 	}
 	
