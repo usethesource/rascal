@@ -271,7 +271,7 @@ public class TypeEvaluator {
 				fieldTypes[i] = arg.getType().accept(this);
 
 				if (arg.isNamed()) {
-					fieldLabels[i] = arg.getName().toString();
+					fieldLabels[i] = Names.name(arg.getName());
 				} else {
 					fieldLabels[i] = "field" + Integer.toString(i);
 				}
@@ -296,11 +296,11 @@ public class TypeEvaluator {
 			Type param;
 
 			if (var.isBounded()) {
-				param = tf.parameterType(var.getName().toString(), var
+				param = tf.parameterType(Names.name(var.getName()), var
 						.getBound().accept(this));
 			} 
 			else {
-				param = tf.parameterType(var.getName().toString());
+				param = tf.parameterType(Names.name(var.getName()));
 			}
 			if (env != null) {
 				return param.instantiate(env.getStore(), env.getTypeBindings());
