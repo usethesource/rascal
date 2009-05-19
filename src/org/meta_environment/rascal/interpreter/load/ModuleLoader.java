@@ -1,6 +1,7 @@
 package org.meta_environment.rascal.interpreter.load;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -90,9 +91,13 @@ public class ModuleLoader {
 	}
 
 	public Module loadModule(String name, AbstractAST ast)  {
+		if (isSdfModule(name)) {
+			return null;
+		}
+		
 		try {
-			IConstructor tree = tryLoadBinary(name); // <-- Don't do this if you want to generate new binaries.
-			
+//			IConstructor tree = tryLoadBinary(name); // <-- Don't do this if you want to generate new binaries.
+		    IConstructor tree = null;
 			if (tree == null) {
 				String fileName = getFileName(name);
 				
@@ -107,6 +112,16 @@ public class ModuleLoader {
 		}
 	}
 	
+	private boolean isSdfModule(String name) {
+		for (String path : getSdfSearchPath()) {
+			if (new File(new File(path), name + Configuration.SDF_EXT).exists()) {
+			   return true;
+			}
+		}
+		
+		return false;
+	}
+
 	private List<String> getSdfSearchPath() {
 		List<String> result = new LinkedList<String>();
 		for (ISdfSearchPathContributor c : contributors) {
@@ -117,6 +132,12 @@ public class ModuleLoader {
 
 	private static String getFileName(String moduleName) {
 		String fileName = moduleName.replaceAll("::", "/") + Configuration.RASCAL_FILE_EXT;
+		fileName = Names.unescape(fileName);
+		return fileName;
+	}
+	
+	private static String getSdfFileName(String moduleName) {
+		String fileName = moduleName.replaceAll("::", "/") + Configuration.SDF_EXT;
 		fileName = Names.unescape(fileName);
 		return fileName;
 	}

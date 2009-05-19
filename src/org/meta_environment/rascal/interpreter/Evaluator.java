@@ -587,8 +587,18 @@ public class Evaluator extends NullASTVisitor<Result> {
 		if (name.startsWith("\\")) {
 			name = name.substring(1);
 		}
+		
 		if (!heap.existsModule(name)) {
-			evalModule(x, name);
+			Module module = evalModule(x, name);
+			
+			if (module == null) { // SDF module, so import ParseTree
+				String parseTreeModName = "ParseTree";
+				if (!heap.existsModule(parseTreeModName)) {
+					evalModule(x, parseTreeModName);
+				}
+				scopeStack.peek().addImport(parseTreeModName, heap.getModule(parseTreeModName, x));
+				return ResultFactory.nothing(); 
+			}
 		}
 		else {
 			if (importResetsInterpreter && scopeStack.size() == 1 && callStack.size() == 1) {
@@ -600,14 +610,19 @@ public class Evaluator extends NullASTVisitor<Result> {
 		return ResultFactory.nothing();
 	}
 
-	private void evalModule(AbstractAST x,
+	private Module evalModule(AbstractAST x,
 			String name) {
 		Module module = loader.loadModule(name, x);
 		
-		if (!getModuleName(module).equals(name)) {
-			throw new ModuleNameMismatchError(getModuleName(module), name, x);
+		if (module != null) {
+			if (!getModuleName(module).equals(name)) {
+				throw new ModuleNameMismatchError(getModuleName(module), name, x);
+			}
+			module.accept(this);
+			return module;
 		}
-		module.accept(this);
+		return null;
+		// it was an SDF module
 	}
 
 
@@ -616,8 +631,10 @@ public class Evaluator extends NullASTVisitor<Result> {
 		
 		java.util.Set<String> topModules = scopeStack.peek().getImports();
 		for (String mod : topModules) {
-			evalModule(cause, mod);
-			scopeStack.peek().addImport(mod, heap.getModule(mod, cause));
+			Module module = evalModule(cause, mod);
+			if (module != null) {
+				scopeStack.peek().addImport(mod, heap.getModule(mod, cause));
+			}
 		}
 	}
 	
