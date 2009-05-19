@@ -1328,7 +1328,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 	AbstractPatternQualifiedName(IValueFactory vf, Environment env, EvaluatorContext ctx, org.meta_environment.rascal.ast.QualifiedName name){
 		super(vf, ctx);
 		this.name = name;
-		this.anonymous = name.toString().equals("_");
+		this.anonymous = getName().equals("_");
 		this.env = env;
 		// Look for this variable while we are constructing this pattern
 		if(anonymous){
@@ -1351,7 +1351,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 	@Override
 	public java.util.List<String> getVariables(){
 		java.util.LinkedList<String> res = new java.util.LinkedList<String>();
-		res.addFirst(name.toString());
+		res.addFirst(getName());
 		return res;
 	}
 	
@@ -1361,7 +1361,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 	}
 	
 	public String getName(){
-		return name.toString();
+		return Names.name(Names.lastName(name));
 	}
 	
 	public boolean isAnonymous(){
@@ -1386,7 +1386,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 			// Is the variable still undefined?
 			if(debug)System.err.println("name= " + name + ", subject=" + subject + ",");
 			type = subject.getType();
-			env.storeInnermostVariable(name.toString(), makeResult(type, subject, ctx));
+			env.storeInnermostVariable(getName(), makeResult(type, subject, ctx));
 			return true;
 		}
 		
@@ -1445,7 +1445,8 @@ class SingleElementGenerator implements Iterator<ISet> {
 	AbstractPatternTypedVariable(IValueFactory vf, Environment env, EvaluatorContext ctx, org.eclipse.imp.pdb.facts.type.Type type,
 			org.meta_environment.rascal.ast.QualifiedName qname) {
 		super(vf, ctx);
-		this.name = getAST().toString();
+//		this.name = getAST().toString(); JURGEN CHANGED THIS WITHOUT UNDERSTANDING
+		this.name = Names.name(Names.lastName(qname));
 		this.declaredType = type;
 		this.env = env;
 		this.anonymous = name.equals("_");
@@ -1481,7 +1482,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 	AbstractPatternTypedVariable(IValueFactory vf, Environment env, EvaluatorContext ctx, 
 			org.eclipse.imp.pdb.facts.type.Type type, org.meta_environment.rascal.ast.Name name) {
 		super(vf, ctx);
-		this.name = name.toString();
+		this.name = Names.name(name);
 		this.declaredType = type;
 		this.env = env;
 		this.anonymous = name.toString().equals("_");
@@ -1575,7 +1576,7 @@ class AbstractPatternTypedVariableBecomes extends AbstractPattern implements Mat
 	AbstractPatternTypedVariableBecomes(IValueFactory vf, Environment env, EvaluatorContext ctx,
 			org.eclipse.imp.pdb.facts.type.Type type, org.meta_environment.rascal.ast.Name aname, MatchPattern pat){
 		super(vf, ctx);
-		this.name = aname.toString();
+		this.name = Names.name(aname);
 		this.declaredType = type;
 		this.env = env;
 		this.pat = pat;
@@ -1653,7 +1654,7 @@ class AbstractPatternVariableBecomes extends AbstractPattern implements MatchPat
 	AbstractPatternVariableBecomes(IValueFactory vf, Environment env, EvaluatorContext ctx, 
 			org.meta_environment.rascal.ast.Name aname, MatchPattern pat){
 		super(vf, ctx);
-		this.name = aname.toString();
+		this.name = Names.name(aname);
 		this.env = env;
 		this.pat = pat;
 		
