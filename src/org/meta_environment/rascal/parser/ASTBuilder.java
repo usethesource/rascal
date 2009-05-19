@@ -286,7 +286,7 @@ public class ASTBuilder {
 				args.add(lift(child, source, match));
 			}
 
-			return new Expression.CallOrTree(node, makeQualifiedName(source, name), args);
+			return new Expression.CallOrTree(source, makeQualifiedName(source, name), args);
 		}
 		else if (pattern.getType().isListType()) {
 			IList list = (IList) pattern;
