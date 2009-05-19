@@ -32,7 +32,6 @@ public class RascalShell {
 	private final static int MAX_CONSOLE_LINE = 100;
 	private static final String SHELL_MODULE = "***shell***";
 	
-	private final ModuleParser parser = new ModuleParser();
 	private final ASTFactory factory = new ASTFactory();
 	private final ASTBuilder builder = new ASTBuilder(factory);
 	private final ConsoleReader console;

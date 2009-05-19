@@ -5,6 +5,7 @@ import static org.meta_environment.rascal.interpreter.Utils.unescape;
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.nothing;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.net.MalformedURLException;
@@ -198,7 +199,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	private final java.util.Stack<Environment> callStack;
 	private final GlobalEnvironment heap;
 	private final java.util.Stack<ModuleEnvironment> scopeStack;
-	private final static String SDF_LIBRARY_PATH_PROPERTY = "rascal.sdf.library.dir";
+	
 	
 	private final JavaBridge javaBridge;
 //	private final boolean LAZY = false;
@@ -246,8 +247,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 	    loader.addSdfSearchPathContributor(new ISdfSearchPathContributor() {
 			public java.util.List<String> contributePaths() {
 				java.util.List<String> result = new LinkedList<String>();
-				result.add(".");
-				result.add(System.getProperty(SDF_LIBRARY_PATH_PROPERTY));
+				result.add(System.getProperty("user.dir"));
+				result.add(Configuration.getSdfLibraryPathProperty());
 				return result;
 			}
 	    });

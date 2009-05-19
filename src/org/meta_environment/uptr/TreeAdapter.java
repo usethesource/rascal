@@ -10,6 +10,7 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
+import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
@@ -324,6 +325,10 @@ public class TreeAdapter {
 		} catch (IOException e) {
 			throw new ImplementationError("Method yield failed", e);
 		}
+	}
+
+	public IConstructor getTree() {
+		return tree;
 	}
 
 
