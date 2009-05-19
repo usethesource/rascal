@@ -5,7 +5,6 @@ import static org.meta_environment.rascal.interpreter.Utils.unescape;
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.nothing;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.net.MalformedURLException;
@@ -58,6 +57,7 @@ import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.ast.Replacement;
 import org.meta_environment.rascal.ast.Statement;
 import org.meta_environment.rascal.ast.Strategy;
+import org.meta_environment.rascal.ast.StringLiteral;
 import org.meta_environment.rascal.ast.Toplevel;
 import org.meta_environment.rascal.ast.Assignable.Constructor;
 import org.meta_environment.rascal.ast.Assignable.FieldAccess;
@@ -1640,7 +1640,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	@Override
 	public Result<IValue> visitLiteralString(
 			org.meta_environment.rascal.ast.Literal.String x) {
-		String str = x.getStringLiteral().toString();
+		String str = ((StringLiteral.Lexical) x.getStringLiteral()).getString();
 		return makeResult(tf.stringType(), vf.string(unescape(str, x, peek())), new EvaluatorContext(this, x));
 	}
 
