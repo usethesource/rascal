@@ -1,4 +1,4 @@
-module demo::UPTR
+module ParseTree
 
 data ParseTree = 
      parsetree(Tree top, int amb_cnt);
@@ -49,21 +49,3 @@ data Symbol =
      \var-sym(Symbol symbol)  |
      \layout  | 
      \char-class(list[CharRange] ranges);
-
-/*
-str yield(Tree t) {
-  str result = "";
-  visit (t) {
-    case Tree t : if (int i ~= t) { result += i; }
-  }
-  return result;
-}
-
-str yield(Parsetree t) {
-  return yield(t.top);
-}
-*/
-
-public bool test(){
-	return true;
-}
