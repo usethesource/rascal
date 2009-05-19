@@ -323,10 +323,10 @@ public class ASTBuilder {
 		String varName;
 		
 		if (cons.equals("MetaVariable")) {
-			varName = new TreeAdapter((IConstructor) tree.getListASTArgs().get(0)).yield();
+			varName = new TreeAdapter((IConstructor) tree.getASTArgs().get(0)).yield();
 		}
 		else if (cons.equals("TypedMetaVariable")) {
-			varName = new TreeAdapter((IConstructor) tree.getListASTArgs().get(1)).yield();
+			varName = new TreeAdapter((IConstructor) tree.getASTArgs().get(1)).yield();
 		}
 		else {
 			throw new ImplementationError("Unexpected meta variable while lifting pattern");

@@ -10,6 +10,7 @@ import jline.ConsoleReader;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.errors.SubjectAdapter;
 import org.meta_environment.errors.SummaryAdapter;
@@ -25,6 +26,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.ModuleParser;
 import org.meta_environment.uptr.Factory;
+import org.meta_environment.uptr.TreeAdapter;
 
 public class RascalShell {
 	private final static String PROMPT = ">";
@@ -148,7 +150,14 @@ public class RascalShell {
 			}
 			
 			IValue v = value.getValue();
-			return value.getType() + ": " + ((v != null) ? v.toString() : null);
+			Type type = value.getType();
+			
+			if (type.isAbstractDataType() && type == Factory.Tree) {
+				return "[|" + new TreeAdapter((IConstructor) v).yield() + "|]\n\t" + v.toString();
+			}
+			else {
+				return type + ": " + ((v != null) ? v.toString() : null);
+			}
 		}
 		
 		return result.toString();
