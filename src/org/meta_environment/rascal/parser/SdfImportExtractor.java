@@ -29,7 +29,7 @@ public class SdfImportExtractor {
 		
 		for (String i : allImports) {
 			for (String path : searchPath) {
-				File sdf = new File(new File(path), i + Configuration.getSDFExtensionProperty());
+				File sdf = new File(new File(path), i.replaceAll("::",""+ File.separatorChar) + Configuration.getSDFExtensionProperty());
 				if (sdf.exists()) {
 					result.add(i);
 				}
