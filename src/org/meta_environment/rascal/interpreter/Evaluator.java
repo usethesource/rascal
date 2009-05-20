@@ -588,17 +588,16 @@ public class Evaluator extends NullASTVisitor<Result> {
 			name = name.substring(1);
 		}
 		
-		if (!heap.existsModule(name)) {
-			Module module = evalModule(x, name);
-			
-			if (module == null) { // SDF module, so import ParseTree
-				String parseTreeModName = "ParseTree";
-				if (!heap.existsModule(parseTreeModName)) {
-					evalModule(x, parseTreeModName);
-				}
-				scopeStack.peek().addImport(parseTreeModName, heap.getModule(parseTreeModName, x));
-				return ResultFactory.nothing(); 
+		if (!heap.existsModule(name) && !loader.isSdfModule(name)) {
+			evalModule(x, name);
+		}
+		else if (loader.isSdfModule(name)) {
+			String parseTreeModName = "ParseTree";
+			if (!heap.existsModule(parseTreeModName)) {
+				evalModule(x, parseTreeModName);
 			}
+			scopeStack.peek().addImport(parseTreeModName, heap.getModule(parseTreeModName, x));
+			return ResultFactory.nothing(); 
 		}
 		else {
 			if (importResetsInterpreter && scopeStack.size() == 1 && callStack.size() == 1) {

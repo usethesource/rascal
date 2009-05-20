@@ -112,9 +112,9 @@ public class ModuleLoader {
 		}
 	}
 	
-	private boolean isSdfModule(String name) {
+	public boolean isSdfModule(String name) {
 		for (String path : getSdfSearchPath()) {
-			if (new File(new File(path), name + Configuration.SDF_EXT).exists()) {
+			if (new File(new File(path), getSdfFileName(name)).exists()) {
 			   return true;
 			}
 		}
