@@ -10,8 +10,10 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.Command;
@@ -229,7 +231,7 @@ public class ASTBuilder {
 		TreeAdapter tree = new TreeAdapter((IConstructor) arg);
 		
 		if (tree.isAmb()) {
-			return buildAmbNode((INode) arg, tree.getAlternatives());
+			return filter(arg, tree);
 		}
 		
 		if (!tree.isAppl()) {
@@ -250,6 +252,30 @@ public class ASTBuilder {
 		}
 			
 		return buildContextFreeNode((IConstructor) arg);
+	}
+
+	private AbstractAST filter(IValue arg, TreeAdapter tree) {
+		ISet alts = tree.getAlternatives();
+		ISetWriter winners = ValueFactoryFactory.getValueFactory().setWriter(Factory.Tree);
+		int winnerConcreteSize = -1;
+		
+		for (IValue alt : alts) {
+		   int size = countConcretePatternsSize(alt);
+		   if (size > winnerConcreteSize) {
+			   winners = ValueFactoryFactory.getValueFactory().setWriter(Factory.Tree);
+			   winners.insert(alt);
+			   winnerConcreteSize = size;
+		   }
+		   else if (size == winnerConcreteSize) {
+			   winners.insert(alt);
+		   }
+		}
+		
+		return buildAmbNode((INode) arg, winners.done());
+	}
+
+	private int countConcretePatternsSize(IValue alt) {
+		return 1;
 	}
 
 	private AbstractAST lift(TreeAdapter tree, boolean match) {
