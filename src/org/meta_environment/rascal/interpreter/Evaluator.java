@@ -2864,18 +2864,15 @@ public class Evaluator extends NullASTVisitor<Result> {
 		protected Type elementType1;
 		protected Type elementType2;
 		protected Type resultType;
-		protected org.meta_environment.rascal.ast.Expression resultExpr1;
-		protected org.meta_environment.rascal.ast.Expression resultExpr2;
+		protected java.util.List<org.meta_environment.rascal.ast.Expression> resultExprs;
 		protected IWriter writer;
 		protected Evaluator ev;
 		
 		ComprehensionWriter(
-				org.meta_environment.rascal.ast.Expression resultExpr1,
-				org.meta_environment.rascal.ast.Expression resultExpr2, 
+				java.util.List<org.meta_environment.rascal.ast.Expression> resultExprs,
 				Evaluator ev){
 			this.ev = ev;
-			this.resultExpr1 = resultExpr1;
-			this.resultExpr2 = resultExpr2;
+			this.resultExprs = resultExprs;
 			this.writer = null;
 		}
 		
@@ -2892,8 +2889,6 @@ public class Evaluator extends NullASTVisitor<Result> {
 		
 		public abstract void append();
 		
-		
-		
 		public abstract Result<IValue> done();
 	}
 	
@@ -2901,28 +2896,30 @@ public class Evaluator extends NullASTVisitor<Result> {
 			ComprehensionWriter {
 
 		ListComprehensionWriter(
-				org.meta_environment.rascal.ast.Expression resultExpr1,
+				java.util.List<org.meta_environment.rascal.ast.Expression> resultExprs,
 				Evaluator ev) {
-			super(resultExpr1, null, ev);
+			super(resultExprs, ev);
 		}
 
 		@Override
 		public void append() {
-			Result<IValue> r1 = resultExpr1.accept(ev);
-			if (writer == null) {
-				elementType1 = r1.getType();
-				resultType = tf.listType(elementType1);
-				writer = resultType.writer(vf);
+			for(Expression resExpr : resultExprs){
+				Result<IValue> res = resExpr.accept(ev);
+				if (writer == null) {
+					elementType1 = res.getType();
+					resultType = tf.listType(elementType1);
+					writer = resultType.writer(vf);
+				}
+				check(res, elementType1, "list", resExpr);
+				elementType1 = elementType1.lub(res.getType());
+				((IListWriter) writer).append(res.getValue());
 			}
-			check(r1, elementType1, "list", resultExpr1);
-			elementType1 = elementType1.lub(r1.getType());
-			((IListWriter) writer).append(r1.getValue());
 		}
 
 		@Override
 		public Result<IValue> done() {
-			return (writer == null) ? makeResult(tf.listType(tf.voidType()), vf.list(), getContext(resultExpr1)) : 
-				makeResult(tf.listType(elementType1), writer.done(), getContext(resultExpr1));
+			return (writer == null) ? makeResult(tf.listType(tf.voidType()), vf.list(), getContext(resultExprs.get(0))) : 
+				makeResult(tf.listType(elementType1), writer.done(), getContext(resultExprs.get(0)));
 		}
 	}
 	
@@ -2930,28 +2927,30 @@ public class Evaluator extends NullASTVisitor<Result> {
 			ComprehensionWriter {
 
 		SetComprehensionWriter(
-				org.meta_environment.rascal.ast.Expression resultExpr1,
+				java.util.List<org.meta_environment.rascal.ast.Expression> resultExprs,
 				Evaluator ev) {
-			super(resultExpr1, null, ev);
+			super(resultExprs, ev);
 		}
 
 		@Override
 		public void append() {
-			Result<IValue> r1 = resultExpr1.accept(ev);
-			if (writer == null) {
-				elementType1 = r1.getType();
-				resultType = tf.setType(elementType1);
-				writer = resultType.writer(vf);
+			for(Expression resExpr : resultExprs){
+				Result<IValue> r1 = resExpr.accept(ev);
+				if (writer == null) {
+					elementType1 = r1.getType();
+					resultType = tf.setType(elementType1);
+					writer = resultType.writer(vf);
+				}
+				check(r1, elementType1, "set", resExpr);
+				elementType1 = elementType1.lub(r1.getType());
+				((ISetWriter) writer).insert(r1.getValue());
 			}
-			check(r1, elementType1, "set", resultExpr1);
-			elementType1 = elementType1.lub(r1.getType());
-			((ISetWriter) writer).insert(r1.getValue());
 		}
 
 		@Override
 		public Result<IValue> done() {
-			return (writer == null) ? makeResult(tf.setType(tf.voidType()), vf.set(), getContext(resultExpr1)) : 
-				makeResult(tf.setType(elementType1), writer.done(), getContext(resultExpr1));
+			return (writer == null) ? makeResult(tf.setType(tf.voidType()), vf.set(), getContext(resultExprs.get(0))) : 
+				makeResult(tf.setType(elementType1), writer.done(), getContext(resultExprs.get(0)));
 		}
 	}
 
@@ -2959,32 +2958,33 @@ public class Evaluator extends NullASTVisitor<Result> {
 			ComprehensionWriter {
 
 		MapComprehensionWriter(
-				org.meta_environment.rascal.ast.Expression resultExpr1,
-				org.meta_environment.rascal.ast.Expression resultExpr2,
+				java.util.List<org.meta_environment.rascal.ast.Expression> resultExprs,
 				Evaluator ev) {
-			super(resultExpr1, resultExpr2, ev);
+			super(resultExprs, ev);
+			if(resultExprs.size() != 2)
+				throw new ImplementationError("Map comprehensions needs two result expressions");
 		}
 
 		@Override
 		public void append() {
-			Result<IValue> r1 = resultExpr1.accept(ev);
-			Result<IValue> r2 = resultExpr2.accept(ev);
+			Result<IValue> r1 = resultExprs.get(0).accept(ev);
+			Result<IValue> r2 = resultExprs.get(1).accept(ev);
 			if (writer == null) {
 				elementType1 = r1.getType();
 				elementType2 = r2.getType();
 				resultType = tf.mapType(elementType1, elementType2);
 				writer = resultType.writer(vf);
 			}
-			check(r1, elementType1, "map", resultExpr1);
-			check(r2, elementType2, "map", resultExpr2);
+			check(r1, elementType1, "map", resultExprs.get(0));
+			check(r2, elementType2, "map", resultExprs.get(1));
 			((IMapWriter) writer).put(r1.getValue(), r2.getValue());
 		}
 
 		@Override
 		public Result<IValue> done() {
 			return (writer == null) ? 
-					makeResult(tf.mapType(tf.voidType(), tf.voidType()), vf.map(tf.voidType(), tf.voidType()), getContext(resultExpr1))
-					: makeResult(tf.mapType(elementType1, elementType2), writer.done(), getContext(resultExpr1));
+					makeResult(tf.mapType(tf.voidType(), tf.voidType()), vf.map(tf.voidType(), tf.voidType()), getContext(resultExprs.get(0)))
+					: makeResult(tf.mapType(elementType1, elementType2), writer.done(), getContext(resultExprs.get(0)));
 		}
 	}
 	
@@ -3020,7 +3020,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	public Result<IValue> visitComprehensionList(org.meta_environment.rascal.ast.Comprehension.List x) {
 		return evalComprehension(
 				x.getGenerators(),
-				new ListComprehensionWriter(x.getResult(), this));
+				new ListComprehensionWriter(x.getResults(), this));
 	}
 	
 	@Override
@@ -3028,15 +3028,18 @@ public class Evaluator extends NullASTVisitor<Result> {
 			org.meta_environment.rascal.ast.Comprehension.Set x) {
 		return evalComprehension(
 				x.getGenerators(),
-				new SetComprehensionWriter(x.getResult(), this));
+				new SetComprehensionWriter(x.getResults(), this));
 	}
 	
 	@Override
 	public Result<IValue> visitComprehensionMap(
 			org.meta_environment.rascal.ast.Comprehension.Map x) {
+		java.util.List<Expression> resultExprs = new LinkedList<Expression>();
+		resultExprs.add(x.getFrom());
+		resultExprs.add(x.getTo());
 		return evalComprehension(
 				x.getGenerators(),
-				new MapComprehensionWriter(x.getFrom(), x.getTo(), this));
+				new MapComprehensionWriter(resultExprs, this));
 	}
 
 	@Override

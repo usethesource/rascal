@@ -57,6 +57,9 @@ public class ComprehensionTests extends TestFramework {
 		
 		assertTrue(runTest("{  X | int X <- {1,2,3}, X >= 2, X < 3} == {2};"));
 		assertTrue(runTest("{  X | int X <- [1,2,3], X >= 2, X < 3} == {2};"));
+		
+		assertTrue(runTest("{  X, 10*X | int X <- [1,2,3]} == {1,2,3,10,20,30};"));
+		assertTrue(runTest("{  X, 10*X, 100*X | int X <- [1,2,3]} == {1,2,3,10,20,30, 100,200,300};"));
 	}
 	
 	@Test public void setComprehension2() {	
@@ -295,6 +298,9 @@ public class ComprehensionTests extends TestFramework {
 		
 		assertTrue(runTest("[  X | int X <- {1,2,3}, X >= 2, X < 3] == [2];"));
 		assertTrue(runTest("[  X | int X <- [1,2,3], X >= 2, X < 3] == [2];"));
+		
+		assertTrue(runTest("[  X, 10*X | int X <- [1,2,3]] == [1,10,2,20,3,30];"));
+		assertTrue(runTest("[  X, 10*X, 100*X | int X <- [1,2,3]] == [1,10,100,2,20,200,3,30,300];"));
 	}
 	
 	@Test public void listComprehension2() {
