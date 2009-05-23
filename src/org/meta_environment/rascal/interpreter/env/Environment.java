@@ -247,6 +247,10 @@ public class Environment {
 		return t;
 	}
 	
+	public Map<String, Result<IValue>> getVariables() {
+		return variableEnvironment;
+	}
+	
 	public void storeParameterType(Type par, Type type) {
 		typeParameters.put(par, type);
 	}
