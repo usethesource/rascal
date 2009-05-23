@@ -8,7 +8,7 @@ public alias var = str;
 public alias def  = tuple[stat, var];
 public alias use = tuple[stat,var];
 
-
+/*
 public set[stat] predecessor(rel[stat,stat] P, stat S)
 @doc{predecessor -- of statement S in cfg P}
 {
@@ -20,10 +20,7 @@ public set[stat] successor(rel[stat,stat] P, stat S)
 {
 	return P[S];
 }
-
-public rel[stat,def] kill(rel[stat,var] DEFS) { 
-	return {<S1, <S2, V>> | <stat S1, var V> <- DEFS, <stat S2, V> <- DEFS, S1 != S2};
-}
+*/
 
 public rel[stat,def] definition(rel[stat,var] DEFS){
 	return {<S,<S,V>> | <stat S, var V> <- DEFS};
@@ -31,6 +28,10 @@ public rel[stat,def] definition(rel[stat,var] DEFS){
 
 public rel[stat,def] use(rel[stat, var] USES){
 	return {<S, <S, V>> | <stat S, var V> <- USES};
+}
+
+public rel[stat,def] kill(rel[stat,var] DEFS) { 
+	return {<S1, <S2, V>> | <stat S1, var V> <- DEFS, <stat S2, V> <- DEFS, S1 != S2};
 }
 
 public rel[stat, def] reachingDefinitions(rel[stat,var] DEFS, rel[stat,stat] PRED){

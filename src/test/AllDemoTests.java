@@ -8,17 +8,11 @@ import org.junit.Test;
 public class AllDemoTests extends TestFramework {
 
 	@Test
-	public void GenericFeatherweightJava() {
-		prepare("import demo::GenericFeatherweightJava::Examples;");
-		assertTrue(runTestInSameEvaluator("demo::GenericFeatherweightJava::Examples::test();"));
-	}
-	
-	@Test
 	public void Ackermann() {
 		prepare("import demo::Ackermann::Ackermann;");
 		assertTrue(runTestInSameEvaluator("demo::Ackermann::Ackermann::test();"));
 	}
-
+	
 	@Test
 	public void BoolAbstractRules() {
 		prepare("import demo::Booleans::BoolAbstractRules;");
@@ -49,6 +43,12 @@ public class AllDemoTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("demo::CarFDL::test();"));
 	}
 
+	@Test
+	public void ColoredTrees() {
+		prepare("import demo::ColoredTrees;");
+		assertTrue(runTestInSameEvaluator("demo::ColoredTrees::test();"));
+	}
+
 	@Ignore @Test
 	public void Cycles() {
 		prepare("import demo::Cycles;");
@@ -61,10 +61,22 @@ public class AllDemoTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("demo::Dominators::test();"));
 	}
 
+	@Test
+	public void Factorial() {
+		prepare("import demo::Factorial;");
+		assertTrue(runTestInSameEvaluator("demo::Factorial::test();"));
+	}
+
 	@Ignore @Test
 	public void FunAbstract() {
 		prepare("import demo::Fun::FunAbstract;");
 		assertTrue(runTestInSameEvaluator("demo::Fun::FunAbstract::test();"));
+	}
+	
+	@Test
+	public void GenericFeatherweightJava() {
+		prepare("import demo::GenericFeatherweightJava::Examples;");
+		assertTrue(runTestInSameEvaluator("demo::GenericFeatherweightJava::Examples::test();"));
 	}
 
 	@Test
@@ -72,7 +84,7 @@ public class AllDemoTests extends TestFramework {
 		prepare("import demo::GraphDataType;");
 		assertTrue(runTestInSameEvaluator("demo::GraphDataType::test();"));
 	}
-	
+
 	@Test
 	public void Hello() {
 		prepare("import demo::Hello;");
@@ -84,7 +96,7 @@ public class AllDemoTests extends TestFramework {
 		prepare("import demo::Innerproduct;");
 		assertTrue(runTestInSameEvaluator("demo::Innerproduct::test();"));
 	}
-
+	
 	@Test
 	public void IntegerAbstractRules() {
 		prepare("import demo::Integers::IntegerAbstractRules;");
@@ -98,15 +110,15 @@ public class AllDemoTests extends TestFramework {
 	}
 	
 	@Test
-	public void PicoEval() {
-		prepare("import demo::PicoAbstract::PicoEval;");
-		assertTrue(runTestInSameEvaluator("demo::PicoAbstract::PicoEval::test();"));
+	public void McCabe() {
+		prepare("import demo::McCabe;");
+		assertTrue(runTestInSameEvaluator("demo::McCabe::test();"));
 	}
-
+	
 	@Test
-	public void PicoTypecheck() {
-		prepare("import demo::PicoAbstract::PicoTypecheck;");
-		assertTrue(runTestInSameEvaluator("demo::PicoAbstract::PicoTypecheck::test();"));
+	public void ParseTree() {
+		prepare("import demo::ParseTree;");
+		assertTrue(runTestInSameEvaluator("demo::ParseTree::test();"));
 	}
 	
 	@Ignore @Test
@@ -128,23 +140,35 @@ public class AllDemoTests extends TestFramework {
 	}
 	
 	@Test
+	public void PicoEval() {
+		prepare("import demo::PicoAbstract::PicoEval;");
+		assertTrue(runTestInSameEvaluator("demo::PicoAbstract::PicoEval::test();"));
+	}
+
+	@Test
 	public void PicoPrograms() {
 		prepare("import demo::PicoAbstract::PicoPrograms;");
 		assertTrue(runTestInSameEvaluator("demo::PicoAbstract::PicoPrograms::test();"));
 	}
-	
+
 	@Test
-	public void PicoUseDef() {
-		prepare("import demo::PicoAbstract::PicoUseDef;");
-		assertTrue(runTestInSameEvaluator("demo::PicoAbstract::PicoUseDef::test();"));
+	public void PicoTypecheck() {
+		prepare("import demo::PicoAbstract::PicoTypecheck;");
+		assertTrue(runTestInSameEvaluator("demo::PicoAbstract::PicoTypecheck::test();"));
 	}
-	
+
 	@Test
 	public void PicoUninit() {
 		prepare("import demo::PicoAbstract::PicoUninit;");
 		assertTrue(runTestInSameEvaluator("demo::PicoAbstract::PicoUninit::test();"));
 	}
 
+	@Test
+	public void PicoUseDef() {
+		prepare("import demo::PicoAbstract::PicoUseDef;");
+		assertTrue(runTestInSameEvaluator("demo::PicoAbstract::PicoUseDef::test();"));
+	}
+	
 	@Test
 	public void Queens() {
 		prepare("import demo::Queens;");
@@ -174,19 +198,19 @@ public class AllDemoTests extends TestFramework {
 		prepare("import demo::TreeTraversals;");
 		assertTrue(runTestInSameEvaluator("demo::TreeTraversals::test();"));
 	}
-
+	
 	@Test
-	public void UPTR() {
-		prepare("import demo::UPTR;");
-		assertTrue(runTestInSameEvaluator("demo::UPTR::test();"));
+	public void Uninit() {
+		prepare("import demo::Uninit;");
+		assertTrue(runTestInSameEvaluator("demo::Uninit::test();"));
 	}
-
+	
 	@Test
 	public void WordCount() {
 		prepare("import demo::WordCount;");
 		assertTrue(runTestInSameEvaluator("demo::WordCount::test();"));
 	}
-
+	
 	@Test
 	public void WordReplacement() {
 		prepare("import demo::WordReplacement;");
