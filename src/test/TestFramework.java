@@ -22,7 +22,7 @@ import org.meta_environment.uptr.Factory;
 
 
 public class TestFramework {
-	private ModuleLoader parser = new ModuleLoader();
+	private ModuleLoader parser;
 	private ASTFactory factory = new ASTFactory();
 	private ASTBuilder builder = new ASTBuilder(factory);
 	private Evaluator evaluator;
@@ -45,6 +45,8 @@ public class TestFramework {
 		eval.addModuleLoader(new FromResourceLoader(getClass(), "test"));
 
 		eval.setImportResetsInterpreter(false);
+		
+		parser = eval.getModuleLoader();
 		return eval;
 	}
 
