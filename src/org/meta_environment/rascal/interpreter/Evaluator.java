@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Stack;
+import java.util.Vector;
 import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -196,28 +197,29 @@ public class Evaluator extends NullASTVisitor<Result> {
 	final IValueFactory vf;
 	final TypeFactory tf = TypeFactory.getInstance();
 	private final TypeEvaluator te = TypeEvaluator.getInstance();
-	private final java.util.Stack<Environment> callStack;
+	private Environment currentEnvt;
+
 	private final GlobalEnvironment heap;
 	private final java.util.Stack<ModuleEnvironment> scopeStack;
-	
-	
+
+
 	private final JavaBridge javaBridge;
-//	private final boolean LAZY = false;
+	//	private final boolean LAZY = false;
 	private boolean importResetsInterpreter = true;
-	
+
 	enum DIRECTION  {BottomUp, TopDown}	// Parameters for traversing trees
 	enum FIXEDPOINT {Yes, No}
 	enum PROGRESS   {Continuing, Breaking}
-	
-	
+
+
 	private AbstractAST currentAST; 	// used in runtime errormessages
 
 	private Profiler profiler;
 	private boolean doProfiling = false;
-	
+
 	private TypeDeclarationEvaluator typeDeclarator = new TypeDeclarationEvaluator();
 	private ModuleLoader loader = new ModuleLoader();
-	
+
 	private java.util.List<ClassLoader> classLoaders;
 	private IDebugger debugger;
 
@@ -228,41 +230,40 @@ public class Evaluator extends NullASTVisitor<Result> {
 	public Evaluator(IValueFactory f, ASTFactory astFactory, Writer errorWriter, ModuleEnvironment scope, GlobalEnvironment heap) {
 		this.vf = f;
 		this.heap = heap;
-		this.callStack = new Stack<Environment>();
-		this.callStack.push(scope);
+		currentEnvt = scope;
 		this.scopeStack = new Stack<ModuleEnvironment>();
 		this.scopeStack.push(scope);
 		this.classLoaders = new LinkedList<ClassLoader>();
 		this.javaBridge = new JavaBridge(errorWriter, classLoaders);
-		
+
 		// cwd loader
 		loader.addFileLoader(new FromCurrentWorkingDirectoryLoader());
 
 		// library
-	    loader.addFileLoader(new FromResourceLoader(this.getClass(), "StandardLibrary"));
-	    
-	    // everything rooted at the src directory 
-	    loader.addFileLoader(new FromResourceLoader(this.getClass()));
-	    
-	    // add current wd and sdf-library to search path for SDF modules
-	    loader.addSdfSearchPathContributor(new ISdfSearchPathContributor() {
+		loader.addFileLoader(new FromResourceLoader(this.getClass(), "StandardLibrary"));
+
+		// everything rooted at the src directory 
+		loader.addFileLoader(new FromResourceLoader(this.getClass()));
+
+		// add current wd and sdf-library to search path for SDF modules
+		loader.addSdfSearchPathContributor(new ISdfSearchPathContributor() {
 			public java.util.List<String> contributePaths() {
 				java.util.List<String> result = new LinkedList<String>();
 				result.add(System.getProperty("user.dir"));
 				result.add(Configuration.getSdfLibraryPathProperty());
 				return result;
 			}
-	    });
-	    
-	    // load Java classes from the current jar (for the standard library)
-	    classLoaders.add(getClass().getClassLoader());
+		});
+
+		// load Java classes from the current jar (for the standard library)
+		classLoaders.add(getClass().getClassLoader());
 	}
-	
-	
+
+
 	public IConstructor parseCommand(String command, String fileName) throws IOException {
 		return loader.parseCommand(command, fileName);
 	}
-	
+
 	/**
 	 * In interactive mode this flag should be set to true, such that re-importing
 	 * a module causes a re-initialization. 
@@ -270,19 +271,19 @@ public class Evaluator extends NullASTVisitor<Result> {
 	public void setImportResetsInterpreter(boolean flag) {
 		this.importResetsInterpreter = flag;
 	}
-	
+
 	private void checkPoint(Environment env) {
 		env.checkPoint();
 	}
-	
+
 	private void rollback(Environment env) {
 		env.rollback();
 	}
-	
+
 	private void commit(Environment env) {
 		env.commit();
 	}
-	
+
 	public void setCurrentAST(AbstractAST currentAST) {
 		this.currentAST = currentAST;
 	}
@@ -291,26 +292,23 @@ public class Evaluator extends NullASTVisitor<Result> {
 		return currentAST;
 	}
 
-	Environment peek() {
-		return this.callStack.peek();
-	}
-	
 	public void addModuleLoader(IModuleFileLoader fileLoader) {
 		loader.addFileLoader(fileLoader);
 	}
-	
+
 	public void addSdfSearchPathContributor(ISdfSearchPathContributor contrib) {
 		loader.addSdfSearchPathContributor(contrib);
 	}
-	
+
 	public void addClassLoader(ClassLoader loader) {
 		// later loaders have precedence
 		classLoaders.add(0, loader);
 	}
-	
+
 	public String getStackTrace() {
 		StringBuilder b = new StringBuilder();
-		for (Environment env : callStack) {
+		Environment env = currentEnvt;
+		while (env != null) {
 			ISourceLocation loc = env.getLocation();
 			String name = env.getName();
 			if (name != null && loc != null) {
@@ -319,10 +317,11 @@ public class Evaluator extends NullASTVisitor<Result> {
 				b.append(url.getAuthority() + url.getPath() + ":" + loc.getBeginLine() + "," + loc.getBeginColumn() + ": " + name);
 				b.append('\n');
 			}
+			env = env.getParent();
 		}
 		return b.toString();
 	}
-	
+
 	/**
 	 * Evaluate a statement
 	 * @param stat
@@ -330,21 +329,21 @@ public class Evaluator extends NullASTVisitor<Result> {
 	 */
 	public Result<IValue> eval(Statement stat) {
 		try {
-			 if(doProfiling){
-			    	profiler = new Profiler(this);
-			    	profiler.start();
-			    	
-			    }
+			if(doProfiling){
+				profiler = new Profiler(this);
+				profiler.start();
+
+			}
 			currentAST = stat;
 			Result<IValue> r = stat.accept(this);
-	        if(r != null){
-	        	if(doProfiling){
-	        		profiler.pleaseStop();
-	        		profiler.report();
-	        	}
-	        	return r;
-	        }
-	        throw new ImplementationError("Not yet implemented: " + stat.toString());
+			if(r != null){
+				if(doProfiling){
+					profiler.pleaseStop();
+					profiler.report();
+				}
+				return r;
+			}
+			throw new ImplementationError("Not yet implemented: " + stat.toString());
 		} catch (Return e){
 			throw new UnguardedReturnError(stat);
 		}
@@ -355,7 +354,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			throw new UnguardedInsertError(stat);
 		}
 	}
-	
+
 	/**
 	 * Evaluate a declaration
 	 * @param declaration
@@ -364,13 +363,13 @@ public class Evaluator extends NullASTVisitor<Result> {
 	public Result<IValue> eval(Declaration declaration) {
 		currentAST = declaration;
 		Result<IValue> r = declaration.accept(this);
-        if(r != null){
-        	return r;
-        }
-        
-        throw new NotYetImplemented(declaration.toString());
+		if(r != null){
+			return r;
+		}
+
+		throw new NotYetImplemented(declaration.toString());
 	}
-	
+
 	/**
 	 * Evaluate an import
 	 * @param imp
@@ -379,40 +378,40 @@ public class Evaluator extends NullASTVisitor<Result> {
 	public IValue eval(org.meta_environment.rascal.ast.Import imp) {
 		currentAST = imp;
 		Result<IValue> r = imp.accept(this);
-        if(r != null){
-        	return r.getValue();
-        }
-        
-        throw new ImplementationError("Not yet implemented: " + imp.getTree());
+		if(r != null){
+			return r.getValue();
+		}
+
+		throw new ImplementationError("Not yet implemented: " + imp.getTree());
 	}
 
 	/* First a number of general utility methods */
-	
+
 	/*
 	 * Return an evaluation result that is already in normal form,
 	 * i.e., all potential rules have already been applied to it.
 	 */
-	
+
 	Result<IValue> normalizedResult(Type t, IValue v){
-		Map<Type, Type> bindings = peek().getTypeBindings();
+		Map<Type, Type> bindings = getCurrentEnvt().getTypeBindings();
 		Type instance;
-		
+
 		if (bindings.size() > 0) {
-		    instance = t.instantiate(peek().getStore(), bindings);
+			instance = t.instantiate(getCurrentEnvt().getStore(), bindings);
 		}
 		else {
 			instance = t;
 		}
-		
+
 		if (v != null) {
 			checkType(v.getType(), instance);
 		}
 		return makeResult(instance, v, new EvaluatorContext(this, getCurrentAST()));
 	}
-	
-	
+
+
 	private IValue applyRules(IValue v) {
-		
+
 		//System.err.println("applyRules(" + v + ")");
 		// we search using the run-time type of a value
 		Type typeToSearchFor = v.getType();
@@ -424,47 +423,41 @@ public class Evaluator extends NullASTVisitor<Result> {
 		if(rules.isEmpty()){
 			return v;
 		}
-			
+
 		TraverseResult tr = traverseTop(v, new CasesOrRules(rules));
 		/* innermost is achieved by repeated applications of applyRules
 		 * when intermediate results are produced.
 		 */
 		return tr.value;
 	}
-/*
-	private void pop() {
-		System.err.println("pop");
-		callStack.pop();
-	}
 
-	private void push() {
-		System.err.println("push");
-		callStack.push(new Environment(peek()));
-	}
-	*/
-	
 	Environment pushEnv() {
-		Environment env = new Environment(peek());
-		callStack.push(env);
+		Environment env = new Environment(getCurrentEnvt());
+		setCurrentEnvt(env);
 		return env;
 	}
 
 	Environment pushEnv(Statement s) {
-		Environment env = new Environment(peek(), s.getLocation(), s.getClass().getSimpleName());
-		callStack.push(env);
+		Environment env = new Environment(getCurrentEnvt(), s.getLocation(), s.getClass().getSimpleName());
+		setCurrentEnvt(env);
 		return env;
 	}
 
 	void popUntil(Environment env){
 		Environment previousEnv;
-		if(!callStack.contains(env))
-			throw new ImplementationError("popUntil");
 		do {
-			previousEnv = callStack.pop();	
+			previousEnv = pop();	
 		} while (previousEnv != env);	
 	}
-	
-	
+
+	Environment pop() {
+		Environment env = getCurrentEnvt();
+		//if (! env.isRoot()) {
+			setCurrentEnvt(env.getParent());
+		//}
+		return env;
+	}
+
 	private void checkType(Type given, Type expected) {
 		if (expected == org.meta_environment.rascal.interpreter.env.Lambda.getClosureType()) {
 			return;
@@ -473,11 +466,11 @@ public class Evaluator extends NullASTVisitor<Result> {
 			throw new UnexpectedTypeError(expected, given, getCurrentAST());
 		}
 	}
-	
+
 	boolean mayOccurIn(Type small, Type large) {
 		return mayOccurIn(small, large, new HashSet<Type>());
 	}
-		
+
 	boolean mayOccurIn(Type small, Type large, java.util.Set<Type> seen){
 		if(small.isVoidType())
 			return true;
@@ -491,18 +484,18 @@ public class Evaluator extends NullASTVisitor<Result> {
 			return mayOccurIn(small,large.getElementType(), seen);
 		if(large.isMapType())
 			return mayOccurIn(small, large.getKeyType(), seen) ||
-					mayOccurIn(small, large.getValueType(), seen);
+			mayOccurIn(small, large.getValueType(), seen);
 		if(large.isTupleType()){
 			for(int i = 0; i < large.getArity(); i++){
 				if(mayOccurIn(small, large.getFieldType(i), seen))
-						return true;
+					return true;
 			}
 			return false;
 		}
 		if(large.isConstructorType()){
 			for(int i = 0; i < large.getArity(); i++){
 				if(mayOccurIn(small, large.getFieldType(i), seen))
-						return true;
+					return true;
 			}
 			return false;
 		}
@@ -510,44 +503,44 @@ public class Evaluator extends NullASTVisitor<Result> {
 			if(small.isNodeType() && !small.isAbstractDataType())
 				return true;
 			if(small.isConstructorType() && small.getAbstractDataType().equivalent(large.getAbstractDataType()))
-					return true;
+				return true;
 			seen.add(large);
-			for(Type alt : peek().lookupAlternatives(large)){				
+			for(Type alt : getCurrentEnvt().lookupAlternatives(large)){				
 				if(alt.isConstructorType()){
 					for(int i = 0; i < alt.getArity(); i++){
 						Type fType = alt.getFieldType(i);
 						if(seen.add(fType) && mayOccurIn(small, fType, seen))
-								return true;
+							return true;
 					}
 				} else
 					throw new ImplementationError("ADT");
-				
+
 			}
 			return false;
 		}
 		return small.isSubtypeOf(large);
 	}
-	
+
 	boolean mayMatch(Type small, Type large){
 		//System.err.println("mayMatch: " + small + " " + large);
 		if(small.equivalent(large))
 			return true;
-	
+
 		if(small.isVoidType() || large.isVoidType())
-				return false;
-	
+			return false;
+
 		if(small.isSubtypeOf(large) || large.isSubtypeOf(small))
-				return true;
-		
+			return true;
+
 		if(small.isListType() && large.isListType() || 
-		   small.isSetType() && large.isSetType())
+				small.isSetType() && large.isSetType())
 			return mayMatch(small.getElementType(),large.getElementType());
 		if(small.isMapType() && large.isMapType())
 			return mayMatch(small.getKeyType(), large.getKeyType()) &&
-			        mayMatch(small.getKeyType(), large.getValueType());
+			mayMatch(small.getKeyType(), large.getValueType());
 		if(small.isTupleType() && large.isTupleType()){
 			if(small.getArity() != large.getArity())
-					return false;
+				return false;
 			for(int i = 0; i < large.getArity(); i++){
 				if(mayMatch(small.getFieldType(i), large.getFieldType(i)))
 					return true;
@@ -559,7 +552,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				return false;
 			for(int i = 0; i < large.getArity(); i++){
 				if(mayMatch(small.getFieldType(i), large.getFieldType(i)))
-						return true;
+					return true;
 			}
 			return false;
 		}
@@ -567,12 +560,12 @@ public class Evaluator extends NullASTVisitor<Result> {
 			return small.getAbstractDataType().equivalent(large);
 		if(small.isAbstractDataType() && large.isConstructorType())
 			return small.equivalent(large.getAbstractDataType());
-		
+
 		return false;
 	}
-	
+
 	// Ambiguity ...................................................
-	
+
 	@Override
 	public Result<IValue> visitExpressionAmbiguity(Ambiguity x) {
 		throw new Ambiguous(x.toString());
@@ -607,7 +600,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			return ResultFactory.nothing(); 
 		}
 		else {
-			if (importResetsInterpreter && scopeStack.size() == 1 && callStack.size() == 1) {
+			if (importResetsInterpreter && scopeStack.size() == 1 && currentEnvt.getParent() == null) {
 				reloadAll(x);
 			}
 		}
@@ -655,13 +648,14 @@ public class Evaluator extends NullASTVisitor<Result> {
 		if (!heap.existsModule(name)) {
 			ModuleEnvironment env = new ModuleEnvironment(name);
 			scopeStack.push(env);
-			callStack.push(env); // such that declarations end up in the module scope
+			Environment oldEnv = getCurrentEnvt();
+			setCurrentEnvt(env); // such that declarations end up in the module scope
 
 			try {
 				x.getHeader().accept(this);
 
 				java.util.List<Toplevel> decls = x.getBody().getToplevels();
-				typeDeclarator.evaluateDeclarations(decls, peek());
+				typeDeclarator.evaluateDeclarations(decls, getCurrentEnvt());
 
 				for (Toplevel l : decls) {
 					l.accept(this);
@@ -672,7 +666,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			}
 			finally {
 				scopeStack.pop();
-				callStack.pop();
+				setCurrentEnvt(oldEnv);
 			}
 		}
 		return ResultFactory.nothing();
@@ -696,13 +690,13 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 	@Override
 	public Result<IValue> visitDeclarationAlias(Alias x) {
-		typeDeclarator.declareAlias(x, peek());
+		typeDeclarator.declareAlias(x, getCurrentEnvt());
 		return ResultFactory.nothing();
 	}
 
 	@Override
 	public Result<IValue> visitDeclarationData(Data x) {
-		typeDeclarator.declareConstructor(x, peek());
+		typeDeclarator.declareConstructor(x, getCurrentEnvt());
 		return ResultFactory.nothing();
 	}
 
@@ -743,7 +737,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result<IValue> r = nothing();
 
 		for (org.meta_environment.rascal.ast.Variable var : x.getVariables()) {
-			if(peek().getLocalVariable(var.getName()) != null){
+			if(getCurrentEnvt().getLocalVariable(var.getName()) != null){
 				throw new RedeclaredVariableError(var.getName().toString(), var);
 			}
 			if (var.isUnInitialized()) {  
@@ -755,7 +749,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				// TODO: do we actually want to instantiate the locally bound type parameters?
 				Map<Type,Type> bindings = new HashMap<Type,Type>();
 				declaredType.match(v.getType(), bindings);
-				declaredType = declaredType.instantiate(peek().getStore(), bindings);
+				declaredType = declaredType.instantiate(getCurrentEnvt().getStore(), bindings);
 				r = makeResult(declaredType, v.getValue(), new EvaluatorContext(this, getCurrentAST()));
 				scopeStack.peek().storeInnermostVariable(var.getName(), r);
 			} else {
@@ -779,7 +773,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 
 	private Type evalType(org.meta_environment.rascal.ast.Type type) {
-		return te.eval(type, peek());
+		return te.eval(type, getCurrentEnvt());
 	}
 
 	@Override
@@ -796,7 +790,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	@Override
 	public Result<IValue> visitPatternWithActionArbitrary(Arbitrary x) {
 		MatchPattern pv = x.getPattern().accept(makePatternEvaluator(x));
-		Type pt = pv.getType(peek());
+		Type pt = pv.getType(getCurrentEnvt());
 		if(!(pt.isAbstractDataType() || pt.isConstructorType() || pt.isNodeType()))
 			throw new UnexpectedTypeError(tf.nodeType(), pt, x);
 		heap.storeRule(pv.getType(scopeStack.peek()), x, scopeStack.peek());
@@ -804,13 +798,13 @@ public class Evaluator extends NullASTVisitor<Result> {
 	}
 
 	private AbstractPatternEvaluator makePatternEvaluator(AbstractAST ast) {
-		return new AbstractPatternEvaluator(vf, peek(), peek(), new EvaluatorContext(this, ast));
+		return new AbstractPatternEvaluator(vf, getCurrentEnvt(), getCurrentEnvt(), new EvaluatorContext(this, ast));
 	}
 
 	@Override
 	public Result<IValue> visitPatternWithActionReplacing(Replacing x) {
 		MatchPattern pv = x.getPattern().accept(makePatternEvaluator(x));
-		Type pt = pv.getType(peek());
+		Type pt = pv.getType(getCurrentEnvt());
 		if(!(pt.isAbstractDataType() || pt.isConstructorType() || pt.isNodeType()))
 			throw new UnexpectedTypeError(tf.nodeType(), pt, x);
 		heap.storeRule(pv.getType(scopeStack.peek()), x, scopeStack.peek());
@@ -839,23 +833,23 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 		for (org.meta_environment.rascal.ast.Variable var : x.getVariables()) {
 			String varAsString = var.getName().toString();
-			if(peek().getLocalVariable(varAsString) != null ||
-					peek().isRoot() && peek().getInnermostVariable(var.getName()) != null){
+			if(getCurrentEnvt().getLocalVariable(varAsString) != null ||
+					getCurrentEnvt().isRoot() && getCurrentEnvt().getInnermostVariable(var.getName()) != null){
 				throw new RedeclaredVariableError(varAsString, var);
 			}
 			if (var.isUnInitialized()) {  // variable declaration without initialization
 				r = ResultFactory.makeResult(declaredType, null, new EvaluatorContext(this, var));
-				peek().storeInnermostVariable(var.getName(), r);
+				getCurrentEnvt().storeInnermostVariable(var.getName(), r);
 			} else {                     // variable declaration with initialization
 				Result<IValue> v = var.getInitial().accept(this);
 				if(v.getType().isSubtypeOf(declaredType)){
 					// TODO: do we actually want to instantiate the locally bound type parameters?
 					Map<Type,Type> bindings = new HashMap<Type,Type>();
 					declaredType.match(v.getType(), bindings);
-					declaredType = declaredType.instantiate(peek().getStore(), bindings);
+					declaredType = declaredType.instantiate(getCurrentEnvt().getStore(), bindings);
 					// Was: r = makeResult(declaredType, applyRules(v.getValue()));
 					r = makeResult(declaredType, v.getValue(), new EvaluatorContext(this, var));
-					peek().storeInnermostVariable(var.getName(), r);
+					getCurrentEnvt().storeInnermostVariable(var.getName(), r);
 				} else {
 					throw new UnexpectedTypeError(declaredType, v.getType(), var);
 				}
@@ -899,7 +893,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			Lambda lambda = (Lambda) func.getValue();
 			Environment newEnv = pushCallFrame(lambda.getEnv(), x.getLocation(), lambda.getName()); 
 			try {
-				return lambda.call(actuals, actualTypes, peek());
+				return lambda.call(actuals, actualTypes, getCurrentEnvt());
 			}
 			finally {
 				popUntil(newEnv);
@@ -940,22 +934,23 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Environment env;
 
 		if (moduleName == null) {
-			env = peek();
+			env = getCurrentEnvt();
 		}
 		else {
-			env = peek().getImport(moduleName);
+			env = getCurrentEnvt().getImport(moduleName);
 			if (env == null) {
 				throw new UndeclaredModuleError(moduleName, name);
 			}
 		}
 		Lambda func = env.getFunction(Names.name(Names.lastName(name)), actualTypes, name);
 		if (func != null) {
+			Environment oldEnv = getCurrentEnvt();
 			Environment newEnv = pushCallFrame(func.getEnv(), name.getLocation(), func.getName());
 			try {
-				return func.call(actuals, actualTypes, peek());
+				return func.call(actuals, actualTypes, getCurrentEnvt());
 			}
 			finally {
-				popUntil(newEnv);
+				setCurrentEnvt(oldEnv);
 			}
 		}
 		undefinedFunctionException(name, actualTypes);
@@ -965,7 +960,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 	private Environment pushCallFrame(Environment env, ISourceLocation loc, String name) {
 		Environment newEnv = new Environment(env, loc, name);
-		callStack.push(newEnv);
+		setCurrentEnvt(newEnv);
 		return newEnv;
 	}
 
@@ -982,7 +977,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	}
 
 	private boolean isTreeConstructorName(QualifiedName name, Type signature) {
-		return peek().isTreeConstructorName(name, signature);
+		return getCurrentEnvt().isTreeConstructorName(name, signature);
 	}
 
 	/**
@@ -1008,17 +1003,17 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Type candidate = null;
 
 		if (sort != null) {
-			Type sortType = peek().getAbstractDataType(sort);
+			Type sortType = getCurrentEnvt().getAbstractDataType(sort);
 
 			if (sortType != null) {
-				candidate = peek().getConstructor(sortType, cons, signature);
+				candidate = getCurrentEnvt().getConstructor(sortType, cons, signature);
 			}
 			else {
 				return makeResult(tf.nodeType(), applyRules(vf.node(cons, actuals)), new EvaluatorContext(this, getCurrentAST()));
 			}
 		}
 
-		candidate = peek().getConstructor(cons, signature);
+		candidate = getCurrentEnvt().getConstructor(cons, signature);
 		if (candidate != null) {
 			Map<Type,Type> localBindings = new HashMap<Type,Type>();
 			candidate.getFieldTypes().match(tf.tupleType(actuals), localBindings);
@@ -1042,7 +1037,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 		//TODO is this a bug, what if name was overloaded?
 		//TODO add support for typed function names
-		Lambda func = peek().getFunction(Names.name(name), tf.voidType(), x);
+		Lambda func = getCurrentEnvt().getFunction(Names.name(name), tf.voidType(), x);
 
 		if (func == null) {
 			throw new UndeclaredFunctionError(Names.name(name), x);
@@ -1098,7 +1093,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		}
 		if(r.getValue().isEqual(vf.bool(false))){
 			String str = x.getMessage().toString();
-			IString msg = vf.string(unescape(str, x, peek()));
+			IString msg = vf.string(unescape(str, x, getCurrentEnvt()));
 			throw RuntimeExceptionFactory.assertionFailed(msg, getCurrentAST(), getStackTrace());
 		}
 		return r;	
@@ -1138,7 +1133,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			org.meta_environment.rascal.ast.Expression.FieldAccess x) {
 		Result<IValue> expr = x.getExpression().accept(this);
 		String field = x.getField().toString();
-		return expr.fieldAccess(field, peek().getStore(), new EvaluatorContext(this, x));
+		return expr.fieldAccess(field, getCurrentEnvt().getStore(), new EvaluatorContext(this, x));
 	}
 
 	private boolean duplicateIndices(int indices[]){
@@ -1328,7 +1323,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	@Override
 	public Result<IValue> visitStatementAssignment(Assignment x) {
 		Result<IValue> right = x.getExpression().accept(this);
-		return x.getAssignable().accept(new AssignableEvaluator(peek(), x.getOperator(), right, this));
+		return x.getAssignable().accept(new AssignableEvaluator(getCurrentEnvt(), x.getOperator(), right, this));
 	}
 
 	@Override
@@ -1351,7 +1346,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	@Override
 	public Result<IValue> visitAssignableVariable(
 			org.meta_environment.rascal.ast.Assignable.Variable x) {
-		return peek().getVariable(x.getQualifiedName(),x.getQualifiedName().toString());
+		return getCurrentEnvt().getVariable(x.getQualifiedName(),x.getQualifiedName().toString());
 	}
 
 	@Override
@@ -1390,11 +1385,11 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result<IValue> receiver = x.getReceiver().accept(this);
 		String label = x.getAnnotation().toString();
 
-		if (!callStack.peek().declaresAnnotation(receiver.getType(), label)) {
+		if (!getCurrentEnvt().declaresAnnotation(receiver.getType(), label)) {
 			throw new UndeclaredAnnotationError(label, receiver.getType(), x);
 		}
 
-		Type type = callStack.peek().getAnnotationType(receiver.getType(), label);
+		Type type = getCurrentEnvt().getAnnotationType(receiver.getType(), label);
 		IValue value = ((IConstructor) receiver.getValue()).getAnnotation(label);
 
 		return makeResult(type, value, new EvaluatorContext(this, x));
@@ -1461,18 +1456,18 @@ public class Evaluator extends NullASTVisitor<Result> {
 		boolean varArgs = x.getSignature().getParameters().isVarArgs();
 
 		if (hasJavaModifier(x)) {
-			lambda = new JavaFunction(this, x, varArgs, peek(), javaBridge);
+			lambda = new JavaFunction(this, x, varArgs, getCurrentEnvt(), javaBridge);
 		}
 		else {
 			if (!x.getBody().isDefault()) {
 				throw new MissingModifierError("java", x);
 			}
 
-			lambda = new RascalFunction(this, x, varArgs, peek());
+			lambda = new RascalFunction(this, x, varArgs, getCurrentEnvt());
 		}
 
 		String name = Names.name(x.getSignature().getName());
-		peek().storeFunction(name, lambda);
+		getCurrentEnvt().storeFunction(name, lambda);
 
 		return lambda;
 	}
@@ -1483,14 +1478,14 @@ public class Evaluator extends NullASTVisitor<Result> {
 		boolean varArgs = x.getSignature().getParameters().isVarArgs();
 
 		if (hasJavaModifier(x)) {
-			lambda = new org.meta_environment.rascal.interpreter.env.JavaMethod(this, x, varArgs, peek(), javaBridge);
+			lambda = new org.meta_environment.rascal.interpreter.env.JavaMethod(this, x, varArgs, getCurrentEnvt(), javaBridge);
 		}
 		else {
 			throw new MissingModifierError("java", x);
 		}
 
 		String name = Names.name(x.getSignature().getName());
-		peek().storeFunction(name, lambda);
+		getCurrentEnvt().storeFunction(name, lambda);
 
 		return lambda;
 	}
@@ -1592,7 +1587,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 	@Override
 	public Result<IValue> visitExpressionMatch(Match x) {
-		return new MatchEvaluator(x.getPattern(), x.getExpression(), true, peek(), this).next();
+		return new MatchEvaluator(x.getPattern(), x.getExpression(), true, getCurrentEnvt(), this).next();
 	}
 
 	@Override
@@ -1612,7 +1607,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			return pat.accept(pe);
 		}
 
-		RegExpPatternEvaluator re = new RegExpPatternEvaluator(vf, this, peek());
+		RegExpPatternEvaluator re = new RegExpPatternEvaluator(vf, this, getCurrentEnvt());
 		if(re.isRegExpPattern(pat)){ 
 			return pat.accept(re);
 		}
@@ -1649,7 +1644,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	public Result<IValue> visitLiteralString(
 			org.meta_environment.rascal.ast.Literal.String x) {
 		String str = ((StringLiteral.Lexical) x.getStringLiteral()).getString();
-		return makeResult(tf.stringType(), vf.string(unescape(str, x, peek())), new EvaluatorContext(this, x));
+		return makeResult(tf.stringType(), vf.string(unescape(str, x, getCurrentEnvt())), new EvaluatorContext(this, x));
 	}
 
 
@@ -1668,7 +1663,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			return constructTree(x.getQualifiedName(), new IValue[0], tf.tupleType(new Type[0]));
 		}
 
-		Result<IValue> result = peek().getVariable(x.getQualifiedName());
+		Result<IValue> result = getCurrentEnvt().getVariable(x.getQualifiedName());
 
 		if (result != null && result.getValue() != null) {
 			return result;
@@ -1772,7 +1767,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 	@Override
 	public Result visitExpressionNonEmptyBlock(NonEmptyBlock x) {
-		return new Lambda(x, this, tf.voidType(), "", tf.tupleEmpty(), false, x.getStatements(), peek());
+		return new Lambda(x, this, tf.voidType(), "", tf.tupleEmpty(), false, x.getStatements(), getCurrentEnvt());
 	}
 
 	@Override
@@ -1798,7 +1793,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			org.meta_environment.rascal.ast.Expression.GetAnnotation x) {
 		Result<IValue> base = x.getExpression().accept(this);
 		String annoName = x.getName().toString();
-		return base.getAnnotation(annoName, callStack.peek(), new EvaluatorContext(this, x));
+		return base.getAnnotation(annoName, getCurrentEnvt(), new EvaluatorContext(this, x));
 	}
 
 	@Override
@@ -1807,7 +1802,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result<IValue> base = x.getExpression().accept(this);
 		String annoName = x.getName().toString();
 		Result<IValue> anno = x.getValue().accept(this);
-		return base.setAnnotation(annoName, anno, callStack.peek(), new EvaluatorContext(this, x));
+		return base.setAnnotation(annoName, anno, getCurrentEnvt(), new EvaluatorContext(this, x));
 	}
 
 	@Override
@@ -1945,15 +1940,15 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 	@Override
 	public Result visitExpressionClosure(Closure x) {
-		Type formals = te.eval(x.getParameters(), peek());
+		Type formals = te.eval(x.getParameters(), getCurrentEnvt());
 		Type returnType = evalType(x.getType());
-		return new Lambda(x, this, returnType, "", formals, x.getParameters().isVarArgs(), x.getStatements(), peek());
+		return new Lambda(x, this, returnType, "", formals, x.getParameters().isVarArgs(), x.getStatements(), getCurrentEnvt());
 	}
 
 	@Override
 	public Result visitExpressionVoidClosure(VoidClosure x) {
-		Type formals = te.eval(x.getParameters(), peek());
-		return new Lambda(x, this, tf.voidType(), "", formals, x.getParameters().isVarArgs(), x.getStatements(), peek());
+		Type formals = te.eval(x.getParameters(), getCurrentEnvt());
+		return new Lambda(x, this, tf.voidType(), "", formals, x.getParameters().isVarArgs(), x.getStatements(), getCurrentEnvt());
 	}
 
 	@Override
@@ -1961,7 +1956,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result<IValue> expr = x.getExpression().accept(this);
 		Result<IValue> repl = x.getReplacement().accept(this);
 		String name = x.getKey().toString();
-		return expr.fieldUpdate(name, repl, peek().getStore(), new EvaluatorContext(this, x));
+		return expr.fieldUpdate(name, repl, getCurrentEnvt().getStore(), new EvaluatorContext(this, x));
 	}
 
 
@@ -1995,14 +1990,14 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Environment newEnv = pushEnv(stat); 	// Create a separate scope for match and statement
 		try {
 			MatchPattern mp = evalPattern(pat);
-			mp.initMatch(subject, peek());
+			mp.initMatch(subject, getCurrentEnvt());
 			//System.err.println("matchAndEval: subject=" + subject + ", pat=" + pat);
 			while(mp.hasNext()){
 				//System.err.println("matchAndEval: mp.hasNext()==true");
 				if(mp.next()){
 					//System.err.println("matchAndEval: mp.next()==true");
 					try {
-						checkPoint(peek());
+						checkPoint(getCurrentEnvt());
 						//System.err.println(stat.toString());
 						try {
 							stat.accept(this);
@@ -2012,11 +2007,11 @@ public class Evaluator extends NullASTVisitor<Result> {
 								e.setMatchPattern(mp);
 							throw e;
 						}
-						commit(peek());
+						commit(getCurrentEnvt());
 						return true;
 					} catch (Failure e){
 						//System.err.println("failure occurred");
-						rollback(peek());
+						rollback(getCurrentEnvt());
 					}
 				}
 			}
@@ -2034,7 +2029,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Environment newEnv = pushEnv();	// create separate scope for match and statement  
 		try {
 			MatchPattern mp = evalPattern(pat);
-			mp.initMatch(subject, peek());
+			mp.initMatch(subject, getCurrentEnvt());
 			//System.err.println("matchEvalAndReplace: subject=" + subject + ", pat=" + pat + ", conditions=" + conditions);
 
 			while(mp.hasNext()){
@@ -2236,7 +2231,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 		Case cs = (Case) singleCase(casesOrRules);
 
-		RegExpPatternEvaluator re = new RegExpPatternEvaluator(vf, this, peek());
+		RegExpPatternEvaluator re = new RegExpPatternEvaluator(vf, this, getCurrentEnvt());
 		if(cs != null && cs.isPatternWithAction() && re.isRegExpPattern(cs.getPatternWithAction().getPattern())){
 			/*
 			 * In the frequently occurring case that there is one case with a regexp as pattern,
@@ -2246,7 +2241,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 			Expression patexp = rule.getPattern();
 			MatchPattern mp = evalPattern(patexp);
-			mp.initMatch(subject, peek());
+			mp.initMatch(subject, getCurrentEnvt());
 			Environment newEnv = pushEnv(); // a separate scope for match and statement/replacement
 			try {
 				while(mp.hasNext()){
@@ -2529,7 +2524,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			for(RewriteRule rule : casesOrRules.getRules()){
 				setCurrentAST(rule.getRule());
 
-				callStack.push(rule.getEnvironment());
+				setCurrentEnvt(rule.getEnvironment());
 				try {
 					TraverseResult tr = applyOneRule(subject, rule.getRule());
 					if(tr.matched){
@@ -3139,7 +3134,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		IValue currentValue[] = new IValue[vars.size()];
 		for(int i = 0; i < vars.size(); i++){
 			org.meta_environment.rascal.ast.Variable v = vars.get(i);
-			currentValue[i] = peek().getVariable(v, Names.name(v.getName())).getValue();
+			currentValue[i] = getCurrentEnvt().getVariable(v, Names.name(v.getName())).getValue();
 		}
 
 		Statement body = x.getBody();
@@ -3169,7 +3164,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			bodyResult = body.accept(this);
 			for(int i = 0; i < vars.size(); i++){
 				org.meta_environment.rascal.ast.Variable var = vars.get(i);
-				Result<IValue> v = peek().getVariable(var, Names.name(var.getName()));
+				Result<IValue> v = getCurrentEnvt().getVariable(var, Names.name(var.getName()));
 				if(currentValue[i] == null || !v.getValue().isEqual(currentValue[i])){
 					change = true;
 					currentValue[i] = v.getValue();
@@ -3190,16 +3185,30 @@ public class Evaluator extends NullASTVisitor<Result> {
 	}
 
 	public Stack<Environment> getCallStack() {
-		return callStack;
+		Stack<Environment> stack = new Stack<Environment>();
+		Environment env = currentEnvt;
+		while (env != null) {
+			stack.add(0, env);
+			env = env.getParent();
+		}
+		return stack;
 	}
 
 	public java.util.List<Entry<String, java.util.List<Lambda>>> getFunctions() {
-		return callStack.peek().getFunctions();
+		return currentEnvt.getFunctions();
 	}
 
 
 	public ModuleLoader getModuleLoader() {
 		return loader;
+	}
+
+	public Environment getCurrentEnvt() {
+		return currentEnvt;
+	}
+
+	public void setCurrentEnvt(Environment env) {
+		currentEnvt = env;
 	}
 
 }

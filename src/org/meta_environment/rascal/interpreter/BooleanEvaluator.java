@@ -283,7 +283,7 @@ class MatchEvaluator implements Iterator<Result<IValue>> {
     //	if(!ev.mayMatch(mp.getType(pushedEnv), subjectValue.getType()))
     	if(!mp.mayMatch(subjectValue, pushedEnv))
     		throw new UnexpectedTypeError(mp.getType(pushedEnv), subjectValue.getType(), pat);
-    	mp.initMatch(subjectValue, evaluator.peek());
+    	mp.initMatch(subjectValue, evaluator.getCurrentEnvt());
 	}
 
 	public boolean hasNext() {
