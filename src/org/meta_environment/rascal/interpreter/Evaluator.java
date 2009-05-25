@@ -3193,6 +3193,11 @@ public class Evaluator extends NullASTVisitor<Result> {
 		return callStack;
 	}
 
+	public java.util.List<Entry<String, java.util.List<Lambda>>> getFunctions() {
+		return callStack.peek().getFunctions();
+	}
+
+
 	public ModuleLoader getModuleLoader() {
 		return loader;
 	}
