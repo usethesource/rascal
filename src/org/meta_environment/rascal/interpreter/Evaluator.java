@@ -3193,4 +3193,8 @@ public class Evaluator extends NullASTVisitor<Result> {
 		return callStack;
 	}
 
+	public ModuleLoader getModuleLoader() {
+		return loader;
+	}
+
 }
