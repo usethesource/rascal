@@ -115,12 +115,6 @@ public class AllDemoTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("demo::McCabe::test();"));
 	}
 	
-	@Test
-	public void ParseTree() {
-		prepare("import demo::ParseTree;");
-		assertTrue(runTestInSameEvaluator("demo::ParseTree::test();"));
-	}
-	
 	@Ignore @Test
 	public void PicoCommonSubexpression() {
 		prepare("import demo::PicoAbstract::PicoCommonSubexpression;");

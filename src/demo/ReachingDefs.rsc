@@ -1,6 +1,7 @@
 module demo::ReachingDefs
 
 import Relation;
+import Graph;
 import IO;
 
 public alias stat = int;
@@ -45,7 +46,7 @@ public rel[stat, def] reachingDefinitions(rel[stat,var] DEFS, rel[stat,stat] PRE
 		rel[stat,def] IN = {};
 		rel[stat,def] OUT = DEF;
 	solve {
-       		IN =  {<S, D> | int S <- STATEMENT, stat P <- predecessor(PRED,S), def D <- OUT[P]};
+       		IN =  {<S, D> | int S <- STATEMENT, stat P <- predecessors(PRED,S), def D <- OUT[P]};
         	OUT = {<S, D> | int S <- STATEMENT, def D <- DEF[S] + (IN[S] - KILL[S])};
 	};
 	return IN;
@@ -60,7 +61,7 @@ public rel[stat,def] liveVariables(rel[stat,var] DEFS, rel[stat, var] USES, rel[
 		rel[stat,def] LOUT = DEF;
  	solve {
 		LIN  =  { < S, D> | stat S <- STATEMENT,  def D <- USE[S] + (LOUT[S] - (DEF[S]))};
-		LOUT =  { < S, D> | stat S <- STATEMENT,  stat Succ <- successor(PRED,S), def D <- LIN[Succ] };
+		LOUT =  { < S, D> | stat S <- STATEMENT,  stat Succ <- successors(PRED,S), def D <- LIN[Succ] };
 	}
 	return LIN;
 }

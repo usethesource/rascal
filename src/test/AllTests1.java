@@ -5,7 +5,7 @@ import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-	RuleTests.class,
+	
 	AliasTests.class,
 	AnnotationTests.class,
 	AssignmentTests.class,
@@ -13,6 +13,7 @@ import org.junit.runners.Suite;
 	
 	CallTests.class,
 	ComprehensionTests.class,
+	ConcreteSyntaxTests.class,
 	DataDeclarationTests.class,
 	DataTypeTests.class,
 	DeclarationTests.class,

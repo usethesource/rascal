@@ -15,6 +15,7 @@ import test.StandardLibraryTests.ValueIOTests;
 	NodeTests.class,
 	RealTests.class,
 	RelationTests.class,
+	RuleTests.class,
 	SetTests.class,
 	StringTests.class,
 	SubscriptTests.class,
