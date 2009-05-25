@@ -217,7 +217,7 @@ public class ASTBuilder {
 	}
 	
 	private ImplementationError unexpectedError(Throwable e) {
-		return new ImplementationError("Unexpected error in AST construction", e);
+		return new ImplementationError("Unexpected error in AST construction: " + e, e);
 	}
 
 	private boolean isEmbedding(TreeAdapter tree) {
