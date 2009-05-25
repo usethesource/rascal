@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -261,14 +262,7 @@ public class Environment {
 		return t;
 	}
 
-	public Map<String, Result<IValue>> getVariables() {
-		Map<String, Result<IValue>> vars = new HashMap<String, Result<IValue>>();
-		if (parent != null) {
-			vars.putAll(parent.getVariables());
-		}
-		vars.putAll(variableEnvironment);
-		return vars;
-	}
+	
 
 	public void storeParameterType(Type par, Type type) {
 		typeParameters.put(par, type);
@@ -544,8 +538,23 @@ public class Environment {
 	public TypeStore getStore() {
 		return getRoot().getStore();
 	}
+	
+	public Map<String, Result<IValue>> getVariables() {
+		Map<String, Result<IValue>> vars = new HashMap<String, Result<IValue>>();
+		if (parent != null) {
+			vars.putAll(parent.getVariables());
+		}
+		vars.putAll(variableEnvironment);
+		return vars;
+	}
 
-
-
+	public List<Entry<String, List<Lambda>>> getFunctions() {
+		List<Entry<String, List<Lambda>>> functions = new ArrayList<Entry<String, List<Lambda>>>();
+		if (parent != null) {
+			functions.addAll(parent.getFunctions());
+		}
+		functions.addAll(functionEnvironment.entrySet());
+		return functions;
+	}
 
 }
