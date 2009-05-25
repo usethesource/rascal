@@ -83,7 +83,7 @@ public class EnumerateAndMatch extends Result<IValue> {
 		java.util.List<String> vars = pat.getVariables();
 		patVars = new java.util.ArrayList<String>(0);
 		for(String name : vars){
-			Result<IValue> vr = ev.peek().getVariable(null, name);
+			Result<IValue> vr = ev.getCurrentEnvt().getVariable(null, name);
 			if(vr == null || vr.getValue() == null)
 				patVars.add(name);
 		}
@@ -94,7 +94,7 @@ public class EnumerateAndMatch extends Result<IValue> {
 		//System.err.println("makeIterator: " + subject.getValue());
 		Type subjectType = subject.getType();
 		IValue subjectValue = subject.getValue();
-		Type patType = pat.getType(evaluator.peek());
+		Type patType = pat.getType(evaluator.getCurrentEnvt());
 		
 		// List
 		if(subjectType.isListType()){
@@ -202,11 +202,11 @@ public class EnumerateAndMatch extends Result<IValue> {
 		while(iterator.hasNext()){
 			// Nullify the variables set by the pattern
 			for(String var : patVars){
-				evaluator.peek().storeVariable(var,  ResultFactory.nothing());
+				evaluator.getCurrentEnvt().storeVariable(var,  ResultFactory.nothing());
 			}
 			IValue v = (IValue) iterator.next();
 			///System.err.println("getNext, try next from value iterator: " + v);
-			pat.initMatch(v, evaluator.peek());
+			pat.initMatch(v, evaluator.getCurrentEnvt());
 			while(pat.hasNext()){
 				if(pat.next()){
 					//System.err.println("return true");

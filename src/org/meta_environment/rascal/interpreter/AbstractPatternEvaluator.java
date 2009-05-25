@@ -1787,7 +1787,7 @@ class AbstractPatternAnti extends AbstractPattern implements MatchPattern {
 		boolean res = pat.next();
 		// Remove any bindings
 		for(String var : patVars){
-			ctx.getEvaluator().peek().storeVariable(var,  ResultFactory.nothing());
+			ctx.getCurrentEnvt().storeVariable(var,  ResultFactory.nothing());
 		}
 		return !res;
 	}
@@ -1920,7 +1920,7 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 		org.meta_environment.rascal.ast.QualifiedName name = x.getQualifiedName();
 		Type signature = ctx.getEvaluator().tf.tupleType(new Type[0]);
 
-		Result<IValue> r = ctx.getEvaluator().peek().getVariable(name);
+		Result<IValue> r = ctx.getEvaluator().getCurrentEnvt().getVariable(name);
 //System.err.println("name = " + name.toString());
 		if (r != null) {
 			if (r.getValue() != null) {

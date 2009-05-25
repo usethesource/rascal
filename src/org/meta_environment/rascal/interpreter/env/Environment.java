@@ -58,7 +58,7 @@ public class Environment {
 			throw new ImplementationError("internal error: cyclic environment");
 		}
 	}
-
+	
 	/**
 	 * @return the name of this environment/stack frame for use in tracing
 	 */
@@ -555,6 +555,10 @@ public class Environment {
 		}
 		functions.addAll(functionEnvironment.entrySet());
 		return functions;
+	}
+
+	public Environment getParent() {
+		return parent;
 	}
 
 }

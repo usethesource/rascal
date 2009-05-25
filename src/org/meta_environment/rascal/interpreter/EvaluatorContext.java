@@ -1,6 +1,7 @@
 package org.meta_environment.rascal.interpreter;
 
 import org.meta_environment.rascal.ast.AbstractAST;
+import org.meta_environment.rascal.interpreter.env.Environment;
 
 public class EvaluatorContext {
 
@@ -23,6 +24,10 @@ public class EvaluatorContext {
 
 	public Evaluator getEvaluator() {
 		return evaluator;
+	}
+
+	public Environment getCurrentEnvt() {
+		return evaluator.getCurrentEnvt();
 	}
 	
 }
