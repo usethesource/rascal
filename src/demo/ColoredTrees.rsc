@@ -17,21 +17,21 @@ public int addLeaves(ColoredTree t){
    visit(t) {
      case leaf(int N): c = c + N;
    };
-   return C;
+   return c;
 }
 
 data ColoredTree = green(ColoredTree left, ColoredTree right);
 
 public ColoredTree makeGreen(ColoredTree t){
    return visit(t) {
-     case red(l, r) => green(l, r);      
+     case red(l, r) => green(l, r) 
    };
 }
 
-public void test(){
-  rb = red(black(leaf(1), red(leaf(2),leaf(3))));
+public bool test(){
+  rb = red(black(leaf(1), red(leaf(2),leaf(3))), black(leaf(3), leaf(4)));
   assert cntRed(rb) == 2;
-  assert addLeaves(rb) == 6;
-  assert makeGreen(rb) == green(black(leaf(1), green(leaf(2),leaf(3))));
+  assert addLeaves(rb) == 13;
+  assert makeGreen(rb) == green(black(leaf(1),green(leaf(2),leaf(3))),black(leaf(3),leaf(4)));
   return true;
 }

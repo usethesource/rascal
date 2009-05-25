@@ -1,4 +1,5 @@
 module demo::Uninit
+import Relation;
 import Graph;
 
 alias expr = int;
@@ -17,10 +18,10 @@ public rel[varname, expr] USES =  {<"q", 5>, <"y", 6>, <"x", 6>, <"z", 10>};
 
 public rel[varname,expr] UNINIT = 
    { <V, E> | <varname V, expr E> <- USES, 
-              E in reachX({ROOT}, DEFS[V], PRED)
+              E in reachX(PRED, {ROOT}, DEFS[V])
    };
    
-public set[var] UNUSED = domain(DEFS) - domain(USES)
+public set[varname] UNUSED = domain(DEFS) - domain(USES);
    
 public bool test(){
    return UNINIT == {<"q", 5>, <"y", 6>, <"z", 10>} &&

@@ -1,4 +1,4 @@
-module demo::PicoAbstract::PicoTypecheck
+module demo::PicoConcrete::PicoTypecheck
 
 import languages/pico/syntax/Pico;
 import demo::PicoAbstract::Message;
