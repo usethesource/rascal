@@ -19,8 +19,12 @@ public class SdfImportExtractor {
 	
 	Set<String> extractImports(IConstructor parseTree, List<String> searchPath) {
 		Module module = builder.buildModule(parseTree);
+		return extractImports(module, searchPath);
+	}
+	
+	Set<String> extractImports(AbstractAST ast, List<String> searchPath) {
 		Set<String> allImports = new HashSet<String>();
-		module.accept(new Extractor(allImports));
+		ast.accept(new Extractor(allImports));
 		return filter(allImports, searchPath);
 	}
 	

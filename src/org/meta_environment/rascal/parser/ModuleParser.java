@@ -51,12 +51,7 @@ public class ModuleParser {
 		} 
 	}
 	
-	public IConstructor parseCommand(Set<String> sdfImports, List<String> sdfSearchPath, String fileName, String command) throws IOException {
-		String table = getOrConstructParseTable(sdfImports, sdfSearchPath);
-		return parseFromString(table, fileName, command);
-	}
-
-	private String getOrConstructParseTable(Set<String> sdfImports, List<String> sdfSearchPath) throws IOException {
+	protected String getOrConstructParseTable(Set<String> sdfImports, List<String> sdfSearchPath) throws IOException {
 		if (sdfImports.isEmpty()) {
 			return Configuration.getDefaultParsetableProperty();
 		}
@@ -80,7 +75,7 @@ public class ModuleParser {
 		return new ParsetreeAdapter(tree).addPositionInformation(fileName);
 	}
 	
-	private IConstructor parseFromString(String table, String fileName, String source) throws FactParseError, IOException {
+	protected IConstructor parseFromString(String table, String fileName, String source) throws FactParseError, IOException {
 		SGLRInvoker sglrInvoker = SGLRInvoker.getInstance();
 		byte[] result = sglrInvoker.parseFromString(source, table);
 		

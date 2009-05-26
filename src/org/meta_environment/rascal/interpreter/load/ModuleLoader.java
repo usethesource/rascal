@@ -37,11 +37,16 @@ public class ModuleLoader {
 	
 	private java.util.List<IModuleFileLoader> loaders = new LinkedList<IModuleFileLoader>();
 	private java.util.List<ISdfSearchPathContributor> contributors = new LinkedList<ISdfSearchPathContributor>();
-	private ModuleParser MODULE_PARSER = new ModuleParser();
+	private final ModuleParser parser;
 	
 	public ModuleLoader() {
+		this(new ModuleParser());
 	}
 	
+	public ModuleLoader(ModuleParser parser) {
+		this.parser = parser;
+	}
+
 	public void addFileLoader(IModuleFileLoader loader) {
 		loaders.add(0, loader);
 	}
@@ -122,7 +127,7 @@ public class ModuleLoader {
 		return false;
 	}
 
-	private List<String> getSdfSearchPath() {
+	public List<String> getSdfSearchPath() {
 		List<String> result = new LinkedList<String>();
 		for (ISdfSearchPathContributor c : contributors) {
 			result.addAll(c.contributePaths());
@@ -157,11 +162,11 @@ public class ModuleLoader {
 		return new SyntaxError("module " + mod, loc);
 	}
 
-	@SuppressWarnings("unchecked")
-	public IConstructor parseCommand(String command, String fileName) throws IOException {
-		// TODO: add support for concrete syntax here (now it ignores the sdf imports)
-		return MODULE_PARSER.parseCommand(Collections.EMPTY_SET, Collections.EMPTY_LIST, fileName, command);
-	}
+//	@SuppressWarnings("unchecked")
+//	public IConstructor parseCommand(String command, String fileName) throws IOException {
+//		// TODO: add support for concrete syntax here (now it ignores the sdf imports)
+//		return parser.parseCommand(command);
+//	}
 	
 	public IConstructor parseModule(String fileName, String name, AbstractAST ast) throws IOException {
 		InputStream inputStream = null;
@@ -171,7 +176,7 @@ public class ModuleLoader {
 			if (inputStream == null) {
 				throw new ModuleLoadError(name, "not in path", ast);
 			}
-			sdfImports = MODULE_PARSER.getSdfImports(getSdfSearchPath(), fileName, inputStream);
+			sdfImports = parser.getSdfImports(getSdfSearchPath(), fileName, inputStream);
 		}
 		finally {
 			if (inputStream != null) {
@@ -183,7 +188,7 @@ public class ModuleLoader {
 		try {
 			List<String> sdfSearchPath = getSdfSearchPath();
 			secondInputStream = getInputStream(fileName);
-			IConstructor tree = MODULE_PARSER.parseModule(sdfSearchPath, sdfImports, fileName, secondInputStream);
+			IConstructor tree = parser.parseModule(sdfSearchPath, sdfImports, fileName, secondInputStream);
 
 			if (tree.getConstructorType() == Factory.ParseTree_Summary) {
 				throw parseError(tree, fileName, name);
@@ -206,7 +211,7 @@ public class ModuleLoader {
 		try {
 			inputStream = new ByteArrayInputStream(moduleString.getBytes());
 			
-			sdfImports = MODULE_PARSER.getSdfImports(sdfSearchPath, fileName, inputStream);
+			sdfImports = parser.getSdfImports(sdfSearchPath, fileName, inputStream);
 		}
 		finally {
 			if (inputStream != null) {
@@ -218,7 +223,7 @@ public class ModuleLoader {
 		try {
 			
 			secondInputStream = new ByteArrayInputStream(moduleString.getBytes());
-			IConstructor tree = MODULE_PARSER.parseModule(sdfSearchPath, sdfImports, fileName, secondInputStream);
+			IConstructor tree = parser.parseModule(sdfSearchPath, sdfImports, fileName, secondInputStream);
 
 			if (tree.getConstructorType() == Factory.ParseTree_Summary) {
 				throw parseError(tree, fileName, name);
