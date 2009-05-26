@@ -39,6 +39,7 @@ public class EnumerateAndMatch extends Result<IValue> {
 	private org.meta_environment.rascal.ast.Expression enumerator;
 	private Evaluator evaluator;
 	private Iterator<?> iterator;
+	private Environment oldEnv;
 
 	/*
 	 * Constructor for a standard enumerator
@@ -53,6 +54,7 @@ public class EnumerateAndMatch extends Result<IValue> {
 		}	
 		this.enumerator = enumerator;
 		this.evaluator = ev;
+		oldEnv = ev.getCurrentEnvt();
 		pushedEnv = ev.pushEnv();
 		pat = ev.evalPattern(enumerator.getPattern());
 		
@@ -174,7 +176,7 @@ public class EnumerateAndMatch extends Result<IValue> {
 				hasNext = false;
 				//System.err.println("EnumerateAndMatch.hasNext = false");
 				if(pushedEnv != null)
-					evaluator.popUntil(pushedEnv);
+					evaluator.setCurrentEnvt(oldEnv);
 			}
 			return hn;
 		}
@@ -217,7 +219,7 @@ public class EnumerateAndMatch extends Result<IValue> {
 		//System.err.println("next returns false and pops env");
 		hasNext = false;
 		if(pushedEnv != null){
-			evaluator.popUntil(pushedEnv);
+			evaluator.setCurrentEnvt(oldEnv);
 		}
 		return new BoolResult(false, null, null);
 	}

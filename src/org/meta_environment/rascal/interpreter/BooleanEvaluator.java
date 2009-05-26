@@ -270,11 +270,13 @@ class MatchEvaluator implements Iterator<Result<IValue>> {
 	private MatchPattern mp;
 	private Evaluator evaluator;
 	private Environment pushedEnv;
+	private Environment oldEnv;
 	
 	// TODO: remove use of evaluator here! it's not good to have this dependency
 	MatchEvaluator(Expression pat, Expression subject, boolean positive, Environment env, Evaluator ev){
     	this.positive = positive;
     	this.evaluator = ev;
+    	this.oldEnv = ev.getCurrentEnvt();
     	this.pushedEnv = evaluator.pushEnv();
     	//System.err.println("MatchEvaluator: push " + pat);
     	mp = ev.evalPattern(pat);
@@ -292,7 +294,7 @@ class MatchEvaluator implements Iterator<Result<IValue>> {
 			if(!hn){
 				hasNext = false;
 				//System.err.println("MatchEvaluator: pop");
-				evaluator.popUntil(pushedEnv);
+				evaluator.setCurrentEnvt(oldEnv);
 			}
 			//System.err.println("MatchEvaluator.hasNext: " + hn);
 			return hn;
