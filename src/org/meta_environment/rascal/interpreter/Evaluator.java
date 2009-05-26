@@ -198,10 +198,9 @@ public class Evaluator extends NullASTVisitor<Result> {
 	final TypeFactory tf = TypeFactory.getInstance();
 	private final TypeEvaluator te = TypeEvaluator.getInstance();
 	private Environment currentEnvt;
+	private ModuleEnvironment currentModuleEnvt;
 
 	private final GlobalEnvironment heap;
-	private final java.util.Stack<ModuleEnvironment> scopeStack;
-
 
 	private final JavaBridge javaBridge;
 	//	private final boolean LAZY = false;
@@ -231,8 +230,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		this.vf = f;
 		this.heap = heap;
 		currentEnvt = scope;
-		this.scopeStack = new Stack<ModuleEnvironment>();
-		this.scopeStack.push(scope);
+		currentModuleEnvt = scope;
 		this.classLoaders = new LinkedList<ClassLoader>();
 		this.javaBridge = new JavaBridge(errorWriter, classLoaders);
 
@@ -452,9 +450,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 	Environment pop() {
 		Environment env = getCurrentEnvt();
-		//if (! env.isRoot()) {
-			setCurrentEnvt(env.getParent());
-		//}
+		setCurrentEnvt(env.getParent());
 		return env;
 	}
 
@@ -596,16 +592,16 @@ public class Evaluator extends NullASTVisitor<Result> {
 			if (!heap.existsModule(parseTreeModName)) {
 				evalModule(x, parseTreeModName);
 			}
-			scopeStack.peek().addImport(parseTreeModName, heap.getModule(parseTreeModName, x));
+			currentModuleEnvt.addImport(parseTreeModName, heap.getModule(parseTreeModName, x));
 			return ResultFactory.nothing(); 
 		}
 		else {
-			if (importResetsInterpreter && scopeStack.size() == 1 && currentEnvt.getParent() == null) {
+			if (importResetsInterpreter && currentModuleEnvt.getParent() == null && currentEnvt.getParent() == null) {
 				reloadAll(x);
 			}
 		}
 
-		scopeStack.peek().addImport(name, heap.getModule(name, x));
+		currentModuleEnvt.addImport(name, heap.getModule(name, x));
 		return ResultFactory.nothing();
 	}
 
@@ -628,11 +624,11 @@ public class Evaluator extends NullASTVisitor<Result> {
 	private void reloadAll(AbstractAST cause) {
 		heap.clear();
 
-		java.util.Set<String> topModules = scopeStack.peek().getImports();
+		java.util.Set<String> topModules = currentModuleEnvt.getImports();
 		for (String mod : topModules) {
 			Module module = evalModule(cause, mod);
 			if (module != null) {
-				scopeStack.peek().addImport(mod, heap.getModule(mod, cause));
+				currentModuleEnvt.addImport(mod, heap.getModule(mod, cause));
 			}
 		}
 	}
@@ -647,10 +643,10 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 		if (!heap.existsModule(name)) {
 			ModuleEnvironment env = new ModuleEnvironment(name);
-			scopeStack.push(env);
+			ModuleEnvironment oldModuleEnv = currentModuleEnvt;
 			Environment oldEnv = getCurrentEnvt();
 			setCurrentEnvt(env); // such that declarations end up in the module scope
-
+			currentModuleEnvt = env;
 			try {
 				x.getHeader().accept(this);
 
@@ -665,7 +661,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				heap.addModule(env);
 			}
 			finally {
-				scopeStack.pop();
+				currentModuleEnvt = oldModuleEnv;
 				setCurrentEnvt(oldEnv);
 			}
 		}
@@ -733,7 +729,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 	@Override
 	public Result<IValue> visitDeclarationVariable(Variable x) {
-		Type declaredType = te.eval(x.getType(), scopeStack.peek());
+		Type declaredType = te.eval(x.getType(), currentModuleEnvt);
 		Result<IValue> r = nothing();
 
 		for (org.meta_environment.rascal.ast.Variable var : x.getVariables()) {
@@ -751,7 +747,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				declaredType.match(v.getType(), bindings);
 				declaredType = declaredType.instantiate(getCurrentEnvt().getStore(), bindings);
 				r = makeResult(declaredType, v.getValue(), new EvaluatorContext(this, getCurrentAST()));
-				scopeStack.peek().storeInnermostVariable(var.getName(), r);
+				currentModuleEnvt.storeInnermostVariable(var.getName(), r);
 			} else {
 				throw new UnexpectedTypeError(declaredType, v.getType(), var);
 			}
@@ -762,11 +758,11 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 	@Override
 	public Result<IValue> visitDeclarationAnnotation(Annotation x) {
-		Type annoType = te.eval(x.getAnnoType(), scopeStack.peek());
+		Type annoType = te.eval(x.getAnnoType(), currentModuleEnvt);
 		String name = x.getName().toString();
 
-		Type onType = te.eval(x.getOnType(), scopeStack.peek());
-		scopeStack.peek().declareAnnotation(onType, name, annoType);	
+		Type onType = te.eval(x.getOnType(), currentModuleEnvt);
+		currentModuleEnvt.declareAnnotation(onType, name, annoType);	
 
 		return ResultFactory.nothing();
 	}
@@ -793,7 +789,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Type pt = pv.getType(getCurrentEnvt());
 		if(!(pt.isAbstractDataType() || pt.isConstructorType() || pt.isNodeType()))
 			throw new UnexpectedTypeError(tf.nodeType(), pt, x);
-		heap.storeRule(pv.getType(scopeStack.peek()), x, scopeStack.peek());
+		heap.storeRule(pv.getType(currentModuleEnvt), x, currentModuleEnvt);
 		return ResultFactory.nothing();
 	}
 
@@ -807,7 +803,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Type pt = pv.getType(getCurrentEnvt());
 		if(!(pt.isAbstractDataType() || pt.isConstructorType() || pt.isNodeType()))
 			throw new UnexpectedTypeError(tf.nodeType(), pt, x);
-		heap.storeRule(pv.getType(scopeStack.peek()), x, scopeStack.peek());
+		heap.storeRule(pv.getType(currentModuleEnvt), x, currentModuleEnvt);
 		return ResultFactory.nothing();
 	}
 
