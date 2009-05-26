@@ -16,7 +16,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Stack;
-import java.util.Vector;
 import java.util.Map.Entry;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -438,19 +437,6 @@ public class Evaluator extends NullASTVisitor<Result> {
 	Environment pushEnv(Statement s) {
 		Environment env = new Environment(getCurrentEnvt(), s.getLocation(), s.getClass().getSimpleName());
 		setCurrentEnvt(env);
-		return env;
-	}
-
-	void popUntil(Environment env){
-		Environment previousEnv;
-		do {
-			previousEnv = pop();	
-		} while (previousEnv != env);	
-	}
-
-	Environment pop() {
-		Environment env = getCurrentEnvt();
-		setCurrentEnvt(env.getParent());
 		return env;
 	}
 
@@ -887,12 +873,13 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 		if (func.getType() == Lambda.getClosureType()) {
 			Lambda lambda = (Lambda) func.getValue();
+			Environment oldEnv = getCurrentEnvt();
 			Environment newEnv = pushCallFrame(lambda.getEnv(), x.getLocation(), lambda.getName()); 
 			try {
 				return lambda.call(actuals, actualTypes, getCurrentEnvt());
 			}
 			finally {
-				popUntil(newEnv);
+				setCurrentEnvt(oldEnv);
 			}
 		}
 
@@ -1286,6 +1273,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 					res = c.getBody().accept(this);
 					break;
 				} 
+				Environment oldEnv = getCurrentEnvt();
 				Environment newEnv = pushEnv();
 				try {
 					if(matchAndEval(eValue, c.getPattern(), c.getBody())){
@@ -1293,7 +1281,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 					}
 				} 
 				finally {
-					popUntil(newEnv);
+					setCurrentEnvt(oldEnv);
 				}
 			}
 		}
@@ -1325,6 +1313,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	@Override
 	public Result<IValue> visitStatementBlock(Block x) {
 		Result<IValue> r = nothing();
+		Environment oldEnv = getCurrentEnvt();
 		Environment newEnv = pushEnv(x);
 		try {
 			for (Statement stat : x.getStatements()) {
@@ -1334,7 +1323,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			}
 		}
 		finally {
-			popUntil(newEnv);
+			setCurrentEnvt(oldEnv);
 		}
 		return r;
 	}
@@ -1490,6 +1479,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	public Result<IValue> visitStatementIfThenElse(IfThenElse x) {
 		elseBranch: 
 			do {
+				Environment oldEnv = getCurrentEnvt();
 				Environment newEnv = pushEnv(x); // For the benefit of variables bound in the condition
 				try {
 					for (org.meta_environment.rascal.ast.Expression expr : x.getConditions()) {
@@ -1505,7 +1495,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 					}
 					return x.getThenStatement().accept(this);
 				} finally {
-					popUntil(newEnv);	// Remove any bindings due to condition evaluation.
+					setCurrentEnvt(oldEnv);	// Remove any bindings due to condition evaluation.
 				}
 			} 
 			while (false);
@@ -1516,6 +1506,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 	@Override
 	public Result<IValue> visitStatementIfThen(IfThen x) {
+		Environment oldEnv = getCurrentEnvt();
 		Environment newEnv = pushEnv(x); // For the benefit of variables bound in the condition
 		try {
 			for (org.meta_environment.rascal.ast.Expression expr : x.getConditions()) {
@@ -1530,7 +1521,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			return x.getThenStatement().accept(this);
 		}
 		finally {
-			popUntil(newEnv);
+			setCurrentEnvt(oldEnv);
 		}
 	}
 
@@ -1540,6 +1531,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		Result<IValue> statVal = nothing();
 
 		do {
+			Environment oldEnv = getCurrentEnvt();
 			Environment newEnv = pushEnv(x);
 			try {
 				Result<IValue> cval = expr.accept(this);
@@ -1553,7 +1545,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				suspend();
 			}
 			finally {
-				popUntil(newEnv);
+				setCurrentEnvt(oldEnv);
 			}
 		} while (true);
 	}
@@ -1561,6 +1553,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	@Override
 	public Result<IValue> visitStatementDoWhile(DoWhile x) {
 		org.meta_environment.rascal.ast.Expression expr = x.getCondition();
+		Environment oldEnv = getCurrentEnvt();
 		Environment newEnv = pushEnv(x);
 		try {
 			do {
@@ -1577,7 +1570,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			} while (true);
 		}
 		finally {
-			popUntil(newEnv);
+			setCurrentEnvt(oldEnv);
 		}
 	}
 
@@ -1589,9 +1582,10 @@ public class Evaluator extends NullASTVisitor<Result> {
 	@Override
 	public Result<IValue> visitExpressionNoMatch(NoMatch x) {
 		// Make sure that no bindings escape
+		Environment oldEnv = getCurrentEnvt();
 		Environment newEnv = pushEnv();
 		Result res =  new MatchEvaluator(x.getPattern(), x.getExpression(), false, newEnv, this).next();
-		popUntil(newEnv);
+		setCurrentEnvt(oldEnv);
 		return res;
 	}
 
@@ -1983,6 +1977,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	}
 
 	private boolean matchAndEval(IValue subject, org.meta_environment.rascal.ast.Expression pat, Statement stat){
+		Environment oldEnv = getCurrentEnvt();
 		Environment newEnv = pushEnv(stat); 	// Create a separate scope for match and statement
 		try {
 			MatchPattern mp = evalPattern(pat);
@@ -2012,7 +2007,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 				}
 			}
 		} finally {
-			popUntil(newEnv);
+			setCurrentEnvt(oldEnv);
 		}
 		return false;
 	}
@@ -2021,7 +2016,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			org.meta_environment.rascal.ast.Expression pat, 
 			java.util.List<Expression> conditions,
 			Expression replacementExpr){
-
+		Environment oldEnv = getCurrentEnvt();
 		Environment newEnv = pushEnv();	// create separate scope for match and statement  
 		try {
 			MatchPattern mp = evalPattern(pat);
@@ -2052,7 +2047,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			}
 		} finally {
 			//System.err.println("matchEvalAndReplace.finally");
-			popUntil(newEnv);
+			setCurrentEnvt(oldEnv);
 		}
 		return false;
 	}
@@ -2238,6 +2233,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 			Expression patexp = rule.getPattern();
 			MatchPattern mp = evalPattern(patexp);
 			mp.initMatch(subject, getCurrentEnvt());
+			Environment oldEnv = getCurrentEnvt();
 			Environment newEnv = pushEnv(); // a separate scope for match and statement/replacement
 			try {
 				while(mp.hasNext()){
@@ -2278,7 +2274,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 					}
 				}
 			} finally {
-				popUntil(newEnv);
+				setCurrentEnvt(oldEnv);
 			}
 		} else {
 			/*
@@ -2519,7 +2515,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 			for(RewriteRule rule : casesOrRules.getRules()){
 				setCurrentAST(rule.getRule());
-
+				Environment oldEnv = getCurrentEnvt();
 				setCurrentEnvt(rule.getEnvironment());
 				try {
 					TraverseResult tr = applyOneRule(subject, rule.getRule());
@@ -2528,7 +2524,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 					}
 				}
 				finally {
-					popUntil(rule.getEnvironment());
+					setCurrentEnvt(oldEnv);
 				}
 			}
 		}
@@ -2756,13 +2752,15 @@ public class Evaluator extends NullASTVisitor<Result> {
 
 	@Override
 	public Result<IValue> visitExpressionComprehension(Comprehension x) {
+		Environment oldEnv = getCurrentEnvt();
 		Environment newEnv = pushEnv();	// TODO not necessary?
 		try {
 			return x.getComprehension().accept(this);	
 		}
 		finally {
-			popUntil(newEnv);
+			setCurrentEnvt(oldEnv);
 		}
+
 	}
 
 	@Override
