@@ -27,11 +27,11 @@ import sglr.SGLRInvoker;
 public class ModuleParser {
 	private final IValueFactory valueFactory = ValueFactoryFactory.getValueFactory();
 	private final SdfImportExtractor importExtractor = new SdfImportExtractor();
-	
+
 	public Set<String> getSdfImports(List<String> sdfSearchPath, String fileName, InputStream source) throws IOException {
 		try {
 			IConstructor tree= parseFromStream(Configuration.getHeaderParsetableProperty(), fileName, source);
-			
+
 			if (tree.getConstructorType() == Factory.ParseTree_Summary) {
 				throw new SyntaxError(fileName, new SummaryAdapter(tree).getInitialSubject().getLocation());
 			}
@@ -41,7 +41,13 @@ public class ModuleParser {
 			throw new ImplementationError("unexpected error: " + p.getMessage());
 		}
 	}
-	
+
+	public IConstructor parseCommand(Set<String> sdfImports, List<String> sdfSearchPath, String fileName, String command) throws IOException {
+		String table = getOrConstructParseTable(sdfImports, sdfSearchPath);
+		return parseFromString(table, fileName, command);
+	}
+
+
 	public IConstructor parseModule(List<String> sdfSearchPath, Set<String> sdfImports, String fileName, InputStream source) throws IOException {
 		String table = getOrConstructParseTable(sdfImports, sdfSearchPath);
 		try {
@@ -50,7 +56,7 @@ public class ModuleParser {
 			throw new ImplementationError("parse tree format error", e);
 		} 
 	}
-	
+
 	protected String getOrConstructParseTable(Set<String> sdfImports, List<String> sdfSearchPath) throws IOException {
 		if (sdfImports.isEmpty()) {
 			return Configuration.getDefaultParsetableProperty();
@@ -64,27 +70,27 @@ public class ModuleParser {
 
 		return table;
 	}
-	
+
 	private IConstructor parseFromStream(String table, String fileName, InputStream source) throws FactParseError, IOException {
 		SGLRInvoker sglrInvoker = SGLRInvoker.getInstance();
 		byte[] result = sglrInvoker.parseFromStream(source, table);
-		
+
 		ATermReader reader = new ATermReader();
 		ByteArrayInputStream bais = new ByteArrayInputStream(result);
 		IConstructor tree = (IConstructor) reader.read(valueFactory,  Factory.getStore(),Factory.ParseTree, bais);
 		return new ParsetreeAdapter(tree).addPositionInformation(fileName);
 	}
-	
+
 	protected IConstructor parseFromString(String table, String fileName, String source) throws FactParseError, IOException {
 		SGLRInvoker sglrInvoker = SGLRInvoker.getInstance();
 		byte[] result = sglrInvoker.parseFromString(source, table);
-		
+
 		ATermReader reader = new ATermReader();
 		ByteArrayInputStream bais = new ByteArrayInputStream(result);
 		IConstructor tree = (IConstructor) reader.read(valueFactory,  Factory.getStore(),Factory.ParseTree, bais);
 		return new ParsetreeAdapter(tree).addPositionInformation(fileName);
 	}
-	
+
 	private String constructUserDefinedSyntaxTable(Set<String> sdfImports, List<String> sdfSearchPath) throws IOException {
 		String tablefileName = getTableLocation(sdfImports, sdfSearchPath);
 
@@ -134,7 +140,7 @@ public class ModuleParser {
 		List<String> sorted = new ArrayList<String>(sdfImports);
 		Collections.sort(sorted);
 		InputStream in = null;
-		
+
 		try {
 			Process p = Runtime.getRuntime().exec(new String[] {  
 					Configuration.getRascal2TableCommandProperty(),
@@ -143,13 +149,13 @@ public class ModuleParser {
 					"-p", joinAsPath(sdfSearchPath)
 			}, new String[0], new File(Configuration.getRascal2TableBinDirProperty()));
 			p.waitFor();
-			
+
 			if (p.exitValue() != 0) {
 				throw new ImplementationError("Could not collect syntax for some reason");
 			}
-			
+
 			in = p.getInputStream();
-			
+
 			byte[] result = new byte[32];
 			in.read(result);
 

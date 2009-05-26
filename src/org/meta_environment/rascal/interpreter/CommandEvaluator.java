@@ -116,16 +116,16 @@ public class CommandEvaluator extends Evaluator {
 			if (!heap.existsModule(parseTreeModName)) {
 				evalModule(x, parseTreeModName);
 			}
-			scopeStack.peek().addImport(parseTreeModName, heap.getModule(parseTreeModName, x));
+			currentModuleEnvt.addImport(parseTreeModName, heap.getModule(parseTreeModName, x));
 			return ResultFactory.nothing(); 
 		}
 		else {
-			if (importResetsInterpreter && scopeStack.size() == 1 && currentEnvt.getParent() == null) {
+			if (importResetsInterpreter && currentModuleEnvt.getParent() ==null && currentEnvt.getParent() == null) {
 				reloadAll(x);
 			}
 		}
 
-		scopeStack.peek().addImport(name, heap.getModule(name, x));
+		currentModuleEnvt.addImport(name, heap.getModule(name, x));
 		return ResultFactory.nothing();
 	}
 
