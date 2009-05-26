@@ -197,11 +197,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	final TypeFactory tf = TypeFactory.getInstance();
 	private final TypeEvaluator te = TypeEvaluator.getInstance();
 	protected Environment currentEnvt;
-	private ModuleEnvironment currentModuleEnvt;
+	protected ModuleEnvironment currentModuleEnvt;
 
 	protected final GlobalEnvironment heap;
-	protected final java.util.Stack<ModuleEnvironment> scopeStack;
-
 
 	private final JavaBridge javaBridge;
 	//	private final boolean LAZY = false;
@@ -240,8 +238,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		currentModuleEnvt = scope;
 		this.classLoaders = new LinkedList<ClassLoader>();
 		this.javaBridge = new JavaBridge(errorWriter, classLoaders);
-		this.scopeStack = new Stack<ModuleEnvironment>();
-		this.scopeStack.push(scope);
 
 		loader = new ModuleLoader(parser);
 		
@@ -3202,7 +3198,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	}
 
 	public void suspend() {
-		if(debugger!=null && debugger.isStepping()) {
+		if(debugger!=null && 
+				(debugger.isStepping() || debugger.hasBreakpoint(getCurrentAST().getLocation()))) {
 			debugger.notifySuspend();
 		}		
 	}
@@ -3232,6 +3229,14 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 	public void setCurrentEnvt(Environment env) {
 		currentEnvt = env;
+	}
+
+	public ModuleEnvironment getCurrentModuleEnvt() {
+		return currentModuleEnvt;
+	}
+
+	public void setCurrentModuleEnvt(ModuleEnvironment env) {
+		currentModuleEnvt = env;
 	}
 
 }
