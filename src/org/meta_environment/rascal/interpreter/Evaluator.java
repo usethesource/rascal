@@ -219,7 +219,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	protected final ModuleLoader loader;
 
 	private java.util.List<ClassLoader> classLoaders;
-	private IDebugger debugger;
 
 	public Evaluator(IValueFactory f, ASTFactory astFactory, Writer errorWriter, ModuleEnvironment scope) {
 		this(f, astFactory, errorWriter, scope, new GlobalEnvironment());
@@ -1344,7 +1343,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			for (Statement stat : x.getStatements()) {
 				setCurrentAST(stat);
 				r = stat.accept(this);
-				suspend();
 			}
 		}
 		finally {
@@ -1567,7 +1565,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 					return statVal;
 				}
 				statVal = x.getBody().accept(this);
-				suspend();
 			}
 			finally {
 				setCurrentEnvt(oldEnv);
@@ -1584,7 +1581,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			do {
 
 				Result<IValue> result = x.getBody().accept(this);
-				suspend();
 				Result<IValue> cval = expr.accept(this);
 				if (!cval.getType().isBoolType()) {
 					throw new UnexpectedTypeError(tf.boolType(),cval.getType(), x);
@@ -3193,17 +3189,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		return bodyResult;
 	}
 
-	public void setDebugger(IDebugger debugger) {
-		this.debugger = debugger;
-	}
-
-	public void suspend() {
-		if(debugger!=null && 
-				(debugger.isStepping() || debugger.hasBreakpoint(getCurrentAST().getLocation()))) {
-			debugger.notifySuspend();
-		}		
-	}
-
+	//TODO: fix it using getCaller
 	public Stack<Environment> getCallStack() {
 		Stack<Environment> stack = new Stack<Environment>();
 		Environment env = currentEnvt;

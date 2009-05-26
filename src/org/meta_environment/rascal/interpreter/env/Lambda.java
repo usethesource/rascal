@@ -171,7 +171,6 @@ public class Lambda extends Result<IValue> implements IValue {
 			for (Statement stat: body) {
 				eval.setCurrentAST(stat);
 				stat.accept(eval);
-				eval.suspend();
 			}
 			
 
