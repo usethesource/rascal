@@ -1,11 +1,9 @@
-
 package org.meta_environment.rascal.interpreter;
 
 import static org.meta_environment.rascal.interpreter.Utils.unescape;
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.nothing;
 
-import java.io.IOException;
 import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -190,20 +188,24 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnguardedInsertError
 import org.meta_environment.rascal.interpreter.staticErrors.UnguardedReturnError;
 import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedOperationError;
+import org.meta_environment.rascal.parser.ASTBuilder;
+import org.meta_environment.rascal.parser.ModuleParser;
 
 @SuppressWarnings("unchecked")
-public class Evaluator extends NullASTVisitor<Result> {
+public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	final IValueFactory vf;
 	final TypeFactory tf = TypeFactory.getInstance();
 	private final TypeEvaluator te = TypeEvaluator.getInstance();
-	private Environment currentEnvt;
+	protected Environment currentEnvt;
 	private ModuleEnvironment currentModuleEnvt;
 
-	private final GlobalEnvironment heap;
+	protected final GlobalEnvironment heap;
+	protected final java.util.Stack<ModuleEnvironment> scopeStack;
+
 
 	private final JavaBridge javaBridge;
 	//	private final boolean LAZY = false;
-	private boolean importResetsInterpreter = true;
+	protected boolean importResetsInterpreter = true;
 
 	enum DIRECTION  {BottomUp, TopDown}	// Parameters for traversing trees
 	enum FIXEDPOINT {Yes, No}
@@ -216,7 +218,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	private boolean doProfiling = false;
 
 	private TypeDeclarationEvaluator typeDeclarator = new TypeDeclarationEvaluator();
-	private ModuleLoader loader = new ModuleLoader();
+	protected final ModuleLoader loader;
 
 	private java.util.List<ClassLoader> classLoaders;
 	private IDebugger debugger;
@@ -225,14 +227,24 @@ public class Evaluator extends NullASTVisitor<Result> {
 		this(f, astFactory, errorWriter, scope, new GlobalEnvironment());
 	}
 
-	public Evaluator(IValueFactory f, ASTFactory astFactory, Writer errorWriter, ModuleEnvironment scope, GlobalEnvironment heap) {
+	public Evaluator(IValueFactory f, ASTFactory astFactory, Writer errorWriter, 
+			ModuleEnvironment scope, GlobalEnvironment heap) {
+			this(f, astFactory, errorWriter, scope, new GlobalEnvironment(), new ModuleParser());
+	}
+
+	public Evaluator(IValueFactory f, ASTFactory astFactory, Writer errorWriter,
+			ModuleEnvironment scope, GlobalEnvironment heap, ModuleParser parser) {
 		this.vf = f;
 		this.heap = heap;
 		currentEnvt = scope;
 		currentModuleEnvt = scope;
 		this.classLoaders = new LinkedList<ClassLoader>();
 		this.javaBridge = new JavaBridge(errorWriter, classLoaders);
+		this.scopeStack = new Stack<ModuleEnvironment>();
+		this.scopeStack.push(scope);
 
+		loader = new ModuleLoader(parser);
+		
 		// cwd loader
 		loader.addFileLoader(new FromCurrentWorkingDirectoryLoader());
 
@@ -257,9 +269,9 @@ public class Evaluator extends NullASTVisitor<Result> {
 	}
 
 
-	public IConstructor parseCommand(String command, String fileName) throws IOException {
-		return loader.parseCommand(command, fileName);
-	}
+//	public IConstructor parseCommand(String command, String fileName) throws IOException {
+//		return loader.parseCommand(command, fileName);
+//	}
 
 	/**
 	 * In interactive mode this flag should be set to true, such that re-importing
@@ -440,6 +452,21 @@ public class Evaluator extends NullASTVisitor<Result> {
 		return env;
 	}
 
+	void popUntil(Environment env){
+		Environment previousEnv;
+		do {
+			previousEnv = pop();	
+		} while (previousEnv != env);	
+	}
+
+	Environment pop() {
+		Environment env = getCurrentEnvt();
+		if (! env.isRoot()) {
+			setCurrentEnvt(env.getParent());
+		}
+		return env;
+	}
+
 	private void checkType(Type given, Type expected) {
 		if (expected == org.meta_environment.rascal.interpreter.env.Lambda.getClosureType()) {
 			return;
@@ -591,7 +618,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		return ResultFactory.nothing();
 	}
 
-	private Module evalModule(AbstractAST x,
+	protected Module evalModule(AbstractAST x,
 			String name) {
 		Module module = loader.loadModule(name, x);
 
@@ -607,7 +634,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 	}
 
 
-	private void reloadAll(AbstractAST cause) {
+	protected void reloadAll(AbstractAST cause) {
 		heap.clear();
 
 		java.util.Set<String> topModules = currentModuleEnvt.getImports();
@@ -654,7 +681,7 @@ public class Evaluator extends NullASTVisitor<Result> {
 		return ResultFactory.nothing();
 	}
 
-	private String getModuleName(
+	protected String getModuleName(
 			Module module) {
 		String name = module.getHeader().getName().toString();
 		if (name.startsWith("\\")) {

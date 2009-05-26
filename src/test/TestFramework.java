@@ -1,6 +1,5 @@
 package test;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -11,31 +10,29 @@ import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.Command;
 import org.meta_environment.rascal.ast.Module;
-import org.meta_environment.rascal.interpreter.Evaluator;
+import org.meta_environment.rascal.interpreter.CommandEvaluator;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.load.FromResourceLoader;
-import org.meta_environment.rascal.interpreter.load.ModuleLoader;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.uptr.Factory;
 
 
 public class TestFramework {
-	private ModuleLoader parser;
 	private ASTFactory factory = new ASTFactory();
 	private ASTBuilder builder = new ASTBuilder(factory);
-	private Evaluator evaluator;
+	private CommandEvaluator evaluator;
 
 	public TestFramework() {
 		reset();
 	}
 
-	protected Evaluator getTestEvaluator() {
+	protected CommandEvaluator getTestEvaluator() {
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment(
 				"***test***"));
-		Evaluator eval = new Evaluator(ValueFactoryFactory.getValueFactory(),
+		CommandEvaluator eval = new CommandEvaluator(ValueFactoryFactory.getValueFactory(),
 				factory, new PrintWriter(System.err), root, heap);
 
 		// to load modules from benchmarks and demo's
@@ -46,7 +43,6 @@ public class TestFramework {
 
 		eval.setImportResetsInterpreter(false);
 		
-		parser = eval.getModuleLoader();
 		return eval;
 	}
 
@@ -117,7 +113,7 @@ public class TestFramework {
 
 	public boolean prepareModule(String module) throws FactTypeUseException {
 		try {
-			IConstructor tree = parser.parseModule("-", "-", module);
+			IConstructor tree = evaluator.parseModule(module);
 			if (tree.getType() == Factory.ParseTree_Summary) {
 				System.err.println(tree);
 				return false;
@@ -134,7 +130,7 @@ public class TestFramework {
 	}
 
 	private boolean execute(String command) throws IOException {
-		IConstructor tree = evaluator.parseCommand(command, "-");
+		IConstructor tree = evaluator.parseCommand(command);
 
 		if (tree.getConstructorType() == Factory.ParseTree_Summary) {
 			System.err.println(tree);
@@ -143,7 +139,7 @@ public class TestFramework {
 		
 		Command cmd = builder.buildCommand(tree);
 		if (cmd.isStatement()) {
-			IValue value = evaluator.eval(cmd.getStatement()).getValue();
+			IValue value = evaluator.eval(cmd).getValue();
 			if (value == null || !value.getType().isBoolType())
 				return false;
 			return value.isEqual(ValueFactoryFactory.getValueFactory()

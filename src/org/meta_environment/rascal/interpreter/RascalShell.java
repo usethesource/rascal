@@ -24,7 +24,6 @@ import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
 import org.meta_environment.rascal.parser.ASTBuilder;
-import org.meta_environment.rascal.parser.ModuleParser;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.TreeAdapter;
 
@@ -37,7 +36,7 @@ public class RascalShell {
 	private final ASTFactory factory = new ASTFactory();
 	private final ASTBuilder builder = new ASTBuilder(factory);
 	private final ConsoleReader console;
-	private final Evaluator evaluator;
+	private final CommandEvaluator evaluator;
 	
 	
 	// TODO: cleanup these constructors.
@@ -45,7 +44,8 @@ public class RascalShell {
 		console = new ConsoleReader();
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment(SHELL_MODULE));
-		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), factory, new PrintWriter(System.err), root, heap);
+		evaluator = new CommandEvaluator(ValueFactoryFactory.getValueFactory(), 
+				factory, new PrintWriter(System.err), root, heap, console);
 	}
 	
 
@@ -53,7 +53,8 @@ public class RascalShell {
 		console = new ConsoleReader(inputStream, out);
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment(SHELL_MODULE));
-		evaluator = new Evaluator(ValueFactoryFactory.getValueFactory(), factory, out, root, heap);
+		evaluator = new CommandEvaluator(ValueFactoryFactory.getValueFactory(), factory, 
+				out, root, heap, console);
 	}
 
 	public void setInputStream(InputStream in) {
@@ -61,8 +62,6 @@ public class RascalShell {
 	}
 	
 	public void run() throws IOException {
-		CommandEvaluator commander = new CommandEvaluator(evaluator, console);
-		
 		StringBuffer input = new StringBuffer();
 		String line;
 		
@@ -87,7 +86,7 @@ public class RascalShell {
 					prompt = CONTINUE_PROMPT;
 				} while (!completeStatement(input));
 
-				String output = handleInput(commander, input);
+				String output = handleInput(evaluator, input);
 				if(output.length() > MAX_CONSOLE_LINE) {
 					output = output.substring(0, MAX_CONSOLE_LINE) + " ...";
 				}
@@ -132,7 +131,7 @@ public class RascalShell {
 
 	private String handleInput(final CommandEvaluator command, StringBuffer statement) throws IOException {
 		StringBuilder result = new StringBuilder();
-		IConstructor tree = evaluator.parseCommand(statement.toString(), "-");
+		IConstructor tree = evaluator.parseCommand(statement.toString());
 
 		if (tree.getConstructorType() == Factory.ParseTree_Summary) {
 			SubjectAdapter s = new SummaryAdapter(tree).getInitialSubject();
@@ -167,7 +166,7 @@ public class RascalShell {
 
 	private boolean completeStatement(StringBuffer statement) throws FactTypeUseException, IOException {
 		String command = statement.toString();
-		IConstructor tree = evaluator.parseCommand(command, "-");
+		IConstructor tree = evaluator.parseCommand(command);
 
 		if (tree.getConstructorType() == Factory.ParseTree_Summary) {
 			SubjectAdapter subject = new SummaryAdapter(tree).getInitialSubject();
