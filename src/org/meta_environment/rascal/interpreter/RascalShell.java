@@ -28,8 +28,8 @@ import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.TreeAdapter;
 
 public class RascalShell {
-	private final static String PROMPT = ">";
-	private final static String CONTINUE_PROMPT = "?";
+	private final static String PROMPT = "rascal>";
+	private final static String CONTINUE_PROMPT = ">>>>>>>";
 	private final static int MAX_CONSOLE_LINE = 100;
 	private static final String SHELL_MODULE = "***shell***";
 	
@@ -95,11 +95,11 @@ public class RascalShell {
 			}
 			catch (StaticError e) {
 				console.printString("Static Error: " + e.getMessage() + "\n");
-				printStacktrace(console, e);
+//				printStacktrace(console, e);
 			}
 			catch (Throw e) {
 				console.printString("Uncaught Rascal Exception: " + e.getMessage() + "\n");
-				printStacktrace(console, e);
+				console.printString(e.getTrace());
 			}
 			catch (ImplementationError e) {
 				e.printStackTrace();
@@ -146,8 +146,8 @@ public class RascalShell {
 			
 			Result<IValue> value = command.eval(stat);
 			
-			if (value == null) {
-				return "done.";
+			if (value.getValue() == null) {
+				return "ok";
 			}
 			
 			IValue v = value.getValue();
@@ -156,6 +156,7 @@ public class RascalShell {
 			if (type.isAbstractDataType() && type == Factory.Tree) {
 				return "[|" + new TreeAdapter((IConstructor) v).yield() + "|]\n\t" + v.toString();
 			}
+			
 			return type + ": " + ((v != null) ? v.toString() : null);
 		}
 		
