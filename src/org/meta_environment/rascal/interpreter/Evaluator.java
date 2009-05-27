@@ -191,6 +191,8 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedOperation
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.ModuleParser;
 
+import com.sun.tools.javac.comp.Env;
+
 @SuppressWarnings("unchecked")
 public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	final IValueFactory vf;
@@ -226,7 +228,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 	public Evaluator(IValueFactory f, ASTFactory astFactory, Writer errorWriter, 
 			ModuleEnvironment scope, GlobalEnvironment heap) {
-			this(f, astFactory, errorWriter, scope, new GlobalEnvironment(), new ModuleParser());
+		this(f, astFactory, errorWriter, scope, new GlobalEnvironment(), new ModuleParser());
 	}
 
 	public Evaluator(IValueFactory f, ASTFactory astFactory, Writer errorWriter,
@@ -239,7 +241,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		this.javaBridge = new JavaBridge(errorWriter, classLoaders);
 
 		loader = new ModuleLoader(parser);
-		
+
 		// cwd loader
 		loader.addFileLoader(new FromCurrentWorkingDirectoryLoader());
 
@@ -264,9 +266,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	}
 
 
-//	public IConstructor parseCommand(String command, String fileName) throws IOException {
-//		return loader.parseCommand(command, fileName);
-//	}
+	//	public IConstructor parseCommand(String command, String fileName) throws IOException {
+	//		return loader.parseCommand(command, fileName);
+	//	}
 
 	/**
 	 * In interactive mode this flag should be set to true, such that re-importing
@@ -447,21 +449,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		return env;
 	}
 
-	void popUntil(Environment env){
-		Environment previousEnv;
-		do {
-			previousEnv = pop();	
-		} while (previousEnv != env);	
-	}
-
-	Environment pop() {
-		Environment env = getCurrentEnvt();
-		if (! env.isRoot()) {
-			setCurrentEnvt(env.getParent());
-		}
-		return env;
-	}
-
 	private void checkType(Type given, Type expected) {
 		if (expected == org.meta_environment.rascal.interpreter.env.Lambda.getClosureType()) {
 			return;
@@ -568,8 +555,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		return false;
 	}
 
-	
-	
+
+
 	// Ambiguity ...................................................
 
 	@Override
@@ -966,7 +953,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 
 	private Environment pushCallFrame(Environment env, ISourceLocation loc, String name) {
-		Environment newEnv = new Environment(env, loc, name);
+		//create a new Environment with a defined caller scope and location
+		Environment newEnv = new Environment(env, getCurrentEnvt(), getCurrentAST().getLocation(), loc, name);
 		setCurrentEnvt(newEnv);
 		return newEnv;
 	}
@@ -3189,13 +3177,22 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		return bodyResult;
 	}
 
-	//TODO: fix it using getCaller
 	public Stack<Environment> getCallStack() {
 		Stack<Environment> stack = new Stack<Environment>();
+		stack.add(0, currentEnvt);
 		Environment env = currentEnvt;
 		while (env != null) {
-			stack.add(0, env);
-			env = env.getParent();
+			Environment caller = env.getCaller();
+			while (caller == null && env != null) {
+				env = env.getParent();
+				if (env != null) {
+					caller = env.getCaller();
+				}
+			}
+			if (caller != null) {
+				stack.add(0, caller);
+				env = caller;
+			}
 		}
 		return stack;
 	}

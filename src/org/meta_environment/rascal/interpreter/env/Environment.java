@@ -29,24 +29,34 @@ public class Environment {
 	protected final Map<String, Result<IValue>> variableEnvironment;
 	protected final Map<String, List<Lambda>> functionEnvironment;
 	protected final Map<Type, Type> typeParameters;
-	protected final Environment parent;
+	protected Environment parent;
+	protected Environment callerScope;
+	protected ISourceLocation callerLocation; // different from the scope location (more precise)
 	protected Cache cache = null;
 	protected final ISourceLocation loc;
 	protected final String name;
 
 	public Environment(Environment parent) {
-		this(parent, parent.getCache());
+		this(parent, null, null, parent.getCache());
 	}
 
 	public Environment(Environment parent, ISourceLocation loc, String name) {
-		this(parent, parent.getCache(), loc, name);
+		this(parent, null, null, parent.getCache(), loc, name);
 	}
 
-	protected Environment(Environment parent, Cache cache) {
-		this(parent, cache, null, null);
+	public Environment(Environment parent, Environment callerScope, ISourceLocation callerLocation) {
+		this(parent, callerScope, callerLocation, parent.getCache());
 	}
 
-	protected Environment(Environment parent, Cache cache, ISourceLocation loc, String name) {
+	public Environment(Environment parent, Environment callerScope, ISourceLocation callerLocation, ISourceLocation loc, String name) {
+		this(parent, callerScope, callerLocation, parent.getCache(), loc, name);
+	}
+
+	protected Environment(Environment parent, Environment callerScope, ISourceLocation callerLocation, Cache cache) {
+		this(parent, callerScope, callerLocation, cache, null, null);
+	}
+
+	protected Environment(Environment parent, Environment callerScope, ISourceLocation callerLocation, Cache cache, ISourceLocation loc, String name) {
 		this.variableEnvironment = new HashMap<String, Result<IValue>>();
 		this.functionEnvironment = new HashMap<String, List<Lambda>>();
 		this.typeParameters = new HashMap<Type, Type>();
@@ -54,11 +64,13 @@ public class Environment {
 		this.cache = cache;
 		this.loc = loc;
 		this.name = name;
+		this.callerScope = callerScope;
+		this.callerLocation = callerLocation;
 		if (parent == this) {
 			throw new ImplementationError("internal error: cyclic environment");
 		}
 	}
-	
+
 	/**
 	 * @return the name of this environment/stack frame for use in tracing
 	 */
@@ -262,7 +274,7 @@ public class Environment {
 		return t;
 	}
 
-	
+
 
 	public void storeParameterType(Type par, Type type) {
 		typeParameters.put(par, type);
@@ -538,7 +550,7 @@ public class Environment {
 	public TypeStore getStore() {
 		return getRoot().getStore();
 	}
-	
+
 	public Map<String, Result<IValue>> getVariables() {
 		Map<String, Result<IValue>> vars = new HashMap<String, Result<IValue>>();
 		if (parent != null) {
@@ -559,6 +571,14 @@ public class Environment {
 
 	public Environment getParent() {
 		return parent;
+	}
+
+	public Environment getCaller() {
+		return callerScope;
+	}
+
+	public ISourceLocation getCallerLocation() {
+		return callerLocation;
 	}
 
 }
