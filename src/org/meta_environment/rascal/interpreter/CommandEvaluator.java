@@ -17,6 +17,7 @@ import org.meta_environment.rascal.ast.Command;
 import org.meta_environment.rascal.ast.Command.Declaration;
 import org.meta_environment.rascal.ast.Command.Import;
 import org.meta_environment.rascal.ast.Command.Shell;
+import org.meta_environment.rascal.ast.Import.Default;
 import org.meta_environment.rascal.ast.ShellCommand.Edit;
 import org.meta_environment.rascal.ast.ShellCommand.History;
 import org.meta_environment.rascal.ast.ShellCommand.Quit;
@@ -98,38 +99,11 @@ public class CommandEvaluator extends Evaluator {
 	}
 	
 	@Override
-	public Result<IValue> visitImportDefault(
-			org.meta_environment.rascal.ast.Import.Default x) {
-		// TODO support for full complexity of import declarations
-		// TODO: refactor to have less duplication with Evaluator
-		String name = x.getModule().getName().toString();
-		if (name.startsWith("\\")) {
-			name = name.substring(1);
-		}
-
-		if (!heap.existsModule(name) && !loader.isSdfModule(name)) {
-			evalModule(x, name);
-		}
-		else if (loader.isSdfModule(name)) {
-			parser.addSdfImportForImportDefault(x);
-			String parseTreeModName = "ParseTree";
-			if (!heap.existsModule(parseTreeModName)) {
-				evalModule(x, parseTreeModName);
-			}
-			currentModuleEnvt.addImport(parseTreeModName, heap.getModule(parseTreeModName, x));
-			return ResultFactory.nothing(); 
-		}
-		else {
-			if (importResetsInterpreter && currentModuleEnvt.getParent() ==null && currentEnvt.getParent() == null) {
-				reloadAll(x);
-			}
-		}
-
-		currentModuleEnvt.addImport(name, heap.getModule(name, x));
-		return ResultFactory.nothing();
+	protected void handleSDFModule(Default x) {
+		parser.addSdfImportForImportDefault(x);
+		super.handleSDFModule(x);
 	}
-
-
+	
 	public IConstructor parseModule(String module) throws IOException {
 		return loader.parseModule("-", "-", module);
 	}
