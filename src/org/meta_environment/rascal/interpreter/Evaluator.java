@@ -196,7 +196,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	final TypeFactory tf = TypeFactory.getInstance();
 	private final TypeEvaluator te = TypeEvaluator.getInstance();
 	protected Environment currentEnvt;
-	protected ModuleEnvironment currentModuleEnvt;
 
 	protected final GlobalEnvironment heap;
 
@@ -218,6 +217,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	protected final ModuleLoader loader;
 
 	private java.util.List<ClassLoader> classLoaders;
+	private ModuleEnvironment rootScope;
 
 	public Evaluator(IValueFactory f, ASTFactory astFactory, Writer errorWriter, ModuleEnvironment scope) {
 		this(f, astFactory, errorWriter, scope, new GlobalEnvironment());
@@ -233,7 +233,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		this.vf = f;
 		this.heap = heap;
 		currentEnvt = scope;
-		currentModuleEnvt = scope;
+		rootScope = scope;
 		this.classLoaders = new LinkedList<ClassLoader>();
 		this.javaBridge = new JavaBridge(errorWriter, classLoaders);
 
@@ -573,33 +573,75 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	public Result<IValue> visitImportDefault(
 			org.meta_environment.rascal.ast.Import.Default x) {
 		// TODO support for full complexity of import declarations
-		String name = x.getModule().getName().toString();
-		if (name.startsWith("\\")) {
-			name = name.substring(1);
+		String name = getUnescapedModuleName(x);
+		
+		// TODO: this logic cannot be understood...
+		// handleSDFModule only loads the ParseTree module,
+		// yet the SDF module *will* have been loaded
+		
+		if (isSDFModule(name)) {
+			handleSDFModule(x);
+			return nothing();
 		}
-
-		if (!heap.existsModule(name) && !loader.isSdfModule(name)) {
-			evalModule(x, name);
-		}
-		else if (loader.isSdfModule(name)) {
-			String parseTreeModName = "ParseTree";
-			if (!heap.existsModule(parseTreeModName)) {
-				evalModule(x, parseTreeModName);
-			}
-			currentModuleEnvt.addImport(parseTreeModName, heap.getModule(parseTreeModName, x));
-			return ResultFactory.nothing(); 
+		
+		if (isNonExistingRascalModule(name)) {
+			evalRascalModule(x, name);
 		}
 		else {
-			if (importResetsInterpreter && currentModuleEnvt.getParent() == null && currentEnvt.getParent() == null) {
-				reloadAll(x);
-			}
+			reloadAllIfNeeded(x);
 		}
-
-		currentModuleEnvt.addImport(name, heap.getModule(name, x));
-		return ResultFactory.nothing();
+		addImportToCurrentModule(x, name);
+		return nothing();
 	}
 
-	protected Module evalModule(AbstractAST x,
+	protected void handleSDFModule(
+			org.meta_environment.rascal.ast.Import.Default x) {
+		loadParseTreeModule(x);
+	}
+
+	private void addImportToCurrentModule(
+			org.meta_environment.rascal.ast.Import.Default x, String name) {
+		getCurrentModuleEnvironment().addImport(name, heap.getModule(name, x));
+	}
+
+	private ModuleEnvironment getCurrentModuleEnvironment() {
+		if (!(currentEnvt instanceof ModuleEnvironment)) {
+			throw new ImplementationError("Current env should be a module environment");
+		}
+		return ((ModuleEnvironment) currentEnvt);
+	}
+
+	private boolean reloadNeeded() {
+		return importResetsInterpreter && currentEnvt == rootScope;
+	}
+
+	private String getUnescapedModuleName(
+			org.meta_environment.rascal.ast.Import.Default x) {
+		String name = x.getModule().getName().toString();
+		if (name.startsWith("\\")) {
+			return name.substring(1);
+		}
+		return name;
+	}
+
+	private void loadParseTreeModule(
+			org.meta_environment.rascal.ast.Import.Default x) {
+		String parseTreeModName = "ParseTree";
+		if (!heap.existsModule(parseTreeModName)) {
+			evalRascalModule(x, parseTreeModName);
+		}
+		addImportToCurrentModule(x, parseTreeModName);
+	}
+
+	private boolean isSDFModule(String name) {
+		return loader.isSdfModule(name);
+	}
+
+	private boolean isNonExistingRascalModule(String name) {
+		return !heap.existsModule(name) && !isSDFModule(name);
+	}
+
+	protected Module evalRascalModule(AbstractAST x,
 			String name) {
 		Module module = loader.loadModule(name, x);
 
@@ -615,14 +657,17 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	}
 
 
-	protected void reloadAll(AbstractAST cause) {
+	protected void reloadAllIfNeeded(AbstractAST cause) {
+		if (!reloadNeeded()) {
+			return;
+		}
 		heap.clear();
 
-		java.util.Set<String> topModules = currentModuleEnvt.getImports();
+		java.util.Set<String> topModules = getCurrentModuleEnvironment().getImports();
 		for (String mod : topModules) {
-			Module module = evalModule(cause, mod);
+			Module module = evalRascalModule(cause, mod);
 			if (module != null) {
-				currentModuleEnvt.addImport(mod, heap.getModule(mod, cause));
+				getCurrentModuleEnvironment().addImport(mod, heap.getModule(mod, cause));
 			}
 		}
 	}
@@ -636,11 +681,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		String name = getModuleName(x);
 
 		if (!heap.existsModule(name)) {
-			ModuleEnvironment env = new ModuleEnvironment(name, currentModuleEnvt);
-			ModuleEnvironment oldModuleEnv = currentModuleEnvt;
+			ModuleEnvironment env = new ModuleEnvironment(name);
 			Environment oldEnv = getCurrentEnvt();
 			setCurrentEnvt(env); // such that declarations end up in the module scope
-			currentModuleEnvt = env;
 			try {
 				x.getHeader().accept(this);
 
@@ -655,7 +698,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 				heap.addModule(env);
 			}
 			finally {
-				currentModuleEnvt = oldModuleEnv;
 				setCurrentEnvt(oldEnv);
 			}
 		}
@@ -723,7 +765,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 	@Override
 	public Result<IValue> visitDeclarationVariable(Variable x) {
-		Type declaredType = te.eval(x.getType(), currentModuleEnvt);
+		Type declaredType = te.eval(x.getType(), getCurrentModuleEnvironment());
 		Result<IValue> r = nothing();
 
 		for (org.meta_environment.rascal.ast.Variable var : x.getVariables()) {
@@ -741,7 +783,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 				declaredType.match(v.getType(), bindings);
 				declaredType = declaredType.instantiate(getCurrentEnvt().getStore(), bindings);
 				r = makeResult(declaredType, v.getValue(), new EvaluatorContext(this, getCurrentAST()));
-				currentModuleEnvt.storeInnermostVariable(var.getName(), r);
+				getCurrentModuleEnvironment().storeInnermostVariable(var.getName(), r);
 			} else {
 				throw new UnexpectedTypeError(declaredType, v.getType(), var);
 			}
@@ -752,11 +794,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 	@Override
 	public Result<IValue> visitDeclarationAnnotation(Annotation x) {
-		Type annoType = te.eval(x.getAnnoType(), currentModuleEnvt);
+		Type annoType = te.eval(x.getAnnoType(), getCurrentModuleEnvironment());
 		String name = x.getName().toString();
 
-		Type onType = te.eval(x.getOnType(), currentModuleEnvt);
-		currentModuleEnvt.declareAnnotation(onType, name, annoType);	
+		Type onType = te.eval(x.getOnType(), getCurrentModuleEnvironment());
+		getCurrentModuleEnvironment().declareAnnotation(onType, name, annoType);	
 
 		return ResultFactory.nothing();
 	}
@@ -783,7 +825,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		Type pt = pv.getType(getCurrentEnvt());
 		if(!(pt.isAbstractDataType() || pt.isConstructorType() || pt.isNodeType()))
 			throw new UnexpectedTypeError(tf.nodeType(), pt, x);
-		heap.storeRule(pv.getType(currentModuleEnvt), x, currentModuleEnvt);
+		heap.storeRule(pv.getType(getCurrentModuleEnvironment()), x, getCurrentModuleEnvironment());
 		return ResultFactory.nothing();
 	}
 
@@ -797,7 +839,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		Type pt = pv.getType(getCurrentEnvt());
 		if(!(pt.isAbstractDataType() || pt.isConstructorType() || pt.isNodeType()))
 			throw new UnexpectedTypeError(tf.nodeType(), pt, x);
-		heap.storeRule(pv.getType(currentModuleEnvt), x, currentModuleEnvt);
+		heap.storeRule(pv.getType(getCurrentModuleEnvironment()), x, getCurrentModuleEnvironment());
 		return ResultFactory.nothing();
 	}
 
@@ -824,7 +866,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		for (org.meta_environment.rascal.ast.Variable var : x.getVariables()) {
 			String varAsString = var.getName().toString();
 			if(getCurrentEnvt().getLocalVariable(varAsString) != null ||
-					getCurrentEnvt().isRoot() && getCurrentEnvt().getInnermostVariable(var.getName()) != null){
+					getCurrentEnvt().isRootScope() && getCurrentEnvt().getInnermostVariable(var.getName()) != null){
 				throw new RedeclaredVariableError(varAsString, var);
 			}
 			if (var.isUnInitialized()) {  // variable declaration without initialization
@@ -882,7 +924,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		if (func.getType() == Lambda.getClosureType()) {
 			Lambda lambda = (Lambda) func.getValue();
 			Environment oldEnv = getCurrentEnvt();
-			Environment newEnv = pushCallFrame(lambda.getEnv(), x.getLocation(), lambda.getName()); 
+			pushCallFrame(lambda.getEnv(), x.getLocation(), lambda.getName()); 
 			try {
 				return lambda.call(actuals, actualTypes, getCurrentEnvt());
 			}
@@ -922,21 +964,22 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 	private Result<IValue> call(QualifiedName name, IValue[] actuals, Type actualTypes) {
 		String moduleName = Names.moduleName(name);
-		Environment env;
 
+		Lambda func;
 		if (moduleName == null) {
-			env = getCurrentEnvt();
+			Environment env = getCurrentEnvt();
+			func = env.getFunction(Names.name(Names.lastName(name)), actualTypes, name);
 		}
 		else {
-			env = getCurrentEnvt().getImport(moduleName);
+			ModuleEnvironment env = getCurrentEnvt().getImport(moduleName);
 			if (env == null) {
 				throw new UndeclaredModuleError(moduleName, name);
 			}
+			func = env.getLocalPublicFunction(Names.name(Names.lastName(name)), actualTypes, name);
 		}
-		Lambda func = env.getFunction(Names.name(Names.lastName(name)), actualTypes, name);
 		if (func != null) {
 			Environment oldEnv = getCurrentEnvt();
-			Environment newEnv = pushCallFrame(func.getEnv(), name.getLocation(), func.getName());
+			pushCallFrame(func.getEnv(), name.getLocation(), func.getName());
 			try {
 				return func.call(actuals, actualTypes, getCurrentEnvt());
 			}
@@ -1283,7 +1326,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 					break;
 				} 
 				Environment oldEnv = getCurrentEnvt();
-				Environment newEnv = pushEnv();
+				pushEnv();
 				try {
 					if(matchAndEval(eValue, c.getPattern(), c.getBody())){
 						break;
@@ -1323,7 +1366,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	public Result<IValue> visitStatementBlock(Block x) {
 		Result<IValue> r = nothing();
 		Environment oldEnv = getCurrentEnvt();
-		Environment newEnv = pushEnv(x);
+		pushEnv(x);
 		try {
 			for (Statement stat : x.getStatements()) {
 				setCurrentAST(stat);
@@ -1488,7 +1531,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		elseBranch: 
 			do {
 				Environment oldEnv = getCurrentEnvt();
-				Environment newEnv = pushEnv(x); // For the benefit of variables bound in the condition
+				pushEnv(x);
 				try {
 					for (org.meta_environment.rascal.ast.Expression expr : x.getConditions()) {
 						Result<IValue> cval = expr.accept(this);
@@ -1515,7 +1558,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	@Override
 	public Result<IValue> visitStatementIfThen(IfThen x) {
 		Environment oldEnv = getCurrentEnvt();
-		Environment newEnv = pushEnv(x); // For the benefit of variables bound in the condition
+		pushEnv(x);
 		try {
 			for (org.meta_environment.rascal.ast.Expression expr : x.getConditions()) {
 				Result<IValue> cval = expr.accept(this);
@@ -1540,7 +1583,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 		do {
 			Environment oldEnv = getCurrentEnvt();
-			Environment newEnv = pushEnv(x);
+			pushEnv(x);
 			try {
 				Result<IValue> cval = expr.accept(this);
 				if (!cval.getType().isBoolType()) {
@@ -1561,7 +1604,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	public Result<IValue> visitStatementDoWhile(DoWhile x) {
 		org.meta_environment.rascal.ast.Expression expr = x.getCondition();
 		Environment oldEnv = getCurrentEnvt();
-		Environment newEnv = pushEnv(x);
+		pushEnv(x);
 		try {
 			do {
 
@@ -1984,7 +2027,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 	private boolean matchAndEval(IValue subject, org.meta_environment.rascal.ast.Expression pat, Statement stat){
 		Environment oldEnv = getCurrentEnvt();
-		Environment newEnv = pushEnv(stat); 	// Create a separate scope for match and statement
+		pushEnv(stat);
 		try {
 			MatchPattern mp = evalPattern(pat);
 			mp.initMatch(subject, getCurrentEnvt());
@@ -2023,7 +2066,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			java.util.List<Expression> conditions,
 			Expression replacementExpr){
 		Environment oldEnv = getCurrentEnvt();
-		Environment newEnv = pushEnv();	// create separate scope for match and statement  
+		pushEnv();
 		try {
 			MatchPattern mp = evalPattern(pat);
 			mp.initMatch(subject, getCurrentEnvt());
@@ -2240,7 +2283,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			MatchPattern mp = evalPattern(patexp);
 			mp.initMatch(subject, getCurrentEnvt());
 			Environment oldEnv = getCurrentEnvt();
-			Environment newEnv = pushEnv(); // a separate scope for match and statement/replacement
+			pushEnv();
 			try {
 				while(mp.hasNext()){
 					if(mp.next()){
@@ -2759,7 +2802,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	@Override
 	public Result<IValue> visitExpressionComprehension(Comprehension x) {
 		Environment oldEnv = getCurrentEnvt();
-		Environment newEnv = pushEnv();	// TODO not necessary?
+		pushEnv();
 		try {
 			return x.getComprehension().accept(this);	
 		}
@@ -3210,13 +3253,4 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	public void setCurrentEnvt(Environment env) {
 		currentEnvt = env;
 	}
-
-	public ModuleEnvironment getCurrentModuleEnvt() {
-		return currentModuleEnvt;
-	}
-
-	public void setCurrentModuleEnvt(ModuleEnvironment env) {
-		currentModuleEnvt = env;
-	}
-
 }

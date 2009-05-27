@@ -122,9 +122,21 @@ public class Environment {
 		}
 	}
 
-	public boolean isRoot() {
+	public boolean isRootScope() {
 		assert this instanceof ModuleEnvironment: "roots should be instance of ModuleEnvironment";
 	return parent == null;
+	}
+	
+	public boolean isRootStackFrame() {
+		if (getCaller() != null) {
+			return false;
+		}
+		
+		if (getParent() != null) {
+			return getParent().isRootStackFrame();
+		}
+		
+		return true;
 	}
 
 	public Lambda getFunction(String name, Type actuals, AbstractAST useSite) {
@@ -138,7 +150,7 @@ public class Environment {
 			}
 		}
 
-		return isRoot() ? null : parent.getFunction(name, actuals, useSite);
+		return isRootScope() ? null : parent.getFunction(name, actuals, useSite);
 	}
 
 	/**
@@ -174,7 +186,7 @@ public class Environment {
 	public Result<IValue> getLocalVariable(QualifiedName name) {
 		if (name.getNames().size() > 1) {
 			Environment current = this;
-			while (!current.isRoot()) {
+			while (!current.isRootScope()) {
 				current = current.parent;
 			}
 
@@ -206,7 +218,7 @@ public class Environment {
 			return r;
 		}
 
-		if (isRoot() || parent.isRoot()) {
+		if (isRootScope() || parent.isRootScope()) {
 			return null;
 		}
 
@@ -223,7 +235,7 @@ public class Environment {
 		//System.err.println("getVariable: " + name);
 		if (name.getNames().size() > 1) {
 			Environment current = this;
-			while (!current.isRoot()) {
+			while (!current.isRootScope()) {
 				current = current.parent;
 			}
 
@@ -237,7 +249,7 @@ public class Environment {
 			return r;
 		}
 
-		return isRoot() ? null : parent.getVariable(name);
+		return isRootScope() ? null : parent.getVariable(name);
 	}
 
 	/**
@@ -251,12 +263,12 @@ public class Environment {
 		if (r != null) {
 			return r;
 		}
-		return isRoot() ? null : parent.getVariable(name);
+		return isRootScope() ? null : parent.getVariable(name);
 	}
 
 	public void storeVariable(QualifiedName name, Result<IValue> result) {
 		if (name.getNames().size() > 1) {
-			if (!isRoot()) {
+			if (!isRootScope()) {
 				parent.storeVariable(name, result);
 			}
 		}
@@ -269,7 +281,7 @@ public class Environment {
 	public Result<IValue> getVariable(AbstractAST ast, String name) {
 		Result<IValue> t = variableEnvironment.get(name);
 		if (t == null) {
-			return isRoot() ? null : parent.getVariable(ast, name);
+			return isRootScope() ? null : parent.getVariable(ast, name);
 		}
 		return t;
 	}
@@ -295,7 +307,7 @@ public class Environment {
 			return variableEnvironment;
 		}
 
-		return isRoot() ? null : parent.getVariableDefiningEnvironment(name);
+		return isRootScope() ? null : parent.getVariableDefiningEnvironment(name);
 	}
 
 	/**
@@ -309,7 +321,7 @@ public class Environment {
 			return variableEnvironment;
 		}
 
-		if (parent == null || parent.isRoot()) {
+		if (parent == null || parent.isRootScope()) {
 			return variableEnvironment;
 		}
 
@@ -468,7 +480,7 @@ public class Environment {
 
 	public Environment getRoot() {
 		Environment target = parent;
-		while (!target.isRoot()) {
+		while (!target.isRootScope()) {
 			target = target.parent;
 		}
 		return target;
