@@ -46,14 +46,6 @@ public class ModuleEnvironment extends Environment {
 		this.typeStore = new TypeStore();
 	}
 	
-	public ModuleEnvironment(String name, ModuleEnvironment parent) {
-		super(parent, null, null, null);
-		this.name = name;
-		this.importedModules = new HashMap<String, ModuleEnvironment>();
-		this.extensions = new HashMap<Type, List<Type>>();
-		this.typeStore = new TypeStore();
-	}
-
 	public boolean isModuleEnvironment() {
 		return true;
 	}
@@ -165,22 +157,11 @@ public class ModuleEnvironment extends Environment {
 					results.add(result);
 				}
 			}
-			
 			if (results.size() == 1) {
 				return results.get(0);
 			}
 			else if (results.size() == 0) {
-				//return null;
-				StringBuffer sign = new StringBuffer();
-				String sep = "";
-				sign.append(name).append("(");
-				for(Type t : types){
-					sign.append(sep).append(t);
-					sep = ",";
-				}
-				sign.append(")");
-				
-				throw new UndeclaredFunctionError(sign.toString(), x);
+				throw new UndeclaredFunctionError(signatureString(name, types), x);
 			}
 			else {
 				throw new AmbiguousFunctionReferenceError(name, x);
@@ -188,6 +169,18 @@ public class ModuleEnvironment extends Environment {
 		}
 		
 		return result;
+	}
+	
+	private String signatureString(String name, Type types) {
+		StringBuffer sign = new StringBuffer();
+		String sep = "";
+		sign.append(name).append("(");
+		for(Type t : types){
+			sign.append(sep).append(t);
+			sep = ",";
+		}
+		sign.append(")");
+		return sign.toString();
 	}
 	
 	public Lambda getLocalFunction(String name, Type types, AbstractAST x) {
@@ -374,4 +367,6 @@ public class ModuleEnvironment extends Environment {
 	public Type lookupFirstConstructor(String cons, Type args) {
 		return typeStore.lookupFirstConstructor(cons, args);
 	}
+
+	
 }
