@@ -156,9 +156,7 @@ public class RascalShell {
 			if (type.isAbstractDataType() && type == Factory.Tree) {
 				return "[|" + new TreeAdapter((IConstructor) v).yield() + "|]\n\t" + v.toString();
 			}
-			else {
-				return type + ": " + ((v != null) ? v.toString() : null);
-			}
+			return type + ": " + ((v != null) ? v.toString() : null);
 		}
 		
 		return result.toString();

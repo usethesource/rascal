@@ -21,6 +21,6 @@ import test.StandardLibraryTests.MapTests;
 })
 
 public class AllTests3 {
-	
+// Empty
 }
 

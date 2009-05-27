@@ -208,7 +208,7 @@ public class ListResult extends CollectionResult<IList> {
 		// Note reversed args
 		IList left = that.getValue();
 		IList right = this.getValue();
-		int compare = new Integer(left.length()).compareTo(right.length());
+		int compare = Integer.valueOf(left.length()).compareTo(Integer.valueOf(right.length()));
 		if (compare != 0) {
 			return makeIntegerResult(compare, ctx);
 		}
