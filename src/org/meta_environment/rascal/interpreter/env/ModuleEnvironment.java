@@ -45,6 +45,14 @@ public class ModuleEnvironment extends Environment {
 		this.extensions = new HashMap<Type, List<Type>>();
 		this.typeStore = new TypeStore();
 	}
+	
+	public ModuleEnvironment(String name, ModuleEnvironment parent) {
+		super(parent, null, null, null);
+		this.name = name;
+		this.importedModules = new HashMap<String, ModuleEnvironment>();
+		this.extensions = new HashMap<Type, List<Type>>();
+		this.typeStore = new TypeStore();
+	}
 
 	public boolean isModuleEnvironment() {
 		return true;

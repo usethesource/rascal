@@ -636,7 +636,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		String name = getModuleName(x);
 
 		if (!heap.existsModule(name)) {
-			ModuleEnvironment env = new ModuleEnvironment(name);
+			ModuleEnvironment env = new ModuleEnvironment(name, currentModuleEnvt);
 			ModuleEnvironment oldModuleEnv = currentModuleEnvt;
 			Environment oldEnv = getCurrentEnvt();
 			setCurrentEnvt(env); // such that declarations end up in the module scope
