@@ -122,7 +122,7 @@ public class ModuleLoader{
 		}
 		
 		try{
-			IConstructor tree = null; // tryLoadBinary(name); // <-- Don't do this if you want to generate new binaries.
+			IConstructor tree = tryLoadBinary(name); // <-- Don't do this if you want to generate new binaries.
 			if(tree == null){
 				String fileName = getFileName(name);
 				
