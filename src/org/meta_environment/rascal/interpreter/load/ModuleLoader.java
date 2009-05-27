@@ -2,12 +2,13 @@ package org.meta_environment.rascal.interpreter.load;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Collections;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -16,6 +17,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.io.PBFReader;
+import org.eclipse.imp.pdb.facts.io.PBFWriter;
 import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.errors.SubjectAdapter;
 import org.meta_environment.errors.SummaryAdapter;
@@ -31,36 +33,34 @@ import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.rascal.parser.ModuleParser;
 import org.meta_environment.uptr.Factory;
 
-public class ModuleLoader {
-	
+public class ModuleLoader{
 	protected static final ASTBuilder BUILDER = new ASTBuilder(new ASTFactory());
 	
-	private java.util.List<IModuleFileLoader> loaders = new LinkedList<IModuleFileLoader>();
-	private java.util.List<ISdfSearchPathContributor> contributors = new LinkedList<ISdfSearchPathContributor>();
+	private List<IModuleFileLoader> loaders = new ArrayList<IModuleFileLoader>();
+	private List<ISdfSearchPathContributor> contributors = new ArrayList<ISdfSearchPathContributor>();
 	private final ModuleParser parser;
 	
-	public ModuleLoader() {
+	public ModuleLoader(){
 		this(new ModuleParser());
 	}
 	
-	public ModuleLoader(ModuleParser parser) {
+	public ModuleLoader(ModuleParser parser){
 		this.parser = parser;
 	}
 
-	public void addFileLoader(IModuleFileLoader loader) {
+	public void addFileLoader(IModuleFileLoader loader){
 		loaders.add(0, loader);
 	}
 	
-	public void addSdfSearchPathContributor(ISdfSearchPathContributor contrib) {
+	public void addSdfSearchPathContributor(ISdfSearchPathContributor contrib){
 		contributors.add(0, contrib);
 	}
 	
-	private InputStream getInputStream(String name) {
-		for (IModuleFileLoader loader : loaders) {
-			try {
-				return loader.getSourceInputStream(name);
-			}
-			catch (IOException e) {
+	private InputStream getInputStream(String name){
+		for(IModuleFileLoader loader : loaders){
+			try{
+				return loader.getInputStream(name);
+			}catch(IOException ioex){
 				// this happens regularly
 			}
 		}
@@ -71,15 +71,13 @@ public class ModuleLoader {
 	private IConstructor tryLoadBinary(String name){
 		IConstructor tree = null;
 		
-		InputStream inputStream = null;
-		try {
-			inputStream = getInputStream(getBinaryFileName(name));
-			
-			if (inputStream != null) {
-				PBFReader pbfReader = new PBFReader();
-				tree = (IConstructor) pbfReader.read(ValueFactoryFactory.getValueFactory(), inputStream);
-			}
-		} catch (IOException ioex){
+		InputStream inputStream = getInputStream(getBinaryFileName(name));
+		if(inputStream == null) return null;
+		
+		PBFReader pbfReader = new PBFReader();
+		try{
+			tree = (IConstructor) pbfReader.read(ValueFactoryFactory.getValueFactory(), inputStream);
+		}catch(IOException ioex){
 			// Ignore; this is allowed.
 		}  
 		finally{
@@ -94,32 +92,56 @@ public class ModuleLoader {
 		
 		return tree;
 	}
+	
+	private void writeBinary(String name, IConstructor tree){
+		File binFile = new File(getBinaryFileName(name));
+		
+		System.out.println("Writing binary for: "+name+" > "+binFile.getAbsolutePath());
+		OutputStream outputStream = null;
+		
+		PBFWriter pbfWriter = new PBFWriter();
+		try{
+			outputStream = new FileOutputStream(binFile);
+			pbfWriter.write(tree, outputStream);
+		}catch(IOException ioex){
+			ioex.printStackTrace();
+		}finally{
+			if(outputStream != null){
+				try{
+					outputStream.close();
+				}catch(IOException ioex){
+					ioex.printStackTrace();
+				}
+			}
+		}
+	}
 
-	public Module loadModule(String name, AbstractAST ast)  {
-		if (isSdfModule(name)) {
+	public Module loadModule(String name, AbstractAST ast){
+		if(isSdfModule(name)){
 			return null;
 		}
 		
-		try {
-//			IConstructor tree = tryLoadBinary(name); // <-- Don't do this if you want to generate new binaries.
-		    IConstructor tree = null;
-			if (tree == null) {
+		try{
+			IConstructor tree = null; // tryLoadBinary(name); // <-- Don't do this if you want to generate new binaries.
+			if(tree == null){
 				String fileName = getFileName(name);
 				
 				tree = parseModule(fileName, name, ast);
+				
+				//writeBinary(name, tree); // Enable if you want to generate new binaries.
 			}
 
 			return BUILDER.buildModule(tree);
-		} catch (FactTypeUseException e) {
+		}catch (FactTypeUseException e){
 			throw new ImplementationError("Unexpected PDB typecheck exception", e);
-		} catch (IOException e) {
+		}catch (IOException e){
 			throw new ModuleLoadError(name, e.getMessage(), ast);
 		}
 	}
 	
-	public boolean isSdfModule(String name) {
-		for (String path : getSdfSearchPath()) {
-			if (new File(new File(path), getSdfFileName(name)).exists()) {
+	public boolean isSdfModule(String name){
+		for(String path : getSdfSearchPath()){
+			if(new File(new File(path), getSdfFileName(name)).exists()){
 			   return true;
 			}
 		}
@@ -127,33 +149,33 @@ public class ModuleLoader {
 		return false;
 	}
 
-	public List<String> getSdfSearchPath() {
-		List<String> result = new LinkedList<String>();
-		for (ISdfSearchPathContributor c : contributors) {
+	public List<String> getSdfSearchPath(){
+		List<String> result = new ArrayList<String>();
+		for (ISdfSearchPathContributor c : contributors){
 			result.addAll(c.contributePaths());
 		}
 		return result;
 	}
 
-	private static String getFileName(String moduleName) {
+	private static String getFileName(String moduleName){
 		String fileName = moduleName.replaceAll("::", "/") + Configuration.RASCAL_FILE_EXT;
 		fileName = Names.unescape(fileName);
 		return fileName;
 	}
 	
-	private static String getSdfFileName(String moduleName) {
+	private static String getSdfFileName(String moduleName){
 		String fileName = moduleName.replaceAll("::", "/") + Configuration.SDF_EXT;
 		fileName = Names.unescape(fileName);
 		return fileName;
 	}
 	
-	private static String getBinaryFileName(String moduleName) {
+	private static String getBinaryFileName(String moduleName){
 		String fileName = moduleName.replaceAll("::", "/") + Configuration.RASCAL_BIN_FILE_EXT;
 		fileName = Names.unescape(fileName);
 		return fileName;
 	}
 
-	private SyntaxError parseError(IConstructor tree, String file, String mod) throws MalformedURLException {
+	private SyntaxError parseError(IConstructor tree, String file, String mod) throws MalformedURLException{
 		SubjectAdapter subject = new SummaryAdapter(tree).getInitialSubject();
 		IValueFactory vf = ValueFactoryFactory.getValueFactory();
 		URL url = new URL("file://" + file);
@@ -162,30 +184,30 @@ public class ModuleLoader {
 		return new SyntaxError("module " + mod, loc);
 	}
 
+
 //	@SuppressWarnings("unchecked")
 //	public IConstructor parseCommand(String command, String fileName) throws IOException {
 //		// TODO: add support for concrete syntax here (now it ignores the sdf imports)
 //		return parser.parseCommand(command);
 //	}
 	
-	public IConstructor parseModule(String fileName, String name, AbstractAST ast) throws IOException {
+	public IConstructor parseModule(String fileName, String name, AbstractAST ast) throws IOException{
 		InputStream inputStream = null;
 		Set<String> sdfImports;
-		try {
+		try{
 			inputStream = getInputStream(fileName);
 			if (inputStream == null) {
 				throw new ModuleLoadError(name, "not in path", ast);
 			}
 			sdfImports = parser.getSdfImports(getSdfSearchPath(), fileName, inputStream);
-		}
-		finally {
-			if (inputStream != null) {
+		}finally{
+			if(inputStream != null){
 				inputStream.close();
 			}
 		}
 
 		InputStream secondInputStream = null;
-		try {
+		try{
 			List<String> sdfSearchPath = getSdfSearchPath();
 			secondInputStream = getInputStream(fileName);
 			IConstructor tree = parser.parseModule(sdfSearchPath, sdfImports, fileName, secondInputStream);
@@ -195,42 +217,39 @@ public class ModuleLoader {
 			}
 
 			return tree;
-		} finally {
-			if (secondInputStream != null) {
+		}finally{
+			if(secondInputStream != null){
 				secondInputStream.close();
 			}
 		}
 	}
 
-	public IConstructor parseModule(String fileName, String name,
-			String moduleString) throws IOException {
+	public IConstructor parseModule(String fileName, String name, String moduleString) throws IOException{
 		List<String> sdfSearchPath = getSdfSearchPath();
 		
 		InputStream inputStream = null;
 		Set<String> sdfImports;
-		try {
+		try{
 			inputStream = new ByteArrayInputStream(moduleString.getBytes());
 			
 			sdfImports = parser.getSdfImports(sdfSearchPath, fileName, inputStream);
-		}
-		finally {
-			if (inputStream != null) {
+		}finally{
+			if(inputStream != null){
 				inputStream.close();
 			}
 		}
 
 		InputStream secondInputStream = null;
-		try {
-			
+		try{
 			secondInputStream = new ByteArrayInputStream(moduleString.getBytes());
 			IConstructor tree = parser.parseModule(sdfSearchPath, sdfImports, fileName, secondInputStream);
 
-			if (tree.getConstructorType() == Factory.ParseTree_Summary) {
+			if(tree.getConstructorType() == Factory.ParseTree_Summary){
 				throw parseError(tree, fileName, name);
 			}
 
 			return tree;
-		} finally {
+		}finally{
 			if (secondInputStream != null) {
 				secondInputStream.close();
 			}

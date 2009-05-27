@@ -1,14 +1,11 @@
 package org.meta_environment.rascal.interpreter.load;
 
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URL;
 
-public class FromResourceLoader implements IModuleFileLoader {
-
+public class FromResourceLoader implements IModuleFileLoader{
 	private final String sourceFolder;
 	private final Class<?> clazz;
 
@@ -41,7 +38,7 @@ public class FromResourceLoader implements IModuleFileLoader {
 		this.sourceFolder = sourceFolder;
 	}
 
-	public InputStream getSourceInputStream(String name) throws IOException {
+	public InputStream getInputStream(String name) throws IOException {
 		URL url = clazz.getResource(sourceFolder + name);
 		
 		if (url == null) {
@@ -49,9 +46,5 @@ public class FromResourceLoader implements IModuleFileLoader {
 		}
 		
 		return url.openStream();
-	}
-
-	public OutputStream getBinaryOutputStream(String name) throws IOException {
-		return new FileOutputStream("./bin/" + sourceFolder + name); // Meh, can't output to 'file://' urls for some rediculious reason.
 	}
 }
