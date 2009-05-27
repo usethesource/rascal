@@ -148,7 +148,7 @@ public class ElementResult<T extends IValue> extends Result<T> {
 	}
 
 	protected static int compareISets(ISet left, ISet right, EvaluatorContext ctx) {
-		int compare = new Integer(left.size()).compareTo(right.size());
+		int compare = Integer.valueOf(left.size()).compareTo(Integer.valueOf(right.size()));
 		if (compare != 0) {
 			return compare;
 		}

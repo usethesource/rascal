@@ -75,7 +75,7 @@ public class ConstructorResult extends NodeResult {
 		if (compare != 0){
 			return compare;
 		}
-		compare = new Integer(left.arity()).compareTo(right.arity());
+		compare = Integer.valueOf(left.arity()).compareTo(Integer.valueOf(right.arity()));
 		if (compare != 0) {
 			return compare;
 		}

@@ -21,5 +21,5 @@ import org.junit.runners.Suite;
         })
 
 public class AllTests1 extends TestFramework {
-
+// Empty
 }

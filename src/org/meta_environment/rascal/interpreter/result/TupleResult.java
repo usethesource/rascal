@@ -175,7 +175,7 @@ public class TupleResult extends ElementResult<ITuple> {
 		// Note reversed args
 		ITuple left = that.getValue();
 		ITuple right = this.getValue();
-		int compare = new Integer(left.arity()).compareTo(right.arity());
+		int compare = Integer.valueOf(left.arity()).compareTo(Integer.valueOf(right.arity()));
 		if (compare != 0) {
 			return makeIntegerResult(compare, ctx);
 		}

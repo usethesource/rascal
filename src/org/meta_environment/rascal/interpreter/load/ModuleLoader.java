@@ -81,12 +81,10 @@ public class ModuleLoader{
 			// Ignore; this is allowed.
 		}  
 		finally{
-			if(inputStream != null){
-				try{
-					inputStream.close();
-				}catch(IOException ioex){
-					throw new ImplementationError(ioex.getMessage(), ioex);
-				}
+			try{
+				inputStream.close();
+			}catch(IOException ioex){
+				throw new ImplementationError(ioex.getMessage(), ioex);
 			}
 		}
 		

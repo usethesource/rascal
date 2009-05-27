@@ -15,5 +15,5 @@ import org.junit.runners.Suite;
 })
 
 public class AllTests2 {
-
+// Empty
 }

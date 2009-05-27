@@ -13,5 +13,5 @@ import org.junit.runners.Suite;
 	AllDemoTests.class
         })
 public class All {
-
-	}
+// Empty
+}

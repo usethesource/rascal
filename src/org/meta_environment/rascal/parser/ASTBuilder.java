@@ -53,9 +53,7 @@ public class ASTBuilder {
 		if (tree.isAppl()) {
 			return buildSort(parseTree, "Module");
 		}
-		else {
-			throw new ImplementationError("Ambiguous module?");
-		}
+		throw new ImplementationError("Ambiguous module?");
 	}
 	
 	public Expression buildExpression(IConstructor parseTree) {
