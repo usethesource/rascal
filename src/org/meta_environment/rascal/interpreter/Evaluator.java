@@ -174,6 +174,7 @@ import org.meta_environment.rascal.interpreter.load.ModuleLoader;
 import org.meta_environment.rascal.interpreter.result.BoolResult;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.result.ResultFactory;
+import org.meta_environment.rascal.interpreter.staticErrors.AmbiguousConcretePattern;
 import org.meta_environment.rascal.interpreter.staticErrors.MissingModifierError;
 import org.meta_environment.rascal.interpreter.staticErrors.ModuleNameMismatchError;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
@@ -558,7 +559,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 	@Override
 	public Result<IValue> visitExpressionAmbiguity(Ambiguity x) {
-		throw new Ambiguous(x.toString());
+		// TODO: assuming that that is the only reason for an expression to be ambiguous
+		// we might also check if this is an "appl" constructor...
+		throw new AmbiguousConcretePattern(x);
 	}
 
 	@Override
