@@ -8,6 +8,7 @@ import org.meta_environment.uptr.TreeAdapter;
 public abstract class AbstractAST implements IVisitable {
 	// protected ISourceLocation location;
 	protected INode node;
+	protected ASTStatistics stats = new ASTStatistics();
 
 	abstract public <T> T accept(IASTVisitor<T> v);
 
@@ -19,6 +20,14 @@ public abstract class AbstractAST implements IVisitable {
 		return new TreeAdapter((IConstructor) node).getLocation();
 	}
 
+	public ASTStatistics getStats() {
+		return stats;
+	}
+	
+	public void setStats(ASTStatistics stats) {
+		this.stats = stats;
+	}
+	
 	@Override
 	public boolean equals(Object obj) {
 		if (getClass() == obj.getClass()) {
@@ -53,4 +62,6 @@ public abstract class AbstractAST implements IVisitable {
 	public String toString() {
 		return new TreeAdapter((IConstructor) node).yield();
 	}
+
+	
 }
