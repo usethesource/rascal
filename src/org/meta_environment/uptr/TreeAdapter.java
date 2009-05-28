@@ -330,5 +330,21 @@ public class TreeAdapter {
 		return tree;
 	}
 
+	public boolean isInjection() {
+		if (isAppl()) {
+			ProductionAdapter prod = getProduction();
+			if (!prod.isList() && prod.getLhs().length() == 1) {
+				SymbolAdapter rhs = prod.getRhs();
+				if (rhs.isCf() || rhs.isLex()) {
+					rhs = rhs.getSymbol();
+					if (rhs.isSort()) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
 
 }
