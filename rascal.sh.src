@@ -1,7 +1,6 @@
 #! /bin/sh
 
-java -cp __RASCAL_CLASS_PATH__ \
-    -Xss8M \
+java -cp .:__RASCAL_CLASS_PATH__ \
     -Djava.library.path=__RASCAL_LIBRARY_PATH__ \
     -Drascal.parsetable.default.file=__RASCAL_GRAMMAR__/share/rascal-grammar/rascal.tbl \
     -Drascal.parsetable.header.file=__RASCAL_GRAMMAR__/share/rascal-grammar/rascal-header.tbl \
