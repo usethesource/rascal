@@ -229,28 +229,43 @@ public class ASTBuilder {
 		ISet altsIn = tree.getAlternatives();
 		java.util.List<AbstractAST> altsOut = new ArrayList<AbstractAST>(altsIn.size());
 		String sort = "";
-		ASTStatistics min = new ASTStatistics();
-		min.setConcreteFragmentCount(-1);
-		min.setConcreteFragmentSize(-1);
+		ASTStatistics ref = new ASTStatistics();
+		ref.setConcreteFragmentCount(-1);
+		ref.setConcreteFragmentSize(-1);
 		
 		for (IValue alt : altsIn) {
 			AbstractAST ast = buildValue(alt);
-			
-			int concreteFragmentSize = ast.getStats().getConcreteFragmentSize();
-			int minConcreteFragmentSize = min.getConcreteFragmentSize();
-			
-			if (minConcreteFragmentSize == -1 || concreteFragmentSize < minConcreteFragmentSize) {
-				min = ast.getStats();
-				altsOut.clear();
-				altsOut.add(ast);
-			}
-			else if (concreteFragmentSize == minConcreteFragmentSize) {
-				altsOut.add(ast);
-			}
-			
 			sort = new TreeAdapter((IConstructor) alt).getSortName();
+
+			if (sort.startsWith("_")) { // ambiguous in rascal syntax
+				int concreteFragmentSize = ast.getStats().getConcreteFragmentSize();
+				int refConcreteFragmentSize = ref.getConcreteFragmentSize();
+
+				if (refConcreteFragmentSize == -1 || concreteFragmentSize < refConcreteFragmentSize) {
+					ref = ast.getStats();
+					altsOut.clear();
+					altsOut.add(ast);
+				}
+				else if (concreteFragmentSize == refConcreteFragmentSize) {
+					altsOut.add(ast);
+				}
+			}
+			else { // ambiguous in concrete syntax
+				int nestedVariables = ast.getStats().getNestedMetaVariables();
+				int refNestedVariables = ref.getNestedMetaVariables();
+				
+				if (nestedVariables > refNestedVariables) {
+					ref = ast.getStats();
+					altsOut.clear();
+					altsOut.add(ast);
+				}
+				else if (nestedVariables == refNestedVariables) {
+					altsOut.add(ast);
+				}
+			}
+
 		}
-		
+
 		if (altsOut.size() == 0) {
 			throw new ImplementationError("Accidentally all ambiguous alternatives were removed");
 		}
@@ -259,13 +274,21 @@ public class ASTBuilder {
 		}
 
 		try {
-			sort = capitalize(sort);
+			if (sort.startsWith("_")) {
+				sort = sort.substring(1);
+				sort = capitalize(sort);
+			}
+			else {
+				// lifted to Expression anyway
+				sort = "Expression";
+			}
+			
 			Class<?> formals[] = new Class<?>[]  { INode.class, List.class };
 			Object actuals[] = new Object[] { tree.getTree(), altsOut };
 
 			Method make = clazz.getMethod("make" + sort + "Ambiguity", formals);
 			AbstractAST ast = (AbstractAST) make.invoke(factory, actuals);
-			ast.setStats(min);
+			ast.setStats(ref);
 			return ast;
 		} catch (SecurityException e) {
 			throw unexpectedError(e);
