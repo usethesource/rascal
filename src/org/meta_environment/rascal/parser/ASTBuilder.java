@@ -10,11 +10,10 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
-import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.ast.ASTFactory;
+import org.meta_environment.rascal.ast.ASTStatistics;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.Command;
 import org.meta_environment.rascal.ast.DecimalIntegerLiteral;
@@ -27,7 +26,6 @@ import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.ast.Statement;
 import org.meta_environment.rascal.ast.StringLiteral;
-import org.meta_environment.rascal.interpreter.asserts.Ambiguous;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.ParsetreeAdapter;
@@ -117,65 +115,40 @@ public class ASTBuilder {
 			formals[0] = INode.class;
 			actuals[0] = in;
 
+			int fragmentCount = 0;
+			int fragmentSize = 0;
+			
 			int i = 1;
 			for (IValue arg : args) {
 				TreeAdapter argTree = new TreeAdapter((IConstructor) arg);
 				if (argTree.isList()) {
 					actuals[i] = buildList((IConstructor) arg);
 					formals[i] = List.class;
+					
+					for (Object ast : ((java.util.List<?>) actuals[i])) {
+						ASTStatistics stats = ((AbstractAST) ast).getStats();
+						fragmentCount += stats.getConcreteFragmentCount();
+						fragmentSize += stats.getConcreteFragmentSize();
+					}
 				}
 				else {
 					actuals[i] = buildValue(arg);
 					formals[i] = actuals[i].getClass().getSuperclass();
+					
+					ASTStatistics stats = ((AbstractAST) actuals[i]).getStats();
+					fragmentCount += stats.getConcreteFragmentCount();
+					fragmentSize  += stats.getConcreteFragmentSize();
 				}
 				i++;
 			}
 
 			Method make = clazz.getMethod("make" + sort + cons, formals);
-			return (AbstractAST) make.invoke(factory, actuals);
-		} catch (SecurityException e) {
-			throw unexpectedError(e);
-		} catch (NoSuchMethodException e) {
-			throw unexpectedError(e);
-		} catch (IllegalArgumentException e) {
-			throw unexpectedError(e);
-		} catch (IllegalAccessException e) {
-			throw unexpectedError(e);
-		} catch (InvocationTargetException e) {
-			throw unexpectedError(e);
-		}
-	}
-	
-	private AbstractAST buildAmbNode(INode node, ISet alternatives) {
-		try {
-			String sort = null;
-			List<AbstractAST> alts = new ArrayList<AbstractAST>(alternatives.size());
-
-			for (IValue elem : alternatives) {
-				TreeAdapter alt = new TreeAdapter((IConstructor) elem);
-
-				if (alt.isList()) {
-					// TODO add support for ambiguous lists
-					throw new Ambiguous("Can not deal with ambiguous list: " + 
-							node);
-				}
-				else if (sort == null) {
-					sort = sortName(alt);
-				}
-				
-				alts.add(buildValue(elem));
-			}
-			
-			if (alts.size() == 0) {
-				throw new ImplementationError("bug: Ambiguity without children!?! " + node);
-			}
-
-			sort = capitalize(sort);
-			Class<?> formals[] = new Class<?>[]  { INode.class, List.class };
-			Object actuals[] = new Object[] { node, alts };
-
-			Method make = clazz.getMethod("make" + sort + "Ambiguity", formals);
-			return (AbstractAST) make.invoke(factory, actuals);
+			AbstractAST ast = (AbstractAST) make.invoke(factory, actuals);
+			ASTStatistics stats = ast.getStats();
+			stats.setConcreteFragmentCount(fragmentCount);
+			stats.setConcreteFragmentSize(fragmentSize);
+		
+			return ast;
 		} catch (SecurityException e) {
 			throw unexpectedError(e);
 		} catch (NoSuchMethodException e) {
@@ -229,7 +202,7 @@ public class ASTBuilder {
 		TreeAdapter tree = new TreeAdapter((IConstructor) arg);
 		
 		if (tree.isAmb()) {
-			return filter(arg, tree);
+			return filter(tree);
 		}
 		
 		if (!tree.isAppl()) {
@@ -252,33 +225,70 @@ public class ASTBuilder {
 		return buildContextFreeNode((IConstructor) arg);
 	}
 
-	private AbstractAST filter(IValue arg, TreeAdapter tree) {
-		ISet alts = tree.getAlternatives();
-		ISetWriter winners = ValueFactoryFactory.getValueFactory().setWriter(Factory.Tree);
-		int winnerConcreteSize = -1;
+	private AbstractAST filter(TreeAdapter tree) {
+		ISet altsIn = tree.getAlternatives();
+		java.util.List<AbstractAST> altsOut = new ArrayList<AbstractAST>(altsIn.size());
+		String sort = "";
+		ASTStatistics min = new ASTStatistics();
+		min.setConcreteFragmentCount(-1);
+		min.setConcreteFragmentSize(-1);
 		
-		for (IValue alt : alts) {
-		   int size = countConcretePatternsSize(alt);
-		   if (size > winnerConcreteSize) {
-			   winners = ValueFactoryFactory.getValueFactory().setWriter(Factory.Tree);
-			   winners.insert(alt);
-			   winnerConcreteSize = size;
-		   }
-		   else if (size == winnerConcreteSize) {
-			   winners.insert(alt);
-		   }
+		for (IValue alt : altsIn) {
+			AbstractAST ast = buildValue(alt);
+			
+			int concreteFragmentSize = ast.getStats().getConcreteFragmentSize();
+			int minConcreteFragmentSize = min.getConcreteFragmentSize();
+			
+			if (minConcreteFragmentSize == -1 || concreteFragmentSize < minConcreteFragmentSize) {
+				min = ast.getStats();
+				altsOut.clear();
+				altsOut.add(ast);
+			}
+			else if (concreteFragmentSize == minConcreteFragmentSize) {
+				altsOut.add(ast);
+			}
+			
+			sort = new TreeAdapter((IConstructor) alt).getSortName();
 		}
 		
-		return buildAmbNode((INode) arg, winners.done());
-	}
+		if (altsOut.size() == 0) {
+			throw new ImplementationError("Accidentally all ambiguous alternatives were removed");
+		}
+		else if (altsOut.size() == 1) {
+			return altsOut.iterator().next();
+		}
 
-	private int countConcretePatternsSize(IValue alt) {
-		return 1;
+		try {
+			sort = capitalize(sort);
+			Class<?> formals[] = new Class<?>[]  { INode.class, List.class };
+			Object actuals[] = new Object[] { tree.getTree(), altsOut };
+
+			Method make = clazz.getMethod("make" + sort + "Ambiguity", formals);
+			AbstractAST ast = (AbstractAST) make.invoke(factory, actuals);
+			ast.setStats(min);
+			return ast;
+		} catch (SecurityException e) {
+			throw unexpectedError(e);
+		} catch (NoSuchMethodException e) {
+			throw unexpectedError(e);
+		} catch (IllegalArgumentException e) {
+			throw unexpectedError(e);
+		} catch (IllegalAccessException e) {
+			throw unexpectedError(e);
+		} catch (InvocationTargetException e) {
+			throw unexpectedError(e);
+		}
 	}
 
 	private AbstractAST lift(TreeAdapter tree, boolean match) {
 		IConstructor pattern = getConcretePattern(tree);
-		return lift(pattern, pattern, match);
+		Expression ast = lift(pattern, pattern, match);
+		
+		ASTStatistics stats = ast.getStats();
+		stats.setConcreteFragmentCount(1);
+		stats.setConcreteFragmentSize(new TreeAdapter(pattern).yield().length());
+		
+		return ast;
 	}
 
 	private Expression lift(IValue pattern, IConstructor source, boolean match) {
