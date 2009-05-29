@@ -79,5 +79,9 @@ public class SymbolAdapter {
 		return tree.equals(((SymbolAdapter)obj).tree);
 	}
 
+	public IConstructor getTree() {
+		return tree;
+	}
+
 
 }
