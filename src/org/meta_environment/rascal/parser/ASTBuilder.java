@@ -368,7 +368,7 @@ public class ASTBuilder {
 						return wildCard(constr);
 					}
 					
-					if (tree.isInjectionOrSingleton()) {
+					if (tree.isContextFreeInjectionOrSingleton()) {
 						stats.setInjections(1);
 					}
 
