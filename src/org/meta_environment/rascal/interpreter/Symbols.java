@@ -24,9 +24,9 @@ import org.meta_environment.rascal.interpreter.asserts.NotYetImplemented;
 import org.meta_environment.uptr.Factory;
 
 public class Symbols {
-	IValueFactory factory = ValueFactoryFactory.getValueFactory();
+	private static IValueFactory factory = ValueFactoryFactory.getValueFactory();
 	
-	public IValue typeToSymbol(Type type) {
+	public static IValue typeToSymbol(Type type) {
 		if (type.isUser()) {
 			return Factory.Symbol_Cf.make(factory, Factory.Symbol_Sort.make(factory, factory.string(Names.name(type.getUser().getName()))));
 		}
@@ -37,7 +37,7 @@ public class Symbols {
 	    return null;
 	}
 
-	private IValue symbol2Symbol(Symbol symbol) {
+	private static IValue symbol2Symbol(Symbol symbol) {
 		if (symbol.isAlternative()) {
 			return Factory.Symbol_Alt.make(factory, symbol2Symbol(symbol.getLhs()), symbol2Symbol(symbol.getRhs()));
 		}
@@ -79,7 +79,7 @@ public class Symbols {
 		return null;
 	}
 
-	private IValue symbols2Symbols(Symbol head, List<Symbol> tail) {
+	private static IValue symbols2Symbols(Symbol head, List<Symbol> tail) {
 		IListWriter result = factory.listWriter(Factory.Symbol);
 		result.insert(symbol2Symbol(head));
 		
@@ -90,7 +90,7 @@ public class Symbols {
 		return result.done();
 	}
 
-	private IValue literal2Symbol(StrCon sep) {
+	private static IValue literal2Symbol(StrCon sep) {
 		String lit = ((StrCon.Lexical) sep).getString();
 		StringBuilder builder = new StringBuilder();
 		
@@ -128,7 +128,7 @@ public class Symbols {
 		return Factory.Symbol_Lit.make(factory, factory.string(builder.toString()));
 	}
 	
-	private IValue ciliteral2Symbol(SingleQuotedStrCon sep) {
+	private static IValue ciliteral2Symbol(SingleQuotedStrCon sep) {
 		String lit = ((SingleQuotedStrCon.Lexical) sep).getString();
 		StringBuilder builder = new StringBuilder();
 		
@@ -166,7 +166,7 @@ public class Symbols {
 		return Factory.Symbol_Lit.make(factory, factory.string(builder.toString()));
 	}
 
-	private IValue charclass2Symbol(CharClass cc) {
+	private static IValue charclass2Symbol(CharClass cc) {
 		if (cc.isSimpleCharclass()) {
 			OptCharRanges ranges = cc.getOptionalCharRanges();
 			
@@ -182,7 +182,7 @@ public class Symbols {
 		}
 	}
 	
-	private IList ranges2Ranges(CharRanges ranges) {
+	private static IList ranges2Ranges(CharRanges ranges) {
 		if (ranges.isBracket()) {
 			return ranges2Ranges(ranges.getRanges());
 		}
@@ -206,7 +206,7 @@ public class Symbols {
 		throw new ImplementationError("Unexpected type of ranges: " + ranges);
 	}
 
-	private IValue char2int(Character character) {
+	private static IValue char2int(Character character) {
 		if (character.isBottom()) {
 			return factory.integer(0);
 		}
