@@ -368,7 +368,7 @@ public class ASTBuilder {
 						return wildCard(constr);
 					}
 					
-					if (tree.isInjection()) {
+					if (tree.isInjectionOrSingleton()) {
 						stats.setInjections(1);
 					}
 
@@ -395,6 +395,10 @@ public class ASTBuilder {
 			IList list = (IList) pattern;
 			List<Expression> result = new ArrayList<Expression>(list.length());
 			ASTStatistics stats = new ASTStatistics();
+			
+			if (list.length() == 1) {
+				stats.setInjections(1);
+			}
 			
 			for (IValue arg: list) {
 				Expression ast = lift(arg, source, match);
