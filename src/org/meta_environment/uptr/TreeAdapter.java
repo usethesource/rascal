@@ -330,12 +330,12 @@ public class TreeAdapter {
 		return tree;
 	}
 
-	public boolean isInjectionOrSingleton() {
+	public boolean isContextFreeInjectionOrSingleton() {
 		if (isAppl()) {
 			ProductionAdapter prod = getProduction();
 			if (!prod.isList() && prod.getLhs().length() == 1) {
 				SymbolAdapter rhs = prod.getRhs();
-				if (rhs.isCf() || rhs.isLex()) {
+				if (rhs.isCf()) {
 					rhs = rhs.getSymbol();
 					if (rhs.isSort()) {
 						return true;
@@ -343,7 +343,7 @@ public class TreeAdapter {
 				}
 			}
 		}
-		else if (isList()) {
+		else if (isList() && getProduction().getRhs().isCf()) {
 			if (getArgs().length() == 1) {
 				return true;
 			}
