@@ -144,6 +144,9 @@ public class RascalShell {
 		else {
 			Command stat = builder.buildCommand(tree);
 			
+			if (stat == null) {
+				throw new ImplementationError("Disambiguation failed: it removed all alternatives");
+			}
 			Result<IValue> value = command.eval(stat);
 			
 			if (value.getValue() == null) {

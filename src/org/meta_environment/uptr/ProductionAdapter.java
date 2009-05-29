@@ -105,6 +105,10 @@ public class ProductionAdapter {
 		if (!isContextFree()) {
 			return false;
 		}
+		if (isList()) {
+			return false;
+		}
+		
 		IList lhs = getLhs();
 		if (lhs.length() != 1) {
 			return false;
