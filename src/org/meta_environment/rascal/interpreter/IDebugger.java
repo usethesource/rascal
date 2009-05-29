@@ -9,6 +9,6 @@ public interface IDebugger {
 
 	public void notifySuspend();
 	
-	public boolean hasBreakpoint(ISourceLocation sourceLocation);
+	public boolean hasEnabledBreakpoint(ISourceLocation sourceLocation);
 
 }
