@@ -12,6 +12,7 @@ import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.ASTStatistics;
 import org.meta_environment.rascal.ast.AbstractAST;
@@ -81,13 +82,18 @@ public class ASTBuilder {
 	}
 	
 	private String sortName(TreeAdapter tree) {
-		String sortName = tree.getSortName();
-		
-		if (isRascalSort(sortName)) {
-			sortName = sortName.substring(1);
+		if (!tree.isList()) {
+			String sortName = tree.getSortName();
+
+			if (isRascalSort(sortName)) {
+				sortName = sortName.substring(1);
+			}
+
+			return sortName;
 		}
-		
-		return sortName;
+		else {
+			return "";
+		}
 	}
 	
 	private List<AbstractAST> buildList(IConstructor in)  {
@@ -121,10 +127,7 @@ public class ASTBuilder {
 			formals[0] = INode.class;
 			actuals[0] = in;
 
-			int fragmentCount = 0;
-			int fragmentSize = 0;
-			int injectionCount = 0;
-			int variableCount = 0;
+			ASTStatistics total = new ASTStatistics();
 			
 			int i = 1;
 			for (IValue arg : args) {
@@ -138,36 +141,39 @@ public class ASTBuilder {
 					}
 					
 					for (Object ast : ((java.util.List<?>) actuals[i])) {
-						ASTStatistics stats = ((AbstractAST) ast).getStats();
-						fragmentCount += stats.getConcreteFragmentCount();
-						fragmentSize += stats.getConcreteFragmentSize();
-						injectionCount += stats.getInjections();
-						variableCount += stats.getNestedMetaVariables();
+						total.add(((AbstractAST) ast).getStats());
 					}
 				}
-				else {
-					actuals[i] = buildValue(arg);
-					formals[i] = actuals[i].getClass().getSuperclass();
+				else if (argTree.isAmbiguousList()) {
+					actuals[i] = filterList(argTree);
+					formals[i] = List.class;
 					
 					if (actuals[i] == null) { // filtered
 						return null;
 					}
 					
+					for (Object ast : ((java.util.List<?>) actuals[i])) {
+						ASTStatistics stats = ((AbstractAST) ast).getStats();
+						total.add(stats);
+					}
+				}
+				else {
+					actuals[i] = buildValue(arg);
+					if (actuals[i] == null) { // filtered
+						return null;
+					}
+					formals[i] = actuals[i].getClass().getSuperclass();
+					
+					
 					ASTStatistics stats = ((AbstractAST) actuals[i]).getStats();
-					fragmentCount += stats.getConcreteFragmentCount();
-					fragmentSize  += stats.getConcreteFragmentSize();
-					injectionCount += stats.getInjections();
-					variableCount += stats.getNestedMetaVariables();
+					total.add(stats);
 				}
 				i++;
 			}
 
 			Method make = clazz.getMethod("make" + sort + cons, formals);
 			AbstractAST ast = (AbstractAST) make.invoke(factory, actuals);
-			ASTStatistics stats = ast.getStats();
-			stats.setConcreteFragmentCount(fragmentCount);
-			stats.setConcreteFragmentSize(fragmentSize);
-		
+			ast.setStats(total);
 			return ast;
 		} catch (SecurityException e) {
 			throw unexpectedError(e);
@@ -182,6 +188,45 @@ public class ASTBuilder {
 		}
 	}
 	
+	private List<AbstractAST> filterList(TreeAdapter argTree) {
+		ISet alts = argTree.getAlternatives();
+		ASTStatistics ref = null;
+		List<List<AbstractAST>> result = new ArrayList<List<AbstractAST>>(/* size unknown */);
+	
+		for (IValue alt : alts) {
+			List<AbstractAST> list = buildList((IConstructor) alt);
+			
+			if (list == null) {
+				continue;
+			}
+			
+			ASTStatistics listStats = new ASTStatistics();
+			
+			for (AbstractAST ast : list) {
+				ASTStatistics stats = ((AbstractAST) ast).getStats();
+				listStats.add(stats);
+			}
+			
+			if (ref == null) {
+				ref = listStats;
+				result.add(list);
+			}
+			else {
+				ref = filter(result, list, ref, listStats);
+			}
+		}
+		
+		if (result.size() == 1) {
+			return result.get(0);
+		}
+		else {
+			// we don't support ambiguous lists in Rascal AST's.
+			// if filtering was not successful we have to bail out
+			// the hypothesis is that this can never happen
+			throw new ImplementationError("Unexpected ambiguous list after filtering");
+		}
+	}
+
 	private AbstractAST buildLexicalNode(IConstructor in) {
 		try {
 			TreeAdapter tree = new TreeAdapter(in);
@@ -229,19 +274,19 @@ public class ASTBuilder {
 			throw new UnsupportedOperationException();
 		}	
 		
-			if (tree.isLexToCf()) {
-				return buildLexicalNode((IConstructor) ((IList) ((IConstructor) arg).get("args")).get(0));
-			}
-			else if (sortName(tree).equals("FunctionBody") && tree.getConstructorName().equals("Java")) {
-				return new JavaFunctionBody((INode) arg, tree.yield());
-			}
-			else if (sortName(tree).equals("Pattern") && isEmbedding(tree)) {
-				return lift(tree, true);
-			}
-			else if (sortName(tree).equals("Expression") && isEmbedding(tree)) {
-				return lift(tree, false);
-			}
-			
+		if (tree.isLexToCf()) {
+			return buildLexicalNode((IConstructor) ((IList) ((IConstructor) arg).get("args")).get(0));
+		}
+		else if (sortName(tree).equals("FunctionBody") && tree.getConstructorName().equals("Java")) {
+			return new JavaFunctionBody((INode) arg, tree.yield());
+		}
+		else if (sortName(tree).equals("Pattern") && isEmbedding(tree)) {
+			return lift(tree, true);
+		}
+		else if (sortName(tree).equals("Expression") && isEmbedding(tree)) {
+			return lift(tree, false);
+		}
+
 		return buildContextFreeNode((IConstructor) arg);
 	}
 
@@ -249,11 +294,7 @@ public class ASTBuilder {
 		ISet altsIn = tree.getAlternatives();
 		java.util.List<AbstractAST> altsOut = new ArrayList<AbstractAST>(altsIn.size());
 		String sort = "";
-		ASTStatistics ref = new ASTStatistics();
-		ref.setConcreteFragmentCount(-1);
-		ref.setConcreteFragmentSize(-1);
-		ref.setInjections(-1);
-		ref.setNestedMetaVariables(-1);
+		ASTStatistics ref = null;
 		
 		for (IValue alt : altsIn) {
 			AbstractAST ast = buildValue(alt);
@@ -261,39 +302,13 @@ public class ASTBuilder {
 			if (ast == null) {
 				continue;
 			}
-
-			sort = new TreeAdapter((IConstructor) alt).getSortName();
-
-			int concreteFragmentSize = ast.getStats().getConcreteFragmentSize();
-			int refConcreteFragmentSize = ref.getConcreteFragmentSize();
-
-			if (altsOut.size() == 0 || concreteFragmentSize < refConcreteFragmentSize) {
+			
+			if (ref == null) {
 				ref = ast.getStats();
-				altsOut.clear();
 				altsOut.add(ast);
 			}
-			else if (concreteFragmentSize == refConcreteFragmentSize) {
-				int nestedVariables = ast.getStats().getNestedMetaVariables();
-				int refNestedVariables = ref.getNestedMetaVariables();
-
-				if (altsOut.size() == 0 || nestedVariables > refNestedVariables) {
-					ref = ast.getStats();
-					altsOut.clear();
-					altsOut.add(ast);
-				}
-				else if (nestedVariables == refNestedVariables) {
-					int injections = ast.getStats().getInjections();
-					int refInjections = ref.getInjections();
-
-					if (altsOut.size() == 0 || injections < refInjections) {
-						ref = ast.getStats();
-						altsOut.clear();
-						altsOut.add(ast);
-					}
-					else if (injections == refInjections) {
-						altsOut.add(ast);
-					}
-				}
+			else {
+				ref = filter(altsOut, ast, ref);
 			}
 		}
 
@@ -334,6 +349,29 @@ public class ASTBuilder {
 		}
 	}
 
+	private <T extends AbstractAST> ASTStatistics filter(java.util.List<T> altsOut,
+			T ast, ASTStatistics ref) {
+		ASTStatistics stats = ast.getStats();
+		return filter(altsOut, ast, ref, stats);
+	}
+
+	private <T> ASTStatistics filter(java.util.List<T> altsOut,
+			T ast, ASTStatistics ref, ASTStatistics stats) {
+		switch(ref.compareTo(stats)) {
+		case 1:
+			ref = stats;
+			altsOut.clear();
+			altsOut.add(ast);
+			break;
+		case 0:
+			altsOut.add(ast);
+			break;
+		case -1:
+			// do nothing
+		}
+		return ref;
+	}
+
 	private boolean isRascalSort(String sort) {
 		return sort.startsWith(RASCAL_SORT_PREFIX);
 	}
@@ -350,11 +388,12 @@ public class ASTBuilder {
 	}
 
 	private Expression lift(IValue pattern, IConstructor source, boolean match) {
-		if (pattern.getType().isNodeType()) {
+		Type type = pattern.getType();
+		if (type.isNodeType()) {
 			INode node = (INode) pattern;
 			ASTStatistics stats = new ASTStatistics();
 			
-			if (pattern.getType().isAbstractDataType()) {
+			if (type.isAbstractDataType()) {
 				IConstructor constr = (IConstructor) pattern;
 
 				if (constr.getConstructorType() == Factory.Tree_Appl) {
@@ -371,6 +410,9 @@ public class ASTBuilder {
 					if (tree.isContextFreeInjectionOrSingleton()) {
 						stats.setInjections(1);
 					}
+					else {
+						stats.setInjections(0);
+					}
 
 					source = constr;
 				}
@@ -381,17 +423,18 @@ public class ASTBuilder {
 
 			for (IValue child : node) {
 				Expression ast = lift(child, source, match);
+				if (ast == null) {
+					return null;
+				}
 				args.add(ast);
-				
-				stats.setInjections(stats.getInjections() + ast.getStats().getInjections());
-				stats.setNestedMetaVariables(stats.getNestedMetaVariables() + ast.getStats().getNestedMetaVariables());
+				stats.add(ast.getStats());
 			}
 
 			Expression.CallOrTree ast = new Expression.CallOrTree(source, makeQualifiedName(source, name), args);
 			ast.setStats(stats);
 			return ast;
 		}
-		else if (pattern.getType().isListType()) {
+		else if (type.isListType()) {
 			IList list = (IList) pattern;
 			List<Expression> result = new ArrayList<Expression>(list.length());
 			ASTStatistics stats = new ASTStatistics();
@@ -402,19 +445,44 @@ public class ASTBuilder {
 			
 			for (IValue arg: list) {
 				Expression ast = lift(arg, source, match);
-				stats.setInjections(stats.getInjections() + ast.getStats().getInjections());
-				stats.setNestedMetaVariables(stats.getNestedMetaVariables() + ast.getStats().getNestedMetaVariables());
+				
+				if (ast == null) {
+					return null;
+				}
+				
+				stats.add(ast.getStats());
 				result.add(ast);
 			}
 			Expression.List ast = new Expression.List(source, result);
 			ast.setStats(stats);
 			return ast;
 		}
-		else if (pattern.getType().isStringType()) {
+		else if (type.isStringType()) {
 			return new Expression.Literal(source, new Literal.String(source, new StringLiteral.Lexical(source, pattern.toString())));
 		}
-		else if (pattern.getType().isIntegerType()) {
+		else if (type.isIntegerType()) {
 			return new Expression.Literal(source, new Literal.Integer(source, new IntegerLiteral.DecimalIntegerLiteral(source, new DecimalIntegerLiteral.Lexical(source, pattern.toString()))));
+		}
+		else if (type.isSetType()) {
+			ISet set = (ISet) pattern;
+			List<Expression> result = new ArrayList<Expression>(set.size());
+			ASTStatistics ref = null;
+			
+			for (IValue elem : set) {
+				Expression ast = lift(elem, source, match);
+				
+				if (ref == null) {
+					ref = ast.getStats();
+					result.add(ast);
+				}
+				else {
+					ref = filter(result, ast, ref);
+				}
+			}
+			
+			Expression.Set ast = new Expression.Set(source, result);
+			ast.setStats(ref);
+			return ast;
 		}
 		else {
 			throw new ImplementationError("Illegal value encountered while lifting a concrete syntax pattern:" + pattern);
@@ -473,6 +541,9 @@ public class ASTBuilder {
 	}
 
 	private String capitalize(String sort) {
+		if (sort.length() == 0) {
+			return sort;
+		}
 		if (sort.length() > 1) {
 			return Character.toUpperCase(sort.charAt(0)) + sort.substring(1);
 		}

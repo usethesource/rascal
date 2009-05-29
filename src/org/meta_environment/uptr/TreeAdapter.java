@@ -351,5 +351,16 @@ public class TreeAdapter {
 		return false;
 	}
 
+	public boolean isAmbiguousList() {
+		if (isAmb()) {
+			IConstructor first = (IConstructor) getAlternatives().iterator().next();
+			TreeAdapter tree = new TreeAdapter(first);
+			if (tree.isList()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 
 }
