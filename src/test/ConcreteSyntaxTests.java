@@ -15,7 +15,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 				 "public Tree t2 = begin declare x: natural; x := 10 end;\n" +
 		         "public bool match1() { return [| begin <decls> <stats> end |] := t1; }\n" +
 		         "public bool match2() { return begin <decls> <stats> end := t2; }");
-		
+		prepareMore("import M;");
 		assertTrue(runTestInSameEvaluator("match1();"));
 		assertTrue(runTestInSameEvaluator("match2();"));
 	}
