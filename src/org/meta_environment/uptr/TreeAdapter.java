@@ -330,7 +330,7 @@ public class TreeAdapter {
 		return tree;
 	}
 
-	public boolean isInjection() {
+	public boolean isInjectionOrSingleton() {
 		if (isAppl()) {
 			ProductionAdapter prod = getProduction();
 			if (!prod.isList() && prod.getLhs().length() == 1) {
@@ -341,6 +341,11 @@ public class TreeAdapter {
 						return true;
 					}
 				}
+			}
+		}
+		else if (isList()) {
+			if (getArgs().length() == 1) {
+				return true;
 			}
 		}
 		return false;
