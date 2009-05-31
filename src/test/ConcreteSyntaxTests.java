@@ -5,12 +5,111 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
 public class ConcreteSyntaxTests extends TestFramework {
+	
+	@Test
+	public void singleA(){
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("[|a|] := [|a|];"));
+	}
+	
+	@Test
+	public void singleAspaces1(){
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("[| a |] := [|a|];"));
+	}
+	
+	@Test
+	public void singleAspaces2(){
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("[|a|] := [| a |];"));
+	}
+	
+	@Test
+	public void AB(){
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("[|a b|] := [|a b|];"));
+	}
+	
+	@Test
+	public void ABspaces(){
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("[|a b|] := [|a   b|];"));
+	}
+	
+	@Test
+	public void varA(){
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("[|<someA>|] := [|a|];"));
+	}
+	
+	@Test
+	public void ABvars1(){
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("[|a <someB>|] := [|a b|];"));
+	}
+	
+	@Test
+	public void ABvars2(){
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("[|<someA> <someB>|] := [|a b|];"));
+	}
+	
+	@Test
+	public void D1(){
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("[|d|] := [|d|];"));
+	}
+	
+	@Test
+	public void D2(){
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("[|d d|] := [|d d|];"));
+	}
+	@Test
+	public void Dvars(){
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("[|<Ds>|] := [|d d|];"));
+	}
+	
+	@Test
+	public void E1(){
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("[|e|] := [|e|];"));
+	}
+	
+	@Test
+	public void E2(){
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("[|e, e|] := [|e, e|];"));
+	}
+	
+	@Test
+	public void E2spaces1(){
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("[|e, e|] := [|e , e|];"));
+	}
+	
+	@Test
+	public void E2spaces2(){
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("[|e, e|] := [|e ,  e|];"));
+	}
+	
+	@Test
+	public void Evars(){
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("[|<Es>|] := [|e, e|];"));
+	}
+	
+	
 	private String QmoduleM = "module M\n" +
 	                         "import languages::pico::syntax::Pico;\n" +
+	                         "import basic::Whitespace;\n" +
 	                         "public Tree t1 = [| begin declare x: natural; x := 10 end |];\n";
 	
 	private String UQmoduleM = "module M\n" +
                               "import languages::pico::syntax::Pico;\n" +
+                              "import basic::Whitespace;\n" +
                               "public Tree t1 = begin declare x: natural; x := 10 end;\n";
 	
 	@Test
