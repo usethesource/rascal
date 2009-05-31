@@ -253,6 +253,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		loader.addSdfSearchPathContributor(new ISdfSearchPathContributor() {
 			public java.util.List<String> contributePaths() {
 				java.util.List<String> result = new LinkedList<String>();
+				//System.err.println("getproperty user.dir: " + System.getProperty("user.dir"));
 				result.add(System.getProperty("user.dir"));
 				result.add(Configuration.getSdfLibraryPathProperty());
 				return result;

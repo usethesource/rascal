@@ -194,6 +194,11 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 		super(vf, ctx);
 		this.name = qualifiedName;
 		this.children = children;
+		//System.err.println("AbstractPatternNode: " + name + ", #children: " + children.size() );
+		//System.err.println(name.getTree());
+		//for(AbstractPattern ap : children){
+		//	System.err.println(ap);
+		//}
 	}
 	
 	@Override
@@ -204,6 +209,9 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 			return;
 		}
 		treeSubject = (INode) subject;
+		///System.err.println("AbstractPatternNode: treeSubject=" + treeSubject);
+		//System.err.println("AbstractPatternNode treeSubject.arity() =" + treeSubject.arity());
+		//System.err.println("AbstractPatternNode: children.size() =" + children.size());
 		if(treeSubject.arity() != children.size()){
 			return;
 		}
@@ -280,6 +288,158 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 	
 	@Override
 	public boolean next(){
+		checkInitialized();
+		
+		if(!(firstMatch || hasNext))
+			return false;
+		firstMatch = false;
+
+		hasNext = matchChildren(treeSubject.getChildren().iterator(), children.iterator(), env);
+
+		return hasNext;
+	}
+}
+
+/*
+ * First attempt, this will become a subclass of AbstractPatternNode
+ */
+
+/* package */ class ConcretePattern extends AbstractPattern {
+	private org.meta_environment.rascal.ast.QualifiedName name;
+	private java.util.List<AbstractPattern> children;
+	private INode treeSubject;
+	private IList treeSubjectArgs;
+	private boolean firstMatch = false;
+	private final TypeFactory tf = TypeFactory.getInstance();
+	
+	ConcretePattern(IValueFactory vf, EvaluatorContext ctx, org.meta_environment.rascal.ast.QualifiedName qualifiedName, java.util.List<AbstractPattern> children){
+		super(vf, ctx);
+		this.name = qualifiedName;
+		this.children = children;
+		System.err.println("ConcretePattern: " + name + ", #children: " + children.size() );
+		System.err.println(name.getTree());
+		for(AbstractPattern ap : children){
+			System.err.println(ap);
+		}
+	}
+	
+	@Override
+	public void initMatch(IValue subject, Environment env){
+		super.initMatch(subject, env);
+		hasNext = false;
+		if(!(subject.getType().isNodeType() || subject.getType().isAbstractDataType())){
+			System.err.println("initMatch returns: unequal types");
+			return;
+		}
+		treeSubject = (INode) subject;
+		
+		treeSubjectArgs = (IList) treeSubject.get(1);
+		
+		System.err.println("treeSubject=" + treeSubject);
+		System.err.println("treeSubjectArgs.arity() =" + treeSubjectArgs.length());
+		System.err.println("children.size() =" + children.size());
+		if((treeSubjectArgs.length() == 1 && children.size() == 1) ||
+		    treeSubjectArgs.length()/2 == children.size()){ // Don't count layout arguments of subject
+			
+		} else
+			return;
+		if(!Names.name(Names.lastName(name)).equals(treeSubject.getName().toString())){
+			System.err.println("initMatch fails on function symbol");
+				return;
+		}
+		int k = 0;
+		for (int i = 0; i < treeSubjectArgs.length(); i += 2){
+			children.get(k).initMatch(treeSubjectArgs.get(i), env);
+			System.err.println("init child " + k + ": " + children.get(k) + "with " +treeSubjectArgs.get(i)); 
+			k++;
+		}
+		firstMatch = hasNext = true;
+		System.err.println("end of initMatch");
+	}
+	
+	@Override
+	public Type getType(Environment env) {
+		 Type[] types = new Type[children.size()];
+
+		 for (int i = 0; i < children.size(); i++) {
+			 types[i] =  children.get(i).getType(env);
+		 }
+		 
+		 Type signature = tf.tupleType(types);
+		 if (env.isTreeConstructorName(name, signature)) {
+			 System.err.println("getType returns " + env.getConstructor(Names.name(Names.lastName(name)), signature));
+			 return env.getConstructor(Names.name(Names.lastName(name)), signature); //.getAbstractDataType();
+		 }
+		 System.err.println("getType returns " + tf.nodeType());
+	     return tf.nodeType();
+	}
+	
+	@Override
+	public IValue toIValue(Environment env){
+		Type[] types = new Type[children.size()];
+		IValue[] vals = new IValue[children.size()];
+		
+		for (int i = 0; i < children.size(); i++) {
+			types[i] =  children.get(i).getType(env);
+			vals[i] =  children.get(i).toIValue(env);
+		}
+		Type signature = tf.tupleType(types);
+		
+		if(env.isTreeConstructorName(name, signature)){
+			Type consType = env.getConstructor(name.toString(), signature);
+			
+			return vf.constructor(consType, vals);
+		}
+		return vf.node(name.toString(), vals);
+	}
+
+	@Override
+	public java.util.List<String> getVariables(){
+		java.util.LinkedList<String> res = new java.util.LinkedList<String> ();
+		for (int i = 0; i < children.size(); i++) {
+			res.addAll(children.get(i).getVariables());
+		 }
+		return res;
+	}
+	
+	@Override
+	public boolean hasNext(){
+		System.err.println("hasNext: initalized=" + initialized + " firstMatch=" + firstMatch + " hasNext=" + hasNext);
+		if(!initialized)
+			return false;
+		if(firstMatch)
+			return true;
+		if(!hasNext)
+			return false;
+		if(children.size() > 0){
+			for (int i = 0; i < children.size(); i++) {
+				if(children.get(i).hasNext()){
+					return true;
+				}
+			}
+		}
+		System.err.println("hasNext returns false");
+		hasNext = false;
+		return false;
+	}
+	
+	@Override
+	boolean matchChildren(Iterator<IValue> subjChildren, Iterator<AbstractPattern> patChildren, Environment ev){
+		while (patChildren.hasNext()) {
+			AbstractPattern childPat = patChildren.next();
+			System.err.println("matching: " + childPat);
+			if (!childPat.next()){
+				System.err.println("match fails");
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	@Override
+	public boolean next(){
+		
+		System.err.println("ConcretePattern:next " + name.getTree());
 		checkInitialized();
 		
 		if(!(firstMatch || hasNext))
@@ -1830,18 +1990,18 @@ class AbstractPatternDescendant extends AbstractPattern implements MatchPattern 
 	@Override
 	public boolean hasNext(){
 		boolean r =  initialized &&  enumAndMatch.hasNext();
-		System.err.println("AbstractPatternDescendant.hasNext: " + r);
+		//System.err.println("AbstractPatternDescendant.hasNext: " + r);
 		return r;
 	}
 
 	@Override
 	public boolean next() {
-		System.err.println("AbstractPatternDescendant.next");
+		//System.err.println("AbstractPatternDescendant.next");
 		if(enumAndMatch.next().isTrue()){
-			System.err.println("AbstractPatternDescendant.next: true");
+			//System.err.println("AbstractPatternDescendant.next: true");
 			return true;
 		}
-		System.err.println("AbstractPatternDescendant.next: false");
+		//System.err.println("AbstractPatternDescendant.next: false");
 		return false;
 	}
 
@@ -1879,11 +2039,68 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 		return new AbstractPatternLiteral(vf, ctx, x.getLiteral().accept(ctx.getEvaluator()).getValue());
 	}
 	
+	private boolean isParseTree(CallOrTree x){
+		return false;
+		//return x.getTree().getName().equals("appl");
+	}
+	
 	@Override
 	public AbstractPattern visitExpressionCallOrTree(CallOrTree x) {
 		org.meta_environment.rascal.ast.QualifiedName N = x.getQualifiedName();
-		return new AbstractPatternNode(vf, new EvaluatorContext(ctx.getEvaluator(), x), N, visitElements(x.getArguments()));
+		if(isParseTree(x))
+			return new ConcretePattern(vf, new EvaluatorContext(ctx.getEvaluator(), x), N, visitArguments(x));
+		else 
+			return new AbstractPatternNode(vf, new EvaluatorContext(ctx.getEvaluator(), x), N, visitArguments(x));
 	}
+	
+	private java.util.List<AbstractPattern> visitArguments(CallOrTree x){
+		
+		if(isParseTree(x)){
+			System.err.println("visitArguments: " + x.getTree());
+			System.err.println("arg(1) = " + x.getTree().get(1));
+			
+			for(org.meta_environment.rascal.ast.Expression e : x.getArguments()){
+				System.err.println("arg = " + e.getTree());
+				System.err.println("arg = " + e);
+				System.err.println("arg =  isList =" + e.isList());
+			}
+			if(x.getArguments().size() < 2){
+				System.err.println(x.getTree());
+				int zzz = 3/0;
+			}
+			org.meta_environment.rascal.ast.Expression xarg1 = x.getArguments().get(1);
+			
+			java.util.List<org.meta_environment.rascal.ast.Expression> elements = xarg1.getElements();
+			
+			for(org.meta_environment.rascal.ast.Expression e : elements){
+				System.err.println("elm = " + e.getTree());
+				System.err.println("elm = " + e);
+			}
+				
+			ArrayList<AbstractPattern> args = new java.util.ArrayList<AbstractPattern>();
+			int i = 0;
+			for(int j = 0; j < elements.size(); j += 2){
+				System.err.println("adding: " + elements.get(j).getTree());
+				args.add(i++, elements.get(j).accept(this));
+				if(j+1 < elements.size())
+					System.err.println("skipping: " + elements.get(j+1).getTree());
+			}
+			for(AbstractPattern ap : args){
+				System.err.println("arg: " + ap);
+			}
+			return args;
+		} else {
+			java.util.List<org.meta_environment.rascal.ast.Expression> elements = x.getArguments();
+			ArrayList<AbstractPattern> args = new java.util.ArrayList<AbstractPattern>(elements.size());
+			
+			int i = 0;
+			for(org.meta_environment.rascal.ast.Expression e : elements){
+				args.add(i++, e.accept(this));
+			}
+			return args;
+		}
+	}
+	
 	
 	private java.util.List<AbstractPattern> visitElements(java.util.List<org.meta_environment.rascal.ast.Expression> elements){
 		ArrayList<AbstractPattern> args = new java.util.ArrayList<AbstractPattern>(elements.size());
