@@ -105,6 +105,8 @@ public class DebuggableEvaluator extends Evaluator {
 
 	protected IDebugger debugger;
 	private boolean suspendRequest;
+	private boolean statementStepMode;
+	private boolean expressionStepMode;
 
 	public DebuggableEvaluator(IValueFactory f, ASTFactory astFactory,
 			Writer errorWriter, ModuleEnvironment scope, IDebugger debugger) {
@@ -602,7 +604,7 @@ public class DebuggableEvaluator extends Evaluator {
 	@Override
 	public Result<IValue> visitStatementExpression(Expression x) {
 		//do not need to call suspendStatement if expressionMode is enabled
-		if (! expressionModeEnabled()) {
+		if (! expressionStepModeEnabled()) {
 			suspendStatement();
 		}
 		return super.visitStatementExpression(x);
@@ -713,7 +715,7 @@ public class DebuggableEvaluator extends Evaluator {
 		if(suspendRequest) {
 			debugger.notifySuspend();
 			suspendRequest = false;
-		} else if (expressionModeEnabled()) {
+		} else if (expressionStepModeEnabled()) {
 			if (debugger.isStepping() || debugger.hasEnabledBreakpoint(getCurrentAST().getLocation())) {
 				debugger.notifySuspend();
 			}
@@ -724,7 +726,7 @@ public class DebuggableEvaluator extends Evaluator {
 		if(suspendRequest) {
 			debugger.notifySuspend();
 			suspendRequest = false;
-		} else if (statementModeEnabled()) {
+		} else if (statementStepModeEnabled()) {
 			if (debugger.isStepping() || debugger.hasEnabledBreakpoint(getCurrentAST().getLocation())) {
 				debugger.notifySuspend();
 			}
@@ -741,14 +743,20 @@ public class DebuggableEvaluator extends Evaluator {
 		suspendRequest = true;
 	}
 
-	private boolean expressionModeEnabled() {
-		// TODO: To implement
-		return true;
+	public boolean expressionStepModeEnabled() {
+		return expressionStepMode;
 	}
 
-	private boolean statementModeEnabled() {
-		// TODO: To implement
-		return true;
+	public void setExpressionStepMode(boolean value) {
+		expressionStepMode = value;
+	}
+
+	public boolean statementStepModeEnabled() {
+		return statementStepMode;
+	}
+
+	public void setStatementStepMode(boolean value) {
+		statementStepMode = value;
 	}
 
 }
