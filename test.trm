@@ -1,0 +1,5 @@
+module A public int j = 0; 
+				      data Int = i(int i) | i(Int j);
+				      public Int Example = i(0);
+		              rule test i(Example) => i(1);
+				      

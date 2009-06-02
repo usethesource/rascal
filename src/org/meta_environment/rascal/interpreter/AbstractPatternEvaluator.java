@@ -194,11 +194,11 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 		super(vf, ctx);
 		this.name = qualifiedName;
 		this.children = children;
-		//System.err.println("AbstractPatternNode: " + name + ", #children: " + children.size() );
-		//System.err.println(name.getTree());
-		//for(AbstractPattern ap : children){
-		//	System.err.println(ap);
-		//}
+		System.err.println("AbstractPatternNode: " + name + ", #children: " + children.size() );
+		System.err.println(name.getTree());
+		for(AbstractPattern ap : children){
+			System.err.println(ap);
+		}
 	}
 	
 	@Override
@@ -1482,7 +1482,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 	protected org.meta_environment.rascal.ast.QualifiedName name;
 	private Type type;
 	protected boolean anonymous = false;
-	private boolean debug = false;
+	private boolean debug = true;
 	protected Environment env; 
 	
 	AbstractPatternQualifiedName(IValueFactory vf, Environment env, EvaluatorContext ctx, org.meta_environment.rascal.ast.QualifiedName name){
@@ -1492,6 +1492,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 		this.env = env;
 		// Look for this variable while we are constructing this pattern
 		if(anonymous){
+			System.err.println("***anonymous layout***");
 			type = TypeFactory.getInstance().valueType();
 		} else {
 			Result<IValue> varRes = env.getVariable(name);
@@ -2040,8 +2041,8 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 	}
 	
 	private boolean isParseTree(CallOrTree x){
-		return false;
-		//return x.getTree().getName().equals("appl");
+//		return false;
+		return Names.name(Names.lastName(x.getQualifiedName())).equals("appl");
 	}
 	
 	@Override
@@ -2138,7 +2139,7 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 		Type signature = ctx.getEvaluator().tf.tupleType(new Type[0]);
 
 		Result<IValue> r = ctx.getEvaluator().getCurrentEnvt().getVariable(name);
-//System.err.println("name = " + name.toString());
+System.err.println("name = " + name.toString());
 		if (r != null) {
 			if (r.getValue() != null) {
 				// Previously declared and initialized variable
