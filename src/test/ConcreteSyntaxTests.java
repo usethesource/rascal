@@ -39,7 +39,13 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	public void varA(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("[|<someA>|] := [|a|];"));
+		assertTrue(runTestInSameEvaluator("[|<someA*>|] := [|a|];"));
+	}
+	
+	@Test
+	public void varAtyped(){
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("[|<A someA>|] := [|a|];"));
 	}
 	
 	@Test
@@ -68,7 +74,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	public void Dvars(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("[|<Ds>|] := [|d d|];"));
+		assertTrue(runTestInSameEvaluator("[|<Xs>|] := [|d d|];"));
 	}
 	
 	@Test
@@ -98,7 +104,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	public void Evars(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("[|<Es>|] := [|e, e|];"));
+		assertTrue(runTestInSameEvaluator("[|<Xs>|] := [|e, e|];"));
 	}
 	
 	

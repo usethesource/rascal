@@ -403,7 +403,7 @@ public class ASTBuilder {
 						return liftVariable(tree);
 					}
 
-					if (match && tree.getProduction().getRhs().isLayout()) {
+					if (match && tree.getProduction().getRhs().isCfOptLayout()) {
 						return wildCard(constr);
 					}
 					
@@ -490,7 +490,7 @@ public class ASTBuilder {
 	}
 
 	private Expression wildCard(IConstructor node) {
-		return new Expression.QualifiedName(node, makeQualifiedName(node, RASCAL_SORT_PREFIX));
+		return new Expression.QualifiedName(node, makeQualifiedName(node, "_"));
 	}
 
 	private QualifiedName makeQualifiedName(IConstructor node, String name) {

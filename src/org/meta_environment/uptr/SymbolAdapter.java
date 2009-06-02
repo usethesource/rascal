@@ -28,7 +28,7 @@ public class SymbolAdapter {
 	}
 
 	public SymbolAdapter getSymbol() {
-		if (isCf() || isLex()) {
+		if (isCf() || isLex() || isOpt()) {
 			return new SymbolAdapter((IConstructor) tree.get("symbol"));
 		}
 		
@@ -67,6 +67,23 @@ public class SymbolAdapter {
 		return tree.getConstructorType() == Factory.Symbol_Layout;
 	}
 	
+	public boolean isCfOptLayout() {
+		if (isCf()) {
+			SymbolAdapter sym = getSymbol();
+			if (sym.isOpt()) {
+				sym = sym.getSymbol();
+				if (sym.isLayout()) {
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
+	private boolean isOpt() {
+		return tree.getConstructorType() == Factory.Symbol_Opt;
+	}
+
 	public boolean isIterStarSep() {
 		return tree.getConstructorType() == Factory.Symbol_IterStarSep;
 	}
