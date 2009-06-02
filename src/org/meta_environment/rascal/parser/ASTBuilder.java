@@ -10,9 +10,11 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISet;
+import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.ASTStatistics;
 import org.meta_environment.rascal.ast.AbstractAST;
@@ -27,9 +29,15 @@ import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.ast.Statement;
 import org.meta_environment.rascal.ast.StringLiteral;
+import org.meta_environment.rascal.ast.Expression.Ambiguity;
+import org.meta_environment.rascal.ast.Expression.TypedVariable;
+import org.meta_environment.rascal.ast.Type.Symbol;
+import org.meta_environment.rascal.interpreter.Symbols;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.ParsetreeAdapter;
+import org.meta_environment.uptr.ProductionAdapter;
+import org.meta_environment.uptr.SymbolAdapter;
 import org.meta_environment.uptr.TreeAdapter;
 
 
@@ -502,22 +510,59 @@ public class ASTBuilder {
 
 	private Expression liftVariable(TreeAdapter tree) {
 		String cons = tree.getConstructorName();
-		String varName;
 		
 		if (cons.equals("MetaVariable")) {
-			varName = new TreeAdapter((IConstructor) tree.getASTArgs().get(0)).yield();
-		}
-		else if (cons.equals("TypedMetaVariable")) {
-			varName = new TreeAdapter((IConstructor) tree.getASTArgs().get(1)).yield();
+			IConstructor arg = (IConstructor) tree.getASTArgs().get(0);
+			
+			if (arg.getConstructorType() == Factory.Tree_Amb) {
+				return filterNestedPattern(tree, new TreeAdapter(arg)); 
+			}
+			
+			return (Expression) buildValue(arg);
 		}
 		else {
 			throw new ImplementationError("Unexpected meta variable while lifting pattern");
 		}
+	}
+
+	/**
+	 * Removes patterns like <PROGRAM p> where the <...> hole is not nested in a place
+	 * where a PROGRAM is expected. Also, patterns that directly nest concrete syntax patterns
+	 * again, like [| <[| ... |]> |] are filtered.
+	 */
+	private Expression filterNestedPattern(TreeAdapter antiQuote, TreeAdapter pattern) {
+		ISet alternatives = pattern.getAlternatives();
+		List<Expression> result = new ArrayList<Expression>(alternatives.size());
+		 
+		SymbolAdapter expected = antiQuote.getProduction().getRhs();
 		
-		Expression.QualifiedName ast = new Expression.QualifiedName(tree.getTree(), makeQualifiedName(tree.getTree(), varName));
-		ast.getStats().setNestedMetaVariables(1);
+		// any alternative that is a typed variable must be parsed using a 
+		// MetaVariable that produced exactly the same type as is declared inside
+		// the < > brackets.
+		for (IValue alt : alternatives) {
+			if (isEmbedding(new TreeAdapter((IConstructor) alt))) {
+				continue; // direct nesting
+			}
+			Expression exp = (Expression) buildValue(alt);
 		
-		return ast;
+			if (exp.isTypedVariable()) {
+				Expression.TypedVariable var = (Expression.TypedVariable) alt;
+					
+				if (Symbols.typeToSymbol(var.getType()).equals(expected)) {
+					result.add(exp);
+				}
+			}
+			else {
+				result.add(exp);
+			}
+		}
+		
+		if (result.size() == 1) {
+			return result.get(0);
+		}
+		else {
+			return new Expression.Ambiguity(antiQuote.getTree(), result);
+		}
 	}
 
 	private IConstructor getConcretePattern(TreeAdapter tree) {
