@@ -49,8 +49,8 @@ public void dashti(int n){
    allStates = ({[]} : 0);                      // predefine the final state
    Transitions = (0:{});
 //   distance[0] = 0;
-//  expand(toSet(permutations([1 .. N])), 0);
-	expand(toSet(permutations([1 .. N])));
+//  expand(permutations([1 .. N]), 0);
+	expand(permutations([1 .. N]));
 }
 
 Permutation transfer(Permutation perm, Symbol sym){
