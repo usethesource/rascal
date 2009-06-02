@@ -2027,6 +2027,7 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 	}
 	
 	public boolean isPattern(org.meta_environment.rascal.ast.Expression pat){
+		System.err.println("isPattern: " + pat);
 		return (pat.isLiteral() && ! pat.getLiteral().isRegExp()) || 
 		       pat.isCallOrTree() || pat.isList() || 
 		       pat.isSet() || pat.isMap() || pat.isTuple() ||
@@ -2041,8 +2042,8 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 	}
 	
 	private boolean isParseTree(CallOrTree x){
-//		return false;
-		return Names.name(Names.lastName(x.getQualifiedName())).equals("appl");
+		return false;
+		//return Names.name(Names.lastName(x.getQualifiedName())).equals("appl");
 	}
 	
 	@Override
