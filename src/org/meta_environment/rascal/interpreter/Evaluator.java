@@ -359,6 +359,21 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			throw new UnguardedInsertError(stat);
 		}
 	}
+	
+	/**
+	 * Evaluate an expression
+	 * @param expr
+	 * @return
+	 */
+	public Result<IValue> eval(Expression expr) {
+		currentAST = expr;
+		Result<IValue> r = expr.accept(this);
+		if(r != null){
+			return r;
+		}
+
+		throw new NotYetImplemented(expr.toString());
+	}
 
 	/**
 	 * Evaluate a declaration
@@ -3257,4 +3272,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	public void setCurrentEnvt(Environment env) {
 		currentEnvt = env;
 	}
+
+	
 }
