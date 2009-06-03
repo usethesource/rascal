@@ -49,7 +49,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("[|<A someA>|] := [|a|];"));
 	}
 	
-	@Test
+	@Test(expected=AmbiguousConcretePattern.class)
 	public void VarATypedInsert(){
 		prepare("import src::test::GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{ [|<A someA>|] := [|a|]; [|<someA>|] == [|a|]; }"));
