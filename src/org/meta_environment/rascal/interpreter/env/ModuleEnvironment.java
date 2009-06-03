@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -36,6 +37,8 @@ public class ModuleEnvironment extends Environment {
 	protected final Map<String, ModuleEnvironment> importedModules;
 	protected final Map<Type, List<Type>> extensions;
 	protected final TypeStore typeStore;
+	protected final Map<String, ConcreteSyntaxType> concreteSyntaxTypes;
+	
 	protected static final TypeFactory TF = TypeFactory.getInstance();
 	
 	public ModuleEnvironment(String name) {
@@ -43,6 +46,7 @@ public class ModuleEnvironment extends Environment {
 		this.name = name;
 		this.importedModules = new HashMap<String, ModuleEnvironment>();
 		this.extensions = new HashMap<Type, List<Type>>();
+		this.concreteSyntaxTypes = new HashMap<String, ConcreteSyntaxType>();
 		this.typeStore = new TypeStore();
 	}
 	
@@ -217,6 +221,19 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	@Override
+	public Type concreteSyntaxType(String name, org.meta_environment.rascal.ast.Type type) {
+		ConcreteSyntaxType sort = new ConcreteSyntaxType(type);
+		concreteSyntaxTypes.put(name, sort);
+		return sort;
+	}
+	
+	public Type concreteSyntaxType(String name, IConstructor symbol) {
+		ConcreteSyntaxType sort = new ConcreteSyntaxType(symbol);
+		concreteSyntaxTypes.put(name, sort);
+		return sort;
+	}
+	
+	@Override
 	public Type constructorFromTuple(Type adt, String name, Type tupleType) {
 		return TF.constructorFromTuple(typeStore, adt, name, tupleType);
 	}
@@ -336,6 +353,11 @@ public class ModuleEnvironment extends Environment {
 	@Override
 	public Type lookupAbstractDataType(String name) {
 		return typeStore.lookupAbstractDataType(name);
+	}
+	
+	@Override
+	public Type lookupConcreteSyntaxType(String name) {
+		return concreteSyntaxTypes.get(name);
 	}
 	
 	@Override

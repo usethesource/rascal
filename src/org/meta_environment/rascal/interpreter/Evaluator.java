@@ -159,6 +159,7 @@ import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.asserts.NotYetImplemented;
 import org.meta_environment.rascal.interpreter.control_exceptions.Failure;
 import org.meta_environment.rascal.interpreter.control_exceptions.Return;
+import org.meta_environment.rascal.interpreter.env.ConcreteSyntaxType;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.env.JavaFunction;
@@ -172,6 +173,7 @@ import org.meta_environment.rascal.interpreter.load.IModuleFileLoader;
 import org.meta_environment.rascal.interpreter.load.ISdfSearchPathContributor;
 import org.meta_environment.rascal.interpreter.load.ModuleLoader;
 import org.meta_environment.rascal.interpreter.result.BoolResult;
+import org.meta_environment.rascal.interpreter.result.ConstructorResult;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.result.ResultFactory;
 import org.meta_environment.rascal.interpreter.staticErrors.AmbiguousConcretePattern;
@@ -190,6 +192,9 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnguardedReturnError
 import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedOperationError;
 import org.meta_environment.rascal.parser.ModuleParser;
+import org.meta_environment.uptr.Factory;
+import org.meta_environment.uptr.SymbolAdapter;
+import org.meta_environment.uptr.TreeAdapter;
 
 @SuppressWarnings("unchecked")
 public class Evaluator extends NullASTVisitor<Result<IValue>> {
@@ -431,7 +436,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 
 	private IValue applyRules(IValue v) {
-
+		
+		
 		//System.err.println("applyRules(" + v + ")");
 		// we search using the run-time type of a value
 		Type typeToSearchFor = v.getType();
@@ -441,6 +447,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 		java.util.List<RewriteRule> rules = heap.getRules(typeToSearchFor);
 		if(rules.isEmpty()){
+			// weird side-effect but it works
+			declareConcreteSyntaxType(v);
 			return v;
 		}
 
@@ -448,7 +456,27 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		/* innermost is achieved by repeated applications of applyRules
 		 * when intermediate results are produced.
 		 */
+		
+		// weird side-effect but it works
+		declareConcreteSyntaxType(tr.value);
+		
 		return tr.value;
+	}
+
+	private void declareConcreteSyntaxType(IValue value) {
+		// if somebody constructs a sort, then this implicitly declares
+		// a corresponding Rascal type.
+		Type type = value.getType();
+		
+		if (type == Factory.Symbol) {
+			IConstructor symbol = (IConstructor) value;
+			
+			if (symbol.getConstructorType() == Factory.Symbol_Sort) {
+				currentEnvt.concreteSyntaxType(new SymbolAdapter(symbol).getName(), 
+						(IConstructor) Factory.Symbol_Cf.make(vf, value));
+			}
+		}
+		
 	}
 
 	Environment pushEnv() {
@@ -1047,9 +1075,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	 * TODO: We now first build the tree and then apply rules to it. Change this so
 	 * that we can avoid building the tree at all.
 	 */
-	private Result<IValue> constructTree(QualifiedName functionName, IValue[] actuals, Type signature) {
+	private <T extends IValue> Result<T> constructTree(QualifiedName functionName, IValue[] actuals, Type signature) {
 		String sort;
 		String cons;
+		Result<IValue> result = null;
 
 		cons = Names.consName(functionName);
 		sort = Names.sortName(functionName);
@@ -1072,11 +1101,30 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			Map<Type,Type> localBindings = new HashMap<Type,Type>();
 			candidate.getFieldTypes().match(tf.tupleType(actuals), localBindings);
 
-			return makeResult(candidate.getAbstractDataType().instantiate(new TypeStore(), localBindings), 
+			result = makeResult(candidate.getAbstractDataType().instantiate(new TypeStore(), localBindings), 
 					applyRules(candidate.make(vf, actuals)), new EvaluatorContext(this, getCurrentAST()));
 		}
+		else {
+			result = makeResult(tf.nodeType(), applyRules(vf.node(cons, actuals)), new EvaluatorContext(this, getCurrentAST()));
+		}
+		
+		declareConcreteSyntaxType(result.getValue());
+		return (Result<T>) detectConcreteSyntaxTree(result);
+	}
 
-		return makeResult(tf.nodeType(), applyRules(vf.node(cons, actuals)), new EvaluatorContext(this, getCurrentAST()));
+	private <T extends IValue> Result<T> detectConcreteSyntaxTree(Result<T> result) {
+		if (result.getType() == Factory.Tree) {
+			IConstructor tree = (IConstructor) result.getValue();
+			
+			Type cons = tree.getConstructorType();
+			if (cons == Factory.Tree_Appl || cons == Factory.Tree_Amb) {
+				TreeAdapter adapter = new TreeAdapter(tree);
+				if (adapter.isAppl() && adapter.getProduction().getRhs().isCf()) {
+					return (Result<T>) new ConstructorResult(new ConcreteSyntaxType((IConstructor) result.getValue()), (IConstructor) result.getValue(), new EvaluatorContext(this, getCurrentAST()));
+				}
+			}
+		}
+		return result;
 	}
 
 	@Override
@@ -1750,10 +1798,17 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 				 */
 				for(IValue val : ((IList) resultElem.getValue())){
 					elementType = elementType.lub(val.getType());
+					if (elementType == tf.valueType()) {
+						System.err.println("hoi");
+					}
 					results.add(val);
 				}
 			} else {
+				if (elementType.lub(resultElem.getType()).isValueType()) {
+					System.err.println("hoi");
+				}
 				elementType = elementType.lub(resultElem.getType());
+				
 				results.add(results.size(), resultElem.getValue());
 			}
 		}
