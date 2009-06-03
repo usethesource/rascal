@@ -279,9 +279,9 @@ class MatchEvaluator implements Iterator<Result<IValue>> {
     	this.oldEnv = ev.getCurrentEnvt();
     	this.pushedEnv = evaluator.pushEnv();
     	//System.err.println("MatchEvaluator: push " + pat);
+     	IValue subjectValue = subject.accept(ev).getValue();
     	mp = ev.evalPattern(pat);
-    	IValue subjectValue = subject.accept(ev).getValue();
-    	// Type check is done by each pattern
+   	// Type check is done by each pattern
     //	if(!ev.mayMatch(mp.getType(pushedEnv), subjectValue.getType()))
     	if(!mp.mayMatch(subjectValue, pushedEnv))
     		throw new UnexpectedTypeError(mp.getType(pushedEnv), subjectValue.getType(), pat);
