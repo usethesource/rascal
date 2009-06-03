@@ -593,4 +593,8 @@ public class Environment {
 		return callerLocation;
 	}
 
+	public Set<String> getImports() {
+		return getRoot().getImports();
+	}
+
 }
