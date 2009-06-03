@@ -2100,7 +2100,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 	@Override
 	public Result<IValue> visitExpressionTypedVariable(TypedVariable x) {
-		throw new SyntaxError("Typed variable outside matching context", x.getLocation());
+		throw new SyntaxError("expression", x.getLocation());
 	}
 
 	private boolean matchAndEval(IValue subject, org.meta_environment.rascal.ast.Expression pat, Statement stat){

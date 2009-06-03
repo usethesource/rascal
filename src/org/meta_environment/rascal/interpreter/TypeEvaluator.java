@@ -31,6 +31,7 @@ import org.meta_environment.rascal.ast.StructuredType.Tuple;
 import org.meta_environment.rascal.ast.Symbol.Empty;
 import org.meta_environment.rascal.ast.Type.Ambiguity;
 import org.meta_environment.rascal.ast.Type.Basic;
+import org.meta_environment.rascal.ast.Type.Bracket;
 import org.meta_environment.rascal.ast.Type.Function;
 import org.meta_environment.rascal.ast.Type.Structured;
 import org.meta_environment.rascal.ast.Type.Symbol;
@@ -113,6 +114,11 @@ public class TypeEvaluator {
 			return x.getFormals().accept(this);
 		}
 
+		@Override
+		public Type visitTypeBracket(Bracket x) {
+			return x.getType().accept(this);
+		}
+		
 		@Override
 		public Type visitParametersVarArgs(VarArgs x) {
 			Type formals = x.getFormals().accept(this);

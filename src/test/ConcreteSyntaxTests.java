@@ -96,7 +96,8 @@ public class ConcreteSyntaxTests extends TestFramework {
 		prepare("import src::test::GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("[|d d|] := [|d d|];"));
 	}
-	@Test
+	
+	@Test(expected=AmbiguousConcretePattern.class)
 	public void Dvars(){
 		prepare("import src::test::GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("[|<Xs>|] := [|d d|];"));
@@ -105,7 +106,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	public void DvarsTyped(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{ [|<D* Xs>|] := [|d d|]; Xs == [| d d |]; }"));
+		assertTrue(runTestInSameEvaluator("{ [|<D+ Xs>|] := [|d d|]; Xs == [| d d |]; }"));
 	}
 	
 	@Test

@@ -18,8 +18,6 @@ import org.meta_environment.rascal.ast.Expression.Closure;
 import org.meta_environment.rascal.ast.Expression.ClosureCall;
 import org.meta_environment.rascal.ast.Expression.Composition;
 import org.meta_environment.rascal.ast.Expression.Comprehension;
-import org.meta_environment.rascal.ast.Expression.ConcreteQuoted;
-import org.meta_environment.rascal.ast.Expression.ConcreteUnquoted;
 import org.meta_environment.rascal.ast.Expression.Descendant;
 import org.meta_environment.rascal.ast.Expression.Division;
 import org.meta_environment.rascal.ast.Expression.Enumerator;
@@ -185,19 +183,6 @@ public class DebuggableEvaluator extends Evaluator {
 	public Result<IValue> visitExpressionComprehension(Comprehension x) {
 		suspendExpression(x);
 		return super.visitExpressionComprehension(x);
-	}
-
-	@Override
-	public Result<IValue> visitExpressionConcreteQuoted(ConcreteQuoted x) {
-		suspendExpression(x);
-		return super.visitExpressionConcreteQuoted(x);
-	}
-
-
-	@Override
-	public Result<IValue> visitExpressionConcreteUnquoted(ConcreteUnquoted x) {
-		suspendExpression(x);
-		return super.visitExpressionConcreteUnquoted(x);
 	}
 
 	@Override
