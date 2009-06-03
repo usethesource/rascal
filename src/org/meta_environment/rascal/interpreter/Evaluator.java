@@ -1708,6 +1708,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	// ----- General method for matching --------------------------------------------------
 
 	protected MatchPattern evalPattern(org.meta_environment.rascal.ast.Expression pat){
+		if (pat instanceof Expression.Ambiguity) {
+			throw new AmbiguousConcretePattern(pat);
+		}
+		
 		AbstractPatternEvaluator pe = makePatternEvaluator(pat);
 		if(pe.isPattern(pat)){
 			return pat.accept(pe);

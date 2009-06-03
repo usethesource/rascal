@@ -3,6 +3,7 @@ package test;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
+import org.meta_environment.rascal.interpreter.staticErrors.AmbiguousConcretePattern;
 
 public class ConcreteSyntaxTests extends TestFramework {
 	
@@ -36,10 +37,10 @@ public class ConcreteSyntaxTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("[|a b|] := [|a   b|];"));
 	}
 	
-	@Test
+	@Test(expected=AmbiguousConcretePattern.class)
 	public void varA(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("[|<someA>|] := [|a|];"));
+		runTestInSameEvaluator("[|<someA>|] := [|a|];");
 	}
 	
 	@Test

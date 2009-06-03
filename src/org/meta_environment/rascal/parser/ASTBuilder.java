@@ -3,18 +3,15 @@ package org.meta_environment.rascal.parser;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISet;
-import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.ASTStatistics;
 import org.meta_environment.rascal.ast.AbstractAST;
@@ -29,14 +26,10 @@ import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.ast.Statement;
 import org.meta_environment.rascal.ast.StringLiteral;
-import org.meta_environment.rascal.ast.Expression.Ambiguity;
-import org.meta_environment.rascal.ast.Expression.TypedVariable;
-import org.meta_environment.rascal.ast.Type.Symbol;
 import org.meta_environment.rascal.interpreter.Symbols;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.ParsetreeAdapter;
-import org.meta_environment.uptr.ProductionAdapter;
 import org.meta_environment.uptr.SymbolAdapter;
 import org.meta_environment.uptr.TreeAdapter;
 
@@ -198,7 +191,7 @@ public class ASTBuilder {
 	
 	private List<AbstractAST> filterList(TreeAdapter argTree) {
 		ISet alts = argTree.getAlternatives();
-		ASTStatistics ref = null;
+		ASTStatistics ref = new ASTStatistics();
 		List<List<AbstractAST>> result = new ArrayList<List<AbstractAST>>(/* size unknown */);
 	
 		for (IValue alt : alts) {
@@ -326,7 +319,7 @@ public class ASTBuilder {
 		else if (altsOut.size() == 1) {
 			return altsOut.iterator().next();
 		}
-
+		
 		try {
 			if (isRascalSort(sort)) {
 				sort = sort.substring(1);
@@ -342,7 +335,7 @@ public class ASTBuilder {
 
 			Method make = clazz.getMethod("make" + sort + "Ambiguity", formals);
 			AbstractAST ast = (AbstractAST) make.invoke(factory, actuals);
-			ast.setStats(ref);
+			ast.setStats(ref != null ? ref : new ASTStatistics());
 			return ast;
 		} catch (SecurityException e) {
 			throw unexpectedError(e);
@@ -388,9 +381,11 @@ public class ASTBuilder {
 		IConstructor pattern = getConcretePattern(tree);
 		Expression ast = lift(pattern, pattern, match);
 		
-		ASTStatistics stats = ast.getStats();
-		stats.setConcreteFragmentCount(1);
-		stats.setConcreteFragmentSize(new TreeAdapter(pattern).yield().length());
+		if (ast != null) {
+			ASTStatistics stats = ast.getStats();
+			stats.setConcreteFragmentCount(1);
+			stats.setConcreteFragmentSize(new TreeAdapter(pattern).yield().length());
+		}
 		
 		return ast;
 	}
@@ -407,7 +402,8 @@ public class ASTBuilder {
 				if (constr.getConstructorType() == Factory.Tree_Appl) {
 					TreeAdapter tree = new TreeAdapter(constr);
 					String cons = tree.getConstructorName();
-					if (cons != null && (cons.equals("MetaVariable") || cons.equals("TypedMetaVariable"))) {
+					if (cons != null && (cons.equals("MetaVariable") 
+							|| cons.equals("TypedMetaVariable"))) {
 						return liftVariable(tree);
 					}
 
@@ -427,7 +423,7 @@ public class ASTBuilder {
 			}
 
 			String name = node.getName();
-			List<Expression> args = new LinkedList<Expression>();
+			List<Expression> args = new ArrayList<Expression>(node.arity());
 
 			for (IValue child : node) {
 				Expression ast = lift(child, source, match);
@@ -479,17 +475,23 @@ public class ASTBuilder {
 			for (IValue elem : set) {
 				Expression ast = lift(elem, source, match);
 				
-				if (ref == null) {
-					ref = ast.getStats();
-					result.add(ast);
-				}
-				else {
-					ref = filter(result, ast, ref);
+				if (ast != null) {
+					if (ref == null) {
+						ref = ast.getStats();
+						result.add(ast);
+					}
+					else {
+						ref = filter(result, ast, ref);
+					}
 				}
 			}
 			
+			if (result.size() == 0) {
+				return null; // all alts filtered
+			}
+			
 			Expression.Set ast = new Expression.Set(source, result);
-			ast.setStats(ref);
+			ast.setStats(ref != null ? ref : new ASTStatistics());
 			return ast;
 		}
 		else {
@@ -517,8 +519,16 @@ public class ASTBuilder {
 			if (arg.getConstructorType() == Factory.Tree_Amb) {
 				return filterNestedPattern(tree, new TreeAdapter(arg)); 
 			}
+			else {
+				Expression result = (Expression) buildValue(arg);
 			
-			return (Expression) buildValue(arg);
+				if (correctlyNestedPattern(tree.getProduction().getRhs(), result)) {
+					return result;
+				}
+				else {
+					return null;
+				}
+			}
 		}
 		else {
 			throw new ImplementationError("Unexpected meta variable while lifting pattern");
@@ -543,16 +553,10 @@ public class ASTBuilder {
 			if (isEmbedding(new TreeAdapter((IConstructor) alt))) {
 				continue; // direct nesting
 			}
+			
 			Expression exp = (Expression) buildValue(alt);
 		
-			if (exp.isTypedVariable()) {
-				Expression.TypedVariable var = (Expression.TypedVariable) alt;
-					
-				if (Symbols.typeToSymbol(var.getType()).equals(expected)) {
-					result.add(exp);
-				}
-			}
-			else {
+			if (correctlyNestedPattern(expected, exp)) {
 				result.add(exp);
 			}
 		}
@@ -563,6 +567,21 @@ public class ASTBuilder {
 		else {
 			return new Expression.Ambiguity(antiQuote.getTree(), result);
 		}
+	}
+
+	private boolean correctlyNestedPattern(SymbolAdapter expected, Expression exp) {
+		if (exp.isTypedVariable()) {
+			Expression.TypedVariable var = (Expression.TypedVariable) exp;
+				
+			if (Symbols.typeToSymbol(var.getType()).equals(expected.getTree())) {
+				return true;
+			}
+			else {
+				return false;
+			}
+		}
+		
+		return true;
 	}
 
 	private IConstructor getConcretePattern(TreeAdapter tree) {
