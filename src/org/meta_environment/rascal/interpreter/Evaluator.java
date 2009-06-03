@@ -56,6 +56,7 @@ import org.meta_environment.rascal.ast.Replacement;
 import org.meta_environment.rascal.ast.Statement;
 import org.meta_environment.rascal.ast.Strategy;
 import org.meta_environment.rascal.ast.StringLiteral;
+import org.meta_environment.rascal.ast.Tags;
 import org.meta_environment.rascal.ast.Toplevel;
 import org.meta_environment.rascal.ast.Assignable.Constructor;
 import org.meta_environment.rascal.ast.Assignable.FieldAccess;
@@ -165,6 +166,7 @@ import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.env.JavaFunction;
 import org.meta_environment.rascal.interpreter.env.Lambda;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
+import org.meta_environment.rascal.interpreter.env.ParserFunction;
 import org.meta_environment.rascal.interpreter.env.RascalFunction;
 import org.meta_environment.rascal.interpreter.env.RewriteRule;
 import org.meta_environment.rascal.interpreter.load.FromCurrentWorkingDirectoryLoader;
@@ -224,6 +226,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 	private java.util.List<ClassLoader> classLoaders;
 	private ModuleEnvironment rootScope;
+	private ModuleParser parser;
 
 	public Evaluator(IValueFactory f, ASTFactory astFactory, Writer errorWriter, ModuleEnvironment scope) {
 		this(f, astFactory, errorWriter, scope, new GlobalEnvironment());
@@ -242,7 +245,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		rootScope = scope;
 		this.classLoaders = new LinkedList<ClassLoader>();
 		this.javaBridge = new JavaBridge(errorWriter, classLoaders);
-
+		this.parser = parser;
 		loader = new ModuleLoader(parser);
 
 		// cwd loader
@@ -644,6 +647,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	protected void handleSDFModule(
 			org.meta_environment.rascal.ast.Import.Default x) {
 		loadParseTreeModule(x);
+		getCurrentModuleEnvironment().addSDFImport(getUnescapedModuleName(x));
 	}
 
 	private void addImportToCurrentModule(
@@ -1580,16 +1584,38 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		Lambda lambda;
 		boolean varArgs = x.getSignature().getParameters().isVarArgs();
 
-		if (hasJavaModifier(x)) {
-			lambda = new org.meta_environment.rascal.interpreter.env.JavaMethod(this, x, varArgs, getCurrentEnvt(), javaBridge);
+		if (isParserForwardDecl(x)) {
+			return parserFunction(x);
 		}
-		else {
+		
+		if (!hasJavaModifier(x)) {
 			throw new MissingModifierError("java", x);
 		}
-
+		
+		lambda = new org.meta_environment.rascal.interpreter.env.JavaMethod(this, x, varArgs, getCurrentEnvt(), javaBridge);
 		String name = Names.name(x.getSignature().getName());
 		getCurrentEnvt().storeFunction(name, lambda);
 
+		return lambda;
+	}
+
+	private boolean isParserForwardDecl(Abstract x) {
+		// TODO: check type and arity of of signature
+		Tags tags = x.getTags();
+		if (tags.hasAnnotations()) {
+			for (org.meta_environment.rascal.ast.Tag tag : tags.getAnnotations()) {
+				if (tag.getName().toString().equals("parser")) {
+					return true; 
+				}
+			}
+		}
+		return false;
+	}
+
+	private Result parserFunction(Abstract x) {
+		Lambda lambda = new ParserFunction(this, x, getCurrentEnvt(), loader);
+		String name = Names.name(x.getSignature().getName());
+		getCurrentEnvt().storeFunction(name, lambda);
 		return lambda;
 	}
 

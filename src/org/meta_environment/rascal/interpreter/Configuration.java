@@ -16,6 +16,7 @@ public class Configuration {
 	private final static String RASCAL2TABLE_PROPERTY = "rascal.rascal2table.command";
 	private final static String RASCAL2TABLE_BINDIR_PROPERTY = "rascal.rascal2table.dir";
 	private final static String SDF_LIBRARY_PATH_PROPERTY = "rascal.sdf.library.dir";
+	private static final String SDF2TABLE_PROPERTY = "rascal.sdf.sdf2table.command";
 	
 	private volatile static String basePath = null;
 	
@@ -74,6 +75,29 @@ public class Configuration {
 	public static String getTableCacheDirectoryProperty(){
 		return System.getProperty(CACHE_PATH_PROPERTY, System.getProperty("java.io.tmpdir"));
 	}
+	
+	
+	public static String getSdf2TableCommandProperty() {
+		String sdf2TableCommandProperty = System.getProperty(SDF2TABLE_PROPERTY);
+		if(sdf2TableCommandProperty != null){
+			return sdf2TableCommandProperty;
+		}
+		
+		try{
+			if(basePath != null){
+				sdf2TableCommandProperty = new File(basePath+"pgen/src/sdf2table").getCanonicalPath();
+			}else{
+				sdf2TableCommandProperty = new File("../pgen/src/sdf2table").getCanonicalPath();
+			}
+			
+			System.setProperty(SDF2TABLE_PROPERTY, sdf2TableCommandProperty);
+		}catch(IOException ioex){
+			throw new ImplementationError("unexpected error in impl", ioex);
+		}
+		
+		return sdf2TableCommandProperty;
+	}
+
 	
 	public static String getRascal2TableCommandProperty(){
 		String rascal2TableCommandProperty = System.getProperty(RASCAL2TABLE_PROPERTY);
@@ -141,4 +165,5 @@ public class Configuration {
 		
 		return sdfLibraryPathProperty;
 	}
+
 }
