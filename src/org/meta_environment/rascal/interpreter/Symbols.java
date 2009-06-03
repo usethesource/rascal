@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
+import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.meta_environment.ValueFactoryFactory;
@@ -31,7 +32,7 @@ public class Symbols {
 			return Factory.Symbol_Cf.make(factory, Factory.Symbol_Sort.make(factory, factory.string(Names.name(type.getUser().getName()))));
 		}
 		else if (type.isSymbol()) {
-			return symbol2Symbol(type.getSymbol());
+			return Factory.Symbol_Cf.make(factory, symbol2Symbol(type.getSymbol()));
 		}
 			
 	    return null;
@@ -63,9 +64,6 @@ public class Symbols {
 		if (symbol.isIterStarSep()) {
 			return Factory.Symbol_IterStarSep.make(factory, symbol2Symbol(symbol.getSymbol()), literal2Symbol(symbol.getSep()));
 		}
-		if (symbol.isLiftedSymbol()) {
-			throw new NotYetImplemented(symbol);
-		}
 		if (symbol.isLiteral()) {
 			return literal2Symbol(symbol.getString());
 		}
@@ -74,6 +72,10 @@ public class Symbols {
 		}
 		if (symbol.isSequence()) {
 			return Factory.Symbol_Seq.make(factory, symbols2Symbols(symbol.getHead(), symbol.getTail()));
+		}
+		if (symbol.isSort()) {
+			IString name = factory.string(Names.name(symbol.getName()));
+			return Factory.Symbol_Sort.make(factory, name);
 		}
 		
 		return null;
