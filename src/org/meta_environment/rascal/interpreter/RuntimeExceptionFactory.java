@@ -42,6 +42,8 @@ public class RuntimeExceptionFactory {
 	private static Type NoSuchKey = TF.constructor(TS, E, "NoSuchKey", TF.valueType(), "key");
 	private static Type NoSuchAnnotation = TF.constructor(TS, E, "NoSuchAnnotation", TF.stringType(), "label");
 	private static Type NoSuchField = TF.constructor(TS, E, "NoSuchField", TF.stringType(), "label");
+	private static Type ParseError = TF.constructor(TS, E, "ParseError", TF.sourceLocationType(), "location");
+	
 	
 	
 	private static Type Java = TF.constructor(TS, E, "Java", TF.stringType(), "message");
@@ -120,5 +122,9 @@ public class RuntimeExceptionFactory {
 
 	public static Throw noSuchField(String name, AbstractAST ast, String trace) {
 		return new Throw(NoSuchField.make(VF, VF.string(name)), ast, trace);
+	}
+	
+	public static Throw parseError(ISourceLocation loc, AbstractAST ast, String trace) {
+		return new Throw(ParseError.make(VF, loc), ast, trace);
 	}
 }

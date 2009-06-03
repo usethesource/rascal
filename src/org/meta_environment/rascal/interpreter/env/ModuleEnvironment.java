@@ -2,6 +2,7 @@ package org.meta_environment.rascal.interpreter.env;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -38,6 +39,7 @@ public class ModuleEnvironment extends Environment {
 	protected final Map<Type, List<Type>> extensions;
 	protected final TypeStore typeStore;
 	protected final Map<String, ConcreteSyntaxType> concreteSyntaxTypes;
+	private Set<String> importedSDFModules = new HashSet<String>();
 	
 	protected static final TypeFactory TF = TypeFactory.getInstance();
 	
@@ -57,6 +59,14 @@ public class ModuleEnvironment extends Environment {
 	public void addImport(String name, ModuleEnvironment env) {
 		importedModules.put(name, env);
 		typeStore.importStore(env.typeStore);
+	}
+	
+	public void addSDFImport(String name) {
+		importedSDFModules.add(name);	
+	}
+	
+	public Set<String> getSDFImports() {
+		return importedSDFModules;
 	}
 	
 	@Override
@@ -390,5 +400,7 @@ public class ModuleEnvironment extends Environment {
 	public Type lookupFirstConstructor(String cons, Type args) {
 		return typeStore.lookupFirstConstructor(cons, args);
 	}
+
+	
 	
 }

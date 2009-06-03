@@ -25,6 +25,7 @@ import org.meta_environment.uptr.ParsetreeAdapter;
 import sglr.SGLRInvoker;
 
 public class ModuleParser {
+	protected static final String META_LANGUAGE_KEY = "meta";
 	private final IValueFactory valueFactory = ValueFactoryFactory.getValueFactory();
 	private final SdfImportExtractor importExtractor = new SdfImportExtractor();
 
@@ -43,13 +44,13 @@ public class ModuleParser {
 	}
 
 	public IConstructor parseCommand(Set<String> sdfImports, List<String> sdfSearchPath, String fileName, String command) throws IOException {
-		String table = getOrConstructParseTable(sdfImports, sdfSearchPath);
+		String table = getOrConstructParseTable(META_LANGUAGE_KEY, sdfImports, sdfSearchPath);
 		return parseFromString(table, fileName, command);
 	}
 
 
 	public IConstructor parseModule(List<String> sdfSearchPath, Set<String> sdfImports, String fileName, InputStream source) throws IOException {
-		String table = getOrConstructParseTable(sdfImports, sdfSearchPath);
+		String table = getOrConstructParseTable(META_LANGUAGE_KEY, sdfImports, sdfSearchPath);
 		try {
 			return parseFromStream(table, fileName, source);
 		} catch (FactParseError e) {
@@ -57,15 +58,15 @@ public class ModuleParser {
 		} 
 	}
 
-	protected String getOrConstructParseTable(Set<String> sdfImports, List<String> sdfSearchPath) throws IOException {
+	protected String getOrConstructParseTable(String key, Set<String> sdfImports, List<String> sdfSearchPath) throws IOException {
 		if (sdfImports.isEmpty()) {
 			return Configuration.getDefaultParsetableProperty();
 		}
 
-		String table = getTable(sdfImports, sdfSearchPath);
+		String table = getTable(key, sdfImports, sdfSearchPath);
 
 		if (table == null) {
-			return constructUserDefinedSyntaxTable(sdfImports, sdfSearchPath);
+			return constructUserDefinedSyntaxTable(key, sdfImports, sdfSearchPath);
 		}
 
 		return table;
@@ -91,8 +92,8 @@ public class ModuleParser {
 		return new ParsetreeAdapter(tree).addPositionInformation(fileName);
 	}
 
-	private String constructUserDefinedSyntaxTable(Set<String> sdfImports, List<String> sdfSearchPath) throws IOException {
-		String tablefileName = getTableLocation(sdfImports, sdfSearchPath);
+	protected String constructUserDefinedSyntaxTable(String key, Set<String> sdfImports, List<String> sdfSearchPath) throws IOException {
+		String tablefileName = getTableLocation(key, sdfImports, sdfSearchPath);
 
 		Runtime.getRuntime().exec(new String[] {
 				Configuration.getRascal2TableCommandProperty(),
@@ -118,16 +119,16 @@ public class ModuleParser {
 		return tmp.toString();
 	}
 
-	private String getSdfSearchPath(List<String> sdfSearchPath) {
+	protected String getSdfSearchPath(List<String> sdfSearchPath) {
 		return joinAsPath(sdfSearchPath);
 	}
 
-	private String getImportParameter(Set<String> sdfImports) {
+	protected String getImportParameter(Set<String> sdfImports) {
 		return joinAsPath(sdfImports);
 	}
 
-	private String getTable(Set<String> imports, List<String> sdfSearchPath) throws IOException {
-		String filename = getTableLocation(imports, sdfSearchPath);
+	protected String getTable(String key, Set<String> imports, List<String> sdfSearchPath) throws IOException {
+		String filename = getTableLocation(key, imports, sdfSearchPath);
 
 		if (!new File(filename).canRead()) {
 			return null;
@@ -136,7 +137,7 @@ public class ModuleParser {
 		return filename;
 	}
 
-	private String getTableLocation(Set<String> sdfImports, List<String> sdfSearchPath) throws IOException {
+	protected String getTableLocation(String key, Set<String> sdfImports, List<String> sdfSearchPath) throws IOException {
 		List<String> sorted = new ArrayList<String>(sdfImports);
 		Collections.sort(sorted);
 		InputStream in = null;
@@ -159,7 +160,8 @@ public class ModuleParser {
 			byte[] result = new byte[32];
 			in.read(result);
 
-			return new File(Configuration.getTableCacheDirectoryProperty(), new String(result) + ".tbl").getAbsolutePath();
+			return new File(Configuration.getTableCacheDirectoryProperty(), 
+					parseTableFileName(key, result)).getAbsolutePath();
 		} catch (InterruptedException e) {
 			throw new IOException("could not compute table location: " + e.getMessage());
 		} 
@@ -168,5 +170,9 @@ public class ModuleParser {
 				in.close();
 			}
 		}
+	}
+
+	private String parseTableFileName(String key, byte[] result) {
+		return new String(result) + "-" + key + ".tbl";
 	}
 }

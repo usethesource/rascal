@@ -25,10 +25,11 @@ public class SdfImportExtractor {
 	Set<String> extractImports(AbstractAST ast, List<String> searchPath) {
 		Set<String> allImports = new HashSet<String>();
 		ast.accept(new Extractor(allImports));
-		return filter(allImports, searchPath);
+		return filterSDFImports(allImports, searchPath);
 	}
 	
-	private Set<String> filter(Set<String> allImports, List<String> searchPath) {
+	
+	public static Set<String> filterSDFImports(Set<String> allImports, List<String> searchPath) {
 		Set<String> result = new HashSet<String>();
 		
 		for (String i : allImports) {

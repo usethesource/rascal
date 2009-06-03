@@ -20,7 +20,7 @@ public class CommandParser extends ModuleParser {
 	}
 
 	public IConstructor parseCommand(String command) throws IOException {
-		String table = getOrConstructParseTable(sdfImports, getSdfSearchPath());
+		String table = getOrConstructParseTable(META_LANGUAGE_KEY, sdfImports, getSdfSearchPath());
 		return parseFromString(table, "-", command);
 	}
 	
