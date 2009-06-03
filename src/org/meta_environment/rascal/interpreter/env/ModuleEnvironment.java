@@ -55,6 +55,7 @@ public class ModuleEnvironment extends Environment {
 		typeStore.importStore(env.typeStore);
 	}
 	
+	@Override
 	public Set<String> getImports() {
 		return importedModules.keySet();
 	}
@@ -367,6 +368,5 @@ public class ModuleEnvironment extends Environment {
 	public Type lookupFirstConstructor(String cons, Type args) {
 		return typeStore.lookupFirstConstructor(cons, args);
 	}
-
 	
 }
