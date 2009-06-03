@@ -50,9 +50,14 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test(expected=AmbiguousConcretePattern.class)
-	public void VarATypedInsert(){
+	public void VarATypedInsertAmbiguous(){
 		prepare("import src::test::GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{ [|<A someA>|] := [|a|]; [|<someA>|] == [|a|]; }"));
+	}
+	
+	public void VarATypedInsert(){
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("{ [|<A someA>|] := [|a|]; someA == [|a|]; }"));
 	}
 	
 	@Test
