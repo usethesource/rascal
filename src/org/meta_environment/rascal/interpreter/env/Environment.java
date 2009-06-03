@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
@@ -501,6 +502,11 @@ public class Environment {
 	public Type lookupAbstractDataType(String name) {
 		return getRoot().lookupAbstractDataType(name);
 	}
+	
+	public Type lookupConcreteSyntaxType(String name) {
+		return getRoot().lookupConcreteSyntaxType(name);
+	}
+
 
 	public Type lookupAlias(String name) {
 		return getRoot().lookupAlias(name);
@@ -541,6 +547,14 @@ public class Environment {
 
 	public Type abstractDataType(String name, Type...parameters) {
 		return getRoot().abstractDataType(name, parameters);
+	}
+	
+	public Type concreteSyntaxType(String name, org.meta_environment.rascal.ast.Type type) {
+		return getRoot().concreteSyntaxType(name, type);
+	}
+	
+	public Type concreteSyntaxType(String name, IConstructor symbol) {
+		return getRoot().concreteSyntaxType(name, symbol);
 	}
 
 	public Type constructorFromTuple(Type adt, String name, Type tupleType) {

@@ -28,10 +28,12 @@ import org.meta_environment.rascal.ast.StructuredType.Map;
 import org.meta_environment.rascal.ast.StructuredType.Relation;
 import org.meta_environment.rascal.ast.StructuredType.Set;
 import org.meta_environment.rascal.ast.StructuredType.Tuple;
+import org.meta_environment.rascal.ast.Symbol.Empty;
 import org.meta_environment.rascal.ast.Type.Ambiguity;
 import org.meta_environment.rascal.ast.Type.Basic;
 import org.meta_environment.rascal.ast.Type.Function;
 import org.meta_environment.rascal.ast.Type.Structured;
+import org.meta_environment.rascal.ast.Type.Symbol;
 import org.meta_environment.rascal.ast.Type.User;
 import org.meta_environment.rascal.ast.Type.Variable;
 import org.meta_environment.rascal.ast.TypeArg.Default;
@@ -39,6 +41,7 @@ import org.meta_environment.rascal.ast.TypeArg.Named;
 import org.meta_environment.rascal.ast.UserType.Name;
 import org.meta_environment.rascal.ast.UserType.Parametric;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
+import org.meta_environment.rascal.interpreter.env.ConcreteSyntaxType;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.Lambda;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredTypeError;
@@ -320,7 +323,7 @@ public class TypeEvaluator {
 			if (env != null) {
 				Type type = env.lookupAlias(name);
 				
-				if(type == null){
+				if (type == null) {
 					type = env.lookupAbstractDataType(name);
 				}
 				
@@ -360,6 +363,12 @@ public class TypeEvaluator {
 				if (tree != null) {
 					return tree;
 				}
+				
+				Type symbol = env.lookupConcreteSyntaxType(name);
+				
+				if (symbol != null) {
+					return symbol;
+				}
 			}
 			
 			throw new UndeclaredTypeError(name, x);
@@ -368,6 +377,11 @@ public class TypeEvaluator {
 		@Override
 		public Type visitTypeAmbiguity(Ambiguity x) {
 			throw new ImplementationError("Ambiguous type: " + x);
+		}
+		
+		@Override
+		public Type visitTypeSymbol(Symbol x) {
+			return new ConcreteSyntaxType(x);
 		}
 	}
 }
