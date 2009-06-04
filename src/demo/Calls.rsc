@@ -11,7 +11,7 @@ import Graph;
 
 alias Proc = str;
 
-bool test(){
+public bool test(){
 
 	rel[Proc, Proc] Calls = {<"a", "b">, <"b", "c">, <"b", "d">, <"d", "c">, <"d", "e">, <"f", "e">, <"f", "g">, <"g", "e">};
 

@@ -57,6 +57,6 @@ data Node = subgraph(NodeId id,
                      EdgeList edges, 
                      AttributeList attributes);      
                    
-bool test() {
+public bool test() {
      return true;
 }
