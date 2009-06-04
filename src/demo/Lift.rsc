@@ -21,7 +21,7 @@ rel[proc, comp] PartOf = {<"main", "Appl">, <"a", "Appl">, <"b", "DB">,
 
 rel[comp,comp] ComponentCalls = lift(Calls, PartOf);
 
-bool test(){
+public bool test(){
 	return ComponentCalls == { < "DB" , "Lib" > , < "Appl" , "Lib" > , 
 			                   < "Appl" , "DB" > , < "Appl" , "Appl" > };
 }
