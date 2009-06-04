@@ -698,8 +698,8 @@ public class DebuggableEvaluator extends Evaluator {
 	private void suspendExpression(AbstractAST x) {
 		setCurrentAST(x);
 		if(suspendRequest) {
-			debugger.notifySuspend();
 			suspendRequest = false;
+			debugger.notifySuspend();
 		} else if (expressionStepModeEnabled()) {
 			if (debugger.isStepping() || debugger.hasEnabledBreakpoint(getCurrentAST().getLocation())) {
 				debugger.notifySuspend();
