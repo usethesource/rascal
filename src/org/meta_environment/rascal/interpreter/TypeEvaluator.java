@@ -28,11 +28,11 @@ import org.meta_environment.rascal.ast.StructuredType.Map;
 import org.meta_environment.rascal.ast.StructuredType.Relation;
 import org.meta_environment.rascal.ast.StructuredType.Set;
 import org.meta_environment.rascal.ast.StructuredType.Tuple;
-import org.meta_environment.rascal.ast.Symbol.Empty;
 import org.meta_environment.rascal.ast.Type.Ambiguity;
 import org.meta_environment.rascal.ast.Type.Basic;
 import org.meta_environment.rascal.ast.Type.Bracket;
 import org.meta_environment.rascal.ast.Type.Function;
+import org.meta_environment.rascal.ast.Type.Selector;
 import org.meta_environment.rascal.ast.Type.Structured;
 import org.meta_environment.rascal.ast.Type.Symbol;
 import org.meta_environment.rascal.ast.Type.User;
@@ -45,6 +45,7 @@ import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.env.ConcreteSyntaxType;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.Lambda;
+import org.meta_environment.rascal.interpreter.staticErrors.AmbiguousFunctionReferenceError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredTypeError;
 
 
@@ -117,6 +118,35 @@ public class TypeEvaluator {
 		@Override
 		public Type visitTypeBracket(Bracket x) {
 			return x.getType().accept(this);
+		}
+		
+		@Override
+		public Type visitTypeSelector(Selector x) {
+			return x.getSelector().accept(this);
+		}
+		
+		@Override
+		public Type visitDataTypeSelectorSelector(
+				org.meta_environment.rascal.ast.DataTypeSelector.Selector x) {
+			java.lang.String name = Names.name(x.getSort());
+			Type adt = env.lookupAbstractDataType(name);
+			
+			if (adt == null) {
+				throw new UndeclaredTypeError(name, x);
+			}
+			
+			java.lang.String constructor = Names.name(x.getProduction());
+			java.util.Set<Type> constructors = env.lookupConstructor(adt, constructor);
+			
+		    if (constructors.size() == 0) {
+		    	throw new UndeclaredTypeError(name + "." + constructor, x);
+		    }
+		    else if (constructors.size() > 1) {
+		    	throw new AmbiguousFunctionReferenceError(name + "." + constructor, x);
+		    }
+		    else {
+		    	return constructors.iterator().next();
+		    }
 		}
 		
 		@Override
