@@ -63,8 +63,36 @@ public class SymbolAdapter {
 		return tree.getConstructorType() == Factory.Symbol_IterPlusSep;
 	}
 	
+	public boolean isIterStar() {
+		return tree.getConstructorType() == Factory.Symbol_IterStar;
+	}
+	
+	public boolean isIterPlus() {
+		return tree.getConstructorType() == Factory.Symbol_IterPlus;
+	}
+	
 	public boolean isLayout() {
 		return tree.getConstructorType() == Factory.Symbol_Layout;
+	}
+	
+	public boolean isStarList() {
+		SymbolAdapter sym = this;
+		
+		if (sym.isCf() || sym.isLex()) {
+			sym = sym.getSymbol();
+		}
+		
+		return sym.isIterStar() || sym.isIterStarSep();
+	}
+	
+	public boolean isPlusList() {
+		SymbolAdapter sym = this;
+		
+		if (sym.isCf() || sym.isLex()) {
+			sym = sym.getSymbol();
+		}
+		
+		return sym.isIterPlus() || sym.isIterPlusSep();
 	}
 	
 	public boolean isCfOptLayout() {

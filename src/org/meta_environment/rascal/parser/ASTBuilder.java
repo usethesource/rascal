@@ -28,6 +28,9 @@ import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.ast.Statement;
 import org.meta_environment.rascal.ast.StringLiteral;
+import org.meta_environment.rascal.ast.Expression.CallOrTree;
+import org.meta_environment.rascal.ast.Expression.Set;
+import org.meta_environment.rascal.interpreter.Names;
 import org.meta_environment.rascal.interpreter.Symbols;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.uptr.Factory;
@@ -429,12 +432,53 @@ public class ASTBuilder {
 		IConstructor pattern = getConcretePattern(tree);
 		Expression ast = lift(pattern, pattern, match);
 		
+		ast = filterNonEmptyStarLists(ast);
+		
 		if (ast != null) {
 			ASTStatistics stats = ast.getStats();
 			stats.setConcreteFragmentCount(1);
 			stats.setConcreteFragmentSize(new TreeAdapter(pattern).yield().length());
 		}
 		
+		return ast;
+	}
+
+	String getCallName(Expression.CallOrTree call) {
+		return Names.name(Names.lastName(call.getQualifiedName()));
+	}
+	
+	/** [| a a |] is a non-empty list of 'A*'. However there is "[|" A* "|]" -> Pattern
+	 * and  "[|" A+ "|]" -> Pattern both always present at the same time. This is always
+	 * ambiguous. This filter removes the * list interpretation in favor of the + interpretation.
+	 */
+	private Expression filterNonEmptyStarLists(Expression ast) {
+		// unfortunately, I don't know when to do this on the parse tree level, so
+		// we have to understand parse trees on the lifted AST level here :-(
+		
+		
+		// TODO: this code is highly experimental Tijs, I don't know if it should be kept.
+		// it smells wrong to be doing this on this level. Also, it did not solve the problem
+		// I had.
+		if (ast.isCallOrTree()) {
+			Expression.CallOrTree prod = (CallOrTree) ast.getArguments().get(0);
+			Expression.List args = (org.meta_environment.rascal.ast.Expression.List) ast.getArguments().get(1);
+
+			if (getCallName(prod).equals("list")) {
+				Expression.CallOrTree rhs = (CallOrTree) prod.getArguments().get(0);
+
+				if (getCallName(rhs).equals("cf")) {
+					rhs = (CallOrTree) rhs.getArguments().get(0);
+
+					if (getCallName(rhs).equals("iter-star") || getCallName(rhs).equals("iter-star-sep")) { 
+						// its a * list!
+						if (args.getElements().size() > 0) {
+							// it does have elements, so + list is good too, so filter this one
+							return null;
+						}
+					}
+				}
+			}
+		}
 		return ast;
 	}
 
@@ -463,7 +507,7 @@ public class ASTBuilder {
 						stats.setInjections(1);
 					}
 					else {
-						stats.setInjections(0);
+						stats.setInjections(0); // bug
 					}
 
 					source = constr;
@@ -492,7 +536,7 @@ public class ASTBuilder {
 			ASTStatistics stats = new ASTStatistics();
 			
 			if (list.length() == 1) {
-				stats.setInjections(1);
+				stats.setInjections(1); 
 			}
 			
 			for (IValue arg: list) {
@@ -516,6 +560,7 @@ public class ASTBuilder {
 			return new Expression.Literal(source, new Literal.Integer(source, new IntegerLiteral.DecimalIntegerLiteral(source, new DecimalIntegerLiteral.Lexical(source, pattern.toString()))));
 		}
 		else if (type.isSetType()) {
+			// this code depends on the fact that only amb nodes can contain sets
 			ISet set = (ISet) pattern;
 			List<Expression> result = new ArrayList<Expression>(set.size());
 			ASTStatistics ref = null;
@@ -599,7 +644,7 @@ public class ASTBuilder {
 		// the < > brackets.
 		for (IValue alt : alternatives) {
 			if (isEmbedding(new TreeAdapter((IConstructor) alt))) {
-				continue; // direct nesting
+				continue; // filter direct nesting
 			}
 			
 			Expression exp = (Expression) buildValue(alt);
@@ -620,8 +665,11 @@ public class ASTBuilder {
 	private boolean correctlyNestedPattern(SymbolAdapter expected, Expression exp) {
 		if (exp.isTypedVariable()) {
 			Expression.TypedVariable var = (Expression.TypedVariable) exp;
-				
-			if (Symbols.typeToSymbol(var.getType()).equals(expected.getTree())) {
+			IValue type = Symbols.typeToSymbol(var.getType());
+
+			// the declared type inside the pattern must match the produced type outside the brackets
+			// "<" Pattern ">" -> STAT in the grammar and "<STAT t>" in the pattern. STAT == STAT.
+			if (type.equals(expected.getTree())) {
 				return true;
 			}
 			else {
