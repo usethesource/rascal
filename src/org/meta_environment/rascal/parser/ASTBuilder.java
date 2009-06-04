@@ -7,11 +7,13 @@ import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.ASTStatistics;
 import org.meta_environment.rascal.ast.AbstractAST;
@@ -30,6 +32,7 @@ import org.meta_environment.rascal.interpreter.Symbols;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.ParsetreeAdapter;
+import org.meta_environment.uptr.ProductionAdapter;
 import org.meta_environment.uptr.SymbolAdapter;
 import org.meta_environment.uptr.TreeAdapter;
 
@@ -83,7 +86,7 @@ public class ASTBuilder {
 	}
 	
 	private String sortName(TreeAdapter tree) {
-		if (!tree.isList()) {
+		if (tree.isAppl()) {
 			String sortName = tree.getSortName();
 
 			if (isRascalSort(sortName)) {
@@ -111,6 +114,28 @@ public class ASTBuilder {
 		return result;
 	}
 
+	public IList getASTArgs(TreeAdapter tree) {
+		if (!tree.isContextFree()) {
+			throw new ImplementationError("This is not a context-free production: "
+					+ tree);
+		}
+
+		IList children = tree.getArgs();
+		IListWriter writer = Factory.Args.writer(ValueFactoryFactory.getValueFactory());
+
+		for (int i = 0; i < children.length(); i++) {
+			IValue kid = children.get(i);
+			TreeAdapter treeAdapter = new TreeAdapter((IConstructor) kid);
+			if (!treeAdapter.isLiteral() && !treeAdapter.isCILiteral() && !isRascalLiteral(treeAdapter)) {
+				writer.append(kid);	
+			} 
+			// skip layout
+			i++;
+		}
+		
+		return writer.done();
+	}
+	
 	private AbstractAST buildContextFreeNode(IConstructor in)  {
 		try {
 			TreeAdapter tree = new TreeAdapter(in);
@@ -120,7 +145,7 @@ public class ASTBuilder {
 			sort = sort.equalsIgnoreCase("pattern") ? "Expression" : capitalize(sort); 
 			cons = capitalize(cons);
 			
-			IList args = tree.getASTArgs();
+			IList args = getASTArgs(tree);
 			int arity = args.length() + 1;
 			Class<?> formals[] = new Class<?>[arity];
 			Object actuals[] = new Object[arity];
@@ -133,6 +158,7 @@ public class ASTBuilder {
 			int i = 1;
 			for (IValue arg : args) {
 				TreeAdapter argTree = new TreeAdapter((IConstructor) arg);
+				
 				if (argTree.isList()) {
 					actuals[i] = buildList((IConstructor) arg);
 					formals[i] = List.class;
@@ -275,7 +301,7 @@ public class ASTBuilder {
 			throw new UnsupportedOperationException();
 		}	
 		
-		if (tree.isLexToCf()) {
+		if (isLexical(tree)) {
 			return buildLexicalNode((IConstructor) ((IList) ((IConstructor) arg).get("args")).get(0));
 		}
 		else if (sortName(tree).equals("FunctionBody") && tree.getConstructorName().equals("Java")) {
@@ -289,6 +315,28 @@ public class ASTBuilder {
 		}
 
 		return buildContextFreeNode((IConstructor) arg);
+	}
+
+	private boolean isLexical(TreeAdapter tree) {
+		if (tree.isLexToCf()) {
+			return !isRascalLiteral(tree);
+		}
+		return false;
+	}
+
+	private boolean isRascalLiteral(TreeAdapter tree) {
+		if (tree.isAppl()) {
+			ProductionAdapter prod = tree.getProduction();
+			SymbolAdapter rhs = prod.getRhs();
+			
+			if (rhs.isCf()) {
+				rhs = rhs.getSymbol();
+			}
+			if (rhs.isParameterizedSort() && rhs.getName().equals("_Literal")) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	private AbstractAST filter(TreeAdapter tree) {
@@ -514,7 +562,7 @@ public class ASTBuilder {
 		String cons = tree.getConstructorName();
 		
 		if (cons.equals("MetaVariable")) {
-			IConstructor arg = (IConstructor) tree.getASTArgs().get(0);
+			IConstructor arg = (IConstructor) getASTArgs(tree).get(0);
 			
 			if (arg.getConstructorType() == Factory.Tree_Amb) {
 				return filterNestedPattern(tree, new TreeAdapter(arg)); 
@@ -589,13 +637,13 @@ public class ASTBuilder {
 		IConstructor pattern;
 		
 		if (cons.equals("ConcreteQuoted")) {
-			pattern = (IConstructor) tree.getASTArgs().get(0);
+			pattern = (IConstructor) getASTArgs(tree).get(0);
 		}
 		else if (cons.equals("ConcreteUnquoted")) {
-			pattern = (IConstructor) tree.getASTArgs().get(0);
+			pattern = (IConstructor) getASTArgs(tree).get(0);
 		}
 		else if (cons.equals("ConcreteTypedQuoted")) {
-			pattern = (IConstructor) tree.getASTArgs().get(1);
+			pattern = (IConstructor) getASTArgs(tree).get(1);
 		}
 		else {
 			throw new ImplementationError("Unexpected embedding syntax");

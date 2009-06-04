@@ -146,7 +146,7 @@ public class TreeAdapter {
 		return writer.done();
 	}
 
-	private boolean isCILiteral() {
+	public boolean isCILiteral() {
 		return isAppl() ? getProduction().isCILiteral() : false;
 	}
 

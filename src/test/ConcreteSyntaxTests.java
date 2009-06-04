@@ -49,10 +49,9 @@ public class ConcreteSyntaxTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("[|<A someA>|] := [|a|];"));
 	}
 	
-	@Test(expected=AmbiguousConcretePattern.class)
 	public void VarATypedInsertAmbiguous(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{ [|<A someA>|] := [|a|]; [|<someA>|] == [|a|]; }"));
+		assertTrue(runTestInSameEvaluator("{ [|<A someA>|] := [|a|]; someA == [|a|]; }"));
 	}
 	
 	public void VarATypedInsert(){
@@ -72,7 +71,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("[|a <B someB>|] := [|a b|];"));
 	}
 	
-	@Test
+	@Test(expected=AmbiguousConcretePattern.class)
 	public void ABvars2(){
 		prepare("import src::test::GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("[|<someA> <someB>|] := [|a b|];"));
@@ -87,7 +86,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	public void ABvars2TypedInsert(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{ [|<A someA> <B someB>|] := [|a b|]; [|<someA> <someB>|] == [|a b|];"));
+		assertTrue(runTestInSameEvaluator("{ [|<A someA> <B someB>|] := [|a b|]; [|<A someA> <B someB>|] == [|a b|];"));
 	}
 	
 	@Test
