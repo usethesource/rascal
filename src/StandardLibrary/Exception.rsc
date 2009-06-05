@@ -22,4 +22,5 @@ data RuntimeException =
 	| NoSuchKey(value key)
 	| NoSuchAnnotation(str label)
 	| Java(str message)
+	| ParseError(loc location)
 	;
