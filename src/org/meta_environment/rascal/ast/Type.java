@@ -1,19 +1,34 @@
 package org.meta_environment.rascal.ast; 
 import org.eclipse.imp.pdb.facts.INode; 
 public abstract class Type extends AbstractAST { 
-  static public class Lexical extends Type {
-	private String string;
-         public Lexical(INode node, String string) {
-		this.node = node;
-		this.string = string;
+  public org.meta_environment.rascal.ast.Symbol getSymbol() { throw new UnsupportedOperationException(); }
+public boolean hasSymbol() { return false; }
+public boolean isSymbol() { return false; }
+static public class Symbol extends Type {
+/** symbol:Symbol -> Type {cons("Symbol")} */
+	private Symbol() {
+		super();
 	}
-	public String getString() {
-		return string;
+	public Symbol(INode node, org.meta_environment.rascal.ast.Symbol symbol) {
+		this.node = node;
+		this.symbol = symbol;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitTypeSymbol(this);
 	}
 
- 	public <T> T accept(IASTVisitor<T> v) {
-     		return v.visitTypeLexical(this);
-  	}
+	public boolean isSymbol() { return true; }
+
+	public boolean hasSymbol() { return true; }
+
+private org.meta_environment.rascal.ast.Symbol symbol;
+	public org.meta_environment.rascal.ast.Symbol getSymbol() { return symbol; }
+	private void $setSymbol(org.meta_environment.rascal.ast.Symbol x) { this.symbol = x; }
+	public Symbol setSymbol(org.meta_environment.rascal.ast.Symbol x) { 
+		Symbol z = new Symbol();
+ 		z.$setSymbol(x);
+		return z;
+	}	
 }
 static public class Ambiguity extends Type {
   private final java.util.List<org.meta_environment.rascal.ast.Type> alternatives;
@@ -170,35 +185,6 @@ private org.meta_environment.rascal.ast.UserType user;
 	public User setUser(org.meta_environment.rascal.ast.UserType x) { 
 		User z = new User();
  		z.$setUser(x);
-		return z;
-	}	
-} 
-public org.meta_environment.rascal.ast.Symbol getSymbol() { throw new UnsupportedOperationException(); }
-public boolean hasSymbol() { return false; }
-public boolean isSymbol() { return false; }
-static public class Symbol extends Type {
-/** symbol:Symbol -> Type {cons("Symbol")} */
-	private Symbol() {
-		super();
-	}
-	public Symbol(INode node, org.meta_environment.rascal.ast.Symbol symbol) {
-		this.node = node;
-		this.symbol = symbol;
-	}
-	public <T> T accept(IASTVisitor<T> visitor) {
-		return visitor.visitTypeSymbol(this);
-	}
-
-	public boolean isSymbol() { return true; }
-
-	public boolean hasSymbol() { return true; }
-
-private org.meta_environment.rascal.ast.Symbol symbol;
-	public org.meta_environment.rascal.ast.Symbol getSymbol() { return symbol; }
-	private void $setSymbol(org.meta_environment.rascal.ast.Symbol x) { this.symbol = x; }
-	public Symbol setSymbol(org.meta_environment.rascal.ast.Symbol x) { 
-		Symbol z = new Symbol();
- 		z.$setSymbol(x);
 		return z;
 	}	
 } 
