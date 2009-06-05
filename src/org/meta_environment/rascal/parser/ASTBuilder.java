@@ -33,6 +33,7 @@ import org.meta_environment.rascal.ast.Expression.Set;
 import org.meta_environment.rascal.interpreter.Names;
 import org.meta_environment.rascal.interpreter.Symbols;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
+import org.meta_environment.rascal.interpreter.staticErrors.AmbiguousConcretePattern;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.ParsetreeAdapter;
 import org.meta_environment.uptr.ProductionAdapter;
@@ -460,7 +461,15 @@ public class ASTBuilder {
 		// it smells wrong to be doing this on this level. Also, it did not solve the problem
 		// I had.
 		if (ast.isCallOrTree()) {
-			Expression.CallOrTree prod = (CallOrTree) ast.getArguments().get(0);
+			Expression arg0 = ast.getArguments().get(0);
+			if(!(arg0 instanceof CallOrTree)){
+				if(arg0.isSet())
+					throw new AmbiguousConcretePattern(arg0);
+				else
+					throw new ImplementationError("Unexpected AST node");
+			}
+			
+			Expression.CallOrTree prod = (CallOrTree) arg0;
 			Expression.List args = (org.meta_environment.rascal.ast.Expression.List) ast.getArguments().get(1);
 
 			if (getCallName(prod).equals("list")) {
