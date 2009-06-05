@@ -175,6 +175,7 @@ import org.meta_environment.rascal.interpreter.load.IModuleFileLoader;
 import org.meta_environment.rascal.interpreter.load.ISdfSearchPathContributor;
 import org.meta_environment.rascal.interpreter.load.ModuleLoader;
 import org.meta_environment.rascal.interpreter.result.BoolResult;
+import org.meta_environment.rascal.interpreter.result.ConcreteSyntaxResult;
 import org.meta_environment.rascal.interpreter.result.ConstructorResult;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.result.ResultFactory;
@@ -1124,7 +1125,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			if (cons == Factory.Tree_Appl || cons == Factory.Tree_Amb) {
 				TreeAdapter adapter = new TreeAdapter(tree);
 				if (adapter.isAppl() && adapter.getProduction().getRhs().isCf()) {
-					return (Result<T>) new ConstructorResult(new ConcreteSyntaxType((IConstructor) result.getValue()), (IConstructor) result.getValue(), new EvaluatorContext(this, getCurrentAST()));
+					return (Result<T>) new ConcreteSyntaxResult(new ConcreteSyntaxType((IConstructor) result.getValue()), (IConstructor) result.getValue(), new EvaluatorContext(this, getCurrentAST()));
 				}
 			}
 		}

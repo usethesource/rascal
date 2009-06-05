@@ -497,6 +497,9 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	protected <U extends IValue> Result<U> equalToNode(NodeResult that, EvaluatorContext ctx) {
 		return that.undefinedError(EQUALS_STRING, this, ctx);
 	}
+	protected <U extends IValue> Result<U> equalToConcreteSyntax(ConcreteSyntaxResult that, EvaluatorContext ctx) {
+		return that.undefinedError(EQUALS_STRING, this, ctx);
+	}
 	protected <U extends IValue> Result<U> equalToSourceLocation(SourceLocationResult that, EvaluatorContext ctx) {
 		return that.undefinedError(EQUALS_STRING, this, ctx);
 	}
@@ -535,6 +538,9 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return that.undefinedError(NON_EQUALS_STRING, this, ctx);
 	}
 	protected <U extends IValue> Result<U> nonEqualToNode(NodeResult that, EvaluatorContext ctx) {
+		return that.undefinedError(NON_EQUALS_STRING, this, ctx);
+	}
+	protected <U extends IValue> Result<U> nonEqualToConcreteSyntax(ConcreteSyntaxResult that, EvaluatorContext ctx) {
 		return that.undefinedError(NON_EQUALS_STRING, this, ctx);
 	}
 	protected <U extends IValue> Result<U> nonEqualToSourceLocation(SourceLocationResult that, EvaluatorContext ctx) {
