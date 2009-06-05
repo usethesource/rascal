@@ -26,6 +26,9 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 import org.meta_environment.rascal.parser.ModuleParser;
 import org.meta_environment.rascal.parser.SdfImportExtractor;
 import org.meta_environment.rascal.parser.StringParser;
+import org.meta_environment.uptr.ParsetreeAdapter;
+import org.meta_environment.uptr.SymbolAdapter;
+import org.meta_environment.uptr.TreeAdapter;
 
 public class ParserFunction extends Lambda {
 
@@ -67,8 +70,11 @@ public class ParserFunction extends Lambda {
 		
 		
 		try {
-			IConstructor tree = parser.parseString(sdfSearchPath, sdfImports, source);
+			IConstructor ptree = parser.parseString(sdfSearchPath, sdfImports, source);
+			IConstructor tree = (IConstructor) new ParsetreeAdapter(ptree).getTop().getArgs().get(1);
+			IConstructor givenTypeCons = (IConstructor) new TreeAdapter(tree).getProduction().getRhs().getTree();
 			Type resultType = returnType.instantiate(env.getStore(), env.getTypeBindings());
+			
 			return ResultFactory.makeResult(resultType, tree, new EvaluatorContext(eval, ast));
 		}
 		catch (IOException e) {

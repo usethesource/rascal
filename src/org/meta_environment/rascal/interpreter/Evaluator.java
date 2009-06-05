@@ -1614,6 +1614,12 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	}
 
 	private Result parserFunction(Abstract x) {
+		org.meta_environment.rascal.ast.Type type = x.getSignature().getType();
+		// TODO: how should we get at the name, and why???
+		IConstructor cons = (IConstructor) Symbols.typeToSymbol(type);
+		IConstructor cfSym = (IConstructor) cons.get(0);
+		String sortName = ((IString)cfSym.get(0)).getValue(); 
+		getCurrentEnvt().concreteSyntaxType(sortName, cons);
 		Lambda lambda = new ParserFunction(this, x, getCurrentEnvt(), loader);
 		String name = Names.name(x.getSignature().getName());
 		getCurrentEnvt().storeFunction(name, lambda);
