@@ -460,6 +460,9 @@ public class ASTBuilder {
 		// TODO: this code is highly experimental Tijs, I don't know if it should be kept.
 		// it smells wrong to be doing this on this level. Also, it did not solve the problem
 		// I had.
+		
+		if(ast == null)
+			return null;
 		if (ast.isCallOrTree()) {
 			Expression arg0 = ast.getArguments().get(0);
 			if(!(arg0 instanceof CallOrTree)){
