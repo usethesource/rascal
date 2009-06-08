@@ -95,13 +95,20 @@ public class ModuleParser {
 	protected String constructUserDefinedSyntaxTable(String key, Set<String> sdfImports, List<String> sdfSearchPath) throws IOException {
 		String tablefileName = getTableLocation(key, sdfImports, sdfSearchPath);
 
-		Runtime.getRuntime().exec(new String[] {
+		Process p = Runtime.getRuntime().exec(new String[] {
 				Configuration.getRascal2TableCommandProperty(),
 				"-s", getImportParameter(sdfImports),
 				"-p", getSdfSearchPath(sdfSearchPath),
 				"-o", tablefileName
-		}, new String[0], new File(Configuration.getRascal2TableBinDirProperty())
-		);
+		}, new String[0], new File(Configuration.getRascal2TableBinDirProperty()));
+		
+		try{
+			p.waitFor();
+		}catch(InterruptedException irex){
+			throw new ImplementationError("Interrupted while waiting for the generation of the parse table.");
+		}finally{
+			p.destroy();
+		}
 
 		return tablefileName;
 	}
@@ -142,16 +149,16 @@ public class ModuleParser {
 		Collections.sort(sorted);
 		InputStream in = null;
 
-		Process p = null;
-		try {
-			p = Runtime.getRuntime().exec(new String[] {  
-					Configuration.getRascal2TableCommandProperty(),
-					"-c",
-					"-s", joinAsPath(sorted),
-					"-p", joinAsPath(sdfSearchPath)
-			}, new String[0], new File(Configuration.getRascal2TableBinDirProperty()));
+		Process p = Runtime.getRuntime().exec(new String[] {  
+				Configuration.getRascal2TableCommandProperty(),
+				"-c",
+				"-s", joinAsPath(sorted),
+				"-p", joinAsPath(sdfSearchPath)
+		}, new String[0], new File(Configuration.getRascal2TableBinDirProperty()));
+		
+		try{
 			p.waitFor();
-
+			
 			if (p.exitValue() != 0) {
 				throw new ImplementationError("Could not collect syntax for some reason");
 			}
@@ -161,19 +168,17 @@ public class ModuleParser {
 			byte[] result = new byte[32];
 			in.read(result);
 
-			return new File(Configuration.getTableCacheDirectoryProperty(), 
-					parseTableFileName(key, result)).getAbsolutePath();
-		} catch (InterruptedException e) {
+			return new File(Configuration.getTableCacheDirectoryProperty(), parseTableFileName(key, result)).getAbsolutePath();
+		}catch(InterruptedException e){
 			throw new IOException("could not compute table location: " + e.getMessage());
-		} 
-		finally {
-			if (p != null) {
+		}finally{
+			if(p != null){
 				p.destroy();
 			}
 		}
 	}
 
-	private String parseTableFileName(String key, byte[] result) {
+	private String parseTableFileName(String key, byte[] result){
 		return new String(result) + "-" + key + ".tbl";
 	}
 }
