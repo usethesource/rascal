@@ -142,8 +142,9 @@ public class ModuleParser {
 		Collections.sort(sorted);
 		InputStream in = null;
 
+		Process p = null;
 		try {
-			Process p = Runtime.getRuntime().exec(new String[] {  
+			p = Runtime.getRuntime().exec(new String[] {  
 					Configuration.getRascal2TableCommandProperty(),
 					"-c",
 					"-s", joinAsPath(sorted),
@@ -166,8 +167,8 @@ public class ModuleParser {
 			throw new IOException("could not compute table location: " + e.getMessage());
 		} 
 		finally {
-			if (in != null) {
-				in.close();
+			if (p != null) {
+				p.destroy();
 			}
 		}
 	}
