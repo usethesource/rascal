@@ -478,7 +478,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	}
 
 	Environment pushEnv() {
-		Environment env = new Environment(getCurrentEnvt());
+		Environment env = new Environment(getCurrentEnvt(), getCurrentEnvt().getName());
 		setCurrentEnvt(env);
 		return env;
 	}

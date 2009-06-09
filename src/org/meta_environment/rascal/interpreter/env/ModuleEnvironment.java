@@ -34,7 +34,6 @@ import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredModuleErro
  * 
  */
 public class ModuleEnvironment extends Environment {
-	private final String name;
 	protected final Map<String, ModuleEnvironment> importedModules;
 	protected final Map<Type, List<Type>> extensions;
 	protected final TypeStore typeStore;
@@ -44,8 +43,7 @@ public class ModuleEnvironment extends Environment {
 	protected static final TypeFactory TF = TypeFactory.getInstance();
 	
 	public ModuleEnvironment(String name) {
-		super(null, null, null, null);
-		this.name = name;
+		super(name);
 		this.importedModules = new HashMap<String, ModuleEnvironment>();
 		this.extensions = new HashMap<Type, List<Type>>();
 		this.concreteSyntaxTypes = new HashMap<String, ConcreteSyntaxType>();
