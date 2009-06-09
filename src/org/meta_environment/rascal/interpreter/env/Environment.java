@@ -36,27 +36,23 @@ public class Environment {
 	protected final ISourceLocation loc;
 	protected Cache cache = null;
 	protected final String name;
+	
+	public Environment(String name) {
+		this(null, null, null, null, null, name);
+	}
 
-	public Environment(Environment parent) {
-		this(parent, null, null, parent.getCache());
+	public Environment(Environment parent, String name) {
+		this(parent, null, null, parent.getCache(), null, name);
 	}
 
 	public Environment(Environment parent, ISourceLocation loc, String name) {
 		this(parent, null, null, parent.getCache(), loc, name);
 	}
 
-	public Environment(Environment parent, Environment callerScope, ISourceLocation callerLocation) {
-		this(parent, callerScope, callerLocation, parent.getCache());
-	}
-
 	public Environment(Environment parent, Environment callerScope, ISourceLocation callerLocation, ISourceLocation loc, String name) {
 		this(parent, callerScope, callerLocation, parent.getCache(), loc, name);
 	}
-
-	protected Environment(Environment parent, Environment callerScope, ISourceLocation callerLocation, Cache cache) {
-		this(parent, callerScope, callerLocation, cache, null, null);
-	}
-
+	
 	protected Environment(Environment parent, Environment callerScope, ISourceLocation callerLocation, Cache cache, ISourceLocation loc, String name) {
 		this.variableEnvironment = new HashMap<String, Result<IValue>>();
 		this.functionEnvironment = new HashMap<String, List<Lambda>>();
