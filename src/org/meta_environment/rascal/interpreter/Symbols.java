@@ -175,13 +175,9 @@ public class Symbols {
 			if (ranges.isAbsent()) {
 				return Factory.Symbol_CharClass.make(factory, factory.list());
 			}
-			else {
-				return Factory.Symbol_CharClass.make(factory, ranges2Ranges(ranges.getRanges()));
-			}
+			return Factory.Symbol_CharClass.make(factory, ranges2Ranges(ranges.getRanges()));
 		}
-		else {
-			throw new NotYetImplemented(cc);
-		}
+		throw new NotYetImplemented(cc);
 	}
 	
 	private static IList ranges2Ranges(CharRanges ranges) {
@@ -233,7 +229,7 @@ public class Symbols {
 				s = s.substring(1);
 			}
 			char cha = s.charAt(0);
-			return factory.integer((int) cha);
+			return factory.integer(cha);
 		}
 		
 		throw new NotYetImplemented(character);

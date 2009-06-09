@@ -1,17 +1,13 @@
 package org.meta_environment.rascal.interpreter.env;
 
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
-import javax.management.RuntimeErrorException;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.meta_environment.rascal.ast.Statement;
 import org.meta_environment.rascal.ast.FunctionDeclaration.Abstract;
 import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.EvaluatorContext;
@@ -23,12 +19,8 @@ import org.meta_environment.rascal.interpreter.result.ResultFactory;
 import org.meta_environment.rascal.interpreter.staticErrors.ArityError;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
-import org.meta_environment.rascal.parser.ModuleParser;
-import org.meta_environment.rascal.parser.SdfImportExtractor;
 import org.meta_environment.rascal.parser.StringParser;
 import org.meta_environment.uptr.ParsetreeAdapter;
-import org.meta_environment.uptr.SymbolAdapter;
-import org.meta_environment.uptr.TreeAdapter;
 
 public class ParserFunction extends Lambda {
 
@@ -72,7 +64,6 @@ public class ParserFunction extends Lambda {
 		try {
 			IConstructor ptree = parser.parseString(sdfSearchPath, sdfImports, source);
 			IConstructor tree = (IConstructor) new ParsetreeAdapter(ptree).getTop().getArgs().get(1);
-			IConstructor givenTypeCons = (IConstructor) new TreeAdapter(tree).getProduction().getRhs().getTree();
 			Type resultType = returnType.instantiate(env.getStore(), env.getTypeBindings());
 			
 			return ResultFactory.makeResult(resultType, tree, new EvaluatorContext(eval, ast));

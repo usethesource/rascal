@@ -2051,8 +2051,8 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 		org.meta_environment.rascal.ast.QualifiedName N = x.getQualifiedName();
 		if(isParseTree(x))
 			return new ConcretePattern(vf, new EvaluatorContext(ctx.getEvaluator(), x), N, visitArguments(x));
-		else 
-			return new AbstractPatternNode(vf, new EvaluatorContext(ctx.getEvaluator(), x), N, visitArguments(x));
+		
+		return new AbstractPatternNode(vf, new EvaluatorContext(ctx.getEvaluator(), x), N, visitArguments(x));
 	}
 	
 	private java.util.List<AbstractPattern> visitArguments(CallOrTree x){
@@ -2091,16 +2091,15 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 				System.err.println("arg: " + ap);
 			}
 			return args;
-		} else {
-			java.util.List<org.meta_environment.rascal.ast.Expression> elements = x.getArguments();
-			ArrayList<AbstractPattern> args = new java.util.ArrayList<AbstractPattern>(elements.size());
-			
-			int i = 0;
-			for(org.meta_environment.rascal.ast.Expression e : elements){
-				args.add(i++, e.accept(this));
-			}
-			return args;
 		}
+		java.util.List<org.meta_environment.rascal.ast.Expression> elements = x.getArguments();
+		ArrayList<AbstractPattern> args = new java.util.ArrayList<AbstractPattern>(elements.size());
+		
+		int i = 0;
+		for(org.meta_environment.rascal.ast.Expression e : elements){
+			args.add(i++, e.accept(this));
+		}
+		return args;
 	}
 	
 	
