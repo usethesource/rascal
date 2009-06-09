@@ -29,7 +29,6 @@ import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.ast.Statement;
 import org.meta_environment.rascal.ast.StringLiteral;
 import org.meta_environment.rascal.ast.Expression.CallOrTree;
-import org.meta_environment.rascal.ast.Expression.Set;
 import org.meta_environment.rascal.interpreter.Names;
 import org.meta_environment.rascal.interpreter.Symbols;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
@@ -99,9 +98,7 @@ public class ASTBuilder {
 
 			return sortName;
 		}
-		else {
-			return "";
-		}
+		return "";
 	}
 	
 	private List<AbstractAST> buildList(IConstructor in)  {
@@ -234,7 +231,7 @@ public class ASTBuilder {
 			ASTStatistics listStats = new ASTStatistics();
 			
 			for (AbstractAST ast : list) {
-				ASTStatistics stats = ((AbstractAST) ast).getStats();
+				ASTStatistics stats = ast.getStats();
 				listStats.add(stats);
 			}
 			
@@ -250,12 +247,10 @@ public class ASTBuilder {
 		if (result.size() == 1) {
 			return result.get(0);
 		}
-		else {
-			// we don't support ambiguous lists in Rascal AST's.
-			// if filtering was not successful we have to bail out
-			// the hypothesis is that this can never happen
-			throw new ImplementationError("Unexpected ambiguous list after filtering");
-		}
+		// we don't support ambiguous lists in Rascal AST's.
+		// if filtering was not successful we have to bail out
+		// the hypothesis is that this can never happen
+		throw new ImplementationError("Unexpected ambiguous list after filtering");
 	}
 
 	private AbstractAST buildLexicalNode(IConstructor in) {
@@ -468,8 +463,8 @@ public class ASTBuilder {
 			if(!(arg0 instanceof CallOrTree)){
 				if(arg0.isSet())
 					throw new AmbiguousConcretePattern(arg0);
-				else
-					throw new ImplementationError("Unexpected AST node");
+				
+				throw new ImplementationError("Unexpected AST node");
 			}
 			
 			Expression.CallOrTree prod = (CallOrTree) arg0;
@@ -624,20 +619,14 @@ public class ASTBuilder {
 			if (arg.getConstructorType() == Factory.Tree_Amb) {
 				return filterNestedPattern(tree, new TreeAdapter(arg)); 
 			}
-			else {
-				Expression result = (Expression) buildValue(arg);
-			
-				if (correctlyNestedPattern(tree.getProduction().getRhs(), result)) {
-					return result;
-				}
-				else {
-					return null;
-				}
+			Expression result = (Expression) buildValue(arg);
+		
+			if (correctlyNestedPattern(tree.getProduction().getRhs(), result)) {
+				return result;
 			}
+			return null;
 		}
-		else {
-			throw new ImplementationError("Unexpected meta variable while lifting pattern");
-		}
+		throw new ImplementationError("Unexpected meta variable while lifting pattern");
 	}
 
 	/**
@@ -669,9 +658,7 @@ public class ASTBuilder {
 		if (result.size() == 1) {
 			return result.get(0);
 		}
-		else {
-			return new Expression.Ambiguity(antiQuote.getTree(), result);
-		}
+		return new Expression.Ambiguity(antiQuote.getTree(), result);
 	}
 
 	private boolean correctlyNestedPattern(SymbolAdapter expected, Expression exp) {
@@ -684,9 +671,7 @@ public class ASTBuilder {
 			if (type.equals(expected.getTree())) {
 				return true;
 			}
-			else {
-				return false;
-			}
+			return false;
 		}
 		
 		return true;
