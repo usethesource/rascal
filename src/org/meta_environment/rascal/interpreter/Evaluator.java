@@ -368,7 +368,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			throw new UnguardedInsertError(stat);
 		}
 	}
-	
+
 	/**
 	 * Evaluate an expression
 	 * @param expr
@@ -440,8 +440,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 
 	private IValue applyRules(IValue v) {
-		
-		
+
+
 		//System.err.println("applyRules(" + v + ")");
 		// we search using the run-time type of a value
 		Type typeToSearchFor = v.getType();
@@ -460,10 +460,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		/* innermost is achieved by repeated applications of applyRules
 		 * when intermediate results are produced.
 		 */
-		
+
 		// weird side-effect but it works
 		declareConcreteSyntaxType(tr.value);
-		
+
 		return tr.value;
 	}
 
@@ -471,16 +471,16 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		// if somebody constructs a sort, then this implicitly declares
 		// a corresponding Rascal type.
 		Type type = value.getType();
-		
+
 		if (type == Factory.Symbol) {
 			IConstructor symbol = (IConstructor) value;
-			
+
 			if (symbol.getConstructorType() == Factory.Symbol_Sort) {
 				currentEnvt.concreteSyntaxType(new SymbolAdapter(symbol).getName(), 
 						(IConstructor) Factory.Symbol_Cf.make(vf, value));
 			}
 		}
-		
+
 	}
 
 	Environment pushEnv() {
@@ -625,16 +625,16 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			org.meta_environment.rascal.ast.Import.Default x) {
 		// TODO support for full complexity of import declarations
 		String name = getUnescapedModuleName(x);
-		
+
 		// TODO: this logic cannot be understood...
 		// handleSDFModule only loads the ParseTree module,
 		// yet the SDF module *will* have been loaded
-		
+
 		if (isSDFModule(name)) {
 			handleSDFModule(x);
 			return nothing();
 		}
-		
+
 		if (isNonExistingRascalModule(name)) {
 			evalRascalModule(x, name);
 		}
@@ -1112,7 +1112,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		else {
 			result = makeResult(tf.nodeType(), applyRules(vf.node(cons, actuals)), new EvaluatorContext(this, getCurrentAST()));
 		}
-		
+
 		declareConcreteSyntaxType(result.getValue());
 		return (Result<T>) detectConcreteSyntaxTree(result);
 	}
@@ -1120,7 +1120,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	private <T extends IValue> Result<T> detectConcreteSyntaxTree(Result<T> result) {
 		if (result.getType() == Factory.Tree) {
 			IConstructor tree = (IConstructor) result.getValue();
-			
+
 			Type cons = tree.getConstructorType();
 			if (cons == Factory.Tree_Appl || cons == Factory.Tree_Amb) {
 				TreeAdapter adapter = new TreeAdapter(tree);
@@ -1588,11 +1588,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		if (isParserForwardDecl(x)) {
 			return parserFunction(x);
 		}
-		
+
 		if (!hasJavaModifier(x)) {
 			throw new MissingModifierError("java", x);
 		}
-		
+
 		lambda = new org.meta_environment.rascal.interpreter.env.JavaMethod(this, x, varArgs, getCurrentEnvt(), javaBridge);
 		String name = Names.name(x.getSignature().getName());
 		getCurrentEnvt().storeFunction(name, lambda);
@@ -1744,7 +1744,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		if (pat instanceof Expression.Ambiguity) {
 			throw new AmbiguousConcretePattern(pat);
 		}
-		
+
 		AbstractPatternEvaluator pe = makePatternEvaluator(pat);
 		if(pe.isPattern(pat)){
 			return pat.accept(pe);
@@ -1845,7 +1845,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 					System.err.println("hoi");
 				}
 				elementType = elementType.lub(resultElem.getType());
-				
+
 				results.add(results.size(), resultElem.getValue());
 			}
 		}
@@ -3330,28 +3330,13 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 	public Stack<Environment> getCallStack() {
 		Stack<Environment> stack = new Stack<Environment>();
-		stack.add(0, currentEnvt);
 		Environment env = currentEnvt;
 		while (env != null) {
-			Environment caller = env.getCaller();
-			while (caller == null && env != null) {
-				env = env.getParent();
-				if (env != null) {
-					caller = env.getCaller();
-				}
-			}
-			if (caller != null) {
-				stack.add(0, caller);
-				env = caller;
-			}
+			stack.add(0, env);
+			env = env.getCallerScope();
 		}
 		return stack;
 	}
-
-	public java.util.List<Entry<String, java.util.List<Lambda>>> getFunctions() {
-		return currentEnvt.getFunctions();
-	}
-
 
 	public ModuleLoader getModuleLoader() {
 		return loader;
@@ -3365,5 +3350,5 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		currentEnvt = env;
 	}
 
-	
+
 }
