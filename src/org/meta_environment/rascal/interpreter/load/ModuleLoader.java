@@ -34,8 +34,6 @@ import org.meta_environment.rascal.parser.ModuleParser;
 import org.meta_environment.uptr.Factory;
 
 public class ModuleLoader{
-	protected static final ASTBuilder BUILDER = new ASTBuilder(new ASTFactory());
-	
 	private List<IModuleFileLoader> loaders = new ArrayList<IModuleFileLoader>();
 	private List<ISdfSearchPathContributor> contributors = new ArrayList<ISdfSearchPathContributor>();
 	private final ModuleParser parser;
@@ -129,7 +127,7 @@ public class ModuleLoader{
 				//writeBinary(name, tree); // Enable if you want to generate new binaries.
 			}
 
-			return BUILDER.buildModule(tree);
+			return new ASTBuilder(new ASTFactory()).buildModule(tree);
 		}catch (FactTypeUseException e){
 			throw new ImplementationError("Unexpected PDB typecheck exception", e);
 		}catch (IOException e){

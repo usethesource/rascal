@@ -36,7 +36,6 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.Bound;
 import org.meta_environment.rascal.ast.Case;
@@ -176,7 +175,6 @@ import org.meta_environment.rascal.interpreter.load.ISdfSearchPathContributor;
 import org.meta_environment.rascal.interpreter.load.ModuleLoader;
 import org.meta_environment.rascal.interpreter.result.BoolResult;
 import org.meta_environment.rascal.interpreter.result.ConcreteSyntaxResult;
-import org.meta_environment.rascal.interpreter.result.ConstructorResult;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.result.ResultFactory;
 import org.meta_environment.rascal.interpreter.staticErrors.AmbiguousConcretePattern;
@@ -227,26 +225,22 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 	private java.util.List<ClassLoader> classLoaders;
 	private ModuleEnvironment rootScope;
-	private ModuleParser parser;
 
-	public Evaluator(IValueFactory f, ASTFactory astFactory, Writer errorWriter, ModuleEnvironment scope) {
-		this(f, astFactory, errorWriter, scope, new GlobalEnvironment());
+	public Evaluator(IValueFactory f, Writer errorWriter, ModuleEnvironment scope) {
+		this(f, errorWriter, scope, new GlobalEnvironment());
 	}
 
-	public Evaluator(IValueFactory f, ASTFactory astFactory, Writer errorWriter, 
-			ModuleEnvironment scope, GlobalEnvironment heap) {
-		this(f, astFactory, errorWriter, scope, new GlobalEnvironment(), new ModuleParser());
+	public Evaluator(IValueFactory f, Writer errorWriter, ModuleEnvironment scope, GlobalEnvironment heap) {
+		this(f, errorWriter, scope, new GlobalEnvironment(), new ModuleParser());
 	}
 
-	public Evaluator(IValueFactory f, ASTFactory astFactory, Writer errorWriter,
-			ModuleEnvironment scope, GlobalEnvironment heap, ModuleParser parser) {
+	public Evaluator(IValueFactory f, Writer errorWriter, ModuleEnvironment scope, GlobalEnvironment heap, ModuleParser parser) {
 		this.vf = f;
 		this.heap = heap;
 		currentEnvt = scope;
 		rootScope = scope;
 		this.classLoaders = new LinkedList<ClassLoader>();
 		this.javaBridge = new JavaBridge(errorWriter, classLoaders);
-		this.parser = parser;
 		loader = new ModuleLoader(parser);
 
 		// cwd loader

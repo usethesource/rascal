@@ -32,18 +32,17 @@ public class CommandEvaluator extends Evaluator {
 	private final ConsoleReader console;
 	private CommandParser parser;
 
-	CommandEvaluator(IValueFactory f, ASTFactory astFactory, Writer errorWriter,
+	CommandEvaluator(IValueFactory f, Writer errorWriter,
 			ModuleEnvironment scope, GlobalEnvironment heap, ConsoleReader console) {
-		super(f, astFactory, errorWriter, scope, heap);
+		super(f, errorWriter, scope, heap);
 		this.parser = new CommandParser(loader);
 		this.console = console;
 	}
 	
 	
-	public CommandEvaluator(IValueFactory valueFactory, ASTFactory factory,
-			PrintWriter printWriter, ModuleEnvironment root,
+	public CommandEvaluator(IValueFactory valueFactory, PrintWriter printWriter, ModuleEnvironment root,
 			GlobalEnvironment heap) {
-		this(valueFactory, factory, printWriter, root, heap, null);
+		this(valueFactory, printWriter, root, heap, null);
 	}
 
 

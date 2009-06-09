@@ -30,8 +30,6 @@ public class ParsingTests extends TestCase {
 			}
 		});
 
-		ASTBuilder b = new ASTBuilder(new ASTFactory());
-
 		boolean failed = false;
 		
 		for (File file : tests) {
@@ -39,7 +37,7 @@ public class ParsingTests extends TestCase {
 				IConstructor tree = parser.parseModule(Collections.<String>emptyList(), Collections.<String>emptySet(), file.getAbsolutePath(), new FileInputStream(file));
 				
 				if (tree.getConstructorType() == Factory.ParseTree_Top) {
-					Module.Default module = (Default) b.buildModule(tree);
+					Module.Default module = (Default) new ASTBuilder(new ASTFactory()).buildModule(tree);
 					System.err.println("SUCCEEDED: " + module.getHeader());
 				} else {
 					System.err.println("FAILED: " + file + "\n\t" + tree);

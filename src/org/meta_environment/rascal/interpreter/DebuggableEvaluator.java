@@ -4,7 +4,6 @@ import java.io.Writer;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.Expression.Addition;
 import org.meta_environment.rascal.ast.Expression.All;
@@ -106,9 +105,8 @@ public class DebuggableEvaluator extends Evaluator {
 	private boolean statementStepMode;
 	private boolean expressionStepMode;
 
-	public DebuggableEvaluator(IValueFactory f, ASTFactory astFactory,
-			Writer errorWriter, ModuleEnvironment scope, IDebugger debugger) {
-		super(f, astFactory, errorWriter, scope);
+	public DebuggableEvaluator(IValueFactory f, Writer errorWriter, ModuleEnvironment scope, IDebugger debugger) {
+		super(f, errorWriter, scope);
 		this.debugger = debugger;
 	}
 

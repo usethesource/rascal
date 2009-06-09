@@ -33,8 +33,6 @@ public class RascalShell {
 	private final static int MAX_CONSOLE_LINE = 100;
 	private static final String SHELL_MODULE = "***shell***";
 	
-	private final ASTFactory factory = new ASTFactory();
-	private final ASTBuilder builder = new ASTBuilder(factory);
 	private final ConsoleReader console;
 	private final CommandEvaluator evaluator;
 	
@@ -45,7 +43,7 @@ public class RascalShell {
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment(SHELL_MODULE));
 		evaluator = new CommandEvaluator(ValueFactoryFactory.getValueFactory(), 
-				factory, new PrintWriter(System.err), root, heap, console);
+				new PrintWriter(System.err), root, heap, console);
 	}
 	
 
@@ -53,8 +51,7 @@ public class RascalShell {
 		console = new ConsoleReader(inputStream, out);
 		GlobalEnvironment heap = new GlobalEnvironment();
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment(SHELL_MODULE));
-		evaluator = new CommandEvaluator(ValueFactoryFactory.getValueFactory(), factory, 
-				out, root, heap, console);
+		evaluator = new CommandEvaluator(ValueFactoryFactory.getValueFactory(), out, root, heap, console);
 	}
 
 	public void setInputStream(InputStream in) {
@@ -141,7 +138,7 @@ public class RascalShell {
 			result.append("parse error at" + (s.getEndLine() != 1 ? (" line" + s.getEndLine()) : "") + " column " + s.getEndColumn());
 		}
 		else {
-			Command stat = builder.buildCommand(tree);
+			Command stat = new ASTBuilder(new ASTFactory()).buildCommand(tree);
 			
 			if (stat == null) {
 				throw new ImplementationError("Disambiguation failed: it removed all alternatives");
