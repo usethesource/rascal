@@ -15,3 +15,7 @@ public str java getName(node T)
 public node java makeNode(str N, value V...)
 @doc{makeNode -- create a node given its function name and arguments}
 @javaClass{org.meta_environment.rascal.std.Node};
+
+public value java readATermFromFile(str fileName)
+@doc{readATermFromFile -- read an ATerm from a named file}
+@javaClass{org.meta_environment.rascal.std.Node};
