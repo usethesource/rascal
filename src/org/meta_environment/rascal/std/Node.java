@@ -1,14 +1,20 @@
 package org.meta_environment.rascal.std;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
+import org.eclipse.imp.pdb.facts.io.ATermReader;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.ValueFactoryFactory;
+import org.meta_environment.rascal.interpreter.RuntimeExceptionFactory;
 
 public class Node {
 	private static final IValueFactory values = ValueFactoryFactory.getValueFactory();
@@ -49,5 +55,20 @@ public class Node {
 		}
 		return values.node(N.getValue(), args);
 	}
+	
+	public static IValue readATermFromFile(IString fileName){
+	//@doc{readATermFromFile -- read an ATerm from a named file}
+		ATermReader atr = new ATermReader();
+		try {
+			FileInputStream stream = new FileInputStream(fileName.getValue());
+			return atr.read(values, types.nodeType(), stream);
+		} catch (FactTypeUseException e) {
+			e.printStackTrace();
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
+		} catch (IOException e) {
+			e.printStackTrace();
+			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 
+		}
+	}
 }

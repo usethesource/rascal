@@ -1,5 +1,10 @@
 package test.StandardLibraryTests;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+
 import org.junit.Test;
 
 import test.TestFramework;
@@ -47,6 +52,49 @@ public class NodeTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{node n = makeNode(\"f\", 1); getName(n) == \"f\" && arity(n) == 1 && getChildren(n) == [1];}"));
 		assertTrue(runTestInSameEvaluator("{node n = makeNode(\"f\", 1, 2); getName(n) == \"f\" && arity(n) == 2 && getChildren(n) == [1,2];}"));
 		assertTrue(runTestInSameEvaluator("{node n = makeNode(\"f\", 1, 2, 3); getName(n) == \"f\" && arity(n) == 3 && getChildren(n) == [1,2,3];}"));
+	}
+	
+	private boolean atermWriteRead(String aterm){
+		boolean success = false;
+		try{
+			PrintStream outStream = new PrintStream(new File("xxx"));
+			outStream.print(aterm);
+			outStream.close();
+			prepare("import Node;");
+			
+			success = runTestInSameEvaluator("{ value N := readATermFromFile(\"xxx\"); N == " + aterm + ";}");
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}finally{
+			// Clean up.
+			removeTempFile();
+		}
+		return success;
+	}
+	
+	public void removeTempFile(){
+		new File("xxx").delete();
+	}
+	
+	@Test
+	public void readATermFromFileInt() {
+		assertTrue(atermWriteRead("1"));
+	}
+	
+	@Test
+	public void readATermFromFileStr() {
+		assertTrue(atermWriteRead("\"abc\""));
+	}
+	
+	@Test
+	public void readATermFromFileList() {
+		assertTrue(atermWriteRead("[1,2,3]"));
+	}
+	
+	@Test
+	public void readATermFromFileFun() {
+		assertTrue(atermWriteRead("fn"));
 	}
 
 }
