@@ -15,10 +15,9 @@ import org.meta_environment.rascal.ast.Import.Default;
 import org.meta_environment.rascal.interpreter.Configuration;
 
 public class SdfImportExtractor {
-	private final ASTBuilder builder = new ASTBuilder(new ASTFactory());
 	
 	Set<String> extractImports(IConstructor parseTree, List<String> searchPath) {
-		Module module = builder.buildModule(parseTree);
+		Module module = new ASTBuilder(new ASTFactory()).buildModule(parseTree);
 		return extractImports(module, searchPath);
 	}
 	

@@ -20,8 +20,6 @@ import org.meta_environment.uptr.Factory;
 
 
 public class TestFramework {
-	private ASTFactory factory = new ASTFactory();
-	private ASTBuilder builder = new ASTBuilder(factory);
 	private CommandEvaluator evaluator;
 
 	public TestFramework() {
@@ -33,7 +31,7 @@ public class TestFramework {
 		ModuleEnvironment root = heap.addModule(new ModuleEnvironment(
 				"***test***"));
 		CommandEvaluator eval = new CommandEvaluator(ValueFactoryFactory.getValueFactory(),
-				factory, new PrintWriter(System.err), root, heap);
+				new PrintWriter(System.err), root, heap);
 
 		// to load modules from benchmarks and demo's
 		eval.addModuleLoader(new FromResourceLoader(getClass()));
@@ -120,7 +118,7 @@ public class TestFramework {
 			}
 			
 			reset();
-			Module mod = builder.buildModule(tree);
+			Module mod = new ASTBuilder(new ASTFactory()).buildModule(tree);
 			mod.accept(evaluator);
 			return true;
 		} catch (IOException e) {
@@ -137,7 +135,7 @@ public class TestFramework {
 			return false;
 		}
 		
-		Command cmd = builder.buildCommand(tree);
+		Command cmd = new ASTBuilder(new ASTFactory()).buildCommand(tree);
 		if (cmd.isStatement()) {
 			IValue value = evaluator.eval(cmd).getValue();
 			if (value == null || !value.getType().isBoolType())
