@@ -30,7 +30,7 @@ public class Environment {
 	protected final Map<String, Result<IValue>> variableEnvironment;
 	protected final Map<String, List<Lambda>> functionEnvironment;
 	protected final Map<Type, Type> typeParameters;
-	protected Environment parent;
+	protected final Environment parent;
 	protected final Environment callerScope;
 	protected final ISourceLocation callerLocation; // different from the scope location (more precise)
 	protected final ISourceLocation loc;
