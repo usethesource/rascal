@@ -31,10 +31,10 @@ public class Environment {
 	protected final Map<String, List<Lambda>> functionEnvironment;
 	protected final Map<Type, Type> typeParameters;
 	protected Environment parent;
-	protected Environment callerScope;
-	protected ISourceLocation callerLocation; // different from the scope location (more precise)
-	protected Cache cache = null;
+	protected final Environment callerScope;
+	protected final ISourceLocation callerLocation; // different from the scope location (more precise)
 	protected final ISourceLocation loc;
+	protected Cache cache = null;
 	protected final String name;
 
 	public Environment(Environment parent) {
@@ -127,17 +127,20 @@ public class Environment {
 		assert this instanceof ModuleEnvironment: "roots should be instance of ModuleEnvironment";
 	return parent == null;
 	}
-	
+
 	public boolean isRootStackFrame() {
-		if (getCaller() != null) {
+		return getCallerScope() == null;
+		/**
+		if (callerScope != null) {
 			return false;
 		}
-		
+
 		if (getParent() != null) {
 			return getParent().isRootStackFrame();
 		}
-		
+
 		return true;
+		 */
 	}
 
 	public Lambda getFunction(String name, Type actuals, AbstractAST useSite) {
@@ -502,7 +505,7 @@ public class Environment {
 	public Type lookupAbstractDataType(String name) {
 		return getRoot().lookupAbstractDataType(name);
 	}
-	
+
 	public Type lookupConcreteSyntaxType(String name) {
 		return getRoot().lookupConcreteSyntaxType(name);
 	}
@@ -548,11 +551,11 @@ public class Environment {
 	public Type abstractDataType(String name, Type...parameters) {
 		return getRoot().abstractDataType(name, parameters);
 	}
-	
+
 	public Type concreteSyntaxType(String name, org.meta_environment.rascal.ast.Type type) {
 		return getRoot().concreteSyntaxType(name, type);
 	}
-	
+
 	public Type concreteSyntaxType(String name, IConstructor symbol) {
 		return getRoot().concreteSyntaxType(name, symbol);
 	}
@@ -599,12 +602,22 @@ public class Environment {
 		return parent;
 	}
 
-	public Environment getCaller() {
-		return callerScope;
+	public Environment getCallerScope() {
+		if (callerScope != null) {
+			return callerScope;
+		} else if (parent != null) {
+			return parent.getCallerScope();
+		}
+		return null;
 	}
 
 	public ISourceLocation getCallerLocation() {
-		return callerLocation;
+		if (callerLocation != null) {
+			return callerLocation;
+		} else if (parent != null) {
+			return parent.getCallerLocation();
+		}
+		return null;
 	}
 
 	public Set<String> getImports() {
