@@ -150,4 +150,38 @@ public class StringTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("String::toUpperCase(\"abc\") == \"ABC\";"));
 		assertTrue(runTestInSameEvaluator("String::toUpperCase(\"abc123\") == \"ABC123\";"));
 	}
+	
+	@Test
+	public void toInt(){
+		prepare("import String;");
+		
+		assertTrue(runTestInSameEvaluator("toInt(\"0\") == 0;"));
+		assertTrue(runTestInSameEvaluator("toInt(\"1\") == 1;"));
+		assertTrue(runTestInSameEvaluator("toInt(\"0001\") == 1;"));
+		assertTrue(runTestInSameEvaluator("toInt(\"-1\") == -1;"));
+		assertTrue(runTestInSameEvaluator("toInt(\"12345\") == 12345;"));
+	}
+	
+	@Test(expected=RuntimeException.class)
+	public void toIntError(){
+		prepare("import String;");
+		assertTrue(runTestInSameEvaluator("toInt(\"abc\") == 0;"));
+	}
+	
+	@Test
+	public void toReal(){
+		prepare("import String;");
+		
+		assertTrue(runTestInSameEvaluator("toReal(\"0.0\") == 0.0;"));
+		assertTrue(runTestInSameEvaluator("toReal(\"1.0\") == 1.0;"));
+		assertTrue(runTestInSameEvaluator("toReal(\"0001.0\") == 1.0;"));
+		assertTrue(runTestInSameEvaluator("toReal(\"-1.0\") == -1.0;"));
+		assertTrue(runTestInSameEvaluator("toReal(\"1.2345\") == 1.2345;"));
+	}
+	
+	@Test(expected=RuntimeException.class)
+	public void toRealError(){
+		prepare("import String;");
+		assertTrue(runTestInSameEvaluator("toReal(\"abc\") == 0;"));
+	}
 }
