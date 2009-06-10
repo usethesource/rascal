@@ -101,6 +101,28 @@ public class String {
 	{
 	  return values.bool(s.getValue().startsWith(prefix.getValue()));
 	}
+	
+	public static IValue toInt(IString s)
+	//@doc{toInt -- convert a string s to integer}
+	{
+		try {
+			return values.integer(s.getValue());
+		}
+		catch (NumberFormatException e){
+			throw RuntimeExceptionFactory.illegalArgument(null, null);
+		}
+	}
+	
+	public static IValue toReal(IString s)
+	//@doc{toReal -- convert a string s to a real}
+	{
+		try {
+			return values.real(s.getValue());
+		}
+		catch (NumberFormatException e){
+			throw RuntimeExceptionFactory.illegalArgument(null, null);
+		}
+	}
 
 	public static IValue toLowerCase(IString s)
 	//@doc{toLowerCase -- convert all characters in string s to lowercase.}
