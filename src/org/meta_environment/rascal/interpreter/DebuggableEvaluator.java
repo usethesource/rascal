@@ -5,6 +5,7 @@ import java.io.Writer;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
+import org.meta_environment.rascal.ast.Statement;
 import org.meta_environment.rascal.ast.Expression.Addition;
 import org.meta_environment.rascal.ast.Expression.All;
 import org.meta_environment.rascal.ast.Expression.Ambiguity;
@@ -538,13 +539,6 @@ public class DebuggableEvaluator extends Evaluator {
 	}
 
 	@Override
-	public Result<IValue> visitEscapedNameAmbiguity(
-			org.meta_environment.rascal.ast.EscapedName.Ambiguity x) {
-		suspendExpression(x);
-		return super.visitEscapedNameAmbiguity(x);
-	}
-
-	@Override
 	public Result<IValue> visitExpressionVisit(Visit x) {
 		suspendExpression(x);
 		return super.visitExpressionVisit(x);
@@ -559,53 +553,54 @@ public class DebuggableEvaluator extends Evaluator {
 	@Override
 	public Result<IValue> visitStatementAmbiguity(
 			org.meta_environment.rascal.ast.Statement.Ambiguity x) {
-		suspendStatement();
+		suspendStatement(x);
 		return super.visitStatementAmbiguity(x);
 	}
 
 	@Override
 	public Result<IValue> visitStatementAssert(Assert x) {
-		suspendStatement();
+		suspendStatement(x);
 		return super.visitStatementAssert(x);
 	}
 
 	@Override
 	public Result<IValue> visitStatementAssertWithMessage(AssertWithMessage x) {
-		suspendStatement();
+		suspendStatement(x);
 		return super.visitStatementAssertWithMessage(x);
 	}
 
 	@Override
 	public Result<IValue> visitStatementAssignment(Assignment x) {
-		suspendStatement();
+		suspendStatement(x);
 		return super.visitStatementAssignment(x);
 	}
 	@Override
 	public Result<IValue> visitStatementBlock(Block x) {
-		suspendStatement();
+		/* no need to supend on a block */
+		//suspendStatement(x);
 		return super.visitStatementBlock(x);
 	}
 	@Override
 	public Result<IValue> visitStatementBreak(Break x) {
-		suspendStatement();
+		suspendStatement(x);
 		return super.visitStatementBreak(x);
 	}
 
 	@Override
 	public Result<IValue> visitStatementContinue(Continue x) {
-		suspendStatement();
+		suspendStatement(x);
 		return super.visitStatementContinue(x);
 	}
 
 	@Override
 	public Result<IValue> visitStatementDoWhile(DoWhile x) {
-		suspendStatement();
+		suspendStatement(x);
 		return super.visitStatementDoWhile(x);
 	}
 
 	@Override
 	public Result<IValue> visitStatementEmptyStatement(EmptyStatement x) {
-		suspendStatement();
+		suspendStatement(x);
 		return super.visitStatementEmptyStatement(x);
 	}
 
@@ -613,129 +608,127 @@ public class DebuggableEvaluator extends Evaluator {
 	public Result<IValue> visitStatementExpression(Expression x) {
 		//do not need to call suspendStatement if expressionMode is enabled
 		if (! expressionStepModeEnabled()) {
-			suspendStatement();
+			suspendStatement(x);
 		}
 		return super.visitStatementExpression(x);
 	}
 
 	@Override
 	public Result<IValue> visitStatementFail(Fail x) {
-		suspendStatement();
+		suspendStatement(x);
 		return super.visitStatementFail(x);
 	}
 
 	@Override
 	public Result<IValue> visitStatementFor(For x) {
-		suspendStatement();
+		suspendStatement(x);
 		return super.visitStatementFor(x);
 	}
 
 	@Override
 	public Result<IValue> visitStatementFunctionDeclaration(
 			FunctionDeclaration x) {
-		suspendStatement();
+		suspendStatement(x);
 		return super.visitStatementFunctionDeclaration(x);
 	}
 
 	@Override
 	public Result<IValue> visitStatementGlobalDirective(GlobalDirective x) {
-		suspendStatement();
+		suspendStatement(x);
 		return super.visitStatementGlobalDirective(x);
 	}
 
 	@Override
 	public Result<IValue> visitStatementIfThen(IfThen x) {
-		suspendStatement();
+		suspendStatement(x);
 		return super.visitStatementIfThen(x);
 	}
 
 	@Override
 	public Result<IValue> visitStatementIfThenElse(
 			org.meta_environment.rascal.ast.Statement.IfThenElse x) {
-		suspendStatement();
+		suspendStatement(x);
 		return super.visitStatementIfThenElse(x);
 	}
 
 	@Override
 	public Result<IValue> visitStatementInsert(Insert x) {
-		suspendStatement();
+		suspendStatement(x);
 		return super.visitStatementInsert(x);
 	}
 
 	@Override
 	public Result<IValue> visitStatementReturn(Return x) {
-		suspendStatement();
+		suspendStatement(x);
 		return super.visitStatementReturn(x);
 	}
 
 	@Override
 	public Result<IValue> visitStatementSolve(Solve x) {
-		suspendStatement();
+		suspendStatement(x);
 		return super.visitStatementSolve(x);
 	}
 
 	@Override
 	public Result<IValue> visitStatementSwitch(Switch x) {
-		suspendStatement();
+		suspendStatement(x);
 		return super.visitStatementSwitch(x);
 	}
 
 	@Override
 	public Result<IValue> visitStatementThrow(Throw x) {
-		suspendStatement();
+		suspendStatement(x);
 		return super.visitStatementThrow(x);
 	}
 
 	@Override
 	public Result<IValue> visitStatementTry(Try x) {
-		suspendStatement();
+		suspendStatement(x);
 		return super.visitStatementTry(x);
 	}
 
 	@Override
 	public Result<IValue> visitStatementTryFinally(TryFinally x) {
-		suspendStatement();
+		suspendStatement(x);
 		return super.visitStatementTryFinally(x);
 	}
 
 	@Override
 	public Result<IValue> visitStatementVariableDeclaration(
 			VariableDeclaration x) {
-		suspendStatement();
+		suspendStatement(x);
 		return super.visitStatementVariableDeclaration(x);
 	}
 
 	@Override
 	public Result<IValue> visitStatementVisit(
 			org.meta_environment.rascal.ast.Statement.Visit x) {
-		suspendStatement();
+		suspendStatement(x);
 		return super.visitStatementVisit(x);
 	}
 
 	@Override
 	public Result<IValue> visitStatementWhile(While x) {
-		suspendStatement();
+		suspendStatement(x);
 		return super.visitStatementWhile(x);
 	}
 
-	private void suspendExpression(AbstractAST x) {
-		setCurrentAST(x);
-		if(suspendRequest) {
-			suspendRequest = false;
-			debugger.notifySuspend();
-		} else if (expressionStepModeEnabled()) {
-			if (debugger.isStepping() || debugger.hasEnabledBreakpoint(getCurrentAST().getLocation())) {
-				debugger.notifySuspend();
-			}
-		}	
+	private void suspendExpression(org.meta_environment.rascal.ast.Expression x) {
+		suspend(x, expressionStepMode);
 	}
 
-	private void suspendStatement() {
+	private void suspendStatement(Statement x) {
+		suspend(x, statementStepMode);
+	}
+
+	private void suspend(AbstractAST x, boolean mode) {
 		if(suspendRequest) {
+			setCurrentAST(x);
 			debugger.notifySuspend();
 			suspendRequest = false;
-		} else if (statementStepModeEnabled()) {
+		} else if (mode) {
 			if (debugger.isStepping() || debugger.hasEnabledBreakpoint(getCurrentAST().getLocation())) {
+				setCurrentAST(x);
 				debugger.notifySuspend();
 			}
 		}
