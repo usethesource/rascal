@@ -16,8 +16,8 @@ public real min(real n, real m)
 	return n < m ? n : m;
 }
 
-public int java toInteger(real d)
-@doc{toInteger -- convert a real to integer.}
+public int java toInt(real d)
+@doc{toInt -- convert a real to integer.}
 @javaClass{org.meta_environment.rascal.std.Real};
 
 public str java toString(real d)

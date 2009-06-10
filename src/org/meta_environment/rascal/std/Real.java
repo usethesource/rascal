@@ -18,7 +18,7 @@ public class Real {
 	  return values.real(random.nextDouble());
 	}
 
-	public static IValue toInteger(IReal d)
+	public static IValue toInt(IReal d)
 	//@doc{toInteger -- convert a real to integer.}
 	{
 	  return d.toInteger();

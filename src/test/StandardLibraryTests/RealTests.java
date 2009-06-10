@@ -37,12 +37,12 @@ public class RealTests extends TestFramework {
 	}
 
 	@Test
-	public void toInteger() {
+	public void toInt() {
 
 		prepare("import Real;");
 
-		assertTrue(runTestInSameEvaluator("Real::toInteger(3.14) == 3;"));
-		assertTrue(runTestInSameEvaluator("toInteger(3.14) == 3;"));
+		assertTrue(runTestInSameEvaluator("Real::toInt(3.14) == 3;"));
+		assertTrue(runTestInSameEvaluator("toInt(3.14) == 3;"));
 	}
 
 	@Test
