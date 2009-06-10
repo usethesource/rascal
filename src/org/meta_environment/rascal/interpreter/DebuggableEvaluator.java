@@ -104,6 +104,7 @@ public class DebuggableEvaluator extends Evaluator {
 	private boolean suspendRequest;
 	private boolean statementStepMode;
 	private boolean expressionStepMode;
+	private boolean stepOver;
 
 	public DebuggableEvaluator(IValueFactory f, Writer errorWriter, ModuleEnvironment scope, IDebugger debugger) {
 		super(f, errorWriter, scope);
@@ -156,7 +157,19 @@ public class DebuggableEvaluator extends Evaluator {
 	@Override
 	public Result<IValue> visitExpressionCallOrTree(CallOrTree x) {
 		suspendExpression(x);
-		return super.visitExpressionCallOrTree(x);
+		if (!stepOver) {
+			return super.visitExpressionCallOrTree(x);
+		} else {
+			boolean oldStatementStepMode = statementStepMode;
+			boolean oldExpressionStepMode = expressionStepMode;
+			setStatementStepMode(false);
+			setExpressionStepMode(false);
+			Result<IValue> res = super.visitExpressionCallOrTree(x);
+			setStatementStepMode(oldStatementStepMode);
+			setExpressionStepMode(oldExpressionStepMode);
+			stepOver = false;
+			return res;
+		}
 	}
 
 	@Override
@@ -168,7 +181,19 @@ public class DebuggableEvaluator extends Evaluator {
 	@Override
 	public Result<IValue> visitExpressionClosureCall(ClosureCall x) {
 		suspendExpression(x);
-		return super.visitExpressionClosureCall(x);
+		if (!stepOver) {
+			return super.visitExpressionClosureCall(x);
+		} else {
+			boolean oldStatementStepMode = statementStepMode;
+			boolean oldExpressionStepMode = expressionStepMode;
+			setStatementStepMode(false);
+			setExpressionStepMode(false);
+			Result<IValue> res = super.visitExpressionClosureCall(x);
+			setStatementStepMode(oldStatementStepMode);
+			setExpressionStepMode(oldExpressionStepMode);
+			stepOver = false;
+			return res;
+		}
 	}
 
 	@Override
@@ -740,6 +765,10 @@ public class DebuggableEvaluator extends Evaluator {
 
 	public void setStatementStepMode(boolean value) {
 		statementStepMode = value;
+	}
+
+	public void setStepOver(boolean value) {
+		stepOver = value;
 	}
 
 }
