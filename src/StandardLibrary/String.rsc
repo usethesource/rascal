@@ -65,8 +65,17 @@ public bool java startsWith(str s, str prefix)
 @doc{startsWith -- return true if string s starts with the string prefix.}
 @javaClass{org.meta_environment.rascal.std.String};
 
+
+public int java toInt(str s)
+@doc{toInt -- convert a string s to integer}
+@javaClass{org.meta_environment.rascal.std.String};
+
 public str java toLowerCase(str s)
 @doc{toLowerCase -- convert all characters in string s to lowercase.}
+@javaClass{org.meta_environment.rascal.std.String};
+
+public real java toReal(str s)
+//@doc{toReal -- convert a string s to a real}
 @javaClass{org.meta_environment.rascal.std.String};
 
 public str java toUpperCase(str s)
