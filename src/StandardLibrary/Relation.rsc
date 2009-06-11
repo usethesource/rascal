@@ -187,6 +187,12 @@ public rel[&T0,&T1,&T2,&T3,&T4] domainX (rel[&T0,&T1,&T2,&T3,&T4] R, set[&T0] S)
   return { <V0, V1, V2, V3, V4> | <&T0 V0, &T1 V1, &T2 V2, &T3 V3, &T4 V4> <- R, V0 notin S };
 }
 
+public rel[&T, &T] ident (set[&T] S)
+@doc{ident -- identity relation for a set}
+{
+  return {<V, V> | V <- S};
+}
+
 // invert
 
 public rel[&T1, &T0] invert (rel[&T0, &T1] R)
