@@ -480,7 +480,7 @@ public class Environment {
 
 	public Environment getRoot() {
 		Environment target = parent;
-		while (!target.isRootScope()) {
+		while (target!=null && !target.isRootScope()) {
 			target = target.parent;
 		}
 		return target;
