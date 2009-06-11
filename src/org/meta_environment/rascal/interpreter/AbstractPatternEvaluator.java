@@ -194,11 +194,11 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 		super(vf, ctx);
 		this.name = qualifiedName;
 		this.children = children;
-		System.err.println("AbstractPatternNode: " + name + ", #children: " + children.size() );
-		System.err.println(name.getTree());
-		for(AbstractPattern ap : children){
-			System.err.println(ap);
-		}
+//		System.err.println("AbstractPatternNode: " + name + ", #children: " + children.size() );
+//		System.err.println(name.getTree());
+//		for(AbstractPattern ap : children){
+//			System.err.println(ap);
+//		}
 	}
 	
 	@Override
@@ -1482,7 +1482,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 	protected org.meta_environment.rascal.ast.QualifiedName name;
 	private Type type;
 	protected boolean anonymous = false;
-	private boolean debug = true;
+	private boolean debug = false;
 	protected Environment env; 
 	
 	AbstractPatternQualifiedName(IValueFactory vf, Environment env, EvaluatorContext ctx, org.meta_environment.rascal.ast.QualifiedName name){
