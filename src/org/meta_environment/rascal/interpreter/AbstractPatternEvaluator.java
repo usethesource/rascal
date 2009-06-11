@@ -2027,7 +2027,6 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 	}
 	
 	public boolean isPattern(org.meta_environment.rascal.ast.Expression pat){
-		System.err.println("isPattern: " + pat);
 		return (pat.isLiteral() && ! pat.getLiteral().isRegExp()) || 
 		       pat.isCallOrTree() || pat.isList() || 
 		       pat.isSet() || pat.isMap() || pat.isTuple() ||
@@ -2058,14 +2057,14 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 	private java.util.List<AbstractPattern> visitArguments(CallOrTree x){
 		
 		if(isParseTree(x)){
-			System.err.println("visitArguments: " + x.getTree());
-			System.err.println("arg(1) = " + x.getTree().get(1));
-			
-			for(org.meta_environment.rascal.ast.Expression e : x.getArguments()){
-				System.err.println("arg = " + e.getTree());
-				System.err.println("arg = " + e);
-				System.err.println("arg =  isList =" + e.isList());
-			}
+//			System.err.println("visitArguments: " + x.getTree());
+//			System.err.println("arg(1) = " + x.getTree().get(1));
+//			
+//			for(org.meta_environment.rascal.ast.Expression e : x.getArguments()){
+//				System.err.println("arg = " + e.getTree());
+//				System.err.println("arg = " + e);
+//				System.err.println("arg =  isList =" + e.isList());
+//			}
 			if(x.getArguments().size() < 2){
 				System.err.println(x.getTree());
 				int zzz = 3/0;
@@ -2074,10 +2073,10 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 			
 			java.util.List<org.meta_environment.rascal.ast.Expression> elements = xarg1.getElements();
 			
-			for(org.meta_environment.rascal.ast.Expression e : elements){
-				System.err.println("elm = " + e.getTree());
-				System.err.println("elm = " + e);
-			}
+//			for(org.meta_environment.rascal.ast.Expression e : elements){
+//				System.err.println("elm = " + e.getTree());
+//				System.err.println("elm = " + e);
+//			}
 				
 			ArrayList<AbstractPattern> args = new java.util.ArrayList<AbstractPattern>();
 			int i = 0;
@@ -2139,7 +2138,7 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 		Type signature = ctx.getEvaluator().tf.tupleType(new Type[0]);
 
 		Result<IValue> r = ctx.getEvaluator().getCurrentEnvt().getVariable(name);
-System.err.println("name = " + name.toString());
+
 		if (r != null) {
 			if (r.getValue() != null) {
 				// Previously declared and initialized variable
