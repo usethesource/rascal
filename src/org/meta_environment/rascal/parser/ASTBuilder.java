@@ -688,7 +688,10 @@ public class ASTBuilder {
 			pattern = (IConstructor) getASTArgs(tree).get(0);
 		}
 		else if (cons.equals("ConcreteTypedQuoted")) {
-			pattern = (IConstructor) getASTArgs(tree).get(1);
+			System.err.println("0: " + getASTArgs(tree).get(0));
+			// TODO PK: Was: pattern = (IConstructor) getASTArgs(tree).get(1);
+			// The type has disappeared!
+			 pattern = (IConstructor) getASTArgs(tree).get(0);
 		}
 		else {
 			throw new ImplementationError("Unexpected embedding syntax");
