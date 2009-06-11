@@ -66,6 +66,11 @@ public class TupleResult extends ElementResult<ITuple> {
 			throw new UnsupportedSubscriptArityError(getType(), subscripts.length, ctx.getCurrentAST());
 		}
 		Result<IValue> subsBase = (Result<IValue>)subscripts[0];
+		if(subsBase == null)
+			/*
+			 * Wild card not allowed as tuple subscript
+			 */
+			throw new UnsupportedSubscriptError(type, null, ctx.getCurrentAST());
 		if (!subsBase.getType().isIntegerType()){
 			throw new UnsupportedSubscriptError(getTypeFactory().integerType(), subsBase.getType(), ctx.getCurrentAST());
 		}
