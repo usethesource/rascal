@@ -91,6 +91,16 @@ public class RelationTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("domainX({<1,10,100,1000,10000>,<2,20,200,2000,20000>},{2,5}) == {<1,10,100,1000,10000>};"));
 
 	}
+	
+	@Test
+	public void ident() {
+
+		prepare("import Relation;");
+		
+		assertTrue(runTestInSameEvaluator("ident({}) == {};"));
+		assertTrue(runTestInSameEvaluator("ident({1}) == {<1,1>};"));
+		assertTrue(runTestInSameEvaluator("ident({1,2,3}) == {<1,1>,<2,2>,<3,3>};"));
+	}
 
 	@Test
 	public void invert() {
