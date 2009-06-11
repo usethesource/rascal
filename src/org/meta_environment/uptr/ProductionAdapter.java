@@ -49,14 +49,16 @@ public class ProductionAdapter {
 	
 	public String getSortName() {
 		SymbolAdapter rhs = getRhs();
-		
 		if (rhs.isCf() || rhs.isLex()) {
 			rhs = rhs.getSymbol();
-			if (rhs.isSort() || rhs.isParameterizedSort()) {
+			if (rhs.isSort() || rhs.isParameterizedSort()){
 				return rhs.getName();
+				// TODO PK: Added cases
+			} else if (rhs.isIterPlus() || rhs.isIterPlusSep() ||
+		                rhs.isIterStar() || rhs.isIterStarSep()){
+				return rhs.toString();
 			}
 		}
-			
 		throw new ImplementationError("Production does not have a sort name: " + tree);
 	}
 	
