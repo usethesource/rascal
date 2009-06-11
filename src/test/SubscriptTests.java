@@ -141,6 +141,8 @@ public class SubscriptTests extends TestFramework {
 		assertTrue(runTest("{<1, \"a\", 10>, <2, \"b\", 20>, <1, \"abc\", 100>}[1] == {<\"a\", 10>, <\"abc\", 100>};"));
 		assertTrue(runTest("{<1, \"a\", 10>, <2, \"b\", 20>, <1, \"abc\", 100>}[2] == {<\"b\", 20>};"));
 		assertTrue(runTest("{<1, \"a\", 10>, <2, \"b\", 20>, <1, \"abc\", 100>}[{1,2}] == {<\"a\", 10>, <\"b\", 20>, <\"abc\", 100>};"));
+	
+		assertTrue(runTest("{<1, \"a\", 10>, <2, \"b\", 20>, <1, \"abc\", 100>}[1,_] == {10, 100};"));
 	}
 	
 	@Test(expected=UninitializedVariableError.class)

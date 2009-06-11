@@ -4,6 +4,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.meta_environment.rascal.interpreter.staticErrors.AmbiguousConcretePattern;
+import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
 
 public class ConcreteSyntaxTests extends TestFramework {
 	
@@ -23,6 +24,24 @@ public class ConcreteSyntaxTests extends TestFramework {
 	public void singleAspaces2(){
 		prepare("import src::test::GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("[|a|] := [| a |];"));
+	}
+	
+	@Test
+	public void singleATyped(){
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("A[|a|] := [|a|];"));
+	}
+	
+	@Test
+	public void singleAUnquoted1(){
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("a := [|a|];"));
+	}
+	
+	@Test(expected=UninitializedVariableError.class)
+	public void singleAUnquoted2(){
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("a := a;"));
 	}
 	
 	@Test
@@ -102,9 +121,9 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test
-	public void ABvars2TypedInsert(){
+	public void ABvars2TypedInsert(){ 
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{ [|<A someA> <B someB>|] := [|a b|]; [|<A someA> <B someB>|] == [|a b|];}"));
+		assertTrue(runTestInSameEvaluator("{ [|<A someA><B someB>|] := [|a b|]; [|<A someA><B someB>|] == [|a b|];}"));
 	}
 	
 	@Test
@@ -176,7 +195,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	public void DvarsTypedInsert2(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{ [|d <D+ Xs>|] := [|d|]; Xs == [| |] && [| d <D+ Xs> |] == [| d |]; }"));
+		assertTrue(runTestInSameEvaluator("{ [|d <D+ Xs>|] := [|d|]; [| d <D+ Xs> |] == [| d |]; }"));
 	}
 	
 	@Test
@@ -262,20 +281,49 @@ public class ConcreteSyntaxTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{ [| e, {E \",\"}+ Xs> |] := [|e, e|]; [| e, <Xs> |] == [| e, e, e |];"));
 	}
 	
+	@Test
+	public void Pico1(){
+		prepare("import languages::pico::syntax::Pico;");
+		assertTrue(runTestInSameEvaluator("{t1 = [|begin declare x: natural; x := 10 end|];true;}"));
+	}
+	
+	@Test
+	public void Pico2(){
+		prepare("import languages::pico::syntax::Pico;");
+		assertTrue(runTestInSameEvaluator("{PROGRAM P := [|begin declare x: natural; x := 10 end|];}"));
+	}
+	
+	@Test
+	public void Pico3(){
+		prepare("import languages::pico::syntax::Pico;");
+		assertTrue(runTestInSameEvaluator("{[|<PROGRAM P>|] := [|begin declare x: natural; x := 10 end|];}"));
+	}
+	
+	@Test
+	public void Pico4(){
+		prepare("import languages::pico::syntax::Pico;");
+		assertTrue(runTestInSameEvaluator("{[|begin <decls> <stats> end|] := [|begin declare x: natural; x := 10 end|];}"));
+	}
+	
+	@Test
+	public void Pico5(){
+		prepare("import languages::pico::syntax::Pico;");
+		assertTrue(runTestInSameEvaluator("{[|begin <DECLS decls> <{STATEMENT \";\"}* stats> end|] := [|begin declare x: natural; x := 10 end|];}"));
+	}
 	
 	private String QmoduleM = "module M\n" +
 	                         "import languages::pico::syntax::Pico;\n" +
-	                         "import basic::Whitespace;\n" +
-	                         "public Tree t1 = [| begin declare x: natural; x := 10 end |];\n";
+	                    //     "import basic::Whitespace;\n" +
+	                         "public Tree t1 = [|begin declare x: natural; x := 10 end|];\n";
 	
 	private String UQmoduleM = "module M\n" +
                               "import languages::pico::syntax::Pico;\n" +
-                              "import basic::Whitespace;\n" +
+                        //      "import basic::Whitespace;\n" +
                               "public Tree t1 = begin declare x: natural; x := 10 end;\n";
 	
 	@Test
 	public void PicoQuoted1(){
-		prepareModule(QmoduleM + "public bool match1() { return [| <PROGRAM program> |] := t1; }\n");
+		prepareModule(QmoduleM + "public bool match1() { return [|<PROGRAM program>|] := t1; }\n");
 		prepareMore("import M;");
 		assertTrue(runTestInSameEvaluator("match1();"));
 	}
@@ -289,28 +337,28 @@ public class ConcreteSyntaxTests extends TestFramework {
 	
 	@Test
 	public void PicoQuoted3(){
-		prepareModule(QmoduleM + "public bool match3() { return [| begin <decls> <stats> end |] := t1; }\n");
+		prepareModule(QmoduleM + "public bool match3() { return [|begin <decls> <stats> end|] := t1; }\n");
 		prepareMore("import M;");
 		assertTrue(runTestInSameEvaluator("match3();"));
 	}
 	
 	@Test
 	public void PicoQuoted4(){
-		prepareModule(QmoduleM + "public bool match4() { return [| begin <DECLS decls> <stats> end |] := t1; }");
+		prepareModule(QmoduleM + "public bool match4() { return [|begin <DECLS decls> <stats> end|] := t1; }");
 		prepareMore("import M;");
 		assertTrue(runTestInSameEvaluator("match4();"));
 	}
 	
 	@Test
 	public void PicoQuoted5(){
-		prepareModule(QmoduleM + "public bool match5() { return [| begin <decls> <{STATEMENT \";\"}* stats> end |] := t1; }");
+		prepareModule(QmoduleM + "public bool match5() { return [|begin <decls> <{STATEMENT \";\"}* stats> end|] := t1; }");
 		prepareMore("import M;");
 		assertTrue(runTestInSameEvaluator("match5();"));
 	}
 	
 	@Test
 	public void PicoQuoted6(){
-		prepareModule(QmoduleM + "public bool match6() { return [| begin <DECLS decls> <{STATEMENT \";\"}* stats> end |] := t1; }");
+		prepareModule(QmoduleM + "public bool match6() { return [|begin <DECLS decls> <{STATEMENT \";\"}* stats> end|] := t1; }");
 		prepareMore("import M;");
 		assertTrue(runTestInSameEvaluator("match6();"));
 	}

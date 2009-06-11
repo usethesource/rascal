@@ -1225,7 +1225,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		int nSubs = x.getSubscripts().size();
 		Result<?> subscripts[] = new Result<?>[nSubs];
 		for (int i = 0; i < nSubs; i++) {
-			subscripts[i] = x.getSubscripts().get(i).accept(this);
+			Expression subsExpr = x.getSubscripts().get(i);
+			subscripts[i] = isWildCard(subsExpr.toString()) ? null : subsExpr.accept(this);
 		}
 		return expr.subscript(subscripts, new EvaluatorContext(this, x));
 	}
@@ -1247,6 +1248,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			}
 		}
 		return false;
+	}
+	
+	private boolean isWildCard(String fieldName){
+		return fieldName.equals("_");
 	}
 
 	@Override
@@ -1280,10 +1285,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 				fieldTypes[i] = base.getType().getFieldType(selectedFields[i]);
 			}
 
-			if(duplicateIndices(selectedFields)){
+		//	if(duplicateIndices(selectedFields)){
 				// TODO: what does it matter if there are duplicate indices???
-				throw new ImplementationError("Duplicate fields in projection");
-			}
+		//		throw new ImplementationError("Duplicate fields in projection");
+		//	}
 			Type resultType = nFields == 1 ? fieldTypes[0] : tf.tupleType(fieldTypes);
 
 			// Was: return makeResult(resultType, applyRules(((ITuple)base.getValue()).select(selectedFields)));
@@ -1310,11 +1315,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 				}
 				fieldTypes[i] = base.getType().getFieldType(selectedFields[i]);
 			}
-			if(duplicateIndices(selectedFields)){
+		////	if(duplicateIndices(selectedFields)){
 				// TODO: what does it matter if there are duplicate indices? Duplicate
 				// field names may be a problem, but not this.
-				throw new ImplementationError("Duplicate fields in projection");
-			}
+		//		throw new ImplementationError("Duplicate fields in projection");
+		//	}
 			Type resultType = nFields == 1 ? tf.setType(fieldTypes[0]) : tf.relType(fieldTypes);
 
 			//return makeResult(resultType, applyRules(((IRelation)base.getValue()).select(selectedFields)));	

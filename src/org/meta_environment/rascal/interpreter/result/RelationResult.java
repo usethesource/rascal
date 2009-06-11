@@ -11,6 +11,7 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.meta_environment.rascal.interpreter.EvaluatorContext;
 import org.meta_environment.rascal.interpreter.staticErrors.ArityError;
@@ -112,9 +113,12 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 			
 			Type subscriptType[] = new Type[nSubs];
 			boolean subscriptIsSet[] = new boolean[nSubs];
-			
+			Type valueType = TypeFactory.getInstance().valueType();
+			/*
+			 * Subscripts will value null are interpreted as wildcards (_) that match any value.
+			 */
 			for (int i = 0; i < nSubs; i++){
-				subscriptType[i] = subscripts[i].getType();
+				subscriptType[i] = subscripts[i] == null ? valueType : subscripts[i].getType();
 			}
 			
 			boolean yieldSet = (relArity - nSubs) == 1;
@@ -126,7 +130,7 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 					    subscriptType[i].getElementType().isSubtypeOf(relFieldType)){
 						subscriptIsSet[i] = true;
 					} 
-					else if (subscriptType[i].isSubtypeOf(relFieldType)){
+					else if (subscripts[i] == null || subscriptType[i].isSubtypeOf(relFieldType)){
 						subscriptIsSet[i] = false;
 					} 
 					else {
@@ -153,9 +157,10 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 				ITuple tup = (ITuple)v;
 				boolean allEqual = true;
 				for(int k = 0; k < nSubs; k++){
-					if(subscriptIsSet[k] && ((ISet) subscripts[k].getValue()).contains(tup.get(k))){
+					if(subscriptIsSet[k] && ((subscripts[k] == null) ||
+							                 ((ISet) subscripts[k].getValue()).contains(tup.get(k)))){
 						/* ok */
-					} else if (tup.get(k).isEqual(subscripts[k].getValue())){
+					} else if (subscripts[k] == null || tup.get(k).isEqual(subscripts[k].getValue())){
 						/* ok */
 					} else {
 						allEqual = false;
