@@ -123,7 +123,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	public void ABvars2TypedInsert(){ 
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{ [|<A someA><B someB>|] := [|a b|]; [|<A someA><B someB>|] == [|a b|];}"));
+		assertTrue(runTestInSameEvaluator("{ [|<A someA><B someB>|] := [|a b|]; [|<someA><someB>|] == [|a b|];}"));
 	}
 	
 	@Test
@@ -195,7 +195,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	public void DvarsTypedInsert2(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{ [|d <D+ Xs>|] := [|d|]; [| d <D+ Xs> |] == [| d |]; }"));
+		assertTrue(runTestInSameEvaluator("{ [|d <D+ Xs>|] := [|d|]; [| d <Xs> |] == [| d |]; }"));
 	}
 	
 	@Test
@@ -266,19 +266,19 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	public void EvarsTypedInsert1(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{ [|<{E \",\"}+ Xs>|] := [|e, e|]; [| e, <Xs> |] == [| e, e, e |];"));
+		assertTrue(runTestInSameEvaluator("{ [|<{E \",\"}+ Xs>|] := [|e, e|]; [| e, <Xs> |] == [| e, e, e |]; }"));
 	}
 	
 	@Test
 	public void EvarsTypedInsert2(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{ [|<{E \",\"}+ Xs>|] := [|e, e|]; [| e, <{E \",\"}+ Xs> |] == [| e, e, e |];"));
+		assertTrue(runTestInSameEvaluator("{ [|<{E \",\"}+ Xs>|] := [|e, e|]; [| e, <{E \",\"}+ Xs> |] == [| e, e, e |]; }"));
 	}
 	
 	@Test
 	public void EvarsTypedInsert3(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{ [| e, {E \",\"}+ Xs> |] := [|e, e|]; [| e, <Xs> |] == [| e, e, e |];"));
+		assertTrue(runTestInSameEvaluator("{ [| e, {E \",\"}+ Xs> |] := [|e, e|]; [| e, <Xs> |] == [| e, e, e |]; }"));
 	}
 	
 	@Test
@@ -313,12 +313,10 @@ public class ConcreteSyntaxTests extends TestFramework {
 	
 	private String QmoduleM = "module M\n" +
 	                         "import languages::pico::syntax::Pico;\n" +
-	                    //     "import basic::Whitespace;\n" +
 	                         "public Tree t1 = [|begin declare x: natural; x := 10 end|];\n";
 	
 	private String UQmoduleM = "module M\n" +
                               "import languages::pico::syntax::Pico;\n" +
-                        //      "import basic::Whitespace;\n" +
                               "public Tree t1 = begin declare x: natural; x := 10 end;\n";
 	
 	@Test
