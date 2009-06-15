@@ -718,6 +718,16 @@ public class PatternTests extends TestFramework {
 	}
 	
 	@Test(expected=StaticError.class)
+	public void redeclaredVariableBecomes(){
+		assertTrue(runTest("{int N = 5; N : 3 := 3 && N == 3;}"));
+	}
+	
+	@Test(expected=StaticError.class)
+	public void doubleVariableBecomes(){
+		assertTrue(runTest("{[N : 3, N : 4] := [3,4] && N == 3;}"));
+	}
+	
+	@Test(expected=StaticError.class)
 	public void UndeclaredTypeError(){
 		runTest("STRANGE X := 123;");
 	}
