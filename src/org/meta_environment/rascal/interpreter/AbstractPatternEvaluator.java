@@ -1732,7 +1732,7 @@ class AbstractPatternTypedVariableBecomes extends AbstractPattern implements Mat
 	private Type declaredType;
 	private Environment env;
 	private MatchPattern pat;
-	private boolean debug = false;
+	private boolean debug = true;
 
 	AbstractPatternTypedVariableBecomes(IValueFactory vf, Environment env, EvaluatorContext ctx,
 			org.eclipse.imp.pdb.facts.type.Type type, org.meta_environment.rascal.ast.Name aname, MatchPattern pat){
@@ -1743,8 +1743,13 @@ class AbstractPatternTypedVariableBecomes extends AbstractPattern implements Mat
 		this.pat = pat;
 		
 		if(debug) System.err.println("AbstractPatternTypedVariableBecomes: " + type + " " + name);
+		Result<IValue> innerRes = env.getInnermostVariable(name);
+		if(innerRes != null){
+			throw new RedeclaredVariableError(this.name, aname);
+		}
 		Result<IValue> localRes = env.getLocalVariable(name);
 		if(localRes != null){
+			System.err.println("localRes != null");
 			if(localRes.getValue() != null){
 				throw new RedeclaredVariableError(this.name, aname);
 			}
@@ -1756,8 +1761,10 @@ class AbstractPatternTypedVariableBecomes extends AbstractPattern implements Mat
 			env.storeInnermostVariable(name, makeResult(localRes.getType(), null, ctx));
 			return;
 		}
+
 		Result<IValue> globalRes = env.getVariable(null,name);
 		if(globalRes != null){
+			System.err.println("globalRes != null");
 			if(globalRes.getValue() != null){
 				throw new RedeclaredVariableError(this.name, aname);
 			}
@@ -1769,6 +1776,7 @@ class AbstractPatternTypedVariableBecomes extends AbstractPattern implements Mat
 			env.storeInnermostVariable(name, makeResult(globalRes.getType(), null, ctx));
 			return;
 		}
+		env.storeInnermostVariable(name, makeResult(type, null, ctx));
 	}
 	
 	@Override
@@ -1819,6 +1827,13 @@ class AbstractPatternVariableBecomes extends AbstractPattern implements MatchPat
 		this.env = env;
 		this.pat = pat;
 		
+		System.err.println("VarBecomes: " + name);
+		
+		Result<IValue> innerRes = env.getInnermostVariable(name);
+		if(innerRes != null){
+			throw new RedeclaredVariableError(this.name, aname);
+		}
+		
 		Result<IValue> localRes = env.getLocalVariable(name);
 		if(localRes != null){
 			if(localRes.getValue() != null){
@@ -1839,6 +1854,7 @@ class AbstractPatternVariableBecomes extends AbstractPattern implements MatchPat
 			env.storeInnermostVariable(name, makeResult(globalRes.getType(), null, ctx));
 			return;
 		}
+		env.storeInnermostVariable(name, makeResult(tf.valueType(), null, ctx));
 	}
 	
 	@Override
