@@ -157,7 +157,7 @@ public class SetTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{Set::toList({1}) == [1];}"));
 		assertTrue(runTestInSameEvaluator("{(Set::toList({1, 2, 1}) == [1, 2]) || (Set::toList({1, 2, 1}) == [2, 1]);}"));
 	}
-
+	
 	@Test
 	public void toMap() {
 
@@ -165,8 +165,25 @@ public class SetTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{Set::toMap({}) == ();}"));
 
 		assertTrue(runTestInSameEvaluator("{toMap({}) == ();}"));
-		assertTrue(runTestInSameEvaluator("{Set::toMap({<1, \"a\">}) == (1 : \"a\");}"));
-		assertTrue(runTestInSameEvaluator("{Set::toMap({<1, \"a\">, <2, \"b\">}) == (1 : \"a\", 2 : \"b\");}"));
+		assertTrue(runTestInSameEvaluator("{Set::toMap({<1, \"a\">}) == (1 : {\"a\"});}"));
+		assertTrue(runTestInSameEvaluator("{Set::toMap({<1, \"a\">, <2, \"b\">, <1, \"c\">}) == (1 : {\"a\", \"c\"}, 2 : {\"b\"});}"));
+	}
+
+	@Test
+	public void toMapUnique() {
+
+		prepare("import Set;");
+		assertTrue(runTestInSameEvaluator("{Set::toMapUnique({}) == ();}"));
+
+		assertTrue(runTestInSameEvaluator("{toMapUnique({}) == ();}"));
+		assertTrue(runTestInSameEvaluator("{Set::toMapUnique({<1, \"a\">}) == (1 : \"a\");}"));
+		assertTrue(runTestInSameEvaluator("{Set::toMapUnique({<1, \"a\">, <2, \"b\">}) == (1 : \"a\", 2 : \"b\");}"));
+	}
+	
+	@Test(expected=Throw.class)
+	public void toMapUniqueError(){
+		prepare("import Set;");
+		assertTrue(runTestInSameEvaluator("{toMapUnique({<1,10>,<2,10>}) == (10:1);}"));
 	}
 
 	@Test

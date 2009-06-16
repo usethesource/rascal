@@ -168,8 +168,12 @@ public tuple[&T, list[&T]] java takeOneFrom(list[&T] lst)
 @doc{takeOneFrom -- remove an arbitrary element from a list, returns the element and the modified list}
 @javaClass{org.meta_environment.rascal.std.List};
 
-public map[&A,&B] java toMap(list[tuple[&A, &B]] lst)
-@doc{toMap -- convert a list of tuples to a map}
+public map[&A,set[&B]] java toMap(list[tuple[&A, &B]] lst) throws DuplicateKey
+@doc{toMap -- convert a list of tuples to a map; first elements are associated with a set of second elements}
+@javaClass{org.meta_environment.rascal.std.List};
+
+public map[&A,&B] java toMapUnique(list[tuple[&A, &B]] lst) throws DuplicateKey
+@doc{toMapUnique -- convert a list of tuples to a map; result must be a map}
 @javaClass{org.meta_environment.rascal.std.List};
 
 public set[&T] java toSet(list[&T] lst)

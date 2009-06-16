@@ -1,11 +1,14 @@
 package org.meta_environment.rascal.std;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Random;
 
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IMapWriter;
+import org.eclipse.imp.pdb.facts.IRelation;
 import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -173,9 +176,39 @@ public class List {
 	   
 	   throw RuntimeExceptionFactory.emptyList(null, null);
 	}
-
+	
 	public static IValue toMap(IList lst)
-	//@doc{toMap -- convert a list of tuples to a map}
+	// @doc{toMap -- convert a list of tuples to a map; first value in old tuples is associated with a set of second values}
+	{
+		Type tuple = lst.getElementType();
+		Type keyType = tuple.getFieldType(0);
+		Type valueType = tuple.getFieldType(1);
+		Type valueSetType = types.setType(valueType);
+
+		HashMap<IValue,ISetWriter> hm = new HashMap<IValue,ISetWriter>();
+
+		for (IValue v : lst) {
+			ITuple t = (ITuple) v;
+			IValue key = t.get(0);
+			IValue val = t.get(1);
+			ISetWriter wValSet = hm.get(key);
+			if(wValSet == null){
+				wValSet = valueSetType.writer(values);
+				hm.put(key, wValSet);
+			}
+			wValSet.insert(val);
+		}
+		
+		Type resultType = types.mapType(keyType, valueSetType);
+		IMapWriter w = resultType.writer(values);
+		for(IValue v : hm.keySet()){
+			w.put(v, hm.get(v).done());
+		}
+		return w.done();
+	}
+	
+	public static IValue toMapUnique(IList lst)
+	//@doc{toMapUnique -- convert a list of tuples to a map; result should be a map}
 	{
 	   if(lst.length() == 0){
 	      return values.map(types.voidType(), types.voidType());
@@ -184,9 +217,14 @@ public class List {
 	   Type resultType = types.mapType(tuple.getFieldType(0), tuple.getFieldType(1));
 	  
 	   IMapWriter w = resultType.writer(values);
+	   HashSet<IValue> seenKeys = new HashSet<IValue>();
 	   for(IValue v : lst){
 		   ITuple t = (ITuple) v;
-	     w.put(t.get(0), t.get(1));
+		   IValue key = t.get(0);
+		   if(seenKeys.contains(key)) 
+				throw RuntimeExceptionFactory.MultipleKey(key, null, null);
+		   seenKeys.add(key);
+	     w.put(key, t.get(1));
 	   }
 	   return w.done();
 	}
