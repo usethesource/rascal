@@ -114,10 +114,12 @@ public list[&T] java toList(set[&T] st)
 @doc{toList -- convert a set to a list}
 @javaClass{org.meta_environment.rascal.std.Set};
 
-// TODO: multiple elements in map?
+public map[&A,set[&B]] java toMap(rel[&A, &B] st)
+@doc{toMap -- convert a set of tuples to a map; values should be unique}
+@javaClass{org.meta_environment.rascal.std.Set};
 
-public map[&A,&B] java toMap(rel[&A, &B] st)
-@doc{toMap -- convert a set of tuples to a map}
+public map[&A,&B] java toMapUnique(rel[&A, &B] st)
+@doc{toMap -- convert a set of tuples to a map; values in relation are associated with a set of keys}
 @javaClass{org.meta_environment.rascal.std.Set};
 
 public str java toString(set[&T] st)

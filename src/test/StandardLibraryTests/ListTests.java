@@ -296,13 +296,30 @@ public class ListTests extends TestFramework {
 	}
 
 	@Test
+	public void toMapUnique() {
+
+		prepare("import List;");
+
+		assertTrue(runTestInSameEvaluator("{List::toMapUnique([]) == ();}"));
+		assertTrue(runTestInSameEvaluator("{toMapUnique([]) == ();}"));
+		assertTrue(runTestInSameEvaluator("{List::toMapUnique([<1,10>, <2,20>]) == (1:10, 2:20);}"));
+	}
+	
+	@Test(expected=Throw.class)
+	public void toMapUniqueError(){
+		prepare("import List;");
+		assertTrue(runTestInSameEvaluator("{List::toMapUnique([<1,10>, <1,20>]) == (1:10, 2:20);}"));
+	}
+	
+	@Test
 	public void toMap() {
 
 		prepare("import List;");
 
 		assertTrue(runTestInSameEvaluator("{List::toMap([]) == ();}"));
 		assertTrue(runTestInSameEvaluator("{toMap([]) == ();}"));
-		assertTrue(runTestInSameEvaluator("{List::toMap([<1,10>, <2,20>]) == (1:10, 2:20);}"));
+		assertTrue(runTestInSameEvaluator("{List::toMap([<1,10>, <2,20>]) == (1:{10}, 2:{20});}"));
+		assertTrue(runTestInSameEvaluator("{List::toMap([<1,10>, <2,20>, <1,30>]) == (1:{10,30}, 2:{20});}"));
 	}
 
 	@Test

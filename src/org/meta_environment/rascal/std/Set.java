@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.std;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Random;
 
 import org.eclipse.imp.pdb.facts.IListWriter;
@@ -92,23 +94,57 @@ public class Set {
 		return w.done();
 	}
 
-	// TODO: multiple elements in map?
-
 	public static IValue toMap(IRelation st)
-	// @doc{toMap -- convert a set of tuples to a map}
+	// @doc{toMap -- convert a set of tuples to a map; value in old map is associated with a set of keys in old map}
+	{
+		Type tuple = st.getElementType();
+		Type keyType = tuple.getFieldType(0);
+		Type valueType = tuple.getFieldType(1);
+		Type valueSetType = types.setType(valueType);
+
+		HashMap<IValue,ISetWriter> hm = new HashMap<IValue,ISetWriter>();
+
+		for (IValue v : st) {
+			ITuple t = (ITuple) v;
+			IValue key = t.get(0);
+			IValue val = t.get(1);
+			ISetWriter wValSet = hm.get(key);
+			if(wValSet == null){
+				wValSet = valueSetType.writer(values);
+				hm.put(key, wValSet);
+			}
+			wValSet.insert(val);
+		}
+		
+		Type resultType = types.mapType(keyType, valueSetType);
+		IMapWriter w = resultType.writer(values);
+		for(IValue v : hm.keySet()){
+			w.put(v, hm.get(v).done());
+		}
+		return w.done();
+	}
+	
+	public static IValue toMapUnique(IRelation st)
+	// @doc{toMapUnique -- convert a set of tuples to a map; values are unique}
 	{
 		Type tuple = st.getElementType();
 		Type resultType = types.mapType(tuple.getFieldType(0), tuple
 				.getFieldType(1));
 
 		IMapWriter w = resultType.writer(values);
+		HashSet<IValue> seenValues = new HashSet<IValue>();
 
 		for (IValue v : st) {
 			ITuple t = (ITuple) v;
+			IValue val = t.get(1);
+			if(seenValues.contains(val)) 
+				throw RuntimeExceptionFactory.MultipleKey(val, null, null);
+			seenValues.add(val);
 			w.put(t.get(0), t.get(1));
 		}
 		return w.done();
 	}
+
 
 	public static IValue toString(ISet st)
 	// @doc{toString -- convert a set to a string}
