@@ -39,12 +39,11 @@ public class RuntimeExceptionFactory {
 	private static Type PermissionDenied = TF.constructor(TS,E,"PermissionDenied",TF.stringType(), "message");
 	private static Type AnonymousPermissionDenied = TF.constructor(TS,E,"PermissionDenied");
 	private static Type ModuleNotFound = TF.constructor(TS, E, "ModuleNotFound", TF.stringType(), "name");
+	private static Type MultipleKey = TF.constructor(TS, E, "MultipleKey", TF.valueType(), "key");
 	private static Type NoSuchKey = TF.constructor(TS, E, "NoSuchKey", TF.valueType(), "key");
 	private static Type NoSuchAnnotation = TF.constructor(TS, E, "NoSuchAnnotation", TF.stringType(), "label");
 	private static Type NoSuchField = TF.constructor(TS, E, "NoSuchField", TF.stringType(), "label");
 	private static Type ParseError = TF.constructor(TS, E, "ParseError", TF.sourceLocationType(), "location");
-	
-	
 	
 	private static Type Java = TF.constructor(TS, E, "Java", TF.stringType(), "message");
 
@@ -110,6 +109,10 @@ public class RuntimeExceptionFactory {
 
 	public static Throw noSuchKey(IValue v, AbstractAST ast, String trace) {
 		return new Throw(NoSuchKey.make(VF, v), ast, trace);
+	}
+	
+	public static Throw MultipleKey(IValue v, AbstractAST ast, String trace) {
+		return new Throw(MultipleKey.make(VF, v), ast, trace);
 	}
 	
 	public static Throw noSuchAnnotation(String label, AbstractAST ast, String trace) {

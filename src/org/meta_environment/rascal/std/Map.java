@@ -1,6 +1,9 @@
 package org.meta_environment.rascal.std;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Random;
 import java.util.Map.Entry;
 
@@ -60,17 +63,54 @@ public class Map {
 	   return null;
 	}
 	
-	public static IValue invert(IMap M)
-	//@doc{invert -- return map with key and value inverted}
+	public static IValue invertUnique(IMap M)
+	//@doc{invertUnique -- return map with key and value inverted; values are unique}
 	{
 		Type keyType = M.getKeyType();
 		Type valueType = M.getValueType();
 		Type resultType = types.mapType(valueType, keyType);
 		IMapWriter w = resultType.writer(values);
+		HashSet<IValue> seenValues = new HashSet<IValue>();
 		Iterator<Entry<IValue,IValue>> iter = M.entryIterator();
 		while (iter.hasNext()) {
 			Entry<IValue,IValue> entry = iter.next();
-			w.put(entry.getValue(), entry.getKey());
+			IValue key = entry.getKey();
+			IValue val = entry.getValue();
+			if(seenValues.contains(val)) 
+					throw RuntimeExceptionFactory.MultipleKey(val, null, null);
+			seenValues.add(val);
+			w.put(val, key);
+		}
+		return w.done();
+	}
+	
+	public static IValue invert(IMap M)
+	//@doc{invert -- return map with key and value inverted; values are not unique and are collected in a set}
+	{
+		Type keyType = M.getKeyType();
+		Type valueType = M.getValueType();
+		Type keySetType = types.setType(keyType);
+	
+		HashMap<IValue,ISetWriter> hm = new HashMap<IValue,ISetWriter>();
+		Iterator<Entry<IValue,IValue>> iter = M.entryIterator();
+		while (iter.hasNext()) {
+			Entry<IValue,IValue> entry = iter.next();
+			IValue key = entry.getKey();
+			IValue val = entry.getValue();
+			ISetWriter wKeySet = hm.get(val);
+			if(wKeySet == null){
+				wKeySet = keySetType.writer(values);
+				hm.put(val, wKeySet);
+			}
+			wKeySet.insert(key);
+		}
+		
+		Type resultType = types.mapType(valueType, keySetType);
+		IMapWriter w = resultType.writer(values);
+		
+		iter = M.entryIterator();
+		for(IValue v : hm.keySet()){
+			w.put(v, hm.get(v).done());
 		}
 		return w.done();
 	}

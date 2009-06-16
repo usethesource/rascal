@@ -1732,7 +1732,7 @@ class AbstractPatternTypedVariableBecomes extends AbstractPattern implements Mat
 	private Type declaredType;
 	private Environment env;
 	private MatchPattern pat;
-	private boolean debug = true;
+	private boolean debug = false;
 
 	AbstractPatternTypedVariableBecomes(IValueFactory vf, Environment env, EvaluatorContext ctx,
 			org.eclipse.imp.pdb.facts.type.Type type, org.meta_environment.rascal.ast.Name aname, MatchPattern pat){
@@ -1826,8 +1826,6 @@ class AbstractPatternVariableBecomes extends AbstractPattern implements MatchPat
 		this.name = Names.name(aname);
 		this.env = env;
 		this.pat = pat;
-		
-		System.err.println("VarBecomes: " + name);
 		
 		Result<IValue> innerRes = env.getInnermostVariable(name);
 		if(innerRes != null){

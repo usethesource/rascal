@@ -8,8 +8,12 @@ public &K java getOneFrom(map[&K, &V] M)
 @doc{getOneFrom -- return arbitrary key of a map}
 @javaClass{org.meta_environment.rascal.std.Map};
 
-public map[&V, &K] java invert(map[&K, &V] M)  
-@doc{invert -- return map with key and value inverted}
+public map[&V, set[&K]] java invert(map[&K, &V] M)  
+@doc{invert -- return map with key and value inverted; values are not unique and are collected in a set}
+@javaClass{org.meta_environment.rascal.std.Map};
+
+public map[&V, &K] java invertUnique(map[&K, &V] M)  
+@doc{invert -- return map with key and value inverted; values are unique}
 @javaClass{org.meta_environment.rascal.std.Map};
 
 public bool java isEmpty(map[&K, &V] M)
