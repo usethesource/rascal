@@ -25,21 +25,28 @@ public class MapTests extends TestFramework {
 	}
 	
 	@Test
-	public void invert(){
-		
+	public void invertUnique(){
 		prepare("import Map;");
-		assertTrue(runTestInSameEvaluator("invert(()) == ();"));
-		assertTrue(runTestInSameEvaluator("invert((1:10)) == (10:1);"));
-		assertTrue(runTestInSameEvaluator("invert((1:10, 2:20)) == (10:1, 20:2);"));
-		assertTrue(runTestInSameEvaluator("invert(([[]]:0,[[2]]:2,[[1,2],[2,1]]:1,[[1]]:3)) == (0:[[]],2:[[2]],1:[[1,2],[2,1]],3:[[1]]);"));
+		assertTrue(runTestInSameEvaluator("invertUnique(()) == ();"));
+		assertTrue(runTestInSameEvaluator("invertUnique((1:10)) == (10:1);"));
+		assertTrue(runTestInSameEvaluator("invertUnique((1:10, 2:20)) == (10:1, 20:2);"));
+		assertTrue(runTestInSameEvaluator("invertUnique(([[]]:0,[[2]]:2,[[1,2],[2,1]]:1,[[1]]:3)) == (0:[[]],2:[[2]],1:[[1,2],[2,1]],3:[[1]]);"));
 		
 	}
 	
-	@Ignore @Test(expected=Throw.class) 
-	// (a) Change exception name;
-	// (b) Check for duplicates
+	@Test(expected=Throw.class) 
 	public void invertError() {
-		runTest("import Map;", "invert((1:10, 2:10));");
+		runTest("import Map;", "invertUnique((1:10, 2:10));");
+	}
+	
+	@Test
+	public void invert(){
+		prepare("import Map;");
+		assertTrue(runTestInSameEvaluator("invert(()) == ();"));
+		assertTrue(runTestInSameEvaluator("invert((1:10)) == (10:{1});"));
+		assertTrue(runTestInSameEvaluator("invert((1:10, 2:20)) == (10:{1}, 20:{2});"));
+		assertTrue(runTestInSameEvaluator("invert((1:10, 2:10, 3:30, 4:30) == (10: {1,2}, 30:{3,4});"));
+		
 	}
 	
 	@Test
