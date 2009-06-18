@@ -118,13 +118,13 @@ public class ModuleLoader{
 		}
 		
 		try{
-			IConstructor tree = null; //tryLoadBinary(name); // <-- Don't do this if you want to generate new binaries.
+			IConstructor tree = tryLoadBinary(name); // <-- Don't do this if you want to generate new binaries.
 			if(tree == null){
 				String fileName = getFileName(name);
 				
 				tree = parseModule(fileName, name, ast);
 				
-				writeBinary(name, tree); // Enable if you want to generate new binaries.
+				//writeBinary(name, tree); // Enable if you want to generate new binaries.
 			}
 
 			return new ASTBuilder(new ASTFactory()).buildModule(tree);
