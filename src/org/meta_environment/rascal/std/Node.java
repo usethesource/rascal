@@ -61,7 +61,7 @@ public class Node {
 		ATermReader atr = new ATermReader();
 		try {
 			FileInputStream stream = new FileInputStream(fileName.getValue());
-			return atr.read(values, types.nodeType(), stream);
+			return atr.read(values, stream);
 		} catch (FactTypeUseException e) {
 			e.printStackTrace();
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);

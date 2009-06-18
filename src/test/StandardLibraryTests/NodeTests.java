@@ -5,6 +5,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 
+import org.eclipse.imp.pdb.facts.INode;
+import org.eclipse.imp.pdb.facts.IValue;
 import org.junit.Test;
 
 import test.TestFramework;
@@ -54,21 +56,23 @@ public class NodeTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{node n = makeNode(\"f\", 1, 2, 3); getName(n) == \"f\" && arity(n) == 3 && getChildren(n) == [1,2,3];}"));
 	}
 	
-	private boolean atermWriteRead(String aterm){
+	private boolean atermWriteRead(String atermString, String dataDefs, String atermValue){
 		boolean success = false;
 		try{
 			PrintStream outStream = new PrintStream(new File("xxx"));
-			outStream.print(aterm);
+			outStream.print(atermString);
 			outStream.close();
 			prepare("import Node;");
+			if(!dataDefs.equals(""))
+				prepareMore(dataDefs);
 			
-			success = runTestInSameEvaluator("{ value N := readATermFromFile(\"xxx\"); N == " + aterm + ";}");
+			success = runTestInSameEvaluator("{ value N := readATermFromFile(\"xxx\"); N == " + atermValue + ";}");
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}finally{
 			// Clean up.
-			removeTempFile();
+			//removeTempFile();
 		}
 		return success;
 	}
@@ -79,22 +83,37 @@ public class NodeTests extends TestFramework {
 	
 	@Test
 	public void readATermFromFileInt() {
-		assertTrue(atermWriteRead("1"));
+		assertTrue(atermWriteRead("f(1)", "", "makeNode(\"f\", 1)"));
 	}
 	
 	@Test
 	public void readATermFromFileStr() {
-		assertTrue(atermWriteRead("\"abc\""));
+		assertTrue(atermWriteRead("f(\"abc\")", "", "makeNode(\"f\", \"abc\")"));
 	}
 	
 	@Test
 	public void readATermFromFileList() {
-		assertTrue(atermWriteRead("[1,2,3]"));
+		assertTrue(atermWriteRead("f([1,2,3])", "", "makeNode(\"f\", 1,2,3)"));
 	}
 	
 	@Test
 	public void readATermFromFileFun() {
-		assertTrue(atermWriteRead("fn"));
+		assertTrue(atermWriteRead("fn", "", "\"fn()\""));
+	}
+	
+	@Test
+	public void readATermFromFileFunWithArgs() {
+		assertTrue(atermWriteRead("fn(1,2,3)", "", "makeNode(\"fn\",1,2,3)"));
+	}
+	
+	@Test
+	public void readATermFromFileADT1() {
+		assertTrue(atermWriteRead("fn(1,2,3)", "data FUN = f(int A, int B, int C);", "makeNode(\"fn\",1,2,3)"));
+	}
+	
+	@Test
+	public void readATermFromFileADT2() {
+		assertTrue(atermWriteRead("fn(1,2,3)", "data FUN = f(int A, int B, int C);", "f(1,2,3)"));
 	}
 
 }
