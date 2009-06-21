@@ -17,6 +17,8 @@ public class Configuration {
 	private final static String RASCAL2TABLE_BINDIR_PROPERTY = "rascal.rascal2table.dir";
 	private final static String SDF_LIBRARY_PATH_PROPERTY = "rascal.sdf.library.dir";
 	private static final String SDF2TABLE_PROPERTY = "rascal.sdf.sdf2table.command";
+	private final static String PROFILING_PROPERTY = "rascal.profiling";
+	private final static String UNITTEST_PROPERTY = "rascal.unittest";
 	
 	private volatile static String basePath = null;
 	
@@ -164,6 +166,15 @@ public class Configuration {
 		}
 		
 		return sdfLibraryPathProperty;
+	}
+	
+	public static boolean getProfilingProperty(){
+		String profiling = System.getProperty(PROFILING_PROPERTY);
+		if(profiling != null){
+			return profiling.equals("true") ? true : false;
+		}
+		System.setProperty(PROFILING_PROPERTY, "false");
+		return false;
 	}
 
 }
