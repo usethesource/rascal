@@ -45,7 +45,7 @@ public class MapTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("invert(()) == ();"));
 		assertTrue(runTestInSameEvaluator("invert((1:10)) == (10:{1});"));
 		assertTrue(runTestInSameEvaluator("invert((1:10, 2:20)) == (10:{1}, 20:{2});"));
-		assertTrue(runTestInSameEvaluator("invert((1:10, 2:10, 3:30, 4:30) == (10: {1,2}, 30:{3,4});"));
+		assertTrue(runTestInSameEvaluator("invert((1:10, 2:10, 3:30, 4:30)) == (10: {1,2}, 30:{3,4});"));
 		
 	}
 	
