@@ -121,9 +121,15 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test
-	public void ABvars2TypedInsert(){ 
+	public void ABvars2TypedInsertWithoutTypes(){ 
 		prepare("import src::test::GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{ [|<A someA><B someB>|] := [|a b|]; [|<someA><someB>|] == [|a b|];}"));
+	}
+	
+	@Test
+	public void ABvars2TypedInsertWithTypes(){ 
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("{ [|<A someA><B someB>|] := [|a b|]; C[|<someA><someB>|] == [|a b|];}"));
 	}
 	
 	@Test
