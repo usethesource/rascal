@@ -96,7 +96,7 @@ public class Symbols {
 		String lit = ((StrCon.Lexical) sep).getString();
 		StringBuilder builder = new StringBuilder();
 		
-		for (int i = 0; i < lit.length(); i++) {
+		for (int i = 1; i < lit.length() - 1; i++) {
 			if (lit.charAt(i) == '\\') {
 				i++;
 				switch (lit.charAt(i)) {
@@ -134,7 +134,7 @@ public class Symbols {
 		String lit = ((SingleQuotedStrCon.Lexical) sep).getString();
 		StringBuilder builder = new StringBuilder();
 		
-		for (int i = 0; i < lit.length(); i++) {
+		for (int i = 1; i < lit.length() - 1; i++) {
 			if (lit.charAt(i) == '\\') {
 				i++;
 				switch (lit.charAt(i)) {
