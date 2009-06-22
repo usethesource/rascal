@@ -338,7 +338,9 @@ public class ComprehensionTests extends TestFramework {
 	
 	@Test public void listComprehension3()  {
 		
-		assertTrue(runTest("[ Y | list[int] Y <- [[1,2,3],[10,20,30],[100,200,300]] ] == [ [1,2,3], [10,20,30],[100,200,300]];"));
+		assertTrue(runTest("[ [Y] | list[int] Y <- [[1,2,3],[10,20,30],[100,200,300]] ] == [ [1,2,3], [10,20,30],[100,200,300]];"));
+		assertTrue(runTest("[ Y | list[int] Y <- [[1,2,3],[10,20,30],[100,200,300]] ] == [ 1,2,3, 10,20,30,100,200,300];"));
+		
 		assertTrue(runTest("[1 | 3 > 2] == [1] ;"));
 		assertTrue(runTest("[1 | 2 > 3] == [] ;"));
 		

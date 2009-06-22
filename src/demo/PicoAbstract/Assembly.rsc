@@ -39,8 +39,7 @@ public list[Instr] compileProgram(PROGRAM P){
 }
 
 private list[Instr] compileDecls(list[DECL] Decls){
-    //return [  (type == natural) ? dclNat(Id) : dclStr(id)  | decl(PicoId Id, TYPE type) <- DEcls];
-    return [ dclNat(Id) | decl(PicoId Id, TYPE type) <- Decls ];
+    return [ (type == natural) ? dclNat(Id) : dclStr(Id)  | decl(PicoId Id, TYPE type) <- Decls];
 }
 
 private list[Instr] compileStatements(list[STATEMENT] Stats){
@@ -129,6 +128,21 @@ public bool test(){
        gofalse("L4"),
        lvalue("x"),
        pushNat(3),
+       assign(),
+       go("L3"),
+       label("L4")];
+       
+   assertEqual(compileProgram(P), R);
+   
+   
+   P = program([decl("x", string)], [whileStat(natCon(5), [asgStat("x", strCon("abc"))])]);
+       
+  R = [dclStr("x"),
+       label("L3"),
+       pushNat(5),
+       gofalse("L4"),
+       lvalue("x"),
+       pushStr("abc"),
        assign(),
        go("L3"),
        label("L4")];
