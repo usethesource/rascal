@@ -10,7 +10,7 @@ import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 
 
 public class ProductionAdapter {
-	private IConstructor tree;
+	public IConstructor tree;
 
 	public ProductionAdapter(IConstructor tree) {
 		if (tree.getType() != Factory.Production) {
