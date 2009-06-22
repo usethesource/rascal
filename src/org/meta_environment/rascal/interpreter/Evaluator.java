@@ -36,6 +36,7 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.Bound;
 import org.meta_environment.rascal.ast.Case;
@@ -47,6 +48,7 @@ import org.meta_environment.rascal.ast.Field;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.FunctionModifier;
 import org.meta_environment.rascal.ast.Import;
+import org.meta_environment.rascal.ast.IntegerLiteral;
 import org.meta_environment.rascal.ast.Module;
 import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.NullASTVisitor;
@@ -604,7 +606,51 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	public Result<IValue> visitExpressionAmbiguity(Ambiguity x) {
 		// TODO: assuming that that is the only reason for an expression to be ambiguous
 		// we might also check if this is an "appl" constructor...
+		
+		System.err.println("Env: " + currentEnvt);
+		int i = 0;
+		for (Expression exp: x.getAlternatives()) {
+			System.err.println("Alt " + i++ + ": " + exp.getTree());
+		}
 		throw new AmbiguousConcretePattern(x);
+	}
+	
+	
+	
+	
+	
+	
+	private static class DisambVisitor extends NullASTVisitor<java.lang.Boolean> {
+		
+		private Environment env;
+		private Stack<AbstractAST> stack;
+		
+		public DisambVisitor(Environment env) {
+			this.env = env;
+		}
+		
+		@Override
+		public java.lang.Boolean visitExpressionCallOrTree(CallOrTree x) {
+			java.util.List<Expression> args = x.getArguments();
+			
+			// push type of appl on stack
+			// we need an AST visitor that converts the
+			// IUPTR representation of an SDF symbol
+			// to a ConcreteSyntaxType
+			return super.visitExpressionCallOrTree(x);
+		}
+		
+		@Override
+		public java.lang.Boolean visitExpressionQualifiedName(
+				org.meta_environment.rascal.ast.Expression.QualifiedName x) {
+			
+			Result<IValue> value = env.getVariable(x.getQualifiedName());
+			if (value != null) {
+				
+				return true;
+			}
+			return false;
+		}
 	}
 
 	@Override

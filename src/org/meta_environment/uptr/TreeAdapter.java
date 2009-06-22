@@ -52,9 +52,12 @@ public class TreeAdapter {
 	public ProductionAdapter getProduction() {
 		if (prod == null) {
 		  prod = new ProductionAdapter((IConstructor) tree.get("prod"));
-		}
-		
+		}	
 		return prod;
+	}
+	
+	public boolean hasSortName() {
+		return getProduction().hasSortName();
 	}
 	
 	public String getSortName() throws FactTypeUseException {
@@ -149,6 +152,8 @@ public class TreeAdapter {
 	public boolean isCILiteral() {
 		return isAppl() ? getProduction().isCILiteral() : false;
 	}
+	
+	
 
 	public ISet getAlternatives() {
 		if (isAmb()) {

@@ -1,5 +1,9 @@
 package org.meta_environment.rascal.parser;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -13,6 +17,7 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.ASTStatistics;
@@ -38,6 +43,7 @@ import org.meta_environment.uptr.ParsetreeAdapter;
 import org.meta_environment.uptr.ProductionAdapter;
 import org.meta_environment.uptr.SymbolAdapter;
 import org.meta_environment.uptr.TreeAdapter;
+import org.meta_environment.uptr.visitors.AsfixWriter;
 
 
 /**
@@ -58,6 +64,19 @@ public class ASTBuilder {
 	public Module buildModule(IConstructor parseTree) throws FactTypeUseException {
 		TreeAdapter tree = new ParsetreeAdapter(parseTree).getTop();
 		if (tree.isAppl()) {
+		try {
+			String filename = "/tmp/amb" + ".pt";
+			Writer writer = new FileWriter(new File(filename));
+			tree.getTree().accept(new AsfixWriter(writer));
+			writer.close();
+			System.err.println("Ambiguous tree dumped to: " + filename);
+		} catch (VisitorException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}	
 			return buildSort(parseTree, "Module");
 		}
 		throw new ImplementationError("Ambiguous module?");
@@ -88,19 +107,50 @@ public class ASTBuilder {
 		throw new ImplementationError("This is not a" + sort +  ": " + new TreeAdapter(tree).yield());
 	}
 	
-	private String sortName(TreeAdapter tree) {
-		if (tree.isAppl()) {
-			String sortName = tree.getSortName();
-
-			if (isRascalSort(sortName)) {
-				sortName = sortName.substring(1);
-			}
-
-			return sortName;
+	private AbstractAST buildValue(IValue arg)  {
+		TreeAdapter tree = new TreeAdapter((IConstructor) arg);
+		
+		
+		if (tree.isAmb()) {
+//			try {
+//				String filename = "/tmp/amb" + ".pt";
+//				Writer writer = new FileWriter(new File(filename));
+//				tree.getTree().accept(new AsfixWriter(writer));
+//				writer.close();
+//				System.err.println("Ambiguous tree dumped to: " + filename);
+//			} catch (VisitorException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}	
+			return filter(tree);
 		}
-		return "";
-	}
+		
+		if (!tree.isAppl()) {
+			throw new UnsupportedOperationException();
+		}	
+		
+		if (isLexical(tree)) {
+			return buildLexicalNode((IConstructor) ((IList) ((IConstructor) arg).get("args")).get(0));
+		}
+		
+		if (sortName(tree).equals("FunctionBody") && tree.getConstructorName().equals("Java")) {
+			return new JavaFunctionBody((INode) arg, tree.yield());
+		}
+
+		if (sortName(tree).equals("Pattern") && isEmbedding(tree)) {
+			return lift(tree, true);
+		}
+
+		if (sortName(tree).equals("Expression") && isEmbedding(tree)) {
+			return lift(tree, false);
+		}
 	
+		return buildContextFreeNode((IConstructor) arg);
+	}
+
 	private List<AbstractAST> buildList(IConstructor in)  {
 		IList args = new TreeAdapter(in).getListASTArgs();
 		List<AbstractAST> result = new ArrayList<AbstractAST>(args.length());
@@ -115,107 +165,150 @@ public class ASTBuilder {
 		return result;
 	}
 
-	public IList getASTArgs(TreeAdapter tree) {
-		if (!tree.isContextFree()) {
-			throw new ImplementationError("This is not a context-free production: "
-					+ tree);
-		}
-
-		IList children = tree.getArgs();
-		IListWriter writer = Factory.Args.writer(ValueFactoryFactory.getValueFactory());
-
-		for (int i = 0; i < children.length(); i++) {
-			IValue kid = children.get(i);
-			TreeAdapter treeAdapter = new TreeAdapter((IConstructor) kid);
-			if (!treeAdapter.isLiteral() && !treeAdapter.isCILiteral() && !isRascalLiteral(treeAdapter)) {
-				writer.append(kid);	
-			} 
-			// skip layout
-			i++;
-		}
-		
-		return writer.done();
-	}
-	
 	private AbstractAST buildContextFreeNode(IConstructor in)  {
-		try {
-			TreeAdapter tree = new TreeAdapter(in);
+		TreeAdapter tree = new TreeAdapter(in);
 
-			String cons = tree.getConstructorName();
-			String sort = sortName(tree);
-			sort = sort.equalsIgnoreCase("pattern") ? "Expression" : capitalize(sort); 
-			cons = capitalize(cons);
-			
-			IList args = getASTArgs(tree);
-			int arity = args.length() + 1;
-			Class<?> formals[] = new Class<?>[arity];
-			Object actuals[] = new Object[arity];
+		String cons = capitalize(tree.getConstructorName());
+		String sort = sortName(tree);
+		sort = sort.equalsIgnoreCase("pattern") ? "Expression" : capitalize(sort); 
 
-			formals[0] = INode.class;
-			actuals[0] = in;
+		IList args = getASTArgs(tree);
+		int arity = args.length() + 1;
+		Class<?> formals[] = new Class<?>[arity];
+		Object actuals[] = new Object[arity];
 
-			ASTStatistics total = new ASTStatistics();
-			
-			int i = 1;
-			for (IValue arg : args) {
-				TreeAdapter argTree = new TreeAdapter((IConstructor) arg);
-				
-				if (argTree.isList()) {
-					actuals[i] = buildList((IConstructor) arg);
-					formals[i] = List.class;
-					
-					if (actuals[i] == null) { // filtered
-						return null;
-					}
-					
-					for (Object ast : ((java.util.List<?>) actuals[i])) {
-						total.add(((AbstractAST) ast).getStats());
-					}
+		formals[0] = INode.class;
+		actuals[0] = in;
+
+		ASTStatistics total = new ASTStatistics();
+
+		int i = 1;
+		for (IValue arg : args) {
+			TreeAdapter argTree = new TreeAdapter((IConstructor) arg);
+
+			if (argTree.isList()) {
+				actuals[i] = buildList((IConstructor) arg);
+				formals[i] = List.class;
+
+				if (actuals[i] == null) { // filtered
+					return null;
 				}
-				else if (argTree.isAmbiguousList()) {
-					actuals[i] = filterList(argTree);
-					formals[i] = List.class;
-					
-					if (actuals[i] == null) { // filtered
-						return null;
-					}
-					
-					for (Object ast : ((java.util.List<?>) actuals[i])) {
-						ASTStatistics stats = ((AbstractAST) ast).getStats();
-						total.add(stats);
-					}
+
+				for (Object ast : ((java.util.List<?>) actuals[i])) {
+					total.add(((AbstractAST) ast).getStats());
 				}
-				else {
-					actuals[i] = buildValue(arg);
-					if (actuals[i] == null) { // filtered
-						return null;
-					}
-					formals[i] = actuals[i].getClass().getSuperclass();
-					
-					
-					ASTStatistics stats = ((AbstractAST) actuals[i]).getStats();
+			}
+			else if (argTree.isAmbiguousList()) {
+				actuals[i] = filterList(argTree);
+				formals[i] = List.class;
+
+				if (actuals[i] == null) { // filtered
+					return null;
+				}
+
+				for (Object ast : ((java.util.List<?>) actuals[i])) {
+					ASTStatistics stats = ((AbstractAST) ast).getStats();
 					total.add(stats);
 				}
-				i++;
 			}
+			else {
+				actuals[i] = buildValue(arg);
+				if (actuals[i] == null) { // filtered
+					return null;
+				}
+				formals[i] = actuals[i].getClass().getSuperclass();
 
-			Method make = clazz.getMethod("make" + sort + cons, formals);
-			AbstractAST ast = (AbstractAST) make.invoke(factory, actuals);
-			ast.setStats(total);
-			return ast;
-		} catch (SecurityException e) {
-			throw unexpectedError(e);
-		} catch (NoSuchMethodException e) {
-			throw unexpectedError(e);
-		} catch (IllegalArgumentException e) {
-			throw unexpectedError(e);
-		} catch (IllegalAccessException e) {
-			throw unexpectedError(e);
-		} catch (InvocationTargetException e) {
-			throw unexpectedError(e);
+
+				ASTStatistics stats = ((AbstractAST) actuals[i]).getStats();
+				total.add(stats);
+			}
+			i++;
 		}
+
+		AbstractAST ast = callMakerMethod(sort, cons, formals, actuals);
+		ast.setStats(total);
+		return ast;
 	}
 	
+	private AbstractAST buildLexicalNode(IConstructor in) {
+		TreeAdapter tree = new TreeAdapter(in);
+
+		String sort = capitalize(sortName(tree));
+
+		Class<?> formals[] = new Class<?>[] { INode.class, String.class };
+		Object actuals[] = new Object[] { in, new String(new TreeAdapter(in).yield()) };
+
+		return callMakerMethod(sort, "Lexical", formals, actuals);
+	}
+	
+	private AbstractAST filter(TreeAdapter tree) {
+		ISet altsIn = tree.getAlternatives();
+		java.util.List<AbstractAST> altsOut = new ArrayList<AbstractAST>(altsIn.size());
+		String sort = "";
+		ASTStatistics ref = null;
+		
+		for (IValue alt : altsIn) {
+			AbstractAST ast = buildValue(alt);
+			
+			if (ast == null) {
+				continue;
+			}
+			
+			if (ref == null) {
+				ref = ast.getStats();
+				altsOut.add(ast);
+			}
+			else {
+				ref = filter(altsOut, ast, ref);
+			}
+		}
+
+		if (altsOut.size() == 0) {
+			throw new ImplementationError("Accidentally all ambiguous alternatives were removed");
+		}
+		
+		if (altsOut.size() == 1) {
+			return altsOut.iterator().next();
+		}
+		
+		if (isRascalSort(sort)) {
+			sort = capitalize(sort.substring(1));
+		}
+		else {
+			// concrete syntax is lifted to Expression
+			sort = "Expression";
+		}
+
+		Class<?> formals[] = new Class<?>[]  { INode.class, List.class };
+		Object actuals[] = new Object[] { tree.getTree(), altsOut };
+
+		AbstractAST ast = callMakerMethod(sort, "Ambiguity", formals, actuals);
+		ast.setStats(ref != null ? ref : new ASTStatistics());
+		return ast;
+	}
+
+	private <T extends AbstractAST> ASTStatistics filter(java.util.List<T> altsOut,
+			T ast, ASTStatistics ref) {
+		ASTStatistics stats = ast.getStats();
+		return filter(altsOut, ast, ref, stats);
+	}
+
+	private <T> ASTStatistics filter(java.util.List<T> altsOut, T ast, ASTStatistics ref, ASTStatistics stats) {
+		switch(ref.compareTo(stats)) {
+		case 1:
+			ref = stats;
+			altsOut.clear();
+			altsOut.add(ast);
+			break;
+		case 0:
+			altsOut.add(ast);
+			break;
+		case -1:
+			// do nothing
+		}
+		return ref;
+	}
+
 	private List<AbstractAST> filterList(TreeAdapter argTree) {
 		ISet alts = argTree.getAlternatives();
 		ASTStatistics ref = new ASTStatistics();
@@ -253,175 +346,95 @@ public class ASTBuilder {
 		throw new ImplementationError("Unexpected ambiguous list after filtering");
 	}
 
-	private AbstractAST buildLexicalNode(IConstructor in) {
-		try {
-			TreeAdapter tree = new TreeAdapter(in);
-
-			String sort = sortName(tree);
-			String Sort = capitalize(sort);
-
-			Class<?> formals[] = new Class<?>[] { INode.class, String.class };
-			Object actuals[] = new Object[] { in, new String(new TreeAdapter(in).yield()) };
-
-			Method make = clazz.getMethod("make" + Sort + "Lexical", formals);
-			return (AbstractAST) make.invoke(factory, actuals);
-		} catch (SecurityException e) {
-			throw unexpectedError(e);
-		} catch (NoSuchMethodException e) {
-			throw unexpectedError(e);
-		} catch (IllegalArgumentException e) {
-			throw unexpectedError(e);
-		} catch (IllegalAccessException e) {
-			throw unexpectedError(e);
-		} catch (InvocationTargetException e) {
-			throw unexpectedError(e);
+	/**
+	 * Removes patterns like <PROGRAM p> where the <...> hole is not nested in a place
+	 * where a PROGRAM is expected. Also, patterns that directly nest concrete syntax patterns
+	 * again, like [| <[| ... |]> |] are filtered.
+	 */
+	private Expression filterNestedPattern(TreeAdapter antiQuote, TreeAdapter pattern) {
+		ISet alternatives = pattern.getAlternatives();
+		List<Expression> result = new ArrayList<Expression>(alternatives.size());
+		 
+		SymbolAdapter expected = antiQuote.getProduction().getRhs();
+		
+		// any alternative that is a typed variable must be parsed using a 
+		// MetaVariable that produced exactly the same type as is declared inside
+		// the < > brackets.
+		for (IValue alt : alternatives) {
+			if (isEmbedding(new TreeAdapter((IConstructor) alt))) {
+				continue; // filter direct nesting
+			}
+			
+			Expression exp = (Expression) buildValue(alt);
+		
+			if (correctlyNestedPattern(expected, exp)) {
+				result.add(exp);
+			}
 		}
+		
+		if (result.size() == 1) {
+			return result.get(0);
+		}
+		return new Expression.Ambiguity(antiQuote.getTree(), result);
 	}
+
+	/** [| a a |] is a non-empty list of 'A*'. However there is "[|" A* "|]" -> Pattern
+	 * and  "[|" A+ "|]" -> Pattern both always present at the same time. This is always
+	 * ambiguous. This filter removes the * list interpretation in favor of the + interpretation.
+	 */
+	private Expression filterNonEmptyStarLists(Expression ast) {
+		// unfortunately, I don't know when to do this on the parse tree level, so
+		// we have to understand parse trees on the lifted AST level here :-(
+		
+		
+		// TODO: this code is highly experimental Tijs, I don't know if it should be kept.
+		// it smells wrong to be doing this on this level. Also, it did not solve the problem
+		// I had.
+		
+		
+		if (ast == null) {
+			return null;
+		}
+		
+		
+		if (ast.isCallOrTree()) {
+			Expression arg0 = ast.getArguments().get(0);
+			if (!(arg0 instanceof CallOrTree)){
+				if (arg0.isSet()) {
+					System.err.println("arg0 = " + arg0 + " TREE: \n" + arg0.getTree());
+					int i = 0;
+					System.err.println("Num of alts: " + ((Expression.Set)arg0).getElements().size());
+					for (Expression alt: ((Expression.Set)arg0).getElements()) {
+						System.err.println("ALT " + i++ + ": " + alt.getTree());
+					}
+					throw new AmbiguousConcretePattern(arg0);
+					
+				}
+				
+				throw new ImplementationError("Unexpected AST node");
+			}
+			
+			Expression.CallOrTree prod = (CallOrTree) arg0;
+			Expression.List args = (org.meta_environment.rascal.ast.Expression.List) ast.getArguments().get(1);
 	
-	private ImplementationError unexpectedError(Throwable e) {
-		return new ImplementationError("Unexpected error in AST construction: " + e, e);
-	}
-
-	private boolean isEmbedding(TreeAdapter tree) {
-		String name = tree.getConstructorName();
-		return name.equals("ConcreteQuoted") 
-		|| name.equals("ConcreteUnquoted") 
-		|| name.equals("ConcreteTypedQuoted");
-	}
+			if (getCallName(prod).equals("list")) {
+				Expression.CallOrTree rhs = (CallOrTree) prod.getArguments().get(0);
+	
+				if (getCallName(rhs).equals("cf")) {
+					rhs = (CallOrTree) rhs.getArguments().get(0);
+	
+					if (getCallName(rhs).equals("iter-star") || getCallName(rhs).equals("iter-star-sep")) { 
+						// its a * list!
+						if (args.getElements().size() > 0) {
+							// it does have elements, so + list is good too, so filter this one
+							return null;
+						}
+					}
+				}
+			}
+		} 
+		return ast;
 		
-	private AbstractAST buildValue(IValue arg)  {
-		TreeAdapter tree = new TreeAdapter((IConstructor) arg);
-		
-		if (tree.isAmb()) {
-			return filter(tree);
-		}
-		
-		if (!tree.isAppl()) {
-			throw new UnsupportedOperationException();
-		}	
-		
-		if (isLexical(tree)) {
-			return buildLexicalNode((IConstructor) ((IList) ((IConstructor) arg).get("args")).get(0));
-		}
-		else if (sortName(tree).equals("FunctionBody") && tree.getConstructorName().equals("Java")) {
-			return new JavaFunctionBody((INode) arg, tree.yield());
-		}
-		else if (sortName(tree).equals("Pattern") && isEmbedding(tree)) {
-			return lift(tree, true);
-		}
-		else if (sortName(tree).equals("Expression") && isEmbedding(tree)) {
-			return lift(tree, false);
-		}
-
-		return buildContextFreeNode((IConstructor) arg);
-	}
-
-	private boolean isLexical(TreeAdapter tree) {
-		if (tree.isLexToCf()) {
-			return !isRascalLiteral(tree);
-		}
-		return false;
-	}
-
-	private boolean isRascalLiteral(TreeAdapter tree) {
-		if (tree.isAppl()) {
-			ProductionAdapter prod = tree.getProduction();
-			SymbolAdapter rhs = prod.getRhs();
-			
-			if (rhs.isCf()) {
-				rhs = rhs.getSymbol();
-			}
-			if (rhs.isParameterizedSort() && rhs.getName().equals("_Literal")) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private AbstractAST filter(TreeAdapter tree) {
-		ISet altsIn = tree.getAlternatives();
-		java.util.List<AbstractAST> altsOut = new ArrayList<AbstractAST>(altsIn.size());
-		String sort = "";
-		ASTStatistics ref = null;
-		
-		for (IValue alt : altsIn) {
-			AbstractAST ast = buildValue(alt);
-			
-			if (ast == null) {
-				continue;
-			}
-			
-			if (ref == null) {
-				ref = ast.getStats();
-				altsOut.add(ast);
-			}
-			else {
-				ref = filter(altsOut, ast, ref);
-			}
-		}
-
-		if (altsOut.size() == 0) {
-			throw new ImplementationError("Accidentally all ambiguous alternatives were removed");
-		}
-		else if (altsOut.size() == 1) {
-			return altsOut.iterator().next();
-		}
-		
-		try {
-			if (isRascalSort(sort)) {
-				sort = sort.substring(1);
-				sort = capitalize(sort);
-			}
-			else {
-				// concrete syntax is lifted to Expression
-				sort = "Expression";
-			}
-			
-			Class<?> formals[] = new Class<?>[]  { INode.class, List.class };
-			Object actuals[] = new Object[] { tree.getTree(), altsOut };
-
-			Method make = clazz.getMethod("make" + sort + "Ambiguity", formals);
-			AbstractAST ast = (AbstractAST) make.invoke(factory, actuals);
-			ast.setStats(ref != null ? ref : new ASTStatistics());
-			return ast;
-		} catch (SecurityException e) {
-			throw unexpectedError(e);
-		} catch (NoSuchMethodException e) {
-			throw unexpectedError(e);
-		} catch (IllegalArgumentException e) {
-			throw unexpectedError(e);
-		} catch (IllegalAccessException e) {
-			throw unexpectedError(e);
-		} catch (InvocationTargetException e) {
-			throw unexpectedError(e);
-		}
-	}
-
-	private <T extends AbstractAST> ASTStatistics filter(java.util.List<T> altsOut,
-			T ast, ASTStatistics ref) {
-		ASTStatistics stats = ast.getStats();
-		return filter(altsOut, ast, ref, stats);
-	}
-
-	private <T> ASTStatistics filter(java.util.List<T> altsOut,
-			T ast, ASTStatistics ref, ASTStatistics stats) {
-		switch(ref.compareTo(stats)) {
-		case 1:
-			ref = stats;
-			altsOut.clear();
-			altsOut.add(ast);
-			break;
-		case 0:
-			altsOut.add(ast);
-			break;
-		case -1:
-			// do nothing
-		}
-		return ref;
-	}
-
-	private boolean isRascalSort(String sort) {
-		return sort.startsWith(RASCAL_SORT_PREFIX);
 	}
 
 	private AbstractAST lift(TreeAdapter tree, boolean match) {
@@ -439,56 +452,6 @@ public class ASTBuilder {
 		return ast;
 	}
 
-	String getCallName(Expression.CallOrTree call) {
-		return Names.name(Names.lastName(call.getQualifiedName()));
-	}
-	
-	/** [| a a |] is a non-empty list of 'A*'. However there is "[|" A* "|]" -> Pattern
-	 * and  "[|" A+ "|]" -> Pattern both always present at the same time. This is always
-	 * ambiguous. This filter removes the * list interpretation in favor of the + interpretation.
-	 */
-	private Expression filterNonEmptyStarLists(Expression ast) {
-		// unfortunately, I don't know when to do this on the parse tree level, so
-		// we have to understand parse trees on the lifted AST level here :-(
-		
-		
-		// TODO: this code is highly experimental Tijs, I don't know if it should be kept.
-		// it smells wrong to be doing this on this level. Also, it did not solve the problem
-		// I had.
-		
-		if(ast == null)
-			return null;
-		if (ast.isCallOrTree()) {
-			Expression arg0 = ast.getArguments().get(0);
-			if(!(arg0 instanceof CallOrTree)){
-				if(arg0.isSet())
-					throw new AmbiguousConcretePattern(arg0);
-				
-				throw new ImplementationError("Unexpected AST node");
-			}
-			
-			Expression.CallOrTree prod = (CallOrTree) arg0;
-			Expression.List args = (org.meta_environment.rascal.ast.Expression.List) ast.getArguments().get(1);
-
-			if (getCallName(prod).equals("list")) {
-				Expression.CallOrTree rhs = (CallOrTree) prod.getArguments().get(0);
-
-				if (getCallName(rhs).equals("cf")) {
-					rhs = (CallOrTree) rhs.getArguments().get(0);
-
-					if (getCallName(rhs).equals("iter-star") || getCallName(rhs).equals("iter-star-sep")) { 
-						// its a * list!
-						if (args.getElements().size() > 0) {
-							// it does have elements, so + list is good too, so filter this one
-							return null;
-						}
-					}
-				}
-			}
-		}
-		return ast;
-	}
-
 	private Expression lift(IValue pattern, IConstructor source, boolean match) {
 		Type type = pattern.getType();
 		if (type.isNodeType()) {
@@ -501,7 +464,8 @@ public class ASTBuilder {
 				if (constr.getConstructorType() == Factory.Tree_Appl) {
 					TreeAdapter tree = new TreeAdapter(constr);
 					String cons = tree.getConstructorName();
-					if (cons != null && (cons.equals("MetaVariable") 
+					if (cons != null && (cons.equals("MetaVariable")
+							// TODO: TypedMetaVariable does not exist in grammar
 							|| cons.equals("TypedMetaVariable"))) {
 						return liftVariable(tree);
 					}
@@ -531,6 +495,10 @@ public class ASTBuilder {
 				}
 				args.add(ast);
 				stats.add(ast.getStats());
+			}
+			
+			if (args.size() == 1 && args.get(0).isSet() && ((Expression.Set)args.get(0)).getElements().size() == 1) {
+				return ((Expression.Set)args.get(0)).getElements().get(0);
 			}
 
 			Expression.CallOrTree ast = new Expression.CallOrTree(source, makeQualifiedName(source, name), args);
@@ -569,6 +537,7 @@ public class ASTBuilder {
 		else if (type.isSetType()) {
 			// this code depends on the fact that only amb nodes can contain sets
 			ISet set = (ISet) pattern;
+			
 			List<Expression> result = new ArrayList<Expression>(set.size());
 			ASTStatistics ref = null;
 			
@@ -590,6 +559,11 @@ public class ASTBuilder {
 				return null; // all alts filtered
 			}
 			
+//			// TVDSTORM
+//			if (result.size() == 1) {
+//				return result.get(0);
+//			}
+			
 			Expression.Set ast = new Expression.Set(source, result);
 			ast.setStats(ref != null ? ref : new ASTStatistics());
 			return ast;
@@ -597,17 +571,6 @@ public class ASTBuilder {
 		else {
 			throw new ImplementationError("Illegal value encountered while lifting a concrete syntax pattern:" + pattern);
 		}
-	}
-
-	private Expression wildCard(IConstructor node) {
-		return new Expression.QualifiedName(node, makeQualifiedName(node, "_"));
-	}
-
-	private QualifiedName makeQualifiedName(IConstructor node, String name) {
-		Name simple = new Name.Lexical(node, name);
-		List<Name> list = new ArrayList<Name>(1);
-		list.add(simple);
-		return new QualifiedName.Default(node, list);
 	}
 
 	private Expression liftVariable(TreeAdapter tree) {
@@ -629,36 +592,12 @@ public class ASTBuilder {
 		throw new ImplementationError("Unexpected meta variable while lifting pattern");
 	}
 
-	/**
-	 * Removes patterns like <PROGRAM p> where the <...> hole is not nested in a place
-	 * where a PROGRAM is expected. Also, patterns that directly nest concrete syntax patterns
-	 * again, like [| <[| ... |]> |] are filtered.
-	 */
-	private Expression filterNestedPattern(TreeAdapter antiQuote, TreeAdapter pattern) {
-		ISet alternatives = pattern.getAlternatives();
-		List<Expression> result = new ArrayList<Expression>(alternatives.size());
-		 
-		SymbolAdapter expected = antiQuote.getProduction().getRhs();
-		
-		// any alternative that is a typed variable must be parsed using a 
-		// MetaVariable that produced exactly the same type as is declared inside
-		// the < > brackets.
-		for (IValue alt : alternatives) {
-			if (isEmbedding(new TreeAdapter((IConstructor) alt))) {
-				continue; // filter direct nesting
-			}
-			
-			Expression exp = (Expression) buildValue(alt);
-		
-			if (correctlyNestedPattern(expected, exp)) {
-				result.add(exp);
-			}
-		}
-		
-		if (result.size() == 1) {
-			return result.get(0);
-		}
-		return new Expression.Ambiguity(antiQuote.getTree(), result);
+
+	private QualifiedName makeQualifiedName(IConstructor node, String name) {
+		Name simple = new Name.Lexical(node, name);
+		List<Name> list = new ArrayList<Name>(1);
+		list.add(simple);
+		return new QualifiedName.Default(node, list);
 	}
 
 	private boolean correctlyNestedPattern(SymbolAdapter expected, Expression exp) {
@@ -679,25 +618,58 @@ public class ASTBuilder {
 
 	private IConstructor getConcretePattern(TreeAdapter tree) {
 		String cons = tree.getConstructorName();
-		IConstructor pattern;
 		
 		if (cons.equals("ConcreteQuoted")) {
-			pattern = (IConstructor) getASTArgs(tree).get(0);
+			return (IConstructor) getASTArgs(tree).get(0);
 		}
-		else if (cons.equals("ConcreteUnquoted")) {
-			pattern = (IConstructor) getASTArgs(tree).get(0);
+		
+		if (cons.equals("ConcreteUnquoted")) {
+			return (IConstructor) getASTArgs(tree).get(0);
 		}
-		else if (cons.equals("ConcreteTypedQuoted")) {
+		
+		if (cons.equals("ConcreteTypedQuoted")) {
 			//System.err.println("0: " + getASTArgs(tree).get(0));
 			// TODO PK: Was: pattern = (IConstructor) getASTArgs(tree).get(1);
 			// The type has disappeared!
-			 pattern = (IConstructor) getASTArgs(tree).get(0);
-		}
-		else {
-			throw new ImplementationError("Unexpected embedding syntax");
+			 return (IConstructor) getASTArgs(tree).get(0);
 		}
 		
-		return pattern;
+		throw new ImplementationError("Unexpected embedding syntax");
+	}
+
+	private  IList getASTArgs(TreeAdapter tree) {
+		if (!tree.isContextFree()) {
+			throw new ImplementationError("This is not a context-free production: "
+					+ tree);
+		}
+	
+		IList children = tree.getArgs();
+		IListWriter writer = Factory.Args.writer(ValueFactoryFactory.getValueFactory());
+	
+		for (int i = 0; i < children.length(); i++) {
+			IValue kid = children.get(i);
+			TreeAdapter treeAdapter = new TreeAdapter((IConstructor) kid);
+			if (!treeAdapter.isLiteral() && !treeAdapter.isCILiteral() && !isRascalLiteral(treeAdapter)) {
+				writer.append(kid);	
+			} 
+			// skip layout
+			i++;
+		}
+		
+		return writer.done();
+	}
+
+	private String sortName(TreeAdapter tree) {
+		if (tree.isAppl()) {
+			String sortName = tree.getSortName();
+	
+			if (isRascalSort(sortName)) {
+				sortName = sortName.substring(1);
+			}
+	
+			return sortName;
+		}
+		return "";
 	}
 
 	private String capitalize(String sort) {
@@ -709,6 +681,83 @@ public class ASTBuilder {
 		}
 		
 		return sort.toUpperCase();
+	}
+
+	private Expression wildCard(IConstructor node) {
+		return new Expression.QualifiedName(node, makeQualifiedName(node, "_"));
+	}
+
+	private String getCallName(Expression.CallOrTree call) {
+		return Names.name(Names.lastName(call.getQualifiedName()));
+	}
+
+	private ImplementationError unexpectedError(Throwable e) {
+		return new ImplementationError("Unexpected error in AST construction: " + e, e);
+	}
+
+	private boolean isEmbedding(TreeAdapter tree) {
+		String name = tree.getConstructorName();
+		return name.equals("ConcreteQuoted") 
+		|| name.equals("ConcreteUnquoted") 
+		|| name.equals("ConcreteTypedQuoted");
+	}
+
+	private boolean isLexical(TreeAdapter tree) {
+		if (tree.isLexToCf()) {
+			return !isRascalLiteral(tree);
+		}
+		return false;
+	}
+
+	private boolean isRascalLiteral(TreeAdapter tree) {
+		if (tree.isAppl()) {
+			ProductionAdapter prod = tree.getProduction();
+			SymbolAdapter rhs = prod.getRhs();
+			
+			if (rhs.isCf()) {
+				rhs = rhs.getSymbol();
+			}
+			if (rhs.isParameterizedSort() && rhs.getName().equals("_Literal")) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private boolean isRascalSort(String sort) {
+		return sort.startsWith(RASCAL_SORT_PREFIX);
+	}
+
+	private boolean isIterStar(TreeAdapter tree) {
+		if (tree.isAmbiguousList()) {
+			for (IValue alt: tree.getAlternatives()) {
+				// Return if "first" alternative is iterstar.
+				return isIterStar(new TreeAdapter((IConstructor)alt));
+			}
+		}
+		SymbolAdapter sym = tree.getProduction().getRhs().getSymbol();
+		if (sym.isIterStar() || sym.isIterStarSep()) {
+			return true;
+		}
+		return false;
+	}
+
+	private AbstractAST callMakerMethod(String sort, String cons, Class<?> formals[], Object actuals[]) {
+		try {
+			Method make = clazz.getMethod("make" + sort + cons, formals);
+			AbstractAST ast = (AbstractAST) make.invoke(factory, actuals);
+			return ast;
+		} catch (SecurityException e) {
+			throw unexpectedError(e);
+		} catch (NoSuchMethodException e) {
+			throw unexpectedError(e);
+		} catch (IllegalArgumentException e) {
+			throw unexpectedError(e);
+		} catch (IllegalAccessException e) {
+			throw unexpectedError(e);
+		} catch (InvocationTargetException e) {
+			throw unexpectedError(e);
+		}
 	}
 
 }

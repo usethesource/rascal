@@ -10,7 +10,7 @@ import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 
 
 public class ProductionAdapter {
-	public IConstructor tree;
+	public final IConstructor tree;
 
 	public ProductionAdapter(IConstructor tree) {
 		if (tree.getType() != Factory.Production) {
@@ -47,6 +47,17 @@ public class ProductionAdapter {
 		return getRhs().isLayout();
 	}
 	
+	public boolean hasSortName() {
+		SymbolAdapter rhs = getRhs();
+		if (rhs.isCf() || rhs.isLex()) {
+			rhs = rhs.getSymbol();
+			if (rhs.isSort() || rhs.isParameterizedSort()){
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	public String getSortName() {
 		SymbolAdapter rhs = getRhs();
 		if (rhs.isCf() || rhs.isLex()) {
@@ -54,11 +65,12 @@ public class ProductionAdapter {
 			if (rhs.isSort() || rhs.isParameterizedSort()){
 				return rhs.getName();
 				// TODO PK: Added cases
-			} else if (rhs.isIterPlus() || rhs.isIterPlusSep() ||
-		                rhs.isIterStar() || rhs.isIterStarSep()){
-				return rhs.toString();
-			}
+			} //else if (rhs.isIterPlus() || rhs.isIterPlusSep() ||
+//		                rhs.isIterStar() || rhs.isIterStarSep()){
+//				return rhs.toString();
+//			}
 		}
+//		return "";
 		throw new ImplementationError("Production does not have a sort name: " + tree);
 	}
 	

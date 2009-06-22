@@ -1492,7 +1492,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 		this.env = env;
 		// Look for this variable while we are constructing this pattern
 		if(anonymous){
-			System.err.println("***anonymous layout***");
+//			System.err.println("***anonymous layout***");
 			type = TypeFactory.getInstance().valueType();
 		} else {
 			Result<IValue> varRes = env.getVariable(name);

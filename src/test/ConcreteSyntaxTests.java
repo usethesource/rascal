@@ -2,6 +2,7 @@ package test;
 
 import static org.junit.Assert.assertTrue;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.meta_environment.rascal.interpreter.staticErrors.AmbiguousConcretePattern;
 import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
@@ -123,7 +124,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	public void ABvars2TypedInsertWithoutTypes(){ 
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{ [|<A someA><B someB>|] := [|a b|]; [|<someA><someB>|] == [|a b|];}"));
+		assertTrue(runTestInSameEvaluator("{ [|<A someA><B someB>|] := [|a b|];  [|<someA><someB>|] == [|a b|];}"));
 	}
 	
 	@Test
@@ -275,7 +276,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{ [|<{E \",\"}+ Xs>|] := [|e, e|]; [| e, <Xs> |] == [| e, e, e |]; }"));
 	}
 	
-	@Test
+	@Test @Ignore
 	public void EvarsTypedInsert2(){
 		prepare("import src::test::GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{ [|<{E \",\"}+ Xs>|] := [|e, e|]; [| e, <{E \",\"}+ Xs> |] == [| e, e, e |]; }"));
@@ -284,7 +285,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	public void EvarsTypedInsert3(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{ [| e, {E \",\"}+ Xs> |] := [|e, e|]; [| e, <Xs> |] == [| e, e, e |]; }"));
+		assertTrue(runTestInSameEvaluator("{ [| e, <{E \",\"}+ Xs> |] := [|e, e|]; [| e, <Xs> |] == [| e, e, e |]; }"));
 	}
 	
 	@Test
@@ -324,6 +325,11 @@ public class ConcreteSyntaxTests extends TestFramework {
 	private String UQmoduleM = "module M\n" +
                               "import languages::pico::syntax::Pico;\n" +
                               "public Tree t1 = begin declare x: natural; x := 10 end;\n";
+	
+	@Test
+	public void PicoQuoted0() {
+		prepareModule(QmoduleM + "public bool match1() { return [|<PROGRAM program>|] := t1; }\n");
+	}
 	
 	@Test
 	public void PicoQuoted1(){
