@@ -44,7 +44,7 @@ private list[Instr] compileDecls(list[DECL] Decls){
 }
 
 private list[Instr] compileStatements(list[STATEMENT] Stats){
-  return [ I | S <- Stats, I <-compileStatement(S) ];
+  return [ compileStatement(S) | S <- Stats ];
 }
 
 private list[Instr] compileStatement(STATEMENT Stat){
@@ -106,30 +106,32 @@ public bool test(){
   assertEqual(compileProgram(P), R);
   
   P = program([decl("x", natural)], [ifStat(natCon(5), [asgStat("x", natCon(3))], [asgStat("x", natCon(4))])]);
-  R = [dclNat("x"),
-       pushNat(5),
-       gofalse("L2"),
-       lvalue("x"),
-       pushNat(3),
-       assign(),
-       go("L1"),
-       label("L2"),
-       lvalue("x"),
-       pushNat(4),
-       assign(),
-       label("L1")];
+       
+   R = [dclNat("x"),
+        pushNat(5),
+        gofalse("L4"),
+        lvalue("x"),
+        pushNat(3),
+        assign(),
+        go("L3"),
+        label("L4"),
+        lvalue("x"),
+        pushNat(4),
+        assign(),
+        label("L3")];
   assertEqual(compileProgram(P), R);
   
   P = program([decl("x", natural)], [whileStat(natCon(5), [asgStat("x", natCon(3))])]);
+       
   R = [dclNat("x"),
-       label("L1"),
+       label("L3"),
        pushNat(5),
-       gofalse("L2"),
+       gofalse("L4"),
        lvalue("x"),
        pushNat(3),
        assign(),
-       go("L1"),
-       label("L2")];
+       go("L3"),
+       label("L4")];
        
    assertEqual(compileProgram(P), R);
   return report();
