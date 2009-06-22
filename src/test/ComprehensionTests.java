@@ -250,6 +250,15 @@ public class ComprehensionTests extends TestFramework {
 		assertTrue(runTest("{X * 2 | int X <- [1,2,3]} == {2,4,6};"));
 	}
 	
+	@Test
+	public void setComprehension4(){
+		prepare("set[int] f(int n) { return {n, 3*n}; }");
+		assertTrue(runTestInSameEvaluator("{f(n) | n <- [ 1 .. 3 ]} == {1,3,2,6,3,9};"));
+		assertTrue(runTestInSameEvaluator("{{n, 3*n} | n <- [ 1 .. 3 ]} == {{1,3},{2,6},{3,9}};"));
+		assertTrue(runTestInSameEvaluator("{5*n, f(n) | n <- [ 1 .. 3 ]} == {5,1,3,10,2,6,15,3,9};"));
+		assertTrue(runTestInSameEvaluator("{{5*n, f(n)} | n <- [ 1 .. 3 ]} == {{5,1,3},{10,2,6},{15,3,9}};"));
+	}
+	
 	@Test(expected=StaticError.class)
 	public void emptySetGeneratorError(){
 		assertTrue(runTest("[ X | int X <- {} ] == [];"));
@@ -348,6 +357,15 @@ public class ComprehensionTests extends TestFramework {
 		assertTrue(runTest("{ L = [X * 2 | int X <- {2,3}]; (L == [4,6]) || (L == [6,4]);}"));
 		assertTrue(runTest("[X * 2 | int X <- [1,2,3]] == [2,4,6];"));
 
+	}
+	
+	@Test
+	public void listComprehension4(){
+		prepare("list[int] f(int n) { return [n, 3*n]; }");
+		assertTrue(runTestInSameEvaluator("[f(n) | n <- [ 1 .. 3 ]] == [1,3,2,6,3,9];"));
+		assertTrue(runTestInSameEvaluator("[[n, 3*n] | n <- [ 1 .. 3 ]] == [[1,3],[2,6],[3,9]];"));
+		assertTrue(runTestInSameEvaluator("[5*n, f(n) | n <- [ 1 .. 3 ]] == [5,1,3,10,2,6,15,3,9];"));
+		assertTrue(runTestInSameEvaluator("[[5*n, f(n)] | n <- [ 1 .. 3 ]] == [[5,1,3],[10,2,6],[15,3,9]];"));
 	}
 	
 	@Test(expected=StaticError.class)

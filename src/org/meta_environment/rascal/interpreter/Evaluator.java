@@ -3054,24 +3054,55 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	private class ListComprehensionWriter extends
 	ComprehensionWriter {
 
-		ListComprehensionWriter(
+		private boolean splicing[];
+			
+			ListComprehensionWriter(
 				java.util.List<org.meta_environment.rascal.ast.Expression> resultExprs,
 				Evaluator ev) {
 			super(resultExprs, ev);
+			splicing = new boolean[resultExprs.size()];
 		}
 
 		@Override
 		public void append() {
+			if(writer == null){
+				int k = 0;
+				elementType1 = tf.voidType();
+				for(Expression resExpr : resultExprs){
+					Result<IValue> res = resExpr.accept(ev);
+					Type elementType = res.getType();
+					if(elementType.isListType() && !resExpr.isList()){
+						elementType = elementType.getElementType();
+						splicing[k] = true;
+					} else
+						splicing[k] = false;
+					k++;
+					elementType1 = elementType1.lub(elementType);
+				}
+				resultType = tf.listType(elementType1);		
+				writer = resultType.writer(vf);
+			}
+			int k = 0;
 			for(Expression resExpr : resultExprs){
 				Result<IValue> res = resExpr.accept(ev);
-				if (writer == null) {
-					elementType1 = res.getType();
-					resultType = tf.listType(elementType1);
-					writer = resultType.writer(vf);
+				if(splicing[k++]){
+					/*
+					 * Splice elements of the value of the result expression in the result list
+					 */
+					for(IValue val : ((IList) res.getValue())){
+						if(!val.getType().isSubtypeOf(elementType1))
+							throw new UnexpectedTypeError(elementType1, val.getType(), resExpr);
+						elementType1 = elementType1.lub(val.getType());
+						if (elementType1 == tf.valueType()) {
+							System.err.println("hoi");
+						}
+						((IListWriter) writer).append(val);
+					}
+				} else {
+					check(res, elementType1, "list", resExpr);
+					elementType1 = elementType1.lub(res.getType());
+					((IListWriter) writer).append(res.getValue());
 				}
-				check(res, elementType1, "list", resExpr);
-				elementType1 = elementType1.lub(res.getType());
-				((IListWriter) writer).append(res.getValue());
 			}
 		}
 
@@ -3084,25 +3115,94 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 	private class SetComprehensionWriter extends
 	ComprehensionWriter {
+		
+		private boolean splicing[];
 
 		SetComprehensionWriter(
 				java.util.List<org.meta_environment.rascal.ast.Expression> resultExprs,
 				Evaluator ev) {
 			super(resultExprs, ev);
+			splicing = new boolean[resultExprs.size()];
 		}
-
+		
 		@Override
 		public void append() {
+			if(writer == null){
+				int k = 0;
+				elementType1 = tf.voidType();
+				for(Expression resExpr : resultExprs){
+					Result<IValue> res = resExpr.accept(ev);
+					Type elementType = res.getType();
+					if(elementType.isSetType() && !resExpr.isSet()){
+						elementType = elementType.getElementType();
+						splicing[k] = true;
+					} else
+						splicing[k] = false;
+					k++;
+					elementType1 = elementType1.lub(elementType);
+				}
+				resultType = tf.setType(elementType1);		
+				writer = resultType.writer(vf);
+			}
+			int k = 0;
 			for(Expression resExpr : resultExprs){
-				Result<IValue> r1 = resExpr.accept(ev);
+				Result<IValue> res = resExpr.accept(ev);
+				if(splicing[k++]){
+					/*
+					 * Splice elements of the value of the result expression in the result set
+					 */
+					for(IValue val : ((ISet) res.getValue())){
+						if(!val.getType().isSubtypeOf(elementType1))
+							throw new UnexpectedTypeError(elementType1, val.getType(), resExpr);
+						elementType1 = elementType1.lub(val.getType());
+						if (elementType1 == tf.valueType()) {
+							System.err.println("hoi");
+						}
+						((ISetWriter) writer).insert(val);
+					}
+				} else {
+					check(res, elementType1, "set", resExpr);
+					elementType1 = elementType1.lub(res.getType());
+					((ISetWriter) writer).insert(res.getValue());
+				}
+			}
+		}
+
+	
+		public void appendx() {
+			for(Expression resExpr : resultExprs){
+				Result<IValue> res = resExpr.accept(ev);
+				elementType1 = res.getType();
 				if (writer == null) {
-					elementType1 = r1.getType();
-					resultType = tf.setType(elementType1);
+					if(elementType1.isSetType() && !resExpr.isSet()){
+						resultType = elementType1;
+						elementType1 = resultType.getElementType();
+						//splicing = true;
+					} else {    
+						resultType = tf.setType(elementType1);
+					}
+					
 					writer = resultType.writer(vf);
 				}
-				check(r1, elementType1, "set", resExpr);
-				elementType1 = elementType1.lub(r1.getType());
-				((ISetWriter) writer).insert(r1.getValue());
+				
+				if(splicing[0]){
+					/*
+					 * Splice elements of the value of the result expression in the result set
+					 */
+					for(IValue val : ((ISet) res.getValue())){
+						if(!val.getType().isSubtypeOf(elementType1))
+							throw new UnexpectedTypeError(elementType1, val.getType(), resExpr);
+						elementType1 = elementType1.lub(val.getType());
+						if (elementType1 == tf.valueType()) {
+							System.err.println("hoi");
+						}
+						((ISetWriter) writer).insert(val);
+					}
+				} else {
+					check(res, elementType1, "set", resExpr);
+					elementType1 = elementType1.lub(res.getType());
+					((ISetWriter) writer).insert(res.getValue());
+				}
 			}
 		}
 
