@@ -49,7 +49,7 @@ public class AllDemoTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("demo::ColoredTrees::test();"));
 	}
 
-	@Ignore @Test
+	@Test
 	public void Cycles() {
 		prepare("import demo::Cycles;");
 		assertTrue(runTestInSameEvaluator("demo::Cycles::test();"));
@@ -67,7 +67,7 @@ public class AllDemoTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("demo::Factorial::test();"));
 	}
 
-	@Ignore @Test
+	@Test
 	public void FunAbstract() {
 		prepare("import demo::Fun::FunAbstract;");
 		assertTrue(runTestInSameEvaluator("demo::Fun::FunAbstract::test();"));
@@ -115,13 +115,19 @@ public class AllDemoTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("demo::McCabe::test();"));
 	}
 	
-	@Ignore @Test
+	@Test
+	public void PicoAssembly(){
+		prepare("import demo::PicoAbstract::Assembly;");
+		assertTrue(runTestInSameEvaluator("demo::PicoAbstract::Assembly::test();"));
+	}
+	
+	@Test
 	public void PicoCommonSubexpression() {
 		prepare("import demo::PicoAbstract::PicoCommonSubexpression;");
 		assertTrue(runTestInSameEvaluator("demo::PicoAbstract::PicoCommonSubexpression::test();"));
 	}
 	
-	@Ignore @Test
+	@Test
 	public void PicoConstantPropagation() {
 		prepare("import demo::PicoAbstract::PicoConstantPropagation;");
 		assertTrue(runTestInSameEvaluator("demo::PicoAbstract::PicoConstantPropagation::test();"));

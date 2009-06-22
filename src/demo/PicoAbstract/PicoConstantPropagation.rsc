@@ -12,11 +12,11 @@ import IO;
 
 bool is_constant(EXP E) {
    switch (E) {
-     case natCon(int N): return true;
+     case natCon(int _): return true;
 
-     case strCon(str S): return true;
+     case strCon(str _): return true;
 
-     case EXP E: return false;
+     case EXP _: return false;
    }
 }
 
