@@ -12,7 +12,7 @@ set[feature] HorsePower      = {"lowPower", "mediumPower", "highPower"};
 
 set[feature] PullsTrailerOpt = {"pullsTrailer", "pullsNoTrailer"};
 
-set[set[feature]] CarFeatures = { {T} + E + {H} + {PT} | 
+set[set[feature]] CarFeatures = { {{T} + E + {H} + {PT}} | 
 			feature T <- Transmission, 
 			set[feature] E <- Engine, 
 			feature H <- HorsePower, 

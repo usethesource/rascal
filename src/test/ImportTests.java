@@ -126,4 +126,16 @@ public class ImportTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("f() == 3;"));
 		assertTrue(runTestInSameEvaluator("g() == 3;"));
 	}
+	
+	@Test
+	public void testDataImport(){
+		prepareModule("module Mdata\n" +
+				      "public data TYPE = natural | string;");
+		
+		runTestInSameEvaluator("import Mdata;");
+		assertTrue(runTestInSameEvaluator("natural == natural;"));
+		assertTrue(runTestInSameEvaluator("string == string;"));
+		assertTrue(runTestInSameEvaluator("natural != string;"));
+		
+	}
 }
