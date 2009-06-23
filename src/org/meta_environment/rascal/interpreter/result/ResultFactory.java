@@ -17,6 +17,7 @@ import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.interpreter.EvaluatorContext;
+import org.meta_environment.uptr.Factory;
 
 public class ResultFactory {
 
@@ -51,6 +52,9 @@ public class ResultFactory {
 
 		public ElementResult<? extends IValue> visitAbstractData(Type type) {
 			// TODO: rename constructor result to AbstractData
+			if (type.equals(Factory.Tree)) {
+				return new ConcreteSyntaxResult(declaredType, (IConstructor)value, ctx);
+			}
 			return new ConstructorResult(declaredType, (IConstructor)value, ctx);
 		}
 
@@ -63,6 +67,9 @@ public class ResultFactory {
 		}
 
 		public ElementResult<? extends IValue> visitConstructor(Type type) {
+			if (type.equals(Factory.Tree)) {
+				return new ConcreteSyntaxResult(declaredType, (IConstructor)value, ctx);
+			}
 			return new ConstructorResult(declaredType, (IConstructor)value, ctx);
 		}
 
@@ -83,6 +90,9 @@ public class ResultFactory {
 		}
 
 		public ElementResult<? extends IValue> visitNode(Type type) {
+			if (type.equals(Factory.Tree)) {
+				return new ConcreteSyntaxResult(declaredType, (IConstructor)value, ctx);
+			}
 			return new NodeResult(declaredType, (INode)value, ctx);
 		}
 
