@@ -1,9 +1,5 @@
 package org.meta_environment.rascal.parser;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -17,7 +13,6 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.visitors.VisitorException;
 import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.ASTStatistics;
@@ -43,7 +38,6 @@ import org.meta_environment.uptr.ParsetreeAdapter;
 import org.meta_environment.uptr.ProductionAdapter;
 import org.meta_environment.uptr.SymbolAdapter;
 import org.meta_environment.uptr.TreeAdapter;
-import org.meta_environment.uptr.visitors.AsfixWriter;
 
 
 /**
@@ -64,19 +58,19 @@ public class ASTBuilder {
 	public Module buildModule(IConstructor parseTree) throws FactTypeUseException {
 		TreeAdapter tree = new ParsetreeAdapter(parseTree).getTop();
 		if (tree.isAppl()) {
-		try {
-			String filename = "/tmp/amb" + ".pt";
-			Writer writer = new FileWriter(new File(filename));
-			tree.getTree().accept(new AsfixWriter(writer));
-			writer.close();
-			System.err.println("Ambiguous tree dumped to: " + filename);
-		} catch (VisitorException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}	
+//		try {
+//			String filename = "/tmp/amb" + ".pt";
+//			Writer writer = new FileWriter(new File(filename));
+//			tree.getTree().accept(new AsfixWriter(writer));
+//			writer.close();
+//			System.err.println("Ambiguous tree dumped to: " + filename);
+//		} catch (VisitorException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}	
 			return buildSort(parseTree, "Module");
 		}
 		throw new ImplementationError("Ambiguous module?");
@@ -559,11 +553,6 @@ public class ASTBuilder {
 				return null; // all alts filtered
 			}
 			
-//			// TVDSTORM
-//			if (result.size() == 1) {
-//				return result.get(0);
-//			}
-			
 			Expression.Set ast = new Expression.Set(source, result);
 			ast.setStats(ref != null ? ref : new ASTStatistics());
 			return ast;
@@ -632,6 +621,7 @@ public class ASTBuilder {
 			// TODO PK: Was: pattern = (IConstructor) getASTArgs(tree).get(1);
 			// The type has disappeared!
 			 return (IConstructor) getASTArgs(tree).get(0);
+			 // TODO: use the type here.
 		}
 		
 		throw new ImplementationError("Unexpected embedding syntax");
@@ -726,20 +716,6 @@ public class ASTBuilder {
 
 	private boolean isRascalSort(String sort) {
 		return sort.startsWith(RASCAL_SORT_PREFIX);
-	}
-
-	private boolean isIterStar(TreeAdapter tree) {
-		if (tree.isAmbiguousList()) {
-			for (IValue alt: tree.getAlternatives()) {
-				// Return if "first" alternative is iterstar.
-				return isIterStar(new TreeAdapter((IConstructor)alt));
-			}
-		}
-		SymbolAdapter sym = tree.getProduction().getRhs().getSymbol();
-		if (sym.isIterStar() || sym.isIterStarSep()) {
-			return true;
-		}
-		return false;
 	}
 
 	private AbstractAST callMakerMethod(String sort, String cons, Class<?> formals[], Object actuals[]) {
