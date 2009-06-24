@@ -46,6 +46,10 @@ public class ModuleLoader{
 		this.parser = parser;
 	}
 
+	public ModuleParser getParser() {
+		return parser;
+	}
+	
 	public void addFileLoader(IModuleFileLoader loader){
 		loaders.add(0, loader);
 	}
@@ -181,12 +185,6 @@ public class ModuleLoader{
 	}
 
 
-//	@SuppressWarnings("unchecked")
-//	public IConstructor parseCommand(String command, String fileName) throws IOException {
-//		// TODO: add support for concrete syntax here (now it ignores the sdf imports)
-//		return parser.parseCommand(command);
-//	}
-	
 	public IConstructor parseModule(String fileName, String name, AbstractAST ast) throws IOException{
 		InputStream inputStream = null;
 		Set<String> sdfImports;

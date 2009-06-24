@@ -19,6 +19,7 @@ public class StringParser extends ModuleParser {
 		String table = getOrConstructParseTable(sdfImports, sdfSearchPath);
 		IConstructor result = parseFromString(table, "-", source);
 		if (result.getConstructorType() == Factory.ParseTree_Summary) {
+			System.err.println("RESULT = " + result);
 			throw new SyntaxError("-", new SummaryAdapter(result).getInitialSubject().getLocation());
 		}
 		return result;
@@ -52,5 +53,6 @@ public class StringParser extends ModuleParser {
 
 		return tablefileName;
 	}
+
 	
 }

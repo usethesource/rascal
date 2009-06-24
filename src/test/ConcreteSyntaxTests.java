@@ -5,9 +5,31 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.meta_environment.rascal.interpreter.staticErrors.AmbiguousConcretePattern;
+import org.meta_environment.rascal.interpreter.staticErrors.NonWellformedTypeError;
+import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
 
 public class ConcreteSyntaxTests extends TestFramework {
+	
+	@Test
+	public void parseDS(){
+		prepare("import src::test::GrammarABCDE;");
+		prepareMore("DS parse(str input) @stringParser;");
+		assertTrue(runTestInSameEvaluator("parse(\"d d d\") == DS[|d d d|];"));
+	}
+	
+	@Test
+	public void parseDSfromFile(){
+		prepare("import src::test::GrammarABCDE;");
+		prepareMore("DS parse(str filename) @fileParser;");
+		assertTrue(runTestInSameEvaluator("parse(\"src/test/DS.trm\") == DS[|d d d|];"));
+	}
+
+	@Test(expected=NonWellformedTypeError.class)
+	public void parseDList(){
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("D+ parse(str input) @stringParser;"));
+	}
 	
 	@Test
 	public void singleA(){
@@ -121,7 +143,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{[|<A someA> <B someB>|] := [|a b|]; someA ==[|a|] && someB == [|b|];}"));
 	}
 	
-	@Test
+	@Test(expected=AmbiguousConcretePattern.class)
 	public void ABvars2TypedInsertWithoutTypes(){ 
 		prepare("import src::test::GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{ [|<A someA><B someB>|] := [|a b|];  [|<someA><someB>|] == [|a b|];}"));
@@ -323,10 +345,6 @@ public class ConcreteSyntaxTests extends TestFramework {
 	                         "import languages::pico::syntax::Pico;\n" +
 	                         "public Tree t1 = [|begin declare x: natural; x := 10 end|];\n";
 	
-	private String UQmoduleM = "module M\n" +
-                              "import languages::pico::syntax::Pico;\n" +
-                              "public Tree t1 = begin declare x: natural; x := 10 end;\n";
-	
 	@Test
 	public void PicoQuoted0() {
 		prepareModule(QmoduleM + "public bool match1() { return [|<PROGRAM program>|] := t1; }\n");
@@ -374,7 +392,11 @@ public class ConcreteSyntaxTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("match6();"));
 	}
 	
-	@Test
+	private String UQmoduleM = "module M\n" +
+    "import languages::pico::syntax::Pico;\n" +
+    "public Tree t1 = begin declare x: natural; x := 10 end;\n";
+
+	@Test(expected=SyntaxError.class) // Directly antiquoting without quotes not allowed.
 	public void PicoUnQuoted1(){
 		prepareModule(UQmoduleM + "public bool match1() { return <PROGRAM program> := t1; }\n");
 		prepareMore("import M;");

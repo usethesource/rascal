@@ -11,37 +11,21 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.FunctionDeclaration.Abstract;
 import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.EvaluatorContext;
-import org.meta_environment.rascal.interpreter.Names;
 import org.meta_environment.rascal.interpreter.RuntimeExceptionFactory;
 import org.meta_environment.rascal.interpreter.load.ModuleLoader;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.result.ResultFactory;
-import org.meta_environment.rascal.interpreter.staticErrors.ArityError;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
-import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
-import org.meta_environment.rascal.parser.ModuleParser;
 import org.meta_environment.rascal.parser.StringParser;
 import org.meta_environment.uptr.ParsetreeAdapter;
 
-public class ParserFunction extends Lambda {
+public class FileParserFunction extends ParserFunction {
 
-	protected ModuleLoader loader;
-	protected ModuleParser parser;
-
-	public ParserFunction(Evaluator eval, Abstract func,
-			Environment env, ModuleLoader loader) {
-		this(eval, func, env, loader, new StringParser());
+	public FileParserFunction(Evaluator eval, Abstract func, Environment env, ModuleLoader loader) {
+		super(eval, func, env, loader, loader.getParser());
 	}
+
 	
-	protected ParserFunction(Evaluator eval, Abstract func,
-			Environment env, ModuleLoader loader, ModuleParser parser) {
-		super(func, eval, TE.eval(func.getSignature().getType(),env),
-				Names.name(func.getSignature().getName()), TF.tupleType(TF.stringType()), 
-				false, null, env);
-		this.loader = loader;
-		this.parser = parser;
-	}
-
 	@Override
 	public Result<IValue> call(IValue[] actuals, Type actualTypes, Environment env) {
 		if (callTracing) {
@@ -57,11 +41,15 @@ public class ParserFunction extends Lambda {
 		
 		
 		try {
-			IConstructor ptree = ((StringParser)parser).parseString(sdfSearchPath, sdfImports, source); 
+			IConstructor ptree = parser.parseObjectLanguageFile(sdfSearchPath, sdfImports, source); 
 			IConstructor tree = (IConstructor) new ParsetreeAdapter(ptree).getTop().getArgs().get(1);
 			Type resultType = returnType.instantiate(env.getStore(), env.getTypeBindings());
 			
 			return ResultFactory.makeResult(resultType, tree, new EvaluatorContext(eval, ast));
+		}
+		catch (IllegalArgumentException e) {
+			throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), getAst(),
+					eval.getStackTrace());
 		}
 		catch (IOException e) {
 			throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), getAst(), eval.getStackTrace());
@@ -76,20 +64,10 @@ public class ParserFunction extends Lambda {
 		}
 	}
 	
+	
 	@Override
 	public String toString() {
-		return getHeader() + " @stringParser";
+		return getHeader() + " @fileParser";
 	}
 
-	protected void checkParameters(IValue[] actuals, Type actualTypes) {
-		if (actuals.length != 1) {
-			throw new ArityError(1, actuals.length, getAst()); 
-		}
-		
-		if (!actualTypes.getFieldType(0).isStringType()) {
-			throw new UnexpectedTypeError(TF.stringType(), actualTypes.getFieldType(0), getAst());
-		}
-	}
-
-	
 }
