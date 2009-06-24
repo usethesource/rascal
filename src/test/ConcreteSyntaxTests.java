@@ -17,6 +17,17 @@ public class ConcreteSyntaxTests extends TestFramework {
 		prepareMore("DS parse(str input) @stringParser;");
 		assertTrue(runTestInSameEvaluator("parse(\"d d d\") == DS[|d d d|];"));
 	}
+
+	@Test
+	public void parseDSInModule(){
+		prepareModule("module M " +
+				"import src::test::GrammarABCDE;" +
+				"public DS parse(str input) @stringParser;" +
+				"public DS ds = DS[|d d d|];");
+		prepareMore("import M;");
+		assertTrue(runTestInSameEvaluator("parse(\"d d d\") == ds;"));
+	}
+
 	
 	@Test
 	public void parseDSfromFile(){
