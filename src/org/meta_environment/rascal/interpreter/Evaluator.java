@@ -3418,7 +3418,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 		Statement body = x.getBody();
 
-		int max = 1000;
+		int max = -1;
 
 		Bound bound= x.getBound();
 		if(bound.isDefault()){
@@ -3437,7 +3437,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		boolean change = true;
 		int iterations = 0;
 
-		while (change && iterations < max){
+		while (change && (max == -1 || iterations < max)){
 			change = false;
 			iterations++;
 			bodyResult = body.accept(this);

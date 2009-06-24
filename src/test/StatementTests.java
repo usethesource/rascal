@@ -174,5 +174,12 @@ public class StatementTests extends TestFramework {
 	                " solve (-1)   T = T + (T o R1);";
 		assertTrue(runTest("{" + S + " T =={<1,2>, <1,3>,<1,4>,<2,3>,<2,4>,<3,4>};}"));
 	}
+	
+	@Test
+	public void solveMaximumUnboundedBug888() {
+		prepare("with  int j = 0;  solve if (j < 100000) j += 1;");
+		assertTrue(runTestInSameEvaluator("j == 100000;"));
+	}
+	
 }
 
