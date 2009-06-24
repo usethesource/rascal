@@ -236,7 +236,19 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	public void DvarsTypedInsert2(){
 		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("{ [|<D+ Xs>|] := [|d|]; [| <Xs> |] == [|d|]; }"));
+	}
+	
+	@Test
+	public void DvarsTypedInsert3(){
+		prepare("import src::test::GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{ [|d <D+ Xs>|] := [|d d|]; [| d <Xs> |] == [|d d|]; }"));
+	}
+	
+	@Test
+	public void DvarsTypedInsert4(){
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("{ [|d <D+ Xs>|] := [|d d d|]; [| d <Xs> |] == [|d d d|]; }"));
 	}
 	
 	@Test
