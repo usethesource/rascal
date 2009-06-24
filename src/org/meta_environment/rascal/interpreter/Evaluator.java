@@ -163,6 +163,7 @@ import org.meta_environment.rascal.interpreter.control_exceptions.Failure;
 import org.meta_environment.rascal.interpreter.control_exceptions.Return;
 import org.meta_environment.rascal.interpreter.env.ConcreteSyntaxType;
 import org.meta_environment.rascal.interpreter.env.Environment;
+import org.meta_environment.rascal.interpreter.env.FileParserFunction;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.env.JavaFunction;
 import org.meta_environment.rascal.interpreter.env.Lambda;
@@ -182,6 +183,7 @@ import org.meta_environment.rascal.interpreter.result.ResultFactory;
 import org.meta_environment.rascal.interpreter.staticErrors.AmbiguousConcretePattern;
 import org.meta_environment.rascal.interpreter.staticErrors.MissingModifierError;
 import org.meta_environment.rascal.interpreter.staticErrors.ModuleNameMismatchError;
+import org.meta_environment.rascal.interpreter.staticErrors.NonWellformedTypeError;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredAnnotationError;
@@ -1592,11 +1594,21 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 	@Override
 	public Result visitFunctionDeclarationAbstract(Abstract x) {
-		Lambda lambda;
+		Lambda lambda = null;
+		String funcName;
 		boolean varArgs = x.getSignature().getParameters().isVarArgs();
 
-		if (isParserForwardDecl(x)) {
-			return parserFunction(x);
+		if (hasTag(x, "stringParser") || hasTag(x, "fileParser")) {
+			funcName = setupParserFunction(x);
+			if (hasTag(x, "stringParser")) {
+				lambda = new ParserFunction(this, x, getCurrentEnvt(), loader);	
+			}
+			
+			if (hasTag(x, "fileParser")) {
+				lambda = new FileParserFunction(this, x, getCurrentEnvt(), loader);	
+			}
+			getCurrentEnvt().storeFunction(funcName, lambda);
+			return lambda;
 		}
 
 		if (!hasJavaModifier(x)) {
@@ -1610,12 +1622,12 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		return lambda;
 	}
 
-	private boolean isParserForwardDecl(Abstract x) {
+	private boolean hasTag(Abstract x, String tagName) {
 		// TODO: check type and arity of of signature
 		Tags tags = x.getTags();
 		if (tags.hasAnnotations()) {
 			for (org.meta_environment.rascal.ast.Tag tag : tags.getAnnotations()) {
-				if (tag.getName().toString().equals("parser")) {
+				if (tag.getName().toString().equals(tagName)) {
 					return true; 
 				}
 			}
@@ -1623,17 +1635,20 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		return false;
 	}
 
-	private Result parserFunction(Abstract x) {
+	
+	private String setupParserFunction(Abstract x) {
 		org.meta_environment.rascal.ast.Type type = x.getSignature().getType();
 		// TODO: how should we get at the name, and why???
+		// Why isn't the constructor representing the concrete syntax type enough?
 		IConstructor cons = (IConstructor) Symbols.typeToSymbol(type);
 		IConstructor cfSym = (IConstructor) cons.get(0);
+		IValue typeValue = cfSym.get(0);
+		if (!typeValue.getType().isStringType()) {
+			throw new NonWellformedTypeError("result type of parser functions must be sorts", type);
+		}
 		String sortName = ((IString)cfSym.get(0)).getValue(); 
 		getCurrentEnvt().concreteSyntaxType(sortName, cons);
-		Lambda lambda = new ParserFunction(this, x, getCurrentEnvt(), loader);
-		String name = Names.name(x.getSignature().getName());
-		getCurrentEnvt().storeFunction(name, lambda);
-		return lambda;
+		return Names.name(x.getSignature().getName());
 	}
 
 	@Override

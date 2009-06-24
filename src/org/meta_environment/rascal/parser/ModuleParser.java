@@ -58,6 +58,15 @@ public class ModuleParser {
 		} 
 	}
 
+	public IConstructor parseObjectLanguageFile(List<String> sdfSearchPath, Set<String> sdfImports, String fileName) throws IOException {
+		String table = getOrConstructParseTable(META_LANGUAGE_KEY, sdfImports, sdfSearchPath);
+		try {
+			return parseFromFile(table, fileName);
+		} catch (FactParseError e) {
+			throw new ImplementationError("parse tree format error", e);
+		} 
+	}
+	
 	protected String getOrConstructParseTable(String key, Set<String> sdfImports, List<String> sdfSearchPath) throws IOException {
 		if (sdfImports.isEmpty()) {
 			return Configuration.getDefaultParsetableProperty();
@@ -76,20 +85,27 @@ public class ModuleParser {
 		SGLRInvoker sglrInvoker = SGLRInvoker.getInstance();
 		byte[] result = sglrInvoker.parseFromStream(source, table);
 
+		return bytesToParseTree(fileName, result);
+	}
+
+	private IConstructor bytesToParseTree(String fileName, byte[] result)
+			throws IOException {
 		ATermReader reader = new ATermReader();
 		ByteArrayInputStream bais = new ByteArrayInputStream(result);
 		IConstructor tree = (IConstructor) reader.read(valueFactory,  Factory.getStore(),Factory.ParseTree, bais);
 		return new ParsetreeAdapter(tree).addPositionInformation(fileName);
+	}
+	
+	protected IConstructor parseFromFile(String table, String fileName) throws FactParseError, IOException {
+		byte[] result = SGLRInvoker.getInstance().parseFromFile(new File(fileName), table);
+		return bytesToParseTree(fileName, result);
 	}
 
 	protected IConstructor parseFromString(String table, String fileName, String source) throws FactParseError, IOException {
 		SGLRInvoker sglrInvoker = SGLRInvoker.getInstance();
 		byte[] result = sglrInvoker.parseFromString(source, table);
 
-		ATermReader reader = new ATermReader();
-		ByteArrayInputStream bais = new ByteArrayInputStream(result);
-		IConstructor tree = (IConstructor) reader.read(valueFactory,  Factory.getStore(),Factory.ParseTree, bais);
-		return new ParsetreeAdapter(tree).addPositionInformation(fileName);
+		return bytesToParseTree(fileName, result);
 	}
 
 	protected String constructUserDefinedSyntaxTable(String key, Set<String> sdfImports, List<String> sdfSearchPath) throws IOException {
@@ -181,4 +197,5 @@ public class ModuleParser {
 	private String parseTableFileName(String key, byte[] result){
 		return new String(result) + "-" + key + ".tbl";
 	}
+
 }
