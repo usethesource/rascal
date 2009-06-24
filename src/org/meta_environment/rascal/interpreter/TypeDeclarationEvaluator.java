@@ -96,40 +96,68 @@ public class TypeDeclarationEvaluator {
 	}
 
 	private void declareAliases(Set<Alias> aliasDecls) {
-		List<Alias> again = new LinkedList<Alias>();
 		List<Alias> todo = new LinkedList<Alias>();
-
 		todo.addAll(aliasDecls);
 		
-		do {
-			todo.addAll(again);
-			again.clear();
-			
-			todo: while (!todo.isEmpty()) {
-				Alias trial = todo.get(0);
-
-				try {
-					todo.remove(trial);
-					declareAlias(trial, env);
-				} catch (UndeclaredTypeError e) {
-					// now try to find a declaration for this missing name
-					String name = e.getName();
-
-					for (Alias other : todo) {
-						if (Names.name(other.getUser().getName()).equals(name)) {
-							// found an undeclared type, try this one later
-							again.add(trial);
-							continue todo;
-						}
-					}
-
-					// if no declaration with this name was found, it is simply
-					// an undeclared type name
+		int len = todo.size();
+		int i = 0;
+		while (!todo.isEmpty()) {
+			Alias trial = todo.remove(0);
+			try {
+				declareAlias(trial, env);			
+			}
+			catch (UndeclaredTypeError e) {
+				if (i >= len) {
+					// Cycle
 					throw e;
 				}
+				// Put at end of queue
+				todo.add(trial);
 			}
-		} while (!again.isEmpty());
+			i++;
+		}
 	}
+	
+//	private void declareAliases2(Set<Alias> aliasDecls) {
+//		List<Alias> again = new LinkedList<Alias>();
+//		List<Alias> todo = new LinkedList<Alias>();
+//		List<Alias> union = new LinkedList<Alias>();
+//
+//		todo.addAll(aliasDecls);
+//		
+//		do {
+//			todo.addAll(again);
+//			again.clear();
+//			
+//			todo: while (!todo.isEmpty()) {
+//				Alias trial = todo.get(0);
+//
+//				try {
+//					todo.remove(trial);
+//					declareAlias(trial, env);
+//				} catch (UndeclaredTypeError e) {
+//					// now try to find a declaration for this missing name
+//					String name = e.getName();
+//
+//					union.clear();
+//					union.addAll(todo);
+//					union.addAll(again);
+//					union.remove(trial);
+//					for (Alias other : union) {
+//						if (Names.name(other.getUser().getName()).equals(name)) {
+//							// found an undeclared type, try this one later
+//							again.add(trial);
+//							continue todo;
+//						}
+//					}
+//
+//					// if no declaration with this name was found, it is simply
+//					// an undeclared type name
+//					throw e;
+//				}
+//			}
+//		} while (!again.isEmpty());
+//	}
 
 	public void declareAlias(Alias x, Environment env) {
 		TypeEvaluator te = TypeEvaluator.getInstance();

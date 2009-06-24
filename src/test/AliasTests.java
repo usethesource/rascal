@@ -110,6 +110,7 @@ public class AliasTests extends TestFramework{
 		assertTrue(runTestInSameEvaluator("{ INTEGER0 x = 0; x == 0; }"));
 	}
 	
+	@Test
 	public void transitiveAliasAcrossTuplesBug() {
 		prepareModule("module B\n" +
 				"alias trans = tuple[str, str, str];\n" +
