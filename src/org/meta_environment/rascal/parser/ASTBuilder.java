@@ -33,6 +33,7 @@ import org.meta_environment.rascal.interpreter.Names;
 import org.meta_environment.rascal.interpreter.Symbols;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.staticErrors.AmbiguousConcretePattern;
+import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.ParsetreeAdapter;
 import org.meta_environment.uptr.ProductionAdapter;
@@ -258,7 +259,8 @@ public class ASTBuilder {
 		}
 
 		if (altsOut.size() == 0) {
-			throw new ImplementationError("Accidentally all ambiguous alternatives were removed");
+			throw new SyntaxError("concrete syntax pattern", tree.getLocation());
+//			throw new ImplementationError("Accidentally all ambiguous alternatives were removed");
 		}
 		
 		if (altsOut.size() == 1) {
