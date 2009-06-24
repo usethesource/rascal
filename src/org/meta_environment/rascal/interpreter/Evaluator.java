@@ -616,43 +616,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	}
 	
 	
-	
-	
-	
-	
-	private static class DisambVisitor extends NullASTVisitor<java.lang.Boolean> {
 		
-		private Environment env;
-		private Stack<AbstractAST> stack;
-		
-		public DisambVisitor(Environment env) {
-			this.env = env;
-		}
-		
-		@Override
-		public java.lang.Boolean visitExpressionCallOrTree(CallOrTree x) {
-			java.util.List<Expression> args = x.getArguments();
-			
-			// push type of appl on stack
-			// we need an AST visitor that converts the
-			// IUPTR representation of an SDF symbol
-			// to a ConcreteSyntaxType
-			return super.visitExpressionCallOrTree(x);
-		}
-		
-		@Override
-		public java.lang.Boolean visitExpressionQualifiedName(
-				org.meta_environment.rascal.ast.Expression.QualifiedName x) {
-			
-			Result<IValue> value = env.getVariable(x.getQualifiedName());
-			if (value != null) {
-				
-				return true;
-			}
-			return false;
-		}
-	}
-
 	@Override
 	public Result<IValue> visitStatementAmbiguity(
 			org.meta_environment.rascal.ast.Statement.Ambiguity x) {
