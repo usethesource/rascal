@@ -109,5 +109,17 @@ public class AliasTests extends TestFramework{
 		prepareMore("import Test;");
 		assertTrue(runTestInSameEvaluator("{ INTEGER0 x = 0; x == 0; }"));
 	}
+	
+	public void transitiveAliasAcrossTuplesBug() {
+		prepareModule("module B\n" +
+				"alias trans = tuple[str, str, str];\n" +
+				"/* alias trans = str; */\n" +
+				"alias block = set[trans];\n" +
+				"alias partition = set[block];\n");
+		prepareMore("import B;");
+		assertTrue(runTestInSameEvaluator("{block aBlock = {<\"a\", \"b\", \"c\">}; " +
+				"aBlock == {<\"a\", \"b\", \"c\">} ; }"));
+	}
+	
 }
 
