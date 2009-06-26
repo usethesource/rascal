@@ -763,5 +763,9 @@ public class DebuggableEvaluator extends Evaluator {
 	public void setStepOver(boolean value) {
 		stepOver = value;
 	}
+	
+	public IDebugger getDebugger() {
+		return debugger;
+	}
 
 }
