@@ -4,10 +4,7 @@
 package org.meta_environment.rascal.interpreter;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.Writer;
-
-import jline.ConsoleReader;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -18,36 +15,37 @@ import org.meta_environment.rascal.ast.Command.Import;
 import org.meta_environment.rascal.ast.Command.Shell;
 import org.meta_environment.rascal.ast.Import.Default;
 import org.meta_environment.rascal.ast.ShellCommand.Edit;
-import org.meta_environment.rascal.ast.ShellCommand.History;
 import org.meta_environment.rascal.ast.ShellCommand.Quit;
 import org.meta_environment.rascal.interpreter.control_exceptions.QuitException;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.result.Result;
-import org.meta_environment.rascal.parser.CommandParser;
+import org.meta_environment.rascal.parser.ConsoleParser;
 
 public class CommandEvaluator extends Evaluator {
-	private final ConsoleReader console;
-	private CommandParser parser;
+//	private final ConsoleReader console;
+	private ConsoleParser parser;
 
-	CommandEvaluator(IValueFactory f, Writer errorWriter,
-			ModuleEnvironment scope, GlobalEnvironment heap, ConsoleReader console) {
-		super(f, errorWriter, scope, heap);
-		this.parser = new CommandParser(loader);
-		this.console = console;
+	
+	public CommandEvaluator(IValueFactory f, Writer errorWriter,
+			ModuleEnvironment scope, GlobalEnvironment heap) {
+		this(f, errorWriter, scope, heap, new ConsoleParser());
+//		this.console = console;
 	}
 	
 	
-	public CommandEvaluator(IValueFactory valueFactory, PrintWriter printWriter, ModuleEnvironment root,
-			GlobalEnvironment heap) {
-		this(valueFactory, printWriter, root, heap, null);
+	public CommandEvaluator(IValueFactory vf, Writer errorWriter,
+			ModuleEnvironment root, GlobalEnvironment heap,
+			ConsoleParser consoleParser) {
+		super(vf, errorWriter, root, heap, consoleParser);
+		this.parser = consoleParser;
+//		console = null;
 	}
 
 
 	public IConstructor parseCommand(String command) throws IOException {
 		return parser.parseCommand(command);
 	}
-
 	
 	public Result<IValue> eval(Command command) {
 		return command.accept(this);
@@ -84,16 +82,16 @@ public class CommandEvaluator extends Evaluator {
 		return null;
 	}
 
-	@Override
-	public Result<IValue> visitShellCommandHistory(History x) {
-		try {
-			console.printString(console.getHistory().toString());
-		} catch (IOException e) {
-			// should not happen
-		}
-		
-		return null;
-	}
+//	@Override
+//	public Result<IValue> visitShellCommandHistory(History x) {
+//		try {
+//			console.printString(console.getHistory().toString());
+//		} catch (IOException e) {
+//			// should not happen
+//		}
+//		
+//		return null;
+//	}
 	
 	@Override
 	protected void handleSDFModule(Default x) {

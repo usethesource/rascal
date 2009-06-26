@@ -36,7 +36,7 @@ import org.meta_environment.uptr.Factory;
 public class ModuleLoader{
 	private List<IModuleFileLoader> loaders = new ArrayList<IModuleFileLoader>();
 	private List<ISdfSearchPathContributor> contributors = new ArrayList<ISdfSearchPathContributor>();
-	private final ModuleParser parser;
+	private ModuleParser parser;
 	
 	public ModuleLoader(){
 		this(new ModuleParser());
@@ -44,6 +44,7 @@ public class ModuleLoader{
 	
 	public ModuleLoader(ModuleParser parser){
 		this.parser = parser;
+		parser.setLoader(this);
 	}
 
 	public ModuleParser getParser() {
@@ -220,6 +221,7 @@ public class ModuleLoader{
 
 	public IConstructor parseModule(String fileName, String name, String moduleString) throws IOException{
 		List<String> sdfSearchPath = getSdfSearchPath();
+		System.err.println("SDFSearch: " + sdfSearchPath);
 		
 		InputStream inputStream = null;
 		Set<String> sdfImports;
@@ -227,6 +229,7 @@ public class ModuleLoader{
 			inputStream = new ByteArrayInputStream(moduleString.getBytes());
 			
 			sdfImports = parser.getSdfImports(sdfSearchPath, fileName, inputStream);
+			System.err.println("Imports: " + sdfImports);
 		}finally{
 			if(inputStream != null){
 				inputStream.close();
@@ -248,6 +251,10 @@ public class ModuleLoader{
 				secondInputStream.close();
 			}
 		}
+	}
+
+	public void setParser(ModuleParser parser) {
+		this.parser = parser;
 	}
 	
 }

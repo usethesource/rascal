@@ -1,5 +1,6 @@
 package org.meta_environment.rascal.interpreter;
 
+import java.io.PrintWriter;
 import java.io.Writer;
 
 import org.eclipse.imp.pdb.facts.IValue;
@@ -96,8 +97,10 @@ import org.meta_environment.rascal.ast.Statement.Try;
 import org.meta_environment.rascal.ast.Statement.TryFinally;
 import org.meta_environment.rascal.ast.Statement.VariableDeclaration;
 import org.meta_environment.rascal.ast.Statement.While;
+import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.result.Result;
+import org.meta_environment.rascal.parser.ConsoleParser;
 
 public class DebuggableEvaluator extends Evaluator {
 
@@ -109,6 +112,13 @@ public class DebuggableEvaluator extends Evaluator {
 
 	public DebuggableEvaluator(IValueFactory f, Writer errorWriter, ModuleEnvironment scope, IDebugger debugger) {
 		super(f, errorWriter, scope);
+		this.debugger = debugger;
+	}
+
+	public DebuggableEvaluator(IValueFactory vf, PrintWriter printWriter,
+			ModuleEnvironment moduleEnvironment, ConsoleParser consoleParser,
+			IDebugger debugger) {
+		super(vf, printWriter, moduleEnvironment, new GlobalEnvironment(), consoleParser);
 		this.debugger = debugger;
 	}
 

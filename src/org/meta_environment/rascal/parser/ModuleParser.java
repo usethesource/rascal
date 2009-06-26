@@ -18,6 +18,7 @@ import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.errors.SummaryAdapter;
 import org.meta_environment.rascal.interpreter.Configuration;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
+import org.meta_environment.rascal.interpreter.load.ModuleLoader;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.ParsetreeAdapter;
@@ -29,6 +30,10 @@ public class ModuleParser {
 	private final IValueFactory valueFactory = ValueFactoryFactory.getValueFactory();
 	private final SdfImportExtractor importExtractor = new SdfImportExtractor();
 
+	public void setLoader(ModuleLoader loader) {
+		// nop
+	}
+	
 	public Set<String> getSdfImports(List<String> sdfSearchPath, String fileName, InputStream source) throws IOException {
 		try {
 			IConstructor tree= parseFromStream(Configuration.getHeaderParsetableProperty(), fileName, source);
@@ -111,6 +116,8 @@ public class ModuleParser {
 	protected String constructUserDefinedSyntaxTable(String key, Set<String> sdfImports, List<String> sdfSearchPath) throws IOException {
 		String tablefileName = getTableLocation(key, sdfImports, sdfSearchPath);
 
+		System.err.println(Configuration.getRascal2TableCommandProperty() + " -s " + getImportParameter(sdfImports) + " -p " 
+				+ getSdfSearchPath(sdfSearchPath) + " -o " + tablefileName);
 		Process p = Runtime.getRuntime().exec(new String[] {
 				Configuration.getRascal2TableCommandProperty(),
 				"-s", getImportParameter(sdfImports),
@@ -120,6 +127,9 @@ public class ModuleParser {
 		
 		try{
 			p.waitFor();
+			if (p.exitValue() != 0) {
+				throw new ImplementationError("Non-zero exit-status of rascal2table command.");
+			}
 		}catch(InterruptedException irex){
 			throw new ImplementationError("Interrupted while waiting for the generation of the parse table.");
 		}finally{

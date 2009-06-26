@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
+import org.eclipse.imp.pdb.facts.ISourceLocation;
+import org.meta_environment.errors.SubjectAdapter;
 import org.meta_environment.errors.SummaryAdapter;
 import org.meta_environment.rascal.interpreter.Configuration;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
@@ -20,7 +22,12 @@ public class StringParser extends ModuleParser {
 		IConstructor result = parseFromString(table, "-", source);
 		if (result.getConstructorType() == Factory.ParseTree_Summary) {
 			System.err.println("RESULT = " + result);
-			throw new SyntaxError("-", new SummaryAdapter(result).getInitialSubject().getLocation());
+			SubjectAdapter x = new SummaryAdapter(result).getInitialSubject();
+			ISourceLocation loc = x.getLocation();
+			if (loc != null) {
+				throw new SyntaxError("-", new SummaryAdapter(result).getInitialSubject().getLocation());
+			}
+			throw new SyntaxError("-", null);
 		}
 		return result;
 	}
