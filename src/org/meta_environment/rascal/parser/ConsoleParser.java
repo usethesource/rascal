@@ -9,16 +9,24 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.meta_environment.rascal.ast.Import.Default;
 import org.meta_environment.rascal.interpreter.load.ModuleLoader;
 
-public class CommandParser extends ModuleParser {
+public class ConsoleParser extends ModuleParser {
 
 	private Set<String> sdfImports = new HashSet<String>();
-	private ModuleLoader loader;
+	private ModuleLoader loader = null;
 	private final SdfImportExtractor importExtractor = new SdfImportExtractor();
 	
-	public CommandParser(ModuleLoader loader) {
-		this.loader = loader;
+	public ConsoleParser(ModuleLoader loader) {
+		setLoader(loader);
 	}
 
+	public ConsoleParser() {
+	}
+
+	@Override
+	public void setLoader(ModuleLoader loader) {
+		this.loader = loader;
+	}
+	
 	public IConstructor parseCommand(String command) throws IOException {
 		String table = getOrConstructParseTable(META_LANGUAGE_KEY, sdfImports, getSdfSearchPath());
 		return parseFromString(table, "-", command);

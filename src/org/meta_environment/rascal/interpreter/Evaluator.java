@@ -4,6 +4,7 @@ import static org.meta_environment.rascal.interpreter.Utils.unescape;
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.nothing;
 
+import java.io.IOException;
 import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -36,7 +37,6 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.Bound;
 import org.meta_environment.rascal.ast.Case;
@@ -48,7 +48,6 @@ import org.meta_environment.rascal.ast.Field;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.FunctionModifier;
 import org.meta_environment.rascal.ast.Import;
-import org.meta_environment.rascal.ast.IntegerLiteral;
 import org.meta_environment.rascal.ast.Module;
 import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.NullASTVisitor;
@@ -196,6 +195,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnguardedInsertError
 import org.meta_environment.rascal.interpreter.staticErrors.UnguardedReturnError;
 import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedOperationError;
+import org.meta_environment.rascal.parser.ConsoleParser;
 import org.meta_environment.rascal.parser.ModuleParser;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.SymbolAdapter;
@@ -229,6 +229,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 	private java.util.List<ClassLoader> classLoaders;
 	private ModuleEnvironment rootScope;
+	private ModuleParser parser;
 
 	public Evaluator(IValueFactory f, Writer errorWriter, ModuleEnvironment scope) {
 		this(f, errorWriter, scope, new GlobalEnvironment());
@@ -243,9 +244,12 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		this.heap = heap;
 		currentEnvt = scope;
 		rootScope = scope;
+		heap.addModule(scope);
 		this.classLoaders = new LinkedList<ClassLoader>();
 		this.javaBridge = new JavaBridge(errorWriter, classLoaders);
 		loader = new ModuleLoader(parser);
+		this.parser = parser;
+		parser.setLoader(loader);
 
 		// cwd loader
 		loader.addFileLoader(new FromCurrentWorkingDirectoryLoader());
@@ -3473,6 +3477,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 	public void setCurrentEnvt(Environment env) {
 		currentEnvt = env;
+	}
+
+	public IConstructor parseCommand(String command) throws IOException {
+		throw new ImplementationError("should not be called in Evaluator but only in subclasses");
 	}
 
 

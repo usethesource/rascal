@@ -16,7 +16,6 @@ import org.meta_environment.rascal.interpreter.load.ModuleLoader;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.result.ResultFactory;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
-import org.meta_environment.rascal.parser.StringParser;
 import org.meta_environment.uptr.ParsetreeAdapter;
 
 public class FileParserFunction extends ParserFunction {
