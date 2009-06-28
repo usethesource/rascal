@@ -259,4 +259,3 @@ class EquivalenceEvaluator extends BooleanEvaluator {
 		return  new BoolResult(false, this, null);
 	}
 }
-
