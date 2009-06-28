@@ -1,6 +1,6 @@
 module demo::PicoConcrete::PicoTypecheck
 
-import languages/pico/syntax/Pico;
+import languages::pico::syntax::Pico;
 import demo::PicoAbstract::Message;
 import IO;
 import UnitTest;
@@ -29,7 +29,7 @@ public list[Message] tcs(list[STATEMENT] Stats, Env Env){
 
 public list[Message] tcst(STATEMENT Stat, Env Env) {
     switch (Stat) {
-      case [| <PicoId Id> : <EXP Exp>):
+      case [| <PicoId Id> : <EXP Exp> |]:
         return requireType(Exp, Env[Id], Env);  // TODO: undefined variable
 
       case [| if <EXP Exp> then <{STATEMENT ";"}* Stats1> 
