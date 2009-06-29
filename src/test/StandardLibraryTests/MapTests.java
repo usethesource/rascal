@@ -1,12 +1,11 @@
 package test.StandardLibraryTests;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import static org.junit.Assert.assertTrue;
 
-import test.TestFramework;
+import org.junit.Test;
 import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 
-import static org.junit.Assert.*;
+import test.TestFramework;
 
 public class MapTests extends TestFramework {
 

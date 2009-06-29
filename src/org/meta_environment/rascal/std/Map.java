@@ -3,7 +3,6 @@ package org.meta_environment.rascal.std;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.Random;
 import java.util.Map.Entry;
 

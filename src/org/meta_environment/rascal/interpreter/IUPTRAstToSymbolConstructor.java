@@ -4,7 +4,6 @@ import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.ast.Expression;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.StringLiteral;
@@ -24,7 +23,6 @@ public class IUPTRAstToSymbolConstructor extends NullASTVisitor<IConstructor> {
 	@Override
 	public IConstructor visitExpressionCallOrTree(CallOrTree x) {
 		String name = Names.name(x.getName());
-		IValueFactory factory = vf;
 		
 		if (name.equals("lit")) {
 			StringLiteral.Lexical arg = (org.meta_environment.rascal.ast.StringLiteral.Lexical) x.getArguments().get(0).getLiteral().getStringLiteral();

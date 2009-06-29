@@ -2147,7 +2147,7 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 
 		if(isParseTree(x)){
 			System.err.println("is a parse tree");
-			System.err.println("arg(0)=" + (CallOrTree)x.getArguments().get(0));
+			System.err.println("arg(0)=" + x.getArguments().get(0));
 			if(isConcreteList((CallOrTree)x.getArguments().get(0))){
 				System.err.println("is a list");
 				System.err.println("arg(1)=" + x.getArguments().get(1));

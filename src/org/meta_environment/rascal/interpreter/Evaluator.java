@@ -195,7 +195,6 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnguardedInsertError
 import org.meta_environment.rascal.interpreter.staticErrors.UnguardedReturnError;
 import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedOperationError;
-import org.meta_environment.rascal.parser.ConsoleParser;
 import org.meta_environment.rascal.parser.ModuleParser;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.SymbolAdapter;

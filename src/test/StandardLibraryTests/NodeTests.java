@@ -1,16 +1,14 @@
 package test.StandardLibraryTests;
 
+import static org.junit.Assert.assertTrue;
+
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.PrintStream;
 
-import org.eclipse.imp.pdb.facts.INode;
-import org.eclipse.imp.pdb.facts.IValue;
 import org.junit.Test;
 
 import test.TestFramework;
-import static org.junit.Assert.*;
 
 public class NodeTests extends TestFramework {
 
