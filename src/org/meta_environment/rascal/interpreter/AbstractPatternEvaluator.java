@@ -483,11 +483,16 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 	private java.util.List<AbstractPattern> patternChildren;	// The elements of this list pattern
 	private int patternSize;						// The number of elements in this list pattern
 	private boolean concreteList = false;        // A concrete syntax list?
+	private int delta = 1;                        // increment to next list elements:
+	                                                // delta=1 abstract lists
+	                                                // delta=2 skip layout between elements
+	                                                // delta=4 skip layout, separator, layout between elements
+	private int reducedPatternSize;               //  (patternSize + delta - 1)/delta                                    
 	private IList listSubject;						// The subject as list
 	private Type listSubjectType;					// The type of the subject
 	private Type listSubjectElementType;			// The type of list elements
 	private int subjectSize;						// Length of the subject
-	private int minSubjectSize;				   	// Minimum subject length for this pattern to match
+	private int reducedSubjectSize;                // (subjectSize + delta - 1) / delta
 	private boolean [] isListVar;					// Determine which elements are list or variables
 	private boolean [] isBindingVar;				// Determine which elements are binding occurrences of variables
 	private String [] varName;						// Name of ith variable
@@ -501,29 +506,32 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 	private int subjectCursor;						// Cursor in the subject
 	private int patternCursor;						// Cursor in the pattern
 	
-	private boolean firstMatch;						// First match after initialization?
+	private boolean firstMatch;					// First match after initialization?
 	private boolean forward;						// Moving to the right?
 	
 	private boolean debug = true;
 
 	
 	AbstractPatternList(IValueFactory vf, EvaluatorContext ctx, java.util.List<AbstractPattern> children){
-		super(vf, ctx);
-		this.patternChildren = children;					
-		this.patternSize = children.size();			
+		this(vf,ctx, children, 2);
 	}
 	
-	AbstractPatternList(IValueFactory vf, EvaluatorContext ctx, java.util.List<AbstractPattern> children, boolean concrete){
+	AbstractPatternList(IValueFactory vf, EvaluatorContext ctx, java.util.List<AbstractPattern> children, int delta){
 		super(vf, ctx);
-		this.concreteList = concrete;
+		if(delta < 1)
+			throw new ImplementationError("Wrong delta");
+		this.delta = delta;
 		this.patternChildren = children;					
-		this.patternSize = children.size();			
+		this.patternSize = children.size();
+		this.reducedPatternSize = (patternSize + delta - 1) / delta;
+		System.err.println("patternSize=" + patternSize);
+		System.err.println("reducedPatternSize=" + reducedPatternSize);
 	}
 	
 	@Override
 	public java.util.List<String> getVariables(){
 		java.util.LinkedList<String> res = new java.util.LinkedList<String> ();
-		for (int i = 0; i < patternChildren.size(); i++) {
+		for (int i = 0; i < patternChildren.size(); i += delta) {
 			res.addAll(patternChildren.get(i).getVariables());
 		 }
 		return res;
@@ -532,7 +540,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 	@Override
 	public IValue toIValue(Environment env){
 		IValue[] vals = new IValue[patternChildren.size()];
-		for (int i = 0; i < patternChildren.size(); i++) {
+		for (int i = 0; i < patternChildren.size(); i += delta) {
 			 vals[i] =  patternChildren.get(i).toIValue(env);
 		 }
 		return vf.list(vals);
@@ -565,21 +573,8 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 		if(debug)System.err.println("List: initMatch: subject=" + subject);
 		
 		if (!subject.getType().isListType()) {
-			Type t = getConcreteListElementType(subject);
-			if(t != null){
-				INode subjectNode = (INode) subject;
-				subject = subjectNode.get(1);
-				System.err.println("List: new subject=" + subject);
-				System.err.println("List: subject.getType=" + subject.getType());
-				listSubject = (IList) subject;
-				listSubjectElementType = t;
-				listSubjectType = tf.listType(listSubjectElementType);
-				System.err.println("listSubjectElementType=" + listSubjectElementType);
-				System.err.println("listSubjectType=" + listSubjectType);
-			} else {
-				hasNext = false;
-				return;
-			}
+			hasNext = false;
+			return;
 		} else {
 			listSubject = (IList) subject;
 			listSubjectType = listSubject.getType();
@@ -588,6 +583,11 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 		subjectCursor = 0;
 		patternCursor = 0;
 		subjectSize = ((IList) subject).length();
+		reducedSubjectSize = (subjectSize + delta - 1) / delta;
+		
+		System.err.println("reducedPatternSize=" + reducedPatternSize);
+		System.err.println("reducedSubjectSize=" + reducedSubjectSize);
+		
 		
 		isListVar = new boolean[patternSize];	
 		isBindingVar = new boolean[patternSize];
@@ -603,7 +603,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 		/*
 		 * Pass #1: determine the list variables
 		 */
-		for(int i = 0; i < patternSize; i++){
+		for(int i = 0; i < patternSize; i += delta){
 			AbstractPattern child = patternChildren.get(i);
 			isListVar[i] = false;
 			isBindingVar[i] = false;
@@ -700,19 +700,21 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 		/*
 		 * Pass #2: assign minimum and maximum length to each list variable
 		 */
-		for(int i = 0; i < patternSize; i++){
+		for(int i = 0; i < patternSize; i += delta){
 			if(isListVar[i]){
 				// TODO: reduce max length according to number of occurrences
-				listVarMaxLength[i] = Math.max(subjectSize - (patternSize - nListVar), 0);
+				listVarMaxLength[i] = delta * Math.max(reducedSubjectSize - (reducedPatternSize - nListVar), 0);
 				listVarLength[i] = 0;
-				listVarMinLength[i] = (nListVar == 1) ? Math.max(subjectSize - patternSize - 1, 0) : 0;
+				listVarMinLength[i] = delta * ((nListVar == 1) ? Math.max(reducedSubjectSize - reducedPatternSize - 1, 0) : 0);
+				
+				System.err.println("listvar " + i + " min= " + listVarMinLength[i] + " max=" + listVarMaxLength[i]);
 			}
 		}
 	
 		firstMatch = true;
 
-		minSubjectSize = patternSize - nListVar;
-		hasNext = subject.getType().isListType() && subjectSize >= minSubjectSize;
+		hasNext = subject.getType().isListType() && 
+		          reducedSubjectSize >= reducedPatternSize - nListVar;
 		
 		if(debug)System.err.println("List: hasNext=" + hasNext);
 	}
@@ -724,7 +726,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 		}
 		
 		Type elemType = tf.voidType();
-		for(int i = 0; i < patternSize; i++){
+		for(int i = 0; i < patternSize; i += delta){
 			Type childType = patternChildren.get(i).getType(env);
 			if(childType.isListType()){
 				elemType = elemType.lub(childType.getElementType());
@@ -742,14 +744,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 		return initialized && hasNext;
 	}
 	
-	private IList makeSubList(){
-		assert isListVar[patternCursor];
-		
-		int start = listVarStart[patternCursor];
-		int length = listVarLength[patternCursor];
-		
-		return listSubject.sublist(start, length);
-	}
+	
 	
 	private void matchBoundListVar(IList previousBinding){
 
@@ -759,19 +754,29 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 		int start = listVarStart[patternCursor];
 		int length = listVarLength[patternCursor];
 		
-		for(int i = 0; i < previousBinding.length(); i++){
+		for(int i = 0; i < previousBinding.length(); i += delta){
 			if(debug)System.err.println("comparing: " + previousBinding.get(i) + " and " + listSubject.get(subjectCursor + i));
 			if(!previousBinding.get(i).isEqual(listSubject.get(subjectCursor + i))){
 				forward = false;
 				listVarLength[patternCursor] = 0;
-				patternCursor--;
+				patternCursor -= delta;
 				if(debug)System.err.println("child fails");
 				return;
 			}
 		}
 		subjectCursor = start + length;
 		if(debug)System.err.println("child matches, subjectCursor=" + subjectCursor);
-		patternCursor++;
+		patternCursor += delta;
+	}
+	
+	private IList makeSubList(int start, int length){
+		assert isListVar[patternCursor];
+		
+		if(start > subjectSize)
+			return listSubject.sublist(0,0);
+		else {
+			return listSubject.sublist(start, length);
+		}
 	}
 	
 	/*
@@ -787,18 +792,24 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 		int start = listVarStart[patternCursor];
 		int length = listVarLength[patternCursor];
 		
-		IList sublist = makeSubList();
+	//	int reducedLength = (length == 0) ? 0 : ((length < delta) ? 1 : Math.max(length - delta + 1, 0));  // round to nearest unskipped element
+
+		int reducedLength = (length <= 1) ? length : (length - (length-1)%delta);
+		System.err.println("length=" + length);
+		System.err.println("reducedLength=" + reducedLength);
+		
+		IList sublist = makeSubList(start, reducedLength);
 		if(debug)System.err.println("matchBindingListVar: init child #" + patternCursor + " (" + child + ") with " + sublist);
 		child.initMatch(sublist, env);
 	
 		if(child.next()){
 			subjectCursor = start + length;
 			if(debug)System.err.println("child matches, subjectCursor=" + subjectCursor);
-			patternCursor++;
+			patternCursor += delta;
 		} else {
 			forward = false;
 			listVarLength[patternCursor] = 0;
-			patternCursor--;
+			patternCursor -= delta;
 			if(debug)System.err.println("child fails, subjectCursor=" + subjectCursor);
 		}	
 	}
@@ -835,18 +846,18 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 		 */
 			
 			if(forward){
-				if(patternCursor == patternSize){
-					if(subjectCursor == subjectSize){
+				if(patternCursor >= patternSize){
+					if(subjectCursor >= subjectSize){
 						if(debug)System.err.println(">>> match returns true");
 						return true;
 					}
 					forward = false;
-					patternCursor--;
+					patternCursor -= delta;
 				}
 			} else {
-				if(patternCursor == patternSize){
-					patternCursor--;
-					subjectCursor--; // Ok?
+				if(patternCursor >= patternSize){
+					patternCursor -= delta;
+					subjectCursor -= delta; // Ok?
 				}
 			}
 			
@@ -878,13 +889,15 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 			if(isListVar[patternCursor] && isBindingVar[patternCursor]){
 				if(forward){
 					listVarStart[patternCursor] = subjectCursor;
-					if(patternCursor == patternSize -1){
-						listVarLength[patternCursor] =  subjectSize - subjectCursor;
+					if(patternCursor == patternSize - 1){
+						System.err.println("subjectSize=" + subjectSize);
+						System.err.println("subjectCursor=" + subjectCursor);
+						listVarLength[patternCursor] =  Math.max(subjectSize - subjectCursor, 0);
 					} else {
 						listVarLength[patternCursor] = listVarMinLength[patternCursor];
 					}
 				} else {
-					listVarLength[patternCursor]++;
+					listVarLength[patternCursor] += delta;
 					forward = true;
 				}
 				if(debug)System.err.println("list var: start: " + listVarStart[patternCursor] +
@@ -892,14 +905,14 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 						           ", minlen=" + listVarMinLength[patternCursor] +
 						           ", maxlen=" + listVarMaxLength[patternCursor]);
 				if(listVarLength[patternCursor] > listVarMaxLength[patternCursor]  ||
-				   listVarStart[patternCursor] + listVarLength[patternCursor] > subjectSize){
+				   listVarStart[patternCursor] + listVarLength[patternCursor] >= subjectSize + delta){
 					
 					subjectCursor = listVarStart[patternCursor];
 					if(debug)System.err.println("Length failure, subjectCursor=" + subjectCursor);
 					
 					forward = false;
 					listVarLength[patternCursor] = 0;
-					patternCursor--;
+					patternCursor -= delta;
 				} else {
 					matchBindingListVar(child);
 				}
@@ -925,14 +938,14 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 								           
 						if(subjectCursor + varLength > subjectSize){
 							forward = false;
-							patternCursor--;
+							patternCursor -= delta;
 						} else {
 							matchBoundListVar((IList) varVal);
 						}
 					}
 				} else {
 					subjectCursor = listVarStart[patternCursor];
-					patternCursor--;
+					patternCursor -= delta;
 				}
 			
 			/*
@@ -943,23 +956,23 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 					if(debug)System.err.println("AbstractPatternList.match: init child " + patternCursor + " with " + listSubject.get(subjectCursor));
 					child.initMatch(listSubject.get(subjectCursor), env);
 					if(child.next()){
-						subjectCursor++;
-						patternCursor++;
+						subjectCursor += delta;
+						patternCursor += delta;
 						if(debug)System.err.println("AbstractPatternList.match: child matches, subjectCursor=" + subjectCursor);
 					} else {
 						forward = false;
-						patternCursor--;
+						patternCursor -= delta;
 					}
 				} else {
 					if(subjectCursor < subjectSize && child.next()){
 						if(debug)System.err.println("child has next:" + child);
 						forward = true;
-						subjectCursor++;
-						patternCursor++;
+						subjectCursor += delta;
+						patternCursor += delta;
 					} else {
 						forward = false;
-						subjectCursor--;
-						patternCursor--;
+						subjectCursor -= delta;
+						patternCursor -= delta;
 					}
 				}
 			}
@@ -973,7 +986,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 		s.append("[");
 		if(initialized){
 			String sep = "";
-			for(int i = 0; i < patternCursor; i++){
+			for(int i = 0; i < Math.min(patternCursor,patternSize); i++){
 				s.append(sep).append(patternChildren.get(i).toString());
 				sep = ", ";
 			}
@@ -987,6 +1000,516 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 		return s.toString();
 	}
 }
+
+///* package */ class AbstractPatternListXXX extends AbstractPattern implements MatchPattern {
+//	private java.util.List<AbstractPattern> patternChildren;	// The elements of this list pattern
+//	private int patternSize;						// The number of elements in this list pattern
+//	private boolean concreteList = false;        // A concrete syntax list?
+//	private IList listSubject;						// The subject as list
+//	private Type listSubjectType;					// The type of the subject
+//	private Type listSubjectElementType;			// The type of list elements
+//	private int subjectSize;						// Length of the subject
+//	private int minSubjectSize;				   	// Minimum subject length for this pattern to match
+//	private boolean [] isListVar;					// Determine which elements are list or variables
+//	private boolean [] isBindingVar;				// Determine which elements are binding occurrences of variables
+//	private String [] varName;						// Name of ith variable
+//	private HashSet<String> allVars;				// Names of list variables declared in this pattern
+//	private int [] listVarStart;					// Cursor start position list variable; indexed by pattern position
+//	private int [] listVarLength;					// Current length matched by list variable
+//	private int [] listVarMinLength;				// Minimal length to be matched by list variable
+//	private int [] listVarMaxLength;				// Maximal length that can be matched by list variable
+//	private int [] listVarOccurrences;				// Number of occurrences of list variable in the pattern
+//
+//	private int subjectCursor;						// Cursor in the subject
+//	private int patternCursor;						// Cursor in the pattern
+//	
+//	private boolean firstMatch;						// First match after initialization?
+//	private boolean forward;						// Moving to the right?
+//	
+//	private boolean debug = true;
+//
+//	
+//	AbstractPatternListXXX(IValueFactory vf, EvaluatorContext ctx, java.util.List<AbstractPattern> children){
+//		super(vf, ctx);
+//		this.patternChildren = children;					
+//		this.patternSize = children.size();			
+//	}
+//	
+//	AbstractPatternListXXX(IValueFactory vf, EvaluatorContext ctx, java.util.List<AbstractPattern> children, boolean concrete){
+//		super(vf, ctx);
+//		this.concreteList = concrete;
+//		this.patternChildren = children;					
+//		this.patternSize = children.size();			
+//	}
+//	
+//	@Override
+//	public java.util.List<String> getVariables(){
+//		java.util.LinkedList<String> res = new java.util.LinkedList<String> ();
+//		for (int i = 0; i < patternChildren.size(); i++) {
+//			res.addAll(patternChildren.get(i).getVariables());
+//		 }
+//		return res;
+//	}
+//	
+//	@Override
+//	public IValue toIValue(Environment env){
+//		IValue[] vals = new IValue[patternChildren.size()];
+//		for (int i = 0; i < patternChildren.size(); i++) {
+//			 vals[i] =  patternChildren.get(i).toIValue(env);
+//		 }
+//		return vf.list(vals);
+//	}
+//	
+//	private Type getConcreteListElementType(IValue x){
+//		/*
+//		 * appl(list(cf(iter(sort("D")))),[ the concrete list elements ... ])
+//		 */
+//		if(x.getType().isNodeType()){
+//			INode appl = (INode) x;
+//			if(!appl.getName().equals("appl"))
+//				return null;
+//			INode list = (INode) appl.get(0);
+//			if(list.getName().equals("list")){
+//				INode cf = (INode) list.get(0);
+//				System.err.println("cf=" + cf);
+//				System.err.println("cf=" + cf.getClass());
+//				System.err.println("cf=" + cf.getType());
+//				return cf.getType();
+//			}
+//		}
+//		return null;
+//	}
+//	
+//	@Override
+//	public void initMatch(IValue subject, Environment env){
+//		super.initMatch(subject, env);
+//		
+//		if(debug)System.err.println("List: initMatch: subject=" + subject);
+//		
+//		if (!subject.getType().isListType()) {
+//			Type t = getConcreteListElementType(subject);
+//			if(t != null){
+//				INode subjectNode = (INode) subject;
+//				subject = subjectNode.get(1);
+//				System.err.println("List: new subject=" + subject);
+//				System.err.println("List: subject.getType=" + subject.getType());
+//				listSubject = (IList) subject;
+//				listSubjectElementType = t;
+//				listSubjectType = tf.listType(listSubjectElementType);
+//				System.err.println("listSubjectElementType=" + listSubjectElementType);
+//				System.err.println("listSubjectType=" + listSubjectType);
+//			} else {
+//				hasNext = false;
+//				return;
+//			}
+//		} else {
+//			listSubject = (IList) subject;
+//			listSubjectType = listSubject.getType();
+//			listSubjectElementType = listSubject.getElementType();
+//		}
+//		subjectCursor = 0;
+//		patternCursor = 0;
+//		subjectSize = ((IList) subject).length();
+//		
+//		isListVar = new boolean[patternSize];	
+//		isBindingVar = new boolean[patternSize];
+//		varName = new String[patternSize];
+//		allVars = new HashSet<String>();			
+//		listVarStart = new int[patternSize];		
+//		listVarLength = new int[patternSize];		
+//		listVarMinLength = new int[patternSize];	
+//		listVarMaxLength = new int[patternSize];	
+//		listVarOccurrences = new int[patternSize];
+//		
+//		int nListVar = 0;
+//		/*
+//		 * Pass #1: determine the list variables
+//		 */
+//		for(int i = 0; i < patternSize; i++){
+//			AbstractPattern child = patternChildren.get(i);
+//			isListVar[i] = false;
+//			isBindingVar[i] = false;
+//			if(child instanceof AbstractPatternTypedVariable && child.getType(env).isListType()){
+//				AbstractPatternTypedVariable patVar = (AbstractPatternTypedVariable) child;
+//				Type childType = child.getType(env);
+//				String name = patVar.getName();
+//				varName[i] = name;
+//				if(!patVar.isAnonymous() && allVars.contains(name)){
+//					throw new RedeclaredVariableError(name, getAST());
+//				}
+//				if(childType.comparable(listSubject.getType())){
+//					/*
+//					 * An explicitly declared list variable.
+//					 */
+//					if(!patVar.isAnonymous())
+//						allVars.add(name);
+//					isListVar[i] = childType.isListType();
+//					isBindingVar[i] = true;
+//					listVarOccurrences[i] = 1;
+//					nListVar++;
+//				} else {
+//					throw new UnexpectedTypeError(listSubject.getType(),childType, getAST());
+//				}
+//			} else if(child instanceof AbstractPatternMultiVariable){
+//				AbstractPatternMultiVariable multiVar = (AbstractPatternMultiVariable) child;
+//				String name = multiVar.getName();
+//				if(!multiVar.isAnonymous() && allVars.contains(name)){
+//					throw new RedeclaredVariableError(name, getAST());
+//				}
+//				varName[i] = name;
+//				isListVar[i] = true;
+//				if(!multiVar.isAnonymous())
+//					allVars.add(name);
+//				isBindingVar[i] = true;
+//				listVarOccurrences[i] = 1;
+//				nListVar++;
+//			} else if(child instanceof AbstractPatternQualifiedName){
+//				AbstractPatternQualifiedName qualName = (AbstractPatternQualifiedName) child;
+//				String name = qualName.getName();
+//				varName[i] = name;
+//				if(!qualName.isAnonymous() && allVars.contains(name)){
+//					/*
+//					 * A variable that was declared earlier in the pattern
+//					 */
+//					isListVar[i] = true;
+//			    	nListVar++;
+//			    	listVarOccurrences[i]++;
+//				} else if(qualName.isAnonymous()){
+//					/*
+//					 * Nothing to do
+//					 */
+//				} else {
+//					Result<IValue> varRes = env.getVariable(null, name);
+//					
+//					if(varRes == null){
+//						// A completely new variable, nothing to do
+//					} else {
+//					
+//				        Type varType = varRes.getType();
+//				        if (varType.isListType()){
+//				        	/*
+//				        	 * A variable declared in the current scope.
+//				        	 */
+//				        	if(varType.comparable(listSubjectType)){
+//				        		isListVar[i] = true;
+//				        		isBindingVar[i] = varRes.getValue() == null;
+//				        		nListVar++;			        		
+//				        	} else {
+//				        		throw new UnexpectedTypeError(listSubjectType,varType, getAST());
+//				        	}
+//				        } else {
+//				        	if(!varType.comparable(listSubjectElementType)){
+//				        		throw new UnexpectedTypeError(listSubjectType, varType, getAST());
+//				        	}
+//				        }
+//					}
+//				}
+//			} else {
+//				System.err.println("List: child " + child + " " + child);
+//				System.err.println("List: child is a" + child.getClass());
+//				Type childType = child.getType(env);
+//				if(!childType.comparable(listSubjectElementType)){
+//					throw new UnexpectedTypeError(listSubjectType,childType, getAST());
+//				}
+//				java.util.List<String> childVars = child.getVariables();
+//				if(!childVars.isEmpty()){
+//					allVars.addAll(childVars);
+//					isListVar[nListVar] = false;
+//					nListVar++;
+//				} 
+//			}
+//		}
+//		/*
+//		 * Pass #2: assign minimum and maximum length to each list variable
+//		 */
+//		for(int i = 0; i < patternSize; i++){
+//			if(isListVar[i]){
+//				// TODO: reduce max length according to number of occurrences
+//				listVarMaxLength[i] = Math.max(subjectSize - (patternSize - nListVar), 0);
+//				listVarLength[i] = 0;
+//				listVarMinLength[i] = (nListVar == 1) ? Math.max(subjectSize - patternSize - 1, 0) : 0;
+//			}
+//		}
+//	
+//		firstMatch = true;
+//
+//		minSubjectSize = patternSize - nListVar;
+//		hasNext = subject.getType().isListType() && subjectSize >= minSubjectSize;
+//		
+//		if(debug)System.err.println("List: hasNext=" + hasNext);
+//	}
+//	
+//	@Override
+//	public Type getType(Environment env) {
+//		if(patternSize == 0){
+//			return tf.listType(tf.voidType());
+//		}
+//		
+//		Type elemType = tf.voidType();
+//		for(int i = 0; i < patternSize; i++){
+//			Type childType = patternChildren.get(i).getType(env);
+//			if(childType.isListType()){
+//				elemType = elemType.lub(childType.getElementType());
+//			} else {
+//				elemType = elemType.lub(childType);
+//			}
+//		}
+//		if(debug)System.err.println("ListPattern.getType: " + tf.listType(elemType));
+//		return tf.listType(elemType);
+//	}
+//	
+//	@Override
+//	public boolean hasNext(){
+//		if(debug)System.err.println("List: hasNext=" +  (initialized && hasNext));
+//		return initialized && hasNext;
+//	}
+//	
+//	private IList makeSubList(){
+//		assert isListVar[patternCursor];
+//		
+//		int start = listVarStart[patternCursor];
+//		int length = listVarLength[patternCursor];
+//		
+//		return listSubject.sublist(start, length);
+//	}
+//	
+//	private void matchBoundListVar(IList previousBinding){
+//
+//		if(debug) System.err.println("matchBoundListVar: " + previousBinding);
+//		assert isListVar[patternCursor];
+//		
+//		int start = listVarStart[patternCursor];
+//		int length = listVarLength[patternCursor];
+//		
+//		for(int i = 0; i < previousBinding.length(); i++){
+//			if(debug)System.err.println("comparing: " + previousBinding.get(i) + " and " + listSubject.get(subjectCursor + i));
+//			if(!previousBinding.get(i).isEqual(listSubject.get(subjectCursor + i))){
+//				forward = false;
+//				listVarLength[patternCursor] = 0;
+//				patternCursor--;
+//				if(debug)System.err.println("child fails");
+//				return;
+//			}
+//		}
+//		subjectCursor = start + length;
+//		if(debug)System.err.println("child matches, subjectCursor=" + subjectCursor);
+//		patternCursor++;
+//	}
+//	
+//	/*
+//	 * We are positioned in the pattern at a list variable and match it with
+//	 * the current subject starting at the current position.
+//	 * On success, the cursors are advanced.
+//	 * On failure, switch to backtracking (forward = false) mode.
+//	 */
+//	private void matchBindingListVar(MatchPattern child){
+//		
+//		assert isListVar[patternCursor];
+//		
+//		int start = listVarStart[patternCursor];
+//		int length = listVarLength[patternCursor];
+//		
+//		IList sublist = makeSubList();
+//		if(debug)System.err.println("matchBindingListVar: init child #" + patternCursor + " (" + child + ") with " + sublist);
+//		child.initMatch(sublist, env);
+//	
+//		if(child.next()){
+//			subjectCursor = start + length;
+//			if(debug)System.err.println("child matches, subjectCursor=" + subjectCursor);
+//			patternCursor++;
+//		} else {
+//			forward = false;
+//			listVarLength[patternCursor] = 0;
+//			patternCursor--;
+//			if(debug)System.err.println("child fails, subjectCursor=" + subjectCursor);
+//		}	
+//	}
+//	
+//	/* 
+//	 * Perform a list match. When forward=true we move to the right in the pattern
+//	 * and try to match the corresponding elements of the subject. When the end of the pattern
+//	 * and the subject are reaching, match returns true.
+//	 * 
+//	 * When a non-matching element is encountered, we switch to moving to the left (forward==false)
+//	 * and try to find alternative options in list variables.
+//	 * 
+//	 * When the left-hand side of the pattern is reached while moving to the left, match return false,
+//	 * and no more options are available: hasNext() will return false.
+//	 * 
+//	 * @see org.meta_environment.rascal.interpreter.MatchPattern#match()
+//	 */
+//	@Override
+//	public boolean next(){
+//		if(debug)System.err.println("List.next: entering");
+//		checkInitialized();
+//		if(debug)System.err.println("AbstractPatternList.match: " + subject);
+//		
+//		if(!hasNext)
+//			return false;
+//		
+//		forward = firstMatch;
+//		firstMatch = false;
+//		
+//		do {
+//			
+//		/*
+//		 * Determine the various termination conditions.
+//		 */
+//			
+//			if(forward){
+//				if(patternCursor == patternSize){
+//					if(subjectCursor == subjectSize){
+//						if(debug)System.err.println(">>> match returns true");
+//						return true;
+//					}
+//					forward = false;
+//					patternCursor--;
+//				}
+//			} else {
+//				if(patternCursor == patternSize){
+//					patternCursor--;
+//					subjectCursor--; // Ok?
+//				}
+//			}
+//			
+//			if(patternCursor < 0 || subjectCursor < 0){
+//				hasNext = false;
+//				if(debug)System.err.println(">>> match returns false: patternCursor=" + patternCursor + ", forward=" + forward + ", subjectCursor=" + subjectCursor);
+//				return false;
+//			}
+//			
+//			/*
+//			 * Perform actions for the current pattern element
+//			 */
+//			
+//			AbstractPattern child = patternChildren.get(patternCursor);
+//			if(debug){
+//				System.err.println(this);
+//				System.err.println("loop: patternCursor=" + patternCursor + 
+//					               ", forward=" + forward + 
+//					               ", subjectCursor= " + subjectCursor + 
+//					               ", child=" + child +
+//					               ", isListVar=" + isListVar[patternCursor] +
+//					               ", class=" + child.getClass());
+//			}
+//			
+//			/*
+//			 * A binding occurrence of a list variable
+//			 */
+//	
+//			if(isListVar[patternCursor] && isBindingVar[patternCursor]){
+//				if(forward){
+//					listVarStart[patternCursor] = subjectCursor;
+//					if(patternCursor == patternSize -1){
+//						listVarLength[patternCursor] =  Math.max(subjectSize - subjectCursor,0);
+//					} else {
+//						listVarLength[patternCursor] = listVarMinLength[patternCursor];
+//					}
+//				} else {
+//					listVarLength[patternCursor]++;
+//					forward = true;
+//				}
+//				if(debug)System.err.println("list var: start: " + listVarStart[patternCursor] +
+//						           ", len=" + listVarLength[patternCursor] + 
+//						           ", minlen=" + listVarMinLength[patternCursor] +
+//						           ", maxlen=" + listVarMaxLength[patternCursor]);
+//				if(listVarLength[patternCursor] > listVarMaxLength[patternCursor]  ||
+//				   listVarStart[patternCursor] + listVarLength[patternCursor] > subjectSize){
+//					
+//					subjectCursor = listVarStart[patternCursor];
+//					if(debug)System.err.println("Length failure, subjectCursor=" + subjectCursor);
+//					
+//					forward = false;
+//					listVarLength[patternCursor] = 0;
+//					patternCursor--;
+//				} else {
+//					matchBindingListVar(child);
+//				}
+//			
+//			/*
+//			 * Reference to a previously defined list variable
+//			 */
+//			} 
+//			else if(isListVar[patternCursor] && 
+//					!isBindingVar[patternCursor] && 
+//					env.getVariable(null, varName[patternCursor]).getType().isListType()){
+//				if(forward){
+//					listVarStart[patternCursor] = subjectCursor;
+//					
+//					Result<IValue> varRes = env.getVariable(null, varName[patternCursor]);
+//					IValue varVal = varRes.getValue();
+//					
+//					if(varRes.getType().isListType()){
+//					    assert varVal != null && varVal.getType().isListType();
+//					    
+//					    int varLength = ((IList)varVal).length();
+//						listVarLength[patternCursor] = varLength;
+//								           
+//						if(subjectCursor + varLength > subjectSize){
+//							forward = false;
+//							patternCursor--;
+//						} else {
+//							matchBoundListVar((IList) varVal);
+//						}
+//					}
+//				} else {
+//					subjectCursor = listVarStart[patternCursor];
+//					patternCursor--;
+//				}
+//			
+//			/*
+//			 * Any other element of the pattern
+//			 */
+//			} else {
+//				if(forward && subjectCursor < subjectSize){
+//					if(debug)System.err.println("AbstractPatternList.match: init child " + patternCursor + " with " + listSubject.get(subjectCursor));
+//					child.initMatch(listSubject.get(subjectCursor), env);
+//					if(child.next()){
+//						subjectCursor++;
+//						patternCursor++;
+//						if(debug)System.err.println("AbstractPatternList.match: child matches, subjectCursor=" + subjectCursor);
+//					} else {
+//						forward = false;
+//						patternCursor--;
+//					}
+//				} else {
+//					if(subjectCursor < subjectSize && child.next()){
+//						if(debug)System.err.println("child has next:" + child);
+//						forward = true;
+//						subjectCursor++;
+//						patternCursor++;
+//					} else {
+//						forward = false;
+//						subjectCursor--;
+//						patternCursor--;
+//					}
+//				}
+//			}
+//			
+//		} while (true);
+//	}
+//	
+//	@Override
+//	public String toString(){
+//		StringBuffer s = new StringBuffer();
+//		s.append("[");
+//		if(initialized){
+//			String sep = "";
+//			for(int i = 0; i < patternCursor; i++){
+//				s.append(sep).append(patternChildren.get(i).toString());
+//				sep = ", ";
+//			}
+//			if(patternCursor < patternSize){
+//				s.append("...");
+//			}
+//			s.append("]").append("==").append(subject.toString());
+//		} else {
+//			s.append("**uninitialized**]");
+//		}
+//		return s.toString();
+//	}
+//}
+
 
 /*
  * SubSetGenerator produces all subsets of a given set.
@@ -2153,7 +2676,7 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 				System.err.println("arg(1)=" + x.getArguments().get(1));
 				System.err.println("arg(1)=" + x.getArguments().get(1).getClass());
 				java.util.List<Expression> elems = x.getArguments().get(1).getElements();
-				return new AbstractPatternList(vf, ctx, visitElements(elems), true);
+				return new AbstractPatternList(vf, ctx, visitElements(elems));
 				//return x.getArguments().get(1).accept(this);
 			}
 			return new ConcretePattern(vf, new EvaluatorContext(ctx.getEvaluator(), x), N, visitArguments(x));
