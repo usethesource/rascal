@@ -2132,8 +2132,8 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 	}
 	
 	private boolean isParseTree(CallOrTree x){
-		//return false;
-		return Names.name(Names.lastName(x.getQualifiedName())).equals("appl");
+		return false;
+		//return Names.name(Names.lastName(x.getQualifiedName())).equals("appl");
 	}
 	
 	private boolean isConcreteList(CallOrTree x){
