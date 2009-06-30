@@ -98,6 +98,8 @@ public class ModuleLoader{
 		
 		try{
 			IModuleFileLoader loader = getModuleLoader(fileName);
+			if(loader == null) throw new ModuleLoadError("Unable to load module: "+name, null, ast);
+			
 			IConstructor tree = null;
 			if(loader.supportsLoadingBinaries()){
 				tree = tryLoadBinary(loader, binaryName); // <-- NOTE: Don't do this if you want to generate new binaries.
