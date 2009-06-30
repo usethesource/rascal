@@ -561,7 +561,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	}
 
 	boolean mayMatch(Type small, Type large){
-		//System.err.println("mayMatch: " + small + " " + large);
+		System.err.println("mayMatch: " + small + " " + large);
 		if(small.equivalent(large))
 			return true;
 
@@ -576,7 +576,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			return mayMatch(small.getElementType(),large.getElementType());
 		if(small.isMapType() && large.isMapType())
 			return mayMatch(small.getKeyType(), large.getKeyType()) &&
-			mayMatch(small.getKeyType(), large.getValueType());
+			mayMatch(small.getValueType(), large.getValueType());
 		if(small.isTupleType() && large.isTupleType()){
 			if(small.getArity() != large.getArity())
 				return false;
@@ -597,9 +597,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		}
 		if(small.isConstructorType() && large.isAbstractDataType())
 			return small.getAbstractDataType().equivalent(large);
+		
 		if(small.isAbstractDataType() && large.isConstructorType())
 			return small.equivalent(large.getAbstractDataType());
-
+		
+		
 		return false;
 	}
 
