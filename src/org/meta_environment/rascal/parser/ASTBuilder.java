@@ -18,6 +18,7 @@ import org.meta_environment.rascal.ast.ASTFactory;
 import org.meta_environment.rascal.ast.ASTStatistics;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.Command;
+
 import org.meta_environment.rascal.ast.DecimalIntegerLiteral;
 import org.meta_environment.rascal.ast.Expression;
 import org.meta_environment.rascal.ast.IntegerLiteral;
@@ -28,11 +29,8 @@ import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.ast.Statement;
 import org.meta_environment.rascal.ast.StringLiteral;
-import org.meta_environment.rascal.ast.Expression.CallOrTree;
-import org.meta_environment.rascal.interpreter.Names;
 import org.meta_environment.rascal.interpreter.Symbols;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
-import org.meta_environment.rascal.interpreter.staticErrors.AmbiguousConcretePattern;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.ParsetreeAdapter;
@@ -59,19 +57,6 @@ public class ASTBuilder {
 	public Module buildModule(IConstructor parseTree) throws FactTypeUseException {
 		TreeAdapter tree = new ParsetreeAdapter(parseTree).getTop();
 		if (tree.isAppl()) {
-//		try {
-//			String filename = "/tmp/amb" + ".pt";
-//			Writer writer = new FileWriter(new File(filename));
-//			tree.getTree().accept(new AsfixWriter(writer));
-//			writer.close();
-//			System.err.println("Ambiguous tree dumped to: " + filename);
-//		} catch (VisitorException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}	
 			return buildSort(parseTree, "Module");
 		}
 		throw new ImplementationError("Ambiguous module?");
@@ -107,19 +92,6 @@ public class ASTBuilder {
 		
 		
 		if (tree.isAmb()) {
-//			try {
-//				String filename = "/tmp/amb" + ".pt";
-//				Writer writer = new FileWriter(new File(filename));
-//				tree.getTree().accept(new AsfixWriter(writer));
-//				writer.close();
-//				System.err.println("Ambiguous tree dumped to: " + filename);
-//			} catch (VisitorException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			} catch (IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}	
 			return filter(tree);
 		}
 		
@@ -374,70 +346,9 @@ public class ASTBuilder {
 		return new Expression.Ambiguity(antiQuote.getTree(), result);
 	}
 
-	/** [| a a |] is a non-empty list of 'A*'. However there is "[|" A* "|]" -> Pattern
-	 * and  "[|" A+ "|]" -> Pattern both always present at the same time. This is always
-	 * ambiguous. This filter removes the * list interpretation in favor of the + interpretation.
-	 */
-	private Expression filterNonEmptyStarLists(Expression ast) {
-		// unfortunately, I don't know when to do this on the parse tree level, so
-		// we have to understand parse trees on the lifted AST level here :-(
-		
-		
-		// TODO: this code is highly experimental Tijs, I don't know if it should be kept.
-		// it smells wrong to be doing this on this level. Also, it did not solve the problem
-		// I had.
-		
-		
-		if (ast == null) {
-			return null;
-		}
-		
-		
-		if (ast.isCallOrTree()) {
-			Expression arg0 = ast.getArguments().get(0);
-			if (!(arg0 instanceof CallOrTree)){
-				if (arg0.isSet()) {
-					System.err.println("arg0 = " + arg0 + " TREE: \n" + arg0.getTree());
-					int i = 0;
-					System.err.println("Num of alts: " + ((Expression.Set)arg0).getElements().size());
-					for (Expression alt: ((Expression.Set)arg0).getElements()) {
-						System.err.println("ALT " + i++ + ": " + alt.getTree());
-					}
-					throw new AmbiguousConcretePattern(arg0);
-					
-				}
-				
-				throw new ImplementationError("Unexpected AST node");
-			}
-			
-			Expression.CallOrTree prod = (CallOrTree) arg0;
-			Expression.List args = (org.meta_environment.rascal.ast.Expression.List) ast.getArguments().get(1);
-	
-			if (getCallName(prod).equals("list")) {
-				Expression.CallOrTree rhs = (CallOrTree) prod.getArguments().get(0);
-	
-				if (getCallName(rhs).equals("cf")) {
-					rhs = (CallOrTree) rhs.getArguments().get(0);
-	
-					if (getCallName(rhs).equals("iter-star") || getCallName(rhs).equals("iter-star-sep")) { 
-						// its a * list!
-						if (args.getElements().size() > 0) {
-							// it does have elements, so + list is good too, so filter this one
-							return null;
-						}
-					}
-				}
-			}
-		} 
-		return ast;
-		
-	}
-
 	private AbstractAST lift(TreeAdapter tree, boolean match) {
 		IConstructor pattern = getConcretePattern(tree);
 		Expression ast = lift(pattern, pattern, match);
-		
-		ast = filterNonEmptyStarLists(ast);
 		
 		if (ast != null) {
 			ASTStatistics stats = ast.getStats();
@@ -471,6 +382,9 @@ public class ASTBuilder {
 					}
 					
 					if (tree.isContextFreeInjectionOrSingleton()) {
+						stats.setInjections(1);
+					}
+					else if (tree.isNonEmptyStarList()) {
 						stats.setInjections(1);
 					}
 					else {
@@ -677,10 +591,6 @@ public class ASTBuilder {
 
 	private Expression wildCard(IConstructor node) {
 		return new Expression.QualifiedName(node, makeQualifiedName(node, "_"));
-	}
-
-	private String getCallName(Expression.CallOrTree call) {
-		return Names.name(Names.lastName(call.getQualifiedName()));
 	}
 
 	private ImplementationError unexpectedError(Throwable e) {
