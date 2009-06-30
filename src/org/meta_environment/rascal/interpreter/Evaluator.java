@@ -227,7 +227,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	protected final ModuleLoader loader;
 
 	private java.util.List<ClassLoader> classLoaders;
-	private ModuleEnvironment rootScope;
+	protected ModuleEnvironment rootScope;
 	private ModuleParser parser;
 
 	public Evaluator(IValueFactory f, Writer errorWriter, ModuleEnvironment scope) {
