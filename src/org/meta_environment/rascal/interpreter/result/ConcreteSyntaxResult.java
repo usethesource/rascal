@@ -58,38 +58,16 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 			ProductionAdapter p2 = t2.getProduction();
 			
 			// NB: using ordinary equals here...
-			if (!p1.getRhs().getTree().equals(p2.getRhs().getTree())) {
+			if (!p1.getTree().equals(p2.getTree())) {
 				return bool(false);
 			}
 			
-			if (!t1.isList() && !t2.isList()) {
-				if (!p1.getLhs().equals(p2.getLhs())) {
-					return bool(false);
-				}
-			}
-			
-			if (t1.isList() && !t2.isList()) {
-				return bool(false);
-			}
-			
-			if (t2.isList() && !t1.isList()) {
-				return bool(false);
-			}
-			
-			if (!p1.getAttributes().equals(p2.getAttributes())) {
-				// TODO: attrs are unordered, no?
-				return bool(false);
-			}
-		
 			IList l1 = t1.getArgs();
 			IList l2 = t2.getArgs();
 			
-			if (t1.isList() && t2.isList()) {
-				if (l1.length() != l2.length()) {
-					return bool(false);
-				}
+			if (l1.length() != l2.length()) {
+				return bool(false);
 			}
-			
 			for (int i = 0; i < l1.length(); i++) {
 				IValue kid1 = l1.get(i);
 				IValue kid2 = l2.get(i);
@@ -115,6 +93,10 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 			ISet alts1 = t1.getAlternatives();
 			ISet alts2 = t2.getAlternatives();
 
+			if (alts1.size() != alts2.size()) {
+				return bool(false);
+			}
+			
 			// TODO: this is very inefficient
 			again: for (IValue alt1: alts1) {
 				for (IValue alt2: alts2) {
@@ -137,20 +119,6 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 		}
 		
 		return bool(false);
-		
-//		if(!left.getName().equals(right.getName()) || !left.getName().equals("appl")) {
-//			throw new ImplementationError("names unequal or not 'appl'");
-//		}
-//		int i = 0;
-//		for (IValue leftKid: left.getChildren()) {
-//			IValue rightKid = right.get(i);
-//			i++;
-//			if(isLayout(leftKid) && isLayout(rightKid))
-//				continue;
-//			if(!leftKid.equals(rightKid))
-//				return (Result<U>) new BoolResult(false, ctx);
-//		}
-//		return (Result<U>) new BoolResult(true, ctx);
 	}
 
 }
