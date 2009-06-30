@@ -2,6 +2,7 @@ package org.meta_environment.rascal.interpreter;
 
 import java.util.List;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IString;
@@ -32,15 +33,15 @@ public class Symbols {
 			return Factory.Symbol_Cf.make(factory, Factory.Symbol_Sort.make(factory, factory.string(Names.name(type.getUser().getName()))));
 		}
 		else if (type.isSymbol()) {
-			return Factory.Symbol_Cf.make(factory, symbol2Symbol(type.getSymbol()));
+			return Factory.Symbol_Cf.make(factory, symbolAST2SymbolConstructor(type.getSymbol()));
 		}
 			
 	    return null;
 	}
 
-	private static IValue symbol2Symbol(Symbol symbol) {
+	private static IValue symbolAST2SymbolConstructor(Symbol symbol) {
 		if (symbol.isAlternative()) {
-			return Factory.Symbol_Alt.make(factory, symbol2Symbol(symbol.getLhs()), symbol2Symbol(symbol.getRhs()));
+			return Factory.Symbol_Alt.make(factory, symbolAST2SymbolConstructor(symbol.getLhs()), symbolAST2SymbolConstructor(symbol.getRhs()));
 		}
 		if (symbol.isCaseInsensitiveLiteral()) {
 			return Factory.Symbol_CiLit.make(factory, ciliteral2Symbol(symbol.getSingelQuotedString()));
@@ -53,22 +54,22 @@ public class Symbols {
 			return Factory.Symbol_Empty.make(factory);
 		}
 		if (symbol.isIter()) {
-			return Factory.Symbol_IterPlus.make(factory, symbol2Symbol(symbol.getSymbol()));
+			return Factory.Symbol_IterPlus.make(factory, symbolAST2SymbolConstructor(symbol.getSymbol()));
 		}
 		if (symbol.isIterSep()) {
-			return Factory.Symbol_IterPlusSep.make(factory, symbol2Symbol(symbol.getSymbol()), literal2Symbol(symbol.getSep()));
+			return Factory.Symbol_IterPlusSep.make(factory, symbolAST2SymbolConstructor(symbol.getSymbol()), literal2Symbol(symbol.getSep()));
 		}
 		if (symbol.isIterStar()) {
-			return Factory.Symbol_IterStar.make(factory, symbol2Symbol(symbol.getSymbol()));
+			return Factory.Symbol_IterStar.make(factory, symbolAST2SymbolConstructor(symbol.getSymbol()));
 		}
 		if (symbol.isIterStarSep()) {
-			return Factory.Symbol_IterStarSep.make(factory, symbol2Symbol(symbol.getSymbol()), literal2Symbol(symbol.getSep()));
+			return Factory.Symbol_IterStarSep.make(factory, symbolAST2SymbolConstructor(symbol.getSymbol()), literal2Symbol(symbol.getSep()));
 		}
 		if (symbol.isLiteral()) {
 			return literal2Symbol(symbol.getString());
 		}
 		if (symbol.isOptional()) {
-			return Factory.Symbol_Opt.make(factory, symbol2Symbol(symbol.getSymbol()));
+			return Factory.Symbol_Opt.make(factory, symbolAST2SymbolConstructor(symbol.getSymbol()));
 		}
 		if (symbol.isSequence()) {
 			return Factory.Symbol_Seq.make(factory, symbols2Symbols(symbol.getHead(), symbol.getTail()));
@@ -83,10 +84,10 @@ public class Symbols {
 
 	private static IValue symbols2Symbols(Symbol head, List<Symbol> tail) {
 		IListWriter result = factory.listWriter(Factory.Symbol);
-		result.insert(symbol2Symbol(head));
+		result.insert(symbolAST2SymbolConstructor(head));
 		
 		for (Symbol elem : tail) {
-			result.append(symbol2Symbol(elem));
+			result.append(symbolAST2SymbolConstructor(elem));
 		}
 		
 		return result.done();
