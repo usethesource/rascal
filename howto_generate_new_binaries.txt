@@ -1,4 +1,4 @@
 In case you want to generate new binaries (after you changed something in the standard library for example), you need to go to:
 AbstractModuleLoader.java and comment / uncomment 2 lines (you'll know which when you see them).
 
-When you import the module you want to 'compile' it will generate a new binary version (it'll end up in '.', so you'll probably need to copy it over from there to the source directory when you're done).
+When you import the module you want to 'compile' it will generate a new binary version (it'll end up in the same directory as the source file).
