@@ -2,10 +2,8 @@ package org.meta_environment.rascal.interpreter.load;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -17,7 +15,6 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.io.PBFReader;
-import org.eclipse.imp.pdb.facts.io.PBFWriter;
 import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.errors.SubjectAdapter;
 import org.meta_environment.errors.SummaryAdapter;
@@ -59,22 +56,20 @@ public class ModuleLoader{
 		contributors.add(0, contrib);
 	}
 	
-	private InputStream getInputStream(String name){
+	private IModuleFileLoader getModuleLoader(String filename){
 		for(IModuleFileLoader loader : loaders){
-			try{
-				return loader.getInputStream(name);
-			}catch(IOException ioex){
-				// this happens regularly
+			if(loader.fileExists(filename)){
+				return loader;
 			}
 		}
 		
 		return null;
 	}
 	
-	private IConstructor tryLoadBinary(String name){
+	private IConstructor tryLoadBinary(IModuleFileLoader loader, String name){
 		IConstructor tree = null;
 		
-		InputStream inputStream = getInputStream(getBinaryFileName(name));
+		InputStream inputStream = loader.getInputStream(name);
 		if(inputStream == null) return null;
 		
 		PBFReader pbfReader = new PBFReader();
@@ -82,8 +77,7 @@ public class ModuleLoader{
 			tree = (IConstructor) pbfReader.read(ValueFactoryFactory.getValueFactory(), inputStream);
 		}catch(IOException ioex){
 			// Ignore; this is allowed.
-		}  
-		finally{
+		}finally{
 			try{
 				inputStream.close();
 			}catch(IOException ioex){
@@ -93,45 +87,28 @@ public class ModuleLoader{
 		
 		return tree;
 	}
-	
-	private void writeBinary(String name, IConstructor tree){
-		File binFile = new File(getBinaryFileName(name));
-		
-		System.out.println("Writing binary for: "+name+" > "+binFile.getAbsolutePath());
-		OutputStream outputStream = null;
-		
-		PBFWriter pbfWriter = new PBFWriter();
-		try{
-			outputStream = new FileOutputStream(binFile);
-			pbfWriter.write(tree, outputStream);
-		}catch(IOException ioex){
-			ioex.printStackTrace();
-		}finally{
-			if(outputStream != null){
-				try{
-					outputStream.close();
-				}catch(IOException ioex){
-					ioex.printStackTrace();
-				}
-			}
-		}
-	}
 
 	public Module loadModule(String name, AbstractAST ast){
 		if(isSdfModule(name)){
 			return null;
 		}
 		
+		String fileName = getFileName(name);
+		String binaryName = getBinaryFileName(name);
+		
 		try{
-			IConstructor tree = tryLoadBinary(name); // <-- Don't do this if you want to generate new binaries.
-			if(tree == null){
-				String fileName = getFileName(name);
-				
-				tree = parseModule(fileName, name, ast);
-				
-				//writeBinary(name, tree); // Enable if you want to generate new binaries.
+			IModuleFileLoader loader = getModuleLoader(fileName);
+			IConstructor tree = null;
+			if(loader.supportsLoadingBinaries()){
+				tree = tryLoadBinary(loader, binaryName); // <-- NOTE: Don't do this if you want to generate new binaries.
 			}
-
+			
+			if(tree == null){
+				tree = parseModule(loader, fileName, name, ast);
+			}
+			
+			//loader.tryWriteBinary(fileName, binaryName, tree); // NOTE: Enable if you want to generate new binaries.
+			
 			return new ASTBuilder(new ASTFactory()).buildModule(tree);
 		}catch (FactTypeUseException e){
 			throw new ImplementationError("Unexpected PDB typecheck exception", e);
@@ -186,11 +163,11 @@ public class ModuleLoader{
 	}
 
 
-	public IConstructor parseModule(String fileName, String name, AbstractAST ast) throws IOException{
+	public IConstructor parseModule(IModuleFileLoader loader, String fileName, String name, AbstractAST ast) throws IOException{
 		InputStream inputStream = null;
 		Set<String> sdfImports;
 		try{
-			inputStream = getInputStream(fileName);
+			inputStream = loader.getInputStream(fileName);
 			if (inputStream == null) {
 				throw new ModuleLoadError(name, "not in path", ast);
 			}
@@ -204,7 +181,7 @@ public class ModuleLoader{
 		InputStream secondInputStream = null;
 		try{
 			List<String> sdfSearchPath = getSdfSearchPath();
-			secondInputStream = getInputStream(fileName);
+			secondInputStream = loader.getInputStream(fileName);
 			IConstructor tree = parser.parseModule(sdfSearchPath, sdfImports, fileName, secondInputStream);
 
 			if (tree.getConstructorType() == Factory.ParseTree_Summary) {

@@ -1,9 +1,10 @@
 package org.meta_environment.rascal.interpreter.load;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+
+import org.eclipse.imp.pdb.facts.IConstructor;
 
 public class FromResourceLoader implements IModuleFileLoader{
 	private final String sourceFolder;
@@ -37,14 +38,35 @@ public class FromResourceLoader implements IModuleFileLoader{
 		}
 		this.sourceFolder = sourceFolder;
 	}
+	
+	public boolean fileExists(String filename){
+		try{
+			URL url = clazz.getResource(sourceFolder + filename);
+			return (url != null);
+		}catch(RuntimeException rex){
+			return false;
+		}
+	}
 
-	public InputStream getInputStream(String name) throws IOException {
-		URL url = clazz.getResource(sourceFolder + name);
-		
-		if (url == null) {
-			throw new FileNotFoundException("File not found: " + name);
+	public InputStream getInputStream(String filename){
+		try{
+			URL url = clazz.getResource(sourceFolder + filename);
+			if(url != null){
+				return url.openStream();
+			}
+		}catch(IOException ioex){
+			// Ignore, this is fine.
 		}
 		
-		return url.openStream();
+		return null;
+	}
+	
+	public boolean supportsLoadingBinaries(){
+		return true;
+	}
+	
+	public boolean tryWriteBinary(String filename, String binaryName, IConstructor tree){
+		// Unsupported operation.
+		return false;
 	}
 }
