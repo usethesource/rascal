@@ -33,8 +33,11 @@ public class MatchEvaluator implements Iterator<Result<IValue>> {
     	mp = ev.evalPattern(pat);
    	// Type check is done by each pattern
     //	if(!ev.mayMatch(mp.getType(pushedEnv), subjectValue.getType()))
-    	if(!mp.mayMatch(subjectValue, pushedEnv))
-    		throw new UnexpectedTypeError(mp.getType(pushedEnv), subjectValue.getType(), pat);
+    	
+    	//Temporarily disabled while implementing concrete syntax matching
+    	
+    	//if(!mp.mayMatch(subjectValue, pushedEnv))
+    	//	throw new UnexpectedTypeError(mp.getType(pushedEnv), subjectValue.getType(), pat);
     	mp.initMatch(subjectValue, evaluator.getCurrentEnvt());
 	}
 
