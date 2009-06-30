@@ -149,5 +149,9 @@ public class ProductionAdapter {
 		return null;
 	}
 
+	public IConstructor getTree() {
+		return tree;
+	}
+
 
 }

@@ -367,5 +367,22 @@ public class TreeAdapter {
 		return false;
 	}
 
-
+	public boolean isNonEmptyStarList() {
+		if (isAppl()) {
+			ProductionAdapter prod = getProduction();
+			
+			if (prod.isList()) {
+				SymbolAdapter sym = prod.getRhs();
+				
+				if (sym.isCf() || sym.isLex()) {
+					sym = sym.getSymbol();
+				}
+				
+				if (sym.isIterStar() || sym.isIterStarSep()) {
+					return getArgs().length() > 0;
+				}
+			}
+		}
+		return false;
+	}
 }
