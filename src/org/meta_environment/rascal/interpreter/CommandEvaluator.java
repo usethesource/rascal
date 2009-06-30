@@ -95,7 +95,9 @@ public class CommandEvaluator extends Evaluator {
 	
 	@Override
 	protected void handleSDFModule(Default x) {
-		parser.addSdfImportForImportDefault(x);
+		if (currentEnvt == rootScope) {
+			parser.addSdfImportForImportDefault(x);
+		}
 		super.handleSDFModule(x);
 	}
 	
