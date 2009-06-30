@@ -5,6 +5,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.interpreter.Symbols;
+import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.ProductionAdapter;
 import org.meta_environment.uptr.TreeAdapter;
@@ -27,6 +28,9 @@ public class ConcreteSyntaxType extends Type {
 		else if (cons.getConstructorType() == Factory.Tree_Amb) {
 			IConstructor first = (IConstructor) new TreeAdapter(cons).getAlternatives().iterator().next();
 			this.symbol = new TreeAdapter(first).getProduction().getRhs().getTree();
+		}
+		else {
+			throw new ImplementationError("Invalid concrete syntax type constructor");
 		}
 	}
 	
