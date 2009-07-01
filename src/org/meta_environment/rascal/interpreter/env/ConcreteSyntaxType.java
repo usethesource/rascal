@@ -128,4 +128,11 @@ public class ConcreteSyntaxType extends Type {
 	public String toString() {
 		return symbol.toString();
 	}
+
+	public ConcreteSyntaxType getConcreteCFListElementType() {
+		SymbolAdapter sym = new SymbolAdapter(symbol);
+		// We assume it is cfListType
+		// cf(iter...(SYM)) -> SYM
+		return new ConcreteSyntaxType(sym.getSymbol().getSymbol().getTree());
+	}
 }
