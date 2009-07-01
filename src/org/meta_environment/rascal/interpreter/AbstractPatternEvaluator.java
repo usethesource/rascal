@@ -613,7 +613,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 			INode list = (INode) appl.get(0);
 			if(isConcreteList(list)){
 				System.err.println("convertConcreteSyntaxSubject return: " + appl.get(1));
-				return (IList) appl.get(1);
+				return appl.get(1);
 			}	
 		}
 	
