@@ -20,6 +20,7 @@ public class ConsoleParser extends ModuleParser {
 	}
 
 	public ConsoleParser() {
+		super();
 	}
 
 	@Override

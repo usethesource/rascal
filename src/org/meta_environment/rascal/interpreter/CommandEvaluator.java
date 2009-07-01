@@ -41,8 +41,7 @@ public class CommandEvaluator extends Evaluator {
 		this.parser = consoleParser;
 //		console = null;
 	}
-
-
+	
 	public IConstructor parseCommand(String command) throws IOException {
 		return parser.parseCommand(command);
 	}
