@@ -28,7 +28,7 @@ public interface MatchPattern {
 	 * @param subject
 	 * @param env
 	 */
-	public boolean mayMatch(IValue subject, Environment env);
+	public boolean mayMatch(Type subjectType, Environment env);
 	
 	/**
 	 * @return true if this MatchPattern has more matches available
@@ -44,4 +44,5 @@ public interface MatchPattern {
 	 * @return the variables that are bound in the pattern
 	 */
 	public java.util.List<String> getVariables();
+
 }

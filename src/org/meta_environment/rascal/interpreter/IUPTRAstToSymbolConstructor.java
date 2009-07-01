@@ -7,13 +7,24 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.meta_environment.rascal.ast.Expression;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.StringLiteral;
+import org.meta_environment.rascal.ast.Expression.Anti;
 import org.meta_environment.rascal.ast.Expression.CallOrTree;
 import org.meta_environment.rascal.ast.Expression.List;
+import org.meta_environment.rascal.ast.Expression.MultiVariable;
+import org.meta_environment.rascal.ast.Expression.NoMatch;
+import org.meta_environment.rascal.ast.Expression.QualifiedName;
+import org.meta_environment.rascal.ast.Expression.TypedVariable;
+import org.meta_environment.rascal.ast.Expression.TypedVariableBecomes;
+import org.meta_environment.rascal.ast.QualifiedName.Default;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.uptr.Factory;
 
 public class IUPTRAstToSymbolConstructor extends NullASTVisitor<IConstructor> {
 	
+	static public class NonGroundSymbolException extends RuntimeException {
+		private static final long serialVersionUID = 2430739406856140650L;
+	}
+
 	private IValueFactory vf;
 
 	public IUPTRAstToSymbolConstructor(IValueFactory vf) {
@@ -21,8 +32,39 @@ public class IUPTRAstToSymbolConstructor extends NullASTVisitor<IConstructor> {
 	}
 	
 	@Override
+	public IConstructor visitQualifiedNameDefault(Default x) {
+		throw new NonGroundSymbolException();
+	}
+	
+	@Override
+	public IConstructor visitExpressionMultiVariable(MultiVariable x) {
+		throw new NonGroundSymbolException();
+	}
+	
+	@Override
+	public IConstructor visitExpressionQualifiedName(QualifiedName x) {
+		throw new NonGroundSymbolException();
+	}
+	
+	@Override
+	public IConstructor visitExpressionTypedVariable(TypedVariable x) {
+		throw new NonGroundSymbolException();
+	}
+	
+	@Override
+	public IConstructor visitExpressionTypedVariableBecomes(
+			TypedVariableBecomes x) {
+		throw new NonGroundSymbolException();
+	}
+
+	@Override
+	public IConstructor visitExpressionAnti(Anti x) {
+		throw new NonGroundSymbolException();
+	}
+	
+	@Override
 	public IConstructor visitExpressionCallOrTree(CallOrTree x) {
-		String name = Names.name(x.getName());
+		String name = Names.name(Names.lastName(x.getQualifiedName()));
 		
 		if (name.equals("lit")) {
 			StringLiteral.Lexical arg = (org.meta_environment.rascal.ast.StringLiteral.Lexical) x.getArguments().get(0).getLiteral().getStringLiteral();

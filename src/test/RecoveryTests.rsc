@@ -23,7 +23,7 @@ public int nestedRecoveryOfLocalVariable()
      case int n: {
      	x = x + 1;
      	visit (l) {
-     	   case int n: {
+     	   case int m: {
      	      x = x + 1;
      	      fail;
      	   }

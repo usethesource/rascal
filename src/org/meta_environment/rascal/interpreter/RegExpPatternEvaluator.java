@@ -126,8 +126,8 @@ class RegExpPatternValue implements MatchPattern {
 		return initialized && (firstMatch || hasNext);
 	}
 	
-	public boolean mayMatch(IValue subject, Environment env) {
-		return subject.getType().equivalent(tf.stringType());
+	public boolean mayMatch(Type subjectType, Environment env) {
+		return subjectType.equivalent(tf.stringType());
 	}
 	
 	public int getStart(){

@@ -8,6 +8,7 @@ import org.meta_environment.rascal.interpreter.Symbols;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.ProductionAdapter;
+import org.meta_environment.uptr.SymbolAdapter;
 import org.meta_environment.uptr.TreeAdapter;
 
 /**
@@ -21,6 +22,9 @@ public class ConcreteSyntaxType extends Type {
 	public ConcreteSyntaxType(IConstructor cons) {
 		if (cons.getType() == Factory.Symbol) {
 			this.symbol = cons;
+		}
+		else if (cons.getType() == Factory.Production) {
+			this.symbol = new ProductionAdapter(cons).getRhs().getTree();
 		}
 		else if (cons.getConstructorType() == Factory.Tree_Appl) {
 			this.symbol = new TreeAdapter(cons).getProduction().getRhs().getTree();
@@ -77,6 +81,11 @@ public class ConcreteSyntaxType extends Type {
 		}
 		
 		return super.isSubtypeOf(other);
+	}
+	
+	public boolean isConcreteCFList() {
+		SymbolAdapter sym = new SymbolAdapter(symbol); 
+		return sym.isCf() && (sym.isPlusList() || sym.isStarList());
 	}
 	
 	public boolean isCompatibleWith(ProductionAdapter prod) {

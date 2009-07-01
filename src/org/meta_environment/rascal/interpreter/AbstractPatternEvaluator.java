@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.ISet;
@@ -73,13 +74,20 @@ import org.meta_environment.rascal.ast.Expression.TypedVariableBecomes;
 import org.meta_environment.rascal.ast.Expression.VariableBecomes;
 import org.meta_environment.rascal.ast.Expression.Visit;
 import org.meta_environment.rascal.ast.Expression.VoidClosure;
+import org.meta_environment.rascal.interpreter.IUPTRAstToSymbolConstructor.NonGroundSymbolException;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
+import org.meta_environment.rascal.interpreter.asserts.NotYetImplemented;
+import org.meta_environment.rascal.interpreter.env.ConcreteSyntaxType;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.result.ResultFactory;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternError;
+import org.meta_environment.uptr.Factory;
+import org.meta_environment.uptr.ProductionAdapter;
+import org.meta_environment.uptr.SymbolAdapter;
+import org.meta_environment.uptr.TreeAdapter;
 
 
 /* package */ abstract class AbstractPattern implements MatchPattern {
@@ -109,8 +117,8 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 		this.hasNext = true;
 	}
 	
-	public boolean mayMatch(IValue subject, Environment env){
-		return evaluator.mayMatch(getType(env), subject.getType());
+	public boolean mayMatch(Type subjectType, Environment env){
+		return evaluator.mayMatch(getType(env), subjectType);
 	}
 	
 	protected void checkInitialized(){
@@ -167,8 +175,6 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 		hasNext = false;
 		if (subject.getType().comparable(literal.getType())) {
 			return makeResult(subject.getType(), subject, ctx).equals(makeResult(literal.getType(), literal, ctx), ctx).isTrue();
-			// TODO move to call to Result.equals
-//			return Evaluator.equals(new Result(subject.getType(), subject), new Result(literal.getType(), literal));
 		}
 		return false;
 	}
@@ -545,63 +551,35 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 		return vf.list(vals);
 	}
 	
-	private Type getConcreteListElementType(IValue x){
-		/*
-		 * appl(list(cf(iter(sort("D")))),[ the concrete list elements ... ])
-		 */
-		if(x.getType().isNodeType()){
-			INode appl = (INode) x;
-			if(!appl.getName().equals("appl"))
-				return null;
-			INode list = (INode) appl.get(0);
-			if(list.getName().equals("list")){
-				INode cf = (INode) list.get(0);
-				System.err.println("cf=" + cf);
-				System.err.println("cf=" + cf.getClass());
-				System.err.println("cf=" + cf.getType());
-				return cf.getType();
-			}
-		}
-		return null;
+	public static boolean isAnyListType(Type type){
+		return type.isListType()|| isConcreteListType(type);        //<------ disabled to let other tests work.
 	}
 	
-	private Type getAnyListElementType(IValue x){
-		if(x.getType().isListType())
-			return ((IList) x).getElementType();
-		if(isParseTree(x)){
-			INode appl = (INode) x;
-			INode list = (INode) appl.get(0);
-			if(isConcreteList(list))
-				return getConcreteListElementType(x);
-		}
-		throw new ImplementationError("Cannot get element type from non-list");
-	}
-	
-	private boolean isAnyListType(Type type){
-		return type.isListType();  // || isConcreteListType(type);        //<------ disabled to let other tests work.
-	}
-	
-	private boolean isConcreteListType(Type type){                      // <--- this code does not work because I donot understand the type structure of Tree
+	public static boolean isConcreteListType(Type type){                      // <--- this code does not work because I donot understand the type structure of Tree
 		System.err.println("type=" + type);
-		System.err.println(type.isAbstractDataType() + " " + type.getName() + " " + type.getAbstractDataType().getFieldName(0));
-		if(type.isConstructorType() && type.getName().equals("cf")){
-			System.err.println("a cf");
-			Type iter = type.getFieldType(0);
-			String iterName = iter.getName();
-			return iterName.equals("iter") ||
-			        iterName.equals("iter-star") ||
-			        iterName.equals("iter-sep") ||
-			        iterName.equals("iter-sep-star");
+		//System.err.println(type.isAbstractDataType() + " " + type.getName() + " " + type.getAbstractDataType().getFieldName(0));
+		
+		if (type instanceof ConcreteSyntaxType) {
+			SymbolAdapter sym = new SymbolAdapter(((ConcreteSyntaxType)type).getSymbol());
+			return sym.isCf() && (sym.isStarList() || sym.isPlusList());
 		}
+		
 		return false;
 	}
 	
 	private boolean isParseTree(IValue appl){
-		return (appl.getType().isNodeType()) && ((INode) appl).getName().equals("appl");
+		if (appl.getType() == Factory.Tree) {
+			return true;
+		}
+		return false;
 	}
 	
 	private boolean isConcreteList(INode list){
-		return list.getName().equals("list");
+		if (list.getType() == Factory.Tree) {
+			TreeAdapter tree = new TreeAdapter((IConstructor)list);
+			return tree.isCFList();
+		}
+		return false;
 	}
 	
 	/*
@@ -671,18 +649,22 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 				if(!patVar.isAnonymous() && allVars.contains(name)){
 					throw new RedeclaredVariableError(name, getAST());
 				}
-				if(childType.comparable(listSubject.getType())){                                       // <------- change to let this work for concrete lists as well
+				
+				// matching will fail soon enough on the production if both concrete trees have different types
+				if((listSubject.getType().isSubtypeOf(Factory.Tree) && childType.isSubtypeOf(Factory.Tree)) 
+						|| childType.comparable(listSubject.getType())){                                       // <------- change to let this work for concrete lists as well
 					/*
 					 * An explicitly declared list variable.
 					 */
-					if(!patVar.isAnonymous())
+					if(!patVar.isAnonymous()) {
 						allVars.add(name);
+					}
 					isListVar[i] = isAnyListType(childType);
 					isBindingVar[i] = true;
 					listVarOccurrences[i] = 1;
 					nListVar++;
 				} else {
-					throw new UnexpectedTypeError(listSubject.getType(),childType, getAST());
+					throw new UnexpectedTypeError(childType, listSubject.getType(), getAST());
 				}
 			} else if(child instanceof AbstractPatternMultiVariable){
 				AbstractPatternMultiVariable multiVar = (AbstractPatternMultiVariable) child;
@@ -742,9 +724,10 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 				System.err.println("List: child " + child + " " + child);
 				System.err.println("List: child is a" + child.getClass());
 				Type childType = child.getType(env);
-				if(!childType.comparable(listSubjectElementType)){
-					throw new UnexpectedTypeError(listSubjectType,childType, getAST());
-				}
+				
+//				if(!childType.comparable(listSubjectElementType)){
+//					throw new UnexpectedTypeError(listSubjectElementType,childType, getAST());
+//				}
 				java.util.List<String> childVars = child.getVariables();
 				if(!childVars.isEmpty()){
 					allVars.addAll(childVars);
@@ -784,9 +767,12 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 		Type elemType = tf.voidType();
 		for(int i = 0; i < patternSize; i += delta){
 			Type childType = patternChildren.get(i).getType(env);
+			
 			if(childType.isListType()){
+//				System.err.println("Lub of: " + elemType + " and element type of sublist " + childType.getElementType());
 				elemType = elemType.lub(childType.getElementType());
 			} else {
+//				System.err.println("Lub of: " + elemType + " and element type " + childType);
 				elemType = elemType.lub(childType);
 			}
 		}
@@ -1493,7 +1479,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 //					env.getVariable(null, varName[patternCursor]).getType().isListType()){
 //				if(forward){
 //					listVarStart[patternCursor] = subjectCursor;
-//					
+//		getConcreteListElementType			
 //					Result<IValue> varRes = env.getVariable(null, varName[patternCursor]);
 //					IValue varVal = varRes.getValue();
 //					
@@ -1524,7 +1510,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 //					child.initMatch(listSubject.get(subjectCursor), env);
 //					if(child.next()){
 //						subjectCursor++;
-//						patternCursor++;
+//		getConcreteListElementType				patternCursor++;
 //						if(debug)System.err.println("AbstractPatternList.match: child matches, subjectCursor=" + subjectCursor);
 //					} else {
 //						forward = false;
@@ -2366,6 +2352,7 @@ class SingleElementGenerator implements Iterator<ISet> {
 		if(!hasNext)
 			return false;
 		hasNext = false;
+		System.err.println("Subject: " + subject + " name: " + name + " getType: ");
 		if(debug)System.out.println("AbstractTypedVariable.next: " + subject + "(type=" + subject.getType() + ") with " + declaredType + " " + name);
 		
 		if (subject.getType().isSubtypeOf(declaredType)) {
@@ -2611,8 +2598,8 @@ class AbstractPatternAnti extends AbstractPattern implements MatchPattern {
 	}
 	
 	@Override
-	public boolean mayMatch(IValue subject, Environment env){
-		return pat.mayMatch(subject, env);
+	public boolean mayMatch(Type subjectType, Environment env){
+		return pat.mayMatch(subjectType, env);
 	}
 
 	@Override
@@ -2650,8 +2637,8 @@ class AbstractPatternDescendant extends AbstractPattern implements MatchPattern 
 	}
 	
 	@Override
-	public boolean mayMatch(IValue subject, Environment env){
-		return evaluator.mayOccurIn(getType(env), subject.getType());
+	public boolean mayMatch(Type subjectType, Environment env){
+		return evaluator.mayOccurIn(getType(env), subjectType);
 	}
 	
 	@Override
@@ -2685,6 +2672,191 @@ class AbstractPatternDescendant extends AbstractPattern implements MatchPattern 
 	}
 }
 
+class AbstractPatternConcreteAmb extends AbstractPattern {
+
+	public AbstractPatternConcreteAmb(IValueFactory vf,
+			EvaluatorContext ctx, CallOrTree x,
+			java.util.List<AbstractPattern> args) {
+		super(vf, ctx);
+	}
+
+	@Override
+	public Type getType(Environment env) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean next() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public IValue toIValue(Environment env) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+}
+
+class AbstractPatternConcreteAppl extends AbstractPattern {
+	private AbstractPattern pat;
+	private Expression.CallOrTree callOrTree;
+
+	public AbstractPatternConcreteAppl(IValueFactory vf,
+			EvaluatorContext ctx, CallOrTree x,
+			java.util.List<AbstractPattern> args) {
+		super(vf, ctx);
+		org.meta_environment.rascal.ast.QualifiedName N = x.getQualifiedName();
+		pat = new AbstractPatternNode(vf, new EvaluatorContext(ctx.getEvaluator(), x), N, args);
+		callOrTree = x;
+	}
+
+	@Override
+	public void initMatch(IValue arg0, Environment arg1) {
+		super.initMatch(arg0, arg1);
+		pat.initMatch(arg0, arg1);
+	}
+	
+	@Override
+	public Type getType(Environment env) {
+		CallOrTree prod = (CallOrTree) callOrTree.getArguments().get(0);
+		String name = Names.name(Names.lastName(prod.getQualifiedName()));
+		CallOrTree rhs;
+		
+		if (name.equals("prod")) {
+			rhs = (CallOrTree) prod.getArguments().get(1);
+		}
+		else if (name.equals("list")) {
+			rhs = (CallOrTree) prod.getArguments().get(0);
+		}
+		else {
+			return Factory.Tree;
+		}
+		
+		try {
+			return new ConcreteSyntaxType(rhs.accept(new IUPTRAstToSymbolConstructor(vf)));
+		}
+		catch (NonGroundSymbolException e) {
+			return Factory.Tree;
+		}
+	}
+
+	@Override
+	public boolean next() {
+		return pat.next();
+	}
+
+	@Override
+	public IValue toIValue(Environment env) {
+		return pat.toIValue(env);
+	}
+
+	
+	
+}
+
+class AbstractPatternConcreteList extends AbstractPattern {
+	private IConstructor prod;
+	private AbstractPatternList pat;
+	private CallOrTree callOrTree;
+
+	public AbstractPatternConcreteList(IValueFactory vf,
+			EvaluatorContext ctx, CallOrTree x, java.util.List<AbstractPattern> list) {
+		super(vf, ctx);
+		prod = (IConstructor) ctx.getEvaluator().eval((CallOrTree) x.getArguments().get(0)).getValue();
+		callOrTree = x;
+		initListPatternDelegate(vf, ctx, list);
+	}
+
+	private void initListPatternDelegate(IValueFactory vf,
+			EvaluatorContext ctx, java.util.List<AbstractPattern> list) {
+		Type type = getType(null);
+		
+		if (type instanceof ConcreteSyntaxType) {
+			IConstructor sym = ((ConcreteSyntaxType) type).getSymbol();
+			SymbolAdapter rhs = new SymbolAdapter(sym);
+
+			if (rhs.isCf()) {	
+				SymbolAdapter cfSym = rhs.getSymbol();
+				if (cfSym.isIterPlus() || cfSym.isIterStar()) {
+					pat = new AbstractPatternList(vf, ctx, list, 2);
+				}
+				else if (cfSym.isIterPlusSep() || cfSym.isIterStarSep()) {
+					pat = new AbstractPatternList(vf, ctx, list, 4);
+				}
+			}
+			else if (rhs.isLex()){
+				SymbolAdapter lexSym = rhs.getSymbol();
+				if (lexSym.isIterPlus() || lexSym.isIterStar()) {
+					pat = new AbstractPatternList(vf, ctx, list, 1);
+				}
+				else if (lexSym.isIterPlusSep() || lexSym.isIterStarSep()) {
+					pat = new AbstractPatternList(vf, ctx, list, 2);
+				}
+			}
+			else {
+				throw new ImplementationError("crooked production: non (cf or lex) list symbol: " + rhs);
+			}
+			return;
+		}
+		throw new ImplementationError("should not get here if we don't know that its a proper list");
+	}
+
+	@Override
+	public void initMatch(IValue subject, Environment env) {
+		super.initMatch(subject, env);
+		if (subject.getType() != Factory.Tree) {
+			hasNext = false;
+			return;
+		}
+		TreeAdapter tree = new TreeAdapter((IConstructor) subject);
+		if (!tree.isCFList()) {
+			hasNext = false;
+			return;
+		}
+		if (!tree.getProduction().tree.isEqual(prod)) {
+			hasNext = false;
+			return;
+		}
+		pat.initMatch(tree.getArgs(), env);
+		hasNext = true;
+	}
+	
+	@Override
+	public Type getType(Environment env) {
+		CallOrTree prod = (CallOrTree) callOrTree.getArguments().get(0);
+		CallOrTree rhs = (CallOrTree) prod.getArguments().get(0);
+		
+		try {
+			return new ConcreteSyntaxType(rhs.accept(new IUPTRAstToSymbolConstructor(vf)));
+		}
+		catch (NonGroundSymbolException e) {
+			return Factory.Tree;
+		}
+	}
+
+	@Override
+	public boolean hasNext() {
+		if (!hasNext) {
+			return false;
+		}
+		return pat.hasNext();
+	}
+	
+	@Override
+	public boolean next() {
+		return pat.next();
+		
+	}
+
+	@Override
+	public IValue toIValue(Environment env) {
+		throw new NotYetImplemented("is this dead?");
+	}
+}
+
 public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 	private IValueFactory vf;
 	private Environment env;
@@ -2712,20 +2884,20 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 		return new AbstractPatternLiteral(vf, ctx, x.getLiteral().accept(ctx.getEvaluator()).getValue());
 	}
 	
-	private boolean isParseTree(CallOrTree x){
-		//return false;
-		return Names.name(Names.lastName(x.getQualifiedName())).equals("appl");
+	private boolean isConcreteSyntaxAppl(CallOrTree tree){
+		return Names.name(Names.lastName(tree.getQualifiedName())).equals("appl");
 	}
 	
-	private boolean isConcreteList(CallOrTree list){
-		return Names.name(Names.lastName(list.getQualifiedName())).equals("list");
+	private boolean isConcreteSyntaxAmb(CallOrTree tree){
+		return Names.name(Names.lastName(tree.getQualifiedName())).equals("amb");
 	}
 	
-	private boolean isListKind(CallOrTree list, String listKind){
-		CallOrTree cf = (CallOrTree) list.getArguments().get(0);
-		CallOrTree kind = (CallOrTree) cf.getArguments().get(0);
-		System.err.println("kind=" + kind + " " + kind.getTree());
-		return Names.name(Names.lastName(kind.getQualifiedName())).equals(listKind);
+	private boolean isConcreteSyntaxList(CallOrTree tree){
+		return isConcreteSyntaxAppl(tree) && isConcreteListProd((CallOrTree) tree.getArguments().get(0));
+	}
+	
+	private boolean isConcreteListProd(CallOrTree prod){
+		return Names.name(Names.lastName(prod.getQualifiedName())).equals("list");
 	}
 	
 	@Override
@@ -2733,24 +2905,19 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 		org.meta_environment.rascal.ast.QualifiedName N = x.getQualifiedName();
 		System.err.println("pattern = " + N + ", " + x.getTree());
 
-		if(isParseTree(x)){
-			System.err.println("is a parse tree");
-			CallOrTree list = (CallOrTree) x.getArguments().get(0);
-			if(isConcreteList(list)){
-				System.err.println("is a list");
-				java.util.List<Expression> elems = x.getArguments().get(1).getElements();
-
-				if(isListKind(list, "iter") || isListKind(list, "iter-star")){
-					System.err.println("is a iter or iter-star");
-					return new AbstractPatternList(vf, ctx, visitElements(elems), 2);
-				}
-				
-				if(isListKind(list, "iter-sep") || isListKind(list, "iter-sep-star")){
-					System.err.println("is a iter-sep or iter-sep-star");
-					return new AbstractPatternList(vf, ctx, visitElements(elems), 4);
-				}
-			}
+		if(isConcreteSyntaxList(x)) {
+			List args = (List)x.getArguments().get(1);
+			// TODO what if somebody writes a variable in  the list production itself?
+			return new AbstractPatternConcreteList(vf, new EvaluatorContext(ctx.getEvaluator(), x), x,
+					visitElements(args.getElements()));
 		}
+		if(isConcreteSyntaxAppl(x)){
+			return new AbstractPatternConcreteAppl(vf, new EvaluatorContext(ctx.getEvaluator(), x), x, visitArguments(x));
+		}
+		if (isConcreteSyntaxAmb(x)) {
+			return new AbstractPatternConcreteAmb(vf, new EvaluatorContext(ctx.getEvaluator(), x), x, visitArguments(x));
+		}
+		
 		System.err.println("other cases");
 		return new AbstractPatternNode(vf, new EvaluatorContext(ctx.getEvaluator(), x), N, visitArguments(x));
 	}

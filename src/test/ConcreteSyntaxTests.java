@@ -6,6 +6,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.meta_environment.rascal.interpreter.staticErrors.AmbiguousConcretePattern;
 import org.meta_environment.rascal.interpreter.staticErrors.NonWellformedTypeError;
+import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
 
@@ -105,7 +106,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	public void varAassign(){
 		prepare("import src::test::GrammarABCDE;");
-		runTestInSameEvaluator("{someA := [|a|]; someA == [|a|];}");
+		runTestInSameEvaluator("{someA := [|a|] && someA == [|a|];}");
 	}
 	
 	@Test
@@ -116,12 +117,12 @@ public class ConcreteSyntaxTests extends TestFramework {
 	
 	public void VarATypedInsertAmbiguous(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{ [|<A someA>|] := [|a|]; someA == [|a|]; }"));
+		assertTrue(runTestInSameEvaluator("{ [|<A someA>|] := [|a|] && someA == [|a|]; }"));
 	}
 	
 	public void VarATypedInsert(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{ [|<A someA>|] := [|a|]; someA == [|a|]; }"));
+		assertTrue(runTestInSameEvaluator("{ [|<A someA>|] := [|a|] && someA == [|a|]; }"));
 	}
 	
 	@Test
@@ -151,19 +152,19 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	public void ABvars2TypedEq(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{[|<A someA> <B someB>|] := [|a b|]; someA ==[|a|] && someB == [|b|];}"));
+		assertTrue(runTestInSameEvaluator("{[|<A someA> <B someB>|] := [|a b|] && someA ==[|a|] && someB == [|b|];}"));
 	}
 	
 	@Test
 	public void ABvars2TypedInsertWithoutTypes(){ 
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{ [|<A someA><B someB>|] := [|a b|];  [|<someA><someB>|] == [|a b|];}"));
+		assertTrue(runTestInSameEvaluator("{ [|<A someA><B someB>|] := [|a b|] &&  [|<someA><someB>|] == [|a b|];}"));
 	}
 	
 	@Test
 	public void ABvars2TypedInsertWithTypes(){ 
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{ [|<A someA><B someB>|] := [|a b|]; C[|<someA><someB>|] == [|a b|];}"));
+		assertTrue(runTestInSameEvaluator("{ [|<A someA><B someB>|] := [|a b|] && C[|<someA><someB>|] == [|a b|];}"));
 	}
 	
 	@Test
@@ -213,6 +214,25 @@ public class ConcreteSyntaxTests extends TestFramework {
 		prepare("import src::test::GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("[|d d|] := [|d d|];"));
 	}
+
+	@Test//(expected=StaticError.class)
+	public void D3(){
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("DS[|d d|] := [|d d|];"));
+	}
+
+	@Test(expected=StaticError.class)
+	public void D4(){
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("[|d d|] := DS[|d d|];"));
+	}
+
+	@Test
+	public void D5(){
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("DS[|d d|] := DS[|d d|];"));
+	}
+
 	
 	@Test(expected=AmbiguousConcretePattern.class)
 	public void Dvars(){
@@ -223,40 +243,67 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	public void DvarsTyped(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{ D+ Xs := [|d d|]; Xs == [| d d |]; }"));
+		assertTrue(runTestInSameEvaluator("{ D+ Xs := [|d d|] && Xs == [| d d |]; }"));
 	}
 	
 	@Test
 	public void DvarsTypedInsert1(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{ D+ Xs := [|d d|]; Xs == [| d d |]; }"));
+		assertTrue(runTestInSameEvaluator("{ D+ Xs := [|d d|] && Xs == [| d d |]; }"));
 	}
 
 	
 	@Test
 	public void DvarsTypedInsert2(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{ [|<D+ Xs>|] := [|d|]; }"));
+		assertTrue(runTestInSameEvaluator("{ DS[|<D+ Xs>|] := DS[|d|]; }"));
 	}
 	
 	@Test
 	public void DvarsTypedInsert3(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{ [|<D+ Xs>|] := [|d d|]; }"));
+		assertTrue(runTestInSameEvaluator("{ DS[|<D+ Xs>|] := DS[|d d|]; }"));
+	}
+
+	
+	@Test(expected=StaticError.class)
+	public void DvarsTypedInsert2Untyped(){
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("{ [|<D+ Xs>|] := [|d|]; }"));
 	}
 	
 	@Test
-	public void DvarsTypedInsert4(){
+	public void DvarsTypedInsert3Untyped(){
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("{ [|<D+ Xs>|] := [|d d|]; }"));
+	}
+
+	
+	@Test
+	public void DvarsTypedInsert4UnTyped(){
 		prepare("import src::test::GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("([|d <D+ Xs>|] := [|d d|]) ?  ([| d <Xs> |] == [| d d |]) : false;"));
 	}
 	
 	@Test
-	public void DvarsTypedInsert5(){
+	public void DvarsTypedInsert4(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{ [|d <D+ Xs>|] := [|d d d|]; [| d <Xs> |] == [|d d d|]; }"));
+		assertTrue(runTestInSameEvaluator("(DS[|d <D+ Xs>|] := DS[|d d|]) ?  (DS[| d <Xs> |] == DS[| d d |]) : false;"));
 	}
 	
+	
+	@Test
+	public void DvarsTypedInsert5Untyped(){
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("{ [|d <D+ Xs>|] := [|d d d|] && [| d <Xs> |] == [|d d d|]; }"));
+	}
+
+	@Test
+	public void DvarsTypedInsert5(){
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("{ DS[|d <D+ Xs>|] := DS[|d d d|] && DS[| d <Xs> |] == DS[|d d d|]; }"));
+	}
+
 	@Test
 	public void E1(){
 		prepare("import src::test::GrammarABCDE;");
@@ -290,18 +337,18 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	public void Evar1Typed(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{ {E \",\"}+ Xs := [|e, e|]; Xs == [| e, e|];}"));
+		assertTrue(runTestInSameEvaluator("{ {E \",\"}+ Xs := [|e, e|] && Xs == [| e, e|];}"));
 	}
 	
 	@Test
 	public void Evars2(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{ [|e, <Xs>|] := [|e, e|]; Xs == [| e |];}"));
+		assertTrue(runTestInSameEvaluator("{ [|e, <Xs>|] := [|e, e|] && Xs == [| e |];}"));
 	}
 	@Test
 	public void Evars2Typed(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{ [|e, <{E \",\"}+ Xs>|] := [|e, e|]; Xs == [| e |];}"));
+		assertTrue(runTestInSameEvaluator("{ [|e, <{E \",\"}+ Xs>|] := [|e, e|] && Xs == [| e |];}"));
 	}
 	
 	@Test
@@ -313,7 +360,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	public void Evars4(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{ [|e, <Xs>|] := [|e|]; Xs == [| |]; [| e, <Xs> |] == [| e |]; }"));
+		assertTrue(runTestInSameEvaluator("{ [|e, <Xs>|] := [|e|]; Xs == [| |] && [| e, <Xs> |] == [| e |]; }"));
 	}
 	
 	@Test
@@ -325,19 +372,19 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	public void EvarsTypedInsert1(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{ [|<{E \",\"}+ Xs>|] := [|e, e|]; [| e, <Xs> |] == [| e, e, e |]; }"));
+		assertTrue(runTestInSameEvaluator("{ [|<{E \",\"}+ Xs>|] := [|e, e|] && [| e, <Xs> |] == [| e, e, e |]; }"));
 	}
 	
 	@Test @Ignore
 	public void EvarsTypedInsert2(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{ [|<{E \",\"}+ Xs>|] := [|e, e|]; [| e, <{E \",\"}+ Xs> |] == [| e, e, e |]; }"));
+		assertTrue(runTestInSameEvaluator("{ [|<{E \",\"}+ Xs>|] := [|e, e|] && [| e, <{E \",\"}+ Xs> |] == [| e, e, e |]; }"));
 	}
 	
 	@Test
 	public void EvarsTypedInsert3(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{ [| e, <{E \",\"}+ Xs> |] := [|e, e|]; [| e, <Xs> |] == [| e, e, e |]; }"));
+		assertTrue(runTestInSameEvaluator("{ [| e, <{E \",\"}+ Xs> |] := [|e, e|] && [| e, <Xs> |] == [| e, e, e |]; }"));
 	}
 	
 	@Test

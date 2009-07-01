@@ -2,13 +2,17 @@ package org.meta_environment.rascal.interpreter;
 
 import java.util.Iterator;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
+import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.Expression;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.BoolResult;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
+import org.meta_environment.uptr.Factory;
 
 /*
  * Evaluate match and no match expression
@@ -36,8 +40,26 @@ public class MatchEvaluator implements Iterator<Result<IValue>> {
     	
     	//Temporarily disabled while implementing concrete syntax matching   <------
     	
-    	//if(!mp.mayMatch(subjectValue, pushedEnv))
-    	//	throw new UnexpectedTypeError(mp.getType(pushedEnv), subjectValue.getType(), pat);
+    	// TODO: why are we using the dynamic type here? Type checking should be done with static types
+    	Type subjectType = subjectValue.getType();
+    	
+//    	if (subjectType == Factory.Tree && ((IConstructor)subjectValue).getConstructorType() == Factory.Tree_Appl) {
+//    		IConstructor prod = (IConstructor) ((IConstructor)subjectValue).get(0);
+//    		if (prod.getType() == Factory.Production && prod.getConstructorType() == Factory.Production_List) {
+//    			subjectType = TypeFactory.getInstance().listType(Factory.Tree);	
+//    		}
+//    	}
+    	
+//    	Type patternType = mp.getType(pushedEnv);
+//    	if (patternType instanceof ConcreteSyntaxType) {
+//    		if (((ConcreteSyntaxType)patternType).isConcreteCFList()) {
+//    			patternType = TypeFactory.getInstance().listType(Factory.Tree);
+//    		}
+//    	}
+    	
+       	if(!mp.mayMatch(subjectType, pushedEnv)) {
+    		throw new UnexpectedTypeError(mp.getType(pushedEnv), subjectType, pat);
+    	}
     	mp.initMatch(subjectValue, evaluator.getCurrentEnvt());
 	}
 
