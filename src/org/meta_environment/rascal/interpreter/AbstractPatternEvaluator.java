@@ -565,6 +565,37 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 		return null;
 	}
 	
+	private Type getAnyListElementType(IValue x){
+		if(x.getType().isListType())
+			return ((IList) x).getElementType();
+		if(isParseTree(x)){
+			INode appl = (INode) x;
+			INode list = (INode) appl.get(0);
+			if(isConcreteList(list))
+				return getConcreteListElementType(x);
+		}
+		throw new ImplementationError("Cannot get element type from non-list");
+	}
+	
+	private boolean isAnyListType(Type type){
+		return type.isListType();  // || isConcreteListType(type);        //<------ disabled to let other tests work.
+	}
+	
+	private boolean isConcreteListType(Type type){                      // <--- this code does not work because I donot understand the type structure of Tree
+		System.err.println("type=" + type);
+		System.err.println(type.isAbstractDataType() + " " + type.getName() + " " + type.getAbstractDataType().getFieldName(0));
+		if(type.isConstructorType() && type.getName().equals("cf")){
+			System.err.println("a cf");
+			Type iter = type.getFieldType(0);
+			String iterName = iter.getName();
+			return iterName.equals("iter") ||
+			        iterName.equals("iter-star") ||
+			        iterName.equals("iter-sep") ||
+			        iterName.equals("iter-sep-star");
+		}
+		return false;
+	}
+	
 	private boolean isParseTree(IValue appl){
 		return (appl.getType().isNodeType()) && ((INode) appl).getName().equals("appl");
 	}
@@ -632,7 +663,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 			AbstractPattern child = patternChildren.get(i);
 			isListVar[i] = false;
 			isBindingVar[i] = false;
-			if(child instanceof AbstractPatternTypedVariable && child.getType(env).isListType()){
+			if(child instanceof AbstractPatternTypedVariable && isAnyListType(child.getType(env))){  // <------
 				AbstractPatternTypedVariable patVar = (AbstractPatternTypedVariable) child;
 				Type childType = child.getType(env);
 				String name = patVar.getName();
@@ -640,13 +671,13 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 				if(!patVar.isAnonymous() && allVars.contains(name)){
 					throw new RedeclaredVariableError(name, getAST());
 				}
-				if(childType.comparable(listSubject.getType())){
+				if(childType.comparable(listSubject.getType())){                                       // <------- change to let this work for concrete lists as well
 					/*
 					 * An explicitly declared list variable.
 					 */
 					if(!patVar.isAnonymous())
 						allVars.add(name);
-					isListVar[i] = childType.isListType();
+					isListVar[i] = isAnyListType(childType);
 					isBindingVar[i] = true;
 					listVarOccurrences[i] = 1;
 					nListVar++;
@@ -689,11 +720,11 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 					} else {
 					
 				        Type varType = varRes.getType();
-				        if (varType.isListType()){
+				        if (isAnyListType(varType)){                                   // <-----
 				        	/*
 				        	 * A variable declared in the current scope.
 				        	 */
-				        	if(varType.comparable(listSubjectType)){
+				        	if(varType.comparable(listSubjectType)){                   // <-- let this a;so work for concrete lists
 				        		isListVar[i] = true;
 				        		isBindingVar[i] = varRes.getValue() == null;
 				        		nListVar++;			        		
@@ -745,7 +776,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 	}
 	
 	@Override
-	public Type getType(Environment env) {
+	public Type getType(Environment env) {                      
 		if(patternSize == 0){
 			return tf.listType(tf.voidType());
 		}
@@ -869,6 +900,8 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternEr
 		/*
 		 * Determine the various termination conditions.
 		 */
+			
+			if(debug)System.err.println("List.do: patternCursor=" + patternCursor + ", subjectCursor=" + subjectCursor);
 			
 			if(forward){
 				if(patternCursor >= patternSize){

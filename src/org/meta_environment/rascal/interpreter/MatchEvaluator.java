@@ -31,10 +31,10 @@ public class MatchEvaluator implements Iterator<Result<IValue>> {
     	//System.err.println("MatchEvaluator: push " + pat);
      	IValue subjectValue = subject.accept(ev).getValue();
     	mp = ev.evalPattern(pat);
-   	// Type check is done by each pattern
-    //	if(!ev.mayMatch(mp.getType(pushedEnv), subjectValue.getType()))
+   	    // Type check is done by each pattern
+        //	if(!ev.mayMatch(mp.getType(pushedEnv), subjectValue.getType()))
     	
-    	//Temporarily disabled while implementing concrete syntax matching
+    	//Temporarily disabled while implementing concrete syntax matching   <------
     	
     	//if(!mp.mayMatch(subjectValue, pushedEnv))
     	//	throw new UnexpectedTypeError(mp.getType(pushedEnv), subjectValue.getType(), pat);
