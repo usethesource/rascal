@@ -601,7 +601,7 @@ import org.meta_environment.uptr.TreeAdapter;
 	@Override
 	public void initMatch(IValue subject, Environment env){
 		
-		subject = convertConcreteSyntaxSubject(subject);
+//		subject = convertConcreteSyntaxSubject(subject);
 		super.initMatch(subject, env);
 		
 		if(debug)System.err.println("List: initMatch: subject=" + subject);
@@ -650,9 +650,25 @@ import org.meta_environment.uptr.TreeAdapter;
 					throw new RedeclaredVariableError(name, getAST());
 				}
 				
+				if (listSubject.getType().isListType() && childType instanceof ConcreteSyntaxType) {
+					ConcreteSyntaxType cType = (ConcreteSyntaxType)childType;
+					if (cType.isConcreteCFList()) {
+						ConcreteSyntaxType eType = cType.getConcreteCFListElementType();
+						if (listSubject.getType().getElementType().comparable(eType)) {
+							// Copied from below
+							if(!patVar.isAnonymous()) {
+								allVars.add(name);
+							}
+							isListVar[i] = true;
+							isBindingVar[i] = true;
+							listVarOccurrences[i] = 1;
+							nListVar++;
+						}
+					}
+				}
+				
 				// matching will fail soon enough on the production if both concrete trees have different types
-				if((listSubject.getType().isSubtypeOf(Factory.Tree) && childType.isSubtypeOf(Factory.Tree)) 
-						|| childType.comparable(listSubject.getType())){                                       // <------- change to let this work for concrete lists as well
+				else if(childType.comparable(listSubject.getType())){                                       // <------- change to let this work for concrete lists as well
 					/*
 					 * An explicitly declared list variable.
 					 */
@@ -2812,14 +2828,17 @@ class AbstractPatternConcreteList extends AbstractPattern {
 			return;
 		}
 		TreeAdapter tree = new TreeAdapter((IConstructor) subject);
-		if (!tree.isCFList()) {
-			hasNext = false;
-			return;
-		}
-		if (!tree.getProduction().tree.isEqual(prod)) {
-			hasNext = false;
-			return;
-		}
+// Disabled because singletons should matched against list 
+// variables: [|d <D+ Xs>|] := [|d d|];
+// The variable will be a AbstractPatternList...
+//		if (!tree.isCFList()) {
+//			hasNext = false;
+//			return;
+//		}
+//		if (!tree.getProduction().tree.isEqual(prod)) {
+//			hasNext = false;
+//			return;
+//		}
 		pat.initMatch(tree.getArgs(), env);
 		hasNext = true;
 	}
