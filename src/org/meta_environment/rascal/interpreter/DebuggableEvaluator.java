@@ -1,8 +1,9 @@
 package org.meta_environment.rascal.interpreter;
 
+import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.Writer;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
@@ -103,22 +104,20 @@ import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.parser.ConsoleParser;
 
 public class DebuggableEvaluator extends Evaluator {
+	
+	private final ConsoleParser parser;
 
-	protected IDebugger debugger;
+	protected final IDebugger debugger;
 	private boolean suspendRequest;
 	private boolean statementStepMode;
 	private boolean expressionStepMode;
 	private boolean stepOver;
 
-	public DebuggableEvaluator(IValueFactory f, Writer errorWriter, ModuleEnvironment scope, IDebugger debugger) {
-		super(f, errorWriter, scope);
-		this.debugger = debugger;
-	}
-
 	public DebuggableEvaluator(IValueFactory vf, PrintWriter printWriter,
 			ModuleEnvironment moduleEnvironment, ConsoleParser consoleParser,
 			IDebugger debugger) {
 		super(vf, printWriter, moduleEnvironment, new GlobalEnvironment(), consoleParser);
+		this.parser = consoleParser;
 		this.debugger = debugger;
 	}
 
@@ -776,6 +775,10 @@ public class DebuggableEvaluator extends Evaluator {
 	
 	public IDebugger getDebugger() {
 		return debugger;
+	}
+	
+	public IConstructor parseCommand(String command) throws IOException {
+		return parser.parseCommand(command);
 	}
 
 }
