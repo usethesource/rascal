@@ -28,7 +28,7 @@ public class SymbolAdapter {
 	}
 
 	public SymbolAdapter getSymbol() {
-		if (isCf() || isLex() || isOpt()) {
+		if (isCf() || isLex() || isOpt() || isIterPlus() || isIterPlusSep() || isIterStar() || isIterStarSep()) {
 			return new SymbolAdapter((IConstructor) tree.get("symbol"));
 		}
 		
