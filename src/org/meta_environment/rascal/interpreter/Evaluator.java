@@ -571,6 +571,18 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		if(small.isSubtypeOf(large) || large.isSubtypeOf(small))
 			return true;
 
+		if (small instanceof ConcreteSyntaxType && large instanceof ConcreteSyntaxType) {
+			return small.equals(large);
+		}
+		
+		if (small instanceof ConcreteSyntaxType) {
+			return large.isSubtypeOf(Factory.Tree);
+		}
+		
+		if (large instanceof ConcreteSyntaxType) {
+			return small.isSubtypeOf(Factory.Tree);
+		}
+		
 		if(small.isListType() && large.isListType() || 
 				small.isSetType() && large.isSetType())
 			return mayMatch(small.getElementType(),large.getElementType());
@@ -833,6 +845,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		Result<IValue> r = nothing();
 
 		for (org.meta_environment.rascal.ast.Variable var : x.getVariables()) {
+			// TODO: should this be on getCurrentModuleEnvironment?
+			// (it probably is same env anyway).
 			if(getCurrentEnvt().getLocalVariable(var.getName()) != null){
 				throw new RedeclaredVariableError(var.getName().toString(), var);
 			}
@@ -1772,6 +1786,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 	protected MatchPattern evalPattern(org.meta_environment.rascal.ast.Expression pat){
 		if (pat instanceof Expression.Ambiguity) {
+			// TODO: wrong exception here.
 			throw new AmbiguousConcretePattern(pat);
 		}
 

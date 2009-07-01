@@ -364,6 +364,7 @@ public class ASTBuilder {
 		if (type.isNodeType()) {
 			INode node = (INode) pattern;
 			ASTStatistics stats = new ASTStatistics();
+			boolean isAmb = false;
 			
 			if (type.isAbstractDataType()) {
 				IConstructor constr = (IConstructor) pattern;
@@ -393,6 +394,9 @@ public class ASTBuilder {
 
 					source = constr;
 				}
+				else if (constr.getConstructorType() == Factory.Tree_Amb) {
+					isAmb = true;
+				}
 			}
 
 			String name = node.getName();
@@ -407,7 +411,7 @@ public class ASTBuilder {
 				stats.add(ast.getStats());
 			}
 			
-			if (args.size() == 1 && args.get(0).isSet() && ((Expression.Set)args.get(0)).getElements().size() == 1) {
+			if (isAmb && ((Expression.Set)args.get(0)).getElements().size() == 1) {
 				return ((Expression.Set)args.get(0)).getElements().get(0);
 			}
 

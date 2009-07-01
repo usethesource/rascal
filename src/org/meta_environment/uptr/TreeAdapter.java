@@ -385,4 +385,9 @@ public class TreeAdapter {
 		}
 		return false;
 	}
+
+	public boolean isCFList() {
+		return isAppl() && isContextFree() && (getProduction().getRhs().isPlusList() ||
+				getProduction().getRhs().isStarList());
+	}
 }

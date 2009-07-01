@@ -266,7 +266,7 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 
 		<U extends IValue, V extends IValue> Result<U> insertTuple(TupleResult tuple, EvaluatorContext ctx) {
 			// TODO: check arity 
-			Type newType = getTypeFactory().relTypeFromTuple(tuple.getType().lub(getType().getElementType()));
+			Type newType = getTypeFactory().setType(tuple.getType().lub(getType().getElementType()));
 			return makeResult(newType, (IRelation) getValue().insert(tuple.getValue()), ctx);
 		}
 
