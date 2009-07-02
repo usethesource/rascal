@@ -95,6 +95,10 @@ public class SymbolAdapter {
 		return sym.isIterPlus() || sym.isIterPlusSep();
 	}
 	
+	public boolean isAnyList() {
+		return isStarList() || isPlusList();
+	}
+	
 	public boolean isCfOptLayout() {
 		if (isCf()) {
 			SymbolAdapter sym = getSymbol();

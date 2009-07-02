@@ -56,6 +56,10 @@ public class ConcreteSyntaxType extends Type {
 		return true;
 	}
 	
+	public boolean isConcreteListType() {
+		return new SymbolAdapter(getSymbol()).isAnyList();
+	}
+	
 	@Override
 	public String getName() {
 		return Factory.Tree.getName();
