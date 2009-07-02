@@ -215,7 +215,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("[|d d|] := [|d d|];"));
 	}
 
-	@Test//(expected=StaticError.class)
+	@Test(expected=StaticError.class)
 	public void D3(){
 		prepare("import src::test::GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("DS[|d d|] := [|d d|];"));

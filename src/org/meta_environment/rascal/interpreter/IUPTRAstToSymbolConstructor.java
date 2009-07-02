@@ -125,7 +125,9 @@ public class IUPTRAstToSymbolConstructor extends NullASTVisitor<IConstructor> {
 		
 		if (name.equals("sort")) {
 			StringLiteral.Lexical arg = (org.meta_environment.rascal.ast.StringLiteral.Lexical) x.getArguments().get(0).getLiteral().getStringLiteral();
-			return vf.constructor(Factory.Symbol_Sort, vf.string(arg.getString()));
+			String str = arg.getString();
+			str = str.substring(1, str.length() - 1);
+			return vf.constructor(Factory.Symbol_Sort, vf.string(str));
 		}
 		
 
