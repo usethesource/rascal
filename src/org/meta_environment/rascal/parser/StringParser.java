@@ -10,6 +10,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.meta_environment.errors.SubjectAdapter;
 import org.meta_environment.errors.SummaryAdapter;
 import org.meta_environment.rascal.interpreter.Configuration;
+import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.uptr.Factory;
 
@@ -48,18 +49,26 @@ public class StringParser extends ModuleParser {
 	
 	private String constructUserDefinedSyntaxTable(Set<String> sdfImports, List<String> sdfSearchPath) throws IOException {
 		String tablefileName = getTableLocation(OBJECT_LANGUAGE_KEY, sdfImports, sdfSearchPath);
-
-		Runtime.getRuntime().exec(new String[] {
+		
+		Process p = Runtime.getRuntime().exec(new String[] {
 				Configuration.getRascal2TableCommandProperty(),
 				"-u",
 				"-s", getImportParameter(sdfImports),
 				"-p", getSdfSearchPath(sdfSearchPath),
 				"-o", tablefileName
-		}, new String[0], new File(Configuration.getRascal2TableBinDirProperty())
+			}, new String[0], new File(Configuration.getRascal2TableBinDirProperty())
 		);
-
+		
+		try{
+			p.waitFor();
+			if (p.exitValue() != 0) {
+				throw new ImplementationError("Non-zero exit-status of rascal2table command.");
+			}
+		}catch(InterruptedException irex){
+			throw new ImplementationError("Interrupted while waiting for the generation of the parse table.");
+		}finally{
+			p.destroy();
+		}
 		return tablefileName;
 	}
-
-	
 }
