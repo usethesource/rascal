@@ -64,14 +64,10 @@ public class ProductionAdapter {
 			rhs = rhs.getSymbol();
 			if (rhs.isSort() || rhs.isParameterizedSort()){
 				return rhs.getName();
-				// TODO PK: Added cases
-			} //else if (rhs.isIterPlus() || rhs.isIterPlusSep() ||
-//		                rhs.isIterStar() || rhs.isIterStarSep()){
-//				return rhs.toString();
-//			}
+			} 
 		}
-//		return "";
-		throw new ImplementationError("Production does not have a sort name: " + tree);
+		
+		return "";
 	}
 	
 	public IList getAttributes() {
