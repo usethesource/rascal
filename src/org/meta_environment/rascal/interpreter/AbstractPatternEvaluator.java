@@ -2248,6 +2248,165 @@ class SingleElementGenerator implements Iterator<ISet> {
 	
 }
 
+class AbstractPatternConcreteListVariable extends AbstractPattern {
+	private String name;
+	private ConcreteSyntaxType declaredType;
+	private ConcreteSyntaxType declaredElementType;
+	
+	private boolean anonymous = false;
+	private boolean debug = true;
+	private Environment env;
+	// TODO: merge code of the following two constructors.
+	
+	AbstractPatternConcreteListVariable(IValueFactory vf, Environment env, EvaluatorContext ctx, org.eclipse.imp.pdb.facts.type.Type type,
+			org.meta_environment.rascal.ast.QualifiedName qname) {
+		super(vf, ctx);
+//		this.name = getAST().toString(); JURGEN CHANGED THIS WITHOUT UNDERSTANDING
+		this.name = Names.name(Names.lastName(qname));
+		this.declaredType = (ConcreteSyntaxType) type;
+		this.declaredElementType = getElementType(declaredType);
+		this.env = env;
+		this.anonymous = name.equals("_");
+		
+		if(debug) System.err.println("AbstractPatternTypedVariabe: " + name);
+		
+		Result<IValue> localRes = env.getLocalVariable(qname);
+		if(localRes != null){
+			if(localRes.getValue() != null){
+				throw new RedeclaredVariableError(this.name, qname);
+			}
+			if(!localRes.getType().equivalent(type)){
+				throw new UnexpectedTypeError(localRes.getType(), type, qname);
+			}
+			// Introduce an innermost variable that shadows the original one.
+			// This ensures that the original one becomes undefined again when matching is over
+			env.storeInnermostVariable(qname, makeResult(localRes.getType(), null, ctx));
+			return;
+		}
+		Result<IValue> globalRes = env.getVariable(qname);
+		if(globalRes != null){
+			if(globalRes.getValue() != null){
+				throw new RedeclaredVariableError(this.name, qname);
+			}
+			if(!globalRes.getType().equivalent(type)){
+				throw new UnexpectedTypeError(globalRes.getType(), type, qname);
+			}
+			// Introduce an innermost variable that shadows the original one.
+			// This ensures that the original one becomes undefined again when matching is over
+			env.storeInnermostVariable(qname, makeResult(globalRes.getType(), null, ctx));
+			return;
+		}
+	}
+	
+	
+	AbstractPatternConcreteListVariable(IValueFactory vf, Environment env, EvaluatorContext ctx, 
+			org.eclipse.imp.pdb.facts.type.Type type, org.meta_environment.rascal.ast.Name name) {
+		super(vf, ctx);
+		this.name = Names.name(name);
+		this.declaredType = (ConcreteSyntaxType) type;
+		this.declaredElementType = getElementType(declaredType);
+		this.env = env;
+		this.anonymous = name.toString().equals("_");
+		
+		if(debug) System.err.println("AbstractConcreteSyntaxListVariable: " + name);
+		
+		Result<IValue> localRes = env.getLocalVariable(name);
+		if(localRes != null){
+			if(localRes.getValue() != null){
+				throw new RedeclaredVariableError(this.name, name);
+			}
+			if(!localRes.getType().equivalent(type)){
+				throw new UnexpectedTypeError(localRes.getType(), type, name);
+			}
+			// Introduce an innermost variable that shadows the original one.
+			// This ensures that the original one becomes undefined again when matching is over
+			env.storeInnermostVariable(name, makeResult(localRes.getType(), null, ctx));
+			return;
+		}
+	
+		Result<IValue> globalRes = env.getVariable(name, this.name);
+		if(globalRes != null){
+			if(globalRes.getValue() != null){
+				throw new RedeclaredVariableError(this.name, name);
+			}
+			if(!globalRes.getType().equivalent(type)){
+				throw new UnexpectedTypeError(globalRes.getType(), type, name);
+			}
+			// Introduce an innermost variable that shadows the original one.
+			// This ensures that the original one becomes undefined again when matching is over
+			env.storeInnermostVariable(name, makeResult(globalRes.getType(), null, ctx));
+			return;
+		}
+	}
+
+	private ConcreteSyntaxType getElementType(ConcreteSyntaxType type) {
+		SymbolAdapter sym = new SymbolAdapter(type.getSymbol());
+		if (sym.isCf() || sym.isLex()) {
+			sym = sym.getSymbol();
+		}
+		// we know its a list symbol, getSymbol retrieves the element Symbol:
+		return new ConcreteSyntaxType(sym.getSymbol().getTree());
+	}
+
+	@Override
+	public Type getType(Environment env) {
+		return TypeFactory.getInstance().listType(declaredElementType);
+	}
+
+	@Override
+	public java.util.List<String> getVariables() {
+		java.util.LinkedList<String> res = new java.util.LinkedList<String>();
+		res.addFirst(name);
+		return res;
+	}
+
+	@Override
+	public IValue toIValue(Environment env) {
+		throw new UnsupportedOperationException("toIValue on Variable");
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public boolean isAnonymous() {
+		return anonymous;
+	}
+
+	@Override
+	public boolean next() {
+		if (debug)
+			System.err.println("AbstractConcreteSyntaxListVariable.next");
+		checkInitialized();
+		if (!hasNext)
+			return false;
+		hasNext = false;
+		System.err.println("Subject: " + subject + " name: " + name
+				+ " getType: ");
+		if (debug)
+			System.out.println("AbstractConcreteSyntaxListVariable.next: " + subject
+					+ "(type=" + subject.getType() + ") with " + declaredType
+					+ " " + name);
+
+		if (subject.getType().isSubtypeOf(declaredType)) {
+			if (!anonymous)
+				env.storeInnermostVariable(name, makeResult(declaredType,
+						subject, ctx));
+			if (debug)
+				System.out.println("matches");
+			return true;
+		}
+		if (debug)
+			System.out.println("no match");
+		return false;
+	}
+
+	@Override
+	public String toString() {
+		return declaredType + " " + name + "==" + subject;
+	}
+}
+
 /* package */class AbstractPatternTypedVariable extends AbstractPattern implements MatchPattern {
 	private String name;
 	org.eclipse.imp.pdb.facts.type.Type declaredType;
@@ -2295,6 +2454,8 @@ class SingleElementGenerator implements Iterator<ISet> {
 			env.storeInnermostVariable(qname, makeResult(globalRes.getType(), null, ctx));
 			return;
 		}
+		
+		
 	}
 	
 	AbstractPatternTypedVariable(IValueFactory vf, Environment env, EvaluatorContext ctx, 
@@ -2997,8 +3158,15 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 				return new AbstractPatternQualifiedName(vf, env, new EvaluatorContext(ctx.getEvaluator(), name), name);
 			}
 			
-			// Previously declared and uninitialized variable
-			return new AbstractPatternTypedVariable(vf, env, new EvaluatorContext(ctx.getEvaluator(), name), r.getType(),name);
+			Type type = r.getType();
+			if (type instanceof ConcreteSyntaxType) {
+				ConcreteSyntaxType cType = (ConcreteSyntaxType) type;
+				if (cType.isConcreteListType()) {
+					return new AbstractPatternConcreteListVariable(vf, env,  new EvaluatorContext(ctx.getEvaluator(), x.getName()), type, x.getName());
+				}
+			}
+			
+			return new AbstractPatternTypedVariable(vf, env, new EvaluatorContext(ctx.getEvaluator(), name), type,name);
 		}
 		if (scope.isTreeConstructorName(name, signature)) {
 			return new AbstractPatternNode(vf, new EvaluatorContext(ctx.getEvaluator(), x), name,
@@ -3012,7 +3180,15 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 	@Override
 	public AbstractPattern visitExpressionTypedVariable(TypedVariable x) {
 		TypeEvaluator te = TypeEvaluator.getInstance();
-		return new AbstractPatternTypedVariable(vf, env,  new EvaluatorContext(ctx.getEvaluator(), x.getName()), te.eval(x.getType(), env), x.getName());
+		Type type = te.eval(x.getType(), env);
+		
+		if (type instanceof ConcreteSyntaxType) {
+			ConcreteSyntaxType cType = (ConcreteSyntaxType) type;
+			if (cType.isConcreteListType()) {
+				return new AbstractPatternConcreteListVariable(vf, env,  new EvaluatorContext(ctx.getEvaluator(), x.getName()), type, x.getName());
+			}
+		}
+		return new AbstractPatternTypedVariable(vf, env,  new EvaluatorContext(ctx.getEvaluator(), x.getName()), type, x.getName());
 	}
 	
 	@Override
