@@ -561,7 +561,7 @@ import org.meta_environment.uptr.TreeAdapter;
 		
 		if (type instanceof ConcreteSyntaxType) {
 			SymbolAdapter sym = new SymbolAdapter(((ConcreteSyntaxType)type).getSymbol());
-			return sym.isCf() && (sym.isStarList() || sym.isPlusList());
+			return sym.isAnyList();
 		}
 		
 		return false;
@@ -650,6 +650,7 @@ import org.meta_environment.uptr.TreeAdapter;
 					throw new RedeclaredVariableError(name, getAST());
 				}
 				
+				// TODO JURGEN thinks this code is dead, it is handled by the AbstractPatternConcreteListVariable case
 				if (listSubject.getType().isListType() && childType instanceof ConcreteSyntaxType) {
 					ConcreteSyntaxType cType = (ConcreteSyntaxType)childType;
 					if (cType.isConcreteCFList()) {
@@ -666,8 +667,6 @@ import org.meta_environment.uptr.TreeAdapter;
 						}
 					}
 				}
-				
-				// matching will fail soon enough on the production if both concrete trees have different types
 				else if(childType.comparable(listSubject.getType())){                                       // <------- change to let this work for concrete lists as well
 					/*
 					 * An explicitly declared list variable.
@@ -842,7 +841,9 @@ import org.meta_environment.uptr.TreeAdapter;
 	
 	private IList makeSubList(int start, int length){
 		assert isListVar[patternCursor];
+		 
 		
+		// TODO: wrap concrete lists in an appl(list( )) again.
 		if(start > subjectSize)
 			return listSubject.sublist(0,0);
 		else {
@@ -2354,11 +2355,15 @@ class AbstractPatternConcreteListVariable extends AbstractPattern {
 
 	private ConcreteSyntaxType getElementType(ConcreteSyntaxType type) {
 		SymbolAdapter sym = new SymbolAdapter(type.getSymbol());
+		SymbolAdapter inner;
 		if (sym.isCf() || sym.isLex()) {
-			sym = sym.getSymbol();
+			inner = sym.getSymbol();
 		}
-		// we know its a list symbol, getSymbol retrieves the element Symbol:
-		return new ConcreteSyntaxType(sym.getSymbol().getTree());
+		else {
+			throw new ImplementationError("unexpected concrete syntax type");
+		}
+		// we know its a list symbol, getSymbol retrieves the element Symbol and we wrap it again in lex or cf:
+		return new ConcreteSyntaxType(sym.setSymbol(inner.getSymbol().getTree()));
 	}
 
 	@Override
@@ -2402,23 +2407,28 @@ class AbstractPatternConcreteListVariable extends AbstractPattern {
 					+ "(type=" + subject.getType() + ") with " + declaredType
 					+ " " + name);
 
-		if (subject.getType().isSubtypeOf(declaredType)) {
+		if (subject.getType().isSubtypeOf(Factory.Args)) {
 			if (!anonymous)
 				env.storeInnermostVariable(name, makeResult(declaredType,
-						subject, ctx));
+						wrapWithListProd(subject), ctx));
 			if (debug)
 				System.out.println("matches");
 			return true;
 		}
-		if (debug)
-			System.out.println("no match");
-		// return false;
+// 		if (debug)
+//			System.out.println("no match");
+//		 return false;
 		return true;
+	}
+
+
+	private IValue wrapWithListProd(IValue subject) {
+		return Factory.Tree_Appl.make(vf, Factory.Production_List.make(vf, declaredType.getSymbol()), subject);
 	}
 
 	@Override
 	public String toString() {
-		return declaredType + " " + name + "==" + subject;
+		return declaredType + " " + name + ":=" + subject;
 	}
 }
 
@@ -2435,7 +2445,6 @@ class AbstractPatternConcreteListVariable extends AbstractPattern {
 	AbstractPatternTypedVariable(IValueFactory vf, Environment env, EvaluatorContext ctx, org.eclipse.imp.pdb.facts.type.Type type,
 			org.meta_environment.rascal.ast.QualifiedName qname) {
 		super(vf, ctx);
-//		this.name = getAST().toString(); JURGEN CHANGED THIS WITHOUT UNDERSTANDING
 		this.name = Names.name(Names.lastName(qname));
 		this.declaredType = type;
 		this.env = env;
@@ -2906,9 +2915,9 @@ class AbstractPatternConcreteAppl extends AbstractPattern {
 	}
 
 	@Override
-	public void initMatch(IValue arg0, Environment arg1) {
-		super.initMatch(arg0, arg1);
-		pat.initMatch(arg0, arg1);
+	public void initMatch(IValue subject, Environment arg1) {
+		super.initMatch(subject, arg1);
+		pat.initMatch(subject, arg1);
 	}
 	
 	@Override
@@ -3042,6 +3051,9 @@ class AbstractPatternConcreteList extends AbstractPattern {
 	
 	@Override
 	public boolean next() {
+		if (!hasNext()) {
+			return false;
+		}
 		return pat.next();
 		
 	}
@@ -3049,6 +3061,11 @@ class AbstractPatternConcreteList extends AbstractPattern {
 	@Override
 	public IValue toIValue(Environment env) {
 		throw new NotYetImplemented("is this dead?");
+	}
+	
+	@Override
+	public java.util.List<String> getVariables() {
+		return pat.getVariables();
 	}
 }
 

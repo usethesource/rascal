@@ -371,13 +371,30 @@ public class ASTBuilder {
 
 				if (constr.getConstructorType() == Factory.Tree_Appl) {
 					TreeAdapter tree = new TreeAdapter(constr);
+					
+					
+					// list variables
+					if (tree.isList() && tree.getArgs().length() == 1) {
+					   TreeAdapter child = new TreeAdapter((IConstructor) tree.getArgs().get(0));
+					   
+					   if (child.isAppl()) {
+						   String cons = child.getConstructorName();
+						   if (cons != null && (cons.equals("MetaVariable")
+								   // TODO: TypedMetaVariable does not exist in grammar
+								   || cons.equals("TypedMetaVariable"))) {
+							   return liftVariable(child);
+						   }
+					   }
+					}
+					
+					// normal variables
 					String cons = tree.getConstructorName();
 					if (cons != null && (cons.equals("MetaVariable")
 							// TODO: TypedMetaVariable does not exist in grammar
 							|| cons.equals("TypedMetaVariable"))) {
 						return liftVariable(tree);
 					}
-
+					
 					if (match && tree.getProduction().getRhs().isCfOptLayout()) {
 						return wildCard(constr);
 					}
