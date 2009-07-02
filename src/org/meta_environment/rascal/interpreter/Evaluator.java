@@ -221,7 +221,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	private AbstractAST currentAST; 	// used in runtime errormessages
 
 	private Profiler profiler;
-	private boolean doProfiling = true;
+	private boolean doProfiling = false;
 
 	private TypeDeclarationEvaluator typeDeclarator = new TypeDeclarationEvaluator();
 	protected final ModuleLoader loader;
