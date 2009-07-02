@@ -682,7 +682,8 @@ import org.meta_environment.uptr.TreeAdapter;
 				} else {
 					throw new UnexpectedTypeError(childType, listSubject.getType(), getAST());
 				}
-			} else if(child instanceof AbstractPatternMultiVariable){
+			} 
+			else if(child instanceof AbstractPatternMultiVariable){
 				AbstractPatternMultiVariable multiVar = (AbstractPatternMultiVariable) child;
 				String name = multiVar.getName();
 				if(!multiVar.isAnonymous() && allVars.contains(name)){
@@ -695,7 +696,19 @@ import org.meta_environment.uptr.TreeAdapter;
 				isBindingVar[i] = true;
 				listVarOccurrences[i] = 1;
 				nListVar++;
-			} else if(child instanceof AbstractPatternQualifiedName){
+			}
+			else if (child instanceof AbstractPatternConcreteListVariable) {
+				AbstractPatternConcreteListVariable listVar = (AbstractPatternConcreteListVariable) child;
+				String name = listVar.getName();
+				varName[i] = name;
+				isListVar[i] = true;
+				if(!listVar.isAnonymous())
+					allVars.add(name);
+				isBindingVar[i] = true;
+				listVarOccurrences[i] = 1;
+				nListVar++;
+			}
+			else if(child instanceof AbstractPatternQualifiedName){
 				AbstractPatternQualifiedName qualName = (AbstractPatternQualifiedName) child;
 				String name = qualName.getName();
 				varName[i] = name;
