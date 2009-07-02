@@ -282,7 +282,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	public void DvarsTypedInsert4UnTyped(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("([|d <D+ Xs>|] := [|d d|]) ?  ([| d <Xs> |] == [| d d |]) : false;"));
+		assertTrue(runTestInSameEvaluator("([|d <D+ Xs>|] := [|d d|])  && D+ Xs == [| d |];"));
 	}
 	
 	@Test

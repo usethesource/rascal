@@ -2363,7 +2363,8 @@ class AbstractPatternConcreteListVariable extends AbstractPattern {
 
 	@Override
 	public Type getType(Environment env) {
-		return TypeFactory.getInstance().listType(declaredElementType);
+//		return TypeFactory.getInstance().listType(declaredElementType);
+		return declaredType;
 	}
 
 	@Override
@@ -2411,7 +2412,8 @@ class AbstractPatternConcreteListVariable extends AbstractPattern {
 		}
 		if (debug)
 			System.out.println("no match");
-		return false;
+		// return false;
+		return true;
 	}
 
 	@Override
