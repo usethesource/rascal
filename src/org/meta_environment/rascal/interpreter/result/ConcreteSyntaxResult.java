@@ -115,7 +115,7 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 		}
 
 		if (left.getType().equals(right.getType())) {
-			throw new ImplementationError("Missing case in equals of concrete syntax");
+			throw new ImplementationError("Missing case in equals of concrete syntax: " + left.getType() + " == " + right.getType());
 		}
 		
 		return bool(false);

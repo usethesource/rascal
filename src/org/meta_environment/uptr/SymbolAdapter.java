@@ -2,6 +2,7 @@ package org.meta_environment.uptr;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IString;
+import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 
 
@@ -130,6 +131,14 @@ public class SymbolAdapter {
 
 	public IConstructor getTree() {
 		return tree;
+	}
+
+	public IConstructor setSymbol(IConstructor sym) {
+		if (isCf() || isLex() || isOpt() || isIterPlus() || isIterPlusSep() || isIterStar() || isIterStarSep()) {
+			return ((IConstructor) tree.set("symbol", sym));
+		}
+		
+		throw new ImplementationError("Symbol does not have a child named symbol: " + tree);
 	}
 
 
