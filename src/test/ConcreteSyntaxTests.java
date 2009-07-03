@@ -1,5 +1,6 @@
 package test;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Ignore;
@@ -8,6 +9,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.AmbiguousConcretePat
 import org.meta_environment.rascal.interpreter.staticErrors.NonWellformedTypeError;
 import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
+import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
 
 public class ConcreteSyntaxTests extends TestFramework {
@@ -344,6 +346,48 @@ public class ConcreteSyntaxTests extends TestFramework {
 		prepare("import src::test::GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{ [|e, <Xs>|] := [|e, e|] && Xs == [| e |];}"));
 	}
+	
+	@Test(expected=UnexpectedTypeError.class)
+	public void NoStarSubjectToPlusVar(){
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("{E \",\"}+ Xs := {E \",\"}* [| |];"));
+	}
+	
+	public void plusListShouldNotMatchEmptyList() {
+		prepare("import src::test::GrammarABCDE;");
+		assertFalse(runTestInSameEvaluator("[| e, <{E \",\"}+ Es> |] := {E \",\"}+ [| e |];"));
+	}
+	
+	@Test
+	public void starListPatternShouldMatchPlusListSubject() {
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("{E \",\"}* Zs := {E \",\"}+ [| e, e |];"));
+	}
+	
+	@Test
+	public void plusListPatternShouldNotMatchPStarListSubjectEvenIfNotEmpty() {
+		prepare("import src::test::GrammarABCDE;");
+		assertFalse(runTestInSameEvaluator("{E \",\"}+ Zs := {E \",\"}* [| e, e |];"));
+	}
+	
+	@Test
+	public void emptyListVariablePatternShouldBeSplicedInbetweenSeparators() {
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("[|e, <{E \",\"}* Xs>, e|] := [| e, e |];"));
+	}
+
+	@Test
+	public void emptyListVariablePatternShouldBeSplicedInbetweenSeparatorsAndBindToEmptyList() {
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("[|e, <{E \",\"}* Xs>, e|] := [| e, e |] && Xs == {E \",\"}* [| |];"));
+	}
+	
+	@Test
+	public void emptySepListShouldSpliceCorrectly(){
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("{E \",\"}* Xs := [| |] && [|e, <{E \",\"}* Xs>, e |] == [| e, e |];"));
+	}
+	
 	
 	@Test
 	public void Evars2Typed(){
