@@ -23,12 +23,25 @@ import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.ParsetreeAdapter;
 
+import sglr.IInvoker;
+import sglr.LegacySGLRInvoker;
 import sglr.SGLRInvoker;
 
 public class ModuleParser {
 	protected static final String META_LANGUAGE_KEY = "meta";
 	private final IValueFactory valueFactory = ValueFactoryFactory.getValueFactory();
 	private final SdfImportExtractor importExtractor = new SdfImportExtractor();
+	
+	private final static IInvoker sglrInvoker;
+	static{
+		String osName = System.getProperty("os.name");
+		
+		if(osName.indexOf("Linux") != -1){ // Linux.
+			sglrInvoker = SGLRInvoker.getInstance();
+		}else{
+			sglrInvoker = new LegacySGLRInvoker();
+		}
+	}
 
 	public void setLoader(ModuleLoader loader) {
 		// nop
@@ -87,7 +100,6 @@ public class ModuleParser {
 	}
 
 	private IConstructor parseFromStream(String table, String fileName, InputStream source) throws FactParseError, IOException {
-		SGLRInvoker sglrInvoker = SGLRInvoker.getInstance();
 		byte[] result = sglrInvoker.parseFromStream(source, table);
 
 		return bytesToParseTree(fileName, result);
@@ -102,12 +114,11 @@ public class ModuleParser {
 	}
 	
 	protected IConstructor parseFromFile(String table, String fileName) throws FactParseError, IOException {
-		byte[] result = SGLRInvoker.getInstance().parseFromFile(new File(fileName), table);
+		byte[] result = sglrInvoker.parseFromFile(new File(fileName), table);
 		return bytesToParseTree(fileName, result);
 	}
 
 	protected IConstructor parseFromString(String table, String fileName, String source) throws FactParseError, IOException {
-		SGLRInvoker sglrInvoker = SGLRInvoker.getInstance();
 		byte[] result = sglrInvoker.parseFromString(source, table);
 
 		return bytesToParseTree(fileName, result);
