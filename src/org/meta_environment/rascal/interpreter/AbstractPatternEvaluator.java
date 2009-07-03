@@ -81,7 +81,9 @@ import org.meta_environment.rascal.interpreter.env.ConcreteSyntaxType;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.result.ResultFactory;
+import org.meta_environment.rascal.interpreter.staticErrors.AmbiguousConcretePattern;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
+import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternError;
 import org.meta_environment.uptr.Factory;
@@ -2407,6 +2409,8 @@ class AbstractPatternConcreteListVariable extends AbstractPattern {
 					+ "(type=" + subject.getType() + ") with " + declaredType
 					+ " " + name);
 
+	
+		
 		if (subject.getType().isSubtypeOf(Factory.Args)) {
 			if (!anonymous)
 				env.storeInnermostVariable(name, makeResult(declaredType,
@@ -2414,7 +2418,20 @@ class AbstractPatternConcreteListVariable extends AbstractPattern {
 			if (debug)
 				System.out.println("matches");
 			return true;
+		} 
+		else {
+			TreeAdapter subjectTree = new TreeAdapter((IConstructor) subject);
+			if (subjectTree.isList()) {
+				if (subjectTree.getProduction().getRhs().getTree().isEqual(declaredType.getSymbol())) {
+					env.storeInnermostVariable(name, makeResult(declaredType,
+							subject, ctx));
+				}
+				if (debug)
+					System.out.println("matches");
+				return true;
+			}
 		}
+		
 // 		if (debug)
 //			System.out.println("no match");
 //		 return false;
@@ -3127,7 +3144,8 @@ public class AbstractPatternEvaluator extends NullASTVisitor<AbstractPattern> {
 			return new AbstractPatternConcreteAppl(vf, new EvaluatorContext(ctx.getEvaluator(), x), x, visitArguments(x));
 		}
 		if (isConcreteSyntaxAmb(x)) {
-			return new AbstractPatternConcreteAmb(vf, new EvaluatorContext(ctx.getEvaluator(), x), x, visitArguments(x));
+			throw new AmbiguousConcretePattern(x);
+//			return new AbstractPatternConcreteAmb(vf, new EvaluatorContext(ctx.getEvaluator(), x), x, visitArguments(x));
 		}
 		
 		System.err.println("other cases");

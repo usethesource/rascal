@@ -229,6 +229,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	private java.util.List<ClassLoader> classLoaders;
 	protected ModuleEnvironment rootScope;
 	private ModuleParser parser;
+	private boolean concreteListsShouldBeSpliced;
 
 	public Evaluator(IValueFactory f, Writer errorWriter, ModuleEnvironment scope) {
 		this(f, errorWriter, scope, new GlobalEnvironment());
@@ -1021,12 +1022,32 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		//System.err.println("CallOrTree: " + name.toString());
 		IValue[] actuals = new IValue[args.size()];
 		Type[] types = new Type[args.size()];
+		boolean done = false;
 
-		for (int i = 0; i < args.size(); i++) {
-			Result<IValue> resultElem = args.get(i).accept(this);
-			//			 System.out.println("Arg:" + i + ": " + resultElem);
-			types[i] = resultElem.getType();
-			actuals[i] = resultElem.getValue();
+		if (Names.name(Names.lastName(name)).equals("appl") && args.size() == 2) {
+			Result<IValue> resultElem = args.get(0).accept(this);
+			// TODO: it should be easier to detect this.... What is the accepted way?
+			if (resultElem.getType() == Factory.Production && 
+					((IConstructor)resultElem.getValue()).getConstructorType() == Factory.Production_List) {
+				actuals[0] = resultElem.getValue();
+				types[0] = resultElem.getType();
+				concreteListsShouldBeSpliced = true;
+				Result<IValue> argsResult = args.get(1).accept(this);
+				concreteListsShouldBeSpliced = false;
+				actuals[1] = argsResult.getValue();
+				types[1] = argsResult.getType();
+				done = true;
+			}			
+		}
+
+		if (!done) {
+			// The normal case
+			for (int i = 0; i < args.size(); i++) {
+				Result<IValue> resultElem = args.get(i).accept(this);
+				//			 System.out.println("Arg:" + i + ": " + resultElem);
+				types[i] = resultElem.getType();
+				actuals[i] = resultElem.getValue();
+			}
 		}
 
 		Type signature = tf.tupleType(types);
@@ -1868,30 +1889,62 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		Type elementType =  tf.voidType();
 		java.util.List<IValue> results = new ArrayList<IValue>();
 
+		// Splicing is true for the complete list; a terrible, terrible hack.
+		boolean splicing = concreteListsShouldBeSpliced;
 		for (org.meta_environment.rascal.ast.Expression expr : elements) {
 			Result<IValue> resultElem = expr.accept(this);
 
-			if(resultElem.getType().isListType() &&
-					!expr.isList() &&
-					elementType.isSubtypeOf(resultElem.getType().getElementType())
-			){
-				/*
-				 * Splice elements in list if element types permit this
-				 */
-				for(IValue val : ((IList) resultElem.getValue())){
-					elementType = elementType.lub(val.getType());
-					if (elementType == tf.valueType()) {
+			Type resultType = resultElem.getType();
+			if (splicing && resultType instanceof ConcreteSyntaxType) {
+				SymbolAdapter sym = new SymbolAdapter(((ConcreteSyntaxType)resultType).getSymbol());
+				// TODO: distinguish sep and non-sep lists
+				// TODO: typechecking
+				if (sym.isAnyList()) {
+					IConstructor appl = ((IConstructor)resultElem.getValue());
+					TreeAdapter tree = new TreeAdapter(appl);
+					IList listElems = tree.getArgs();
+					// Splice elements in list if element types permit this
+					for(IValue val : listElems){
+						elementType = elementType.lub(val.getType());
+						if (elementType == tf.valueType()) {
+							System.err.println("hoi");
+						}
+						results.add(val);
+					}
+				}
+				else {
+					// Just add it.
+					if (elementType.lub(resultElem.getType()).isValueType()) {
 						System.err.println("hoi");
 					}
-					results.add(val);
+					elementType = elementType.lub(resultElem.getType());
+					results.add(results.size(), resultElem.getValue());
 				}
-			} else {
-				if (elementType.lub(resultElem.getType()).isValueType()) {
-					System.err.println("hoi");
-				}
-				elementType = elementType.lub(resultElem.getType());
+			}
+			else {
+				/* = no concrete syntax */ 
+				if(resultElem.getType().isListType() &&
+						!expr.isList() &&
+						elementType.isSubtypeOf(resultElem.getType().getElementType())
+				){
+					/*
+					 * Splice elements in list if element types permit this
+					 */
+					for(IValue val : ((IList) resultElem.getValue())){
+						elementType = elementType.lub(val.getType());
+						if (elementType == tf.valueType()) {
+							System.err.println("hoi");
+						}
+						results.add(val);
+					}
+				} else {
+					if (elementType.lub(resultElem.getType()).isValueType()) {
+						System.err.println("hoi");
+					}
+					elementType = elementType.lub(resultElem.getType());
 
-				results.add(results.size(), resultElem.getValue());
+					results.add(results.size(), resultElem.getValue());
+				}
 			}
 		}
 		Type resultType = tf.listType(elementType);
@@ -2178,7 +2231,14 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 	@Override
 	public Result<IValue> visitExpressionTypedVariable(TypedVariable x) {
-		throw new SyntaxError("expression", x.getLocation());
+		// TODO: should allow qualified names in TypeVariables?!?
+		Result<IValue> result = getCurrentEnvt().getVariable(Names.name(x.getName()));
+
+		if (result != null && result.getValue() != null) {
+			return result;
+		}
+
+		throw new UninitializedVariableError(x.getQualifiedName().toString(), x);
 	}
 
 	private boolean matchAndEval(IValue subject, org.meta_environment.rascal.ast.Expression pat, Statement stat){
