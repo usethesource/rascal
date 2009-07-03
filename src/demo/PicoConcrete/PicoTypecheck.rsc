@@ -9,16 +9,16 @@ import UnitTest;
  * Typechecker for Pico.
  */
 
-alias Env = map[PicoId,TYPE];
+alias Env = map[\PICO-ID, TYPE];
 
 public list[Message] tcp(PROGRAM P) {
-    if([| begin <DECLS Decls> <{STATEMENT ";"}* Stats> end |] := P){
-           Env Env = (Id : Type | [| <PicoId Id> : <TYPE Type> |] <- Decls);
-           return tcs(Stats, Env);
+    if([| begin declare <{\ID-TYPE "," }* Decls>; <{STATEMENT ";"}* Stats> end |] := P){
+           Env Env = (Id : Type | [| <\PICO-ID Id> : <TYPE Type> |] <- Decls);
+           //return tcs(Stats, Env);
     }
     return [message("Malformed Pico program")];
 }
-
+/*
 public list[Message] tcs(list[STATEMENT] Stats, Env Env){
     list[Message] messages = [];
     for(STATEMENT S <- Stats){
@@ -29,7 +29,7 @@ public list[Message] tcs(list[STATEMENT] Stats, Env Env){
 
 public list[Message] tcst(STATEMENT Stat, Env Env) {
     switch (Stat) {
-      case [| <PicoId Id> : <EXP Exp> |]:
+      case [| <\PICO-ID Id> : <EXP Exp> |]:
         return requireType(Exp, Env[Id], Env);  // TODO: undefined variable
 
       case [| if <EXP Exp> then <{STATEMENT ";"}* Stats1> 
@@ -49,7 +49,7 @@ public list[Message] requireType(EXP E, TYPE Type, Env Env) {
 
       case StrCon S: if(Type == string) { return []; } else fail;
 
-      case PicoId Id: {
+      case \PICO-ID Id: {
          TYPE Type2 = Env[Id];
          if(Type2 == Type) { return []; } else fail;
       }
@@ -79,23 +79,6 @@ public list[Message] requireType(EXP E, TYPE Type, Env Env) {
 
 public bool test(){
 
-	assertEqual(requireType(natCon(3), natural, ()), []);
-	assertEqual(requireType(strCon("a"), string, ()), []);
-	assertEqual(requireType(id("x"), string, ("x" : string)), []);
-	assertEqual(requireType(id("x"), string, ("x" : natural)), [message("Type error: expected string() got id(\"x\")")]);
-
-   PROGRAM mySmall =
-   program([decl("x", natural), decl("s", string)],
-        [ asgStat("x", natCon(1)) ,
-         whileStat(id("x"),
-                    [ asgStat("x", sub(id("x"), natCon(1))),
-                      asgStat("s", conc(id("s"), strCon("#")))
-                    ]
-                   ) 
-        ]
-       );
-  assertEqual(tcp(mySmall), []);
-  assertEqual(tcp(fac), []);
-  assertEqual(tcp(big), []);
-  return report("PicoTypecheck");
+	return true;
 }
+*/
