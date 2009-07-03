@@ -37,6 +37,7 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
+import org.eclipse.imp.pdb.facts.util.ResizingArray;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.Bound;
 import org.meta_environment.rascal.ast.Case;
@@ -1891,32 +1892,76 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 		// Splicing is true for the complete list; a terrible, terrible hack.
 		boolean splicing = concreteListsShouldBeSpliced;
+		boolean first = true;
+		int skip = 0;
+		
 		for (org.meta_environment.rascal.ast.Expression expr : elements) {
 			Result<IValue> resultElem = expr.accept(this);
+			
+			if (skip > 0) {
+				skip--;
+				continue;
+			}
 
 			Type resultType = resultElem.getType();
 			if (splicing && resultType instanceof ConcreteSyntaxType) {
 				SymbolAdapter sym = new SymbolAdapter(((ConcreteSyntaxType)resultType).getSymbol());
-				// TODO: distinguish sep and non-sep lists
-				// TODO: typechecking
+
 				if (sym.isAnyList()) {
 					IConstructor appl = ((IConstructor)resultElem.getValue());
 					TreeAdapter tree = new TreeAdapter(appl);
 					IList listElems = tree.getArgs();
 					// Splice elements in list if element types permit this
-					for(IValue val : listElems){
-						elementType = elementType.lub(val.getType());
-						if (elementType == tf.valueType()) {
-							System.err.println("hoi");
+					
+					if (!listElems.isEmpty()) {
+						for(IValue val : listElems){
+							elementType = elementType.lub(val.getType());
+							results.add(val);
 						}
-						results.add(val);
+					}
+					else {
+						// make sure to remove surrounding sep
+						if (!first) {
+							if (sym.isCf()) {
+								SymbolAdapter listSym = sym.getSymbol();
+								if (listSym.isIterStar()) {
+									results.remove(results.size() - 1);
+								}
+								else if (listSym.isIterStarSep()) {
+									results.remove(results.size() - 1);
+									results.remove(results.size() - 1);
+									results.remove(results.size() - 1);
+								}
+							}
+							if (sym.isLex()) {
+								SymbolAdapter listSym = sym.getSymbol();
+								if (listSym.isIterStarSep()) {
+									results.remove(results.size() - 1);
+									results.remove(results.size() - 1);
+								}
+							}
+						}
+						else {
+							if (sym.isCf()) {
+								SymbolAdapter listSym = sym.getSymbol();
+								if (listSym.isIterStar()) {
+									skip = 1;
+								}
+								else if (listSym.isIterStarSep()) {
+									skip = 3;
+								}
+							}
+							if (sym.isLex()) {
+								SymbolAdapter listSym = sym.getSymbol();
+								if (listSym.isIterStarSep()) {
+									skip = 2;
+								}
+							}
+						}
 					}
 				}
 				else {
 					// Just add it.
-					if (elementType.lub(resultElem.getType()).isValueType()) {
-						System.err.println("hoi");
-					}
 					elementType = elementType.lub(resultElem.getType());
 					results.add(results.size(), resultElem.getValue());
 				}
@@ -1932,20 +1977,17 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 					 */
 					for(IValue val : ((IList) resultElem.getValue())){
 						elementType = elementType.lub(val.getType());
-						if (elementType == tf.valueType()) {
-							System.err.println("hoi");
-						}
 						results.add(val);
 					}
 				} else {
-					if (elementType.lub(resultElem.getType()).isValueType()) {
-						System.err.println("hoi");
-					}
 					elementType = elementType.lub(resultElem.getType());
 
 					results.add(results.size(), resultElem.getValue());
 				}
 			}
+			
+			
+			first = false;
 		}
 		Type resultType = tf.listType(elementType);
 		IListWriter w = resultType.writer(vf);

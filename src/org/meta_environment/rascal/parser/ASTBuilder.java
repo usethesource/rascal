@@ -29,8 +29,13 @@ import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.ast.Statement;
 import org.meta_environment.rascal.ast.StringLiteral;
+import org.meta_environment.rascal.ast.Expression.CallOrTree;
+import org.meta_environment.rascal.interpreter.IUPTRAstToSymbolConstructor;
+import org.meta_environment.rascal.interpreter.Names;
 import org.meta_environment.rascal.interpreter.Symbols;
+import org.meta_environment.rascal.interpreter.IUPTRAstToSymbolConstructor.NonGroundSymbolException;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
+import org.meta_environment.rascal.interpreter.env.ConcreteSyntaxType;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.ParsetreeAdapter;
@@ -348,7 +353,7 @@ public class ASTBuilder {
 
 	private AbstractAST lift(TreeAdapter tree, boolean match) {
 		IConstructor pattern = getConcretePattern(tree);
-		Expression ast = lift(pattern, pattern, match);
+		Expression ast = lift(pattern, pattern, match, false);
 		
 		if (ast != null) {
 			ASTStatistics stats = ast.getStats();
@@ -359,7 +364,7 @@ public class ASTBuilder {
 		return ast;
 	}
 
-	private Expression lift(IValue pattern, IConstructor source, boolean match) {
+	private Expression lift(IValue pattern, IConstructor source, boolean match, boolean inlist) {
 		Type type = pattern.getType();
 		if (type.isNodeType()) {
 			INode node = (INode) pattern;
@@ -372,6 +377,10 @@ public class ASTBuilder {
 				if (constr.getConstructorType() == Factory.Tree_Appl) {
 					TreeAdapter tree = new TreeAdapter(constr);
 					
+					
+					if (tree.isList()) {
+						inlist = true;
+					}
 					
 					// list variables
 					if (tree.isList() && tree.getArgs().length() == 1) {
@@ -420,7 +429,7 @@ public class ASTBuilder {
 			List<Expression> args = new ArrayList<Expression>(node.arity());
 
 			for (IValue child : node) {
-				Expression ast = lift(child, source, match);
+				Expression ast = lift(child, source, match, inlist);
 				if (ast == null) {
 					return null;
 				}
@@ -446,14 +455,25 @@ public class ASTBuilder {
 			}
 			
 			for (IValue arg: list) {
-				Expression ast = lift(arg, source, match);
+				Expression ast = lift(arg, source, match, false);
 				
 				if (ast == null) {
 					return null;
 				}
 				
-				stats.add(ast.getStats());
-				result.add(ast);
+				// TODO: this does not deal with directly nested lists
+				if (inlist && isListAppl(ast)) {
+					// splicing can be necessary if filtering was successful
+					List<Expression> elements = ast.getArguments().get(1).getElements();
+					for (Expression elem : elements) {
+						stats.add(elem.getStats());
+						result.add(elem);
+					}
+				}
+				else {
+					stats.add(ast.getStats());
+					result.add(ast);
+				}
 			}
 			Expression.List ast = new Expression.List(source, result);
 			ast.setStats(stats);
@@ -473,7 +493,7 @@ public class ASTBuilder {
 			ASTStatistics ref = null;
 			
 			for (IValue elem : set) {
-				Expression ast = lift(elem, source, match);
+				Expression ast = lift(elem, source, match, false);
 				
 				if (ast != null) {
 					if (ref == null) {
@@ -497,6 +517,26 @@ public class ASTBuilder {
 		else {
 			throw new ImplementationError("Illegal value encountered while lifting a concrete syntax pattern:" + pattern);
 		}
+	}
+
+	// TODO: optimize, this can be really slowing things down
+	private boolean isListAppl(Expression ast) {
+		if (!ast.isCallOrTree()) {
+			return false;
+		}
+		
+		CallOrTree call = (CallOrTree) ast;
+		
+		String name = Names.name(Names.lastName(call.getQualifiedName()));
+		
+		if (!name.equals("appl")) {
+			return false;
+		}
+		
+		CallOrTree prod = (CallOrTree) ast.getArguments().get(0);
+		name = Names.name(Names.lastName(prod.getQualifiedName()));
+		
+		return name.equals("list");
 	}
 
 	private Expression liftVariable(TreeAdapter tree) {

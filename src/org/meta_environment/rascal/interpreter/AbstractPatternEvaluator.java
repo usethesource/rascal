@@ -873,6 +873,11 @@ import org.meta_environment.uptr.TreeAdapter;
 		System.err.println("reducedLength=" + reducedLength);
 		
 		IList sublist = makeSubList(start, reducedLength);
+		// Skip over separators (layout and/or seps) around empty lists).
+//		if (sublist.isEmpty()) {
+//			patternCursor += delta - 1;
+//		}
+
 		if(debug)System.err.println("matchBindingListVar: init child #" + patternCursor + " (" + child + ") with " + sublist);
 		child.initMatch(sublist, env);
 	

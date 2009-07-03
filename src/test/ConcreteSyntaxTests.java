@@ -391,7 +391,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	public void emptySepListShouldSpliceCorrectly(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{E \",\"}* Xs := [| |] && [|e, <{E \",\"}* Xs>, e |] == [| e, e |];"));
+		assertTrue(runTestInSameEvaluator("{E \",\"}* Xs := {E \",\"}* [| |] && [|e, <{E \",\"}* Xs>, e |] == [| e, e |];"));
 	}
 	
 	
