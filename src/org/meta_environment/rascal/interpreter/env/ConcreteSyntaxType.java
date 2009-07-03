@@ -77,12 +77,23 @@ public class ConcreteSyntaxType extends Type {
 	
 	@Override
 	public boolean isSubtypeOf(Type other) {
+		
 		if (other.equals(this)) {
 			return true;
 		}
-		else if (other == Factory.Tree) {
+		
+		if (other == Factory.Tree) {
 			return true;
 		}
+
+		if (other instanceof ConcreteSyntaxType) {
+			SymbolAdapter sym = new SymbolAdapter(symbol);
+			SymbolAdapter otherSym = new SymbolAdapter(((ConcreteSyntaxType)other).symbol);
+			if (sym.isPlusList() && otherSym.isStarList()) {
+				return true;
+			}
+		}
+		
 		
 		return super.isSubtypeOf(other);
 	}
