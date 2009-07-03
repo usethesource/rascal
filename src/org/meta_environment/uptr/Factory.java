@@ -29,11 +29,11 @@ public class Factory {
 	public static final Type Symbol = tf.abstractDataType(uptr, "Symbol");
 	public static final Type CharRange = tf.abstractDataType(uptr, "CharRange");
 	public static final Type Constructor = tf.abstractDataType(uptr, "Constructor");
-	public static final Type Args = tf.aliasType(uptr, "Args", tf.listType(Tree));
-	public static final Type Attrs = tf.aliasType(uptr, "Attrs", tf.listType(Attr));
-	public static final Type Symbols = tf.aliasType(uptr, "Symbols", tf.listType(Symbol));
-	public static final Type CharRanges = tf.aliasType(uptr, "CharRanges", tf.listType(CharRange));
-	public static final Type Alternatives = tf.aliasType(uptr, "Alternatives", tf.setType(Tree));
+	public static final Type Args = tf.listType(Tree);
+	public static final Type Attrs = tf.listType(Attr);
+	public static final Type Symbols = tf.listType(Symbol);
+	public static final Type CharRanges = tf.listType(CharRange);
+	public static final Type Alternatives = tf.setType(Tree);
 	
 	public static final Type ParseTree_Top = tf.constructor(uptr, ParseTree,"parsetree", Tree, "top", tf.integerType(), "amb_cnt");
 	public static final Type ParseTree_Summary = tf.constructor(uptr, ParseTree, "summary", tf.stringType(), "producer", tf.stringType(), "id", tf.listType(org.meta_environment.errors.Factory.Error), "errors");
