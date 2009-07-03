@@ -69,13 +69,17 @@ public class IUPTRAstToSymbolConstructor extends NullASTVisitor<IConstructor> {
 		if (name.equals("lit")) {
 			StringLiteral.Lexical arg = (org.meta_environment.rascal.ast.StringLiteral.Lexical) x.getArguments().get(0).getLiteral().getStringLiteral();
 			// TODO: escaping etc.
-			return vf.constructor(Factory.Symbol_Lit, vf.string(arg.getString()));
+			String str = arg.getString();
+			str = str.substring(1, str.length() - 1);
+			return vf.constructor(Factory.Symbol_Lit, vf.string(str));
 		}
 		
 		if (name.equals("cilit")) {
 			StringLiteral.Lexical arg = (org.meta_environment.rascal.ast.StringLiteral.Lexical) x.getArguments().get(0).getLiteral().getStringLiteral();
 			// TODO: escaping etc.
-			return vf.constructor(Factory.Symbol_CiLit, vf.string(arg.getString()));
+			String str = arg.getString();
+			str = str.substring(1, str.length() - 1);
+			return vf.constructor(Factory.Symbol_CiLit, vf.string(str));
 		}
 		
 		if (name.equals("cf")) {

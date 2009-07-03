@@ -557,7 +557,7 @@ public class ASTBuilder {
 			//System.err.println("0: " + getASTArgs(tree).get(0));
 			// TODO PK: Was: pattern = (IConstructor) getASTArgs(tree).get(1);
 			// The type has disappeared!
-			 return (IConstructor) getASTArgs(tree).get(0);
+			 return (IConstructor) tree.getArgs().get(4);
 			 // TODO: use the type here.
 		}
 		
