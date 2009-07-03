@@ -347,10 +347,10 @@ public class ConcreteSyntaxTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{ [|e, <Xs>|] := [|e, e|] && Xs == [| e |];}"));
 	}
 	
-	@Test(expected=UnexpectedTypeError.class)
+	@Test
 	public void NoStarSubjectToPlusVar(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{E \",\"}+ Xs := {E \",\"}* [| |];"));
+		assertFalse(runTestInSameEvaluator("{E \",\"}+ Xs := {E \",\"}* [| |];"));
 	}
 	
 	public void plusListShouldNotMatchEmptyList() {
@@ -365,9 +365,15 @@ public class ConcreteSyntaxTests extends TestFramework {
 	}
 	
 	@Test
-	public void plusListPatternShouldNotMatchPStarListSubjectEvenIfNotEmpty() {
+	public void plusListPatternShouldMatchPStarListSubjectIfNotEmpty() {
 		prepare("import src::test::GrammarABCDE;");
-		assertFalse(runTestInSameEvaluator("{E \",\"}+ Zs := {E \",\"}* [| e, e |];"));
+		assertTrue(runTestInSameEvaluator("{E \",\"}+ Zs := {E \",\"}* [| e, e |];"));
+	}
+	
+	@Test
+	public void plusListPatternShouldNotMatchPStarListSubjectIfEmpty() {
+		prepare("import src::test::GrammarABCDE;");
+		assertFalse(runTestInSameEvaluator("{E \",\"}+ Zs := {E \",\"}* [| |];"));
 	}
 	
 	@Test

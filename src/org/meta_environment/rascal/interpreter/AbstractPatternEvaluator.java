@@ -197,7 +197,7 @@ import org.meta_environment.uptr.TreeAdapter;
 	private java.util.List<AbstractPattern> children;
 	private INode treeSubject;
 	private boolean firstMatch = false;
-	private boolean debug = true;
+	private boolean debug = false;
 	private final TypeFactory tf = TypeFactory.getInstance();
 	
 	AbstractPatternNode(IValueFactory vf, EvaluatorContext ctx, org.meta_environment.rascal.ast.QualifiedName qualifiedName, java.util.List<AbstractPattern> children){
@@ -516,7 +516,7 @@ import org.meta_environment.uptr.TreeAdapter;
 	private boolean firstMatch;						// First match after initialization?
 	private boolean forward;						// Moving to the right?
 	
-	private boolean debug = true;
+	private boolean debug = false;
 
 	
 	AbstractPatternList(IValueFactory vf, EvaluatorContext ctx, java.util.List<AbstractPattern> children){
@@ -1102,7 +1102,7 @@ import org.meta_environment.uptr.TreeAdapter;
 //	private boolean firstMatch;						// First match after initialization?
 //	private boolean forward;						// Moving to the right?
 //	
-//	private boolean debug = true;
+//	private boolean debug = false;
 //
 //	
 //	AbstractPatternListXXX(IValueFactory vf, EvaluatorContext ctx, java.util.List<AbstractPattern> children){
@@ -2270,7 +2270,7 @@ class AbstractPatternConcreteListVariable extends AbstractPattern {
 	private ConcreteSyntaxType declaredElementType;
 	
 	private boolean anonymous = false;
-	private boolean debug = true;
+	private boolean debug = false;
 	private Environment env;
 	// TODO: merge code of the following two constructors.
 	
@@ -2412,6 +2412,12 @@ class AbstractPatternConcreteListVariable extends AbstractPattern {
 	
 		
 		if (subject.getType().isSubtypeOf(Factory.Args)) {
+			if (((IList)subject).isEmpty()) {
+				SymbolAdapter sym = new SymbolAdapter(declaredType.getSymbol()).getSymbol();
+				if (sym.isIterPlus() || sym.isIterPlusSep()) {
+					return false;
+				}
+			}
 			if (!anonymous)
 				env.storeInnermostVariable(name, makeResult(declaredType,
 						wrapWithListProd(subject), ctx));
@@ -2422,6 +2428,12 @@ class AbstractPatternConcreteListVariable extends AbstractPattern {
 		else {
 			TreeAdapter subjectTree = new TreeAdapter((IConstructor) subject);
 			if (subjectTree.isList()) {
+				if (((IList)subjectTree.getArgs()).isEmpty()) {
+					SymbolAdapter sym = new SymbolAdapter(declaredType.getSymbol()).getSymbol();
+					if (sym.isIterPlus() || sym.isIterPlusSep()) {
+						return false;
+					}
+				}
 				if (subjectTree.getProduction().getRhs().getTree().isEqual(declaredType.getSymbol())) {
 					env.storeInnermostVariable(name, makeResult(declaredType,
 							subject, ctx));
@@ -2453,7 +2465,7 @@ class AbstractPatternConcreteListVariable extends AbstractPattern {
 	private String name;
 	org.eclipse.imp.pdb.facts.type.Type declaredType;
 	private boolean anonymous = false;
-	private boolean debug = true;
+	private boolean debug = false;
 	private Environment env;
 
 	
