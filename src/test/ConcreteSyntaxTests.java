@@ -297,10 +297,10 @@ public class ConcreteSyntaxTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{ [|d <D+ Xs>|] := [|d d d|] && [| d <D+ Xs> |] == [|d d d|]; }"));
 	}
 
-	@Test @Ignore
+	@Test 
 	public void DvarsTypedInsert5(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{ DS[|d <D+ Xs>|] := DS[|d d d|] && DS[| d <Xs> |] == DS[|d d d|]; }"));
+		assertTrue(runTestInSameEvaluator("{ DS[|d <D+ Xs>|] := DS[|d d d|] && DS[| d <D+ Xs> |] == DS[|d d d|]; }"));
 	}
 
 	@Test
@@ -378,10 +378,16 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	public void EvarsTypedInsert1(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{ [|<{E \",\"}+ Xs>|] := [|e, e|] && [| e, <Xs> |] == [| e, e, e |]; }"));
+		assertTrue(runTestInSameEvaluator("{ [|<{E \",\"}+ Xs>|] := [|e, e|] && [| e, <{E \",\"}+ Xs> |] == [| e, e, e |]; }"));
 	}
 	
-	@Test @Ignore
+	@Test
+	public void EvarsTypedInsert1Typed(){
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("{ [|<{E \",\"}+ Xs>|] := [|e, e|] && [| e, <{E \",\"}+ Xs> |] == [| e, e, e |]; }"));
+	}
+	
+	@Test
 	public void EvarsTypedInsert2(){
 		prepare("import src::test::GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("{ [|<{E \",\"}+ Xs>|] := [|e, e|] && [| e, <{E \",\"}+ Xs> |] == [| e, e, e |]; }"));
@@ -390,9 +396,15 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	public void EvarsTypedInsert3(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{ [| e, <{E \",\"}+ Xs> |] := [|e, e|] && [| e, <Xs> |] == [| e, e, e |]; }"));
+		assertTrue(runTestInSameEvaluator("{ [| e, <{E \",\"}+ Xs> |] := [|e, e, e|] && [| e, <{E \",\"}+ Xs> |] == [| e, e, e |]; }"));
 	}
-	
+
+	@Test
+	public void EvarsTypedInsert3Empty(){
+		prepare("import src::test::GrammarABCDE;");
+		assertTrue(runTestInSameEvaluator("[| e, <{E \",\"}* Xs> |] := {E \",\"}+ [|e|];"));
+	}
+
 	@Test
 	public void Pico1(){
 		prepare("import languages::pico::syntax::Pico;");
