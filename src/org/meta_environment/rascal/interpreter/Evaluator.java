@@ -562,63 +562,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		return small.isSubtypeOf(large);
 	}
 
-	boolean mayMatch(Type small, Type large){
-		System.err.println("mayMatch: " + small + " " + large);
-		if(small.equivalent(large))
-			return true;
-
-		if(small.isVoidType() || large.isVoidType())
-			return false;
-
-		if(small.isSubtypeOf(large) || large.isSubtypeOf(small))
-			return true;
-
-		if (small instanceof ConcreteSyntaxType && large instanceof ConcreteSyntaxType) {
-			return small.equals(large);
-		}
-		
-		if (small instanceof ConcreteSyntaxType) {
-			return large.isSubtypeOf(Factory.Tree);
-		}
-		
-		if (large instanceof ConcreteSyntaxType) {
-			return small.isSubtypeOf(Factory.Tree);
-		}
-		
-		if(small.isListType() && large.isListType() || 
-				small.isSetType() && large.isSetType())
-			return mayMatch(small.getElementType(),large.getElementType());
-		if(small.isMapType() && large.isMapType())
-			return mayMatch(small.getKeyType(), large.getKeyType()) &&
-			mayMatch(small.getValueType(), large.getValueType());
-		if(small.isTupleType() && large.isTupleType()){
-			if(small.getArity() != large.getArity())
-				return false;
-			for(int i = 0; i < large.getArity(); i++){
-				if(mayMatch(small.getFieldType(i), large.getFieldType(i)))
-					return true;
-			}
-			return false;
-		}
-		if(small.isConstructorType() && large.isConstructorType()){
-			if(small.getName().equals(large.getName()))
-				return false;
-			for(int i = 0; i < large.getArity(); i++){
-				if(mayMatch(small.getFieldType(i), large.getFieldType(i)))
-					return true;
-			}
-			return false;
-		}
-		if(small.isConstructorType() && large.isAbstractDataType())
-			return small.getAbstractDataType().equivalent(large);
-		
-		if(small.isAbstractDataType() && large.isConstructorType())
-			return small.equivalent(large.getAbstractDataType());
-		
-		
-		return false;
-	}
-
+	
 
 
 	// Ambiguity ...................................................
@@ -628,12 +572,12 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		// TODO: assuming that that is the only reason for an expression to be ambiguous
 		// we might also check if this is an "appl" constructor...
 		
-		System.err.println("Env: " + currentEnvt);
-		int i = 0;
-		for (Expression exp: x.getAlternatives()) {
-			System.err.println("Alt " + i++ + ": " + exp.getTree());
-		}
-		throw new AmbiguousConcretePattern(x);
+//			System.err.println("Env: " + currentEnvt);
+//			int i = 0;
+//			for (Expression exp: x.getAlternatives()) {
+//				System.err.println("Alt " + i++ + ": " + exp.getTree());
+//			}
+		throw new ImplementationError("Unexpected ambiguous program part: " + x);
 	}
 	
 	
@@ -1020,7 +964,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	public Result<IValue> visitExpressionCallOrTree(CallOrTree x) {
 		java.util.List<org.meta_environment.rascal.ast.Expression> args = x.getArguments();
 		QualifiedName name = x.getQualifiedName();
-		//System.err.println("CallOrTree: " + name.toString());
 		IValue[] actuals = new IValue[args.size()];
 		Type[] types = new Type[args.size()];
 		boolean done = false;
@@ -1045,7 +988,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			// The normal case
 			for (int i = 0; i < args.size(); i++) {
 				Result<IValue> resultElem = args.get(i).accept(this);
-				//			 System.out.println("Arg:" + i + ": " + resultElem);
 				types[i] = resultElem.getType();
 				actuals[i] = resultElem.getValue();
 			}
@@ -1054,11 +996,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		Type signature = tf.tupleType(types);
 
 		if (isTreeConstructorName(name, signature)) {
-			//			 System.err.println("constructor:" + name);
 			return constructTree(name, actuals, signature);
 		}
 
-		// System.err.println("function: " + name);
 		return call(name, actuals, signature);
 	}
 
@@ -3240,9 +3180,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 						if(!val.getType().isSubtypeOf(elementType1))
 							throw new UnexpectedTypeError(elementType1, val.getType(), resExpr);
 						elementType1 = elementType1.lub(val.getType());
-						if (elementType1 == tf.valueType()) {
-							System.err.println("hoi");
-						}
 						((IListWriter) writer).append(val);
 					}
 				} else {
@@ -3302,9 +3239,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 						if(!val.getType().isSubtypeOf(elementType1))
 							throw new UnexpectedTypeError(elementType1, val.getType(), resExpr);
 						elementType1 = elementType1.lub(val.getType());
-						if (elementType1 == tf.valueType()) {
-							System.err.println("hoi");
-						}
 						((ISetWriter) writer).insert(val);
 					}
 				} else {
@@ -3340,9 +3274,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 						if(!val.getType().isSubtypeOf(elementType1))
 							throw new UnexpectedTypeError(elementType1, val.getType(), resExpr);
 						elementType1 = elementType1.lub(val.getType());
-						if (elementType1 == tf.valueType()) {
-							System.err.println("hoi");
-						}
 						((ISetWriter) writer).insert(val);
 					}
 				} else {

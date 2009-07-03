@@ -200,7 +200,6 @@ public class ModuleLoader{
 
 	public IConstructor parseModule(String fileName, String name, String moduleString) throws IOException{
 		List<String> sdfSearchPath = getSdfSearchPath();
-		System.err.println("SDFSearch: " + sdfSearchPath);
 		
 		InputStream inputStream = null;
 		Set<String> sdfImports;
@@ -208,7 +207,6 @@ public class ModuleLoader{
 			inputStream = new ByteArrayInputStream(moduleString.getBytes());
 			
 			sdfImports = parser.getSdfImports(sdfSearchPath, fileName, inputStream);
-			System.err.println("Imports: " + sdfImports);
 		}finally{
 			if(inputStream != null){
 				inputStream.close();
