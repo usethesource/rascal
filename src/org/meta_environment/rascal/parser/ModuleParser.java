@@ -38,6 +38,8 @@ public class ModuleParser {
 		
 		if(osName.indexOf("Linux") != -1){ // Linux.
 			sglrInvoker = SGLRInvoker.getInstance();
+		}else if(osName.indexOf("Mac") != -1 || osName.indexOf("Darwin") != -1){ // Mac.
+			sglrInvoker = SGLRInvoker.getInstance();
 		}else{
 			sglrInvoker = new LegacySGLRInvoker();
 		}
