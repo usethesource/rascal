@@ -3,6 +3,8 @@ package org.meta_environment.rascal.std;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.PrintStream;
+import java.util.Iterator;
 
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
@@ -13,22 +15,33 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.interpreter.RuntimeExceptionFactory;
 
-
-public class IO {
+public class IO{
 	private static final IValueFactory values = ValueFactoryFactory.getValueFactory();
 	private static final TypeFactory types = TypeFactory.getInstance();	
+	
+	private volatile static PrintStream out = System.out;
+	
+	public static void setOutputStream(PrintStream out){
+		IO.out = out;
+	}
 
-	public static void println(IValue V)
-	{
-		for(IValue arg : (IList)V){
-	   	  if(arg.getType().isStringType()){
-	   	  	System.out.print(((IString) arg).getValue().toString());
-	   	  } else {
-	   		System.out.print(arg.toString());
-	   	  }
-	   }
-	   System.out.println();
-	   return;
+	public static void println(IValue V){
+		PrintStream currentOutStream = out;
+		
+		synchronized(currentOutStream){
+			Iterator<IValue> valueIterator = ((IList) V).iterator();
+			while(valueIterator.hasNext()){
+				IValue arg = valueIterator.next();
+				
+				if(arg.getType().isStringType()){
+					currentOutStream.print(((IString) arg).getValue().toString());
+				}else{
+					currentOutStream.print(arg.toString());
+				}
+			}
+			currentOutStream.println();
+		}
+		return;
 	}
 
 	public static IValue readFile(IString filename)
