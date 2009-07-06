@@ -129,8 +129,8 @@ public class ModuleParser {
 	protected String constructUserDefinedSyntaxTable(String key, Set<String> sdfImports, List<String> sdfSearchPath) throws IOException {
 		String tablefileName = getTableLocation(key, sdfImports, sdfSearchPath);
 
-		System.err.println(Configuration.getRascal2TableCommandProperty() + " -s " + getImportParameter(sdfImports) + " -p " 
-				+ getSdfSearchPath(sdfSearchPath) + " -o " + tablefileName);
+		//System.err.println(Configuration.getRascal2TableCommandProperty() + " -s " + getImportParameter(sdfImports) + " -p " 
+		//		+ getSdfSearchPath(sdfSearchPath) + " -o " + tablefileName);
 		Process p = Runtime.getRuntime().exec(new String[] {
 				Configuration.getRascal2TableCommandProperty(),
 				"-s", getImportParameter(sdfImports),

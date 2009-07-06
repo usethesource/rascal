@@ -22,7 +22,7 @@ public class StringParser extends ModuleParser {
 		String table = getOrConstructParseTable(sdfImports, sdfSearchPath);
 		IConstructor result = parseFromString(table, "-", source);
 		if (result.getConstructorType() == Factory.ParseTree_Summary) {
-			System.err.println("RESULT = " + result);
+			//System.err.println("RESULT = " + result);
 			SubjectAdapter x = new SummaryAdapter(result).getInitialSubject();
 			ISourceLocation loc = x.getLocation();
 			if (loc != null) {
