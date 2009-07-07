@@ -1,15 +1,17 @@
 module demo/StateMachine/Syntax
 
-imports basic/StrCon
-imports basic/WhiteSpace
+imports basic/Whitespace
+imports basic/IdentifierCon
 
 exports
   context-free start-symbols
-    StateMachine
+    FSM
   
-  sorts StateMachine Declaration Transition
-  
+  sorts FSM Decl Trans State IdCon
+
   context-free syntax
-    "state" StrCon               -> Declaration
-    "trans" StrCon "," StrCon    -> Transition
-    (Declaration | Transition)*  -> StateMachine
+    "state" IdCon -> State
+    "trans" IdCon ":" IdCon  "->" IdCon -> Trans
+    State -> Decl
+    Trans -> Decl
+    {Decl ";"}+  -> FSM

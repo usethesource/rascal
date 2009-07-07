@@ -1,24 +1,21 @@
 module demo::StateMachine::CanReach
 
-import demo::StateMachine:Syntax;
-import IO;
+import demo::StateMachine::Syntax;
+import Relation;
 
-alias state = str;
+{Decl ";"}+ example = 
+    	    state S1;
+    	    state S2;
+	    state S3;
+	    trans a: S1 -> S2;
+	    trans b: S2 -> S1;
+	    trans a: S1 -> S3;
 
-public rel[state,state] getTransitions(str fileName){
-  return {<From, To> | trans <str From>, <str To> <- parseFSM(fileName)}+;
+public rel[State, State] getTransitions({Decl ";"}+ fsm){
+   return { <from, to> | trans <IdCon a>: <IdCon from> -> <IdCon to> <- fsm };
 }
 
-public void printCanReach(){
-  transitions = getTransitions(fileName);
-   
-  for(state s <- carrier(transitions){
-     canReach = transitions[state];
-     println("<s> can reach <canReach>");
-   }
+public map[IdCon, set[IdCon]] printCanReach(){
+  return ( s: trTransitions[State] | IdCon s <- carrier(getTransitions(fileName)+) );
 }
 
-public bool test(){
-   printCanReach("src/demo/StateMachine/SM1");
-   return true;
-}
