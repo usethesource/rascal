@@ -1,0 +1,6 @@
+state S1
+state S2
+state S3
+trans S1, S2
+trans S2, S1
+trans S1, S3

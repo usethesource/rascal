@@ -1,0 +1,15 @@
+module demo/StateMachine/Syntax
+
+imports basic/StrCon
+imports basic/WhiteSpace
+
+exports
+  context-free start-symbols
+    StateMachine
+  
+  sorts StateMachine Declaration Transition
+  
+  context-free syntax
+    "state" StrCon               -> Declaration
+    "trans" StrCon "," StrCon    -> Transition
+    (Declaration | Transition)*  -> StateMachine
