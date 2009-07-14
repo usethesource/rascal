@@ -127,10 +127,10 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 				Type relFieldType = getType().getFieldType(i);
 				if (i < nSubs) {
 					if (subscriptType[i].isSetType() && 
-					    subscriptType[i].getElementType().isSubtypeOf(relFieldType)){
+							relFieldType.isSubtypeOf(subscriptType[i].getElementType())){
 						subscriptIsSet[i] = true;
 					} 
-					else if (subscripts[i] == null || subscriptType[i].isSubtypeOf(relFieldType)){
+					else if (subscripts[i] == null || relFieldType.isSubtypeOf(subscriptType[i])){
 						subscriptIsSet[i] = false;
 					} 
 					else {
