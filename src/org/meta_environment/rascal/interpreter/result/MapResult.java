@@ -43,7 +43,7 @@ public class MapResult extends ElementResult<IMap> {
 			throw new UnsupportedSubscriptArityError(getType(), subscripts.length, ctx.getCurrentAST());
 		}
 		Result<IValue> key = (Result<IValue>) subscripts[0];
-		if (!key.getType().isSubtypeOf(getType().getKeyType())) {
+		if (!getType().getKeyType().isSubtypeOf(key.getType())) {
 			throw new UnexpectedTypeError(getType().getKeyType(), key.getType(), ctx.getCurrentAST());
 		}
 		IValue v = getValue().get(key.getValue());
