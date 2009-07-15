@@ -120,8 +120,10 @@ public class Environment {
 	}
 
 	public boolean isRootScope() {
-		assert this instanceof ModuleEnvironment: "roots should be instance of ModuleEnvironment";
-	return parent == null;
+		if (!(this instanceof ModuleEnvironment)) {
+			return false;
+		}
+		return parent == null;
 	}
 
 	public boolean isRootStackFrame() {
