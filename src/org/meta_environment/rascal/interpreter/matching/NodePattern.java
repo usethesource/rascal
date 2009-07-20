@@ -9,6 +9,7 @@ import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.interpreter.EvaluatorContext;
 import org.meta_environment.rascal.interpreter.Names;
 import org.meta_environment.rascal.interpreter.env.Environment;
+import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 
 /* package */ class NodePattern extends AbstractPattern {
 	private AbstractPattern name;
@@ -52,6 +53,9 @@ import org.meta_environment.rascal.interpreter.env.Environment;
 		}
 		
 		if (name != null) {
+			if (!name.getType(env).isStringType()) {
+				throw new UnexpectedTypeError(tf.stringType(), name.getType(env), name.getAST());
+			}
 			name.initMatch(vf.string(treeSubject.getName()), env);
 		}
 		else {
