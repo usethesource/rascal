@@ -1,8 +1,8 @@
 package org.meta_environment.rascal.interpreter.control_exceptions;
 
 import org.eclipse.imp.pdb.facts.IValue;
+import org.meta_environment.rascal.interpreter.matching.MatchPattern;
 import org.meta_environment.rascal.interpreter.result.Result;
-import org.meta_environment.rascal.interpreter.MatchPattern;
 
 public class Insert extends ControlException {
 	private static final long serialVersionUID = -6601026099925601817L;
