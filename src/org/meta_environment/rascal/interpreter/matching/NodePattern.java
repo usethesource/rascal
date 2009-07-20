@@ -5,25 +5,28 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
+import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.interpreter.EvaluatorContext;
 import org.meta_environment.rascal.interpreter.Names;
 import org.meta_environment.rascal.interpreter.env.Environment;
 
 /* package */ class NodePattern extends AbstractPattern {
-	private org.meta_environment.rascal.ast.QualifiedName name;
+	private AbstractPattern name;
 	private java.util.List<AbstractPattern> children;
 	private INode treeSubject;
 	private boolean firstMatch = false;
 	private boolean debug = false;
 	private final TypeFactory tf = TypeFactory.getInstance();
+	private final QualifiedName qname;
 	
-	NodePattern(IValueFactory vf, EvaluatorContext ctx, org.meta_environment.rascal.ast.QualifiedName qualifiedName, java.util.List<AbstractPattern> children){
+	NodePattern(IValueFactory vf, EvaluatorContext ctx, AbstractPattern namePattern, QualifiedName name, java.util.List<AbstractPattern> children){
 		super(vf, ctx);
-		this.name = qualifiedName;
+		this.name = namePattern;
+		this.qname = name;
 		this.children = children;
 		if(debug){
 			System.err.println("AbstractPatternNode: " + name + ", #children: " + children.size() );
-			System.err.println(name.getTree());
+			System.err.println("AbstractPatternNode name:" + name != null ? name : qname);
 			for(AbstractPattern ap : children){
 				System.err.println(ap);
 			}
@@ -39,7 +42,7 @@ import org.meta_environment.rascal.interpreter.env.Environment;
 		}
 		treeSubject = (INode) subject;
 		if(debug){
-			System.err.println("AbstractPatternNode: pattern=" + name.getTree());
+			System.err.println("AbstractPatternNode: pattern=" + name != null ? name : qname);
 			System.err.println("AbstractPatternNode: treeSubject=" + treeSubject);
 			System.err.println("AbstractPatternNode: treeSubject.arity() =" + treeSubject.arity());
 			System.err.println("AbstractPatternNode: children.size() =" + children.size());
@@ -47,8 +50,15 @@ import org.meta_environment.rascal.interpreter.env.Environment;
 		if(treeSubject.arity() != children.size()){
 			return;
 		}
-		if(!Names.name(Names.lastName(name)).equals(treeSubject.getName().toString()))
+		
+		if (name != null) {
+			name.initMatch(vf.string(treeSubject.getName()), env);
+		}
+		else {
+			if(!Names.name(Names.lastName(qname)).equals(treeSubject.getName().toString())) {
 				return;
+			}
+		}
 		
 		for (int i = 0; i < children.size(); i++){
 			children.get(i).initMatch(treeSubject.get(i), env);
@@ -65,9 +75,13 @@ import org.meta_environment.rascal.interpreter.env.Environment;
 		 }
 		 
 		 Type signature = tf.tupleType(types);
-		 if (env.isTreeConstructorName(name, signature)) {
-			 return env.getConstructor(Names.name(Names.lastName(name)), signature); //.getAbstractDataType();
+		 
+		 if (qname != null) {
+			 if (env.isTreeConstructorName(qname, signature)) {
+				 return env.getConstructor(Names.name(Names.lastName(qname)), signature); //.getAbstractDataType();
+			 }
 		 }
+		 
 	     return tf.nodeType();
 	}
 	
@@ -82,10 +96,12 @@ import org.meta_environment.rascal.interpreter.env.Environment;
 		}
 		Type signature = tf.tupleType(types);
 		
-		if(env.isTreeConstructorName(name, signature)){
-			Type consType = env.getConstructor(name.toString(), signature);
-			
-			return vf.constructor(consType, vals);
+		if (qname != null) {
+			if(env.isTreeConstructorName(qname, signature)){
+				Type consType = env.getConstructor(Names.name(Names.lastName(qname)), signature);
+
+				return vf.constructor(consType, vals);
+			}
 		}
 		return vf.node(name.toString(), vals);
 	}
@@ -107,10 +123,13 @@ import org.meta_environment.rascal.interpreter.env.Environment;
 			return true;
 		if(!hasNext)
 			return false;
-		if(children.size() > 0){
-			for (int i = 0; i < children.size(); i++) {
-				if(children.get(i).hasNext()){
-					return true;
+		
+		if(name == null || name.hasNext) {
+			if(children.size() > 0){
+				for (int i = 0; i < children.size(); i++) {
+					if(children.get(i).hasNext()){
+						return true;
+					}
 				}
 			}
 		}
@@ -126,6 +145,12 @@ import org.meta_environment.rascal.interpreter.env.Environment;
 			return false;
 		firstMatch = false;
 
+		if (name != null) {
+			boolean nameNext = name.next();
+			if (!nameNext) {
+				return false;
+			}
+		}
 		hasNext = matchChildren(treeSubject.getChildren().iterator(), children.iterator(), env);
 
 		return hasNext;
