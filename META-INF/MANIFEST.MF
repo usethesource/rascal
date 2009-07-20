@@ -24,4 +24,5 @@ Export-Package: org.meta_environment.rascal.ast,
  org.meta_environment.rascal.std,
  org.meta_environment
 Require-Bundle: sglr_invoker,
- org.eclipse.imp.pdb.values
+ org.eclipse.imp.pdb.values,
+ pdb_shared
