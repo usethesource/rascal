@@ -140,7 +140,7 @@ public class PatternEvaluator extends NullASTVisitor<AbstractPattern> {
 			//			return new AbstractPatternConcreteAmb(vf, new EvaluatorContext(ctx.getEvaluator(), x), x, visitArguments(x));
 		}
 
-		if (nameExpr.isQualifiedName()) {
+		if (nameExpr.isQualifiedName() && env.getVariable(nameExpr.getQualifiedName()) == null) {
 			return new NodePattern(vf, new EvaluatorContext(ctx.getEvaluator(), x), null, nameExpr.getQualifiedName(), visitArguments(x));
 		}
 		else {
