@@ -1725,6 +1725,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			throw new AmbiguousConcretePattern(pat);
 		}
 
+		// TODO: this is weird, why is regexp not produced by the pattern evaluator?
 		PatternEvaluator pe = makePatternEvaluator(pat);
 		if(pe.isPattern(pat)){
 			return pat.accept(pe);
