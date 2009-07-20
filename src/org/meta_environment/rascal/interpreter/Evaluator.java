@@ -2014,7 +2014,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		}
 
 		//return makeResult(tf.tupleType(types), applyRules(vf.tuple(values)));
-		return makeResult(tf.tupleType(types), vf.tuple(values), new EvaluatorContext(this, x));
+		ITuple tuple = vf.tuple(values);
+		return makeResult(tuple.getType(), tuple, new EvaluatorContext(this, x));
 	}
 
 	@Override
