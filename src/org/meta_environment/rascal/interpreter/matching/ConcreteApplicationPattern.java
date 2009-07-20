@@ -22,7 +22,7 @@ class ConcreteApplicationPattern extends AbstractPattern {
 			java.util.List<AbstractPattern> args) {
 		super(vf, ctx);
 		org.meta_environment.rascal.ast.QualifiedName N = x.getExpression().getQualifiedName();
-		pat = new NodePattern(vf, new EvaluatorContext(ctx.getEvaluator(), x), N, args);
+		pat = new NodePattern(vf, new EvaluatorContext(ctx.getEvaluator(), x), null, N, args);
 		callOrTree = x;
 	}
 

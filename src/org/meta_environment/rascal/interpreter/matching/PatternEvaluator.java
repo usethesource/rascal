@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.meta_environment.rascal.ast.Expression;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.Expression.Addition;
 import org.meta_environment.rascal.ast.Expression.All;
@@ -123,10 +124,8 @@ public class PatternEvaluator extends NullASTVisitor<AbstractPattern> {
 	
 	@Override
 	public AbstractPattern visitExpressionCallOrTree(CallOrTree x) {
-	org.meta_environment.rascal.ast.QualifiedName N = x.getExpression().getQualifiedName();
+		Expression nameExpr = x.getExpression();
 
-	// TODO: allow binding and matching on the name of the constructor
-	
 		if(isConcreteSyntaxList(x)) {
 			List args = (List)x.getArguments().get(1);
 			// TODO what if somebody writes a variable in  the list production itself?
@@ -138,10 +137,15 @@ public class PatternEvaluator extends NullASTVisitor<AbstractPattern> {
 		}
 		if (isConcreteSyntaxAmb(x)) {
 			throw new AmbiguousConcretePattern(x);
-//			return new AbstractPatternConcreteAmb(vf, new EvaluatorContext(ctx.getEvaluator(), x), x, visitArguments(x));
+			//			return new AbstractPatternConcreteAmb(vf, new EvaluatorContext(ctx.getEvaluator(), x), x, visitArguments(x));
 		}
-		
-		return new NodePattern(vf, new EvaluatorContext(ctx.getEvaluator(), x), N, visitArguments(x));
+
+		if (nameExpr.isQualifiedName()) {
+			return new NodePattern(vf, new EvaluatorContext(ctx.getEvaluator(), x), null, nameExpr.getQualifiedName(), visitArguments(x));
+		}
+		else {
+			return new NodePattern(vf, new EvaluatorContext(ctx.getEvaluator(), x), nameExpr.accept(this), null, visitArguments(x));
+		}
 	}
 	
 	private java.util.List<AbstractPattern> visitArguments(CallOrTree x){
@@ -210,10 +214,12 @@ public class PatternEvaluator extends NullASTVisitor<AbstractPattern> {
 			
 			return new TypedVariablePattern(vf, env, new EvaluatorContext(ctx.getEvaluator(), name), type,name);
 		}
+		
 		if (scope.isTreeConstructorName(name, signature)) {
-			return new NodePattern(vf, new EvaluatorContext(ctx.getEvaluator(), x), name,
+			return new NodePattern(vf, new EvaluatorContext(ctx.getEvaluator(), x), null, name,
 					new java.util.ArrayList<AbstractPattern>());
 		}
+		
 		// Completely fresh variable
 		return new QualifiedNamePattern(vf, env, new EvaluatorContext(ctx.getEvaluator(), name), name);
 		//return new AbstractPatternTypedVariable(vf, env, ev.tf.valueType(), name);
