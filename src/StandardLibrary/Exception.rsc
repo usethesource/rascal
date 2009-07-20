@@ -23,4 +23,5 @@ data RuntimeException =
 	| NoSuchAnnotation(str label)
 	| Java(str message)
 	| ParseError(loc location)
+	| IllegalIdentifier(str name)
 	;

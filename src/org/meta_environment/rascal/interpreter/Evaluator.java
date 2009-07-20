@@ -49,6 +49,7 @@ import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.FunctionModifier;
 import org.meta_environment.rascal.ast.Import;
 import org.meta_environment.rascal.ast.Module;
+import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.ast.Replacement;
@@ -202,6 +203,8 @@ import org.meta_environment.rascal.parser.ModuleParser;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.SymbolAdapter;
 import org.meta_environment.uptr.TreeAdapter;
+
+import com.sun.corba.se.spi.legacy.connection.GetEndPointInfoAgainException;
 
 @SuppressWarnings("unchecked")
 public class Evaluator extends NullASTVisitor<Result<IValue>> {
@@ -917,15 +920,47 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		return r;
 	}
 
+	private org.meta_environment.rascal.ast.QualifiedName makeQualifiedName(IConstructor node, String name) {
+		Name simple = new Name.Lexical(node, name);
+		java.util.List<Name> list = new ArrayList<Name>(1);
+		list.add(simple);
+		return new QualifiedName.Default(node, list);
+	}
+
 	@Override
 	public Result<IValue> visitExpressionCallOrTree(CallOrTree x) {
 		java.util.List<org.meta_environment.rascal.ast.Expression> args = x.getArguments();
 		// TODO: deal with all the new expressions one can type in now like ("a" + "b")(hello);
-		QualifiedName name = x.getExpression().getQualifiedName();
+		Expression nameExpr = x.getExpression();
+		QualifiedName name;
+		boolean unTyped = false;
+		
+		if (nameExpr.isQualifiedName()) {
+			name = nameExpr.getQualifiedName();
+		}
+		else { // its a computed name or a string name
+			Result result = nameExpr.accept(this);
+			
+			// TODO creating an AST here will make things slow, instead pass on the string name to the next phase
+			if (result.getType().isStringType()) {
+				String str = ((IString) result.getValue()).getValue();
+				
+				if (!tf.isIdentifier(str)) {
+					throw RuntimeExceptionFactory.illegalIdentifier(str, nameExpr, getStackTrace());
+				}
+				name = makeQualifiedName((IConstructor) nameExpr.getTree(), str);
+				unTyped = true;
+			}
+			else {
+				throw new UnexpectedTypeError(tf.stringType(), result.getType(), nameExpr);
+			}
+		}
+		
 		IValue[] actuals = new IValue[args.size()];
 		Type[] types = new Type[args.size()];
 		boolean done = false;
 
+		// TODO: this is also not quite acceptible, since other functions might be called appl...
 		if (Names.name(Names.lastName(name)).equals("appl") && args.size() == 2) {
 			Result<IValue> resultElem = args.get(0).accept(this);
 			// TODO: it should be easier to detect this.... What is the accepted way?
@@ -951,9 +986,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			}
 		}
 
+		
 		Type signature = tf.tupleType(types);
 
-		if (isTreeConstructorName(name, signature)) {
+		if (unTyped || isTreeConstructorName(name, signature)) {
 			return constructTree(name, actuals, signature);
 		}
 

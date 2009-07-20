@@ -10,6 +10,7 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
+import org.meta_environment.rascal.ast.Expression;
 import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 
 /**
@@ -44,6 +45,7 @@ public class RuntimeExceptionFactory {
 	private static Type NoSuchAnnotation = TF.constructor(TS, E, "NoSuchAnnotation", TF.stringType(), "label");
 	private static Type NoSuchField = TF.constructor(TS, E, "NoSuchField", TF.stringType(), "label");
 	private static Type ParseError = TF.constructor(TS, E, "ParseError", TF.sourceLocationType(), "location");
+	private static Type IllegalIdentifier = TF.constructor(TS, E, "IllegalIdentifier", TF.stringType(), "name");
 	
 	private static Type Java = TF.constructor(TS, E, "Java", TF.stringType(), "message");
 
@@ -129,5 +131,10 @@ public class RuntimeExceptionFactory {
 	
 	public static Throw parseError(ISourceLocation loc, AbstractAST ast, String trace) {
 		return new Throw(ParseError.make(VF, loc), ast, trace);
+	}
+
+	public static Throw illegalIdentifier(String name,
+			AbstractAST ast, String trace) {
+		return new Throw(IllegalIdentifier.make(VF, VF.string(name)), ast, trace);
 	}
 }
