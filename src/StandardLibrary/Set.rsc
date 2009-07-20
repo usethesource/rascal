@@ -1,11 +1,5 @@
 module Set
  
-public &T average(set[&T] st, &T zero)
-@doc{average -- compute the average of the elements of a set}
-{
-  return size(st) > 0 ? sum(st, zero)/size(st) : zero;
-}
-
 public &T java getOneFrom(set[&T] st)
 @doc{getOneFrom -- pick a random element from a set}
 @javaClass{org.meta_environment.rascal.std.Set};
@@ -18,7 +12,7 @@ public bool java isEmpty(set[&T] st)
 public set[&T] mapper(set[&T] st, &T (&T,&T) fn)
 @doc{mapper -- apply a function to each element of a set}
 {
-  return {#fn(elm) | &T elm <- st};
+  return {fn(elm) | &T elm <- st};
 }
 
 public &T max(set[&T] st)
@@ -43,19 +37,6 @@ public &T min(set[&T] st)
    }
   }
   return result;
-}
-
-// TODO: auxiliary function needed as long as #* function names do not work.
-
-&T mul(&T x, &T y)
-{
-	return x * y;
-}
-
-public &T multiply(set[&T] st, &T unity)
-@doc{multiply -- multiply the elements of a set}
-{
-  return reducer(st, #mul, unity);
 }
 
 public set[set[&T]] power(set[&T] st)
@@ -84,7 +65,7 @@ public &T reducer(set[&T] st, &T (&T,&T) fn, &T unit)
 {
   &T result = unit;
   for(&T elm <- st){
-    result = #fn(result, elm);
+    result = fn(result, elm);
   }
   return result;
 }
@@ -92,19 +73,6 @@ public &T reducer(set[&T] st, &T (&T,&T) fn, &T unit)
 public int java size(set[&T] st)
 @doc{size -- number of elements in a set}
 @javaClass{org.meta_environment.rascal.std.Set};
-
-// TODO: auxiliary function needed as long as #+ function names do not work.
-
-&T add(&T x, &T y)
-{
-	return x + y;
-}
- 
-public &T sum(set[&T] st, &T zero)
-@doc{sum -- add the elements of a set}
-{
-  return reducer(st, #add, zero);
-}
 
 public tuple[&T, set[&T]] java takeOneFrom(set[&T] st)
 @doc{takeOneFrom -- remove an arbitrary element from a set, returns the element and the modified set}
@@ -125,6 +93,3 @@ public map[&A,&B] java toMapUnique(rel[&A, &B] st)
 public str java toString(set[&T] st)
 @doc{toString -- convert a set to a string}
 @javaClass{org.meta_environment.rascal.std.Set};
-
-
-

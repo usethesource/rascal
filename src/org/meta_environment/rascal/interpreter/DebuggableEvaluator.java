@@ -17,7 +17,6 @@ import org.meta_environment.rascal.ast.Expression.Any;
 import org.meta_environment.rascal.ast.Expression.Bracket;
 import org.meta_environment.rascal.ast.Expression.CallOrTree;
 import org.meta_environment.rascal.ast.Expression.Closure;
-import org.meta_environment.rascal.ast.Expression.ClosureCall;
 import org.meta_environment.rascal.ast.Expression.Composition;
 import org.meta_environment.rascal.ast.Expression.Comprehension;
 import org.meta_environment.rascal.ast.Expression.Descendant;
@@ -29,7 +28,6 @@ import org.meta_environment.rascal.ast.Expression.Equivalence;
 import org.meta_environment.rascal.ast.Expression.FieldAccess;
 import org.meta_environment.rascal.ast.Expression.FieldProject;
 import org.meta_environment.rascal.ast.Expression.FieldUpdate;
-import org.meta_environment.rascal.ast.Expression.FunctionAsValue;
 import org.meta_environment.rascal.ast.Expression.GetAnnotation;
 import org.meta_environment.rascal.ast.Expression.GreaterThan;
 import org.meta_environment.rascal.ast.Expression.GreaterThanOrEq;
@@ -189,24 +187,6 @@ public class DebuggableEvaluator extends Evaluator {
 	}
 
 	@Override
-	public Result<IValue> visitExpressionClosureCall(ClosureCall x) {
-		suspendExpression(x);
-		if (!stepOver) {
-			return super.visitExpressionClosureCall(x);
-		} else {
-			boolean oldStatementStepMode = statementStepMode;
-			boolean oldExpressionStepMode = expressionStepMode;
-			setStatementStepMode(false);
-			setExpressionStepMode(false);
-			Result<IValue> res = super.visitExpressionClosureCall(x);
-			setStatementStepMode(oldStatementStepMode);
-			setExpressionStepMode(oldExpressionStepMode);
-			stepOver = false;
-			return res;
-		}
-	}
-
-	@Override
 	public Result<IValue> visitExpressionComposition(Composition x) {
 		suspendExpression(x);
 		return super.visitExpressionComposition(x);
@@ -273,13 +253,6 @@ public class DebuggableEvaluator extends Evaluator {
 		suspendExpression(x);
 		return super.visitExpressionFieldUpdate(x);
 	}
-
-	@Override
-	public Result<IValue> visitExpressionFunctionAsValue(FunctionAsValue x) {
-		suspendExpression(x);
-		return super.visitExpressionFunctionAsValue(x);
-	}
-
 
 	@Override
 	public Result<IValue> visitExpressionGetAnnotation(GetAnnotation x) {

@@ -64,7 +64,11 @@ public class IUPTRAstToSymbolConstructor extends NullASTVisitor<IConstructor> {
 	
 	@Override
 	public IConstructor visitExpressionCallOrTree(CallOrTree x) {
-		String name = Names.name(Names.lastName(x.getQualifiedName()));
+		Expression namePart = x.getExpression();
+		if (!namePart.isQualifiedName()) {
+			throw new ImplementationError("weird AST");
+		}
+		String name = Names.name(Names.lastName(namePart.getQualifiedName()));
 		
 		if (name.equals("lit")) {
 			StringLiteral.Lexical arg = (org.meta_environment.rascal.ast.StringLiteral.Lexical) x.getArguments().get(0).getLiteral().getStringLiteral();

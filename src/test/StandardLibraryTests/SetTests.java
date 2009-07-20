@@ -9,17 +9,6 @@ import static org.junit.Assert.*;
 public class SetTests extends TestFramework {
 
 	@Test
-	public void average() {
-
-		prepare("import Set;");
-
-		assertTrue(runTestInSameEvaluator("{int N = Set::average({},0); N == 0;}"));
-		assertTrue(runTestInSameEvaluator("{int N = average({},0); N == 0;}"));
-		assertTrue(runTestInSameEvaluator("{int N = Set::average({1},0); N == 1;}"));
-		assertTrue(runTestInSameEvaluator("{int N = Set::average({1, 3},0); N == 2;}"));
-	}
-
-	@Test
 	public void getOneFrom() {
 
 		prepare("import Set;");
@@ -52,7 +41,7 @@ public class SetTests extends TestFramework {
 
 		prepare("import Set;");
 
-		assertTrue(runTestInSameEvaluator("{int inc(int n) {return n + 1;} mapper({1, 2, 3}, #inc) == {2, 3, 4};}"));
+		assertTrue(runTestInSameEvaluator("{int inc(int n) {return n + 1;} mapper({1, 2, 3}, inc) == {2, 3, 4};}"));
 
 	}
 
@@ -75,15 +64,6 @@ public class SetTests extends TestFramework {
 	}
 
 	@Test
-	public void multiply() {
-
-		prepare("import Set;");
-
-		assertTrue(runTestInSameEvaluator("{multiply({1, 2, 3, 4}, 1) == 24;}"));
-		assertTrue(runTestInSameEvaluator("{Set::multiply({1, 2, 3, 4}, 1) == 24;}"));
-	}
-
-	@Test
 	public void power() {
 
 		prepare("import Set;");
@@ -101,7 +81,7 @@ public class SetTests extends TestFramework {
 		prepare("import Set;");
 		String add = "int add(int x, int y){return x + y;}";
 		assertTrue(runTestInSameEvaluator("{" + add
-				+ "reducer({1, 2, 3, 4}, #add, 0) == 10;}"));
+				+ "reducer({1, 2, 3, 4}, add, 0) == 10;}"));
 	}
 
 	@Test
@@ -113,23 +93,6 @@ public class SetTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("size({}) == 0;"));
 		assertTrue(runTestInSameEvaluator("Set::size({1}) == 1;"));
 		assertTrue(runTestInSameEvaluator("Set::size({1,2,3}) == 3;"));
-	}
-
-	@Test
-	public void sum() {
-
-		prepare("import Set;");
-
-		assertTrue(runTestInSameEvaluator("{sum({1,2,3},0) == 6;}"));
-		assertTrue(runTestInSameEvaluator("{Set::sum({1,2,3}, 0) == 6;}"));
-
-		assertTrue(runTestInSameEvaluator("{Set::sum({}, 0) == 0;}"));
-		assertTrue(runTestInSameEvaluator("{Set::sum({}, 0) == 0;}"));
-		assertTrue(runTestInSameEvaluator("{Set::sum({1}, 0) == 1;}"));
-		assertTrue(runTestInSameEvaluator("{Set::sum({1, 2}, 0) == 3;}"));
-		assertTrue(runTestInSameEvaluator("{Set::sum({1, 2, 3}, 0) == 6;}"));
-		assertTrue(runTestInSameEvaluator("{Set::sum({1, -2, 3}, 0) == 2;}"));
-		assertTrue(runTestInSameEvaluator("{Set::sum({1, 1, 1}, 0) == 1;}"));
 	}
 
 	@Test

@@ -14,7 +14,7 @@ public void benchmark(map[str, void()] Cases)
 	for(str Name <- Cases){
 		real ctm1 = currentTimeMillis();
 		Fun = Cases[Name];
-		#Fun();
+		Fun();
 		real ctm2 = currentTimeMillis();
 		measurements[Name] = ctm2 - ctm1;
 	}

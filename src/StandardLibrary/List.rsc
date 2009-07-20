@@ -37,7 +37,7 @@ public bool java isEmpty(list[&T] lst)
 public list[&T] mapper(list[&T] lst, &T (&T) fn)
 @doc{mapper -- apply a function to each element of a list}
 {
-  return [#fn(elm) | &T elm <- lst];
+  return [fn(elm) | &T elm <- lst];
 }
 
 public &T max(list[&T] lst)
@@ -62,19 +62,6 @@ public &T min(list[&T] lst)
    }
   }
   return result;
-}
-
-// TODO: auxiliary function needed as long as #* function names do not work.
-
-&T mul(&T x, &T y)
-{
-	return x * y;
-}
-
-public &T multiply(list[&T] lst, &T unity)
-@doc{multiply -- multiply the elements of a list}
-{
-  return reducer(lst, #mul, unity);
 }
 
 public set[list[&T]] permutations(list[&T] lst)
@@ -102,7 +89,7 @@ public &T reducer(list[&T] lst, &T (&T, &T) fn, &T unit)
 {
   &T result = unit;
   for(&T elm <- lst){
-     result = #fn(result, elm);
+     result = fn(result, elm);
   }
   return result;
 }
@@ -141,19 +128,6 @@ public list[&T] sort(list[&T] lst)
   }
   
   return sort(less) + pivot + sort(greater);
-}
-
-// TODO: auxiliary function needed as long as #+ function names do not work.
-
-&T add(&T x, &T y)
-{
-	return x + y;
-}
-
-public &T sum(list[&T] lst, &T zero)
-@doc{sum -- add elements of a List}
-{
-  return reducer(lst, #add, zero);
 }
 
 public list[&T] java tail(list[&T] lst)

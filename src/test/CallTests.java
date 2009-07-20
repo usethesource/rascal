@@ -96,15 +96,15 @@ public class CallTests extends TestFramework{
 		
 		String add = "int add(int a, int b) { return a + b; }";
 		String sub = "int sub(int a, int b) { return a - b; }";
-		String doSomething = "int doSomething(int (int a, int b) F) { return #F(1,2); }";
+		String doSomething = "int doSomething(int (int a, int b) F) { return F(1,2); }";
 
-		assertTrue(runTest("{" + add + " " + doSomething + " " + "doSomething(#add) == 3;}"));
-		assertTrue(runTest("{" + add + " " + sub + " " + doSomething + " " + "doSomething(#sub) == -1;}"));
+		assertTrue(runTest("{" + add + " " + doSomething + " " + "doSomething(add) == 3;}"));
+		assertTrue(runTest("{" + add + " " + sub + " " + doSomething + " " + "doSomething(sub) == -1;}"));
 	}
 	
 	@Test public void closures() {
 		
-		String doSomething = "int f(int (int i) g, int j) { return #g(j); }";
+		String doSomething = "int f(int (int i) g, int j) { return g(j); }";
 		
 	    assertTrue(runTest("{ " + doSomething + " f(int (int i) { return i + 1; }, 0) == 1; }"));
 	    assertTrue(runTest("{ int x = 1; " + doSomething + " (f(int (int i) { x = x * 2; return i + x; }, 1) == 3) && (x == 2); }"));

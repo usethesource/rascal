@@ -75,14 +75,14 @@ public class MapTests extends TestFramework {
 		String dec = "int dec(int n) {return n - 1;} ";
 
 		assertTrue(runTestInSameEvaluator("{" + inc
-				+ "mapper((), #inc, #inc) == ();}"));
+				+ "mapper((), inc, inc) == ();}"));
 		assertTrue(runTestInSameEvaluator("{" + inc
-				+ "mapper((1:10,2:20), #inc, #inc) == (2:11,3:21);}"));
+				+ "mapper((1:10,2:20), inc, inc) == (2:11,3:21);}"));
 
 		assertTrue(runTestInSameEvaluator("{" + inc + dec
-				+ "mapper((), #inc, #dec) == ();}"));
+				+ "mapper((), inc, dec) == ();}"));
 		assertTrue(runTestInSameEvaluator("{" + inc + dec
-				+ "mapper((1:10,2:20), #inc, #dec) == (2:9,3:19);}"));
+				+ "mapper((1:10,2:20), inc, dec) == (2:9,3:19);}"));
 	}
 
 	// range
