@@ -935,7 +935,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		QualifiedName name;
 		boolean unTyped = false;
 		
-		if (nameExpr.isQualifiedName()) {
+		if (nameExpr.isQualifiedName() && getCurrentEnvt().getVariable(nameExpr.getQualifiedName()) == null) {
 			name = nameExpr.getQualifiedName();
 		}
 		else { // its a computed name or a string name
