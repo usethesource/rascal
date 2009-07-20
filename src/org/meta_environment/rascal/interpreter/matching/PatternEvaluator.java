@@ -64,6 +64,7 @@ import org.meta_environment.rascal.interpreter.EvaluatorContext;
 import org.meta_environment.rascal.interpreter.Names;
 import org.meta_environment.rascal.interpreter.TypeEvaluator;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
+import org.meta_environment.rascal.interpreter.asserts.NotYetImplemented;
 import org.meta_environment.rascal.interpreter.env.ConcreteSyntaxType;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
@@ -94,7 +95,13 @@ public class PatternEvaluator extends NullASTVisitor<AbstractPattern> {
 	
 	@Override
 	public AbstractPattern visitExpressionLiteral(Literal x) {
-		return new LiteralPattern(vf, ctx, x.getLiteral().accept(ctx.getEvaluator()).getValue());
+		if (!x.getLiteral().isRegExp()) {
+			return new LiteralPattern(vf, ctx, x.getLiteral().accept(ctx.getEvaluator()).getValue());
+		}
+		else {
+			// TODO weird, the regexp do not fit in the AbstractPattern hierarchy?
+			throw new NotYetImplemented(x);
+		}
 	}
 	
 	private boolean isConcreteSyntaxAppl(CallOrTree tree){
