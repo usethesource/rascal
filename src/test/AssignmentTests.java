@@ -204,7 +204,7 @@ public class AssignmentTests extends TestFramework {
 	@Test
 	public void assigningClosureToVariableBug877() {
 		prepare("bool() x = bool(){ return true; };");
-		assertTrue(runTestInSameEvaluator("#x() == true;"));
+		assertTrue(runTestInSameEvaluator("x() == true;"));
 	}
 	
 }	

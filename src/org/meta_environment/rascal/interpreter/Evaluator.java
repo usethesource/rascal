@@ -49,7 +49,6 @@ import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.FunctionModifier;
 import org.meta_environment.rascal.ast.Import;
 import org.meta_environment.rascal.ast.Module;
-import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.ast.Replacement;
@@ -60,7 +59,6 @@ import org.meta_environment.rascal.ast.Tags;
 import org.meta_environment.rascal.ast.Toplevel;
 import org.meta_environment.rascal.ast.Assignable.Constructor;
 import org.meta_environment.rascal.ast.Assignable.FieldAccess;
-import org.meta_environment.rascal.ast.ClosureAsFunction.Evaluated;
 import org.meta_environment.rascal.ast.Declaration.Alias;
 import org.meta_environment.rascal.ast.Declaration.Annotation;
 import org.meta_environment.rascal.ast.Declaration.Data;
@@ -77,7 +75,6 @@ import org.meta_environment.rascal.ast.Expression.Any;
 import org.meta_environment.rascal.ast.Expression.Bracket;
 import org.meta_environment.rascal.ast.Expression.CallOrTree;
 import org.meta_environment.rascal.ast.Expression.Closure;
-import org.meta_environment.rascal.ast.Expression.ClosureCall;
 import org.meta_environment.rascal.ast.Expression.Composition;
 import org.meta_environment.rascal.ast.Expression.Comprehension;
 import org.meta_environment.rascal.ast.Expression.Division;
@@ -85,7 +82,6 @@ import org.meta_environment.rascal.ast.Expression.EnumeratorWithStrategy;
 import org.meta_environment.rascal.ast.Expression.Equivalence;
 import org.meta_environment.rascal.ast.Expression.FieldProject;
 import org.meta_environment.rascal.ast.Expression.FieldUpdate;
-import org.meta_environment.rascal.ast.Expression.FunctionAsValue;
 import org.meta_environment.rascal.ast.Expression.GreaterThan;
 import org.meta_environment.rascal.ast.Expression.GreaterThanOrEq;
 import org.meta_environment.rascal.ast.Expression.IfDefinedOtherwise;
@@ -175,6 +171,9 @@ import org.meta_environment.rascal.interpreter.load.FromResourceLoader;
 import org.meta_environment.rascal.interpreter.load.IModuleFileLoader;
 import org.meta_environment.rascal.interpreter.load.ISdfSearchPathContributor;
 import org.meta_environment.rascal.interpreter.load.ModuleLoader;
+import org.meta_environment.rascal.interpreter.matching.PatternEvaluator;
+import org.meta_environment.rascal.interpreter.matching.LiteralPattern;
+import org.meta_environment.rascal.interpreter.matching.EnumerateAndMatch;
 import org.meta_environment.rascal.interpreter.result.BoolResult;
 import org.meta_environment.rascal.interpreter.result.ConcreteSyntaxResult;
 import org.meta_environment.rascal.interpreter.result.Result;
@@ -202,8 +201,8 @@ import org.meta_environment.uptr.TreeAdapter;
 
 @SuppressWarnings("unchecked")
 public class Evaluator extends NullASTVisitor<Result<IValue>> {
-	final IValueFactory vf;
-	final TypeFactory tf = TypeFactory.getInstance();
+	public final IValueFactory vf;
+	public final TypeFactory tf = TypeFactory.getInstance();
 	private final TypeEvaluator te = TypeEvaluator.getInstance();
 	protected Environment currentEnvt;
 
@@ -485,7 +484,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 	}
 
-	Environment pushEnv() {
+	public Environment pushEnv() {
 		Environment env = new Environment(getCurrentEnvt(), getCurrentEnvt().getName());
 		setCurrentEnvt(env);
 		return env;
@@ -507,7 +506,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		}
 	}
 
-	boolean mayOccurIn(Type small, Type large) {
+	public boolean mayOccurIn(Type small, Type large) {
 		return mayOccurIn(small, large, new HashSet<Type>());
 	}
 
@@ -852,8 +851,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		return ResultFactory.nothing();
 	}
 
-	private AbstractPatternEvaluator makePatternEvaluator(AbstractAST ast) {
-		return new AbstractPatternEvaluator(vf, getCurrentEnvt(), getCurrentEnvt(), new EvaluatorContext(this, ast));
+	private PatternEvaluator makePatternEvaluator(AbstractAST ast) {
+		return new PatternEvaluator(vf, getCurrentEnvt(), getCurrentEnvt(), new EvaluatorContext(this, ast));
 	}
 
 	@Override
@@ -914,55 +913,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		return r;
 	}
 
-	// Function calls and node constructors
-
-	@Override
-	public Result<IValue> visitClosureAsFunctionEvaluated(Evaluated x) {
-		// TODO OOOOOOO!!!!
-		Expression expr = x.getExpression();
-
-		if (expr.isQualifiedName()) {
-
-		}
-
-		return nothing();
-	}
-
-	@Override
-	public Result<IValue> visitExpressionClosureCall(ClosureCall x) {
-		Result<IValue> func = x.getClosure().getExpression().accept(this);
-		java.util.List<org.meta_environment.rascal.ast.Expression> args = x.getArguments();
-
-		IValue[] actuals = new IValue[args.size()];
-		Type[] types = new Type[args.size()];
-
-		for (int i = 0; i < args.size(); i++) {
-			Result<IValue> resultElem = args.get(i).accept(this);
-			types[i] = resultElem.getType();
-			actuals[i] = resultElem.getValue();
-		}
-
-		Type actualTypes = tf.tupleType(types);
-
-		if (func.getType() == Lambda.getClosureType()) {
-			Lambda lambda = (Lambda) func.getValue();
-			Environment oldEnv = getCurrentEnvt();
-			pushCallFrame(lambda.getEnv(), x.getLocation(), lambda.getName()); 
-			try {
-				return lambda.call(actuals, actualTypes, getCurrentEnvt());
-			}
-			finally {
-				setCurrentEnvt(oldEnv);
-			}
-		}
-
-		throw new ImplementationError("Lambda's should have the closure type");
-	}
-
 	@Override
 	public Result<IValue> visitExpressionCallOrTree(CallOrTree x) {
 		java.util.List<org.meta_environment.rascal.ast.Expression> args = x.getArguments();
-		QualifiedName name = x.getQualifiedName();
+		// TODO: deal with all the new expressions one can type in now like ("a" + "b")(hello);
+		QualifiedName name = x.getExpression().getQualifiedName();
 		IValue[] actuals = new IValue[args.size()];
 		Type[] types = new Type[args.size()];
 		boolean done = false;
@@ -1004,10 +959,20 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	private Result<IValue> call(QualifiedName name, IValue[] actuals, Type actualTypes) {
 		String moduleName = Names.moduleName(name);
 
-		Lambda func;
+		Result<IValue> func;
 		if (moduleName == null) {
 			Environment env = getCurrentEnvt();
-			func = env.getFunction(Names.name(Names.lastName(name)), actualTypes, name);
+			
+			// TODO: store all functions in the variable environment, ditch the function environment
+			func = env.getVariable(name);
+			
+			if (func == null) {
+				func = env.getFunction(Names.name(Names.lastName(name)), actualTypes, name);
+			}
+			
+			if (!(func instanceof Lambda)) {
+				throw new UndeclaredFunctionError(name.toString(), name);
+			}
 		}
 		else {
 			ModuleEnvironment env = getCurrentEnvt().getImport(moduleName);
@@ -1016,11 +981,12 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			}
 			func = env.getLocalPublicFunction(Names.name(Names.lastName(name)), actualTypes, name);
 		}
+		
 		if (func != null) {
 			Environment oldEnv = getCurrentEnvt();
-			pushCallFrame(func.getEnv(), name.getLocation(), func.getName());
+			pushCallFrame(((Lambda) func).getEnv(), name.getLocation(), ((Lambda) func).getName());
 			try {
-				return func.call(actuals, actualTypes, getCurrentEnvt());
+				return ((Lambda) func).call(actuals, actualTypes, getCurrentEnvt());
 			}
 			finally {
 				setCurrentEnvt(oldEnv);
@@ -1119,27 +1085,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		return result;
 	}
 
-	@Override
-	public Result<IValue> visitExpressionFunctionAsValue(FunctionAsValue x) {
-		return x.getFunction().accept(this);
-	}
-
-	@Override
-	public Result visitFunctionAsValueDefault(
-			org.meta_environment.rascal.ast.FunctionAsValue.Default x) {
-		Name name = x.getName();
-
-		//TODO is this a bug, what if name was overloaded?
-		//TODO add support for typed function names
-		Lambda func = getCurrentEnvt().getFunction(Names.name(name), tf.voidType(), x);
-
-		if (func == null) {
-			throw new UndeclaredFunctionError(Names.name(name), x);
-		}
-
-		return func;
-	}
-
 	private boolean hasJavaModifier(FunctionDeclaration func) {
 		java.util.List<FunctionModifier> mods = func.getSignature().getModifiers().getModifiers();
 		for (FunctionModifier m : mods) {
@@ -1231,17 +1176,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		return expr.fieldAccess(field, getCurrentEnvt().getStore(), new EvaluatorContext(this, x));
 	}
 
-	private boolean duplicateIndices(int indices[]){
-		for(int i = 0; i < indices.length; i ++){
-			for(int j = 0; j < indices.length; j++){
-				if(i != j && indices[i] == indices[j]){
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-	
 	private boolean isWildCard(String fieldName){
 		return fieldName.equals("_");
 	}
@@ -1745,13 +1679,13 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 	// ----- General method for matching --------------------------------------------------
 
-	protected MatchPattern evalPattern(org.meta_environment.rascal.ast.Expression pat){
+	public MatchPattern evalPattern(org.meta_environment.rascal.ast.Expression pat){
 		if (pat instanceof Expression.Ambiguity) {
 			// TODO: wrong exception here.
 			throw new AmbiguousConcretePattern(pat);
 		}
 
-		AbstractPatternEvaluator pe = makePatternEvaluator(pat);
+		PatternEvaluator pe = makePatternEvaluator(pat);
 		if(pe.isPattern(pat)){
 			return pat.accept(pe);
 		}
@@ -1808,17 +1742,45 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	@Override
 	public Result<IValue> visitExpressionQualifiedName(
 			org.meta_environment.rascal.ast.Expression.QualifiedName x) {
-		if (isTreeConstructorName(x.getQualifiedName(), tf.tupleEmpty())) {
-			return constructTree(x.getQualifiedName(), new IValue[0], tf.tupleType(new Type[0]));
+		QualifiedName name = x.getQualifiedName();
+		Result<IValue> result ;
+		
+		try {
+			result = getCurrentEnvt().getVariable(name);
 		}
-
-		Result<IValue> result = getCurrentEnvt().getVariable(x.getQualifiedName());
-
+		catch (UndeclaredModuleError e) {
+			// TODO: find a better way to deal with this exception, BTW the Bool::and notation what this is for should dissappear
+			// anyway and be replaced by Bool.and, so this problem should evaporate by itself.
+			if (isTreeConstructorName(name, tf.tupleEmpty())) {
+				return constructTree(name, new IValue[0], tf.tupleType(new Type[0]));
+			}
+			throw e;
+		}
+		
 		if (result != null && result.getValue() != null) {
 			return result;
 		}
 
-		throw new UninitializedVariableError(x.getQualifiedName().toString(), x);
+		// TODO: deal with overloading, now only accept unique ones
+		// TODO: deal with qualified function names
+		try {
+			result = getCurrentEnvt().getFunction(Names.name(Names.lastName(name)), tf.voidType(), x);
+		}
+		catch (UndeclaredFunctionError e) {
+			// TODO: change getFunction to return null instead
+			result = null;
+		}
+		
+		if (result != null) {
+			return result;
+		}
+		
+		if (isTreeConstructorName(name, tf.tupleEmpty())) {
+			return constructTree(name, new IValue[0], tf.tupleType(new Type[0]));
+		}
+
+	
+		throw new UninitializedVariableError(name.toString(), x);
 	}
 
 	@Override
@@ -2014,8 +1976,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		}
 
 		//return makeResult(tf.tupleType(types), applyRules(vf.tuple(values)));
-		ITuple tuple = vf.tuple(values);
-		return makeResult(tuple.getType(), tuple, new EvaluatorContext(this, x));
+		return makeResult(tf.tupleType(types), vf.tuple(values), new EvaluatorContext(this, x));
 	}
 
 	@Override
@@ -2549,7 +2510,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 						if(lastPattern instanceof RegExpPatternValue){
 							start = ((RegExpPatternValue)lastPattern).getStart();
 							end = ((RegExpPatternValue)lastPattern).getEnd();
-						} else if(lastPattern instanceof AbstractPatternLiteral){
+						} else if(lastPattern instanceof LiteralPattern){
 							start = 0;
 							end = ((IString)repl).getValue().length();
 						} else {

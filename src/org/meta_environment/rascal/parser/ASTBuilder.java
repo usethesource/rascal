@@ -525,16 +525,20 @@ public class ASTBuilder {
 			return false;
 		}
 		
+		if(!ast.getExpression().isQualifiedName()) {
+			return false;
+		}
+		
 		CallOrTree call = (CallOrTree) ast;
 		
-		String name = Names.name(Names.lastName(call.getQualifiedName()));
+		String name = Names.name(Names.lastName(call.getExpression().getQualifiedName()));
 		
 		if (!name.equals("appl")) {
 			return false;
 		}
 		
 		CallOrTree prod = (CallOrTree) ast.getArguments().get(0);
-		name = Names.name(Names.lastName(prod.getQualifiedName()));
+		name = Names.name(Names.lastName(prod.getExpression().getQualifiedName()));
 		
 		return name.equals("list");
 	}
@@ -559,11 +563,11 @@ public class ASTBuilder {
 	}
 
 
-	private QualifiedName makeQualifiedName(IConstructor node, String name) {
+	private org.meta_environment.rascal.ast.Expression makeQualifiedName(IConstructor node, String name) {
 		Name simple = new Name.Lexical(node, name);
 		List<Name> list = new ArrayList<Name>(1);
 		list.add(simple);
-		return new QualifiedName.Default(node, list);
+		return new Expression.QualifiedName(node, new QualifiedName.Default(node, list));
 	}
 
 	private boolean correctlyNestedPattern(SymbolAdapter expected, Expression exp) {
@@ -647,7 +651,7 @@ public class ASTBuilder {
 	}
 
 	private Expression wildCard(IConstructor node) {
-		return new Expression.QualifiedName(node, makeQualifiedName(node, "_"));
+		return makeQualifiedName(node, "_");
 	}
 
 	private ImplementationError unexpectedError(Throwable e) {

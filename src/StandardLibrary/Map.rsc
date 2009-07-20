@@ -23,7 +23,7 @@ public bool java isEmpty(map[&K, &V] M)
 public map[&K, &V] mapper(map[&K, &V] M, &K (&K) F, &V (&V) G)
 @doc{mapper -- apply two functions to each key/value pair in a map.}
 {
-  return (#F(key) : #G(M[key]) | &K key <- M);
+  return (F(key) : G(M[key]) | &K key <- M);
 }
 
 public set[&V] java range(map[&K, &V] M)

@@ -1,4 +1,4 @@
-package org.meta_environment.rascal.interpreter;
+package org.meta_environment.rascal.interpreter.matching;
 
 import java.util.Iterator;
 
@@ -11,6 +11,8 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.Expression;
 import org.meta_environment.rascal.ast.Strategy;
+import org.meta_environment.rascal.interpreter.Evaluator;
+import org.meta_environment.rascal.interpreter.MatchPattern;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.BoolResult;
@@ -46,7 +48,9 @@ public class EnumerateAndMatch extends Result<IValue> {
 	 */
 	
 	@SuppressWarnings("unchecked")
+	public
 	EnumerateAndMatch(Expression enumerator, Evaluator ev){
+		// TODO what strange code is this that uses the value factory???
 		super(ev.tf.boolType(), ev.vf.bool(true), null);
 
 		if(!(enumerator.isEnumerator() || enumerator.isEnumeratorWithStrategy())){
