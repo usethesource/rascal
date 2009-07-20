@@ -60,7 +60,6 @@ import org.meta_environment.rascal.ast.Expression.VariableBecomes;
 import org.meta_environment.rascal.ast.Expression.Visit;
 import org.meta_environment.rascal.ast.Expression.VoidClosure;
 import org.meta_environment.rascal.interpreter.EvaluatorContext;
-import org.meta_environment.rascal.interpreter.MatchPattern;
 import org.meta_environment.rascal.interpreter.Names;
 import org.meta_environment.rascal.interpreter.TypeEvaluator;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;

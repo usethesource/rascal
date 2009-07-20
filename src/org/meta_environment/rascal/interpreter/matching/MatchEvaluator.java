@@ -1,18 +1,16 @@
-package org.meta_environment.rascal.interpreter;
+package org.meta_environment.rascal.interpreter.matching;
 
 import java.util.Iterator;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.Expression;
+import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.BoolResult;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
-import org.meta_environment.uptr.Factory;
 
 /*
  * Evaluate match and no match expression
@@ -27,7 +25,7 @@ public class MatchEvaluator implements Iterator<Result<IValue>> {
 	private Environment oldEnv;
 	
 	// TODO: remove use of evaluator here! it's not good to have this dependency
-	MatchEvaluator(Expression pat, Expression subject, boolean positive, Environment env, Evaluator ev){
+	public MatchEvaluator(Expression pat, Expression subject, boolean positive, Environment env, Evaluator ev){
     	this.positive = positive;
     	this.evaluator = ev;
     	this.oldEnv = ev.getCurrentEnvt();

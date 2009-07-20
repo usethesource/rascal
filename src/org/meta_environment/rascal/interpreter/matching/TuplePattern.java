@@ -5,7 +5,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.interpreter.EvaluatorContext;
-import org.meta_environment.rascal.interpreter.MatchPattern;
 import org.meta_environment.rascal.interpreter.env.Environment;
 
 /* package */ class TuplePattern extends AbstractPattern implements MatchPattern {
