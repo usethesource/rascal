@@ -16,7 +16,7 @@ public class ValueIOTests extends TestFramework {
 			prepare("import ValueIO;");
 			prepareMore("writeValueToBinaryFile(\"xxx\", " + exp + ");");
 			
-			success = runTestInSameEvaluator("{" + type + " N := readValueFromBinaryFile(\"xxx\"); N == " + exp + ";}");
+			success = runTestInSameEvaluator("{" + type + " N := readValueFromBinaryFile(\"xxx\") && N == " + exp + ";}");
 		}finally{
 			// Clean up.
 			removeTempFile();

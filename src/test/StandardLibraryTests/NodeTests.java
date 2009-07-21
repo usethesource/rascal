@@ -64,7 +64,7 @@ public class NodeTests extends TestFramework {
 			if(!dataDefs.equals(""))
 				prepareMore(dataDefs);
 			
-			success = runTestInSameEvaluator("{ value N := readATermFromFile(\"xxx\"); N == " + atermValue + ";}");
+			success = runTestInSameEvaluator("{ value N := readATermFromFile(\"xxx\") && N == " + atermValue + ";}");
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
