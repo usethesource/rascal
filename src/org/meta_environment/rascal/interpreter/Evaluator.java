@@ -491,6 +491,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		setCurrentEnvt(env);
 		return env;
 	}
+	
+	public Environment popEnv() {
+		setCurrentEnvt(getCurrentEnvt().getParent());
+		return getCurrentEnvt();
+	}
 
 	Environment pushEnv(Statement s) {
 		/* use the same name as the current envt */
@@ -2921,13 +2926,16 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	public Result<IValue> visitExpressionIfThenElse(
 			org.meta_environment.rascal.ast.Expression.IfThenElse x) {
 		Result<IValue> cval = x.getCondition().accept(this);
+
 		if (!cval.getType().isBoolType()) {
 			throw new UnexpectedTypeError(tf.boolType(), cval.getType(), x);
 		}
+
 		if (cval.isTrue()) {
 			return x.getThenExp().accept(this);
 		}
-		return x.getElseExp().accept(this);
+		
+		return x.getElseExp().accept(this);	
 	}
 
 
