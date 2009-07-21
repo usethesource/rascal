@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.interpreter.matching;
 
+import java.util.List;
+
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -12,23 +14,23 @@ import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 
 /* package */ class NodePattern extends AbstractPattern {
-	private AbstractPattern name;
-	private java.util.List<AbstractPattern> children;
+	private MatchPattern name;
+	private List<MatchPattern> children;
 	private INode treeSubject;
 	private boolean firstMatch = false;
 	private boolean debug = false;
 	private final TypeFactory tf = TypeFactory.getInstance();
 	private final QualifiedName qname;
 	
-	NodePattern(IValueFactory vf, EvaluatorContext ctx, AbstractPattern namePattern, QualifiedName name, java.util.List<AbstractPattern> children){
+	NodePattern(IValueFactory vf, EvaluatorContext ctx, MatchPattern matchPattern, QualifiedName name, List<MatchPattern> list){
 		super(vf, ctx);
-		this.name = namePattern;
+		this.name = matchPattern;
 		this.qname = name;
-		this.children = children;
+		this.children = list;
 		if(debug){
-			System.err.println("AbstractPatternNode: " + name + ", #children: " + children.size() );
+			System.err.println("AbstractPatternNode: " + name + ", #children: " + list.size() );
 			System.err.println("AbstractPatternNode name:" + name != null ? name : qname);
-			for(AbstractPattern ap : children){
+			for(MatchPattern ap : list){
 				System.err.println(ap);
 			}
 		}
@@ -128,7 +130,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 		if(!hasNext)
 			return false;
 		
-		if(name == null || name.hasNext) {
+		if(name == null || name.hasNext()) {
 			if(children.size() > 0){
 				for (int i = 0; i < children.size(); i++) {
 					if(children.get(i).hasNext()){

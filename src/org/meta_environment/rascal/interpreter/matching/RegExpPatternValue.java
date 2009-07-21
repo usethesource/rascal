@@ -15,6 +15,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.interpreter.EvaluatorContext;
+import org.meta_environment.rascal.interpreter.asserts.NotYetImplemented;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
@@ -191,5 +192,12 @@ public class RegExpPatternValue implements MatchPattern {
 		return "RegExpPatternValue(" + RegExpAsString + ", " + patternVars + ")";
 	}
 
-	
+	public IValue toIValue(Environment env) {
+		// TODO implement
+		throw new NotYetImplemented(ast);
+	}
+
+	public AbstractAST getAST() {
+		return ast;
+	}
 }

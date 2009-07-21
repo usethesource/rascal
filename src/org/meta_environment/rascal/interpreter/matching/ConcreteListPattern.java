@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.interpreter.matching;
 
+import java.util.List;
+
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -21,14 +23,14 @@ class ConcreteListPattern extends AbstractPattern {
 	private CallOrTree callOrTree;
 
 	public ConcreteListPattern(IValueFactory vf,
-			EvaluatorContext ctx, CallOrTree x, java.util.List<AbstractPattern> list) {
+			EvaluatorContext ctx, CallOrTree x, List<MatchPattern> list) {
 		super(vf, ctx);
 		callOrTree = x;
 		initListPatternDelegate(vf, ctx, list);
 	}
 
 	private void initListPatternDelegate(IValueFactory vf,
-			EvaluatorContext ctx, java.util.List<AbstractPattern> list) {
+			EvaluatorContext ctx, List<MatchPattern> list) {
 		Type type = getType(null);
 		
 		if (type instanceof ConcreteSyntaxType) {

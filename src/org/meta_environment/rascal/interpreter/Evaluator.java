@@ -172,12 +172,11 @@ import org.meta_environment.rascal.interpreter.load.FromResourceLoader;
 import org.meta_environment.rascal.interpreter.load.IModuleFileLoader;
 import org.meta_environment.rascal.interpreter.load.ISdfSearchPathContributor;
 import org.meta_environment.rascal.interpreter.load.ModuleLoader;
+import org.meta_environment.rascal.interpreter.matching.EnumerateAndMatch;
+import org.meta_environment.rascal.interpreter.matching.LiteralPattern;
 import org.meta_environment.rascal.interpreter.matching.MatchEvaluator;
 import org.meta_environment.rascal.interpreter.matching.MatchPattern;
 import org.meta_environment.rascal.interpreter.matching.PatternEvaluator;
-import org.meta_environment.rascal.interpreter.matching.LiteralPattern;
-import org.meta_environment.rascal.interpreter.matching.EnumerateAndMatch;
-import org.meta_environment.rascal.interpreter.matching.RegExpPatternEvaluator;
 import org.meta_environment.rascal.interpreter.matching.RegExpPatternValue;
 import org.meta_environment.rascal.interpreter.result.BoolResult;
 import org.meta_environment.rascal.interpreter.result.ConcreteSyntaxResult;
@@ -203,8 +202,6 @@ import org.meta_environment.rascal.parser.ModuleParser;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.SymbolAdapter;
 import org.meta_environment.uptr.TreeAdapter;
-
-import com.sun.corba.se.spi.legacy.connection.GetEndPointInfoAgainException;
 
 @SuppressWarnings("unchecked")
 public class Evaluator extends NullASTVisitor<Result<IValue>> {
@@ -234,7 +231,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 	private java.util.List<ClassLoader> classLoaders;
 	protected ModuleEnvironment rootScope;
-	private ModuleParser parser;
 	private boolean concreteListsShouldBeSpliced;
 
 	public Evaluator(IValueFactory f, Writer errorWriter, ModuleEnvironment scope) {
@@ -254,7 +250,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		this.classLoaders = new LinkedList<ClassLoader>();
 		this.javaBridge = new JavaBridge(errorWriter, classLoaders);
 		loader = new ModuleLoader(parser);
-		this.parser = parser;
 		parser.setLoader(loader);
 
 		// cwd loader
@@ -936,6 +931,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		boolean unTyped = false;
 		
 		if (nameExpr.isQualifiedName() && getCurrentEnvt().getVariable(nameExpr.getQualifiedName()) == null) {
+			name = nameExpr.getQualifiedName();
+		}
+		else if (nameExpr.isQualifiedName() && getCurrentEnvt().isDeclaredFunctionName(nameExpr.getQualifiedName())) {
 			name = nameExpr.getQualifiedName();
 		}
 		else { // its a computed name or a string name
@@ -1725,19 +1723,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			throw new AmbiguousConcretePattern(pat);
 		}
 
-		// TODO: this is weird, why is regexp not produced by the pattern evaluator?
 		PatternEvaluator pe = makePatternEvaluator(pat);
-		if(pe.isPattern(pat)){
-			return pat.accept(pe);
-		}
-
-		RegExpPatternEvaluator re = new RegExpPatternEvaluator(vf, this, getCurrentEnvt());
-		if(re.isRegExpPattern(pat)){ 
-			return pat.accept(re);
-		}
-
-		// TODO how can this happen?
-		throw new ImplementationError("Pattern expected instead of " + pat);
+		return pat.accept(pe);
 	}
 
 	// Expressions -----------------------------------------------------------
@@ -2471,8 +2458,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 		Case cs = (Case) singleCase(casesOrRules);
 
-		RegExpPatternEvaluator re = new RegExpPatternEvaluator(vf, this, getCurrentEnvt());
-		if(cs != null && cs.isPatternWithAction() && re.isRegExpPattern(cs.getPatternWithAction().getPattern())){
+//		PatternEvaluator re = new PatternEvaluator(vf, this, getCurrentEnvt());
+		if(cs != null && cs.isPatternWithAction() && cs.getPatternWithAction().getPattern().isLiteral() && cs.getPatternWithAction().getPattern().getLiteral().isRegExp()){
 			/*
 			 * In the frequently occurring case that there is one case with a regexp as pattern,
 			 * we can delegate all the work to the regexp matcher.

@@ -19,10 +19,10 @@ public abstract class AbstractPattern implements MatchPattern {
 	protected Environment env = null;
 	protected boolean initialized = false;
 	protected boolean hasNext = true;
-	protected TypeFactory tf = TypeFactory.getInstance();
-	protected IValueFactory vf;
-	protected EvaluatorContext ctx;
-	protected Evaluator evaluator;
+	protected final TypeFactory tf = TypeFactory.getInstance();
+	protected final IValueFactory vf;
+	protected final EvaluatorContext ctx;
+	protected final Evaluator evaluator;
 	
 	public AbstractPattern(IValueFactory vf, EvaluatorContext ctx) {
 		this.vf = vf;
@@ -62,9 +62,9 @@ public abstract class AbstractPattern implements MatchPattern {
 	
 	abstract public IValue toIValue(Environment env);
 	
-	boolean matchChildren(Iterator<IValue> subjChildren, Iterator<AbstractPattern> patChildren, Environment ev){
-		while (patChildren.hasNext()) {
-			if (!patChildren.next().next()){
+	boolean matchChildren(Iterator<IValue> subjChildren, Iterator<MatchPattern> iterator, Environment ev){
+		while (iterator.hasNext()) {
+			if (!iterator.next().next()){
 				return false;
 			}
 		}

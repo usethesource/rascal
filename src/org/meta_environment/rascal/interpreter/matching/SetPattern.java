@@ -2,6 +2,7 @@ package org.meta_environment.rascal.interpreter.matching;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -13,10 +14,8 @@ import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 
-import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
-
 /* package */ class SetPattern extends AbstractPattern implements MatchPattern {
-	private java.util.List<AbstractPattern> patternChildren; // The elements of the set pattern
+	private List<MatchPattern> patternChildren; // The elements of the set pattern
 	private int patternSize;					// Number of elements in the set pattern
 	private ISet setSubject;					// Current subject	
 	private Type setSubjectType;				// Type of the subject
@@ -38,7 +37,7 @@ import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeR
 												// (including nested subpatterns)
 	private String[] varName;					// Name of each variable
 	private ISet[] varVal;						// Value of each variable
-	private AbstractPattern[] varPat;			// The pattern value for non-literal patterns
+	private MatchPattern[] varPat;			// The pattern value for non-literal patterns
 	private boolean[] isSetVar;				// Is this a set variables?			
 	private Iterator<?>[] varGen;				// Value generator for this variables
 	
@@ -47,10 +46,10 @@ import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeR
 	
 	private boolean debug = false;
 	
-	SetPattern(IValueFactory vf, EvaluatorContext ctx, java.util.List<AbstractPattern> children){
+	SetPattern(IValueFactory vf, EvaluatorContext ctx, List<MatchPattern> list){
 		super(vf, ctx);
-		this.patternChildren = children;
-		this.patternSize = children.size();
+		this.patternChildren = list;
+		this.patternSize = list.size();
 	}
 	
 	@Override
@@ -95,7 +94,7 @@ import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeR
 	private void sortVars(){
 		String[] newVarName = new String[patternSize];
 		ISet[]newVarVal= new ISet[patternSize];
-		AbstractPattern[] newVarPat = new AbstractPattern[patternSize];
+		MatchPattern[] newVarPat = new MatchPattern[patternSize];
 		boolean[] newIsSetVar = new boolean[patternSize];
 		
 		int nw = 0;
@@ -154,7 +153,7 @@ import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeR
 		 * Pass #1: determine the (ordinary and set) variables in the pattern
 		 */
 		for(int i = 0; i < patternSize; i++){
-			AbstractPattern child = patternChildren.get(i);
+			MatchPattern child = patternChildren.get(i);
 			if(child instanceof TypedVariablePattern){
 				TypedVariablePattern patVar = (TypedVariablePattern) child;
 				Type childType = child.getType(env);
