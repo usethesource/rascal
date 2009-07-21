@@ -63,6 +63,7 @@ public class CommandEvaluator extends Evaluator {
 	@Override
 	public Result<IValue> visitCommandStatement(
 			org.meta_environment.rascal.ast.Command.Statement x) {
+		setCurrentAST(x.getStatement());
 		return x.getStatement().accept(this);
 	}
 	
