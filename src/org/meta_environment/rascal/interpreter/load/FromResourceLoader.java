@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.URL;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
@@ -70,6 +69,41 @@ public class FromResourceLoader implements IModuleFileLoader{
 	}
 	
 	public boolean tryWriteBinary(String filename, String binaryName, IConstructor tree){
+		// Temporary workaround for generating binaries.
+		// Generating binaries should not be supported by resource loaders.
+		File binFile;
+		URL url = clazz.getResource(sourceFolder + filename);
+		if(url == null) return false;
+		
+		String binFileLocation = url.getFile();
+		if(binFileLocation.isEmpty()) return false;
+		
+		binFile = new File(binFileLocation+".bin");
+		try{
+			binFile.createNewFile();
+		}catch(IOException ioex){
+			return false;
+		}
+		if(!binFile.canWrite()) return false;
+		
+		FileOutputStream outputStream = null;
+		
+		PBFWriter pbfWriter = new PBFWriter();
+		try{
+			outputStream = new FileOutputStream(binFile);
+			pbfWriter.write(tree, outputStream);
+			return true;
+		}catch(IOException ioex){
+			ioex.printStackTrace();
+		}finally{
+			if(outputStream != null){
+				try{
+					outputStream.close();
+				}catch(IOException ioex){
+					ioex.printStackTrace();
+				}
+			}
+		}
 		return false;
 	}
 }
