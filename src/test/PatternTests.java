@@ -522,32 +522,32 @@ public class PatternTests extends TestFramework {
 		assertTrue(runTest("{set[int] S = {3}; {S, 2, 1} := {1,2,3};}"));
 		assertTrue(runTest("{set[int] S = {2, 3}; {S, 1} := {1,2,3};}"));
 
-		assertTrue(runTest("{ {1, set[int] X, 2} := {1,2}; X == {};}"));
+		assertTrue(runTest("{ {1, set[int] X, 2} := {1,2} && X == {};}"));
 		assertFalse(runTest("{ {1, set[int] X, 3} := {1,2};}"));
 
-		assertTrue(runTest("{ {1, set[int] X, 2} := {1,2,3}; X == {3};}"));
-		assertTrue(runTest("{ {1, set[int] X, 2} := {1,2,3,4}; X == {3,4};}"));
+		assertTrue(runTest("{ {1, set[int] X, 2} := {1,2,3} && X == {3};}"));
+		assertTrue(runTest("{ {1, set[int] X, 2} := {1,2,3,4} && X == {3,4};}"));
 
-		assertTrue(runTest("{ {set[int] X, set[int] Y} := {}; X == {} && Y == {};}"));
-		assertTrue(runTest("{ {1, set[int] X, set[int] Y} := {1}; X == {} && Y == {};}"));
-		assertTrue(runTest("{ {set[int] X, 1, set[int] Y} := {1}; X == {} && Y == {};}"));
-		assertTrue(runTest("{ {set[int] X, set[int] Y, 1} := {1}; X == {} && Y == {};}"));
+		assertTrue(runTest("{ {set[int] X, set[int] Y} := {} && X == {} && Y == {};}"));
+		assertTrue(runTest("{ {1, set[int] X, set[int] Y} := {1} && X == {} && Y == {};}"));
+		assertTrue(runTest("{ {set[int] X, 1, set[int] Y} := {1} && X == {} && Y == {};}"));
+		assertTrue(runTest("{ {set[int] X, set[int] Y, 1} := {1} && X == {} && Y == {};}"));
 
 		assertFalse(runTest("{ {set[int] X, set[int] Y, 1} := {2};}"));
 
-		assertTrue(runTest("{ {set[int] X, set[int] Y} := {1}; (X == {} && Y == {1}) || (X == {1} && Y == {});}"));
+		assertTrue(runTest("{ {set[int] X, set[int] Y} := {1} && (X == {} && Y == {1}) || (X == {1} && Y == {});}"));
 
-		assertTrue(runTest("{ {set[int] X, set[int] Y, set[int] Z} := {}; X == {} && Y == {} && Z == {};}"));
-		assertTrue(runTest("{ {set[int] X, set[int] Y, set[int] Z} := {1}; (X == {1} && Y == {} && Z == {}) || (X == {} && Y == {1} && Z == {}) || (X == {} && Y == {} && Z == {1});}"));
+		assertTrue(runTest("{ {set[int] X, set[int] Y, set[int] Z} := {} && X == {} && Y == {} && Z == {};}"));
+		assertTrue(runTest("{ {set[int] X, set[int] Y, set[int] Z} := {1} && (X == {1} && Y == {} && Z == {}) || (X == {} && Y == {1} && Z == {}) || (X == {} && Y == {} && Z == {1});}"));
 
-		assertTrue(runTest("{ {int X, set[int] Y} := {1}; X == 1 && Y == {};}"));
-		assertTrue(runTest("{ {set[int] X, int Y} := {1}; X == {} && Y == 1;}"));
+		assertTrue(runTest("{ {int X, set[int] Y} := {1} && X == 1 && Y == {};}"));
+		assertTrue(runTest("{ {set[int] X, int Y} := {1} && X == {} && Y == 1;}"));
 		assertTrue(runTest("{ {set[int] _, int _} := {1}; }"));
 		assertTrue(runTest("{ {set[int] _, _} := {1}; }"));
 
-		assertTrue(runTest("{ {set[int] X, int Y} := {1, 2}; (X == {1} && Y == 2) || (X == {2} && Y == 1);}"));
+		assertTrue(runTest("{ {set[int] X, int Y} := {1, 2} && (X == {1} && Y == 2) || (X == {2} && Y == 1);}"));
 		
-		assertTrue(runTest("{ {set[int] X, set[real] Y} := { 1, 5.5, 2, 6.5}; (X == {1,2} && Y == {5.5, 6.5});}"));
+		assertTrue(runTest("{ {set[int] X, set[real] Y} := { 1, 5.5, 2, 6.5} && (X == {1,2} && Y == {5.5, 6.5});}"));
 		
 		assertTrue(runTest("{ set[int] x = {}; {} := x; }"));
 		
