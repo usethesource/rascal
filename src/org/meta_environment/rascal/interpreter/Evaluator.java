@@ -1184,7 +1184,17 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	@Override
 	public Result<IValue> visitStatementExpression(Statement.Expression x) {
 		setCurrentAST(x);
-		return x.getExpression().accept(this);
+		
+		// an expression statement should not introduce variables, so we push
+		// an environment, catch all local introductions and pop it again before
+		// returning a result.
+		pushEnv();
+		try {
+	      return x.getExpression().accept(this);
+		}
+		finally {
+			setCurrentEnvt(getCurrentEnvt().getParent());
+		}
 	}
 
 	@Override
