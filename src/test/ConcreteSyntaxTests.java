@@ -332,7 +332,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 	@Test
 	public void Evars1(){
 		prepare("import src::test::GrammarABCDE;");
-		assertTrue(runTestInSameEvaluator("{ Xs := [|e, e|]; Xs == [| e, e|];}"));
+		assertTrue(runTestInSameEvaluator("{ Xs := [|e, e|] && Xs == [| e, e|];}"));
 	}
 	
 	@Test

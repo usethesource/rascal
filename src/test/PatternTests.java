@@ -7,6 +7,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredVariableError;
+import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
 
 public class PatternTests extends TestFramework {
 
@@ -99,7 +100,7 @@ public class PatternTests extends TestFramework {
 		assertTrue(runTest("{{1, _*, 4, 5} := {1, 2, 3, 4, 5};}"));
 	}
 	
-	@Test(expected=UndeclaredVariableError.class) 
+	@Test(expected=UninitializedVariableError.class) 
 	public void unguardedMatchNoEscape() {
 		// m should not be declared after the unguarded pattern match.
 		assertTrue(runTest("{int n = 3; int m := n; m == n; }"));
@@ -287,7 +288,7 @@ public class PatternTests extends TestFramework {
 	
 	@Test
 	public void matchListExternalVar() {
-		runTest("{list[int] S; [1, S, 2] := [1,2,3]; S == [3];}");
+		runTest("{list[int] S; [1, S, 2] := [1,2,3] && S == [3];}");
 	}
 
 	@Test
@@ -506,9 +507,9 @@ public class PatternTests extends TestFramework {
 		assertFalse(runTest("{1} := {2};"));
 		assertFalse(runTest("{1,2} := {1,3};"));
 
-		assertTrue(runTest("{ {set[int] X} := {}; X == {};}"));
-		assertTrue(runTest("{ {set[int] X} := {1}; X == {1};}"));
-		assertTrue(runTest("{ {set[int] X} := {1,2}; X == {1,2};}"));
+		assertTrue(runTest("{ {set[int] X} := {} && X == {};}"));
+		assertTrue(runTest("{ {set[int] X} := {1} && X == {1};}"));
+		assertTrue(runTest("{ {set[int] X} := {1,2} && X == {1,2};}"));
 		
 		assertTrue(runTest("{ {set[int] _} := {1,2}; }"));
 	
@@ -630,7 +631,7 @@ public class PatternTests extends TestFramework {
 	
 	@Test
 	public void matchSetExternalVar() {
-		runTest("{set[int] S; {1, S, 2} := {1,2,3}; S == {3};}");
+		runTest("{set[int] S; {1, S, 2} := {1,2,3} && S == {3};}");
 	}
 	
 	@Test(expected=StaticError.class)
@@ -666,7 +667,7 @@ public class PatternTests extends TestFramework {
 	
 	@Test
 	public void matchTupleExternalVar(){
-		assertTrue(runTest("{tuple[int,int] T; T := <1,2>; T[0] == 1 && T[1] == 2;}"));
+		assertTrue(runTest("{tuple[int,int] T; T := <1,2> && T[0] == 1 && T[1] == 2;}"));
 	}
 
 	@Test

@@ -33,27 +33,27 @@ public class ScopeTests extends TestFramework {
 	
 	@Test
 	public void localRedeclarationInt1(){
-		assertTrue(runTest("{int n ; int n := 3; n == 3;}"));
+		assertTrue(runTest("{int n ; int n := 3 && n == 3;}"));
 	}
 	
 	@Test
 	public void localRedeclarationInt2(){
-		assertTrue(runTest("{int n; [int n] := [3]; n == 3;}"));
+		assertTrue(runTest("{int n; [int n] := [3] && n == 3;}"));
 	}
 	
 	@Test(expected=UnexpectedTypeError.class)
 	public void localRedeclarationError7(){
-		runTest("{int n; [list[int] n] := [1,2,3]; n == [1,2,3];}");
+		runTest("{int n; [list[int] n] := [1,2,3] && n == [1,2,3];}");
 	}
 	
 	@Test(expected=RedeclaredVariableError.class)
 	public void localRedeclarationListError(){
-		runTest("{list[int] n = [10,20]; [list[int] n] := [1,2,3]; n == [1,2,3];}");
+		runTest("{list[int] n = [10,20]; [list[int] n] := [1,2,3] && n == [1,2,3];}");
 	}
 	
 	@Test
 	public void localRedeclarationList(){
-		assertTrue(runTest("{list[int] n; [list[int] n] := [1,2,3]; n == [1,2,3];}"));
+		assertTrue(runTest("{list[int] n; [list[int] n] := [1,2,3] && n == [1,2,3];}"));
 	}
 	
 	@Test(expected=UnexpectedTypeError.class)
