@@ -76,7 +76,7 @@ public class FromResourceLoader implements IModuleFileLoader{
 		if(url == null) return false;
 		
 		String binFileLocation = url.getFile();
-		if(binFileLocation.isEmpty()) return false;
+		if(binFileLocation.length() == 0) return false;
 		
 		binFile = new File(binFileLocation+".bin");
 		try{
