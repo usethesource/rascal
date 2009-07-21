@@ -55,7 +55,7 @@ public class ValueIOTests extends TestFramework {
 			prepare("data Bool = btrue | bfalse | band(Bool left, Bool right) | bor(Bool left, Bool right);");
 			prepareMore("import ValueIO;");
 			prepareMore("writeValueToBinaryFile(\"xxx\", " + exp + ");");
-			assertTrue(runTestInSameEvaluator("{" + type + " N := readValueFromBinaryFile(\"xxx\"); N == " + exp + ";}"));
+			assertTrue(runTestInSameEvaluator("{" + type + " N := readValueFromBinaryFile(\"xxx\") && N == " + exp + ";}"));
 		}finally{
 			// Clean up.
 			removeTempFile();
@@ -68,7 +68,7 @@ public class ValueIOTests extends TestFramework {
 			prepare("import ValueIO;");
 			prepareMore("writeValueToTextFile(\"xxx\", " + exp + ");");
 			
-			success = runTestInSameEvaluator("{" + type + " N := readValueFromTextFile(\"xxx\"); N == " + exp + ";}");
+			success = runTestInSameEvaluator("{" + type + " N := readValueFromTextFile(\"xxx\") && N == " + exp + ";}");
 		}finally{
 			// Clean up.
 			removeTempFile();
