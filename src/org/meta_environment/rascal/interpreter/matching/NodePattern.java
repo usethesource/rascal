@@ -164,7 +164,17 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 	
 	@Override
 	public String toString(){
-		StringBuilder res = new StringBuilder(name.toString()).append("(");
+		StringBuilder res = new StringBuilder();
+		
+		if (name != null) {
+			res.append(name);
+		}
+		else {
+		    res.append(Names.name(Names.lastName(qname)));
+		}
+		
+		res.append("(");
+		
 		String sep = "";
 		for(MatchPattern mp : children){
 			res.append(sep);
