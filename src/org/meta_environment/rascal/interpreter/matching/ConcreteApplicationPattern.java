@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.interpreter.matching;
 
+import java.util.List;
+
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -19,10 +21,10 @@ class ConcreteApplicationPattern extends AbstractPattern {
 
 	public ConcreteApplicationPattern(IValueFactory vf,
 			EvaluatorContext ctx, CallOrTree x,
-			java.util.List<AbstractPattern> args) {
+			List<MatchPattern> list) {
 		super(vf, ctx);
 		org.meta_environment.rascal.ast.QualifiedName N = x.getExpression().getQualifiedName();
-		pat = new NodePattern(vf, new EvaluatorContext(ctx.getEvaluator(), x), null, N, args);
+		pat = new NodePattern(vf, new EvaluatorContext(ctx.getEvaluator(), x), null, N, list);
 		callOrTree = x;
 	}
 

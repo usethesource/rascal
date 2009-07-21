@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.interpreter.matching;
 
+import java.util.List;
+
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -8,12 +10,12 @@ import org.meta_environment.rascal.interpreter.EvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
 
 /* package */ class TuplePattern extends AbstractPattern implements MatchPattern {
-	private java.util.List<AbstractPattern> children;
+	private List<MatchPattern> children;
 	private boolean firstMatch;
 	
-	TuplePattern(IValueFactory vf, EvaluatorContext ctx, java.util.List<AbstractPattern> children){
+	TuplePattern(IValueFactory vf, EvaluatorContext ctx, List<MatchPattern> list){
 		super(vf, ctx);
-		this.children = children;
+		this.children = list;
 	}
 	
 	@Override

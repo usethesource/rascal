@@ -2,6 +2,7 @@ package org.meta_environment.rascal.interpreter.matching;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.interpreter.env.Environment;
 
 /**
@@ -45,4 +46,7 @@ public interface MatchPattern {
 	 */
 	public java.util.List<String> getVariables();
 
+	public IValue toIValue(Environment env);
+
+	public AbstractAST getAST();
 }

@@ -1,6 +1,8 @@
 package org.meta_environment.rascal.interpreter.matching;
 
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
@@ -60,22 +62,30 @@ import org.meta_environment.rascal.ast.Expression.TypedVariableBecomes;
 import org.meta_environment.rascal.ast.Expression.VariableBecomes;
 import org.meta_environment.rascal.ast.Expression.Visit;
 import org.meta_environment.rascal.ast.Expression.VoidClosure;
+import org.meta_environment.rascal.ast.Literal.Boolean;
+import org.meta_environment.rascal.ast.Literal.Integer;
+import org.meta_environment.rascal.ast.Literal.Real;
+import org.meta_environment.rascal.ast.Literal.RegExp;
+import org.meta_environment.rascal.ast.Literal.String;
+import org.meta_environment.rascal.ast.RegExp.Lexical;
 import org.meta_environment.rascal.interpreter.EvaluatorContext;
 import org.meta_environment.rascal.interpreter.Names;
 import org.meta_environment.rascal.interpreter.TypeEvaluator;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
-import org.meta_environment.rascal.interpreter.asserts.NotYetImplemented;
 import org.meta_environment.rascal.interpreter.env.ConcreteSyntaxType;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.AmbiguousConcretePattern;
+import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
+import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternError;
 
-public class PatternEvaluator extends NullASTVisitor<AbstractPattern> {
+public class PatternEvaluator extends NullASTVisitor<MatchPattern> {
 	private IValueFactory vf;
 	private Environment env;
 	private EvaluatorContext ctx;
 	private Environment scope;
+	private boolean debug = false;
 
 	public PatternEvaluator(IValueFactory vf, Environment env, Environment scope, EvaluatorContext ctx){
 		this.vf = vf;
@@ -94,15 +104,89 @@ public class PatternEvaluator extends NullASTVisitor<AbstractPattern> {
 	}
 	
 	@Override
-	public AbstractPattern visitExpressionLiteral(Literal x) {
-		if (!x.getLiteral().isRegExp()) {
-			return new LiteralPattern(vf, ctx, x.getLiteral().accept(ctx.getEvaluator()).getValue());
-		}
-		else {
-			// TODO weird, the regexp do not fit in the AbstractPattern hierarchy?
-			throw new NotYetImplemented(x);
-		}
+	public MatchPattern visitExpressionLiteral(Literal x) {
+		return x.getLiteral().accept(this);
 	}
+	
+	@Override
+	public MatchPattern visitLiteralBoolean(Boolean x) {
+		return new LiteralPattern(vf, ctx, x.accept(ctx.getEvaluator()).getValue());
+	}
+
+	@Override
+	public MatchPattern visitLiteralInteger(Integer x) {
+		return new LiteralPattern(vf, ctx, x.accept(ctx.getEvaluator()).getValue());
+	}
+	
+	@Override
+	public MatchPattern visitLiteralReal(Real x) {
+		return new LiteralPattern(vf, ctx, x.accept(ctx.getEvaluator()).getValue());
+	}
+	
+	@Override
+	public MatchPattern visitLiteralString(String x) {
+		return new LiteralPattern(vf, ctx, x.accept(ctx.getEvaluator()).getValue());
+	}
+	
+	@Override
+	public MatchPattern visitLiteralRegExp(RegExp x) {
+		return x.getRegExpLiteral().accept(this);
+	}
+
+	@Override
+	public MatchPattern visitRegExpLexical(Lexical x) {
+		if(debug)System.err.println("visitRegExpLexical: " + x.getString());
+		return new RegExpPatternValue(vf, new EvaluatorContext(ctx.getEvaluator(), x), x.getString(), env);
+	}
+	
+	@Override
+	public MatchPattern visitRegExpLiteralLexical(
+			org.meta_environment.rascal.ast.RegExpLiteral.Lexical x) {
+		if(debug)System.err.println("visitRegExpLiteralLexical: " + x.getString());
+
+		java.lang.String subjectPat = x.getString();
+		Character modifier = null;
+		
+		if(subjectPat.charAt(0) != '/'){
+			throw new SyntaxError("Malformed Regular expression: " + subjectPat, x.getLocation());
+		}
+		
+		int start = 1;
+		int end = subjectPat.length()-1;
+		if(subjectPat.charAt(end) != '/'){
+			modifier = Character.valueOf(subjectPat.charAt(end));
+			end--;
+		}
+		if(subjectPat.charAt(end) != '/'){
+			throw new SyntaxError("Regular expression does not end with /", x.getLocation());
+		}
+		
+		/*
+		 * Find all pattern variables. Take escaped \< characters into account.
+		 */
+		Pattern replacePat = Pattern.compile("(?<!\\\\)<([a-zA-Z0-9]+)\\s*:\\s*([^>]*)>");
+		Matcher m = replacePat.matcher(subjectPat);
+		
+		java.lang.String resultRegExp = "";
+		java.util.List<java.lang.String> names = new ArrayList<java.lang.String>();
+
+		while(m.find()){
+			java.lang.String varName = m.group(1);
+			if(names.contains(varName))
+				throw new RedeclaredVariableError(varName, x);
+			names.add(varName);
+			resultRegExp += subjectPat.substring(start, m.start(0)) + "(" + m.group(2) + ")";
+			start = m.end(0);
+		}
+		resultRegExp += subjectPat.substring(start, end);
+		/*
+		 * Replace in the final regexp all occurrences of \< by <
+		 */
+		resultRegExp = resultRegExp.replaceAll("(\\\\<)", "<");
+		if(debug)System.err.println("resultRegExp: " + resultRegExp);
+		return new RegExpPatternValue(vf, x, resultRegExp, modifier, names, env);
+	}
+
 	
 	private boolean isConcreteSyntaxAppl(CallOrTree tree){
 		if (!tree.getExpression().isQualifiedName()) {
@@ -130,7 +214,7 @@ public class PatternEvaluator extends NullASTVisitor<AbstractPattern> {
 	}
 	
 	@Override
-	public AbstractPattern visitExpressionCallOrTree(CallOrTree x) {
+	public MatchPattern visitExpressionCallOrTree(CallOrTree x) {
 		Expression nameExpr = x.getExpression();
 
 		if(isConcreteSyntaxList(x)) {
@@ -155,10 +239,10 @@ public class PatternEvaluator extends NullASTVisitor<AbstractPattern> {
 		}
 	}
 	
-	private java.util.List<AbstractPattern> visitArguments(CallOrTree x){
+	private java.util.List<MatchPattern> visitArguments(CallOrTree x){
 
 		java.util.List<org.meta_environment.rascal.ast.Expression> elements = x.getArguments();
-		ArrayList<AbstractPattern> args = new java.util.ArrayList<AbstractPattern>(elements.size());
+		ArrayList<MatchPattern> args = new java.util.ArrayList<MatchPattern>(elements.size());
 		
 		int i = 0;
 		for(org.meta_environment.rascal.ast.Expression e : elements){
@@ -168,8 +252,8 @@ public class PatternEvaluator extends NullASTVisitor<AbstractPattern> {
 	}
 	
 	
-	private java.util.List<AbstractPattern> visitElements(java.util.List<org.meta_environment.rascal.ast.Expression> elements){
-		ArrayList<AbstractPattern> args = new java.util.ArrayList<AbstractPattern>(elements.size());
+	private java.util.List<MatchPattern> visitElements(java.util.List<org.meta_environment.rascal.ast.Expression> elements){
+		ArrayList<MatchPattern> args = new java.util.ArrayList<MatchPattern>(elements.size());
 		
 		int i = 0;
 		for(org.meta_environment.rascal.ast.Expression e : elements){
@@ -179,17 +263,17 @@ public class PatternEvaluator extends NullASTVisitor<AbstractPattern> {
 	}
 	
 	@Override
-	public AbstractPattern visitExpressionList(List x) {
+	public MatchPattern visitExpressionList(List x) {
 		return new ListPattern(vf, new EvaluatorContext(ctx.getEvaluator(), x), visitElements(x.getElements()));
 	}
 	
 	@Override
-	public AbstractPattern visitExpressionSet(Set x) {
+	public MatchPattern visitExpressionSet(Set x) {
 		return new SetPattern(vf, new EvaluatorContext(ctx.getEvaluator(), x), visitElements(x.getElements()));
 	}
 	
 	@Override
-	public AbstractPattern visitExpressionTuple(Tuple x) {
+	public MatchPattern visitExpressionTuple(Tuple x) {
 		return new TuplePattern(vf, new EvaluatorContext(ctx.getEvaluator(), x), visitElements(x.getElements()));
 	}
 	
@@ -224,7 +308,7 @@ public class PatternEvaluator extends NullASTVisitor<AbstractPattern> {
 		
 		if (scope.isTreeConstructorName(name, signature)) {
 			return new NodePattern(vf, new EvaluatorContext(ctx.getEvaluator(), x), null, name,
-					new java.util.ArrayList<AbstractPattern>());
+					new java.util.ArrayList<MatchPattern>());
 		}
 		
 		// Completely fresh variable
@@ -266,13 +350,13 @@ public class PatternEvaluator extends NullASTVisitor<AbstractPattern> {
 	public AbstractPattern visitExpressionGuarded(Guarded x) {
 		TypeEvaluator te = TypeEvaluator.getInstance();
 		Type type =  te.eval(x.getType(), env);
-		AbstractPattern absPat = x.getPattern().accept(this);
+		MatchPattern absPat = x.getPattern().accept(this);
 		return new GuardedPattern(vf, new EvaluatorContext(ctx.getEvaluator(), x), type, absPat);
 	}
 	
 	@Override
 	public AbstractPattern visitExpressionAnti(Anti x) {
-		AbstractPattern absPat = x.getPattern().accept(this);
+		MatchPattern absPat = x.getPattern().accept(this);
 		return new AntiPattern(vf, new EvaluatorContext(ctx.getEvaluator(), x), absPat);
 	}
 	
@@ -283,7 +367,7 @@ public class PatternEvaluator extends NullASTVisitor<AbstractPattern> {
 	
 	@Override
 	public AbstractPattern visitExpressionDescendant(Descendant x) {
-		AbstractPattern absPat = x.getPattern().accept(this);
+		MatchPattern absPat = x.getPattern().accept(this);
 		return new DescendantPattern(vf,ctx, absPat);
 	}
 	

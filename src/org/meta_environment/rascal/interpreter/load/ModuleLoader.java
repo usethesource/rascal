@@ -102,14 +102,14 @@ public class ModuleLoader{
 			
 			IConstructor tree = null;
 			if(loader.supportsLoadingBinaries()){
-//				tree = tryLoadBinary(loader, binaryName); // <-- NOTE: Don't do this if you want to generate new binaries.
+				tree = tryLoadBinary(loader, binaryName); // <-- NOTE: Don't do this if you want to generate new binaries.
 			}
 			
 			if(tree == null){
 				tree = parseModule(loader, fileName, name, ast);
 			}
 			
-			loader.tryWriteBinary(fileName, binaryName, tree); // NOTE: Enable if you want to generate new binaries.
+//			loader.tryWriteBinary(fileName, binaryName, tree); // NOTE: Enable if you want to generate new binaries.
 			
 			return new ASTBuilder(new ASTFactory()).buildModule(tree);
 		}catch (FactTypeUseException e){

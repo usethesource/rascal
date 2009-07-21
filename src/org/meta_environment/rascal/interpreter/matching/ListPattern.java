@@ -1,6 +1,7 @@
 package org.meta_environment.rascal.interpreter.matching;
 
 import java.util.HashSet;
+import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -16,7 +17,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 import org.meta_environment.uptr.SymbolAdapter;
 
 /* package */ class ListPattern extends AbstractPattern implements MatchPattern {
-	private java.util.List<AbstractPattern> patternChildren;	// The elements of this list pattern
+	private List<MatchPattern> patternChildren;	// The elements of this list pattern
 	private int patternSize;						// The number of elements in this list pattern
 	private int delta = 1;                        	// increment to next list elements:
 	                                                // delta=1 abstract lists
@@ -47,17 +48,17 @@ import org.meta_environment.uptr.SymbolAdapter;
 	private boolean debug = false;
 
 	
-	ListPattern(IValueFactory vf, EvaluatorContext ctx, java.util.List<AbstractPattern> children){
-		this(vf,ctx, children, 1);  // Default delta=1; Set to 2 to run DeltaListPatternTests
+	ListPattern(IValueFactory vf, EvaluatorContext ctx, List<MatchPattern> list){
+		this(vf,ctx, list, 1);  // Default delta=1; Set to 2 to run DeltaListPatternTests
 	}
 	
-	ListPattern(IValueFactory vf, EvaluatorContext ctx, java.util.List<AbstractPattern> children, int delta){
+	ListPattern(IValueFactory vf, EvaluatorContext ctx, List<MatchPattern> list, int delta){
 		super(vf, ctx);
 		if(delta < 1)
 			throw new ImplementationError("Wrong delta");
 		this.delta = delta;
-		this.patternChildren = children;					
-		this.patternSize = children.size();
+		this.patternChildren = list;					
+		this.patternSize = list.size();
 		this.reducedPatternSize = (patternSize + delta - 1) / delta;
 		
 		if (debug) {
@@ -140,7 +141,7 @@ import org.meta_environment.uptr.SymbolAdapter;
 		 * Pass #1: determine the list variables
 		 */
 		for(int i = 0; i < patternSize; i += delta){
-			AbstractPattern child = patternChildren.get(i);
+			MatchPattern child = patternChildren.get(i);
 			isListVar[i] = false;
 			isBindingVar[i] = false;
 			if(child instanceof TypedVariablePattern && isAnyListType(child.getType(env))){  // <------
@@ -463,7 +464,7 @@ import org.meta_environment.uptr.SymbolAdapter;
 			 * Perform actions for the current pattern element
 			 */
 			
-			AbstractPattern child = patternChildren.get(patternCursor);
+			MatchPattern child = patternChildren.get(patternCursor);
 			if(debug){
 				System.err.println(this);
 				System.err.println("loop: patternCursor=" + patternCursor + 

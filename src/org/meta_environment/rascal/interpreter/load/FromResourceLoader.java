@@ -70,27 +70,6 @@ public class FromResourceLoader implements IModuleFileLoader{
 	}
 	
 	public boolean tryWriteBinary(String filename, String binaryName, IConstructor tree){
-		File binFile = new File(binaryName);
-		if(!binFile.canWrite()) return false;
-		
-		FileOutputStream outputStream = null;
-		
-		PBFWriter pbfWriter = new PBFWriter();
-		try{
-			outputStream = new FileOutputStream(binFile);
-			pbfWriter.write(tree, outputStream);
-			return true;
-		}catch(IOException ioex){
-			ioex.printStackTrace();
-		}finally{
-			if(outputStream != null){
-				try{
-					outputStream.close();
-				}catch(IOException ioex){
-					ioex.printStackTrace();
-				}
-			}
-		}
 		return false;
 	}
 }

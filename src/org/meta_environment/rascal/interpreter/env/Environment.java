@@ -13,6 +13,7 @@ import org.eclipse.imp.pdb.facts.ISourceLocation;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.exceptions.FactTypeUseException;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.Name;
@@ -620,6 +621,10 @@ public class Environment {
 
 	public Set<String> getImports() {
 		return getRoot().getImports();
+	}
+
+	public boolean isDeclaredFunctionName(QualifiedName qualifiedName) {
+		return getFunction(name, TypeFactory.getInstance().voidType(), qualifiedName) != null;
 	}
 
 }
