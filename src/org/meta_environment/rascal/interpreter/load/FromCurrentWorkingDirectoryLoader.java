@@ -1,5 +1,6 @@
 package org.meta_environment.rascal.interpreter.load;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -39,11 +40,11 @@ public class FromCurrentWorkingDirectoryLoader implements IModuleFileLoader{
 	public boolean tryWriteBinary(String filename, String binaryName, IConstructor tree){
 		File binFile = new File(binaryName);
 		
-		FileOutputStream outputStream = null;
+		BufferedOutputStream outputStream = null;
 		
 		PBFWriter pbfWriter = new PBFWriter();
 		try{
-			outputStream = new FileOutputStream(binFile);
+			outputStream = new BufferedOutputStream(new FileOutputStream(binFile));
 			pbfWriter.write(tree, outputStream);
 			return true;
 		}catch(IOException ioex){

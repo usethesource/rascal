@@ -1,5 +1,6 @@
 package org.meta_environment.rascal.interpreter.load;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -86,11 +87,11 @@ public class FromResourceLoader implements IModuleFileLoader{
 		}
 		if(!binFile.canWrite()) return false;
 		
-		FileOutputStream outputStream = null;
+		BufferedOutputStream outputStream = null;
 		
 		PBFWriter pbfWriter = new PBFWriter();
 		try{
-			outputStream = new FileOutputStream(binFile);
+			outputStream = new BufferedOutputStream(new FileOutputStream(binFile));
 			pbfWriter.write(tree, outputStream);
 			return true;
 		}catch(IOException ioex){
