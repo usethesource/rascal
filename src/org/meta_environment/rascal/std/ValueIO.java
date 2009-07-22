@@ -69,7 +69,7 @@ public class ValueIO {
 		
 		try {
 			File file = new File(fileName);
-			PBFWriter.writeValueToFile(value, file);
+			PBFWriter.writeValueToFile(value, file, new TypeStore()); // TODO Use the proper type store.
 		} catch (IOException e) {
 			throw RuntimeExceptionFactory.io(values.string(e.getMessage()), null, null);
 		}
