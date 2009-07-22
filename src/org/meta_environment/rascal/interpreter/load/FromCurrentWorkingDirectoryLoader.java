@@ -51,6 +51,12 @@ public class FromCurrentWorkingDirectoryLoader implements IModuleFileLoader{
 		}finally{
 			if(outputStream != null){
 				try{
+					outputStream.flush();
+				}catch(IOException ioex){
+					ioex.printStackTrace();
+				}
+				
+				try{
 					outputStream.close();
 				}catch(IOException ioex){
 					ioex.printStackTrace();
