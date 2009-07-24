@@ -90,7 +90,7 @@ public class TuplePattern extends AbstractMatchingResult {
 			return false;
 		firstMatch = false;
 		
-		hasNext =  matchChildren(((ITuple) subject).iterator(), children.iterator());
+		hasNext =  matchChildren(((ITuple) subject.getValue()).iterator(), children.iterator());
 			
 		return hasNext;
 	}
