@@ -6,11 +6,9 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.interpreter.EvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
-import org.meta_environment.rascal.interpreter.result.ResultFactory;
 
 public class AntiPattern extends AbstractMatchingResult {
 	private IMatchingResult pat;
-	private java.util.List<String> patVars;
 
 	public AntiPattern(IValueFactory vf, EvaluatorContext ctx, IMatchingResult pat) {
 		super(vf, ctx);
