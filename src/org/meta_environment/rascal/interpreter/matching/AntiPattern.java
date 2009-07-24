@@ -9,6 +9,7 @@ import org.meta_environment.rascal.interpreter.result.Result;
 
 public class AntiPattern extends AbstractMatchingResult {
 	private IMatchingResult pat;
+	private boolean stop;
 
 	public AntiPattern(IValueFactory vf, EvaluatorContext ctx, IMatchingResult pat) {
 		super(vf, ctx);
@@ -24,6 +25,7 @@ public class AntiPattern extends AbstractMatchingResult {
 	public void initMatch(Result<IValue> subject){
 		super.initMatch(subject);
 		pat.initMatch(subject);
+		stop = false;
 	}
 	
 	@Override
@@ -33,19 +35,27 @@ public class AntiPattern extends AbstractMatchingResult {
 	
 	@Override
 	public boolean hasNext() {
-		return pat.hasNext();
+		return !stop && pat.hasNext();
 	}
 
 	@Override
 	public boolean next() {
 		Environment old = ctx.getCurrentEnvt();
-		try {
-			ctx.goodPushEnv();
-			return !pat.next();
+
+		while (pat.hasNext()) {
+			try {
+				ctx.goodPushEnv();
+				if (pat.next()) {
+					stop = true;
+					return false;
+				}
+			}
+			finally {
+				ctx.unwind(old);
+			}
 		}
-		finally {
-			ctx.unwind(old);
-		}
+		
+		return true;
 	}
 
 	@Override
