@@ -25,7 +25,6 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedOperation
  * because it is reused by DescandantPattern it must be for now.
  */
 public class EnumeratorResult extends AbstractMatchingResult {
-	private boolean hasNext = true;
 	private IMatchingResult pat;
 	private Iterator<?> iterator;
 	private Strategy strategy;
@@ -51,7 +50,7 @@ public class EnumeratorResult extends AbstractMatchingResult {
 	
 	@Override
 	public void initMatch(Result<IValue> subject) {
-		super.init();
+		super.initMatch(subject);
 		if (subject == null) {
 			// this is needed because DescendantPattern reuses the EnumeratorPattern
 			subject = expression.accept(ctx.getEvaluator());
@@ -59,6 +58,7 @@ public class EnumeratorResult extends AbstractMatchingResult {
 			makeIterator(subject.getType(), subject.getValue());
 		}
 		firstTime = true;
+		hasNext = true;
 	};
 	
 	private void makeIterator(Type subjectType, IValue subjectValue){
@@ -121,6 +121,7 @@ public class EnumeratorResult extends AbstractMatchingResult {
 	@Override
 	public boolean hasNext(){
 		if (firstTime) {
+			hasNext = true;
 			return true;
 		}
 		
