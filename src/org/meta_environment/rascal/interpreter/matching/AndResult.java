@@ -28,13 +28,13 @@ public class AndResult extends AbstractBooleanResult {
 
 	public void init() {
 		left.init();
-		right.init();
+		// do not right.init() yet since it may use variables introduced by the first left.next();
 		firstMatch = true;
 	}
 
 	public boolean hasNext() {
 		if (firstMatch) {
-			return left.hasNext() && right.hasNext();
+			return left.hasNext();
 		}
 		
 		return right.hasNext() || left.hasNext();
@@ -46,6 +46,7 @@ public class AndResult extends AbstractBooleanResult {
 			firstMatch = false;
 			ctx.goodPushEnv();
 			leftResult = left.next();
+			right.init();
 			return leftResult && right.next();
 		}
 		
