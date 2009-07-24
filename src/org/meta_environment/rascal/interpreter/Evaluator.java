@@ -1735,6 +1735,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			try {
 				gen = makeBooleanResult(generator);
 				gen.init();
+				goodPushEnv();
 				if(gen.hasNext() && gen.next()){
 					result = body.accept(this);
 				}

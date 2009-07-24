@@ -735,10 +735,10 @@ public class PatternTests extends TestFramework {
 	
 	@Test
 	public void antiPattern(){
-		assertTrue(runTest("{!4 := 3;}"));
-		assertFalse(runTest("{!3 := 3;}"));
-		
-		assertTrue(runTest("{![1,2,3] := [1,2,4];}"));
+//		assertTrue(runTest("{!4 := 3;}"));
+//		assertFalse(runTest("{!3 := 3;}"));
+//		
+//		assertTrue(runTest("{![1,2,3] := [1,2,4];}"));
 		assertFalse(runTest("{![1,2,3] := [1,2,3];}"));
 		
 		assertTrue(runTest("{![1,int X,3] := [1,2,4]; (X ? 10) == 10;}"));
