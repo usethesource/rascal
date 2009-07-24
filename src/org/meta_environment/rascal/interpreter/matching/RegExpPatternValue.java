@@ -92,16 +92,21 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 		}
 	}
 	
+	@Override
 	public Type getType(Environment ev) {
 		return tf.stringType();
 	}
 
-	public void initMatch(IValue subject) {
+	@Override
+	public void initMatch(Result<IValue> subject) {
+		super.initMatch(subject);
+		
+		// TODO : does not work with aliases of stringType
 		if(!subject.getType().isStringType()){
 			hasNext = false;
 			return;
 		}
-		this.subject = ((IString) subject).getValue();
+		this.subject = ((IString) subject.getValue()).getValue();
 		initialized = firstMatch = hasNext = true;
 	
 		try {
@@ -112,10 +117,12 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 		}
 	}
 	
+	@Override
 	public boolean hasNext() {
 		return initialized && (firstMatch || hasNext);
 	}
 	
+	@Override
 	public boolean mayMatch(Type subjectType, Environment env) {
 		return subjectType.equivalent(tf.stringType());
 	}
