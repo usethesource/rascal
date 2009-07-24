@@ -3403,18 +3403,20 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	public Result visitExpressionAny(Any x) {
 		java.util.List<Expression> generators = x.getGenerators();
 		int size = generators.size();
-		Result<IValue>[] gens = new Result[size];
+		IBooleanResult[] gens = new IBooleanResult[size];
 
 		int i = 0;
-		gens[0] = makeGenerator(generators.get(0));
+		gens[0] = makeBooleanResult(generators.get(0));
+		gens[0].init();
 		while (i >= 0 && i < size) {
-			if (gens[i].hasNext() && gens[i].next().isTrue()) {
+			if (gens[i].hasNext() && gens[i].next()) {
 				if (i == size - 1) {
 					return new BoolResult(true, null, null);
 				}
 
 				i++;
-				gens[i] = makeGenerator(generators.get(i));
+				gens[i] = makeBooleanResult(generators.get(i));
+				gens[i].init();
 			} else {
 				i--;
 			}

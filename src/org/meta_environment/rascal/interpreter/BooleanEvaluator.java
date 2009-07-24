@@ -1,7 +1,6 @@
 package org.meta_environment.rascal.interpreter;
 
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.eclipse.imp.pdb.facts.exceptions.UnexpectedTypeException;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.Expression.Addition;
@@ -68,6 +67,7 @@ import org.meta_environment.rascal.interpreter.matching.MatchResult;
 import org.meta_environment.rascal.interpreter.matching.NotResult;
 import org.meta_environment.rascal.interpreter.matching.OrResult;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
+import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
 
 public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> {
@@ -87,8 +87,7 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> {
 		if (x.getLiteral().isBoolean()) {
 			return new BasicBooleanResult(vf, ctx, x);
 		} else {
-			throw new UnexpectedTypeException(tf.boolType(), x.accept(
-					ctx.getEvaluator()).getType());
+			throw new UnexpectedTypeError(tf.boolType(), x.accept(ctx.getEvaluator()).getType(), x);
 		}
 	}
 
@@ -99,26 +98,26 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> {
 
 	@Override
 	public IBooleanResult visitExpressionList(List x) {
-		throw new UnexpectedTypeException(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType());
+		throw new UnexpectedTypeError(tf.boolType(), x.accept(
+				ctx.getEvaluator()).getType(), x);
 	}
 
 	@Override
 	public IBooleanResult visitExpressionSet(Set x) {
-		throw new UnexpectedTypeException(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType());
+		throw new UnexpectedTypeError(tf.boolType(), x.accept(
+				ctx.getEvaluator()).getType(), x);
 	}
 
 	@Override
 	public IBooleanResult visitExpressionTuple(Tuple x) {
-		throw new UnexpectedTypeException(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType());
+		throw new UnexpectedTypeError(tf.boolType(), x.accept(
+				ctx.getEvaluator()).getType(), x);
 	}
 
 	@Override
 	public IBooleanResult visitExpressionMap(Map x) {
-		throw new UnexpectedTypeException(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType());
+		throw new UnexpectedTypeError(tf.boolType(), x.accept(
+				ctx.getEvaluator()).getType(), x);
 	}
 
 	@Override
@@ -164,8 +163,8 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> {
 
 	@Override
 	public IBooleanResult visitExpressionAddition(Addition x) {
-		throw new UnexpectedTypeException(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType());
+		throw new UnexpectedTypeError(tf.boolType(), x.accept(
+				ctx.getEvaluator()).getType(), x);
 	}
 
 	@Override
@@ -197,27 +196,27 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> {
 
 	@Override
 	public IBooleanResult visitExpressionClosure(Closure x) {
-		throw new UnexpectedTypeException(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType());
+		throw new UnexpectedTypeError(tf.boolType(), x.accept(
+				ctx.getEvaluator()).getType(), x);
 	}
 
 	@Override
 	public IBooleanResult visitExpressionComposition(Composition x) {
-		throw new UnexpectedTypeException(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType());
+		throw new UnexpectedTypeError(tf.boolType(), x.accept(
+				ctx.getEvaluator()).getType(), x);
 	}
 
 	@Override
 	public IBooleanResult visitExpressionComprehension(Comprehension x) {
-		throw new UnexpectedTypeException(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType());
+		throw new UnexpectedTypeError(tf.boolType(), x.accept(
+				ctx.getEvaluator()).getType(), x);
 	}
 
 	@Override
 	public IBooleanResult visitExpressionDivision(
 			org.meta_environment.rascal.ast.Expression.Division x) {
-		throw new UnexpectedTypeException(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType());
+		throw new UnexpectedTypeError(tf.boolType(), x.accept(
+				ctx.getEvaluator()).getType(), x);
 	}
 
 	@Override
@@ -238,14 +237,14 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> {
 
 	@Override
 	public IBooleanResult visitExpressionFieldProject(FieldProject x) {
-		throw new UnexpectedTypeException(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType());
+		throw new UnexpectedTypeError(tf.boolType(), x.accept(
+				ctx.getEvaluator()).getType(), x);
 	}
 
 	@Override
 	public IBooleanResult visitExpressionFieldUpdate(FieldUpdate x) {
-		throw new UnexpectedTypeException(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType());
+		throw new UnexpectedTypeError(tf.boolType(), x.accept(
+				ctx.getEvaluator()).getType(), x);
 	}
 
 	@Override
@@ -282,8 +281,8 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> {
 	@Override
 	public IBooleanResult visitExpressionIntersection(
 			org.meta_environment.rascal.ast.Expression.Intersection x) {
-		throw new UnexpectedTypeException(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType());
+		throw new UnexpectedTypeError(tf.boolType(), x.accept(
+				ctx.getEvaluator()).getType(), x);
 	}
 
 	@Override
@@ -299,8 +298,8 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> {
 	@Override
 	public IBooleanResult visitExpressionLexical(
 			org.meta_environment.rascal.ast.Expression.Lexical x) {
-		throw new UnexpectedTypeException(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType());
+		throw new UnexpectedTypeError(tf.boolType(), x.accept(
+				ctx.getEvaluator()).getType(), x);
 	}
 
 	@Override
@@ -311,8 +310,8 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> {
 
 	@Override
 	public IBooleanResult visitExpressionModulo(Modulo x) {
-		throw new UnexpectedTypeException(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType());
+		throw new UnexpectedTypeError(tf.boolType(), x.accept(
+				ctx.getEvaluator()).getType(), x);
 	}
 
 	@Override
@@ -322,8 +321,8 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> {
 
 	@Override
 	public IBooleanResult visitExpressionNegative(Negative x) {
-		throw new UnexpectedTypeException(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType());
+		throw new UnexpectedTypeError(tf.boolType(), x.accept(
+				ctx.getEvaluator()).getType(), x);
 	}
 
 	@Override
@@ -334,8 +333,8 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> {
 
 	@Override
 	public IBooleanResult visitExpressionNonEmptyBlock(NonEmptyBlock x) {
-		throw new UnexpectedTypeException(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType());
+		throw new UnexpectedTypeError(tf.boolType(), x.accept(
+				ctx.getEvaluator()).getType(), x);
 	}
 
 	@Override
@@ -350,8 +349,8 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> {
 
 	@Override
 	public IBooleanResult visitExpressionOperatorAsValue(OperatorAsValue x) {
-		throw new UnexpectedTypeException(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType());
+		throw new UnexpectedTypeError(tf.boolType(), x.accept(
+				ctx.getEvaluator()).getType(), x);
 	}
 
 	@Override
@@ -363,26 +362,26 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> {
 	@Override
 	public IBooleanResult visitExpressionProduct(
 			org.meta_environment.rascal.ast.Expression.Product x) {
-		throw new UnexpectedTypeException(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType());
+		throw new UnexpectedTypeError(tf.boolType(), x.accept(
+				ctx.getEvaluator()).getType(), x);
 	}
 
 	@Override
 	public IBooleanResult visitExpressionRange(Range x) {
-		throw new UnexpectedTypeException(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType());
+		throw new UnexpectedTypeError(tf.boolType(), x.accept(
+				ctx.getEvaluator()).getType(), x);
 	}
 
 	@Override
 	public IBooleanResult visitExpressionSetAnnotation(SetAnnotation x) {
-		throw new UnexpectedTypeException(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType());
+		throw new UnexpectedTypeError(tf.boolType(), x.accept(
+				ctx.getEvaluator()).getType(), x);
 	}
 
 	@Override
 	public IBooleanResult visitExpressionStepRange(StepRange x) {
-		throw new UnexpectedTypeException(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType());
+		throw new UnexpectedTypeError(tf.boolType(), x.accept(
+				ctx.getEvaluator()).getType(), x);
 	}
 
 	@Override
@@ -394,20 +393,20 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> {
 	@Override
 	public IBooleanResult visitExpressionSubtraction(
 			org.meta_environment.rascal.ast.Expression.Subtraction x) {
-		throw new UnexpectedTypeException(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType());
+		throw new UnexpectedTypeError(tf.boolType(), x.accept(
+				ctx.getEvaluator()).getType(), x);
 	}
 
 	@Override
 	public IBooleanResult visitExpressionTransitiveClosure(TransitiveClosure x) {
-		throw new UnexpectedTypeException(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType());}
+		throw new UnexpectedTypeError(tf.boolType(), x.accept(
+				ctx.getEvaluator()).getType(), x);}
 
 	@Override
 	public IBooleanResult visitExpressionTransitiveReflexiveClosure(
 			TransitiveReflexiveClosure x) {
-		throw new UnexpectedTypeException(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType());
+		throw new UnexpectedTypeError(tf.boolType(), x.accept(
+				ctx.getEvaluator()).getType(), x);
 		}
 
 	@Override
@@ -430,7 +429,7 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> {
 
 	@Override
 	public IBooleanResult visitExpressionVoidClosure(VoidClosure x) {
-		throw new UnexpectedTypeException(tf.boolType(), x.accept(
-				ctx.getEvaluator()).getType());
+		throw new UnexpectedTypeError(tf.boolType(), x.accept(
+				ctx.getEvaluator()).getType(), x);
 	}
 }
