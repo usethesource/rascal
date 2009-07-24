@@ -112,13 +112,13 @@ import org.meta_environment.uptr.SymbolAdapter;
 			hasNext = false;
 			return;
 		} else {
-			listSubject = (IList) subject;
+			listSubject = (IList) subject.getValue();
 			listSubjectType = listSubject.getType();
 			listSubjectElementType = listSubject.getElementType();
 		}
 		subjectCursor = 0;
 		patternCursor = 0;
-		subjectSize = ((IList) subject).length();
+		subjectSize = ((IList) subject.getValue()).length();
 		reducedSubjectSize = (subjectSize + delta - 1) / delta;
 		
 		if (debug) {
