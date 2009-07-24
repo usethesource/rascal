@@ -444,7 +444,7 @@ public class ListPattern extends AbstractMatchingResult  {
 				if(patternCursor >= patternSize){
 					if(subjectCursor >= subjectSize){
 						if(debug)System.err.println(">>> match returns true");
-						hasNext = (subjectCursor > subjectSize) && (patternCursor > patternSize); // JURGEN GUESSES THIS COULD BE RIGHT
+//						hasNext = (subjectCursor > subjectSize) && (patternCursor > patternSize); // JURGEN GUESSES THIS COULD BE RIGHT
 						return true;
 					}
 					forward = false;

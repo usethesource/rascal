@@ -1658,6 +1658,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			gens[0] = makeBooleanResult(generators.get(0));
 			gens[0].init();
 			olds[0] = getCurrentEnvt();
+			goodPushEnv();
 			while(i >= 0 && i < size) {		
 				if(gens[i].hasNext() && gens[i].next()){
 					if(i == size - 1){
@@ -1667,9 +1668,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 						gens[i] = makeBooleanResult(generators.get(i));
 						gens[i].init();
 						olds[i] = getCurrentEnvt();
+						goodPushEnv();
 					}
 				} else {
 					unwind(olds[i]);
+					goodPushEnv();
 					i--;
 				}
 			}
@@ -1697,6 +1700,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			gens[0] = makeBooleanResult(generators.get(0));
 			gens[0].init();
 			olds[0] = getCurrentEnvt();
+			goodPushEnv();
+			
 			while(i >= 0 && i < size) {		
 				if(gens[i].hasNext() && gens[i].next()){
 					if(i == size - 1){
@@ -1706,9 +1711,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 						gens[i] = makeBooleanResult(generators.get(i));
 						gens[i].init();
 						olds[i] = getCurrentEnvt();
+						goodPushEnv();
 					}
 				} else {
 					unwind(olds[i]);
+					goodPushEnv();
 					i--;
 				}
 			}
@@ -2286,17 +2293,18 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			return result;
 		}
 
-		throw new UninitializedVariableError(x.getQualifiedName().toString(), x);
+		throw new UninitializedVariableError(Names.name(x.getName()), x);
 	}
 
 	private boolean matchAndEval(Result<IValue> subject, org.meta_environment.rascal.ast.Expression pat, Statement stat){
 		Environment old = getCurrentEnvt();
 		
 		try {
-			IMatchingResult mp = (IMatchingResult) makeBooleanResult(pat);
+			IMatchingResult mp = (IMatchingResult) pat.accept(makePatternEvaluator(pat));
 			mp.initMatch(subject);
 			//System.err.println("matchAndEval: subject=" + subject + ", pat=" + pat);
 			while(mp.hasNext()){
+				goodPushEnv();
 				//System.err.println("matchAndEval: mp.hasNext()==true");
 				if(mp.next()){
 					//System.err.println("matchAndEval: mp.next()==true");
@@ -2307,14 +2315,16 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 							stat.accept(this);
 						} catch (org.meta_environment.rascal.interpreter.control_exceptions.Insert e){
 							// Make sure that the match pattern is set
-							if(e.getMatchPattern() == null)
+							if(e.getMatchPattern() == null) {
 								e.setMatchPattern(mp);
+							}
 							throw e;
 						}
 						commit(getCurrentEnvt());
 						return true;
 					} catch (Failure e){
 						//System.err.println("failure occurred");
+						unwind(old);
 						rollback(getCurrentEnvt());
 					}
 				}
@@ -3379,6 +3389,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			gens[0] = makeBooleanResult(generators.get(0));
 			gens[0].init();
 			olds[0] = getCurrentEnvt();
+			goodPushEnv();
+			
 			while(i >= 0 && i < size) {		
 				if(gens[i].hasNext() && gens[i].next()){
 					if(i == size - 1){
@@ -3388,10 +3400,12 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 						gens[i] = makeBooleanResult(generators.get(i));
 						gens[i].init();
 						olds[i] = getCurrentEnvt();
+						goodPushEnv();
 					}
 				} else {
 					unwind(olds[i]);
 					i--;
+					goodPushEnv();
 				}
 			}
 		} finally {

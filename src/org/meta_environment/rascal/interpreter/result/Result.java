@@ -77,6 +77,11 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 		return value;
 	}
 	
+	@Override
+	public String toString() {
+		return getType().toString() + ": " + getValue().toString();
+	}
+	
 	public Type getType() { 
 		return type;
 	}
