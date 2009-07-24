@@ -2324,8 +2324,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 						return true;
 					} catch (Failure e){
 						//System.err.println("failure occurred");
-						unwind(old);
 						rollback(getCurrentEnvt());
+						unwind(old);
 					}
 				}
 			}

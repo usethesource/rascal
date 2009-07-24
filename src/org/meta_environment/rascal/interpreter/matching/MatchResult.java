@@ -12,6 +12,7 @@ public class MatchResult extends AbstractBooleanResult {
 	private boolean positive;
 	private IMatchingResult mp;
 	private Expression expression;
+	private boolean firstTime;
 	
 	public MatchResult(IValueFactory vf, EvaluatorContext ctx, IMatchingResult pat, boolean positive, Expression expression) {
 		super(vf, ctx);
@@ -32,15 +33,26 @@ public class MatchResult extends AbstractBooleanResult {
     	if(!mp.mayMatch(subjectType, ctx.getCurrentEnvt())) {
     		throw new UnexpectedTypeError(mp.getType(ctx.getCurrentEnvt()), subjectType, ctx.getCurrentAST());
     	}
+    	
+    	firstTime = true;
     }
 
     @Override
 	public boolean hasNext() {
-    	return mp.hasNext();
+    	if (positive) {
+    		return mp.hasNext();
+    	}
+    	else {
+    		if (firstTime) {
+    			return true;
+    		}
+    		return mp.hasNext();
+    	}
 	}
 
     @Override
 	public boolean next() {
+    	firstTime = false;
 		// TODO: should manage escape variable from negative matches!!!
 		if(hasNext()){	
 			return positive ? mp.next() : !mp.next();
