@@ -11,11 +11,12 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.interpreter.EvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
+import org.meta_environment.rascal.interpreter.result.ResultFactory;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 
-/* package */ class SetPattern extends AbstractPattern implements MatchPattern {
-	private List<MatchPattern> patternChildren; // The elements of the set pattern
+/* package */ class SetPattern extends AbstractMatchingResult {
+	private List<IMatchingResult> patternChildren; // The elements of the set pattern
 	private int patternSize;					// Number of elements in the set pattern
 	private ISet setSubject;					// Current subject	
 	private Type setSubjectType;				// Type of the subject
@@ -37,7 +38,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 												// (including nested subpatterns)
 	private String[] varName;					// Name of each variable
 	private ISet[] varVal;						// Value of each variable
-	private MatchPattern[] varPat;			// The pattern value for non-literal patterns
+	private IMatchingResult[] varPat;			// The pattern value for non-literal patterns
 	private boolean[] isSetVar;				// Is this a set variables?			
 	private Iterator<?>[] varGen;				// Value generator for this variables
 	
@@ -46,7 +47,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 	
 	private boolean debug = false;
 	
-	SetPattern(IValueFactory vf, EvaluatorContext ctx, List<MatchPattern> list){
+	SetPattern(IValueFactory vf, EvaluatorContext ctx, List<IMatchingResult> list){
 		super(vf, ctx);
 		this.patternChildren = list;
 		this.patternSize = list.size();
@@ -94,7 +95,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 	private void sortVars(){
 		String[] newVarName = new String[patternSize];
 		ISet[]newVarVal= new ISet[patternSize];
-		MatchPattern[] newVarPat = new MatchPattern[patternSize];
+		IMatchingResult[] newVarPat = new IMatchingResult[patternSize];
 		boolean[] newIsSetVar = new boolean[patternSize];
 		
 		int nw = 0;
@@ -127,18 +128,19 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 	}
 	
 	@Override
-	public void initMatch(IValue subject, Environment env){
+	public void initMatch(Result<IValue> subject) {
 		
-		super.initMatch(subject, env);
+		super.initMatch(subject);
 		
 		if (!subject.getType().isSetType()) {
 			hasNext = false;
 			return;
 		}
 		
-		setSubject = (ISet) subject;
+		setSubject = (ISet) subject.getValue();
 		setSubjectType = setSubject.getType();
 		setSubjectElementType = setSubject.getElementType();
+		Environment env = ctx.getCurrentEnvt();
 		fixedSetElements = vf.set(getType(env).getElementType());
 		
 		nVar = 0;
@@ -147,13 +149,13 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 		varName = new String[patternSize];  			// Some overestimations
 		isSetVar = new boolean[patternSize];
 		varVal = new ISet[patternSize];
-		varPat = new AbstractPattern[patternSize];
+		varPat = new IMatchingResult[patternSize];
 		varGen = new Iterator<?>[patternSize];
 		/*
 		 * Pass #1: determine the (ordinary and set) variables in the pattern
 		 */
 		for(int i = 0; i < patternSize; i++){
-			MatchPattern child = patternChildren.get(i);
+			IMatchingResult child = patternChildren.get(i);
 			if(child instanceof TypedVariablePattern){
 				TypedVariablePattern patVar = (TypedVariablePattern) child;
 				Type childType = child.getType(env);
@@ -288,7 +290,9 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 		return avail;
 	}
 	
-	private boolean makeGen(int i, ISet elements){
+	private boolean makeGen(int i, ISet elements) {
+		Environment env = ctx.getCurrentEnvt();
+		
 		if(varPat[i] instanceof QualifiedNamePattern){
 			QualifiedNamePattern qualName = (QualifiedNamePattern) varPat[i];
 			String name = qualName.getName();
@@ -319,7 +323,9 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 			assert elements.size() == 1;
 			elem = elements.iterator().next();
 		}
-		varPat[i].initMatch(elem, env);
+		
+		// TODO: see if we can use a static ttype here?!
+		varPat[i].initMatch(ResultFactory.makeResult(elem.getType(), elem, ctx));
 		return varPat[i].next();
 	}
 	

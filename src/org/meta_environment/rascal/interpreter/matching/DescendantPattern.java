@@ -3,21 +3,20 @@ package org.meta_environment.rascal.interpreter.matching;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.EvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
-import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
+import org.meta_environment.rascal.interpreter.result.Result;
 
-class DescendantPattern extends AbstractPattern implements MatchPattern {
+class DescendantPattern extends AbstractMatchingResult  {
+	private IMatchingResult pat;
+	private IBooleanResult enumAndMatch;
 
-	private MatchPattern pat;
-	private Evaluator eval;
-	private EnumerateAndMatch enumAndMatch;
-
-	public DescendantPattern(IValueFactory vf, EvaluatorContext ctx, MatchPattern pat) {
+	public DescendantPattern(IValueFactory vf, EvaluatorContext ctx, IMatchingResult pat) {
 		super(vf, ctx);
-		this.eval = ctx.getEvaluator();
 		this.pat = pat;
+		// nice trick, we reuse the enumerator here because that does traversal, 
+		// in the future, we may put the traversal in this class and remove it from enumerator
+		this.enumAndMatch = new EnumeratorResult(vf, ctx, pat, null, null);
 	}
 
 	@Override
@@ -27,13 +26,13 @@ class DescendantPattern extends AbstractPattern implements MatchPattern {
 	
 	@Override
 	public boolean mayMatch(Type subjectType, Environment env){
-		return evaluator.mayOccurIn(getType(env), subjectType);
+		return ctx.getEvaluator().mayOccurIn(getType(env), subjectType);
 	}
 	
 	@Override
-	public void initMatch(IValue subject, Environment env){
-		super.initMatch(subject,env);
-		enumAndMatch = new EnumerateAndMatch(pat, makeResult(subject.getType(), subject, ctx), eval);
+	public void initMatch(Result<IValue> subject){
+		super.initMatch(subject);
+		enumAndMatch.init();
 	}
 	
 	@Override
@@ -44,7 +43,7 @@ class DescendantPattern extends AbstractPattern implements MatchPattern {
 
 	@Override
 	public boolean next() {
-		if(enumAndMatch.next().isTrue()){
+		if(enumAndMatch.next()){
 			return true;
 		}
 		return false;
@@ -52,7 +51,6 @@ class DescendantPattern extends AbstractPattern implements MatchPattern {
 
 	@Override
 	public IValue toIValue(Environment env) {
-		// TODO Auto-generated method stub
-		return null;
+		return subject.getValue();
 	}
 }

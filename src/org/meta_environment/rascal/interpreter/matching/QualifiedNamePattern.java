@@ -5,24 +5,22 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.interpreter.EvaluatorContext;
-import org.meta_environment.rascal.interpreter.Names;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
+import org.meta_environment.rascal.interpreter.utils.Names;
 
-import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
-
-/* package */ class QualifiedNamePattern extends AbstractPattern implements MatchPattern {
+/* package */ class QualifiedNamePattern extends AbstractMatchingResult {
 	protected org.meta_environment.rascal.ast.QualifiedName name;
 	private Type type;
 	protected boolean anonymous = false;
 	private boolean debug = false;
-	protected Environment env; 
 	
-	QualifiedNamePattern(IValueFactory vf, Environment env, EvaluatorContext ctx, org.meta_environment.rascal.ast.QualifiedName name){
+	QualifiedNamePattern(IValueFactory vf, EvaluatorContext ctx, org.meta_environment.rascal.ast.QualifiedName name){
 		super(vf, ctx);
 		this.name = name;
 		this.anonymous = getName().equals("_");
-		this.env = env;
+		Environment env = ctx.getCurrentEnvt();
+		
 		// Look for this variable while we are constructing this pattern
 		if(anonymous){
 			type = TypeFactory.getInstance().valueType();
@@ -74,12 +72,12 @@ import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeR
 			return true;
 		}
 	
-		Result<IValue> varRes = env.getVariable(name);
+		Result<IValue> varRes = ctx.getCurrentEnvt().getVariable(name);
 		if((varRes == null) || (varRes.getValue() == null)){
 			// Is the variable still undefined?
 			if(debug)System.err.println("name= " + name + ", subject=" + subject + ",");
 			type = subject.getType();
-			env.storeInnermostVariable(getName(), makeResult(type, subject, ctx));
+			ctx.getCurrentEnvt().storeInnermostVariable(getName(), subject);
 			return true;
 		}
 		
@@ -88,9 +86,9 @@ import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeR
 		if(debug)System.err.println("AbstractPatternQualifiedName.match: " + name + ", subject=" + subject + ", value=" + varVal);
 		if (subject.getType().isSubtypeOf(varRes.getType())) {
 			if(debug) {
-				System.err.println("returns " + makeResult(subject.getType(),subject, ctx).equals(varRes));
+				System.err.println("returns " + subject.equals(varRes));
 			}
-			return makeResult(subject.getType(),subject, ctx).equals(varRes, ctx).isTrue();
+			return subject.equals(varRes, ctx).isTrue();
 		}
 		
 		return false;

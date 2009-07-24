@@ -1,0 +1,70 @@
+package org.meta_environment.rascal.interpreter.matching;
+
+import org.eclipse.imp.pdb.facts.IValueFactory;
+import org.meta_environment.rascal.interpreter.EvaluatorContext;
+import org.meta_environment.rascal.interpreter.env.Environment;
+
+/**
+ * The or boolean operator backtracks for both the lhs and the rhs. This means
+ * that if the lhs or rhs have multiple ways of assigning a value to a variable,
+ * this and operator will be evaluated as many times.
+ * 
+ * Note that variables introduced in the left hand side will NOT be visible in the
+ * right hand side. The right hand side is only evaluated if the left hand side is false,
+ * which means that no variables have been bound. Also note that both sides of a
+ * disjunction are required to introduce exactly the same variables of exactly the same
+ * type
+ * 
+ * @author jurgenv
+ *
+ */
+public class OrResult extends AbstractBooleanResult {
+	private final IBooleanResult left;
+	private final IBooleanResult right;
+
+	public OrResult(IValueFactory vf, EvaluatorContext ctx, IBooleanResult left, IBooleanResult right) {
+		super(vf, ctx);
+		this.left = left;
+		this.right = right;
+	}
+
+	@Override
+	public void init() {
+		super.init();
+		left.init();
+		right.init();
+	}
+
+	@Override
+	public boolean hasNext() {
+		return left.hasNext() || right.hasNext();
+	}
+	
+	@Override
+	public boolean next() {
+		// note how we clean up introduced variables, but only if one of the branches fails
+		if (left.hasNext()) {
+			Environment old = ctx.getCurrentEnvt();
+			ctx.goodPushEnv();
+			if (left.next()) {
+				return true;
+			}
+			else {
+				ctx.unwind(old);
+			}
+		}
+		
+		if (right.hasNext()) {
+			Environment old = ctx.getCurrentEnvt();
+			ctx.goodPushEnv();
+			if (right.next()) {
+				return true;
+			}
+			else {
+				ctx.unwind(old);
+			}
+		}
+		
+		return false;
+	}
+}

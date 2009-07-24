@@ -29,5 +29,13 @@ public class EvaluatorContext {
 	public Environment getCurrentEnvt() {
 		return evaluator.getCurrentEnvt();
 	}
+
+	public void goodPushEnv() {
+		evaluator.goodPushEnv();
+	}
+
+	public void unwind(Environment old) {
+		evaluator.unwind(old);
+	}
 	
 }

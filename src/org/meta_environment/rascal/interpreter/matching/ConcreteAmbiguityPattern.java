@@ -7,11 +7,11 @@ import org.meta_environment.rascal.ast.Expression.CallOrTree;
 import org.meta_environment.rascal.interpreter.EvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
 
-class ConcreteAmbiguityPattern extends AbstractPattern {
+class ConcreteAmbiguityPattern extends AbstractMatchingResult {
 
 	public ConcreteAmbiguityPattern(IValueFactory vf,
 			EvaluatorContext ctx, CallOrTree x,
-			java.util.List<AbstractPattern> args) {
+			java.util.List<AbstractBooleanResult> args) {
 		super(vf, ctx);
 	}
 

@@ -5,7 +5,7 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.meta_environment.ValueFactoryFactory;
-import org.meta_environment.rascal.interpreter.RuntimeExceptionFactory;
+import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 
 public class String {
 	private static final IValueFactory values = ValueFactoryFactory.getValueFactory();

@@ -1,4 +1,4 @@
-package org.meta_environment.rascal.interpreter;
+package org.meta_environment.rascal.interpreter.utils;
 
 import java.net.URL;
 import java.util.Comparator;
@@ -16,6 +16,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
+import org.meta_environment.rascal.interpreter.Evaluator;
 
 class Count {
 	int ticks;
@@ -40,7 +41,7 @@ public class Profiler extends Thread {
 	private volatile boolean running;
 	private long resolution = 1;
 	
-	Profiler(Evaluator ev){
+	public Profiler(Evaluator ev){
 		this.eval = ev;
 		this.data = new HashMap<AbstractAST,Count>();
 		running = true;

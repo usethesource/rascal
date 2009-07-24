@@ -1,8 +1,8 @@
 package org.meta_environment.rascal.interpreter;
 
-import static org.meta_environment.rascal.interpreter.Utils.unescape;
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.nothing;
+import static org.meta_environment.rascal.interpreter.utils.Utils.unescape;
 
 import java.io.IOException;
 import java.io.Writer;
@@ -172,10 +172,9 @@ import org.meta_environment.rascal.interpreter.load.FromResourceLoader;
 import org.meta_environment.rascal.interpreter.load.IModuleFileLoader;
 import org.meta_environment.rascal.interpreter.load.ISdfSearchPathContributor;
 import org.meta_environment.rascal.interpreter.load.ModuleLoader;
-import org.meta_environment.rascal.interpreter.matching.EnumerateAndMatch;
+import org.meta_environment.rascal.interpreter.matching.IBooleanResult;
+import org.meta_environment.rascal.interpreter.matching.IMatchingResult;
 import org.meta_environment.rascal.interpreter.matching.LiteralPattern;
-import org.meta_environment.rascal.interpreter.matching.MatchEvaluator;
-import org.meta_environment.rascal.interpreter.matching.MatchPattern;
 import org.meta_environment.rascal.interpreter.matching.PatternEvaluator;
 import org.meta_environment.rascal.interpreter.matching.RegExpPatternValue;
 import org.meta_environment.rascal.interpreter.result.BoolResult;
@@ -198,6 +197,11 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnguardedInsertError
 import org.meta_environment.rascal.interpreter.staticErrors.UnguardedReturnError;
 import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedOperationError;
+import org.meta_environment.rascal.interpreter.utils.JavaBridge;
+import org.meta_environment.rascal.interpreter.utils.Names;
+import org.meta_environment.rascal.interpreter.utils.Profiler;
+import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
+import org.meta_environment.rascal.interpreter.utils.Symbols;
 import org.meta_environment.rascal.parser.ModuleParser;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.SymbolAdapter;
@@ -438,24 +442,22 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		if (v != null) {
 			checkType(v.getType(), instance);
 		}
-		return makeResult(instance, v, new EvaluatorContext(this, getCurrentAST()));
+		return makeResult(instance, v, makeEvContext());
 	}
 
 
-	private IValue applyRules(IValue v) {
-
-
+	private Result<IValue> applyRules(Result<IValue> v) {
 		//System.err.println("applyRules(" + v + ")");
 		// we search using the run-time type of a value
-		Type typeToSearchFor = v.getType();
+		Type typeToSearchFor = v.getValue().getType();
 		if (typeToSearchFor.isAbstractDataType()) {
-			typeToSearchFor = ((IConstructor) v).getConstructorType();
+			typeToSearchFor = ((IConstructor) v.getValue()).getConstructorType();
 		}
 
 		java.util.List<RewriteRule> rules = heap.getRules(typeToSearchFor);
 		if(rules.isEmpty()){
 			// weird side-effect but it works
-			declareConcreteSyntaxType(v);
+			declareConcreteSyntaxType(v.getValue());
 			return v;
 		}
 
@@ -465,7 +467,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		 */
 
 		// weird side-effect but it works
-		declareConcreteSyntaxType(tr.value);
+		declareConcreteSyntaxType(tr.value.getValue());
 
 		return tr.value;
 	}
@@ -492,6 +494,23 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		return env;
 	}
 	
+	void unwind(Environment old) {
+		while (getCurrentEnvt() != old) {
+			goodPopEnv();
+		}
+	}
+
+	public Environment goodPushEnv() {
+		Environment env = new Environment(getCurrentEnvt(), getCurrentEnvt().getName());
+		setCurrentEnvt(env);
+		return env;
+	}
+
+	public Environment goodPopEnv() {
+		setCurrentEnvt(getCurrentEnvt().getParent());
+		return getCurrentEnvt();
+	}
+
 	public Environment popEnv() {
 		setCurrentEnvt(getCurrentEnvt().getParent());
 		return getCurrentEnvt();
@@ -503,6 +522,14 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		setCurrentEnvt(env);
 		return env;
 	}
+	
+	Environment goodPushEnv(Statement s) {
+		/* use the same name as the current envt */
+		Environment env = new Environment(getCurrentEnvt(), s.getLocation(), getCurrentEnvt().getName());
+		setCurrentEnvt(env);
+		return env;
+	}
+
 
 	private void checkType(Type given, Type expected) {
 		if (expected == org.meta_environment.rascal.interpreter.env.Lambda.getClosureType()) {
@@ -811,7 +838,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 				Map<Type,Type> bindings = new HashMap<Type,Type>();
 				declaredType.match(v.getType(), bindings);
 				declaredType = declaredType.instantiate(getCurrentEnvt().getStore(), bindings);
-				r = makeResult(declaredType, v.getValue(), new EvaluatorContext(this, getCurrentAST()));
+				r = makeResult(declaredType, v.getValue(), makeEvContext());
 				getCurrentModuleEnvironment().storeInnermostVariable(var.getName(), r);
 			} else {
 				throw new UnexpectedTypeError(declaredType, v.getType(), var);
@@ -850,7 +877,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 	@Override
 	public Result<IValue> visitPatternWithActionArbitrary(Arbitrary x) {
-		MatchPattern pv = x.getPattern().accept(makePatternEvaluator(x));
+		IMatchingResult pv = (IMatchingResult) x.getPattern().accept(makePatternEvaluator(x));
 		Type pt = pv.getType(getCurrentEnvt());
 		if(!(pt.isAbstractDataType() || pt.isConstructorType() || pt.isNodeType()))
 			throw new UnexpectedTypeError(tf.nodeType(), pt, x);
@@ -859,12 +886,12 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	}
 
 	private PatternEvaluator makePatternEvaluator(AbstractAST ast) {
-		return new PatternEvaluator(vf, getCurrentEnvt(), getCurrentEnvt(), new EvaluatorContext(this, ast));
+		return new PatternEvaluator(vf, new EvaluatorContext(this, ast));
 	}
 
 	@Override
 	public Result<IValue> visitPatternWithActionReplacing(Replacing x) {
-		MatchPattern pv = x.getPattern().accept(makePatternEvaluator(x));
+		IMatchingResult pv = (IMatchingResult) x.getPattern().accept(makePatternEvaluator(x));
 		Type pt = pv.getType(getCurrentEnvt());
 		if(!(pt.isAbstractDataType() || pt.isConstructorType() || pt.isNodeType()))
 			throw new UnexpectedTypeError(tf.nodeType(), pt, x);
@@ -1076,7 +1103,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	 * TODO: We now first build the tree and then apply rules to it. Change this so
 	 * that we can avoid building the tree at all.
 	 */
-	private <T extends IValue> Result<T> constructTree(QualifiedName functionName, IValue[] actuals, Type signature) {
+	private Result<IValue> constructTree(QualifiedName functionName, IValue[] actuals, Type signature) {
 		String sort;
 		String cons;
 		Result<IValue> result = null;
@@ -1093,7 +1120,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 				candidate = getCurrentEnvt().getConstructor(sortType, cons, signature);
 			}
 			else {
-				return makeResult(tf.nodeType(), applyRules(vf.node(cons, actuals)), new EvaluatorContext(this, getCurrentAST()));
+				return applyRules(ResultFactory.makeResult(tf.nodeType(), vf.node(cons, actuals), makeEvContext()));
 			}
 		}
 
@@ -1102,15 +1129,21 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			Map<Type,Type> localBindings = new HashMap<Type,Type>();
 			candidate.getFieldTypes().match(tf.tupleType(actuals), localBindings);
 
+			Result<IValue> afterRules = applyRules(ResultFactory.makeResult(candidate.getAbstractDataType(), candidate.make(vf, actuals), 
+					makeEvContext()));
 			result = makeResult(candidate.getAbstractDataType().instantiate(new TypeStore(), localBindings), 
-					applyRules(candidate.make(vf, actuals)), new EvaluatorContext(this, getCurrentAST()));
+					afterRules.getValue(), makeEvContext());
 		}
 		else {
-			result = makeResult(tf.nodeType(), applyRules(vf.node(cons, actuals)), new EvaluatorContext(this, getCurrentAST()));
+			result = applyRules(makeResult(tf.nodeType(), vf.node(cons, actuals), makeEvContext()));
 		}
 
 		declareConcreteSyntaxType(result.getValue());
-		return (Result<T>) detectConcreteSyntaxTree(result);
+		return detectConcreteSyntaxTree(result);
+	}
+
+	private EvaluatorContext makeEvContext() {
+		return new EvaluatorContext(this, getCurrentAST());
 	}
 
 	private <T extends IValue> Result<T> detectConcreteSyntaxTree(Result<T> result) {
@@ -1121,7 +1154,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			if (cons == Factory.Tree_Appl || cons == Factory.Tree_Amb) {
 				TreeAdapter adapter = new TreeAdapter(tree);
 				if (adapter.isAppl() && adapter.getProduction().getRhs().isCf()) {
-					return (Result<T>) new ConcreteSyntaxResult(new ConcreteSyntaxType((IConstructor) result.getValue()), (IConstructor) result.getValue(), new EvaluatorContext(this, getCurrentAST()));
+					return (Result<T>) new ConcreteSyntaxResult(new ConcreteSyntaxType((IConstructor) result.getValue()), (IConstructor) result.getValue(), makeEvContext());
 				}
 			}
 		}
@@ -1188,17 +1221,13 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 	@Override
 	public Result<IValue> visitStatementExpression(Statement.Expression x) {
-		setCurrentAST(x);
+		Environment old = getCurrentEnvt();
 		
-		// an expression statement should not introduce variables, so we push
-		// an environment, catch all local introductions and pop it again before
-		// returning a result.
-		pushEnv();
 		try {
 	      return x.getExpression().accept(this);
 		}
 		finally {
-			setCurrentEnvt(getCurrentEnvt().getParent());
+			unwind(old);
 		}
 	}
 
@@ -1271,7 +1300,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			Type resultType = nFields == 1 ? fieldTypes[0] : tf.tupleType(fieldTypes);
 
 			// Was: return makeResult(resultType, applyRules(((ITuple)base.getValue()).select(selectedFields)));
-			return makeResult(resultType, ((ITuple)base.getValue()).select(selectedFields), new EvaluatorContext(this, getCurrentAST()));
+			return makeResult(resultType, ((ITuple)base.getValue()).select(selectedFields), makeEvContext());
 		}
 		if(base.getType().isRelationType()){
 
@@ -1302,7 +1331,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			Type resultType = nFields == 1 ? tf.setType(fieldTypes[0]) : tf.relType(fieldTypes);
 
 			//return makeResult(resultType, applyRules(((IRelation)base.getValue()).select(selectedFields)));	
-			return makeResult(resultType, ((IRelation)base.getValue()).select(selectedFields), new EvaluatorContext(this, getCurrentAST()));	
+			return makeResult(resultType, ((IRelation)base.getValue()).select(selectedFields), makeEvContext());	
 		}
 
 		throw new UnsupportedOperationError("projection", base.getType(), x);
@@ -1376,15 +1405,10 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 					res = c.getBody().accept(this);
 					break;
 				} 
-				Environment oldEnv = getCurrentEnvt();
-				pushEnv();
-				try {
-					if(matchAndEval(eValue, c.getPattern(), c.getBody())){
-						break;
-					}
-				} 
-				finally {
-					setCurrentEnvt(oldEnv);
+
+				// TODO: Throw should contain Result<IValue> instead of IValue
+				if(matchAndEval(makeResult(eValue.getType(), eValue, makeEvContext()), c.getPattern(), c.getBody())){
+					break;
 				}
 			}
 		}
@@ -1416,8 +1440,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	@Override
 	public Result<IValue> visitStatementBlock(Block x) {
 		Result<IValue> r = nothing();
-		Environment oldEnv = getCurrentEnvt();
-		pushEnv(x);
+		Environment old = getCurrentEnvt();
+
+		goodPushEnv(x);
 		try {
 			for (Statement stat : x.getStatements()) {
 				setCurrentAST(stat);
@@ -1425,7 +1450,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			}
 		}
 		finally {
-			setCurrentEnvt(oldEnv);
+			unwind(old);
 		}
 		return r;
 	}
@@ -1620,119 +1645,137 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 	@Override
 	public Result<IValue> visitStatementIfThenElse(IfThenElse x) {
-		elseBranch: 
-			do {
-				Environment oldEnv = getCurrentEnvt();
-				pushEnv(x);
-				try {
-					for (org.meta_environment.rascal.ast.Expression expr : x.getConditions()) {
-						Result<IValue> cval = expr.accept(this);
-						if (!cval.getType().isBoolType()) {
-							throw new UnexpectedTypeError(tf.boolType(),
-									cval.getType(), x);
-						}
-						if (cval.getValue().isEqual(vf.bool(false))) {
-							break elseBranch;
-						}
-						// condition is true: continue
+		Statement body = x.getThenStatement();
+		java.util.List<Expression> generators = x.getConditions();
+		int size = generators.size();
+		Result<IValue>[] gens = new Result[size];
+		Environment[] olds = new Environment[size];
+		Environment old = getCurrentEnvt();
+
+		int i = 0;
+		try {
+			gens[0] = makeGenerator(generators.get(0));
+			olds[0] = getCurrentEnvt();
+			while(i >= 0 && i < size) {		
+				if(gens[i].hasNext() && gens[i].next().isTrue()){
+					if(i == size - 1){
+						return body.accept(this);
+					} else {
+						i++;
+						gens[i] = makeGenerator(generators.get(i));
+						olds[i] = getCurrentEnvt();
 					}
-					return x.getThenStatement().accept(this);
-				} finally {
-					setCurrentEnvt(oldEnv);	// Remove any bindings due to condition evaluation.
+				} else {
+					unwind(olds[i]);
+					i--;
 				}
-			} 
-			while (false);
-	return x.getElseStatement().accept(this);
+			}
+		} finally {
+			unwind(old);
+		}
+
+		return x.getElseStatement().accept(this);
 	}
+
 
 
 
 	@Override
 	public Result<IValue> visitStatementIfThen(IfThen x) {
-		Environment oldEnv = getCurrentEnvt();
-		pushEnv(x);
+		Statement body = x.getThenStatement();
+		java.util.List<Expression> generators = x.getConditions();
+		int size = generators.size();
+		Result<IValue>[] gens = new Result[size];
+		Environment[] olds = new Environment[size];
+		Environment old = getCurrentEnvt();
+
+		int i = 0;
 		try {
-			for (org.meta_environment.rascal.ast.Expression expr : x.getConditions()) {
-				Result<IValue> cval = expr.accept(this);
-				if (!cval.getType().isBoolType()) {
-					throw new UnexpectedTypeError(tf.boolType(),cval.getType(), x);
-				}
-				if (cval.getValue().isEqual(vf.bool(false))) {
-					return ResultFactory.nothing();
+			gens[0] = makeGenerator(generators.get(0));
+			olds[0] = getCurrentEnvt();
+			while(i >= 0 && i < size) {		
+				if(gens[i].hasNext() && gens[i].next().isTrue()){
+					if(i == size - 1){
+						return body.accept(this);
+					} else {
+						i++;
+						gens[i] = makeGenerator(generators.get(i));
+						olds[i] = getCurrentEnvt();
+					}
+				} else {
+					unwind(olds[i]);
+					i--;
 				}
 			}
-			return x.getThenStatement().accept(this);
+		} finally {
+			unwind(old);
 		}
-		finally {
-			setCurrentEnvt(oldEnv);
-		}
+		return nothing();
 	}
 
 	@Override
 	public Result<IValue> visitStatementWhile(While x) {
-		org.meta_environment.rascal.ast.Expression expr = x.getCondition();
-		Result<IValue> statVal = nothing();
+		Statement body = x.getBody();
+		Expression generator = x.getCondition();
+		Result<IValue> gen;
+		Environment old = getCurrentEnvt();
+		Result<IValue> result = nothing();
 
-		do {
-			Environment oldEnv = getCurrentEnvt();
-			pushEnv(x);
+		// a while statement is different from a for statement, the body of the while can influence the
+		// variables that are used to test the condition of the loop
+		// while does not iterate over all possible matches, rather it produces every time the first match
+		// that makes the condition true
+		
+		while (true) {
 			try {
-				Result<IValue> cval = expr.accept(this);
-				if (!cval.getType().isBoolType()) {
-					throw new UnexpectedTypeError(tf.boolType(),cval.getType(), x);
+				gen = makeGenerator(generator);
+				if(gen.hasNext() && gen.next().isTrue()){
+					result = body.accept(this);
 				}
-				if (cval.getValue().isEqual(vf.bool(false))) {
-					return statVal;
-				}
-				statVal = x.getBody().accept(this);
-			}
-			finally {
-				setCurrentEnvt(oldEnv);
-			}
-		} while (true);
-	}
-
-	@Override
-	public Result<IValue> visitStatementDoWhile(DoWhile x) {
-		org.meta_environment.rascal.ast.Expression expr = x.getCondition();
-		Environment oldEnv = getCurrentEnvt();
-		pushEnv(x);
-		try {
-			do {
-
-				Result<IValue> result = x.getBody().accept(this);
-				Result<IValue> cval = expr.accept(this);
-				if (!cval.getType().isBoolType()) {
-					throw new UnexpectedTypeError(tf.boolType(),cval.getType(), x);
-				}
-				if (cval.getValue().isEqual(vf.bool(false))) {
+				else {
 					return result;
 				}
-			} while (true);
+			} finally {
+				unwind(old);
+			}
 		}
-		finally {
-			setCurrentEnvt(oldEnv);
+	}
+	
+	@Override
+	public Result<IValue> visitStatementDoWhile(DoWhile x) {
+		Statement body = x.getBody();
+		Expression generator = x.getCondition();
+		Result<IValue> gen;
+		Environment old = getCurrentEnvt();
+		Result<IValue> result = nothing();
+
+		while (true) {
+			try {
+				result = body.accept(this);
+				
+				gen = makeGenerator(generator);
+				if(!(gen.hasNext() && gen.next().isTrue())) {
+					return result;
+				}
+			} finally {
+				unwind(old);
+			}
 		}
 	}
 
 	@Override
 	public Result<IValue> visitExpressionMatch(Match x) {
-		return new MatchEvaluator(x.getPattern(), x.getExpression(), true, getCurrentEnvt(), this).next();
+		return evalBooleanMatchExpression(x, x.getExpression().accept(this));
 	}
 
 	@Override
 	public Result<IValue> visitExpressionNoMatch(NoMatch x) {
-		// Make sure that no bindings escape
-		Environment oldEnv = getCurrentEnvt();
-		Environment newEnv = pushEnv();
-		Result res =  new MatchEvaluator(x.getPattern(), x.getExpression(), false, newEnv, this).next();
-		setCurrentEnvt(oldEnv);
-		return res;
+		return evalBooleanMatchExpression(x, x.getExpression().accept(this));
 	}
 
 	// ----- General method for matching --------------------------------------------------
 
-	public MatchPattern evalPattern(org.meta_environment.rascal.ast.Expression pat){
+	public IBooleanResult evalPattern(org.meta_environment.rascal.ast.Expression pat){
 		if (pat instanceof Expression.Ambiguity) {
 			// TODO: wrong exception here.
 			throw new AmbiguousConcretePattern(pat);
@@ -2108,7 +2151,29 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 	@Override
 	public Result<IValue> visitExpressionAnd(And x) {
-		return new AndEvaluator(x, this).next();
+		return evalBooleanExpression(x);
+	}
+
+	private Result<IValue> evalBooleanExpression(Expression x) {
+		IBooleanResult mp = evalPattern(x);
+		mp.init();
+		while(mp.hasNext()){
+			if(mp.next()) {
+				return ResultFactory.bool(true);
+			}
+		}
+		return ResultFactory.bool(false);
+	}
+	
+	private Result<IValue> evalBooleanMatchExpression(Expression x, Result<IValue> subject) {
+		IMatchingResult mp = (IMatchingResult) evalPattern(x);
+		mp.initMatch(subject);
+		while(mp.hasNext()){
+			if(mp.next()) {
+				return ResultFactory.bool(true);
+			}
+		}
+		return ResultFactory.bool(false);
 	}
 
 	@Override
@@ -2227,12 +2292,12 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		throw new UninitializedVariableError(x.getQualifiedName().toString(), x);
 	}
 
-	private boolean matchAndEval(IValue subject, org.meta_environment.rascal.ast.Expression pat, Statement stat){
-		Environment oldEnv = getCurrentEnvt();
-		pushEnv(stat);
+	private boolean matchAndEval(Result<IValue> subject, org.meta_environment.rascal.ast.Expression pat, Statement stat){
+		Environment old = getCurrentEnvt();
+		
 		try {
-			MatchPattern mp = evalPattern(pat);
-			mp.initMatch(subject, getCurrentEnvt());
+			IMatchingResult mp = (IMatchingResult) evalPattern(pat);
+			mp.initMatch(subject);
 			//System.err.println("matchAndEval: subject=" + subject + ", pat=" + pat);
 			while(mp.hasNext()){
 				//System.err.println("matchAndEval: mp.hasNext()==true");
@@ -2258,20 +2323,19 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 				}
 			}
 		} finally {
-			setCurrentEnvt(oldEnv);
+			unwind(old);
 		}
 		return false;
 	}
 
-	private boolean matchEvalAndReplace(IValue subject, 
+	private boolean matchEvalAndReplace(Result<IValue> subject, 
 			org.meta_environment.rascal.ast.Expression pat, 
 			java.util.List<Expression> conditions,
 			Expression replacementExpr){
-		Environment oldEnv = getCurrentEnvt();
-		pushEnv();
+		Environment old = getCurrentEnvt();
 		try {
-			MatchPattern mp = evalPattern(pat);
-			mp.initMatch(subject, getCurrentEnvt());
+			IMatchingResult mp = (IMatchingResult) evalPattern(pat);
+			mp.initMatch(subject);
 			//System.err.println("matchEvalAndReplace: subject=" + subject + ", pat=" + pat + ", conditions=" + conditions);
 
 			while(mp.hasNext()){
@@ -2297,8 +2361,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 				}
 			}
 		} finally {
-			//System.err.println("matchEvalAndReplace.finally");
-			setCurrentEnvt(oldEnv);
+			unwind(old);
 		}
 		return false;
 	}
@@ -2309,10 +2372,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 		for(Case cs : x.getCases()){
 			if(cs.isDefault()){
+				// TODO: what if the default statement uses a fail statement?
 				return cs.getStatement().accept(this);
 			}
 			org.meta_environment.rascal.ast.PatternWithAction rule = cs.getPatternWithAction();
-			if(rule.isArbitrary() && matchAndEval(subject.getValue(), rule.getPattern(), rule.getStatement())){
+			if(rule.isArbitrary() && matchAndEval(subject, rule.getPattern(), rule.getStatement())){
 				return ResultFactory.nothing();
 				/*
 			} else if(rule.isGuarded())	{
@@ -2342,27 +2406,27 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 	class TraverseResult {
 		boolean matched;   // Some rule matched;
-		IValue value; 		// Result<IValue> of the 
+		Result<IValue> value; 		// Result<IValue> of the 
 		boolean changed;   // Original subject has been changed
 
-		TraverseResult(boolean someMatch, IValue value){
+		TraverseResult(boolean someMatch, Result<IValue> value){
 			this.matched = someMatch;
 			this.value = value;
 			this.changed = false;
 		}
 
-		TraverseResult(IValue value){
+		TraverseResult(Result<IValue> value){
 			this.matched = false;
 			this.value = value;
 			this.changed = false;
 		}
 
-		TraverseResult(IValue value, boolean changed){
+		TraverseResult(Result<IValue> value, boolean changed){
 			this.matched = true;
 			this.value   = value;
 			this.changed = changed;
 		}
-		TraverseResult(boolean someMatch, IValue value, boolean changed){
+		TraverseResult(boolean someMatch, Result<IValue> value, boolean changed){
 			this.matched = someMatch;
 			this.value   = value;
 			this.changed = changed;
@@ -2405,7 +2469,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		}
 	}
 
-	private TraverseResult traverse(IValue subject, CasesOrRules casesOrRules,
+	private TraverseResult traverse(Result<IValue> subject, CasesOrRules casesOrRules,
 			DIRECTION direction, PROGRESS progress, FIXEDPOINT fixedpoint) {
 		//System.err.println("traverse: subject=" + subject + ", casesOrRules=" + casesOrRules);
 		do {
@@ -2463,8 +2527,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	 * subject is returned.
 	 */
 
-	private TraverseResult traverseString(IString subject, CasesOrRules casesOrRules){
-		String subjectString = subject.getValue();
+	// TODO: decouple visiting of strings from case statement
+	private TraverseResult traverseString(Result<IValue> subject, CasesOrRules casesOrRules){
+		String subjectString = ((IString) subject.getValue()).getValue();
 		int len = subjectString.length();
 		java.util.List<StringReplacement> replacements = new ArrayList<StringReplacement>();
 		boolean matched = false;
@@ -2482,10 +2547,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			org.meta_environment.rascal.ast.PatternWithAction rule = cs.getPatternWithAction();
 
 			Expression patexp = rule.getPattern();
-			MatchPattern mp = evalPattern(patexp);
-			mp.initMatch(subject, getCurrentEnvt());
-			Environment oldEnv = getCurrentEnvt();
-			pushEnv();
+			IMatchingResult mp = (IMatchingResult) evalPattern(patexp);
+			mp.initMatch(subject);
+			Environment old = getCurrentEnvt();
 			try {
 				while(mp.hasNext()){
 					if(mp.next()){
@@ -2525,7 +2589,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 					}
 				}
 			} finally {
-				setCurrentEnvt(oldEnv);
+				unwind(old);
 			}
 		} else {
 			/*
@@ -2537,7 +2601,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			while(cursor < len){
 				//System.err.println("cursor = " + cursor);
 				try {
-					TraverseResult tr = applyCasesOrRules(vf.string(subjectString.substring(cursor, len)), casesOrRules);
+					IString substring = vf.string(subjectString.substring(cursor, len));
+					Result<IValue> subresult  = ResultFactory.makeResult(tf.stringType(), substring, makeEvContext());
+					TraverseResult tr = applyCasesOrRules(subresult, casesOrRules);
 					matched |= tr.matched;
 					changed |= tr.changed;
 					//System.err.println("matched=" + matched + ", changed=" + changed);
@@ -2547,7 +2613,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 					if(repl.getType().isStringType()){
 						int start;
 						int end;
-						MatchPattern lastPattern = e.getMatchPattern();
+						IBooleanResult lastPattern = e.getMatchPattern();
 						if(lastPattern == null)
 							throw new ImplementationError("no last pattern known");
 						if(lastPattern instanceof RegExpPatternValue){
@@ -2589,24 +2655,24 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			res.append(subjectString.charAt(cursor));
 		}
 
-		return new TraverseResult(matched, vf.string(res.toString()), changed);
+		return new TraverseResult(matched, ResultFactory.makeResult(tf.stringType(), vf.string(res.toString()), makeEvContext()), changed);
 	}
 
 	/*
 	 * traverseOnce: traverse an arbitrary IVAlue once. Implements the strategies bottomup/topdown.
 	 */
 
-	private TraverseResult traverseOnce(IValue subject, CasesOrRules casesOrRules, 
+	private TraverseResult traverseOnce(Result<IValue> subject, CasesOrRules casesOrRules, 
 			DIRECTION direction, 
 			PROGRESS progress){
 		Type subjectType = subject.getType();
 		boolean matched = false;
 		boolean changed = false;
-		IValue result = subject;
+		Result<IValue> result = subject;
 
 		//System.err.println("traverseOnce: " + subject + ", type=" + subject.getType());
 		if(subjectType.isStringType()){
-			return traverseString((IString) subject, casesOrRules);
+			return traverseString(subject, casesOrRules);
 		}
 
 		if(direction == DIRECTION.TopDown){
@@ -2620,36 +2686,39 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		}
 
 		if(subjectType.isAbstractDataType()){
-			IConstructor cons = (IConstructor)subject;
+			IConstructor cons = (IConstructor)subject.getValue();
 			if(cons.arity() == 0){
 				result = subject;
 			} else {
 				IValue args[] = new IValue[cons.arity()];
 
 				for(int i = 0; i < cons.arity(); i++){
-					TraverseResult tr = traverseOnce(cons.get(i), casesOrRules, direction, progress);
+					IValue child = cons.get(i);
+					Type childType = cons.getConstructorType().getFieldType(i);
+					TraverseResult tr = traverseOnce(ResultFactory.makeResult(childType, child, makeEvContext()), casesOrRules, direction, progress);
 					matched |= tr.matched;
 					changed |= tr.changed;
-					args[i] = tr.value;
+					args[i] = tr.value.getValue();
 				}
 				IConstructor rcons = vf.constructor(cons.getConstructorType(), args);
-				result = applyRules(rcons.setAnnotations(cons.getAnnotations()));
+				result = applyRules(makeResult(subjectType, rcons.setAnnotations(cons.getAnnotations()), makeEvContext()));
 			}
 		} else
 			if(subjectType.isNodeType()){
-				INode node = (INode)subject;
+				INode node = (INode)subject.getValue();
 				if(node.arity() == 0){
 					result = subject;
 				} else {
 					IValue args[] = new IValue[node.arity()];
 
 					for(int i = 0; i < node.arity(); i++){
-						TraverseResult tr = traverseOnce(node.get(i), casesOrRules, direction, progress);
+						IValue child = node.get(i);
+						TraverseResult tr = traverseOnce(ResultFactory.makeResult(tf.valueType(), child, makeEvContext()), casesOrRules, direction, progress);
 						matched |= tr.matched;
 						changed |= tr.changed;
-						args[i] = tr.value;
+						args[i] = tr.value.getValue();
 					}
-					result = applyRules(vf.node(node.getName(), args).setAnnotations(node.getAnnotations()));
+					result = applyRules(makeResult(tf.nodeType(), vf.node(node.getName(), args).setAnnotations(node.getAnnotations()), makeEvContext()));
 				}
 			} else
 				if(subjectType.isListType()){
@@ -2657,13 +2726,16 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 					int len = list.length();
 					if(len > 0){
 						IListWriter w = list.getType().writer(vf);
+						Type elemType = list.getType().getElementType();
+						
 						for(int i = len - 1; i >= 0; i--){
-							TraverseResult tr = traverseOnce(list.get(i), casesOrRules, direction, progress);
+							IValue elem = list.get(i);
+							TraverseResult tr = traverseOnce(ResultFactory.makeResult(elemType, elem, makeEvContext()), casesOrRules, direction, progress);
 							matched |= tr.matched;
 							changed |= tr.changed;
-							w.insert(tr.value);
+							w.insert(tr.value.getValue());
 						}
-						result = w.done();
+						result = makeResult(subjectType, w.done(), makeEvContext());
 					} else {
 						result = subject;
 					}
@@ -2672,56 +2744,62 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 						ISet set = (ISet) subject;
 						if(!set.isEmpty()){
 							ISetWriter w = set.getType().writer(vf);
-							for(IValue v : set){
-								TraverseResult tr = traverseOnce(v, casesOrRules, direction, progress);
+							Type elemType = set.getType().getElementType();
+							
+							for (IValue v : set){
+								TraverseResult tr = traverseOnce(ResultFactory.makeResult(elemType, v, makeEvContext()), casesOrRules, direction, progress);
 								matched |= tr.matched;
 								changed |= tr.changed;
-								w.insert(tr.value);
+								w.insert(tr.value.getValue());
 							}
-							result = w.done();
+							result = makeResult(subjectType, w.done(), makeEvContext());
 						} else {
 							result = subject;
 						}
 					} else
 						if (subjectType.isMapType()) {
-							IMap map = (IMap) subject;
+							IMap map = (IMap) subject.getValue();
 							if(!map.isEmpty()){
 								IMapWriter w = map.getType().writer(vf);
 								Iterator<Entry<IValue,IValue>> iter = map.entryIterator();
+								Type keyType = map.getKeyType();
+								Type valueType = map.getValueType();
 
 								while (iter.hasNext()) {
 									Entry<IValue,IValue> entry = iter.next();
-									TraverseResult tr = traverseOnce(entry.getKey(), casesOrRules, direction, progress);
+									TraverseResult tr = traverseOnce(ResultFactory.makeResult(keyType, entry.getKey(), makeEvContext()), casesOrRules, direction, progress);
 									matched |= tr.matched;
 									changed |= tr.changed;
-									IValue newKey = tr.value;
-									tr = traverseOnce(entry.getValue(), casesOrRules, direction, progress);
+									IValue newKey = tr.value.getValue();
+									tr = traverseOnce(ResultFactory.makeResult(valueType, entry.getValue(), makeEvContext()), casesOrRules, direction, progress);
 									matched |= tr.matched;
 									changed |= tr.changed;
-									IValue newValue = tr.value;
+									IValue newValue = tr.value.getValue();
 									w.put(newKey, newValue);
 								}
-								result = w.done();
+								result = makeResult(subjectType, w.done(), makeEvContext());
 							} else {
 								result = subject;
 							}
 						} else
 							if(subjectType.isTupleType()){
-								ITuple tuple = (ITuple) subject;
+								ITuple tuple = (ITuple) subject.getValue();
 								int arity = tuple.arity();
 								IValue args[] = new IValue[arity];
 								for(int i = 0; i < arity; i++){
-									TraverseResult tr = traverseOnce(tuple.get(i), casesOrRules, direction, progress);
+									Type fieldType = subjectType.getFieldType(i);
+									TraverseResult tr = traverseOnce(ResultFactory.makeResult(fieldType, tuple.get(i), makeEvContext()), casesOrRules, direction, progress);
 									matched |= tr.matched;
 									changed |= tr.changed;
-									args[i] = tr.value;
+									args[i] = tr.value.getValue();
 								}
-								result = vf.tuple(args);
+								result = makeResult(subjectType, vf.tuple(args), makeEvContext());
 							} else {
 								result = subject;
 							}
 
 		if(direction == DIRECTION.BottomUp){
+			
 			if((progress == PROGRESS.Breaking) && changed){
 				return new TraverseResult(matched, result, changed);
 			}
@@ -2737,7 +2815,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	/**
 	 * Replace an old subject by a new one as result of an insert statement.
 	 */
-	private TraverseResult replacement(IValue oldSubject, IValue newSubject){
+	private TraverseResult replacement(Result<IValue> oldSubject, Result<IValue> newSubject){
 		if(newSubject.getType().equivalent((oldSubject.getType())))
 			return new TraverseResult(true, newSubject, true);
 		throw new UnexpectedTypeError(oldSubject.getType(), newSubject.getType(), getCurrentAST());
@@ -2747,7 +2825,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	 * Loop over all cases or rules.
 	 */
 
-	private TraverseResult applyCasesOrRules(IValue subject, CasesOrRules casesOrRules) {
+	private TraverseResult applyCasesOrRules(Result<IValue> subject, CasesOrRules casesOrRules) {
 		if(casesOrRules.hasCases()){
 			for (Case cs : casesOrRules.getCases()) {
 				setCurrentAST(cs);
@@ -2787,13 +2865,13 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	 * traverseTop: traverse the outermost symbol of the subject.
 	 */
 
-	private TraverseResult traverseTop(IValue subject, CasesOrRules casesOrRules) {
+	private TraverseResult traverseTop(Result<IValue> subject, CasesOrRules casesOrRules) {
 		//System.err.println("traversTop(" + subject + ")");
 		try {
 			return applyCasesOrRules(subject, casesOrRules);	
 		} catch (org.meta_environment.rascal.interpreter.control_exceptions.Insert e) {
 
-			return replacement(subject, e.getValue().getValue());
+			return replacement(subject, e.getValue());
 		}
 	}
 
@@ -2801,7 +2879,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	 * applyOneRule: try to apply one rule to the subject.
 	 */
 
-	private TraverseResult applyOneRule(IValue subject,
+	private TraverseResult applyOneRule(Result<IValue> subject,
 			org.meta_environment.rascal.ast.PatternWithAction rule) {
 
 		//System.err.println("applyOneRule: subject=" + subject + ", type=" + subject.getType() + ", rule=" + rule);
@@ -2835,20 +2913,21 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	@Override
 	public Result<IValue> visitVisitDefaultStrategy(DefaultStrategy x) {
 
-		IValue subject = x.getSubject().accept(this).getValue();
+		Result<IValue> subject = x.getSubject().accept(this);
 		java.util.List<Case> cases = x.getCases();
 
 		TraverseResult tr = traverse(subject, new CasesOrRules(cases), 
 				DIRECTION.BottomUp,
 				PROGRESS.Continuing,
 				FIXEDPOINT.No);
-		return makeResult(tr.value.getType(), tr.value, new EvaluatorContext(this, x));
+		return tr.value;
 	}
 
 	@Override
 	public Result<IValue> visitVisitGivenStrategy(GivenStrategy x) {
-
-		IValue subject = x.getSubject().accept(this).getValue();
+		Result<IValue> subject = x.getSubject().accept(this);
+		
+		// TODO: warning switched to static type here, but not sure if that's correct...
 		Type subjectType = subject.getType();
 
 		if(subjectType.isConstructorType()){
@@ -2883,7 +2962,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		}
 
 		TraverseResult tr = traverse(subject, new CasesOrRules(cases), direction, progress, fixedpoint);
-		return makeResult(subjectType, tr.value, new EvaluatorContext(this, x));
+		return tr.value;
 	}
 
 	@Override
@@ -3006,105 +3085,23 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 	@Override
 	public Result<IValue> visitExpressionComprehension(Comprehension x) {
-		Environment oldEnv = getCurrentEnvt();
-		pushEnv();
-		try {
-			return x.getComprehension().accept(this);	
-		}
-		finally {
-			setCurrentEnvt(oldEnv);
-		}
-
+		return x.getComprehension().accept(this);	
 	}
 
 	@Override
 	public Result<IValue> visitExpressionEnumerator(
 			org.meta_environment.rascal.ast.Expression.Enumerator x) {
-		return new EnumerateAndMatch(x, this);
+		return evalBooleanExpression(x);
 	}
 
 	@Override
 	public Result<IValue> visitExpressionEnumeratorWithStrategy(
 			EnumeratorWithStrategy x) {
-		return new EnumerateAndMatch(x, this);
+		return evalBooleanExpression(x);
 	}
 
-	/*
-	 * ExpressionAsGenerator implements an expression appearing in a comprehension.
-	 * The expression maybe multiple-valued (e.g. a match expression) and its successive
-	 * values will be generated.
-	 */
-
-	class ExpressionAsGenerator extends Result<IValue> {
-		private boolean firstTime = true;
-		private Result<IValue> result;
-		private org.meta_environment.rascal.ast.Expression expr;
-		private Evaluator evaluator;
-
-		ExpressionAsGenerator(Expression g, Evaluator ev){
-			super(tf.boolType(), vf.bool(true), null);
-			evaluator = ev;
-			expr = g;
-		}
-
-		@Override
-		public Type getType(){
-			return TypeFactory.getInstance().boolType();
-		}	
-
-		@Override
-		public IValue getValue(){
-			/*
-
-			if(hasNext())
-				return next().getValue();
-			return vf.bool(false);
-			 */
-
-			if(firstTime){
-				firstTime = false;
-				return next().getValue();
-			}
-			return vf.bool(true);
-
-		}
-
-		@Override
-		public boolean hasNext(){
-			return firstTime || result.hasNext();
-		}
-
-		@Override
-		public Result next(){
-			if(firstTime){
-				/* Evaluate expression only once */
-				firstTime = false;
-				result = expr.accept(evaluator);
-				if(result.getType().isBoolType() && result.getValue() != null){
-					// FIXME: if result is of type void, you get a null pointer here.
-					if (result.getValue().isEqual(vf.bool(true))) {
-						return new BoolResult(true, null, null);
-					}
-					return new BoolResult(false, null, null);
-				}
-
-				throw new UnexpectedTypeError(tf.boolType(), result.getType(), expr);
-			}
-			return result.next();
-		}
-
-		@Override
-		public void remove() {
-			throw new ImplementationError("remove() not implemented for GeneratorEvaluator");
-		}
-	}
-
-	private Result<IValue> makeGenerator(Expression g){
-		if(g.isEnumerator() || g.isEnumeratorWithStrategy()){
-			return new EnumerateAndMatch(g, this);
-		}
-
-		return new ExpressionAsGenerator(g,this);
+	private Result<IValue> makeGenerator(Expression x){
+			return evalBooleanExpression(x);
 	}
 
 	/*
@@ -3255,42 +3252,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 				}
 			}
 		}
-
 	
-		public void appendx() {
-			for(Expression resExpr : resultExprs){
-				Result<IValue> res = resExpr.accept(ev);
-				elementType1 = res.getType();
-				if (writer == null) {
-					if(elementType1.isSetType() && !resExpr.isSet()){
-						resultType = elementType1;
-						elementType1 = resultType.getElementType();
-						//splicing = true;
-					} else {    
-						resultType = tf.setType(elementType1);
-					}
-					
-					writer = resultType.writer(vf);
-				}
-				
-				if(splicing[0]){
-					/*
-					 * Splice elements of the value of the result expression in the result set
-					 */
-					for(IValue val : ((ISet) res.getValue())){
-						if(!val.getType().isSubtypeOf(elementType1))
-							throw new UnexpectedTypeError(elementType1, val.getType(), resExpr);
-						elementType1 = elementType1.lub(val.getType());
-						((ISetWriter) writer).insert(val);
-					}
-				} else {
-					check(res, elementType1, "set", resExpr);
-					elementType1 = elementType1.lub(res.getType());
-					((ISetWriter) writer).insert(res.getValue());
-				}
-			}
-		}
-
 		@Override
 		public Result<IValue> done() {
 			return (writer == null) ? makeResult(tf.setType(tf.voidType()), vf.set(), getContext(resultExprs.get(0))) : 
@@ -3341,21 +3303,36 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			ComprehensionWriter w){
 		int size = generators.size();
 		Result<IValue>[] gens = new Result[size];
-
+		Environment[] olds = new Environment[size];
+		Environment old = getCurrentEnvt();
 		int i = 0;
-		gens[0] = makeGenerator(generators.get(0));
-		while (i >= 0 && i < size){
-			if (gens[i].hasNext() && gens[i].next().isTrue()) {
-				if(i == size - 1){
-					w.append();
-				} 
-				else {
-					i++;
-					gens[i] = makeGenerator(generators.get(i));
+		
+		try {
+			gens[0] = makeGenerator(generators.get(0));
+			olds[0] = getCurrentEnvt();
+			goodPushEnv();
+
+			while (i >= 0 && i < size) {
+				if (gens[i].hasNext() && gens[i].next().isTrue()) {
+					if(i == size - 1){
+						w.append();
+						unwind(olds[i]);
+						goodPushEnv();
+					} 
+					else {
+						i++;
+						gens[i] = makeGenerator(generators.get(i));
+						olds[i] = getCurrentEnvt();
+						goodPushEnv();
+					}
+				} else {
+					unwind(olds[i]);
+					i--;
 				}
-			} else {
-				i--;
 			}
+		}
+		finally {
+			unwind(old);
 		}
 		return w.done();
 	}
@@ -3392,21 +3369,32 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		java.util.List<Expression> generators = x.getGenerators();
 		int size = generators.size();
 		Result<IValue>[] gens = new Result[size];
+		Environment old = getCurrentEnvt();
+		Environment[] olds = new Environment[size];
 		Result<IValue> result = nothing();
 
+		// TODO: does this prohibit that the body influences the behavior of the generators??
+		
 		int i = 0;
-		gens[0] = makeGenerator(generators.get(0));
-		while(i >= 0 && i < size){		
-			if(gens[i].hasNext() && gens[i].next().isTrue()){
-				if(i == size - 1){
-					result = body.accept(this);
+		try {
+			gens[0] = makeGenerator(generators.get(0));
+			olds[0] = getCurrentEnvt();
+			while(i >= 0 && i < size) {		
+				if(gens[i].hasNext() && gens[i].next().isTrue()){
+					if(i == size - 1){
+						result = body.accept(this);
+					} else {
+						i++;
+						gens[i] = makeGenerator(generators.get(i));
+						olds[i] = getCurrentEnvt();
+					}
 				} else {
-					i++;
-					gens[i] = makeGenerator(generators.get(i));
+					unwind(olds[i]);
+					i--;
 				}
-			} else {
-				i--;
 			}
+		} finally {
+			unwind(old);
 		}
 		return result;
 	}
@@ -3463,54 +3451,61 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	@Override
 	public Result<IValue> visitStatementSolve(Solve x) {
 		java.util.ArrayList<org.meta_environment.rascal.ast.Variable> vars = new java.util.ArrayList<org.meta_environment.rascal.ast.Variable>();
+		Environment old = getCurrentEnvt();
 
-		for(Declarator d : x.getDeclarations()){
-			for(org.meta_environment.rascal.ast.Variable v : d.getVariables()){
-				vars.add(v);
+		goodPushEnv();
+		try {
+			for(Declarator d : x.getDeclarations()){
+				for(org.meta_environment.rascal.ast.Variable v : d.getVariables()){
+					vars.add(v);
+				}
+				d.accept(this);
 			}
-			d.accept(this);
-		}
-		IValue currentValue[] = new IValue[vars.size()];
-		for(int i = 0; i < vars.size(); i++){
-			org.meta_environment.rascal.ast.Variable v = vars.get(i);
-			currentValue[i] = getCurrentEnvt().getVariable(v, Names.name(v.getName())).getValue();
-		}
-
-		Statement body = x.getBody();
-
-		int max = -1;
-
-		Bound bound= x.getBound();
-		if(bound.isDefault()){
-			Result<IValue> res = bound.getExpression().accept(this);
-			if(!res.getType().isIntegerType()){
-				throw new UnexpectedTypeError(tf.integerType(),res.getType(), x);
-			}
-			max = ((IInteger)res.getValue()).intValue();
-			if(max <= 0){
-				throw RuntimeExceptionFactory.indexOutOfBounds((IInteger) res.getValue(), getCurrentAST(), getStackTrace());
-			}
-		}
-
-		Result<IValue> bodyResult = null;
-
-		boolean change = true;
-		int iterations = 0;
-
-		while (change && (max == -1 || iterations < max)){
-			change = false;
-			iterations++;
-			bodyResult = body.accept(this);
+			IValue currentValue[] = new IValue[vars.size()];
 			for(int i = 0; i < vars.size(); i++){
-				org.meta_environment.rascal.ast.Variable var = vars.get(i);
-				Result<IValue> v = getCurrentEnvt().getVariable(var, Names.name(var.getName()));
-				if(currentValue[i] == null || !v.getValue().isEqual(currentValue[i])){
-					change = true;
-					currentValue[i] = v.getValue();
+				org.meta_environment.rascal.ast.Variable v = vars.get(i);
+				currentValue[i] = getCurrentEnvt().getVariable(v, Names.name(v.getName())).getValue();
+			}
+
+			Statement body = x.getBody();
+
+			int max = -1;
+
+			Bound bound= x.getBound();
+			if(bound.isDefault()){
+				Result<IValue> res = bound.getExpression().accept(this);
+				if(!res.getType().isIntegerType()){
+					throw new UnexpectedTypeError(tf.integerType(),res.getType(), x);
+				}
+				max = ((IInteger)res.getValue()).intValue();
+				if(max <= 0){
+					throw RuntimeExceptionFactory.indexOutOfBounds((IInteger) res.getValue(), getCurrentAST(), getStackTrace());
 				}
 			}
+
+			Result<IValue> bodyResult = null;
+
+			boolean change = true;
+			int iterations = 0;
+
+			while (change && (max == -1 || iterations < max)){
+				change = false;
+				iterations++;
+				bodyResult = body.accept(this);
+				for(int i = 0; i < vars.size(); i++){
+					org.meta_environment.rascal.ast.Variable var = vars.get(i);
+					Result<IValue> v = getCurrentEnvt().getVariable(var, Names.name(var.getName()));
+					if(currentValue[i] == null || !v.getValue().isEqual(currentValue[i])){
+						change = true;
+						currentValue[i] = v.getValue();
+					}
+				}
+			}
+			return bodyResult;
 		}
-		return bodyResult;
+		finally {
+			unwind(old);
+		}
 	}
 
 	public Stack<Environment> getCallStack() {

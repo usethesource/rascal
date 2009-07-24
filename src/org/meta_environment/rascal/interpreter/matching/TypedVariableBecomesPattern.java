@@ -1,33 +1,31 @@
 package org.meta_environment.rascal.interpreter.matching;
 
+import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
+
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.interpreter.EvaluatorContext;
-import org.meta_environment.rascal.interpreter.Names;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
-import org.meta_environment.rascal.interpreter.result.ResultFactory;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
+import org.meta_environment.rascal.interpreter.utils.Names;
 
-import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
-
-class TypedVariableBecomesPattern extends AbstractPattern implements MatchPattern {
+class TypedVariableBecomesPattern extends AbstractMatchingResult {
 	
 	private String name;
 	private Type declaredType;
-	private Environment env;
-	private MatchPattern pat;
+	private IMatchingResult pat;
 	private boolean debug = false;
 
-	TypedVariableBecomesPattern(IValueFactory vf, Environment env, EvaluatorContext ctx,
-			org.eclipse.imp.pdb.facts.type.Type type, org.meta_environment.rascal.ast.Name aname, MatchPattern pat){
+	TypedVariableBecomesPattern(IValueFactory vf, EvaluatorContext ctx,
+			org.eclipse.imp.pdb.facts.type.Type type, org.meta_environment.rascal.ast.Name aname, IMatchingResult pat){
 		super(vf, ctx);
 		this.name = Names.name(aname);
 		this.declaredType = type;
-		this.env = env;
 		this.pat = pat;
+		Environment env = ctx.getCurrentEnvt();
 		
 		if(debug) System.err.println("AbstractPatternTypedVariableBecomes: " + type + " " + name);
 		Result<IValue> innerRes = env.getInnermostVariable(name);
@@ -67,9 +65,10 @@ class TypedVariableBecomesPattern extends AbstractPattern implements MatchPatter
 	}
 	
 	@Override
-	public void initMatch(IValue subject, Environment env){
-		super.initMatch(subject,env);
-		pat.initMatch(subject, env);
+	public void initMatch(Result<IValue> subject){
+		super.initMatch(subject);
+		pat.initMatch(subject);
+		Environment env = ctx.getCurrentEnvt();
 		if(!mayMatch(pat.getType(env), declaredType))
 			throw new UnexpectedTypeError(pat.getType(env), declaredType, ctx.getCurrentAST());
 	}
@@ -88,8 +87,7 @@ class TypedVariableBecomesPattern extends AbstractPattern implements MatchPatter
 	public boolean next() {
 		if(debug) System.err.println("AbstractPatternTypedVariableBecomes:  next");
 		if(pat.next()){
-			Result<IValue> r = ResultFactory.makeResult(declaredType, subject, ctx);
-			env.storeVariable(name, r);
+			ctx.getCurrentEnvt().storeVariable(name, subject);
 			return true;
 		}
 		return false;

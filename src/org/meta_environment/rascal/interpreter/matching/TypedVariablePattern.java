@@ -4,31 +4,30 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.interpreter.EvaluatorContext;
-import org.meta_environment.rascal.interpreter.Names;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
+import org.meta_environment.rascal.interpreter.utils.Names;
 
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 
-/* package */class TypedVariablePattern extends AbstractPattern implements MatchPattern {
+/* package */class TypedVariablePattern extends AbstractMatchingResult {
 	private String name;
 	org.eclipse.imp.pdb.facts.type.Type declaredType;
 	private boolean anonymous = false;
 	private boolean debug = false;
-	private Environment env;
 
 	
 	// TODO: merge code of the following two constructors.
 	
-	TypedVariablePattern(IValueFactory vf, Environment env, EvaluatorContext ctx, org.eclipse.imp.pdb.facts.type.Type type,
+	TypedVariablePattern(IValueFactory vf, EvaluatorContext ctx, org.eclipse.imp.pdb.facts.type.Type type,
 			org.meta_environment.rascal.ast.QualifiedName qname) {
 		super(vf, ctx);
 		this.name = Names.name(Names.lastName(qname));
 		this.declaredType = type;
-		this.env = env;
 		this.anonymous = name.equals("_");
+		Environment env = ctx.getCurrentEnvt();
 		
 		if(debug) System.err.println("AbstractPatternTypedVariabe: " + name);
 		
@@ -62,14 +61,13 @@ import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeR
 		
 	}
 	
-	TypedVariablePattern(IValueFactory vf, Environment env, EvaluatorContext ctx, 
+	TypedVariablePattern(IValueFactory vf, EvaluatorContext ctx, 
 			org.eclipse.imp.pdb.facts.type.Type type, org.meta_environment.rascal.ast.Name name) {
 		super(vf, ctx);
 		this.name = Names.name(name);
 		this.declaredType = type;
-		this.env = env;
 		this.anonymous = name.toString().equals("_");
-		
+		Environment env = ctx.getCurrentEnvt();
 		if(debug) System.err.println("AbstractPatternTypedVariabe: " + name);
 		
 		Result<IValue> localRes = env.getLocalVariable(name);
@@ -140,7 +138,7 @@ import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeR
 		
 		if (subject.getType().isSubtypeOf(declaredType)) {
 			if(!anonymous)
-				env.storeInnermostVariable(name, makeResult(declaredType, subject, ctx));
+				ctx.getCurrentEnvt().storeInnermostVariable(name, subject);
 			if(debug)System.err.println("matches");
 			return true;
 		}

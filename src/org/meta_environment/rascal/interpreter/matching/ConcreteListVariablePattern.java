@@ -6,19 +6,19 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.interpreter.EvaluatorContext;
-import org.meta_environment.rascal.interpreter.Names;
 import org.meta_environment.rascal.interpreter.env.ConcreteSyntaxType;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
+import org.meta_environment.rascal.interpreter.utils.Names;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.SymbolAdapter;
 import org.meta_environment.uptr.TreeAdapter;
 
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 
-class ConcreteListVariablePattern extends AbstractPattern {
+class ConcreteListVariablePattern extends AbstractMatchingResult {
 	private String name;
 	private ConcreteSyntaxType declaredType;
 	
@@ -27,13 +27,12 @@ class ConcreteListVariablePattern extends AbstractPattern {
 	private Environment env;
 	// TODO: merge code of the following two constructors.
 	
-	ConcreteListVariablePattern(IValueFactory vf, Environment env, EvaluatorContext ctx, org.eclipse.imp.pdb.facts.type.Type type,
+	ConcreteListVariablePattern(IValueFactory vf, EvaluatorContext ctx, org.eclipse.imp.pdb.facts.type.Type type,
 			org.meta_environment.rascal.ast.QualifiedName qname) {
 		super(vf, ctx);
 //		this.name = getAST().toString(); JURGEN CHANGED THIS WITHOUT UNDERSTANDING
 		this.name = Names.name(Names.lastName(qname));
 		this.declaredType = (ConcreteSyntaxType) type;
-		this.env = env;
 		this.anonymous = name.equals("_");
 		
 		if(debug) System.err.println("AbstractPatternTypedVariabe: " + name);
@@ -67,12 +66,11 @@ class ConcreteListVariablePattern extends AbstractPattern {
 	}
 	
 	
-	ConcreteListVariablePattern(IValueFactory vf, Environment env, EvaluatorContext ctx, 
+	ConcreteListVariablePattern(IValueFactory vf, EvaluatorContext ctx, 
 			org.eclipse.imp.pdb.facts.type.Type type, org.meta_environment.rascal.ast.Name name) {
 		super(vf, ctx);
 		this.name = Names.name(name);
 		this.declaredType = (ConcreteSyntaxType) type;
-		this.env = env;
 		this.anonymous = name.toString().equals("_");
 		
 		if(debug) System.err.println("AbstractConcreteSyntaxListVariable: " + name);
@@ -161,13 +159,13 @@ class ConcreteListVariablePattern extends AbstractPattern {
 			}
 			if (!anonymous)
 				env.storeInnermostVariable(name, makeResult(declaredType,
-						wrapWithListProd(subject), ctx));
+						wrapWithListProd(subject.getValue()), ctx));
 			if (debug)
 				System.err.println("matches");
 			return true;
 		} 
 		else {
-			TreeAdapter subjectTree = new TreeAdapter((IConstructor) subject);
+			TreeAdapter subjectTree = new TreeAdapter((IConstructor) subject.getValue());
 			if (subjectTree.isList()) {
 				if (((IList)subjectTree.getArgs()).isEmpty()) {
 					SymbolAdapter sym = new SymbolAdapter(declaredType.getSymbol()).getSymbol();
@@ -176,8 +174,7 @@ class ConcreteListVariablePattern extends AbstractPattern {
 					}
 				}
 				if (subjectTree.getProduction().getRhs().getTree().isEqual(declaredType.getSymbol())) {
-					env.storeInnermostVariable(name, makeResult(declaredType,
-							subject, ctx));
+					env.storeInnermostVariable(name, subject);
 				}
 				if (debug)
 					System.err.println("matches");

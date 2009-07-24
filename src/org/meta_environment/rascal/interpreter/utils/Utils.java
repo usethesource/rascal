@@ -1,4 +1,4 @@
-package org.meta_environment.rascal.interpreter;
+package org.meta_environment.rascal.interpreter.utils;
 
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 

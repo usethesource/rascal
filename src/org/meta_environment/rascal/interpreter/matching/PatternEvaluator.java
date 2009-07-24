@@ -69,78 +69,64 @@ import org.meta_environment.rascal.ast.Literal.RegExp;
 import org.meta_environment.rascal.ast.Literal.String;
 import org.meta_environment.rascal.ast.RegExp.Lexical;
 import org.meta_environment.rascal.interpreter.EvaluatorContext;
-import org.meta_environment.rascal.interpreter.Names;
 import org.meta_environment.rascal.interpreter.TypeEvaluator;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.env.ConcreteSyntaxType;
-import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.AmbiguousConcretePattern;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternError;
+import org.meta_environment.rascal.interpreter.utils.Names;
 
-public class PatternEvaluator extends NullASTVisitor<MatchPattern> {
+public class PatternEvaluator extends NullASTVisitor<IBooleanResult> {
 	private IValueFactory vf;
-	private Environment env;
 	private EvaluatorContext ctx;
-	private Environment scope;
 	private boolean debug = false;
 
-	public PatternEvaluator(IValueFactory vf, Environment env, Environment scope, EvaluatorContext ctx){
+	public PatternEvaluator(IValueFactory vf, EvaluatorContext ctx){
 		this.vf = vf;
-		this.env = env;
 		this.ctx = ctx;
-		this.scope = scope;
 	}
-	
-	public boolean isPattern(org.meta_environment.rascal.ast.Expression pat){
-		return (pat.isLiteral() && ! pat.getLiteral().isRegExp()) || 
-		       pat.isCallOrTree() || pat.isList() || 
-		       pat.isSet() || pat.isMap() || pat.isTuple() ||
-		       pat.isQualifiedName() || pat.isTypedVariable() ||
-		       pat.isVariableBecomes() || pat.isTypedVariableBecomes() ||
-		       pat.isAnti() || pat.isDescendant();
-	}
-	
+
 	@Override
-	public MatchPattern visitExpressionLiteral(Literal x) {
+	public IBooleanResult visitExpressionLiteral(Literal x) {
 		return x.getLiteral().accept(this);
 	}
 	
 	@Override
-	public MatchPattern visitLiteralBoolean(Boolean x) {
+	public IBooleanResult visitLiteralBoolean(Boolean x) {
 		return new LiteralPattern(vf, ctx, x.accept(ctx.getEvaluator()).getValue());
 	}
 
 	@Override
-	public MatchPattern visitLiteralInteger(Integer x) {
+	public IBooleanResult visitLiteralInteger(Integer x) {
 		return new LiteralPattern(vf, ctx, x.accept(ctx.getEvaluator()).getValue());
 	}
 	
 	@Override
-	public MatchPattern visitLiteralReal(Real x) {
+	public IBooleanResult visitLiteralReal(Real x) {
 		return new LiteralPattern(vf, ctx, x.accept(ctx.getEvaluator()).getValue());
 	}
 	
 	@Override
-	public MatchPattern visitLiteralString(String x) {
+	public IBooleanResult visitLiteralString(String x) {
 		return new LiteralPattern(vf, ctx, x.accept(ctx.getEvaluator()).getValue());
 	}
 	
 	@Override
-	public MatchPattern visitLiteralRegExp(RegExp x) {
+	public IBooleanResult visitLiteralRegExp(RegExp x) {
 		return x.getRegExpLiteral().accept(this);
 	}
 
 	@Override
-	public MatchPattern visitRegExpLexical(Lexical x) {
+	public IBooleanResult visitRegExpLexical(Lexical x) {
 		if(debug)System.err.println("visitRegExpLexical: " + x.getString());
-		return new RegExpPatternValue(vf, new EvaluatorContext(ctx.getEvaluator(), x), x.getString(), env);
+		return new RegExpPatternValue(vf, new EvaluatorContext(ctx.getEvaluator(), x), x.getString());
 	}
 	
 	@Override
-	public MatchPattern visitRegExpLiteralLexical(
+	public IBooleanResult visitRegExpLiteralLexical(
 			org.meta_environment.rascal.ast.RegExpLiteral.Lexical x) {
 		if(debug)System.err.println("visitRegExpLiteralLexical: " + x.getString());
 
@@ -184,7 +170,7 @@ public class PatternEvaluator extends NullASTVisitor<MatchPattern> {
 		 */
 		resultRegExp = resultRegExp.replaceAll("(\\\\<)", "<");
 		if(debug)System.err.println("resultRegExp: " + resultRegExp);
-		return new RegExpPatternValue(vf, x, resultRegExp, modifier, names, env);
+		return new RegExpPatternValue(vf, ctx, x, resultRegExp, modifier, names);
 	}
 
 	
@@ -214,7 +200,7 @@ public class PatternEvaluator extends NullASTVisitor<MatchPattern> {
 	}
 	
 	@Override
-	public MatchPattern visitExpressionCallOrTree(CallOrTree x) {
+	public IMatchingResult visitExpressionCallOrTree(CallOrTree x) {
 		Expression nameExpr = x.getExpression();
 
 		if(isConcreteSyntaxList(x)) {
@@ -231,59 +217,59 @@ public class PatternEvaluator extends NullASTVisitor<MatchPattern> {
 			//			return new AbstractPatternConcreteAmb(vf, new EvaluatorContext(ctx.getEvaluator(), x), x, visitArguments(x));
 		}
 
-		if (nameExpr.isQualifiedName() && env.getVariable(nameExpr.getQualifiedName()) == null) {
+		if (nameExpr.isQualifiedName() && ctx.getCurrentEnvt().getVariable(nameExpr.getQualifiedName()) == null) {
 			return new NodePattern(vf, new EvaluatorContext(ctx.getEvaluator(), x), null, nameExpr.getQualifiedName(), visitArguments(x));
 		}
 		else {
-			return new NodePattern(vf, new EvaluatorContext(ctx.getEvaluator(), x), nameExpr.accept(this), null, visitArguments(x));
+			return new NodePattern(vf, new EvaluatorContext(ctx.getEvaluator(), x), (IMatchingResult) nameExpr.accept(this), null, visitArguments(x));
 		}
 	}
 	
-	private java.util.List<MatchPattern> visitArguments(CallOrTree x){
+	private java.util.List<IMatchingResult> visitArguments(CallOrTree x){
 
 		java.util.List<org.meta_environment.rascal.ast.Expression> elements = x.getArguments();
-		ArrayList<MatchPattern> args = new java.util.ArrayList<MatchPattern>(elements.size());
+		ArrayList<IMatchingResult> args = new java.util.ArrayList<IMatchingResult>(elements.size());
 		
 		int i = 0;
 		for(org.meta_environment.rascal.ast.Expression e : elements){
-			args.add(i++, e.accept(this));
+			args.add(i++, (IMatchingResult) e.accept(this));
 		}
 		return args;
 	}
 	
 	
-	private java.util.List<MatchPattern> visitElements(java.util.List<org.meta_environment.rascal.ast.Expression> elements){
-		ArrayList<MatchPattern> args = new java.util.ArrayList<MatchPattern>(elements.size());
+	private java.util.List<IMatchingResult> visitElements(java.util.List<org.meta_environment.rascal.ast.Expression> elements){
+		ArrayList<IMatchingResult> args = new java.util.ArrayList<IMatchingResult>(elements.size());
 		
 		int i = 0;
 		for(org.meta_environment.rascal.ast.Expression e : elements){
-			args.add(i++, e.accept(this));
+			args.add(i++, (IMatchingResult) e.accept(this));
 		}
 		return args;
 	}
 	
 	@Override
-	public MatchPattern visitExpressionList(List x) {
+	public IBooleanResult visitExpressionList(List x) {
 		return new ListPattern(vf, new EvaluatorContext(ctx.getEvaluator(), x), visitElements(x.getElements()));
 	}
 	
 	@Override
-	public MatchPattern visitExpressionSet(Set x) {
+	public IBooleanResult visitExpressionSet(Set x) {
 		return new SetPattern(vf, new EvaluatorContext(ctx.getEvaluator(), x), visitElements(x.getElements()));
 	}
 	
 	@Override
-	public MatchPattern visitExpressionTuple(Tuple x) {
+	public IBooleanResult visitExpressionTuple(Tuple x) {
 		return new TuplePattern(vf, new EvaluatorContext(ctx.getEvaluator(), x), visitElements(x.getElements()));
 	}
 	
 	@Override
-	public AbstractPattern visitExpressionMap(Map x) {
+	public IBooleanResult visitExpressionMap(Map x) {
 		throw new ImplementationError("Map in pattern not yet implemented");
 	}
 	
 	@Override
-	public AbstractPattern visitExpressionQualifiedName(QualifiedName x) {
+	public IBooleanResult visitExpressionQualifiedName(QualifiedName x) {
 		org.meta_environment.rascal.ast.QualifiedName name = x.getQualifiedName();
 		Type signature = ctx.getEvaluator().tf.tupleType(new Type[0]);
 
@@ -292,82 +278,82 @@ public class PatternEvaluator extends NullASTVisitor<MatchPattern> {
 		if (r != null) {
 			if (r.getValue() != null) {
 				// Previously declared and initialized variable
-				return new QualifiedNamePattern(vf, env, new EvaluatorContext(ctx.getEvaluator(), name), name);
+				return new QualifiedNamePattern(vf, new EvaluatorContext(ctx.getEvaluator(), name), name);
 			}
 			
 			Type type = r.getType();
 			if (type instanceof ConcreteSyntaxType) {
 				ConcreteSyntaxType cType = (ConcreteSyntaxType) type;
 				if (cType.isConcreteListType()) {
-					return new ConcreteListVariablePattern(vf, env,  new EvaluatorContext(ctx.getEvaluator(), x.getName()), type, x.getName());
+					return new ConcreteListVariablePattern(vf, new EvaluatorContext(ctx.getEvaluator(), x.getName()), type, x.getName());
 				}
 			}
 			
-			return new TypedVariablePattern(vf, env, new EvaluatorContext(ctx.getEvaluator(), name), type,name);
+			return new TypedVariablePattern(vf, new EvaluatorContext(ctx.getEvaluator(), name), type,name);
 		}
 		
-		if (scope.isTreeConstructorName(name, signature)) {
+		if (ctx.getCurrentEnvt().isTreeConstructorName(name, signature)) {
 			return new NodePattern(vf, new EvaluatorContext(ctx.getEvaluator(), x), null, name,
-					new java.util.ArrayList<MatchPattern>());
+					new java.util.ArrayList<IMatchingResult>());
 		}
 		
 		// Completely fresh variable
-		return new QualifiedNamePattern(vf, env, new EvaluatorContext(ctx.getEvaluator(), name), name);
+		return new QualifiedNamePattern(vf, new EvaluatorContext(ctx.getEvaluator(), name), name);
 		//return new AbstractPatternTypedVariable(vf, env, ev.tf.valueType(), name);
 	}
 	
 	@Override
-	public AbstractPattern visitExpressionTypedVariable(TypedVariable x) {
+	public IBooleanResult visitExpressionTypedVariable(TypedVariable x) {
 		TypeEvaluator te = TypeEvaluator.getInstance();
-		Type type = te.eval(x.getType(), env);
+		Type type = te.eval(x.getType(), ctx.getCurrentEnvt());
 		
 		if (type instanceof ConcreteSyntaxType) {
 			ConcreteSyntaxType cType = (ConcreteSyntaxType) type;
 			if (cType.isConcreteListType()) {
-				return new ConcreteListVariablePattern(vf, env,  new EvaluatorContext(ctx.getEvaluator(), x.getName()), type, x.getName());
+				return new ConcreteListVariablePattern(vf,  new EvaluatorContext(ctx.getEvaluator(), x.getName()), type, x.getName());
 			}
 		}
-		return new TypedVariablePattern(vf, env,  new EvaluatorContext(ctx.getEvaluator(), x.getName()), type, x.getName());
+		return new TypedVariablePattern(vf, new EvaluatorContext(ctx.getEvaluator(), x.getName()), type, x.getName());
 	}
 	
 	@Override
-	public AbstractPattern visitExpressionTypedVariableBecomes(
+	public IBooleanResult visitExpressionTypedVariableBecomes(
 			TypedVariableBecomes x) {
 		TypeEvaluator te = TypeEvaluator.getInstance();
-		Type type =  te.eval(x.getType(), env);
-		MatchPattern pat = x.getPattern().accept(this);
-		return new TypedVariableBecomesPattern(vf, env, new EvaluatorContext(ctx.getEvaluator(), x.getName()), type, x.getName(), pat);
+		Type type =  te.eval(x.getType(), ctx.getCurrentEnvt());
+		IMatchingResult pat = (IMatchingResult) x.getPattern().accept(this);
+		return new TypedVariableBecomesPattern(vf, new EvaluatorContext(ctx.getEvaluator(), x.getName()), type, x.getName(), pat);
 	}
 	
 	@Override
-	public AbstractPattern visitExpressionVariableBecomes(
+	public IMatchingResult visitExpressionVariableBecomes(
 			VariableBecomes x) {
-		MatchPattern pat = x.getPattern().accept(this);
-		return new VariableBecomesPattern(vf, env, new EvaluatorContext(ctx.getEvaluator(), x.getName()), x.getName(), pat);
+		IMatchingResult pat = (IMatchingResult) x.getPattern().accept(this);
+		return new VariableBecomesPattern(vf, new EvaluatorContext(ctx.getEvaluator(), x.getName()), x.getName(), pat);
 	}
 	
 	@Override
-	public AbstractPattern visitExpressionGuarded(Guarded x) {
+	public IMatchingResult visitExpressionGuarded(Guarded x) {
 		TypeEvaluator te = TypeEvaluator.getInstance();
-		Type type =  te.eval(x.getType(), env);
-		MatchPattern absPat = x.getPattern().accept(this);
+		Type type =  te.eval(x.getType(), ctx.getCurrentEnvt());
+		IMatchingResult absPat = (IMatchingResult) x.getPattern().accept(this);
 		return new GuardedPattern(vf, new EvaluatorContext(ctx.getEvaluator(), x), type, absPat);
 	}
 	
 	@Override
-	public AbstractPattern visitExpressionAnti(Anti x) {
-		MatchPattern absPat = x.getPattern().accept(this);
+	public IMatchingResult visitExpressionAnti(Anti x) {
+		IMatchingResult absPat = (IMatchingResult) x.getPattern().accept(this);
 		return new AntiPattern(vf, new EvaluatorContext(ctx.getEvaluator(), x), absPat);
 	}
 	
 	@Override
-	public AbstractPattern visitExpressionMultiVariable(MultiVariable x) {
-		return new MultiVariablePattern(vf, env, new EvaluatorContext(ctx.getEvaluator(), x), x.getQualifiedName());
+	public IBooleanResult visitExpressionMultiVariable(MultiVariable x) {
+		return new MultiVariablePattern(vf, new EvaluatorContext(ctx.getEvaluator(), x), x.getQualifiedName());
 	}
 	
 	@Override
-	public AbstractPattern visitExpressionDescendant(Descendant x) {
-		MatchPattern absPat = x.getPattern().accept(this);
+	public IMatchingResult visitExpressionDescendant(Descendant x) {
+		IMatchingResult absPat = (IMatchingResult) x.getPattern().accept(this);
 		return new DescendantPattern(vf,ctx, absPat);
 	}
 	
@@ -376,204 +362,210 @@ public class PatternEvaluator extends NullASTVisitor<MatchPattern> {
 	 */
 	
 	@Override
-	public AbstractPattern visitExpressionAddition(Addition x) {
+	public IBooleanResult visitExpressionAddition(Addition x) {
 		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	
 	@Override
-	public AbstractPattern visitExpressionAll(All x) {
+	public IBooleanResult visitExpressionAll(All x) {
 		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
-	public AbstractPattern visitExpressionAmbiguity(
+	public IBooleanResult visitExpressionAmbiguity(
 			org.meta_environment.rascal.ast.Expression.Ambiguity x) {
 		throw new ImplementationError("Ambiguity in expression: " + x);
 	}
 	@Override
-	public AbstractPattern visitExpressionAnd(And x) {
-		throw new UnsupportedPatternError(x.toString(), x);
+	public IBooleanResult visitExpressionAnd(And x) {
+//		throw new UnsupportedPatternError(x.toString(), x);
+		return new AndResult(vf, ctx, x.getLhs().accept(this), x.getRhs().accept(this));
 	}
 	@Override
-	public AbstractPattern visitExpressionAny(Any x) {
+	public IBooleanResult visitExpressionAny(Any x) {
 		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	
 	@Override
-	public AbstractPattern visitExpressionBracket(Bracket x) {
+	public IBooleanResult visitExpressionBracket(Bracket x) {
+		return x.getExpression().accept(this);
+	}
+	
+	@Override
+	public IBooleanResult visitExpressionClosure(Closure x) {
 		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
-	public AbstractPattern visitExpressionClosure(Closure x) {
+	public IBooleanResult visitExpressionComposition(Composition x) {
 		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
-	public AbstractPattern visitExpressionComposition(Composition x) {
+	public IBooleanResult visitExpressionComprehension(Comprehension x) {
 		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
-	public AbstractPattern visitExpressionComprehension(Comprehension x) {
-		throw new UnsupportedPatternError(x.toString(), x);
-	}
-	@Override
-	public AbstractPattern visitExpressionDivision(
+	public IBooleanResult visitExpressionDivision(
 			org.meta_environment.rascal.ast.Expression.Division x) {
 		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
-	public AbstractPattern visitExpressionEquals(Equals x) {
+	public IBooleanResult visitExpressionEquals(Equals x) {
+		return new BasicBooleanResult(vf, ctx, x);
+	}
+	@Override
+	public IBooleanResult visitExpressionEquivalence(Equivalence x) {
 		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
-	public AbstractPattern visitExpressionEquivalence(Equivalence x) {
-		throw new UnsupportedPatternError(x.toString(), x);
-	}
-	@Override
-	public AbstractPattern visitExpressionFieldAccess(
+	public IBooleanResult visitExpressionFieldAccess(
 			org.meta_environment.rascal.ast.Expression.FieldAccess x) {
 		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
-	public AbstractPattern visitExpressionFieldProject(FieldProject x) {
+	public IBooleanResult visitExpressionFieldProject(FieldProject x) {
 		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
-	public AbstractPattern visitExpressionFieldUpdate(FieldUpdate x) {
+	public IBooleanResult visitExpressionFieldUpdate(FieldUpdate x) {
 		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
-	public AbstractPattern visitExpressionGetAnnotation(GetAnnotation x) {
+	public IBooleanResult visitExpressionGetAnnotation(GetAnnotation x) {
 		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
-	public AbstractPattern visitExpressionGreaterThan(GreaterThan x) {
-		throw new UnsupportedPatternError(x.toString(), x);
+	public IBooleanResult visitExpressionGreaterThan(GreaterThan x) {
+		return new BasicBooleanResult(vf, ctx, x);
 	}
 	@Override
-	public AbstractPattern visitExpressionGreaterThanOrEq(GreaterThanOrEq x) {
-		throw new UnsupportedPatternError(x.toString(), x);
+	public IBooleanResult visitExpressionGreaterThanOrEq(GreaterThanOrEq x) {
+		return new BasicBooleanResult(vf, ctx, x);
 	}
 	
 	@Override
-	public AbstractPattern visitExpressionIfThenElse(IfThenElse x) {
+	public IBooleanResult visitExpressionIfThenElse(IfThenElse x) {
 		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
-	public AbstractPattern visitExpressionImplication(Implication x) {
+	public IBooleanResult visitExpressionImplication(Implication x) {
+		return new OrResult(vf, ctx, new NotResult(vf, ctx, x.getLhs().accept(this)), x.getRhs().accept(this));
+	}
+	
+	@Override
+	public IBooleanResult visitExpressionIn(In x) {
 		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
-	public AbstractPattern visitExpressionIn(In x) {
-		throw new UnsupportedPatternError(x.toString(), x);
-	}
-	@Override
-	public AbstractPattern visitExpressionIntersection(
+	public IBooleanResult visitExpressionIntersection(
 			org.meta_environment.rascal.ast.Expression.Intersection x) {
 		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
-	public AbstractPattern visitExpressionLessThan(LessThan x) {
-		throw new UnsupportedPatternError(x.toString(), x);
+	public IBooleanResult visitExpressionLessThan(LessThan x) {
+		return new BasicBooleanResult(vf, ctx, x);
 	}
 	@Override
-	public AbstractPattern visitExpressionLessThanOrEq(LessThanOrEq x) {
-		throw new UnsupportedPatternError(x.toString(), x);
+	public IBooleanResult visitExpressionLessThanOrEq(LessThanOrEq x) {
+		return new BasicBooleanResult(vf, ctx, x);
 	}
 	@Override
-	public AbstractPattern visitExpressionLexical(
+	public IBooleanResult visitExpressionLexical(
 			org.meta_environment.rascal.ast.Expression.Lexical x) {
 		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
-	public AbstractPattern visitExpressionMatch(Match x) {
+	public IBooleanResult visitExpressionMatch(Match x) {
+		return new MatchResult(vf, ctx, (IMatchingResult) x.getPattern().accept(this), true, x.getExpression());
+	}
+	
+	@Override
+	public IBooleanResult visitExpressionModulo(Modulo x) {
 		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
-	public AbstractPattern visitExpressionModulo(Modulo x) {
+	public IBooleanResult visitExpressionNegation(Negation x) {
+		return new NotResult(vf, ctx, x.getArgument().accept(this));
+	}
+	@Override
+	public IBooleanResult visitExpressionNegative(Negative x) {
 		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
-	public AbstractPattern visitExpressionNegation(Negation x) {
+	public IBooleanResult visitExpressionNoMatch(NoMatch x) {
+		return new MatchResult(vf, ctx, (IMatchingResult) x.getPattern().accept(this), false, x.getExpression());
+	}
+	
+	@Override
+	public IBooleanResult visitExpressionNonEmptyBlock(NonEmptyBlock x) {
 		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
-	public AbstractPattern visitExpressionNegative(Negative x) {
+	public IBooleanResult visitExpressionNonEquals(NonEquals x) {
 		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
-	public AbstractPattern visitExpressionNoMatch(NoMatch x) {
+	public IBooleanResult visitExpressionNotIn(NotIn x) {
 		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
-	public AbstractPattern visitExpressionNonEmptyBlock(NonEmptyBlock x) {
+	public IBooleanResult visitExpressionOperatorAsValue(OperatorAsValue x) {
 		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
-	public AbstractPattern visitExpressionNonEquals(NonEquals x) {
-		throw new UnsupportedPatternError(x.toString(), x);
+	public IBooleanResult visitExpressionOr(Or x) {
+		return new OrResult(vf, ctx, x.getLhs().accept(this), x.getRhs().accept(this));
 	}
 	@Override
-	public AbstractPattern visitExpressionNotIn(NotIn x) {
-		throw new UnsupportedPatternError(x.toString(), x);
-	}
-	@Override
-	public AbstractPattern visitExpressionOperatorAsValue(OperatorAsValue x) {
-		throw new UnsupportedPatternError(x.toString(), x);
-	}
-	@Override
-	public AbstractPattern visitExpressionOr(Or x) {
-		throw new UnsupportedPatternError(x.toString(), x);
-	}
-	@Override
-	public AbstractPattern visitExpressionProduct(
+	public IBooleanResult visitExpressionProduct(
 			org.meta_environment.rascal.ast.Expression.Product x) {
 		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
-	public AbstractPattern visitExpressionRange(Range x) {
+	public IBooleanResult visitExpressionRange(Range x) {
 		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
-	public AbstractPattern visitExpressionSetAnnotation(SetAnnotation x) {
+	public IBooleanResult visitExpressionSetAnnotation(SetAnnotation x) {
 		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
-	public AbstractPattern visitExpressionStepRange(StepRange x) {
+	public IBooleanResult visitExpressionStepRange(StepRange x) {
 		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
-	public AbstractPattern visitExpressionSubscript(
+	public IBooleanResult visitExpressionSubscript(
 			org.meta_environment.rascal.ast.Expression.Subscript x) {
 		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
-	public AbstractPattern visitExpressionSubtraction(
+	public IBooleanResult visitExpressionSubtraction(
 			org.meta_environment.rascal.ast.Expression.Subtraction x) {
 		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
-	public AbstractPattern visitExpressionTransitiveClosure(TransitiveClosure x) {
+	public IBooleanResult visitExpressionTransitiveClosure(TransitiveClosure x) {
 		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
-	public AbstractPattern visitExpressionTransitiveReflexiveClosure(
+	public IBooleanResult visitExpressionTransitiveReflexiveClosure(
 			TransitiveReflexiveClosure x) {
 		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
-	public AbstractPattern visitExpressionEnumerator(Enumerator x) {
-		throw new UnsupportedPatternError(x.toString(), x);
+	public IBooleanResult visitExpressionEnumerator(Enumerator x) {
+		return new EnumeratorResult(vf, ctx, (IMatchingResult) x.getPattern().accept(this), null, x.getExpression());
 	}
 	@Override
-	public AbstractPattern visitExpressionEnumeratorWithStrategy(
+	public IBooleanResult visitExpressionEnumeratorWithStrategy(
 			EnumeratorWithStrategy x) {
+		return new EnumeratorResult(vf, ctx, (IMatchingResult) x.getPattern().accept(this), x.getStrategy(), x.getExpression());
+	}
+	
+	@Override
+	public IBooleanResult visitExpressionVisit(Visit x) {
 		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
-	public AbstractPattern visitExpressionVisit(Visit x) {
-		throw new UnsupportedPatternError(x.toString(), x);
-	}
-	@Override
-	public AbstractPattern visitExpressionVoidClosure(VoidClosure x) {
+	public IBooleanResult visitExpressionVoidClosure(VoidClosure x) {
 		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	

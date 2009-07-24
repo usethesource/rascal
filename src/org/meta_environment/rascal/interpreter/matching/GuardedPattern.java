@@ -5,13 +5,14 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.interpreter.EvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
+import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 
-class GuardedPattern extends AbstractPattern implements MatchPattern {
+class GuardedPattern extends AbstractMatchingResult {
 	private Type type;
-	private MatchPattern pat;
+	private IMatchingResult pat;
 	
-	GuardedPattern(IValueFactory vf, EvaluatorContext ctx, Type type, MatchPattern pat){
+	GuardedPattern(IValueFactory vf, EvaluatorContext ctx, Type type, IMatchingResult pat){
 		super(vf, ctx);
 		this.type = type;
 		this.pat = pat;
@@ -23,9 +24,10 @@ class GuardedPattern extends AbstractPattern implements MatchPattern {
 	}
 	
 	@Override
-	public void initMatch(IValue subject, Environment env){
-		super.initMatch(subject,env);
-		pat.initMatch(subject, env);
+	public void initMatch(Result<IValue> subject){
+		super.initMatch(subject);
+		pat.initMatch(subject);
+		Environment env = ctx.getCurrentEnvt();
 		if(!mayMatch(pat.getType(env), type))
 			throw new UnexpectedTypeError(pat.getType(env), type, ctx.getCurrentAST());
 		this.hasNext = pat.getType(env).equivalent(type);

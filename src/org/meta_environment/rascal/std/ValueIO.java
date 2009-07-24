@@ -14,7 +14,7 @@ import org.eclipse.imp.pdb.facts.io.StandardTextReader;
 import org.eclipse.imp.pdb.facts.io.StandardTextWriter;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.meta_environment.ValueFactoryFactory;
-import org.meta_environment.rascal.interpreter.RuntimeExceptionFactory;
+import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 
 public class ValueIO {
 	private static final IValueFactory values = ValueFactoryFactory.getValueFactory();

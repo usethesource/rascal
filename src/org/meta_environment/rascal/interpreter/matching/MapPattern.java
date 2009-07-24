@@ -7,10 +7,10 @@ import org.meta_environment.rascal.interpreter.EvaluatorContext;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.env.Environment;
 
-/* package */ class MapPattern extends AbstractPattern implements MatchPattern {
-	private java.util.List<AbstractPattern> children;
+/* package */ class MapPattern extends AbstractMatchingResult {
+	private java.util.List<IMatchingResult> children;
 	
-	MapPattern(IValueFactory vf, EvaluatorContext ctx, java.util.List<AbstractPattern> children){
+	MapPattern(IValueFactory vf, EvaluatorContext ctx, java.util.List<IMatchingResult> children){
 		super(vf, ctx);
 		this.children = children;
 	}

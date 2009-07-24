@@ -1,4 +1,4 @@
-package org.meta_environment.rascal.interpreter;
+package org.meta_environment.rascal.interpreter.utils;
 
 import java.util.Iterator;
 import java.util.List;

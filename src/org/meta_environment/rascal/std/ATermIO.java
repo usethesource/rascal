@@ -9,7 +9,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.io.ATermReader;
 import org.meta_environment.ValueFactoryFactory;
-import org.meta_environment.rascal.interpreter.RuntimeExceptionFactory;
+import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 
 public class ATermIO {
 	private static final IValueFactory values = ValueFactoryFactory.getValueFactory();

@@ -7,11 +7,12 @@ import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.meta_environment.rascal.interpreter.EvaluatorContext;
-import org.meta_environment.rascal.interpreter.RuntimeExceptionFactory;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFieldError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscriptArityError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscriptError;
+import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
+
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.bool;
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 
