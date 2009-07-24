@@ -42,7 +42,7 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 	private int end;							// end of last match in current subject
 	
 	
-	RegExpPatternValue(IValueFactory vf, EvaluatorContext ctx, String s){
+	public RegExpPatternValue(IValueFactory vf, EvaluatorContext ctx, String s){
 		super(vf, ctx);
 		RegExpAsString = s;
 	//	modifier = null;
@@ -50,7 +50,7 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 		initialized = false;
 	}
 	
-	RegExpPatternValue(IValueFactory vf, EvaluatorContext ctx, AbstractAST ast, String s, Character mod, List<String> names) {
+	public RegExpPatternValue(IValueFactory vf, EvaluatorContext ctx, AbstractAST ast, String s, Character mod, List<String> names) {
 		super(vf, ctx);
 		this.ast = ast;
 		RegExpAsString = (mod == null) ? s : "(?" + mod + ")" + s;

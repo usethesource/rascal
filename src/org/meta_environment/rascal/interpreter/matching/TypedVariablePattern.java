@@ -12,7 +12,7 @@ import org.meta_environment.rascal.interpreter.utils.Names;
 
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 
-/* package */class TypedVariablePattern extends AbstractMatchingResult {
+public class TypedVariablePattern extends AbstractMatchingResult {
 	private String name;
 	org.eclipse.imp.pdb.facts.type.Type declaredType;
 	private boolean anonymous = false;
@@ -21,7 +21,7 @@ import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeR
 	
 	// TODO: merge code of the following two constructors.
 	
-	TypedVariablePattern(IValueFactory vf, EvaluatorContext ctx, org.eclipse.imp.pdb.facts.type.Type type,
+	public TypedVariablePattern(IValueFactory vf, EvaluatorContext ctx, org.eclipse.imp.pdb.facts.type.Type type,
 			org.meta_environment.rascal.ast.QualifiedName qname) {
 		super(vf, ctx);
 		this.name = Names.name(Names.lastName(qname));
@@ -61,7 +61,7 @@ import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeR
 		
 	}
 	
-	TypedVariablePattern(IValueFactory vf, EvaluatorContext ctx, 
+	public TypedVariablePattern(IValueFactory vf, EvaluatorContext ctx, 
 			org.eclipse.imp.pdb.facts.type.Type type, org.meta_environment.rascal.ast.Name name) {
 		super(vf, ctx);
 		this.name = Names.name(name);

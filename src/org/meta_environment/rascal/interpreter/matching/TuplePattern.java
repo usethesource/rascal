@@ -11,11 +11,11 @@ import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.result.ResultFactory;
 
-/* package */ class TuplePattern extends AbstractMatchingResult {
+public class TuplePattern extends AbstractMatchingResult {
 	private List<IMatchingResult> children;
 	private boolean firstMatch;
 	
-	TuplePattern(IValueFactory vf, EvaluatorContext ctx, List<IMatchingResult> list){
+	public TuplePattern(IValueFactory vf, EvaluatorContext ctx, List<IMatchingResult> list){
 		super(vf, ctx);
 		this.children = list;
 	}

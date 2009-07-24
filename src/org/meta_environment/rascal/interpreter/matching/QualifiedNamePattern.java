@@ -9,13 +9,13 @@ import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.utils.Names;
 
-/* package */ class QualifiedNamePattern extends AbstractMatchingResult {
+public class QualifiedNamePattern extends AbstractMatchingResult {
 	protected org.meta_environment.rascal.ast.QualifiedName name;
 	private Type type;
 	protected boolean anonymous = false;
 	private boolean debug = false;
 	
-	QualifiedNamePattern(IValueFactory vf, EvaluatorContext ctx, org.meta_environment.rascal.ast.QualifiedName name){
+	public QualifiedNamePattern(IValueFactory vf, EvaluatorContext ctx, org.meta_environment.rascal.ast.QualifiedName name){
 		super(vf, ctx);
 		this.name = name;
 		this.anonymous = getName().equals("_");

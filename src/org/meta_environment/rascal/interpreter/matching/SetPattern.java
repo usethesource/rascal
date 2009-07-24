@@ -15,7 +15,7 @@ import org.meta_environment.rascal.interpreter.result.ResultFactory;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 
-/* package */ class SetPattern extends AbstractMatchingResult {
+public class SetPattern extends AbstractMatchingResult {
 	private List<IMatchingResult> patternChildren; // The elements of the set pattern
 	private int patternSize;					// Number of elements in the set pattern
 	private ISet setSubject;					// Current subject	
@@ -47,7 +47,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 	
 	private boolean debug = false;
 	
-	SetPattern(IValueFactory vf, EvaluatorContext ctx, List<IMatchingResult> list){
+	public SetPattern(IValueFactory vf, EvaluatorContext ctx, List<IMatchingResult> list){
 		super(vf, ctx);
 		this.patternChildren = list;
 		this.patternSize = list.size();

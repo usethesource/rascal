@@ -7,7 +7,7 @@ import org.meta_environment.rascal.interpreter.EvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
 
-class DescendantPattern extends AbstractMatchingResult  {
+public class DescendantPattern extends AbstractMatchingResult  {
 	private IMatchingResult pat;
 	private IBooleanResult enumAndMatch;
 

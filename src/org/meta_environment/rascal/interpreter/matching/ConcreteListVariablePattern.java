@@ -18,7 +18,7 @@ import org.meta_environment.uptr.TreeAdapter;
 
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 
-class ConcreteListVariablePattern extends AbstractMatchingResult {
+public class ConcreteListVariablePattern extends AbstractMatchingResult {
 	private String name;
 	private ConcreteSyntaxType declaredType;
 	
@@ -27,10 +27,9 @@ class ConcreteListVariablePattern extends AbstractMatchingResult {
 	private Environment env;
 	// TODO: merge code of the following two constructors.
 	
-	ConcreteListVariablePattern(IValueFactory vf, EvaluatorContext ctx, org.eclipse.imp.pdb.facts.type.Type type,
+	public ConcreteListVariablePattern(IValueFactory vf, EvaluatorContext ctx, org.eclipse.imp.pdb.facts.type.Type type,
 			org.meta_environment.rascal.ast.QualifiedName qname) {
 		super(vf, ctx);
-//		this.name = getAST().toString(); JURGEN CHANGED THIS WITHOUT UNDERSTANDING
 		this.name = Names.name(Names.lastName(qname));
 		this.declaredType = (ConcreteSyntaxType) type;
 		this.anonymous = name.equals("_");
@@ -66,7 +65,7 @@ class ConcreteListVariablePattern extends AbstractMatchingResult {
 	}
 	
 	
-	ConcreteListVariablePattern(IValueFactory vf, EvaluatorContext ctx, 
+	public ConcreteListVariablePattern(IValueFactory vf, EvaluatorContext ctx, 
 			org.eclipse.imp.pdb.facts.type.Type type, org.meta_environment.rascal.ast.Name name) {
 		super(vf, ctx);
 		this.name = Names.name(name);

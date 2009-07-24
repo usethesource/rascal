@@ -12,14 +12,14 @@ import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableEr
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 import org.meta_environment.rascal.interpreter.utils.Names;
 
-class TypedVariableBecomesPattern extends AbstractMatchingResult {
+public class TypedVariableBecomesPattern extends AbstractMatchingResult {
 	
 	private String name;
 	private Type declaredType;
 	private IMatchingResult pat;
 	private boolean debug = false;
 
-	TypedVariableBecomesPattern(IValueFactory vf, EvaluatorContext ctx,
+	public TypedVariableBecomesPattern(IValueFactory vf, EvaluatorContext ctx,
 			org.eclipse.imp.pdb.facts.type.Type type, org.meta_environment.rascal.ast.Name aname, IMatchingResult pat){
 		super(vf, ctx);
 		this.name = Names.name(aname);

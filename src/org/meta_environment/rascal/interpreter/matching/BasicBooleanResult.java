@@ -13,7 +13,7 @@ public class BasicBooleanResult extends AbstractBooleanResult {
 	private org.meta_environment.rascal.ast.Expression expr;
 	private boolean firstTime = true;
 
-	BasicBooleanResult(IValueFactory vf, EvaluatorContext ctx, Expression expr) {
+	public BasicBooleanResult(IValueFactory vf, EvaluatorContext ctx, Expression expr) {
 		super(vf, ctx);
 		this.expr = expr;
 	}
@@ -36,11 +36,11 @@ public class BasicBooleanResult extends AbstractBooleanResult {
 			firstTime = false;
 			result = expr.accept(ctx.getEvaluator());
 			if (result.getType().isBoolType() && result.getValue() != null) {
-				// FIXME: if result is of type void, you get a null pointer
-				// here.
 				if (result.getValue().isEqual(vf.bool(true))) {
 					return true;
 				}
+				
+				
 				return false;
 			}
 
