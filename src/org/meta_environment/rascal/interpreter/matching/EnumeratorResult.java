@@ -30,6 +30,7 @@ public class EnumeratorResult extends AbstractMatchingResult {
 	private Iterator<?> iterator;
 	private Strategy strategy;
 	private Expression expression;
+	private boolean firstTime;
 
 	/*
 	 * Constructor for a standard enumerator
@@ -43,14 +44,21 @@ public class EnumeratorResult extends AbstractMatchingResult {
 	}
 	
 	@Override
+	public void init() {
+		super.init();
+		firstTime = true;
+	}
+	
+	@Override
 	public void initMatch(Result<IValue> subject) {
 		super.init();
 		if (subject == null) {
 			// this is needed because DescendantPattern reuses the EnumeratorPattern
 			subject = expression.accept(ctx.getEvaluator());
+			// TODO: initMatch should get a Result such that the static type is available
+			makeIterator(subject.getType(), subject.getValue());
 		}
-		// TODO: initMatch should get a Result such that the static type is available
-		makeIterator(subject.getType(), subject.getValue());
+		firstTime = true;
 	};
 	
 	private void makeIterator(Type subjectType, IValue subjectValue){
@@ -112,9 +120,8 @@ public class EnumeratorResult extends AbstractMatchingResult {
 	
 	@Override
 	public boolean hasNext(){
-		if (subject == null) {
-			Result<IValue> result = expression.accept(ctx.getEvaluator());
-			makeIterator(result.getType(), result.getValue());
+		if (firstTime) {
+			return true;
 		}
 		
 		if(hasNext){
@@ -128,11 +135,16 @@ public class EnumeratorResult extends AbstractMatchingResult {
 	}
 
 	@Override
-	public boolean next(){
+	public boolean next() {
+		if (firstTime) {
+			firstTime = false;
+			Result<IValue> result = expression.accept(ctx.getEvaluator());
+			makeIterator(result.getType(), result.getValue());
+		}
+
 		/*
 		 * First, explore alternatives that remain to be matched by the current pattern
 		 */
-		
 		while(pat.hasNext()){
 			if(pat.next()){
 				return true;
@@ -150,7 +162,7 @@ public class EnumeratorResult extends AbstractMatchingResult {
 			pat.initMatch(ResultFactory.makeResult(v.getType(), v, ctx));
 			while(pat.hasNext()){
 				if(pat.next()){
-				return true;						
+					return true;						
 				}	
 			}
 		}
