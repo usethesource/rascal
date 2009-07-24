@@ -1,17 +1,21 @@
 package org.meta_environment.rascal.interpreter.matching;
 
+import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.interpreter.EvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
+import org.meta_environment.rascal.interpreter.result.Result;
+import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
+
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 
 public class LiteralPattern extends AbstractMatchingResult {
-
 	private IValue literal;
+	private boolean isPattern = false;
 	
-	LiteralPattern(IValueFactory vf, EvaluatorContext ctx, IValue literal){
+	public LiteralPattern(IValueFactory vf, EvaluatorContext ctx, IValue literal){
 		super(vf, ctx);
 		this.literal = literal;
 	}
@@ -22,14 +26,31 @@ public class LiteralPattern extends AbstractMatchingResult {
 	}
 	
 	@Override
+	public void initMatch(Result<IValue> subject) {
+		super.initMatch(subject);
+		isPattern = true;
+	}
+	
+	@Override
 	public boolean next(){
 		checkInitialized();
 		if(!hasNext)
 			return false;
 		hasNext = false;
-		if (subject.getType().comparable(literal.getType())) {
+	
+		if (isPattern && subject.getType().comparable(literal.getType())) {
 			return subject.equals(makeResult(literal.getType(), literal, ctx), ctx).isTrue();
 		}
+		else if (!isPattern) {
+			if (literal.getType().isBoolType()) {
+				return ((IBool) literal).getValue(); 
+			}
+			else {
+				throw new UnexpectedTypeError(tf.boolType(), literal.getType(), ctx.getCurrentAST());
+			}
+		}
+		
+		
 		return false;
 	}
 	

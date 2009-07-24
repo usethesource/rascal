@@ -11,11 +11,11 @@ import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
 import org.meta_environment.rascal.interpreter.utils.Names;
 
-class VariableBecomesPattern extends AbstractMatchingResult {
+public class VariableBecomesPattern extends AbstractMatchingResult {
 	private String name;
 	private IMatchingResult pat;
 
-	VariableBecomesPattern(IValueFactory vf, EvaluatorContext ctx, 
+	public VariableBecomesPattern(IValueFactory vf, EvaluatorContext ctx, 
 			org.meta_environment.rascal.ast.Name aname, IMatchingResult pat){
 		super(vf, ctx);
 		this.name = Names.name(aname);

@@ -1,3 +1,4 @@
+
 package org.meta_environment.rascal.interpreter;
 
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
@@ -175,7 +176,6 @@ import org.meta_environment.rascal.interpreter.load.ModuleLoader;
 import org.meta_environment.rascal.interpreter.matching.IBooleanResult;
 import org.meta_environment.rascal.interpreter.matching.IMatchingResult;
 import org.meta_environment.rascal.interpreter.matching.LiteralPattern;
-import org.meta_environment.rascal.interpreter.matching.PatternEvaluator;
 import org.meta_environment.rascal.interpreter.matching.RegExpPatternValue;
 import org.meta_environment.rascal.interpreter.result.BoolResult;
 import org.meta_environment.rascal.interpreter.result.ConcreteSyntaxResult;
@@ -1649,21 +1649,23 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		Statement body = x.getThenStatement();
 		java.util.List<Expression> generators = x.getConditions();
 		int size = generators.size();
-		Result<IValue>[] gens = new Result[size];
+		IBooleanResult[] gens = new IBooleanResult[size];
 		Environment[] olds = new Environment[size];
 		Environment old = getCurrentEnvt();
 
 		int i = 0;
 		try {
-			gens[0] = makeGenerator(generators.get(0));
+			gens[0] = makeBooleanResult(generators.get(0));
+			gens[0].init();
 			olds[0] = getCurrentEnvt();
 			while(i >= 0 && i < size) {		
-				if(gens[i].hasNext() && gens[i].next().isTrue()){
+				if(gens[i].hasNext() && gens[i].next()){
 					if(i == size - 1){
 						return body.accept(this);
 					} else {
 						i++;
-						gens[i] = makeGenerator(generators.get(i));
+						gens[i] = makeBooleanResult(generators.get(i));
+						gens[i].init();
 						olds[i] = getCurrentEnvt();
 					}
 				} else {
@@ -1686,21 +1688,23 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		Statement body = x.getThenStatement();
 		java.util.List<Expression> generators = x.getConditions();
 		int size = generators.size();
-		Result<IValue>[] gens = new Result[size];
+		IBooleanResult[] gens = new IBooleanResult[size];
 		Environment[] olds = new Environment[size];
 		Environment old = getCurrentEnvt();
 
 		int i = 0;
 		try {
-			gens[0] = makeGenerator(generators.get(0));
+			gens[0] = makeBooleanResult(generators.get(0));
+			gens[0].init();
 			olds[0] = getCurrentEnvt();
 			while(i >= 0 && i < size) {		
-				if(gens[i].hasNext() && gens[i].next().isTrue()){
+				if(gens[i].hasNext() && gens[i].next()){
 					if(i == size - 1){
 						return body.accept(this);
 					} else {
 						i++;
-						gens[i] = makeGenerator(generators.get(i));
+						gens[i] = makeBooleanResult(generators.get(i));
+						gens[i].init();
 						olds[i] = getCurrentEnvt();
 					}
 				} else {
@@ -1718,7 +1722,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	public Result<IValue> visitStatementWhile(While x) {
 		Statement body = x.getBody();
 		Expression generator = x.getCondition();
-		Result<IValue> gen;
+		IBooleanResult gen;
 		Environment old = getCurrentEnvt();
 		Result<IValue> result = nothing();
 
@@ -1729,8 +1733,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		
 		while (true) {
 			try {
-				gen = makeGenerator(generator);
-				if(gen.hasNext() && gen.next().isTrue()){
+				gen = makeBooleanResult(generator);
+				gen.init();
+				if(gen.hasNext() && gen.next()){
 					result = body.accept(this);
 				}
 				else {
@@ -1746,7 +1751,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	public Result<IValue> visitStatementDoWhile(DoWhile x) {
 		Statement body = x.getBody();
 		Expression generator = x.getCondition();
-		Result<IValue> gen;
+		IBooleanResult gen;
 		Environment old = getCurrentEnvt();
 		Result<IValue> result = nothing();
 
@@ -1754,8 +1759,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			try {
 				result = body.accept(this);
 				
-				gen = makeGenerator(generator);
-				if(!(gen.hasNext() && gen.next().isTrue())) {
+				gen = makeBooleanResult(generator);
+				gen.init();
+				if(!(gen.hasNext() && gen.next())) {
 					return result;
 				}
 			} finally {
@@ -1776,13 +1782,13 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 	// ----- General method for matching --------------------------------------------------
 
-	public IBooleanResult evalPattern(org.meta_environment.rascal.ast.Expression pat){
+	public IBooleanResult makeBooleanResult(org.meta_environment.rascal.ast.Expression pat){
 		if (pat instanceof Expression.Ambiguity) {
 			// TODO: wrong exception here.
 			throw new AmbiguousConcretePattern(pat);
 		}
 
-		PatternEvaluator pe = makePatternEvaluator(pat);
+		BooleanEvaluator pe = new BooleanEvaluator(vf, makeEvContext());
 		return pat.accept(pe);
 	}
 
@@ -2147,7 +2153,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 	@Override
 	public Result<IValue> visitExpressionOr(Or x) {
-		return new OrEvaluator(x, this).next();
+		return evalBooleanExpression(x);
 	}
 
 	@Override
@@ -2156,7 +2162,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	}
 
 	private Result<IValue> evalBooleanExpression(Expression x) {
-		IBooleanResult mp = evalPattern(x);
+		IBooleanResult mp = makeBooleanResult(x);
 		mp.init();
 		while(mp.hasNext()){
 			if(mp.next()) {
@@ -2168,17 +2174,17 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	
 	@Override
 	public Result<IValue> visitExpressionNegation(Negation x) {
-		return new NegationEvaluator(x, this).next();
+		return evalBooleanExpression(x);
 	}
 
 	@Override
 	public Result<IValue> visitExpressionImplication(Implication x) {
-		return new ImplicationEvaluator(x, this).next();
+		return evalBooleanExpression(x);
 	}
 
 	@Override
 	public Result<IValue> visitExpressionEquivalence(Equivalence x) {
-		return new EquivalenceEvaluator(x, this).next();
+		return evalBooleanExpression(x);
 	}
 
 	@Override
@@ -2286,7 +2292,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		Environment old = getCurrentEnvt();
 		
 		try {
-			IMatchingResult mp = (IMatchingResult) evalPattern(pat);
+			IMatchingResult mp = (IMatchingResult) makeBooleanResult(pat);
 			mp.initMatch(subject);
 			//System.err.println("matchAndEval: subject=" + subject + ", pat=" + pat);
 			while(mp.hasNext()){
@@ -2324,7 +2330,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			Expression replacementExpr){
 		Environment old = getCurrentEnvt();
 		try {
-			IMatchingResult mp = (IMatchingResult) evalPattern(pat);
+			IMatchingResult mp = (IMatchingResult) makeBooleanResult(pat);
 			mp.initMatch(subject);
 			//System.err.println("matchEvalAndReplace: subject=" + subject + ", pat=" + pat + ", conditions=" + conditions);
 
@@ -2537,7 +2543,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			org.meta_environment.rascal.ast.PatternWithAction rule = cs.getPatternWithAction();
 
 			Expression patexp = rule.getPattern();
-			IMatchingResult mp = (IMatchingResult) evalPattern(patexp);
+			IMatchingResult mp = (IMatchingResult) makeBooleanResult(patexp);
 			mp.initMatch(subject);
 			Environment old = getCurrentEnvt();
 			try {
@@ -3292,18 +3298,19 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	private Result<IValue> evalComprehension(java.util.List<Expression> generators, 
 			ComprehensionWriter w){
 		int size = generators.size();
-		Result<IValue>[] gens = new Result[size];
+		IBooleanResult[] gens = new IBooleanResult[size];
 		Environment[] olds = new Environment[size];
 		Environment old = getCurrentEnvt();
 		int i = 0;
 		
 		try {
-			gens[0] = makeGenerator(generators.get(0));
+			gens[0] = makeBooleanResult(generators.get(0));
+			gens[0].init();
 			olds[0] = getCurrentEnvt();
 			goodPushEnv();
 
 			while (i >= 0 && i < size) {
-				if (gens[i].hasNext() && gens[i].next().isTrue()) {
+				if (gens[i].hasNext() && gens[i].next()) {
 					if(i == size - 1){
 						w.append();
 						unwind(olds[i]);
@@ -3311,7 +3318,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 					} 
 					else {
 						i++;
-						gens[i] = makeGenerator(generators.get(i));
+						gens[i] = makeBooleanResult(generators.get(i));
+						gens[i].init();
 						olds[i] = getCurrentEnvt();
 						goodPushEnv();
 					}
@@ -3358,7 +3366,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		Statement body = x.getBody();
 		java.util.List<Expression> generators = x.getGenerators();
 		int size = generators.size();
-		Result<IValue>[] gens = new Result[size];
+		IBooleanResult[] gens = new IBooleanResult[size];
 		Environment old = getCurrentEnvt();
 		Environment[] olds = new Environment[size];
 		Result<IValue> result = nothing();
@@ -3367,15 +3375,17 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		
 		int i = 0;
 		try {
-			gens[0] = makeGenerator(generators.get(0));
+			gens[0] = makeBooleanResult(generators.get(0));
+			gens[0].init();
 			olds[0] = getCurrentEnvt();
 			while(i >= 0 && i < size) {		
-				if(gens[i].hasNext() && gens[i].next().isTrue()){
+				if(gens[i].hasNext() && gens[i].next()){
 					if(i == size - 1){
 						result = body.accept(this);
 					} else {
 						i++;
-						gens[i] = makeGenerator(generators.get(i));
+						gens[i] = makeBooleanResult(generators.get(i));
+						gens[i].init();
 						olds[i] = getCurrentEnvt();
 					}
 				} else {
@@ -3416,18 +3426,20 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	public Result visitExpressionAll(All x) {
 		java.util.List<Expression> producers = x.getGenerators();
 		int size = producers.size();
-		Result<IValue>[] gens = new Result[size];
+		IBooleanResult[] gens = new IBooleanResult[size];
 
 		int i = 0;
-		gens[0] = makeGenerator(producers.get(0));
+		gens[0] = makeBooleanResult(producers.get(0));
+		gens[0].init();
 		while (i >= 0 && i < size) {
 			if (gens[i].hasNext()) {
-				if (!gens[i].next().isTrue()) {
+				if (!gens[i].next()) {
 					return new BoolResult(false, null, null);
 				}
 				if (i < size - 1) {
 					i++;
-					gens[i] = makeGenerator(producers.get(i));
+					gens[i] = makeBooleanResult(producers.get(i));
+					gens[i].init();
 				}
 			} else {
 				i--;

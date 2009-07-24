@@ -8,11 +8,11 @@ import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 
-class GuardedPattern extends AbstractMatchingResult {
+public class GuardedPattern extends AbstractMatchingResult {
 	private Type type;
 	private IMatchingResult pat;
 	
-	GuardedPattern(IValueFactory vf, EvaluatorContext ctx, Type type, IMatchingResult pat){
+	public GuardedPattern(IValueFactory vf, EvaluatorContext ctx, Type type, IMatchingResult pat){
 		super(vf, ctx);
 		this.type = type;
 		this.pat = pat;

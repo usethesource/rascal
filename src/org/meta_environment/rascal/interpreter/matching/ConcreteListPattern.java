@@ -20,7 +20,7 @@ import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.SymbolAdapter;
 import org.meta_environment.uptr.TreeAdapter;
 
-class ConcreteListPattern extends AbstractMatchingResult {
+public class ConcreteListPattern extends AbstractMatchingResult {
 	private ListPattern pat;
 	private CallOrTree callOrTree;
 

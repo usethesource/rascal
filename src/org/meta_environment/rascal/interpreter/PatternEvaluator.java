@@ -1,4 +1,4 @@
-package org.meta_environment.rascal.interpreter.matching;
+package org.meta_environment.rascal.interpreter;
 
 import java.util.ArrayList;
 import java.util.regex.Matcher;
@@ -68,10 +68,30 @@ import org.meta_environment.rascal.ast.Literal.Real;
 import org.meta_environment.rascal.ast.Literal.RegExp;
 import org.meta_environment.rascal.ast.Literal.String;
 import org.meta_environment.rascal.ast.RegExp.Lexical;
-import org.meta_environment.rascal.interpreter.EvaluatorContext;
-import org.meta_environment.rascal.interpreter.TypeEvaluator;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.env.ConcreteSyntaxType;
+import org.meta_environment.rascal.interpreter.matching.AntiPattern;
+import org.meta_environment.rascal.interpreter.matching.ConcreteApplicationPattern;
+import org.meta_environment.rascal.interpreter.matching.ConcreteListPattern;
+import org.meta_environment.rascal.interpreter.matching.ConcreteListVariablePattern;
+import org.meta_environment.rascal.interpreter.matching.DescendantPattern;
+import org.meta_environment.rascal.interpreter.matching.EnumeratorResult;
+import org.meta_environment.rascal.interpreter.matching.GuardedPattern;
+import org.meta_environment.rascal.interpreter.matching.IBooleanResult;
+import org.meta_environment.rascal.interpreter.matching.IMatchingResult;
+import org.meta_environment.rascal.interpreter.matching.ListPattern;
+import org.meta_environment.rascal.interpreter.matching.LiteralPattern;
+import org.meta_environment.rascal.interpreter.matching.MatchResult;
+import org.meta_environment.rascal.interpreter.matching.MultiVariablePattern;
+import org.meta_environment.rascal.interpreter.matching.NodePattern;
+import org.meta_environment.rascal.interpreter.matching.NotResult;
+import org.meta_environment.rascal.interpreter.matching.QualifiedNamePattern;
+import org.meta_environment.rascal.interpreter.matching.RegExpPatternValue;
+import org.meta_environment.rascal.interpreter.matching.SetPattern;
+import org.meta_environment.rascal.interpreter.matching.TuplePattern;
+import org.meta_environment.rascal.interpreter.matching.TypedVariableBecomesPattern;
+import org.meta_environment.rascal.interpreter.matching.TypedVariablePattern;
+import org.meta_environment.rascal.interpreter.matching.VariableBecomesPattern;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.AmbiguousConcretePattern;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
@@ -377,8 +397,7 @@ public class PatternEvaluator extends NullASTVisitor<IBooleanResult> {
 	}
 	@Override
 	public IBooleanResult visitExpressionAnd(And x) {
-//		throw new UnsupportedPatternError(x.toString(), x);
-		return new AndResult(vf, ctx, x.getLhs().accept(this), x.getRhs().accept(this));
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public IBooleanResult visitExpressionAny(Any x) {
@@ -409,7 +428,7 @@ public class PatternEvaluator extends NullASTVisitor<IBooleanResult> {
 	}
 	@Override
 	public IBooleanResult visitExpressionEquals(Equals x) {
-		return new BasicBooleanResult(vf, ctx, x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public IBooleanResult visitExpressionEquivalence(Equivalence x) {
@@ -434,11 +453,11 @@ public class PatternEvaluator extends NullASTVisitor<IBooleanResult> {
 	}
 	@Override
 	public IBooleanResult visitExpressionGreaterThan(GreaterThan x) {
-		return new BasicBooleanResult(vf, ctx, x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public IBooleanResult visitExpressionGreaterThanOrEq(GreaterThanOrEq x) {
-		return new BasicBooleanResult(vf, ctx, x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	
 	@Override
@@ -447,7 +466,7 @@ public class PatternEvaluator extends NullASTVisitor<IBooleanResult> {
 	}
 	@Override
 	public IBooleanResult visitExpressionImplication(Implication x) {
-		return new OrResult(vf, ctx, new NotResult(vf, ctx, x.getLhs().accept(this)), x.getRhs().accept(this));
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	
 	@Override
@@ -461,11 +480,11 @@ public class PatternEvaluator extends NullASTVisitor<IBooleanResult> {
 	}
 	@Override
 	public IBooleanResult visitExpressionLessThan(LessThan x) {
-		return new BasicBooleanResult(vf, ctx, x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public IBooleanResult visitExpressionLessThanOrEq(LessThanOrEq x) {
-		return new BasicBooleanResult(vf, ctx, x);
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public IBooleanResult visitExpressionLexical(
@@ -512,7 +531,7 @@ public class PatternEvaluator extends NullASTVisitor<IBooleanResult> {
 	}
 	@Override
 	public IBooleanResult visitExpressionOr(Or x) {
-		return new OrResult(vf, ctx, x.getLhs().accept(this), x.getRhs().accept(this));
+		throw new UnsupportedPatternError(x.toString(), x);
 	}
 	@Override
 	public IBooleanResult visitExpressionProduct(

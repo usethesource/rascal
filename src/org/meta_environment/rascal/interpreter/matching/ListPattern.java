@@ -17,7 +17,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableEr
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 import org.meta_environment.uptr.SymbolAdapter;
 
-/* package */ class ListPattern extends AbstractMatchingResult  {
+public class ListPattern extends AbstractMatchingResult  {
 	private List<IMatchingResult> patternChildren;	// The elements of this list pattern
 	private int patternSize;						// The number of elements in this list pattern
 	private int delta = 1;                        	// increment to next list elements:
@@ -49,7 +49,7 @@ import org.meta_environment.uptr.SymbolAdapter;
 	private boolean debug = false;
 
 	
-	ListPattern(IValueFactory vf, EvaluatorContext ctx, List<IMatchingResult> list){
+	public ListPattern(IValueFactory vf, EvaluatorContext ctx, List<IMatchingResult> list){
 		this(vf,ctx, list, 1);  // Default delta=1; Set to 2 to run DeltaListPatternTests
 	}
 	

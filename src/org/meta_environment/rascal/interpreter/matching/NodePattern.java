@@ -24,7 +24,7 @@ public class NodePattern extends AbstractMatchingResult {
 	private final TypeFactory tf = TypeFactory.getInstance();
 	private final QualifiedName qname;
 	
-	NodePattern(IValueFactory vf, EvaluatorContext ctx, IMatchingResult matchPattern, QualifiedName name, List<IMatchingResult> list){
+	public NodePattern(IValueFactory vf, EvaluatorContext ctx, IMatchingResult matchPattern, QualifiedName name, List<IMatchingResult> list){
 		super(vf, ctx);
 		this.name = matchPattern;
 		this.qname = name;

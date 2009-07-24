@@ -16,7 +16,7 @@ import org.meta_environment.rascal.interpreter.utils.Names;
 import org.meta_environment.rascal.interpreter.utils.IUPTRAstToSymbolConstructor.NonGroundSymbolException;
 import org.meta_environment.uptr.Factory;
 
-class ConcreteApplicationPattern extends AbstractMatchingResult {
+public class ConcreteApplicationPattern extends AbstractMatchingResult {
 	private AbstractMatchingResult pat;
 	private Expression.CallOrTree callOrTree;
 
