@@ -8,20 +8,21 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.Expression;
 import org.meta_environment.rascal.ast.Expression.CallOrTree;
 import org.meta_environment.rascal.interpreter.EvaluatorContext;
-import org.meta_environment.rascal.interpreter.IUPTRAstToSymbolConstructor;
-import org.meta_environment.rascal.interpreter.Names;
-import org.meta_environment.rascal.interpreter.IUPTRAstToSymbolConstructor.NonGroundSymbolException;
 import org.meta_environment.rascal.interpreter.env.ConcreteSyntaxType;
 import org.meta_environment.rascal.interpreter.env.Environment;
+import org.meta_environment.rascal.interpreter.result.Result;
+import org.meta_environment.rascal.interpreter.utils.IUPTRAstToSymbolConstructor;
+import org.meta_environment.rascal.interpreter.utils.Names;
+import org.meta_environment.rascal.interpreter.utils.IUPTRAstToSymbolConstructor.NonGroundSymbolException;
 import org.meta_environment.uptr.Factory;
 
-class ConcreteApplicationPattern extends AbstractPattern {
-	private AbstractPattern pat;
+class ConcreteApplicationPattern extends AbstractMatchingResult {
+	private AbstractMatchingResult pat;
 	private Expression.CallOrTree callOrTree;
 
 	public ConcreteApplicationPattern(IValueFactory vf,
 			EvaluatorContext ctx, CallOrTree x,
-			List<MatchPattern> list) {
+			List<IMatchingResult> list) {
 		super(vf, ctx);
 		org.meta_environment.rascal.ast.QualifiedName N = x.getExpression().getQualifiedName();
 		pat = new NodePattern(vf, new EvaluatorContext(ctx.getEvaluator(), x), null, N, list);
@@ -29,9 +30,9 @@ class ConcreteApplicationPattern extends AbstractPattern {
 	}
 
 	@Override
-	public void initMatch(IValue subject, Environment arg1) {
-		super.initMatch(subject, arg1);
-		pat.initMatch(subject, arg1);
+	public void initMatch(Result<IValue> subject) {
+		super.initMatch(subject);
+		pat.initMatch(subject);
 	}
 	
 	@Override

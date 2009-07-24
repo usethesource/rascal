@@ -8,29 +8,31 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.Expression.CallOrTree;
 import org.meta_environment.rascal.interpreter.EvaluatorContext;
-import org.meta_environment.rascal.interpreter.IUPTRAstToSymbolConstructor;
-import org.meta_environment.rascal.interpreter.IUPTRAstToSymbolConstructor.NonGroundSymbolException;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.asserts.NotYetImplemented;
 import org.meta_environment.rascal.interpreter.env.ConcreteSyntaxType;
 import org.meta_environment.rascal.interpreter.env.Environment;
+import org.meta_environment.rascal.interpreter.result.Result;
+import org.meta_environment.rascal.interpreter.result.ResultFactory;
+import org.meta_environment.rascal.interpreter.utils.IUPTRAstToSymbolConstructor;
+import org.meta_environment.rascal.interpreter.utils.IUPTRAstToSymbolConstructor.NonGroundSymbolException;
 import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.SymbolAdapter;
 import org.meta_environment.uptr.TreeAdapter;
 
-class ConcreteListPattern extends AbstractPattern {
+class ConcreteListPattern extends AbstractMatchingResult {
 	private ListPattern pat;
 	private CallOrTree callOrTree;
 
 	public ConcreteListPattern(IValueFactory vf,
-			EvaluatorContext ctx, CallOrTree x, List<MatchPattern> list) {
+			EvaluatorContext ctx, CallOrTree x, List<IMatchingResult> list) {
 		super(vf, ctx);
 		callOrTree = x;
 		initListPatternDelegate(vf, ctx, list);
 	}
 
 	private void initListPatternDelegate(IValueFactory vf,
-			EvaluatorContext ctx, List<MatchPattern> list) {
+			EvaluatorContext ctx, List<IMatchingResult> list) {
 		Type type = getType(null);
 		
 		if (type instanceof ConcreteSyntaxType) {
@@ -64,8 +66,8 @@ class ConcreteListPattern extends AbstractPattern {
 	}
 
 	@Override
-	public void initMatch(IValue subject, Environment env) {
-		super.initMatch(subject, env);
+	public void initMatch(Result<IValue> subject) {
+		super.initMatch(subject);
 		if (subject.getType() != Factory.Tree) {
 			hasNext = false;
 			return;
@@ -82,7 +84,7 @@ class ConcreteListPattern extends AbstractPattern {
 //			hasNext = false;
 //			return;
 //		}
-		pat.initMatch(tree.getArgs(), env);
+		pat.initMatch(ResultFactory.makeResult(Factory.Args, tree.getArgs(), ctx));
 		hasNext = true;
 	}
 	

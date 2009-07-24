@@ -5,40 +5,28 @@ import java.util.Iterator;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
-import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.EvaluatorContext;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.env.ConcreteSyntaxType;
 import org.meta_environment.rascal.interpreter.env.Environment;
+import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.uptr.Factory;
 
-public abstract class AbstractPattern implements MatchPattern {
-	protected IValue subject = null;
-	protected Environment env = null;
-	protected boolean initialized = false;
-	protected boolean hasNext = true;
-	protected final TypeFactory tf = TypeFactory.getInstance();
-	protected final IValueFactory vf;
-	protected final EvaluatorContext ctx;
-	protected final Evaluator evaluator;
+public abstract class AbstractMatchingResult extends AbstractBooleanResult implements IMatchingResult {
+	protected Result<IValue> subject = null;
 	
-	public AbstractPattern(IValueFactory vf, EvaluatorContext ctx) {
-		this.vf = vf;
-		this.ctx = ctx;
-		this.evaluator = ctx.getEvaluator();
+	public AbstractMatchingResult(IValueFactory vf, EvaluatorContext ctx) {
+		super(vf, ctx);
 	}
 	
 	public AbstractAST getAST(){
 		return ctx.getCurrentAST();
 	}
 	
-	public void initMatch(IValue subject, Environment env){
+	public void initMatch(Result<IValue> subject) {
+		init();
 		this.subject = subject;
-		this.env = env;
-		this.initialized = true;
-		this.hasNext = true;
 	}
 	
 	public boolean mayMatch(Type subjectType, Environment env){
@@ -62,7 +50,7 @@ public abstract class AbstractPattern implements MatchPattern {
 	
 	abstract public IValue toIValue(Environment env);
 	
-	boolean matchChildren(Iterator<IValue> subjChildren, Iterator<MatchPattern> iterator, Environment ev){
+	boolean matchChildren(Iterator<IValue> subjChildren, Iterator<IMatchingResult> iterator){
 		while (iterator.hasNext()) {
 			if (!iterator.next().next()){
 				return false;

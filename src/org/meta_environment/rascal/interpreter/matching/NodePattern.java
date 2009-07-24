@@ -9,20 +9,22 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.interpreter.EvaluatorContext;
-import org.meta_environment.rascal.interpreter.Names;
 import org.meta_environment.rascal.interpreter.env.Environment;
+import org.meta_environment.rascal.interpreter.result.Result;
+import org.meta_environment.rascal.interpreter.result.ResultFactory;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
+import org.meta_environment.rascal.interpreter.utils.Names;
 
-/* package */ class NodePattern extends AbstractPattern {
-	private MatchPattern name;
-	private List<MatchPattern> children;
+public class NodePattern extends AbstractMatchingResult {
+	private IMatchingResult name;
+	private List<IMatchingResult> children;
 	private INode treeSubject;
 	private boolean firstMatch = false;
 	private boolean debug = false;
 	private final TypeFactory tf = TypeFactory.getInstance();
 	private final QualifiedName qname;
 	
-	NodePattern(IValueFactory vf, EvaluatorContext ctx, MatchPattern matchPattern, QualifiedName name, List<MatchPattern> list){
+	NodePattern(IValueFactory vf, EvaluatorContext ctx, IMatchingResult matchPattern, QualifiedName name, List<IMatchingResult> list){
 		super(vf, ctx);
 		this.name = matchPattern;
 		this.qname = name;
@@ -30,20 +32,20 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 		if(debug){
 			System.err.println("AbstractPatternNode: " + name + ", #children: " + list.size() );
 			System.err.println("AbstractPatternNode name:" + name != null ? name : qname);
-			for(MatchPattern ap : list){
+			for(IMatchingResult ap : list){
 				System.err.println(ap);
 			}
 		}
 	}
 	
 	@Override
-	public void initMatch(IValue subject, Environment env){
-		super.initMatch(subject, env);
+	public void initMatch(Result<IValue> subject){
+		super.initMatch(subject);
 		hasNext = false;
 		if(!(subject.getType().isNodeType() || subject.getType().isAbstractDataType())){
 			return;
 		}
-		treeSubject = (INode) subject;
+		treeSubject = (INode) subject.getValue();
 		if(debug){
 			System.err.println("AbstractPatternNode: pattern=" + name != null ? name : qname);
 			System.err.println("AbstractPatternNode: treeSubject=" + treeSubject);
@@ -55,10 +57,11 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 		}
 		
 		if (name != null) {
+			Environment env = ctx.getCurrentEnvt();
 			if (!name.getType(env).isStringType()) {
 				throw new UnexpectedTypeError(tf.stringType(), name.getType(env), name.getAST());
 			}
-			name.initMatch(vf.string(treeSubject.getName()), env);
+			name.initMatch(ResultFactory.makeResult(tf.stringType(), vf.string(treeSubject.getName()), ctx));
 		}
 		else {
 			if(!Names.name(Names.lastName(qname)).equals(treeSubject.getName().toString())) {
@@ -67,7 +70,9 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 		}
 		
 		for (int i = 0; i < children.size(); i++){
-			children.get(i).initMatch(treeSubject.get(i), env);
+			IValue childValue = treeSubject.get(i);
+			// TODO: see if we can use a static type here!?
+			children.get(i).initMatch(ResultFactory.makeResult(childValue.getType(), childValue, ctx));
 		}
 		firstMatch = hasNext = true;
 	}
@@ -157,7 +162,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 				return false;
 			}
 		}
-		hasNext = matchChildren(treeSubject.getChildren().iterator(), children.iterator(), env);
+		hasNext = matchChildren(treeSubject.getChildren().iterator(), children.iterator());
 
 		return hasNext;
 	}
@@ -176,7 +181,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 		res.append("(");
 		
 		String sep = "";
-		for(MatchPattern mp : children){
+		for(IBooleanResult mp : children){
 			res.append(sep);
 			sep = ", ";
 			res.append(mp.toString());

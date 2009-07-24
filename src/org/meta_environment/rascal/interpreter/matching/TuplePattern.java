@@ -8,12 +8,14 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.interpreter.EvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
+import org.meta_environment.rascal.interpreter.result.Result;
+import org.meta_environment.rascal.interpreter.result.ResultFactory;
 
-/* package */ class TuplePattern extends AbstractPattern implements MatchPattern {
-	private List<MatchPattern> children;
+/* package */ class TuplePattern extends AbstractMatchingResult {
+	private List<IMatchingResult> children;
 	private boolean firstMatch;
 	
-	TuplePattern(IValueFactory vf, EvaluatorContext ctx, List<MatchPattern> list){
+	TuplePattern(IValueFactory vf, EvaluatorContext ctx, List<IMatchingResult> list){
 		super(vf, ctx);
 		this.children = list;
 	}
@@ -37,18 +39,20 @@ import org.meta_environment.rascal.interpreter.env.Environment;
 	}
 	
 	@Override
-	public void initMatch(IValue subject, Environment env){
-		super.initMatch(subject, env);
+	public void initMatch(Result<IValue> subject){
+		super.initMatch(subject);
 		hasNext = false;
 		if (!subject.getType().isTupleType()) {
 			return;
 		}
-		ITuple tupleSubject = (ITuple) subject;
+		ITuple tupleSubject = (ITuple) subject.getValue();
+		Type tupleType = subject.getType();
 		if(tupleSubject.arity() != children.size()){
 			return;
 		}
 		for(int i = 0; i < children.size(); i++){
-			children.get(i).initMatch(tupleSubject.get(i), env);
+			// see here we use a static type for the children...
+			children.get(i).initMatch(ResultFactory.makeResult(tupleType.getFieldType(i), tupleSubject.get(i), ctx));
 		}
 		firstMatch = hasNext = true;
 	}
@@ -86,7 +90,7 @@ import org.meta_environment.rascal.interpreter.env.Environment;
 			return false;
 		firstMatch = false;
 		
-		hasNext =  matchChildren(((ITuple) subject).iterator(), children.iterator(), env);
+		hasNext =  matchChildren(((ITuple) subject).iterator(), children.iterator());
 			
 		return hasNext;
 	}

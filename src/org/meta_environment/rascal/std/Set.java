@@ -15,7 +15,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.ValueFactoryFactory;
-import org.meta_environment.rascal.interpreter.RuntimeExceptionFactory;
+import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 
 
 public class Set {

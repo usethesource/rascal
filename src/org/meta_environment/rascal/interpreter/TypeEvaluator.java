@@ -47,6 +47,7 @@ import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.Lambda;
 import org.meta_environment.rascal.interpreter.staticErrors.AmbiguousFunctionReferenceError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredTypeError;
+import org.meta_environment.rascal.interpreter.utils.Names;
 
 
 public class TypeEvaluator {

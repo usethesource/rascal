@@ -9,12 +9,12 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.EvaluatorContext;
-import org.meta_environment.rascal.interpreter.JavaBridge;
-import org.meta_environment.rascal.interpreter.Names;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.result.ResultFactory;
+import org.meta_environment.rascal.interpreter.utils.JavaBridge;
+import org.meta_environment.rascal.interpreter.utils.Names;
 
 
 public class JavaMethod extends Lambda {
@@ -81,7 +81,7 @@ public class JavaMethod extends Lambda {
 			
 			e.printStackTrace();
 			String msg = targetException.getMessage() != null ? targetException.getMessage() : "Exception in Java code";
-			throw org.meta_environment.rascal.interpreter.RuntimeExceptionFactory.javaException(msg, eval.getCurrentAST(), eval.getStackTrace());
+			throw org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory.javaException(msg, eval.getCurrentAST(), eval.getStackTrace());
 		}
 	}
 	

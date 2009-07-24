@@ -1,29 +1,26 @@
 package org.meta_environment.rascal.interpreter.matching;
 
+import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
+
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.interpreter.EvaluatorContext;
-import org.meta_environment.rascal.interpreter.Names;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
-import org.meta_environment.rascal.interpreter.result.ResultFactory;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
+import org.meta_environment.rascal.interpreter.utils.Names;
 
-import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
-
-class VariableBecomesPattern extends AbstractPattern implements MatchPattern {
-	
+class VariableBecomesPattern extends AbstractMatchingResult {
 	private String name;
-	private Environment env;
-	private MatchPattern pat;
+	private IMatchingResult pat;
 
-	VariableBecomesPattern(IValueFactory vf, Environment env, EvaluatorContext ctx, 
-			org.meta_environment.rascal.ast.Name aname, MatchPattern pat){
+	VariableBecomesPattern(IValueFactory vf, EvaluatorContext ctx, 
+			org.meta_environment.rascal.ast.Name aname, IMatchingResult pat){
 		super(vf, ctx);
 		this.name = Names.name(aname);
-		this.env = env;
 		this.pat = pat;
+		Environment env = ctx.getCurrentEnvt();
 		
 		Result<IValue> innerRes = env.getInnermostVariable(name);
 		if(innerRes != null){
@@ -54,9 +51,9 @@ class VariableBecomesPattern extends AbstractPattern implements MatchPattern {
 	}
 	
 	@Override
-	public void initMatch(IValue subject, Environment env){
-		super.initMatch(subject,env);
-		pat.initMatch(subject, env);
+	public void initMatch(Result<IValue> subject){
+		super.initMatch(subject);
+		pat.initMatch(subject);
 	}
 	
 	@Override
@@ -72,8 +69,7 @@ class VariableBecomesPattern extends AbstractPattern implements MatchPattern {
 	@Override
 	public boolean next() {
 		if(pat.next()){	
-			Result<IValue> r = ResultFactory.makeResult(subject.getType(), subject, ctx);
-			env.storeInnermostVariable(name, r);
+			ctx.getCurrentEnvt().storeInnermostVariable(name, subject);
 			return true;
 		}
 		return false;

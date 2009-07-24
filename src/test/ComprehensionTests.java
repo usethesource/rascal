@@ -392,7 +392,7 @@ public class ComprehensionTests extends TestFramework {
 	
 	@Test public void relationComprehension() {	
 		
-		assertTrue(runTest("{<X,Y> | int X <- {1,1,1}, int Y <- {2,2,2}} == {<1,2>};"));
+		assertTrue(runTest("{<X,Y> | int X <- {1}, int Y <- {2}} == {<1,2>};"));
 		assertTrue(runTest("{<X,Y> | int X <- [1,1,1], int Y <- [2,2,2]} == {<1,2>};"));
 		
 		assertTrue(runTest("{<1,2> | int X <- {1,2,3}} == {<1,2>};"));

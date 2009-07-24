@@ -25,6 +25,7 @@ import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredTypeError;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredTypeError;
+import org.meta_environment.rascal.interpreter.utils.Names;
 
 
 public class TypeDeclarationEvaluator {

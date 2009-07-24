@@ -31,6 +31,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFieldError
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscriptError;
+import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 
 
 /**

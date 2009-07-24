@@ -7,7 +7,7 @@ import org.meta_environment.rascal.interpreter.EvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 
-public class LiteralPattern extends AbstractPattern {
+public class LiteralPattern extends AbstractMatchingResult {
 
 	private IValue literal;
 	
@@ -28,7 +28,7 @@ public class LiteralPattern extends AbstractPattern {
 			return false;
 		hasNext = false;
 		if (subject.getType().comparable(literal.getType())) {
-			return makeResult(subject.getType(), subject, ctx).equals(makeResult(literal.getType(), literal, ctx), ctx).isTrue();
+			return subject.equals(makeResult(literal.getType(), literal, ctx), ctx).isTrue();
 		}
 		return false;
 	}

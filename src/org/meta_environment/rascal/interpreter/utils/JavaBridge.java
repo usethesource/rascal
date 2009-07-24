@@ -1,4 +1,4 @@
-package org.meta_environment.rascal.interpreter;
+package org.meta_environment.rascal.interpreter.utils;
 
 import java.io.Writer;
 import java.lang.reflect.Method;
@@ -29,6 +29,8 @@ import org.meta_environment.rascal.ast.Parameters;
 import org.meta_environment.rascal.ast.Tag;
 import org.meta_environment.rascal.ast.Tags;
 import org.meta_environment.rascal.ast.Type;
+import org.meta_environment.rascal.interpreter.Evaluator;
+import org.meta_environment.rascal.interpreter.TypeEvaluator;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.staticErrors.MissingTagError;

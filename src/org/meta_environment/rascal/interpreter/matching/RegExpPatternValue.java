@@ -1,5 +1,7 @@
 package org.meta_environment.rascal.interpreter.matching;
 
+import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,7 +14,6 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.interpreter.EvaluatorContext;
 import org.meta_environment.rascal.interpreter.asserts.NotYetImplemented;
@@ -21,9 +22,7 @@ import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 
-import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
-
-public class RegExpPatternValue implements MatchPattern {
+public class RegExpPatternValue extends AbstractMatchingResult  {
 	private AbstractAST ast;					// The AST for this regexp
 	private String RegExpAsString;				// The regexp represented as string
 	//private Character modifier;				// Optional modifier following the pattern
@@ -42,26 +41,23 @@ public class RegExpPatternValue implements MatchPattern {
 	private int start;							// start of last match in current subject
 	private int end;							// end of last match in current subject
 	
-	private final Environment env;
-	private final TypeFactory tf = TypeFactory.getInstance();
-	private final IValueFactory vf;
-	private EvaluatorContext context;
 	
-	RegExpPatternValue(IValueFactory vf, EvaluatorContext context, String s, Environment env){
-		this.context = context;
+	RegExpPatternValue(IValueFactory vf, EvaluatorContext ctx, String s){
+		super(vf, ctx);
 		RegExpAsString = s;
 	//	modifier = null;
 		patternVars = null;
 		initialized = false;
-		this.env = env;
-		this.vf = vf;
 	}
 	
-	RegExpPatternValue(IValueFactory vf, AbstractAST ast, String s, Character mod, List<String> names, Environment env){
+	RegExpPatternValue(IValueFactory vf, EvaluatorContext ctx, AbstractAST ast, String s, Character mod, List<String> names) {
+		super(vf, ctx);
 		this.ast = ast;
 		RegExpAsString = (mod == null) ? s : "(?" + mod + ")" + s;
 		patternVars = names;
 		initialized = false;
+		Environment env = ctx.getCurrentEnvt();
+		
 		for(String name : names){
 			Result<IValue> localRes = env.getLocalVariable(name);
 			if(localRes != null){
@@ -73,7 +69,7 @@ public class RegExpPatternValue implements MatchPattern {
 				} else {
 					// Introduce an innermost variable that shadows the original one.
 					// This ensures that the original one becomes undefined again when matching is over
-					env.storeInnermostVariable(name, makeResult(localRes.getType(), null, context));
+					env.storeInnermostVariable(name, makeResult(localRes.getType(), null, ctx));
 				}
 				continue;
 			}	
@@ -87,22 +83,20 @@ public class RegExpPatternValue implements MatchPattern {
 				} else {
 					// Introduce an innermost variable that shadows the original one.
 					// This ensures that the original one becomes undefined agaian when matching is over
-					env.storeInnermostVariable(name, makeResult(globalRes.getType(), null, context));
+					env.storeInnermostVariable(name, makeResult(globalRes.getType(), null, ctx));
 
 				}
 				continue;
 			}
 			env.storeInnermostVariable(name, null);
 		}
-		this.env = env;
-		this.vf = vf;
 	}
 	
 	public Type getType(Environment ev) {
 		return tf.stringType();
 	}
 
-	public void initMatch(IValue subject, Environment ev) {
+	public void initMatch(IValue subject) {
 		if(!subject.getType().isStringType()){
 			hasNext = false;
 			return;
@@ -152,7 +146,7 @@ public class RegExpPatternValue implements MatchPattern {
 				 * of variables are not allowed. Otherwise we would have to check here for the
 				 * previous local value of the variable.
 				 */
-				env.storeVariable(name, makeResult(tf.stringType(), vf.string(bindings.get(name)), context));			
+				ctx.getCurrentEnvt().storeVariable(name, makeResult(tf.stringType(), vf.string(bindings.get(name)), ctx));			
 			}
 			if(matches){
 				start = matcher.start();

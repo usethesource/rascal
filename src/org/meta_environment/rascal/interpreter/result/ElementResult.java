@@ -4,10 +4,10 @@ import static org.meta_environment.rascal.interpreter.result.ResultFactory.bool;
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 
 import org.meta_environment.rascal.interpreter.EvaluatorContext;
-import org.meta_environment.rascal.interpreter.RuntimeExceptionFactory;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredAnnotationError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
+import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 
 import java.util.Comparator;
 import java.util.Iterator;

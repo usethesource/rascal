@@ -12,12 +12,13 @@ import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.env.ConcreteSyntaxType;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
+import org.meta_environment.rascal.interpreter.result.ResultFactory;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 import org.meta_environment.uptr.SymbolAdapter;
 
-/* package */ class ListPattern extends AbstractPattern implements MatchPattern {
-	private List<MatchPattern> patternChildren;	// The elements of this list pattern
+/* package */ class ListPattern extends AbstractMatchingResult  {
+	private List<IMatchingResult> patternChildren;	// The elements of this list pattern
 	private int patternSize;						// The number of elements in this list pattern
 	private int delta = 1;                        	// increment to next list elements:
 	                                                // delta=1 abstract lists
@@ -48,11 +49,11 @@ import org.meta_environment.uptr.SymbolAdapter;
 	private boolean debug = false;
 
 	
-	ListPattern(IValueFactory vf, EvaluatorContext ctx, List<MatchPattern> list){
+	ListPattern(IValueFactory vf, EvaluatorContext ctx, List<IMatchingResult> list){
 		this(vf,ctx, list, 1);  // Default delta=1; Set to 2 to run DeltaListPatternTests
 	}
 	
-	ListPattern(IValueFactory vf, EvaluatorContext ctx, List<MatchPattern> list, int delta){
+	ListPattern(IValueFactory vf, EvaluatorContext ctx, List<IMatchingResult> list, int delta){
 		super(vf, ctx);
 		if(delta < 1)
 			throw new ImplementationError("Wrong delta");
@@ -100,9 +101,8 @@ import org.meta_environment.uptr.SymbolAdapter;
 	}
 	
 	@Override
-	public void initMatch(IValue subject, Environment env){
-		
-		super.initMatch(subject, env);
+	public void initMatch(Result<IValue> subject){
+		super.initMatch(subject);
 		
 		if(debug) {
 			System.err.println("List: initMatch: subject=" + subject);
@@ -141,9 +141,10 @@ import org.meta_environment.uptr.SymbolAdapter;
 		 * Pass #1: determine the list variables
 		 */
 		for(int i = 0; i < patternSize; i += delta){
-			MatchPattern child = patternChildren.get(i);
+			IMatchingResult child = patternChildren.get(i);
 			isListVar[i] = false;
 			isBindingVar[i] = false;
+			Environment env = ctx.getCurrentEnvt();
 			if(child instanceof TypedVariablePattern && isAnyListType(child.getType(env))){  // <------
 				TypedVariablePattern patVar = (TypedVariablePattern) child;
 				Type childType = child.getType(env);
@@ -372,7 +373,7 @@ import org.meta_environment.uptr.SymbolAdapter;
 	 * On success, the cursors are advanced.
 	 * On failure, switch to backtracking (forward = false) mode.
 	 */
-	private void matchBindingListVar(MatchPattern child){
+	private void matchBindingListVar(IMatchingResult child){
 		
 		assert isListVar[patternCursor];
 		
@@ -391,7 +392,8 @@ import org.meta_environment.uptr.SymbolAdapter;
 		IList sublist = makeSubList(start, reducedLength);
 
 		if(debug)System.err.println("matchBindingListVar: init child #" + patternCursor + " (" + child + ") with " + sublist);
-		child.initMatch(sublist, env);
+		// TODO : check if we can use a static type here!?
+		child.initMatch(ResultFactory.makeResult(sublist.getType(), sublist, ctx));
 	
 		if(child.next()){
 			subjectCursor = start + length;
@@ -464,7 +466,7 @@ import org.meta_environment.uptr.SymbolAdapter;
 			 * Perform actions for the current pattern element
 			 */
 			
-			MatchPattern child = patternChildren.get(patternCursor);
+			IMatchingResult child = patternChildren.get(patternCursor);
 			if(debug){
 				System.err.println(this);
 				System.err.println("loop: patternCursor=" + patternCursor + 
@@ -518,11 +520,11 @@ import org.meta_environment.uptr.SymbolAdapter;
 			} 
 			else if(isListVar[patternCursor] && 
 					!isBindingVar[patternCursor] && 
-					env.getVariable(null, varName[patternCursor]).getType().isListType()){
+					ctx.getCurrentEnvt().getVariable(null, varName[patternCursor]).getType().isListType()){
 				if(forward){
 					listVarStart[patternCursor] = subjectCursor;
 					
-					Result<IValue> varRes = env.getVariable(null, varName[patternCursor]);
+					Result<IValue> varRes = ctx.getCurrentEnvt().getVariable(null, varName[patternCursor]);
 					IValue varVal = varRes.getValue();
 					
 					if(varRes.getType().isListType()){
@@ -549,7 +551,9 @@ import org.meta_environment.uptr.SymbolAdapter;
 			} else {
 				if(forward && subjectCursor < subjectSize){
 					if(debug)System.err.println("AbstractPatternList.match: init child " + patternCursor + " with " + listSubject.get(subjectCursor));
-					child.initMatch(listSubject.get(subjectCursor), env);
+					IValue childValue = listSubject.get(subjectCursor);
+					// TODO: check if we can use a static type here?!
+					child.initMatch(ResultFactory.makeResult(childValue.getType(), childValue, ctx));
 					if(child.next()){
 						subjectCursor += delta;
 						patternCursor += delta;
