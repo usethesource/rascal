@@ -1224,7 +1224,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		Environment old = getCurrentEnvt();
 		
 		try {
-	      return x.getExpression().accept(this);
+			goodPushEnv();
+			return x.getExpression().accept(this);
 		}
 		finally {
 			unwind(old);
@@ -1765,12 +1766,12 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 	@Override
 	public Result<IValue> visitExpressionMatch(Match x) {
-		return evalBooleanMatchExpression(x, x.getExpression().accept(this));
+		return evalBooleanExpression(x);
 	}
 
 	@Override
 	public Result<IValue> visitExpressionNoMatch(NoMatch x) {
-		return evalBooleanMatchExpression(x, x.getExpression().accept(this));
+		return evalBooleanExpression(x);
 	}
 
 	// ----- General method for matching --------------------------------------------------
@@ -2165,17 +2166,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		return ResultFactory.bool(false);
 	}
 	
-	private Result<IValue> evalBooleanMatchExpression(Expression x, Result<IValue> subject) {
-		IMatchingResult mp = (IMatchingResult) evalPattern(x);
-		mp.initMatch(subject);
-		while(mp.hasNext()){
-			if(mp.next()) {
-				return ResultFactory.bool(true);
-			}
-		}
-		return ResultFactory.bool(false);
-	}
-
 	@Override
 	public Result<IValue> visitExpressionNegation(Negation x) {
 		return new NegationEvaluator(x, this).next();
