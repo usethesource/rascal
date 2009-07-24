@@ -535,7 +535,7 @@ public class PatternTests extends TestFramework {
 
 		assertFalse(runTest("{ {set[int] X, set[int] Y, 1} := {2};}"));
 
-		assertTrue(runTest("{ {set[int] X, set[int] Y} := {1} && (X == {} && Y == {1}) || (X == {1} && Y == {});}"));
+		assertTrue(runTest("{ {set[int] X, set[int] Y} := {1} && ((X == {} && Y == {1}) || (X == {1} && Y == {}));}"));
 
 		assertTrue(runTest("{ {set[int] X, set[int] Y, set[int] Z} := {} && X == {} && Y == {} && Z == {};}"));
 		assertTrue(runTest("{ {set[int] X, set[int] Y, set[int] Z} := {1} && (X == {1} && Y == {} && Z == {}) || (X == {} && Y == {1} && Z == {}) || (X == {} && Y == {} && Z == {1});}"));

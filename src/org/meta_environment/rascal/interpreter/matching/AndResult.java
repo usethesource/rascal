@@ -18,6 +18,7 @@ public class AndResult extends AbstractBooleanResult {
 	private final IBooleanResult left;
 	private final IBooleanResult right;
 	private boolean firstMatch = true;
+	private boolean leftResult;
 
 	public AndResult(IValueFactory vf, EvaluatorContext ctx, IBooleanResult left, IBooleanResult right) {
 		super(vf, ctx);
@@ -44,15 +45,20 @@ public class AndResult extends AbstractBooleanResult {
 		if (firstMatch) {
 			firstMatch = false;
 			ctx.goodPushEnv();
-			return left.next() && right.next();
+			leftResult = left.next();
+			return leftResult && right.next();
 		}
 		
 		if (right.hasNext()) {
-			return right.next();
+			// first do the right.next because && would short cut it which leads to an infinite loop 
+			// because right will always have a true hasNext() then.
+			boolean rightResult = right.next();
+			return leftResult && rightResult;
 		}
 		
 		ctx.goodPushEnv();
 		right.init();
-		return left.next() && right.next();
+		leftResult = left.next();
+		return leftResult && right.next();
 	}
 }

@@ -35,7 +35,7 @@ public class NotResult extends AbstractBooleanResult {
 		Environment old = ctx.getCurrentEnvt();
 		ctx.goodPushEnv();
 		try {
-			return arg.next();
+			return !arg.next();
 		}
 		finally {
 			ctx.unwind(old);
