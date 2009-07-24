@@ -58,8 +58,8 @@ public class AndResult extends AbstractBooleanResult {
 		}
 		
 		ctx.goodPushEnv();
-		right.init();
 		leftResult = left.next();
+		right.init();
 		return leftResult && right.next();
 	}
 }
