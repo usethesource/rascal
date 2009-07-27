@@ -962,6 +962,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		QualifiedName name;
 		boolean unTyped = false;
 		
+		// TODO: store constructors as Lambda's that construct trees and apply rewrite rules. Need to
+		// figure out what to do with sorted constructors such as Bool::and.
+		
 		if (nameExpr.isQualifiedName() && getCurrentEnvt().getVariable(nameExpr.getQualifiedName()) == null) {
 			name = nameExpr.getQualifiedName();
 		}
