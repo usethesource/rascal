@@ -986,7 +986,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 				unTyped = true;
 			}
 			else {
-				throw new UnexpectedTypeError(tf.stringType(), result.getType(), nameExpr);
+				throw new UndeclaredFunctionError(x.toString(), x);
 			}
 		}
 		
@@ -1854,7 +1854,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			result = getCurrentEnvt().getVariable(name);
 		}
 		catch (UndeclaredModuleError e) {
-			// TODO: find a better way to deal with this exception, BTW the Bool::and notation what this is for should dissappear
+			// TODO: find a better way to deal with this exception, BTW the Bool::and notation (what this is for) should dissappear
 			// anyway and be replaced by Bool.and, so this problem should evaporate by itself.
 			if (isTreeConstructorName(name, tf.tupleEmpty())) {
 				return constructTree(name, new IValue[0], tf.tupleType(new Type[0]));
