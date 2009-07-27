@@ -2733,7 +2733,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 				}
 			} else
 				if(subjectType.isListType()){
-					IList list = (IList) subject;
+					IList list = (IList) subject.getValue();
 					int len = list.length();
 					if(len > 0){
 						IListWriter w = list.getType().writer(vf);
