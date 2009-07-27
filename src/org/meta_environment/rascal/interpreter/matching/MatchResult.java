@@ -5,6 +5,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.Expression;
 import org.meta_environment.rascal.interpreter.EvaluatorContext;
+import org.meta_environment.rascal.interpreter.PatternEvaluator;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 
@@ -13,11 +14,13 @@ public class MatchResult extends AbstractBooleanResult {
 	private IMatchingResult mp;
 	private Expression expression;
 	private boolean firstTime;
+	private Expression pattern;
 	
-	public MatchResult(IValueFactory vf, EvaluatorContext ctx, IMatchingResult pat, boolean positive, Expression expression) {
+	public MatchResult(IValueFactory vf, EvaluatorContext ctx, Expression pattern, boolean positive, Expression expression) {
 		super(vf, ctx);
     	this.positive = positive;
-    	this.mp = pat;
+    	this.pattern = pattern;
+    	this.mp = null;
     	this.expression = expression;
 	}
 
@@ -25,9 +28,16 @@ public class MatchResult extends AbstractBooleanResult {
     public void init() {
     	super.init();
     	
+    	// because the right hand side may introduce types that are needed
+    	// in the left-hand side, we first need to evaluate the expression
+    	// before we construct a pattern.
 		Result<IValue> result = expression.accept(ctx.getEvaluator());
 		Type subjectType = result.getType();
-    	
+
+		if (mp == null) {
+			mp = (IMatchingResult) pattern.accept(new PatternEvaluator(vf, ctx));
+		}
+		
     	mp.initMatch(expression.accept(ctx.getEvaluator()));
 
     	if(!mp.mayMatch(subjectType, ctx.getCurrentEnvt())) {

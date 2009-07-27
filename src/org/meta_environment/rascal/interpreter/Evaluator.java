@@ -610,7 +610,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 //			for (Expression exp: x.getAlternatives()) {
 //				System.err.println("Alt " + i++ + ": " + exp.getTree());
 //			}
-		throw new ImplementationError("Unexpected ambiguous program part: " + x);
+		throw new AmbiguousConcretePattern(x);
 	}
 	
 	

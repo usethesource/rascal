@@ -493,7 +493,9 @@ public class PatternEvaluator extends NullASTVisitor<IBooleanResult> {
 	}
 	@Override
 	public IBooleanResult visitExpressionMatch(Match x) {
-		return new MatchResult(vf, ctx, (IMatchingResult) x.getPattern().accept(this), true, x.getExpression());
+		// note that we delay evaluating the pattern here because the expression
+		// may introduce concrete syntax types that are needed to evaluate it correctly.
+		return new MatchResult(vf, ctx, x.getPattern(), true, x.getExpression());
 	}
 	
 	@Override
@@ -510,7 +512,7 @@ public class PatternEvaluator extends NullASTVisitor<IBooleanResult> {
 	}
 	@Override
 	public IBooleanResult visitExpressionNoMatch(NoMatch x) {
-		return new MatchResult(vf, ctx, (IMatchingResult) x.getPattern().accept(this), false, x.getExpression());
+		return new MatchResult(vf, ctx, x.getPattern(), false, x.getExpression());
 	}
 	
 	@Override

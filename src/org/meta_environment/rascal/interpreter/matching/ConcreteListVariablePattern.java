@@ -24,7 +24,6 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult {
 	
 	private boolean anonymous = false;
 	private boolean debug = false;
-	private Environment env;
 	// TODO: merge code of the following two constructors.
 	
 	public ConcreteListVariablePattern(IValueFactory vf, EvaluatorContext ctx, org.eclipse.imp.pdb.facts.type.Type type,
@@ -36,6 +35,7 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult {
 		
 		if(debug) System.err.println("AbstractPatternTypedVariabe: " + name);
 		
+		Environment env = ctx.getCurrentEnvt();
 		Result<IValue> localRes = env.getLocalVariable(qname);
 		if(localRes != null){
 			if(localRes.getValue() != null){
@@ -74,6 +74,7 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult {
 		
 		if(debug) System.err.println("AbstractConcreteSyntaxListVariable: " + name);
 		
+		Environment env = ctx.getCurrentEnvt();
 		Result<IValue> localRes = env.getLocalVariable(name);
 		if(localRes != null){
 			if(localRes.getValue() != null){
@@ -150,14 +151,14 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult {
 	
 		
 		if (subject.getType().isSubtypeOf(Factory.Args)) {
-			if (((IList)subject).isEmpty()) {
+			if (((IList)subject.getValue()).isEmpty()) {
 				SymbolAdapter sym = new SymbolAdapter(declaredType.getSymbol()).getSymbol();
 				if (sym.isIterPlus() || sym.isIterPlusSep()) {
 					return false;
 				}
 			}
 			if (!anonymous)
-				env.storeInnermostVariable(name, makeResult(declaredType,
+				ctx.getCurrentEnvt().storeInnermostVariable(name, makeResult(declaredType,
 						wrapWithListProd(subject.getValue()), ctx));
 			if (debug)
 				System.err.println("matches");
@@ -173,7 +174,7 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult {
 					}
 				}
 				if (subjectTree.getProduction().getRhs().getTree().isEqual(declaredType.getSymbol())) {
-					env.storeInnermostVariable(name, subject);
+					ctx.getCurrentEnvt().storeInnermostVariable(name, subject);
 				}
 				if (debug)
 					System.err.println("matches");
