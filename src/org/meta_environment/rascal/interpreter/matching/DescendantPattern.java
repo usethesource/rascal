@@ -9,7 +9,7 @@ import org.meta_environment.rascal.interpreter.result.Result;
 
 public class DescendantPattern extends AbstractMatchingResult  {
 	private IMatchingResult pat;
-	private IBooleanResult enumAndMatch;
+	private IMatchingResult enumAndMatch;
 
 	public DescendantPattern(IValueFactory vf, EvaluatorContext ctx, IMatchingResult pat) {
 		super(vf, ctx);
@@ -32,7 +32,7 @@ public class DescendantPattern extends AbstractMatchingResult  {
 	@Override
 	public void initMatch(Result<IValue> subject){
 		super.initMatch(subject);
-		enumAndMatch.init();
+		enumAndMatch.initMatch(subject);
 	}
 	
 	@Override
