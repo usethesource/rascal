@@ -14,6 +14,7 @@ public class QualifiedNamePattern extends AbstractMatchingResult {
 	private Type type;
 	protected boolean anonymous = false;
 	private boolean debug = false;
+	private boolean iWroteItMySelf;
 	
 	public QualifiedNamePattern(IValueFactory vf, EvaluatorContext ctx, org.meta_environment.rascal.ast.QualifiedName name){
 		super(vf, ctx);
@@ -32,6 +33,14 @@ public class QualifiedNamePattern extends AbstractMatchingResult {
 				type = varRes.getType();
 			}
 		}
+		
+		iWroteItMySelf = false;
+	}
+	
+	@Override
+	public void initMatch(Result<IValue> subject) {
+		super.initMatch(subject);
+		// do not reinit iWroteItMyself!
 	}
 	
 	@Override
@@ -73,15 +82,17 @@ public class QualifiedNamePattern extends AbstractMatchingResult {
 		}
 	
 		Result<IValue> varRes = ctx.getCurrentEnvt().getVariable(name);
-		if((varRes == null) || (varRes.getValue() == null)){
-			// Is the variable still undefined?
+		
+		// is it fresh, or should we overwrite it?
+		if(iWroteItMySelf || (varRes == null) || (varRes.getValue() == null)){
 			if(debug)System.err.println("name= " + name + ", subject=" + subject + ",");
 			type = subject.getType();
 			ctx.getCurrentEnvt().storeInnermostVariable(getName(), subject);
+			iWroteItMySelf = true;
 			return true;
 		}
 		
-		// ... or has it already received a value during matching?
+		// or should we check for equality?
 		IValue varVal = varRes.getValue();
 		if(debug)System.err.println("AbstractPatternQualifiedName.match: " + name + ", subject=" + subject + ", value=" + varVal);
 		if (subject.getType().isSubtypeOf(varRes.getType())) {
