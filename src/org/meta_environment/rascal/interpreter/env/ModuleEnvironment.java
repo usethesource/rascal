@@ -85,6 +85,11 @@ public class ModuleEnvironment extends Environment {
 	public Result<IValue> getVariable(QualifiedName name) {
 		String modulename = Names.moduleName(name);
 		
+		if (getAbstractDataType(modulename) != null) {
+			// sort names can not be module names?
+			return null;
+		}
+		
 		if (modulename != null) {
 			if (modulename.equals(getName())) {
 				return getVariable(name, Names.name(Names.lastName(name)));

@@ -393,7 +393,7 @@ public class PatternEvaluator extends NullASTVisitor<IBooleanResult> {
 	@Override
 	public IBooleanResult visitExpressionAmbiguity(
 			org.meta_environment.rascal.ast.Expression.Ambiguity x) {
-		throw new ImplementationError("Ambiguity in expression: " + x);
+		throw new AmbiguousConcretePattern(x);
 	}
 	@Override
 	public IBooleanResult visitExpressionAnd(And x) {
