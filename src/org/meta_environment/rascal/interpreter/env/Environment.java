@@ -21,6 +21,7 @@ import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredFunctionError;
+import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFunctionError;
 import org.meta_environment.rascal.interpreter.utils.Names;
 
 /**
@@ -628,7 +629,19 @@ public class Environment {
 	}
 
 	public boolean isDeclaredFunctionName(QualifiedName qualifiedName) {
-		return getFunction(name, TypeFactory.getInstance().voidType(), qualifiedName) != null;
+		try {
+			Lambda function = getFunction(name, TypeFactory.getInstance().voidType(), qualifiedName);
+			return function != null;
+		}
+		catch (UndeclaredFunctionError e) {
+			// TODO: environments should not throw exceptions, rather return null and let client code deal with it.
+			Result<IValue> variable = getVariable(qualifiedName);
+			if (variable instanceof Lambda) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
 
 }
