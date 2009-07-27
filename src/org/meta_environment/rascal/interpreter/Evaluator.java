@@ -481,7 +481,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			IConstructor symbol = (IConstructor) value;
 
 			if (symbol.getConstructorType() == Factory.Symbol_Sort) {
-				currentEnvt.concreteSyntaxType(new SymbolAdapter(symbol).getName(), 
+				Environment root = currentEnvt.getRoot();
+				root.concreteSyntaxType(new SymbolAdapter(symbol).getName(), 
 						(IConstructor) Factory.Symbol_Cf.make(vf, value));
 			}
 		}
