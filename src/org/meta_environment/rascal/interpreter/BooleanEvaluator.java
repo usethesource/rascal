@@ -304,8 +304,7 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> {
 
 	@Override
 	public IBooleanResult visitExpressionMatch(Match x) {
-		return new MatchResult(vf, ctx, (IMatchingResult) x.getPattern()
-				.accept(pe), true, x.getExpression());
+		return new MatchResult(vf, ctx, x.getPattern(), true, x.getExpression());
 	}
 
 	@Override
@@ -327,8 +326,7 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> {
 
 	@Override
 	public IBooleanResult visitExpressionNoMatch(NoMatch x) {
-		return new MatchResult(vf, ctx, (IMatchingResult) x.getPattern()
-				.accept(pe), false, x.getExpression());
+		return new MatchResult(vf, ctx, x.getPattern(), false, x.getExpression());
 	}
 
 	@Override

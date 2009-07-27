@@ -482,6 +482,10 @@ public class Environment {
 	}
 
 	public Environment getRoot() {
+		if (parent == null) {
+			return this;
+		}
+		
 		Environment target = parent;
 		while (target!=null && !target.isRootScope()) {
 			target = target.parent;
