@@ -68,7 +68,7 @@ public class ConcreteListPattern extends AbstractMatchingResult {
 	@Override
 	public void initMatch(Result<IValue> subject) {
 		super.initMatch(subject);
-		if (subject.getType() != Factory.Tree) {
+		if (!subject.getType().isSubtypeOf(Factory.Tree)) {
 			hasNext = false;
 			return;
 		}
