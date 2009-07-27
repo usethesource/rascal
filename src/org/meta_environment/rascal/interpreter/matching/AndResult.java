@@ -42,6 +42,11 @@ public class AndResult extends AbstractBooleanResult {
 	
 	@Override
 	public boolean next() {
+		// if you ever get the idea that you can save an environment here,
+		// to be able to roll back to the beginning of the &&, forget about it.
+		// Since &&'s could be nested, you'd be rolling back their effect as
+		// well, which is not correct.
+		
 		if (firstMatch) {
 			firstMatch = false;
 			ctx.goodPushEnv();
