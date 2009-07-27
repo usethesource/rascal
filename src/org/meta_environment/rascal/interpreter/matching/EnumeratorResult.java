@@ -51,12 +51,16 @@ public class EnumeratorResult extends AbstractMatchingResult {
 	@Override
 	public void initMatch(Result<IValue> subject) {
 		super.initMatch(subject);
-		if (subject == null) {
+		if (subject == null && expression != null) {
 			// this is needed because DescendantPattern reuses the EnumeratorPattern
 			subject = expression.accept(ctx.getEvaluator());
 			// TODO: initMatch should get a Result such that the static type is available
 			makeIterator(subject.getType(), subject.getValue());
 		}
+		else if (expression == null && subject != null) {
+			makeIterator(subject.getType(), subject.getValue());
+		}
+		
 		firstTime = true;
 		hasNext = true;
 	};
@@ -139,8 +143,15 @@ public class EnumeratorResult extends AbstractMatchingResult {
 	public boolean next() {
 		if (firstTime) {
 			firstTime = false;
-			Result<IValue> result = expression.accept(ctx.getEvaluator());
-			makeIterator(result.getType(), result.getValue());
+			
+			if (subject == null && expression != null) {
+				Result<IValue> result = expression.accept(ctx.getEvaluator());
+				makeIterator(result.getType(), result.getValue());
+			}
+			else if (subject != null) {
+				makeIterator(subject.getType(), subject.getValue());
+			}
+			
 		}
 
 		/*
