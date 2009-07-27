@@ -2329,7 +2329,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 					} catch (Failure e){
 						//System.err.println("failure occurred");
 						rollback(getCurrentEnvt());
-						unwind(old);
+//						unwind(old); can not clean up because you don't know how far to roll back
 					}
 				}
 			}
