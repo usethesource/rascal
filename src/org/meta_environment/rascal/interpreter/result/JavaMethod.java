@@ -1,4 +1,4 @@
-package org.meta_environment.rascal.interpreter.env;
+package org.meta_environment.rascal.interpreter.result;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -11,24 +11,23 @@ import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.EvaluatorContext;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
-import org.meta_environment.rascal.interpreter.result.Result;
-import org.meta_environment.rascal.interpreter.result.ResultFactory;
+import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.utils.JavaBridge;
 import org.meta_environment.rascal.interpreter.utils.Names;
 
 
-public class JavaFunction extends Lambda {
+public class JavaMethod extends Lambda {
 	private final Method method;
 	private FunctionDeclaration func;
 	
 	@SuppressWarnings("unchecked")
-	public JavaFunction(Evaluator eval, FunctionDeclaration func, boolean varargs, Environment env, JavaBridge javaBridge) {
+	public JavaMethod(Evaluator eval, FunctionDeclaration func, boolean varargs, Environment env, JavaBridge javaBridge) {
 		super(func, eval,
 				TE.eval(func.getSignature().getType(),env),
 				Names.name(func.getSignature().getName()), 
 				TE.eval(func.getSignature().getParameters(), env),
 				varargs, Collections.EMPTY_LIST, env);
-		this.method = javaBridge.compileJavaMethod(func, env);
+		this.method = javaBridge.lookupJavaMethod(eval, func, env);
 		this.func = func;
 	}
 	
@@ -79,7 +78,9 @@ public class JavaFunction extends Lambda {
 				throw th;
 			}
 			
-			throw org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory.javaException(targetException.getMessage(), eval.getCurrentAST(), eval.getStackTrace());
+			e.printStackTrace();
+			String msg = targetException.getMessage() != null ? targetException.getMessage() : "Exception in Java code";
+			throw org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory.javaException(msg, eval.getCurrentAST(), eval.getStackTrace());
 		}
 	}
 	

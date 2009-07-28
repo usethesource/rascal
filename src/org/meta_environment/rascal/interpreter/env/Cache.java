@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.eclipse.imp.pdb.facts.IValue;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
+import org.meta_environment.rascal.interpreter.result.Lambda;
 import org.meta_environment.rascal.interpreter.result.Result;
 
 
