@@ -1,8 +1,9 @@
-package org.meta_environment.rascal.interpreter.env;
+package org.meta_environment.rascal.interpreter.result;
 
 
 import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.interpreter.Evaluator;
+import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.utils.Names;
 
 public class RascalFunction extends Lambda {

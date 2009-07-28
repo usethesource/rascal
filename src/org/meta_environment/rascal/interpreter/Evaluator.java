@@ -160,13 +160,8 @@ import org.meta_environment.rascal.interpreter.control_exceptions.Failure;
 import org.meta_environment.rascal.interpreter.control_exceptions.Return;
 import org.meta_environment.rascal.interpreter.env.ConcreteSyntaxType;
 import org.meta_environment.rascal.interpreter.env.Environment;
-import org.meta_environment.rascal.interpreter.env.FileParserFunction;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
-import org.meta_environment.rascal.interpreter.env.JavaFunction;
-import org.meta_environment.rascal.interpreter.env.Lambda;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
-import org.meta_environment.rascal.interpreter.env.ParserFunction;
-import org.meta_environment.rascal.interpreter.env.RascalFunction;
 import org.meta_environment.rascal.interpreter.env.RewriteRule;
 import org.meta_environment.rascal.interpreter.load.FromCurrentWorkingDirectoryLoader;
 import org.meta_environment.rascal.interpreter.load.FromResourceLoader;
@@ -179,6 +174,11 @@ import org.meta_environment.rascal.interpreter.matching.LiteralPattern;
 import org.meta_environment.rascal.interpreter.matching.RegExpPatternValue;
 import org.meta_environment.rascal.interpreter.result.BoolResult;
 import org.meta_environment.rascal.interpreter.result.ConcreteSyntaxResult;
+import org.meta_environment.rascal.interpreter.result.FileParserFunction;
+import org.meta_environment.rascal.interpreter.result.JavaFunction;
+import org.meta_environment.rascal.interpreter.result.Lambda;
+import org.meta_environment.rascal.interpreter.result.ParserFunction;
+import org.meta_environment.rascal.interpreter.result.RascalFunction;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.result.ResultFactory;
 import org.meta_environment.rascal.interpreter.staticErrors.AmbiguousConcretePattern;
@@ -533,7 +533,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 
 	private void checkType(Type given, Type expected) {
-		if (expected == org.meta_environment.rascal.interpreter.env.Lambda.getClosureType()) {
+		if (expected == org.meta_environment.rascal.interpreter.result.Lambda.getClosureType()) {
 			return;
 		}
 		if (!given.isSubtypeOf(expected)){
@@ -1612,7 +1612,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			throw new MissingModifierError("java", x);
 		}
 
-		lambda = new org.meta_environment.rascal.interpreter.env.JavaMethod(this, x, varArgs, getCurrentEnvt(), javaBridge);
+		lambda = new org.meta_environment.rascal.interpreter.result.JavaMethod(this, x, varArgs, getCurrentEnvt(), javaBridge);
 		String name = Names.name(x.getSignature().getName());
 		getCurrentEnvt().storeFunction(name, lambda);
 

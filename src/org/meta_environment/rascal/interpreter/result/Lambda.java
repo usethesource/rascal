@@ -1,4 +1,4 @@
-package org.meta_environment.rascal.interpreter.env;
+package org.meta_environment.rascal.interpreter.result;
 
 import java.util.HashMap;
 import java.util.List;
@@ -21,8 +21,7 @@ import org.meta_environment.rascal.interpreter.EvaluatorContext;
 import org.meta_environment.rascal.interpreter.TypeEvaluator;
 import org.meta_environment.rascal.interpreter.control_exceptions.Failure;
 import org.meta_environment.rascal.interpreter.control_exceptions.Return;
-import org.meta_environment.rascal.interpreter.result.Result;
-import org.meta_environment.rascal.interpreter.result.ResultFactory;
+import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.staticErrors.MissingReturnError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnguardedFailError;
