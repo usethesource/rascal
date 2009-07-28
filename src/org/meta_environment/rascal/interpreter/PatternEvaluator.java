@@ -69,7 +69,6 @@ import org.meta_environment.rascal.ast.Literal.RegExp;
 import org.meta_environment.rascal.ast.Literal.String;
 import org.meta_environment.rascal.ast.RegExp.Lexical;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
-import org.meta_environment.rascal.interpreter.env.ConcreteSyntaxType;
 import org.meta_environment.rascal.interpreter.matching.AntiPattern;
 import org.meta_environment.rascal.interpreter.matching.ConcreteApplicationPattern;
 import org.meta_environment.rascal.interpreter.matching.ConcreteListPattern;
@@ -97,6 +96,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.AmbiguousConcretePat
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedPatternError;
+import org.meta_environment.rascal.interpreter.types.ConcreteSyntaxType;
 import org.meta_environment.rascal.interpreter.utils.Names;
 
 public class PatternEvaluator extends NullASTVisitor<IBooleanResult> {

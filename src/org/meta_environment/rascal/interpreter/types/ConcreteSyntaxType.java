@@ -1,4 +1,4 @@
-package org.meta_environment.rascal.interpreter.env;
+package org.meta_environment.rascal.interpreter.types;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;

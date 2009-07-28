@@ -23,6 +23,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.AmbiguousFunctionRef
 import org.meta_environment.rascal.interpreter.staticErrors.AmbiguousVariableReferenceError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFunctionError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredModuleError;
+import org.meta_environment.rascal.interpreter.types.ConcreteSyntaxType;
 import org.meta_environment.rascal.interpreter.utils.Names;
 
 
