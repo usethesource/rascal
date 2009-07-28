@@ -42,11 +42,11 @@ import org.meta_environment.rascal.ast.TypeArg.Named;
 import org.meta_environment.rascal.ast.UserType.Name;
 import org.meta_environment.rascal.ast.UserType.Parametric;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
-import org.meta_environment.rascal.interpreter.env.ConcreteSyntaxType;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Lambda;
 import org.meta_environment.rascal.interpreter.staticErrors.AmbiguousFunctionReferenceError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredTypeError;
+import org.meta_environment.rascal.interpreter.types.ConcreteSyntaxType;
 import org.meta_environment.rascal.interpreter.utils.Names;
 
 
