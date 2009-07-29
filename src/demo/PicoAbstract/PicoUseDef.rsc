@@ -36,9 +36,9 @@ public rel[PicoId, ProgramPoint] uses(PROGRAM P) {
         	result = result + getVarUses(Exp) * {Exp@pos};
          }
          
-   case subject: asgStat(PicoId _, EXP Exp):{
+   case asg: asgStat(PicoId _, EXP Exp):{
    		println("case asgStat: <Exp>");
-        result = result + getVarUses(Exp) * {subject@pos};
+        result = result + getVarUses(Exp) * {asg@pos};
         } 
    };
    return result;                  
@@ -51,7 +51,6 @@ public rel[PicoId, ProgramPoint] uses(PROGRAM P) {
  */
  
 public rel[PicoId, ProgramPoint] defs(PROGRAM P) { 
-  println("defs");
   return {<Id, S@pos> | STATEMENT S <- P, asgStat(PicoId Id, EXP Exp) := S};
 }        
  
