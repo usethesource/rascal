@@ -2349,6 +2349,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 			while(mp.hasNext()){
 				//System.err.println("mp.hasNext()==true; mp=" + mp);
+				goodPushEnv();
 				if(mp.next()){
 					try {
 						boolean trueConditions = true;
