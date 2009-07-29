@@ -190,6 +190,8 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> {
 		 */
 		resultRegExp = resultRegExp.replaceAll("(\\\\<)", "<");
 		if(debug)System.err.println("resultRegExp: " + resultRegExp);
+		
+		// TODO: add string interpolation into the pattern
 		return new RegExpPatternValue(vf, ctx, x, resultRegExp, modifier, names);
 	}
 

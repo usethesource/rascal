@@ -3,6 +3,7 @@ package org.meta_environment.rascal.interpreter.matching;
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -16,11 +17,14 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.interpreter.EvaluatorContext;
+import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.asserts.NotYetImplemented;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
+import org.meta_environment.rascal.interpreter.result.ResultFactory;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
-import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
+
+// TODO: add non-linear matching, and add string interpolation into the patterns.
 
 public class RegExpPatternValue extends AbstractMatchingResult  {
 	private AbstractAST ast;					// The AST for this regexp
@@ -29,7 +33,7 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 	private Pattern pat;						// The Pattern resulting from compiling the regexp
 
 	private List<String> patternVars;			// The variables occurring in the regexp
-	private HashMap<String, String> boundBeforeConstruction = new HashMap<String, String>();
+	private HashSet<String> boundBeforeConstruction = new HashSet<String>();
 												// The variable (and their value) that were already bound 
 												// when the  pattern was constructed
 	private Matcher matcher;					// The actual regexp matcher
@@ -40,6 +44,7 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 	
 	private int start;							// start of last match in current subject
 	private int end;							// end of last match in current subject
+	private boolean firstTime;
 	
 	
 	public RegExpPatternValue(IValueFactory vf, EvaluatorContext ctx, String s){
@@ -48,6 +53,7 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 	//	modifier = null;
 		patternVars = null;
 		initialized = false;
+		firstTime = true;
 	}
 	
 	public RegExpPatternValue(IValueFactory vf, EvaluatorContext ctx, AbstractAST ast, String s, Character mod, List<String> names) {
@@ -56,40 +62,7 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 		RegExpAsString = (mod == null) ? s : "(?" + mod + ")" + s;
 		patternVars = names;
 		initialized = false;
-		Environment env = ctx.getCurrentEnvt();
-		
-		for(String name : names){
-			Result<IValue> localRes = env.getLocalVariable(name);
-			if(localRes != null){
-				if(!localRes.getType().isStringType()){
-					throw new UnexpectedTypeError(tf.stringType(), localRes.getType(), ast);
-				}
-				if(localRes.getValue() != null){
-					boundBeforeConstruction.put(name, ((IString)localRes.getValue()).getValue());
-				} else {
-					// Introduce an innermost variable that shadows the original one.
-					// This ensures that the original one becomes undefined again when matching is over
-					env.storeInnermostVariable(name, makeResult(localRes.getType(), null, ctx));
-				}
-				continue;
-			}	
-			Result<IValue> globalRes = env.getVariable(ast, name);
-			if(globalRes != null){
-				if(!globalRes.getType().isStringType()){
-					throw new UnexpectedTypeError(tf.stringType(), globalRes.getType(), ast);
-				}
-				if(globalRes.getValue() != null){
-					boundBeforeConstruction.put(name, ((IString)globalRes.getValue()).getValue());	
-				} else {
-					// Introduce an innermost variable that shadows the original one.
-					// This ensures that the original one becomes undefined agaian when matching is over
-					env.storeInnermostVariable(name, makeResult(globalRes.getType(), null, ctx));
-
-				}
-				continue;
-			}
-			env.storeInnermostVariable(name, null);
-		}
+		firstTime = true;
 	}
 	
 	@Override
@@ -115,6 +88,8 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 			ISourceLocation loc = ast.getLocation();
 			throw new SyntaxError(e.getMessage(), loc);
 		}
+		
+		// do NOT reinit firstTime here!
 	}
 	
 	@Override
@@ -136,25 +111,47 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 	}
 	
 	private boolean findMatch(){
-		
 		while(matcher.find()){
 			boolean matches = true;
 			Map<String,String> bindings = getBindings();
-			for(String name : bindings.keySet()){
-				String valBefore = boundBeforeConstruction.get(name);
-				if(valBefore != null){
-					if(!valBefore.equals(bindings.get(name))){
-						matches = false;
-						break;
+			for (String name : bindings.keySet()) {
+				if (firstTime) { 
+					Result<IValue> val = ctx.getCurrentEnvt().getVariable(name);
+					if (val != null && val.getValue() != null) {
+						boundBeforeConstruction.add(name);
+						
+						if(!val.equals(ResultFactory.makeResult(tf.stringType(), vf.string(bindings.get(name)), ctx), ctx).isTrue()) {
+							matches = false;
+							break;
+						}
+					}
+					else {
+						ctx.getCurrentEnvt().storeVariable(name, makeResult(tf.stringType(), vf.string(bindings.get(name)), ctx));
 					}
 				}
-				/*
-				 * Note that regular expressions cannot be non-linear, e.g. duplicate occurrences 
-				 * of variables are not allowed. Otherwise we would have to check here for the
-				 * previous local value of the variable.
-				 */
-				ctx.getCurrentEnvt().storeVariable(name, makeResult(tf.stringType(), vf.string(bindings.get(name)), ctx));			
+				else {
+					if (boundBeforeConstruction.contains(name)) {
+						Result<IValue> val = ctx.getCurrentEnvt().getVariable(name);
+						if (val == null) {
+							throw new ImplementationError("??? we just said that it was bound before construction");
+						}
+
+						if(!val.equals(ResultFactory.makeResult(tf.stringType(), vf.string(bindings.get(name)), ctx), ctx).isTrue()){
+							matches = false;
+							break;
+						}
+					}
+					else {
+						/*
+						 * Note that regular expressions cannot be non-linear, e.g. duplicate occurrences 
+						 * of variables are not allowed. Otherwise we would have to check here for the
+						 * previous local value of the variable.
+						 */
+						ctx.getCurrentEnvt().storeVariable(name, makeResult(tf.stringType(), vf.string(bindings.get(name)), ctx));			
+					}
+				}
 			}
+			
 			if(matches){
 				start = matcher.start();
 				end = matcher.end();
@@ -171,7 +168,12 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 			firstMatch = false;
 			matcher = pat.matcher(subject);
 		}
-		return findMatch();
+		try {
+			return findMatch();
+		}
+		finally {
+			firstTime = false;
+		}
 	}
 	
 	public java.util.List<String> getVariables(){
