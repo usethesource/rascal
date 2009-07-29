@@ -33,6 +33,12 @@ public class ResultFactory {
 		Type type = TypeFactory.getInstance().voidType();
 		return (Result<T>) type.accept(new Visitor(type, null, null));
 	}
+	
+	@SuppressWarnings("unchecked")
+	public static <T extends IValue> Result<T> nothing(Type type) {
+		return (Result<T>) type.accept(new Visitor(type, null, null));
+	}
+	
 
 	@SuppressWarnings("unchecked")
 	public static <T extends IValue> Result<T> bool(boolean b) {

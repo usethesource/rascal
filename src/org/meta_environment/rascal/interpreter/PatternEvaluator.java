@@ -298,18 +298,18 @@ public class PatternEvaluator extends NullASTVisitor<IBooleanResult> {
 		if (r != null) {
 			if (r.getValue() != null) {
 				// Previously declared and initialized variable
-				return new QualifiedNamePattern(vf, new EvaluatorContext(ctx.getEvaluator(), name), name);
+				return new QualifiedNamePattern(vf, ctx, name);
 			}
 			
 			Type type = r.getType();
 			if (type instanceof ConcreteSyntaxType) {
 				ConcreteSyntaxType cType = (ConcreteSyntaxType) type;
 				if (cType.isConcreteListType()) {
-					return new ConcreteListVariablePattern(vf, new EvaluatorContext(ctx.getEvaluator(), x.getName()), type, x.getName());
+					return new ConcreteListVariablePattern(vf, ctx, type, x.getName());
 				}
 			}
 			
-			return new TypedVariablePattern(vf, new EvaluatorContext(ctx.getEvaluator(), name), type,name);
+			return new QualifiedNamePattern(vf, ctx,name);
 		}
 		
 		if (ctx.getCurrentEnvt().isTreeConstructorName(name, signature)) {

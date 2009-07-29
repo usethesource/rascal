@@ -26,8 +26,8 @@ public class ScopeTests extends TestFramework {
 		runTest("{int n = 1; int n = 2;}");
 	}
 	
-	@Test(expected=RedeclaredVariableError.class)
-	public void localRedeclarationError4(){
+	@Test
+	public void localShadowing(){
 		runTest("{int n = 2; int n := 3;}");
 	}
 	
@@ -41,13 +41,13 @@ public class ScopeTests extends TestFramework {
 		assertTrue(runTest("{int n; [int n] := [3] && n == 3;}"));
 	}
 	
-	@Test(expected=UnexpectedTypeError.class)
-	public void localRedeclarationError7(){
+	@Test
+	public void localShadowing2(){
 		runTest("{int n; [list[int] n] := [1,2,3] && n == [1,2,3];}");
 	}
 	
-	@Test(expected=RedeclaredVariableError.class)
-	public void localRedeclarationListError(){
+	@Test
+	public void localShadowingListMatch(){
 		runTest("{list[int] n = [10,20]; [list[int] n] := [1,2,3] && n == [1,2,3];}");
 	}
 	
@@ -61,8 +61,8 @@ public class ScopeTests extends TestFramework {
 		runTest("{int n; /<n:[0-9]*>/ := \"123\";}");
 	}
 	
-	@Test(expected=RedeclaredVariableError.class)
-	public void localRedeclarationComprehensionError(){
+	@Test
+	public void localComprehensionShadowing(){
 		runTest("{int n = 5; L = [n | int n <- [1 .. 10]];}");
 	}
 	

@@ -21,7 +21,9 @@ import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.result.Lambda;
 import org.meta_environment.rascal.interpreter.result.Result;
+import org.meta_environment.rascal.interpreter.result.ResultFactory;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredFunctionError;
+import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFunctionError;
 import org.meta_environment.rascal.interpreter.utils.Names;
 
@@ -257,6 +259,10 @@ public class Environment {
 		return isRootScope() ? null : parent.getVariable(name);
 	}
 
+	public Result<IValue> getVariable(Name name) {
+		return getVariable(Names.name(name));
+	}
+	
 	/**
 	 * Look up a variable, traversing the parents of the current scope
 	 * until it is found.
@@ -365,7 +371,9 @@ public class Environment {
 	public void storeVariable(String name, Result<IValue> value) {
 		//System.err.println("storeVariable: " + name + value.getValue());
 		Map<String,Result<IValue>> env = getVariableDefiningEnvironment(name);
+		
 		if (env == null) {
+			// an undeclared variable, which gets an inferred type
 			updateVariableCache(name, variableEnvironment, null);
 			variableEnvironment.put(name, value);
 			//System.out.println("Inferred: " + name);
@@ -374,6 +382,7 @@ public class Environment {
 			}
 		}
 		else {
+			// a declared variable
 			Result<IValue> old = env.get(name);
 			updateVariableCache(name, env, old);
 			value.setPublic(old.isPublic());
@@ -446,7 +455,18 @@ public class Environment {
 		list.add(function);
 	}
 
+	public boolean declareVariable(Type type, Name name) {
+		return declareVariable(type, Names.name(name));
+	}
 
+	public boolean declareVariable(Type type, String name) {
+		if (variableEnvironment.get(name) != null) {
+			return false;
+		}
+		variableEnvironment.put(name, ResultFactory.nothing(type));
+		return true;
+	}
+	
 	public Map<Type, Type> getTypeBindings() {
 		Environment env = this;
 		Map<Type, Type> result = new HashMap<Type,Type>();
@@ -644,5 +664,7 @@ public class Environment {
 		
 		return false;
 	}
+
+	
 
 }
