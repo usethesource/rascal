@@ -9,15 +9,8 @@ import  demo::PicoAbstract::PicoPrograms;
 import Graph;
 import IO;
 
-
 bool is_constant(EXP E) {
-   switch (E) {
-     case natCon(int _): return true;
-
-     case strCon(str _): return true;
-
-     case EXP _: return false;
-   }
+   return natCon(_) := E || strCon(_) := E;
 }
 
 PROGRAM constantPropagation(PROGRAM P) {
@@ -25,11 +18,12 @@ PROGRAM constantPropagation(PROGRAM P) {
     rel[ProgramPoint,ProgramPoint] CFG = cflow(P).graph;
 
     println("CFG=<CFG>\nDefs=<Defs>");
+    println("P=<P>");
     
     rel[ProgramPoint, PicoId, EXP] replacements = {};
     
     for(STATEMENT S <- P, asgStat(PicoId Id, EXP E) := S, is_constant(E)){
-        ConstantUses := reachX(CFG, {S@pos}, Defs[Id] - S@pos);
+        ConstantUses = reachX(CFG, {S@pos}, Defs[Id] - S@pos);
         
         for(ProgramPoint C <- ConstantUses){
             replacements = replacements + {<C, Id, E>};
