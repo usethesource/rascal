@@ -7,11 +7,12 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.interpreter.EvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
+import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
 import org.meta_environment.rascal.interpreter.utils.Names;
 
 public class QualifiedNamePattern extends AbstractMatchingResult {
 	protected org.meta_environment.rascal.ast.QualifiedName name;
-	private Type type;
+	private Type declaredType;
 	protected boolean anonymous = false;
 	private boolean debug = false;
 	private boolean iWroteItMySelf;
@@ -24,13 +25,13 @@ public class QualifiedNamePattern extends AbstractMatchingResult {
 		
 		// Look for this variable while we are constructing this pattern
 		if(anonymous){
-			type = TypeFactory.getInstance().valueType();
+			declaredType = TypeFactory.getInstance().valueType();
 		} else {
 			Result<IValue> varRes = env.getVariable(name);
-			if(varRes == null || varRes.getValue() == null){
-				type = TypeFactory.getInstance().valueType();
+			if (varRes == null || varRes.getType() == null) {
+				declaredType = TypeFactory.getInstance().valueType();
 			} else {
-				type = varRes.getType();
+				declaredType = varRes.getType();
 			}
 		}
 		
@@ -45,7 +46,7 @@ public class QualifiedNamePattern extends AbstractMatchingResult {
 	
 	@Override
 	public Type getType(Environment env) {
-		return type;
+		return declaredType;
 	}
 	
 	@Override
@@ -71,38 +72,57 @@ public class QualifiedNamePattern extends AbstractMatchingResult {
 	@Override
 	public boolean next(){
 		checkInitialized();
-		if(!hasNext)
+		if(!hasNext) {
 			return false;
+		}
 		hasNext = false;
-		if(debug)System.err.println("AbstractPatternQualifiedName.match: " + name);
+		
+		if (debug) System.err.println("AbstractPatternQualifiedName.match: " + name);
 		
 		// Anonymous variables matches always
-		if(anonymous) {
+		if (anonymous) {
 			return true;
 		}
 	
-		Result<IValue> varRes = ctx.getCurrentEnvt().getVariable(name);
-		
-		// is it fresh, or should we overwrite it?
-		if(iWroteItMySelf || (varRes == null) || (varRes.getValue() == null)){
-			if(debug)System.err.println("name= " + name + ", subject=" + subject + ",");
-			type = subject.getType();
-			ctx.getCurrentEnvt().storeInnermostVariable(getName(), subject);
-			iWroteItMySelf = true;
+		if (iWroteItMySelf) {
+			// overwrite a previous binding
+			ctx.getCurrentEnvt().storeVariable(name, subject);
 			return true;
 		}
-		
-		// or should we check for equality?
-		IValue varVal = varRes.getValue();
-		if(debug)System.err.println("AbstractPatternQualifiedName.match: " + name + ", subject=" + subject + ", value=" + varVal);
-		if (subject.getType().isSubtypeOf(varRes.getType())) {
-			if(debug) {
-				System.err.println("returns " + subject.equals(varRes));
+		else {
+			// either bind the variable or check for equality
+			
+			Result<IValue> varRes = ctx.getCurrentEnvt().getVariable(name);
+			if (varRes == null) {
+				// inferred declaration
+				declaredType = subject.getType();
+				if (!ctx.getCurrentEnvt().declareVariable(declaredType, getName())) {
+					throw new RedeclaredVariableError(getName(), ctx.getCurrentAST());
+				}
+				ctx.getCurrentEnvt().storeVariable(name, subject);
+				return true;
 			}
-			return subject.equals(varRes, ctx).isTrue();
+			else if (varRes.getValue() == null) {
+				declaredType = varRes.getType();
+				if (!ctx.getCurrentEnvt().declareVariable(declaredType, getName())) {
+					throw new RedeclaredVariableError(getName(), ctx.getCurrentAST());
+				}
+				ctx.getCurrentEnvt().storeVariable(name, subject);
+				return true;
+			}
+			else {
+				// equality check
+				if (subject.getType().isSubtypeOf(varRes.getType())) {
+					if(debug) {
+						System.err.println("returns " + subject.equals(varRes));
+					}
+					return subject.equals(varRes, ctx).isTrue();
+				}
+				else {
+					return false;
+				}
+			}
 		}
-		
-		return false;
 	}
 	
 	@Override

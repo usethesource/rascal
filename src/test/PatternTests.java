@@ -699,8 +699,8 @@ public class PatternTests extends TestFramework {
 		assertTrue(runTest("{str N : 3 := 3; N == 3;}"));
 	}
 	
-	@Test(expected=StaticError.class)
-	public void redeclaredTypedVariableBecomes(){
+	@Test
+	public void redeclaredTypedVariableBecomesShadowsAnother(){
 		assertTrue(runTest("{int N = 5; int N : 3 := 3 && N == 3;}"));
 	}
 	

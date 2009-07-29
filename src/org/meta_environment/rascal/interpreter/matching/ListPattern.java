@@ -234,13 +234,12 @@ public class ListPattern extends AbstractMatchingResult  {
 					if(varRes == null){
 						// A completely new variable, nothing to do
 					} else {
-					
 				        Type varType = varRes.getType();
 				        if (isAnyListType(varType)){                                   // <-----
 				        	/*
 				        	 * A variable declared in the current scope.
 				        	 */
-				        	if(varType.comparable(listSubjectType)){                   // <-- let this a;so work for concrete lists
+				        	if(varType.comparable(listSubjectType)){                   // <-- let this also work for concrete lists
 				        		isListVar[i] = true;
 				        		isBindingVar[i] = varRes.getValue() == null;
 				        		nListVar++;			        		

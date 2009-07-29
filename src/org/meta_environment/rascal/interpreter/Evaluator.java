@@ -824,25 +824,22 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		Result<IValue> r = nothing();
 
 		for (org.meta_environment.rascal.ast.Variable var : x.getVariables()) {
-			// TODO: should this be on getCurrentModuleEnvironment?
-			// (it probably is same env anyway).
-			if(getCurrentEnvt().getLocalVariable(var.getName()) != null){
+			if (!getCurrentEnvt().declareVariable(declaredType, var.getName())) {
 				throw new RedeclaredVariableError(var.getName().toString(), var);
 			}
-			if (var.isUnInitialized()) {  
-				throw new UninitializedVariableError(var.toString(), var);
-			}
-
-			Result<IValue> v = var.getInitial().accept(this);
-			if(v.getType().isSubtypeOf(declaredType)){
-				// TODO: do we actually want to instantiate the locally bound type parameters?
-				Map<Type,Type> bindings = new HashMap<Type,Type>();
-				declaredType.match(v.getType(), bindings);
-				declaredType = declaredType.instantiate(getCurrentEnvt().getStore(), bindings);
-				r = makeResult(declaredType, v.getValue(), makeEvContext());
-				getCurrentModuleEnvironment().storeInnermostVariable(var.getName(), r);
-			} else {
-				throw new UnexpectedTypeError(declaredType, v.getType(), var);
+			
+			if (var.isInitialized()) {  
+				Result<IValue> v = var.getInitial().accept(this);
+				if(v.getType().isSubtypeOf(declaredType)){
+					// TODO: do we actually want to instantiate the locally bound type parameters?
+					Map<Type,Type> bindings = new HashMap<Type,Type>();
+					declaredType.match(v.getType(), bindings);
+					declaredType = declaredType.instantiate(getCurrentEnvt().getStore(), bindings);
+					r = makeResult(declaredType, v.getValue(), makeEvContext());
+					getCurrentModuleEnvironment().storeInnermostVariable(var.getName(), r);
+				} else {
+					throw new UnexpectedTypeError(declaredType, v.getType(), var);
+				}
 			}
 		}
 
@@ -922,15 +919,12 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 		for (org.meta_environment.rascal.ast.Variable var : x.getVariables()) {
 			String varAsString = var.getName().toString();
-			if(getCurrentEnvt().getLocalVariable(varAsString) != null ||
-					getCurrentEnvt().isRootScope() && getCurrentEnvt().getInnermostVariable(var.getName()) != null){
+			if (!getCurrentEnvt().declareVariable(declaredType, var.getName())) {
 				throw new RedeclaredVariableError(varAsString, var);
 			}
-			if (var.isUnInitialized()) {  // variable declaration without initialization
-				r = ResultFactory.makeResult(declaredType, null, new EvaluatorContext(this, var));
-				getCurrentEnvt().storeInnermostVariable(var.getName(), r);
-			} else {                     // variable declaration with initialization
+			if (var.isInitialized()) {  // variable declaration without initialization
 				Result<IValue> v = var.getInitial().accept(this);
+
 				if(v.getType().isSubtypeOf(declaredType)){
 					// TODO: do we actually want to instantiate the locally bound type parameters?
 					Map<Type,Type> bindings = new HashMap<Type,Type>();
@@ -938,7 +932,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 					declaredType = declaredType.instantiate(getCurrentEnvt().getStore(), bindings);
 					// Was: r = makeResult(declaredType, applyRules(v.getValue()));
 					r = makeResult(declaredType, v.getValue(), new EvaluatorContext(this, var));
-					getCurrentEnvt().storeInnermostVariable(var.getName(), r);
+					getCurrentEnvt().storeVariable(var.getName(), r);
 				} else {
 					throw new UnexpectedTypeError(declaredType, v.getType(), var);
 				}
@@ -970,6 +964,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			name = nameExpr.getQualifiedName();
 		}
 		else if (nameExpr.isQualifiedName() && getCurrentEnvt().isDeclaredFunctionName(nameExpr.getQualifiedName())) {
+			name = nameExpr.getQualifiedName();
+		}
+		else if (isTreeConstructorName(nameExpr.getQualifiedName(), tf.voidType())) {
 			name = nameExpr.getQualifiedName();
 		}
 		else { // its a computed name or a string name

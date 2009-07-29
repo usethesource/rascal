@@ -33,13 +33,13 @@ public class DeclarationTests extends TestFramework {
 		runTest("X N;");
 	}
 	
-	@Test(expected=RedeclaredVariableError.class)
-	public void doubleDeclaration1(){
+	@Test
+	public void shadowingDeclaration1(){
 		assertTrue(runTest("{int N = 1; {int N = 2;}; N == 1;}"));
 	}
 	
-	@Test(expected=RedeclaredVariableError.class)
-	public void doubleDeclaration2(){
+	@Test
+	public void shadowingDeclaration2(){
 		assertTrue(runTest("{N = 1; {int N = 2;}; N == 1;}"));
 	}
 	
@@ -48,12 +48,8 @@ public class DeclarationTests extends TestFramework {
 		assertTrue(runTest("{int f(int N){int N = 1; return N;} f(3) == 1;}"));
 	}
 	
-	@Test(expected=RedeclaredVariableError.class)
-	public void doubleDeclaration4(){
+	@Test
+	public void shadowingDeclaration4(){
 		assertTrue(runTest("{int N = 3; int N := 3;}"));
 	}
-	
-	
-	
-	
 }

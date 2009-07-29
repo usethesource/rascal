@@ -192,7 +192,7 @@ public class SetPattern extends AbstractMatchingResult {
 			} else if(child instanceof QualifiedNamePattern){
 				QualifiedNamePattern qualName = (QualifiedNamePattern) child;
 				String name = qualName.getName();
-				if(!qualName.isAnonymous() && allVars.contains(name)){
+				if (!qualName.isAnonymous() && allVars.contains(name)) {
 					/*
 					 * A set/element variable that was declared earlier in the pattern itself,
 					 * or in a preceding nested pattern element.
@@ -242,6 +242,23 @@ public class SetPattern extends AbstractMatchingResult {
 					        	throw new UnexpectedTypeError(setSubject.getType(),varType, getAST());
 					        }
 					    } 
+					    else {
+					    	// JURGEN added this to support pre-declared list variables
+					    
+					    	if(varRes.getType().comparable(setSubjectType) || varRes.getType().comparable(setSubjectElementType)){
+								/*
+								 * An explicitly declared set or element variable.
+								 */
+								if(!name.equals("_")){
+									patVars.add(name);
+									allVars.add(name);
+								}
+								varName[nVar] = name;
+								varPat[nVar] = child;
+								isSetVar[nVar] = varRes.getType().isSetType();
+								nVar++;
+					    	}
+					    }
 				    }
 				}
 			} else if(child instanceof LiteralPattern){
