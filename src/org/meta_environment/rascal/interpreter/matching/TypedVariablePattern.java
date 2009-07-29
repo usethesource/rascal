@@ -81,7 +81,7 @@ public class TypedVariablePattern extends AbstractMatchingResult {
 		
 		iDeclaredItMyself = true;
 		
-		if (subject.getType().isSubtypeOf(declaredType)) {
+		if (subject.getValue().getType().isSubtypeOf(declaredType)) {
 			if(debug)System.err.println("matches");
 			
 			if(anonymous) {
