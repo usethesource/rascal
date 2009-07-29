@@ -876,7 +876,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 	@Override
 	public Result<IValue> visitPatternWithActionArbitrary(Arbitrary x) {
-		IMatchingResult pv = (IMatchingResult) x.getPattern().accept(makePatternEvaluator(x));
+		IMatchingResult pv = x.getPattern().accept(makePatternEvaluator(x));
 		Type pt = pv.getType(getCurrentEnvt());
 		if(!(pt.isAbstractDataType() || pt.isConstructorType() || pt.isNodeType()))
 			throw new UnexpectedTypeError(tf.nodeType(), pt, x);
@@ -890,7 +890,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 	@Override
 	public Result<IValue> visitPatternWithActionReplacing(Replacing x) {
-		IMatchingResult pv = (IMatchingResult) x.getPattern().accept(makePatternEvaluator(x));
+		IMatchingResult pv = x.getPattern().accept(makePatternEvaluator(x));
 		Type pt = pv.getType(getCurrentEnvt());
 		if(!(pt.isAbstractDataType() || pt.isConstructorType() || pt.isNodeType()))
 			throw new UnexpectedTypeError(tf.nodeType(), pt, x);
@@ -967,7 +967,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		else if (nameExpr.isQualifiedName() && getCurrentEnvt().isDeclaredFunctionName(nameExpr.getQualifiedName())) {
 			name = nameExpr.getQualifiedName();
 		}
-		else if (isTreeConstructorName(nameExpr.getQualifiedName(), tf.voidType())) {
+		else if (nameExpr.isQualifiedName() && isTreeConstructorName(nameExpr.getQualifiedName(), tf.voidType())) {
 			name = nameExpr.getQualifiedName();
 		}
 		else { // its a computed name or a string name
@@ -2302,7 +2302,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		Environment old = getCurrentEnvt();
 		
 		try {
-			IMatchingResult mp = (IMatchingResult) pat.accept(makePatternEvaluator(pat));
+			IMatchingResult mp = pat.accept(makePatternEvaluator(pat));
 			mp.initMatch(subject);
 			//System.err.println("matchAndEval: subject=" + subject + ", pat=" + pat);
 			while(mp.hasNext()){
@@ -2343,7 +2343,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			Expression replacementExpr){
 		Environment old = getCurrentEnvt();
 		try {
-			IMatchingResult mp = (IMatchingResult) pat.accept(makePatternEvaluator(pat));
+			IMatchingResult mp = pat.accept(makePatternEvaluator(pat));
 			mp.initMatch(subject);
 			//System.err.println("matchEvalAndReplace: subject=" + subject + ", pat=" + pat + ", conditions=" + conditions);
 
@@ -2557,7 +2557,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			org.meta_environment.rascal.ast.PatternWithAction rule = cs.getPatternWithAction();
 
 			Expression patexp = rule.getPattern();
-			IMatchingResult mp = (IMatchingResult) makeBooleanResult(patexp);
+			IMatchingResult mp = patexp.accept(makePatternEvaluator(patexp));
 			mp.initMatch(subject);
 			Environment old = getCurrentEnvt();
 			try {
@@ -2704,8 +2704,8 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 				for(int i = 0; i < cons.arity(); i++){
 					IValue child = cons.get(i);
-					Type childType = cons.getConstructorType().getFieldType(i);
-					TraverseResult tr = traverseOnce(ResultFactory.makeResult(childType, child, makeEvContext()), casesOrRules, direction, progress);
+//					Type childType = cons.getConstructorType().getFieldType(i);
+					TraverseResult tr = traverseOnce(ResultFactory.makeResult(child.getType(), child, makeEvContext()), casesOrRules, direction, progress);
 					matched |= tr.matched;
 					changed |= tr.changed;
 					args[i] = tr.value.getValue();
@@ -2723,7 +2723,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 					for(int i = 0; i < node.arity(); i++){
 						IValue child = node.get(i);
-						TraverseResult tr = traverseOnce(ResultFactory.makeResult(tf.valueType(), child, makeEvContext()), casesOrRules, direction, progress);
+						TraverseResult tr = traverseOnce(ResultFactory.makeResult(child.getType(), child, makeEvContext()), casesOrRules, direction, progress);
 						matched |= tr.matched;
 						changed |= tr.changed;
 						args[i] = tr.value.getValue();
@@ -2751,7 +2751,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 					}
 				} else 
 					if(subjectType.isSetType()){
-						ISet set = (ISet) subject;
+						ISet set = (ISet) subject.getValue();
 						if(!set.isEmpty()){
 							ISetWriter w = set.getType().writer(vf);
 							Type elemType = set.getType().getElementType();
