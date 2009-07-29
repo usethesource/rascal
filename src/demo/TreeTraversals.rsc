@@ -31,7 +31,11 @@ public int cntb(NODE T) {
 // to add all list elements together.
 
 public int sumtreea(NODE T) {
-    return sum([N | int N <- T], 0);
+    int C = 0;
+    for(int N <- T){
+      C += N;
+    }
+    return C;
 }
 
 // Ex2b: using visit statement
