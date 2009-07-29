@@ -1,5 +1,6 @@
 package test;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
@@ -100,7 +101,7 @@ public class RegExpTests extends TestFramework{
 		assertTrue(runTest("{" + cnt + "cnt(\"abc def ghi\") == 3;}"));
 	}
 	
-	@Test
+	@Test @Ignore // ignored because the semantics of regular expressions needs to be discussed firsts
 	public void wordCount2(){
 	
 	String cnt = 
