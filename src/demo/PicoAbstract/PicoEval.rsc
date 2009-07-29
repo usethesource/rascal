@@ -94,12 +94,12 @@ PicoValue evalExp(EXP exp) {
    } 
 }
 
-public int fac(int N)
+public int myFac(int N)
 {
 	if(N <= 0)
 		return 1;
 	else
-		return N * fac(N - 1);
+		return N * myFac(N - 1);
 }
 
 public bool test(){
@@ -109,6 +109,6 @@ public bool test(){
 	assertEqual(evalExp(conc(strCon("abc"), strCon("def"))), strval("abcdef"));
 	
 	evalProgram(small); assertEqual(Env["s"], strval("###"));
-	evalProgram(fac); assertEqual(Env["output"], intval(fac(13)));
+	evalProgram(fac); assertEqual(Env["output"], intval(myFac(13)));
 	return report("PicoEval");
 }
