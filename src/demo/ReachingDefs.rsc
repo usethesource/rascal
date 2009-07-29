@@ -42,10 +42,10 @@ public rel[stat, def] reachingDefinitions(rel[stat,var] DEFS, rel[stat,stat] PRE
 
 	// The set of mutually recursive dataflow equations that has to be solved:
 
-	with
-		rel[stat,def] IN = {};
-		rel[stat,def] OUT = DEF;
-	solve {
+	rel[stat,def] IN = {};
+	rel[stat,def] OUT = DEF;
+	
+	solve (IN, OUT) {
        		IN =  {<S, D> | int S <- STATEMENT, stat P <- predecessors(PRED,S), def D <- OUT[P]};
         	OUT = {<S, D> | int S <- STATEMENT, def D <- DEF[S] + (IN[S] - KILL[S])};
 	};
@@ -56,10 +56,11 @@ public rel[stat,def] liveVariables(rel[stat,var] DEFS, rel[stat, var] USES, rel[
 	set[stat] STATEMENT = carrier(PRED);
 	rel[stat,def] DEF  = definition(DEFS);
 	rel[stat,def] USE = use(USES);
-	with
-		rel[stat,def] LIN = {};
-		rel[stat,def] LOUT = DEF;
- 	solve {
+	
+    rel[stat,def] LIN = {};
+	rel[stat,def] LOUT = DEF;
+ 	
+ 	solve (LIN, LOUT) {
 		LIN  =  { < S, D> | stat S <- STATEMENT,  def D <- USE[S] + (LOUT[S] - (DEF[S]))};
 		LOUT =  { < S, D> | stat S <- STATEMENT,  stat Succ <- successors(PRED,S), def D <- LIN[Succ] };
 	}

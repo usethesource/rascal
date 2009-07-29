@@ -34,7 +34,7 @@ public org.meta_environment.rascal.ast.Expression getExpression() { throw new Un
 public boolean hasExpression() { return false; }
 public boolean isDefault() { return false; }
 static public class Default extends Bound {
-/** "(" expression:Expression ")" -> Bound {cons("Default")} */
+/** ";" expression:Expression -> Bound {cons("Default")} */
 	private Default() {
 		super();
 	}

@@ -8,10 +8,9 @@ import IO;
 
 public map[TypeOf var, TypeSet possibles] solveConstraints() {
   set[Constraint] constraints = { c | name <- ClassTable, c <- extract(name) };
- 
-  with 
-    map[TypeOf var, TypeSet possibles] estimates = initialEstimates(constraints);
-  solve {
+  map[TypeOf var, TypeSet possibles] estimates = initialEstimates(constraints);
+  
+  solve (estimates) {
      for (TypeOf v <- estimates, subtype(v, typeof(Type t)) <- constraints)
        estimates[v] = Intersection({estimates[v], Subtypes(Single(t))});
   }

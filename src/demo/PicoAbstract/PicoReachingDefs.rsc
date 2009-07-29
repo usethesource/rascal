@@ -22,10 +22,10 @@ rel[Stat, Def] reaching_definitions(rel[Stat,Var] DEFS,
                                            <Stat S2, V> : DEFS, 
                                            S1 != S2
                          },
-     with {
-		IN = {},
-		OUT = DEF;
-     } solve {
+
+	IN = {},
+	OUT = DEF;
+    solve (IN, OUT) {
 		IN  =  {<S, D> | int S : STATEMENT, 
                          Stat P : predecessor(PRED,S), 
                          Def D : OUT[P]};
