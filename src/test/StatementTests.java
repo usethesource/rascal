@@ -154,30 +154,31 @@ public class StatementTests extends TestFramework {
 	@Test
 	public void solve(){
 		String S = 	"rel[int,int] R1 =  {<1,2>, <2,3>, <3,4>};" +
-	                " with 	rel[int,int] T = R1;" +
-	                " solve   T = T + (T o R1);";
+	                " rel[int,int] T = R1;" +
+	                " solve (T)  T = T + (T o R1);";
 		assertTrue(runTest("{" + S + " T =={<1,2>, <1,3>,<1,4>,<2,3>,<2,4>,<3,4>};}"));
 	}
 	
 	@Test(expected=StaticError.class)
 	public void solveError1(){
 		String S = 	"rel[int,int] R1 =  {<1,2>, <2,3>, <3,4>};" +
-	                " with 	rel[int,int] T = R1;" +
-	                " solve (true)   T = T + (T o R1);";
+	                " rel[int,int] T = R1;" +
+	                " solve (T; true)   T = T + (T o R1);";
 		assertTrue(runTest("{" + S + " T =={<1,2>, <1,3>,<1,4>,<2,3>,<2,4>,<3,4>};}"));
 	}
 	
 	@Test(expected=Throw.class)
 	public void solveError2(){
 		String S = 	"rel[int,int] R1 =  {<1,2>, <2,3>, <3,4>};" +
-	                " with 	rel[int,int] T = R1;" +
-	                " solve (-1)   T = T + (T o R1);";
+	                " rel[int,int] T = R1;" +
+	                " solve (T; -1)   T = T + (T o R1);";
 		assertTrue(runTest("{" + S + " T =={<1,2>, <1,3>,<1,4>,<2,3>,<2,4>,<3,4>};}"));
 	}
 	
 	@Test
 	public void solveMaximumUnboundedBug888() {
-		prepare("with  int j = 0;  solve if (j < 100000) j += 1;");
+		prepare("int j = 0;");
+		prepareMore("solve (j) if (j < 100000) j += 1;");
 		assertTrue(runTestInSameEvaluator("j == 100000;"));
 	}
 	
