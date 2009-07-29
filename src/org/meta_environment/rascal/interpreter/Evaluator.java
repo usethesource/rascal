@@ -2343,7 +2343,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			Expression replacementExpr){
 		Environment old = getCurrentEnvt();
 		try {
-			IMatchingResult mp = (IMatchingResult) makeBooleanResult(pat);
+			IMatchingResult mp = (IMatchingResult) pat.accept(makePatternEvaluator(pat));
 			mp.initMatch(subject);
 			//System.err.println("matchEvalAndReplace: subject=" + subject + ", pat=" + pat + ", conditions=" + conditions);
 
