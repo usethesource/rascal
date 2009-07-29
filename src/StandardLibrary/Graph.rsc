@@ -31,10 +31,12 @@ public set[&T] predecessors(graph[&T] G, set[&T] From)
 public set[&T] reach(graph[&T] G, set[&T] Start)
 @doc{reach -- Reachability from set of start nodes.}
 {
-	with
-     	set[&T] R = Start;
-	solve
+    set[&T] R = Start;
+	
+	solve (R) {
 		R = R + G[R];
+    }
+    
 	return R;
 }
 

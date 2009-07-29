@@ -190,6 +190,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredAnnotation
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFieldError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFunctionError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredModuleError;
+import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnguardedFailError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnguardedInsertError;
@@ -3108,10 +3109,6 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		return evalBooleanExpression(x);
 	}
 
-	private Result<IValue> makeGenerator(Expression x){
-			return evalBooleanExpression(x);
-	}
-
 	/*
 	 * ComprehensionWriter provides a uniform framework for writing elements
 	 * to a list/set/map during the evaluation of a list/set/map comprehension.
@@ -3470,23 +3467,28 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 	@Override
 	public Result<IValue> visitStatementSolve(Solve x) {
-		java.util.ArrayList<org.meta_environment.rascal.ast.Variable> vars = new java.util.ArrayList<org.meta_environment.rascal.ast.Variable>();
+		int size = x.getVariables().size();
+		QualifiedName vars[] = new QualifiedName[size];
+		IValue currentValue[] = new IValue[size];
+		
 		Environment old = getCurrentEnvt();
 
-		goodPushEnv();
 		try {
-			for(Declarator d : x.getDeclarations()){
-				for(org.meta_environment.rascal.ast.Variable v : d.getVariables()){
-					vars.add(v);
+			java.util.List<QualifiedName> varList = x.getVariables();
+			
+			for (int i = 0; i < size; i++) {
+				QualifiedName var = varList.get(i);
+				vars[i] = var;
+				if (getCurrentEnvt().getVariable(var) == null) {
+					throw new UndeclaredVariableError(var.toString(), var);
 				}
-				d.accept(this);
-			}
-			IValue currentValue[] = new IValue[vars.size()];
-			for(int i = 0; i < vars.size(); i++){
-				org.meta_environment.rascal.ast.Variable v = vars.get(i);
-				currentValue[i] = getCurrentEnvt().getVariable(v, Names.name(v.getName())).getValue();
+				if (getCurrentEnvt().getVariable(var).getValue() == null) {
+					throw new UninitializedVariableError(var.toString(), var);
+				}
+				currentValue[i] = getCurrentEnvt().getVariable(var).getValue();
 			}
 
+			goodPushEnv();
 			Statement body = x.getBody();
 
 			int max = -1;
@@ -3512,9 +3514,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 				change = false;
 				iterations++;
 				bodyResult = body.accept(this);
-				for(int i = 0; i < vars.size(); i++){
-					org.meta_environment.rascal.ast.Variable var = vars.get(i);
-					Result<IValue> v = getCurrentEnvt().getVariable(var, Names.name(var.getName()));
+				for(int i = 0; i < size; i++){
+					QualifiedName var = vars[i];
+					Result<IValue> v = getCurrentEnvt().getVariable(var);
 					if(currentValue[i] == null || !v.getValue().isEqual(currentValue[i])){
 						change = true;
 						currentValue[i] = v.getValue();

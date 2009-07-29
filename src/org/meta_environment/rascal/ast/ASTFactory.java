@@ -759,22 +759,6 @@ org.meta_environment.rascal.ast.Expression.Literal x = (org.meta_environment.ras
        }
        return x; 
 }
-public org.meta_environment.rascal.ast.Expression.Descendant makeExpressionDescendant(INode node, org.meta_environment.rascal.ast.Expression pattern) { 
-org.meta_environment.rascal.ast.Expression.Descendant x = (org.meta_environment.rascal.ast.Expression.Descendant) sortCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.Expression.Descendant(node, pattern);
-          sortCache.putUnsafe(node, x);
-       }
-       return x; 
-}
-public org.meta_environment.rascal.ast.Expression.MultiVariable makeExpressionMultiVariable(INode node, org.meta_environment.rascal.ast.QualifiedName qualifiedName) { 
-org.meta_environment.rascal.ast.Expression.MultiVariable x = (org.meta_environment.rascal.ast.Expression.MultiVariable) sortCache.get(node);
-       if(x == null){
-          x = new org.meta_environment.rascal.ast.Expression.MultiVariable(node, qualifiedName);
-          sortCache.putUnsafe(node, x);
-       }
-       return x; 
-}
 public org.meta_environment.rascal.ast.Expression.Anti makeExpressionAnti(INode node, org.meta_environment.rascal.ast.Expression pattern) { 
 org.meta_environment.rascal.ast.Expression.Anti x = (org.meta_environment.rascal.ast.Expression.Anti) sortCache.get(node);
        if(x == null){
@@ -803,6 +787,22 @@ public org.meta_environment.rascal.ast.Expression.VariableBecomes makeExpression
 org.meta_environment.rascal.ast.Expression.VariableBecomes x = (org.meta_environment.rascal.ast.Expression.VariableBecomes) sortCache.get(node);
        if(x == null){
           x = new org.meta_environment.rascal.ast.Expression.VariableBecomes(node, name, pattern);
+          sortCache.putUnsafe(node, x);
+       }
+       return x; 
+}
+public org.meta_environment.rascal.ast.Expression.Descendant makeExpressionDescendant(INode node, org.meta_environment.rascal.ast.Expression pattern) { 
+org.meta_environment.rascal.ast.Expression.Descendant x = (org.meta_environment.rascal.ast.Expression.Descendant) sortCache.get(node);
+       if(x == null){
+          x = new org.meta_environment.rascal.ast.Expression.Descendant(node, pattern);
+          sortCache.putUnsafe(node, x);
+       }
+       return x; 
+}
+public org.meta_environment.rascal.ast.Expression.MultiVariable makeExpressionMultiVariable(INode node, org.meta_environment.rascal.ast.QualifiedName qualifiedName) { 
+org.meta_environment.rascal.ast.Expression.MultiVariable x = (org.meta_environment.rascal.ast.Expression.MultiVariable) sortCache.get(node);
+       if(x == null){
+          x = new org.meta_environment.rascal.ast.Expression.MultiVariable(node, qualifiedName);
           sortCache.putUnsafe(node, x);
        }
        return x; 
@@ -2871,10 +2871,10 @@ org.meta_environment.rascal.ast.Statement.Ambiguity amb = (org.meta_environment.
      }
      return amb; 
 }
-public org.meta_environment.rascal.ast.Statement.Solve makeStatementSolve(INode node, java.util.List<org.meta_environment.rascal.ast.Declarator> declarations, org.meta_environment.rascal.ast.Bound bound, org.meta_environment.rascal.ast.Statement body) { 
+public org.meta_environment.rascal.ast.Statement.Solve makeStatementSolve(INode node, java.util.List<org.meta_environment.rascal.ast.QualifiedName> variables, org.meta_environment.rascal.ast.Bound bound, org.meta_environment.rascal.ast.Statement body) { 
 org.meta_environment.rascal.ast.Statement.Solve x = (org.meta_environment.rascal.ast.Statement.Solve) sortCache.get(node);
        if(x == null){
-          x = new org.meta_environment.rascal.ast.Statement.Solve(node, declarations, bound, body);
+          x = new org.meta_environment.rascal.ast.Statement.Solve(node, variables, bound, body);
           sortCache.putUnsafe(node, x);
        }
        return x; 

@@ -36,9 +36,9 @@ public set[Symbol] firstNonEmpty(list[Symbol] symbols, map[Symbol, set[Symbol]] 
 public map[Symbol, set[Symbol]] first(Grammar G){
 	gsymbols = symbols(G);
 	
-	with
-		map[Symbol, set[Symbol]] FIRST = ();
-	solve {
+	map[Symbol, set[Symbol]] FIRST = ();
+	
+	solve (FIRST) {
 		for(Symbol sym <- gsymbols){
 			println("sym = <sym>");
 		
@@ -118,9 +118,9 @@ alias ItemSet = set[Item];
 
 public ItemSet closure(Grammar G, ItemSet I){
 	//println("closure(<G>, <I>)");
-    with 
-    	ItemSet items = I;
-    solve {
+    ItemSet items = I;
+    
+    solve (items) {
         for(Item item <- items){
             if(atNonTerminal(item)){
         	   nonterm = getNonTerminal(item);
@@ -151,9 +151,9 @@ public set[ItemSet] items(Grammar G){
 	Rule startRule = <"START", [nt(G.start)]>;
 	G.rules = G.rules + {startRule};  // TODO += does not seem to work here
 
-	with 
-		set[ItemSet] C = {{ closure(G, {makeItem(startRule)}) }};  // TODO: {{ }} horror
-	solve {
+	set[ItemSet] C = {{ closure(G, {makeItem(startRule)}) }};  // TODO: {{ }} horror
+	
+	solve (C) {
 		C += { GT | ItemSet I <- C, Symbol X <- symbols, ItemSet GT := goto(G, I, X), !isEmpty(GT)};
 	}
 	return C;      
