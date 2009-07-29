@@ -100,6 +100,7 @@ public class QualifiedNamePattern extends AbstractMatchingResult {
 					throw new RedeclaredVariableError(getName(), ctx.getCurrentAST());
 				}
 				ctx.getCurrentEnvt().storeVariable(name, subject);
+				iWroteItMySelf = true;
 				return true;
 			}
 			else if (varRes.getValue() == null) {
@@ -108,6 +109,7 @@ public class QualifiedNamePattern extends AbstractMatchingResult {
 					throw new RedeclaredVariableError(getName(), ctx.getCurrentAST());
 				}
 				ctx.getCurrentEnvt().storeVariable(name, subject);
+				iWroteItMySelf = true;
 				return true;
 			}
 			else {
@@ -116,6 +118,7 @@ public class QualifiedNamePattern extends AbstractMatchingResult {
 					if(debug) {
 						System.err.println("returns " + subject.equals(varRes));
 					}
+//					iWroteItMySelf = false;
 					return subject.equals(varRes, ctx).isTrue();
 				}
 				else {

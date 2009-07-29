@@ -54,7 +54,6 @@ public class EnumeratorResult extends AbstractMatchingResult {
 		if (subject == null && expression != null) {
 			// this is needed because DescendantPattern reuses the EnumeratorPattern
 			subject = expression.accept(ctx.getEvaluator());
-			// TODO: initMatch should get a Result such that the static type is available
 			makeIterator(subject.getType(), subject.getValue());
 		}
 		else if (expression == null && subject != null) {
