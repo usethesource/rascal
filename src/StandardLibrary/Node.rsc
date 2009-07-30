@@ -19,3 +19,7 @@ public node java makeNode(str N, value V...)
 public value java readATermFromFile(str fileName)
 @doc{readATermFromFile -- read an ATerm from a named file}
 @javaClass{org.meta_environment.rascal.std.Node};
+
+public str java toString(node T)
+@doc{toString -- convert a node to a string}
+@javaClass{org.meta_environment.rascal.std.Node};
