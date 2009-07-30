@@ -1,7 +1,7 @@
 package org.meta_environment.rascal.interpreter.matching;
 
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.meta_environment.rascal.interpreter.EvaluatorContext;
+import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
 
 /**
@@ -15,7 +15,7 @@ public class EquivalenceResult extends AbstractBooleanResult {
 	private boolean firstMatch = true;
 	private boolean leftResult;
 
-	public EquivalenceResult(IValueFactory vf, EvaluatorContext ctx, IBooleanResult left, IBooleanResult right) {
+	public EquivalenceResult(IValueFactory vf, IEvaluatorContext ctx, IBooleanResult left, IBooleanResult right) {
 		super(vf, ctx);
 		this.left = left;
 		this.right = right;

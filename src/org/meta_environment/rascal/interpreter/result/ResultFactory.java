@@ -16,7 +16,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.ITypeVisitor;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.meta_environment.rascal.interpreter.EvaluatorContext;
+import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.uptr.Factory;
 
 public class ResultFactory {
@@ -24,7 +24,7 @@ public class ResultFactory {
 	// TODO: do apply rules here and introduce normalizedResult. 
 	
 	@SuppressWarnings("unchecked")
-	public static <T extends IValue> Result<T> makeResult(Type declaredType, IValue value, EvaluatorContext ctx) {
+	public static <T extends IValue> Result<T> makeResult(Type declaredType, IValue value, IEvaluatorContext ctx) {
 		return (Result<T>) declaredType.accept(new Visitor(declaredType, value, ctx));
 	}
 	
@@ -48,9 +48,9 @@ public class ResultFactory {
 	private static class Visitor implements ITypeVisitor<Result<? extends IValue>> {
 		private IValue value;
 		private Type declaredType;
-		private EvaluatorContext ctx;
+		private IEvaluatorContext ctx;
 
-		public Visitor(Type type, IValue value, EvaluatorContext ctx) {
+		public Visitor(Type type, IValue value, IEvaluatorContext ctx) {
 			this.declaredType = type;
 			this.value = value;
 			this.ctx = ctx;

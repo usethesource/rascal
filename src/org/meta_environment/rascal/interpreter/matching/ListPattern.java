@@ -7,7 +7,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.meta_environment.rascal.interpreter.EvaluatorContext;
+import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
@@ -49,11 +49,11 @@ public class ListPattern extends AbstractMatchingResult  {
 	private boolean debug = false;
 
 	
-	public ListPattern(IValueFactory vf, EvaluatorContext ctx, List<IMatchingResult> list){
+	public ListPattern(IValueFactory vf, IEvaluatorContext ctx, List<IMatchingResult> list){
 		this(vf,ctx, list, 1);  // Default delta=1; Set to 2 to run DeltaListPatternTests
 	}
 	
-	ListPattern(IValueFactory vf, EvaluatorContext ctx, List<IMatchingResult> list, int delta){
+	ListPattern(IValueFactory vf, IEvaluatorContext ctx, List<IMatchingResult> list, int delta){
 		super(vf, ctx);
 		if(delta < 1)
 			throw new ImplementationError("Wrong delta");

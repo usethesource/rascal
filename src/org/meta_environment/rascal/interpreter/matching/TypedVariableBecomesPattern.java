@@ -3,7 +3,7 @@ package org.meta_environment.rascal.interpreter.matching;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.meta_environment.rascal.interpreter.EvaluatorContext;
+import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.result.ResultFactory;
@@ -18,7 +18,7 @@ public class TypedVariableBecomesPattern extends AbstractMatchingResult {
 	private boolean debug = false;
 	private boolean iDeclaredItMyself = false;
 
-	public TypedVariableBecomesPattern(IValueFactory vf, EvaluatorContext ctx,
+	public TypedVariableBecomesPattern(IValueFactory vf, IEvaluatorContext ctx,
 			org.eclipse.imp.pdb.facts.type.Type type, org.meta_environment.rascal.ast.Name aname, IMatchingResult pat){
 		super(vf, ctx);
 		this.name = Names.name(aname);

@@ -1,7 +1,7 @@
 package org.meta_environment.rascal.interpreter.matching;
 
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.meta_environment.rascal.interpreter.EvaluatorContext;
+import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
 /**
  * The and boolean operator backtracks for both the lhs and the rhs. This means
@@ -20,7 +20,7 @@ public class AndResult extends AbstractBooleanResult {
 	private boolean firstMatch = true;
 	private boolean leftResult;
 
-	public AndResult(IValueFactory vf, EvaluatorContext ctx, IBooleanResult left, IBooleanResult right) {
+	public AndResult(IValueFactory vf, IEvaluatorContext ctx, IBooleanResult left, IBooleanResult right) {
 		super(vf, ctx);
 		this.left = left;
 		this.right = right;

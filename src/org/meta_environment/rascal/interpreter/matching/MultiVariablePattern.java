@@ -1,12 +1,12 @@
 package org.meta_environment.rascal.interpreter.matching;
 
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.meta_environment.rascal.interpreter.EvaluatorContext;
+import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
 public class MultiVariablePattern extends QualifiedNamePattern {
 
 	public MultiVariablePattern(IValueFactory vf,
-			EvaluatorContext ctx, org.meta_environment.rascal.ast.QualifiedName name) {
+			IEvaluatorContext ctx, org.meta_environment.rascal.ast.QualifiedName name) {
 		super(vf, ctx, name);
 	}
 	

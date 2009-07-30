@@ -5,7 +5,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.meta_environment.rascal.interpreter.EvaluatorContext;
+import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
@@ -26,7 +26,7 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult {
 	private boolean debug = false;
 	// TODO: merge code of the following two constructors.
 	
-	public ConcreteListVariablePattern(IValueFactory vf, EvaluatorContext ctx, org.eclipse.imp.pdb.facts.type.Type type,
+	public ConcreteListVariablePattern(IValueFactory vf, IEvaluatorContext ctx, org.eclipse.imp.pdb.facts.type.Type type,
 			org.meta_environment.rascal.ast.QualifiedName qname) {
 		super(vf, ctx);
 		this.name = Names.name(Names.lastName(qname));
@@ -65,7 +65,7 @@ public class ConcreteListVariablePattern extends AbstractMatchingResult {
 	}
 	
 	
-	public ConcreteListVariablePattern(IValueFactory vf, EvaluatorContext ctx, 
+	public ConcreteListVariablePattern(IValueFactory vf, IEvaluatorContext ctx, 
 			org.eclipse.imp.pdb.facts.type.Type type, org.meta_environment.rascal.ast.Name name) {
 		super(vf, ctx);
 		this.name = Names.name(name);

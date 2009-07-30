@@ -3,7 +3,7 @@ package org.meta_environment.rascal.interpreter.result;
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.bool;
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 
-import org.meta_environment.rascal.interpreter.EvaluatorContext;
+import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredAnnotationError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
@@ -23,69 +23,69 @@ import org.eclipse.imp.pdb.facts.type.Type;
 public class ElementResult<T extends IValue> extends Result<T> {
 
 	@Override
-	protected <U extends IValue> Result<U> inSet(SetResult s, EvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> inSet(SetResult s, IEvaluatorContext ctx) {
 		return s.elementOf(this, ctx);
 	}
 	
 	
 	@Override
-	protected <U extends IValue> Result<U> notInSet(SetResult s, EvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> notInSet(SetResult s, IEvaluatorContext ctx) {
 		return s.notElementOf(this, ctx);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> inRelation(RelationResult s, EvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> inRelation(RelationResult s, IEvaluatorContext ctx) {
 		return s.elementOf(this, ctx);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> notInRelation(RelationResult s, EvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> notInRelation(RelationResult s, IEvaluatorContext ctx) {
 		return s.notElementOf(this, ctx);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> inList(ListResult s, EvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> inList(ListResult s, IEvaluatorContext ctx) {
 		return s.elementOf(this, ctx);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> notInList(ListResult s, EvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> notInList(ListResult s, IEvaluatorContext ctx) {
 		return s.notElementOf(this, ctx);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> inMap(MapResult s, EvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> inMap(MapResult s, IEvaluatorContext ctx) {
 		return s.elementOf(this, ctx);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> notInMap(MapResult s, EvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> notInMap(MapResult s, IEvaluatorContext ctx) {
 		return s.notElementOf(this, ctx);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> addSet(SetResult s, EvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> addSet(SetResult s, IEvaluatorContext ctx) {
 		return s.addElement(this, ctx);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> subtractSet(SetResult s, EvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> subtractSet(SetResult s, IEvaluatorContext ctx) {
 		return s.removeElement(this, ctx);
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> addList(ListResult s, EvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> addList(ListResult s, IEvaluatorContext ctx) {
 		return s.appendElement(this, ctx);
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> subtractList(ListResult s, EvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> subtractList(ListResult s, IEvaluatorContext ctx) {
 		return s.removeElement(this, ctx);
 	}
 	
 	@Override
 	public <U extends IValue, V extends IValue> Result<U> setAnnotation(
-			String annoName, Result<V> anno, Environment env, EvaluatorContext ctx) {
+			String annoName, Result<V> anno, Environment env, IEvaluatorContext ctx) {
 				Type annoType = env.getAnnotationType(getType(), annoName);
 			
 				if (annoType == null) {
@@ -102,7 +102,7 @@ public class ElementResult<T extends IValue> extends Result<T> {
 			}
 
 	@Override
-	public <U extends IValue> Result<U> getAnnotation(String annoName, Environment env, EvaluatorContext ctx) {
+	public <U extends IValue> Result<U> getAnnotation(String annoName, Environment env, IEvaluatorContext ctx) {
 		Type annoType = env.getAnnotationType(getType(), annoName);
 	
 		if (annoType == null) {
@@ -119,12 +119,12 @@ public class ElementResult<T extends IValue> extends Result<T> {
 	
 
 	@Override
-	protected <U extends IValue> Result<U> equalToValue(ValueResult that, EvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> equalToValue(ValueResult that, IEvaluatorContext ctx) {
 		return that.equalityBoolean(this, ctx);
 	}
 
 	
-	protected static int compareIValues(IValue left, IValue right, EvaluatorContext ctx) {
+	protected static int compareIValues(IValue left, IValue right, IEvaluatorContext ctx) {
 		Result<IValue> leftResult = makeResult(left.getType(), left, ctx);
 		Result<IValue> rightResult = makeResult(right.getType(), right, ctx);
 		Result<IValue> resultResult = leftResult.compare(rightResult, ctx);
@@ -133,7 +133,7 @@ public class ElementResult<T extends IValue> extends Result<T> {
 	}
 
 	// FIXME: ast should not be passed at this level
-	private static SortedSet<IValue> sortedSet(Iterator<IValue> iter, final EvaluatorContext ctx) {
+	private static SortedSet<IValue> sortedSet(Iterator<IValue> iter, final IEvaluatorContext ctx) {
 		Comparator<IValue> comparator = new Comparator<IValue>() {
 			public int compare(IValue o1, IValue o2) {
 				return compareIValues(o1, o2, ctx);
@@ -147,7 +147,7 @@ public class ElementResult<T extends IValue> extends Result<T> {
 		return set;
 	}
 
-	protected static int compareISets(ISet left, ISet right, EvaluatorContext ctx) {
+	protected static int compareISets(ISet left, ISet right, IEvaluatorContext ctx) {
 		int compare = Integer.valueOf(left.size()).compareTo(Integer.valueOf(right.size()));
 		if (compare != 0) {
 			return compare;
@@ -179,20 +179,20 @@ public class ElementResult<T extends IValue> extends Result<T> {
 		return 0;
 	}
 
-	public ElementResult(Type type, T value, EvaluatorContext ctx) {
+	public ElementResult(Type type, T value, IEvaluatorContext ctx) {
 		super(type, value, ctx);
 	}
 	
-	public ElementResult(Type type, T value, Iterator<Result<IValue>> iter, EvaluatorContext ctx) {
+	public ElementResult(Type type, T value, Iterator<Result<IValue>> iter, IEvaluatorContext ctx) {
 		super(type, value, iter, ctx);
 	}
 	
-	protected <V extends IValue> int comparisonInts(Result<V> that, EvaluatorContext ctx) {
+	protected <V extends IValue> int comparisonInts(Result<V> that, IEvaluatorContext ctx) {
 		return ((IInteger)compare(that, ctx).getValue()).intValue();
 	}
 
 	@SuppressWarnings("unchecked")
-	protected <U extends IValue, V extends IValue> Result<U> equalityBoolean(ElementResult that, EvaluatorContext ctx) {
+	protected <U extends IValue, V extends IValue> Result<U> equalityBoolean(ElementResult that, IEvaluatorContext ctx) {
 		// Do not delegate to comparison here, since it takes runtime types into account
 		return bool(((IInteger)compare(that, ctx).getValue()).intValue() == 0);
 	}

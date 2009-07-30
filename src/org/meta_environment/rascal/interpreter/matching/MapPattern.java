@@ -3,14 +3,14 @@ package org.meta_environment.rascal.interpreter.matching;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.meta_environment.rascal.interpreter.EvaluatorContext;
+import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.env.Environment;
 
 /* package */ class MapPattern extends AbstractMatchingResult {
 	private java.util.List<IMatchingResult> children;
 	
-	MapPattern(IValueFactory vf, EvaluatorContext ctx, java.util.List<IMatchingResult> children){
+	MapPattern(IValueFactory vf, IEvaluatorContext ctx, java.util.List<IMatchingResult> children){
 		super(vf, ctx);
 		this.children = children;
 	}

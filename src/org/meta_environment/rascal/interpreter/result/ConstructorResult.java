@@ -7,14 +7,14 @@ import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.meta_environment.rascal.interpreter.EvaluatorContext;
+import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFieldError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 
 public class ConstructorResult extends NodeResult {
 
-	public ConstructorResult(Type type, IConstructor cons, EvaluatorContext ctx) {
+	public ConstructorResult(Type type, IConstructor cons, IEvaluatorContext ctx) {
 		super(type, cons, ctx);
 	}
 	
@@ -24,7 +24,7 @@ public class ConstructorResult extends NodeResult {
 	}
 
 	@Override
-	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store, EvaluatorContext ctx) {
+	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store, IEvaluatorContext ctx) {
 		if (!getType().hasField(name, store)) {
 			throw new UndeclaredFieldError(name, getType(), ctx.getCurrentAST());
 		}
@@ -37,7 +37,7 @@ public class ConstructorResult extends NodeResult {
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(String name, Result<V> repl, TypeStore store, EvaluatorContext ctx) {
+	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(String name, Result<V> repl, TypeStore store, IEvaluatorContext ctx) {
 		if (!getType().hasField(name, store)) {
 			throw new UndeclaredFieldError(name, getType(), ctx.getCurrentAST());
 		}
@@ -55,21 +55,21 @@ public class ConstructorResult extends NodeResult {
 
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> result, EvaluatorContext ctx) {
+	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> result, IEvaluatorContext ctx) {
 		return result.compareConstructor(this, ctx);
 	}
 	
 	//
 	
 	@Override
-	protected <U extends IValue> Result<U> compareConstructor(NodeResult that, EvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> compareConstructor(NodeResult that, IEvaluatorContext ctx) {
 		// Note reversed args
 		INode left = that.getValue();
 		INode right = this.getValue();
 		return makeIntegerResult(compareNodes(left, right, ctx), ctx);
 	}
 	
-	private int compareNodes(INode left, INode right, EvaluatorContext ctx) {
+	private int compareNodes(INode left, INode right, IEvaluatorContext ctx) {
 		// NOTE: left and right are in normal (non-reversed) order
 		int compare = left.getName().compareTo(right.getName());
 		if (compare != 0){
@@ -82,7 +82,7 @@ public class ConstructorResult extends NodeResult {
 		return compareChildren(left, right, ctx);
 	}
 	
-	private int compareChildren(INode left, INode right, EvaluatorContext ctx) {
+	private int compareChildren(INode left, INode right, IEvaluatorContext ctx) {
 		// NOTE: left and right are in normal (non-reversed) order
 		int i = 0;
 		for (IValue leftKid: left.getChildren()) {

@@ -6,7 +6,7 @@ import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.meta_environment.rascal.interpreter.EvaluatorContext;
+import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.result.ResultFactory;
@@ -15,7 +15,7 @@ public class TuplePattern extends AbstractMatchingResult {
 	private List<IMatchingResult> children;
 	private boolean firstMatch;
 	
-	public TuplePattern(IValueFactory vf, EvaluatorContext ctx, List<IMatchingResult> list){
+	public TuplePattern(IValueFactory vf, IEvaluatorContext ctx, List<IMatchingResult> list){
 		super(vf, ctx);
 		this.children = list;
 	}

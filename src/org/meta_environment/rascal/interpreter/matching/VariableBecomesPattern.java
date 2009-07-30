@@ -5,7 +5,7 @@ import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeR
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.meta_environment.rascal.interpreter.EvaluatorContext;
+import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
@@ -15,7 +15,7 @@ public class VariableBecomesPattern extends AbstractMatchingResult {
 	private String name;
 	private IMatchingResult pat;
 
-	public VariableBecomesPattern(IValueFactory vf, EvaluatorContext ctx, 
+	public VariableBecomesPattern(IValueFactory vf, IEvaluatorContext ctx, 
 			org.meta_environment.rascal.ast.Name aname, IMatchingResult pat){
 		super(vf, ctx);
 		this.name = Names.name(aname);

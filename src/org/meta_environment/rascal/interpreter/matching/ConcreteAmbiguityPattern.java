@@ -4,13 +4,13 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.Expression.CallOrTree;
-import org.meta_environment.rascal.interpreter.EvaluatorContext;
+import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
 
 class ConcreteAmbiguityPattern extends AbstractMatchingResult {
 
 	public ConcreteAmbiguityPattern(IValueFactory vf,
-			EvaluatorContext ctx, CallOrTree x,
+			IEvaluatorContext ctx, CallOrTree x,
 			java.util.List<AbstractBooleanResult> args) {
 		super(vf, ctx);
 	}

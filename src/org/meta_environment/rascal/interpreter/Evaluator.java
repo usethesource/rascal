@@ -43,7 +43,6 @@ import org.meta_environment.rascal.ast.Bound;
 import org.meta_environment.rascal.ast.Case;
 import org.meta_environment.rascal.ast.Catch;
 import org.meta_environment.rascal.ast.Declaration;
-import org.meta_environment.rascal.ast.Declarator;
 import org.meta_environment.rascal.ast.Expression;
 import org.meta_environment.rascal.ast.Field;
 import org.meta_environment.rascal.ast.FunctionDeclaration;
@@ -209,7 +208,7 @@ import org.meta_environment.uptr.SymbolAdapter;
 import org.meta_environment.uptr.TreeAdapter;
 
 @SuppressWarnings("unchecked")
-public class Evaluator extends NullASTVisitor<Result<IValue>> {
+public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvaluatorContext {
 	public final IValueFactory vf;
 	public final TypeFactory tf = TypeFactory.getInstance();
 	private final TypeEvaluator te = TypeEvaluator.getInstance();
@@ -443,7 +442,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		if (v != null) {
 			checkType(v.getType(), instance);
 		}
-		return makeResult(instance, v, makeEvContext());
+		return makeResult(instance, v, this);
 	}
 
 
@@ -496,16 +495,15 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		return env;
 	}
 	
-	void unwind(Environment old) {
+	public void unwind(Environment old) {
 		while (getCurrentEnvt() != old) {
 			goodPopEnv();
 		}
 	}
 
-	public Environment goodPushEnv() {
+	public void goodPushEnv() {
 		Environment env = new Environment(getCurrentEnvt(), getCurrentEnvt().getName());
 		setCurrentEnvt(env);
-		return env;
 	}
 
 	public Environment goodPopEnv() {
@@ -836,7 +834,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 					Map<Type,Type> bindings = new HashMap<Type,Type>();
 					declaredType.match(v.getType(), bindings);
 					declaredType = declaredType.instantiate(getCurrentEnvt().getStore(), bindings);
-					r = makeResult(declaredType, v.getValue(), makeEvContext());
+					r = makeResult(declaredType, v.getValue(), this);
 					getCurrentModuleEnvironment().storeInnermostVariable(var.getName(), r);
 				} else {
 					throw new UnexpectedTypeError(declaredType, v.getType(), var);
@@ -885,7 +883,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	}
 
 	private PatternEvaluator makePatternEvaluator(AbstractAST ast) {
-		return new PatternEvaluator(vf, new EvaluatorContext(this, ast));
+		return new PatternEvaluator(vf, this);
 	}
 
 	@Override
@@ -932,7 +930,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 					declaredType.match(v.getType(), bindings);
 					declaredType = declaredType.instantiate(getCurrentEnvt().getStore(), bindings);
 					// Was: r = makeResult(declaredType, applyRules(v.getValue()));
-					r = makeResult(declaredType, v.getValue(), new EvaluatorContext(this, var));
+					r = makeResult(declaredType, v.getValue(), this);
 					getCurrentEnvt().storeVariable(var.getName(), r);
 				} else {
 					throw new UnexpectedTypeError(declaredType, v.getType(), var);
@@ -1122,7 +1120,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 				candidate = getCurrentEnvt().getConstructor(sortType, cons, signature);
 			}
 			else {
-				return applyRules(ResultFactory.makeResult(tf.nodeType(), vf.node(cons, actuals), makeEvContext()));
+				return applyRules(ResultFactory.makeResult(tf.nodeType(), vf.node(cons, actuals), this));
 			}
 		}
 
@@ -1132,20 +1130,16 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			candidate.getFieldTypes().match(tf.tupleType(actuals), localBindings);
 
 			Result<IValue> afterRules = applyRules(ResultFactory.makeResult(candidate.getAbstractDataType(), candidate.make(vf, actuals), 
-					makeEvContext()));
+					this));
 			result = makeResult(candidate.getAbstractDataType().instantiate(new TypeStore(), localBindings), 
-					afterRules.getValue(), makeEvContext());
+					afterRules.getValue(), this);
 		}
 		else {
-			result = applyRules(makeResult(tf.nodeType(), vf.node(cons, actuals), makeEvContext()));
+			result = applyRules(makeResult(tf.nodeType(), vf.node(cons, actuals), this));
 		}
 
 		declareConcreteSyntaxType(result.getValue());
 		return detectConcreteSyntaxTree(result);
-	}
-
-	private EvaluatorContext makeEvContext() {
-		return new EvaluatorContext(this, getCurrentAST());
 	}
 
 	private <T extends IValue> Result<T> detectConcreteSyntaxTree(Result<T> result) {
@@ -1156,7 +1150,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			if (cons == Factory.Tree_Appl || cons == Factory.Tree_Amb) {
 				TreeAdapter adapter = new TreeAdapter(tree);
 				if (adapter.isAppl() && adapter.getProduction().getRhs().isCf()) {
-					return (Result<T>) new ConcreteSyntaxResult(new ConcreteSyntaxType((IConstructor) result.getValue()), (IConstructor) result.getValue(), makeEvContext());
+					return (Result<T>) new ConcreteSyntaxResult(new ConcreteSyntaxType((IConstructor) result.getValue()), (IConstructor) result.getValue(), this);
 				}
 			}
 		}
@@ -1250,7 +1244,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			Expression subsExpr = x.getSubscripts().get(i);
 			subscripts[i] = isWildCard(subsExpr.toString()) ? null : subsExpr.accept(this);
 		}
-		return expr.subscript(subscripts, new EvaluatorContext(this, x));
+		return expr.subscript(subscripts, this);
 	}
 
 	@Override
@@ -1258,7 +1252,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			org.meta_environment.rascal.ast.Expression.FieldAccess x) {
 		Result<IValue> expr = x.getExpression().accept(this);
 		String field = x.getField().toString();
-		return expr.fieldAccess(field, getCurrentEnvt().getStore(), new EvaluatorContext(this, x));
+		return expr.fieldAccess(field, getCurrentEnvt().getStore(), this);
 	}
 
 	private boolean isWildCard(String fieldName){
@@ -1303,7 +1297,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			Type resultType = nFields == 1 ? fieldTypes[0] : tf.tupleType(fieldTypes);
 
 			// Was: return makeResult(resultType, applyRules(((ITuple)base.getValue()).select(selectedFields)));
-			return makeResult(resultType, ((ITuple)base.getValue()).select(selectedFields), makeEvContext());
+			return makeResult(resultType, ((ITuple)base.getValue()).select(selectedFields), this);
 		}
 		if(base.getType().isRelationType()){
 
@@ -1334,7 +1328,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			Type resultType = nFields == 1 ? tf.setType(fieldTypes[0]) : tf.relType(fieldTypes);
 
 			//return makeResult(resultType, applyRules(((IRelation)base.getValue()).select(selectedFields)));	
-			return makeResult(resultType, ((IRelation)base.getValue()).select(selectedFields), makeEvContext());	
+			return makeResult(resultType, ((IRelation)base.getValue()).select(selectedFields), this);	
 		}
 
 		throw new UnsupportedOperationError("projection", base.getType(), x);
@@ -1410,7 +1404,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 				} 
 
 				// TODO: Throw should contain Result<IValue> instead of IValue
-				if(matchAndEval(makeResult(eValue.getType(), eValue, makeEvContext()), c.getPattern(), c.getBody())){
+				if(matchAndEval(makeResult(eValue.getType(), eValue, this), c.getPattern(), c.getBody())){
 					break;
 				}
 			}
@@ -1472,7 +1466,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		if (receiver.getType().isTupleType()) {
 			IValue result = ((ITuple) receiver.getValue()).get(label);
 			Type type = ((ITuple) receiver.getValue()).getType().getFieldType(label);
-			return makeResult(type, result, new EvaluatorContext(this, x));
+			return makeResult(type, result, this);
 		}
 		else if (receiver.getType().isConstructorType() || receiver.getType().isAbstractDataType()) {
 			IConstructor cons = (IConstructor) receiver.getValue();
@@ -1487,7 +1481,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			}
 
 			int index = node.getFieldIndex(label);
-			return makeResult(node.getFieldType(index), cons.get(index), new EvaluatorContext(this, x));
+			return makeResult(node.getFieldType(index), cons.get(index), this);
 		}
 		else {
 			throw new UndeclaredFieldError(label, receiver.getType(), x);
@@ -1507,7 +1501,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		Type type = getCurrentEnvt().getAnnotationType(receiver.getType(), label);
 		IValue value = ((IConstructor) receiver.getValue()).getAnnotation(label);
 
-		return makeResult(type, value, new EvaluatorContext(this, x));
+		return makeResult(type, value, this);
 	}
 
 	@Override
@@ -1543,7 +1537,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			if (subscript.getType().isSubtypeOf(keyType)) {
 				IValue result = ((IMap) receiver.getValue()).get(subscript.getValue());
 				Type type = receiver.getType().getValueType();
-				return makeResult(type, result, new EvaluatorContext(this, x));
+				return makeResult(type, result, this);
 			}
 
 			throw new UnexpectedTypeError(keyType, subscript.getType(), x);
@@ -1798,7 +1792,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			throw new AmbiguousConcretePattern(pat);
 		}
 
-		BooleanEvaluator pe = new BooleanEvaluator(vf, makeEvContext());
+		BooleanEvaluator pe = new BooleanEvaluator(vf, this);
 		return pat.accept(pe);
 	}
 
@@ -1817,20 +1811,20 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	@Override
 	public Result<IValue> visitLiteralReal(Real x) {
 		String str = x.getRealLiteral().toString();
-		return makeResult(tf.realType(), vf.real(str), new EvaluatorContext(this, x));
+		return makeResult(tf.realType(), vf.real(str), this);
 	}
 
 	@Override
 	public Result<IValue> visitLiteralBoolean(Boolean x) {
 		String str = x.getBooleanLiteral().toString();
-		return makeResult(tf.boolType(), vf.bool(str.equals("true")), new EvaluatorContext(this, x));
+		return makeResult(tf.boolType(), vf.bool(str.equals("true")), this);
 	}
 
 	@Override
 	public Result<IValue> visitLiteralString(
 			org.meta_environment.rascal.ast.Literal.String x) {
 		String str = ((StringLiteral.Lexical) x.getStringLiteral()).getString();
-		return makeResult(tf.stringType(), vf.string(unescape(str, x, getCurrentEnvt())), new EvaluatorContext(this, x));
+		return makeResult(tf.stringType(), vf.string(unescape(str, x, getCurrentEnvt())), this);
 	}
 
 
@@ -1839,7 +1833,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	public Result<IValue> visitIntegerLiteralDecimalIntegerLiteral(
 			DecimalIntegerLiteral x) {
 		String str = ((org.meta_environment.rascal.ast.DecimalIntegerLiteral.Lexical) x.getDecimal()).getString();
-		return makeResult(tf.integerType(), vf.integer(str), new EvaluatorContext(this, x));
+		return makeResult(tf.integerType(), vf.integer(str), this);
 	}
 
 	@Override
@@ -1997,7 +1991,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		IListWriter w = resultType.writer(vf);
 		w.appendAll(results);
 		// Was: return makeResult(resultType, applyRules(w.done()));
-		return makeResult(resultType, w.done(), new EvaluatorContext(this, x));
+		return makeResult(resultType, w.done(), this);
 	}
 
 	@Override
@@ -2028,7 +2022,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		ISetWriter w = resultType.writer(vf);
 		w.insertAll(results);
 		//Was: return makeResult(resultType, applyRules(w.done()));
-		return makeResult(resultType, w.done(), new EvaluatorContext(this, x));
+		return makeResult(resultType, w.done(), this);
 	}
 
 	@Override
@@ -2056,7 +2050,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		w.putAll(result);
 
 		//return makeResult(type, applyRules(w.done()));
-		return makeResult(type, w.done(), new EvaluatorContext(this, x));
+		return makeResult(type, w.done(), this);
 	}
 
 	@Override
@@ -2079,7 +2073,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		}
 
 		//return makeResult(tf.tupleType(types), applyRules(vf.tuple(values)));
-		return makeResult(tf.tupleType(types), vf.tuple(values), new EvaluatorContext(this, x));
+		return makeResult(tf.tupleType(types), vf.tuple(values), this);
 	}
 
 	@Override
@@ -2087,7 +2081,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			org.meta_environment.rascal.ast.Expression.GetAnnotation x) {
 		Result<IValue> base = x.getExpression().accept(this);
 		String annoName = x.getName().toString();
-		return base.getAnnotation(annoName, getCurrentEnvt(), new EvaluatorContext(this, x));
+		return base.getAnnotation(annoName, getCurrentEnvt(), this);
 	}
 
 	@Override
@@ -2096,14 +2090,14 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		Result<IValue> base = x.getExpression().accept(this);
 		String annoName = x.getName().toString();
 		Result<IValue> anno = x.getValue().accept(this);
-		return base.setAnnotation(annoName, anno, getCurrentEnvt(), new EvaluatorContext(this, x));
+		return base.setAnnotation(annoName, anno, getCurrentEnvt(), this);
 	}
 
 	@Override
 	public Result<IValue> visitExpressionAddition(Addition x) {
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
-		return left.add(right, new EvaluatorContext(this, x));
+		return left.add(right, this);
 
 	}
 
@@ -2111,42 +2105,42 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	public Result<IValue> visitExpressionSubtraction(Subtraction x) {
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
-		return left.subtract(right, new EvaluatorContext(this, x));
+		return left.subtract(right, this);
 
 	}
 
 	@Override
 	public Result<IValue> visitExpressionNegative(Negative x) {
 		Result<IValue> arg = x.getArgument().accept(this);
-		return arg.negative(new EvaluatorContext(this, x));
+		return arg.negative(this);
 	}
 
 	@Override
 	public Result<IValue> visitExpressionProduct(Product x) {
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
-		return left.multiply(right, new EvaluatorContext(this, x));
+		return left.multiply(right, this);
 	}
 
 	@Override
 	public Result<IValue> visitExpressionJoin(Join x) {
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
-		return left.join(right, new EvaluatorContext(this, x));
+		return left.join(right, this);
 	}
 
 	@Override
 	public Result<IValue> visitExpressionDivision(Division x) {
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
-		return left.divide(right, new EvaluatorContext(this, x));
+		return left.divide(right, this);
 	}
 
 	@Override
 	public Result<IValue> visitExpressionModulo(Modulo x) {
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
-		return left.modulo(right, new EvaluatorContext(this, x));
+		return left.modulo(right, this);
 	}
 
 	@Override
@@ -2158,7 +2152,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	public Result<IValue> visitExpressionIntersection(Intersection x) {
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
-		return left.intersect(right, new EvaluatorContext(this, x));
+		return left.intersect(right, this);
 	}
 
 	@Override
@@ -2202,7 +2196,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			org.meta_environment.rascal.ast.Expression.Equals x) {
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
-		return left.equals(right, new EvaluatorContext(this, x));
+		return left.equals(right, this);
 	}
 
 	@Override
@@ -2237,7 +2231,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		try {
 			URL url = new URL(urlText);
 			ISourceLocation r = vf.sourceLocation(url, iOffset, iLength, iBeginLine, iEndLine, iBeginColumn, iEndColumn);
-			return makeResult(tf.sourceLocationType(), r, new EvaluatorContext(this, x));
+			return makeResult(tf.sourceLocationType(), r, this);
 		} catch (MalformedURLException e){
 			throw new SyntaxError("location (malformed URL)", x.getLocation());
 		}
@@ -2261,7 +2255,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		Result<IValue> expr = x.getExpression().accept(this);
 		Result<IValue> repl = x.getReplacement().accept(this);
 		String name = x.getKey().toString();
-		return expr.fieldUpdate(name, repl, getCurrentEnvt().getStore(), new EvaluatorContext(this, x));
+		return expr.fieldUpdate(name, repl, getCurrentEnvt().getStore(), this);
 	}
 
 
@@ -2275,7 +2269,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		//IListWriter w = vf.listWriter(tf.integerType());
 		Result<IValue> from = x.getFirst().accept(this);
 		Result<IValue> to = x.getLast().accept(this);
-		return from.makeRange(to, new EvaluatorContext(this, x));
+		return from.makeRange(to, this);
 	}
 
 	@Override
@@ -2283,7 +2277,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		Result<IValue> from = x.getFirst().accept(this);
 		Result<IValue> to = x.getLast().accept(this);
 		Result<IValue> second = x.getSecond().accept(this);
-		return from.makeStepRange(to, second, new EvaluatorContext(this, x));
+		return from.makeStepRange(to, second, this);
 	}
 
 	@Override
@@ -2612,7 +2606,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 				//System.err.println("cursor = " + cursor);
 				try {
 					IString substring = vf.string(subjectString.substring(cursor, len));
-					Result<IValue> subresult  = ResultFactory.makeResult(tf.stringType(), substring, makeEvContext());
+					Result<IValue> subresult  = ResultFactory.makeResult(tf.stringType(), substring, this);
 					TraverseResult tr = applyCasesOrRules(subresult, casesOrRules);
 					matched |= tr.matched;
 					changed |= tr.changed;
@@ -2665,7 +2659,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			res.append(subjectString.charAt(cursor));
 		}
 
-		return new TraverseResult(matched, ResultFactory.makeResult(tf.stringType(), vf.string(res.toString()), makeEvContext()), changed);
+		return new TraverseResult(matched, ResultFactory.makeResult(tf.stringType(), vf.string(res.toString()), this), changed);
 	}
 
 	/*
@@ -2705,13 +2699,13 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 				for(int i = 0; i < cons.arity(); i++){
 					IValue child = cons.get(i);
 //					Type childType = cons.getConstructorType().getFieldType(i);
-					TraverseResult tr = traverseOnce(ResultFactory.makeResult(child.getType(), child, makeEvContext()), casesOrRules, direction, progress);
+					TraverseResult tr = traverseOnce(ResultFactory.makeResult(child.getType(), child, this), casesOrRules, direction, progress);
 					matched |= tr.matched;
 					changed |= tr.changed;
 					args[i] = tr.value.getValue();
 				}
 				IConstructor rcons = vf.constructor(cons.getConstructorType(), args);
-				result = applyRules(makeResult(subjectType, rcons.setAnnotations(cons.getAnnotations()), makeEvContext()));
+				result = applyRules(makeResult(subjectType, rcons.setAnnotations(cons.getAnnotations()), this));
 			}
 		} else
 			if(subjectType.isNodeType()){
@@ -2723,12 +2717,12 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 					for(int i = 0; i < node.arity(); i++){
 						IValue child = node.get(i);
-						TraverseResult tr = traverseOnce(ResultFactory.makeResult(child.getType(), child, makeEvContext()), casesOrRules, direction, progress);
+						TraverseResult tr = traverseOnce(ResultFactory.makeResult(child.getType(), child, this), casesOrRules, direction, progress);
 						matched |= tr.matched;
 						changed |= tr.changed;
 						args[i] = tr.value.getValue();
 					}
-					result = applyRules(makeResult(tf.nodeType(), vf.node(node.getName(), args).setAnnotations(node.getAnnotations()), makeEvContext()));
+					result = applyRules(makeResult(tf.nodeType(), vf.node(node.getName(), args).setAnnotations(node.getAnnotations()), this));
 				}
 			} else
 				if(subjectType.isListType()){
@@ -2740,12 +2734,12 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 						
 						for(int i = len - 1; i >= 0; i--){
 							IValue elem = list.get(i);
-							TraverseResult tr = traverseOnce(ResultFactory.makeResult(elemType, elem, makeEvContext()), casesOrRules, direction, progress);
+							TraverseResult tr = traverseOnce(ResultFactory.makeResult(elemType, elem, this), casesOrRules, direction, progress);
 							matched |= tr.matched;
 							changed |= tr.changed;
 							w.insert(tr.value.getValue());
 						}
-						result = makeResult(subjectType, w.done(), makeEvContext());
+						result = makeResult(subjectType, w.done(), this);
 					} else {
 						result = subject;
 					}
@@ -2757,12 +2751,12 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 							Type elemType = set.getType().getElementType();
 							
 							for (IValue v : set){
-								TraverseResult tr = traverseOnce(ResultFactory.makeResult(elemType, v, makeEvContext()), casesOrRules, direction, progress);
+								TraverseResult tr = traverseOnce(ResultFactory.makeResult(elemType, v, this), casesOrRules, direction, progress);
 								matched |= tr.matched;
 								changed |= tr.changed;
 								w.insert(tr.value.getValue());
 							}
-							result = makeResult(subjectType, w.done(), makeEvContext());
+							result = makeResult(subjectType, w.done(), this);
 						} else {
 							result = subject;
 						}
@@ -2777,17 +2771,17 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 
 								while (iter.hasNext()) {
 									Entry<IValue,IValue> entry = iter.next();
-									TraverseResult tr = traverseOnce(ResultFactory.makeResult(keyType, entry.getKey(), makeEvContext()), casesOrRules, direction, progress);
+									TraverseResult tr = traverseOnce(ResultFactory.makeResult(keyType, entry.getKey(), this), casesOrRules, direction, progress);
 									matched |= tr.matched;
 									changed |= tr.changed;
 									IValue newKey = tr.value.getValue();
-									tr = traverseOnce(ResultFactory.makeResult(valueType, entry.getValue(), makeEvContext()), casesOrRules, direction, progress);
+									tr = traverseOnce(ResultFactory.makeResult(valueType, entry.getValue(), this), casesOrRules, direction, progress);
 									matched |= tr.matched;
 									changed |= tr.changed;
 									IValue newValue = tr.value.getValue();
 									w.put(newKey, newValue);
 								}
-								result = makeResult(subjectType, w.done(), makeEvContext());
+								result = makeResult(subjectType, w.done(), this);
 							} else {
 								result = subject;
 							}
@@ -2798,12 +2792,12 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 								IValue args[] = new IValue[arity];
 								for(int i = 0; i < arity; i++){
 									Type fieldType = subjectType.getFieldType(i);
-									TraverseResult tr = traverseOnce(ResultFactory.makeResult(fieldType, tuple.get(i), makeEvContext()), casesOrRules, direction, progress);
+									TraverseResult tr = traverseOnce(ResultFactory.makeResult(fieldType, tuple.get(i), this), casesOrRules, direction, progress);
 									matched |= tr.matched;
 									changed |= tr.changed;
 									args[i] = tr.value.getValue();
 								}
-								result = makeResult(subjectType, vf.tuple(args), makeEvContext());
+								result = makeResult(subjectType, vf.tuple(args), this);
 							} else {
 								result = subject;
 							}
@@ -2980,7 +2974,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			org.meta_environment.rascal.ast.Expression.NonEquals x) {
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
-		return left.nonEquals(right, new EvaluatorContext(this, x));
+		return left.nonEquals(right, this);
 	}
 
 
@@ -2988,27 +2982,27 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	public Result<IValue> visitExpressionLessThan(LessThan x) {
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
-		return left.lessThan(right, new EvaluatorContext(this, x));
+		return left.lessThan(right, this);
 	}
 
 	@Override
 	public Result<IValue> visitExpressionLessThanOrEq(LessThanOrEq x) {
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
-		return left.lessThanOrEqual(right, new EvaluatorContext(this, x));
+		return left.lessThanOrEqual(right, this);
 	}
 	@Override
 	public Result<IValue> visitExpressionGreaterThan(GreaterThan x) {
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
-		return left.greaterThan(right, new EvaluatorContext(this, x));
+		return left.greaterThan(right, this);
 	}
 
 	@Override
 	public Result<IValue> visitExpressionGreaterThanOrEq(GreaterThanOrEq x) {
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
-		return left.greaterThanOrEqual(right, new EvaluatorContext(this, x));
+		return left.greaterThanOrEqual(right, this);
 	}
 
 	@Override
@@ -3047,11 +3041,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	public Result<IValue> visitExpressionIsDefined(IsDefined x) {
 		try {
 			x.getArgument().accept(this); // wait for exception
-			return makeResult(tf.boolType(), vf.bool(true), new EvaluatorContext(this, x));
+			return makeResult(tf.boolType(), vf.bool(true), this);
 
 		} catch (org.meta_environment.rascal.interpreter.control_exceptions.Throw e) {
 			// TODO For now we accept any Throw here, restrict to NoSuchKey and NoSuchAnno?
-			return makeResult(tf.boolType(), vf.bool(false), new EvaluatorContext(this, x));
+			return makeResult(tf.boolType(), vf.bool(false), this);
 		}
 	}
 
@@ -3060,35 +3054,31 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 	public Result<IValue> visitExpressionIn(In x) {
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
-		// TODO:?!?!!? makes this less obtrusive?
-		return right.in(left, new EvaluatorContext(this, x));
-		//return result(vf.bool(in(x.getLhs(), x.getRhs())));
+		return right.in(left, this);
 	}
 
 	@Override
 	public Result<IValue> visitExpressionNotIn(NotIn x) {
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
-		// TODO:?!?!!? makes this less obtrusive?
-		return right.notIn(left, new EvaluatorContext(this, x));
-		//return result(vf.bool(!in(x.getLhs(), x.getRhs())));
+		return right.notIn(left, this);
 	}
 
 	@Override
 	public Result<IValue> visitExpressionComposition(Composition x) {
 		Result<IValue> left = x.getLhs().accept(this);
 		Result<IValue> right = x.getRhs().accept(this);
-		return left.compose(right, new EvaluatorContext(this, x));
+		return left.compose(right, this);
 	}
 
 	@Override
 	public Result<IValue> visitExpressionTransitiveClosure(TransitiveClosure x) {
-		return x.getArgument().accept(this).transitiveClosure(new EvaluatorContext(this, x));
+		return x.getArgument().accept(this).transitiveClosure(this);
 	}
 
 	@Override
 	public Result<IValue> visitExpressionTransitiveReflexiveClosure(TransitiveReflexiveClosure x) {
-		return x.getArgument().accept(this).transitiveReflexiveClosure(new EvaluatorContext(this, x));
+		return x.getArgument().accept(this).transitiveReflexiveClosure(this);
 	}
 
 	// Comprehensions ----------------------------------------------------
@@ -3138,8 +3128,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 			}
 		}
 
-		public EvaluatorContext getContext(AbstractAST ast) {
-			return new EvaluatorContext(ev, ast);
+		public IEvaluatorContext getContext(AbstractAST ast) {
+			setCurrentAST(ast);
+			return Evaluator.this;
 		}
 
 		public abstract void append();
@@ -3557,5 +3548,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> {
 		throw new ImplementationError("should not be called in Evaluator but only in subclasses");
 	}
 
-
+	public Evaluator getEvaluator() {
+		return this;
+	}
 }

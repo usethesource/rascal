@@ -1,7 +1,7 @@
 package org.meta_environment.rascal.interpreter.matching;
 
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.meta_environment.rascal.interpreter.EvaluatorContext;
+import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
 
 /**
@@ -22,7 +22,7 @@ public class OrResult extends AbstractBooleanResult {
 	private final IBooleanResult left;
 	private final IBooleanResult right;
 
-	public OrResult(IValueFactory vf, EvaluatorContext ctx, IBooleanResult left, IBooleanResult right) {
+	public OrResult(IValueFactory vf, IEvaluatorContext ctx, IBooleanResult left, IBooleanResult right) {
 		super(vf, ctx);
 		this.left = left;
 		this.right = right;

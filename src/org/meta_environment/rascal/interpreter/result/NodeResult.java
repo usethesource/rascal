@@ -8,50 +8,50 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.INode;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.meta_environment.rascal.interpreter.EvaluatorContext;
+import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedSubscriptArityError;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 
 public class NodeResult extends ElementResult<INode> {
 
-	public NodeResult(Type type, INode node, EvaluatorContext ctx) {
+	public NodeResult(Type type, INode node, IEvaluatorContext ctx) {
 		super(type, node, ctx);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that, EvaluatorContext ctx) {
+	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that, IEvaluatorContext ctx) {
 		return that.equalToNode(this, ctx);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that, EvaluatorContext ctx) {
+	public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that, IEvaluatorContext ctx) {
 		return that.nonEqualToNode(this, ctx);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> result, EvaluatorContext ctx) {
+	public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> result, IEvaluatorContext ctx) {
 		return result.lessThanNode(this, ctx);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(Result<V> result, EvaluatorContext ctx) {
+	public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(Result<V> result, IEvaluatorContext ctx) {
 		return result.lessThanOrEqualNode(this, ctx);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> greaterThan(Result<V> result, EvaluatorContext ctx) {
+	public <U extends IValue, V extends IValue> Result<U> greaterThan(Result<V> result, IEvaluatorContext ctx) {
 		return result.greaterThanNode(this, ctx);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(Result<V> result, EvaluatorContext ctx) {
+	public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(Result<V> result, IEvaluatorContext ctx) {
 		return result.greaterThanOrEqualNode(this, ctx);
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts, EvaluatorContext ctx) {
+	public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts, IEvaluatorContext ctx) {
 		if (subscripts.length != 1) {
 			throw new UnsupportedSubscriptArityError(getType(), subscripts.length, ctx.getCurrentAST());
 		}
@@ -70,36 +70,36 @@ public class NodeResult extends ElementResult<INode> {
 	//////
 	
 	@Override
-	protected <U extends IValue> Result<U> lessThanNode(NodeResult that, EvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> lessThanNode(NodeResult that, IEvaluatorContext ctx) {
 		// note reversed args: we need that < this
 		return bool(that.comparisonInts(this, ctx) < 0);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> lessThanOrEqualNode(NodeResult that, EvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> lessThanOrEqualNode(NodeResult that, IEvaluatorContext ctx) {
 		// note reversed args: we need that <= this
 		return bool(that.comparisonInts(this, ctx) <= 0);
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> greaterThanNode(NodeResult that, EvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> greaterThanNode(NodeResult that, IEvaluatorContext ctx) {
 		// note reversed args: we need that > this
 		return bool(that.comparisonInts(this, ctx) > 0);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> greaterThanOrEqualNode(NodeResult that, EvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> greaterThanOrEqualNode(NodeResult that, IEvaluatorContext ctx) {
 		// note reversed args: we need that >= this
 		return bool(that.comparisonInts(this, ctx) >= 0);
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> equalToNode(NodeResult that, EvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> equalToNode(NodeResult that, IEvaluatorContext ctx) {
 		return that.equalityBoolean(this, ctx);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> nonEqualToNode(NodeResult that, EvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> nonEqualToNode(NodeResult that, IEvaluatorContext ctx) {
 		return that.nonEqualityBoolean(this);
 	}
 	

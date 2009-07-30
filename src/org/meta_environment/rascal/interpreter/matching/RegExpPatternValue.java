@@ -16,7 +16,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.AbstractAST;
-import org.meta_environment.rascal.interpreter.EvaluatorContext;
+import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.asserts.NotYetImplemented;
 import org.meta_environment.rascal.interpreter.env.Environment;
@@ -47,7 +47,7 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 	private boolean firstTime;
 	
 	
-	public RegExpPatternValue(IValueFactory vf, EvaluatorContext ctx, String s){
+	public RegExpPatternValue(IValueFactory vf, IEvaluatorContext ctx, String s){
 		super(vf, ctx);
 		RegExpAsString = s;
 	//	modifier = null;
@@ -56,7 +56,7 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 		firstTime = true;
 	}
 	
-	public RegExpPatternValue(IValueFactory vf, EvaluatorContext ctx, AbstractAST ast, String s, Character mod, List<String> names) {
+	public RegExpPatternValue(IValueFactory vf, IEvaluatorContext ctx, AbstractAST ast, String s, Character mod, List<String> names) {
 		super(vf, ctx);
 		this.ast = ast;
 		RegExpAsString = (mod == null) ? s : "(?" + mod + ")" + s;
