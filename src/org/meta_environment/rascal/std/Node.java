@@ -71,4 +71,10 @@ public class Node {
 
 		}
 	}
+	
+	public static IValue toString(INode T)
+	//@doc{toString -- convert a node to a string}
+	{
+		return values.string(T.toString());
+	}
 }
