@@ -4,6 +4,8 @@ import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeR
 
 import java.util.Iterator;
 
+import org.eclipse.imp.pdb.facts.IList;
+import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -50,6 +52,8 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	private static final String COMPOSE_STRING = "composition";
 	private static final String NEGATE_STRING = "negation";
 	private static final String JOIN_STRING = "join";
+	private static final String CALL_STRING = "call";
+	
 	private Iterator<Result<IValue>> iterator = null;
 	protected Type type;
 	protected T value;
@@ -136,6 +140,9 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	
 	///////
 	
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues, IEvaluatorContext ctx) {
+		return undefinedError(CALL_STRING, this, ctx);
+	}
 	
 	
 	public <U extends IValue, V extends IValue> Result<U> add(Result<V> that, IEvaluatorContext ctx) {

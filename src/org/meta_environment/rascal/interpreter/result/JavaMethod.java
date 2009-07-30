@@ -32,6 +32,41 @@ public class JavaMethod extends Lambda {
 	}
 	
 	@Override
+	public Result<IValue> call(Type[] actualTypes, IValue[] actuals,
+			IEvaluatorContext ctx) {
+		Type actualTypesTuple;
+		
+		if (hasVarArgs) {
+			actuals = computeVarArgsActuals(actuals, formals);
+		}
+		
+		if (callTracing) {
+			printStartTrace();
+		}
+
+		try {
+			IValue result = invoke(actuals);
+
+			if (hasVarArgs) {
+				actualTypesTuple = computeVarArgsActualTypes(actualTypes, formals);
+			}
+			else {
+				actualTypesTuple = TF.tupleType(actualTypes);
+			}
+
+			Environment env = ctx.getCurrentEnvt();
+			bindTypeParameters(actualTypesTuple, formals, env); 
+			Type resultType = returnType.instantiate(env.getStore(), env.getTypeBindings());
+			return ResultFactory.makeResult(resultType, result, eval);
+		}
+		finally {
+			if (callTracing) {
+				printEndTrace();
+			}
+		}
+	}
+	
+	@Override @Deprecated
 	public Result<IValue> call(IValue[] actuals, Type actualTypes, Environment env) {
 		if (hasVarArgs) {
 			actuals = computeVarArgsActuals(actuals, formals);
