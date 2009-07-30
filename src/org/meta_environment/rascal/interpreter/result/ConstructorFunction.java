@@ -23,6 +23,7 @@ public class ConstructorFunction extends Lambda {
 	@Override
 	public Result<IValue> call(Type[] actualTypes, IValue[] actuals,
 			IEvaluatorContext ctx) {
+		// TODO: the actual construction of the tree before applying rules should be avoided here!
 		return te.applyRules(makeResult(constructorType, constructorType.make(getValueFactory(), actuals), ctx), ctx);
 	}
 }
