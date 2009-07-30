@@ -4,7 +4,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.Expression;
-import org.meta_environment.rascal.interpreter.EvaluatorContext;
+import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.PatternEvaluator;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
@@ -16,7 +16,7 @@ public class MatchResult extends AbstractBooleanResult {
 	private boolean firstTime;
 	private Expression pattern;
 	
-	public MatchResult(IValueFactory vf, EvaluatorContext ctx, Expression pattern, boolean positive, Expression expression) {
+	public MatchResult(IValueFactory vf, IEvaluatorContext ctx, Expression pattern, boolean positive, Expression expression) {
 		super(vf, ctx);
     	this.positive = positive;
     	this.pattern = pattern;

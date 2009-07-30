@@ -8,89 +8,89 @@ import org.eclipse.imp.pdb.facts.ISetWriter;
 import org.eclipse.imp.pdb.facts.ITuple;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.meta_environment.rascal.interpreter.EvaluatorContext;
+import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 
 public class SetResult extends SetOrRelationResult<ISet> {
 
-	public SetResult(Type type, ISet set, EvaluatorContext ctx) {
+	public SetResult(Type type, ISet set, IEvaluatorContext ctx) {
 		super(type, set, ctx);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> add(Result<V> result, EvaluatorContext ctx) {
+	public <U extends IValue, V extends IValue> Result<U> add(Result<V> result, IEvaluatorContext ctx) {
 		return result.addSet(this, ctx);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> subtract(Result<V> result, EvaluatorContext ctx) {
+	public <U extends IValue, V extends IValue> Result<U> subtract(Result<V> result, IEvaluatorContext ctx) {
 		return result.subtractSet(this, ctx);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> multiply(Result<V> result, EvaluatorContext ctx) {
+	public <U extends IValue, V extends IValue> Result<U> multiply(Result<V> result, IEvaluatorContext ctx) {
 		return result.multiplySet(this, ctx);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> join(Result<V> that, EvaluatorContext ctx) {
+	public <U extends IValue, V extends IValue> Result<U> join(Result<V> that, IEvaluatorContext ctx) {
 		return that.joinSet(this, ctx);
 	}
 	
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> intersect(Result<V> result, EvaluatorContext ctx) {
+	public <U extends IValue, V extends IValue> Result<U> intersect(Result<V> result, IEvaluatorContext ctx) {
 		return result.intersectSet(this, ctx);
 	}
 	
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> in(Result<V> result, EvaluatorContext ctx) {
+	public <U extends IValue, V extends IValue> Result<U> in(Result<V> result, IEvaluatorContext ctx) {
 		return result.inSet(this, ctx);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> notIn(Result<V> result, EvaluatorContext ctx) {
+	public <U extends IValue, V extends IValue> Result<U> notIn(Result<V> result, IEvaluatorContext ctx) {
 		return result.notInSet(this, ctx);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that, EvaluatorContext ctx) {
+	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that, IEvaluatorContext ctx) {
 		return that.equalToSet(this, ctx);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that, EvaluatorContext ctx) {
+	public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that, IEvaluatorContext ctx) {
 		return that.nonEqualToSet(this, ctx);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> that, EvaluatorContext ctx) {
+	public <U extends IValue, V extends IValue> Result<U> lessThan(Result<V> that, IEvaluatorContext ctx) {
 		return that.lessThanSet(this, ctx);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(Result<V> that, EvaluatorContext ctx) {
+	public <U extends IValue, V extends IValue> Result<U> lessThanOrEqual(Result<V> that, IEvaluatorContext ctx) {
 		return that.lessThanOrEqualSet(this, ctx);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> greaterThan(Result<V> that, EvaluatorContext ctx) {
+	public <U extends IValue, V extends IValue> Result<U> greaterThan(Result<V> that, IEvaluatorContext ctx) {
 		return that.greaterThanSet(this, ctx);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(Result<V> that, EvaluatorContext ctx) {
+	public <U extends IValue, V extends IValue> Result<U> greaterThanOrEqual(Result<V> that, IEvaluatorContext ctx) {
 		return that.greaterThanOrEqualSet(this, ctx);
 	}
 
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> result, EvaluatorContext ctx) {
+	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> result, IEvaluatorContext ctx) {
 		return result.compareSet(this, ctx);
 	}
 	
 	@Override
-	protected <U extends IValue> Result<U> joinRelation(RelationResult that, EvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> joinRelation(RelationResult that, IEvaluatorContext ctx) {
 		// Note the reverse of arguments, we need "that join this"
 		int arity1 = that.getValue().arity();
 		Type eltType = getType().getElementType();
@@ -117,7 +117,7 @@ public class SetResult extends SetOrRelationResult<ISet> {
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> joinSet(SetResult that, EvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> joinSet(SetResult that, IEvaluatorContext ctx) {
 		// Note the reverse of arguments, we need "that join this"
 		// join between sets degenerates to product
 		Type tupleType = getTypeFactory().tupleType(that.getType().getElementType(), 

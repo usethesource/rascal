@@ -72,11 +72,11 @@ import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariabl
 
 public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> {
 	private final IValueFactory vf;
-	private final EvaluatorContext ctx;
+	private final IEvaluatorContext ctx;
 	private final TypeFactory tf = TypeFactory.getInstance();
 	private final PatternEvaluator pe;
 
-	public BooleanEvaluator(IValueFactory vf, EvaluatorContext ctx) {
+	public BooleanEvaluator(IValueFactory vf, IEvaluatorContext ctx) {
 		this.vf = vf;
 		this.ctx = ctx;
 		this.pe = new PatternEvaluator(vf, ctx);

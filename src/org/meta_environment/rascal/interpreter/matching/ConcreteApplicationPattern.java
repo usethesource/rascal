@@ -7,7 +7,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.Expression;
 import org.meta_environment.rascal.ast.Expression.CallOrTree;
-import org.meta_environment.rascal.interpreter.EvaluatorContext;
+import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.types.ConcreteSyntaxType;
@@ -21,11 +21,11 @@ public class ConcreteApplicationPattern extends AbstractMatchingResult {
 	private Expression.CallOrTree callOrTree;
 
 	public ConcreteApplicationPattern(IValueFactory vf,
-			EvaluatorContext ctx, CallOrTree x,
+			IEvaluatorContext ctx, CallOrTree x,
 			List<IMatchingResult> list) {
 		super(vf, ctx);
 		org.meta_environment.rascal.ast.QualifiedName N = x.getExpression().getQualifiedName();
-		pat = new NodePattern(vf, new EvaluatorContext(ctx.getEvaluator(), x), null, N, list);
+		pat = new NodePattern(vf, ctx, null, N, list);
 		callOrTree = x;
 	}
 

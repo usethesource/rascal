@@ -10,7 +10,6 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.FunctionDeclaration.Abstract;
 import org.meta_environment.rascal.interpreter.Evaluator;
-import org.meta_environment.rascal.interpreter.EvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.load.ModuleLoader;
@@ -44,7 +43,7 @@ public class FileParserFunction extends ParserFunction {
 			IConstructor tree = (IConstructor) new ParsetreeAdapter(ptree).getTop().getArgs().get(1);
 			Type resultType = returnType.instantiate(env.getStore(), env.getTypeBindings());
 			
-			return ResultFactory.makeResult(resultType, tree, new EvaluatorContext(eval, ast));
+			return ResultFactory.makeResult(resultType, tree, eval);
 		}
 		catch (IllegalArgumentException e) {
 			throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), getAst(),

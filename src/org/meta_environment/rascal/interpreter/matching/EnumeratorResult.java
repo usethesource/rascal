@@ -12,7 +12,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.Expression;
 import org.meta_environment.rascal.ast.Strategy;
-import org.meta_environment.rascal.interpreter.EvaluatorContext;
+import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
@@ -35,7 +35,7 @@ public class EnumeratorResult extends AbstractMatchingResult {
 	 * Constructor for a standard enumerator
 	 */
 	
-	public EnumeratorResult(IValueFactory vf, EvaluatorContext ctx, IMatchingResult matchPattern, Strategy strategy, Expression expression){
+	public EnumeratorResult(IValueFactory vf, IEvaluatorContext ctx, IMatchingResult matchPattern, Strategy strategy, Expression expression){
 		super(vf, ctx);
 		this.pat = matchPattern;
 		this.strategy = strategy;

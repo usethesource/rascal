@@ -6,7 +6,7 @@ import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.meta_environment.rascal.interpreter.EvaluatorContext;
+import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.uptr.ProductionAdapter;
 import org.meta_environment.uptr.TreeAdapter;
@@ -17,17 +17,17 @@ import static org.meta_environment.rascal.interpreter.result.ResultFactory.bool;
 public class ConcreteSyntaxResult extends ConstructorResult {
 
 	public ConcreteSyntaxResult(Type type, IConstructor cons,
-			EvaluatorContext ctx) {
+			IEvaluatorContext ctx) {
 		super(type, cons, ctx);
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that, EvaluatorContext ctx) {
+	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that, IEvaluatorContext ctx) {
 		return that.equalToConcreteSyntax(this, ctx);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that, EvaluatorContext ctx) {
+	public <U extends IValue, V extends IValue> Result<U> nonEquals(Result<V> that, IEvaluatorContext ctx) {
 		return that.nonEqualToConcreteSyntax(this, ctx);
 	}
 	
@@ -42,7 +42,7 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 	@SuppressWarnings("unchecked")
 	@Override
 	protected <U extends IValue> Result<U> equalToConcreteSyntax(
-			ConcreteSyntaxResult that, EvaluatorContext ctx) {
+			ConcreteSyntaxResult that, IEvaluatorContext ctx) {
 		IConstructor left = this.getValue();
 		IConstructor right = that.getValue();
 		

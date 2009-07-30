@@ -11,7 +11,7 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
-import org.meta_environment.rascal.interpreter.EvaluatorContext;
+import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFieldError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
@@ -19,18 +19,18 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 
 public class SourceLocationResult extends ElementResult<ISourceLocation> {
 
-	protected SourceLocationResult(Type type, ISourceLocation loc, EvaluatorContext ctx) {
+	protected SourceLocationResult(Type type, ISourceLocation loc, IEvaluatorContext ctx) {
 		super(type, loc, ctx);
 	}
 
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that, EvaluatorContext ctx) {
+	public <U extends IValue, V extends IValue> Result<U> equals(Result<V> that, IEvaluatorContext ctx) {
 		return that.equalToSourceLocation(this, ctx);
 	}
 
 	
 	@Override
-	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store, EvaluatorContext ctx) {
+	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store, IEvaluatorContext ctx) {
 		if (name.equals("length")) {
 			return makeResult(getTypeFactory().integerType(), getValueFactory()
 					.integer(getValue().getLength()), ctx);
@@ -65,7 +65,7 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(String name, Result<V> repl, TypeStore store, EvaluatorContext ctx) {
+	public <U extends IValue, V extends IValue> Result<U> fieldUpdate(String name, Result<V> repl, TypeStore store, IEvaluatorContext ctx) {
 		ISourceLocation loc = getValue();
 		int iLength = loc.getLength();
 		int iOffset = loc.getOffset();
@@ -124,19 +124,19 @@ public class SourceLocationResult extends ElementResult<ISourceLocation> {
 	}
 	
 	@Override
-	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> result, EvaluatorContext ctx) {
+	public <U extends IValue, V extends IValue> Result<U> compare(Result<V> result, IEvaluatorContext ctx) {
 		return result.compareSourceLocation(this, ctx);
 	}
 	
 	/////
 	
 	@Override
-	protected <U extends IValue> Result<U> equalToSourceLocation(SourceLocationResult that, EvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> equalToSourceLocation(SourceLocationResult that, IEvaluatorContext ctx) {
 		return that.equalityBoolean(this, ctx);
 	}
 
 	@Override
-	protected <U extends IValue> Result<U> compareSourceLocation(SourceLocationResult that, EvaluatorContext ctx) {
+	protected <U extends IValue> Result<U> compareSourceLocation(SourceLocationResult that, IEvaluatorContext ctx) {
 		// Note reverse of args
 		ISourceLocation left = that.getValue();
 		ISourceLocation right = this.getValue();

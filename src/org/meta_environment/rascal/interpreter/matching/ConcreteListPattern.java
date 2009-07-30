@@ -7,7 +7,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.Expression.CallOrTree;
-import org.meta_environment.rascal.interpreter.EvaluatorContext;
+import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.asserts.NotYetImplemented;
 import org.meta_environment.rascal.interpreter.env.Environment;
@@ -25,14 +25,14 @@ public class ConcreteListPattern extends AbstractMatchingResult {
 	private CallOrTree callOrTree;
 
 	public ConcreteListPattern(IValueFactory vf,
-			EvaluatorContext ctx, CallOrTree x, List<IMatchingResult> list) {
+			IEvaluatorContext ctx, CallOrTree x, List<IMatchingResult> list) {
 		super(vf, ctx);
 		callOrTree = x;
 		initListPatternDelegate(vf, ctx, list);
 	}
 
 	private void initListPatternDelegate(IValueFactory vf,
-			EvaluatorContext ctx, List<IMatchingResult> list) {
+			IEvaluatorContext ctx, List<IMatchingResult> list) {
 		Type type = getType(null);
 		
 		if (type instanceof ConcreteSyntaxType) {

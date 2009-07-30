@@ -1,7 +1,7 @@
 package org.meta_environment.rascal.interpreter.matching;
 
 import org.eclipse.imp.pdb.facts.IValueFactory;
-import org.meta_environment.rascal.interpreter.EvaluatorContext;
+import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
 
 /**
@@ -14,7 +14,7 @@ import org.meta_environment.rascal.interpreter.env.Environment;
 public class NotResult extends AbstractBooleanResult {
 	private final IBooleanResult arg;
 
-	public NotResult(IValueFactory vf, EvaluatorContext ctx, IBooleanResult arg) {
+	public NotResult(IValueFactory vf, IEvaluatorContext ctx, IBooleanResult arg) {
 		super(vf, ctx);
 		this.arg = arg;
 	}

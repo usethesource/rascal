@@ -4,7 +4,7 @@ import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.meta_environment.rascal.interpreter.EvaluatorContext;
+import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
@@ -15,7 +15,7 @@ public class LiteralPattern extends AbstractMatchingResult {
 	private IValue literal;
 	private boolean isPattern = false;
 	
-	public LiteralPattern(IValueFactory vf, EvaluatorContext ctx, IValue literal){
+	public LiteralPattern(IValueFactory vf, IEvaluatorContext ctx, IValue literal){
 		super(vf, ctx);
 		this.literal = literal;
 	}

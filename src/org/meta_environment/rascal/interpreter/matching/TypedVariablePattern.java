@@ -3,7 +3,7 @@ package org.meta_environment.rascal.interpreter.matching;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.meta_environment.rascal.interpreter.EvaluatorContext;
+import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.ResultFactory;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
@@ -19,7 +19,7 @@ public class TypedVariablePattern extends AbstractMatchingResult {
 	
 	// TODO: merge code of the following two constructors.
 	
-	public TypedVariablePattern(IValueFactory vf, EvaluatorContext ctx, org.eclipse.imp.pdb.facts.type.Type type,
+	public TypedVariablePattern(IValueFactory vf, IEvaluatorContext ctx, org.eclipse.imp.pdb.facts.type.Type type,
 			org.meta_environment.rascal.ast.QualifiedName qname) {
 		super(vf, ctx);
 		this.name = Names.name(Names.lastName(qname));
@@ -28,7 +28,7 @@ public class TypedVariablePattern extends AbstractMatchingResult {
 		if(debug) System.err.println("AbstractPatternTypedVariabe: " + name);
 	}
 	
-	public TypedVariablePattern(IValueFactory vf, EvaluatorContext ctx, 
+	public TypedVariablePattern(IValueFactory vf, IEvaluatorContext ctx, 
 			org.eclipse.imp.pdb.facts.type.Type type, org.meta_environment.rascal.ast.Name name) {
 		super(vf, ctx);
 		this.name = Names.name(name);

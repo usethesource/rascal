@@ -79,15 +79,15 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 			case Default:
 				newValue = rhsValue; break;
 			case Addition:
-				newValue = oldValue.add(rhsValue, new EvaluatorContext(eval, eval.getCurrentAST())); break;
+				newValue = oldValue.add(rhsValue, eval); break;
 			case Subtraction:
-				newValue = oldValue.subtract(rhsValue, new EvaluatorContext(eval, eval.getCurrentAST())); break;
+				newValue = oldValue.subtract(rhsValue, eval); break;
 			case Product:
-				newValue = oldValue.multiply(rhsValue, new EvaluatorContext(eval, eval.getCurrentAST())); break;
+				newValue = oldValue.multiply(rhsValue, eval); break;
 			case Division:
-				newValue = oldValue.divide(rhsValue, new EvaluatorContext(eval, eval.getCurrentAST())); break;
+				newValue = oldValue.divide(rhsValue, eval); break;
 			case Intersection:
-				newValue = oldValue.intersect(rhsValue, new EvaluatorContext(eval, eval.getCurrentAST())); break;
+				newValue = oldValue.intersect(rhsValue, eval); break;
 			case IsDefined:
 				return oldValue;
 			default:
@@ -95,7 +95,7 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 			}
 		
 			if (newValue.getType().isSubtypeOf(oldValue.getType())) {
-				newValue = makeResult(oldValue.getType(), newValue.getValue(),new EvaluatorContext(eval, eval.getCurrentAST()));
+				newValue = makeResult(oldValue.getType(), newValue.getValue(),eval);
 				return newValue;
 			} else 	if (oldValue.hasInferredType()) {
 				// Be liberal here: if the user has not declared a variable explicitly
@@ -104,7 +104,7 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 //				System.out.println("newType = " + newValue.getType());
 //				System.out.println("LUB = " + oldValue.getType().lub(newValue.getType()));
 				
-				newValue = makeResult(oldValue.getType().lub(newValue.getType()), newValue.getValue(),new EvaluatorContext(eval, eval.getCurrentAST()));
+				newValue = makeResult(oldValue.getType().lub(newValue.getType()), newValue.getValue(),eval);
 //				System.out.println("newValue = " + newValue + " type = " + newValue.getType());
 				newValue.setInferredType(true);
 				return newValue;
@@ -123,7 +123,7 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 	
 	private Result<IValue> newResult(IValue oldValue, Result<IValue> rhsValue){
 		if (oldValue != null){
-			Result<IValue> res = makeResult(oldValue.getType(), oldValue, new EvaluatorContext(eval, eval.getCurrentAST()));
+			Result<IValue> res = makeResult(oldValue.getType(), oldValue, eval);
 			return newResult(res, rhsValue);
 		}
 		switch(operator){
@@ -160,7 +160,6 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 		// variable should be inserted in the local scope.
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public Result<IValue> visitAssignableAnnotation(Annotation x) {
 		String label = x.getAnnotation().toString();
@@ -174,16 +173,15 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 		}
 		
 		try {
-			value = newResult(result.getAnnotation(label, env, new EvaluatorContext(eval, x)), value);
+			value = newResult(result.getAnnotation(label, env, eval), value);
 		} catch (Throw e){
 			// NoSuchAnnotation
 		}
-		return recur(x, result.setAnnotation(label, value, env, new EvaluatorContext(eval, x)));
+		return recur(x, result.setAnnotation(label, value, env, eval));
 //		result.setValue(((IConstructor) result.getValue()).setAnnotation(label, value.getValue()));
 		//return recur(x, result);
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public Result<IValue> visitAssignableSubscript(Subscript x) {
 		Result<IValue> rec = x.getReceiver().accept(eval);
@@ -200,7 +198,7 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 				int index = ((IInteger) subscript.getValue()).intValue();
 				value = newResult(list.get(index), value);
 				list = list.put(index, value.getValue());
-				result = makeResult(rec.getType(), list, new EvaluatorContext(eval, x));
+				result = makeResult(rec.getType(), list, eval);
 			}  
 			catch (java.lang.IndexOutOfBoundsException e){
 				throw RuntimeExceptionFactory.indexOutOfBounds((IInteger) subscript.getValue(), eval.getCurrentAST(), eval.getStackTrace());
@@ -212,7 +210,7 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 			if (subscript.getType().isSubtypeOf(keyType)) {
 				value = newResult(((IMap) rec.getValue()).get(subscript.getValue()), value);
 				IMap map = ((IMap) rec.getValue()).put(subscript.getValue(), value.getValue());
-				result = makeResult(rec.getType(), map, new EvaluatorContext(eval, x));
+				result = makeResult(rec.getType(), map, eval);
 			}
 			else {
 				throw new UnexpectedTypeError(keyType, subscript.getType(), x);
@@ -227,7 +225,7 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 			}
 			value = newResult(node.get(index), value);
 			node = node.set(index, value.getValue());
-			result = makeResult(rec.getType(), node, new EvaluatorContext(eval, x));
+			result = makeResult(rec.getType(), node, eval);
 		} else {
 			throw new UnsupportedSubscriptError(rec.getType(), subscript.getType(), x);
 			// TODO implement other subscripts
@@ -240,7 +238,6 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 		return x.getReceiver().accept(new AssignableEvaluator(env, null, result, eval));
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public Result<IValue> visitAssignableIfDefinedOrDefault(IfDefinedOrDefault x) {
 		Result<IValue> cond = x.getDefaultExpression().accept(eval);
@@ -252,7 +249,6 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 		return x.getReceiver().accept(eval);
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public Result<IValue> visitAssignableFieldAccess(FieldAccess x) {
 		Result<IValue> receiver = x.getReceiver().accept(eval);
@@ -269,7 +265,7 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 			
 			value = newResult(((ITuple) receiver.getValue()).get(idx), value);
 			IValue result = ((ITuple) receiver.getValue()).set(idx, value.getValue());
-			return recur(x, makeResult(receiver.getType(), result, new EvaluatorContext(eval, x)));
+			return recur(x, makeResult(receiver.getType(), result, eval));
 		}
 		else if (receiver.getType().isConstructorType() || receiver.getType().isAbstractDataType()) {
 			IConstructor cons = (IConstructor) receiver.getValue();
@@ -293,13 +289,13 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 			value = newResult(cons.get(index), value);
 			
 			IValue result = cons.set(index, value.getValue());
-			return recur(x, makeResult(receiver.getType(), result, new EvaluatorContext(eval, x)));
+			return recur(x, makeResult(receiver.getType(), result, eval));
 		}
 		else if (receiver.getType().isSourceLocationType()){
 //			ISourceLocation loc = (ISourceLocation) receiver.getValue();
 			
-			value = newResult(receiver.fieldAccess(label, env.getStore(), new EvaluatorContext(eval, x)), value);
-			return recur(x, receiver.fieldUpdate(label, value, env.getStore(), new EvaluatorContext(eval, x)));
+			value = newResult(receiver.fieldAccess(label, env.getStore(), eval), value);
+			return recur(x, receiver.fieldUpdate(label, value, env.getStore(), eval));
 			//return recur(x, eval.sourceLocationFieldUpdate(loc, label, value.getValue(), value.getType(), x));
 		}
 		else {
@@ -325,14 +321,14 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 		for (int i = 0; i < arguments.size(); i++) {
 			Type argType = tupleType.getFieldType(i);
 			IValue arg = tuple.get(i);
-			Result<IValue> result = makeResult(argType, arg, new EvaluatorContext(eval, x));
+			Result<IValue> result = makeResult(argType, arg, eval);
 			AssignableEvaluator ae = new AssignableEvaluator(env,null, result, eval);
 			Result<IValue> argResult = arguments.get(i).accept(ae);
 			results[i] = argResult.getValue();
 			resultTypes[i] = argResult.getType();
 		}
 		
-		return makeResult(eval.tf.tupleType(resultTypes), tupleType.make(eval.vf, results), new EvaluatorContext(eval, x));
+		return makeResult(eval.tf.tupleType(resultTypes), tupleType.make(eval.vf, results), eval);
 	}
 	
 	

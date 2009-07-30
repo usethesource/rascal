@@ -3,7 +3,7 @@ package org.meta_environment.rascal.interpreter.matching;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.meta_environment.rascal.ast.Expression;
-import org.meta_environment.rascal.interpreter.EvaluatorContext;
+import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 
@@ -13,7 +13,7 @@ public class BasicBooleanResult extends AbstractBooleanResult {
 	private org.meta_environment.rascal.ast.Expression expr;
 	private boolean firstTime = true;
 
-	public BasicBooleanResult(IValueFactory vf, EvaluatorContext ctx, Expression expr) {
+	public BasicBooleanResult(IValueFactory vf, IEvaluatorContext ctx, Expression expr) {
 		super(vf, ctx);
 		this.expr = expr;
 	}

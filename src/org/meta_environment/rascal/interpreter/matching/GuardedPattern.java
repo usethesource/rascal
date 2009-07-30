@@ -3,7 +3,7 @@ package org.meta_environment.rascal.interpreter.matching;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.meta_environment.rascal.interpreter.EvaluatorContext;
+import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
@@ -12,7 +12,7 @@ public class GuardedPattern extends AbstractMatchingResult {
 	private Type type;
 	private IMatchingResult pat;
 	
-	public GuardedPattern(IValueFactory vf, EvaluatorContext ctx, Type type, IMatchingResult pat){
+	public GuardedPattern(IValueFactory vf, IEvaluatorContext ctx, Type type, IMatchingResult pat){
 		super(vf, ctx);
 		this.type = type;
 		this.pat = pat;

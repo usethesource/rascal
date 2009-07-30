@@ -8,7 +8,7 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.meta_environment.rascal.interpreter.EvaluatorContext;
+import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.result.ResultFactory;
@@ -47,7 +47,7 @@ public class SetPattern extends AbstractMatchingResult {
 	
 	private boolean debug = false;
 	
-	public SetPattern(IValueFactory vf, EvaluatorContext ctx, List<IMatchingResult> list){
+	public SetPattern(IValueFactory vf, IEvaluatorContext ctx, List<IMatchingResult> list){
 		super(vf, ctx);
 		this.patternChildren = list;
 		this.patternSize = list.size();

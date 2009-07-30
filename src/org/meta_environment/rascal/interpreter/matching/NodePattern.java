@@ -8,7 +8,7 @@ import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.QualifiedName;
-import org.meta_environment.rascal.interpreter.EvaluatorContext;
+import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.result.ResultFactory;
@@ -24,7 +24,7 @@ public class NodePattern extends AbstractMatchingResult {
 	private final TypeFactory tf = TypeFactory.getInstance();
 	private final QualifiedName qname;
 	
-	public NodePattern(IValueFactory vf, EvaluatorContext ctx, IMatchingResult matchPattern, QualifiedName name, List<IMatchingResult> list){
+	public NodePattern(IValueFactory vf, IEvaluatorContext ctx, IMatchingResult matchPattern, QualifiedName name, List<IMatchingResult> list){
 		super(vf, ctx);
 		this.name = matchPattern;
 		this.qname = name;

@@ -3,7 +3,7 @@ package org.meta_environment.rascal.interpreter.matching;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
-import org.meta_environment.rascal.interpreter.EvaluatorContext;
+import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
 
@@ -11,7 +11,7 @@ public class DescendantPattern extends AbstractMatchingResult  {
 	private IMatchingResult pat;
 	private IMatchingResult enumAndMatch;
 
-	public DescendantPattern(IValueFactory vf, EvaluatorContext ctx, IMatchingResult pat) {
+	public DescendantPattern(IValueFactory vf, IEvaluatorContext ctx, IMatchingResult pat) {
 		super(vf, ctx);
 		this.pat = pat;
 		// nice trick, we reuse the enumerator here because that does traversal, 

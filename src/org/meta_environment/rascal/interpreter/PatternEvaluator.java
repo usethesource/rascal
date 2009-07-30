@@ -79,11 +79,9 @@ import org.meta_environment.rascal.interpreter.matching.GuardedPattern;
 import org.meta_environment.rascal.interpreter.matching.IMatchingResult;
 import org.meta_environment.rascal.interpreter.matching.ListPattern;
 import org.meta_environment.rascal.interpreter.matching.LiteralPattern;
-import org.meta_environment.rascal.interpreter.matching.MatchResult;
 import org.meta_environment.rascal.interpreter.matching.MultiVariablePattern;
 import org.meta_environment.rascal.interpreter.matching.NodePattern;
 import org.meta_environment.rascal.interpreter.matching.NotPattern;
-import org.meta_environment.rascal.interpreter.matching.NotResult;
 import org.meta_environment.rascal.interpreter.matching.QualifiedNamePattern;
 import org.meta_environment.rascal.interpreter.matching.RegExpPatternValue;
 import org.meta_environment.rascal.interpreter.matching.SetPattern;
@@ -101,10 +99,10 @@ import org.meta_environment.rascal.interpreter.utils.Names;
 
 public class PatternEvaluator extends NullASTVisitor<IMatchingResult> {
 	private IValueFactory vf;
-	private EvaluatorContext ctx;
+	private IEvaluatorContext ctx;
 	private boolean debug = false;
 
-	public PatternEvaluator(IValueFactory vf, EvaluatorContext ctx){
+	public PatternEvaluator(IValueFactory vf, IEvaluatorContext ctx){
 		this.vf = vf;
 		this.ctx = ctx;
 	}
@@ -142,7 +140,7 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> {
 	@Override
 	public IMatchingResult visitRegExpLexical(Lexical x) {
 		if(debug)System.err.println("visitRegExpLexical: " + x.getString());
-		return new RegExpPatternValue(vf, new EvaluatorContext(ctx.getEvaluator(), x), x.getString());
+		return new RegExpPatternValue(vf, ctx, x.getString());
 	}
 	
 	@Override
@@ -228,11 +226,11 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> {
 		if(isConcreteSyntaxList(x)) {
 			List args = (List)x.getArguments().get(1);
 			// TODO what if somebody writes a variable in  the list production itself?
-			return new ConcreteListPattern(vf, new EvaluatorContext(ctx.getEvaluator(), x), x,
+			return new ConcreteListPattern(vf, ctx, x,
 					visitElements(args.getElements()));
 		}
 		if(isConcreteSyntaxAppl(x)){
-			return new ConcreteApplicationPattern(vf, new EvaluatorContext(ctx.getEvaluator(), x), x, visitArguments(x));
+			return new ConcreteApplicationPattern(vf, ctx, x, visitArguments(x));
 		}
 		if (isConcreteSyntaxAmb(x)) {
 			throw new AmbiguousConcretePattern(x);
@@ -240,10 +238,10 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> {
 		}
 
 		if (nameExpr.isQualifiedName() && ctx.getCurrentEnvt().getVariable(nameExpr.getQualifiedName()) == null) {
-			return new NodePattern(vf, new EvaluatorContext(ctx.getEvaluator(), x), null, nameExpr.getQualifiedName(), visitArguments(x));
+			return new NodePattern(vf, ctx, null, nameExpr.getQualifiedName(), visitArguments(x));
 		}
 		else {
-			return new NodePattern(vf, new EvaluatorContext(ctx.getEvaluator(), x), (IMatchingResult) nameExpr.accept(this), null, visitArguments(x));
+			return new NodePattern(vf, ctx, (IMatchingResult) nameExpr.accept(this), null, visitArguments(x));
 		}
 	}
 	
@@ -272,17 +270,17 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> {
 	
 	@Override
 	public IMatchingResult visitExpressionList(List x) {
-		return new ListPattern(vf, new EvaluatorContext(ctx.getEvaluator(), x), visitElements(x.getElements()));
+		return new ListPattern(vf, ctx, visitElements(x.getElements()));
 	}
 	
 	@Override
 	public IMatchingResult visitExpressionSet(Set x) {
-		return new SetPattern(vf, new EvaluatorContext(ctx.getEvaluator(), x), visitElements(x.getElements()));
+		return new SetPattern(vf, ctx, visitElements(x.getElements()));
 	}
 	
 	@Override
 	public IMatchingResult visitExpressionTuple(Tuple x) {
-		return new TuplePattern(vf, new EvaluatorContext(ctx.getEvaluator(), x), visitElements(x.getElements()));
+		return new TuplePattern(vf, ctx, visitElements(x.getElements()));
 	}
 	
 	@Override
@@ -315,12 +313,12 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> {
 		}
 		
 		if (ctx.getCurrentEnvt().isTreeConstructorName(name, signature)) {
-			return new NodePattern(vf, new EvaluatorContext(ctx.getEvaluator(), x), null, name,
+			return new NodePattern(vf, ctx, null, name,
 					new java.util.ArrayList<IMatchingResult>());
 		}
 		
 		// Completely fresh variable
-		return new QualifiedNamePattern(vf, new EvaluatorContext(ctx.getEvaluator(), name), name);
+		return new QualifiedNamePattern(vf, ctx, name);
 		//return new AbstractPatternTypedVariable(vf, env, ev.tf.valueType(), name);
 	}
 	
@@ -332,10 +330,10 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> {
 		if (type instanceof ConcreteSyntaxType) {
 			ConcreteSyntaxType cType = (ConcreteSyntaxType) type;
 			if (cType.isConcreteListType()) {
-				return new ConcreteListVariablePattern(vf,  new EvaluatorContext(ctx.getEvaluator(), x.getName()), type, x.getName());
+				return new ConcreteListVariablePattern(vf,  ctx, type, x.getName());
 			}
 		}
-		return new TypedVariablePattern(vf, new EvaluatorContext(ctx.getEvaluator(), x.getName()), type, x.getName());
+		return new TypedVariablePattern(vf, ctx, type, x.getName());
 	}
 	
 	@Override
@@ -344,14 +342,14 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> {
 		TypeEvaluator te = TypeEvaluator.getInstance();
 		Type type =  te.eval(x.getType(), ctx.getCurrentEnvt());
 		IMatchingResult pat = (IMatchingResult) x.getPattern().accept(this);
-		return new TypedVariableBecomesPattern(vf, new EvaluatorContext(ctx.getEvaluator(), x.getName()), type, x.getName(), pat);
+		return new TypedVariableBecomesPattern(vf, ctx, type, x.getName(), pat);
 	}
 	
 	@Override
 	public IMatchingResult visitExpressionVariableBecomes(
 			VariableBecomes x) {
 		IMatchingResult pat = (IMatchingResult) x.getPattern().accept(this);
-		return new VariableBecomesPattern(vf, new EvaluatorContext(ctx.getEvaluator(), x.getName()), x.getName(), pat);
+		return new VariableBecomesPattern(vf, ctx, x.getName(), pat);
 	}
 	
 	@Override
@@ -359,18 +357,18 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> {
 		TypeEvaluator te = TypeEvaluator.getInstance();
 		Type type =  te.eval(x.getType(), ctx.getCurrentEnvt());
 		IMatchingResult absPat = (IMatchingResult) x.getPattern().accept(this);
-		return new GuardedPattern(vf, new EvaluatorContext(ctx.getEvaluator(), x), type, absPat);
+		return new GuardedPattern(vf, ctx, type, absPat);
 	}
 	
 	@Override
 	public IMatchingResult visitExpressionAnti(Anti x) {
 		IMatchingResult absPat = (IMatchingResult) x.getPattern().accept(this);
-		return new AntiPattern(vf, new EvaluatorContext(ctx.getEvaluator(), x), absPat);
+		return new AntiPattern(vf, ctx, absPat);
 	}
 	
 	@Override
 	public IMatchingResult visitExpressionMultiVariable(MultiVariable x) {
-		return new MultiVariablePattern(vf, new EvaluatorContext(ctx.getEvaluator(), x), x.getQualifiedName());
+		return new MultiVariablePattern(vf, ctx, x.getQualifiedName());
 	}
 	
 	@Override
