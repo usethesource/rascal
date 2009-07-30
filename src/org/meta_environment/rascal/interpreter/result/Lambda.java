@@ -17,6 +17,7 @@ import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.Statement;
 import org.meta_environment.rascal.interpreter.Evaluator;
+import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.TypeEvaluator;
 import org.meta_environment.rascal.interpreter.control_exceptions.Failure;
 import org.meta_environment.rascal.interpreter.control_exceptions.Return;
@@ -145,6 +146,66 @@ public class Lambda extends Result<IValue> implements IValue {
 		return ClosureType;
 	}
 	
+	@Override
+	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, IEvaluatorContext ctx) {
+		Map<Type,Type> bindings = env.getTypeBindings();
+		Type instantiatedFormals = formals.instantiate(env.getStore(), bindings);
+		
+		if (callTracing) {
+			printStartTrace();
+		}
+
+		Type actualTypesTuple;
+		if (hasVarArgs) {
+			actualTypesTuple = computeVarArgsActualTypes(actualTypes, instantiatedFormals);
+		}
+		else {
+			actualTypesTuple = TF.tupleType(actualTypes);
+		}
+
+		try {
+			bindTypeParameters(actualTypesTuple, instantiatedFormals, env);
+
+			if (hasVarArgs) {
+				actuals = computeVarArgsActuals(actuals, formals);
+			}
+
+			assignFormals(actuals, env);
+
+			for (Statement stat: body) {
+				eval.setCurrentAST(stat);
+				stat.accept(eval);
+			}
+			
+
+			if(!isVoidFunction){
+				throw new MissingReturnError(ast);
+			}
+
+			return ResultFactory.makeResult(TF.voidType(), null, eval);
+		}
+		catch (Return e) {
+			Result<IValue> result = e.getValue();
+
+			Type instantiatedReturnType = returnType.instantiate(env.getStore(), env.getTypeBindings());
+
+			if(!result.getType().isSubtypeOf(instantiatedReturnType)){
+				throw new UnexpectedTypeError(returnType, result.getType(), ast);
+			}
+
+			return ResultFactory.makeResult(instantiatedReturnType, result.getValue(), eval);
+		} 
+		catch (Failure e) {
+			throw new UnguardedFailError(ast);
+		}
+		finally {
+			if (callTracing) {
+				printEndTrace();
+			}
+		}
+	}
+	
+	@Deprecated
 	public Result<IValue> call(IValue[] actuals, Type actualTypes, Environment env) {
 		Map<Type,Type> bindings = env.getTypeBindings();
 		Type instantiatedFormals = formals.instantiate(env.getStore(), bindings);
@@ -292,7 +353,7 @@ public class Lambda extends Result<IValue> implements IValue {
 		newActuals[i] = list.done();
 		return newActuals;
 	}
-
+	
 	protected Type computeVarArgsActualTypes(Type actualTypes, Type formals) {
 		if (actualTypes.isSubtypeOf(formals)) {
 			// the argument is already provided as a list
@@ -319,7 +380,35 @@ public class Lambda extends Result<IValue> implements IValue {
 		
 		return TF.tupleType(types, labels);
 	}
-	
+
+	protected Type computeVarArgsActualTypes(Type[] actualTypes, Type formals) {
+		Type actualTuple = TF.tupleType(actualTypes);
+		if (actualTuple.isSubtypeOf(formals)) {
+			// the argument is already provided as a list
+			return actualTuple;
+		}
+		
+		int arity = formals.getArity();
+		Type[] types = new Type[arity];
+		java.lang.String[] labels = new java.lang.String[arity];
+		int i;
+		
+		for (i = 0; i < arity - 1; i++) {
+			types[i] = formals.getFieldType(i);
+			labels[i] = formals.getFieldName(i);
+		}
+		
+		Type lub = TF.voidType();
+		for (int j = i; j < actualTypes.length; j++) {
+			lub = lub.lub(actualTypes[j]);
+		}
+		
+		types[i] = TF.listType(lub);
+		labels[i] = formals.getFieldName(i);
+		
+		return TF.tupleType(types, labels);
+	}
+
 //	private StringBuffer showCall(FunctionDeclaration func, IValue[] actuals, String arrow){
 //		StringBuffer trace = new StringBuffer();
 //		for(int i = 0; i < callNesting; i++){

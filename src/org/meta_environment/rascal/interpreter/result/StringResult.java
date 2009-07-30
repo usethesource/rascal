@@ -85,6 +85,13 @@ public class StringResult extends ElementResult<IString> {
 	}
 	
 	@Override
+	public Result<IValue> call(Type[] argTypes, IValue[] argValues,
+			IEvaluatorContext ctx) {
+		IValue node = getTypeFactory().nodeType().make(getValueFactory(), getValue().getValue(), argValues);
+		return makeResult(getTypeFactory().nodeType(), node, ctx);
+	}
+	
+	@Override
 	protected <U extends IValue> Result<U> nonEqualToString(StringResult that, IEvaluatorContext ctx) {
 		return that.nonEqualityBoolean(this);
 	}
