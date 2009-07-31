@@ -108,7 +108,7 @@ public Exp subst(str V1, Exp Repl, Exp Org) {
     };
 }
 
-data Type = intType | strType;
+data Type = intType() | strType();
 
 data Error = constant(Exp E) | varuse(str Nm1, str Nm2);
 
@@ -121,10 +121,10 @@ public list[Cons] collect(Exp E)
    visit(rename(E)){
    
    case op("add", Exp E1, Exp E2):
-   		constraints = constraints  + [c(E1, intType), c(E2, intType)];
+   		constraints = constraints  + [c(E1, intType()), c(E2, intType())];
    	
    case op("conc", Exp E1, Exp E2):
-   	    constraints = constraints + [c(E1, strType), c(E2, strType)];
+   	    constraints = constraints + [c(E1, strType()), c(E2, strType())];
    }   /* Put here a ";" and you get an ambiguous list */
    
    println("constraints: <constraints>");
@@ -136,10 +136,10 @@ public list[Cons] collect(Exp E)
       
 
 rule a1 [list[Cons] C1, c(intcon(int N), Type T), list[Cons]C2] =>
-        	(T == intType) ? [C1, C2] : [C1, error(constant(intcon(N))), C2];
+        	(T == intType()) ? [C1, C2] : [C1, error(constant(intcon(N))), C2];
         	
 rule a2 [list[Cons] C1, c(strcon(str S), Type T), list[Cons]C2] =>
-        	(T == strType) ? [C1, C2] : [C1, error(constant(strcon(S))), C2];
+        	(T == strType()) ? [C1, C2] : [C1, error(constant(strcon(S))), C2];
         
 rule a3 [list[Cons] C1, c(var(str Nm1), Type T1), list[Cons]C2,  c(var(str Nm2), Type T2), list[Cons]C3]:{
         if(Nm1 == Nm2){
