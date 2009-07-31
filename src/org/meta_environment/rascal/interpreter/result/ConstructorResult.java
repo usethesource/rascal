@@ -10,6 +10,7 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFieldError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
+import org.meta_environment.rascal.interpreter.staticErrors.UnsupportedOperationError;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 
 public class ConstructorResult extends NodeResult {
@@ -21,6 +22,12 @@ public class ConstructorResult extends NodeResult {
 	@Override
 	public IConstructor getValue() {
 		return (IConstructor)super.getValue();
+	}
+	
+	@Override
+	public Result<?> call(Type[] argTypes, IValue[] argValues,
+			IEvaluatorContext ctx) {
+		throw new UnsupportedOperationError("call", getValue().getConstructorType(), ctx.getCurrentAST());
 	}
 
 	@Override
