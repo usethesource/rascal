@@ -27,7 +27,7 @@ public int wordCount(list[str] input, int (str s) countLine)
   count = 0;
   for(str line <- input){
   println("line = <line>");
-     count = count + #countLine(line);
+     count = count + countLine(line);
   }
   return count;
 }
@@ -35,8 +35,8 @@ public int wordCount(list[str] input, int (str s) countLine)
 public int wordCount1(list[str] input)
 {
   count = 0;
-  for(str line <- input){
-  println("line = <line>");
+  for (str line <- input) {
+     println("line = <line>");
      count = count + countLine1(line);
   }
   return count;
@@ -134,8 +134,8 @@ public list[str] Jabberwocky = [
 ];
 
 public bool test(){
-	assertEqual(wordCount(Jabberwocky, #countLine1), 216);
-	assertEqual(wordCount(Jabberwocky, #countLine2), 216);
-	assertEqual(wordCount(Jabberwocky, #countLine3), 216);
+	assertEqual(wordCount(Jabberwocky, countLine1), 216);
+	assertEqual(wordCount(Jabberwocky, countLine2), 216);
+	assertEqual(wordCount(Jabberwocky, countLine3), 216);
 	return report();
 }
