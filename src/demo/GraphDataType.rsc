@@ -8,13 +8,13 @@ alias File = str;
 
 data Color = rgb(int red, int green, int blue);
 
-data Style = bold | dashed | dotted | filled | invisible | solid;
+data Style = bold() | dashed() | dotted() | filled() | invisible() | solid();
 
-data Shape = box | circle | diamond | egg | elipse | hexagon | 
-             house | octagon | parallelogram | plaintext | 
-             trapezium | triangle;
+data Shape = box() | circle() | diamond() | egg() | elipse() | hexagon() | 
+             house() | octagon() | parallelogram() | plaintext() | 
+             trapezium() | triangle();
 
-data Direction = forward | back | both | none;
+data Direction = forward() | back() | both() | none();
 
 data Attribute = \bounding-box(Point first, Point second);
 data Attribute = \color(Color color);
