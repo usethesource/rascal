@@ -109,7 +109,7 @@ public class ModuleLoader{
 				tree = parseModule(loader, fileName, name, ast);
 			}
 			
-			loader.tryWriteBinary(fileName, binaryName, tree); // NOTE: Enable if you want to generate new binaries.
+//			loader.tryWriteBinary(fileName, binaryName, tree); // NOTE: Enable if you want to generate new binaries.
 			
 			return new ASTBuilder(new ASTFactory()).buildModule(tree);
 		}catch (FactTypeUseException e){
