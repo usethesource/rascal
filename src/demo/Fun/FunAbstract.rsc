@@ -114,39 +114,41 @@ data Error = constant(Exp E) | varuse(str Nm1, str Nm2);
 
 data Cons = c(Exp E, Type T) | error(Error e);
 
-public list[Cons] collect(Exp E)
+data Constraints = constraints(list[Cons] cons);
+
+public Constraints collect(Exp E)
 {
-   list[Cons] constraints = [];
+   list[Cons] cons = [];
    
    visit(rename(E)){
    
    case op("add", Exp E1, Exp E2):
-   		constraints = constraints  + [c(E1, intType()), c(E2, intType())];
+   		cons = cons  + [c(E1, intType()), c(E2, intType())];
    	
    case op("conc", Exp E1, Exp E2):
    	    constraints = constraints + [c(E1, strType()), c(E2, strType())];
    }   /* Put here a ";" and you get an ambiguous list */
    
-   println("constraints: <constraints>");
+   println("constraints: <cons>");
    
-   return constraints;
+   return constraints(cons);
 }
 
 // Simplify a list of constraints
       
 
-rule a1 [list[Cons] C1, c(intcon(int N), Type T), list[Cons]C2] =>
-        	(T == intType()) ? [C1, C2] : [C1, error(constant(intcon(N))), C2];
+rule a1 constraints([list[Cons] C1, c(intcon(int N), Type T), list[Cons]C2]) =>
+        	(T == intType()) ? constraints([C1, C2]) : constraints([C1, error(constant(intcon(N))), C2]);
         	
-rule a2 [list[Cons] C1, c(strcon(str S), Type T), list[Cons]C2] =>
-        	(T == strType()) ? [C1, C2] : [C1, error(constant(strcon(S))), C2];
+rule a2 constraints([list[Cons] C1, c(strcon(str S), Type T), list[Cons]C2]) =>
+        	(T == strType()) ? constraints([C1, C2]) : constraints([C1, error(constant(strcon(S))), C2]);
         
-rule a3 [list[Cons] C1, c(var(str Nm1), Type T1), list[Cons]C2,  c(var(str Nm2), Type T2), list[Cons]C3]:{
+rule a3 constraints([list[Cons] C1, c(var(str Nm1), Type T1), list[Cons]C2,  c(var(str Nm2), Type T2), list[Cons]C3]):{
         if(Nm1 == Nm2){
            if(T1 == T2) {
-              insert [C1, c(var(Nm1), T1), C2,  C3];
+              insert constraints([C1, c(var(Nm1), T1), C2,  C3]);
            } else {
-              insert [C1, error(varuse(Nm1, Nm2)), C2,  C3];
+              insert constraints([C1, error(varuse(Nm1, Nm2)), C2,  C3]);
            }
         } else {
            fail;
@@ -154,10 +156,10 @@ rule a3 [list[Cons] C1, c(var(str Nm1), Type T1), list[Cons]C2,  c(var(str Nm2),
         };      
                   
 
-public bool solveConstraints(list[Cons] constraints)
+public bool solveConstraints(Constraints constraints)
 {
    int nError = 0;
-   for(error(Error e) <- constraints){
+   for(error(Error e) <- constraints.cons){
       println("Error: <e>");
       nError = nError + 1;
    }   
