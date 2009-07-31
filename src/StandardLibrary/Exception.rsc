@@ -4,19 +4,19 @@ module Exception
 // Rascal run-time environment which can be caught by a Rascal program.
 
 data RuntimeException = 
-	  EmptyList
-    | EmptyMap 
-	| EmptySet
+	  EmptyList()
+    | EmptyMap() 
+	| EmptySet()
     | IndexOutOfBounds(int index)
-    | AssertionFailed 
+    | AssertionFailed() 
     | AssertionFailed(str label)
     | NoSuchElement(value v)
     | IllegalArgument(value v)
-    | IllegalArgument
+    | IllegalArgument()
 	| IO(str message)
 	| FileNotFound(str filename)
 	| LocationNotFound(loc location)
-	| PermissionDenied
+	| PermissionDenied()
 	| PermissionDenied(str message)
 	| ModuleNotFound(str name)
 	| NoSuchKey(value key)

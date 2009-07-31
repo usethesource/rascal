@@ -2,7 +2,6 @@ package org.meta_environment.rascal.interpreter.utils;
 
 import java.util.List;
 
-import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
 import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IString;

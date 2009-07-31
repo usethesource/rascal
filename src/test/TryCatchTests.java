@@ -6,6 +6,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
+import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFunctionError;
+import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
 
 public class TryCatchTests extends TestFramework {
@@ -121,7 +123,7 @@ public class TryCatchTests extends TestFramework {
 		
 		//TODO: divide_by_zero will become a built-in exception
 		
-		prepare("data Exception = divide_by_zero;");
+		prepare("data Exception = divide_by_zero();");
 		
 		assertTrue(runTestInSameEvaluator("{" + divide + "divide(3, 2) == 1;}"));
 		assertTrue(runTestInSameEvaluator("{" + divide + "safeDivide(3, 2) == 1;}"));
@@ -135,7 +137,7 @@ public class TryCatchTests extends TestFramework {
 		"bool fun() {" +
 		"  try {" +
 		"     head([]);" +
-		"  } catch EmptyList:" +
+		"  } catch EmptyList():" +
 		"      return true;" +
 		"  return false;" +
 		"}";
@@ -153,7 +155,7 @@ public class TryCatchTests extends TestFramework {
 		"bool fun() {" +
 		"  try {" +
 		"     getOneFrom(());" +
-		"  } catch EmptyMap:" +
+		"  } catch EmptyMap():" +
 		"      return true;" +
 		"  return false;" +
 		"}";
@@ -243,7 +245,7 @@ public class TryCatchTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{" + fun + "fun();}"));
 	}
 	
-	@Test(expected=UninitializedVariableError.class)
+	@Test(expected=UndeclaredFunctionError.class)
 	public void UndefinedValueException(){
 		String fun =
 			

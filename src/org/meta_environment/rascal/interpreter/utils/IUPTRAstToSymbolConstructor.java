@@ -11,7 +11,6 @@ import org.meta_environment.rascal.ast.Expression.Anti;
 import org.meta_environment.rascal.ast.Expression.CallOrTree;
 import org.meta_environment.rascal.ast.Expression.List;
 import org.meta_environment.rascal.ast.Expression.MultiVariable;
-import org.meta_environment.rascal.ast.Expression.NoMatch;
 import org.meta_environment.rascal.ast.Expression.QualifiedName;
 import org.meta_environment.rascal.ast.Expression.TypedVariable;
 import org.meta_environment.rascal.ast.Expression.TypedVariableBecomes;

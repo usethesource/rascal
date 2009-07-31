@@ -72,7 +72,6 @@ public class ResultFactory {
 			return new BoolResult(declaredType, (IBool)value, null, ctx);
 		}
 
-		@SuppressWarnings("unchecked")
 		public Result<? extends IValue> visitConstructor(Type type) {
 			if (type.equals(Factory.Tree)) {
 				return new ConcreteSyntaxResult(declaredType, (IConstructor)value, ctx);
@@ -80,7 +79,7 @@ public class ResultFactory {
 			if (type.equals(Lambda.getClosureType())) {
 				return (Lambda)value;
 			}
-			return new ConstructorResult(declaredType, (IConstructor)value, ctx);
+			return new ConstructorResult(declaredType.getAbstractDataType(), (IConstructor)value, ctx);
 		}
 
 		public RealResult visitReal(Type type) {

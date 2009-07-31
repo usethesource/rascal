@@ -14,14 +14,14 @@ data Production =
      \list(Symbol rhs);
 
 data Attributes = 
-     \no-attrs | \attrs(list[Attr] attrs);
+     \no-attrs() | \attrs(list[Attr] attrs);
 
 data Attr =
      assoc(Associativity assoc) | term(value term) |
-     id(str moduleName) | bracket | reject | prefer | avoid;
+     id(str moduleName) | bracket() | reject() | prefer() | avoid();
 
 data Associativity =
-     \left | \right | \assoc | \non-assoc;
+     \left() | \right() | \assoc() | \non-assoc();
 
 data CharRange =
      single(int start) | range(int start, int end);
@@ -33,7 +33,7 @@ data Symbol =
      \cilit(str string) | 
      \cf(Symbol symbol)  |
      \lex(Symbol symbol)  |
-     \empty  |
+     \empty()  |
      \seq(list[Symbol] symbols)  |
      \opt(Symbol symbol)  |
      \alt(Symbol lhs, Symbol rhs)  |
@@ -49,5 +49,5 @@ data Symbol =
      \parameterized-sort(str sort, list[Symbol] parameters)  | 
      \strategy(Symbol lhs, Symbol rhs)  |
      \var-sym(Symbol symbol)  |
-     \layout  | 
+     \layout()  | 
      \char-class(list[CharRange] ranges);

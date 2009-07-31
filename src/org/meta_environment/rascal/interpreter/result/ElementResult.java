@@ -3,12 +3,6 @@ package org.meta_environment.rascal.interpreter.result;
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.bool;
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 
-import org.meta_environment.rascal.interpreter.IEvaluatorContext;
-import org.meta_environment.rascal.interpreter.env.Environment;
-import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredAnnotationError;
-import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
-import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
-
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.SortedSet;
@@ -19,6 +13,11 @@ import org.eclipse.imp.pdb.facts.IInteger;
 import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
+import org.meta_environment.rascal.interpreter.IEvaluatorContext;
+import org.meta_environment.rascal.interpreter.env.Environment;
+import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredAnnotationError;
+import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
+import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 
 public class ElementResult<T extends IValue> extends Result<T> {
 

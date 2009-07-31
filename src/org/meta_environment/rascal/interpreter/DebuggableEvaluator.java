@@ -132,7 +132,7 @@ public class DebuggableEvaluator extends Evaluator {
 	}
 
 	@Override
-	public Result visitExpressionAll(All x) {
+	public Result<?> visitExpressionAll(All x) {
 		suspendExpression(x);
 		return super.visitExpressionAll(x);
 	}
@@ -151,7 +151,7 @@ public class DebuggableEvaluator extends Evaluator {
 
 
 	@Override
-	public Result visitExpressionAny(Any x) {
+	public Result<?> visitExpressionAny(Any x) {
 		suspendExpression(x);
 		return super.visitExpressionAny(x);
 	}
@@ -181,7 +181,7 @@ public class DebuggableEvaluator extends Evaluator {
 	}
 
 	@Override
-	public Result visitExpressionClosure(Closure x) {
+	public Result<?> visitExpressionClosure(Closure x) {
 		suspendExpression(x);
 		return super.visitExpressionClosure(x);
 	}
@@ -405,7 +405,7 @@ public class DebuggableEvaluator extends Evaluator {
 	}
 
 	@Override
-	public Result visitExpressionNonEmptyBlock(NonEmptyBlock x) {
+	public Result<?> visitExpressionNonEmptyBlock(NonEmptyBlock x) {
 		suspendExpression(x);
 		return super.visitExpressionNonEmptyBlock(x);
 	}
@@ -527,7 +527,7 @@ public class DebuggableEvaluator extends Evaluator {
 	}
 
 	@Override
-	public Result visitExpressionVoidClosure(VoidClosure x) {
+	public Result<?> visitExpressionVoidClosure(VoidClosure x) {
 		suspendExpression(x);
 		return super.visitExpressionVoidClosure(x);
 	}

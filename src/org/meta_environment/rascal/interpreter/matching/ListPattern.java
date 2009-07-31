@@ -229,7 +229,7 @@ public class ListPattern extends AbstractMatchingResult  {
 					 * Nothing to do
 					 */
 				} else {
-					Result<IValue> varRes = env.getVariable(null, name);
+					Result<IValue> varRes = env.getVariable(name);
 					
 					if(varRes == null){
 						// A completely new variable, nothing to do
@@ -520,11 +520,11 @@ public class ListPattern extends AbstractMatchingResult  {
 			} 
 			else if(isListVar[patternCursor] && 
 					!isBindingVar[patternCursor] && 
-					ctx.getCurrentEnvt().getVariable(null, varName[patternCursor]).getType().isListType()){
+					ctx.getCurrentEnvt().getVariable(varName[patternCursor]).getType().isListType()){
 				if(forward){
 					listVarStart[patternCursor] = subjectCursor;
 					
-					Result<IValue> varRes = ctx.getCurrentEnvt().getVariable(null, varName[patternCursor]);
+					Result<IValue> varRes = ctx.getCurrentEnvt().getVariable(varName[patternCursor]);
 					IValue varVal = varRes.getValue();
 					
 					if(varRes.getType().isListType()){

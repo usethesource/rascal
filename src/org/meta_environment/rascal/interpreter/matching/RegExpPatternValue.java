@@ -23,6 +23,7 @@ import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.result.ResultFactory;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
+import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 
 // TODO: add non-linear matching, and add string interpolation into the patterns.
 
@@ -74,8 +75,7 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 	public void initMatch(Result<IValue> subject) {
 		super.initMatch(subject);
 		
-		// TODO : does not work with aliases of stringType
-		if(!subject.getType().isStringType()){
+		if(!subject.getType().isSubtypeOf(tf.stringType())) {
 			hasNext = false;
 			return;
 		}
@@ -120,12 +120,22 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 					if (val != null && val.getValue() != null) {
 						boundBeforeConstruction.add(name);
 						
+						if (!val.getType().isSubtypeOf(tf.stringType())) {
+							throw new UnexpectedTypeError(tf.stringType(), val.getType(), ctx.getCurrentAST());
+						}
+						
 						if(!val.equals(ResultFactory.makeResult(tf.stringType(), vf.string(bindings.get(name)), ctx), ctx).isTrue()) {
 							matches = false;
 							break;
 						}
 					}
 					else {
+						if (val != null) {
+							if (!val.getType().isSubtypeOf(tf.stringType())) {
+								throw new UnexpectedTypeError(tf.stringType(), val.getType(), ctx.getCurrentAST());
+							}
+						}
+						
 						ctx.getCurrentEnvt().storeVariable(name, makeResult(tf.stringType(), vf.string(bindings.get(name)), ctx));
 					}
 				}
@@ -134,6 +144,10 @@ public class RegExpPatternValue extends AbstractMatchingResult  {
 						Result<IValue> val = ctx.getCurrentEnvt().getVariable(name);
 						if (val == null) {
 							throw new ImplementationError("??? we just said that it was bound before construction");
+						}
+
+						if (!val.getType().isSubtypeOf(tf.stringType())) {
+							throw new UnexpectedTypeError(tf.stringType(), val.getType(), ctx.getCurrentAST());
 						}
 
 						if(!val.equals(ResultFactory.makeResult(tf.stringType(), vf.string(bindings.get(name)), ctx), ctx).isTrue()){

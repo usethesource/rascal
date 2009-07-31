@@ -1,6 +1,5 @@
 package org.meta_environment.rascal.interpreter.env;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -16,12 +15,12 @@ import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.QualifiedName;
+import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
+import org.meta_environment.rascal.interpreter.result.CalleeCandidatesResult;
+import org.meta_environment.rascal.interpreter.result.ConstructorFunction;
 import org.meta_environment.rascal.interpreter.result.Lambda;
 import org.meta_environment.rascal.interpreter.result.Result;
-import org.meta_environment.rascal.interpreter.staticErrors.AmbiguousFunctionReferenceError;
-import org.meta_environment.rascal.interpreter.staticErrors.AmbiguousVariableReferenceError;
-import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFunctionError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredModuleError;
 import org.meta_environment.rascal.interpreter.types.ConcreteSyntaxType;
 import org.meta_environment.rascal.interpreter.utils.Names;
@@ -87,62 +86,47 @@ public class ModuleEnvironment extends Environment {
 	public Result<IValue> getVariable(QualifiedName name) {
 		String modulename = Names.moduleName(name);
 		
-		if (getAbstractDataType(modulename) != null) {
-			// sort names can not be module names?
-			return null;
+		String cons = Names.name(Names.lastName(name));
+		Type adt = getAbstractDataType(modulename);
+		
+		if (adt != null) {
+			CalleeCandidatesResult candidates = getAllFunctions(cons);
+			CalleeCandidatesResult result = new CalleeCandidatesResult(cons);
+			
+			for (Lambda candidate : candidates) {
+				if (candidate.getReturnType() == adt) {
+					result.add(candidate);
+				}
+			}
+			
+			return result;
 		}
 		
 		if (modulename != null) {
 			if (modulename.equals(getName())) {
-				return getVariable(name, Names.name(Names.lastName(name)));
+				return getVariable(cons);
 			}
 			
 			ModuleEnvironment imported = getImport(modulename);
 			if (imported == null) {
 				throw new UndeclaredModuleError(modulename, name);
 			}
+			
+			// TODO: will this not do a transitive closure? This should not happen...
 			return imported.getVariable(name);
 		}
 		
-		return getVariable(name, Names.name(Names.lastName(name)));
-	}
-	
-	@Override
-	public Result<IValue> getVariable(AbstractAST ast, String name) {
-		Result<IValue> result = super.getVariable(ast, name);
-		
-		// if the local module scope does not contain the variable, it
-		// may be visible in one of its imported modules.
-		
-		if (result == null) {
-			List<Result<IValue>> results = new ArrayList<Result<IValue>>();
-			for (String i : getImports()) {
-				// imports are not transitive!
-				ModuleEnvironment module = importedModules.get(i);
-				result = module.getLocalPublicVariable(name);
-				
-				if (result != null) {
-					results.add(result);
-				}
-			}
-			
-			if (results.size() == 1) {
-				return results.get(0);
-			}
-			else if (results.size() == 0) {
-				return null;
-			}
-			else {
-				throw new AmbiguousVariableReferenceError(name, ast);
-			}
-		}
-		
-		return result;
+		return getVariable(cons);
 	}
 	
 	@Override
 	public void storeVariable(String name, Result<IValue> value) {
-		Result<IValue> result = super.getVariable(null, name);
+		if (value instanceof Lambda) {
+			storeFunction(name, (Lambda) value);
+			return;
+		}
+		
+		Result<IValue> result = super.getVariable(name);
 		
 		if (result != null) {
 			super.storeVariable(name, value);
@@ -162,72 +146,62 @@ public class ModuleEnvironment extends Environment {
 		}
 	}
 	
-	@Override
-	public Lambda getFunction(String name, Type types, AbstractAST x) {
-		Lambda result = super.getFunction(name, types, x);
+	protected org.meta_environment.rascal.interpreter.result.Result<IValue> getSimpleVariable(String name) {
+		Result<IValue> var = super.getSimpleVariable(name);
 		
-		if (result == null) {
-			List<Lambda> results = new ArrayList<Lambda>();
-			for (String i : getImports()) {
-				// imports are not transitive!
-				ModuleEnvironment module = importedModules.get(i);
-				result = module.getLocalPublicFunction(name, types, x);
-				
-				if (result != null) {
-					results.add(result);
-				}
-			}
-			if (results.size() == 1) {
-				return results.get(0);
-			}
-			else if (results.size() == 0) {
-				throw new UndeclaredFunctionError(signatureString(name, types), x);
-			}
-			else {
-				throw new AmbiguousFunctionReferenceError(name, x);
-			}
+		if (var != null) {
+			return var;
 		}
 		
-		return result;
-	}
-	
-	private String signatureString(String name, Type types) {
-		StringBuffer sign = new StringBuffer();
-		String sep = "";
-		sign.append(name).append("(");
-		for(Type t : types){
-			sign.append(sep).append(t);
-			sep = ",";
+		for (String moduleName : getImports()) {
+			ModuleEnvironment mod = getImport(moduleName);
+			var = mod.getLocalPublicVariable(name);
+			
+			if (var != null) {
+				return var;
+			}
 		}
-		sign.append(")");
-		return sign.toString();
-	}
-	
-	public Lambda getLocalFunction(String name, Type types, AbstractAST x) {
-		return super.getFunction(name, types, x);
-	}
-	
-	public Lambda getLocalPublicFunction(String name, Type types, AbstractAST x) {
-		Lambda decl = getLocalFunction(name, types, x);
-		if (decl != null && decl.isPublic()) {
-			return decl;
-		}
+
 		return null;
 	}
 	
-	
-	public Result<IValue> getInnermostVariable(String name) {
-		return super.getInnermostVariable(name);
+	@Override
+	protected CalleeCandidatesResult getAllFunctions(String name) {
+		CalleeCandidatesResult funs = super.getAllFunctions(name);
+		
+		for (String moduleName : getImports()) {
+			ModuleEnvironment mod = getImport(moduleName);
+			funs = funs.join(mod.getLocalPublicFunctions(name));
+		}
+
+		return funs;
 	}
 	
-	public Result<IValue> getLocalPublicVariable(String name) {
-		Result<IValue> var = getInnermostVariable(name);
+	private Result<IValue> getLocalPublicVariable(String name) {
+		Result<IValue> var = variableEnvironment.get(name);
 		
 		if (var != null && var.isPublic()) {
 			return var;
 		}
 		
 		return null;
+	}
+	
+	private CalleeCandidatesResult getLocalPublicFunctions(String name) {
+		CalleeCandidatesResult all = functionEnvironment.get(name);
+		CalleeCandidatesResult result = new CalleeCandidatesResult(name);
+		
+		if (all == null) {
+			return new CalleeCandidatesResult(name);
+		}
+		
+		for (Lambda l : all) {
+			if (l.isPublic()) {
+				result.add(l);
+			}
+		}
+		
+		return result;
 	}
 
 	@Override
@@ -249,19 +223,28 @@ public class ModuleEnvironment extends Environment {
 	}
 	
 	@Override
-	public Type constructorFromTuple(Type adt, String name, Type tupleType) {
-		return TF.constructorFromTuple(typeStore, adt, name, tupleType);
+	public ConstructorFunction constructorFromTuple(AbstractAST ast, Evaluator eval, Type adt, String name, Type tupleType) {
+		Type cons = TF.constructorFromTuple(typeStore, adt, name, tupleType);
+		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons);
+		storeFunction(name, function);
+		return function;
 	}
 	
 	@Override
-	public Type constructor(Type nodeType, String name,
+	public ConstructorFunction constructor(AbstractAST ast, Evaluator eval, Type nodeType, String name,
 			Object... childrenAndLabels) {
-		return TF.constructor(typeStore, nodeType, name, childrenAndLabels);
+		Type cons = TF.constructor(typeStore, nodeType, name, childrenAndLabels);
+		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons);
+		storeFunction(name, function);
+		return function;
 	}
 	
 	@Override
-	public Type constructor(Type nodeType, String name, Type... children) {
-		return TF.constructor(typeStore, nodeType, name, children);
+	public ConstructorFunction constructor(AbstractAST ast, Evaluator eval, Type nodeType, String name, Type... children) {
+		Type cons = TF.constructor(typeStore, nodeType, name, children);
+		ConstructorFunction function = new ConstructorFunction(ast, eval, this, cons);
+		storeFunction(name, function);
+		return function;
 	}
 	
 	@Override
@@ -372,7 +355,21 @@ public class ModuleEnvironment extends Environment {
 	
 	@Override
 	public Type lookupConcreteSyntaxType(String name) {
-		return concreteSyntaxTypes.get(name);
+		Type type = concreteSyntaxTypes.get(name);
+		
+		if (type == null) {
+			for (String i : getImports()) {
+				ModuleEnvironment mod = getImport(i);
+				
+				type = mod.lookupConcreteSyntaxType(name);
+				
+				if (type != null) {
+					return type;
+				}
+			}
+		}
+		
+		return type;
 	}
 	
 	@Override

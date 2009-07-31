@@ -3,14 +3,12 @@ package test;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import org.meta_environment.rascal.interpreter.staticErrors.AmbiguousConcretePattern;
 import org.meta_environment.rascal.interpreter.staticErrors.NonWellformedTypeError;
 import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
-import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
-import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
+import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredVariableError;
 
 public class ConcreteSyntaxTests extends TestFramework {
 	
@@ -75,7 +73,7 @@ public class ConcreteSyntaxTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("a := [|a|];"));
 	}
 	
-	@Test(expected=UninitializedVariableError.class)
+	@Test(expected=UndeclaredVariableError.class)
 	public void singleAUnquoted2(){
 		prepare("import src::test::GrammarABCDE;");
 		assertTrue(runTestInSameEvaluator("a := a;"));

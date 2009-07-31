@@ -51,8 +51,8 @@ public class ValueIOTests extends TestFramework {
 	@Test public void binADT(){
 		try{
 			String type = "Bool";
-			String exp = "band(bor(btrue,bfalse),band(btrue,btrue))";
-			prepare("data Bool = btrue | bfalse | band(Bool left, Bool right) | bor(Bool left, Bool right);");
+			String exp = "band(bor(btrue(),bfalse()),band(btrue(),btrue()))";
+			prepare("data Bool = btrue() | bfalse() | band(Bool left, Bool right) | bor(Bool left, Bool right);");
 			prepareMore("import ValueIO;");
 			prepareMore("writeValueToBinaryFile(\"xxx\", " + exp + ");");
 			assertTrue(runTestInSameEvaluator("{" + type + " N := readValueFromBinaryFile(\"xxx\") && N == " + exp + ";}"));
@@ -99,8 +99,8 @@ public class ValueIOTests extends TestFramework {
 	@Ignore @Test public void textADT(){
 		try{
 			String type = "Bool";
-			String exp = "band(bor(btrue,bfalse),band(btrue,btrue))";
-			prepare("data Bool = btrue | bfalse | band(Bool left, Bool right) | bor(Bool left, Bool right);");
+			String exp = "band(bor(btrue(),bfalse()),band(btrue(),btrue()))";
+			prepare("data Bool = btrue() | bfalse() | band(Bool left, Bool right) | bor(Bool left, Bool right);");
 			prepareMore("import ValueIO;");
 			prepareMore("writeValueToTextFile(\"xxx\", " + exp + ");");
 			assertTrue(runTestInSameEvaluator("{" + type + " N := readValueFromTextFile(\"xxx\"); N == " + exp + ";}"));

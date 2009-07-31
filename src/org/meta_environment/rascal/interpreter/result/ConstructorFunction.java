@@ -2,6 +2,9 @@ package org.meta_environment.rascal.interpreter.result;
 
 import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.AbstractAST;
@@ -9,6 +12,7 @@ import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.TraversalEvaluator;
 import org.meta_environment.rascal.interpreter.env.Environment;
+import org.meta_environment.uptr.Factory;
 
 public class ConstructorFunction extends Lambda {
 	private Type constructorType;
@@ -21,9 +25,31 @@ public class ConstructorFunction extends Lambda {
 	}
 
 	@Override
-	public Result<IValue> call(Type[] actualTypes, IValue[] actuals,
+	public Result<?> call(Type[] actualTypes, IValue[] actuals,
 			IEvaluatorContext ctx) {
+
+		if (constructorType == Factory.Tree_Appl) {
+			return new ConcreteConstructorFunction(ast, eval, declarationEnvironment).call(actualTypes, actuals, ctx);
+		}
+		
+		Map<Type,Type> bindings = new HashMap<Type,Type>();
+		constructorType.getFieldTypes().match(TF.tupleType(actualTypes), bindings);
+		Type instantiated = constructorType.instantiate(ctx.getCurrentEnvt().getStore(), bindings);
+		
 		// TODO: the actual construction of the tree before applying rules should be avoided here!
-		return te.applyRules(makeResult(constructorType, constructorType.make(getValueFactory(), actuals), ctx), ctx);
+		return te.applyRules(makeResult(instantiated, instantiated.make(getValueFactory(), actuals), ctx), ctx);
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof ConstructorFunction) {
+			return constructorType == ((ConstructorFunction) obj).constructorType;
+		}
+		return false;
+	}
+	
+	@Override
+	public String toString() {
+		return constructorType.toString();
 	}
 }

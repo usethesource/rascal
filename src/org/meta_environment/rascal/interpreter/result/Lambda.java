@@ -37,7 +37,7 @@ public class Lambda extends Result<IValue> implements IValue {
 	protected static final TypeEvaluator TE = TypeEvaluator.getInstance();
 	protected static final TypeFactory TF = TypeFactory.getInstance();
     
-	private final Environment env;
+	protected final Environment declarationEnvironment;
     protected final Evaluator eval;
     
 	protected final Type formals;
@@ -50,8 +50,8 @@ public class Lambda extends Result<IValue> implements IValue {
 	private boolean isVoidFunction;
     
 	protected final static TypeStore hiddenStore = new TypeStore();
-    private final static Type FunctionType = TF.abstractDataType(hiddenStore, "Rascal.Function");
-    private final static Type ClosureType = TF.constructor(hiddenStore, FunctionType, "Rascal.Function.Closure");
+    public final static Type FunctionType = TF.abstractDataType(hiddenStore, "Rascal.Function");
+    public final static Type ClosureType = TF.constructor(hiddenStore, FunctionType, "Rascal.Function.Closure");
 	protected final Type returnType;
 	private final List<Statement> body;
 	private final String name;
@@ -81,8 +81,8 @@ public class Lambda extends Result<IValue> implements IValue {
 		this.formals = formals;
 		this.body = body;
 		this.hasVarArgs = varargs;
-		this.isVoidFunction = returnType.isSubtypeOf(TF.voidType());
-		this.env = env;
+		this.isVoidFunction = returnType != null ? returnType.isSubtypeOf(TF.voidType()) : false;
+		this.declarationEnvironment = env;
 	}
     
 	@Override
@@ -98,7 +98,7 @@ public class Lambda extends Result<IValue> implements IValue {
 	}
 
 	public Environment getEnv() {
-		return env;
+		return declarationEnvironment;
 	}
 	
 	public boolean match(Type actuals) {
@@ -147,9 +147,9 @@ public class Lambda extends Result<IValue> implements IValue {
 	}
 	
 	@Override
-	public Result<IValue> call(Type[] actualTypes, IValue[] actuals, IEvaluatorContext ctx) {
-		Map<Type,Type> bindings = env.getTypeBindings();
-		Type instantiatedFormals = formals.instantiate(env.getStore(), bindings);
+	public Result<?> call(Type[] actualTypes, IValue[] actuals, IEvaluatorContext ctx) {
+		Map<Type,Type> bindings = declarationEnvironment.getTypeBindings();
+		Type instantiatedFormals = formals.instantiate(declarationEnvironment.getStore(), bindings);
 		
 		if (callTracing) {
 			printStartTrace();
@@ -163,14 +163,19 @@ public class Lambda extends Result<IValue> implements IValue {
 			actualTypesTuple = TF.tupleType(actualTypes);
 		}
 
+		Environment old = ctx.getCurrentEnvt();
+		
 		try {
-			bindTypeParameters(actualTypesTuple, instantiatedFormals, env);
+			ctx.setCurrentEnvt(new Environment(declarationEnvironment, ctx.getCurrentEnvt(), ctx.getCurrentAST().getLocation(), ast.getLocation(), name));
+			ctx.goodPushEnv();
+			
+			bindTypeParameters(actualTypesTuple, instantiatedFormals, ctx.getCurrentEnvt());
 
 			if (hasVarArgs) {
 				actuals = computeVarArgsActuals(actuals, formals);
 			}
 
-			assignFormals(actuals, env);
+			assignFormals(actuals, ctx.getCurrentEnvt());
 
 			for (Statement stat: body) {
 				eval.setCurrentAST(stat);
@@ -187,7 +192,7 @@ public class Lambda extends Result<IValue> implements IValue {
 		catch (Return e) {
 			Result<IValue> result = e.getValue();
 
-			Type instantiatedReturnType = returnType.instantiate(env.getStore(), env.getTypeBindings());
+			Type instantiatedReturnType = returnType.instantiate(ctx.getCurrentEnvt().getStore(), ctx.getCurrentEnvt().getTypeBindings());
 
 			if(!result.getType().isSubtypeOf(instantiatedReturnType)){
 				throw new UnexpectedTypeError(returnType, result.getType(), ast);
@@ -202,64 +207,10 @@ public class Lambda extends Result<IValue> implements IValue {
 			if (callTracing) {
 				printEndTrace();
 			}
+			ctx.setCurrentEnvt(old);
 		}
 	}
 	
-	@Deprecated
-	public Result<IValue> call(IValue[] actuals, Type actualTypes, Environment env) {
-		Map<Type,Type> bindings = env.getTypeBindings();
-		Type instantiatedFormals = formals.instantiate(env.getStore(), bindings);
-		
-		if (callTracing) {
-			printStartTrace();
-		}
-
-		if (hasVarArgs) {
-			actualTypes = computeVarArgsActualTypes(actualTypes, instantiatedFormals);
-		}
-
-		try {
-			bindTypeParameters(actualTypes, instantiatedFormals, env);
-
-			if (hasVarArgs) {
-				actuals = computeVarArgsActuals(actuals, formals);
-			}
-
-			assignFormals(actuals, env);
-
-			for (Statement stat: body) {
-				eval.setCurrentAST(stat);
-				stat.accept(eval);
-			}
-			
-
-			if(!isVoidFunction){
-				throw new MissingReturnError(ast);
-			}
-
-			return ResultFactory.makeResult(TF.voidType(), null, eval);
-		}
-		catch (Return e) {
-			Result<IValue> result = e.getValue();
-
-			Type instantiatedReturnType = returnType.instantiate(env.getStore(), env.getTypeBindings());
-
-			if(!result.getType().isSubtypeOf(instantiatedReturnType)){
-				throw new UnexpectedTypeError(returnType, result.getType(), ast);
-			}
-
-			return ResultFactory.makeResult(instantiatedReturnType, result.getValue(), eval);
-		} 
-		catch (Failure e) {
-			throw new UnguardedFailError(ast);
-		}
-		finally {
-			if (callTracing) {
-				printEndTrace();
-			}
-		}
-	}
-
 	private void printNesting(StringBuilder b) {
 		for (int i = 0; i < callNesting; i++) {
 			b.append('>');
@@ -312,8 +263,9 @@ public class Lambda extends Result<IValue> implements IValue {
 			else {	
 				result = ResultFactory.makeResult(formal, actuals[i], eval);
 			}
-//			System.out.println(i + ": Formal " + formals.getFieldName(i) + " actual " + actuals[i]);
-			env.storeInnermostVariable(formals.getFieldName(i), result);
+			
+			env.declareVariable(formals.getFieldType(i), formals.getFieldName(i));
+			env.storeVariable(formals.getFieldName(i), result);
 		}
 	}
 
@@ -478,5 +430,9 @@ public class Lambda extends Result<IValue> implements IValue {
 			sep = ", ";
 		}
 		return returnType + " " + name + "(" + strFormals + ")";
+	}
+
+	public Type getReturnType() {
+		return returnType;
 	}
 }

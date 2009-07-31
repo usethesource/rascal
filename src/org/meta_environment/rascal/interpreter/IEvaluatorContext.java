@@ -12,5 +12,5 @@ public interface IEvaluatorContext {
 	public void goodPushEnv();
 	public void unwind(Environment old);
 	public GlobalEnvironment getHeap();
-	
+	public void setCurrentEnvt(Environment environment);
 }

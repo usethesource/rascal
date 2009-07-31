@@ -42,7 +42,9 @@ public class JavaFunction extends Lambda {
 			printStartTrace();
 		}
 
+		Environment old = ctx.getCurrentEnvt();
 		try {
+			ctx.goodPushEnv();
 			IValue result = invoke(actuals);
 
 			Type actualTypesTuple;
@@ -63,34 +65,7 @@ public class JavaFunction extends Lambda {
 			if (callTracing) {
 				printEndTrace();
 			}
-		}
-	}
-	
-	@Override @Deprecated
-	public Result<IValue> call(IValue[] actuals, Type actualTypes, Environment env) {
-		if (hasVarArgs) {
-			actuals = computeVarArgsActuals(actuals, formals);
-		}
-		
-		if (callTracing) {
-			printStartTrace();
-		}
-
-		try {
-			IValue result = invoke(actuals);
-
-			if (hasVarArgs) {
-				actualTypes = computeVarArgsActualTypes(actualTypes, formals);
-			}
-
-			bindTypeParameters(actualTypes, formals, env); 
-			Type resultType = returnType.instantiate(env.getStore(), env.getTypeBindings());
-			return ResultFactory.makeResult(resultType, result, eval);
-		}
-		finally {
-			if (callTracing) {
-				printEndTrace();
-			}
+			ctx.unwind(old);
 		}
 	}
 	

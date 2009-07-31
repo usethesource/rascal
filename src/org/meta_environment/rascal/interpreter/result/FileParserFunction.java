@@ -10,6 +10,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.FunctionDeclaration.Abstract;
 import org.meta_environment.rascal.interpreter.Evaluator;
+import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.load.ModuleLoader;
@@ -19,13 +20,18 @@ import org.meta_environment.uptr.ParsetreeAdapter;
 
 public class FileParserFunction extends ParserFunction {
 
+	private Environment env;
+
+
 	public FileParserFunction(Evaluator eval, Abstract func, Environment env, ModuleLoader loader) {
 		super(eval, func, env, loader, loader.getParser());
+		this.env = env;
 	}
 
 	
 	@Override
-	public Result<IValue> call(IValue[] actuals, Type actualTypes, Environment env) {
+	public Result<IValue> call(Type[] actualTypes, IValue[] actuals,
+			IEvaluatorContext ctx) {
 		if (callTracing) {
 			printStartTrace();
 		}
@@ -41,6 +47,7 @@ public class FileParserFunction extends ParserFunction {
 		try {
 			IConstructor ptree = parser.parseObjectLanguageFile(sdfSearchPath, sdfImports, source); 
 			IConstructor tree = (IConstructor) new ParsetreeAdapter(ptree).getTop().getArgs().get(1);
+			// TODO parse error handling!
 			Type resultType = returnType.instantiate(env.getStore(), env.getTypeBindings());
 			
 			return ResultFactory.makeResult(resultType, tree, eval);

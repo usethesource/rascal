@@ -86,15 +86,15 @@ public int recoveryOfGlobalVariable()
 
 public int gt = 0;
 
-data City = amsterdam;
+data City = amsterdam();
 
-rule a1 amsterdam : { 
+rule a1 amsterdam() : { 
   gt = gt + 1;
   fail;
 };
 
 public int recoveryOfGlobalAfterFailingRule() {
-	x = amsterdam;
+	x = amsterdam();
 	return gt;
 }
 

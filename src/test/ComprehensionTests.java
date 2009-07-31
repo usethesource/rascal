@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
+import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
 
 
@@ -480,12 +481,12 @@ public class ComprehensionTests extends TestFramework {
 		assertTrue(runTest("{S | /@<S:[a-z]+>@/ <- {\"@abc@\", \"@def@\"}} == {\"abc\", \"def\"};"));
 	}
 	
-	@Test(expected=UninitializedVariableError.class)
+	@Test(expected=UndeclaredVariableError.class)
 	public void NoLeakFromNextGenerator1(){
 		assertTrue(runTest("[<N,M> | int N <- [1 .. 2], ((N==1) ? true : M > 0), int M <- [10 .. 11]] == [<1,10>,<1,11>,<2,10><2,11>];"));
 	}
 	
-	@Test(expected=UninitializedVariableError.class)
+	@Test(expected=UndeclaredVariableError.class)
 	public void NoLeakFromNextGenerator2(){
 		assertTrue(runTest("[<N,M> | int N <- [1 .. 2], ((N==1) ? true : M > 0), int M := N] == [<1,1>,<2,2>];"));
 	}

@@ -16,18 +16,6 @@ public class TypedVariablePattern extends AbstractMatchingResult {
 	private boolean debug = false;
 	private boolean iDeclaredItMyself;
 
-	
-	// TODO: merge code of the following two constructors.
-	
-	public TypedVariablePattern(IValueFactory vf, IEvaluatorContext ctx, org.eclipse.imp.pdb.facts.type.Type type,
-			org.meta_environment.rascal.ast.QualifiedName qname) {
-		super(vf, ctx);
-		this.name = Names.name(Names.lastName(qname));
-		this.declaredType = type;
-		this.anonymous = name.equals("_");
-		if(debug) System.err.println("AbstractPatternTypedVariabe: " + name);
-	}
-	
 	public TypedVariablePattern(IValueFactory vf, IEvaluatorContext ctx, 
 			org.eclipse.imp.pdb.facts.type.Type type, org.meta_environment.rascal.ast.Name name) {
 		super(vf, ctx);

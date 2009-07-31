@@ -25,7 +25,7 @@ public class CallTests extends TestFramework{
 		runTest("zip::zap(1,2);");
 	}
 	
-	@Test(expected=UndeclaredFunctionError.class)
+	@Test(expected=UnsupportedOperationError.class)
 	public void callError4() {
 		runTest("{zap = 10; zap(1,2);}");
 	}
