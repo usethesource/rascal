@@ -29,7 +29,7 @@ public set[Constraint] extract(set[Name] classes) {
   result += {eq(typeof(T,a0),typeof(T,a1)) | 
              subtype(typeof(a0),typeof(a1)) <- result,  a <- {a0,a1}, typeof(T, a) in vars};
   // TODO rule 18 
-  result += {c | typeof(T1, a) <- vars, /* ??? TODO */ c <- cGen(T2, a, T,a,#makeEq) };  
+  result += {c | typeof(T1, a) <- vars, /* ??? TODO */ c <- cGen(T2, a, T,a, makeEq) };  
 }
   
 public set[Constraint] extract(Name class) {
@@ -95,10 +95,10 @@ println("extract CALL");
         else { // [Fuhrer et al.,Fig 7] should this be in an else branch or not???
            println("\tis a library");
            methodType = mtype(methodName, Trec);
-           set[Constraint] gen = cGen(etype(env, bounds, x), methodType.returnType, rec, #makeEq);
+           set[Constraint] gen = cGen(etype(env, bounds, x), methodType.returnType, rec, makeEq);
            result += gen;
            result += { c | i <- domain(args), Ei := args[i], 
-                           c <- cGen(Ei, methodType.formals[i], rec, #makeSub)}; 
+                           c <- cGen(Ei, methodType.formals[i], rec, makeSub)}; 
         }
      }
      case x:cast(Type to, Expr expr) :
@@ -115,12 +115,12 @@ set[Constraint] cGen(Type a, Type T, Expr E, Constraint (TypeOf t1, TypeOf t2) o
 
   // TODO: bounds and env for etype are bogus
   if (T in etype((),(),E).actuals) {
-    return {#op(typeof(a), typeof(T, E))};
+    return {op(typeof(a), typeof(T, E))};
   }
   else if (typelit(name, actuals) := T) { 
     Wi = ClassTable[name].formals.vars;
-    return { c | i <- domain(Wi), Wia := a.actuals[i], c <- cGen(Wia, Wi[i], E, #makeEq)}
-         + { #op(typeof(a), typeof(T)) };
+    return { c | i <- domain(Wi), Wia := a.actuals[i], c <- cGen(Wia, Wi[i], E, makeEq)}
+         + { op(typeof(a), typeof(T)) };
   }
 }
 
