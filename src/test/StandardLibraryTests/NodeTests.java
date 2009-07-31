@@ -113,5 +113,10 @@ public class NodeTests extends TestFramework {
 	public void readATermFromFileADT2() {
 		assertTrue(atermWriteRead("fn(1,2,3)", "data FUN = f(int A, int B, int C);", "f(1,2,3)"));
 	}
+	
+	@Test
+	public void toStringTest() {
+		assertTrue(runTestInSameEvaluator("{node n = makeNode(\"f\", 1, 2, 3); toString(n) == \"f(1,2,3)\";}"));
+	}
 
 }
