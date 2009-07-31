@@ -17,9 +17,9 @@ rule m1 exp(Integer N, z())              => s(z());
 rule m2 exp(Integer N, s(Integer M))   => mul(N, exp(N, M));
 */
 data Bool = eq(Integer L, Integer R);
-rule e1 eq(z(),z())                        => btrue;
-rule e2 eq(s(Integer N),z())             => bfalse;
-rule e2 eq(z(),s(Integer N))             => bfalse;
+rule e1 eq(z(),z())                        => btrue();
+rule e2 eq(s(Integer N),z())             => bfalse();
+rule e2 eq(z(),s(Integer N))             => bfalse();
 rule e3 eq(s(Integer N), s(Integer M)) => eq(N,M);
 
 public bool testInt(){
