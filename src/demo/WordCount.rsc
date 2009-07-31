@@ -87,7 +87,7 @@ public int countLine3(str S){
        		allCounts[word] = 1;
        }
   }
-  return sum([allCounts[K] | str K <- allCounts], 0);
+  return sum([allCounts[K] | str K <- allCounts]);
 }
 
 public list[str] Jabberwocky = [
