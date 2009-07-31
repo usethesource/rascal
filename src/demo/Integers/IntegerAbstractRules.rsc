@@ -27,7 +27,7 @@ public bool testInt(){
 //		assert add(s(s(z())), s(s(s(z())))) == s(s(s(s(s(z())))));
 //		assert mul(s(s(z())), s(s(s(z())))) == s(s(s(s(s(s(z()))))));
 //		assert exp(s(s(z())), s(s(s(z())))) == s(s(s(s(s(s(s(s(z()))))))));
-		assert eq(s(s(z())),  s(s(s(z())))) == bfalse;
-//		assert eq(s(s(s(z()))), s(s(s(z())))) == btrue;
+		assert eq(s(s(z())),  s(s(s(z())))) == bfalse();
+//		assert eq(s(s(s(z()))), s(s(s(z())))) == btrue();
 		return true;
 }
