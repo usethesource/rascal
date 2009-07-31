@@ -10,6 +10,8 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
+import org.meta_environment.rascal.interpreter.result.CalleeCandidatesResult;
+import org.meta_environment.rascal.interpreter.result.Lambda;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.result.ResultFactory;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
@@ -88,8 +90,14 @@ public class NodePattern extends AbstractMatchingResult {
 		 Type signature = tf.tupleType(types);
 		 
 		 if (qname != null) {
-			 if (env.isTreeConstructorName(qname, signature)) {
-				 return env.getConstructor(Names.name(Names.lastName(qname)), signature); //.getAbstractDataType();
+			 Result<IValue> constructors = env.getVariable(qname);
+			 
+			 if (constructors != null && constructors instanceof CalleeCandidatesResult) {
+				 for (Lambda d : (CalleeCandidatesResult) constructors) {
+					 if (d.match(signature)) {
+						 return env.getConstructor(d.getReturnType(), Names.name(Names.lastName(qname)), signature);
+					 }
+				 }
 			 }
 		 }
 		 
