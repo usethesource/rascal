@@ -47,7 +47,7 @@ end
 *********************************************/
 
 public PROGRAM small =
-program([decl("x", natural), decl("s", string)],
+program([decl("x", natural()), decl("s", string())],
         [ asgStat("x", natCon(3)),
           whileStat(id("x"),
                     [ asgStat("x", sub(id("x"), natCon(1))),
@@ -59,7 +59,7 @@ program([decl("x", natural), decl("s", string)],
        
 public PROGRAM smallUninit =
        
- program([decl("x", natural), decl("s", string)],
+ program([decl("x", natural()), decl("s", string())],
         [ //asgStat("x", natCon(3)),
           whileStat(id("x"),
                     [ asgStat("x", sub(id("x"), natCon(1))),
@@ -93,10 +93,10 @@ end
 **********************************************/
 
 public PROGRAM fac =
-program([ decl("input", natural),
-          decl("output", natural),
-          decl("repnr", natural),
-          decl("rep", natural)
+program([ decl("input", natural()),
+          decl("output", natural()),
+          decl("repnr", natural()),
+          decl("rep", natural())
         ],
         [ asgStat("input", natCon(13)),
           asgStat("output", natCon(1)),
@@ -115,10 +115,10 @@ program([ decl("input", natural),
        );
        
 public PROGRAM facUninit =
-program([ decl("input", natural),
-          decl("output", natural),
-          decl("repnr", natural),
-          decl("rep", natural)
+program([ decl("input", natural()),
+          decl("output", natural()),
+          decl("repnr", natural()),
+          decl("rep", natural())
         ],
         [ asgStat("input", natCon(13)),
           //asgStat("output", natCon(1)),
@@ -175,13 +175,13 @@ end
 *********************************************/  
 
 public PROGRAM big =
-program([ decl("input", natural),
-          decl("output", string),
-          decl("i", natural),
-          decl("j", natural),
-          decl("k", natural),
-          decl("s", string),
-          decl("t", string)
+program([ decl("input", natural()),
+          decl("output", string()),
+          decl("i", natural()),
+          decl("j", natural()),
+          decl("k", natural()),
+          decl("s", string()),
+          decl("t", string())
         ],
         [ asgStat("input", natCon(14)),
           ifStat(id("input"),
