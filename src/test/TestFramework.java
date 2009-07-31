@@ -93,7 +93,7 @@ public class TestFramework {
 		} catch (Exception e) {
 			System.err
 					.println("Unhandled exception while preparing test: " + e);
-//			e.printStackTrace();
+			throw new AssertionError(e.getMessage());
 		}
 		return this;
 	}
@@ -105,7 +105,7 @@ public class TestFramework {
 		} catch (Exception e) {
 			System.err
 					.println("Unhandled exception while preparing test: " + e);
-			e.printStackTrace();
+			throw new AssertionError(e.getMessage());
 		}
 		return this;
 	}
@@ -124,7 +124,7 @@ public class TestFramework {
 			return true;
 		} catch (IOException e) {
 			System.err.println("IOException during preparation:" + e);
-			return false;
+			throw new AssertionError(e.getMessage());
 		}
 	}
 
