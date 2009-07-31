@@ -16,9 +16,9 @@ data Constraint = eq(TypeOf a, TypeOf b)
                 | subtype(TypeOf a, set[TypeOf] alts);
 
 // these are the sets of possible solutions for a constraint variable
-data TypeSet = Universe
-             | EmptySet
-             | Root
+data TypeSet = Universe()
+             | EmptySet()
+             | Root()
              | Single(Type T)
              | Set(set[Type] Ts) 
              | Subtypes(TypeSet subs)
@@ -27,15 +27,15 @@ data TypeSet = Universe
              | Intersection(set[TypeSet] args);
      
 // these optimize the computations on solutions by applying algebraic simplifications
-rule root       Set({Object})                    => Root;
-rule empty      Set({})                          => EmptySet;        
+rule root       Set({Object})                    => Root();
+rule empty      Set({})                          => EmptySet();        
 rule single     Single(Type   T)                 => Set({T});
-rule rootsub    Subtypes(Root)                   => Universe;
-rule emptysub   Subtypes(EmptySet)               => EmptySet;
-rule rootsup    Supertypes(Root)                 => EmptySet;
-rule subuni     Subtypes(Universe)               => Universe;
+rule rootsub    Subtypes(Root)                   => Universe();
+rule emptysub   Subtypes(EmptySet)               => EmptySet();
+rule rootsup    Supertypes(Root)                 => EmptySet();
+rule subuni     Subtypes(Universe)               => Universe();
 rule nestedsubs Subtypes(Subtypes(TypeSet x))    => Subtypes(x);
-rule supuni     Supertypes(Universe)             => Universe;
+rule supuni     Supertypes(Universe)             => Universe();
 rule nestedsups Supertypes(Supertypes(TypeSet x))=> Supertypes(x);
 
 rule interdone  Intersection({TypeSet last})     => last;
@@ -46,7 +46,7 @@ rule intermerge Intersection({Intersection({set[TypeSet] x}), set[TypeSet] y}) =
                 Intersection({x, y});
 
 rule uniondone  Union({TypeSet last})            => last;
-rule uniunionl  Union({Universe,set[TypeSet] _}) => Universe;
+rule uniunionl  Union({Universe,set[TypeSet] _}) => Universe();
 rule emptyunil  Union({EmptySet,set[TypeSet] x}) => Union({x});
 rule unionmerge Union({Union({set[TypeSet] x}), set[TypeSet] y}) =>
                 Union({x, y});
