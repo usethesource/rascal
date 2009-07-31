@@ -34,7 +34,6 @@ import org.eclipse.imp.pdb.facts.IWriter;
 import org.eclipse.imp.pdb.facts.exceptions.UndeclaredFieldException;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.eclipse.imp.pdb.facts.type.TypeFactory;
-import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.ast.Bound;
 import org.meta_environment.rascal.ast.Case;
@@ -46,7 +45,6 @@ import org.meta_environment.rascal.ast.FunctionDeclaration;
 import org.meta_environment.rascal.ast.FunctionModifier;
 import org.meta_environment.rascal.ast.Import;
 import org.meta_environment.rascal.ast.Module;
-import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.QualifiedName;
 import org.meta_environment.rascal.ast.Statement;
@@ -168,7 +166,6 @@ import org.meta_environment.rascal.interpreter.load.ModuleLoader;
 import org.meta_environment.rascal.interpreter.matching.IBooleanResult;
 import org.meta_environment.rascal.interpreter.matching.IMatchingResult;
 import org.meta_environment.rascal.interpreter.result.BoolResult;
-import org.meta_environment.rascal.interpreter.result.ConcreteSyntaxResult;
 import org.meta_environment.rascal.interpreter.result.FileParserFunction;
 import org.meta_environment.rascal.interpreter.result.JavaFunction;
 import org.meta_environment.rascal.interpreter.result.Lambda;
@@ -185,7 +182,6 @@ import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredAnnotationError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFieldError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFunctionError;
-import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredModuleError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnguardedFailError;
@@ -200,7 +196,6 @@ import org.meta_environment.rascal.interpreter.utils.Profiler;
 import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 import org.meta_environment.rascal.interpreter.utils.Symbols;
 import org.meta_environment.rascal.parser.ModuleParser;
-import org.meta_environment.uptr.Factory;
 import org.meta_environment.uptr.SymbolAdapter;
 import org.meta_environment.uptr.TreeAdapter;
 
@@ -222,7 +217,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	private Profiler profiler;
 	private boolean doProfiling = false;
 
-	private TypeDeclarationEvaluator typeDeclarator = new TypeDeclarationEvaluator();
+	private final TypeDeclarationEvaluator typeDeclarator = new TypeDeclarationEvaluator(this);
 	protected final ModuleLoader loader;
 
 	private java.util.List<ClassLoader> classLoaders;
@@ -733,7 +728,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	@Override
 	public Result<IValue> visitDeclarationData(Data x) {
 		typeDeclarator.declareConstructor(x, getCurrentEnvt());
-		return ResultFactory.nothing();
+		return nothing();
 	}
 
 	private void visitImports(java.util.List<Import> imports) {
@@ -785,7 +780,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 					declaredType.match(v.getType(), bindings);
 					declaredType = declaredType.instantiate(getCurrentEnvt().getStore(), bindings);
 					r = makeResult(declaredType, v.getValue(), this);
-					getCurrentModuleEnvironment().storeInnermostVariable(var.getName(), r);
+					getCurrentModuleEnvironment().storeVariable(var.getName(), r);
 				} else {
 					throw new UnexpectedTypeError(declaredType, v.getType(), var);
 				}
@@ -863,16 +858,21 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	@Override
 	public Result<IValue> visitDeclaratorDefault(
 			org.meta_environment.rascal.ast.Declarator.Default x) {
-		Type declaredType = evalType(x.getType());
 		Result<IValue> r = ResultFactory.nothing();
 
 		for (org.meta_environment.rascal.ast.Variable var : x.getVariables()) {
 			String varAsString = var.getName().toString();
-			if (!getCurrentEnvt().declareVariable(declaredType, var.getName())) {
-				throw new RedeclaredVariableError(varAsString, var);
-			}
+			
 			if (var.isInitialized()) {  // variable declaration without initialization
+				// first evaluate the initialization, in case the left hand side will shadow something
+				// that is used on the right hand side.
 				Result<IValue> v = var.getInitial().accept(this);
+
+				Type declaredType = evalType(x.getType());
+
+				if (!getCurrentEnvt().declareVariable(declaredType, var.getName())) {
+					throw new RedeclaredVariableError(varAsString, var);
+				}
 
 				if(v.getType().isSubtypeOf(declaredType)){
 					// TODO: do we actually want to instantiate the locally bound type parameters?
@@ -886,228 +886,40 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 					throw new UnexpectedTypeError(declaredType, v.getType(), var);
 				}
 			}
+			else {
+				Type declaredType = evalType(x.getType());
+
+				if (!getCurrentEnvt().declareVariable(declaredType, var.getName())) {
+					throw new RedeclaredVariableError(varAsString, var);
+				}
+			}
 		}
 
 		return r;
 	}
 
-	private org.meta_environment.rascal.ast.QualifiedName makeQualifiedName(IConstructor node, String name) {
-		Name simple = new Name.Lexical(node, name);
-		java.util.List<Name> list = new ArrayList<Name>(1);
-		list.add(simple);
-		return new QualifiedName.Default(node, list);
-	}
-
 	@Override
 	public Result<IValue> visitExpressionCallOrTree(CallOrTree x) {
-		java.util.List<org.meta_environment.rascal.ast.Expression> args = x.getArguments();
-		// TODO: deal with all the new expressions one can type in now like ("a" + "b")(hello);
-		Expression nameExpr = x.getExpression();
-		QualifiedName name;
-		boolean unTyped = false;
-		
-		// TODO: store constructors as Lambda's that construct trees and apply rewrite rules. Need to
-		// figure out what to do with sorted constructors such as Bool::and.
-		
-		if (nameExpr.isQualifiedName() && getCurrentEnvt().getVariable(nameExpr.getQualifiedName()) == null) {
-			name = nameExpr.getQualifiedName();
-		}
-		else if (nameExpr.isQualifiedName() && getCurrentEnvt().isDeclaredFunctionName(nameExpr.getQualifiedName())) {
-			name = nameExpr.getQualifiedName();
-		}
-		else if (nameExpr.isQualifiedName() && isTreeConstructorName(nameExpr.getQualifiedName(), tf.voidType())) {
-			name = nameExpr.getQualifiedName();
-		}
-		else { // its a computed name or a string name
-			Result result = nameExpr.accept(this);
-			
-			// TODO creating an AST here will make things slow, instead pass on the string name to the next phase
-			if (result.getType().isStringType()) {
-				String str = ((IString) result.getValue()).getValue();
-				
-				if (!tf.isIdentifier(str)) {
-					throw RuntimeExceptionFactory.illegalIdentifier(str, nameExpr, getStackTrace());
-				}
-				name = makeQualifiedName((IConstructor) nameExpr.getTree(), str);
-				unTyped = true;
-			}
-			else {
-				throw new UndeclaredFunctionError(x.toString(), x);
-			}
-		}
-		
-		IValue[] actuals = new IValue[args.size()];
-		Type[] types = new Type[args.size()];
-		boolean done = false;
+		try {
+			Result<IValue> function = x.getExpression().accept(this);
 
-		// TODO: this is also not quite acceptible, since other functions might be called appl...
-		if (Names.name(Names.lastName(name)).equals("appl") && args.size() == 2) {
-			Result<IValue> resultElem = args.get(0).accept(this);
-			// TODO: it should be easier to detect this.... What is the accepted way?
-			if (resultElem.getType() == Factory.Production && 
-					((IConstructor)resultElem.getValue()).getConstructorType() == Factory.Production_List) {
-				actuals[0] = resultElem.getValue();
-				types[0] = resultElem.getType();
-				concreteListsShouldBeSpliced = true;
-				Result<IValue> argsResult = args.get(1).accept(this);
-				concreteListsShouldBeSpliced = false;
-				actuals[1] = argsResult.getValue();
-				types[1] = argsResult.getType();
-				done = true;
-			}			
-		}
 
-		if (!done) {
-			// The normal case
+			java.util.List<Expression> args = x.getArguments();
+
+			IValue[] actuals = new IValue[args.size()];
+			Type[] types = new Type[args.size()];
+
 			for (int i = 0; i < args.size(); i++) {
 				Result<IValue> resultElem = args.get(i).accept(this);
 				types[i] = resultElem.getType();
 				actuals[i] = resultElem.getValue();
 			}
+
+			return (Result<IValue>) function.call(types, actuals, this);
 		}
-
-		
-		Type signature = tf.tupleType(types);
-
-		if (unTyped || isTreeConstructorName(name, signature)) {
-			return constructTree(name, actuals, signature);
+		catch (UndeclaredVariableError e) {
+			throw new UndeclaredFunctionError(e.getName(), e.getLocation());
 		}
-
-		return call(name, actuals, signature);
-	}
-
-	private Result<IValue> call(QualifiedName name, IValue[] actuals, Type actualTypes) {
-		String moduleName = Names.moduleName(name);
-
-		Result<IValue> func;
-		if (moduleName == null) {
-			Environment env = getCurrentEnvt();
-			
-			// TODO: store all functions in the variable environment, ditch the function environment
-			func = env.getVariable(name);
-			
-			if (func == null) {
-				func = env.getFunction(Names.name(Names.lastName(name)), actualTypes, name);
-			}
-			
-			if (!(func instanceof Lambda)) {
-				throw new UndeclaredFunctionError(name.toString(), name);
-			}
-		}
-		else {
-			ModuleEnvironment env = getCurrentEnvt().getImport(moduleName);
-			if (env == null) {
-				throw new UndeclaredModuleError(moduleName, name);
-			}
-			func = env.getLocalPublicFunction(Names.name(Names.lastName(name)), actualTypes, name);
-		}
-		
-		if (func != null) {
-			Environment oldEnv = getCurrentEnvt();
-			pushCallFrame(((Lambda) func).getEnv(), name.getLocation(), ((Lambda) func).getName());
-			try {
-				return ((Lambda) func).call(actuals, actualTypes, getCurrentEnvt());
-			}
-			finally {
-				setCurrentEnvt(oldEnv);
-			}
-		}
-		undefinedFunctionException(name, actualTypes);
-		return null;
-	}
-
-
-	private Environment pushCallFrame(Environment env, ISourceLocation loc, String name) {
-		//create a new Environment with a defined caller scope and location
-		Environment newEnv = new Environment(env, getCurrentEnvt(), getCurrentAST().getLocation(), loc, name);
-		setCurrentEnvt(newEnv);
-		return newEnv;
-	}
-
-	private void undefinedFunctionException(QualifiedName name, Type actualTypes) {
-		StringBuffer sb = new StringBuffer();
-		String sep = "";
-		for(int i = 0; i < actualTypes.getArity(); i++){
-			sb.append(sep);
-			sep = ", ";
-			sb.append(actualTypes.getFieldType(i).toString());
-		}
-
-		throw new UndeclaredFunctionError(name + "(" +  sb.toString() + ")", name);
-	}
-
-	private boolean isTreeConstructorName(QualifiedName name, Type signature) {
-		return getCurrentEnvt().isTreeConstructorName(name, signature);
-	}
-
-	/**
-	 * A top-down algorithm is needed to type check a constructor call since the
-	 * result type of constructors can be overloaded. We bring down the expected type
-	 * of each argument.
-	 * @param expected
-	 * @param functionName
-	 * @param args
-	 * @return
-	 * 
-	 * TODO: code does not deal with import structure, rather data def's are global.
-	 * TODO: We now first build the tree and then apply rules to it. Change this so
-	 * that we can avoid building the tree at all.
-	 */
-	private Result<IValue> constructTree(QualifiedName functionName, IValue[] actuals, Type signature) {
-		String sort;
-		String cons;
-		Result<IValue> result = null;
-
-		cons = Names.consName(functionName);
-		sort = Names.sortName(functionName);
-
-		Type candidate = null;
-
-		if (sort != null) {
-			Type sortType = getCurrentEnvt().getAbstractDataType(sort);
-
-			if (sortType != null) {
-				candidate = getCurrentEnvt().getConstructor(sortType, cons, signature);
-			}
-			else {
-				
-				return new TraversalEvaluator(vf, this).applyRules(ResultFactory.makeResult(tf.nodeType(), vf.node(cons, actuals), this));
-			}
-		}
-
-		candidate = getCurrentEnvt().getConstructor(cons, signature);
-		TraversalEvaluator te = new TraversalEvaluator(vf, this);
-		
-		if (candidate != null) {
-			Map<Type,Type> localBindings = new HashMap<Type,Type>();
-			candidate.getFieldTypes().match(tf.tupleType(actuals), localBindings);
-
-			Result<IValue> afterRules = te.applyRules(ResultFactory.makeResult(candidate.getAbstractDataType(), candidate.make(vf, actuals), 
-					this));
-			result = makeResult(candidate.getAbstractDataType().instantiate(new TypeStore(), localBindings), 
-					afterRules.getValue(), this);
-		}
-		else {
-			result = te.applyRules(makeResult(tf.nodeType(), vf.node(cons, actuals), this));
-		}
-
-		te.declareConcreteSyntaxType(result.getValue());
-		return detectConcreteSyntaxTree(result);
-	}
-
-	private <T extends IValue> Result<T> detectConcreteSyntaxTree(Result<T> result) {
-		if (result.getType() == Factory.Tree) {
-			IConstructor tree = (IConstructor) result.getValue();
-
-			Type cons = tree.getConstructorType();
-			if (cons == Factory.Tree_Appl || cons == Factory.Tree_Amb) {
-				TreeAdapter adapter = new TreeAdapter(tree);
-				if (adapter.isAppl() && adapter.getProduction().getRhs().isCf()) {
-					return (Result<T>) new ConcreteSyntaxResult(new ConcreteSyntaxType((IConstructor) result.getValue()), (IConstructor) result.getValue(), this);
-				}
-			}
-		}
-		return result;
 	}
 
 	private boolean hasJavaModifier(FunctionDeclaration func) {
@@ -1408,7 +1220,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	@Override
 	public Result<IValue> visitAssignableVariable(
 			org.meta_environment.rascal.ast.Assignable.Variable x) {
-		return getCurrentEnvt().getVariable(x.getQualifiedName(),x.getQualifiedName().toString());
+		return getCurrentEnvt().getVariable(x.getQualifiedName());
 	}
 
 	@Override
@@ -1793,44 +1605,17 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	public Result<IValue> visitExpressionQualifiedName(
 			org.meta_environment.rascal.ast.Expression.QualifiedName x) {
 		QualifiedName name = x.getQualifiedName();
-		Result<IValue> result ;
+		Result<IValue> variable = getCurrentEnvt().getVariable(name);
 		
-		try {
-			result = getCurrentEnvt().getVariable(name);
-		}
-		catch (UndeclaredModuleError e) {
-			// TODO: find a better way to deal with this exception, BTW the Bool::and notation (what this is for) should dissappear
-			// anyway and be replaced by Bool.and, so this problem should evaporate by itself.
-			if (isTreeConstructorName(name, tf.tupleEmpty())) {
-				return constructTree(name, new IValue[0], tf.tupleType(new Type[0]));
-			}
-			throw e;
+		if (variable == null) {
+			throw new UndeclaredVariableError(name.toString(), x);
 		}
 		
-		if (result != null && result.getValue() != null) {
-			return result;
-		}
-
-		// TODO: deal with overloading, now only accept unique ones
-		// TODO: deal with qualified function names
-		try {
-			result = getCurrentEnvt().getFunction(Names.name(Names.lastName(name)), tf.voidType(), x);
-		}
-		catch (UndeclaredFunctionError e) {
-			// TODO: change getFunction to return null instead
-			result = null;
+		if (variable != null && variable.getValue() == null) {
+			throw new UninitializedVariableError(name.toString(), x);
 		}
 		
-		if (result != null) {
-			return result;
-		}
-		
-		if (isTreeConstructorName(name, tf.tupleEmpty())) {
-			return constructTree(name, new IValue[0], tf.tupleType(new Type[0]));
-		}
-
-	
-		throw new UninitializedVariableError(name.toString(), x);
+		return variable;
 	}
 
 	@Override

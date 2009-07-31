@@ -49,7 +49,7 @@ public class ParserFunction extends Lambda {
 			printStartTrace();
 		}
 
-		checkParameters(actuals, TF.tupleType(actualTypes));
+		checkParameters(actuals, actualTypes);
 		
 		String source = ((IString)(actuals[0])).getValue();
 		
@@ -78,52 +78,18 @@ public class ParserFunction extends Lambda {
 		}
 	}
 	
-	@Override @Deprecated
-	public Result<IValue> call(IValue[] actuals, Type actualTypes, Environment env) {
-		if (callTracing) {
-			printStartTrace();
-		}
-
-		checkParameters(actuals, actualTypes);
-		
-		String source = ((IString)(actuals[0])).getValue();
-		
-		List<String> sdfSearchPath = loader.getSdfSearchPath();
-		Set<String> sdfImports = ((ModuleEnvironment)this.getEnv()).getSDFImports();
-		
-		
-		try {
-			IConstructor ptree = ((StringParser)parser).parseString(sdfSearchPath, sdfImports, source); 
-			IConstructor tree = (IConstructor) new ParsetreeAdapter(ptree).getTop().getArgs().get(1);
-			Type resultType = returnType.instantiate(env.getStore(), env.getTypeBindings());
-			
-			return ResultFactory.makeResult(resultType, tree, eval);
-		}
-		catch (IOException e) {
-			throw RuntimeExceptionFactory.io(VF.string(e.getMessage()), getAst(), eval.getStackTrace());
-		}
-		catch (SyntaxError e) {
-			throw RuntimeExceptionFactory.parseError(e.getLocation(), getAst(), eval.getStackTrace());
-		}
-		finally {
-			if (callTracing) {
-				printEndTrace();
-			}
-		}
-	}
-	
 	@Override
 	public String toString() {
 		return getHeader() + " @stringParser";
 	}
 
-	protected void checkParameters(IValue[] actuals, Type actualTypes) {
+	protected void checkParameters(IValue[] actuals, Type[] actualTypes) {
 		if (actuals.length != 1) {
 			throw new ArityError(1, actuals.length, getAst()); 
 		}
 		
-		if (!actualTypes.getFieldType(0).isStringType()) {
-			throw new UnexpectedTypeError(TF.stringType(), actualTypes.getFieldType(0), getAst());
+		if (!actualTypes[0].isStringType()) {
+			throw new UnexpectedTypeError(TF.stringType(), actualTypes[0], getAst());
 		}
 	}
 

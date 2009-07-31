@@ -1,5 +1,8 @@
 package org.meta_environment.rascal.interpreter.result;
 
+import static org.meta_environment.rascal.interpreter.result.ResultFactory.bool;
+import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
+
 import org.eclipse.imp.pdb.facts.IBool;
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IList;
@@ -7,12 +10,8 @@ import org.eclipse.imp.pdb.facts.ISet;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
-import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.uptr.ProductionAdapter;
 import org.meta_environment.uptr.TreeAdapter;
-
-import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeResult;
-import static org.meta_environment.rascal.interpreter.result.ResultFactory.bool;
 
 public class ConcreteSyntaxResult extends ConstructorResult {
 
@@ -31,15 +30,6 @@ public class ConcreteSyntaxResult extends ConstructorResult {
 		return that.nonEqualToConcreteSyntax(this, ctx);
 	}
 	
-	private boolean isLayout(IValue v){
-		if(v instanceof IConstructor){
-			IConstructor cons = (IConstructor) v;
-			return cons.getName().equals("layout");
-		}
-		return false;
-	}
-	
-	@SuppressWarnings("unchecked")
 	@Override
 	protected <U extends IValue> Result<U> equalToConcreteSyntax(
 			ConcreteSyntaxResult that, IEvaluatorContext ctx) {

@@ -18,7 +18,7 @@ public class MultiVariablePattern extends QualifiedNamePattern {
 		
 		// If not anonymous, store the value.
 		if(!anonymous) {
-			ctx.getCurrentEnvt().storeInnermostVariable(name.toString(), subject);
+			ctx.getCurrentEnvt().storeVariable(name.toString(), subject);
 		}
 		return true;
 	}

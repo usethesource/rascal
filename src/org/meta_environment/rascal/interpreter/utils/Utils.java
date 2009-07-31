@@ -32,7 +32,7 @@ public final class Utils {
 				while((varchar = (char) bytes[++i]) != '>'){
 					var.append(varchar);
 				}
-				Result<IValue> val = env.getVariable(ast, var.toString());
+				Result<IValue> val = env.getVariable(var.toString());
 				String replacement;
 				if(val == null || val.getValue() == null) {
 					throw new UninitializedVariableError(var.toString(), ast);

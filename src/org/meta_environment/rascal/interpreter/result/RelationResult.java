@@ -102,7 +102,6 @@ public class RelationResult extends SetOrRelationResult<IRelation> {
 		}
 		
 		
-		@SuppressWarnings("null")
 		@Override
 		public <U extends IValue, V extends IValue> Result<U> subscript(Result<?>[] subscripts, IEvaluatorContext ctx) {
 			if(getType().getElementType().isVoidType()) throw RuntimeExceptionFactory.noSuchElement(subscripts[0].getValue(), ctx.getCurrentAST(), ctx.getStackTrace());

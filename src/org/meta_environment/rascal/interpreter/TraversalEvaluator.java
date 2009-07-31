@@ -559,9 +559,12 @@ public class TraversalEvaluator {
 
 		java.util.List<RewriteRule> rules = ctx.getHeap().getRules(typeToSearchFor);
 		
-		TraverseResult tr = traverseTop(v, new CasesOrRules(rules));
+		if (rules.size() > 0) {
+			TraverseResult tr = traverseTop(v, new CasesOrRules(rules));
+			return tr.value;
+		}
 
-		return tr.value;
+		return v;
 	}
 
 	Result<IValue> applyRules(Result<IValue> v) {

@@ -100,12 +100,7 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 			} else 	if (oldValue.hasInferredType()) {
 				// Be liberal here: if the user has not declared a variable explicitly
 				// we use the lub type for the new value.
-//				System.out.println("oldType = " + oldValue.getType());
-//				System.out.println("newType = " + newValue.getType());
-//				System.out.println("LUB = " + oldValue.getType().lub(newValue.getType()));
-				
 				newValue = makeResult(oldValue.getType().lub(newValue.getType()), newValue.getValue(),eval);
-//				System.out.println("newValue = " + newValue + " type = " + newValue.getType());
 				newValue.setInferredType(true);
 				return newValue;
 			}
@@ -151,7 +146,9 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 		case Default:
 		case IsDefined:
 				//System.out.println("And it's local: " + x);
-				env.storeLocalVariable(qname, value); 
+//				env.storeLocalVariable(qname, value); ?? OOPS 
+//				env.declareVariable(value.getType(), qname.toString());
+				env.storeVariable(qname, value);
 				return value;
 		}
 		throw new UninitializedVariableError(x.toString(), x);

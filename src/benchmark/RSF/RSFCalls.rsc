@@ -53,7 +53,7 @@ public rel[str,str] trans(rel[str,str] CALL){
 }
 
 public set[str] reachFromTop1(rel[str,str] CALL){
-    top = top(CALL);
+    set[str] top = top(CALL);
 	return top + range(domainR(CALL+, top));
 }
 

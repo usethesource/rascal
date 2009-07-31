@@ -22,6 +22,7 @@ import org.meta_environment.rascal.ast.Toplevel.DefaultVisibility;
 import org.meta_environment.rascal.ast.Toplevel.GivenVisibility;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.env.Environment;
+import org.meta_environment.rascal.interpreter.result.ConstructorFunction;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredTypeError;
 import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredTypeError;
@@ -29,6 +30,11 @@ import org.meta_environment.rascal.interpreter.utils.Names;
 
 
 public class TypeDeclarationEvaluator {
+	private Evaluator eval;
+
+	public TypeDeclarationEvaluator(Evaluator eval) {
+		this.eval = eval;
+	}
 
 	private Environment env;
 
@@ -86,12 +92,14 @@ public class TypeDeclarationEvaluator {
 
 				Type children = tf.tupleType(fields, labels);
 				try {
-					env.constructorFromTuple(adt, altName, children);
+					ConstructorFunction cons = env.constructorFromTuple(var, eval, adt, altName, children);
+					cons.setPublic(true); // TODO: implement declared visibility
 				} catch (org.eclipse.imp.pdb.facts.exceptions.RedeclaredConstructorException e) {
 					throw new RedeclaredTypeError(altName, var);
 				}
 			} else if (var.isNillaryConstructor()) {
-				env.constructor(adt, altName, new Object[] {});
+				ConstructorFunction cons = env.constructor(var, eval, adt, altName, new Object[] {});
+				cons.setPublic(true); // TODO: implement declared visibility
 			}
 		}
 	}

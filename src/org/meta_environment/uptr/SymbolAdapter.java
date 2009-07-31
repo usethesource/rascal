@@ -36,6 +36,14 @@ public class SymbolAdapter {
 		throw new ImplementationError("Symbol does not have a child named symbol: " + tree);
 	}
 	
+	public SymbolAdapter getSeparator() {
+		if (isIterPlusSep() || isIterStarSep()) {
+			return new SymbolAdapter((IConstructor) tree.get("separator"));
+		}
+		
+		throw new ImplementationError("Symbol does not have a child named separator: " + tree);
+	}
+	
 	public String getName() {
 		if (isSort()) {
 			return ((IString) tree.get("string")).getValue();
@@ -140,6 +148,5 @@ public class SymbolAdapter {
 		
 		throw new ImplementationError("Symbol does not have a child named symbol: " + tree);
 	}
-
 
 }

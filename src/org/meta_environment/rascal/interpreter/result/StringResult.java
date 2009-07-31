@@ -7,6 +7,7 @@ import org.eclipse.imp.pdb.facts.IString;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
+import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 
 public class StringResult extends ElementResult<IString> {
 
@@ -87,7 +88,11 @@ public class StringResult extends ElementResult<IString> {
 	@Override
 	public Result<IValue> call(Type[] argTypes, IValue[] argValues,
 			IEvaluatorContext ctx) {
-		IValue node = getTypeFactory().nodeType().make(getValueFactory(), getValue().getValue(), argValues);
+		String name = getValue().getValue();
+		if (!getTypeFactory().isIdentifier(name)) {
+			throw RuntimeExceptionFactory.illegalIdentifier(name, ctx.getCurrentAST(), ctx.getStackTrace());
+		}
+		IValue node = getTypeFactory().nodeType().make(getValueFactory(), name, argValues);
 		return makeResult(getTypeFactory().nodeType(), node, ctx);
 	}
 	

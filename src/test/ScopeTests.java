@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Test;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
+import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 
@@ -85,17 +86,17 @@ public class ScopeTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{int n = 2; n == 2;}"));
 	}
 	
-	@Test(expected=UninitializedVariableError.class)
+	@Test(expected=UndeclaredVariableError.class)
 	public void ifNoLeak1(){
 		runTest("{if(int n := 3){n == 3;}else{n != 3;} n == 3;}");
 	}
 	
-	@Test(expected=UninitializedVariableError.class)
+	@Test(expected=UndeclaredVariableError.class)
 	public void ifNoLeak2(){
 		runTest("{if(int n <- [1 .. 3], n>=3){n == 3;}else{n != 3;} n == 3;}");
 	}
 	
-	@Test(expected=UninitializedVariableError.class)
+	@Test(expected=UndeclaredVariableError.class)
 	public void blockNoLeak1(){
 		runTest("{int n = 1; {int m = 2;}; n == 1 && m == 2;}");
 	}
@@ -105,7 +106,7 @@ public class ScopeTests extends TestFramework {
 		assertTrue(runTest("{int n = 1; {int m = 2;}; int m = 3; n == 1 && m == 3;}"));
 	}
 	
-	@Test
+	@Test(expected=UndeclaredVariableError.class)
 	public void innerImplicitlyDeclared(){
 		assertTrue(runTest("{int n = 1; {m = 2;}; n == 1 && m == 2;}"));
 	}

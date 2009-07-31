@@ -7,7 +7,6 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredVariableError;
-import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
 
 public class PatternTests extends TestFramework {
 
@@ -100,7 +99,7 @@ public class PatternTests extends TestFramework {
 		assertTrue(runTest("{{1, _*, 4, 5} := {1, 2, 3, 4, 5};}"));
 	}
 	
-	@Test(expected=UninitializedVariableError.class) 
+	@Test(expected=UndeclaredVariableError.class) 
 	public void unguardedMatchNoEscape() {
 		// m should not be declared after the unguarded pattern match.
 		assertTrue(runTest("{int n = 3; int m := n; m == n; }"));
@@ -217,26 +216,26 @@ public class PatternTests extends TestFramework {
 	@Test
 	public void matchList3()  {
 
-		prepare("data DATA = a | b | c | d | e(int N) | f(list[DATA] S);");
+		prepare("data DATA = a() | b() | c() | d() | e(int N) | f(list[DATA] S);");
 
-		assertTrue(runTestInSameEvaluator("[a, b] := [a, b];"));
-		assertTrue(runTestInSameEvaluator("([DATA X1, b] := [a, b]) && (X1 == a);"));
+		assertTrue(runTestInSameEvaluator("[a(), b()] := [a(), b()];"));
+		assertTrue(runTestInSameEvaluator("([DATA X1, b()] := [a(), b()]) && (X1 == a());"));
 
-		assertFalse(runTestInSameEvaluator("([DATA X2, DATA Y, c] := [a, b]);"));
+		assertFalse(runTestInSameEvaluator("([DATA X2, DATA Y, c()] := [a(), b()]);"));
 
-		assertTrue(runTestInSameEvaluator("([e(int X3), b] := [e(3), b]) && (X3 == 3);"));
+		assertTrue(runTestInSameEvaluator("([e(int X3), b()] := [e(3), b()]) && (X3 == 3);"));
 		assertTrue(runTestInSameEvaluator("([e(int X4)] := [e(3)]) && (X4 == 3);"));
-		assertFalse(runTestInSameEvaluator("([e(int X5)] := [a]);"));
+		assertFalse(runTestInSameEvaluator("([e(int X5)] := [a()]);"));
 
-		assertTrue(runTestInSameEvaluator("([a, f([a, b, DATA X6])] := [a, f([a,b,c])]) && (X6 == c);"));
+		assertTrue(runTestInSameEvaluator("([a(), f([a(), b(), DATA X6])] := [a(), f([a(),b(),c()])]) && (X6 == c());"));
 
-		assertTrue(runTestInSameEvaluator("([a, f([a, b, DATA X7]), list[DATA] Y7] := [a, f([a,b,c]), b]) && (X7 == c && Y7 == [b]);"));
-		assertTrue(runTestInSameEvaluator("([DATA A1, f([A1, b, DATA X8])] := [a, f([a,b,c])]) && (A1 == a);"));
+		assertTrue(runTestInSameEvaluator("([a(), f([a(), b(), DATA X7]), list[DATA] Y7] := [a(), f([a(),b(),c()]), b()]) && (X7 == c() && Y7 == [b()]);"));
+		assertTrue(runTestInSameEvaluator("([DATA A1, f([A1, b(), DATA X8])] := [a(), f([a(),b(),c()])]) && (A1 == a());"));
 
-		assertTrue(runTestInSameEvaluator("([DATA A2, f([A2, b, list[DATA] SX1]), SX1] := [a, f([a,b,c]), c]) && (A2 == a) && (SX1 ==[c]);"));
+		assertTrue(runTestInSameEvaluator("([DATA A2, f([A2, b(), list[DATA] SX1]), SX1] := [a(), f([a(),b(),c()]), c()]) && (A2 == a()) && (SX1 ==[c()]);"));
 
-		assertFalse(runTestInSameEvaluator("([DATA A3, f([A3, b, list[DATA] SX2]), SX2] := [d, f([a,b,c]), a]);"));
-		assertFalse(runTestInSameEvaluator("([DATA A4, f([A4, b, list[DATA] SX3]), SX3] := [c, f([a,b,c]), d]);"));
+		assertFalse(runTestInSameEvaluator("([DATA A3, f([A3, b(), list[DATA] SX2]), SX2] := [d(), f([a(),b(),c()]), a()]);"));
+		assertFalse(runTestInSameEvaluator("([DATA A4, f([A4, b(), list[DATA] SX3]), SX3] := [c(), f([a(),b(),c()]), d()]);"));
 
 	}
 	
@@ -294,25 +293,25 @@ public class PatternTests extends TestFramework {
 	@Test
 	public void matchListSet() {
 
-		prepare("data DATA = a | b | c | d | e(int N) | f(list[DATA] S) | f(set[DATA] S);");
+		prepare("data DATA = a() | b() | c() | d() | e(int N) | f(list[DATA] S) | f(set[DATA] S);");
 
-		assertTrue(runTestInSameEvaluator("[a, b] := [a, b];"));
-		assertTrue(runTestInSameEvaluator("([DATA X1, b] := [a, b]) && (X1 == a);"));
+		assertTrue(runTestInSameEvaluator("[a(), b()] := [a(), b()];"));
+		assertTrue(runTestInSameEvaluator("([DATA X1, b()] := [a(), b()]) && (X1 == a());"));
 
-		assertFalse(runTestInSameEvaluator("([DATA X2, DATA Y2, c] := [a, b]);"));
+		assertFalse(runTestInSameEvaluator("([DATA X2, DATA Y2, c()] := [a(), b()]);"));
 
-		assertTrue(runTestInSameEvaluator("([e(int X3), b] := [e(3), b]) && (X3 == 3);"));
+		assertTrue(runTestInSameEvaluator("([e(int X3), b()] := [e(3), b()]) && (X3 == 3);"));
 		assertTrue(runTestInSameEvaluator("([e(int X4)] := [e(3)]) && (X4 == 3);"));
-		assertFalse(runTestInSameEvaluator("([e(int X5)] := [a]);"));
+		assertFalse(runTestInSameEvaluator("([e(int X5)] := [a()]);"));
 
-		assertTrue(runTestInSameEvaluator("([a, f({a, b, DATA X6})] := [a, f({a,b,c})]) && (X6 == c);"));
-		assertTrue(runTestInSameEvaluator("({a, f([a, b, DATA X7])} := {a, f([a,b,c])}) && (X7 == c);"));
+		assertTrue(runTestInSameEvaluator("([a(), f({a(), b(), DATA X6})] := [a(), f({a(),b(),c()})]) && (X6 == c());"));
+		assertTrue(runTestInSameEvaluator("({a(), f([a(), b(), DATA X7])} := {a(), f([a(),b(),c()])}) && (X7 == c());"));
 
-		assertTrue(runTestInSameEvaluator("([a, f({a, b, DATA X8}), list[DATA] Y8] := [a, f({a,b,c}), b]) && (X8 == c && Y8 == [b]);"));
-		assertTrue(runTestInSameEvaluator("({a, f([a, b, DATA X9]), set[DATA] Y9} := {a, f([a,b,c]), b}) && (X9 == c && Y9 == {b});"));
+		assertTrue(runTestInSameEvaluator("([a(), f({a(), b(), DATA X8}), list[DATA] Y8] := [a(), f({a(),b(),c()}), b()]) && (X8 == c() && Y8 == [b()]);"));
+		assertTrue(runTestInSameEvaluator("({a(), f([a(), b(), DATA X9]), set[DATA] Y9} := {a(), f([a(),b(),c()]), b()}) && (X9 == c() && Y9 == {b()});"));
 
-		assertTrue(runTestInSameEvaluator("([DATA A1, f({A1, b, DATA X10})] := [a, f({a,b,c})]) && (A1 == a);"));
-		assertTrue(runTestInSameEvaluator("({DATA A2, f([A2, b, DATA X11])} := {a, f([a,b,c])}) && (A2 == a);"));
+		assertTrue(runTestInSameEvaluator("([DATA A1, f({A1, b(), DATA X10})] := [a(), f({a(),b(),c()})]) && (A1 == a());"));
+		assertTrue(runTestInSameEvaluator("({DATA A2, f([A2, b(), DATA X11])} := {a(), f([a(),b(),c()])}) && (A2 == a());"));
 
 	}
 	
@@ -556,30 +555,30 @@ public class PatternTests extends TestFramework {
 	@Test
 	public void matchSet2() {
 
-		prepare("data DATA = a | b | c | d | e(int N) | f(set[DATA] S);");
+		prepare("data DATA = a() | b() | c() | d() | e(int N) | f(set[DATA] S);");
 
-		assertTrue(runTestInSameEvaluator("{a, b} := {a, b};"));
-		assertTrue(runTestInSameEvaluator("({DATA X1, b} := {a, b}) && (X1 == a);"));
+		assertTrue(runTestInSameEvaluator("{a(), b()} := {a(), b()};"));
+		assertTrue(runTestInSameEvaluator("({DATA X1, b()} := {a(), b()}) && (X1 == a());"));
 
-		assertFalse(runTestInSameEvaluator("({DATA X2, DATA Y2, c} := {a, b});"));
+		assertFalse(runTestInSameEvaluator("({DATA X2, DATA Y2, c()} := {a(), b()});"));
 
-		assertTrue(runTestInSameEvaluator("({e(int X3), b} := {e(3), b}) && (X3 == 3);"));
+		assertTrue(runTestInSameEvaluator("({e(int X3), b()} := {e(3), b()}) && (X3 == 3);"));
 		assertTrue(runTestInSameEvaluator("({e(int X4)} := {e(3)}) && (X4 == 3);"));
-		assertFalse(runTestInSameEvaluator("({e(int X5)} := {a});"));
+		assertFalse(runTestInSameEvaluator("({e(int X5)} := {a()});"));
 
-		assertTrue(runTestInSameEvaluator("({a, f({a, b, DATA X6})} := {a, f({a,b,c})}) && (X6 == c);"));
-		assertTrue(runTestInSameEvaluator("({f({a, b, DATA X7}), a} := {a, f({a,b,c})}) && (X7 == c);"));
+		assertTrue(runTestInSameEvaluator("({a(), f({a(), b(), DATA X6})} := {a(), f({a(),b(),c()})}) && (X6 == c());"));
+		assertTrue(runTestInSameEvaluator("({f({a(), b(), DATA X7}), a()} := {a(), f({a(),b(),c()})}) && (X7 == c());"));
 
-		assertTrue(runTestInSameEvaluator("({a, f({a, b, DATA X8}), set[DATA] Y8} := {a, b, f({a,b,c})}) && (X8 == c && Y8 == {b});"));
-		assertTrue(runTestInSameEvaluator("({DATA A1, f({A1, b, DATA X9})} := {a, f({a,b,c})}) && (A1 == a);"));
-		assertTrue(runTestInSameEvaluator("({DATA A2, f({A2, b, DATA X10})} := {f({a,b,c}), a}) && (A2 == a);"));
+		assertTrue(runTestInSameEvaluator("({a(), f({a(), b(), DATA X8}), set[DATA] Y8} := {a(), b(), f({a(),b(),c()})}) && (X8 == c() && Y8 == {b()});"));
+		assertTrue(runTestInSameEvaluator("({DATA A1, f({A1, b(), DATA X9})} := {a(), f({a(),b(),c()})}) && (A1 == a());"));
+		assertTrue(runTestInSameEvaluator("({DATA A2, f({A2, b(), DATA X10})} := {f({a(),b(),c()}), a()}) && (A2 == a());"));
 
-		assertTrue(runTestInSameEvaluator("({DATA A3, f({A3, b, set[DATA] SX1}), SX1} := {a, f({a,b,c}), c}) && (A3== a) && (SX1 =={c});"));
-		assertTrue(runTestInSameEvaluator("({DATA A4, f({A4, b, set[DATA] SX2}), SX2} := {f({a,b,c}), a, c}) && (A4== a) && (SX2 =={c});"));
-		assertTrue(runTestInSameEvaluator("({DATA A5, f({A5, b, set[DATA] SX3}), SX3} := {c, f({a,b,c}), a}) && (A5 == a) && (SX3 =={c});"));
+		assertTrue(runTestInSameEvaluator("({DATA A3, f({A3, b(), set[DATA] SX1}), SX1} := {a(), f({a(),b(),c()}), c()}) && (A3== a()) && (SX1 =={c()});"));
+		assertTrue(runTestInSameEvaluator("({DATA A4, f({A4, b(), set[DATA] SX2}), SX2} := {f({a(),b(),c()}), a(), c()}) && (A4== a()) && (SX2 =={c()});"));
+		assertTrue(runTestInSameEvaluator("({DATA A5, f({A5, b(), set[DATA] SX3}), SX3} := {c(), f({a(),b(),c()}), a()}) && (A5 == a()) && (SX3 =={c()});"));
 
-		assertFalse(runTestInSameEvaluator("({DATA A6, f({A6, b, set[DATA] SX4}), SX4} := {d, f({a,b,c}), a});"));
-		assertFalse(runTestInSameEvaluator("({DATA A7, f({A7, b, set[DATA] SX5}), SX5} := {c, f({a,b,c}), d});"));
+		assertFalse(runTestInSameEvaluator("({DATA A6, f({A6, b(), set[DATA] SX4}), SX4} := {d(), f({a(),b(),c()}), a()});"));
+		assertFalse(runTestInSameEvaluator("({DATA A7, f({A7, b(), set[DATA] SX5}), SX5} := {c(), f({a(),b(),c()}), d()});"));
 	}	
 	
 	@Ignore @Test
@@ -718,14 +717,14 @@ public class PatternTests extends TestFramework {
 		assertTrue(runTest("{[1, L1: [list[int] L2, int N], L1] := [1,[2,3,4],[2,3,4]] && L1 == [2,3,4] && L2==[2,3] && N ==4;}"));
 	}
 	
-	@Test(expected=StaticError.class)
-	public void redeclaredVariableBecomes(){
-		assertTrue(runTest("{int N = 5; N : 3 := 3 && N == 3;}"));
+	public void variableBecomesEquality(){
+		assertFalse(runTest("{int N = 5; N : 3 := 3 && N == 3;}"));
+		assertTrue(runTest("{int N = 3; N : 3 := 3 && N == 3;}"));
 	}
 	
-	@Test(expected=StaticError.class)
 	public void doubleVariableBecomes(){
-		assertTrue(runTest("{[N : 3, N : 4] := [3,4] && N == 3;}"));
+		assertFalse(runTest("{[N : 3, N : 4] := [3,4] && N == 3;}"));
+		assertTrue(runTest("{[N : 3, N : 3] := [3,3] && N == 3;}"));
 	}
 	
 	@Test(expected=StaticError.class)
@@ -735,14 +734,18 @@ public class PatternTests extends TestFramework {
 	
 	@Test
 	public void antiPattern(){
-//		assertTrue(runTest("{!4 := 3;}"));
-//		assertFalse(runTest("{!3 := 3;}"));
-//		
-//		assertTrue(runTest("{![1,2,3] := [1,2,4];}"));
-		assertFalse(runTest("{![1,2,3] := [1,2,3];}"));
+		assertTrue(runTest("{!4 := 3;}"));
+		assertFalse(runTest("{!3 := 3;}"));
 		
-		assertTrue(runTest("{![1,int X,3] := [1,2,4]; (X ? 10) == 10;}"));
+		assertTrue(runTest("{![1,2,3] := [1,2,4];}"));
+		assertFalse(runTest("{![1,2,3] := [1,2,3];}"));
 	}
+	
+	@Test(expected=UndeclaredVariableError.class)
+	public void antiPatternDoesNotDeclare() {
+		runTest("{![1,int X,3] := [1,2,4] && (X ? 10) == 10;}");
+	}
+	
 	@Test
 	public void descendant1(){
 		assertTrue(runTest("/int N := [1,2,3,2] && N > 2;"));

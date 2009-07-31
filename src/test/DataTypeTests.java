@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 import org.meta_environment.rascal.interpreter.staticErrors.StaticError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFieldError;
+import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
 
 
@@ -526,7 +527,7 @@ public class DataTypeTests extends TestFramework {
 		runTest("[1,2][5];");
 	}
 	
-	@Test(expected=UninitializedVariableError.class)
+	@Test(expected=UndeclaredVariableError.class)
 	public void SubscriptError2() {
 		runTest("L[5];");
 	}
@@ -645,7 +646,7 @@ public class DataTypeTests extends TestFramework {
 		assertTrue(runTest("{<\"a\", [1,2]>, <\"b\", []>, <\"c\", [4,5,6]>} != {};"));
 	}
 	
-    @Test(expected=UninitializedVariableError.class)
+    @Test(expected=UndeclaredVariableError.class)
     public void UndefinedSetElementError(){
     	runTest("{X};");
     }
@@ -738,12 +739,12 @@ public class DataTypeTests extends TestFramework {
 		assertTrue(runTest("{map[str,list[int]] m = (\"a\": [1,2], \"b\": [], \"c\": [4,5,6]); m[\"a\"] == [1,2];}"));
 	}
 	
-	 @Test(expected=UninitializedVariableError.class)
+	 @Test(expected=UndeclaredVariableError.class)
 	    public void UndefinedMapElementError1(){
 	    	runTest("(X:2);");
 	    }
 	 
-	 @Test(expected=UninitializedVariableError.class)
+	 @Test(expected=UndeclaredVariableError.class)
 	    public void UndefinedMapElementError2(){
 	    	runTest("(1:Y);");
 	    }
@@ -801,7 +802,7 @@ public class DataTypeTests extends TestFramework {
 		assertTrue(runTest("<1, \"a\", true> + <1.5, \"def\"> == <1, \"a\", true> + <1.5, \"def\">;"));
 	}
 	
-	 @Test(expected=UninitializedVariableError.class)
+	 @Test(expected=UndeclaredVariableError.class)
 	    public void UndefinedTupleElementError1(){
 	    	runTest("<1,X,3>;");
 	    }
@@ -894,17 +895,17 @@ public class DataTypeTests extends TestFramework {
 		assertTrue(runTest("{<1,2>, <2,3>, <3,4>, <4,2>, <4,5>}* == {<1,2>, <2,3>, <3,4>, <4,2>, <4,5>, <1, 3>, <2, 4>, <3, 2>, <3, 5>, <4, 3>, <1, 4>, <2, 2>, <2, 5>, <3, 3>, <4, 4>, <1, 5>, <1, 1>, <5, 5>};"));
 	}
 	
-	@Test(expected=UninitializedVariableError.class)
+	@Test(expected=UndeclaredVariableError.class)
 	public void UndeRelationElementError1(){
 		runTest("{<1,10>, <X,20>};");
 	}
 	
-	@Test(expected=UninitializedVariableError.class)
+	@Test(expected=UndeclaredVariableError.class)
 	public void UndefinedRelationElementError2(){
 		runTest("{<1,10>, <10, Y>};");
 	}
 	
-	@Test(expected=UninitializedVariableError.class)
+	@Test(expected=UndeclaredVariableError.class)
 	public void UndefinedRelationElementError3(){
 		runTest("{<1,10>, T, <3,30>};");
 	}
@@ -939,14 +940,14 @@ public class DataTypeTests extends TestFramework {
 	
 	@Test
 	public void good()  {
-		prepare("data NODE = val(value V) | f | f(NODE a);");
+		prepare("data NODE = val(value V) | f() | f(NODE a);");
 		
 		assertTrue(runTestInSameEvaluator("f(val(1)) == f(val(1));"));
 	}
 	
 	@Test
 	public void node()  {
-		prepare("data NODE = i(int I) | s(str x)  | st(set[NODE] s) | l(list[NODE]) | m(map[NODE,NODE] m) | f | f(NODE a) | f(NODE a, NODE b) | g | g(NODE a) | g(NODE a,NODE b);");
+		prepare("data NODE = i(int I) | s(str x)  | st(set[NODE] s) | l(list[NODE]) | m(map[NODE,NODE] m) | f() | f(NODE a) | f(NODE a, NODE b) | g() | g(NODE a) | g(NODE a,NODE b);");
 		
 		assertTrue(runTestInSameEvaluator("f() == f();"));
 		assertTrue(runTestInSameEvaluator("f() != g();"));
@@ -965,7 +966,7 @@ public class DataTypeTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("f(i(1),g(i(2),l([i(3),i(4),i(5)]))) == f(i(1),g(i(2),l([i(3),i(4),i(5)])));"));
 		assertTrue(runTestInSameEvaluator("{ NODE n = f(i(1),g(i(2),l([i(3),i(4),i(5)]))); NODE m = f(i(1),g(i(2),l([i(3),i(4),i(5),i(6)]))); n != m;}"));
 		assertTrue(runTestInSameEvaluator("f(i(1),g(i(2),m((i(3):i(3),i(4):i(4),i(5):i(5))))) == f(i(1),g(i(2),m((i(3):i(3),i(4):i(4),i(5):i(5)))));"));
-		assertTrue(runTestInSameEvaluator("{NODE n = f(i(1),g(i(2),m((i(3):i(3),i(4):i(4),i(5):i(5))))); NODE m = f(i(1),g(i(2),m((i(3):i(3),i(4):i(4),i(5):i(0))))); n != m;}"));
+		assertTrue(runTestInSameEvaluator("{NODE n = f(i(1),g(i(2),m((i(3):i(3),i(4):i(4),i(5):i(5))))); NODE x = f(i(1),g(i(2),m((i(3):i(3),i(4):i(4),i(5):i(0))))); n != x;}"));
 		
 		assertTrue(runTestInSameEvaluator("f()                       <= f();"));
 		assertTrue(runTestInSameEvaluator("f()                       <= g();"));
@@ -1023,7 +1024,7 @@ public class DataTypeTests extends TestFramework {
 	@Test
 	public void undefined()  {
 		
-		assertTrue(runTest("{(T ? 13) == 13;}"));
+		assertTrue(runTest("{int T; (T ? 13) == 13;}"));
 		assertTrue(runTest("{T = (1:10); (T[1] ? 13) == 10;}"));
 		assertTrue(runTest("{T = (1:10); (T[2] ? 13) == 13;}"));
 		

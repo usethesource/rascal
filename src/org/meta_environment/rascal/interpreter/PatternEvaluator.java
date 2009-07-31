@@ -1,6 +1,7 @@
 package org.meta_environment.rascal.interpreter;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -8,6 +9,7 @@ import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.Expression;
+import org.meta_environment.rascal.ast.Name;
 import org.meta_environment.rascal.ast.NullASTVisitor;
 import org.meta_environment.rascal.ast.Expression.Addition;
 import org.meta_environment.rascal.ast.Expression.All;
@@ -86,9 +88,9 @@ import org.meta_environment.rascal.interpreter.matching.QualifiedNamePattern;
 import org.meta_environment.rascal.interpreter.matching.RegExpPatternValue;
 import org.meta_environment.rascal.interpreter.matching.SetPattern;
 import org.meta_environment.rascal.interpreter.matching.TuplePattern;
-import org.meta_environment.rascal.interpreter.matching.TypedVariableBecomesPattern;
 import org.meta_environment.rascal.interpreter.matching.TypedVariablePattern;
 import org.meta_environment.rascal.interpreter.matching.VariableBecomesPattern;
+import org.meta_environment.rascal.interpreter.result.Lambda;
 import org.meta_environment.rascal.interpreter.result.Result;
 import org.meta_environment.rascal.interpreter.staticErrors.AmbiguousConcretePattern;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
@@ -237,11 +239,17 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> {
 			//			return new AbstractPatternConcreteAmb(vf, new EvaluatorContext(ctx.getEvaluator(), x), x, visitArguments(x));
 		}
 
-		if (nameExpr.isQualifiedName() && ctx.getCurrentEnvt().getVariable(nameExpr.getQualifiedName()) == null) {
+		Result<IValue> prefix = ctx.getCurrentEnvt().getVariable(nameExpr.getQualifiedName());
+		
+		// TODO: get rid of this if-then-else by introducing subclasses for NodePattern for each case.
+		if (nameExpr.isQualifiedName() && prefix == null) {
 			return new NodePattern(vf, ctx, null, nameExpr.getQualifiedName(), visitArguments(x));
 		}
+		else if (nameExpr.isQualifiedName() && (prefix instanceof Lambda)) {
+			return new NodePattern(vf, ctx, null,nameExpr.getQualifiedName(), visitArguments(x));
+		}
 		else {
-			return new NodePattern(vf, ctx, (IMatchingResult) nameExpr.accept(this), null, visitArguments(x));
+			return new NodePattern(vf, ctx, nameExpr.accept(this), null, visitArguments(x));
 		}
 	}
 	
@@ -341,15 +349,19 @@ public class PatternEvaluator extends NullASTVisitor<IMatchingResult> {
 			TypedVariableBecomes x) {
 		TypeEvaluator te = TypeEvaluator.getInstance();
 		Type type =  te.eval(x.getType(), ctx.getCurrentEnvt());
-		IMatchingResult pat = (IMatchingResult) x.getPattern().accept(this);
-		return new TypedVariableBecomesPattern(vf, ctx, type, x.getName(), pat);
+		IMatchingResult pat = x.getPattern().accept(this);
+		IMatchingResult var = new TypedVariablePattern(vf, ctx, type, x.getName());
+		return new VariableBecomesPattern(vf, ctx, var, pat);
 	}
 	
 	@Override
 	public IMatchingResult visitExpressionVariableBecomes(
 			VariableBecomes x) {
-		IMatchingResult pat = (IMatchingResult) x.getPattern().accept(this);
-		return new VariableBecomesPattern(vf, ctx, x.getName(), pat);
+		IMatchingResult pat = x.getPattern().accept(this);
+		LinkedList<Name> names = new LinkedList<Name>();
+		names.add(x.getName());
+		IMatchingResult var = new QualifiedNamePattern(vf, ctx, new org.meta_environment.rascal.ast.QualifiedName.Default(x.getTree(), names));
+		return new VariableBecomesPattern(vf, ctx, var, pat);
 	}
 	
 	@Override

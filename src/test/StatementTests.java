@@ -30,12 +30,12 @@ public class StatementTests extends TestFramework {
 		runTest("assert 3.5 : \"Wrong expression type\";");
 	}
 	
-	@Test(expected=UninitializedVariableError.class)
+	@Test(expected=UndeclaredVariableError.class)
 	public void assertError4() {
 		runTest("assert X;");
 	}
 	
-	@Test(expected=UninitializedVariableError.class)
+	@Test(expected=UndeclaredVariableError.class)
 	public void assertError5() {
 		runTest("assert X : \"Wrong expression type\";");
 	}

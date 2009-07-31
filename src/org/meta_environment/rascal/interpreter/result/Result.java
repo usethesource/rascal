@@ -4,8 +4,6 @@ import static org.meta_environment.rascal.interpreter.result.ResultFactory.makeR
 
 import java.util.Iterator;
 
-import org.eclipse.imp.pdb.facts.IList;
-import org.eclipse.imp.pdb.facts.IListWriter;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -140,10 +138,9 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	
 	///////
 	
-	public Result<IValue> call(Type[] argTypes, IValue[] argValues, IEvaluatorContext ctx) {
+	public Result<?> call(Type[] argTypes, IValue[] argValues, IEvaluatorContext ctx) {
 		return undefinedError(CALL_STRING, this, ctx);
 	}
-	
 	
 	public <U extends IValue, V extends IValue> Result<U> add(Result<V> that, IEvaluatorContext ctx) {
 		return undefinedError(ADDITION_STRING, that, ctx);

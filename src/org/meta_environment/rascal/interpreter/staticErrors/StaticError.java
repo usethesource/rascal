@@ -12,7 +12,7 @@ import org.meta_environment.rascal.ast.AbstractAST;
  */
 public abstract class StaticError extends RuntimeException {
 	private static final long serialVersionUID = 2730379050952564623L;
-	private final ISourceLocation loc;
+	private ISourceLocation loc;
 	
 	public StaticError(String message, ISourceLocation loc) {
 		super(message);
@@ -29,6 +29,10 @@ public abstract class StaticError extends RuntimeException {
 	
 	public ISourceLocation getLocation() {
 		return loc;
+	}
+	
+	public void setLocation(ISourceLocation loc) {
+		this.loc = loc;
 	}
 
 	@Override

@@ -6,6 +6,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.meta_environment.rascal.interpreter.staticErrors.ModuleLoadError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFunctionError;
+import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UninitializedVariableError;
 
 public class ImportTests extends TestFramework {
@@ -41,7 +42,7 @@ public class ImportTests extends TestFramework {
 		assertTrue(runTestInSameEvaluator("{ int n = 4; n == 4;}"));
 	}
 	
-	@Test(expected=UninitializedVariableError.class)
+	@Test(expected=UndeclaredVariableError.class)
 	public void UndefinedPrivateVar1(){
 		prepareModule("module M\n" +
 		         "private int m = 3;");
@@ -130,12 +131,12 @@ public class ImportTests extends TestFramework {
 	@Test
 	public void testDataImport(){
 		prepareModule("module Mdata\n" +
-				      "public data TYPE = natural | string;");
+				      "public data TYPE = natural() | string();");
 		
 		runTestInSameEvaluator("import Mdata;");
-		assertTrue(runTestInSameEvaluator("natural == natural;"));
-		assertTrue(runTestInSameEvaluator("string == string;"));
-		assertTrue(runTestInSameEvaluator("natural != string;"));
+		assertTrue(runTestInSameEvaluator("natural() == natural();"));
+		assertTrue(runTestInSameEvaluator("string() == string();"));
+		assertTrue(runTestInSameEvaluator("natural() != string();"));
 		
 	}
 }

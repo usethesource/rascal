@@ -4,10 +4,10 @@ import IO;
 import Benchmark;
 
 /*
- * Datatype NUM of numerals with zero (z) and successor (s).
+ * Datatype NUM of numerals with zero (z()) and successor (s).
  */
 
-data NUM = z | s(NUM);
+data NUM = z() | s(NUM);
 
 /*
  * add -- rewrite rules for addition on numerals
@@ -24,8 +24,8 @@ rule a2 add(s(NUM N), NUM M)   => s(add(N, M));
  
 data NUM = mul(NUM L, NUM R);
 
-rule m0 mul(NUM N, z)          => z;
-rule m1 mul(z, NUM N)          => z;
+rule m0 mul(NUM N, z())          => z();
+rule m1 mul(z(), NUM N)          => z();
 rule m2 mul(s(NUM N), NUM M)   => add(M, mul(N, M));
 
 /*
@@ -34,7 +34,7 @@ rule m2 mul(s(NUM N), NUM M)   => add(M, mul(N, M));
 
 data NUM = fac1(NUM);
 
-rule f1 fac1(z)                 => s(z);
+rule f1 fac1(z())                 => s(z());
 rule f2 fac1(s(NUM N))          => mul(s(N), fac1(N));
 
 public void measure1(int N)
@@ -43,16 +43,16 @@ public void measure1(int N)
 	
 	start = currentTimeMillis();
 	switch(N){
-		case 1:  result = fac1(s(z));
-		case 2:  result = fac1(s(s(z)));
-		case 3:  result = fac1(s(s(s(z))));
-		case 4:  result = fac1(s(s(s(s(z)))));
-		case 5:  result = fac1(s(s(s(s(s(z))))));
-		case 6:  result = fac1(s(s(s(s(s(s(z)))))));
-		case 7:  result = fac1(s(s(s(s(s(s(s(z))))))));
-		case 8:  result = fac1(s(s(s(s(s(s(s(s(z)))))))));
-		case 9:  result = fac1(s(s(s(s(s(s(s(s(s(z))))))))));
-		case 10: result = fac1(s(s(s(s(s(s(s(s(s(s(z)))))))))));
+		case 1:  result = fac1(s(z()));
+		case 2:  result = fac1(s(s(z())));
+		case 3:  result = fac1(s(s(s(z()))));
+		case 4:  result = fac1(s(s(s(s(z())))));
+		case 5:  result = fac1(s(s(s(s(s(z()))))));
+		case 6:  result = fac1(s(s(s(s(s(s(z())))))));
+		case 7:  result = fac1(s(s(s(s(s(s(s(z()))))))));
+		case 8:  result = fac1(s(s(s(s(s(s(s(s(z())))))))));
+		case 9:  result = fac1(s(s(s(s(s(s(s(s(s(z()))))))))));
+		case 10: result = fac1(s(s(s(s(s(s(s(s(s(s(z())))))))))));
 	}
 	used = currentTimeMillis() - start;
 		

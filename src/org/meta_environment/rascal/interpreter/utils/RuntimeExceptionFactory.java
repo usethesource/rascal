@@ -10,7 +10,6 @@ import org.eclipse.imp.pdb.facts.type.TypeFactory;
 import org.eclipse.imp.pdb.facts.type.TypeStore;
 import org.meta_environment.ValueFactoryFactory;
 import org.meta_environment.rascal.ast.AbstractAST;
-import org.meta_environment.rascal.ast.Expression;
 import org.meta_environment.rascal.interpreter.control_exceptions.Throw;
 
 /**

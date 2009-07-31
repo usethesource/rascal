@@ -16,7 +16,7 @@ public class NodeTests extends TestFramework {
 	public void arity() {
 
 		prepare("import Node;").prepareMore(
-				"data XNODE = xf | xf(int) | xf(int,int) | xf(int,int,int);");
+				"data XNODE = xf() | xf(int) | xf(int,int) | xf(int,int,int);");
 
 		assertTrue(runTestInSameEvaluator("arity(xf()) == 0;"));
 		assertTrue(runTestInSameEvaluator("arity(xf(1)) == 1;"));
@@ -27,7 +27,7 @@ public class NodeTests extends TestFramework {
 	public void getChildren() {
 
 		prepare("import Node;").prepareMore(
-				"data YNODE = yf | yf(int) | yf(int,int) | yf(int,int,int);");
+				"data YNODE = yf() | yf(int) | yf(int,int) | yf(int,int,int);");
 
 		assertTrue(runTestInSameEvaluator("getChildren(yf()) == [];"));
 		assertTrue(runTestInSameEvaluator("getChildren(yf(1)) == [1];"));
@@ -38,7 +38,7 @@ public class NodeTests extends TestFramework {
 	public void getName() {
 
 		prepare("import Node;").prepareMore(
-				"data ZNODE = zf | zf(int) | zf(int,int) | zf(int,int,int);");
+				"data ZNODE = zf() | zf(int) | zf(int,int) | zf(int,int,int);");
 
 		assertTrue(runTestInSameEvaluator("getName(zf()) == \"zf\";"));
 		assertTrue(runTestInSameEvaluator("getName(zf(1,2,3)) == \"zf\";"));
@@ -96,7 +96,7 @@ public class NodeTests extends TestFramework {
 	
 	@Test
 	public void readATermFromFileFun() {
-		assertTrue(atermWriteRead("fn", "", "\"fn()\""));
+		assertTrue(atermWriteRead("fn()", "", "\"fn()\""));
 	}
 	
 	@Test

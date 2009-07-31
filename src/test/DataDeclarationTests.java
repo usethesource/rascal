@@ -12,48 +12,48 @@ public class DataDeclarationTests extends TestFramework {
 	@Test
 	public void bool() {
 
-		prepare("data Bool = btrue | bfalse | band(Bool left, Bool right) | bor(Bool left, Bool right);");
+		prepare("data Bool = btrue() | bfalse() | band(Bool left, Bool right) | bor(Bool left, Bool right);");
 
-		assertTrue(runTestInSameEvaluator("{Bool b = btrue; b == Bool::btrue;}"));
-		assertTrue(runTestInSameEvaluator("{Bool b = bfalse; b == Bool::bfalse;}"));
-		assertTrue(runTestInSameEvaluator("{Bool b = band(btrue,bfalse);  b == Bool::band(Bool::btrue,Bool::bfalse);}"));
-		assertTrue(runTestInSameEvaluator("{Bool b = bor(btrue,bfalse); b == bor(btrue,bfalse);}"));
-		assertTrue(runTestInSameEvaluator("band(btrue,bfalse).left == btrue;"));
-		assertTrue(runTestInSameEvaluator("band(btrue,bfalse).right == bfalse;"));
-		assertTrue(runTestInSameEvaluator("bor(btrue,bfalse).left == btrue;"));
-		assertTrue(runTestInSameEvaluator("bor(btrue,bfalse).right == bfalse;"));
-		assertTrue(runTestInSameEvaluator("{Bool b = band(btrue,bfalse).left; b == btrue;}"));
-		assertTrue(runTestInSameEvaluator("{Bool b = band(btrue,bfalse).right; b == bfalse;}"));
+		assertTrue(runTestInSameEvaluator("{Bool b = btrue(); b == Bool::btrue();}"));
+		assertTrue(runTestInSameEvaluator("{Bool b = bfalse(); b == Bool::bfalse();}"));
+		assertTrue(runTestInSameEvaluator("{Bool b = band(btrue(),bfalse());  b == Bool::band(Bool::btrue(),Bool::bfalse());}"));
+		assertTrue(runTestInSameEvaluator("{Bool b = bor(btrue(),bfalse()); b == bor(btrue(),bfalse());}"));
+		assertTrue(runTestInSameEvaluator("band(btrue(),bfalse()).left == btrue();"));
+		assertTrue(runTestInSameEvaluator("band(btrue(),bfalse()).right == bfalse();"));
+		assertTrue(runTestInSameEvaluator("bor(btrue(),bfalse()).left == btrue();"));
+		assertTrue(runTestInSameEvaluator("bor(btrue(),bfalse()).right == bfalse();"));
+		assertTrue(runTestInSameEvaluator("{Bool b = band(btrue(),bfalse()).left; b == btrue();}"));
+		assertTrue(runTestInSameEvaluator("{Bool b = band(btrue(),bfalse()).right; b == bfalse();}"));
 	}
 	
 	@Test(expected=StaticError.class)
 	public void boolUndefinedValue(){
-		prepare("data Bool = btrue | bfalse | band(Bool left, Bool right) | bor(Bool left, Bool right);");
+		prepare("data Bool = btrue() | bfalse() | band(Bool left, Bool right) | bor(Bool left, Bool right);");
 		runTestInSameEvaluator("{Bool b; b.left;}");
 	}
 	
 	@Test(expected=StaticError.class)
 	public void boolUnitializedVariable1(){
-		prepare("data Bool = btrue | bfalse | band(Bool left, Bool right) | bor(Bool left, Bool right);");
-		runTestInSameEvaluator("{Bool b; b.left = btrue;}");
+		prepare("data Bool = btrue() | bfalse() | band(Bool left, Bool right) | bor(Bool left, Bool right);");
+		runTestInSameEvaluator("{Bool b; b.left = btrue();}");
 	}
 	
 	@Test
 	public void boolFieldUpdate() {
 
-		prepare("data Bool = btrue | bfalse | band(Bool left, Bool right) | bor(Bool left, Bool right);");
+		prepare("data Bool = btrue() | bfalse() | band(Bool left, Bool right) | bor(Bool left, Bool right);");
 
-		assertTrue(runTestInSameEvaluator("{Bool b = bor(btrue,bfalse); b[left=bfalse] == bor(bfalse,bfalse);}"));
-		assertTrue(runTestInSameEvaluator("{Bool b = bor(btrue,bfalse); b[right=btrue] == bor(btrue,btrue);}"));
-		assertTrue(runTestInSameEvaluator("{Bool b = bor(btrue,bfalse); b.left=bfalse; b == bor(bfalse,bfalse);}"));
-		assertTrue(runTestInSameEvaluator("{Bool b = bor(btrue,bfalse); b.right=btrue; b == bor(btrue,btrue);}"));
-		assertTrue(runTestInSameEvaluator("{Bool b = bor(bfalse,bfalse); b.left=btrue; b.right=btrue; b == bor(btrue,btrue);}"));
+		assertTrue(runTestInSameEvaluator("{Bool b = bor(btrue(),bfalse()); b[left=bfalse()] == bor(bfalse(),bfalse());}"));
+		assertTrue(runTestInSameEvaluator("{Bool b = bor(btrue(),bfalse()); b[right=btrue()] == bor(btrue(),btrue());}"));
+		assertTrue(runTestInSameEvaluator("{Bool b = bor(btrue(),bfalse()); b.left=bfalse(); b == bor(bfalse(),bfalse());}"));
+		assertTrue(runTestInSameEvaluator("{Bool b = bor(btrue(),bfalse()); b.right=btrue(); b == bor(btrue(),btrue());}"));
+		assertTrue(runTestInSameEvaluator("{Bool b = bor(bfalse(),bfalse()); b.left=btrue(); b.right=btrue(); b == bor(btrue(),btrue());}"));
 	}
 	
 	@Test(expected=StaticError.class)
 	public void boolUnitializedVariable2(){
-		prepare("data Bool = btrue | bfalse | band(Bool left, Bool right) | bor(Bool left, Bool right);");
-		runTestInSameEvaluator("{Bool b; b[left = btrue];}");
+		prepare("data Bool = btrue() | bfalse() | band(Bool left, Bool right) | bor(Bool left, Bool right);");
+		runTestInSameEvaluator("{Bool b; b[left = btrue()];}");
 	}
 
 	@Test
@@ -120,8 +120,8 @@ public class DataDeclarationTests extends TestFramework {
 	
 	@Test(expected=org.meta_environment.rascal.interpreter.control_exceptions.Throw.class) 
 	public void boolError() {
-		prepare("data Bool = btrue | bfalse | band(Bool left, Bool right) | bor(Bool left, Bool right);");
-		assertTrue(runTestInSameEvaluator("{Bool b = btrue; b.left == btrue;}"));
+		prepare("data Bool = btrue() | bfalse() | band(Bool left, Bool right) | bor(Bool left, Bool right);");
+		assertTrue(runTestInSameEvaluator("{Bool b = btrue(); b.left == btrue();}"));
 	}
 	
 	public void exactDoubleFieldIsAllowed() throws StaticError {

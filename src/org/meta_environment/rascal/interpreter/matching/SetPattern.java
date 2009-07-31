@@ -216,7 +216,7 @@ public class SetPattern extends AbstractMatchingResult {
 					isSetVar[nVar] = false;
 					nVar++;
 				} else  {
-					Result<IValue> varRes = env.getVariable(null, name);
+					Result<IValue> varRes = env.getVariable(name);
 					
 					if(varRes == null){
 						// Completely new variable
@@ -224,7 +224,7 @@ public class SetPattern extends AbstractMatchingResult {
 						varPat[nVar] = child;
 						isSetVar[nVar] = false;
 						nVar++;
-						env.storeInnermostVariable(name, null);
+						env.declareVariable(setSubjectElementType, name);
 					} else {
 					    if(varRes.getValue() != null){
 					        Type varType = varRes.getType();
@@ -315,10 +315,10 @@ public class SetPattern extends AbstractMatchingResult {
 			String name = qualName.getName();
 			if(qualName.isAnonymous()){
 				varGen[i] = new SingleElementGenerator(elements);
-			} else if(env.getVariable(null, name) == null){
+			} else if(env.getVariable(name) == null){
 				varGen[i] = new SingleElementGenerator(elements);
 			} else {
-				varGen[i] = new SingleIValueIterator(env.getVariable(null, name).getValue());
+				varGen[i] = new SingleIValueIterator(env.getVariable(name).getValue());
 			}
 		}
 		if(isSetVar[i]){
