@@ -61,7 +61,7 @@ PROGRAM constantPropagation(PROGRAM P) {
 
 PROGRAM smallCP =
 
-program([decl("x", natural), decl("s", string), decl("d", natural), decl("dd", natural)],
+program([decl("x", natural()), decl("s", string), decl("d", natural()), decl("dd", natural())],
         [ asgStat("x", natCon(3)),
           asgStat("d", id("x")) ,
           whileStat(id("x"),
