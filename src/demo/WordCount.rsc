@@ -70,6 +70,12 @@ public int countLine2(str S){
 // The function as a whole makes no sense, since we throw
 // the map away.
 
+public int sum(list[int] l) {
+  int sum = 0;
+  for (int i <- l) sum += i;
+  return sum;
+}
+
 public int countLine3(str S){
   map[str,int] allCounts = ();
   int cnt = 0;
