@@ -3,7 +3,7 @@ module demo::PicoAbstract::PicoAbstractSyntax
  * The abstract syntax of our favourite toy language
  */
 public data TYPE =
-	  natural | string;
+	  natural() | string();
 	  
 public alias PicoId = str;
 
