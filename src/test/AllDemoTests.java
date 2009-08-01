@@ -115,6 +115,12 @@ public class AllDemoTests extends TestFramework {
 	}
 	
 	@Test
+	public void LRGen() {
+		prepare("import demo::Parsing::LRGen;");
+		assertTrue(runTestInSameEvaluator("demo::Parsing::LRGen::test();"));
+	}
+	
+	@Test
 	public void PicoAssembly(){
 		prepare("import demo::PicoAbstract::Assembly;");
 		assertTrue(runTestInSameEvaluator("demo::PicoAbstract::Assembly::test();"));
