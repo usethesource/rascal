@@ -1,13 +1,13 @@
-module demo::Parsing::Parsing
+module demo::Parsing::LRGen
 
 import List;
 import Set;
 import IO;
 import UnitTest;
 
-/* Very preliminary LR parser generator */
+/* Very simple LR parser generator */
 
-public data Symbol      = t(str text) | nt(str name) | epsilon;
+public data Symbol      = t(str text) | nt(str name) | epsilon();
 
 public alias Rule       = tuple[str name, list[Symbol] symbols];
 public data Grammar     = grammar(str start, set[Rule] rules);  
@@ -23,8 +23,8 @@ public set[Symbol] firstNonEmpty(list[Symbol] symbols, map[Symbol, set[Symbol]] 
 	    case nt(str name): {
 	            nonterm= nt(name);
 	    		f = FIRST[nonterm] ? {};
-	 			if(epsilon notin f)
-					return (result + f) - {epsilon};
+	 			if(epsilon() notin f)
+					return (result + f) - {epsilon()};
 				else
 				    result = result + f;
 			}
@@ -52,7 +52,7 @@ public map[Symbol, set[Symbol]] first(Grammar G){
 	        			FIRST[nonterm] = {};
 					for(list[Symbol] symbols <- G.rules[name]){
 					    if(isEmpty(symbols))
-					    	FIRST[nonterm] = FIRST[nonterm] + {epsilon};
+					    	FIRST[nonterm] = FIRST[nonterm] + {epsilon()};
 						FIRST[nonterm] = FIRST[nonterm] + firstNonEmpty(symbols, FIRST);
 					}
 				}
