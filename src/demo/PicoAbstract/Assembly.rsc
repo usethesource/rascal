@@ -39,7 +39,7 @@ public list[Instr] compileProgram(PROGRAM P){
 }
 
 private list[Instr] compileDecls(list[DECL] Decls){
-    return [ (type == natural) ? dclNat(Id) : dclStr(Id)  | decl(PicoId Id, TYPE type) <- Decls];
+    return [ (type == natural()) ? dclNat(Id) : dclStr(Id)  | decl(PicoId Id, TYPE type) <- Decls];
 }
 
 private list[Instr] compileStatements(list[STATEMENT] Stats){
@@ -50,7 +50,7 @@ private list[Instr] compileStatement(STATEMENT Stat){
 
    switch (Stat) {
       case asgStat(PicoId Id, EXP Exp):
-        return [lvalue(Id), compileExp(Exp), assign];
+        return [lvalue(Id), compileExp(Exp), assign()];
 
       case ifStat(EXP Exp, list[STATEMENT] Stats1,
                            list[STATEMENT] Stats2):{
@@ -104,7 +104,7 @@ public bool test(){
   R = [];
   assertEqual(compileProgram(P), R);
   
-  P = program([decl("x", natural)], [ifStat(natCon(5), [asgStat("x", natCon(3))], [asgStat("x", natCon(4))])]);
+  P = program([decl("x", natural())], [ifStat(natCon(5), [asgStat("x", natCon(3))], [asgStat("x", natCon(4))])]);
        
    R = [dclNat("x"),
         pushNat(5),
@@ -120,7 +120,7 @@ public bool test(){
         label("L3")];
   assertEqual(compileProgram(P), R);
   
-  P = program([decl("x", natural)], [whileStat(natCon(5), [asgStat("x", natCon(3))])]);
+  P = program([decl("x", natural())], [whileStat(natCon(5), [asgStat("x", natCon(3))])]);
        
   R = [dclNat("x"),
        label("L3"),
@@ -135,7 +135,7 @@ public bool test(){
    assertEqual(compileProgram(P), R);
    
    
-   P = program([decl("x", string)], [whileStat(natCon(5), [asgStat("x", strCon("abc"))])]);
+   P = program([decl("x", string())], [whileStat(natCon(5), [asgStat("x", strCon("abc"))])]);
        
   R = [dclStr("x"),
        label("L3"),
