@@ -46,7 +46,7 @@ public set[int] C (){
      return_set += {current};
      println("C2 -- <return_set>");
      
-     if(match("d")){                       <-- verdachte if
+     if(match("d")){                       // -- verdachte if
         return_set += {current};
      }
      println("C3 -- <return_set>");
@@ -59,7 +59,11 @@ public bool test(){
   
   defInput(["c", "d"]);
   res = C();
-  println("parse cd = <res>");
+  println("parse cd = <res>");  // <-- gaat goed
+  
+  defInput(["c"]);
+  res = C();
+  println("parse c = <res>");   // <-- gaat fout
   
   return true;
 }
