@@ -257,8 +257,7 @@ public class TreeAdapter {
 			t = t.set("alternatives", newAlts.done());
 		}
 		
-		// TODO: what about this 'true' here?
-		if (true || !tree.isLayout() && !tree.isLexical()) {
+		if (!tree.isLayout() && !tree.isLexical()) {
 			ISourceLocation loc = factory.sourceLocation(new URL("file://" + filename), start.offset, cur.offset - start.offset, start.line, cur.line, start.col, cur.col);
 			return t.setAnnotation(Factory.Location, loc);
 		}

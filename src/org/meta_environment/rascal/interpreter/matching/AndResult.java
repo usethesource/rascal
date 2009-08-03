@@ -37,22 +37,23 @@ public class AndResult extends AbstractBooleanResult {
 			return left.hasNext();
 		}
 		
-		return right.hasNext() || left.hasNext();
+		return left.hasNext() || (leftResult == true && right.hasNext());
 	}
 	
 	@Override
 	public boolean next() {
-		// if you ever get the idea that you can save an environment here,
-		// to be able to roll back to the beginning of the &&, forget about it.
-		// Since &&'s could be nested, you'd be rolling back their effect as
-		// well, which is not correct.
-		
 		if (firstMatch) {
 			firstMatch = false;
 			ctx.goodPushEnv();
 			leftResult = left.next();
 			right.init();
-			return leftResult && right.next();
+			
+			if (leftResult) {
+				return right.next();
+			}
+			else {
+				return false;
+			}
 		}
 		
 		if (right.hasNext()) {
@@ -61,10 +62,15 @@ public class AndResult extends AbstractBooleanResult {
 			boolean rightResult = right.next();
 			return leftResult && rightResult;
 		}
-		
+
 		ctx.goodPushEnv();
 		leftResult = left.next();
 		right.init();
-		return leftResult && right.next();
+		if (leftResult) {
+			return right.next();
+		}
+		else {
+			return false;
+		}
 	}
 }
