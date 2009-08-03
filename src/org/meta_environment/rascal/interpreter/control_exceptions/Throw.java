@@ -39,8 +39,8 @@ public final class Throw extends ControlException {
 		return trace;
 	}
 	
-	public String setTrace(String trace) {
-		return trace;
+	public void setTrace(String trace) {
+		this.trace = trace;
 	}
 	
 	public IValue getException() {
