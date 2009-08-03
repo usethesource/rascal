@@ -5,11 +5,14 @@ module demo::Parsing::GRD
 // See A. Johnstone & Elisabeth Scott, Generalised Recursive Descent Parsing and Follow Determinism,
 //
 
+import List;
 import Set;
 import IO;
+import UnitTest;
 
 list[str] input;   // The global input of the parser
 int current = 0;   // Current position in input
+bool debug = false;
 
 
 // Definine new input
@@ -22,12 +25,15 @@ public void defInput(list[str] inp){
 // Match a token and advance current when it matches.
 
 public bool match(str token){
-  if(input[current] == token){
-     println("match <token> at <current> yields true");
-     current += 1;
-     return true;
-  } 
-  println("match <token> at <current> yields false");
+
+  if(current < size(input)){
+     if(input[current] == token){
+	if(debug)println("match <token> at <current> yields true");
+        current += 1;
+	return true;
+     }
+  }
+  if(debug)println("match <token> at <current> yields false");
   return false;
 }
 
@@ -82,32 +88,23 @@ public set[int] C (){
   int entry_current = current;
   set[int] return_set = {};
   
-  println("C1 -- <return_set>, <current>");
   if(match("c")){
      return_set += {current};
-     println("C2 -- <return_set>, <current>");
      
      if(match("d")){
-        a = 1; //return_set += {current};
+        return_set += {current};
      }
-     println("C3 -- <return_set>, <current>");
   }
-  println("C4 -- <return_set>, <current>");
+ 
   return return_set;
 }
 
 public bool test(){
-//  defInput(["d"]);
-//  res = A();
-//  println("parse d = <res>");
+
+  defInput(["d"]);  assertEqual(A(), {1});
+  defInput(["c"]); assertEqual(A(), {1});
+  defInput(["c", "d"]); assertEqual(A(), {1, 2});
+  defInput(["a", "b", "b", "c", "d"]); assertEqual(A(), {4, 5});
   
-  defInput(["c"]);
-  res = C();
-  println("parse c = <res>");
-  
-   defInput(["c", "d"]);
-  res = A();
-  println("parse cd = <res>");
-  
-  return true;
+  return report();
 }
