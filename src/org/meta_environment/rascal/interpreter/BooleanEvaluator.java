@@ -27,6 +27,7 @@ import org.meta_environment.rascal.ast.Expression.Guarded;
 import org.meta_environment.rascal.ast.Expression.IfThenElse;
 import org.meta_environment.rascal.ast.Expression.Implication;
 import org.meta_environment.rascal.ast.Expression.In;
+import org.meta_environment.rascal.ast.Expression.IsDefined;
 import org.meta_environment.rascal.ast.Expression.LessThan;
 import org.meta_environment.rascal.ast.Expression.LessThanOrEq;
 import org.meta_environment.rascal.ast.Expression.List;
@@ -318,6 +319,11 @@ public class BooleanEvaluator extends NullASTVisitor<IBooleanResult> {
 		return new NotResult(vf, ctx, x.getArgument().accept(this));
 	}
 
+	@Override
+	public IBooleanResult visitExpressionIsDefined(IsDefined x) {
+		return new BasicBooleanResult(vf, ctx, x);
+	}
+	
 	@Override
 	public IBooleanResult visitExpressionNegative(Negative x) {
 		throw new UnexpectedTypeError(tf.boolType(), x.accept(
