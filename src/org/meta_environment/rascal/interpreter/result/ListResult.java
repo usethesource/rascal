@@ -94,7 +94,7 @@ public class ListResult extends CollectionResult<IList> {
 		}
 		IInteger index = ((IInteger)key.getValue());
 		if (index.intValue() >= getValue().length()) {
-			throw RuntimeExceptionFactory.indexOutOfBounds(index, ctx.getCurrentAST(), null);
+			throw RuntimeExceptionFactory.indexOutOfBounds(index, ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 		return makeResult(getType().getElementType(), getValue().get(index.intValue()), ctx);
 	}

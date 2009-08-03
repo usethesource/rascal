@@ -77,7 +77,7 @@ public class TupleResult extends ElementResult<ITuple> {
 		}
 		IInteger index = (IInteger)subsBase.getValue();
 		if (index.intValue() >= getValue().arity()) {
-			throw RuntimeExceptionFactory.indexOutOfBounds(index, ctx.getCurrentAST(), null);
+			throw RuntimeExceptionFactory.indexOutOfBounds(index, ctx.getCurrentAST(), ctx.getStackTrace());
 		}
 		
 		Type elementType = getType().getFieldType(index.intValue());
