@@ -46,9 +46,9 @@ public class AndResult extends AbstractBooleanResult {
 			firstMatch = false;
 			ctx.goodPushEnv();
 			leftResult = left.next();
-			right.init();
 			
 			if (leftResult) {
+				right.init();
 				return right.next();
 			}
 			else {
@@ -56,7 +56,7 @@ public class AndResult extends AbstractBooleanResult {
 			}
 		}
 		
-		if (right.hasNext()) {
+		if (leftResult && right.hasNext()) {
 			// first do the right.next because && would short cut it which leads to an infinite loop 
 			// because right will always have a true hasNext() then.
 			boolean rightResult = right.next();
@@ -65,8 +65,9 @@ public class AndResult extends AbstractBooleanResult {
 
 		ctx.goodPushEnv();
 		leftResult = left.next();
-		right.init();
+
 		if (leftResult) {
+			right.init();
 			return right.next();
 		}
 		else {
