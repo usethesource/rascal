@@ -118,7 +118,7 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 	
 	private Result<IValue> newResult(IValue oldValue, Result<IValue> rhsValue){
 		if (oldValue != null){
-			Result<IValue> res = makeResult(oldValue.getType(), oldValue, eval);
+			Result<IValue> res = makeResult(oldValue.getType().lub(rhsValue.getType()), oldValue, eval);
 			return newResult(res, rhsValue);
 		}
 		switch(operator){
@@ -195,7 +195,7 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 				int index = ((IInteger) subscript.getValue()).intValue();
 				value = newResult(list.get(index), value);
 				list = list.put(index, value.getValue());
-				result = makeResult(rec.getType(), list, eval);
+				result = makeResult(rec.hasInferredType() ? rec.getType().lub(list.getType()) : rec.getType(), list, eval);
 			}  
 			catch (java.lang.IndexOutOfBoundsException e){
 				throw RuntimeExceptionFactory.indexOutOfBounds((IInteger) subscript.getValue(), eval.getCurrentAST(), eval.getStackTrace());
@@ -207,7 +207,7 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 			if (subscript.getType().isSubtypeOf(keyType)) {
 				value = newResult(((IMap) rec.getValue()).get(subscript.getValue()), value);
 				IMap map = ((IMap) rec.getValue()).put(subscript.getValue(), value.getValue());
-				result = makeResult(rec.getType(), map, eval);
+				result = makeResult(rec.hasInferredType() ? rec.getType().lub(map.getType()) : rec.getType(), map, eval);
 			}
 			else {
 				throw new UnexpectedTypeError(keyType, subscript.getType(), x);
