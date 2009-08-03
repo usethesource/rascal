@@ -1,15 +1,20 @@
-module Booleans::BoolConcreteRules
+module demo::Booleans::BoolConcreteRules
 
-import languages::Booleans::syntax;
+import demo::Booleans::BoolSyntax;
+import UnitTest;
 
-rule a1 [| true & <Bool B2> |]   => <B2>;
-rule a2 false \& <Bool B2>  => false;
+rule a1 btrue & <Bool B2>   => B2;
+rule a2 bfalse & <Bool B2>  => bfalse;
 
-rule o1 true | true        => true;
-rule o2 true | false       => true;
-rule o3 false | true       => true;
-rule o4 false | false      => false;
+rule o1 btrue | btrue       => btrue;
+rule o2 btrue | bfalse      => btrue;
+rule o3 bfalse | btrue      => btrue;
+rule o4 bfalse | bfalse     => bfalse;
 
 public bool test(){
-  assert true == true;
+  assertEqual(btrue, btrue);
+  assertEqual(btrue | btrue, btrue);
+  assertEqual(bfalse | btrue, btrue);
+  assertEqual(bfalse & bfalse, bfalse);
+  return report();
 }
