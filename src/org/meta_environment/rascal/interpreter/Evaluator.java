@@ -1976,14 +1976,14 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 
 	@Override
-	public Result visitExpressionClosure(Closure x) {
+	public Result<IValue> visitExpressionClosure(Closure x) {
 		Type formals = te.eval(x.getParameters(), getCurrentEnvt());
 		Type returnType = evalType(x.getType());
 		return new Lambda(x, this, returnType, "", formals, x.getParameters().isVarArgs(), x.getStatements(), getCurrentEnvt());
 	}
 
 	@Override
-	public Result visitExpressionVoidClosure(VoidClosure x) {
+	public Result<IValue> visitExpressionVoidClosure(VoidClosure x) {
 		Type formals = te.eval(x.getParameters(), getCurrentEnvt());
 		return new Lambda(x, this, tf.voidType(), "", formals, x.getParameters().isVarArgs(), x.getStatements(), getCurrentEnvt());
 	}
