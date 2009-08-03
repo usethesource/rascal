@@ -23,6 +23,12 @@ public class AllDemoTests extends TestFramework {
 		prepare("import demo::Booleans::BoolAbstractVisit;");
 		assertTrue(runTestInSameEvaluator("demo::Booleans::BoolAbstractVisit::test();"));
 	}
+	
+	@Test
+	public void BoolConcreteRules() {
+		prepare("import demo::Booleans::BoolConcreteRules;");
+		assertTrue(runTestInSameEvaluator("demo::Booleans::BoolConcreteRules::test();"));
+	}
 
 	@Test
 	public void Bubble() {
