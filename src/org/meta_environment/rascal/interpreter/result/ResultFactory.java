@@ -109,8 +109,13 @@ public class ResultFactory {
 			return parameterType.getBound().accept(this);
 		}
 
-		public RelationResult visitRelationType(Type type) {
-			return new RelationResult(declaredType, (IRelation)value, ctx);
+		public SetOrRelationResult<?> visitRelationType(Type type) {
+			if (value.getType().isSetType()) {
+				return new SetResult(declaredType, (ISet) value, ctx);
+			}
+			else {
+				return new RelationResult(declaredType, (IRelation)value, ctx);
+			}
 		}
 
 		public SetOrRelationResult<ISet> visitSet(Type type) {
