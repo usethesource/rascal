@@ -63,6 +63,11 @@ public class JavaMethod extends Lambda {
 			Type resultType = returnType.instantiate(env.getStore(), env.getTypeBindings());
 			return ResultFactory.makeResult(resultType, result, eval);
 		}
+		catch (Throw t) {
+			t.setTrace(ctx.getStackTrace());
+			t.setLocation(ctx.getCurrentAST().getLocation());
+			throw t;
+		}
 		finally {
 			if (callTracing) {
 				printEndTrace();
