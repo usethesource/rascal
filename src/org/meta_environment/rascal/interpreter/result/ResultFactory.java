@@ -110,7 +110,7 @@ public class ResultFactory {
 		}
 
 		public SetOrRelationResult<?> visitRelationType(Type type) {
-			if (value.getType().isSetType()) {
+			if (!value.getType().isRelationType()) {
 				return new SetResult(declaredType, (ISet) value, ctx);
 			}
 			else {
