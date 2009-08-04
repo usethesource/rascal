@@ -104,9 +104,12 @@ import org.meta_environment.rascal.interpreter.utils.RuntimeExceptionFactory;
 				newValue.setInferredType(true);
 				return newValue;
 			}
-			// TODO: I don't think this check uses static types only.
-			//System.out.println("Type error in newResult");
-			throw new UnexpectedTypeError(oldValue.getType(), newValue.getType(), eval.getCurrentAST());
+			
+			// we use rhs value here, because the addition (for example) implicitly casts up to value,
+			// in which case the error is lost. Since we know that the left hand side of the addition
+			// is always the variable we are updating, the cause of the error must always be in the value
+			// on the right hand side
+			throw new UnexpectedTypeError(oldValue.getType(), rhsValue.getType(), eval.getCurrentAST());
 		}
 		switch(operator){
 			case Default:
