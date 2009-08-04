@@ -96,6 +96,7 @@ import org.meta_environment.rascal.ast.Statement.Try;
 import org.meta_environment.rascal.ast.Statement.TryFinally;
 import org.meta_environment.rascal.ast.Statement.VariableDeclaration;
 import org.meta_environment.rascal.ast.Statement.While;
+import org.meta_environment.rascal.interpreter.control_exceptions.QuitException;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.result.Result;
@@ -704,6 +705,10 @@ public class DebuggableEvaluator extends Evaluator {
 	}
 
 	private void suspend(AbstractAST x, boolean mode) {
+		if (debugger.isTerminated()) {
+			//can happen when we are in a loop for example
+			throw new QuitException();
+		}
 		if(suspendRequest) {
 			setCurrentAST(x);
 			debugger.notifySuspend();
