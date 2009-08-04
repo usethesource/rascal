@@ -25,12 +25,6 @@ public class ConstructorResult extends NodeResult {
 	}
 	
 	@Override
-	public Result<?> call(Type[] argTypes, IValue[] argValues,
-			IEvaluatorContext ctx) {
-		throw new UnsupportedOperationError("call", getValue().getConstructorType(), ctx.getCurrentAST());
-	}
-
-	@Override
 	public <U extends IValue> Result<U> fieldAccess(String name, TypeStore store, IEvaluatorContext ctx) {
 		if (!getType().hasField(name, store)) {
 			throw new UndeclaredFieldError(name, getType(), ctx.getCurrentAST());
