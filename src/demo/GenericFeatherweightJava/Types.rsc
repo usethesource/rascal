@@ -7,7 +7,7 @@ import IO;
 public Type Object = typeLit("Object",[]);
 public Class ObjectClass = class("Object", <[],[]>, Object, <[],[]>, cons(<[],[]>, super([]), []), []);
 
-public Expr this   = var("this");  
+private Expr this   = var("this");  
 
 public map[Name,Class] ClassTable = ("Object":ObjectClass); 
   
