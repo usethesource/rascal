@@ -154,7 +154,7 @@ public set[ItemSet] items(Grammar G){
 	set[ItemSet] C = {{ closure(G, {makeItem(startRule)}) }};  // TODO: {{ }} horror
 	
 	solve (C) {
-		C += { GT | ItemSet I <- C, Symbol X <- symbols, ItemSet GT := goto(G, I, X), !isEmpty(GT)};
+		C += { {GT} | ItemSet I <- C, Symbol X <- symbols, ItemSet GT := goto(G, I, X), !isEmpty(GT)};
 	}
 	return C;      
 }
