@@ -132,14 +132,13 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	
 	@SuppressWarnings("unchecked")
 	protected <U extends IValue> Result<U> undefinedError(String operator, Result arg, IEvaluatorContext ctx) {
-		// TODO find source location
 		throw new UnsupportedOperationError(operator, getType(), arg.getType(), ctx.getCurrentAST());
 	}
 	
 	///////
 	
 	public Result<?> call(Type[] argTypes, IValue[] argValues, IEvaluatorContext ctx) {
-		return undefinedError(CALL_STRING, this, ctx);
+		throw new UnsupportedOperationError("A value of type " + getType() + " is not something you can call like a function, a constructor or a closure.", ctx.getCurrentAST());
 	}
 	
 	public <U extends IValue, V extends IValue> Result<U> add(Result<V> that, IEvaluatorContext ctx) {
