@@ -1,4 +1,4 @@
-module demo::Rules::BoolAbstractVisit
+module demo::Rules::AbstractBoolVisit
 
 data Bool = btrue();
 data Bool = bfalse();

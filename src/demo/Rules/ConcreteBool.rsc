@@ -1,4 +1,4 @@
-module demo::Rules::BoolConcrete
+module demo::Rules::ConcreteBool
 
 import demo::Rules::BoolSyntax;
 import UnitTest;
