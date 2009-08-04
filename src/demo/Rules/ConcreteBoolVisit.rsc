@@ -1,4 +1,4 @@
-module Rules::BoolConcreteVisit
+module Rules::ConcreteBoolVisit
 
 import demo::Rules::BoolSyntax;
 

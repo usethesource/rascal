@@ -1,4 +1,4 @@
-module demo::Parsing::GRD
+module experiment::Parsing::GRD
 
 
 // Experiment: Generalized Recursive Descent Parsing.
@@ -106,5 +106,5 @@ public bool test(){
   defInput(["c", "d"]); assertEqual(A(), {1, 2});
   defInput(["a", "b", "b", "c", "d"]); assertEqual(A(), {4, 5});
   
-  return report();
+  return report("Parsing::GRD");
 }

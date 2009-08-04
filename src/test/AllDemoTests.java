@@ -7,27 +7,81 @@ import org.junit.Test;
 public class AllDemoTests extends TestFramework {
 
 	@Test
-	public void Ackermann() {
-		prepare("import demo::Ackermann;");
-		assertTrue(runTestInSameEvaluator("demo::Ackermann::test();"));
+	public void AbstractBool() {
+		prepare("import demo::Rules::AbstractBool;");
+		assertTrue(runTestInSameEvaluator("demo::Rules::AbstractBool::test();"));
 	}
 	
 	@Test
-	public void BoolAbstractRules() {
-		prepare("import demo::Booleans::BoolAbstractRules;");
-		assertTrue(runTestInSameEvaluator("demo::Booleans::BoolAbstractRules::test();"));
+	public void AbstractBoolVisit() {
+		prepare("import demo::Rules::AbstractBoolVisit;");
+		assertTrue(runTestInSameEvaluator("demo::Rules::AbstractBoolVisit::test();"));
 	}
 
 	@Test
-	public void BoolAbstractVisit() {
-		prepare("import demo::Booleans::BoolAbstractVisit;");
-		assertTrue(runTestInSameEvaluator("demo::Booleans::BoolAbstractVisit::test();"));
+	public void AbstractInteger() {
+		prepare("import demo::Rules::AbstractInteger;");
+		assertTrue(runTestInSameEvaluator("demo::Rules::AbstractInteger::testInt();"));
 	}
 	
 	@Test
-	public void BoolConcreteRules() {
-		prepare("import demo::Booleans::BoolConcreteRules;");
-		assertTrue(runTestInSameEvaluator("demo::Booleans::BoolConcreteRules::test();"));
+	public void AbstractPicoAssembly(){
+		prepare("import demo::AbstractPico::Assembly;");
+		assertTrue(runTestInSameEvaluator("demo::AbstractPico::Assembly::test();"));
+	}
+
+	@Test
+	public void AbstractPicoCommonSubexpression() {
+		prepare("import demo::AbstractPico::CommonSubexpression;");
+		assertTrue(runTestInSameEvaluator("demo::AbstractPico::CommonSubexpression::test();"));
+	}
+
+	@Test
+	public void AbstractPicoConstantPropagation() {
+		prepare("import demo::AbstractPico::ConstantPropagation;");
+		assertTrue(runTestInSameEvaluator("demo::AbstractPico::ConstantPropagation::test();"));
+	}
+
+	@Test
+	public void AbstractPicoControlflow() {
+		prepare("import demo::AbstractPico::Controlflow;");
+		assertTrue(runTestInSameEvaluator("demo::AbstractPico::Controlflow::test();"));
+	}
+
+	@Test
+	public void AbstractPicoEval() {
+		prepare("import demo::AbstractPico::Eval;");
+		assertTrue(runTestInSameEvaluator("demo::AbstractPico::Eval::test();"));
+	}
+
+	@Test
+	public void AbstractPicoPrograms() {
+		prepare("import demo::AbstractPico::Programs;");
+		assertTrue(runTestInSameEvaluator("demo::AbstractPico::Programs::test();"));
+	}
+
+	@Test
+	public void AbstractPicoTypecheck() {
+		prepare("import demo::AbstractPico::Typecheck;");
+		assertTrue(runTestInSameEvaluator("demo::AbstractPico::Typecheck::test();"));
+	}
+
+	@Test
+	public void AbstractPicoUninit() {
+		prepare("import demo::AbstractPico::Uninit;");
+		assertTrue(runTestInSameEvaluator("demo::AbstractPico::Uninit::test();"));
+	}
+
+	@Test
+	public void AbstractPicoUseDef() {
+		prepare("import demo::AbstractPico::UseDef;");
+		assertTrue(runTestInSameEvaluator("demo::AbstractPico::UseDef::test();"));
+	}
+	
+	@Test
+	public void Ackermann() {
+		prepare("import demo::Ackermann;");
+		assertTrue(runTestInSameEvaluator("demo::Ackermann::test();"));
 	}
 
 	@Test
@@ -47,7 +101,7 @@ public class AllDemoTests extends TestFramework {
 		prepare("import demo::CarFDL;");
 		assertTrue(runTestInSameEvaluator("demo::CarFDL::test();"));
 	}
-
+	
 	@Test
 	public void ColoredTrees() {
 		prepare("import demo::ColoredTrees;");
@@ -55,23 +109,29 @@ public class AllDemoTests extends TestFramework {
 	}
 
 	@Test
+	public void ConcreteBool() {
+		prepare("import demo::Rules::ConcreteBool;");
+		assertTrue(runTestInSameEvaluator("demo::Rules::ConcreteBool::test();"));
+	}
+	
+	@Test
 	public void Cycles() {
 		prepare("import demo::Cycles;");
 		assertTrue(runTestInSameEvaluator("demo::Cycles::test();"));
 	}
-
+	
 	@Test
 	public void Dominators() {
 		prepare("import demo::Dominators;");
 		assertTrue(runTestInSameEvaluator("demo::Dominators::test();"));
 	}
-
+	
 	@Test
 	public void Factorial() {
 		prepare("import demo::Factorial;");
 		assertTrue(runTestInSameEvaluator("demo::Factorial::test();"));
 	}
-
+	
 	@Test
 	public void FunAbstract() {
 		prepare("import demo::Fun::FunAbstract;");
@@ -83,13 +143,13 @@ public class AllDemoTests extends TestFramework {
 		prepare("import demo::GenericFeatherweightJava::Examples;");
 		assertTrue(runTestInSameEvaluator("demo::GenericFeatherweightJava::Examples::test();"));
 	}
-
+	
 	@Test
 	public void GraphDataType() {
 		prepare("import demo::GraphDataType;");
 		assertTrue(runTestInSameEvaluator("demo::GraphDataType::test();"));
 	}
-
+	
 	@Test
 	public void Hello() {
 		prepare("import demo::Hello;");
@@ -101,83 +161,23 @@ public class AllDemoTests extends TestFramework {
 		prepare("import demo::Innerproduct;");
 		assertTrue(runTestInSameEvaluator("demo::Innerproduct::test();"));
 	}
-	
-	@Test
-	public void IntegerAbstractRules() {
-		prepare("import demo::Integers::IntegerAbstractRules;");
-		assertTrue(runTestInSameEvaluator("demo::Integers::IntegerAbstractRules::testInt();"));
-	}
 
 	@Test
 	public void Lift() {
 		prepare("import demo::Lift;");
 		assertTrue(runTestInSameEvaluator("demo::Lift::test();"));
 	}
-	
+
+	@Test
+	public void LRGen() {
+		prepare("import experiment::Parsing::LRGen;");
+		assertTrue(runTestInSameEvaluator("demo::Parsing::LRGen::test();"));
+	}
+
 	@Test
 	public void McCabe() {
 		prepare("import demo::McCabe;");
 		assertTrue(runTestInSameEvaluator("demo::McCabe::test();"));
-	}
-	
-	@Test
-	public void LRGen() {
-		prepare("import demo::Parsing::LRGen;");
-		assertTrue(runTestInSameEvaluator("demo::Parsing::LRGen::test();"));
-	}
-	
-	@Test
-	public void PicoAssembly(){
-		prepare("import demo::PicoAbstract::Assembly;");
-		assertTrue(runTestInSameEvaluator("demo::PicoAbstract::Assembly::test();"));
-	}
-	
-	@Test
-	public void PicoCommonSubexpression() {
-		prepare("import demo::PicoAbstract::PicoCommonSubexpression;");
-		assertTrue(runTestInSameEvaluator("demo::PicoAbstract::PicoCommonSubexpression::test();"));
-	}
-	
-	@Test
-	public void PicoConstantPropagation() {
-		prepare("import demo::PicoAbstract::PicoConstantPropagation;");
-		assertTrue(runTestInSameEvaluator("demo::PicoAbstract::PicoConstantPropagation::test();"));
-	}
-	
-	@Test
-	public void PicoControlflow() {
-		prepare("import demo::PicoAbstract::PicoControlflow;");
-		assertTrue(runTestInSameEvaluator("demo::PicoAbstract::PicoControlflow::test();"));
-	}
-	
-	@Test
-	public void PicoEval() {
-		prepare("import demo::PicoAbstract::PicoEval;");
-		assertTrue(runTestInSameEvaluator("demo::PicoAbstract::PicoEval::test();"));
-	}
-
-	@Test
-	public void PicoPrograms() {
-		prepare("import demo::PicoAbstract::PicoPrograms;");
-		assertTrue(runTestInSameEvaluator("demo::PicoAbstract::PicoPrograms::test();"));
-	}
-
-	@Test
-	public void PicoTypecheck() {
-		prepare("import demo::PicoAbstract::PicoTypecheck;");
-		assertTrue(runTestInSameEvaluator("demo::PicoAbstract::PicoTypecheck::test();"));
-	}
-
-	@Test
-	public void PicoUninit() {
-		prepare("import demo::PicoAbstract::PicoUninit;");
-		assertTrue(runTestInSameEvaluator("demo::PicoAbstract::PicoUninit::test();"));
-	}
-
-	@Test
-	public void PicoUseDef() {
-		prepare("import demo::PicoAbstract::PicoUseDef;");
-		assertTrue(runTestInSameEvaluator("demo::PicoAbstract::PicoUseDef::test();"));
 	}
 	
 	@Test

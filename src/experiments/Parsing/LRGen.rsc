@@ -1,4 +1,4 @@
-module demo::Parsing::LRGen
+module experiment::Parsing::LRGen
 
 import List;
 import Set;
@@ -211,6 +211,6 @@ public bool test(){
 	{item("E",[nt("E"),t("+"),nt("B")],[])}
 	});
 	
-	return report("Parser");
+	return report("Parsing::LRGen");
 }
 
