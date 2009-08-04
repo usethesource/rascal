@@ -33,11 +33,12 @@ public class OrResult extends AbstractBooleanResult {
 		super.init();
 		left.init();
 		right.init();
+		hasNext = true;
 	}
 
 	@Override
 	public boolean hasNext() {
-		return left.hasNext() || right.hasNext();
+		return hasNext && (left.hasNext() || right.hasNext());
 	}
 	
 	@Override
@@ -47,6 +48,7 @@ public class OrResult extends AbstractBooleanResult {
 			Environment old = ctx.getCurrentEnvt();
 			ctx.goodPushEnv();
 			if (left.next()) {
+				hasNext = false;
 				return true;
 			}
 			else {
@@ -58,6 +60,7 @@ public class OrResult extends AbstractBooleanResult {
 			Environment old = ctx.getCurrentEnvt();
 			ctx.goodPushEnv();
 			if (right.next()) {
+				hasNext = false;
 				return true;
 			}
 			else {
@@ -65,6 +68,7 @@ public class OrResult extends AbstractBooleanResult {
 			}
 		}
 		
+		hasNext = false;
 		return false;
 	}
 }
