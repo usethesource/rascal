@@ -1,5 +1,9 @@
 module demo/StateMachine/Syntax
 
+
+%% Concrete syntax for a simple state machine as suggested by Gorel Hedin at GTTSE09
+%% A State machine consists of a series of declarations for states and transitions
+
 imports basic/Whitespace
 imports basic/IdentifierCon
 
@@ -10,8 +14,8 @@ exports
   sorts FSM Decl Trans State IdCon
 
   context-free syntax
-    "state" IdCon -> State
+    "state" IdCon                       -> State
     "trans" IdCon ":" IdCon  "->" IdCon -> Trans
-    State -> Decl
-    Trans -> Decl
-    {Decl ";"}+  -> FSM
+    State                               -> Decl
+    Trans                               -> Decl
+    {Decl ";"}+                         -> FSM
