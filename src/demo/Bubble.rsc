@@ -2,9 +2,11 @@ module demo::Bubble
 
 import List;
 import IO;
+import UnitTest;
 
+// Variations on Bubble sort
 
-// sort1: uses list indexing and for-loop
+// sort1: uses list indexing and a for-loop
 
 public list[int] sort1(list[int] Numbers){
   for(int I <- [0 .. size(Numbers) - 2 ]){
@@ -45,11 +47,12 @@ public list[int] sort3(list[int] Numbers){
 }
 
 public bool test(){
-    usorted = [10,9,8,7,6,5,4,3,2,1];
+    unsorted = [10,9,8,7,6,5,4,3,2,1];
     sorted = [1,2,3,4,5,6,7,8,9,10];
-    return
-		sort1(usorted) == sorted &&
-		sort2(usorted) == sorted &&
-		sort3(usorted) == sorted;
+    
+    assertEqual(sort1(unsorted), sorted);
+	assertEqual(sort2(unsorted), sorted);
+	assertEqual(sort3(unsorted), sorted);
+	report("Bubble");
 }
 
