@@ -490,6 +490,14 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 
 	boolean mayOccurIn(Type small, Type large, java.util.Set<Type> seen){
+		// TODO: this should probably be a visitor as well
+		while (small.isAliasType()) {
+			small = small.getAliased();
+		}
+		while (large.isAliasType()) {
+			large = large.getAliased();
+		}
+		
 		if(small.isVoidType())
 			return true;
 		if(large.isVoidType())
