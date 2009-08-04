@@ -67,6 +67,12 @@ public class EnumeratorResult extends AbstractMatchingResult {
 	private void makeIterator(Type subjectType, IValue subjectValue){
 		Type patType = pat.getType(ctx.getCurrentEnvt());
 		
+		// TODO: this should be a visitor design as well..
+		
+		while (subjectType.isAliasType()) {
+			subjectType = subjectType.getAliased();
+		}
+		
 		// List
 		if(subjectType.isListType()){
 			checkNoStrategy(subjectType);
