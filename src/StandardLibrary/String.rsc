@@ -82,3 +82,12 @@ public str java toUpperCase(str s)
 @doc{toUpperCase -- convert all characters in string s to uppercase.}
 @javaClass{org.meta_environment.rascal.std.String};
 
+//TODO Joppe: added substring, please review 
+public str java substring(str s, int begin)
+@doc{substring -- extract a substring from string s from begin to the end of s}
+@javaClass{org.meta_environment.rascal.std.String};
+
+public str java substring(str s, int begin, int end)
+@doc{substring -- extract a substring from string s from begin to end}
+@javaClass{org.meta_environment.rascal.std.String};
+

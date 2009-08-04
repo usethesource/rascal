@@ -135,6 +135,15 @@ public class String {
 	{
 	  return values.string(s.getValue().toUpperCase());
 	}
+	
+	//TODO Joppe: added substring, please review
+	public static IValue substring(IString s, IInteger begin) {
+		return values.string(s.getValue().substring(begin.intValue()));
+	}
+	
+	public static IValue substring(IString s, IInteger begin, IInteger end) {
+		return values.string(s.getValue().substring(begin.intValue(), end.intValue()));
+	}
 
 
 }
