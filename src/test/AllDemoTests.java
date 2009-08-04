@@ -8,8 +8,8 @@ public class AllDemoTests extends TestFramework {
 
 	@Test
 	public void Ackermann() {
-		prepare("import demo::Ackermann::Ackermann;");
-		assertTrue(runTestInSameEvaluator("demo::Ackermann::Ackermann::test();"));
+		prepare("import demo::Ackermann;");
+		assertTrue(runTestInSameEvaluator("demo::Ackermann::test();"));
 	}
 	
 	@Test
