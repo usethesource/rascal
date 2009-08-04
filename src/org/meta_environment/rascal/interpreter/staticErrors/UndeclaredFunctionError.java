@@ -11,6 +11,6 @@ public class UndeclaredFunctionError extends StaticError {
 	}
 
 	public UndeclaredFunctionError(String name, ISourceLocation location) {
-		super("Undeclared functioni: " + name, location);
+		super("Undeclared function: " + name, location);
 	}
 }
