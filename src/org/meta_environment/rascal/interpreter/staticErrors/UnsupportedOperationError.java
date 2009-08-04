@@ -13,4 +13,8 @@ public class UnsupportedOperationError extends StaticError {
 	public UnsupportedOperationError(String operation, Type on1, Type on2, AbstractAST ast) {
 		super(operation + " not supported on " + on1 + " and " + on2, ast);
 	}
+	
+	public UnsupportedOperationError(String message, AbstractAST ast) {
+		super(message, ast);
+	}
 }
