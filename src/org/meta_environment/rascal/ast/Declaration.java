@@ -169,6 +169,35 @@ private org.meta_environment.rascal.ast.UserType user;
 		return z;
 	}	
 } 
+public org.meta_environment.rascal.ast.Test getTest() { throw new UnsupportedOperationException(); }
+public boolean hasTest() { return false; }
+public boolean isTest() { return false; }
+static public class Test extends Declaration {
+/** test:Test ";" -> Declaration {cons("Test")} */
+	private Test() {
+		super();
+	}
+	public Test(INode node, org.meta_environment.rascal.ast.Test test) {
+		this.node = node;
+		this.test = test;
+	}
+	public <T> T accept(IASTVisitor<T> visitor) {
+		return visitor.visitDeclarationTest(this);
+	}
+
+	public boolean isTest() { return true; }
+
+	public boolean hasTest() { return true; }
+
+private org.meta_environment.rascal.ast.Test test;
+	public org.meta_environment.rascal.ast.Test getTest() { return test; }
+	private void $setTest(org.meta_environment.rascal.ast.Test x) { this.test = x; }
+	public Test setTest(org.meta_environment.rascal.ast.Test x) { 
+		Test z = new Test();
+ 		z.$setTest(x);
+		return z;
+	}	
+} 
 public org.meta_environment.rascal.ast.FunctionDeclaration getFunctionDeclaration() { throw new UnsupportedOperationException(); }
 public boolean hasFunctionDeclaration() { return false; }
 public boolean isFunction() { return false; }

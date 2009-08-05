@@ -132,6 +132,7 @@ public class DebuggableEvaluator extends Evaluator {
 		return super.visitExpressionAddition(x);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Result<IValue> visitExpressionAll(All x) {
 		suspendExpression(x);
@@ -151,6 +152,7 @@ public class DebuggableEvaluator extends Evaluator {
 	}
 
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Result<IValue> visitExpressionAny(Any x) {
 		suspendExpression(x);

@@ -60,6 +60,7 @@ import org.meta_environment.rascal.ast.Declaration.Data;
 import org.meta_environment.rascal.ast.Declaration.Function;
 import org.meta_environment.rascal.ast.Declaration.Rule;
 import org.meta_environment.rascal.ast.Declaration.Tag;
+import org.meta_environment.rascal.ast.Declaration.Test;
 import org.meta_environment.rascal.ast.Declaration.Variable;
 import org.meta_environment.rascal.ast.Declaration.View;
 import org.meta_environment.rascal.ast.Expression.Addition;
@@ -142,6 +143,8 @@ import org.meta_environment.rascal.ast.Statement.Try;
 import org.meta_environment.rascal.ast.Statement.TryFinally;
 import org.meta_environment.rascal.ast.Statement.VariableDeclaration;
 import org.meta_environment.rascal.ast.Statement.While;
+import org.meta_environment.rascal.ast.Test.Labeled;
+import org.meta_environment.rascal.ast.Test.Unlabeled;
 import org.meta_environment.rascal.ast.Toplevel.DefaultVisibility;
 import org.meta_environment.rascal.ast.Toplevel.GivenVisibility;
 import org.meta_environment.rascal.ast.Visit.DefaultStrategy;
@@ -153,6 +156,7 @@ import org.meta_environment.rascal.interpreter.TraversalEvaluator.TraverseResult
 import org.meta_environment.rascal.interpreter.asserts.Ambiguous;
 import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.asserts.NotYetImplemented;
+import org.meta_environment.rascal.interpreter.control_exceptions.FailedTestError;
 import org.meta_environment.rascal.interpreter.control_exceptions.Failure;
 import org.meta_environment.rascal.interpreter.control_exceptions.Return;
 import org.meta_environment.rascal.interpreter.env.Environment;
@@ -182,6 +186,7 @@ import org.meta_environment.rascal.interpreter.staticErrors.SyntaxError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredAnnotationError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFieldError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredFunctionError;
+import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredModuleError;
 import org.meta_environment.rascal.interpreter.staticErrors.UndeclaredVariableError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnexpectedTypeError;
 import org.meta_environment.rascal.interpreter.staticErrors.UnguardedFailError;
@@ -602,7 +607,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	private void addImportToCurrentModule(
 			org.meta_environment.rascal.ast.Import.Default x, String name) {
-		getCurrentModuleEnvironment().addImport(name, heap.getModule(name, x));
+		ModuleEnvironment module = heap.getModule(name);
+		if (module == null) {
+			throw new UndeclaredModuleError(name, x);
+		}
+		getCurrentModuleEnvironment().addImport(name, module);
 	}
 
 	private ModuleEnvironment getCurrentModuleEnvironment() {
@@ -668,7 +677,11 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 		for (String mod : topModules) {
 			Module module = evalRascalModule(cause, mod);
 			if (module != null) {
-				getCurrentModuleEnvironment().addImport(mod, heap.getModule(mod, cause));
+				ModuleEnvironment module2 = heap.getModule(mod);
+				if (module2 == null) {
+					throw new UndeclaredModuleError(mod, cause);
+				}
+				getCurrentModuleEnvironment().addImport(mod, module2);
 			}
 		}
 	}
@@ -846,6 +859,23 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 
 
+	@Override
+	public Result<IValue> visitDeclarationTest(Test x) {
+		return x.getTest().accept(this);
+	}
+	
+	@Override
+	public Result<IValue> visitTestLabeled(Labeled x) {
+		getCurrentModuleEnvironment().addTest(x);
+		return nothing();
+	}
+	
+	@Override
+	public Result<IValue> visitTestUnlabeled(Unlabeled x) {
+		getCurrentModuleEnvironment().addTest(x);
+		return nothing();
+	}
+	
 	@Override
 	public Result<IValue> visitDeclarationTag(Tag x) {
 		throw new NotYetImplemented("tags");
@@ -1798,7 +1828,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 	}
 
 	@Override
-	public Result visitExpressionNonEmptyBlock(NonEmptyBlock x) {
+	public Result<IValue> visitExpressionNonEmptyBlock(NonEmptyBlock x) {
 		return new Lambda(x, this, tf.voidType(), "", tf.tupleEmpty(), false, x.getStatements(), getCurrentEnvt());
 	}
 
@@ -2788,5 +2818,17 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	public GlobalEnvironment getHeap() {
 		return heap;
+	}
+
+	public String report(java.util.List<FailedTestError> failedTests) {
+		return new TestEvaluator(this).report(failedTests);
+	}
+
+	public java.util.List<FailedTestError> runTests(String module) {
+		return new TestEvaluator(this).test(module);
+	}
+	
+	public java.util.List<FailedTestError> runTests() {
+		return new TestEvaluator(this).test();
 	}
 }

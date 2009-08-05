@@ -50,7 +50,6 @@ public abstract class Result<T extends IValue> implements Iterator<Result<IValue
 	private static final String COMPOSE_STRING = "composition";
 	private static final String NEGATE_STRING = "negation";
 	private static final String JOIN_STRING = "join";
-	private static final String CALL_STRING = "call";
 	
 	private Iterator<Result<IValue>> iterator = null;
 	protected Type type;

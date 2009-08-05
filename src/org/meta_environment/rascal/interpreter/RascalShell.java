@@ -92,7 +92,6 @@ public class RascalShell {
 			}
 			catch (StaticError e) {
 				console.printString("Static Error: " + e.getMessage() + "\n");
-				printStacktrace(console, e);
 			}
 			catch (Throw e) {
 				console.printString("Uncaught Rascal Exception: " + e.getMessage() + "\n");
