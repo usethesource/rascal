@@ -1,7 +1,10 @@
 package test;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
@@ -15,6 +18,7 @@ import org.meta_environment.rascal.interpreter.asserts.ImplementationError;
 import org.meta_environment.rascal.interpreter.env.GlobalEnvironment;
 import org.meta_environment.rascal.interpreter.env.ModuleEnvironment;
 import org.meta_environment.rascal.interpreter.load.FromResourceLoader;
+import org.meta_environment.rascal.interpreter.load.ISdfSearchPathContributor;
 import org.meta_environment.rascal.parser.ASTBuilder;
 import org.meta_environment.uptr.Factory;
 
@@ -38,6 +42,16 @@ public class TestFramework {
 
 		// to load modules from the test directory without qualification
 		eval.addModuleLoader(new FromResourceLoader(getClass(), "test"));
+
+		// to find sdf modules in src/demo etc.
+		eval.addSdfSearchPathContributor(new ISdfSearchPathContributor() {
+			public List<String> contributePaths() {
+				List<String> result = new LinkedList<String>();
+				File srcDir = new File(System.getProperty("user.dir"), "src");
+				result.add(srcDir.getAbsolutePath());
+				return result;
+			}
+		});
 
 		eval.setImportResetsInterpreter(false);
 		
