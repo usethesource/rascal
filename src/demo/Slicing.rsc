@@ -9,8 +9,11 @@ import UnitTest;
 // A relational definition of program slicing
 //
 // Based on the definitions given in 
-//	Jackson & Rollins: A new model of program dependences for 
-//	reverse engineering.
+//	D. Jackson & E.J. Rollins,
+//  A new model of program dependences for reverse engineering,
+//  Proceedings of the 2nd ACM SIGSOFT symposium on Foundations of software engineering
+//  Pages: 2 - 10, 1994
+
 
 set[use] BackwardSlice(
 	set[stat] CONTROLSTATEMENT, 
@@ -99,7 +102,7 @@ public bool test(){
             { <1, "EXEC">,  <2, "EXEC">, <4, "EXEC">, <5, "i">, <5, "n">, 
 	      <7, "i">, <7, "product">, <7, "EXEC">, 
 	       <8, "i">, <8, "EXEC">, <10,  "product">  });
-	 return report();
+	 return report("Slicing");
 }
 
 /*
