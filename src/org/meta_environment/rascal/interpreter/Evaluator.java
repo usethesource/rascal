@@ -2085,6 +2085,7 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	boolean matchAndEval(Result<IValue> subject, org.meta_environment.rascal.ast.Expression pat, Statement stat){
 		Environment old = getCurrentEnvt();
+		goodPushEnv();
 		
 		try {
 			IMatchingResult mp = pat.accept(makePatternEvaluator(pat));
