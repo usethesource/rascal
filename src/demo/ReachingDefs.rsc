@@ -3,25 +3,18 @@ module demo::ReachingDefs
 import Relation;
 import Graph;
 import IO;
+import UnitTest;
+
+/*
+ * Reaching definitions and life variables, see 
+ * A.V. Aho, R. Sethi, J.D. Ullman, Compilers, Prinicples, Techniques and Tools,
+ * Addison-Wesley, 1986, Section 10.5 Introduction to global data-flow analysis.
+ */
 
 public alias stat = int;
 public alias var = str;
 public alias def  = tuple[stat, var];
 public alias use = tuple[stat,var];
-
-/*
-public set[stat] predecessor(rel[stat,stat] P, stat S)
-@doc{predecessor -- of statement S in cfg P}
-{
-	return invert(P)[S];
-}
-
-public set[stat] successor(rel[stat,stat] P, stat S)
-@doc{successor -- of statement S in cfg P}
-{
-	return P[S];
-}
-*/
 
 public rel[stat,def] definition(rel[stat,var] DEFS){
 	return {<S,<S,V>> | <stat S, var V> <- DEFS};
@@ -151,5 +144,9 @@ public bool testLive(){
 }
 
 public bool test(){
-	return testReaching1() && testReaching2() && testLive();
+	assertTrue(testReaching1());
+	assertTrue(testReaching2());
+	assertTrue(testLive());
+	
+	return report("ReachingDefs");
 }
