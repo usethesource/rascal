@@ -6,7 +6,81 @@ import List;
 import Exception;
 import UnitTest;
  
-/* this is a * test * comment */
+// Various ways to count words in a string.
+
+// wordCount takes a list of strings and a count function
+// that is applied to each line. The total number of words is returned
+
+public int wordCount(list[str] input, int (str s) countLine)
+{
+  count = 0;
+  for(str line <- input){
+  println("line = <line>");
+     count += countLine(line);
+  }
+  return count;
+}
+
+// Three versions of a countLine function.
+
+// countLine1: use a for loop and enumerator to loop over all words.
+
+public int countLine1(str S){
+  int count = 0;
+  for(/[a-zA-Z0-9]+/<- S){
+       count += 1;
+  }
+  return count;
+}
+
+// countLine2: using a while loop
+
+public int countLine2(str S){
+  int count = 0;
+  
+  // \w matches any word character
+  // \W match3es any non-word character
+  // <...> are groups and should appear at the top level.
+  while (/^\W*<word:\w+><rest:.*$>/ := S) { 
+    count += 1; 
+    S = rest; 
+  }
+  return count;
+}
+
+// countLine3: Maintain word count per word.
+
+// (This is clearly overkill for the present example.
+// The function as a whole makes no sense, since we throw
+// the map away.)
+
+// Note how we use an exception to catch the case of a not yet
+// initialized table entry. One could also use the =? operator here.
+// 
+
+public int countLine3(str S){
+  map[str,int] allCounts = ();
+  int cnt = 0;
+  for(/<word:\w+>/<- S){
+       cnt = cnt + 1;
+       try {
+         allCounts[word] = allCounts[word] + 1;   //TODO += does not work
+       } catch NoSuchKey(value key):{
+       		allCounts[word] = 1;
+       }
+  }
+  return sum([allCounts[K] | str K <- allCounts]);
+}
+
+// Auxiliary function to sum all elements of a list of integers
+
+public int sum(list[int] l) {
+  int sum = 0;
+  for (int i <- l) sum += i;
+  return sum;
+}
+
+// Example how wordCount can be used in a complete Rascal program
 
 public void main(str argv ...){
   int total = 0;
@@ -20,74 +94,6 @@ public void main(str argv ...){
   }
   
   println("<total> words in all files");
-}
-
-public int wordCount(list[str] input, int (str s) countLine)
-{
-  count = 0;
-  for(str line <- input){
-  println("line = <line>");
-     count = count + countLine(line);
-  }
-  return count;
-}
-
-public int wordCount1(list[str] input)
-{
-  count = 0;
-  for (str line <- input) {
-     println("line = <line>");
-     count = count + countLine1(line);
-  }
-  return count;
-}
-
-public int countLine1(str S){
-  int count = 0;
-  for(/[a-zA-Z0-9]+/<- S){
-       count = count + 1;
-  }
-  return count;
-}
-
-// Here is an alternative (but less desirable) declaration:
-public int countLine2(str S){
-  int count = 0;
-  
-  // \w matches any word character
-  // \W match3es any non-word character
-  // <...> are groups and should appear at the top level.
-  while (/^\W*<word:\w+><rest:.*$>/ := S) { 
-    count = count + 1; 
-    S = rest; 
-  }
-  return count;
-}
-
-// Maintain word count per word.
-// Note how the =? operator initializes each map entry
-// to an appropriate value (0 in this case)
-// The function as a whole makes no sense, since we throw
-// the map away.
-
-public int sum(list[int] l) {
-  int sum = 0;
-  for (int i <- l) sum += i;
-  return sum;
-}
-
-public int countLine3(str S){
-  map[str,int] allCounts = ();
-  int cnt = 0;
-  for(/<word:\w+>/<- S){
-       cnt = cnt + 1;
-       try {
-         allCounts[word] = allCounts[word] + 1;
-       } catch NoSuchKey(value key):{
-       		allCounts[word] = 1;
-       }
-  }
-  return sum([allCounts[K] | str K <- allCounts]);
 }
 
 public list[str] Jabberwocky = [
@@ -143,5 +149,6 @@ public bool test(){
 	assertEqual(wordCount(Jabberwocky, countLine1), 216);
 	assertEqual(wordCount(Jabberwocky, countLine2), 216);
 	assertEqual(wordCount(Jabberwocky, countLine3), 216);
-	return report();
+	
+	return report("WordCount");
 }
