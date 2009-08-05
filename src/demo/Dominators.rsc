@@ -3,6 +3,7 @@ module demo::Dominators
 import Set;
 import Relation;
 import Graph;
+import UnitTest;
 
 /*
  *  A dominator tree describes the dominance relationship between nodes in a control flow graph
@@ -131,7 +132,9 @@ public bool test2(){
 }
 
 public bool test(){
-	return test1() && test2();
+	assertTrue(test1());
+	assertTrue(test2());
+	return report("Dominators");
 }
 
 
