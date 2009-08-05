@@ -2132,9 +2132,9 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 			mp.initMatch(subject);
 			//System.err.println("matchEvalAndReplace: subject=" + subject + ", pat=" + pat + ", conditions=" + conditions);
 
-			while(mp.hasNext()){
+			while (mp.hasNext()){
 				//System.err.println("mp.hasNext()==true; mp=" + mp);
-				goodPushEnv();
+ 
 				if(mp.next()){
 					try {
 						boolean trueConditions = true;
