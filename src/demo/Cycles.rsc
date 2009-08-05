@@ -67,5 +67,5 @@ public bool test(){
   		 < 6, { {6, 7} } >,
   		 < 7, { {6, 7} } >});
   
-  return report();
+  return report("Cycles");
 }
