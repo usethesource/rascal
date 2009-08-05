@@ -3,6 +3,7 @@ module demo::Queens
 import Integer;
 import List;
 import IO;
+import UnitTest;
 
 /*
  * Experiments with the 8-queens puzzle.
@@ -97,5 +98,6 @@ public int queens3(int B ...)
 public bool test()
 {
    N = 5;
-   return queens3() == 10;
+   assertEqual(queens3(), 10);
+   return report("Queens");
 }
