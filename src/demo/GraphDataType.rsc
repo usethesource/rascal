@@ -1,5 +1,9 @@
 module demo::GraphDataType
 
+// A data declaration for a graph data type that supports various shapes and attributes.
+// Observe how various names are escaped with \ because they contain non-identifier 
+// characters (e.g., bounding-box) or conflict with Rascal keywords (e.g., node)
+
 data Point = point(int x, int y);
 
 alias Polygon = list[Point];
