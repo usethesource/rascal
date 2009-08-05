@@ -1,5 +1,7 @@
 module demo::Rules::AbstractBoolVisit
 
+import UnitTest;
+
 data Bool = btrue();
 data Bool = bfalse();
 data Bool = band(Bool left, Bool right);
@@ -19,5 +21,8 @@ public Bool reduce(Bool B) {
 
 public bool test(){
 	
-   return reduce(bor(band(btrue(),btrue()),band(btrue(), bfalse()))) == btrue();
+   assertEqual(reduce(bor(band(btrue(),btrue()),band(btrue(), bfalse()))),
+               btrue()
+              );
+   return report("AbstractBoolVisit");
 }

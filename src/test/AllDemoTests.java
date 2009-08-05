@@ -185,35 +185,41 @@ public class AllDemoTests extends TestFramework {
 		prepare("import experiments::Parsing::GRD;");
 		assertTrue(runTestInSameEvaluator("experiments::Parsing::GRD::test();"));
 	}
-
+	
 	@Test
 	public void ParsingLRGen(){
 		prepare("import experiments::Parsing::LRGen;");
 		assertTrue(runTestInSameEvaluator("experiments::Parsing::LRGen::test();"));
 	}
-	
+
 	@Test
 	public void Queens() {
 		prepare("import demo::Queens;");
 		assertTrue(runTestInSameEvaluator("demo::Queens::test();"));
 	}
-
+	
 	@Test
 	public void ReachingDefs() {
 		prepare("import demo::ReachingDefs;");
 		assertTrue(runTestInSameEvaluator("demo::ReachingDefs::test();"));
 	}
-	
+
 	@Test
 	public void Slicing() {
 		prepare("import demo::Slicing;");
 		assertTrue(runTestInSameEvaluator("demo::Slicing::test();"));
 	}
-
+	
 	@Test
 	public void Squares() {
 		prepare("import demo::Squares;");
 		assertTrue(runTestInSameEvaluator("demo::Squares::test();"));
+	}
+
+	@Test
+	public void StateMachine(){
+		prepare("import demo::StateMachine::CanReach;");
+		assertTrue(runTestInSameEvaluator("demo::StateMachine::CanReach::test();"));
 	}
 
 	@Test

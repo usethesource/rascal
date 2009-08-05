@@ -34,5 +34,5 @@ public bool test()
   assertEqual(bor(bor(bfalse(),bfalse()),bor(bfalse(), bfalse())), bfalse());
   assertEqual(bor(band(btrue(),btrue()),band(btrue(), bfalse())), btrue());
   assertEqual(band(bor(btrue(),btrue()),band(btrue(), bfalse())), bfalse());
-  return report();
+  return report("AbstractBool");
 }

@@ -53,6 +53,6 @@ public bool test(){
     assertEqual(sort1(unsorted), sorted);
 	assertEqual(sort2(unsorted), sorted);
 	assertEqual(sort3(unsorted), sorted);
-	report("Bubble");
+	return report("Bubble");
 }
 
