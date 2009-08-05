@@ -1,5 +1,6 @@
 package org.meta_environment.rascal.interpreter.matching;
 
+import org.eclipse.imp.pdb.facts.IConstructor;
 import org.eclipse.imp.pdb.facts.IValue;
 import org.eclipse.imp.pdb.facts.IValueFactory;
 import org.eclipse.imp.pdb.facts.type.Type;
@@ -7,7 +8,10 @@ import org.meta_environment.rascal.interpreter.IEvaluatorContext;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.result.ResultFactory;
 import org.meta_environment.rascal.interpreter.staticErrors.RedeclaredVariableError;
+import org.meta_environment.rascal.interpreter.types.ConcreteSyntaxType;
 import org.meta_environment.rascal.interpreter.utils.Names;
+import org.meta_environment.uptr.Factory;
+import org.meta_environment.uptr.TreeAdapter;
 
 public class TypedVariablePattern extends AbstractMatchingResult {
 	private String name;
@@ -68,6 +72,23 @@ public class TypedVariablePattern extends AbstractMatchingResult {
 		}
 		
 		iDeclaredItMyself = true;
+		
+		// isSubtypeOf does not know about concrete syntax types
+		// so deal with it here explicitly
+		if (declaredType instanceof ConcreteSyntaxType) {
+			Type subjectType = subject.getValue().getType(); 
+			if (subjectType.isSubtypeOf(Factory.Tree) && ((IConstructor)subject.getValue()).getConstructorType() == Factory.Tree_Appl) {
+				TreeAdapter tree = new TreeAdapter((IConstructor)subject.getValue());
+				if (((ConcreteSyntaxType)declaredType).getSymbol().isEqual(tree.getProduction().getRhs().getTree())) {
+					if(anonymous) {
+						return true;
+					}				
+					ctx.getCurrentEnvt().storeVariable(name, ResultFactory.makeResult(declaredType, subject.getValue(), ctx));
+					return true;
+				}
+			}
+			return false;
+		}
 		
 		if (subject.getValue().getType().isSubtypeOf(declaredType)) {
 			if(debug)System.err.println("matches");
