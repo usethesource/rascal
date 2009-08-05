@@ -29,13 +29,13 @@ public class AllDemoTests extends TestFramework {
 		prepare("import demo::AbstractPico::Assembly;");
 		assertTrue(runTestInSameEvaluator("demo::AbstractPico::Assembly::test();"));
 	}
-
+	
 	@Test
 	public void AbstractPicoCommonSubexpression() {
 		prepare("import demo::AbstractPico::CommonSubexpression;");
 		assertTrue(runTestInSameEvaluator("demo::AbstractPico::CommonSubexpression::test();"));
 	}
-
+	
 	@Test
 	public void AbstractPicoConstantPropagation() {
 		prepare("import demo::AbstractPico::ConstantPropagation;");
@@ -77,7 +77,7 @@ public class AllDemoTests extends TestFramework {
 		prepare("import demo::AbstractPico::UseDef;");
 		assertTrue(runTestInSameEvaluator("demo::AbstractPico::UseDef::test();"));
 	}
-	
+
 	@Test
 	public void Ackermann() {
 		prepare("import demo::Ackermann;");
@@ -89,7 +89,7 @@ public class AllDemoTests extends TestFramework {
 		prepare("import demo::Bubble;");
 		assertTrue(runTestInSameEvaluator("demo::Bubble::test();"));
 	}
-
+	
 	@Test
 	public void Calls() {
 		prepare("import demo::Calls;");
@@ -101,7 +101,7 @@ public class AllDemoTests extends TestFramework {
 		prepare("import demo::CarFDL;");
 		assertTrue(runTestInSameEvaluator("demo::CarFDL::test();"));
 	}
-	
+
 	@Test
 	public void ColoredTrees() {
 		prepare("import demo::ColoredTrees;");
@@ -119,7 +119,7 @@ public class AllDemoTests extends TestFramework {
 		prepare("import demo::Cycles;");
 		assertTrue(runTestInSameEvaluator("demo::Cycles::test();"));
 	}
-	
+
 	@Test
 	public void Dominators() {
 		prepare("import demo::Dominators;");
@@ -155,13 +155,13 @@ public class AllDemoTests extends TestFramework {
 		prepare("import demo::Hello;");
 		assertTrue(runTestInSameEvaluator("demo::Hello::test();"));
 	}
-
+	
 	@Test
 	public void Innerproduct() {
 		prepare("import demo::Innerproduct;");
 		assertTrue(runTestInSameEvaluator("demo::Innerproduct::test();"));
 	}
-
+	
 	@Test
 	public void Lift() {
 		prepare("import demo::Lift;");
@@ -170,14 +170,26 @@ public class AllDemoTests extends TestFramework {
 
 	@Test
 	public void LRGen() {
-		prepare("import experiment::Parsing::LRGen;");
-		assertTrue(runTestInSameEvaluator("demo::Parsing::LRGen::test();"));
+		prepare("import experiments::Parsing::LRGen;");
+		assertTrue(runTestInSameEvaluator("experiments::Parsing::LRGen::test();"));
 	}
 
 	@Test
 	public void McCabe() {
 		prepare("import demo::McCabe;");
 		assertTrue(runTestInSameEvaluator("demo::McCabe::test();"));
+	}
+
+	@Test
+	public void ParsingGRD(){
+		prepare("import experiments::Parsing::GRD;");
+		assertTrue(runTestInSameEvaluator("experiments::Parsing::GRD::test();"));
+	}
+
+	@Test
+	public void ParsingLRGen(){
+		prepare("import experiments::Parsing::LRGen;");
+		assertTrue(runTestInSameEvaluator("experiments::Parsing::LRGen::test();"));
 	}
 	
 	@Test
