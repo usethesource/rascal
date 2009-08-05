@@ -780,17 +780,19 @@ public class Evaluator extends NullASTVisitor<Result<IValue>> implements IEvalua
 
 	@Override
 	public Result<IValue> visitDeclarationVariable(Variable x) {
-		Type declaredType = te.eval(x.getType(), getCurrentModuleEnvironment());
 		Result<IValue> r = nothing();
 		setCurrentAST(x);
 
 		for (org.meta_environment.rascal.ast.Variable var : x.getVariables()) {
-			if (!getCurrentEnvt().declareVariable(declaredType, var.getName())) {
-				throw new RedeclaredVariableError(var.getName().toString(), var);
-			}
 			
 			if (var.isInitialized()) {  
 				Result<IValue> v = var.getInitial().accept(this);
+				
+				Type declaredType = te.eval(x.getType(), getCurrentModuleEnvironment());
+				if (!getCurrentEnvt().declareVariable(declaredType, var.getName())) {
+					throw new RedeclaredVariableError(var.getName().toString(), var);
+				}
+								
 				if(v.getType().isSubtypeOf(declaredType)){
 					// TODO: do we actually want to instantiate the locally bound type parameters?
 					Map<Type,Type> bindings = new HashMap<Type,Type>();
