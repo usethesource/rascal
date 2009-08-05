@@ -1,7 +1,12 @@
 module demo::Lift
+import UnitTest;
 
-
-// Lift call structure to component structure
+// Given:
+// - a call relation between procedures
+// - a partOf relation between procedures and components
+// lift the call structure to the component level.
+// In other words: a call between two procedures will be lifted to
+// a call between the components to which each procedure belongs
 
 alias proc = str;
 alias comp = str ;
@@ -22,8 +27,11 @@ rel[proc, comp] PartOf = {<"main", "Appl">, <"a", "Appl">, <"b", "DB">,
 rel[comp,comp] ComponentCalls = lift(Calls, PartOf);
 
 public bool test(){
-	return ComponentCalls == { < "DB" , "Lib" > , < "Appl" , "Lib" > , 
-			                   < "Appl" , "DB" > , < "Appl" , "Appl" > };
+	assertEqual(ComponentCalls,
+	            { < "DB" , "Lib" > , < "Appl" , "Lib" > , 
+			      < "Appl" , "DB" > , < "Appl" , "Appl" > }
+			   );
+    return report("Lift");
 }
 
 
