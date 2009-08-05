@@ -4,7 +4,7 @@ import List;
 import IO;
 import UnitTest;
 
-// Variations on Bubble sort
+// Three variations on Bubble sort
 
 // sort1: uses list indexing and a for-loop
 
