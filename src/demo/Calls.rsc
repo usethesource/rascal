@@ -1,13 +1,11 @@
 module demo::Calls
 
-/*
- * TODO:
- * - Graph should extend Set and Relation
-*/
-
 import Set;
 import Relation;
 import Graph;
+import UnitTest;
+
+// Exploring a Call graph, see extensive description in Rascal user manual
 
 alias Proc = str;
 
@@ -17,15 +15,15 @@ public bool test(){
 
 	int nCalls = size(Calls);
 
-	assert nCalls == 8;
+	assertEqual(nCalls, 8);
 
 	set[Proc] Procs = carrier(Calls);
 
-	assert Procs == {"a", "b", "c", "d", "e", "f", "g"};
+	assertEqual(Procs, {"a", "b", "c", "d", "e", "f", "g"});
 
 	int nProcs = size(Relation::carrier(Calls));
 
-	assert nProcs == 7;
+	assertEqual(nProcs, 7);
 
 	set[str] dCalls = domain(Calls);
 	
@@ -33,30 +31,31 @@ public bool test(){
 
 	set[Proc] entryPoints = top(Calls);
 
-	assert entryPoints == {"a", "f"};
+	assertEqual(entryPoints, {"a", "f"});
 
 	set[Proc] bottomCalls = bottom(Calls);
 
-	assert bottomCalls == {"c", "e"};
+	assertEqual(bottomCalls, {"c", "e"});
 
 	rel[Proc,Proc] closureCalls = Calls+;
 
-	assert closureCalls == 
+	assertEqual(closureCalls,
 		{<"a", "b">, <"b", "c">, <"b", "d">, <"d", "c">, 
 		<"d","e">, <"f", "e">, <"f", "g">, <"g", "e">, 
-		<"a", "c">, <"a", "d">, <"b", "e">, <"a", "e">};
+		<"a", "c">, <"a", "d">, <"b", "e">, <"a", "e">}
+		);
 
 	set[Proc] calledFromA = closureCalls["a"];
 
-	assert calledFromA == {"b", "c", "d", "e"};
+	assertEqual(calledFromA, {"b", "c", "d", "e"});
 
 	set[Proc] calledFromF = closureCalls["f"];
 
-	assert calledFromF == {"e", "g"};
+	assertEqual(calledFromF, {"e", "g"});
 
 	set[Proc] commonProcs = calledFromA & calledFromF;
 
-	assert commonProcs == {"e"};
+	assertEqual(commonProcs, {"e"});
 
-	return true;
+	return report("Calls");
 }
