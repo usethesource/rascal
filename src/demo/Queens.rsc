@@ -7,6 +7,8 @@ import UnitTest;
 
 /*
  * Experiments with the 8-queens puzzle.
+ * See: http://en.wikipedia.org/wiki/Eight_queens_puzzle
+ * http://en.wikipedia.org/wiki/Eight_queens_puzzle_solutions
  */
 
 /*
