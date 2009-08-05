@@ -16,5 +16,5 @@ public bool test(){
   assertEqual(btrue | btrue, btrue);
   assertEqual(bfalse | btrue, btrue);
   assertEqual(bfalse & bfalse, bfalse);
-  return report();
+  return report("ConcreteBool");
 }

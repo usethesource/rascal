@@ -31,3 +31,7 @@ public map[IdCon, set[IdCon]] printCanReach(){
   return ( s: trTransitions[State] | IdCon s <- carrier(getTransitions(fileName)+) );
 }
 
+public boolean test(){
+  return true;  //TODO
+}
+

@@ -48,5 +48,6 @@ public bool testInt(){
   assertEqual(exp(s(s(z())), s(s(s(z())))), s(s(s(s(s(s(s(s(z())))))))));
   assertEqual(eq(s(s(z())),  s(s(s(z())))), bfalse());
   assertEqual(eq(s(s(s(z()))), s(s(s(z())))), btrue());
+
   return report("AbstractInteger");
 }
