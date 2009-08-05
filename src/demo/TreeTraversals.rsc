@@ -2,19 +2,25 @@ module demo::TreeTraversals
 import List;
 import UnitTest;
 
-data NODE = i(int N) | f(NODE I, NODE J) | g(NODE I, NODE J) |  h(NODE I, NODE J)  | h(NODE I, NODE J, NODE K);
+// Various examples of tree traversal and replacement
+
+data NODE = i(int N)
+          | f(NODE I, NODE J) 
+          | g(NODE I, NODE J)
+          | h(NODE I, NODE J) 
+          | h(NODE I, NODE J, NODE K);
 
 
-// Example 1: Count the int nodes in a tree
+// Example cnt: Count the int nodes in a tree
 
-// Ex1a: Collect all integers in the tree in 
+//cnta: Collect all integers in the tree in 
 // a list and return the size of the list
 
 public int cnta(NODE T) {
     return size([N | int N <- T]);
 }
 
-// Ex1b: alternative solution using a visit statement
+// cntb: alternative solution using a visit statement
 
 public int cntb(NODE T) {
     int C = 0;
@@ -24,9 +30,9 @@ public int cntb(NODE T) {
     return C;
 }
 
-// Ex2: Sum all leaves in a tree
+// sumtree: Sum all leaves in a tree
 
-// Ex2a: Collect all integers in the tree in 
+// sumtreea: Collect all integers in the tree in 
 // a list and use the library function sum on lists
 // to add all list elements together.
 
@@ -38,7 +44,7 @@ public int sumtreea(NODE T) {
     return C;
 }
 
-// Ex2b: using visit statement
+// sumtreeb: same problem, now using visit statement
 
 public int sumtreeb(NODE T) {
     int C = 0;
@@ -48,7 +54,7 @@ public int sumtreeb(NODE T) {
     return C;
 }
 
-// Ex3: Increment all leaves in a tree
+// inc: Increment all leaves in a tree
 
 public NODE inc(NODE T) {
     return visit(T) {
@@ -56,46 +62,46 @@ public NODE inc(NODE T) {
     };
 }
 
-// Ex4: full replacement of g by h, i.e.
+// frepl: full replacement of g by h, i.e.
 // replace all nodes g(_,_) by h(_,_)
 
-// Ex4a Using insert
+// frepla: Using insert
 
-public NODE frepa(NODE T) {
+public NODE frepla(NODE T) {
     return visit (T) {
       case g(NODE T1, NODE T2):
            insert h(T1, T2);
     };
 }
 
-// Ex4a Using replacement rule
+// freplb: Using replacement rule
 
-public NODE frepb(NODE T) {
+public NODE freplb(NODE T) {
     return visit (T) {
       case g(NODE T1, NODE T2) => h(T1, T2)
     };
 }
 
-// Ex5 Replace all nodes g(_,_) by h(_,_,_)
+// freplG3H3: Full replacement, replace all nodes g(_,_) by h(_,_,_)
 
-// Ex5a Using insert
+// freplG3H3a: Using insert
 
-public NODE frepG2H3a(NODE T) {
+public NODE freplG2H3a(NODE T) {
     return visit (T) {
       case g(NODE T1, NODE T2):
            insert h(T1, T2, i(0));
     };
 }
 
-// Ex5b Using replacement rule
+// freplG3H3b: Using replacement rule
 
-public NODE frepG2H3b(NODE T) {
+public NODE freplG2H3b(NODE T) {
     return visit (T) {
       case g(NODE T1, NODE T2) => h(T1, T2, i(0))
     };
 }
 
-// Ex6: Deep replacement of g by h (i.e. only innermost 
+// drepl: Deep replacement of g by h (i.e. only innermost 
 // g's are replaced); 
 
 public NODE drepl(NODE T) {
@@ -104,7 +110,7 @@ public NODE drepl(NODE T) {
     };
 }
 
-// Ex7: shallow replacement of g by h (i.e. only outermost 
+// srepl: shallow replacement of g by h (i.e. only outermost 
 // g's are replaced); 
 
 public NODE srepl(NODE T) {
@@ -113,7 +119,7 @@ public NODE srepl(NODE T) {
     };
 }
 
-// Ex8: accumulating transformer that increments integer leaves with 
+// count_and_inc: accumulating transformer that increments integer leaves with 
 // amount D and counts them as well.
 
 public tuple[int, NODE] count_and_inc(NODE T, int D) {
@@ -137,11 +143,11 @@ public bool test(){
    
    assertTrue(inc(N) ==  f(g(i(2),g(i(3),i(4))),i(5)));
    
-   assertTrue(frepa(N) ==   f(h(i(1),h(i(2),i(3))),i(4)));
-   assertTrue(frepb(N) ==   f(h(i(1),h(i(2),i(3))),i(4)));
+   assertTrue(frepla(N) ==   f(h(i(1),h(i(2),i(3))),i(4)));
+   assertTrue(freplb(N) ==   f(h(i(1),h(i(2),i(3))),i(4)));
    
-   assertTrue(frepG2H3a(N) ==   f(h(i(1),h(i(2),i(3),i(0)), i(0)),i(4)));
-   assertTrue(frepG2H3b(N) ==   f(h(i(1),h(i(2),i(3),i(0)), i(0)),i(4)));
+   assertTrue(freplG2H3a(N) ==   f(h(i(1),h(i(2),i(3),i(0)), i(0)),i(4)));
+   assertTrue(freplG2H3b(N) ==   f(h(i(1),h(i(2),i(3),i(0)), i(0)),i(4)));
    
    assertTrue(drepl(N) ==  f(g(i(1),h(i(2),i(3))),i(4)));
    assertTrue(srepl(N) ==  f(h(i(1),g(i(2),i(3))),i(4)));
