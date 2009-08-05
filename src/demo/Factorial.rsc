@@ -12,5 +12,5 @@ public int fac(int N)
 
 public bool test(){
   assertEqual(fac(47), 258623241511168180642964355153611979969197632389120000000000);
-  report("Factorial");
+  return report("Factorial");
 }
