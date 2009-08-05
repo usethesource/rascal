@@ -1,24 +1,37 @@
-module demo::PicoConcrete::PicoTypecheck
+module demo::ConcretePico::Typecheck
 
-import languages::pico::syntax::Pico;
-import demo::PicoAbstract::Message;
+//import languages::pico::syntax::Pico;
+import languages::pico::syntax::Identifiers;
+import languages::pico::syntax::Types;
+import basic::NatCon;
+import basic::StrCon;
+
+import demo::AbstractPico::Message;
 import IO;
 import UnitTest;
 
 /*
  * Typechecker for Pico.
  */
+ 
+alias PICO_ID = \PICO-ID;
 
-alias Env = map[\PICO-ID, TYPE];
+PICO_ID P = [|x|];
+
+/***********************************
+
+alias Env = map[PICO_ID, TYPE];
 
 public list[Message] tcp(PROGRAM P) {
     if([| begin declare <{\ID-TYPE "," }* Decls>; <{STATEMENT ";"}* Stats> end |] := P){
            Env Env = (Id : Type | [| <\PICO-ID Id> : <TYPE Type> |] <- Decls);
-           //return tcs(Stats, Env);
-    }
+         return tcs(Stats, Env);
+ /  }
     return [message("Malformed Pico program")];
 }
-/*
+
+
+
 public list[Message] tcs(list[STATEMENT] Stats, Env Env){
     list[Message] messages = [];
     for(STATEMENT S <- Stats){
@@ -77,8 +90,10 @@ public list[Message] requireType(EXP E, TYPE Type, Env Env) {
       return [message("Type error: expected <Type> got <E>")];
 }
 
-public bool test(){
+*************************/
 
+public bool test(){
+    println("P = <P>");
 	return true;
 }
-*/
+
