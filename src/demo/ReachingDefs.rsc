@@ -73,7 +73,6 @@ public bool testReaching1(){
                            <7, <1, "i">>, <7, <4, "i">>};
 
 	rel[stat,def] RES = reachingDefinitions(DEFS, PRED);
-	println("RES = <RES>");
 
 
 	return RES ==   {<2, <1, "i">>, <3, <2, "j">>, <3, <1, "i">>, <4, <3, "a">>, 
