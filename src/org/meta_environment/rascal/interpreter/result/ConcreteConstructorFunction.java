@@ -10,6 +10,7 @@ import org.eclipse.imp.pdb.facts.type.Type;
 import org.meta_environment.rascal.ast.AbstractAST;
 import org.meta_environment.rascal.interpreter.Evaluator;
 import org.meta_environment.rascal.interpreter.IEvaluatorContext;
+import org.meta_environment.rascal.interpreter.TraversalEvaluator;
 import org.meta_environment.rascal.interpreter.env.Environment;
 import org.meta_environment.rascal.interpreter.types.ConcreteSyntaxType;
 import org.meta_environment.uptr.Factory;
@@ -18,9 +19,12 @@ import org.meta_environment.uptr.SymbolAdapter;
 import org.meta_environment.uptr.TreeAdapter;
 
 public class ConcreteConstructorFunction extends ConstructorFunction {
+	private final TraversalEvaluator re;
+
 	public ConcreteConstructorFunction(AbstractAST ast, Evaluator eval,
 			Environment env) {
 		super(ast, eval, env, Factory.Tree_Appl);
+		this.re = new TraversalEvaluator(eval.vf, eval);
 	}
 	
 	@Override
@@ -44,7 +48,7 @@ public class ConcreteConstructorFunction extends ConstructorFunction {
 	    	declarationEnvironment.concreteSyntaxType(sort, (IConstructor) appl.getValue());
 	    }
 	    
-		return new ConcreteSyntaxResult(concreteType, (IConstructor) appl.getValue(), ctx);
+		return re.applyRules(ResultFactory.makeResult(concreteType, (IConstructor) appl.getValue(), ctx), ctx);
 	}
 
 	private IValue flatten(ProductionAdapter prodAdapter, IList args) {

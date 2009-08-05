@@ -552,6 +552,7 @@ public class TraversalEvaluator {
 	public Result<IValue> applyRules(Result<IValue> v, IEvaluatorContext ctx) {
 		//System.err.println("applyRules(" + v + ")");
 		// we search using the run-time type of a value
+		
 		Type typeToSearchFor = v.getValue().getType();
 		if (typeToSearchFor.isAbstractDataType()) {
 			typeToSearchFor = ((IConstructor) v.getValue()).getConstructorType();
