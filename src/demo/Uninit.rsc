@@ -1,6 +1,9 @@
 module demo::Uninit
 import Relation;
 import Graph;
+import UnitTest;
+
+// Find the unitialized variables in a program
 
 alias expr = int;
 
@@ -24,6 +27,8 @@ public rel[varname,expr] UNINIT =
 public set[varname] UNUSED = domain(DEFS) - domain(USES);
    
 public bool test(){
-   return UNINIT == {<"q", 5>, <"y", 6>, <"z", 10>} &&
-          UNUSED == {"p"};
+   assertEqual(UNINIT, {<"q", 5>, <"y", 6>, <"z", 10>});
+   assertEqual(UNUSED, {"p"});
+   
+   return report("Uninit");
 }
