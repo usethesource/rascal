@@ -260,7 +260,9 @@ public class ListPattern extends AbstractMatchingResult  {
 				}
 				Type childType = child.getType(env);
 				
-				if(!childType.comparable(listSubjectElementType)){
+			    // TODO: pattern matching should be specialized such that matching appl(prod...)'s does not
+				// need to use list matching on the fixed arity children of the application of a production
+				if(!(childType instanceof ConcreteSyntaxType) && !childType.comparable(listSubjectElementType)){
 					throw new UnexpectedTypeError(listSubjectElementType,childType, getAST());
 				}
 				java.util.List<String> childVars = child.getVariables();
